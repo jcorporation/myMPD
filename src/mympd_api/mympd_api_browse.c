@@ -524,7 +524,8 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     }
     raxStop(&iter);
     list_clear(&expr_list);
-
+    //save the result length
+    long list_length = album_list.length;
     //print album list
     long entity_count = 0;
     long entities_returned = 0;
@@ -532,8 +533,10 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     sds album = sdsempty();
     sds artist = sdsempty();
     struct t_list_node *current;
-    while ((current = list_shift_first(&album_list)) != NULL) {
-        if (entity_count >= offset && entity_count < real_limit) {
+    while ((current = list_shift_first(&album_list)) != NULL &&
+        entity_count < real_limit)
+    {
+        if (entity_count >= offset) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
@@ -547,16 +550,16 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
             buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
             buffer = sdscatlen(buffer, "}", 1);
         }
-        list_node_free_user_data(current, list_free_cb_ignore_user_data);
         entity_count++;
+        list_node_free_user_data(current, list_free_cb_ignore_user_data);
     }
     FREE_SDS(album);
     FREE_SDS(artist);
-    entity_count = album_list.length;
+    //free the rest of the list
     list_clear_user_data(&album_list, list_free_cb_ignore_user_data);
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "totalEntities", list_length, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_char(buffer, "expression", expression, true);
