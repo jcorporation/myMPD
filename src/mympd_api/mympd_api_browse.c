@@ -497,27 +497,23 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     raxIterator iter;
     raxStart(&iter, mympd_state->album_cache);
     raxSeek(&iter, "^", NULL, 0);
-    sds key = sdsempty();
+    enum list_sort_direction direction = sortdesc == false ? LIST_SORT_ASC : LIST_SORT_DESC;
     while (raxNext(&iter)) {
         song = (struct mpd_song *)iter.data;
         if (_search_song(song, &expr_list, &mympd_state->tag_types_browse) == true) {
             if (sort_by_last_modified == true) {
-                key = sdscatlen(key, iter.key, iter.key_len);
-                list_insert_sorted_by_value_i(&album_list, key, (long long)mpd_song_get_last_modified(song), NULL, iter.data,
-                    (sortdesc == false ? LIST_SORT_ASC : LIST_SORT_DESC));
-                sdsclear(key);
+                list_insert_sorted_by_value_i(&album_list, iter.data, (long long)mpd_song_get_last_modified(song), NULL, iter.data, direction);
             }
             else {
                 const char *sort_value = mpd_song_get_tag(song, sort_tag, 0);
-                if (sort_value != NULL) {
-                    list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data,
-                        (sortdesc == false ? LIST_SORT_ASC : LIST_SORT_DESC));
-                }
-                else if (sort_tag == MPD_TAG_ALBUM_ARTIST) {
+                if (sort_value == NULL &&
+                    sort_tag == MPD_TAG_ALBUM_ARTIST)
+                {
                     //fallback to artist tag if albumartist tag is not set
                     sort_value = mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
-                    list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data,
-                        (sortdesc == false ? LIST_SORT_ASC : LIST_SORT_DESC));
+                }
+                if (sort_value != NULL) {
+                    list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data, direction);
                 }
                 else {
                     //sort tag not present, append to end of the list
@@ -527,7 +523,6 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
         }
     }
     raxStop(&iter);
-    FREE_SDS(key);
     list_clear(&expr_list);
 
     //print album list
