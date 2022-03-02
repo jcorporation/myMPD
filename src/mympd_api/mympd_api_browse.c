@@ -500,7 +500,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     enum list_sort_direction direction = sortdesc == false ? LIST_SORT_ASC : LIST_SORT_DESC;
     while (raxNext(&iter)) {
         song = (struct mpd_song *)iter.data;
-        if (_search_song(song, &expr_list, &mympd_state->tag_types_browse) == true) {
+        if (expr_list.length == 0 || _search_song(song, &expr_list, &mympd_state->tag_types_browse) == true) {
             if (sort_by_last_modified == true) {
                 list_insert_sorted_by_value_i(&album_list, iter.data, (long long)mpd_song_get_last_modified(song), NULL, iter.data, direction);
             }
