@@ -505,7 +505,7 @@ struct t_list_node *list_shift_first(struct t_list *l) {
     if (l->tail == extracted) {
         l->tail = NULL;
     }
-
+    l->length--;
     extracted->next = NULL;
     return extracted;
 }
