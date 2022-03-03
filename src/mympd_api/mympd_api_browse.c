@@ -492,6 +492,8 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     sdsfreesplitres(tokens, count);
 
     //search and sort albumlist
+    long real_limit = offset + limit;
+    long list_length = 0;
     struct t_list album_list;
     list_init(&album_list);
     raxIterator iter;
@@ -502,7 +504,8 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
         song = (struct mpd_song *)iter.data;
         if (expr_list.length == 0 || _search_song(song, &expr_list, &mympd_state->tag_types_browse) == true) {
             if (sort_by_last_modified == true) {
-                list_insert_sorted_by_value_i(&album_list, iter.data, (long long)mpd_song_get_last_modified(song), NULL, iter.data, direction);
+                list_insert_sorted_by_value_i_limit(&album_list, iter.data, (long long)mpd_song_get_last_modified(song), NULL, iter.data, direction,
+                    real_limit, list_free_cb_ignore_user_data);
             }
             else {
                 const char *sort_value = mpd_song_get_tag(song, sort_tag, 0);
@@ -513,23 +516,21 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
                     sort_value = mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
                 }
                 if (sort_value != NULL) {
-                    list_insert_sorted_by_key(&album_list, sort_value, 0, NULL, iter.data, direction);
+                    list_insert_sorted_by_key_limit(&album_list, sort_value, 0, NULL, iter.data, direction, real_limit, list_free_cb_ignore_user_data);
                 }
                 else {
                     //sort tag not present, append to end of the list
-                    list_push(&album_list, "zzzzzzzzzz", 0, NULL, iter.data);
+                    list_insert_sorted_by_key_limit(&album_list, "zzzzzzzzzz", 0, NULL, iter.data, direction, real_limit, list_free_cb_ignore_user_data);
                 }
             }
+            list_length++;
         }
     }
     raxStop(&iter);
     list_clear(&expr_list);
-    //save the result length
-    long list_length = album_list.length;
     //print album list
     long entity_count = 0;
     long entities_returned = 0;
-    long real_limit = offset + limit;
     sds album = sdsempty();
     sds artist = sdsempty();
     struct t_list_node *current;

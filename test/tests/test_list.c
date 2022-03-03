@@ -279,3 +279,85 @@ UTEST(list, test_list_move_item_pos) {
 
     list_clear(&test_list);
 }
+
+UTEST(list, test_list_insert_sorted_by_key_limit_asc) {
+    struct t_list test_list;
+    list_init(&test_list);
+    struct t_list_node *current;
+
+    list_insert_sorted_by_key_limit(&test_list, "ddd", 1, "value1", NULL, LIST_SORT_ASC, 3, list_free_cb_ignore_user_data);
+    current = list_node_at(&test_list, 0);
+    ASSERT_STREQ("ddd", current->key);
+
+    list_insert_sorted_by_key_limit(&test_list, "bbb", 1, "value1", NULL, LIST_SORT_ASC, 3, list_free_cb_ignore_user_data);
+    current = list_node_at(&test_list, 0);
+    ASSERT_STREQ("bbb", current->key);
+    current = list_node_at(&test_list, 1);
+    ASSERT_STREQ("ddd", current->key);
+
+    list_insert_sorted_by_key_limit(&test_list, "ccc", 1, "value1", NULL, LIST_SORT_ASC, 3, list_free_cb_ignore_user_data);
+    current = list_node_at(&test_list, 1);
+    ASSERT_STREQ("ccc", current->key);
+
+    list_insert_sorted_by_key_limit(&test_list, "aaa", 1, "value1", NULL, LIST_SORT_ASC, 3, list_free_cb_ignore_user_data);
+    current = list_node_at(&test_list, 0);
+    ASSERT_STREQ("aaa", current->key);
+    current = list_node_at(&test_list, 1);
+    ASSERT_STREQ("bbb", current->key);
+    current = list_node_at(&test_list, 2);
+    ASSERT_STREQ("ccc", current->key);
+
+    list_insert_sorted_by_key_limit(&test_list, "xxx", 1, "value1", NULL, LIST_SORT_ASC, 3, list_free_cb_ignore_user_data);
+    current = list_node_at(&test_list, 2);
+    ASSERT_STREQ("ccc", current->key);
+
+    list_insert_sorted_by_key_limit(&test_list, "000", 1, "value1", NULL, LIST_SORT_ASC, 3, list_free_cb_ignore_user_data);
+    current = list_node_at(&test_list, 2);
+    ASSERT_STREQ("bbb", current->key);
+
+    ASSERT_STREQ("000", test_list.head->key);
+    ASSERT_STREQ("bbb", test_list.tail->key);
+
+    list_clear(&test_list);
+}
+
+UTEST(list, test_list_insert_sorted_by_key_limit_desc) {
+    struct t_list test_list;
+    list_init(&test_list);
+    struct t_list_node *current;
+
+    list_insert_sorted_by_key_limit(&test_list, "ddd", 1, "value1", NULL, LIST_SORT_DESC, 3, list_free_cb_ignore_user_data);
+    current = list_node_at(&test_list, 0);
+    ASSERT_STREQ("ddd", current->key);
+
+    list_insert_sorted_by_key_limit(&test_list, "bbb", 1, "value1", NULL, LIST_SORT_DESC, 3, list_free_cb_ignore_user_data);
+    current = list_node_at(&test_list, 1);
+    ASSERT_STREQ("bbb", current->key);
+    current = list_node_at(&test_list, 0);
+    ASSERT_STREQ("ddd", current->key);
+
+    list_insert_sorted_by_key_limit(&test_list, "ccc", 1, "value1", NULL, LIST_SORT_DESC, 3, list_free_cb_ignore_user_data);
+    current = list_node_at(&test_list, 1);
+    ASSERT_STREQ("ccc", current->key);
+
+    list_insert_sorted_by_key_limit(&test_list, "aaa", 1, "value1", NULL, LIST_SORT_DESC, 3, list_free_cb_ignore_user_data);
+    current = list_node_at(&test_list, 0);
+    ASSERT_STREQ("ddd", current->key);
+    current = list_node_at(&test_list, 1);
+    ASSERT_STREQ("ccc", current->key);
+    current = list_node_at(&test_list, 2);
+    ASSERT_STREQ("bbb", current->key);
+
+    list_insert_sorted_by_key_limit(&test_list, "xxx", 1, "value1", NULL, LIST_SORT_DESC, 3, list_free_cb_ignore_user_data);
+    current = list_node_at(&test_list, 0);
+    ASSERT_STREQ("xxx", current->key);
+
+    list_insert_sorted_by_key_limit(&test_list, "000", 1, "value1", NULL, LIST_SORT_DESC, 3, list_free_cb_ignore_user_data);
+    current = list_node_at(&test_list, 2);
+    ASSERT_STREQ("ccc", current->key);
+
+    ASSERT_STREQ("xxx", test_list.head->key);
+    ASSERT_STREQ("ccc", test_list.tail->key);
+
+    list_clear(&test_list);
+}

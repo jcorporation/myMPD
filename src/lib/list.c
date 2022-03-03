@@ -387,6 +387,28 @@ bool list_insert(struct t_list *l, const char *key, long long value_i, const cha
     return true;
 }
 
+bool list_insert_sorted_by_key_limit(struct t_list *l, const char *key, long long value_i, const char *value_p,
+        void *user_data, enum list_sort_direction direction, long limit, user_data_callback free_cb)
+{
+    if (l->length == limit) {
+        if (direction == LIST_SORT_ASC) {
+            if (utf8casecmp(key, l->tail->key) > 0) {
+                //do not insert nodes that exeeding the limit
+                return true;
+            }
+        }
+        else {
+            if (utf8casecmp(key, l->tail->key) < 0) {
+                //do not insert nodes that exeeding the limit
+                return true;
+            }
+        }
+        //remove last item to respect the limit
+        list_shift_user_data(l, l->length - 1, free_cb);
+    }
+    return list_insert_sorted_by_key(l, key, value_i, value_p, user_data, direction);
+}
+
 bool list_insert_sorted_by_key(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data, enum list_sort_direction direction) {
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
@@ -407,13 +429,13 @@ bool list_insert_sorted_by_key(struct t_list *l, const char *key, long long valu
         return true;
     }
     //last pos to insert
-    if (direction == LIST_SORT_ASC && utf8casecmp(key, l->tail) > 0) {
+    if (direction == LIST_SORT_ASC && utf8casecmp(key, l->tail->key) > 0) {
         l->tail->next = n;
         l->tail = n;
         l->length++;
         return true;
     }
-    if (direction == LIST_SORT_DESC && utf8casecmp(key, l->tail) < 0) {
+    if (direction == LIST_SORT_DESC && utf8casecmp(key, l->tail->key) < 0) {
         l->tail->next = n;
         l->tail = n;
         l->length++;
@@ -446,6 +468,28 @@ bool list_insert_sorted_by_key(struct t_list *l, const char *key, long long valu
     }
     l->length++;
     return true;
+}
+
+bool list_insert_sorted_by_value_i_limit(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data,
+        enum list_sort_direction direction, long limit, user_data_callback free_cb)
+{
+    if (l->length == limit) {
+        if (direction == LIST_SORT_ASC) {
+            if (value_i > l->tail->value_i) {
+                //do not insert nodes that exeeding the limit
+                return true;
+            }
+        }
+        else {
+            if (value_i < l->tail->value_i) {
+                //do not insert nodes that exeeding the limit
+                return true;
+            }
+        }
+        //remove last item to respect the limit
+        list_shift_user_data(l, l->length - 1, free_cb);
+    }
+    return list_insert_sorted_by_value_i(l, key, value_i, value_p, user_data, direction);
 }
 
 bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data, enum list_sort_direction direction) {
@@ -535,6 +579,20 @@ bool list_shift(struct t_list *l, long idx) {
     FREE_SDS(extracted->value_p);
     if (extracted->user_data != NULL) {
         free(extracted->user_data);
+    }
+    free(extracted);
+    return true;
+}
+
+bool list_shift_user_data(struct t_list *l, long idx, user_data_callback free_cb) {
+    struct t_list_node *extracted = list_node_extract(l, idx);
+    if (extracted == NULL) {
+        return false;
+    }
+    FREE_SDS(extracted->key);
+    FREE_SDS(extracted->value_p);
+    if (extracted->user_data != NULL && free_cb != NULL) {
+        free_cb(extracted->user_data);
     }
     free(extracted);
     return true;
