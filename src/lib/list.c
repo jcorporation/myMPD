@@ -429,17 +429,21 @@ bool list_insert_sorted_by_key(struct t_list *l, const char *key, long long valu
         return true;
     }
     //last pos to insert
-    if (direction == LIST_SORT_ASC && utf8casecmp(key, l->tail->key) > 0) {
-        l->tail->next = n;
-        l->tail = n;
-        l->length++;
-        return true;
+    if (direction == LIST_SORT_ASC) {
+        if (utf8casecmp(key, l->tail->key) > 0) {
+            l->tail->next = n;
+            l->tail = n;
+            l->length++;
+            return true;
+        }
     }
-    if (direction == LIST_SORT_DESC && utf8casecmp(key, l->tail->key) < 0) {
-        l->tail->next = n;
-        l->tail = n;
-        l->length++;
-        return true;
+    else {
+        if (utf8casecmp(key, l->tail->key) < 0) {
+            l->tail->next = n;
+            l->tail = n;
+            l->length++;
+            return true;
+        }
     }
     //find correct position to insert
     struct t_list_node *current = NULL;
@@ -447,11 +451,15 @@ bool list_insert_sorted_by_key(struct t_list *l, const char *key, long long valu
     int result;
     for (current = l->head; current != NULL; previous = current, current = current->next) {
         result = utf8casecmp(key, current->key);
-        if (direction == LIST_SORT_ASC && result < 0) {
-            break;
+        if (direction == LIST_SORT_ASC) {
+            if (result < 0) {
+                break;
+            }
         }
-        if (direction == LIST_SORT_DESC && result > 0) {
-            break;
+        else {
+            if (result > 0) {
+                break;
+            }
         }
     }
     //insert node
@@ -511,15 +519,36 @@ bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long long 
         l->length++;
         return true;
     }
+    //last pos to insert
+    if (direction == LIST_SORT_ASC) {
+        if (value_i > l->tail->value_i) {
+            l->tail->next = n;
+            l->tail = n;
+            l->length++;
+            return true;
+        }
+    }
+    else {
+        if (value_i < l->tail->value_i) {
+            l->tail->next = n;
+            l->tail = n;
+            l->length++;
+            return true;
+        }
+    }
     //find correct position to insert
     struct t_list_node *current = NULL;
     struct t_list_node *previous = NULL;
     for (current = l->head; current != NULL; previous = current, current = current->next) {
-        if (direction == LIST_SORT_ASC && n->value_i < current->value_i) {
-            break;
+        if (direction == LIST_SORT_ASC) {
+            if (n->value_i < current->value_i) {
+                break;
+            }
         }
-        if (direction == LIST_SORT_DESC && n->value_i > current->value_i) {
-            break;
+        else {
+            if (n->value_i > current->value_i) {
+                break;
+            }
         }
     }
     //insert node
