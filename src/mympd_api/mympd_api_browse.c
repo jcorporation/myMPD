@@ -534,8 +534,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     sds album = sdsempty();
     sds artist = sdsempty();
     struct t_list_node *current;
-    while ((current = list_shift_first(&album_list)) != NULL &&
-        entity_count < real_limit)
+    while ((current = list_shift_first(&album_list)) != NULL)
     {
         if (entity_count >= offset) {
             if (entities_returned++) {
@@ -556,8 +555,6 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     }
     FREE_SDS(album);
     FREE_SDS(artist);
-    //free the rest of the list
-    list_clear_user_data(&album_list, list_free_cb_ignore_user_data);
 
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", list_length, true);
