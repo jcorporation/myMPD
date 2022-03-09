@@ -368,14 +368,16 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
         albumartist = mpd_shared_get_tag_values(first_song, MPD_TAG_ALBUM_ARTIST, albumartist);
     }
     else {
+        //this should not occur, but we should response with a complete object
         buffer = sdscat(buffer, "\"images\":[],\"bookletPath\":\"\"");
+        albumartist = sdscatlen(albumartist, "\"\"", 2);
     }
 
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_char(buffer, "Album", album, true);
-    buffer = sdscatfmt(buffer, "\"AlbumArtist\":%s,", albumartist);
+    buffer = tojson_raw(buffer, "AlbumArtist", albumartist, true);
     buffer = tojson_long(buffer, "Discs", discs, true);
     buffer = tojson_uint(buffer, "totalTime", totalTime, false);
     buffer = jsonrpc_result_end(buffer);
