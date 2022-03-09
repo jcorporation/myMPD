@@ -1,4 +1,4 @@
-;한국어
+한국어
 
 MPD connection
 MPD 연결
@@ -634,7 +634,7 @@ Volume
 음량
 
 Empty list
-목록 비우기
+빈 목록
 
 Append to queue
 순서에 추가
@@ -1408,7 +1408,7 @@ All
 모두
 
 Elements per page
-페이지당 요소
+페이지당 항목 수
 
 Failed to set song priority
 곡 우선 순위를 설정할 수 없음
@@ -2141,3 +2141,48 @@ WebradioDB
 
 Documentation
 문서
+
+Startup
+시작
+
+Startup view
+시작 보기
+
+Jukebox Queue
+뮤직박스 순서
+
+Display tags in rows for small displays
+작은 화면 칸에 태그 표시
+
+Disable consume
+소비 사용 안 함
+
+Disable random
+무작위 사용 안 함
+
+Disable repeat
+반복 사용 안 함
+
+Enable consume
+소비 사용함
+
+Enable random
+무작위 사용함
+
+Enable repeat
+반복 사용함
+
+Switch single mode
+단일 모드 전환
+
+Toggle consume
+소비 바꾸기
+
+Toggle random
+무작위 바꾸기
+
+Toggle repeat
+반복 바꾸기
+
+Invalid response
+잘못된 응답
