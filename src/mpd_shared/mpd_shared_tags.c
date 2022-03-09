@@ -277,6 +277,7 @@ void album_cache_free(rax **album_cache) {
         MYMPD_LOG_DEBUG("Album cache is NULL not freeing anything");
         return;
     }
+    MYMPD_LOG_DEBUG("Freeing album cache");
     raxIterator iter;
     raxStart(&iter, *album_cache);
     raxSeek(&iter, "^", NULL, 0);

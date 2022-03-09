@@ -98,6 +98,7 @@ void sticker_cache_free(rax **sticker_cache) {
         MYMPD_LOG_DEBUG("Sticker cache is NULL not freeing anything");
         return;
     }
+    MYMPD_LOG_DEBUG("Freeing sticker cache");
     raxIterator iter;
     raxStart(&iter, *sticker_cache);
     raxSeek(&iter, "^", NULL, 0);
