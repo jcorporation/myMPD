@@ -60,8 +60,8 @@ void list_clear_user_data(struct t_list *l, user_data_callback free_cb) {
 }
 
 void list_free_cb_ignore_user_data(struct t_list_node *current) {
-    //remove user_data pointer
-    current->user_data = NULL;
+    //simply do nothing
+    (void)current;
 }
 
 long long list_get_value_i(const struct t_list *l, const char *key) {
