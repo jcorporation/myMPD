@@ -30,6 +30,6 @@ bool write_data_to_file(sds filepath, const char *data, size_t data_len);
 #define MEASURE_INIT struct timespec tic, toc;
 #define MEASURE_START clock_gettime(CLOCK_MONOTONIC, &tic);
 #define MEASURE_END clock_gettime(CLOCK_MONOTONIC, &toc);
-#define MEASURE_PRINT(X) MYMPD_LOG_DEBUG("Execution time for %s: %ld ms", X, (toc.tv_sec * 1000 + toc.tv_nsec / 1000000) - (tic.tv_sec * 1000 + tic.tv_nsec / 1000000));
+#define MEASURE_PRINT(X) MYMPD_LOG_DEBUG("Execution time for %s: %lld ms", X, ((long long)(toc.tv_sec) * 1000 + toc.tv_nsec / 1000000) - ((long long)(tic.tv_sec) * 1000 + tic.tv_nsec / 1000000));
 
 #endif
