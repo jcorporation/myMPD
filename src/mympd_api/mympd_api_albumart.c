@@ -64,7 +64,7 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
     }
     free(binary_buffer);
     if (offset > 0) {
-        MYMPD_LOG_DEBUG("Albumart found by mpd for uri \"%s\"", uri);
+        MYMPD_LOG_DEBUG("Albumart found by mpd for uri \"%s\" (%lu bytes)", uri, (unsigned long)sdslen(*binary));
         const char *mime_type = get_mime_type_by_magic_stream(*binary);
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_char(buffer, "mime_type", mime_type, false);

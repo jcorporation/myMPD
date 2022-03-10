@@ -187,7 +187,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
             sds path = sdsdup(uri_decoded);
             dirname(path);
             sdsupdatelen(path);
-            if (is_virtual_cuedir(mg_user_data->music_directory, path)) {
+            if (is_virtual_cuedir(mg_user_data->music_directory, path) == true) {
                 //fix virtual cue sheet directories
                 dirname(path);
                 sdsupdatelen(path);
@@ -309,7 +309,7 @@ static bool handle_coverextract_id3(struct t_config *config, const char *uri, co
                 if (covercache == true) {
                     covercache_write_file(config->cachedir, uri, mime_type, *binary, offset);
                 }
-                MYMPD_LOG_DEBUG("Coverimage successfully extracted");
+                MYMPD_LOG_DEBUG("Coverimage successfully extracted (%lu bytes)", (unsigned long)sdslen(*binary));
                 rc = true;
             }
             else {
@@ -377,7 +377,7 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
             if (covercache == true) {
                 covercache_write_file(config->cachedir, uri, mime_type, *binary, offset);
             }
-            MYMPD_LOG_DEBUG("Coverimage successfully extracted");
+            MYMPD_LOG_DEBUG("Coverimage successfully extracted (%lu bytes)", (unsigned long)sdslen(*binary));
             rc = true;
         }
         else {

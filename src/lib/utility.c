@@ -71,6 +71,9 @@ bool is_virtual_cuedir(sds music_directory, sds filename) {
             is_file = true;
         }
     }
+    else {
+        MYMPD_LOG_ERROR("Error accessing \"%s\"", full_path);
+    }
     sdsfree(full_path);
     return is_file;
 }

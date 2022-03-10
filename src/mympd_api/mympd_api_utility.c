@@ -408,6 +408,10 @@ static int _get_embedded_covers_count(const char *media_file) {
     int count = 0;
     const char *mime_type_media_file = get_mime_type_by_ext(media_file);
     MYMPD_LOG_DEBUG("Mimetype of %s is %s", media_file, mime_type_media_file);
+    if (strcmp(mime_type_media_file, "application/octet-stream") == 0) {
+        MYMPD_LOG_DEBUG("Skip counting coverimages from %s", media_file);
+        return count;
+    }
     MYMPD_LOG_DEBUG("Counting coverimages from %s", media_file);
     if (strcmp(mime_type_media_file, "audio/mpeg") == 0) {
         count = _get_embedded_covers_count_id3(media_file);
