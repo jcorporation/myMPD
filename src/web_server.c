@@ -250,11 +250,11 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response
     struct mg_connection *nc = mgr->conns;
     while (nc != NULL) {
         if ((int)nc->is_websocket == 0 && nc->id == (long unsigned)response->conn_id) {
-            MYMPD_LOG_DEBUG("Sending response to conn_id %lu (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
             if (response->cmd_id == INTERNAL_API_ALBUMART) {
                 webserver_albumart_send(nc, response->data, response->binary);
             }
             else {
+                MYMPD_LOG_DEBUG("Sending response to conn_id %lu (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
                 webserver_send_data(nc, response->data, sdslen(response->data), "Content-Type: application/json\r\n");
             }
             break;
@@ -375,14 +375,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 nc->label[1] = 'P';
             }
             else {
-                MYMPD_LOG_ERROR("Invalid http method \"%.*s\"", (int)hm->method.len, hm->method.ptr);
+                MYMPD_LOG_ERROR("Invalid http method \"%.*s\" (%lu)", (int)hm->method.len, hm->method.ptr, nc->id);
                 webserver_send_error(nc, 405, "Invalid http method");
                 nc->is_draining = 1;
                 return;
             }
             //check uri length
             if (hm->uri.len > URI_LENGTH_MAX) {
-                MYMPD_LOG_ERROR("Uri is too long, length is %lu, maximum length is %d", (unsigned long)hm->uri.len, URI_LENGTH_MAX);
+                MYMPD_LOG_ERROR("Uri is too long, length is %lu, maximum length is %d (%lu)", (unsigned long)hm->uri.len, URI_LENGTH_MAX, nc->id);
                 webserver_send_error(nc, 414, "Uri is too long");
                 nc->is_draining = 1;
                 return;
@@ -390,7 +390,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 
             //check post requests length
             if (nc->label[1] == 'P' && (hm->body.len == 0 || hm->body.len > BODY_SIZE_MAX)) {
-                MYMPD_LOG_ERROR("POST request with body of size %lu is out of bounds", (unsigned long)hm->body.len);
+                MYMPD_LOG_ERROR("POST request with body of size %lu is out of bounds (%lu)", (unsigned long)hm->body.len, nc->id);
                 webserver_send_error(nc, 413, "Post request is too large");
                 nc->is_draining = 1;
                 return;
@@ -399,11 +399,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             struct mg_str *connection_hdr = mg_http_get_header(hm, "Connection");
             if (connection_hdr != NULL) {
                 if (strncmp(connection_hdr->ptr, "close", connection_hdr->len) == 0) {
-                    MYMPD_LOG_DEBUG("Connection: close header found");
+                    MYMPD_LOG_DEBUG("Connection: close header found (%lu)", nc->id);
                     nc->label[2] = 'C';
                 }
                 else if (strncmp(connection_hdr->ptr, "close", connection_hdr->len) == 0) {
-                    MYMPD_LOG_DEBUG("Connection: keepalive header found");
+                    MYMPD_LOG_DEBUG("Connection: keepalive header found (%lu)", nc->id);
                     nc->label[2] = 'K';
                 }
             }

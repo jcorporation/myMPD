@@ -43,7 +43,7 @@ void webserver_albumart_send(struct mg_connection *nc, sds data, sds binary) {
         json_get_string(data, "$.result.mime_type", 1, 200, &mime_type, vcb_isname, NULL) == true &&
         strncmp(mime_type, "image/", 6) == 0)
     {
-        MYMPD_LOG_DEBUG("Serving file from memory (%s - %lu bytes)", mime_type, (unsigned long)len);
+        MYMPD_LOG_DEBUG("Serving albumart from memory (%s - %lu bytes) (%lu)", mime_type, (unsigned long)len, nc->id);
         sds header = sdscatfmt(sdsempty(), "Content-Type: %S\r\n", mime_type);
         header = sdscat(header, EXTRA_HEADERS_CACHE);
         webserver_send_header_ok(nc, len, header);
