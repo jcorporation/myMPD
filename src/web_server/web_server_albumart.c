@@ -44,11 +44,10 @@ void webserver_albumart_send(struct mg_connection *nc, sds data, sds binary) {
         strncmp(mime_type, "image/", 6) == 0)
     {
         MYMPD_LOG_DEBUG("Serving albumart from memory (%s - %lu bytes) (%lu)", mime_type, (unsigned long)len, nc->id);
-        sds header = sdscatfmt(sdsempty(), "Content-Type: %S\r\n", mime_type);
-        header = sdscat(header, EXTRA_HEADERS_CACHE);
-        webserver_send_header_ok(nc, len, header);
-        mg_send(nc, binary, len);
-        FREE_SDS(header);
+        sds headers = sdscatfmt(sdsempty(), "Content-Type: %S\r\n", mime_type);
+        headers = sdscat(headers, EXTRA_HEADERS_CACHE);
+        webserver_send_data(nc, binary,  len, headers);
+        FREE_SDS(headers);
     }
     else {
         //create dummy http message and serve not available image
@@ -145,6 +144,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
             s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
             s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
             mg_http_serve_file(nc, hm, coverfile, &s_http_server_opts);
+            webserver_handle_connection_close(nc);
         }
         else {
             //serve fallback image
@@ -169,6 +169,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
             s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
             s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
             mg_http_serve_file(nc, hm, covercachefile, &s_http_server_opts);
+            webserver_handle_connection_close(nc);
             FREE_SDS(uri_decoded);
             FREE_SDS(covercachefile);
             return true;
@@ -207,6 +208,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
                     s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
                     s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
                     mg_http_serve_file(nc, hm, coverfile, &s_http_server_opts);
+                    webserver_handle_connection_close(nc);
                     FREE_SDS(uri_decoded);
                     FREE_SDS(coverfile);
                     FREE_SDS(mediafile);
@@ -272,11 +274,10 @@ static bool handle_coverextract(struct mg_connection *nc, struct t_config *confi
     if (rc == true) {
         const char *mime_type = get_mime_type_by_magic_stream(binary);
         MYMPD_LOG_DEBUG("Serving coverimage for \"%s\" (%s)", media_file, mime_type);
-        sds header = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", mime_type);
-        header = sdscat(header, EXTRA_HEADERS_CACHE);
-        webserver_send_header_ok(nc, sdslen(binary), header);
-        mg_send(nc, binary, sdslen(binary));
-        FREE_SDS(header);
+        sds headers = sdscatfmt(sdsempty(), "Content-Type: %s\r\n", mime_type);
+        headers = sdscat(headers, EXTRA_HEADERS_CACHE);
+        webserver_send_data(nc, binary,  sdslen(binary), headers);
+        FREE_SDS(headers);
     }
     FREE_SDS(binary);
     return rc;

@@ -51,11 +51,14 @@ void webserver_populate_dummy_hm(struct mg_connection *nc, struct mg_http_messag
     hm->message = mg_str("");
     hm->body = mg_str("");
     hm->query = mg_str("");
-    hm->proto = mg_str("HTTP/1.1"); //we only accept HTTP/1.1
+    hm->proto = mg_str("HTTP/1.1");
     //add accept-encoding header to deliver gziped embedded files
     //browsers without gzip support are not supported by myMPD
     hm->headers[0].name = mg_str("Accept-Encoding");
     hm->headers[0].value = mg_str("gzip");
+    //append empty header
+    hm->headers[1].name = mg_str("");
+    hm->headers[1].value = mg_str("");
 }
 
 sds *webserver_split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count) {
@@ -100,6 +103,7 @@ void webserver_send_error(struct mg_connection *nc, int code, const char *msg) {
     if (code >= 400) {
         MYMPD_LOG_ERROR("HTTP %d: %s", code, msg);
     }
+    webserver_handle_connection_close(nc);
 }
 
 void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *headers) {
@@ -122,6 +126,7 @@ void webserver_send_header_redirect(struct mg_connection *nc, const char *locati
         "Location: %s\r\n"
         "Content-Length: 0\r\n\r\n",
         location);
+    webserver_handle_connection_close(nc);
 }
 
 void webserver_send_header_found(struct mg_connection *nc, const char *location) {
@@ -130,6 +135,7 @@ void webserver_send_header_found(struct mg_connection *nc, const char *location)
         "Location: %s\r\n"
         "Content-Length: 0\r\n\r\n",
         location);
+    webserver_handle_connection_close(nc);
 }
 
 void webserver_handle_connection_close(struct mg_connection *nc) {
@@ -160,6 +166,7 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
         s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
         s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
         mg_http_serve_file(nc, hm, asset_image, &s_http_server_opts);
+        webserver_handle_connection_close(nc);
         MYMPD_LOG_DEBUG("Serving custom asset image \"%s\" (%s)", asset_image, mime_type);
     }
     else {
@@ -171,6 +178,7 @@ void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_messag
             s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
             s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
             mg_http_serve_file(nc, hm, asset_image, &s_http_server_opts);
+            webserver_handle_connection_close(nc);
         #else
             asset_image = sdscatfmt(asset_image, "/assets/%s.svg", name);
             webserver_serve_embedded_files(nc, asset_image);
@@ -221,7 +229,9 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
     //find fileinfo
     const struct embedded_file *p = NULL;
     for (p = embedded_files; p->uri != NULL; p++) {
-        if (sdslen(uri_decoded) == p->uri_len && strncmp(p->uri, uri_decoded, sdslen(uri_decoded)) == 0) {
+        if (sdslen(uri_decoded) == p->uri_len &&
+            strncmp(p->uri, uri_decoded, sdslen(uri_decoded)) == 0)
+        {
             break;
         }
     }
@@ -241,6 +251,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
                  );
         //send data
         mg_send(nc, p->data, p->size);
+        webserver_handle_connection_close(nc);
         FREE_SDS(uri_decoded);
         return true;
     }
