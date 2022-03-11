@@ -63,19 +63,19 @@ void my_msleep(long msec) {
 
 bool is_virtual_cuedir(sds music_directory, sds filename) {
     sds full_path = sdscatfmt(sdsempty(), "%s/%s", music_directory, filename);
-    bool is_file = false;
+    bool is_cue_file = false;
     struct stat stat_buf;
     if (stat(full_path, &stat_buf) == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
             MYMPD_LOG_DEBUG("Path \"%s\" is a virtual cuesheet directory", filename);
-            is_file = true;
+            is_cue_file = true;
         }
     }
     else {
         MYMPD_LOG_ERROR("Error accessing \"%s\"", full_path);
     }
     sdsfree(full_path);
-    return is_file;
+    return is_cue_file;
 }
 
 bool is_streamuri(const char *uri) {
