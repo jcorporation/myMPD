@@ -73,6 +73,7 @@ myMPD should run on all current linux distributions. There are four ways to inst
 On the first startup myMPD reads some environments variables and tries to autodetect the MPD connection configuration.
 
 - [Configuration](https://jcorporation.github.io/myMPD/configuration/)
+- [Running](https://jcorporation.github.io/myMPD/running)
 
 ``
 Usage: ./mympd
