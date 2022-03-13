@@ -366,7 +366,9 @@ set(LIBMPDCLIENT_SOURCES
 #relax some compiler settings for dist sources
 #compiler flags for mongoose
 #-Wno-stringop-overflow: gcc 11.2.0 bug
-set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion -Wno-stringop-overflow")
+#-Wno-stringop-overread: gcc 11.2.0 bug
+set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
+  -Wno-stringop-overflow -Wno-stringop-overread")
 #compiler flags for mjson
 set_property(SOURCE dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "-Wno-conversion")
 #compiler flags for rax

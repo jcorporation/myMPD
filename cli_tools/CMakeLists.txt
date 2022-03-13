@@ -22,7 +22,9 @@ if (LUA_FOUND)
 
   #compiler flags for mongoose
   #-Wno-stringop-overflow: gcc 11.2.0 bug
-  set_property(SOURCE ../dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow -Wno-conversion")
+  #-Wno-stringop-overread: gcc 11.2.0 bug
+  set_property(SOURCE ../dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow \
+    -Wno-stringop-overread -Wno-conversion")
   #compiler flags for sds
   #-Wno-stringop-overflow: gcc 11.2.0 bug
   set_property(SOURCE ../dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow -Wno-conversion")
