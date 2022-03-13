@@ -1420,6 +1420,10 @@ function zoomZoomPicture() {
 
 function createImgCarousel(imgEl, name, uri, images, embeddedImageCount) {
     //embedded albumart
+    if (embeddedImageCount === 0) {
+        //enforce first coverimage
+        embeddedImageCount++;
+    }
     const aImages = [];
     for (let i = 0; i < embeddedImageCount; i++) {
         aImages.push(subdir + '/albumart?offset=' + i + '&uri=' + myEncodeURIComponent(uri));
