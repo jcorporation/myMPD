@@ -192,17 +192,17 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
         buffer = sds_catjson(buffer, current->key, sdslen(current->key));
         current = current->next;
     }
-    buffer = sdscatlen(buffer, "]", 1);
-
+    buffer = sdscatlen(buffer, "],", 2);
+    int image_count = 0;
     if (is_dirname == false &&
-        is_streamuri(uri) == false)
+        is_streamuri(uri) == false &&
+        mympd_state->mpd_state->feat_mpd_library == true)
     {
-        buffer = sdscatlen(buffer, ",", 1);
         sds fullpath = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, uri);
-        int count = _get_embedded_covers_count(fullpath);
+        image_count = _get_embedded_covers_count(fullpath);
         sdsfree(fullpath);
-        buffer = tojson_int(buffer, "embeddedImageCount", count, false);
     }
+    buffer = tojson_int(buffer, "embeddedImageCount", image_count, false);
     list_clear(&images);
     FREE_SDS(booklet_path);
     return buffer;
