@@ -200,11 +200,13 @@ set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABL
   -D MJSON_ENABLE_PRETTY=0 -D MJSON_ENABLE_MERGE=0")
 
 #set strict global compile flags
+#-Wno-stringop-overread: gcc 12.0.1 error
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
   -ffunction-sections -fdata-sections -Wall -Werror -Wvla -Winit-self -Wuninitialized \
 	-Werror=array-bounds -Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
 	-Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
 	-Wmissing-include-dirs -Wundef -Wformat-nonliteral -Wsign-compare -Wconversion \
+  -Wno-stringop-overread \
 	${LIBASAN_FLAGS} ${MONGOOSE_FLAGS} ${MJSON_FLAGS}")
 
 #check for supported compiler flags
@@ -368,12 +370,13 @@ set(LIBMPDCLIENT_SOURCES
 #-Wno-stringop-overflow: gcc 11.2.0 bug
 #-Wno-stringop-overread: gcc 12.0.1 bug
 set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
-  -Wno-stringop-overflow -Wno-stringop-overread")
+  -Wno-stringop-overflow")
 #compiler flags for mjson
 set_property(SOURCE dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "-Wno-conversion")
 #compiler flags for rax
+#-Wno-use-after-free: gcc 12.0.1 error
 set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
-  -Wno-shadow -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers")
+  -Wno-shadow -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers -Wno-use-after-free")
 #compiler flags for sds
 #-Wno-stringop-overflow: gcc 11.2.0 bug
 set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow -Wno-conversion")
