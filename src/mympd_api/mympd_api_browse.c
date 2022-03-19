@@ -132,6 +132,8 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
 
     struct t_list entity_list;
     list_init(&entity_list);
+    long real_limit = offset + limit;
+    long list_length = 0;
     struct mpd_entity *entity;
     size_t search_len = sdslen(searchstr);
     while ((entity = mpd_recv_entity(mympd_state->mpd_state->conn)) != NULL) {
@@ -145,8 +147,9 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 entity_name = mpd_shared_get_tag_values(song, MPD_TAG_TITLE, entity_name);
                 if (search_len == 0 || utf8casestr(entity_name, searchstr) != NULL) {
                     sds key = sdscatfmt(sdsempty(), "2%s", mpd_song_get_uri(song));
-                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_SONG, entity_name, mpd_song_dup(song), LIST_SORT_ASC);
+                    list_insert_sorted_by_key_limit(&entity_list, key, MPD_ENTITY_TYPE_SONG, entity_name, mpd_song_dup(song), LIST_SORT_ASC, real_limit, list_free_cb_ignore_user_data);
                     FREE_SDS(key);
+                    list_length++;
                 }
                 FREE_SDS(entity_name);
                 break;
@@ -163,8 +166,9 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 }
                 if (search_len == 0 || utf8casestr(dir_name, searchstr) != NULL) {
                     sds key = sdscatfmt(sdsempty(), "0%s", mpd_directory_get_path(dir));
-                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_DIRECTORY, dir_name, mpd_directory_dup(dir), LIST_SORT_ASC);
+                    list_insert_sorted_by_key_limit(&entity_list, key, MPD_ENTITY_TYPE_DIRECTORY, dir_name, mpd_directory_dup(dir), LIST_SORT_ASC, real_limit, list_free_cb_ignore_user_data);
                     FREE_SDS(key);
+                    list_length++;
                 }
                 break;
             }
@@ -191,8 +195,9 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 }
                 if (search_len == 0 || utf8casestr(pl_name, searchstr) != NULL) {
                     sds key = sdscatfmt(sdsempty(), "1%s", mpd_playlist_get_path(pl));
-                    list_insert_sorted_by_key(&entity_list, key, MPD_ENTITY_TYPE_PLAYLIST, pl_name, mpd_playlist_dup(pl), LIST_SORT_ASC);
+                    list_insert_sorted_by_key_limit(&entity_list, key, MPD_ENTITY_TYPE_PLAYLIST, pl_name, mpd_playlist_dup(pl), LIST_SORT_ASC, real_limit, list_free_cb_ignore_user_data);
                     FREE_SDS(key);
+                    list_length++;
                 }
                 break;
             }
@@ -220,11 +225,9 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
         free(path_cpy);
     }
 
-    long real_limit = offset + limit;
-
     struct t_list_node *current;
     while ((current = list_shift_first(&entity_list)) != NULL) {
-        if (entity_count >= offset && entity_count < real_limit) {
+        if (entity_count >= offset) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
@@ -273,7 +276,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
     buffer = sdscatlen(buffer, "],", 2);
     buffer = get_extra_files(mympd_state, buffer, path, true);
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "totalEntities", list_length, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_char(buffer, "search", searchstr, false);
@@ -594,6 +597,8 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
     enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
     struct t_list taglist;
     list_init(&taglist);
+    long real_limit = offset + limit;
+    long list_length = 0;
     //filter and sort
     while ((pair = mpd_recv_pair_tag(mympd_state->mpd_state->conn, mpdtag)) != NULL) {
         if (pair->value[0] == '\0') {
@@ -606,7 +611,8 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
             (searchstr_len <= 2 && utf8ncasecmp(searchstr, pair->value, searchstr_len) == 0) ||
             (searchstr_len > 2 && utf8casestr(pair->value, searchstr) != NULL))
         {
-            list_insert_sorted_by_key(&taglist, pair->value, 0, NULL, NULL, LIST_SORT_ASC);
+            list_insert_sorted_by_key_limit(&taglist, pair->value, 0, NULL, NULL, LIST_SORT_ASC, real_limit, list_free_cb_ignore_user_data);
+            list_length++;
         }
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
@@ -616,10 +622,9 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
     //print list
     long entity_count = 0;
     long entities_returned = 0;
-    long real_limit = offset + limit;
-    struct t_list_node *current = taglist.head;
-    while (current != NULL) {
-        if (entity_count >= offset && entity_count < real_limit) {
+    struct t_list_node *current;
+    while ((current = list_shift_first(&taglist)) != NULL) {
+        if (entity_count >= offset) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
@@ -628,9 +633,8 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;
-        current = current->next; 
+        list_node_free(current);
     }
-    list_clear(&taglist);
     //checks if this tag has a directory with pictures in /var/lib/mympd/pics
     sds pic_path = sdscatfmt(sdsempty(), "%S/pics/%s", mympd_state->config->workdir, tag);
     bool pic = false;
@@ -650,7 +654,7 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
     FREE_SDS(pic_path);
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "totalEntities", list_length, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_char(buffer, "searchstr", searchstr, true);
