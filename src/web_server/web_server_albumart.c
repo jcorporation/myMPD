@@ -46,7 +46,7 @@ void webserver_albumart_send(struct mg_connection *nc, sds data, sds binary) {
         MYMPD_LOG_DEBUG("Serving albumart from memory (%s - %lu bytes) (%lu)", mime_type, (unsigned long)len, nc->id);
         sds headers = sdscatfmt(sdsempty(), "Content-Type: %S\r\n", mime_type);
         headers = sdscat(headers, EXTRA_HEADERS_CACHE);
-        webserver_send_data(nc, binary,  len, headers);
+        webserver_send_data(nc, binary, len, headers);
         FREE_SDS(headers);
     }
     else {
