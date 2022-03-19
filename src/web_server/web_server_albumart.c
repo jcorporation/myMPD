@@ -310,6 +310,9 @@ static bool handle_coverextract_id3(struct t_config *config, const char *uri, co
                 if (covercache == true) {
                     covercache_write_file(config->cachedir, uri, mime_type, *binary, offset);
                 }
+                else {
+                    MYMPD_LOG_DEBUG("Covercache is disabled");
+                }
                 MYMPD_LOG_DEBUG("Coverimage successfully extracted (%lu bytes)", (unsigned long)sdslen(*binary));
                 rc = true;
             }
@@ -377,6 +380,9 @@ static bool handle_coverextract_flac(struct t_config *config, const char *uri, c
         if (mime_type != NULL) {
             if (covercache == true) {
                 covercache_write_file(config->cachedir, uri, mime_type, *binary, offset);
+            }
+            else {
+                MYMPD_LOG_DEBUG("Covercache is disabled");
             }
             MYMPD_LOG_DEBUG("Coverimage successfully extracted (%lu bytes)", (unsigned long)sdslen(*binary));
             rc = true;

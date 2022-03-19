@@ -25,6 +25,7 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
     if (mympd_state->mpd_state->feat_mpd_albumart == true) {
         MYMPD_LOG_DEBUG("Try mpd command albumart for \"%s\"", uri);
         while ((recv_len = mpd_run_albumart(mympd_state->mpd_state->conn, uri, offset, binary_buffer, mympd_state->mpd_state->mpd_binarylimit)) > 0) {
+            MYMPD_LOG_DEBUG("Received %d bytes from mpd albumart command", recv_len);
             *binary = sdscatlen(*binary, binary_buffer, (size_t)recv_len);
             if (sdslen(*binary) > MPD_BINARY_SIZE_MAX) {
                 MYMPD_LOG_WARN("Retrieved binary data is too large, discarding");
@@ -34,8 +35,12 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
             }
             offset += (unsigned)recv_len;
             if ((size_t)recv_len < mympd_state->mpd_state->mpd_binarylimit) {
+                MYMPD_LOG_DEBUG("Retrieved last bytes from mpd albumart command");
                 break;
             }
+        }
+        if (recv_len == 0) {
+            MYMPD_LOG_DEBUG("Received zero bytes from mpd albumart command");
         }
     }
     if (offset == 0 && mympd_state->mpd_state->feat_mpd_readpicture == true) {
@@ -44,6 +49,7 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
         mpd_response_finish(mympd_state->mpd_state->conn);
         MYMPD_LOG_DEBUG("Try mpd command readpicture for \"%s\"", uri);
         while ((recv_len = mpd_run_readpicture(mympd_state->mpd_state->conn, uri, offset, binary_buffer, mympd_state->mpd_state->mpd_binarylimit)) > 0) {
+            MYMPD_LOG_DEBUG("Received %d bytes from mpd readpicture command", recv_len);
             *binary = sdscatlen(*binary, binary_buffer, (size_t)recv_len);
             if (sdslen(*binary) > MPD_BINARY_SIZE_MAX) {
                 MYMPD_LOG_WARN("Retrieved binary data is too large, discarding");
@@ -53,8 +59,12 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
             }
             offset += (unsigned)recv_len;
             if ((size_t)recv_len < mympd_state->mpd_state->mpd_binarylimit) {
+                MYMPD_LOG_DEBUG("Retrieved last bytes from readpicture command");
                 break;
             }
+        }
+        if (recv_len == 0) {
+            MYMPD_LOG_DEBUG("Received zero bytes from mpd readpicture command");
         }
     }
     if (offset == 0) {
@@ -71,6 +81,9 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
         buffer = jsonrpc_result_end(buffer);
         if (mympd_state->covercache_keep_days > 0) {
             covercache_write_file(mympd_state->config->cachedir, uri, mime_type, *binary, 0);
+        }
+        else {
+            MYMPD_LOG_DEBUG("Covercache is disabled");
         }
     }
     else {
