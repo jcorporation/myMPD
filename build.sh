@@ -64,7 +64,7 @@ fi
 
 if [ -z "${ENABLE_IPV6+x}" ]
 then
-  export ENABLE_IPV6="OFF"
+  export ENABLE_IPV6="ON"
 fi
 
 if [ -z "${EXTRA_CMAKE_OPTIONS+x}" ]
@@ -1377,7 +1377,7 @@ case "$ACTION" in
     echo ""
     echo "Environment variables (with defaults) for building"
     echo "  - ENABLE_FLAC=\"ON\""
-    echo "  - ENABLE_IPV6=\"OFF\""
+    echo "  - ENABLE_IPV6=\"ON\""
     echo "  - ENABLE_LIBASAN=\"OFF\""
     echo "  - ENABLE_LIBID3TAG=\"ON\""
     echo "  - ENABLE_LUA=\"ON\""

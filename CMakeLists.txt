@@ -18,7 +18,7 @@ cmake_minimum_required(VERSION 3.4)
 #available options
 option(EMBEDDED_ASSETS "Embeds assets in binary, default ON" ON)
 option(ENABLE_FLAC "Enables flac usage, default ON" ON)
-option(ENABLE_IPV6 "Enables IPv6, default OFF" OFF)
+option(ENABLE_IPV6 "Enables IPv6, default ON" ON)
 option(ENABLE_LUA "Enables lua usage, default ON" ON)
 option(ENABLE_LIBASAN "Enables build with libasan, default OFF" OFF)
 option(ENABLE_LIBID3TAG "Enables libid3tag usage, default ON" ON)
@@ -193,7 +193,10 @@ endif()
 #set mongoose feature flags
 set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=0")
 if("${ENABLE_IPV6}" MATCHES "ON")
+  message("IPv6 is enabled")
   set(MONGOOSE_FLAGS "${MONGOOSE_FLAGS} -DMG_ENABLE_IPV6=1")
+else()
+  message("IPv6 is disabled")
 endif()
 #set mjson feature flags
 set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABLE_RPC=0 \
