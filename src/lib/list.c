@@ -64,6 +64,10 @@ void list_free_cb_ignore_user_data(struct t_list_node *current) {
     (void)current;
 }
 
+void list_free_cb_sds_user_data(struct t_list_node *current) {
+    FREE_SDS(current->user_data);
+}
+
 long long list_get_value_i(const struct t_list *l, const char *key) {
     long long value_i = -1;
     struct t_list_node *current = l->head;
@@ -621,7 +625,7 @@ bool list_shift_user_data(struct t_list *l, long idx, user_data_callback free_cb
     FREE_SDS(extracted->key);
     FREE_SDS(extracted->value_p);
     if (extracted->user_data != NULL && free_cb != NULL) {
-        free_cb(extracted->user_data);
+        free_cb(extracted);
     }
     free(extracted);
     return true;
