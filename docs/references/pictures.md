@@ -36,6 +36,8 @@ myMPD can extract embedded albumart, if it can access the music files. If MPD >=
 
 myMPD caches extracted covers under `/var/cache/mympd/covercache`. Files in this directory can be safely deleted. myMPD houskeeps the covercache on startup and each two hours.
 
+You can disable the covercache by setting the `Covercache expiration` value to `0` days.
+
 ***
 
 # Streams
