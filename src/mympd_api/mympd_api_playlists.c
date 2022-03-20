@@ -102,6 +102,8 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     struct mpd_playlist *pl;
     struct t_list entity_list;
     list_init(&entity_list);
+    long real_limit = offset + limit;
+    long list_length = 0;
     while ((pl = mpd_recv_playlist(mympd_state->mpd_state->conn)) != NULL) {
         const char *plpath = mpd_playlist_get_path(pl);
         bool smartpls = is_smartpls(mympd_state->config->workdir, plpath);
@@ -109,11 +111,14 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
             (type == PLTYPE_ALL || (type == PLTYPE_STATIC && smartpls == false) || (type == PLTYPE_SMART && smartpls == true)))
         {
             if (smartpls == true) {
-                list_push(&entity_list, plpath, (long)mpd_playlist_get_last_modified(pl), "s", NULL);
+                list_insert_sorted_by_key_limit(&entity_list, plpath, (long)mpd_playlist_get_last_modified(pl), "s", NULL,
+                    LIST_SORT_ASC, real_limit, list_free_cb_ignore_user_data);
             }
             else {
-                list_push(&entity_list, plpath, (long)mpd_playlist_get_last_modified(pl), "f", NULL);
+                list_insert_sorted_by_key_limit(&entity_list, plpath, (long)mpd_playlist_get_last_modified(pl), "f", NULL,
+                    LIST_SORT_ASC, real_limit, list_free_cb_ignore_user_data);
             }
+            list_length++;
         }
         mpd_playlist_free(pl);
     }
@@ -135,7 +140,9 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
                     list_get_node(&entity_list, next_file->d_name) == NULL)
                 {
                     time_t last_modified = mpd_shared_get_smartpls_mtime(mympd_state->config, next_file->d_name);
-                    list_push(&entity_list, next_file->d_name, (long)last_modified, "t", NULL);
+                    list_insert_sorted_by_key_limit(&entity_list, next_file->d_name, (long)last_modified, "t", NULL,
+                        LIST_SORT_ASC, real_limit, list_free_cb_ignore_user_data);
+                    list_length++;
                 }
             }
             closedir(smartpls_dir);
@@ -147,17 +154,14 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
         FREE_SDS(smartpls_path);
     }
 
-    list_sort_by_key(&entity_list, LIST_SORT_ASC);
-
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer,"\"data\":[");
 
     long entity_count = 0;
     long entities_returned = 0;
-    long real_limit = offset + limit;
-    struct t_list_node *current = entity_list.head;
-    while (current != NULL) {
-        if (entity_count >= offset && entity_count < real_limit) {
+    struct t_list_node *current;
+    while ((current = list_shift_first(&entity_list)) != NULL) {
+        if (entity_count >= offset) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
@@ -169,13 +173,12 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
             buffer = tojson_bool(buffer, "smartplsOnly", current->value_p[0] == 't' ? true : false, false);
             buffer = sdscat(buffer, "}");
         }
-        current = current->next;
         entity_count++;
+        list_node_free_user_data(current, list_free_cb_ignore_user_data);
     }
-    list_clear(&entity_list);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_char(buffer, "searchstr", searchstr, true);
-    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "totalEntities", list_length, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, false);
     buffer = jsonrpc_result_end(buffer);

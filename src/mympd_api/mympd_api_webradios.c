@@ -82,6 +82,8 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
     sds filename = sdsempty();
     sds entry = sdsempty();
     sds plname = sdsempty();
+    long real_limit = offset + limit;
+    long list_length = 0;
     //read dir
     while ((next_file = readdir(webradios_dir)) != NULL ) {
         sds extension = sds_get_extension_from_filename(next_file->d_name);
@@ -102,7 +104,9 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
         if (search_len == 0 ||
             strstr(plname, searchstr) != NULL)
         {
-            list_push(&webradios, plname, 0, entry, sdsnew(next_file->d_name));
+            list_insert_sorted_by_key_limit(&webradios, plname, 0, entry, sdsnew(next_file->d_name),
+                LIST_SORT_ASC, real_limit, list_free_cb_sds_user_data);
+            list_length++;
         }
     }
     closedir(webradios_dir);
@@ -110,16 +114,12 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
     FREE_SDS(webradios_dirname);
     FREE_SDS(entry);
     FREE_SDS(plname);
-    //sort by webradio name
-    list_sort_by_key(&webradios, LIST_SORT_ASC);
     //print result
     long entity_count = 0;
     long entities_returned = 0;
-    struct t_list_node *current = webradios.head;
-    while (current != NULL) {
-        if (entity_count >= offset &&
-                entities_returned < limit)
-        {
+    struct t_list_node *current;
+    while ((current = list_shift_first(&webradios)) != NULL) {
+        if (entity_count >= offset) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
@@ -129,13 +129,10 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;
-        FREE_SDS(current->user_data);
-        current->user_data = NULL;
-        current = current->next;
+        list_node_free_user_data(current, list_free_cb_sds_user_data);
     }
-    list_clear(&webradios);
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "totalEntities", list_length, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_result_end(buffer);
     return buffer;
