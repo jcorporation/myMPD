@@ -16,6 +16,7 @@ jobs:
         ENABLE_LIBID3TAG: OFF
         ENABLE_FLAC: OFF
         ENABLE_LUA: OFF
+        ENABLE_IPV6: OFF
       run: ./build.sh release
     - name: install
       run: sudo ./build.sh install
