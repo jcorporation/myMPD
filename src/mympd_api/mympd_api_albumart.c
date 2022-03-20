@@ -34,15 +34,8 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
                 break;
             }
             offset += (unsigned)recv_len;
-            if ((size_t)recv_len < mympd_state->mpd_state->mpd_binarylimit) {
-                MYMPD_LOG_DEBUG("Retrieved last bytes from mpd albumart command");
-                break;
-            }
         }
-        if (recv_len == 0) {
-            MYMPD_LOG_DEBUG("Received zero bytes from mpd albumart command");
-        }
-        else if (recv_len < 0) {
+        if (recv_len < 0) {
             MYMPD_LOG_WARN("MPD returned -1 for albumart command");
         }
     }
@@ -61,15 +54,8 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
                 break;
             }
             offset += (unsigned)recv_len;
-            if ((size_t)recv_len < mympd_state->mpd_state->mpd_binarylimit) {
-                MYMPD_LOG_DEBUG("Retrieved last bytes from readpicture command");
-                break;
-            }
         }
-        if (recv_len == 0) {
-            MYMPD_LOG_DEBUG("Received zero bytes from mpd readpicture command");
-        }
-        else if (recv_len < 0) {
+        if (recv_len < 0) {
             MYMPD_LOG_WARN("MPD returned -1 for readpicture command");
         }
     }
