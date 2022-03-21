@@ -43,11 +43,11 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
     FILE *fp = fdopen(fd, "w");
     //first write last_played list to tmp file
     int i = 0;
-    struct t_list_node *current = mympd_state->last_played.head;
-    while (current != NULL && i < mympd_state->last_played_count) {
+    struct t_list_node *current;
+    while ((current = list_shift_first(&mympd_state->last_played)) != NULL) {
         fprintf(fp, "%lld::%s\n", current->value_i, current->key);
-        current = current->next;
         i++;
+        list_node_free(current);
     }
     //append current last_played file to tmp file
     sds line = sdsempty();
@@ -55,7 +55,9 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
     errno = 0;
     FILE *fi = fopen(lp_file, OPEN_FLAGS_READ);
     if (fi != NULL) {
-        while (sds_getline_n(&line, fi, 1000) == 0 && i < mympd_state->last_played_count) {
+        while (sds_getline_n(&line, fi, 1000) == 0 &&
+            i < mympd_state->last_played_count)
+        {
             fputs(line, fp);
             i++;
         }
@@ -80,8 +82,6 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
     }
     FREE_SDS(tmp_file);
     FREE_SDS(lp_file);
-    //empt list after write to disc
-    list_clear(&mympd_state->last_played);
     return true;
 }
 
