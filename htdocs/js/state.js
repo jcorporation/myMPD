@@ -27,13 +27,11 @@ function parseStats(obj) {
     mpdInfoVersionEl.appendChild(document.createTextNode(obj.result.mpdProtocolVersion));
 
     const mpdProtocolVersion = obj.result.mpdProtocolVersion.match(/(\d+)\.(\d+)\.(\d+)/);
-    if (mpdProtocolVersion[1] >= mpdVersion.major &&
-        mpdProtocolVersion[2] >= mpdVersion.minor &&
-        mpdProtocolVersion[3] >= mpdVersion.patch)
+    if ((mpdProtocolVersion[1] < mpdVersion.major) ||
+        (mpdProtocolVersion[1] <= mpdVersion.major && mpdProtocolVersion[2] < mpdVersion.minor) ||
+        (mpdProtocolVersion[1] <= mpdVersion.major && mpdProtocolVersion[2] <= mpdVersion.minor && mpdProtocolVersion[3] < mpdVersion.patch)
+       )
     {
-        //up2date mpd version
-    }
-    else {
         mpdInfoVersionEl.appendChild(
             elCreateText('div', {"class": ["alert", "alert-warning", "mt-2", "mb-1"], "data-phrase": 'MPD version is outdated'}, tn('MPD version is outdated'))
         );
