@@ -731,7 +731,9 @@ function parseRadiobrowserList(obj) {
     }
 
     const rowTitle = tn(webuiSettingsDefault.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
+    //set result keys for pagination
     obj.result.returnedEntities = obj.result.data.length;
+    obj.result.totalEntities = -1;
 
     updateTable(obj, 'BrowseRadioRadiobrowser', function(row, data) {
         setData(row, 'uri', data.url_resolved);
