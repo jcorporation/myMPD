@@ -554,6 +554,7 @@ function filetype(uri) {
         case 'MP4':  return ext + ' - MPEG-4';
         case 'APE':  return ext + ' - Monkey Audio';
         case 'WMA':  return ext + ' - Windows Media Audio';
+        case 'CUE':  return ext + ' - Cuesheet';
         default:     return ext;
     }
 }
@@ -1529,10 +1530,19 @@ function clearSearchTimer() {
     }
 }
 
-function realUri(uri) {
+//cuesheet handling
+function cuesheetUri(uri) {
     const cuesheet = uri.match(/^(.*\.cue)\/(track\d+)$/);
     if (cuesheet !== null) {
-        return cuesheet[1] + ' (' + cuesheet[2] +')';
+        return cuesheet[1];
     }
     return uri;
+}
+
+function cuesheetTrack(uri) {
+    const cuesheet = uri.match(/^(.*\.cue)\/(track\d+)$/);
+    if (cuesheet !== null) {
+        return cuesheet[2];
+    }
+    return '';
 }

@@ -138,13 +138,19 @@ function parseSongDetails(obj) {
         tbody.appendChild(tr);
     }
     tbody.appendChild(songDetailsRow('Duration', beautifyDuration(obj.result.Duration)));
+    //resolves cuesheet virtual tracks
+    const rUri = cuesheetUri(obj.result.uri);
+    let isCuesheet = false;
+    if (rUri !== obj.result.uri) {
+        isCuesheet = true;
+    }
     if (features.featLibrary === true) {
-        const rUri = realUri(obj.result.uri);
+        const shortName = basename(rUri, false) + (isCuesheet === true ? ' (' + cuesheetTrack(obj.result.uri) + ')' : '');
         tbody.appendChild(
             songDetailsRow('Filename',
                 elCreateText('a', {"class": ["text-break", "text-success", "download"],
                     "href": myEncodeURI(subdir + '/browse/music/' + rUri),
-                    "target": "_blank", "title": rUri}, basename(rUri, false))
+                    "target": "_blank", "title": rUri}, shortName)
             )
         );
     }
@@ -153,9 +159,12 @@ function parseSongDetails(obj) {
             basename(obj.result.uri, false))));
     }
     tbody.appendChild(songDetailsRow('AudioFormat', printValue('AudioFormat', obj.result.AudioFormat)));
-    tbody.appendChild(songDetailsRow('Filetype', filetype(obj.result.uri)));
+    tbody.appendChild(songDetailsRow('Filetype', filetype(rUri)));
     tbody.appendChild(songDetailsRow('LastModified', localeDate(obj.result.LastModified)));
-    if (features.featFingerprint === true) {
+    //fingerprint command is not supported for cuesheet virtual tracks
+    if (features.featFingerprint === true &&
+        isCuesheet === false)
+    {
         const a = elCreateText('a', {"class": ["text-success"], "id": "calcFingerprint", "href": "#"}, tn('Calculate'));
         setData(a, 'uri', obj.result.uri);
         tbody.appendChild(songDetailsRow('Fingerprint', a));
