@@ -446,8 +446,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     sds response = jsonrpc_result_start(sdsempty(), "", 0);
                     char addr_str[INET6_ADDRSTRLEN];
                     const char *addr_str_ptr = nc->peer.is_ip6 == true ?
-                        inet_ntop(AF_INET6, &nc->peer.ip6, addr_str, INET6_ADDRSTRLEN) :
-                        inet_ntop(AF_INET, &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
+                        inet_ntop(AF_INET6, &localip.sin_addr, addr_str, INET6_ADDRSTRLEN) :
+                        inet_ntop(AF_INET, &localip.sin_addr, addr_str, INET6_ADDRSTRLEN);
                     if (addr_str_ptr != NULL) {
                         response = tojson_char(response, "ip", addr_str_ptr, false);
                     }
