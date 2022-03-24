@@ -1528,3 +1528,11 @@ function clearSearchTimer() {
         searchTimer = null;
     }
 }
+
+function realUri(uri) {
+    const cuesheet = uri.match(/^(.*\.cue)\/(track\d+)$/);
+    if (cuesheet !== null) {
+        return cuesheet[1] + ' (' + cuesheet[2] +')';
+    }
+    return uri;
+}

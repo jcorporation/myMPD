@@ -139,11 +139,12 @@ function parseSongDetails(obj) {
     }
     tbody.appendChild(songDetailsRow('Duration', beautifyDuration(obj.result.Duration)));
     if (features.featLibrary === true) {
+        const rUri = realUri(obj.result.uri);
         tbody.appendChild(
             songDetailsRow('Filename',
                 elCreateText('a', {"class": ["text-break", "text-success", "download"],
-                    "href": myEncodeURI(subdir + '/browse/music/' + obj.result.uri),
-                    "target": "_blank", "title": tn(obj.result.uri)}, basename(obj.result.uri, false))
+                    "href": myEncodeURI(subdir + '/browse/music/' + rUri),
+                    "target": "_blank", "title": rUri}, basename(rUri, false))
             )
         );
     }
