@@ -254,7 +254,6 @@ function setBackgroundImage(el, url) {
         }
         else {
             old[i].style.zIndex = '-10';
-            old[i].style.opacity = '0';
         }
     }
     //add new cover and let it fade in

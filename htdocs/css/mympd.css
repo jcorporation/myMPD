@@ -192,6 +192,7 @@ div > .albumartbg {
   background-size: cover;
   transition: opacity 1s;
   z-index: -9;
+  position: absolute;
 }
 
 .badge {
@@ -270,6 +271,7 @@ div.footerCounter {
   background-size: cover;
   flex-shrink: 0;
   position: relative;
+  z-index: 1;
 }
 
 #footerTitle {
