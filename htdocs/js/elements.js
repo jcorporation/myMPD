@@ -124,6 +124,9 @@ function setSelectSearch(el) {
         const cbOptions = getData(el, 'cb-filter-options');
         window[cb](... cbOptions, event.target.value);
     }, false);
+    el.filterInput.addEventListener('click', function(event) {
+        event.stopPropagation();
+    }, false);
     el.addFilterResult = function(text, value) {
         const item = elCreateText('li', {"class": ["list-group-item", "list-group-item-action", "clickable"]}, text);
         setData(item, 'value', value);
