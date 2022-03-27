@@ -15,6 +15,11 @@ body.theme-light .nav-link {
   color: var(--bs-gray-800);
 }
 
+body.theme-light .list-group-item-action:hover,
+body.theme-light .list-group-item-action:focus {
+  background-color: var(--bs-gray-400);
+}
+
 body.theme-light .btn-secondary,
 body.theme-light .bg-secondary {
   color: var(--bs-gray-800);
