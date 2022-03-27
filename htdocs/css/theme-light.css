@@ -151,3 +151,7 @@ body.theme-light .btn-danger,
 body.theme-light .btn-success {
   color: var(--mympd-highlightcolor-contrast);
 }
+
+body.theme-light .album-cover {
+  border-color: var(--bs-gray-400);
+}
