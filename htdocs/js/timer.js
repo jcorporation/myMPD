@@ -202,8 +202,6 @@ function showEditTimer(timerid) {
     }
     else {
         filterPlaylistsSelect(0, 'selectTimerPlaylist', '', 'Database');
-        document.getElementById('selectTimerPlaylist').value = tn('Database');
-        setDataId('selectTimerPlaylist', 'value', 'Database');
 
         document.getElementById('inputTimerId').value = '0';
         document.getElementById('inputTimerName').value = '';
@@ -212,7 +210,6 @@ function showEditTimer(timerid) {
         document.getElementById('selectTimerMinute').value = '0';
         document.getElementById('selectTimerAction').value = 'startplay';
         document.getElementById('inputTimerVolume').value = '50';
-        document.getElementById('selectTimerPlaylist').value = 'Database';
         selectTimerIntervalChange(86400);
         selectTimerActionChange();
         toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), 'song');
@@ -237,8 +234,6 @@ function parseEditTimer(obj) {
         elEnable(selectTimerPlaylistEl);
     }
     filterPlaylistsSelect(1, 'selectTimerPlaylist', '', playlistValue);
-    selectTimerPlaylistEl.value = playlistValue === 'Datbase' ? tn('Database'): playlistValue;
-    setDataId('selectTimerPlaylist', 'value', playlistValue);
 
     document.getElementById('inputTimerId').value = obj.result.timerid;
     document.getElementById('inputTimerName').value = obj.result.name;

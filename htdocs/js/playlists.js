@@ -346,7 +346,9 @@ function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
 function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
     const selectEl = document.getElementById(playlistSelectId);
     if (selectedPlaylist !== undefined) {
-        selectEl.value = selectedPlaylist;
+        //set input element values
+        selectEl.value = selectedPlaylist === 'Database' ? tn('Database'): selectedPlaylist;
+        setData(selectEl, 'value', selectedPlaylist);
     }
     elClear(selectEl.filterResult);
     if (playlistSelectId === 'selectJukeboxPlaylist' ||
