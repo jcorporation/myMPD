@@ -19,7 +19,7 @@ ProtectSystem=yes
 ProtectKernelTunables=yes
 ProtectControlGroups=yes
 ProtectKernelModules=yes
-RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
 RestrictNamespaces=yes
 
 [Install]
