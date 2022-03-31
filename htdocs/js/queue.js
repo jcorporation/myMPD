@@ -33,7 +33,7 @@ function initQueue() {
             if (colName === null ||
                 colName === 'Duration' ||
                 colName.indexOf('sticker') === 0 ||
-                features.featAdvsearch === false)
+                features.featAdvqueue === false)
             {
                 return;
             }
@@ -115,7 +115,7 @@ function initQueue() {
             this.blur();
         }
         else if (event.key === 'Enter' &&
-            features.featAdvsearch === true)
+            features.featAdvqueue === true)
         {
             if (value !== '') {
                 const op = getSelectValueId('searchQueueMatch');
