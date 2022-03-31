@@ -440,6 +440,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
             }
             else if (mg_http_match_uri(hm, "/api/serverinfo")) {
+                //Todo: migrate to nc->loc and mg_straddr after upgrade to mongoose 7.7
                 struct sockaddr_storage localip;
                 socklen_t len = sizeof(localip);
                 if (getsockname((int)(long)nc->fd, (struct sockaddr *)(&localip), &len) == 0) {
