@@ -440,14 +440,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
             }
             else if (mg_http_match_uri(hm, "/api/serverinfo")) {
-                struct sockaddr_in localip;
+                struct sockaddr_storage localip;
                 socklen_t len = sizeof(localip);
-                if (getsockname((int)(long)nc->fd, (struct sockaddr *)&localip, &len) == 0) {
+                if (getsockname((int)(long)nc->fd, (struct sockaddr *)(&localip), &len) == 0) {
                     sds response = jsonrpc_result_start(sdsempty(), "", 0);
                     char addr_str[INET6_ADDRSTRLEN];
                     const char *addr_str_ptr = nc->peer.is_ip6 == true ?
-                        inet_ntop(AF_INET6, &localip.sin_addr, addr_str, INET6_ADDRSTRLEN) :
-                        inet_ntop(AF_INET, &localip.sin_addr, addr_str, INET6_ADDRSTRLEN);
+                        inet_ntop(AF_INET6, &(((struct sockaddr_in6*)&localip)->sin6_addr), addr_str, INET6_ADDRSTRLEN) :
+                        inet_ntop(AF_INET, &(((struct sockaddr_in*)&localip)->sin_addr), addr_str, INET6_ADDRSTRLEN);
                     if (addr_str_ptr != NULL) {
                         response = tojson_char(response, "ip", addr_str_ptr, false);
                     }
