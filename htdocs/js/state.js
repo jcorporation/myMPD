@@ -237,7 +237,7 @@ function setBackgroundImage(el, url) {
         clearBackgroundImage(el);
         return;
     }
-    const bgImageUrl = 'url("' + subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(url) + '")';
+    const bgImageUrl = subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(url);
     const old = el.parentNode.querySelectorAll(el.tagName + '> div.albumartbg');
     //do not update if url is the same
     if (old[0] &&
@@ -261,17 +261,27 @@ function setBackgroundImage(el, url) {
     if (el.tagName === 'BODY') {
         div.style.filter = settings.webuiSettings.uiBgCssFilter;
     }
-    div.style.backgroundImage = bgImageUrl;
+    div.style.backgroundImage = 'url("' + bgImageUrl + '")';
     div.style.opacity = 0;
     setData(div, 'uri', bgImageUrl);
     el.insertBefore(div, el.firstChild);
-    //create dummy img element to handle onload for bgimage
+    //create dummy img element for preloading and fade-in
     const img = new Image();
     setData(img, 'div', div);
     img.onload = function(event) {
+        //fade-in current cover
         getData(event.target, 'div').style.opacity = 1;
+        //fade-out old cover with some overlap
+        setTimeout(function() {
+            const bgImages = el.parentNode.querySelectorAll(el.tagName + '> div.albumartbg');
+            for (let i = 0, j = bgImages.length; i < j; i++) {
+                if (bgImages[i].style.zIndex === '-10') {
+                    bgImages[i].style.opacity = 0;
+                }
+            }
+        }, 800);
     };
-    img.src = subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(url);
+    img.src = bgImageUrl;
 }
 
 function clearBackgroundImage(el) {
