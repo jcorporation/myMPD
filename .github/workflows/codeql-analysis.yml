@@ -49,8 +49,11 @@ jobs:
     #    and modify them (or add more) to build your code if your project
     #    uses a compiled language
 
-    - run: |
-       ./build.sh debug
+    - name: installdeps
+      run: sudo ./build.sh installdeps
+
+    - name: build
+      run: ./build.sh debug
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v1
