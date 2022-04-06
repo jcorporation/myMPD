@@ -20,7 +20,7 @@ find_path(LIBID3TAG_INCLUDE_DIR
 # Look for the library
 find_library(LIBID3TAG_LIBRARY
     NAMES id3tag
-    HINTS ${PC_PCRE2_LIBDIR} ${PC_PCRE2_LIBRARY_DIRS}
+    HINTS ${PC_LIBID3TAG_LIBDIR} ${PC_LIBID3TAG_LIBRARY_DIRS}
 )
 
 include(FindPackageHandleStandardArgs)
