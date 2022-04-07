@@ -91,7 +91,7 @@ endif()
 #required dependencies
 find_package(Threads REQUIRED)
 find_package(PCRE2 REQUIRED)
-find_library(M m)
+find_library(M m REQUIRED)
 
 #optional dependencies
 if(NOT "${ENABLE_SSL}" MATCHES "OFF")
