@@ -630,7 +630,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 break;
             }
             if (update_id > 0) {
-                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, "database", "info", "Database update already startet");
+                response->data = jsonrpc_respond_message(response->data, request->method, request->id, false, "database", "info", "Database update already started");
                 break;
             }
             if (json_get_string(request->data, "$.params.uri", 0, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
