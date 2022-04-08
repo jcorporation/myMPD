@@ -1713,7 +1713,7 @@ Partitionen verwalten
 Jukebox is disabled
 Jukebox ist deaktiviert
 
-Database update already startet
+Database update already started
 Datenbankaktualisierung läuft bereits
 
 Error getting MPD status

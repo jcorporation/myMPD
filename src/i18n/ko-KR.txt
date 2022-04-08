@@ -1713,7 +1713,7 @@ Manage partitions
 Jukebox is disabled
 뮤직박스 사용 안 함
 
-Database update already startet
+Database update already started
 데이터베이스 업데이트가 이미 시작됨
 
 Error getting MPD status
