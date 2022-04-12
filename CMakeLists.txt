@@ -15,6 +15,8 @@ set(CPACK_PACKAGE_VERSION_PATCH "4")
 #minimal cmake version needed for correct GNUInstallDirs
 cmake_minimum_required(VERSION 3.4)
 
+message("Cmake version: ${CMAKE_VERSION}")
+
 #available options
 option(EMBEDDED_ASSETS "Embeds assets in binary, default ON" ON)
 option(ENABLE_FLAC "Enables flac usage, default ON" ON)
