@@ -10,27 +10,27 @@ myMPD has no single configuration file. Most of the options are configureable th
 
 You can set some basic options with command line options. All these options have sane default values and should not be changed for default usage.
 
-The `workdir` option is useful if you want to run more then one instance of myMPD on the same host.
+The `workdir` and `cachedir` options are useful if you want to run more then one instance of myMPD on the same host.
 
 | OPTION | DESCRIPTION |
 | ------ | ----------- |
-| -c, --config | creates config and exits (default directory: `/var/lib/mympd/config/`) |
-| -h, --help | displays this help |
-| -v, --version | displays this help |
-| -u, --user `<username>`| username to drop privileges to (default: `mympd`) |
-| -s, --syslog | enable syslog logging (facility: daemon) |
-| -w, --workdir `<path>` | working directory (default: `/var/lib/mympd`) |
-| -a, --cachedir `<path>` | cache directory (default: `/var/cache/mympd`) |
-| -p, --pin | sets a pin for myMPD settings |
+| `-c`, `--config` | creates config and exits (default directory: `/var/lib/mympd/config/`) |
+| `-h`, `--help` | displays this help |
+| `-v`, `--version` | displays this help |
+| `-u`, `--user <username>`| username to drop privileges to (default: `mympd`) |
+| `-s`, `--syslog` | enable syslog logging (facility: daemon) |
+| `-w`, `--workdir <path>` | working directory (default: `/var/lib/mympd`) |
+| `-a`, `--cachedir <path>` | cache directory (default: `/var/cache/mympd`) |
+| `-p`, `--pin` | sets a pin for myMPD settings |
 {: .table .table-sm }
 
 - Setting a pin is only supported with compiled in ssl support
 
 ## Configuration files
 
-At first startup (if there is no ẁorking directory) myMPD tries to autodetect the MPD connection and reads some environment variables.
+At first startup (if there is no config folder in the working folder) myMPD tries to autodetect the MPD connection and reads some environment variables.
 
-After first startup all environment variables are ignored and the files in the directory `/var/lib/mympd/config/` should be edited.
+After first startup all environment variables are ignored and the files in the folder `/var/lib/mympd/config/` should be edited.
 
 | FILE | TYPE | ENVIRONMENT | DEFAULT | DESCRIPTION |
 | ---- | ---- | ----------- | ------- | ----------- |

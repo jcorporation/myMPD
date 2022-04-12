@@ -76,7 +76,7 @@ On the first startup myMPD reads some environments variables and tries to autode
 - [Running](https://jcorporation.github.io/myMPD/running)
 
 ``
-Usage: ./mympd
+Usage: mympd -h
 ``
 
 ## Documentation
