@@ -73,7 +73,6 @@ sds sds_catjson(sds s, const char *p, size_t len) {
     return sdscatlen(s, "\"", 1);
 }
 
-
 sds sds_catjsonchar(sds s, const char p) {
     switch(p) {
         case '\\':
@@ -106,15 +105,18 @@ bool sds_json_unescape(const char *src, int slen, sds *dst) {
     while (src < send) {
         if (*src == '\\') {
             if (++src >= send) {
+                //escape char should not be the last
                 return false;
             }
             if (*src == 'u') {
+                //skip unicode escapes
                 if (send - src < 5) {
                     return false;
                 }
                 src += 4;
             }
             else if ((p = strchr(esc1, *src)) != NULL) {
+                //print unescaped value
                 *dst = sdscatfmt(*dst, "%c", esc2[p - esc1]);
             }
             else {
