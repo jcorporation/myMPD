@@ -201,16 +201,23 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 return;
             }
             //password required
-            if (sdslen(mympd_state->mpd_state->mpd_pass) > 0 &&
-                mpd_run_password(mympd_state->mpd_state->conn, mympd_state->mpd_state->mpd_pass) == false)
-            {
-                MYMPD_LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mympd_state->mpd_state->conn));
-                buffer = jsonrpc_notify_phrase(buffer, "mpd", "error", "MPD connection error: %{error}", 2,
-                    "error", mpd_connection_get_error_message(mympd_state->mpd_state->conn));
-                ws_notify(buffer);
-                FREE_SDS(buffer);
-                mympd_state->mpd_state->conn_state = MPD_FAILURE;
-                return;
+            if (sdslen(mympd_state->mpd_state->mpd_pass) > 0) {
+                MYMPD_LOG_DEBUG("Password set, authenticating to MPD");
+                if (mpd_run_password(mympd_state->mpd_state->conn, mympd_state->mpd_state->mpd_pass) == false) {
+                    MYMPD_LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mympd_state->mpd_state->conn));
+                    buffer = jsonrpc_notify_phrase(buffer, "mpd", "error", "MPD connection error: %{error}", 2,
+                        "error", mpd_connection_get_error_message(mympd_state->mpd_state->conn));
+                    ws_notify(buffer);
+                    FREE_SDS(buffer);
+                    mympd_state->mpd_state->conn_state = MPD_FAILURE;
+                    return;
+                }
+                else {
+                    MYMPD_LOG_INFO("Successfully authenticated to MPD");
+                }
+            }
+            else {
+                MYMPD_LOG_DEBUG("No password set");
             }
             //set keepalive
             mpd_shared_set_keepalive(mympd_state->mpd_state);

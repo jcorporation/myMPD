@@ -104,10 +104,19 @@ static bool mpd_worker_connect(struct t_mpd_worker_state *mpd_worker_state) {
         mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
         return false;
     }
-    if (sdslen(mpd_worker_state->mpd_state->mpd_pass) > 0 && !mpd_run_password(mpd_worker_state->mpd_state->conn, mpd_worker_state->mpd_state->mpd_pass)) {
-        MYMPD_LOG_ERROR("MPD worker connection: %s", mpd_connection_get_error_message(mpd_worker_state->mpd_state->conn));
-        mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
-        return false;
+    if (sdslen(mpd_worker_state->mpd_state->mpd_pass) > 0) {
+        MYMPD_LOG_DEBUG("Password set, authenticating to MPD");
+        if (mpd_run_password(mpd_worker_state->mpd_state->conn, mpd_worker_state->mpd_state->mpd_pass) == false) {
+             MYMPD_LOG_ERROR("MPD worker connection: %s", mpd_connection_get_error_message(mpd_worker_state->mpd_state->conn));
+             mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
+             return false;
+        }
+        else {
+             MYMPD_LOG_INFO("Successfully authenticated to MPD");
+        }
+    }
+    else {
+        MYMPD_LOG_DEBUG("No password set");
     }
 
     MYMPD_LOG_NOTICE("MPD worker connected");
