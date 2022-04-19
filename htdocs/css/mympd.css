@@ -163,6 +163,14 @@ main {
   padding-right: 1rem;
 }
 
+#navbar-main {
+  overflow: auto;
+}
+
+#headerLeft {
+  margin-right: 2rem;
+}
+
 .square-end {
   border-bottom-right-radius: 0 !important;
   border-top-right-radius: 0 !important;
@@ -221,6 +229,7 @@ div > .albumartbg {
 
   #headerLeft {
     margin-bottom: 2rem;
+    margin-right: 0;
   }
 
   .navText {

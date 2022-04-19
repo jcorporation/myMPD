@@ -950,6 +950,9 @@ function initNavs() {
         }
         const target = event.target.nodeName === 'A' ? event.target : event.target.parentNode;
         const href = getData(target, 'href');
+        if (href === undefined) {
+            return;
+        }
         parseCmd(event, href);
     }, false);
 
