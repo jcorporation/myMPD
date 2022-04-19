@@ -15,9 +15,12 @@ function initSong() {
                 elHide(event.target);
                 event.target.parentNode.appendChild(spinner);
             }
-            else if (event.target.classList.contains('download') ||
-                event.target.classList.contains('external'))
-            {
+            else if (event.target.id === 'gotoContainingFolder') {
+                uiElements.modalSongDetails.hide();
+                event.preventDefault();
+                appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-', '-', '-', getData(event.target, 'folder'), 0);
+            }
+            else if (event.target.id === 'downloadSong') {
                 //do nothing, link opens in new browser window
             }
             else if (getData(event.target.parentNode, 'tag') !== undefined) {
@@ -146,11 +149,17 @@ function parseSongDetails(obj) {
     }
     if (features.featLibrary === true) {
         const shortName = basename(rUri, false) + (isCuesheet === true ? ' (' + cuesheetTrack(obj.result.uri) + ')' : '');
+        const ofl = elCreateText('a', {"id": "gotoContainingFolder", "class": ["btn", "btn-secondary", "mi", "float-end"], "href": "#", "title": tn("Open folder")}, 'folder_open');
+        setData(ofl, 'folder', dirname(obj.result.uri));
         tbody.appendChild(
             songDetailsRow('Filename',
-                elCreateText('a', {"class": ["text-break", "text-success", "download"],
-                    "href": myEncodeURI(subdir + '/browse/music/' + rUri),
-                    "target": "_blank", "title": rUri}, shortName)
+                elCreateNodes('div', {}, [
+                    elCreateText('span', {"class": ["text-break"], "title": rUri}, shortName),
+                    ofl,
+                    elCreateText('a', {"id": "downloadSong","class": ["btn", "btn-secondary", "mi", "me-2", "float-end"],
+                        "href": myEncodeURI(subdir + '/browse/music/' + rUri),
+                        "target": "_blank", "title": tn("Download")}, 'file_download')
+                ])
             )
         );
     }
