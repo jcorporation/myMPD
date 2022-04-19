@@ -111,9 +111,7 @@ static bool mpd_worker_connect(struct t_mpd_worker_state *mpd_worker_state) {
              mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
              return false;
         }
-        else {
-             MYMPD_LOG_INFO("Successfully authenticated to MPD");
-        }
+        MYMPD_LOG_INFO("Successfully authenticated to MPD");
     }
     else {
         MYMPD_LOG_DEBUG("No password set");

@@ -212,9 +212,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     mympd_state->mpd_state->conn_state = MPD_FAILURE;
                     return;
                 }
-                else {
-                    MYMPD_LOG_INFO("Successfully authenticated to MPD");
-                }
+                MYMPD_LOG_INFO("Successfully authenticated to MPD");
             }
             else {
                 MYMPD_LOG_DEBUG("No password set");
