@@ -93,7 +93,7 @@ endif()
 #required dependencies
 find_package(Threads REQUIRED)
 find_package(PCRE2 REQUIRED)
-find_library(M m REQUIRED)
+find_library(MATH_LIB m REQUIRED)
 
 #optional dependencies
 if(NOT "${ENABLE_SSL}" MATCHES "OFF")
@@ -395,7 +395,7 @@ add_executable(mympd ${MYMPD_SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})
 
 #link required dependencies
 target_link_libraries(mympd ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(mympd ${M_LIBRARIES})
+target_link_libraries(mympd ${MATH_LIB})
 target_link_libraries(mympd ${PCRE2_LIBRARIES})
 #link optional dependencies
 if(OPENSSL_FOUND)
