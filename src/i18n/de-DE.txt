@@ -2186,3 +2186,9 @@ Wiederholen ändern
 
 Invalid response
 Ungültige Antwort
+
+Codec
+Codec
+
+Bitrate
+Bitrate

@@ -458,10 +458,14 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             document.getElementById('filterWebradiodbCountry').value = app.current.filter.country;
             setDataId('filterWebradiodbLanguage', 'value', app.current.filter.language);
             document.getElementById('filterWebradiodbLanguage').value = app.current.filter.language;
+            setDataId('filterWebradiodbCodec', 'value', app.current.filter.codec);
+            document.getElementById('filterWebradiodbCodec').value = app.current.filter.codec;
+            setDataId('filterWebradiodbBitrate', 'value', app.current.filter.bitrate);
+            document.getElementById('filterWebradiodbBitrate').value = app.current.filter.bitrate;
 
             const result = searchWebradiodb(app.current.search, app.current.filter.genre,
-                app.current.filter.country, app.current.filter.language, app.current.sort,
-                app.current.offset, app.current.limit);
+                app.current.filter.country, app.current.filter.language, app.current.filter.codec,
+                app.current.filter.bitrate, app.current.sort, app.current.offset, app.current.limit);
             parseSearchWebradiodb(result);
             break;
         }

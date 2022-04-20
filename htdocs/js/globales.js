@@ -190,7 +190,9 @@ app.cards = {
                         "filter": {
                             "genre": "",
                             "country": "",
-                            "language": ""
+                            "language": "",
+                            "codec": "",
+                            "bitrate": ""
                         },
                         "sort": {
                             "tag": "Name",

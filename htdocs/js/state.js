@@ -531,6 +531,15 @@ function setPlaybackCardTags(songObj) {
                 ])
             );
         }
+        if (songObj.webradio.Codec !== '') {
+            cardPlaybackWebradio.appendChild(
+                elCreateNodes('div', {}, [
+                    elCreateText('small', {}, tn('Format')),
+                    elCreateText('p', {}, songObj.webradio.Codec + 
+                        (songObj.webradio.Bitrate !== '' ? ' / ' + songObj.webradio.Bitrate + ' kbit' : ''))
+                ])
+            );
+        }
         if (songObj.webradio.Description !== '') {
             cardPlaybackWebradio.appendChild(
                 elCreateNodes('div', {}, [

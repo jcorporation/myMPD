@@ -163,7 +163,7 @@ function dragAndDropTableHeader(table) {
 
 function setColTags(table) {
     if (table === 'BrowseRadioWebradiodb') {
-        return ["Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri"];
+        return ["Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate"];
     }
     else if (table === 'BrowseRadioRadiobrowser') {
         return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];

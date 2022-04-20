@@ -598,6 +598,12 @@
               <div class="btn-group position-relative me-2">
                 <input readonly="readonly" data-is="mympd-select-search" id="filterWebradiodbLanguage" class="form-select" data-placeholder-phrase="Language"/>
               </div>
+              <div class="btn-group position-relative me-2">
+                <input readonly="readonly" data-is="mympd-select-search" id="filterWebradiodbCodec" class="form-select" data-placeholder-phrase="Codec"/>
+              </div>
+              <div class="btn-group position-relative me-2">
+                <input readonly="readonly" data-is="mympd-select-search" id="filterWebradiodbBitrate" class="form-select" data-placeholder-phrase="Bitrate"/>
+              </div>
             </div>
             <div class="btn-group me-2 featHome" id="BrowseRadioWebradiodbAddToHome">
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary"><span class="mi">add_to_home_screen</span></button>
@@ -2490,6 +2496,18 @@
                 <div class="btn-group d-flex">
                   <input data-is="mympd-select-search" data-placeholder-phrase="Type or select picture" type="text" class="form-control" id="editRadioFavoriteImage"/>
                 </div>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label class="col-sm-4 col-form-label" for="editRadioFavoriteCodec" data-phrase="Codec"></label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" id="editRadioFavoriteCodec"/>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label class="col-sm-4 col-form-label" for="editRadioFavoriteBitrate" data-phrase="Bitrate"></label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" id="editRadioFavoriteBitrate"/>
               </div>
             </div>
             <div class="row mb-3">

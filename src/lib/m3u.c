@@ -123,5 +123,7 @@ static const char *m3ufields_map(sds field) {
     if (strcmp(field, "LANGUAGE") == 0)         { return "Language"; }
     if (strcmp(field, "DESCRIPTION") == 0)      { return "Description"; }
     if (strcmp(field, "PLAYLIST") == 0)         { return "Name"; }
+    if (strcmp(field, "CODEC") == 0)            { return "Codec"; }
+    if (strcmp(field, "BITRATE") == 0)          { return "Bitrate"; }
     return "";
 }
