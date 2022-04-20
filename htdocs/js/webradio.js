@@ -56,6 +56,11 @@ function initWebradio() {
         }
     }, false);
 
+    document.getElementById('addToWebradioFavorites').addEventListener('click', function(event) {
+        event.preventDefault();
+        showEditRadioFavorite(getDataId('RadiobrowserDetailsTitle', 'webradio'));
+    }, false);
+
     document.getElementById('BrowseRadioWebradiodbFilter').addEventListener('show.bs.collapse', function() {
         document.getElementById('BrowseRadioWebradiodbFilterBtn').classList.add('active');
     }, false);
@@ -267,10 +272,27 @@ function _checkWebradioDb() {
     if (streamUri !== '') {
         const webradio = streamUriToName(streamUri) + '.m3u';
         if (webradioDb.webradios[webradio] === undefined) {
-            elShowId('btnAddToWebradiodb');
-            elHideId('btnUpdateWebradiodb');
-            elHideId('btnUpdateFromWebradiodb');
-            document.getElementById('webradiodbCheckState').textContent = tn('Uri not found in WebradioDB');
+            //not a main streamUri - check for alternate streams
+            const streamName = streamUriToName(streamUri);
+            let alternateStream = undefined;
+            for (const key in webradioDb.webradios) {
+                if (webradioDb.webradios[key].alternativeStreams[streamName] !== undefined) {
+                    alternateStream = webradioDb.webradios[key].alternativeStreams[streamName];
+                    break;
+                }
+            }
+            if (alternateStream === undefined) {
+                elShowId('btnAddToWebradiodb');
+                elHideId('btnUpdateWebradiodb');
+                elHideId('btnUpdateFromWebradiodb');
+                document.getElementById('webradiodbCheckState').textContent = tn('Uri not found in WebradioDB');
+            }
+            else {
+                elHideId('btnAddToWebradiodb');
+                elHideId('btnUpdateWebradiodb');
+                elHideId('btnUpdateFromWebradiodb');
+                document.getElementById('webradiodbCheckState').textContent = tn('Alternative stream uri');
+            }
         }
         else {
             elHideId('btnAddToWebradiodb');
@@ -639,7 +661,8 @@ function showWebradiodbDetails(uri) {
         document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
             'url("' + subdir + '/assets/coverimage-notavailable.svg")';
     }
-    document.getElementById('RadiobrowserDetailsTitle').textContent = result.name;
+    document.getElementById('RadiobrowserDetailsTitle').textContent = result.Name;
+    setDataId('RadiobrowserDetailsTitle', 'webradio', result);
     const showFields = [
         'StreamUri',
         'Homepage',
@@ -656,6 +679,38 @@ function showWebradiodbDetails(uri) {
             elCreateNodes('tr', {}, [
                 elCreateText('th', {}, tn(field)),
                 elCreateNode('td', {}, value)
+            ])
+        );
+    }
+    const alternateStreams = Object.keys(result.alternativeStreams);
+    if (alternateStreams.length > 0) {
+        const td = elCreateEmpty('td', {});
+        for (const name of alternateStreams) {
+            const p = elCreateText('p', {"class": ["pb-0"]}, result.alternativeStreams[name].Codec + ' / ' + 
+                result.alternativeStreams[name].Bitrate + ' ' + tn('kbit'));
+            const btn = elCreateText('button', {"class": ["btn", "btn-sm", "btn-secondary", "mi", "mi-small", "ms-2"]}, 'favorite');
+            p.appendChild(btn);
+            td.appendChild(p);
+            btn.addEventListener('click', function(event) {
+                event.preventDefault();
+                showEditRadioFavorite({
+                    "Name": result.Name,
+                    "StreamUri": result.alternativeStreams[name].StreamUri,
+                    "Genre": result.Genre,
+                    "Homepage": result.Homepage,
+                    "Country": result.Country,
+                    "Language": result.Language,
+                    "Codec": result.alternativeStreams[name].Codec,
+                    "Bitrate": result.alternativeStreams[name].Bitrate,
+                    "Description": result.Description,
+                    "Image": result.Image
+                });
+            }, false);
+        }
+        tbody.appendChild(
+            elCreateNodes('tr', {}, [
+                elCreateText('th', {}, tn('Alternative streams')),
+                td
             ])
         );
     }
@@ -711,12 +766,28 @@ function parseRadiobrowserDetails(obj) {
             'url("' + subdir + '/assets/coverimage-notavailable.svg")';
     }
     document.getElementById('RadiobrowserDetailsTitle').textContent = result.name;
+    //map fields to webradiodb fields
+    setDataId('RadiobrowserDetailsTitle', 'webradio', {
+        "Name": result.name,
+        "StreamUri": result.url_resolved,
+        "Genre": result.tags,
+        "Homepage": result.homepage,
+        "Country": result.country,
+        "Language": result.language,
+        "Codec": result.codec,
+        "Bitrate": result.bitrate,
+        "Description": "",
+        "Image": result.favicon
+    });
+    //friendly names for fields
     const showFields = {
         'url_resolved': 'StreamUri',
         'homepage': 'Homepage',
         'tags': 'Tags',
         'country': 'Country',
         'language': 'Language',
+        'codec': 'Codec',
+        'bitrate': 'Bitrate',
         'votes': 'Votes',
         'lastchangetime': 'Last change time',
         'lastcheckok': 'State',
@@ -761,6 +832,8 @@ function parseRadiobrowserList(obj) {
         setData(row, 'homepage', data.homepage);
         setData(row, 'country', data.country);
         setData(row, 'language', data.language);
+        setData(row, 'codec', data.codec);
+        setData(row, 'bitrate', data.bitrate);
         setData(row, 'RADIOBROWSERUUID', data.stationuuid);
         setData(row, 'type', 'stream');
         row.setAttribute('title', rowTitle);

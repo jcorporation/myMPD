@@ -1296,6 +1296,8 @@ function printValue(key, value) {
             return elCreateText('span', {"class": ["mi"]},
                     (value === 1 ? 'check_circle' : 'error')
                 );
+        case 'Bitrate':
+            return document.createTextNode(value + ' ' + tn('kbit'));
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
                 return getMBtagLink(key, value);

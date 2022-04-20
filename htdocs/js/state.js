@@ -536,7 +536,7 @@ function setPlaybackCardTags(songObj) {
                 elCreateNodes('div', {}, [
                     elCreateText('small', {}, tn('Format')),
                     elCreateText('p', {}, songObj.webradio.Codec + 
-                        (songObj.webradio.Bitrate !== '' ? ' / ' + songObj.webradio.Bitrate + ' kbit' : ''))
+                        (songObj.webradio.Bitrate !== '' ? ' / ' + songObj.webradio.Bitrate + ' ' + tn('kbit') : ''))
                 ])
             );
         }

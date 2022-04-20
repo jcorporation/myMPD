@@ -2192,3 +2192,15 @@ Codec
 
 Bitrate
 Bitrate
+
+Format
+Format
+
+kbit
+kbit
+
+Alternative stream uri
+Alternative Stream URL
+
+Alternative streams
+Alternative Streams

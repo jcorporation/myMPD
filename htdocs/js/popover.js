@@ -396,7 +396,9 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
             "StreamUri": uri,
             "Homepage": getData(dataNode, 'homepage'),
             "Country": getData(dataNode, 'country'),
-            "Language": getData(dataNode, 'language')
+            "Language": getData(dataNode, 'language'),
+            "Codec": getData(dataNode, 'codec'),
+            "Bitrate": getData(dataNode, 'bitrate'),
         }]}, 'Add to favorites');
     }
     if (app.id === 'BrowseRadioWebradiodb' &&
@@ -412,6 +414,8 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
             "Homepage": getData(dataNode, 'homepage'),
             "Country": getData(dataNode, 'country'),
             "Language": getData(dataNode, 'language'),
+            "Codec": getData(dataNode, 'codec'),
+            "Bitrate": getData(dataNode, 'bitrate'),
             "Description": getData(dataNode, 'description')
         }]}, 'Add to favorites');
     }
