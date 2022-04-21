@@ -119,7 +119,7 @@ static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool syn
         *buffer = tojson_char(*buffer, "desc", "", true);
         sds text = sdsempty();
         sds_getfile(&text, fp, 10000);
-        fclose(fp);
+        (void) fclose(fp);
         *buffer = tojson_char(*buffer, "text", text, false);
         *buffer = sdscatlen(*buffer, "}", 1);
         FREE_SDS(text);

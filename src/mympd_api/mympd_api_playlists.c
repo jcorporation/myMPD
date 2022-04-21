@@ -41,7 +41,7 @@ bool mympd_api_smartpls_default(struct t_config *config) {
         if (sds_getline(&prefix, fp, 50) != 0) {
             prefix = sdscat(prefix, "myMPDsmart");
         }
-        fclose(fp);
+        (void) fclose(fp);
     }
     else {
         prefix = sdscat(prefix, "myMPDsmart");
@@ -351,7 +351,7 @@ sds mympd_api_smartpls_put(struct t_config *config, sds buffer, sds method, long
     sds content = sdsempty();
     sds_getfile(&content, fp, 2000);
     FREE_SDS(pl_file);
-    fclose(fp);
+    (void) fclose(fp);
 
     sds smartpltype = NULL;
     sds sds_buf1 = NULL;
@@ -556,18 +556,33 @@ static bool smartpls_init(struct t_config *config, const char *name, const char 
         return false;
     }
     FILE *fp = fdopen(fd, "w");
-    fprintf(fp, "%s", value);
-    fclose(fp);
+    bool rc = true;
+    if (fputs(value, fp) == EOF) {
+        MYMPD_LOG_ERROR("Could not write initial smart playlist");
+        rc = false;
+    }
+    if (fclose(fp) != 0) {
+        MYMPD_LOG_ERROR("Could not close file \"%s\"", tmp_file);
+        rc = false;
+    }
     sds cfg_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, name);
     errno = 0;
-    if (rename(tmp_file, cfg_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        FREE_SDS(cfg_file);
-        return false;
+    if (rc == true) {
+        if (rename(tmp_file, cfg_file) == -1) {
+            MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
+    }
+    else {
+        //remove incomplete tmp file
+        if (unlink(tmp_file) != 0) {
+            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
     }
     FREE_SDS(tmp_file);
     FREE_SDS(cfg_file);
-    return true;
+    return rc;
 }

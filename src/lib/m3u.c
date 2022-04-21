@@ -42,7 +42,7 @@ sds m3u_get_field(sds buffer, const char *field, const char *filename) {
         }
     }
     FREE_SDS(line);
-    fclose(fp);
+    (void) fclose(fp);
     return buffer;
 }
 
@@ -61,7 +61,7 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
     if (strcmp(line, "#EXTM3U") != 0) {
         MYMPD_LOG_WARN("Invalid ext m3u file");
         sdsfree(line);
-        fclose(fp);
+        (void) fclose(fp);
         sdsclear(buffer);
         return buffer;
     }
@@ -106,7 +106,7 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
     }
     FREE_SDS(line);
     FREE_SDS(field);
-    fclose(fp);
+    (void) fclose(fp);
     if (plname != NULL) {
         sds_utf8_tolower(*plname);
     }

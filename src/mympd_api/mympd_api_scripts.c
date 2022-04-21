@@ -140,36 +140,51 @@ bool mympd_api_script_save(struct t_config *config, sds script, sds oldscript, i
         FREE_SDS(tmp_file);
         return false;
     }
+    bool rc = true;
     FILE *fp = fdopen(fd, OPEN_FLAGS_WRITE);
-    //write metadata line
     sds argstr = sdsempty();
     argstr = list_to_json_array(argstr, arguments);
-    fprintf(fp, "-- {\"order\":%d,\"arguments\":[%s]}\n", order, argstr);
+    if (fprintf(fp, "-- {\"order\":%d,\"arguments\":[%s]}\n%s", order, argstr, content) < 0) {
+        MYMPD_LOG_ERROR("Could not write to file \"%s\"", tmp_file);
+        rc = false;
+    }
     FREE_SDS(argstr);
-    //write script content
-    fputs(content, fp);
-    fclose(fp);
+    if (fclose(fp) != 0) {
+        MYMPD_LOG_ERROR("Could not close file \"%s\"", tmp_file);
+        rc = false;
+    }
     sds script_filename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->workdir, script);
     errno = 0;
-    if (rename(tmp_file, script_filename) == -1) {
-        MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, script_filename);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        FREE_SDS(script_filename);
-        return false;
-    }
-    if (sdslen(oldscript) > 0 && strcmp(script, oldscript) != 0) {
-        sds oldscript_filename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->workdir, oldscript);
-        errno = 0;
-        if (unlink(oldscript_filename) == -1) {
-            MYMPD_LOG_ERROR("Error removing file \"%s\"", oldscript_filename);
+    if (rc == true) {
+        if (rename(tmp_file, script_filename) == -1) {
+            MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, script_filename);
             MYMPD_LOG_ERRNO(errno);
+            FREE_SDS(tmp_file);
+            FREE_SDS(script_filename);
+            return false;
         }
-        FREE_SDS(oldscript_filename);
+        if (sdslen(oldscript) > 0 && strcmp(script, oldscript) != 0) {
+            sds oldscript_filename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->workdir, oldscript);
+            errno = 0;
+            if (unlink(oldscript_filename) == -1) {
+                MYMPD_LOG_ERROR("Error removing file \"%s\"", oldscript_filename);
+                MYMPD_LOG_ERRNO(errno);
+                rc = false;
+            }
+            FREE_SDS(oldscript_filename);
+        }
+    }
+    else {
+        //remove incomplete tmp file
+        if (unlink(tmp_file) != 0) {
+            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
     }
     FREE_SDS(tmp_file);
     FREE_SDS(script_filename);
-    return true;
+    return rc;
 }
 
 sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long request_id, const char *script) {
@@ -199,7 +214,7 @@ sds mympd_api_script_get(struct t_config *config, sds buffer, sds method, long r
         buffer = sdscat(buffer, ",\"content\":");
         sds content = sdsempty();
         sds_getfile(&content, fp, 10000);
-        fclose(fp);
+        (void) fclose(fp);
         buffer = sds_catjson(buffer, content, sdslen(content));
         FREE_SDS(content);
         buffer = jsonrpc_result_end(buffer);
@@ -276,7 +291,7 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
         entry = sdscat(entry, "\"metadata\":{\"order\":0,\"arguments\":[]}");
     }
     FREE_SDS(line);
-    fclose(fp);
+    (void) fclose(fp);
     return entry;
 }
 

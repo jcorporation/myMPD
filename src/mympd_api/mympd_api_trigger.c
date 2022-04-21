@@ -16,6 +16,7 @@
 
 #include <errno.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 //private definitions
 void _trigger_execute(const char *script, struct t_list *arguments);
@@ -219,7 +220,7 @@ bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
         i++;
     }
     FREE_SDS(line);
-    fclose(fp);
+    (void) fclose(fp);
     MYMPD_LOG_INFO("Read %ld triggers(s) from disc", mympd_state->triggers.length);
     FREE_SDS(trigger_file);
     return true;
@@ -239,6 +240,7 @@ bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
     FILE *fp = fdopen(fd, "w");
     struct t_list_node *current = mympd_state->triggers.head;
     sds buffer = sdsempty();
+    bool rc = true;
     while (current != NULL) {
         buffer = sds_replace(buffer, "{");
         buffer = tojson_char(buffer, "name", current->key, true);
@@ -256,23 +258,38 @@ bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
             argument = argument->next;
         }
         buffer = sdscatlen(buffer, "}}\n", 3);
-        fputs(buffer, fp);
+        if (fputs(buffer, fp) == EOF) {
+            MYMPD_LOG_ERROR("Could not write triggers to disc");
+            rc = false;
+            break;
+        }
         current = current->next;
     }
-    fclose(fp);
+    if (fclose(fp) != 0) {
+        MYMPD_LOG_ERROR("Could not close file \"%s\"", tmp_file);
+        rc = false;
+    }
     FREE_SDS(buffer);
     sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->workdir);
     errno = 0;
-    if (rename(tmp_file, trigger_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, trigger_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        FREE_SDS(trigger_file);
-        return false;
+    if (rc == true) {
+        if (rename(tmp_file, trigger_file) == -1) {
+            MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, trigger_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
+    }
+    else {
+        //remove incomplete tmp file
+        if (unlink(tmp_file) != 0) {
+            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
     }
     FREE_SDS(tmp_file);
     FREE_SDS(trigger_file);
-    return true;
+    return rc;
 }
 
 //private functions

@@ -50,7 +50,7 @@ sds get_dnsserver(void) {
         }
     }
     FREE_SDS(line);
-    fclose(fp);
+    (void) fclose(fp);
     if (sdslen(nameserver) > 0) {
         buffer = sdscatfmt(buffer, "udp://%s:53", nameserver);
     }

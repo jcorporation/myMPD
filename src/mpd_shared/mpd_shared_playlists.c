@@ -21,6 +21,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <unistd.h>
 
 time_t mpd_shared_get_db_mtime(struct t_mpd_state *mpd_state) {
     struct mpd_stats *stats = mpd_run_stats(mpd_state->conn);
@@ -255,23 +256,34 @@ bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, cons
     }
     line = tojson_char(line, "sort", sort, false);
     line = sdscatlen(line, "}", 1);
-    int rc = fputs(line, fp);
-    FREE_SDS(line);
-    if (rc < 0) {
-        MYMPD_LOG_ERROR("Can't write to file %s", tmp_file);
+    bool rc = false;
+    if (fputs(line, fp) == EOF) {
+        MYMPD_LOG_ERROR("Could not write to file %s", tmp_file);
+        rc = false;
     }
-    fclose(fp);
+    if (fclose(fp) != 0) {
+        MYMPD_LOG_ERROR("Could not close file %s", tmp_file);
+        rc = false;
+    }
+    FREE_SDS(line);
     sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", workdir, playlist);
     errno = 0;
-    rc = rename(tmp_file, pl_file);
-    if (rc == -1) {
-        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, pl_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        FREE_SDS(pl_file);
-        return false;
+    if (rc == true) {
+        if (rename(tmp_file, pl_file) == -1) {
+            MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, pl_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
+    }
+    else {
+        //remove incomplete tmp file
+        if (unlink(tmp_file) != 0) {
+            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
     }
     FREE_SDS(tmp_file);
     FREE_SDS(pl_file);
-    return true;
+    return rc;
 }

@@ -785,11 +785,12 @@ static sds set_default_navbar_icons(struct t_config *config, sds buffer) {
         FREE_SDS(file_name);
         return buffer;
     }
-    int rc = fputs(buffer, fp);
-    if (rc == EOF) {
-        MYMPD_LOG_ERROR("Can not write to file \"%s\"", file_name);
+    if (fputs(buffer, fp) == EOF) {
+        MYMPD_LOG_ERROR("Could not write to file \"%s\"", file_name);
     }
-    fclose(fp);
+    if (fclose(fp) != 0) {
+        MYMPD_LOG_ERROR("Could not close file \"%s\"", file_name);
+    }
     FREE_SDS(file_name);
     return buffer;
 }
@@ -810,7 +811,7 @@ static sds read_navbar_icons(struct t_config *config) {
     }
     FREE_SDS(file_name);
     sds_getfile(&buffer, fp, 2000);
-    fclose(fp);
+    (void) fclose(fp);
 
     if (validate_json_array(buffer) == false) {
         MYMPD_LOG_ERROR("Invalid navbar icons");

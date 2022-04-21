@@ -98,8 +98,10 @@ bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
 
     FILE *fp = fdopen(fd, "w");
     size_t written = fwrite(data, 1, data_len, fp);
-    fclose(fp);
-    if (written != data_len) {
+    int rc = fclose(fp);
+    if (written != data_len ||
+        rc != 0)
+    {
         MYMPD_LOG_ERROR("Error writing data to file \"%s\"", tmp_file);
         errno = 0;
         if (unlink(tmp_file) != 0) {

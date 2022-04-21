@@ -94,7 +94,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     }
     sds content = sdsempty();
     sds_getfile(&content, fp, 2000);
-    fclose(fp);
+    (void) fclose(fp);
 
     if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) != true) {
         MYMPD_LOG_ERROR("Cant read smart playlist type from \"%s\"", filename);
