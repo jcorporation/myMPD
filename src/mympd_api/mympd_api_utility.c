@@ -277,7 +277,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_state->volume_min = 0;
     mympd_state->volume_max = 100;
     mympd_state->volume_step = 5;
-    mympd_state->mpd_stream_port = 8080;
+    mympd_state->mpd_stream_port = 8000;
     mympd_state->webui_settings = sdsnew("{}");
     mympd_state->lyrics_uslt_ext = sdsnew("txt");
     mympd_state->lyrics_sylt_ext = sdsnew("lrc");
