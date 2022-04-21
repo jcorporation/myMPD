@@ -16,9 +16,7 @@
 
 #define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800\r\n"
 
-#define EXTRA_HEADERS_MISC "X-Content-Type-Options: nosniff\r\n"\
-    "X-XSS-Protection: 1; mode=block\r\n"\
-    "X-Frame-Options: deny\r\n"
+#define EXTRA_HEADERS_MISC "X-Content-Type-Options: nosniff\r\n"
 
 #define EXTRA_HEADERS_UNSAFE "Content-Security-Policy: default-src 'none'; "\
     "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src * data:; "\
