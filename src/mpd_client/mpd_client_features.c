@@ -34,7 +34,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
         mympd_state->mpd_state->protocol[2]
     );
 
-    // Defaults
+    //first disable all features
     mympd_state->mpd_state->feat_mpd_stickers = false;
     mympd_state->mpd_state->feat_mpd_playlists = false;
     mympd_state->mpd_state->feat_mpd_tags = false;
