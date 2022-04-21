@@ -75,10 +75,17 @@
 
 #define EXTRA_HEADERS_MISC "X-Content-Type-Options: nosniff\r\n"
 
+#define EXTRA_HEADERS_PERMISSIONS_POLICY "Permissions-Policy: accelerometer=(), ambient-light-sensor=(), autoplay=(self), "\
+    "battery=(), camera=(), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), "\
+    "execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(self), geolocation=(), gyroscope=(), "\
+    "keyboard-map=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), "\
+    "publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()\r\n"
+
 #define EXTRA_HEADERS_UNSAFE "Content-Security-Policy: default-src 'none'; "\
     "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src * data:; "\
     "connect-src 'self' ws: wss:; manifest-src 'self'; "\
     "media-src 'self'; frame-ancestors *; base-uri 'none';\r\n"\
+    EXTRA_HEADERS_PERMISSIONS_POLICY\
     EXTRA_HEADERS_MISC\
     EXTRA_HEADERS_CACHE
 
@@ -87,6 +94,7 @@
     "connect-src 'self' ws: wss:; manifest-src 'self'; "\
     "media-src 'self'; frame-ancestors *; base-uri 'none'; "\
     "require-trusted-types-for 'script'\r\n"\
+    EXTRA_HEADERS_PERMISSIONS_POLICY\
     EXTRA_HEADERS_MISC
 
 #define EXTRA_HEADERS_SAFE_CACHE EXTRA_HEADERS_SAFE\
