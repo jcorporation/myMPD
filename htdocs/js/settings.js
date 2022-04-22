@@ -424,21 +424,26 @@ function parseSettings(obj) {
     //update columns
     appRoute();
 
-    if (settings.mediaSession === true && 'mediaSession' in navigator) {
-        navigator.mediaSession.setActionHandler('play', clickPlay);
-        navigator.mediaSession.setActionHandler('pause', clickPlay);
-        navigator.mediaSession.setActionHandler('stop', clickStop);
-        navigator.mediaSession.setActionHandler('seekbackward', seekRelativeBackward);
-        navigator.mediaSession.setActionHandler('seekforward', seekRelativeForward);
-        navigator.mediaSession.setActionHandler('previoustrack', clickPrev);
-        navigator.mediaSession.setActionHandler('nexttrack', clickNext);
-
+    //mediaSession support
+    if (checkMediaSessionSupport() === true) {
+        try {
+            navigator.mediaSession.setActionHandler('play', clickPlay);
+            navigator.mediaSession.setActionHandler('pause', clickPlay);
+            navigator.mediaSession.setActionHandler('stop', clickStop);
+            navigator.mediaSession.setActionHandler('seekbackward', seekRelativeBackward);
+            navigator.mediaSession.setActionHandler('seekforward', seekRelativeForward);
+            navigator.mediaSession.setActionHandler('previoustrack', clickPrev);
+            navigator.mediaSession.setActionHandler('nexttrack', clickNext);
+        }
+        catch(error) {
+            logWarn('mediaSession.setActionHandler not supported by browser: ' + error);
+        }
         if (!navigator.mediaSession.setPositionState) {
             logDebug('mediaSession.setPositionState not supported by browser');
         }
     }
     else {
-        logDebug('mediaSession not supported by browser');
+        logDebug('mediaSession not supported by browser or not enabled');
     }
 
     //finished parse setting, set ui state
