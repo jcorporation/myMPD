@@ -640,13 +640,19 @@ function appInitStart() {
         }
     }, false);
 
+    //get local settings
+    localSettings.scaleRatio = localStorage.getItem('scaleRatio');
+    if (localSettings.scaleRatio === null) {
+        localSettings.scaleRatio = '1.0';
+    }
+    localSettings.localPlaybackAutoplay = localStorage.getItem('localPlaybackAutoplay');
+    if (localSettings.localPlaybackAutoplay === null) {
+        localSettings.localPlaybackAutoplay = false;
+    }
+
     //set initial scale
     if (isMobile === true) {
-        scale = localStorage.getItem('scale-ratio');
-        if (scale === null) {
-            scale = '1.0';
-        }
-        setViewport(false);
+        setViewport();
         domCache.body.classList.add('mobile');
     }
     else {

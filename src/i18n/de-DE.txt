@@ -2204,3 +2204,6 @@ Alternative Stream URL
 
 Alternative streams
 Alternative Streams
+
+Browser specific setting
+Browserspezifische Einstellung

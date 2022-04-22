@@ -1029,7 +1029,10 @@
                 <h4 data-phrase="Theme"></h4>
                 <div id="themeFrm"></div>
                 <div class="mb-3 row featMobile">
-                  <label class="col-sm-4 col-form-label" for="inputScaleRatio" data-phrase="Scale ratio"></label>
+                  <label class="col-sm-4 col-form-label" for="inputScaleRatio">
+                    <span data-phrase="Scale ratio"></span>
+                    <small class="mi mi-small ms-1" data-title-phrase="Browser specific setting">web_asset</small>
+                  </label>
                   <div class="col-sm-8 ">
                     <input id="inputScaleRatio" type="text" class="form-control" placeholder="1.0"/>
                     <div class="invalid-feedback" data-phrase="Invalid scale ratio"></div>
@@ -1189,6 +1192,25 @@
                 <div class="collapse" id="collapseEnableLyrics"></div>
                 <div id="warnbtnEnableLyrics" class="alert alert-warning" data-phrase="Music directory not available"></div>
               </form>
+              <hr/>
+              <h4 data-phrase="Local playback"></h4>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="btnLocalPlayback" data-phrase="Enable"></label>
+                <div class="col-sm-8 ">
+                  <button data-bs-toggle="collapse" data-bs-target="#collapseEnableLocalPlayback" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnableLocalPlayback"></button>
+                </div>
+              </div>
+              <div class="collapse" id="collapseEnableLocalPlayback">
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="btnEnableLocalPlaybackAutoplay">
+                    <span data-phrase="Autoplay"></span>
+                    <small class="mi mi-small ms-1" data-title-phrase="Browser specific setting">web_asset</small>
+                  </label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnableLocalPlaybackAutoplay"></button>
+                  </div>
+                </div>
+              </div>
               <hr/>
               <h4 data-phrase="Further Features"></h4>
               <form id="enableFeaturesFrm"></form>

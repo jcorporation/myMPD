@@ -1352,16 +1352,9 @@ function openFullscreen() {
     }
 }
 
-function setViewport(store) {
-    document.querySelector("meta[name=viewport]").setAttribute('content', 'width=device-width, initial-scale=' + scale + ', maximum-scale=' + scale);
-    if (store === true) {
-        try {
-            localStorage.setItem('scale-ratio', scale);
-        }
-        catch(err) {
-            logError('Can not save scale-ratio in localStorage: ' + err.message);
-        }
-    }
+function setViewport() {
+    document.querySelector("meta[name=viewport]").setAttribute('content', 'width=device-width, initial-scale=' +
+        localSettings.scaleRatio + ', maximum-scale=' + localSettings.scaleRatio);
 }
 
 //eslint-disable-next-line no-unused-vars

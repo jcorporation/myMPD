@@ -435,8 +435,8 @@ function parseSettings(obj) {
             navigator.mediaSession.setActionHandler('previoustrack', clickPrev);
             navigator.mediaSession.setActionHandler('nexttrack', clickNext);
         }
-        catch(error) {
-            logWarn('mediaSession.setActionHandler not supported by browser: ' + error);
+        catch(err) {
+            logWarn('mediaSession.setActionHandler not supported by browser: ' + err.message);
         }
         if (!navigator.mediaSession.setPositionState) {
             logDebug('mediaSession.setPositionState not supported by browser');
@@ -636,7 +636,7 @@ function populateSettingsFrm() {
     }
 
     if (isMobile === true) {
-        document.getElementById('inputScaleRatio').value = scale;
+        document.getElementById('inputScaleRatio').value = localSettings.scaleRatio;
     }
 
     //media session support
@@ -676,6 +676,10 @@ function populateSettingsFrm() {
         settings.webuiSettings.enableLyrics = false;
     }
     toggleBtnChkCollapseId('btnEnableLyrics', 'collapseEnableLyrics', settings.webuiSettings.enableLyrics);
+
+    //local playback
+    toggleBtnChkCollapseId('btnEnableLocalPlayback', 'collapseEnableLocalPlayback', settings.webuiSettings.enableLocalPlayback);
+    toggleBtnChkId('btnEnableLocalPlaybackAutoplay', localSettings.localPlaybackAutoplay);
 
     const inputWebUIsettinguiBgCover = document.getElementById('inputWebUIsettinguiBgCover');
     inputWebUIsettinguiBgCover.setAttribute('data-toggle', 'collapse');
@@ -1030,15 +1034,25 @@ function saveSettings(closeModal) {
         formOK = false;
     }
 
+    //browser specific settings
     if (isMobile === true) {
         const inputScaleRatio = document.getElementById('inputScaleRatio');
         if (!validateFloat(inputScaleRatio)) {
             formOK = false;
         }
         else {
-            scale = parseFloat(inputScaleRatio.value);
-            setViewport(true);
+            localSettings.scaleRatio = parseFloat(inputScaleRatio.value);
+            setViewport();
         }
+    }
+
+    localSettings.localPlaybackAutoplay = (document.getElementById('btnEnableLocalPlaybackAutoplay').classList.contains('active') ? true : false);
+    try {
+        localStorage.setItem('scaleRatio', localSettings.scaleRatio);
+        localStorage.setItem('localPlaybackAutoplay', localSettings.localPlaybackAutoplay);
+    }
+    catch(err) {
+        logError('Can not save settings to localStorage: ' + err.message);
     }
 
     //from hours to seconds
@@ -1064,6 +1078,7 @@ function saveSettings(closeModal) {
     }
 
     webuiSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
+    webuiSettings.enableLocalPlayback = (document.getElementById('btnEnableLocalPlayback').classList.contains('active') ? true : false);
 
     if (formOK === true) {
         const params = {

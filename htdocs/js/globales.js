@@ -26,7 +26,6 @@ let scriptsInited = false;
 let subdir = '';
 let uiEnabled = true;
 let locale = navigator.language || navigator.userLanguage;
-let scale = '1.0';
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
 const hasIO = 'IntersectionObserver' in window ? true : false;
 const ligatureMore = 'menu';
@@ -43,6 +42,11 @@ const messages = [];
 const debugMode = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
 let webradioDb = null;
 const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
+
+const localSettings = {
+    "scaleRatio": "1.0",
+    "localPlaybackAutoplay": false
+};
 
 //minimum mpd version to support all myMPD features
 const mpdVersion = {
@@ -561,12 +565,6 @@ const webuiSettingsDefault = {
         "title": "Mounts",
         "form": "enableFeaturesFrm",
         "warn": "MPD does not support mounts"
-    },
-    "enableLocalPlayback": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Local playback",
-        "form": "enableFeaturesFrm"
     },
     "enablePartitions": {
         "defaultValue": false,
