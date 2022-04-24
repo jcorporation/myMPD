@@ -69,7 +69,7 @@ const char *mympd_api_trigger_name(long event) {
 
 sds mympd_api_trigger_print_trigger_list(sds buffer) {
     for (int i = 0; mympd_trigger_names[i] != NULL; ++i) {
-        buffer = tojson_long(buffer, mympd_trigger_names[i], (-1 -i), true);
+        buffer = tojson_long(buffer, mympd_trigger_names[i], (-1 - i), true);
     }
 
     for (int i = 0; mpd_trigger_names[i] != NULL; ++i) {
@@ -101,7 +101,7 @@ void mympd_api_trigger_execute_feedback(struct t_mympd_state *mympd_state, sds u
     list_init(&script_arguments);
     list_push(&script_arguments, "uri", 0, uri, NULL);
     const char *vote_str = vote == 0 ? "0" :
-                       vote == 1 ? "1" : "2";
+                           vote == 1 ? "1" : "2";
     list_push(&script_arguments, "vote", 0, vote_str, NULL);
     struct t_list_node *current = mympd_state->triggers.head;
     while (current != NULL) {
@@ -225,8 +225,8 @@ bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
         sds script = NULL;
         int event;
         struct t_list *arguments = list_new();
-        if (json_get_string(line, "$.name", 1, 200, &name, vcb_isfilename, NULL) == true &&
-            json_get_string(line, "$.script", 0, 200, &script, vcb_isfilename, NULL) == true &&
+        if (json_get_string(line, "$.name", 1, FILENAME_LEN_MAX, &name, vcb_isfilename, NULL) == true &&
+            json_get_string(line, "$.script", 0, FILENAME_LEN_MAX, &script, vcb_isfilename, NULL) == true &&
             json_get_int_max(line, "$.event", &event, NULL) == true &&
             json_get_object_string(line, "$.arguments", arguments, vcb_isname, 10, NULL))
         {
