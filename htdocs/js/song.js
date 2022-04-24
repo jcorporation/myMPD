@@ -129,7 +129,7 @@ function parseSongDetails(obj) {
             setData(td, 'AlbumArtist', obj.result[tagAlbumArtist]);
         }
         if (settings.tagListBrowse.includes(settings.tagList[i]) &&
-            checkTagValue(obj.result[settings.tagList[i]],'-') === false)
+            checkTagValue(obj.result[settings.tagList[i]], '-') === false)
         {
             td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]]));
         }

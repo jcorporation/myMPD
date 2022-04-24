@@ -366,14 +366,20 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     buffer = sdscatlen(buffer, "],", 2);
 
     sds albumartist = sdsempty();
+    sds mb_albumartist_id = sdsempty();
+    sds mb_album_id = sdsempty();
     if (first_song != NULL) {
         buffer = get_extra_files(mympd_state, buffer, mpd_song_get_uri(first_song), false);
         albumartist = mpd_shared_get_tag_values(first_song, MPD_TAG_ALBUM_ARTIST, albumartist);
+        mb_albumartist_id = mpd_shared_get_tag_values(first_song, MPD_TAG_MUSICBRAINZ_ALBUMARTISTID, mb_albumartist_id);
+        mb_album_id = mpd_shared_get_tag_values(first_song, MPD_TAG_MUSICBRAINZ_ALBUMID, mb_album_id);
     }
     else {
         //this should not occur, but we should response with a complete object
         buffer = sdscat(buffer, "\"images\":[],\"bookletPath\":\"\"");
         albumartist = sdscatlen(albumartist, "\"\"", 2);
+        mb_albumartist_id = sdscatlen(mb_albumartist_id, "\"\"", 2);
+        mb_album_id = sdscatlen(mb_album_id, "\"\"", 2);
     }
 
     buffer = sdscatlen(buffer, ",", 1);
@@ -381,11 +387,16 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_char(buffer, "Album", album, true);
     buffer = tojson_raw(buffer, "AlbumArtist", albumartist, true);
+    buffer = tojson_raw(buffer, "MusicBrainzAlbumArtistId", mb_albumartist_id, true);
+    buffer = tojson_raw(buffer, "MusicBrainzAlbumId", mb_album_id, true);
+    buffer = tojson_raw(buffer, "AlbumArtist", albumartist, true);
     buffer = tojson_long(buffer, "Discs", discs, true);
     buffer = tojson_uint(buffer, "totalTime", totalTime, false);
     buffer = jsonrpc_result_end(buffer);
 
-    sdsfree(albumartist);
+    FREE_SDS(albumartist);
+    FREE_SDS(mb_albumartist_id);
+    FREE_SDS(mb_album_id);
     if (first_song != NULL) {
         mpd_song_free(first_song);
     }

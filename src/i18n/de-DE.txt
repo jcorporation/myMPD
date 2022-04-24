@@ -1414,7 +1414,7 @@ Failed to set song priority
 Priorität des Liedes konnte nicht gesetzt werden
 
 Lookup at musicbrainz
-Bei Musicbraonz nachschlagen
+Bei Musicbrainz nachschlagen
 
 Play after current playing song
 Nach aktuellem Lied abspielen
@@ -2216,3 +2216,12 @@ Listenbrainz Token
 
 Show or hide
 Anzeigen oder verbergen
+
+MusicBrainz
+MusicBrainz
+
+Goto album
+Gehe zu Album
+
+Goto artist
+Gehe zu Interpret

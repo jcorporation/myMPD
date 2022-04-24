@@ -576,6 +576,24 @@ function parseAlbumDetails(obj) {
         );
     }
 
+    if (obj.result.MusicBrainzAlbumId !== '-' ||
+        obj.result.MusicBrainzAlbumArtistId.length > 0)
+    {
+        infoEl.appendChild(elCreateText('small', {}, tn('MusicBrainz')));
+        if (obj.result.MusicBrainzAlbumId !== '-') {
+            const albumLink = getMBtagLink('MUSICBRAINZ_ALBUMID', obj.result.MusicBrainzAlbumId);
+            albumLink.innerText = tn('Goto album');
+            infoEl.appendChild(elCreateNode('p', {"class": ["mb-1"]}, albumLink));
+        }
+        if (obj.result.MusicBrainzAlbumArtistId.length > 0) {
+            for (let i = 0, j = obj.result.MusicBrainzAlbumArtistId.length; i < j; i++) {
+                const artistLink = getMBtagLink('MUSICBRAINZ_ALBUMARTISTID', obj.result.MusicBrainzAlbumArtistId[i]);
+                artistLink.innerText = tn('Goto artist') + ' ' + obj.result.AlbumArtist[i];
+                infoEl.appendChild(elCreateNode('p', {"class": ["mb-1"]}, artistLink));
+            }
+        }
+    }
+
     const rowTitle = tn(webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong]);
     updateTable(obj, 'BrowseDatabaseDetail', function(row, data) {
         setData(row, 'type', 'song');
