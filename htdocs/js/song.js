@@ -20,7 +20,9 @@ function initSong() {
                 event.preventDefault();
                 appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-', '-', '-', getData(event.target, 'folder'), 0);
             }
-            else if (event.target.id === 'downloadSong') {
+            else if (event.target.id === 'downloadSong' ||
+                     event.target.classList.contains('external') === true)
+            {
                 //do nothing, link opens in new browser window
             }
             else if (getData(event.target.parentNode, 'tag') !== undefined) {
