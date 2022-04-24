@@ -8,11 +8,12 @@ Triggers are enabled if scripts are enabled. Triggers can call scripts with argu
 
 | TRIGGER | VALUE | DESCRIPTION |
 | ------- | ----- | ----------- |
-| TRIGGER_MYMPD_SCROBBLE | -1 | The song has been played for at least half of its duration, or for 4 minutes (whichever occurs earlier) |
+| TRIGGER_MYMPD_SCROBBLE | -1 | The song has been played for at least half of its duration, or for 4 minutes (whichever occurs earlier). |
 | TRIGGER_MYMPD_START | -2 | |
 | TRIGGER_MYMPD_STOP | -3 | |
 | TRIGGER_MYMPD_CONNECTED | -4 | |
 | TRIGGER_MYMPD_DISCONNECTED | -5 | |
+| TRIGGER_MYMPD_FEEDBACK | -6 | Love or hate song feedback is set by user. Script is executed with arguments `uri` and `vote`. |
 | TRIGGER_MPD_DATABASE | 1 | |
 | TRIGGER_MPD_STORED_PLAYLIST | 2 | |
 | TRIGGER_MPD_PLAYLIST | 4 | |

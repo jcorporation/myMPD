@@ -613,6 +613,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "sticker", "error", "Failed to set like, unknown error");
                 }
+                //mympd_feedback trigger
+                mympd_api_trigger_execute_feedback(mympd_state, sds_buf1, int_buf1);
             }
             break;
         case MYMPD_API_PLAYER_STATE:

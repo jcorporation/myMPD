@@ -45,6 +45,7 @@ static const char *const mympd_trigger_names[] = {
     "mympd_stop",
     "mympd_connected",
     "mympd_disconnected",
+    "mympd_feedback",
     NULL
 };
 
@@ -85,12 +86,32 @@ void mympd_api_trigger_execute(struct t_mympd_state *mympd_state, enum trigger_e
     struct t_list_node *current = mympd_state->triggers.head;
     while (current != NULL) {
         if (current->value_i == event) {
-            MYMPD_LOG_NOTICE("Executing script %s for trigger %s (%d)", current->value_p,
+            MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"%s\" (%d)", current->value_p,
                 mympd_api_trigger_name(event), event);
             _trigger_execute(current->value_p, (struct t_list *)current->user_data);
         }
         current = current->next;
     }
+}
+
+void mympd_api_trigger_execute_feedback(struct t_mympd_state *mympd_state, sds uri, int vote) {
+    MYMPD_LOG_DEBUG("Trigger event: mympd_feedback (-6) for \"%s\", vote %d", uri, vote);
+    //trigger mympd_feedback executes scripts with uri and vote arguments
+    struct t_list script_arguments;
+    list_init(&script_arguments);
+    list_push(&script_arguments, "uri", 0, uri, NULL);
+    const char *vote_str = vote == 0 ? "0" :
+                       vote == 1 ? "1" : "2";
+    list_push(&script_arguments, "vote", 0, vote_str, NULL);
+    struct t_list_node *current = mympd_state->triggers.head;
+    while (current != NULL) {
+        if (current->value_i == TRIGGER_MYMPD_FEEDBACK) {
+            MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"mympd_feedback\" (-6)", current->value_p);
+            _trigger_execute(current->value_p, &script_arguments);
+        }
+        current = current->next;
+    }
+    list_clear(&script_arguments);
 }
 
 sds mympd_api_trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
@@ -110,7 +131,7 @@ sds mympd_api_trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_char(buffer, "eventName", mympd_api_trigger_name((long)current->value_i), true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\": {");
-        struct t_list *arguments = ( struct t_list *)current->user_data;
+        struct t_list *arguments = (struct t_list *)current->user_data;
         struct t_list_node *argument = arguments->head;
         int i = 0;
         while (argument != NULL) {
