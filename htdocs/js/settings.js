@@ -654,6 +654,7 @@ function populateSettingsFrm() {
     document.getElementById('inputBookletName').value = settings.bookletName;
     document.getElementById('inputCoverimageNames').value = settings.coverimageNames;
     document.getElementById('inputCovercacheKeepDays').value = settings.covercacheKeepDays;
+    document.getElementById('inputListenbrainzToken').value = settings.listenbrainzToken;
 
     //smart playlists
     if (settings.featSmartpls === true) {
@@ -1101,6 +1102,7 @@ function saveSettings(closeModal) {
             "lyricsVorbisUslt": document.getElementById('inputSettinglyricsVorbisUslt').value,
             "lyricsVorbisSylt": document.getElementById('inputSettinglyricsVorbisSylt').value,
             "covercacheKeepDays": Number(document.getElementById('inputCovercacheKeepDays').value),
+            "listenbrainzToken": document.getElementById('inputListenbrainzToken').value,
             "webuiSettings": webuiSettings
         };
 

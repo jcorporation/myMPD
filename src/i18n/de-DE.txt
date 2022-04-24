@@ -2207,3 +2207,12 @@ Alternative Streams
 
 Browser specific setting
 Browserspezifische Einstellung
+
+Cloud
+Cloud
+
+Listenbrainz Token
+Listenbrainz Token
+
+Show or hide
+Anzeigen oder verbergen

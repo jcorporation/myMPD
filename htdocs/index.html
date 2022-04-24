@@ -1019,6 +1019,9 @@
             <li class="nav-item">
               <a class="nav-link" href="#tabAdvancedSettings" data-bs-toggle="tab" data-height="true" data-phrase="Advanced"></a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#tabCloudSettings" data-bs-toggle="tab" data-height="true" data-phrase="Cloud"></a>
+            </li>
           </ul>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
@@ -1233,6 +1236,15 @@
                     <span class="input-group-text-nobg" data-phrase="Days"></span>
                   </div>
                   <div class="invalid-feedback" data-phrase="Invalid number"></div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tabCloudSettings">
+              <h4 data-phrase="Cloud"></h4>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="inputListenbrainzToken" data-phrase="Listenbrainz Token"></label>
+                <div class="col-sm-8 position-relative">
+                  <input data-is="mympd-input-password" id="inputListenbrainzToken" type="password" class="form-control rounded"/>
                 </div>
               </div>
             </div>
@@ -1507,8 +1519,8 @@
             <div id="collapseConnectionAdv" class="collapse">
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputMpdPass" data-phrase="MPD password"></label>
-                <div class="col-sm-8">
-                  <input id="inputMpdPass" type="password" autocomplete="off" class="form-control alwaysEnabled"/>
+                <div class="col-sm-8 position-relative">
+                  <input data-is="mympd-input-password" id="inputMpdPass" type="password" autocomplete="off" class="form-control alwaysEnabled"/>
                   <div class="invalid-feedback" data-phrase="Invalid MPD password"></div>
                 </div>
               </div>

@@ -35,13 +35,6 @@ static sds read_navbar_icons(struct t_config *config);
 static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags);
 static sds set_invalid_value(sds error, sds key, sds value);
 
-//default navbar icons
-static const char *default_navbar_icons = "[{\"ligature\":\"home\",\"title\":\"Home\",\"options\":[\"Home\"]},"\
-    "{\"ligature\":\"equalizer\",\"title\":\"Playback\",\"options\":[\"Playback\"]},"\
-    "{\"ligature\":\"queue_music\",\"title\":\"Queue\",\"options\":[\"Queue\"]},"\
-    "{\"ligature\":\"library_music\",\"title\":\"Browse\",\"options\":[\"Browse\"]},"\
-    "{\"ligature\":\"search\",\"title\":\"Search\",\"options\":[\"Search\"]}]";
-
 //public functions
 bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
     (void) vcb;
@@ -366,6 +359,13 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
         }
         mympd_state->covercache_keep_days = covercache_keep_days;
     }
+    else if (strcmp(key, "listenbrainzToken") == 0 && vtype == MJSON_TOK_STRING) {
+        if (vcb_isalnum(value) == false) {
+            *error = set_invalid_value(*error, key, value);
+            return false;
+        }
+        mympd_state->listenbrainz_token = sds_replacelen(mympd_state->listenbrainz_token, value, sdslen(value));
+    }
     else {
         *error = sdscatfmt(*error, "Unknown setting \"%s\": \"%s\"", key, value);
         MYMPD_LOG_WARN("%s", *error);
@@ -591,6 +591,7 @@ void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     mympd_state->lyrics_vorbis_uslt = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_vorbis_uslt", mympd_state->lyrics_vorbis_uslt, vcb_isalnum, false);
     mympd_state->lyrics_vorbis_sylt = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_vorbis_sylt", mympd_state->lyrics_vorbis_sylt, vcb_isalnum, false);
     mympd_state->covercache_keep_days = state_file_rw_int(mympd_state->config->workdir, "state", "covercache_keep_days", mympd_state->covercache_keep_days, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, false);
+    mympd_state->listenbrainz_token = state_file_rw_string_sds(mympd_state->config->workdir, "state", "listenbrainz_token", mympd_state->listenbrainz_token, vcb_isalnum, false);
 
     sds_strip_slash(mympd_state->music_directory);
     sds_strip_slash(mympd_state->playlist_directory);
@@ -656,6 +657,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_raw(buffer, "colsBrowseRadioWebradiodb", mympd_state->cols_browse_radio_webradiodb, true);
     buffer = tojson_raw(buffer, "colsBrowseRadioRadiobrowser", mympd_state->cols_browse_radio_radiobrowser, true);
     buffer = tojson_raw(buffer, "navbarIcons", mympd_state->navbar_icons, true);
+    buffer = tojson_char(buffer, "listenbrainzToken", mympd_state->listenbrainz_token, true);
     buffer = tojson_raw(buffer, "webuiSettings", mympd_state->webui_settings, true);
     if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
         buffer = tojson_bool(buffer, "mpdConnected", true, true);
@@ -776,7 +778,7 @@ static sds set_default_navbar_icons(struct t_config *config, sds buffer) {
     MYMPD_LOG_NOTICE("Writing default navbar_icons");
     sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->workdir);
     sdsclear(buffer);
-    buffer = sdscat(buffer, default_navbar_icons);
+    buffer = sdscat(buffer, MYMPD_NAVBAR_ICONS);
     errno = 0;
     FILE *fp = fopen(file_name, OPEN_FLAGS_WRITE);
     if (fp == NULL) {

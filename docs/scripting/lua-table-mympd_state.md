@@ -30,4 +30,5 @@ This is the description of the lua table mympd_state. This table must be initial
 | jukebox_queue_length | Integer | Length of the queue length to maintain |
 | jukebox_last_played | Integer | Don't add songs that are played in the last x hours |
 | jukebox_unique_tag | String | Build the jukebox queue with this tag as unique constraint: Song, Album, Artist |
+| listenbrainz_token | ListenBrainz Token |
 {: .table .table-sm }

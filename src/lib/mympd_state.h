@@ -222,6 +222,7 @@ struct t_mympd_state {
     sds lyrics_vorbis_uslt;
     sds lyrics_vorbis_sylt;
     int covercache_keep_days;
+    sds listenbrainz_token;
     //settings only for webui
     sds webui_settings;
 };
