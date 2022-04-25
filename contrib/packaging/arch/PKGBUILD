@@ -4,7 +4,7 @@
 
 pkgname=mympd
 _pkgname=myMPD
-pkgver=9.2.4
+pkgver=9.2.5
 pkgrel=1
 pkgdesc="A standalone and mobile friendly web-based MPD client."
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
