@@ -6,6 +6,18 @@ title: Known issues
 
 ## Known issues
 
+### Accept-Encoding not honored
+
+- myMPD issue: [#738](https://github.com/jcorporation/myMPD/issues/738)
+
+#### Cause
+
+Parsing this header and inflating the embedded compressed assets are not implemented.
+
+#### Workaround
+
+None
+
 ### Response line too large
 
 - myMPD issue: [#524](https://github.com/jcorporation/myMPD/issues/524)
