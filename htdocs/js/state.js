@@ -533,7 +533,9 @@ function setPlaybackCardTags(songObj) {
                 ])
             );
         }
-        if (songObj.webradio.Codec !== '') {
+        if (songObj.webradio.Codec !== '' &&
+            songObj.webradio.Codec !== undefined)
+        {
             cardPlaybackWebradio.appendChild(
                 elCreateNodes('div', {}, [
                     elCreateText('small', {}, tn('Format')),
