@@ -7,11 +7,11 @@ title: Compiling
 ## Releases
 
 | NAME | STATE | DESCRIPTION |
-|-|-|-|
+| ---- | ----- | ----------- |
 | [latest release](https://github.com/jcorporation/myMPD/releases/latest) | stable | The latest stable release, this is the preferred image for daily, hassle-free usage |
 | [master](https://github.com/jcorporation/myMPD/tree/master) | stable | the latest releases are created from the master branch |
-| [devel](https://github.com/jcorporation/myMPD/tree/devel) | unstable | this branch is for stabilizing and testing the upcoming new myMPD release |
-| other branches | unstable | very unstable development branches with breaking changes |
+| [devel](https://github.com/jcorporation/myMPD/tree/devel) | unstable | this branch is for the next bugfix release |
+| other branches | unstable | development branches for new major and minor releases |
 {: .table .table-sm }
 
 Get the appropriated tarball or clone the git repository and switch to the wanted branch.
