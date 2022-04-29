@@ -131,10 +131,15 @@ function parseSongDetails(obj) {
         if (settings.tagListBrowse.includes(settings.tagList[i]) &&
             checkTagValue(obj.result[settings.tagList[i]], '-') === false)
         {
-            td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]]));
+            if (typeof obj.result[settings.tagList[i]] === 'string') {
+                td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]]));
+            }
+            else {
+                td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]].join(', ')));
+            }
         }
         else if (settings.tagList[i].indexOf('MUSICBRAINZ') === 0) {
-            td.appendChild(getMBtagLink(settings.tagList[i], obj.result[settings.tagList[i]]));
+            td.appendChild(printValue(settings.tagList[i], obj.result[settings.tagList[i]]));
         }
         else {
             td.textContent = obj.result[settings.tagList[i]];
@@ -151,16 +156,19 @@ function parseSongDetails(obj) {
     }
     if (features.featLibrary === true) {
         const shortName = basename(rUri, false) + (isCuesheet === true ? ' (' + cuesheetTrack(obj.result.uri) + ')' : '');
-        const ofl = elCreateText('a', {"id": "gotoContainingFolder", "class": ["btn", "btn-secondary", "mi", "float-end"], "href": "#", "title": tn("Open folder")}, 'folder_open');
+        const ofl = elCreateText('button', {"id": "gotoContainingFolder", "class": ["btn", "btn-secondary", "mi"], "href": "#", "title": tn("Open folder")}, 'folder_open');
         setData(ofl, 'folder', dirname(obj.result.uri));
         tbody.appendChild(
             songDetailsRow('Filename',
                 elCreateNodes('div', {}, [
-                    elCreateText('span', {"class": ["text-break"], "title": rUri}, shortName),
-                    ofl,
-                    elCreateText('a', {"id": "downloadSong","class": ["btn", "btn-secondary", "mi", "me-2", "float-end"],
-                        "href": myEncodeURI(subdir + '/browse/music/' + rUri),
-                        "target": "_blank", "title": tn("Download")}, 'file_download')
+                    elCreateText('p', {"class": ["text-break", "mb-1"], "title": rUri}, shortName),
+                    elCreateNodes('div', {"class": ["input-group", "mb-1"]}, [
+                        elCreateEmpty('input', {"class": ["form-control"], "value": rUri}),
+                        ofl,
+                        elCreateText('button', {"id": "downloadSong","class": ["btn", "btn-secondary", "mi"],
+                            "href": myEncodeURI(subdir + '/browse/music/' + rUri),
+                            "target": "_blank", "title": tn("Download")}, 'file_download')
+                    ])
                 ])
             )
         );
