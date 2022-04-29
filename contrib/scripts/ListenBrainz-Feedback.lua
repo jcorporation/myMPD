@@ -7,7 +7,7 @@ headers = "Content-type: application/json\r\n"..
 feedback = arguments["feedback"] - 1
 
 payload = json.encode({
-  recording_msid = arguments["MUSICBRAINZ_TRACKID"],
+  recording_mbid = arguments["MUSICBRAINZ_TRACKID"],
   score = feedback
 });
 rc, response, header, body = mympd_api_http_client("POST", uri, headers, payload)
