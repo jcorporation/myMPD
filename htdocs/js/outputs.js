@@ -41,13 +41,13 @@ function parseOutputs(obj) {
     elClear(outputList);
     if (obj.error) {
         outputList.appendChild(
-            elCreateEmpty('div', {"class": ["list-group-item", "alert", "alert-danger"]}, tn(obj.error.message))
+            elCreateText('div', {"class": ["list-group-item", "alert", "alert-danger"]}, tn(obj.error.message))
         );
         return;
     }
     if (obj.result.numOutputs === 0) {
         outputList.appendChild(
-            elCreateEmpty('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, tn('Empty list'))
+            elCreateText('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, tn('No outputs found'))
         );
         return;
     }
