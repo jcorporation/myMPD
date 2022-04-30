@@ -53,5 +53,6 @@ This documentation is for myMPD version {% include version %}.
   - [Multiple myMPD instances on same host]({{ site.baseurl }}/additional-topics/multiple-myMPD-instances-on-same-host)
   - [Recommended MPD configuration]({{ site.baseurl }}/additional-topics/recommended-mpd-configuration)
   - [Scrobble to ListenBrainz]({{ site.baseurl }}/additional-topics/scrobble-to-listenbrainz)
+  - [ListenBrainz Feedback]({{ site.baseurl }}/additional-topics/listenbrainz-feedback)
 - [Known issues]({{ site.baseurl }}/known-issues)
 - [Security]({{ site.baseurl }}/security)

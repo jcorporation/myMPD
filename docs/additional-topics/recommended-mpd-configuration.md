@@ -14,6 +14,7 @@ sticker_file            "/var/lib/mpd/sticker.sql"
 playlist_directory      "/var/lib/mpd/playlists"
 
 # Enable metadata. If set to none, you can only browse the filesystem
+# Enable also the musicbrainz_* tags if you want integration with MusicBrainz and ListenBrainz
 metadata_to_use         "AlbumArtist,Artist,Album,Title,Track,Disc,Genre,Name"
 
 # bind mpd to a unix socket
