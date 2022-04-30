@@ -466,10 +466,8 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
         addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, false, true, false]}, 'Update directory');
         addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, false, true, true]}, 'Rescan directory');
     }
-    else {
-        addDivider(tabContent);
-        addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [baseuri, "dir"]}, 'Show directory');
-    }
+    addDivider(tabContent);
+    addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [baseuri, "dir"]}, 'Show directory');
     if (features.featHome === true &&
         app.id !== 'Home')
     {
