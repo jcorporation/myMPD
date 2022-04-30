@@ -248,6 +248,11 @@ div > .albumartbg {
     padding-right: 0 !important;
     padding-left: 0.5rem !important;
   }
+
+  #top-alerts {
+    padding-right: 4rem !important;
+    margin-top: 0 !important;
+  }
 }
 
 @media only screen and (max-width: 800px) {
@@ -824,6 +829,7 @@ div#playDropdown .row {
   width: 100%;
   z-index: 1000;
   top: 0;
+  margin-top: 3.5rem;
 }
 
 .top-alert {
