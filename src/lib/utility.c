@@ -19,6 +19,15 @@
 #include <time.h>
 #include <unistd.h>
 
+sds *split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count) {
+    *count = 0;
+    coverimage_names = sdssplitlen(coverimage_name, (ssize_t)sdslen(coverimage_name), ",", 1, count);
+    for (int j = 0; j < *count; j++) {
+        sdstrim(coverimage_names[j], " ");
+    }
+    return coverimage_names;
+}
+
 void ws_notify(sds message) {
     MYMPD_LOG_DEBUG("Push websocket notify to queue: \"%s\"", message);
     struct t_work_result *response = create_result_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY);

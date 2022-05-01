@@ -42,6 +42,7 @@ const messages = [];
 const debugMode = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
 let webradioDb = null;
 const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
+const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
 
 const localSettings = {
     "scaleRatio": "1.0",

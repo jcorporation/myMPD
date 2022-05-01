@@ -361,6 +361,9 @@ function parseFilesystem(obj) {
             imageList.appendChild(img);
         }
         for (let i = 0, j = obj.result.images.length; i < j; i++) {
+            if (isThumbnailfile(obj.result.images[i]) === true) {
+                continue;
+            }
             const img = elCreateEmpty('div', {});
             img.style.backgroundImage = 'url("' + subdir + myEncodeURI(obj.result.images[i]) + '"),' +
                 'url("assets/coverimage-loading.svg")';

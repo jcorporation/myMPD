@@ -14,6 +14,7 @@
 #include "lib/mem.h"
 #include "lib/mympd_pin.h"
 #include "lib/sds_extras.h"
+#include "lib/utility.h"
 #include "lib/validate.h"
 #include "web_server/web_server_albumart.h"
 #include "web_server/web_server_proxy.h"
@@ -46,10 +47,10 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/empty", config->workdir);
     mg_user_data->music_directory = sdsempty();
     sds default_coverimage_names = sdsnew(MYMPD_COVERIMAGE_NAMES);
-    mg_user_data->coverimage_names= webserver_split_coverimage_names(default_coverimage_names, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
+    mg_user_data->coverimage_names= split_coverimage_names(default_coverimage_names, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
     FREE_SDS(default_coverimage_names);
     sds default_thumbnail_names = sdsnew(MYMPD_THUMBNAIL_NAMES);
-    mg_user_data->thumbnail_names= webserver_split_coverimage_names(default_thumbnail_names, mg_user_data->thumbnail_names, &mg_user_data->thumbnail_names_len);
+    mg_user_data->thumbnail_names= split_coverimage_names(default_thumbnail_names, mg_user_data->thumbnail_names, &mg_user_data->thumbnail_names_len);
     FREE_SDS(default_thumbnail_names);
     mg_user_data->publish_music = false;
     mg_user_data->publish_playlists = false;
@@ -204,11 +205,11 @@ static bool parse_internal_message(struct t_work_result *response, struct t_mg_u
         MYMPD_LOG_DEBUG("Document root: \"%s\"", mg_user_data->browse_directory);
 
         sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
-        mg_user_data->coverimage_names = webserver_split_coverimage_names(new_mg_user_data->coverimage_names, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
+        mg_user_data->coverimage_names = split_coverimage_names(new_mg_user_data->coverimage_names, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
         FREE_SDS(new_mg_user_data->coverimage_names);
 
         sdsfreesplitres(mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len);
-        mg_user_data->thumbnail_names = webserver_split_coverimage_names(new_mg_user_data->thumbnail_names, mg_user_data->thumbnail_names, &mg_user_data->thumbnail_names_len);
+        mg_user_data->thumbnail_names = split_coverimage_names(new_mg_user_data->thumbnail_names, mg_user_data->thumbnail_names, &mg_user_data->thumbnail_names_len);
         FREE_SDS(new_mg_user_data->thumbnail_names);
 
         mg_user_data->feat_mpd_albumart = new_mg_user_data->feat_mpd_albumart;

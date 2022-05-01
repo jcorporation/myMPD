@@ -241,26 +241,6 @@ function parseSongDetails(obj) {
     createImgCarousel(imgEl, 'songPicsCarousel', obj.result.uri, obj.result.images, obj.result.embeddedImageCount);
 }
 
-function isCoverfile(uri) {
-    const filename = basename(uri).toLowerCase();
-    const fileparts = filename.split('.');
-
-    const extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'avif'];
-    const coverimageNames = settings.coverimageNames.split(',');
-    for (let i = 0, j = coverimageNames.length; i < j; i++) {
-        const name = coverimageNames[i].trim();
-        if (filename === name) {
-            return true;
-        }
-        if (fileparts[1]) {
-            if (name === fileparts[0] && extensions.includes(fileparts[1])) {
-                return true;
-            }
-        }
-    }
-    return false;
-}
-
 function getComments(uri, el) {
     el.classList.add('opacity05');
     sendAPI("MYMPD_API_DATABASE_COMMENTS", {

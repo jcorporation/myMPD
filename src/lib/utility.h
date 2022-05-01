@@ -25,6 +25,7 @@ int testdir(const char *name, const char *dirname, bool create);
 void my_msleep(long msec);
 bool is_streamuri(const char *uri);
 bool write_data_to_file(sds filepath, const char *data, size_t data_len);
+sds *split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count);
 
 //measure time
 #define MEASURE_INIT struct timespec tic, toc;

@@ -537,6 +537,52 @@ function basename(uri, removeQuery) {
     return uri.split('/').reverse()[0];
 }
 
+ function splitFilename(filename) {
+     const parts = filename.match(/^(.*)\.([^.]+)$/);
+     return {
+        "file": parts[1],
+        "ext": parts[2]
+     };
+ }
+
+function isCoverfile(uri) {
+    const filename = basename(uri);
+    const fileparts = splitFilename(filename);
+
+    const coverimageNames = [...settings.coverimageNames.split(','), ...settings.thumbnailNames.split(',')];
+    for (let i = 0, j = coverimageNames.length; i < j; i++) {
+        const name = coverimageNames[i].trim();
+        if (filename === name) {
+            return true;
+        }
+        if (name === fileparts.file &&
+            imageExtensions.includes(fileparts.ext))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+function isThumbnailfile(uri) {
+    const filename = basename(uri);
+    const fileparts = splitFilename(filename);
+
+    const coverimageNames = settings.thumbnailNames.split(',');
+    for (let i = 0, j = coverimageNames.length; i < j; i++) {
+        const name = coverimageNames[i].trim();
+        if (filename === name) {
+            return true;
+        }
+        if (name === fileparts.file &&
+            imageExtensions.includes(fileparts.ext))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 function filetype(uri) {
     if (uri === undefined) {
         return '';

@@ -62,16 +62,7 @@ void webserver_populate_dummy_hm(struct mg_connection *nc, struct mg_http_messag
     hm->headers[1].value = mg_str("");
 }
 
-sds *webserver_split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count) {
-    *count = 0;
-    coverimage_names = sdssplitlen(coverimage_name, (ssize_t)sdslen(coverimage_name), ",", 1, count);
-    for (int j = 0; j < *count; j++) {
-        sdstrim(coverimage_names[j], " ");
-    }
-    return coverimage_names;
-}
-
-static const char *image_file_extensions[] = {"png", "jpg", "jpeg", "webp", "avif", NULL};
+static const char *image_file_extensions[] = {"webp", "png", "jpg", "jpeg", "svg", "avif", NULL};
 
 sds webserver_find_image_file(sds basefilename) {
     MYMPD_LOG_DEBUG("Searching image file for basename \"%s\"", basefilename);
