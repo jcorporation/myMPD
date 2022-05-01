@@ -53,11 +53,7 @@ void webserver_populate_dummy_hm(struct mg_connection *nc, struct mg_http_messag
     hm->body = mg_str("");
     hm->query = mg_str("");
     hm->proto = mg_str("HTTP/1.1");
-    //add accept-encoding header to deliver gziped embedded files
-    //browsers without gzip support are not supported by myMPD
-    hm->headers[0].name = mg_str("Accept-Encoding");
-    hm->headers[0].value = mg_str("gzip");
-    //append empty header
+    //add empty header
     hm->headers[1].name = mg_str("");
     hm->headers[1].value = mg_str("");
 }
