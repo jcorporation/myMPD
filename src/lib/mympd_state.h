@@ -215,6 +215,7 @@ struct t_mympd_state {
     sds booklet_name;
     sds navbar_icons;
     sds coverimage_names;
+    sds thumbnail_names;
     unsigned volume_min;
     unsigned volume_max;
     unsigned volume_step;

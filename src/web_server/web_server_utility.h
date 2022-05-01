@@ -21,6 +21,8 @@ struct t_mg_user_data {
     sds music_directory;
     sds *coverimage_names;
     int coverimage_names_len;
+    sds *thumbnail_names;
+    int thumbnail_names_len;
     bool feat_mpd_albumart;
     bool publish_playlists;
     bool publish_music;

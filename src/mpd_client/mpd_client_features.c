@@ -126,6 +126,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     extra->music_directory = sdsdup(mympd_state->music_directory_value);
     extra->playlist_directory = sdsdup(mympd_state->playlist_directory);
     extra->coverimage_names = sdsdup(mympd_state->coverimage_names);
+    extra->thumbnail_names = sdsdup(mympd_state->thumbnail_names);
     extra->feat_mpd_albumart = mympd_state->mpd_state->feat_mpd_albumart;
     extra->mpd_stream_port = mympd_state->mpd_stream_port;
     extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);

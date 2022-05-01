@@ -45,9 +45,12 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     mg_user_data->config = config;
     mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/empty", config->workdir);
     mg_user_data->music_directory = sdsempty();
-    sds default_coverimagename = sdsnew("cover,folder");
-    mg_user_data->coverimage_names= webserver_split_coverimage_names(default_coverimagename, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
-    FREE_SDS(default_coverimagename);
+    sds default_coverimage_names = sdsnew(MYMPD_COVERIMAGE_NAMES);
+    mg_user_data->coverimage_names= webserver_split_coverimage_names(default_coverimage_names, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
+    FREE_SDS(default_coverimage_names);
+    sds default_thumbnail_names = sdsnew(MYMPD_THUMBNAIL_NAMES);
+    mg_user_data->thumbnail_names= webserver_split_coverimage_names(default_thumbnail_names, mg_user_data->thumbnail_names, &mg_user_data->thumbnail_names_len);
+    FREE_SDS(default_thumbnail_names);
     mg_user_data->publish_music = false;
     mg_user_data->publish_playlists = false;
     mg_user_data->feat_mpd_albumart = false;
@@ -142,7 +145,9 @@ void *web_server_loop(void *arg_mgr) {
                 MYMPD_LOG_DEBUG("Got websocket notify");
                 //websocket notify from mpd idle
                 time_t now = time(NULL);
-                if (strcmp(response->data, last_notify) != 0 || last_time < now - 1) {
+                if (strcmp(response->data, last_notify) != 0 ||
+                    last_time < now - 1)
+                {
                     last_notify = sds_replace(last_notify, response->data);
                     last_time = now;
                     send_ws_notify(mgr, response);
@@ -201,6 +206,10 @@ static bool parse_internal_message(struct t_work_result *response, struct t_mg_u
         sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
         mg_user_data->coverimage_names = webserver_split_coverimage_names(new_mg_user_data->coverimage_names, mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
         FREE_SDS(new_mg_user_data->coverimage_names);
+
+        sdsfreesplitres(mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len);
+        mg_user_data->thumbnail_names = webserver_split_coverimage_names(new_mg_user_data->thumbnail_names, mg_user_data->thumbnail_names, &mg_user_data->thumbnail_names_len);
+        FREE_SDS(new_mg_user_data->thumbnail_names);
 
         mg_user_data->feat_mpd_albumart = new_mg_user_data->feat_mpd_albumart;
         mg_user_data->covercache = new_mg_user_data->covercache;
@@ -493,7 +502,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             #endif
             else if (mg_http_match_uri(hm, "/albumart")) {
-                webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id);
+                webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_FULL);
+            }
+            else if (mg_http_match_uri(hm, "/albumart-thumb")) {
+                webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_THUMBNAIL);
             }
             else if (mg_http_match_uri(hm, "/tagart")) {
                 webserver_tagart_handler(nc, hm, mg_user_data);

@@ -254,6 +254,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_state->jukebox_queue_length = MYMPD_JUKEBOX_QUEUE_LENGTH;
     mympd_state->jukebox_enforce_unique = MYMPD_JUKEBOX_ENFORCE_UNIQUE;
     mympd_state->coverimage_names = sdsnew(MYMPD_COVERIMAGE_NAMES);
+    mympd_state->thumbnail_names = sdsnew(MYMPD_THUMBNAIL_NAMES);
     mympd_state->tag_list_search = sdsnew(MYMPD_TAG_LIST_SEARCH);
     mympd_state->tag_list_browse = sdsnew(MYMPD_TAG_LIST_BROWSE);
     mympd_state->smartpls_generate_tag_list = sdsnew(MYMPD_SMARTPLS_GENERATE_TAG_LIST);
@@ -341,6 +342,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->cols_browse_radio_webradiodb);
     FREE_SDS(mympd_state->cols_browse_radio_radiobrowser);
     FREE_SDS(mympd_state->coverimage_names);
+    FREE_SDS(mympd_state->thumbnail_names);
     FREE_SDS(mympd_state->music_directory);
     FREE_SDS(mympd_state->music_directory_value);
     FREE_SDS(mympd_state->smartpls_sort);

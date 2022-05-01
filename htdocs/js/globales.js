@@ -592,7 +592,7 @@ const webuiSettingsDefault = {
         "form": "themeFrm",
         "reset": true
     },
-    "uiThumbailSize": {
+    "uiThumbnailSize": {
         "defaultValue": 175,
         "inputType": "input",
         "contentType": "integer",

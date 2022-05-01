@@ -478,8 +478,12 @@
             </div>
           </div>
           <div class="table-responsive-md scrollContainer">
-            <div id="viewDetailDatabaseCover" class="float-start me-4 mb-3 album-cover album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
-            <div id="viewDetailDatabaseInfo"></div>
+            <div class="row me-0">
+              <div class="col-12 col-md-4">
+                <div id="viewDetailDatabaseCover" class="mb-3 album-cover album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
+              </div>
+              <div id="viewDetailDatabaseInfo" class="col-12 col-md-8 mb-3"></div>
+            </div>
             <table id="BrowseDatabaseDetailList" class="table table-hover table-sm">
               <thead>
                 <tr></tr>
@@ -1050,9 +1054,16 @@
                 <hr/>
                 <h4 data-phrase="Albumart"></h4>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="inputCoverimageNames" data-phrase="Name"></label>
+                  <label class="col-sm-4 col-form-label" for="inputCoverimageNames" data-phrase="Filenames"></label>
                   <div class="col-sm-8 position-relative">
                     <input data-is="mympd-input-reset" id="inputCoverimageNames" type="text" class="form-control" placeholder="folder,cover"/>
+                    <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="inputThumbnailNames" data-phrase="Thumbnail names"></label>
+                  <div class="col-sm-8 position-relative">
+                    <input data-is="mympd-input-reset" id="inputThumbnailNames" type="text" class="form-control" placeholder="folder-sm,cover-sm"/>
                     <div class="invalid-feedback" data-phrase="Invalid filename"></div>
                   </div>
                 </div>

@@ -25,8 +25,8 @@ const ignoreRequests = new RegExp(subdir + '/(' + [
 	'ca.crt',
 	'ws/',
 	'stream/',
-	'albumart/(.*)',
-	'tagart/(.*)',
+	'albumart(.*)',
+	'tagart(.*)',
 	'browse/(.*)'].join('|') + ')$');
 
 self.addEventListener('install', function(event) {

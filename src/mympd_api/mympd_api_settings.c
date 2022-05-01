@@ -214,6 +214,15 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
             return false;
         }
     }
+    else if (strcmp(key, "thumbnailNames") == 0 && vtype == MJSON_TOK_STRING) {
+        if (vcb_isfilename(value) == true) {
+            mympd_state->thumbnail_names = sds_replace(mympd_state->thumbnail_names, value);
+        }
+        else {
+            *error = set_invalid_value(*error, key, value);
+            return false;
+        }
+    }
     else if (strcmp(key, "bookletName") == 0 && vtype == MJSON_TOK_STRING) {
         if (vcb_isfilename(value) == true) {
             mympd_state->booklet_name = sds_replace(mympd_state->booklet_name, value);
@@ -578,6 +587,7 @@ void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     mympd_state->cols_browse_radio_webradiodb = state_file_rw_string_sds(mympd_state->config->workdir, "state", "cols_browse_radio_webradiodb", mympd_state->cols_browse_radio_webradiodb, vcb_isname, false);
     mympd_state->cols_browse_radio_radiobrowser = state_file_rw_string_sds(mympd_state->config->workdir, "state", "cols_browse_radio_radiobrowser", mympd_state->cols_browse_radio_radiobrowser, vcb_isname, false);
     mympd_state->coverimage_names = state_file_rw_string_sds(mympd_state->config->workdir, "state", "coverimage_names", mympd_state->coverimage_names, vcb_isfilename, false);
+    mympd_state->thumbnail_names = state_file_rw_string_sds(mympd_state->config->workdir, "state", "thumbnail_names", mympd_state->thumbnail_names, vcb_isfilename, false);
     mympd_state->music_directory = state_file_rw_string_sds(mympd_state->config->workdir, "state", "music_directory", mympd_state->music_directory, vcb_isfilepath, false);
     mympd_state->playlist_directory = state_file_rw_string_sds(mympd_state->config->workdir, "state", "playlist_directory", mympd_state->playlist_directory, vcb_isfilepath, false);
     mympd_state->booklet_name = state_file_rw_string_sds(mympd_state->config->workdir, "state", "booklet_name", mympd_state->booklet_name, vcb_isfilename, false);
@@ -624,6 +634,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_str, true);
 
     buffer = tojson_char(buffer, "coverimageNames", mympd_state->coverimage_names, true);
+    buffer = tojson_char(buffer, "thumbnailNames", mympd_state->thumbnail_names, true);
     buffer = tojson_char(buffer, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
     buffer = tojson_long(buffer, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);
     buffer = tojson_char(buffer, "jukeboxUniqueTag", mpd_tag_name(mympd_state->jukebox_unique_tag.tags[0]), true);

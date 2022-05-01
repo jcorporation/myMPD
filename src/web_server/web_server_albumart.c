@@ -61,7 +61,8 @@ void webserver_albumart_send(struct mg_connection *nc, sds data, sds binary) {
 //returns true if an image is served
 //returns false if waiting for mpd_client to handle request
 bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data, struct t_config *config, long long conn_id)
+        struct t_mg_user_data *mg_user_data, struct t_config *config, long long conn_id,
+        enum albumart_sizes size)
 {
     sds query = sdsnewlen(hm->query.ptr, hm->query.len);
     sds uri_decoded = sdsempty();
@@ -114,7 +115,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
         coverfile = webserver_find_image_file(coverfile);
 
         if (sdslen(coverfile) == 0) {
-            //found no coverfile, next try to find a webradio m3u
+            //no coverfile found, next try to find a webradio m3u
             sds webradio_file = sdscatfmt(sdsempty(), "%S/webradios/%S.m3u", config->workdir, uri_decoded);
             MYMPD_LOG_DEBUG("Check for webradio playlist \"%s\"", webradio_file);
             if (access(webradio_file, F_OK) == 0) { /* Flawfinder: ignore */
@@ -178,11 +179,10 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
         FREE_SDS(covercachefile);
     }
 
-    //create absolute file
-    sds mediafile = sdscatfmt(sdsempty(), "%S/%S", mg_user_data->music_directory, uri_decoded);
-    MYMPD_LOG_DEBUG("Absolut media_file: %s", mediafile);
-
     if (sdslen(mg_user_data->music_directory) > 0) {
+        //create absolute file
+        sds mediafile = sdscatfmt(sdsempty(), "%S/%S", mg_user_data->music_directory, uri_decoded);
+        MYMPD_LOG_DEBUG("Absolut media_file: %s", mediafile);
         //try image in folder under music_directory
         if (mg_user_data->coverimage_names_len > 0) {
             sds path = sdsdup(uri_decoded);
@@ -193,30 +193,53 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
                 dirname(path);
                 sdsupdatelen(path);
             }
+            bool found = false;
             sds coverfile = sdsempty();
-            for (int j = 0; j < mg_user_data->coverimage_names_len; j++) {
-                coverfile = sdscatfmt(coverfile, "%S/%S/%S", mg_user_data->music_directory, path, mg_user_data->coverimage_names[j]);
-                if (strchr(mg_user_data->coverimage_names[j], '.') == NULL) {
-                    //basename, try extensions
-                    coverfile = webserver_find_image_file(coverfile);
+            if (size == ALBUMART_THUMBNAIL) {
+                //thumbnail images
+                for (int j = 0; j < mg_user_data->thumbnail_names_len; j++) {
+                    coverfile = sdscatfmt(coverfile, "%S/%S/%S", mg_user_data->music_directory, path, mg_user_data->thumbnail_names[j]);
+                    if (strchr(mg_user_data->thumbnail_names[j], '.') == NULL) {
+                        //basename, try extensions
+                        coverfile = webserver_find_image_file(coverfile);
+                    }
+                    if (sdslen(coverfile) > 0 && access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
+                        found = true;
+                        break;
+                    }
+                    sdsclear(coverfile);
                 }
-                if (sdslen(coverfile) > 0 && access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
-                    const char *mime_type = get_mime_type_by_ext(coverfile);
-                    MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
-                    static struct mg_http_serve_opts s_http_server_opts;
-                    s_http_server_opts.root_dir = mg_user_data->browse_directory;
-                    s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
-                    s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-                    mg_http_serve_file(nc, hm, coverfile, &s_http_server_opts);
-                    webserver_handle_connection_close(nc);
-                    FREE_SDS(uri_decoded);
-                    FREE_SDS(coverfile);
-                    FREE_SDS(mediafile);
-                    FREE_SDS(path);
-                    return true;
-                }
-                sdsclear(coverfile);
             }
+            if (found == false) {
+                for (int j = 0; j < mg_user_data->coverimage_names_len; j++) {
+                    coverfile = sdscatfmt(coverfile, "%S/%S/%S", mg_user_data->music_directory, path, mg_user_data->coverimage_names[j]);
+                    if (strchr(mg_user_data->coverimage_names[j], '.') == NULL) {
+                        //basename, try extensions
+                        coverfile = webserver_find_image_file(coverfile);
+                    }
+                    if (sdslen(coverfile) > 0 && access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
+                        found = true;
+                        break;
+                    }
+                    sdsclear(coverfile);
+                }
+            }
+            if (found == true) {
+                const char *mime_type = get_mime_type_by_ext(coverfile);
+                MYMPD_LOG_DEBUG("Serving file %s (%s)", coverfile, mime_type);
+                static struct mg_http_serve_opts s_http_server_opts;
+                s_http_server_opts.root_dir = mg_user_data->browse_directory;
+                s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
+                s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+                mg_http_serve_file(nc, hm, coverfile, &s_http_server_opts);
+                webserver_handle_connection_close(nc);
+                FREE_SDS(uri_decoded);
+                FREE_SDS(coverfile);
+                FREE_SDS(mediafile);
+                FREE_SDS(path);
+                return true;
+            }
+
             FREE_SDS(coverfile);
             MYMPD_LOG_DEBUG("No cover file found in music directory");
             FREE_SDS(path);
@@ -231,8 +254,8 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
                 return true;
             }
         }
+        FREE_SDS(mediafile);
     }
-    FREE_SDS(mediafile);
 
     //ask mpd - mpd can read only first image
     if (mg_user_data->feat_mpd_albumart == true &&

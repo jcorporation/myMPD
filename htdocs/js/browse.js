@@ -435,7 +435,7 @@ function parseDatabase(obj) {
         let image = '';
         const card = elCreateEmpty('div', {"data-popover": "album", "class": ["card", "card-grid", "clickable"]});
         if (obj.result.tag === 'Album') {
-            image = subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri);
+            image = subdir + '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri);
             card.appendChild(
                 elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
             );

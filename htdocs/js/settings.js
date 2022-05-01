@@ -652,6 +652,7 @@ function populateSettingsFrm() {
 
     document.getElementById('inputBookletName').value = settings.bookletName;
     document.getElementById('inputCoverimageNames').value = settings.coverimageNames;
+    document.getElementById('inputThumbnailNames').value = settings.thumbnailNames;
     document.getElementById('inputCovercacheKeepDays').value = settings.covercacheKeepDays;
     document.getElementById('inputListenbrainzToken').value = settings.listenbrainzToken;
 
@@ -1028,6 +1029,10 @@ function saveSettings(closeModal) {
     if (!validateFilenameList(inputCoverimageNames)) {
         formOK = false;
     }
+    const inputThumbnailNames = document.getElementById('inputThumbnailNames');
+    if (!validateFilenameList(inputThumbnailNames)) {
+        formOK = false;
+    }
 
     const inputBookletName = document.getElementById('inputBookletName');
     if (!validateFilename(inputBookletName)) {
@@ -1083,6 +1088,7 @@ function saveSettings(closeModal) {
     if (formOK === true) {
         const params = {
             "coverimageNames": inputCoverimageNames.value,
+            "thumbnailNames": inputThumbnailNames.value,
             "lastPlayedCount": Number(document.getElementById('inputSettinglastPlayedCount').value),
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
             "smartplsPrefix": document.getElementById('inputSmartplsPrefix').value,

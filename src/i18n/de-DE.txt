@@ -75,6 +75,12 @@ Alle Tags
 Filename
 Dateiname
 
+Filenames
+Dateinamen
+
+Thumbnail names
+Thumbnail Namen
+
 Filetype
 Dateityp
 

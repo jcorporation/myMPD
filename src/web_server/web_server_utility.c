@@ -21,6 +21,7 @@ void mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     FREE_SDS(mg_user_data->browse_directory);
     FREE_SDS(mg_user_data->music_directory);
     sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
+    sdsfreesplitres(mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len);
     FREE_SDS(mg_user_data->stream_uri);
     list_clear(&mg_user_data->session_list);
 }
