@@ -202,7 +202,6 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/coverimage-mympd.svg", 28, "image/svg+xml", true, true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},
         {"/assets/mympd-background-dark.svg", 33, "image/svg+xml", true, true, mympd_background_dark_svg_data, mympd_background_dark_svg_size},
         {"/assets/mympd-background-light.svg", 34, "image/svg+xml", true, true, mympd_background_light_svg_data, mympd_background_light_svg_size},
-        {"/assets/favicon.ico", 19, "image/vnd.microsoft.icon", false, true, favicon_ico_data, favicon_ico_size},
         {"/assets/appicon-192.png", 23, "image/png", false, true, appicon_192_png_data, appicon_192_png_size},
         {"/assets/appicon-512.png", 23, "image/png", false, true, appicon_512_png_data, appicon_512_png_size},
         {NULL, 0, NULL, false, false, NULL, 0}

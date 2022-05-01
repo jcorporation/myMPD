@@ -14,7 +14,6 @@ const urlsToCache = [
     subdir + '/assets/coverimage-notavailable.svg',
     subdir + '/assets/coverimage-loading.svg',
 	subdir + '/assets/coverimage-mympd.svg',
-    subdir + '/assets/favicon.ico',
     subdir + '/assets/MaterialIcons-Regular.woff2',
 	subdir + '/assets/mympd-background-dark.svg',
 	subdir + '/assets/mympd-background-light.svg'
