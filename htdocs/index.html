@@ -142,12 +142,12 @@
             </div>
           </div>
         </div>
-        <div class="scrollContainer">
-          <div id="PlaybackList">
-            <div class="coverPanel">
+        <div class="container-fluid scrollContainer">
+          <div id="PlaybackList" class="row">
+            <div class="col-12 col-sm-6 col-xl-4 ps-0 mb-3">
               <div class="album-cover album-cover-loading clickable carousel" id="currentCover" data-href='{"cmd": "zoomPicture", "options": []}'></div>
             </div>
-            <div class="album-desc text-break">
+            <div class="album-desc text-break col-12 col-sm-6 col-xl-8">
               <h2 id="currentTitle" class="notclickable" data-href='{"cmd": "clickTitle", "options": []}'></h2>
               <div class="featTags" id="cardPlaybackTags"></div>
               <div class="d-none" id="cardPlaybackWebradio"></div>
@@ -1689,10 +1689,10 @@
             <div class="tab-pane active" id="tabSongDetails">
               <h1 class="text-break mb-4"></h1>
               <div class="row">
-                <div class="col-md-auto">
+                <div class="col-12 col-md-4">
                   <div class="album-cover album-cover-loading album-cover-songdetails"></div>
                 </div>
-                <div class="col table-responsive-md">
+                <div class="col-12 col-md-8 table-responsive-md">
                   <table class="table table-sm">
                     <tbody id="tbodySongDetails"></tbody>
                   </table>

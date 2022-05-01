@@ -592,19 +592,11 @@ const webuiSettingsDefault = {
         "form": "themeFrm",
         "reset": true
     },
-    "uiCoverimageSize": {
-        "defaultValue": 250,
-        "inputType": "input",
-        "contentType": "integer",
-        "title": "Size normal",
-        "form": "coverimageFrm",
-        "reset": true
-    },
-    "uiCoverimageSizeSmall": {
+    "uiThumbailSize": {
         "defaultValue": 175,
         "inputType": "input",
         "contentType": "integer",
-        "title": "Size small",
+        "title": "Thumbnail size",
         "form": "coverimageFrm",
         "reset": true
     },

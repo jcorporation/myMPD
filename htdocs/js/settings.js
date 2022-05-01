@@ -376,8 +376,7 @@ function parseSettings(obj) {
     document.getElementById('mpdInfoHost').textContent = settings.mpdHost.indexOf('/') !== 0 ?
         settings.mpdHost + ':' + settings.mpdPort : settings.mpdHost;
 
-    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.webuiSettings.uiCoverimageSize + "px");
-    document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.webuiSettings.uiCoverimageSizeSmall + "px");
+    document.documentElement.style.setProperty('--mympd-thumbnail-size', settings.webuiSettings.uiThumbnailSize + "px");
     document.documentElement.style.setProperty('--mympd-highlightcolor', settings.webuiSettings.uiHighlightColor);
 
     //default limit for all cards
@@ -1015,9 +1014,9 @@ function saveSettings(closeModal) {
     cleanupModalId('modalSettings');
     let formOK = true;
 
-    for (const inputId of ['inputWebUIsettinguiCoverimageSize', 'inputWebUIsettinguiCoverimageSizeSmall',
-            'inputSettinglastPlayedCount', 'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
-            'inputSettingvolumeStep', 'inputCovercacheKeepDays'])
+    for (const inputId of ['inputWebUIsettinguiThumbnailSize', 'inputSettinglastPlayedCount',
+        'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
+        'inputSettingvolumeStep', 'inputCovercacheKeepDays'])
     {
         const inputEl = document.getElementById(inputId);
         if (!validateUint(inputEl)) {

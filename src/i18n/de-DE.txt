@@ -837,11 +837,8 @@ Absteigend
 Sort by
 Sortieren
 
-Size normal
-Normale Größe
-
-Size small
-Kleine Größe
+Thumbnail size
+Thumbnail Größe
 
 Dark
 Dunkel
