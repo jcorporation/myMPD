@@ -184,7 +184,9 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
         sds mediafile = sdscatfmt(sdsempty(), "%S/%S", mg_user_data->music_directory, uri_decoded);
         MYMPD_LOG_DEBUG("Absolut media_file: %s", mediafile);
         //try image in folder under music_directory
-        if (mg_user_data->coverimage_names_len > 0) {
+        if (mg_user_data->coverimage_names_len > 0 &&
+            offset == 0)
+        {
             sds path = sdsdup(uri_decoded);
             dirname(path);
             sdsupdatelen(path);
