@@ -27,6 +27,7 @@ let subdir = '';
 let uiEnabled = true;
 let locale = navigator.language || navigator.userLanguage;
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const isSafari = /Safari/i.test(navigator.userAgent);
 const hasIO = 'IntersectionObserver' in window ? true : false;
 const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';

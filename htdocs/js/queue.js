@@ -280,11 +280,14 @@ function queueSetCurrentSong() {
 }
 
 function setQueueCounter(playingRow, counterText) {
-    //calc percent with two decimals after comma
-    const progressPrct = currentState.state === 'stop' || currentState.totalTime === 0 ?
-            100 : Math.ceil((100 / currentState.totalTime) * currentState.elapsedTime * 100) / 100;
-    playingRow.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
-        progressPrct + '%, transparent ' + progressPrct + '%, transparent 100%)';
+    if (isSafari === false) {
+        //safari does not support gradient backgrounds at row level
+        //calc percent with two decimals after comma
+        const progressPrct = currentState.state === 'stop' || currentState.totalTime === 0 ?
+                100 : Math.ceil((100 / currentState.totalTime) * currentState.elapsedTime * 100) / 100;
+        playingRow.style.background = 'linear-gradient(90deg, var(--mympd-highlightcolor) 0%, var(--mympd-highlightcolor) ' +
+            progressPrct + '%, transparent ' + progressPrct + '%, transparent 100%)';
+    }
     //counter in queue card
     const durationTd = playingRow.querySelector('[data-col=Duration]');
     if (durationTd) {
