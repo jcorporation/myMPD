@@ -6,7 +6,7 @@ title: Security
 
 ## General
 
-- Update myMPD and the systems it runs regulary
+- Update myMPD and the systems it runs on regulary
 - Do not add files from untrusted sources to your music library
 
 ## Restrict access

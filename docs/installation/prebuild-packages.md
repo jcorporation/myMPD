@@ -20,8 +20,8 @@ Following distributions are supported:
 - openSUSE
 - Ubuntu
 
-
 ### Debian Installation
+
 When installing on Debian, the easiest way is to configure your package manager to securely download from the jcorporation repository.
 It allows you to use apt's native update mechanism to upgrade myMPD instead of having to manually download the deb package for each new release.
 
@@ -46,7 +46,6 @@ cat /etc/apt/sources.list.d/jcorporation.list
 apt update
 apt install mympd
  ```
-
 
 ## Dependencies
 

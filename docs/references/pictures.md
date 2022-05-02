@@ -20,8 +20,8 @@ myMPD needs access to the MPD music_directory or a uptodate MPD.
 Enable albumart support:
 
 1. To support albumart, songs must be arranged in folders per album.
-2. Put the pictures in the album folders, name it always the same, e.g. folder.jpg
-3. Configure the name in the settings, a comma separated list and basenames are also supported
+2. Put the pictures and thumbnails in the album folders, name it always the same, e.g. cover-sm.webp (thumbnail) and cover.webp (full image)
+3. Configure the name in the settings (albumart filenames and thumbnail names), a comma separated list of filenames and only basenames (filenames without extensions) are also supported
 
 ### Albumart in directories through MPD
 
@@ -67,4 +67,4 @@ Background images must be saved in the `/var/lib/mympd/pics/backgrounds` folder.
 
 myMPD recognizes following file extensions:
 
-- png, jpg, jpeg, svg, webp, avif
+- webp, png, jpg, jpeg, svg, avif

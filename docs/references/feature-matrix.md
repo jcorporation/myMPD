@@ -9,7 +9,8 @@ Certain myMPD features are only available with new MPD versions. To use all myMP
 myMPD support only MPD 0.20.0 and above.
 
 | MYMPD FEATURE | MPD FEATURE | MPD VERSION | DESCRIPTION |
-| ------------- | ----------- | ----------- | ----------- | 
+| ------------- | ----------- | ----------- | ----------- |
+| Advanced queue search |  | 0.24.0 | sort/window arg and prio filter for playlistsearch |
 | Add after current song | position/whence arg for load/searchadd | 0.23.5 | |
 | Insert into playlist | position arg for playlistadd | 0.23.5 | |
 | Remove range in playlist | range arg for playlistdelete | 0.23.3 | |

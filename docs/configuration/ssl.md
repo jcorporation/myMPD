@@ -28,11 +28,14 @@ The default certificates are saved in the directory `/var/lib/mympd/ssl/`.
 The server certificates SAN is:
 
 - DNS: localhost
+- DNS: ip6-localhost
+- DNS: ip6-loopback
 - IP: 127.0.0.1
 - IP: ::1
-- DNS:``<hostname>``
-- DNS:``<full qualified hostname>``
-- IP:``<ip of resolved hostname>``
+- DNS:`<hostname>`
+- DNS:`<full qualified hostname>`
+- IP:`<ip of resolved hostname>`
+- IP:`all interface ips`
 
 You can edit the file `/var/lib/mympd/config/ssl_san` before starting myMPD to add additional names or ip addresses to the certificate, e.g. `DNS:jukebox.local`. 
 

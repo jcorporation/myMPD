@@ -29,7 +29,7 @@ myMPD logs to syslog to facility `daemon`, you can see the live logs with `tail 
 
 ## Manual startup
 
-To start myMPD in the actual console session: `mympd` (myMPD logs to the console)
+To start myMPD in the actual console session: `mympd` (myMPD keeps in foreground and logs to the console, press CTRL+C to stop myMPD)
 
 Description of [Commandline-Options]({{ site.baseurl }}/configuration/).
 

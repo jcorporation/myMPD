@@ -17,23 +17,17 @@ Following tags should be enabled for the best user experience (in MPD and in myM
 - Genre
 - Name (for displaying extended playlist information)
 
+If you want use ListenBrainz for scrobbling you should enable additional tags:
+
+- MUSICBRAINZ_RELEASETRACKID
+- MUSICBRAINZ_TRACKID
+- MUSICBRAINZ_ARTISTID
+- MUSICBRAINZ_ALBUMARTISTID
+
 ## Hints
 
 1. If you not enable the AlbumArtist tag, myMPD falls back to the Artist tag. To support compilations you should use the AlbumArtist tag and set it e. g. to `Various`.
 2. `Genre` is in the default configuration used to build default smart playlists.
 3. If no tags are enabled, myMPD uses the basename of the filename as title.
-
-
-# Lyrics
-
-myMPD supports synced and unsynced lyrics.
-
-Lyrics can be embedded as USLT or SYLT tags in mp3 files (id3v2 tags) or in configurable vorbis comments in flac and ogg files.
-
-Embedded lyrics only works if you enable flac/libid3tag at compile time (default in prebuild packages) and myMPD has access to the music directory.
-
-myMPD can parse the binary SYLT id3v2 tags and converts it to the lrc format. In vorbis comments myMPD expects an embedded lrc file.
-
-As alternative myMPD tries to get the lyrics from a file in the same directory as the song with a configurable extension.
-
-Lyrics are displayed in the song details modal and you can add them to the playback card.
+4. ID3 tags with multiple values works only for IDv2.4, older versions uses a separator for values in one tag and that is not supported by MPD.
+5. MPD does not support multi-value MusicBrainz ID tags (https://github.com/MusicPlayerDaemon/MPD/issues/687).

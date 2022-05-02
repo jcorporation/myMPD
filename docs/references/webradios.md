@@ -12,27 +12,38 @@ myMPD uses the great [radio-browser.info](https://www.radio-browser.info/) proje
 
 myMPD saves webradio favorites as single extended m3u files in the directory `/var/lib/mympd/webradios`. The filename is the sanitized stream uri.
 
-MPD loads this playlist with the curl plugin.
+MPD loads this playlist with the curl plugin, myMPD calculates the correct http uri.
 
 ### File format
 
 ```
 #EXTM3U
 #EXTINF:-1,<name of the webradio>
-#EXTGENRE:
+#EXTGENRE:<comma separated list of genres>
 #PLAYLIST:<name of the webradio>
-#EXTIMG:<coverimage url, relative to /var/lib/mympd/pics/ or http uri>
-#RADIOBROWSERUUID:<station uid from radio-browser.info>
+#EXTIMG:<coverimage filename, relative to /var/lib/mympd/pics/thumbs/ or http uri>
+#HOMEPAGE:https://www.swr.de/swr1/
+#COUNTRY:<country>
+#LANGUAGE:<language>
+#DESCRIPTION:<description>
+#CODEC:<codec, eg. MP3, AAC>
+#BITRATE:<bitrakte in kbit>
 <stream uri>
 ```
 
 ### Example
 ```
 #EXTM3U
-#EXTINF:-1,SWR1 BW
-#EXTGENRE:
-#PLAYLIST:SWR1 BW
-#EXTIMG:swr-swr1-bw_cast_addradio_de_swr_swr1_bw_mp3_128_stream_mp3.jpg
-#RADIOBROWSERUUID:d8f01eea-26be-4e3d-871d-7596e3ab8fb1
-https://liveradio.swr.de/sw331ch/swr1bw/play.mp3
+#EXTINF:-1,SWR 1 BW
+#EXTGENRE:Pop,Rock
+#PLAYLIST:SWR 1 BW
+#EXTIMG:https://jcorporation.github.io/webradiodb/db/pics/https___liveradio_swr_de_sw282p3_swr1bw_play_mp3.webp
+#HOMEPAGE:https://www.swr.de/swr1/
+#COUNTRY:Germany
+#LANGUAGE:German
+#DESCRIPTION:SWR 1 Baden-Württemberg
+#CODEC:MP3
+#BITRATE:128
+https://liveradio.swr.de/sw282p3/swr1bw/play.mp3
+
 ```

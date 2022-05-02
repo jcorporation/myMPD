@@ -39,4 +39,5 @@ title: OpenWrt
 6. Resulting package will be placed in `bin` directory.
 
 ***
+
 Thanks goes to [tmn505](https://github.com/tmn505) for the OpenWrt support.
