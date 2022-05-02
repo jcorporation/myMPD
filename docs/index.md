@@ -8,7 +8,7 @@ title: Index
 
 myMPD is a standalone and mobile friendly web-based MPD client with a tiny footprint and advanced features.
 
-- [Repository](https://github.com/jcorporation/myMPD)
+- [GitHub Repository](https://github.com/jcorporation/myMPD)
 - [Help to improve myMPD](https://github.com/jcorporation/myMPD/issues/167)
 - [Q&A](https://github.com/jcorporation/myMPD/discussions/categories/q-a)
 

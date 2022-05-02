@@ -33,7 +33,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - [Smart playlists and saved searches](https://jcorporation.github.io/myMPD/references/smart-playlists)
 - Playback statistics and song voting
 - [Albumart: embedded and image per folder](https://jcorporation.github.io/myMPD/references/pictures)
-- [Unsynchronized and synchronized Lyrics](https://jcorporation.github.io/myMPD/references/tags)
+- [Unsynchronized and synchronized Lyrics](https://jcorporation.github.io/myMPD/references/lyrics)
 - Local booklet support (per album folder)
 - HTTP stream support
 - [Local playback of mpd http stream](https://jcorporation.github.io/myMPD/references/local-playback)
@@ -45,6 +45,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - [Publishing of mpd and myMPD directories via http](https://jcorporation.github.io/myMPD/references/published-directories)
 - Progressiv Web App enabled
 - Support of Media Session API
+- ListenBrainz and MusicBrainz integration
 
 To use all myMPD functions you should use the latest stable MPD version.
 
