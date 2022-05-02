@@ -36,7 +36,7 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
             offset += (unsigned)recv_len;
         }
         if (recv_len < 0) {
-            MYMPD_LOG_WARN("MPD returned -1 for albumart command");
+            MYMPD_LOG_DEBUG("MPD returned -1 for albumart command for uri \"%s\"", uri);
         }
     }
     if (offset == 0 && mympd_state->mpd_state->feat_mpd_readpicture == true) {
@@ -56,7 +56,7 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
             offset += (unsigned)recv_len;
         }
         if (recv_len < 0) {
-            MYMPD_LOG_WARN("MPD returned -1 for readpicture command");
+            MYMPD_LOG_DEBUG("MPD returned -1 for readpicture command for uri \"%s\"", uri);
         }
     }
     if (offset == 0) {
@@ -79,7 +79,7 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
         }
     }
     else {
-        MYMPD_LOG_DEBUG("No albumart found by mpd for uri \"%s\"", uri);
+        MYMPD_LOG_INFO("No albumart found by mpd for uri \"%s\"", uri);
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "albumart", "warn", "No albumart found by mpd");
     }
     return buffer;
