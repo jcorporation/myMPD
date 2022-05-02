@@ -30,8 +30,7 @@ body.not-mobile .album-cover-grid:hover > div {
 }
 
 :root {
-  --mympd-coverimagesize: 250px;
-  --mympd-coverimagesizesmall: 175px;
+  --mympd-thumbnail-size: 175px;
   --mympd-highlightcolor: #28a745;
   --mympd-highlightcolor-contrast: white;
   --mympd-backgroundcolor: black;
@@ -163,6 +162,14 @@ main {
   padding-right: 1rem;
 }
 
+#navbar-main {
+  overflow: auto;
+}
+
+#headerLeft {
+  margin-right: 2rem;
+}
+
 .square-end {
   border-bottom-right-radius: 0 !important;
   border-top-right-radius: 0 !important;
@@ -221,6 +228,7 @@ div > .albumartbg {
 
   #headerLeft {
     margin-bottom: 2rem;
+    margin-right: 0;
   }
 
   .navText {
@@ -238,6 +246,11 @@ div > .albumartbg {
   #navQueue > a {
     padding-right: 0 !important;
     padding-left: 0.5rem !important;
+  }
+
+  #top-alerts {
+    padding-right: 4rem !important;
+    margin-top: 0 !important;
   }
 }
 
@@ -414,21 +427,14 @@ div.card {
   margin-bottom: 2rem;
 }
 
-.coverPanel {
-  float: left;
-  width: var(--mympd-coverimagesize, 250px);
-  margin-bottom: 1.25rem;
-  margin-right: 1.25rem;
-}
-
 .album-cover {
   background-size: cover;
   border: 1px solid black;
   border-radius: 5px;
   overflow: hidden;
-  max-width: 100%;
-  width: var(--mympd-coverimagesize, 250px);
-  height: var(--mympd-coverimagesize, 250px);
+  width: 100%;
+  height: 0;
+  padding-bottom: 100%;
   background-color: #eee;
   position: relative;
   z-index: 1;
@@ -440,8 +446,8 @@ div.card {
   border-radius: 5px;
   overflow: hidden;
   max-width: 100%;
-  width: var(--mympd-coverimagesizesmall, 175px);
-  height: var(--mympd-coverimagesizesmall, 175px);
+  width: var(--mympd-thumbnail-size, 175px);
+  height: var(--mympd-thumbnail-size, 175px);
   background-color: #eee;
   float: left;
   margin-bottom: 1.25rem;
@@ -484,7 +490,7 @@ div.card {
 }
 
 .card-grid {
-  width: var(--mympd-coverimagesizesmall);
+  width: var(--mympd-thumbnail-size);
   min-height: 0 !important;
   margin-bottom: 1.25rem;
   overflow: hidden;
@@ -502,8 +508,8 @@ div.card {
   background-size: cover;
   background-position: center center;
   overflow: hidden;
-  width: var(--mympd-coverimagesizesmall);
-  height: var(--mympd-coverimagesizesmall);
+  width: var(--mympd-thumbnail-size);
+  height: var(--mympd-thumbnail-size);
   max-width: 100%;
   padding: 0.5rem;
 }
@@ -815,6 +821,7 @@ div#playDropdown .row {
   width: 100%;
   z-index: 1000;
   top: 0;
+  margin-top: 3.5rem;
 }
 
 .top-alert {
@@ -852,29 +859,6 @@ div#playDropdown .row {
 
 #currentLyrics > p.expanded {
   max-height: none;
-}
-
-/*resize coverimage in playback card*/
-@media only screen and (min-width: 768px) and (min-height: 35rem) {
-  #currentCover {
-    width: 20rem;
-    height: 20rem;
-  }
-
-  .coverPanel {
-    width: 20rem;
-  }
-}
-
-@media only screen and (min-width: 992px) and (min-height: 43rem) {
-  #currentCover {
-    width: 26rem;
-    height: 26rem;
-  }
-
-  .coverPanel {
-    width: 26rem;
-  }
 }
 
 .disabled {
@@ -921,7 +905,7 @@ div#modalPictureImg {
 }
 
 div#BrowseFilesystemImages {
-  height: calc(var(--mympd-coverimagesizesmall, 175px) + 1rem);
+  height: calc(var(--mympd-thumbnail-size, 175px) + 1rem);
   margin-bottom: 1rem;
   overflow-x: auto;
   overflow-y: hidden;
@@ -929,8 +913,8 @@ div#BrowseFilesystemImages {
 }
 
 div#BrowseFilesystemImages > div {
-  height: var(--mympd-coverimagesizesmall, 175px);
-  width: var(--mympd-coverimagesizesmall, 175px);
+  height: var(--mympd-thumbnail-size, 175px);
+  width: var(--mympd-thumbnail-size, 175px);
   background-position: center center;
   background-size: cover;
   display: inline-block;

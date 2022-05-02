@@ -205,6 +205,7 @@ struct set_mg_user_data_request {
     sds music_directory;
     sds playlist_directory;
     sds coverimage_names;
+    sds thumbnail_names;
     bool feat_mpd_albumart;
     sds mpd_host;
     unsigned mpd_stream_port;

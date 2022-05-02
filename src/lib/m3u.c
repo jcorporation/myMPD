@@ -42,7 +42,7 @@ sds m3u_get_field(sds buffer, const char *field, const char *filename) {
         }
     }
     FREE_SDS(line);
-    fclose(fp);
+    (void) fclose(fp);
     return buffer;
 }
 
@@ -61,7 +61,7 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
     if (strcmp(line, "#EXTM3U") != 0) {
         MYMPD_LOG_WARN("Invalid ext m3u file");
         sdsfree(line);
-        fclose(fp);
+        (void) fclose(fp);
         sdsclear(buffer);
         return buffer;
     }
@@ -106,7 +106,7 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
     }
     FREE_SDS(line);
     FREE_SDS(field);
-    fclose(fp);
+    (void) fclose(fp);
     if (plname != NULL) {
         sds_utf8_tolower(*plname);
     }
@@ -123,5 +123,7 @@ static const char *m3ufields_map(sds field) {
     if (strcmp(field, "LANGUAGE") == 0)         { return "Language"; }
     if (strcmp(field, "DESCRIPTION") == 0)      { return "Description"; }
     if (strcmp(field, "PLAYLIST") == 0)         { return "Name"; }
+    if (strcmp(field, "CODEC") == 0)            { return "Codec"; }
+    if (strcmp(field, "BITRATE") == 0)          { return "Bitrate"; }
     return "";
 }

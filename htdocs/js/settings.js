@@ -376,8 +376,7 @@ function parseSettings(obj) {
     document.getElementById('mpdInfoHost').textContent = settings.mpdHost.indexOf('/') !== 0 ?
         settings.mpdHost + ':' + settings.mpdPort : settings.mpdHost;
 
-    document.documentElement.style.setProperty('--mympd-coverimagesize', settings.webuiSettings.uiCoverimageSize + "px");
-    document.documentElement.style.setProperty('--mympd-coverimagesizesmall', settings.webuiSettings.uiCoverimageSizeSmall + "px");
+    document.documentElement.style.setProperty('--mympd-thumbnail-size', settings.webuiSettings.uiThumbnailSize + "px");
     document.documentElement.style.setProperty('--mympd-highlightcolor', settings.webuiSettings.uiHighlightColor);
 
     //default limit for all cards
@@ -424,21 +423,26 @@ function parseSettings(obj) {
     //update columns
     appRoute();
 
-    if (settings.mediaSession === true && 'mediaSession' in navigator) {
-        navigator.mediaSession.setActionHandler('play', clickPlay);
-        navigator.mediaSession.setActionHandler('pause', clickPlay);
-        navigator.mediaSession.setActionHandler('stop', clickStop);
-        navigator.mediaSession.setActionHandler('seekbackward', seekRelativeBackward);
-        navigator.mediaSession.setActionHandler('seekforward', seekRelativeForward);
-        navigator.mediaSession.setActionHandler('previoustrack', clickPrev);
-        navigator.mediaSession.setActionHandler('nexttrack', clickNext);
-
+    //mediaSession support
+    if (checkMediaSessionSupport() === true) {
+        try {
+            navigator.mediaSession.setActionHandler('play', clickPlay);
+            navigator.mediaSession.setActionHandler('pause', clickPlay);
+            navigator.mediaSession.setActionHandler('stop', clickStop);
+            navigator.mediaSession.setActionHandler('seekbackward', seekRelativeBackward);
+            navigator.mediaSession.setActionHandler('seekforward', seekRelativeForward);
+            navigator.mediaSession.setActionHandler('previoustrack', clickPrev);
+            navigator.mediaSession.setActionHandler('nexttrack', clickNext);
+        }
+        catch(err) {
+            logWarn('mediaSession.setActionHandler not supported by browser: ' + err.message);
+        }
         if (!navigator.mediaSession.setPositionState) {
             logDebug('mediaSession.setPositionState not supported by browser');
         }
     }
     else {
-        logDebug('mediaSession not supported by browser');
+        logDebug('mediaSession not supported by browser or not enabled');
     }
 
     //finished parse setting, set ui state
@@ -631,7 +635,7 @@ function populateSettingsFrm() {
     }
 
     if (isMobile === true) {
-        document.getElementById('inputScaleRatio').value = scale;
+        document.getElementById('inputScaleRatio').value = localSettings.scaleRatio;
     }
 
     //media session support
@@ -648,7 +652,9 @@ function populateSettingsFrm() {
 
     document.getElementById('inputBookletName').value = settings.bookletName;
     document.getElementById('inputCoverimageNames').value = settings.coverimageNames;
+    document.getElementById('inputThumbnailNames').value = settings.thumbnailNames;
     document.getElementById('inputCovercacheKeepDays').value = settings.covercacheKeepDays;
+    document.getElementById('inputListenbrainzToken').value = settings.listenbrainzToken;
 
     //smart playlists
     if (settings.featSmartpls === true) {
@@ -671,6 +677,10 @@ function populateSettingsFrm() {
         settings.webuiSettings.enableLyrics = false;
     }
     toggleBtnChkCollapseId('btnEnableLyrics', 'collapseEnableLyrics', settings.webuiSettings.enableLyrics);
+
+    //local playback
+    toggleBtnChkCollapseId('btnEnableLocalPlayback', 'collapseEnableLocalPlayback', settings.webuiSettings.enableLocalPlayback);
+    toggleBtnChkId('btnEnableLocalPlaybackAutoplay', localSettings.localPlaybackAutoplay);
 
     const inputWebUIsettinguiBgCover = document.getElementById('inputWebUIsettinguiBgCover');
     inputWebUIsettinguiBgCover.setAttribute('data-toggle', 'collapse');
@@ -1005,9 +1015,9 @@ function saveSettings(closeModal) {
     cleanupModalId('modalSettings');
     let formOK = true;
 
-    for (const inputId of ['inputWebUIsettinguiCoverimageSize', 'inputWebUIsettinguiCoverimageSizeSmall',
-            'inputSettinglastPlayedCount', 'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
-            'inputSettingvolumeStep', 'inputCovercacheKeepDays'])
+    for (const inputId of ['inputWebUIsettinguiThumbnailSize', 'inputSettinglastPlayedCount',
+        'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
+        'inputSettingvolumeStep', 'inputCovercacheKeepDays'])
     {
         const inputEl = document.getElementById(inputId);
         if (!validateUint(inputEl)) {
@@ -1019,21 +1029,35 @@ function saveSettings(closeModal) {
     if (!validateFilenameList(inputCoverimageNames)) {
         formOK = false;
     }
+    const inputThumbnailNames = document.getElementById('inputThumbnailNames');
+    if (!validateFilenameList(inputThumbnailNames)) {
+        formOK = false;
+    }
 
     const inputBookletName = document.getElementById('inputBookletName');
     if (!validateFilename(inputBookletName)) {
         formOK = false;
     }
 
+    //browser specific settings
     if (isMobile === true) {
         const inputScaleRatio = document.getElementById('inputScaleRatio');
         if (!validateFloat(inputScaleRatio)) {
             formOK = false;
         }
         else {
-            scale = parseFloat(inputScaleRatio.value);
-            setViewport(true);
+            localSettings.scaleRatio = parseFloat(inputScaleRatio.value);
+            setViewport();
         }
+    }
+
+    localSettings.localPlaybackAutoplay = (document.getElementById('btnEnableLocalPlaybackAutoplay').classList.contains('active') ? true : false);
+    try {
+        localStorage.setItem('scaleRatio', localSettings.scaleRatio);
+        localStorage.setItem('localPlaybackAutoplay', localSettings.localPlaybackAutoplay);
+    }
+    catch(err) {
+        logError('Can not save settings to localStorage: ' + err.message);
     }
 
     //from hours to seconds
@@ -1059,10 +1083,12 @@ function saveSettings(closeModal) {
     }
 
     webuiSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
+    webuiSettings.enableLocalPlayback = (document.getElementById('btnEnableLocalPlayback').classList.contains('active') ? true : false);
 
     if (formOK === true) {
         const params = {
             "coverimageNames": inputCoverimageNames.value,
+            "thumbnailNames": inputThumbnailNames.value,
             "lastPlayedCount": Number(document.getElementById('inputSettinglastPlayedCount').value),
             "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
             "smartplsPrefix": document.getElementById('inputSmartplsPrefix').value,
@@ -1081,6 +1107,7 @@ function saveSettings(closeModal) {
             "lyricsVorbisUslt": document.getElementById('inputSettinglyricsVorbisUslt').value,
             "lyricsVorbisSylt": document.getElementById('inputSettinglyricsVorbisSylt').value,
             "covercacheKeepDays": Number(document.getElementById('inputCovercacheKeepDays').value),
+            "listenbrainzToken": document.getElementById('inputListenbrainzToken').value,
             "webuiSettings": webuiSettings
         };
 

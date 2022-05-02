@@ -545,9 +545,9 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
         return false;
     }
     FILE *key_file_fp = fdopen(fd, "w");
-    bool rc = PEM_write_PrivateKey(key_file_fp, pkey, NULL, NULL, 0, NULL, NULL);
-    fclose(key_file_fp);
-    if (!rc) {
+    int rc1 = PEM_write_PrivateKey(key_file_fp, pkey, NULL, NULL, 0, NULL, NULL);
+    int rc2 = fclose(key_file_fp);
+    if (rc1 == 0 || rc2 != 0) {
         MYMPD_LOG_ERROR("Unable to write private key to disk");
         FREE_SDS(key_file_tmp);
         return false;
@@ -571,9 +571,9 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
         return false;
     }
     FILE *cert_file_fp = fdopen(fd, "w");
-    rc = PEM_write_X509(cert_file_fp, cert);
-    fclose(cert_file_fp);
-    if (!rc) {
+    rc1 = PEM_write_X509(cert_file_fp, cert);
+    rc2 = fclose(cert_file_fp);
+    if (rc1 == 0 || rc2 != 0) {
         MYMPD_LOG_ERROR("Unable to write certificate to disk");
         FREE_SDS(cert_file_tmp);
         return false;

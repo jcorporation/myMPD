@@ -1,10 +1,9 @@
--- {"order":1,"arguments":["uri","vote"]}
+-- {"order":1,"arguments":["uri","blurb_content","pinned_until"]}
 mympd.init()
-uri = "https://api.listenbrainz.org/1/feedback/recording-feedback"
+uri = "https://api.listenbrainz.org/1/pin"
 headers = "Content-type: application/json\r\n"..
   "Authorization: Token "..mympd_state["listenbrainz_token"].."\r\n"
 
-vote = arguments["vote"] - 1
 rc, raw_song = mympd_api("MYMPD_API_DATABASE_SONGDETAILS", "uri", arguments["uri"])
 if rc == 0 then
   song = json.decode(raw_song)
@@ -12,7 +11,8 @@ if rc == 0 then
   if mbid ~= nil then
     payload = json.encode({
       recording_mbid = mbid,
-      score = vote
+      blurb_content = arguments["blurb_content"],
+      pinned_until = arguments["pinned_until"]
     });
     rc, response, header, body = mympd_api_http_client("POST", uri, headers, payload)
     if rc > 0 then

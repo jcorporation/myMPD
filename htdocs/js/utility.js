@@ -537,6 +537,52 @@ function basename(uri, removeQuery) {
     return uri.split('/').reverse()[0];
 }
 
+ function splitFilename(filename) {
+     const parts = filename.match(/^(.*)\.([^.]+)$/);
+     return {
+        "file": parts[1],
+        "ext": parts[2]
+     };
+ }
+
+function isCoverfile(uri) {
+    const filename = basename(uri);
+    const fileparts = splitFilename(filename);
+
+    const coverimageNames = [...settings.coverimageNames.split(','), ...settings.thumbnailNames.split(',')];
+    for (let i = 0, j = coverimageNames.length; i < j; i++) {
+        const name = coverimageNames[i].trim();
+        if (filename === name) {
+            return true;
+        }
+        if (name === fileparts.file &&
+            imageExtensions.includes(fileparts.ext))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+function isThumbnailfile(uri) {
+    const filename = basename(uri);
+    const fileparts = splitFilename(filename);
+
+    const coverimageNames = settings.thumbnailNames.split(',');
+    for (let i = 0, j = coverimageNames.length; i < j; i++) {
+        const name = coverimageNames[i].trim();
+        if (filename === name) {
+            return true;
+        }
+        if (name === fileparts.file &&
+            imageExtensions.includes(fileparts.ext))
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
 function filetype(uri) {
     if (uri === undefined) {
         return '';
@@ -1296,6 +1342,8 @@ function printValue(key, value) {
             return elCreateText('span', {"class": ["mi"]},
                     (value === 1 ? 'check_circle' : 'error')
                 );
+        case 'Bitrate':
+            return document.createTextNode(value + ' ' + tn('kbit'));
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
                 return getMBtagLink(key, value);
@@ -1350,16 +1398,9 @@ function openFullscreen() {
     }
 }
 
-function setViewport(store) {
-    document.querySelector("meta[name=viewport]").setAttribute('content', 'width=device-width, initial-scale=' + scale + ', maximum-scale=' + scale);
-    if (store === true) {
-        try {
-            localStorage.setItem('scale-ratio', scale);
-        }
-        catch(err) {
-            logError('Can not save scale-ratio in localStorage: ' + err.message);
-        }
-    }
+function setViewport() {
+    document.querySelector("meta[name=viewport]").setAttribute('content', 'width=device-width, initial-scale=' +
+        localSettings.scaleRatio + ', maximum-scale=' + localSettings.scaleRatio);
 }
 
 //eslint-disable-next-line no-unused-vars

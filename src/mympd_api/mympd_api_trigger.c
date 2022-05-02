@@ -16,6 +16,7 @@
 
 #include <errno.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 //private definitions
 void _trigger_execute(const char *script, struct t_list *arguments);
@@ -44,6 +45,7 @@ static const char *const mympd_trigger_names[] = {
     "mympd_stop",
     "mympd_connected",
     "mympd_disconnected",
+    "mympd_feedback",
     NULL
 };
 
@@ -67,7 +69,7 @@ const char *mympd_api_trigger_name(long event) {
 
 sds mympd_api_trigger_print_trigger_list(sds buffer) {
     for (int i = 0; mympd_trigger_names[i] != NULL; ++i) {
-        buffer = tojson_long(buffer, mympd_trigger_names[i], (-1 -i), true);
+        buffer = tojson_long(buffer, mympd_trigger_names[i], (-1 - i), true);
     }
 
     for (int i = 0; mpd_trigger_names[i] != NULL; ++i) {
@@ -84,12 +86,32 @@ void mympd_api_trigger_execute(struct t_mympd_state *mympd_state, enum trigger_e
     struct t_list_node *current = mympd_state->triggers.head;
     while (current != NULL) {
         if (current->value_i == event) {
-            MYMPD_LOG_NOTICE("Executing script %s for trigger %s (%d)", current->value_p,
+            MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"%s\" (%d)", current->value_p,
                 mympd_api_trigger_name(event), event);
             _trigger_execute(current->value_p, (struct t_list *)current->user_data);
         }
         current = current->next;
     }
+}
+
+void mympd_api_trigger_execute_feedback(struct t_mympd_state *mympd_state, sds uri, int vote) {
+    MYMPD_LOG_DEBUG("Trigger event: mympd_feedback (-6) for \"%s\", vote %d", uri, vote);
+    //trigger mympd_feedback executes scripts with uri and vote arguments
+    struct t_list script_arguments;
+    list_init(&script_arguments);
+    list_push(&script_arguments, "uri", 0, uri, NULL);
+    const char *vote_str = vote == 0 ? "0" :
+                           vote == 1 ? "1" : "2";
+    list_push(&script_arguments, "vote", 0, vote_str, NULL);
+    struct t_list_node *current = mympd_state->triggers.head;
+    while (current != NULL) {
+        if (current->value_i == TRIGGER_MYMPD_FEEDBACK) {
+            MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"mympd_feedback\" (-6)", current->value_p);
+            _trigger_execute(current->value_p, &script_arguments);
+        }
+        current = current->next;
+    }
+    list_clear(&script_arguments);
 }
 
 sds mympd_api_trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
@@ -109,7 +131,7 @@ sds mympd_api_trigger_list(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_char(buffer, "eventName", mympd_api_trigger_name((long)current->value_i), true);
         buffer = tojson_char(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\": {");
-        struct t_list *arguments = ( struct t_list *)current->user_data;
+        struct t_list *arguments = (struct t_list *)current->user_data;
         struct t_list_node *argument = arguments->head;
         int i = 0;
         while (argument != NULL) {
@@ -203,8 +225,8 @@ bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
         sds script = NULL;
         int event;
         struct t_list *arguments = list_new();
-        if (json_get_string(line, "$.name", 1, 200, &name, vcb_isfilename, NULL) == true &&
-            json_get_string(line, "$.script", 0, 200, &script, vcb_isfilename, NULL) == true &&
+        if (json_get_string(line, "$.name", 1, FILENAME_LEN_MAX, &name, vcb_isfilename, NULL) == true &&
+            json_get_string(line, "$.script", 0, FILENAME_LEN_MAX, &script, vcb_isfilename, NULL) == true &&
             json_get_int_max(line, "$.event", &event, NULL) == true &&
             json_get_object_string(line, "$.arguments", arguments, vcb_isname, 10, NULL))
         {
@@ -219,7 +241,7 @@ bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
         i++;
     }
     FREE_SDS(line);
-    fclose(fp);
+    (void) fclose(fp);
     MYMPD_LOG_INFO("Read %ld triggers(s) from disc", mympd_state->triggers.length);
     FREE_SDS(trigger_file);
     return true;
@@ -239,6 +261,7 @@ bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
     FILE *fp = fdopen(fd, "w");
     struct t_list_node *current = mympd_state->triggers.head;
     sds buffer = sdsempty();
+    bool rc = true;
     while (current != NULL) {
         buffer = sds_replace(buffer, "{");
         buffer = tojson_char(buffer, "name", current->key, true);
@@ -256,23 +279,38 @@ bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
             argument = argument->next;
         }
         buffer = sdscatlen(buffer, "}}\n", 3);
-        fputs(buffer, fp);
+        if (fputs(buffer, fp) == EOF) {
+            MYMPD_LOG_ERROR("Could not write triggers to disc");
+            rc = false;
+            break;
+        }
         current = current->next;
     }
-    fclose(fp);
+    if (fclose(fp) != 0) {
+        MYMPD_LOG_ERROR("Could not close file \"%s\"", tmp_file);
+        rc = false;
+    }
     FREE_SDS(buffer);
     sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->workdir);
     errno = 0;
-    if (rename(tmp_file, trigger_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, trigger_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        FREE_SDS(trigger_file);
-        return false;
+    if (rc == true) {
+        if (rename(tmp_file, trigger_file) == -1) {
+            MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, trigger_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
+    }
+    else {
+        //remove incomplete tmp file
+        if (unlink(tmp_file) != 0) {
+            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
     }
     FREE_SDS(tmp_file);
     FREE_SDS(trigger_file);
-    return true;
+    return rc;
 }
 
 //private functions

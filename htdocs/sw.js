@@ -2,7 +2,7 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-const CACHE = 'myMPD-cache-v9.2.5';
+const CACHE = 'myMPD-cache-v9.3.0';
 const subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 const urlsToCache = [
     subdir + '/',
@@ -14,7 +14,6 @@ const urlsToCache = [
     subdir + '/assets/coverimage-notavailable.svg',
     subdir + '/assets/coverimage-loading.svg',
 	subdir + '/assets/coverimage-mympd.svg',
-    subdir + '/assets/favicon.ico',
     subdir + '/assets/MaterialIcons-Regular.woff2',
 	subdir + '/assets/mympd-background-dark.svg',
 	subdir + '/assets/mympd-background-light.svg'
@@ -25,8 +24,8 @@ const ignoreRequests = new RegExp(subdir + '/(' + [
 	'ca.crt',
 	'ws/',
 	'stream/',
-	'albumart/(.*)',
-	'tagart/(.*)',
+	'albumart(.*)',
+	'tagart(.*)',
 	'browse/(.*)'].join('|') + ')$');
 
 self.addEventListener('install', function(event) {

@@ -31,7 +31,7 @@ const APIparams = {
     },
     "expression": {
         "type": "text",
-        "example": "((any contains 'tabula'))",
+        "example": "((any contains 'piraten'))",
         "desc": "MPD search expression"
     },
     "searchstr": {
@@ -41,7 +41,7 @@ const APIparams = {
     },
     "uri": {
         "type": "text",
-        "example": "Testfiles/Sp.mp3",
+        "example": "Testfiles/Piratenlied.flac",
         "desc": "relativ song uri"
     },
     "filter": {
@@ -1680,6 +1680,16 @@ const APImethods = {
                 "type": "string",
                 "example": "Short description",
                 "desc": "Short description"
+            },
+            "codec": {
+                "type": "string",
+                "example": "MP3",
+                "desc": "Codec of the stream."
+            },
+            "bitrate": {
+                "type": "uint",
+                "example": 128,
+                "desc": "Bitrate of the stream in kbit."
             }
         }
     },

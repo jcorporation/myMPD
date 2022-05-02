@@ -26,8 +26,8 @@ let scriptsInited = false;
 let subdir = '';
 let uiEnabled = true;
 let locale = navigator.language || navigator.userLanguage;
-let scale = '1.0';
 const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+const isSafari = /Safari/i.test(navigator.userAgent);
 const hasIO = 'IntersectionObserver' in window ? true : false;
 const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
@@ -43,6 +43,12 @@ const messages = [];
 const debugMode = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
 let webradioDb = null;
 const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
+const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
+
+const localSettings = {
+    "scaleRatio": "1.0",
+    "localPlaybackAutoplay": false
+};
 
 //minimum mpd version to support all myMPD features
 const mpdVersion = {
@@ -190,7 +196,9 @@ app.cards = {
                         "filter": {
                             "genre": "",
                             "country": "",
-                            "language": ""
+                            "language": "",
+                            "codec": "",
+                            "bitrate": ""
                         },
                         "sort": {
                             "tag": "Name",
@@ -560,12 +568,6 @@ const webuiSettingsDefault = {
         "form": "enableFeaturesFrm",
         "warn": "MPD does not support mounts"
     },
-    "enableLocalPlayback": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Local playback",
-        "form": "enableFeaturesFrm"
-    },
     "enablePartitions": {
         "defaultValue": false,
         "inputType": "checkbox",
@@ -592,19 +594,11 @@ const webuiSettingsDefault = {
         "form": "themeFrm",
         "reset": true
     },
-    "uiCoverimageSize": {
-        "defaultValue": 250,
-        "inputType": "input",
-        "contentType": "integer",
-        "title": "Size normal",
-        "form": "coverimageFrm",
-        "reset": true
-    },
-    "uiCoverimageSizeSmall": {
+    "uiThumbnailSize": {
         "defaultValue": 175,
         "inputType": "input",
         "contentType": "integer",
-        "title": "Size small",
+        "title": "Thumbnail size",
         "form": "coverimageFrm",
         "reset": true
     },

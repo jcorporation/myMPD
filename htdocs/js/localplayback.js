@@ -3,6 +3,29 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+function controlLocalPlayback(newState) {
+    if (features.featLocalPlayback === false ||
+        localSettings.localPlaybackAutoplay === false)
+    {
+        return;
+    }
+    const el = document.getElementById('localPlaybackBtn');
+    const curState = getData(el, 'state');
+
+    switch(newState) {
+        case 'play':
+            if (curState === 'stop' || curState === undefined) {
+                el.click();
+            }
+            break;
+        case 'stop':
+        case 'pause':
+            if (curState === 'play') {
+                el.click();
+            }
+    }
+}
+
 //eslint-disable-next-line no-unused-vars
 function createLocalPlaybackEl(createEvent) {
     createEvent.stopPropagation();

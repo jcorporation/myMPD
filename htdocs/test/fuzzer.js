@@ -68,7 +68,7 @@ function setTest(cmd, response) {
     const tbody = document.getElementsByTagName('tbody')[0];
     tbody.appendChild(tr);
     t++;
-    document.getElementById('testCount').innerText = t + '/' + i + '/' + j;
+    document.getElementById('testCount').textContent = t + '/' + i + '/' + j;
     if (t > 10) {
         tbody.deleteRow(0);
     }
@@ -109,7 +109,7 @@ function sendAPI(id) {
                 var obj = JSON.parse(ajaxRequest.responseText);
                 if (obj.error && obj.error.message === 'MPD disconnected') {
                     sleep = 3000;
-                    document.getElementsByTagName('h5')[0].innerText = 'Sleeping...';
+                    document.getElementsByTagName('h5')[0].textContent = 'Sleeping...';
                 }
                 setTest(request, ajaxRequest.responseText);
             }
@@ -137,13 +137,13 @@ function sendAPI(id) {
                 setTimeout(function() { sendAPI(i); }, sleep);
             }
             else {
-                document.getElementsByTagName('h5')[0].innerText = 'Finished';
+                document.getElementsByTagName('h5')[0].textContent = 'Finished';
                 return;
             }
         }
     };
 
-    document.getElementsByTagName('h5')[0].innerText = 'Running ' + JSON.stringify(request);
+    document.getElementsByTagName('h5')[0].textContent = 'Running ' + JSON.stringify(request);
     ajaxRequest.send(JSON.stringify(request));
 }
 

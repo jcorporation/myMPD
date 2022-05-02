@@ -15,6 +15,7 @@ bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state);
 bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state);
 void mympd_api_trigerlist_free_arguments(struct t_mympd_state *mympd_state);
 void mympd_api_trigger_execute(struct t_mympd_state *mympd_state, enum trigger_events event);
+void mympd_api_trigger_execute_feedback(struct t_mympd_state *mympd_state, sds uri, int vote);
 bool mympd_api_trigger_delete(struct t_mympd_state *mympd_state, long idx);
 const char *mympd_api_trigger_name(long event);
 sds mympd_api_trigger_print_trigger_list(sds buffer);

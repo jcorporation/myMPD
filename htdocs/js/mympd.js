@@ -458,10 +458,14 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             document.getElementById('filterWebradiodbCountry').value = app.current.filter.country;
             setDataId('filterWebradiodbLanguage', 'value', app.current.filter.language);
             document.getElementById('filterWebradiodbLanguage').value = app.current.filter.language;
+            setDataId('filterWebradiodbCodec', 'value', app.current.filter.codec);
+            document.getElementById('filterWebradiodbCodec').value = app.current.filter.codec;
+            setDataId('filterWebradiodbBitrate', 'value', app.current.filter.bitrate);
+            document.getElementById('filterWebradiodbBitrate').value = app.current.filter.bitrate;
 
             const result = searchWebradiodb(app.current.search, app.current.filter.genre,
-                app.current.filter.country, app.current.filter.language, app.current.sort,
-                app.current.offset, app.current.limit);
+                app.current.filter.country, app.current.filter.language, app.current.filter.codec,
+                app.current.filter.bitrate, app.current.sort, app.current.offset, app.current.limit);
             parseSearchWebradiodb(result);
             break;
         }
@@ -636,13 +640,19 @@ function appInitStart() {
         }
     }, false);
 
+    //get local settings
+    localSettings.scaleRatio = localStorage.getItem('scaleRatio');
+    if (localSettings.scaleRatio === null) {
+        localSettings.scaleRatio = '1.0';
+    }
+    localSettings.localPlaybackAutoplay = localStorage.getItem('localPlaybackAutoplay');
+    if (localSettings.localPlaybackAutoplay === null) {
+        localSettings.localPlaybackAutoplay = false;
+    }
+
     //set initial scale
     if (isMobile === true) {
-        scale = localStorage.getItem('scale-ratio');
-        if (scale === null) {
-            scale = '1.0';
-        }
-        setViewport(false);
+        setViewport();
         domCache.body.classList.add('mobile');
     }
     else {
@@ -950,6 +960,9 @@ function initNavs() {
         }
         const target = event.target.nodeName === 'A' ? event.target : event.target.parentNode;
         const href = getData(target, 'href');
+        if (href === undefined) {
+            return;
+        }
         parseCmd(event, href);
     }, false);
 

@@ -837,12 +837,6 @@ Descending
 Sort by
 정렬
 
-Size normal
-일반 크기
-
-Size small
-작은 크기
-
 Dark
 어둠
 

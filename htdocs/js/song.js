@@ -15,8 +15,13 @@ function initSong() {
                 elHide(event.target);
                 event.target.parentNode.appendChild(spinner);
             }
-            else if (event.target.classList.contains('download') ||
-                event.target.classList.contains('external'))
+            else if (event.target.id === 'gotoContainingFolder') {
+                uiElements.modalSongDetails.hide();
+                event.preventDefault();
+                appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-', '-', '-', getData(event.target, 'folder'), 0);
+            }
+            else if (event.target.id === 'downloadSong' ||
+                     event.target.classList.contains('external') === true)
             {
                 //do nothing, link opens in new browser window
             }
@@ -124,12 +129,17 @@ function parseSongDetails(obj) {
             setData(td, 'AlbumArtist', obj.result[tagAlbumArtist]);
         }
         if (settings.tagListBrowse.includes(settings.tagList[i]) &&
-            checkTagValue(obj.result[settings.tagList[i]],'-') === false)
+            checkTagValue(obj.result[settings.tagList[i]], '-') === false)
         {
-            td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]]));
+            if (typeof obj.result[settings.tagList[i]] === 'string') {
+                td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]]));
+            }
+            else {
+                td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]].join(', ')));
+            }
         }
         else if (settings.tagList[i].indexOf('MUSICBRAINZ') === 0) {
-            td.appendChild(getMBtagLink(settings.tagList[i], obj.result[settings.tagList[i]]));
+            td.appendChild(printValue(settings.tagList[i], obj.result[settings.tagList[i]]));
         }
         else {
             td.textContent = obj.result[settings.tagList[i]];
@@ -146,11 +156,20 @@ function parseSongDetails(obj) {
     }
     if (features.featLibrary === true) {
         const shortName = basename(rUri, false) + (isCuesheet === true ? ' (' + cuesheetTrack(obj.result.uri) + ')' : '');
+        const ofl = elCreateText('button', {"id": "gotoContainingFolder", "class": ["btn", "btn-secondary", "mi"], "href": "#", "title": tn("Open folder")}, 'folder_open');
+        setData(ofl, 'folder', dirname(obj.result.uri));
         tbody.appendChild(
             songDetailsRow('Filename',
-                elCreateText('a', {"class": ["text-break", "text-success", "download"],
-                    "href": myEncodeURI(subdir + '/browse/music/' + rUri),
-                    "target": "_blank", "title": rUri}, shortName)
+                elCreateNodes('div', {}, [
+                    elCreateText('p', {"class": ["text-break", "mb-1"], "title": rUri}, shortName),
+                    elCreateNodes('div', {"class": ["input-group", "mb-1"]}, [
+                        elCreateEmpty('input', {"class": ["form-control"], "value": rUri}),
+                        ofl,
+                        elCreateText('button', {"id": "downloadSong","class": ["btn", "btn-secondary", "mi"],
+                            "href": myEncodeURI(subdir + '/browse/music/' + rUri),
+                            "target": "_blank", "title": tn("Download")}, 'file_download')
+                    ])
+                ])
             )
         );
     }
@@ -220,26 +239,6 @@ function parseSongDetails(obj) {
     getComments(obj.result.uri, document.getElementById('tbodySongComments'));
     const imgEl = document.getElementById('tabSongPics');
     createImgCarousel(imgEl, 'songPicsCarousel', obj.result.uri, obj.result.images, obj.result.embeddedImageCount);
-}
-
-function isCoverfile(uri) {
-    const filename = basename(uri).toLowerCase();
-    const fileparts = filename.split('.');
-
-    const extensions = ['png', 'jpg', 'jpeg', 'svg', 'webp', 'avif'];
-    const coverimageNames = settings.coverimageNames.split(',');
-    for (let i = 0, j = coverimageNames.length; i < j; i++) {
-        const name = coverimageNames[i].trim();
-        if (filename === name) {
-            return true;
-        }
-        if (fileparts[1]) {
-            if (name === fileparts[0] && extensions.includes(fileparts[1])) {
-                return true;
-            }
-        }
-    }
-    return false;
 }
 
 function getComments(uri, el) {

@@ -361,6 +361,9 @@ function parseFilesystem(obj) {
             imageList.appendChild(img);
         }
         for (let i = 0, j = obj.result.images.length; i < j; i++) {
+            if (isThumbnailfile(obj.result.images[i]) === true) {
+                continue;
+            }
             const img = elCreateEmpty('div', {});
             img.style.backgroundImage = 'url("' + subdir + myEncodeURI(obj.result.images[i]) + '"),' +
                 'url("assets/coverimage-loading.svg")';
@@ -435,7 +438,7 @@ function parseDatabase(obj) {
         let image = '';
         const card = elCreateEmpty('div', {"data-popover": "album", "class": ["card", "card-grid", "clickable"]});
         if (obj.result.tag === 'Album') {
-            image = subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri);
+            image = subdir + '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri);
             card.appendChild(
                 elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
             );
@@ -574,6 +577,24 @@ function parseAlbumDetails(obj) {
                     myEncodeURI(obj.result.bookletPath)}, tn('Download booklet'))
             ])
         );
+    }
+
+    if (obj.result.MusicBrainzAlbumId !== '-' ||
+        obj.result.MusicBrainzAlbumArtistId.length > 0)
+    {
+        infoEl.appendChild(elCreateText('small', {}, tn('MusicBrainz')));
+        if (obj.result.MusicBrainzAlbumId !== '-') {
+            const albumLink = getMBtagLink('MUSICBRAINZ_ALBUMID', obj.result.MusicBrainzAlbumId);
+            albumLink.textContent = tn('Goto album');
+            infoEl.appendChild(elCreateNode('p', {"class": ["mb-1"]}, albumLink));
+        }
+        if (obj.result.MusicBrainzAlbumArtistId.length > 0) {
+            for (let i = 0, j = obj.result.MusicBrainzAlbumArtistId.length; i < j; i++) {
+                const artistLink = getMBtagLink('MUSICBRAINZ_ALBUMARTISTID', obj.result.MusicBrainzAlbumArtistId[i]);
+                artistLink.textContent = tn('Goto artist') + ' ' + obj.result.AlbumArtist[i];
+                infoEl.appendChild(elCreateNode('p', {"class": ["mb-1"]}, artistLink));
+            }
+        }
     }
 
     const rowTitle = tn(webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong]);

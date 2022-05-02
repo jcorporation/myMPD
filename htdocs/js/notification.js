@@ -240,14 +240,12 @@ function toggleUI() {
 
 function toggleTopAlert() {
     const topAlert = document.getElementById('top-alerts');
-    if (uiEnabled === false || (currentState !== undefined && currentState.lastError !== '')) {
-        let topPadding = 0;
-        if (window.innerWidth < window.innerHeight) {
-            topPadding = document.getElementById('header').offsetHeight;
-        }
-        topAlert.style.paddingTop = topPadding + 'px';
+    if (uiEnabled === false ||
+        (currentState !== undefined && currentState.lastError !== '')
+    ) {
         elShow(topAlert);
-        const mt = topAlert.offsetHeight - parseInt(topAlert.style.paddingTop);
+        const topPadding = window.innerWidth < window.innerHeight ? document.getElementById('header').offsetHeight : 0;
+        const mt = topAlert.offsetHeight - topPadding;
         document.getElementsByTagName('main')[0].style.marginTop = mt + 'px';
     }
     else {

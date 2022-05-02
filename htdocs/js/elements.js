@@ -19,6 +19,9 @@ function initElement(el, elType) {
         case 'mympd-input-reset':
             setInputReset(el);
             break;
+        case 'mympd-input-password':
+            setInputPassword(el);
+            break;
         case 'mympd-select-search':
             setSelectSearch(el);
             break;
@@ -84,6 +87,34 @@ function setInputReset(el) {
         const input = event.target.previousElementSibling;
         input.value = getData(input, 'default') !== undefined ? getData(input, 'default') :
             (input.getAttribute('placeholder') !== null ? input.getAttribute('placeholder') : '');
+    }, false);
+}
+
+function setInputPassword(el) {
+    const button = elCreateText('button', {"data-title-phrase": "Show or hide", "title": tn('Show or hide'), "class": ["mi", "mi-small", "input-inner-button"]}, 'visibility');
+    el.button = button;
+    el.classList.add('innerButton');
+    if (el.parentNode.classList.contains('col-sm-8')) {
+        el.button.style.right = '1rem';
+    }
+    if (el.nextElementSibling) {
+        el.parentNode.insertBefore(el.button, el.nextElementSibling);
+    }
+    else {
+        el.parentNode.appendChild(el.button);
+    }
+    el.button.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const input = event.target.previousElementSibling;
+        if (input.type === 'password') {
+            input.type = 'text';
+            event.target.textContent = 'visibility_off';
+        }
+        else {
+            input.type = 'password';
+            event.target.textContent = 'visibility';
+        }
     }, false);
 }
 

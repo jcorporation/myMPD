@@ -27,6 +27,7 @@ enum trigger_events {
     TRIGGER_MYMPD_STOP = -3,
     TRIGGER_MYMPD_CONNECTED = -4,
     TRIGGER_MYMPD_DISCONNECTED = -5,
+    TRIGGER_MYMPD_FEEDBACK = -6,
     TRIGGER_MPD_DATABASE = 0x1,
     TRIGGER_MPD_STORED_PLAYLIST = 0x2,
     TRIGGER_MPD_PLAYLIST = 0x4,
@@ -214,6 +215,7 @@ struct t_mympd_state {
     sds booklet_name;
     sds navbar_icons;
     sds coverimage_names;
+    sds thumbnail_names;
     unsigned volume_min;
     unsigned volume_max;
     unsigned volume_step;
@@ -222,6 +224,7 @@ struct t_mympd_state {
     sds lyrics_vorbis_uslt;
     sds lyrics_vorbis_sylt;
     int covercache_keep_days;
+    sds listenbrainz_token;
     //settings only for webui
     sds webui_settings;
 };

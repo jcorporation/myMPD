@@ -181,6 +181,8 @@ function parseState(obj) {
     //media session
     mediaSessionSetState();
     mediaSessionSetPositionState(obj.result.totalTime, obj.result.elapsedTime);
+    //local playback
+    controlLocalPlayback(currentState.state);
     //queue badge in navbar
     const badgeQueueItemsEl = document.getElementById('badgeQueueItems');
     if (badgeQueueItemsEl) {
@@ -531,6 +533,17 @@ function setPlaybackCardTags(songObj) {
                 ])
             );
         }
+        if (songObj.webradio.Codec !== '' &&
+            songObj.webradio.Codec !== undefined)
+        {
+            cardPlaybackWebradio.appendChild(
+                elCreateNodes('div', {}, [
+                    elCreateText('small', {}, tn('Format')),
+                    elCreateText('p', {}, songObj.webradio.Codec + 
+                        (songObj.webradio.Bitrate !== '' ? ' / ' + songObj.webradio.Bitrate + ' ' + tn('kbit') : ''))
+                ])
+            );
+        }
         if (songObj.webradio.Description !== '') {
             cardPlaybackWebradio.appendChild(
                 elCreateNodes('div', {}, [
@@ -576,7 +589,9 @@ function mediaSessionSetState() {
     if (checkMediaSessionSupport() === false) {
         return;
     }
-    navigator.mediaSession.playbackState = currentState.state === 'play' ? 'playing' : 'paused';
+    const state = currentState.state === 'play' ? 'playing' : 'paused';
+    logDebug('Set mediaSession.playbackState to ' + state);
+    navigator.mediaSession.playbackState = state;
 }
 
 function mediaSessionSetMetadata(title, artist, album, url) {

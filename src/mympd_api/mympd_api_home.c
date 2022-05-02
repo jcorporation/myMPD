@@ -16,6 +16,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 bool mympd_api_home_icon_move(struct t_mympd_state *mympd_state, long from, long to) {
     return list_move_item_pos(&mympd_state->home_list, from, to);
@@ -87,7 +88,7 @@ bool mympd_api_home_file_read(struct t_mympd_state *mympd_state) {
         }
     }
     FREE_SDS(line);
-    fclose(fp);
+    (void) fclose(fp);
     FREE_SDS(home_file);
     return true;
 }
@@ -104,30 +105,40 @@ bool mympd_api_home_file_save(struct t_mympd_state *mympd_state) {
         return false;
     }
     FILE *fp = fdopen(fd, "w");
+    bool rc = true;
     struct t_list_node *current = mympd_state->home_list.head;
     while (current != NULL) {
-        int rc = fprintf(fp,"%s\n", current->key);
-        if (rc < 0) {
+        int printed = fprintf(fp,"%s\n", current->key);
+        if (printed < 0) {
             MYMPD_LOG_ERROR("Can not write to file \"%s\"", tmp_file);
-            FREE_SDS(tmp_file);
-            fclose(fp);
-            return false;
+            rc = false;
         }
         current = current->next;
     }
-    fclose(fp);
+    if (fclose(fp) != 0) {
+        MYMPD_LOG_ERROR("Could not close file \"%s\"", tmp_file);
+        rc = false;
+    }
     sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", mympd_state->config->workdir);
     errno = 0;
-    if (rename(tmp_file, home_file) == -1) {
-        MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, home_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        FREE_SDS(home_file);
-        return false;
+    if (rc == true) {
+        if (rename(tmp_file, home_file) == -1) {
+            MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, home_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
+    }
+    else {
+        //remove incomplete tmp file
+        if (unlink(tmp_file) != 0) {
+            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
     }
     FREE_SDS(tmp_file);
     FREE_SDS(home_file);
-    return true;
+    return rc;
 }
 
 sds mympd_api_home_icon_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {

@@ -9,8 +9,6 @@
   <title>myMPD</title>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
-  <meta name="description" content="myMPD - fast and lightweight MPD webclient"/>
-  <meta name="author" content="mail@jcgames.de"/>
   <meta name="apple-mobile-web-app-capable" content="yes"/>
   <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
   <meta name="theme-color" content="#343a40"/>
@@ -19,7 +17,6 @@
 <!--debug-->  <link href="css/mympd.css" rel="stylesheet"/>
 <!--debug-->  <link href="css/theme-light.css" rel="stylesheet"/>
 <!--release   <link href="css/combined.css" rel="stylesheet">-->
-  <link href="assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon"/>
   <link href="mympd.webmanifest" rel="manifest" crossorigin="use-credentials"/>
   <link href="assets/appicon-192.png" rel="apple-touch-icon"/>
   <link href="assets/appicon-192.png" rel="icon"/>
@@ -142,12 +139,12 @@
             </div>
           </div>
         </div>
-        <div class="scrollContainer">
-          <div id="PlaybackList">
-            <div class="coverPanel">
+        <div class="container-fluid scrollContainer">
+          <div id="PlaybackList" class="row">
+            <div class="col-12 col-sm-6 col-xl-4 ps-0 mb-3">
               <div class="album-cover album-cover-loading clickable carousel" id="currentCover" data-href='{"cmd": "zoomPicture", "options": []}'></div>
             </div>
-            <div class="album-desc text-break">
+            <div class="album-desc text-break col-12 col-sm-6 col-xl-8">
               <h2 id="currentTitle" class="notclickable" data-href='{"cmd": "clickTitle", "options": []}'></h2>
               <div class="featTags" id="cardPlaybackTags"></div>
               <div class="d-none" id="cardPlaybackWebradio"></div>
@@ -478,8 +475,12 @@
             </div>
           </div>
           <div class="table-responsive-md scrollContainer">
-            <div id="viewDetailDatabaseCover" class="float-start me-4 mb-3 album-cover album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
-            <div id="viewDetailDatabaseInfo"></div>
+            <div class="row me-0">
+              <div class="col-12 col-sm-4 col-xl-3">
+                <div id="viewDetailDatabaseCover" class="mb-3 album-cover album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
+              </div>
+              <div id="viewDetailDatabaseInfo" class="col-12 col-sm-8 col-xl-9 mb-3"></div>
+            </div>
             <table id="BrowseDatabaseDetailList" class="table table-hover table-sm">
               <thead>
                 <tr></tr>
@@ -597,6 +598,12 @@
               </div>
               <div class="btn-group position-relative me-2">
                 <input readonly="readonly" data-is="mympd-select-search" id="filterWebradiodbLanguage" class="form-select" data-placeholder-phrase="Language"/>
+              </div>
+              <div class="btn-group position-relative me-2">
+                <input readonly="readonly" data-is="mympd-select-search" id="filterWebradiodbCodec" class="form-select" data-placeholder-phrase="Codec"/>
+              </div>
+              <div class="btn-group position-relative me-2">
+                <input readonly="readonly" data-is="mympd-select-search" id="filterWebradiodbBitrate" class="form-select" data-placeholder-phrase="Bitrate"/>
               </div>
             </div>
             <div class="btn-group me-2 featHome" id="BrowseRadioWebradiodbAddToHome">
@@ -1013,6 +1020,9 @@
             <li class="nav-item">
               <a class="nav-link" href="#tabAdvancedSettings" data-bs-toggle="tab" data-height="true" data-phrase="Advanced"></a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#tabCloudSettings" data-bs-toggle="tab" data-height="true" data-phrase="Cloud"></a>
+            </li>
           </ul>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
@@ -1023,7 +1033,10 @@
                 <h4 data-phrase="Theme"></h4>
                 <div id="themeFrm"></div>
                 <div class="mb-3 row featMobile">
-                  <label class="col-sm-4 col-form-label" for="inputScaleRatio" data-phrase="Scale ratio"></label>
+                  <label class="col-sm-4 col-form-label" for="inputScaleRatio">
+                    <span data-phrase="Scale ratio"></span>
+                    <small class="mi mi-small ms-1" data-title-phrase="Browser specific setting">web_asset</small>
+                  </label>
                   <div class="col-sm-8 ">
                     <input id="inputScaleRatio" type="text" class="form-control" placeholder="1.0"/>
                     <div class="invalid-feedback" data-phrase="Invalid scale ratio"></div>
@@ -1038,9 +1051,16 @@
                 <hr/>
                 <h4 data-phrase="Albumart"></h4>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="inputCoverimageNames" data-phrase="Name"></label>
+                  <label class="col-sm-4 col-form-label" for="inputCoverimageNames" data-phrase="Filenames"></label>
                   <div class="col-sm-8 position-relative">
                     <input data-is="mympd-input-reset" id="inputCoverimageNames" type="text" class="form-control" placeholder="folder,cover"/>
+                    <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="inputThumbnailNames" data-phrase="Thumbnail names"></label>
+                  <div class="col-sm-8 position-relative">
+                    <input data-is="mympd-input-reset" id="inputThumbnailNames" type="text" class="form-control" placeholder="folder-sm,cover-sm"/>
                     <div class="invalid-feedback" data-phrase="Invalid filename"></div>
                   </div>
                 </div>
@@ -1184,6 +1204,25 @@
                 <div id="warnbtnEnableLyrics" class="alert alert-warning" data-phrase="Music directory not available"></div>
               </form>
               <hr/>
+              <h4 data-phrase="Local playback"></h4>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="btnLocalPlayback" data-phrase="Enable"></label>
+                <div class="col-sm-8 ">
+                  <button data-bs-toggle="collapse" data-bs-target="#collapseEnableLocalPlayback" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnableLocalPlayback"></button>
+                </div>
+              </div>
+              <div class="collapse" id="collapseEnableLocalPlayback">
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="btnEnableLocalPlaybackAutoplay">
+                    <span data-phrase="Autoplay"></span>
+                    <small class="mi mi-small ms-1" data-title-phrase="Browser specific setting">web_asset</small>
+                  </label>
+                  <div class="col-sm-8 ">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnableLocalPlaybackAutoplay"></button>
+                  </div>
+                </div>
+              </div>
+              <hr/>
               <h4 data-phrase="Further Features"></h4>
               <form id="enableFeaturesFrm"></form>
             </div>
@@ -1205,6 +1244,15 @@
                     <span class="input-group-text-nobg" data-phrase="Days"></span>
                   </div>
                   <div class="invalid-feedback" data-phrase="Invalid number"></div>
+                </div>
+              </div>
+            </div>
+            <div class="tab-pane" id="tabCloudSettings">
+              <h4 data-phrase="Cloud"></h4>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="inputListenbrainzToken" data-phrase="Listenbrainz Token"></label>
+                <div class="col-sm-8 position-relative">
+                  <input data-is="mympd-input-password" id="inputListenbrainzToken" type="password" class="form-control rounded"/>
                 </div>
               </div>
             </div>
@@ -1479,8 +1527,8 @@
             <div id="collapseConnectionAdv" class="collapse">
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputMpdPass" data-phrase="MPD password"></label>
-                <div class="col-sm-8">
-                  <input id="inputMpdPass" type="password" autocomplete="off" class="form-control alwaysEnabled"/>
+                <div class="col-sm-8 position-relative">
+                  <input data-is="mympd-input-password" id="inputMpdPass" type="password" autocomplete="off" class="form-control alwaysEnabled"/>
                   <div class="invalid-feedback" data-phrase="Invalid MPD password"></div>
                 </div>
               </div>
@@ -1649,10 +1697,10 @@
             <div class="tab-pane active" id="tabSongDetails">
               <h1 class="text-break mb-4"></h1>
               <div class="row">
-                <div class="col-md-auto">
+                <div class="col-12 col-md-4">
                   <div class="album-cover album-cover-loading album-cover-songdetails"></div>
                 </div>
-                <div class="col table-responsive-md">
+                <div class="col-12 col-md-8 table-responsive-md">
                   <table class="table table-sm">
                     <tbody id="tbodySongDetails"></tbody>
                   </table>
@@ -2493,6 +2541,18 @@
               </div>
             </div>
             <div class="row mb-3">
+              <label class="col-sm-4 col-form-label" for="editRadioFavoriteCodec" data-phrase="Codec"></label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" id="editRadioFavoriteCodec"/>
+              </div>
+            </div>
+            <div class="row mb-3">
+              <label class="col-sm-4 col-form-label" for="editRadioFavoriteBitrate" data-phrase="Bitrate"></label>
+              <div class="col-sm-8">
+                <input type="text" class="form-control" id="editRadioFavoriteBitrate"/>
+              </div>
+            </div>
+            <div class="row mb-3">
               <label class="col-sm-4 col-form-label" for="editRadioFavoriteDescription" data-phrase="Description"></label>
               <div class="col-sm-8">
                 <input type="text" class="form-control" id="editRadioFavoriteDescription"/>
@@ -2540,6 +2600,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
+          <button id="addToWebradioFavorites" type="button" class="btn btn-success" data-phrase="Add to favorites"></button>
         </div>
       </div>
     </div>

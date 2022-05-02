@@ -449,7 +449,7 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
     }
     FREE_SDS(param);
     FREE_SDS(line);
-    fclose(fp);
+    (void) fclose(fp);
     FREE_SDS(timer_file);
     MYMPD_LOG_INFO("Read %d timer(s) from disc", mympd_state->timer_list.length);
     return true;
@@ -469,6 +469,7 @@ bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
     FILE *fp = fdopen(fd, "w");
     struct t_timer_node *current = mympd_state->timer_list.list;
     sds buffer = sdsempty();
+    bool rc = true;
     while (current != NULL) {
         if (current->timer_id > 99 && current->definition != NULL) {
             buffer = sds_replace(buffer, "{");
@@ -501,24 +502,39 @@ bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
                 argument = argument->next;
             }
             buffer = sdscatlen(buffer, "}}\n", 3);
-            fputs(buffer, fp);
+            if (fputs(buffer, fp) == EOF) {
+                MYMPD_LOG_ERROR("Could not write timers to disc");
+                rc = false;
+                break;
+            }
         }
         current = current->next;
     }
-    fclose(fp);
+    if (fclose(fp) != 0) {
+        MYMPD_LOG_ERROR("Could not close file \"%s\"", tmp_file);
+        rc = false;
+    }
     FREE_SDS(buffer);
     sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", mympd_state->config->workdir);
     errno = 0;
-    if (rename(tmp_file, timer_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, timer_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        FREE_SDS(timer_file);
-        return false;
+    if (rc == true) {
+        if (rename(tmp_file, timer_file) == -1) {
+            MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, timer_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
+    }
+    else {
+        //remove incomplete tmp file
+        if (unlink(tmp_file) != 0) {
+            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
     }
     FREE_SDS(tmp_file);
     FREE_SDS(timer_file);
-    return true;
+    return rc;
 }
 
 //private functions

@@ -1,8 +1,8 @@
 -- {"order":1,"arguments":[]}
-token = ""
+mympd.init()
 uri = "https://api.listenbrainz.org/1/submit-listens"
 headers = "Content-type: application/json\r\n"..
-  "Authorization: Token "..token.."\r\n"
+  "Authorization: Token "..mympd_state["listenbrainz_token"].."\r\n"
 
 rc, raw_result = mympd_api("MYMPD_API_PLAYER_CURRENT_SONG")
 if rc == 0 then

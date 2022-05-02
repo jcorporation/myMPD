@@ -14,43 +14,6 @@
 
 #include <stdbool.h>
 
-#define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800\r\n"
-
-#define EXTRA_HEADERS_MISC "X-Content-Type-Options: nosniff\r\n"\
-    "X-XSS-Protection: 1; mode=block\r\n"\
-    "X-Frame-Options: deny\r\n"
-
-#define EXTRA_HEADERS_UNSAFE "Content-Security-Policy: default-src 'none'; "\
-    "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src * data:; "\
-    "connect-src 'self' ws: wss:; manifest-src 'self'; "\
-    "media-src 'self'; frame-ancestors *; base-uri 'none';\r\n"\
-    EXTRA_HEADERS_MISC\
-    EXTRA_HEADERS_CACHE
-
-#define EXTRA_HEADERS_SAFE "Content-Security-Policy: default-src 'none'; "\
-    "style-src 'self'; font-src 'self'; script-src 'self'; img-src * data:; "\
-    "connect-src 'self' ws: wss:; manifest-src 'self'; "\
-    "media-src 'self'; frame-ancestors *; base-uri 'none'; "\
-    "require-trusted-types-for 'script'\r\n"\
-    EXTRA_HEADERS_MISC
-
-#define EXTRA_HEADERS_SAFE_CACHE EXTRA_HEADERS_SAFE\
-    EXTRA_HEADERS_CACHE
-
-#define DIRECTORY_LISTING_CSS "h1{top:0;font-size:inherit;font-weight:inherit}address{bottom:0;font-style:normal}"\
-    "h1,address{background-color:#343a40;color:#f8f9fa;padding:1rem;position:fixed;"\
-    "box-sizing:border-box;width:100%;margin-top:0}body{margin:5rem 0;background-color:#f7f7f7;"\
-    "color:#212529;font-family:sans-serif;font-size:1rem;font-weight:400;line-height:1.5}"\
-    "table{border-collapse:collapse;margin:1rem}th{border-bottom:2px solid #dee2e6;"\
-    "border-top:1px solid #dee2e6;text-align:left;padding:.3rem;font-family:inherit}"\
-    "td{text-align:left;padding:.3rem;font-family:inherit;border-bottom:1px solid #dee2e6}"\
-    "td:last-child{text-align:right}a,a:visited,a:active{color:#212529;text-decoration:none}"\
-    "a:hover{text-decoration:underline}"
-
-#define EXTRA_MIME_TYPES "avif=image/avif,flac=audio/flac,oga=audio/ogg,ogg=audio/ogg,"\
-    "opus=audio/ogg,spx=audio/ogg,pem=application/x-x509-ca-cert,woff2=font/woff2,"\
-    "m3u=audio/mpegurl"
-
 //struct for mg_mgr userdata
 struct t_mg_user_data {
     struct t_config *config; //pointer to mympd config
@@ -58,6 +21,8 @@ struct t_mg_user_data {
     sds music_directory;
     sds *coverimage_names;
     int coverimage_names_len;
+    sds *thumbnail_names;
+    int thumbnail_names_len;
     bool feat_mpd_albumart;
     bool publish_playlists;
     bool publish_music;
@@ -71,7 +36,6 @@ struct t_mg_user_data {
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri);
 #endif
 void webserver_manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bool playlists);
-sds *webserver_split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count);
 sds webserver_find_image_file(sds basefilename);
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg);
 void webserver_serve_na_image(struct mg_connection *nc, struct mg_http_message *hm);

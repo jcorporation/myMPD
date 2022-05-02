@@ -28,7 +28,6 @@ INCBIN(combined_css, "htdocs/css/combined.css.gz");
 INCBIN(combined_js, "htdocs/js/combined.js.gz");
 INCBIN(MaterialIcons_Regular_woff2, "../dist/material-icons/MaterialIcons-Regular.woff2.gz");
 //uncompressed assets
-INCBIN(favicon_ico, "../htdocs/assets/favicon.ico");
 INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");
 INCBIN(appicon_512_png, "../htdocs/assets/appicon-512.png");
 

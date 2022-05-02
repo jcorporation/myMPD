@@ -53,7 +53,11 @@ const char *__asan_default_options(void) {
 #endif
 
 static void mympd_signal_handler(int sig_num) {
-    signal(sig_num, mympd_signal_handler); // Reinstantiate signal handler
+    // Reinstantiate signal handler
+    if (signal(sig_num, mympd_signal_handler) == SIG_ERR) {
+        MYMPD_LOG_ERROR("Could not set signal handler for %d", sig_num);
+    }
+
     if (sig_num == SIGTERM || sig_num == SIGINT) {
         //Set loop end condition for threads
         s_signal_received = sig_num;
@@ -220,17 +224,6 @@ static bool check_dirs(struct t_config *config) {
             return false;
         }
     #endif
-    //rename streams to thumbs for 9.1.0 upgrade
-    sds streams_dir = sdscatfmt(sdsempty(), "%s/pics/streams", config->workdir);
-    DIR* dir = opendir(streams_dir);
-    if (dir) {
-        closedir(dir);
-        MYMPD_LOG_INFO("Renaming folder streams to thumbs");
-        sds thumbs_dir = sdscatfmt(sdsempty(), "%s/pics/thumbs", config->workdir);
-        rename(streams_dir, thumbs_dir);
-        sdsfree(thumbs_dir);
-    }
-    sdsfree(streams_dir);
 
     const struct t_subdirs_entry *p = NULL;
     //workdir
@@ -382,13 +375,28 @@ int main(int argc, char **argv) {
     #endif
 
     //set signal handler
-    signal(SIGTERM, mympd_signal_handler);
-    signal(SIGINT, mympd_signal_handler);
-    signal(SIGHUP, mympd_signal_handler);
+    if (signal(SIGTERM, mympd_signal_handler) == SIG_ERR) {
+        MYMPD_LOG_EMERG("Could not set signal handler for SIGTERM");
+        goto cleanup;
+    }
+    if (signal(SIGINT, mympd_signal_handler) == SIG_ERR) {
+        MYMPD_LOG_EMERG("Could not set signal handler for SIGINT");
+        goto cleanup;
+    }
+    if (signal(SIGHUP, mympd_signal_handler) == SIG_ERR) {
+        MYMPD_LOG_EMERG("Could not set signal handler for SIGHUP");
+        goto cleanup;
+    }
 
     //set output buffers
-    setvbuf(stdout, NULL, _IOLBF, 0);
-    setvbuf(stderr, NULL, _IOLBF, 0);
+    if (setvbuf(stdout, NULL, _IOLBF, 0) != 0) {
+        MYMPD_LOG_EMERG("Could not set stdout buffer");
+        goto cleanup;
+    }
+    if (setvbuf(stderr, NULL, _IOLBF, 0) != 0) {
+        MYMPD_LOG_EMERG("Could not set stdout buffer");
+        goto cleanup;
+    }
 
     //init webserver
     struct mg_mgr mgr;

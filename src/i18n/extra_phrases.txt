@@ -87,8 +87,7 @@ Media session
 On page notifications
 Web notifications
 Open folder
-Size normal
-Size small
+Thumbnail size
 CSS filter
 Color
 Error getting mympd state for script execution

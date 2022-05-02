@@ -432,7 +432,7 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
                     MYMPD_LOG_DEBUG("Erroneous line: %s", line);
                 }
             }
-            fclose(fp);
+            (void) fclose(fp);
             FREE_SDS(line);
         }
         else {

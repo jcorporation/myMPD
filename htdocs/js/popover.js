@@ -396,7 +396,9 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
             "StreamUri": uri,
             "Homepage": getData(dataNode, 'homepage'),
             "Country": getData(dataNode, 'country'),
-            "Language": getData(dataNode, 'language')
+            "Language": getData(dataNode, 'language'),
+            "Codec": getData(dataNode, 'codec'),
+            "Bitrate": getData(dataNode, 'bitrate'),
         }]}, 'Add to favorites');
     }
     if (app.id === 'BrowseRadioWebradiodb' &&
@@ -412,6 +414,8 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
             "Homepage": getData(dataNode, 'homepage'),
             "Country": getData(dataNode, 'country'),
             "Language": getData(dataNode, 'language'),
+            "Codec": getData(dataNode, 'codec'),
+            "Bitrate": getData(dataNode, 'bitrate'),
             "Description": getData(dataNode, 'description')
         }]}, 'Add to favorites');
     }
@@ -462,10 +466,8 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
         addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, false, true, false]}, 'Update directory');
         addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, false, true, true]}, 'Rescan directory');
     }
-    else {
-        addDivider(tabContent);
-        addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [baseuri, "dir"]}, 'Show directory');
-    }
+    addDivider(tabContent);
+    addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [baseuri, "dir"]}, 'Show directory');
     if (features.featHome === true &&
         app.id !== 'Home')
     {

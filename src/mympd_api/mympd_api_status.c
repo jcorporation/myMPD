@@ -168,6 +168,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_mympd_state *mympd_state, str
     mpd_response_finish(mympd_state->mpd_state->conn);
     check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
     lua_mympd_state_set_p(lua_mympd_state, "jukebox_unique_tag", mpd_tag_name(mympd_state->jukebox_unique_tag.tags[0]));
+    lua_mympd_state_set_p(lua_mympd_state, "listenbrainz_token", mympd_state->listenbrainz_token);
     return true;
 }
 

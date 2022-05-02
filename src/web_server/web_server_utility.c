@@ -21,6 +21,7 @@ void mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     FREE_SDS(mg_user_data->browse_directory);
     FREE_SDS(mg_user_data->music_directory);
     sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
+    sdsfreesplitres(mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len);
     FREE_SDS(mg_user_data->stream_uri);
     list_clear(&mg_user_data->session_list);
 }
@@ -52,25 +53,12 @@ void webserver_populate_dummy_hm(struct mg_connection *nc, struct mg_http_messag
     hm->body = mg_str("");
     hm->query = mg_str("");
     hm->proto = mg_str("HTTP/1.1");
-    //add accept-encoding header to deliver gziped embedded files
-    //browsers without gzip support are not supported by myMPD
-    hm->headers[0].name = mg_str("Accept-Encoding");
-    hm->headers[0].value = mg_str("gzip");
-    //append empty header
+    //add empty header
     hm->headers[1].name = mg_str("");
     hm->headers[1].value = mg_str("");
 }
 
-sds *webserver_split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count) {
-    *count = 0;
-    coverimage_names = sdssplitlen(coverimage_name, (ssize_t)sdslen(coverimage_name), ",", 1, count);
-    for (int j = 0; j < *count; j++) {
-        sdstrim(coverimage_names[j], " ");
-    }
-    return coverimage_names;
-}
-
-static const char *image_file_extensions[] = {"png", "jpg", "jpeg", "webp", "avif", NULL};
+static const char *image_file_extensions[] = {"webp", "png", "jpg", "jpeg", "svg", "avif", NULL};
 
 sds webserver_find_image_file(sds basefilename) {
     MYMPD_LOG_DEBUG("Searching image file for basename \"%s\"", basefilename);
@@ -214,7 +202,6 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/coverimage-mympd.svg", 28, "image/svg+xml", true, true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},
         {"/assets/mympd-background-dark.svg", 33, "image/svg+xml", true, true, mympd_background_dark_svg_data, mympd_background_dark_svg_size},
         {"/assets/mympd-background-light.svg", 34, "image/svg+xml", true, true, mympd_background_light_svg_data, mympd_background_light_svg_size},
-        {"/assets/favicon.ico", 19, "image/vnd.microsoft.icon", false, true, favicon_ico_data, favicon_ico_size},
         {"/assets/appicon-192.png", 23, "image/png", false, true, appicon_192_png_data, appicon_192_png_size},
         {"/assets/appicon-512.png", 23, "image/png", false, true, appicon_512_png_data, appicon_512_png_size},
         {NULL, 0, NULL, false, false, NULL, 0}

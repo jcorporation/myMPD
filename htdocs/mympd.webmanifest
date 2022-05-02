@@ -1,7 +1,10 @@
 {
+  "name": "myMPD",
+  "short_name": "myMPD",
+  "description": "myMPD is a standalone and mobile friendly web mpd client with a tiny footprint and advanced features.",
+  "start_url": ".",
   "background_color": "#343a40",
   "theme_color": "#343a40",
-  "description": "myMPD - fast and lightweight MPD webclient",
   "display": "standalone",
   "icons": [
     {
@@ -17,9 +20,6 @@
       "purpose": "any maskable"
     }
   ],
-  "name": "myMPD",
-  "short_name": "myMPD",
-  "start_url": ".",
   "shortcuts": [
     {
       "name": "Play",
