@@ -52,7 +52,6 @@ static void _lua_mympd_state_free_user_data(struct t_list_node *current) {
     if (current->value_i == LUA_TYPE_STRING) {
         struct t_lua_mympd_state_value *user_data = (struct t_lua_mympd_state_value *)current->user_data;
         FREE_SDS(user_data->p);
-        free(current->user_data);
-        current->user_data = NULL;
     }
+    free(current->user_data);
 }
