@@ -31,7 +31,7 @@ const APIparams = {
     },
     "expression": {
         "type": "text",
-        "example": "((any contains 'tabula'))",
+        "example": "((any contains 'piraten'))",
         "desc": "MPD search expression"
     },
     "searchstr": {
@@ -41,7 +41,7 @@ const APIparams = {
     },
     "uri": {
         "type": "text",
-        "example": "Testfiles/Sp.mp3",
+        "example": "Testfiles/Piratenlied.flac",
         "desc": "relativ song uri"
     },
     "filter": {

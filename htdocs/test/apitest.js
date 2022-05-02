@@ -52,8 +52,9 @@ function sendAPI(method) {
                         setTest(request, 'ok', ajaxRequest.responseText);
                     }
                     else if (obj.error &&
-                        obj.error.message === 'Invalid API request')
-                    {
+                        (obj.error.message === 'Invalid API request' ||
+                         obj.error.message === 'No response for method %{method}')
+                    ) {
                         setTest(request, 'error', ajaxRequest.responseText);
                     }
                     else {
