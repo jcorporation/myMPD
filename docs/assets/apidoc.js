@@ -1680,6 +1680,16 @@ const APImethods = {
                 "type": "string",
                 "example": "Short description",
                 "desc": "Short description"
+            },
+            "codec": {
+                "type": "string",
+                "example": "MP3",
+                "desc": "Codec of the stream."
+            },
+            "bitrate": {
+                "type": "uint",
+                "example": 128,
+                "desc": "Bitrate of the stream in kbit."
             }
         }
     },
