@@ -43,21 +43,6 @@ struct mg_str mg_str_strip_parent(struct mg_str *path, int count) {
     return *path;
 }
 
-//create an empty dummy message struct, used for async responses
-void webserver_populate_dummy_hm(struct mg_connection *nc, struct mg_http_message *hm) {
-    if (nc->label[1] == 'G') { hm->method = mg_str("GET"); }
-    else if (nc->label[1] == 'H') { hm->method = mg_str("HEAD"); }
-    else if (nc->label[1] == 'P') { hm->method = mg_str("POST"); }
-    hm->uri = mg_str("/");
-    hm->message = mg_str("");
-    hm->body = mg_str("");
-    hm->query = mg_str("");
-    hm->proto = mg_str("HTTP/1.1");
-    //add empty header
-    hm->headers[1].name = mg_str("");
-    hm->headers[1].value = mg_str("");
-}
-
 static const char *image_file_extensions[] = {"webp", "png", "jpg", "jpeg", "svg", "avif", NULL};
 
 sds webserver_find_image_file(sds basefilename) {
@@ -133,12 +118,12 @@ void webserver_handle_connection_close(struct mg_connection *nc) {
     }
 }
 
-void webserver_serve_na_image(struct mg_connection *nc, struct mg_http_message *hm) {
-    webserver_serve_asset_image(nc, hm, "coverimage-notavailable");
+void webserver_serve_na_image(struct mg_connection *nc) {
+    webserver_send_header_found(nc, "assets/coverimage-notavailable.svg");
 }
 
-void webserver_serve_stream_image(struct mg_connection *nc, struct mg_http_message *hm) {
-    webserver_serve_asset_image(nc, hm, "coverimage-stream");
+void webserver_serve_stream_image(struct mg_connection *nc) {
+    webserver_send_header_found(nc, "assets/coverimage-stream.svg");
 }
 
 void webserver_serve_asset_image(struct mg_connection *nc, struct mg_http_message *hm, const char *name) {

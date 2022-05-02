@@ -50,10 +50,7 @@ void webserver_albumart_send(struct mg_connection *nc, sds data, sds binary) {
         FREE_SDS(headers);
     }
     else {
-        //create dummy http message and serve not available image
-        struct mg_http_message hm;
-        webserver_populate_dummy_hm(nc, &hm);
-        webserver_serve_na_image(nc, &hm);
+        webserver_serve_na_image(nc);
     }
     FREE_SDS(mime_type);
 }
@@ -85,7 +82,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     sdsfree(query);
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR("Failed to decode query");
-        webserver_serve_na_image(nc, hm);
+        webserver_serve_na_image(nc);
         FREE_SDS(uri_decoded);
         return true;
     }
@@ -94,7 +91,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
         vcb_isfilepath(uri_decoded) == false)
     {
         MYMPD_LOG_ERROR("Invalid URI: %s", uri_decoded);
-        webserver_serve_na_image(nc, hm);
+        webserver_serve_na_image(nc);
         FREE_SDS(uri_decoded);
         return true;
     }
@@ -104,7 +101,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     if (is_streamuri(uri_decoded) == true) {
         if (sdslen(uri_decoded) == 0) {
             MYMPD_LOG_ERROR("Uri to short");
-            webserver_serve_na_image(nc, hm);
+            webserver_serve_na_image(nc);
             FREE_SDS(uri_decoded);
             return true;
         }
@@ -149,7 +146,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
         }
         else {
             //serve fallback image
-            webserver_serve_stream_image(nc, hm);
+            webserver_serve_stream_image(nc);
         }
         FREE_SDS(uri_decoded);
         FREE_SDS(coverfile);
@@ -274,7 +271,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
 
     MYMPD_LOG_INFO("No coverimage found for \"%s\"", uri_decoded);
     FREE_SDS(uri_decoded);
-    webserver_serve_na_image(nc, hm);
+    webserver_serve_na_image(nc);
     return true;
 }
 

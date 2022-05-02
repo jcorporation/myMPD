@@ -24,13 +24,13 @@ bool webserver_tagart_handler(struct mg_connection *nc, struct mg_http_message *
     sdsfree(query);
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR("Failed to decode uri");
-        webserver_serve_na_image(nc, hm);
+        webserver_serve_na_image(nc);
         FREE_SDS(uri_decoded);
         return true;
     }
     if (vcb_isfilepath(uri_decoded) == false) {
         MYMPD_LOG_ERROR("Invalid URI: %s", uri_decoded);
-        webserver_serve_na_image(nc, hm);
+        webserver_serve_na_image(nc);
         FREE_SDS(uri_decoded);
         return true;
     }
@@ -50,7 +50,7 @@ bool webserver_tagart_handler(struct mg_connection *nc, struct mg_http_message *
     }
     else {
         MYMPD_LOG_DEBUG("No image for tag found");
-        webserver_serve_na_image(nc, hm);
+        webserver_serve_na_image(nc);
     }
     FREE_SDS(mediafile);
     FREE_SDS(uri_decoded);
