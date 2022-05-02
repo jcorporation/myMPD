@@ -256,7 +256,7 @@ bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, cons
     }
     line = tojson_char(line, "sort", sort, false);
     line = sdscatlen(line, "}", 1);
-    bool rc = false;
+    bool rc = true;
     if (fputs(line, fp) == EOF) {
         MYMPD_LOG_ERROR("Could not write to file %s", tmp_file);
         rc = false;
