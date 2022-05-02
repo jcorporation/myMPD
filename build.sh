@@ -782,9 +782,17 @@ installdeps() {
   then
     #debian
     apt-get update
+    #default use liblua5.4 but liblua5.3 is also supported
+    if [ -n "$(apt-cache search liblua5.4-dev)" ]
+    then
+      LUA_DEV_PKG="liblua5.4-dev"
+    else
+      LUA_DEV_PKG="liblua5.3-dev"
+    fi
+    #install
     apt-get install -y --no-install-recommends \
 	    gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-	    build-essential liblua5.3-dev pkg-config libpcre2-dev jq
+	    build-essential "$LUA_DEV_PKG" pkg-config libpcre2-dev jq
   elif [ -f /etc/arch-release ]
   then
     #arch
@@ -814,7 +822,7 @@ installdeps() {
     echo "  - openssl (devel)"
     echo "  - flac (devel)"
     echo "  - libid3tag (devel)"
-    echo "  - lua53 (devel)"
+    echo "  - liblua5.3 or liblua5.4 (devel)"
     echo "  - libpcre2 (devel)"
   fi
 }
