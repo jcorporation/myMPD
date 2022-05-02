@@ -711,7 +711,7 @@ pkgarch() {
   if [ -n "${SIGN+x}" ] && [ "$SIGN" = "TRUE" ]
   then
     KEYARG=""
-    [ -z "${GPGKEYID+x}" ] || KEYARG="--key $PGPGKEYID"
+    [ -z "${GPGKEYID+x}" ] || KEYARG="--key $GPGKEYID"
     #shellcheck disable=SC2086
     makepkg --sign $KEYARG mympd-*.pkg.tar.xz
   fi
