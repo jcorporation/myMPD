@@ -38,6 +38,19 @@ myMPD caches extracted covers under `/var/cache/mympd/covercache`. Files in this
 
 You can disable the covercache by setting the `Covercache expiration` value to `0` days.
 
+### Albumart download and resize script
+
+In the [contrib/scripts/](https://github.com/jcorporation/myMPD/tree/master/contrib/scripts) folder is a script to maintain albumart. This script downloads albumart from [coverartarchive.org](https://coverartarchive.org/). 
+
+- Works only for ID3v2 tagged MP3 files with the MusicBrainz Album Id
+- Customize the image sizes and names in the script header
+- Run `./albumart.sh download <music directory>` to download the albumart
+- Run `./albumart.sh resize <music directory>` to resize the albumart and create thumbnails
+- Run `./albumart.sh check <music directory>` to check the albumart sizes
+- Run `./albumart.sh missing <music directory>` to find album folders without an image
+
+**Dependencies:** ImageMagick, eyeD3, wget
+
 ***
 
 # Streams
