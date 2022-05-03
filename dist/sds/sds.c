@@ -1,4 +1,4 @@
-/* SDSLib 2.1 -- A C dynamic strings library
+/* SDSLib 2.2 -- A C dynamic strings library
  *
  * Copyright (c) 2006-2015, Salvatore Sanfilippo <antirez at gmail dot com>
  * Copyright (c) 2015, Oran Agra
@@ -771,18 +771,15 @@ sds sdscatfmt(sds s, char const *fmt, ...) {
 /* Remove the part of the string from left and from right composed just of
  * contiguous characters found in 'cset', that is a null terminated C string.
  *
- * After the call, the modified sds string is no longer valid and all the
- * references must be substituted with the new pointer returned by the call.
- *
  * Example:
  *
  * s = sdsnew("AA...AA.a.aa.aHelloWorld     :::");
- * s = sdstrim(s,"Aa. :");
+ * sdstrim(s,"Aa. :");
  * printf("%s\n", s);
  *
  * Output will be just "HelloWorld".
  */
-sds sdstrim(sds s, const char *cset) {
+void sdstrim(sds s, const char *cset) {
     char *end, *sp, *ep;
     size_t len;
 
@@ -794,7 +791,6 @@ sds sdstrim(sds s, const char *cset) {
     if (s != sp) memmove(s, sp, len);
     s[len] = '\0';
     sdssetlen(s,len);
-    return s;
 }
 
 /* Changes the input string to be a subset of the original.
@@ -891,7 +887,7 @@ int sdscmp(const sds s1, const sds s2) {
  * separator, NULL is returned.
  *
  * Note that 'sep' is able to split a string using
- * a multi-character separator. For example, with string: 
+ * a multi-character separator. For example, with string:
  * sds s = sdsnew("foo_-_bar"); int count;
  * sdssplitlen(s, sdslen(s), "_-_", 3, &count); will return two
  * elements "foo" and "bar" with count set to 2.
@@ -1415,7 +1411,7 @@ int sdsTest(void) {
             memcmp(x,"0FOO1BAR\n\0",10) == 0);
 
         sdsfree(x);
-		
+
         /* Test sdsresize - extend */
         x = sdsnew("1234567890123456789012345678901234567890");
         x = sdsResize(x, 200);
