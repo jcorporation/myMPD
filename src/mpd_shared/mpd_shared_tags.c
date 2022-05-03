@@ -323,6 +323,7 @@ static sds _mpd_shared_get_tag_values(struct mpd_song const *song, const enum mp
                 if (i++) {
                     tag_values = sdscatlen(tag_values, ",", 1);
                 }
+                sdstrim(tokens[j], " ");
                 tag_values = sds_catjson(tag_values, tokens[j], sdslen(tokens[j]));
             }
             sdsfreesplitres(tokens, count);
