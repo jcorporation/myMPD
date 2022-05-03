@@ -580,7 +580,7 @@ function parseAlbumDetails(obj) {
     }
 
     if (obj.result.MusicBrainzAlbumId !== '-' ||
-        obj.result.MusicBrainzAlbumArtistId.length > 0)
+        checkTagValue(obj.result.MusicBrainzAlbumArtistId, '-') === false)
     {
         infoEl.appendChild(elCreateText('small', {}, tn('MusicBrainz')));
         if (obj.result.MusicBrainzAlbumId !== '-') {
@@ -588,10 +588,10 @@ function parseAlbumDetails(obj) {
             albumLink.textContent = tn('Goto album');
             infoEl.appendChild(elCreateNode('p', {"class": ["mb-1"]}, albumLink));
         }
-        if (obj.result.MusicBrainzAlbumArtistId.length > 0) {
+        if (checkTagValue(obj.result.MusicBrainzAlbumArtistId, '-') === false) {
             for (let i = 0, j = obj.result.MusicBrainzAlbumArtistId.length; i < j; i++) {
                 const artistLink = getMBtagLink('MUSICBRAINZ_ALBUMARTISTID', obj.result.MusicBrainzAlbumArtistId[i]);
-                artistLink.textContent = tn('Goto artist') + ' ' + obj.result.AlbumArtist[i];
+                artistLink.textContent = tn('Goto artist') + ': ' + obj.result.AlbumArtist[i];
                 infoEl.appendChild(elCreateNode('p', {"class": ["mb-1"]}, artistLink));
             }
         }
