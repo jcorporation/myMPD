@@ -1303,7 +1303,7 @@ function printValue(key, value) {
         case 'Ensemble':
         case 'MUSICBRAINZ_ARTISTID':
         case 'MUSICBRAINZ_ALBUMARTISTID': {
-            //multi value tags - print lines
+            //multi value tags - print one line per value
             const span = elCreateEmpty('span', {});
             for (let i = 0, j = value.length; i < j; i++) {
                 if (i > 0) {
@@ -1327,11 +1327,13 @@ function printValue(key, value) {
                 value.join(', ')
             );
         case 'tags':
+            //radiobrowser.info
             return document.createTextNode(
                 value.replace(/,(\S)/g, ', $1')
             );
         case 'homepage':
         case 'Homepage':
+            //webradios
             if (value === '') {
                 return document.createTextNode(value);
             }
@@ -1339,6 +1341,7 @@ function printValue(key, value) {
                         "href": myEncodeURIhost(value),
                         "target": "_blank"}, value);
         case 'lastcheckok':
+            //radiobrowser.info
             return elCreateText('span', {"class": ["mi"]},
                     (value === 1 ? 'check_circle' : 'error')
                 );
