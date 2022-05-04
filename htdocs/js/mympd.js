@@ -216,7 +216,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'QueueCurrent': {
-            document.getElementById('searchQueueStr').focus();
+            setFocusId('searchQueueStr');
             if (features.featAdvqueue) {
                 createSearchCrumbs(app.current.search, document.getElementById('searchQueueStr'), document.getElementById('searchQueueCrumb'));
             }
@@ -273,6 +273,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'QueueLastPlayed': {
+            setFocusId('searchQueueLastPlayedStr');
             sendAPI("MYMPD_API_QUEUE_LAST_PLAYED", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
@@ -288,6 +289,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'QueueJukebox': {
+            setFocusId('searchQueueJukeboxStr');
             sendAPI("MYMPD_API_JUKEBOX_LIST", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
@@ -303,6 +305,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'BrowsePlaylistsList': {
+            setFocusId('searchPlaylistsListStr');
             sendAPI("MYMPD_API_PLAYLIST_LIST", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
@@ -318,6 +321,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'BrowsePlaylistsDetail': {
+            setFocusId('searchPlaylistsDetailStr');
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_LIST", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
@@ -334,6 +338,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'BrowseFilesystem': {
+            setFocusId('searchFilesystemStr');
             if (app.current.tag === '-') {
                 //default type is dir
                 app.current.tag = 'dir';
@@ -383,6 +388,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'BrowseDatabaseList': {
+            setFocusId('searchDatabaseStr');
             selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', app.current.filter);
             selectTag('BrowseDatabaseByTagDropdown', 'btnBrowseDatabaseByTagDesc', app.current.tag);
             let tsort = app.current.sort;
@@ -439,6 +445,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'BrowseRadioFavorites': {
+            setFocusId('BrowseRadioFavoritesSearchStr');
             sendAPI("MYMPD_API_WEBRADIO_FAVORITE_LIST", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
@@ -447,6 +454,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'BrowseRadioWebradiodb': {
+            setFocusId('BrowseRadioWebradiodbSearchStr');
             if (webradioDb === null) {
                 //fetch webradiodb database
                 getWebradiodb();
@@ -470,6 +478,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'BrowseRadioRadiobrowser': {
+            setFocusId('BrowseRadioRadiobrowserSearchStr');
             document.getElementById('inputRadiobrowserTags').value = app.current.filter.tags;
             document.getElementById('inputRadiobrowserCountry').value = app.current.filter.country;
             document.getElementById('inputRadiobrowserLanguage').value = app.current.filter.language;
@@ -492,7 +501,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'Search': {
-            document.getElementById('searchStr').focus();
+            setFocusId('searchStr');
             if (features.featAdvsearch) {
                 createSearchCrumbs(app.current.search, document.getElementById('searchStr'), document.getElementById('searchCrumb'));
             }

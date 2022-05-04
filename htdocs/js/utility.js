@@ -108,6 +108,16 @@ function getOpenModal() {
     return null;
 }
 
+function setFocusId(id) {
+    setFocus(document.getElementById(id));
+}
+
+function setFocus(el) {
+    if (isMobile === false) {
+        el.focus();
+    }
+}
+
 //replaces special characters with underscore
 function r(x) {
     return x.replace(/[^\w-]/g, '_');
