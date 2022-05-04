@@ -73,7 +73,9 @@ function parseJukeboxList(obj) {
     elHideId('QueueJukeboxDisabled');
     elShowId('QueueJukeboxList');
 
-    const rowTitle = webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay];
+    const rowTitle = settings.jukeboxMode === 'song' ?
+        webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong] :
+        webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
     updateTable(obj, 'QueueJukebox', function(row, data) {
         setData(row, 'uri', data.uri);
         setData(row, 'name', data.Title);

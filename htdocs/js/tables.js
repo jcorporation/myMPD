@@ -524,11 +524,19 @@ function tableRow(row, data, list, colspan, smallWidth) {
                 );
             }
         }
-        row.appendChild(
-            elCreateNode('td', {},
-                elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
-            )
-        );
+        switch(app.id) {
+            case 'QueueCurrent':
+            case 'BrowseRadioWebradiodb':
+            case 'BrowseRadioRadiobrowser':
+                row.appendChild(
+                    pEl.actionTdMenu.cloneNode(true)
+                );
+                break;
+            default:
+                row.appendChild(
+                    pEl.actionTd.cloneNode(true)
+                );
+        }
     }
 }
 
@@ -601,4 +609,14 @@ function uiSmallWidthTagRows() {
         return window.innerWidth < 576 ? true : false;
     }
     return false;
+}
+
+function handleActionTdClick(event) {
+    if (event.target.getAttribute('data-col') === 'Action') {
+        showPopover(event);
+    }
+    else {
+        clickQuickPlay(event.target);
+        event.preventDefault();
+    }
 }

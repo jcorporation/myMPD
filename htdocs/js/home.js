@@ -426,7 +426,7 @@ function populateHomeIconCmdSelect(cmd, type) {
             type === 'plist' ||
             type === 'smartpls')
         {
-            const title = type === 'dir' ? 'Show directory' : 
+            const title = type === 'dir' ? 'Open directory' :
                           type === 'search' ? 'Show search' : 'View playlist';
             selectHomeIconCmd.appendChild(elCreateText('option', {"value": "homeIconGoto"}, tn(title)));
             setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});

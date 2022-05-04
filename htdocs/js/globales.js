@@ -45,6 +45,7 @@ let webradioDb = null;
 const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
 const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
 
+//this settings are saved in the browsers localStorage
 const localSettings = {
     "scaleRatio": "1.0",
     "localPlaybackAutoplay": false
@@ -411,22 +412,8 @@ const webuiSettingsDefault = {
         "title": "Click filesystem playlist",
         "form": "clickSettingsFrm"
     },
-    "clickFolder": {
-        "defaultValue": "view",
-        "validValues": {
-            "append": "Append to queue",
-            "appendPlay": "Append to queue and play",
-            "insertAfterCurrent": "Insert after current playing song",
-            "replace": "Replace queue",
-            "replacePlay": "Replace queue and play",
-            "view": "Open folder"
-        },
-        "inputType": "select",
-        "title": "Click folder",
-        "form": "clickSettingsFrm"
-    },
-    "clickAlbumPlay": {
-        "defaultValue": "replace",
+    "clickQuickPlay": {
+        "defaultValue": "replacePlay",
         "validValues": {
             "append": "Append to queue",
             "appendPlay": "Append to queue and play",
@@ -435,7 +422,7 @@ const webuiSettingsDefault = {
             "replacePlay": "Replace queue and play"
         },
         "inputType": "select",
-        "title": "Click album play button",
+        "title": "Click quick play button",
         "form": "clickSettingsFrm"
     },
     "notificationAAASection": {
@@ -534,6 +521,12 @@ const webuiSettingsDefault = {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Display tags in rows for small displays",
+        "form": "appearanceSettingsFrm"
+    },
+    "uiQuickPlayButton": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Show a quick play button next to the actions button",
         "form": "appearanceSettingsFrm"
     },
     "enableHome": {

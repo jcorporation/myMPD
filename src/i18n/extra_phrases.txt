@@ -133,7 +133,7 @@ Each 60
 Each 604800
 Each 86400
 Show all albums from artist
-Show directory
+Open directory
 name
 state
 plugin

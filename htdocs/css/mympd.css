@@ -414,6 +414,10 @@ button {
   text-align: right;
 }
 
+th[data-col=Action] {
+  padding-right: 0.4rem !important;
+}
+
 th {
   white-space: nowrap;
 }

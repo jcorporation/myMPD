@@ -55,7 +55,8 @@ function initPlaylists() {
             }
         }
         else if (event.target.nodeName === 'A') {
-            showPopover(event);
+            //action td
+            handleActionTdClick(event);
         }
     }, false);
 
@@ -67,7 +68,8 @@ function initPlaylists() {
             clickSong(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
         }
         else if (event.target.nodeName === 'A') {
-            showPopover(event);
+            //action td
+            handleActionTdClick(event);
         }
     }, false);
 }
@@ -97,9 +99,7 @@ function parsePlaylistsList(obj) {
             elCreateText('td', {}, localeDate(data.lastModified))
         );
         row.appendChild(
-            elCreateNode('td', {},
-                elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
-            )
+            pEl.actionTd.cloneNode(true)
         );
     });
 }

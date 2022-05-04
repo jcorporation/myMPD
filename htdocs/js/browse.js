@@ -58,7 +58,8 @@ function initBrowse() {
             clickSong(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
         }
         else if (event.target.nodeName === 'A') {
-            showPopover(event);
+            //action td
+            handleActionTdClick(event);
         }
     }, false);
 
@@ -216,7 +217,8 @@ function initBrowse() {
             }
         }
         else if (target.nodeName === 'A') {
-            showPopover(event);
+            //action td
+            handleActionTdClick(event);
         }
     }, false);
 
@@ -380,7 +382,7 @@ function parseFilesystem(obj) {
     }
 
     const rowTitleSong = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
-    const rowTitleFolder = webuiSettingsDefault.clickFolder.validValues[settings.webuiSettings.clickFolder];
+    const rowTitleFolder = 'Open directory';
     const rowTitlePlaylist = webuiSettingsDefault.clickFilesystemPlaylist.validValues[settings.webuiSettings.clickFilesystemPlaylist];
 
     updateTable(obj, 'BrowseFilesystem', function(row, data) {
@@ -516,8 +518,7 @@ function setGridImage(changes, observer) {
 }
 
 function addPlayButton(parentEl) {
-    const div = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
-        "title": tn(webuiSettingsDefault.clickAlbumPlay.validValues[settings.webuiSettings.clickAlbumPlay])}, 'play_arrow');
+    const div = pEl.albumPlayBtn.cloneNode(true);
     parentEl.appendChild(div);
     div.addEventListener('click', function(event) {
         event.preventDefault();

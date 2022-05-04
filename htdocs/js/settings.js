@@ -420,7 +420,10 @@ function parseSettings(obj) {
     document.getElementById('volumeBar').setAttribute('min', settings.volumeMin);
     document.getElementById('volumeBar').setAttribute('max', settings.volumeMax);
 
-    //update columns
+    //update columns and handle quick playback buttons
+    pEl.actionTd = settings.webuiSettings.uiQuickPlayButton === false ? pEl.actionTdMenu : pEl.actionTdMenuPlay;
+    pEl.albumPlayBtn.title = tn(webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
+    pEl.actionTdMenuPlay.firstChild.title = tn(webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
     appRoute();
 
     //mediaSession support
@@ -821,8 +824,10 @@ function _createSettingsFrm(fields, defaults, prefix) {
         }
     }
 
-    for (const sel of ['inputWebUIsettingclickAlbumPlay', 'inputWebUIsettingclickFolder',
-            'inputWebUIsettingclickPlaylist', 'inputWebUIsettingclickSong'])
+    //set featWhence feature detection for default actions
+    for (const sel of ['inputWebUIsettingclickQuickPlay', 'inputWebUIsettingclickFilesystemPlaylist',
+        'inputWebUIsettingclickPlaylist', 'inputWebUIsettingclickSong',
+        'inputWebUIsettingclickRadioFavorites', 'inputWebUIsettingclickRadiobrowser'])
     {
         const options = document.getElementById(sel).getElementsByTagName('option');
         for (const opt of options) {

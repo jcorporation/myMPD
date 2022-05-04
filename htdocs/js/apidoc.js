@@ -962,27 +962,37 @@ const APImethods = {
                     "clickSong": {
                         "type": "text",
                         "example": "append",
-                        "desc": "Action on click on song: append, replace, view"
+                        "desc": "Action for click on song: append, appendPlay, replace, replacePlay,insertAfterCurrent, view"
+                    },
+                    "clickRadiobrowser": {
+                        "type": "text",
+                        "example": "view",
+                        "desc": "Action for click on playlist: append, appendPlay, replace, replacePlay,insertAfterCurrent, add"
+                    },
+                    "clickRadioFavorites": {
+                        "type": "text",
+                        "example": "view",
+                        "desc": "Action for click on playlist: append, appendPlay, replace, replacePlay,insertAfterCurrent, edit"
                     },
                     "clickQueueSong": {
                         "type": "text",
                         "example": "play",
-                        "desc": "Action on click on song in queue: play, view"
+                        "desc": "Action for click on song in queue: play, view"
                     },
                     "clickPlaylist": {
                         "type": "text",
                         "example": "view",
-                        "desc": "Action on click on playlist: append, replace, view"
+                        "desc": "Action for click on playlist: append, appendPlay, replace, replacePlay,insertAfterCurrent, view"
                     },
-                    "clickFolder": {
+                    "clickFilesystemPlaylist": {
                         "type": "text",
                         "example": "view",
-                        "desc": "Action on click on folder: append, replace, view"
+                        "desc": "Action for click on playlist in filesystem view: append, appendPlay, replace, replacePlay,insertAfterCurrent, view"
                     },
-                    "clickAlbumPlay": {
+                    "clickQuickPlay": {
                         "type": "text",
                         "example": "replace",
-                        "desc": "Action on click on album: append, replace"
+                        "desc": "Action for click on quick play button: append, appendPlay, replace, replacePlay,insertAfterCurrent,"
                     },
                     "notificationPlayer": {
                         "type": "bool",
@@ -1094,15 +1104,10 @@ const APImethods = {
                         "example": "#28a745",
                         "desc": "Highlight color"
                     },
-                    "uiCoverimageSize": {
-                        "type": "int",
-                        "example": 250,
-                        "desc": "Size for coverimages"
-                    },
-                    "uiCoverimageSizeSmall": {
+                    "uiThumbnailSize": {
                         "type": "int",
                         "example": 175,
-                        "desc": "Size for small cover images"
+                        "desc": "Size for thumbnails"
                     },
                     "uiBgColor": {
                         "type": "text",

@@ -5,9 +5,9 @@
 
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
-        //popover
+        //action td
         if (event.target.nodeName === 'A') {
-            showPopover(event);
+            handleActionTdClick(event);
             return;
         }
         //table header

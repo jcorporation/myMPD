@@ -220,9 +220,22 @@ function joinArray(a) {
     return a.join(', ');
 }
 
-//functions to get custom actions
+//functions to execute default actions
+function clickQuickPlay(target) {
+    const type = getData(target.parentNode.parentNode, 'type');
+    const uri = getData(target.parentNode.parentNode, 'uri');
+    switch(settings.webuiSettings.clickQuickPlay) {
+        case 'append': return appendQueue(type, uri);
+        case 'appendPlay': return appendPlayQueue(type, uri);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue(type, uri);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue(type, uri);
+        case 'replace': return replaceQueue(type, uri);
+        case 'replacePlay': return replacePlayQueue(type, uri);
+    }
+}
+
 function clickAlbumPlay(albumArtist, album) {
-    switch(settings.webuiSettings.clickAlbumPlay) {
+    switch(settings.webuiSettings.clickQuickPlay) {
         case 'append': return _addAlbum('appendQueue', albumArtist, album);
         case 'appendPlay': return _addAlbum('appendPlayQueue', albumArtist, album);
         case 'insertAfterCurrent': return _addAlbum('insertAfterCurrentQueue', albumArtist, album);
@@ -331,23 +344,14 @@ function clickFilesystemPlaylist(uri) {
 }
 
 function clickFolder(uri) {
-    switch(settings.webuiSettings.clickFolder) {
-        case 'append':  return appendQueue('dir', uri);
-        case 'appendPlay':  return appendPlayQueue('dir', uri);
-        case 'insertAfterCurrent':  return insertAfterCurrentQueue('dir', uri);
-        case 'insertPlayAfterCurrent':  return insertPlayAfterCurrentQueue('dir', uri);
-        case 'replace': return replaceQueue('dir', uri);
-        case 'replacePlay': return replacePlayQueue('dir', uri);
-        case 'view':
-            //remember offset for current browse uri
-            browseFilesystemHistory[app.current.search] = {
-                "offset": app.current.offset,
-                "scrollPos": document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop
-            };
-            //reset filter and open folder
-            app.current.filter = '-';
-            appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, 'dir', uri);
-    }
+    //remember offset for current browse uri
+    browseFilesystemHistory[app.current.search] = {
+        "offset": app.current.offset,
+        "scrollPos": document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop
+    };
+    //reset filter and open folder
+    app.current.filter = '-';
+    appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, 'dir', uri);
 }
 
 function seekRelativeForward() {

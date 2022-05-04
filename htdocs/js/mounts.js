@@ -138,7 +138,6 @@ function parseListMounts(obj) {
         return;
     }
 
-    let activeRow = 0;
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const td1 = elCreateEmpty('td', {});
         if (obj.result.data[i].mountPoint === '') {
@@ -147,19 +146,19 @@ function parseListMounts(obj) {
         else {
             td1.textContent = obj.result.data[i].mountPoint;
         }
-        const actionTd = elCreateEmpty('td', {"data-col": "Action"});
+        const mountActionTd = elCreateEmpty('td', {"data-col": "Action"});
         if (obj.result.data[i].mountPoint !== '') {
-            actionTd.appendChild(
+            mountActionTd.appendChild(
                 elCreateText('a', {"href": "#", "title": tn('Unmount'), "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete')
             );
-            actionTd.appendChild(
+            mountActionTd.appendChild(
                 elCreateText('a', {"href": "#", "title": tn('Update'), "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh')
             );
         }
         const row = elCreateNodes('tr', {}, [
             td1,
             elCreateText('td', {}, obj.result.data[i].mountUrl),
-            actionTd
+            mountActionTd
 
         ]);
         setData(row, 'url', obj.result.data[i].mountUrl);
@@ -169,7 +168,7 @@ function parseListMounts(obj) {
         }
 
         if (i < tr.length) {
-            activeRow = replaceTblRow(tr[i], row) === true ? i : activeRow;
+            replaceTblRow(tr[i], row);
         }
         else {
             tbody.append(row);

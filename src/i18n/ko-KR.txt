@@ -1848,7 +1848,7 @@ Resize
 Show all albums from artist
 연주자의 모든 음반 표시
 
-Show directory
+Open directory
 디렉터리 표시
 
 Each 

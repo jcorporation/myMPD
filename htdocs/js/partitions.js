@@ -157,18 +157,18 @@ function parsePartitionList(obj) {
             td.textContent = obj.result.data[i].name;
         }
         tr.appendChild(td);
-        const actionTd = elCreateEmpty('td', {"data-col": "Action"});
+        const partitionActionTd = elCreateEmpty('td', {"data-col": "Action"});
         if (obj.result.data[i].name !== 'default' && obj.result.data[i].name !== settings.partition) {
-            actionTd.appendChild(
+            partitionActionTd.appendChild(
                 elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["mi", "color-darkgrey", "me-2"]}, 'delete')
             );
         }
         if (obj.result.data[i].name !== settings.partition) {
-            actionTd.appendChild(
+            partitionActionTd.appendChild(
                 elCreateText('a', {"href": "#", "title": tn('Switch to'), "data-action": "switch", "class": ["mi", "color-darkgrey"]}, 'check_circle')
             );
         }
-        tr.appendChild(actionTd);
+        tr.appendChild(partitionActionTd);
         partitionList.appendChild(tr);
     }
 }

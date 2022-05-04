@@ -3,8 +3,20 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-//we do not use the custom element is="" feature - safari does not support it
+//pre-generated elements
+const pEl = {};
+pEl.actionTdMenu = elCreateNode('td', {"data-col": "Action"},
+    elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+);
+pEl.actionTdMenuPlay = elCreateNodes('td', {"data-col": "Action"}, [
+    elCreateText('a', {"data-col": "Play", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Quick play')}, 'play_arrow'),
+    elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+]);
+pEl.actionTd = pEl.actionTdMenu;
+pEl.albumPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
+    "title": tn('Quick play')}, 'play_arrow');
 
+//we do not use the custom element is="" feature - safari does not support it
 function initElements(parent) {
     for (const el of parent.querySelectorAll('[data-is]')) {
         initElement(el, el.getAttribute('data-is'));

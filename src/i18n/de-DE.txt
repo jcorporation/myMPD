@@ -1857,7 +1857,7 @@ Größe ändern
 Show all albums from artist
 Zeige alle Alben des Interpreten an
 
-Show directory
+Open directory
 Zeige Verzeichnis an
 
 Each 
@@ -2231,3 +2231,6 @@ Gehe zu Interpret
 
 No outputs found
 Keine Ausgabegeräte gefunden
+
+Quick play
+Abspielen
