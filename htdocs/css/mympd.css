@@ -350,13 +350,6 @@ button {
 }
 
 @media only screen and (max-width: 440px) {
-  #volumeMenu::after,
-  #localPlaybackMenu::after {
-    display: none !important;
-  }
-}
-
-@media only screen and (max-width: 400px) {
   #btnPrev,
   #btnPlay {
     padding-right: 4px !important;
@@ -367,7 +360,10 @@ button {
     padding-left: 4px !important;
   }
 
-  #footerPlaying {
+  #volumeMenu::after,
+  #localPlaybackMenu::after,
+  #footerPlaying,
+  #footerCover {
     display: none !important;
   }
 }
