@@ -195,7 +195,7 @@ function myEncodeURIhost(str) {
 
 //custom encoding function
 //works like encodeURIComponent but
-//- does not escape /:
+//- does not escape /
 //- escapes further reserved characters
 function myEncodeURI(str) {
     return encodeURI(str).replace(/[!'()*#?;:,@&=+$~]/g, function(c) {
@@ -214,10 +214,7 @@ function myDecodeURIComponent(str) {
 }
 
 function joinArray(a) {
-    if (a === undefined) {
-        return '';
-    }
-    return a.join(', ');
+    return a === undefined ? '' : a.join(', ');
 }
 
 //functions to execute default actions
