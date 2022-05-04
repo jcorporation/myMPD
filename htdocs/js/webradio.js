@@ -40,7 +40,8 @@ function initWebradio() {
             }
         }
         else if (event.target.nodeName === 'A') {
-            showPopover(event);
+            //action td
+            handleActionTdClick(event);
         }
     }, false);
 
@@ -98,7 +99,8 @@ function initWebradio() {
             }
         }
         else if (event.target.nodeName === 'A') {
-            showPopover(event);
+            //action td
+            handleActionTdClick(event);
         }
     }, false);
 
@@ -458,6 +460,7 @@ function parseRadioFavoritesList(obj) {
         setData(card, 'uri', obj.result.data[i].filename);
         setData(card, 'name', obj.result.data[i].Name);
         setData(card, 'type', 'webradio');
+        addRadioFavoritesPlayButton(card.firstChild);
 
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
 
@@ -486,6 +489,16 @@ function parseRadioFavoritesList(obj) {
 
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     setScrollViewHeight(cardContainer);
+}
+
+function addRadioFavoritesPlayButton(parentEl) {
+    const div = pEl.coverPlayBtn.cloneNode(true);
+    parentEl.appendChild(div);
+    div.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        clickQuickPlay(event.target);
+    }, false);
 }
 
 //webradiodb api

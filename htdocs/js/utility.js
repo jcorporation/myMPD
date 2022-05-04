@@ -223,7 +223,10 @@ function joinArray(a) {
 //functions to execute default actions
 function clickQuickPlay(target) {
     const type = getData(target.parentNode.parentNode, 'type');
-    const uri = getData(target.parentNode.parentNode, 'uri');
+    let uri = getData(target.parentNode.parentNode, 'uri');
+    if (type === 'webradio') {
+        uri = getRadioFavoriteUri(uri);
+    }
     switch(settings.webuiSettings.clickQuickPlay) {
         case 'append': return appendQueue(type, uri);
         case 'appendPlay': return appendPlayQueue(type, uri);

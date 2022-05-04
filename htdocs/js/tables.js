@@ -526,8 +526,6 @@ function tableRow(row, data, list, colspan, smallWidth) {
         }
         switch(app.id) {
             case 'QueueCurrent':
-            case 'BrowseRadioWebradiodb':
-            case 'BrowseRadioRadiobrowser':
                 row.appendChild(
                     pEl.actionTdMenu.cloneNode(true)
                 );

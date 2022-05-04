@@ -458,7 +458,7 @@ function parseDatabase(obj) {
             setData(card, 'name', obj.result.data[i].Album);
             setData(card, 'Album', obj.result.data[i].Album);
             setData(card, 'AlbumArtist', obj.result.data[i].AlbumArtist);
-            addPlayButton(card.firstChild);
+            addAlbumPlayButton(card.firstChild);
         }
         else {
             image = subdir + '/tagart?uri=' + obj.result.tag + '/' + obj.result.data[i].value;
@@ -517,8 +517,8 @@ function setGridImage(changes, observer) {
     });
 }
 
-function addPlayButton(parentEl) {
-    const div = pEl.albumPlayBtn.cloneNode(true);
+function addAlbumPlayButton(parentEl) {
+    const div = pEl.coverPlayBtn.cloneNode(true);
     parentEl.appendChild(div);
     div.addEventListener('click', function(event) {
         event.preventDefault();

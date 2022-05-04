@@ -13,7 +13,7 @@ pEl.actionTdMenuPlay = elCreateNodes('td', {"data-col": "Action"}, [
     elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
 ]);
 pEl.actionTd = pEl.actionTdMenu;
-pEl.albumPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
+pEl.coverPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
     "title": tn('Quick play')}, 'play_arrow');
 
 //we do not use the custom element is="" feature - safari does not support it
