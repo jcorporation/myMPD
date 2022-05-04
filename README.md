@@ -39,7 +39,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - [Local playback of mpd http stream](https://jcorporation.github.io/myMPD/references/local-playback)
 - Timers and Triggers
 - [Lua scripting](https://jcorporation.github.io/myMPD/scripting/)
-- Embedded Webserver (mongoose)
+- Embedded Webserver ([mongoose](https://github.com/cesanta/mongoose))
 - [Localized user interface](https://jcorporation.github.io/myMPD/references/translating)
 - Themeing
 - [Publishing of mpd and myMPD directories via http](https://jcorporation.github.io/myMPD/references/published-directories)
