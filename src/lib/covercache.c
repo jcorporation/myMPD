@@ -31,7 +31,7 @@ bool covercache_write_file(const char *cachedir, const char *uri, const char *mi
         return false;
     }
     sds filename = sds_hash(uri);
-    sds filepath = sdscatprintf(sdsempty(), "%s/covercache/%s-%d.%s", cachedir, filename, offset, ext);
+    sds filepath = sdscatfmt(sdsempty(), "%s/covercache/%S-%i.%s", cachedir, filename, offset, ext);
     bool rc = write_data_to_file(filepath, binary, sdslen(binary));
     FREE_SDS(filename);
     FREE_SDS(filepath);
