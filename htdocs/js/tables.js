@@ -526,8 +526,9 @@ function tableRow(row, data, list, colspan, smallWidth) {
         }
         switch(app.id) {
             case 'QueueCurrent':
+            case 'BrowsePlaylistsDetail':
                 row.appendChild(
-                    pEl.actionTdMenu.cloneNode(true)
+                    pEl.actionQueueTd.cloneNode(true)
                 );
                 break;
             default:
@@ -617,6 +618,9 @@ function handleActionTdClick(event) {
             break;
         case 'quickPlay':
             clickQuickPlay(event.target);
+            break;
+        case 'quickRemove':
+            clickQuickRemove(event.target);
             break;
     }
 }

@@ -2234,3 +2234,12 @@ Keine Ausgabegeräte gefunden
 
 Quick play
 Abspielen
+
+Quick play button
+Direkt abspielen Button
+
+Quick remove button
+Direkt entfernen Button
+
+Click quick play button
+Klick auf direkt abspielen

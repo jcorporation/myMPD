@@ -526,7 +526,13 @@ const webuiSettingsDefault = {
     "uiQuickPlayButton": {
         "defaultValue": false,
         "inputType": "checkbox",
-        "title": "Show a quick play button next to the actions button",
+        "title": "Quick play button",
+        "form": "appearanceSettingsFrm"
+    },
+    "uiQuickRemoveButton": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Quick remove button",
         "form": "appearanceSettingsFrm"
     },
     "enableHome": {

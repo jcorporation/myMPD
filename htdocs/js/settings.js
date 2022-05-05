@@ -420,10 +420,19 @@ function parseSettings(obj) {
     document.getElementById('volumeBar').setAttribute('min', settings.volumeMin);
     document.getElementById('volumeBar').setAttribute('max', settings.volumeMax);
 
-    //update columns and handle quick playback buttons
-    pEl.actionTd = settings.webuiSettings.uiQuickPlayButton === false ? pEl.actionTdMenu : pEl.actionTdMenuPlay;
-    pEl.coverPlayBtn.title = tn(webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
+    //update columns and handle quick playback/remove buttons
+    pEl.actionTdMenu.firstChild.title = tn('Actions');
+
     pEl.actionTdMenuPlay.firstChild.title = tn(webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
+    pEl.actionTdMenuPlay.lastChild.title = tn('Actions');
+
+    pEl.actionTdMenuRemove.firstChild.title = tn('Remove');
+    pEl.actionTdMenuRemove.lastChild.title = tn('Actions');
+
+    pEl.actionTd = settings.webuiSettings.uiQuickPlayButton === false ? pEl.actionTdMenu : pEl.actionTdMenuPlay;
+    pEl.actionQueueTd = settings.webuiSettings.uiQuickRemoveButton === false ? pEl.actionTdMenu : pEl.actionTdMenuRemove;
+    pEl.coverPlayBtn.title = tn(webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
+
     appRoute();
 
     //mediaSession support

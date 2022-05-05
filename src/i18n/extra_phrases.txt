@@ -62,6 +62,7 @@ Click filesystem playlist
 Click song
 Click webradio
 Click webradio favorite
+Click quick play button
 Play
 Num entries
 Song change
@@ -167,3 +168,5 @@ Disable random
 Enable repeat
 Disable repeat
 Invalid response
+Quick play button
+Quick remove button

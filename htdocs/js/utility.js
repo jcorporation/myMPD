@@ -218,6 +218,22 @@ function joinArray(a) {
 }
 
 //functions to execute default actions
+function clickQuickRemove(target) {
+    switch(app.id) {
+        case 'QueueCurrent': {
+            const pos = getData(target.parentNode.parentNode, 'songpos');
+            delQueueSong('single', pos);
+            break;
+        }
+        case 'BrowsePlaylistsDetail': {
+            const pos = getData(target.parentNode.parentNode, 'songpos');
+            const plist = getDataId('BrowsePlaylistsDetailList', 'uri');
+            removeFromPlaylist('single', plist, pos);
+            break;
+        }
+    }
+}
+
 function clickQuickPlay(target) {
     const type = getData(target.parentNode.parentNode, 'type');
     let uri = getData(target.parentNode.parentNode, 'uri');

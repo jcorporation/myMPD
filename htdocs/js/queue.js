@@ -21,7 +21,8 @@ function initQueue() {
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
         //popover
         if (event.target.nodeName === 'A') {
-            showPopover(event);
+            //action td
+            handleActionTdClick(event);
             return;
         }
         //table header
