@@ -55,12 +55,15 @@ fi
 if [ -z "${USE_BROTLI+x}" ]
 then
   export USE_BROTLI="ON"
+fi
+
+if [ "$USE_BROTLI" = "ON" ]
+then
   ZIPCMD="brotli"
   ZIPFLAGS="-n -f -v --best"
   ZIPFLAGS_CAT="${ZIPFLAGS} -c"
   ZIPEXT="br"
 else
-  export USE_BROTLI="OFF"
   ZIPCMD="gzip"
   ZIPFLAGS="-n -f -v -9"
   ZIPFLAGS_CAT="-n -v -9 -c"
@@ -243,6 +246,7 @@ createassets() {
   [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="release"
 
   echo "Creating assets in $MYMPD_BUILDDIR"
+  echo "Compressing assets with $ZIPCMD"
   #Recreate asset directories
   rm -fr "$MYMPD_BUILDDIR/htdocs"
   install -d "$MYMPD_BUILDDIR/htdocs/js"
