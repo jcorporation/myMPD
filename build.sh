@@ -296,6 +296,14 @@ createassets() {
   cat $CSSFILES > "$MYMPD_BUILDDIR/htdocs/css/combined.css"
   $GZIP "$MYMPD_BUILDDIR/htdocs/css/combined.css"
 
+  echo "Compressing fonts"
+  FONTFILES="dist/material-icons/MaterialIcons-Regular.woff2"
+  for FONT in $FONTFILES
+  do
+    DST=$(basename "${FONT}")
+    $GZIPCAT "$FONT" > "$MYMPD_BUILDDIR/htdocs/assets/${DST}.gz"
+  done
+
   echo "Minifying and compressing html"
   minify html htdocs/index.html "$MYMPD_BUILDDIR/htdocs/index.html"
   $GZIPCAT "$MYMPD_BUILDDIR/htdocs/index.html" > "$MYMPD_BUILDDIR/htdocs/index.html.gz"
@@ -1034,9 +1042,7 @@ materialicons() {
   done
   echo "};"  >> "ligatures.js"
   cp ligatures.js "$STARTPATH/htdocs/js/"
-  cp MaterialIcons-Regular.woff2 "$STARTPATH/htdocs/assets/"
   cp MaterialIcons-Regular.woff2 "$STARTPATH/dist/material-icons/"
-  $GZIPCAT "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2" > "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2.gz"
   cd "$STARTPATH"
   rm -fr "$TMPDIR"
 }
