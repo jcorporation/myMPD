@@ -950,7 +950,15 @@ function parseMPDSettings() {
         const pbtl = document.getElementById('cardPlaybackTags');
         elClear(pbtl);
         for (let i = 0, j = settings.colsPlayback.length; i < j; i++) {
-            const div = elCreateNodes('div', {"id": "current" + settings.colsPlayback[i]}, [
+            let colWidth;
+            switch(settings.colsPlayback[i]) {
+                case 'Lyrics':
+                    colWidth = "col-xl-12";
+                    break;
+                default:
+                    colWidth = "col-xl-6";
+            }
+            const div = elCreateNodes('div', {"id": "current" + settings.colsPlayback[i],"class": [colWidth]}, [
                 elCreateText('small', {}, tn(settings.colsPlayback[i])),
                 elCreateEmpty('p', {})
             ]);
