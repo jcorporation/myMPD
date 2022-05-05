@@ -12,16 +12,17 @@ Summary:        A standalone and mobile friendly web-based MPD client
 Url:            https://jcorporation.github.io/myMPD/
 Packager:       Juergen Mang <mail@jcgames.de>
 Source:         mympd-%{version}.tar.gz
-BuildRequires:  gcc
+BuildRequires:  brotli
 BuildRequires:  cmake
-BuildRequires:  perl
-BuildRequires:  unzip
-BuildRequires:  pkgconfig
-BuildRequires:  openssl-devel
-BuildRequires:  libid3tag-devel
 BuildRequires:	flac-devel
+BuildRequires:  gcc
+BuildRequires:  libid3tag-devel
 BuildRequires:  lua-devel
+BuildRequires:  openssl-devel
 BuildRequires:  pcre2-devel
+BuildRequires:  perl
+BuildRequires:  pkgconfig
+BuildRequires:  unzip
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
 %global debug_package %{nil}
@@ -68,5 +69,5 @@ fi
 %license LICENSE.md
 
 %changelog
-* Tue Apr 19 2022 Juergen Mang <mail@jcgames.de> 9.3.0-0
+* Thu May 05 2022 Juergen Mang <mail@jcgames.de> 9.3.0-0
 - Version from master
