@@ -274,7 +274,7 @@ function setCols(table) {
     const th = elCreateEmpty('th', {"data-col": "Action"});
     if (features.featTags === true) {
         th.appendChild(
-            elCreateText('a', {"href": "#", "data-popover": "columns", "class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": "Columns", "title": tn('Columns')}, 'settings')
+            elCreateText('a', {"href": "#", "data-action": "popover", "data-popover": "columns", "class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": "Columns", "title": tn('Columns')}, 'settings')
         );
     }
     thead.appendChild(th);
@@ -610,11 +610,13 @@ function uiSmallWidthTagRows() {
 }
 
 function handleActionTdClick(event) {
-    if (event.target.getAttribute('data-col') === 'Action') {
-        showPopover(event);
-    }
-    else {
-        clickQuickPlay(event.target);
-        event.preventDefault();
+    event.preventDefault();
+    switch(event.target.getAttribute('data-action')) {
+        case 'popover':
+            showPopover(event);
+            break;
+        case 'quickPlay':
+            clickQuickPlay(event.target);
+            break;
     }
 }

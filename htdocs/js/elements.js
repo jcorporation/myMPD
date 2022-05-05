@@ -6,11 +6,11 @@
 //pre-generated elements
 const pEl = {};
 pEl.actionTdMenu = elCreateNode('td', {"data-col": "Action"},
-    elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
 );
 pEl.actionTdMenuPlay = elCreateNodes('td', {"data-col": "Action"}, [
-    elCreateText('a', {"data-col": "Play", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Quick play')}, 'play_arrow'),
-    elCreateText('a', {"data-col": "Action", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+    elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Quick play')}, 'play_arrow'),
+    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
 ]);
 pEl.actionTd = pEl.actionTdMenu;
 pEl.coverPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
