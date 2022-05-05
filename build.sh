@@ -52,6 +52,21 @@ then
   fi
 fi
 
+if [ -z "${USE_BROTLI+x}" ]
+then
+  export USE_BROTLI="ON"
+  ZIPCMD="brotli"
+  ZIPFLAGS="-n -f -v --best"
+  ZIPFLAGS_CAT="${ZIPFLAGS} -c"
+  ZIPEXT="br"
+else
+  export USE_BROTLI="OFF"
+  ZIPCMD="gzip"
+  ZIPFLAGS="-n -f -v -9"
+  ZIPFLAGS_CAT="-n -v -9 -c"
+  ZIPEXT="gz"
+fi
+
 if [ -z "${ENABLE_LIBASAN+x}" ]
 then
   if [ "$ACTION" = "memcheck" ]
@@ -148,10 +163,10 @@ check_cmd_silent() {
 
 if [ "$ACTION" != "installdeps" ] && [ "$ACTION" != "" ]
 then
-  check_cmd gzip perl
+  check_cmd $ZIPCMD perl
 
-  GZIP="gzip -n -f -v -9"
-  GZIPCAT="gzip -n -v -9 -c"
+  ZIP="$ZIPCMD $ZIPFLAGS"
+  ZIPCAT="$ZIPCMD $ZIPFLAGS_CAT"
 fi
 
 setversion() {
@@ -276,10 +291,10 @@ createassets() {
   #shellcheck disable=SC2086
   #shellcheck disable=SC2002
   cat $JSFILES >> "$MYMPD_BUILDDIR/htdocs/js/combined.js"
-  $GZIP "$MYMPD_BUILDDIR/htdocs/js/combined.js"
+  $ZIP "$MYMPD_BUILDDIR/htdocs/js/combined.js"
 
   #serviceworker
-  $GZIPCAT "$MYMPD_BUILDDIR/htdocs/sw.min.js" > "$MYMPD_BUILDDIR/htdocs/sw.js.gz"
+  $ZIPCAT "$MYMPD_BUILDDIR/htdocs/sw.min.js" > "$MYMPD_BUILDDIR/htdocs/sw.js.$ZIPEXT"
 
   echo "Minifying stylesheets"
   for F in htdocs/css/*.css
@@ -294,25 +309,25 @@ createassets() {
   CSSFILES="dist/bootstrap/compiled/custom.css $MYMPD_BUILDDIR/htdocs/css/*.min.css"
   #shellcheck disable=SC2086
   cat $CSSFILES > "$MYMPD_BUILDDIR/htdocs/css/combined.css"
-  $GZIP "$MYMPD_BUILDDIR/htdocs/css/combined.css"
+  $ZIP "$MYMPD_BUILDDIR/htdocs/css/combined.css"
 
   echo "Compressing fonts"
   FONTFILES="dist/material-icons/MaterialIcons-Regular.woff2"
   for FONT in $FONTFILES
   do
     DST=$(basename "${FONT}")
-    $GZIPCAT "$FONT" > "$MYMPD_BUILDDIR/htdocs/assets/${DST}.gz"
+    $ZIPCAT "$FONT" > "$MYMPD_BUILDDIR/htdocs/assets/${DST}.$ZIPEXT"
   done
 
   echo "Minifying and compressing html"
   minify html htdocs/index.html "$MYMPD_BUILDDIR/htdocs/index.html"
-  $GZIPCAT "$MYMPD_BUILDDIR/htdocs/index.html" > "$MYMPD_BUILDDIR/htdocs/index.html.gz"
+  $ZIPCAT "$MYMPD_BUILDDIR/htdocs/index.html" > "$MYMPD_BUILDDIR/htdocs/index.html.$ZIPEXT"
 
   echo "Creating other compressed assets"
   ASSETS="htdocs/mympd.webmanifest htdocs/assets/*.svg"
   for ASSET in $ASSETS
   do
-    $GZIPCAT "$ASSET" > "$MYMPD_BUILDDIR/${ASSET}.gz"
+    $ZIPCAT "$ASSET" > "$MYMPD_BUILDDIR/${ASSET}.$ZIPEXT"
   done
   return 0
 }
@@ -334,7 +349,8 @@ buildrelease() {
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
   	-DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
-    -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
+    -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DUSE_BROTLI="$USE_BROTLI" \
+    -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
     -DENABLE_IPV6="$ENABLE_IPV6" $EXTRA_CMAKE_OPTIONS ..
   make
 }
@@ -800,26 +816,26 @@ installdeps() {
     #install
     apt-get install -y --no-install-recommends \
 	    gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-	    build-essential "$LUA_DEV_PKG" pkg-config libpcre2-dev jq
+	    build-essential "$LUA_DEV_PKG" pkg-config libpcre2-dev jq $ZIPCMD
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag flac lua pkgconf pcre2 jq
+    pacman -S gcc cmake perl openssl libid3tag flac lua pkgconf pcre2 jq $ZIPCMD
   elif [ -f /etc/alpine-release ]
   then
     #alpine
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev \
-    	alpine-sdk linux-headers pkgconf pcre2-dev jq
+    	alpine-sdk linux-headers pkgconf pcre2-dev jq $ZIPCMD
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	    lua-devel unzip pcre2-devel jq
+	    lua-devel unzip pcre2-devel jq $ZIPCMD
   elif [ -f /etc/redhat-release ]
   then
     #fedora
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	    lua-devel unzip pcre2-devel jq
+	    lua-devel unzip pcre2-devel jq $ZIPCMD
   else
     echo_warn "Unsupported distribution detected."
     echo "You should manually install:"
@@ -827,6 +843,7 @@ installdeps() {
     echo "  - cmake"
     echo "  - perl"
     echo "  - jq"
+    echo "  - $ZIPCMD"
     echo "  - openssl (devel)"
     echo "  - flac (devel)"
     echo "  - libid3tag (devel)"
@@ -1398,6 +1415,7 @@ case "$ACTION" in
     echo "  - ENABLE_LUA=\"ON\""
     echo "  - ENABLE_SSL=\"ON\""
     echo "  - EMBEDDED_ASSETS=\"ON\""
+    echo "  - USE_BROTLI=\"ON\""
     echo "  - EXTRA_CMAKE_OPTIONS=\"\""
     echo "  - MANPAGES=\"ON\""
     echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
