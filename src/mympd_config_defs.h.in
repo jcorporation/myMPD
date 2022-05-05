@@ -141,6 +141,11 @@
     "opus=audio/ogg,spx=audio/ogg,pem=application/x-x509-ca-cert,woff2=font/woff2,"\
     "m3u=audio/mpegurl"
 
+//compressed asset info
+#define ZIPFORMAT "${ZIPFORMAT}"
+#define ZIPEXT "${ZIPEXT}"
+#define CONTENT_ENCODING "Content-Encoding: " ZIPFORMAT "\r\n"
+
 //io defaults
 #define OPEN_FLAGS_READ "re"
 #define OPEN_FLAGS_READ_BIN "rbe"

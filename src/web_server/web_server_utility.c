@@ -219,7 +219,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
                       (p->cache == true ? EXTRA_HEADERS_CACHE : ""),
                       p->size,
                       p->mimetype,
-                      (p->compressed == true ? "Content-Encoding: gzip\r\n" : "")
+                      (p->compressed == true ? CONTENT_ENCODING : "")
                  );
         //send data
         mg_send(nc, p->data, p->size);
