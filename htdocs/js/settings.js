@@ -646,12 +646,8 @@ function populateSettingsFrm() {
         toggleBtnChk(btnNotifyWeb, false);
     }
 
-    if (userAgentData.isMobile === true) {
-        document.getElementById('inputScaleRatio').value = localSettings.scaleRatio;
-    }
-
+    document.getElementById('inputScaleRatio').value = localSettings.scaleRatio;
     toggleBtnChkId('btnEnforceMobile', localSettings.enforceMobile);
-
     setMobileView();
 
     //media session support
@@ -1087,6 +1083,9 @@ function saveSettings(closeModal) {
             localSettings.scaleRatio = parseFloat(inputScaleRatio.value);
             setViewport();
         }
+    }
+    else {
+        localSettings.scaleRatio = 1.0;
     }
 
     //from hours to seconds
