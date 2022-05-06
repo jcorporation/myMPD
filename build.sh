@@ -52,24 +52,6 @@ then
   fi
 fi
 
-if [ -z "${ENABLE_BROTLI+x}" ]
-then
-  export ENABLE_BROTLI="ON"
-fi
-
-if [ "$ENABLE_BROTLI" = "ON" ]
-then
-  ZIPCMD="brotli"
-  ZIPFLAGS="-n -f -v --best"
-  ZIPFLAGS_CAT="${ZIPFLAGS} -c"
-  ZIPEXT="br"
-else
-  ZIPCMD="gzip"
-  ZIPFLAGS="-n -f -v -9"
-  ZIPFLAGS_CAT="-n -v -9 -c"
-  ZIPEXT="gz"
-fi
-
 if [ -z "${ENABLE_LIBASAN+x}" ]
 then
   if [ "$ACTION" = "memcheck" ]
@@ -166,10 +148,9 @@ check_cmd_silent() {
 
 if [ "$ACTION" != "installdeps" ] && [ "$ACTION" != "" ]
 then
-  check_cmd $ZIPCMD perl
-
-  ZIP="$ZIPCMD $ZIPFLAGS"
-  ZIPCAT="$ZIPCMD $ZIPFLAGS_CAT"
+  check_cmd gzip perl
+  ZIP="gzip -n -f -v -9"
+  ZIPCAT="gzip -n -v -9 -c"
 fi
 
 setversion() {
@@ -246,7 +227,6 @@ createassets() {
   [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="release"
 
   echo "Creating assets in $MYMPD_BUILDDIR"
-  echo "Compressing assets with $ZIPCMD"
   #Recreate asset directories
   rm -fr "$MYMPD_BUILDDIR/htdocs"
   install -d "$MYMPD_BUILDDIR/htdocs/js"
@@ -298,7 +278,7 @@ createassets() {
   $ZIP "$MYMPD_BUILDDIR/htdocs/js/combined.js"
 
   #serviceworker
-  $ZIPCAT "$MYMPD_BUILDDIR/htdocs/sw.min.js" > "$MYMPD_BUILDDIR/htdocs/sw.js.$ZIPEXT"
+  $ZIPCAT "$MYMPD_BUILDDIR/htdocs/sw.min.js" > "$MYMPD_BUILDDIR/htdocs/sw.js.gz"
 
   echo "Minifying stylesheets"
   for F in htdocs/css/*.css
@@ -320,18 +300,18 @@ createassets() {
   for FONT in $FONTFILES
   do
     DST=$(basename "${FONT}")
-    $ZIPCAT "$FONT" > "$MYMPD_BUILDDIR/htdocs/assets/${DST}.$ZIPEXT"
+    $ZIPCAT "$FONT" > "$MYMPD_BUILDDIR/htdocs/assets/${DST}.gz"
   done
 
   echo "Minifying and compressing html"
   minify html htdocs/index.html "$MYMPD_BUILDDIR/htdocs/index.html"
-  $ZIPCAT "$MYMPD_BUILDDIR/htdocs/index.html" > "$MYMPD_BUILDDIR/htdocs/index.html.$ZIPEXT"
+  $ZIPCAT "$MYMPD_BUILDDIR/htdocs/index.html" > "$MYMPD_BUILDDIR/htdocs/index.html.gz"
 
   echo "Creating other compressed assets"
   ASSETS="htdocs/mympd.webmanifest htdocs/assets/*.svg"
   for ASSET in $ASSETS
   do
-    $ZIPCAT "$ASSET" > "$MYMPD_BUILDDIR/${ASSET}.$ZIPEXT"
+    $ZIPCAT "$ASSET" > "$MYMPD_BUILDDIR/${ASSET}.gz"
   done
   return 0
 }
@@ -353,8 +333,7 @@ buildrelease() {
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
   	-DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
-    -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_BROTLI="$ENABLE_BROTLI" \
-    -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
+    -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
     -DENABLE_IPV6="$ENABLE_IPV6" $EXTRA_CMAKE_OPTIONS ..
   make
 }
@@ -820,26 +799,26 @@ installdeps() {
     #install
     apt-get install -y --no-install-recommends \
 	    gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-	    build-essential "$LUA_DEV_PKG" pkg-config libpcre2-dev jq $ZIPCMD
+	    build-essential "$LUA_DEV_PKG" pkg-config libpcre2-dev jq gzip
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag flac lua pkgconf pcre2 jq $ZIPCMD
+    pacman -S gcc cmake perl openssl libid3tag flac lua pkgconf pcre2 jq gzip
   elif [ -f /etc/alpine-release ]
   then
     #alpine
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev \
-    	alpine-sdk linux-headers pkgconf pcre2-dev jq $ZIPCMD
+    	alpine-sdk linux-headers pkgconf pcre2-dev jq gzip
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	    lua-devel unzip pcre2-devel jq $ZIPCMD
+	    lua-devel unzip pcre2-devel jq gzip
   elif [ -f /etc/redhat-release ]
   then
     #fedora
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	    lua-devel unzip pcre2-devel jq $ZIPCMD
+	    lua-devel unzip pcre2-devel jq gzip
   else
     echo_warn "Unsupported distribution detected."
     echo "You should manually install:"
@@ -847,7 +826,6 @@ installdeps() {
     echo "  - cmake"
     echo "  - perl"
     echo "  - jq"
-    echo "  - $ZIPCMD"
     echo "  - openssl (devel)"
     echo "  - flac (devel)"
     echo "  - libid3tag (devel)"
@@ -1413,7 +1391,6 @@ case "$ACTION" in
     echo ""
     echo "Environment variables (with defaults) for building"
     echo "  - EMBEDDED_ASSETS=\"ON\""
-    echo "  - ENABLE_BROTLI=\"ON\""
     echo "  - ENABLE_FLAC=\"ON\""
     echo "  - ENABLE_IPV6=\"ON\""
     echo "  - ENABLE_LIBASAN=\"OFF\""

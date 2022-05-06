@@ -12,7 +12,6 @@ Summary:        A standalone and mobile friendly web-based MPD client
 Url:            https://jcorporation.github.io/myMPD/
 Packager:       Juergen Mang <mail@jcgames.de>
 Source:         mympd-%{version}.tar.gz
-BuildRequires:  brotli
 BuildRequires:  cmake
 BuildRequires:	flac-devel
 BuildRequires:  gcc

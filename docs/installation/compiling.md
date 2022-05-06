@@ -34,7 +34,7 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
 - libasan3 - for memcheck builds only
 - Perl - to create translation files
 - jq - to show translation statistics
-- brotli or gzip - to precompress assets
+- gzip - to precompress assets
 - Devel packages:
   - pcre2 - for pcre support
   - Optional: 
@@ -68,7 +68,6 @@ Compile time options are set through environment variables.
 | ENVIRONMENT | DEFAULT | DESCRIPTION |
 | ----------- | ------- | ----------- |
 | EMBEDDED_ASSETS | - | ON = Embeds assets in binary, default ON for release else OFF |
-| ENABLE_BROTLI | ON | compression for embedded assets, ON = brotli, OFF = gzip |
 | ENABLE_FLAC | ON | ON = Enables flac usage for extracting coverimages |
 | ENABLE_IPV6 | OFF | ON = Enables IPv6 |
 | ENABLE_LIBASAN | - | ON = compile with libasan, default ON for memcheck else OFF |

@@ -19,7 +19,6 @@ message("Cmake version: ${CMAKE_VERSION}")
 
 #available options
 option(EMBEDDED_ASSETS "Embeds assets in binary, default ON" ON)
-option(ENABLE_BROTLI "Serve assets using brotli compression, default ON" ON)
 option(ENABLE_FLAC "Enables flac usage, default ON" ON)
 option(ENABLE_IPV6 "Enables IPv6, default ON" ON)
 option(ENABLE_LUA "Enables lua usage, default ON" ON)
@@ -37,7 +36,6 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
 
 #clang compatibility
 if(CMAKE_C_COMPILER_ID MATCHES "Clang")
-  message("Compiling with clang")
   add_compile_options("-Wno-unknown-warning-option")
 endif()
 
@@ -83,17 +81,6 @@ else()
   message("Serving assets from filesystem")
 endif()
 message("Document root: ${ASSETS_PATH}")
-
-#decide what extension is being used to search for compressed assets
-#and format to set for Content-Encoding header
-if("${ENABLE_BROTLI}" MATCHES "ON")
-  set(ZIPFORMAT "br")
-  set(ZIPEXT ".br")
-else()
-  set(ZIPFORMAT "gzip")
-  set(ZIPEXT ".gz")
-endif()
-message("Compressed asset extension: ${ZIPEXT}")
 
 #set debug define for source
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)

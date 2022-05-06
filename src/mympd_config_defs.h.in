@@ -127,6 +127,8 @@
 #define EXTRA_HEADERS_SAFE_CACHE EXTRA_HEADERS_SAFE\
     EXTRA_HEADERS_CACHE
 
+#define EXTRA_HEADER_CONTENT_ENCODING "Content-Encoding: gzip\r\n"
+
 #define DIRECTORY_LISTING_CSS "h1{top:0;font-size:inherit;font-weight:inherit}address{bottom:0;font-style:normal}"\
     "h1,address{background-color:#343a40;color:#f8f9fa;padding:1rem;position:fixed;"\
     "box-sizing:border-box;width:100%;margin-top:0}body{margin:5rem 0;background-color:#f7f7f7;"\
@@ -140,11 +142,6 @@
 #define EXTRA_MIME_TYPES "avif=image/avif,flac=audio/flac,oga=audio/ogg,ogg=audio/ogg,"\
     "opus=audio/ogg,spx=audio/ogg,pem=application/x-x509-ca-cert,woff2=font/woff2,"\
     "m3u=audio/mpegurl"
-
-//compressed asset info
-#define ZIPFORMAT "${ZIPFORMAT}"
-#define ZIPEXT "${ZIPEXT}"
-#define CONTENT_ENCODING "Content-Encoding: " ZIPFORMAT "\r\n"
 
 //io defaults
 #define OPEN_FLAGS_READ "re"
