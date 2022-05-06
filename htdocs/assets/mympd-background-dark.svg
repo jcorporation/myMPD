@@ -1,7 +1,2 @@
-<svg version="1.1" viewBox="0 0 10.4666665 10.4666669" xmlns="http://www.w3.org/2000/svg">
-<ellipse id="logoBg" cx="5.2333" cy="5.2333" rx="4.2333" ry="4.2333" fill="#0A0B0D"/>
-<path d="m2.5772 5.8257h0.59026v-1.1847h-0.59026z" fill="#060708" stroke-width=".26458"/>
-<path d="m4.9382 8.195h0.59025v-5.9233h-0.59025z" fill="#060708" stroke-width=".26458"/>
-<path d="m3.7577 7.0103h0.59026v-3.554h-0.59026z" fill="#060708" stroke-width=".26458"/>
-<path d="m6.1187 3.4563v3.554l2.7826-1.777z" fill="#060708" stroke-width=".26458"/>
-</svg>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg version="1.1" viewBox="0 0 10.467 10.467" xmlns="http://www.w3.org/2000/svg"><ellipse cx="5.2333" cy="5.2333" rx="4.2333" ry="4.2333" fill="#0A0B0D"/><path d="m2.5772 5.8257h0.59026v-1.1847h-0.59026z" fill="#333" stroke-width=".26458"/><path d="m4.9382 8.195h0.59025v-5.9233h-0.59025z" fill="#333" stroke-width=".26458"/><path d="m3.7577 7.0103h0.59026v-3.554h-0.59026z" fill="#333" stroke-width=".26458"/><path d="m6.1187 3.4563v3.554l2.7826-1.777z" fill="#333" stroke-width=".26458"/></svg>
