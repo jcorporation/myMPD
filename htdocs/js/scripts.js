@@ -96,7 +96,7 @@ function initScripts() {
             'end\n';
         el.setRangeText(newText, start, end, 'preserve');
         BSN.Dropdown.getInstance('#btnDropdownAddAPIcall').hide();
-        el.focus();
+        setFocus(el);
     }, false);
 
     const selectFunctionEl = document.getElementById('selectFunction');
@@ -130,7 +130,7 @@ function initScripts() {
         const [start, end] = [el.selectionStart, el.selectionEnd];
         el.setRangeText(LUAfunctions[value].func, start, end, 'end');
         BSN.Dropdown.getInstance('#btnDropdownAddFunction').hide();
-        el.focus();
+        setFocus(el);
     }, false);
 }
 
@@ -213,7 +213,7 @@ function removeScriptArgument(ev) {
     const el = document.getElementById('inputScriptArgument');
     el.value = ev.target.text;
     ev.target.remove();
-    el.focus();
+    setFocus(el);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -236,7 +236,7 @@ function showEditScript(script) {
         document.getElementById('selectScriptArguments').textContent = '';
         document.getElementById('textareaScriptContent').value = '';
     }
-    document.getElementById('inputScriptName').focus();
+    setFocusId('inputScriptName');
 }
 
 function parseEditScript(obj) {

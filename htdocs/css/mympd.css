@@ -29,6 +29,10 @@ body.not-mobile .album-cover-grid:hover > div {
   display: block;
 }
 
+body.not-mobile .featMobile {
+  display: none;
+}
+
 :root {
   --mympd-thumbnail-size: 175px;
   --mympd-highlightcolor: #28a745;

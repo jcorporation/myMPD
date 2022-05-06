@@ -219,7 +219,7 @@ function showEditTimer(timerid) {
         }
         elShowId('timerActionPlay');
     }
-    document.getElementById('inputTimerName').focus();
+    setFocusId('inputTimerName');
 }
 
 function parseEditTimer(obj) {

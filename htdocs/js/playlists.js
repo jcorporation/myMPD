@@ -5,12 +5,12 @@
 
 function initPlaylists() {
     document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
-        if (!document.getElementById('addStreamFrm').classList.contains('d-none')) {
-            document.getElementById('streamUrl').focus();
-            document.getElementById('streamUrl').value = '';
+        if (document.getElementById('addStreamFrm').classList.contains('d-none')) {
+            setFocusId('addToPlaylistPlaylist');
         }
         else {
-            document.getElementById('addToPlaylistPlaylist').focus();
+            setFocusId('streamUrl');
+            document.getElementById('streamUrl').value = '';
         }
     });
 
@@ -392,7 +392,7 @@ function showAddToPlaylist(uri, searchstr) {
     document.getElementById('addToPlaylistPlaylist').filterInput.value = '';
     document.getElementById('addToPlaylistPosAppend').checked = 'checked';
     const streamUrl = document.getElementById('streamUrl');
-    streamUrl.focus();
+    setFocus(streamUrl);
     streamUrl.value = '';
     if (uri === 'STREAM') {
         //add stream

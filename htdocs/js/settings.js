@@ -646,9 +646,13 @@ function populateSettingsFrm() {
         toggleBtnChk(btnNotifyWeb, false);
     }
 
-    if (isMobile === true) {
+    if (userAgentData.isMobile === true) {
         document.getElementById('inputScaleRatio').value = localSettings.scaleRatio;
     }
+
+    toggleBtnChkId('btnEnforceMobile', localSettings.enforceMobile);
+
+    setMobileView();
 
     //media session support
     const btnMediaSession = document.getElementById('inputWebUIsettingmediaSession');
@@ -1062,7 +1066,19 @@ function saveSettings(closeModal) {
     }
 
     //browser specific settings
-    if (isMobile === true) {
+    localSettings.localPlaybackAutoplay = (document.getElementById('btnEnableLocalPlaybackAutoplay').classList.contains('active') ? true : false);
+    localSettings.enforceMobile = (document.getElementById('btnEnforceMobile').classList.contains('active') ? true : false);
+    setUserAgentData();
+    try {
+        for (const key in localSettings) {
+            localStorage.setItem(key, localSettings[key]);
+        }
+    }
+    catch(err) {
+        logError('Can not save settings to localStorage: ' + err.message);
+    }
+
+    if (userAgentData.isMobile === true) {
         const inputScaleRatio = document.getElementById('inputScaleRatio');
         if (!validateFloat(inputScaleRatio)) {
             formOK = false;
@@ -1071,15 +1087,6 @@ function saveSettings(closeModal) {
             localSettings.scaleRatio = parseFloat(inputScaleRatio.value);
             setViewport();
         }
-    }
-
-    localSettings.localPlaybackAutoplay = (document.getElementById('btnEnableLocalPlaybackAutoplay').classList.contains('active') ? true : false);
-    try {
-        localStorage.setItem('scaleRatio', localSettings.scaleRatio);
-        localStorage.setItem('localPlaybackAutoplay', localSettings.localPlaybackAutoplay);
-    }
-    catch(err) {
-        logError('Can not save settings to localStorage: ' + err.message);
     }
 
     //from hours to seconds

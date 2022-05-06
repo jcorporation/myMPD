@@ -2243,3 +2243,6 @@ Direkt entfernen Button
 
 Click quick play button
 Klick auf direkt abspielen
+
+Enforce mobile view
+Erzwinge mobile Ansicht

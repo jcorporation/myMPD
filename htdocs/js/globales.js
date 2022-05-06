@@ -13,7 +13,9 @@ const searchTimerTimeout = 500;
 let currentSong = '';
 let currentSongObj = {};
 let currentState = {};
-let settings = {"loglevel": 2};
+let settings = {
+    "loglevel": 2
+};
 let settingsParsed = 'no';
 let progressTimer = null;
 let deferredA2HSprompt;
@@ -25,17 +27,16 @@ let appInited = false;
 let scriptsInited = false;
 let subdir = '';
 let uiEnabled = true;
-let locale = navigator.language || navigator.userLanguage;
-const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-const isSafari = /Safari/i.test(navigator.userAgent);
-const hasIO = 'IntersectionObserver' in window ? true : false;
 const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
 const smallSpace = '\u2009';
 const nDash = '\u2013';
 let tagAlbumArtist = 'AlbumArtist';
 const albumFilters = ["Composer", "Performer", "Conductor", "Ensemble"];
-const session = {"token": "", "timeout": 0};
+const session = {
+    "token": "",
+    "timeout": 0
+};
 const sessionLifetime = 1780;
 const sessionRenewInterval = sessionLifetime * 500;
 let sessionTimer = null;
@@ -44,12 +45,49 @@ const debugMode = document.getElementsByTagName("script")[0].src.replace(/^.*[/]
 let webradioDb = null;
 const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
 const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
+let locale = navigator.language || navigator.userLanguage;
 
 //this settings are saved in the browsers localStorage
 const localSettings = {
     "scaleRatio": "1.0",
-    "localPlaybackAutoplay": false
+    "localPlaybackAutoplay": false,
+    "enforceMobile": false
 };
+
+//get local settings
+function parseString(str) {
+    return str === 'true' ? true :
+           str === 'false' ? false :
+           isNaN(str) ? str :
+           Number(str);
+}
+
+for (const key in localSettings) {
+    const value = localStorage.getItem(key);
+    if (value !== null) {
+        localSettings[key] = parseString(value);
+    }
+}
+
+const userAgentData = {};
+userAgentData.hasIO = 'IntersectionObserver' in window ? true : false;
+
+function setUserAgentData() {
+    //get interresting browser agent data
+    //https://developer.mozilla.org/en-US/docs/Web/API/User-Agent_Client_Hints_API
+    if (navigator.userAgentData) {
+        navigator.userAgentData.getHighEntropyValues(["platform"]).then(ua => {
+            userAgentData.isMobile = localSettings.enforceMobile === true ? true : ua.mobile;
+            //Safari does not support this API
+            userAgentData.isSafari = false;
+        });
+    }
+    else {
+        userAgentData.isMobile = localSettings.enforceMobile === true ? true : /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
+        userAgentData.isSafari = /Safari/i.test(navigator.userAgent);
+    }
+}
+setUserAgentData();
 
 //minimum mpd version to support all myMPD features
 const mpdVersion = {

@@ -91,14 +91,14 @@ function initQueue() {
 
     document.getElementById('modalSaveQueue').addEventListener('shown.bs.modal', function() {
         const plName = document.getElementById('saveQueueName');
-        plName.focus();
+        setFocus(plName);
         plName.value = '';
         cleanupModalId('modalSaveQueue');
     });
 
     document.getElementById('modalSetSongPriority').addEventListener('shown.bs.modal', function() {
         const prioEl = document.getElementById('inputSongPriority');
-        prioEl.focus();
+        setFocus(prioEl);
         prioEl.value = '';
         cleanupModalId('modalSetSongPriority');
     });
@@ -282,7 +282,7 @@ function queueSetCurrentSong() {
 }
 
 function setQueueCounter(playingRow, counterText) {
-    if (isSafari === false) {
+    if (userAgentData.isSafari === false) {
         //safari does not support gradient backgrounds at row level
         //calc percent with two decimals after comma
         const progressPrct = currentState.state === 'stop' || currentState.totalTime === 0 ?

@@ -39,7 +39,7 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
         footer.classList.add('d-none');
     }
     footers[0].parentNode.appendChild(newFooter);
-    input.focus();
+    setFocus(input);
     btn.addEventListener('click', function() {
         sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": input.value}, function(obj) {
             input.value = '';

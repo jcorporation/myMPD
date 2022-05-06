@@ -118,7 +118,7 @@ function showEditMount(uri, storage) {
         document.getElementById('inputMountUrl').value = '';
         document.getElementById('inputMountPoint').value = '';
     }
-    document.getElementById('inputMountPoint').focus();
+    setFocusId('inputMountPoint');
 }
 
 function showListMounts() {

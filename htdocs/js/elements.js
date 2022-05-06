@@ -186,7 +186,8 @@ function setSelectSearch(el) {
             BSN.Dropdown.getInstance(event.target.nextElementSibling).toggle();
         }, false);
     }
-    if (isMobile === true) {
+    if (userAgentData.isMobile === true) {
+        //scrolling optimization for mobile browsers
         el.parentNode.addEventListener('shown.bs.dropdown', function() {
             domCache.body.style.overflow = 'hidden';
         }, false);

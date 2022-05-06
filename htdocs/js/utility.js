@@ -113,7 +113,7 @@ function setFocusId(id) {
 }
 
 function setFocus(el) {
-    if (isMobile === false) {
+    if (userAgentData.isMobile === false) {
         el.focus();
     }
 }
@@ -636,7 +636,7 @@ function filetype(uri) {
 }
 
 function scrollToPosY(container, pos) {
-    if (isMobile === true) {
+    if (userAgentData.isMobile === true) {
         // For Safari
         document.body.scrollTop = pos;
         // For Chrome, Firefox, IE and Opera
@@ -766,7 +766,7 @@ function openModal(modal) {
 function focusSearch() {
     switch(app.id) {
         case 'QueueCurrent':
-            document.getElementById('searchqueuestr').focus();
+            document.getElementById('searchQueueStr').focus();
             break;
         case 'QueueLastPlayed':
             document.getElementById('searchQueueLastPlayedStr').focus();
@@ -793,7 +793,7 @@ function focusSearch() {
             document.getElementById('BrowseRadioRadiobrowserSearchStr').focus();
             break;
         case 'Search':
-            document.getElementById('searchstr').focus();
+            document.getElementById('searchStr').focus();
             break;
         default:
             appGoto('Search');
@@ -1392,7 +1392,7 @@ function getTimestamp() {
 }
 
 function setScrollViewHeight(container) {
-    if (isMobile === true) {
+    if (userAgentData.isMobile === true) {
         container.parentNode.style.maxHeight = '';
         return;
     }
@@ -1619,4 +1619,14 @@ function cuesheetTrack(uri) {
         return cuesheet[2];
     }
     return '';
+}
+
+function setMobileView() {
+    if (userAgentData.isMobile === true) {
+        setViewport();
+        domCache.body.classList.remove('not-mobile');
+    }
+    else {
+        domCache.body.classList.add('not-mobile');
+    }
 }

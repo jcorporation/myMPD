@@ -483,7 +483,7 @@ function parseDatabase(obj) {
             cardContainer.append(col);
         }
 
-        if (hasIO === true) {
+        if (userAgentData.hasIO === true) {
             const options = {
                 root: null,
                 rootMargin: '0px',

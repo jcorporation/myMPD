@@ -79,7 +79,7 @@ function showEditTrigger(id) {
 
     const nameEl = document.getElementById('inputTriggerName');
     nameEl.value = '';
-    nameEl.focus();
+    setFocus(nameEl);
     document.getElementById('inputTriggerId').value = '-1';
     document.getElementById('selectTriggerEvent').selectedIndex = 0;
     document.getElementById('selectTriggerScript').selectedIndex = 0;

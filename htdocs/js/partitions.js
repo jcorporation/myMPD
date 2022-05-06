@@ -110,7 +110,7 @@ function showNewPartition() {
     elShowId('newPartitionFooter');
     const nameEl = document.getElementById('inputPartitionName');
     nameEl.value = '';
-    nameEl.focus();
+    setFocus(nameEl);
 }
 
 function showListPartitions() {

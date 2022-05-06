@@ -649,28 +649,7 @@ function appInitStart() {
         }
     }, false);
 
-    //get local settings
-    localSettings.scaleRatio = localStorage.getItem('scaleRatio');
-    if (localSettings.scaleRatio === null) {
-        localSettings.scaleRatio = '1.0';
-    }
-    localSettings.localPlaybackAutoplay = localStorage.getItem('localPlaybackAutoplay');
-    if (localSettings.localPlaybackAutoplay === null) {
-        localSettings.localPlaybackAutoplay = false;
-    }
-
-    //set initial scale
-    if (isMobile === true) {
-        setViewport();
-        domCache.body.classList.add('mobile');
-    }
-    else {
-        const ms = document.getElementsByClassName('featMobile');
-        for (const m of ms) {
-            elHide(m);
-        }
-        domCache.body.classList.add('not-mobile');
-    }
+    setMobileView();
 
     subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
     i18nHtml(document.getElementById('splashScreenAlert'));
@@ -898,7 +877,7 @@ function initGlobalModals() {
     }, false);
 
     document.getElementById('modalEnterPin').addEventListener('shown.bs.modal', function() {
-        document.getElementById('inputPinModal').focus();
+        setFocusId('inputPinModal');
     }, false);
 
     document.getElementById('inputPinModal').addEventListener('keyup', function(event) {
