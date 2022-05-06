@@ -52,12 +52,12 @@ then
   fi
 fi
 
-if [ -z "${USE_BROTLI+x}" ]
+if [ -z "${ENABLE_BROTLI+x}" ]
 then
-  export USE_BROTLI="ON"
+  export ENABLE_BROTLI="ON"
 fi
 
-if [ "$USE_BROTLI" = "ON" ]
+if [ "$ENABLE_BROTLI" = "ON" ]
 then
   ZIPCMD="brotli"
   ZIPFLAGS="-n -f -v --best"
@@ -353,7 +353,7 @@ buildrelease() {
   cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
   	-DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
-    -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DUSE_BROTLI="$USE_BROTLI" \
+    -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_BROTLI="$ENABLE_BROTLI" \
     -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
     -DENABLE_IPV6="$ENABLE_IPV6" $EXTRA_CMAKE_OPTIONS ..
   make
@@ -1412,14 +1412,14 @@ case "$ACTION" in
     echo "  setversion:       sets version and date in packaging files from CMakeLists.txt"
     echo ""
     echo "Environment variables (with defaults) for building"
+    echo "  - EMBEDDED_ASSETS=\"ON\""
+    echo "  - ENABLE_BROTLI=\"ON\""
     echo "  - ENABLE_FLAC=\"ON\""
     echo "  - ENABLE_IPV6=\"ON\""
     echo "  - ENABLE_LIBASAN=\"OFF\""
     echo "  - ENABLE_LIBID3TAG=\"ON\""
     echo "  - ENABLE_LUA=\"ON\""
     echo "  - ENABLE_SSL=\"ON\""
-    echo "  - EMBEDDED_ASSETS=\"ON\""
-    echo "  - USE_BROTLI=\"ON\""
     echo "  - EXTRA_CMAKE_OPTIONS=\"\""
     echo "  - MANPAGES=\"ON\""
     echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
