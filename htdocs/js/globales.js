@@ -651,7 +651,7 @@ const webuiSettingsDefault = {
         "inputType": "mympd-select-search",
         "cbCallback": "filterImageSelect",
         "title": "Image",
-        "form": "bgFrm2"
+        "form": "bgFrm"
     },
     "uiBgCover": {
         "defaultValue": true,
@@ -663,7 +663,7 @@ const webuiSettingsDefault = {
         "defaultValue": "grayscale(100%) opacity(20%)",
         "inputType": "input",
         "title": "CSS filter",
-        "form": "bgCssFilterFrm",
+        "form": "bgFrm",
         "reset": true
     },
     "uiLocale": {
@@ -803,6 +803,7 @@ const typeFriendly = {
 };
 
 const bgImageValues = [
+    {"value": "", "text": "None"},
     {"value": "/assets/mympd-background-dark.svg", "text": "Default image dark"},
     {"value": "/assets/mympd-background-light.svg", "text": "Default image light"}
 ];

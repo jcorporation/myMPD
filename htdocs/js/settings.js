@@ -698,20 +698,15 @@ function populateSettingsFrm() {
     toggleBtnChkCollapseId('btnEnableLocalPlayback', 'collapseEnableLocalPlayback', settings.webuiSettings.enableLocalPlayback);
     toggleBtnChkId('btnEnableLocalPlaybackAutoplay', localSettings.localPlaybackAutoplay);
 
-    const inputWebUIsettinguiBgCover = document.getElementById('inputWebUIsettinguiBgCover');
-    inputWebUIsettinguiBgCover.setAttribute('data-toggle', 'collapse');
-    inputWebUIsettinguiBgCover.setAttribute('data-target', '#bgCssFilterFrm');
-    if (uiElements.collapseuiBgCover !== undefined) {
-        uiElements.collapseuiBgCover.dispose();
-    }
-    uiElements.collapseuiBgCover = new BSN.Collapse(inputWebUIsettinguiBgCover);
-    toggleBtnChkCollapseId('inputWebUIsettinguiBgCover', 'bgCssFilterFrm', settings.webuiSettings.uiBgCover);
+    //albumart background css filter
+    toggleBtnChkId('inputWebUIsettinguiBgCover', settings.webuiSettings.uiBgCover);
 
     //tag multiselects
     initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.tagListMpd, settings.tagList);
     initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tagList, settings.tagListSearch);
     initTagMultiSelect('inputBrowseTags', 'listBrowseTags', settings.tagList, settings.tagListBrowse);
     initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.tagListBrowse, settings.smartplsGenerateTagList);
+
     //features - show or hide warnings - use settings object
     setFeatureBtnId('btnEnableLyrics', settings.featLibrary);
     setFeatureBtnId('inputWebUIsettingenableScripting', settings.featScripting);
