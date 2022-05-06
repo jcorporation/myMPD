@@ -494,8 +494,7 @@ function setLocale(newLocale) {
     }
     let localeFound = false;
     for (const l of locales) {
-        if (l.code.indexOf(locale) === 0)
-        {
+        if (l.code.indexOf(locale) === 0) {
             locale = l.code;
             localeFound = true;
             break;
