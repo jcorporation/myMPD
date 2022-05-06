@@ -485,13 +485,18 @@ function setCssVars(theme) {
 function setLocale(newLocale) {
     if (newLocale === 'default') {
         locale = navigator.language || navigator.userLanguage;
+        if (locale.length === 2) {
+            locale += '-';
+        }
     }
     else {
         locale = newLocale;
     }
     let localeFound = false;
     for (const l of locales) {
-        if (l.code === locale) {
+        if (l.code.indexOf(locale) === 0)
+        {
+            locale = l.code;
             localeFound = true;
             break;
         }
