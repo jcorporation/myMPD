@@ -49,7 +49,7 @@ In the [contrib/scripts/](https://github.com/jcorporation/myMPD/tree/master/cont
 - Run `./albumart.sh check <music directory>` to check the albumart sizes
 - Run `./albumart.sh missing <music directory>` to find album folders without an image
 
-**Dependencies:** ImageMagick, eyeD3, wget
+**Dependencies:** ImageMagick, mid3v2 (mutagen), wget
 
 ***
 

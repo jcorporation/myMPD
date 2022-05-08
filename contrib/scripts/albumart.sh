@@ -22,7 +22,7 @@ THUMB_SIZE="${THUMB_DIM}x${THUMB_DIM}"
 TASK="$1"
 MUSIC_DIR="$2"
 
-for DEP in convert wget eyeD3
+for DEP in convert wget mid3v2
 do
     if [ "$(command -v "$DEP")" = "" ]
     then
@@ -48,7 +48,7 @@ resize_image() {
     [ -s "$RESIZE_FILE" ] || return 1
     TO_DIM="$2"
     TO_SIZE="${TO_DIM}x${TO_DIM}"
-    #get actual size
+    # get actual size
     CUR_SIZE=$(get_image_size "$RESIZE_FILE")
     if [ "${CUR_SIZE}" != "${TO_SIZE}" ]
     then
@@ -106,7 +106,7 @@ resize_albumart() {
                 fi
             fi
             resize_image "$IMAGE" "$NEW_ALBUMART_DIM"
-            #remove thumbnail - it seems the cover was updated
+            # remove thumbnail - it seems the cover was updated
             rm -f "$NEW_THUMB_FULL_PATH"
         fi
         # check for thumbnail
@@ -153,13 +153,13 @@ download_albumart() {
             HEIGHT=${SIZE#*x}
             if [ "$WIDTH" -ge "$NEW_ALBUMART_DIM" ] && [ "$HEIGHT" -ge "$NEW_ALBUMART_DIM" ]
             then
-                #albumart already existent and big enough
+                # albumart already existent and big enough
                 continue
             fi
         fi
         FIRST=$(find "$DIR" -maxdepth 1 -type f -name \*.mp3 | head -1)
         [ "$FIRST" = "" ] && continue
-        MBID=$(eyeD3 "$FIRST" 2>/dev/null | grep -a -A1 "MusicBrainz Album Id" | tail -1)
+        MBID=$(mid3v2 "$FIRST" 2>/dev/null | grep "^TXXX=MusicBrainz Album Id=" | cut -d= -f3)
         if [ "$MBID" = "" ]
         then
             echo "No MBID found for \"$FIRST\""
