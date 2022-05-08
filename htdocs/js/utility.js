@@ -363,7 +363,7 @@ function clickFolder(uri) {
     //remember offset for current browse uri
     browseFilesystemHistory[app.current.search] = {
         "offset": app.current.offset,
-        "scrollPos": document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop
+        "scrollPos": getScrollPosY()
     };
     //reset filter and open folder
     app.current.filter = '-';
@@ -632,6 +632,21 @@ function filetype(uri) {
         case 'WMA':  return ext + ' - Windows Media Audio';
         case 'CUE':  return ext + ' - Cuesheet';
         default:     return ext;
+    }
+}
+
+function getScrollPosY() {
+    if (userAgentData.isMobile === true) {
+        return document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
+    }
+    else {
+        const container = document.getElementById(app.id + 'List');
+        if (container) {
+            return container.parentNode.scrollTop;
+        }
+        else {
+            return 0;
+        }
     }
 }
 

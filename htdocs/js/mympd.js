@@ -4,7 +4,7 @@
 // https://github.com/jcorporation/mympd
 
 /* eslint-enable no-unused-vars */
-function appPrepare(scrollPos) {
+function appPrepare() {
     if (app.current.card !== app.last.card ||
         app.current.tab !== app.last.tab ||
         app.current.view !== app.last.view)
@@ -50,7 +50,6 @@ function appPrepare(scrollPos) {
     }
     const list = document.getElementById(app.id + 'List');
     if (list) {
-        scrollToPosY(list.parentNode, scrollPos);
         list.classList.add('opacity05');
     }
 }
@@ -80,7 +79,7 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
 
     //save scrollPos of old app
     if (oldptr !== ptr) {
-        oldptr.scrollPos = document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
+        oldptr.scrollPos = getScrollPosY();
     }
 
     //set options to default, if not defined
@@ -148,7 +147,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             }
         }
         if (jsonHash === null) {
-            appPrepare(0);
+            appPrepare();
             let initialStartupView = settings.webuiSettings.uiStartupView;
             if (initialStartupView === undefined ||
                 initialStartupView === null)
@@ -197,8 +196,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
     ptr.tag = app.current.tag;
     ptr.search = app.current.search;
     app.current.scrollPos = ptr.scrollPos;
-
-    appPrepare(app.current.scrollPos);
+    appPrepare();
 
     switch(app.id) {
         case 'Home': {

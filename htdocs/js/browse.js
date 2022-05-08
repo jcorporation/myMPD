@@ -501,6 +501,7 @@ function parseDatabase(obj) {
 
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     setScrollViewHeight(cardContainer);
+    scrollToPosY(cardContainer.parentNode, app.current.scrollPos);
 }
 
 function setGridImage(changes, observer) {

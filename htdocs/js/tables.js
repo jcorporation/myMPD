@@ -496,6 +496,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         tbody.appendChild(emptyRow(colspan + 1));
     }
     table.classList.remove('opacity05');
+    scrollToPosY(table.parentNode, app.current.scrollPos);
 }
 
 function tableRow(row, data, list, colspan, smallWidth) {

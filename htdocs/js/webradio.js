@@ -489,6 +489,7 @@ function parseRadioFavoritesList(obj) {
 
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     setScrollViewHeight(cardContainer);
+    scrollToPosY(cardContainer.parentNode, app.current.scrollPos);
 }
 
 function addRadioFavoritesPlayButton(parentEl) {
