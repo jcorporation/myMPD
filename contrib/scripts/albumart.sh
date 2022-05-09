@@ -174,6 +174,7 @@ download_albumart() {
             SIZE=$(get_image_size "$IMAGE_FULL_PATH")
             echo "$SIZE"
         else
+            rm -f "$IMAGE_FULL_PATH.tmp"
             echo "failed"
         fi
     done < <(find "$MUSIC_DIR" -type d)
