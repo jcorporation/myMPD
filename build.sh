@@ -787,19 +787,11 @@ installdeps() {
   echo "Platform: $(uname -m)"
   if [ -f /etc/debian_version ]
   then
-    #debian
+    #we install lua5.3 but lua 5.4 works also
     apt-get update
-    #default use liblua5.4 but liblua5.3 is also supported
-    if [ -n "$(apt-cache search liblua5.4-dev)" ]
-    then
-      LUA_DEV_PKG="liblua5.4-dev"
-    else
-      LUA_DEV_PKG="liblua5.3-dev"
-    fi
-    #install
     apt-get install -y --no-install-recommends \
 	    gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-	    build-essential "$LUA_DEV_PKG" pkg-config libpcre2-dev jq gzip
+	    build-essential liblua5.3-dev pkg-config libpcre2-dev jq gzip
   elif [ -f /etc/arch-release ]
   then
     #arch
