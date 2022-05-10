@@ -349,6 +349,9 @@ function parseSettings(obj) {
     //Navigation and footer
     setNavbarIcons();
 
+    //Mobile view
+    setMobileView();
+
     if (settings.webuiSettings.uiFooterQueueSettings === true) {
         elShowId('footerQueueSettings');
     }
@@ -652,7 +655,6 @@ function populateSettingsFrm() {
 
     document.getElementById('inputScaleRatio').value = localSettings.scaleRatio;
     toggleBtnChkId('btnEnforceMobile', localSettings.enforceMobile);
-    setMobileView();
 
     //media session support
     const btnMediaSession = document.getElementById('inputWebUIsettingmediaSession');
