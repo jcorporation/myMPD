@@ -46,7 +46,7 @@ function initQueue() {
         //table body
         const target = getParent(event.target, 'TR');
         if (target !== null) {
-            clickQueueSong(getData(target, 'trackid'), getData(target, 'uri'));
+            clickQueueSong(getData(target, 'songid'), getData(target, 'uri'));
         }
     }, false);
 
@@ -206,7 +206,7 @@ function parseQueue(obj) {
         row.setAttribute('draggable', 'true');
         row.setAttribute('id', 'queueTrackId' + data.id);
         row.setAttribute('title', tn(rowTitle));
-        setData(row, 'trackid', data.id);
+        setData(row, 'songid', data.id);
         setData(row, 'songpos', data.Pos);
         setData(row, 'duration', data.Duration);
         setData(row, 'uri', data.uri);
@@ -509,7 +509,7 @@ function setSongPriorityCheckError(obj) {
 }
 
 //eslint-disable-next-line no-unused-vars
-function delQueueSong(mode, start, end) {
+function removeFromQueue(mode, start, end) {
     if (mode === 'range') {
         sendAPI("MYMPD_API_QUEUE_RM_RANGE", {
             "start": start,

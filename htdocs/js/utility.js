@@ -221,8 +221,8 @@ function joinArray(a) {
 function clickQuickRemove(target) {
     switch(app.id) {
         case 'QueueCurrent': {
-            const pos = getData(target.parentNode.parentNode, 'songpos');
-            delQueueSong('single', pos);
+            const songId = getData(target.parentNode.parentNode, 'songid');
+            removeFromQueue('single', songId);
             break;
         }
         case 'BrowsePlaylistsDetail': {

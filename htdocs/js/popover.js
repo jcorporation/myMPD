@@ -607,26 +607,26 @@ function createMenuLists(el, tabHeader, tabContent) {
             return true;
         }
         case 'QueueCurrent': {
-            const trackid = getData(dataNode, 'trackid');
+            const songid = getData(dataNode, 'songid');
             const songpos = getData(dataNode, 'songpos');
             addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
             addDivider(tabContent);
             if (currentState.currentSongId !== -1 &&
-                trackid !== currentState.currentSongId)
+                songid !== currentState.currentSongId)
             {
-                addMenuItem(tabContent, {"cmd": "playAfterCurrent", "options": [trackid, songpos]}, 'Play after current playing song');
+                addMenuItem(tabContent, {"cmd": "playAfterCurrent", "options": [songid, songpos]}, 'Play after current playing song');
             }
-            addMenuItem(tabContent, {"cmd": "showSetSongPriority", "options": [trackid]}, 'Set priority');
-            if (trackid === currentState.currentSongId) {
+            addMenuItem(tabContent, {"cmd": "showSetSongPriority", "options": [songid]}, 'Set priority');
+            if (songid === currentState.currentSongId) {
                 addMenuItemsSingleActions(tabContent);
             }
             addDivider(tabContent);
-            addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["single", trackid]}, 'Remove');
+            addMenuItem(tabContent, {"cmd": "removeFromQueue", "options": ["single", songid]}, 'Remove');
             if (songpos > 0) {
-                addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", 0, songpos]}, 'Remove all upwards');
+                addMenuItem(tabContent, {"cmd": "removeFromQueue", "options": ["range", 0, songpos]}, 'Remove all upwards');
             }
             if (songpos + 1 < currentState.queueLength) {
-                addMenuItem(tabContent, {"cmd": "delQueueSong", "options": ["range", songpos + 1, -1]}, 'Remove all downwards');
+                addMenuItem(tabContent, {"cmd": "removeFromQueue", "options": ["range", songpos + 1, -1]}, 'Remove all downwards');
             }
             return true;
         }
