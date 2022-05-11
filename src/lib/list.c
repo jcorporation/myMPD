@@ -312,34 +312,7 @@ bool list_replace(struct t_list *l, long pos, const char *key, long long value_i
 }
 
 bool list_push(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data) {
-    struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
-    n->key = sdsnew(key);
-    n->value_i = value_i;
-    if (value_p != NULL) {
-        n->value_p = sdsnew(value_p);
-    }
-    else {
-        n->value_p = sdsempty();
-    }
-    n->user_data = user_data;
-    n->next = NULL;
-
-    if (l->head == NULL) {
-        l->head = n;
-    }
-    else if (l->tail != NULL) {
-        l->tail->next = n;
-    }
-    else {
-        FREE_SDS(n->value_p);
-        FREE_SDS(n->key);
-        free(n);
-        return false;
-    }
-
-    l->tail = n;
-    l->length++;
-    return true;
+    return list_push_len(l, key, strlen(key), value_i, value_p, strlen(value_p), user_data);
 }
 
 bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long value_i, const char *value_p, size_t value_len, void *user_data) {
