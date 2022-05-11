@@ -82,6 +82,7 @@ void forward_tcp_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_
     struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)fn_data;
     switch(ev) {
         case MG_EV_CONNECT:
+            MYMPD_LOG_INFO("Backend tcp connection \"%lu\" established", nc->id);
             mg_user_data->connection_count++;
             struct mg_str host = mg_url_host(backend_nc_data->uri);
             mg_printf(nc, "GET %s HTTP/1.1\r\n"
@@ -90,6 +91,7 @@ void forward_tcp_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_
                 "\r\n",
                 mg_url_uri(backend_nc_data->uri),
                 (int)host.len, host.ptr);
+            MYMPD_LOG_DEBUG("Sending GET %s HTTP/1.1 to backend tcp connection \"%lu\"", mg_url_uri(backend_nc_data->uri), nc->id);
             break;
         case MG_EV_READ:
             //forward incoming data from backend to frontend
@@ -97,7 +99,7 @@ void forward_tcp_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_
             mg_iobuf_del(&nc->recv, 0, nc->recv.len);
             break;
         case MG_EV_CLOSE: {
-            MYMPD_LOG_INFO("Backend HTTP connection %lu closed", nc->id);
+            MYMPD_LOG_INFO("Backend tcp connection \"%lu\" closed", nc->id);
             mg_user_data->connection_count--;
             if (backend_nc_data->frontend_nc != NULL) {
                 //remove backend connection pointer from frontend connection
