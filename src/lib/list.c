@@ -425,9 +425,8 @@ bool list_insert_sorted_by_key(struct t_list *l, const char *key, long long valu
     //find correct position to insert
     struct t_list_node *current = NULL;
     struct t_list_node *previous = NULL;
-    int result;
     for (current = l->head; current != NULL; previous = current, current = current->next) {
-        result = utf8casecmp(key, current->key);
+        int result = utf8casecmp(key, current->key);
         if (direction == LIST_SORT_ASC) {
             if (result < 0) {
                 break;
