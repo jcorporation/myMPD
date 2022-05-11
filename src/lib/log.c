@@ -63,9 +63,6 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     logline = sdsMakeRoomFor(logline, 200);
     if (log_on_tty == true) {
         logline = sdscat(logline, loglevel_colors[level]);
-    }
-
-    if (log_on_tty == true) {
         time_t now = time(NULL);
         struct tm timeinfo;
         if (localtime_r(&now, &timeinfo) != NULL) {
