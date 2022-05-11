@@ -574,10 +574,11 @@ check() {
     find ./ -name '*.c' -exec clang-tidy \
     	--checks="$CLANG_TIDY_CHECKS" {} \; >> ../clang-tidy.out 2>/dev/null
     grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out
+    cd .. || exit 1
   else
     echo_warn "clang-tidy not found"
   fi
-  cd .. || exit 1
+
   check_docs
   check_includes
 }
