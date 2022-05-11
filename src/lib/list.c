@@ -312,7 +312,8 @@ bool list_replace(struct t_list *l, long pos, const char *key, long long value_i
 }
 
 bool list_push(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data) {
-    return list_push_len(l, key, strlen(key), value_i, value_p, strlen(value_p), user_data);
+    size_t value_len = value_p == NULL ? 0 : strlen(value_p);
+    return list_push_len(l, key, strlen(key), value_i, value_p, value_len, user_data);
 }
 
 bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long value_i, const char *value_p, size_t value_len, void *user_data) {
