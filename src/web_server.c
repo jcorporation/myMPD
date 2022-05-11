@@ -412,7 +412,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_DEBUG("Connection: close header found (%lu)", nc->id);
                     nc->label[2] = 'C';
                 }
-                else if (strncmp(connection_hdr->ptr, "close", connection_hdr->len) == 0) {
+                else if (strncmp(connection_hdr->ptr, "keep-alive", connection_hdr->len) == 0) {
                     MYMPD_LOG_DEBUG("Connection: keepalive header found (%lu)", nc->id);
                     nc->label[2] = 'K';
                 }
