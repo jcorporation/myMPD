@@ -82,9 +82,9 @@ void forward_tcp_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_
     struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)fn_data;
     switch(ev) {
         case MG_EV_CONNECT:
-            MYMPD_LOG_INFO("Backend tcp connection \"%lu\" established", nc->id);
             mg_user_data->connection_count++;
             struct mg_str host = mg_url_host(backend_nc_data->uri);
+            MYMPD_LOG_INFO("Backend tcp connection \"%lu\" established, host \"%.*s\"", nc->id, (int)host.len, host.ptr);
             mg_printf(nc, "GET %s HTTP/1.1\r\n"
                 "Host: %.*s\r\n"
                 "User-Agent: myMPD/"MYMPD_VERSION"\r\n"
