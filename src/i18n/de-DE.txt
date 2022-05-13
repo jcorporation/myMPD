@@ -390,9 +390,6 @@ Highlight Farbe
 CSS filter
 CSS Filter
 
-Invalid CSS filter
-Ungültiger CSS Filter
-
 Locale
 Sprache
 
@@ -2246,3 +2243,39 @@ Klick auf direkt abspielen
 
 Enforce mobile view
 Erzwinge mobile Ansicht
+
+Advanced Audio Coding
+Advanced Audio Coding
+
+Cuesheet
+Cuesheet
+
+Free Lossless Audio Codec
+Free Lossless Audio Codec
+
+MPEG-1 Audio Layer III
+MPEG-1 Audio Layer III
+
+MPEG-4
+MPEG-4
+
+Monkey Audio
+Monkey Audio
+
+Musepack
+Musepack
+
+Ogg Vorbis
+Ogg Vorbis
+
+Opus Audio
+Opus Audio
+
+WAVE Audio File
+WAVE Audio File
+
+WavPack
+WavPack
+
+Windows Media Audio
+Windows Media Audio

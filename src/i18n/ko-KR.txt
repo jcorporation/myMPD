@@ -384,9 +384,6 @@ Highlight color
 CSS filter
 CSS 필터
 
-Invalid CSS filter
-잘못된 CSS 필터
-
 Locale
 언어
 
