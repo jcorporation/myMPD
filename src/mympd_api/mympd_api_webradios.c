@@ -104,8 +104,13 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
         if (search_len == 0 ||
             strstr(plname, searchstr) != NULL)
         {
-            list_insert_sorted_by_key_limit(&webradios, plname, 0, entry, sdsnew(next_file->d_name),
-                LIST_SORT_ASC, real_limit, list_free_cb_sds_user_data);
+            sds user_data = sdsnew(next_file->d_name);
+            if (list_insert_sorted_by_key_limit(&webradios, plname, 0, entry, user_data,
+                LIST_SORT_ASC, real_limit, list_free_cb_sds_user_data) == false)
+            {
+                //free sds if node is not inserted
+                FREE_SDS(user_data);
+            }
             list_length++;
         }
     }

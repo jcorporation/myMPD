@@ -398,13 +398,13 @@ bool list_insert_sorted_by_key_limit(struct t_list *l, const char *key, long lon
         if (direction == LIST_SORT_ASC) {
             if (utf8casecmp(key, l->tail->key) > 0) {
                 //do not insert nodes that exeeding the limit
-                return true;
+                return false;
             }
         }
         else {
             if (utf8casecmp(key, l->tail->key) < 0) {
                 //do not insert nodes that exeeding the limit
-                return true;
+                return false;
             }
         }
         //remove last item to respect the limit
