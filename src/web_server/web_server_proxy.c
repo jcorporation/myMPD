@@ -104,10 +104,11 @@ void forward_tcp_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_
                 backend_nc_data->frontend_nc->fn_data = NULL;
                 //close frontend connection
                 backend_nc_data->frontend_nc->is_draining = 1;
-                //free backend_nc_data
-                free_backend_nc_data(backend_nc_data);
-                free(fn_data);
             }
+            //free backend_nc_data
+            free_backend_nc_data(backend_nc_data);
+            free(fn_data);
+            nc->fn_data = NULL;
             break;
         }
     }
