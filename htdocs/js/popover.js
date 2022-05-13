@@ -34,7 +34,9 @@ function showPopover(event) {
     if (target.nodeName === 'TD') {
         //try to attach popover instance to action link in tables
         const actionLink = target.parentNode.lastElementChild.firstElementChild;
-        if (actionLink !== null && actionLink.nodeName === 'A') {
+        if (actionLink !== null &&
+            actionLink.nodeName === 'A')
+        {
             target = actionLink;
         }
     }

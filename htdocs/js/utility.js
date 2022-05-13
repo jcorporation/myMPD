@@ -1016,8 +1016,7 @@ function setPagination(total, returned) {
 }
 
 function createPaginationEls(totalPages, curPage) {
-    const prev = elCreateNode('button', {"title": tn('Previous page'), "type": "button", "class": ["btn", "btn-secondary"]},
-        elCreateText('span', {"class": ["mi"]}, 'navigate_before'));
+    const prev = elCreateText('button', {"title": tn('Previous page'), "type": "button", "class": ["btn", "btn-secondary", "mi"]}, 'navigate_before');
     if (curPage === 1) {
         elDisable(prev);
     }
@@ -1076,7 +1075,8 @@ function createPaginationEls(totalPages, curPage) {
         first.textContent = '1';
     }
     else {
-        first.appendChild(elCreateText('span', {"class": ["mi"]}, 'first_page'));
+        first.textContent = 'first_page';
+        first.classList.add('mi');
     }
     if (curPage === 1) {
         elDisable(first);
@@ -1111,7 +1111,8 @@ function createPaginationEls(totalPages, curPage) {
         last.textContent = end + 1;
     }
     else {
-        last.appendChild(elCreateText('span', {"class": ["mi"]}, 'last_page'));
+        last.textContent = 'last_page';
+        last.classList.add('mi');
     }
     if (totalPages === -1) {
         elDisable(last);
@@ -1135,8 +1136,7 @@ function createPaginationEls(totalPages, curPage) {
     );
     pageDropdownMenu.appendChild(row);
 
-    const next = elCreateEmpty('button', {"title": tn('Next page'), "type": "button", "class": ["btn", "btn-secondary"]});
-    next.appendChild(elCreateText('span', {"class": ["mi"]}, 'navigate_next'));
+    const next = elCreateText('button', {"title": tn('Next page'), "type": "button", "class": ["btn", "btn-secondary", "mi"]}, 'navigate_next');
     if (totalPages !== -1 && totalPages === curPage) {
         elDisable(next);
     }
@@ -1385,13 +1385,12 @@ function printValue(key, value) {
                 return document.createTextNode(value);
             }
             return elCreateText('a', {"class": ["text-success", "external"],
-                        "href": myEncodeURIhost(value),
-                        "target": "_blank"}, value);
+                "href": myEncodeURIhost(value), "target": "_blank"}, value);
         case 'lastcheckok':
             //radiobrowser.info
             return elCreateText('span', {"class": ["mi"]},
-                    (value === 1 ? 'check_circle' : 'error')
-                );
+                (value === 1 ? 'check_circle' : 'error')
+            );
         case 'Bitrate':
             return document.createTextNode(value + ' ' + tn('kbit'));
         default:

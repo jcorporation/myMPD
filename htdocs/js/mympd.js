@@ -629,14 +629,16 @@ function appInitStart() {
     //webapp manifest shortcuts
     const params = new URLSearchParams(window.location.search);
     const action = params.get('action');
-    if (action === 'clickPlay') {
-        clickPlay();
-    }
-    else if (action === 'clickStop') {
-        clickStop();
-    }
-    else if (action === 'clickNext') {
-        clickNext();
+    switch(action) {
+        case 'clickPlay':
+            clickPlay();
+            break;
+        case 'clickStop':
+            clickStop();
+            break;
+        case 'clickNext':
+            clickNext();
+            break;
     }
 
     //update table height on window resize
@@ -792,18 +794,24 @@ function appInit() {
     }, false);
     //global keymap
     document.addEventListener('keydown', function(event) {
-        if (event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT' ||
-            event.target.tagName === 'TEXTAREA' || event.ctrlKey || event.altKey || event.metaKey) {
+        if (event.target.tagName === 'INPUT' ||
+            event.target.tagName === 'SELECT' ||
+            event.target.tagName === 'TEXTAREA' ||
+            event.ctrlKey ||
+            event.altKey ||
+            event.metaKey)
+        {
             return;
         }
         const cmd = keymap[event.key];
         if (cmd && typeof window[cmd.cmd] === 'function') {
-            if (keymap[event.key].req === undefined || settings[keymap[event.key].req] === true) {
+            if (keymap[event.key].req === undefined ||
+                settings[keymap[event.key].req] === true)
+            {
                 parseCmd(event, cmd);
             }
             event.stopPropagation();
         }
-
     }, false);
     //contextmenu for tables
     const tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList',
@@ -887,7 +895,9 @@ function initGlobalModals() {
 
 function initPlayback() {
     document.getElementById('PlaybackColsDropdown').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON' && event.target.classList.contains('mi')) {
+        if (event.target.nodeName === 'BUTTON' &&
+            event.target.classList.contains('mi'))
+        {
             event.stopPropagation();
             event.preventDefault();
             toggleBtnChk(event.target);
