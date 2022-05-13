@@ -444,22 +444,6 @@ div.card {
   z-index: 1;
 }
 
-.album-cover-small {
-  background-size: cover;
-  border: 1px solid black;
-  border-radius: 5px;
-  overflow: hidden;
-  max-width: 100%;
-  width: var(--mympd-thumbnail-size, 175px);
-  height: var(--mympd-thumbnail-size, 175px);
-  background-color: #eee;
-  float: left;
-  margin-bottom: 1.25rem;
-  margin-right: 1.25rem;
-  position: relative;
-  z-index: 1;
-}
-
 .home-icons {
   width: 8rem;
   min-height: 0 !important;
@@ -522,16 +506,6 @@ div.card {
   background-image: url("../assets/coverimage-mympd.svg");
 }
 
-.album-cover-songdetails {
-  margin-right: 0;
-}
-
-.album-desc {
-  min-width: 240px;
-  float: left;
-  padding-bottom: 1.25rem;
-}
-
 div.card-toolbar {
   margin-bottom: 0.8rem;
   margin-right: -0.5rem;
@@ -581,9 +555,13 @@ div.card-toolbar > form {
   font-size: 0.8rem;
 }
 
-.btn-sm-big-icon {
-  font-size: 1.4rem !important;
-  padding: 0.05rem 0.25rem !important;
+button.mi {
+  line-height: 1.5rem;
+}
+
+button.mi::after {
+  font-size: 1rem;
+  vertical-align: 0.5rem !important;
 }
 
 .pagination button {
@@ -688,10 +666,6 @@ tfoot td {
   animation-iteration-count: infinite;
 }
 
-.modal-body .album-cover {
-  float: none;
-}
-
 .menu-indent {
   padding-left: 1rem;
 }
@@ -719,25 +693,6 @@ div.key {
   }
 }
 
-ol#searchCrumb,
-ol#searchDatabaseCrumb {
-  padding: 0.5rem;
-}
-
-.nodropdown::after {
-  content: none !important;
-}
-
-.dropdown-header-lx {
-  font-size: 1.2rem;
-}
-
-.connected,
-.connected:focus,
-.connected:hover {
-  color: var(--mympd-highlightcolor) !important;
-}
-
 .dropdown-item:focus {
   background-color: inherit;
 }
@@ -758,8 +713,7 @@ textarea.small {
   border-color: var(--mympd-highlightcolor) !important;
 }
 
-.btn-xs,
-.btn-group-xs > .btn {
+.btn-xs {
   padding: 0.12rem;
   border-radius: 0.2rem;
 }
@@ -776,18 +730,6 @@ textarea.small {
   box-shadow: none;
 }
 
-img.database-header {
-  width: 50px;
-  height: 50px;
-  display: block;
-  float: left;
-  margin-right: 1rem;
-}
-
-div.database-header {
-  padding: 0.37rem 0.75rem !important;
-}
-
 #dropdownHomeIconLigature .row {
   margin-right: 0;
   margin-bottom: 1rem;
@@ -796,11 +738,6 @@ div.database-header {
 #listHomeIconLigature {
   max-height: 60vh;
   overflow-y: scroll;
-}
-
-div#playDropdown .row {
-  flex-wrap: nowrap;
-  white-space: nowrap;
 }
 
 .form-check {
