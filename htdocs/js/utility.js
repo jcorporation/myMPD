@@ -19,7 +19,9 @@ function elCreateNode(tagName, attributes, node) {
 function elCreateNodes(tagName, attributes, nodes) {
     const tag = elCreateEmpty(tagName, attributes);
     for (const node of nodes) {
-        tag.appendChild(node);
+        if (node !== null) {
+            tag.appendChild(node);
+        }
     }
     return tag;
 }

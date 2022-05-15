@@ -15,13 +15,7 @@ function initSong() {
                 elHide(event.target);
                 event.target.parentNode.appendChild(spinner);
             }
-            else if (event.target.id === 'gotoContainingFolder') {
-                uiElements.modalSongDetails.hide();
-                event.preventDefault();
-                appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-', '-', '-', getData(event.target, 'folder'), 0);
-            }
-            else if (event.target.id === 'downloadSong' ||
-                     event.target.classList.contains('external') === true)
+            else if (event.target.classList.contains('external') === true)
             {
                 //do nothing, link opens in new browser window
             }
@@ -32,10 +26,25 @@ function initSong() {
             }
         }
         else if (event.target.nodeName === 'BUTTON') {
-            //song vote buttons
-            const cmd = getData(event.target.parentNode, 'href');
-            if (cmd !== undefined) {
-                parseCmd(event, cmd);
+            switch(event.target.id) {
+                case 'gotoContainingFolder': {
+                    uiElements.modalSongDetails.hide();
+                    event.preventDefault();
+                    appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-', '-', '-', getData(event.target, 'folder'), 0);
+                    break;
+                }
+                case 'downloadSong': {
+                    const href = getData(event.target, 'href');
+                    window.open(href, '_blank');
+                    break;
+                }
+                default: {
+                    //song vote buttons
+                    const cmd = getData(event.target.parentNode, 'href');
+                    if (cmd !== undefined) {
+                        parseCmd(event, cmd);
+                    }
+                }
             }
         }
     }, false);
@@ -154,29 +163,30 @@ function parseSongDetails(obj) {
     if (rUri !== obj.result.uri) {
         isCuesheet = true;
     }
+    
+    const shortName = basename(rUri, false) + (isCuesheet === true ? ' (' + cuesheetTrack(obj.result.uri) + ')' : '');
+    const openFolderBtn = elCreateText('button', {"id": "gotoContainingFolder", "class": ["btn", "btn-secondary", "mi"],
+        "title": tn("Open folder")}, 'folder_open');
+    setData(openFolderBtn, 'folder', dirname(obj.result.uri));
+    let downloadBtn = null;
     if (features.featLibrary === true) {
-        const shortName = basename(rUri, false) + (isCuesheet === true ? ' (' + cuesheetTrack(obj.result.uri) + ')' : '');
-        const ofl = elCreateText('button', {"id": "gotoContainingFolder", "class": ["btn", "btn-secondary", "mi"], "href": "#", "title": tn("Open folder")}, 'folder_open');
-        setData(ofl, 'folder', dirname(obj.result.uri));
-        tbody.appendChild(
-            songDetailsRow('Filename',
-                elCreateNodes('div', {}, [
-                    elCreateText('p', {"class": ["text-break", "mb-1"], "title": rUri}, shortName),
-                    elCreateNodes('div', {"class": ["input-group", "mb-1"]}, [
-                        elCreateEmpty('input', {"class": ["form-control"], "value": rUri}),
-                        ofl,
-                        elCreateText('button', {"id": "downloadSong","class": ["btn", "btn-secondary", "mi"],
-                            "href": myEncodeURI(subdir + '/browse/music/' + rUri),
-                            "target": "_blank", "title": tn("Download")}, 'file_download')
-                    ])
+        downloadBtn = elCreateText('button', {"id": "downloadSong","class": ["btn", "btn-secondary", "mi"],
+            "title": tn("Download")}, 'file_download');
+        setData(downloadBtn, 'href', myEncodeURI(subdir + '/browse/music/' + rUri));
+    }
+    tbody.appendChild(
+        songDetailsRow('Filename',
+            elCreateNodes('div', {}, [
+                elCreateText('p', {"class": ["text-break", "mb-1"], "title": rUri}, shortName),
+                elCreateNodes('div', {"class": ["input-group", "mb-1"]}, [
+                    elCreateEmpty('input', {"class": ["form-control"], "value": rUri}),
+                    openFolderBtn,
+                    downloadBtn
                 ])
-            )
-        );
-    }
-    else {
-        tbody.appendChild(songDetailsRow('Filename', elCreateText('span', {"class": ["text-break"], "title": tn(obj.result.uri)},
-            basename(obj.result.uri, false))));
-    }
+            ])
+        )
+    );
+
     tbody.appendChild(songDetailsRow('AudioFormat', printValue('AudioFormat', obj.result.AudioFormat)));
     tbody.appendChild(songDetailsRow('Filetype', filetype(rUri)));
     tbody.appendChild(songDetailsRow('LastModified', localeDate(obj.result.LastModified)));
