@@ -1062,62 +1062,60 @@ function saveSettings(closeModal) {
         formOK = false;
     }
 
-    //browser specific settings
-    localSettings.localPlaybackAutoplay = (document.getElementById('btnEnableLocalPlaybackAutoplay').classList.contains('active') ? true : false);
-    localSettings.enforceMobile = (document.getElementById('btnEnforceMobile').classList.contains('active') ? true : false);
-    setUserAgentData();
-
-    // handle scaleRatio only for mobile browsers
+    const inputScaleRatio = document.getElementById('inputScaleRatio');
+    //handle scaleRatio only for mobile browsers
     if (userAgentData.isMobile === true) {
-        const inputScaleRatio = document.getElementById('inputScaleRatio');
         if (!validateFloat(inputScaleRatio)) {
             formOK = false;
         }
-        else {
-            localSettings.scaleRatio = parseFloat(inputScaleRatio.value);
-            setViewport();
-        }
     }
-    else {
-        localSettings.scaleRatio = 1.0;
-    }
-
-    //save localSettings in browsers localStorage
-    try {
-        for (const key in localSettings) {
-            localStorage.setItem(key, localSettings[key]);
-        }
-    }
-    catch(err) {
-        logError('Can not save settings to localStorage: ' + err.message);
-    }
-
-    //from hours to seconds
-    const smartplsInterval = Number(document.getElementById('inputSmartplsInterval').value) * 60 * 60;
-
-    const webuiSettings = {};
-    for (const key in webuiSettingsDefault) {
-        const el = document.getElementById('inputWebUIsetting' + r(key));
-        if (el) {
-            if (webuiSettingsDefault[key].inputType === 'select') {
-                webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getSelectValue(el)) : getSelectValue(el);
-            }
-            else if (webuiSettingsDefault[key].inputType === 'mympd-select-search') {
-                webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getData(el, 'value')) : getData(el, 'value');
-            }
-            else if (webuiSettingsDefault[key].inputType === 'checkbox') {
-                webuiSettings[key] = el.classList.contains('active') ? true : false;
-            }
-            else {
-                webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(el.value) : el.value;
-            }
-        }
-    }
-
-    webuiSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
-    webuiSettings.enableLocalPlayback = (document.getElementById('btnEnableLocalPlayback').classList.contains('active') ? true : false);
 
     if (formOK === true) {
+        //browser specific settings
+        localSettings.localPlaybackAutoplay = (document.getElementById('btnEnableLocalPlaybackAutoplay').classList.contains('active') ? true : false);
+        localSettings.enforceMobile = (document.getElementById('btnEnforceMobile').classList.contains('active') ? true : false);
+        setUserAgentData();
+
+        //use scaleRatio only for mobile browsers
+        localSettings.scaleRatio = userAgentData.isMobile === true ?
+            parseFloat(inputScaleRatio.value) : 1.0;
+        setViewport();
+
+        //save localSettings in browsers localStorage
+        try {
+            for (const key in localSettings) {
+                localStorage.setItem(key, localSettings[key]);
+            }
+        }
+        catch(err) {
+            logError('Can not save settings to localStorage: ' + err.message);
+        }
+
+        //from hours to seconds
+        const smartplsInterval = Number(document.getElementById('inputSmartplsInterval').value) * 60 * 60;
+
+        const webuiSettings = {};
+        for (const key in webuiSettingsDefault) {
+            const el = document.getElementById('inputWebUIsetting' + r(key));
+            if (el) {
+                if (webuiSettingsDefault[key].inputType === 'select') {
+                    webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getSelectValue(el)) : getSelectValue(el);
+                }
+                else if (webuiSettingsDefault[key].inputType === 'mympd-select-search') {
+                    webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getData(el, 'value')) : getData(el, 'value');
+                }
+                else if (webuiSettingsDefault[key].inputType === 'checkbox') {
+                    webuiSettings[key] = el.classList.contains('active') ? true : false;
+                }
+                else {
+                    webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(el.value) : el.value;
+                }
+            }
+        }
+
+        webuiSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
+        webuiSettings.enableLocalPlayback = (document.getElementById('btnEnableLocalPlayback').classList.contains('active') ? true : false);
+
         const params = {
             "coverimageNames": inputCoverimageNames.value,
             "thumbnailNames": inputThumbnailNames.value,
