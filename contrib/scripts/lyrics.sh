@@ -24,10 +24,14 @@ print_usage() {
 [ -z "$DIRECTORY" ] && print_usage
 
 download_lyrics() {
-    FILE=$1
-    LYRICS_FILE=$2
-    ARTIST=$(mid3v2 "$FILE" 2>/dev/null | grep "^TPE1=")
-    TITLE=$(mid3v2 "$FILE" 2>/dev/null | grep "^TIT2=")
+    local MEDIA_FILE=$1
+    local LYRICS_FILE
+    LYRICS_FILE="$(dirname "$FILE")/$(basename "$FILE" .mp3).txt"
+    [ -s "$LYRICS_FILE" ] && return
+    local ARTIST
+    ARTIST=$(mid3v2 "$MEDIA_FILE" 2>/dev/null | grep "^TPE1=")
+    local TITLE
+    TITLE=$(mid3v2 "$MEDIA_FILE" 2>/dev/null | grep "^TIT2=")
 
     ARTIST=${ARTIST#*=}
     TITLE=${TITLE#*=}
@@ -36,30 +40,34 @@ download_lyrics() {
     TEXT=""
     for PLUGIN in $PLUGINS
     do
-        echo "Trying $(basename "$PLUGIN")"
-        TEXT=$($PLUGIN "$ARTIST" "$TITLE" 2>/dev/null)
-        if [ "$?" -eq 0 ]
+        PLUGIN_NAME=$(basename "$PLUGIN")
+        echo "Trying $PLUGIN_NAME"
+        if TEXT=$($PLUGIN "$ARTIST" "$TITLE" 2>/dev/null)
         then
             [[ $TEXT =~ "<!-- bot ban -->" ]] && continue # azlyrics block
-            [ "$TEXT" != "" ] && break;
+            if [ "$TEXT" != "" ]
+            then
+                {
+                    echo "#--"
+                    echo "#Lyrics from $PLUGIN_NAME"
+                    echo "#--"
+                    echo "$TEXT"
+                    echo "#--"
+                    echo ""
+                } >> "$LYRICS_FILE"
+            fi
         fi
     done
-    if [ "$TEXT" != "" ]
-    then
-        echo "Saving lyrics to \"$LYRICS_FILE\""
-        echo "$TEXT" > "$LYRICS_FILE"
-    fi
+    [ -s "$LYRICS_FILE" ] || rm -f "$LYRICS_FILE"
 }
 
 if [ -f "$DIRECTORY" ]
 then
-    LYRICS_FILE="$(dirname "$DIRECTORY")/$(basename "$DIRECTORY" .mp3).txt"
-    [ -f "$LYRICS_FILE" ] || download_lyrics "$DIRECTORY" "$LYRICS_FILE"
+    download_lyrics "$DIRECTORY"
 elif [ -d "$DIRECTORY" ]
 then
     while read -r FILE
     do
-        LYRICS_FILE="$(dirname "$FILE")/$(basename "$FILE" .mp3).txt"
-        [ -f "$LYRICS_FILE" ] || download_lyrics "$FILE" "$LYRICS_FILE"
+        download_lyrics "$FILE"
     done < <(find "$DIRECTORY" -name \*.mp3)
 fi
