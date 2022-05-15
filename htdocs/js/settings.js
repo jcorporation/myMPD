@@ -1066,14 +1066,6 @@ function saveSettings(closeModal) {
     localSettings.localPlaybackAutoplay = (document.getElementById('btnEnableLocalPlaybackAutoplay').classList.contains('active') ? true : false);
     localSettings.enforceMobile = (document.getElementById('btnEnforceMobile').classList.contains('active') ? true : false);
     setUserAgentData();
-    try {
-        for (const key in localSettings) {
-            localStorage.setItem(key, localSettings[key]);
-        }
-    }
-    catch(err) {
-        logError('Can not save settings to localStorage: ' + err.message);
-    }
 
     if (userAgentData.isMobile === true) {
         const inputScaleRatio = document.getElementById('inputScaleRatio');
@@ -1087,6 +1079,15 @@ function saveSettings(closeModal) {
     }
     else {
         localSettings.scaleRatio = 1.0;
+    }
+
+    try {
+        for (const key in localSettings) {
+            localStorage.setItem(key, localSettings[key]);
+        }
+    }
+    catch(err) {
+        logError('Can not save settings to localStorage: ' + err.message);
     }
 
     //from hours to seconds
