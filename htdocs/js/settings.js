@@ -1067,6 +1067,7 @@ function saveSettings(closeModal) {
     localSettings.enforceMobile = (document.getElementById('btnEnforceMobile').classList.contains('active') ? true : false);
     setUserAgentData();
 
+    // handle scaleRatio only for mobile browsers
     if (userAgentData.isMobile === true) {
         const inputScaleRatio = document.getElementById('inputScaleRatio');
         if (!validateFloat(inputScaleRatio)) {
@@ -1081,6 +1082,7 @@ function saveSettings(closeModal) {
         localSettings.scaleRatio = 1.0;
     }
 
+    //save localSettings in browsers localStorage
     try {
         for (const key in localSettings) {
             localStorage.setItem(key, localSettings[key]);

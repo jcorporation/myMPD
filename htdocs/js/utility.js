@@ -1408,17 +1408,6 @@ function getTimestamp() {
     return Math.floor(Date.now() / 1000);
 }
 
-function setScrollViewHeight(container) {
-    if (userAgentData.isMobile === true) {
-        container.parentNode.style.maxHeight = '';
-        return;
-    }
-    const footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
-    const tpos = getYpos(container.parentNode);
-    const maxHeight = window.innerHeight - tpos - footerHeight;
-    container.parentNode.style.maxHeight = maxHeight + 'px';
-}
-
 function toggleCollapseArrow(el) {
     const icon = el.getElementsByTagName('span')[0];
     icon.textContent = icon.textContent === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
@@ -1446,11 +1435,6 @@ function openFullscreen() {
         //IE and Edge
         elem.msRequestFullscreen();
     }
-}
-
-function setViewport() {
-    document.querySelector("meta[name=viewport]").setAttribute('content', 'width=device-width, initial-scale=' +
-        localSettings.scaleRatio + ', maximum-scale=' + localSettings.scaleRatio);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -1636,6 +1620,22 @@ function cuesheetTrack(uri) {
         return cuesheet[2];
     }
     return '';
+}
+
+function setViewport() {
+    document.querySelector("meta[name=viewport]").setAttribute('content', 'width=device-width, initial-scale=' +
+        localSettings.scaleRatio + ', maximum-scale=' + localSettings.scaleRatio);
+}
+
+function setScrollViewHeight(container) {
+    if (userAgentData.isMobile === true) {
+        container.parentNode.style.maxHeight = '';
+        return;
+    }
+    const footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
+    const tpos = getYpos(container.parentNode);
+    const maxHeight = window.innerHeight - tpos - footerHeight;
+    container.parentNode.style.maxHeight = maxHeight + 'px';
 }
 
 function setMobileView() {
