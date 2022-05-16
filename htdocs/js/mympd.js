@@ -36,7 +36,7 @@ function appPrepare() {
         {
             elShowId('view' + app.current.card + app.current.tab + app.current.view);
         }
-        //show active navbar icon
+        //highlight active navbar icon
         let nav = document.getElementById('nav' + app.current.card + app.current.tab);
         if (nav) {
             nav.classList.add('active');
@@ -200,17 +200,11 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
 
     switch(app.id) {
         case 'Home': {
-            const list = document.getElementById('HomeList');
-            list.classList.remove('opacity05');
-            setScrollViewHeight(list);
             sendAPI("MYMPD_API_HOME_LIST", {}, parseHome);
             break;
         }
         case 'Playback': {
-            const list = document.getElementById('PlaybackList');
-            list.classList.remove('opacity05');
-            setScrollViewHeight(list);
-            sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
+            sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, parseCurrentSong);
             break;
         }
         case 'QueueCurrent': {
@@ -389,17 +383,8 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             setFocusId('searchDatabaseStr');
             selectTag('searchDatabaseTags', 'searchDatabaseTagsDesc', app.current.filter);
             selectTag('BrowseDatabaseByTagDropdown', 'btnBrowseDatabaseByTagDesc', app.current.tag);
-            let tsort = app.current.sort;
-            let sortdesc = false;
-            if (tsort.charAt(0) === '-') {
-                sortdesc = true;
-                tsort = tsort.substr(1);
-                toggleBtnChkId('databaseSortDesc', true);
-            }
-            else {
-                toggleBtnChkId('databaseSortDesc', false);
-            }
-            selectTag('databaseSortTags', undefined, tsort);
+            toggleBtnChkId('databaseSortDesc', app.current.sort.desc);
+            selectTag('databaseSortTags', undefined, app.current.sort.tag);
             if (app.current.tag === 'Album') {
                 createSearchCrumbs(app.current.search, document.getElementById('searchDatabaseStr'), document.getElementById('searchDatabaseCrumb'));
                 if (app.current.search === '') {
@@ -412,8 +397,8 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                     "offset": app.current.offset,
                     "limit": app.current.limit,
                     "expression": app.current.search,
-                    "sort": tsort,
-                    "sortdesc": sortdesc
+                    "sort": app.current.sort.tag,
+                    "sortdesc": app.current.sort.desc
                 }, parseDatabase, true);
             }
             else {
@@ -504,7 +489,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 createSearchCrumbs(app.current.search, document.getElementById('searchStr'), document.getElementById('searchCrumb'));
             }
             else if (document.getElementById('searchStr').value === '' &&
-                app.current.search !== '')
+                     app.current.search !== '')
             {
                 document.getElementById('searchStr').value = app.current.search;
             }
@@ -576,7 +561,7 @@ function showAppInitAlert(text) {
     spa.appendChild(elCreateNode('p', {}, btn));
 }
 
-function clearAndReload() {
+function clearCache() {
     if ('serviceWorker' in navigator) {
         caches.keys().then(function(cacheNames) {
             cacheNames.forEach(function(cacheName) {
@@ -584,6 +569,10 @@ function clearAndReload() {
             });
         });
     }
+}
+
+function clearAndReload() {
+    clearCache();
     location.reload();
 }
 
@@ -658,21 +647,42 @@ function appInitStart() {
     if (debugMode === true) {
         settings.loglevel = 4;
     }
-    //register serviceworker
-    if ('serviceWorker' in navigator &&
-        window.location.protocol === 'https:' &&
-        debugMode === false)
-    {
-        window.addEventListener('load', function() {
-            navigator.serviceWorker.register('sw.js', {scope: subdir + '/'}).then(function(registration) {
-                //Registration was successful
-                logDebug('ServiceWorker registration successful.');
-                registration.update();
-            }, function(err) {
-                //Registration failed
-                logError('ServiceWorker registration failed: ' + err);
+
+    //serviceworker handling
+    if ('serviceWorker' in navigator) {
+        //add serviceworker
+        if (debugMode === false &&
+            window.location.protocol === 'https:')
+        {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('sw.js', {scope: subdir + '/'}).then(function(registration) {
+                    //Registration was successful
+                    logDebug('ServiceWorker registration successful.');
+                    registration.update();
+                }, function(err) {
+                    //Registration failed
+                    logError('ServiceWorker registration failed: ' + err);
+                });
             });
-        });
+        }
+        //debugMode - delete serviceworker
+        if (debugMode === true) {
+            let serviceWorkerExists = false;
+            navigator.serviceWorker.getRegistrations().then(function(registrations) {
+                for (const registration of registrations) {
+                    registration.unregister();
+                    serviceWorkerExists = true;
+                }
+            }).catch(function(err) {
+                logError('Service Worker unregistration failed: ', err);
+            });
+            if (serviceWorkerExists === true) {
+                clearAndReload();
+            }
+            else {
+                clearCache();
+            }
+        }
     }
 
     //show splash screen
@@ -729,7 +739,7 @@ function appInit() {
     //init links
     const hrefs = document.querySelectorAll('[data-href]');
     for (const href of hrefs) {
-        if (href.classList.contains('notclickable') === false) {
+        if (href.classList.contains('not-clickable') === false) {
             href.classList.add('clickable');
         }
         let parentInit = href.parentNode.classList.contains('noInitChilds') ? true : false;

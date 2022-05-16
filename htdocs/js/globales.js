@@ -201,7 +201,10 @@ app.cards = {
                         "offset": 0,
                         "limit": 100,
                         "filter": "any",
-                        "sort": "AlbumArtist",
+                        "sort": {
+                            "tag": "AlbumArtist",
+                            "desc": false
+                        },
                         "tag": "Album",
                         "search": "",
                         "scrollPos": 0

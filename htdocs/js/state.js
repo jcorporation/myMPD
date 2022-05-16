@@ -43,15 +43,15 @@ function getServerinfo() {
     ajaxRequest.open('GET', subdir + '/api/serverinfo', true);
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
-            let obj;
             try {
-                obj = JSON.parse(ajaxRequest.responseText);
+                const obj = JSON.parse(ajaxRequest.responseText);
+                document.getElementById('wsIP').textContent = obj.result.ip;
             }
             catch(error) {
                 showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
                 logError('Can not parse response to json object:' + ajaxRequest.responseText);
+                elClearId('wsIP');
             }
-            document.getElementById('wsIP').textContent = obj.result.ip;
         }
     };
     ajaxRequest.send();
@@ -90,7 +90,7 @@ function setCounter() {
     const playingRow = document.getElementById('queueTrackId' + currentState.currentSongId);
     if (playingRow !== null) {
         //progressbar and counter in queue card
-        setQueueCounter(playingRow, counterText)
+        setQueueCounter(playingRow, counterText);
     }
 
     //synced lyrics
@@ -130,7 +130,7 @@ function parseState(obj) {
     if (currentState.currentSongId !== obj.result.currentSongId ||
         currentState.queueVersion !== obj.result.queueVersion)
     {
-        sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
+        sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, parseCurrentSong);
     }
     //save state
     currentState = obj.result;
@@ -315,7 +315,11 @@ function clearCurrentCover() {
     }
 }
 
-function songChange(obj) {
+function parseCurrentSong(obj) {
+    const list = document.getElementById('PlaybackList');
+    list.classList.remove('opacity05');
+    setScrollViewHeight(list);
+
     //check for song change
     //use title to detect stream changes
     const newSong = obj.result.uri + ':' + obj.result.Title + ':' + obj.result.currentSongId;
@@ -424,8 +428,8 @@ function songChange(obj) {
         features.featLibrary === true)
     {
         bookletEl.appendChild(elCreateText('span', {"class": ["mi", "me-2"]}, 'description'));
-        bookletEl.appendChild(elCreateText('a', {"target": "_blank", "href": subdir +
-            myEncodeURI(obj.result.bookletPath)}, tn('Download booklet')));
+        bookletEl.appendChild(elCreateText('a', {"target": "_blank", "href": myEncodeURI(subdir + obj.result.bookletPath)},
+            tn('Download booklet')));
     }
 
     //update queue card
@@ -599,7 +603,7 @@ function mediaSessionSetMetadata(title, artist, album, url) {
         return;
     }
     const artwork = window.location.protocol + '//' + window.location.hostname +
-        (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(url);
+        (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(url);
     navigator.mediaSession.metadata = new MediaMetadata({
         title: title,
         artist: artist,

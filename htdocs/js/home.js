@@ -215,11 +215,13 @@ const friendlyActions = {
 function parseHome(obj) {
     const cardContainer = document.getElementById('HomeList');
     const cols = cardContainer.getElementsByClassName('col');
+    cardContainer.classList.remove('opacity05');
+    setScrollViewHeight(cardContainer);
+
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,
             elCreateText('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
         );
-        setPagination(obj.result.totalEntities, obj.result.returnedEntities);
         return;
     }
     if (cols.length === 0) {

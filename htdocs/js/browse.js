@@ -71,15 +71,10 @@ function initBrowse() {
     }, false);
 
     document.getElementById('databaseSortDesc').addEventListener('click', function(event) {
-        toggleBtnChk(this);
         event.stopPropagation();
         event.preventDefault();
-        if (app.current.sort.charAt(0) === '-') {
-            app.current.sort = app.current.sort.substr(1);
-        }
-        else {
-            app.current.sort = '-' + app.current.sort;
-        }
+        toggleBtnChk(this);
+        app.current.sort.desc = app.current.sort.desc === true ? false : true;
         appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
     }, false);
 
@@ -87,7 +82,7 @@ function initBrowse() {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();
-            app.current.sort = getData(event.target, 'tag');
+            app.current.sort.tag = getData(event.target, 'tag');
             appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
         }
     }, false);
@@ -575,8 +570,7 @@ function parseAlbumDetails(obj) {
         infoEl.appendChild(
             elCreateNodes('p', {}, [
                 elCreateText('span', {"class": ["mi", "me-2"]}, 'description'),
-                elCreateText('a', {"target": "_blank", "href": subdir + '/browse/music/' +
-                    myEncodeURI(obj.result.bookletPath)}, tn('Download booklet'))
+                elCreateText('a', {"target": "_blank", "href": subdir + myEncodeURI(obj.result.bookletPath)}, tn('Download booklet'))
             ])
         );
     }

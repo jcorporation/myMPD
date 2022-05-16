@@ -15,9 +15,8 @@ function initSong() {
                 elHide(event.target);
                 event.target.parentNode.appendChild(spinner);
             }
-            else if (event.target.classList.contains('external') === true)
-            {
-                //do nothing, link opens in new browser window
+            else if (event.target.classList.contains('external') === true) {
+                 //do nothing, link opens in new browser window
             }
             else if (getData(event.target.parentNode, 'tag') !== undefined) {
                 uiElements.modalSongDetails.hide();
@@ -201,7 +200,7 @@ function parseSongDetails(obj) {
     }
     if (obj.result.bookletPath !== '') {
         tbody.appendChild(songDetailsRow('Booklet', elCreateText('a', {"class": ["text-success"],
-            "href": myEncodeURI(subdir + '/browse/music/' + myEncodeURIComponent(obj.result.bookletPath)), "target": "_blank"},
+            "href": myEncodeURI(subdir + obj.result.bookletPath), "target": "_blank"},
             tn('Download'))));
     }
     if (features.featStickers === true) {
