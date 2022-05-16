@@ -28,9 +28,14 @@ The `workdir` and `cachedir` options are useful if you want to run more then one
 
 ## Configuration files
 
-At first startup (if there is no config folder in the working folder) myMPD tries to autodetect the MPD connection and reads some environment variables.
+At the first start (if there is no config folder in the working folder) myMPD tries to autodetect the MPD connection and reads some environment variables.
 
-After first startup all environment variables are ignored and the files in the folder `/var/lib/mympd/config/` should be edited.
+<div class="alert alert-warning">
+After the first start all environment variables are ignored, except loglevel.
+</div>
+
+To change these settings afterwards, you must edit the files in the folder `/var/lib/mympd/config/` and restart myMPD.
+
 
 | FILE | TYPE | ENVIRONMENT | DEFAULT | DESCRIPTION |
 | ---- | ---- | ----------- | ------- | ----------- |
@@ -55,7 +60,7 @@ You can use `mympd -c` to create the initial configuration in the `/var/lib/mymp
 
 ### MPD autodetection
 
-myMPD tries to autodetect the mpd connection at first startup.
+myMPD tries to autodetect the mpd connection only at first start. Afterwards you should change the mpd connection settings through the web-ui.
 
 1. Uses the default MPD environment variables
 2. Searches for a mpd socket
