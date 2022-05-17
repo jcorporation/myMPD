@@ -47,7 +47,7 @@
 #define CFG_MYMPD_ACL ""
 #define CFG_MYMPD_SCRIPTACL "+127.0.0.0/8"
 #define CFG_MYMPD_LUALIBS "all"
-#define CFG_MYMPD_LOGLEVEL 5
+#define CFG_MYMPD_LOGLEVEL 5 //notice
 #define CFG_MYMPD_PIN_HASH ""
 #define CFG_LOG_TO_SYSLOG false
 
@@ -58,7 +58,7 @@
 #define MYMPD_MPD_HOST "/run/mpd/socket"
 #define MYMPD_MPD_PORT 6600
 #define MYMPD_MPD_PASS ""
-#define MYMPD_MPD_BINARYLIMIT 8192
+#define MYMPD_MPD_BINARYLIMIT 8192 //bytes
 
 //default mympd state settings
 #define MYMPD_MUSIC_DIRECTORY "auto"
@@ -77,7 +77,7 @@
 #define MYMPD_SMARTPLS true
 #define MYMPD_SMARTPLS_SORT ""
 #define MYMPD_SMARTPLS_PREFIX "myMPDsmart"
-#define MYMPD_SMARTPLS_INTERVAL 14400
+#define MYMPD_SMARTPLS_INTERVAL 14400 //seconds - 4 hours
 #define MYMPD_BOOKLET_NAME "booklet.pdf"
 #define MYMPD_AUTO_PLAY false
 #define MYMPD_COLS_QUEUE_CURRENT "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]"
