@@ -345,17 +345,19 @@ static sds _mpd_shared_get_tag_values(struct mpd_song const *song, const enum mp
     }
     else {
         //return json string
-        sds v = sdsempty();
+        tag_values = sdscatlen(tag_values, "\"", 1);
         while ((value = mpd_song_get_tag(song, tag, i)) != NULL) {
             if (i++) {
-                v = sdscatlen(v, ", ", 2);
+                tag_values = sdscatlen(tag_values, ", ", 2);
             }
-            v = sdscat(v, value);
+            tag_values = sds_catjson_plain(tag_values, value, strlen(value));
         }
         if (i > 0) {
-            tag_values = sds_catjson(tag_values, v, sdslen(v));
+            tag_values = sdscatlen(tag_values, "\"", 1);
         }
-        sdsfree(v);
+        else {
+            sdsclear(tag_values);
+        }
     }
     return tag_values;
 }

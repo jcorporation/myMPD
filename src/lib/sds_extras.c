@@ -60,6 +60,27 @@ void sds_utf8_tolower(sds s) {
     }
 }
 
+/* Append to the sds string "s" a json escaped string
+ *
+ * After the call, the modified sds string is no longer valid and all the
+ * references must be substituted with the new pointer returned by the call.
+ */
+sds sds_catjson_plain(sds s, const char *p, size_t len) {
+    /* To avoid continuous reallocations, let's start with a buffer that
+     * can hold at least stringlength + 10 chars. */
+    s = sdsMakeRoomFor(s, len + 10);
+    while (len--) {
+        s = sds_catjsonchar(s, *p);
+        p++;
+    }
+    return s;
+}
+
+/* Append to the sds string "s" a quoted json escaped string
+ *
+ * After the call, the modified sds string is no longer valid and all the
+ * references must be substituted with the new pointer returned by the call.
+ */
 sds sds_catjson(sds s, const char *p, size_t len) {
     /* To avoid continuous reallocations, let's start with a buffer that
      * can hold at least stringlength + 10 chars. */
@@ -73,6 +94,11 @@ sds sds_catjson(sds s, const char *p, size_t len) {
     return sdscatlen(s, "\"", 1);
 }
 
+/* Append to the sds string "s" an json escaped character
+ *
+ * After the call, the modified sds string is no longer valid and all the
+ * references must be substituted with the new pointer returned by the call.
+ */
 sds sds_catjsonchar(sds s, const char p) {
     switch(p) {
         case '\\':
@@ -96,11 +122,19 @@ sds sds_catjsonchar(sds s, const char p) {
     return s;
 }
 
-bool sds_json_unescape(const char *src, int slen, sds *dst) {
+/* Json unescapes "src" and appends the result to the sds string "dst"
+ *
+ * "dst" must be a pointer to a allocated sds string.
+ */
+bool sds_json_unescape(const char *src, size_t slen, sds *dst) {
     char *send = (char *) src + slen;
     char *p;
     const char *esc1 = "\"\\/bfnrt";
     const char *esc2 = "\"\\/\b\f\n\r\t";
+
+    /* To avoid continuous reallocations, let's start with a buffer that
+     * can hold at least src length chars. */
+    *dst = sdsMakeRoomFor(*dst, slen);
 
     while (src < send) {
         if (*src == '\\') {
