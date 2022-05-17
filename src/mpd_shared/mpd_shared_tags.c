@@ -225,7 +225,7 @@ bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_
     bool rc = false;
     for (unsigned i = 0; i < tagcols->len; i++) {
         value = _mpd_shared_get_tag_values(song, tagcols->tags[i], value, false);
-        sdstolower(value);
+        sds_utf8_tolower(value);
         if (strstr(value, searchstr) != NULL) {
             rc = true;
         }
