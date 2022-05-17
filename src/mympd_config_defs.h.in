@@ -51,6 +51,15 @@
 #define CFG_MYMPD_PIN_HASH ""
 #define CFG_LOG_TO_SYSLOG false
 
+//default mpd state settings
+#define MYMPD_MPD_TAG_LIST "Artist,Album,AlbumArtist,Title,Genre,Disc,Track,Name"
+#define MYMPD_MPD_KEEPALIVE false
+#define MYMPD_MPD_TIMEOUT 30000 //milliseconds
+#define MYMPD_MPD_HOST "/run/mpd/socket"
+#define MYMPD_MPD_PORT 6600
+#define MYMPD_MPD_PASS ""
+#define MYMPD_MPD_BINARYLIMIT 8192
+
 //default mympd state settings
 #define MYMPD_MUSIC_DIRECTORY "auto"
 #define MYMPD_PLAYLIST_DIRECTORY "/var/lib/mpd/playlists"

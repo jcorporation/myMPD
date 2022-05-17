@@ -21,13 +21,13 @@ void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
     mpd_state->conn_state = MPD_DISCONNECTED;
     mpd_state->reconnect_time = 0;
     mpd_state->reconnect_interval = 0;
-    mpd_state->mpd_keepalive = false;
-    mpd_state->mpd_timeout = 30000;
+    mpd_state->mpd_keepalive = MYMPD_MPD_KEEPALIVE;
+    mpd_state->mpd_timeout = MYMPD_MPD_TIMEOUT;
     mpd_state->state = MPD_STATE_UNKNOWN;
-    mpd_state->mpd_host = sdsnew("/run/mpd/socket");
-    mpd_state->mpd_port = 6600;
-    mpd_state->mpd_pass = sdsempty();
-    mpd_state->mpd_binarylimit = 8192;
+    mpd_state->mpd_host = sdsnew(MYMPD_MPD_HOST);
+    mpd_state->mpd_port = MYMPD_MPD_PORT;
+    mpd_state->mpd_pass = sdsnew(MYMPD_MPD_PASS);
+    mpd_state->mpd_binarylimit = MYMPD_MPD_BINARYLIMIT;
     mpd_state->song_id = -1;
     mpd_state->song_uri = sdsempty();
     mpd_state->next_song_id = -1;
@@ -45,7 +45,7 @@ void mpd_shared_default_mpd_state(struct t_mpd_state *mpd_state) {
     mpd_state->last_song_set_song_played_time = 0;
     mpd_state->crossfade = 0;
     mpd_state->set_song_played_time = 0;
-    mpd_state->tag_list = sdsnew("Artist,Album,AlbumArtist,Title,Genre,Disc,Track,Name");
+    mpd_state->tag_list = sdsnew(MYMPD_MPD_TAG_LIST);
     reset_t_tags(&mpd_state->tag_types_mympd);
     reset_t_tags(&mpd_state->tag_types_mpd);
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
