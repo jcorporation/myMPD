@@ -58,10 +58,10 @@ sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity
         const char *v = va_arg(args, char *);
         if (i % 2 == 0) {
             if (i > 0) {
-                buffer = sdscat(buffer, ",");
+                buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sds_catjson(buffer, v, strlen(v));
-            buffer = sdscat(buffer,":");
+            buffer = sdscatlen(buffer,":", 1);
         }
         else {
             buffer = sds_catjson(buffer, v, strlen(v));
@@ -582,5 +582,3 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
 
     return true;
 }
-
-
