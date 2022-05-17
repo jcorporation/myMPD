@@ -177,12 +177,12 @@ UTEST(jsonrpc, test_json_get_tags) {
     reset_t_tags(&tagcols);
     sds data = sdsnew("{\"params\": {\"cols\": [\"Artist\", \"Duration\"]}}");
     //valid
-    ASSERT_TRUE(json_get_tags(data, "$.params.cols", &tagcols, MAX_COLS, NULL));
+    ASSERT_TRUE(json_get_tags(data, "$.params.cols", &tagcols, COLS_MAX, NULL));
     sdsclear(data);
     reset_t_tags(&tagcols);
     data = sdscat(data, "{\"params\": {\"cols\": [\"Artist\", \"Invalid column name\"]}}");
     //invalid column names are ignored
-    ASSERT_TRUE(json_get_tags(data, "$.params.cols", &tagcols, MAX_COLS, NULL));
+    ASSERT_TRUE(json_get_tags(data, "$.params.cols", &tagcols, COLS_MAX, NULL));
     sdsfree(data);
 }
 
