@@ -192,7 +192,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {NULL, 0, NULL, false, false, NULL, 0}
     };
     //decode uri
-    sds uri_decoded = sds_urldecode(sdsempty(), uri, sdslen(uri), 0);
+    sds uri_decoded = sds_urldecode(sdsempty(), uri, sdslen(uri), false);
     if (sdslen(uri_decoded) == 0) {
         webserver_send_error(nc, 500, "Failed to decode uri");
         FREE_SDS(uri_decoded);

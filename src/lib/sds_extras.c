@@ -189,7 +189,7 @@ sds sds_urlencode(sds s, const char *p, size_t len) {
     return s;
 }
 
-sds sds_urldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
+sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded) {
     size_t i;
     int a;
     int b;
@@ -207,12 +207,13 @@ sds sds_urldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
                     p += 2;
                 }
                 else {
+                    //error - return blank string
                     sdsclear(s);
                     return s;
                 }
                 break;
             case '+':
-                if (is_form_url_encoded == 1) {
+                if (is_form_url_encoded == true) {
                     s = sdscatlen(s, " ", 1);
                     break;
                 }

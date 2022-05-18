@@ -23,7 +23,7 @@ sds sds_catjson_plain(sds s, const char *p, size_t len);
 sds sds_catjson(sds s, const char *p, size_t len);
 sds sds_catjsonchar(sds s, const char p);
 bool sds_json_unescape(const char *src, size_t slen, sds *dst);
-sds sds_urldecode(sds s, const char *p, size_t len, int is_form_url_encoded);
+sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded);
 sds sds_urlencode(sds s, const char *p, size_t len);
 sds sds_replacelen(sds s, const char *value, size_t len);
 sds sds_replace(sds s, const char *value);
