@@ -462,13 +462,13 @@ bool list_insert_sorted_by_value_i_limit(struct t_list *l, const char *key, long
         if (direction == LIST_SORT_ASC) {
             if (value_i > l->tail->value_i) {
                 //do not insert nodes that exeeding the limit
-                return true;
+                return false;
             }
         }
         else {
             if (value_i < l->tail->value_i) {
                 //do not insert nodes that exeeding the limit
-                return true;
+                return false;
             }
         }
         //remove last item to respect the limit
