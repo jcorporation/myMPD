@@ -86,7 +86,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         sdsrange(logline, 0, 1020);
         logline = sdscatlen(logline, "...", 4);
     }
-    
+
     if (log_on_tty == true) {
         logline = sdscat(logline, "\033[0m\n");
     }
