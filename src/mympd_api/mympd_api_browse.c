@@ -614,17 +614,15 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
     while ((pair = mpd_recv_pair_tag(mympd_state->mpd_state->conn, mpdtag)) != NULL) {
         if (pair->value[0] == '\0') {
             MYMPD_LOG_DEBUG("Value is empty, skipping");
-            mpd_return_pair(mympd_state->mpd_state->conn, pair);
-            continue;
         }
-        mpd_return_pair(mympd_state->mpd_state->conn, pair);
-        if (searchstr_len == 0 ||
+        else if (searchstr_len == 0 ||
             (searchstr_len <= 2 && utf8ncasecmp(searchstr, pair->value, searchstr_len) == 0) ||
             (searchstr_len > 2 && utf8casestr(pair->value, searchstr) != NULL))
         {
             list_insert_sorted_by_key_limit(&taglist, pair->value, 0, NULL, NULL, LIST_SORT_ASC, real_limit, list_free_cb_ignore_user_data);
             list_length++;
         }
+        mpd_return_pair(mympd_state->mpd_state->conn, pair);
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
