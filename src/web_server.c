@@ -278,12 +278,12 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
     if (sdslen(acl) == 0) {
         return true;
     }
-    if (nc->peer.is_ip6 == true) {
+    if (nc->rem.is_ip6 == true) {
         //acls for ipv6 is not implemented in mongoose
         //myMPD compiles mongoose without ipv6 support
         return true;
     }
-    int acl_result = mg_check_ip_acl(mg_str(acl), nc->peer.ip);
+    int acl_result = mg_check_ip_acl(mg_str(acl), nc->rem.ip);
     MYMPD_LOG_DEBUG("Check against acl \"%s\": %d", acl, acl_result);
     if (acl_result == 1) {
         return true;
@@ -293,11 +293,9 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
         return false;
     }
 
-    char addr_str[INET6_ADDRSTRLEN];
-    const char *addr_str_ptr = nc->peer.is_ip6 == true ?
-        inet_ntop(AF_INET6, &nc->peer.ip6, addr_str, INET6_ADDRSTRLEN) :
-        inet_ntop(AF_INET, &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
-    MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL", (addr_str_ptr != NULL ? addr_str_ptr: "unknown"));
+    char buf[INET6_ADDRSTRLEN];
+    mg_straddr(&nc->rem, buf, INET6_ADDRSTRLEN);
+    MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL", buf);
     webserver_send_error(nc, 403, "Request blocked by ACL");
     nc->is_draining = 1;
     return false;
@@ -341,17 +339,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 break;
             }
             if (loglevel == LOG_DEBUG) {
-                char addr_str[INET6_ADDRSTRLEN];
-                const char *addr_str_ptr = nc->peer.is_ip6 == true ?
-                    inet_ntop(AF_INET6, &nc->peer.ip6, addr_str, INET6_ADDRSTRLEN) :
-                    inet_ntop(AF_INET, &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
-                if (addr_str_ptr == NULL) {
-                    MYMPD_LOG_ERROR("Could not convert peer ip to string");
-                    webserver_send_error(nc, 500, "Internal error");
-                    nc->is_draining = 1;
-                    break;
-                }
-                MYMPD_LOG_DEBUG("New connection id \"%lu\" from %s, connections: %d", nc->id, addr_str_ptr, mg_user_data->connection_count);
+                char buf[INET6_ADDRSTRLEN];
+                mg_straddr(&nc->rem, buf, INET6_ADDRSTRLEN);
+                MYMPD_LOG_DEBUG("New connection id \"%lu\" from %s, connections: %d", nc->id, buf, mg_user_data->connection_count);
             }
             //set labels
             nc->label[0] = 'F';
@@ -450,13 +440,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
             }
             else if (mg_http_match_uri(hm, "/api/serverinfo")) {
-                //Todo: migrate to nc->loc and mg_straddr after upgrade to mongoose 7.7
                 struct sockaddr_storage localip;
                 socklen_t len = sizeof(localip);
                 if (getsockname((int)(long)nc->fd, (struct sockaddr *)(&localip), &len) == 0) {
                     sds response = jsonrpc_result_start(sdsempty(), "", 0);
                     char addr_str[INET6_ADDRSTRLEN];
-                    const char *addr_str_ptr = nc->peer.is_ip6 == true ?
+                    const char *addr_str_ptr = nc->loc.is_ip6 == true ?
                         inet_ntop(AF_INET6, &(((struct sockaddr_in6*)&localip)->sin6_addr), addr_str, INET6_ADDRSTRLEN) :
                         inet_ntop(AF_INET, &(((struct sockaddr_in*)&localip)->sin_addr), addr_str, INET6_ADDRSTRLEN);
                     if (addr_str_ptr != NULL) {
