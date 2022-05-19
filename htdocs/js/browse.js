@@ -249,6 +249,12 @@ function navBrowseHandler(event) {
             app.current.filter = tag;
             app.current.sort = tag;
         }
+        else {
+            app.current.sort = {
+                "tag": tagAlbumArtist,
+                "desc": false
+            };
+        }
         app.current.search = '';
         document.getElementById('searchDatabaseMatch').value = 'contains';
         appGoto(app.current.card, app.current.tab, app.current.view,
@@ -319,7 +325,7 @@ function gotoAlbumList(tag, value) {
         expression += '(' + tag + ' == \'' + escapeMPD(value[i]) + '\')';
     }
     expression += ')';
-    appGoto('Browse', 'Database', 'List', 0, undefined, tag, tagAlbumArtist, 'Album', expression);
+    appGoto('Browse', 'Database', 'List', 0, undefined, tag, {"tag": tagAlbumArtist, "desc": false}, 'Album', expression);
 }
 
 //eslint-disable-next-line no-unused-vars
