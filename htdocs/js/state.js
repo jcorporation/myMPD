@@ -424,8 +424,8 @@ function songChange(obj) {
         features.featLibrary === true)
     {
         bookletEl.appendChild(elCreateText('span', {"class": ["mi", "me-2"]}, 'description'));
-        bookletEl.appendChild(elCreateText('a', {"target": "_blank", "href": subdir +
-            myEncodeURI(obj.result.bookletPath)}, tn('Download booklet')));
+        bookletEl.appendChild(elCreateText('a', {"target": "_blank", "href": myEncodeURI(subdir + obj.result.bookletPath)},
+            tn('Download booklet')));
     }
 
     //update queue card
