@@ -202,7 +202,7 @@ app.cards = {
                         "limit": 100,
                         "filter": "any",
                         "sort": {
-                            "tag": "AlbumArtist",
+                            "tag": tagAlbumArtist,
                             "desc": false
                         },
                         "tag": "Album",

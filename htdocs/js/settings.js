@@ -989,22 +989,26 @@ function parseMPDSettings() {
         app.cards.Search.sort.tag = 'Title';
     }
 
+    //fallback from AlbumArtist to Artist
     if (settings.tagList.includes('AlbumArtist')) {
         tagAlbumArtist = 'AlbumArtist';
     }
     else if (settings.tagList.includes('Artist')) {
         tagAlbumArtist = 'Artist';
-    }
-
-    if (!settings.tagList.includes('AlbumArtist') && app.cards.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
-        app.cards.Browse.tabs.Database.views.List.sort = 'Artist';
-    }
-
-    if (features.featAdvsearch === false && app.cards.Browse.active === 'Database') {
-        app.cards.Browse.active = 'Filesystem';
+        if (app.cards.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
+            app.cards.Browse.tabs.Database.views.List.filter = tagAlbumArtist;
+        }
+        if (app.cards.Browse.tabs.Database.views.List.sort.tag === 'AlbumArtist') {
+            app.cards.Browse.tabs.Database.views.List.sort.tag = tagAlbumArtist;
+        }
     }
 
     if (features.featAdvsearch === false) {
+        //disable tag based features
+        if (app.cards.Browse.active === 'Database') {
+            app.cards.Browse.active = 'Filesystem';
+        }
+
         const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
         for (let i = 0, j = tagEls.length; i < j; i++) {
             tagEls[i].classList.remove('clickable');
