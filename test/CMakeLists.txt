@@ -9,8 +9,11 @@ cmake_minimum_required(VERSION 3.4)
 project (test C)
 
 find_package(Threads REQUIRED)
+find_library(MATH_LIB m REQUIRED)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -O1 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds \
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -O3 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds")
+
+set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -std=gnu11 -O1 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds \
     -ggdb -fsanitize=address \
     -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
     -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
@@ -18,13 +21,13 @@ set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -O1 -Wall -Werror -Wvla -Winit-se
     -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr \
     -static-libasan")
 
-configure_file(mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
+configure_file(../src/mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ../dist/libmpdclient/include)
 
 include(CheckCSourceCompiles)
 
-set(SOURCES
+set(TEST_SOURCES
   ../dist/mjson/mjson.c
   ../dist/mongoose/mongoose.c
   ../dist/rax/rax.c
@@ -114,5 +117,9 @@ set(LIBMPDCLIENT_SOURCES
   ../dist/libmpdclient/src/tag.c
 )
 
-add_executable(test ${SOURCES} ${LIBMPDCLIENT_SOURCES})
+add_executable(test ${TEST_SOURCES} ${LIBMPDCLIENT_SOURCES})
 target_link_libraries(test ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(test ${MATH_LIB})
+
+#sub projects
+add_subdirectory("benchmark")
