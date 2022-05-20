@@ -7,7 +7,6 @@
 project (cli_tools C)
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
-configure_file(mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
 
 #mympd-script utility
 if (LUA_FOUND)
