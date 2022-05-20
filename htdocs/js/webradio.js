@@ -618,10 +618,10 @@ function parseSearchWebradiodb(obj) {
         app.current.filter.country === '' &&
         app.current.filter.language === '')
     {
-        document.getElementById('BrowseRadioWebradiodbFilterBtn').firstElementChild.textContent = 'filter_list_off';
+        document.getElementById('BrowseRadioWebradiodbFilterBtn').textContent = 'filter_list_off';
     }
     else {
-        document.getElementById('BrowseRadioWebradiodbFilterBtn').firstElementChild.textContent = 'filter_list';
+        document.getElementById('BrowseRadioWebradiodbFilterBtn').textContent = 'filter_list';
     }
 
     if (checkResultId(obj, 'BrowseRadioWebradiodbList') === false) {
@@ -823,10 +823,10 @@ function parseRadiobrowserList(obj) {
         app.current.filter.country === '' &&
         app.current.filter.language === '')
     {
-        document.getElementById('BrowseRadioRadiobrowserFilterBtn').firstElementChild.textContent = 'filter_list_off';
+        document.getElementById('BrowseRadioRadiobrowserFilterBtn').textContent = 'filter_list_off';
     }
     else {
-        document.getElementById('BrowseRadioRadiobrowserFilterBtn').firstElementChild.textContent = 'filter_list';
+        document.getElementById('BrowseRadioRadiobrowserFilterBtn').textContent = 'filter_list';
     }
 
     if (checkResultId(obj, 'BrowseRadioRadiobrowserList') === false) {
