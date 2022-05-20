@@ -110,7 +110,10 @@ app.cards = {
         "offset": 0,
         "limit": 100,
         "filter": "-",
-        "sort": "-",
+        "sort": {
+            "tag": "-",
+            "desc": false
+        },
         "tag": "-",
         "search": "",
         "scrollPos": 0
@@ -119,7 +122,10 @@ app.cards = {
         "offset": 0,
         "limit": 100,
         "filter": "-",
-        "sort": "-",
+        "sort": {
+            "tag": "-",
+            "desc": false
+        },
         "tag": "-",
         "search": "",
         "scrollPos": 0
@@ -143,7 +149,10 @@ app.cards = {
                 "offset": 0,
                 "limit": 100,
                 "filter": "any",
-                "sort": "-",
+                "sort": {
+                    "tag": "-",
+                    "desc": false
+                },
                 "tag": "-",
                 "search": "",
                 "scrollPos": 0
@@ -152,7 +161,10 @@ app.cards = {
                 "offset": 0,
                 "limit": 100,
                 "filter": "any",
-                "sort": "-",
+                "sort": {
+                    "tag": "-",
+                    "desc": false
+                },
                 "tag": "-",
                 "search": "",
                 "scrollPos": 0
@@ -166,7 +178,10 @@ app.cards = {
                 "offset": 0,
                 "limit": 100,
                 "filter": "-",
-                "sort": "-",
+                "sort": {
+                    "tag": "-",
+                    "desc": false
+                },
                 "tag": "dir",
                 "search": "",
                 "scrollPos": 0
@@ -178,7 +193,10 @@ app.cards = {
                         "offset": 0,
                         "limit": 100,
                         "filter": "-",
-                        "sort": "-",
+                        "sort": {
+                            "tag": "-",
+                            "desc": false
+                        },
                         "tag": "-",
                         "search": "",
                         "scrollPos": 0
@@ -187,7 +205,10 @@ app.cards = {
                         "offset": 0,
                         "limit": 100,
                         "filter": "-",
-                        "sort": "-",
+                        "sort": {
+                            "tag": "-",
+                            "desc": false
+                        },
                         "tag": "-",
                         "search": "",
                         "scrollPos": 0
@@ -213,7 +234,10 @@ app.cards = {
                         "offset": 0,
                         "limit": 100,
                         "filter": "-",
-                        "sort": "-",
+                        "sort": {
+                            "tag": "-",
+                            "desc": false
+                        },
                         "tag": "-",
                         "search": "",
                         "scrollPos": 0
@@ -227,7 +251,10 @@ app.cards = {
                         "offset": 0,
                         "limit": 100,
                         "filter": "-",
-                        "sort": "-",
+                        "sort": {
+                            "tag": "-",
+                            "desc": false
+                        },
                         "tag": "-",
                         "search": "",
                         "scrollPos": 0
@@ -259,7 +286,10 @@ app.cards = {
                             "country": "",
                             "language": ""
                         },
-                        "sort": "-",
+                        "sort": {
+                            "tag": "-",
+                            "desc": false
+                        },
                         "tag": "-",
                         "search": "",
                         "scrollPos": 0
@@ -291,7 +321,10 @@ app.current = {
     "limit": 100,
     "filter": "",
     "search": "",
-    "sort": "",
+    "sort": {
+        "tag": "-",
+        "desc": false
+    },
     "tag": "",
     "scrollPos": 0
 };
@@ -304,7 +337,10 @@ app.last = {
     "limit": 100,
     "filter": "",
     "search": "",
-    "sort": "",
+    "sort": {
+        "tag": "-",
+        "desc": false
+    },
     "tag": "",
     "scrollPos": 0
 };

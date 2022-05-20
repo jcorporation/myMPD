@@ -247,7 +247,8 @@ function navBrowseHandler(event) {
         }
         if (tag !== 'Album') {
             app.current.filter = tag;
-            app.current.sort = tag;
+            app.current.sort.tag = tag;
+            app.current.sort.desc = false;
         }
         else {
             app.current.sort = {
