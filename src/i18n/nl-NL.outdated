@@ -13,16 +13,19 @@ Update database
 Update database
 
 Rescan database
-Herscan database
+Scan database opnieuw
 
 Update directory
 Update map
 
 Rescan directory
-Herscan map
+Scan map opnieuw
 
 Update smart playlists
 Update slimme afspeellijsten
+
+Update smart playlist
+Update slimme afspeellijst
 
 Settings
 Instellingen
@@ -32,9 +35,6 @@ Over myMPD
 
 Local playback
 Lokaal afspelen
-
-Connecting to stream...
-Verbinden...
 
 Error loading stream
 Fout bij laden stream
@@ -74,6 +74,12 @@ Alle tags
 
 Filename
 Bestandsnaam
+
+Filenames
+Bestandsnamen
+
+Thumbnail names
+Namen van thumbnails
 
 Filetype
 Bestandstype
@@ -153,17 +159,41 @@ Groepering
 Conductor
 Dirigent
 
+ComposerSort
+Componist
+
+Ensemble
+Ensemble
+
+Movement
+Movement
+
+MovementNumber
+Movement nummer
+
+Location
+Locatie
+
 Pos
 Pos
 
 Invalid API request
 Ongeldig API-verzoek
 
+LastPlayed
+Laatst afgespeelde
+
+stickerLastPlayed
+Laatst afgespeelde
+
+stickerLastSkipped
+Laatst overgeslagen
+
 Database
 Database
 
 Filesystem
-Bestanden
+Bestandssysteem
 
 Playlists
 Afspeellijsten
@@ -201,17 +231,20 @@ Selecteer tag om te zoeken
 contains
 bevat
 
+starts_with
+begint met
+
 Initializing myMPD
 Voorbereiden myMPD
 
 Fetch myMPD settings
-myMPD-instellingen laden
+Instellingen myMPD laden
 
 Applying settings
 Instellingen toepassen
 
 Updating MPD database
-MPD-database wordt geüpdatet
+Database MPD wordt geüpdatet
 
 Dependent on the size of your music collection this can take a while
 Afhankelijk van de grootte van de muziekcollectie kan dit even duren
@@ -224,9 +257,6 @@ Streaming url
 
 http://uri.to/stream.mp3
 http://url.naar/stream.mp3
-
-Invalid URI
-Ongeldige url
 
 Invalid filename
 Ongeldige bestandsnaam
@@ -265,7 +295,7 @@ Love song
 Like nummer
 
 MPD stickers are disabled
-MPD-stickers uitgeschakeld
+Stickers MPD uitgeschakeld
 
 Save smart playlist
 Save slimme afspeellijst
@@ -291,8 +321,17 @@ Dagen
 Like
 Like
 
+stickerLike
+Waardering
+
 Play count
-Aantal x afgespeeld
+Aantal x gespeeld
+
+stickerPlayCount
+Gespeeld
+
+stickerSkipCount
+Overgeslagen
 
 Theme
 Thema
@@ -338,6 +377,9 @@ Moet een getal zijn en groter dan 0
 
 Albumart
 Albumcover
+
+Music directory not available
+Muziekmap niet beschikbaar
 
 Background color
 Achtergrondkleur
@@ -401,6 +443,9 @@ Updaten slimmme afspeellijsten mislukt
 
 Smart playlist %{playlist} updated
 Slimmme afspeellijst %{playlist} geüpdatet
+
+Smart playlists are not supported
+Slimmme afspeellijsten niet ondersteund
 
 Updating smart playlist %{playlist} failed
 Updaten slimmme afspeellijst %{playlist} mislukt 
@@ -469,13 +514,13 @@ MPD port
 MPD-poort
 
 Invalid MPD port
-Ongeldige MPD poort
+Ongeldige MPD-poort
 
 MPD password
-MPD wachtwoord
+Wachtwoord MPD
 
 Invalid MPD password
-Ongeldig MPD wachtwoord
+Ongeldig MPD-wachtwoord
 
 Music directory
 Muziekmap
@@ -525,38 +570,50 @@ Volume min
 Volume up
 Volume plus
 
+Open MPD connection
+Verbinding MPD openen
+
 Open settings
-Instellingen
+Instellingen openen
+
+Show home
+Toon startscherm
 
 Show playback
-Afspelen openen
+Toon afspelen
 
 Show queue
-Wachtrij openen
+Toon wachtrij
 
 Show last played
-Laatst afgespeeld openen
+Toon laatst afgespeelde
+
+Show jukebox queue
+Toon wachtrij Jukebox
 
 Show browse database
-Database openen
+Toon database
 
 Show browse playlists
-Afspeellijsten openen
+Toon afspeellijsten
 
 Show browse filesystem
-Bestandssysteem openen
+Toon bestandssysteem
+
+Show browse webradio
+Toon Webradios
 
 Show search
-Zoeken openen
+Toon zoeken
 
 Open about
 Over myMPD openen
 
 Focus search
-Naar Zoeken
+Ga naar Zoeken
 
 myMPD installed as app
-myMPD werd als app geïnstalleerd 
+myMPD als app geïnstalleerd 
 
 MPD disconnected
 MPD niet verbonden
@@ -588,23 +645,32 @@ Lege lijst
 Append to queue
 Aan wachtrij toevoegen
 
+Append to queue and play
+Aan wachtrij toevoegen en afspelen
+
+Append and play
+Toevoegen en afspelen
+
 Add after current playing song
 Als volgende afspelen
 
 View playlist
-Bekijk afspeellijst
+Afspeellijst weergeven
 
 Replace queue
 Vervang wachtrij
 
+Replace queue and play
+Wachtrij vervangen en afspelen
+
+Replace and play
+Vervangen en afspelen
+
 Edit smart playlist
-Bewerk slimme afspeellijst
+Slimme afspeellijst bewerken
 
 Edit playlist
-Bewerk afspeellijst
-
-Update smart playlist
-Update slimme afspeellijst
+Afspeellijst bewerken
 
 Remove
 Verwijder
@@ -658,7 +724,7 @@ Renaming playlist failed
 Hernoemen afspeellijst mislukt
 
 Successfully renamed playlist
-Afspeellijst is hernoemd
+Afspeellijst hernoemd
 
 Can not crop the queue
 Kan wachtrij niet inkorten
@@ -674,6 +740,12 @@ Onbekend type afspeellijst
 
 Background
 Achtergrond
+
+Repeat each
+Herhaal
+
+Weeks
+Weken
 
 Days
 Dagen
@@ -708,6 +780,9 @@ Webserver
 Download
 Download
 
+Can't save settings
+Kan instellingen niet opslaan
+
 No current song
 Geen nummer gekozen
 
@@ -736,7 +811,7 @@ MUSICBRAINZ_TRACKID
 Musicbrainz Track ID
 
 MUSICBRAINZ_WORKID
-Musicbrainz Werk ID
+Musicbrainz Work ID
 
 Consume must be enabled
 Consumeren moet zijn ingeschakeld
@@ -748,7 +823,7 @@ Successfully croped covercache
 Covercache opgeschoond
 
 Successfully cleared covercache
-Covercache gewist
+Covercache geleegd
 
 Clear covercache
 Wis covercache
@@ -768,11 +843,8 @@ Aflopend
 Sort by
 Sorteer op
 
-Size normal
-Standaard formaat
-
-Size small
-Klein formaat
+Thumbnail size
+Thumbnail-grootte
 
 Dark
 Donker
@@ -793,7 +865,7 @@ Definition
 Definitie
 
 Enable jukebox if playlist is database
-Schakel jukebox in wanneer database als afspeellijst is geselecteerd
+Jukebox inschakelen wanneer database als afspeellijst is geselecteerd
 
 Enabled
 Ingeschakeld
@@ -924,6 +996,9 @@ Volgorde
 Sort by tag
 Sorteer op tag
 
+Update interval
+Update Interval
+
 Smart playlists prefix
 Voorvoegsel slimme afspeellijsten
 
@@ -947,6 +1022,9 @@ Delete lege afspeellijsten
 
 Delete playlists
 Delete afspeellijsten
+
+Media session
+Mediasessie
 
 Playlists deleted
 Afspeellijsten gedeletet
@@ -1024,16 +1102,19 @@ No search tag defined and advanced search is disabled
 Geen zoektag gedefinieerd en geavanceerd zoeken is uitgeschakeld
 
 Smart playlists are disabled
-Smart playlists uitgeschakeld
+Slimme afspeellijsten uitgeschakeld
+
+Too old MPD version for smart playlists
+MPD-versie te oud voor slimme afspeellijsten
 
 Smart playlists update started
-Smart playlists wordt geupdatet
+Slimme afspeellijsten worden geupdatet
 
 Filling jukebox queue failed, disabling jukebox
-Vullen van de jukebox-wachtrij mislukt, jukebox wordt uitgeschakeld
+Vullen wachtrij Jukebox mislukt, Jukebox wordt uitgeschakeld
 
 Playlist to small, disabling jukebox unique constraints temporarily
-Afspeellijst te klein, jukebox-voorwaarden worden tijdelijk uitgeschakeld
+Afspeellijst te klein, voorwaarden Jukebox tijdelijk uitgeschakeld
 
 Sticker cache is NULL
 Sticker cache is leeg
@@ -1180,7 +1261,7 @@ current
 huidige
 
 Edit attributes
-Pas parameters aan
+Parameters bewerken
 
 Output attributes
 Outputparameters
@@ -1203,5 +1284,962 @@ Zoom
 Disc
 Disc
 
+Can not delete home icon
+Kan icoon niet deleten
+
+Can not save home icon
+Kan icoon niet opslaan
+
+Too many home icons
+Te veel iconen
+
+Home
+Startscherm
+
+Add to homescreen
+Voeg toe aan startscherm
+
+Can not get home icon
+Kan icoon startscherm niet laden
+
+Can not move home icon
+Kan icoon startscherm niet verplaatsen
+
+Delete home icon
+Delete icoon
+
+Duplicate home icon
+Kopieer icoon
+
+Edit home icon
+Icoon bewerken
+
+Ligature
+Koppelletter
+
+Options
+Opties
+
+Picture
+Afbeelding
+
+Homescreen welcome
+Nog geen iconen toegevoegd. Gebruik het contextmenu om de volgende iconen toe te voegen:
+
+Can not open directory pics
+Kan mapafbeeldingen niet openen
+
+Use ligature
+Gebruik koppelletters
+
+Replace queue with playlist
+Wachtlijst met afspeellijst vervangen
+
+Goto view
+Naar weergave
+
+View
+Weergave
+
+Could not remove song from jukebox queue
+Kan track niet van lijst verwijderen
+
+Reset to default
+Resetten
+
+Execute Script
+Script uitvoeren
+
+App
+App
+
+Tab
+Tab
+
+Offset
+Start
+
+Filter
+Filter
+
+Sort
+Sorteren
+
+Columns
+Kolommen
+
+Display tags
+Toon tags
+
+Next
+Volgende
+
+Outputs
+Outputs
+
+Previous
+Vorige
+
+Select view
+Selecteer weergave
+
+Show cover
+Toon albumhoes
+
+Toggle play
+Afspelen / pauzeren
+
+myMPD menu
+myMPD menu
+
+Invalid volume level
+Ongeldig volume
+
+MaintainEnableTagsText
+Volgende tags moeten ingeschakeld zijn: Artiest, AlbumArtiest, Album, Track, Disc en Genre
+
+Failed to set like, unknown error
+Onbekende fout: niet geliket
+
+Invalid URI
+ongeldige URL
+
+Stop
+Stop
+
+All
+Alles
+
+Elements per page
+Elementen per pagina
+
+Failed to set song priority
+Prioriteit van nummer kon niet opslaan
+
+Lookup at musicbrainz
+Opzoeken bij Musicbrainz
+
+Play after current playing song
+Als volgende afspelen
+
+First page
+Eerste pagina
+
+Last page
+Laatste pagina
+
+Can not get lyrics for stream uri
+Songteksten voor streams niet ondersteund
+
+Albumcache not ready
+Albumcache nog niet beschikbaar
+
+Open folder
+Open map
+
+Open parent folder
+Open bovenliggende map
+
+Maintenance
+Onderhoud
+
+Album cache is NULL
+Album cache is leeg
+
+Click album play button
+Klik op album afspelen
+
+Click folder
+Klik op map
+
+Click playlist
+Klik op afspeellijst
+
+Click filesystem playlist
+Klik op afspeellijst in bestandssysteem
+
+Click song in queue
+Klik op nummer in wachtrij
+
+Click song
+Klik op nummer
+
+Play
+Afspelen
+
+Homescreen
+Startscherm
+
+Help to improve myMPD
+Help mee myMPD te verbeteren
+
+Are you sure?
+Zeker weten?
+
+Do you really want to clear the queue?
+Wachtrij echt wissen?
+
+Do you really want to delete the timer?
+Timer echt deleten?
+
+Do you really want to delete the trigger?
+Trigger echt deleten?
+
+Playback controls
+Afspeelbediening
+
+pause and stop
+Pauze en stop
+
+pause only
+alleen pauze
+
+stop only
+alleen stop
+
+Do you really want to clear the playlist?
+Afspeellijst "%{playlist}" echt wissen?
+
+Do you really want to delete the playlist?
+Afspeellijst "%{playlist}" echt deleten?
+
+Do you really want to delete the script?
+Script "%{script}" echt deleten?
+
+Yes, delete it
+Ja, deleten
+
+Yes, do it
+Ja, doe het
+
+Playback settings
+Afspeelinstellingen
+
+Color
+Kleur
+
+Song change
+Nieuw nummer
+
+Show playback settings in footer
+Toon afspeelinstellingen in voettekst
+
+Interval
+Interval
+
+Invalid timer interval
+Ongeldige interval
+
+One shot and delete
+Eenmaal en deleten
+
+One shot and disable
+Eenmaal en uitschakelen
+
+Each 1
+Elke seconde |||| elke %{smart_count}. seconde
+
+Each 60
+Elke Minuut |||| elke %{smart_count}. Minuut
+
+Each 3600
+Elk uur |||| elk %{smart_count}. uur
+
+Each 86400
+Elke dag |||| elke %{smart_count}. dag
+
+Each 604800
+Elke week |||| elke %{smart_count} week
+
 Missing translations
-Selected locale is missing %{smart_count} translation |||| Selected locale is missing %{smart_count} translations
+Selected locale is missing %{smart_count} translation |||| Geselecteerde taal mist %{smart_count} vertalingen
+
+Updated album cache
+Album cache werd geupdatet
+
+Update of album cache failed
+Album cache update mislukt
+
+Updated sticker cache
+Sticker cache werd geupdatet
+
+Update of sticker cache failed
+Sticker cache update mislukt
+
+Facilities
+Categorie
+
+Can not parse response to json object
+Antwoord niet geparsed
+
+Default image
+Standaardafbeelding
+
+Default image light
+Standaardafbeelding licht
+
+Default image dark
+Standaardafbeelding donker
+
+No script selected
+Geen script geselecteerd
+
+Synced lyrics
+Gesynchte songteksten
+
+Unsynced lyrics
+Ongesyncte songteksten
+
+Can not open script directory
+Kan scriptmap niet openen
+
+Error getting mympd state for script execution
+Kan status MPD
+
+Features
+Functies
+
+Invalid playlist directory
+Map afspeellijsten ongeldig
+
+Invalid stream port
+Ongeldige steam poort
+
+Playlist directory
+Map afspeellijsten
+
+Stream port
+Stream poort
+
+Volume control
+Volumeregeling
+
+Lua is not compiled in
+Lua niet beschikbaar
+
+MPD does not support mounts
+MPD ondersteunt geen aankoppelpunten
+
+MPD does not support partitions
+MPD ondersteunt geen partities
+
+Volume max.
+Maximaal volume
+
+Volume min.
+Minimaal volume
+
+Volume step
+Volumestappen
+
+Too many worker threads are already running
+Teveel threads gestart
+
+Binary limit
+Binary Limiet
+
+Invalid binary limit
+Ongeldige waarde Binary Limiet
+
+Invalid timeout
+Ongeldige Timeout
+
+Timeout
+Timeout
+
+Actions
+Acties
+
+Covercache expiration
+Covercache vervaltijd
+
+Enable
+Inschakelen
+
+Footer
+Voettekst
+
+Synced lyrics extension
+Gesyncte songteksten extensies
+
+Synced lyrics vorbis comment
+Gesyncte songteksten Vorbis commentaren
+
+Unsynced lyrics extension
+Ongesyncte songteksten extensies
+
+Unsynced lyrics vorbis comment
+Ongesyncte songteksten Vorbis commentaren
+
+kB
+kB
+
+Lists
+Lijsten
+
+Expression
+Zoekexpressie
+
+Image
+Afbeelding
+
+Executes a system command and capture its output.
+Voer systeemcommando uit en lees de output
+
+HTTP client
+HTTP client
+
+Initializes the mympd_state lua table
+Initialiseerd de mympd_state lua tabel
+
+Insert API call
+Voeg API verzoek toe
+
+Insert function
+Functie toevoegen
+
+Open documentation
+Documentatie openen
+
+Select function
+Funktie kiezen
+
+Select method
+Methode kiezen
+
+Yes, clear it
+Ja, wissen
+
+Manage partitions
+Partities beheren
+
+Jukebox is disabled
+Jukebox is uitgeschakeld
+
+Database update already started
+Update database al gestart
+
+Error getting MPD status
+Fout bij verkrijgen status MPD
+
+Database update failed
+Update database mislukt
+
+No arguments
+Geen parameter
+
+Too many results, list is cropped
+Te veel resultaten, lijst werd ingekort
+
+BinaryLimitHelpText
+Binary Limit moet liggen tussen 4 kB en 256 kB
+
+Keepalive
+Keepalive
+
+Further Features
+Verdere functies
+
+Comments
+Commentaar
+
+Authentication required
+Authenticatie nodig
+
+Enter
+Invoeren
+
+Enter Pin
+Voer pin in
+
+Invalid pin
+Ongeldige pinn
+
+Invalid session
+Ongeldige sessie
+
+Login
+Login
+
+Logout
+Logout
+
+Pin
+Pin
+
+Session removed
+Sessie verwijderd
+
+Session successfully created
+Sessie aangemaakt
+
+Invalid script content
+Ongeldig teken in script
+
+Error in clearing the covercache
+Fout bij opschonen covercache
+
+Error in cropping covercache
+Fout bij inkorten covercache
+
+Saved smart playlist
+Slimme afspeellijst opgeslagen
+
+Too many timers defined
+Te veel timers aangemaakt
+
+Too many triggers defined
+Te veel triggers aangemaakt
+
+A smart playlist with this name already exists
+Naam slimme afspeellijst bestaat al
+
+Playlist is empty
+Afspeellijst is leeg
+
+License
+Licentie
+
+Default actions
+Standaard acties
+
+Priority
+Prioriteit
+
+Directory
+Map
+
+Priority must be in range 0 - 255
+Prioriteit moet liggen tussen 0 en 255
+
+Set
+Instellen
+
+Set song priority
+Prioriteit nummer instellen
+
+Set priority
+Prioriteit instellen
+
+Album details
+Album details
+
+AudioFormat
+Audioformaat
+
+Not playing
+Afspelen niet gestart
+
+Choose a playlist or enter a new playlist name
+Kies afspeellijst of geef deze een nieuwe naam
+
+Dialogs
+Dialoog
+
+Navigation
+Navigatie
+
+Open queue settings
+Open wachtrij-instellingen
+
+Select a playlist
+Kies afspeellijst
+
+Toggle autoscrolling
+Autoscrolling
+
+Resize
+Grootte wijzigen
+
+Show all albums from artist
+Toon alle albums van artiest
+
+Open directory
+Open map
+
+Each 
+Elke
+
+Insert after current playing song
+Voeg toe na dit nummer
+
+Append
+Toevoegen
+
+Replace
+Vervangen
+
+Insert at start of playlist
+Am Anfang der Wiedergabeliste einfügen
+
+Insert mode
+Invoegmodus
+
+Method not supported
+Methode niet ondersteund
+
+Start playing newly added song failed
+Start nieuw toegevoegd nummer mislukt
+
+Current search
+Huidige zoekactie
+
+Replaced the queue
+Wachtrij vervangen
+
+Updated the queue
+Wachtrij geupdatet
+
+Replaced the playlist %{playlist}
+Afspeellijst %{playlist} vervangen
+
+Updated the playlist %{playlist}
+Afspeellijst %{playlist} geupdatet
+
+Cleared the playlist %{playlist}
+Afspeellijst %{playlist} geleegd
+
+Add view to homescreen
+Voeg weergave toe aan startscherm
+
+MPD version is outdated
+MPD-versie verouderd
+
+Loglevel
+Loglevel
+
+Open maintenance
+Onderhoud openen
+
+Covercache
+Covercache
+
+0 - Emerg
+0 - Noodgeval
+
+1 - Alert
+1 - Alarm
+
+2 - Critical
+2 - Kritisch
+
+3 - Error
+3 - Error
+
+4 - Warn
+4 - Waarschuwing
+
+5 - Notice
+5 - Opmerking
+
+6 - Info
+6 - Info
+
+7 - Debug
+7 - Debug
+
+Temporary setting
+Tijdelijke instellingen
+
+Add to
+Toevoegen aan
+
+Attribute
+Kenmerk
+
+Value
+Waarde
+
+name
+Naam
+
+state
+Status
+
+plugin
+Plug-in
+
+Repeat current song once
+Herhaal dit nummer 1 keer
+
+Repeat current song
+Herhaal dit nummer
+
+Stop playback after current song
+Afspelen stoppen na dit nummer
+
+Disable single mode
+Enkel nummer uitschakelen
+
+Homeicon
+Home-icoon
+
+Show
+Toon
+
+Can't set playback options
+Kan afspeelopties niet opslaan
+
+Can't set playback options: MPD not connected
+Kan afspeelopties niet opslaan: geen verbinding met MPD-server
+
+Addings songs from jukebox to queue failed
+Toevoegen van Jukebox-nummers naar wachtrij mislukt
+
+Filling jukebox queue
+Wachtrij Jukebox wordt geladen
+
+Clear jukebox queue
+Wachtrij Jukebox wissen
+
+Mixramp delay
+Mixramp vertraging
+
+Mixramp db
+Mixramp DB
+
+Country
+Land
+
+Tags
+Tags
+
+Webradios
+Webradios
+
+Can not open webradios directory
+Kan de map webradio niet openen
+
+Can not parse webradio favorite file
+Kan de gegevens webradio niet parsen
+
+Click webradio
+Klik op webradio
+
+Click webradio favorite
+Klik op favoriet Webradio
+
+Could not delete webradio favorite
+Kan favoriet webradio niet deleten
+
+Could not save webradio favorite
+Kan favoriet webradio niet opslaan
+
+Edit webradio favorite
+Favoriet webradio bewerken
+
+Error connection to radio-browser.info
+Geen verbinding met radio-browser.info
+
+Manually add webradio favorite
+Favoriet webradio handmatig toevoegen
+
+Browse radio-browser.info
+Zoek in radio-browser.info
+
+Type or select picture
+Afbeelding of URL selecteren
+
+Uri
+Url
+
+Webradio details
+Details webradio
+
+Webradio favorite successfully saved
+Favoriet webradio opgeslagen
+
+Webradio favorites
+Favorieten webradio
+
+Add to favorites
+Toevegen aan favorieten
+
+Webradio
+Webradio
+
+Delete webradio favorite
+Favoriet webradio deleten
+
+Empty response from radio-browser.info
+Leeg antwoord van radio-browser.info
+
+Language
+Taal
+
+Description
+Beschrijving
+
+Browse WebradioDB
+Zoeken in WebradioDB
+
+Empty response from webradiodb backend
+Leeg antwoord van WebradioDB backend
+
+Loading...
+Laden...
+
+Stream uri
+Stream URL
+
+clickcount
+aantal kliks
+
+country
+Land
+
+homepage
+Startscherm
+
+language
+taal
+
+lastchangetime
+gewijzigd
+
+lastcheckok
+Check
+
+tags
+tags
+
+url_resolved
+URL
+
+votes
+stemmen
+
+Check WebradioDB
+WebradioDB controleren
+
+Update WebradioDB
+WebradioDB updaten
+
+Update from WebradioDB
+Favoriet updaten
+
+Add to WebradioDB
+Toevoegen aan WebradioDB
+
+Uri not found in WebradioDB
+URL niet in WebradioDB
+
+Favorite and WebradioDb entry are different
+Favoriet en WebradioDB invoer verschillen
+
+Favorite is uptodate
+Favoriet is up-to-date
+
+Empty uri
+Lege URL
+
+Checking...
+Checken ...
+
+WebradioDB
+WebradioDB
+
+Documentation
+Dokumentatie
+
+Startup
+Start
+
+Startup view
+Startscherm weergave
+
+Jukebox Queue
+Wachtrij Jukebox
+
+Display tags in rows for small displays
+Tags in rijen weergeven voor kleine schermen
+
+Disable consume
+Consumeren uitschakelen
+
+Disable random
+Willekeurig uitschakelen
+
+Disable repeat
+Herhalen uitschakelen
+
+Enable consume
+Consumeren inschakelen
+
+Enable random
+Willekeurig inschakelen
+
+Enable repeat
+Herhalen inschakelen
+
+Switch single mode
+Enkel nummer wijzigen
+
+Toggle consume
+Consumeren wijzigen
+
+Toggle random
+Willekeurig wijzigen
+
+Toggle repeat
+Herhalen wijzigen
+
+Invalid response
+Ongeldig antwoord
+
+Codec
+Codec
+
+Bitrate
+Bitrate
+
+Format
+Bestandsformaat
+
+kbit
+kbit
+
+Alternative stream uri
+URL van alternatieve stream
+
+Alternative streams
+Alternatieve streams
+
+Browser specific setting
+Browserspecifieke instellingen
+
+Cloud
+Cloud
+
+Listenbrainz Token
+Listenbrainz Token
+
+Show or hide
+Toon of verberg
+
+MusicBrainz
+MusicBrainz
+
+Goto album
+Ga naar album
+
+Goto artist
+Ga naar artiest
+
+No outputs found
+Geen outputs gevonden
+
+Quick play
+Direct afspelen
+
+Quick play button
+Direct afspelen
+
+Quick remove button
+Direct verwijderen
+
+Click quick play button
+Klik op direct afspelen
+
+Enforce mobile view
+Mobiele weergave afdwingen
