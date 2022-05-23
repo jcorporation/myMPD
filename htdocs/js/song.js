@@ -163,7 +163,7 @@ function parseSongDetails(obj) {
     if (rUri !== obj.result.uri) {
         isCuesheet = true;
     }
-    
+
     const shortName = basename(rUri, false) + (isCuesheet === true ? ' (' + cuesheetTrack(obj.result.uri) + ')' : '');
     const openFolderBtn = elCreateText('button', {"id": "gotoContainingFolder", "class": ["btn", "btn-secondary", "mi"],
         "title": tn("Open folder")}, 'folder_open');
@@ -201,7 +201,7 @@ function parseSongDetails(obj) {
     }
     if (obj.result.bookletPath !== '') {
         tbody.appendChild(songDetailsRow('Booklet', elCreateText('a', {"class": ["text-success"],
-            "href": myEncodeURI(subdir + '/browse/music/' + myEncodeURIComponent(obj.result.bookletPath)), "target": "_blank"},
+            "href": myEncodeURI(subdir + obj.result.bookletPath), "target": "_blank"},
             tn('Download'))));
     }
     if (features.featStickers === true) {

@@ -390,9 +390,6 @@ Highlight Farbe
 CSS filter
 CSS Filter
 
-Invalid CSS filter
-Ungültiger CSS Filter
-
 Locale
 Sprache
 
@@ -1749,7 +1746,7 @@ Authentifizierung erforderlich
 Enter
 Abschicken
 
-Enter Pin
+Enter pin
 Pin eingeben
 
 Invalid pin
@@ -1772,9 +1769,6 @@ Session wurde gelöscht
 
 Session successfully created
 Session wurde erfolgreich erstellt
-
-Enter pin
-Pin eingeben
 
 Invalid script content
 Ungültige Zeichen im Skript
@@ -1939,7 +1933,7 @@ Covercache
 6 - Info
 
 7 - Debug
-7 -  Debug
+7 - Debug
 
 Temporary setting
 Temporäre Einstellung
@@ -2014,7 +2008,7 @@ Can not open webradios directory
 Konnte das Webradio Verzeichnis nicht öffnen
 
 Can not parse webradio favorite file
-Konnte die Webradioa Favoriten Datei nicht parsen
+Konnte die Webradio Favoriten Datei nicht parsen
 
 Click webradio
 Klick auf Webradio

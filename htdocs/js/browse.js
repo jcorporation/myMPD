@@ -575,8 +575,7 @@ function parseAlbumDetails(obj) {
         infoEl.appendChild(
             elCreateNodes('p', {}, [
                 elCreateText('span', {"class": ["mi", "me-2"]}, 'description'),
-                elCreateText('a', {"target": "_blank", "href": subdir + '/browse/music/' +
-                    myEncodeURI(obj.result.bookletPath)}, tn('Download booklet'))
+                elCreateText('a', {"target": "_blank", "href": myEncodeURI(subdir + obj.result.bookletPath)}, tn('Download booklet'))
             ])
         );
     }

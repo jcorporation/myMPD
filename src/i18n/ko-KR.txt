@@ -384,9 +384,6 @@ Highlight color
 CSS filter
 CSS 필터
 
-Invalid CSS filter
-잘못된 CSS 필터
-
 Locale
 언어
 
@@ -1740,7 +1737,7 @@ Authentication required
 Enter
 입력
 
-Enter Pin
+Enter pin
 Pin 입력
 
 Invalid pin
@@ -1763,9 +1760,6 @@ Session removed
 
 Session successfully created
 세션 만듬
-
-Enter pin
-Pin 입력
 
 Invalid script content
 잘못된 스크립트 내용
