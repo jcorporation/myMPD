@@ -92,6 +92,13 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
     //enforce number type
     offset = Number(offset);
     limit = Number(limit);
+    //enforce sort, migration from pre 9.4.0 releases
+    if (typeof sort === 'string') {
+        sort = {
+            "tag": sort,
+            "desc": false
+        };
+    }
     //set new scrollpos
     if (newScrollPos !== undefined) {
         ptr.scrollPos = newScrollPos;
