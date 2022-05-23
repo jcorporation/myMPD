@@ -418,7 +418,8 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                     "offset": app.current.offset,
                     "limit": app.current.limit,
                     "searchstr": app.current.search,
-                    "tag": app.current.tag
+                    "tag": app.current.tag,
+                    "sortdesc": app.current.sort.desc
                 }, parseDatabase, true);
             }
             break;

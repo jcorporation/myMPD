@@ -202,7 +202,8 @@ const APImethods = {
                 "type": "text",
                 "example": "Genre",
                 "desc": "Tag to display"
-            }
+            },
+            "sortdesc": APIparams.sortdesc
         }
     },
     "MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST": {

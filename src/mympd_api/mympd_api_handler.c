@@ -1343,10 +1343,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_long(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &long_buf1, &error) == true &&
                 json_get_long(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &long_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag_or_any, &error) == true)
+                json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag_or_any, &error) == true &&
+                json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true)
             {
                 response->data = mympd_api_browse_tag_list(mympd_state, response->data, request->method, request->id,
-                    sds_buf1, sds_buf2, long_buf1, long_buf2);
+                    sds_buf1, sds_buf2, long_buf1, long_buf2, bool_buf1);
             }
             break;
         case MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST: {
