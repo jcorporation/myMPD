@@ -390,9 +390,6 @@ Highlight Farbe
 CSS filter
 CSS Filter
 
-Invalid CSS filter
-Ungültiger CSS Filter
-
 Locale
 Sprache
 
@@ -1749,7 +1746,7 @@ Authentifizierung erforderlich
 Enter
 Abschicken
 
-Enter Pin
+Enter pin
 Pin eingeben
 
 Invalid pin

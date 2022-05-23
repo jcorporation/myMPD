@@ -390,9 +390,6 @@ Accentkleur
 CSS filter
 CSS filter
 
-Invalid CSS filter
-Ongeldig CSS-filter
-
 Locale
 Taal
 
@@ -1749,7 +1746,7 @@ Authenticatie nodig
 Enter
 Invoeren
 
-Enter Pin
+Enter pin
 Voer pin in
 
 Invalid pin
