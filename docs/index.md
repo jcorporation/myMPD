@@ -38,7 +38,6 @@ This documentation is for myMPD version {% include version %}.
   - [Custom navbar icons]({{ site.baseurl }}/references/custom-navbar-icons)
   - [Feature matrix]({{ site.baseurl }}/references/feature-matrix)
   - [Filesystem Hierarchy]({{ site.baseurl }}/references/filesystem-hierarchy)
-  - [Keyboard-Shortcuts]({{ site.baseurl }}/references/keyboard-shortcuts)
   - [Local playback]({{ site.baseurl }}/references/local-playback)
   - [Lyrics]({{ site.baseurl }}/references/lyrics)
   - [Pictures]({{ site.baseurl }}/references/pictures)
