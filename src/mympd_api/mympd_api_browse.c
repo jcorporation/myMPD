@@ -552,15 +552,14 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     sds album = sdsempty();
     sds artist = sdsempty();
     raxStart(&iter, albums);
-    enum list_sort_direction direction = sortdesc == false ? LIST_SORT_ASC : LIST_SORT_DESC;
 
-    if (direction == LIST_SORT_ASC) {
+    if (sortdesc == false) {
         raxSeek(&iter, "^", NULL, 0);
     }
     else {
         raxSeek(&iter, "$", NULL, 0);
     }
-    while (direction == LIST_SORT_ASC ? raxNext(&iter) : raxPrev(&iter)) {
+    while (sortdesc == false ? raxNext(&iter) : raxPrev(&iter)) {
         if (entity_count >= offset) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
@@ -647,15 +646,14 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
     long entities_returned = 0;
     raxIterator iter;
     raxStart(&iter, taglist);
-    enum list_sort_direction direction = sortdesc == false ? LIST_SORT_ASC : LIST_SORT_DESC;
 
-    if (direction == LIST_SORT_ASC) {
+    if (sortdesc == false) {
         raxSeek(&iter, "^", NULL, 0);
     }
     else {
         raxSeek(&iter, "$", NULL, 0);
     }
-    while (direction == LIST_SORT_ASC ? raxNext(&iter) : raxPrev(&iter)) {
+    while (sortdesc == false ? raxNext(&iter) : raxPrev(&iter)) {
         if (entity_count >= offset &&
             entity_count < real_limit)
         {
