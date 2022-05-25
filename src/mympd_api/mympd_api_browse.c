@@ -145,6 +145,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 sds entity_name =  mpd_shared_get_tag_values(song, MPD_TAG_TITLE, sdsempty());
                 if (search_len == 0 || utf8casestr(entity_name, searchstr) != NULL) {
                     key = sdscatfmt(key, "2%s", mpd_song_get_uri(song));
+                    sds_utf8_tolower(key);
                     struct t_dir_entry *entry_data = malloc_assert(sizeof(struct t_dir_entry));
                     entry_data->name = entity_name;
                     entry_data->entity = entity;
@@ -168,6 +169,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 }
                 if (search_len == 0 || utf8casestr(dir_name, searchstr) != NULL) {
                     key = sdscatfmt(key, "0%s", mpd_directory_get_path(dir));
+                    sds_utf8_tolower(key);
                     struct t_dir_entry *entry_data = malloc_assert(sizeof(struct t_dir_entry));
                     entry_data->name = sdsnew(dir_name);
                     entry_data->entity = entity;
@@ -200,6 +202,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 }
                 if (search_len == 0 || utf8casestr(pl_name, searchstr) != NULL) {
                     key = sdscatfmt(key, "1%s", mpd_playlist_get_path(pl));
+                    sds_utf8_tolower(key);
                     struct t_dir_entry *entry_data = malloc_assert(sizeof(struct t_dir_entry));
                     entry_data->name = sdsnew(pl_name);
                     entry_data->entity = entity;
