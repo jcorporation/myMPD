@@ -398,7 +398,10 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                     document.getElementById('searchDatabaseStr').value = '';
                 }
                 elShowId('searchDatabaseMatch');
-                elEnableId('btnDatabaseSortDropdown');
+                const sortBtns = document.getElementById('databaseSortTagsList').firstElementChild.getElementsByTagName('button');
+                for (const sortBtn of sortBtns) {
+                    elShow(sortBtn);
+                }
                 elEnableId('btnDatabaseSearchDropdown');
                 sendAPI("MYMPD_API_DATABASE_ALBUMS_GET", {
                     "offset": app.current.offset,
@@ -411,7 +414,15 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             else {
                 elHideId('searchDatabaseCrumb');
                 elHideId('searchDatabaseMatch');
-                elDisableId('btnDatabaseSortDropdown');
+                const sortBtns = document.getElementById('databaseSortTagsList').firstElementChild.getElementsByTagName('button');
+                for (const sortBtn of sortBtns) {
+                    if (sortBtn.getAttribute('data-tag') === app.current.tag) {
+                        elShow(sortBtn);
+                    }
+                    else {
+                        elHide(sortBtn);
+                    }
+                }
                 elDisableId('btnDatabaseSearchDropdown');
                 document.getElementById('searchDatabaseStr').value = app.current.search;
                 sendAPI("MYMPD_API_DATABASE_TAG_LIST", {
