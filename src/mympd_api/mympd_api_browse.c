@@ -34,6 +34,12 @@
 static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct t_tags *browse_tag_types);
 static pcre2_code *_compile_regex(char *regex_str);
 static bool _cmp_regex(pcre2_code *re_compiled, const char *value);
+static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity, sds searchstr);
+
+struct t_dir_entry {
+    sds name;
+    struct mpd_entity *entity;
+};
 
 //public functions
 sds mympd_api_browse_fingerprint(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
@@ -121,11 +127,6 @@ sds mympd_api_browse_read_comments(struct t_mympd_state *mympd_state, sds buffer
     return buffer;
 }
 
-struct t_dir_entry {
-    sds name;
-    struct mpd_entity *entity;
-};
-
 sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                               sds path, const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
 {
@@ -137,54 +138,29 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
     rax *entity_list = raxNew();
     long real_limit = offset + limit;
     struct mpd_entity *entity;
-    size_t search_len = sdslen(searchstr);
+    sds_utf8_tolower(searchstr);
     while ((entity = mpd_recv_entity(mympd_state->mpd_state->conn)) != NULL) {
         switch (mpd_entity_get_type(entity)) {
             case MPD_ENTITY_TYPE_SONG: {
                 const struct mpd_song *song = mpd_entity_get_song(entity);
                 sds entity_name =  mpd_shared_get_tag_values(song, MPD_TAG_TITLE, sdsempty());
-                if (search_len == 0 || utf8casestr(entity_name, searchstr) != NULL) {
-                    key = sdscatfmt(key, "2%s", mpd_song_get_uri(song));
-                    sds_utf8_tolower(key);
-                    struct t_dir_entry *entry_data = malloc_assert(sizeof(struct t_dir_entry));
-                    entry_data->name = entity_name;
-                    entry_data->entity = entity;
-                    raxInsert(entity_list, (unsigned char *)key, sdslen(key), entry_data, NULL);
-                }
-                else {
-                    mpd_entity_free(entity);
-                    sdsfree(entity_name);
-                }
+                key = sdscatfmt(key, "2%s", mpd_song_get_uri(song));
+                search_dir_entry(entity_list, key, entity_name, entity, searchstr);
                 break;
             }
             case MPD_ENTITY_TYPE_DIRECTORY: {
                 const struct mpd_directory *dir = mpd_entity_get_directory(entity);
-                const char *dir_path = mpd_directory_get_path(dir);
-                char *dir_name = strrchr(dir_path, '/');
-                if (dir_name != NULL) {
-                    dir_name++;
-                }
-                else {
-                    dir_name = (char *)dir_path;
-                }
-                if (search_len == 0 || utf8casestr(dir_name, searchstr) != NULL) {
-                    key = sdscatfmt(key, "0%s", mpd_directory_get_path(dir));
-                    sds_utf8_tolower(key);
-                    struct t_dir_entry *entry_data = malloc_assert(sizeof(struct t_dir_entry));
-                    entry_data->name = sdsnew(dir_name);
-                    entry_data->entity = entity;
-                    raxInsert(entity_list, (unsigned char *)key, sdslen(key), entry_data, NULL);
-                }
-                else {
-                    mpd_entity_free(entity);
-                }
+                sds entity_name = sdsnew(mpd_directory_get_path(dir));
+                sds_basename_uri(entity_name);
+                key = sdscatfmt(key, "0%S", entity_name);
+                search_dir_entry(entity_list, key, entity_name, entity, searchstr);
                 break;
             }
             case MPD_ENTITY_TYPE_PLAYLIST: {
                 const struct mpd_playlist *pl = mpd_entity_get_playlist(entity);
                 const char *pl_path = mpd_playlist_get_path(pl);
-                //do not show mpd playlists in root directory
-                if (strcmp(path, "/") == 0) {
+                if (path[0] == '/') {
+                    //do not show mpd playlists in root directory
                     char *ext = strrchr(pl_path, '.');
                     if (ext == NULL ||
                         (strcmp(ext, ".m3u") != 0 && strcmp(ext, ".pls") != 0))
@@ -193,24 +169,10 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                         break;
                     }
                 }
-                char *pl_name = strrchr(pl_path, '/');
-                if (pl_name != NULL) {
-                    pl_name++;
-                }
-                else {
-                    pl_name = (char *)pl_path;
-                }
-                if (search_len == 0 || utf8casestr(pl_name, searchstr) != NULL) {
-                    key = sdscatfmt(key, "1%s", mpd_playlist_get_path(pl));
-                    sds_utf8_tolower(key);
-                    struct t_dir_entry *entry_data = malloc_assert(sizeof(struct t_dir_entry));
-                    entry_data->name = sdsnew(pl_name);
-                    entry_data->entity = entity;
-                    raxInsert(entity_list, (unsigned char *)key, sdslen(key), entry_data, NULL);
-                }
-                else {
-                    mpd_entity_free(entity);
-                }
+                sds entity_name = sdsnew(pl_path);
+                sds_basename_uri(entity_name);
+                key = sdscatfmt(key, "1%S", entity_name);
+                search_dir_entry(entity_list, key, entity_name, entity, searchstr);
                 break;
             }
             default: {
@@ -222,6 +184,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
     FREE_SDS(key);
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
+        //free result
         raxIterator iter;
         raxStart(&iter, entity_list);
         raxSeek(&iter, "^", NULL, 0);
@@ -233,6 +196,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
         }
         raxStop(&iter);
         raxFree(entity_list);
+        //return error message
         return buffer;
     }
 
@@ -736,6 +700,22 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
 }
 
 //private functions
+static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity, sds searchstr) {
+    sds_utf8_tolower(key);
+    if (sdslen(searchstr) == 0 ||
+        utf8str(entity_name, searchstr) != NULL)
+    {
+        struct t_dir_entry *entry_data = malloc_assert(sizeof(struct t_dir_entry));
+        entry_data->name = entity_name;
+        entry_data->entity = entity;
+        raxInsert(rt, (unsigned char *)key, sdslen(key), entry_data, NULL);
+        return true;
+    }
+    mpd_entity_free(entity);
+    sdsfree(entity_name);
+    return false;
+}
+
 static bool _search_song(struct mpd_song *song, struct t_list *expr_list, struct t_tags *browse_tag_types) {
     (void) browse_tag_types;
     struct t_tags one_tag;
