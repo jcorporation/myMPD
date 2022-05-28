@@ -43,7 +43,7 @@ You can disable the covercache by setting the `Covercache expiration` value to `
 In the [contrib/scripts/](https://github.com/jcorporation/myMPD/tree/master/contrib/scripts) folder is a script to maintain albumart. This script downloads albumart from [coverartarchive.org](https://coverartarchive.org/). 
 
 - Works only for ID3v2 tagged MP3 files with the MusicBrainz Album Id
-- Customize the image sizes and names in the script header
+- Optionally: Customize the image sizes and names in the script header
 - Run `./albumart.sh download <music directory>` to download the albumart
 - Run `./albumart.sh resize <music directory>` to resize the albumart and create thumbnails
 - Run `./albumart.sh check <music directory>` to check the albumart sizes
@@ -65,6 +65,17 @@ The "Browse Database" grid view can display pictures for other tags than album a
 ## Example
 
 Create a directory named `AlbumArtist` under `/var/lib/mympd/pics`. Add pictures with the AlbumArtist name as filename in this directory.
+
+## Artistart download and resize script
+
+In the [contrib/scripts/](https://github.com/jcorporation/myMPD/tree/master/contrib/scripts) folder is a script to download artistart. This script downloads artistart from [fanart.tv](https://fanart.tv/). 
+
+- Works only for ID3v2 tagged MP3 files with the MusicBrainz Artist Id and TPE1
+- Optionally: Customize the image sizes and names in the script header
+- Set the fanart.tv API Key: `export API_KEY="<key>"`
+- Run `./artistart.sh <media file>` to download the artistart to the `/var/lib/mympd/pics/Artist` folder
+
+**Dependencies:** ImageMagick, mid3v2 (mutagen), wget
 
 ***
 
