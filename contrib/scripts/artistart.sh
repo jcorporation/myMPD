@@ -94,7 +94,6 @@ then
     echo "\"$MEDIAFILE\": MusicBrainz Artist Id or TPE1 id3v2 tag not found."
 fi
 
-mkdir -p "$OUT_PATH"
 if [ -s "$OUT_PATH/$ID3_NAME.webp" ]
 then
     echo "Artistart for \"$ID3_NAME\" already exists."
