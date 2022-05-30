@@ -12,6 +12,8 @@ myMPD supports local coverart for albums and streams.
 
 myMPD needs access to the MPD music_directory or a uptodate MPD.
 
+You can download albumart with the script from [https://github.com/jcorporation/musicdb-scripts](https://github.com/jcorporation/musicdb-scripts)
+
 ### Albumart in directories through direct music directory access
 
 1. If connected through the local MPD socket: myMPD gets the music_directory automatically, if music directory is set to auto.
@@ -38,19 +40,6 @@ myMPD caches extracted covers under `/var/cache/mympd/covercache`. Files in this
 
 You can disable the covercache by setting the `Covercache expiration` value to `0` days.
 
-### Albumart download and resize script
-
-In the [contrib/scripts/](https://github.com/jcorporation/myMPD/tree/master/contrib/scripts) folder is a script to maintain albumart. This script downloads albumart from [coverartarchive.org](https://coverartarchive.org/). 
-
-- Works only for ID3v2 tagged MP3 files with the MusicBrainz Album Id
-- Optionally: Customize the image sizes and names in the script header
-- Run `./albumart.sh download <music directory>` to download the albumart
-- Run `./albumart.sh resize <music directory>` to resize the albumart and create thumbnails
-- Run `./albumart.sh check <music directory>` to check the albumart sizes
-- Run `./albumart.sh missing <music directory>` to find album folders without an image
-
-**Dependencies:** ImageMagick, mid3v2 (mutagen), wget
-
 ***
 
 # Streams
@@ -62,20 +51,11 @@ In the [contrib/scripts/](https://github.com/jcorporation/myMPD/tree/master/cont
 
 The "Browse Database" grid view can display pictures for other tags than album also. To enable this simply create a directory with the tagname in the `/var/lib/mympd/pics` directory and put pictures with filename equal the tag value in this directory.
 
+You can download artistart with the script from [https://github.com/jcorporation/musicdb-scripts](https://github.com/jcorporation/musicdb-scripts)
+
 ## Example
 
 Create a directory named `AlbumArtist` under `/var/lib/mympd/pics`. Add pictures with the AlbumArtist name as filename in this directory.
-
-## Artistart download and resize script
-
-In the [contrib/scripts/](https://github.com/jcorporation/myMPD/tree/master/contrib/scripts) folder is a script to download artistart. This script downloads artistart from [fanart.tv](https://fanart.tv/). 
-
-- Works only for ID3v2 tagged MP3 files with the MusicBrainz Artist Id and TPE1
-- Optionally: Customize the image sizes and names in the script header
-- Set the fanart.tv API Key: `export API_KEY="<key>"`
-- Run `./artistart.sh <media file>` to download the artistart to the `/var/lib/mympd/pics/Artist` folder
-
-**Dependencies:** ImageMagick, mid3v2 (mutagen), wget
 
 ***
 
