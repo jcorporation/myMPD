@@ -521,7 +521,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
             _search_song(song, &expr_list, &mympd_state->tag_types_browse) == true)
         {
             if (sort_by_last_modified == true) {
-                key = sdscatfmt(key, "%lld::%s", (long long)mpd_song_get_last_modified(song), mpd_song_get_uri(song));
+                key = sdscatfmt(key, "%I::%s", (long long)mpd_song_get_last_modified(song), mpd_song_get_uri(song));
             }
             else {
                 const char *sort_value = mpd_song_get_tag(song, sort_tag, 0);
