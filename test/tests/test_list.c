@@ -125,57 +125,6 @@ UTEST(list, test_list_shuffle) {
     list_clear(&test_list);
 }
 
-UTEST(list, list_sort_by_value_i) {
-    struct t_list test_list;
-    populate_list(&test_list);
-
-    list_sort_by_value_i(&test_list, LIST_SORT_DESC);
-    ASSERT_EQ(0, test_list.tail->value_i);
-    ASSERT_EQ(5, test_list.head->value_i);
-
-    list_sort_by_key(&test_list, LIST_SORT_ASC);
-    ASSERT_EQ(0, test_list.head->value_i);
-    ASSERT_EQ(5, test_list.tail->value_i);
-
-    ASSERT_EQ(6, test_list.length);
-
-    list_clear(&test_list);
-}
-
-UTEST(list, test_list_sort_by_value_p) {
-    struct t_list test_list;
-    populate_list(&test_list);
-
-    list_sort_by_key(&test_list, LIST_SORT_DESC);
-    ASSERT_STREQ("value0", test_list.tail->value_p);
-    ASSERT_STREQ("value5", test_list.head->value_p);
-
-    list_sort_by_key(&test_list, LIST_SORT_ASC);
-    ASSERT_STREQ("value0", test_list.head->value_p);
-    ASSERT_STREQ("value5", test_list.tail->value_p);
-
-    ASSERT_EQ(6, test_list.length);
-
-    list_clear(&test_list);
-}
-
-UTEST(list, test_list_sort_by_key) {
-    struct t_list test_list;
-    populate_list(&test_list);
-
-    list_sort_by_key(&test_list, LIST_SORT_DESC);
-    ASSERT_STREQ("key0", test_list.tail->key);
-    ASSERT_STREQ("key5", test_list.head->key);
-
-    list_sort_by_key(&test_list, LIST_SORT_ASC);
-    ASSERT_STREQ("key0", test_list.head->key);
-    ASSERT_STREQ("key5", test_list.tail->key);
-
-    ASSERT_EQ(6, test_list.length);
-
-    list_clear(&test_list);
-}
-
 UTEST(list, test_list_swap_item_pos) {
     struct t_list test_list;
     populate_list(&test_list);
