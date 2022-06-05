@@ -1059,14 +1059,14 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                response->data = mpd_shared_playlist_shuffle_sort(mympd_state->mpd_state, response->data, request->method, request->id, sds_buf1, "shuffle");
+                response->data = mpd_shared_playlist_shuffle(mympd_state->mpd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_SORT:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag, &error) == true)
             {
-                response->data = mpd_shared_playlist_shuffle_sort(mympd_state->mpd_state, response->data, request->method, request->id, sds_buf1, sds_buf2);
+                response->data = mpd_shared_playlist_sort(mympd_state->mpd_state, response->data, request->method, request->id, sds_buf1, sds_buf2);
             }
             break;
         case MYMPD_API_DATABASE_FILESYSTEM_LIST: {

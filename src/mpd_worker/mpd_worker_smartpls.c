@@ -144,7 +144,12 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         FREE_SDS(sds_buf1);
         if (json_get_string(content, "$.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
             if (sdslen(sds_buf1) > 0) {
-                mpd_shared_playlist_shuffle_sort(mpd_worker_state->mpd_state, NULL, NULL, 0, playlist, sds_buf1);
+                if (strcmp(sds_buf1, "shuffle") == 0) {
+                    mpd_shared_playlist_shuffle(mpd_worker_state->mpd_state, NULL, NULL, 0, playlist);
+                }
+                else {
+                    mpd_shared_playlist_sort(mpd_worker_state->mpd_state, NULL, NULL, 0, playlist, sds_buf1);
+                }
             }
         }
     }
