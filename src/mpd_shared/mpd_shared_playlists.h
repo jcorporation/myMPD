@@ -12,7 +12,8 @@
 enum playlist_types {
     PLTYPE_ALL = 0,
     PLTYPE_STATIC = 1,
-    PLTYPE_SMART = 2
+    PLTYPE_SMART = 2,
+    PLTYPE_SMARTPLS_ONLY = 3
 };
 
 sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, sds method,
