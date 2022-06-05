@@ -120,6 +120,3 @@ set(LIBMPDCLIENT_SOURCES
 add_executable(test ${TEST_SOURCES} ${LIBMPDCLIENT_SOURCES})
 target_link_libraries(test ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(test ${MATH_LIB})
-
-#sub projects
-add_subdirectory("benchmark")
