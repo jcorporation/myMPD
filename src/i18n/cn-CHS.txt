@@ -75,6 +75,12 @@ Any Tag
 Filename
 文件名
 
+Filenames
+文件名
+
+Thumbnail names
+缩略图名称
+
 Filetype
 文件类型
 
@@ -82,7 +88,7 @@ Fileformat
 文件格式
 
 bits
-位
+bits
 
 kHz
 kHz
@@ -178,10 +184,10 @@ LastPlayed
 最近播放
 
 stickerLastPlayed
-最近播放贴纸
+最近播放
 
 stickerLastSkipped
-最近跳过贴纸
+最近跳过
 
 Database
 数据库
@@ -316,16 +322,16 @@ Like
 喜爱
 
 stickerLike
-喜爱贴纸
+喜爱
 
 Play count
 播放次数
 
 stickerPlayCount
-播放次数贴纸
+播放次数
 
 stickerSkipCount
-跳过次数贴纸
+跳过次数
 
 Theme
 主题
@@ -834,6 +840,9 @@ Descending
 Sort by
 排序
 
+Thumbnail size
+缩略图大小
+
 Dark
 深色
 
@@ -1312,7 +1321,7 @@ Picture
 图像
 
 Homescreen welcome
-欢迎来到主页，可以添加图标快捷方式到这里
+您未添加任何主页图标，主页图标可以通过上下文菜单或以下图标添加：
 
 Can not open directory pics
 未能打开目录图像
@@ -1384,7 +1393,7 @@ Invalid volume level
 无效音量
 
 MaintainEnableTagsText
-保持启用标签文本.
+推荐保持启用标签信息，如艺术家、专辑艺术家、专辑、流派等，以提高用户体验
 
 Failed to set like, unknown error
 设置喜爱失败，未知错误
@@ -2174,3 +2183,60 @@ Toggle repeat
 
 Invalid response
 无效响应
+
+Codec
+编码
+
+Bitrate
+比特率
+
+Format
+格式
+
+kbit
+kbit
+
+Alternative stream uri
+备用流媒体 URL
+
+Alternative streams
+备用流媒体
+
+Browser specific setting
+浏览器指定设置
+
+Cloud
+云
+
+Listenbrainz Token
+Listenbrainz Token
+
+Show or hide
+显示或隐藏
+
+MusicBrainz
+MusicBrainz
+
+Goto album
+转到专辑
+
+Goto artist
+转到艺术家
+
+No outputs found
+找不到输出
+
+Quick play
+快速播放
+
+Quick play button
+快速播放按钮
+
+Quick remove button
+快速移除按钮
+
+Click quick play button
+点击快速播放按钮
+
+Enforce mobile view
+强制移动端视图
