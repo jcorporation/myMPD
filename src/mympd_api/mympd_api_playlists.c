@@ -109,6 +109,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     };
 
     long real_limit = offset + limit;
+    sds key = sdsempty();
     while ((pl = mpd_recv_playlist(mympd_state->mpd_state->conn)) != NULL) {
         const char *plpath = mpd_playlist_get_path(pl);
         bool smartpls = is_smartpls(mympd_state->config->workdir, plpath);
@@ -118,7 +119,10 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
             struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
             data->last_modified = mpd_playlist_get_last_modified(pl);
             data->type = smartpls == true ? PLTYPE_SMART : PLTYPE_STATIC;
-            raxInsert(entity_list, (unsigned char *)plpath, strlen(plpath), data, NULL);
+            sdsclear(key);
+            key = sdscat(key, plpath);
+            sds_utf8_tolower(key);
+            raxInsert(entity_list, (unsigned char *)key, sdslen(key), data, NULL);
         }
         mpd_playlist_free(pl);
     }
@@ -151,7 +155,10 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
                     struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
                     data->last_modified = mpd_shared_get_smartpls_mtime(mympd_state->config, next_file->d_name);
                     data->type = PLTYPE_SMARTPLS_ONLY;
-                    if (raxTryInsert(entity_list, (unsigned char *)next_file->d_name, strlen(next_file->d_name), data, NULL) == 0) {
+                    sdsclear(key);
+                    key = sdscat(key, next_file->d_name);
+                    sds_utf8_tolower(key);
+                    if (raxTryInsert(entity_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
                         //smart playlist already added
                         FREE_PTR(data);
                     }
@@ -165,7 +172,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
         }
         FREE_SDS(smartpls_path);
     }
-
+    FREE_SDS(key);
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer,"\"data\":[");
 
