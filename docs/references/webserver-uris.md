@@ -16,6 +16,7 @@ Reference of all webserver uris.
 | `/api/serverinfo` | Returns the ip address of myMPD |
 | `/browse/` | Prints the list of [published directories]({{ site.baseurl }}/references/published-directories) |
 | `/ca.crt` | Returns the myMPD CA certificate |
+| `/proxy?uri=<uri>` | Fetches the response from the uri (GET), allowed hosts: `jcorporation.github.io`, `musicbrainz.org`, `listenbrainz.org` |
 | `/stream/` | Reverse proxy for mpd http stream |
 | `/tagart?uri=<tagname>/<tagvalue>` | Returns the tagart |
 | `/ws/` | Websocket endpoint |

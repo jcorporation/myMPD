@@ -12,6 +12,24 @@
 #include "../lib/sds_extras.h"
 #include "web_server_utility.h"
 
+static const char *allowed_hosts[] = {
+    "jcorporation.github.io",
+    "musicbrainz.org",
+    "listenbrainz.org",
+    NULL
+};
+
+bool is_allowed_proxy_uri(const char *uri) {
+    struct mg_str host = mg_url_host(uri);
+    const char **p = NULL;
+    for (p = allowed_hosts; *p != NULL; p++) {
+        if (mg_vcmp(&host, *p) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
 void free_backend_nc_data(struct backend_nc_data_t *data) {
     FREE_SDS(data->uri);
     data->frontend_nc = NULL;
@@ -95,7 +113,9 @@ void forward_tcp_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_
             break;
         case MG_EV_READ:
             //forward incoming data from backend to frontend
-            mg_send(backend_nc_data->frontend_nc, nc->recv.buf, nc->recv.len);
+            if (backend_nc_data->frontend_nc != NULL) {
+                mg_send(backend_nc_data->frontend_nc, nc->recv.buf, nc->recv.len);
+            }
             mg_iobuf_del(&nc->recv, 0, nc->recv.len);
             break;
         case MG_EV_CLOSE: {
@@ -115,4 +135,58 @@ void forward_tcp_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_
         }
     }
 	(void) ev_data;
+}
+
+void forward_http_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
+    (void) ev_data;
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
+    struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)fn_data;
+    switch(ev) {
+        case MG_EV_CONNECT: {
+            MYMPD_LOG_INFO("Backend HTTP connection \"%lu\" connected", nc->id);
+            struct mg_str host = mg_url_host(backend_nc_data->uri);
+            if (mg_url_is_ssl(backend_nc_data->uri)) {
+                struct mg_tls_opts tls_opts = {
+                    .srvname = host
+                };
+                mg_tls_init(nc, &tls_opts);
+            }
+            mg_printf(nc, "GET %s HTTP/1.1\r\n"
+                "Host: %.*s\r\n"
+                "User-Agent: myMPD/%s\r\n"
+                "Connection: close\r\n"
+                "\r\n",
+                mg_url_uri(backend_nc_data->uri),
+                (int)host.len, host.ptr,
+                MYMPD_VERSION
+            );
+            mg_user_data->connection_count++;
+            break;
+        }
+        case MG_EV_ERROR:
+            MYMPD_LOG_ERROR("HTTP connection \"%lu\" failed", nc->id);
+            break;
+        case MG_EV_READ:
+            MYMPD_LOG_DEBUG("Got response from connection \"%lu\": %lu bytes", nc->id, (unsigned long)nc->recv.len);
+            if (backend_nc_data->frontend_nc != NULL) {
+                mg_send(backend_nc_data->frontend_nc, nc->recv.buf, nc->recv.len);
+            }
+            mg_iobuf_del(&nc->recv, 0, nc->recv.len);
+            break;
+        case MG_EV_CLOSE: {
+            MYMPD_LOG_INFO("Backend HTTP connection \"%lu\" closed", nc->id);
+            mg_user_data->connection_count--;
+            if (backend_nc_data->frontend_nc != NULL) {
+                //remove backend connection pointer from frontend connection
+                backend_nc_data->frontend_nc->fn_data = NULL;
+                //close frontend connection
+                backend_nc_data->frontend_nc->is_draining = 1;
+            }
+            //free backend_nc_data
+            free_backend_nc_data(backend_nc_data);
+            free(backend_nc_data);
+            nc->fn_data = NULL;
+            break;
+        }
+    }
 }

@@ -17,10 +17,12 @@ struct backend_nc_data_t {
     enum mympd_cmd_ids cmd_id;
 };
 
+bool is_allowed_proxy_uri(const char *uri);
 void free_backend_nc_data(struct backend_nc_data_t *data);
 struct mg_connection *create_http_backend_connection(struct mg_connection *nc, struct mg_connection *backend_nc,
         sds uri, mg_event_handler_t fn);
 struct mg_connection *create_tcp_backend_connection(struct mg_connection *nc, struct mg_connection *backend_nc,
         sds uri, mg_event_handler_t fn);
 void forward_tcp_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
+void forward_http_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 #endif

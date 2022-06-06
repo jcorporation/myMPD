@@ -416,6 +416,32 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
                 create_tcp_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_tcp_backend_to_frontend);
             }
+            else if (mg_http_match_uri(hm, "/proxy")) {
+                //Makes a get request to the defined uri and returns the response
+                sds query = sdsnewlen(hm->query.ptr, hm->query.len);
+                sds uri_decoded = sdsempty();
+                if (sdslen(query) > 4 &&
+                    strncmp(query, "uri=", 4) == 0)
+                {
+                    //remove &uri=
+                    sdsrange(query, 4, -1);
+                    //decode uri
+                    uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
+                    if (is_allowed_proxy_uri(uri_decoded) == true) {
+                        create_http_backend_connection(nc, backend_nc, uri_decoded, forward_http_backend_to_frontend);
+                    }
+                    else {
+                        webserver_send_error(nc, 403, "Host is not allowed");
+                        nc->is_draining = 1;
+                    }
+                }
+                else {
+                    webserver_send_error(nc, 400, "Invalid query parameter");
+                    nc->is_draining = 1;
+                }
+                sdsfree(query);
+                sdsfree(uri_decoded);
+            }
             else if (mg_http_match_uri(hm, "/ws/")) {
                 mg_ws_upgrade(nc, hm, NULL);
                 MYMPD_LOG_INFO("New Websocket connection established (%lu)", nc->id);
