@@ -171,7 +171,9 @@ static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, 
                 result = jsonrpc_respond_message(result, cmd, 0, true,
                     "database", "error", "Empty response from webradiodb backend");
             }
-            webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
+            if (backend_nc_data->frontend_nc != NULL) {
+                webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
+            }
             sdsfree(result);
             if (backend_nc_data->cmd_id == MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET) {
                 webradiodb_cache_write(config->cachedir, "webradiodb-combined.min.json", hm->body.ptr, hm->body.len);

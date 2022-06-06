@@ -156,7 +156,9 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
                 result = jsonrpc_respond_message(result, cmd, 0, true,
                     "database", "error", "Empty response from radio-browser.info");
             }
-            webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
+            if (backend_nc_data->frontend_nc != NULL) {
+                webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
+            }
             sdsfree(result);
             break;
         }
