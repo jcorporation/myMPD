@@ -963,8 +963,11 @@ Mischen
 Playlist is too small to shuffle
 Wiedergabeliste ist zu klein um sie zu mischen
 
-Playlist is too small to sort
-Wiedergabeliste ist zu klein um sie zu sortieren
+Shuffling playlist failed
+Fehler beim Mischen der Wiedergabeliste
+
+Sorting playlist failed
+Fehler beim Sortieren der Wiedergabeliste
 
 Shuffle playlist
 Wiedergabeliste mischen

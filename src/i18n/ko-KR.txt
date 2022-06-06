@@ -954,9 +954,6 @@ Shuffle
 Playlist is too small to shuffle
 연주목록이 너무 작아 뒤섞을 수 없음
 
-Playlist is too small to sort
-연주목록이 너무 작아 정렬할 수 없음
-
 Shuffle playlist
 연주목록 뒤섞기
 
