@@ -1166,6 +1166,22 @@ run_htmlhint() {
   htmlhint htdocs/index.html
 }
 
+luascript_index() {
+  rm -f "docs/scripting/scripts/index.json"
+  exec 3<> "docs/scripting/scripts/index.json"
+  printf "{\"scripts\":[" >&3
+  I=0
+  for F in docs/scripting/scripts/*.lua
+  do
+    [ "$I" -gt 0 ] &&  printf "," >&3
+    SCRIPTNAME=$(basename "$F")
+    printf "\"%s\"" "$SCRIPTNAME" >&3
+    I=$((I+1))
+  done
+  printf "]}\n" >&3
+  exec 3>&-
+}
+
 case "$ACTION" in
 	release)
 	  buildrelease
@@ -1286,6 +1302,9 @@ case "$ACTION" in
 	htmlhint)
 	  run_htmlhint
 	;;
+  luascript_index)
+    luascript_index
+  ;;
 	*)
     echo "Usage: $0 <option>"
     echo "Version: ${VERSION}"
@@ -1374,6 +1393,7 @@ case "$ACTION" in
     echo ""
     echo "Misc options:"
     echo "  addmympduser:     adds mympd group and user"
+    echo "  luascript_index:  creates the json index of lua scripts"
     echo ""
     echo "Source update options:"
     echo "  bootstrap:        updates bootstrap"
