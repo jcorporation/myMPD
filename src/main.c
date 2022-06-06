@@ -188,7 +188,7 @@ struct t_subdirs_entry {
     const char *description;
 };
 
-const struct t_subdirs_entry workdir_subdirs[] = {
+static const struct t_subdirs_entry workdir_subdirs[] = {
     {"empty",            "Empty dir"},
     {"pics",             "Pics dir"},
     {"pics/backgrounds", "Backgrounds dir"},
@@ -202,7 +202,7 @@ const struct t_subdirs_entry workdir_subdirs[] = {
     {NULL, NULL}
 };
 
-const struct t_subdirs_entry cachedir_subdirs[] = {
+static const struct t_subdirs_entry cachedir_subdirs[] = {
     {"covercache", "Covercache dir"},
     {"webradiodb", "Webradiodb cache dir"},
     {NULL, NULL}
