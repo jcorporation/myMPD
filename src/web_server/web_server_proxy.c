@@ -12,17 +12,19 @@
 #include "../lib/sds_extras.h"
 #include "web_server_utility.h"
 
-static const char *allowed_hosts[] = {
+//private definitions
+static const char *allowed_proxy_hosts[] = {
     "jcorporation.github.io",
     "musicbrainz.org",
     "listenbrainz.org",
     NULL
 };
 
+//public functions
 bool is_allowed_proxy_uri(const char *uri) {
     struct mg_str host = mg_url_host(uri);
     const char **p = NULL;
-    for (p = allowed_hosts; *p != NULL; p++) {
+    for (p = allowed_proxy_hosts; *p != NULL; p++) {
         if (mg_vcmp(&host, *p) == 0) {
             return true;
         }
