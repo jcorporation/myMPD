@@ -517,8 +517,8 @@ function getWebradiodb() {
         filterWebradiodbFilter('filterWebradiodbCodec', 'webradioCodecs', 'Codec', '');
         filterWebradiodbFilter('filterWebradiodbBitrate', 'webradioBitrates', 'Bitrate', '');
         const result = searchWebradiodb(app.current.search, app.current.filter.genre,
-            app.current.filter.country, app.current.filter.language, app.current.sort,
-            app.current.offset, app.current.limit);
+            app.current.filter.country, app.current.filter.language, app.current.filter.codec,
+            app.current.filter.bitrate, app.current.sort, app.current.offset, app.current.limit);
         parseSearchWebradiodb(result);
     }, false);
 }
