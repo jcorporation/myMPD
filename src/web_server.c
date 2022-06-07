@@ -414,7 +414,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     nc->is_draining = 1;
                     break;
                 }
-                create_tcp_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_tcp_backend_to_frontend);
+                create_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_backend_to_frontend);
             }
             else if (mg_http_match_uri(hm, "/proxy")) {
                 //Makes a get request to the defined uri and returns the response
@@ -428,7 +428,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     //decode uri
                     uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
                     if (is_allowed_proxy_uri(uri_decoded) == true) {
-                        create_http_backend_connection(nc, backend_nc, uri_decoded, forward_http_backend_to_frontend);
+                        create_backend_connection(nc, backend_nc, uri_decoded, forward_backend_to_frontend);
                     }
                     else {
                         webserver_send_error(nc, 403, "Host is not allowed");
