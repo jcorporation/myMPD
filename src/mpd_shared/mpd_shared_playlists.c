@@ -108,29 +108,40 @@ sds mpd_shared_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds m
     sds uri_old = sdscatfmt(sdsempty(), "%l-old-%s", randnr, uri);
 
     //add shuffled songs to tmp playlist
-    if (mpd_command_list_begin(mpd_state->conn, false) == true) {
-        struct t_list_node *current = plist.head;
-        while (current != NULL) {
-            rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, current->key);
-            if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
-                break;
+    //uses command list to add MPD_RESULTS_MAX songs at once
+    long i = 0;
+    struct t_list_node *current = plist.head;
+    while (i < plist.length) {
+        if (mpd_command_list_begin(mpd_state->conn, false) == true) {
+            long j = 0;
+            while (current != NULL) {
+                i++;
+                j++;
+                rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, current->key);
+                current = current->next;
+                if (rc == false) {
+                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                    break;
+                }
+                if (j == MPD_RESULTS_MAX) {
+                    break;
+                }
             }
-            current = current->next;
+            if (mpd_command_list_end(mpd_state->conn)) {
+                mpd_response_finish(mpd_state->conn);
+            }
         }
-        if (mpd_command_list_end(mpd_state->conn)) {
-            mpd_response_finish(mpd_state->conn);
+        if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+            //error adding songs to tmp playlist - delete it
+            rc = mpd_run_rm(mpd_state->conn, uri_tmp);
+            check_rc_error_and_recover(mpd_state, NULL, method, request_id, false, rc, "mpd_run_rm");
+            FREE_SDS(uri_tmp);
+            FREE_SDS(uri_old);
+            list_clear(&plist);
+            return buffer;
         }
     }
     list_clear(&plist);
-    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
-        //error adding songs to tmp playlist - delete it
-        rc = mpd_run_rm(mpd_state->conn, uri_tmp);
-        check_rc_error_and_recover(mpd_state, NULL, method, request_id, false, rc, "mpd_run_rm");
-        FREE_SDS(uri_tmp);
-        FREE_SDS(uri_old);
-        return buffer;
-    }
 
     rc = mpd_shared_replace_playlist(mpd_state, uri_tmp, uri, uri_old);
 
@@ -217,32 +228,44 @@ sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
     sds uri_old = sdscatfmt(sdsempty(), "%l-old-%s", randnr, uri);
 
     //add sorted songs to tmp playlist
-    if (mpd_command_list_begin(mpd_state->conn, false) == true) {
-        raxIterator iter;
-        raxStart(&iter, plist);
-        raxSeek(&iter, "^", NULL, 0);
-        while (raxNext(&iter)) {
-            rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, iter.data);
-            if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
-                break;
+    //uses command list to add MPD_RESULTS_MAX songs at once
+    unsigned i = 0;
+    raxIterator iter;
+    raxStart(&iter, plist);
+    raxSeek(&iter, "^", NULL, 0);
+    while (i < plist->numele) {
+        if (mpd_command_list_begin(mpd_state->conn, false) == true) {
+            long j = 0;
+            while (raxNext(&iter)) {
+                i++;
+                j++;
+                rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, iter.data);
+                if (rc == false) {
+                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                    break;
+                }
+                if (j == MPD_RESULTS_MAX) {
+                    break;
+                }
+                FREE_SDS(iter.data);
             }
-            FREE_SDS(iter.data);
+            if (mpd_command_list_end(mpd_state->conn)) {
+                mpd_response_finish(mpd_state->conn);
+            }
         }
-        if (mpd_command_list_end(mpd_state->conn)) {
-            mpd_response_finish(mpd_state->conn);
+        if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+            //error adding songs to tmp playlist - delete it
+            rc = mpd_run_rm(mpd_state->conn, uri_tmp);
+            check_rc_error_and_recover(mpd_state, NULL, method, request_id, false, rc, "mpd_run_rm");
+            FREE_SDS(uri_tmp);
+            FREE_SDS(uri_old);
+            raxStop(&iter);
+            raxFree(plist);
+            return buffer;
         }
-        raxStop(&iter);
     }
+    raxStop(&iter);
     raxFree(plist);
-    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
-        //error adding songs to tmp playlist - delete it
-        rc = mpd_run_rm(mpd_state->conn, uri_tmp);
-        check_rc_error_and_recover(mpd_state, NULL, method, request_id, false, rc, "mpd_run_rm");
-        FREE_SDS(uri_tmp);
-        FREE_SDS(uri_old);
-        return buffer;
-    }
 
     rc = mpd_shared_replace_playlist(mpd_state, uri_tmp, uri, uri_old);
     FREE_SDS(uri_tmp);
