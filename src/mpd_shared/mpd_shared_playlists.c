@@ -110,15 +110,14 @@ sds mpd_shared_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds m
     //add shuffled songs to tmp playlist
     //uses command list to add MPD_RESULTS_MAX songs at once
     long i = 0;
-    struct t_list_node *current = plist.head;
     while (i < plist.length) {
         if (mpd_command_list_begin(mpd_state->conn, false) == true) {
             long j = 0;
-            while (current != NULL) {
+            struct t_list_node *current;
+            while ((current = list_shift_first(&plist)) != NULL) {
                 i++;
                 j++;
                 rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, current->key);
-                current = current->next;
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
                     break;
@@ -240,6 +239,7 @@ sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
                 i++;
                 j++;
                 rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, iter.data);
+                FREE_SDS(iter.data);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
                     break;
@@ -247,7 +247,6 @@ sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
                 if (j == MPD_RESULTS_MAX) {
                     break;
                 }
-                FREE_SDS(iter.data);
             }
             if (mpd_command_list_end(mpd_state->conn)) {
                 mpd_response_finish(mpd_state->conn);
@@ -259,6 +258,9 @@ sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
             check_rc_error_and_recover(mpd_state, NULL, method, request_id, false, rc, "mpd_run_rm");
             FREE_SDS(uri_tmp);
             FREE_SDS(uri_old);
+            while (raxNext(&iter)) {
+                FREE_SDS(iter.data);
+            }
             raxStop(&iter);
             raxFree(plist);
             return buffer;
