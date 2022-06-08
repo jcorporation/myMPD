@@ -98,7 +98,7 @@ a.text-success:focus {
 }
 
 #splashScreen {
-  background: linear-gradient(0deg, rgba(0, 0, 0, 1) 0%, rgba(52, 58, 64, 1) 100%);
+  background: linear-gradient(0deg, #28a745 0%, #1e7e34 100%);
   width: 100vw;
   height: 100vh;
   z-index: 2000;
