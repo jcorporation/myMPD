@@ -188,8 +188,8 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
             list_clear(&tag_list);
             return false;
         }
-        struct t_list_node *current = tag_list.head;
-        while (current != NULL) {
+        struct t_list_node *current;
+        while ((current = list_shift_first(&tag_list)) != NULL) {
             const char *tagstr = mpd_tag_name(tag);
             sds filename = sdsdup(current->key);
             sds_sanitize_filename(filename);
@@ -211,9 +211,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
             FREE_SDS(playlist);
             FREE_SDS(plpath);
             FREE_SDS(filename);
-            current = current->next;
         }
-        list_clear(&tag_list);
     }
     return true;
 }
