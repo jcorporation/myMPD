@@ -373,7 +373,8 @@ function webSocketConnect() {
                     if (progressTimer) {
                         clearTimeout(progressTimer);
                     }
-                    getSettings(true);
+                    settings.mpdConnected = false;
+                    toggleUI();
                     break;
                 case 'mpd_connected':
                     //MPD connection established get state and settings
