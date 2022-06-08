@@ -334,7 +334,8 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
         while (raxNext(&iter)) {
             struct t_sticker_value *data = (struct t_sticker_value *)iter.data;
             if (data->value >= value_min &&
-                i < maxentries) {
+                i < maxentries)
+            {
                 rc = mpd_send_playlist_add(mpd_worker_state->mpd_state->conn, playlist, data->uri);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
