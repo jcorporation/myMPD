@@ -125,6 +125,10 @@ function setCounter() {
 }
 
 function parseState(obj) {
+    if (obj.result === undefined) {
+        logError('State is undefined');
+        return;
+    }
     //Get current song if songid has changed
     //Get current song if queueVersion has changed - updates stream titles
     if (currentState.currentSongId !== obj.result.currentSongId ||
