@@ -69,6 +69,15 @@ function parseOutputs(obj) {
         }
         outputList.appendChild(btn);
     }
+    //prevent overflow of dropup
+    const outputsEl = document.getElementById('outputs');
+    let posY = getYpos(document.getElementById('outputsDropdown'));
+    if (posY < 0) {
+        outputsEl.style.maxHeight = (outputsEl.offsetHeight + posY) + 'px';
+    }
+    else {
+        outputsEl.style.maxHeight = 'none';
+    }
 }
 
 function showListOutputAttributes(outputName) {

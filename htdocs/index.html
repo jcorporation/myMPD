@@ -748,7 +748,12 @@
         </div>
         <div class="btn-group dropup">
           <button data-title-phrase="Outputs" id="volumeMenu" class="btn btn-dark dropdown-toggle px-2 mi" type="button" data-bs-toggle="dropdown">volume_up</button>
-          <div class="dropdown-menu dropdown-menu-dark">
+          <div id="outputsDropdown" class="dropdown-menu dropdown-menu-dark">
+            <form id="outputs" class="px-3 py-3 d-grid gap-2"></form>
+            <div class="dropdown-divider featPartitions"></div>
+            <a class="dropdown-item featPartitions" data-title-phrase="Manage partitions" data-bs-toggle="modal" href="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
+            <a data-phrase="Move an output to this partition" class="dropdown-item featPartitions" data-bs-toggle="modal" href="#modalPartitionOutputs"></a>
+            <div class="dropdown-divider"></div>
             <h2 class="dropdown-header"><span data-phrase="Volume"></span>: <span id="volumePrct"></span></h2>
             <form class="px-3 py-0 pb-3" id="volumeControl">
               <div class="btn-group">
@@ -759,11 +764,6 @@
                 <button id="btnChVolumeUp" data-href='{"cmd": "volumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
               </div>
             </form>
-            <div class="dropdown-divider"></div>
-            <form id="outputs" class="px-3 py-3 d-grid gap-2"></form>
-            <div class="dropdown-divider featPartitions"></div>
-            <a class="dropdown-item featPartitions" data-title-phrase="Manage partitions" data-bs-toggle="modal" href="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
-            <a data-phrase="Move an output to this partition" class="dropdown-item featPartitions" data-bs-toggle="modal" href="#modalPartitionOutputs"></a>
           </div>
         </div>
         <div class="btn-group dropup featLocalPlayback ms-2">
