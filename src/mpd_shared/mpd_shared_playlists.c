@@ -12,6 +12,7 @@
 #include "../lib/mympd_configuration.h"
 #include "../lib/random.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_tags.h"
@@ -313,17 +314,6 @@ bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, cons
                               const char *expression, const int maxentries,
                               const int timerange, const char *sort)
 {
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", workdir, playlist);
-    errno = 0;
-    int fd = mkstemp(tmp_file);
-    if (fd < 0 ) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        return false;
-    }
-    FILE *fp = fdopen(fd, "w");
-
     sds line = sdscatlen(sdsempty(), "{", 1);
     line = tojson_char(line, "type", smartpltype, true);
     if (strcmp(smartpltype, "sticker") == 0) {
@@ -339,34 +329,11 @@ bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, cons
     }
     line = tojson_char(line, "sort", sort, false);
     line = sdscatlen(line, "}", 1);
-    bool rc = true;
-    if (fputs(line, fp) == EOF) {
-        MYMPD_LOG_ERROR("Could not write to file %s", tmp_file);
-        rc = false;
-    }
-    if (fclose(fp) != 0) {
-        MYMPD_LOG_ERROR("Could not close file %s", tmp_file);
-        rc = false;
-    }
-    FREE_SDS(line);
+
     sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", workdir, playlist);
-    errno = 0;
-    if (rc == true) {
-        if (rename(tmp_file, pl_file) == -1) {
-            MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, pl_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    else {
-        //remove incomplete tmp file
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    FREE_SDS(tmp_file);
+    bool rc = write_data_to_file(pl_file, line, sdslen(line));
+
+    FREE_SDS(line);
     FREE_SDS(pl_file);
     return rc;
 }
