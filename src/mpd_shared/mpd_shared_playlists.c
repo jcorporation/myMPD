@@ -119,6 +119,7 @@ sds mpd_shared_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds m
                 i++;
                 j++;
                 rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, current->key);
+                list_node_free(current);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
                     break;

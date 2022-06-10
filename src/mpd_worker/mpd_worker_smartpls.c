@@ -211,6 +211,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
             FREE_SDS(playlist);
             FREE_SDS(plpath);
             FREE_SDS(filename);
+            list_node_free(current);
         }
     }
     return true;
