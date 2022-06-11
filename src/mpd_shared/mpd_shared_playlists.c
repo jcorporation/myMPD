@@ -193,13 +193,12 @@ sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
     sds key = sdsempty();
     struct mpd_song *song;
     while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
-        const char *tag_value = NULL;
         const char *song_uri = mpd_song_get_uri(song);
         sdsclear(key);
         if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
             //sort by tag
-            tag_value = mpd_song_get_tag(song, sort_tags.tags[0], 0);
-            key = sdscatfmt(key, "%s::%s", tag_value, song_uri);
+            key = mpd_shared_get_tag_values(song, sort_tags.tags[0], key);
+            key = sdscatfmt(key, "::%s", song_uri);
         }
         else {
             //sort by filename
