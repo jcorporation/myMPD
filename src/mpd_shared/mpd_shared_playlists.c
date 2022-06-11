@@ -171,11 +171,11 @@ sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
     bool rc = false;
 
     if (strcmp(tagstr, "filename") == 0) {
-        MYMPD_LOG_INFO("Sorting playlist %s by filename", uri);
+        MYMPD_LOG_INFO("Sorting playlist \"%s\" by filename", uri);
         rc = mpd_send_list_playlist(mpd_state->conn, uri);
     }
     else if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
-        MYMPD_LOG_INFO("Sorting playlist %s by tag %s", uri, tagstr);
+        MYMPD_LOG_INFO("Sorting playlist \"%s\" by tag \"%s\"", uri, tagstr);
         enable_mpd_tags(mpd_state, &sort_tags);
         rc = mpd_send_list_playlist_meta(mpd_state->conn, uri);
     }
@@ -206,7 +206,11 @@ sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
             key = sdscat(key, song_uri);
         }
         sds_utf8_tolower(key);
-        raxInsert(plist, (unsigned char *)key, sdslen(key), sdsnew(song_uri), NULL);
+        sds data = sdsnew(song_uri);
+        while (raxTryInsert(plist, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
+            //duplicate - add chars until it is uniq
+            key = sdscatlen(key, ":", 1);
+        }
         mpd_song_free(song);
     }
     FREE_SDS(key);

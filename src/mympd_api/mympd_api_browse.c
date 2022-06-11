@@ -138,7 +138,6 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
     rax *entity_list = raxNew();
     long real_limit = offset + limit;
     struct mpd_entity *entity;
-    sds_utf8_tolower(searchstr);
     while ((entity = mpd_recv_entity(mympd_state->mpd_state->conn)) != NULL) {
         switch (mpd_entity_get_type(entity)) {
             case MPD_ENTITY_TYPE_SONG: {
@@ -152,7 +151,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 const struct mpd_directory *dir = mpd_entity_get_directory(entity);
                 sds entity_name = sdsnew(mpd_directory_get_path(dir));
                 sds_basename_uri(entity_name);
-                key = sdscatfmt(key, "0%S", entity_name);
+                key = sdscatfmt(key, "0%s", mpd_directory_get_path(dir));
                 search_dir_entry(entity_list, key, entity_name, entity, searchstr);
                 break;
             }
@@ -171,7 +170,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 }
                 sds entity_name = sdsnew(pl_path);
                 sds_basename_uri(entity_name);
-                key = sdscatfmt(key, "1%S", entity_name);
+                key = sdscatfmt(key, "1%s", pl_path);
                 search_dir_entry(entity_list, key, entity_name, entity, searchstr);
                 break;
             }
@@ -191,7 +190,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
         while (raxNext(&iter)) {
             struct t_dir_entry *entry_data = (struct t_dir_entry *)iter.data;
             mpd_entity_free(entry_data->entity);
-            sdsfree(entry_data->name);
+            FREE_SDS(entry_data->name);
             FREE_PTR(iter.data);
         }
         raxStop(&iter);
@@ -268,7 +267,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
             }
         }
         mpd_entity_free(entry_data->entity);
-        sdsfree(entry_data->name);
+        FREE_SDS(entry_data->name);
         FREE_PTR(iter.data);
         entity_count++;
     }
@@ -540,7 +539,10 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
                 }
             }
             sds_utf8_tolower(key);
-            raxInsert(albums,(unsigned char*)key, sdslen(key), iter.data, NULL);
+            while (raxTryInsert(albums, (unsigned char*)key, sdslen(key), iter.data, NULL) == 0) {
+                //duplicate - add chars until it is uniq
+                key = sdscatlen(key, ":", 1);
+            }
             sdsclear(key);
         }
     }
@@ -631,8 +633,13 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
             (searchstr_len > 2 && utf8casestr(pair->value, searchstr) != NULL))
         {
             key = sdscat(key, pair->value);
+            //handle tags case insensitive
             sds_utf8_tolower(key);
-            raxInsert(taglist, (unsigned char *)key, sdslen(key), sdsnew(pair->value), NULL);
+            sds data = sdsnew(pair->value);
+            while (raxTryInsert(taglist, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
+                //duplicate - add chars until it is uniq
+                key = sdscatlen(key, ":", 1);
+            }
             sdsclear(key);
         }
         mpd_return_pair(mympd_state->mpd_state->conn, pair);
@@ -703,12 +710,15 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
 static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity, sds searchstr) {
     sds_utf8_tolower(key);
     if (sdslen(searchstr) == 0 ||
-        utf8str(entity_name, searchstr) != NULL)
+        utf8casestr(entity_name, searchstr) != NULL)
     {
         struct t_dir_entry *entry_data = malloc_assert(sizeof(struct t_dir_entry));
         entry_data->name = entity_name;
         entry_data->entity = entity;
-        raxInsert(rt, (unsigned char *)key, sdslen(key), entry_data, NULL);
+        while (raxTryInsert(rt, (unsigned char *)key, sdslen(key), entry_data, NULL) == 0) {
+            //duplicate - add chars until it is uniq
+            key = sdscatlen(key, ":", 1);
+        }
         return true;
     }
     mpd_entity_free(entity);
