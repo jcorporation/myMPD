@@ -188,6 +188,7 @@
 #define MPD_TIMEOUT_MAX 1000000 //ms
 #define MPD_RESULTS_MIN 25
 #define MPD_RESULTS_MAX 1000
+#define MPD_COMMANDS_MAX 2000 //max number of commands for mpd command lists
 #define MPD_PLAYLIST_LENGTH_MAX 16384 //mpd default
 #define MPD_BINARY_SIZE_MIN 4096 //4 kb mpd default
 #define MPD_BINARY_SIZE_MAX 5242880 //5 MB

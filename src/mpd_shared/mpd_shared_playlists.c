@@ -109,7 +109,7 @@ sds mpd_shared_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds m
     sds uri_old = sdscatfmt(sdsempty(), "%l-old-%s", randnr, uri);
 
     //add shuffled songs to tmp playlist
-    //uses command list to add MPD_RESULTS_MAX songs at once
+    //uses command list to add MPD_COMMANDS_MAX songs at once
     long i = 0;
     while (i < plist.length) {
         if (mpd_command_list_begin(mpd_state->conn, false) == true) {
@@ -124,7 +124,7 @@ sds mpd_shared_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds m
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
-                if (j == MPD_RESULTS_MAX) {
+                if (j == MPD_COMMANDS_MAX) {
                     break;
                 }
             }
@@ -232,7 +232,7 @@ sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
     sds uri_old = sdscatfmt(sdsempty(), "%l-old-%s", randnr, uri);
 
     //add sorted songs to tmp playlist
-    //uses command list to add MPD_RESULTS_MAX songs at once
+    //uses command list to add MPD_COMMANDS_MAX songs at once
     unsigned i = 0;
     raxIterator iter;
     raxStart(&iter, plist);
@@ -249,7 +249,7 @@ sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
-                if (j == MPD_RESULTS_MAX) {
+                if (j == MPD_COMMANDS_MAX) {
                     break;
                 }
             }
