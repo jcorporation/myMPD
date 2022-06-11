@@ -754,7 +754,7 @@ function addTagList(elId, list) {
 
 function addTagListSelect(elId, list) {
     const select = document.getElementById(elId);
-    elClear(select);
+    select.options.length = 0;
     if (elId === 'saveSmartPlaylistSort' || elId === 'selectSmartplsSort') {
         select.appendChild(elCreateText('option', {"value": ""}, tn('Disabled')));
         select.appendChild(elCreateText('option', {"value": "shuffle"}, tn('Shuffle')));
@@ -1645,4 +1645,27 @@ function setMobileView() {
     else {
         domCache.body.classList.add('not-mobile');
     }
+}
+
+function httpGet(uri, callback, json) {
+    const ajaxRequest = new XMLHttpRequest();
+    ajaxRequest.open('GET', uri, true);
+    ajaxRequest.onreadystatechange = function() {
+        if (ajaxRequest.readyState === 4) {
+            if (json === true) {
+                try {
+                    const obj = JSON.parse(ajaxRequest.responseText);
+                    callback(obj);
+                }
+                catch(error) {
+                    showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
+                    logError('Can not parse response to json object:' + ajaxRequest.responseText);
+                }
+            }
+            else {
+                callback(ajaxRequest.responseText);
+            }
+        }
+    };
+    ajaxRequest.send();
 }

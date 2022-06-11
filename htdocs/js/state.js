@@ -39,22 +39,9 @@ function parseStats(obj) {
 }
 
 function getServerinfo() {
-    const ajaxRequest = new XMLHttpRequest();
-    ajaxRequest.open('GET', subdir + '/api/serverinfo', true);
-    ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.readyState === 4) {
-            try {
-                const obj = JSON.parse(ajaxRequest.responseText);
-                document.getElementById('wsIP').textContent = obj.result.ip;
-            }
-            catch(error) {
-                showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
-                logError('Can not parse response to json object:' + ajaxRequest.responseText);
-                elClearId('wsIP');
-            }
-        }
-    };
-    ajaxRequest.send();
+    httpGet(subdir + '/api/serverinfo', function(obj) {
+        document.getElementById('wsIP').textContent = obj.result.ip;
+    }, true);
 }
 
 function getCounterText() {
