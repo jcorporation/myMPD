@@ -26,9 +26,11 @@ bool is_allowed_proxy_uri(const char *uri) {
     const char **p = NULL;
     for (p = allowed_proxy_hosts; *p != NULL; p++) {
         if (mg_vcmp(&host, *p) == 0) {
+            MYMPD_LOG_DEBUG("Host \"%.*s\" is on whitelist", (int)host.len, host.ptr);
             return true;
         }
     }
+    MYMPD_LOG_WARN("Host \"%.*s\" is not on whitelist", (int)host.len, host.ptr);
     return false;
 }
 
