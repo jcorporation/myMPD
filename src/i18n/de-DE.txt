@@ -1786,7 +1786,7 @@ Error in cropping covercache
 Fehler beim Abschneides des Covercaches
 
 Saved smart playlist
-Intelligente Wiedergabeliste wurde gespichert
+Intelligente Wiedergabeliste wurde gespeichert
 
 Too many timers defined
 Zu viele Timer definiert
