@@ -59,6 +59,24 @@ function initScripts() {
         document.getElementById('dropdownAddFunction').style.width = dw + 'px';
     }, false);
 
+    document.getElementById('btnDropdownImportScript').parentNode.addEventListener('show.bs.dropdown', function() {
+        const dw = document.getElementById('textareaScriptContent').offsetWidth - document.getElementById('btnDropdownImportScript').parentNode.offsetLeft;
+        document.getElementById('dropdownImportScript').style.width = dw + 'px';
+        getImportScriptList();
+    }, false);
+
+    document.getElementById('btnImportScript').addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        const script = getSelectValueId('selectImportScript');
+        if (script === '') {
+            return;
+        }
+        getImportScript(script);
+        BSN.Dropdown.getInstance('#btnDropdownImportScript').hide();
+        setFocusId('textareaScriptContent');
+    }, false);
+
     const selectAPIcallEl = document.getElementById('selectAPIcall');
     elClear(selectAPIcallEl);
     selectAPIcallEl.appendChild(
@@ -131,6 +149,38 @@ function initScripts() {
         el.setRangeText(LUAfunctions[value].func, start, end, 'end');
         BSN.Dropdown.getInstance('#btnDropdownAddFunction').hide();
         setFocus(el);
+    }, false);
+}
+
+function getImportScriptList() {
+    const sel = document.getElementById('selectImportScript');
+    sel.setAttribute('disabled', 'disabled');
+    httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://jcorporation.github.io/myMPD/scripting/scripts/index.json'), function(obj) {
+        sel.options.length = 0;
+        for (const script of obj.scripts) {
+            sel.appendChild(
+                elCreateText('option', {"value": script}, script)
+            );
+        }
+        sel.removeAttribute('disabled');
+    }, true);
+}
+
+function getImportScript(script) {
+    document.getElementById('textareaScriptContent').setAttribute('disabled', 'disabled');
+    httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://jcorporation.github.io/myMPD/scripting/scripts/' + script), function(text) {
+        const lines = text.split("\n");
+        const firstLine = lines.shift();
+        const obj = JSON.parse(firstLine.substring(firstLine.indexOf('{')));
+        const scriptArgEl = document.getElementById('selectScriptArguments');
+        scriptArgEl.options.length = 0;
+        for (let i = 0, j = obj.arguments.length; i < j; i++) {
+            scriptArgEl.appendChild(
+                elCreateText('option', {}, obj.arguments[i])
+            );
+        }
+        document.getElementById('textareaScriptContent').value = lines.join('\n');
+        document.getElementById('textareaScriptContent').removeAttribute('disabled');
     }, false);
 }
 
@@ -219,7 +269,7 @@ function removeScriptArgument(ev) {
 //eslint-disable-next-line no-unused-vars
 function showEditScript(script) {
     cleanupModalId('modalScripts');
-
+    document.getElementById('textareaScriptContent').removeAttribute('disabled');
     document.getElementById('listScripts').classList.remove('active');
     document.getElementById('editScript').classList.add('active');
     elHideId('listScriptsFooter');
@@ -245,7 +295,7 @@ function parseEditScript(obj) {
     document.getElementById('inputScriptOrder').value = obj.result.metadata.order;
     document.getElementById('inputScriptArgument').value = '';
     const selSA = document.getElementById('selectScriptArguments');
-    selSA.textContent = '';
+    selSA.options.length = 0;
     for (let i = 0, j = obj.result.metadata.arguments.length; i < j; i++) {
         selSA.appendChild(
             elCreateText('option', {}, obj.result.metadata.arguments[i])
