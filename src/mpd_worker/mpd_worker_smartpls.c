@@ -303,7 +303,10 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
                     struct t_sticker_value *data = malloc_assert(sizeof(struct t_sticker_value));
                     data->uri = sdsdup(uri);
                     data->value = value;
-                    raxInsert(add_list, (unsigned char *)key, sdslen(key), data, NULL);
+                    while (raxTryInsert(add_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
+                        //duplicate - add chars until it is uniq
+                        key = sdscatlen(key, ":", 1);
+                    }
                     if (value > value_max) {
                         value_max = value;
                     }

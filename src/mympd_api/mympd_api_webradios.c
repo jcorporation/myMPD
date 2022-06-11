@@ -85,7 +85,7 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
     size_t search_len = sdslen(searchstr);
     struct dirent *next_file;
     rax *webradios = raxNew();
-    sds plname = sdsempty();
+    sds key = sdsempty();
     long real_limit = offset + limit;
     //read dir
     while ((next_file = readdir(webradios_dir)) != NULL ) {
@@ -96,9 +96,9 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
             continue;
         }
 
-        sdsclear(plname);
+        sdsclear(key);
         sds filename = sdscatfmt(sdsempty(), "%s/%s", webradios_dirname, next_file->d_name);
-        sds entry = m3u_to_json(sdsempty(), filename, &plname);
+        sds entry = m3u_to_json(sdsempty(), filename, &key);
         if (sdslen(entry) == 0) {
             //skip on parsing error
             sdsfree(entry);
@@ -106,13 +106,17 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
             continue;
         }
         if (search_len == 0 ||
-            utf8casestr(plname, searchstr) != NULL)
+            utf8casestr(key, searchstr) != NULL)
         {
             struct t_webradio_entry *webradio = malloc_assert(sizeof(struct t_webradio_entry));
             webradio->filename = filename;
             webradio->entry = entry;
-            plname = sdscatsds(plname, filename); // append filename to keep it unique
-            raxInsert(webradios, (unsigned char *)plname, sdslen(plname), webradio, NULL);
+            key = sdscatsds(key, filename); //append filename to keep it unique
+            sds_utf8_tolower(key);
+            while (raxTryInsert(webradios, (unsigned char *)key, sdslen(key), webradio, NULL) == 0) {
+                //duplicate - add chars until it is uniq
+                key = sdscatlen(key, ":", 1);
+            }
         }
         else {
             sdsfree(filename);
@@ -121,7 +125,7 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
     }
     closedir(webradios_dir);
     FREE_SDS(webradios_dirname);
-    FREE_SDS(plname);
+    FREE_SDS(key);
     //print result
     long entity_count = 0;
     long entities_returned = 0;

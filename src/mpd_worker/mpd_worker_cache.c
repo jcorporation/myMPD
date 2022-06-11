@@ -122,8 +122,12 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             if (mpd_worker_state->mpd_state->feat_mpd_stickers == true) {
                 const char *uri = mpd_song_get_uri(song);
                 struct t_sticker *sticker = malloc_assert(sizeof(struct t_sticker));
-                raxInsert(sticker_cache, (unsigned char *)uri, strlen(uri), (void *)sticker, NULL);
-                song_count++;
+                if (raxTryInsert(sticker_cache, (unsigned char *)uri, strlen(uri), (void *)sticker, NULL) == 0) {
+                    free(sticker);
+                }
+                else {
+                    song_count++;
+                }
             }
             //album cache
             if (mpd_worker_state->mpd_state->feat_mpd_tags == true) {

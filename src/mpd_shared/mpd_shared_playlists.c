@@ -197,7 +197,7 @@ sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
         sdsclear(key);
         if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
             //sort by tag
-            key = mpd_shared_get_tag_values(song, sort_tags.tags[0], key);
+            key = mpd_shared_get_tag_value_string(song, sort_tags.tags[0], key);
             key = sdscatfmt(key, "::%s", song_uri);
         }
         else {
