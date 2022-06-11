@@ -169,7 +169,7 @@ function getImportScriptList() {
 function getImportScript(script) {
     document.getElementById('textareaScriptContent').setAttribute('disabled', 'disabled');
     httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://jcorporation.github.io/myMPD/scripting/scripts/' + script), function(text) {
-        const lines = text.split("\n");
+        const lines = text.split('\n');
         const firstLine = lines.shift();
         const obj = JSON.parse(firstLine.substring(firstLine.indexOf('{')));
         const scriptArgEl = document.getElementById('selectScriptArguments');
