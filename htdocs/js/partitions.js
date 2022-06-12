@@ -13,9 +13,10 @@ function initPartitions() {
             if (action === 'delete') {
                 deletePartition(partition);
             }
-            else if (action === 'switch') {
-                switchPartition(partition);
-            }
+        }
+        else if (event.target.nodeName === 'TD') {
+            const partition = getData(event.target.parentNode, 'partition');
+            switchPartition(partition);
         }
     }, false);
 
@@ -101,6 +102,16 @@ function savePartitionCheckError(obj) {
     }
 }
 
+function switchPartitionCheckError(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        BSN.Modal.getInstance('#modalPartitions').hide();
+        showNotification(tn('Partition switched'), '', 'general', 'info');
+    }
+}
+
 //eslint-disable-next-line no-unused-vars
 function showNewPartition() {
     cleanupModalId('modalPartitions');
@@ -132,7 +143,7 @@ function switchPartition(partition) {
     sendAPI("MYMPD_API_PARTITION_SWITCH", {
         "name": partition
     }, function(obj) {
-        savePartitionCheckError(obj);
+        switchPartitionCheckError(obj);
         sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState);
     }, true);
 }
@@ -148,6 +159,13 @@ function parsePartitionList(obj) {
     for (let i = 0, j = obj.result.data.length; i < j; i++) {
         const tr = elCreateEmpty('tr', {});
         setData(tr, 'partition', obj.result.data[i].name);
+        if (obj.result.data[i].name !== settings.partition) {
+            tr.setAttribute('title', tn('Switch to'));
+        }
+        else {
+            tr.classList.add('not-clickable');
+            tr.setAttribute('title', tn('Active partition'));
+        }
         const td = elCreateEmpty('td', {});
         if (obj.result.data[i].name === settings.partition) {
             td.classList.add('font-weight-bold');
@@ -158,14 +176,11 @@ function parsePartitionList(obj) {
         }
         tr.appendChild(td);
         const partitionActionTd = elCreateEmpty('td', {"data-col": "Action"});
-        if (obj.result.data[i].name !== 'default' && obj.result.data[i].name !== settings.partition) {
+        if (obj.result.data[i].name !== 'default' &&
+            obj.result.data[i].name !== settings.partition)
+        {
             partitionActionTd.appendChild(
                 elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["mi", "color-darkgrey", "me-2"]}, 'delete')
-            );
-        }
-        if (obj.result.data[i].name !== settings.partition) {
-            partitionActionTd.appendChild(
-                elCreateText('a', {"href": "#", "title": tn('Switch to'), "data-action": "switch", "class": ["mi", "color-darkgrey"]}, 'check_circle')
             );
         }
         tr.appendChild(partitionActionTd);

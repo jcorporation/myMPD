@@ -2288,3 +2288,9 @@ Skript importieren
 
 Can not parse script arguments
 Skriptargumente konnten nicht eingelesen werden
+
+Active partition
+Aktive Partition
+
+Partition switched
+Partition gewechselt

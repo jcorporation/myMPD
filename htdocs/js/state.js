@@ -215,12 +215,22 @@ function parseState(obj) {
     }
     toggleTopAlert();
 
+    //check if we need to get settings
+    let getNewSettings = false;
+    if (settings.partition !== obj.result.partition) {
+        //partition has changed, fetch new settings
+        getNewSettings = true;
+    }
     //refresh settings if mpd is not connected or ui is disabled
     //ui is disabled at startup
     if (settings.mpdConnected === false ||
         uiEnabled === false)
     {
         logDebug((settings.mpdConnected === false ? 'MPD disconnected' : 'UI disabled') + ' - refreshing settings');
+        getNewSettings = true;
+    }
+
+    if (getNewSettings === true) {
         getSettings(true);
     }
 }
