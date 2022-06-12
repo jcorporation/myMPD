@@ -2294,3 +2294,9 @@ Aktive Partition
 
 Partition switched
 Partition gewechselt
+
+Outputs moved to current partition
+Ausgabegeräte wurden in aktuelle Partition verschoben
+
+Move
+Verschieben

@@ -23,10 +23,8 @@ function initPartitions() {
     document.getElementById('partitionOutputsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (event.target.nodeName === 'TD') {
-            const outputName = getData(event.target.parentNode, 'output');
-            moveOutput(outputName);
-            uiElements.modalPartitionOutputs.hide();
+        if (event.target.nodeName === 'BUTTON') {
+            toggleBtnChk(event.target);
         }
     }, false);
 
@@ -50,10 +48,29 @@ function initPartitions() {
     });
 }
 
-function moveOutput(output) {
+//eslint-disable-next-line no-unused-vars
+function moveOutputs() {
+    const outputs = [];
+    const selection = document.getElementById('partitionOutputsList').getElementsByClassName('active');
+    if (selection.length === 0) {
+        return;
+    }
+    for (let i = 0, j = selection.length; i < j; i++) {
+        outputs.push(getData(selection[i].parentNode.parentNode, 'output'));
+    }
     sendAPI("MYMPD_API_PARTITION_OUTPUT_MOVE", {
-        "name": output
-    });
+        "outputs": outputs
+    }, moveOutputsCheckError, true);
+}
+
+function moveOutputsCheckError(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        uiElements.modalPartitionOutputs.hide();
+        showNotification(tn('Outputs moved to current partition'), '', 'general', 'info');
+    }
 }
 
 function parsePartitionOutputsList(obj) {
@@ -70,11 +87,16 @@ function parsePartitionOutputsList(obj) {
         }
     }
 
+    const selBtn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-small", "me-3"]}, 'radio_button_unchecked');
+
     let nr = 0;
     for (let i = 0, j = allOutputs.length; i < j; i++) {
         if (curOutputs.includes(allOutputs[i].name) === false) {
             const tr = elCreateNode('tr', {},
-                elCreateText('td', {}, allOutputs[i].name)
+                elCreateNodes('td', {}, [
+                    selBtn.cloneNode(true),
+                    document.createTextNode(allOutputs[i].name)
+                ])
             );
             setData(tr, 'output', allOutputs[i].name);
             outputList.appendChild(tr);

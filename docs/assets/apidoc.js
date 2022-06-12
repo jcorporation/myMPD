@@ -1410,10 +1410,10 @@ const APImethods = {
         "desc": "Moves this output to current MPD partition",
         "protected": true,
         "params": {
-            "name": {
-                "tye": "text",
-                "example": "output1",
-                "desc": "output name"
+            "outputs": {
+                "type": "array",
+                "example": "[\"output1\", \"output2\"]",
+                "desc": "Outputs to move to current partition"
             }
         }
     },

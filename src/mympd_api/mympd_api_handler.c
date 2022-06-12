@@ -1396,12 +1396,23 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_delete_partition", &result);
             }
             break;
-        case MYMPD_API_PARTITION_OUTPUT_MOVE:
-            if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
-                rc = mpd_run_move_output(mympd_state->mpd_state->conn, sds_buf1);
-                response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_move_output", &result);
+        case MYMPD_API_PARTITION_OUTPUT_MOVE: {
+            struct t_list outputs;
+            list_init(&outputs); 
+            if (json_get_array_string(request->data, "$.params.outputs", &outputs, vcb_isname, 10, &error) == true) {
+                struct t_list_node *current;
+                while ((current = list_shift_first(&outputs)) != NULL) {
+                    rc = mpd_run_move_output(mympd_state->mpd_state->conn, current->key);
+                    list_node_free(current);
+                    response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_move_output", &result);
+                    if (result == false) {
+                        break;
+                    }
+                }
             }
+            list_clear(&outputs);
             break;
+        }
         case MYMPD_API_MOUNT_LIST:
             response->data = mympd_api_mounts_list(mympd_state, response->data, request->method, request->id);
             break;
