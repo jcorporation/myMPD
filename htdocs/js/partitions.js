@@ -37,7 +37,16 @@ function initPartitions() {
     document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
         sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
             "partition": "default"
-        }, parsePartitionOutputsList, true);
+        }, function(obj) {
+            const outputList = document.getElementById('partitionOutputsList');
+            if (checkResult(obj, outputList) === false) {
+                return;
+            }
+            allOutputs = obj.result.data;
+            sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
+                "partition": settings.partition
+            }, parsePartitionOutputsList, true);
+        }, true);
     });
 }
 
@@ -54,19 +63,20 @@ function parsePartitionOutputsList(obj) {
     }
 
     elClear(outputList);
-    const outputs = document.getElementById('outputs').getElementsByTagName('button');
-    const outputIds = [];
-    for (let i = 0, j= outputs.length; i < j; i++) {
-        outputIds.push(getData(outputs[i], 'output-id'));
+    const curOutputs = [];
+    for (let i = 0; i < obj.result.numOutputs; i++) {
+        if (obj.result.data[i].plugin !== 'dummy') {
+            curOutputs.push(obj.result.data[i].name);
+        }
     }
 
     let nr = 0;
-    for (let i = 0, j = obj.result.data.length; i < j; i++) {
-        if (outputIds.includes(obj.result.data[i].id) === false) {
+    for (let i = 0, j = allOutputs.length; i < j; i++) {
+        if (curOutputs.includes(allOutputs[i].name) === false) {
             const tr = elCreateNode('tr', {},
-                elCreateText('td', {}, obj.result.data[i].name)
+                elCreateText('td', {}, allOutputs[i].name)
             );
-            setData(tr, 'output', obj.result.data[i].name);
+            setData(tr, 'output', allOutputs[i].name);
             outputList.appendChild(tr);
             nr++;
         }

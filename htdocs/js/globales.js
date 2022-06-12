@@ -27,6 +27,7 @@ let appInited = false;
 let scriptsInited = false;
 let subdir = '';
 let uiEnabled = true;
+let allOutputs = null;
 const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
 const smallSpace = '\u2009';
