@@ -796,6 +796,7 @@ function appInit() {
     initPlaylists();
     initOutputs();
     initWebradio();
+    initLocalPlayback();
     //init drag and drop
     for (const table of ['QueueCurrentList', 'BrowsePlaylistsDetailList']) {
         dragAndDropTable(table);
@@ -943,10 +944,6 @@ function initPlayback() {
 }
 
 function initNavs() {
-    document.getElementById('volumeBar').addEventListener('change', function() {
-        sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {"volume": Number(document.getElementById('volumeBar').value)});
-    }, false);
-
     domCache.progress.addEventListener('click', function(event) {
         if (currentState.currentSongId >= 0 &&
             currentState.totalTime > 0)

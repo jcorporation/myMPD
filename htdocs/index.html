@@ -772,10 +772,20 @@
             <h5 class="dropdown-header"><span class="mi mi-small me-2">airplay</span><span data-phrase="Local playback"></span></h5>
             <hr class="mt-0"/>
             <div id="errorLocalPlayback" class="alert alert-danger mx-3 p-2 d-none" data-phrase="Error loading stream"></div>
-            <audio class="mx-3" id="localPlayer" preload="none"></audio>
-            <div class="d-grid mx-3">
+            <audio id="localPlayer" preload="none"></audio>
+            <div class="d-grid mx-3 mb-3">
               <div class="mb-3"><span data-phrase="Duration"></span>: <span id="localPlayerProgress"></span></div>
-              <button id="localPlaybackBtn" class="btn btn-success mi" data-href='{"cmd": "createLocalPlaybackEl", "options": []}'>play_arrow</button>
+              <button class="btn btn-success mi mb-3" id="localPlaybackBtn" data-href='{"cmd": "createLocalPlaybackEl", "options": []}'>play_arrow</button>
+              <div class="mb-3"><span data-phrase="Volume"></span>: <span id="localPlaybackVolume"></span></div>
+              <form id="localPlaybackVolumeControl">
+                <div class="btn-group">
+                  <button id="btnLocalPlaybackChVolumeDown" data-href='{"cmd": "localPlaybackVolumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
+                    <div class="bg-secondary" id="volumeDiv">
+                      <input type="range" min="0" max="1" step="0.1" class="form-range" id="localPlaybackVolumeBar"/>
+                    </div>
+                  <button id="btnLocalPlaybackChVolumeUp" data-href='{"cmd": "localPlaybackVolumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
+                </div>
+              </form>
             </div>
           </div>
         </div>

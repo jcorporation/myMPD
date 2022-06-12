@@ -2285,3 +2285,6 @@ Windows Media Audio
 
 Import script
 Skript importieren
+
+Can not parse script arguments
+Skriptargumente konnten nicht eingelesen werden

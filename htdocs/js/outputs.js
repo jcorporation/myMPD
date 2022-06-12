@@ -11,6 +11,10 @@ function initOutputs() {
         }, false);
     }
 
+    document.getElementById('volumeBar').addEventListener('change', function() {
+        sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {"volume": Number(document.getElementById('volumeBar').value)});
+    }, false);
+
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
         sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
             "partition": ""
