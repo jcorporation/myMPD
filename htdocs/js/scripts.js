@@ -171,7 +171,15 @@ function getImportScript(script) {
     httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://jcorporation.github.io/myMPD/scripting/scripts/' + script), function(text) {
         const lines = text.split('\n');
         const firstLine = lines.shift();
-        const obj = JSON.parse(firstLine.substring(firstLine.indexOf('{')));
+        let obj;
+        try {
+            obj = JSON.parse(firstLine.substring(firstLine.indexOf('{')));
+        }
+        catch(error) {
+            showNotification(tn('Can not parse script arguments'), '', 'general', 'error');
+            logError('Can not parse script arguments:' + firstLine);
+            return;
+        }
         const scriptArgEl = document.getElementById('selectScriptArguments');
         scriptArgEl.options.length = 0;
         for (let i = 0, j = obj.arguments.length; i < j; i++) {
