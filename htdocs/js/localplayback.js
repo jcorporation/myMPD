@@ -42,7 +42,7 @@ function createLocalPlaybackEl(createEvent) {
     //replace old audio element
     const parent = curAudioEl.parentNode;
     curAudioEl.remove();
-    const localPlayer = elCreateEmpty('audio', {"class": ["mx-4"], "preload": "none", "id": "localPlayer"});
+    const localPlayer = elCreateEmpty('audio', {"class": ["mx-4"], "preload": "none", "id": "localPlayer", "controls": null});
     parent.appendChild(localPlayer);
     //add eventhandlers
     document.getElementById('localPlayer').addEventListener('canplay', function() {
