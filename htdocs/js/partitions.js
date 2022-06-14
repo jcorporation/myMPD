@@ -11,7 +11,7 @@ function initPartitions() {
             const action = getData(event.target, 'action');
             const partition = getData(event.target.parentNode.parentNode, 'partition');
             if (action === 'delete') {
-                deletePartition(partition);
+                deletePartition(event.target, partition);
             }
         }
         else if (event.target.nodeName === 'TD') {
@@ -165,10 +165,12 @@ function showListPartitions() {
     sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, true);
 }
 
-function deletePartition(partition) {
-    sendAPI("MYMPD_API_PARTITION_RM", {
-        "name": partition
-    }, savePartitionCheckError, true);
+function deletePartition(el, partition) {
+    showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the partition?', {"partition": partition}), tn('Yes, delete it'), function() {
+        sendAPI("MYMPD_API_PARTITION_RM", {
+            "name": partition
+        }, savePartitionCheckError, true);
+    });  
 }
 
 function switchPartition(partition) {

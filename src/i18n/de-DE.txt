@@ -1506,6 +1506,9 @@ Willst du wirklich die Wiedergabeliste "%{playlist}" löschen?
 Do you really want to delete the script?
 Willst du wirklich das Skript "%{script}" löschen?
 
+Do you really want to delete the partition?
+Willst du wirklich die Partition "%{partition}" löschen?
+
 Yes, delete it
 Ja, löschen
 
