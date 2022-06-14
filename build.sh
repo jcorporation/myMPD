@@ -885,13 +885,14 @@ updatebootstrapnative() {
 updatebootstrap() {
   check_cmd npm
   cd dist/bootstrap || exit 1
-  npm i
+  [ -z "${BOOTSTRAP_VERSION+x}" ] && BOOTSTRAP_VERSION=""
+  npm install "$BOOTSTRAP_VERSION"
   npm run build
   sed -i '$ d' compiled/custom.css
   rm compiled/custom.css.map
   if [ -d ../../debug ]
   then
-  	cp compiled/custom.css ../../htdocs/css/bootstrap.css
+  	cp -v compiled/custom.css ../../htdocs/css/bootstrap.css
   fi
 }
 
