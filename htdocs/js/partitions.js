@@ -202,7 +202,7 @@ function parsePartitionList(obj) {
         }
         const td = elCreateEmpty('td', {});
         if (obj.result.data[i].name === settings.partition) {
-            td.classList.add('font-weight-bold');
+            td.classList.add('fw-bold');
             td.textContent = obj.result.data[i].name + ' (' + tn('current') + ')';
         }
         else {
