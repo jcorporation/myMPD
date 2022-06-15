@@ -22,6 +22,32 @@
 
 //privat definitions
 static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
+static bool _mpd_song_add_tag_dedup(struct mpd_song *song,
+		enum mpd_tag_type type, const char *value);
+static bool is_multivalue_tag_album(enum mpd_tag_type tag);
+
+//struct mpd_song define from libmpdclient
+struct mpd_tag_value {
+	struct mpd_tag_value *next;
+	char *value;
+};
+
+struct mpd_song {
+	char *uri;
+	struct mpd_tag_value tags[MPD_TAG_COUNT];
+	unsigned duration;
+	unsigned duration_ms;
+	unsigned start;
+	unsigned end;
+	time_t last_modified;
+	unsigned pos;
+	unsigned id;
+	unsigned prio;
+#ifndef NDEBUG
+	bool finished;
+#endif
+	struct mpd_audio_format audio_format;
+};
 
 //public functions
 bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
@@ -138,8 +164,22 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
                     sdsclear(key);
                     key = sdscatfmt(key, "%s::%s", album, artist);
                     sds_utf8_tolower(key);
-                    if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, NULL) == 0) {
-                        //discard song data if key exists
+                    void *old_data;
+                    if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, &old_data) == 0) {
+                        //append song data if key exists
+                        struct mpd_song *old_song = (struct mpd_song *) old_data;
+                        for (unsigned tagnr = 0; tagnr < mpd_worker_state->mpd_state->tag_types_mympd.len; ++tagnr) {
+                            const char *value;
+                            enum mpd_tag_type tag = mpd_worker_state->mpd_state->tag_types_mympd.tags[tagnr];
+                            if (is_multivalue_tag_album(tag) == true) {
+                                unsigned value_nr = 0;
+                                while ((value = mpd_song_get_tag(song, tag, value_nr)) != NULL) {
+                                    _mpd_song_add_tag_dedup(old_song, tag, value);
+                                    value_nr++;
+                                }
+                            }
+                        }
+                        //free song data
                         mpd_song_free(song);
                     }
                     else {
@@ -183,4 +223,60 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
     MYMPD_LOG_INFO("Added %ld songs to sticker cache", song_count);
     MYMPD_LOG_INFO("Cache updated successfully");
     return true;
+}
+
+/**
+ * Adds a tag value to the song if value does not already exists
+ *
+ * @return true on success, false if the tag is not supported or if no
+ * memory could be allocated or value is a duplicate
+ */
+static bool _mpd_song_add_tag_dedup(struct mpd_song *song,
+		enum mpd_tag_type type, const char *value)
+{
+	struct mpd_tag_value *tag = &song->tags[type], *prev;
+
+	if ((int)type < 0 || type >= MPD_TAG_COUNT)
+		return false;
+
+	if (tag->value == NULL) {
+		tag->next = NULL;
+		tag->value = strdup(value);
+		if (tag->value == NULL)
+			return false;
+	} else {
+		while (tag->next != NULL) {
+            if (strcmp(tag->value, value) == 0) {
+                //do not add duplicate values
+                return false;
+            }
+			tag = tag->next;
+        }
+
+		prev = tag;
+		tag = malloc(sizeof(*tag));
+		if (tag == NULL)
+			return NULL;
+
+		tag->value = strdup(value);
+		if (tag->value == NULL) {
+			free(tag);
+			return false;
+		}
+
+		tag->next = NULL;
+		prev->next = tag;
+	}
+
+	return true;
+}
+
+static bool is_multivalue_tag_album(enum mpd_tag_type tag) {
+    switch(tag) {
+        case MPD_TAG_ALBUM_ARTIST:
+        case MPD_TAG_ALBUM_ARTIST_SORT:
+            return false;
+        default:
+            return is_multivalue_tag(tag);
+    }
 }
