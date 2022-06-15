@@ -325,7 +325,7 @@ function deleteScript(el, script) {
     showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the script?', {"script": script}), tn('Yes, delete it'), function() {
         sendAPI("MYMPD_API_SCRIPT_RM", {
             "script": script
-        }, deleteScriptCheckError(obj), false);
+        }, deleteScriptCheckError, true);
     });
 }
 
