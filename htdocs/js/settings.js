@@ -1273,7 +1273,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
             btn.textContent = 'radio_button_unchecked';
         }
         list.appendChild(
-            elCreateNodes('div', {"class": "form-check"}, [
+            elCreateNodes('div', {"class": ["form-check"]}, [
                 btn,
                 elCreateText('label', {"class": ["form-check-label"], "for": allTags[i]}, allTags[i])
             ])
