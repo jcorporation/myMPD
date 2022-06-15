@@ -571,6 +571,16 @@ function parseAlbumDetails(obj) {
         p.textContent.appendChild(printValue('AlbumArtist', obj.result.AlbumArtist));
     }
     infoEl.appendChild(p);
+
+    if (settings.tagList.includes('Genre')) {
+        infoEl.appendChild(elCreateText('small', {}, tn('Genre')));
+        infoEl.appendChild(
+            elCreateNode('p', {}, 
+                printValue('Genre', obj.result.Genre)
+            )
+        );
+    }
+
     if (obj.result.bookletPath !== '' &&
         features.featLibrary === true)
     {

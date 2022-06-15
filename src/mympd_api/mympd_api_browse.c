@@ -336,9 +336,21 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     unsigned totalTime = 0;
     int discs = 1;
 
+    struct t_tags album_tags;
+    album_tags.len = 1;
+    album_tags.tags[0] = MPD_TAG_GENRE;
+
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
         if (entities_returned++) {
             buffer = sdscatlen(buffer, ",", 1);
+            for (unsigned i = 0; i < album_tags.len; i++) {
+                const char *value;
+                unsigned j = 0;
+                while ((value = mpd_song_get_tag(song, album_tags.tags[i], j)) != NULL) {
+                    mympd_mpd_song_add_tag_dedup(first_song, album_tags.tags[i], value);
+                    j++;
+                }
+            }
         }
         else {
             first_song = mpd_song_dup(song);
@@ -366,11 +378,13 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     buffer = sdscatlen(buffer, "],", 2);
 
     sds albumartist = sdsempty();
+    sds genre = sdsempty();
     sds mb_albumartist_id = sdsempty();
     sds mb_album_id = sdsempty();
     if (first_song != NULL) {
         buffer = get_extra_files(mympd_state, buffer, mpd_song_get_uri(first_song), false);
         albumartist = mpd_shared_get_tag_values(first_song, MPD_TAG_ALBUM_ARTIST, albumartist);
+        genre = mpd_shared_get_tag_values(first_song, MPD_TAG_GENRE, genre);
         mb_albumartist_id = mpd_shared_get_tag_values(first_song, MPD_TAG_MUSICBRAINZ_ALBUMARTISTID, mb_albumartist_id);
         mb_album_id = mpd_shared_get_tag_values(first_song, MPD_TAG_MUSICBRAINZ_ALBUMID, mb_album_id);
     }
@@ -378,6 +392,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
         //this should not occur, but we should response with a complete object
         buffer = sdscat(buffer, "\"images\":[],\"bookletPath\":\"\"");
         albumartist = sdscatlen(albumartist, "\"\"", 2);
+        genre = sdscatlen(genre, "[\"-\"]", 4);
         mb_albumartist_id = sdscatlen(mb_albumartist_id, "\"\"", 2);
         mb_album_id = sdscatlen(mb_album_id, "\"\"", 2);
     }
@@ -390,11 +405,13 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     buffer = tojson_raw(buffer, "MusicBrainzAlbumArtistId", mb_albumartist_id, true);
     buffer = tojson_raw(buffer, "MusicBrainzAlbumId", mb_album_id, true);
     buffer = tojson_raw(buffer, "AlbumArtist", albumartist, true);
+    buffer = tojson_raw(buffer, "Genre", genre, true);
     buffer = tojson_long(buffer, "Discs", discs, true);
     buffer = tojson_uint(buffer, "totalTime", totalTime, false);
     buffer = jsonrpc_result_end(buffer);
 
     FREE_SDS(albumartist);
+    FREE_SDS(genre);
     FREE_SDS(mb_albumartist_id);
     FREE_SDS(mb_album_id);
     if (first_song != NULL) {
