@@ -53,16 +53,20 @@ struct mpd_song {
 bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 		enum mpd_tag_type type, const char *value)
 {
-	struct mpd_tag_value *tag = &song->tags[type], *prev;
+	struct mpd_tag_value *tag = &song->tags[type];
 
-	if ((int)type < 0 || type >= MPD_TAG_COUNT)
+	if ((int)type < 0 ||
+        type >= MPD_TAG_COUNT)
+    {
 		return false;
+    }
 
-	if (tag->value == NULL) {
+    if (tag->value == NULL) {
 		tag->next = NULL;
 		tag->value = strdup(value);
-		if (tag->value == NULL)
+		if (tag->value == NULL) {
 			return false;
+        }
 	}
     else {
         if (strcmp(tag->value, value) == 0) {
@@ -77,7 +81,7 @@ bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 			tag = tag->next;
         }
 
-		prev = tag;
+		struct mpd_tag_value *prev = tag;
 		tag = malloc_assert(sizeof(*tag));
 
 		tag->value = strdup(value);
