@@ -85,6 +85,7 @@ message("Document root: ${ASSETS_PATH}")
 #set debug define for source
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
   set(DEBUG "OFF")
+  set(NDEBUG "true")
 else()
   set(DEBUG "ON")
 endif()
