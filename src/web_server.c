@@ -39,9 +39,7 @@ static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_h
 static bool handle_script_api(long long conn_id, sds body);
 
 //public functions
-bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_data *mg_user_data) {
-    struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
-
+bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_user_data *mg_user_data) {
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
     mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/empty", config->workdir);
@@ -66,10 +64,8 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     mgr->product_name = "myMPD "MYMPD_VERSION;
     mgr->directory_listing_css = DIRECTORY_LISTING_CSS;
     //set dns server
-    sds dns_uri = get_dnsserver();
-    mgr->dns4.url = strdup(dns_uri);
-    MYMPD_LOG_DEBUG("Setting dns server to %s", dns_uri);
-    FREE_SDS(dns_uri);
+    mgr->dns4.url = get_dnsserver();
+    MYMPD_LOG_DEBUG("Setting dns server to %s", mgr->dns4.url);
 
     //bind to http_port
     struct mg_connection *nc_http;
@@ -87,7 +83,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     FREE_SDS(http_url);
     if (nc_http == NULL) {
         MYMPD_LOG_EMERG("Can't bind to http://%s:%s", config->http_host, config->http_port);
-        mg_mgr_free(mgr);
+        web_server_free(mgr);
         return false;
     }
     MYMPD_LOG_NOTICE("Listening on http://%s:%s", config->http_host, config->http_port);
@@ -100,7 +96,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
         FREE_SDS(https_url);
         if (nc_https == NULL) {
             MYMPD_LOG_ERROR("Can't bind to https://%s:%s", config->http_host, config->ssl_port);
-            mg_mgr_free(mgr);
+            web_server_free(mgr);
             return false;
         }
         MYMPD_LOG_NOTICE("Listening on https://%s:%s", config->http_host, config->ssl_port);
@@ -110,23 +106,23 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     return mgr;
 }
 
-void web_server_free(void *arg_mgr) {
-    struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
+void web_server_free(struct mg_mgr *mgr) {
+    sds dns4_url = (sds)mgr->dns4.url;
+    FREE_SDS(dns4_url);
     mg_mgr_free(mgr);
-    mgr = NULL;
 }
 
 void *web_server_loop(void *arg_mgr) {
     thread_logname = sds_replace(thread_logname, "webserver");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
 
     //set mongoose loglevel
     #ifdef DEBUG
     mg_log_set("1");
     #endif
 
-    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
     #ifdef ENABLE_SSL
     MYMPD_LOG_DEBUG("Using certificate: %s", mg_user_data->config->ssl_cert);
     MYMPD_LOG_DEBUG("Using private key: %s", mg_user_data->config->ssl_key);

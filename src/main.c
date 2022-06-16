@@ -483,8 +483,6 @@ int main(int argc, char **argv) {
     }
     FREE_PTR(config);
     if (init_mg_user_data == true) {
-        char *dns4_url = (char *)mgr.dns4.url;
-        FREE_PTR(dns4_url);
         mg_user_data_free(mg_user_data);
     }
     FREE_PTR(mg_user_data);
