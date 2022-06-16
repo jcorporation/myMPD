@@ -551,34 +551,13 @@ function parseAlbumDetails(obj) {
 
     elClear(infoEl);
     infoEl.appendChild(elCreateText('h1', {}, obj.result.Album));
-    infoEl.appendChild(elCreateText('small', {}, tn('AlbumArtist')));
-    const p = elCreateEmpty('p', {}, '');
-
-    if (settings.tagListBrowse.includes(tagAlbumArtist)) {
-        for (const artist of obj.result.AlbumArtist) {
-            const artistLink = elCreateText('a', {"href": "#"}, artist);
-            setData(artistLink, 'tag', tagAlbumArtist);
-            setData(artistLink, 'name', artist);
-            artistLink.addEventListener('click', function(event) {
-                event.preventDefault();
-                gotoBrowse(event);
-            }, false);
-            p.appendChild(artistLink);
-            p.appendChild(elCreateEmpty('br', {}));
+    for (const tag of [tagAlbumArtist, 'Genre']) {
+        if (settings.tagList.includes(tag)) {
+            const p = elCreateEmpty('p', {}, '');
+            infoEl.appendChild(elCreateText('small', {}, tn(tag)));   
+            printBrowseLink(p, tag, obj.result[tag]);
+            infoEl.appendChild(p);
         }
-    }
-    else {
-        p.textContent.appendChild(printValue('AlbumArtist', obj.result.AlbumArtist));
-    }
-    infoEl.appendChild(p);
-
-    if (settings.tagList.includes('Genre')) {
-        infoEl.appendChild(elCreateText('small', {}, tn('Genre')));
-        infoEl.appendChild(
-            elCreateNode('p', {}, 
-                printValue('Genre', obj.result.Genre)
-            )
-        );
     }
 
     if (obj.result.bookletPath !== '' &&

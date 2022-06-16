@@ -1310,6 +1310,25 @@ function createSearchExpression(crumbsEl, tag, op, value) {
     return expression;
 }
 
+function printBrowseLink(el, tag, values) {
+    if (settings.tagListBrowse.includes(tag)) {
+        for (const value of values) {
+            const link = elCreateText('a', {"href": "#"}, value);
+            setData(link, 'tag', tag);
+            setData(link, 'name', value);
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                gotoBrowse(event);
+            }, false);
+            el.appendChild(link);
+            el.appendChild(elCreateEmpty('br', {}));
+        }
+    }
+    else {
+        el.textContent.appendChild(printValue(tag, values));
+    }
+}
+
 function printValue(key, value) {
     if (value === undefined || value === null || value === '') {
         return document.createTextNode('-');
