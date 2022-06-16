@@ -53,7 +53,6 @@ void handle_backend_close(struct mg_connection *nc, struct backend_nc_data_t *ba
     //free backend_nc_data
     free_backend_nc_data(backend_nc_data);
     FREE_PTR(nc->fn_data);
-    nc->fn_data = NULL;
 }
 
 void send_backend_request(struct mg_connection *nc, void *fn_data) {
