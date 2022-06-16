@@ -9,6 +9,7 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
@@ -418,7 +419,7 @@ sds _print_queue_entry(struct t_mympd_state *mympd_state, sds buffer, const stru
         else {
             buffer = tojson_char(buffer, "type", "stream", false);
         }
-        sdsfree(webradio);
+        FREE_SDS(webradio);
     }
     else {
         buffer = tojson_char(buffer, "type", "song", false);

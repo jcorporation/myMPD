@@ -60,7 +60,7 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
     sds_getline(&line, fp, 1000);
     if (strcmp(line, "#EXTM3U") != 0) {
         MYMPD_LOG_WARN("Invalid ext m3u file");
-        sdsfree(line);
+        FREE_SDS(line);
         (void) fclose(fp);
         sdsclear(buffer);
         return buffer;

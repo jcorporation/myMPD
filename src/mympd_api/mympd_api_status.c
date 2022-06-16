@@ -243,7 +243,7 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
             buffer = sdscatsds(buffer, webradio);
             buffer = sdscatlen(buffer, "}", 1);
         }
-        sdsfree(webradio);
+        FREE_SDS(webradio);
     }
     mpd_song_free(song);
 

@@ -212,7 +212,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
         buffer = sdscatlen(buffer, "}", 1);
         entity_count++;
         entities_returned++;
-        free(path_cpy);
+        FREE_PTR(path_cpy);
     }
 
     raxIterator iter;
@@ -555,7 +555,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     }
     raxStop(&iter);
     list_clear(&expr_list);
-    sdsfree(key);
+    FREE_SDS(key);
     //print album list
     long entity_count = 0;
     long entities_returned = 0;
@@ -729,7 +729,7 @@ static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entit
         return true;
     }
     mpd_entity_free(entity);
-    sdsfree(entity_name);
+    FREE_SDS(entity_name);
     return false;
 }
 
@@ -826,7 +826,7 @@ static bool _cmp_regex(pcre2_code *re_compiled, const char *value) {
         NULL                  /* use default match context */
     );
     pcre2_match_data_free(match_data);
-    free(lower);
+    FREE_PTR(lower);
     if (rc >= 0) {
         return true;
     }

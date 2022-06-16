@@ -21,7 +21,7 @@ bool webserver_tagart_handler(struct mg_connection *nc, struct mg_http_message *
     sdsrange(query, 4, -1);
     //decode uri
     sds uri_decoded = sds_urldecode(sdsempty(), query, sdslen(query), false);
-    sdsfree(query);
+    FREE_SDS(query);
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR("Failed to decode uri");
         webserver_serve_na_image(nc);

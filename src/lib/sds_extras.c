@@ -38,7 +38,7 @@ int sds_toimax(sds s) {
     }
     char *crap;
     int number = (int)strtoimax(nr, &crap, 10);
-    sdsfree(nr);
+    FREE_SDS(nr);
     return number;
 }
 

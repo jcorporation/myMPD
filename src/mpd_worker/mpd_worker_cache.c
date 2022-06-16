@@ -125,7 +125,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
                 struct t_sticker *sticker = malloc_assert(sizeof(struct t_sticker));
                 if (raxTryInsert(sticker_cache, (unsigned char *)uri, strlen(uri), (void *)sticker, NULL) == 0) {
                     MYMPD_LOG_ERROR("Error adding \"%s\" to sticker cache", uri);
-                    free(sticker);
+                    FREE_PTR(sticker);
                 }
                 else {
                     song_count++;

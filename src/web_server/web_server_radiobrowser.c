@@ -106,7 +106,7 @@ static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *ba
     const char *host = RADIOBROWSER_HOST;
     sds uri = sdscatfmt(sdsempty(), "https://%s%s", host, request);
     backend_nc = create_backend_connection(nc, backend_nc, uri, radiobrowser_handler);
-    sdsfree(uri);
+    FREE_SDS(uri);
     if (backend_nc != NULL) {
         struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)backend_nc->fn_data;
         backend_nc_data->cmd_id = cmd_id;
@@ -143,7 +143,7 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
             if (backend_nc_data->frontend_nc != NULL) {
                 webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
             }
-            sdsfree(result);
+            FREE_SDS(result);
             break;
         }
         case MG_EV_CLOSE: {

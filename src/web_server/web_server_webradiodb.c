@@ -57,7 +57,7 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
         result = sdscatsds(result, data);
         result = jsonrpc_result_end(result);
         webserver_send_data(nc, result, sdslen(result), "Content-Type: application/json\r\n");
-        sdsfree(result);
+        FREE_SDS(result);
     }
     else {
         bool rc = webradiodb_send(nc, backend_nc, cmd_id, uri);
@@ -100,18 +100,18 @@ static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
             sds_getfile(&data, fp, 1000000);
             (void) fclose(fp);
             MYMPD_LOG_DEBUG("Found cached file \"%s\"", filepath);
-            sdsfree(filepath);
+            FREE_SDS(filepath);
             return data;
         }
     }
-    sdsfree(filepath);
+    FREE_SDS(filepath);
     return NULL;
 }
 
 static bool webradiodb_cache_write(sds cachedir, const char *cache_file, const char *data, size_t data_len) {
     sds filepath = sdscatfmt(sdsempty(), "%S/webradiodb/%s", cachedir, cache_file);
     bool rc = write_data_to_file(filepath, data, data_len);
-    sdsfree(filepath);
+    FREE_SDS(filepath);
     return rc;
 }
 
@@ -120,7 +120,7 @@ static bool webradiodb_send(struct mg_connection *nc, struct mg_connection *back
 {
     sds uri = sdscatfmt(sdsempty(), "https://%s%s", WEBRADIODB_HOST, request);
     backend_nc = create_backend_connection(nc, backend_nc, uri, webradiodb_handler);
-    sdsfree(uri);
+    FREE_SDS(uri);
     if (backend_nc != NULL) {
         struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)backend_nc->fn_data;
         backend_nc_data->cmd_id = cmd_id;
@@ -159,7 +159,7 @@ static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, 
             if (backend_nc_data->frontend_nc != NULL) {
                 webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
             }
-            sdsfree(result);
+            FREE_SDS(result);
             if (backend_nc_data->cmd_id == MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET) {
                 webradiodb_cache_write(config->cachedir, "webradiodb-combined.min.json", hm->body.ptr, hm->body.len);
             }

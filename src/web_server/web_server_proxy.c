@@ -9,6 +9,7 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mem.h"
 #include "../lib/sds_extras.h"
 #include "web_server_utility.h"
 
@@ -51,7 +52,7 @@ void handle_backend_close(struct mg_connection *nc, struct backend_nc_data_t *ba
     }
     //free backend_nc_data
     free_backend_nc_data(backend_nc_data);
-    free(nc->fn_data);
+    FREE_PTR(nc->fn_data);
     nc->fn_data = NULL;
 }
 
@@ -90,7 +91,7 @@ struct mg_connection *create_backend_connection(struct mg_connection *nc, struct
             nc->is_closing = 1;
             //free backend_nc_data
             free_backend_nc_data(backend_nc_data);
-            free(backend_nc_data);
+            FREE_PTR(backend_nc_data);
         }
         else {
             //save backend connection pointer in frontend connection fn_data

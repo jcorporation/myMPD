@@ -166,8 +166,8 @@ sds resolv_mympd_uri(sds uri, struct t_mympd_state *mympd_state) {
         sdsrange(uri, 17, -1);
         sds host = get_mympd_host(mympd_state);
         sds new_uri = sdscatfmt(sdsempty(), "http://%s:%s/browse/webradios/%s", host, mympd_state->config->http_port, uri);
-        sdsfree(uri);
-        sdsfree(host);
+        FREE_SDS(uri);
+        FREE_SDS(host);
         return new_uri;
     }
     return uri;
@@ -200,7 +200,7 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
     {
         sds fullpath = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, uri);
         image_count = _get_embedded_covers_count(fullpath);
-        sdsfree(fullpath);
+        FREE_SDS(fullpath);
     }
     buffer = tojson_int(buffer, "embeddedImageCount", image_count, false);
     list_clear(&images);

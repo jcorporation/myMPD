@@ -83,7 +83,7 @@ bool is_virtual_cuedir(sds music_directory, sds filename) {
     else {
         MYMPD_LOG_ERROR("Error accessing \"%s\"", full_path);
     }
-    sdsfree(full_path);
+    FREE_SDS(full_path);
     return is_cue_file;
 }
 
@@ -101,7 +101,7 @@ bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
     if (fd < 0) {
         MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
         MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
+        FREE_SDS(tmp_file);
         return false;
     }
 
@@ -117,7 +117,7 @@ bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
             MYMPD_LOG_ERROR("Error removing file \"%s\"", tmp_file);
             MYMPD_LOG_ERRNO(errno);
         }
-        sdsfree(tmp_file);
+        FREE_SDS(tmp_file);
         return false;
     }
 
@@ -130,9 +130,9 @@ bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
             MYMPD_LOG_ERROR("Error removing file \"%s\"", tmp_file);
             MYMPD_LOG_ERRNO(errno);
         }
-        sdsfree(tmp_file);
+        FREE_SDS(tmp_file);
         return false;
     }
-    sdsfree(tmp_file);
+    FREE_SDS(tmp_file);
     return true;
 }

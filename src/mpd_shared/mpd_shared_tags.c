@@ -86,7 +86,7 @@ bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 
 		tag->value = strdup(value);
 		if (tag->value == NULL) {
-			free(tag);
+		FREE_PTR(tag);
 			return false;
 		}
 
@@ -211,7 +211,7 @@ sds mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_ty
                 sds filename = sdsnew(mpd_song_get_uri(song));
                 sds_basename_uri(filename);
                 tag_values = sds_catjson(tag_values, filename, sdslen(filename));
-                sdsfree(filename);
+                FREE_SDS(filename);
             }
         }
         else if (tag == MPD_TAG_ALBUM_ARTIST) {
@@ -282,7 +282,7 @@ sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct 
     buffer = tojson_long(buffer, "Duration", 0, true);
     buffer = tojson_long(buffer, "LastModified", 0, true);
     buffer = tojson_char(buffer, "uri", uri, false);
-    sdsfree(filename);
+    FREE_SDS(filename);
     return buffer;
 }
 

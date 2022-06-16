@@ -134,7 +134,7 @@ void free_request(struct t_work_request *request) {
     if (request != NULL) {
         FREE_SDS(request->data);
         FREE_SDS(request->method);
-        free(request);
+        FREE_PTR(request);
     }
 }
 
@@ -143,7 +143,7 @@ void free_result(struct t_work_result *result) {
         FREE_SDS(result->data);
         FREE_SDS(result->method);
         FREE_SDS(result->binary);
-        free(result);
+        FREE_PTR(result);
     }
 }
 
@@ -156,7 +156,7 @@ int expire_result_queue(struct t_mympd_queue *queue, time_t age) {
                 lua_mympd_state_free(response->extra);
             }
             else {
-                free(response->extra);
+               FREE_PTR(response->extra);
             }
         }
         free_result(response);
@@ -175,7 +175,7 @@ int expire_request_queue(struct t_mympd_queue *queue, time_t age) {
                 lua_mympd_state_free(request->extra);
             }
             else {
-                free(request->extra);
+                FREE_PTR(request->extra);
             }
         }
         free_request(request);

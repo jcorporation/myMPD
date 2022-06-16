@@ -343,14 +343,14 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
                     //free the rest of the data
                     while (raxNext(&iter)) {
-                        sdsfree(data->uri);
+                        FREE_SDS(data->uri);
                         FREE_PTR(iter.data);
                     }
                     break;
                 }
                 i++;
             }
-            sdsfree(data->uri);
+            FREE_SDS(data->uri);
             FREE_PTR(iter.data);
         }
         if (mpd_command_list_end(mpd_worker_state->mpd_state->conn)) {

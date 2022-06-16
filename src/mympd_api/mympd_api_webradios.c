@@ -40,12 +40,12 @@ sds get_webradio_from_uri(struct t_config *config, const char *uri) {
     if (access(filepath, F_OK) == 0) { /* Flawfinder: ignore */
         entry = tojson_char(entry, "filename", filename, true);
         entry = m3u_to_json(entry, filepath, NULL);
-        sdsfree(filepath);
-        sdsfree(filename);
+        FREE_SDS(filepath);
+        FREE_SDS(filename);
         return entry;
     }
-    sdsfree(filepath);
-    sdsfree(filename);
+    FREE_SDS(filepath);
+    FREE_SDS(filename);
     return entry;
 }
 
@@ -101,8 +101,8 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
         sds entry = m3u_to_json(sdsempty(), filename, &key);
         if (sdslen(entry) == 0) {
             //skip on parsing error
-            sdsfree(entry);
-            sdsfree(filename);
+            FREE_SDS(entry);
+            FREE_SDS(filename);
             continue;
         }
         if (search_len == 0 ||
@@ -119,8 +119,8 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
             }
         }
         else {
-            sdsfree(filename);
-            sdsfree(entry);
+            FREE_SDS(filename);
+            FREE_SDS(entry);
         }
     }
     closedir(webradios_dir);
@@ -146,8 +146,8 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;
-        sdsfree(webradio->entry);
-        sdsfree(webradio->filename);
+        FREE_SDS(webradio->entry);
+        FREE_SDS(webradio->filename);
         FREE_PTR(webradio);
     }
     raxStop(&iter);

@@ -130,7 +130,7 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, t
     if (definition == NULL || definition->enabled == true) {
         new_node->fd = timerfd_create(CLOCK_REALTIME, 0);
         if (new_node->fd == -1) {
-            free(new_node);
+            FREE_PTR(new_node);
             MYMPD_LOG_ERROR("Can't create timerfd");
             return false;
         }
@@ -224,7 +224,7 @@ void mympd_api_timer_free_node(struct t_timer_node *node) {
     }
     if (node->definition != NULL) {
         mympd_api_timer_free_definition(node->definition);
-        free(node->definition);
+        FREE_PTR(node->definition);
         node->definition = NULL;
     }
     FREE_PTR(node);

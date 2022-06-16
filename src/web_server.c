@@ -439,8 +439,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     webserver_send_error(nc, 400, "Invalid query parameter");
                     nc->is_draining = 1;
                 }
-                sdsfree(query);
-                sdsfree(uri_decoded);
+                FREE_SDS(query);
+                FREE_SDS(uri_decoded);
             }
             else if (mg_http_match_uri(hm, "/ws/")) {
                 mg_ws_upgrade(nc, hm, NULL);
@@ -559,7 +559,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                         dirs,
                         nc->mgr->product_name
                     );
-                    sdsfree(dirs);
+                    FREE_SDS(dirs);
                 }
                 else {
                     s_http_server_opts.root_dir = mg_user_data->browse_directory;

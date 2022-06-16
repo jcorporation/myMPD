@@ -89,10 +89,10 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
         sds socket = sdscatfmt(sdsempty(), "%s/mpd/socket", xdg_runtime_dir);
         if (access(socket, F_OK ) == 0) { /* Flawfinder: ignore */
             mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, socket);
-            sdsfree(socket);
+            FREE_SDS(socket);
             return;
         }
-        sdsfree(socket);
+        FREE_SDS(socket);
     }
     if (access("/run/mpd/socket", F_OK ) == 0) { /* Flawfinder: ignore */
         mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/run/mpd/socket");

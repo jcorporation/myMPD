@@ -211,7 +211,7 @@ static const struct t_subdirs_entry cachedir_subdirs[] = {
 static bool check_dir(const char *parent, const char *subdir, const char *description) {
     sds testdirname = sdscatfmt(sdsempty(), "%s/%s", parent, subdir);
     int rc = testdir(description, testdirname, true);
-    sdsfree(testdirname);
+    FREE_SDS(testdirname);
     return rc;
 }
 
@@ -481,9 +481,10 @@ int main(int argc, char **argv) {
     if (init_config == true) {
         mympd_free_config(config);
     }
-    free(config);
+    FREE_PTR(config);
     if (init_mg_user_data == true) {
-        free((char *)mgr.dns4.url);
+        char *dns4_url = (char *)mgr.dns4.url;
+        FREE_PTR(dns4_url);
         mg_user_data_free(mg_user_data);
     }
     FREE_PTR(mg_user_data);

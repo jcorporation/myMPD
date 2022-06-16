@@ -536,7 +536,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                     "script", "error", "Error getting mympd state for script execution");
                 MYMPD_LOG_ERROR("Error getting mympd state for script execution");
-                free(lua_mympd_state);
+                FREE_PTR(lua_mympd_state);
             }
             break;
         }

@@ -54,7 +54,7 @@ void list_clear_user_data(struct t_list *l, user_data_callback free_cb) {
         }
         tmp = current;
         current = current->next;
-        free(tmp);
+        FREE_PTR(tmp);
     }
     list_init(l);
 }
@@ -240,7 +240,7 @@ bool list_replace(struct t_list *l, long pos, const char *key, long long value_i
         sdsclear(current->value_p);
     }
     if (current->user_data != NULL) {
-        free(current->user_data);
+        FREE_PTR(current->user_data);
     }
     current->user_data = user_data;
     return true;
@@ -273,7 +273,7 @@ bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long 
     else {
         FREE_SDS(n->value_p);
         FREE_SDS(n->key);
-        free(n);
+        FREE_PTR(n);
         return false;
     }
 
@@ -326,9 +326,9 @@ void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb)
         free_cb(n);
     }
     else if (n->user_data != NULL) {
-        free(n->user_data);
+        FREE_PTR(n->user_data);
     }
-    free(n);
+    FREE_PTR(n);
 }
 
 bool list_shift(struct t_list *l, long idx) {
@@ -339,9 +339,9 @@ bool list_shift(struct t_list *l, long idx) {
     FREE_SDS(extracted->key);
     FREE_SDS(extracted->value_p);
     if (extracted->user_data != NULL) {
-        free(extracted->user_data);
+        FREE_PTR(extracted->user_data);
     }
-    free(extracted);
+    FREE_PTR(extracted);
     return true;
 }
 
@@ -355,7 +355,7 @@ bool list_shift_user_data(struct t_list *l, long idx, user_data_callback free_cb
     if (extracted->user_data != NULL && free_cb != NULL) {
         free_cb(extracted);
     }
-    free(extracted);
+    FREE_PTR(extracted);
     return true;
 }
 
