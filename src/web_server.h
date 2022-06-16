@@ -7,7 +7,6 @@
 #ifndef MYMPD_WEB_SERVER_H
 #define MYMPD_WEB_SERVER_H
 
-#include "../dist/sds/sds.h"
 #include "lib/mympd_configuration.h"
 #include "web_server/web_server_utility.h"
 

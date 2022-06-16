@@ -2306,3 +2306,6 @@ Verschieben
 
 Could not find album
 Album nicht gefunden
+
+Could not get local ip
+Lokale IP konnte nicht ermittelt werden
