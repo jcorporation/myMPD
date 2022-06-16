@@ -2303,3 +2303,6 @@ Ausgabegeräte wurden in aktuelle Partition verschoben
 
 Move
 Verschieben
+
+Could not find album
+Album nicht gefunden
