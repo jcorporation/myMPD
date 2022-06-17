@@ -19,6 +19,9 @@ void webserver_browse_handler(struct mg_connection *nc, struct mg_http_message *
 void webserver_proxy_handler(struct mg_connection *nc, struct mg_http_message *hm,
         struct mg_connection *backend_nc);
 void webserver_serverinfo_handler(struct mg_connection *nc);
+
+#ifdef ENABLE_SSL
 void webserver_ca_handler(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data, struct t_config *config);
+#endif
 #endif
