@@ -259,6 +259,7 @@ void webserver_serverinfo_handler(struct mg_connection *nc) {
     }
 }
 
+#ifdef ENABLE_SSL
 void webserver_ca_handler(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data, struct t_config *config)
 {
@@ -276,3 +277,4 @@ void webserver_ca_handler(struct mg_connection *nc, struct mg_http_message *hm,
         webserver_send_error(nc, 404, "Custom cert enabled, don't deliver myMPD ca");
     }
 }
+#endif
