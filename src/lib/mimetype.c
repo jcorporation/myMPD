@@ -43,7 +43,7 @@ const struct t_mime_type_entry mime_entries[] = {
 const char *get_mime_type_by_ext(const char *filename) {
     const char *ext = get_extension_from_filename(filename);
     if (ext == NULL) {
-        return NULL;
+        return "application/octet-stream";
     }
     const struct t_mime_type_entry *p = NULL;
     for (p = mime_entries; p->extension != NULL; p++) {

@@ -420,7 +420,7 @@ buildtest() {
   install -d test/build
   cd test/build || exit 1
   #shellcheck disable=SC2086
-  cmake $EXTRA_CMAKE_OPTIONS ..
+  cmake -DCMAKE_BUILD_TYPE=DEBUG $EXTRA_CMAKE_OPTIONS ..
   make VERBOSE=1
   ./test
 }

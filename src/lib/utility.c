@@ -138,13 +138,16 @@ bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
 }
 
 const char *get_extension_from_filename(const char *filename) {
+    if (filename == NULL) {
+        return NULL;
+    }
     char *ext = strrchr(filename, '.');
     if (ext != NULL) {
         //skip dot
         ext++;
-    }
-    if (ext[0] == '\0') {
-        return NULL;
+        if (ext[0] == '\0') {
+            return NULL;
+        }
     }
     return ext;
 }
