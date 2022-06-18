@@ -51,24 +51,6 @@ UTEST(sds_extras, test_sds_sanitize_filename) {
     sdsfree(test_input);
 }
 
-UTEST(sds_extras, sds_get_extension_from_filename) {
-    struct t_input_result testcases[] = {
-        {"/test/test.mp3",   "mp3"},
-        {"/test/woext",      ""},
-        {"",                 ""},
-        {"/tes/tet.mp3.mp3", "mp3"},
-        {"/",                ""},
-        {NULL,               NULL}
-    };
-    struct t_input_result *p = testcases;
-    while (p->input != NULL) {
-        sds ext = sds_get_extension_from_filename(p->input);
-        ASSERT_STREQ(p->result, ext);
-        sdsfree(ext);
-        p++;
-    }
-}
-
 UTEST(sds_extras, sds_strip_slash) {
     struct t_input_result testcases[] = {
         {"//",           ""},
