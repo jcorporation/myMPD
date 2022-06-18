@@ -33,6 +33,10 @@ body.not-mobile .featMobile {
   display: none;
 }
 
+body.not-mobile [data-col=Action] {
+  word-break: keep-all;
+}
+
 :root {
   --mympd-thumbnail-size: 175px;
   --mympd-highlightcolor: #28a745;
@@ -423,6 +427,7 @@ button {
 [data-col=Action] {
   width: 2rem;
   text-align: right;
+  word-break: break-word;
 }
 
 th[data-col=Action] {
