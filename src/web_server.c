@@ -415,6 +415,26 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     FREE_SDS(response);
                 }
             }
+            else if (mg_http_match_uri(hm, "/albumart-thumb")) {
+                webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_THUMBNAIL);
+            }
+            else if (mg_http_match_uri(hm, "/albumart")) {
+                webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_FULL);
+            }
+            else if (mg_http_match_uri(hm, "/tagart")) {
+                webserver_tagart_handler(nc, hm, mg_user_data);
+            }
+            else if (mg_http_match_uri(hm, "/browse/#")) {
+                webserver_browse_handler(nc, hm, mg_user_data);
+            }
+            else if (mg_http_match_uri(hm, "/ws/")) {
+                mg_ws_upgrade(nc, hm, NULL);
+                nc->label[3] = 'W';
+                MYMPD_LOG_INFO("New Websocket connection established (%lu)", nc->id);
+                sds response = jsonrpc_event(sdsempty(), "welcome");
+                mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
+                FREE_SDS(response);
+            }
             else if (mg_http_match_uri(hm, "/stream/")) {
                 if (sdslen(mg_user_data->stream_uri) == 0) {
                     webserver_send_error(nc, 404, "MPD stream port not configured");
@@ -427,13 +447,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 //Makes a get request to the defined uri and returns the response
                 webserver_proxy_handler(nc, hm, backend_nc);
             }
-            else if (mg_http_match_uri(hm, "/ws/")) {
-                mg_ws_upgrade(nc, hm, NULL);
-                nc->label[3] = 'W';
-                MYMPD_LOG_INFO("New Websocket connection established (%lu)", nc->id);
-                sds response = jsonrpc_event(sdsempty(), "welcome");
-                mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
-                FREE_SDS(response);
+            else if (mg_http_match_uri(hm, "/api/serverinfo")) {
+                webserver_serverinfo_handler(nc);
             }
             else if (mg_http_match_uri(hm, "/api/script")) {
                 //check acl
@@ -451,32 +466,17 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     FREE_SDS(response);
                 }
             }
-            else if (mg_http_match_uri(hm, "/api/serverinfo")) {
-                webserver_serverinfo_handler(nc);
-            }
-            #ifdef ENABLE_SSL
-            else if (mg_http_match_uri(hm, "/ca.crt")) {
-                webserver_ca_handler(nc, hm, mg_user_data, config);
-            }
-            #endif
-            else if (mg_http_match_uri(hm, "/albumart")) {
-                webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_FULL);
-            }
-            else if (mg_http_match_uri(hm, "/albumart-thumb")) {
-                webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_THUMBNAIL);
-            }
-            else if (mg_http_match_uri(hm, "/tagart")) {
-                webserver_tagart_handler(nc, hm, mg_user_data);
-            }
-            else if (mg_http_match_uri(hm, "/browse/#")) {
-                webserver_browse_handler(nc, hm, mg_user_data);
-            }
             else if (mg_vcmp(&hm->uri, "/index.html") == 0) {
                 webserver_send_header_redirect(nc, "/");
             }
             else if (mg_vcmp(&hm->uri, "/favicon.ico") == 0) {
                 webserver_send_header_redirect(nc, "/assets/favicon.ico");
             }
+            #ifdef ENABLE_SSL
+            else if (mg_http_match_uri(hm, "/ca.crt")) {
+                webserver_ca_handler(nc, hm, mg_user_data, config);
+            }
+            #endif
             else {
                 //all other uris
                 #ifndef EMBEDDED_ASSETS
