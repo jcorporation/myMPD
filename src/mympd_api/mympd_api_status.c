@@ -189,6 +189,9 @@ sds mympd_api_status_partition_output_list(struct t_mympd_state *mympd_state, sd
                                      const char *partition)
 {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
+    if (status == NULL) {
+        return jsonrpc_respond_message(buffer, method, request_id, true, "general", "error", "Error getting MPD status");
+    }
     const char *oldpartition = mpd_status_get_partition(status);
     bool rc = mpd_run_switch_partition(mympd_state->mpd_state->conn, partition);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_run_switch_partition") == false) {
@@ -206,6 +209,9 @@ sds mympd_api_status_partition_output_list(struct t_mympd_state *mympd_state, sd
 
 sds mympd_api_status_output_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
+    if (status == NULL) {
+        return jsonrpc_respond_message(buffer, method, request_id, true, "general", "error", "Error getting MPD status");
+    }
     const char *partition = mpd_status_get_partition(status);
     buffer = _mympd_api_get_outputs(mympd_state, buffer, method, request_id, partition);
     mpd_status_free(status);
