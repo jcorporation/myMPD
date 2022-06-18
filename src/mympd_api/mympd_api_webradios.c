@@ -89,9 +89,9 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
     long real_limit = offset + limit;
     //read dir
     while ((next_file = readdir(webradios_dir)) != NULL ) {
-        char *ext = strrchr(next_file->d_name, '.');
+        const char *ext = get_extension_from_filename(next_file->d_name);
         if (ext == NULL ||
-            strcmp(ext, ".m3u") != 0)
+            strcasecmp(ext, "m3u") != 0)
         {
             continue;
         }

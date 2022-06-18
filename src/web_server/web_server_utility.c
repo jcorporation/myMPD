@@ -43,7 +43,10 @@ struct mg_str mg_str_strip_parent(struct mg_str *path, int count) {
     return *path;
 }
 
-static const char *image_file_extensions[] = {"webp", "png", "jpg", "jpeg", "svg", "avif", NULL};
+static const char *image_file_extensions[] = {
+    "webp", "jpg", "jpeg", "png", "svg", "avif",
+    "WEBP", "JPG", "JPEG", "PNG", "SVG", "AVIF",
+    NULL};
 
 sds webserver_find_image_file(sds basefilename) {
     MYMPD_LOG_DEBUG("Searching image file for basename \"%s\"", basefilename);

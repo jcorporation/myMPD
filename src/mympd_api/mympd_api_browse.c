@@ -14,6 +14,7 @@
 #include "../lib/mimetype.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared/mpd_shared_search.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
@@ -160,9 +161,9 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                 const char *pl_path = mpd_playlist_get_path(pl);
                 if (path[0] == '/') {
                     //do not show mpd playlists in root directory
-                    char *ext = strrchr(pl_path, '.');
+                    const char *ext = get_extension_from_filename(pl_path);
                     if (ext == NULL ||
-                        (strcmp(ext, ".m3u") != 0 && strcmp(ext, ".pls") != 0))
+                        (strcasecmp(ext, "m3u") != 0 && strcasecmp(ext, "pls") != 0))
                     {
                         mpd_entity_free(entity);
                         break;

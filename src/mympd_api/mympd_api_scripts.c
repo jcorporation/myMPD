@@ -82,12 +82,12 @@ sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long 
     sds scriptname = sdsempty();
     sds scriptfilename = sdsempty();
     while ((next_file = readdir(script_dir)) != NULL ) {
-        sds extension = sds_get_extension_from_filename(next_file->d_name);
-        if (strcmp(extension, "lua") != 0) {
-            FREE_SDS(extension);
+        const char *ext = get_extension_from_filename(next_file->d_name);
+        if (ext == NULL ||
+            strcasecmp(ext, "lua") != 0)
+        {
             continue;
         }
-        FREE_SDS(extension);
 
         scriptname = sdscat(scriptname, next_file->d_name);
         sds_strip_file_extension(scriptname);

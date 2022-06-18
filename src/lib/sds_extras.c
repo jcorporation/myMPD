@@ -347,18 +347,6 @@ void sds_strip_slash(sds s) {
     sdssetlen(s, len);
 }
 
-sds sds_get_extension_from_filename(const char *filename) {
-    const char *ext = strrchr(filename, '.');
-    if (ext == NULL || ext[0] == '\0') {
-        return sdsempty();
-    }
-    sds extension = sdsnew(ext);
-    //trim starting dot
-    sdsrange(extension, 1, -1);
-    sdstolower(extension);
-    return extension;
-}
-
 void sds_strip_file_extension(sds s) {
     char *sp = s;
     char *ep = s + sdslen(s) - 1;

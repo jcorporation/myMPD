@@ -136,3 +136,15 @@ bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
     FREE_SDS(tmp_file);
     return true;
 }
+
+const char *get_extension_from_filename(const char *filename) {
+    char *ext = strrchr(filename, '.');
+    if (ext != NULL) {
+        //skip dot
+        ext++;
+    }
+    if (ext[0] == '\0') {
+        return NULL;
+    }
+    return ext;
+}

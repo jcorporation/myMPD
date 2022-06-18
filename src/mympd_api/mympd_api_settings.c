@@ -761,13 +761,13 @@ sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffe
     struct dirent *next_file;
     while ((next_file = readdir(pic_dir)) != NULL ) {
         if (next_file->d_type == DT_REG) {
-            const char *ext = strrchr(next_file->d_name, '.');
+            const char *ext = get_extension_from_filename(next_file->d_name);
             if (ext == NULL) {
                 continue;
             }
-            if (strcasecmp(ext, ".webp") == 0 || strcasecmp(ext, ".jpg") == 0 ||
-                strcasecmp(ext, ".jpeg") == 0 || strcasecmp(ext, ".png") == 0 ||
-                strcasecmp(ext, ".avif") == 0 || strcasecmp(ext, ".svg") == 0)
+            if (strcasecmp(ext, "webp") == 0 || strcasecmp(ext, "jpg") == 0 ||
+                strcasecmp(ext, "jpeg") == 0 || strcasecmp(ext, "png") == 0 ||
+                strcasecmp(ext, "avif") == 0 || strcasecmp(ext, "svg") == 0)
             {
                 if (returned_entities++) {
                     buffer = sdscatlen(buffer, ",", 1);
