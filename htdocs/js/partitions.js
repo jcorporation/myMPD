@@ -139,7 +139,7 @@ function switchPartitionCheckError(obj) {
         showModalAlert(obj);
     }
     else {
-        BSN.Modal.getInstance('#modalPartitions').hide();
+        BSN.Modal.getInstance(document.getElementById('modalPartitions')).hide();
         showNotification(tn('Partition switched'), '', 'general', 'info');
     }
 }
