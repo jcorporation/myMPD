@@ -43,7 +43,6 @@ body.not-mobile [data-col=Action] {
   --mympd-highlightcolor-contrast: white;
   --mympd-backgroundcolor: black;
   --mympd-black-light: #1d2124;
-
   --bs-dropdown-divider-bg: var(--bs-gray-100);
   --bs-dropdown-divider-margin-y: 0.5rem;
   --bs-nav-link-padding-y: 0.5rem;
@@ -454,6 +453,12 @@ div.card {
   background-color: #eee;
   position: relative;
   z-index: 1;
+}
+
+div#homeActions {
+  position: absolute;
+  right: 1rem;
+  top: 0.5rem;
 }
 
 .home-icons {

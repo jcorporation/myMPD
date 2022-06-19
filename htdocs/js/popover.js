@@ -706,14 +706,19 @@ function createMenuHome(dataNode, tabHeader, tabContent) {
     switch(href.cmd) {
         case 'appGoto':
             type = 'view';
-            actionDesc = 'Goto view';
+            actionDesc = friendlyActions[href.cmd];
             break;
         case 'execScriptFromOptions':
             type = 'script';
-            actionDesc = 'Execute script';
+            actionDesc = friendlyActions[href.cmd];
+            break;
+        case 'openExternalLink':
+            type = 'externalLink';
+            actionDesc = friendlyActions[href.cmd];
             break;
         default:
             type = href.options[0];
+            actionDesc = friendlyActions[href.cmd];
     }
     tabHeader.textContent = tn(typeFriendly[type]);
     switch(type) {
@@ -738,6 +743,7 @@ function createMenuHome(dataNode, tabHeader, tabContent) {
             break;
         case 'view':
         case 'script':
+        case 'externalLink':
             addMenuItem(tabContent, {"cmd": "executeHomeIcon", "options": [pos]}, actionDesc);
     }
     return true;

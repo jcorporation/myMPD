@@ -196,22 +196,6 @@ function filterHomeIconLigatures() {
     }
 }
 
-const friendlyActions = {
-    'replaceQueue': 'Replace queue',
-    'replacePlayQueue': 'Replace queue and play',
-    'insertAfterCurrentQueue': 'Insert after current playing song',
-    'appendQueue': 'Append to queue',
-    'appendPlayQueue': 'Append to queue and play',
-    'replaceQueueAlbum': 'Replace queue',
-    'replacePlayQueueAlbum': 'Replace queue and play',
-    'insertAfterCurrentQueueAlbum': 'Insert after current playing song',
-    'appendQueueAlbum': 'Append to queue',
-    'appendPlayQueueAlbum': 'Append to queue and play',
-    'appGoto': 'Show',
-    'homeIconGoto': 'Show',
-    'execScriptFromOptions': 'Execute script'
-};
-
 function parseHome(obj) {
     const cardContainer = document.getElementById('HomeList');
     const cols = cardContainer.getElementsByClassName('col');
@@ -243,9 +227,21 @@ function parseHome(obj) {
     }
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
-        const homeType = obj.result.data[i].cmd === 'appGoto' ? 'View' :
-            obj.result.data[i].cmd === 'execScriptFromOptions' ? 'Script' :
-            typeFriendly[obj.result.data[i].options[0]];
+        let homeType = '';
+        switch(obj.result.data[i].cmd) {
+            case 'appGoto':
+                homeType = typeFriendly['view'];
+                break;
+            case 'execScriptFromOptions':
+                homeType = typeFriendly['script'];
+                break;
+            case 'openExternalLink':
+                homeType = typeFriendly['externalLink'];
+                break;
+            default:
+                homeType = typeFriendly[obj.result.data[i].options[0]];
+                break;
+        }
         const actionType = friendlyActions[obj.result.data[i].cmd];
 
         const card = elCreateEmpty('div', {"data-popover": "home", "class": ["card", "home-icons"], "draggable": "true",
@@ -385,53 +381,64 @@ function dragAndDropHome() {
 function populateHomeIconCmdSelect(cmd, type) {
     const selectHomeIconCmd = document.getElementById('selectHomeIconCmd');
     elClear(selectHomeIconCmd);
-    if (cmd === 'appGoto') {
-        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appGoto"}, tn('Goto view')));
-        setData(selectHomeIconCmd.lastChild, 'options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
-    }
-    else if (cmd === 'execScriptFromOptions') {
-        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
-        setData(selectHomeIconCmd.lastChild, 'options', {"options":["Script", "Arguments"]});
-    }
-    else if (type === 'album') {
-        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueueAlbum"}, tn('Replace queue')));
-        setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replacePlayQueueAlbum"}, tn('Replace queue and play')));
-        setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-        if (features.featWhence === true) {
-            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueueAlbum"}, tn('Insert after current playing song')));
-            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
+    switch(cmd) {
+        case 'appGoto': {
+            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appGoto"}, tn('Goto view')));
+            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
+            break;
         }
-        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueueAlbum"}, tn('Append to queue')));
-        setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendPlayQueueAlbum"}, tn('Append to queue and play')));
-        setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "homeIconGoto"}, tn('Album details')));
-        setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-    }
-    else {
-        const paramName = type === 'search' ? 'Expression' : 'Uri';
-        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueue"}, tn('Replace queue')));
-        setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replacePlayQueue"}, tn('Replace queue and play')));
-        setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-        if (features.featWhence === true) {
-            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueue"}, tn('Insert after current playing song')));
-            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+        case 'openExternalLink': {
+            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "openExternalLink"}, tn('Open external link')));
+            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Uri"]});
+            break;
         }
-        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueue"}, tn('Append to queue')));
-        setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-        selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendPlayQueue"}, tn('Append to queue and play')));
-        setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-        if (type === 'dir' ||
-            type === 'search' ||
-            type === 'plist' ||
-            type === 'smartpls')
-        {
-            const title = type === 'dir' ? 'Open directory' :
-                          type === 'search' ? 'Show search' : 'View playlist';
-            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "homeIconGoto"}, tn(title)));
-            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+        case 'execScriptFromOptions': {
+            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
+            setData(selectHomeIconCmd.lastChild, 'options', {"options":["Script", "Arguments"]});
+            break;
+        }
+        default: {
+            if (type === 'album') {
+                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueueAlbum"}, tn('Replace queue')));
+                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
+                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replacePlayQueueAlbum"}, tn('Replace queue and play')));
+                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
+                if (features.featWhence === true) {
+                    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueueAlbum"}, tn('Insert after current playing song')));
+                    setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
+                }
+                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueueAlbum"}, tn('Append to queue')));
+                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
+                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendPlayQueueAlbum"}, tn('Append to queue and play')));
+                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
+                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "homeIconGoto"}, tn('Album details')));
+                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
+            }
+            else {
+                const paramName = type === 'search' ? 'Expression' : 'Uri';
+                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueue"}, tn('Replace queue')));
+                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replacePlayQueue"}, tn('Replace queue and play')));
+                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+                if (features.featWhence === true) {
+                    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueue"}, tn('Insert after current playing song')));
+                    setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+                }
+                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueue"}, tn('Append to queue')));
+                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendPlayQueue"}, tn('Append to queue and play')));
+                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+                if (type === 'dir' ||
+                    type === 'search' ||
+                    type === 'plist' ||
+                    type === 'smartpls')
+                {
+                    const title = type === 'dir' ? 'Open directory' :
+                                type === 'search' ? 'Show search' : 'View playlist';
+                    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "homeIconGoto"}, tn(title)));
+                    setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+                }
+            }
         }
     }
 }
@@ -446,6 +453,11 @@ function executeHomeIcon(pos) {
 function addViewToHome() {
     _addHomeIcon('appGoto', '', 'preview', '', [app.current.card, app.current.tab, app.current.view,
         app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search]);
+}
+
+//eslint-disable-next-line no-unused-vars
+function addExternalLinkToHome() {
+    _addHomeIcon('openExternalLink', '', 'link', '', []);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -687,6 +699,11 @@ function showHomeIconCmdOptions(values) {
 function getHomeIconPictureList() {
     const selectHomeIconImage = document.getElementById('inputHomeIconImage');
     getImageList(selectHomeIconImage, [{"value": "", "text": tn('Use ligature')}], 'thumbs');
+}
+
+//eslint-disable-next-line no-unused-vars
+function openExternalLink(link) {
+    window.open(link);
 }
 
 //eslint-disable-next-line no-unused-vars

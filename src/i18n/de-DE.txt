@@ -2309,3 +2309,12 @@ Album nicht gefunden
 
 Could not get local ip
 Lokale IP konnte nicht ermittelt werden
+
+Add external link
+Externen Link hinzufügen
+
+Open external link
+Externen Link öffnen
+
+External link
+Externer Link

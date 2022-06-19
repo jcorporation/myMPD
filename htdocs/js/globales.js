@@ -839,7 +839,25 @@ const typeFriendly = {
     'stream': 'Stream',
     'view': 'View',
     'script': 'Script',
-    'webradio': 'Webradio'
+    'webradio': 'Webradio',
+    'externalLink': 'External link'
+};
+
+const friendlyActions = {
+    'replaceQueue': 'Replace queue',
+    'replacePlayQueue': 'Replace queue and play',
+    'insertAfterCurrentQueue': 'Insert after current playing song',
+    'appendQueue': 'Append to queue',
+    'appendPlayQueue': 'Append to queue and play',
+    'replaceQueueAlbum': 'Replace queue',
+    'replacePlayQueueAlbum': 'Replace queue and play',
+    'insertAfterCurrentQueueAlbum': 'Insert after current playing song',
+    'appendQueueAlbum': 'Append to queue',
+    'appendPlayQueueAlbum': 'Append to queue and play',
+    'appGoto': 'Goto view',
+    'homeIconGoto': 'Show',
+    'execScriptFromOptions': 'Execute script',
+    'openExternalLink': 'Open external link'
 };
 
 const bgImageValues = [

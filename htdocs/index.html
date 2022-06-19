@@ -112,6 +112,12 @@
   <main>
     <div class="card" id="cardHome">
       <div class="card-body">
+        <div id="homeActions" class="btn-group">
+            <button data-title-phrase="Home screen" class="btn btn-xs btn-transparent dropdown-toggle mi mi-small" type="button" data-bs-toggle="dropdown">settings</button>
+            <div class="dropdown-menu dropdown-menu-dark px-2" id="homeActionsDropdown">
+              <button data-phrase="Add external link" data-href='{"cmd": "addExternalLinkToHome", "options": []}' class="btn btn-secondary w-100 btn-sm"></button>
+            </div>
+        </div>
         <div class="container-fluid cardsContainer scrollContainer">
           <div id="HomeList" class="row noInitChilds"></div>
         </div>
@@ -131,7 +137,7 @@
             <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalQueueSettings">tune</button>
           </div>
           <div class="btn-group me-2 featTags">
-            <button data-title-phrase="Display tags" id="PlaybackColsBtn" class="btn btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
+            <button data-title-phrase="Display tags" id="PlaybackColsBtn" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
             <div class="dropdown-menu dropdown-menu-dark px-2" id="PlaybackColsDropdown">
               <form></form>
               <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": ["Playback"]}' class="btn btn-success w-100 btn-sm mt-2"></button>
