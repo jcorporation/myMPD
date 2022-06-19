@@ -276,6 +276,7 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
     }
 }
 
+//same as sds_getline but appends \n
 int sds_getline_n(sds *s, FILE *fp, size_t max) {
     int rc = sds_getline(s, fp, max);
     *s = sdscat(*s, "\n");

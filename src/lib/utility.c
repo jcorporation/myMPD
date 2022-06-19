@@ -88,7 +88,9 @@ bool is_virtual_cuedir(sds music_directory, sds filename) {
 }
 
 bool is_streamuri(const char *uri) {
-    if (uri != NULL && strstr(uri, "://") != NULL) {
+    if (uri != NULL &&
+        strstr(uri, "://") != NULL)
+    {
         return true;
     }
     return false;

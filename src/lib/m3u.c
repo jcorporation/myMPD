@@ -116,14 +116,14 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
 //private functions
 
 static const char *m3ufields_map(sds field) {
-    if (strcmp(field, "EXTGENRE") == 0)         { return "Genre"; }
-    if (strcmp(field, "EXTIMG") == 0)           { return "Image"; }
-    if (strcmp(field, "HOMEPAGE") == 0)         { return "Homepage"; }
-    if (strcmp(field, "COUNTRY") == 0)          { return "Country"; }
-    if (strcmp(field, "LANGUAGE") == 0)         { return "Language"; }
-    if (strcmp(field, "DESCRIPTION") == 0)      { return "Description"; }
-    if (strcmp(field, "PLAYLIST") == 0)         { return "Name"; }
-    if (strcmp(field, "CODEC") == 0)            { return "Codec"; }
-    if (strcmp(field, "BITRATE") == 0)          { return "Bitrate"; }
+    if (strcmp(field, "EXTGENRE") == 0)    { return "Genre"; }
+    if (strcmp(field, "EXTIMG") == 0)      { return "Image"; }
+    if (strcmp(field, "HOMEPAGE") == 0)    { return "Homepage"; }
+    if (strcmp(field, "COUNTRY") == 0)     { return "Country"; }
+    if (strcmp(field, "LANGUAGE") == 0)    { return "Language"; }
+    if (strcmp(field, "DESCRIPTION") == 0) { return "Description"; }
+    if (strcmp(field, "PLAYLIST") == 0)    { return "Name"; }
+    if (strcmp(field, "CODEC") == 0)       { return "Codec"; }
+    if (strcmp(field, "BITRATE") == 0)     { return "Bitrate"; }
     return "";
 }
