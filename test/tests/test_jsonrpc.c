@@ -9,6 +9,7 @@
 #include "../../dist/utest/utest.h"
 #include "../../src/lib/jsonrpc.h"
 #include "../../src/lib/list.h"
+#include "../../src/lib/sds_extras.h"
 #include "../../src/mpd_shared/mpd_shared_tags.h"
 
 UTEST(jsonrpc, test_json_get_bool) {
@@ -20,7 +21,7 @@ UTEST(jsonrpc, test_json_get_bool) {
     //invalid
     data = sdscat(data, "{\"key1\": \"true\"}");
     ASSERT_FALSE(json_get_bool(data, "", &result, NULL));
-    sdsfree(data);
+    FREE_SDS(data);
 }
 
 UTEST(jsonrpc, test_json_get_int) {
@@ -38,7 +39,7 @@ UTEST(jsonrpc, test_json_get_int) {
     sdsclear(data);
     data = sdscat(data, "{\"key2\": 10}");
     ASSERT_FALSE(json_get_int(data, "$.key1", 0, 20, &result, NULL));
-    sdsfree(data);
+    FREE_SDS(data);
 }
 
 UTEST(jsonrpc, test_json_get_int_max) {
@@ -50,7 +51,7 @@ UTEST(jsonrpc, test_json_get_int_max) {
     //invalid
     data = sdscat(data, "{\"key2\": 10}");
     ASSERT_FALSE(json_get_int_max(data, "$.key1", &result, NULL));
-    sdsfree(data);
+    FREE_SDS(data);
 }
 
 UTEST(jsonrpc, test_json_get_uint) {
@@ -68,7 +69,7 @@ UTEST(jsonrpc, test_json_get_uint) {
     sdsclear(data);
     data = sdscat(data, "{\"key2\": 10}");
     ASSERT_FALSE(json_get_uint(data, "$.key1", 0, 20, &result, NULL));
-    sdsfree(data);
+    FREE_SDS(data);
 }
 
 UTEST(jsonrpc, test_json_get_uint_max) {
@@ -83,7 +84,7 @@ UTEST(jsonrpc, test_json_get_uint_max) {
     sdsclear(data);
     data = sdscat(data, "{\"key1\": -10}");
     ASSERT_FALSE(json_get_uint_max(data, "$.key1", &result, NULL));
-    sdsfree(data);
+    FREE_SDS(data);
 }
 
 UTEST(jsonrpc, test_json_get_string) {
@@ -92,26 +93,24 @@ UTEST(jsonrpc, test_json_get_string) {
     sds data = sdsnew("{\"key1\": \"blafblasdf\"}");
     ASSERT_TRUE(json_get_string(data, "$.key1", 0, 20, &result, vcb_isname, NULL));
     sdsclear(data);
-    sdsfree(result);
-    result = NULL;
+    FREE_SDS(result);
     //invalid
     data = sdscat(data, "{\"key1\": 30}");
     ASSERT_FALSE(json_get_string(data, "$.key1", 0, 20, &result, vcb_isname, NULL));
     sdsclear(data);
-    sdsfree(result);
-    result = NULL;
+    FREE_SDS(result);
     data = sdscat(data, "{\"key1\": \"asdfawerwerwq3e3243sf\"}");
     ASSERT_FALSE(json_get_string(data, "$.key1", 0, 10, &result, vcb_isname, NULL));
-    sdsfree(result);
-    result = NULL;
+    sdsclear(data);
+    FREE_SDS(result);
     data = sdscat(data, "{\"key1\": \"\"}");
     ASSERT_FALSE(json_get_string(data, "$.key1", 1, 10, &result, vcb_isname, NULL));
-    sdsfree(result);
-    result = NULL;
+    sdsclear(data);
+    FREE_SDS(result);
     data = sdscat(data, "{\"key2\": \"asdfawerwerwq3e3243sf\"}");
     ASSERT_FALSE(json_get_string(data, "$.key1", 0, 10, &result, vcb_isname, NULL));
-    sdsfree(result);
-    sdsfree(data);
+    FREE_SDS(result);
+    FREE_SDS(data);
 }
 
 UTEST(jsonrpc, test_json_get_string_max) {
@@ -119,8 +118,8 @@ UTEST(jsonrpc, test_json_get_string_max) {
     //valid
     sds data = sdsnew("{\"key1\": \"blafblasdf\"}");
     ASSERT_TRUE(json_get_string_max(data, "$.key1", &result, vcb_isname, NULL));
-    sdsfree(result);
-    sdsfree(data);
+    FREE_SDS(result);
+    FREE_SDS(data);
 }
 
 UTEST(jsonrpc, test_json_get_string_cmp) {
@@ -128,14 +127,13 @@ UTEST(jsonrpc, test_json_get_string_cmp) {
     //valid
     sds data = sdsnew("{\"key1\": \"tocompare\"}");
     ASSERT_TRUE(json_get_string_cmp(data, "$.key1", 0, 20, "tocompare", &result, NULL));
-    sdsfree(result);
-    result = NULL;
-    //invalid
     sdsclear(data);
+    FREE_SDS(result);
+    //invalid
     data = sdscat(data, "{\"key1\": \"\"}");
     ASSERT_FALSE(json_get_string_cmp(data, "$.key1", 0, 20, "tocompare", &result, NULL));
-    sdsfree(result);
-    sdsfree(data);
+    FREE_SDS(result);
+    FREE_SDS(data);
 }
 
 UTEST(jsonrpc, test_json_get_array_string) {
@@ -151,7 +149,7 @@ UTEST(jsonrpc, test_json_get_array_string) {
     //invalid - too many array elements
     ASSERT_TRUE(json_get_array_string(data, "$.key1", &l, vcb_isname, 1, NULL));
     ASSERT_EQ(1, l.length);
-    sdsfree(data);
+    FREE_SDS(data);
     list_clear(&l);
 }
 
@@ -168,7 +166,7 @@ UTEST(jsonrpc, test_json_get_object_string) {
     //invalid - too many array elements
     ASSERT_TRUE(json_get_object_string(data, "$.key1", &l, vcb_isname, 1, NULL));
     ASSERT_EQ(1, l.length);
-    sdsfree(data);
+    FREE_SDS(data);
     list_clear(&l);
 }
 
@@ -183,7 +181,7 @@ UTEST(jsonrpc, test_json_get_tags) {
     data = sdscat(data, "{\"params\": {\"cols\": [\"Artist\", \"Invalid column name\"]}}");
     //invalid column names are ignored
     ASSERT_TRUE(json_get_tags(data, "$.params.cols", &tagcols, COLS_MAX, NULL));
-    sdsfree(data);
+    FREE_SDS(data);
 }
 
 UTEST(jsonrpc, test_list_to_json_array) {
@@ -195,7 +193,7 @@ UTEST(jsonrpc, test_list_to_json_array) {
     s = list_to_json_array(s, &l);
     ASSERT_STREQ("\"key1\",\"key2\"", s);
     list_clear(&l);
-    sdsfree(s);
+    FREE_SDS(s);
 }
 
 UTEST(jsonrpc, test_json_get_cols_as_string) {
@@ -207,6 +205,6 @@ UTEST(jsonrpc, test_json_get_cols_as_string) {
     cols = json_get_cols_as_string(data, cols, &error);
     ASSERT_STREQ("\"Artist\",\"Duration\"", cols);
     list_clear(&l);
-    sdsfree(cols);
-    sdsfree(data);
+    FREE_SDS(cols);
+    FREE_SDS(data);
 }
