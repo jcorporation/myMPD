@@ -56,7 +56,7 @@ bool mpd_client_rm_jukebox_entry(struct t_list *list, long pos) {
         return false;
     }
     node->user_data = NULL;
-    return list_shift(list, pos);
+    return list_remove_node(list, pos);
 }
 
 void mpd_client_clear_jukebox(struct t_list *list) {

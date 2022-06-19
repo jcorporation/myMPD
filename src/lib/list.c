@@ -39,13 +39,16 @@ void list_clear(struct t_list *l) {
     list_clear_user_data(l, NULL);
 }
 
+//Clears the list and frees all nodes and there values
 void list_clear_user_data(struct t_list *l, user_data_callback free_cb) {
     struct t_list_node *current = l->head;
     struct t_list_node *tmp = NULL;
     while (current != NULL) {
         FREE_SDS(current->key);
         FREE_SDS(current->value_p);
-        if (current->user_data != NULL && free_cb != NULL) {
+        if (current->user_data != NULL &&
+            free_cb != NULL)
+        {
             //callback to free user_data
             free_cb(current);
         }
@@ -59,54 +62,18 @@ void list_clear_user_data(struct t_list *l, user_data_callback free_cb) {
     list_init(l);
 }
 
+//callback function to not free user_data
 void list_free_cb_ignore_user_data(struct t_list_node *current) {
     //simply do nothing
     (void)current;
 }
 
+//callback function to free user_data of type sds
 void list_free_cb_sds_user_data(struct t_list_node *current) {
     FREE_SDS(current->user_data);
 }
 
-long long list_get_value_i(const struct t_list *l, const char *key) {
-    long long value_i = -1;
-    struct t_list_node *current = l->head;
-    while (current != NULL) {
-        if (strcmp(current->key, key) == 0) {
-            value_i = current->value_i;
-            break;
-        }
-        current = current->next;
-    }
-    return value_i;
-}
-
-sds list_get_value_p(const struct t_list *l, const char *key) {
-    sds value_p = NULL;
-    struct t_list_node *current = l->head;
-    while (current != NULL) {
-        if (strcmp(current->key, key) == 0) {
-            value_p = current->value_p;
-            break;
-        }
-        current = current->next;
-    }
-    return value_p;
-}
-
-void *list_get_user_data(const struct t_list *l, const char *key) {
-    void *user_data = NULL;
-    struct t_list_node *current = l->head;
-    while (current != NULL) {
-        if (strcmp(current->key, key) == 0) {
-            user_data = current->user_data;
-            break;
-        }
-        current = current->next;
-    }
-    return user_data;
-}
-
+//gets a list node by key
 struct t_list_node *list_get_node(const struct t_list *l, const char *key) {
     struct t_list_node *current = l->head;
     while (current != NULL) {
@@ -118,6 +85,7 @@ struct t_list_node *list_get_node(const struct t_list *l, const char *key) {
     return current;
 }
 
+//gets the list node at pos
 struct t_list_node *list_node_at(const struct t_list *l, long index) {
     //if there's no data in the list, fail
     if (l->head == NULL) {
@@ -133,8 +101,9 @@ struct t_list_node *list_node_at(const struct t_list *l, long index) {
     return current;
 }
 
+//moves a node from one to another position
 bool list_move_item_pos(struct t_list *l, long from, long to) {
-    if (from > l->length || to > l->length) {
+    if (from >= l->length || to >= l->length) {
         return false;
     }
     if (from == to) {
@@ -163,6 +132,7 @@ bool list_move_item_pos(struct t_list *l, long from, long to) {
     return true;
 }
 
+//swaps two list nodes by pos
 bool list_swap_item_pos(struct t_list *l, long index1, long index2) {
     if (l->length < 2) {
         return false;
@@ -175,6 +145,7 @@ bool list_swap_item_pos(struct t_list *l, long index1, long index2) {
     return list_swap_item(node1, node2);
 }
 
+//swaps two list nodes
 bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2) {
     if (n1 == n2) {
         return false;
@@ -202,6 +173,7 @@ bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2) {
     return true;
 }
 
+//shuffles the list
 bool list_shuffle(struct t_list *l) {
     if (l->length < 2) {
         return false;
@@ -209,7 +181,7 @@ bool list_shuffle(struct t_list *l) {
     int n = 0;
     struct t_list_node *current = l->head;
     while (current != NULL) {
-        long pos = randrange(0, l->length);
+        long pos = randrange(0, l->length - 1);
         list_swap_item(current, list_node_at(l, pos));
         n++;
         current = current->next;
@@ -217,41 +189,19 @@ bool list_shuffle(struct t_list *l) {
     return true;
 }
 
-bool list_replace(struct t_list *l, long pos, const char *key, long long value_i, const char *value_p, void *user_data) {
-    if (pos >= l->length) {
-        return false;
-    }
-    long i = 0;
-    struct t_list_node *current = l->head;
-    while (current->next != NULL) {
-        if (i == pos) {
-            break;
-        }
-        current = current->next;
-        i++;
-    }
-
-    current->key = sds_replace(current->key, key);
-    current->value_i = value_i;
-    if (value_p != NULL) {
-        current->value_p = sds_replace(current->value_p, value_p);
-    }
-    else if (current->value_p != NULL) {
-        sdsclear(current->value_p);
-    }
-    if (current->user_data != NULL) {
-        FREE_PTR(current->user_data);
-    }
-    current->user_data = user_data;
-    return true;
-}
-
-bool list_push(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data) {
+//appends a node at the end of the list
+bool list_push(struct t_list *l, const char *key, long long value_i,
+        const char *value_p, void *user_data)
+{
     size_t value_len = value_p == NULL ? 0 : strlen(value_p);
     return list_push_len(l, key, strlen(key), value_i, value_p, value_len, user_data);
 }
 
-bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long value_i, const char *value_p, size_t value_len, void *user_data) {
+//appends a node at the end of the list
+//key and value_p len must be specified
+bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long value_i,
+        const char *value_p, size_t value_len, void *user_data)
+{
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnewlen(key, key_len);
     n->value_i = value_i;
@@ -282,7 +232,10 @@ bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long 
     return true;
 }
 
-bool list_insert(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data) {
+//inserts a node at the beginning of the list
+bool list_insert(struct t_list *l, const char *key, long long value_i,
+        const char *value_p, void *user_data)
+{
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
@@ -300,6 +253,55 @@ bool list_insert(struct t_list *l, const char *key, long long value_i, const cha
     return true;
 }
 
+//replaces a list node at pos
+//ignores the old user_data
+bool list_replace(struct t_list *l, long pos, const char *key, long long value_i,
+        const char *value_p, void *user_data)
+{
+    return list_replace_user_data(l, pos, key, value_i, value_p,
+        user_data, list_free_cb_ignore_user_data);
+}
+
+//replaces a list node at pos
+//frees the old user_data
+bool list_replace_user_data(struct t_list *l, long pos, const char *key, long long value_i,
+        const char *value_p, void *user_data, user_data_callback free_cb)
+{
+    if (pos >= l->length) {
+        return false;
+    }
+    long i = 0;
+    struct t_list_node *current = l->head;
+    while (current->next != NULL) {
+        if (i == pos) {
+            break;
+        }
+        current = current->next;
+        i++;
+    }
+
+    current->key = sds_replace(current->key, key);
+    current->value_i = value_i;
+    if (value_p != NULL) {
+        current->value_p = sds_replace(current->value_p, value_p);
+    }
+    else if (current->value_p != NULL) {
+        sdsclear(current->value_p);
+    }
+    if (current->user_data != NULL &&
+        free_cb != NULL)
+    {
+        //callback to free old user_data
+        free_cb(current);
+    }
+    else if (current->user_data != NULL) {
+        FREE_PTR(current->user_data);
+    }
+    current->user_data = user_data;
+    return true;
+}
+
+//removes the first node from the list and returns it
 struct t_list_node *list_shift_first(struct t_list *l) {
     if (l->head == NULL) {
         return NULL;
@@ -315,14 +317,20 @@ struct t_list_node *list_shift_first(struct t_list *l) {
     return extracted;
 }
 
+//frees a list node
+//ignores user_data
 void list_node_free(struct t_list_node *n) {
-    list_node_free_user_data(n, NULL);
+    list_node_free_user_data(n, list_free_cb_ignore_user_data);
 }
 
+//frees a list node and its user_data
 void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb) {
     FREE_SDS(n->key);
     FREE_SDS(n->value_p);
-    if (n->user_data != NULL && free_cb != NULL) {
+    if (n->user_data != NULL &&
+        free_cb != NULL)
+    {
+        //callback to free user_data
         free_cb(n);
     }
     else if (n->user_data != NULL) {
@@ -331,34 +339,23 @@ void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb)
     FREE_PTR(n);
 }
 
-bool list_shift(struct t_list *l, long idx) {
+//removes the node at idx from the list and frees it
+//ignores user_data
+bool list_remove_node(struct t_list *l, long idx) {
+    return list_remove_node_user_data(l, idx, list_free_cb_ignore_user_data);
+}
+
+//removes the node at idx from the list and frees it and frees user_data
+bool list_remove_node_user_data(struct t_list *l, long idx, user_data_callback free_cb) {
     struct t_list_node *extracted = list_node_extract(l, idx);
     if (extracted == NULL) {
         return false;
     }
-    FREE_SDS(extracted->key);
-    FREE_SDS(extracted->value_p);
-    if (extracted->user_data != NULL) {
-        FREE_PTR(extracted->user_data);
-    }
-    FREE_PTR(extracted);
+    list_node_free_user_data(extracted, free_cb);
     return true;
 }
 
-bool list_shift_user_data(struct t_list *l, long idx, user_data_callback free_cb) {
-    struct t_list_node *extracted = list_node_extract(l, idx);
-    if (extracted == NULL) {
-        return false;
-    }
-    FREE_SDS(extracted->key);
-    FREE_SDS(extracted->value_p);
-    if (extracted->user_data != NULL && free_cb != NULL) {
-        free_cb(extracted);
-    }
-    FREE_PTR(extracted);
-    return true;
-}
-
+//removes the node at idx from the list and returns it
 static struct t_list_node *list_node_extract(struct t_list *l, long idx) {
     if (l->head == NULL || idx >= l->length) {
         return NULL;

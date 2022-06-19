@@ -36,16 +36,19 @@ void list_free_cb_sds_user_data(struct t_list_node *current);
 void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb);
 void list_node_free(struct t_list_node *n);
 
-bool list_push(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data);
-bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long value_i, const char *value_p, size_t value_len, void *user_data);
-bool list_insert(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data);
+bool list_push(struct t_list *l, const char *key, long long value_i,
+        const char *value_p, void *user_data);
+bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long value_i,
+        const char *value_p, size_t value_len, void *user_data);
+bool list_insert(struct t_list *l, const char *key, long long value_i,
+        const char *value_p, void *user_data);
 
-bool list_shift(struct t_list *l, long idx);
-bool list_shift_user_data(struct t_list *l, long idx, user_data_callback free_cb);
-bool list_replace(struct t_list *l, long pos, const char *key, long long value_i, const char *value_p, void *user_data);
-long long list_get_value_i(const struct t_list *l, const char *key);
-sds list_get_value_p(const struct t_list *l, const char *key);
-void *list_get_user_data(const struct t_list *l, const char *key);
+bool list_remove_node(struct t_list *l, long idx);
+bool list_remove_node_user_data(struct t_list *l, long idx, user_data_callback free_cb);
+bool list_replace(struct t_list *l, long pos, const char *key, long long value_i,
+        const char *value_p, void *user_data);
+bool list_replace_user_data(struct t_list *l, long pos, const char *key, long long value_i,
+        const char *value_p, void *user_data, user_data_callback free_cb);
 struct t_list_node *list_get_node(const struct t_list *l, const char *key);
 bool list_shuffle(struct t_list *l);
 bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2);

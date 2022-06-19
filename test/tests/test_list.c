@@ -49,19 +49,19 @@ UTEST(list, test_list_insert) {
     list_clear(&test_list);
 }
 
-UTEST(list, test_list_shift) {
+UTEST(list, test_remove_node) {
     struct t_list test_list;
     populate_list(&test_list);
 
     struct t_list_node *current;
     //remove middle item
-    list_shift(&test_list, 3);
+    list_remove_node(&test_list, 3);
     current = list_node_at(&test_list, 4);
     ASSERT_STREQ("key5", current->key);
     ASSERT_EQ(5, test_list.length);
 
     //remove last item
-    list_shift(&test_list, test_list.length - 1);
+    list_remove_node(&test_list, test_list.length - 1);
     ASSERT_STREQ("key4", test_list.tail->key);
     ASSERT_EQ(4, test_list.length);
 
@@ -70,7 +70,7 @@ UTEST(list, test_list_shift) {
     ASSERT_STREQ(current->key, test_list.tail->key);
 
     //remove first item
-    list_shift(&test_list, 0);
+    list_remove_node(&test_list, 0);
     ASSERT_STREQ("key1", test_list.head->key);
     ASSERT_EQ(3, test_list.length);
 

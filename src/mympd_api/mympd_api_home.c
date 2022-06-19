@@ -23,7 +23,7 @@ bool mympd_api_home_icon_move(struct t_mympd_state *mympd_state, long from, long
 }
 
 bool mympd_api_home_icon_delete(struct t_mympd_state *mympd_state, long pos) {
-    return list_shift(&mympd_state->home_list, pos);
+    return list_remove_node(&mympd_state->home_list, pos);
 }
 
 bool mympd_api_home_icon_save(struct t_mympd_state *mympd_state, bool replace, long oldpos,
