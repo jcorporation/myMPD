@@ -119,7 +119,7 @@ function initHome() {
             const sel = document.getElementById('listHomeIconLigature').getElementsByClassName('active')[0];
             if (sel !== undefined) {
                 selectHomeIconLigature(sel);
-                uiElements.dropdownHomeIconLigature.toggle();
+                uiElements.dropdownHomeIconLigature.hide();
             }
         }
         else {
