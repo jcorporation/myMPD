@@ -557,6 +557,7 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
             return true;
         }
         _set_parse_error(error, "Value length for JSON path \"%s\" is too short", path);
+        FREE_SDS(*result);
         return false;
     }
 
@@ -568,14 +569,14 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
         (sdslen(*result) < min || sdslen(*result) > max))
     {
         _set_parse_error(error, "Value length %lu for JSON path \"%s\" is out of bounds", sdslen(*result), path);
-        sdsclear(*result);
+        FREE_SDS(*result);
         return false;
     }
 
     if (vcb != NULL) {
         if (vcb(*result) == false) {
             _set_parse_error(error, "Validation of value for JSON path \"%s\" has failed", path);
-            sdsclear(*result);
+            FREE_SDS(*result);
             return false;
         }
     }
