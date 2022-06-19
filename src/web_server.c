@@ -228,7 +228,7 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response) {
     int send_count = 0;
     int conn_count = 0;
     while (nc != NULL) {
-        if (nc->label[3] == 'W') {
+        if ((int)nc->is_websocket == 1) {
             MYMPD_LOG_DEBUG("Sending notify to conn_id %lu: %s", nc->id, response->data);
             mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
             send_count++;
@@ -237,7 +237,7 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response) {
         conn_count++;
     }
     if (send_count == 0) {
-        MYMPD_LOG_DEBUG("No websocket client connected, discarding message: \"%s\"", response->data);
+        MYMPD_LOG_DEBUG("No websocket client connected, discarding message: %s", response->data);
     }
     free_result(response);
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
@@ -250,9 +250,7 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response) {
 static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response) {
     struct mg_connection *nc = mgr->conns;
     while (nc != NULL) {
-        if (nc->label[3] == 'H' &&
-            nc->id == (long unsigned)response->conn_id)
-        {
+        if ((int)nc->is_websocket == 0 && nc->id == (long unsigned)response->conn_id) {
             if (response->cmd_id == INTERNAL_API_ALBUMART) {
                 webserver_albumart_send(nc, response->data, response->binary);
             }
@@ -297,7 +295,6 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
 //0 - connection type: F = frontend connection, B = backend connection
 //1 - http method: G = GET, H = HEAD, P = POST
 //2 - connection header: C = close, K = keepalive
-//3 - websocket connection: W = websocket, H = standard listening connection
 
 // Event handler
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
@@ -340,7 +337,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             nc->label[0] = 'F';
             nc->label[1] = '-';
             nc->label[2] = '-';
-            nc->label[3] = 'H';
             break;
         }
         case MG_EV_WS_MSG: {
@@ -429,7 +425,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             else if (mg_http_match_uri(hm, "/ws/")) {
                 mg_ws_upgrade(nc, hm, NULL);
-                nc->label[3] = 'W';
                 MYMPD_LOG_INFO("New Websocket connection established (%lu)", nc->id);
                 sds response = jsonrpc_event(sdsempty(), "welcome");
                 mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
