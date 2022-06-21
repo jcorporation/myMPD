@@ -301,7 +301,6 @@ static sds get_san(sds buffer) {
     //retrieve interface ip addresses
     struct ifaddrs *ifaddr;
     struct ifaddrs *ifa;
-    char host[NI_MAXHOST];
 
     errno = 0;
     if (getifaddrs(&ifaddr) == 0) {
@@ -313,6 +312,7 @@ static sds get_san(sds buffer) {
             if (family == AF_INET ||
                 family == AF_INET6)
             {
+                char host[NI_MAXHOST];
                 int s = getnameinfo(ifa->ifa_addr,
                     (family == AF_INET) ? sizeof(struct sockaddr_in) :
                                           sizeof(struct sockaddr_in6),

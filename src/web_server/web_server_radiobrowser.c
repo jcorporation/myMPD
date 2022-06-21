@@ -105,8 +105,8 @@ static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *ba
 {
     const char *host = RADIOBROWSER_HOST;
     sds uri = sdscatfmt(sdsempty(), "https://%s%s", host, request);
-    backend_nc = create_http_backend_connection(nc, backend_nc, uri, radiobrowser_handler);
-    sdsfree(uri);
+    backend_nc = create_backend_connection(nc, backend_nc, uri, radiobrowser_handler);
+    FREE_SDS(uri);
     if (backend_nc != NULL) {
         struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)backend_nc->fn_data;
         backend_nc_data->cmd_id = cmd_id;
@@ -116,26 +116,10 @@ static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *ba
 }
 
 static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
-    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)fn_data;
     switch(ev) {
         case MG_EV_CONNECT: {
-            MYMPD_LOG_INFO("Backend HTTP connection \"%lu\" connected", nc->id);
-            struct mg_str host = mg_url_host(backend_nc_data->uri);
-            struct mg_tls_opts tls_opts = {
-                .srvname = host
-            };
-            mg_tls_init(nc, &tls_opts);
-            mg_printf(nc, "GET %s HTTP/1.1\r\n"
-                "Host: %.*s\r\n"
-                "User-Agent: myMPD/%s\r\n"
-                "Connection: close\r\n"
-                "\r\n",
-                mg_url_uri(backend_nc_data->uri),
-                (int)host.len, host.ptr,
-                MYMPD_VERSION
-            );
-            mg_user_data->connection_count++;
+            send_backend_request(nc, fn_data);
             break;
         }
         case MG_EV_ERROR:
@@ -156,23 +140,14 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
                 result = jsonrpc_respond_message(result, cmd, 0, true,
                     "database", "error", "Empty response from radio-browser.info");
             }
-            webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
-            sdsfree(result);
+            if (backend_nc_data->frontend_nc != NULL) {
+                webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
+            }
+            FREE_SDS(result);
             break;
         }
         case MG_EV_CLOSE: {
-            MYMPD_LOG_INFO("Backend HTTP connection \"%lu\" closed", nc->id);
-            mg_user_data->connection_count--;
-            if (backend_nc_data->frontend_nc != NULL) {
-                //remove backend connection pointer from frontend connection
-                backend_nc_data->frontend_nc->fn_data = NULL;
-                //close frontend connection
-                backend_nc_data->frontend_nc->is_draining = 1;
-            }
-            //free backend_nc_data
-            free_backend_nc_data(backend_nc_data);
-            free(backend_nc_data);
-            nc->fn_data = NULL;
+            handle_backend_close(nc, backend_nc_data);
             break;
         }
     }

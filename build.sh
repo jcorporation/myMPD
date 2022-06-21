@@ -420,7 +420,7 @@ buildtest() {
   install -d test/build
   cd test/build || exit 1
   #shellcheck disable=SC2086
-  cmake $EXTRA_CMAKE_OPTIONS ..
+  cmake -DCMAKE_BUILD_TYPE=DEBUG $EXTRA_CMAKE_OPTIONS ..
   make VERBOSE=1
   ./test
 }
@@ -574,10 +574,11 @@ check() {
     find ./ -name '*.c' -exec clang-tidy \
     	--checks="$CLANG_TIDY_CHECKS" {} \; >> ../clang-tidy.out 2>/dev/null
     grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out
+    cd .. || exit 1
   else
     echo_warn "clang-tidy not found"
   fi
-  cd .. || exit 1
+
   check_docs
   check_includes
 }
@@ -884,13 +885,14 @@ updatebootstrapnative() {
 updatebootstrap() {
   check_cmd npm
   cd dist/bootstrap || exit 1
-  npm i
+  [ -z "${BOOTSTRAP_VERSION+x}" ] && BOOTSTRAP_VERSION=""
+  npm install "$BOOTSTRAP_VERSION"
   npm run build
   sed -i '$ d' compiled/custom.css
   rm compiled/custom.css.map
   if [ -d ../../debug ]
   then
-  	cp compiled/custom.css ../../htdocs/css/bootstrap.css
+  	cp -v compiled/custom.css ../../htdocs/css/bootstrap.css
   fi
 }
 
@@ -1165,6 +1167,22 @@ run_htmlhint() {
   htmlhint htdocs/index.html
 }
 
+luascript_index() {
+  rm -f "docs/scripting/scripts/index.json"
+  exec 3<> "docs/scripting/scripts/index.json"
+  printf "{\"scripts\":[" >&3
+  I=0
+  for F in docs/scripting/scripts/*.lua
+  do
+    [ "$I" -gt 0 ] &&  printf "," >&3
+    SCRIPTNAME=$(basename "$F")
+    printf "\"%s\"" "$SCRIPTNAME" >&3
+    I=$((I+1))
+  done
+  printf "]}\n" >&3
+  exec 3>&-
+}
+
 case "$ACTION" in
 	release)
 	  buildrelease
@@ -1285,6 +1303,9 @@ case "$ACTION" in
 	htmlhint)
 	  run_htmlhint
 	;;
+  luascript_index)
+    luascript_index
+  ;;
 	*)
     echo "Usage: $0 <option>"
     echo "Version: ${VERSION}"
@@ -1373,6 +1394,7 @@ case "$ACTION" in
     echo ""
     echo "Misc options:"
     echo "  addmympduser:     adds mympd group and user"
+    echo "  luascript_index:  creates the json index of lua scripts"
     echo ""
     echo "Source update options:"
     echo "  bootstrap:        updates bootstrap"

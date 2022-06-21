@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_webradios.h"
 
+#include "../../dist/utf8/utf8.h"
 #include "../lib/api.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
@@ -22,6 +23,14 @@
 #include <string.h>
 #include <unistd.h>
 
+//private definitions
+struct t_webradio_entry {
+    sds entry;
+    sds filename;
+};
+
+//public functions
+
 sds get_webradio_from_uri(struct t_config *config, const char *uri) {
     sds filename = sdsnew(uri);
     sds_sanitize_filename(filename);
@@ -31,12 +40,12 @@ sds get_webradio_from_uri(struct t_config *config, const char *uri) {
     if (access(filepath, F_OK) == 0) { /* Flawfinder: ignore */
         entry = tojson_char(entry, "filename", filename, true);
         entry = m3u_to_json(entry, filepath, NULL);
-        sdsfree(filepath);
-        sdsfree(filename);
+        FREE_SDS(filepath);
+        FREE_SDS(filename);
         return entry;
     }
-    sdsfree(filepath);
-    sdsfree(filename);
+    FREE_SDS(filepath);
+    FREE_SDS(filename);
     return entry;
 }
 
@@ -72,74 +81,81 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "database", "error", "Can not open webradios directory");
         return buffer;
     }
-    struct t_list webradios;
-    list_init(&webradios);
 
-    sds_utf8_tolower(searchstr);
     size_t search_len = sdslen(searchstr);
     struct dirent *next_file;
-
-    sds filename = sdsempty();
-    sds entry = sdsempty();
-    sds plname = sdsempty();
+    rax *webradios = raxNew();
+    sds key = sdsempty();
     long real_limit = offset + limit;
-    long list_length = 0;
     //read dir
     while ((next_file = readdir(webradios_dir)) != NULL ) {
-        sds extension = sds_get_extension_from_filename(next_file->d_name);
-        if (strcmp(extension, "m3u") != 0) {
-            FREE_SDS(extension);
+        const char *ext = get_extension_from_filename(next_file->d_name);
+        if (ext == NULL ||
+            strcasecmp(ext, "m3u") != 0)
+        {
             continue;
         }
-        FREE_SDS(extension);
-        sdsclear(filename);
-        filename = sdscatfmt(filename, "%s/%s", webradios_dirname, next_file->d_name);
-        sdsclear(entry);
-        sdsclear(plname);
-        entry = m3u_to_json(entry, filename, &plname);
+
+        sdsclear(key);
+        sds filename = sdscatfmt(sdsempty(), "%s/%s", webradios_dirname, next_file->d_name);
+        sds entry = m3u_to_json(sdsempty(), filename, &key);
         if (sdslen(entry) == 0) {
             //skip on parsing error
+            FREE_SDS(entry);
+            FREE_SDS(filename);
             continue;
         }
         if (search_len == 0 ||
-            strstr(plname, searchstr) != NULL)
+            utf8casestr(key, searchstr) != NULL)
         {
-            sds user_data = sdsnew(next_file->d_name);
-            if (list_insert_sorted_by_key_limit(&webradios, plname, 0, entry, user_data,
-                LIST_SORT_ASC, real_limit, list_free_cb_sds_user_data) == false)
-            {
-                //free sds if node is not inserted
-                FREE_SDS(user_data);
+            struct t_webradio_entry *webradio = malloc_assert(sizeof(struct t_webradio_entry));
+            webradio->filename = filename;
+            webradio->entry = entry;
+            key = sdscatsds(key, filename); //append filename to keep it unique
+            sds_utf8_tolower(key);
+            while (raxTryInsert(webradios, (unsigned char *)key, sdslen(key), webradio, NULL) == 0) {
+                //duplicate - add chars until it is uniq
+                key = sdscatlen(key, ":", 1);
             }
-            list_length++;
+        }
+        else {
+            FREE_SDS(filename);
+            FREE_SDS(entry);
         }
     }
     closedir(webradios_dir);
-    FREE_SDS(filename);
     FREE_SDS(webradios_dirname);
-    FREE_SDS(entry);
-    FREE_SDS(plname);
+    FREE_SDS(key);
     //print result
     long entity_count = 0;
     long entities_returned = 0;
-    struct t_list_node *current;
-    while ((current = list_shift_first(&webradios)) != NULL) {
-        if (entity_count >= offset) {
+    raxIterator iter;
+    raxStart(&iter, webradios);
+    raxSeek(&iter, "^", NULL, 0);
+    while (raxNext(&iter)) {
+        struct t_webradio_entry *webradio = (struct t_webradio_entry *)iter.data;
+        if (entity_count >= offset &&
+            entity_count < real_limit)
+        {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscatlen(buffer, "{", 1);
-            buffer = tojson_sds(buffer, "filename", (sds)current->user_data, true);
-            buffer = sdscatsds(buffer, current->value_p);
+            buffer = tojson_sds(buffer, "filename", webradio->filename, true);
+            buffer = sdscatsds(buffer, webradio->entry);
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;
-        list_node_free_user_data(current, list_free_cb_sds_user_data);
+        FREE_SDS(webradio->entry);
+        FREE_SDS(webradio->filename);
+        FREE_PTR(webradio);
     }
+    raxStop(&iter);
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "totalEntities", list_length, true);
+    buffer = tojson_llong(buffer, "totalEntities", (long long)webradios->numele, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_result_end(buffer);
+    raxFree(webradios);
     return buffer;
 }
 

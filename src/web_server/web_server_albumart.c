@@ -76,10 +76,10 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
             //remove &uri=
             sdsrange(query, 5, -1);
             //decode uri
-            uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), 0);
+            uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
         }
     }
-    sdsfree(query);
+    FREE_SDS(query);
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR("Failed to decode query");
         webserver_serve_na_image(nc);

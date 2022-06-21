@@ -17,5 +17,9 @@ UTEST(utility, test_my_msleep) {
 
     float secs = (end.tv_nsec - begin.tv_nsec) / 1000000000.0 + (end.tv_sec  - begin.tv_sec);
     int msecs = secs * 1000;
-    ASSERT_EQ(300, msecs);
+    bool rc = false;
+    if (msecs >= 290 && msecs <= 310) {
+        rc = true;
+    }
+    ASSERT_TRUE(rc);
 }

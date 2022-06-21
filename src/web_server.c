@@ -17,11 +17,9 @@
 #include "lib/utility.h"
 #include "lib/validate.h"
 #include "web_server/web_server_albumart.h"
+#include "web_server/web_server_handler.h"
 #include "web_server/web_server_proxy.h"
-#include "web_server/web_server_radiobrowser.h"
-#include "web_server/web_server_sessions.h"
 #include "web_server/web_server_tagart.h"
-#include "web_server/web_server_webradiodb.h"
 
 #include <sys/prctl.h>
 
@@ -34,14 +32,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response);
 static bool check_acl(struct mg_connection *nc, sds acl);
-static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data,
-        struct mg_connection *backend_nc);
-static bool handle_script_api(long long conn_id, sds body);
 
 //public functions
-bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_data *mg_user_data) {
-    struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
-
+bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_user_data *mg_user_data) {
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
     mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/empty", config->workdir);
@@ -66,10 +59,8 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     mgr->product_name = "myMPD "MYMPD_VERSION;
     mgr->directory_listing_css = DIRECTORY_LISTING_CSS;
     //set dns server
-    sds dns_uri = get_dnsserver();
-    mgr->dns4.url = strdup(dns_uri);
-    MYMPD_LOG_DEBUG("Setting dns server to %s", dns_uri);
-    FREE_SDS(dns_uri);
+    mgr->dns4.url = get_dnsserver();
+    MYMPD_LOG_DEBUG("Setting dns server to %s", mgr->dns4.url);
 
     //bind to http_port
     struct mg_connection *nc_http;
@@ -87,7 +78,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     FREE_SDS(http_url);
     if (nc_http == NULL) {
         MYMPD_LOG_EMERG("Can't bind to http://%s:%s", config->http_host, config->http_port);
-        mg_mgr_free(mgr);
+        web_server_free(mgr);
         return false;
     }
     MYMPD_LOG_NOTICE("Listening on http://%s:%s", config->http_host, config->http_port);
@@ -100,7 +91,7 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
         FREE_SDS(https_url);
         if (nc_https == NULL) {
             MYMPD_LOG_ERROR("Can't bind to https://%s:%s", config->http_host, config->ssl_port);
-            mg_mgr_free(mgr);
+            web_server_free(mgr);
             return false;
         }
         MYMPD_LOG_NOTICE("Listening on https://%s:%s", config->http_host, config->ssl_port);
@@ -110,23 +101,23 @@ bool web_server_init(void *arg_mgr, struct t_config *config, struct t_mg_user_da
     return mgr;
 }
 
-void web_server_free(void *arg_mgr) {
-    struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
+void web_server_free(struct mg_mgr *mgr) {
+    sds dns4_url = (sds)mgr->dns4.url;
+    FREE_SDS(dns4_url);
     mg_mgr_free(mgr);
-    mgr = NULL;
 }
 
 void *web_server_loop(void *arg_mgr) {
     thread_logname = sds_replace(thread_logname, "webserver");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
+    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
 
     //set mongoose loglevel
     #ifdef DEBUG
     mg_log_set("1");
     #endif
 
-    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
     #ifdef ENABLE_SSL
     MYMPD_LOG_DEBUG("Using certificate: %s", mg_user_data->config->ssl_cert);
     MYMPD_LOG_DEBUG("Using private key: %s", mg_user_data->config->ssl_key);
@@ -278,12 +269,11 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
     if (sdslen(acl) == 0) {
         return true;
     }
-    if (nc->peer.is_ip6 == true) {
+    if (nc->rem.is_ip6 == true) {
         //acls for ipv6 is not implemented in mongoose
-        //myMPD compiles mongoose without ipv6 support
         return true;
     }
-    int acl_result = mg_check_ip_acl(mg_str(acl), nc->peer.ip);
+    int acl_result = mg_check_ip_acl(mg_str(acl), nc->rem.ip);
     MYMPD_LOG_DEBUG("Check against acl \"%s\": %d", acl, acl_result);
     if (acl_result == 1) {
         return true;
@@ -293,11 +283,9 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
         return false;
     }
 
-    char addr_str[INET6_ADDRSTRLEN];
-    const char *addr_str_ptr = nc->peer.is_ip6 == true ?
-        inet_ntop(AF_INET6, &nc->peer.ip6, addr_str, INET6_ADDRSTRLEN) :
-        inet_ntop(AF_INET, &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
-    MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL", (addr_str_ptr != NULL ? addr_str_ptr: "unknown"));
+    char buf[INET6_ADDRSTRLEN];
+    mg_straddr(&nc->rem, buf, INET6_ADDRSTRLEN);
+    MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL", buf);
     webserver_send_error(nc, 403, "Request blocked by ACL");
     nc->is_draining = 1;
     return false;
@@ -341,17 +329,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 break;
             }
             if (loglevel == LOG_DEBUG) {
-                char addr_str[INET6_ADDRSTRLEN];
-                const char *addr_str_ptr = nc->peer.is_ip6 == true ?
-                    inet_ntop(AF_INET6, &nc->peer.ip6, addr_str, INET6_ADDRSTRLEN) :
-                    inet_ntop(AF_INET, &nc->peer.ip, addr_str, INET6_ADDRSTRLEN);
-                if (addr_str_ptr == NULL) {
-                    MYMPD_LOG_ERROR("Could not convert peer ip to string");
-                    webserver_send_error(nc, 500, "Internal error");
-                    nc->is_draining = 1;
-                    break;
-                }
-                MYMPD_LOG_DEBUG("New connection id \"%lu\" from %s, connections: %d", nc->id, addr_str_ptr, mg_user_data->connection_count);
+                char buf[INET6_ADDRSTRLEN];
+                mg_straddr(&nc->rem, buf, INET6_ADDRSTRLEN);
+                MYMPD_LOG_DEBUG("New connection id \"%lu\" from %s, connections: %d", nc->id, buf, mg_user_data->connection_count);
             }
             //set labels
             nc->label[0] = 'F';
@@ -397,7 +377,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 nc->is_draining = 1;
                 return;
             }
-
             //check post requests length
             if (nc->label[1] == 'P' && (hm->body.len == 0 || hm->body.len > BODY_SIZE_MAX)) {
                 MYMPD_LOG_ERROR("POST request with body of size %lu is out of bounds (%lu)", (unsigned long)hm->body.len, nc->id);
@@ -412,70 +391,17 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_DEBUG("Connection: close header found (%lu)", nc->id);
                     nc->label[2] = 'C';
                 }
-                else if (strncmp(connection_hdr->ptr, "close", connection_hdr->len) == 0) {
+                else if (strncmp(connection_hdr->ptr, "keep-alive", connection_hdr->len) == 0) {
                     MYMPD_LOG_DEBUG("Connection: keepalive header found (%lu)", nc->id);
                     nc->label[2] = 'K';
                 }
             }
-
-            if (mg_http_match_uri(hm, "/stream/")) {
-                if (sdslen(mg_user_data->stream_uri) == 0) {
-                    webserver_send_error(nc, 404, "MPD stream port not configured");
-                    nc->is_draining = 1;
-                    break;
-                }
-                create_tcp_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_tcp_backend_to_frontend);
-            }
-            else if (mg_http_match_uri(hm, "/ws/")) {
-                mg_ws_upgrade(nc, hm, NULL);
-                MYMPD_LOG_INFO("New Websocket connection established (%lu)", nc->id);
-                sds response = jsonrpc_event(sdsempty(), "welcome");
-                mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
-                FREE_SDS(response);
-            }
-            else if (mg_http_match_uri(hm, "/api/script")) {
-                //check acl
-                if (check_acl(nc, config->scriptacl) == false) {
-                    break;
-                }
-                sds body = sdsnewlen(hm->body.ptr, hm->body.len);
-                bool rc = handle_script_api((long long)nc->id, body);
-                FREE_SDS(body);
-                if (rc == false) {
-                    MYMPD_LOG_ERROR("Invalid script API request");
-                    sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
-                        "script", "error", "Invalid script API request");
-                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
-                    FREE_SDS(response);
-                }
-            }
-            else if (mg_http_match_uri(hm, "/api/serverinfo")) {
-                //Todo: migrate to nc->loc and mg_straddr after upgrade to mongoose 7.7
-                struct sockaddr_storage localip;
-                socklen_t len = sizeof(localip);
-                if (getsockname((int)(long)nc->fd, (struct sockaddr *)(&localip), &len) == 0) {
-                    sds response = jsonrpc_result_start(sdsempty(), "", 0);
-                    char addr_str[INET6_ADDRSTRLEN];
-                    const char *addr_str_ptr = nc->peer.is_ip6 == true ?
-                        inet_ntop(AF_INET6, &(((struct sockaddr_in6*)&localip)->sin6_addr), addr_str, INET6_ADDRSTRLEN) :
-                        inet_ntop(AF_INET, &(((struct sockaddr_in*)&localip)->sin_addr), addr_str, INET6_ADDRSTRLEN);
-                    if (addr_str_ptr != NULL) {
-                        response = tojson_char(response, "ip", addr_str_ptr, false);
-                    }
-                    else {
-                        MYMPD_LOG_ERROR("Could not convert peer ip to string");
-                        response = tojson_char(response, "ip", "", false);
-                    }
-                    response = jsonrpc_result_end(response);
-                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
-                    FREE_SDS(response);
-                }
-            }
-            else if (mg_http_match_uri(hm, "/api/")) {
+            //handle uris
+            if (mg_http_match_uri(hm, "/api/")) {
                 //api request
                 sds body = sdsnewlen(hm->body.ptr, hm->body.len);
                 struct mg_str *auth_header = mg_http_get_header(hm, "Authorization");
-                bool rc = handle_api(nc, body, auth_header, mg_user_data, backend_nc);
+                bool rc = webserver_api_handler(nc, body, auth_header, mg_user_data, backend_nc);
                 FREE_SDS(body);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid API request");
@@ -485,71 +411,54 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     FREE_SDS(response);
                 }
             }
-            #ifdef ENABLE_SSL
-            else if (mg_http_match_uri(hm, "/ca.crt")) {
-                if (config->custom_cert == false) {
-                    //deliver ca certificate
-                    sds ca_file = sdscatfmt(sdsempty(), "%S/ssl/ca.pem", config->workdir);
-                    static struct mg_http_serve_opts s_http_server_opts;
-                    s_http_server_opts.root_dir = mg_user_data->browse_directory;
-                    s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;
-                    s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-                    mg_http_serve_file(nc, hm, ca_file, &s_http_server_opts);
-                    FREE_SDS(ca_file);
-                }
-                else {
-                    webserver_send_error(nc, 404, "Custom cert enabled, don't deliver myMPD ca");
-                }
-            }
-            #endif
-            else if (mg_http_match_uri(hm, "/albumart")) {
-                webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_FULL);
-            }
             else if (mg_http_match_uri(hm, "/albumart-thumb")) {
                 webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_THUMBNAIL);
+            }
+            else if (mg_http_match_uri(hm, "/albumart")) {
+                webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_FULL);
             }
             else if (mg_http_match_uri(hm, "/tagart")) {
                 webserver_tagart_handler(nc, hm, mg_user_data);
             }
             else if (mg_http_match_uri(hm, "/browse/#")) {
-                static struct mg_http_serve_opts s_http_server_opts;
-                s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
-                s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-                if (mg_http_match_uri(hm, "/browse/")) {
-                    sds dirs = sdsempty();
-                    if (mg_user_data->publish_music == true) {
-                        dirs = sdscat(dirs, "<tr><td><a href=\"music/\">music/</a></td><td>MPD music directory</td><td></td></tr>");
-                    }
-                    dirs = sdscat(dirs, "<tr><td><a href=\"pics/\">pics/</a></td><td>myMPD pics directory</td><td></td></tr>");
-                    if (mg_user_data->publish_playlists == true) {
-                        dirs = sdscat(dirs, "<tr><td><a href=\"playlists/\">playlists/</a></td><td>MPD playlists directory</td><td></td></tr>");
-                    }
-                    dirs = sdscat(dirs, "<tr><td><a href=\"smartplaylists/\">smartplaylists/</a></td><td>myMPD smart playlists directory</td><td></td></tr>");
-                    dirs = sdscat(dirs, "<tr><td><a href=\"webradios/\">webradios/</a></td><td>Webradio favorites</td><td></td></tr>");
-                    mg_http_reply(nc, 200, "Content-Type: text/html\r\n"EXTRA_HEADERS_UNSAFE, "<!DOCTYPE html>"
-                        "<html><head>"
-                        "<meta charset=\"utf-8\">"
-                        "<title>Index of /browse/</title>"
-                        "<style>%s</style></style></head>"
-                        "<body>"
-                        "<h1>Index of /browse/</h1>"
-                        "<table cellpadding=\"0\"><thead>"
-                        "<tr><th>Name</th><th>Description</th><th></th></tr>"
-                        "</thead>"
-                        "<tbody id=\"tb\">%s</tbody>"
-                        "</table>"
-                        "<address>%s</address>"
-                        "</body></html>",
-                        nc->mgr->directory_listing_css,
-                        dirs,
-                        nc->mgr->product_name
-                    );
-                    sdsfree(dirs);
+                webserver_browse_handler(nc, hm, mg_user_data);
+            }
+            else if (mg_http_match_uri(hm, "/ws/")) {
+                mg_ws_upgrade(nc, hm, NULL);
+                MYMPD_LOG_INFO("New Websocket connection established (%lu)", nc->id);
+                sds response = jsonrpc_event(sdsempty(), "welcome");
+                mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
+                FREE_SDS(response);
+            }
+            else if (mg_http_match_uri(hm, "/stream/")) {
+                if (sdslen(mg_user_data->stream_uri) == 0) {
+                    webserver_send_error(nc, 404, "MPD stream port not configured");
+                    nc->is_draining = 1;
+                    break;
                 }
-                else {
-                    s_http_server_opts.root_dir = mg_user_data->browse_directory;
-                    MYMPD_LOG_INFO("Serving uri \"%.*s\"", (int)hm->uri.len, hm->uri.ptr);
-                    mg_http_serve_dir(nc, hm, &s_http_server_opts);
+                create_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_backend_to_frontend);
+            }
+            else if (mg_http_match_uri(hm, "/proxy")) {
+                //Makes a get request to the defined uri and returns the response
+                webserver_proxy_handler(nc, hm, backend_nc);
+            }
+            else if (mg_http_match_uri(hm, "/api/serverinfo")) {
+                webserver_serverinfo_handler(nc);
+            }
+            else if (mg_http_match_uri(hm, "/api/script")) {
+                //check acl
+                if (check_acl(nc, config->scriptacl) == false) {
+                    break;
+                }
+                sds body = sdsnewlen(hm->body.ptr, hm->body.len);
+                bool rc = webserver_script_api_handler((long long)nc->id, body);
+                FREE_SDS(body);
+                if (rc == false) {
+                    MYMPD_LOG_ERROR("Invalid script API request");
+                    sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
+                        "script", "error", "Invalid script API request");
+                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+                    FREE_SDS(response);
                 }
             }
             else if (mg_vcmp(&hm->uri, "/index.html") == 0) {
@@ -558,6 +467,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_vcmp(&hm->uri, "/favicon.ico") == 0) {
                 webserver_send_header_redirect(nc, "/assets/favicon.ico");
             }
+            #ifdef ENABLE_SSL
+            else if (mg_http_match_uri(hm, "/ca.crt")) {
+                webserver_ca_handler(nc, hm, mg_user_data, config);
+            }
+            #endif
             else {
                 //all other uris
                 #ifndef EMBEDDED_ASSETS
@@ -662,147 +576,3 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
     }
 }
 #endif
-
-static bool handle_api(struct mg_connection *nc, sds body, struct mg_str *auth_header, struct t_mg_user_data *mg_user_data,
-        struct mg_connection *backend_nc)
-{
-    MYMPD_LOG_DEBUG("API request (%lld): %s", (long long)nc->id, body);
-
-    //first check if request is valid json string
-    if (validate_json(body) == false) {
-        return false;
-    }
-
-    sds cmd = NULL;
-    sds jsonrpc = NULL;
-    int id = 0;
-
-    if (json_get_string_cmp(body, "$.jsonrpc", 3, 3, "2.0", &jsonrpc, NULL) == false ||
-        json_get_string_max(body, "$.method", &cmd, vcb_isalnum, NULL) == false ||
-        json_get_int(body, "$.id", 0, 0, &id, NULL) == false)
-    {
-        MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
-        FREE_SDS(cmd);
-        FREE_SDS(jsonrpc);
-        return false;
-    }
-
-    MYMPD_LOG_INFO("API request (%lld): %s", (long long)nc->id, cmd);
-
-    enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
-    if (cmd_id == GENERAL_API_UNKNOWN) {
-        MYMPD_LOG_ERROR("Unknown API method");
-        FREE_SDS(cmd);
-        FREE_SDS(jsonrpc);
-        return false;
-    }
-
-    if (is_public_api_method(cmd_id) == false) {
-        MYMPD_LOG_ERROR("API method %s is for internal use only", cmd);
-        FREE_SDS(cmd);
-        FREE_SDS(jsonrpc);
-        return false;
-    }
-
-    sds session = sdsempty();
-    #ifdef ENABLE_SSL
-    if (sdslen(mg_user_data->config->pin_hash) > 0 && is_protected_api_method(cmd_id) == true) {
-        //format of authorization header must be: Bearer x
-        //bearer token must be 20 characters long
-        bool rc = false;
-        if (auth_header != NULL && auth_header->len == 27 && strncmp(auth_header->ptr, "Bearer ", 7) == 0) {
-            session = sdscatlen(session, auth_header->ptr, auth_header->len);
-            sdsrange(session, 7, -1);
-            rc = webserver_session_validate(&mg_user_data->session_list, session);
-        }
-        else {
-            MYMPD_LOG_ERROR("No valid Authorization header found");
-        }
-        if (rc == false) {
-            MYMPD_LOG_ERROR("API method %s is protected", cmd);
-            sds response = jsonrpc_respond_message(sdsempty(), cmd, 0, true, "session", "error",
-                (cmd_id == MYMPD_API_SESSION_VALIDATE ? "Invalid session" : "Authentication required"));
-            mg_printf(nc, "HTTP/1.1 401 Unauthorized\r\n"
-                "WWW-Authenticate: Bearer realm=\"myMPD\"\r\n"
-                "Content-Type: application/json\r\n"
-                "Content-Length: %d\r\n\r\n",
-                (int)sdslen(response));
-            mg_send(nc, response, sdslen(response));
-            FREE_SDS(cmd);
-            FREE_SDS(jsonrpc);
-            FREE_SDS(session);
-            FREE_SDS(response);
-            return true;
-        }
-        MYMPD_LOG_INFO("API request is authorized");
-    }
-    #else
-    (void) auth_header;
-    #endif
-    switch(cmd_id) {
-        case MYMPD_API_SESSION_LOGIN:
-        case MYMPD_API_SESSION_LOGOUT:
-        case MYMPD_API_SESSION_VALIDATE:
-            webserver_session_api(nc, cmd_id, body, id, session, mg_user_data);
-            break;
-        case MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT:
-        case MYMPD_API_CLOUD_RADIOBROWSER_NEWEST:
-        case MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST:
-        case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
-        case MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL:
-            radiobrowser_api(nc, backend_nc, cmd_id, body, id);
-            break;
-        case MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET:
-            webradiodb_api(nc, backend_nc, cmd_id, body, id);
-            break;
-        default: {
-            //forward API request to mympd_api_handler
-            struct t_work_request *request = create_request((long long)nc->id, id, cmd_id, body);
-            mympd_queue_push(mympd_api_queue, request, 0);
-        }
-    }
-    FREE_SDS(session);
-    FREE_SDS(cmd);
-    FREE_SDS(jsonrpc);
-    return true;
-}
-
-static bool handle_script_api(long long conn_id, sds body) {
-    MYMPD_LOG_DEBUG("Script API request (%lld): %s", conn_id, body);
-
-    //first check if request is valid json string
-    if (validate_json(body) == false) {
-        return false;
-    }
-
-    sds cmd = NULL;
-    sds jsonrpc = NULL;
-    int id = 0;
-
-    if (json_get_string_cmp(body, "$.jsonrpc", 3, 3, "2.0", &jsonrpc, NULL) == false ||
-        json_get_string_max(body, "$.method", &cmd, vcb_isalnum, NULL) == false ||
-        json_get_int(body, "$.id", 0, 0, &id, NULL) == false)
-    {
-        MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
-        FREE_SDS(cmd);
-        FREE_SDS(jsonrpc);
-        return false;
-    }
-
-    MYMPD_LOG_INFO("Script API request (%lld): %s", conn_id, cmd);
-
-    enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
-    if (cmd_id != INTERNAL_API_SCRIPT_POST_EXECUTE) {
-        MYMPD_LOG_ERROR("API method %s is invalid for this uri", cmd);
-        FREE_SDS(cmd);
-        FREE_SDS(jsonrpc);
-        return false;
-    }
-
-    struct t_work_request *request = create_request(conn_id, id, cmd_id, body);
-    mympd_queue_push(mympd_api_queue, request, 0);
-
-    FREE_SDS(cmd);
-    FREE_SDS(jsonrpc);
-    return true;
-}

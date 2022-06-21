@@ -63,5 +63,8 @@ Do you really want to delete the playlist "%{playlist}"?
 Do you really want to delete the script?
 Do you really want to delete the script "%{script}"?
 
+Do you really want to delete the partition?
+Do you really want to delete the partition "%{partition}"?
+
 BinaryLimitHelpText
 Binary limit must be between 4 kB and 256 kB

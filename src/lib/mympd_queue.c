@@ -36,12 +36,12 @@ void mympd_queue_free(struct t_mympd_queue *queue) {
     struct t_mympd_msg *current = queue->head;
     struct t_mympd_msg *tmp = NULL;
     while (current != NULL) {
-        free(current->data);
+        FREE_PTR(current->data);
         tmp = current;
         current = current->next;
-        free(tmp);
+        FREE_PTR(tmp);
     }
-    free(queue);
+    FREE_PTR(queue);
 }
 
 int mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
@@ -144,7 +144,7 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
                     queue->tail = previous;
                 }
 
-                free(current);
+                FREE_PTR(current);
                 queue->length--;
                 unlock_mutex(&queue->mutex);
                 return data;
@@ -187,7 +187,7 @@ void *mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
                     queue->tail = previous;
                 }
 
-                free(current);
+                FREE_PTR(current);
                 queue->length--;
                 unlock_mutex(&queue->mutex);
                 MYMPD_LOG_WARN("Found expired entry in queue");

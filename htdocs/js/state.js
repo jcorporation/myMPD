@@ -39,22 +39,9 @@ function parseStats(obj) {
 }
 
 function getServerinfo() {
-    const ajaxRequest = new XMLHttpRequest();
-    ajaxRequest.open('GET', subdir + '/api/serverinfo', true);
-    ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.readyState === 4) {
-            let obj;
-            try {
-                obj = JSON.parse(ajaxRequest.responseText);
-            }
-            catch(error) {
-                showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
-                logError('Can not parse response to json object:' + ajaxRequest.responseText);
-            }
-            document.getElementById('wsIP').textContent = obj.result.ip;
-        }
-    };
-    ajaxRequest.send();
+    httpGet(subdir + '/api/serverinfo', function(obj) {
+        document.getElementById('wsIP').textContent = obj.result.ip;
+    }, true);
 }
 
 function getCounterText() {
@@ -90,7 +77,7 @@ function setCounter() {
     const playingRow = document.getElementById('queueTrackId' + currentState.currentSongId);
     if (playingRow !== null) {
         //progressbar and counter in queue card
-        setQueueCounter(playingRow, counterText)
+        setQueueCounter(playingRow, counterText);
     }
 
     //synced lyrics
@@ -125,12 +112,16 @@ function setCounter() {
 }
 
 function parseState(obj) {
+    if (obj.result === undefined) {
+        logError('State is undefined');
+        return;
+    }
     //Get current song if songid has changed
     //Get current song if queueVersion has changed - updates stream titles
     if (currentState.currentSongId !== obj.result.currentSongId ||
         currentState.queueVersion !== obj.result.queueVersion)
     {
-        sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, songChange);
+        sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, parseCurrentSong);
     }
     //save state
     currentState = obj.result;
@@ -224,12 +215,22 @@ function parseState(obj) {
     }
     toggleTopAlert();
 
+    //check if we need to get settings
+    let getNewSettings = false;
+    if (settings.partition !== obj.result.partition) {
+        //partition has changed, fetch new settings
+        getNewSettings = true;
+    }
     //refresh settings if mpd is not connected or ui is disabled
     //ui is disabled at startup
     if (settings.mpdConnected === false ||
         uiEnabled === false)
     {
         logDebug((settings.mpdConnected === false ? 'MPD disconnected' : 'UI disabled') + ' - refreshing settings');
+        getNewSettings = true;
+    }
+
+    if (getNewSettings === true) {
         getSettings(true);
     }
 }
@@ -315,7 +316,11 @@ function clearCurrentCover() {
     }
 }
 
-function songChange(obj) {
+function parseCurrentSong(obj) {
+    const list = document.getElementById('PlaybackList');
+    list.classList.remove('opacity05');
+    setScrollViewHeight(list);
+
     //check for song change
     //use title to detect stream changes
     const newSong = obj.result.uri + ':' + obj.result.Title + ':' + obj.result.currentSongId;
@@ -599,7 +604,7 @@ function mediaSessionSetMetadata(title, artist, album, url) {
         return;
     }
     const artwork = window.location.protocol + '//' + window.location.hostname +
-        (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(url);
+        (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(url);
     navigator.mediaSession.metadata = new MediaMetadata({
         title: title,
         artist: artist,

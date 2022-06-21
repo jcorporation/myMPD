@@ -98,7 +98,7 @@ sds webserver_session_new(struct t_list *session_list) {
     MYMPD_LOG_DEBUG("Created session %s", session);
     //limit sessions to 10
     if (session_list->length > HTTP_SESSIONS_MAX) {
-        list_shift(session_list, 0);
+        list_remove_node(session_list, 0);
         MYMPD_LOG_WARN("To many sessions, discarding oldest session");
     }
     return session;
@@ -112,7 +112,7 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
         if (current->value_i < now) {
             MYMPD_LOG_DEBUG("Session %s timed out", current->key);
             struct t_list_node *next = current->next;
-            list_shift(session_list, i);
+            list_remove_node(session_list, i);
             current = next;
         }
         else {
@@ -139,7 +139,7 @@ bool webserver_session_remove(struct t_list *session_list, const char *session) 
     while (current != NULL) {
         if (strcmp(current->key, session) == 0) {
             MYMPD_LOG_DEBUG("Session %s removed", current->key);
-            list_shift(session_list, i);
+            list_remove_node(session_list, i);
             return true;
         }
         current = current->next;

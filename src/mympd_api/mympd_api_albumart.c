@@ -64,7 +64,7 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
         mpd_connection_clear_error(mympd_state->mpd_state->conn);
         mpd_response_finish(mympd_state->mpd_state->conn);
     }
-    free(binary_buffer);
+    FREE_PTR(binary_buffer);
     if (offset > 0) {
         MYMPD_LOG_DEBUG("Albumart found by mpd for uri \"%s\" (%lu bytes)", uri, (unsigned long)sdslen(*binary));
         const char *mime_type = get_mime_type_by_magic_stream(*binary);

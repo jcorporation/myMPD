@@ -38,7 +38,7 @@ int sds_toimax(sds s) {
     }
     char *crap;
     int number = (int)strtoimax(nr, &crap, 10);
-    sdsfree(nr);
+    FREE_SDS(nr);
     return number;
 }
 
@@ -60,6 +60,27 @@ void sds_utf8_tolower(sds s) {
     }
 }
 
+/* Append to the sds string "s" a json escaped string
+ *
+ * After the call, the modified sds string is no longer valid and all the
+ * references must be substituted with the new pointer returned by the call.
+ */
+sds sds_catjson_plain(sds s, const char *p, size_t len) {
+    /* To avoid continuous reallocations, let's start with a buffer that
+     * can hold at least stringlength + 10 chars. */
+    s = sdsMakeRoomFor(s, len + 10);
+    while (len--) {
+        s = sds_catjsonchar(s, *p);
+        p++;
+    }
+    return s;
+}
+
+/* Append to the sds string "s" a quoted json escaped string
+ *
+ * After the call, the modified sds string is no longer valid and all the
+ * references must be substituted with the new pointer returned by the call.
+ */
 sds sds_catjson(sds s, const char *p, size_t len) {
     /* To avoid continuous reallocations, let's start with a buffer that
      * can hold at least stringlength + 10 chars. */
@@ -73,6 +94,11 @@ sds sds_catjson(sds s, const char *p, size_t len) {
     return sdscatlen(s, "\"", 1);
 }
 
+/* Append to the sds string "s" an json escaped character
+ *
+ * After the call, the modified sds string is no longer valid and all the
+ * references must be substituted with the new pointer returned by the call.
+ */
 sds sds_catjsonchar(sds s, const char p) {
     switch(p) {
         case '\\':
@@ -96,11 +122,19 @@ sds sds_catjsonchar(sds s, const char p) {
     return s;
 }
 
-bool sds_json_unescape(const char *src, int slen, sds *dst) {
+/* Json unescapes "src" and appends the result to the sds string "dst"
+ *
+ * "dst" must be a pointer to a allocated sds string.
+ */
+bool sds_json_unescape(const char *src, size_t slen, sds *dst) {
     char *send = (char *) src + slen;
     char *p;
     const char *esc1 = "\"\\/bfnrt";
     const char *esc2 = "\"\\/\b\f\n\r\t";
+
+    /* To avoid continuous reallocations, let's start with a buffer that
+     * can hold at least src length chars. */
+    *dst = sdsMakeRoomFor(*dst, slen);
 
     while (src < send) {
         if (*src == '\\') {
@@ -155,7 +189,7 @@ sds sds_urlencode(sds s, const char *p, size_t len) {
     return s;
 }
 
-sds sds_urldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
+sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded) {
     size_t i;
     int a;
     int b;
@@ -173,12 +207,13 @@ sds sds_urldecode(sds s, const char *p, size_t len, int is_form_url_encoded) {
                     p += 2;
                 }
                 else {
+                    //error - return blank string
                     sdsclear(s);
                     return s;
                 }
                 break;
             case '+':
-                if (is_form_url_encoded == 1) {
+                if (is_form_url_encoded == true) {
                     s = sdscatlen(s, " ", 1);
                     break;
                 }
@@ -241,6 +276,7 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
     }
 }
 
+//same as sds_getline but appends \n
 int sds_getline_n(sds *s, FILE *fp, size_t max) {
     int rc = sds_getline(s, fp, max);
     *s = sdscat(*s, "\n");
@@ -310,18 +346,6 @@ void sds_strip_slash(sds s) {
     size_t len = (size_t)(ep-sp)+1;
     s[len] = '\0';
     sdssetlen(s, len);
-}
-
-sds sds_get_extension_from_filename(const char *filename) {
-    const char *ext = strrchr(filename, '.');
-    if (ext == NULL || ext[0] == '\0') {
-        return sdsempty();
-    }
-    sds extension = sdsnew(ext);
-    //trim starting dot
-    sdsrange(extension, 1, -1);
-    sdstolower(extension);
-    return extension;
 }
 
 void sds_strip_file_extension(sds s) {

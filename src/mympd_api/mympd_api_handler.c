@@ -536,7 +536,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                     "script", "error", "Error getting mympd state for script execution");
                 MYMPD_LOG_ERROR("Error getting mympd state for script execution");
-                free(lua_mympd_state);
+                FREE_PTR(lua_mympd_state);
             }
             break;
         }
@@ -1059,14 +1059,14 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                response->data = mpd_shared_playlist_shuffle_sort(mympd_state->mpd_state, response->data, request->method, request->id, sds_buf1, "shuffle");
+                response->data = mpd_shared_playlist_shuffle(mympd_state->mpd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_SORT:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag, &error) == true)
             {
-                response->data = mpd_shared_playlist_shuffle_sort(mympd_state->mpd_state, response->data, request->method, request->id, sds_buf1, sds_buf2);
+                response->data = mpd_shared_playlist_sort(mympd_state->mpd_state, response->data, request->method, request->id, sds_buf1, sds_buf2);
             }
             break;
         case MYMPD_API_DATABASE_FILESYSTEM_LIST: {
@@ -1343,10 +1343,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_long(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &long_buf1, &error) == true &&
                 json_get_long(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &long_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag_or_any, &error) == true)
+                json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag_or_any, &error) == true &&
+                json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true)
             {
                 response->data = mympd_api_browse_tag_list(mympd_state, response->data, request->method, request->id,
-                    sds_buf1, sds_buf2, long_buf1, long_buf2);
+                    sds_buf1, sds_buf2, long_buf1, long_buf2, bool_buf1);
             }
             break;
         case MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST: {
@@ -1395,12 +1396,23 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_delete_partition", &result);
             }
             break;
-        case MYMPD_API_PARTITION_OUTPUT_MOVE:
-            if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
-                rc = mpd_run_move_output(mympd_state->mpd_state->conn, sds_buf1);
-                response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_move_output", &result);
+        case MYMPD_API_PARTITION_OUTPUT_MOVE: {
+            struct t_list outputs;
+            list_init(&outputs); 
+            if (json_get_array_string(request->data, "$.params.outputs", &outputs, vcb_isname, 10, &error) == true) {
+                struct t_list_node *current;
+                while ((current = list_shift_first(&outputs)) != NULL) {
+                    rc = mpd_run_move_output(mympd_state->mpd_state->conn, current->key);
+                    list_node_free(current);
+                    response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_move_output", &result);
+                    if (result == false) {
+                        break;
+                    }
+                }
             }
+            list_clear(&outputs);
             break;
+        }
         case MYMPD_API_MOUNT_LIST:
             response->data = mympd_api_mounts_list(mympd_state, response->data, request->method, request->id);
             break;

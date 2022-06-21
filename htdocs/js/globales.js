@@ -27,6 +27,7 @@ let appInited = false;
 let scriptsInited = false;
 let subdir = '';
 let uiEnabled = true;
+let allOutputs = null;
 const ligatureMore = 'menu';
 const progressBarTransition = 'width 1s linear';
 const smallSpace = '\u2009';
@@ -110,7 +111,10 @@ app.cards = {
         "offset": 0,
         "limit": 100,
         "filter": "-",
-        "sort": "-",
+        "sort": {
+            "tag": "-",
+            "desc": false
+        },
         "tag": "-",
         "search": "",
         "scrollPos": 0
@@ -119,7 +123,10 @@ app.cards = {
         "offset": 0,
         "limit": 100,
         "filter": "-",
-        "sort": "-",
+        "sort": {
+            "tag": "-",
+            "desc": false
+        },
         "tag": "-",
         "search": "",
         "scrollPos": 0
@@ -143,7 +150,10 @@ app.cards = {
                 "offset": 0,
                 "limit": 100,
                 "filter": "any",
-                "sort": "-",
+                "sort": {
+                    "tag": "-",
+                    "desc": false
+                },
                 "tag": "-",
                 "search": "",
                 "scrollPos": 0
@@ -152,7 +162,10 @@ app.cards = {
                 "offset": 0,
                 "limit": 100,
                 "filter": "any",
-                "sort": "-",
+                "sort": {
+                    "tag": "-",
+                    "desc": false
+                },
                 "tag": "-",
                 "search": "",
                 "scrollPos": 0
@@ -166,7 +179,10 @@ app.cards = {
                 "offset": 0,
                 "limit": 100,
                 "filter": "-",
-                "sort": "-",
+                "sort": {
+                    "tag": "-",
+                    "desc": false
+                },
                 "tag": "dir",
                 "search": "",
                 "scrollPos": 0
@@ -178,7 +194,10 @@ app.cards = {
                         "offset": 0,
                         "limit": 100,
                         "filter": "-",
-                        "sort": "-",
+                        "sort": {
+                            "tag": "-",
+                            "desc": false
+                        },
                         "tag": "-",
                         "search": "",
                         "scrollPos": 0
@@ -187,7 +206,10 @@ app.cards = {
                         "offset": 0,
                         "limit": 100,
                         "filter": "-",
-                        "sort": "-",
+                        "sort": {
+                            "tag": "-",
+                            "desc": false
+                        },
                         "tag": "-",
                         "search": "",
                         "scrollPos": 0
@@ -201,7 +223,10 @@ app.cards = {
                         "offset": 0,
                         "limit": 100,
                         "filter": "any",
-                        "sort": "AlbumArtist",
+                        "sort": {
+                            "tag": tagAlbumArtist,
+                            "desc": false
+                        },
                         "tag": "Album",
                         "search": "",
                         "scrollPos": 0
@@ -210,7 +235,10 @@ app.cards = {
                         "offset": 0,
                         "limit": 100,
                         "filter": "-",
-                        "sort": "-",
+                        "sort": {
+                            "tag": "-",
+                            "desc": false
+                        },
                         "tag": "-",
                         "search": "",
                         "scrollPos": 0
@@ -224,7 +252,10 @@ app.cards = {
                         "offset": 0,
                         "limit": 100,
                         "filter": "-",
-                        "sort": "-",
+                        "sort": {
+                            "tag": "-",
+                            "desc": false
+                        },
                         "tag": "-",
                         "search": "",
                         "scrollPos": 0
@@ -256,7 +287,10 @@ app.cards = {
                             "country": "",
                             "language": ""
                         },
-                        "sort": "-",
+                        "sort": {
+                            "tag": "-",
+                            "desc": false
+                        },
                         "tag": "-",
                         "search": "",
                         "scrollPos": 0
@@ -288,7 +322,10 @@ app.current = {
     "limit": 100,
     "filter": "",
     "search": "",
-    "sort": "",
+    "sort": {
+        "tag": "-",
+        "desc": false
+    },
     "tag": "",
     "scrollPos": 0
 };
@@ -301,7 +338,10 @@ app.last = {
     "limit": 100,
     "filter": "",
     "search": "",
-    "sort": "",
+    "sort": {
+        "tag": "-",
+        "desc": false
+    },
     "tag": "",
     "scrollPos": 0
 };
@@ -771,8 +811,8 @@ for (const m of document.getElementsByClassName('modal')) {
     uiElements[m.id] = BSN.Modal.getInstance(m);
 }
 //other directly accessed BSN objects
-uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance('#btnHomeIconLigature');
-uiElements.collapseJukeboxMode = BSN.Collapse.getInstance('#collapseJukeboxMode');
+uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance(document.getElementById('btnHomeIconLigature'));
+uiElements.collapseJukeboxMode = BSN.Collapse.getInstance(document.getElementById('collapseJukeboxMode'));
 
 const LUAfunctions = {
     "mympd_api_http_client": {
@@ -799,7 +839,25 @@ const typeFriendly = {
     'stream': 'Stream',
     'view': 'View',
     'script': 'Script',
-    'webradio': 'Webradio'
+    'webradio': 'Webradio',
+    'externalLink': 'External link'
+};
+
+const friendlyActions = {
+    'replaceQueue': 'Replace queue',
+    'replacePlayQueue': 'Replace queue and play',
+    'insertAfterCurrentQueue': 'Insert after current playing song',
+    'appendQueue': 'Append to queue',
+    'appendPlayQueue': 'Append to queue and play',
+    'replaceQueueAlbum': 'Replace queue',
+    'replacePlayQueueAlbum': 'Replace queue and play',
+    'insertAfterCurrentQueueAlbum': 'Insert after current playing song',
+    'appendQueueAlbum': 'Append to queue',
+    'appendPlayQueueAlbum': 'Append to queue and play',
+    'appGoto': 'Goto view',
+    'homeIconGoto': 'Show',
+    'execScriptFromOptions': 'Execute script',
+    'openExternalLink': 'Open external link'
 };
 
 const bgImageValues = [

@@ -22,6 +22,7 @@ UTEST(mimetype, test_get_mime_type_by_ext) {
     ASSERT_STREQ("application/octet-stream", mime_type);
 
     mime_type = get_mime_type_by_ext("");
+    ASSERT_STREQ("application/octet-stream", mime_type);
 }
 
 UTEST(mimetype, test_get_ext_by_mime_type) {

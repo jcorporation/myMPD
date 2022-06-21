@@ -15,9 +15,8 @@ function initSong() {
                 elHide(event.target);
                 event.target.parentNode.appendChild(spinner);
             }
-            else if (event.target.classList.contains('external') === true)
-            {
-                //do nothing, link opens in new browser window
+            else if (event.target.classList.contains('external') === true) {
+                 //do nothing, link opens in new browser window
             }
             else if (getData(event.target.parentNode, 'tag') !== undefined) {
                 uiElements.modalSongDetails.hide();
@@ -348,14 +347,10 @@ function createLyricsTabs(el, obj) {
     if (currentLyrics === true) {
         //buttons for lyris in playback view
         lyricsHeader.appendChild(
-            elCreateNode('button', {"title": tn('Toggle autoscrolling'), "class": ["btn", "btn-sm", "me-2", "active", "d-none"], "id": "lyricsScroll"},
-                elCreateText('span', {"class": ["mi", "mi-small"]}, 'autorenew')
-            )
+            elCreateText('button', {"title": tn('Toggle autoscrolling'), "class": ["btn", "btn-sm", "me-2", "active", "d-none", "mi"], "id": "lyricsScroll"}, 'autorenew')
         );
         lyricsHeader.appendChild(
-            elCreateNode('button', {"title": tn('Resize'), "class": ["btn", "btn-sm", "me-2", "active"], "id": "lyricsResize"},
-                elCreateText('span', {"class": ["mi", "mi-small"]}, 'aspect_ratio')
-            )
+            elCreateText('button', {"title": tn('Resize'), "class": ["btn", "btn-sm", "me-2", "active", "mi"], "id": "lyricsResize"}, 'aspect_ratio')
         );
     }
     elClear(el);
@@ -392,9 +387,7 @@ function createLyricsTabs(el, obj) {
                 //synced lyrics scrolling button
                 elShow(ls);
                 ls.addEventListener('click', function(event) {
-                    const target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
-                    toggleBtn(target);
-                    scrollSyncedLyrics = target.classList.contains('active');
+                    scrollSyncedLyrics = event.target.classList.contains('active');
                 }, false);
                 //seek to songpos on click
                 const textEls = el.getElementsByClassName('lyricsSyncedText');
@@ -415,9 +408,8 @@ function createLyricsTabs(el, obj) {
         const lr = document.getElementById('lyricsResize');
         if (lr !== null) {
             lr.addEventListener('click', function(event) {
-                const target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
-                toggleBtn(target);
-                const mh = target.classList.contains('active') ? '16rem' : 'unset';
+                toggleBtn(event.target);
+                const mh = event.target.classList.contains('active') ? '16rem' : 'unset';
                 const lt = document.getElementsByClassName('lyricsText');
                 for (const l of lt) {
                     l.style.maxHeight = mh;
@@ -472,18 +464,19 @@ function parseSyncedLyrics(parent, lyrics, currentLyrics) {
 //used in songdetails modal
 //eslint-disable-next-line no-unused-vars
 function voteSong(el) {
-    if (el.nodeName === 'SPAN') {
-        el = el.parentNode;
-    }
     if (el.nodeName === 'DIV') {
         return;
     }
     let vote = Number(el.getAttribute('data-vote'));
-    if (vote === 0 && el.classList.contains('active')) {
+    if (vote === 0 &&
+        el.classList.contains('active'))
+    {
         vote = 1;
         el.classList.remove('active');
     }
-    else if (vote === 2 && el.classList.contains('active')) {
+    else if (vote === 2 &&
+             el.classList.contains('active'))
+    {
         vote = 1;
         el.classList.remove('active');
     }

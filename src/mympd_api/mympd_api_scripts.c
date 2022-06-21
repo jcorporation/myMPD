@@ -82,12 +82,12 @@ sds mympd_api_script_list(struct t_config *config, sds buffer, sds method, long 
     sds scriptname = sdsempty();
     sds scriptfilename = sdsempty();
     while ((next_file = readdir(script_dir)) != NULL ) {
-        sds extension = sds_get_extension_from_filename(next_file->d_name);
-        if (strcmp(extension, "lua") != 0) {
-            FREE_SDS(extension);
+        const char *ext = get_extension_from_filename(next_file->d_name);
+        if (ext == NULL ||
+            strcasecmp(ext, "lua") != 0)
+        {
             continue;
         }
-        FREE_SDS(extension);
 
         scriptname = sdscat(scriptname, next_file->d_name);
         sds_strip_file_extension(scriptname);
@@ -616,8 +616,8 @@ static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_a
     FREE_SDS(script_thread_arg->script_fullpath);
     FREE_SDS(script_thread_arg->script_content);
     list_clear(script_thread_arg->arguments);
-    free(script_thread_arg->arguments);
-    free(script_thread_arg);
+    FREE_PTR(script_thread_arg->arguments);
+    FREE_PTR(script_thread_arg);
 }
 
 static int _mympd_api_http_client(lua_State *lua_vm) {

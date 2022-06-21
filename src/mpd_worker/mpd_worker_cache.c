@@ -22,6 +22,7 @@
 
 //privat definitions
 static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
+static bool is_multivalue_tag_album(enum mpd_tag_type tag);
 
 //public functions
 bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
@@ -122,8 +123,13 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             if (mpd_worker_state->mpd_state->feat_mpd_stickers == true) {
                 const char *uri = mpd_song_get_uri(song);
                 struct t_sticker *sticker = malloc_assert(sizeof(struct t_sticker));
-                raxInsert(sticker_cache, (unsigned char *)uri, strlen(uri), (void *)sticker, NULL);
-                song_count++;
+                if (raxTryInsert(sticker_cache, (unsigned char *)uri, strlen(uri), (void *)sticker, NULL) == 0) {
+                    MYMPD_LOG_ERROR("Error adding \"%s\" to sticker cache", uri);
+                    FREE_PTR(sticker);
+                }
+                else {
+                    song_count++;
+                }
             }
             //album cache
             if (mpd_worker_state->mpd_state->feat_mpd_tags == true) {
@@ -132,8 +138,23 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
                 if (sdslen(album) > 0 && sdslen(artist) > 0) {
                     sdsclear(key);
                     key = sdscatfmt(key, "%s::%s", album, artist);
-                    if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, NULL) == 0) {
-                        //discard song data if key exists
+                    sds_utf8_tolower(key);
+                    void *old_data;
+                    if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, &old_data) == 0) {
+                        //append song data if key exists
+                        struct mpd_song *old_song = (struct mpd_song *) old_data;
+                        for (unsigned tagnr = 0; tagnr < mpd_worker_state->mpd_state->tag_types_mympd.len; ++tagnr) {
+                            const char *value;
+                            enum mpd_tag_type tag = mpd_worker_state->mpd_state->tag_types_mympd.tags[tagnr];
+                            if (is_multivalue_tag_album(tag) == true) {
+                                unsigned value_nr = 0;
+                                while ((value = mpd_song_get_tag(song, tag, value_nr)) != NULL) {
+                                    mympd_mpd_song_add_tag_dedup(old_song, tag, value);
+                                    value_nr++;
+                                }
+                            }
+                        }
+                        //free song data
                         mpd_song_free(song);
                     }
                     else {
@@ -177,4 +198,14 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
     MYMPD_LOG_INFO("Added %ld songs to sticker cache", song_count);
     MYMPD_LOG_INFO("Cache updated successfully");
     return true;
+}
+
+static bool is_multivalue_tag_album(enum mpd_tag_type tag) {
+    switch(tag) {
+        case MPD_TAG_ALBUM_ARTIST:
+        case MPD_TAG_ALBUM_ARTIST_SORT:
+            return false;
+        default:
+            return is_multivalue_tag(tag);
+    }
 }

@@ -43,7 +43,10 @@ struct mg_str mg_str_strip_parent(struct mg_str *path, int count) {
     return *path;
 }
 
-static const char *image_file_extensions[] = {"webp", "png", "jpg", "jpeg", "svg", "avif", NULL};
+static const char *image_file_extensions[] = {
+    "webp", "jpg", "jpeg", "png", "svg", "avif",
+    "WEBP", "JPG", "JPEG", "PNG", "SVG", "AVIF",
+    NULL};
 
 sds webserver_find_image_file(sds basefilename) {
     MYMPD_LOG_DEBUG("Searching image file for basename \"%s\"", basefilename);
@@ -192,7 +195,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {NULL, 0, NULL, false, false, NULL, 0}
     };
     //decode uri
-    sds uri_decoded = sds_urldecode(sdsempty(), uri, sdslen(uri), 0);
+    sds uri_decoded = sds_urldecode(sdsempty(), uri, sdslen(uri), false);
     if (sdslen(uri_decoded) == 0) {
         webserver_send_error(nc, 500, "Failed to decode uri");
         FREE_SDS(uri_decoded);

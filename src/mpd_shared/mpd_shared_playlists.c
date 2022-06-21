@@ -12,6 +12,7 @@
 #include "../lib/mympd_configuration.h"
 #include "../lib/random.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_tags.h"
@@ -72,8 +73,95 @@ time_t mpd_shared_get_playlist_mtime(struct t_mpd_state *mpd_state, const char *
     return mtime;
 }
 
-sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, sds method,
-                                     long request_id, const char *uri, const char *tagstr)
+sds mpd_shared_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds method,
+        long request_id, const char *uri)
+{
+    MYMPD_LOG_INFO("Shuffling playlist %s", uri);
+    bool rc = mpd_send_list_playlist(mpd_state->conn, uri);
+    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlist") == false) {
+        return buffer;
+    }
+
+    struct t_list plist;
+    list_init(&plist);
+    struct mpd_song *song;
+    while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
+        list_push(&plist, mpd_song_get_uri(song), 0, NULL, NULL);
+        mpd_song_free(song);
+    }
+    mpd_response_finish(mpd_state->conn);
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        list_clear(&plist);
+        return buffer;
+    }
+
+    if (list_shuffle(&plist) == false) {
+        if (buffer != NULL) {
+            buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to shuffle");
+        }
+        list_clear(&plist);
+        enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
+        return buffer;
+    }
+
+    long randnr = randrange(100000, 999999);
+    sds uri_tmp = sdscatfmt(sdsempty(), "%l-tmp-%s", randnr, uri);
+    sds uri_old = sdscatfmt(sdsempty(), "%l-old-%s", randnr, uri);
+
+    //add shuffled songs to tmp playlist
+    //uses command list to add MPD_COMMANDS_MAX songs at once
+    long i = 0;
+    while (i < plist.length) {
+        if (mpd_command_list_begin(mpd_state->conn, false) == true) {
+            long j = 0;
+            struct t_list_node *current;
+            while ((current = list_shift_first(&plist)) != NULL) {
+                i++;
+                j++;
+                rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, current->key);
+                list_node_free(current);
+                if (rc == false) {
+                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                    break;
+                }
+                if (j == MPD_COMMANDS_MAX) {
+                    break;
+                }
+            }
+            if (mpd_command_list_end(mpd_state->conn)) {
+                mpd_response_finish(mpd_state->conn);
+            }
+        }
+        if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+            //error adding songs to tmp playlist - delete it
+            rc = mpd_run_rm(mpd_state->conn, uri_tmp);
+            check_rc_error_and_recover(mpd_state, NULL, method, request_id, false, rc, "mpd_run_rm");
+            FREE_SDS(uri_tmp);
+            FREE_SDS(uri_old);
+            list_clear(&plist);
+            return buffer;
+        }
+    }
+    list_clear(&plist);
+
+    rc = mpd_shared_replace_playlist(mpd_state, uri_tmp, uri, uri_old);
+
+    FREE_SDS(uri_tmp);
+    FREE_SDS(uri_old);
+
+    if (buffer != NULL) {
+        if (rc == true) {
+            buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Shuffled playlist succesfully");
+        }
+        else {
+            buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Shuffling playlist failed");
+        }
+    }
+    return buffer;
+}
+
+sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds method,
+        long request_id, const char *uri, const char *tagstr)
 {
     struct t_tags sort_tags = {
         .len = 1,
@@ -82,16 +170,12 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
 
     bool rc = false;
 
-    if (strcmp(tagstr, "shuffle") == 0) {
-        MYMPD_LOG_INFO("Shuffling playlist %s", uri);
-        rc = mpd_send_list_playlist(mpd_state->conn, uri);
-    }
-    else if (strcmp(tagstr, "filename") == 0) {
-        MYMPD_LOG_INFO("Sorting playlist %s by filename", uri);
+    if (strcmp(tagstr, "filename") == 0) {
+        MYMPD_LOG_INFO("Sorting playlist \"%s\" by filename", uri);
         rc = mpd_send_list_playlist(mpd_state->conn, uri);
     }
     else if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
-        MYMPD_LOG_INFO("Sorting playlist %s by tag %s", uri, tagstr);
+        MYMPD_LOG_INFO("Sorting playlist \"%s\" by tag \"%s\"", uri, tagstr);
         enable_mpd_tags(mpd_state, &sort_tags);
         rc = mpd_send_list_playlist_meta(mpd_state->conn, uri);
     }
@@ -105,110 +189,92 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
         return buffer;
     }
 
-    struct t_list plist;
-    list_init(&plist);
+    rax *plist = raxNew();
+    sds key = sdsempty();
     struct mpd_song *song;
     while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
-        const char *tag_value = NULL;
+        const char *song_uri = mpd_song_get_uri(song);
+        sdsclear(key);
         if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
-            tag_value = mpd_song_get_tag(song, sort_tags.tags[0], 0);
-        }
-        list_push(&plist, mpd_song_get_uri(song), 0, tag_value, NULL);
-        mpd_song_free(song);
-    }
-    mpd_response_finish(mpd_state->conn);
-    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
-        list_clear(&plist);
-        return buffer;
-    }
-    if (sort_tags.tags[0] == MPD_TAG_UNKNOWN) {
-        if (list_shuffle(&plist) == false) {
-            if (buffer != NULL) {
-                buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to shuffle");
-            }
-            list_clear(&plist);
-            enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
-            return buffer;
-        }
-    }
-    else {
-        if (mpd_state->feat_mpd_tags == false ||
-            strcmp(tagstr, "filename") == 0)
-        {
-            if (list_sort_by_key(&plist, LIST_SORT_ASC) == false) {
-                if (buffer != NULL) {
-                    buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
-                }
-                list_clear(&plist);
-                enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
-                return buffer;
-            }
+            //sort by tag
+            key = mpd_shared_get_tag_value_string(song, sort_tags.tags[0], key);
+            key = sdscatfmt(key, "::%s", song_uri);
         }
         else {
-            if (list_sort_by_value_p(&plist, LIST_SORT_ASC) == false) {
-                if (buffer != NULL) {
-                    buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to sort");
-                }
-                list_clear(&plist);
-                enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
-                return buffer;
-            }
+            //sort by filename
+            key = sdscat(key, song_uri);
         }
+        sds_utf8_tolower(key);
+        sds data = sdsnew(song_uri);
+        while (raxTryInsert(plist, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
+            //duplicate - add chars until it is uniq
+            key = sdscatlen(key, ":", 1);
+        }
+        mpd_song_free(song);
+    }
+    FREE_SDS(key);
+    mpd_response_finish(mpd_state->conn);
+    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        //free data
+        raxIterator iter;
+        raxStart(&iter, plist);
+        raxSeek(&iter, "^", NULL, 0);
+        while (raxNext(&iter)) {
+            FREE_SDS(iter.data);
+        }
+        raxStop(&iter);
+        raxFree(plist);
+        return buffer;
     }
 
     long randnr = randrange(100000, 999999);
     sds uri_tmp = sdscatfmt(sdsempty(), "%l-tmp-%s", randnr, uri);
     sds uri_old = sdscatfmt(sdsempty(), "%l-old-%s", randnr, uri);
 
-    //add sorted/shuffled songs to a new playlist
-    if (mpd_command_list_begin(mpd_state->conn, false) == true) {
-        struct t_list_node *current = plist.head;
-        while (current != NULL) {
-            rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, current->key);
-            if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
-                break;
+    //add sorted songs to tmp playlist
+    //uses command list to add MPD_COMMANDS_MAX songs at once
+    unsigned i = 0;
+    raxIterator iter;
+    raxStart(&iter, plist);
+    raxSeek(&iter, "^", NULL, 0);
+    while (i < plist->numele) {
+        if (mpd_command_list_begin(mpd_state->conn, false) == true) {
+            long j = 0;
+            while (raxNext(&iter)) {
+                i++;
+                j++;
+                rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, iter.data);
+                FREE_SDS(iter.data);
+                if (rc == false) {
+                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                    break;
+                }
+                if (j == MPD_COMMANDS_MAX) {
+                    break;
+                }
             }
-            current = current->next;
+            if (mpd_command_list_end(mpd_state->conn)) {
+                mpd_response_finish(mpd_state->conn);
+            }
         }
-        if (mpd_command_list_end(mpd_state->conn)) {
-            mpd_response_finish(mpd_state->conn);
+        if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+            //error adding songs to tmp playlist - delete it
+            rc = mpd_run_rm(mpd_state->conn, uri_tmp);
+            check_rc_error_and_recover(mpd_state, NULL, method, request_id, false, rc, "mpd_run_rm");
+            FREE_SDS(uri_tmp);
+            FREE_SDS(uri_old);
+            while (raxNext(&iter)) {
+                FREE_SDS(iter.data);
+            }
+            raxStop(&iter);
+            raxFree(plist);
+            return buffer;
         }
     }
-    list_clear(&plist);
-    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
-        rc = mpd_run_rm(mpd_state->conn, uri_tmp);
-        check_rc_error_and_recover(mpd_state, NULL, method, request_id, false, rc, "mpd_run_rm");
-        FREE_SDS(uri_tmp);
-        FREE_SDS(uri_old);
-        return buffer;
-    }
+    raxStop(&iter);
+    raxFree(plist);
 
-    //rename original playlist to old playlist
-    rc = mpd_run_rename(mpd_state->conn, uri, uri_old);
-    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_run_rename") == false) {
-        FREE_SDS(uri_tmp);
-        FREE_SDS(uri_old);
-        return buffer;
-    }
-    //rename new playlist to orginal playlist
-    rc = mpd_run_rename(mpd_state->conn, uri_tmp, uri);
-    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_run_rename") == false) {
-        //restore original playlist
-        rc = mpd_run_rename(mpd_state->conn, uri_old, uri);
-        check_rc_error_and_recover(mpd_state, NULL, method, request_id, false, rc, "mpd_run_rename");
-        FREE_SDS(uri_tmp);
-        FREE_SDS(uri_old);
-        return buffer;
-    }
-    //delete old playlist
-    rc = mpd_run_rm(mpd_state->conn, uri_old);
-    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_run_rm") == false) {
-        FREE_SDS(uri_tmp);
-        FREE_SDS(uri_old);
-        return buffer;
-    }
-
+    rc = mpd_shared_replace_playlist(mpd_state, uri_tmp, uri, uri_old);
     FREE_SDS(uri_tmp);
     FREE_SDS(uri_old);
 
@@ -216,31 +282,42 @@ sds mpd_shared_playlist_shuffle_sort(struct t_mpd_state *mpd_state, sds buffer, 
         enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
     }
     if (buffer != NULL) {
-        if (strcmp(tagstr, "shuffle") == 0) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Shuffled playlist succesfully");
+        if (rc == true) {
+            buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Sorted playlist succesfully");
         }
         else {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Sorted playlist succesfully");
+            buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Sorting playlist failed");
         }
     }
     return buffer;
+}
+
+bool mpd_shared_replace_playlist(struct t_mpd_state *mpd_state, const char *new_pl, const char *to_replace_pl, const char *backup_pl) {
+    //rename original playlist to old playlist
+    bool rc = mpd_run_rename(mpd_state->conn, to_replace_pl, backup_pl);
+    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_rename") == false) {
+        return false;
+    }
+    //rename new playlist to orginal playlist
+    rc = mpd_run_rename(mpd_state->conn, new_pl, to_replace_pl);
+    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_rename") == false) {
+        //restore original playlist
+        rc = mpd_run_rename(mpd_state->conn, backup_pl, to_replace_pl);
+        check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_rename");
+        return false;
+    }
+    //delete old playlist
+    rc = mpd_run_rm(mpd_state->conn, backup_pl);
+    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_rm") == false) {
+        return false;
+    }
+    return true;
 }
 
 bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, const char *playlist,
                               const char *expression, const int maxentries,
                               const int timerange, const char *sort)
 {
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", workdir, playlist);
-    errno = 0;
-    int fd = mkstemp(tmp_file);
-    if (fd < 0 ) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        return false;
-    }
-    FILE *fp = fdopen(fd, "w");
-
     sds line = sdscatlen(sdsempty(), "{", 1);
     line = tojson_char(line, "type", smartpltype, true);
     if (strcmp(smartpltype, "sticker") == 0) {
@@ -256,34 +333,11 @@ bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, cons
     }
     line = tojson_char(line, "sort", sort, false);
     line = sdscatlen(line, "}", 1);
-    bool rc = true;
-    if (fputs(line, fp) == EOF) {
-        MYMPD_LOG_ERROR("Could not write to file %s", tmp_file);
-        rc = false;
-    }
-    if (fclose(fp) != 0) {
-        MYMPD_LOG_ERROR("Could not close file %s", tmp_file);
-        rc = false;
-    }
-    FREE_SDS(line);
+
     sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", workdir, playlist);
-    errno = 0;
-    if (rc == true) {
-        if (rename(tmp_file, pl_file) == -1) {
-            MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, pl_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    else {
-        //remove incomplete tmp file
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    FREE_SDS(tmp_file);
+    bool rc = write_data_to_file(pl_file, line, sdslen(line));
+
+    FREE_SDS(line);
     FREE_SDS(pl_file);
     return rc;
 }

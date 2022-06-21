@@ -57,7 +57,7 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
         result = sdscatsds(result, data);
         result = jsonrpc_result_end(result);
         webserver_send_data(nc, result, sdslen(result), "Content-Type: application/json\r\n");
-        sdsfree(result);
+        FREE_SDS(result);
     }
     else {
         bool rc = webradiodb_send(nc, backend_nc, cmd_id, uri);
@@ -100,18 +100,18 @@ static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
             sds_getfile(&data, fp, 1000000);
             (void) fclose(fp);
             MYMPD_LOG_DEBUG("Found cached file \"%s\"", filepath);
-            sdsfree(filepath);
+            FREE_SDS(filepath);
             return data;
         }
     }
-    sdsfree(filepath);
+    FREE_SDS(filepath);
     return NULL;
 }
 
 static bool webradiodb_cache_write(sds cachedir, const char *cache_file, const char *data, size_t data_len) {
     sds filepath = sdscatfmt(sdsempty(), "%S/webradiodb/%s", cachedir, cache_file);
     bool rc = write_data_to_file(filepath, data, data_len);
-    sdsfree(filepath);
+    FREE_SDS(filepath);
     return rc;
 }
 
@@ -119,8 +119,8 @@ static bool webradiodb_send(struct mg_connection *nc, struct mg_connection *back
         enum mympd_cmd_ids cmd_id, const char *request)
 {
     sds uri = sdscatfmt(sdsempty(), "https://%s%s", WEBRADIODB_HOST, request);
-    backend_nc = create_http_backend_connection(nc, backend_nc, uri, webradiodb_handler);
-    sdsfree(uri);
+    backend_nc = create_backend_connection(nc, backend_nc, uri, webradiodb_handler);
+    FREE_SDS(uri);
     if (backend_nc != NULL) {
         struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)backend_nc->fn_data;
         backend_nc_data->cmd_id = cmd_id;
@@ -135,22 +135,7 @@ static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, 
     struct t_config *config = mg_user_data->config;
     switch(ev) {
         case MG_EV_CONNECT: {
-            MYMPD_LOG_INFO("Backend HTTP connection \"%lu\" connected", nc->id);
-            struct mg_str host = mg_url_host(backend_nc_data->uri);
-            struct mg_tls_opts tls_opts = {
-                .srvname = host
-            };
-            mg_tls_init(nc, &tls_opts);
-            mg_printf(nc, "GET %s HTTP/1.1\r\n"
-                "Host: %.*s\r\n"
-                "User-Agent: myMPD/%s\r\n"
-                "Connection: close\r\n"
-                "\r\n",
-                mg_url_uri(backend_nc_data->uri),
-                (int)host.len, host.ptr,
-                MYMPD_VERSION
-            );
-            mg_user_data->connection_count++;
+            send_backend_request(nc, fn_data);
             break;
         }
         case MG_EV_ERROR:
@@ -171,26 +156,17 @@ static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, 
                 result = jsonrpc_respond_message(result, cmd, 0, true,
                     "database", "error", "Empty response from webradiodb backend");
             }
-            webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
-            sdsfree(result);
+            if (backend_nc_data->frontend_nc != NULL) {
+                webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
+            }
+            FREE_SDS(result);
             if (backend_nc_data->cmd_id == MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET) {
                 webradiodb_cache_write(config->cachedir, "webradiodb-combined.min.json", hm->body.ptr, hm->body.len);
             }
             break;
         }
         case MG_EV_CLOSE: {
-            MYMPD_LOG_INFO("Backend HTTP connection \"%lu\" closed", nc->id);
-            mg_user_data->connection_count--;
-            if (backend_nc_data->frontend_nc != NULL) {
-                //remove backend connection pointer from frontend connection
-                backend_nc_data->frontend_nc->fn_data = NULL;
-                //close frontend connection
-                backend_nc_data->frontend_nc->is_draining = 1;
-            }
-            //free backend_nc_data
-            free_backend_nc_data(backend_nc_data);
-            free(backend_nc_data);
-            nc->fn_data = NULL;
+            handle_backend_close(nc, backend_nc_data);
             break;
         }
     }

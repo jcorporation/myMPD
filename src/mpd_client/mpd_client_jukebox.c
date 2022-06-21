@@ -56,7 +56,7 @@ bool mpd_client_rm_jukebox_entry(struct t_list *list, long pos) {
         return false;
     }
     node->user_data = NULL;
-    return list_shift(list, pos);
+    return list_remove_node(list, pos);
 }
 
 void mpd_client_clear_jukebox(struct t_list *list) {
@@ -534,11 +534,12 @@ static long _fill_jukebox_queue_albums(struct t_mympd_state *mympd_state, long a
     raxIterator iter;
     raxStart(&iter, mympd_state->album_cache);
     raxSeek(&iter, "^", NULL, 0);
-    struct mpd_song *song;
+    sds album = sdsempty();
+    sds albumartist = sdsempty();
     while (raxNext(&iter)) {
-        song = (struct mpd_song *)iter.data;
-        sds album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
-        sds albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
+        struct mpd_song *song = (struct mpd_song *)iter.data;
+        album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
+        albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
         long is_uniq = JUKEBOX_UNIQ_IS_UNIQ;
         if (mympd_state->jukebox_enforce_unique == true) {
             is_uniq = mpd_client_jukebox_unique_album(mympd_state, album, albumartist, manual, queue_list);
@@ -573,9 +574,9 @@ static long _fill_jukebox_queue_albums(struct t_mympd_state *mympd_state, long a
         else {
             skipno++;
         }
-        FREE_SDS(album);
-        FREE_SDS(albumartist);
     }
+    FREE_SDS(album);
+    FREE_SDS(albumartist);
     raxStop(&iter);
     MYMPD_LOG_DEBUG("Jukebox iterated through %ld albums, skipped %ld", lineno, skipno);
     return (int)nkeep;

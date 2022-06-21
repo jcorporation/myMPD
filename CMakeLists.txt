@@ -9,8 +9,8 @@ project (mympd C)
 #update myMPD version here and run ./build.sh setversion to update
 #the source files
 set(CPACK_PACKAGE_VERSION_MAJOR "9")
-set(CPACK_PACKAGE_VERSION_MINOR "3")
-set(CPACK_PACKAGE_VERSION_PATCH "4")
+set(CPACK_PACKAGE_VERSION_MINOR "4")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 #minimal cmake version needed for correct GNUInstallDirs
 cmake_minimum_required(VERSION 3.4)
@@ -85,6 +85,7 @@ message("Document root: ${ASSETS_PATH}")
 #set debug define for source
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
   set(DEBUG "OFF")
+  set(NDEBUG "true")
 else()
   set(DEBUG "ON")
 endif()
@@ -297,6 +298,7 @@ set(MYMPD_SOURCES
   src/mympd_config.c
   src/web_server.c
   src/web_server/web_server_albumart.c
+  src/web_server/web_server_handler.c
   src/web_server/web_server_proxy.c
   src/web_server/web_server_radiobrowser.c
   src/web_server/web_server_sessions.c

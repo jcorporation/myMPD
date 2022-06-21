@@ -9,6 +9,7 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mem.h"
 #include "../lib/sds_extras.h"
 #include "../mpd_shared.h"
 
@@ -18,7 +19,84 @@
 static sds _mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values);
 static sds _mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values, const bool multi);
 
+//struct mpd_song define from libmpdclient
+struct mpd_tag_value {
+	struct mpd_tag_value *next;
+	char *value;
+};
+
+struct mpd_song {
+	char *uri;
+	struct mpd_tag_value tags[MPD_TAG_COUNT];
+	unsigned duration;
+	unsigned duration_ms;
+	unsigned start;
+	unsigned end;
+	time_t last_modified;
+	unsigned pos;
+	unsigned id;
+	unsigned prio;
+#ifndef NDEBUG
+	bool finished;
+#endif
+	struct mpd_audio_format audio_format;
+};
+
 //public functions
+
+/**
+ * Adds a tag value to the song if value does not already exists
+ *
+ * @return true on success, false if the tag is not supported or if no
+ * memory could be allocated or value is a duplicate
+ */
+bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
+		enum mpd_tag_type type, const char *value)
+{
+	struct mpd_tag_value *tag = &song->tags[type];
+
+	if ((int)type < 0 ||
+        type >= MPD_TAG_COUNT)
+    {
+		return false;
+    }
+
+    if (tag->value == NULL) {
+		tag->next = NULL;
+		tag->value = strdup(value);
+		if (tag->value == NULL) {
+			return false;
+        }
+	}
+    else {
+        if (strcmp(tag->value, value) == 0) {
+            //do not add duplicate values
+            return false;
+        }
+		while (tag->next != NULL) {
+            if (strcmp(tag->value, value) == 0) {
+                //do not add duplicate values
+                return false;
+            }
+			tag = tag->next;
+        }
+
+		struct mpd_tag_value *prev = tag;
+		tag = malloc_assert(sizeof(*tag));
+
+		tag->value = strdup(value);
+		if (tag->value == NULL) {
+		FREE_PTR(tag);
+			return false;
+		}
+
+		tag->next = NULL;
+		prev->next = tag;
+	}
+
+	return true;
+}
+
 bool is_multivalue_tag(enum mpd_tag_type tag) {
     switch(tag) {
         case MPD_TAG_ARTIST:
@@ -133,7 +211,7 @@ sds mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_ty
                 sds filename = sdsnew(mpd_song_get_uri(song));
                 sds_basename_uri(filename);
                 tag_values = sds_catjson(tag_values, filename, sdslen(filename));
-                sdsfree(filename);
+                FREE_SDS(filename);
             }
         }
         else if (tag == MPD_TAG_ALBUM_ARTIST) {
@@ -204,7 +282,7 @@ sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct 
     buffer = tojson_long(buffer, "Duration", 0, true);
     buffer = tojson_long(buffer, "LastModified", 0, true);
     buffer = tojson_char(buffer, "uri", uri, false);
-    sdsfree(filename);
+    FREE_SDS(filename);
     return buffer;
 }
 
@@ -225,7 +303,7 @@ bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_
     bool rc = false;
     for (unsigned i = 0; i < tagcols->len; i++) {
         value = _mpd_shared_get_tag_values(song, tagcols->tags[i], value, false);
-        sdstolower(value);
+        sds_utf8_tolower(value);
         if (strstr(value, searchstr) != NULL) {
             rc = true;
         }
@@ -345,17 +423,19 @@ static sds _mpd_shared_get_tag_values(struct mpd_song const *song, const enum mp
     }
     else {
         //return json string
-        sds v = sdsempty();
+        tag_values = sdscatlen(tag_values, "\"", 1);
         while ((value = mpd_song_get_tag(song, tag, i)) != NULL) {
             if (i++) {
-                v = sdscatlen(v, ", ", 2);
+                tag_values = sdscatlen(tag_values, ", ", 2);
             }
-            v = sdscat(v, value);
+            tag_values = sds_catjson_plain(tag_values, value, strlen(value));
         }
         if (i > 0) {
-            tag_values = sds_catjson(tag_values, v, sdslen(v));
+            tag_values = sdscatlen(tag_values, "\"", 1);
         }
-        sdsfree(v);
+        else {
+            sdsclear(tag_values);
+        }
     }
     return tag_values;
 }

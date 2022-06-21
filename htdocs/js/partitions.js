@@ -11,21 +11,20 @@ function initPartitions() {
             const action = getData(event.target, 'action');
             const partition = getData(event.target.parentNode.parentNode, 'partition');
             if (action === 'delete') {
-                deletePartition(partition);
+                deletePartition(event.target, partition);
             }
-            else if (action === 'switch') {
-                switchPartition(partition);
-            }
+        }
+        else if (event.target.nodeName === 'TD') {
+            const partition = getData(event.target.parentNode, 'partition');
+            switchPartition(partition);
         }
     }, false);
 
     document.getElementById('partitionOutputsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (event.target.nodeName === 'TD') {
-            const outputName = getData(event.target.parentNode, 'output');
-            moveOutput(outputName);
-            uiElements.modalPartitionOutputs.hide();
+        if (event.target.nodeName === 'BUTTON') {
+            toggleBtnChk(event.target);
         }
     }, false);
 
@@ -36,14 +35,42 @@ function initPartitions() {
     document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
         sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
             "partition": "default"
-        }, parsePartitionOutputsList, true);
+        }, function(obj) {
+            const outputList = document.getElementById('partitionOutputsList');
+            if (checkResult(obj, outputList) === false) {
+                return;
+            }
+            allOutputs = obj.result.data;
+            sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
+                "partition": settings.partition
+            }, parsePartitionOutputsList, true);
+        }, true);
     });
 }
 
-function moveOutput(output) {
+//eslint-disable-next-line no-unused-vars
+function moveOutputs() {
+    const outputs = [];
+    const selection = document.getElementById('partitionOutputsList').getElementsByClassName('active');
+    if (selection.length === 0) {
+        return;
+    }
+    for (let i = 0, j = selection.length; i < j; i++) {
+        outputs.push(getData(selection[i].parentNode.parentNode, 'output'));
+    }
     sendAPI("MYMPD_API_PARTITION_OUTPUT_MOVE", {
-        "name": output
-    });
+        "outputs": outputs
+    }, moveOutputsCheckError, true);
+}
+
+function moveOutputsCheckError(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        uiElements.modalPartitionOutputs.hide();
+        showNotification(tn('Outputs moved to current partition'), '', 'general', 'info');
+    }
 }
 
 function parsePartitionOutputsList(obj) {
@@ -53,19 +80,25 @@ function parsePartitionOutputsList(obj) {
     }
 
     elClear(outputList);
-    const outputs = document.getElementById('outputs').getElementsByTagName('button');
-    const outputIds = [];
-    for (let i = 0, j= outputs.length; i < j; i++) {
-        outputIds.push(getData(outputs[i], 'output-id'));
+    const curOutputs = [];
+    for (let i = 0; i < obj.result.numOutputs; i++) {
+        if (obj.result.data[i].plugin !== 'dummy') {
+            curOutputs.push(obj.result.data[i].name);
+        }
     }
 
+    const selBtn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-small", "me-3"]}, 'radio_button_unchecked');
+
     let nr = 0;
-    for (let i = 0, j = obj.result.data.length; i < j; i++) {
-        if (outputIds.includes(obj.result.data[i].id) === false) {
+    for (let i = 0, j = allOutputs.length; i < j; i++) {
+        if (curOutputs.includes(allOutputs[i].name) === false) {
             const tr = elCreateNode('tr', {},
-                elCreateText('td', {}, obj.result.data[i].name)
+                elCreateNodes('td', {}, [
+                    selBtn.cloneNode(true),
+                    document.createTextNode(allOutputs[i].name)
+                ])
             );
-            setData(tr, 'output', obj.result.data[i].name);
+            setData(tr, 'output', allOutputs[i].name);
             outputList.appendChild(tr);
             nr++;
         }
@@ -101,6 +134,16 @@ function savePartitionCheckError(obj) {
     }
 }
 
+function switchPartitionCheckError(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        BSN.Modal.getInstance(document.getElementById('modalPartitions')).hide();
+        showNotification(tn('Partition switched'), '', 'general', 'info');
+    }
+}
+
 //eslint-disable-next-line no-unused-vars
 function showNewPartition() {
     cleanupModalId('modalPartitions');
@@ -122,17 +165,19 @@ function showListPartitions() {
     sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, true);
 }
 
-function deletePartition(partition) {
-    sendAPI("MYMPD_API_PARTITION_RM", {
-        "name": partition
-    }, savePartitionCheckError, true);
+function deletePartition(el, partition) {
+    showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the partition?', {"partition": partition}), tn('Yes, delete it'), function() {
+        sendAPI("MYMPD_API_PARTITION_RM", {
+            "name": partition
+        }, savePartitionCheckError, true);
+    });  
 }
 
 function switchPartition(partition) {
     sendAPI("MYMPD_API_PARTITION_SWITCH", {
         "name": partition
     }, function(obj) {
-        savePartitionCheckError(obj);
+        switchPartitionCheckError(obj);
         sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState);
     }, true);
 }
@@ -148,9 +193,16 @@ function parsePartitionList(obj) {
     for (let i = 0, j = obj.result.data.length; i < j; i++) {
         const tr = elCreateEmpty('tr', {});
         setData(tr, 'partition', obj.result.data[i].name);
+        if (obj.result.data[i].name !== settings.partition) {
+            tr.setAttribute('title', tn('Switch to'));
+        }
+        else {
+            tr.classList.add('not-clickable');
+            tr.setAttribute('title', tn('Active partition'));
+        }
         const td = elCreateEmpty('td', {});
         if (obj.result.data[i].name === settings.partition) {
-            td.classList.add('font-weight-bold');
+            td.classList.add('fw-bold');
             td.textContent = obj.result.data[i].name + ' (' + tn('current') + ')';
         }
         else {
@@ -158,14 +210,11 @@ function parsePartitionList(obj) {
         }
         tr.appendChild(td);
         const partitionActionTd = elCreateEmpty('td', {"data-col": "Action"});
-        if (obj.result.data[i].name !== 'default' && obj.result.data[i].name !== settings.partition) {
+        if (obj.result.data[i].name !== 'default' &&
+            obj.result.data[i].name !== settings.partition)
+        {
             partitionActionTd.appendChild(
                 elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["mi", "color-darkgrey", "me-2"]}, 'delete')
-            );
-        }
-        if (obj.result.data[i].name !== settings.partition) {
-            partitionActionTd.appendChild(
-                elCreateText('a', {"href": "#", "title": tn('Switch to'), "data-action": "switch", "class": ["mi", "color-darkgrey"]}, 'check_circle')
             );
         }
         tr.appendChild(partitionActionTd);

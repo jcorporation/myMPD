@@ -185,7 +185,7 @@ bool mympd_api_trigger_delete(struct t_mympd_state *mympd_state, long idx) {
     struct t_list_node *toremove = list_node_at(&mympd_state->triggers, idx);
     if (toremove != NULL) {
         list_clear((struct t_list *)toremove->user_data);
-        return list_shift(&mympd_state->triggers, idx);
+        return list_remove_node(&mympd_state->triggers, idx);
     }
     return false;
 }

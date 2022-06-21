@@ -16,7 +16,7 @@
         "mympd"
     ],
     "dependencies": {
-        "bootstrap": "^5.1.3"
+        "bootstrap": "^5.2.0-beta1"
     },
     "devDependencies": {
         "autoprefixer": "^10.2.5",

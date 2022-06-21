@@ -621,18 +621,18 @@ function filetype(uri) {
     }
     const ext = uri.split('.').pop().toUpperCase();
     switch(ext) {
-        case 'MP3':  return ext + ' - MPEG-1 Audio Layer III';
-        case 'FLAC': return ext + ' - Free Lossless Audio Codec';
-        case 'OGG':  return ext + ' - Ogg Vorbis';
-        case 'OPUS': return ext + ' - Opus Audio';
-        case 'WAV':  return ext + ' - WAVE Audio File';
-        case 'WV':   return ext + ' - WavPack';
-        case 'AAC':  return ext + ' - Advancded Audio Coding';
-        case 'MPC':  return ext + ' - Musepack';
-        case 'MP4':  return ext + ' - MPEG-4';
-        case 'APE':  return ext + ' - Monkey Audio';
-        case 'WMA':  return ext + ' - Windows Media Audio';
-        case 'CUE':  return ext + ' - Cuesheet';
+        case 'MP3':  return ext + ' - ' + tn('MPEG-1 Audio Layer III');
+        case 'FLAC': return ext + ' - ' + tn('Free Lossless Audio Codec');
+        case 'OGG':  return ext + ' - ' + tn('Ogg Vorbis');
+        case 'OPUS': return ext + ' - ' + tn('Opus Audio');
+        case 'WAV':  return ext + ' - ' + tn('WAVE Audio File');
+        case 'WV':   return ext + ' - ' + tn('WavPack');
+        case 'AAC':  return ext + ' - ' + tn('Advanced Audio Coding');
+        case 'MPC':  return ext + ' - ' + tn('Musepack');
+        case 'MP4':  return ext + ' - ' + tn('MPEG-4');
+        case 'APE':  return ext + ' - ' + tn('Monkey Audio');
+        case 'WMA':  return ext + ' - ' + tn('Windows Media Audio');
+        case 'CUE':  return ext + ' - ' + tn('Cuesheet');
         default:     return ext;
     }
 }
@@ -754,7 +754,7 @@ function addTagList(elId, list) {
 
 function addTagListSelect(elId, list) {
     const select = document.getElementById(elId);
-    elClear(select);
+    select.options.length = 0;
     if (elId === 'saveSmartPlaylistSort' || elId === 'selectSmartplsSort') {
         select.appendChild(elCreateText('option', {"value": ""}, tn('Disabled')));
         select.appendChild(elCreateText('option', {"value": "shuffle"}, tn('Shuffle')));
@@ -1016,8 +1016,7 @@ function setPagination(total, returned) {
 }
 
 function createPaginationEls(totalPages, curPage) {
-    const prev = elCreateNode('button', {"title": tn('Previous page'), "type": "button", "class": ["btn", "btn-secondary"]},
-        elCreateText('span', {"class": ["mi"]}, 'navigate_before'));
+    const prev = elCreateText('button', {"title": tn('Previous page'), "type": "button", "class": ["btn", "btn-secondary", "mi"]}, 'navigate_before');
     if (curPage === 1) {
         elDisable(prev);
     }
@@ -1076,7 +1075,8 @@ function createPaginationEls(totalPages, curPage) {
         first.textContent = '1';
     }
     else {
-        first.appendChild(elCreateText('span', {"class": ["mi"]}, 'first_page'));
+        first.textContent = 'first_page';
+        first.classList.add('mi');
     }
     if (curPage === 1) {
         elDisable(first);
@@ -1111,7 +1111,8 @@ function createPaginationEls(totalPages, curPage) {
         last.textContent = end + 1;
     }
     else {
-        last.appendChild(elCreateText('span', {"class": ["mi"]}, 'last_page'));
+        last.textContent = 'last_page';
+        last.classList.add('mi');
     }
     if (totalPages === -1) {
         elDisable(last);
@@ -1135,8 +1136,7 @@ function createPaginationEls(totalPages, curPage) {
     );
     pageDropdownMenu.appendChild(row);
 
-    const next = elCreateEmpty('button', {"title": tn('Next page'), "type": "button", "class": ["btn", "btn-secondary"]});
-    next.appendChild(elCreateText('span', {"class": ["mi"]}, 'navigate_next'));
+    const next = elCreateText('button', {"title": tn('Next page'), "type": "button", "class": ["btn", "btn-secondary", "mi"]}, 'navigate_next');
     if (totalPages !== -1 && totalPages === curPage) {
         elDisable(next);
     }
@@ -1310,6 +1310,25 @@ function createSearchExpression(crumbsEl, tag, op, value) {
     return expression;
 }
 
+function printBrowseLink(el, tag, values) {
+    if (settings.tagListBrowse.includes(tag)) {
+        for (const value of values) {
+            const link = elCreateText('a', {"href": "#"}, value);
+            setData(link, 'tag', tag);
+            setData(link, 'name', value);
+            link.addEventListener('click', function(event) {
+                event.preventDefault();
+                gotoBrowse(event);
+            }, false);
+            el.appendChild(link);
+            el.appendChild(elCreateEmpty('br', {}));
+        }
+    }
+    else {
+        el.textContent.appendChild(printValue(tag, values));
+    }
+}
+
 function printValue(key, value) {
     if (value === undefined || value === null || value === '') {
         return document.createTextNode('-');
@@ -1385,13 +1404,12 @@ function printValue(key, value) {
                 return document.createTextNode(value);
             }
             return elCreateText('a', {"class": ["text-success", "external"],
-                        "href": myEncodeURIhost(value),
-                        "target": "_blank"}, value);
+                "href": myEncodeURIhost(value), "target": "_blank"}, value);
         case 'lastcheckok':
             //radiobrowser.info
             return elCreateText('span', {"class": ["mi"]},
-                    (value === 1 ? 'check_circle' : 'error')
-                );
+                (value === 1 ? 'check_circle' : 'error')
+            );
         case 'Bitrate':
             return document.createTextNode(value + ' ' + tn('kbit'));
         default:
@@ -1646,4 +1664,27 @@ function setMobileView() {
     else {
         domCache.body.classList.add('not-mobile');
     }
+}
+
+function httpGet(uri, callback, json) {
+    const ajaxRequest = new XMLHttpRequest();
+    ajaxRequest.open('GET', uri, true);
+    ajaxRequest.onreadystatechange = function() {
+        if (ajaxRequest.readyState === 4) {
+            if (json === true) {
+                try {
+                    const obj = JSON.parse(ajaxRequest.responseText);
+                    callback(obj);
+                }
+                catch(error) {
+                    showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
+                    logError('Can not parse response to json object:' + ajaxRequest.responseText);
+                }
+            }
+            else {
+                callback(ajaxRequest.responseText);
+            }
+        }
+    };
+    ajaxRequest.send();
 }

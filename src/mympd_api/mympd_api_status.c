@@ -20,7 +20,7 @@
 #include "mympd_api_webradios.h"
 
 //private definitions
-static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
+static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, const char *partition);
 static int _mympd_api_get_volume(struct t_mympd_state *mympd_state);
 static time_t get_current_song_start_time(struct t_mympd_state *mympd_state);
 
@@ -189,6 +189,9 @@ sds mympd_api_status_partition_output_list(struct t_mympd_state *mympd_state, sd
                                      const char *partition)
 {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
+    if (status == NULL) {
+        return jsonrpc_respond_message(buffer, method, request_id, true, "general", "error", "Error getting MPD status");
+    }
     const char *oldpartition = mpd_status_get_partition(status);
     bool rc = mpd_run_switch_partition(mympd_state->mpd_state->conn, partition);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_run_switch_partition") == false) {
@@ -196,7 +199,7 @@ sds mympd_api_status_partition_output_list(struct t_mympd_state *mympd_state, sd
         return buffer;
     }
 
-    buffer = _mympd_api_get_outputs(mympd_state, buffer, method, request_id);
+    buffer = _mympd_api_get_outputs(mympd_state, buffer, method, request_id, partition);
 
     rc = mpd_run_switch_partition(mympd_state->mpd_state->conn, oldpartition);
     check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_run_switch_partition");
@@ -205,7 +208,14 @@ sds mympd_api_status_partition_output_list(struct t_mympd_state *mympd_state, sd
 }
 
 sds mympd_api_status_output_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
-    return _mympd_api_get_outputs(mympd_state, buffer, method, request_id);
+    struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
+    if (status == NULL) {
+        return jsonrpc_respond_message(buffer, method, request_id, true, "general", "error", "Error getting MPD status");
+    }
+    const char *partition = mpd_status_get_partition(status);
+    buffer = _mympd_api_get_outputs(mympd_state, buffer, method, request_id, partition);
+    mpd_status_free(status);
+    return buffer;
 }
 
 sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
@@ -239,7 +249,7 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
             buffer = sdscatsds(buffer, webradio);
             buffer = sdscatlen(buffer, "}", 1);
         }
-        sdsfree(webradio);
+        FREE_SDS(webradio);
     }
     mpd_song_free(song);
 
@@ -272,7 +282,7 @@ static time_t get_current_song_start_time(struct t_mympd_state *mympd_state) {
     return start_time;
 }
 
-static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, const char *partition) {
     bool rc = mpd_send_outputs(mympd_state->mpd_state->conn);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_outputs") == false) {
         return buffer;
@@ -309,6 +319,7 @@ static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer,
     }
 
     buffer = sdscatlen(buffer, "],", 2);
+    buffer = tojson_char(buffer, "partition", partition, true);
     buffer = tojson_long(buffer, "numOutputs", nr, false);
     buffer = jsonrpc_result_end(buffer);
 
