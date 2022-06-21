@@ -73,7 +73,7 @@ function initScripts() {
             return;
         }
         getImportScript(script);
-        BSN.Dropdown.getInstance('#btnDropdownImportScript').hide();
+        BSN.Dropdown.getInstance(document.getElementById('btnDropdownImportScript')).hide();
         setFocusId('textareaScriptContent');
     }, false);
 
@@ -113,7 +113,7 @@ function initScripts() {
             '    result = json.decode(raw_result)\n' +
             'end\n';
         el.setRangeText(newText, start, end, 'preserve');
-        BSN.Dropdown.getInstance('#btnDropdownAddAPIcall').hide();
+        BSN.Dropdown.getInstance(document.getElementById('btnDropdownAddAPIcall')).hide();
         setFocus(el);
     }, false);
 
@@ -147,7 +147,7 @@ function initScripts() {
         const el = document.getElementById('textareaScriptContent');
         const [start, end] = [el.selectionStart, el.selectionEnd];
         el.setRangeText(LUAfunctions[value].func, start, end, 'end');
-        BSN.Dropdown.getInstance('#btnDropdownAddFunction').hide();
+        BSN.Dropdown.getInstance(document.getElementById('btnDropdownAddFunction')).hide();
         setFocus(el);
     }, false);
 }

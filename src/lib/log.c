@@ -60,7 +60,8 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     }
 
     sds logline = sdsempty();
-    logline = sdsMakeRoomFor(logline, 200);
+    //preallocate some space for the logline to avoid continuous reallocations
+    logline = sdsMakeRoomFor(logline, 512);
     if (log_on_tty == true) {
         logline = sdscat(logline, loglevel_colors[level]);
         time_t now = time(NULL);
@@ -84,7 +85,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
 
     if (sdslen(logline) > 1023) {
         sdsrange(logline, 0, 1020);
-        logline = sdscatlen(logline, "...", 4);
+        logline = sdscatlen(logline, "...", 3);
     }
 
     if (log_on_tty == true) {
@@ -95,6 +96,5 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     }
 
     (void) fputs(logline, stdout);
-
     FREE_SDS(logline);
 }
