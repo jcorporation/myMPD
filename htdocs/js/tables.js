@@ -417,6 +417,13 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const tr = tbody.getElementsByTagName('tr');
     const smallWidth = uiSmallWidthTagRows();
 
+    if (smallWidth === true) {
+        table.classList.add('smallWidth');
+    }
+    else {
+        table.classList.remove('smallWidth');
+    }
+
     //disc handling for album view
     let z = 0;
     let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined ? Number(obj.result.data[0].Disc) : 0;
