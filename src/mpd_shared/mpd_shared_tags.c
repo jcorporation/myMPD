@@ -69,10 +69,6 @@ bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
         }
 	}
     else {
-        if (strcmp(tag->value, value) == 0) {
-            //do not add duplicate values
-            return false;
-        }
 		while (tag->next != NULL) {
             if (strcmp(tag->value, value) == 0) {
                 //do not add duplicate values
@@ -80,7 +76,10 @@ bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
             }
 			tag = tag->next;
         }
-
+        if (strcmp(tag->value, value) == 0) {
+            //do not add duplicate values
+            return false;
+        }
 		struct mpd_tag_value *prev = tag;
 		tag = malloc_assert(sizeof(*tag));
 
