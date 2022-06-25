@@ -1396,7 +1396,7 @@ Invalid volume level
 Ungültige Lautstärke
 
 MaintainEnableTagsText
-Folgende Tags sollten gepflegt und aktiviert sein: Artist, AlbumArtist, Album, Track, Disc and Genre
+Folgende Tags sollten gepflegt und aktiviert sein: AlbumArtist, Album, Artist, Disc, Genre, Name, Title, Track
 
 Failed to set like, unknown error
 Like konnte nicht gesetzt werden - unbekannter Fehler
