@@ -2300,3 +2300,18 @@ Outputs moved to current partition
 
 Move
 移动
+
+Could not find album
+找不到专辑
+
+Could not get local ip
+未能获取本地 IP
+
+Add external link
+添加外部链接
+
+Open external link
+打开外部链接
+
+External link
+外部链接
