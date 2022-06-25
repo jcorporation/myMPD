@@ -76,6 +76,7 @@ void list_free_cb_sds_user_data(struct t_list_node *current) {
 //callback function to free user_data of type t_list
 void list_free_cb_t_list_user_data(struct t_list_node *current) {
     list_clear((struct t_list *)current->user_data);
+    FREE_PTR(current->user_data);
 }
 
 //gets a list node by key

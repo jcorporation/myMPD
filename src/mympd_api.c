@@ -55,7 +55,7 @@ void *mympd_api_loop(void *arg_config) {
         mympd_api_timer_add(&mympd_state->timer_list, 60, 7200, timer_handler_covercache, 1, NULL, (void *)mympd_state);
     }
     //start trigger
-    mympd_api_trigger_execute(mympd_state, TRIGGER_MYMPD_START);
+    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START);
     //thread loop
     while (s_signal_received == 0) {
         mpd_client_idle(mympd_state);
@@ -65,7 +65,7 @@ void *mympd_api_loop(void *arg_config) {
         mympd_api_timer_check(&mympd_state->timer_list);
     }
     //stop trigger
-    mympd_api_trigger_execute(mympd_state, TRIGGER_MYMPD_STOP);
+    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP);
     //disconnect from mpd
     mpd_shared_mpd_disconnect(mympd_state->mpd_state);
     //save states
@@ -74,7 +74,6 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_stats_last_played_file_save(mympd_state);
     mympd_api_trigger_file_save(mympd_state);
     //free anything
-    mympd_api_trigerlist_free_arguments(mympd_state);
     mympd_state_free(mympd_state);
     FREE_SDS(thread_logname);
     return NULL;

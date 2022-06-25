@@ -306,7 +306,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
     mpd_shared_default_mpd_state(mympd_state->mpd_state);
     //triggers;
-    list_init(&mympd_state->triggers);
+    list_init(&mympd_state->trigger_list);
     //home icons
     list_init(&mympd_state->home_list);
     //timer
@@ -317,10 +317,10 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     mpd_client_clear_jukebox(&mympd_state->jukebox_queue);
     mpd_client_clear_jukebox(&mympd_state->jukebox_queue_tmp);
     list_clear(&mympd_state->sticker_queue);
-    list_clear(&mympd_state->triggers);
+    list_clear_user_data(&mympd_state->trigger_list, list_free_cb_t_list_user_data);
     list_clear(&mympd_state->last_played);
     list_clear(&mympd_state->home_list);
-    mympd_api_timer_timerlist_free(&mympd_state->timer_list);
+    mympd_api_timer_timerlist_clear(&mympd_state->timer_list);
     //mpd state
     mpd_shared_free_mpd_state(mympd_state->mpd_state);
     //caches

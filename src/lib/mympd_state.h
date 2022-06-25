@@ -168,7 +168,7 @@ struct t_mympd_state {
     //lists
     struct t_timer_list timer_list;
     struct t_list home_list;
-    struct t_list triggers;
+    struct t_list trigger_list;
     struct t_list last_played;
     struct t_list jukebox_queue;
     struct t_list jukebox_queue_tmp;

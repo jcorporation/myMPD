@@ -478,15 +478,15 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         }
         case MYMPD_API_TRIGGER_LIST:
-            response->data = mympd_api_trigger_list(mympd_state, response->data, request->method, request->id);
+            response->data = mympd_api_trigger_list(&mympd_state->trigger_list, response->data, request->method, request->id);
             break;
         case MYMPD_API_TRIGGER_GET:
             if (json_get_long(request->data, "$.params.id", 0, LIST_TRIGGER_MAX, &long_buf1, &error) == true) {
-                response->data = mympd_api_trigger_get(mympd_state, response->data, request->method, request->id, long_buf1);
+                response->data = mympd_api_trigger_get(&mympd_state->trigger_list, response->data, request->method, request->id, long_buf1);
             }
             break;
         case MYMPD_API_TRIGGER_SAVE: {
-            if (mympd_state->triggers.length > LIST_TRIGGER_MAX) {
+            if (mympd_state->trigger_list.length > LIST_TRIGGER_MAX) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "trigger", "error", "Too many triggers defined");
                 break;
             }
@@ -499,11 +499,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_int_max(request->data, "$.params.event", &int_buf2, &error) == true &&
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
-                rc = list_push(&mympd_state->triggers, sds_buf1, int_buf2, sds_buf2, arguments);
+                rc = list_push(&mympd_state->trigger_list, sds_buf1, int_buf2, sds_buf2, arguments);
                 if (rc == true) {
                     if (int_buf1 >= 0) {
                         //delete old entry
-                        mympd_api_trigger_delete(mympd_state, int_buf1);
+                        mympd_api_trigger_delete(&mympd_state->trigger_list, int_buf1);
                     }
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "trigger");
                     break;
@@ -516,7 +516,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         }
         case MYMPD_API_TRIGGER_RM:
             if (json_get_long(request->data, "$.params.id", 0, LIST_TRIGGER_MAX, &long_buf1, &error) == true) {
-                rc = mympd_api_trigger_delete(mympd_state, long_buf1);
+                rc = mympd_api_trigger_delete(&mympd_state->trigger_list, long_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "trigger");
                 }
@@ -614,7 +614,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "sticker", "error", "Failed to set like, unknown error");
                 }
                 //mympd_feedback trigger
-                mympd_api_trigger_execute_feedback(mympd_state, sds_buf1, int_buf1);
+                mympd_api_trigger_execute_feedback(&mympd_state->trigger_list, sds_buf1, int_buf1);
             }
             break;
         case MYMPD_API_PLAYER_STATE:

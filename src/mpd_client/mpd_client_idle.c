@@ -120,7 +120,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                     //other idle events not used
                 }
             }
-            mympd_api_trigger_execute(mympd_state, (enum trigger_events)idle_event);
+            mympd_api_trigger_execute(&mympd_state->trigger_list, (enum trigger_events)idle_event);
             if (sdslen(buffer) > 0) {
                 ws_notify(buffer);
             }
@@ -248,13 +248,13 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 MYMPD_LOG_ERROR("Entering idle mode failed");
                 mympd_state->mpd_state->conn_state = MPD_FAILURE;
             }
-            mympd_api_trigger_execute(mympd_state, TRIGGER_MYMPD_CONNECTED);
+            mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_CONNECTED);
             break;
         case MPD_FAILURE:
             MYMPD_LOG_ERROR("MPD connection failed");
             buffer = jsonrpc_event(buffer, "mpd_disconnected");
             ws_notify(buffer);
-            mympd_api_trigger_execute(mympd_state, TRIGGER_MYMPD_DISCONNECTED);
+            mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED);
             // fall through
         case MPD_DISCONNECT:
         case MPD_DISCONNECT_INSTANT:
@@ -342,7 +342,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                         mympd_api_sticker_inc_play_count(mympd_state, mympd_state->mpd_state->song_uri);
                         mympd_api_sticker_last_played(mympd_state, mympd_state->mpd_state->song_uri);
                     }
-                    mympd_api_trigger_execute(mympd_state, TRIGGER_MYMPD_SCROBBLE);
+                    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_SCROBBLE);
                 }
                 //trigger jukebox
                 if (jukebox_add_song == true) {
