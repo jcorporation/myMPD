@@ -179,6 +179,7 @@ void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags *enable_tags) 
     }
 }
 
+//returns a comma separated list if tag values
 sds mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values) {
     tag_values = _mpd_shared_get_tag_value_string(song, tag, tag_values);
     if (sdslen(tag_values) == 0) {
@@ -195,6 +196,7 @@ sds mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_
     return tag_values;
 }
 
+//returns a json string/array of tag values
 sds mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values) {
     const bool multi = is_multivalue_tag(tag);
     tag_values = _mpd_shared_get_tag_values(song, tag, tag_values, multi);
