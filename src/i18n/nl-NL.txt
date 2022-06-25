@@ -963,9 +963,6 @@ Shuffle
 Playlist is too small to shuffle
 Afspeellijst te klein om te shufflen
 
-Playlist is too small to sort
-Afspeellijst te klein om te sorteren
-
 Shuffle playlist
 Shuffle afspeellijst
 
