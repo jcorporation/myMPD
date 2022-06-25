@@ -52,7 +52,7 @@
 #define CFG_LOG_TO_SYSLOG false
 
 //default mpd state settings
-#define MYMPD_MPD_TAG_LIST "Artist,Album,AlbumArtist,Title,Genre,Disc,Track,Name"
+#define MYMPD_MPD_TAG_LIST "Album,AlbumArtist,Artist,Disc,Genre,Name,Title,Track"
 #define MYMPD_MPD_KEEPALIVE false
 #define MYMPD_MPD_TIMEOUT 30000 //milliseconds
 #define MYMPD_MPD_HOST "/run/mpd/socket"
@@ -68,10 +68,10 @@
 #define MYMPD_JUKEBOX_LAST_PLAYED 24 //hours
 #define MYMPD_JUKEBOX_QUEUE_LENGTH 1
 #define MYMPD_JUKEBOX_ENFORCE_UNIQUE true
-#define MYMPD_COVERIMAGE_NAMES "folder,cover"
-#define MYMPD_THUMBNAIL_NAMES "folder-sm,cover-sm"
-#define MYMPD_TAG_LIST_SEARCH "Artist,Album,AlbumArtist,Title,Genre"
-#define MYMPD_TAG_LIST_BROWSE "Artist,Album,AlbumArtist,Genre"
+#define MYMPD_COVERIMAGE_NAMES "cover,folder"
+#define MYMPD_THUMBNAIL_NAMES "cover-sm,folder-sm"
+#define MYMPD_TAG_LIST_SEARCH "Album,AlbumArtist,Artist,Genre,Title"
+#define MYMPD_TAG_LIST_BROWSE "Album,AlbumArtist,Artist,Genre"
 #define MYMPD_SMARTPLS_GENERATE_TAG_LIST "Genre"
 #define MYMPD_LAST_PLAYED_COUNT 200
 #define MYMPD_SMARTPLS true
