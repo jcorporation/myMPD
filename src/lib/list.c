@@ -73,6 +73,11 @@ void list_free_cb_sds_user_data(struct t_list_node *current) {
     FREE_SDS(current->user_data);
 }
 
+//callback function to free user_data of type t_list
+void list_free_cb_t_list_user_data(struct t_list_node *current) {
+    list_clear((struct t_list *)current->user_data);
+}
+
 //gets a list node by key
 struct t_list_node *list_get_node(const struct t_list *l, const char *key) {
     struct t_list_node *current = l->head;
