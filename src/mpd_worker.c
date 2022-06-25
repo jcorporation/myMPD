@@ -58,6 +58,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     mpd_worker_state->mpd_state->feat_mpd_playlists = mympd_state->mpd_state->feat_mpd_playlists;
     mpd_worker_state->mpd_state->feat_mpd_advsearch = mympd_state->mpd_state->feat_mpd_advsearch;
     mpd_worker_state->mpd_state->feat_mpd_whence = mympd_state->mpd_state->feat_mpd_whence;
+    mpd_worker_state->mpd_state->tag_albumartist = mympd_state->mpd_state->tag_albumartist;
     copy_tag_types(&mympd_state->mpd_state->tag_types_mympd, &mpd_worker_state->mpd_state->tag_types_mympd);
 
     if (pthread_create(&mpd_worker_thread, &attr, mpd_worker_run, mpd_worker_state) != 0) {

@@ -134,7 +134,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             //album cache
             if (mpd_worker_state->mpd_state->feat_mpd_tags == true) {
                 album = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM, album);
-                artist = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM_ARTIST, artist);
+                artist = mpd_shared_get_tag_value_string(song, mpd_worker_state->mpd_state->tag_albumartist, artist);
                 if (sdslen(album) > 0 && sdslen(artist) > 0) {
                     sdsclear(key);
                     key = sdscatfmt(key, "%s::%s", album, artist);

@@ -191,10 +191,6 @@ sds mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_
                 sds_basename_uri(tag_values);
             }
         }
-        else if (tag == MPD_TAG_ALBUM_ARTIST) {
-            //albumartist fallback to artist tag
-            tag_values = _mpd_shared_get_tag_value_string(song, MPD_TAG_ARTIST, tag_values);
-        }
     }
     return tag_values;
 }
@@ -213,10 +209,6 @@ sds mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_ty
                 tag_values = sds_catjson(tag_values, filename, sdslen(filename));
                 FREE_SDS(filename);
             }
-        }
-        else if (tag == MPD_TAG_ALBUM_ARTIST) {
-            //albumartist fallback to artist tag
-            tag_values = _mpd_shared_get_tag_values(song, MPD_TAG_ARTIST, tag_values, multi);
         }
         if (sdslen(tag_values) == 0) {
             //replace empty tag value(s) with dash

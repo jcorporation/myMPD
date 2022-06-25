@@ -239,6 +239,7 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
         mympd_state->mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
     }
     else {
+        MYMPD_LOG_WARN("AlbumArtist tag not enabled");
         mympd_state->mpd_state->tag_albumartist = MPD_TAG_ARTIST;
     }
     FREE_SDS(logline);
