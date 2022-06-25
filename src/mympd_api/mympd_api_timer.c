@@ -197,7 +197,7 @@ void mympd_api_timer_toggle(struct t_timer_list *l, int timer_id) {
     }
 }
 
-void mympd_api_timer_timerlist_truncate(struct t_timer_list *l) {
+void mympd_api_timer_timerlist_clear(struct t_timer_list *l) {
     struct t_timer_node *current = l->list;
     struct t_timer_node *tmp = NULL;
 
@@ -225,21 +225,8 @@ void mympd_api_timer_free_node(struct t_timer_node *node) {
     if (node->definition != NULL) {
         mympd_api_timer_free_definition(node->definition);
         FREE_PTR(node->definition);
-        node->definition = NULL;
     }
     FREE_PTR(node);
-}
-
-bool mympd_api_timer_timerlist_free(struct t_timer_list *l) {
-    struct t_timer_node *current = l->list;
-    struct t_timer_node *tmp = NULL;
-    while (current != NULL) {
-        tmp = current->next;
-        mympd_api_timer_free_node(current);
-        current = tmp;
-    }
-    mympd_api_timer_timerlist_init(l);
-    return true;
 }
 
 struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str, sds *error) {
