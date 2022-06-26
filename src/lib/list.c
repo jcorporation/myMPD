@@ -32,8 +32,9 @@ void list_init(struct t_list *l) {
 }
 
 //Clears the list and frees all nodes and there values
+//ignores user_data
 void list_clear(struct t_list *l) {
-    list_clear_user_data(l, NULL);
+    list_clear_user_data(l, list_free_cb_ignore_user_data);
 }
 
 //Clears the list and frees all nodes and there values
@@ -72,7 +73,7 @@ void list_free_cb_sds_user_data(struct t_list_node *current) {
 
 //callback function to free user_data of type t_list
 void list_free_cb_t_list_user_data(struct t_list_node *current) {
-    list_clear((struct t_list *)current->user_data);
+    list_clear_user_data((struct t_list *)current->user_data, NULL);
     FREE_PTR(current->user_data);
 }
 
@@ -88,7 +89,7 @@ struct t_list_node *list_get_node(const struct t_list *l, const char *key) {
     return current;
 }
 
-//gets the list node at pos and its previous node
+//gets the list node at idx and its previous node
 struct t_list_node *list_node_prev_at(const struct t_list *l, long idx, struct t_list_node **previous) {
     //if there's no data in the list, fail
     if (l->head == NULL) {
@@ -106,7 +107,7 @@ struct t_list_node *list_node_prev_at(const struct t_list *l, long idx, struct t
     return current;
 }
 
-//gets the list node at pos and its previous node
+//gets the list node at idx
 struct t_list_node *list_node_at(const struct t_list *l, long idx) {
     struct t_list_node *previous = NULL;
     return list_node_prev_at(l, idx, &previous);
@@ -219,12 +220,7 @@ bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long 
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnewlen(key, key_len);
     n->value_i = value_i;
-    if (value_p != NULL) {
-        n->value_p = sdsnewlen(value_p, value_len);
-    }
-    else {
-        n->value_p = sdsempty();
-    }
+    n->value_p = value_p != NULL ? sdsnewlen(value_p, value_len) : NULL;
     n->user_data = user_data;
     n->next = NULL;
 
@@ -249,12 +245,7 @@ bool list_insert(struct t_list *l, const char *key, long long value_i,
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
-    if (value_p != NULL) {
-        n->value_p = sdsnew(value_p);
-    }
-    else {
-        n->value_p = sdsempty();
-    }
+    n->value_p = value_p != NULL ? sdsnew(value_p) : NULL;
     n->user_data = user_data;
     n->next = l->head;
 
@@ -292,7 +283,7 @@ bool list_replace_user_data(struct t_list *l, long idx, const char *key, long lo
         current->value_p = sds_replace(current->value_p, value_p);
     }
     else if (current->value_p != NULL) {
-        sdsclear(current->value_p);
+        FREE_SDS(current->value_p);
     }
     if (current->user_data != NULL &&
         free_cb != NULL)

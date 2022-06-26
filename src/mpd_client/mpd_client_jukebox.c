@@ -60,7 +60,7 @@ bool mpd_client_rm_jukebox_entry(struct t_list *list, long pos) {
 }
 
 void mpd_client_clear_jukebox(struct t_list *list) {
-    list_clear_user_data(list, list_free_cb_ignore_user_data);
+    list_clear(list);
 }
 
 sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
@@ -347,7 +347,6 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
 
     bool rc = mpd_send_list_queue_meta(mympd_state->mpd_state->conn);
     if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_queue_meta") == false) {
-        list_clear(queue_list);
         FREE_PTR(queue_list);
         return NULL;
     }

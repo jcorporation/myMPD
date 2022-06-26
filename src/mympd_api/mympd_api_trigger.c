@@ -182,11 +182,10 @@ sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, sds method, l
 }
 
 bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx) {
-    struct t_list_node *toremove = list_node_at(trigger_list, idx);
-    if (toremove != NULL) {
-        list_clear((struct t_list *)toremove->user_data);
-        FREE_PTR(toremove->user_data);
-        return list_remove_node(trigger_list, idx);
+    struct t_list_node *to_remove = list_node_extract(trigger_list, idx);
+    if (to_remove != NULL) {
+        list_node_free_user_data(to_remove, list_free_cb_t_list_user_data);
+        return true;
     }
     return false;
 }
