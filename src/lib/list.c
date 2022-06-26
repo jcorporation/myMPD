@@ -15,9 +15,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-//private definitions
-static struct t_list_node *list_node_extract(struct t_list *l, long idx);
-
 //public functions
 
 //Mallocs a new list and inits it
@@ -91,73 +88,85 @@ struct t_list_node *list_get_node(const struct t_list *l, const char *key) {
     return current;
 }
 
-//gets the list node at pos
-struct t_list_node *list_node_at(const struct t_list *l, long index) {
+//gets the list node at pos and its previous node
+struct t_list_node *list_node_prev_at(const struct t_list *l, long idx, struct t_list_node **previous) {
     //if there's no data in the list, fail
     if (l->head == NULL) {
         return NULL;
     }
-    struct t_list_node * current = l->head;
-    for (; index > 0; index--) {
-        if (current->next == NULL) {
-            return NULL;
-        }
+    if (idx >= l->length) {
+        return NULL;
+    }
+    struct t_list_node *current = l->head;
+    *previous = NULL;
+    for (; idx > 0; idx--) {
+        *previous = current;
         current = current->next;
     }
     return current;
 }
 
+//gets the list node at pos and its previous node
+struct t_list_node *list_node_at(const struct t_list *l, long idx) {
+    struct t_list_node *previous = NULL;
+    return list_node_prev_at(l, idx, &previous);
+}
+
 //moves a node from one to another position
 bool list_move_item_pos(struct t_list *l, long from, long to) {
-    if (from >= l->length || to >= l->length) {
+    if (from >= l->length ||
+        to >= l->length ||
+        from < 0 ||
+        to < 0)
+    {
         return false;
     }
     if (from == to) {
         return true;
     }
 
-    //extract node at from position;
+    bool after = from < to ? true : false;
+
+    //get new position
+    struct t_list_node *previous = NULL;
+    struct t_list_node *current = list_node_prev_at(l, to, &previous);
+
+    //extract node from position;
     struct t_list_node *node = list_node_extract(l, from);
     if (node == NULL) {
         return false;
     }
 
-    struct t_list_node *current = l->head;
-    struct t_list_node **previous = &l->head;
-    if (to > from) {
-        to--;
+    if (after == true) {
+        node->next = current->next;
+        current->next = node;
+        if (l->tail == current) {
+            l->tail = node;
+        }
     }
-    for (; to > 0; to--) {
-        previous = &current->next;
-        current = current->next;
+    else {
+        node->next = current;
+        if (l->head == current) {
+            l->head = node;
+        }
+        else {
+            previous->next = node;
+        }
     }
-    //insert extracted node
-    node->next = *previous;
-    *previous = node;
+
     l->length++;
+
     return true;
 }
 
-//swaps two list nodes by pos
-bool list_swap_item_pos(struct t_list *l, long index1, long index2) {
-    if (l->length < 2) {
-        return false;
-    }
-    struct t_list_node *node1 = list_node_at(l, index1);
-    struct t_list_node *node2 = list_node_at(l, index2);
-    if (node1 == NULL || node2 == NULL) {
-        return false;
-    }
-    return list_swap_item(node1, node2);
-}
 
 //swaps two list nodes
+//we do not realy swap the nodes, we swap the node contents
 bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2) {
-    if (n1 == n2) {
-        return false;
-    }
-
-    if (n1 == NULL || n2 == NULL) {
+    if (n1 == n2 ||
+        n1 == NULL ||
+        n2 == NULL)
+    {
         return false;
     }
 
@@ -184,12 +193,10 @@ bool list_shuffle(struct t_list *l) {
     if (l->length < 2) {
         return false;
     }
-    int n = 0;
     struct t_list_node *current = l->head;
     while (current != NULL) {
         long pos = randrange(0, l->length - 1);
         list_swap_item(current, list_node_at(l, pos));
-        n++;
         current = current->next;
     }
     return true;
@@ -208,6 +215,7 @@ bool list_push(struct t_list *l, const char *key, long long value_i,
 bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long value_i,
         const char *value_p, size_t value_len, void *user_data)
 {
+    //create new list node
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnewlen(key, key_len);
     n->value_i = value_i;
@@ -221,18 +229,14 @@ bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long 
     n->next = NULL;
 
     if (l->head == NULL) {
+        //first entry in the list
         l->head = n;
     }
-    else if (l->tail != NULL) {
+    else {
+        //append to the list
         l->tail->next = n;
     }
-    else {
-        FREE_SDS(n->value_p);
-        FREE_SDS(n->key);
-        FREE_PTR(n);
-        return false;
-    }
-
+    //set tail and increase length
     l->tail = n;
     l->length++;
     return true;
@@ -255,36 +259,32 @@ bool list_insert(struct t_list *l, const char *key, long long value_i,
     n->next = l->head;
 
     l->head = n;
+    if (l->tail == NULL) {
+        //set tail if this is the first node in the list
+        l->tail = n;
+    }
     l->length++;
     return true;
 }
 
 //replaces a list node at pos
 //ignores the old user_data
-bool list_replace(struct t_list *l, long pos, const char *key, long long value_i,
+bool list_replace(struct t_list *l, long idx, const char *key, long long value_i,
         const char *value_p, void *user_data)
 {
-    return list_replace_user_data(l, pos, key, value_i, value_p,
+    return list_replace_user_data(l, idx, key, value_i, value_p,
         user_data, list_free_cb_ignore_user_data);
 }
 
-//replaces a list node at pos
+//replaces a list node at idx
 //frees the old user_data
-bool list_replace_user_data(struct t_list *l, long pos, const char *key, long long value_i,
+bool list_replace_user_data(struct t_list *l, long idx, const char *key, long long value_i,
         const char *value_p, void *user_data, user_data_callback free_cb)
 {
-    if (pos >= l->length) {
+    if (idx >= l->length) {
         return false;
     }
-    long i = 0;
-    struct t_list_node *current = l->head;
-    while (current->next != NULL) {
-        if (i == pos) {
-            break;
-        }
-        current = current->next;
-        i++;
-    }
+    struct t_list_node *current = list_node_at(l, idx);
 
     current->key = sds_replace(current->key, key);
     current->value_i = value_i;
@@ -305,22 +305,6 @@ bool list_replace_user_data(struct t_list *l, long pos, const char *key, long lo
     }
     current->user_data = user_data;
     return true;
-}
-
-//removes the first node from the list and returns it
-struct t_list_node *list_shift_first(struct t_list *l) {
-    if (l->head == NULL) {
-        return NULL;
-    }
-
-    struct t_list_node *extracted = l->head;
-    l->head = l->head->next;
-    if (l->tail == extracted) {
-        l->tail = NULL;
-    }
-    l->length--;
-    extracted->next = NULL;
-    return extracted;
 }
 
 //frees a list node
@@ -361,34 +345,36 @@ bool list_remove_node_user_data(struct t_list *l, long idx, user_data_callback f
     return true;
 }
 
+//removes the first node from the list and returns it
+//this is only a shortcut for list_node_extract
+struct t_list_node *list_shift_first(struct t_list *l) {
+    return list_node_extract(l, 0);
+}
+
 //removes the node at idx from the list and returns it
-static struct t_list_node *list_node_extract(struct t_list *l, long idx) {
-    if (l->head == NULL || idx >= l->length) {
+struct t_list_node *list_node_extract(struct t_list *l, long idx) {
+    if (l->head == NULL ||
+        idx >= l->length) {
         return NULL;
     }
-
-    struct t_list_node *current = NULL;
+    //get the node at idx and the previous node
     struct t_list_node *previous = NULL;
-    long i = 0;
-    for (current = l->head; current != NULL; previous = current, current = current->next) {
-        if (i == idx) {
-            if (previous == NULL) {
-                //Fix head
-                l->head = current->next;
-            }
-            else {
-                //Fix previous nodes next to skip over the removed node
-                previous->next = current->next;
-            }
-            //Fix tail
-            if (l->tail == current) {
-                l->tail = previous;
-            }
-            l->length--;
-            break;
-        }
-        i++;
+    struct t_list_node *current = list_node_prev_at(l, idx, &previous);
+
+    if (previous == NULL) {
+        //Fix head
+        l->head = current->next;
     }
+    else {
+        //Fix previous nodes next to skip over the removed node
+        previous->next = current->next;
+    }
+    //Fix tail
+    if (l->tail == current) {
+        l->tail = previous;
+    }
+    l->length--;
+
     //null out this node's next value since it's not part of a list anymore
     if (current != NULL) {
         current->next = NULL;

@@ -44,17 +44,21 @@ bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long 
 bool list_insert(struct t_list *l, const char *key, long long value_i,
         const char *value_p, void *user_data);
 
-bool list_remove_node(struct t_list *l, long idx);
-bool list_remove_node_user_data(struct t_list *l, long idx, user_data_callback free_cb);
-bool list_replace(struct t_list *l, long pos, const char *key, long long value_i,
+bool list_replace(struct t_list *l, long idx, const char *key, long long value_i,
         const char *value_p, void *user_data);
-bool list_replace_user_data(struct t_list *l, long pos, const char *key, long long value_i,
+bool list_replace_user_data(struct t_list *l, long idx, const char *key, long long value_i,
         const char *value_p, void *user_data, user_data_callback free_cb);
-struct t_list_node *list_get_node(const struct t_list *l, const char *key);
+
 bool list_shuffle(struct t_list *l);
 bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2);
-bool list_swap_item_pos(struct t_list *l, long index1, long index2);
 bool list_move_item_pos(struct t_list *l, long from, long to);
-struct t_list_node *list_node_at(const struct t_list * l, long index);
+
+struct t_list_node *list_get_node(const struct t_list *l, const char *key);
+struct t_list_node *list_node_at(const struct t_list *l, long idx);
+struct t_list_node *list_node_prev_at(const struct t_list *l, long idx, struct t_list_node **previous);
 struct t_list_node *list_shift_first(struct t_list *l);
+struct t_list_node *list_node_extract(struct t_list *l, long idx);
+
+bool list_remove_node(struct t_list *l, long idx);
+bool list_remove_node_user_data(struct t_list *l, long idx, user_data_callback free_cb);
 #endif
