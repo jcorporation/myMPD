@@ -605,6 +605,7 @@ static long _fill_jukebox_queue_songs(struct t_mympd_state *mympd_state, long ad
         }
     }
     bool from_database = strcmp(playlist, "Database") == 0 ? true : false;
+    sds tag_value = sdsempty();
     do {
         MYMPD_LOG_DEBUG("Jukebox: iterating through source, start: %u", start);
 
@@ -632,11 +633,12 @@ static long _fill_jukebox_queue_songs(struct t_mympd_state *mympd_state, long ad
         }
 
         if (check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false) == false) {
+            FREE_SDS(tag_value);
             return -1;
         }
         struct mpd_song *song;
         while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
-            const char *tag_value = mpd_song_get_tag(song, mympd_state->jukebox_unique_tag.tags[0], 0);
+            tag_value = mpd_shared_get_tag_values(song, mympd_state->jukebox_unique_tag.tags[0], tag_value);
             const char *uri = mpd_song_get_uri(song);
             time_t last_played = 0;
             if (mympd_state->sticker_cache != NULL) {
@@ -681,11 +683,13 @@ static long _fill_jukebox_queue_songs(struct t_mympd_state *mympd_state, long ad
         }
         mpd_response_finish(mympd_state->mpd_state->conn);
         if (check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false) == false) {
+            FREE_SDS(tag_value);
             return -1;
         }
         start = end;
         end = end + MPD_RESULTS_MAX;
     } while (from_database == true && lineno + skipno > (long)start);
+    FREE_SDS(tag_value);
     MYMPD_LOG_DEBUG("Jukebox iterated through %ld songs, skipped %ld", lineno, skipno);
     return (int)nkeep;
 }
