@@ -287,6 +287,23 @@ function parseHome(obj) {
     }
 }
 
+function showDropoverIcon(from, to) {
+    const fromPos = getData(from, 'pos');
+    const toPos = getData(to, 'pos');
+    if (toPos > fromPos) {
+        to.classList.add('dragover-icon-right');
+    }
+    else {
+        to.classList.add('dragover-icon-left');
+    }
+    to.classList.add('dragover-icon');
+}
+
+function hideDropoverIcon(el) {
+    el.classList.remove('dragover-icon-left');
+    el.classList.remove('dragover-icon-right');
+}
+
 function dragAndDropHome() {
     const HomeList = document.getElementById('HomeList');
 
@@ -308,7 +325,7 @@ function dragAndDropHome() {
         if (event.target.nodeName === 'DIV' &&
             event.target.classList.contains('home-icons'))
         {
-            event.target.classList.remove('dragover-icon');
+            hideDropoverIcon(event.target);
         }
     }, false);
 
@@ -324,12 +341,12 @@ function dragAndDropHome() {
         if (event.target.nodeName === 'DIV' &&
             event.target.classList.contains('home-icons'))
         {
-            event.target.classList.add('dragover-icon');
+            showDropoverIcon(dragSrc, event.target);
         }
         else if (event.target.nodeName === 'DIV' &&
                  event.target.parentNode.classList.contains('home-icons'))
         {
-            event.target.parentNode.classList.add('dragover-icon');
+            showDropoverIcon(dragSrc, event.target.parentNode);
         }
         event.dataTransfer.dropEffect = 'move';
     }, false);
@@ -341,7 +358,7 @@ function dragAndDropHome() {
         }
         const ths = HomeList.getElementsByClassName('dragover-icon');
         for (const th of ths) {
-            th.classList.remove('dragover-icon');
+            hideDropoverIcon(th);
         }
         dragSrc.classList.remove('opacity05');
     }, false);
@@ -373,7 +390,7 @@ function dragAndDropHome() {
         }
         const ths = HomeList.getElementsByClassName('dragover-icon');
         for (const th of ths) {
-            th.classList.remove('dragover-icon');
+            hideDropoverIcon(th);
         }
     }, false);
 }

@@ -490,8 +490,12 @@ div#homeActions {
   background-color: transparent;
 }
 
-.dragover-icon {
+.dragover-icon-left {
   border-left: 1px solid var(--mympd-highlightcolor);
+}
+
+.dragover-icon-right {
+  border-right: 1px solid var(--mympd-highlightcolor);
 }
 
 .card-grid {
