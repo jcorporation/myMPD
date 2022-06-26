@@ -160,7 +160,6 @@ bool list_move_item_pos(struct t_list *l, long from, long to) {
     return true;
 }
 
-
 //swaps two list nodes
 //we do not realy swap the nodes, we swap the node contents
 bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2) {
