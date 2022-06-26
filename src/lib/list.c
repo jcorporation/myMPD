@@ -7,15 +7,12 @@
 #include "mympd_config_defs.h"
 #include "list.h"
 
-#include "../../dist/utf8/utf8.h"
 #include "mem.h"
 #include "random.h"
 #include "sds_extras.h"
 
 #include <stdlib.h>
 #include <string.h>
-
-//public functions
 
 //Mallocs a new list and inits it
 struct t_list *list_new(void) {
@@ -42,20 +39,9 @@ void list_clear_user_data(struct t_list *l, user_data_callback free_cb) {
     struct t_list_node *current = l->head;
     struct t_list_node *tmp = NULL;
     while (current != NULL) {
-        FREE_SDS(current->key);
-        FREE_SDS(current->value_p);
-        if (current->user_data != NULL &&
-            free_cb != NULL)
-        {
-            //callback to free user_data
-            free_cb(current);
-        }
-        else if (free_cb == NULL) {
-            FREE_PTR(current->user_data);
-        }
         tmp = current;
         current = current->next;
-        FREE_PTR(tmp);
+        list_node_free_user_data(tmp, free_cb);
     }
     list_init(l);
 }
@@ -215,7 +201,7 @@ bool list_push(struct t_list *l, const char *key, long long value_i,
 bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long value_i,
         const char *value_p, size_t value_len, void *user_data)
 {
-    //create new list node
+    //create new node
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnewlen(key, key_len);
     n->value_i = value_i;
@@ -241,13 +227,15 @@ bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long 
 bool list_insert(struct t_list *l, const char *key, long long value_i,
         const char *value_p, void *user_data)
 {
+    //create new node
     struct t_list_node *n = malloc_assert(sizeof(struct t_list_node));
     n->key = sdsnew(key);
     n->value_i = value_i;
     n->value_p = value_p != NULL ? sdsnew(value_p) : NULL;
     n->user_data = user_data;
-    n->next = l->head;
 
+    //switch head pointer
+    n->next = l->head;
     l->head = n;
     if (l->tail == NULL) {
         //set tail if this is the first node in the list
@@ -347,9 +335,14 @@ struct t_list_node *list_node_extract(struct t_list *l, long idx) {
         idx >= l->length) {
         return NULL;
     }
+
     //get the node at idx and the previous node
     struct t_list_node *previous = NULL;
     struct t_list_node *current = list_node_prev_at(l, idx, &previous);
+
+    if (current == NULL) {
+        return NULL;
+    }
 
     if (previous == NULL) {
         //Fix head
@@ -359,6 +352,7 @@ struct t_list_node *list_node_extract(struct t_list *l, long idx) {
         //Fix previous nodes next to skip over the removed node
         previous->next = current->next;
     }
+
     //Fix tail
     if (l->tail == current) {
         l->tail = previous;
@@ -366,8 +360,8 @@ struct t_list_node *list_node_extract(struct t_list *l, long idx) {
     l->length--;
 
     //null out this node's next value since it's not part of a list anymore
-    if (current != NULL) {
-        current->next = NULL;
-    }
+    current->next = NULL;
+
+    //return the node
     return current;
 }
