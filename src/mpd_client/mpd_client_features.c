@@ -104,7 +104,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     else {
         MYMPD_LOG_WARN("Disabling position whence feature, depends on mpd >= 0.23.5");
     }
-    
+
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 24, 0) >= 0 ) {
         mympd_state->mpd_state->feat_mpd_advqueue = true;
         MYMPD_LOG_NOTICE("Enabling advanced queue feature");
@@ -113,7 +113,9 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_WARN("Disabling advanced queue feature, depends on mpd >= 0.24.0");
     }
 
-    if (mympd_state->mpd_state->feat_mpd_advsearch == true && mympd_state->mpd_state->feat_mpd_playlists == true) {
+    if (mympd_state->mpd_state->feat_mpd_advsearch == true &&
+        mympd_state->mpd_state->feat_mpd_playlists == true)
+    {
         MYMPD_LOG_NOTICE("Enabling smart playlists feature");
         mympd_state->mpd_state->feat_mpd_smartpls = true;
     }
@@ -249,15 +251,17 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
     mympd_state->mpd_state->feat_mpd_library = false;
     sdsclear(mympd_state->music_directory_value);
 
-    if (strncmp(mympd_state->mpd_state->mpd_host, "/", 1) == 0 && strncmp(mympd_state->music_directory, "auto", 4) == 0) {
+    if (strncmp(mympd_state->mpd_state->mpd_host, "/", 1) == 0 &&
+        strncmp(mympd_state->music_directory, "auto", 4) == 0)
+    {
         //get musicdirectory from mpd
         if (mpd_send_command(mympd_state->mpd_state->conn, "config", NULL) == true) {
             struct mpd_pair *pair;
             while ((pair = mpd_recv_pair(mympd_state->mpd_state->conn)) != NULL) {
-                if (strcmp(pair->name, "music_directory") == 0) {
-                    if (strncmp(pair->value, "smb://", 6) != 0 && strncmp(pair->value, "nfs://", 6) != 0) {
-                        mympd_state->music_directory_value = sds_replace(mympd_state->music_directory_value, pair->value);
-                    }
+                if (strcmp(pair->name, "music_directory") == 0 &&
+                    is_streamuri(pair->value) == false)
+                {
+                    mympd_state->music_directory_value = sds_replace(mympd_state->music_directory_value, pair->value);
                 }
                 mpd_return_pair(mympd_state->mpd_state->conn, pair);
             }
