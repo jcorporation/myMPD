@@ -388,30 +388,25 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
             "database", "error", "Could not find album");
     }
 
-    const char *album_artist_tag_name = mpd_tag_name(mympd_state->mpd_state->tag_albumartist);
-    sds album_artist = mpd_shared_get_tag_values(first_song, mympd_state->mpd_state->tag_albumartist, sdsempty());
-    sds genre = mpd_shared_get_tag_values(first_song, MPD_TAG_GENRE, sdsempty());
-    sds mb_album_artist_id = mpd_shared_get_tag_values(first_song, MPD_TAG_MUSICBRAINZ_ALBUMARTISTID, sdsempty());
-    sds mb_album_id = mpd_shared_get_tag_values(first_song, MPD_TAG_MUSICBRAINZ_ALBUMID, sdsempty());
-
     buffer = sdscatlen(buffer, "],", 2);
     buffer = get_extra_files(mympd_state, buffer, mpd_song_get_uri(first_song), false);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_char(buffer, "Album", album, true);
-    buffer = tojson_raw(buffer, album_artist_tag_name, album_artist, true);
-    buffer = tojson_raw(buffer, "MusicBrainzAlbumArtistId", mb_album_artist_id, true);
-    buffer = tojson_raw(buffer, "MusicBrainzAlbumId", mb_album_id, true);
-    buffer = tojson_raw(buffer, "Genre", genre, true);
+    buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(mympd_state->mpd_state->tag_albumartist));
+    buffer = mpd_shared_get_tag_values(first_song, mympd_state->mpd_state->tag_albumartist, buffer);
+    buffer = sdscat(buffer, ",\"MusicBrainzAlbumArtistId\":");
+    buffer = mpd_shared_get_tag_values(first_song, MPD_TAG_MUSICBRAINZ_ALBUMARTISTID, buffer);
+    buffer = sdscat(buffer, ",\"MusicBrainzAlbumId\":");
+    buffer = mpd_shared_get_tag_values(first_song, MPD_TAG_MUSICBRAINZ_ALBUMID, buffer);
+    buffer = sdscat(buffer, ",\"Genre\":");
+    buffer = mpd_shared_get_tag_values(first_song, MPD_TAG_GENRE, buffer);
+    buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_long(buffer, "Discs", discs, true);
     buffer = tojson_uint(buffer, "totalTime", totalTime, false);
     buffer = jsonrpc_result_end(buffer);
 
-    FREE_SDS(album_artist);
-    FREE_SDS(genre);
-    FREE_SDS(mb_album_artist_id);
-    FREE_SDS(mb_album_id);
     mpd_song_free(first_song);
 
     return buffer;
