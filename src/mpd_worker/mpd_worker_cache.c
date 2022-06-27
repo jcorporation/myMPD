@@ -132,7 +132,10 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
                 }
             }
             //album cache
-            if (mpd_worker_state->mpd_state->feat_mpd_tags == true) {
+            if (mpd_worker_state->mpd_state->feat_mpd_tags == true &&
+                mpd_shared_tag_exists(&mpd_worker_state->mpd_state->tag_types_mympd, MPD_TAG_ALBUM) == true &&
+                mpd_shared_tag_exists(&mpd_worker_state->mpd_state->tag_types_mympd, mpd_worker_state->mpd_state->tag_albumartist) == true)
+            {
                 album = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM, album);
                 artist = mpd_shared_get_tag_value_string(song, mpd_worker_state->mpd_state->tag_albumartist, artist);
                 if (sdslen(album) > 0 && sdslen(artist) > 0) {

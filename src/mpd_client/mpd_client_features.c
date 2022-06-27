@@ -188,9 +188,9 @@ static void mpd_client_feature_tags(struct t_mympd_state *mympd_state) {
     mpd_client_feature_mpd_tags(mympd_state);
 
     if (mympd_state->mpd_state->feat_mpd_tags == true) {
-        check_tags(mympd_state->tag_list_search, "tag_list_search", &mympd_state->tag_types_search, mympd_state->mpd_state->tag_types_mympd);
-        check_tags(mympd_state->tag_list_browse, "tag_list_browse", &mympd_state->tag_types_browse, mympd_state->mpd_state->tag_types_mympd);
-        check_tags(mympd_state->smartpls_generate_tag_list, "smartpls_generate_tag_list", &mympd_state->smartpls_generate_tag_types, mympd_state->mpd_state->tag_types_mympd);
+        check_tags(mympd_state->tag_list_search, "tag_list_search", &mympd_state->tag_types_search, &mympd_state->mpd_state->tag_types_mympd);
+        check_tags(mympd_state->tag_list_browse, "tag_list_browse", &mympd_state->tag_types_browse, &mympd_state->mpd_state->tag_types_mympd);
+        check_tags(mympd_state->smartpls_generate_tag_list, "smartpls_generate_tag_list", &mympd_state->smartpls_generate_tag_types, &mympd_state->mpd_state->tag_types_mympd);
     }
 }
 
@@ -230,11 +230,11 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
     else {
         mympd_state->mpd_state->feat_mpd_tags = true;
         MYMPD_LOG_NOTICE("%s", logline);
-        check_tags(mympd_state->mpd_state->tag_list, "tag_list", &mympd_state->mpd_state->tag_types_mympd, mympd_state->mpd_state->tag_types_mpd);
+        check_tags(mympd_state->mpd_state->tag_list, "tag_list", &mympd_state->mpd_state->tag_types_mympd, &mympd_state->mpd_state->tag_types_mpd);
         enable_mpd_tags(mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd);
     }
 
-    bool has_albumartist = mpd_shared_tag_exists(mympd_state->mpd_state->tag_types_mympd.tags, mympd_state->mpd_state->tag_types_mympd.len, MPD_TAG_ALBUM_ARTIST);
+    bool has_albumartist = mpd_shared_tag_exists(&mympd_state->mpd_state->tag_types_mympd, MPD_TAG_ALBUM_ARTIST);
     if (has_albumartist == true) {
         mympd_state->mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
     }

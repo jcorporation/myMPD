@@ -306,7 +306,7 @@ bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_
 }
 
 void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
-                struct t_tags allowed_tag_types)
+                struct t_tags *allowed_tag_types)
 {
     sds logline = sdscatfmt(sdsempty(), "Enabled %s: ", taglistname);
     int tokens_count = 0;
@@ -318,7 +318,7 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
             MYMPD_LOG_WARN("Unknown tag %s", tokens[i]);
         }
         else {
-            if (mpd_shared_tag_exists(allowed_tag_types.tags, allowed_tag_types.len, tag) == true) {
+            if (mpd_shared_tag_exists(allowed_tag_types, tag) == true) {
                 logline = sdscatfmt(logline, "%s ", mpd_tag_name(tag));
                 tagtypes->tags[tagtypes->len++] = tag;
             }
@@ -332,11 +332,9 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
     FREE_SDS(logline);
 }
 
-bool mpd_shared_tag_exists(const enum mpd_tag_type tag_types[64], const size_t tag_types_len,
-                           const enum mpd_tag_type tag)
-{
-    for (size_t i = 0; i < tag_types_len; i++) {
-        if (tag_types[i] == tag) {
+bool mpd_shared_tag_exists(struct t_tags *tagtypes, const enum mpd_tag_type tag) {
+    for (size_t i = 0; i < tagtypes->len; i++) {
+        if (tagtypes->tags[i] == tag) {
             return true;
         }
     }
