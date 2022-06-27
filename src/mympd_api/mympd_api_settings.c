@@ -630,6 +630,11 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
 #else
     buffer = tojson_bool(buffer, "featScripting", false, true);
 #endif
+#ifdef DEBUG
+    buffer = tojson_bool(buffer, "debugMode", true, true);
+#else
+    buffer = tojson_bool(buffer, "debugMode", false, true);
+#endif
     const char *jukebox_mode_str = mympd_lookup_jukebox_mode(mympd_state->jukebox_mode);
     buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_str, true);
 
