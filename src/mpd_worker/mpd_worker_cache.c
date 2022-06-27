@@ -118,6 +118,12 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         sds album = sdsempty();
         sds artist = sdsempty();
         sds key = sdsempty();
+        const bool create_album_cache = mpd_worker_state->mpd_state->feat_mpd_tags &&
+            mpd_shared_tag_exists(&mpd_worker_state->mpd_state->tag_types_mympd, MPD_TAG_ALBUM) &&
+            mpd_shared_tag_exists(&mpd_worker_state->mpd_state->tag_types_mympd, mpd_worker_state->mpd_state->tag_albumartist);
+        if (create_album_cache == false) {
+            MYMPD_LOG_NOTICE("Skipping album cache creation, (Album)Artist and Album tags must be enabled");
+        }
         while ((song = mpd_recv_song(mpd_worker_state->mpd_state->conn)) != NULL) {
             //sticker cache
             if (mpd_worker_state->mpd_state->feat_mpd_stickers == true) {
@@ -132,10 +138,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
                 }
             }
             //album cache
-            if (mpd_worker_state->mpd_state->feat_mpd_tags == true &&
-                mpd_shared_tag_exists(&mpd_worker_state->mpd_state->tag_types_mympd, MPD_TAG_ALBUM) == true &&
-                mpd_shared_tag_exists(&mpd_worker_state->mpd_state->tag_types_mympd, mpd_worker_state->mpd_state->tag_albumartist) == true)
-            {
+            if (create_album_cache == true) {
                 album = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM, album);
                 artist = mpd_shared_get_tag_value_string(song, mpd_worker_state->mpd_state->tag_albumartist, artist);
                 if (sdslen(album) > 0 && sdslen(artist) > 0) {
