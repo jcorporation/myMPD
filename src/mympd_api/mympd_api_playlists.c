@@ -242,7 +242,8 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
         total_time += mpd_song_get_duration(song);
         if (entity_count >= offset && entity_count < real_limit) {
-            entityName = mpd_shared_get_tag_values(song, MPD_TAG_TITLE, entityName);
+            sdsclear(entityName);
+            entityName = mpd_shared_get_tag_value_string(song, MPD_TAG_TITLE, entityName);
             if (search_len == 0 ||
                 utf8casestr(entityName, searchstr) != NULL)
             {

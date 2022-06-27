@@ -143,7 +143,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
         switch (mpd_entity_get_type(entity)) {
             case MPD_ENTITY_TYPE_SONG: {
                 const struct mpd_song *song = mpd_entity_get_song(entity);
-                sds entity_name =  mpd_shared_get_tag_values(song, MPD_TAG_TITLE, sdsempty());
+                sds entity_name =  mpd_shared_get_tag_value_string(song, MPD_TAG_TITLE, sdsempty());
                 key = sdscatfmt(key, "2%s", mpd_song_get_uri(song));
                 search_dir_entry(entity_list, key, entity_name, entity, searchstr);
                 break;
@@ -577,6 +577,8 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
                 buffer = sdscatlen(buffer, ",", 1);
             }
             song = (struct mpd_song *)iter.data;
+            sdsclear(album);
+            sdsclear(artist);
             album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, album);
             artist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, artist);
             buffer = sdscatlen(buffer, "{", 1);

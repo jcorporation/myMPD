@@ -350,23 +350,29 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
         FREE_PTR(queue_list);
         return NULL;
     }
+
+    sds tag_value = sdsempty();
+    sds album = sdsempty();
+    sds albumartist = sdsempty();
+
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
         if (jukebox_mode == JUKEBOX_ADD_SONG) {
-            const char *tag_value = NULL;
             if (mympd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
-                tag_value = mpd_song_get_tag(song, mympd_state->jukebox_unique_tag.tags[0], 0);
+                tag_value = mpd_shared_get_tag_value_string(song, mympd_state->jukebox_unique_tag.tags[0], tag_value);
             }
             list_push(queue_list, mpd_song_get_uri(song), 0, tag_value, NULL);
+            sdsclear(tag_value);
         }
         else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
-            sds album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
-            sds albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
+            album = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM, album);
+            albumartist = mpd_shared_get_tag_value_string(song, mympd_state->mpd_state->tag_albumartist, albumartist);
             list_push(queue_list, album, 0, albumartist, NULL);
-            FREE_SDS(album);
-            FREE_SDS(albumartist);
+            sdsclear(album);
+            sdsclear(albumartist);
         }
         mpd_song_free(song);
     }
+
     mpd_response_finish(mympd_state->mpd_state->conn);
     check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
 
@@ -378,14 +384,18 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
             song = mpd_recv_song(mympd_state->mpd_state->conn);
             if (song != NULL) {
                 if (jukebox_mode == JUKEBOX_ADD_SONG) {
-                    list_push(queue_list, current->key, 0, mpd_song_get_tag(song, mympd_state->jukebox_unique_tag.tags[0], 0), NULL);
+                    if (mympd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
+                        tag_value = mpd_shared_get_tag_value_string(song, mympd_state->jukebox_unique_tag.tags[0], tag_value);
+                    }
+                    list_push(queue_list, current->key, 0, tag_value, NULL);
+                    sdsclear(tag_value);
                 }
                 else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
-                    sds album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
-                    sds albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
+                    album = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM, album);
+                    albumartist = mpd_shared_get_tag_value_string(song, mympd_state->mpd_state->tag_albumartist, albumartist);
                     list_push(queue_list, album, 0, albumartist, NULL);
-                    FREE_SDS(album);
-                    FREE_SDS(albumartist);
+                    sdsclear(album);
+                    sdsclear(albumartist);
                 }
                 mpd_song_free(song);
             }
@@ -411,14 +421,18 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
                         song = mpd_recv_song(mympd_state->mpd_state->conn);
                         if (song != NULL) {
                             if (jukebox_mode == JUKEBOX_ADD_SONG) {
-                                list_push(queue_list, data, 0, mpd_song_get_tag(song, mympd_state->jukebox_unique_tag.tags[0], 0), NULL);
+                                if (mympd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
+                                    tag_value = mpd_shared_get_tag_value_string(song, mympd_state->jukebox_unique_tag.tags[0], tag_value);
+                                }
+                                list_push(queue_list, data, 0, tag_value, NULL);
+                                sdsclear(tag_value);
                             }
                             else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
-                                sds album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
-                                sds albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
+                                album = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM, album);
+                                albumartist = mpd_shared_get_tag_value_string(song, mympd_state->mpd_state->tag_albumartist, albumartist);
                                 list_push(queue_list, album, 0, albumartist, NULL);
-                                FREE_SDS(album);
-                                FREE_SDS(albumartist);
+                                sdsclear(album);
+                                sdsclear(albumartist);
                             }
                             mpd_song_free(song);
                         }
@@ -441,6 +455,9 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
         }
         FREE_SDS(lp_file);
     }
+    FREE_SDS(album);
+    FREE_SDS(albumartist);
+    FREE_SDS(tag_value);
     MYMPD_LOG_DEBUG("Jukebox last_played list length: %ld", queue_list->length);
     return queue_list;
 }
@@ -537,8 +554,10 @@ static long _fill_jukebox_queue_albums(struct t_mympd_state *mympd_state, long a
     sds albumartist = sdsempty();
     while (raxNext(&iter)) {
         struct mpd_song *song = (struct mpd_song *)iter.data;
-        album = mpd_shared_get_tag_values(song, MPD_TAG_ALBUM, sdsempty());
-        albumartist = mpd_shared_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, sdsempty());
+        sdsclear(album);
+        sdsclear(albumartist);
+        album = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM, album);
+        albumartist = mpd_shared_get_tag_value_string(song, mympd_state->mpd_state->tag_albumartist, albumartist);
         long is_uniq = JUKEBOX_UNIQ_IS_UNIQ;
         if (mympd_state->jukebox_enforce_unique == true) {
             is_uniq = mpd_client_jukebox_unique_album(mympd_state, album, albumartist, manual, queue_list);
@@ -638,7 +657,8 @@ static long _fill_jukebox_queue_songs(struct t_mympd_state *mympd_state, long ad
         }
         struct mpd_song *song;
         while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
-            tag_value = mpd_shared_get_tag_values(song, mympd_state->jukebox_unique_tag.tags[0], tag_value);
+            sdsclear(tag_value);
+            tag_value = mpd_shared_get_tag_value_string(song, mympd_state->jukebox_unique_tag.tags[0], tag_value);
             const char *uri = mpd_song_get_uri(song);
             time_t last_played = 0;
             if (mympd_state->sticker_cache != NULL) {
