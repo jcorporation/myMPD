@@ -4,7 +4,10 @@
 // https://github.com/jcorporation/mympd
 
 function isValidUri(uri) {
-    if (uri === '' || uri === undefined || uri === null) {
+    if (uri === '' ||
+        uri === undefined ||
+        uri === null)
+    {
         return false;
     }
     return true;

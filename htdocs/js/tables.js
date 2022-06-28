@@ -80,10 +80,10 @@ function dragAndDropTable(table) {
             tr[i].classList.remove('dragover');
         }
         document.getElementById(table).classList.add('opacity05');
-        if (app.current.card === 'Queue' && app.current.tab === 'Current') {
+        if (app.id === 'QueueCurrent') {
             sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {"from": oldSongpos, "to": newSongpos});
         }
-        else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+        else if (app.id === 'BrowsePlaylistsDetail') {
             playlistMoveSong(oldSongpos, newSongpos);
         }
     }, false);
@@ -237,7 +237,9 @@ function setColsChecklist(table, menu) {
 }
 
 function setCols(table) {
-    if (table === 'Search' && app.cards.Search.sort.tag === 'Title') {
+    if (table === 'Search' &&
+        app.cards.Search.sort.tag === 'Title')
+    {
         if (settings.tagList.includes('Title')) {
             app.cards.Search.sort.tag = 'Title';
         }
@@ -517,7 +519,9 @@ function tableRow(row, data, list, colspan, smallWidth) {
                 td.appendChild(
                     elCreateNodes('div', {"class": ["row"]}, [
                         elCreateText('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])),
-                        elCreateNode('span', {"data-col": settings['cols' + list][c], "class": ["col-9"]}, printValue(settings['cols' + list][c], data[settings['cols' + list][c]]))
+                        elCreateNode('span', {"data-col": settings['cols' + list][c], "class": ["col-9"]},
+                            printValue(settings['cols' + list][c], data[settings['cols' + list][c]])
+                        )
                     ])
                 );
             }

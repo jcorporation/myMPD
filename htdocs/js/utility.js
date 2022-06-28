@@ -151,7 +151,9 @@ function showConfirm(text, btnText, callback) {
     document.getElementById('modalConfirmText').textContent = text;
     const yesBtn = elCreateText('button', {"id": "modalConfirmYesBtn", "class": ["btn", "btn-danger"]}, btnText);
     yesBtn.addEventListener('click', function() {
-        if (callback !== undefined && typeof(callback) === 'function') {
+        if (callback !== undefined &&
+            typeof(callback) === 'function')
+        {
             callback();
         }
         uiElements.modalConfirm.hide();

@@ -216,7 +216,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
         case 'QueueCurrent': {
             setFocusId('searchQueueStr');
-            if (features.featAdvqueue) {
+            if (features.featAdvqueue === true) {
                 createSearchCrumbs(app.current.search, document.getElementById('searchQueueStr'), document.getElementById('searchQueueCrumb'));
             }
             else if (document.getElementById('searchQueueStr').value === '' &&
