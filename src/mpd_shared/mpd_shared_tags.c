@@ -372,14 +372,15 @@ static sds _mpd_shared_get_tag_value_string(struct mpd_song const *song, const e
         sds tag_values, unsigned *value_count)
 {
     const char *value;
-    *value_count = 0;
+    unsigned count = 0;
     //return json string
-    while ((value = mpd_song_get_tag(song, tag, *value_count)) != NULL) {
-        if (*value_count++) {
+    while ((value = mpd_song_get_tag(song, tag, count)) != NULL) {
+        if (count++) {
             tag_values = sdscatlen(tag_values, ", ", 2);
         }
         tag_values = sdscat(tag_values, value);
     }
+    *value_count = count;
     return tag_values;
 }
 
