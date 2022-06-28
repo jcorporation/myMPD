@@ -88,6 +88,7 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
     sds key = sdsempty();
     long real_limit = offset + limit;
     //read dir
+    sds filepath = sdsempty();
     while ((next_file = readdir(webradios_dir)) != NULL ) {
         const char *ext = get_extension_from_filename(next_file->d_name);
         if (ext == NULL ||
@@ -97,21 +98,21 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
         }
 
         sdsclear(key);
-        sds filename = sdscatfmt(sdsempty(), "%s/%s", webradios_dirname, next_file->d_name);
-        sds entry = m3u_to_json(sdsempty(), filename, &key);
+        sdsclear(filepath);
+        filepath = sdscatfmt(filepath, "%s/%s", webradios_dirname, next_file->d_name);
+        sds entry = m3u_to_json(sdsempty(), filepath, &key);
         if (sdslen(entry) == 0) {
             //skip on parsing error
             FREE_SDS(entry);
-            FREE_SDS(filename);
             continue;
         }
         if (search_len == 0 ||
             utf8casestr(key, searchstr) != NULL)
         {
             struct t_webradio_entry *webradio = malloc_assert(sizeof(struct t_webradio_entry));
-            webradio->filename = filename;
+            webradio->filename = sdsnew(next_file->d_name);
             webradio->entry = entry;
-            key = sdscatsds(key, filename); //append filename to keep it unique
+            key = sdscatsds(key, next_file->d_name); //append filename to keep it unique
             sds_utf8_tolower(key);
             while (raxTryInsert(webradios, (unsigned char *)key, sdslen(key), webradio, NULL) == 0) {
                 //duplicate - add chars until it is uniq
@@ -119,11 +120,12 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
             }
         }
         else {
-            FREE_SDS(filename);
+            FREE_SDS(filepath);
             FREE_SDS(entry);
         }
     }
     closedir(webradios_dir);
+    FREE_SDS(filepath);
     FREE_SDS(webradios_dirname);
     FREE_SDS(key);
     //print result
