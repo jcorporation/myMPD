@@ -42,7 +42,7 @@ body.not-mobile .featMobile {
   --bs-dropdown-divider-bg: var(--bs-gray-100);
   --bs-dropdown-divider-margin-y: 0.5rem;
   --bs-nav-link-padding-y: 0.5rem;
-  --bs-nav-link-padding-x: 0.5rem;
+  --bs-nav-link-padding-x: 0.8rem;
   --bs-dropdown-item-padding-y: 0.25rem;
   --bs-dropdown-item-padding-x: 0.5rem;
 }
@@ -253,11 +253,6 @@ div > .albumartbg {
     flex-direction: column !important;
   }
 
-  #navQueue > a {
-    padding-right: 0 !important;
-    padding-left: 0.5rem !important;
-  }
-
   #top-alerts {
     padding-right: 4rem !important;
     margin-top: 0 !important;
@@ -343,7 +338,8 @@ button {
 }
 
 #navQueue > a {
-  padding-right: 1rem;
+  padding-left: 0.3rem;
+  padding-right: 0.3rem;
 }
 
 #BrowseBreadcrumb {
