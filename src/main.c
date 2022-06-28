@@ -48,7 +48,7 @@ _Thread_local sds thread_logname;
 
 #ifdef ENABLE_LIBASAN
 const char *__asan_default_options(void) {
-    return "verbosity=1:malloc_context_size=50:abort_on_error=true:detect_stack_use_after_return=true";
+    return "detect_stack_use_after_return=true";
 }
 #endif
 
