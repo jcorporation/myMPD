@@ -120,7 +120,6 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
             }
         }
         else {
-            FREE_SDS(filepath);
             FREE_SDS(entry);
         }
     }
