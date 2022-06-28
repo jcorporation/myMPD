@@ -9,6 +9,7 @@
 
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
 
 #include <ctype.h>
@@ -24,8 +25,8 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     //https://mpd.readthedocs.io/en/latest/client.html#environment-variables
     MYMPD_LOG_NOTICE("Reading environment");
     bool mpd_configured = false;
-    const char *mpd_host_env = getenv("MPD_HOST"); /* Flawfinder: ignore */
-    if (mpd_host_env != NULL && strlen(mpd_host_env) <= 100) {
+    const char *mpd_host_env = getenv_check("MPD_HOST", 100);
+    if (mpd_host_env != NULL) {
         sds mpd_host = sdsnew(mpd_host_env);
         if (vcb_isname(mpd_host) == true) {
             if (mpd_host[0] != '@' && strstr(mpd_host, "@") != NULL) {
@@ -44,8 +45,8 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
         }
         FREE_SDS(mpd_host);
     }
-    const char *mpd_port_env = getenv("MPD_PORT"); /* Flawfinder: ignore */
-    if (mpd_port_env != NULL && strlen(mpd_port_env) <= 5) {
+    const char *mpd_port_env = getenv_check("MPD_PORT", 5);
+    if (mpd_port_env != NULL) {
         sds mpd_port = sdsnew(mpd_port_env);
         if (vcb_isdigit(mpd_port) == true) {
             unsigned port = (unsigned)strtoumax(mpd_port, NULL, 10);
@@ -63,8 +64,8 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
         }
         FREE_SDS(mpd_port);
     }
-    const char *mpd_timeout_env = getenv("MPD_TIMEOUT"); /* Flawfinder: ignore */
-    if (mpd_timeout_env != NULL && strlen(mpd_timeout_env) <= 5) {
+    const char *mpd_timeout_env = getenv_check("MPD_TIMEOUT", 5);
+    if (mpd_timeout_env != NULL) {
         sds mpd_timeout = sdsnew(mpd_timeout_env);
         if (vcb_isdigit(mpd_timeout) == true) {
             unsigned timeout = (unsigned)strtoumax(mpd_timeout, NULL, 10);
@@ -84,8 +85,8 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     }
 
     //check for socket
-    const char *xdg_runtime_dir = getenv("XDG_RUNTIME_DIR"); /* Flawfinder: ignore */
-    if (xdg_runtime_dir != NULL && strlen(xdg_runtime_dir) <= 100) {
+    const char *xdg_runtime_dir = getenv_check("XDG_RUNTIME_DIR", 100);
+    if (xdg_runtime_dir != NULL) {
         sds socket = sdscatfmt(sdsempty(), "%s/mpd/socket", xdg_runtime_dir);
         if (access(socket, F_OK ) == 0) { /* Flawfinder: ignore */
             mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, socket);

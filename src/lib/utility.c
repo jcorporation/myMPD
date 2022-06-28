@@ -19,6 +19,24 @@
 #include <time.h>
 #include <unistd.h>
 
+const char *getenv_check(const char *env_var, size_t max_len) {
+    const char *env_value = getenv(env_var); /* Flawfinder: ignore */
+    if (env_value == NULL) {
+        MYMPD_LOG_DEBUG("Environment variable \"%s\" not set", env_var);
+        return NULL;
+    }
+    if (env_value[0] == '\0') {
+        MYMPD_LOG_DEBUG("Environment variable \"%s\" is empty", env_var);
+        return NULL;
+    }
+    if (strlen(env_value) > max_len) {
+        MYMPD_LOG_WARN("Environment variable \"%s\" is too long", env_var);
+        return NULL;
+    }
+    MYMPD_LOG_INFO("Got environment variable \"%s\" with value \"%s\"", env_var, env_value);
+    return env_value;
+}
+
 sds *split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count) {
     *count = 0;
     coverimage_names = sdssplitlen(coverimage_name, (ssize_t)sdslen(coverimage_name), ",", 1, count);

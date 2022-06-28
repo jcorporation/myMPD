@@ -19,6 +19,7 @@ enum testdir_status {
     DIR_NOT_EXISTS = 3
 };
 
+const char *getenv_check(const char *env_var, size_t max_len);
 void ws_notify(sds message);
 bool is_virtual_cuedir(sds music_directory, sds filename);
 int testdir(const char *name, const char *dirname, bool create);
