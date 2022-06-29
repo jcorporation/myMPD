@@ -88,7 +88,7 @@ UTEST(utility, test_is_stream) {
 
 UTEST(utility, test_write_data_to_file) {
     sds file = sdsnew("/tmp/test");
-    const char *data ="asdfjlkasdfjklsafd";
+    const char *data ="asdfjlkasdfjklsafd\nasfdsdfawaerwer\n";
     size_t len = strlen(data);
     bool rc = write_data_to_file(file, data, len);
     ASSERT_TRUE(rc);
@@ -101,12 +101,38 @@ UTEST(sds_extras, test_sds_getfile) {
     int rc = sds_getfile(&line, fp, 1000);
     fclose(fp);
     ASSERT_EQ(rc, 0);
-    ASSERT_STREQ(line, "asdfjlkasdfjklsafd");
+    ASSERT_STREQ(line, "asdfjlkasdfjklsafd\nasfdsdfawaerwer");
 
     fp = fopen("/tmp/test", "r");
     rc = sds_getfile(&line, fp, 5);
     fclose(fp);
     ASSERT_EQ(rc, -2);
+    sdsfree(line);
+}
+
+UTEST(sds_extras, test_sds_getline) {
+    sds line = sdsempty();
+    FILE *fp = fopen("/tmp/test", "r");
+    int rc = sds_getline(&line, fp, 1000);
+    fclose(fp);
+    ASSERT_EQ(rc, 0);
+    ASSERT_STREQ(line, "asdfjlkasdfjklsafd");
+
+    fp = fopen("/tmp/test", "r");
+    rc = sds_getline(&line, fp, 5);
+    fclose(fp);
+    ASSERT_EQ(rc, -2);
+    sdsfree(line);
+}
+
+UTEST(sds_extras, test_sds_getline_n) {
+    sds line = sdsempty();
+    FILE *fp = fopen("/tmp/test", "r");
+    int rc = sds_getline_n(&line, fp, 1000);
+    fclose(fp);
+    ASSERT_EQ(rc, 0);
+    ASSERT_STREQ(line, "asdfjlkasdfjklsafd\n");
+
     unlink("/tmp/test");
     sdsfree(line);
 }
