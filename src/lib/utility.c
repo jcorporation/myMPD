@@ -37,9 +37,9 @@ const char *getenv_check(const char *env_var, size_t max_len) {
     return env_value;
 }
 
-sds *split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count) {
+sds *split_coverimage_names(sds coverimage_name, int *count) {
     *count = 0;
-    coverimage_names = sdssplitlen(coverimage_name, (ssize_t)sdslen(coverimage_name), ",", 1, count);
+    sds *coverimage_names = sdssplitlen(coverimage_name, (ssize_t)sdslen(coverimage_name), ",", 1, count);
     for (int j = 0; j < *count; j++) {
         sdstrim(coverimage_names[j], " ");
     }
