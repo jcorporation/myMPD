@@ -54,6 +54,36 @@ UTEST(jsonrpc, test_json_get_int_max) {
     FREE_SDS(data);
 }
 
+UTEST(jsonrpc, test_json_get_long) {
+    long result;
+    //valid
+    sds data = sdsnew("{\"key1\": 10}");
+    ASSERT_TRUE(json_get_long(data, "$.key1", 0, 20, &result, NULL));
+    sdsclear(data);
+    data = sdscat(data, "{\"key1\": -30}");
+    ASSERT_TRUE(json_get_long(data, "$.key1", -50, 20, &result, NULL));
+    sdsclear(data);
+    //invalid
+    data = sdscat(data, "{\"key1\": 30}");
+    ASSERT_FALSE(json_get_long(data, "$.key1", 0, 20, &result, NULL));
+    sdsclear(data);
+    data = sdscat(data, "{\"key2\": 10}");
+    ASSERT_FALSE(json_get_long(data, "$.key1", 0, 20, &result, NULL));
+    FREE_SDS(data);
+}
+
+UTEST(jsonrpc, test_json_get_long_max) {
+    long result;
+    //valid
+    sds data = sdsnew("{\"key1\": 10}");
+    ASSERT_TRUE(json_get_long_max(data, "$.key1", &result, NULL));
+    sdsclear(data);
+    //invalid
+    data = sdscat(data, "{\"key2\": 10}");
+    ASSERT_FALSE(json_get_long_max(data, "$.key1", &result, NULL));
+    FREE_SDS(data);
+}
+
 UTEST(jsonrpc, test_json_get_uint) {
     unsigned result;
     //valid
