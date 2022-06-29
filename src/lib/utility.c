@@ -88,8 +88,10 @@ void my_msleep(long msec) {
     nanosleep(&ts, NULL);
 }
 
+//mpd uses the cue filename as path
+//we simply check if the filename is a file or not
 bool is_virtual_cuedir(sds music_directory, sds filename) {
-    sds full_path = sdscatfmt(sdsempty(), "%s/%s", music_directory, filename);
+    sds full_path = sdscatfmt(sdsempty(), "%S/%S", music_directory, filename);
     bool is_cue_file = false;
     struct stat stat_buf;
     if (stat(full_path, &stat_buf) == 0) {
@@ -115,7 +117,7 @@ bool is_streamuri(const char *uri) {
 }
 
 bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
-    sds tmp_file = sdscatfmt(sdsempty(), "%s.XXXXXX", filepath);
+    sds tmp_file = sdscatfmt(sdsempty(), "%S.XXXXXX", filepath);
     errno = 0;
     int fd = mkstemp(tmp_file);
     if (fd < 0) {
