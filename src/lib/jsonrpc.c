@@ -273,7 +273,9 @@ bool json_get_int_max(sds s, const char *path, int *result, sds *error) {
 bool json_get_int(sds s, const char *path, int min, int max, int *result, sds *error) {
     long result_long;
     bool rc = json_get_long(s, path, min, max, &result_long, error);
-    *result = (int)result_long;
+    if (rc == true) {
+        *result = (int)result_long;
+    }
     return rc;
 }
 
