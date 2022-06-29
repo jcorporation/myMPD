@@ -51,6 +51,7 @@ set(TEST_SOURCES
   ../src/mpd_shared.c
   ../src/mpd_shared/mpd_shared_tags.c
   main.c
+  tests/test_api.c
   tests/test_jsonrpc.c
   tests/test_list.c
   tests/test_mimetype.c
