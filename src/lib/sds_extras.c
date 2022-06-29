@@ -17,6 +17,7 @@
 
 #define HEXTOI(x) (x >= '0' && x <= '9' ? x - '0' : x - 'W')
 
+//returns the sha1 hash of *p as a newly allocated sds string
 sds sds_hash(const char *p) {
     mg_sha1_ctx ctx;
     mg_sha1_init(&ctx);
@@ -30,6 +31,8 @@ sds sds_hash(const char *p) {
     return hex_hash;
 }
 
+//returns the number at the beginning of the sds string
+//number is removed from string
 int sds_toimax(sds s) {
     sds nr = sdsempty();
     while (isdigit(s[0])) {
@@ -283,6 +286,8 @@ int sds_getline_n(sds *s, FILE *fp, size_t max) {
     return rc;
 }
 
+//reads a whole file in the sds string s from *fp
+//returns 0 on success, -1 on empty file, -2 if content is too long
 int sds_getfile(sds *s, FILE *fp, size_t max) {
     sdsclear(*s);
     size_t i = 0;
@@ -367,6 +372,7 @@ sds sds_catbool(sds s, bool v) {
 }
 
 static const char *invalid_filename_chars = "<>/.:?&$!#=;\a\b\f\n\r\t\v\\|";
+
 void sds_sanitize_filename(sds s) {
     const size_t len = strlen(invalid_filename_chars);
     for (size_t i = 0; i < len; i++) {
