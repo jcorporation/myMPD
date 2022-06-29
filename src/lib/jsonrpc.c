@@ -271,18 +271,10 @@ bool json_get_int_max(sds s, const char *path, int *result, sds *error) {
 }
 
 bool json_get_int(sds s, const char *path, int min, int max, int *result, sds *error) {
-    double value;
-    if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
-        if (value >= min && value <= max) {
-            *result = (int)value;
-            return true;
-        }
-        _set_parse_error(error, "Number out of range for JSON path \"%s\"", path);
-    }
-    else {
-        _set_parse_error(error, "JSON path \"%s\" not found", path);
-    }
-    return false;
+    long result_long;
+    bool rc = json_get_long(s, path, min, max, &result_long, error);
+    *result = (int)result_long;
+    return rc;
 }
 
 bool json_get_long_max(sds s, const char *path, long *result, sds *error) {
