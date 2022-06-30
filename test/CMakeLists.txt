@@ -11,26 +11,6 @@ project (test C)
 find_package(Threads REQUIRED)
 find_library(MATH_LIB m REQUIRED)
 
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11 -O3 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds -Wno-unused")
-
-# debug flags
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -std=gnu11 -O1 -Wall -Werror -Wvla -Winit-self -Wuninitialized -Werror=array-bounds \
-    -ggdb")
-
-# libasan
-set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS} -fsanitize=address \
-    -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
-    -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
-    -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
-    -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr \
-    -static-libasan")
-
-configure_file(../src/mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
-
-include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ../dist/libmpdclient/include)
-
-include(CheckCSourceCompiles)
-
 set(TEST_SOURCES
   ../dist/mjson/mjson.c
   ../dist/mongoose/mongoose.c
@@ -121,6 +101,63 @@ set(LIBMPDCLIENT_SOURCES
   ../dist/libmpdclient/src/sync.c
   ../dist/libmpdclient/src/tag.c
 )
+
+
+set(LIBASAN_FLAGS "-fsanitize=address \
+    -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
+    -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
+    -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
+    -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr \
+    -static-libasan")
+
+#set mongoose feature flags
+set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=0")
+if("${ENABLE_IPV6}" MATCHES "ON")
+  message("IPv6 is enabled")
+  set(MONGOOSE_FLAGS "${MONGOOSE_FLAGS} -DMG_ENABLE_IPV6=1")
+else()
+  message("IPv6 is disabled")
+endif()
+#set mjson feature flags
+set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABLE_RPC=0 \
+  -D MJSON_ENABLE_PRETTY=0 -D MJSON_ENABLE_MERGE=0")
+
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
+  	-Wall -Werror -Wvla -Winit-self -Wuninitialized \
+        -Werror=array-bounds -Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
+        -Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wnested-externs \
+        -Wmissing-include-dirs -Wundef -Wformat-nonliteral -Wsign-compare -Wconversion \
+	-Wno-stringop-overread -Wno-array-bounds -Wno-unused-function \
+        ${LIBASAN_FLAGS} ${MONGOOSE_FLAGS} ${MJSON_FLAGS}")
+
+# debug flags
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb -Og")
+
+#relax some compiler settings for dist sources
+#compiler flags for mongoose
+#-Wno-stringop-overflow: gcc 11.2.0 bug
+#-Wno-stringop-overread: gcc 12.0.1 bug
+set_property(SOURCE ../dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
+  -Wno-stringop-overflow")
+#compiler flags for mjson
+set_property(SOURCE ../dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "-Wno-conversion")
+#compiler flags for rax
+#-Wno-use-after-free: gcc 12.0.1 error
+set_property(SOURCE ../dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
+  -Wno-shadow -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers -Wno-use-after-free")
+#compiler flags for sds
+#-Wno-stringop-overflow: gcc 11.2.0 bug
+set_property(SOURCE ../dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow -Wno-conversion")
+#compiler flags for libmpdclient
+set_property(SOURCE ${LIBMPDCLIENT_SOURCES} PROPERTY COMPILE_FLAGS "-Wno-conversion")
+
+
+configure_file(../src/mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
+
+include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ../dist/libmpdclient/include)
+
+include(CheckCSourceCompiles)
+
 
 add_executable(test ${TEST_SOURCES} ${LIBMPDCLIENT_SOURCES})
 target_link_libraries(test ${CMAKE_THREAD_LIBS_INIT})
