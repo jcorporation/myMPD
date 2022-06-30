@@ -102,13 +102,12 @@ set(LIBMPDCLIENT_SOURCES
   ../dist/libmpdclient/src/tag.c
 )
 
-
 set(LIBASAN_FLAGS "-fsanitize=address \
-    -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
-    -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
-    -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
-    -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr \
-    -static-libasan")
+  -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
+  -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
+  -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
+  -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr \
+  -static-libasan")
 
 #set mongoose feature flags
 set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=0")
@@ -122,13 +121,16 @@ endif()
 set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABLE_RPC=0 \
   -D MJSON_ENABLE_PRETTY=0 -D MJSON_ENABLE_MERGE=0")
 
+#disabled for compatibility with tests
+set(UTEST_FLAGS "-Wno-unused-function -Wno-conversion -Wno-redundant-decls")
+
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
-  	-Wall -Werror -Wvla -Winit-self -Wuninitialized \
-        -Werror=array-bounds -Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
-        -Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wnested-externs \
-        -Wmissing-include-dirs -Wundef -Wformat-nonliteral -Wsign-compare -Wconversion \
-	-Wno-stringop-overread -Wno-array-bounds -Wno-unused-function \
-        ${LIBASAN_FLAGS} ${MONGOOSE_FLAGS} ${MJSON_FLAGS}")
+  -ffunction-sections -fdata-sections -Wall -Werror -Wvla -Winit-self -Wuninitialized \
+  -Werror=array-bounds -Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
+  -Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wnested-externs \
+  -Wmissing-include-dirs -Wundef -Wformat-nonliteral -Wsign-compare \
+  -Wno-stringop-overread -Wno-array-bounds \
+  ${UTEST_FLAGS} ${LIBASAN_FLAGS} ${MONGOOSE_FLAGS} ${MJSON_FLAGS}")
 
 # debug flags
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb -Og")
@@ -144,20 +146,18 @@ set_property(SOURCE ../dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "-Wno-conversio
 #compiler flags for rax
 #-Wno-use-after-free: gcc 12.0.1 error
 set_property(SOURCE ../dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
-  -Wno-shadow -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers -Wno-use-after-free")
+ -Wno-shadow -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers -Wno-use-after-free")
 #compiler flags for sds
 #-Wno-stringop-overflow: gcc 11.2.0 bug
 set_property(SOURCE ../dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow -Wno-conversion")
 #compiler flags for libmpdclient
 set_property(SOURCE ${LIBMPDCLIENT_SOURCES} PROPERTY COMPILE_FLAGS "-Wno-conversion")
 
-
 configure_file(../src/mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ../dist/libmpdclient/include)
 
 include(CheckCSourceCompiles)
-
 
 add_executable(test ${TEST_SOURCES} ${LIBMPDCLIENT_SOURCES})
 target_link_libraries(test ${CMAKE_THREAD_LIBS_INIT})
