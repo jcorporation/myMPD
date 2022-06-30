@@ -45,6 +45,7 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
                                       sds custom_san, EVP_PKEY **ca_key, X509 **ca_cert);
 static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_days);
 static bool certificates_cleanup(sds dir, const char *name);
+
 //public functions
 
 bool certificates_check(sds workdir, sds ssl_san) {
