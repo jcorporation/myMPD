@@ -10,6 +10,7 @@ project (test C)
 
 find_package(Threads REQUIRED)
 find_library(MATH_LIB m REQUIRED)
+find_package(OpenSSL REQUIRED)
 
 set(TEST_SOURCES
   ../dist/mjson/mjson.c
@@ -18,6 +19,7 @@ set(TEST_SOURCES
   ../dist/sds/sds.c
   ../dist/tinymt/tinymt32.c
   ../src/lib/api.c
+  ../src/lib/http_client.c
   ../src/lib/jsonrpc.c
   ../src/lib/list.c
   ../src/lib/log.c
@@ -32,6 +34,7 @@ set(TEST_SOURCES
   ../src/mpd_shared/mpd_shared_tags.c
   main.c
   tests/test_api.c
+  tests/test_http_client.c
   tests/test_jsonrpc.c
   tests/test_list.c
   tests/test_mimetype.c
@@ -110,7 +113,7 @@ set(LIBASAN_FLAGS "-fsanitize=address \
   -static-libasan")
 
 #set mongoose feature flags
-set(MONGOOSE_FLAGS "${MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=0")
+set(MONGOOSE_FLAGS "-DMG_ENABLE_OPENSSL=1 -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=0")
 if("${ENABLE_IPV6}" MATCHES "ON")
   message("IPv6 is enabled")
   set(MONGOOSE_FLAGS "${MONGOOSE_FLAGS} -DMG_ENABLE_IPV6=1")
@@ -162,3 +165,4 @@ include(CheckCSourceCompiles)
 add_executable(test ${TEST_SOURCES} ${LIBMPDCLIENT_SOURCES})
 target_link_libraries(test ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(test ${MATH_LIB})
+target_link_libraries(test ${OPENSSL_LIBRARIES})
