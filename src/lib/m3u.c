@@ -21,6 +21,7 @@ static const char *m3ufields_map(sds field);
 
 //public functions
 
+//appends the extm3u field value to buffer
 sds m3u_get_field(sds buffer, const char *field, const char *filename) {
     errno = 0;
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
@@ -46,7 +47,9 @@ sds m3u_get_field(sds buffer, const char *field, const char *filename) {
     return buffer;
 }
 
-sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
+//converts the m3u to json and appends it to buffer
+//appends all fields values (lower case) to m3ufields if not NULL
+sds m3u_to_json(sds buffer, const char *filename, sds *m3ufields) {
     errno = 0;
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -97,8 +100,8 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
         i++;
         while (line[i] != '\0') {
             buffer = sds_catjsonchar(buffer, line[i]);
-            if (plname != NULL) {
-                *plname = sdscatfmt(*plname, "%c", line[i]);
+            if (m3ufields != NULL) {
+                *m3ufields = sdscatfmt(*m3ufields, "%c", line[i]);
             }
             i++;
         }
@@ -107,8 +110,8 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
     FREE_SDS(line);
     FREE_SDS(field);
     (void) fclose(fp);
-    if (plname != NULL) {
-        sds_utf8_tolower(*plname);
+    if (m3ufields != NULL) {
+        sds_utf8_tolower(*m3ufields);
     }
     return buffer;
 }
