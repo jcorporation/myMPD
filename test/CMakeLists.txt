@@ -29,6 +29,7 @@ set(TEST_SOURCES
   ../src/lib/mympd_queue.c
   ../src/lib/random.c
   ../src/lib/sds_extras.c
+  ../src/lib/state_files.c
   ../src/lib/utility.c
   ../src/lib/validate.c
   ../src/mpd_shared.c
@@ -43,6 +44,7 @@ set(TEST_SOURCES
   tests/test_mympd_queue.c
   tests/test_random.c
   tests/test_sds_extras.c
+  tests/test_state_files.c
   tests/test_utility.c
   tests/test_validate.c
 )
