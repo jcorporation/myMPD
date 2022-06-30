@@ -53,8 +53,8 @@ UTEST(utility, test_my_msleep) {
     my_msleep(300);
     clock_gettime(CLOCK_MONOTONIC_RAW, &end);
 
-    float secs = (end.tv_nsec - begin.tv_nsec) / 1000000000.0 + (end.tv_sec  - begin.tv_sec);
-    int msecs = secs * 1000;
+    double secs = (end.tv_nsec - begin.tv_nsec) / 1000000000.0 + (end.tv_sec  - begin.tv_sec);
+    int msecs = (int)(secs * 1000);
     bool rc = false;
     if (msecs >= 290 && msecs <= 310) {
         rc = true;

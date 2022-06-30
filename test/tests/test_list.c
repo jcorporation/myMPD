@@ -141,7 +141,7 @@ UTEST(list, test_list_shuffle) {
 
     list_shuffle(&test_list);
     bool shuffled = false;
-    for (unsigned i = 0; i < test_list.length; i++) {
+    for (long i = 0; i < test_list.length; i++) {
         current = list_node_at(&test_list, i);
         if (current->value_i != (int)i) {
             shuffled = true;
