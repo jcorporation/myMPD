@@ -179,7 +179,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_string(request->data, "$.params.content", 0, CONTENT_LEN_MAX, &sds_buf3, vcb_istext, &error) == true &&
                 json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isalnum, 10, &error) == true)
             {
-                rc = mympd_api_script_save(mympd_state->config, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments);
+                rc = mympd_api_script_save(mympd_state->config->workdir, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
@@ -193,7 +193,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         }
         case MYMPD_API_SCRIPT_RM:
             if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                rc = mympd_api_script_delete(mympd_state->config, sds_buf1);
+                rc = mympd_api_script_delete(mympd_state->config->workdir, sds_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
@@ -205,12 +205,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_SCRIPT_GET:
             if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                response->data = mympd_api_script_get(mympd_state->config, response->data, request->method, request->id, sds_buf1);
+                response->data = mympd_api_script_get(mympd_state->config->workdir, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_SCRIPT_LIST: {
             if (json_get_bool(request->data, "$.params.all", &bool_buf1, &error) == true) {
-                response->data = mympd_api_script_list(mympd_state->config, response->data, request->method, request->id, bool_buf1);
+                response->data = mympd_api_script_list(mympd_state->config->workdir, response->data, request->method, request->id, bool_buf1);
             }
             break;
         }
