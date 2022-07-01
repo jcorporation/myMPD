@@ -9,6 +9,7 @@
 
 #include "log.h"
 #include "sds_extras.h"
+#include "utility.h"
 #include "validate.h"
 
 #include <ctype.h>
@@ -16,6 +17,7 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 sds camel_to_snake(sds text) {
@@ -118,43 +120,8 @@ unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *na
 }
 
 bool state_file_write(const char *workdir, const char *dir, const char *name, const char *value) {
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/%s/%s.XXXXXX", workdir, dir, name);
-    errno = 0;
-    int fd = mkstemp(tmp_file);
-    if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        return false;
-    }
-    FILE *fp = fdopen(fd, "w");
-    bool rc = true;
-    if (fputs(value, fp) == EOF) {
-        MYMPD_LOG_ERROR("Can not write to file \"%s\"", tmp_file);
-        rc = false;
-    }
-    if (fclose(fp) != 0) {
-        MYMPD_LOG_ERROR("Could not close file %s", tmp_file);
-        rc = false;
-    }
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", workdir, dir, name);
-    errno = 0;
-    if (rc == true) {
-        if (rename(tmp_file, cfg_file) == -1) {
-            MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, cfg_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    else {
-        //remove incomplete tmp file
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    FREE_SDS(tmp_file);
-    FREE_SDS(cfg_file);
+    sds filepath = sdscatfmt(sdsempty(), "%s/%s/%s", workdir, dir, name);
+    bool rc = write_data_to_file(filepath, value, strlen(value));
+    FREE_SDS(filepath);
     return rc;
 }
