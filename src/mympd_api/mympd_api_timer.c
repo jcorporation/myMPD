@@ -31,7 +31,7 @@ static struct t_timer_node *get_timer_from_fd(struct t_timer_list *l, int fd);
 void mympd_api_timer_timerlist_init(struct t_timer_list *l) {
     l->length = 0;
     l->active = 0;
-    l->last_id = 100;
+    l->last_id = USER_TIMER_ID_START;
     l->list = NULL;
 }
 
