@@ -37,12 +37,12 @@ void mympd_api_timer_timerlist_init(struct t_timer_list *l) {
 
 void mympd_api_timer_check(struct t_timer_list *l) {
     unsigned iMaxCount = 0;
-    struct t_timer_node *current = l->list;
-    uint64_t exp;
-
     struct pollfd ufds[MAX_TIMER_COUNT] = {{0}};
     memset(ufds, 0, sizeof(struct pollfd) * MAX_TIMER_COUNT);
-    while (current != NULL && iMaxCount <= 100) {
+    struct t_timer_node *current = l->list;
+    while (current != NULL &&
+           iMaxCount <= 100)
+    {
         if (current->fd > -1) {
             ufds[iMaxCount].fd = current->fd;
             ufds[iMaxCount].events = POLLIN;
@@ -63,6 +63,7 @@ void mympd_api_timer_check(struct t_timer_list *l) {
 
     for (unsigned i = 0; i < iMaxCount; i++) {
         if (ufds[i].revents & POLLIN) {
+            uint64_t exp;
             ssize_t s = read(ufds[i].fd, &exp, sizeof(uint64_t));
             if (s != sizeof(uint64_t)) {
                 continue;
@@ -92,7 +93,9 @@ void mympd_api_timer_check(struct t_timer_list *l) {
                 if (current->callback) {
                     current->callback(current->definition, current->user_data);
                 }
-                if (current->interval == 0 && current->definition != NULL) {
+                if (current->interval == 0 &&
+                    current->definition != NULL)
+                {
                     //one shot and deactivate
                     //only for timers from ui
                     MYMPD_LOG_DEBUG("One shot timer disabled: %d", current->timer_id);
@@ -127,7 +130,9 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, t
     new_node->interval = interval;
     new_node->timer_id = timer_id;
 
-    if (definition == NULL || definition->enabled == true) {
+    if (definition == NULL ||
+        definition->enabled == true)
+    {
         new_node->fd = timerfd_create(CLOCK_REALTIME, 0);
         if (new_node->fd == -1) {
             FREE_PTR(new_node);
@@ -142,7 +147,6 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, t
         //interval
         //0 = oneshot and deactivate
         //-1 = oneshot and remove
-
         new_value.it_interval.tv_sec = interval > 0 ? interval : 0;
         new_value.it_interval.tv_nsec = 0;
 
@@ -155,7 +159,9 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, t
     new_node->next = l->list;
     l->list = new_node;
     l->length++;
-    if (definition == NULL || definition->enabled == true) {
+    if (definition == NULL ||
+        definition->enabled == true)
+    {
         l->active++;
     }
     MYMPD_LOG_DEBUG("Added timer with id %d, start time in %llds", timer_id, (long long)timeout);
@@ -178,7 +184,9 @@ void mympd_api_timer_remove(struct t_timer_list *l, int timer_id) {
                 previous->next = current->next;
             }
             //Deallocate the node
-            if (current->definition == NULL || current->definition->enabled == true) {
+            if (current->definition == NULL ||
+                current->definition->enabled == true)
+            {
                 l->active--;
             }
             mympd_api_timer_free_node(current);
@@ -190,8 +198,10 @@ void mympd_api_timer_remove(struct t_timer_list *l, int timer_id) {
 void mympd_api_timer_toggle(struct t_timer_list *l, int timer_id) {
     struct t_timer_node *current = NULL;
     for (current = l->list; current != NULL; current = current->next) {
-        if (current->timer_id == timer_id && current->definition != NULL) {
-            current->definition->enabled = current->definition->enabled == true ? false : true;
+        if (current->timer_id == timer_id) {
+            if (current->definition != NULL) {
+                current->definition->enabled = current->definition->enabled == true ? false : true;
+            }
             return;
         }
     }
@@ -303,7 +313,9 @@ sds mympd_api_timer_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
     int entities_returned = 0;
     struct t_timer_node *current = mympd_state->timer_list.list;
     while (current != NULL) {
-        if (current->timer_id > 99 && current->definition != NULL) {
+        if (current->timer_id > 99 &&
+            current->definition != NULL)
+        {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
@@ -342,7 +354,9 @@ sds mympd_api_timer_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
     bool found = false;
     struct t_timer_node *current = mympd_state->timer_list.list;
     while (current != NULL) {
-        if (current->timer_id == timer_id && current->definition != NULL) {
+        if (current->timer_id == timer_id &&
+            current->definition != NULL)
+        {
             buffer = tojson_int(buffer, "timerid", current->timer_id, true);
             buffer = tojson_char(buffer, "name", current->definition->name, true);
             buffer = tojson_int(buffer, "interval", current->interval, true);
@@ -458,7 +472,9 @@ bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
     sds buffer = sdsempty();
     bool rc = true;
     while (current != NULL) {
-        if (current->timer_id > 99 && current->definition != NULL) {
+        if (current->timer_id > 99 &&
+            current->definition != NULL)
+        {
             buffer = sds_replace(buffer, "{");
             buffer = tojson_int(buffer, "timerid", current->timer_id, true);
             buffer = tojson_int(buffer, "interval", current->interval, true);
