@@ -239,69 +239,31 @@ bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
     return true;
 }
 
+static sds trigger_to_line_cb(sds buffer, struct t_list_node *current) {
+    buffer = sdscatlen(buffer, "{", 1);
+    buffer = tojson_char(buffer, "name", current->key, true);
+    buffer = tojson_llong(buffer, "event", current->value_i, true);
+    buffer = tojson_char(buffer, "script", current->value_p, true);
+    buffer = sdscat(buffer, "\"arguments\":{");
+    struct t_list *arguments = (struct t_list *)current->user_data;
+    struct t_list_node *argument = arguments->head;
+    int i = 0;
+    while (argument != NULL) {
+        if (i++) {
+            buffer = sdscatlen(buffer, ",", 1);
+        }
+        buffer = tojson_char(buffer, argument->key, argument->value_p, false);
+        argument = argument->next;
+    }
+    buffer = sdscatlen(buffer, "}}\n", 3);
+    return buffer;
+}
+
 bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving triggers to disc");
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/trigger_list.XXXXXX", mympd_state->config->workdir);
-    errno = 0;
-    int fd = mkstemp(tmp_file);
-    if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        return false;
-    }
-    FILE *fp = fdopen(fd, "w");
-    struct t_list_node *current = mympd_state->trigger_list.head;
-    sds buffer = sdsempty();
-    bool rc = true;
-    while (current != NULL) {
-        buffer = sds_replace(buffer, "{");
-        buffer = tojson_char(buffer, "name", current->key, true);
-        buffer = tojson_llong(buffer, "event", current->value_i, true);
-        buffer = tojson_char(buffer, "script", current->value_p, true);
-        buffer = sdscat(buffer, "\"arguments\":{");
-        struct t_list *arguments = (struct t_list *)current->user_data;
-        struct t_list_node *argument = arguments->head;
-        int i = 0;
-        while (argument != NULL) {
-            if (i++) {
-                buffer = sdscatlen(buffer, ",", 1);
-            }
-            buffer = tojson_char(buffer, argument->key, argument->value_p, false);
-            argument = argument->next;
-        }
-        buffer = sdscatlen(buffer, "}}\n", 3);
-        if (fputs(buffer, fp) == EOF) {
-            MYMPD_LOG_ERROR("Could not write triggers to disc");
-            rc = false;
-            break;
-        }
-        current = current->next;
-    }
-    if (fclose(fp) != 0) {
-        MYMPD_LOG_ERROR("Could not close file \"%s\"", tmp_file);
-        rc = false;
-    }
-    FREE_SDS(buffer);
-    sds trigger_file = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->workdir);
-    errno = 0;
-    if (rc == true) {
-        if (rename(tmp_file, trigger_file) == -1) {
-            MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, trigger_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    else {
-        //remove incomplete tmp file
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    FREE_SDS(tmp_file);
-    FREE_SDS(trigger_file);
+    sds filepath = sdscatfmt(sdsempty(), "%s/state/trigger_list", mympd_state->config->workdir);
+    bool rc = list_write_to_disk(filepath, &mympd_state->trigger_list, trigger_to_line_cb);
+    FREE_SDS(filepath);
     return rc;
 }
 

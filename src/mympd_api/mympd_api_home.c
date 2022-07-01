@@ -93,51 +93,15 @@ bool mympd_api_home_file_read(struct t_mympd_state *mympd_state) {
     return true;
 }
 
+static sds homeicon_to_line_cb(sds buffer, struct t_list_node *current) {
+    return sdscatfmt(buffer, "%S\n", current->key);
+}
+
 bool mympd_api_home_file_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving home icons to disc");
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/home_list.XXXXXX", mympd_state->config->workdir);
-    errno = 0;
-    int fd = mkstemp(tmp_file);
-    if (fd < 0 ) {
-        MYMPD_LOG_ERROR("Can not open \"%s\" for write", tmp_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        return false;
-    }
-    FILE *fp = fdopen(fd, "w");
-    bool rc = true;
-    struct t_list_node *current = mympd_state->home_list.head;
-    while (current != NULL) {
-        int printed = fprintf(fp,"%s\n", current->key);
-        if (printed < 0) {
-            MYMPD_LOG_ERROR("Can not write to file \"%s\"", tmp_file);
-            rc = false;
-        }
-        current = current->next;
-    }
-    if (fclose(fp) != 0) {
-        MYMPD_LOG_ERROR("Could not close file \"%s\"", tmp_file);
-        rc = false;
-    }
-    sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", mympd_state->config->workdir);
-    errno = 0;
-    if (rc == true) {
-        if (rename(tmp_file, home_file) == -1) {
-            MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, home_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    else {
-        //remove incomplete tmp file
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    FREE_SDS(tmp_file);
-    FREE_SDS(home_file);
+    sds filepath = sdscatfmt(sdsempty(), "%s/state/home_list", mympd_state->config->workdir);
+    bool rc = list_write_to_disk(filepath, &mympd_state->home_list, homeicon_to_line_cb);
+    FREE_SDS(filepath);
     return rc;
 }
 
