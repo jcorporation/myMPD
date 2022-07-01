@@ -1438,12 +1438,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_long(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &long_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true)
             {
-                response->data = mympd_api_webradio_list(mympd_state->config, response->data, request->method, request->id, sds_buf1, long_buf1, long_buf2);
+                response->data = mympd_api_webradio_list(mympd_state->config->workdir, response->data, request->method, request->id, sds_buf1, long_buf1, long_buf2);
             }
             break;
         case MYMPD_API_WEBRADIO_FAVORITE_GET:
             if (json_get_string(request->data, "$.params.filename", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                response->data = mympd_api_webradio_get(mympd_state->config, response->data, request->method, request->id, sds_buf1);
+                response->data = mympd_api_webradio_get(mympd_state->config->workdir, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_WEBRADIO_FAVORITE_SAVE:
@@ -1459,7 +1459,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_int(request->data, "$.params.bitrate", 0, 2048, &int_buf1, &error) == true &&
                 json_get_string(request->data, "$.params.description", 0, CONTENT_LEN_MAX, &sds_buf0, vcb_isname, &error) == true
             ) {
-                rc = mympd_api_webradio_save(mympd_state->config, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, sds_buf7,
+                rc = mympd_api_webradio_save(mympd_state->config->workdir, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, sds_buf7,
                     sds_buf8, sds_buf9, int_buf1, sds_buf0);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
@@ -1473,7 +1473,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_WEBRADIO_FAVORITE_RM:
             if (json_get_string(request->data, "$.params.filename", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                rc = mympd_api_webradio_delete(mympd_state->config, sds_buf1);
+                rc = mympd_api_webradio_delete(mympd_state->config->workdir, sds_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "database");
                 }

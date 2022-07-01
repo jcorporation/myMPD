@@ -409,7 +409,7 @@ sds _print_queue_entry(struct t_mympd_state *mympd_state, sds buffer, const stru
     const char *uri = mpd_song_get_uri(song);
     buffer = sdscatlen(buffer, ",", 1);
     if (is_streamuri(uri) == true) {
-        sds webradio = get_webradio_from_uri(mympd_state->config, uri);
+        sds webradio = get_webradio_from_uri(mympd_state->config->workdir, uri);
         if (sdslen(webradio) > 0) {
             buffer = sdscat(buffer, "\"webradio\":{");
             buffer = sdscatsds(buffer, webradio);

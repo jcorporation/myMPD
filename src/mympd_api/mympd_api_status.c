@@ -243,7 +243,7 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
     buffer = sdscatlen(buffer, ",", 1);
     buffer = get_extra_files(mympd_state, buffer, uri, false);
     if (is_streamuri(uri) == true) {
-        sds webradio = get_webradio_from_uri(mympd_state->config, uri);
+        sds webradio = get_webradio_from_uri(mympd_state->config->workdir, uri);
         if (sdslen(webradio) > 0) {
             buffer = sdscat(buffer, ",\"webradio\":{");
             buffer = sdscatsds(buffer, webradio);

@@ -34,6 +34,7 @@ set(TEST_SOURCES
   ../src/lib/validate.c
   ../src/mpd_shared.c
   ../src/mpd_shared/mpd_shared_tags.c
+  ../src/mympd_api/mympd_api_webradios.c
   main.c
   tests/test_api.c
   tests/test_http_client.c

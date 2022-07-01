@@ -31,11 +31,11 @@ struct t_webradio_entry {
 
 //public functions
 
-sds get_webradio_from_uri(struct t_config *config, const char *uri) {
+sds get_webradio_from_uri(sds workdir, const char *uri) {
     sds filename = sdsnew(uri);
     sds_sanitize_filename(filename);
     filename = sdscatlen(filename, ".m3u", 4);
-    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", config->workdir, filename);
+    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", workdir, filename);
     sds entry = sdsempty();
     if (access(filepath, F_OK) == 0) { /* Flawfinder: ignore */
         entry = tojson_char(entry, "filename", filename, true);
@@ -49,8 +49,8 @@ sds get_webradio_from_uri(struct t_config *config, const char *uri) {
     return entry;
 }
 
-sds mympd_api_webradio_get(struct t_config *config, sds buffer, sds method, long request_id, const char *filename) {
-    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", config->workdir, filename);
+sds mympd_api_webradio_get(sds workdir, sds buffer, sds method, long request_id, const char *filename) {
+    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", workdir, filename);
     sds entry = sdsempty();
     entry = m3u_to_json(entry, filepath, NULL);
     if (sdslen(entry) == 0) {
@@ -68,10 +68,10 @@ sds mympd_api_webradio_get(struct t_config *config, sds buffer, sds method, long
     return buffer;
 }
 
-sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, long request_id, sds searchstr, long offset, long limit) {
+sds mympd_api_webradio_list(sds workdir, sds buffer, sds method, long request_id, sds searchstr, long offset, long limit) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    sds webradios_dirname = sdscatfmt(sdsempty(), "%s/webradios", config->workdir);
+    sds webradios_dirname = sdscatfmt(sdsempty(), "%s/webradios", workdir);
     errno = 0;
     DIR *webradios_dir = opendir(webradios_dirname);
     if (webradios_dir == NULL) {
@@ -160,88 +160,55 @@ sds mympd_api_webradio_list(struct t_config *config, sds buffer, sds method, lon
     return buffer;
 }
 
-bool mympd_api_webradio_save(struct t_config *config, sds name, sds uri, sds uri_old,
+bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
         sds genre, sds picture, sds homepage, sds country, sds language, sds codec, int bitrate,
         sds description)
 {
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/webradios/%s.XXXXXX", config->workdir, name);
-    errno = 0;
-    int fd = mkstemp(tmp_file);
-    if (fd < 0 ) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        return false;
-    }
-    FILE *fp = fdopen(fd, OPEN_FLAGS_WRITE);
-    bool rc = true;
-    int printed = fprintf(fp, "#EXTM3U\n"
-        "#EXTINF:-1,%s\n"
-        "#EXTGENRE:%s\n"
-        "#PLAYLIST:%s\n"
-        "#EXTIMG:%s\n"
-        "#HOMEPAGE:%s\n"
-        "#COUNTRY:%s\n"
-        "#LANGUAGE:%s\n"
-        "#DESCRIPTION:%s\n"
-        "#CODEC:%s\n"
-        "#BITRATE:%d\n"
-        "%s\n",
-        name, genre, name, picture, homepage, country, language, description, codec, bitrate, uri);
-    if (printed < 0) {
-        MYMPD_LOG_ERROR("Could not write to file \"%s\"", tmp_file);
-        rc = false;
-    }
-    if (fclose(fp) != 0) {
-        MYMPD_LOG_ERROR("Could not close file \"%s\"", tmp_file);
-        rc = false;
-    }
     sds filename = sdsdup(uri);
     sds_sanitize_filename(filename);
-    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s.m3u", config->workdir, filename);
-    errno = 0;
-    if (rc == true) {
-        if (rename(tmp_file, filepath) == -1) {
-            MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, filepath);
-            MYMPD_LOG_ERRNO(errno);
-            FREE_SDS(tmp_file);
-            FREE_SDS(filepath);
-            FREE_SDS(filename);
-            return false;
-        }
-        if (strcmp(uri, uri_old) != 0 &&
-            uri_old[0] != '\0')
-        {
-            //streamuri changed
-            sdsclear(filename);
-            filename = sdscatsds(filename, uri_old);
-            sds_sanitize_filename(filename);
-            sdsclear(filepath);
-            filepath = sdscatfmt(filepath, "%s/webradios/%s.m3u", config->workdir, filename);
-            errno = 0;
-            if (unlink(filepath) == -1) {
-                MYMPD_LOG_ERROR("Deleting old file \"%s\" failed", filepath);
-                MYMPD_LOG_ERRNO(errno);
-                rc = false;
-            }
-        }
-    }
-    else {
-        //remove incomplete tmp file
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
+    sds filepath = sdscatfmt(sdsempty(), "%S/webradios/%S.m3u", workdir, filename);
+
+    sds content = sdscatfmt(sdsempty(), "#EXTM3U\n"
+        "#EXTINF:-1,%S\n"
+        "#EXTGENRE:%S\n"
+        "#PLAYLIST:%S\n"
+        "#EXTIMG:%S\n"
+        "#HOMEPAGE:%S\n"
+        "#COUNTRY:%S\n"
+        "#LANGUAGE:%S\n"
+        "#DESCRIPTION:%S\n"
+        "#CODEC:%S\n"
+        "#BITRATE:%i\n"
+        "%S\n",
+        name, genre, name, picture, homepage, country, language, description, codec, bitrate, uri);
+
+    bool rc = write_data_to_file(filepath, content, sdslen(content));
+
+    if (rc == true &&
+        uri_old[0] != '\0' &&
+        strcmp(uri, uri_old) != 0)
+    {
+        sdsclear(filename);
+        filename = sdscatsds(filename, uri_old);
+        sds_sanitize_filename(filename);
+        sdsclear(filepath);
+        filepath = sdscatfmt(filepath, "%S/webradios/%S.m3u", workdir, filename);
+        errno = 0;
+        if (unlink(filepath) == -1) {
+            MYMPD_LOG_ERROR("Deleting old file \"%s\" failed", filepath);
             MYMPD_LOG_ERRNO(errno);
             rc = false;
         }
     }
-    FREE_SDS(tmp_file);
-    FREE_SDS(filepath);
     FREE_SDS(filename);
+    FREE_SDS(filepath);
+    FREE_SDS(content);
+
     return rc;
 }
 
-bool mympd_api_webradio_delete(struct t_config *config, const char *filename) {
-    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", config->workdir, filename);
+bool mympd_api_webradio_delete(sds workdir, const char *filename) {
+    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", workdir, filename);
     errno = 0;
     if (unlink(filepath) == -1) {
         MYMPD_LOG_ERROR("Unlinking webradio file \"%s\" failed", filepath);
