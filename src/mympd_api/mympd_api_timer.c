@@ -23,8 +23,6 @@
 #include <unistd.h>
 
 //private definitions
-#define MAX_TIMER_COUNT 100
-
 static struct t_timer_node *get_timer_from_fd(struct t_timer_list *l, int fd);
 
 //public functions
@@ -37,11 +35,11 @@ void mympd_api_timer_timerlist_init(struct t_timer_list *l) {
 
 void mympd_api_timer_check(struct t_timer_list *l) {
     unsigned iMaxCount = 0;
-    struct pollfd ufds[MAX_TIMER_COUNT] = {{0}};
-    memset(ufds, 0, sizeof(struct pollfd) * MAX_TIMER_COUNT);
+    struct pollfd ufds[LIST_TIMER_MAX] = {{0}};
+    memset(ufds, 0, sizeof(struct pollfd) * LIST_TIMER_MAX);
     struct t_timer_node *current = l->list;
     while (current != NULL &&
-           iMaxCount <= 100)
+           iMaxCount <= LIST_TIMER_MAX)
     {
         if (current->fd > -1) {
             ufds[iMaxCount].fd = current->fd;
