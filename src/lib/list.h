@@ -26,6 +26,7 @@ struct t_list {
 };
 
 typedef void (*user_data_callback) (struct t_list_node *current);
+typedef sds (*list_node_to_line_callback) (sds buffer, struct t_list_node *current);
 
 struct t_list *list_new(void);
 void list_init(struct t_list *l);
@@ -61,4 +62,6 @@ struct t_list_node *list_node_extract(struct t_list *l, long idx);
 
 bool list_remove_node(struct t_list *l, long idx);
 bool list_remove_node_user_data(struct t_list *l, long idx, user_data_callback free_cb);
+
+bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callback node_to_line_cb);
 #endif

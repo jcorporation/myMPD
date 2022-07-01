@@ -7,12 +7,15 @@
 #include "mympd_config_defs.h"
 #include "list.h"
 
+#include "log.h"
 #include "mem.h"
 #include "random.h"
 #include "sds_extras.h"
 
+#include <errno.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 //Mallocs a new list and inits it
 struct t_list *list_new(void) {
@@ -364,4 +367,54 @@ struct t_list_node *list_node_extract(struct t_list *l, long idx) {
 
     //return the node
     return current;
+}
+
+//saves a list to disk
+bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callback node_to_line_cb) {
+    sds tmp_file = sdscatfmt(sdsempty(), "%S.XXXXXX", filepath);
+    errno = 0;
+    int fd = mkstemp(tmp_file);
+    if (fd < 0) {
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERRNO(errno);
+        FREE_SDS(tmp_file);
+        return false;
+    }
+    FILE *fp = fdopen(fd, "w");
+    struct t_list_node *current = l->head;
+    sds buffer = sdsempty();
+    bool rc = true;
+    while (current != NULL) {
+        buffer = node_to_line_cb(buffer, current);
+        if (fputs(buffer, fp) == EOF) {
+            MYMPD_LOG_ERROR("Could not write data to file");
+            rc = false;
+            break;
+        }
+        sdsclear(buffer);
+        current = current->next;
+    }
+    FREE_SDS(buffer);
+    if (fclose(fp) != 0) {
+        MYMPD_LOG_ERROR("Could not close file \"%s\"", tmp_file);
+        rc = false;
+    }
+    errno = 0;
+    if (rc == true) {
+        if (rename(tmp_file, filepath) == -1) {
+            MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, filepath);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
+    }
+    else {
+        //remove incomplete tmp file
+        if (unlink(tmp_file) != 0) {
+            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
+            MYMPD_LOG_ERRNO(errno);
+            rc = false;
+        }
+    }
+    FREE_SDS(tmp_file);
+    return rc;
 }
