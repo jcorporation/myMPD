@@ -20,7 +20,7 @@ sds mympd_api_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sds
                                long request_id, const char *playlist, bool smartpls_only);
 sds mympd_api_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                long request_id, const char *old_playlist, const char *new_playlist);
-sds mympd_api_smartpls_put(struct t_config *config, sds buffer, sds method, long request_id,
+sds mympd_api_smartpls_get(struct t_config *config, sds buffer, sds method, long request_id,
                             const char *playlist);
 sds mympd_api_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer, sds method,
                                   long request_id, const char *type);

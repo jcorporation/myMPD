@@ -694,7 +694,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_SMARTPLS_GET:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                response->data = mympd_api_smartpls_put(mympd_state->config, response->data, request->method, request->id, sds_buf1);
+                response->data = mympd_api_smartpls_get(mympd_state->config, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_PLAYER_PAUSE:

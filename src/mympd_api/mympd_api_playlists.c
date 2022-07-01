@@ -28,7 +28,7 @@
 
 //private definitions
 static int mympd_api_enum_playlist(struct t_mympd_state *mympd_state, const char *playlist, bool empty_check);
-static bool smartpls_init(struct t_config *config, const char *name, const char *value);
+static bool smartpls_init(sds workdir, const char *name, const char *value);
 
 //public functions
 bool mympd_api_smartpls_default(struct t_config *config) {
@@ -50,7 +50,7 @@ bool mympd_api_smartpls_default(struct t_config *config) {
     FREE_SDS(prefix_file);
 
     sds smartpls_file = sdscatfmt(sdsempty(), "%s%sbestRated", prefix, (sdslen(prefix) > 0 ? "-" : ""));
-    rc = smartpls_init(config, smartpls_file,
+    rc = smartpls_init(config->workdir, smartpls_file,
         "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200, \"minvalue\": 2, \"sort\": \"\"}");
     if (rc == false) {
         FREE_SDS(smartpls_file);
@@ -60,7 +60,7 @@ bool mympd_api_smartpls_default(struct t_config *config) {
 
     sdsclear(smartpls_file);
     smartpls_file = sdscatfmt(smartpls_file, "%s%smostPlayed", prefix, (sdslen(prefix) > 0 ? "-" : ""));
-    rc = smartpls_init(config, smartpls_file,
+    rc = smartpls_init(config->workdir, smartpls_file,
         "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0, \"sort\": \"\"}");
     if (rc == false) {
         FREE_SDS(smartpls_file);
@@ -70,7 +70,7 @@ bool mympd_api_smartpls_default(struct t_config *config) {
 
     sdsclear(smartpls_file);
     smartpls_file = sdscatfmt(smartpls_file, "%s%snewestSongs", prefix, (sdslen(prefix) > 0 ? "-" : ""));
-    rc = smartpls_init(config, smartpls_file,
+    rc = smartpls_init(config->workdir, smartpls_file,
         "{\"type\": \"newest\", \"timerange\": 604800, \"sort\": \"\"}");
     FREE_SDS(smartpls_file);
     FREE_SDS(prefix);
@@ -375,7 +375,7 @@ sds mympd_api_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sds
     return buffer;
 }
 
-sds mympd_api_smartpls_put(struct t_config *config, sds buffer, sds method, long request_id,
+sds mympd_api_smartpls_get(struct t_config *config, sds buffer, sds method, long request_id,
                             const char *playlist)
 {
     sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, playlist);
@@ -583,44 +583,9 @@ static int mympd_api_enum_playlist(struct t_mympd_state *mympd_state, const char
     return entity_count;
 }
 
-static bool smartpls_init(struct t_config *config, const char *name, const char *value) {
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->workdir, name);
-    errno = 0;
-    int fd = mkstemp(tmp_file);
-    if (fd < 0 ) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        return false;
-    }
-    FILE *fp = fdopen(fd, "w");
-    bool rc = true;
-    if (fputs(value, fp) == EOF) {
-        MYMPD_LOG_ERROR("Could not write initial smart playlist");
-        rc = false;
-    }
-    if (fclose(fp) != 0) {
-        MYMPD_LOG_ERROR("Could not close file \"%s\"", tmp_file);
-        rc = false;
-    }
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, name);
-    errno = 0;
-    if (rc == true) {
-        if (rename(tmp_file, cfg_file) == -1) {
-            MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    else {
-        //remove incomplete tmp file
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    FREE_SDS(tmp_file);
-    FREE_SDS(cfg_file);
+static bool smartpls_init(sds workdir, const char *name, const char *value) {
+    sds filepath = sdscatfmt(sdsempty(), "%s/smartpls/%s", workdir, name);
+    bool rc = write_data_to_file(filepath, value, strlen(value));
+    FREE_SDS(filepath);
     return rc;
 }
