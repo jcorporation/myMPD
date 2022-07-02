@@ -8,6 +8,7 @@
 #define MYMPD_UTILITY_H
 
 #include <stdbool.h>
+#include <stdio.h>
 #include <time.h>
 
 #include "../../dist/sds/sds.h"
@@ -25,9 +26,12 @@ bool is_virtual_cuedir(sds music_directory, sds filename);
 int testdir(const char *name, const char *dirname, bool create);
 void my_msleep(long msec);
 bool is_streamuri(const char *uri);
-bool write_data_to_file(sds filepath, const char *data, size_t data_len);
 sds *split_coverimage_names(sds coverimage_name, int *count);
 const char *get_extension_from_filename(const char *filename);
+
+FILE *open_tmp_file(sds filepath);
+bool rename_tmp_file(FILE *fp, sds tmp_file, sds filepath, bool write_rc);
+bool write_data_to_file(sds filepath, const char *data, size_t data_len);
 
 //measure time
 #define MEASURE_INIT struct timespec tic, toc;

@@ -792,24 +792,11 @@ sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffe
 //privat functions
 static sds set_default_navbar_icons(struct t_config *config, sds buffer) {
     MYMPD_LOG_NOTICE("Writing default navbar_icons");
-    sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->workdir);
+    sds filepath = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->workdir);
     sdsclear(buffer);
     buffer = sdscat(buffer, MYMPD_NAVBAR_ICONS);
-    errno = 0;
-    FILE *fp = fopen(file_name, OPEN_FLAGS_WRITE);
-    if (fp == NULL) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", file_name);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(file_name);
-        return buffer;
-    }
-    if (fputs(buffer, fp) == EOF) {
-        MYMPD_LOG_ERROR("Could not write to file \"%s\"", file_name);
-    }
-    if (fclose(fp) != 0) {
-        MYMPD_LOG_ERROR("Could not close file \"%s\"", file_name);
-    }
-    FREE_SDS(file_name);
+    write_data_to_file(filepath, buffer, sdslen(buffer));
+    FREE_SDS(filepath);
     return buffer;
 }
 

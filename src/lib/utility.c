@@ -116,22 +116,28 @@ bool is_streamuri(const char *uri) {
     return false;
 }
 
-bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
-    sds tmp_file = sdscatfmt(sdsempty(), "%S.XXXXXX", filepath);
+//opens tmp file for write
+FILE *open_tmp_file(sds filepath) {
     errno = 0;
-    int fd = mkstemp(tmp_file);
+    int fd = mkstemp(filepath);
     if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", filepath);
         MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        return false;
+        return NULL;
     }
-
+    errno = 0;
     FILE *fp = fdopen(fd, "w");
-    size_t written = fwrite(data, 1, data_len, fp);
-    int rc = fclose(fp);
-    if (written != data_len ||
-        rc != 0)
+    if (fp == NULL) {
+        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", filepath);
+        MYMPD_LOG_ERRNO(errno);
+    }
+    return fp;
+}
+
+//closes the tmp file and moves it to its destination name
+bool rename_tmp_file(FILE *fp, sds tmp_file, sds filepath, bool write_rc) {
+    if (fclose(fp) != 0 ||
+        write_rc == false)
     {
         MYMPD_LOG_ERROR("Error writing data to file \"%s\"", tmp_file);
         errno = 0;
@@ -142,7 +148,6 @@ bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
         FREE_SDS(tmp_file);
         return false;
     }
-
     errno = 0;
     if (rename(tmp_file, filepath) == -1) {
         MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, filepath);
@@ -152,11 +157,23 @@ bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
             MYMPD_LOG_ERROR("Error removing file \"%s\"", tmp_file);
             MYMPD_LOG_ERRNO(errno);
         }
+        return false;
+    }
+    return true;
+}
+
+bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
+    sds tmp_file = sdscatfmt(sdsempty(), "%S.XXXXXX", filepath);
+    FILE *fp = open_tmp_file(tmp_file);
+    if (fp == NULL) {
         FREE_SDS(tmp_file);
         return false;
     }
+    size_t written = fwrite(data, 1, data_len, fp);
+    bool write_rc = written == data_len ? true : false;
+    bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
     FREE_SDS(tmp_file);
-    return true;
+    return rc;
 }
 
 const char *get_extension_from_filename(const char *filename) {

@@ -536,57 +536,29 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
 
 static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cert) {
     /* Write the key to disk. */
-    sds key_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", key_file);
-    errno = 0;
-    int fd = mkstemp(key_file_tmp);
-    if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", key_file_tmp);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(key_file_tmp);
+    sds tmp_file = sdscatfmt(sdsempty(), "%s.XXXXXX", key_file);
+    FILE *fp = open_tmp_file(tmp_file);
+    if (fp == NULL) {
+        FREE_SDS(tmp_file);
         return false;
     }
-    FILE *key_file_fp = fdopen(fd, "w");
-    int rc1 = PEM_write_PrivateKey(key_file_fp, pkey, NULL, NULL, 0, NULL, NULL);
-    int rc2 = fclose(key_file_fp);
-    if (rc1 == 0 || rc2 != 0) {
-        MYMPD_LOG_ERROR("Unable to write private key to disk");
-        FREE_SDS(key_file_tmp);
-        return false;
+    bool write_rc = PEM_write_PrivateKey(fp, pkey, NULL, NULL, 0, NULL, NULL) == 0 ? false : true;
+    bool rc = rename_tmp_file(fp, tmp_file, key_file, write_rc);
+    if (rc == false) {
+        FREE_SDS(tmp_file);
+        return rc;
     }
-    errno = 0;
-    if (rename(key_file_tmp, key_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from %s to %s failed", key_file_tmp, key_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(key_file_tmp);
-        return false;
-    }
-    FREE_SDS(key_file_tmp);
+    sdsclear(tmp_file);
 
     /* Write the certificate to disk. */
-    sds cert_file_tmp = sdscatfmt(sdsempty(), "%s.XXXXXX", cert_file);
-    errno = 0;
-    if ((fd = mkstemp(cert_file_tmp)) < 0 ) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", cert_file_tmp);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(cert_file_tmp);
+    tmp_file = sdscatfmt(sdsempty(), "%s.XXXXXX", cert_file);
+    fp = open_tmp_file(tmp_file);
+    if (fp == NULL) {
+        FREE_SDS(tmp_file);
         return false;
     }
-    FILE *cert_file_fp = fdopen(fd, "w");
-    rc1 = PEM_write_X509(cert_file_fp, cert);
-    rc2 = fclose(cert_file_fp);
-    if (rc1 == 0 || rc2 != 0) {
-        MYMPD_LOG_ERROR("Unable to write certificate to disk");
-        FREE_SDS(cert_file_tmp);
-        return false;
-    }
-    errno = 0;
-    if (rename(cert_file_tmp, cert_file) == -1) {
-        MYMPD_LOG_ERROR("Renaming file from %s to %s failed", cert_file_tmp, cert_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(cert_file_tmp);
-        return false;
-    }
-    FREE_SDS(cert_file_tmp);
-
-    return true;
+    write_rc = PEM_write_X509(fp, cert) == 0 ? false : true;
+    rc = rename_tmp_file(fp, tmp_file, key_file, write_rc);
+    FREE_SDS(tmp_file);
+    return rc;
 }

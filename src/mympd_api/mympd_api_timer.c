@@ -12,6 +12,7 @@
 #include "../lib/mem.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "mympd_api_timer_handlers.h"
 #include "mympd_api_utility.h"
 
@@ -457,18 +458,14 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
 bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving timers to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%s/state/timer_list.XXXXXX", mympd_state->config->workdir);
-    errno = 0;
-    int fd = mkstemp(tmp_file);
-    if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
-        MYMPD_LOG_ERRNO(errno);
+    FILE *fp = open_tmp_file(tmp_file);
+    if (fp == NULL) {
         FREE_SDS(tmp_file);
         return false;
     }
-    FILE *fp = fdopen(fd, "w");
     struct t_timer_node *current = mympd_state->timer_list.list;
     sds buffer = sdsempty();
-    bool rc = true;
+    bool write_rc = true;
     while (current != NULL) {
         if (current->timer_id > 99 &&
             current->definition != NULL)
@@ -505,36 +502,17 @@ bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
             buffer = sdscatlen(buffer, "}}\n", 3);
             if (fputs(buffer, fp) == EOF) {
                 MYMPD_LOG_ERROR("Could not write timers to disc");
-                rc = false;
+                write_rc = false;
                 break;
             }
         }
         current = current->next;
     }
-    if (fclose(fp) != 0) {
-        MYMPD_LOG_ERROR("Could not close file \"%s\"", tmp_file);
-        rc = false;
-    }
     FREE_SDS(buffer);
-    sds timer_file = sdscatfmt(sdsempty(), "%s/state/timer_list", mympd_state->config->workdir);
-    errno = 0;
-    if (rc == true) {
-        if (rename(tmp_file, timer_file) == -1) {
-            MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, timer_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    else {
-        //remove incomplete tmp file
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
+    sds filepath = sdscatfmt(sdsempty(), "%s/state/timer_list", mympd_state->config->workdir);
+    bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
     FREE_SDS(tmp_file);
-    FREE_SDS(timer_file);
+    FREE_SDS(filepath);
     return rc;
 }
 
