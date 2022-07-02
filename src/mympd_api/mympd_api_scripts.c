@@ -119,15 +119,9 @@ sds mympd_api_script_list(sds workdir, sds buffer, sds method, long request_id, 
 
 bool mympd_api_script_delete(sds workdir, sds script) {
     sds filepath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
-    errno = 0;
-    if (unlink(filepath) == -1) {
-        MYMPD_LOG_ERROR("Unlinking script file \"%s\" failed", filepath);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(filepath);
-        return false;
-    }
+    bool rc = rm_file(filepath);
     FREE_SDS(filepath);
-    return true;
+    return rc;
 }
 
 bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sds content, struct t_list *arguments) {
@@ -140,12 +134,7 @@ bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sd
         sdslen(oldscript) > 0 &&
         strcmp(script, oldscript) != 0) {
         sds old_filepath = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", workdir, oldscript);
-        errno = 0;
-        if (unlink(old_filepath) == -1) {
-            MYMPD_LOG_ERROR("Error removing file \"%s\"", old_filepath);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
+        rc = rm_file(old_filepath);
         FREE_SDS(old_filepath);
     }
     FREE_SDS(argstr);

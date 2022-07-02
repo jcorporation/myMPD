@@ -83,11 +83,7 @@ static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
         time_t expire_time = time(NULL) - (long)(24 * 60 * 60);
         if (status.st_mtime < expire_time) {
             MYMPD_LOG_DEBUG("Expiring cache file \"%s\": %lld", filepath, (long long)status.st_mtime);
-            errno = 0;
-            if (unlink(filepath) != 0) {
-                MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
-                MYMPD_LOG_ERRNO(errno);
-            }
+            rm_file(filepath);
         }
         else {
             FILE *fp = fopen(filepath, OPEN_FLAGS_READ);

@@ -134,17 +134,39 @@ FILE *open_tmp_file(sds filepath) {
     return fp;
 }
 
+//removes a file and reports all errors
+bool rm_file(sds filepath) {
+    errno = 0;
+    if (unlink(filepath) != 0) {
+        MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
+        MYMPD_LOG_ERRNO(errno);
+        return false;
+    }
+    return true;
+}
+
+//removes a file and ignores none existing error
+int try_rm_file(sds filepath) {
+    errno = 0;
+    if (unlink(filepath) != 0) {
+        if (errno == ENOENT) {
+            MYMPD_LOG_DEBUG("File \"%s\" does not exist", filepath);
+            return RM_FILE_ENOENT;
+        }
+        MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
+        MYMPD_LOG_ERRNO(errno);
+        return RM_FILE_ERROR;
+    }
+    return RM_FILE_OK;
+}
+
 //closes the tmp file and moves it to its destination name
 bool rename_tmp_file(FILE *fp, sds tmp_file, sds filepath, bool write_rc) {
     if (fclose(fp) != 0 ||
         write_rc == false)
     {
         MYMPD_LOG_ERROR("Error writing data to file \"%s\"", tmp_file);
-        errno = 0;
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Error removing file \"%s\"", tmp_file);
-            MYMPD_LOG_ERRNO(errno);
-        }
+        rm_file(tmp_file);
         FREE_SDS(tmp_file);
         return false;
     }
@@ -152,11 +174,7 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, sds filepath, bool write_rc) {
     if (rename(tmp_file, filepath) == -1) {
         MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, filepath);
         MYMPD_LOG_ERRNO(errno);
-        errno = 0;
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Error removing file \"%s\"", tmp_file);
-            MYMPD_LOG_ERRNO(errno);
-        }
+        rm_file(tmp_file);
         return false;
     }
     return true;

@@ -193,12 +193,7 @@ bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
         sds_sanitize_filename(filename);
         sdsclear(filepath);
         filepath = sdscatfmt(filepath, "%S/webradios/%S.m3u", workdir, filename);
-        errno = 0;
-        if (unlink(filepath) == -1) {
-            MYMPD_LOG_ERROR("Deleting old file \"%s\" failed", filepath);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
+        rc = rm_file(filepath);
     }
     FREE_SDS(filename);
     FREE_SDS(filepath);
@@ -209,13 +204,7 @@ bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
 
 bool mympd_api_webradio_delete(sds workdir, const char *filename) {
     sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", workdir, filename);
-    errno = 0;
-    if (unlink(filepath) == -1) {
-        MYMPD_LOG_ERROR("Unlinking webradio file \"%s\" failed", filepath);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(filepath);
-        return false;
-    }
+    bool rc = rm_file(filepath);
     FREE_SDS(filepath);
-    return true;
+    return rc;
 }

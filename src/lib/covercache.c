@@ -40,7 +40,7 @@ bool covercache_write_file(const char *cachedir, const char *uri, const char *mi
 
 int covercache_clear(const char *cachedir, int keepdays) {
     int num_deleted = 0;
-    bool error = false;
+    bool rc = true;
     time_t expire_time = time(NULL) - (time_t)(keepdays * 24 * 60 * 60);
 
     sds covercache = sdscatfmt(sdsempty(), "%s/covercache", cachedir);
@@ -69,13 +69,8 @@ int covercache_clear(const char *cachedir, int keepdays) {
         }
         if (status.st_mtime < expire_time) {
             MYMPD_LOG_DEBUG("Deleting \"%s\": %lld", filepath, (long long)status.st_mtime);
-            errno = 0;
-            if (unlink(filepath) != 0) {
-                MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
-                MYMPD_LOG_ERRNO(errno);
-                error = true;
-            }
-            else {
+            rc = rm_file(filepath);
+            if (rc == true) {
                 num_deleted++;
             }
         }
@@ -85,5 +80,5 @@ int covercache_clear(const char *cachedir, int keepdays) {
 
     MYMPD_LOG_NOTICE("Deleted %d files from covercache", num_deleted);
     FREE_SDS(covercache);
-    return error == false ? num_deleted : -1;
+    return rc == true ? num_deleted : -1;
 }

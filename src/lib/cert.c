@@ -147,22 +147,14 @@ bool certificates_create(sds dir, sds custom_san) {
 //private functions
 
 static bool certificates_cleanup(sds dir, const char *name) {
-    sds cert_file = sdscatfmt(sdsempty(), "%s/%s.pem", dir, name);
-    errno = 0;
-    if (unlink(cert_file) != 0) {
-        MYMPD_LOG_ERROR("Error removing file \"%s\"", cert_file);
-        MYMPD_LOG_ERRNO(errno);
-    }
-    FREE_SDS(cert_file);
-    sds key_file = sdscatfmt(sdsempty(), "%s/%s.key", dir, name);
-    errno = 0;
-    if (unlink(key_file) != 0) {
-        MYMPD_LOG_ERROR("Error removing file \"%s\"", key_file);
-        MYMPD_LOG_ERRNO(errno);
-    }
-    FREE_SDS(key_file);
+    sds filepath = sdscatfmt(sdsempty(), "%s/%s.pem", dir, name);
+    int rc_cert = try_rm_file(filepath);
+    sdsclear(filepath);
+    filepath = sdscatfmt(filepath, "%s/%s.key", dir, name);
+    int rc_key = try_rm_file(filepath);
+    FREE_SDS(filepath);
 
-    return true;
+    return rc_cert != RM_FILE_ERROR && rc_key != RM_FILE_ERROR ? true : false;
 }
 
 static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_days) {
@@ -551,7 +543,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     sdsclear(tmp_file);
 
     /* Write the certificate to disk. */
-    tmp_file = sdscatfmt(sdsempty(), "%s.XXXXXX", cert_file);
+    tmp_file = sdscatfmt(tmp_file, "%s.XXXXXX", cert_file);
     fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);
