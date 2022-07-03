@@ -30,8 +30,6 @@
 #include <string.h>
 
 //private definitions
-static sds set_default_navbar_icons(struct t_config *config, sds buffer);
-static sds read_navbar_icons(struct t_config *config);
 static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags);
 static sds set_invalid_value(sds error, sds key, sds value);
 
@@ -602,10 +600,10 @@ void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     mympd_state->lyrics_vorbis_sylt = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_vorbis_sylt", mympd_state->lyrics_vorbis_sylt, vcb_isalnum, false);
     mympd_state->covercache_keep_days = state_file_rw_int(mympd_state->config->workdir, "state", "covercache_keep_days", mympd_state->covercache_keep_days, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, false);
     mympd_state->listenbrainz_token = state_file_rw_string_sds(mympd_state->config->workdir, "state", "listenbrainz_token", mympd_state->listenbrainz_token, vcb_isalnum, false);
+    mympd_state->navbar_icons = state_file_rw_string_sds(mympd_state->config->workdir, "state", "navbar_icons", mympd_state->navbar_icons, validate_json_array, false);
 
     sds_strip_slash(mympd_state->music_directory);
     sds_strip_slash(mympd_state->playlist_directory);
-    mympd_state->navbar_icons = read_navbar_icons(mympd_state->config);
 }
 
 sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
@@ -790,44 +788,6 @@ sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffe
 }
 
 //privat functions
-static sds set_default_navbar_icons(struct t_config *config, sds buffer) {
-    MYMPD_LOG_NOTICE("Writing default navbar_icons");
-    sds filepath = sdscatfmt(sdsempty(), "%S/state/navbar_icons", config->workdir);
-    sdsclear(buffer);
-    buffer = sdscat(buffer, MYMPD_NAVBAR_ICONS);
-    write_data_to_file(filepath, buffer, sdslen(buffer));
-    FREE_SDS(filepath);
-    return buffer;
-}
-
-static sds read_navbar_icons(struct t_config *config) {
-    sds file_name = sdscatfmt(sdsempty(), "%S/state/navbar_icons", config->workdir);
-    sds buffer = sdsempty();
-    errno = 0;
-    FILE *fp = fopen(file_name, OPEN_FLAGS_READ);
-    if (fp == NULL) {
-        if (errno != ENOENT) {
-            MYMPD_LOG_ERROR("Can not open file \"%s\"", file_name);
-            MYMPD_LOG_ERRNO(errno);
-        }
-        buffer = set_default_navbar_icons(config, buffer);
-        FREE_SDS(file_name);
-        return buffer;
-    }
-    FREE_SDS(file_name);
-    sds_getfile(&buffer, fp, 2000);
-    (void) fclose(fp);
-
-    if (validate_json_array(buffer) == false) {
-        MYMPD_LOG_ERROR("Invalid navbar icons");
-        sdsclear(buffer);
-    }
-
-    if (sdslen(buffer) == 0) {
-        buffer = set_default_navbar_icons(config, buffer);
-    }
-    return buffer;
-}
 
 static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags) {
     buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);

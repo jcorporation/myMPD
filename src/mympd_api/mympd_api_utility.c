@@ -286,6 +286,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_state->lyrics_vorbis_sylt = sdsnew(MYMPD_LYRICS_VORBIS_SYLT);
     mympd_state->covercache_keep_days = MYMPD_COVERCACHE_KEEP_DAYS;
     mympd_state->listenbrainz_token = sdsempty();
+    mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
     reset_t_tags(&mympd_state->tag_types_search);
     reset_t_tags(&mympd_state->tag_types_browse);
     reset_t_tags(&mympd_state->smartpls_generate_tag_types);
