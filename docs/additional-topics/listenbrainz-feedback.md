@@ -6,7 +6,7 @@ title: ListenBrainz Feedback
 
 Through the scripting and trigger features you can send hate/love to ListenBrainz.
 
-An example script is in the `contrib/scripts` directory named `ListenBrainz-Feedback.lua`
+An example script is in the `contrib/luascripts` directory named `ListenBrainz-Feedback.lua`
 
 - Add your ListenBrainz token (Settings -> Cloud)
 - Copy & paste the file content in a new script (ommit the first comment line)
