@@ -13,6 +13,7 @@
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
+#include "../mpd_client/mpd_client_volume.h"
 #include "../mpd_shared.h"
 #include "../mpd_shared/mpd_shared_sticker.h"
 #include "../mpd_shared/mpd_shared_tags.h"
@@ -21,7 +22,6 @@
 
 //private definitions
 static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, const char *partition);
-static int _mympd_api_get_volume(struct t_mympd_state *mympd_state);
 static time_t get_current_song_start_time(struct t_mympd_state *mympd_state);
 
 //public functions
@@ -173,7 +173,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_mympd_state *mympd_state, str
 }
 
 sds mympd_api_status_volume_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
-    int volume = _mympd_api_get_volume(mympd_state);
+    int volume = mpd_client_get_volume(mympd_state->mpd_state);
     if (method == NULL) {
         buffer = jsonrpc_notify_start(buffer, "update_volume");
     }
@@ -326,22 +326,3 @@ static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer,
     return buffer;
 }
 
-static int _mympd_api_get_volume(struct t_mympd_state *mympd_state) {
-    int volume = -1;
-    if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 23, 0) >= 0) {
-        volume = mpd_run_get_volume(mympd_state->mpd_state->conn);
-        check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
-    }
-    else {
-        struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
-        if (status == NULL) {
-            check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
-            return -1;
-        }
-        volume = mpd_status_get_volume(status);
-        mpd_status_free(status);
-    }
-    mpd_response_finish(mympd_state->mpd_state->conn);
-    check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
-    return volume;
-}
