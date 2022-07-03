@@ -319,7 +319,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
         }
         if (interval != mympd_state->smartpls_interval) {
             mympd_state->smartpls_interval = interval;
-            mympd_api_timer_replace(&mympd_state->timer_list, interval, (int)interval, timer_handler_smartpls_update, 2, NULL, NULL);
+            mympd_api_timer_replace(&mympd_state->timer_list, interval, (int)interval, timer_handler_smartpls_update, TIMER_ID_SMARTPLS_UPDATE, NULL, NULL);
         }
     }
     else if (strcmp(key, "smartplsGenerateTagList") == 0 && vtype == MJSON_TOK_STRING) {

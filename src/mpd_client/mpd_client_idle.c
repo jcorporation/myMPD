@@ -239,7 +239,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             //initiate cache updates
             update_mympd_caches(mympd_state);
             //set timer for smart playlist update
-            mympd_api_timer_replace(&mympd_state->timer_list, 30, (int)mympd_state->smartpls_interval, timer_handler_smartpls_update, 2, NULL, NULL);
+            mympd_api_timer_replace(&mympd_state->timer_list, 30, (int)mympd_state->smartpls_interval, timer_handler_smartpls_update, TIMER_ID_SMARTPLS_UPDATE, NULL, NULL);
             //jukebox
             if (mympd_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(mympd_state);

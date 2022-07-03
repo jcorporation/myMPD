@@ -20,7 +20,7 @@
 
 #include <string.h>
 
-//timer_id 1
+//timer_id TIMER_ID_COVERCACHE
 void timer_handler_covercache(struct t_timer_definition *definition, void *user_data) {
     MYMPD_LOG_INFO("Start timer_handler_covercache");
     (void) definition;
@@ -28,7 +28,7 @@ void timer_handler_covercache(struct t_timer_definition *definition, void *user_
     covercache_clear(mympd_state->config->cachedir, mympd_state->covercache_keep_days);
 }
 
-//timer_id 2
+//timer_id TIMER_ID_SMARTPLS_UPDATE
 void timer_handler_smartpls_update(struct t_timer_definition *definition, void *user_data) {
     MYMPD_LOG_INFO("Start timer_handler_smartpls_update");
     (void) definition;
