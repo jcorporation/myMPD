@@ -229,12 +229,6 @@ static bool check_dirs(struct t_config *config) {
     //workdir
     for (p = workdir_subdirs; p->dirname != NULL; p++) {
         testdir_rc = check_dir(config->workdir, p->dirname, p->description);
-        if (testdir_rc == DIR_CREATED) {
-            if (strcmp(p->dirname, "smartpls") == 0) {
-                //directory created, create default smart playlists
-                mympd_api_smartpls_default(config);
-            }
-        }
         if (testdir_rc == DIR_CREATE_FAILED) {
             return false;
         }
@@ -425,6 +419,11 @@ int main(int argc, char **argv) {
     //check for needed directories
     if (check_dirs(config) == false) {
         goto cleanup;
+    }
+
+    //default smart playlists
+    if (config->first_startup == true) {
+        mympd_api_smartpls_default(config);
     }
 
     //Create working threads
