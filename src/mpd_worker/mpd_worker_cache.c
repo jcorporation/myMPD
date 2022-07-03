@@ -22,7 +22,6 @@
 
 //privat definitions
 static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
-static bool is_multivalue_tag_album(enum mpd_tag_type tag);
 
 //public functions
 bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
@@ -154,7 +153,8 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
                         for (unsigned tagnr = 0; tagnr < mpd_worker_state->mpd_state->tag_types_mympd.len; ++tagnr) {
                             const char *value;
                             enum mpd_tag_type tag = mpd_worker_state->mpd_state->tag_types_mympd.tags[tagnr];
-                            if (is_multivalue_tag_album(tag) == true) {
+                            //append only multivalue tags
+                            if (is_multivalue_tag(tag) == true) {
                                 unsigned value_nr = 0;
                                 while ((value = mpd_song_get_tag(song, tag, value_nr)) != NULL) {
                                     mympd_mpd_song_add_tag_dedup(old_song, tag, value);
@@ -206,14 +206,4 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
     MYMPD_LOG_INFO("Added %ld songs to sticker cache", song_count);
     MYMPD_LOG_INFO("Cache updated successfully");
     return true;
-}
-
-static bool is_multivalue_tag_album(enum mpd_tag_type tag) {
-    switch(tag) {
-        case MPD_TAG_ALBUM_ARTIST:
-        case MPD_TAG_ALBUM_ARTIST_SORT:
-            return false;
-        default:
-            return is_multivalue_tag(tag);
-    }
 }
