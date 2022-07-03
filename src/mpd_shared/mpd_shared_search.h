@@ -9,12 +9,12 @@
 
 #include "../mpd_shared.h"
 
-sds mpd_shared_search(struct t_mpd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *searchstr, const char *searchtag, const char *plist,
                       const unsigned offset, unsigned limit, const struct t_tags *tagcols,
                       rax *sticker_cache, bool *result);
 
-sds mpd_shared_search_adv(struct t_mpd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mpd_shared_search_adv(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                           const char *expression, const char *sort, const bool sortdesc,
                           const char *plist, unsigned to, unsigned whence,
                           const unsigned offset, unsigned limit, const struct t_tags *tagcols,
