@@ -461,7 +461,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
             if (tokens[j][i] == ' ') {
                 break;
             }
-            tag = sdscatfmt(tag, "%c", *p);
+            tag = sds_catchar(tag, *p);
         }
         if (i + 1 >= sdslen(tokens[j])) {
             MYMPD_LOG_ERROR("Can not parse search expression");
@@ -477,7 +477,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
             if (tokens[j][i] == ' ') {
                 break;
             }
-            op = sdscatfmt(op, "%c", *p);
+            op = sds_catchar(op, *p);
         }
         if (i + 2 >= sdslen(tokens[j])) {
             MYMPD_LOG_ERROR("Can not parse search expression");
@@ -490,13 +490,17 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
         p = p + 2;
         //value
         for (; i < sdslen(tokens[j]) - 1; i++, p++) {
-            value = sdscatfmt(value, "%c", *p);
+            value = sds_catchar(value, *p);
         }
         int tag_type = mpd_tag_name_parse(tag);
-        if (tag_type == -1 && strcmp(tag, "any") == 0) {
+        if (tag_type == -1 &&
+            strcmp(tag, "any") == 0)
+        {
             tag_type = -2;
         }
-        if (strcmp(op, "=~") == 0 || strcmp(op, "!~") == 0) {
+        if (strcmp(op, "=~") == 0 ||
+            strcmp(op, "!~") == 0)
+        {
             //is regex, compile
             pcre2_code *re_compiled = _compile_regex(value);
             list_push(&expr_list, value, tag_type, op , re_compiled);

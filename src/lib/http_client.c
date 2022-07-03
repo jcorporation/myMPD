@@ -31,14 +31,17 @@ sds get_dnsserver(void) {
     sds line = sdsempty();
     sds nameserver = sdsempty();
     while (sds_getline(&line, fp, 1000) == 0) {
-        if (sdslen(line) > 10 && strncmp(line, "nameserver", 10) == 0 && isspace(line[10])) {
+        if (sdslen(line) > 10 &&
+            strncmp(line, "nameserver", 10) == 0 &&
+            isspace(line[10]))
+        {
             char *p;
             char *z;
             for (p = line + 11; isspace(*p); p++) {
                 //skip blank chars
             }
             for (z = p; *z != '\0' && (isdigit(*z) || *z == '.'); z++) {
-                nameserver = sdscatfmt(nameserver, "%c", *z);
+                nameserver = sds_catchar(nameserver, *z);
             }
             struct sockaddr_in sa;
             if (inet_pton(AF_INET, nameserver, &(sa.sin_addr)) == 1) {
@@ -150,8 +153,7 @@ static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_d
                 break;
             }
             if (isprint(hm->message.ptr[i])) {
-                mg_client_response->response = sdscatfmt(mg_client_response->response,
-                    "%c", hm->message.ptr[i]);
+                mg_client_response->response = sds_catchar(mg_client_response->response, hm->message.ptr[i]);
             }
         }
         //set response code

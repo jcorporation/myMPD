@@ -49,7 +49,7 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
         if (value[i] == '\\' || value[i] == '\'') {
             buffer = sdscatlen(buffer, "\\", 1);
         }
-        buffer = sdscatfmt(buffer, "%c", value[i]);
+        buffer = sds_catchar(buffer, value[i]);
     }
     buffer = sdscatlen(buffer, "')", 2);
     return buffer;

@@ -101,7 +101,7 @@ sds m3u_to_json(sds buffer, const char *filename, sds *m3ufields) {
         while (line[i] != '\0') {
             buffer = sds_catjsonchar(buffer, line[i]);
             if (m3ufields != NULL) {
-                *m3ufields = sdscatfmt(*m3ufields, "%c", line[i]);
+                *m3ufields = sds_catchar(*m3ufields, line[i]);
             }
             i++;
         }

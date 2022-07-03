@@ -45,6 +45,13 @@ UTEST(sds_extras, test_sds_catjson_plain) {
     sdsfree(s);
 }
 
+UTEST(sds_extras, test_sds_catchar) {
+    sds s = sdsempty();
+    s = sds_catchar(s, 'a');
+    ASSERT_STREQ("a", s);
+    sdsfree(s);
+}
+
 UTEST(sds_etxras, test_sds_catjsonchar) {
     sds s = sdsempty();
     s = sds_catjsonchar(s, '\n');

@@ -410,7 +410,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
                     text_buf = sds_catjsonchar(text_buf, (char)binary_data[i]);
                 }
                 else {
-                    text_buf = sdscatfmt(text_buf, "%c", binary_data[i]);
+                    text_buf = sds_catchar(text_buf, binary_data[i]);
                 }
                 i++;
             }
