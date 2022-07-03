@@ -265,6 +265,7 @@ set(MYMPD_SOURCES
   src/mpd_client/mpd_client_features.c
   src/mpd_client/mpd_client_idle.c
   src/mpd_client/mpd_client_jukebox.c
+  src/mpd_client/mpd_client_volume.c
   src/mpd_shared.c
   src/mpd_shared/mpd_shared_playlists.c
   src/mpd_shared/mpd_shared_search.c
