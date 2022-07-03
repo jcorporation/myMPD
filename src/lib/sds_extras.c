@@ -36,7 +36,7 @@ sds sds_hash(const char *p) {
 int sds_toimax(sds s) {
     sds nr = sdsempty();
     while (isdigit(s[0])) {
-        nr = sdscatfmt(nr, "%c", s[0]);
+        nr = sds_catchar(nr, s[0]);
         sdsrange(s, 1, -1);
     }
     char *crap;
@@ -104,10 +104,8 @@ sds sds_catjson(sds s, const char *p, size_t len) {
  */
 sds sds_catjsonchar(sds s, const char p) {
     switch(p) {
-        case '\\':
-        case '"':
-            s = sdscatfmt(s, "\\%c", p);
-            break;
+        case '\\': s = sdscatlen(s, "\\\\", 2); break;
+        case '"':  s = sdscatlen(s, "\\\"", 2); break;
         case '\b': s = sdscatlen(s, "\\b", 2); break;
         case '\f': s = sdscatlen(s, "\\f", 2); break;
         case '\n': s = sdscatlen(s, "\\n", 2); break;
@@ -119,9 +117,23 @@ sds sds_catjsonchar(sds s, const char p) {
             //this escapes are not accepted in the unescape function
             break;
         default:
-            s = sdscatfmt(s, "%c", p);
+            s = sds_catchar(s, p);
             break;
     }
+    return s;
+}
+
+//appends a char to sds string s
+sds sds_catchar(sds s, const char p) {
+    // Make sure there is always space for at least 1 char.
+    if (sdsavail(s) == 0) {
+        s = sdsMakeRoomFor(s, 1);
+    }
+    size_t i = sdslen(s);
+    s[i++] = p;
+    sdsinclen(s, 1);
+    // Add null-term
+    s[i] = '\0';
     return s;
 }
 
@@ -154,7 +166,7 @@ bool sds_json_unescape(const char *src, size_t slen, sds *dst) {
             }
             else if ((p = strchr(esc1, *src)) != NULL) {
                 //print unescaped value
-                *dst = sdscatfmt(*dst, "%c", esc2[p - esc1]);
+                *dst = sds_catchar(*dst, esc2[p - esc1]);
             }
             else {
                 //other escapes are not accepted
@@ -162,7 +174,7 @@ bool sds_json_unescape(const char *src, size_t slen, sds *dst) {
             }
         }
         else {
-            *dst = sdscatfmt(*dst, "%c", *src);
+            *dst = sds_catchar(*dst, *src);
         }
         src++;
     }
@@ -183,7 +195,7 @@ static bool is_url_safe(char c) {
 sds sds_urlencode(sds s, const char *p, size_t len) {
     for (size_t i = 0; i < len; i++) {
         if (is_url_safe(p[i])) {
-            s = sdscatfmt(s, "%c", p[i]);
+            s = sds_catchar(s, p[i]);
         }
         else {
             s = sdscatprintf(s, "%%%hhX", p[i]);
@@ -205,7 +217,7 @@ sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded) {
                 {
                     a = tolower(*(const unsigned char *) (p + 1));
                     b = tolower(*(const unsigned char *) (p + 2));
-                    s = sdscatfmt(s, "%c", (char) ((HEXTOI(a) << 4) | HEXTOI(b)));
+                    s = sds_catchar(s, (char) ((HEXTOI(a) << 4) | HEXTOI(b)));
                     i += 2;
                     p += 2;
                 }
@@ -269,7 +281,7 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
             return 0;
         }
         if (i < max) {
-            *s = sdscatfmt(*s, "%c", c);
+            *s = sds_catchar(*s, c);
             i++;
         }
         else {
@@ -302,7 +314,7 @@ int sds_getfile(sds *s, FILE *fp, size_t max) {
             return -1;
         }
         if (i < max) {
-            *s = sdscatfmt(*s, "%c", c);
+            *s = sds_catchar(*s, c);
             i++;
         }
         else {
