@@ -14,9 +14,9 @@ void mympd_api_timer_timerlist_init(struct t_timer_list *l);
 void mympd_api_timer_timerlist_clear(struct t_timer_list *l);
 void mympd_api_timer_check(struct t_timer_list *l);
 bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval,
-    time_handler handler, int timer_id, struct t_timer_definition *definition, void *user_data);
+    timer_handler handler, int timer_id, struct t_timer_definition *definition, void *user_data);
 bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interval,
-    time_handler handler, int timer_id, struct t_timer_definition *definition, void *user_data);
+    timer_handler handler, int timer_id, struct t_timer_definition *definition, void *user_data);
 void mympd_api_timer_remove(struct t_timer_list *l, int timer_id);
 void mympd_api_timer_toggle(struct t_timer_list *l, int timer_id);
 void mympd_api_timer_free_definition(struct t_timer_definition *timer_def);

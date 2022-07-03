@@ -20,6 +20,19 @@
 
 #include <string.h>
 
+void timer_handler_by_id(int timer_id, struct t_timer_definition *definition, void *user_data) {
+    switch(timer_id) {
+        case TIMER_ID_COVERCACHE:
+            timer_handler_covercache(definition, user_data);
+            break;
+        case TIMER_ID_SMARTPLS_UPDATE:
+            timer_handler_smartpls_update(definition, user_data);
+            break;
+        default:
+            MYMPD_LOG_WARN("Unhandled timer_id");
+    }
+}
+
 //timer_id TIMER_ID_COVERCACHE
 void timer_handler_covercache(struct t_timer_definition *definition, void *user_data) {
     MYMPD_LOG_INFO("Start timer_handler_covercache");
@@ -38,8 +51,8 @@ void timer_handler_smartpls_update(struct t_timer_definition *definition, void *
     mympd_queue_push(mympd_api_queue, request, 0);
 }
 
-void timer_handler_select(struct t_timer_definition *definition, void *user_data) {
-    MYMPD_LOG_INFO("Start timer_handler_select for timer \"%s\"", definition->name);
+void timer_handler_select(int timer_id, struct t_timer_definition *definition, void *user_data) {
+    MYMPD_LOG_INFO("Start timer_handler_select for timer \"%s\" (%d)", definition->name, timer_id);
     if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stopplay") == 0) {
         struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_STOP, NULL);
         request->data = sdscatlen(request->data, "}}", 2);
@@ -76,7 +89,7 @@ void timer_handler_select(struct t_timer_definition *definition, void *user_data
 }
 
 sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                               unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode)
+        unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode)
 {
     //disable jukebox to prevent adding songs to queue from old jukebox queue list
     enum jukebox_modes old_jukebox_mode = mympd_state->jukebox_mode;

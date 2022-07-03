@@ -90,7 +90,7 @@ void mympd_api_timer_check(struct t_timer_list *l) {
                 }
                 MYMPD_LOG_DEBUG("Timer with id %d triggered", current->timer_id);
                 if (current->callback) {
-                    current->callback(current->definition, current->user_data);
+                    current->callback(current->timer_id, current->definition, current->user_data);
                 }
                 if (current->interval == 0 &&
                     current->definition != NULL)
@@ -111,14 +111,14 @@ void mympd_api_timer_check(struct t_timer_list *l) {
     }
 }
 
-bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interval, time_handler handler,
+bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interval, timer_handler handler,
                    int timer_id, struct t_timer_definition *definition, void *user_data)
 {
     mympd_api_timer_remove(l, timer_id);
     return mympd_api_timer_add(l, timeout, interval, handler, timer_id, definition, user_data);
 }
 
-bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, time_handler handler,
+bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, timer_handler handler,
                int timer_id, struct t_timer_definition *definition, void *user_data)
 {
     struct t_timer_node *new_node = malloc_assert(sizeof(struct t_timer_node));

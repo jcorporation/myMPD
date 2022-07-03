@@ -9,14 +9,18 @@
 
 #include "../lib/mympd_state.h"
 
+//internal timers
 enum timer_ids {
     TIMER_ID_COVERCACHE = 1,
     TIMER_ID_SMARTPLS_UPDATE = 2
 };
 
-void timer_handler_covercache(struct t_timer_definition *definition, void *user_data); //timer_id 1
-void timer_handler_smartpls_update(struct t_timer_definition *definition, void *user_data); //timer_id 2
-void timer_handler_select(struct t_timer_definition *definition, void *user_data); // for all gui timers
+void timer_handler_by_id(int timer_id, struct t_timer_definition *definition, void *user_data);
+void timer_handler_covercache(struct t_timer_definition *definition, void *user_data);
+void timer_handler_smartpls_update(struct t_timer_definition *definition, void *user_data);
+
+//user defined timers
+void timer_handler_select(int timer_id, struct t_timer_definition *definition, void *user_data);
 sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                               unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode);
+        unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode);
 #endif

@@ -140,11 +140,11 @@ struct t_timer_definition {
     struct t_list arguments;
 };
 
-typedef void (*time_handler)(struct t_timer_definition *definition, void *user_data);
+typedef void (*timer_handler)(int timer_id, struct t_timer_definition *definition, void *user_data);
 
 struct t_timer_node {
     int fd;
-    time_handler callback;
+    timer_handler callback;
     struct t_timer_definition *definition;
     void *user_data;
     time_t timeout;
