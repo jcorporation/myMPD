@@ -49,14 +49,14 @@ void timer_handler_select(int timer_id, struct t_timer_definition *definition, v
     else if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "startplay") == 0) {
         struct t_work_request *request = create_request(-1, 0, INTERNAL_API_TIMER_STARTPLAY, NULL);
         request->data = tojson_uint(request->data, "volume", definition->volume, true);
-        request->data = tojson_char(request->data, "plist", definition->playlist, true);
+        request->data = tojson_sds(request->data, "plist", definition->playlist, true);
         request->data = tojson_long(request->data, "jukeboxMode", definition->jukebox_mode, false);
         request->data = sdscatlen(request->data, "}}", 2);
         mympd_queue_push(mympd_api_queue, request, 0);
     }
     else if (strcmp(definition->action, "script") == 0) {
         struct t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL);
-        request->data = tojson_char(request->data, "script", definition->subaction, true);
+        request->data = tojson_sds(request->data, "script", definition->subaction, true);
         request->data = sdscat(request->data, "\"arguments\":{");
         struct t_list_node *argument = definition->arguments.head;
         int i = 0;
@@ -64,7 +64,7 @@ void timer_handler_select(int timer_id, struct t_timer_definition *definition, v
             if (i++) {
                 request->data = sdscatlen(request->data, ",", 1);
             }
-            request->data = tojson_char(request->data, argument->key, argument->value_p, false);
+            request->data = tojson_sds(request->data, argument->key, argument->value_p, false);
             argument = argument->next;
         }
         request->data = sdscatlen(request->data, "}}}", 3);
@@ -78,7 +78,7 @@ void timer_handler_select(int timer_id, struct t_timer_definition *definition, v
 
 //used by INTERNAL_API_TIMER_STARTPLAY
 sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-        unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode)
+        unsigned volume, sds playlist, enum jukebox_modes jukebox_mode)
 {
     //disable jukebox to prevent adding songs to queue from old jukebox queue list
     enum jukebox_modes old_jukebox_mode = mympd_state->jukebox_mode;
@@ -134,7 +134,7 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
         //use the api to persist the setting
         struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_OPTIONS_SET, NULL);
         request->data = tojson_char(request->data, "jukeboxMode", mympd_lookup_jukebox_mode(jukebox_mode), true);
-        request->data = tojson_char(request->data, "jukeboxPlaylist", playlist, false);
+        request->data = tojson_sds(request->data, "jukeboxPlaylist", playlist, false);
         request->data = sdscatlen(request->data, "}}", 2);
         mympd_queue_push(mympd_api_queue, request, 0);
     }

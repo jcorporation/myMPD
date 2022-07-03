@@ -324,10 +324,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             response->data = mympd_api_settings_get(mympd_state, response->data, request->method, request->id);
             break;
         case MYMPD_API_CONNECTION_SAVE: {
-            sds old_mpd_settings = sdscatfmt(sdsempty(), "%s%i%s", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
+            sds old_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
 
             if (json_iterate_object(request->data, "$.params", mympd_api_settings_connection_save, mympd_state, NULL, 100, &error) == true) {
-                sds new_mpd_settings = sdscatfmt(sdsempty(), "%s%i%s", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
+                sds new_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
                 if (strcmp(old_mpd_settings, new_mpd_settings) != 0) {
                     //reconnect to new mpd
                     MYMPD_LOG_DEBUG("MPD host has changed, disconnecting");

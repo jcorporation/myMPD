@@ -22,7 +22,7 @@ sds mpd_shared_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds m
         long request_id, const char *uri);
 sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds method,
         long request_id, const char *uri, const char *tagstr);
-bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype,
+bool mpd_shared_smartpls_save(sds workdir, const char *smartpltype,
         const char *playlist, const char *expression, const int maxentries,
         const int timerange, const char *sort);
 time_t mpd_shared_get_playlist_mtime(struct t_mpd_state *mpd_state, const char *playlist);

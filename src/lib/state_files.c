@@ -35,15 +35,15 @@ sds camel_to_snake(sds text) {
     return buffer;
 }
 
-sds state_file_rw_string_sds(const char *workdir, const char *dir, const char *name, sds old_value, validate_callback vcb, bool warn) {
+sds state_file_rw_string_sds(sds workdir, const char *dir, const char *name, sds old_value, validate_callback vcb, bool warn) {
     sds value = state_file_rw_string(workdir, dir, name, old_value, vcb, warn);
     FREE_SDS(old_value);
     return value;
 }
 
-sds state_file_rw_string(const char *workdir, const char *dir, const char *name, const char *def_value, validate_callback vcb, bool warn) {
+sds state_file_rw_string(sds workdir, const char *dir, const char *name, const char *def_value, validate_callback vcb, bool warn) {
     sds result = sdsempty();
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", workdir, dir, name);
+    sds cfg_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, dir, name);
     errno = 0;
     FILE *fp = fopen(cfg_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -81,7 +81,7 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
     return result;
 }
 
-bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, const bool def_value, bool warn) {
+bool state_file_rw_bool(sds workdir, const char *dir, const char *name, const bool def_value, bool warn) {
     bool value = def_value;
     sds line = state_file_rw_string(workdir, dir, name, def_value == true ? "true" : "false", NULL, warn);
     if (sdslen(line) > 0) {
@@ -91,11 +91,11 @@ bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, 
     return value;
 }
 
-int state_file_rw_int(const char *workdir, const char *dir, const char *name, const int def_value, const int min, const int max, bool warn) {
+int state_file_rw_int(sds workdir, const char *dir, const char *name, const int def_value, const int min, const int max, bool warn) {
     return (int)state_file_rw_long(workdir, dir, name, def_value, min, max, warn);
 }
 
-long state_file_rw_long(const char *workdir, const char *dir, const char *name, const long def_value, const long min, const long max, bool warn) {
+long state_file_rw_long(sds workdir, const char *dir, const char *name, const long def_value, const long min, const long max, bool warn) {
     char *crap = NULL;
     sds def_value_str = sdsfromlonglong((long long)def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
@@ -108,7 +108,7 @@ long state_file_rw_long(const char *workdir, const char *dir, const char *name, 
     return def_value;
 }
 
-unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *name, const unsigned def_value, const unsigned min, const unsigned max, bool warn) {
+unsigned state_file_rw_uint(sds workdir, const char *dir, const char *name, const unsigned def_value, const unsigned min, const unsigned max, bool warn) {
     char *crap = NULL;
     sds def_value_str = sdsfromlonglong((long long)def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
@@ -121,8 +121,8 @@ unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *na
     return def_value;
 }
 
-bool state_file_write(const char *workdir, const char *dir, const char *name, const char *value) {
-    sds filepath = sdscatfmt(sdsempty(), "%s/%s/%s", workdir, dir, name);
+bool state_file_write(sds workdir, const char *dir, const char *name, const char *value) {
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, dir, name);
     bool rc = write_data_to_file(filepath, value, strlen(value));
     FREE_SDS(filepath);
     return rc;

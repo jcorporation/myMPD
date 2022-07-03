@@ -27,16 +27,15 @@ bool mympd_api_home_icon_delete(struct t_mympd_state *mympd_state, long pos) {
 }
 
 bool mympd_api_home_icon_save(struct t_mympd_state *mympd_state, bool replace, long oldpos,
-    const char *name, const char *ligature, const char *bgcolor, const char *color, const char *image,
-    const char *cmd, struct t_list *option_list)
+    sds name, sds ligature, sds bgcolor, sds color, sds image, sds cmd, struct t_list *option_list)
 {
     sds key = sdsnewlen("{", 1);
-    key = tojson_char(key, "name", name, true);
-    key = tojson_char(key, "ligature", ligature, true);
-    key = tojson_char(key, "bgcolor", bgcolor, true);
-    key = tojson_char(key, "color", color, true);
-    key = tojson_char(key, "image", image, true);
-    key = tojson_char(key, "cmd", cmd, true);
+    key = tojson_sds(key, "name", name, true);
+    key = tojson_sds(key, "ligature", ligature, true);
+    key = tojson_sds(key, "bgcolor", bgcolor, true);
+    key = tojson_sds(key, "color", color, true);
+    key = tojson_sds(key, "image", image, true);
+    key = tojson_sds(key, "cmd", cmd, true);
     key = sdscat(key, "\"options\":[");
     struct t_list_node *current = option_list->head;
     int i = 0;
@@ -60,7 +59,7 @@ bool mympd_api_home_icon_save(struct t_mympd_state *mympd_state, bool replace, l
 }
 
 bool mympd_api_home_file_read(struct t_mympd_state *mympd_state) {
-    sds home_file = sdscatfmt(sdsempty(), "%s/state/home_list", mympd_state->config->workdir);
+    sds home_file = sdscatfmt(sdsempty(), "%S/state/home_list", mympd_state->config->workdir);
     errno = 0;
     FILE *fp = fopen(home_file, OPEN_FLAGS_READ);
     int i = 0;
@@ -99,7 +98,7 @@ static sds homeicon_to_line_cb(sds buffer, struct t_list_node *current) {
 
 bool mympd_api_home_file_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving home icons to disc");
-    sds filepath = sdscatfmt(sdsempty(), "%s/state/home_list", mympd_state->config->workdir);
+    sds filepath = sdscatfmt(sdsempty(), "%S/state/home_list", mympd_state->config->workdir);
     bool rc = list_write_to_disk(filepath, &mympd_state->home_list, homeicon_to_line_cb);
     FREE_SDS(filepath);
     return rc;

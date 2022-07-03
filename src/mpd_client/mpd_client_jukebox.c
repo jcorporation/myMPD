@@ -408,7 +408,7 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
     if (queue_list->length < 20) {
         sds line = sdsempty();
         char *data = NULL;
-        sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
+        sds lp_file = sdscatfmt(sdsempty(), "%S/state/last_played", mympd_state->config->workdir);
         errno = 0;
         FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
         if (fp != NULL) {

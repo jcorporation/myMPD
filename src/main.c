@@ -154,7 +154,7 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         }
     }
     //config directory
-    sds testdirname = sdscatfmt(sdsempty(), "%s/config", config->workdir);
+    sds testdirname = sdscatfmt(sdsempty(), "%S/config", config->workdir);
     testdir_rc = testdir("Config dir", testdirname, true);
     if (testdir_rc == DIR_CREATE_FAILED) {
         FREE_SDS(testdirname);

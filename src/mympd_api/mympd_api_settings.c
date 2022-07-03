@@ -124,7 +124,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
     }
     else if (strcmp(key, "mpdKeepalive") == 0) {
         if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
-            *error = sdscatfmt(*error, "Invalid value for \"%s\": \"%s\"", key, value);
+            *error = sdscatfmt(*error, "Invalid value for \"%S\": \"%S\"", key, value);
             MYMPD_LOG_WARN("%s", *error);
             return false;
         }
@@ -138,7 +138,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
         }
     }
     else {
-        *error = sdscatfmt(*error, "Unknown setting \"%s\": \"%s\"", key, value);
+        *error = sdscatfmt(*error, "Unknown setting \"%S\": \"%S\"", key, value);
         MYMPD_LOG_WARN("%s", *error);
         return true;
     }
@@ -376,7 +376,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
         mympd_state->listenbrainz_token = sds_replacelen(mympd_state->listenbrainz_token, value, sdslen(value));
     }
     else {
-        *error = sdscatfmt(*error, "Unknown setting \"%s\": \"%s\"", key, value);
+        *error = sdscatfmt(*error, "Unknown setting \"%S\": \"%S\"", key, value);
         MYMPD_LOG_WARN("%s", *error);
         return true;
     }
@@ -611,7 +611,7 @@ void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
 sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
-    buffer = tojson_char(buffer, "mpdHost", mympd_state->mpd_state->mpd_host, true);
+    buffer = tojson_sds(buffer, "mpdHost", mympd_state->mpd_state->mpd_host, true);
     buffer = tojson_uint(buffer, "mpdPort", mympd_state->mpd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
     buffer = tojson_uint(buffer, "mpdStreamPort", mympd_state->mpd_stream_port, true);
@@ -638,29 +638,29 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
     const char *jukebox_mode_str = mympd_lookup_jukebox_mode(mympd_state->jukebox_mode);
     buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_str, true);
 
-    buffer = tojson_char(buffer, "coverimageNames", mympd_state->coverimage_names, true);
-    buffer = tojson_char(buffer, "thumbnailNames", mympd_state->thumbnail_names, true);
-    buffer = tojson_char(buffer, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
+    buffer = tojson_sds(buffer, "coverimageNames", mympd_state->coverimage_names, true);
+    buffer = tojson_sds(buffer, "thumbnailNames", mympd_state->thumbnail_names, true);
+    buffer = tojson_sds(buffer, "jukeboxPlaylist", mympd_state->jukebox_playlist, true);
     buffer = tojson_long(buffer, "jukeboxQueueLength", mympd_state->jukebox_queue_length, true);
     buffer = tojson_char(buffer, "jukeboxUniqueTag", mpd_tag_name(mympd_state->jukebox_unique_tag.tags[0]), true);
     buffer = tojson_long(buffer, "jukeboxLastPlayed", mympd_state->jukebox_last_played, true);
     buffer = tojson_bool(buffer, "autoPlay", mympd_state->auto_play, true);
     buffer = tojson_int(buffer, "loglevel", loglevel, true);
     buffer = tojson_bool(buffer, "smartpls", mympd_state->smartpls, true);
-    buffer = tojson_char(buffer, "smartplsSort", mympd_state->smartpls_sort, true);
-    buffer = tojson_char(buffer, "smartplsPrefix", mympd_state->smartpls_prefix, true);
+    buffer = tojson_sds(buffer, "smartplsSort", mympd_state->smartpls_sort, true);
+    buffer = tojson_sds(buffer, "smartplsPrefix", mympd_state->smartpls_prefix, true);
     buffer = tojson_llong(buffer, "smartplsInterval", (long long)mympd_state->smartpls_interval, true);
     buffer = tojson_long(buffer, "lastPlayedCount", mympd_state->last_played_count, true);
-    buffer = tojson_char(buffer, "musicDirectory", mympd_state->music_directory, true);
-    buffer = tojson_char(buffer, "playlistDirectory", mympd_state->playlist_directory, true);
-    buffer = tojson_char(buffer, "bookletName", mympd_state->booklet_name, true);
+    buffer = tojson_sds(buffer, "musicDirectory", mympd_state->music_directory, true);
+    buffer = tojson_sds(buffer, "playlistDirectory", mympd_state->playlist_directory, true);
+    buffer = tojson_sds(buffer, "bookletName", mympd_state->booklet_name, true);
     buffer = tojson_uint(buffer, "volumeMin", mympd_state->volume_min, true);
     buffer = tojson_uint(buffer, "volumeMax", mympd_state->volume_max, true);
     buffer = tojson_uint(buffer, "volumeStep", mympd_state->volume_step, true);
-    buffer = tojson_char(buffer, "lyricsUsltExt", mympd_state->lyrics_uslt_ext, true);
-    buffer = tojson_char(buffer, "lyricsSyltExt", mympd_state->lyrics_sylt_ext, true);
-    buffer = tojson_char(buffer, "lyricsVorbisUslt", mympd_state->lyrics_vorbis_uslt, true);
-    buffer = tojson_char(buffer, "lyricsVorbisSylt", mympd_state->lyrics_vorbis_sylt, true);
+    buffer = tojson_sds(buffer, "lyricsUsltExt", mympd_state->lyrics_uslt_ext, true);
+    buffer = tojson_sds(buffer, "lyricsSyltExt", mympd_state->lyrics_sylt_ext, true);
+    buffer = tojson_sds(buffer, "lyricsVorbisUslt", mympd_state->lyrics_vorbis_uslt, true);
+    buffer = tojson_sds(buffer, "lyricsVorbisSylt", mympd_state->lyrics_vorbis_sylt, true);
     buffer = tojson_int(buffer, "covercacheKeepDays", mympd_state->covercache_keep_days, true);
     buffer = tojson_raw(buffer, "colsQueueCurrent", mympd_state->cols_queue_current, true);
     buffer = tojson_raw(buffer, "colsSearch", mympd_state->cols_search, true);
@@ -673,7 +673,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_raw(buffer, "colsBrowseRadioWebradiodb", mympd_state->cols_browse_radio_webradiodb, true);
     buffer = tojson_raw(buffer, "colsBrowseRadioRadiobrowser", mympd_state->cols_browse_radio_radiobrowser, true);
     buffer = tojson_raw(buffer, "navbarIcons", mympd_state->navbar_icons, true);
-    buffer = tojson_char(buffer, "listenbrainzToken", mympd_state->listenbrainz_token, true);
+    buffer = tojson_sds(buffer, "listenbrainzToken", mympd_state->listenbrainz_token, true);
     buffer = tojson_raw(buffer, "webuiSettings", mympd_state->webui_settings, true);
     if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
         buffer = tojson_bool(buffer, "mpdConnected", true, true);
@@ -716,7 +716,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_bool(buffer, "featFingerprint", mympd_state->mpd_state->feat_mpd_fingerprint, true);
         buffer = tojson_bool(buffer, "featSingleOneshot", mympd_state->mpd_state->feat_mpd_single_oneshot, true);
         buffer = tojson_bool(buffer, "featPartitions", mympd_state->mpd_state->feat_mpd_partitions, true);
-        buffer = tojson_char(buffer, "musicDirectoryValue", mympd_state->music_directory_value, true);
+        buffer = tojson_sds(buffer, "musicDirectoryValue", mympd_state->music_directory_value, true);
         buffer = tojson_bool(buffer, "featMounts", mympd_state->mpd_state->feat_mpd_mount, true);
         buffer = tojson_bool(buffer, "featNeighbors", mympd_state->mpd_state->feat_mpd_neighbor, true);
         buffer = tojson_bool(buffer, "featBinarylimit", mympd_state->mpd_state->feat_mpd_binarylimit, true);
@@ -748,7 +748,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
 }
 
 sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, sds type) {
-    sds pic_dirname = sdscatfmt(sdsempty(), "%s/pics/%s", mympd_state->config->workdir, type);
+    sds pic_dirname = sdscatfmt(sdsempty(), "%S/pics/%S", mympd_state->config->workdir, type);
     errno = 0;
     DIR *pic_dir = opendir(pic_dirname);
     if (pic_dir == NULL) {
@@ -792,7 +792,7 @@ sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffe
 //privat functions
 static sds set_default_navbar_icons(struct t_config *config, sds buffer) {
     MYMPD_LOG_NOTICE("Writing default navbar_icons");
-    sds filepath = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->workdir);
+    sds filepath = sdscatfmt(sdsempty(), "%S/state/navbar_icons", config->workdir);
     sdsclear(buffer);
     buffer = sdscat(buffer, MYMPD_NAVBAR_ICONS);
     write_data_to_file(filepath, buffer, sdslen(buffer));
@@ -801,7 +801,7 @@ static sds set_default_navbar_icons(struct t_config *config, sds buffer) {
 }
 
 static sds read_navbar_icons(struct t_config *config) {
-    sds file_name = sdscatfmt(sdsempty(), "%s/state/navbar_icons", config->workdir);
+    sds file_name = sdscatfmt(sdsempty(), "%S/state/navbar_icons", config->workdir);
     sds buffer = sdsempty();
     errno = 0;
     FILE *fp = fopen(file_name, OPEN_FLAGS_READ);

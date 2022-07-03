@@ -65,7 +65,7 @@ static int _mympd_api_http_client(lua_State *lua_vm);
 sds mympd_api_script_list(sds workdir, sds buffer, sds method, long request_id, bool all) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    sds scriptdirname = sdscatfmt(sdsempty(), "%s/scripts", workdir);
+    sds scriptdirname = sdscatfmt(sdsempty(), "%S/scripts", workdir);
     errno = 0;
     DIR *script_dir = opendir(scriptdirname);
     if (script_dir == NULL) {
@@ -93,7 +93,7 @@ sds mympd_api_script_list(sds workdir, sds buffer, sds method, long request_id, 
         sds_strip_file_extension(scriptname);
         entry = sdscatlen(entry, "{", 1);
         entry = tojson_char(entry, "name", scriptname, true);
-        scriptfilename = sdscatfmt(scriptfilename, "%s/%s", scriptdirname, next_file->d_name);
+        scriptfilename = sdscatfmt(scriptfilename, "%S/%s", scriptdirname, next_file->d_name);
         int order = 0;
         entry = parse_script_metadata(entry, scriptfilename, &order);
         entry = sdscatlen(entry, "}", 1);
@@ -125,7 +125,7 @@ bool mympd_api_script_delete(sds workdir, sds script) {
 }
 
 bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sds content, struct t_list *arguments) {
-    sds filepath = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", workdir, script);
+    sds filepath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
     sds argstr = list_to_json_array(sdsempty(), arguments);
     sds script_content = sdscatfmt(sdsempty(), "-- {\"order\":%i,\"arguments\":[%S]}\n%S", order, argstr, content);
     bool rc = write_data_to_file(filepath, script_content, sdslen(script_content));
@@ -133,7 +133,7 @@ bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sd
     if (rc == true &&
         sdslen(oldscript) > 0 &&
         strcmp(script, oldscript) != 0) {
-        sds old_filepath = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", workdir, oldscript);
+        sds old_filepath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, oldscript);
         rc = rm_file(old_filepath);
         FREE_SDS(old_filepath);
     }
@@ -143,13 +143,13 @@ bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sd
     return rc;
 }
 
-sds mympd_api_script_get(sds workdir, sds buffer, sds method, long request_id, const char *script) {
-    sds scriptfilename = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", workdir, script);
+sds mympd_api_script_get(sds workdir, sds buffer, sds method, long request_id, sds script) {
+    sds scriptfilename = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
     errno = 0;
     FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
     if (fp != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
-        buffer = tojson_char(buffer, "script", script, true);
+        buffer = tojson_sds(buffer, "script", script, true);
         sds line = sdsempty();
         if (sds_getline(&line, fp, 1000) == 0 && strncmp(line, "-- ", 3) == 0) {
             sdsrange(line, 3, -1);
@@ -186,7 +186,7 @@ sds mympd_api_script_get(sds workdir, sds buffer, sds method, long request_id, c
     return buffer;
 }
 
-bool mympd_api_script_start(struct t_config *config, const char *script, struct t_list *arguments, bool localscript) {
+bool mympd_api_script_start(struct t_config *config, sds script, struct t_list *arguments, bool localscript) {
     pthread_t mympd_script_thread;
     pthread_attr_t attr;
     if (pthread_attr_init(&attr) != 0) {
@@ -203,7 +203,7 @@ bool mympd_api_script_start(struct t_config *config, const char *script, struct 
     script_thread_arg->arguments = arguments;
     if (localscript == true) {
         script_thread_arg->script_name = sdsnew(script);
-        script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%s/scripts/%s.lua", config->workdir, script);
+        script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", config->workdir, script);
         script_thread_arg->script_content = sdsempty();
     }
     else {

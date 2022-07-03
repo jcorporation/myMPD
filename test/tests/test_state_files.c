@@ -40,72 +40,86 @@ UTEST(state_files, test_camel_to_snake) {
 UTEST(state_files, test_state_file_rw_string_sds) {
     mk_workdir();
     sds v = sdsnew("blub");
-    v = state_file_rw_string_sds("/tmp", "test_workdir", "test", v, vcb_isalnum, false);
+    sds w = sdsnew("/tmp");
+    v = state_file_rw_string_sds(w, "test_workdir", "test", v, vcb_isalnum, false);
     ASSERT_STREQ("blub", v);
     sds c = get_file_content();
     ASSERT_STREQ(c, v);
     rm_workdir();
     sdsfree(v);
     sdsfree(c);
+    sdsfree(w);
 }
 
 UTEST(state_files, test_state_file_rw_string) {
     mk_workdir();
-    sds v = state_file_rw_string("/tmp", "test_workdir", "test", "blub", vcb_isalnum, false);
+    sds w = sdsnew("/tmp");
+    sds v = state_file_rw_string(w, "test_workdir", "test", "blub", vcb_isalnum, false);
     ASSERT_STREQ("blub", v);
     sds c = get_file_content();
     ASSERT_STREQ(v, c);
     rm_workdir();
     sdsfree(c);
     sdsfree(v);
+    sdsfree(w);
 }
 
 UTEST(state_files, test_state_file_rw_bool) {
     mk_workdir();
-    bool v = state_file_rw_bool("/tmp", "test_workdir", "test", true, false);
+    sds w = sdsnew("/tmp");
+    bool v = state_file_rw_bool(w, "test_workdir", "test", true, false);
     ASSERT_TRUE(v);
     sds c = get_file_content();
     ASSERT_STREQ("true", c);
     rm_workdir();
     sdsfree(c);
+    sdsfree(w);
 }
 
 UTEST(state_files, test_state_file_rw_int) {
     mk_workdir();
-    int v = state_file_rw_int("/tmp", "test_workdir", "test", 10, 1, 20, false);
+    sds w = sdsnew("/tmp");
+    int v = state_file_rw_int(w, "test_workdir", "test", 10, 1, 20, false);
     ASSERT_EQ(10, v);
     sds c = get_file_content();
     ASSERT_STREQ("10", c);
     rm_workdir();
     sdsfree(c);
+    sdsfree(w);
 }
 
 UTEST(state_files, test_state_file_rw_long) {
     mk_workdir();
-    long v = state_file_rw_long("/tmp", "test_workdir", "test", 10, 1, 20, false);
+    sds w = sdsnew("/tmp");
+    long v = state_file_rw_long(w, "test_workdir", "test", 10, 1, 20, false);
     ASSERT_EQ(10, v);
     sds c = get_file_content();
     ASSERT_STREQ("10", c);
     rm_workdir();
     sdsfree(c);
+    sdsfree(w);
 }
 
 UTEST(state_files, test_state_file_rw_uint) {
     mk_workdir();
-    unsigned v = state_file_rw_uint("/tmp", "test_workdir", "test", 10, 1, 20, false);
+    sds w = sdsnew("/tmp");
+    unsigned v = state_file_rw_uint(w, "test_workdir", "test", 10, 1, 20, false);
     ASSERT_EQ((unsigned)10, v);
     sds c = get_file_content();
     ASSERT_STREQ("10", c);
     rm_workdir();
     sdsfree(c);
+    sdsfree(w);
 }
 
 UTEST(state_files, test_state_file_write) {
     mk_workdir();
-    bool rc = state_file_write("/tmp", "test_workdir", "test", "blub");
+    sds w = sdsnew("/tmp");
+    bool rc = state_file_write(w, "test_workdir", "test", "blub");
     ASSERT_TRUE(rc);
     sds c = get_file_content();
     ASSERT_STREQ("blub", c);
     rm_workdir();
     sdsfree(c);
+    sdsfree(w);
 }

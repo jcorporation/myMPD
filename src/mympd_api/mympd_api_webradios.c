@@ -35,10 +35,10 @@ sds get_webradio_from_uri(sds workdir, const char *uri) {
     sds filename = sdsnew(uri);
     sds_sanitize_filename(filename);
     filename = sdscatlen(filename, ".m3u", 4);
-    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", workdir, filename);
+    sds filepath = sdscatfmt(sdsempty(), "%S/webradios/%s", workdir, filename);
     sds entry = sdsempty();
     if (access(filepath, F_OK) == 0) { /* Flawfinder: ignore */
-        entry = tojson_char(entry, "filename", filename, true);
+        entry = tojson_sds(entry, "filename", filename, true);
         entry = m3u_to_json(entry, filepath, NULL);
         FREE_SDS(filepath);
         FREE_SDS(filename);
@@ -49,8 +49,8 @@ sds get_webradio_from_uri(sds workdir, const char *uri) {
     return entry;
 }
 
-sds mympd_api_webradio_get(sds workdir, sds buffer, sds method, long request_id, const char *filename) {
-    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", workdir, filename);
+sds mympd_api_webradio_get(sds workdir, sds buffer, sds method, long request_id, sds filename) {
+    sds filepath = sdscatfmt(sdsempty(), "%S/webradios/%S", workdir, filename);
     sds entry = sdsempty();
     entry = m3u_to_json(entry, filepath, NULL);
     if (sdslen(entry) == 0) {
@@ -59,7 +59,7 @@ sds mympd_api_webradio_get(sds workdir, sds buffer, sds method, long request_id,
     }
     else {
         buffer = jsonrpc_result_start(buffer, method, request_id);
-        buffer = tojson_char(buffer, "filename", filename, true);
+        buffer = tojson_sds(buffer, "filename", filename, true);
         buffer = sdscatsds(buffer, entry);
         buffer = jsonrpc_result_end(buffer);
     }
@@ -71,7 +71,7 @@ sds mympd_api_webradio_get(sds workdir, sds buffer, sds method, long request_id,
 sds mympd_api_webradio_list(sds workdir, sds buffer, sds method, long request_id, sds searchstr, long offset, long limit) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    sds webradios_dirname = sdscatfmt(sdsempty(), "%s/webradios", workdir);
+    sds webradios_dirname = sdscatfmt(sdsempty(), "%S/webradios", workdir);
     errno = 0;
     DIR *webradios_dir = opendir(webradios_dirname);
     if (webradios_dir == NULL) {
@@ -99,7 +99,7 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, sds method, long request_id
 
         sdsclear(key);
         sdsclear(filepath);
-        filepath = sdscatfmt(filepath, "%s/%s", webradios_dirname, next_file->d_name);
+        filepath = sdscatfmt(filepath, "%S/%s", webradios_dirname, next_file->d_name);
         sds entry = m3u_to_json(sdsempty(), filepath, &key);
         if (sdslen(entry) == 0) {
             //skip on parsing error
@@ -203,7 +203,7 @@ bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
 }
 
 bool mympd_api_webradio_delete(sds workdir, const char *filename) {
-    sds filepath = sdscatfmt(sdsempty(), "%s/webradios/%s", workdir, filename);
+    sds filepath = sdscatfmt(sdsempty(), "%S/webradios/%s", workdir, filename);
     bool rc = rm_file(filepath);
     FREE_SDS(filepath);
     return rc;

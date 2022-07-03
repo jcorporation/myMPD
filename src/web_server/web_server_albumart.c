@@ -262,7 +262,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     {
         MYMPD_LOG_DEBUG("Sending getalbumart to mpd_client_queue");
         struct t_work_request *request = create_request(conn_id, 0, INTERNAL_API_ALBUMART, NULL);
-        request->data = tojson_char(request->data, "uri", uri_decoded, false);
+        request->data = tojson_sds(request->data, "uri", uri_decoded, false);
         request->data = sdscatlen(request->data, "}}", 2);
         mympd_queue_push(mympd_api_queue, request, 0);
         FREE_SDS(uri_decoded);

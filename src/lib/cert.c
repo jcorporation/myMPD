@@ -49,7 +49,7 @@ static bool certificates_cleanup(sds dir, const char *name);
 //public functions
 
 bool certificates_check(sds workdir, sds ssl_san) {
-    sds testdirname = sdscatfmt(sdsempty(), "%s/ssl", workdir);
+    sds testdirname = sdscatfmt(sdsempty(), "%S/ssl", workdir);
     int testdir_rc = testdir("SSL cert dir", testdirname, true);
     if (testdir_rc == DIR_EXISTS || testdir_rc == DIR_CREATED) {
         if (certificates_create(testdirname, ssl_san) == false) {
@@ -72,8 +72,8 @@ bool certificates_create(sds dir, sds custom_san) {
     bool rc_cert = false;
 
     //read ca certificate / private key or create it
-    sds cacert_file = sdscatfmt(sdsempty(), "%s/ca.pem", dir);
-    sds cakey_file = sdscatfmt(sdsempty(), "%s/ca.key", dir);
+    sds cacert_file = sdscatfmt(sdsempty(), "%S/ca.pem", dir);
+    sds cakey_file = sdscatfmt(sdsempty(), "%S/ca.key", dir);
     EVP_PKEY *ca_key = NULL;
     X509 *ca_cert = NULL;
 
@@ -102,8 +102,8 @@ bool certificates_create(sds dir, sds custom_san) {
     }
 
     //read server certificate / privat key or create it
-    sds servercert_file = sdscatfmt(sdsempty(), "%s/server.pem", dir);
-    sds serverkey_file = sdscatfmt(sdsempty(), "%s/server.key", dir);
+    sds servercert_file = sdscatfmt(sdsempty(), "%S/server.pem", dir);
+    sds serverkey_file = sdscatfmt(sdsempty(), "%S/server.key", dir);
     EVP_PKEY *server_key = NULL;
     X509 *server_cert = NULL;
 
@@ -147,10 +147,10 @@ bool certificates_create(sds dir, sds custom_san) {
 //private functions
 
 static bool certificates_cleanup(sds dir, const char *name) {
-    sds filepath = sdscatfmt(sdsempty(), "%s/%s.pem", dir, name);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s.pem", dir, name);
     int rc_cert = try_rm_file(filepath);
     sdsclear(filepath);
-    filepath = sdscatfmt(filepath, "%s/%s.key", dir, name);
+    filepath = sdscatfmt(filepath, "%S/%s.key", dir, name);
     int rc_key = try_rm_file(filepath);
     FREE_SDS(filepath);
 
@@ -209,7 +209,7 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
     san = get_san(san);
     if (sdslen(custom_san) > 0) {
         MYMPD_LOG_DEBUG("Adding custom san: %s", custom_san);
-        san = sdscatfmt(san, ",%s", custom_san);
+        san = sdscatfmt(san, ",%S", custom_san);
     }
     MYMPD_LOG_NOTICE("Set server certificate san to: %s", san);
     *server_cert = sign_certificate_request(*ca_key, *ca_cert, server_req, san);
@@ -528,7 +528,7 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
 
 static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cert) {
     /* Write the key to disk. */
-    sds tmp_file = sdscatfmt(sdsempty(), "%s.XXXXXX", key_file);
+    sds tmp_file = sdscatfmt(sdsempty(), "%S.XXXXXX", key_file);
     FILE *fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);
@@ -543,7 +543,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
     sdsclear(tmp_file);
 
     /* Write the certificate to disk. */
-    tmp_file = sdscatfmt(tmp_file, "%s.XXXXXX", cert_file);
+    tmp_file = sdscatfmt(tmp_file, "%S.XXXXXX", cert_file);
     fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);

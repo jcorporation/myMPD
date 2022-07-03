@@ -165,7 +165,7 @@ sds resolv_mympd_uri(sds uri, struct t_mympd_state *mympd_state) {
     if (strncmp(uri, "mympd://webradio/", 17) == 0) {
         sdsrange(uri, 17, -1);
         sds host = get_mympd_host(mympd_state);
-        sds new_uri = sdscatfmt(sdsempty(), "http://%s:%s/browse/webradios/%s", host, mympd_state->config->http_port, uri);
+        sds new_uri = sdscatfmt(sdsempty(), "http://%S:%S/browse/webradios/%S", host, mympd_state->config->http_port, uri);
         FREE_SDS(uri);
         FREE_SDS(host);
         return new_uri;
@@ -182,7 +182,7 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
     {
         _get_extra_files(mympd_state, uri, &booklet_path, &images, is_dirname);
     }
-    buffer = tojson_char(buffer, "bookletPath", booklet_path, true);
+    buffer = tojson_sds(buffer, "bookletPath", booklet_path, true);
     buffer = sdscat(buffer, "\"images\": [");
     struct t_list_node *current = images.head;
     while (current != NULL) {
@@ -198,7 +198,7 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
         is_streamuri(uri) == false &&
         mympd_state->mpd_state->feat_mpd_library == true)
     {
-        sds fullpath = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, uri);
+        sds fullpath = sdscatfmt(sdsempty(), "%S/%s", mympd_state->music_directory_value, uri);
         image_count = _get_embedded_covers_count(fullpath);
         FREE_SDS(fullpath);
     }
@@ -208,11 +208,11 @@ sds get_extra_files(struct t_mympd_state *mympd_state, sds buffer, const char *u
     return buffer;
 }
 
-bool is_smartpls(const char *workdir, const char *playlist) {
+bool is_smartpls(sds workdir, const char *playlist) {
     bool smartpls = false;
     if (strchr(playlist, '/') == NULL) {
         //filename only
-        sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", workdir, playlist);
+        sds smartpls_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
         if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
             smartpls = true;
         }
@@ -373,7 +373,7 @@ static void _get_extra_files(struct t_mympd_state *mympd_state, const char *uri,
         dirname(path);
         sdsupdatelen(path);
     }
-    sds albumpath = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, path);
+    sds albumpath = sdscatfmt(sdsempty(), "%S/%S", mympd_state->music_directory_value, path);
     sds fullpath = sdsempty();
     MYMPD_LOG_DEBUG("Read extra files from albumpath: \"%s\"", albumpath);
     errno = 0;
@@ -384,14 +384,14 @@ static void _get_extra_files(struct t_mympd_state *mympd_state, const char *uri,
             const char *ext = strrchr(next_file->d_name, '.');
             if (strcmp(next_file->d_name, mympd_state->booklet_name) == 0) {
                 MYMPD_LOG_DEBUG("Found booklet for uri %s", uri);
-                *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%s/%s", path, mympd_state->booklet_name);
+                *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%S/%S", path, mympd_state->booklet_name);
             }
             else if (ext != NULL) {
                 if (strcasecmp(ext, ".webp") == 0 || strcasecmp(ext, ".jpg") == 0 ||
                     strcasecmp(ext, ".jpeg") == 0 || strcasecmp(ext, ".png") == 0 ||
                     strcasecmp(ext, ".avif") == 0 || strcasecmp(ext, ".svg") == 0)
                 {
-                    fullpath = sdscatfmt(fullpath, "/browse/music/%s/%s", path, next_file->d_name);
+                    fullpath = sdscatfmt(fullpath, "/browse/music/%S/%s", path, next_file->d_name);
                     list_push(images, fullpath, 0, NULL, NULL);
                     sdsclear(fullpath);
                 }

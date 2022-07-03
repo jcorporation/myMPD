@@ -281,7 +281,7 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
             return 0;
         }
         if (i < max) {
-            *s = sds_catchar(*s, c);
+            *s = sds_catchar(*s, (char)c);
             i++;
         }
         else {
@@ -314,7 +314,7 @@ int sds_getfile(sds *s, FILE *fp, size_t max) {
             return -1;
         }
         if (i < max) {
-            *s = sds_catchar(*s, c);
+            *s = sds_catchar(*s, (char)c);
             i++;
         }
         else {

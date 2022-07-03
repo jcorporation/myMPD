@@ -31,7 +31,7 @@ static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds 
 //public functions
 bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_INFO("Saving last_played list to disc");
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/state/last_played.XXXXXX", mympd_state->config->workdir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%S/state/last_played.XXXXXX", mympd_state->config->workdir);
     FILE *fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);
@@ -52,7 +52,7 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
         list_node_free(current);
     }
     //append current last_played file to tmp file
-    sds filepath = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
+    sds filepath = sdscatfmt(sdsempty(), "%S/state/last_played", mympd_state->config->workdir);
     if (write_rc == true) {
         errno = 0;
         FILE *fi = fopen(filepath, OPEN_FLAGS_READ);
@@ -153,7 +153,7 @@ sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buff
     sds line = sdsempty();
     sdsclear(obj);
     char *data = NULL;
-    sds lp_file = sdscatfmt(sdsempty(), "%s/state/last_played", mympd_state->config->workdir);
+    sds lp_file = sdscatfmt(sdsempty(), "%S/state/last_played", mympd_state->config->workdir);
     errno = 0;
     FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
     if (fp != NULL) {

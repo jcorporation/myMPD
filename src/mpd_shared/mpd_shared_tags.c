@@ -276,7 +276,7 @@ sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct 
         }
     }
     else {
-        buffer = tojson_char(buffer, "Title", filename, true);
+        buffer = tojson_sds(buffer, "Title", filename, true);
     }
     buffer = tojson_long(buffer, "Duration", 0, true);
     buffer = tojson_long(buffer, "LastModified", 0, true);

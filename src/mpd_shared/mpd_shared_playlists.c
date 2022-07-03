@@ -314,7 +314,7 @@ bool mpd_shared_replace_playlist(struct t_mpd_state *mpd_state, const char *new_
     return true;
 }
 
-bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, const char *playlist,
+bool mpd_shared_smartpls_save(sds workdir, const char *smartpltype, const char *playlist,
                               const char *expression, const int maxentries,
                               const int timerange, const char *sort)
 {
@@ -334,7 +334,7 @@ bool mpd_shared_smartpls_save(const char *workdir, const char *smartpltype, cons
     line = tojson_char(line, "sort", sort, false);
     line = sdscatlen(line, "}", 1);
 
-    sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", workdir, playlist);
+    sds pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
     bool rc = write_data_to_file(pl_file, line, sdslen(line));
 
     FREE_SDS(line);

@@ -245,7 +245,7 @@ void webserver_serverinfo_handler(struct mg_connection *nc) {
         }
         else {
             MYMPD_LOG_ERROR("Could not convert peer ip to string");
-            response = tojson_char(response, "ip", "", false);
+            response = tojson_char_len(response, "ip", "", 0, false);
         }
         response = jsonrpc_result_end(response);
         webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");

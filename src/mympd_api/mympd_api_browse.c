@@ -235,7 +235,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                     buffer = sdscatlen(buffer, ",", 1);
                     sds filename = sdsnew(mpd_song_get_uri(song));
                     sds_basename_uri(filename);
-                    buffer = tojson_char(buffer, "Filename", filename, false);
+                    buffer = tojson_sds(buffer, "Filename", filename, false);
                     FREE_SDS(filename);
                     if (mympd_state->mpd_state->feat_mpd_stickers) {
                         buffer = sdscatlen(buffer, ",", 1);
@@ -248,8 +248,8 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                     const struct mpd_directory *dir = mpd_entity_get_directory(entry_data->entity);
                     buffer = sdscat(buffer, "{\"Type\":\"dir\",");
                     buffer = tojson_char(buffer, "uri", mpd_directory_get_path(dir), true);
-                    buffer = tojson_char(buffer, "name", entry_data->name, true);
-                    buffer = tojson_char(buffer, "Filename", entry_data->name, false);
+                    buffer = tojson_sds(buffer, "name", entry_data->name, true);
+                    buffer = tojson_sds(buffer, "Filename", entry_data->name, false);
                     buffer = sdscatlen(buffer, "}", 1);
                     break;
                 }
@@ -258,8 +258,8 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                     bool smartpls = is_smartpls(mympd_state->config->workdir, entry_data->name);
                     buffer = sdscatfmt(buffer, "{\"Type\": \"%s\",", (smartpls == true ? "smartpls" : "plist"));
                     buffer = tojson_char(buffer, "uri", mpd_playlist_get_path(pl), true);
-                    buffer = tojson_char(buffer, "name", entry_data->name, true);
-                    buffer = tojson_char(buffer, "Filename", entry_data->name, false);
+                    buffer = tojson_sds(buffer, "name", entry_data->name, true);
+                    buffer = tojson_sds(buffer, "Filename", entry_data->name, false);
                     buffer = sdscatlen(buffer, "}", 1);
                     break;
                 }
@@ -279,7 +279,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
     buffer = tojson_llong(buffer, "totalEntities", (long long)entity_list->numele, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
-    buffer = tojson_char(buffer, "search", searchstr, false);
+    buffer = tojson_sds(buffer, "search", searchstr, false);
     buffer = jsonrpc_result_end(buffer);
     raxFree(entity_list);
     return buffer;
@@ -393,7 +393,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-    buffer = tojson_char(buffer, "Album", album, true);
+    buffer = tojson_sds(buffer, "Album", album, true);
     buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(mympd_state->mpd_state->tag_albumartist));
     buffer = mpd_shared_get_tag_values(first_song, mympd_state->mpd_state->tag_albumartist, buffer);
     buffer = sdscat(buffer, ",\"MusicBrainzAlbumArtistId\":");
@@ -600,8 +600,8 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     buffer = tojson_llong(buffer, "totalEntities", (long long)albums->numele, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
-    buffer = tojson_char(buffer, "expression", expression, true);
-    buffer = tojson_char(buffer, "sort", sort, true);
+    buffer = tojson_sds(buffer, "expression", expression, true);
+    buffer = tojson_sds(buffer, "sort", sort, true);
     buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
     buffer = tojson_char(buffer, "tag", "Album", false);
     buffer = jsonrpc_result_end(buffer);
@@ -679,7 +679,7 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscatlen(buffer, "{", 1);
-            buffer = tojson_char(buffer, "value", (sds)iter.data, false);
+            buffer = tojson_sds(buffer, "value", (sds)iter.data, false);
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;
@@ -708,8 +708,8 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
     buffer = tojson_llong(buffer, "totalEntities", (long long)taglist->numele, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
-    buffer = tojson_char(buffer, "searchstr", searchstr, true);
-    buffer = tojson_char(buffer, "tag", tag, true);
+    buffer = tojson_sds(buffer, "searchstr", searchstr, true);
+    buffer = tojson_sds(buffer, "tag", tag, true);
     buffer = tojson_bool(buffer, "pics", pic, false);
     buffer = jsonrpc_result_end(buffer);
     raxFree(taglist);
