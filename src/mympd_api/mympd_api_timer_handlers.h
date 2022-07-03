@@ -16,8 +16,6 @@ enum timer_ids {
 };
 
 void timer_handler_by_id(int timer_id, struct t_timer_definition *definition, void *user_data);
-void timer_handler_covercache(struct t_timer_definition *definition, void *user_data);
-void timer_handler_smartpls_update(struct t_timer_definition *definition, void *user_data);
 
 //user defined timers
 void timer_handler_select(int timer_id, struct t_timer_definition *definition, void *user_data);

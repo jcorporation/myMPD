@@ -20,6 +20,12 @@
 
 #include <string.h>
 
+//private definitions
+static void timer_handler_covercache(struct t_timer_definition *definition, void *user_data);
+static void timer_handler_smartpls_update(struct t_timer_definition *definition, void *user_data);
+
+//public functions
+
 void timer_handler_by_id(int timer_id, struct t_timer_definition *definition, void *user_data) {
     switch(timer_id) {
         case TIMER_ID_COVERCACHE:
@@ -31,24 +37,6 @@ void timer_handler_by_id(int timer_id, struct t_timer_definition *definition, vo
         default:
             MYMPD_LOG_WARN("Unhandled timer_id");
     }
-}
-
-//timer_id TIMER_ID_COVERCACHE
-void timer_handler_covercache(struct t_timer_definition *definition, void *user_data) {
-    MYMPD_LOG_INFO("Start timer_handler_covercache");
-    (void) definition;
-    struct t_mympd_state *mympd_state = (struct t_mympd_state *) user_data;
-    covercache_clear(mympd_state->config->cachedir, mympd_state->covercache_keep_days);
-}
-
-//timer_id TIMER_ID_SMARTPLS_UPDATE
-void timer_handler_smartpls_update(struct t_timer_definition *definition, void *user_data) {
-    MYMPD_LOG_INFO("Start timer_handler_smartpls_update");
-    (void) definition;
-    (void) user_data;
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
-    request->data = sdscat(request->data, "\"force\":false}}");
-    mympd_queue_push(mympd_api_queue, request, 0);
 }
 
 void timer_handler_select(int timer_id, struct t_timer_definition *definition, void *user_data) {
@@ -83,11 +71,12 @@ void timer_handler_select(int timer_id, struct t_timer_definition *definition, v
         mympd_queue_push(mympd_api_queue, request, 0);
     }
     else {
-        MYMPD_LOG_ERROR("Unknown script action: %s - %s", definition->action, definition->subaction);
+        MYMPD_LOG_ERROR("Unknown timer action: %s - %s", definition->action, definition->subaction);
     }
     (void) user_data;
 }
 
+//used by INTERNAL_API_TIMER_STARTPLAY
 sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
         unsigned volume, const char *playlist, enum jukebox_modes jukebox_mode)
 {
@@ -157,4 +146,24 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
     bool result;
     buffer = respond_with_mpd_error_or_ok(mympd_state->mpd_state, buffer, method, request_id, rc, "mympd_api_timer_startplay", &result);
     return buffer;
+}
+
+//private functions
+
+//TIMER_ID_COVERCACHE
+static void timer_handler_covercache(struct t_timer_definition *definition, void *user_data) {
+    MYMPD_LOG_INFO("Start timer_handler_covercache");
+    (void) definition;
+    struct t_mympd_state *mympd_state = (struct t_mympd_state *) user_data;
+    covercache_clear(mympd_state->config->cachedir, mympd_state->covercache_keep_days);
+}
+
+//TIMER_ID_SMARTPLS_UPDATE
+static void timer_handler_smartpls_update(struct t_timer_definition *definition, void *user_data) {
+    MYMPD_LOG_INFO("Start timer_handler_smartpls_update");
+    (void) definition;
+    (void) user_data;
+    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
+    request->data = sdscat(request->data, "\"force\":false}}");
+    mympd_queue_push(mympd_api_queue, request, 0);
 }
