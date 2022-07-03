@@ -279,6 +279,7 @@ int main(int argc, char **argv) {
 
     //get startup uid
     uid_t startup_uid = getuid();
+    MYMPD_LOG_DEBUG("myMPD started as user id %u", startup_uid);
 
     mympd_api_queue = mympd_queue_create("mympd_api_queue");
     web_server_queue = mympd_queue_create("web_server_queue");
