@@ -12,6 +12,9 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"
+#include "../lib/sds_extras.h"
+#include "../mpd_client/mpd_client_jukebox.h"
+#include "../mpd_client/mpd_client_volume.h"
 #include "../mpd_shared.h"
 #include "mympd_api_utility.h"
 
@@ -79,15 +82,19 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
     enum jukebox_modes old_jukebox_mode = mympd_state->jukebox_mode;
     mympd_state->jukebox_mode = JUKEBOX_OFF;
 
+    int old_volume = mpd_client_get_volume(mympd_state->mpd_state);
+
     bool rc = false;
     if (mpd_command_list_begin(mympd_state->mpd_state->conn, false)) {
         rc = mpd_send_stop(mympd_state->mpd_state->conn);
         if (rc == false) {
             MYMPD_LOG_ERROR("Error adding command to command list mpd_send_stop");
         }
-        rc = mpd_send_set_volume(mympd_state->mpd_state->conn, volume);
-        if (rc == false) {
-            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_set_volume");
+        if (old_volume != -1) {
+            rc = mpd_send_set_volume(mympd_state->mpd_state->conn, volume);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_set_volume");
+            }
         }
         rc = mpd_send_clear(mympd_state->mpd_state->conn);
         if (rc == false) {
@@ -122,11 +129,14 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
 
     if (jukebox_mode != JUKEBOX_OFF) {
         //enable jukebox
-        struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_OPTIONS_SET, NULL);
-        request->data = tojson_char(request->data, "jukeboxMode", mympd_lookup_jukebox_mode(jukebox_mode), true);
-        request->data = tojson_char(request->data, "jukeboxPlaylist", playlist, false);
-        request->data = sdscatlen(request->data, "}}", 2);
-        mympd_queue_push(mympd_api_queue, request, 0);
+        if (old_jukebox_mode != jukebox_mode &&
+            strcmp(mympd_state->jukebox_playlist, playlist) != 0)
+        {
+            mympd_state->jukebox_playlist = sds_replace(mympd_state->jukebox_playlist, playlist);
+            mpd_client_clear_jukebox(&mympd_state->jukebox_queue);
+        }
+        mympd_state->jukebox_mode = jukebox_mode;
+        mpd_client_jukebox(mympd_state);
     }
     else {
         //restore old jukebox mode
