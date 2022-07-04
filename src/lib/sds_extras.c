@@ -416,32 +416,31 @@ int sds_getfile(sds *s, FILE *fp, size_t max) {
  * @param uri sds string to modify in place
  */
 void sds_basename_uri(sds s) {
-    int i;
-    int len = (int)sdslen(s);
+    size_t len = sdslen(s);
     if (len == 0) {
         return;
     }
 
     if (strstr(s, "://") == NULL) {
         //filename, remove path
-        for (i = len - 1; i >= 0; i--) {
+        for (int i = (int)len - 1; i >= 0; i--) {
             if (s[i] == '/') {
+                sdsrange(s, i + 1, -1);
                 break;
             }
         }
-        sdsrange(s, i + 1, -1);
         return;
     }
 
     //uri, remove query and hash
-    for (i = 0; i < len; i++) {
+    for (size_t i = 0; i < len; i++) {
         if (s[i] == '#' ||
             s[i] == '?')
         {
+            sdssubstr(s, 0, (size_t)i);
             break;
         }
     }
-    sdssubstr(s, 0, i);
 }
 
 /**
