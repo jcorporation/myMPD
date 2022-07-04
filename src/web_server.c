@@ -63,7 +63,7 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     MYMPD_LOG_DEBUG("Setting dns server to %s", mgr->dns4.url);
 
     //bind to http_port
-    struct mg_connection *nc_http;
+    struct mg_connection *nc_http = NULL;
     sds http_url = sdscatfmt(sdsempty(), "http://%S:%S", config->http_host, config->http_port);
     #ifdef ENABLE_SSL
     if (config->ssl == true) {
@@ -78,7 +78,6 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     FREE_SDS(http_url);
     if (nc_http == NULL) {
         MYMPD_LOG_EMERG("Can't bind to http://%s:%s", config->http_host, config->http_port);
-        web_server_free(mgr);
         return false;
     }
     MYMPD_LOG_NOTICE("Listening on http://%s:%s", config->http_host, config->http_port);
@@ -91,7 +90,6 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
         FREE_SDS(https_url);
         if (nc_https == NULL) {
             MYMPD_LOG_ERROR("Can't bind to https://%s:%s", config->http_host, config->ssl_port);
-            web_server_free(mgr);
             return false;
         }
         MYMPD_LOG_NOTICE("Listening on https://%s:%s", config->http_host, config->ssl_port);
