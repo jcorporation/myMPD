@@ -17,7 +17,11 @@
 
 #define HEXTOI(x) (x >= '0' && x <= '9' ? x - '0' : x - 'W')
 
-//returns the sha1 hash of *p as a newly allocated sds string
+/**
+ * Hashes a string with sha1
+ * @param p string to hash
+ * @return the hash as a newly allocated sds string
+ */
 sds sds_hash(const char *p) {
     mg_sha1_ctx ctx;
     mg_sha1_init(&ctx);
@@ -31,8 +35,11 @@ sds sds_hash(const char *p) {
     return hex_hash;
 }
 
-//returns the number at the beginning of the sds string
-//number is removed from string
+/**
+ * Reads the integer from start of the string, the integer is removed from string
+ * @param s sds string
+ * @return the number at the beginning of the sds string
+ */
 int sds_toimax(sds s) {
     sds nr = sdsempty();
     while (isdigit(s[0])) {
@@ -45,6 +52,10 @@ int sds_toimax(sds s) {
     return number;
 }
 
+/**
+ * Makes the string lower case (utf8 aware)
+ * @params s sds string
+ */
 void sds_utf8_tolower(sds s) {
     utf8_int32_t cp;
 
@@ -63,10 +74,14 @@ void sds_utf8_tolower(sds s) {
     }
 }
 
-/* Append to the sds string "s" a json escaped string
- *
+/**
+ * Append to the sds string "s" a json escaped string
  * After the call, the modified sds string is no longer valid and all the
  * references must be substituted with the new pointer returned by the call.
+ * @param s sds string
+ * @param p string to append json escaped
+ * @param len length of the string to append
+ * @return modified sds string
  */
 sds sds_catjson_plain(sds s, const char *p, size_t len) {
     /* To avoid continuous reallocations, let's start with a buffer that
@@ -79,10 +94,14 @@ sds sds_catjson_plain(sds s, const char *p, size_t len) {
     return s;
 }
 
-/* Append to the sds string "s" a quoted json escaped string
- *
+/**
+ * Append to the sds string "s" a quoted json escaped string
  * After the call, the modified sds string is no longer valid and all the
  * references must be substituted with the new pointer returned by the call.
+ * @param s sds string
+ * @param p string to append json escaped
+ * @param len length of the string to append
+ * @return modified sds string
  */
 sds sds_catjson(sds s, const char *p, size_t len) {
     /* To avoid continuous reallocations, let's start with a buffer that
@@ -97,13 +116,16 @@ sds sds_catjson(sds s, const char *p, size_t len) {
     return sdscatlen(s, "\"", 1);
 }
 
-/* Append to the sds string "s" an json escaped character
- *
+/**
+ * Append to the sds string "s" an json escaped character
  * After the call, the modified sds string is no longer valid and all the
  * references must be substituted with the new pointer returned by the call.
+ * @param s sds string
+ * @param c char to escape and append
+ * @return modified sds string
  */
-sds sds_catjsonchar(sds s, const char p) {
-    switch(p) {
+sds sds_catjsonchar(sds s, const char c) {
+    switch(c) {
         case '\\': s = sdscatlen(s, "\\\\", 2); break;
         case '"':  s = sdscatlen(s, "\\\"", 2); break;
         case '\b': s = sdscatlen(s, "\\b", 2); break;
@@ -117,29 +139,38 @@ sds sds_catjsonchar(sds s, const char p) {
             //this escapes are not accepted in the unescape function
             break;
         default:
-            s = sds_catchar(s, p);
+            s = sds_catchar(s, c);
             break;
     }
     return s;
 }
 
-//appends a char to sds string s
-sds sds_catchar(sds s, const char p) {
+/**
+ * Appends a char to sds string s, this is faster than using sdscatfmt
+ * @param s sds string
+ * @param c char to append
+ * @return modified sds string
+ */
+sds sds_catchar(sds s, const char c) {
     // Make sure there is always space for at least 1 char.
     if (sdsavail(s) == 0) {
         s = sdsMakeRoomFor(s, 1);
     }
     size_t i = sdslen(s);
-    s[i++] = p;
+    s[i++] = c;
     sdsinclen(s, 1);
     // Add null-term
     s[i] = '\0';
     return s;
 }
 
-/* Json unescapes "src" and appends the result to the sds string "dst"
- *
+/**
+ * Json unescapes "src" and appends the result to the sds string "dst"
  * "dst" must be a pointer to a allocated sds string.
+ * @param src string to unescape
+ * @param slen string length to unescape
+ * @param dst pointer to sds string to append the unsecaped string
+ * @return true on success, false on error
  */
 bool sds_json_unescape(const char *src, size_t slen, sds *dst) {
     char *send = (char *) src + slen;
@@ -182,6 +213,12 @@ bool sds_json_unescape(const char *src, size_t slen, sds *dst) {
     return true;
 }
 
+/**
+ * Checks for url safe characters
+ * @param c char to check
+ * @return true if string is url safe else false
+ */
+
 static bool is_url_safe(char c) {
     if (isalnum(c) ||
         c == '/' || c == '-' || c == '.' ||
@@ -192,6 +229,13 @@ static bool is_url_safe(char c) {
     return false;
 }
 
+/**
+ * Url encodes a string
+ * @param s sds string to append the encoded string
+ * @param p string to url encode
+ * @param len string length to url encode
+ * @return modified sds string
+ */
 sds sds_urlencode(sds s, const char *p, size_t len) {
     for (size_t i = 0; i < len; i++) {
         if (is_url_safe(p[i])) {
@@ -204,6 +248,14 @@ sds sds_urlencode(sds s, const char *p, size_t len) {
     return s;
 }
 
+/**
+ * Url decodes a string
+ * @param s sds string to append the url decoded string
+ * @param p string to url decode
+ * @param len string length to url decode
+ * @param is_form_url_encoded true decodes + chars to spaces
+ * @return modified sds string
+ */
 sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded) {
     size_t i;
     int a;
@@ -241,29 +293,47 @@ sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded) {
     return s;
 }
 
-sds sds_replacelen(sds s, const char *value, size_t len) {
+/**
+ * Replaces a sds string with a new value,
+ * allocates the string if it is NULL
+ * @param s sds string to replace
+ * @param p replacement string
+ * @param len replacement string length
+ * @return modified sds string
+ */
+sds sds_replacelen(sds s, const char *p, size_t len) {
     if (s != NULL) {
         sdsclear(s);
     }
     else {
         s = sdsempty();
     }
-    if (value != NULL) {
-        s = sdscatlen(s, value, len);
+    if (p != NULL) {
+        s = sdscatlen(s, p, len);
     }
     return s;
 }
 
-sds sds_replace(sds s, const char *value) {
-    return sds_replacelen(s, value, strlen(value));
+/**
+ * Replaces a sds string with a new value,
+ * allocates the string if it is NULL
+ * @param s sds string to replace
+ * @param p replacement string
+ * @return modified sds string
+ */
+sds sds_replace(sds s, const char *p) {
+    return sds_replacelen(s, p, strlen(p));
 }
 
-//custom getline function
-//trims line for \n \r, \t and spaces
-//returns 0 on success
-//-1 for EOF
-//-2 for too long line
-
+/**
+ * Getline function that trims whitespace characters
+ * @param s an already allocated sds string
+ * @param fp a file descriptor to read from
+ * @param max max line length to read
+ * @return GETLINE_OK on success,
+ *         GETLINE_EMPTY for empty line,
+ *         GETLINE_TOO_LONG for too long line
+ */
 int sds_getline(sds *s, FILE *fp, size_t max) {
     sdsclear(*s);
     size_t i = 0;
@@ -291,15 +361,30 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
     }
 }
 
-//same as sds_getline but appends \n
+/**
+ * Getline function that first trims whitespace characters and adds a newline afterwards
+ * @param s an already allocated sds string
+ * @param fp a file descriptor to read from
+ * @param max max line length to read
+ * @return GETLINE_OK on success,
+ *         GETLINE_EMPTY for empty line,
+ *         GETLINE_TOO_LONG for too long line
+ */
 int sds_getline_n(sds *s, FILE *fp, size_t max) {
     int rc = sds_getline(s, fp, max);
     *s = sdscat(*s, "\n");
     return rc;
 }
 
-//reads a whole file in the sds string s from *fp
-//returns 0 on success, -1 on empty file, -2 if content is too long
+/**
+ * Reads a whole file in the sds string s from *fp
+ * @param s an already allocated sds string that should hold the file content
+ * @param fp FILE pointer to read
+ * @param max maximum bytes to read
+ * @return GETLINE_OK on success,
+ *         GETLINE_EMPTY for empty file,
+ *         GETLINE_TOO_LONG for too long file
+ */
 int sds_getfile(sds *s, FILE *fp, size_t max) {
     sdsclear(*s);
     size_t i = 0;
@@ -324,40 +409,51 @@ int sds_getfile(sds *s, FILE *fp, size_t max) {
     }
 }
 
-void sds_basename_uri(sds uri) {
-    const int uri_len = (int)sdslen(uri);
+/**
+ * Calculates the basename for files and uris
+ * for files the path is removed
+ * for uris the query string and hash is removed
+ * @param uri sds string to modify in place
+ */
+void sds_basename_uri(sds s) {
     int i;
-
-    if (uri_len == 0) {
+    int len = (int)sdslen(s);
+    if (len == 0) {
         return;
     }
 
-    if (strstr(uri, "://") == NULL) {
+    if (strstr(s, "://") == NULL) {
         //filename, remove path
-        for (i = uri_len - 1; i >= 0; i--) {
-            if (uri[i] == '/') {
+        for (i = len - 1; i >= 0; i--) {
+            if (s[i] == '/') {
                 break;
             }
         }
-        sdsrange(uri, i + 1, -1);
+        sdsrange(s, i + 1, -1);
         return;
     }
 
     //uri, remove query and hash
-    for (i = 0; i < uri_len; i++) {
-        if (uri[i] == '#' || uri[i] == '?') {
+    for (i = 0; i < len; i++) {
+        if (s[i] == '#' ||
+            s[i] == '?')
+        {
             break;
         }
     }
-    if (i < uri_len - 1) {
-        sdsrange(uri, 0, i - 1);
-    }
+    sdssubstr(s, 0, i);
 }
 
+/**
+ * Strips slashes from the end
+ * @param s sds string to strip
+ */
 void sds_strip_slash(sds s) {
     char *sp = s;
     char *ep = s + sdslen(s) - 1;
-    while(ep >= sp && *ep == '/') {
+    while(ep >= sp &&
+          *ep == '/')
+    {
         ep--;
     }
     size_t len = (size_t)(ep-sp)+1;
@@ -365,6 +461,10 @@ void sds_strip_slash(sds s) {
     sdssetlen(s, len);
 }
 
+/**
+ * Removes the file extension
+ * @param s sds string to remove the extension
+ */
 void sds_strip_file_extension(sds s) {
     char *sp = s;
     char *ep = s + sdslen(s) - 1;
@@ -379,12 +479,22 @@ void sds_strip_file_extension(sds s) {
     }
 }
 
+/**
+ * Converts a bool value to a sds string
+ * @param s string to append the value
+ * @param v bool value to convert
+ * @return modified sds string
+ */
 sds sds_catbool(sds s, bool v) {
     return v == true ? sdscatlen(s, "true", 4) : sdscatlen(s, "false", 5);
 }
 
 static const char *invalid_filename_chars = "<>/.:?&$!#=;\a\b\f\n\r\t\v\\|";
 
+/**
+ * Replaces invalid filename characters with "_"
+ * @param sds string to sanitize
+ */
 void sds_sanitize_filename(sds s) {
     const size_t len = strlen(invalid_filename_chars);
     for (size_t i = 0; i < len; i++) {
