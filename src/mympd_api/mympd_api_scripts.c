@@ -97,7 +97,9 @@ sds mympd_api_script_list(sds workdir, sds buffer, sds method, long request_id, 
         int order = 0;
         entry = parse_script_metadata(entry, scriptfilename, &order);
         entry = sdscatlen(entry, "}", 1);
-        if (all == true || order > 0) {
+        if (all == true ||
+            order > 0)
+        {
             if (nr++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
@@ -132,7 +134,8 @@ bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sd
     //delete old scriptfile
     if (rc == true &&
         sdslen(oldscript) > 0 &&
-        strcmp(script, oldscript) != 0) {
+        strcmp(script, oldscript) != 0)
+    {
         sds old_filepath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, oldscript);
         rc = rm_file(old_filepath);
         FREE_SDS(old_filepath);
@@ -155,7 +158,9 @@ sds mympd_api_script_get(sds workdir, sds buffer, sds method, long request_id, s
             strncmp(line, "-- ", 3) == 0)
         {
             sdsrange(line, 3, -1);
-            if (line[0] == '{' && line[sdslen(line) - 1] == '}') {
+            if (line[0] == '{' &&
+                line[sdslen(line) - 1] == '}')
+            {
                 buffer = sdscat(buffer, "\"metadata\":");
                 buffer = sdscat(buffer, line);
             }
