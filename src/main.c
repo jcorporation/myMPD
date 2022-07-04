@@ -244,30 +244,34 @@ static bool check_dirs(struct t_config *config) {
 }
 
 int main(int argc, char **argv) {
+    //set logging states
     thread_logname = sdsnew("mympd");
     log_on_tty = isatty(fileno(stdout)) ? true : false;
     log_to_syslog = false;
-
-    worker_threads = 0;
-    s_signal_received = 0;
-    bool init_config = false;
-    bool init_webserver = false;
-    bool init_mg_user_data = false;
-    bool init_thread_webserver = false;
-    bool init_thread_mympdapi = false;
-    int rc = EXIT_FAILURE;
     #ifdef DEBUG
     set_loglevel(LOG_DEBUG);
     #else
     set_loglevel(LOG_NOTICE);
     #endif
 
+    //set initital states
+    worker_threads = 0;
+    s_signal_received = 0;
+    bool init_thread_webserver = false;
+    bool init_thread_mympdapi = false;
+    struct t_config *config = NULL;
+    struct t_mg_user_data *mg_user_data = NULL;
+    struct mg_mgr *mgr = NULL;
+    int rc = EXIT_FAILURE;
+
+    //goto root directory
     errno = 0;
     if (chdir("/") != 0) {
         MYMPD_LOG_ERROR("Can not change directory to /");
         MYMPD_LOG_ERRNO(errno);
-        goto end;
+        goto cleanup;
     }
+
     //only user and group have rw access
     umask(0007); /* Flawfinder: ignore */
 
@@ -279,14 +283,11 @@ int main(int argc, char **argv) {
     web_server_queue = mympd_queue_create("web_server_queue");
     mympd_script_queue = mympd_queue_create("mympd_script_queue");
 
-    //create mg_user_data struct for web_server
-    struct t_mg_user_data *mg_user_data = malloc_assert(sizeof(struct t_mg_user_data));
-
     //initialize random number generator
     tinymt32_init(&tinymt, (uint32_t)time(NULL));
 
     //mympd config defaults
-    struct t_config *config = malloc_assert(sizeof(struct t_config));
+    config = malloc_assert(sizeof(struct t_config));
     mympd_config_defaults_initial(config);
 
     //command line option
@@ -317,7 +318,6 @@ int main(int argc, char **argv) {
     }
 
     //read configuration
-    init_config = true;
     mympd_config_defaults(config);
     mympd_read_config(config);
 
@@ -394,10 +394,9 @@ int main(int argc, char **argv) {
     }
 
     //init webserver
-    struct mg_mgr mgr;
-    init_mg_user_data = true;
-    init_webserver = web_server_init(&mgr, config, mg_user_data);
-    if (init_webserver == false) {
+    mgr = malloc_assert(sizeof(struct mg_mgr));
+    mg_user_data = malloc_assert(sizeof(struct t_mg_user_data));
+    if (web_server_init(mgr, config, mg_user_data) == false) {
         goto cleanup;
     }
 
@@ -438,9 +437,10 @@ int main(int argc, char **argv) {
         MYMPD_LOG_ERROR("Can't create mympd_api thread");
         s_signal_received = SIGTERM;
     }
+
     //webserver
     MYMPD_LOG_NOTICE("Starting webserver thread");
-    if (pthread_create(&web_server_thread, NULL, web_server_loop, &mgr) == 0) {
+    if (pthread_create(&web_server_thread, NULL, web_server_loop, mgr) == 0) {
         init_thread_webserver = true;
     }
     else {
@@ -453,6 +453,8 @@ int main(int argc, char **argv) {
 
     //Try to cleanup all
     cleanup:
+
+    //wait for threads
     if (init_thread_webserver == true) {
         pthread_join(web_server_thread, NULL);
         MYMPD_LOG_NOTICE("Stopping web server thread");
@@ -461,10 +463,8 @@ int main(int argc, char **argv) {
         pthread_join(mympd_api_thread, NULL);
         MYMPD_LOG_NOTICE("Stopping mympd api thread");
     }
-    if (init_webserver == true) {
-        web_server_free(&mgr);
-    }
 
+    //expire queues
     int expired = expire_result_queue(web_server_queue, 0);
     mympd_queue_free(web_server_queue);
     MYMPD_LOG_DEBUG("Expired %d entries from web_server_queue", expired);
@@ -477,12 +477,15 @@ int main(int argc, char **argv) {
     mympd_queue_free(mympd_script_queue);
     MYMPD_LOG_DEBUG("Expired %d entries from mympd_script_queue", expired);
 
-    mympd_free_config_initial(config);
-    if (init_config == true) {
-        mympd_free_config(config);
-    }
+    //free config
+    mympd_free_config(config);
     FREE_PTR(config);
-    if (init_mg_user_data == true) {
+
+    if (mgr != NULL) {
+        web_server_free(mgr);
+        FREE_PTR(mgr);
+    }
+    if (mg_user_data != NULL) {
         mg_user_data_free(mg_user_data);
     }
     FREE_PTR(mg_user_data);
@@ -490,7 +493,6 @@ int main(int argc, char **argv) {
         printf("Exiting gracefully, thank you for using myMPD\n");
     }
 
-    end:
     FREE_SDS(thread_logname);
     return rc;
 }

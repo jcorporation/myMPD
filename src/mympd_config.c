@@ -43,9 +43,6 @@ void mympd_free_config(struct t_config *config) {
         FREE_SDS(config->lualibs);
     #endif
     FREE_SDS(config->pin_hash);
-}
-
-void mympd_free_config_initial(struct t_config *config) {
     FREE_SDS(config->user);
     FREE_SDS(config->workdir);
     FREE_SDS(config->cachedir);
@@ -95,6 +92,20 @@ void mympd_config_defaults_initial(struct t_config *config) {
     config->startup_time = time(NULL);
     config->first_startup = false;
     config->bootstrap = false;
+    //set all other sds strings to NULL
+    config->http_host = NULL;
+    config->http_port = NULL;
+    #ifdef ENABLE_SSL
+        config->ssl_san = NULL;
+        config->ssl_cert = NULL;
+        config->ssl_key = NULL;
+    #endif
+    config->acl = NULL;
+    config->scriptacl = NULL;
+    #ifdef ENABLE_LUA
+        config->lualibs = NULL;
+    #endif
+    config->pin_hash = NULL;
 }
 
 bool mympd_read_config(struct t_config *config) {
