@@ -142,7 +142,9 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
                 sdsclear(artist);
                 album = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM, album);
                 artist = mpd_shared_get_tag_value_string(song, mpd_worker_state->mpd_state->tag_albumartist, artist);
-                if (sdslen(album) > 0 && sdslen(artist) > 0) {
+                if (sdslen(album) > 0 &&
+                    sdslen(artist) > 0)
+                {
                     sdsclear(key);
                     key = sdscatfmt(key, "%s::%s", album, artist);
                     sds_utf8_tolower(key);
@@ -161,6 +163,12 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
                                     value_nr++;
                                 }
                             }
+                        }
+                        //use newest modified-since
+                        time_t last_modified_old = mpd_song_get_last_modified(old_song);
+                        time_t last_modified_new = mpd_song_get_last_modified(song);
+                        if (last_modified_old < last_modified_new) {
+                            mympd_mpd_song_set_last_modified(song, last_modified_new);
                         }
                         //free song data
                         mpd_song_free(song);
@@ -202,7 +210,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         raxStop(&iter);
     }
     MYMPD_LOG_INFO("Added %ld albums to album cache", album_count);
-    MYMPD_LOG_INFO("Skipped %ld albums", skipped);
+    MYMPD_LOG_INFO("Skipped %ld songs", skipped);
     MYMPD_LOG_INFO("Added %ld songs to sticker cache", song_count);
     MYMPD_LOG_INFO("Cache updated successfully");
     return true;

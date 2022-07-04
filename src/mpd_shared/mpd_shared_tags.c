@@ -46,6 +46,10 @@ struct mpd_song {
 
 //public functions
 
+void mympd_mpd_song_set_last_modified(struct mpd_song *song, time_t last_modified) {
+    song->last_modified = last_modified;
+}
+
 /**
  * Adds a tag value to the song if value does not already exists
  *
