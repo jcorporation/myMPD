@@ -93,7 +93,7 @@ static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
                 return NULL;
             }
             sds data = sdsempty();
-            sds_getfile(&data, fp, 1000000);
+            sds_getfile(&data, fp, WEBRADIODB_SIZE_MAX);
             (void) fclose(fp);
             MYMPD_LOG_DEBUG("Found cached file \"%s\"", filepath);
             FREE_SDS(filepath);

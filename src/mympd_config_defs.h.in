@@ -228,6 +228,13 @@
 #define FILENAME_LEN_MAX 200
 #define FILEPATH_LEN_MAX 1000
 
+//file size limits
+#define LINE_LENGTH_MAX 2000
+#define LYRICS_SIZE_MAX 10000
+#define SCRIPTS_SIZE_MAX 10000
+#define SMARTPLS_SIZE_MAX 2000
+#define WEBRADIODB_SIZE_MAX 1000000
+
 //cloud api hosts
 #define RADIOBROWSER_HOST "all.api.radio-browser.info"
 #define WEBRADIODB_HOST "jcorporation.github.io"

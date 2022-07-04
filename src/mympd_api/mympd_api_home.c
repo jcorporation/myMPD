@@ -74,7 +74,7 @@ bool mympd_api_home_file_read(struct t_mympd_state *mympd_state) {
     }
 
     sds line = sdsempty();
-    while (sds_getline(&line, fp, 1000) == 0) {
+    while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
         if (validate_json(line) == false) {
             MYMPD_LOG_ERROR("Invalid line");
             break;

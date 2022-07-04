@@ -58,7 +58,9 @@ static void mympd_signal_handler(int sig_num) {
         MYMPD_LOG_ERROR("Could not set signal handler for %d", sig_num);
     }
 
-    if (sig_num == SIGTERM || sig_num == SIGINT) {
+    if (sig_num == SIGTERM ||
+        sig_num == SIGINT)
+    {
         //Set loop end condition for threads
         s_signal_received = sig_num;
         //Wakeup queue loops
@@ -93,7 +95,9 @@ static bool do_chown(const char *file_path, const char *user_name) {
 }
 
 static bool drop_privileges(struct t_config *config, uid_t startup_uid) {
-    if (startup_uid == 0 && sdslen(config->user) > 0) {
+    if (startup_uid == 0 &&
+        sdslen(config->user) > 0)
+    {
         MYMPD_LOG_NOTICE("Droping privileges to user \"%s\"", config->user);
         //get user
         struct passwd *pw;
@@ -293,11 +297,11 @@ int main(int argc, char **argv) {
     //command line option
     int handle_options_rc = handle_options(config, argc, argv);
     switch(handle_options_rc) {
-        case -1:
+        case OPTIONS_RC_INVALID:
             //invalid option
             loglevel = LOG_ERR;
             goto cleanup;
-        case 1:
+        case OPTIONS_RC_EXIT:
             //valid option and exit
             loglevel = LOG_ERR;
             rc = EXIT_SUCCESS;

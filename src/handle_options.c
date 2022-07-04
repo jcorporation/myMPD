@@ -69,17 +69,17 @@ int handle_options(struct t_config *config, int argc, char **argv) {
             #ifdef ENABLE_SSL
             case 'p':
                 pin_set(config->workdir);
-                return 1;
+                return OPTIONS_RC_EXIT;
                 break;
             #endif
             case 'v':
             case 'h':
                 print_usage(config, argv[0]);
-                return 1;
+                return OPTIONS_RC_EXIT;
             default:
                 print_usage(config, argv[0]);
-                return -1;
+                return OPTIONS_RC_INVALID;
         }
     }
-    return 0;
+    return OPTIONS_RC_OK;
 }

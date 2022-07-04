@@ -17,6 +17,12 @@
     SDS_PTR = NULL; \
 } while (0)
 
+enum getline_rc {
+    GETLINE_TOO_LONG = -2,
+    GETLINE_EMPTY = -1,
+    GETLINE_OK = 0
+};
+
 int sds_toimax(sds s);
 void sds_utf8_tolower(sds s);
 sds sds_catjson_plain(sds s, const char *p, size_t len);

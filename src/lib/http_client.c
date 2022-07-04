@@ -30,7 +30,7 @@ sds get_dnsserver(void) {
     }
     sds line = sdsempty();
     sds nameserver = sdsempty();
-    while (sds_getline(&line, fp, 1000) == 0) {
+    while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
         if (sdslen(line) > 10 &&
             strncmp(line, "nameserver", 10) == 0 &&
             isspace(line[10]))

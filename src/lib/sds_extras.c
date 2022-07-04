@@ -272,13 +272,13 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
         if (c == EOF) {
             sdstrim(*s, "\r \t");
             if (sdslen(*s) > 0) {
-                return 0;
+                return GETLINE_OK;
             }
-            return -1;
+            return GETLINE_EMPTY;
         }
         if (c == '\n') {
             sdstrim(*s, "\r \t");
-            return 0;
+            return GETLINE_OK;
         }
         if (i < max) {
             *s = sds_catchar(*s, (char)c);
@@ -286,7 +286,7 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
         }
         else {
             MYMPD_LOG_ERROR("Line is too long, max length is %lu", (unsigned long)max);
-            return -2;
+            return GETLINE_TOO_LONG;
         }
     }
 }
@@ -309,9 +309,9 @@ int sds_getfile(sds *s, FILE *fp, size_t max) {
             sdstrim(*s, "\r \t\n");
             MYMPD_LOG_DEBUG("Read %lu bytes from file", (unsigned long)sdslen(*s));
             if (sdslen(*s) > 0) {
-                return 0;
+                return GETLINE_OK;
             }
-            return -1;
+            return GETLINE_EMPTY;
         }
         if (i < max) {
             *s = sds_catchar(*s, (char)c);
@@ -319,7 +319,7 @@ int sds_getfile(sds *s, FILE *fp, size_t max) {
         }
         else {
             MYMPD_LOG_ERROR("File is too long, max length is %lu", (unsigned long)max);
-            return -2;
+            return GETLINE_TOO_LONG;
         }
     }
 }

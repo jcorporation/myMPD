@@ -62,7 +62,7 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
         return result;
     }
     FREE_SDS(cfg_file);
-    int n = sds_getline(&result, fp, 2000);
+    int n = sds_getline(&result, fp, LINE_LENGTH_MAX);
     (void) fclose(fp);
     if (n == 0 &&             //sucessfully read the value
         vcb != NULL &&        //has validation callback

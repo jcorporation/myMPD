@@ -151,7 +151,9 @@ sds mympd_api_script_get(sds workdir, sds buffer, sds method, long request_id, s
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = tojson_sds(buffer, "script", script, true);
         sds line = sdsempty();
-        if (sds_getline(&line, fp, 1000) == 0 && strncmp(line, "-- ", 3) == 0) {
+        if (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0 &&
+            strncmp(line, "-- ", 3) == 0)
+        {
             sdsrange(line, 3, -1);
             if (line[0] == '{' && line[sdslen(line) - 1] == '}') {
                 buffer = sdscat(buffer, "\"metadata\":");
@@ -169,7 +171,7 @@ sds mympd_api_script_get(sds workdir, sds buffer, sds method, long request_id, s
         FREE_SDS(line);
         buffer = sdscat(buffer, ",\"content\":");
         sds content = sdsempty();
-        sds_getfile(&content, fp, 10000);
+        sds_getfile(&content, fp, SCRIPTS_SIZE_MAX);
         (void) fclose(fp);
         buffer = sds_catjson(buffer, content, sdslen(content));
         FREE_SDS(content);
@@ -231,7 +233,9 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
     }
 
     sds line = sdsempty();
-    if (sds_getline(&line, fp, 1000) == 0 && strncmp(line, "-- ", 3) == 0) {
+    if (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0 &&
+        strncmp(line, "-- ", 3) == 0)
+    {
         sdsrange(line, 3, -1);
         if (json_get_int(line, "$.order", 0, 99, order, NULL) == true) {
             entry = sdscat(entry, "\"metadata\":");
