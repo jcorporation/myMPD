@@ -64,7 +64,7 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
     FREE_SDS(cfg_file);
     int n = sds_getline(&result, fp, LINE_LENGTH_MAX);
     (void) fclose(fp);
-    if (n == 0 &&             //sucessfully read the value
+    if (n == GETLINE_OK &&    //sucessfully read the value
         vcb != NULL &&        //has validation callback
         vcb(result) == false) //validation failed, return default
     {
@@ -72,7 +72,7 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
         result = sdscat(result, def_value);
         return result;
     }
-    if (n == -2) {
+    if (n == GETLINE_TOO_LONG) {
         //too long line, return default
         sdsclear(result);
         result = sdscat(result, def_value);
