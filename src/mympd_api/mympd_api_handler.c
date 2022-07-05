@@ -100,6 +100,17 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     "general", "error", "Too many worker threads are already running");
                 break;
             }
+            if (request->cmd_id == INTERNAL_API_CACHES_CREATE) {
+                if (mympd_state->album_cache_building == true ||
+                    mympd_state->sticker_cache_building == true)
+                {
+                    response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
+                        "general", "error", "Cache update is already running");
+                    break;
+                }
+                mympd_state->album_cache_building = true;
+                mympd_state->sticker_cache_building = true;
+            }
             async = true;
             free_result(response);
             mpd_worker_start(mympd_state, request);

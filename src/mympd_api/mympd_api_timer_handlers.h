@@ -11,8 +11,9 @@
 
 //internal timers
 enum timer_ids {
-    TIMER_ID_COVERCACHE = 1,
-    TIMER_ID_SMARTPLS_UPDATE = 2
+    TIMER_ID_COVERCACHE_CLEAR = 1,
+    TIMER_ID_SMARTPLS_UPDATE = 2,
+    TIMER_ID_CACHES_CREATE = 3
 };
 
 void timer_handler_by_id(int timer_id, struct t_timer_definition *definition, void *user_data);

@@ -52,7 +52,7 @@ void *mympd_api_loop(void *arg_config) {
     //set timers
     if (mympd_state->covercache_keep_days > 0) {
         MYMPD_LOG_DEBUG("Setting timer action \"clear covercache\" to periodic each 7200s");
-        mympd_api_timer_add(&mympd_state->timer_list, 60, 7200, timer_handler_by_id, TIMER_ID_COVERCACHE, NULL, (void *)mympd_state);
+        mympd_api_timer_add(&mympd_state->timer_list, 60, 7200, timer_handler_by_id, TIMER_ID_COVERCACHE_CLEAR, NULL, (void *)mympd_state);
     }
     //start trigger
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START);

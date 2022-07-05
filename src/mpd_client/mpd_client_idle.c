@@ -29,9 +29,6 @@
 #include <poll.h>
 #include <string.h>
 
-//private definitions
-static bool update_mympd_caches(struct t_mympd_state *mympd_state);
-
 //public functions
 void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitmask) {
     for (unsigned j = 0;; j++) {
@@ -47,8 +44,8 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                 case MPD_IDLE_DATABASE:
                     //database has changed
                     buffer = jsonrpc_event(buffer, "update_database");
-                    //initiate cache updates
-                    update_mympd_caches(mympd_state);
+                    //add timer for cache updates
+                    mympd_api_timer_replace(&mympd_state->timer_list, 10, -1, timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL, NULL);
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
                     buffer = jsonrpc_event(buffer, "update_stored_playlist");
@@ -237,7 +234,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             //set binarylimit
             mympd_api_set_binarylimit(mympd_state);
             //initiate cache updates
-            update_mympd_caches(mympd_state);
+            mympd_api_timer_replace(&mympd_state->timer_list, 2, -1, timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL, NULL);
             //set timer for smart playlist update
             mympd_api_timer_replace(&mympd_state->timer_list, 30, (int)mympd_state->smartpls_interval, timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL, NULL);
             //jukebox
@@ -373,26 +370,4 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             MYMPD_LOG_ERROR("Invalid mpd connection state");
     }
     FREE_SDS(buffer);
-}
-
-static bool update_mympd_caches(struct t_mympd_state *mympd_state) {
-    if (mympd_state->mpd_state->feat_mpd_stickers == false &&
-        mympd_state->mpd_state->feat_mpd_tags == false)
-    {
-        return true;
-    }
-    if (mympd_state->mpd_state->feat_mpd_stickers == true) {
-        mympd_state->sticker_cache_building = true;
-    }
-    if (mympd_state->mpd_state->feat_mpd_tags == true) {
-        mympd_state->album_cache_building = true;
-    }
-    struct t_work_request *request = create_request(-1, 0, INTERNAL_API_CACHES_CREATE, NULL);
-    request->data = sdscatlen(request->data, "}}", 2);
-    bool rc = mpd_worker_start(mympd_state, request);
-    if (rc == false) {
-        mympd_state->sticker_cache_building = false;
-        mympd_state->album_cache_building = false;
-    }
-    return rc;
 }

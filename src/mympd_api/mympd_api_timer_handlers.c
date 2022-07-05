@@ -21,18 +21,22 @@
 #include <string.h>
 
 //private definitions
-static void timer_handler_covercache(struct t_timer_definition *definition, void *user_data);
+static void timer_handler_covercache_clear(struct t_timer_definition *definition, void *user_data);
 static void timer_handler_smartpls_update(struct t_timer_definition *definition, void *user_data);
+static void timer_handler_caches_create(struct t_timer_definition *definition, void *user_data);
 
 //public functions
 
 void timer_handler_by_id(int timer_id, struct t_timer_definition *definition, void *user_data) {
     switch(timer_id) {
-        case TIMER_ID_COVERCACHE:
-            timer_handler_covercache(definition, user_data);
+        case TIMER_ID_COVERCACHE_CLEAR:
+            timer_handler_covercache_clear(definition, user_data);
             break;
         case TIMER_ID_SMARTPLS_UPDATE:
             timer_handler_smartpls_update(definition, user_data);
+            break;
+        case TIMER_ID_CACHES_CREATE:
+            timer_handler_caches_create(definition, user_data);
             break;
         default:
             MYMPD_LOG_WARN("Unhandled timer_id");
@@ -151,8 +155,8 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
 //private functions
 
 //TIMER_ID_COVERCACHE
-static void timer_handler_covercache(struct t_timer_definition *definition, void *user_data) {
-    MYMPD_LOG_INFO("Start timer_handler_covercache");
+static void timer_handler_covercache_clear(struct t_timer_definition *definition, void *user_data) {
+    MYMPD_LOG_INFO("Start timer_handler_covercache_clear");
     (void) definition;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *) user_data;
     covercache_clear(mympd_state->config->cachedir, mympd_state->covercache_keep_days);
@@ -165,5 +169,14 @@ static void timer_handler_smartpls_update(struct t_timer_definition *definition,
     (void) user_data;
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
     request->data = sdscat(request->data, "\"force\":false}}");
+    mympd_queue_push(mympd_api_queue, request, 0);
+}
+
+//TIMER_ID_ALBUMCACHE
+static void timer_handler_caches_create(struct t_timer_definition *definition, void *user_data) {
+    MYMPD_LOG_INFO("Start timer_handler_caches_create");
+    (void) definition;
+    (void) user_data;
+    struct t_work_request *request = create_request(-1, 0, INTERNAL_API_CACHES_CREATE, NULL);
     mympd_queue_push(mympd_api_queue, request, 0);
 }
