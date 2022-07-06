@@ -1128,7 +1128,7 @@ sbuild_cleanup() {
 }
 
 run_eslint() {
-  if ! check_cmd eslint
+  if ! check_cmd npx
   then
     return 1
   fi
@@ -1138,7 +1138,7 @@ run_eslint() {
   for F in htdocs/sw.js release/htdocs/js/mympd.js
   do
     echo "Linting $F"
-    if ! eslint $F
+    if ! npx eslint $F
     then
       rc=1
     fi
@@ -1146,7 +1146,7 @@ run_eslint() {
   for F in release/htdocs/sw.min.js release/htdocs/js/mympd.min.js release/htdocs/js/i18n.min.js
   do
     echo "Linting $F"
-    if ! eslint -c .eslintrc-min.json $F
+    if ! npx eslint -c .eslintrc-min.json $F
     then
       rc=1
     fi
@@ -1165,7 +1165,7 @@ run_eslint() {
 }
 
 run_stylelint() {
-  if ! check_cmd stylelint
+  if ! check_cmd npx
   then
     return 1
   fi
@@ -1173,7 +1173,7 @@ run_stylelint() {
   for F in mympd.css theme-light.css
   do
     echo "Linting $F"
-    if ! stylelint "htdocs/css/$F"
+    if ! npx stylelint "htdocs/css/$F"
     then
       rc=1
     fi
@@ -1182,12 +1182,12 @@ run_stylelint() {
 }
 
 run_htmlhint() {
-  if ! check_cmd htmlhint
+  if ! check_cmd npx
   then
     return 1
   fi
   echo "Linting htdocs/index.html"
-  if ! htmlhint htdocs/index.html
+  if ! npx htmlhint htdocs/index.html
   then
     return 1
   fi
