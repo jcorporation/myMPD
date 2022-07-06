@@ -449,10 +449,9 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
 static int lyricsextract_flac(sds *buffer, sds media_file, bool is_ogg, const char *comment_name, bool synced, int returned_entities) {
     #ifdef ENABLE_FLAC
     MYMPD_LOG_DEBUG("Exctracting lyrics from %s", media_file);
-    FLAC__StreamMetadata *metadata = NULL;
     FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
 
-    if(! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
+    if (! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
         MYMPD_LOG_ERROR("%s: ERROR: reading metadata", media_file);
         FLAC__metadata_chain_delete(chain);
         return 0;
@@ -461,25 +460,19 @@ static int lyricsextract_flac(sds *buffer, sds media_file, bool is_ogg, const ch
     FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
     assert(iterator);
     FLAC__metadata_iterator_init(iterator, chain);
-    int field_num = 0;
-    FLAC__StreamMetadata *block;
-    FLAC__bool ok = true;
     int found_lyrics = 0;
     do {
-        block = FLAC__metadata_iterator_get_block(iterator);
-        ok &= (0 != block);
-        if (!ok) {
-            MYMPD_LOG_ERROR("Could not get block from chain: %s", media_file);
-        }
-        else if (block->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
-            field_num = 0;
+        FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);
+        if (block->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
+            int field_num = 0;
             while ((field_num = FLAC__metadata_object_vorbiscomment_find_entry_from(block, (unsigned)field_num, comment_name)) > -1) {
-                metadata = block;
-                FLAC__StreamMetadata_VorbisComment *vc = &metadata->data.vorbis_comment;
+                FLAC__StreamMetadata_VorbisComment *vc = &block->data.vorbis_comment;
                 FLAC__StreamMetadata_VorbisComment_Entry *field = &vc->comments[field_num++];
 
                 char *field_value = memchr(field->entry, '=', field->length);
-                if (field_value != NULL && strlen(field_value) > 1) {
+                if (field_value != NULL &&
+                    strlen(field_value) > 1)
+                {
                     MYMPD_LOG_DEBUG("Found embedded lyrics");
                     field_value++;
                     found_lyrics++;
@@ -499,7 +492,7 @@ static int lyricsextract_flac(sds *buffer, sds media_file, bool is_ogg, const ch
                 }
             }
         }
-    } while (ok && FLAC__metadata_iterator_next(iterator));
+    } while (FLAC__metadata_iterator_next(iterator));
 
     if (found_lyrics == 0) {
         MYMPD_LOG_DEBUG("No embedded lyrics detected");
