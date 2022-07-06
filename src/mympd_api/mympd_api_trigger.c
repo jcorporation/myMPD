@@ -125,7 +125,7 @@ sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, sds method, 
             buffer = sdscatlen(buffer, ",", 1);
         }
         buffer = sdscatlen(buffer, "{", 1);
-        buffer = tojson_long(buffer, "id", j, true);
+        buffer = tojson_int(buffer, "id", j, true);
         buffer = tojson_sds(buffer, "name", current->key, true);
         buffer = tojson_llong(buffer, "event", current->value_i, true);
         buffer = tojson_char(buffer, "eventName", mympd_api_trigger_name((long)current->value_i), true);
