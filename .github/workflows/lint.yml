@@ -11,6 +11,7 @@ jobs:
         sudo apt-get install -y npm
         npm install eslint --save-dev
         npm install stylelint --save-dev
+        npm install stylelint-config-standard --save-dev
         npm install htmlhint --save-dev
     - name: lint
       run: ./build.sh lint

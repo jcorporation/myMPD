@@ -110,7 +110,7 @@ body.theme-light .table-hover > tbody > tr:hover > * {
 
 body.theme-light .toast-header,
 body.theme-light .toast {
-  background-color: rgba(206, 212, 218, 0.85);
+  background-color: rgba(206, 212, 218, 85%);
   color: var(--bs-gray-800);
 }
 

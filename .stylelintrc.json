@@ -5,6 +5,12 @@
     "comment-whitespace-inside": null,
     "font-family-no-missing-generic-family-keyword": null,
     "no-duplicate-selectors": null,
-    "no-descending-specificity": null
+    "no-descending-specificity": null,
+    "selector-id-pattern": null,
+    "selector-class-pattern": null,
+    "property-no-vendor-prefix": null,
+    "shorthand-property-no-redundant-values": null,
+    "selector-not-notation": null,
+    "color-function-notation": null
   }
 }
