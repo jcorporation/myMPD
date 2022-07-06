@@ -58,6 +58,7 @@ void mympd_api_timer_check(struct t_timer_list *l) {
         return;
     }
     if (read_fds == 0) {
+        //no timer triggered
         return;
     }
 
@@ -69,47 +70,46 @@ void mympd_api_timer_check(struct t_timer_list *l) {
                 continue;
             }
             current = get_timer_from_fd(l, ufds[i].fd);
-            if (current != NULL) {
-                if (current->definition != NULL) {
-                    if (current->definition->enabled == false) {
-                        MYMPD_LOG_DEBUG("Skipping timer with id %d, not enabled", current->timer_id);
-                        continue;
-                    }
-                    time_t t = time(NULL);
-                    struct tm now;
-                    if (localtime_r(&t, &now) == NULL) {
-                        MYMPD_LOG_ERROR("Localtime is NULL");
-                        continue;
-                    }
-                    int wday = now.tm_wday;
-                    wday = wday > 0 ? wday - 1 : 6;
-                    if (current->definition->weekdays[wday] == false) {
-                        MYMPD_LOG_DEBUG("Skipping timer with id %d, not enabled on this weekday", current->timer_id);
-                        continue;
-                    }
-
+            if (current == NULL) {
+                MYMPD_LOG_ERROR("Could not get timer from fd");
+                continue;
+            }
+            if (current->definition != NULL) {
+                //user defined timers
+                if (current->definition->enabled == false) {
+                    MYMPD_LOG_DEBUG("Skipping timer with id %d, not enabled", current->timer_id);
+                    continue;
                 }
-                MYMPD_LOG_DEBUG("Timer with id %d triggered", current->timer_id);
-                if (current->callback) {
-                    current->callback(current->timer_id, current->definition);
+                time_t t = time(NULL);
+                struct tm now;
+                if (localtime_r(&t, &now) == NULL) {
+                    MYMPD_LOG_ERROR("Localtime is NULL");
+                    continue;
                 }
-                if (current->interval == 0 &&
-                    current->definition != NULL)
-                {
-                    //one shot and deactivate
-                    //only for timers from ui
-                    MYMPD_LOG_DEBUG("One shot timer disabled: %d", current->timer_id);
-                    current->definition->enabled = false;
-                }
-                else if (current->interval <= 0) {
-                    //one shot and remove
-                    //not ui timers are also removed
-                    MYMPD_LOG_DEBUG("One shot timer removed: %d", current->timer_id);
-                    mympd_api_timer_remove(l, current->timer_id);
+                int wday = now.tm_wday;
+                wday = wday > 0 ? wday - 1 : 6;
+                if (current->definition->weekdays[wday] == false) {
+                    MYMPD_LOG_DEBUG("Skipping timer with id %d, not enabled on this weekday", current->timer_id);
+                    continue;
                 }
             }
-            else {
-                MYMPD_LOG_ERROR("Could not get timer from fd");
+            //execute callback function
+            MYMPD_LOG_DEBUG("Timer with id %d triggered", current->timer_id);
+            if (current->callback) {
+                current->callback(current->timer_id, current->definition);
+            }
+            //handle one shot timers
+            if (current->interval == TIMER_ONE_SHOT_DISABLE &&
+                current->definition != NULL)
+            {
+                //user defined "one shot and disable" timers
+                MYMPD_LOG_DEBUG("One shot timer disabled: %d", current->timer_id);
+                current->definition->enabled = false;
+            }
+            else if (current->interval <= TIMER_ONE_SHOT_REMOVE) {
+                //"one shot and remove" timers
+                MYMPD_LOG_DEBUG("One shot timer removed: %d", current->timer_id);
+                mympd_api_timer_remove(l, current->timer_id);
             }
         }
     }

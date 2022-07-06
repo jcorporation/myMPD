@@ -389,5 +389,5 @@ static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeou
     {
         return true;
     }
-    return mympd_api_timer_replace(&mympd_state->timer_list, timeout, -1, timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL);
+    return mympd_api_timer_replace(&mympd_state->timer_list, timeout, TIMER_ONE_SHOT_REMOVE, timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL);
 }

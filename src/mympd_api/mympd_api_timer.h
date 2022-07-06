@@ -10,6 +10,11 @@
 #include "../../dist/sds/sds.h"
 #include "../lib/mympd_state.h"
 
+enum timer_intervals {
+    TIMER_ONE_SHOT_REMOVE = -1,
+    TIMER_ONE_SHOT_DISABLE = 0
+};
+
 void mympd_api_timer_timerlist_init(struct t_timer_list *l);
 void mympd_api_timer_timerlist_clear(struct t_timer_list *l);
 void mympd_api_timer_check(struct t_timer_list *l);
