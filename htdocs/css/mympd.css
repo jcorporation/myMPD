@@ -590,13 +590,14 @@ button.mi::after {
   min-width: 8rem;
 }
 
-#volumeDiv {
+.volumeRangeDiv {
   padding-bottom: 0;
-  padding-top: 0.4rem;
+  padding-top: 0.5rem;
 }
 
-#volumeBar {
-  width: 10rem;
+#volumeBar,
+#localPlaybackVolumeBar {
+  min-width: 10rem;
 }
 
 .form-range::-webkit-slider-thumb {

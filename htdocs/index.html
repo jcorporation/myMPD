@@ -762,10 +762,10 @@
             <div class="dropdown-divider"></div>
             <h2 class="dropdown-header"><span data-phrase="Volume"></span>: <span id="volumePrct"></span></h2>
             <form class="px-3 py-0 pb-3" id="volumeControl">
-              <div class="btn-group">
+              <div class="btn-group w-100">
                 <button id="btnChVolumeDown" data-href='{"cmd": "volumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
-                  <div class="bg-secondary" id="volumeDiv">
-                    <input type="range" min="0" max="100" step="1" class="form-range" id="volumeBar"/>
+                  <div class="bg-secondary w-100 volumeRangeDiv">
+                    <input type="range" min="0" max="100" step="1" class="form-range w-100" id="volumeBar"/>
                   </div>
                 <button id="btnChVolumeUp" data-href='{"cmd": "volumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
               </div>
@@ -786,7 +786,7 @@
               <form id="localPlaybackVolumeControl">
                 <div class="btn-group">
                   <button id="btnLocalPlaybackChVolumeDown" data-href='{"cmd": "localPlaybackVolumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
-                    <div class="bg-secondary" id="volumeDiv">
+                    <div class="bg-secondary volumeRangeDiv">
                       <input type="range" min="0" max="1" step="0.1" class="form-range" id="localPlaybackVolumeBar"/>
                     </div>
                   <button id="btnLocalPlaybackChVolumeUp" data-href='{"cmd": "localPlaybackVolumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
