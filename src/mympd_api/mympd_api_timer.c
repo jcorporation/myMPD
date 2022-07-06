@@ -69,7 +69,7 @@ void mympd_api_timer_check(struct t_timer_list *l) {
                 continue;
             }
             current = get_timer_from_fd(l, ufds[i].fd);
-            if (current) {
+            if (current != NULL) {
                 if (current->definition != NULL) {
                     if (current->definition->enabled == false) {
                         MYMPD_LOG_DEBUG("Skipping timer with id %d, not enabled", current->timer_id);
@@ -91,7 +91,7 @@ void mympd_api_timer_check(struct t_timer_list *l) {
                 }
                 MYMPD_LOG_DEBUG("Timer with id %d triggered", current->timer_id);
                 if (current->callback) {
-                    current->callback(current->timer_id, current->definition, current->user_data);
+                    current->callback(current->timer_id, current->definition);
                 }
                 if (current->interval == 0 &&
                     current->definition != NULL)
@@ -108,24 +108,26 @@ void mympd_api_timer_check(struct t_timer_list *l) {
                     mympd_api_timer_remove(l, current->timer_id);
                 }
             }
+            else {
+                MYMPD_LOG_ERROR("Could not get timer from fd");
+            }
         }
     }
 }
 
 bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interval, timer_handler handler,
-                   int timer_id, struct t_timer_definition *definition, void *user_data)
+                   int timer_id, struct t_timer_definition *definition)
 {
     mympd_api_timer_remove(l, timer_id);
-    return mympd_api_timer_add(l, timeout, interval, handler, timer_id, definition, user_data);
+    return mympd_api_timer_add(l, timeout, interval, handler, timer_id, definition);
 }
 
 bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, timer_handler handler,
-               int timer_id, struct t_timer_definition *definition, void *user_data)
+               int timer_id, struct t_timer_definition *definition)
 {
     struct t_timer_node *new_node = malloc_assert(sizeof(struct t_timer_node));
     new_node->callback = handler;
     new_node->definition = definition;
-    new_node->user_data = user_data;
     new_node->timeout = timeout;
     new_node->interval = interval;
     new_node->timer_id = timer_id;
@@ -245,6 +247,7 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
     timer_def->subaction = NULL;
     timer_def->playlist = NULL;
     list_init(&timer_def->arguments);
+    sds jukebox_mode_str = NULL;
 
     if (json_get_string_max(str, "$.params.name", &timer_def->name, vcb_isname, error) == true &&
         json_get_bool(str, "$.params.enabled", &timer_def->enabled, error) == true &&
@@ -261,31 +264,19 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         json_get_bool(str, "$.params.weekdays[3]", &timer_def->weekdays[3], error) == true &&
         json_get_bool(str, "$.params.weekdays[4]", &timer_def->weekdays[4], error) == true &&
         json_get_bool(str, "$.params.weekdays[5]", &timer_def->weekdays[5], error) == true &&
-        json_get_bool(str, "$.params.weekdays[6]", &timer_def->weekdays[6], error) == true)
+        json_get_bool(str, "$.params.weekdays[6]", &timer_def->weekdays[6], error) == true &&
+        json_get_string_max(str, "$.params.jukeboxMode", &jukebox_mode_str, vcb_isalnum, error) == true)
     {
-        //first try new jukebox definition
-        sds jukebox_mode_str = NULL;
-        if (json_get_string_max(str, "$.params.jukeboxMode", &jukebox_mode_str, vcb_isalnum, error) == false) {
-            //fallback to old definition
-            if (json_get_uint(str, "$.params.jukeboxMode", 0, 2, &timer_def->jukebox_mode, error) == false) {
-                MYMPD_LOG_ERROR("Error parsing timer definition");
-                mympd_api_timer_free_definition(timer_def);
-                FREE_PTR(timer_def);
-                return NULL;
-            }
-        }
-        else {
-            timer_def->jukebox_mode = mympd_parse_jukebox_mode(jukebox_mode_str);
-        }
-        FREE_SDS(jukebox_mode_str);
+        timer_def->jukebox_mode = mympd_parse_jukebox_mode(jukebox_mode_str);
         MYMPD_LOG_DEBUG("Successfully parsed timer definition");
-        return timer_def;
     }
-
-    MYMPD_LOG_ERROR("Error parsing timer definition");
-    mympd_api_timer_free_definition(timer_def);
-    FREE_PTR(timer_def);
-    return NULL;
+    else {
+        mympd_api_timer_free_definition(timer_def);
+        FREE_PTR(timer_def);
+        MYMPD_LOG_ERROR("Error parsing timer definition");
+    }
+    FREE_SDS(jukebox_mode_str);
+    return timer_def;
 }
 
 time_t mympd_api_timer_calc_starttime(int start_hour, int start_minute, int interval) {
@@ -391,7 +382,7 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
                 mympd_state->timer_list.last_id = timerid;
             }
             time_t start = mympd_api_timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, interval);
-            mympd_api_timer_add(&mympd_state->timer_list, start, interval, timer_handler_select, timerid, timer_def, NULL);
+            mympd_api_timer_add(&mympd_state->timer_list, start, interval, timer_handler_select, timerid, timer_def);
         }
         else {
             MYMPD_LOG_ERROR("Invalid timer line");

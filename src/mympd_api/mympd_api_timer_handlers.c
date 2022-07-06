@@ -21,29 +21,42 @@
 #include <string.h>
 
 //private definitions
-static void timer_handler_covercache_clear(struct t_timer_definition *definition, void *user_data);
-static void timer_handler_smartpls_update(struct t_timer_definition *definition, void *user_data);
-static void timer_handler_caches_create(struct t_timer_definition *definition, void *user_data);
+static void timer_handler_covercache_crop(void);
+static void timer_handler_smartpls_update(void);
+static void timer_handler_caches_create(void);
 
 //public functions
 
-void timer_handler_by_id(int timer_id, struct t_timer_definition *definition, void *user_data) {
+/**
+ * Handles timer by timer_id, this is only used for internal timers
+ * @param timer_id the internal timer_id from enum timer_ids
+ * @param definition the timer definition - not used
+ * @user_data custom data - not used
+ */
+
+void timer_handler_by_id(int timer_id, struct t_timer_definition *definition) {
+    (void) definition; // not used
     switch(timer_id) {
-        case TIMER_ID_COVERCACHE_CLEAR:
-            timer_handler_covercache_clear(definition, user_data);
+        case TIMER_ID_COVERCACHE_CROP:
+            timer_handler_covercache_crop();
             break;
         case TIMER_ID_SMARTPLS_UPDATE:
-            timer_handler_smartpls_update(definition, user_data);
+            timer_handler_smartpls_update();
             break;
         case TIMER_ID_CACHES_CREATE:
-            timer_handler_caches_create(definition, user_data);
+            timer_handler_caches_create();
             break;
         default:
             MYMPD_LOG_WARN("Unhandled timer_id");
     }
 }
 
-void timer_handler_select(int timer_id, struct t_timer_definition *definition, void *user_data) {
+/**
+ * Handles user defined timers
+ * @param timer_id the timer id
+ * @param definition the timer definition
+ */
+void timer_handler_select(int timer_id, struct t_timer_definition *definition) {
     MYMPD_LOG_INFO("Start timer_handler_select for timer \"%s\" (%d)", definition->name, timer_id);
     if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stopplay") == 0) {
         struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_STOP, NULL);
@@ -77,10 +90,19 @@ void timer_handler_select(int timer_id, struct t_timer_definition *definition, v
     else {
         MYMPD_LOG_ERROR("Unknown timer action: %s - %s", definition->action, definition->subaction);
     }
-    (void) user_data;
 }
 
-//used by INTERNAL_API_TIMER_STARTPLAY
+/**
+ * This function is used by INTERNAL_API_TIMER_STARTPLAY and is called from the mympd_api_handler
+ * @param pointer to the mympd_state the mympd_state struct
+ * @param buffer already alocated sds string to hold the jsonrpc response
+ * @param method the API method
+ * @param request_id the id of the request
+ * @param volume mpd volume to set
+ * @param playlist the mpd playlist to use
+ * @param jukebox_mode the jukebox mode to set
+ * @return jsonrpc response
+ */
 sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
         unsigned volume, sds playlist, enum jukebox_modes jukebox_mode)
 {
@@ -154,29 +176,32 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
 
 //private functions
 
-//TIMER_ID_COVERCACHE
-static void timer_handler_covercache_clear(struct t_timer_definition *definition, void *user_data) {
-    MYMPD_LOG_INFO("Start timer_handler_covercache_clear");
-    (void) definition;
-    struct t_mympd_state *mympd_state = (struct t_mympd_state *) user_data;
-    covercache_clear(mympd_state->config->cachedir, mympd_state->covercache_keep_days);
-}
-
-//TIMER_ID_SMARTPLS_UPDATE
-static void timer_handler_smartpls_update(struct t_timer_definition *definition, void *user_data) {
-    MYMPD_LOG_INFO("Start timer_handler_smartpls_update");
-    (void) definition;
-    (void) user_data;
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
-    request->data = sdscat(request->data, "\"force\":false}}");
+/**
+ * Timer handler for timer_id TIMER_ID_COVERCACHE_CROP
+ */
+static void timer_handler_covercache_crop(void) {
+    MYMPD_LOG_INFO("Start timer_handler_covercache_crop");
+    struct t_work_request *request = create_request(-1, 0, MYMPD_API_COVERCACHE_CROP, NULL);
+    request->data = sdscatlen(request->data, "}}", 2);
     mympd_queue_push(mympd_api_queue, request, 0);
 }
 
-//TIMER_ID_ALBUMCACHE
-static void timer_handler_caches_create(struct t_timer_definition *definition, void *user_data) {
+/**
+ * Timer handler for timer_id TIMER_ID_SMARTPLS_UPDATE
+ */
+static void timer_handler_smartpls_update(void) {
+    MYMPD_LOG_INFO("Start timer_handler_smartpls_update");
+    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
+    request->data = sdscat(request->data, "\"force\":false}}"); //only update if database has changed
+    mympd_queue_push(mympd_api_queue, request, 0);
+}
+
+/**
+ * Timer handler for timer_id TIMER_ID_CACHES_CREATE
+ */
+static void timer_handler_caches_create(void) {
     MYMPD_LOG_INFO("Start timer_handler_caches_create");
-    (void) definition;
-    (void) user_data;
     struct t_work_request *request = create_request(-1, 0, INTERNAL_API_CACHES_CREATE, NULL);
+    request->data = sdscatlen(request->data, "}}", 2);
     mympd_queue_push(mympd_api_queue, request, 0);
 }

@@ -29,6 +29,9 @@
 #include <poll.h>
 #include <string.h>
 
+//private definitions
+static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeout);
+
 //public functions
 void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitmask) {
     for (unsigned j = 0;; j++) {
@@ -45,7 +48,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                     //database has changed
                     buffer = jsonrpc_event(buffer, "update_database");
                     //add timer for cache updates
-                    mympd_api_timer_replace(&mympd_state->timer_list, 10, -1, timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL, NULL);
+                    update_mympd_caches(mympd_state, 10);
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
                     buffer = jsonrpc_event(buffer, "update_stored_playlist");
@@ -234,9 +237,9 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             //set binarylimit
             mympd_api_set_binarylimit(mympd_state);
             //initiate cache updates
-            mympd_api_timer_replace(&mympd_state->timer_list, 2, -1, timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL, NULL);
+            update_mympd_caches(mympd_state, 2);
             //set timer for smart playlist update
-            mympd_api_timer_replace(&mympd_state->timer_list, 30, (int)mympd_state->smartpls_interval, timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL, NULL);
+            mympd_api_timer_replace(&mympd_state->timer_list, 30, (int)mympd_state->smartpls_interval, timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL);
             //jukebox
             if (mympd_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(mympd_state);
@@ -370,4 +373,21 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             MYMPD_LOG_ERROR("Invalid mpd connection state");
     }
     FREE_SDS(buffer);
+}
+
+//private functions
+
+/**
+ * Checks if we should create the caches and adds a one-shot timer
+ * @param mympd_state pointer to the mympd_state struct
+ * @param timeout seconds after the timer triggers
+ * @return true on success else false
+ */
+static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeout) {
+    if (mympd_state->mpd_state->feat_mpd_stickers == false &&
+        mympd_state->mpd_state->feat_mpd_tags == false)
+    {
+        return true;
+    }
+    return mympd_api_timer_replace(&mympd_state->timer_list, timeout, -1, timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL);
 }
