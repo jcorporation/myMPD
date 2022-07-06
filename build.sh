@@ -1173,7 +1173,7 @@ run_stylelint() {
   for F in mympd.css theme-light.css
   do
     echo "Linting $F"
-    if ! npx stylelint "htdocs/css/$F"
+    if ! npx stylelint --config=.stylelintrc.json "htdocs/css/$F"
     then
       rc=1
     fi
