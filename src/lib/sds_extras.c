@@ -437,7 +437,7 @@ void sds_basename_uri(sds s) {
         if (s[i] == '#' ||
             s[i] == '?')
         {
-            sdssubstr(s, 0, (size_t)i);
+            sdssubstr(s, 0, i);
             break;
         }
     }
