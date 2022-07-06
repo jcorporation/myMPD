@@ -1173,7 +1173,7 @@ run_stylelint() {
   for F in mympd.css theme-light.css
   do
     echo "Linting $F"
-    if ! npx stylelint --config=.stylelintrc.json "htdocs/css/$F"
+    if ! npx stylelint "htdocs/css/$F"
     then
       rc=1
     fi
@@ -1321,15 +1321,17 @@ case "$ACTION" in
 	  sbuild_cleanup
 	;;
   lint)
+    if ! run_htmlhint
+    then
+      exit 1
+    fi
+    pwd
     if ! run_eslint
     then
       exit 1
     fi
+    pwd
     if ! run_stylelint
-    then
-      exit 1
-    fi
-    if ! run_htmlhint
     then
       exit 1
     fi
