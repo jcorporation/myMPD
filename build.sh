@@ -1128,18 +1128,28 @@ sbuild_cleanup() {
 }
 
 run_eslint() {
-  check_cmd eslint
+  if ! check_cmd eslint
+  then
+    return 1
+  fi
   createassets
+  rc=0
   echo ""
   for F in htdocs/sw.js release/htdocs/js/mympd.js
   do
     echo "Linting $F"
-    eslint $F
+    if ! eslint $F
+    then
+      rc=1
+    fi
   done
   for F in release/htdocs/sw.min.js release/htdocs/js/mympd.min.js release/htdocs/js/i18n.min.js
   do
     echo "Linting $F"
-    eslint -c .eslintrc-min.json $F
+    if ! eslint -c .eslintrc-min.json $F
+    then
+      rc=1
+    fi
   done
   echo "Check for forbidden js functions"
   FORBIDDEN_CMDS="innerHTML outerHTML insertAdjacentHTML innerText"
@@ -1148,23 +1158,40 @@ run_eslint() {
   	if grep -q "$F" release/htdocs/js/mympd.min.js
   	then
   		echo_error "Found $F usage"
+      rc=1
   	fi
   done
+  return "$rc"
 }
 
 run_stylelint() {
-  check_cmd npx
+  if ! check_cmd stylelint
+  then
+    return 1
+  fi
+  rc=0
   for F in mympd.css theme-light.css
   do
     echo "Linting $F"
-    npx stylelint "htdocs/css/$F"
+    if ! stylelint "htdocs/css/$F"
+    then
+      rc=1
+    fi
   done
+  return "$rc"
 }
 
 run_htmlhint() {
-  check_cmd htmlhint
+  if ! check_cmd htmlhint
+  then
+    return 1
+  fi
   echo "Linting htdocs/index.html"
-  htmlhint htdocs/index.html
+  if ! htmlhint htdocs/index.html
+  then
+    return 1
+  fi
+  return 0
 }
 
 luascript_index() {
@@ -1292,15 +1319,23 @@ case "$ACTION" in
 	;;
 	sbuild_cleanup)
 	  sbuild_cleanup
-	  exit 0
 	;;
   lint)
-    run_eslint
-    run_stylelint
-    run_htmlhint
+    if ! run_eslint
+    then
+      exit 1
+    fi
+    if ! run_stylelint
+    then
+      exit 1
+    fi
+    if ! run_htmlhint
+    then
+      exit 1
+    fi
   ;;
 	eslint)
-	  run_eslint
+    run_eslint
 	;;
 	stylelint)
 	  run_stylelint
