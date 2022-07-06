@@ -1,0 +1,17 @@
+name: lint
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: install linters
+      run: |
+        sudo apt-get install -y npm
+        npm install eslint
+        npm install stylelint
+        npm install htmlhint
+    - name: lint
+      run: ./build.sh lint
+
