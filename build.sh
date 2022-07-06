@@ -603,7 +603,7 @@ check() {
     ERRORS=$(grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out)
     if [ -n "$ERRORS" ]
     then
-      echo "$ERROS"
+      echo "$ERRORS"
       return 1
     fi
     cd .. || return 1
