@@ -95,10 +95,10 @@ function createLocalPlaybackEl(createEvent) {
         }
         document.getElementById('localPlayerProgress').textContent = beautifySongDuration(event.target.currentTime);
     });
-    document.getElementById('localPlayer').addEventListener('volumechange', function() {
+    document.getElementById('localPlayer').addEventListener('volumechange', function(event) {
         document.getElementById('localPlaybackVolumeBar').value = document.getElementById('localPlayer').volume;
         document.getElementById('localPlaybackVolume').textContent = Math.floor(
-                document.getElementById('localPlayer').volume * 100) + ' %';
+                event.target.volume * 100) + ' %';
     });
     for (const ev of ['error', 'abort', 'stalled']) {
         document.getElementById('localPlayer').addEventListener(ev, function(event) {
