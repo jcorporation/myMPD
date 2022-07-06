@@ -1294,6 +1294,11 @@ case "$ACTION" in
 	  sbuild_cleanup
 	  exit 0
 	;;
+  lint)
+    run_eslint
+    run_stylelint
+    run_htmlhint
+  ;;
 	eslint)
 	  run_eslint
 	;;
@@ -1338,6 +1343,7 @@ case "$ACTION" in
     echo "  check_file:       same as check, but for one file, second arg must be the file"
     echo "  check_docs        checks the documentation for missing API methods"
     echo "  check_includes:   checks for valid include paths"
+    echo "  lint:             runs eslint, stylelint and htmlhint"
     echo "  eslint:           combines javascript files and runs eslint"
     echo "  stylelint:        runs stylelint (lints css files)"
     echo "  htmlhint:         runs htmlhint (lints html files)"
