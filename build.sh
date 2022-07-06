@@ -453,10 +453,15 @@ cleanuposc() {
 }
 
 check_docs() {
+  rc=0
   grep -v '//' src/lib/api.h | grep 'X(MYMPD' | cut -d\( -f2 | cut -d\) -f1 | \
   while IFS= read -r METHOD
   do
-    grep -q "$METHOD" htdocs/js/apidoc.js || echo_warn "API $METHOD not documented"
+    if ! grep -q "$METHOD" htdocs/js/apidoc.js
+    then
+      echo_warn "API $METHOD not documented"
+      rc=1
+    fi
   done
   O=$(md5sum htdocs/js/apidoc.js | awk '{print $1}')
   C=$(md5sum docs/assets/apidoc.js | awk '{print $1}')
@@ -464,15 +469,19 @@ check_docs() {
   then
   	echo_warn "apidoc.js in docs differs"
     cp htdocs/js/apidoc.js docs/assets/apidoc.js
+    rc=1
   fi
+  return "$rc"
 }
 
 check_includes() {
+  rc=0
   find src/ -name \*.c | while IFS= read -r FILE
   do
     if ! grep -m1 "#include" "$FILE" | grep -q "mympd_config_defs.h"
     then
       echo_warn "First include is not mympd_config_defs.h: $FILE"
+      rc=1
     fi
     SRCDIR=$(dirname "$FILE")
 
@@ -482,8 +491,10 @@ check_includes() {
       if ! realpath "$SRCDIR/$INCLUDE" > /dev/null 2>&1
       then
         echo_error "Wrong include path in $FILE for $INCLUDE"
+        rc=1
       fi
     done
+    return "$rc"
   done
 }
 
@@ -533,18 +544,27 @@ check() {
   then
     echo "Running cppcheck"
     [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="-q --force --enable=warning"
-    #shellcheck disable=SC2086
-    cppcheck $CPPCHECKOPTS src/*.c src/*.h
-    #shellcheck disable=SC2086
-    cppcheck $CPPCHECKOPTS src/mpd_client/*.c src/mpd_client/*.h
-    #shellcheck disable=SC2086
-    cppcheck $CPPCHECKOPTS src/mympd_api/*.c src/mympd_api/*.h
-    #shellcheck disable=SC2086
-    cppcheck $CPPCHECKOPTS src/web_server/*.c src/web_server/*.h
-    #shellcheck disable=SC2086
-    cppcheck $CPPCHECKOPTS cli_tools/*.c
+    find ./src/ -name \*.c | while read -r FILE
+    do
+      [ "$FILE" = "./src/mympd_api/mympd_api_scripts_lualibs.c" ] && continue
+      [ "$FILE" = "./src/web_server/web_server_embedded_files.c" ] && continue
+      #shellcheck disable=SC2086
+      if ! cppcheck $CPPCHECKOPTS --error-exitcode=1 "$FILE"
+      then
+        return 1
+      fi
+    done
+    find ./src/ -name \*.h | while read -r FILE
+    do
+      #shellcheck disable=SC2086
+      if ! cppcheck $CPPCHECKOPTS --error-exitcode=1 "$FILE"
+      then
+        return 1
+      fi
+    done
   else
     echo_warn "cppcheck not found"
+    return 1
   fi
 
   if check_cmd flawfinder
@@ -552,18 +572,25 @@ check() {
     echo "Running flawfinder"
     [ -z "${FLAWFINDEROPTS+z}" ] && FLAWFINDEROPTS="-m3 --quiet --dataonly"
     #shellcheck disable=SC2086
-    flawfinder $FLAWFINDEROPTS src
+    if ! flawfinder $FLAWFINDEROPTS --error-level=3 src
+    then
+      return 1
+    fi
     #shellcheck disable=SC2086
-    flawfinder $FLAWFINDEROPTS cli_tools
+    if ! flawfinder $FLAWFINDEROPTS --error-level=3 cli_tools
+    then
+      return 1
+    fi
   else
     echo_warn "flawfinder not found"
+    return 1
   fi
 
   if [ ! -f src/compile_commands.json ]
   then
     echo "src/compile_commands.json not found"
     echo "run: ./build.sh debug"
-    exit 1
+    return 1
   fi
 
   if check_cmd clang-tidy
@@ -573,14 +600,27 @@ check() {
     cd src || exit 1
     find ./ -name '*.c' -exec clang-tidy \
     	--checks="$CLANG_TIDY_CHECKS" {} \; >> ../clang-tidy.out 2>/dev/null
-    grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out
-    cd .. || exit 1
+    ERRORS=$(grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out)
+    if [ -n "$ERRORS" ]
+    then
+      echo "$ERROS"
+      return 1
+    fi
+    cd .. || return 1
   else
     echo_warn "clang-tidy not found"
+    return 1
   fi
 
-  check_docs
-  check_includes
+  if ! check_docs
+  then
+    return 1
+  fi
+  if ! check_includes
+  then
+    return 1
+  fi
+  return 0
 }
 
 prepare() {
@@ -1239,7 +1279,10 @@ case "$ACTION" in
 	  cleanuposc
 	;;
 	check)
-	  check
+	  if ! check
+    then
+      exit 1
+    fi
 	;;
   check_file)
     if [ -z "${2+x}" ]
