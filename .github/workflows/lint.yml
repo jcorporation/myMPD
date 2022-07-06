@@ -9,6 +9,7 @@ jobs:
     - name: install linters
       run: |
         sudo apt-get install -y npm cppcheck flawfinder clang-tidy
+        sudo ./build.sh installdeps
         npm install eslint --save-dev
         npm install stylelint --save-dev
         npm install stylelint-config-standard --save-dev

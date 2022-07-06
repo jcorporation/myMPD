@@ -413,7 +413,8 @@ builddebug() {
   make VERBOSE=1
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
-    -e 's/-static-libasan//g' -e 's/-Wno-stringop-overread//g' compile_commands.json > ../src/compile_commands.json
+    -e 's/-static-libasan//g' -e 's/-Wno-stringop-overread//g' -e '/-fstack-clash-protection//g' \
+    compile_commands.json > ../src/compile_commands.json
 }
 
 buildtest() {
