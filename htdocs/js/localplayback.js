@@ -97,8 +97,8 @@ function createLocalPlaybackEl(createEvent) {
     });
     document.getElementById('localPlayer').addEventListener('volumechange', function() {
         document.getElementById('localPlaybackVolumeBar').value = document.getElementById('localPlayer').volume;
-        document.getElementById('localPlaybackVolume').textContent = 
-            document.getElementById('localPlayer').volume * 100 + ' %';
+        document.getElementById('localPlaybackVolume').textContent = Math.floor(
+                document.getElementById('localPlayer').volume * 100) + ' %';
     });
     for (const ev of ['error', 'abort', 'stalled']) {
         document.getElementById('localPlayer').addEventListener(ev, function(event) {
