@@ -9,9 +9,9 @@ jobs:
     - name: install linters
       run: |
         sudo apt-get install -y npm
-        npm install eslint
-        npm install stylelint
-        npm install htmlhint
+        npm install eslint --save-dev
+        npm install stylelint --save-dev
+        npm install htmlhint --save-dev
     - name: lint
       run: ./build.sh lint
 
