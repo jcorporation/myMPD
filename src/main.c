@@ -16,10 +16,10 @@
 #include "lib/random.h"
 #include "lib/sds_extras.h"
 #include "lib/utility.h"
-#include "mympd_api.h"
+#include "mympd_api/mympd_api.h"
 #include "mympd_api/mympd_api_playlists.h"
 #include "mympd_config.h"
-#include "web_server.h"
+#include "web_server/web_server.h"
 
 #ifdef ENABLE_SSL
     #include "lib/cert.h"

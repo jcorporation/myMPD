@@ -8,7 +8,7 @@
 #include "mympd_api_partitions.h"
 
 #include "../lib/jsonrpc.h"
-#include "../mpd_shared.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
 
 //public functions
 sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {

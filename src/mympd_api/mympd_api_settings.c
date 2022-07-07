@@ -15,12 +15,12 @@
 #include "../lib/state_files.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
+#include "../mpd_client/mpd_client_connection.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
 #include "../mpd_client/mpd_client_jukebox.h"
-#include "../mympd_api/mympd_api_trigger.h"
-#include "../mympd_api/mympd_api_utility.h"
-#include "../mpd_shared.h"
 #include "mympd_api_timer.h"
 #include "mympd_api_timer_handlers.h"
+#include "mympd_api_trigger.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -102,7 +102,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
         if (binarylimit != mympd_state->mpd_state->mpd_binarylimit) {
             mympd_state->mpd_state->mpd_binarylimit = binarylimit;
             if (mympd_state->mpd_state->conn_state == MPD_CONNECTED) {
-                mympd_api_set_binarylimit(mympd_state);
+                mpd_client_set_binarylimit(mympd_state->mpd_state);
             }
         }
     }
@@ -406,7 +406,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
         }
     }
     else if (strcmp(key, "jukeboxMode") == 0 && vtype == MJSON_TOK_STRING) {
-        enum jukebox_modes jukebox_mode = mympd_parse_jukebox_mode(value);
+        enum jukebox_modes jukebox_mode = mpd_client_parse_jukebox_mode(value);
 
         if (jukebox_mode == JUKEBOX_UNKNOWN) {
             *error = set_invalid_value(*error, key, value);
@@ -633,7 +633,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
 #else
     buffer = tojson_bool(buffer, "debugMode", false, true);
 #endif
-    const char *jukebox_mode_str = mympd_lookup_jukebox_mode(mympd_state->jukebox_mode);
+    const char *jukebox_mode_str = mpd_client_lookup_jukebox_mode(mympd_state->jukebox_mode);
     buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_str, true);
 
     buffer = tojson_sds(buffer, "coverimageNames", mympd_state->coverimage_names, true);

@@ -5,20 +5,20 @@
 */
 
 #include "mympd_config_defs.h"
-#include "mpd_shared_tags.h"
+#include "mpd_client_tags.h"
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
-#include "../mpd_shared.h"
+#include "mpd_client_errorhandler.h"
 
 #include <string.h>
 
 //private definitions
-static sds _mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag,
+static sds _mpd_client_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag,
         sds tag_values, unsigned *value_count);
-static sds _mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag,
+static sds _mpd_client_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag,
         sds tag_values, const bool multi, unsigned *value_count);
 
 //struct mpd_song define from libmpdclient
@@ -137,15 +137,6 @@ enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
     }
 }
 
-void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list) {
-    memcpy((void *)dst_tag_list, (void *)src_tag_list, sizeof(struct t_tags));
-}
-
-void reset_t_tags(struct t_tags *tags) {
-    tags->len = 0;
-    memset(tags->tags, 0, sizeof(tags->tags));
-}
-
 void disable_all_mpd_tags(struct t_mpd_state *mpd_state) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         MYMPD_LOG_DEBUG("Disabling all mpd tag types");
@@ -185,13 +176,13 @@ void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags *enable_tags) 
 }
 
 //returns a comma separated list if tag values
-sds mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values) {
+sds mpd_client_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values) {
     unsigned value_count = 0;
-    tag_values = _mpd_shared_get_tag_value_string(song, tag, tag_values, &value_count);
+    tag_values = _mpd_client_get_tag_value_string(song, tag, tag_values, &value_count);
     if (value_count == 0) {
         if (tag == MPD_TAG_TITLE) {
             //title fallback to name
-            tag_values = _mpd_shared_get_tag_value_string(song, MPD_TAG_NAME, tag_values, &value_count);
+            tag_values = _mpd_client_get_tag_value_string(song, MPD_TAG_NAME, tag_values, &value_count);
             if (value_count == 0) {
                 //title fallback to filename
                 tag_values = sdscat(tag_values, mpd_song_get_uri(song));
@@ -203,14 +194,14 @@ sds mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_
 }
 
 //returns a json string/array of tag values
-sds mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values) {
+sds mpd_client_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values) {
     const bool multi = is_multivalue_tag(tag);
     unsigned value_count = 0;
-    tag_values = _mpd_shared_get_tag_values(song, tag, tag_values, multi, &value_count);
+    tag_values = _mpd_client_get_tag_values(song, tag, tag_values, multi, &value_count);
     if (value_count == 0) {
         if (tag == MPD_TAG_TITLE) {
             //title fallback to name
-            tag_values = _mpd_shared_get_tag_values(song, MPD_TAG_NAME, tag_values, multi, &value_count);
+            tag_values = _mpd_client_get_tag_values(song, MPD_TAG_NAME, tag_values, multi, &value_count);
             if (value_count == 0) {
                 //title fallback to filename
                 sds filename = sdsnew(mpd_song_get_uri(song));
@@ -239,13 +230,13 @@ sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags
     if (mpd_state->feat_mpd_tags == true) {
         for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
-            buffer = mpd_shared_get_tag_values(song, tagcols->tags[tagnr], buffer);
+            buffer = mpd_client_get_tag_values(song, tagcols->tags[tagnr], buffer);
             buffer = sdscatlen(buffer, ",", 1);
         }
     }
     else {
         buffer = sdscat(buffer, "\"Title\":");
-        buffer = mpd_shared_get_tag_values(song, MPD_TAG_TITLE, buffer);
+        buffer = mpd_client_get_tag_values(song, MPD_TAG_TITLE, buffer);
         buffer = sdscatlen(buffer, ",", 1);
     }
 
@@ -306,7 +297,7 @@ bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_
     bool rc = false;
     for (unsigned i = 0; i < tagcols->len; i++) {
         unsigned value_count = 0;
-        value = _mpd_shared_get_tag_values(song, tagcols->tags[i], value, false, &value_count);
+        value = _mpd_client_get_tag_values(song, tagcols->tags[i], value, false, &value_count);
         sds_utf8_tolower(value);
         if (strstr(value, searchstr) != NULL) {
             rc = true;
@@ -329,7 +320,7 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
             MYMPD_LOG_WARN("Unknown tag %s", tokens[i]);
         }
         else {
-            if (mpd_shared_tag_exists(allowed_tag_types, tag) == true) {
+            if (mpd_client_tag_exists(allowed_tag_types, tag) == true) {
                 logline = sdscatfmt(logline, "%s ", mpd_tag_name(tag));
                 tagtypes->tags[tagtypes->len++] = tag;
             }
@@ -343,7 +334,7 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
     FREE_SDS(logline);
 }
 
-bool mpd_shared_tag_exists(struct t_tags *tagtypes, const enum mpd_tag_type tag) {
+bool mpd_client_tag_exists(struct t_tags *tagtypes, const enum mpd_tag_type tag) {
     for (size_t i = 0; i < tagtypes->len; i++) {
         if (tagtypes->tags[i] == tag) {
             return true;
@@ -352,27 +343,10 @@ bool mpd_shared_tag_exists(struct t_tags *tagtypes, const enum mpd_tag_type tag)
     return false;
 }
 
-void album_cache_free(rax **album_cache) {
-    if (*album_cache == NULL) {
-        MYMPD_LOG_DEBUG("Album cache is NULL not freeing anything");
-        return;
-    }
-    MYMPD_LOG_DEBUG("Freeing album cache");
-    raxIterator iter;
-    raxStart(&iter, *album_cache);
-    raxSeek(&iter, "^", NULL, 0);
-    while (raxNext(&iter)) {
-        mpd_song_free((struct mpd_song *)iter.data);
-    }
-    raxStop(&iter);
-    raxFree(*album_cache);
-    *album_cache = NULL;
-}
-
 //private functions
 
 //appends a comma separated list of tag values to tag_values
-static sds _mpd_shared_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag,
+static sds _mpd_client_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag,
         sds tag_values, unsigned *value_count)
 {
     const char *value;
@@ -389,7 +363,7 @@ static sds _mpd_shared_get_tag_value_string(struct mpd_song const *song, const e
 }
 
 //appends a json string or array to tag_values
-static sds _mpd_shared_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag,
+static sds _mpd_client_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag,
         sds tag_values, const bool multi, unsigned *value_count)
 {
     const char *value;

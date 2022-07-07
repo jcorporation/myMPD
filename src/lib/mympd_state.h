@@ -228,4 +228,16 @@ struct t_mympd_state {
     sds webui_settings;
 };
 
+void mympd_state_default(struct t_mympd_state *mympd_state);
+void mympd_state_free(struct t_mympd_state *mympd_state);
+
+void mympd_state_default_mpd_state(struct t_mpd_state *mpd_state);
+void mympd_state_free_mpd_state(struct t_mpd_state *mpd_state);
+
+void album_cache_free(rax **album_cache);
+void sticker_cache_free(rax **sticker_cache);
+
+void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list);
+void reset_t_tags(struct t_tags *tags);
+
 #endif

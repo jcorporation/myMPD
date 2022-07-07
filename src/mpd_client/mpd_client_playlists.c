@@ -5,7 +5,7 @@
 */
 
 #include "mympd_config_defs.h"
-#include "mpd_shared_playlists.h"
+#include "mpd_client_playlists.h"
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
@@ -14,8 +14,8 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_tags.h"
+#include "mpd_client_errorhandler.h"
+#include "mpd_client_tags.h"
 
 #include <errno.h>
 #include <stdlib.h>
@@ -24,7 +24,20 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-time_t mpd_shared_get_db_mtime(struct t_mpd_state *mpd_state) {
+bool is_smartpls(sds workdir, const char *playlist) {
+    bool smartpls = false;
+    if (strchr(playlist, '/') == NULL) {
+        //filename only
+        sds smartpls_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
+        if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
+            smartpls = true;
+        }
+        FREE_SDS(smartpls_file);
+    }
+    return smartpls;
+}
+
+time_t mpd_client_get_db_mtime(struct t_mpd_state *mpd_state) {
     struct mpd_stats *stats = mpd_run_stats(mpd_state->conn);
     if (stats == NULL) {
         check_error_and_recover(mpd_state, NULL, NULL, 0);
@@ -35,7 +48,7 @@ time_t mpd_shared_get_db_mtime(struct t_mpd_state *mpd_state) {
     return mtime;
 }
 
-time_t mpd_shared_get_smartpls_mtime(struct t_config *config, const char *playlist) {
+time_t mpd_client_get_smartpls_mtime(struct t_config *config, const char *playlist) {
     sds plpath = sdscatfmt(sdsempty(), "%S/smartpls/%s", config->workdir, playlist);
     struct stat attr;
     errno = 0;
@@ -49,7 +62,7 @@ time_t mpd_shared_get_smartpls_mtime(struct t_config *config, const char *playli
     return attr.st_mtime;
 }
 
-time_t mpd_shared_get_playlist_mtime(struct t_mpd_state *mpd_state, const char *playlist) {
+time_t mpd_client_get_playlist_mtime(struct t_mpd_state *mpd_state, const char *playlist) {
     bool rc = mpd_send_list_playlists(mpd_state->conn);
     if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_playlists") == false) {
         return 0;
@@ -73,7 +86,7 @@ time_t mpd_shared_get_playlist_mtime(struct t_mpd_state *mpd_state, const char *
     return mtime;
 }
 
-sds mpd_shared_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds method,
+sds mpd_client_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds method,
         long request_id, const char *uri)
 {
     MYMPD_LOG_INFO("Shuffling playlist %s", uri);
@@ -144,7 +157,7 @@ sds mpd_shared_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds m
     }
     list_clear(&plist);
 
-    rc = mpd_shared_replace_playlist(mpd_state, uri_tmp, uri, uri_old);
+    rc = mpd_client_replace_playlist(mpd_state, uri_tmp, uri, uri_old);
 
     FREE_SDS(uri_tmp);
     FREE_SDS(uri_old);
@@ -160,7 +173,7 @@ sds mpd_shared_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds m
     return buffer;
 }
 
-sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds method,
+sds mpd_client_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds method,
         long request_id, const char *uri, const char *tagstr)
 {
     struct t_tags sort_tags = {
@@ -197,7 +210,7 @@ sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
         sdsclear(key);
         if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
             //sort by tag
-            key = mpd_shared_get_tag_value_string(song, sort_tags.tags[0], key);
+            key = mpd_client_get_tag_value_string(song, sort_tags.tags[0], key);
             key = sdscatfmt(key, "::%s", song_uri);
         }
         else {
@@ -274,7 +287,7 @@ sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
     raxStop(&iter);
     raxFree(plist);
 
-    rc = mpd_shared_replace_playlist(mpd_state, uri_tmp, uri, uri_old);
+    rc = mpd_client_replace_playlist(mpd_state, uri_tmp, uri, uri_old);
     FREE_SDS(uri_tmp);
     FREE_SDS(uri_old);
 
@@ -292,7 +305,7 @@ sds mpd_shared_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
     return buffer;
 }
 
-bool mpd_shared_replace_playlist(struct t_mpd_state *mpd_state, const char *new_pl, const char *to_replace_pl, const char *backup_pl) {
+bool mpd_client_replace_playlist(struct t_mpd_state *mpd_state, const char *new_pl, const char *to_replace_pl, const char *backup_pl) {
     //rename original playlist to old playlist
     bool rc = mpd_run_rename(mpd_state->conn, to_replace_pl, backup_pl);
     if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_rename") == false) {
@@ -314,7 +327,7 @@ bool mpd_shared_replace_playlist(struct t_mpd_state *mpd_state, const char *new_
     return true;
 }
 
-bool mpd_shared_smartpls_save(sds workdir, const char *smartpltype, const char *playlist,
+bool mpd_client_smartpls_save(sds workdir, const char *smartpltype, const char *playlist,
                               const char *expression, const int maxentries,
                               const int timerange, const char *sort)
 {

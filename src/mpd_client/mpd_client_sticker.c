@@ -5,20 +5,20 @@
 */
 
 #include "mympd_config_defs.h"
-#include "mpd_shared_sticker.h"
+#include "mpd_client_sticker.h"
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/validate.h"
-#include "../mpd_shared.h"
 #include "../lib/utility.h"
+#include "mpd_client_errorhandler.h"
 
 #include <inttypes.h>
 #include <stdlib.h>
 #include <string.h>
 
-sds mpd_shared_sticker_list(sds buffer, rax *sticker_cache, const char *uri) {
+sds mpd_client_sticker_list(sds buffer, rax *sticker_cache, const char *uri) {
     struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
     if (sticker != NULL) {
         buffer = tojson_long(buffer, "stickerPlayCount", sticker->playCount, true);
@@ -49,7 +49,7 @@ struct t_sticker *get_sticker_from_cache(rax *sticker_cache, const char *uri) {
     return sticker;
 }
 
-bool mpd_shared_get_sticker(struct t_mpd_state *mpd_state, const char *uri, struct t_sticker *sticker) {
+bool mpd_client_get_sticker(struct t_mpd_state *mpd_state, const char *uri, struct t_sticker *sticker) {
     struct mpd_pair *pair;
     char *crap = NULL;
     sticker->playCount = 0;
@@ -91,21 +91,4 @@ bool mpd_shared_get_sticker(struct t_mpd_state *mpd_state, const char *uri, stru
     }
 
     return true;
-}
-
-void sticker_cache_free(rax **sticker_cache) {
-    if (*sticker_cache == NULL) {
-        MYMPD_LOG_DEBUG("Sticker cache is NULL not freeing anything");
-        return;
-    }
-    MYMPD_LOG_DEBUG("Freeing sticker cache");
-    raxIterator iter;
-    raxStart(&iter, *sticker_cache);
-    raxSeek(&iter, "^", NULL, 0);
-    while (raxNext(&iter)) {
-        FREE_PTR(iter.data);
-    }
-    raxStop(&iter);
-    raxFree(*sticker_cache);
-    *sticker_cache = NULL;
 }

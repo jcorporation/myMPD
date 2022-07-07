@@ -1017,7 +1017,11 @@ createi18n() {
   PRETTY=$2
   cd src/i18n || exit 1
   echo "Creating i18n json"
-  perl ./tojson.pl "$PRETTY" > "$DST"
+  if ! perl ./tojson.pl "$PRETTY" > "$DST"
+  then
+    echo "Error creating translation files"
+    exit 1
+  fi
   cd ../.. || exit 1
 }
 

@@ -27,13 +27,23 @@ set(TEST_SOURCES
   ../src/lib/m3u.c
   ../src/lib/mimetype.c
   ../src/lib/mympd_queue.c
+  ../src/lib/mympd_state.c
   ../src/lib/random.c
   ../src/lib/sds_extras.c
   ../src/lib/state_files.c
   ../src/lib/utility.c
   ../src/lib/validate.c
-  ../src/mpd_shared.c
-  ../src/mpd_shared/mpd_shared_tags.c
+  ../src/mpd_client/mpd_client_errorhandler.c
+  ../src/mpd_client/mpd_client_search.c
+  ../src/mpd_client/mpd_client_sticker.c
+  ../src/mpd_client/mpd_client_tags.c
+  ../src/mpd_client/mpd_client_jukebox.c
+  ../src/mpd_client/mpd_client_volume.c
+  ../src/mympd_api/mympd_api_extra_media.c
+  ../src/mympd_api/mympd_api_status.c
+  ../src/mympd_api/mympd_api_timer.c
+  ../src/mympd_api/mympd_api_timer_handlers.c
+  ../src/mympd_api/mympd_api_queue.c
   ../src/mympd_api/mympd_api_webradios.c
   main.c
   tests/test_api.c

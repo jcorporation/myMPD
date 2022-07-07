@@ -17,9 +17,9 @@
 #include "../lib/state_files.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "../mpd_shared/mpd_shared_search.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "mympd_api_utility.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
+#include "../mpd_client/mpd_client_search.h"
+#include "../mpd_client/mpd_client_tags.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -149,7 +149,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
                     (search_len == 0 || utf8casestr(next_file->d_name, searchstr) != NULL)
                 ) {
                     struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
-                    data->last_modified = mpd_shared_get_smartpls_mtime(mympd_state->config, next_file->d_name);
+                    data->last_modified = mpd_client_get_smartpls_mtime(mympd_state->config, next_file->d_name);
                     data->type = PLTYPE_SMARTPLS_ONLY;
                     data->name = sdsnew(next_file->d_name);
                     sdsclear(key);
@@ -232,7 +232,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
         total_time += mpd_song_get_duration(song);
         if (entity_count >= offset && entity_count < real_limit) {
             sdsclear(entityName);
-            entityName = mpd_shared_get_tag_value_string(song, MPD_TAG_TITLE, entityName);
+            entityName = mpd_client_get_tag_value_string(song, MPD_TAG_TITLE, entityName);
             if (search_len == 0 ||
                 utf8casestr(entityName, searchstr) != NULL)
             {

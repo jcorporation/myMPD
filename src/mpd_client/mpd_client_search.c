@@ -5,40 +5,44 @@
 */
 
 #include "mympd_config_defs.h"
-#include "mpd_shared_search.h"
+#include "mpd_client_search.h"
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
-#include "mpd_shared_sticker.h"
-#include "mpd_shared_tags.h"
+#include "mpd_client_errorhandler.h"
+#include "mpd_client_sticker.h"
+#include "mpd_client_tags.h"
 
 #include <string.h>
 
 //private definitions
-static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
+
+static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *expression, const char *sort, const bool sortdesc,
                       const char *plist, unsigned to, unsigned whence,
                       const unsigned offset, unsigned limit, const struct t_tags *tagcols, bool adv,
                       const char *searchtag, rax *sticker_cache, bool *result);
+
 //public functions
-sds mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
+
+sds mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *searchstr, const char *searchtag, const char *plist,
                       const unsigned offset, unsigned limit, const struct t_tags *tagcols,
                       rax *sticker_cache, bool *result)
 {
-    return _mpd_shared_search(mpd_state, buffer, method, request_id,
+    return _mpd_client_search(mpd_state, buffer, method, request_id,
                               searchstr, NULL, false, plist, 0, 0, offset, limit,
                               tagcols, false, searchtag, sticker_cache, result);
 }
 
-sds mpd_shared_search_adv(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
+sds mpd_client_search_adv(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                           const char *expression, const char *sort, const bool sortdesc,
                           const char *plist, unsigned to, unsigned whence,
                           const unsigned offset, unsigned limit, const struct t_tags *tagcols,
                           rax *sticker_cache, bool *result)
 {
-    return _mpd_shared_search(mpd_state, buffer, method, request_id,
+    return _mpd_client_search(mpd_state, buffer, method, request_id,
                               expression, sort, sortdesc, plist, to, whence, offset, limit,
                               tagcols, true, NULL, sticker_cache, result);
 }
@@ -57,7 +61,7 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
 }
 
 //private functions
-static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
+static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *expression, const char *sort, const bool sortdesc, const char *plist,
                       unsigned to, unsigned whence, const unsigned offset, unsigned limit,
                       const struct t_tags *tagcols, bool adv, const char *searchtag, rax *sticker_cache,
@@ -190,7 +194,7 @@ static sds _mpd_shared_search(struct t_mpd_state *mpd_state, sds buffer, sds met
             buffer = get_song_tags(buffer, mpd_state, tagcols, song);
             if (sticker_cache != NULL) {
                 buffer = sdscatlen(buffer, ",", 1);
-                buffer = mpd_shared_sticker_list(buffer, sticker_cache, mpd_song_get_uri(song));
+                buffer = mpd_client_sticker_list(buffer, sticker_cache, mpd_song_get_uri(song));
             }
             buffer = sdscatlen(buffer, "}", 1);
             mpd_song_free(song);

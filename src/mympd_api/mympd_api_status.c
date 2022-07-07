@@ -13,11 +13,11 @@
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
 #include "../mpd_client/mpd_client_volume.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "mympd_api_utility.h"
+#include "../mpd_client/mpd_client_sticker.h"
+#include "../mpd_client/mpd_client_tags.h"
+#include "mympd_api_extra_media.h"
 #include "mympd_api_webradios.h"
 
 //private definitions
@@ -25,6 +25,42 @@ static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer,
 static time_t get_current_song_start_time(struct t_mympd_state *mympd_state);
 
 //public functions
+
+//replacement for deprecated mpd_status_get_elapsed_time
+unsigned mympd_api_get_elapsed_seconds(struct mpd_status *status) {
+    return mpd_status_get_elapsed_ms(status) / 1000;
+}
+
+sds mympd_api_status_print(struct t_mympd_state *mympd_state, sds buffer, struct mpd_status *status) {
+    enum mpd_state playstate = mpd_status_get_state(status);
+    const char *playstate_str =
+        playstate == MPD_STATE_STOP ? "stop" :
+        playstate == MPD_STATE_PLAY ? "play" :
+        playstate == MPD_STATE_PAUSE ? "pause" : "unknown";
+
+    buffer = tojson_char(buffer, "state", playstate_str, true);
+    buffer = tojson_long(buffer, "volume", mpd_status_get_volume(status), true);
+    buffer = tojson_long(buffer, "songPos", mpd_status_get_song_pos(status), true);
+    buffer = tojson_uint(buffer, "elapsedTime", mympd_api_get_elapsed_seconds(status), true);
+    buffer = tojson_uint(buffer, "totalTime", mpd_status_get_total_time(status), true);
+    buffer = tojson_long(buffer, "currentSongId", mpd_status_get_song_id(status), true);
+    buffer = tojson_uint(buffer, "kbitrate", mpd_status_get_kbit_rate(status), true);
+    buffer = tojson_uint(buffer, "queueLength", mpd_status_get_queue_length(status), true);
+    buffer = tojson_uint(buffer, "queueVersion", mpd_status_get_queue_version(status), true);
+    buffer = tojson_long(buffer, "nextSongPos", mpd_status_get_next_song_pos(status), true);
+    buffer = tojson_long(buffer, "nextSongId", mpd_status_get_next_song_id(status), true);
+    buffer = tojson_long(buffer, "lastSongId", (mympd_state->mpd_state->last_song_id ?
+        mympd_state->mpd_state->last_song_id : -1), true);
+    if (mympd_state->mpd_state->feat_mpd_partitions == true) {
+        buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
+    }
+    const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
+    buffer = printAudioFormat(buffer, audioformat);
+    buffer = sdscatlen(buffer, ",", 1);
+    buffer = tojson_char(buffer, "lastError", mpd_status_get_error(status), false);
+    return buffer;
+}
+
 sds mympd_api_status_updatedb_state(struct t_mympd_state *mympd_state, sds buffer) {
     long update_id = mympd_api_status_updatedb_id(mympd_state);
     if (update_id == -1) {
@@ -238,10 +274,10 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
         mympd_state->sticker_cache != NULL)
     {
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
+        buffer = mpd_client_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
     }
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = get_extra_files(mympd_state, buffer, uri, false);
+    buffer = get_extra_media(mympd_state, buffer, uri, false);
     if (is_streamuri(uri) == true) {
         sds webradio = get_webradio_from_uri(mympd_state->config->workdir, uri);
         if (sdslen(webradio) > 0) {

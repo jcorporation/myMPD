@@ -8,7 +8,7 @@
 #define MYMPD_API_PLAYLISTS_H
 
 #include "../lib/mympd_state.h"
-#include "../mpd_shared/mpd_shared_playlists.h"
+#include "../mpd_client/mpd_client_playlists.h"
 
 sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                              const long offset, const long limit, sds searchstr, enum playlist_types type);

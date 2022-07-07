@@ -22,7 +22,7 @@ while (my $line = <$file>) {
 close $file;
 
 #phrases from src
-my @dirs = ("../", "../mpd_shared/", "../mpd_client/", "../mpd_worker/", "../mympd_api/", "../web_server/", "../../htdocs/js/");
+my @dirs = ("../", "../mpd_client/", "../mpd_worker/", "../mympd_api/", "../web_server/", "../../htdocs/js/");
 my @files = ("../../htdocs/index.html");
 for my $dirname (@dirs) {
     opendir my $dir, $dirname or die "Can't open directory \"$dirname\": $!";

@@ -11,9 +11,7 @@
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mpd_worker.h"
+#include "../mpd_worker/mpd_worker.h"
 #include "../mympd_api/mympd_api_handler.h"
 #include "../mympd_api/mympd_api_queue.h"
 #include "../mympd_api/mympd_api_status.h"
@@ -22,9 +20,11 @@
 #include "../mympd_api/mympd_api_timer.h"
 #include "../mympd_api/mympd_api_timer_handlers.h"
 #include "../mympd_api/mympd_api_trigger.h"
-#include "../mympd_api/mympd_api_utility.h"
+#include "mpd_client_connection.h"
+#include "mpd_client_errorhandler.h"
 #include "mpd_client_features.h"
 #include "mpd_client_jukebox.h"
+#include "mpd_client_tags.h"
 
 #include <poll.h>
 #include <string.h>
@@ -215,7 +215,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 MYMPD_LOG_DEBUG("No password set");
             }
             //set keepalive
-            mpd_shared_set_keepalive(mympd_state->mpd_state);
+            mpd_client_set_keepalive(mympd_state->mpd_state);
             //check version
             if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 21, 0) < 0) {
                 MYMPD_LOG_EMERG("MPD version too old, myMPD supports only MPD version >= 0.21.0");
@@ -235,7 +235,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             //get mpd features
             mpd_client_mpd_features(mympd_state);
             //set binarylimit
-            mympd_api_set_binarylimit(mympd_state);
+            mpd_client_set_binarylimit(mympd_state->mpd_state);
             //initiate cache updates
             update_mympd_caches(mympd_state, 2);
             //set timer for smart playlist update

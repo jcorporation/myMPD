@@ -12,8 +12,8 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
+#include "../mpd_client/mpd_client_sticker.h"
 
 
 #include <inttypes.h>

@@ -7,15 +7,16 @@
 #include "mympd_config_defs.h"
 #include "mpd_worker.h"
 
-#include "../dist/sds/sds.h"
-#include "lib/log.h"
-#include "lib/mem.h"
-#include "lib/sds_extras.h"
-#include "mpd_shared.h"
-#include "mpd_shared/mpd_shared_tags.h"
-#include "mpd_worker/mpd_worker_api.h"
-#include "mpd_worker/mpd_worker_cache.h"
-#include "mpd_worker/mpd_worker_smartpls.h"
+#include "../../dist/sds/sds.h"
+#include "../lib/log.h"
+#include "../lib/mem.h"
+#include "../lib/sds_extras.h"
+#include "../mpd_client/mpd_client_connection.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
+#include "../mpd_client/mpd_client_tags.h"
+#include "mpd_worker_api.h"
+#include "mpd_worker_cache.h"
+#include "mpd_worker_smartpls.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -49,7 +50,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
 
     //mpd state
     mpd_worker_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
-    mpd_shared_default_mpd_state(mpd_worker_state->mpd_state);
+    mympd_state_default_mpd_state(mpd_worker_state->mpd_state);
     mpd_worker_state->mpd_state->mpd_host = sds_replace(mpd_worker_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_host);
     mpd_worker_state->mpd_state->mpd_port = mympd_state->mpd_state->mpd_port;
     mpd_worker_state->mpd_state->mpd_pass = sds_replace(mpd_worker_state->mpd_state->mpd_pass, mympd_state->mpd_state->mpd_pass);
@@ -77,7 +78,7 @@ static void *mpd_worker_run(void *arg) {
 
     if (mpd_worker_connect(mpd_worker_state) == true) {
         mpd_worker_api(mpd_worker_state);
-        mpd_shared_mpd_disconnect(mpd_worker_state->mpd_state);
+        mpd_client_disconnect(mpd_worker_state->mpd_state);
     }
     MYMPD_LOG_NOTICE("Stopping mpd_worker thread");
     FREE_SDS(thread_logname);
@@ -121,7 +122,7 @@ static bool mpd_worker_connect(struct t_mpd_worker_state *mpd_worker_state) {
     MYMPD_LOG_NOTICE("MPD worker connected");
     mpd_worker_state->mpd_state->conn_state = MPD_CONNECTED;
     //set keepalive
-    mpd_shared_set_keepalive(mpd_worker_state->mpd_state);
+    mpd_client_set_keepalive(mpd_worker_state->mpd_state);
     //set interesting tags
     enable_mpd_tags(mpd_worker_state->mpd_state, &mpd_worker_state->mpd_state->tag_types_mympd);
 

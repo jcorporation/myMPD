@@ -31,6 +31,18 @@ struct t_webradio_entry {
 
 //public functions
 
+sds resolv_mympd_uri(sds uri, sds mpd_host, sds http_host, sds http_port) {
+    if (strncmp(uri, "mympd://webradio/", 17) == 0) {
+        sdsrange(uri, 17, -1);
+        sds host = get_mympd_host(mpd_host, http_host);
+        sds new_uri = sdscatfmt(sdsempty(), "http://%S:%S/browse/webradios/%S", host, http_port, uri);
+        FREE_SDS(uri);
+        FREE_SDS(host);
+        return new_uri;
+    }
+    return uri;
+}
+
 sds get_webradio_from_uri(sds workdir, const char *uri) {
     sds filename = sdsnew(uri);
     sds_sanitize_filename(filename);

@@ -11,10 +11,9 @@
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mympd_api/mympd_api_utility.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
+#include "../mpd_client/mpd_client_sticker.h"
+#include "../mpd_client/mpd_client_tags.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -118,8 +117,8 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         sds artist = sdsempty();
         sds key = sdsempty();
         const bool create_album_cache = mpd_worker_state->mpd_state->feat_mpd_tags &&
-            mpd_shared_tag_exists(&mpd_worker_state->mpd_state->tag_types_mympd, MPD_TAG_ALBUM) &&
-            mpd_shared_tag_exists(&mpd_worker_state->mpd_state->tag_types_mympd, mpd_worker_state->mpd_state->tag_albumartist);
+            mpd_client_tag_exists(&mpd_worker_state->mpd_state->tag_types_mympd, MPD_TAG_ALBUM) &&
+            mpd_client_tag_exists(&mpd_worker_state->mpd_state->tag_types_mympd, mpd_worker_state->mpd_state->tag_albumartist);
         if (create_album_cache == false) {
             MYMPD_LOG_NOTICE("Skipping album cache creation, (Album)Artist and Album tags must be enabled");
         }
@@ -140,8 +139,8 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             if (create_album_cache == true) {
                 sdsclear(album);
                 sdsclear(artist);
-                album = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM, album);
-                artist = mpd_shared_get_tag_value_string(song, mpd_worker_state->mpd_state->tag_albumartist, artist);
+                album = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, album);
+                artist = mpd_client_get_tag_value_string(song, mpd_worker_state->mpd_state->tag_albumartist, artist);
                 if (sdslen(album) > 0 &&
                     sdslen(artist) > 0)
                 {
@@ -204,7 +203,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         sds uri = sdsempty();
         while (raxNext(&iter)) {
             uri = sds_replacelen(uri, (char *)iter.key, iter.key_len);
-            mpd_shared_get_sticker(mpd_worker_state->mpd_state, uri, (struct t_sticker *)iter.data);
+            mpd_client_get_sticker(mpd_worker_state->mpd_state, uri, (struct t_sticker *)iter.data);
         }
         FREE_SDS(uri);
         raxStop(&iter);

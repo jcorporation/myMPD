@@ -9,7 +9,7 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/sds_extras.h"
-#include "../mpd_shared.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
 
 #include <string.h>
 

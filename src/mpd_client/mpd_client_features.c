@@ -12,9 +12,9 @@
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_tags.h"
+#include "../mpd_client/mpd_client_tags.h"
 #include "../mympd_api/mympd_api_status.h"
+#include "mpd_client_errorhandler.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -236,7 +236,7 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
         enable_mpd_tags(mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd);
     }
 
-    bool has_albumartist = mpd_shared_tag_exists(&mympd_state->mpd_state->tag_types_mympd, MPD_TAG_ALBUM_ARTIST);
+    bool has_albumartist = mpd_client_tag_exists(&mympd_state->mpd_state->tag_types_mympd, MPD_TAG_ALBUM_ARTIST);
     if (has_albumartist == true) {
         mympd_state->mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
     }

@@ -19,6 +19,17 @@
 #include <time.h>
 #include <unistd.h>
 
+#include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <libgen.h>
+#include <netdb.h>
+#include <sys/socket.h>
+
+//private definitions
+static sds get_local_ip(void);
+
+//public functions
+
 const char *getenv_check(const char *env_var, size_t max_len) {
     const char *env_value = getenv(env_var); /* Flawfinder: ignore */
     if (env_value == NULL) {
@@ -207,4 +218,61 @@ const char *get_extension_from_filename(const char *filename) {
         }
     }
     return ext;
+}
+
+sds get_mympd_host(sds mpd_host, sds http_host) {
+    if (strncmp(mpd_host, "/", 1) == 0) {
+        //local socket - use localhost
+        return sdsnew("localhost");
+    }
+    if (strcmp(http_host, "0.0.0.0") != 0) {
+        //host defined in configuration
+        return sdsdup(http_host);
+    }
+    //get local ip
+    return get_local_ip();
+}
+
+//private functions
+static sds get_local_ip(void) {
+    struct ifaddrs *ifaddr;
+    struct ifaddrs *ifa;
+    char host[NI_MAXHOST];
+
+    errno = 0;
+    if (getifaddrs(&ifaddr) == -1) {
+        MYMPD_LOG_ERROR("Can not get list of inteface ip addresses");
+        MYMPD_LOG_ERRNO(errno);
+        return sdsempty();
+    }
+
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == NULL ||
+            strcmp(ifa->ifa_name, "lo") == 0)
+        {
+            continue;
+        }
+        int family = ifa->ifa_addr->sa_family;
+        if (family == AF_INET ||
+            family == AF_INET6)
+        {
+            int s = getnameinfo(ifa->ifa_addr,
+                    (family == AF_INET) ? sizeof(struct sockaddr_in) :
+                                          sizeof(struct sockaddr_in6),
+                    host, NI_MAXHOST,
+                    NULL, 0, NI_NUMERICHOST);
+            if (s != 0) {
+                MYMPD_LOG_ERROR("getnameinfo() failed: %s\n", gai_strerror(s));
+                continue;
+            }
+            char *crap;
+            // remove zone info from ipv6
+            char *ip = strtok_r(host, "%", &crap);
+            sds ip_str = sdsnew(ip);
+            freeifaddrs(ifaddr);
+            return ip_str;
+        }
+    }
+    freeifaddrs(ifaddr);
+    return sdsempty();
 }

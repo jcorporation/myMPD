@@ -255,6 +255,7 @@ set(MYMPD_SOURCES
   src/lib/mimetype.c
   src/lib/mympd_pin.c
   src/lib/mympd_queue.c
+  src/lib/mympd_state.c
   src/lib/random.c
   src/lib/sds_extras.c
   src/lib/state_files.c
@@ -262,23 +263,25 @@ set(MYMPD_SOURCES
   src/lib/validate.c
   src/main.c
   src/mpd_client/mpd_client_autoconf.c
+  src/mpd_client/mpd_client_connection.c
+  src/mpd_client/mpd_client_errorhandler.c
   src/mpd_client/mpd_client_features.c
   src/mpd_client/mpd_client_idle.c
   src/mpd_client/mpd_client_jukebox.c
+  src/mpd_client/mpd_client_playlists.c
+  src/mpd_client/mpd_client_search.c
+  src/mpd_client/mpd_client_sticker.c
+  src/mpd_client/mpd_client_tags.c
   src/mpd_client/mpd_client_volume.c
-  src/mpd_shared.c
-  src/mpd_shared/mpd_shared_playlists.c
-  src/mpd_shared/mpd_shared_search.c
-  src/mpd_shared/mpd_shared_sticker.c
-  src/mpd_shared/mpd_shared_tags.c
-  src/mpd_worker.c
+  src/mpd_worker/mpd_worker.c
   src/mpd_worker/mpd_worker_api.c
   src/mpd_worker/mpd_worker_cache.c
   src/mpd_worker/mpd_worker_smartpls.c
-  src/mpd_worker/mpd_worker_utility.c
-  src/mympd_api.c
+  src/mpd_worker/mpd_worker_state.c
+  src/mympd_api/mympd_api.c
   src/mympd_api/mympd_api_albumart.c
   src/mympd_api/mympd_api_browse.c
+  src/mympd_api/mympd_api_extra_media.c
   src/mympd_api/mympd_api_handler.c
   src/mympd_api/mympd_api_home.c
   src/mympd_api/mympd_api_lyrics.c
@@ -294,10 +297,9 @@ set(MYMPD_SOURCES
   src/mympd_api/mympd_api_timer.c
   src/mympd_api/mympd_api_timer_handlers.c
   src/mympd_api/mympd_api_trigger.c
-  src/mympd_api/mympd_api_utility.c
   src/mympd_api/mympd_api_webradios.c
   src/mympd_config.c
-  src/web_server.c
+  src/web_server/web_server.c
   src/web_server/web_server_albumart.c
   src/web_server/web_server_handler.c
   src/web_server/web_server_proxy.c

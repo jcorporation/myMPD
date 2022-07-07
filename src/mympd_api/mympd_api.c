@@ -7,21 +7,21 @@
 #include "mympd_config_defs.h"
 #include "mympd_api.h"
 
-#include "lib/api.h"
-#include "lib/log.h"
-#include "lib/mem.h"
-#include "lib/mympd_configuration.h"
-#include "lib/sds_extras.h"
-#include "mpd_client/mpd_client_autoconf.h"
-#include "mpd_client/mpd_client_idle.h"
-#include "mpd_shared.h"
-#include "mympd_api/mympd_api_home.h"
-#include "mympd_api/mympd_api_settings.h"
-#include "mympd_api/mympd_api_stats.h"
-#include "mympd_api/mympd_api_timer.h"
-#include "mympd_api/mympd_api_timer_handlers.h"
-#include "mympd_api/mympd_api_trigger.h"
-#include "mympd_api/mympd_api_utility.h"
+#include "../lib/api.h"
+#include "../lib/log.h"
+#include "../lib/mem.h"
+#include "../lib/mympd_configuration.h"
+#include "../lib/sds_extras.h"
+#include "../mpd_client/mpd_client_autoconf.h"
+#include "../mpd_client/mpd_client_connection.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
+#include "../mpd_client/mpd_client_idle.h"
+#include "mympd_api_home.h"
+#include "mympd_api_settings.h"
+#include "mympd_api_stats.h"
+#include "mympd_api_timer.h"
+#include "mympd_api_timer_handlers.h"
+#include "mympd_api_trigger.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -67,7 +67,7 @@ void *mympd_api_loop(void *arg_config) {
     //stop trigger
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP);
     //disconnect from mpd
-    mpd_shared_mpd_disconnect(mympd_state->mpd_state);
+    mpd_client_disconnect(mympd_state->mpd_state);
     //save states
     mympd_api_home_file_save(mympd_state);
     mympd_api_timer_file_save(mympd_state);

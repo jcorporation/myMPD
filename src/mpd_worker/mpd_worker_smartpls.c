@@ -13,9 +13,9 @@
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 #include "../lib/validate.h"
-#include "../mpd_shared/mpd_shared_playlists.h"
-#include "../mpd_shared/mpd_shared_search.h"
-#include "mpd_worker_utility.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
+#include "../mpd_client/mpd_client_search.h"
+#include "../mpd_client/mpd_client_playlists.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -41,7 +41,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
 
     mpd_worker_smartpls_per_tag(mpd_worker_state);
 
-    time_t db_mtime = mpd_shared_get_db_mtime(mpd_worker_state->mpd_state);
+    time_t db_mtime = mpd_client_get_db_mtime(mpd_worker_state->mpd_state);
     MYMPD_LOG_DEBUG("Database mtime: %lld", (long long)db_mtime);
 
     sds dirname = sdscatfmt(sdsempty(), "%S/smartpls", mpd_worker_state->config->workdir);
@@ -58,8 +58,8 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
         if (next_file->d_type != DT_REG) {
             continue;
         }
-        time_t playlist_mtime = mpd_shared_get_playlist_mtime(mpd_worker_state->mpd_state, next_file->d_name);
-        time_t smartpls_mtime = mpd_shared_get_smartpls_mtime(mpd_worker_state->config, next_file->d_name);
+        time_t playlist_mtime = mpd_client_get_playlist_mtime(mpd_worker_state->mpd_state, next_file->d_name);
+        time_t smartpls_mtime = mpd_client_get_smartpls_mtime(mpd_worker_state->config, next_file->d_name);
         MYMPD_LOG_DEBUG("Playlist %s: playlist mtime %lld, smartpls mtime %lld", next_file->d_name, (long long)playlist_mtime, (long long)smartpls_mtime);
         if (force == true || db_mtime > playlist_mtime || smartpls_mtime > playlist_mtime) {
             mpd_worker_smartpls_update(mpd_worker_state, next_file->d_name);
@@ -145,10 +145,10 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         if (json_get_string(content, "$.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
             if (sdslen(sds_buf1) > 0) {
                 if (strcmp(sds_buf1, "shuffle") == 0) {
-                    mpd_shared_playlist_shuffle(mpd_worker_state->mpd_state, NULL, NULL, 0, playlist);
+                    mpd_client_playlist_shuffle(mpd_worker_state->mpd_state, NULL, NULL, 0, playlist);
                 }
                 else {
-                    mpd_shared_playlist_sort(mpd_worker_state->mpd_state, NULL, NULL, 0, playlist, sds_buf1);
+                    mpd_client_playlist_sort(mpd_worker_state->mpd_state, NULL, NULL, 0, playlist, sds_buf1);
                 }
             }
         }
@@ -199,7 +199,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
                 sds expression = sdsnewlen("(", 1);
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
                 expression = sdscatlen(expression, ")", 1);
-                rc = mpd_shared_smartpls_save(mpd_worker_state->config->workdir, "search", playlist, expression, 0, 0, mpd_worker_state->smartpls_sort);
+                rc = mpd_client_smartpls_save(mpd_worker_state->config->workdir, "search", playlist, expression, 0, 0, mpd_worker_state->smartpls_sort);
                 FREE_SDS(expression);
                 if (rc == true) {
                     MYMPD_LOG_INFO("Created smart playlist \"%s\"", playlist);
@@ -255,7 +255,7 @@ static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_wor
     mpd_worker_smartpls_clear(mpd_worker_state, playlist);
     sds buffer = sdsempty();
     bool result;
-    buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, NULL, 0, expression, NULL, true, playlist, UINT_MAX, 0, 0, MPD_PLAYLIST_LENGTH_MAX, NULL, NULL, &result);
+    buffer = mpd_client_search_adv(mpd_worker_state->mpd_state, buffer, NULL, 0, expression, NULL, true, playlist, UINT_MAX, 0, 0, MPD_PLAYLIST_LENGTH_MAX, NULL, NULL, &result);
     FREE_SDS(buffer);
     if (result == true) {
         MYMPD_LOG_INFO("Updated smart playlist \"%s\"", playlist);
@@ -390,7 +390,7 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
     sds method = sdsempty();
     bool result = false;
     sds searchstr = sdscatfmt(sdsempty(), "(modified-since '%U')", value_max);
-    buffer = mpd_shared_search_adv(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, "LastModified", true, playlist, UINT_MAX, 0, 0, MPD_PLAYLIST_LENGTH_MAX, NULL, NULL, &result);
+    buffer = mpd_client_search_adv(mpd_worker_state->mpd_state, buffer, method, 0, searchstr, "LastModified", true, playlist, UINT_MAX, 0, 0, MPD_PLAYLIST_LENGTH_MAX, NULL, NULL, &result);
     FREE_SDS(searchstr);
     if (result == true) {
         MYMPD_LOG_INFO("Updated smart playlist \"%s\"", playlist);

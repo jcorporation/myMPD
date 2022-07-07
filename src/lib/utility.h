@@ -26,12 +26,14 @@ enum try_rm_file_status {
     RM_FILE_ERROR = 2
 };
 
+bool is_streamuri(const char *uri);
+bool is_virtual_cuedir(sds music_directory, sds filename);
+
 const char *getenv_check(const char *env_var, size_t max_len);
 void ws_notify(sds message);
-bool is_virtual_cuedir(sds music_directory, sds filename);
 int testdir(const char *name, const char *dirname, bool create);
 void my_msleep(long msec);
-bool is_streamuri(const char *uri);
+
 sds *split_coverimage_names(sds coverimage_name, int *count);
 const char *get_extension_from_filename(const char *filename);
 
@@ -40,6 +42,8 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, sds filepath, bool write_rc);
 bool write_data_to_file(sds filepath, const char *data, size_t data_len);
 bool rm_file(sds filepath);
 int try_rm_file(sds filepath);
+
+sds get_mympd_host(sds mpd_host, sds http_host);
 
 //measure time
 #define MEASURE_INIT struct timespec tic, toc;

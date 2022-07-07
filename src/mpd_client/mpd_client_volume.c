@@ -7,7 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mpd_client_volume.h"
 
-#include "../mpd_shared.h"
+#include "mpd_client_errorhandler.h"
 
 //returns the mpd volume, -1 if volume control is disabled
 int mpd_client_get_volume(struct t_mpd_state *mpd_state) {

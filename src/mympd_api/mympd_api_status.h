@@ -9,6 +9,8 @@
 
 #include "../lib/mympd_state.h"
 
+unsigned mympd_api_get_elapsed_seconds(struct mpd_status *status);
+sds mympd_api_status_print(struct t_mympd_state *mympd_state, sds buffer, struct mpd_status *status);
 sds mympd_api_status_updatedb_state(struct t_mympd_state *mympd_state, sds buffer);
 long mympd_api_status_updatedb_id(struct t_mympd_state *mympd_state);
 sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
