@@ -109,6 +109,13 @@ int sds_getfile(sds *s, FILE *fp, size_t max) {
     }
 }
 
+/**
+ * Checks if dir exists
+ * @param name describtive name
+ * @param dirname directory path to check
+ * @param create true creates the directory
+ * @return enum testdir_status
+ */
 int testdir(const char *name, const char *dirname, bool create) {
     DIR* dir = opendir(dirname);
     if (dir != NULL) {
@@ -136,7 +143,12 @@ int testdir(const char *name, const char *dirname, bool create) {
     return DIR_NOT_EXISTS;
 }
 
-//opens tmp file for write
+/**
+ * Opens a temporary file for write using mkstemp
+ * @param filepath filepath to open, e.g. /tmp/test.XXXXXX
+ *                 XXXXXX is replaced with a random string
+ * @return FILE pointer
+ */
 FILE *open_tmp_file(sds filepath) {
     errno = 0;
     int fd = mkstemp(filepath);
@@ -154,33 +166,14 @@ FILE *open_tmp_file(sds filepath) {
     return fp;
 }
 
-//removes a file and reports all errors
-bool rm_file(sds filepath) {
-    errno = 0;
-    if (unlink(filepath) != 0) {
-        MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
-        MYMPD_LOG_ERRNO(errno);
-        return false;
-    }
-    return true;
-}
-
-//removes a file and ignores none existing error
-int try_rm_file(sds filepath) {
-    errno = 0;
-    if (unlink(filepath) != 0) {
-        if (errno == ENOENT) {
-            MYMPD_LOG_DEBUG("File \"%s\" does not exist", filepath);
-            return RM_FILE_ENOENT;
-        }
-        MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
-        MYMPD_LOG_ERRNO(errno);
-        return RM_FILE_ERROR;
-    }
-    return RM_FILE_OK;
-}
-
-//closes the tmp file and moves it to its destination name
+/**
+ * Closes the tmp file and moves it to its destination name
+ * @param fp FILE pointer
+ * @param tmp_file tmp file to close and move
+ * @param filepath destination path
+ * @param write_rc if false tmp file will be removed
+ * @return true on success else false
+ */
 bool rename_tmp_file(FILE *fp, sds tmp_file, sds filepath, bool write_rc) {
     if (fclose(fp) != 0 ||
         write_rc == false)
@@ -200,6 +193,49 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, sds filepath, bool write_rc) {
     return true;
 }
 
+/**
+ * Removes a file and reports all errors
+ * @param filepath filepath to remove
+ * @return true on success else false
+ */
+bool rm_file(sds filepath) {
+    errno = 0;
+    if (unlink(filepath) != 0) {
+        MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
+        MYMPD_LOG_ERRNO(errno);
+        return false;
+    }
+    return true;
+}
+
+/**
+ * Removes a file and ignores none existing error
+ * @param filepath filepath to remove
+ * @return RM_FILE_ENOENT if file does not exist
+ *         RM_FILE_ERROR error from unlink call
+ *         RM_FILE_OK file was removed
+ */
+int try_rm_file(sds filepath) {
+    errno = 0;
+    if (unlink(filepath) != 0) {
+        if (errno == ENOENT) {
+            MYMPD_LOG_DEBUG("File \"%s\" does not exist", filepath);
+            return RM_FILE_ENOENT;
+        }
+        MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
+        MYMPD_LOG_ERRNO(errno);
+        return RM_FILE_ERROR;
+    }
+    return RM_FILE_OK;
+}
+
+/**
+ * Writes data to a file
+ * @param filepath filepath to write to
+ * @param data data to write
+ * @param data_len data length to write
+ * @return true on success else false
+ */
 bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
     sds tmp_file = sdscatfmt(sdsempty(), "%S.XXXXXX", filepath);
     FILE *fp = open_tmp_file(tmp_file);
