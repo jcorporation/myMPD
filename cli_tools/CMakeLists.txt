@@ -15,6 +15,7 @@ if (LUA_FOUND)
     log.c
     ../dist/mongoose/mongoose.c
     ../dist/sds/sds.c
+    ../src/lib/filehandler.c
     ../src/lib/sds_extras.c
     ../src/lib/http_client.c
   )

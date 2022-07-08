@@ -246,6 +246,7 @@ set(MYMPD_SOURCES
   src/handle_options.c
   src/lib/api.c
   src/lib/covercache.c
+  src/lib/filehandler.c
   src/lib/http_client.c
   src/lib/jsonrpc.c
   src/lib/list.c

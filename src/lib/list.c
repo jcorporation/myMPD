@@ -7,11 +7,11 @@
 #include "mympd_config_defs.h"
 #include "list.h"
 
+#include "filehandler.h"
 #include "log.h"
 #include "mem.h"
 #include "random.h"
 #include "sds_extras.h"
-#include "utility.h"
 
 #include <errno.h>
 #include <stdlib.h>

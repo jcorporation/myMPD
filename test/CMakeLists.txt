@@ -19,6 +19,7 @@ set(TEST_SOURCES
   ../dist/sds/sds.c
   ../dist/tinymt/tinymt32.c
   ../src/lib/api.c
+  ../src/lib/filehandler.c
   ../src/lib/http_client.c
   ../src/lib/jsonrpc.c
   ../src/lib/list.c

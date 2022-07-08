@@ -7,12 +7,12 @@
 #include "mympd_config_defs.h"
 #include "mpd_client_playlists.h"
 
+#include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/random.h"
 #include "../lib/sds_extras.h"
-#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "mpd_client_errorhandler.h"
 #include "mpd_client_tags.h"

@@ -8,6 +8,7 @@
 #include "http_client.h"
 
 #include "../../dist/mongoose/mongoose.h"
+#include "filehandler.h"
 #include "log.h"
 #include "sds_extras.h"
 

@@ -7,10 +7,10 @@
 #include "mympd_config_defs.h"
 #include "cert.h"
 
+#include "filehandler.h"
 #include "list.h"
 #include "log.h"
 #include "sds_extras.h"
-#include "utility.h"
 
 #include <arpa/inet.h>
 #include <errno.h>

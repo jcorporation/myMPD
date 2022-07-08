@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mpd_client_connection.h"
 
+#include "../lib/api.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"

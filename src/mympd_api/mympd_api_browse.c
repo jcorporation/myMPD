@@ -153,7 +153,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
             case MPD_ENTITY_TYPE_DIRECTORY: {
                 const struct mpd_directory *dir = mpd_entity_get_directory(entity);
                 sds entity_name = sdsnew(mpd_directory_get_path(dir));
-                sds_basename_uri(entity_name);
+                basename_uri(entity_name);
                 key = sdscatfmt(key, "0%s", mpd_directory_get_path(dir));
                 search_dir_entry(entity_list, key, entity_name, entity, searchstr);
                 break;
@@ -172,7 +172,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                     }
                 }
                 sds entity_name = sdsnew(pl_path);
-                sds_basename_uri(entity_name);
+                basename_uri(entity_name);
                 key = sdscatfmt(key, "1%s", pl_path);
                 search_dir_entry(entity_list, key, entity_name, entity, searchstr);
                 break;
@@ -236,7 +236,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                     buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
                     buffer = sdscatlen(buffer, ",", 1);
                     sds filename = sdsnew(mpd_song_get_uri(song));
-                    sds_basename_uri(filename);
+                    basename_uri(filename);
                     buffer = tojson_sds(buffer, "Filename", filename, false);
                     FREE_SDS(filename);
                     if (mympd_state->mpd_state->feat_mpd_stickers) {

@@ -8,6 +8,7 @@
 #include "mympd_api_settings.h"
 
 #include "../../dist/mjson/mjson.h"
+#include "../lib/api.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"
@@ -83,7 +84,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
             return false;
         }
         mympd_state->music_directory = sds_replace(mympd_state->music_directory, value);
-        sds_strip_slash(mympd_state->music_directory);
+        strip_slash(mympd_state->music_directory);
     }
     else if (strcmp(key, "playlistDirectory") == 0 && vtype == MJSON_TOK_STRING) {
         if (vcb_isfilepath(value) == false) {
@@ -91,7 +92,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
             return false;
         }
         mympd_state->playlist_directory = sds_replace(mympd_state->playlist_directory, value);
-        sds_strip_slash(mympd_state->playlist_directory);
+        strip_slash(mympd_state->playlist_directory);
     }
     else if (strcmp(key, "mpdBinarylimit") == 0 && vtype == MJSON_TOK_NUMBER) {
         unsigned binarylimit = (unsigned)strtoumax(value, NULL, 10);
@@ -602,8 +603,8 @@ void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     mympd_state->listenbrainz_token = state_file_rw_string_sds(mympd_state->config->workdir, "state", "listenbrainz_token", mympd_state->listenbrainz_token, vcb_isalnum, false);
     mympd_state->navbar_icons = state_file_rw_string_sds(mympd_state->config->workdir, "state", "navbar_icons", mympd_state->navbar_icons, validate_json_array, false);
 
-    sds_strip_slash(mympd_state->music_directory);
-    sds_strip_slash(mympd_state->playlist_directory);
+    strip_slash(mympd_state->music_directory);
+    strip_slash(mympd_state->playlist_directory);
 }
 
 sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {

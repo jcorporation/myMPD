@@ -104,7 +104,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
             FREE_SDS(uri_decoded);
             return true;
         }
-        sds_sanitize_filename(uri_decoded);
+        sanitize_filename(uri_decoded);
 
         sds coverfile = sdscatfmt(sdsempty(), "%S/pics/thumbs/%S", config->workdir, uri_decoded);
         MYMPD_LOG_DEBUG("Check for stream cover \"%s\"", coverfile);

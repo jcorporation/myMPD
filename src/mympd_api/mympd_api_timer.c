@@ -7,12 +7,12 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_timer.h"
 
+#include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
-#include "../lib/utility.h"
 #include "../mpd_client/mpd_client_jukebox.h"
 #include "mympd_api_timer_handlers.h"
 

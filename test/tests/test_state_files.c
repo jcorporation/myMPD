@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 
 #include "../../dist/utest/utest.h"
+#include "../../src/lib/filehandler.h"
 #include "../../src/lib/sds_extras.h"
 #include "../../src/lib/state_files.h"
 

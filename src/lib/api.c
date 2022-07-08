@@ -8,6 +8,7 @@
 #include "api.h"
 
 #include "../../dist/mongoose/mongoose.h"
+#include "log.h"
 #include "lua_mympd_state.h"
 #include "mem.h"
 #include "sds_extras.h"
@@ -93,6 +94,13 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
         default:
             return false;
     }
+}
+
+void ws_notify(sds message) {
+    MYMPD_LOG_DEBUG("Push websocket notify to queue: \"%s\"", message);
+    struct t_work_result *response = create_result_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY);
+    response->data = sds_replace(response->data, message);
+    mympd_queue_push(web_server_queue, response, 0);
 }
 
 struct t_work_result *create_result(struct t_work_request *request) {

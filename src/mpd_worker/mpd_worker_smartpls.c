@@ -7,11 +7,13 @@
 #include "mympd_config_defs.h"
 #include "mpd_worker_smartpls.h"
 
+#include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
 #include "../mpd_client/mpd_client_search.h"
@@ -192,7 +194,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
         while ((current = list_shift_first(&tag_list)) != NULL) {
             const char *tagstr = mpd_tag_name(tag);
             sds filename = sdsdup(current->key);
-            sds_sanitize_filename(filename);
+            sanitize_filename(filename);
             sds playlist = sdscatfmt(sdsempty(), "%S%s%s-%s", mpd_worker_state->smartpls_prefix, (sdslen(mpd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, filename);
             sds plpath = sdscatfmt(sdsempty(), "%S/smartpls/%s", mpd_worker_state->config->workdir, playlist);
             if (access(plpath, F_OK) == -1) { /* Flawfinder: ignore */

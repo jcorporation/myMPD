@@ -11,6 +11,7 @@
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "mpd_client_errorhandler.h"
 
 #include <string.h>
@@ -186,7 +187,7 @@ sds mpd_client_get_tag_value_string(struct mpd_song const *song, const enum mpd_
             if (value_count == 0) {
                 //title fallback to filename
                 tag_values = sdscat(tag_values, mpd_song_get_uri(song));
-                sds_basename_uri(tag_values);
+                basename_uri(tag_values);
             }
         }
     }
@@ -205,7 +206,7 @@ sds mpd_client_get_tag_values(struct mpd_song const *song, const enum mpd_tag_ty
             if (value_count == 0) {
                 //title fallback to filename
                 sds filename = sdsnew(mpd_song_get_uri(song));
-                sds_basename_uri(filename);
+                basename_uri(filename);
                 tag_values = sds_catjson(tag_values, filename, sdslen(filename));
                 FREE_SDS(filename);
                 value_count++;
@@ -250,7 +251,7 @@ sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct 
                         const char *uri)
 {
     sds filename = sdsnew(uri);
-    sds_basename_uri(filename);
+    basename_uri(filename);
     if (mpd_state->feat_mpd_tags == true) {
         for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             const bool multi = is_multivalue_tag(tagcols->tags[tagnr]);

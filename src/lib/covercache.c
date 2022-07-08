@@ -7,10 +7,10 @@
 #include "mympd_config_defs.h"
 #include "covercache.h"
 
+#include "filehandler.h"
 #include "log.h"
 #include "mimetype.h"
 #include "sds_extras.h"
-#include "utility.h"
 
 #include <dirent.h>
 #include <errno.h>

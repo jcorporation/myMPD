@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_lyrics.h"
 
+#include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
@@ -103,7 +104,7 @@ static int _mympd_api_lyrics_synced(struct t_mympd_state *mympd_state, sds *buff
 static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool synced, int returned_entities) {
     //try file in folder in the music directory
     sds filename_cpy = sdsdup(mediafile);
-    sds_strip_file_extension(filename_cpy);
+    strip_file_extension(filename_cpy);
     sds lyricsfile = sdscatfmt(sdsempty(), "%S.%s", filename_cpy, ext);
     MYMPD_LOG_DEBUG("Trying to open lyrics file: %s", lyricsfile);
     FREE_SDS(filename_cpy);

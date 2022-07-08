@@ -24,7 +24,6 @@ UTEST(sds_extras, test_sds_toimax) {
     sdsfree(s);
 }
 
-
 UTEST(sds_extras, test_sds_utf8_tolower) {
     sds test_input= sdsnew("EINSTÜRZENDE NEUBAUTEN");
     sds_utf8_tolower(test_input);
@@ -110,70 +109,6 @@ UTEST(sds_extras, test_sds_replace) {
     sdsfree(s);
 }
 
-//test_sds_getfile, test_sds_getline and test_sds_getline_n are in test_utility.c
-
-UTEST(sds_extras, test_sds_basename_uri) {
-    struct t_input_result testcases[] = {
-        {"http://host:80/verz/verz/test?safsaf#798234",   "http://host:80/verz/verz/test" },
-        {"https://host:443/verz/verz/test?safsaf#798234", "https://host:443/verz/verz/test" },
-        {"https://host/verz/verz/test",                   "https://host/verz/verz/test" },
-        {"",                                              "" },
-        {"/test/test.mp3",                                "test.mp3" },
-        {NULL,                                            NULL}
-    };
-    struct t_input_result *p = testcases;
-    sds test_input = sdsempty();
-    while (p->input != NULL) {
-        test_input = sdscatfmt(test_input, "%s", p->input);
-        sds_basename_uri(test_input);
-        ASSERT_STREQ(p->result, test_input);
-        sdsclear(test_input);
-        p++;
-    }
-    sdsfree(test_input);
-}
-
-UTEST(sds_extras, test_sds_strip_slash) {
-    struct t_input_result testcases[] = {
-        {"//",           ""},
-        {"/test/woext/", "/test/woext"},
-        {"",             ""},
-        {"sdf/",         "sdf"},
-        {"/",            ""},
-        {NULL,           NULL}
-    };
-    struct t_input_result *p = testcases;
-    sds testfilename = sdsempty();
-    while (p->input != NULL) {
-        testfilename = sdscatfmt(testfilename, "%s", *p);
-        sds_strip_slash(testfilename);
-        ASSERT_STREQ(p->result, testfilename);
-        sdsclear(testfilename);
-        p++;
-    }
-    sdsfree(testfilename);
-}
-
-UTEST(sds_extras, test_sds_strip_file_extension) {
-    struct t_input_result testcases[] = {
-        {"/test/test.mp3",   "/test/test"},
-        {"/test/woext",      "/test/woext"},
-        {"",                 ""},
-        {"/tes/tet.mp3.mp3", "/tes/tet.mp3"},
-        {NULL,               NULL}
-    };
-    struct t_input_result *p = testcases;
-    sds test_input = sdsempty();
-    while (p->input != NULL) {
-        test_input = sdscatfmt(test_input, "%s", p->input);
-        sds_strip_file_extension(test_input);
-        ASSERT_STREQ(p->result, test_input);
-        sdsclear(test_input);
-        p++;
-    }
-    sdsfree(test_input);
-}
-
 UTEST(sds_extras, test_sds_catbool) {
     sds s = sdsempty();
     s = sds_catbool(s, true);
@@ -181,24 +116,4 @@ UTEST(sds_extras, test_sds_catbool) {
     sdsfree(s);
 }
 
-UTEST(sds_extras, test_sds_sanitize_filename) {
-    struct t_input_result testcases[] = {
-        {"http://host:80/verz/verz/test?safsaf#798234",   "http___host_80_verz_verz_test_safsaf_798234" },
-        {"https://host:443/verz/verz/test?safsaf#798234", "https___host_443_verz_verz_test_safsaf_798234" },
-        {"https://host/verz/verz/test",                   "https___host_verz_verz_test" },
-        {"",                                              "" },
-        {"/test/test.mp3.mp3",                            "_test_test_mp3_mp3" },
-        {NULL,                                            NULL}
-    };
-    struct t_input_result *p = testcases;
-    sds test_input = sdsempty();
-    while (p->input != NULL) {
-        test_input = sdscatfmt(test_input, "%s", p->input);
-        sds_sanitize_filename(test_input);
-        ASSERT_STREQ(p->result, test_input);
-        sdsclear(test_input);
-        p++;
-    }
-    sdsfree(test_input);
-}
-
+//test_sds_getfile, test_sds_getline and test_sds_getline_n are in test_filehandler.c

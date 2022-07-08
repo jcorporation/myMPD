@@ -9,6 +9,7 @@
 
 #include "../../dist/utf8/utf8.h"
 #include "../lib/api.h"
+#include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/m3u.h"
@@ -45,7 +46,7 @@ sds resolv_mympd_uri(sds uri, sds mpd_host, sds http_host, sds http_port) {
 
 sds get_webradio_from_uri(sds workdir, const char *uri) {
     sds filename = sdsnew(uri);
-    sds_sanitize_filename(filename);
+    sanitize_filename(filename);
     filename = sdscatlen(filename, ".m3u", 4);
     sds filepath = sdscatfmt(sdsempty(), "%S/webradios/%s", workdir, filename);
     sds entry = sdsempty();
@@ -177,7 +178,7 @@ bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
         sds description)
 {
     sds filename = sdsdup(uri);
-    sds_sanitize_filename(filename);
+    sanitize_filename(filename);
     sds filepath = sdscatfmt(sdsempty(), "%S/webradios/%S.m3u", workdir, filename);
 
     sds content = sdscatfmt(sdsempty(), "#EXTM3U\n"
@@ -202,7 +203,7 @@ bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
     {
         sdsclear(filename);
         filename = sdscatsds(filename, uri_old);
-        sds_sanitize_filename(filename);
+        sanitize_filename(filename);
         sdsclear(filepath);
         filepath = sdscatfmt(filepath, "%S/webradios/%S.m3u", workdir, filename);
         rc = rm_file(filepath);

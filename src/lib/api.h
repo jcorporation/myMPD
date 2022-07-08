@@ -218,6 +218,7 @@ const char *get_cmd_id_method_name(enum mympd_cmd_ids cmd_id);
 bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
 bool is_public_api_method(enum mympd_cmd_ids cmd_id);
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
+void ws_notify(sds message);
 struct t_work_result *create_result(struct t_work_request *request);
 struct t_work_result *create_result_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id);
 struct t_work_request *create_request(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *data);

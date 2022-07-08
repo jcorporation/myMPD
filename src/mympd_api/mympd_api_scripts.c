@@ -8,6 +8,7 @@
 #include "mympd_api_scripts.h"
 
 #include "../lib/api.h"
+#include "../lib/filehandler.h"
 #include "../lib/http_client.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
@@ -90,7 +91,7 @@ sds mympd_api_script_list(sds workdir, sds buffer, sds method, long request_id, 
         }
 
         scriptname = sdscat(scriptname, next_file->d_name);
-        sds_strip_file_extension(scriptname);
+        strip_file_extension(scriptname);
         entry = sdscatlen(entry, "{", 1);
         entry = tojson_char(entry, "name", scriptname, true);
         scriptfilename = sdscatfmt(scriptfilename, "%S/%s", scriptdirname, next_file->d_name);

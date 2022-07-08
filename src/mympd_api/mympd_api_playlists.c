@@ -9,6 +9,7 @@
 
 #include "../../dist/utf8/utf8.h"
 #include "../lib/api.h"
+#include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"

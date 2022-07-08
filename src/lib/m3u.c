@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "m3u.h"
 
+#include "filehandler.h"
 #include "jsonrpc.h"
 #include "log.h"
 #include "sds_extras.h"

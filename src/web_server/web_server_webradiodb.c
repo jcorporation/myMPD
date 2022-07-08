@@ -7,10 +7,10 @@
 #include "mympd_config_defs.h"
 #include "web_server_webradiodb.h"
 
+#include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
-#include "../lib/utility.h"
 #include "web_server_proxy.h"
 #include "web_server_utility.h"
 

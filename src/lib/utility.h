@@ -13,35 +13,17 @@
 
 #include "../../dist/sds/sds.h"
 
-enum testdir_status {
-    DIR_EXISTS = 0,
-    DIR_CREATED = 1,
-    DIR_CREATE_FAILED = 2,
-    DIR_NOT_EXISTS = 3
-};
-
-enum try_rm_file_status {
-    RM_FILE_OK = 0,
-    RM_FILE_ENOENT = 1,
-    RM_FILE_ERROR = 2
-};
-
 bool is_streamuri(const char *uri);
 bool is_virtual_cuedir(sds music_directory, sds filename);
-
-const char *getenv_check(const char *env_var, size_t max_len);
-void ws_notify(sds message);
-int testdir(const char *name, const char *dirname, bool create);
-void my_msleep(long msec);
-
 sds *split_coverimage_names(sds coverimage_name, int *count);
 const char *get_extension_from_filename(const char *filename);
+void basename_uri(sds s);
+void strip_file_extension(sds s);
+void strip_slash(sds s);
+void sanitize_filename(sds s);
 
-FILE *open_tmp_file(sds filepath);
-bool rename_tmp_file(FILE *fp, sds tmp_file, sds filepath, bool write_rc);
-bool write_data_to_file(sds filepath, const char *data, size_t data_len);
-bool rm_file(sds filepath);
-int try_rm_file(sds filepath);
+const char *getenv_check(const char *env_var, size_t max_len);
+void my_msleep(long msec);
 
 sds get_mympd_host(sds mpd_host, sds http_host);
 

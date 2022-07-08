@@ -8,6 +8,7 @@
 #include "jsonrpc.h"
 
 #include "../../dist/mjson/mjson.h"
+#include "api.h"
 #include "log.h"
 #include "sds_extras.h"
 #include "utility.h"

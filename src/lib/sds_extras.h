@@ -17,12 +17,6 @@
     SDS_PTR = NULL; \
 } while (0)
 
-enum getline_rc {
-    GETLINE_TOO_LONG = -2,
-    GETLINE_EMPTY = -1,
-    GETLINE_OK = 0
-};
-
 int sds_toimax(sds s);
 void sds_utf8_tolower(sds s);
 sds sds_catjson_plain(sds s, const char *p, size_t len);
@@ -34,14 +28,7 @@ sds sds_urldecode(sds s, const char *p, size_t len, bool is_form_url_encoded);
 sds sds_urlencode(sds s, const char *p, size_t len);
 sds sds_replacelen(sds s, const char *p, size_t len);
 sds sds_replace(sds s, const char *p);
-int sds_getline(sds *s, FILE *fp, size_t max);
-int sds_getline_n(sds *s, FILE *fp, size_t max);
-int sds_getfile(sds *s, FILE *fp, size_t max);
-void sds_basename_uri(sds s);
-void sds_strip_file_extension(sds s);
-void sds_strip_slash(sds s);
 sds sds_catbool(sds s, bool v);
-void sds_sanitize_filename(sds s);
 sds sds_hash(const char *p);
 
 #endif

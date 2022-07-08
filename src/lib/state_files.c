@@ -7,9 +7,9 @@
 #include "mympd_config_defs.h"
 #include "state_files.h"
 
+#include "filehandler.h"
 #include "log.h"
 #include "sds_extras.h"
-#include "utility.h"
 #include "validate.h"
 
 #include <ctype.h>

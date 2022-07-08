@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_home.h"
 
+#include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mympd_configuration.h"

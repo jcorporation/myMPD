@@ -8,6 +8,7 @@
 #include "mpd_client_features.h"
 
 #include "../lib/api.h"
+#include "../lib/filehandler.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
@@ -283,7 +284,7 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
     else {
         MYMPD_LOG_ERROR("Invalid music_directory value: \"%s\"", mympd_state->music_directory);
     }
-    sds_strip_slash(mympd_state->music_directory_value);
+    strip_slash(mympd_state->music_directory_value);
     MYMPD_LOG_INFO("Music directory is \"%s\"", mympd_state->music_directory_value);
 
     //set feat_library
