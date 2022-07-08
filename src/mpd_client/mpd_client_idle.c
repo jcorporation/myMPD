@@ -86,7 +86,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                         mympd_state->mpd_state->last_song_uri != NULL)
                     {
                         time_t now = time(NULL);
-                        if (mympd_state->mpd_state->feat_mpd_stickers && //stickers enabled
+                        if (mympd_state->mpd_state->feat_mpd_stickers &&                  //stickers enabled
                             mympd_state->mpd_state->last_song_set_song_played_time > now) //time in the future
                         {
                             //last song skipped
@@ -130,8 +130,6 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
 }
 
 void mpd_client_idle(struct t_mympd_state *mympd_state) {
-    struct pollfd fds[1];
-    int pollrc;
     sds buffer = sdsempty();
     long mympd_api_queue_length = 0;
     switch (mympd_state->mpd_state->conn_state) {
@@ -237,16 +235,17 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 mympd_state->mpd_state->reconnect_time = 0;
             }
             break;
-        case MPD_CONNECTED:
+        case MPD_CONNECTED: {
+            struct pollfd fds[1];
             fds[0].fd = mpd_connection_get_fd(mympd_state->mpd_state->conn);
             fds[0].events = POLLIN;
-            pollrc = poll(fds, 1, 50);
+            int pollrc = poll(fds, 1, 50);
             bool jukebox_add_song = false;
             bool set_played = false;
             mympd_api_queue_length = mympd_queue_length(mympd_api_queue, 50);
-            time_t now = time(NULL);
             //handle jukebox and last played only in mpd play state
             if (mympd_state->mpd_state->state == MPD_STATE_PLAY) {
+                time_t now = time(NULL);
                 //check if we should set the played state of current song
                 if (now > mympd_state->mpd_state->set_song_played_time &&
                     mympd_state->mpd_state->set_song_played_time > 0 &&
@@ -269,10 +268,10 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 }
             }
             //check if we need to exit the idle mode
-            if (pollrc > 0 || //idle event waiting
-                mympd_api_queue_length > 0 || //api was called
-                jukebox_add_song == true || //jukebox trigger
-                set_played == true || //playstat of song must be set
+            if (pollrc > 0 ||                          //idle event waiting
+                mympd_api_queue_length > 0 ||          //api was called
+                jukebox_add_song == true ||            //jukebox trigger
+                set_played == true ||                  //playstat of song must be set
                 mympd_state->sticker_queue.length > 0) //we must set waiting stickers
             {
                 MYMPD_LOG_DEBUG("Leaving mpd idle mode");
@@ -328,6 +327,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 }
             }
             break;
+        }
         default:
             MYMPD_LOG_ERROR("Invalid mpd connection state");
     }
