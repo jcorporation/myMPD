@@ -22,17 +22,6 @@ UTEST(utility, test_getenv_check) {
     unsetenv("TESTVAR");
 }
 
-UTEST(utility, test_split_coverimage_names) {
-    sds names = sdsnew("cover, folder");
-    int count;
-    sds *array = split_coverimage_names(names, &count);
-    ASSERT_EQ(count, 2);
-    ASSERT_STREQ(array[0], "cover");
-    ASSERT_STREQ(array[1], "folder");
-    sdsfree(names);
-    sdsfreesplitres(array, count);
-}
-
 UTEST(utility, test_my_msleep) {
     struct timespec begin, end;
     clock_gettime(CLOCK_MONOTONIC_RAW, &begin);

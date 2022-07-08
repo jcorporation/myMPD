@@ -10,6 +10,17 @@
 #include "../../src/lib/sds_extras.h"
 #include "../utility.h"
 
+UTEST(utility, test_sds_split_comma_trim) {
+    sds names = sdsnew("cover, folder");
+    int count;
+    sds *array = sds_split_comma_trim(names, &count);
+    ASSERT_EQ(count, 2);
+    ASSERT_STREQ(array[0], "cover");
+    ASSERT_STREQ(array[1], "folder");
+    sdsfree(names);
+    sdsfreesplitres(array, count);
+}
+
 UTEST(sds_extras, test_sds_hash) {
     sds hash = sds_hash("abc");
     ASSERT_STREQ("a9993e364706816aba3e25717850c26c9cd0d89d", hash);

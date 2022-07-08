@@ -18,6 +18,21 @@
 #define HEXTOI(x) (x >= '0' && x <= '9' ? x - '0' : x - 'W')
 
 /**
+ * Splits a comma separated string and trims whitespaces from single values
+ * @param s string to split
+ * @param count pointer to int representing the count of values
+ * @return array of sds strings
+ */
+sds *sds_split_comma_trim(sds s, int *count) {
+    *count = 0;
+    sds *values = sdssplitlen(s, (ssize_t)sdslen(s), ",", 1, count);
+    for (int i = 0; i < *count; i++) {
+        sdstrim(values[i], " ");
+    }
+    return values;
+}
+
+/**
  * Hashes a string with sha1
  * @param p string to hash
  * @return the hash as a newly allocated sds string
