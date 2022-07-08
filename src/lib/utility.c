@@ -30,6 +30,12 @@ static sds get_local_ip(void);
 
 //public functions
 
+/**
+ * Gets an environment variable and checks its length
+ * @param env_var environment variable name
+ * @param max_len maximum length
+ * @return environment variable value or NULL if it is not set or to long
+ */
 const char *getenv_check(const char *env_var, size_t max_len) {
     const char *env_value = getenv(env_var); /* Flawfinder: ignore */
     if (env_value == NULL) {
@@ -48,15 +54,10 @@ const char *getenv_check(const char *env_var, size_t max_len) {
     return env_value;
 }
 
-sds *split_coverimage_names(sds coverimage_name, int *count) {
-    *count = 0;
-    sds *coverimage_names = sdssplitlen(coverimage_name, (ssize_t)sdslen(coverimage_name), ",", 1, count);
-    for (int j = 0; j < *count; j++) {
-        sdstrim(coverimage_names[j], " ");
-    }
-    return coverimage_names;
-}
-
+/**
+ * Sleep function
+ * @param msec milliseconds to sleep
+ */
 void my_msleep(long msec) {
     struct timespec ts = {
         .tv_sec = (time_t)(msec / 1000),
@@ -65,8 +66,13 @@ void my_msleep(long msec) {
     nanosleep(&ts, NULL);
 }
 
-//mpd uses the cue filename as path
-//we simply check if the filename is a file or not
+/**
+ * Checks if the filename is a mpd virtual cue sheet directory
+ * MPD uses the cue filename as path, we simply check if the filename is a file or not
+ * @param music_directory mpd music directory
+ * @param filename filename to check
+ * @return true if it is a cue file else false
+ */
 bool is_virtual_cuedir(sds music_directory, sds filename) {
     sds full_path = sdscatfmt(sdsempty(), "%S/%S", music_directory, filename);
     bool is_cue_file = false;
@@ -84,6 +90,11 @@ bool is_virtual_cuedir(sds music_directory, sds filename) {
     return is_cue_file;
 }
 
+/**
+ * Checks if uri is realy uri or a local file
+ * @param uri uri to check
+ * @return true it is a uri else false
+ */
 bool is_streamuri(const char *uri) {
     if (uri != NULL &&
         strstr(uri, "://") != NULL)
@@ -93,6 +104,11 @@ bool is_streamuri(const char *uri) {
     return false;
 }
 
+/**
+ * Gets the extension of a filename
+ * @param filename filename to get extension from
+ * @return pointer to the extension
+ */
 const char *get_extension_from_filename(const char *filename) {
     if (filename == NULL) {
         return NULL;
@@ -143,7 +159,7 @@ void basename_uri(sds s) {
 }
 
 /**
- * Strips slashes from the end
+ * Strips all slashes from the end
  * @param s sds string to strip
  */
 void strip_slash(sds s) {
@@ -194,20 +210,31 @@ void sanitize_filename(sds s) {
     }
 }
 
+/**
+ * Gets the listening address of the embedded webserver
+ * @param mpd_host mpd_host config setting
+ * @param http_host http_host config setting
+ * @return address of the embedded webserver as sds string
+ */
 sds get_mympd_host(sds mpd_host, sds http_host) {
-    if (strncmp(mpd_host, "/", 1) == 0) {
-        //local socket - use localhost
-        return sdsnew("localhost");
-    }
     if (strcmp(http_host, "0.0.0.0") != 0) {
         //host defined in configuration
         return sdsdup(http_host);
+    }
+    if (strncmp(mpd_host, "/", 1) == 0) {
+        //local socket - use localhost
+        return sdsnew("localhost");
     }
     //get local ip
     return get_local_ip();
 }
 
 //private functions
+
+/**
+ * Gets the ip address of the first interface
+ * @return ip address as sds string
+ */
 static sds get_local_ip(void) {
     struct ifaddrs *ifaddr;
     struct ifaddrs *ifa;

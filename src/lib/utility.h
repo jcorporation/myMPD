@@ -15,7 +15,6 @@
 
 bool is_streamuri(const char *uri);
 bool is_virtual_cuedir(sds music_directory, sds filename);
-sds *split_coverimage_names(sds coverimage_name, int *count);
 const char *get_extension_from_filename(const char *filename);
 void basename_uri(sds s);
 void strip_file_extension(sds s);
