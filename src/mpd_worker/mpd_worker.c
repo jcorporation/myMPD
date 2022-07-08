@@ -24,9 +24,12 @@
 
 //private definitions
 static void *mpd_worker_run(void *arg);
-static bool mpd_worker_connect(struct t_mpd_worker_state *mpd_worker_state);
 
 //public functions
+
+/**
+ * Starts the worker thread
+ */
 bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *request) {
     MYMPD_LOG_NOTICE("Starting mpd_worker thread for %s", request->method);
     pthread_t mpd_worker_thread;
@@ -71,13 +74,20 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     return true;
 }
 
+/**
+ * Worker thread
+ */
 static void *mpd_worker_run(void *arg) {
     thread_logname = sds_replace(thread_logname, "mpdworker");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
     struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *) arg;
 
-    if (mpd_worker_connect(mpd_worker_state) == true) {
+    if (mpd_client_connect(mpd_worker_state->mpd_state) == true) {
+        //set interesting tags
+        enable_mpd_tags(mpd_worker_state->mpd_state, &mpd_worker_state->mpd_state->tag_types_mympd);
+        //call api handler
         mpd_worker_api(mpd_worker_state);
+        //disconnect
         mpd_client_disconnect(mpd_worker_state->mpd_state);
     }
     MYMPD_LOG_NOTICE("Stopping mpd_worker thread");
@@ -85,46 +95,4 @@ static void *mpd_worker_run(void *arg) {
     mpd_worker_state_free(mpd_worker_state);
     worker_threads--;
     return NULL;
-}
-
-static bool mpd_worker_connect(struct t_mpd_worker_state *mpd_worker_state) {
-    if (strncmp(mpd_worker_state->mpd_state->mpd_host, "/", 1) == 0) {
-        MYMPD_LOG_NOTICE("MPD worker connecting to socket \"%s\"", mpd_worker_state->mpd_state->mpd_host);
-    }
-    else {
-        MYMPD_LOG_NOTICE("MPD worker connecting to \"%s:%d\"", mpd_worker_state->mpd_state->mpd_host, mpd_worker_state->mpd_state->mpd_port);
-    }
-    mpd_worker_state->mpd_state->conn = mpd_connection_new(mpd_worker_state->mpd_state->mpd_host, mpd_worker_state->mpd_state->mpd_port, mpd_worker_state->mpd_state->mpd_timeout);
-    if (mpd_worker_state->mpd_state->conn == NULL) {
-        MYMPD_LOG_ERROR("MPD worker connection to failed: out-of-memory");
-        mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
-        mpd_connection_free(mpd_worker_state->mpd_state->conn);
-        return false;
-    }
-    if (mpd_connection_get_error(mpd_worker_state->mpd_state->conn) != MPD_ERROR_SUCCESS) {
-        MYMPD_LOG_ERROR("MPD worker connection: %s", mpd_connection_get_error_message(mpd_worker_state->mpd_state->conn));
-        mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
-        return false;
-    }
-    if (sdslen(mpd_worker_state->mpd_state->mpd_pass) > 0) {
-        MYMPD_LOG_DEBUG("Password set, authenticating to MPD");
-        if (mpd_run_password(mpd_worker_state->mpd_state->conn, mpd_worker_state->mpd_state->mpd_pass) == false) {
-             MYMPD_LOG_ERROR("MPD worker connection: %s", mpd_connection_get_error_message(mpd_worker_state->mpd_state->conn));
-             mpd_worker_state->mpd_state->conn_state = MPD_FAILURE;
-             return false;
-        }
-        MYMPD_LOG_INFO("Successfully authenticated to MPD");
-    }
-    else {
-        MYMPD_LOG_DEBUG("No password set");
-    }
-
-    MYMPD_LOG_NOTICE("MPD worker connected");
-    mpd_worker_state->mpd_state->conn_state = MPD_CONNECTED;
-    //set keepalive
-    mpd_client_set_keepalive(mpd_worker_state->mpd_state);
-    //set interesting tags
-    enable_mpd_tags(mpd_worker_state->mpd_state, &mpd_worker_state->mpd_state->tag_types_mympd);
-
-    return true;
 }

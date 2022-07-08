@@ -96,6 +96,10 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
     }
 }
 
+/**
+ * Sends a websocket notification to the browser
+ * @param message the message to send
+ */
 void ws_notify(sds message) {
     MYMPD_LOG_DEBUG("Push websocket notify to queue: \"%s\"", message);
     struct t_work_result *response = create_result_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY);

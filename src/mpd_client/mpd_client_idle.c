@@ -174,48 +174,9 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
         }
         case MPD_DISCONNECTED:
             //try to connect
-            if (strncmp(mympd_state->mpd_state->mpd_host, "/", 1) == 0) {
-                MYMPD_LOG_NOTICE("Connecting to MPD socket \"%s\"", mympd_state->mpd_state->mpd_host);
-            }
-            else {
-                MYMPD_LOG_NOTICE("Connecting to MPD host \"%s:%d\"", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port);
-            }
-            mympd_state->mpd_state->conn = mpd_connection_new(mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_timeout);
-            if (mympd_state->mpd_state->conn == NULL) {
-                MYMPD_LOG_ERROR("MPD connection failed: out-of-memory");
-                buffer = jsonrpc_event(buffer, "mpd_disconnected");
-                ws_notify(buffer);
-                mympd_state->mpd_state->conn_state = MPD_FAILURE;
-                mpd_connection_free(mympd_state->mpd_state->conn);
+            if (mpd_client_connect(mympd_state->mpd_state) == false) {
                 break;
             }
-            //check for connection error
-            if (mpd_connection_get_error(mympd_state->mpd_state->conn) != MPD_ERROR_SUCCESS) {
-                MYMPD_LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mympd_state->mpd_state->conn));
-                buffer = jsonrpc_notify_phrase(buffer, "mpd", "error", "MPD connection error: %{error}",
-                    2, "error", mpd_connection_get_error_message(mympd_state->mpd_state->conn));
-                ws_notify(buffer);
-                mympd_state->mpd_state->conn_state = MPD_FAILURE;
-                break;
-            }
-            //password required
-            if (sdslen(mympd_state->mpd_state->mpd_pass) > 0) {
-                MYMPD_LOG_DEBUG("Password set, authenticating to MPD");
-                if (mpd_run_password(mympd_state->mpd_state->conn, mympd_state->mpd_state->mpd_pass) == false) {
-                    MYMPD_LOG_ERROR("MPD connection: %s", mpd_connection_get_error_message(mympd_state->mpd_state->conn));
-                    buffer = jsonrpc_notify_phrase(buffer, "mpd", "error", "MPD connection error: %{error}", 2,
-                        "error", mpd_connection_get_error_message(mympd_state->mpd_state->conn));
-                    ws_notify(buffer);
-                    mympd_state->mpd_state->conn_state = MPD_FAILURE;
-                    break;
-                }
-                MYMPD_LOG_INFO("Successfully authenticated to MPD");
-            }
-            else {
-                MYMPD_LOG_DEBUG("No password set");
-            }
-            //set keepalive
-            mpd_client_set_keepalive(mympd_state->mpd_state);
             //check version
             if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 21, 0) < 0) {
                 MYMPD_LOG_EMERG("MPD version too old, myMPD supports only MPD version >= 0.21.0");
@@ -223,11 +184,9 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 s_signal_received = 1;
             }
             //we are connected
-            MYMPD_LOG_NOTICE("MPD connected");
             buffer = jsonrpc_event(buffer, "mpd_connected");
             ws_notify(buffer);
-            //initial connection state
-            mympd_state->mpd_state->conn_state = MPD_CONNECTED;
+            //reset reconnection intervals
             mympd_state->mpd_state->reconnect_interval = 0;
             mympd_state->mpd_state->reconnect_time = 0;
             //reset list of supported tags

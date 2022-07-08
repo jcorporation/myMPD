@@ -9,6 +9,7 @@
 
 #include "../lib/mympd_state.h"
 
+bool mpd_client_connect(struct t_mpd_state *mpd_state);
 bool mpd_client_set_keepalive(struct t_mpd_state *mpd_state);
 bool mpd_client_set_binarylimit(struct t_mpd_state *mpd_state);
 void mpd_client_disconnect(struct t_mpd_state *mpd_state);
