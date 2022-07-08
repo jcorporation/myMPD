@@ -20,9 +20,12 @@
 #include <string.h>
 #include <unistd.h>
 
+/**
+ * Tries to autodetect the mpd connection configuration
+ * https://mpd.readthedocs.io/en/latest/client.html#environment-variables
+ * @param mympd_state pointer to mympd_state structure
+ */
 void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
-    //try environment
-    //https://mpd.readthedocs.io/en/latest/client.html#environment-variables
     MYMPD_LOG_NOTICE("Reading environment");
     bool mpd_configured = false;
     const char *mpd_host_env = getenv_check("MPD_HOST", 100);
@@ -109,6 +112,6 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
         return;
     }
     //fallback to localhost:6600
-    mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "localhost");
-    mympd_state->mpd_state->mpd_port = 6600;
+    mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, MYMPD_MPD_HOST);
+    mympd_state->mpd_state->mpd_port = MYMPD_MPD_PORT;
 }

@@ -55,7 +55,7 @@
 #define MYMPD_MPD_TAG_LIST "Album,AlbumArtist,Artist,Disc,Genre,Name,Title,Track"
 #define MYMPD_MPD_KEEPALIVE true
 #define MYMPD_MPD_TIMEOUT 30000 //milliseconds
-#define MYMPD_MPD_HOST "/run/mpd/socket"
+#define MYMPD_MPD_HOST "localhost"
 #define MYMPD_MPD_PORT 6600
 #define MYMPD_MPD_PASS ""
 #define MYMPD_MPD_BINARYLIMIT 8192 //bytes
