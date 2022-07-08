@@ -38,7 +38,7 @@
 
 //private definitions
 struct t_script_thread_arg {
-    struct t_config *config;
+    sds lualibs;
     bool localscript;
     sds script_fullpath;
     sds script_name;
@@ -194,7 +194,7 @@ sds mympd_api_script_get(sds workdir, sds buffer, sds method, long request_id, s
     return buffer;
 }
 
-bool mympd_api_script_start(struct t_config *config, sds script, struct t_list *arguments, bool localscript) {
+bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list *arguments, bool localscript) {
     pthread_t mympd_script_thread;
     pthread_attr_t attr;
     if (pthread_attr_init(&attr) != 0) {
@@ -206,12 +206,12 @@ bool mympd_api_script_start(struct t_config *config, sds script, struct t_list *
         return false;
     }
     struct t_script_thread_arg *script_thread_arg = malloc_assert(sizeof(struct t_script_thread_arg));
-    script_thread_arg->config = config;
+    script_thread_arg->lualibs = lualibs;
     script_thread_arg->localscript = localscript;
     script_thread_arg->arguments = arguments;
     if (localscript == true) {
         script_thread_arg->script_name = sdsnew(script);
-        script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", config->workdir, script);
+        script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
         script_thread_arg->script_content = sdsempty();
     }
     else {
@@ -278,7 +278,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         free_t_script_thread_arg(script_arg);
         return NULL;
     }
-    if (strcmp(script_arg->config->lualibs, "all") == 0) {
+    if (strcmp(script_arg->lualibs, "all") == 0) {
         MYMPD_LOG_DEBUG("Open all standard lua libs");
         luaL_openlibs(lua_vm);
         mympd_luaopen(lua_vm, "json");
@@ -286,7 +286,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     }
     else {
         int count = 0;
-        sds *tokens = sdssplitlen(script_arg->config->lualibs, (ssize_t)sdslen(script_arg->config->lualibs), ",", 1, &count);
+        sds *tokens = sdssplitlen(script_arg->lualibs, (ssize_t)sdslen(script_arg->lualibs), ",", 1, &count);
         for (int i = 0; i < count; i++) {
             sdstrim(tokens[i], " ");
             MYMPD_LOG_DEBUG("Open lua library %s", tokens[i]);
