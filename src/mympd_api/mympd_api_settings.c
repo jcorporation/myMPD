@@ -11,7 +11,6 @@
 #include "../lib/api.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
-#include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 #include "../lib/state_files.h"
 #include "../lib/utility.h"

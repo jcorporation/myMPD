@@ -10,7 +10,6 @@
 #include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
-#include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 
 #include <errno.h>

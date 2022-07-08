@@ -11,7 +11,6 @@
 #include "../lib/covercache.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
-#include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
 #include "../mpd_client/mpd_client_jukebox.h"

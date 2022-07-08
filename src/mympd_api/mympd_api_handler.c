@@ -13,7 +13,6 @@
 #include "../lib/log.h"
 #include "../lib/lua_mympd_state.h"
 #include "../lib/mem.h"
-#include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
@@ -28,6 +27,7 @@
 #include "../mpd_worker/mpd_worker.h"
 #include "mympd_api_albumart.h"
 #include "mympd_api_browse.h"
+#include "mympd_api_filesystem.h"
 #include "mympd_api_home.h"
 #include "mympd_api_lyrics.h"
 #include "mympd_api_mounts.h"
@@ -36,6 +36,7 @@
 #include "mympd_api_queue.h"
 #include "mympd_api_scripts.h"
 #include "mympd_api_settings.h"
+#include "mympd_api_song.h"
 #include "mympd_api_stats.h"
 #include "mympd_api_status.h"
 #include "mympd_api_sticker.h"
@@ -81,6 +82,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
     #endif
 
     MYMPD_LOG_INFO("MYMPD API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
+
+    //shortcut
+    struct t_config *config = mympd_state->config;
+
     //create response struct
     struct t_work_result *response = create_result(request);
 
@@ -190,7 +195,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_string(request->data, "$.params.content", 0, CONTENT_LEN_MAX, &sds_buf3, vcb_istext, &error) == true &&
                 json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isalnum, 10, &error) == true)
             {
-                rc = mympd_api_script_save(mympd_state->config->workdir, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments);
+                rc = mympd_api_script_save(config->workdir, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
@@ -204,7 +209,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         }
         case MYMPD_API_SCRIPT_RM:
             if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                rc = mympd_api_script_delete(mympd_state->config->workdir, sds_buf1);
+                rc = mympd_api_script_delete(config->workdir, sds_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
@@ -216,12 +221,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_SCRIPT_GET:
             if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                response->data = mympd_api_script_get(mympd_state->config->workdir, response->data, request->method, request->id, sds_buf1);
+                response->data = mympd_api_script_get(config->workdir, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_SCRIPT_LIST: {
             if (json_get_bool(request->data, "$.params.all", &bool_buf1, &error) == true) {
-                response->data = mympd_api_script_list(mympd_state->config->workdir, response->data, request->method, request->id, bool_buf1);
+                response->data = mympd_api_script_list(config->workdir, response->data, request->method, request->id, bool_buf1);
             }
             break;
         }
@@ -231,7 +236,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
-                rc = mympd_api_script_start(mympd_state->config, sds_buf1, arguments, true);
+                rc = mympd_api_script_start(config->workdir, sds_buf1, config->lualibs, arguments, true);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
@@ -254,7 +259,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_string(request->data, "$.params.script", 1, CONTENT_LEN_MAX, &sds_buf1, vcb_istext, &error) == true &&
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
-                rc = mympd_api_script_start(mympd_state->config, sds_buf1, arguments, false);
+                rc = mympd_api_script_start(config->workdir, sds_buf1, config->lualibs, arguments, false);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "script");
                 }
@@ -359,7 +364,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         }
         case MYMPD_API_COVERCACHE_CROP:
-            int_buf1 = covercache_clear(mympd_state->config->cachedir, mympd_state->covercache_keep_days);
+            int_buf1 = covercache_clear(config->cachedir, mympd_state->covercache_keep_days);
             if (int_buf1 >= 0) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                     "general", "info", "Successfully croped covercache");
@@ -370,7 +375,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_COVERCACHE_CLEAR:
-            int_buf1 = covercache_clear(mympd_state->config->cachedir, 0);
+            int_buf1 = covercache_clear(config->cachedir, 0);
             if (int_buf1 >= 0) {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
                     "general", "info", "Successfully cleared covercache");
@@ -678,7 +683,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     json_get_int(request->data, "$.params.minvalue", 0, 100, &int_buf2, &error) == true &&
                     json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpdsort, &error) == true)
                 {
-                    rc = mpd_client_smartpls_save(mympd_state->config->workdir, "sticker", sds_buf1, sds_buf2, int_buf1, int_buf2, sds_buf3);
+                    rc = mpd_client_smartpls_save(config->workdir, "sticker", sds_buf1, sds_buf2, int_buf1, int_buf2, sds_buf3);
                 }
             }
             else if (request->cmd_id == MYMPD_API_SMARTPLS_NEWEST_SAVE) {
@@ -686,7 +691,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     json_get_int(request->data, "$.params.timerange", 0, JSONRPC_INT_MAX, &int_buf1, &error) == true &&
                     json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf2, vcb_ismpdsort, &error) == true)
                 {
-                    rc = mpd_client_smartpls_save(mympd_state->config->workdir, "newest", sds_buf1, NULL, 0, int_buf1, sds_buf2);
+                    rc = mpd_client_smartpls_save(config->workdir, "newest", sds_buf1, NULL, 0, int_buf1, sds_buf2);
                 }
             }
             else if (request->cmd_id == MYMPD_API_SMARTPLS_SEARCH_SAVE) {
@@ -694,7 +699,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     json_get_string(request->data, "$.params.expression", 1, EXPRESSION_LEN_MAX, &sds_buf2, vcb_isname, &error) == true &&
                     json_get_string(request->data, "$.params.sort", 0, 100, &sds_buf3, vcb_ismpdsort, &error) == true)
                 {
-                    rc = mpd_client_smartpls_save(mympd_state->config->workdir, "search", sds_buf1, sds_buf2, 0, 0, sds_buf3);
+                    rc = mpd_client_smartpls_save(config->workdir, "search", sds_buf1, sds_buf2, 0, 0, sds_buf3);
                 }
             }
             if (rc == true) {
@@ -705,7 +710,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_SMARTPLS_GET:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                response->data = mympd_api_smartpls_get(mympd_state->config, response->data, request->method, request->id, sds_buf1);
+                response->data = mympd_api_smartpls_get(config, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_PLAYER_PAUSE:
@@ -874,12 +879,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         }
         case MYMPD_API_DATABASE_SONGDETAILS:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
-                response->data = mympd_api_browse_songdetails(mympd_state, response->data, request->method, request->id, sds_buf1);
+                response->data = mympd_api_songdetails(mympd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_DATABASE_COMMENTS:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
-                response->data = mympd_api_browse_read_comments(mympd_state, response->data, request->method, request->id, sds_buf1);
+                response->data = mympd_api_read_comments(mympd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_DATABASE_FINGERPRINT:
@@ -888,7 +893,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 break;
             }
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
-                response->data = mympd_api_browse_fingerprint(mympd_state, response->data, request->method, request->id, sds_buf1);
+                response->data = mympd_api_fingerprint(mympd_state, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_PLAYLIST_RENAME:
@@ -1148,7 +1153,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_string(request->data, "$.params.plist", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state->mpd_state->mpd_host, mympd_state->config->http_host, mympd_state->config->http_port);
+                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state->mpd_state->mpd_host, config->http_host, config->http_port);
                 rc = mpd_run_load(mympd_state->mpd_state->conn, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_load", &result);
                 if (result == true &&
@@ -1169,7 +1174,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state->mpd_state->mpd_host, mympd_state->config->http_host, mympd_state->config->http_port);
+                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state->mpd_state->mpd_host, config->http_host, config->http_port);
                 rc = mpd_run_load_range_to(mympd_state->mpd_state->conn, sds_buf1, 0, UINT_MAX, uint_buf1, uint_buf2);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mpd_run_load_range_to", &result);
                 if (result == true &&
@@ -1184,7 +1189,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_string(request->data, "$.params.plist", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state->mpd_state->mpd_host, mympd_state->config->http_host, mympd_state->config->http_port);
+                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state->mpd_state->mpd_host, config->http_host, config->http_port);
                 rc = mympd_api_queue_replace_with_playlist(mympd_state, sds_buf1);
                 response->data = respond_with_mpd_error_or_ok(mympd_state->mpd_state, response->data, request->method, request->id, rc, "mympd_api_queue_replace_with_playlist", &result);
                 if (result == true &&
@@ -1449,12 +1454,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_long(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &long_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true)
             {
-                response->data = mympd_api_webradio_list(mympd_state->config->workdir, response->data, request->method, request->id, sds_buf1, long_buf1, long_buf2);
+                response->data = mympd_api_webradio_list(config->workdir, response->data, request->method, request->id, sds_buf1, long_buf1, long_buf2);
             }
             break;
         case MYMPD_API_WEBRADIO_FAVORITE_GET:
             if (json_get_string(request->data, "$.params.filename", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                response->data = mympd_api_webradio_get(mympd_state->config->workdir, response->data, request->method, request->id, sds_buf1);
+                response->data = mympd_api_webradio_get(config->workdir, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_WEBRADIO_FAVORITE_SAVE:
@@ -1470,7 +1475,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_int(request->data, "$.params.bitrate", 0, 2048, &int_buf1, &error) == true &&
                 json_get_string(request->data, "$.params.description", 0, CONTENT_LEN_MAX, &sds_buf0, vcb_isname, &error) == true
             ) {
-                rc = mympd_api_webradio_save(mympd_state->config->workdir, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, sds_buf7,
+                rc = mympd_api_webradio_save(config->workdir, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, sds_buf7,
                     sds_buf8, sds_buf9, int_buf1, sds_buf0);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, false,
@@ -1484,7 +1489,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_WEBRADIO_FAVORITE_RM:
             if (json_get_string(request->data, "$.params.filename", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                rc = mympd_api_webradio_delete(mympd_state->config->workdir, sds_buf1);
+                rc = mympd_api_webradio_delete(config->workdir, sds_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "database");
                 }

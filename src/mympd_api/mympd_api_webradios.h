@@ -8,7 +8,6 @@
 #define MYMPD_API_WEBRADIOS_H
 
 #include "../../dist/sds/sds.h"
-#include "../lib/mympd_configuration.h"
 
 #include <stdbool.h>
 

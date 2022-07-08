@@ -10,7 +10,6 @@
 #include "../lib/api.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
-#include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 #include "../mpd_client/mpd_client_autoconf.h"
 #include "../mpd_client/mpd_client_connection.h"

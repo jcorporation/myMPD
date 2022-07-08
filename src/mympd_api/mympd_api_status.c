@@ -10,7 +10,6 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/lua_mympd_state.h"
-#include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
