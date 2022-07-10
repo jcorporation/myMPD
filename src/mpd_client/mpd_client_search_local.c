@@ -107,6 +107,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         if (i + 1 >= sdslen(tokens[j])) {
             MYMPD_LOG_ERROR("Can not parse search expression");
             free_search_expression(expr);
+            FREE_PTR(expr);
             break;
         }
         expr->tag = mpd_tag_name_parse(tag);
@@ -127,6 +128,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         if (i + 2 >= sdslen(tokens[j])) {
             MYMPD_LOG_ERROR("Can not parse search expression");
             free_search_expression(expr);
+            FREE_PTR(expr);
             break;
         }
         if (strcmp(op, "contains") == 0) { expr->op = SEARCH_OP_CONTAINS; }
@@ -138,6 +140,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         else {
             MYMPD_LOG_ERROR("Unknown search operator: \"%s\"", op);
             free_search_expression(expr);
+            FREE_PTR(expr);
             break;
         }
         i = i + 2;
