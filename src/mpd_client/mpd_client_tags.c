@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mpd_client_tags.h"
 
+#include "../../dist/libmpdclient/src/isong.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
@@ -21,29 +22,6 @@ static sds _mpd_client_get_tag_value_string(struct mpd_song const *song, const e
         sds tag_values, unsigned *value_count);
 static sds _mpd_client_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag,
         sds tag_values, const bool multi, unsigned *value_count);
-
-//struct mpd_song define from libmpdclient
-struct mpd_tag_value {
-	struct mpd_tag_value *next;
-	char *value;
-};
-
-struct mpd_song {
-	char *uri;
-	struct mpd_tag_value tags[MPD_TAG_COUNT];
-	unsigned duration;
-	unsigned duration_ms;
-	unsigned start;
-	unsigned end;
-	time_t last_modified;
-	unsigned pos;
-	unsigned id;
-	unsigned prio;
-#ifndef NDEBUG
-	bool finished;
-#endif
-	struct mpd_audio_format audio_format;
-};
 
 //public functions
 
