@@ -271,6 +271,7 @@ set(MYMPD_SOURCES
   src/mpd_client/mpd_client_jukebox.c
   src/mpd_client/mpd_client_playlists.c
   src/mpd_client/mpd_client_search.c
+  src/mpd_client/mpd_client_search_local.c
   src/mpd_client/mpd_client_sticker.c
   src/mpd_client/mpd_client_tags.c
   src/mpd_client/mpd_client_volume.c

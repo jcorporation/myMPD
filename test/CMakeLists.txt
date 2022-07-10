@@ -8,9 +8,12 @@ cmake_minimum_required(VERSION 3.4)
 
 project (test C)
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/../cmake/")
+
 find_package(Threads REQUIRED)
 find_library(MATH_LIB m REQUIRED)
 find_package(OpenSSL REQUIRED)
+find_package(PCRE2 REQUIRED)
 
 set(TEST_SOURCES
   ../dist/mjson/mjson.c
@@ -36,6 +39,7 @@ set(TEST_SOURCES
   ../src/lib/validate.c
   ../src/mpd_client/mpd_client_errorhandler.c
   ../src/mpd_client/mpd_client_search.c
+  ../src/mpd_client/mpd_client_search_local.c
   ../src/mpd_client/mpd_client_sticker.c
   ../src/mpd_client/mpd_client_tags.c
   ../src/mpd_client/mpd_client_jukebox.c
@@ -183,3 +187,4 @@ add_executable(test ${TEST_SOURCES} ${LIBMPDCLIENT_SOURCES})
 target_link_libraries(test ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(test ${MATH_LIB})
 target_link_libraries(test ${OPENSSL_LIBRARIES})
+target_link_libraries(test ${PCRE2_LIBRARIES})

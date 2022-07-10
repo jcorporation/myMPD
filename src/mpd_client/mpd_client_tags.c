@@ -335,42 +335,6 @@ sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat) {
 }
 
 /**
- * Searches for a string in mpd tag values
- * @param song pointer to mpd song struct
- * @param searchstr string to search for
- * @param tagcols tags to search
- * @return true if searchstr was found else false
- */
-bool search_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tagcols) {
-    if (sdslen(searchstr) == 0) {
-        return true;
-    }
-    bool rc = false;
-    if (tagcols->len == 0) {
-        //fallback to filename if no tags are enabled
-        sds filename = sdsnew(mpd_song_get_uri(song));
-        basename_uri(filename);
-        if (utf8casestr(filename, searchstr) != NULL) {
-            rc = true;
-        }
-        FREE_SDS(filename);
-        return rc;
-    }
-    for (unsigned i = 0; i < tagcols->len; i++) {
-        const char *value;
-        unsigned idx = 0;
-        while ((value = mpd_song_get_tag(song, tagcols->tags[i], idx)) != NULL) {
-            if (utf8casestr(value, searchstr) != NULL) {
-                rc = true;
-                break;
-            }
-            idx++;
-        }
-    }
-    return rc;
-}
-
-/**
  * Parses a taglist and adds valid values to tagtypes struct 
  * @param taglist comma separated tags to check
  * @param taglistname descriptive name of taglist

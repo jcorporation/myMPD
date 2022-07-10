@@ -17,6 +17,7 @@
 #include "../mympd_api/mympd_api_queue.h"
 #include "mpd_client_errorhandler.h"
 #include "mpd_client_search.h"
+#include "mpd_client_search_local.h"
 #include "mpd_client_sticker.h"
 #include "mpd_client_tags.h"
 

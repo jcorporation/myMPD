@@ -18,27 +18,40 @@
 #include <string.h>
 #include <unistd.h>
 
-//Mallocs a new list and inits it
+/**
+ * Mallocs a new list and inits it
+ * @return allocated empty list
+ */
 struct t_list *list_new(void) {
     struct t_list *l = malloc_assert(sizeof(struct t_list));
     list_init(l);
     return l;
 }
 
-//Inits a already allocated list
+/**
+ * Inits a already allocated list
+ * @param l pointer to list
+ */
 void list_init(struct t_list *l) {
     l->length = 0;
     l->head = NULL;
     l->tail = NULL;
 }
 
-//Clears the list and frees all nodes and there values
-//ignores user_data
+/**
+ * Clears the list and frees all nodes and there values, ignores user_data
+ * @param l pointer to list
+ */
 void list_clear(struct t_list *l) {
     list_clear_user_data(l, list_free_cb_ignore_user_data);
 }
 
-//Clears the list and frees all nodes and there values
+/**
+ * Clears the list and frees all nodes and there values, calls a function to free user_data,
+ * set free_cb to NULL, to free a generic pointer.
+ * @param l pointer to list
+ * @param free_cb
+ */
 void list_clear_user_data(struct t_list *l, user_data_callback free_cb) {
     struct t_list_node *current = l->head;
     struct t_list_node *tmp = NULL;
