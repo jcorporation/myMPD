@@ -94,6 +94,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         sdsclear(op);
         struct t_search_expression *expr = malloc_assert(sizeof(struct t_search_expression));
         expr->value = sdsempty();
+        expr->re_compiled = NULL;
         size_t i = 0;
         char *p = tokens[j];
         //tag
@@ -146,7 +147,6 @@ struct t_list *parse_search_expression_to_list(sds expression) {
             expr->value = sds_catchar(expr->value, *p);
         }
         //push to list
-        expr->re_compiled = NULL;
         if (expr->op == SEARCH_OP_REGEX ||
             expr->op == SEARCH_OP_NOT_REGEX)
         {
