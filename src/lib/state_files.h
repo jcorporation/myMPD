@@ -12,7 +12,7 @@
 
 #include <stdbool.h>
 
-sds state_file_rw_string_sds(sds workdir, const char *dir, const char *name, sds old_value, validate_callback vcb, bool warn);
+sds state_file_rw_string_sds(sds workdir, const char *dir, const char *name, sds def_value, validate_callback vcb, bool warn);
 sds state_file_rw_string(sds workdir, const char *dir, const char *name, const char *def_value, validate_callback vcb, bool warn);
 bool state_file_rw_bool(sds workdir, const char *dir, const char *name, const bool def_value, bool warn);
 int state_file_rw_int(sds workdir, const char *dir, const char *name, const int def_value, const int min, const int max, bool warn);
