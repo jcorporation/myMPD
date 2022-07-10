@@ -124,7 +124,6 @@ sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buff
 {
     long entity_count = 0;
     long entities_returned = 0;
-    sds_utf8_tolower(searchstr);
 
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");

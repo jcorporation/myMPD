@@ -8,6 +8,7 @@
 #include "mpd_client_tags.h"
 
 #include "../../dist/libmpdclient/src/isong.h"
+#include "../../dist/utf8/utf8.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
@@ -25,13 +26,20 @@ static sds _mpd_client_get_tag_values(struct mpd_song const *song, const enum mp
 
 //public functions
 
+/**
+ * Sets the songs last modified date
+ * @param song pointer to a mpd_song struct
+ * @param last_modified unix timestamp
+ */
 void mympd_mpd_song_set_last_modified(struct mpd_song *song, time_t last_modified) {
     song->last_modified = last_modified;
 }
 
 /**
  * Adds a tag value to the song if value does not already exists
- *
+ * @param song pointer to a mpd_song struct
+ * @param type mpd tag type
+ * @param value tag value to add
  * @return true on success, false if the tag is not supported or if no
  * memory could be allocated or value is a duplicate
  */
@@ -81,6 +89,11 @@ bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 	return true;
 }
 
+/**
+ * Checks if tag is a multivalue tag
+ * @param tag_type mpd tag type
+ * @return true if it is a multivalue tag else false
+ */
 bool is_multivalue_tag(enum mpd_tag_type tag) {
     switch(tag) {
         case MPD_TAG_ARTIST:
@@ -101,6 +114,11 @@ bool is_multivalue_tag(enum mpd_tag_type tag) {
     }
 }
 
+/**
+ * Maps tags to its sort tags pedants
+ * @param type mpd tag type
+ * @return sort tag if exists else the orgiginal tag
+ */
 enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
     switch(tag) {
         case MPD_TAG_ARTIST:
@@ -116,6 +134,10 @@ enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
     }
 }
 
+/**
+ * Disables all mpd tags
+ * @param mpd_state pointer to mpd_state struct
+ */
 void disable_all_mpd_tags(struct t_mpd_state *mpd_state) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         MYMPD_LOG_DEBUG("Disabling all mpd tag types");
@@ -124,6 +146,10 @@ void disable_all_mpd_tags(struct t_mpd_state *mpd_state) {
     }
 }
 
+/**
+ * Enables all mpd tags
+ * @param mpd_state pointer to mpd_state struct
+ */
 void enable_all_mpd_tags(struct t_mpd_state *mpd_state) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         MYMPD_LOG_DEBUG("Enabling all mpd tag types");
@@ -132,6 +158,11 @@ void enable_all_mpd_tags(struct t_mpd_state *mpd_state) {
     }
 }
 
+/**
+ * Enables specific mpd tags
+ * @param mpd_state pointer to mpd_state struct
+ * @param enable_tags pointer to t_tags struct
+ */
 void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags *enable_tags) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         MYMPD_LOG_DEBUG("Setting interesting mpd tag types");
@@ -154,7 +185,13 @@ void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags *enable_tags) 
     }
 }
 
-//returns a comma separated list if tag values
+/**
+ * Appends a comma separated list of tag values
+ * @param song pointer to mpd song struct
+ * @param tag mpd tag type to get values for
+ * @param tag_values alread allocated sds string to append the values
+ * @return new sds pointer to tag_values
+ */
 sds mpd_client_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values) {
     unsigned value_count = 0;
     tag_values = _mpd_client_get_tag_value_string(song, tag, tag_values, &value_count);
@@ -172,7 +209,13 @@ sds mpd_client_get_tag_value_string(struct mpd_song const *song, const enum mpd_
     return tag_values;
 }
 
-//returns a json string/array of tag values
+/**
+ * Appends a a json string/array of tag values
+ * @param song pointer to mpd song struct
+ * @param tag mpd tag type to get values for
+ * @param tag_values alread allocated sds string to append the values
+ * @return new sds pointer to tag_values
+ */
 sds mpd_client_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values) {
     const bool multi = is_multivalue_tag(tag);
     unsigned value_count = 0;
@@ -203,6 +246,14 @@ sds mpd_client_get_tag_values(struct mpd_song const *song, const enum mpd_tag_ty
     return tag_values;
 }
 
+/**
+ * Gets the tag values for a mpd song as json string
+ * @param buffer alread allocated sds string to append the values
+ * @param mpd_state pointer to mpd_state struct
+ * @param tag_cols pointer to t_tags struct (tags to retrieve)
+ * @param mpd_song pointer to a mpd_song struct to retrieve tags from
+ * @return new sds pointer to buffer
+ */
 sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols,
                   const struct mpd_song *song)
 {
@@ -225,6 +276,14 @@ sds get_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags
     return buffer;
 }
 
+/**
+ * Gets the same json string as get_song_tags but with empty values, title is set to the basefilename
+ * @param buffer alread allocated sds string to append the values
+ * @param mpd_state pointer to mpd_state struct
+ * @param tag_cols pointer to t_tags struct (tags to retrieve)
+ * @param mpd_song pointer to a mpd_song struct to retrieve tags from
+ * @return new sds pointer to buffer
+ */
 sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct t_tags *tagcols,
                         const char *uri)
 {
@@ -259,6 +318,13 @@ sds get_empty_song_tags(sds buffer, struct t_mpd_state *mpd_state, const struct 
     return buffer;
 }
 
+/**
+ * Prints the audioformat as json object
+ * @param buffer alread allocated sds string to append the values
+ * @param mpd_state pointer to mp audioformat struct
+ * @param audioformat pointer to t_tags struct (tags to retrieve)
+ * @return new sds pointer to buffer
+ */
 sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat) {
     buffer = sdscat(buffer, "\"AudioFormat\":{");
     buffer = tojson_uint(buffer, "sampleRate", (audioformat ? audioformat->sample_rate : 0), true);
@@ -268,24 +334,40 @@ sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat) {
     return buffer;
 }
 
+/**
+ * Searches for a string in mpd tag values
+ * @param song pointer to mpd song struct
+ * @param searchstr string to search for
+ * @param tagcols tags to search
+ * @return true if searchstr was found else false
+ */
 bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tagcols) {
     if (sdslen(searchstr) == 0) {
         return true;
     }
-    sds value = sdsempty();
     bool rc = false;
     for (unsigned i = 0; i < tagcols->len; i++) {
-        unsigned value_count = 0;
-        value = _mpd_client_get_tag_values(song, tagcols->tags[i], value, false, &value_count);
-        sds_utf8_tolower(value);
-        if (strstr(value, searchstr) != NULL) {
-            rc = true;
+        const char *value;
+        unsigned idx = 0;
+        //return json string
+        while ((value = mpd_song_get_tag(song, tagcols->tags[i], idx)) != NULL) {
+            if (utf8str(value, searchstr) != NULL) {
+                rc = true;
+                break;
+            }
+            idx++;
         }
     }
-    FREE_SDS(value);
     return rc;
 }
 
+/**
+ * Parses a taglist and adds valid values to tagtypes struct 
+ * @param taglist comma separated tags to check
+ * @param taglistname descriptive name of taglist
+ * @param tagtypes pointer to t_tags struct to add tags from taglist
+ * @param allowed_tag_types pointer to t_tags struct for allowed tags
+ */
 void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
                 struct t_tags *allowed_tag_types)
 {
@@ -313,6 +395,12 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
     FREE_SDS(logline);
 }
 
+/**
+ * Checks if tag exists in a tagtypes struct
+ * @param tagtypes tag list to check against
+ * @param tag tag to check
+ * @return true if tag is in tagtypes else false
+ */
 bool mpd_client_tag_exists(struct t_tags *tagtypes, const enum mpd_tag_type tag) {
     for (size_t i = 0; i < tagtypes->len; i++) {
         if (tagtypes->tags[i] == tag) {
@@ -324,7 +412,15 @@ bool mpd_client_tag_exists(struct t_tags *tagtypes, const enum mpd_tag_type tag)
 
 //private functions
 
-//appends a comma separated list of tag values to tag_values
+/**
+ * Appends a comma separated list of tag values
+ * @param song pointer to mpd song struct
+ * @param tag mpd tag type to get values for
+ * @param tag_values alread allocated sds string to append the values
+ * @param value_count the number of values retrieved
+ * @return new sds pointer to tag_values
+ */
+
 static sds _mpd_client_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag,
         sds tag_values, unsigned *value_count)
 {
@@ -341,7 +437,14 @@ static sds _mpd_client_get_tag_value_string(struct mpd_song const *song, const e
     return tag_values;
 }
 
-//appends a json string or array to tag_values
+/**
+ * Appends a json string or array to tag_values
+ * @param song pointer to mpd song struct
+ * @param tag mpd tag type to get values for
+ * @param tag_values alread allocated sds string to append the values
+ * @param value_count the number of values retrieved
+ * @return new sds pointer to tag_values
+ */
 static sds _mpd_client_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag,
         sds tag_values, const bool multi, unsigned *value_count)
 {

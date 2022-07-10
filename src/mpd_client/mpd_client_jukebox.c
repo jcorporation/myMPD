@@ -97,8 +97,6 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
     long entities_returned = 0;
     long real_limit = offset + limit;
 
-    sds_utf8_tolower(searchstr);
-
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     if (mympd_state->jukebox_mode == JUKEBOX_ADD_SONG) {
