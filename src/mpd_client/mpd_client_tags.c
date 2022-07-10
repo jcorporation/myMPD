@@ -350,7 +350,7 @@ bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_
         //fallback to filename if no tags are enabled
         sds filename = sdsnew(mpd_song_get_uri(song));
         basename_uri(filename);
-        if (utf8str(filename, searchstr) != NULL) {
+        if (utf8casestr(filename, searchstr) != NULL) {
             rc = true;
         }
         FREE_SDS(filename);
@@ -361,7 +361,7 @@ bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_
         unsigned idx = 0;
         //return json string
         while ((value = mpd_song_get_tag(song, tagcols->tags[i], idx)) != NULL) {
-            if (utf8str(value, searchstr) != NULL) {
+            if (utf8casestr(value, searchstr) != NULL) {
                 rc = true;
                 break;
             }
