@@ -341,7 +341,7 @@ sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat) {
  * @param tagcols tags to search
  * @return true if searchstr was found else false
  */
-bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tagcols) {
+bool search_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tagcols) {
     if (sdslen(searchstr) == 0) {
         return true;
     }
@@ -359,7 +359,6 @@ bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_
     for (unsigned i = 0; i < tagcols->len; i++) {
         const char *value;
         unsigned idx = 0;
-        //return json string
         while ((value = mpd_song_get_tag(song, tagcols->tags[i], idx)) != NULL) {
             if (utf8casestr(value, searchstr) != NULL) {
                 rc = true;

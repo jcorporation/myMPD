@@ -106,7 +106,7 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
             if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == true) {
                 struct mpd_song *song;
                 if ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
-                    if (filter_mpd_song(song, searchstr, tagcols) == true) {
+                    if (search_mpd_song(song, searchstr, tagcols) == true) {
                         if (entity_count >= offset &&
                             entity_count < real_limit)
                         {

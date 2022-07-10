@@ -15,7 +15,7 @@ bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 		enum mpd_tag_type type, const char *value);
 bool is_multivalue_tag(enum mpd_tag_type tag);
 sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat);
-bool filter_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tagcols);
+bool search_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tagcols);
 void disable_all_mpd_tags(struct t_mpd_state *mpd_state);
 void enable_all_mpd_tags(struct t_mpd_state *mpd_state);
 void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags *enable_tags);

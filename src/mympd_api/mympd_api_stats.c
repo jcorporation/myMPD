@@ -243,7 +243,7 @@ static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds 
         struct mpd_entity *entity;
         if ((entity = mpd_recv_entity(mympd_state->mpd_state->conn)) != NULL) {
             const struct mpd_song *song = mpd_entity_get_song(entity);
-            if (filter_mpd_song(song, searchstr, tagcols) == true) {
+            if (search_mpd_song(song, searchstr, tagcols) == true) {
                 buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
                 if (mympd_state->mpd_state->feat_mpd_stickers == true &&
                     mympd_state->sticker_cache != NULL)
