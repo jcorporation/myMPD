@@ -52,6 +52,7 @@ set(TEST_SOURCES
   tests/test_jsonrpc.c
   tests/test_list.c
   tests/test_m3u.c
+  tests/test_mpd_client_tags.c
   tests/test_mimetype.c
   tests/test_mympd_queue.c
   tests/test_random.c
