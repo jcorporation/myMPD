@@ -226,7 +226,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
         }
     }
     raxStop(&iter);
-    free_search_expression_list(expr_list);
+    clear_search_expression_list(expr_list);
     FREE_PTR(expr_list);
     FREE_SDS(key);
     //print album list
