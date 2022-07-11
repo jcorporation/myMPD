@@ -550,8 +550,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
         }
     }
 
-    list_clear(queue_list);
-    FREE_PTR(queue_list);
+    list_free(queue_list);
     return true;
 }
 

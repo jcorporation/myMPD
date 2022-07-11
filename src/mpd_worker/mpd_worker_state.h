@@ -21,5 +21,5 @@ struct t_mpd_worker_state {
     struct t_work_request *request;
 };
 
-void mpd_worker_state_free(struct t_mpd_worker_state *mpd_worker_state);
+void *mpd_worker_state_free(struct t_mpd_worker_state *mpd_worker_state);
 #endif

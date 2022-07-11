@@ -164,8 +164,7 @@ bool search_by_expression(const char *expr_string) {
     struct t_list *expr_list = parse_search_expression_to_list(expression);
     sdsfree(expression);
     bool rc = search_song_expression(song, expr_list, &tags);
-    clear_search_expression_list(expr_list);
-    free(expr_list);
+    free_search_expression_list(expr_list);
     mpd_song_free(song);
     return rc;
 }

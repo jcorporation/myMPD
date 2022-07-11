@@ -39,11 +39,22 @@ void list_init(struct t_list *l) {
 }
 
 /**
- * Clears the list and frees all nodes and there values, ignores user_data
+ * Clears the list and frees all nodes, ignores user_data
  * @param l pointer to list
  */
 void list_clear(struct t_list *l) {
     list_clear_user_data(l, list_free_cb_ignore_user_data);
+}
+
+/**
+ * Clears the list, frees all nodes and the list itself, ignores user_data
+ * @param l pointer to list
+ * @return NULL
+ */
+void *list_free(struct t_list *l) {
+    list_clear_user_data(l, list_free_cb_ignore_user_data);
+    FREE_PTR(l);
+    return NULL;
 }
 
 /**
@@ -61,6 +72,18 @@ void list_clear_user_data(struct t_list *l, user_data_callback free_cb) {
         list_node_free_user_data(tmp, free_cb);
     }
     list_init(l);
+}
+
+/**
+ * Clears the list and frees all nodes and there values, calls a function to free user_data,
+ * set free_cb to NULL, to free a generic pointer.
+ * @param l pointer to list
+ * @param free_cb
+ */
+void *list_free_user_data(struct t_list *l, user_data_callback free_cb) {
+    list_clear_user_data(l, free_cb);
+    FREE_PTR(l);
+    return NULL;
 }
 
 //callback function to not free user_data
@@ -304,12 +327,13 @@ bool list_replace_user_data(struct t_list *l, long idx, const char *key, long lo
 
 //frees a list node
 //ignores user_data
-void list_node_free(struct t_list_node *n) {
+void *list_node_free(struct t_list_node *n) {
     list_node_free_user_data(n, list_free_cb_ignore_user_data);
+    return NULL;
 }
 
 //frees a list node and its user_data
-void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb) {
+void *list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb) {
     FREE_SDS(n->key);
     FREE_SDS(n->value_p);
     if (n->user_data != NULL &&
@@ -322,6 +346,7 @@ void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb)
         FREE_PTR(n->user_data);
     }
     FREE_PTR(n);
+    return NULL;
 }
 
 //removes the node at idx from the list and frees it

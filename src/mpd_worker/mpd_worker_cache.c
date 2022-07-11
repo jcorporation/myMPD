@@ -50,7 +50,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
             send_jsonrpc_notify("database", "info", "Updated album cache");
         }
         else {
-            album_cache = album_cache_free(album_cache);
+            album_cache_free(album_cache);
             send_jsonrpc_notify("database", "error", "Update of album cache failed");
         }
     }
@@ -68,7 +68,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
             send_jsonrpc_notify("database", "info", "Updated sticker cache");
         }
         else {
-            sticker_cache = sticker_cache_free(sticker_cache);
+            sticker_cache_free(sticker_cache);
             send_jsonrpc_notify("database", "error", "Update of sticker cache failed");
         }
     }

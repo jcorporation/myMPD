@@ -248,8 +248,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             else {
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                     "script", "error", "Invalid script name");
-                list_clear(arguments);
-                FREE_PTR(arguments);
+                list_free(arguments);
             }
             break;
         }
@@ -422,12 +421,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                         "timer", "error", "Adding timer failed");
-                    timer_def = mympd_api_timer_free_definition(timer_def);
+                    mympd_api_timer_free_definition(timer_def);
                 }
             }
             else if (timer_def != NULL) {
                 MYMPD_LOG_ERROR("No timer id or interval, discarding timer definition");
-                timer_def = mympd_api_timer_free_definition(timer_def);
+                mympd_api_timer_free_definition(timer_def);
             }
             break;
         }

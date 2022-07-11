@@ -225,8 +225,7 @@ bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
             list_push(&mympd_state->trigger_list, name, event, script, arguments);
         }
         else {
-            list_clear(arguments);
-            FREE_PTR(arguments);
+            list_free(arguments);
         }
         FREE_SDS(name);
         FREE_SDS(script);

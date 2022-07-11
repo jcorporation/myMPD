@@ -31,12 +31,14 @@ typedef sds (*list_node_to_line_callback) (sds buffer, struct t_list_node *curre
 struct t_list *list_new(void);
 void list_init(struct t_list *l);
 void list_clear(struct t_list *l);
+void *list_free(struct t_list *l);
 void list_clear_user_data(struct t_list *l, user_data_callback free_cb);
+void *list_free_user_data(struct t_list *l, user_data_callback free_cb);
 void list_free_cb_ignore_user_data(struct t_list_node *current);
 void list_free_cb_sds_user_data(struct t_list_node *current);
 void list_free_cb_t_list_user_data(struct t_list_node *current);
-void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb);
-void list_node_free(struct t_list_node *n);
+void *list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb);
+void *list_node_free(struct t_list_node *n);
 
 bool list_push(struct t_list *l, const char *key, long long value_i,
         const char *value_p, void *user_data);

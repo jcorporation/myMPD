@@ -32,7 +32,7 @@ struct t_mympd_queue *mympd_queue_create(const char *name) {
     return queue;
 }
 
-void mympd_queue_free(struct t_mympd_queue *queue) {
+void *mympd_queue_free(struct t_mympd_queue *queue) {
     struct t_mympd_msg *current = queue->head;
     struct t_mympd_msg *tmp = NULL;
     while (current != NULL) {
@@ -42,6 +42,7 @@ void mympd_queue_free(struct t_mympd_queue *queue) {
         FREE_PTR(tmp);
     }
     FREE_PTR(queue);
+    return NULL;
 }
 
 int mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {

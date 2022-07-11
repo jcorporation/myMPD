@@ -41,9 +41,8 @@ void lua_mympd_state_set_b(struct t_list *lua_mympd_state, const char *k, bool v
     list_push(lua_mympd_state, k, LUA_TYPE_BOOLEAN, NULL, value);
 }
 
-void lua_mympd_state_free(struct t_list *lua_mympd_state) {
-    list_clear_user_data(lua_mympd_state, _lua_mympd_state_free_user_data);
-    FREE_PTR(lua_mympd_state);
+void *lua_mympd_state_free(struct t_list *lua_mympd_state) {
+    return list_free_user_data(lua_mympd_state, _lua_mympd_state_free_user_data);
 }
 
 //private

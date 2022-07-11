@@ -106,7 +106,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         }
         if (i + 1 >= sdslen(tokens[j])) {
             MYMPD_LOG_ERROR("Can not parse search expression");
-            expr = free_search_expression(expr);
+            free_search_expression(expr);
             break;
         }
         expr->tag = mpd_tag_name_parse(tag);
@@ -126,7 +126,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         }
         if (i + 2 >= sdslen(tokens[j])) {
             MYMPD_LOG_ERROR("Can not parse search expression");
-            expr = free_search_expression(expr);
+            free_search_expression(expr);
             break;
         }
         if (strcmp(op, "contains") == 0) { expr->op = SEARCH_OP_CONTAINS; }
@@ -137,7 +137,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         else if (strcmp(op, "!~") == 0) { expr->op = SEARCH_OP_NOT_REGEX; }
         else {
             MYMPD_LOG_ERROR("Unknown search operator: \"%s\"", op);
-            expr = free_search_expression(expr);
+            free_search_expression(expr);
             break;
         }
         i = i + 2;
@@ -167,8 +167,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
  * @param expr_list pointer to the list
  */
 void *free_search_expression_list(struct t_list *expr_list) {
-    list_clear_user_data(expr_list, free_search_expression_node);
-    return NULL;
+    return list_free_user_data(expr_list, free_search_expression_node);
 }
 
 /**
@@ -266,7 +265,6 @@ void *free_search_expression(struct t_search_expression *expr) {
 static void free_search_expression_node(struct t_list_node *current) {
     struct t_search_expression *expr = (struct t_search_expression *)current->user_data;
     free_search_expression(expr);
-    FREE_PTR(current->user_data);
 }
 
 /**
