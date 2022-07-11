@@ -177,7 +177,8 @@ configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.ope
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 include_directories(${PCRE2_INCLUDE_DIRS})
 
-#we use the integrated libmpdclient, distribution versions are often outdated
+#Use the integrated libmympdclient for mpd communication
+#myMPD is incompatible with the original libmpdclient
 include_directories("dist/libmpdclient/include")
 
 #check for enabling libasan
