@@ -422,15 +422,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                         "timer", "error", "Adding timer failed");
-                    mympd_api_timer_free_definition(timer_def);
-                    FREE_PTR(timer_def);
-                    timer_def = NULL;
+                    timer_def = mympd_api_timer_free_definition(timer_def);
                 }
             }
             else if (timer_def != NULL) {
                 MYMPD_LOG_ERROR("No timer id or interval, discarding timer definition");
-                mympd_api_timer_free_definition(timer_def);
-                FREE_PTR(timer_def);
+                timer_def = mympd_api_timer_free_definition(timer_def);
             }
             break;
         }
@@ -577,7 +574,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         }
         case INTERNAL_API_STICKERCACHE_CREATED:
             if (request->extra != NULL) {
-                sticker_cache_free(&mympd_state->sticker_cache);
+                mympd_state->sticker_cache = sticker_cache_free(mympd_state->sticker_cache);
                 mympd_state->sticker_cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "sticker");
                 MYMPD_LOG_INFO("Sticker cache was replaced");
@@ -594,7 +591,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 MYMPD_LOG_INFO("Clearing jukebox queue");
                 mpd_client_clear_jukebox(&mympd_state->jukebox_queue);
                 //free the old album cache and replace it with the freshly generated one
-                album_cache_free(&mympd_state->album_cache);
+                mympd_state->album_cache = album_cache_free(mympd_state->album_cache);
                 mympd_state->album_cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "database");
                 MYMPD_LOG_INFO("Album cache was replaced");

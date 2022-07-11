@@ -99,10 +99,12 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     return mgr;
 }
 
-void web_server_free(struct mg_mgr *mgr) {
+void *web_server_free(struct mg_mgr *mgr) {
     sds dns4_url = (sds)mgr->dns4.url;
     FREE_SDS(dns4_url);
     mg_mgr_free(mgr);
+    FREE_PTR(mgr);
+    return NULL;
 }
 
 void *web_server_loop(void *arg_mgr) {

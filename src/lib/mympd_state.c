@@ -91,7 +91,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_api_timer_timerlist_init(&mympd_state->timer_list);
 }
 
-void mympd_state_free(struct t_mympd_state *mympd_state) {
+void *mympd_state_free(struct t_mympd_state *mympd_state) {
     mpd_client_clear_jukebox(&mympd_state->jukebox_queue);
     mpd_client_clear_jukebox(&mympd_state->jukebox_queue_tmp);
     list_clear(&mympd_state->sticker_queue);
@@ -102,8 +102,8 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     //mpd state
     mympd_state_free_mpd_state(mympd_state->mpd_state);
     //caches
-    sticker_cache_free(&mympd_state->sticker_cache);
-    album_cache_free(&mympd_state->album_cache);
+    sticker_cache_free(mympd_state->sticker_cache);
+    album_cache_free(mympd_state->album_cache);
     //sds
     FREE_SDS(mympd_state->tag_list_search);
     FREE_SDS(mympd_state->tag_list_browse);
@@ -136,6 +136,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->listenbrainz_token);
     //struct itself
     FREE_PTR(mympd_state);
+    return NULL;
 }
 
 //mpd state
@@ -174,48 +175,49 @@ void mympd_state_default_mpd_state(struct t_mpd_state *mpd_state) {
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
 }
 
-void mympd_state_free_mpd_state(struct t_mpd_state *mpd_state) {
+void *mympd_state_free_mpd_state(struct t_mpd_state *mpd_state) {
     FREE_SDS(mpd_state->mpd_host);
     FREE_SDS(mpd_state->mpd_pass);
     FREE_SDS(mpd_state->song_uri);
     FREE_SDS(mpd_state->last_song_uri);
     FREE_SDS(mpd_state->tag_list);
     FREE_PTR(mpd_state);
+    return NULL;
 }
 
 //caches
-void album_cache_free(rax **album_cache) {
-    if (*album_cache == NULL) {
+void *album_cache_free(rax *album_cache) {
+    if (album_cache == NULL) {
         MYMPD_LOG_DEBUG("Album cache is NULL not freeing anything");
-        return;
+        return NULL;
     }
     MYMPD_LOG_DEBUG("Freeing album cache");
     raxIterator iter;
-    raxStart(&iter, *album_cache);
+    raxStart(&iter, album_cache);
     raxSeek(&iter, "^", NULL, 0);
     while (raxNext(&iter)) {
         mpd_song_free((struct mpd_song *)iter.data);
     }
     raxStop(&iter);
-    raxFree(*album_cache);
-    *album_cache = NULL;
+    raxFree(album_cache);
+    return NULL;
 }
 
-void sticker_cache_free(rax **sticker_cache) {
-    if (*sticker_cache == NULL) {
+void *sticker_cache_free(rax *sticker_cache) {
+    if (sticker_cache == NULL) {
         MYMPD_LOG_DEBUG("Sticker cache is NULL not freeing anything");
-        return;
+        return NULL;
     }
     MYMPD_LOG_DEBUG("Freeing sticker cache");
     raxIterator iter;
-    raxStart(&iter, *sticker_cache);
+    raxStart(&iter, sticker_cache);
     raxSeek(&iter, "^", NULL, 0);
     while (raxNext(&iter)) {
         FREE_PTR(iter.data);
     }
     raxStop(&iter);
-    raxFree(*sticker_cache);
-    *sticker_cache = NULL;
+    raxFree(sticker_cache);
+    return NULL;
 }
 
 //tagtypes

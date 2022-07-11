@@ -34,7 +34,7 @@ struct t_search_expression {
     pcre2_code *re_compiled;
 };
 
-static void free_search_expression(struct t_search_expression *expr);
+static void *free_search_expression(struct t_search_expression *expr);
 static void free_search_expression_node(struct t_list_node *current);
 static pcre2_code *_compile_regex(char *regex_str);
 static bool _cmp_regex(pcre2_code *re_compiled, const char *value);
@@ -106,7 +106,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         }
         if (i + 1 >= sdslen(tokens[j])) {
             MYMPD_LOG_ERROR("Can not parse search expression");
-            free_search_expression(expr);
+            expr = free_search_expression(expr);
             break;
         }
         expr->tag = mpd_tag_name_parse(tag);
@@ -126,7 +126,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         }
         if (i + 2 >= sdslen(tokens[j])) {
             MYMPD_LOG_ERROR("Can not parse search expression");
-            free_search_expression(expr);
+            expr = free_search_expression(expr);
             break;
         }
         if (strcmp(op, "contains") == 0) { expr->op = SEARCH_OP_CONTAINS; }
@@ -137,7 +137,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         else if (strcmp(op, "!~") == 0) { expr->op = SEARCH_OP_NOT_REGEX; }
         else {
             MYMPD_LOG_ERROR("Unknown search operator: \"%s\"", op);
-            free_search_expression(expr);
+            expr = free_search_expression(expr);
             break;
         }
         i = i + 2;
@@ -166,8 +166,9 @@ struct t_list *parse_search_expression_to_list(sds expression) {
  * Frees the search expression list
  * @param expr_list pointer to the list
  */
-void clear_search_expression_list(struct t_list *expr_list) {
+void *free_search_expression_list(struct t_list *expr_list) {
     list_clear_user_data(expr_list, free_search_expression_node);
+    return NULL;
 }
 
 /**
@@ -251,10 +252,11 @@ bool search_song_expression(struct mpd_song *song, struct t_list *expr_list, str
  * Frees the t_search_expression struct
  * @param expr pointer to t_search_expression struct
  */
-void free_search_expression(struct t_search_expression *expr) {
+void *free_search_expression(struct t_search_expression *expr) {
     FREE_SDS(expr->value);
     FREE_PTR(expr->re_compiled);
     FREE_PTR(expr);
+    return NULL;
 }
 
 /**
@@ -264,6 +266,7 @@ void free_search_expression(struct t_search_expression *expr) {
 static void free_search_expression_node(struct t_list_node *current) {
     struct t_search_expression *expr = (struct t_search_expression *)current->user_data;
     free_search_expression(expr);
+    FREE_PTR(current->user_data);
 }
 
 /**

@@ -482,17 +482,14 @@ int main(int argc, char **argv) {
     MYMPD_LOG_DEBUG("Expired %d entries from mympd_script_queue", expired);
 
     //free config
-    mympd_free_config(config);
-    FREE_PTR(config);
+    config = mympd_free_config(config);
 
     if (mgr != NULL) {
-        web_server_free(mgr);
-        FREE_PTR(mgr);
+        mgr = web_server_free(mgr);
     }
     if (mg_user_data != NULL) {
-        mg_user_data_free(mg_user_data);
+        mg_user_data = mg_user_data_free(mg_user_data);
     }
-    FREE_PTR(mg_user_data);
     if (rc == EXIT_SUCCESS) {
         printf("Exiting gracefully, thank you for using myMPD\n");
     }

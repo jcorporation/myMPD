@@ -12,5 +12,5 @@
 
 void *web_server_loop(void *arg_mgr);
 bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_user_data *mg_user_data);
-void web_server_free(struct mg_mgr *mgr);
+void *web_server_free(struct mg_mgr *mgr);
 #endif

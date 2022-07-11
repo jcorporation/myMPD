@@ -8,6 +8,7 @@
 #include "mympd_config.h"
 
 #include "lib/log.h"
+#include "lib/mem.h"
 #include "lib/sds_extras.h"
 #include "lib/state_files.h"
 #include "lib/utility.h"
@@ -28,7 +29,7 @@ static int mympd_getenv_int(const char *env_var, int default_value, int min, int
 #endif
 
 //public functions
-void mympd_free_config(struct t_config *config) {
+void *mympd_free_config(struct t_config *config) {
     FREE_SDS(config->http_host);
     FREE_SDS(config->http_port);
     #ifdef ENABLE_SSL
@@ -46,6 +47,8 @@ void mympd_free_config(struct t_config *config) {
     FREE_SDS(config->user);
     FREE_SDS(config->workdir);
     FREE_SDS(config->cachedir);
+    FREE_PTR(config);
+    return NULL;
 }
 
 void mympd_config_defaults(struct t_config *config) {

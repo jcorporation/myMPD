@@ -221,23 +221,25 @@ void mympd_api_timer_timerlist_clear(struct t_timer_list *l) {
     mympd_api_timer_timerlist_init(l);
 }
 
-void mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
+void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
     FREE_SDS(timer_def->name);
     FREE_SDS(timer_def->action);
     FREE_SDS(timer_def->subaction);
     FREE_SDS(timer_def->playlist);
     list_clear(&timer_def->arguments);
+    FREE_PTR(timer_def);
+    return NULL;
 }
 
-void mympd_api_timer_free_node(struct t_timer_node *node) {
+void *mympd_api_timer_free_node(struct t_timer_node *node) {
     if (node->fd > -1) {
         close(node->fd);
     }
     if (node->definition != NULL) {
-        mympd_api_timer_free_definition(node->definition);
-        FREE_PTR(node->definition);
+        node->definition = mympd_api_timer_free_definition(node->definition);
     }
     FREE_PTR(node);
+    return NULL;
 }
 
 struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str, sds *error) {
@@ -270,8 +272,7 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         MYMPD_LOG_DEBUG("Successfully parsed timer definition");
     }
     else {
-        mympd_api_timer_free_definition(timer_def);
-        FREE_PTR(timer_def);
+        timer_def = mympd_api_timer_free_definition(timer_def);
         MYMPD_LOG_ERROR("Error parsing timer definition");
     }
     FREE_SDS(jukebox_mode_str);
@@ -387,8 +388,7 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
             MYMPD_LOG_ERROR("Invalid timer line");
             MYMPD_LOG_DEBUG("Errorneous line: %s", line);
             if (timer_def != NULL) {
-                mympd_api_timer_free_definition(timer_def);
-                FREE_PTR(timer_def);
+                timer_def = mympd_api_timer_free_definition(timer_def);
             }
         }
         i++;

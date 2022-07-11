@@ -11,6 +11,6 @@
 
 bool search_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tags);
 struct t_list *parse_search_expression_to_list(sds expression);
-void clear_search_expression_list(struct t_list *expr_list);
+void *free_search_expression_list(struct t_list *expr_list);
 bool search_song_expression(struct mpd_song *song, struct t_list *expr_list, struct t_tags *browse_tag_types);
 #endif
