@@ -256,7 +256,7 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         json_get_int(str, "$.params.startMinute", 0, 59, &timer_def->start_minute, error) == true &&
         json_get_string_max(str, "$.params.action", &timer_def->action, vcb_isalnum, error) == true &&
         json_get_string_max(str, "$.params.subaction", &timer_def->subaction, vcb_isname, error) == true &&
-        json_get_uint(str, "$.params.volume", 0, 100, &timer_def->volume, error) == true &&
+        json_get_uint(str, "$.params.volume", VOLUME_MIN, VOLUME_MAX, &timer_def->volume, error) == true &&
         json_get_string_max(str, "$.params.playlist", &timer_def->playlist, vcb_isfilename, error) == true &&
         json_get_object_string(str, "$.params.arguments", &timer_def->arguments, vcb_isname, 10, error) == true &&
         json_get_bool(str, "$.params.weekdays[0]", &timer_def->weekdays[0], error) == true &&
@@ -304,7 +304,7 @@ sds mympd_api_timer_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
     int entities_returned = 0;
     struct t_timer_node *current = mympd_state->timer_list.list;
     while (current != NULL) {
-        if (current->timer_id > 99 &&
+        if (current->timer_id >= USER_TIMER_ID_START &&
             current->definition != NULL)
         {
             if (entities_returned++) {
@@ -376,7 +376,7 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
         int timerid;
         if (timer_def != NULL &&
             json_get_int(param, "$.params.interval", -1, TIMER_INTERVAL_MAX, &interval, NULL) == true &&
-            json_get_int(param, "$.params.timerid", 101, 200, &timerid, NULL) == true)
+            json_get_int(param, "$.params.timerid", USER_TIMER_ID_MIN, USER_TIMER_ID_MAX, &timerid, NULL) == true)
         {
             if (timerid > mympd_state->timer_list.last_id) {
                 mympd_state->timer_list.last_id = timerid;
@@ -413,7 +413,7 @@ bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
     sds buffer = sdsempty();
     bool write_rc = true;
     while (current != NULL) {
-        if (current->timer_id > 99 &&
+        if (current->timer_id >= USER_TIMER_ID_START &&
             current->definition != NULL)
         {
             buffer = sds_replace(buffer, "{");
