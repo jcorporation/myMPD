@@ -236,7 +236,7 @@ void *mympd_api_timer_free_node(struct t_timer_node *node) {
         close(node->fd);
     }
     if (node->definition != NULL) {
-        node->definition = mympd_api_timer_free_definition(node->definition);
+        mympd_api_timer_free_definition(node->definition);
     }
     FREE_PTR(node);
     return NULL;
