@@ -146,7 +146,7 @@ set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABL
   -D MJSON_ENABLE_PRETTY=0 -D MJSON_ENABLE_MERGE=0")
 
 #disabled for compatibility with tests
-set(UTEST_FLAGS "-Wno-unused-function -Wno-conversion -Wno-redundant-decls")
+set(UTEST_FLAGS "-Wno-unused-function -Wno-redundant-decls")
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
   -ffunction-sections -fdata-sections -Wall -Werror -Wvla -Winit-self -Wuninitialized \
