@@ -19,6 +19,7 @@
 #include "../lib/validate.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
 #include "../mpd_client/mpd_client_search.h"
+#include "../mpd_client/mpd_client_search_local.h"
 #include "../mpd_client/mpd_client_sticker.h"
 #include "../mpd_client/mpd_client_tags.h"
 
@@ -229,16 +230,12 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
     long real_limit = offset + limit;
     long last_played_max = 0;
     sds last_played_song_uri = sdsempty();
-    sds entityName = sdsempty();
-    size_t search_len = sdslen(searchstr);
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
         total_time += mpd_song_get_duration(song);
-        if (entity_count >= offset && entity_count < real_limit) {
-            sdsclear(entityName);
-            entityName = mpd_client_get_tag_value_string(song, MPD_TAG_TITLE, entityName);
-            if (search_len == 0 ||
-                utf8casestr(entityName, searchstr) != NULL)
-            {
+        if (entity_count >= offset &&
+            entity_count < real_limit)
+        {
+            if (search_mpd_song(song, searchstr, tagcols) == true) {
                 if (entities_returned++) {
                     buffer= sdscatlen(buffer, ",", 1);
                 }
@@ -255,7 +252,9 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
                     buffer = sdscatlen(buffer, ",", 1);
                     struct t_sticker *sticker = get_sticker_from_cache(mympd_state->sticker_cache, mpd_song_get_uri(song));
                     buffer = print_sticker(buffer, sticker);
-                    if (sticker->lastPlayed > last_played_max) {
+                    if (sticker != NULL &&
+                        sticker->lastPlayed > last_played_max)
+                    {
                         last_played_max = sticker->lastPlayed;
                         last_played_song_uri = sds_replace(last_played_song_uri, mpd_song_get_uri(song));
                     }
@@ -269,7 +268,6 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
         mpd_song_free(song);
         entity_count++;
     }
-    FREE_SDS(entityName);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
