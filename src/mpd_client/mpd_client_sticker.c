@@ -18,8 +18,26 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * Gets the stickers from sticker cache and returns a json list
+ * Shortcut for get_sticker_from_cache and print_sticker
+ * @param buffer already allocated sds string to append the list
+ * @param sticker_cache pointer to sticker cache
+ * @param uri song uri
+ * @return pointer to the modified buffer
+ */
 sds mpd_client_sticker_list(sds buffer, rax *sticker_cache, const char *uri) {
     struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
+    return print_sticker(buffer, sticker);
+}
+
+/**
+ * Print the sticker struct as json list
+ * @param buffer already allocated sds string to append the list
+ * @param sticker pointer to sticker struct to print
+ * @return pointer to the modified buffer
+ */
+sds print_sticker(sds buffer, struct t_sticker *sticker) {
     if (sticker != NULL) {
         buffer = tojson_long(buffer, "stickerPlayCount", sticker->playCount, true);
         buffer = tojson_long(buffer, "stickerSkipCount", sticker->skipCount, true);
@@ -37,6 +55,11 @@ sds mpd_client_sticker_list(sds buffer, rax *sticker_cache, const char *uri) {
     return buffer;
 }
 
+/** Gets the sticker struct from sticker cache
+ * @param sticker_cache pointer to sticker cache
+ * @param uri song uri
+ * @return pointer to the sticker struct
+ */
 struct t_sticker *get_sticker_from_cache(rax *sticker_cache, const char *uri) {
     if (sticker_cache == NULL) {
         return NULL;
@@ -49,6 +72,12 @@ struct t_sticker *get_sticker_from_cache(rax *sticker_cache, const char *uri) {
     return sticker;
 }
 
+/** Populates the sticker struct from mpd 
+ * @param mpd_state pointer to t_mpd_state struct
+ * @param uri song uri
+ * @param pointer already allocated sticker struct to populate
+ * @return true on success else false
+ */
 bool mpd_client_get_sticker(struct t_mpd_state *mpd_state, const char *uri, struct t_sticker *sticker) {
     struct mpd_pair *pair;
     char *crap = NULL;
