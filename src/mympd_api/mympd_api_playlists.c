@@ -19,6 +19,7 @@
 #include "../lib/validate.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
 #include "../mpd_client/mpd_client_search.h"
+#include "../mpd_client/mpd_client_sticker.h"
 #include "../mpd_client/mpd_client_tags.h"
 
 #include <dirent.h>
@@ -226,6 +227,8 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
     long entity_count = 0;
     unsigned total_time = 0;
     long real_limit = offset + limit;
+    long last_played_max = 0;
+    sds last_played_song_uri = sdsempty();
     sds entityName = sdsempty();
     size_t search_len = sdslen(searchstr);
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
@@ -248,6 +251,15 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
                 }
                 buffer = tojson_long(buffer, "Pos", entity_count, true);
                 buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
+                if (mympd_state->mpd_state->feat_mpd_stickers) {
+                    buffer = sdscatlen(buffer, ",", 1);
+                    struct t_sticker *sticker = get_sticker_from_cache(mympd_state->sticker_cache, mpd_song_get_uri(song));
+                    buffer = print_sticker(buffer, sticker);
+                    if (sticker->lastPlayed > last_played_max) {
+                        last_played_max = sticker->lastPlayed;
+                        last_played_song_uri = sds_replace(last_played_song_uri, mpd_song_get_uri(song));
+                    }
+                }
                 buffer = sdscatlen(buffer, "}", 1);
             }
             else {
@@ -273,9 +285,14 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_sds(buffer, "searchstr", searchstr, true);
     buffer = tojson_sds(buffer, "plist", plist, true);
-    buffer = tojson_bool(buffer, "smartpls", smartpls, false);
+    buffer = tojson_bool(buffer, "smartpls", smartpls, true);
+    buffer = sdscat(buffer, "\"lastPlayedSong\":{");
+    buffer = tojson_long(buffer, "time", last_played_max, true);
+    buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
+    buffer = sdscatlen(buffer, "}", 1);
     buffer = jsonrpc_result_end(buffer);
 
+    FREE_SDS(last_played_song_uri);
     return buffer;
 }
 
