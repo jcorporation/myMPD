@@ -110,7 +110,9 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
             buffer = sdscatlen(buffer, ",", 1);
             struct t_sticker *sticker = get_sticker_from_cache(mympd_state->sticker_cache, mpd_song_get_uri(song));
             buffer = print_sticker(buffer, sticker);
-            if (sticker->lastPlayed > last_played_max) {
+            if (sticker != NULL &&
+                sticker->lastPlayed > last_played_max)
+            {
                 last_played_max = sticker->lastPlayed;
                 last_played_song_uri = sds_replace(last_played_song_uri, mpd_song_get_uri(song));
             }
