@@ -431,11 +431,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         }
         case MYMPD_API_TIMER_LIST:
-            response->data = mympd_api_timer_list(mympd_state, response->data, request->method, request->id);
+            response->data = mympd_api_timer_list(&mympd_state->timer_list, response->data, request->method, request->id);
             break;
         case MYMPD_API_TIMER_GET:
             if (json_get_int(request->data, "$.params.timerid", USER_TIMER_ID_MIN, USER_TIMER_ID_MAX, &int_buf1, &error) == true) {
-                response->data = mympd_api_timer_get(mympd_state, response->data, request->method, request->id, int_buf1);
+                response->data = mympd_api_timer_get(&mympd_state->timer_list, response->data, request->method, request->id, int_buf1);
             }
             break;
         case MYMPD_API_TIMER_RM:
@@ -459,7 +459,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             mympd_api_stats_last_played_file_save(mympd_state);
             mympd_api_trigger_file_save(mympd_state);
             mympd_api_home_file_save(mympd_state);
-            mympd_api_timer_file_save(mympd_state);
+            mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
             response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             break;
         case MYMPD_API_JUKEBOX_RM:

@@ -23,6 +23,7 @@
 #include <unistd.h>
 
 //private definitions
+static void *mympd_api_timer_free_node(struct t_timer_node *node);
 static struct t_timer_node *get_timer_from_fd(struct t_timer_list *l, int fd);
 static sds print_timer_node(sds buffer, struct t_timer_node *current);
 
@@ -191,6 +192,7 @@ void mympd_api_timer_remove(struct t_timer_list *l, int timer_id) {
                 l->active--;
             }
             mympd_api_timer_free_node(current);
+            l->length--;
             return;
         }
     }
@@ -228,17 +230,6 @@ void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
     FREE_SDS(timer_def->playlist);
     list_clear(&timer_def->arguments);
     FREE_PTR(timer_def);
-    return NULL;
-}
-
-void *mympd_api_timer_free_node(struct t_timer_node *node) {
-    if (node->fd > -1) {
-        close(node->fd);
-    }
-    if (node->definition != NULL) {
-        mympd_api_timer_free_definition(node->definition);
-    }
-    FREE_PTR(node);
     return NULL;
 }
 
@@ -298,11 +289,11 @@ time_t mympd_api_timer_calc_starttime(int start_hour, int start_minute, int inte
     return start - now;
 }
 
-sds mympd_api_timer_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int entities_returned = 0;
-    struct t_timer_node *current = mympd_state->timer_list.list;
+    struct t_timer_node *current = timer_list->list;
     while (current != NULL) {
         if (current->timer_id >= USER_TIMER_ID_START &&
             current->definition != NULL)
@@ -323,10 +314,10 @@ sds mympd_api_timer_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
     return buffer;
 }
 
-sds mympd_api_timer_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, int timer_id) {
+sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, sds method, long request_id, int timer_id) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     bool found = false;
-    struct t_timer_node *current = mympd_state->timer_list.list;
+    struct t_timer_node *current = timer_list->list;
     while (current != NULL) {
         if (current->timer_id == timer_id &&
             current->definition != NULL)
@@ -347,8 +338,8 @@ sds mympd_api_timer_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
     return buffer;
 }
 
-bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
-    sds timer_file = sdscatfmt(sdsempty(), "%S/state/timer_list", mympd_state->config->workdir);
+bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
+    sds timer_file = sdscatfmt(sdsempty(), "%S/state/timer_list", workdir);
     errno = 0;
     FILE *fp = fopen(timer_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -378,11 +369,11 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
             json_get_int(param, "$.params.interval", -1, TIMER_INTERVAL_MAX, &interval, NULL) == true &&
             json_get_int(param, "$.params.timerid", USER_TIMER_ID_MIN, USER_TIMER_ID_MAX, &timerid, NULL) == true)
         {
-            if (timerid > mympd_state->timer_list.last_id) {
-                mympd_state->timer_list.last_id = timerid;
+            if (timerid > timer_list->last_id) {
+                timer_list->last_id = timerid;
             }
             time_t start = mympd_api_timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, interval);
-            mympd_api_timer_add(&mympd_state->timer_list, start, interval, timer_handler_select, timerid, timer_def);
+            mympd_api_timer_add(timer_list, start, interval, timer_handler_select, timerid, timer_def);
         }
         else {
             MYMPD_LOG_ERROR("Invalid timer line");
@@ -397,19 +388,19 @@ bool mympd_api_timer_file_read(struct t_mympd_state *mympd_state) {
     FREE_SDS(line);
     (void) fclose(fp);
     FREE_SDS(timer_file);
-    MYMPD_LOG_INFO("Read %d timer(s) from disc", mympd_state->timer_list.length);
+    MYMPD_LOG_INFO("Read %d timer(s) from disc", timer_list->length);
     return true;
 }
 
-bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
+bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir) {
     MYMPD_LOG_INFO("Saving timers to disc");
-    sds tmp_file = sdscatfmt(sdsempty(), "%S/state/timer_list.XXXXXX", mympd_state->config->workdir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%S/state/timer_list.XXXXXX", workdir);
     FILE *fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);
         return false;
     }
-    struct t_timer_node *current = mympd_state->timer_list.list;
+    struct t_timer_node *current = timer_list->list;
     sds buffer = sdsempty();
     bool write_rc = true;
     while (current != NULL) {
@@ -428,7 +419,7 @@ bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
         current = current->next;
     }
     FREE_SDS(buffer);
-    sds filepath = sdscatfmt(sdsempty(), "%S/state/timer_list", mympd_state->config->workdir);
+    sds filepath = sdscatfmt(sdsempty(), "%S/state/timer_list", workdir);
     bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
     FREE_SDS(tmp_file);
     FREE_SDS(filepath);
@@ -436,6 +427,18 @@ bool mympd_api_timer_file_save(struct t_mympd_state *mympd_state) {
 }
 
 //private functions
+
+static void *mympd_api_timer_free_node(struct t_timer_node *node) {
+    if (node->fd > -1) {
+        close(node->fd);
+    }
+    if (node->definition != NULL) {
+        mympd_api_timer_free_definition(node->definition);
+    }
+    FREE_PTR(node);
+    return NULL;
+}
+
 static struct t_timer_node *get_timer_from_fd(struct t_timer_list *l, int fd) {
     struct t_timer_node *current = l->list;
 

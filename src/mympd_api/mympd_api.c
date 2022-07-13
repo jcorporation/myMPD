@@ -45,7 +45,7 @@ void *mympd_api_loop(void *arg_config) {
     //home icons
     mympd_api_home_file_read(mympd_state);
     //myMPD timer
-    mympd_api_timer_file_read(mympd_state);
+    mympd_api_timer_file_read(&mympd_state->timer_list, mympd_state->config->workdir);
     //myMPD trigger
     mympd_api_trigger_file_read(mympd_state);
     //set timers
@@ -69,7 +69,7 @@ void *mympd_api_loop(void *arg_config) {
     mpd_client_disconnect(mympd_state->mpd_state);
     //save states
     mympd_api_home_file_save(mympd_state);
-    mympd_api_timer_file_save(mympd_state);
+    mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
     mympd_api_stats_last_played_file_save(mympd_state);
     mympd_api_trigger_file_save(mympd_state);
     //free anything

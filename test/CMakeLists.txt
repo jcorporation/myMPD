@@ -62,6 +62,7 @@ set(TEST_SOURCES
   tests/test_random.c
   tests/test_sds_extras.c
   tests/test_state_files.c
+  tests/test_timer.c
   tests/test_utility.c
   tests/test_validate.c
 )
