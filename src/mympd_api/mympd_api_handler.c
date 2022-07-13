@@ -142,9 +142,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_string_max(request->data, "$.params.cmd", &sds_buf6, vcb_isalnum, &error) == true &&
                 json_get_array_string(request->data, "$.params.options", &options, vcb_isname, 10, &error) == true)
             {
-                rc = mympd_api_home_icon_save(mympd_state, bool_buf1, long_buf1, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, &options);
+                rc = mympd_api_home_icon_save(&mympd_state->home_list, bool_buf1, long_buf1, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, &options);
                 if (rc == true) {
-                    response->data = mympd_api_home_icon_list(mympd_state, response->data, request->method, request->id);
+                    response->data = mympd_api_home_icon_list(&mympd_state->home_list, response->data, request->method, request->id);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Can not save home icon");
@@ -157,9 +157,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_long(request->data, "$.params.from", 0, LIST_HOME_ICONS_MAX, &long_buf1, &error) == true &&
                 json_get_long(request->data, "$.params.to", 0, LIST_HOME_ICONS_MAX, &long_buf2, &error) == true)
             {
-                rc = mympd_api_home_icon_move(mympd_state, long_buf1, long_buf2);
+                rc = mympd_api_home_icon_move(&mympd_state->home_list, long_buf1, long_buf2);
                 if (rc == true) {
-                    response->data = mympd_api_home_icon_list(mympd_state, response->data, request->method, request->id);
+                    response->data = mympd_api_home_icon_list(&mympd_state->home_list, response->data, request->method, request->id);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Can not move home icon");
@@ -168,9 +168,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_HOME_ICON_RM:
             if (json_get_long(request->data, "$.params.pos", 0, LIST_HOME_ICONS_MAX, &long_buf1, &error) == true) {
-                rc = mympd_api_home_icon_delete(mympd_state, long_buf1);
+                rc = mympd_api_home_icon_delete(&mympd_state->home_list, long_buf1);
                 if (rc == true) {
-                    response->data = mympd_api_home_icon_list(mympd_state, response->data, request->method, request->id);
+                    response->data = mympd_api_home_icon_list(&mympd_state->home_list, response->data, request->method, request->id);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "home", "error", "Can not delete home icon");
@@ -179,11 +179,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_HOME_ICON_GET:
             if (json_get_long(request->data, "$.params.pos", 0, LIST_HOME_ICONS_MAX, &long_buf1, &error) == true) {
-                response->data = mympd_api_home_icon_get(mympd_state, response->data, request->method, request->id, long_buf1);
+                response->data = mympd_api_home_icon_get(&mympd_state->home_list, response->data, request->method, request->id, long_buf1);
             }
             break;
         case MYMPD_API_HOME_LIST:
-            response->data = mympd_api_home_icon_list(mympd_state, response->data, request->method, request->id);
+            response->data = mympd_api_home_icon_list(&mympd_state->home_list, response->data, request->method, request->id);
             break;
         #ifdef ENABLE_LUA
         case MYMPD_API_SCRIPT_SAVE: {
@@ -458,7 +458,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case INTERNAL_API_STATE_SAVE:
             mympd_api_stats_last_played_file_save(mympd_state);
             mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
-            mympd_api_home_file_save(mympd_state);
+            mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
             mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
             response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "general");
             break;

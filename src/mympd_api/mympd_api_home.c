@@ -18,15 +18,15 @@
 #include <string.h>
 #include <unistd.h>
 
-bool mympd_api_home_icon_move(struct t_mympd_state *mympd_state, long from, long to) {
-    return list_move_item_pos(&mympd_state->home_list, from, to);
+bool mympd_api_home_icon_move(struct t_list *home_list, long from, long to) {
+    return list_move_item_pos(home_list, from, to);
 }
 
-bool mympd_api_home_icon_delete(struct t_mympd_state *mympd_state, long pos) {
-    return list_remove_node(&mympd_state->home_list, pos);
+bool mympd_api_home_icon_delete(struct t_list *home_list, long pos) {
+    return list_remove_node(home_list, pos);
 }
 
-bool mympd_api_home_icon_save(struct t_mympd_state *mympd_state, bool replace, long oldpos,
+bool mympd_api_home_icon_save(struct t_list *home_list, bool replace, long oldpos,
     sds name, sds ligature, sds bgcolor, sds color, sds image, sds cmd, struct t_list *option_list)
 {
     sds key = sdsnewlen("{", 1);
@@ -49,17 +49,17 @@ bool mympd_api_home_icon_save(struct t_mympd_state *mympd_state, bool replace, l
     key = sdscatlen(key, "]}", 2);
     bool rc = false;
     if (replace == true) {
-        rc = list_replace(&mympd_state->home_list, oldpos, key, 0, NULL, NULL);
+        rc = list_replace(home_list, oldpos, key, 0, NULL, NULL);
     }
     else {
-        rc = list_push(&mympd_state->home_list, key, 0, NULL, NULL);
+        rc = list_push(home_list, key, 0, NULL, NULL);
     }
     FREE_SDS(key);
     return rc;
 }
 
-bool mympd_api_home_file_read(struct t_mympd_state *mympd_state) {
-    sds home_file = sdscatfmt(sdsempty(), "%S/state/home_list", mympd_state->config->workdir);
+bool mympd_api_home_file_read(struct t_list *home_list, sds workdir) {
+    sds home_file = sdscatfmt(sdsempty(), "%S/state/home_list", workdir);
     errno = 0;
     FILE *fp = fopen(home_file, OPEN_FLAGS_READ);
     int i = 0;
@@ -79,7 +79,7 @@ bool mympd_api_home_file_read(struct t_mympd_state *mympd_state) {
             MYMPD_LOG_ERROR("Invalid line");
             break;
         }
-        list_push(&mympd_state->home_list, line, 0, NULL, NULL);
+        list_push(home_list, line, 0, NULL, NULL);
         i++;
         if (i == LIST_HOME_ICONS_MAX) {
             MYMPD_LOG_WARN("Too many lines in home_list");
@@ -89,6 +89,7 @@ bool mympd_api_home_file_read(struct t_mympd_state *mympd_state) {
     FREE_SDS(line);
     (void) fclose(fp);
     FREE_SDS(home_file);
+    MYMPD_LOG_INFO("Read %ld home icon(s) from disc", home_list->length);
     return true;
 }
 
@@ -96,19 +97,19 @@ static sds homeicon_to_line_cb(sds buffer, struct t_list_node *current) {
     return sdscatfmt(buffer, "%S\n", current->key);
 }
 
-bool mympd_api_home_file_save(struct t_mympd_state *mympd_state) {
+bool mympd_api_home_file_save(struct t_list *home_list, sds workdir) {
     MYMPD_LOG_INFO("Saving home icons to disc");
-    sds filepath = sdscatfmt(sdsempty(), "%S/state/home_list", mympd_state->config->workdir);
-    bool rc = list_write_to_disk(filepath, &mympd_state->home_list, homeicon_to_line_cb);
+    sds filepath = sdscatfmt(sdsempty(), "%S/state/home_list", workdir);
+    bool rc = list_write_to_disk(filepath, home_list, homeicon_to_line_cb);
     FREE_SDS(filepath);
     return rc;
 }
 
-sds mympd_api_home_icon_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_home_icon_list(struct t_list *home_list, sds buffer, sds method, long request_id) {
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int returned_entities = 0;
-    struct t_list_node *current = mympd_state->home_list.head;
+    struct t_list_node *current = home_list->head;
     while (current != NULL) {
         if (returned_entities++) {
             buffer = sdscatlen(buffer, ",", 1);
@@ -122,8 +123,8 @@ sds mympd_api_home_icon_list(struct t_mympd_state *mympd_state, sds buffer, sds 
     return buffer;
 }
 
-sds mympd_api_home_icon_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, long pos) {
-    struct t_list_node *current = list_node_at(&mympd_state->home_list, pos);
+sds mympd_api_home_icon_get(struct t_list *home_list, sds buffer, sds method, long request_id, long pos) {
+    struct t_list_node *current = list_node_at(home_list, pos);
     if (current != NULL) {
         buffer = jsonrpc_result_start(buffer, method, request_id);
         buffer = sdscat(buffer, "\"data\":");
