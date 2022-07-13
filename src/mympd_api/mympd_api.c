@@ -47,7 +47,7 @@ void *mympd_api_loop(void *arg_config) {
     //myMPD timer
     mympd_api_timer_file_read(&mympd_state->timer_list, mympd_state->config->workdir);
     //myMPD trigger
-    mympd_api_trigger_file_read(mympd_state);
+    mympd_api_trigger_file_read(&mympd_state->trigger_list, mympd_state->config->workdir);
     //set timers
     if (mympd_state->covercache_keep_days > 0) {
         MYMPD_LOG_DEBUG("Setting timer action \"crop covercache\" to periodic each 7200s");
@@ -71,7 +71,7 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_home_file_save(mympd_state);
     mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
     mympd_api_stats_last_played_file_save(mympd_state);
-    mympd_api_trigger_file_save(mympd_state);
+    mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
     //free anything
     mympd_state_free(mympd_state);
     FREE_SDS(thread_logname);

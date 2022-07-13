@@ -190,8 +190,8 @@ bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx) {
     return false;
 }
 
-bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
-    sds trigger_file = sdscatfmt(sdsempty(), "%S/state/trigger_list", mympd_state->config->workdir);
+bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
+    sds trigger_file = sdscatfmt(sdsempty(), "%S/state/trigger_list", workdir);
     errno = 0;
     FILE *fp = fopen(trigger_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -222,7 +222,7 @@ bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
             json_get_int_max(line, "$.event", &event, NULL) == true &&
             json_get_object_string(line, "$.arguments", arguments, vcb_isname, 10, NULL))
         {
-            list_push(&mympd_state->trigger_list, name, event, script, arguments);
+            list_push(trigger_list, name, event, script, arguments);
         }
         else {
             list_free(arguments);
@@ -233,7 +233,7 @@ bool mympd_api_trigger_file_read(struct t_mympd_state *mympd_state) {
     }
     FREE_SDS(line);
     (void) fclose(fp);
-    MYMPD_LOG_INFO("Read %ld triggers(s) from disc", mympd_state->trigger_list.length);
+    MYMPD_LOG_INFO("Read %ld triggers(s) from disc", trigger_list->length);
     FREE_SDS(trigger_file);
     return true;
 }
@@ -258,10 +258,10 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current) {
     return buffer;
 }
 
-bool mympd_api_trigger_file_save(struct t_mympd_state *mympd_state) {
+bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir) {
     MYMPD_LOG_INFO("Saving triggers to disc");
-    sds filepath = sdscatfmt(sdsempty(), "%S/state/trigger_list", mympd_state->config->workdir);
-    bool rc = list_write_to_disk(filepath, &mympd_state->trigger_list, trigger_to_line_cb);
+    sds filepath = sdscatfmt(sdsempty(), "%S/state/trigger_list", workdir);
+    bool rc = list_write_to_disk(filepath, trigger_list, trigger_to_line_cb);
     FREE_SDS(filepath);
     return rc;
 }
