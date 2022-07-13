@@ -114,7 +114,7 @@ bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state) {
         if (strcmp(current->value_p, "playCount") == 0 ||
             strcmp(current->value_p, "skipCount") == 0)
         {
-            _mympd_api_sticker_count(mympd_state, current->key, current->value_p, current->value_i);
+            _mympd_api_sticker_count(mympd_state, current->key, current->value_p, (long)current->value_i);
         }
         else if (strcmp(current->value_p, "like") == 0 ||
                  strcmp(current->value_p, "lastPlayed") == 0 ||
@@ -178,13 +178,13 @@ static bool _mympd_api_sticker_set(struct t_mympd_state *mympd_state, const char
         return false;
     }
     if (strcmp(name, "like") == 0) {
-        sticker->like = value;
+        sticker->like = (long)value;
     }
     else if (strcmp(name, "lastPlayed") == 0) {
-        sticker->lastPlayed = value;
+        sticker->lastPlayed = (time_t)value;
     }
     else if (strcmp(name, "lastSkipped") == 0) {
-        sticker->lastSkipped = value;
+        sticker->lastSkipped = (time_t)value;
     }
     else {
         MYMPD_LOG_ERROR("Invalid sticker name \"%s\"", name);
