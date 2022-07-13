@@ -8,7 +8,6 @@
 #include "mympd_state.h"
 
 #include "../mpd_client/mpd_client_jukebox.h"
-#include "../mpd_client/mpd_client_sticker.h"
 #include "../mpd_client/mpd_client_tags.h"
 #include "../mympd_api/mympd_api_timer.h"
 #include "log.h"

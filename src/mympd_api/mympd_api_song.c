@@ -10,9 +10,9 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
-#include "../mpd_client/mpd_client_sticker.h"
 #include "../mpd_client/mpd_client_tags.h"
 #include "mympd_api_extra_media.h"
+#include "mympd_api_sticker.h"
 
 //public functions
 sds mympd_api_fingerprint(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
@@ -61,7 +61,7 @@ sds mympd_api_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds met
 
     if (mympd_state->mpd_state->feat_mpd_stickers) {
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mpd_client_sticker_list(buffer, mympd_state->sticker_cache, uri);
+        buffer = mympd_api_sticker_list(buffer, mympd_state->sticker_cache, uri);
     }
 
     buffer = sdscatlen(buffer, ",", 1);

@@ -10,8 +10,8 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
+#include "../mympd_api/mympd_api_sticker.h"
 #include "mpd_client_errorhandler.h"
-#include "mpd_client_sticker.h"
 #include "mpd_client_tags.h"
 
 #include <string.h>
@@ -194,7 +194,7 @@ static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, sds met
             buffer = get_song_tags(buffer, mpd_state, tagcols, song);
             if (sticker_cache != NULL) {
                 buffer = sdscatlen(buffer, ",", 1);
-                buffer = mpd_client_sticker_list(buffer, sticker_cache, mpd_song_get_uri(song));
+                buffer = mympd_api_sticker_list(buffer, sticker_cache, mpd_song_get_uri(song));
             }
             buffer = sdscatlen(buffer, "}", 1);
             mpd_song_free(song);

@@ -12,12 +12,13 @@
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
+#include "../lib/sticker_cache.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
 #include "../mpd_client/mpd_client_search.h"
 #include "../mpd_client/mpd_client_search_local.h"
-#include "../mpd_client/mpd_client_sticker.h"
 #include "../mpd_client/mpd_client_tags.h"
 #include "mympd_api_extra_media.h"
+#include "mympd_api_sticker.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -109,7 +110,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
         if (mympd_state->mpd_state->feat_mpd_stickers) {
             buffer = sdscatlen(buffer, ",", 1);
             struct t_sticker *sticker = get_sticker_from_cache(mympd_state->sticker_cache, mpd_song_get_uri(song));
-            buffer = print_sticker(buffer, sticker);
+            buffer = mympd_api_print_sticker(buffer, sticker);
             if (sticker != NULL &&
                 sticker->lastPlayed > last_played_max)
             {

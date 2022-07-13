@@ -261,6 +261,7 @@ set(MYMPD_SOURCES
   src/lib/random.c
   src/lib/sds_extras.c
   src/lib/state_files.c
+  src/lib/sticker_cache.c
   src/lib/utility.c
   src/lib/validate.c
   src/main.c
@@ -273,7 +274,6 @@ set(MYMPD_SOURCES
   src/mpd_client/mpd_client_playlists.c
   src/mpd_client/mpd_client_search.c
   src/mpd_client/mpd_client_search_local.c
-  src/mpd_client/mpd_client_sticker.c
   src/mpd_client/mpd_client_tags.c
   src/mpd_client/mpd_client_volume.c
   src/mpd_worker/mpd_worker.c

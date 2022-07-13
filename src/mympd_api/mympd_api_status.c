@@ -14,9 +14,9 @@
 #include "../lib/utility.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
 #include "../mpd_client/mpd_client_volume.h"
-#include "../mpd_client/mpd_client_sticker.h"
 #include "../mpd_client/mpd_client_tags.h"
 #include "mympd_api_extra_media.h"
+#include "mympd_api_sticker.h"
 #include "mympd_api_webradios.h"
 
 //private definitions
@@ -273,7 +273,7 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
         mympd_state->sticker_cache != NULL)
     {
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mpd_client_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
+        buffer = mympd_api_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
     }
     buffer = sdscatlen(buffer, ",", 1);
     buffer = get_extra_media(mympd_state, buffer, uri, false);

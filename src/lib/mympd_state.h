@@ -59,8 +59,8 @@ enum mpd_conn_states {
 struct t_sticker {
     long playCount;
     long skipCount;
-    long lastPlayed;
-    long lastSkipped;
+    time_t lastPlayed;
+    time_t lastSkipped;
     long like;
 };
 

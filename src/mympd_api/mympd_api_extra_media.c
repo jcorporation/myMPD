@@ -15,7 +15,6 @@
 #include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
-#include "../mpd_client/mpd_client_sticker.h"
 #include "../mpd_client/mpd_client_tags.h"
 #include "mympd_api_timer.h"
 

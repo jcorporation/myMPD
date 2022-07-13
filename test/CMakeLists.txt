@@ -35,17 +35,18 @@ set(TEST_SOURCES
   ../src/lib/random.c
   ../src/lib/sds_extras.c
   ../src/lib/state_files.c
+  ../src/lib/sticker_cache.c
   ../src/lib/utility.c
   ../src/lib/validate.c
   ../src/mpd_client/mpd_client_errorhandler.c
   ../src/mpd_client/mpd_client_search.c
   ../src/mpd_client/mpd_client_search_local.c
-  ../src/mpd_client/mpd_client_sticker.c
   ../src/mpd_client/mpd_client_tags.c
   ../src/mpd_client/mpd_client_jukebox.c
   ../src/mpd_client/mpd_client_volume.c
   ../src/mympd_api/mympd_api_extra_media.c
   ../src/mympd_api/mympd_api_status.c
+  ../src/mympd_api/mympd_api_sticker.c
   ../src/mympd_api/mympd_api_timer.c
   ../src/mympd_api/mympd_api_timer_handlers.c
   ../src/mympd_api/mympd_api_queue.c

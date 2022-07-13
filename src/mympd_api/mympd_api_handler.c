@@ -22,7 +22,6 @@
 #include "../mpd_client/mpd_client_jukebox.h"
 #include "../mpd_client/mpd_client_playlists.h"
 #include "../mpd_client/mpd_client_search.h"
-#include "../mpd_client/mpd_client_sticker.h"
 #include "../mpd_client/mpd_client_tags.h"
 #include "../mpd_worker/mpd_worker.h"
 #include "mympd_api_albumart.h"

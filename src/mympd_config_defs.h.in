@@ -235,6 +235,10 @@
 #define SMARTPLS_SIZE_MAX 2000
 #define WEBRADIODB_SIZE_MAX 1000000
 
+//limits for stickers
+#define STICKER_PLAY_COUNT_MAX INT_MAX / 2
+#define STICKER_SKIP_COUNT_MAX INT_MAX / 2
+
 //cloud api hosts
 #define RADIOBROWSER_HOST "all.api.radio-browser.info"
 #define WEBRADIODB_HOST "jcorporation.github.io"

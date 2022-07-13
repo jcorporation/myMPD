@@ -13,12 +13,13 @@
 #include "../lib/mem.h"
 #include "../lib/random.h"
 #include "../lib/sds_extras.h"
+#include "../lib/sticker_cache.h"
 #include "../lib/utility.h"
 #include "../mympd_api/mympd_api_queue.h"
+#include "../mympd_api/mympd_api_sticker.h"
 #include "mpd_client_errorhandler.h"
 #include "mpd_client_search.h"
 #include "mpd_client_search_local.h"
-#include "mpd_client_sticker.h"
 #include "mpd_client_tags.h"
 
 #include <errno.h>
@@ -121,7 +122,7 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
                                 mympd_state->sticker_cache != NULL)
                             {
                                 buffer = sdscatlen(buffer, ",", 1);
-                                buffer = mpd_client_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
+                                buffer = mympd_api_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
                             }
                             buffer = sdscatlen(buffer, "}", 1);
                         }

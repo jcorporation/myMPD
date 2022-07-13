@@ -12,9 +12,9 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
-#include "../mpd_client/mpd_client_sticker.h"
 #include "../mpd_client/mpd_client_tags.h"
 #include "mympd_api_status.h"
+#include "mympd_api_sticker.h"
 #include "mympd_api_webradios.h"
 
 #include <string.h>
@@ -428,7 +428,7 @@ sds _print_queue_entry(struct t_mympd_state *mympd_state, sds buffer, const stru
         mympd_state->sticker_cache != NULL)
     {
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mpd_client_sticker_list(buffer, mympd_state->sticker_cache, uri);
+        buffer = mympd_api_sticker_list(buffer, mympd_state->sticker_cache, uri);
     }
     buffer = sdscatlen(buffer, "}", 1);
     return buffer;

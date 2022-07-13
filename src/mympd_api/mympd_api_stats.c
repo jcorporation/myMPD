@@ -14,9 +14,9 @@
 #include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
-#include "../mpd_client/mpd_client_sticker.h"
 #include "../mpd_client/mpd_client_search_local.h"
 #include "../mpd_client/mpd_client_tags.h"
+#include "mympd_api_sticker.h"
 
 #include <errno.h>
 #include <inttypes.h>
@@ -250,7 +250,7 @@ static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds 
                     mympd_state->sticker_cache != NULL)
                 {
                     buffer = sdscatlen(buffer, ",", 1);
-                    buffer = mpd_client_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
+                    buffer = mympd_api_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
                 }
                 rc = true;
             }

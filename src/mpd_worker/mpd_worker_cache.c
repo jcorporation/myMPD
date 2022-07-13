@@ -12,15 +12,16 @@
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
-#include "../mpd_client/mpd_client_sticker.h"
 #include "../mpd_client/mpd_client_tags.h"
 
+#include <inttypes.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 
 //privat definitions
 static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
+static bool _get_sticker_from_mpd(struct t_mpd_state *mpd_state, const char *uri, struct t_sticker *sticker);
 
 //public functions
 bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
@@ -203,7 +204,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         sds uri = sdsempty();
         while (raxNext(&iter)) {
             uri = sds_replacelen(uri, (char *)iter.key, iter.key_len);
-            mpd_client_get_sticker(mpd_worker_state->mpd_state, uri, (struct t_sticker *)iter.data);
+            _get_sticker_from_mpd(mpd_worker_state->mpd_state, uri, (struct t_sticker *)iter.data);
         }
         FREE_SDS(uri);
         raxStop(&iter);
@@ -212,5 +213,51 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
     MYMPD_LOG_INFO("Skipped %ld songs", skipped);
     MYMPD_LOG_INFO("Added %ld songs to sticker cache", song_count);
     MYMPD_LOG_INFO("Cache updated successfully");
+    return true;
+}
+
+/** Populates the sticker struct from mpd 
+ * @param mpd_state pointer to t_mpd_state struct
+ * @param uri song uri
+ * @param pointer already allocated sticker struct to populate
+ * @return true on success else false
+ */
+static bool _get_sticker_from_mpd(struct t_mpd_state *mpd_state, const char *uri, struct t_sticker *sticker) {
+    struct mpd_pair *pair;
+    char *crap = NULL;
+    sticker->playCount = 0;
+    sticker->skipCount = 0;
+    sticker->lastPlayed = 0;
+    sticker->lastSkipped = 0;
+    sticker->like = 1;
+
+    bool rc = mpd_send_sticker_list(mpd_state->conn, "song", uri);
+    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_send_sticker_list") == false) {
+        return false;
+    }
+
+    while ((pair = mpd_recv_sticker(mpd_state->conn)) != NULL) {
+        if (strcmp(pair->name, "playCount") == 0) {
+            sticker->playCount = (long)strtoimax(pair->value, &crap, 10);
+        }
+        else if (strcmp(pair->name, "skipCount") == 0) {
+            sticker->skipCount = (long)strtoimax(pair->value, &crap, 10);
+        }
+        else if (strcmp(pair->name, "lastPlayed") == 0) {
+            sticker->lastPlayed = (time_t)strtoimax(pair->value, &crap, 10);
+        }
+        else if (strcmp(pair->name, "lastSkipped") == 0) {
+            sticker->lastSkipped = (time_t)strtoimax(pair->value, &crap, 10);
+        }
+        else if (strcmp(pair->name, "like") == 0) {
+            sticker->like = (int)strtoimax(pair->value, &crap, 10);
+        }
+        mpd_return_sticker(mpd_state->conn, pair);
+    }
+    mpd_response_finish(mpd_state->conn);
+    if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+        return false;
+    }
+
     return true;
 }
