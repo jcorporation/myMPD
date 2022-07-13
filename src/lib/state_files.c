@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "state_files.h"
 
+#include "filehandler.h"
 #include "log.h"
 #include "sds_extras.h"
 #include "validate.h"
@@ -16,30 +17,58 @@
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
+/**
+ * Converts camel case to snake notation
+ * @param text string to convert
+ * @return newly allocated sds string in snake notation
+ */
 sds camel_to_snake(sds text) {
+    //pre-allocate buffer to avoid continuous reallocations 
     sds buffer = sdsempty();
+    buffer = sdsMakeRoomFor(buffer, sdslen(text) + 5);
     for (size_t i = 0; i < sdslen(text); i++) {
         if (isupper(text[i]) > 0) {
             buffer = sdscatfmt(buffer, "_%c", tolower((unsigned char)text[i]));
         }
         else {
-            buffer = sdscatfmt(buffer, "%c", text[i]);
+            buffer = sds_catchar(buffer, text[i]);
         }
     }
     return buffer;
 }
 
-sds state_file_rw_string_sds(const char *workdir, const char *dir, const char *name, sds old_value, validate_callback vcb, bool warn) {
-    sds value = state_file_rw_string(workdir, dir, name, old_value, vcb, warn);
-    FREE_SDS(old_value);
+/**
+ * Reads a string from a file or writes the file with a default value if not exists or value is invalid
+ * @param workdir mympd working directory
+ * @param dir subdir 
+ * @param name filename to read/write
+ * @param dev_value default value as sds string (is freed by this function)
+ * @param vcb validation callback from validate.h
+ * @param warn if true a warning is logged if file does not exists
+ * @return newly allocated sds string
+ */
+sds state_file_rw_string_sds(sds workdir, const char *dir, const char *name, sds def_value, validate_callback vcb, bool warn) {
+    sds value = state_file_rw_string(workdir, dir, name, def_value, vcb, warn);
+    FREE_SDS(def_value);
     return value;
 }
 
-sds state_file_rw_string(const char *workdir, const char *dir, const char *name, const char *def_value, validate_callback vcb, bool warn) {
+/**
+ * Reads a string from a file or writes the file with a default value if not exists or value is invalid
+ * @param workdir mympd working directory
+ * @param dir subdir 
+ * @param name filename to read/write
+ * @param dev_value default value as c string
+ * @param vcb validation callback from validate.h
+ * @param warn if true a warning is logged if file does not exists
+ * @return newly allocated sds string
+ */
+sds state_file_rw_string(sds workdir, const char *dir, const char *name, const char *def_value, validate_callback vcb, bool warn) {
     sds result = sdsempty();
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", workdir, dir, name);
+    sds cfg_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, dir, name);
     errno = 0;
     FILE *fp = fopen(cfg_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -58,9 +87,9 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
         return result;
     }
     FREE_SDS(cfg_file);
-    int n = sds_getline(&result, fp, 1000);
+    int n = sds_getline(&result, fp, LINE_LENGTH_MAX);
     (void) fclose(fp);
-    if (n == 0 &&             //sucessfully read the value
+    if (n == GETLINE_OK &&    //sucessfully read the value
         vcb != NULL &&        //has validation callback
         vcb(result) == false) //validation failed, return default
     {
@@ -68,7 +97,7 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
         result = sdscat(result, def_value);
         return result;
     }
-    if (n == -2) {
+    if (n == GETLINE_TOO_LONG) {
         //too long line, return default
         sdsclear(result);
         result = sdscat(result, def_value);
@@ -77,7 +106,16 @@ sds state_file_rw_string(const char *workdir, const char *dir, const char *name,
     return result;
 }
 
-bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, const bool def_value, bool warn) {
+/**
+ * Reads a bool from a file or writes the file with a default value if not exists or value is invalid
+ * @param workdir mympd working directory
+ * @param dir subdir 
+ * @param name filename to read/write
+ * @param dev_value default value
+ * @param warn if true a warning is logged if file does not exists
+ * @return newly allocated sds string
+ */
+bool state_file_rw_bool(sds workdir, const char *dir, const char *name, const bool def_value, bool warn) {
     bool value = def_value;
     sds line = state_file_rw_string(workdir, dir, name, def_value == true ? "true" : "false", NULL, warn);
     if (sdslen(line) > 0) {
@@ -87,13 +125,38 @@ bool state_file_rw_bool(const char *workdir, const char *dir, const char *name, 
     return value;
 }
 
-int state_file_rw_int(const char *workdir, const char *dir, const char *name, const int def_value, const int min, const int max, bool warn) {
+/**
+ * Reads an integer from a file or writes the file with a default value if not exists or value is invalid
+ * @param workdir mympd working directory
+ * @param dir subdir 
+ * @param name filename to read/write
+ * @param dev_value default value as sds string (is freed by this function)
+ * @param min minimum value
+ * @param min maximum value
+ * @param warn if true a warning is logged if file does not exists
+ * @return newly allocated sds string
+ */
+int state_file_rw_int(sds workdir, const char *dir, const char *name, const int def_value, const int min, const int max, bool warn) {
+    return (int)state_file_rw_long(workdir, dir, name, def_value, min, max, warn);
+}
+
+/**
+ * Reads a long from a file or writes the file with a default value if not exists or value is invalid
+ * @param workdir mympd working directory
+ * @param dir subdir 
+ * @param name filename to read/write
+ * @param dev_value default value as sds string (is freed by this function)
+ * @param min minimum value
+ * @param min maximum value
+ * @param warn if true a warning is logged if file does not exists
+ * @return newly allocated sds string
+ */
+long state_file_rw_long(sds workdir, const char *dir, const char *name, const long def_value, const long min, const long max, bool warn) {
     char *crap = NULL;
-    int value = def_value;
     sds def_value_str = sdsfromlonglong((long long)def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
     FREE_SDS(def_value_str);
-    value = (int)strtoimax(line, &crap, 10);
+    long value = (long)strtoimax(line, &crap, 10);
     FREE_SDS(line);
     if (value >= min && value <= max) {
         return value;
@@ -101,13 +164,23 @@ int state_file_rw_int(const char *workdir, const char *dir, const char *name, co
     return def_value;
 }
 
-unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *name, const unsigned def_value, const unsigned min, const unsigned max, bool warn) {
+/**
+ * Reads an unsigned from a file or writes the file with a default value if not exists or value is invalid
+ * @param workdir mympd working directory
+ * @param dir subdir 
+ * @param name filename to read/write
+ * @param dev_value default value as sds string (is freed by this function)
+ * @param min minimum value
+ * @param min maximum value
+ * @param warn if true a warning is logged if file does not exists
+ * @return newly allocated sds string
+ */
+unsigned state_file_rw_uint(sds workdir, const char *dir, const char *name, const unsigned def_value, const unsigned min, const unsigned max, bool warn) {
     char *crap = NULL;
-    unsigned value = def_value;
     sds def_value_str = sdsfromlonglong((long long)def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
     FREE_SDS(def_value_str);
-    value = (unsigned)strtoumax(line, &crap, 10);
+    unsigned value = (unsigned)strtoumax(line, &crap, 10);
     FREE_SDS(line);
     if (value >= min && value <= max) {
         return value;
@@ -115,58 +188,17 @@ unsigned state_file_rw_uint(const char *workdir, const char *dir, const char *na
     return def_value;
 }
 
-long state_file_rw_long(const char *workdir, const char *dir, const char *name, const long def_value, const long min, const long max, bool warn) {
-    char *crap = NULL;
-    long value = def_value;
-    sds def_value_str = sdsfromlonglong((long long)def_value);
-    sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
-    FREE_SDS(def_value_str);
-    value = (long)strtoimax(line, &crap, 10);
-    FREE_SDS(line);
-    if (value >= min && value <= max) {
-        return value;
-    }
-    return def_value;
-}
-
-bool state_file_write(const char *workdir, const char *dir, const char *name, const char *value) {
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/%s/%s.XXXXXX", workdir, dir, name);
-    errno = 0;
-    int fd = mkstemp(tmp_file);
-    if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        return false;
-    }
-    FILE *fp = fdopen(fd, "w");
-    bool rc = true;
-    if (fputs(value, fp) == EOF) {
-        MYMPD_LOG_ERROR("Can not write to file \"%s\"", tmp_file);
-        rc = false;
-    }
-    if (fclose(fp) != 0) {
-        MYMPD_LOG_ERROR("Could not close file %s", tmp_file);
-        rc = false;
-    }
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/%s/%s", workdir, dir, name);
-    errno = 0;
-    if (rc == true) {
-        if (rename(tmp_file, cfg_file) == -1) {
-            MYMPD_LOG_ERROR("Renaming file from \"%s\" to \"%s\" failed", tmp_file, cfg_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    else {
-        //remove incomplete tmp file
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    FREE_SDS(tmp_file);
-    FREE_SDS(cfg_file);
+/**
+ * Writes the statefile
+ * @param workdir mympd working directory
+ * @param dir subdir 
+ * @param name filename to read/write
+ * @param value default value as sds string (is freed by this function)
+ * @return true on success else false
+ */
+bool state_file_write(sds workdir, const char *dir, const char *name, const char *value) {
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, dir, name);
+    bool rc = write_data_to_file(filepath, value, strlen(value));
+    FREE_SDS(filepath);
     return rc;
 }

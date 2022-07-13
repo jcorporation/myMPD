@@ -22,7 +22,7 @@ UTEST(mympd_queue, push_shift) {
     test_data_out = mympd_queue_shift(test_queue, 50, 0);
     ASSERT_STREQ(test_data_in0, test_data_out);
 
-    unsigned len = mympd_queue_length(test_queue, 0);
+    long len = mympd_queue_length(test_queue, 0);
     ASSERT_EQ(0, len);
 
     mympd_queue_push(test_queue, test_data_in1, 0);
@@ -56,7 +56,7 @@ UTEST(mympd_queue, push_shift_id) {
     mympd_queue_push(test_queue, test_data_in1, 20);
     mympd_queue_push(test_queue, test_data_in2, 10);
 
-    unsigned len = mympd_queue_length(test_queue, 0);
+    long len = mympd_queue_length(test_queue, 0);
     ASSERT_EQ(3, len);
 
     test_data_out = NULL;

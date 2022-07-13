@@ -19,49 +19,45 @@
 #include <time.h>
 #include <unistd.h>
 
-sds *split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count) {
-    *count = 0;
-    coverimage_names = sdssplitlen(coverimage_name, (ssize_t)sdslen(coverimage_name), ",", 1, count);
-    for (int j = 0; j < *count; j++) {
-        sdstrim(coverimage_names[j], " ");
+#include <arpa/inet.h>
+#include <ifaddrs.h>
+#include <libgen.h>
+#include <netdb.h>
+#include <sys/socket.h>
+
+//private definitions
+static sds get_local_ip(void);
+
+//public functions
+
+/**
+ * Gets an environment variable and checks its length
+ * @param env_var environment variable name
+ * @param max_len maximum length
+ * @return environment variable value or NULL if it is not set or to long
+ */
+const char *getenv_check(const char *env_var, size_t max_len) {
+    const char *env_value = getenv(env_var); /* Flawfinder: ignore */
+    if (env_value == NULL) {
+        MYMPD_LOG_DEBUG("Environment variable \"%s\" not set", env_var);
+        return NULL;
     }
-    return coverimage_names;
+    if (env_value[0] == '\0') {
+        MYMPD_LOG_DEBUG("Environment variable \"%s\" is empty", env_var);
+        return NULL;
+    }
+    if (strlen(env_value) > max_len) {
+        MYMPD_LOG_WARN("Environment variable \"%s\" is too long", env_var);
+        return NULL;
+    }
+    MYMPD_LOG_INFO("Got environment variable \"%s\" with value \"%s\"", env_var, env_value);
+    return env_value;
 }
 
-void ws_notify(sds message) {
-    MYMPD_LOG_DEBUG("Push websocket notify to queue: \"%s\"", message);
-    struct t_work_result *response = create_result_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY);
-    response->data = sds_replace(response->data, message);
-    mympd_queue_push(web_server_queue, response, 0);
-}
-
-int testdir(const char *name, const char *dirname, bool create) {
-    DIR* dir = opendir(dirname);
-    if (dir != NULL) {
-        closedir(dir);
-        MYMPD_LOG_NOTICE("%s: \"%s\"", name, dirname);
-        //directory exists
-        return DIR_EXISTS;
-    }
-
-    if (create == true) {
-        errno = 0;
-        if (mkdir(dirname, 0770) != 0) {
-            MYMPD_LOG_ERROR("%s: creating \"%s\" failed", name, dirname);
-            MYMPD_LOG_ERRNO(errno);
-            //directory does not exist and creating it failed
-            return DIR_CREATE_FAILED;
-        }
-        MYMPD_LOG_NOTICE("%s: \"%s\" created", name, dirname);
-        //directory successfully created
-        return DIR_CREATED;
-    }
-
-    MYMPD_LOG_ERROR("%s: \"%s\" does not exist", name, dirname);
-    //directory does not exist
-    return DIR_NOT_EXISTS;
-}
-
+/**
+ * Sleep function
+ * @param msec milliseconds to sleep
+ */
 void my_msleep(long msec) {
     struct timespec ts = {
         .tv_sec = (time_t)(msec / 1000),
@@ -70,8 +66,15 @@ void my_msleep(long msec) {
     nanosleep(&ts, NULL);
 }
 
+/**
+ * Checks if the filename is a mpd virtual cue sheet directory
+ * MPD uses the cue filename as path, we simply check if the filename is a file or not
+ * @param music_directory mpd music directory
+ * @param filename filename to check
+ * @return true if it is a cue file else false
+ */
 bool is_virtual_cuedir(sds music_directory, sds filename) {
-    sds full_path = sdscatfmt(sdsempty(), "%s/%s", music_directory, filename);
+    sds full_path = sdscatfmt(sdsempty(), "%S/%S", music_directory, filename);
     bool is_cue_file = false;
     struct stat stat_buf;
     if (stat(full_path, &stat_buf) == 0) {
@@ -83,56 +86,194 @@ bool is_virtual_cuedir(sds music_directory, sds filename) {
     else {
         MYMPD_LOG_ERROR("Error accessing \"%s\"", full_path);
     }
-    sdsfree(full_path);
+    FREE_SDS(full_path);
     return is_cue_file;
 }
 
+/**
+ * Checks if uri is realy uri or a local file
+ * @param uri uri to check
+ * @return true it is a uri else false
+ */
 bool is_streamuri(const char *uri) {
-    if (uri != NULL && strstr(uri, "://") != NULL) {
+    if (uri != NULL &&
+        strstr(uri, "://") != NULL)
+    {
         return true;
     }
     return false;
 }
 
-bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
-    sds tmp_file = sdscatfmt(sdsempty(), "%s.XXXXXX", filepath);
-    errno = 0;
-    int fd = mkstemp(tmp_file);
-    if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
-        MYMPD_LOG_ERRNO(errno);
-        sdsfree(tmp_file);
-        return false;
+/**
+ * Gets the extension of a filename
+ * @param filename filename to get extension from
+ * @return pointer to the extension
+ */
+const char *get_extension_from_filename(const char *filename) {
+    if (filename == NULL) {
+        return NULL;
+    }
+    char *ext = strrchr(filename, '.');
+    if (ext != NULL) {
+        //skip dot
+        ext++;
+        if (ext[0] == '\0') {
+            return NULL;
+        }
+    }
+    return ext;
+}
+
+/**
+ * Calculates the basename for files and uris
+ * for files the path is removed
+ * for uris the query string and hash is removed
+ * @param uri sds string to modify in place
+ */
+void basename_uri(sds s) {
+    size_t len = sdslen(s);
+    if (len == 0) {
+        return;
     }
 
-    FILE *fp = fdopen(fd, "w");
-    size_t written = fwrite(data, 1, data_len, fp);
-    int rc = fclose(fp);
-    if (written != data_len ||
-        rc != 0)
+    if (strstr(s, "://") == NULL) {
+        //filename, remove path
+        for (int i = (int)len - 1; i >= 0; i--) {
+            if (s[i] == '/') {
+                sdsrange(s, i + 1, -1);
+                break;
+            }
+        }
+        return;
+    }
+
+    //uri, remove query and hash
+    for (size_t i = 0; i < len; i++) {
+        if (s[i] == '#' ||
+            s[i] == '?')
+        {
+            sdssubstr(s, 0, i);
+            break;
+        }
+    }
+}
+
+/**
+ * Strips all slashes from the end
+ * @param s sds string to strip
+ */
+void strip_slash(sds s) {
+    char *sp = s;
+    char *ep = s + sdslen(s) - 1;
+    while(ep >= sp &&
+          *ep == '/')
     {
-        MYMPD_LOG_ERROR("Error writing data to file \"%s\"", tmp_file);
-        errno = 0;
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Error removing file \"%s\"", tmp_file);
-            MYMPD_LOG_ERRNO(errno);
-        }
-        sdsfree(tmp_file);
-        return false;
+        ep--;
     }
+    size_t len = (size_t)(ep-sp)+1;
+    s[len] = '\0';
+    sdssetlen(s, len);
+}
+
+/**
+ * Removes the file extension
+ * @param s sds string to remove the extension
+ */
+void strip_file_extension(sds s) {
+    char *sp = s;
+    char *ep = s + sdslen(s) - 1;
+    while (ep >= sp) {
+        if (*ep == '.') {
+            size_t len = (size_t)(ep-sp);
+            s[len] = '\0';
+            sdssetlen(s, len);
+            break;
+        }
+        ep --;
+    }
+}
+
+static const char *invalid_filename_chars = "<>/.:?&$!#=;\a\b\f\n\r\t\v\\|";
+
+/**
+ * Replaces invalid filename characters with "_"
+ * @param sds string to sanitize
+ */
+void sanitize_filename(sds s) {
+    const size_t len = strlen(invalid_filename_chars);
+    for (size_t i = 0; i < len; i++) {
+        for (size_t j = 0; j < sdslen(s); j++) {
+            if (s[j] == invalid_filename_chars[i]) {
+                s[j] = '_';
+            }
+        }
+    }
+}
+
+/**
+ * Gets the listening address of the embedded webserver
+ * @param mpd_host mpd_host config setting
+ * @param http_host http_host config setting
+ * @return address of the embedded webserver as sds string
+ */
+sds get_mympd_host(sds mpd_host, sds http_host) {
+    if (strcmp(http_host, "0.0.0.0") != 0) {
+        //host defined in configuration
+        return sdsdup(http_host);
+    }
+    if (strncmp(mpd_host, "/", 1) == 0) {
+        //local socket - use localhost
+        return sdsnew("localhost");
+    }
+    //get local ip
+    return get_local_ip();
+}
+
+//private functions
+
+/**
+ * Gets the ip address of the first interface
+ * @return ip address as sds string
+ */
+static sds get_local_ip(void) {
+    struct ifaddrs *ifaddr;
+    struct ifaddrs *ifa;
+    char host[NI_MAXHOST];
 
     errno = 0;
-    if (rename(tmp_file, filepath) == -1) {
-        MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, filepath);
+    if (getifaddrs(&ifaddr) == -1) {
+        MYMPD_LOG_ERROR("Can not get list of inteface ip addresses");
         MYMPD_LOG_ERRNO(errno);
-        errno = 0;
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Error removing file \"%s\"", tmp_file);
-            MYMPD_LOG_ERRNO(errno);
-        }
-        sdsfree(tmp_file);
-        return false;
+        return sdsempty();
     }
-    sdsfree(tmp_file);
-    return true;
+
+    for (ifa = ifaddr; ifa != NULL; ifa = ifa->ifa_next) {
+        if (ifa->ifa_addr == NULL ||
+            strcmp(ifa->ifa_name, "lo") == 0)
+        {
+            continue;
+        }
+        int family = ifa->ifa_addr->sa_family;
+        if (family == AF_INET ||
+            family == AF_INET6)
+        {
+            int s = getnameinfo(ifa->ifa_addr,
+                    (family == AF_INET) ? sizeof(struct sockaddr_in) :
+                                          sizeof(struct sockaddr_in6),
+                    host, NI_MAXHOST,
+                    NULL, 0, NI_NUMERICHOST);
+            if (s != 0) {
+                MYMPD_LOG_ERROR("getnameinfo() failed: %s\n", gai_strerror(s));
+                continue;
+            }
+            char *crap;
+            // remove zone info from ipv6
+            char *ip = strtok_r(host, "%", &crap);
+            sds ip_str = sdsnew(ip);
+            freeifaddrs(ifaddr);
+            return ip_str;
+        }
+    }
+    freeifaddrs(ifaddr);
+    return sdsempty();
 }

@@ -10,7 +10,6 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
-#include "../mympd_api/mympd_api_utility.h"
 #include "mpd_worker_cache.h"
 #include "mpd_worker_smartpls.h"
 

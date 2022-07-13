@@ -1,0 +1,22 @@
+name: lint
+on: [push]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: install linters
+      run: |
+        sudo apt-get install -y npm cppcheck flawfinder clang-tidy
+        sudo ./build.sh installdeps
+        npm install eslint --save-dev
+        npm install stylelint --save-dev
+        npm install stylelint-config-standard --save-dev
+        npm install htmlhint --save-dev
+    - name: lint js css html
+      run: ./build.sh lint
+    - name: build debug and lint
+      run: |
+        ./build.sh debug
+        ./build.sh check

@@ -41,9 +41,8 @@ void lua_mympd_state_set_b(struct t_list *lua_mympd_state, const char *k, bool v
     list_push(lua_mympd_state, k, LUA_TYPE_BOOLEAN, NULL, value);
 }
 
-void lua_mympd_state_free(struct t_list *lua_mympd_state) {
-    list_clear_user_data(lua_mympd_state, _lua_mympd_state_free_user_data);
-    free(lua_mympd_state);
+void *lua_mympd_state_free(struct t_list *lua_mympd_state) {
+    return list_free_user_data(lua_mympd_state, _lua_mympd_state_free_user_data);
 }
 
 //private
@@ -53,5 +52,5 @@ static void _lua_mympd_state_free_user_data(struct t_list_node *current) {
         struct t_lua_mympd_state_value *user_data = (struct t_lua_mympd_state_value *)current->user_data;
         FREE_SDS(user_data->p);
     }
-    free(current->user_data);
+    FREE_PTR(current->user_data);
 }

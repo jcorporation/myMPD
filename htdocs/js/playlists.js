@@ -206,6 +206,7 @@ function removeFromPlaylist(mode, plist, start, end) {
 function parseSmartPlaylist(obj) {
     document.getElementById('saveSmartPlaylistName').value = obj.result.plist;
     document.getElementById('saveSmartPlaylistType').value = tn(obj.result.type);
+    document.getElementById('saveSmartPlaylistSort').value = obj.result.sort;
     setDataId('saveSmartPlaylistType', 'value', obj.result.type);
     elHideId('saveSmartPlaylistSearch');
     elHideId('saveSmartPlaylistSticker');

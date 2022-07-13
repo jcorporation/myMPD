@@ -9,6 +9,7 @@
 
 #include "../dist/rax/rax.h"
 #include "../dist/sds/sds.h"
+#include "mympd_configuration.h"
 #include "list.h"
 
 #include <mpd/client.h>
@@ -140,13 +141,12 @@ struct t_timer_definition {
     struct t_list arguments;
 };
 
-typedef void (*time_handler)(struct t_timer_definition *definition, void *user_data);
+typedef void (*timer_handler)(int timer_id, struct t_timer_definition *definition);
 
 struct t_timer_node {
     int fd;
-    time_handler callback;
+    timer_handler callback;
     struct t_timer_definition *definition;
-    void *user_data;
     time_t timeout;
     int interval;
     int timer_id;
@@ -168,7 +168,7 @@ struct t_mympd_state {
     //lists
     struct t_timer_list timer_list;
     struct t_list home_list;
-    struct t_list triggers;
+    struct t_list trigger_list;
     struct t_list last_played;
     struct t_list jukebox_queue;
     struct t_list jukebox_queue_tmp;
@@ -228,5 +228,17 @@ struct t_mympd_state {
     //settings only for webui
     sds webui_settings;
 };
+
+void mympd_state_default(struct t_mympd_state *mympd_state);
+void *mympd_state_free(struct t_mympd_state *mympd_state);
+
+void mympd_state_default_mpd_state(struct t_mpd_state *mpd_state);
+void *mympd_state_free_mpd_state(struct t_mpd_state *mpd_state);
+
+void *album_cache_free(rax *album_cache);
+void *sticker_cache_free(rax *sticker_cache);
+
+void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list);
+void reset_t_tags(struct t_tags *tags);
 
 #endif

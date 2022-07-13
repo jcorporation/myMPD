@@ -35,7 +35,6 @@ struct t_mg_user_data {
 #ifdef EMBEDDED_ASSETS
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri);
 #endif
-void webserver_manage_emptydir(sds workdir, bool pics, bool smartplaylists, bool music, bool playlists);
 sds webserver_find_image_file(sds basefilename);
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg);
 void webserver_serve_na_image(struct mg_connection *nc);
@@ -47,5 +46,5 @@ void webserver_send_header_found(struct mg_connection *nc, const char *location)
 void webserver_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers);
 void webserver_handle_connection_close(struct mg_connection *nc);
 struct mg_str mg_str_strip_parent(struct mg_str *path, int count);
-void mg_user_data_free(struct t_mg_user_data *mg_user_data);
+void *mg_user_data_free(struct t_mg_user_data *mg_user_data);
 #endif

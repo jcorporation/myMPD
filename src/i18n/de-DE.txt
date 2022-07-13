@@ -963,8 +963,11 @@ Mischen
 Playlist is too small to shuffle
 Wiedergabeliste ist zu klein um sie zu mischen
 
-Playlist is too small to sort
-Wiedergabeliste ist zu klein um sie zu sortieren
+Shuffling playlist failed
+Fehler beim Mischen der Wiedergabeliste
+
+Sorting playlist failed
+Fehler beim Sortieren der Wiedergabeliste
 
 Shuffle playlist
 Wiedergabeliste mischen
@@ -1393,7 +1396,7 @@ Invalid volume level
 Ungültige Lautstärke
 
 MaintainEnableTagsText
-Folgende Tags sollten gepflegt und aktiviert sein: Artist, AlbumArtist, Album, Track, Disc and Genre
+Folgende Tags sollten gepflegt und aktiviert sein: AlbumArtist, Album, Artist, Disc, Genre, Name, Title, Track
 
 Failed to set like, unknown error
 Like konnte nicht gesetzt werden - unbekannter Fehler
@@ -1502,6 +1505,9 @@ Willst du wirklich die Wiedergabeliste "%{playlist}" löschen?
 
 Do you really want to delete the script?
 Willst du wirklich das Skript "%{script}" löschen?
+
+Do you really want to delete the partition?
+Willst du wirklich die Partition "%{partition}" löschen?
 
 Yes, delete it
 Ja, löschen
@@ -1780,7 +1786,7 @@ Error in cropping covercache
 Fehler beim Abschneides des Covercaches
 
 Saved smart playlist
-Intelligente Wiedergabeliste wurde gespichert
+Intelligente Wiedergabeliste wurde gespeichert
 
 Too many timers defined
 Zu viele Timer definiert
@@ -2240,3 +2246,75 @@ Klick auf direkt abspielen
 
 Enforce mobile view
 Erzwinge mobile Ansicht
+
+Advanced Audio Coding
+Advanced Audio Coding
+
+Cuesheet
+Cuesheet
+
+Free Lossless Audio Codec
+Free Lossless Audio Codec
+
+MPEG-1 Audio Layer III
+MPEG-1 Audio Layer III
+
+MPEG-4
+MPEG-4
+
+Monkey Audio
+Monkey Audio
+
+Musepack
+Musepack
+
+Ogg Vorbis
+Ogg Vorbis
+
+Opus Audio
+Opus Audio
+
+WAVE Audio File
+WAVE Audio File
+
+WavPack
+WavPack
+
+Windows Media Audio
+Windows Media Audio
+
+Import script
+Skript importieren
+
+Can not parse script arguments
+Skriptargumente konnten nicht eingelesen werden
+
+Active partition
+Aktive Partition
+
+Partition switched
+Partition gewechselt
+
+Outputs moved to current partition
+Ausgabegeräte wurden in aktuelle Partition verschoben
+
+Move
+Verschieben
+
+Could not find album
+Album nicht gefunden
+
+Could not get local ip
+Lokale IP konnte nicht ermittelt werden
+
+Add external link
+Externen Link hinzufügen
+
+Open external link
+Externen Link öffnen
+
+External link
+Externer Link
+
+Cache update is already running
+Cache update läuft bereits

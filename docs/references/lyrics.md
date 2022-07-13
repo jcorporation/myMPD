@@ -15,3 +15,5 @@ myMPD can parse the binary SYLT id3v2 tags and converts it to the lrc format. In
 As alternative myMPD tries to get the lyrics from a file in the same directory as the song with a configurable extension.
 
 Lyrics are displayed in the song details modal and you can add them to the playback card.
+
+You can download lyrics with lyrics download script from [https://github.com/jcorporation/musicdb-scripts](https://github.com/jcorporation/musicdb-scripts)

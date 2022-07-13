@@ -8,6 +8,7 @@
 #include "api.h"
 
 #include "../../dist/mongoose/mongoose.h"
+#include "log.h"
 #include "lua_mympd_state.h"
 #include "mem.h"
 #include "sds_extras.h"
@@ -95,6 +96,17 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
     }
 }
 
+/**
+ * Sends a websocket notification to the browser
+ * @param message the message to send
+ */
+void ws_notify(sds message) {
+    MYMPD_LOG_DEBUG("Push websocket notify to queue: \"%s\"", message);
+    struct t_work_result *response = create_result_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY);
+    response->data = sds_replace(response->data, message);
+    mympd_queue_push(web_server_queue, response, 0);
+}
+
 struct t_work_result *create_result(struct t_work_request *request) {
     struct t_work_result *response = create_result_new(request->conn_id, request->id, request->cmd_id);
     return response;
@@ -134,7 +146,7 @@ void free_request(struct t_work_request *request) {
     if (request != NULL) {
         FREE_SDS(request->data);
         FREE_SDS(request->method);
-        free(request);
+        FREE_PTR(request);
     }
 }
 
@@ -143,7 +155,7 @@ void free_result(struct t_work_result *result) {
         FREE_SDS(result->data);
         FREE_SDS(result->method);
         FREE_SDS(result->binary);
-        free(result);
+        FREE_PTR(result);
     }
 }
 
@@ -156,7 +168,7 @@ int expire_result_queue(struct t_mympd_queue *queue, time_t age) {
                 lua_mympd_state_free(response->extra);
             }
             else {
-                free(response->extra);
+               FREE_PTR(response->extra);
             }
         }
         free_result(response);
@@ -175,7 +187,7 @@ int expire_request_queue(struct t_mympd_queue *queue, time_t age) {
                 lua_mympd_state_free(request->extra);
             }
             else {
-                free(request->extra);
+                FREE_PTR(request->extra);
             }
         }
         free_request(request);

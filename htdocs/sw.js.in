@@ -20,13 +20,14 @@ const urlsToCache = [
 ];
 
 const ignoreRequests = new RegExp(subdir + '/(' + [
-	'api/(.*)',
+	'api/.*',
 	'ca.crt',
 	'ws/',
 	'stream/',
-	'albumart(.*)',
-	'tagart(.*)',
-	'browse/(.*)'].join('|') + ')$');
+	'albumart.*',
+	'tagart.*',
+	'proxy.*',
+	'browse/.*'].join('|') + ')$');
 
 self.addEventListener('install', function(event) {
     event.waitUntil(

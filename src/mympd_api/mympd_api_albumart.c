@@ -12,12 +12,21 @@
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/mimetype.h"
-#include "../lib/mympd_configuration.h"
 
 #include <stdlib.h>
 
+/**
+ * Reads the albumart from mpd
+ * @param mympd_state pointer to mympd_state struct
+ * @param buffer already allocated sds string for the jsonrpc result
+ * @param method jsonrpc method
+ * @param request_id request id
+ * @param uri uri to get cover from
+ * @param binary pointer to an already allocated sds string for the binary response
+ * @return jsonrpc result
+ */
 sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                        const char *uri, sds *binary)
+        const char *uri, sds *binary)
 {
     unsigned offset = 0;
     void *binary_buffer = malloc_assert(mympd_state->mpd_state->mpd_binarylimit);
@@ -39,7 +48,9 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
             MYMPD_LOG_DEBUG("MPD returned -1 for albumart command for uri \"%s\"", uri);
         }
     }
-    if (offset == 0 && mympd_state->mpd_state->feat_mpd_readpicture == true) {
+    if (offset == 0 &&
+        mympd_state->mpd_state->feat_mpd_readpicture == true)
+    {
         //silently clear the error if no albumart is found
         mpd_connection_clear_error(mympd_state->mpd_state->conn);
         mpd_response_finish(mympd_state->mpd_state->conn);
@@ -64,7 +75,7 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
         mpd_connection_clear_error(mympd_state->mpd_state->conn);
         mpd_response_finish(mympd_state->mpd_state->conn);
     }
-    free(binary_buffer);
+    FREE_PTR(binary_buffer);
     if (offset > 0) {
         MYMPD_LOG_DEBUG("Albumart found by mpd for uri \"%s\" (%lu bytes)", uri, (unsigned long)sdslen(*binary));
         const char *mime_type = get_mime_type_by_magic_stream(*binary);

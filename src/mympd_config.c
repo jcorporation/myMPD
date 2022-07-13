@@ -8,8 +8,10 @@
 #include "mympd_config.h"
 
 #include "lib/log.h"
+#include "lib/mem.h"
 #include "lib/sds_extras.h"
 #include "lib/state_files.h"
+#include "lib/utility.h"
 #include "lib/validate.h"
 
 #include <inttypes.h>
@@ -27,7 +29,7 @@ static int mympd_getenv_int(const char *env_var, int default_value, int min, int
 #endif
 
 //public functions
-void mympd_free_config(struct t_config *config) {
+void *mympd_free_config(struct t_config *config) {
     FREE_SDS(config->http_host);
     FREE_SDS(config->http_port);
     #ifdef ENABLE_SSL
@@ -42,12 +44,11 @@ void mympd_free_config(struct t_config *config) {
         FREE_SDS(config->lualibs);
     #endif
     FREE_SDS(config->pin_hash);
-}
-
-void mympd_free_config_initial(struct t_config *config) {
     FREE_SDS(config->user);
     FREE_SDS(config->workdir);
     FREE_SDS(config->cachedir);
+    FREE_PTR(config);
+    return NULL;
 }
 
 void mympd_config_defaults(struct t_config *config) {
@@ -62,8 +63,8 @@ void mympd_config_defaults(struct t_config *config) {
         config->ssl_port = mympd_getenv_string("MYMPD_SSL_PORT", CFG_MYMPD_SSL_PORT, vcb_isdigit, config->first_startup);
         config->ssl_san = mympd_getenv_string("MYMPD_SSL_SAN", CFG_MYMPD_SSL_SAN, vcb_isname, config->first_startup);
         config->custom_cert = mympd_getenv_bool("MYMPD_CUSTOM_CERT", CFG_MYMPD_CUSTOM_CERT, config->first_startup);
-        sds default_cert = sdscatfmt(sdsempty(), "%s/ssl/server.pem", config->workdir);
-        sds default_key = sdscatfmt(sdsempty(), "%s/ssl/server.key", config->workdir);
+        sds default_cert = sdscatfmt(sdsempty(), "%S/ssl/server.pem", config->workdir);
+        sds default_key = sdscatfmt(sdsempty(), "%S/ssl/server.key", config->workdir);
         if (config->custom_cert == true) {
             config->ssl_cert = mympd_getenv_string("MYMPD_SSL_CERT", default_cert, vcb_isfilepath, config->first_startup);
             config->ssl_key = mympd_getenv_string("MYMPD_SSL_KEY", default_key, vcb_isfilepath, config->first_startup);
@@ -94,6 +95,20 @@ void mympd_config_defaults_initial(struct t_config *config) {
     config->startup_time = time(NULL);
     config->first_startup = false;
     config->bootstrap = false;
+    //set all other sds strings to NULL
+    config->http_host = NULL;
+    config->http_port = NULL;
+    #ifdef ENABLE_SSL
+        config->ssl_san = NULL;
+        config->ssl_cert = NULL;
+        config->ssl_key = NULL;
+    #endif
+    config->acl = NULL;
+    config->scriptacl = NULL;
+    #ifdef ENABLE_LUA
+        config->lualibs = NULL;
+    #endif
+    config->pin_hash = NULL;
 }
 
 bool mympd_read_config(struct t_config *config) {
@@ -137,21 +152,8 @@ bool mympd_read_config(struct t_config *config) {
 
 //private functions
 static const char *mympd_getenv(const char *env_var, bool first_startup) {
-    const char *env_value = getenv(env_var); /* Flawfinder: ignore */
+    const char *env_value = getenv_check(env_var, 100);
     if (first_startup == true) {
-        if (env_value == NULL) {
-            MYMPD_LOG_DEBUG("Environment variable \"%s\" not set", env_var);
-            return NULL;
-        }
-        if (env_value[0] == '\0') {
-            MYMPD_LOG_WARN("Environment variable \"%s\" is empty", env_var);
-            return NULL;
-        }
-        if (strlen(env_value) > 100) {
-            MYMPD_LOG_WARN("Environment variable \"%s\" is too long", env_var);
-            return NULL;
-        }
-        MYMPD_LOG_INFO("Using environment variable \"%s\" with value \"%s\"", env_var, env_value);
         return env_value;
     }
     if (env_value != NULL) {

@@ -53,12 +53,16 @@ function initSettings() {
             else if (value === 'album') {
                 elDisableId('inputJukeboxQueueLength');
                 elDisableId('selectJukeboxPlaylist');
+                elDisable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
+                elDisableId('inputJukeboxLastPlayed');
                 document.getElementById('selectJukeboxPlaylist').value = 'Database';
                 setDataId('selectJukeboxPlaylist', 'value', 'Database');
             }
             else if (value === 'song') {
                 elEnableId('inputJukeboxQueueLength');
                 elEnableId('selectJukeboxPlaylist');
+                elEnable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
+                elEnableId('inputJukeboxLastPlayed');
             }
             if (value !== 'off') {
                 toggleBtnChkId('btnConsume', true);
@@ -525,11 +529,15 @@ function populateQueueSettingsFrm() {
     else if (settings.jukeboxMode === 'album') {
         elDisableId('inputJukeboxQueueLength');
         elDisableId('selectJukeboxPlaylist');
+        elDisableId('inputJukeboxLastPlayed');
+        elDisable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
         document.getElementById('selectJukeboxPlaylist').value = 'Database';
     }
     else if (settings.jukeboxMode === 'song') {
         elEnableId('inputJukeboxQueueLength');
         elEnableId('selectJukeboxPlaylist');
+        elEnable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
+        elEnableId('inputJukeboxLastPlayed');
     }
 
     document.getElementById('selectJukeboxPlaylist').filterInput.value = '';
@@ -558,7 +566,9 @@ function populateQueueSettingsFrm() {
         }
         else {
             elHideId('warnPlaybackStatistics');
-            elEnableId('inputJukeboxLastPlayed');
+            if (settings.jukeboxMode === 'song') {
+                elEnableId('inputJukeboxLastPlayed');
+            }
         }
     }
     checkConsume();
@@ -989,22 +999,26 @@ function parseMPDSettings() {
         app.cards.Search.sort.tag = 'Title';
     }
 
+    //fallback from AlbumArtist to Artist
     if (settings.tagList.includes('AlbumArtist')) {
         tagAlbumArtist = 'AlbumArtist';
     }
     else if (settings.tagList.includes('Artist')) {
         tagAlbumArtist = 'Artist';
-    }
-
-    if (!settings.tagList.includes('AlbumArtist') && app.cards.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
-        app.cards.Browse.tabs.Database.views.List.sort = 'Artist';
-    }
-
-    if (features.featAdvsearch === false && app.cards.Browse.active === 'Database') {
-        app.cards.Browse.active = 'Filesystem';
+        if (app.cards.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
+            app.cards.Browse.tabs.Database.views.List.filter = tagAlbumArtist;
+        }
+        if (app.cards.Browse.tabs.Database.views.List.sort.tag === 'AlbumArtist') {
+            app.cards.Browse.tabs.Database.views.List.sort.tag = tagAlbumArtist;
+        }
     }
 
     if (features.featAdvsearch === false) {
+        //disable tag based features
+        if (app.cards.Browse.active === 'Database') {
+            app.cards.Browse.active = 'Filesystem';
+        }
+
         const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
         for (let i = 0, j = tagEls.length; i < j; i++) {
             tagEls[i].classList.remove('clickable');
@@ -1269,7 +1283,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
             btn.textContent = 'radio_button_unchecked';
         }
         list.appendChild(
-            elCreateNodes('div', {"class": "form-check"}, [
+            elCreateNodes('div', {"class": ["form-check"]}, [
                 btn,
                 elCreateText('label', {"class": ["form-check-label"], "for": allTags[i]}, allTags[i])
             ])

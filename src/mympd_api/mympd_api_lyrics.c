@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_lyrics.h"
 
+#include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
@@ -56,7 +57,7 @@ sds mympd_api_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     }
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    sds mediafile = sdscatfmt(sdsempty(), "%s/%s", mympd_state->music_directory_value, uri);
+    sds mediafile = sdscatfmt(sdsempty(), "%S/%S", mympd_state->music_directory_value, uri);
     const char *mime_type_mediafile = get_mime_type_by_ext(mediafile);
     int returned_entities = _mympd_api_lyrics_synced(mympd_state, &buffer, 0, mediafile, mime_type_mediafile);
     returned_entities = _mympd_api_lyrics_unsynced(mympd_state, &buffer, returned_entities, mediafile, mime_type_mediafile);
@@ -103,8 +104,8 @@ static int _mympd_api_lyrics_synced(struct t_mympd_state *mympd_state, sds *buff
 static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool synced, int returned_entities) {
     //try file in folder in the music directory
     sds filename_cpy = sdsdup(mediafile);
-    sds_strip_file_extension(filename_cpy);
-    sds lyricsfile = sdscatfmt(sdsempty(), "%s.%s", filename_cpy, ext);
+    strip_file_extension(filename_cpy);
+    sds lyricsfile = sdscatfmt(sdsempty(), "%S.%s", filename_cpy, ext);
     MYMPD_LOG_DEBUG("Trying to open lyrics file: %s", lyricsfile);
     FREE_SDS(filename_cpy);
     errno = 0;
@@ -115,12 +116,12 @@ static int lyrics_fromfile(sds *buffer, sds mediafile, const char *ext, bool syn
         }
         *buffer = sdscatlen(*buffer, "{", 1);
         *buffer = tojson_bool(*buffer, "synced", synced, true);
-        *buffer = tojson_char(*buffer, "lang", "", true);
-        *buffer = tojson_char(*buffer, "desc", "", true);
+        *buffer = tojson_char_len(*buffer, "lang", "", 0, true);
+        *buffer = tojson_char_len(*buffer, "desc", "", 0, true);
         sds text = sdsempty();
-        sds_getfile(&text, fp, 10000);
+        sds_getfile(&text, fp, LYRICS_SIZE_MAX);
         (void) fclose(fp);
-        *buffer = tojson_char(*buffer, "text", text, false);
+        *buffer = tojson_sds(*buffer, "text", text, false);
         *buffer = sdscatlen(*buffer, "}", 1);
         FREE_SDS(text);
         returned_entities++;
@@ -174,7 +175,7 @@ static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_
                 *buffer = tojson_char(*buffer, "lang", lang, true);
             }
             else {
-                *buffer = tojson_char(*buffer, "lang", "", true);
+                *buffer = tojson_char_len(*buffer, "lang", "", 0, true);
             }
 
             const id3_ucs4_t *uslt_desc = id3_field_getstring(&frame->fields[2]);
@@ -184,7 +185,7 @@ static int lyricsextract_unsynced_id3(sds *buffer, sds media_file, int returned_
                 FREE_PTR(uslt_desc_utf8);
             }
             else {
-                *buffer = tojson_char(*buffer, "desc", "", true);
+                *buffer = tojson_char_len(*buffer, "desc", "", 0, true);
             }
 
             id3_utf8_t *uslt_text_utf8 = id3_ucs4_utf8duplicate(uslt_text);
@@ -256,7 +257,7 @@ static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_en
                 *buffer = tojson_char(*buffer, "lang", lang, true);
             }
             else {
-                *buffer = tojson_char(*buffer, "lang", "", true);
+                *buffer = tojson_char_len(*buffer, "lang", "", 0, true);
             }
 
             long time_stamp = id3_field_getint(&frame->fields[2]);
@@ -272,13 +273,11 @@ static int lyricsextract_synced_id3(sds *buffer, sds media_file, int returned_en
                 FREE_PTR(uslt_desc_utf8);
             }
             else {
-                *buffer = tojson_char(*buffer, "desc", "", true);
+                *buffer = tojson_char_len(*buffer, "desc", "", 0, true);
             }
             sds text = decode_sylt(sylt_data, sylt_data_len, encoding);
             //sylt data is already encoded
-            *buffer = sdscatfmt(*buffer, "\"text\":\"%s\"", text);
-
-            //*buffer = tojson_char(*buffer, "text", text, false);
+            *buffer = sdscatfmt(*buffer, "\"text\":\"%S\"", text);
             FREE_SDS(text);
             *buffer = sdscatlen(*buffer, "}", 1);
             returned_entities++;
@@ -410,7 +409,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
                     text_buf = sds_catjsonchar(text_buf, (char)binary_data[i]);
                 }
                 else {
-                    text_buf = sdscatfmt(text_buf, "%c", binary_data[i]);
+                    text_buf = sds_catchar(text_buf, (char)binary_data[i]);
                 }
                 i++;
             }
@@ -451,10 +450,9 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
 static int lyricsextract_flac(sds *buffer, sds media_file, bool is_ogg, const char *comment_name, bool synced, int returned_entities) {
     #ifdef ENABLE_FLAC
     MYMPD_LOG_DEBUG("Exctracting lyrics from %s", media_file);
-    FLAC__StreamMetadata *metadata = NULL;
     FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
 
-    if(! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
+    if (! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
         MYMPD_LOG_ERROR("%s: ERROR: reading metadata", media_file);
         FLAC__metadata_chain_delete(chain);
         return 0;
@@ -463,25 +461,19 @@ static int lyricsextract_flac(sds *buffer, sds media_file, bool is_ogg, const ch
     FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
     assert(iterator);
     FLAC__metadata_iterator_init(iterator, chain);
-    int field_num = 0;
-    FLAC__StreamMetadata *block;
-    FLAC__bool ok = true;
     int found_lyrics = 0;
     do {
-        block = FLAC__metadata_iterator_get_block(iterator);
-        ok &= (0 != block);
-        if (!ok) {
-            MYMPD_LOG_ERROR("Could not get block from chain: %s", media_file);
-        }
-        else if (block->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
-            field_num = 0;
+        FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);
+        if (block->type == FLAC__METADATA_TYPE_VORBIS_COMMENT) {
+            int field_num = 0;
             while ((field_num = FLAC__metadata_object_vorbiscomment_find_entry_from(block, (unsigned)field_num, comment_name)) > -1) {
-                metadata = block;
-                FLAC__StreamMetadata_VorbisComment *vc = &metadata->data.vorbis_comment;
+                FLAC__StreamMetadata_VorbisComment *vc = &block->data.vorbis_comment;
                 FLAC__StreamMetadata_VorbisComment_Entry *field = &vc->comments[field_num++];
 
                 char *field_value = memchr(field->entry, '=', field->length);
-                if (field_value != NULL && strlen(field_value) > 1) {
+                if (field_value != NULL &&
+                    strlen(field_value) > 1)
+                {
                     MYMPD_LOG_DEBUG("Found embedded lyrics");
                     field_value++;
                     found_lyrics++;
@@ -490,8 +482,8 @@ static int lyricsextract_flac(sds *buffer, sds media_file, bool is_ogg, const ch
                     }
                     *buffer = sdscatlen(*buffer, "{", 1);
                     *buffer = tojson_bool(*buffer, "synced", synced, true);
-                    *buffer = tojson_char(*buffer, "lang", "", true);
-                    *buffer = tojson_char(*buffer, "desc", "", true);
+                    *buffer = tojson_char_len(*buffer, "lang", "", 0, true);
+                    *buffer = tojson_char_len(*buffer, "desc", "", 0, true);
                     *buffer = tojson_char(*buffer, "text", field_value, false);
                     *buffer = sdscatlen(*buffer, "}", 1);
                     returned_entities++;
@@ -501,7 +493,7 @@ static int lyricsextract_flac(sds *buffer, sds media_file, bool is_ogg, const ch
                 }
             }
         }
-    } while (ok && FLAC__metadata_iterator_next(iterator));
+    } while (FLAC__metadata_iterator_next(iterator));
 
     if (found_lyrics == 0) {
         MYMPD_LOG_DEBUG("No embedded lyrics detected");

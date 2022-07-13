@@ -10,21 +10,56 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/lua_mympd_state.h"
-#include "../lib/mympd_configuration.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "mympd_api_utility.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
+#include "../mpd_client/mpd_client_volume.h"
+#include "../mpd_client/mpd_client_sticker.h"
+#include "../mpd_client/mpd_client_tags.h"
+#include "mympd_api_extra_media.h"
 #include "mympd_api_webradios.h"
 
 //private definitions
-static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id);
-static int _mympd_api_get_volume(struct t_mympd_state *mympd_state);
+static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, const char *partition);
 static time_t get_current_song_start_time(struct t_mympd_state *mympd_state);
 
 //public functions
+
+//replacement for deprecated mpd_status_get_elapsed_time
+unsigned mympd_api_get_elapsed_seconds(struct mpd_status *status) {
+    return mpd_status_get_elapsed_ms(status) / 1000;
+}
+
+sds mympd_api_status_print(struct t_mympd_state *mympd_state, sds buffer, struct mpd_status *status) {
+    enum mpd_state playstate = mpd_status_get_state(status);
+    const char *playstate_str =
+        playstate == MPD_STATE_STOP ? "stop" :
+        playstate == MPD_STATE_PLAY ? "play" :
+        playstate == MPD_STATE_PAUSE ? "pause" : "unknown";
+
+    buffer = tojson_char(buffer, "state", playstate_str, true);
+    buffer = tojson_long(buffer, "volume", mpd_status_get_volume(status), true);
+    buffer = tojson_long(buffer, "songPos", mpd_status_get_song_pos(status), true);
+    buffer = tojson_uint(buffer, "elapsedTime", mympd_api_get_elapsed_seconds(status), true);
+    buffer = tojson_uint(buffer, "totalTime", mpd_status_get_total_time(status), true);
+    buffer = tojson_long(buffer, "currentSongId", mpd_status_get_song_id(status), true);
+    buffer = tojson_uint(buffer, "kbitrate", mpd_status_get_kbit_rate(status), true);
+    buffer = tojson_uint(buffer, "queueLength", mpd_status_get_queue_length(status), true);
+    buffer = tojson_uint(buffer, "queueVersion", mpd_status_get_queue_version(status), true);
+    buffer = tojson_long(buffer, "nextSongPos", mpd_status_get_next_song_pos(status), true);
+    buffer = tojson_long(buffer, "nextSongId", mpd_status_get_next_song_id(status), true);
+    buffer = tojson_long(buffer, "lastSongId", (mympd_state->mpd_state->last_song_id ?
+        mympd_state->mpd_state->last_song_id : -1), true);
+    if (mympd_state->mpd_state->feat_mpd_partitions == true) {
+        buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
+    }
+    const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
+    buffer = printAudioFormat(buffer, audioformat);
+    buffer = sdscatlen(buffer, ",", 1);
+    buffer = tojson_char(buffer, "lastError", mpd_status_get_error(status), false);
+    return buffer;
+}
+
 sds mympd_api_status_updatedb_state(struct t_mympd_state *mympd_state, sds buffer) {
     long update_id = mympd_api_status_updatedb_id(mympd_state);
     if (update_id == -1) {
@@ -173,7 +208,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_mympd_state *mympd_state, str
 }
 
 sds mympd_api_status_volume_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
-    int volume = _mympd_api_get_volume(mympd_state);
+    int volume = mpd_client_get_volume(mympd_state->mpd_state);
     if (method == NULL) {
         buffer = jsonrpc_notify_start(buffer, "update_volume");
     }
@@ -189,6 +224,9 @@ sds mympd_api_status_partition_output_list(struct t_mympd_state *mympd_state, sd
                                      const char *partition)
 {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
+    if (status == NULL) {
+        return jsonrpc_respond_message(buffer, method, request_id, true, "general", "error", "Error getting MPD status");
+    }
     const char *oldpartition = mpd_status_get_partition(status);
     bool rc = mpd_run_switch_partition(mympd_state->mpd_state->conn, partition);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_run_switch_partition") == false) {
@@ -196,7 +234,7 @@ sds mympd_api_status_partition_output_list(struct t_mympd_state *mympd_state, sd
         return buffer;
     }
 
-    buffer = _mympd_api_get_outputs(mympd_state, buffer, method, request_id);
+    buffer = _mympd_api_get_outputs(mympd_state, buffer, method, request_id, partition);
 
     rc = mpd_run_switch_partition(mympd_state->mpd_state->conn, oldpartition);
     check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_run_switch_partition");
@@ -205,7 +243,14 @@ sds mympd_api_status_partition_output_list(struct t_mympd_state *mympd_state, sd
 }
 
 sds mympd_api_status_output_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
-    return _mympd_api_get_outputs(mympd_state, buffer, method, request_id);
+    struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
+    if (status == NULL) {
+        return jsonrpc_respond_message(buffer, method, request_id, true, "general", "error", "Error getting MPD status");
+    }
+    const char *partition = mpd_status_get_partition(status);
+    buffer = _mympd_api_get_outputs(mympd_state, buffer, method, request_id, partition);
+    mpd_status_free(status);
+    return buffer;
 }
 
 sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
@@ -228,18 +273,18 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
         mympd_state->sticker_cache != NULL)
     {
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
+        buffer = mpd_client_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
     }
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = get_extra_files(mympd_state, buffer, uri, false);
+    buffer = get_extra_media(mympd_state, buffer, uri, false);
     if (is_streamuri(uri) == true) {
-        sds webradio = get_webradio_from_uri(mympd_state->config, uri);
+        sds webradio = get_webradio_from_uri(mympd_state->config->workdir, uri);
         if (sdslen(webradio) > 0) {
             buffer = sdscat(buffer, ",\"webradio\":{");
             buffer = sdscatsds(buffer, webradio);
             buffer = sdscatlen(buffer, "}", 1);
         }
-        sdsfree(webradio);
+        FREE_SDS(webradio);
     }
     mpd_song_free(song);
 
@@ -272,7 +317,7 @@ static time_t get_current_song_start_time(struct t_mympd_state *mympd_state) {
     return start_time;
 }
 
-static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, const char *partition) {
     bool rc = mpd_send_outputs(mympd_state->mpd_state->conn);
     if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_outputs") == false) {
         return buffer;
@@ -309,28 +354,10 @@ static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer,
     }
 
     buffer = sdscatlen(buffer, "],", 2);
+    buffer = tojson_char(buffer, "partition", partition, true);
     buffer = tojson_long(buffer, "numOutputs", nr, false);
     buffer = jsonrpc_result_end(buffer);
 
     return buffer;
 }
 
-static int _mympd_api_get_volume(struct t_mympd_state *mympd_state) {
-    int volume = -1;
-    if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 23, 0) >= 0) {
-        volume = mpd_run_get_volume(mympd_state->mpd_state->conn);
-        check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
-    }
-    else {
-        struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
-        if (status == NULL) {
-            check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
-            return -1;
-        }
-        volume = mpd_status_get_volume(status);
-        mpd_status_free(status);
-    }
-    mpd_response_finish(mympd_state->mpd_state->conn);
-    check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
-    return volume;
-}

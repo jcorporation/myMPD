@@ -53,7 +53,7 @@ rc, response, header, body = mympd_api_http_client(method, uri, headers, payload
 
 ## Examples
 
-Further examples can be found in the [repository](https://github.com/jcorporation/myMPD/tree/master/contrib/luascripts).
+Further examples can be found in the [repository](https://github.com/jcorporation/myMPD/tree/master/docs/scripting/scripts).
 
 ### Simple
 

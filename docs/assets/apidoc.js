@@ -202,7 +202,8 @@ const APImethods = {
                 "type": "text",
                 "example": "Genre",
                 "desc": "Tag to display"
-            }
+            },
+            "sortdesc": APIparams.sortdesc
         }
     },
     "MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST": {
@@ -1409,10 +1410,10 @@ const APImethods = {
         "desc": "Moves this output to current MPD partition",
         "protected": true,
         "params": {
-            "name": {
-                "tye": "text",
-                "example": "output1",
-                "desc": "output name"
+            "outputs": {
+                "type": "array",
+                "example": "[\"output1\", \"output2\"]",
+                "desc": "Outputs to move to current partition"
             }
         }
     },

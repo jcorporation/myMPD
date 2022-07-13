@@ -499,7 +499,7 @@ Protocol version
 协议版本
 
 Action
-동작
+动作
 
 MPD host
 MPD 主机
@@ -963,8 +963,11 @@ Shuffle
 Playlist is too small to shuffle
 播放列表太小无法乱序
 
-Playlist is too small to sort
-播放列表太小无法排序
+Shuffling playlist failed
+播放列表乱序失败
+
+Sorting playlist failed
+播放列表排序失败
 
 Shuffle playlist
 乱序播放列表
@@ -1770,6 +1773,9 @@ Session removed
 Session successfully created
 成功创建会话
 
+Enter pin
+输入 Pin
+
 Invalid script content
 脚本内容无效
 
@@ -2240,3 +2246,72 @@ Click quick play button
 
 Enforce mobile view
 强制移动端视图
+
+Advanced Audio Coding
+Advanced Audio Coding
+
+Cuesheet
+Cuesheet
+
+Free Lossless Audio Codec
+Free Lossless Audio Codec
+
+MPEG-1 Audio Layer III
+MPEG-1 Audio Layer III
+
+MPEG-4
+MPEG-4
+
+Monkey Audio
+Monkey Audio
+
+Musepack
+Musepack
+
+Ogg Vorbis
+Ogg Vorbis
+
+Opus Audio
+Opus Audio
+
+WAVE Audio File
+WAVE Audio File
+
+WavPack
+WavPack
+
+Windows Media Audio
+Windows Media Audio
+
+Import script
+导入脚本
+
+Can not parse script arguments
+未能解析脚本参数
+
+Active partition
+活动分区
+
+Partition switched
+分区已切换
+
+Outputs moved to current partition
+输出已移动到当前分区
+
+Move
+移动
+
+Could not find album
+找不到专辑
+
+Could not get local ip
+未能获取本地 IP
+
+Add external link
+添加外部链接
+
+Open external link
+打开外部链接
+
+External link
+外部链接

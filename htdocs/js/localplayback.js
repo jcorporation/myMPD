@@ -3,6 +3,41 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+function initLocalPlayback() {
+    //do not hide volume menu on click on volume change buttons
+    for (const elName of ['btnLocalPlaybackChVolumeDown', 'btnLocalPlaybackChVolumeUp', 'localPlaybackVolumeBar']) {
+        document.getElementById(elName).addEventListener('click', function(event) {
+            event.stopPropagation();
+        }, false);
+    }
+
+    document.getElementById('localPlaybackVolumeBar').addEventListener('change', function(event) {
+        setLocalPlaybackVolume(Number(event.target.value));
+    }, false);
+}
+
+//eslint-disable-next-line no-unused-vars
+function localPlaybackVolumeStep(dir) {
+    chLocalPlaybackVolume(dir === 'up' ? 0.1 : -0.1);
+}
+
+function chLocalPlaybackVolume(increment) {
+    const volumeBar = document.getElementById('localPlaybackVolumeBar');
+    let newValue = Number(volumeBar.value) + increment;
+    if (newValue < 0) {
+        newValue = 0;
+    }
+    else if (newValue > 1) {
+        newValue = 1;
+    }
+    volumeBar.value = newValue;
+    setLocalPlaybackVolume(newValue);
+}
+
+function setLocalPlaybackVolume(volume) {
+    document.getElementById('localPlayer').volume = volume;
+}
+
 function controlLocalPlayback(newState) {
     if (features.featLocalPlayback === false ||
         localSettings.localPlaybackAutoplay === false)
@@ -41,8 +76,10 @@ function createLocalPlaybackEl(createEvent) {
 
     //replace old audio element
     const parent = curAudioEl.parentNode;
+    const oldVolume = curAudioEl.volume;
     curAudioEl.remove();
     const localPlayer = elCreateEmpty('audio', {"class": ["mx-4"], "preload": "none", "id": "localPlayer"});
+    localPlayer.volume = oldVolume;
     parent.appendChild(localPlayer);
     //add eventhandlers
     document.getElementById('localPlayer').addEventListener('canplay', function() {
@@ -57,6 +94,11 @@ function createLocalPlaybackEl(createEvent) {
             return;
         }
         document.getElementById('localPlayerProgress').textContent = beautifySongDuration(event.target.currentTime);
+    });
+    document.getElementById('localPlayer').addEventListener('volumechange', function(event) {
+        document.getElementById('localPlaybackVolumeBar').value = document.getElementById('localPlayer').volume;
+        document.getElementById('localPlaybackVolume').textContent = Math.floor(
+                event.target.volume * 100) + ' %';
     });
     for (const ev of ['error', 'abort', 'stalled']) {
         document.getElementById('localPlayer').addEventListener(ev, function(event) {
@@ -82,6 +124,8 @@ function createLocalPlaybackEl(createEvent) {
         localPlayer.play();
         elClear(el);
         btnWaiting(el, true);
+        document.getElementById('localPlaybackVolumeBar').value = localPlayer.volume;
+        document.getElementById('localPlaybackVolume').textContent = localPlayer.volume * 100 + ' %';
     }
     else {
         setData(el, 'state', 'stop');

@@ -8,6 +8,7 @@
 #include "jsonrpc.h"
 
 #include "../../dist/mjson/mjson.h"
+#include "api.h"
 #include "log.h"
 #include "sds_extras.h"
 #include "utility.h"
@@ -58,10 +59,10 @@ sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity
         const char *v = va_arg(args, char *);
         if (i % 2 == 0) {
             if (i > 0) {
-                buffer = sdscat(buffer, ",");
+                buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sds_catjson(buffer, v, strlen(v));
-            buffer = sdscat(buffer,":");
+            buffer = sdscatlen(buffer,":", 1);
         }
         else {
             buffer = sds_catjson(buffer, v, strlen(v));
@@ -271,18 +272,12 @@ bool json_get_int_max(sds s, const char *path, int *result, sds *error) {
 }
 
 bool json_get_int(sds s, const char *path, int min, int max, int *result, sds *error) {
-    double value;
-    if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
-        if (value >= min && value <= max) {
-            *result = (int)value;
-            return true;
-        }
-        _set_parse_error(error, "Number out of range for JSON path \"%s\"", path);
+    long result_long;
+    bool rc = json_get_long(s, path, min, max, &result_long, error);
+    if (rc == true) {
+        *result = (int)result_long;
     }
-    else {
-        _set_parse_error(error, "JSON path \"%s\" not found", path);
-    }
-    return false;
+    return rc;
 }
 
 bool json_get_long_max(sds s, const char *path, long *result, sds *error) {
@@ -386,7 +381,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
             return false;
         }
         if (klen > 2) {
-            if (sds_json_unescape(p + koff + 1, klen - 2, &key) == false ||
+            if (sds_json_unescape(p + koff + 1, (size_t)(klen - 2), &key) == false ||
                 vcb_isalnum(value) == false)
             {
                 _set_parse_error(error, "Validation of key in path \"%s\" has failed. Key must be alphanumeric.", path);
@@ -404,7 +399,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
         switch(vtype) {
             case MJSON_TOK_STRING:
                 if (vlen > 2) {
-                    if (sds_json_unescape(p + voff + 1, vlen - 2, &value) == false) {
+                    if (sds_json_unescape(p + voff + 1, (size_t)(vlen - 2), &value) == false) {
                         _set_parse_error(error, "JSON unescape error for value for key \"%s\" in JSON path \"%s\" has failed", key, path);
                         FREE_SDS(value);
                         FREE_SDS(key);
@@ -557,6 +552,7 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
             return true;
         }
         _set_parse_error(error, "Value length for JSON path \"%s\" is too short", path);
+        FREE_SDS(*result);
         return false;
     }
 
@@ -564,23 +560,21 @@ static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sd
     n = n - 2;
     p++;
 
-    if ((sds_json_unescape(p, n, result) == false) ||
+    if ((sds_json_unescape(p, (size_t)n, result) == false) ||
         (sdslen(*result) < min || sdslen(*result) > max))
     {
         _set_parse_error(error, "Value length %lu for JSON path \"%s\" is out of bounds", sdslen(*result), path);
-        sdsclear(*result);
+        FREE_SDS(*result);
         return false;
     }
 
     if (vcb != NULL) {
         if (vcb(*result) == false) {
             _set_parse_error(error, "Validation of value for JSON path \"%s\" has failed", path);
-            sdsclear(*result);
+            FREE_SDS(*result);
             return false;
         }
     }
 
     return true;
 }
-
-

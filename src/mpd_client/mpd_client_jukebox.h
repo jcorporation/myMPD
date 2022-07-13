@@ -8,7 +8,8 @@
 #define MYMPD_JUKEBOX_H
 
 #include "../lib/mympd_state.h"
-
+enum jukebox_modes mpd_client_parse_jukebox_mode(const char *str);
+const char *mpd_client_lookup_jukebox_mode(enum jukebox_modes mode);
 void mpd_client_clear_jukebox(struct t_list *list);
 bool mpd_client_rm_jukebox_entry(struct t_list *list, long pos);
 sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, sds method,

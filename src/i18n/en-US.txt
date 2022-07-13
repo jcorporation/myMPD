@@ -19,7 +19,7 @@ Homescreen welcome
 You have not added any home icons yet. Home icons can be added through the context menus and following icons:
 
 MaintainEnableTagsText
-You should maintain and enable the tags Artist, AlbumArtist, Album, Track, Disc and Genre for best user experience.
+You should maintain and enable the tags AlbumArtist, Album, Artist, Disc, Genre, Name, Title, Track for best user experience.
 
 Each 1
 each second |||| each %{smart_count} seconds
@@ -62,6 +62,9 @@ Do you really want to delete the playlist "%{playlist}"?
 
 Do you really want to delete the script?
 Do you really want to delete the script "%{script}"?
+
+Do you really want to delete the partition?
+Do you really want to delete the partition "%{partition}"?
 
 BinaryLimitHelpText
 Binary limit must be between 4 kB and 256 kB

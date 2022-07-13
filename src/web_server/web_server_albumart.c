@@ -16,7 +16,6 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "../mympd_api/mympd_api_utility.h"
 
 #include <assert.h>
 #include <libgen.h>
@@ -76,10 +75,10 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
             //remove &uri=
             sdsrange(query, 5, -1);
             //decode uri
-            uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), 0);
+            uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
         }
     }
-    sdsfree(query);
+    FREE_SDS(query);
     if (sdslen(uri_decoded) == 0) {
         MYMPD_LOG_ERROR("Failed to decode query");
         webserver_serve_na_image(nc);
@@ -105,7 +104,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
             FREE_SDS(uri_decoded);
             return true;
         }
-        sds_sanitize_filename(uri_decoded);
+        sanitize_filename(uri_decoded);
 
         sds coverfile = sdscatfmt(sdsempty(), "%S/pics/thumbs/%S", config->workdir, uri_decoded);
         MYMPD_LOG_DEBUG("Check for stream cover \"%s\"", coverfile);
@@ -262,7 +261,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     {
         MYMPD_LOG_DEBUG("Sending getalbumart to mpd_client_queue");
         struct t_work_request *request = create_request(conn_id, 0, INTERNAL_API_ALBUMART, NULL);
-        request->data = tojson_char(request->data, "uri", uri_decoded, false);
+        request->data = tojson_sds(request->data, "uri", uri_decoded, false);
         request->data = sdscatlen(request->data, "}}", 2);
         mympd_queue_push(mympd_api_queue, request, 0);
         FREE_SDS(uri_decoded);

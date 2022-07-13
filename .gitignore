@@ -9,6 +9,7 @@
 /htdocs/js/i18n.js
 /htdocs/assets/MaterialIcons-Regular.woff2
 /valgrind.out
+/callgrind.out.*
 /src/compile_commands.json
 /clang-tidy.out
 /test/build/

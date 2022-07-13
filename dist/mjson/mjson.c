@@ -304,8 +304,8 @@ static unsigned char unhex(unsigned char c) {
 }
 
 static unsigned char mjson_unhex_nimble(const char *s) {
-  return (unsigned char) (unhex(((unsigned char *) s)[0]) << 4) |
-         unhex(((unsigned char *) s)[1]);
+  unsigned char *u = (unsigned char *) s;
+  return (unsigned char) (((unsigned char) (unhex(u[0]) << 4)) | unhex(u[1]));
 }
 
 static int mjson_unescape(const char *s, int len, char *to, int n) {
@@ -470,8 +470,8 @@ int mjson_next(const char *s, int n, int off, int *koff, int *klen, int *voff,
 #endif
 
 #if MJSON_ENABLE_PRINT
-int mjson_print_fixed_buf(const char *ptr, int len, void *fndata) {
-  struct mjson_fixedbuf *fb = (struct mjson_fixedbuf *) fndata;
+int mjson_print_fixed_buf(const char *ptr, int len, void *fn_data) {
+  struct mjson_fixedbuf *fb = (struct mjson_fixedbuf *) fn_data;
   int i, left = fb->size - 1 - fb->len;
   if (left < len) len = left;
   for (i = 0; i < len; i++) fb->ptr[fb->len + i] = ptr[i];
@@ -483,18 +483,18 @@ int mjson_print_fixed_buf(const char *ptr, int len, void *fndata) {
 // This function allocates memory in chunks of size MJSON_DYNBUF_CHUNK
 // to decrease memory fragmentation, when many calls are executed to
 // print e.g. a base64 string or a hex string.
-int mjson_print_dynamic_buf(const char *ptr, int len, void *fndata) {
-  char *s, *buf = *(char **) fndata;
+int mjson_print_dynamic_buf(const char *ptr, int len, void *fn_data) {
+  char *s, *buf = *(char **) fn_data;
   size_t curlen = buf == NULL ? 0 : strlen(buf);
   size_t new_size = curlen + (size_t) len + 1 + MJSON_DYNBUF_CHUNK;
   new_size -= new_size % MJSON_DYNBUF_CHUNK;
 
-  if ((s = (char *) realloc(buf, new_size)) == NULL) {
+  if ((s = (char *) MJSON_REALLOC(buf, new_size)) == NULL) {
     return 0;
   } else {
     memcpy(s + curlen, ptr, (size_t) len);
     s[curlen + (size_t) len] = '\0';
-    *(char **) fndata = s;
+    *(char **) fn_data = s;
     return len;
   }
 }
@@ -957,14 +957,14 @@ void jsonrpc_return_errorv(struct jsonrpc_request *r, int code,
                            const char *message, const char *data_fmt,
                            va_list *ap) {
   if (r->id_len == 0) return;
-  mjson_printf(r->fn, r->fndata,
+  mjson_printf(r->fn, r->fn_data,
                "{\"id\":%.*s,\"error\":{\"code\":%d,\"message\":%Q", r->id_len,
                r->id, code, message == NULL ? "" : message);
   if (data_fmt != NULL) {
-    mjson_printf(r->fn, r->fndata, ",\"data\":");
-    mjson_vprintf(r->fn, r->fndata, data_fmt, ap);
+    mjson_printf(r->fn, r->fn_data, ",\"data\":");
+    mjson_vprintf(r->fn, r->fn_data, data_fmt, ap);
   }
-  mjson_printf(r->fn, r->fndata, "}}\n");
+  mjson_printf(r->fn, r->fn_data, "}}\n");
 }
 
 void jsonrpc_return_error(struct jsonrpc_request *r, int code,
@@ -978,13 +978,13 @@ void jsonrpc_return_error(struct jsonrpc_request *r, int code,
 void jsonrpc_return_successv(struct jsonrpc_request *r, const char *result_fmt,
                              va_list *ap) {
   if (r->id_len == 0) return;
-  mjson_printf(r->fn, r->fndata, "{\"id\":%.*s,\"result\":", r->id_len, r->id);
+  mjson_printf(r->fn, r->fn_data, "{\"id\":%.*s,\"result\":", r->id_len, r->id);
   if (result_fmt != NULL) {
-    mjson_vprintf(r->fn, r->fndata, result_fmt, ap);
+    mjson_vprintf(r->fn, r->fn_data, result_fmt, ap);
   } else {
-    mjson_printf(r->fn, r->fndata, "%s", "null");
+    mjson_printf(r->fn, r->fn_data, "%s", "null");
   }
-  mjson_printf(r->fn, r->fndata, "}\n");
+  mjson_printf(r->fn, r->fn_data, "}\n");
 }
 
 void jsonrpc_return_success(struct jsonrpc_request *r, const char *result_fmt,
@@ -996,11 +996,11 @@ void jsonrpc_return_success(struct jsonrpc_request *r, const char *result_fmt,
 }
 
 void jsonrpc_ctx_process(struct jsonrpc_ctx *ctx, const char *buf, int len,
-                         mjson_print_fn_t fn, void *fndata, void *ud) {
+                         mjson_print_fn_t fn, void *fn_data, void *ud) {
   const char *result = NULL, *error = NULL;
   int result_sz = 0, error_sz = 0;
   struct jsonrpc_method *m = NULL;
-  struct jsonrpc_request r = {ctx, buf, len, 0, 0, 0, 0, 0, 0, fn, fndata, ud};
+  struct jsonrpc_request r = {ctx, buf, len, 0, 0, 0, 0, 0, 0, fn, fn_data, ud};
 
   // Is is a response frame?
   mjson_find(buf, len, "$.result", &result, &result_sz);
@@ -1013,8 +1013,8 @@ void jsonrpc_ctx_process(struct jsonrpc_ctx *ctx, const char *buf, int len,
   // Method must exist and must be a string
   if (mjson_find(buf, len, "$.method", &r.method, &r.method_len) !=
       MJSON_TOK_STRING) {
-    mjson_printf(fn, fndata, "{\"error\":{\"code\":-32700,\"message\":%.*Q}}\n",
-                 len, buf);
+    mjson_printf(fn, fn_data,
+                 "{\"error\":{\"code\":-32700,\"message\":%.*Q}}\n", len, buf);
     return;
   }
 
@@ -1035,14 +1035,14 @@ void jsonrpc_ctx_process(struct jsonrpc_ctx *ctx, const char *buf, int len,
   }
 }
 
-static int jsonrpc_print_methods(mjson_print_fn_t fn, void *fndata,
+static int jsonrpc_print_methods(mjson_print_fn_t fn, void *fn_data,
                                  va_list *ap) {
   struct jsonrpc_ctx *ctx = va_arg(*ap, struct jsonrpc_ctx *);
   struct jsonrpc_method *m;
   int len = 0;
   for (m = ctx->methods; m != NULL; m = m->next) {
-    if (m != ctx->methods) len += mjson_print_buf(fn, fndata, ",", 1);
-    len += mjson_print_str(fn, fndata, m->method, (int) strlen(m->method));
+    if (m != ctx->methods) len += mjson_print_buf(fn, fn_data, ",", 1);
+    len += mjson_print_str(fn, fn_data, m->method, (int) strlen(m->method));
   }
   return len;
 }

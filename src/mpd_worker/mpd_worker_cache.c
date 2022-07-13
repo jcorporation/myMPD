@@ -11,10 +11,9 @@
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "../mympd_api/mympd_api_utility.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
+#include "../mpd_client/mpd_client_sticker.h"
+#include "../mpd_client/mpd_client_tags.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -51,7 +50,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
             send_jsonrpc_notify("database", "info", "Updated album cache");
         }
         else {
-            album_cache_free(&album_cache);
+            album_cache_free(album_cache);
             send_jsonrpc_notify("database", "error", "Update of album cache failed");
         }
     }
@@ -69,7 +68,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
             send_jsonrpc_notify("database", "info", "Updated sticker cache");
         }
         else {
-            sticker_cache_free(&sticker_cache);
+            sticker_cache_free(sticker_cache);
             send_jsonrpc_notify("database", "error", "Update of sticker cache failed");
         }
     }
@@ -117,23 +116,60 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         sds album = sdsempty();
         sds artist = sdsempty();
         sds key = sdsempty();
+        const bool create_album_cache = mpd_worker_state->mpd_state->feat_mpd_tags &&
+            mpd_client_tag_exists(&mpd_worker_state->mpd_state->tag_types_mympd, MPD_TAG_ALBUM) &&
+            mpd_client_tag_exists(&mpd_worker_state->mpd_state->tag_types_mympd, mpd_worker_state->mpd_state->tag_albumartist);
+        if (create_album_cache == false) {
+            MYMPD_LOG_NOTICE("Skipping album cache creation, (Album)Artist and Album tags must be enabled");
+        }
         while ((song = mpd_recv_song(mpd_worker_state->mpd_state->conn)) != NULL) {
             //sticker cache
             if (mpd_worker_state->mpd_state->feat_mpd_stickers == true) {
                 const char *uri = mpd_song_get_uri(song);
                 struct t_sticker *sticker = malloc_assert(sizeof(struct t_sticker));
-                raxInsert(sticker_cache, (unsigned char *)uri, strlen(uri), (void *)sticker, NULL);
-                song_count++;
+                if (raxTryInsert(sticker_cache, (unsigned char *)uri, strlen(uri), (void *)sticker, NULL) == 0) {
+                    MYMPD_LOG_ERROR("Error adding \"%s\" to sticker cache", uri);
+                    FREE_PTR(sticker);
+                }
+                else {
+                    song_count++;
+                }
             }
             //album cache
-            if (mpd_worker_state->mpd_state->feat_mpd_tags == true) {
-                album = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM, album);
-                artist = mpd_shared_get_tag_value_string(song, MPD_TAG_ALBUM_ARTIST, artist);
-                if (sdslen(album) > 0 && sdslen(artist) > 0) {
+            if (create_album_cache == true) {
+                sdsclear(album);
+                sdsclear(artist);
+                album = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, album);
+                artist = mpd_client_get_tag_value_string(song, mpd_worker_state->mpd_state->tag_albumartist, artist);
+                if (sdslen(album) > 0 &&
+                    sdslen(artist) > 0)
+                {
                     sdsclear(key);
                     key = sdscatfmt(key, "%s::%s", album, artist);
-                    if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, NULL) == 0) {
-                        //discard song data if key exists
+                    sds_utf8_tolower(key);
+                    void *old_data;
+                    if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, &old_data) == 0) {
+                        //append song data if key exists
+                        struct mpd_song *old_song = (struct mpd_song *) old_data;
+                        for (unsigned tagnr = 0; tagnr < mpd_worker_state->mpd_state->tag_types_mympd.len; ++tagnr) {
+                            const char *value;
+                            enum mpd_tag_type tag = mpd_worker_state->mpd_state->tag_types_mympd.tags[tagnr];
+                            //append only multivalue tags
+                            if (is_multivalue_tag(tag) == true) {
+                                unsigned value_nr = 0;
+                                while ((value = mpd_song_get_tag(song, tag, value_nr)) != NULL) {
+                                    mympd_mpd_song_add_tag_dedup(old_song, tag, value);
+                                    value_nr++;
+                                }
+                            }
+                        }
+                        //use newest modified-since
+                        time_t last_modified_old = mpd_song_get_last_modified(old_song);
+                        time_t last_modified_new = mpd_song_get_last_modified(song);
+                        if (last_modified_old < last_modified_new) {
+                            mympd_mpd_song_set_last_modified(song, last_modified_new);
+                        }
+                        //free song data
                         mpd_song_free(song);
                     }
                     else {
@@ -167,13 +203,13 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         sds uri = sdsempty();
         while (raxNext(&iter)) {
             uri = sds_replacelen(uri, (char *)iter.key, iter.key_len);
-            mpd_shared_get_sticker(mpd_worker_state->mpd_state, uri, (struct t_sticker *)iter.data);
+            mpd_client_get_sticker(mpd_worker_state->mpd_state, uri, (struct t_sticker *)iter.data);
         }
         FREE_SDS(uri);
         raxStop(&iter);
     }
     MYMPD_LOG_INFO("Added %ld albums to album cache", album_count);
-    MYMPD_LOG_INFO("Skipped %ld albums", skipped);
+    MYMPD_LOG_INFO("Skipped %ld songs", skipped);
     MYMPD_LOG_INFO("Added %ld songs to sticker cache", song_count);
     MYMPD_LOG_INFO("Cache updated successfully");
     return true;

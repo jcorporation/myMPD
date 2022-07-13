@@ -8,24 +8,23 @@
 #define MYMPD_UTILITY_H
 
 #include <stdbool.h>
+#include <stdio.h>
 #include <time.h>
 
 #include "../../dist/sds/sds.h"
 
-enum testdir_status {
-    DIR_EXISTS = 0,
-    DIR_CREATED = 1,
-    DIR_CREATE_FAILED = 2,
-    DIR_NOT_EXISTS = 3
-};
-
-void ws_notify(sds message);
-bool is_virtual_cuedir(sds music_directory, sds filename);
-int testdir(const char *name, const char *dirname, bool create);
-void my_msleep(long msec);
 bool is_streamuri(const char *uri);
-bool write_data_to_file(sds filepath, const char *data, size_t data_len);
-sds *split_coverimage_names(sds coverimage_name, sds *coverimage_names, int *count);
+bool is_virtual_cuedir(sds music_directory, sds filename);
+const char *get_extension_from_filename(const char *filename);
+void basename_uri(sds s);
+void strip_file_extension(sds s);
+void strip_slash(sds s);
+void sanitize_filename(sds s);
+
+const char *getenv_check(const char *env_var, size_t max_len);
+void my_msleep(long msec);
+
+sds get_mympd_host(sds mpd_host, sds http_host);
 
 //measure time
 #define MEASURE_INIT struct timespec tic, toc;

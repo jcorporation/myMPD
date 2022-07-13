@@ -80,10 +80,10 @@ function dragAndDropTable(table) {
             tr[i].classList.remove('dragover');
         }
         document.getElementById(table).classList.add('opacity05');
-        if (app.current.card === 'Queue' && app.current.tab === 'Current') {
+        if (app.id === 'QueueCurrent') {
             sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {"from": oldSongpos, "to": newSongpos});
         }
-        else if (app.current.card === 'Browse' && app.current.tab === 'Playlists' && app.current.view === 'Detail') {
+        else if (app.id === 'BrowsePlaylistsDetail') {
             playlistMoveSong(oldSongpos, newSongpos);
         }
     }, false);
@@ -237,7 +237,9 @@ function setColsChecklist(table, menu) {
 }
 
 function setCols(table) {
-    if (table === 'Search' && app.cards.Search.sort.tag === 'Title') {
+    if (table === 'Search' &&
+        app.cards.Search.sort.tag === 'Title')
+    {
         if (settings.tagList.includes('Title')) {
             app.cards.Search.sort.tag = 'Title';
         }
@@ -397,7 +399,7 @@ function addDiscRow(disc, album, albumartist, colspan) {
             elCreateText('span', {"class": ["mi"]}, 'album')
         ),
         elCreateText('td', {"colspan": (colspan - 1)}, tn('Disc') + ' ' + disc),
-        elCreateNode('td', {},
+        elCreateNode('td', {"data-col": "Action"},
             elCreateText('a', {"data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
         )
     ]);
@@ -416,6 +418,13 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const nrItems = obj.result.returnedEntities;
     const tr = tbody.getElementsByTagName('tr');
     const smallWidth = uiSmallWidthTagRows();
+
+    if (smallWidth === true) {
+        table.classList.add('smallWidth');
+    }
+    else {
+        table.classList.remove('smallWidth');
+    }
 
     //disc handling for album view
     let z = 0;
@@ -510,7 +519,9 @@ function tableRow(row, data, list, colspan, smallWidth) {
                 td.appendChild(
                     elCreateNodes('div', {"class": ["row"]}, [
                         elCreateText('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])),
-                        elCreateNode('span', {"data-col": settings['cols' + list][c], "class": ["col-9"]}, printValue(settings['cols' + list][c], data[settings['cols' + list][c]]))
+                        elCreateNode('span', {"data-col": settings['cols' + list][c], "class": ["col-9"]},
+                            printValue(settings['cols' + list][c], data[settings['cols' + list][c]])
+                        )
                     ])
                 );
             }

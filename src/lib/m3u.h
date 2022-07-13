@@ -9,7 +9,7 @@
 
 #include "../../dist/sds/sds.h"
 
-sds m3u_to_json(sds buffer, const char *filename, sds *plname);
+sds m3u_to_json(sds buffer, const char *filename, sds *m3ufields);
 sds m3u_get_field(sds buffer, const char *field, const char *filename);
 
 #endif

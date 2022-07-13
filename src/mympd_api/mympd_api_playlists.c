@@ -9,15 +9,19 @@
 
 #include "../../dist/utf8/utf8.h"
 #include "../lib/api.h"
+#include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
-#include "../lib/mympd_configuration.h"
+#include "../lib/mem.h"
 #include "../lib/sds_extras.h"
+#include "../lib/state_files.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "../mpd_shared/mpd_shared_search.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "mympd_api_utility.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
+#include "../mpd_client/mpd_client_search.h"
+#include "../mpd_client/mpd_client_search_local.h"
+#include "../mpd_client/mpd_client_sticker.h"
+#include "../mpd_client/mpd_client_tags.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -27,29 +31,17 @@
 
 //private definitions
 static int mympd_api_enum_playlist(struct t_mympd_state *mympd_state, const char *playlist, bool empty_check);
-static bool smartpls_init(struct t_config *config, const char *name, const char *value);
+static bool smartpls_init(sds workdir, const char *name, const char *value);
 
 //public functions
 bool mympd_api_smartpls_default(struct t_config *config) {
     bool rc = true;
 
     //try to get prefix from state file, fallback to default value
-    sds prefix = sdsempty();
-    sds prefix_file = sdscatfmt(sdsempty(), "%s/state/smartpls_prefix", config->workdir);
-    FILE *fp = fopen(prefix_file, OPEN_FLAGS_READ);
-    if (fp != NULL) {
-        if (sds_getline(&prefix, fp, 50) != 0) {
-            prefix = sdscat(prefix, "myMPDsmart");
-        }
-        (void) fclose(fp);
-    }
-    else {
-        prefix = sdscat(prefix, "myMPDsmart");
-    }
-    FREE_SDS(prefix_file);
+    sds prefix = state_file_rw_string(config->workdir, "state", "smartpls_prefix", MYMPD_SMARTPLS_PREFIX, vcb_isname, false);
 
-    sds smartpls_file = sdscatfmt(sdsempty(), "%s%sbestRated", prefix, (sdslen(prefix) > 0 ? "-" : ""));
-    rc = smartpls_init(config, smartpls_file,
+    sds smartpls_file = sdscatfmt(sdsempty(), "%S-bestRated", prefix);
+    rc = smartpls_init(config->workdir, smartpls_file,
         "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200, \"minvalue\": 2, \"sort\": \"\"}");
     if (rc == false) {
         FREE_SDS(smartpls_file);
@@ -58,8 +50,8 @@ bool mympd_api_smartpls_default(struct t_config *config) {
     }
 
     sdsclear(smartpls_file);
-    smartpls_file = sdscatfmt(smartpls_file, "%s%smostPlayed", prefix, (sdslen(prefix) > 0 ? "-" : ""));
-    rc = smartpls_init(config, smartpls_file,
+    smartpls_file = sdscatfmt(smartpls_file, "%S-mostPlayed", prefix);
+    rc = smartpls_init(config->workdir, smartpls_file,
         "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0, \"sort\": \"\"}");
     if (rc == false) {
         FREE_SDS(smartpls_file);
@@ -68,8 +60,8 @@ bool mympd_api_smartpls_default(struct t_config *config) {
     }
 
     sdsclear(smartpls_file);
-    smartpls_file = sdscatfmt(smartpls_file, "%s%snewestSongs", prefix, (sdslen(prefix) > 0 ? "-" : ""));
-    rc = smartpls_init(config, smartpls_file,
+    smartpls_file = sdscatfmt(smartpls_file, "%S-newestSongs", prefix);
+    rc = smartpls_init(config->workdir, smartpls_file,
         "{\"type\": \"newest\", \"timerange\": 604800, \"sort\": \"\"}");
     FREE_SDS(smartpls_file);
     FREE_SDS(prefix);
@@ -100,49 +92,76 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     size_t search_len = sdslen(searchstr);
 
     struct mpd_playlist *pl;
-    struct t_list entity_list;
-    list_init(&entity_list);
+    rax *entity_list = raxNew();
+
+    struct t_pl_data {
+        time_t last_modified;
+        enum playlist_types type;
+        sds name;
+    };
+
     long real_limit = offset + limit;
-    long list_length = 0;
+    sds key = sdsempty();
     while ((pl = mpd_recv_playlist(mympd_state->mpd_state->conn)) != NULL) {
         const char *plpath = mpd_playlist_get_path(pl);
         bool smartpls = is_smartpls(mympd_state->config->workdir, plpath);
         if ((search_len == 0 || utf8casestr(plpath, searchstr) != NULL) &&
             (type == PLTYPE_ALL || (type == PLTYPE_STATIC && smartpls == false) || (type == PLTYPE_SMART && smartpls == true)))
         {
-            if (smartpls == true) {
-                list_insert_sorted_by_key_limit(&entity_list, plpath, (long)mpd_playlist_get_last_modified(pl), "s", NULL,
-                    LIST_SORT_ASC, real_limit, list_free_cb_ignore_user_data);
+            struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
+            data->last_modified = mpd_playlist_get_last_modified(pl);
+            data->type = smartpls == true ? PLTYPE_SMART : PLTYPE_STATIC;
+            data->name = sdsnew(plpath);
+            sdsclear(key);
+            key = sdscatsds(key, data->name);
+            sds_utf8_tolower(key);
+            while (raxTryInsert(entity_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
+                //duplicate - add chars until it is uniq
+                key = sdscatlen(key, ":", 1);
             }
-            else {
-                list_insert_sorted_by_key_limit(&entity_list, plpath, (long)mpd_playlist_get_last_modified(pl), "f", NULL,
-                    LIST_SORT_ASC, real_limit, list_free_cb_ignore_user_data);
-            }
-            list_length++;
         }
         mpd_playlist_free(pl);
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
+        //free result
+        raxIterator iter;
+        raxStart(&iter, entity_list);
+        raxSeek(&iter, "^", NULL, 0);
+        while (raxNext(&iter)) {
+            struct t_pl_data *data = (struct t_pl_data *)iter.data;
+            FREE_SDS(data->name);
+            FREE_PTR(iter.data);
+        }
+        raxStop(&iter);
+        raxFree(entity_list);
+        //return error message
         return buffer;
     }
 
     //add empty smart playlists
-    if (type != 1) {
-        sds smartpls_path = sdscatfmt(sdsempty(), "%s/smartpls", mympd_state->config->workdir);
+    if (type != PLTYPE_STATIC) {
+        sds smartpls_path = sdscatfmt(sdsempty(), "%S/smartpls", mympd_state->config->workdir);
         errno = 0;
         DIR *smartpls_dir = opendir(smartpls_path);
         if (smartpls_dir != NULL) {
             struct dirent *next_file;
             while ((next_file = readdir(smartpls_dir)) != NULL ) {
                 if (next_file->d_type == DT_REG &&
-                    (search_len == 0 || utf8casestr(next_file->d_name, searchstr) != NULL) &&
-                    list_get_node(&entity_list, next_file->d_name) == NULL)
-                {
-                    time_t last_modified = mpd_shared_get_smartpls_mtime(mympd_state->config, next_file->d_name);
-                    list_insert_sorted_by_key_limit(&entity_list, next_file->d_name, (long)last_modified, "t", NULL,
-                        LIST_SORT_ASC, real_limit, list_free_cb_ignore_user_data);
-                    list_length++;
+                    (search_len == 0 || utf8casestr(next_file->d_name, searchstr) != NULL)
+                ) {
+                    struct t_pl_data *data = malloc_assert(sizeof(struct t_pl_data));
+                    data->last_modified = mpd_client_get_smartpls_mtime(mympd_state->config, next_file->d_name);
+                    data->type = PLTYPE_SMARTPLS_ONLY;
+                    data->name = sdsnew(next_file->d_name);
+                    sdsclear(key);
+                    key = sdscat(key, next_file->d_name);
+                    sds_utf8_tolower(key);
+                    if (raxTryInsert(entity_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
+                        //smart playlist already added
+                        FREE_SDS(data->name);
+                        FREE_PTR(data);
+                    }
                 }
             }
             closedir(smartpls_dir);
@@ -153,36 +172,43 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
         }
         FREE_SDS(smartpls_path);
     }
-
+    FREE_SDS(key);
     buffer = jsonrpc_result_start(buffer, method, request_id);
     buffer = sdscat(buffer,"\"data\":[");
 
     long entity_count = 0;
     long entities_returned = 0;
-    struct t_list_node *current;
-    while ((current = list_shift_first(&entity_list)) != NULL) {
-        if (entity_count >= offset) {
+    raxIterator iter;
+    raxStart(&iter, entity_list);
+    raxSeek(&iter, "^", NULL, 0);
+    while (raxNext(&iter)) {
+        struct t_pl_data *data = (struct t_pl_data *)iter.data;
+        if (entity_count >= offset &&
+            entity_count < real_limit)
+        {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscat(buffer, "{");
-            buffer = tojson_char(buffer, "Type", (current->value_p[0] == 'f' ? "plist" : "smartpls"), true);
-            buffer = tojson_char(buffer, "uri", current->key, true);
-            buffer = tojson_char(buffer, "name", current->key, true);
-            buffer = tojson_llong(buffer, "lastModified", current->value_i, true);
-            buffer = tojson_bool(buffer, "smartplsOnly", current->value_p[0] == 't' ? true : false, false);
+            buffer = tojson_char(buffer, "Type", (data->type == PLTYPE_STATIC ? "plist" : "smartpls"), true);
+            buffer = tojson_sds(buffer, "uri", data->name, true);
+            buffer = tojson_sds(buffer, "name", data->name, true);
+            buffer = tojson_llong(buffer, "lastModified", data->last_modified, true);
+            buffer = tojson_bool(buffer, "smartplsOnly", data->type == PLTYPE_SMARTPLS_ONLY ? true : false, false);
             buffer = sdscat(buffer, "}");
         }
         entity_count++;
-        list_node_free_user_data(current, list_free_cb_ignore_user_data);
+        FREE_SDS(data->name);
+        FREE_PTR(data);
     }
+    raxStop(&iter);
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_char(buffer, "searchstr", searchstr, true);
-    buffer = tojson_long(buffer, "totalEntities", list_length, true);
+    buffer = tojson_sds(buffer, "searchstr", searchstr, true);
+    buffer = tojson_llong(buffer, "totalEntities", (long long)entity_list->numele, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, false);
     buffer = jsonrpc_result_end(buffer);
-
+    raxFree(entity_list);
     return buffer;
 }
 
@@ -202,13 +228,14 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
     long entity_count = 0;
     unsigned total_time = 0;
     long real_limit = offset + limit;
-    sds entityName = sdsempty();
-    size_t search_len = sdslen(searchstr);
+    long last_played_max = 0;
+    sds last_played_song_uri = sdsempty();
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
         total_time += mpd_song_get_duration(song);
-        if (entity_count >= offset && entity_count < real_limit) {
-            entityName = mpd_shared_get_tag_values(song, MPD_TAG_TITLE, entityName);
-            if (search_len == 0 || utf8casestr(entityName, searchstr) != NULL) {
+        if (entity_count >= offset &&
+            entity_count < real_limit)
+        {
+            if (search_mpd_song(song, searchstr, tagcols) == true) {
                 if (entities_returned++) {
                     buffer= sdscatlen(buffer, ",", 1);
                 }
@@ -221,6 +248,17 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
                 }
                 buffer = tojson_long(buffer, "Pos", entity_count, true);
                 buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
+                if (mympd_state->mpd_state->feat_mpd_stickers) {
+                    buffer = sdscatlen(buffer, ",", 1);
+                    struct t_sticker *sticker = get_sticker_from_cache(mympd_state->sticker_cache, mpd_song_get_uri(song));
+                    buffer = print_sticker(buffer, sticker);
+                    if (sticker != NULL &&
+                        sticker->lastPlayed > last_played_max)
+                    {
+                        last_played_max = sticker->lastPlayed;
+                        last_played_song_uri = sds_replace(last_played_song_uri, mpd_song_get_uri(song));
+                    }
+                }
                 buffer = sdscatlen(buffer, "}", 1);
             }
             else {
@@ -230,7 +268,6 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
         mpd_song_free(song);
         entity_count++;
     }
-    FREE_SDS(entityName);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
@@ -244,11 +281,16 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
     buffer = tojson_uint(buffer, "totalTime", total_time, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
-    buffer = tojson_char(buffer, "searchstr", searchstr, true);
-    buffer = tojson_char(buffer, "plist", plist, true);
-    buffer = tojson_bool(buffer, "smartpls", smartpls, false);
+    buffer = tojson_sds(buffer, "searchstr", searchstr, true);
+    buffer = tojson_sds(buffer, "plist", plist, true);
+    buffer = tojson_bool(buffer, "smartpls", smartpls, true);
+    buffer = sdscat(buffer, "\"lastPlayedSong\":{");
+    buffer = tojson_long(buffer, "time", last_played_max, true);
+    buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
+    buffer = sdscatlen(buffer, "}", 1);
     buffer = jsonrpc_result_end(buffer);
 
+    FREE_SDS(last_played_song_uri);
     return buffer;
 }
 
@@ -256,21 +298,22 @@ sds mympd_api_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sds
                               long request_id, const char *old_playlist, const char *new_playlist)
 {
     //first handle smart playlists
-    sds old_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, old_playlist);
-    sds new_pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, new_playlist);
+    sds old_pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", mympd_state->config->workdir, old_playlist);
+    sds new_pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", mympd_state->config->workdir, new_playlist);
     //link old name to new name
-    errno = 0;
-    if (link(old_pl_file, new_pl_file) == -1) {
-        if (errno == EEXIST) {
+    if (access(old_pl_file, F_OK) == 0) { /* Flawfinder: ignore */
+        //smart playlist file exists
+        errno = 0;
+        if (link(old_pl_file, new_pl_file) == -1) {
             //handle new smart playlist name exists already
-            MYMPD_LOG_ERROR("A playlist with name \"%s\" already exists", new_pl_file);
-            buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "A smart playlist with this name already exists");
-            FREE_SDS(old_pl_file);
-            FREE_SDS(new_pl_file);
-            return buffer;
-        }
-        if (errno != ENOENT) {
-            //ENOENT is OK, handle other errors
+            if (errno == EEXIST) {
+                MYMPD_LOG_ERROR("A playlist with name \"%s\" already exists", new_pl_file);
+                buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "A smart playlist with this name already exists");
+                FREE_SDS(old_pl_file);
+                FREE_SDS(new_pl_file);
+                return buffer;
+            }
+            // other errors
             MYMPD_LOG_ERROR("Renaming smart playlist from \"%s\" to \"%s\" failed", old_pl_file, new_pl_file);
             MYMPD_LOG_ERRNO(errno);
             buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Renaming playlist failed");
@@ -278,23 +321,15 @@ sds mympd_api_playlist_rename(struct t_mympd_state *mympd_state, sds buffer, sds
             FREE_SDS(new_pl_file);
             return buffer;
         }
-        //no smart playlist exists, this is OK
-    }
-    errno = 0;
-    //remove old smart playlist
-    if (unlink(old_pl_file) == -1) {
-        MYMPD_LOG_ERROR("Deleting old smart playlist \"%s\" failed", old_pl_file);
-        MYMPD_LOG_ERRNO(errno);
-        //try to remove new smart playlist to prevent duplicates
-        errno = 0;
-        if (unlink(new_pl_file) == -1) {
-            MYMPD_LOG_ERROR("Deleting new smart playlist \"%s\" failed", new_pl_file);
-            MYMPD_LOG_ERRNO(errno);
+        //remove old smart playlist
+        if (rm_file(old_pl_file) == false) {
+            //try to remove new smart playlist to prevent duplicates
+            try_rm_file(new_pl_file);
+            buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Renaming playlist failed");
+            FREE_SDS(old_pl_file);
+            FREE_SDS(new_pl_file);
+            return buffer;
         }
-        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Renaming playlist failed");
-        FREE_SDS(old_pl_file);
-        FREE_SDS(new_pl_file);
-        return buffer;
     }
     FREE_SDS(old_pl_file);
     FREE_SDS(new_pl_file);
@@ -310,12 +345,8 @@ sds mympd_api_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sds
                                long request_id, const char *playlist, bool smartpls_only)
 {
     //remove smart playlist
-    sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, playlist);
-    errno = 0;
-    int rc = unlink(pl_file);
-    if (rc == -1 &&
-        errno != ENOENT)
-    {
+    sds pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", mympd_state->config->workdir, playlist);
+    if (try_rm_file(pl_file) == RM_FILE_ERROR) {
         //ignores none existing smart playlist
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Deleting smart playlist failed");
         MYMPD_LOG_ERROR("Deleting smart playlist \"%s\" failed", playlist);
@@ -330,17 +361,17 @@ sds mympd_api_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sds
         return buffer;
     }
     //remove mpd playlist
-    bool rc2 = mpd_run_rm(mympd_state->mpd_state->conn, playlist);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc2, "mpd_run_rm") == true) {
+    bool rc = mpd_run_rm(mympd_state->mpd_state->conn, playlist);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_run_rm") == true) {
         buffer = jsonrpc_respond_ok(buffer, method, request_id, "playlist");
     }
     return buffer;
 }
 
-sds mympd_api_smartpls_put(struct t_config *config, sds buffer, sds method, long request_id,
+sds mympd_api_smartpls_get(struct t_config *config, sds buffer, sds method, long request_id,
                             const char *playlist)
 {
-    sds pl_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, playlist);
+    sds pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", config->workdir, playlist);
     FILE *fp = fopen(pl_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
         MYMPD_LOG_ERROR("Cant read smart playlist \"%s\"", playlist);
@@ -349,7 +380,7 @@ sds mympd_api_smartpls_put(struct t_config *config, sds buffer, sds method, long
         return buffer;
     }
     sds content = sdsempty();
-    sds_getfile(&content, fp, 2000);
+    sds_getfile(&content, fp, SMARTPLS_SIZE_MAX);
     FREE_SDS(pl_file);
     (void) fclose(fp);
 
@@ -368,7 +399,7 @@ sds mympd_api_smartpls_put(struct t_config *config, sds buffer, sds method, long
                 json_get_int(content, "$.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, NULL) == true &&
                 json_get_int(content, "$.minvalue", 0, 100, &int_buf2, NULL) == true)
             {
-                buffer = tojson_char(buffer, "sticker", sds_buf1, true);
+                buffer = tojson_sds(buffer, "sticker", sds_buf1, true);
                 buffer = tojson_long(buffer, "maxentries", int_buf1, true);
                 buffer = tojson_long(buffer, "minvalue", int_buf2, true);
             }
@@ -386,7 +417,7 @@ sds mympd_api_smartpls_put(struct t_config *config, sds buffer, sds method, long
         }
         else if (strcmp(smartpltype, "search") == 0) {
             if (json_get_string(content, "$.expression", 1, 200, &sds_buf1, vcb_isname, NULL) == true) {
-                buffer = tojson_char(buffer, "expression", sds_buf1, true);
+                buffer = tojson_sds(buffer, "expression", sds_buf1, true);
             }
             else {
                 rc = false;
@@ -398,10 +429,10 @@ sds mympd_api_smartpls_put(struct t_config *config, sds buffer, sds method, long
         if (rc == true) {
             FREE_SDS(sds_buf1);
             if (json_get_string(content, "$.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
-                buffer = tojson_char(buffer, "sort", sds_buf1, false);
+                buffer = tojson_sds(buffer, "sort", sds_buf1, false);
             }
             else {
-                buffer = tojson_char(buffer, "sort", "", false);
+                buffer = tojson_char_len(buffer, "sort", "", 0, false);
             }
             buffer = jsonrpc_result_end(buffer);
         }
@@ -443,27 +474,24 @@ sds mympd_api_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer,
         return buffer;
     }
     //delete each smart playlist file that have no corresponding mpd playlist file
-    sds smartpls_path = sdscatfmt(sdsempty(), "%s/smartpls", mympd_state->config->workdir);
+    sds smartpls_path = sdscatfmt(sdsempty(), "%S/smartpls", mympd_state->config->workdir);
     errno = 0;
     DIR *smartpls_dir = opendir(smartpls_path);
     if (smartpls_dir != NULL) {
         struct dirent *next_file;
+        sds smartpls_file = sdsempty();
         while ((next_file = readdir(smartpls_dir)) != NULL ) {
             if (next_file->d_type == DT_REG) {
                 if (list_get_node(&playlists, next_file->d_name) == NULL) {
-                    sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, next_file->d_name);
-                    errno = 0;
-                    if (unlink(smartpls_file) == 0) {
+                    smartpls_file = sdscatfmt(smartpls_file, "%S/smartpls/%s", mympd_state->config->workdir, next_file->d_name);
+                    if (rm_file(smartpls_file) == true) {
                         MYMPD_LOG_INFO("Removed orphaned smartpls file \"%s\"", smartpls_file);
                     }
-                    else {
-                        MYMPD_LOG_ERROR("Error removing file \"%s\"", smartpls_file);
-                        MYMPD_LOG_ERRNO(errno);
-                    }
-                    FREE_SDS(smartpls_file);
+                    sdsclear(smartpls_file);
                 }
             }
         }
+        FREE_SDS(smartpls_file);
         closedir(smartpls_dir);
     }
     else {
@@ -481,12 +509,12 @@ sds mympd_api_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer,
     }
 
     if (mpd_command_list_begin(mympd_state->mpd_state->conn, false)) {
-        struct t_list_node *current = playlists.head;
-        while (current != NULL) {
+        struct t_list_node *current;
+        while ((current = list_shift_first(&playlists)) != NULL) {
             bool smartpls = false;
             if (strcmp(type, "deleteSmartPlaylists") == 0) {
-                sds smartpls_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", mympd_state->config->workdir, current->key);
-                if (unlink(smartpls_file) == 0) {
+                sds smartpls_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", mympd_state->config->workdir, current->key);
+                if (try_rm_file(smartpls_file) == RM_FILE_OK) {
                     MYMPD_LOG_INFO("Smartpls file %s removed", smartpls_file);
                     smartpls = true;
                 }
@@ -503,7 +531,7 @@ sds mympd_api_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer,
                 }
                 MYMPD_LOG_INFO("Deleting mpd playlist %s", current->key);
             }
-            current = current->next;
+            list_node_free(current);
         }
         if (mpd_command_list_end(mympd_state->mpd_state->conn)) {
             mpd_response_finish(mympd_state->mpd_state->conn);
@@ -545,44 +573,9 @@ static int mympd_api_enum_playlist(struct t_mympd_state *mympd_state, const char
     return entity_count;
 }
 
-static bool smartpls_init(struct t_config *config, const char *name, const char *value) {
-    sds tmp_file = sdscatfmt(sdsempty(), "%s/smartpls/%s.XXXXXX", config->workdir, name);
-    errno = 0;
-    int fd = mkstemp(tmp_file);
-    if (fd < 0 ) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", tmp_file);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(tmp_file);
-        return false;
-    }
-    FILE *fp = fdopen(fd, "w");
-    bool rc = true;
-    if (fputs(value, fp) == EOF) {
-        MYMPD_LOG_ERROR("Could not write initial smart playlist");
-        rc = false;
-    }
-    if (fclose(fp) != 0) {
-        MYMPD_LOG_ERROR("Could not close file \"%s\"", tmp_file);
-        rc = false;
-    }
-    sds cfg_file = sdscatfmt(sdsempty(), "%s/smartpls/%s", config->workdir, name);
-    errno = 0;
-    if (rc == true) {
-        if (rename(tmp_file, cfg_file) == -1) {
-            MYMPD_LOG_ERROR("Renaming file from %s to %s failed", tmp_file, cfg_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    else {
-        //remove incomplete tmp file
-        if (unlink(tmp_file) != 0) {
-            MYMPD_LOG_ERROR("Could not remove incomplete tmp file \"%s\"", tmp_file);
-            MYMPD_LOG_ERRNO(errno);
-            rc = false;
-        }
-    }
-    FREE_SDS(tmp_file);
-    FREE_SDS(cfg_file);
+static bool smartpls_init(sds workdir, const char *name, const char *value) {
+    sds filepath = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, name);
+    bool rc = write_data_to_file(filepath, value, strlen(value));
+    FREE_SDS(filepath);
     return rc;
 }

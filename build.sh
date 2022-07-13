@@ -413,14 +413,15 @@ builddebug() {
   make VERBOSE=1
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
-    -e 's/-static-libasan//g' -e 's/-Wno-stringop-overread//g' compile_commands.json > ../src/compile_commands.json
+    -e 's/-static-libasan//g' -e 's/-Wno-stringop-overread//g' -e 's/-fstack-clash-protection//g' \
+    compile_commands.json > ../src/compile_commands.json
 }
 
 buildtest() {
   install -d test/build
   cd test/build || exit 1
   #shellcheck disable=SC2086
-  cmake $EXTRA_CMAKE_OPTIONS ..
+  cmake -DCMAKE_BUILD_TYPE=DEBUG $EXTRA_CMAKE_OPTIONS ..
   make VERBOSE=1
   ./test
 }
@@ -453,10 +454,15 @@ cleanuposc() {
 }
 
 check_docs() {
+  rc=0
   grep -v '//' src/lib/api.h | grep 'X(MYMPD' | cut -d\( -f2 | cut -d\) -f1 | \
   while IFS= read -r METHOD
   do
-    grep -q "$METHOD" htdocs/js/apidoc.js || echo_warn "API $METHOD not documented"
+    if ! grep -q "$METHOD" htdocs/js/apidoc.js
+    then
+      echo_warn "API $METHOD not documented"
+      rc=1
+    fi
   done
   O=$(md5sum htdocs/js/apidoc.js | awk '{print $1}')
   C=$(md5sum docs/assets/apidoc.js | awk '{print $1}')
@@ -464,15 +470,19 @@ check_docs() {
   then
   	echo_warn "apidoc.js in docs differs"
     cp htdocs/js/apidoc.js docs/assets/apidoc.js
+    rc=1
   fi
+  return "$rc"
 }
 
 check_includes() {
+  rc=0
   find src/ -name \*.c | while IFS= read -r FILE
   do
     if ! grep -m1 "#include" "$FILE" | grep -q "mympd_config_defs.h"
     then
       echo_warn "First include is not mympd_config_defs.h: $FILE"
+      rc=1
     fi
     SRCDIR=$(dirname "$FILE")
 
@@ -482,8 +492,10 @@ check_includes() {
       if ! realpath "$SRCDIR/$INCLUDE" > /dev/null 2>&1
       then
         echo_error "Wrong include path in $FILE for $INCLUDE"
+        rc=1
       fi
     done
+    return "$rc"
   done
 }
 
@@ -533,18 +545,27 @@ check() {
   then
     echo "Running cppcheck"
     [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="-q --force --enable=warning"
-    #shellcheck disable=SC2086
-    cppcheck $CPPCHECKOPTS src/*.c src/*.h
-    #shellcheck disable=SC2086
-    cppcheck $CPPCHECKOPTS src/mpd_client/*.c src/mpd_client/*.h
-    #shellcheck disable=SC2086
-    cppcheck $CPPCHECKOPTS src/mympd_api/*.c src/mympd_api/*.h
-    #shellcheck disable=SC2086
-    cppcheck $CPPCHECKOPTS src/web_server/*.c src/web_server/*.h
-    #shellcheck disable=SC2086
-    cppcheck $CPPCHECKOPTS cli_tools/*.c
+    find ./src/ -name \*.c | while read -r FILE
+    do
+      [ "$FILE" = "./src/mympd_api/mympd_api_scripts_lualibs.c" ] && continue
+      [ "$FILE" = "./src/web_server/web_server_embedded_files.c" ] && continue
+      #shellcheck disable=SC2086
+      if ! cppcheck $CPPCHECKOPTS --error-exitcode=1 "$FILE"
+      then
+        return 1
+      fi
+    done
+    find ./src/ -name \*.h | while read -r FILE
+    do
+      #shellcheck disable=SC2086
+      if ! cppcheck $CPPCHECKOPTS --error-exitcode=1 "$FILE"
+      then
+        return 1
+      fi
+    done
   else
     echo_warn "cppcheck not found"
+    return 1
   fi
 
   if check_cmd flawfinder
@@ -552,18 +573,25 @@ check() {
     echo "Running flawfinder"
     [ -z "${FLAWFINDEROPTS+z}" ] && FLAWFINDEROPTS="-m3 --quiet --dataonly"
     #shellcheck disable=SC2086
-    flawfinder $FLAWFINDEROPTS src
+    if ! flawfinder $FLAWFINDEROPTS --error-level=3 src
+    then
+      return 1
+    fi
     #shellcheck disable=SC2086
-    flawfinder $FLAWFINDEROPTS cli_tools
+    if ! flawfinder $FLAWFINDEROPTS --error-level=3 cli_tools
+    then
+      return 1
+    fi
   else
     echo_warn "flawfinder not found"
+    return 1
   fi
 
   if [ ! -f src/compile_commands.json ]
   then
     echo "src/compile_commands.json not found"
     echo "run: ./build.sh debug"
-    exit 1
+    return 1
   fi
 
   if check_cmd clang-tidy
@@ -573,13 +601,27 @@ check() {
     cd src || exit 1
     find ./ -name '*.c' -exec clang-tidy \
     	--checks="$CLANG_TIDY_CHECKS" {} \; >> ../clang-tidy.out 2>/dev/null
-    grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out
+    ERRORS=$(grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out)
+    if [ -n "$ERRORS" ]
+    then
+      echo "$ERRORS"
+      return 1
+    fi
+    cd .. || return 1
   else
     echo_warn "clang-tidy not found"
+    return 1
   fi
-  cd .. || exit 1
-  check_docs
-  check_includes
+
+  if ! check_docs
+  then
+    return 1
+  fi
+  if ! check_includes
+  then
+    return 1
+  fi
+  return 0
 }
 
 prepare() {
@@ -884,13 +926,14 @@ updatebootstrapnative() {
 updatebootstrap() {
   check_cmd npm
   cd dist/bootstrap || exit 1
-  npm i
+  [ -z "${BOOTSTRAP_VERSION+x}" ] && BOOTSTRAP_VERSION=""
+  npm install "$BOOTSTRAP_VERSION"
   npm run build
   sed -i '$ d' compiled/custom.css
   rm compiled/custom.css.map
   if [ -d ../../debug ]
   then
-  	cp compiled/custom.css ../../htdocs/css/bootstrap.css
+  	cp -v compiled/custom.css ../../htdocs/css/bootstrap.css
   fi
 }
 
@@ -974,7 +1017,11 @@ createi18n() {
   PRETTY=$2
   cd src/i18n || exit 1
   echo "Creating i18n json"
-  perl ./tojson.pl "$PRETTY" > "$DST"
+  if ! perl ./tojson.pl "$PRETTY" > "$DST"
+  then
+    echo "Error creating translation files"
+    exit 1
+  fi
   cd ../.. || exit 1
 }
 
@@ -1126,18 +1173,28 @@ sbuild_cleanup() {
 }
 
 run_eslint() {
-  check_cmd eslint
+  if ! check_cmd npx
+  then
+    return 1
+  fi
   createassets
+  rc=0
   echo ""
   for F in htdocs/sw.js release/htdocs/js/mympd.js
   do
     echo "Linting $F"
-    eslint $F
+    if ! npx eslint $F
+    then
+      rc=1
+    fi
   done
   for F in release/htdocs/sw.min.js release/htdocs/js/mympd.min.js release/htdocs/js/i18n.min.js
   do
     echo "Linting $F"
-    eslint -c .eslintrc-min.json $F
+    if ! npx eslint -c .eslintrc-min.json $F
+    then
+      rc=1
+    fi
   done
   echo "Check for forbidden js functions"
   FORBIDDEN_CMDS="innerHTML outerHTML insertAdjacentHTML innerText"
@@ -1146,23 +1203,56 @@ run_eslint() {
   	if grep -q "$F" release/htdocs/js/mympd.min.js
   	then
   		echo_error "Found $F usage"
+      rc=1
   	fi
   done
+  return "$rc"
 }
 
 run_stylelint() {
-  check_cmd npx
+  if ! check_cmd npx
+  then
+    return 1
+  fi
+  rc=0
   for F in mympd.css theme-light.css
   do
     echo "Linting $F"
-    npx stylelint "htdocs/css/$F"
+    if ! npx stylelint "htdocs/css/$F"
+    then
+      rc=1
+    fi
   done
+  return "$rc"
 }
 
 run_htmlhint() {
-  check_cmd htmlhint
+  if ! check_cmd npx
+  then
+    return 1
+  fi
   echo "Linting htdocs/index.html"
-  htmlhint htdocs/index.html
+  if ! npx htmlhint htdocs/index.html
+  then
+    return 1
+  fi
+  return 0
+}
+
+luascript_index() {
+  rm -f "docs/scripting/scripts/index.json"
+  exec 3<> "docs/scripting/scripts/index.json"
+  printf "{\"scripts\":[" >&3
+  I=0
+  for F in docs/scripting/scripts/*.lua
+  do
+    [ "$I" -gt 0 ] &&  printf "," >&3
+    SCRIPTNAME=$(basename "$F")
+    printf "\"%s\"" "$SCRIPTNAME" >&3
+    I=$((I+1))
+  done
+  printf "]}\n" >&3
+  exec 3>&-
 }
 
 case "$ACTION" in
@@ -1194,7 +1284,10 @@ case "$ACTION" in
 	  cleanuposc
 	;;
 	check)
-	  check
+	  if ! check
+    then
+      exit 1
+    fi
 	;;
   check_file)
     if [ -z "${2+x}" ]
@@ -1274,10 +1367,25 @@ case "$ACTION" in
 	;;
 	sbuild_cleanup)
 	  sbuild_cleanup
-	  exit 0
 	;;
+  lint)
+    if ! run_htmlhint
+    then
+      exit 1
+    fi
+    pwd
+    if ! run_eslint
+    then
+      exit 1
+    fi
+    pwd
+    if ! run_stylelint
+    then
+      exit 1
+    fi
+  ;;
 	eslint)
-	  run_eslint
+    run_eslint
 	;;
 	stylelint)
 	  run_stylelint
@@ -1285,6 +1393,9 @@ case "$ACTION" in
 	htmlhint)
 	  run_htmlhint
 	;;
+  luascript_index)
+    luascript_index
+  ;;
 	*)
     echo "Usage: $0 <option>"
     echo "Version: ${VERSION}"
@@ -1317,6 +1428,7 @@ case "$ACTION" in
     echo "  check_file:       same as check, but for one file, second arg must be the file"
     echo "  check_docs        checks the documentation for missing API methods"
     echo "  check_includes:   checks for valid include paths"
+    echo "  lint:             runs eslint, stylelint and htmlhint"
     echo "  eslint:           combines javascript files and runs eslint"
     echo "  stylelint:        runs stylelint (lints css files)"
     echo "  htmlhint:         runs htmlhint (lints html files)"
@@ -1373,6 +1485,7 @@ case "$ACTION" in
     echo ""
     echo "Misc options:"
     echo "  addmympduser:     adds mympd group and user"
+    echo "  luascript_index:  creates the json index of lua scripts"
     echo ""
     echo "Source update options:"
     echo "  bootstrap:        updates bootstrap"

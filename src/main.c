@@ -11,15 +11,15 @@
 #include "../dist/sds/sds.h"
 #include "handle_options.h"
 #include "lib/api.h"
+#include "lib/filehandler.h"
 #include "lib/log.h"
 #include "lib/mem.h"
 #include "lib/random.h"
 #include "lib/sds_extras.h"
-#include "lib/utility.h"
-#include "mympd_api.h"
+#include "mympd_api/mympd_api.h"
 #include "mympd_api/mympd_api_playlists.h"
 #include "mympd_config.h"
-#include "web_server.h"
+#include "web_server/web_server.h"
 
 #ifdef ENABLE_SSL
     #include "lib/cert.h"
@@ -48,7 +48,7 @@ _Thread_local sds thread_logname;
 
 #ifdef ENABLE_LIBASAN
 const char *__asan_default_options(void) {
-    return "verbosity=1:malloc_context_size=50:abort_on_error=true:detect_stack_use_after_return=true";
+    return "detect_stack_use_after_return=true";
 }
 #endif
 
@@ -58,7 +58,9 @@ static void mympd_signal_handler(int sig_num) {
         MYMPD_LOG_ERROR("Could not set signal handler for %d", sig_num);
     }
 
-    if (sig_num == SIGTERM || sig_num == SIGINT) {
+    if (sig_num == SIGTERM ||
+        sig_num == SIGINT)
+    {
         //Set loop end condition for threads
         s_signal_received = sig_num;
         //Wakeup queue loops
@@ -93,7 +95,9 @@ static bool do_chown(const char *file_path, const char *user_name) {
 }
 
 static bool drop_privileges(struct t_config *config, uid_t startup_uid) {
-    if (startup_uid == 0 && sdslen(config->user) > 0) {
+    if (startup_uid == 0 &&
+        sdslen(config->user) > 0)
+    {
         MYMPD_LOG_NOTICE("Droping privileges to user \"%s\"", config->user);
         //get user
         struct passwd *pw;
@@ -154,7 +158,7 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         }
     }
     //config directory
-    sds testdirname = sdscatfmt(sdsempty(), "%s/config", config->workdir);
+    sds testdirname = sdscatfmt(sdsempty(), "%S/config", config->workdir);
     testdir_rc = testdir("Config dir", testdirname, true);
     if (testdir_rc == DIR_CREATE_FAILED) {
         FREE_SDS(testdirname);
@@ -188,7 +192,7 @@ struct t_subdirs_entry {
     const char *description;
 };
 
-const struct t_subdirs_entry workdir_subdirs[] = {
+static const struct t_subdirs_entry workdir_subdirs[] = {
     {"empty",            "Empty dir"},
     {"pics",             "Pics dir"},
     {"pics/backgrounds", "Backgrounds dir"},
@@ -202,7 +206,7 @@ const struct t_subdirs_entry workdir_subdirs[] = {
     {NULL, NULL}
 };
 
-const struct t_subdirs_entry cachedir_subdirs[] = {
+static const struct t_subdirs_entry cachedir_subdirs[] = {
     {"covercache", "Covercache dir"},
     {"webradiodb", "Webradiodb cache dir"},
     {NULL, NULL}
@@ -211,7 +215,7 @@ const struct t_subdirs_entry cachedir_subdirs[] = {
 static bool check_dir(const char *parent, const char *subdir, const char *description) {
     sds testdirname = sdscatfmt(sdsempty(), "%s/%s", parent, subdir);
     int rc = testdir(description, testdirname, true);
-    sdsfree(testdirname);
+    FREE_SDS(testdirname);
     return rc;
 }
 
@@ -229,12 +233,6 @@ static bool check_dirs(struct t_config *config) {
     //workdir
     for (p = workdir_subdirs; p->dirname != NULL; p++) {
         testdir_rc = check_dir(config->workdir, p->dirname, p->description);
-        if (testdir_rc == DIR_CREATED) {
-            if (strcmp(p->dirname, "smartpls") == 0) {
-                //directory created, create default smart playlists
-                mympd_api_smartpls_default(config);
-            }
-        }
         if (testdir_rc == DIR_CREATE_FAILED) {
             return false;
         }
@@ -250,58 +248,60 @@ static bool check_dirs(struct t_config *config) {
 }
 
 int main(int argc, char **argv) {
+    //set logging states
     thread_logname = sdsnew("mympd");
     log_on_tty = isatty(fileno(stdout)) ? true : false;
     log_to_syslog = false;
-
-    worker_threads = 0;
-    s_signal_received = 0;
-    bool init_config = false;
-    bool init_webserver = false;
-    bool init_mg_user_data = false;
-    bool init_thread_webserver = false;
-    bool init_thread_mympdapi = false;
-    int rc = EXIT_FAILURE;
     #ifdef DEBUG
     set_loglevel(LOG_DEBUG);
     #else
     set_loglevel(LOG_NOTICE);
     #endif
 
+    //set initital states
+    worker_threads = 0;
+    s_signal_received = 0;
+    bool init_thread_webserver = false;
+    bool init_thread_mympdapi = false;
+    struct t_config *config = NULL;
+    struct t_mg_user_data *mg_user_data = NULL;
+    struct mg_mgr *mgr = NULL;
+    int rc = EXIT_FAILURE;
+
+    //goto root directory
     errno = 0;
     if (chdir("/") != 0) {
         MYMPD_LOG_ERROR("Can not change directory to /");
         MYMPD_LOG_ERRNO(errno);
-        goto end;
+        goto cleanup;
     }
+
     //only user and group have rw access
     umask(0007); /* Flawfinder: ignore */
 
     //get startup uid
     uid_t startup_uid = getuid();
+    MYMPD_LOG_DEBUG("myMPD started as user id %u", startup_uid);
 
     mympd_api_queue = mympd_queue_create("mympd_api_queue");
     web_server_queue = mympd_queue_create("web_server_queue");
     mympd_script_queue = mympd_queue_create("mympd_script_queue");
 
-    //create mg_user_data struct for web_server
-    struct t_mg_user_data *mg_user_data = malloc_assert(sizeof(struct t_mg_user_data));
-
     //initialize random number generator
     tinymt32_init(&tinymt, (uint32_t)time(NULL));
 
     //mympd config defaults
-    struct t_config *config = malloc_assert(sizeof(struct t_config));
+    config = malloc_assert(sizeof(struct t_config));
     mympd_config_defaults_initial(config);
 
     //command line option
     int handle_options_rc = handle_options(config, argc, argv);
     switch(handle_options_rc) {
-        case -1:
+        case OPTIONS_RC_INVALID:
             //invalid option
             loglevel = LOG_ERR;
             goto cleanup;
-        case 1:
+        case OPTIONS_RC_EXIT:
             //valid option and exit
             loglevel = LOG_ERR;
             rc = EXIT_SUCCESS;
@@ -322,7 +322,6 @@ int main(int argc, char **argv) {
     }
 
     //read configuration
-    init_config = true;
     mympd_config_defaults(config);
     mympd_read_config(config);
 
@@ -399,10 +398,9 @@ int main(int argc, char **argv) {
     }
 
     //init webserver
-    struct mg_mgr mgr;
-    init_mg_user_data = true;
-    init_webserver = web_server_init(&mgr, config, mg_user_data);
-    if (init_webserver == false) {
+    mgr = malloc_assert(sizeof(struct mg_mgr));
+    mg_user_data = malloc_assert(sizeof(struct t_mg_user_data));
+    if (web_server_init(mgr, config, mg_user_data) == false) {
         goto cleanup;
     }
 
@@ -426,6 +424,11 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
+    //default smart playlists
+    if (config->first_startup == true) {
+        mympd_api_smartpls_default(config);
+    }
+
     //Create working threads
     pthread_t web_server_thread;
     pthread_t mympd_api_thread;
@@ -438,9 +441,10 @@ int main(int argc, char **argv) {
         MYMPD_LOG_ERROR("Can't create mympd_api thread");
         s_signal_received = SIGTERM;
     }
+
     //webserver
     MYMPD_LOG_NOTICE("Starting webserver thread");
-    if (pthread_create(&web_server_thread, NULL, web_server_loop, &mgr) == 0) {
+    if (pthread_create(&web_server_thread, NULL, web_server_loop, mgr) == 0) {
         init_thread_webserver = true;
     }
     else {
@@ -453,6 +457,8 @@ int main(int argc, char **argv) {
 
     //Try to cleanup all
     cleanup:
+
+    //wait for threads
     if (init_thread_webserver == true) {
         pthread_join(web_server_thread, NULL);
         MYMPD_LOG_NOTICE("Stopping web server thread");
@@ -461,10 +467,8 @@ int main(int argc, char **argv) {
         pthread_join(mympd_api_thread, NULL);
         MYMPD_LOG_NOTICE("Stopping mympd api thread");
     }
-    if (init_webserver == true) {
-        web_server_free(&mgr);
-    }
 
+    //expire queues
     int expired = expire_result_queue(web_server_queue, 0);
     mympd_queue_free(web_server_queue);
     MYMPD_LOG_DEBUG("Expired %d entries from web_server_queue", expired);
@@ -477,21 +481,19 @@ int main(int argc, char **argv) {
     mympd_queue_free(mympd_script_queue);
     MYMPD_LOG_DEBUG("Expired %d entries from mympd_script_queue", expired);
 
-    mympd_free_config_initial(config);
-    if (init_config == true) {
-        mympd_free_config(config);
+    //free config
+    mympd_free_config(config);
+
+    if (mgr != NULL) {
+        web_server_free(mgr);
     }
-    free(config);
-    if (init_mg_user_data == true) {
-        free((char *)mgr.dns4.url);
+    if (mg_user_data != NULL) {
         mg_user_data_free(mg_user_data);
     }
-    FREE_PTR(mg_user_data);
     if (rc == EXIT_SUCCESS) {
         printf("Exiting gracefully, thank you for using myMPD\n");
     }
 
-    end:
     FREE_SDS(thread_logname);
     return rc;
 }

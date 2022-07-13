@@ -9,8 +9,8 @@ project (mympd C)
 #update myMPD version here and run ./build.sh setversion to update
 #the source files
 set(CPACK_PACKAGE_VERSION_MAJOR "9")
-set(CPACK_PACKAGE_VERSION_MINOR "3")
-set(CPACK_PACKAGE_VERSION_PATCH "4")
+set(CPACK_PACKAGE_VERSION_MINOR "4")
+set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 #minimal cmake version needed for correct GNUInstallDirs
 cmake_minimum_required(VERSION 3.4)
@@ -85,6 +85,7 @@ message("Document root: ${ASSETS_PATH}")
 #set debug define for source
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
   set(DEBUG "OFF")
+  set(NDEBUG "true")
 else()
   set(DEBUG "ON")
 endif()
@@ -176,7 +177,8 @@ configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.ope
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 include_directories(${PCRE2_INCLUDE_DIRS})
 
-#we use the integrated libmpdclient, distribution versions are often outdated
+#Use the integrated libmympdclient for mpd communication
+#myMPD is incompatible with the original libmpdclient
 include_directories("dist/libmpdclient/include")
 
 #check for enabling libasan
@@ -245,6 +247,7 @@ set(MYMPD_SOURCES
   src/handle_options.c
   src/lib/api.c
   src/lib/covercache.c
+  src/lib/filehandler.c
   src/lib/http_client.c
   src/lib/jsonrpc.c
   src/lib/list.c
@@ -254,6 +257,7 @@ set(MYMPD_SOURCES
   src/lib/mimetype.c
   src/lib/mympd_pin.c
   src/lib/mympd_queue.c
+  src/lib/mympd_state.c
   src/lib/random.c
   src/lib/sds_extras.c
   src/lib/state_files.c
@@ -261,22 +265,27 @@ set(MYMPD_SOURCES
   src/lib/validate.c
   src/main.c
   src/mpd_client/mpd_client_autoconf.c
+  src/mpd_client/mpd_client_connection.c
+  src/mpd_client/mpd_client_errorhandler.c
   src/mpd_client/mpd_client_features.c
   src/mpd_client/mpd_client_idle.c
   src/mpd_client/mpd_client_jukebox.c
-  src/mpd_shared.c
-  src/mpd_shared/mpd_shared_playlists.c
-  src/mpd_shared/mpd_shared_search.c
-  src/mpd_shared/mpd_shared_sticker.c
-  src/mpd_shared/mpd_shared_tags.c
-  src/mpd_worker.c
+  src/mpd_client/mpd_client_playlists.c
+  src/mpd_client/mpd_client_search.c
+  src/mpd_client/mpd_client_search_local.c
+  src/mpd_client/mpd_client_sticker.c
+  src/mpd_client/mpd_client_tags.c
+  src/mpd_client/mpd_client_volume.c
+  src/mpd_worker/mpd_worker.c
   src/mpd_worker/mpd_worker_api.c
   src/mpd_worker/mpd_worker_cache.c
   src/mpd_worker/mpd_worker_smartpls.c
-  src/mpd_worker/mpd_worker_utility.c
-  src/mympd_api.c
+  src/mpd_worker/mpd_worker_state.c
+  src/mympd_api/mympd_api.c
   src/mympd_api/mympd_api_albumart.c
   src/mympd_api/mympd_api_browse.c
+  src/mympd_api/mympd_api_extra_media.c
+  src/mympd_api/mympd_api_filesystem.c
   src/mympd_api/mympd_api_handler.c
   src/mympd_api/mympd_api_home.c
   src/mympd_api/mympd_api_lyrics.c
@@ -286,17 +295,18 @@ set(MYMPD_SOURCES
   src/mympd_api/mympd_api_queue.c
   src/mympd_api/mympd_api_scripts.c
   src/mympd_api/mympd_api_settings.c
+  src/mympd_api/mympd_api_song.c
   src/mympd_api/mympd_api_stats.c
   src/mympd_api/mympd_api_status.c
   src/mympd_api/mympd_api_sticker.c
   src/mympd_api/mympd_api_timer.c
   src/mympd_api/mympd_api_timer_handlers.c
   src/mympd_api/mympd_api_trigger.c
-  src/mympd_api/mympd_api_utility.c
   src/mympd_api/mympd_api_webradios.c
   src/mympd_config.c
-  src/web_server.c
+  src/web_server/web_server.c
   src/web_server/web_server_albumart.c
+  src/web_server/web_server_handler.c
   src/web_server/web_server_proxy.c
   src/web_server/web_server_radiobrowser.c
   src/web_server/web_server_sessions.c

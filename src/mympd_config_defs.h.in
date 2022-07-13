@@ -47,9 +47,18 @@
 #define CFG_MYMPD_ACL ""
 #define CFG_MYMPD_SCRIPTACL "+127.0.0.0/8"
 #define CFG_MYMPD_LUALIBS "all"
-#define CFG_MYMPD_LOGLEVEL 5
+#define CFG_MYMPD_LOGLEVEL 5 //notice
 #define CFG_MYMPD_PIN_HASH ""
 #define CFG_LOG_TO_SYSLOG false
+
+//default mpd state settings
+#define MYMPD_MPD_TAG_LIST "Album,AlbumArtist,Artist,Disc,Genre,Name,Title,Track"
+#define MYMPD_MPD_KEEPALIVE true
+#define MYMPD_MPD_TIMEOUT 30000 //milliseconds
+#define MYMPD_MPD_HOST "localhost"
+#define MYMPD_MPD_PORT 6600
+#define MYMPD_MPD_PASS ""
+#define MYMPD_MPD_BINARYLIMIT 8192 //bytes
 
 //default mympd state settings
 #define MYMPD_MUSIC_DIRECTORY "auto"
@@ -59,16 +68,16 @@
 #define MYMPD_JUKEBOX_LAST_PLAYED 24 //hours
 #define MYMPD_JUKEBOX_QUEUE_LENGTH 1
 #define MYMPD_JUKEBOX_ENFORCE_UNIQUE true
-#define MYMPD_COVERIMAGE_NAMES "folder,cover"
-#define MYMPD_THUMBNAIL_NAMES "folder-sm,cover-sm"
-#define MYMPD_TAG_LIST_SEARCH "Artist,Album,AlbumArtist,Title,Genre"
-#define MYMPD_TAG_LIST_BROWSE "Artist,Album,AlbumArtist,Genre"
+#define MYMPD_COVERIMAGE_NAMES "cover,folder"
+#define MYMPD_THUMBNAIL_NAMES "cover-sm,folder-sm"
+#define MYMPD_TAG_LIST_SEARCH "Album,AlbumArtist,Artist,Genre,Title"
+#define MYMPD_TAG_LIST_BROWSE "Album,AlbumArtist,Artist,Genre"
 #define MYMPD_SMARTPLS_GENERATE_TAG_LIST "Genre"
 #define MYMPD_LAST_PLAYED_COUNT 200
 #define MYMPD_SMARTPLS true
 #define MYMPD_SMARTPLS_SORT ""
 #define MYMPD_SMARTPLS_PREFIX "myMPDsmart"
-#define MYMPD_SMARTPLS_INTERVAL 14400
+#define MYMPD_SMARTPLS_INTERVAL 14400 //seconds - 4 hours
 #define MYMPD_BOOKLET_NAME "booklet.pdf"
 #define MYMPD_AUTO_PLAY false
 #define MYMPD_COLS_QUEUE_CURRENT "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]"
@@ -178,7 +187,8 @@
 #define MPD_TIMEOUT_MIN 10000 //ms
 #define MPD_TIMEOUT_MAX 1000000 //ms
 #define MPD_RESULTS_MIN 25
-#define MPD_RESULTS_MAX 1000
+#define MPD_RESULTS_MAX 2000
+#define MPD_COMMANDS_MAX 2000 //max number of commands for mpd command lists
 #define MPD_PLAYLIST_LENGTH_MAX 16384 //mpd default
 #define MPD_BINARY_SIZE_MIN 4096 //4 kb mpd default
 #define MPD_BINARY_SIZE_MAX 5242880 //5 MB
@@ -208,6 +218,7 @@
 #define LIST_HOME_ICONS_MAX 99
 #define LIST_TRIGGER_MAX 99
 #define LIST_TIMER_MAX 99
+#define USER_TIMER_ID_START 100
 #define USER_TIMER_ID_MIN 101
 #define USER_TIMER_ID_MAX 200
 #define JUKEBOX_QUEUE_MAX 999
@@ -216,6 +227,13 @@
 //filesystem limits
 #define FILENAME_LEN_MAX 200
 #define FILEPATH_LEN_MAX 1000
+
+//file size limits
+#define LINE_LENGTH_MAX 2000
+#define LYRICS_SIZE_MAX 10000
+#define SCRIPTS_SIZE_MAX 10000
+#define SMARTPLS_SIZE_MAX 2000
+#define WEBRADIODB_SIZE_MAX 1000000
 
 //cloud api hosts
 #define RADIOBROWSER_HOST "all.api.radio-browser.info"

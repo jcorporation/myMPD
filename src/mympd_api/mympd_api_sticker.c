@@ -12,8 +12,8 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
+#include "../mpd_client/mpd_client_sticker.h"
 
 
 #include <inttypes.h>
@@ -62,15 +62,17 @@ bool mympd_api_sticker_last_skipped(struct t_mympd_state *mympd_state, const cha
 }
 
 bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state) {
-    if (mympd_state->sticker_cache != NULL && mympd_state->sticker_cache_building == true) {
+    if (mympd_state->sticker_cache != NULL &&
+        mympd_state->sticker_cache_building == true)
+    {
         //sticker cache is currently (re-)building in the mpd_worker thread
         //cache sticker write calls
         MYMPD_LOG_INFO("Delay setting stickers, sticker_cache is building");
         return false;
     }
 
-    struct t_list_node *current = mympd_state->sticker_queue.head;
-    while (current != NULL) {
+    struct t_list_node *current;
+    while ((current = list_shift_first(&mympd_state->sticker_queue)) != NULL) {
         MYMPD_LOG_DEBUG("Setting %s = %lld for \"%s\"", current->value_p, current->value_i, current->key);
         if (strcmp(current->value_p, "playCount") == 0 ||
             strcmp(current->value_p, "skipCount") == 0)
@@ -83,8 +85,7 @@ bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state) {
         {
             _mympd_api_set_sticker(mympd_state, current->key, current->value_p, (long)current->value_i);
         }
-        list_shift(&mympd_state->sticker_queue, 0);
-        current = mympd_state->sticker_queue.head;
+        list_node_free(current);
     }
     return true;
 }

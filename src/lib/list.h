@@ -11,11 +11,6 @@
 
 #include <stdbool.h>
 
-enum list_sort_direction {
-    LIST_SORT_ASC = 0,
-    LIST_SORT_DESC = 1
-};
-
 struct t_list_node {
     sds key;
     sds value_p;
@@ -31,43 +26,44 @@ struct t_list {
 };
 
 typedef void (*user_data_callback) (struct t_list_node *current);
-typedef bool (*list_sort_callback) (struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction);
+typedef sds (*list_node_to_line_callback) (sds buffer, struct t_list_node *current);
 
 struct t_list *list_new(void);
 void list_init(struct t_list *l);
 void list_clear(struct t_list *l);
+void *list_free(struct t_list *l);
 void list_clear_user_data(struct t_list *l, user_data_callback free_cb);
+void *list_free_user_data(struct t_list *l, user_data_callback free_cb);
 void list_free_cb_ignore_user_data(struct t_list_node *current);
 void list_free_cb_sds_user_data(struct t_list_node *current);
-void list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb);
-void list_node_free(struct t_list_node *n);
+void list_free_cb_t_list_user_data(struct t_list_node *current);
+void *list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb);
+void *list_node_free(struct t_list_node *n);
 
-bool list_push(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data);
-bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long value_i, const char *value_p, size_t value_len, void *user_data);
-bool list_insert(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data);
-bool list_insert_sorted_by_key(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data, enum list_sort_direction direction);
-bool list_insert_sorted_by_key_limit(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data,
-        enum list_sort_direction direction, long limit, user_data_callback free_cb);
+bool list_push(struct t_list *l, const char *key, long long value_i,
+        const char *value_p, void *user_data);
+bool list_push_len(struct t_list *l, const char *key, size_t key_len, long long value_i,
+        const char *value_p, size_t value_len, void *user_data);
+bool list_insert(struct t_list *l, const char *key, long long value_i,
+        const char *value_p, void *user_data);
 
-bool list_insert_sorted_by_value_i(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data, enum list_sort_direction direction);
-bool list_insert_sorted_by_value_i_limit(struct t_list *l, const char *key, long long value_i, const char *value_p, void *user_data,
-        enum list_sort_direction direction, long limit, user_data_callback free_cb);
+bool list_replace(struct t_list *l, long idx, const char *key, long long value_i,
+        const char *value_p, void *user_data);
+bool list_replace_user_data(struct t_list *l, long idx, const char *key, long long value_i,
+        const char *value_p, void *user_data, user_data_callback free_cb);
 
-bool list_shift(struct t_list *l, long idx);
-bool list_shift_user_data(struct t_list *l, long idx, user_data_callback free_cb);
-bool list_replace(struct t_list *l, long pos, const char *key, long long value_i, const char *value_p, void *user_data);
-long long list_get_value_i(const struct t_list *l, const char *key);
-sds list_get_value_p(const struct t_list *l, const char *key);
-void *list_get_user_data(const struct t_list *l, const char *key);
-struct t_list_node *list_get_node(const struct t_list *l, const char *key);
 bool list_shuffle(struct t_list *l);
-bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction, list_sort_callback sort_cb);
-bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction);
-bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction direction);
-bool list_sort_by_key(struct t_list *l, enum list_sort_direction direction);
 bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2);
-bool list_swap_item_pos(struct t_list *l, long index1, long index2);
 bool list_move_item_pos(struct t_list *l, long from, long to);
-struct t_list_node *list_node_at(const struct t_list * l, long index);
+
+struct t_list_node *list_get_node(const struct t_list *l, const char *key);
+struct t_list_node *list_node_at(const struct t_list *l, long idx);
+struct t_list_node *list_node_prev_at(const struct t_list *l, long idx, struct t_list_node **previous);
 struct t_list_node *list_shift_first(struct t_list *l);
+struct t_list_node *list_node_extract(struct t_list *l, long idx);
+
+bool list_remove_node(struct t_list *l, long idx);
+bool list_remove_node_user_data(struct t_list *l, long idx, user_data_callback free_cb);
+
+bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callback node_to_line_cb);
 #endif

@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "m3u.h"
 
+#include "filehandler.h"
 #include "jsonrpc.h"
 #include "log.h"
 #include "sds_extras.h"
@@ -21,6 +22,7 @@ static const char *m3ufields_map(sds field);
 
 //public functions
 
+//appends the extm3u field value to buffer
 sds m3u_get_field(sds buffer, const char *field, const char *filename) {
     errno = 0;
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
@@ -32,7 +34,7 @@ sds m3u_get_field(sds buffer, const char *field, const char *filename) {
     size_t field_len = strlen(field);
     size_t min_line_len = field_len + 2;
     sds line = sdsempty();
-    while (sds_getline(&line, fp, 1000) == 0) {
+    while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
         if (sdslen(line) > min_line_len &&
             strncmp(line, field, field_len) == 0)
         {
@@ -46,7 +48,9 @@ sds m3u_get_field(sds buffer, const char *field, const char *filename) {
     return buffer;
 }
 
-sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
+//converts the m3u to json and appends it to buffer
+//appends all fields values (lower case) to m3ufields if not NULL
+sds m3u_to_json(sds buffer, const char *filename, sds *m3ufields) {
     errno = 0;
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -57,17 +61,17 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
     }
     sds line = sdsempty();
     //check ext m3u header
-    sds_getline(&line, fp, 1000);
+    sds_getline(&line, fp, LINE_LENGTH_MAX);
     if (strcmp(line, "#EXTM3U") != 0) {
         MYMPD_LOG_WARN("Invalid ext m3u file");
-        sdsfree(line);
+        FREE_SDS(line);
         (void) fclose(fp);
         sdsclear(buffer);
         return buffer;
     }
     int line_count = 0;
     sds field = sdsempty();
-    while (sds_getline(&line, fp, 1000) == 0) {
+    while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
         if (line[0] == '\0') {
             //skip blank lines
             continue;
@@ -97,8 +101,8 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
         i++;
         while (line[i] != '\0') {
             buffer = sds_catjsonchar(buffer, line[i]);
-            if (plname != NULL) {
-                *plname = sdscatfmt(*plname, "%c", line[i]);
+            if (m3ufields != NULL) {
+                *m3ufields = sds_catchar(*m3ufields, line[i]);
             }
             i++;
         }
@@ -107,8 +111,8 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
     FREE_SDS(line);
     FREE_SDS(field);
     (void) fclose(fp);
-    if (plname != NULL) {
-        sds_utf8_tolower(*plname);
+    if (m3ufields != NULL) {
+        sds_utf8_tolower(*m3ufields);
     }
     return buffer;
 }
@@ -116,14 +120,14 @@ sds m3u_to_json(sds buffer, const char *filename, sds *plname) {
 //private functions
 
 static const char *m3ufields_map(sds field) {
-    if (strcmp(field, "EXTGENRE") == 0)         { return "Genre"; }
-    if (strcmp(field, "EXTIMG") == 0)           { return "Image"; }
-    if (strcmp(field, "HOMEPAGE") == 0)         { return "Homepage"; }
-    if (strcmp(field, "COUNTRY") == 0)          { return "Country"; }
-    if (strcmp(field, "LANGUAGE") == 0)         { return "Language"; }
-    if (strcmp(field, "DESCRIPTION") == 0)      { return "Description"; }
-    if (strcmp(field, "PLAYLIST") == 0)         { return "Name"; }
-    if (strcmp(field, "CODEC") == 0)            { return "Codec"; }
-    if (strcmp(field, "BITRATE") == 0)          { return "Bitrate"; }
+    if (strcmp(field, "EXTGENRE") == 0)    { return "Genre"; }
+    if (strcmp(field, "EXTIMG") == 0)      { return "Image"; }
+    if (strcmp(field, "HOMEPAGE") == 0)    { return "Homepage"; }
+    if (strcmp(field, "COUNTRY") == 0)     { return "Country"; }
+    if (strcmp(field, "LANGUAGE") == 0)    { return "Language"; }
+    if (strcmp(field, "DESCRIPTION") == 0) { return "Description"; }
+    if (strcmp(field, "PLAYLIST") == 0)    { return "Name"; }
+    if (strcmp(field, "CODEC") == 0)       { return "Codec"; }
+    if (strcmp(field, "BITRATE") == 0)     { return "Bitrate"; }
     return "";
 }

@@ -9,11 +9,12 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/sds_extras.h"
 #include "../lib/utility.h"
-#include "../mpd_shared.h"
-#include "../mpd_shared/mpd_shared_sticker.h"
-#include "../mpd_shared/mpd_shared_tags.h"
-#include "mympd_api_utility.h"
+#include "../mpd_client/mpd_client_errorhandler.h"
+#include "../mpd_client/mpd_client_sticker.h"
+#include "../mpd_client/mpd_client_tags.h"
+#include "mympd_api_status.h"
 #include "mympd_api_webradios.h"
 
 #include <string.h>
@@ -408,7 +409,7 @@ sds _print_queue_entry(struct t_mympd_state *mympd_state, sds buffer, const stru
     const char *uri = mpd_song_get_uri(song);
     buffer = sdscatlen(buffer, ",", 1);
     if (is_streamuri(uri) == true) {
-        sds webradio = get_webradio_from_uri(mympd_state->config, uri);
+        sds webradio = get_webradio_from_uri(mympd_state->config->workdir, uri);
         if (sdslen(webradio) > 0) {
             buffer = sdscat(buffer, "\"webradio\":{");
             buffer = sdscatsds(buffer, webradio);
@@ -418,7 +419,7 @@ sds _print_queue_entry(struct t_mympd_state *mympd_state, sds buffer, const stru
         else {
             buffer = tojson_char(buffer, "type", "stream", false);
         }
-        sdsfree(webradio);
+        FREE_SDS(webradio);
     }
     else {
         buffer = tojson_char(buffer, "type", "song", false);
@@ -427,7 +428,7 @@ sds _print_queue_entry(struct t_mympd_state *mympd_state, sds buffer, const stru
         mympd_state->sticker_cache != NULL)
     {
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mpd_shared_sticker_list(buffer, mympd_state->sticker_cache, uri);
+        buffer = mpd_client_sticker_list(buffer, mympd_state->sticker_cache, uri);
     }
     buffer = sdscatlen(buffer, "}", 1);
     return buffer;
