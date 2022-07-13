@@ -106,8 +106,10 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                                 sdslen(mympd_state->mpd_state->last_song_uri) > 0)
                             {
                                 MYMPD_LOG_DEBUG("Song \"%s\" skipped", mympd_state->mpd_state->last_song_uri);
-                                mympd_api_sticker_inc_skip_count(mympd_state, mympd_state->mpd_state->last_song_uri);
-                                mympd_api_sticker_last_skipped(mympd_state, mympd_state->mpd_state->last_song_uri);
+                                if (mympd_state->mpd_state->feat_mpd_stickers == true) {
+                                    mympd_api_sticker_inc_skip_count(mympd_state, mympd_state->mpd_state->last_song_uri);
+                                    mympd_api_sticker_last_skipped(mympd_state, mympd_state->mpd_state->last_song_uri);
+                                }
                                 mympd_state->mpd_state->last_skipped_id = mympd_state->mpd_state->last_song_id;
                             }
                         }
@@ -326,7 +328,9 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     }
                 }
                 //process sticker queue
-                if (mympd_state->sticker_queue.length > 0) {
+                if (mympd_state->mpd_state->feat_mpd_stickers == true &&
+                    mympd_state->sticker_queue.length > 0)
+                {
                     mympd_api_sticker_dequeue(mympd_state);
                 }
                 //reenter idle mode
