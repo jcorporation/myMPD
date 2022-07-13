@@ -30,9 +30,9 @@ static sds mympd_api_get_last_played_obj(struct t_mympd_state *mympd_state, sds 
                                          long long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols);
 
 //public functions
-bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
+bool mympd_api_stats_last_played_file_save(struct t_list *last_played, long last_played_count, sds workdir) {
     MYMPD_LOG_INFO("Saving last_played list to disc");
-    sds tmp_file = sdscatfmt(sdsempty(), "%S/state/last_played.XXXXXX", mympd_state->config->workdir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%S/state/last_played.XXXXXX", workdir);
     FILE *fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);
@@ -42,7 +42,7 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
     int i = 0;
     struct t_list_node *current;
     bool write_rc = true;
-    while ((current = list_shift_first(&mympd_state->last_played)) != NULL) {
+    while ((current = list_shift_first(last_played)) != NULL) {
         if (fprintf(fp, "%lld::%s\n", current->value_i, current->key) < 0) {
             MYMPD_LOG_ERROR("Could not write last played songs to disc");
             write_rc = false;
@@ -53,14 +53,14 @@ bool mympd_api_stats_last_played_file_save(struct t_mympd_state *mympd_state) {
         list_node_free(current);
     }
     //append current last_played file to tmp file
-    sds filepath = sdscatfmt(sdsempty(), "%S/state/last_played", mympd_state->config->workdir);
+    sds filepath = sdscatfmt(sdsempty(), "%S/state/last_played", workdir);
     if (write_rc == true) {
         errno = 0;
         FILE *fi = fopen(filepath, OPEN_FLAGS_READ);
         if (fi != NULL) {
             sds line = sdsempty();
             while (sds_getline_n(&line, fi, LINE_LENGTH_MAX) == 0 &&
-                i < mympd_state->last_played_count)
+                i < last_played_count)
             {
                 if (fputs(line, fp) == EOF) {
                     MYMPD_LOG_ERROR("Could not write last played songs to disc");
@@ -103,7 +103,7 @@ bool mympd_api_stats_last_played_add_song(struct t_mympd_state *mympd_state, con
             if (mympd_state->last_played.length > 9 ||
                 mympd_state->last_played.length > mympd_state->last_played_count)
             {
-                mympd_api_stats_last_played_file_save(mympd_state);
+                mympd_api_stats_last_played_file_save(&mympd_state->last_played, mympd_state->last_played_count, mympd_state->config->workdir);
             }
             //notify clients
             send_jsonrpc_event("update_lastplayed");
