@@ -46,6 +46,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
                     //database has changed
+                    MYMPD_LOG_INFO("MPD database has changed");
                     buffer = jsonrpc_event(buffer, "update_database");
                     //add timer for cache updates
                     update_mympd_caches(mympd_state, 10);
@@ -346,7 +347,9 @@ static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeou
     if (mympd_state->mpd_state->feat_mpd_stickers == false &&
         mympd_state->mpd_state->feat_mpd_tags == false)
     {
+        MYMPD_LOG_DEBUG("Caches are disabled");
         return true;
     }
+    MYMPD_LOG_DEBUG("Adding timer to update the caches");
     return mympd_api_timer_replace(&mympd_state->timer_list, timeout, TIMER_ONE_SHOT_REMOVE, timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL);
 }
