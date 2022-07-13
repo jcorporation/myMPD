@@ -399,7 +399,7 @@ function addDiscRow(disc, album, albumartist, colspan) {
             elCreateText('span', {"class": ["mi"]}, 'album')
         ),
         elCreateText('td', {"colspan": (colspan - 1)}, tn('Disc') + ' ' + disc),
-        elCreateNode('td', {},
+        elCreateNode('td', {"data-col": "Action"},
             elCreateText('a', {"data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
         )
     ]);
