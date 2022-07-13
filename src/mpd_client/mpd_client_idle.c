@@ -54,8 +54,16 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                 case MPD_IDLE_STORED_PLAYLIST:
                     buffer = jsonrpc_event(buffer, "update_stored_playlist");
                     break;
-                case MPD_IDLE_QUEUE:
+                case MPD_IDLE_QUEUE: {
+                    unsigned old_queue_version = mympd_state->mpd_state->queue_version;
                     buffer = mympd_api_queue_status(mympd_state, buffer);
+                    if (mympd_state->mpd_state->queue_version == old_queue_version) {
+                        //ignore this idle event, queue version has not changed
+                        //idle event is not from current partition
+                        sdsclear(buffer);
+                        MYMPD_LOG_DEBUG("Queue version has not changed, ignoring idle event MPD_IDLE_QUEUE");
+                        break;
+                    }
                     //jukebox enabled
                     if (mympd_state->jukebox_mode != JUKEBOX_OFF &&
                         mympd_state->mpd_state->queue_length < mympd_state->jukebox_queue_length)
@@ -78,16 +86,17 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                         }
                     }
                     break;
+                }
                 case MPD_IDLE_PLAYER:
                     //get and put mpd state
                     buffer = mympd_api_status_get(mympd_state, buffer, NULL, 0);
-                    //song has changed
+                    //check if song has changed
                     if (mympd_state->mpd_state->song_id != mympd_state->mpd_state->last_song_id &&
                         mympd_state->mpd_state->last_skipped_id != mympd_state->mpd_state->last_song_id &&
                         mympd_state->mpd_state->last_song_uri != NULL)
                     {
                         time_t now = time(NULL);
-                        if (mympd_state->mpd_state->feat_mpd_stickers &&                  //stickers enabled
+                        if (mympd_state->mpd_state->feat_mpd_stickers == true &&          //stickers enabled
                             mympd_state->mpd_state->last_song_set_song_played_time > now) //time in the future
                         {
                             //last song skipped
