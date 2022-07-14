@@ -106,7 +106,7 @@ bool mympd_api_home_file_save(struct t_list *home_list, sds workdir) {
 }
 
 sds mympd_api_home_icon_list(struct t_list *home_list, sds buffer, sds method, long request_id) {
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int returned_entities = 0;
     struct t_list_node *current = home_list->head;
@@ -119,19 +119,19 @@ sds mympd_api_home_icon_list(struct t_list *home_list, sds buffer, sds method, l
     }
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
     return buffer;
 }
 
 sds mympd_api_home_icon_get(struct t_list *home_list, sds buffer, sds method, long request_id, long pos) {
     struct t_list_node *current = list_node_at(home_list, pos);
     if (current != NULL) {
-        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = jsonrpc_respond_start(buffer, method, request_id);
         buffer = sdscat(buffer, "\"data\":");
         buffer = sdscat(buffer, current->key);
         buffer = sdscatlen(buffer, ",", 1);
         buffer = tojson_long(buffer, "returnedEntities", 1, false);
-        buffer = jsonrpc_result_end(buffer);
+        buffer = jsonrpc_respond_end(buffer);
         return buffer;
     }
 

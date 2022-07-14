@@ -133,7 +133,7 @@ sds mympd_api_queue_status(struct t_mympd_state *mympd_state, sds buffer) {
     if (buffer != NULL) {
         buffer = jsonrpc_notify_start(buffer, "update_queue");
         buffer = mympd_api_status_print(mympd_state, buffer, status);
-        buffer = jsonrpc_result_end(buffer);
+        buffer = jsonrpc_respond_end(buffer);
     }
     mpd_status_free(status);
     return buffer;
@@ -206,7 +206,7 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
         return buffer;
     }
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     unsigned total_time = 0;
     long entity_count = 0;
@@ -227,7 +227,7 @@ sds mympd_api_queue_list(struct t_mympd_state *mympd_state, sds buffer, sds meth
     buffer = tojson_llong(buffer, "totalEntities", mympd_state->mpd_state->queue_length, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
@@ -265,7 +265,7 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
         return buffer;
     }
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     struct mpd_song *song;
     unsigned total_time = 0;
@@ -290,7 +290,7 @@ sds mympd_api_queue_search(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_char(buffer, "mpdtagtype", mpdtagtype, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
@@ -361,7 +361,7 @@ sds mympd_api_queue_search_adv(struct t_mympd_state *mympd_state, sds buffer, sd
         return buffer;
     }
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     struct mpd_song *song;
     unsigned total_time = 0;
@@ -385,7 +385,7 @@ sds mympd_api_queue_search_adv(struct t_mympd_state *mympd_state, sds buffer, sd
     }
     buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {

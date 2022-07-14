@@ -71,10 +71,10 @@ sds mympd_api_webradio_get(sds workdir, sds buffer, sds method, long request_id,
             "database", "error", "Can not parse webradio favorite file");
     }
     else {
-        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = jsonrpc_respond_start(buffer, method, request_id);
         buffer = tojson_sds(buffer, "filename", filename, true);
         buffer = sdscatsds(buffer, entry);
-        buffer = jsonrpc_result_end(buffer);
+        buffer = jsonrpc_respond_end(buffer);
     }
     FREE_SDS(entry);
     FREE_SDS(filepath);
@@ -82,7 +82,7 @@ sds mympd_api_webradio_get(sds workdir, sds buffer, sds method, long request_id,
 }
 
 sds mympd_api_webradio_list(sds workdir, sds buffer, sds method, long request_id, sds searchstr, long offset, long limit) {
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     sds webradios_dirname = sdscatfmt(sdsempty(), "%S/webradios", workdir);
     errno = 0;
@@ -168,7 +168,7 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, sds method, long request_id
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_llong(buffer, "totalEntities", (long long)webradios->numele, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
     raxFree(webradios);
     return buffer;
 }

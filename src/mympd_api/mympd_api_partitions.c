@@ -17,7 +17,7 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, sds 
         return buffer;
     }
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     long entity_count = 0;
     struct mpd_pair *partition;
@@ -34,7 +34,7 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, sds 
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {

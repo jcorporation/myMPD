@@ -68,7 +68,7 @@ sds mympd_api_status_updatedb_state(struct t_mympd_state *mympd_state, sds buffe
     else if (update_id > 0) {
         buffer = jsonrpc_notify_start(buffer, "update_started");
         buffer = tojson_long(buffer, "jobid", update_id, false);
-        buffer = jsonrpc_result_end(buffer);
+        buffer = jsonrpc_respond_end(buffer);
     }
     else {
         buffer = jsonrpc_event(buffer, "update_finished");
@@ -161,10 +161,10 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
         buffer = jsonrpc_notify_start(buffer, "update_state");
     }
     else {
-        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = jsonrpc_respond_start(buffer, method, request_id);
     }
     buffer = mympd_api_status_print(mympd_state, buffer, status);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     mpd_status_free(status);
     return buffer;
@@ -213,10 +213,10 @@ sds mympd_api_status_volume_get(struct t_mympd_state *mympd_state, sds buffer, s
         buffer = jsonrpc_notify_start(buffer, "update_volume");
     }
     else {
-        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = jsonrpc_respond_start(buffer, method, request_id);
     }
     buffer = tojson_long(buffer, "volume", volume, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
     return buffer;
 }
 
@@ -265,7 +265,7 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
 
     const char *uri = mpd_song_get_uri(song);
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = tojson_uint(buffer, "pos", mpd_song_get_pos(song), true);
     buffer = tojson_long(buffer, "currentSongId", mympd_state->mpd_state->song_id, true);
     buffer = get_song_tags(buffer, mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd, song);
@@ -295,7 +295,7 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
     buffer = sdscatlen(buffer, ",", 1);
     time_t start_time = get_current_song_start_time(mympd_state);
     buffer = tojson_llong(buffer, "startTime", (long long)start_time, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
     return buffer;
 }
 
@@ -323,7 +323,7 @@ static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer,
         return buffer;
     }
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int nr = 0;
     struct mpd_output *output;
@@ -356,7 +356,7 @@ static sds _mympd_api_get_outputs(struct t_mympd_state *mympd_state, sds buffer,
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_char(buffer, "partition", partition, true);
     buffer = tojson_long(buffer, "numOutputs", nr, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     return buffer;
 }

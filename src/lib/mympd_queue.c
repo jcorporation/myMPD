@@ -16,13 +16,22 @@
 #include <errno.h>
 #include <stdlib.h>
 
+/**
+ * Message queue implementation to transfer messages between threads asynchronously
+ */
+
 //private definitions
-static void *mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age);
+static void *mympd_queue_expire_entry(struct t_mympd_queue *queue, time_t max_age);
 static int unlock_mutex(pthread_mutex_t *mutex);
 static void set_wait_time(int timeout, struct timespec *max_wait);
 
 //public functions
 
+/**
+ * Creates a message queue
+ * @param name description of the queue
+ * @return pointer to allocated and initialized queue struct
+ */
 struct t_mympd_queue *mympd_queue_create(const char *name) {
     struct t_mympd_queue *queue = malloc_assert(sizeof(struct t_mympd_queue));
     queue->head = NULL;
@@ -35,6 +44,10 @@ struct t_mympd_queue *mympd_queue_create(const char *name) {
     return queue;
 }
 
+/**
+ * Frees all queue nodes and the queue itself
+ * @param queue pointer to the queue
+ */
 void *mympd_queue_free(struct t_mympd_queue *queue) {
     struct t_mympd_msg *current = queue->head;
     struct t_mympd_msg *tmp = NULL;
@@ -48,11 +61,18 @@ void *mympd_queue_free(struct t_mympd_queue *queue) {
     return NULL;
 }
 
-int mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
+/**
+ * Appends data to the queue
+ * @param queue pointer to the queue
+ * @param data struct t_work_request or t_work_response
+ * @param id id of the queue entry
+ * @return true on success else false
+ */
+bool mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
-        return 0;
+        return false;
     }
     struct t_mympd_msg* new_node = malloc_assert(sizeof(struct t_mympd_msg));
     new_node->data = data;
@@ -60,7 +80,9 @@ int mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
     new_node->timestamp = time(NULL);
     new_node->next = NULL;
     queue->length++;
-    if (queue->head == NULL && queue->tail == NULL){
+    if (queue->head == NULL &&
+        queue->tail == NULL)
+    {
         queue->head = queue->tail = new_node;
     }
     else {
@@ -68,23 +90,31 @@ int mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
         queue->tail = new_node;
     }
     if (unlock_mutex(&queue->mutex) != 0) {
-        return 0;
+        return false;
     }
     rc = pthread_cond_signal(&queue->wakeup);
     if (rc != 0) {
         MYMPD_LOG_ERROR("Error in pthread_cond_signal: %d", rc);
         return 0;
     }
-    return 1;
+    return true;
 }
 
+/**
+ * Returns the queue length
+ * @param queue pointer to the queue
+ * @param timeout timeout in ms to wait
+ * @return length of the queue
+ */
 long mympd_queue_length(struct t_mympd_queue *queue, int timeout) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
         return 0;
     }
-    if (timeout > 0 && queue->length == 0) {
+    if (timeout > 0 &&
+        queue->length == 0)
+    {
         struct timespec max_wait = {0, 0};
         set_wait_time(timeout, &max_wait);
         errno = 0;
@@ -161,10 +191,10 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
     return NULL;
 }
 
-int expire_result_queue(struct t_mympd_queue *queue, time_t age) {
-    struct t_work_result *response = NULL;
+int expire_response_queue(struct t_mympd_queue *queue, time_t age) {
+    struct t_work_response *response = NULL;
     int i = 0;
-    while ((response = mympd_queue_expire(queue, age)) != NULL) {
+    while ((response = mympd_queue_expire_entry(queue, age)) != NULL) {
         if (response->extra != NULL) {
             if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                 lua_mympd_state_free(response->extra);
@@ -173,7 +203,7 @@ int expire_result_queue(struct t_mympd_queue *queue, time_t age) {
                FREE_PTR(response->extra);
             }
         }
-        free_result(response);
+        free_response(response);
         response = NULL;
         i++;
     }
@@ -183,7 +213,7 @@ int expire_result_queue(struct t_mympd_queue *queue, time_t age) {
 int expire_request_queue(struct t_mympd_queue *queue, time_t age) {
     struct t_work_request *request = NULL;
     int i = 0;
-    while ((request = mympd_queue_expire(queue, age)) != NULL) {
+    while ((request = mympd_queue_expire_entry(queue, age)) != NULL) {
         if (request->extra != NULL) {
             if (request->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                 lua_mympd_state_free(request->extra);
@@ -201,7 +231,7 @@ int expire_request_queue(struct t_mympd_queue *queue, time_t age) {
 
 //privat functions
 
-static void *mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
+static void *mympd_queue_expire_entry(struct t_mympd_queue *queue, time_t max_age) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);

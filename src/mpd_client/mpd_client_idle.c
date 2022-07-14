@@ -167,7 +167,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     else {
                         //other requests not allowed
                         if (request->conn_id > -1) {
-                            struct t_work_result *response = create_result(request);
+                            struct t_work_response *response = create_response(request);
                             response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "mpd", "error", "MPD disconnected");
                             MYMPD_LOG_DEBUG("Send http response to connection %lld: %s", request->conn_id, response->data);
                             mympd_queue_push(web_server_queue, response, 0);

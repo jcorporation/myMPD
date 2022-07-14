@@ -20,7 +20,7 @@ sds mympd_api_mounts_list(struct t_mympd_state *mympd_state, sds buffer, sds met
         return buffer;
     }
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     long entity_count = 0;
     struct mpd_mount *mount;
@@ -42,7 +42,7 @@ sds mympd_api_mounts_list(struct t_mympd_state *mympd_state, sds buffer, sds met
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
@@ -58,7 +58,7 @@ sds mympd_api_mounts_urlhandler_list(struct t_mympd_state *mympd_state, sds buff
         return buffer;
     }
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     long entity_count = 0;
     struct mpd_pair *pair;
@@ -73,7 +73,7 @@ sds mympd_api_mounts_urlhandler_list(struct t_mympd_state *mympd_state, sds buff
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
@@ -89,7 +89,7 @@ sds mympd_api_mounts_neighbor_list(struct t_mympd_state *mympd_state, sds buffer
         return buffer;
     }
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     long entity_count = 0;
     struct mpd_neighbor *neighbor;
@@ -111,7 +111,7 @@ sds mympd_api_mounts_neighbor_list(struct t_mympd_state *mympd_state, sds buffer
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {

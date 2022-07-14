@@ -107,9 +107,7 @@ static bool do_chown(const char *file_path, const char *username) {
         MYMPD_LOG_ERRNO(errno);
         return false;
     }
-    else {
-        MYMPD_LOG_INFO("Changed ownership of \"%s\" to \"%s\"", file_path, username);
-    }
+    MYMPD_LOG_INFO("Changed ownership of \"%s\" to \"%s\"", file_path, username);
     return true;
 }
 

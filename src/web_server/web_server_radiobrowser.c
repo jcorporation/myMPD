@@ -129,21 +129,21 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             MYMPD_LOG_DEBUG("Got response from connection \"%lu\": %lu bytes", nc->id, (unsigned long)hm->body.len);
             const char *cmd = get_cmd_id_method_name(backend_nc_data->cmd_id);
-            sds result = sdsempty();
+            sds response = sdsempty();
             if (hm->body.len > 0) {
-                result = jsonrpc_result_start(result, cmd, 0);
-                result = sdscat(result, "\"data\":");
-                result = sdscatlen(result, hm->body.ptr, hm->body.len);
-                result = jsonrpc_result_end(result);
+                response = jsonrpc_respond_start(response, cmd, 0);
+                response = sdscat(response, "\"data\":");
+                response = sdscatlen(response, hm->body.ptr, hm->body.len);
+                response = jsonrpc_respond_end(response);
             }
             else {
-                result = jsonrpc_respond_message(result, cmd, 0, true,
+                response = jsonrpc_respond_message(response, cmd, 0, true,
                     "database", "error", "Empty response from radio-browser.info");
             }
             if (backend_nc_data->frontend_nc != NULL) {
-                webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
+                webserver_send_data(backend_nc_data->frontend_nc, response, sdslen(response), "Content-Type: application/json\r\n");
             }
-            FREE_SDS(result);
+            FREE_SDS(response);
             break;
         }
         case MG_EV_CLOSE: {

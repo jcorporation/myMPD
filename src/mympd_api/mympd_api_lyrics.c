@@ -55,7 +55,7 @@ sds mympd_api_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
         buffer = jsonrpc_respond_message(buffer, method, request_id, false, "lyrics", "info", "No lyrics found");
         return buffer;
     }
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     sds mediafile = sdscatfmt(sdsempty(), "%S/%S", mympd_state->music_directory_value, uri);
     const char *mime_type_mediafile = get_mime_type_by_ext(mediafile);
@@ -63,7 +63,7 @@ sds mympd_api_lyrics_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     returned_entities = _mympd_api_lyrics_unsynced(mympd_state, &buffer, returned_entities, mediafile, mime_type_mediafile);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
     FREE_SDS(mediafile);
     return buffer;
 }

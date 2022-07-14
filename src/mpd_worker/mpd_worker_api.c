@@ -25,7 +25,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
 
     MYMPD_LOG_INFO("MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
     //create response struct
-    struct t_work_result *response = create_result(request);
+    struct t_work_response *response = create_response(request);
 
     switch(request->cmd_id) {
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
@@ -42,7 +42,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     mympd_queue_push(web_server_queue, response, 0);
                 }
                 else {
-                    free_result(response);
+                    free_response(response);
                 }
                 free_request(request);
                 rc = mpd_worker_smartpls_update_all(mpd_worker_state, bool_buf1);
@@ -80,7 +80,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             mpd_worker_cache_init(mpd_worker_state);
             async = true;
             free_request(request);
-            free_result(response);
+            free_response(response);
             break;
         default:
             response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "general", "error", "Unknown request");
@@ -106,7 +106,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
         mympd_queue_push(web_server_queue, response, 0);
     }
     else {
-        free_result(response);
+        free_response(response);
     }
     free_request(request);
 }

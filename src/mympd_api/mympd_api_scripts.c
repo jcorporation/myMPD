@@ -64,7 +64,7 @@ static int _mympd_api_http_client(lua_State *lua_vm);
 
 //public functions
 sds mympd_api_script_list(sds workdir, sds buffer, sds method, long request_id, bool all) {
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     sds scriptdirname = sdscatfmt(sdsempty(), "%S/scripts", workdir);
     errno = 0;
@@ -116,7 +116,7 @@ sds mympd_api_script_list(sds workdir, sds buffer, sds method, long request_id, 
     FREE_SDS(entry);
     FREE_SDS(scriptdirname);
     buffer = sdscatlen(buffer, "]", 1);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
     return buffer;
 }
 
@@ -152,7 +152,7 @@ sds mympd_api_script_get(sds workdir, sds buffer, sds method, long request_id, s
     errno = 0;
     FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
     if (fp != NULL) {
-        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = jsonrpc_respond_start(buffer, method, request_id);
         buffer = tojson_sds(buffer, "script", script, true);
         sds line = sdsempty();
         if (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0 &&
@@ -181,7 +181,7 @@ sds mympd_api_script_get(sds workdir, sds buffer, sds method, long request_id, s
         (void) fclose(fp);
         buffer = sds_catjson(buffer, content, sdslen(content));
         FREE_SDS(content);
-        buffer = jsonrpc_result_end(buffer);
+        buffer = jsonrpc_respond_end(buffer);
     }
     else {
         MYMPD_LOG_ERROR("Can not open file \"%s\"", scriptfilename);
@@ -224,7 +224,7 @@ bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list 
         free_t_script_thread_arg(script_thread_arg);
         return false;
     }
-    expire_result_queue(mympd_script_queue, 120);
+    expire_response_queue(mympd_script_queue, 120);
     return true;
 }
 
@@ -545,9 +545,9 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     int i = 0;
     while (s_signal_received == 0 && i < 60) {
         i++;
-        struct t_work_result *response = mympd_queue_shift(mympd_script_queue, 1000000, tid);
+        struct t_work_response *response = mympd_queue_shift(mympd_script_queue, 1000000, tid);
         if (response != NULL) {
-            MYMPD_LOG_DEBUG("Got result: %s", response->data);
+            MYMPD_LOG_DEBUG("Got response: %s", response->data);
             if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
                 MYMPD_LOG_DEBUG("Populating lua global state table mympd");
                 struct t_list *lua_mympd_state = (struct t_list *)response->extra;
@@ -566,10 +566,10 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                 else {
                     lua_pushinteger(lua_vm, 0);
                 }
-                //result
+                //response
                 lua_pushlstring(lua_vm, response->data, sdslen(response->data));
             }
-            free_result(response);
+            free_response(response);
             return 2;
         }
     }

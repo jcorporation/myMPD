@@ -51,13 +51,13 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
         FREE_SDS(response);
     }
     else if (data != NULL) {
-        sds result = sdsempty();
-        result = jsonrpc_result_start(result, cmd, 0);
-        result = sdscat(result, "\"data\":");
-        result = sdscatsds(result, data);
-        result = jsonrpc_result_end(result);
-        webserver_send_data(nc, result, sdslen(result), "Content-Type: application/json\r\n");
-        FREE_SDS(result);
+        sds response = sdsempty();
+        response = jsonrpc_respond_start(response, cmd, 0);
+        response = sdscat(response, "\"data\":");
+        response = sdscatsds(response, data);
+        response = jsonrpc_respond_end(response);
+        webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+        FREE_SDS(response);
     }
     else {
         bool rc = webradiodb_send(nc, backend_nc, cmd_id, uri);
@@ -141,21 +141,21 @@ static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, 
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             MYMPD_LOG_DEBUG("Got response from connection \"%lu\": %lu bytes", nc->id, (unsigned long)hm->body.len);
             const char *cmd = get_cmd_id_method_name(backend_nc_data->cmd_id);
-            sds result = sdsempty();
+            sds response = sdsempty();
             if (hm->body.len > 0) {
-                result = jsonrpc_result_start(result, cmd, 0);
-                result = sdscat(result, "\"data\":");
-                result = sdscatlen(result, hm->body.ptr, hm->body.len);
-                result = jsonrpc_result_end(result);
+                response = jsonrpc_respond_start(response, cmd, 0);
+                response = sdscat(response, "\"data\":");
+                response = sdscatlen(response, hm->body.ptr, hm->body.len);
+                response = jsonrpc_respond_end(response);
             }
             else {
-                result = jsonrpc_respond_message(result, cmd, 0, true,
+                response = jsonrpc_respond_message(response, cmd, 0, true,
                     "database", "error", "Empty response from webradiodb backend");
             }
             if (backend_nc_data->frontend_nc != NULL) {
-                webserver_send_data(backend_nc_data->frontend_nc, result, sdslen(result), "Content-Type: application/json\r\n");
+                webserver_send_data(backend_nc_data->frontend_nc, response, sdslen(response), "Content-Type: application/json\r\n");
             }
-            FREE_SDS(result);
+            FREE_SDS(response);
             if (backend_nc_data->cmd_id == MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET) {
                 webradiodb_cache_write(config->cachedir, "webradiodb-combined.min.json", hm->body.ptr, hm->body.len);
             }

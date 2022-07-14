@@ -24,13 +24,13 @@
 #include <sys/prctl.h>
 
 //private definitions
-static bool parse_internal_message(struct t_work_result *response, struct t_mg_user_data *mg_user_data);
+static bool parse_internal_message(struct t_work_response *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 #ifdef ENABLE_SSL
     static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data, void *fn_data);
 #endif
-static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response);
-static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response);
+static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response);
+static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response);
 static bool check_acl(struct mg_connection *nc, sds acl);
 
 //public functions
@@ -126,7 +126,7 @@ void *web_server_loop(void *arg_mgr) {
     sds last_notify = sdsempty();
     time_t last_time = 0;
     while (s_signal_received == 0) {
-        struct t_work_result *response = mympd_queue_shift(web_server_queue, 50, 0);
+        struct t_work_response *response = mympd_queue_shift(web_server_queue, 50, 0);
         if (response != NULL) {
             if (response->conn_id == -1) {
                 //internal message
@@ -145,7 +145,7 @@ void *web_server_loop(void *arg_mgr) {
                     send_ws_notify(mgr, response);
                 }
                 else {
-                    free_result(response);
+                    free_response(response);
                 }
             }
             else {
@@ -163,7 +163,7 @@ void *web_server_loop(void *arg_mgr) {
 }
 
 //private functions
-static bool parse_internal_message(struct t_work_result *response, struct t_mg_user_data *mg_user_data) {
+static bool parse_internal_message(struct t_work_response *response, struct t_mg_user_data *mg_user_data) {
     bool rc = false;
     if (response->extra != NULL) {
         struct set_mg_user_data_request *new_mg_user_data = (struct set_mg_user_data_request *)response->extra;
@@ -219,11 +219,11 @@ static bool parse_internal_message(struct t_work_result *response, struct t_mg_u
     else {
         MYMPD_LOG_WARN("Invalid internal message: %s", response->data);
     }
-    free_result(response);
+    free_response(response);
     return rc;
 }
 
-static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response) {
+static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     int send_count = 0;
     int conn_count = 0;
@@ -239,7 +239,7 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response) {
     if (send_count == 0) {
         MYMPD_LOG_DEBUG("No websocket client connected, discarding message: %s", response->data);
     }
-    free_result(response);
+    free_response(response);
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
     if (conn_count != mg_user_data->connection_count) {
         MYMPD_LOG_DEBUG("Correcting connection count from %d to %d", mg_user_data->connection_count, conn_count);
@@ -247,7 +247,7 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_result *response) {
     }
 }
 
-static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response) {
+static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     while (nc != NULL) {
         if ((int)nc->is_websocket == 0 && nc->id == (long unsigned)response->conn_id) {
@@ -262,7 +262,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_result *response
         }
         nc = nc->next;
     }
-    free_result(response);
+    free_response(response);
 }
 
 static bool check_acl(struct mg_connection *nc, sds acl) {

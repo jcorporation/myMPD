@@ -86,7 +86,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
     struct t_config *config = mympd_state->config;
 
     //create response struct
-    struct t_work_result *response = create_result(request);
+    struct t_work_response *response = create_response(request);
 
     switch(request->cmd_id) {
         case MYMPD_API_LOGLEVEL:
@@ -116,7 +116,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 mympd_state->sticker_cache_building = true;
             }
             async = true;
-            free_result(response);
+            free_response(response);
             mpd_worker_start(mympd_state, request);
             break;
         case MYMPD_API_PICTURE_LIST:
@@ -1540,7 +1540,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         mympd_queue_push(web_server_queue, response, 0);
     }
     else {
-        free_result(response);
+        free_response(response);
     }
     free_request(request);
 }

@@ -101,18 +101,18 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
  */
 void ws_notify(sds message) {
     MYMPD_LOG_DEBUG("Push websocket notify to queue: \"%s\"", message);
-    struct t_work_result *response = create_result_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY);
+    struct t_work_response *response = create_response_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY);
     response->data = sds_replace(response->data, message);
     mympd_queue_push(web_server_queue, response, 0);
 }
 
-struct t_work_result *create_result(struct t_work_request *request) {
-    struct t_work_result *response = create_result_new(request->conn_id, request->id, request->cmd_id);
+struct t_work_response *create_response(struct t_work_request *request) {
+    struct t_work_response *response = create_response_new(request->conn_id, request->id, request->cmd_id);
     return response;
 }
 
-struct t_work_result *create_result_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id) {
-    struct t_work_result *response = malloc_assert(sizeof(struct t_work_result));
+struct t_work_response *create_response_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id) {
+    struct t_work_response *response = malloc_assert(sizeof(struct t_work_response));
     response->conn_id = conn_id;
     response->id = request_id;
     response->cmd_id = cmd_id;
@@ -149,11 +149,11 @@ void free_request(struct t_work_request *request) {
     }
 }
 
-void free_result(struct t_work_result *result) {
-    if (result != NULL) {
-        FREE_SDS(result->data);
-        FREE_SDS(result->method);
-        FREE_SDS(result->binary);
-        FREE_PTR(result);
+void free_response(struct t_work_response *response) {
+    if (response != NULL) {
+        FREE_SDS(response->data);
+        FREE_SDS(response->method);
+        FREE_SDS(response->binary);
+        FREE_PTR(response);
     }
 }

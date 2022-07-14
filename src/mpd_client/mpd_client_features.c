@@ -135,7 +135,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
     extra->covercache = mympd_state->covercache_keep_days > 0 ? true : false;
 
-    struct t_work_result *web_server_response = create_result_new(-1, 0, INTERNAL_API_WEBSERVER_SETTINGS);
+    struct t_work_response *web_server_response = create_response_new(-1, 0, INTERNAL_API_WEBSERVER_SETTINGS);
     web_server_response->extra = extra;
     mympd_queue_push(web_server_queue, web_server_response, 0);
 }

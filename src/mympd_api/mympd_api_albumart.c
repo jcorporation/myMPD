@@ -18,12 +18,12 @@
 /**
  * Reads the albumart from mpd
  * @param mympd_state pointer to mympd_state struct
- * @param buffer already allocated sds string for the jsonrpc result
+ * @param buffer already allocated sds string for the jsonrpc response
  * @param method jsonrpc method
  * @param request_id request id
  * @param uri uri to get cover from
  * @param binary pointer to an already allocated sds string for the binary response
- * @return jsonrpc result
+ * @return jsonrpc response
  */
 sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
         const char *uri, sds *binary)
@@ -79,9 +79,9 @@ sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, s
     if (offset > 0) {
         MYMPD_LOG_DEBUG("Albumart found by mpd for uri \"%s\" (%lu bytes)", uri, (unsigned long)sdslen(*binary));
         const char *mime_type = get_mime_type_by_magic_stream(*binary);
-        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = jsonrpc_respond_start(buffer, method, request_id);
         buffer = tojson_char(buffer, "mime_type", mime_type, false);
-        buffer = jsonrpc_result_end(buffer);
+        buffer = jsonrpc_respond_end(buffer);
         if (mympd_state->covercache_keep_days > 0) {
             covercache_write_file(mympd_state->config->cachedir, uri, mime_type, *binary, 0);
         }

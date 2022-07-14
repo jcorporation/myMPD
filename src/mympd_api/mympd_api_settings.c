@@ -607,7 +607,7 @@ void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
 }
 
 sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
     buffer = tojson_sds(buffer, "mpdHost", mympd_state->mpd_state->mpd_host, true);
     buffer = tojson_uint(buffer, "mpdPort", mympd_state->mpd_state->mpd_port, true);
@@ -741,7 +741,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
     else {
         buffer = tojson_bool(buffer, "mpdConnected", false, false);
     }
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
     return buffer;
 }
 
@@ -758,7 +758,7 @@ sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffe
         return buffer;
     }
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int returned_entities = 0;
     struct dirent *next_file;
@@ -783,7 +783,7 @@ sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffe
     FREE_SDS(pic_dirname);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
     return buffer;
 }
 

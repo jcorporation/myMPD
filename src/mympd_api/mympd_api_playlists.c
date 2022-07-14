@@ -174,7 +174,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
         FREE_SDS(smartpls_path);
     }
     FREE_SDS(key);
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer,"\"data\":[");
 
     long entity_count = 0;
@@ -208,7 +208,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     buffer = tojson_llong(buffer, "totalEntities", (long long)entity_list->numele, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
     raxFree(entity_list);
     return buffer;
 }
@@ -221,7 +221,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
         return buffer;
     }
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer,"\"data\":[");
 
     struct mpd_song *song;
@@ -289,7 +289,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
     buffer = tojson_llong(buffer, "time", (long long)last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
     buffer = sdscatlen(buffer, "}", 1);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     FREE_SDS(last_played_song_uri);
     return buffer;
@@ -391,7 +391,7 @@ sds mympd_api_smartpls_get(struct t_config *config, sds buffer, sds method, long
     int int_buf2 = 0;
 
     if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) == true) {
-        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = jsonrpc_respond_start(buffer, method, request_id);
         buffer = tojson_char(buffer, "plist", playlist, true);
         buffer = tojson_char(buffer, "type", smartpltype, true);
         bool rc = true;
@@ -435,7 +435,7 @@ sds mympd_api_smartpls_get(struct t_config *config, sds buffer, sds method, long
             else {
                 buffer = tojson_char_len(buffer, "sort", "", 0, false);
             }
-            buffer = jsonrpc_result_end(buffer);
+            buffer = jsonrpc_respond_end(buffer);
         }
         else {
             buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Can not parse smart playlist file");

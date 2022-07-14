@@ -290,7 +290,7 @@ time_t mympd_api_timer_calc_starttime(int start_hour, int start_minute, int inte
 }
 
 sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, sds method, long request_id) {
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int entities_returned = 0;
     struct t_timer_node *current = timer_list->list;
@@ -310,12 +310,12 @@ sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, sds method
 
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
     return buffer;
 }
 
 sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, sds method, long request_id, int timer_id) {
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     bool found = false;
     struct t_timer_node *current = timer_list->list;
     while (current != NULL) {
@@ -329,7 +329,7 @@ sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, sds method,
         current = current->next;
     }
 
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     if (found == false) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true,

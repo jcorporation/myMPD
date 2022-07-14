@@ -25,9 +25,9 @@ sds mympd_api_fingerprint(struct t_mympd_state *mympd_state, sds buffer, sds met
         return buffer;
     }
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = tojson_char(buffer, "fingerprint", fingerprint, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
     check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false);
@@ -43,7 +43,7 @@ sds mympd_api_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds met
         return buffer;
     }
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
 
     struct mpd_song *song;
     if ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
@@ -66,7 +66,7 @@ sds mympd_api_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds met
 
     buffer = sdscatlen(buffer, ",", 1);
     buffer = get_extra_media(mympd_state, buffer, uri, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
     return buffer;
 }
 
@@ -78,7 +78,7 @@ sds mympd_api_read_comments(struct t_mympd_state *mympd_state, sds buffer, sds m
         return buffer;
     }
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":{");
     struct mpd_pair *pair;
     int entities_returned = 0;
@@ -96,6 +96,6 @@ sds mympd_api_read_comments(struct t_mympd_state *mympd_state, sds buffer, sds m
     buffer = sdscatlen(buffer, "},", 2);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "totalEntities", entities_returned, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
     return buffer;
 }

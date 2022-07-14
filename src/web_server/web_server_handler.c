@@ -235,7 +235,7 @@ void webserver_serverinfo_handler(struct mg_connection *nc) {
     struct sockaddr_storage localip;
     socklen_t len = sizeof(localip);
     if (getsockname((int)(long)nc->fd, (struct sockaddr *)(&localip), &len) == 0) {
-        sds response = jsonrpc_result_start(sdsempty(), "", 0);
+        sds response = jsonrpc_respond_start(sdsempty(), "", 0);
         char addr_str[INET6_ADDRSTRLEN];
         const char *addr_str_ptr = nc->loc.is_ip6 == true ?
             inet_ntop(AF_INET6, &(((struct sockaddr_in6*)&localip)->sin6_addr), addr_str, INET6_ADDRSTRLEN) :
@@ -247,7 +247,7 @@ void webserver_serverinfo_handler(struct mg_connection *nc) {
             MYMPD_LOG_ERROR("Could not convert peer ip to string");
             response = tojson_char_len(response, "ip", "", 0, false);
         }
-        response = jsonrpc_result_end(response);
+        response = jsonrpc_respond_end(response);
         webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
         FREE_SDS(response);
     }

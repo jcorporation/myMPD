@@ -81,14 +81,14 @@ sds jsonrpc_notify_start(sds buffer, const char *method) {
     return buffer;
 }
 
-sds jsonrpc_result_start(sds buffer, const char *method, long id) {
+sds jsonrpc_respond_start(sds buffer, const char *method, long id) {
     sdsclear(buffer);
     buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%l,\"result\":{", id);
     buffer = tojson_char(buffer, "method", method, true);
     return buffer;
 }
 
-sds jsonrpc_result_end(sds buffer) {
+sds jsonrpc_respond_end(sds buffer) {
     return sdscatlen(buffer, "}}", 2);
 }
 

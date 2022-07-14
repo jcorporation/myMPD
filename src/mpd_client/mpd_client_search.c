@@ -81,7 +81,7 @@ static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, sds met
             mpd_search_cancel(mpd_state->conn);
             return buffer;
         }
-        buffer = jsonrpc_result_start(buffer, method, request_id);
+        buffer = jsonrpc_respond_start(buffer, method, request_id);
         buffer = sdscat(buffer, "\"data\":[");
     }
     else if (strcmp(plist, "queue") == 0) {
@@ -219,7 +219,7 @@ static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, sds met
             buffer = tojson_char(buffer, "searchstr", expression, true);
             buffer = tojson_char(buffer, "searchtag", searchtag, false);
         }
-        buffer = jsonrpc_result_end(buffer);
+        buffer = jsonrpc_respond_end(buffer);
     }
     else if (strcmp(plist, "queue") == 0) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, false,

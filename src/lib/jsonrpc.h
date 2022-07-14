@@ -23,8 +23,8 @@ sds jsonrpc_event(sds buffer, const char *event);
 sds jsonrpc_notify(sds buffer, const char *facility, const char *severity, const char *message);
 sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity, const char *message, int count, ...);
 sds jsonrpc_notify_start(sds buffer, const char *method);
-sds jsonrpc_result_start(sds buffer, const char *method, long id);
-sds jsonrpc_result_end(sds buffer);
+sds jsonrpc_respond_start(sds buffer, const char *method, long id);
+sds jsonrpc_respond_end(sds buffer);
 sds jsonrpc_respond_ok(sds buffer, const char *method, long id, const char *facility);
 sds jsonrpc_respond_message(sds buffer, const char *method, long id,
         bool error, const char *facility, const char *severity, const char *message);

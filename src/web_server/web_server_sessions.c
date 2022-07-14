@@ -35,9 +35,9 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
             sds response = sdsempty();
             if (is_valid == true) {
                 sds ses = webserver_session_new(&mg_user_data->session_list);
-                response = jsonrpc_result_start(response, "MYMPD_API_SESSION_LOGIN", 0);
+                response = jsonrpc_respond_start(response, "MYMPD_API_SESSION_LOGIN", 0);
                 response = tojson_sds(response, "session", ses, false);
-                response = jsonrpc_result_end(response);
+                response = jsonrpc_respond_end(response);
                 FREE_SDS(ses);
             }
             else {

@@ -4,10 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
-/*
- This file contains central definitions and is included in each source file
- as first include. Some defines are configured by cmake.
-*/
+/**
+ * This file contains central definitions and is included in each source file
+ * as first include. Some defines are configured by cmake.
+ */
 
 #ifndef MYMPD_CONFIG_DEFS_H
 #define MYMPD_CONFIG_DEFS_H

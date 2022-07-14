@@ -190,7 +190,7 @@ struct t_work_request {
     void *extra;
 };
 
-struct t_work_result {
+struct t_work_response {
     long long conn_id; // needed to identify the connection where to send the reply
     long id; //the jsonrpc id
     sds method; //the jsonrpc method
@@ -219,10 +219,10 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
 bool is_public_api_method(enum mympd_cmd_ids cmd_id);
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
 void ws_notify(sds message);
-struct t_work_result *create_result(struct t_work_request *request);
-struct t_work_result *create_result_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id);
+struct t_work_response *create_response(struct t_work_request *request);
+struct t_work_response *create_response_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id);
 struct t_work_request *create_request(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *data);
 void free_request(struct t_work_request *request);
-void free_result(struct t_work_result *result);
+void free_response(struct t_work_response *result);
 
 #endif

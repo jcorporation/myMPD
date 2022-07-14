@@ -126,7 +126,7 @@ sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buff
     long entity_count = 0;
     long entities_returned = 0;
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     sds obj = sdsempty();
 
@@ -194,7 +194,7 @@ sds mympd_api_stats_last_played_list(struct t_mympd_state *mympd_state, sds buff
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     return buffer;
 }
@@ -209,7 +209,7 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
     const unsigned *version = mpd_connection_get_server_version(mympd_state->mpd_state->conn);
     sds mpd_protocol_version = sdscatfmt(sdsempty(),"%u.%u.%u", version[0], version[1], version[2]);
 
-    buffer = jsonrpc_result_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = tojson_uint(buffer, "artists", mpd_stats_get_number_of_artists(stats), true);
     buffer = tojson_uint(buffer, "albums", mpd_stats_get_number_of_albums(stats), true);
     buffer = tojson_uint(buffer, "songs", mpd_stats_get_number_of_songs(stats), true);
@@ -220,7 +220,7 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, sds metho
     buffer = tojson_ulong(buffer, "dbPlaytime", mpd_stats_get_db_play_time(stats), true);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
     buffer = tojson_char(buffer, "mpdProtocolVersion", mpd_protocol_version, false);
-    buffer = jsonrpc_result_end(buffer);
+    buffer = jsonrpc_respond_end(buffer);
 
     FREE_SDS(mpd_protocol_version);
     mpd_stats_free(stats);
