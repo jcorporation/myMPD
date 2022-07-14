@@ -336,9 +336,9 @@ int main(int argc, char **argv) {
     uid_t startup_uid = getuid();
     MYMPD_LOG_DEBUG("myMPD started as user id %u", startup_uid);
 
-    mympd_api_queue = mympd_queue_create("mympd_api_queue");
-    web_server_queue = mympd_queue_create("web_server_queue");
-    mympd_script_queue = mympd_queue_create("mympd_script_queue");
+    mympd_api_queue = mympd_queue_create("mympd_api_queue", QUEUE_TYPE_REQUEST);
+    web_server_queue = mympd_queue_create("web_server_queue", QUEUE_TYPE_RESPONSE);
+    mympd_script_queue = mympd_queue_create("mympd_script_queue", QUEUE_TYPE_RESPONSE);
 
     //initialize random number generator
     tinymt32_init(&tinymt, (uint32_t)time(NULL));

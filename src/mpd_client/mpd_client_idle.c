@@ -143,7 +143,6 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
 
 void mpd_client_idle(struct t_mympd_state *mympd_state) {
     sds buffer = sdsempty();
-    long mympd_api_queue_length = 0;
     switch (mympd_state->mpd_state->conn_state) {
         case MPD_WAIT: {
             time_t now = time(NULL);
@@ -151,29 +150,25 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 mympd_state->mpd_state->conn_state = MPD_DISCONNECTED;
             }
             //mympd_api_api error response
-            mympd_api_queue_length = mympd_queue_length(mympd_api_queue, 50);
-            if (mympd_api_queue_length > 0) {
-                //Handle request
+            struct t_work_request *request = mympd_queue_shift(mympd_api_queue, 50, 0);
+            if (request != NULL) {
                 MYMPD_LOG_DEBUG("Handle request (mpd disconnected)");
-                struct t_work_request *request = mympd_queue_shift(mympd_api_queue, 50, 0);
-                if (request != NULL) {
-                    if (is_mympd_only_api_method(request->cmd_id) == true) {
-                        //reconnect instantly on change of mpd host
-                        if (request->cmd_id == MYMPD_API_CONNECTION_SAVE) {
-                            mympd_state->mpd_state->conn_state = MPD_DISCONNECTED;
-                        }
-                        mympd_api_handler(mympd_state, request);
+                if (is_mympd_only_api_method(request->cmd_id) == true) {
+                    //reconnect instantly on change of mpd host
+                    if (request->cmd_id == MYMPD_API_CONNECTION_SAVE) {
+                        mympd_state->mpd_state->conn_state = MPD_DISCONNECTED;
                     }
-                    else {
-                        //other requests not allowed
-                        if (request->conn_id > -1) {
-                            struct t_work_response *response = create_response(request);
-                            response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "mpd", "error", "MPD disconnected");
-                            MYMPD_LOG_DEBUG("Send http response to connection %lld: %s", request->conn_id, response->data);
-                            mympd_queue_push(web_server_queue, response, 0);
-                        }
-                        free_request(request);
+                    mympd_api_handler(mympd_state, request);
+                }
+                else {
+                    //other requests not allowed
+                    if (request->conn_id > -1) {
+                        struct t_work_response *response = create_response(request);
+                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "mpd", "error", "MPD disconnected");
+                        MYMPD_LOG_DEBUG("Send http response to connection %lld: %s", request->conn_id, response->data);
+                        mympd_queue_push(web_server_queue, response, 0);
                     }
+                    free_request(request);
                 }
             }
             if (now < mympd_state->mpd_state->reconnect_time) {
@@ -248,13 +243,16 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             }
             break;
         case MPD_CONNECTED: {
+            //check for waiting mpd idle events
             struct pollfd fds[1];
             fds[0].fd = mpd_connection_get_fd(mympd_state->mpd_state->conn);
             fds[0].events = POLLIN;
             int pollrc = poll(fds, 1, 50);
+            //initial states
             bool jukebox_add_song = false;
             bool set_played = false;
-            mympd_api_queue_length = mympd_queue_length(mympd_api_queue, 50);
+            //check the queue
+            struct t_work_request *request = mympd_queue_shift(mympd_api_queue, 50, 0);
             //handle jukebox and last played only in mpd play state
             if (mympd_state->mpd_state->state == MPD_STATE_PLAY) {
                 time_t now = time(NULL);
@@ -281,9 +279,9 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             }
             //check if we need to exit the idle mode
             if (pollrc > 0 ||                          //idle event waiting
-                mympd_api_queue_length > 0 ||          //api was called
+                request != NULL ||                     //api was called
                 jukebox_add_song == true ||            //jukebox trigger
-                set_played == true ||                  //playstat of song must be set
+                set_played == true ||                  //playstate of song must be set
                 mympd_state->sticker_queue.length > 0) //we must set waiting stickers
             {
                 MYMPD_LOG_DEBUG("Leaving mpd idle mode");
@@ -319,18 +317,16 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     mpd_client_jukebox(mympd_state);
                 }
                 //an api request is there
-                if (mympd_api_queue_length > 0) {
+                if (request != NULL) {
                     //Handle request
-                    MYMPD_LOG_DEBUG("Handle request");
-                    struct t_work_request *request = mympd_queue_shift(mympd_api_queue, 50, 0);
-                    if (request != NULL) {
-                        mympd_api_handler(mympd_state, request);
-                    }
+                    MYMPD_LOG_DEBUG("Handle API request");
+                    mympd_api_handler(mympd_state, request);
                 }
                 //process sticker queue
                 if (mympd_state->mpd_state->feat_mpd_stickers == true &&
                     mympd_state->sticker_queue.length > 0)
                 {
+                    MYMPD_LOG_DEBUG("Processing sticker queue");
                     mympd_api_sticker_dequeue(mympd_state);
                 }
                 //reenter idle mode
@@ -352,6 +348,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
 
 /**
  * Checks if we should create the caches and adds a one-shot timer
+ * We do not create the caches instantly to debounce MPD_IDLE_DATABASE events
  * @param mympd_state pointer to the mympd_state struct
  * @param timeout seconds after the timer triggers
  * @return true on success else false

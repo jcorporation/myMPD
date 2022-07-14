@@ -224,7 +224,7 @@ bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list 
         free_t_script_thread_arg(script_thread_arg);
         return false;
     }
-    expire_response_queue(mympd_script_queue, 120);
+    mympd_queue_expire(mympd_script_queue, 120);
     return true;
 }
 

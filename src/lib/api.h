@@ -223,6 +223,6 @@ struct t_work_response *create_response(struct t_work_request *request);
 struct t_work_response *create_response_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id);
 struct t_work_request *create_request(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *data);
 void free_request(struct t_work_request *request);
-void free_response(struct t_work_response *result);
+void free_response(struct t_work_response *response);
 
 #endif
