@@ -13,6 +13,7 @@
 #define MYMPD_CONFIG_DEFS_H
 
 #include <limits.h>
+#include <signal.h>
 
 //build options
 #cmakedefine DEBUG
@@ -37,6 +38,15 @@
 #define VARLIB_PATH "${VARLIB_PATH}"
 #define VARCACHE_PATH "${VARCACHE_PATH}"
 #define LUALIBS_PATH "${LUALIBS_PATH}"
+
+//global variables
+extern _Atomic int worker_threads;
+//signal handler
+extern sig_atomic_t s_signal_received;
+//message queues
+extern struct t_mympd_queue *web_server_queue;
+extern struct t_mympd_queue *mympd_api_queue;
+extern struct t_mympd_queue *mympd_script_queue;
 
 //default configuration
 #define CFG_MYMPD_USER "mympd"

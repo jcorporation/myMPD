@@ -15,13 +15,6 @@
 #include <mpd/client.h>
 #include <string.h>
 
-//global variables
-_Atomic int worker_threads;
-sig_atomic_t s_signal_received;
-struct t_mympd_queue *web_server_queue;
-struct t_mympd_queue *mympd_api_queue;
-struct t_mympd_queue *mympd_script_queue;
-
 //method to id and reverse
 static const char *mympd_cmd_strs[] = { MYMPD_CMDS(GEN_STR) };
 

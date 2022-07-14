@@ -10,19 +10,7 @@
 #include "../../dist/sds/sds.h"
 #include "mympd_queue.h"
 
-#include <signal.h>
 #include <stdbool.h>
-
-//global variables
-extern _Atomic int worker_threads;
-
-//signal handler
-extern sig_atomic_t s_signal_received;
-
-//message queue
-extern struct t_mympd_queue *web_server_queue;
-extern struct t_mympd_queue *mympd_api_queue;
-extern struct t_mympd_queue *mympd_script_queue;
 
 //API cmds
 //all above INTERNAL_API_COUNT are internal

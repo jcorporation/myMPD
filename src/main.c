@@ -52,6 +52,15 @@ const char *__asan_default_options(void) {
 }
 #endif
 
+//global variables
+_Atomic int worker_threads;
+//signal handler
+sig_atomic_t s_signal_received;
+//message queues
+struct t_mympd_queue *web_server_queue;
+struct t_mympd_queue *mympd_api_queue;
+struct t_mympd_queue *mympd_script_queue;
+
 /**
  * Signal handler that stops myMPD on SIGTERM and SIGINT and saves
  * states on SIGHUP
