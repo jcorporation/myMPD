@@ -229,7 +229,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
     long entity_count = 0;
     unsigned total_time = 0;
     long real_limit = offset + limit;
-    long last_played_max = 0;
+    time_t last_played_max = 0;
     sds last_played_song_uri = sdsempty();
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
         total_time += mpd_song_get_duration(song);
@@ -286,7 +286,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
     buffer = tojson_sds(buffer, "plist", plist, true);
     buffer = tojson_bool(buffer, "smartpls", smartpls, true);
     buffer = sdscat(buffer, "\"lastPlayedSong\":{");
-    buffer = tojson_long(buffer, "time", last_played_max, true);
+    buffer = tojson_llong(buffer, "time", (long long)last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
     buffer = sdscatlen(buffer, "}", 1);
     buffer = jsonrpc_result_end(buffer);

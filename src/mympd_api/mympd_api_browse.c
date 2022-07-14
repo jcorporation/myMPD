@@ -80,7 +80,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     struct t_tags album_tags;
     album_tags.len = 1;
     album_tags.tags[0] = MPD_TAG_GENRE;
-    long last_played_max = 0;
+    time_t last_played_max = 0;
     sds last_played_song_uri = sdsempty();
 
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
@@ -155,7 +155,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     buffer = tojson_long(buffer, "Discs", discs, true);
     buffer = tojson_uint(buffer, "totalTime", totalTime, true);
     buffer = sdscat(buffer, "\"lastPlayedSong\":{");
-    buffer = tojson_long(buffer, "time", last_played_max, true);
+    buffer = tojson_llong(buffer, "time", (long long)last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
     buffer = sdscatlen(buffer, "}", 1);
     buffer = jsonrpc_result_end(buffer);
