@@ -8,6 +8,7 @@
 #include "sticker_cache.h"
 
 #include "log.h"
+#include "utility.h"
 
 #include <string.h>
 
@@ -17,9 +18,15 @@
  * @return pointer to the sticker struct
  */
 struct t_sticker *get_sticker_from_cache(rax *sticker_cache, const char *uri) {
+    //ignore stream uris
+    if (is_streamuri(uri) == true) {
+        return NULL;
+    }
+    //check for uninitialized sticker cache
     if (sticker_cache == NULL) {
         return NULL;
     }
+    //try to get sticker
     void *data = raxFind(sticker_cache, (unsigned char*)uri, strlen(uri));
     if (data == raxNotFound) {
         MYMPD_LOG_ERROR("Sticker for uri \"%s\" not found in cache", uri);
