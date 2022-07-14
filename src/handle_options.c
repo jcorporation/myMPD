@@ -14,18 +14,23 @@
 #include <stdio.h>
 
 static struct option long_options[] = {
+    {"cachedir",  required_argument, 0, 'a'},
+    {"config",    no_argument,       0, 'c'},
+    {"help",      no_argument,       0, 'h'},
     #ifdef ENABLE_SSL
     {"pin",       no_argument,       0, 'p'},
     #endif
-    {"help",      no_argument,       0, 'h'},
-    {"user",      required_argument, 0, 'u'},
     {"syslog",    no_argument,       0, 's'},
-    {"workdir",   required_argument, 0, 'w'},
-    {"config",    no_argument,       0, 'c'},
-    {"cachedir",  required_argument, 0, 'a'},
-    {"version",   no_argument,       0, 'v'}
+    {"user",      required_argument, 0, 'u'},
+    {"version",   no_argument,       0, 'v'},
+    {"workdir",   required_argument, 0, 'w'}
 };
 
+/**
+ * Prints the command line usage information
+ * @param config pointer to config struct
+ * @param cmd argv[0] from main function
+ */
 static void print_usage(struct t_config *config, const char *cmd) {
     fprintf(stderr, "\nUsage: %s [OPTION]...\n\n"
                     "myMPD %s\n"
@@ -46,6 +51,14 @@ static void print_usage(struct t_config *config, const char *cmd) {
     fprintf(stderr, "\n");
 }
 
+/**
+ * Handles the command line arguments
+ * @param argc from main function
+ * @param argv from main function
+ * @return OPTIONS_RC_INVALID on error
+ *         OPTIONS_RC_EXIT if myMPD should exit
+ *         OPTIONS_RC_OK if arguments are parsed successfully
+ */
 int handle_options(struct t_config *config, int argc, char **argv) {
     int n = 0;
     int option_index = 0;
