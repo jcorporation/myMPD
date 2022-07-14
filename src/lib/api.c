@@ -15,9 +15,13 @@
 #include <mpd/client.h>
 #include <string.h>
 
-//method to id and reverse
 static const char *mympd_cmd_strs[] = { MYMPD_CMDS(GEN_STR) };
 
+/**
+ * Converts a string to the mympd_cmd_ids enum
+ * @param cmd string to convert
+ * @return enum mympd_cmd_ids
+ */
 enum mympd_cmd_ids get_cmd_id(const char *cmd) {
     for (unsigned i = 0; i < TOTAL_API_COUNT; i++) {
         if (strcmp(cmd, mympd_cmd_strs[i]) == 0) {
@@ -27,6 +31,11 @@ enum mympd_cmd_ids get_cmd_id(const char *cmd) {
     return GENERAL_API_UNKNOWN;
 }
 
+/**
+ * Converts the mympd_cmd_ids enum to the string
+ * @param cmd_id myMPD API method
+ * @return the API method as string
+ */
 const char *get_cmd_id_method_name(enum mympd_cmd_ids cmd_id) {
     if (cmd_id >= TOTAL_API_COUNT) {
         return NULL;
@@ -34,7 +43,11 @@ const char *get_cmd_id_method_name(enum mympd_cmd_ids cmd_id) {
     return mympd_cmd_strs[cmd_id];
 }
 
-//defines methods that need authentication if a pin is set
+/**
+ * Defines methods that need authentication if a pin is set.
+ * @param cmd_id myMPD API method
+ * @return true if protected else false
+ */
 bool is_protected_api_method(enum mympd_cmd_ids cmd_id) {
     switch(cmd_id) {
         case MYMPD_API_CONNECTION_SAVE:
@@ -64,7 +77,11 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id) {
     }
 }
 
-//defines methods that are internal
+/**
+ * Defines methods that are internal
+ * @param cmd_id myMPD API method
+ * @return true if public else false
+ */
 bool is_public_api_method(enum mympd_cmd_ids cmd_id) {
     if (cmd_id <= INTERNAL_API_COUNT ||
         cmd_id >= TOTAL_API_COUNT)
@@ -74,8 +91,12 @@ bool is_public_api_method(enum mympd_cmd_ids cmd_id) {
     return true;
 }
 
-//defines methods that should work with no mpd connection
-//this is necessary for correct startup and changing mpd connection settings
+/**
+ * Defines methods that should work with no mpd connection,
+ * this is necessary for correct startup and changing mpd connection settings.
+ * @param cmd_id myMPD API method
+ * @return true if method works with no mpd connection else false
+ */
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
     switch(cmd_id) {
         case MYMPD_API_CONNECTION_SAVE:
@@ -99,11 +120,23 @@ void ws_notify(sds message) {
     mympd_queue_push(web_server_queue, response, 0);
 }
 
+/**
+ * Mallocs and initializes a t_work_response struct, copies the ids from the request struct
+ * @param request the request the ids are copied
+ * @return the initialized t_work_response struct
+ */
 struct t_work_response *create_response(struct t_work_request *request) {
     struct t_work_response *response = create_response_new(request->conn_id, request->id, request->cmd_id);
     return response;
 }
 
+/**
+ * Mallocs and initializes a t_work_response struct
+ * @param conn_id connection id (from webserver)
+ * @param request_id id for the request
+ * @param cmd_id myMPD API method
+ * @return the initialized t_work_response struct
+ */
 struct t_work_response *create_response_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id) {
     struct t_work_response *response = malloc_assert(sizeof(struct t_work_response));
     response->conn_id = conn_id;
@@ -117,6 +150,14 @@ struct t_work_response *create_response_new(long long conn_id, long request_id, 
     return response;
 }
 
+/**
+ * Mallocs and initializes a t_work_request struct
+ * @param conn_id connection id (from webserver)
+ * @param request_id id for the request
+ * @param cmd_id myMPD API method
+ * @param data jsonrpc request, if NULL the start of the request is added
+ * @return the initialized t_work_request struct
+ */
 struct t_work_request *create_request(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *data) {
     struct t_work_request *request = malloc_assert(sizeof(struct t_work_request));
     request->conn_id = conn_id;
@@ -134,6 +175,10 @@ struct t_work_request *create_request(long long conn_id, long request_id, enum m
     return request;
 }
 
+/**
+ * Frees the request struct
+ * @param request request struct to free
+ */
 void free_request(struct t_work_request *request) {
     if (request != NULL) {
         FREE_SDS(request->data);
@@ -142,6 +187,10 @@ void free_request(struct t_work_request *request) {
     }
 }
 
+/**
+ * Frees the reponse struct
+ * @param response response struct to free
+ */
 void free_response(struct t_work_response *response) {
     if (response != NULL) {
         FREE_SDS(response->data);
