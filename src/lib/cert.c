@@ -29,7 +29,7 @@
 #include <unistd.h>
 
 //private definitions
-
+static bool certificates_create(sds dir, sds custom_san);
 static sds get_san(sds buffer);
 static int generate_set_random_serial(X509 *crt);
 static X509_REQ *generate_request(EVP_PKEY *pkey);
@@ -48,10 +48,18 @@ static bool certificates_cleanup(sds dir, const char *name);
 
 //public functions
 
+/**
+ * Creates the ssl directory, ca and cert and rewnews before expired
+ * @param workdir myMPD working directory
+ * @param ssl_san Additional subject alternative names
+ * @return true on success else false
+ */
 bool certificates_check(sds workdir, sds ssl_san) {
     sds testdirname = sdscatfmt(sdsempty(), "%S/ssl", workdir);
     int testdir_rc = testdir("SSL cert dir", testdirname, true);
-    if (testdir_rc == DIR_EXISTS || testdir_rc == DIR_CREATED) {
+    if (testdir_rc == DIR_EXISTS ||
+        testdir_rc == DIR_CREATED)
+    {
         if (certificates_create(testdirname, ssl_san) == false) {
             //error creating certificates
             MYMPD_LOG_ERROR("Certificate creation failed");
@@ -67,7 +75,9 @@ bool certificates_check(sds workdir, sds ssl_san) {
     return true;
 }
 
-bool certificates_create(sds dir, sds custom_san) {
+//private functions
+
+static bool certificates_create(sds dir, sds custom_san) {
     bool rc_ca = false;
     bool rc_cert = false;
 
@@ -143,8 +153,6 @@ bool certificates_create(sds dir, sds custom_san) {
     }
     return true;
 }
-
-//private functions
 
 static bool certificates_cleanup(sds dir, const char *name) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%s.pem", dir, name);
