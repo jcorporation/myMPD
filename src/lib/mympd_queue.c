@@ -7,7 +7,9 @@
 #include "mympd_config_defs.h"
 #include "mympd_queue.h"
 
+#include "api.h"
 #include "log.h"
+#include "lua_mympd_state.h"
 #include "mem.h"
 
 #include <assert.h>
@@ -15,6 +17,7 @@
 #include <stdlib.h>
 
 //private definitions
+static void *mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age);
 static int unlock_mutex(pthread_mutex_t *mutex);
 static void set_wait_time(int timeout, struct timespec *max_wait);
 
@@ -158,7 +161,47 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
     return NULL;
 }
 
-void *mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
+int expire_result_queue(struct t_mympd_queue *queue, time_t age) {
+    struct t_work_result *response = NULL;
+    int i = 0;
+    while ((response = mympd_queue_expire(queue, age)) != NULL) {
+        if (response->extra != NULL) {
+            if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
+                lua_mympd_state_free(response->extra);
+            }
+            else {
+               FREE_PTR(response->extra);
+            }
+        }
+        free_result(response);
+        response = NULL;
+        i++;
+    }
+    return i;
+}
+
+int expire_request_queue(struct t_mympd_queue *queue, time_t age) {
+    struct t_work_request *request = NULL;
+    int i = 0;
+    while ((request = mympd_queue_expire(queue, age)) != NULL) {
+        if (request->extra != NULL) {
+            if (request->cmd_id == INTERNAL_API_SCRIPT_INIT) {
+                lua_mympd_state_free(request->extra);
+            }
+            else {
+                FREE_PTR(request->extra);
+            }
+        }
+        free_request(request);
+        request = NULL;
+        i++;
+    }
+    return i;
+}
+
+//privat functions
+
+static void *mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
@@ -172,7 +215,9 @@ void *mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
         time_t expire_time = time(NULL) - max_age;
 
         for (current = queue->head; current != NULL; previous = current, current = current->next) {
-            if (max_age == 0 || current->timestamp < expire_time) {
+            if (max_age == 0 ||
+                current->timestamp < expire_time)
+            {
                 void *data = current->data;
 
                 if (previous == NULL) {
@@ -200,8 +245,6 @@ void *mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
     unlock_mutex(&queue->mutex);
     return NULL;
 }
-
-//private functions
 
 static int unlock_mutex(pthread_mutex_t *mutex) {
     int rc = pthread_mutex_unlock(mutex);

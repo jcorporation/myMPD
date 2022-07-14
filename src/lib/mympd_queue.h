@@ -30,6 +30,7 @@ struct t_mympd_queue *mympd_queue_create(const char *name);
 void *mympd_queue_free(struct t_mympd_queue *queue);
 int mympd_queue_push(struct t_mympd_queue *queue, void *data, long id);
 void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id);
-void *mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age);
 long mympd_queue_length(struct t_mympd_queue *queue, int timeout);
+int expire_result_queue(struct t_mympd_queue *queue, time_t age);
+int expire_request_queue(struct t_mympd_queue *queue, time_t age);
 #endif

@@ -9,7 +9,6 @@
 
 #include "../../dist/mongoose/mongoose.h"
 #include "log.h"
-#include "lua_mympd_state.h"
 #include "mem.h"
 #include "sds_extras.h"
 
@@ -157,42 +156,4 @@ void free_result(struct t_work_result *result) {
         FREE_SDS(result->binary);
         FREE_PTR(result);
     }
-}
-
-int expire_result_queue(struct t_mympd_queue *queue, time_t age) {
-    struct t_work_result *response = NULL;
-    int i = 0;
-    while ((response = mympd_queue_expire(queue, age)) != NULL) {
-        if (response->extra != NULL) {
-            if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
-                lua_mympd_state_free(response->extra);
-            }
-            else {
-               FREE_PTR(response->extra);
-            }
-        }
-        free_result(response);
-        response = NULL;
-        i++;
-    }
-    return i;
-}
-
-int expire_request_queue(struct t_mympd_queue *queue, time_t age) {
-    struct t_work_request *request = NULL;
-    int i = 0;
-    while ((request = mympd_queue_expire(queue, age)) != NULL) {
-        if (request->extra != NULL) {
-            if (request->cmd_id == INTERNAL_API_SCRIPT_INIT) {
-                lua_mympd_state_free(request->extra);
-            }
-            else {
-                FREE_PTR(request->extra);
-            }
-        }
-        free_request(request);
-        request = NULL;
-        i++;
-    }
-    return i;
 }

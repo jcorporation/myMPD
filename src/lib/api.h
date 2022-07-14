@@ -222,8 +222,6 @@ void ws_notify(sds message);
 struct t_work_result *create_result(struct t_work_request *request);
 struct t_work_result *create_result_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id);
 struct t_work_request *create_request(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *data);
-int expire_request_queue(struct t_mympd_queue *queue, time_t age);
-int expire_result_queue(struct t_mympd_queue *queue, time_t age);
 void free_request(struct t_work_request *request);
 void free_result(struct t_work_result *result);
 
