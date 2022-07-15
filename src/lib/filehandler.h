@@ -33,7 +33,7 @@ enum getline_rc {
 
 int sds_getline(sds *s, FILE *fp, size_t max);
 int sds_getline_n(sds *s, FILE *fp, size_t max);
-int sds_getfile(sds *s, FILE *fp, size_t max);
+int sds_getfile(sds *s, FILE *fp, size_t max, bool remove_newline);
 
 int testdir(const char *name, const char *dirname, bool create);
 FILE *open_tmp_file(sds filepath);

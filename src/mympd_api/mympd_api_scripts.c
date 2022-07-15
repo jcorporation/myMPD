@@ -177,7 +177,7 @@ sds mympd_api_script_get(sds workdir, sds buffer, sds method, long request_id, s
         FREE_SDS(line);
         buffer = sdscat(buffer, ",\"content\":");
         sds content = sdsempty();
-        sds_getfile(&content, fp, SCRIPTS_SIZE_MAX);
+        sds_getfile(&content, fp, SCRIPTS_SIZE_MAX, false);
         (void) fclose(fp);
         buffer = sds_catjson(buffer, content, sdslen(content));
         FREE_SDS(content);

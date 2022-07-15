@@ -94,7 +94,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         return false;
     }
     sds content = sdsempty();
-    sds_getfile(&content, fp, SMARTPLS_SIZE_MAX);
+    sds_getfile(&content, fp, SMARTPLS_SIZE_MAX, true);
     (void) fclose(fp);
 
     if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) != true) {
