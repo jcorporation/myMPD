@@ -78,14 +78,16 @@ int sds_getline_n(sds *s, FILE *fp, size_t max) {
 
 /**
  * Reads a whole file in the sds string s from *fp
+ * Removes whitespace characters from start and end
  * @param s an already allocated sds string that should hold the file content
  * @param fp FILE pointer to read
  * @param max maximum bytes to read
+ * @param remove_newline removes \r and \n if true
  * @return GETLINE_OK on success,
  *         GETLINE_EMPTY for empty file,
  *         GETLINE_TOO_LONG for too long file
  */
-int sds_getfile(sds *s, FILE *fp, size_t max) {
+int sds_getfile(sds *s, FILE *fp, size_t max, bool remove_newline) {
     sdsclear(*s);
     size_t i = 0;
     for (;;) {
@@ -97,6 +99,11 @@ int sds_getfile(sds *s, FILE *fp, size_t max) {
                 return GETLINE_OK;
             }
             return GETLINE_EMPTY;
+        }
+        if (remove_newline == true &&
+            (c == '\n' || c == '\r'))
+        {
+            continue;
         }
         if (i < max) {
             *s = sds_catchar(*s, (char)c);

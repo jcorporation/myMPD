@@ -380,7 +380,7 @@ sds mympd_api_smartpls_get(struct t_config *config, sds buffer, sds method, long
         return buffer;
     }
     sds content = sdsempty();
-    sds_getfile(&content, fp, SMARTPLS_SIZE_MAX);
+    sds_getfile(&content, fp, SMARTPLS_SIZE_MAX, true);
     FREE_SDS(pl_file);
     (void) fclose(fp);
 
