@@ -12,6 +12,11 @@
 
 _Thread_local sds thread_logname;
 
+//message queues
+struct t_mympd_queue *web_server_queue;
+struct t_mympd_queue *mympd_api_queue;
+struct t_mympd_queue *mympd_script_queue;
+
 UTEST_STATE();
 
 int main(int argc, const char *const argv[]) {
