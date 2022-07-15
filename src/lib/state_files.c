@@ -87,7 +87,7 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
         return result;
     }
     FREE_SDS(cfg_file);
-    int n = sds_getline(&result, fp, LINE_LENGTH_MAX);
+    int n = sds_getfile(&result, fp, LINE_LENGTH_MAX, true);
     (void) fclose(fp);
     if (n == GETLINE_OK &&    //sucessfully read the value
         vcb != NULL &&        //has validation callback
@@ -95,6 +95,7 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
     {
         sdsclear(result);
         result = sdscat(result, def_value);
+        MYMPD_LOG_ERROR("Validation failed for state \"%s\"", name);
         return result;
     }
     if (n == GETLINE_TOO_LONG) {
