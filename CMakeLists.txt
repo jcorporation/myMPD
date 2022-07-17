@@ -245,6 +245,7 @@ set(MYMPD_SOURCES
   dist/sds/sds.c
   dist/tinymt/tinymt32.c
   src/handle_options.c
+  src/lib/album_cache.c
   src/lib/api.c
   src/lib/covercache.c
   src/lib/filehandler.c

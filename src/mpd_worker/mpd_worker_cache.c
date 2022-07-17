@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mpd_worker_cache.h"
 
+#include "../lib/album_cache.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
@@ -114,8 +115,6 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             return false;
         }
         struct mpd_song *song;
-        sds album = sdsempty();
-        sds artist = sdsempty();
         sds key = sdsempty();
         const bool create_album_cache = mpd_worker_state->mpd_state->feat_mpd_tags &&
             mpd_client_tag_exists(&mpd_worker_state->mpd_state->tag_types_mympd, MPD_TAG_ALBUM) &&
@@ -138,38 +137,21 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             }
             //album cache
             if (create_album_cache == true) {
-                sdsclear(album);
-                sdsclear(artist);
-                album = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, album);
-                artist = mpd_client_get_tag_value_string(song, mpd_worker_state->mpd_state->tag_albumartist, artist);
-                if (sdslen(album) > 0 &&
-                    sdslen(artist) > 0)
-                {
-                    sdsclear(key);
-                    key = sdscatfmt(key, "%s::%s", album, artist);
-                    sds_utf8_tolower(key);
+                key = album_cache_get_key(song, key, mpd_worker_state->mpd_state->tag_albumartist);
+                if (sdslen(key) > 0) {
                     void *old_data;
                     if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, &old_data) == 0) {
+                        struct mpd_song *update_album = (struct mpd_song *) old_data;
                         //append song data if key exists
-                        struct mpd_song *old_song = (struct mpd_song *) old_data;
-                        for (unsigned tagnr = 0; tagnr < mpd_worker_state->mpd_state->tag_types_mympd.len; ++tagnr) {
-                            const char *value;
-                            enum mpd_tag_type tag = mpd_worker_state->mpd_state->tag_types_mympd.tags[tagnr];
-                            //append only multivalue tags
-                            if (is_multivalue_tag(tag) == true) {
-                                unsigned value_nr = 0;
-                                while ((value = mpd_song_get_tag(song, tag, value_nr)) != NULL) {
-                                    mympd_mpd_song_add_tag_dedup(old_song, tag, value);
-                                    value_nr++;
-                                }
-                            }
-                        }
+                        album_cache_append_tags(update_album, song, &mpd_worker_state->mpd_state->tag_types_mympd);
                         //use newest modified-since
-                        time_t last_modified_old = mpd_song_get_last_modified(old_song);
-                        time_t last_modified_new = mpd_song_get_last_modified(song);
-                        if (last_modified_old < last_modified_new) {
-                            mympd_mpd_song_set_last_modified(song, last_modified_new);
-                        }
+                        album_cache_set_last_modified(update_album, song);
+                        //calculate album duration
+                        album_cache_inc_total_time(update_album, song);
+                        //calculate discs
+                        album_cache_set_discs(update_album, song);
+                        //song count
+                        album_cache_inc_song_count(update_album);
                         //free song data
                         mpd_song_free(song);
                     }
@@ -185,8 +167,6 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             }
             i++;
         }
-        FREE_SDS(album);
-        FREE_SDS(artist);
         FREE_SDS(key);
         mpd_response_finish(mpd_worker_state->mpd_state->conn);
         if (check_error_and_recover2(mpd_worker_state->mpd_state, NULL, NULL, 0, false) == false) {

@@ -10,7 +10,6 @@
 #include "../../dist/sds/sds.h"
 #include "../lib/mympd_state.h"
 
-void mympd_mpd_song_set_last_modified(struct mpd_song *song, time_t last_modified);
 bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 		enum mpd_tag_type type, const char *value);
 bool is_multivalue_tag(enum mpd_tag_type tag);

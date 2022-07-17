@@ -27,16 +27,7 @@ static sds _mpd_client_get_tag_values(struct mpd_song const *song, const enum mp
 //public functions
 
 /**
- * Sets the songs last modified date
- * @param song pointer to a mpd_song struct
- * @param last_modified unix timestamp
- */
-void mympd_mpd_song_set_last_modified(struct mpd_song *song, time_t last_modified) {
-    song->last_modified = last_modified;
-}
-
-/**
- * Adds a tag value to the song if value does not already exists
+ * Adds a tag value to the album if value does not already exists
  * @param song pointer to a mpd_song struct
  * @param type mpd tag type
  * @param value tag value to add
@@ -88,6 +79,7 @@ bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 
 	return true;
 }
+
 
 /**
  * Checks if tag is a multivalue tag

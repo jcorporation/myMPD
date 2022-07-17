@@ -8,6 +8,7 @@
 #include "mympd_api_browse.h"
 
 #include "../../dist/utf8/utf8.h"
+#include "../lib/album_cache.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
@@ -71,39 +72,20 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     buffer = sdscat(buffer, "\"data\":[");
 
     struct mpd_song *song;
-    struct mpd_song *first_song = NULL;
     int entity_count = 0;
     int entities_returned = 0;
-    unsigned totalTime = 0;
-    int discs = 1;
 
-    struct t_tags album_tags;
-    album_tags.len = 1;
-    album_tags.tags[0] = MPD_TAG_GENRE;
     time_t last_played_max = 0;
     sds last_played_song_uri = sdsempty();
+    sds albumkey = sdsempty();
 
     while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
         if (entities_returned++) {
             buffer = sdscatlen(buffer, ",", 1);
-            for (unsigned i = 0; i < album_tags.len; i++) {
-                const char *value;
-                unsigned j = 0;
-                while ((value = mpd_song_get_tag(song, album_tags.tags[i], j)) != NULL) {
-                    mympd_mpd_song_add_tag_dedup(first_song, album_tags.tags[i], value);
-                    j++;
-                }
-            }
         }
         else {
-            first_song = mpd_song_dup(song);
-        }
-        const char *disc;
-        if ((disc = mpd_song_get_tag(song, MPD_TAG_DISC, 0)) != NULL) {
-            int d = (int)strtoimax(disc, NULL, 10);
-            if (d > discs) {
-                discs = d;
-            }
+            //on first song
+            albumkey = album_cache_get_key(song, albumkey, mympd_state->mpd_state->tag_albumartist);
         }
         buffer = sdscat(buffer, "{\"Type\": \"song\",");
         buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
@@ -119,48 +101,46 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
             }
         }
         buffer = sdscatlen(buffer, "}", 1);
-
-        totalTime += mpd_song_get_duration(song);
         mpd_song_free(song);
         entity_count++;
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
-        if (first_song != NULL) {
-            mpd_song_free(first_song);
-        }
+        FREE_SDS(albumkey);
         return buffer;
     }
 
-    if (first_song == NULL) {
+    struct mpd_song *mpd_album = album_cache_get_album(mympd_state->album_cache, albumkey);
+    if (mpd_album == NULL) {
+        FREE_SDS(albumkey);
         return jsonrpc_respond_message(buffer, method, request_id, true,
             "database", "error", "Could not find album");
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = get_extra_media(mympd_state, buffer, mpd_song_get_uri(first_song), false);
+    buffer = get_extra_media(mympd_state, buffer, mpd_song_get_uri(mpd_album), false);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_sds(buffer, "Album", album, true);
     buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(mympd_state->mpd_state->tag_albumartist));
-    buffer = mpd_client_get_tag_values(first_song, mympd_state->mpd_state->tag_albumartist, buffer);
+    buffer = mpd_client_get_tag_values(mpd_album, mympd_state->mpd_state->tag_albumartist, buffer);
     buffer = sdscat(buffer, ",\"MusicBrainzAlbumArtistId\":");
-    buffer = mpd_client_get_tag_values(first_song, MPD_TAG_MUSICBRAINZ_ALBUMARTISTID, buffer);
+    buffer = mpd_client_get_tag_values(mpd_album, MPD_TAG_MUSICBRAINZ_ALBUMARTISTID, buffer);
     buffer = sdscat(buffer, ",\"MusicBrainzAlbumId\":");
-    buffer = mpd_client_get_tag_values(first_song, MPD_TAG_MUSICBRAINZ_ALBUMID, buffer);
+    buffer = mpd_client_get_tag_values(mpd_album, MPD_TAG_MUSICBRAINZ_ALBUMID, buffer);
     buffer = sdscat(buffer, ",\"Genre\":");
-    buffer = mpd_client_get_tag_values(first_song, MPD_TAG_GENRE, buffer);
+    buffer = mpd_client_get_tag_values(mpd_album, MPD_TAG_GENRE, buffer);
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = tojson_long(buffer, "Discs", discs, true);
-    buffer = tojson_uint(buffer, "totalTime", totalTime, true);
+    buffer = tojson_uint(buffer, "Discs", album_get_discs(mpd_album), true);
+    buffer = tojson_uint(buffer, "totalTime", album_get_total_time(mpd_album), true);
     buffer = sdscat(buffer, "\"lastPlayedSong\":{");
     buffer = tojson_llong(buffer, "time", (long long)last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
     buffer = sdscatlen(buffer, "}", 1);
     buffer = jsonrpc_respond_end(buffer);
 
-    mpd_song_free(first_song);
+    FREE_SDS(albumkey);
     FREE_SDS(last_played_song_uri);
     return buffer;
 }
@@ -245,8 +225,6 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     //print album list
     long entity_count = 0;
     long entities_returned = 0;
-    sds album = sdsempty();
-    sds artist = sdsempty();
     raxStart(&iter, albums);
 
     if (sortdesc == false) {
@@ -261,14 +239,15 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
                 buffer = sdscatlen(buffer, ",", 1);
             }
             song = (struct mpd_song *)iter.data;
-            sdsclear(album);
-            sdsclear(artist);
-            album = mpd_client_get_tag_values(song, MPD_TAG_ALBUM, album);
-            artist = mpd_client_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, artist);
             buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_char(buffer, "Type", "album", true);
-            buffer = tojson_raw(buffer, "Album", album, true);
-            buffer = tojson_raw(buffer, "AlbumArtist", artist, true);
+            buffer = sdscat(buffer, "\"Album\":");
+            buffer = mpd_client_get_tag_values(song, MPD_TAG_ALBUM, buffer);
+            buffer = sdscat(buffer, ",\"AlbumArtist\":");
+            buffer = mpd_client_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, buffer);
+            buffer = sdscatlen(buffer, ",", 1);
+            buffer = tojson_uint(buffer, "Discs", album_get_discs(song), true);
+            buffer = tojson_uint(buffer, "SongCount", album_get_song_count(song), true);
             buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
             buffer = sdscatlen(buffer, "}", 1);
         }
@@ -277,8 +256,6 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
             break;
         }
     }
-    FREE_SDS(album);
-    FREE_SDS(artist);
     raxStop(&iter);
 
     buffer = sdscatlen(buffer, "],", 2);

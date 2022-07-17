@@ -9,6 +9,7 @@
 #include "../../dist/utest/utest.h"
 #include <mpd/client.h>
 #include "../../dist/libmpdclient/src/isong.h"
+#include "../../src/lib/album_cache.h"
 #include "../../src/mpd_client/mpd_client_search_local.h"
 #include "../../src/mpd_client/mpd_client_tags.h"
 
@@ -48,10 +49,10 @@ struct mpd_song *new_song(void) {
 	return song;
 }
 
-UTEST(mpd_client_tags, test_mympd_mpd_song_set_last_modified) {
+UTEST(album_cache, test_album_cache_set_last_modified) {
     struct mpd_song *song = new_song();
     ASSERT_EQ(2000, mpd_song_get_last_modified(song));
-    mympd_mpd_song_set_last_modified(song, 3000);
+    album_cache_set_last_modified(song, 3000);
     ASSERT_EQ(3000, mpd_song_get_last_modified(song));
     mpd_song_free(song);
 }

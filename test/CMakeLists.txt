@@ -21,6 +21,7 @@ set(TEST_SOURCES
   ../dist/rax/rax.c
   ../dist/sds/sds.c
   ../dist/tinymt/tinymt32.c
+  ../src/lib/album_cache.c
   ../src/lib/api.c
   ../src/lib/filehandler.c
   ../src/lib/http_client.c
