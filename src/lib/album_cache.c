@@ -22,9 +22,10 @@
  * Used fields:
  *   tags: tags from all songs of the album
  *   last_modified: last_modified from newest song
- *   duration: the album duration
+ *   duration: the album total time in seconds
+ *   duration_ms: the album total time in milliseconds
  *   pos: number of discs
- *   start: number of songs
+ *   prio: number of songs
  */
 
 /** Contructs the albumkey from song info
@@ -73,7 +74,7 @@ struct mpd_song *album_cache_get_album(rax *album_cache, sds key) {
  * @return number of songs
  */
 unsigned album_get_song_count(struct mpd_song *album) {
-    unsigned song_count = mpd_song_get_start(album);
+    unsigned song_count = mpd_song_get_prio(album);
     //song count is 0 if there was only one song
     return song_count > 0 ? song_count : 1;
 }
@@ -128,6 +129,7 @@ void album_cache_set_last_modified(struct mpd_song *album, struct mpd_song *song
  */
 void album_cache_inc_total_time(struct mpd_song *album, struct mpd_song *song) {
     album->duration += mpd_song_get_duration(song);
+    album->duration_ms += mpd_song_get_duration_ms(song);
 }
 
 /**
@@ -136,11 +138,11 @@ void album_cache_inc_total_time(struct mpd_song *album, struct mpd_song *song) {
  * @param song pointer to a mpd_song struct
  */
 void album_cache_inc_song_count(struct mpd_song *album) {
-    if (album->start == 0) {
+    if (album->prio == 0) {
         //song count must start with 1
-        album->start++;
+        album->prio++;
     }
-    album->start++;
+    album->prio++;
 }
 
 /**
