@@ -60,7 +60,7 @@ struct mpd_song *album_cache_get_album(rax *album_cache, sds key) {
     if (album_cache == NULL) {
         return NULL;
     }
-    //try to get sticker
+    //try to get album
     void *data = raxFind(album_cache, (unsigned char*)key, sdslen(key));
     if (data == raxNotFound) {
         MYMPD_LOG_ERROR("Album for key \"%s\" not found in cache", key);
@@ -74,9 +74,7 @@ struct mpd_song *album_cache_get_album(rax *album_cache, sds key) {
  * @return number of songs
  */
 unsigned album_get_song_count(struct mpd_song *album) {
-    unsigned song_count = mpd_song_get_prio(album);
-    //song count is 0 if there was only one song
-    return song_count > 0 ? song_count : 1;
+    return mpd_song_get_prio(album);
 }
 
 /** Gets the number of discs
@@ -133,15 +131,20 @@ void album_cache_inc_total_time(struct mpd_song *album, struct mpd_song *song) {
 }
 
 /**
+ * Set the song count
+ * @param album pointer to a mpd_song struct
+ * @param count song count
+ */
+void album_cache_set_song_count(struct mpd_song *album, unsigned count) {
+    album->prio = count;
+}
+
+/**
  * Increments the song count
  * @param album pointer to a mpd_song struct
  * @param song pointer to a mpd_song struct
  */
 void album_cache_inc_song_count(struct mpd_song *album) {
-    if (album->prio == 0) {
-        //song count must start with 1
-        album->prio++;
-    }
     album->prio++;
 }
 

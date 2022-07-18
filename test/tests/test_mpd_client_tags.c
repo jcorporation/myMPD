@@ -110,11 +110,13 @@ UTEST(album_cache, test_album_cache_inc_total_time) {
 
 UTEST(album_cache, test_album_cache_inc_song_count) {
     struct mpd_song *album = new_song();
+    album_cache_set_song_count(album, 1);
+
     unsigned song_count = album_get_song_count(album);
     ASSERT_EQ((unsigned)1, song_count);
-
+    //song count maps to prio
     unsigned prio = mpd_song_get_prio(album);
-    ASSERT_EQ((unsigned)0, prio);
+    ASSERT_EQ((unsigned)1, prio);
 
     album_cache_inc_song_count(album);
     song_count = album_get_song_count(album);

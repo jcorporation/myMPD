@@ -23,6 +23,7 @@ unsigned album_get_song_count(struct mpd_song *album);
 void album_cache_set_discs(struct mpd_song *album, struct mpd_song *song);
 void album_cache_set_last_modified(struct mpd_song *album, struct mpd_song *song);
 void album_cache_inc_total_time(struct mpd_song *album, struct mpd_song *song);
+void album_cache_set_song_count(struct mpd_song *album, unsigned count);
 void album_cache_inc_song_count(struct mpd_song *album);
 bool album_cache_append_tags(struct mpd_song *album,
 		struct mpd_song *song, struct t_tags *tags);

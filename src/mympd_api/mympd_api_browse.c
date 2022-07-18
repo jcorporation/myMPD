@@ -26,6 +26,17 @@
 #include <inttypes.h>
 #include <string.h>
 
+/**
+ * Lists album songs and details
+ * @param mympd_state pointer to mympd state struct
+ * @param buffer sds string to append response
+ * @param method jsonrpc method
+ * @param request_id jsonrpc request id
+ * @param album name of the album
+ * @param albumartist list of albumartists
+ * @param tagcols t_tags struct of song tags to print
+ * @return pointer to buffer
+ */
 sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                                  sds album, struct t_list *albumartists, const struct t_tags *tagcols)
 {
@@ -145,6 +156,19 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     return buffer;
 }
 
+/**
+ * Lists albums from the album_cache
+ * @param mympd_state pointer to mympd state struct
+ * @param buffer sds string to append response
+ * @param method jsonrpc method
+ * @param request_id jsonrpc request id
+ * @param expression mpd search expression
+ * @param sort_tag to sort the result
+ * @param sortdesc true to sort descending, false to sort ascending
+ * @param offset offset of results to print
+ * @param limit max number of results to print
+ * @return pointer to buffer
+ */
 sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                                        sds expression, sds sort, bool sortdesc, const long offset, long limit)
 {
@@ -156,7 +180,6 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     buffer = jsonrpc_respond_start(buffer, method, request_id);
     buffer = sdscat(buffer, "\"data\":[");
 
-    struct mpd_song *song;
     //parse sort tag
     bool sort_by_last_modified = false;
     enum mpd_tag_type sort_tag = MPD_TAG_ALBUM;
@@ -188,27 +211,27 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     raxSeek(&iter, "^", NULL, 0);
     sds key = sdsempty();
     while (raxNext(&iter)) {
-        song = (struct mpd_song *)iter.data;
+        struct mpd_song *album = (struct mpd_song *)iter.data;
         if (expr_list->length == 0 ||
-            search_song_expression(song, expr_list, &mympd_state->tag_types_browse) == true)
+            search_song_expression(album, expr_list, &mympd_state->tag_types_browse) == true)
         {
             if (sort_by_last_modified == true) {
-                key = sdscatfmt(key, "%I::%s", (long long)mpd_song_get_last_modified(song), mpd_song_get_uri(song));
+                key = sdscatfmt(key, "%I::%s", (long long)mpd_song_get_last_modified(album), mpd_song_get_uri(album));
             }
             else {
-                const char *sort_value = mpd_song_get_tag(song, sort_tag, 0);
+                const char *sort_value = mpd_song_get_tag(album, sort_tag, 0);
                 if (sort_value == NULL &&
                     sort_tag == MPD_TAG_ALBUM_ARTIST)
                 {
                     //fallback to artist tag if albumartist tag is not set
-                    sort_value = mpd_song_get_tag(song, MPD_TAG_ARTIST, 0);
+                    sort_value = mpd_song_get_tag(album, MPD_TAG_ARTIST, 0);
                 }
                 if (sort_value != NULL) {
-                    key = sdscatfmt(key, "%s::%s", sort_value, mpd_song_get_uri(song));
+                    key = sdscatfmt(key, "%s::%s", sort_value, mpd_song_get_uri(album));
                 }
                 else {
                     //sort tag not present, append to end of the list
-                    key = sdscatfmt(key, "zzzzzzzzzz::%s", mpd_song_get_uri(song));
+                    key = sdscatfmt(key, "zzzzzzzzzz::%s", mpd_song_get_uri(album));
                 }
             }
             sds_utf8_tolower(key);
@@ -238,17 +261,17 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
-            song = (struct mpd_song *)iter.data;
+            struct mpd_song *album = (struct mpd_song *)iter.data;
             buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_char(buffer, "Type", "album", true);
             buffer = sdscat(buffer, "\"Album\":");
-            buffer = mpd_client_get_tag_values(song, MPD_TAG_ALBUM, buffer);
+            buffer = mpd_client_get_tag_values(album, MPD_TAG_ALBUM, buffer);
             buffer = sdscat(buffer, ",\"AlbumArtist\":");
-            buffer = mpd_client_get_tag_values(song, mympd_state->mpd_state->tag_albumartist, buffer);
+            buffer = mpd_client_get_tag_values(album, mympd_state->mpd_state->tag_albumartist, buffer);
             buffer = sdscatlen(buffer, ",", 1);
-            buffer = tojson_uint(buffer, "Discs", album_get_discs(song), true);
-            buffer = tojson_uint(buffer, "SongCount", album_get_song_count(song), true);
-            buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(song), false);
+            buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
+            buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), true);
+            buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(album), false);
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;
@@ -271,6 +294,19 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     return buffer;
 }
 
+/**
+ * Lists tags from the mpd database
+ * @param mympd_state pointer to mympd state struct
+ * @param buffer sds string to append response
+ * @param method jsonrpc method
+ * @param request_id jsonrpc request id
+ * @param searchstr string to search
+ * @param tag tag type to list
+ * @param offset offset of results to print
+ * @param limit max number of results to print
+ * @param sortdesc true to sort descending, false to sort ascending
+ * @return pointer to buffer
+ */
 sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                           sds searchstr, sds tag, const long offset, const long limit, bool sortdesc)
 {

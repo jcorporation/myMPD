@@ -25,6 +25,12 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
 static bool _get_sticker_from_mpd(struct t_mpd_state *mpd_state, const char *uri, struct t_sticker *sticker);
 
 //public functions
+
+/**
+ * Creates the caches and returns it to mympd_api thread
+ * @param mpd_worker_state pointer to mpd_worker_state struct
+ * @return true on success else false
+ */
 bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     rax *album_cache = NULL;
     if (mpd_worker_state->mpd_state->feat_mpd_tags == true) {
@@ -63,10 +69,10 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     //push sticker cache building response to mpd_client thread
     if (mpd_worker_state->mpd_state->feat_mpd_stickers == true) {
         if (rc == true) {
-            struct t_work_request *request2 = create_request(-1, 0, INTERNAL_API_STICKERCACHE_CREATED, NULL);
-            request2->data = sdscatlen(request2->data, "}}", 2);
-            request2->extra = (void *) sticker_cache;
-            mympd_queue_push(mympd_api_queue, request2, 0);
+            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STICKERCACHE_CREATED, NULL);
+            request->data = sdscatlen(request->data, "}}", 2);
+            request->extra = (void *) sticker_cache;
+            mympd_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify("database", "info", "Updated sticker cache");
         }
         else {
@@ -81,6 +87,14 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
 }
 
 //private functions
+
+/**
+ * Initializes the album and sticker cache
+ * @param mpd_worker_state pointer to mpd_worker_state struct
+ * @album_cache pointer to empty album_cache
+ * @album sticker_cache pointer to empty sticker_cache
+ * @return true on success else false
+ */
 static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
     MYMPD_LOG_INFO("Creating caches");
     unsigned start = 0;
@@ -137,21 +151,21 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
             }
             //album cache
             if (create_album_cache == true) {
+                //set initial soung count to 1
+                album_cache_set_song_count(song, 1);
+                //construct the key
                 key = album_cache_get_key(song, key, mpd_worker_state->mpd_state->tag_albumartist);
                 if (sdslen(key) > 0) {
                     void *old_data;
                     if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, &old_data) == 0) {
-                        struct mpd_song *update_album = (struct mpd_song *) old_data;
+                        struct mpd_song *album = (struct mpd_song *) old_data;
                         //append song data if key exists
-                        album_cache_append_tags(update_album, song, &mpd_worker_state->mpd_state->tag_types_mympd);
-                        //use newest modified-since
-                        album_cache_set_last_modified(update_album, song);
-                        //calculate album duration
-                        album_cache_inc_total_time(update_album, song);
-                        //calculate discs
-                        album_cache_set_discs(update_album, song);
-                        //song count
-                        album_cache_inc_song_count(update_album);
+                        album_cache_append_tags(album, song, &mpd_worker_state->mpd_state->tag_types_mympd);
+                        //set album data
+                        album_cache_set_last_modified(album, song); //use latest last_modified
+                        album_cache_inc_total_time(album, song);    //sum duration
+                        album_cache_set_discs(album, song);         //use max disc value
+                        album_cache_inc_song_count(album);          //inc song count by one
                         //free song data
                         mpd_song_free(song);
                     }
@@ -196,7 +210,8 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
     return true;
 }
 
-/** Populates the sticker struct from mpd 
+/**
+ * Populates the sticker struct from mpd
  * @param mpd_state pointer to t_mpd_state struct
  * @param uri song uri
  * @param pointer already allocated sticker struct to populate
