@@ -7,6 +7,7 @@
 #include "mympd_config_defs.h"
 #include "mympd_api_handler.h"
 
+#include "../lib/album_cache.h"
 #include "../lib/api.h"
 #include "../lib/covercache.h"
 #include "../lib/jsonrpc.h"
@@ -14,6 +15,7 @@
 #include "../lib/lua_mympd_state.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
+#include "../lib/sticker_cache.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_client/mpd_client_connection.h"
@@ -105,15 +107,15 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 break;
             }
             if (request->cmd_id == INTERNAL_API_CACHES_CREATE) {
-                if (mympd_state->album_cache_building == true ||
-                    mympd_state->sticker_cache_building == true)
+                if (mympd_state->album_cache.building == true ||
+                    mympd_state->sticker_cache.building == true)
                 {
                     response->data = jsonrpc_respond_message(response->data, request->method, request->id, true,
                         "general", "error", "Cache update is already running");
                     break;
                 }
-                mympd_state->album_cache_building = true;
-                mympd_state->sticker_cache_building = true;
+                mympd_state->album_cache.building = true;
+                mympd_state->sticker_cache.building = true;
             }
             async = true;
             free_response(response);
@@ -572,8 +574,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         }
         case INTERNAL_API_STICKERCACHE_CREATED:
             if (request->extra != NULL) {
-                mympd_state->sticker_cache = sticker_cache_free(mympd_state->sticker_cache);
-                mympd_state->sticker_cache = (rax *) request->extra;
+                sticker_cache_free(&mympd_state->sticker_cache);
+                mympd_state->sticker_cache.cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "sticker");
                 MYMPD_LOG_INFO("Sticker cache was replaced");
             }
@@ -581,7 +583,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 MYMPD_LOG_ERROR("Sticker cache is NULL");
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "sticker", "error", "Sticker cache is NULL");
             }
-            mympd_state->sticker_cache_building = false;
+            mympd_state->sticker_cache.building = false;
             break;
         case INTERNAL_API_ALBUMCACHE_CREATED:
             if (request->extra != NULL) {
@@ -589,8 +591,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 MYMPD_LOG_INFO("Clearing jukebox queue");
                 mpd_client_clear_jukebox(&mympd_state->jukebox_queue);
                 //free the old album cache and replace it with the freshly generated one
-                mympd_state->album_cache = album_cache_free(mympd_state->album_cache);
-                mympd_state->album_cache = (rax *) request->extra;
+                album_cache_free(&mympd_state->album_cache);
+                mympd_state->album_cache.cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "database");
                 MYMPD_LOG_INFO("Album cache was replaced");
             }
@@ -598,7 +600,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 MYMPD_LOG_ERROR("Album cache is NULL");
                 response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "database", "error", "Album cache is NULL");
             }
-            mympd_state->album_cache_building = false;
+            mympd_state->album_cache.building = false;
             break;
         case MYMPD_API_MESSAGE_SEND:
             if (json_get_string(request->data, "$.params.channel", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
@@ -617,7 +619,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true &&
                 json_get_int(request->data, "$.params.like", 0, 2, &int_buf1, &error) == true)
             {
-                rc = mympd_api_sticker_like(mympd_state, sds_buf1, int_buf1);
+                rc = sticker_set_like(&mympd_state->sticker_queue, sds_buf1, int_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "sticker");
                 }
@@ -983,7 +985,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf2, vcb_isname, &error) == true)
             {
                 response->data = mpd_client_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
-                    sds_buf2, NULL, false, sds_buf1, UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
+                    sds_buf2, NULL, false, sds_buf1, UINT_MAX, 0, 0, 0, NULL, &mympd_state->sticker_cache, &result);
                 if (result == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
                         "playlist", "info", "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
@@ -1000,7 +1002,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true)
             {
                 response->data = mpd_client_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
-                    sds_buf2, NULL, false, sds_buf1, uint_buf1, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
+                    sds_buf2, NULL, false, sds_buf1, uint_buf1, 0, 0, 0, NULL, &mympd_state->sticker_cache, &result);
                 if (result == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
                         "playlist", "info", "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
@@ -1017,7 +1019,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     break;
                 }
                 response->data = mpd_client_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
-                    sds_buf2, NULL, false, sds_buf1, UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
+                    sds_buf2, NULL, false, sds_buf1, UINT_MAX, 0, 0, 0, NULL, &mympd_state->sticker_cache, &result);
                 if (result == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->method, request->id, false,
                         "playlist", "info", "Replaced the playlist %{playlist}", 2, "playlist", sds_buf1);
@@ -1200,7 +1202,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
                 response->data = mpd_client_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
-                    sds_buf1, NULL, false, "queue", UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
+                    sds_buf1, NULL, false, "queue", UINT_MAX, 0, 0, 0, NULL, &mympd_state->sticker_cache, &result);
                 if (result == true &&
                     check_start_play(mympd_state, bool_buf1, &response->data, request->method, request->id) == true)
                 {
@@ -1220,7 +1222,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
                 response->data = mpd_client_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
-                    sds_buf1, NULL, false, "queue", uint_buf1, uint_buf2, 0, 0, NULL, mympd_state->sticker_cache, &result);
+                    sds_buf1, NULL, false, "queue", uint_buf1, uint_buf2, 0, 0, NULL, &mympd_state->sticker_cache, &result);
                 if (result == true &&
                     check_start_play(mympd_state, bool_buf1, &response->data, request->method, request->id) == true)
                 {
@@ -1239,7 +1241,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                     break;
                 }
                 response->data = mpd_client_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
-                    sds_buf1, NULL, false, "queue", UINT_MAX, 0, 0, 0, NULL, mympd_state->sticker_cache, &result);
+                    sds_buf1, NULL, false, "queue", UINT_MAX, 0, 0, 0, NULL, &mympd_state->sticker_cache, &result);
                 if (result == true &&
                     check_start_play(mympd_state, bool_buf1, &response->data, request->method, request->id) == true)
                 {
@@ -1308,7 +1310,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
                 response->data = mpd_client_search(mympd_state->mpd_state, response->data, request->method, request->id,
-                    sds_buf1, sds_buf2, NULL, uint_buf1, uint_buf2, &tagcols, mympd_state->sticker_cache, &result);
+                    sds_buf1, sds_buf2, NULL, uint_buf1, uint_buf2, &tagcols, &mympd_state->sticker_cache, &result);
             }
             break;
         }
@@ -1323,7 +1325,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
                 response->data = mpd_client_search_adv(mympd_state->mpd_state, response->data, request->method, request->id,
-                    sds_buf1, sds_buf2, bool_buf1, NULL, UINT_MAX, 0, uint_buf1, uint_buf2, &tagcols, mympd_state->sticker_cache, &result);
+                    sds_buf1, sds_buf2, bool_buf1, NULL, UINT_MAX, 0, uint_buf1, uint_buf2, &tagcols, &mympd_state->sticker_cache, &result);
             }
             break;
         }

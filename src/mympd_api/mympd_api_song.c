@@ -61,7 +61,7 @@ sds mympd_api_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds met
 
     if (mympd_state->mpd_state->feat_mpd_stickers) {
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mympd_api_sticker_list(buffer, mympd_state->sticker_cache, uri);
+        buffer = mympd_api_sticker_list(buffer, &mympd_state->sticker_cache, uri);
     }
 
     buffer = sdscatlen(buffer, ",", 1);

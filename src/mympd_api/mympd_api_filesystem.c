@@ -144,7 +144,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
                     FREE_SDS(filename);
                     if (mympd_state->mpd_state->feat_mpd_stickers) {
                         buffer = sdscatlen(buffer, ",", 1);
-                        buffer = mympd_api_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
+                        buffer = mympd_api_sticker_list(buffer, &mympd_state->sticker_cache, mpd_song_get_uri(song));
                     }
                     buffer = sdscatlen(buffer, "}", 1);
                     break;

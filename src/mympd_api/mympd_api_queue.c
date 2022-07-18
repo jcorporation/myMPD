@@ -424,11 +424,9 @@ sds _print_queue_entry(struct t_mympd_state *mympd_state, sds buffer, const stru
     else {
         buffer = tojson_char(buffer, "type", "song", false);
     }
-    if (mympd_state->mpd_state->feat_mpd_stickers == true &&
-        mympd_state->sticker_cache != NULL)
-    {
+    if (mympd_state->mpd_state->feat_mpd_stickers == true) {
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mympd_api_sticker_list(buffer, mympd_state->sticker_cache, uri);
+        buffer = mympd_api_sticker_list(buffer, &mympd_state->sticker_cache, uri);
     }
     buffer = sdscatlen(buffer, "}", 1);
     return buffer;

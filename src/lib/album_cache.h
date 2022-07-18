@@ -14,7 +14,8 @@
 #include <stdbool.h>
 
 sds album_cache_get_key(struct mpd_song *song, sds albumkey, enum mpd_tag_type tag_albumartist);
-struct mpd_song *album_cache_get_album(rax *album_cache, sds key);
+struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key);
+void album_cache_free(struct t_cache *album_cache);
 
 unsigned album_get_discs(struct mpd_song *album);
 unsigned album_get_total_time(struct mpd_song *album);

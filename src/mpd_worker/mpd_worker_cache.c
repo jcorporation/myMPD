@@ -12,6 +12,7 @@
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
+#include "../lib/sticker_cache.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
 #include "../mpd_client/mpd_client_tags.h"
 
@@ -32,20 +33,22 @@ static bool _get_sticker_from_mpd(struct t_mpd_state *mpd_state, const char *uri
  * @return true on success else false
  */
 bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
-    rax *album_cache = NULL;
+    struct t_cache album_cache;
+    album_cache.cache = NULL;
     if (mpd_worker_state->mpd_state->feat_mpd_tags == true) {
-        album_cache = raxNew();
+        album_cache.cache = raxNew();
     }
-    rax *sticker_cache = NULL;
+    struct t_cache sticker_cache;
+    sticker_cache.cache = NULL;
     if (mpd_worker_state->mpd_state->feat_mpd_stickers == true) {
-        sticker_cache = raxNew();
+        sticker_cache.cache = raxNew();
     }
 
     bool rc = true;
     if (mpd_worker_state->mpd_state->feat_mpd_tags == true ||
         mpd_worker_state->mpd_state->feat_mpd_stickers == true)
     {
-        rc =_cache_init(mpd_worker_state, album_cache, sticker_cache);
+        rc =_cache_init(mpd_worker_state, album_cache.cache, sticker_cache.cache);
     }
 
     //push album cache building response to mpd_client thread
@@ -53,12 +56,12 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
         if (rc == true) {
             struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_CREATED, NULL);
             request->data = sdscatlen(request->data, "}}", 2);
-            request->extra = (void *) album_cache;
+            request->extra = (void *) album_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify("database", "info", "Updated album cache");
         }
         else {
-            album_cache_free(album_cache);
+            album_cache_free(&album_cache);
             send_jsonrpc_notify("database", "error", "Update of album cache failed");
         }
     }
@@ -71,12 +74,12 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
         if (rc == true) {
             struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STICKERCACHE_CREATED, NULL);
             request->data = sdscatlen(request->data, "}}", 2);
-            request->extra = (void *) sticker_cache;
+            request->extra = (void *) sticker_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify("database", "info", "Updated sticker cache");
         }
         else {
-            sticker_cache_free(sticker_cache);
+            sticker_cache_free(&sticker_cache);
             send_jsonrpc_notify("database", "error", "Update of sticker cache failed");
         }
     }

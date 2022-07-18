@@ -22,14 +22,14 @@ static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, sds met
                       const char *expression, const char *sort, const bool sortdesc,
                       const char *plist, unsigned to, unsigned whence,
                       const unsigned offset, unsigned limit, const struct t_tags *tagcols, bool adv,
-                      const char *searchtag, rax *sticker_cache, bool *result);
+                      const char *searchtag, struct t_cache *sticker_cache, bool *result);
 
 //public functions
 
 sds mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *searchstr, const char *searchtag, const char *plist,
                       const unsigned offset, unsigned limit, const struct t_tags *tagcols,
-                      rax *sticker_cache, bool *result)
+                      struct t_cache *sticker_cache, bool *result)
 {
     return _mpd_client_search(mpd_state, buffer, method, request_id,
                               searchstr, NULL, false, plist, 0, 0, offset, limit,
@@ -40,7 +40,7 @@ sds mpd_client_search_adv(struct t_mpd_state *mpd_state, sds buffer, sds method,
                           const char *expression, const char *sort, const bool sortdesc,
                           const char *plist, unsigned to, unsigned whence,
                           const unsigned offset, unsigned limit, const struct t_tags *tagcols,
-                          rax *sticker_cache, bool *result)
+                          struct t_cache *sticker_cache, bool *result)
 {
     return _mpd_client_search(mpd_state, buffer, method, request_id,
                               expression, sort, sortdesc, plist, to, whence, offset, limit,
@@ -64,7 +64,7 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
 static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
                       const char *expression, const char *sort, const bool sortdesc, const char *plist,
                       unsigned to, unsigned whence, const unsigned offset, unsigned limit,
-                      const struct t_tags *tagcols, bool adv, const char *searchtag, rax *sticker_cache,
+                      const struct t_tags *tagcols, bool adv, const char *searchtag, struct t_cache *sticker_cache,
                       bool *result)
 {
     *result = false;

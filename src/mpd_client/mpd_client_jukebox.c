@@ -119,10 +119,10 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
                             buffer = tojson_long(buffer, "Pos", entity_count, true);
                             buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
                             if (mympd_state->mpd_state->feat_mpd_stickers == true &&
-                                mympd_state->sticker_cache != NULL)
+                                mympd_state->sticker_cache.cache != NULL)
                             {
                                 buffer = sdscatlen(buffer, ",", 1);
-                                buffer = mympd_api_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
+                                buffer = mympd_api_sticker_list(buffer, &mympd_state->sticker_cache, mpd_song_get_uri(song));
                             }
                             buffer = sdscatlen(buffer, "}", 1);
                         }
@@ -558,7 +558,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
 static long _fill_jukebox_queue_albums(struct t_mympd_state *mympd_state, long add_albums,
         bool manual, struct t_list *queue_list, struct t_list *add_list)
 {
-    if (mympd_state->album_cache == NULL) {
+    if (mympd_state->album_cache.cache == NULL) {
         MYMPD_LOG_WARN("Album cache is null, jukebox can not add albums");
         return -1;
     }
@@ -576,7 +576,7 @@ static long _fill_jukebox_queue_albums(struct t_mympd_state *mympd_state, long a
     long nkeep = 0;
     long lineno = 1;
     raxIterator iter;
-    raxStart(&iter, mympd_state->album_cache);
+    raxStart(&iter, mympd_state->album_cache.cache);
     raxSeek(&iter, "^", NULL, 0);
     sds album = sdsempty();
     sds albumartist = sdsempty();
@@ -639,7 +639,7 @@ static long _fill_jukebox_queue_songs(struct t_mympd_state *mympd_state, long ad
     time_t since = time(NULL);
     since = since - (mympd_state->jukebox_last_played * 3600);
 
-    if (mympd_state->sticker_cache == NULL) {
+    if (mympd_state->sticker_cache.cache == NULL) {
         MYMPD_LOG_WARN("Sticker cache is null, jukebox doesn't respect last played constraint");
     }
 
@@ -689,11 +689,9 @@ static long _fill_jukebox_queue_songs(struct t_mympd_state *mympd_state, long ad
             tag_value = mpd_client_get_tag_value_string(song, mympd_state->jukebox_unique_tag.tags[0], tag_value);
             const char *uri = mpd_song_get_uri(song);
             time_t last_played = 0;
-            if (mympd_state->sticker_cache != NULL) {
-                struct t_sticker *sticker = get_sticker_from_cache(mympd_state->sticker_cache, uri);
-                if (sticker != NULL) {
-                    last_played = sticker->lastPlayed;
-                }
+            struct t_sticker *sticker = get_sticker_from_cache(&mympd_state->sticker_cache, uri);
+            if (sticker != NULL) {
+                last_played = sticker->lastPlayed;
             }
 
             long is_uniq = JUKEBOX_UNIQ_IS_UNIQ;

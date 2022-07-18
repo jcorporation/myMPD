@@ -7,6 +7,8 @@
 #include "mympd_config_defs.h"
 #include "mympd_state.h"
 
+#include "../lib/album_cache.h"
+#include "../lib/sticker_cache.h"
 #include "../mpd_client/mpd_client_jukebox.h"
 #include "../mpd_client/mpd_client_tags.h"
 #include "../mympd_api/mympd_api_timer.h"
@@ -71,11 +73,11 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     //init sticker queue
     list_init(&mympd_state->sticker_queue);
     //sticker cache
-    mympd_state->sticker_cache_building = false;
-    mympd_state->sticker_cache = NULL;
+    mympd_state->sticker_cache.building = false;
+    mympd_state->sticker_cache.cache = NULL;
     //album cache
-    mympd_state->album_cache_building = false;
-    mympd_state->album_cache = NULL;
+    mympd_state->album_cache.building = false;
+    mympd_state->album_cache.cache = NULL;
     //jukebox queue
     list_init(&mympd_state->jukebox_queue);
     list_init(&mympd_state->jukebox_queue_tmp);
@@ -101,8 +103,8 @@ void *mympd_state_free(struct t_mympd_state *mympd_state) {
     //mpd state
     mympd_state_free_mpd_state(mympd_state->mpd_state);
     //caches
-    sticker_cache_free(mympd_state->sticker_cache);
-    album_cache_free(mympd_state->album_cache);
+    sticker_cache_free(&mympd_state->sticker_cache);
+    album_cache_free(&mympd_state->album_cache);
     //sds
     FREE_SDS(mympd_state->tag_list_search);
     FREE_SDS(mympd_state->tag_list_browse);
@@ -181,41 +183,6 @@ void *mympd_state_free_mpd_state(struct t_mpd_state *mpd_state) {
     FREE_SDS(mpd_state->last_song_uri);
     FREE_SDS(mpd_state->tag_list);
     FREE_PTR(mpd_state);
-    return NULL;
-}
-
-//caches
-void *album_cache_free(rax *album_cache) {
-    if (album_cache == NULL) {
-        MYMPD_LOG_DEBUG("Album cache is NULL not freeing anything");
-        return NULL;
-    }
-    MYMPD_LOG_DEBUG("Freeing album cache");
-    raxIterator iter;
-    raxStart(&iter, album_cache);
-    raxSeek(&iter, "^", NULL, 0);
-    while (raxNext(&iter)) {
-        mpd_song_free((struct mpd_song *)iter.data);
-    }
-    raxStop(&iter);
-    raxFree(album_cache);
-    return NULL;
-}
-
-void *sticker_cache_free(rax *sticker_cache) {
-    if (sticker_cache == NULL) {
-        MYMPD_LOG_DEBUG("Sticker cache is NULL not freeing anything");
-        return NULL;
-    }
-    MYMPD_LOG_DEBUG("Freeing sticker cache");
-    raxIterator iter;
-    raxStart(&iter, sticker_cache);
-    raxSeek(&iter, "^", NULL, 0);
-    while (raxNext(&iter)) {
-        FREE_PTR(iter.data);
-    }
-    raxStop(&iter);
-    raxFree(sticker_cache);
     return NULL;
 }
 

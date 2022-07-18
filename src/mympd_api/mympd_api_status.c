@@ -269,11 +269,9 @@ sds mympd_api_status_current_song(struct t_mympd_state *mympd_state, sds buffer,
     buffer = tojson_uint(buffer, "pos", mpd_song_get_pos(song), true);
     buffer = tojson_long(buffer, "currentSongId", mympd_state->mpd_state->song_id, true);
     buffer = get_song_tags(buffer, mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd, song);
-    if (mympd_state->mpd_state->feat_mpd_stickers &&
-        mympd_state->sticker_cache != NULL)
-    {
+    if (mympd_state->mpd_state->feat_mpd_stickers) {
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mympd_api_sticker_list(buffer, mympd_state->sticker_cache, mpd_song_get_uri(song));
+        buffer = mympd_api_sticker_list(buffer, &mympd_state->sticker_cache, mpd_song_get_uri(song));
     }
     buffer = sdscatlen(buffer, ",", 1);
     buffer = get_extra_media(mympd_state, buffer, uri, false);

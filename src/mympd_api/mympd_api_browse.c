@@ -102,7 +102,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
         buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
         if (mympd_state->mpd_state->feat_mpd_stickers) {
             buffer = sdscatlen(buffer, ",", 1);
-            struct t_sticker *sticker = get_sticker_from_cache(mympd_state->sticker_cache, mpd_song_get_uri(song));
+            struct t_sticker *sticker = get_sticker_from_cache(&mympd_state->sticker_cache, mpd_song_get_uri(song));
             buffer = mympd_api_print_sticker(buffer, sticker);
             if (sticker != NULL &&
                 sticker->lastPlayed > last_played_max)
@@ -121,7 +121,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
         return buffer;
     }
 
-    struct mpd_song *mpd_album = album_cache_get_album(mympd_state->album_cache, albumkey);
+    struct mpd_song *mpd_album = album_cache_get_album(&mympd_state->album_cache, albumkey);
     if (mpd_album == NULL) {
         FREE_SDS(albumkey);
         return jsonrpc_respond_message(buffer, method, request_id, true,
@@ -172,7 +172,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
 sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                                        sds expression, sds sort, bool sortdesc, const long offset, long limit)
 {
-    if (mympd_state->album_cache == NULL) {
+    if (mympd_state->album_cache.cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, method, request_id, true, "database", "error", "Albumcache not ready");
         return buffer;
     }
@@ -207,7 +207,7 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
     long real_limit = offset + limit;
     rax *albums = raxNew();
     raxIterator iter;
-    raxStart(&iter, mympd_state->album_cache);
+    raxStart(&iter, mympd_state->album_cache.cache);
     raxSeek(&iter, "^", NULL, 0);
     sds key = sdsempty();
     while (raxNext(&iter)) {

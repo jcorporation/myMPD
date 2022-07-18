@@ -8,13 +8,7 @@
 #define MYMPD_API_STICKER_H
 
 #include "../lib/mympd_state.h"
-sds mympd_api_sticker_list(sds buffer, rax *sticker_cache, const char *uri);
+sds mympd_api_sticker_list(sds buffer, struct t_cache *sticker_cache, const char *uri);
 sds mympd_api_print_sticker(sds buffer, struct t_sticker *sticker);
 
-bool mympd_api_sticker_inc_play_count(struct t_mympd_state *mympd_state, const char *uri);
-bool mympd_api_sticker_inc_skip_count(struct t_mympd_state *mympd_state, const char *uri);
-bool mympd_api_sticker_like(struct t_mympd_state *mympd_state, const char *uri, int value);
-bool mympd_api_sticker_last_played(struct t_mympd_state *mympd_state, const char *uri);
-bool mympd_api_sticker_last_skipped(struct t_mympd_state *mympd_state, const char *uri);
-bool mympd_api_sticker_dequeue(struct t_mympd_state *mympd_state);
 #endif

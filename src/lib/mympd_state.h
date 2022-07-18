@@ -160,6 +160,11 @@ struct t_timer_list {
     struct t_timer_node *list;
 };
 
+struct t_cache {
+    bool building;
+    rax *cache;
+};
+
 struct t_mympd_state {
     //static config
     struct t_config *config;
@@ -173,11 +178,9 @@ struct t_mympd_state {
     struct t_list jukebox_queue;
     struct t_list jukebox_queue_tmp;
     //caches
-    rax *sticker_cache;
+    struct t_cache album_cache;
+    struct t_cache sticker_cache;
     struct t_list sticker_queue;
-    bool sticker_cache_building;
-    rax *album_cache;
-    bool album_cache_building;
     //states - configurable with webui
     sds tag_list_search;
     sds tag_list_browse;
@@ -234,9 +237,6 @@ void *mympd_state_free(struct t_mympd_state *mympd_state);
 
 void mympd_state_default_mpd_state(struct t_mpd_state *mpd_state);
 void *mympd_state_free_mpd_state(struct t_mpd_state *mpd_state);
-
-void *album_cache_free(rax *album_cache);
-void *sticker_cache_free(rax *sticker_cache);
 
 void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list);
 void reset_t_tags(struct t_tags *tags);

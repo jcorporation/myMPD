@@ -56,17 +56,38 @@ sds album_cache_get_key(struct mpd_song *song, sds albumkey, enum mpd_tag_type t
  * @param key the album
  * @return mpd_song struct representing the album
  */
-struct mpd_song *album_cache_get_album(rax *album_cache, sds key) {
-    if (album_cache == NULL) {
+struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key) {
+    if (album_cache->cache == NULL) {
         return NULL;
     }
     //try to get album
-    void *data = raxFind(album_cache, (unsigned char*)key, sdslen(key));
+    void *data = raxFind(album_cache->cache, (unsigned char*)key, sdslen(key));
     if (data == raxNotFound) {
         MYMPD_LOG_ERROR("Album for key \"%s\" not found in cache", key);
         return NULL;
     }
     return (struct mpd_song *) data;
+}
+
+/**
+ * Frees the album cache
+ * @param album_cache pointer to t_cache struct
+ */
+void album_cache_free(struct t_cache *album_cache) {
+    if (album_cache->cache == NULL) {
+        MYMPD_LOG_DEBUG("Album cache is NULL not freeing anything");
+        return;
+    }
+    MYMPD_LOG_DEBUG("Freeing album cache");
+    raxIterator iter;
+    raxStart(&iter, album_cache->cache);
+    raxSeek(&iter, "^", NULL, 0);
+    while (raxNext(&iter)) {
+        mpd_song_free((struct mpd_song *)iter.data);
+    }
+    raxStop(&iter);
+    raxFree(album_cache->cache);
+    album_cache->cache = NULL;
 }
 
 /** Gets the number of songs

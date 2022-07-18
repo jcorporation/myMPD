@@ -251,7 +251,7 @@ sds mympd_api_playlist_content_list(struct t_mympd_state *mympd_state, sds buffe
                 buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
                 if (mympd_state->mpd_state->feat_mpd_stickers) {
                     buffer = sdscatlen(buffer, ",", 1);
-                    struct t_sticker *sticker = get_sticker_from_cache(mympd_state->sticker_cache, mpd_song_get_uri(song));
+                    struct t_sticker *sticker = get_sticker_from_cache(&mympd_state->sticker_cache, mpd_song_get_uri(song));
                     buffer = mympd_api_print_sticker(buffer, sticker);
                     if (sticker != NULL &&
                         sticker->lastPlayed > last_played_max)

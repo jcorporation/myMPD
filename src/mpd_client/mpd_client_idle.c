@@ -10,13 +10,13 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
+#include "../lib/sticker_cache.h"
 #include "../lib/utility.h"
 #include "../mpd_worker/mpd_worker.h"
 #include "../mympd_api/mympd_api_handler.h"
 #include "../mympd_api/mympd_api_queue.h"
 #include "../mympd_api/mympd_api_status.h"
 #include "../mympd_api/mympd_api_stats.h"
-#include "../mympd_api/mympd_api_sticker.h"
 #include "../mympd_api/mympd_api_timer.h"
 #include "../mympd_api/mympd_api_timer_handlers.h"
 #include "../mympd_api/mympd_api_trigger.h"
@@ -107,8 +107,8 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                             {
                                 MYMPD_LOG_DEBUG("Song \"%s\" skipped", mympd_state->mpd_state->last_song_uri);
                                 if (mympd_state->mpd_state->feat_mpd_stickers == true) {
-                                    mympd_api_sticker_inc_skip_count(mympd_state, mympd_state->mpd_state->last_song_uri);
-                                    mympd_api_sticker_last_skipped(mympd_state, mympd_state->mpd_state->last_song_uri);
+                                    sticker_inc_skip_count(&mympd_state->sticker_queue, mympd_state->mpd_state->last_song_uri);
+                                    sticker_set_last_skipped(&mympd_state->sticker_queue, mympd_state->mpd_state->last_song_uri);
                                 }
                                 mympd_state->mpd_state->last_skipped_id = mympd_state->mpd_state->last_song_id;
                             }
@@ -307,8 +307,8 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                         mympd_api_stats_last_played_add_song(mympd_state, mympd_state->mpd_state->song_id);
                     }
                     if (mympd_state->mpd_state->feat_mpd_stickers == true) {
-                        mympd_api_sticker_inc_play_count(mympd_state, mympd_state->mpd_state->song_uri);
-                        mympd_api_sticker_last_played(mympd_state, mympd_state->mpd_state->song_uri);
+                        sticker_inc_play_count(&mympd_state->sticker_queue, mympd_state->mpd_state->song_uri);
+                        sticker_set_last_played(&mympd_state->sticker_queue, mympd_state->mpd_state->song_uri, mympd_state->mpd_state->last_song_start_time);
                     }
                     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_SCROBBLE);
                 }
@@ -327,7 +327,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     mympd_state->sticker_queue.length > 0)
                 {
                     MYMPD_LOG_DEBUG("Processing sticker queue");
-                    mympd_api_sticker_dequeue(mympd_state);
+                    sticker_dequeue(&mympd_state->sticker_queue, &mympd_state->sticker_cache, mympd_state->mpd_state);
                 }
                 //reenter idle mode
                 MYMPD_LOG_DEBUG("Entering mpd idle mode");
