@@ -31,7 +31,7 @@
 //private definitions
 static bool certificates_create(sds dir, sds custom_san);
 static sds get_san(sds buffer);
-static bool generate_set_random_serial(X509 *crt);
+static bool generate_set_random_serial(X509 *cert);
 static X509_REQ *generate_request(EVP_PKEY *pkey);
 static void add_extension(X509V3_CTX *ctx, X509 *cert, int nid, const char *value);
 static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ *req, sds san);
