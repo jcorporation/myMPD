@@ -335,28 +335,28 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        mympd_state->lyrics_uslt_ext = sds_replacelen(mympd_state->lyrics_uslt_ext, value, sdslen(value));
+        mympd_state->lyrics.uslt_ext = sds_replacelen(mympd_state->lyrics.uslt_ext, value, sdslen(value));
     }
     else if (strcmp(key, "lyricsSyltExt") == 0 && vtype == MJSON_TOK_STRING) {
         if (vcb_isalnum(value) == false) {
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        mympd_state->lyrics_sylt_ext = sds_replacelen(mympd_state->lyrics_sylt_ext, value, sdslen(value));
+        mympd_state->lyrics.sylt_ext = sds_replacelen(mympd_state->lyrics.sylt_ext, value, sdslen(value));
     }
     else if (strcmp(key, "lyricsVorbisUslt") == 0 && vtype == MJSON_TOK_STRING) {
         if (vcb_isalnum(value) == false) {
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        mympd_state->lyrics_vorbis_uslt = sds_replacelen(mympd_state->lyrics_vorbis_uslt, value, sdslen(value));
+        mympd_state->lyrics.vorbis_uslt = sds_replacelen(mympd_state->lyrics.vorbis_uslt, value, sdslen(value));
     }
     else if (strcmp(key, "lyricsVorbisSylt") == 0 && vtype == MJSON_TOK_STRING) {
         if (vcb_isalnum(value) == false) {
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        mympd_state->lyrics_vorbis_sylt = sds_replacelen(mympd_state->lyrics_vorbis_sylt, value, sdslen(value));
+        mympd_state->lyrics.vorbis_sylt = sds_replacelen(mympd_state->lyrics.vorbis_sylt, value, sdslen(value));
     }
     else if (strcmp(key, "covercacheKeepDays") == 0 && vtype == MJSON_TOK_NUMBER) {
         int covercache_keep_days = (int)strtoimax(value, NULL, 10);
@@ -594,10 +594,10 @@ void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     mympd_state->volume_step = state_file_rw_uint(mympd_state->config->workdir, "state", "volume_step", mympd_state->volume_step, VOLUME_STEP_MIN, VOLUME_STEP_MAX, false);
     mympd_state->webui_settings = state_file_rw_string_sds(mympd_state->config->workdir, "state", "webui_settings", mympd_state->webui_settings, validate_json, false);
     mympd_state->mpd_stream_port = state_file_rw_uint(mympd_state->config->workdir, "state", "mpd_stream_port", mympd_state->mpd_stream_port, MPD_PORT_MIN, MPD_PORT_MAX, false);
-    mympd_state->lyrics_uslt_ext = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_uslt_ext", mympd_state->lyrics_uslt_ext, vcb_isalnum, false);
-    mympd_state->lyrics_sylt_ext = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_sylt_ext", mympd_state->lyrics_sylt_ext, vcb_isalnum, false);
-    mympd_state->lyrics_vorbis_uslt = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_vorbis_uslt", mympd_state->lyrics_vorbis_uslt, vcb_isalnum, false);
-    mympd_state->lyrics_vorbis_sylt = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_vorbis_sylt", mympd_state->lyrics_vorbis_sylt, vcb_isalnum, false);
+    mympd_state->lyrics.uslt_ext = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_uslt_ext", mympd_state->lyrics.uslt_ext, vcb_isalnum, false);
+    mympd_state->lyrics.sylt_ext = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_sylt_ext", mympd_state->lyrics.sylt_ext, vcb_isalnum, false);
+    mympd_state->lyrics.vorbis_uslt = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_vorbis_uslt", mympd_state->lyrics.vorbis_uslt, vcb_isalnum, false);
+    mympd_state->lyrics.vorbis_sylt = state_file_rw_string_sds(mympd_state->config->workdir, "state", "lyrics_vorbis_sylt", mympd_state->lyrics.vorbis_sylt, vcb_isalnum, false);
     mympd_state->covercache_keep_days = state_file_rw_int(mympd_state->config->workdir, "state", "covercache_keep_days", mympd_state->covercache_keep_days, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, false);
     mympd_state->listenbrainz_token = state_file_rw_string_sds(mympd_state->config->workdir, "state", "listenbrainz_token", mympd_state->listenbrainz_token, vcb_isalnum, false);
     mympd_state->navbar_icons = state_file_rw_string_sds(mympd_state->config->workdir, "state", "navbar_icons", mympd_state->navbar_icons, validate_json_array, false);
@@ -655,10 +655,10 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
     buffer = tojson_uint(buffer, "volumeMin", mympd_state->volume_min, true);
     buffer = tojson_uint(buffer, "volumeMax", mympd_state->volume_max, true);
     buffer = tojson_uint(buffer, "volumeStep", mympd_state->volume_step, true);
-    buffer = tojson_sds(buffer, "lyricsUsltExt", mympd_state->lyrics_uslt_ext, true);
-    buffer = tojson_sds(buffer, "lyricsSyltExt", mympd_state->lyrics_sylt_ext, true);
-    buffer = tojson_sds(buffer, "lyricsVorbisUslt", mympd_state->lyrics_vorbis_uslt, true);
-    buffer = tojson_sds(buffer, "lyricsVorbisSylt", mympd_state->lyrics_vorbis_sylt, true);
+    buffer = tojson_sds(buffer, "lyricsUsltExt", mympd_state->lyrics.uslt_ext, true);
+    buffer = tojson_sds(buffer, "lyricsSyltExt", mympd_state->lyrics.sylt_ext, true);
+    buffer = tojson_sds(buffer, "lyricsVorbisUslt", mympd_state->lyrics.vorbis_uslt, true);
+    buffer = tojson_sds(buffer, "lyricsVorbisSylt", mympd_state->lyrics.vorbis_sylt, true);
     buffer = tojson_int(buffer, "covercacheKeepDays", mympd_state->covercache_keep_days, true);
     buffer = tojson_raw(buffer, "colsQueueCurrent", mympd_state->cols_queue_current, true);
     buffer = tojson_raw(buffer, "colsSearch", mympd_state->cols_search, true);

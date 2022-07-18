@@ -453,7 +453,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_LYRICS_GET:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
-                response->data = mympd_api_lyrics_get(mympd_state, response->data, request->method, request->id, sds_buf1);
+                response->data = mympd_api_lyrics_get(&mympd_state->lyrics, mympd_state->music_directory_value, response->data, request->method, request->id, sds_buf1);
             }
             break;
         case INTERNAL_API_STATE_SAVE:

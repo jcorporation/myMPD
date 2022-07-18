@@ -58,10 +58,10 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_state->volume_step = MYMPD_VOLUME_STEP;
     mympd_state->mpd_stream_port = MYMPD_MPD_STREAM_PORT;
     mympd_state->webui_settings = sdsnew(MYMPD_WEBUI_SETTINGS);
-    mympd_state->lyrics_uslt_ext = sdsnew(MYMPD_LYRICS_USLT_EXT);
-    mympd_state->lyrics_sylt_ext = sdsnew(MYMPD_LYRICS_SYLT_EXT);
-    mympd_state->lyrics_vorbis_uslt = sdsnew(MYMPD_LYRICS_VORBIS_USLT);
-    mympd_state->lyrics_vorbis_sylt = sdsnew(MYMPD_LYRICS_VORBIS_SYLT);
+    mympd_state->lyrics.uslt_ext = sdsnew(MYMPD_LYRICS_USLT_EXT);
+    mympd_state->lyrics.sylt_ext = sdsnew(MYMPD_LYRICS_SYLT_EXT);
+    mympd_state->lyrics.vorbis_uslt = sdsnew(MYMPD_LYRICS_VORBIS_USLT);
+    mympd_state->lyrics.vorbis_sylt = sdsnew(MYMPD_LYRICS_VORBIS_SYLT);
     mympd_state->covercache_keep_days = MYMPD_COVERCACHE_KEEP_DAYS;
     mympd_state->listenbrainz_token = sdsempty();
     mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
@@ -130,10 +130,10 @@ void *mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->navbar_icons);
     FREE_SDS(mympd_state->webui_settings);
     FREE_SDS(mympd_state->playlist_directory);
-    FREE_SDS(mympd_state->lyrics_sylt_ext);
-    FREE_SDS(mympd_state->lyrics_uslt_ext);
-    FREE_SDS(mympd_state->lyrics_vorbis_uslt);
-    FREE_SDS(mympd_state->lyrics_vorbis_sylt);
+    FREE_SDS(mympd_state->lyrics.sylt_ext);
+    FREE_SDS(mympd_state->lyrics.uslt_ext);
+    FREE_SDS(mympd_state->lyrics.vorbis_uslt);
+    FREE_SDS(mympd_state->lyrics.vorbis_sylt);
     FREE_SDS(mympd_state->listenbrainz_token);
     //struct itself
     FREE_PTR(mympd_state);

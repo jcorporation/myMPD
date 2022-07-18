@@ -165,6 +165,13 @@ struct t_cache {
     rax *cache;
 };
 
+struct t_lyrics {
+    sds uslt_ext;
+    sds sylt_ext;
+    sds vorbis_uslt;
+    sds vorbis_sylt;
+};
+
 struct t_mympd_state {
     //static config
     struct t_config *config;
@@ -222,10 +229,7 @@ struct t_mympd_state {
     unsigned volume_min;
     unsigned volume_max;
     unsigned volume_step;
-    sds lyrics_uslt_ext;
-    sds lyrics_sylt_ext;
-    sds lyrics_vorbis_uslt;
-    sds lyrics_vorbis_sylt;
+    struct t_lyrics lyrics;
     int covercache_keep_days;
     sds listenbrainz_token;
     //settings only for webui
