@@ -285,7 +285,7 @@ static sds get_san(sds buffer) {
             if (strcmp(hostbuffer, res->ai_canonname) != 0) {
                 MYMPD_LOG_DEBUG("Adding DNS:%s to SAN", res->ai_canonname);
                 sdsclear(key);
-                key = sdscatfmt(sdsempty(), "DNS:%s", res->ai_canonname);
+                key = sdscatfmt(key, "DNS:%s", res->ai_canonname);
                 list_push(&san, key, 0, NULL, NULL);
             }
             freeaddrinfo(res);
