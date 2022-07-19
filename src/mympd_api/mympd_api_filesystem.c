@@ -11,6 +11,7 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
+#include "../lib/rax_extras.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
@@ -29,6 +30,7 @@ struct t_dir_entry {
     struct mpd_entity *entity;
 };
 
+static void free_t_dir_entry(void *data);
 static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity, sds searchstr);
 
 //public functions
@@ -90,17 +92,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
         //free result
-        raxIterator iter;
-        raxStart(&iter, entity_list);
-        raxSeek(&iter, "^", NULL, 0);
-        while (raxNext(&iter)) {
-            struct t_dir_entry *entry_data = (struct t_dir_entry *)iter.data;
-            mpd_entity_free(entry_data->entity);
-            FREE_SDS(entry_data->name);
-            FREE_PTR(iter.data);
-        }
-        raxStop(&iter);
-        raxFree(entity_list);
+        rax_free_data(entity_list, free_t_dir_entry);
         //return error message
         return buffer;
     }
@@ -191,6 +183,18 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
 }
 
 //private functions
+
+/**
+ * Frees the t_dir_entry struct used as callback for rax_free_data
+ * @param data void pointer to a t_dir_entry struct
+ */
+static void free_t_dir_entry(void *data) {
+    struct t_dir_entry *entry_data = (struct t_dir_entry *)data;
+    mpd_entity_free(entry_data->entity);
+    FREE_SDS(entry_data->name);
+    FREE_PTR(data);
+}
+
 static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity, sds searchstr) {
     if (sdslen(searchstr) == 0 ||
         utf8casestr(entity_name, searchstr) != NULL)

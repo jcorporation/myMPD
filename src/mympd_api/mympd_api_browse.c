@@ -12,6 +12,7 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
+#include "../lib/rax_extras.h"
 #include "../lib/sds_extras.h"
 #include "../lib/sticker_cache.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
@@ -354,6 +355,7 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
+        rax_free_sds_data(taglist);
         return buffer;
     }
     FREE_SDS(key);

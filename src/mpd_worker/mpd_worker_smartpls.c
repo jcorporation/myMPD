@@ -11,6 +11,7 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
+#include "../lib/rax_extras.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
@@ -267,6 +268,24 @@ static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_wor
     return result;
 }
 
+/**
+ * Simple helper struct for mpd_worker_smartpls_update_sticker_ge
+ */
+struct t_sticker_value {
+    sds uri;
+    int value;
+};
+
+/**
+ * Frees the t_sticker_value struct used as callback for rax_free_data
+ * @param data void pointer to a t_sticker_value struct
+ */
+static void free_t_sticker_value(void *data) {
+    struct t_sticker_value *sticker_value = (struct t_sticker_value *)data;
+    FREE_SDS(sticker_value->uri);
+    FREE_PTR(sticker_value);
+}
+
 static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *sticker,
         const int maxentries, const int minvalue)
 {
@@ -280,11 +299,6 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
     sds uri = sdsempty();
     sds key = sdsempty();
     int value_max = 0;
-
-    struct t_sticker_value {
-        sds uri;
-        int value;
-    };
 
     while ((pair = mpd_recv_pair(mpd_worker_state->mpd_state->conn)) != NULL) {
         if (strcmp(pair->name, "file") == 0) {
@@ -320,6 +334,7 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
     FREE_SDS(uri);
     FREE_SDS(key);
     if (check_error_and_recover2(mpd_worker_state->mpd_state, NULL, NULL, 0, false) == false) {
+        rax_free_data(add_list, free_t_sticker_value);
         return false;
     }
 
@@ -342,17 +357,10 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
                 rc = mpd_send_playlist_add(mpd_worker_state->mpd_state->conn, playlist, data->uri);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
-                    //free the rest of the data
-                    while (raxNext(&iter)) {
-                        FREE_SDS(data->uri);
-                        FREE_PTR(iter.data);
-                    }
                     break;
                 }
                 i++;
             }
-            FREE_SDS(data->uri);
-            FREE_PTR(iter.data);
         }
         if (mpd_command_list_end(mpd_worker_state->mpd_state->conn)) {
             mpd_response_finish(mpd_worker_state->mpd_state->conn);
@@ -362,7 +370,7 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
         }
         raxStop(&iter);
     }
-    raxFree(add_list);
+    rax_free_data(add_list, free_t_sticker_value);
     MYMPD_LOG_INFO("Updated smart playlist \"%s\" with %d songs, minimum value: %d", playlist, i, value_min);
     return rc;
 }

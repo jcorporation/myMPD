@@ -260,6 +260,7 @@ set(MYMPD_SOURCES
   src/lib/mympd_queue.c
   src/lib/mympd_state.c
   src/lib/random.c
+  src/lib/rax_extras.c
   src/lib/sds_extras.c
   src/lib/state_files.c
   src/lib/sticker_cache.c

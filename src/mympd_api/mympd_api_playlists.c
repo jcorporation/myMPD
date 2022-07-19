@@ -13,6 +13,7 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
+#include "../lib/rax_extras.h"
 #include "../lib/sds_extras.h"
 #include "../lib/state_files.h"
 #include "../lib/sticker_cache.h"
@@ -83,6 +84,25 @@ void mympd_api_smartpls_update_all(void) {
     mympd_queue_push(mympd_api_queue, request, 0);
 }
 
+/**
+ * Simple struct to save playlist data
+ */
+struct t_pl_data {
+    time_t last_modified;
+    enum playlist_types type;
+    sds name;
+};
+
+/**
+ * Frees the t_pl_data struct used as callback for rax_free_data
+ * @param data void pointer to a t_sticker_value struct
+ */
+static void free_t_pl_data(void *data) {
+    struct t_pl_data *pl_data = (struct t_pl_data *)data;
+    FREE_SDS(pl_data->name);
+    FREE_PTR(pl_data);
+}
+
 sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
                              const long offset, const long limit, sds searchstr, enum playlist_types type)
 {
@@ -94,12 +114,6 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
 
     struct mpd_playlist *pl;
     rax *entity_list = raxNew();
-
-    struct t_pl_data {
-        time_t last_modified;
-        enum playlist_types type;
-        sds name;
-    };
 
     long real_limit = offset + limit;
     sds key = sdsempty();
@@ -126,16 +140,7 @@ sds mympd_api_playlist_list(struct t_mympd_state *mympd_state, sds buffer, sds m
     mpd_response_finish(mympd_state->mpd_state->conn);
     if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
         //free result
-        raxIterator iter;
-        raxStart(&iter, entity_list);
-        raxSeek(&iter, "^", NULL, 0);
-        while (raxNext(&iter)) {
-            struct t_pl_data *data = (struct t_pl_data *)iter.data;
-            FREE_SDS(data->name);
-            FREE_PTR(iter.data);
-        }
-        raxStop(&iter);
-        raxFree(entity_list);
+        rax_free_data(entity_list, free_t_pl_data);
         //return error message
         return buffer;
     }
