@@ -5,6 +5,7 @@
 */
 
 #include "mympd_config_defs.h"
+#include "../utility.h"
 
 #include "../../dist/utest/utest.h"
 #include "../../src/lib/list.h"
@@ -332,5 +333,21 @@ UTEST(list, test_list_move_item_pos_from_end_to_start) {
 
     ASSERT_EQ(6, test_list.length);
 
+    list_clear(&test_list);
+}
+
+sds write_disk_cb(sds buffer, struct t_list_node *current) {
+    buffer = sdscatsds(buffer, current->key);
+    return buffer;
+}
+
+UTEST(list, test_list_write_to_disk) {
+    struct t_list test_list;
+    populate_list(&test_list);
+    sds filepath = sdsnew("/tmp/mympd-test/state/test_list");
+    bool rc = list_write_to_disk(filepath, &test_list, write_disk_cb);
+    ASSERT_TRUE(rc);
+    unlink(filepath);
+    sdsfree(filepath);
     list_clear(&test_list);
 }
