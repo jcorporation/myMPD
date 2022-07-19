@@ -82,14 +82,16 @@ sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffe
         buffer = sdscat(buffer, "\"data\":[");
         struct t_list_node *current = NULL;
         int i = 0;
+        long returned_entities = extracted.length;
         while ((current = list_shift_first(&extracted)) != NULL) {
             if (i++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscatsds(buffer, current->key);
+            list_node_free(current);
         }
         buffer = sdscatlen(buffer, "],", 2);
-        buffer = tojson_long(buffer, "returnedEntities", extracted.length, false);
+        buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
         buffer = jsonrpc_respond_end(buffer);
     }
 
@@ -160,7 +162,6 @@ static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char 
         buffer = sdscatlen(buffer, "}", 1);
         FREE_SDS(text);
         list_push(extracted, buffer, 0 , NULL, NULL);
-        FREE_SDS(buffer);
     }
     else {
         if (errno == ENOENT) {
@@ -171,6 +172,7 @@ static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char 
             MYMPD_LOG_ERRNO(errno);
         }
     }
+    FREE_SDS(buffer);
     FREE_SDS(lyricsfile);
 }
 
