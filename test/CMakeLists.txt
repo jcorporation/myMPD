@@ -22,6 +22,7 @@ set(TEST_SOURCES
   ../dist/sds/sds.c
   ../dist/tinymt/tinymt32.c
   ../src/lib/api.c
+  ../src/lib/cert.c
   ../src/lib/filehandler.c
   ../src/lib/http_client.c
   ../src/lib/jsonrpc.c
@@ -52,6 +53,7 @@ set(TEST_SOURCES
   ../src/mympd_api/mympd_api_webradios.c
   main.c
   tests/test_api.c
+  tests/test_cert.c
   tests/test_http_client.c
   tests/test_jsonrpc.c
   tests/test_list.c

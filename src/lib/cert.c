@@ -550,7 +550,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
         return false;
     }
     write_rc = PEM_write_X509(fp, cert) == 0 ? false : true;
-    rc = rename_tmp_file(fp, tmp_file, key_file, write_rc);
+    rc = rename_tmp_file(fp, tmp_file, cert_file, write_rc);
     FREE_SDS(tmp_file);
     return rc;
 }
