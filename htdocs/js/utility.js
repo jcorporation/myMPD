@@ -1327,7 +1327,7 @@ function printBrowseLink(el, tag, values) {
         }
     }
     else {
-        el.textContent.appendChild(printValue(tag, values));
+        el.appendChild(printValue(tag, values));
     }
 }
 
