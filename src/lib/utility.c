@@ -193,6 +193,22 @@ void strip_file_extension(sds s) {
     }
 }
 
+/**
+ * Replaces the file extension
+ * @param s sds string to replace the extension
+ * @param ext new file extension
+ * @return newly allocated sds string with new file extension
+ */
+sds replace_file_extension(sds s, const char *ext) {
+    sds n = sdsdup(s);
+    strip_file_extension(n);
+    if (sdslen(n) == 0) {
+        return n;
+    }
+    n = sdscatfmt(n, ".%s", ext);
+    return n;
+}
+
 static const char *invalid_filename_chars = "<>/.:?&$!#=;\a\b\f\n\r\t\v\\|";
 
 /**

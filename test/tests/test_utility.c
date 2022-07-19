@@ -131,6 +131,27 @@ UTEST(sds_extras, test_strip_file_extension) {
     sdsfree(test_input);
 }
 
+UTEST(sds_extras, test_replace_file_extension) {
+    struct t_input_result testcases[] = {
+        {"/test/test.mp3",   "/test/test.lrc"},
+        {"/test/woext",      "/test/woext.lrc"},
+        {"",                 ""},
+        {"/tes/tet.mp3.mp3", "/tes/tet.mp3.lrc"},
+        {NULL,               NULL}
+    };
+    struct t_input_result *p = testcases;
+    sds test_input = sdsempty();
+    while (p->input != NULL) {
+        test_input = sdscatfmt(test_input, "%s", p->input);
+        sds test_output = replace_file_extension(test_input, "lrc");
+        ASSERT_STREQ(p->result, test_output);
+        sdsclear(test_input);
+        sdsfree(test_output);
+        p++;
+    }
+    sdsfree(test_input);
+}
+
 UTEST(sds_extras, test_sanitize_filename) {
     struct t_input_result testcases[] = {
         {"http://host:80/verz/verz/test?safsaf#798234",   "http___host_80_verz_verz_test_safsaf_798234" },
