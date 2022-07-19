@@ -14,6 +14,8 @@ find_package(Threads REQUIRED)
 find_library(MATH_LIB m REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(PCRE2 REQUIRED)
+find_package(LIBID3TAG REQUIRED)
+find_package(FLAC)
 
 set(TEST_SOURCES
   ../dist/mjson/mjson.c
@@ -47,6 +49,7 @@ set(TEST_SOURCES
   ../src/mpd_client/mpd_client_jukebox.c
   ../src/mpd_client/mpd_client_volume.c
   ../src/mympd_api/mympd_api_extra_media.c
+  ../src/mympd_api/mympd_api_lyrics.c
   ../src/mympd_api/mympd_api_status.c
   ../src/mympd_api/mympd_api_sticker.c
   ../src/mympd_api/mympd_api_timer.c
@@ -59,6 +62,7 @@ set(TEST_SOURCES
   tests/test_http_client.c
   tests/test_jsonrpc.c
   tests/test_list.c
+  tests/test_lyrics.c
   tests/test_m3u.c
   tests/test_mpd_client_tags.c
   tests/test_mimetype.c
@@ -182,6 +186,8 @@ set_property(SOURCE ../dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonlit
 #compiler flags for libmpdclient
 set_property(SOURCE ${LIBMPDCLIENT_SOURCES} PROPERTY COMPILE_FLAGS "-Wno-conversion")
 
+set(ENABLE_FLAC "ON")
+set(ENABLE_LIBID3TAG "ON")
 configure_file(../src/mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ../dist/libmpdclient/include)
@@ -193,3 +199,5 @@ target_link_libraries(test ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(test ${MATH_LIB})
 target_link_libraries(test ${OPENSSL_LIBRARIES})
 target_link_libraries(test ${PCRE2_LIBRARIES})
+target_link_libraries(test ${LIBID3TAG_LIBRARIES})
+target_link_libraries(test ${FLAC_LIBRARIES})

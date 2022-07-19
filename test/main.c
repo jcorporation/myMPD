@@ -26,7 +26,7 @@ sds workdir;
 
 int main(int argc, const char *const argv[]) {
     thread_logname = sdsempty();
-    set_loglevel(0);
+    set_loglevel(7);
     workdir = sdsnew("/tmp/mympd-test");
 
     //create dirs for tests
