@@ -180,7 +180,7 @@ static void mpd_client_feature_commands(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_ERROR("Error in response to command: mpd_send_allowed_commands");
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
-    check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
+    mympd_check_error_and_recover(mympd_state->mpd_state);
 }
 
 static void mpd_client_feature_tags(struct t_mympd_state *mympd_state) {
@@ -222,7 +222,7 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_ERROR("Error in response to command: mpd_send_list_tag_types");
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
-    check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
+    mympd_check_error_and_recover(mympd_state->mpd_state);
 
     if (mympd_state->mpd_state->tag_types_mpd.len == 0) {
         logline = sdscatlen(logline, "none", 4);
@@ -271,7 +271,7 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
             MYMPD_LOG_ERROR("Error in response to command: config");
         }
         mpd_response_finish(mympd_state->mpd_state->conn);
-        if (check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false) == false) {
+        if (mympd_check_error_and_recover(mympd_state->mpd_state) == false) {
             MYMPD_LOG_ERROR("Can't get music_directory value from mpd");
         }
     }

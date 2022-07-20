@@ -78,7 +78,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                         if (mympd_state->mpd_state->state != MPD_STATE_PLAY) {
                             MYMPD_LOG_INFO("AutoPlay enabled, start playing");
                             if (mpd_run_play(mympd_state->mpd_state->conn) == false) {
-                                check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
+                                mympd_check_error_and_recover(mympd_state->mpd_state);
                             }
                         }
                         else {
@@ -164,7 +164,8 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     //other requests not allowed
                     if (request->conn_id > -1) {
                         struct t_work_response *response = create_response(request);
-                        response->data = jsonrpc_respond_message(response->data, request->method, request->id, true, "mpd", "error", "MPD disconnected");
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "MPD disconnected");
                         MYMPD_LOG_DEBUG("Send http response to connection %lld: %s", request->conn_id, response->data);
                         mympd_queue_push(web_server_queue, response, 0);
                     }
@@ -286,7 +287,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             {
                 MYMPD_LOG_DEBUG("Leaving mpd idle mode");
                 if (!mpd_send_noidle(mympd_state->mpd_state->conn)) {
-                    check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
+                    mympd_check_error_and_recover(mympd_state->mpd_state);
                     mympd_state->mpd_state->conn_state = MPD_FAILURE;
                     break;
                 }
@@ -332,7 +333,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 //reenter idle mode
                 MYMPD_LOG_DEBUG("Entering mpd idle mode");
                 if (!mpd_send_idle(mympd_state->mpd_state->conn)) {
-                    check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
+                    mympd_check_error_and_recover(mympd_state->mpd_state);
                     mympd_state->mpd_state->conn_state = MPD_FAILURE;
                 }
             }

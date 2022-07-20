@@ -219,10 +219,7 @@ static bool _sticker_inc(struct t_cache *sticker_cache, struct t_mpd_state *mpd_
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, name, value_str);
     FREE_SDS(value_str);
-    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_sticker_set") == false) {
-        return false;
-    }
-    return true;
+    return mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_run_sticker_set");
 }
 
 /**
@@ -261,9 +258,5 @@ static bool _sticker_set(struct t_cache *sticker_cache, struct t_mpd_state *mpd_
     //update mpd sticker
     bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, name, value_str);
     FREE_SDS(value_str);
-    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_sticker_set") == false) {
-        return false;
-    }
-
-    return true;
+    return mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_run_sticker_set");
 }

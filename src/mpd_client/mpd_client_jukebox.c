@@ -92,20 +92,20 @@ void mpd_client_clear_jukebox(struct t_list *list) {
     list_clear(list);
 }
 
-sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
         const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
 {
     long entity_count = 0;
     long entities_returned = 0;
     long real_limit = offset + limit;
 
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     if (mympd_state->jukebox_mode == JUKEBOX_ADD_SONG) {
         struct t_list_node *current = mympd_state->jukebox_queue.head;
         while (current != NULL) {
             bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, current->key);
-            if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == true) {
+            if (mympd_check_rc_error_and_recover(mympd_state->mpd_state, rc, "mpd_send_list_meta") == true) {
                 struct mpd_song *song;
                 if ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
                     if (search_mpd_song(song, searchstr, tagcols) == true) {
@@ -132,7 +132,7 @@ sds mpd_client_get_jukebox_list(struct t_mympd_state *mympd_state, sds buffer, s
                 }
             }
             mpd_response_finish(mympd_state->mpd_state->conn);
-            check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
+            mympd_check_error_and_recover(mympd_state->mpd_state);
             current = current->next;
         }
     }
@@ -199,7 +199,7 @@ bool mpd_client_jukebox(struct t_mympd_state *mympd_state) {
 static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
     struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
     if (status == NULL) {
-        check_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0);
+        mympd_check_error_and_recover(mympd_state->mpd_state);
         return false;
     }
     long queue_length = (long)mpd_status_get_queue_length(status);
@@ -251,7 +251,7 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
     if (mympd_state->mpd_state->state != MPD_STATE_PLAY) {
         MYMPD_LOG_DEBUG("Jukebox: start playback");
         rc = mpd_run_play(mympd_state->mpd_state->conn);
-        check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_play");    
+        mympd_check_rc_error_and_recover(mympd_state->mpd_state, rc, "mpd_run_play");    
     }
 
     if (rc == true) {
@@ -290,7 +290,7 @@ bool mpd_client_jukebox_add_to_queue(struct t_mympd_state *mympd_state, long add
     {
         if (jukebox_mode == JUKEBOX_ADD_SONG) {
 	        bool rc = mpd_run_add(mympd_state->mpd_state->conn, current->key);
-            if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_run_add") == true) {
+            if (mympd_check_rc_error_and_recover(mympd_state->mpd_state, rc, "mpd_run_add") == true) {
 	            MYMPD_LOG_NOTICE("Jukebox adding song: %s", current->key);
                 added++;
             }
@@ -341,7 +341,7 @@ bool mpd_client_jukebox_add_to_queue(struct t_mympd_state *mympd_state, long add
 //private functions
 static bool add_album_to_queue(struct t_mympd_state *mympd_state, struct mpd_song *album) {
     bool rc = mpd_search_add_db_songs(mympd_state->mpd_state->conn, true);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_db_songs") == false) {
+    if (mympd_check_rc_error_and_recover(mympd_state->mpd_state, rc, "mpd_search_add_db_songs") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return false;
     }
@@ -359,13 +359,13 @@ static bool add_album_to_queue(struct t_mympd_state *mympd_state, struct mpd_son
 
     rc = mpd_search_add_expression(mympd_state->mpd_state->conn, expression);
     FREE_SDS(expression);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_expression") == false) {
+    if (mympd_check_rc_error_and_recover(mympd_state->mpd_state, rc, "mpd_search_add_expression") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return false;
     }
     rc = mpd_search_commit(mympd_state->mpd_state->conn);
     mpd_response_finish(mympd_state->mpd_state->conn);
-    return check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_commit");
+    return mympd_check_rc_error_and_recover(mympd_state->mpd_state, rc, "mpd_search_commit");
 }
 
 static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *mympd_state, enum jukebox_modes jukebox_mode) {
@@ -373,7 +373,7 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
     struct t_list *queue_list = list_new();
 
     bool rc = mpd_send_list_queue_meta(mympd_state->mpd_state->conn);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_queue_meta") == false) {
+    if (mympd_check_rc_error_and_recover(mympd_state->mpd_state, rc, "mpd_send_list_queue_meta") == false) {
         FREE_PTR(queue_list);
         return NULL;
     }
@@ -401,13 +401,13 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
     }
 
     mpd_response_finish(mympd_state->mpd_state->conn);
-    check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
+    mympd_check_error_and_recover(mympd_state->mpd_state);
 
     //append last_played to queue list
     struct t_list_node *current = mympd_state->last_played.head;
     while (current != NULL) {
         rc = mpd_send_list_meta(mympd_state->mpd_state->conn, current->key);
-        if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == true) {
+        if (mympd_check_rc_error_and_recover(mympd_state->mpd_state, rc, "mpd_send_list_meta") == true) {
             song = mpd_recv_song(mympd_state->mpd_state->conn);
             if (song != NULL) {
                 if (jukebox_mode == JUKEBOX_ADD_SONG) {
@@ -428,7 +428,7 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
             }
         }
         mpd_response_finish(mympd_state->mpd_state->conn);
-        check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
+        mympd_check_error_and_recover(mympd_state->mpd_state);
         current = current->next;
     }
     //get last_played from disc
@@ -446,7 +446,7 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
                 if (value > 0 && strlen(data) > 2) {
                     data = data + 2;
                     rc = mpd_send_list_meta(mympd_state->mpd_state->conn, data);
-                    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_meta") == true) {
+                    if (mympd_check_rc_error_and_recover(mympd_state->mpd_state, rc, "mpd_send_list_meta") == true) {
                         song = mpd_recv_song(mympd_state->mpd_state->conn);
                         if (song != NULL) {
                             if (jukebox_mode == JUKEBOX_ADD_SONG) {
@@ -467,7 +467,7 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
                         }
                     }
                     mpd_response_finish(mympd_state->mpd_state->conn);
-                    check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false);
+                    mympd_check_error_and_recover(mympd_state->mpd_state);
                 }
                 else {
                     MYMPD_LOG_ERROR("Reading last_played line failed");
@@ -679,7 +679,7 @@ static long _fill_jukebox_queue_songs(struct t_mympd_state *mympd_state, long ad
             }
         }
 
-        if (check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false) == false) {
+        if (mympd_check_error_and_recover(mympd_state->mpd_state) == false) {
             FREE_SDS(tag_value);
             return -1;
         }
@@ -728,7 +728,7 @@ static long _fill_jukebox_queue_songs(struct t_mympd_state *mympd_state, long ad
             mpd_song_free(song);
         }
         mpd_response_finish(mympd_state->mpd_state->conn);
-        if (check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false) == false) {
+        if (mympd_check_error_and_recover(mympd_state->mpd_state) == false) {
             FREE_SDS(tag_value);
             return -1;
         }

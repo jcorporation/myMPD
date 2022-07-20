@@ -72,7 +72,7 @@ bool mpd_client_connect(struct t_mpd_state *mpd_state) {
 
 bool mpd_client_set_keepalive(struct t_mpd_state *mpd_state) {
     bool rc = mpd_connection_set_keepalive(mpd_state->conn, mpd_state->mpd_keepalive);
-    return check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_connection_set_keepalive");
+    return mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_connection_set_keepalive");
 }
 
 bool mpd_client_set_binarylimit(struct t_mpd_state *mpd_state) {
@@ -80,11 +80,9 @@ bool mpd_client_set_binarylimit(struct t_mpd_state *mpd_state) {
     if (mpd_state->feat_mpd_binarylimit == true) {
         MYMPD_LOG_INFO("Setting binarylimit to %u", mpd_state->mpd_binarylimit);
         rc = mpd_run_binarylimit(mpd_state->conn, mpd_state->mpd_binarylimit);
-        sds message = sdsempty();
-        rc = check_rc_error_and_recover(mpd_state, &message, NULL, 0, true, rc, "mpd_run_binarylimit");
-        if (sdslen(message) > 0) {
+        sds message = mympd_check_rc_error_and_recover_notify(mpd_state, sdsempty(), rc, "mpd_run_binarylimit", &rc);
+        if (rc == false) {
             ws_notify(message);
-            rc = false;
         }
         FREE_SDS(message);
     }
