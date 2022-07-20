@@ -8,15 +8,23 @@
 #define MYMPD_MPD_CLIENT_ERRORHANDLER_H
 
 #include "../dist/sds/sds.h"
+#include "../lib/api.h"
 #include "../lib/mympd_state.h"
 
-bool check_rc_error_and_recover(struct t_mpd_state *mpd_state, sds *buffer,
-                                sds method, long request_id, bool notify, bool rc, const char *command);
-bool check_error_and_recover2(struct t_mpd_state *mpd_state, sds *buffer, sds method, long request_id,
-                              bool notify);
-sds check_error_and_recover(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id);
-sds check_error_and_recover_notify(struct t_mpd_state *mpd_state, sds buffer);
-sds respond_with_command_error(sds buffer, sds method, long request_id, const char *command);
-sds respond_with_mpd_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, sds method,
-                                 long request_id, bool rc, const char *command, bool *result);
+bool mympd_check_error_and_recover(struct t_mpd_state *mpd_state);
+bool mympd_check_rc_error_and_recover(struct t_mpd_state *mpd_state, bool rc, const char *command);
+
+sds mympd_check_error_and_recover_respond(struct t_mpd_state *mpd_state, sds buffer,
+        enum mympd_cmd_ids cmd_id, long request_id, bool *result);
+sds mympd_check_rc_error_and_recover_respond(struct t_mpd_state *mpd_state, sds buffer,
+        enum mympd_cmd_ids cmd_id, long request_id, bool rc, const char *command, bool *result);
+
+sds mympd_check_error_and_recover_notify(struct t_mpd_state *mpd_state, sds buffer, bool *result);
+sds mympd_check_rc_error_and_recover_notify(struct t_mpd_state *mpd_state, sds buffer, bool rc,
+        const char *command, bool *result);
+
+sds mympd_respond_with_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, enum mympd_cmd_ids cmd_id,
+        long request_id, bool rc, const char *command, bool *result);
+sds mympd_respond_with_command_error(sds buffer, enum mympd_cmd_ids cmd_id, long request_id, const char *command);
+
 #endif
