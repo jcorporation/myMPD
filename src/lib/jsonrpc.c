@@ -20,37 +20,101 @@
 static bool _icb_json_get_tag(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);
 static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error);
 static void _set_parse_error(sds *error, const char *fmt, ...);
+static const char *jsonrpc_facility_name(enum jsonrpc_facilities facility);
+static const char *jsonrpc_severity_name(enum jsonrpc_severities severity);
+static const char *jsonrpc_event_name(enum jsonrpc_events event);
+
+static const char *jsonrpc_severity_names[] = {
+    "info",
+    "warn",
+    "error"
+};
+
+static const char *jsonrpc_facility_names[] = {
+    "database",
+    "general",
+    "home",
+    "jukebox",
+    "lyrics",
+    "mpd",
+    "playlist",
+    "player",
+    "queue",
+    "session",
+    "script",
+    "sticker",
+    "timer",
+    "trigger"
+};
+
+static const char *jsonrpc_event_names[] = {
+    "mpd_connected",
+    "mpd_disconnected",
+    "notify",
+    "update_album_cache",
+    "update_database",
+    "update_finished",
+    "update_jukebox",
+    "update_last_played",
+    "update_options",
+    "update_outputs",
+    "update_queue",
+    "update_started",
+    "update_state",
+    "update_stored_playlist",
+    "update_volume",
+    "welcome"
+};
 
 //public functions
 
-void send_jsonrpc_notify(const char *facility, const char *severity, const char *message) {
+/**
+ * Sends a jsonrpc notify to all connected websockets
+ * @param facility one of enum jsonrpc_facilities
+ * @param severity one of enum jsonrpc_severities
+ * @param message the message to send
+ */
+void send_jsonrpc_notify(enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message) {
     sds buffer = jsonrpc_notify(sdsempty(), facility, severity, message);
     ws_notify(buffer);
     FREE_SDS(buffer);
 }
 
-void send_jsonrpc_event(const char *event) {
+/**
+ * Sends a jsonrpc event to all connected websockets
+ * @param event the event to send
+ */
+void send_jsonrpc_event(enum jsonrpc_events event) {
     sds buffer = jsonrpc_event(sdsempty(), event);
     ws_notify(buffer);
     FREE_SDS(buffer);
 }
 
-sds jsonrpc_event(sds buffer, const char *event) {
+/**
+ * Creates a simple jsonrpc notification with the event as method
+ * @param pointer to alreay allocated sds string
+ * @param event the event to use
+ * @return pointer to buffer with jsonrpc string
+ */
+sds jsonrpc_event(sds buffer, enum jsonrpc_events event) {
+    const char *event_name = jsonrpc_event_name(event);
     sdsclear(buffer);
     buffer = sdscat(buffer, "{\"jsonrpc\":\"2.0\",");
-    buffer = tojson_char(buffer, "method", event, false);
+    buffer = tojson_char(buffer, "method", event_name, false);
     buffer = sdscatlen(buffer, "}", 1);
     return buffer;
 }
 
-sds jsonrpc_notify(sds buffer, const char *facility, const char *severity, const char *message) {
+sds jsonrpc_notify(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message) {
     return jsonrpc_notify_phrase(buffer, facility, severity, message, 0);
 }
 
-sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity, const char *message, int count, ...) {
-    buffer = jsonrpc_notify_start(buffer, "notify");
-    buffer = tojson_char(buffer, "facility", facility, true);
-    buffer = tojson_char(buffer, "severity", severity, true);
+sds jsonrpc_notify_phrase(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message, int count, ...) {
+    buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_NOTIFY);
+    const char *facility_name = jsonrpc_facility_name(facility);
+    const char *severity_name = jsonrpc_severity_name(severity);
+    buffer = tojson_char(buffer, "facility", facility_name, true);
+    buffer = tojson_char(buffer, "severity", severity_name, true);
     buffer = tojson_char(buffer, "message", message, true);
     buffer = sdscat(buffer, "\"data\":{");
     va_list args;
@@ -58,6 +122,7 @@ sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity
     for (int i = 0; i < count; i++) {
         const char *v = va_arg(args, char *);
         if (i % 2 == 0) {
+            //key
             if (i > 0) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
@@ -65,6 +130,7 @@ sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity
             buffer = sdscatlen(buffer,":", 1);
         }
         else {
+            //value
             buffer = sds_catjson(buffer, v, strlen(v));
         }
     }
@@ -73,10 +139,11 @@ sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity
     return buffer;
 }
 
-sds jsonrpc_notify_start(sds buffer, const char *method) {
+sds jsonrpc_notify_start(sds buffer, enum jsonrpc_events event) {
+    const char *event_name = jsonrpc_event_name(event);
     sdsclear(buffer);
     buffer = sdscat(buffer, "{\"jsonrpc\":\"2.0\",");
-    buffer = tojson_char(buffer, "method", method, true);
+    buffer = tojson_char(buffer, "method", event_name, true);
     buffer = sdscat(buffer, "\"params\":{");
     return buffer;
 }
@@ -499,6 +566,42 @@ const char *get_mjson_toktype_name(int vtype) {
 }
 
 //private functions
+
+/**
+ * Returns the facility name
+ * @param facility enum jsonrpc_facilities
+ * @return name of the facility
+ */
+static const char *jsonrpc_facility_name(enum jsonrpc_facilities facility) {
+    if ((unsigned)facility >= JSONRPC_FACILITY_MAX) {
+        return "unknown";
+    }
+    return jsonrpc_facility_names[facility];
+}
+
+/**
+ * Returns the severity name
+ * @param severity enum jsonrpc_severities
+ * @return name of the severity
+ */
+static const char *jsonrpc_severity_name(enum jsonrpc_severities severity) {
+    if ((unsigned)severity >= JSONRPC_SEVERITY_MAX) {
+        return "unknown";
+    }
+    return jsonrpc_severity_names[severity];
+}
+
+/**
+ * Returns the event name
+ * @param event enum jsonrpc_events
+ * @return name of the event
+ */
+static const char *jsonrpc_event_name(enum jsonrpc_events event) {
+    if ((unsigned)event >= JSONRPC_EVENT_MAX) {
+        return "unknown";
+    }
+    return jsonrpc_event_names[event];
+}
 
 static bool _icb_json_get_tag(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
     (void) vcb;

@@ -29,7 +29,7 @@ bool mpd_client_connect(struct t_mpd_state *mpd_state) {
         mpd_state->conn_state = MPD_FAILURE;
         mpd_connection_free(mpd_state->conn);
         mpd_state->conn = NULL;
-        sds buffer = jsonrpc_event(sdsempty(), "mpd_disconnected");
+        sds buffer = jsonrpc_event(sdsempty(), JSONRPC_EVENT_MPD_DISCONNECTED);
         ws_notify(buffer);
         FREE_SDS(buffer);
         return false;
@@ -37,7 +37,8 @@ bool mpd_client_connect(struct t_mpd_state *mpd_state) {
     if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
         MYMPD_LOG_ERROR("Connection: %s", mpd_connection_get_error_message(mpd_state->conn));
         mpd_state->conn_state = MPD_FAILURE;
-        sds buffer = jsonrpc_notify_phrase(sdsempty(), "mpd", "error", "MPD connection error: %{error}", 2,
+        sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR,
+            "MPD connection error: %{error}", 2,
             "error", mpd_connection_get_error_message(mpd_state->conn));
         ws_notify(buffer);
         FREE_SDS(buffer);
@@ -48,7 +49,8 @@ bool mpd_client_connect(struct t_mpd_state *mpd_state) {
         if (mpd_run_password(mpd_state->conn, mpd_state->mpd_pass) == false) {
             MYMPD_LOG_ERROR("MPD worker connection: %s", mpd_connection_get_error_message(mpd_state->conn));
             mpd_state->conn_state = MPD_FAILURE;
-            sds buffer = jsonrpc_notify_phrase(sdsempty(), "mpd", "error", "MPD connection error: %{error}", 2,
+            sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR,
+                "MPD connection error: %{error}", 2,
                 "error", mpd_connection_get_error_message(mpd_state->conn));
             ws_notify(buffer);
             FREE_SDS(buffer);

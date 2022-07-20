@@ -27,8 +27,8 @@ bool check_rc_error_and_recover(struct t_mpd_state *mpd_state, sds *buffer,
                 *buffer = respond_with_command_error(*buffer, method, request_id, command);
             }
             else {
-                *buffer = jsonrpc_notify_phrase(*buffer, "mpd", "error", "Error in response to command: %{command}",
-                            2, "command", command);
+                *buffer = jsonrpc_notify_phrase(*buffer, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR,
+                    "Error in response to command: %{command}", 2, "command", command);
             }
         }
         MYMPD_LOG_ERROR("Error in response to command %s", command);
@@ -50,7 +50,7 @@ bool check_error_and_recover2(struct t_mpd_state *mpd_state, sds *buffer, sds me
                     "mpd", "error", error_msg);
             }
             else {
-                *buffer = jsonrpc_notify(*buffer, "mpd", "error", error_msg);
+                *buffer = jsonrpc_notify(*buffer, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, error_msg);
             }
         }
         //try to recover from error

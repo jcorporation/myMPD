@@ -256,7 +256,7 @@ static bool _mpd_client_jukebox(struct t_mympd_state *mympd_state) {
 
     if (rc == true) {
         //notify clients
-        send_jsonrpc_event("update_jukebox");
+        send_jsonrpc_event(JSONRPC_EVENT_UPDATE_JUKEBOX);
         return true;
     }
 
@@ -321,7 +321,7 @@ bool mpd_client_jukebox_add_to_queue(struct t_mympd_state *mympd_state, long add
     }
     if (added == 0) {
         MYMPD_LOG_ERROR("Error adding song(s)");
-        send_jsonrpc_notify("jukebox", "error", "Addings songs from jukebox to queue failed");
+        send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, "Addings songs from jukebox to queue failed");
         return false;
     }
     if (manual == false) {
@@ -494,7 +494,7 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_mympd_state *m
 static bool mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_state,
     long add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual)
 {
-    send_jsonrpc_notify("jukebox", "info", "Filling jukebox queue");
+    send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_INFO, "Filling jukebox queue");
     MYMPD_LOG_DEBUG("Jukebox queue to small, adding entities");
     if (mympd_state->mpd_state->feat_mpd_tags == true) {
         if (mympd_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
@@ -511,7 +511,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_st
 
     if (rc == false) {
         MYMPD_LOG_ERROR("Filling jukebox queue failed, disabling jukebox");
-        send_jsonrpc_notify("jukebox", "error", "Filling jukebox queue failed, disabling jukebox");
+        send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, "Filling jukebox queue failed, disabling jukebox");
         mympd_state->jukebox_mode = JUKEBOX_OFF;
         return false;
     }
@@ -547,7 +547,7 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_mympd_state *mympd_s
         if (mympd_state->jukebox_enforce_unique == true) {
             MYMPD_LOG_WARN("Disabling jukebox unique constraints temporarily");
             mympd_state->jukebox_enforce_unique = false;
-            send_jsonrpc_notify("jukebox", "warn", "Playlist to small, disabling jukebox unique constraints temporarily");
+            send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_WARN, "Playlist to small, disabling jukebox unique constraints temporarily");
         }
     }
 

@@ -362,7 +362,7 @@ sds mympd_api_playlist_delete(struct t_mympd_state *mympd_state, sds buffer, sds
     }
     FREE_SDS(pl_file);
     if (smartpls_only == true) {
-        send_jsonrpc_event("update_stored_playlist");
+        send_jsonrpc_event(JSONRPC_EVENT_UPDATE_STORED_PLAYLIST);
         buffer = jsonrpc_respond_ok(buffer, method, request_id, "playlist");
         return buffer;
     }

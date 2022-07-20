@@ -106,7 +106,7 @@ bool mympd_api_stats_last_played_add_song(struct t_mympd_state *mympd_state, con
                 mympd_api_stats_last_played_file_save(&mympd_state->last_played, mympd_state->last_played_count, mympd_state->config->workdir);
             }
             //notify clients
-            send_jsonrpc_event("update_lastplayed");
+            send_jsonrpc_event(JSONRPC_EVENT_UPDATE_LAST_PLAYED);
         }
         else {
             MYMPD_LOG_ERROR("Can't get song from id %d", song_id);

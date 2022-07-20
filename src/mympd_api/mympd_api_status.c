@@ -63,15 +63,15 @@ sds mympd_api_status_print(struct t_mympd_state *mympd_state, sds buffer, struct
 sds mympd_api_status_updatedb_state(struct t_mympd_state *mympd_state, sds buffer) {
     long update_id = mympd_api_status_updatedb_id(mympd_state);
     if (update_id == -1) {
-        buffer = jsonrpc_notify(buffer, "mpd", "error", "Error getting MPD status");
+        buffer = jsonrpc_notify(buffer, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Error getting MPD status");
     }
     else if (update_id > 0) {
-        buffer = jsonrpc_notify_start(buffer, "update_started");
+        buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_STARTED);
         buffer = tojson_long(buffer, "jobid", update_id, false);
         buffer = jsonrpc_respond_end(buffer);
     }
     else {
-        buffer = jsonrpc_event(buffer, "update_finished");
+        buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_FINISHED);
     }
     return buffer;
 }
@@ -158,7 +158,7 @@ sds mympd_api_status_get(struct t_mympd_state *mympd_state, sds buffer, sds meth
     }
 
     if (method == NULL) {
-        buffer = jsonrpc_notify_start(buffer, "update_state");
+        buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_STATE);
     }
     else {
         buffer = jsonrpc_respond_start(buffer, method, request_id);
@@ -210,7 +210,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_mympd_state *mympd_state, str
 sds mympd_api_status_volume_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
     int volume = mpd_client_get_volume(mympd_state->mpd_state);
     if (method == NULL) {
-        buffer = jsonrpc_notify_start(buffer, "update_volume");
+        buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_VOLUME);
     }
     else {
         buffer = jsonrpc_respond_start(buffer, method, request_id);

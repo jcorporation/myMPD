@@ -270,7 +270,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     lua_State *lua_vm = luaL_newstate();
     if (lua_vm == NULL) {
         MYMPD_LOG_ERROR("Memory allocation error in luaL_newstate");
-        sds buffer = jsonrpc_notify_phrase(sdsempty(), "script", "error",
+        sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR,
             "Error executing script %{script}: Memory allocation error", 2, "script", script_arg->script_name);
         ws_notify(buffer);
         FREE_SDS(buffer);
@@ -344,13 +344,13 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     }
     if (rc == 0) {
         if (script_return_text == NULL) {
-            sds buffer = jsonrpc_notify_phrase(sdsempty(), "script", "info", "Script %{script} executed successfully",
-                2, "script", script_arg->script_name);
+            sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_INFO,
+                "Script %{script} executed successfully", 2, "script", script_arg->script_name);
             ws_notify(buffer);
             FREE_SDS(buffer);
         }
         else {
-            send_jsonrpc_notify("script", "info", script_return_text);
+            send_jsonrpc_notify(JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_INFO, script_return_text);
         }
     }
     else {
@@ -359,7 +359,8 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         if (script_return_text != NULL) {
             err_str = sdscatfmt(err_str, ": %s", script_return_text);
         }
-        sds buffer = jsonrpc_notify_phrase(sdsempty(), "script", "error", err_str, 2, "script", script_arg->script_name);
+        sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR,
+            err_str, 2, "script", script_arg->script_name);
         ws_notify(buffer);
         FREE_SDS(buffer);
         //Error log message

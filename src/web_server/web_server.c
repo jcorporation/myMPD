@@ -426,7 +426,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_http_match_uri(hm, "/ws/")) {
                 mg_ws_upgrade(nc, hm, NULL);
                 MYMPD_LOG_INFO("New Websocket connection established (%lu)", nc->id);
-                sds response = jsonrpc_event(sdsempty(), "welcome");
+                sds response = jsonrpc_event(sdsempty(), JSONRPC_EVENT_WELCOME);
                 mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
                 FREE_SDS(response);
             }

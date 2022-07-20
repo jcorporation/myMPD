@@ -47,12 +47,12 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                 case MPD_IDLE_DATABASE:
                     //database has changed
                     MYMPD_LOG_INFO("MPD database has changed");
-                    buffer = jsonrpc_event(buffer, "update_database");
+                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_DATABASE);
                     //add timer for cache updates
                     update_mympd_caches(mympd_state, 10);
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
-                    buffer = jsonrpc_event(buffer, "update_stored_playlist");
+                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_STORED_PLAYLIST);
                     break;
                 case MPD_IDLE_QUEUE: {
                     unsigned old_queue_version = mympd_state->mpd_state->queue_version;
@@ -119,11 +119,11 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                     buffer = mympd_api_status_volume_get(mympd_state, buffer, NULL, 0);
                     break;
                 case MPD_IDLE_OUTPUT:
-                    buffer = jsonrpc_event(buffer, "update_outputs");
+                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OUTPUTS);
                     break;
                 case MPD_IDLE_OPTIONS:
                     mympd_api_queue_status(mympd_state, NULL);
-                    buffer = jsonrpc_event(buffer, "update_options");
+                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OPTIONS);
                     break;
                 case MPD_IDLE_UPDATE:
                     buffer = mympd_api_status_updatedb_state(mympd_state, buffer);
@@ -189,7 +189,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 s_signal_received = 1;
             }
             //we are connected
-            buffer = jsonrpc_event(buffer, "mpd_connected");
+            buffer = jsonrpc_event(buffer, JSONRPC_EVENT_MPD_CONNECTED);
             ws_notify(buffer);
             //reset reconnection intervals
             mympd_state->mpd_state->reconnect_interval = 0;
@@ -216,7 +216,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             break;
         case MPD_FAILURE:
             MYMPD_LOG_ERROR("MPD connection failed");
-            buffer = jsonrpc_event(buffer, "mpd_disconnected");
+            buffer = jsonrpc_event(buffer, JSONRPC_EVENT_MPD_DISCONNECTED);
             ws_notify(buffer);
             mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED);
             // fall through

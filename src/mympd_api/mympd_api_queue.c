@@ -131,7 +131,7 @@ sds mympd_api_queue_status(struct t_mympd_state *mympd_state, sds buffer) {
     mympd_state->mpd_state->state = mpd_status_get_state(status);
 
     if (buffer != NULL) {
-        buffer = jsonrpc_notify_start(buffer, "update_queue");
+        buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_QUEUE);
         buffer = mympd_api_status_print(mympd_state, buffer, status);
         buffer = jsonrpc_respond_end(buffer);
     }

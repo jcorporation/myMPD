@@ -596,7 +596,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = jsonrpc_respond_ok(response->data, request->method, request->id, "database");
                 MYMPD_LOG_INFO("Album cache was replaced");
                 //send notification
-                sds buffer = jsonrpc_event(sdsempty(), "update_album_cache");
+                sds buffer = jsonrpc_event(sdsempty(), JSONRPC_EVENT_UPDATE_ALBUM_CACHE);
                 ws_notify(buffer);
                 FREE_SDS(buffer);
             }
