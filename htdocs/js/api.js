@@ -351,7 +351,6 @@ function webSocketConnect() {
                 case 'welcome':
                     websocketConnected = true;
                     showNotification(tn('Connected to myMPD'), wsUrl, 'general', 'info');
-                    //appRoute();
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
                     if (session.token !== '') {
                         validateSession();
@@ -422,7 +421,7 @@ function webSocketConnect() {
                         }, parsePlaylistsDetail);
                     }
                     break;
-                case 'update_lastplayed':
+                case 'update_last_played':
                     if (app.id === 'QueueLastPlayed') {
                         sendAPI('MYMPD_API_QUEUE_LAST_PLAYED', {
                             "offset": app.current.offset,
@@ -440,6 +439,19 @@ function webSocketConnect() {
                             "cols": settings.colsQueueJukeboxFetch,
                             "searchstr": app.current.search
                         }, parseJukeboxList);
+                    }
+                    break;
+                case 'update_album_cache':
+                    if (app.id === 'BrowseDatabaseList' &&
+                        app.current.tag === 'Album')
+                    {
+                        sendAPI("MYMPD_API_DATABASE_ALBUMS_GET", {
+                            "offset": app.current.offset,
+                            "limit": app.current.limit,
+                            "expression": app.current.search,
+                            "sort": app.current.sort.tag,
+                            "sortdesc": app.current.sort.desc
+                        }, parseDatabase, true);
                     }
                     break;
                 case 'notify':
