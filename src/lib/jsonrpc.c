@@ -24,46 +24,46 @@ static const char *jsonrpc_facility_name(enum jsonrpc_facilities facility);
 static const char *jsonrpc_severity_name(enum jsonrpc_severities severity);
 static const char *jsonrpc_event_name(enum jsonrpc_events event);
 
-static const char *jsonrpc_severity_names[] = {
-    "info",
-    "warn",
-    "error"
+static const char *jsonrpc_severity_names[JSONRPC_SEVERITY_MAX] = {
+    [JSONRPC_SEVERITY_INFO] = "info",
+    [JSONRPC_SEVERITY_WARN] = "warn",
+    [JSONRPC_SEVERITY_ERROR] = "error"
 };
 
-static const char *jsonrpc_facility_names[] = {
-    "database",
-    "general",
-    "home",
-    "jukebox",
-    "lyrics",
-    "mpd",
-    "playlist",
-    "player",
-    "queue",
-    "session",
-    "script",
-    "sticker",
-    "timer",
-    "trigger"
+static const char *jsonrpc_facility_names[JSONRPC_FACILITY_MAX] = {
+    [JSONRPC_FACILITY_DATABASE] = "database",
+    [JSONRPC_FACILITY_GENERAL] = "general",
+    [JSONRPC_FACILITY_HOME] = "home",
+    [JSONRPC_FACILITY_JUKEBOX] = "jukebox",
+    [JSONRPC_FACILITY_LYRICS] = "lyrics",
+    [JSONRPC_FACILITY_MPD] = "mpd",
+    [JSONRPC_FACILITY_PLAYLIST] = "playlist",
+    [JSONRPC_FACILITY_PLAYER] = "player",
+    [JSONRPC_FACILITY_QUEUE] = "queue",
+    [JSONRPC_FACILITY_SESSION] = "session",
+    [JSONRPC_FACILITY_SCRIPT] = "script",
+    [JSONRPC_FACILITY_STICKER] = "sticker",
+    [JSONRPC_FACILITY_TIMER] = "timer",
+    [JSONRPC_FACILITY_TRIGGER] = "trigger"
 };
 
-static const char *jsonrpc_event_names[] = {
-    "mpd_connected",
-    "mpd_disconnected",
-    "notify",
-    "update_album_cache",
-    "update_database",
-    "update_finished",
-    "update_jukebox",
-    "update_last_played",
-    "update_options",
-    "update_outputs",
-    "update_queue",
-    "update_started",
-    "update_state",
-    "update_stored_playlist",
-    "update_volume",
-    "welcome"
+static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
+    [JSONRPC_EVENT_MPD_CONNECTED] = "mpd_connected",
+    [JSONRPC_EVENT_MPD_DISCONNECTED] = "mpd_disconnected",
+    [JSONRPC_EVENT_NOTIFY] = "notify",
+    [JSONRPC_EVENT_UPDATE_ALBUM_CACHE] = "update_album_cache",
+    [JSONRPC_EVENT_UPDATE_DATABASE] = "update_database",
+    [JSONRPC_EVENT_UPDATE_FINISHED] = "update_finished",
+    [JSONRPC_EVENT_UPDATE_JUKEBOX] = "update_jukebox",
+    [JSONRPC_EVENT_UPDATE_LAST_PLAYED] = "update_last_played",
+    [JSONRPC_EVENT_UPDATE_OPTIONS] = "update_options",
+    [JSONRPC_EVENT_UPDATE_OUTPUTS] = "update_outputs",
+    [JSONRPC_EVENT_UPDATE_QUEUE] = "update_queue",
+    [JSONRPC_EVENT_UPDATE_STARTED] = "update_started",
+    [JSONRPC_EVENT_UPDATE_STATE] = "update_state",
+    [JSONRPC_EVENT_UPDATE_STORED_PLAYLIST] = "update_stored_playlist",
+    [JSONRPC_EVENT_UPDATE_VOLUME] = "update_volume",
+    [JSONRPC_EVENT_WELCOME] = "welcome"
 };
 
 //public functions

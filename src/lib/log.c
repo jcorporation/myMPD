@@ -18,12 +18,26 @@ _Atomic int loglevel;
 bool log_to_syslog;
 bool log_on_tty;
 
-static const char *loglevel_names[] = {
-    "EMERG", "ALERT", "CRITICAL", "ERROR", "WARN", "NOTICE", "INFO", "DEBUG"
+static const char *loglevel_names[8] = {
+    [LOG_EMERG] = "EMERG",
+    [LOG_ALERT] = "ALERT",
+    [LOG_CRIT] = "CRITICAL",
+    [LOG_ERR] = "ERROR",
+    [LOG_WARNING] = "WARN",
+    [LOG_NOTICE] = "NOTICE",
+    [LOG_INFO] = "INFO",
+    [LOG_DEBUG] = "DEBUG"
 };
 
-static const char *loglevel_colors[] = {
-    "\033[0;31m", "\033[0;31m", "\033[0;31m", "\033[0;31m", "\033[0;33m", "", "", "\033[0;34m"
+static const char *loglevel_colors[8] = {
+    [LOG_EMERG] = "\033[0;31m",
+    [LOG_ALERT] = "\033[0;31m",
+    [LOG_CRIT] = "\033[0;31m",
+    [LOG_ERR] = "\033[0;31m",
+    [LOG_WARNING] = "\033[0;33m",
+    [LOG_NOTICE] = "",
+    [LOG_INFO] = "",
+    [LOG_DEBUG] = "\033[0;34m"
 };
 
 void set_loglevel(int level) {
