@@ -8,6 +8,7 @@
 #define MYMPD_JSONRPC_H
 
 #include "../../dist/sds/sds.h"
+#include "api.h"
 #include "list.h"
 #include "mympd_state.h"
 #include "validate.h"
@@ -68,13 +69,14 @@ sds jsonrpc_notify(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_se
 sds jsonrpc_notify_phrase(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message, int count, ...);
 sds jsonrpc_notify_start(sds buffer, enum jsonrpc_events event);
 
-sds jsonrpc_respond_start(sds buffer, const char *method, long id);
+sds jsonrpc_respond_start(sds buffer, enum mympd_cmd_ids cmd_id, long id);
 sds jsonrpc_respond_end(sds buffer);
-sds jsonrpc_respond_ok(sds buffer, const char *method, long id, const char *facility);
-sds jsonrpc_respond_message(sds buffer, const char *method, long id,
-        bool error, const char *facility, const char *severity, const char *message);
-sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id,
-        bool error, const char *facility, const char *severity, const char *message, int count, ...);
+sds jsonrpc_respond_ok(sds buffer, enum mympd_cmd_ids cmd_id, long id, enum jsonrpc_facilities facility);
+sds jsonrpc_respond_message(sds buffer, enum mympd_cmd_ids cmd_id, long id,
+        enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message);
+sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long id,
+        enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message, int count, ...);
+
 sds tojson_raw(sds buffer, const char *key, const char *value, bool comma);
 sds tojson_sds(sds buffer, const char *key, sds value, bool comma);
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma);

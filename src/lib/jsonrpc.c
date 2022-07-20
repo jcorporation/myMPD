@@ -69,7 +69,7 @@ static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
 //public functions
 
 /**
- * Sends a jsonrpc notify to all connected websockets
+ * Creates and sends a jsonrpc notify to all connected websockets
  * @param facility one of enum jsonrpc_facilities
  * @param severity one of enum jsonrpc_severities
  * @param message the message to send
@@ -81,7 +81,7 @@ void send_jsonrpc_notify(enum jsonrpc_facilities facility, enum jsonrpc_severiti
 }
 
 /**
- * Sends a jsonrpc event to all connected websockets
+ * Creates and sends a jsonrpc event to all connected websockets
  * @param event the event to send
  */
 void send_jsonrpc_event(enum jsonrpc_events event) {
@@ -92,7 +92,7 @@ void send_jsonrpc_event(enum jsonrpc_events event) {
 
 /**
  * Creates a simple jsonrpc notification with the event as method
- * @param pointer to alreay allocated sds string
+ * @param buffer pointer to alreay allocated sds string
  * @param event the event to use
  * @return pointer to buffer with jsonrpc string
  */
@@ -105,11 +105,33 @@ sds jsonrpc_event(sds buffer, enum jsonrpc_events event) {
     return buffer;
 }
 
+/**
+ * Creates a jsonrpc notification with facility, severity and a message
+ * @param buffer pointer to alreay allocated sds string
+ * @param facility one of enum jsonrpc_facilities
+ * @param severity one of enum jsonrpc_severities
+ * @param message the message to send
+ * @return pointer to buffer with jsonrpc string
+ */
 sds jsonrpc_notify(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message) {
     return jsonrpc_notify_phrase(buffer, facility, severity, message, 0);
 }
 
-sds jsonrpc_notify_phrase(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message, int count, ...) {
+/**
+ * Creates a jsonrpc notification with facility, severity and a message phrase.
+ * A message phrase can include %{key} placeholders that are replaced on the client side
+ * with the value. Key/value pairs are variadic arguments.
+ * @param buffer pointer to alreay allocated sds string
+ * @param facility one of enum jsonrpc_facilities
+ * @param severity one of enum jsonrpc_severities
+ * @param message the message to send
+ * @param count number of following variadic arguments
+ * @param variadic key/value pairs for the phrase
+ * @return pointer to buffer with jsonrpc string
+ */
+sds jsonrpc_notify_phrase(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity,
+        const char *message, int count, ...)
+{
     buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_NOTIFY);
     const char *facility_name = jsonrpc_facility_name(facility);
     const char *severity_name = jsonrpc_severity_name(severity);
@@ -139,6 +161,12 @@ sds jsonrpc_notify_phrase(sds buffer, enum jsonrpc_facilities facility, enum jso
     return buffer;
 }
 
+/**
+ * Creates the start of a jsonrpc notification.
+ * @param buffer pointer to alreay allocated sds string
+ * @param event the event to use
+ * @return pointer to buffer with jsonrpc string
+ */
 sds jsonrpc_notify_start(sds buffer, enum jsonrpc_events event) {
     const char *event_name = jsonrpc_event_name(event);
     sdsclear(buffer);
@@ -148,36 +176,85 @@ sds jsonrpc_notify_start(sds buffer, enum jsonrpc_events event) {
     return buffer;
 }
 
-sds jsonrpc_respond_start(sds buffer, const char *method, long id) {
+/**
+ * Creates the start of a jsonrpc response.
+ * @param buffer pointer to alreay allocated sds string
+ * @param cmd_id enum mympd_cmd_ids
+ * @param id id of the jsonrpc request to answer
+ * @return pointer to buffer with jsonrpc string
+ */
+sds jsonrpc_respond_start(sds buffer, enum mympd_cmd_ids cmd_id, long id) {
+    const char *method = get_cmd_id_method_name(cmd_id);
     sdsclear(buffer);
     buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%l,\"result\":{", id);
     buffer = tojson_char(buffer, "method", method, true);
     return buffer;
 }
 
+/**
+ * Creates the end of a jsonrpc response
+ * @param buffer pointer to alreay allocated sds string
+ * @return pointer to buffer with jsonrpc string
+ */
 sds jsonrpc_respond_end(sds buffer) {
     return sdscatlen(buffer, "}}", 2);
 }
 
-sds jsonrpc_respond_ok(sds buffer, const char *method, long id, const char *facility) {
-    return jsonrpc_respond_message(buffer, method, id, false, facility, "info", "ok");
+/**
+ * Creates a simple jsonrpc response with "ok" as message
+ * @param buffer pointer to alreay allocated sds string
+ * @param cmd_id enum mympd_cmd_ids
+ * @param id id of the jsonrpc request to answer
+ * @param facility one of enum jsonrpc_facilities
+ * @return pointer to buffer with jsonrpc string
+ */
+sds jsonrpc_respond_ok(sds buffer, enum mympd_cmd_ids cmd_id, long id, enum jsonrpc_facilities facility) {
+    return jsonrpc_respond_message_phrase(buffer, cmd_id, id, facility, JSONRPC_SEVERITY_INFO, "ok", 0);
 }
 
-sds jsonrpc_respond_message(sds buffer, const char *method, long id, bool error,
-                            const char *facility, const char *severity, const char *message)
+/**
+ * Creates a simple jsonrpc response with a custom message
+ * @param buffer pointer to alreay allocated sds string
+ * @param cmd_id enum mympd_cmd_ids
+ * @param id id of the jsonrpc request to answer
+ * @param facility one of enum jsonrpc_facilities
+ * @param severity one of enum jsonrpc_severities
+ * @param message the response message
+ * @return pointer to buffer with jsonrpc string
+ */
+sds jsonrpc_respond_message(sds buffer, enum mympd_cmd_ids cmd_id, long id,
+        enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message)
 {
-    return jsonrpc_respond_message_phrase(buffer, method, id, error, facility, severity, message, 0);
+    return jsonrpc_respond_message_phrase(buffer, cmd_id, id, facility, severity, message, 0);
 }
 
-sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id, bool error,
-                            const char *facility, const char *severity, const char *message, int count, ...)
+/**
+ * Creates a jsonrpc response with facility, severity and a message phrase.
+ * A message phrase can include %{key} placeholders that are replaced on the client side
+ * with the value. Key/value pairs are variadic arguments.
+ * @param buffer pointer to alreay allocated sds string
+ * @param cmd_id enum mympd_cmd_ids
+ * @param id id of the jsonrpc request to answer
+ * @param facility one of enum jsonrpc_facilities
+ * @param severity one of enum jsonrpc_severities
+ * @param message the message to send
+ * @param count number of following variadic arguments
+ * @param variadic key/value pairs for the phrase
+ * @return pointer to buffer with jsonrpc string
+ */
+sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long id,
+        enum jsonrpc_facilities facility, enum jsonrpc_severities severity,
+        const char *message, int count, ...)
 {
+    const char *method = get_cmd_id_method_name(cmd_id);
+    const char *facility_name = jsonrpc_facility_name(facility);
+    const char *severity_name = jsonrpc_severity_name(severity);
     sdsclear(buffer);
     buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%l,\"%s\":{",
-        id, (error == true ? "error" : "result"));
+        id, (severity == JSONRPC_SEVERITY_ERROR ? "error" : "result"));
     buffer = tojson_char(buffer, "method", method, true);
-    buffer = tojson_char(buffer, "facility", facility, true);
-    buffer = tojson_char(buffer, "severity", severity, true);
+    buffer = tojson_char(buffer, "facility", facility_name, true);
+    buffer = tojson_char(buffer, "severity", severity_name, true);
     buffer = tojson_char(buffer, "message", message, true);
     buffer = sdscat(buffer, "\"data\":{");
     va_list args;
