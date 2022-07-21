@@ -122,7 +122,7 @@ const APIparams = {
 };
 
 const APImethods = {
-    "MYMPD_API_DATABASE_SEARCH_ADV": {
+    "MYMPD_API_DATABASE_SEARCH": {
         "desc": "Searches for songs in the database.",
         "params": {
             "offset": APIparams.offset,
@@ -130,16 +130,6 @@ const APImethods = {
             "expression": APIparams.expression,
             "sort": APIparams.sort,
             "sortdesc": APIparams.sortdesc,
-            "cols": APIparams.cols
-        }
-    },
-    "MYMPD_API_DATABASE_SEARCH": {
-        "desc": "Searches for songs in the database (deprecated interface).",
-        "params": {
-            "offset": APIparams.offset,
-            "limit": APIparams.limit,
-            "filter": APIparams.filter,
-            "searchstr": APIparams.searchstr,
             "cols": APIparams.cols
         }
     },

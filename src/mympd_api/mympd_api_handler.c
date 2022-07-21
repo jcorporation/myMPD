@@ -1324,20 +1324,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_DATABASE_SEARCH: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);
-            if (json_get_string(request->data, "$.params.searchstr", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.filter", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag_or_any, &error) == true &&
-                json_get_uint(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
-                json_get_uint(request->data, "$.params.limit", 0, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
-                json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
-            {
-                response->data = mpd_client_search(mympd_state->mpd_state, response->data, request->cmd_id, request->id,
-                    sds_buf1, sds_buf2, NULL, uint_buf1, uint_buf2, &tagcols, &mympd_state->sticker_cache, &result);
-            }
-            break;
-        }
-        case MYMPD_API_DATABASE_SEARCH_ADV: {
-            struct t_tags tagcols;
-            reset_t_tags(&tagcols);
             if (json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.sort", 0, NAME_LEN_MAX, &sds_buf2, vcb_ismpdsort, &error) == true &&
                 json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true &&
@@ -1345,8 +1331,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_uint(request->data, "$.params.limit", 0, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
-                response->data = mpd_client_search_adv(mympd_state->mpd_state, response->data, request->cmd_id, request->id,
-                    sds_buf1, sds_buf2, bool_buf1, NULL, UINT_MAX, 0, uint_buf1, uint_buf2, &tagcols, &mympd_state->sticker_cache, &result);
+                response->data = mpd_client_search_response(mympd_state->mpd_state, response->data, request->id,
+                    sds_buf1, sds_buf2, bool_buf1, uint_buf1, uint_buf2, &tagcols, &mympd_state->sticker_cache, &result);
             }
             break;
         }
