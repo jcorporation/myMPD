@@ -344,8 +344,9 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     }
     if (rc == 0) {
         if (script_return_text == NULL) {
-            sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_INFO,
-                "Script %{script} executed successfully", 2, "script", script_arg->script_name);
+            sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT,
+                JSONRPC_SEVERITY_INFO, "Script %{script} executed successfully",
+                2, "script", script_arg->script_name);
             ws_notify(buffer);
             FREE_SDS(buffer);
         }
@@ -359,8 +360,8 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         if (script_return_text != NULL) {
             err_str = sdscatfmt(err_str, ": %s", script_return_text);
         }
-        sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR,
-            err_str, 2, "script", script_arg->script_name);
+        sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT,
+            JSONRPC_SEVERITY_ERROR, err_str, 2, "script", script_arg->script_name);
         ws_notify(buffer);
         FREE_SDS(buffer);
         //Error log message
