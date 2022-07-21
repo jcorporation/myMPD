@@ -251,7 +251,7 @@ sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long i
     const char *severity_name = jsonrpc_severity_name(severity);
     sdsclear(buffer);
     buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%l,\"%s\":{",
-        id, (severity == JSONRPC_SEVERITY_ERROR ? "error" : "result"));
+        id, (severity == JSONRPC_SEVERITY_INFO ? "result" : "error"));
     buffer = tojson_char(buffer, "method", method, true);
     buffer = tojson_char(buffer, "facility", facility_name, true);
     buffer = tojson_char(buffer, "severity", severity_name, true);
