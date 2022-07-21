@@ -109,25 +109,25 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
     //get first song from each album
     do {
         bool rc = mpd_search_db_songs(mpd_worker_state->mpd_state->conn, false);
-        if (check_rc_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_db_songs") == false) {
+        if (mympd_check_rc_error_and_recover(mpd_worker_state->mpd_state, rc, "mpd_search_db_songs") == false) {
             MYMPD_LOG_ERROR("Cache update failed");
             mpd_search_cancel(mpd_worker_state->mpd_state->conn);
             return false;
         }
         rc = mpd_search_add_uri_constraint(mpd_worker_state->mpd_state->conn, MPD_OPERATOR_DEFAULT, "");
-        if (check_rc_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_uri_constraint") == false) {
+        if (mympd_check_rc_error_and_recover(mpd_worker_state->mpd_state, rc, "mpd_search_add_uri_constraint") == false) {
             MYMPD_LOG_ERROR("Cache update failed");
             mpd_search_cancel(mpd_worker_state->mpd_state->conn);
             return false;
         }
         rc = mpd_search_add_window(mpd_worker_state->mpd_state->conn, start, end);
-        if (check_rc_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_add_window") == false) {
+        if (mympd_check_rc_error_and_recover(mpd_worker_state->mpd_state, rc, "mpd_search_add_window") == false) {
             MYMPD_LOG_ERROR("Cache update failed");
             mpd_search_cancel(mpd_worker_state->mpd_state->conn);
             return false;
         }
         rc = mpd_search_commit(mpd_worker_state->mpd_state->conn);
-        if (check_rc_error_and_recover(mpd_worker_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_search_commit") == false) {
+        if (mympd_check_rc_error_and_recover(mpd_worker_state->mpd_state, rc, "mpd_search_commit") == false) {
             MYMPD_LOG_ERROR("Cache update failed");
             return false;
         }
@@ -186,7 +186,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         }
         FREE_SDS(key);
         mpd_response_finish(mpd_worker_state->mpd_state->conn);
-        if (check_error_and_recover2(mpd_worker_state->mpd_state, NULL, NULL, 0, false) == false) {
+        if (mympd_check_error_and_recover(mpd_worker_state->mpd_state) == false) {
             MYMPD_LOG_ERROR("Cache update failed");
             return false;
         }
@@ -230,7 +230,7 @@ static bool _get_sticker_from_mpd(struct t_mpd_state *mpd_state, const char *uri
     sticker->like = 1;
 
     bool rc = mpd_send_sticker_list(mpd_state->conn, "song", uri);
-    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_send_sticker_list") == false) {
+    if (mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_send_sticker_list") == false) {
         return false;
     }
 
@@ -253,7 +253,7 @@ static bool _get_sticker_from_mpd(struct t_mpd_state *mpd_state, const char *uri
         mpd_return_sticker(mpd_state->conn, pair);
     }
     mpd_response_finish(mpd_state->conn);
-    if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+    if (mympd_check_error_and_recover(mpd_state) == false) {
         return false;
     }
 

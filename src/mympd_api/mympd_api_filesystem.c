@@ -35,11 +35,12 @@ static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entit
 
 //public functions
 
-sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, long request_id,
                               sds path, const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
 {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_FILESYSTEM_LIST;
     bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, path);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_meta") == false) {
+    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_meta") == false) {
         return buffer;
     }
     sds key = sdsempty();
@@ -90,14 +91,14 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, s
     }
     FREE_SDS(key);
     mpd_response_finish(mympd_state->mpd_state->conn);
-    if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
+    if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
         //free result
         rax_free_data(entity_list, free_t_dir_entry);
         //return error message
         return buffer;
     }
 
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
 
     long entity_count = 0;

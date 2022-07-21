@@ -38,11 +38,12 @@
  * @param tagcols t_tags struct of song tags to print
  * @return pointer to buffer
  */
-sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, long request_id,
                                  sds album, struct t_list *albumartists, const struct t_tags *tagcols)
 {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST;
     bool rc = mpd_search_db_songs(mympd_state->mpd_state->conn, true);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_db_songs") == false) {
+    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_db_songs") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
     }
@@ -58,29 +59,28 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     expression = sdscatlen(expression, ")", 1);
 
     rc = mpd_search_add_expression(mympd_state->mpd_state->conn, expression);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_expression") == false) {
+    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_expression") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         FREE_SDS(expression);
         return buffer;
     }
     FREE_SDS(expression);
     rc = mpd_search_add_sort_tag(mympd_state->mpd_state->conn, MPD_TAG_DISC, false);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_sort_tag") == false) {
+    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_sort_tag") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
     }
     rc = mpd_search_add_window(mympd_state->mpd_state->conn, 0, MPD_RESULTS_MAX);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_add_window") == false) {
+    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_window") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
     }
     rc = mpd_search_commit(mympd_state->mpd_state->conn);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_commit") == false) {
-        buffer = check_error_and_recover(mympd_state->mpd_state, buffer, method, request_id);
+    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_commit") == false) {
         return buffer;
     }
 
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
 
     struct mpd_song *song;
@@ -117,7 +117,7 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
         entity_count++;
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
-    if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
+    if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
         FREE_SDS(albumkey);
         return buffer;
     }
@@ -125,8 +125,8 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
     struct mpd_song *mpd_album = album_cache_get_album(&mympd_state->album_cache, albumkey);
     if (mpd_album == NULL) {
         FREE_SDS(albumkey);
-        return jsonrpc_respond_message(buffer, method, request_id, true,
-            "database", "error", "Could not find album");
+        return jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Could not find album");
     }
 
     buffer = sdscatlen(buffer, "],", 2);
@@ -170,15 +170,16 @@ sds mympd_api_browse_album_songs(struct t_mympd_state *mympd_state, sds buffer, 
  * @param limit max number of results to print
  * @return pointer to buffer
  */
-sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, long request_id,
                                        sds expression, sds sort, bool sortdesc, const long offset, long limit)
 {
     if (mympd_state->album_cache.cache == NULL) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "database", "error", "Albumcache not ready");
+        buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUMS_GET, request_id,
+            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Albumcache not ready");
         return buffer;
     }
 
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, MYMPD_API_DATABASE_ALBUMS_GET, request_id);
     buffer = sdscat(buffer, "\"data\":[");
 
     //parse sort tag
@@ -308,22 +309,20 @@ sds mympd_api_browse_album_list(struct t_mympd_state *mympd_state, sds buffer, s
  * @param sortdesc true to sort descending, false to sort ascending
  * @return pointer to buffer
  */
-sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, long request_id,
                           sds searchstr, sds tag, const long offset, const long limit, bool sortdesc)
 {
     size_t searchstr_len = sdslen(searchstr);
-
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
-    buffer = sdscat(buffer, "\"data\":[");
+    enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_TAG_LIST;
 
     bool rc = mpd_search_db_tags(mympd_state->mpd_state->conn, mpd_tag_name_parse(tag));
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_db_tags") == false) {
+    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_db_tags") == false) {
         mpd_search_cancel(mympd_state->mpd_state->conn);
         return buffer;
     }
 
     rc = mpd_search_commit(mympd_state->mpd_state->conn);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_search_commit") == false) {
+    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_commit") == false) {
         return buffer;
     }
 
@@ -354,12 +353,15 @@ sds mympd_api_browse_tag_list(struct t_mympd_state *mympd_state, sds buffer, sds
         mpd_return_pair(mympd_state->mpd_state->conn, pair);
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
-    if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
+    if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
         rax_free_sds_data(taglist);
         return buffer;
     }
     FREE_SDS(key);
+
     //print list
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+    buffer = sdscat(buffer, "\"data\":[");
     long entity_count = 0;
     long entities_returned = 0;
     raxIterator iter;
