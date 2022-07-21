@@ -9,16 +9,13 @@
 
 #include "../lib/mympd_state.h"
 
-sds mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
-                      const char *searchstr, const char *searchtag, const char *plist,
-                      const unsigned offset, unsigned limit, const struct t_tags *tagcols,
-                      struct t_cache *sticker_cache, bool *result);
-
-sds mpd_client_search_adv(struct t_mpd_state *mpd_state, sds buffer, sds method, long request_id,
-                          const char *expression, const char *sort, const bool sortdesc,
-                          const char *plist, unsigned to, unsigned whence,
-                          const unsigned offset, unsigned limit, const struct t_tags *tagcols,
-                          struct t_cache *sticker_cache, bool *result);
+sds mpd_client_search_response(struct t_mpd_state *mpd_state, sds buffer, long request_id,
+        const char *expression, const char *sort, const bool sortdesc, const unsigned offset, const unsigned limit,
+        const struct t_tags *tagcols, struct t_cache *sticker_cache, bool *result);
+bool mpd_client_search_add_to_plist(struct t_mpd_state *mpd_state, const char *expression,
+        const char *plist, unsigned to);
+bool mpd_client_search_add_to_queue(struct t_mpd_state *mpd_state, const char *expression,
+        unsigned to, enum mpd_position_whence whence);
 
 sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operator, const char *value);
 #endif
