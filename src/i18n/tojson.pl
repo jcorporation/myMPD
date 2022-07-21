@@ -40,8 +40,13 @@ for my $filename (@files) {
     open my $file, $filename or die "Can't open file \"$filename\": $!";
     while (my $line = <$file>) {
         if ($filename =~ /\.c$/) {
+            #old syntax
             while ($line =~ /(\s+|\()"[^"]+",\s+"(info|warn|error)",\s+"([^"]+)"(\)|,)/g) {
                 $phrases->{$3} = 1;
+            }
+            #new syntax
+            while ($line =~ /JSONRPC_SEVERITY_\w+,\s+"([^"]+)"(\)|,)/g) {
+                $phrases->{$1} = 1;
             }
         }
         elsif ($filename =~ /\.js$/) {
