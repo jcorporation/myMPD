@@ -709,10 +709,8 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_bool(buffer, "featPlaylists", mympd_state->mpd_state->feat_mpd_playlists, true);
         buffer = tojson_bool(buffer, "featTags", mympd_state->mpd_state->feat_mpd_tags, true);
         buffer = tojson_bool(buffer, "featLibrary", mympd_state->mpd_state->feat_mpd_library, true);
-        buffer = tojson_bool(buffer, "featAdvsearch", mympd_state->mpd_state->feat_mpd_advsearch, true);
         buffer = tojson_bool(buffer, "featStickers", mympd_state->mpd_state->feat_mpd_stickers, true);
         buffer = tojson_bool(buffer, "featFingerprint", mympd_state->mpd_state->feat_mpd_fingerprint, true);
-        buffer = tojson_bool(buffer, "featSingleOneshot", mympd_state->mpd_state->feat_mpd_single_oneshot, true);
         buffer = tojson_bool(buffer, "featPartitions", mympd_state->mpd_state->feat_mpd_partitions, true);
         buffer = tojson_sds(buffer, "musicDirectoryValue", mympd_state->music_directory_value, true);
         buffer = tojson_bool(buffer, "featMounts", mympd_state->mpd_state->feat_mpd_mount, true);

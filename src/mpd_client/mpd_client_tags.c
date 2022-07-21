@@ -134,7 +134,7 @@ void disable_all_mpd_tags(struct t_mpd_state *mpd_state) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         MYMPD_LOG_DEBUG("Disabling all mpd tag types");
         bool rc = mpd_run_clear_tag_types(mpd_state->conn);
-        check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_clear_tag_types");
+        mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_run_clear_tag_types");
     }
 }
 
@@ -146,7 +146,7 @@ void enable_all_mpd_tags(struct t_mpd_state *mpd_state) {
     if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
         MYMPD_LOG_DEBUG("Enabling all mpd tag types");
         bool rc = mpd_run_all_tag_types(mpd_state->conn);
-        check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_all_tag_types");
+        mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_run_all_tag_types");
     }
 }
 
@@ -156,25 +156,23 @@ void enable_all_mpd_tags(struct t_mpd_state *mpd_state) {
  * @param enable_tags pointer to t_tags struct
  */
 void enable_mpd_tags(struct t_mpd_state *mpd_state, struct t_tags *enable_tags) {
-    if (mpd_connection_cmp_server_version(mpd_state->conn, 0, 21, 0) >= 0) {
-        MYMPD_LOG_DEBUG("Setting interesting mpd tag types");
-        if (mpd_command_list_begin(mpd_state->conn, false)) {
-            bool rc = mpd_send_clear_tag_types(mpd_state->conn);
+    MYMPD_LOG_DEBUG("Setting interesting mpd tag types");
+    if (mpd_command_list_begin(mpd_state->conn, false)) {
+        bool rc = mpd_send_clear_tag_types(mpd_state->conn);
+        if (rc == false) {
+            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear_tag_types");
+        }
+        if (enable_tags->len > 0) {
+            rc = mpd_send_enable_tag_types(mpd_state->conn, enable_tags->tags, (unsigned)enable_tags->len);
             if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear_tag_types");
-            }
-            if (enable_tags->len > 0) {
-                rc = mpd_send_enable_tag_types(mpd_state->conn, enable_tags->tags, (unsigned)enable_tags->len);
-                if (rc == false) {
-                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_enable_tag_types");
-                }
-            }
-            if (mpd_command_list_end(mpd_state->conn)) {
-                mpd_response_finish(mpd_state->conn);
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_enable_tag_types");
             }
         }
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
+        if (mpd_command_list_end(mpd_state->conn)) {
+            mpd_response_finish(mpd_state->conn);
+        }
     }
+    mympd_check_error_and_recover(mpd_state);
 }
 
 /**

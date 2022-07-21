@@ -110,13 +110,11 @@ struct t_mpd_state {
     const unsigned* protocol;
     bool feat_mpd_library;
     bool feat_mpd_tags;
-    bool feat_mpd_advsearch;
     bool feat_mpd_stickers;
     bool feat_mpd_playlists;
     bool feat_mpd_fingerprint;
     bool feat_mpd_albumart;
     bool feat_mpd_readpicture;
-    bool feat_mpd_single_oneshot;
     bool feat_mpd_mount;
     bool feat_mpd_neighbor;
     bool feat_mpd_partitions;

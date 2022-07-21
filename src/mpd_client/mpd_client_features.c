@@ -39,11 +39,9 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->feat_mpd_stickers = false;
     mympd_state->mpd_state->feat_mpd_playlists = false;
     mympd_state->mpd_state->feat_mpd_tags = false;
-    mympd_state->mpd_state->feat_mpd_advsearch = false;
     mympd_state->mpd_state->feat_mpd_fingerprint = false;
     mympd_state->mpd_state->feat_mpd_albumart = false;
     mympd_state->mpd_state->feat_mpd_readpicture = false;
-    mympd_state->mpd_state->feat_mpd_single_oneshot = false;
     mympd_state->mpd_state->feat_mpd_mount = false;
     mympd_state->mpd_state->feat_mpd_neighbor = false;
     mympd_state->mpd_state->feat_mpd_partitions = false;
@@ -62,17 +60,6 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     sds buffer = sdsempty();
     buffer = mympd_api_status_get(mympd_state, buffer, NULL, 0);
     FREE_SDS(buffer);
-
-    if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 21, 0) >= 0) {
-        mympd_state->mpd_state->feat_mpd_single_oneshot = true;
-        MYMPD_LOG_NOTICE("Enabling single oneshot feature");
-        mympd_state->mpd_state->feat_mpd_advsearch = true;
-        MYMPD_LOG_INFO("Enabling advanced search feature");
-    }
-    else {
-        MYMPD_LOG_WARN("Disabling single oneshot feature, depends on mpd >= 0.21.0");
-        MYMPD_LOG_WARN("Disabling advanced search feature, depends on mpd >= 0.21.0");
-    }
 
     if (mpd_connection_cmp_server_version(mympd_state->mpd_state->conn, 0, 22, 0) >= 0) {
         mympd_state->mpd_state->feat_mpd_partitions = true;
@@ -114,8 +101,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_WARN("Disabling advanced queue feature, depends on mpd >= 0.24.0");
     }
 
-    if (mympd_state->mpd_state->feat_mpd_advsearch == true &&
-        mympd_state->mpd_state->feat_mpd_playlists == true)
+    if (mympd_state->mpd_state->feat_mpd_playlists == true)
     {
         MYMPD_LOG_NOTICE("Enabling smart playlists feature");
         mympd_state->mpd_state->feat_mpd_smartpls = true;
