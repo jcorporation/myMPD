@@ -80,8 +80,8 @@ bool mpd_client_set_binarylimit(struct t_mpd_state *mpd_state) {
     if (mpd_state->feat_mpd_binarylimit == true) {
         MYMPD_LOG_INFO("Setting binarylimit to %u", mpd_state->mpd_binarylimit);
         rc = mpd_run_binarylimit(mpd_state->conn, mpd_state->mpd_binarylimit);
-        sds message = mympd_check_rc_error_and_recover_notify(mpd_state, sdsempty(), rc, "mpd_run_binarylimit", &rc);
-        if (rc == false) {
+        sds message = sdsempty();
+        if (mympd_check_rc_error_and_recover_notify(mpd_state, &message, rc, "mpd_run_binarylimit") == false) {
             ws_notify(message);
         }
         FREE_SDS(message);
