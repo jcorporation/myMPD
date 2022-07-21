@@ -11,6 +11,7 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/random.h"
+#include "../lib/rax_extras.h"
 #include "../lib/sds_extras.h"
 #include "../lib/validate.h"
 #include "mpd_client_errorhandler.h"
@@ -23,6 +24,58 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
+//private definitions
+
+static bool _mpd_client_playlist_sort(struct t_mpd_state *mpd_state, const char *playlist, const char *tagstr);
+static bool _mpd_client_replace_playlist(struct t_mpd_state *mpd_state, const char *new_pl,
+        const char *to_replace_pl);
+
+//public functions
+
+/**
+ * Saves the smart playlist to disk.
+ * @param workdir myMPD working directory
+ * @param smartpltype type of the smart playlist: sticker, newest or search
+ * @param playlist name of the smart playlist
+ * @param expression mpd search expression
+ * @param maxentries max entries for the playlist
+ * @param timerange timerange for newest smart playlist type
+ * @param sort mpd tag to sort or shuffle
+ * @return true on success else false
+ */
+bool mpd_client_smartpls_save(sds workdir, const char *smartpltype, const char *playlist,
+                              const char *expression, const int maxentries,
+                              const int timerange, const char *sort)
+{
+    sds line = sdscatlen(sdsempty(), "{", 1);
+    line = tojson_char(line, "type", smartpltype, true);
+    if (strcmp(smartpltype, "sticker") == 0) {
+        line = tojson_char(line, "sticker", expression, true);
+        line = tojson_long(line, "maxentries", maxentries, true);
+        line = tojson_long(line, "minvalue", timerange, true);
+    }
+    else if (strcmp(smartpltype, "newest") == 0) {
+        line = tojson_long(line, "timerange", timerange, true);
+    }
+    else if (strcmp(smartpltype, "search") == 0) {
+        line = tojson_char(line, "expression", expression, true);
+    }
+    line = tojson_char(line, "sort", sort, false);
+    line = sdscatlen(line, "}", 1);
+
+    sds pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
+    bool rc = write_data_to_file(pl_file, line, sdslen(line));
+    FREE_SDS(line);
+    FREE_SDS(pl_file);
+    return rc;
+}
+
+/**
+ * Checks if playlist is a smart playlist
+ * @param workdir myMPD working directory
+ * @param playlist name of the playlist to check
+ * @return true if it is a smart playlist else false
+ */
 bool is_smartpls(sds workdir, const char *playlist) {
     bool smartpls = false;
     if (strchr(playlist, '/') == NULL) {
@@ -36,10 +89,15 @@ bool is_smartpls(sds workdir, const char *playlist) {
     return smartpls;
 }
 
+/**
+ * Returns the mpd database last modification time
+ * @param mpd_state pointer to struct mpd_state
+ * @return last modification time
+ */
 time_t mpd_client_get_db_mtime(struct t_mpd_state *mpd_state) {
     struct mpd_stats *stats = mpd_run_stats(mpd_state->conn);
     if (stats == NULL) {
-        check_error_and_recover(mpd_state, NULL, NULL, 0);
+        mympd_check_error_and_recover(mpd_state);
         return 0;
     }
     time_t mtime = (time_t)mpd_stats_get_db_update_time(stats);
@@ -47,23 +105,34 @@ time_t mpd_client_get_db_mtime(struct t_mpd_state *mpd_state) {
     return mtime;
 }
 
-time_t mpd_client_get_smartpls_mtime(struct t_config *config, const char *playlist) {
-    sds plpath = sdscatfmt(sdsempty(), "%S/smartpls/%s", config->workdir, playlist);
+/**
+ * Returns the samrt playlist last modification time
+ * @param workdir myMPD working directory
+ * @param playlist name of the playlist to check
+ * @return last modification time
+ */
+time_t mpd_client_get_smartpls_mtime(sds workdir, const char *playlist) {
+    sds plpath = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
     struct stat attr;
     errno = 0;
     if (stat(plpath, &attr) != 0) {
         MYMPD_LOG_ERROR("Error getting mtime for \"%s\"", plpath);
         MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(plpath);
-        return 0;
+        attr.st_mtime = 0;
     }
     FREE_SDS(plpath);
     return attr.st_mtime;
 }
 
+/**
+ * Returns the playlists last modification time
+ * @param mpd_state pointer to struct mpd_state
+ * @param playlist name of the playlist to check
+ * @return last modification time
+ */
 time_t mpd_client_get_playlist_mtime(struct t_mpd_state *mpd_state, const char *playlist) {
     bool rc = mpd_send_list_playlists(mpd_state->conn);
-    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_playlists") == false) {
+    if (mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_send_list_playlists") == false) {
         return 0;
     }
     time_t mtime = 0;
@@ -78,20 +147,24 @@ time_t mpd_client_get_playlist_mtime(struct t_mpd_state *mpd_state, const char *
         mpd_playlist_free(pl);
     }
     mpd_response_finish(mpd_state->conn);
-    if (check_error_and_recover2(mpd_state, NULL, NULL, 0, false) == false) {
+    if (mympd_check_error_and_recover(mpd_state) == false) {
         return 0;
     }
 
     return mtime;
 }
 
-sds mpd_client_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds method,
-        long request_id, const char *uri)
-{
-    MYMPD_LOG_INFO("Shuffling playlist %s", uri);
-    bool rc = mpd_send_list_playlist(mpd_state->conn, uri);
-    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlist") == false) {
-        return buffer;
+/**
+ * Shuffles a playlist
+ * @param mpd_state pointer to struct mpd_state
+ * @param playlist playlist to shuffle
+ * @return true on success else false
+ */
+bool mpd_client_playlist_shuffle(struct t_mpd_state *mpd_state, const char *playlist) {
+    MYMPD_LOG_INFO("Shuffling playlist %s", playlist);
+    bool rc = mpd_send_list_playlist(mpd_state->conn, playlist);
+    if (mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_send_list_playlist") == false) {
+        return false;
     }
 
     struct t_list plist;
@@ -102,23 +175,15 @@ sds mpd_client_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds m
         mpd_song_free(song);
     }
     mpd_response_finish(mpd_state->conn);
-    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+    if (mympd_check_error_and_recover(mpd_state) == false ||
+        list_shuffle(&plist) == false)
+    {
         list_clear(&plist);
-        return buffer;
-    }
-
-    if (list_shuffle(&plist) == false) {
-        if (buffer != NULL) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Playlist is too small to shuffle");
-        }
-        list_clear(&plist);
-        enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
-        return buffer;
+        return false;
     }
 
     long randnr = randrange(100000, 999999);
-    sds uri_tmp = sdscatfmt(sdsempty(), "%l-tmp-%s", randnr, uri);
-    sds uri_old = sdscatfmt(sdsempty(), "%l-old-%s", randnr, uri);
+    sds playlist_tmp = sdscatfmt(sdsempty(), "%l-tmp-%s", randnr, playlist);
 
     //add shuffled songs to tmp playlist
     //uses command list to add MPD_COMMANDS_MAX songs at once
@@ -130,7 +195,7 @@ sds mpd_client_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds m
             while ((current = list_shift_first(&plist)) != NULL) {
                 i++;
                 j++;
-                rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, current->key);
+                rc = mpd_send_playlist_add(mpd_state->conn, playlist_tmp, current->key);
                 list_node_free(current);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
@@ -144,37 +209,46 @@ sds mpd_client_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds m
                 mpd_response_finish(mpd_state->conn);
             }
         }
-        if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        if (mympd_check_error_and_recover(mpd_state) == false) {
             //error adding songs to tmp playlist - delete it
-            rc = mpd_run_rm(mpd_state->conn, uri_tmp);
-            check_rc_error_and_recover(mpd_state, NULL, method, request_id, false, rc, "mpd_run_rm");
-            FREE_SDS(uri_tmp);
-            FREE_SDS(uri_old);
-            list_clear(&plist);
-            return buffer;
+            rc = mpd_run_rm(mpd_state->conn, playlist_tmp);
+            mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_run_rm");
+            rc = false;
+            break;
         }
     }
     list_clear(&plist);
-
-    rc = mpd_client_replace_playlist(mpd_state, uri_tmp, uri, uri_old);
-
-    FREE_SDS(uri_tmp);
-    FREE_SDS(uri_old);
-
-    if (buffer != NULL) {
-        if (rc == true) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Shuffled playlist succesfully");
-        }
-        else {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Shuffling playlist failed");
-        }
+    if (rc == true) {
+        rc = _mpd_client_replace_playlist(mpd_state, playlist_tmp, playlist);
     }
-    return buffer;
+    FREE_SDS(playlist_tmp);
+    return rc;
 }
 
-sds mpd_client_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds method,
-        long request_id, const char *uri, const char *tagstr)
-{
+/**
+ * Sorts a playlist.
+ * Wrapper for _mpd_client_playlist_sort that enables the mympd tags afterwards
+ * @param mpd_state pointer to struct mpd_state
+ * @param playlist playlist to shuffle
+ * @param tagstr mpd tag to sort by
+ * @return true on success else false
+ */
+bool mpd_client_playlist_sort(struct t_mpd_state *mpd_state, const char *playlist, const char *tagstr) {
+    bool rc = _mpd_client_playlist_sort(mpd_state, playlist, tagstr);
+    enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
+    return rc;
+}
+
+//private functions
+
+/**
+ * Sorts a playlist.
+ * @param mpd_state pointer to struct mpd_state
+ * @param playlist playlist to shuffle
+ * @param tagstr mpd tag to sort by
+ * @return true on success else false
+ */
+static bool _mpd_client_playlist_sort(struct t_mpd_state *mpd_state, const char *playlist, const char *tagstr) {
     struct t_tags sort_tags = {
         .len = 1,
         .tags[0] = mpd_tag_name_parse(tagstr)
@@ -183,22 +257,19 @@ sds mpd_client_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
     bool rc = false;
 
     if (strcmp(tagstr, "filename") == 0) {
-        MYMPD_LOG_INFO("Sorting playlist \"%s\" by filename", uri);
-        rc = mpd_send_list_playlist(mpd_state->conn, uri);
+        MYMPD_LOG_INFO("Sorting playlist \"%s\" by filename", playlist);
+        rc = mpd_send_list_playlist(mpd_state->conn, playlist);
     }
     else if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
-        MYMPD_LOG_INFO("Sorting playlist \"%s\" by tag \"%s\"", uri, tagstr);
+        MYMPD_LOG_INFO("Sorting playlist \"%s\" by tag \"%s\"", playlist, tagstr);
         enable_mpd_tags(mpd_state, &sort_tags);
-        rc = mpd_send_list_playlist_meta(mpd_state->conn, uri);
+        rc = mpd_send_list_playlist_meta(mpd_state->conn, playlist);
     }
     else {
-        if (buffer != NULL) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Leaving playlist as it is");
-        }
-        return buffer;
+        return false;
     }
-    if (check_rc_error_and_recover(mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_playlist") == false) {
-        return buffer;
+    if (mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_send_list_playlist") == false) {
+        return false;
     }
 
     rax *plist = raxNew();
@@ -226,22 +297,14 @@ sds mpd_client_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
     }
     FREE_SDS(key);
     mpd_response_finish(mpd_state->conn);
-    if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+    if (mympd_check_error_and_recover(mpd_state) == false) {
         //free data
-        raxIterator iter;
-        raxStart(&iter, plist);
-        raxSeek(&iter, "^", NULL, 0);
-        while (raxNext(&iter)) {
-            FREE_SDS(iter.data);
-        }
-        raxStop(&iter);
-        raxFree(plist);
-        return buffer;
+        rax_free_sds_data(plist);
+        return false;
     }
 
     long randnr = randrange(100000, 999999);
-    sds uri_tmp = sdscatfmt(sdsempty(), "%l-tmp-%s", randnr, uri);
-    sds uri_old = sdscatfmt(sdsempty(), "%l-old-%s", randnr, uri);
+    sds playlist_tmp = sdscatfmt(sdsempty(), "%l-tmp-%s", randnr, playlist);
 
     //add sorted songs to tmp playlist
     //uses command list to add MPD_COMMANDS_MAX songs at once
@@ -249,13 +312,14 @@ sds mpd_client_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
     raxIterator iter;
     raxStart(&iter, plist);
     raxSeek(&iter, "^", NULL, 0);
+    rc = true;
     while (i < plist->numele) {
         if (mpd_command_list_begin(mpd_state->conn, false) == true) {
             long j = 0;
             while (raxNext(&iter)) {
                 i++;
                 j++;
-                rc = mpd_send_playlist_add(mpd_state->conn, uri_tmp, iter.data);
+                rc = mpd_send_playlist_add(mpd_state->conn, playlist_tmp, iter.data);
                 FREE_SDS(iter.data);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
@@ -269,87 +333,53 @@ sds mpd_client_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds meth
                 mpd_response_finish(mpd_state->conn);
             }
         }
-        if (check_error_and_recover2(mpd_state, &buffer, method, request_id, false) == false) {
+        if (mympd_check_error_and_recover(mpd_state) == false) {
             //error adding songs to tmp playlist - delete it
-            rc = mpd_run_rm(mpd_state->conn, uri_tmp);
-            check_rc_error_and_recover(mpd_state, NULL, method, request_id, false, rc, "mpd_run_rm");
-            FREE_SDS(uri_tmp);
-            FREE_SDS(uri_old);
-            while (raxNext(&iter)) {
-                FREE_SDS(iter.data);
-            }
-            raxStop(&iter);
-            raxFree(plist);
-            return buffer;
+            rc = mpd_run_rm(mpd_state->conn, playlist_tmp);
+            mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_run_rm");
+            rc = false;
+            break;
         }
     }
     raxStop(&iter);
-    raxFree(plist);
-
-    rc = mpd_client_replace_playlist(mpd_state, uri_tmp, uri, uri_old);
-    FREE_SDS(uri_tmp);
-    FREE_SDS(uri_old);
-
-    if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
-        enable_mpd_tags(mpd_state, &mpd_state->tag_types_mympd);
+    rax_free_sds_data(plist);
+    if (rc == true) {
+        rc = _mpd_client_replace_playlist(mpd_state, playlist_tmp, playlist);    
     }
-    if (buffer != NULL) {
-        if (rc == true) {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Sorted playlist succesfully");
-        }
-        else {
-            buffer = jsonrpc_respond_message(buffer, method, request_id, true, "playlist", "error", "Sorting playlist failed");
-        }
-    }
-    return buffer;
+    FREE_SDS(playlist_tmp);
+    return rc;
 }
 
-bool mpd_client_replace_playlist(struct t_mpd_state *mpd_state, const char *new_pl, const char *to_replace_pl, const char *backup_pl) {
+/**
+ * Safely replaces a playlist with a new one
+ * @param mpd_state pointer to struct mpd_state
+ * @param new_pl name of the new playlist to bring in place
+ * @param to_replace_pl name of the playlist to replace
+ * @param backup_pl name of
+ * @return true 
+ * @return false 
+ */
+static bool _mpd_client_replace_playlist(struct t_mpd_state *mpd_state, const char *new_pl,
+    const char *to_replace_pl)
+{
+    sds backup_pl = sdscatfmt(sdsempty(), "%s.bak", new_pl);
     //rename original playlist to old playlist
     bool rc = mpd_run_rename(mpd_state->conn, to_replace_pl, backup_pl);
-    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_rename") == false) {
+    if (mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_run_rename") == false) {
+        FREE_SDS(backup_pl);
         return false;
     }
     //rename new playlist to orginal playlist
     rc = mpd_run_rename(mpd_state->conn, new_pl, to_replace_pl);
-    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_rename") == false) {
+    if (mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_run_rename") == false) {
         //restore original playlist
         rc = mpd_run_rename(mpd_state->conn, backup_pl, to_replace_pl);
-        check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_rename");
+        mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_run_rename");
+        FREE_SDS(backup_pl);
         return false;
     }
     //delete old playlist
     rc = mpd_run_rm(mpd_state->conn, backup_pl);
-    if (check_rc_error_and_recover(mpd_state, NULL, NULL, 0, false, rc, "mpd_run_rm") == false) {
-        return false;
-    }
-    return true;
-}
-
-bool mpd_client_smartpls_save(sds workdir, const char *smartpltype, const char *playlist,
-                              const char *expression, const int maxentries,
-                              const int timerange, const char *sort)
-{
-    sds line = sdscatlen(sdsempty(), "{", 1);
-    line = tojson_char(line, "type", smartpltype, true);
-    if (strcmp(smartpltype, "sticker") == 0) {
-        line = tojson_char(line, "sticker", expression, true);
-        line = tojson_long(line, "maxentries", maxentries, true);
-        line = tojson_long(line, "minvalue", timerange, true);
-    }
-    else if (strcmp(smartpltype, "newest") == 0) {
-        line = tojson_long(line, "timerange", timerange, true);
-    }
-    else if (strcmp(smartpltype, "search") == 0) {
-        line = tojson_char(line, "expression", expression, true);
-    }
-    line = tojson_char(line, "sort", sort, false);
-    line = sdscatlen(line, "}", 1);
-
-    sds pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
-    bool rc = write_data_to_file(pl_file, line, sdslen(line));
-
-    FREE_SDS(line);
-    FREE_SDS(pl_file);
-    return rc;
+    FREE_SDS(backup_pl);
+    return mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_run_rename");
 }

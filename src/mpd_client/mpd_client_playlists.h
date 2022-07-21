@@ -17,16 +17,12 @@ enum playlist_types {
 };
 
 bool is_smartpls(sds workdir, const char *playlist);
-bool mpd_client_replace_playlist(struct t_mpd_state *mpd_state, const char *new_pl,
-        const char *to_replace_pl, const char *backup_pl);
-sds mpd_client_playlist_shuffle(struct t_mpd_state *mpd_state, sds buffer, sds method,
-        long request_id, const char *uri);
-sds mpd_client_playlist_sort(struct t_mpd_state *mpd_state, sds buffer, sds method,
-        long request_id, const char *uri, const char *tagstr);
+bool mpd_client_playlist_shuffle(struct t_mpd_state *mpd_state, const char *uri);
+bool mpd_client_playlist_sort(struct t_mpd_state *mpd_state, const char *uri, const char *tagstr);
 bool mpd_client_smartpls_save(sds workdir, const char *smartpltype,
         const char *playlist, const char *expression, const int maxentries,
         const int timerange, const char *sort);
 time_t mpd_client_get_playlist_mtime(struct t_mpd_state *mpd_state, const char *playlist);
-time_t mpd_client_get_smartpls_mtime(struct t_config *config, const char *playlist);
+time_t mpd_client_get_smartpls_mtime(sds workdir, const char *playlist);
 time_t mpd_client_get_db_mtime(struct t_mpd_state *mpd_state);
 #endif
