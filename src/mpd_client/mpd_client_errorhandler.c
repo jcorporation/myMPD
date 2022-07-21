@@ -47,36 +47,32 @@ bool mympd_check_rc_error_and_recover(struct t_mpd_state *mpd_state, bool rc, co
  * Checks for mpd protocol error and tries to recover it.
  * Creates a jsonrpc response on error.
  * @param mpd_state pointer to t_mpd_state struct
- * @param buffer already allocated sds string for the jsonrpc response
+ * @param buffer pointer to an already allocated sds string for the jsonrpc response
  * @param cmd_id enum mympd_cmd_ids
  * @param request_id jsonrpc request id to respond
- * @param result pointer to bool for result
- * @return pointer to buffer
+ * @return true on success else false
  */
-sds mympd_check_error_and_recover_respond(struct t_mpd_state *mpd_state, sds buffer,
-        enum mympd_cmd_ids cmd_id, long request_id, bool *result)
+bool mympd_check_error_and_recover_respond(struct t_mpd_state *mpd_state, sds *buffer,
+        enum mympd_cmd_ids cmd_id, long request_id)
 {
-    *result = _check_error_and_recover(mpd_state, &buffer, cmd_id, request_id, false);
-    return buffer;
+    return _check_error_and_recover(mpd_state, buffer, cmd_id, request_id, false);
 }
 
 /**
  * Checks for mpd protocol error and return code of last mpd command and tries to recover it
  * Creates a jsonrpc response on error.
  * @param mpd_state pointer to t_mpd_state struct
- * @param buffer already allocated sds string for the jsonrpc response
+ * @param buffer pointer to an already allocated sds string for the jsonrpc response
  * @param cmd_id enum mympd_cmd_ids
  * @param request_id jsonrpc request id to respond
  * @param rc return code of last mpd command to check
  * @param command last mpd command
- * @param result pointer to bool for result
- * @return pointer to buffer
+ * @return true on success else false
  */
-sds mympd_check_rc_error_and_recover_respond(struct t_mpd_state *mpd_state, sds buffer,
-        enum mympd_cmd_ids cmd_id, long request_id, bool rc, const char *command, bool *result)
+bool mympd_check_rc_error_and_recover_respond(struct t_mpd_state *mpd_state, sds *buffer,
+        enum mympd_cmd_ids cmd_id, long request_id, bool rc, const char *command)
 {
-    *result = _check_rc_error_and_recover(mpd_state, &buffer, cmd_id, request_id, false, rc, command);
-    return buffer;
+    return _check_rc_error_and_recover(mpd_state, buffer, cmd_id, request_id, false, rc, command);
 }
 
 /**
@@ -84,12 +80,10 @@ sds mympd_check_rc_error_and_recover_respond(struct t_mpd_state *mpd_state, sds 
  * Creates a jsonrpc notification on error.
  * @param mpd_state pointer to t_mpd_state struct
  * @param buffer already allocated sds string for the jsonrpc response
- * @param result pointer to bool for result
- * @return pointer to buffer
+ * @return true on success else false
  */
-sds mympd_check_error_and_recover_notify(struct t_mpd_state *mpd_state, sds buffer, bool *result) {
-    *result = _check_error_and_recover(mpd_state, &buffer, GENERAL_API_UNKNOWN, 0, true);
-    return buffer;
+bool mympd_check_error_and_recover_notify(struct t_mpd_state *mpd_state, sds *buffer) {
+    return _check_error_and_recover(mpd_state, buffer, GENERAL_API_UNKNOWN, 0, true);
 }
 
 /**
@@ -99,14 +93,12 @@ sds mympd_check_error_and_recover_notify(struct t_mpd_state *mpd_state, sds buff
  * @param buffer already allocated sds string for the jsonrpc response
  * @param rc return code of last mpd command to check
  * @param command last mpd command
- * @param result pointer to bool for result
- * @return pointer to buffer
+ * @return true on success else false
  */
-sds mympd_check_rc_error_and_recover_notify(struct t_mpd_state *mpd_state, sds buffer, bool rc,
-        const char *command, bool *result)
+bool mympd_check_rc_error_and_recover_notify(struct t_mpd_state *mpd_state, sds *buffer, bool rc,
+        const char *command)
 {
-    *result = _check_rc_error_and_recover(mpd_state, &buffer, GENERAL_API_UNKNOWN, 0, false, rc, command);
-    return buffer;
+    return _check_rc_error_and_recover(mpd_state, buffer, GENERAL_API_UNKNOWN, 0, false, rc, command);
 }
 
 /**
@@ -119,7 +111,7 @@ sds mympd_check_rc_error_and_recover_notify(struct t_mpd_state *mpd_state, sds b
  * @param request_id jsonrpc request id to respond
  * @param rc return code of last mpd command to check
  * @param command last mpd command
- * @param result pointer to bool for result
+ * @param result pointer to bool for result code
  * @return pointer to buffer
  */
 sds mympd_respond_with_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, enum mympd_cmd_ids cmd_id,
