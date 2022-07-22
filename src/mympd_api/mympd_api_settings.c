@@ -743,48 +743,6 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
     return buffer;
 }
 
-sds mympd_api_settings_picture_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id, sds type) {
-    sds pic_dirname = sdscatfmt(sdsempty(), "%S/pics/%S", mympd_state->config->workdir, type);
-    errno = 0;
-    DIR *pic_dir = opendir(pic_dirname);
-    if (pic_dir == NULL) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, true,
-            "general", "error", "Can not open directory pics");
-        MYMPD_LOG_ERROR("Can not open directory \"%s\"", pic_dirname);
-        MYMPD_LOG_ERRNO(errno);
-        FREE_SDS(pic_dirname);
-        return buffer;
-    }
-
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
-    buffer = sdscat(buffer, "\"data\":[");
-    int returned_entities = 0;
-    struct dirent *next_file;
-    while ((next_file = readdir(pic_dir)) != NULL ) {
-        if (next_file->d_type == DT_REG) {
-            const char *ext = get_extension_from_filename(next_file->d_name);
-            if (ext == NULL) {
-                continue;
-            }
-            if (strcasecmp(ext, "webp") == 0 || strcasecmp(ext, "jpg") == 0 ||
-                strcasecmp(ext, "jpeg") == 0 || strcasecmp(ext, "png") == 0 ||
-                strcasecmp(ext, "avif") == 0 || strcasecmp(ext, "svg") == 0)
-            {
-                if (returned_entities++) {
-                    buffer = sdscatlen(buffer, ",", 1);
-                }
-                buffer = sds_catjson(buffer, next_file->d_name, strlen(next_file->d_name));
-            }
-        }
-    }
-    closedir(pic_dir);
-    FREE_SDS(pic_dirname);
-    buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
-    buffer = jsonrpc_respond_end(buffer);
-    return buffer;
-}
-
 //privat functions
 
 static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags) {

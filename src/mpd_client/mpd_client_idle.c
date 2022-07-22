@@ -34,6 +34,7 @@ static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeou
 
 //public functions
 void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitmask) {
+    sds buffer = sdsempty();
     for (unsigned j = 0;; j++) {
         enum mpd_idle idle_event = 1 << j;
         const char *idle_name = mpd_idle_name(idle_event);
@@ -42,7 +43,6 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
         }
         if (idle_bitmask & idle_event) {
             MYMPD_LOG_INFO("MPD idle event: %s", idle_name);
-            sds buffer = sdsempty();
             switch(idle_event) {
                 case MPD_IDLE_DATABASE:
                     //database has changed
@@ -135,19 +135,21 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
             mympd_api_trigger_execute(&mympd_state->trigger_list, (enum trigger_events)idle_event);
             if (sdslen(buffer) > 0) {
                 ws_notify(buffer);
+                sdsclear(buffer);
             }
-            FREE_SDS(buffer);
         }
     }
+    FREE_SDS(buffer);
 }
 
 void mpd_client_idle(struct t_mympd_state *mympd_state) {
-    sds buffer = sdsempty();
     switch (mympd_state->mpd_state->conn_state) {
         case MPD_WAIT: {
             time_t now = time(NULL);
             if (now > mympd_state->mpd_state->reconnect_time) {
+                //wait time elapsed, try to reconnect
                 mympd_state->mpd_state->conn_state = MPD_DISCONNECTED;
+                break;
             }
             //mympd_api_api error response
             struct t_work_request *request = mympd_queue_shift(mympd_api_queue, 50, 0);
@@ -171,9 +173,10 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     }
                     free_request(request);
                 }
+                break;
             }
             if (now < mympd_state->mpd_state->reconnect_time) {
-                //pause 100ms to prevent high cpu usage
+                //small pause to prevent high cpu usage
                 my_msleep(100);
             }
             break;
@@ -190,8 +193,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 s_signal_received = 1;
             }
             //we are connected
-            buffer = jsonrpc_event(buffer, JSONRPC_EVENT_MPD_CONNECTED);
-            ws_notify(buffer);
+            send_jsonrpc_event(JSONRPC_EVENT_MPD_CONNECTED);
             //reset reconnection intervals
             mympd_state->mpd_state->reconnect_interval = 0;
             mympd_state->mpd_state->reconnect_time = 0;
@@ -209,7 +211,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             if (mympd_state->jukebox_mode != JUKEBOX_OFF) {
                 mpd_client_jukebox(mympd_state);
             }
-            if (!mpd_send_idle(mympd_state->mpd_state->conn)) {
+            if (mpd_send_idle(mympd_state->mpd_state->conn) == false) {
                 MYMPD_LOG_ERROR("Entering idle mode failed");
                 mympd_state->mpd_state->conn_state = MPD_FAILURE;
             }
@@ -217,8 +219,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             break;
         case MPD_FAILURE:
             MYMPD_LOG_ERROR("MPD connection failed");
-            buffer = jsonrpc_event(buffer, JSONRPC_EVENT_MPD_DISCONNECTED);
-            ws_notify(buffer);
+            send_jsonrpc_event(JSONRPC_EVENT_MPD_DISCONNECTED);
             mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED);
             // fall through
         case MPD_DISCONNECT:
@@ -286,7 +287,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 mympd_state->sticker_queue.length > 0) //we must set waiting stickers
             {
                 MYMPD_LOG_DEBUG("Leaving mpd idle mode");
-                if (!mpd_send_noidle(mympd_state->mpd_state->conn)) {
+                if (mpd_send_noidle(mympd_state->mpd_state->conn) == false) {
                     mympd_check_error_and_recover(mympd_state->mpd_state);
                     mympd_state->mpd_state->conn_state = MPD_FAILURE;
                     break;
@@ -332,7 +333,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 }
                 //reenter idle mode
                 MYMPD_LOG_DEBUG("Entering mpd idle mode");
-                if (!mpd_send_idle(mympd_state->mpd_state->conn)) {
+                if (mpd_send_idle(mympd_state->mpd_state->conn) == false) {
                     mympd_check_error_and_recover(mympd_state->mpd_state);
                     mympd_state->mpd_state->conn_state = MPD_FAILURE;
                 }
@@ -342,7 +343,6 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
         default:
             MYMPD_LOG_ERROR("Invalid mpd connection state");
     }
-    FREE_SDS(buffer);
 }
 
 //private functions

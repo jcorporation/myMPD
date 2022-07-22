@@ -58,9 +58,6 @@ void *mympd_api_loop(void *arg_config) {
     //thread loop
     while (s_signal_received == 0) {
         mpd_client_idle(mympd_state);
-        if (mympd_state->mpd_state->conn_state == MPD_TOO_OLD) {
-            break;
-        }
         mympd_api_timer_check(&mympd_state->timer_list);
     }
     //stop trigger

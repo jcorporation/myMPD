@@ -20,6 +20,7 @@
 #include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
+#include "../mpd_client/mpd_client_playlists.h"
 #include "../mpd_client/mpd_client_search.h"
 #include "../mpd_client/mpd_client_search_local.h"
 #include "../mpd_client/mpd_client_tags.h"
@@ -30,59 +31,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
-//private definitions
-static int mympd_api_enum_playlist(struct t_mympd_state *mympd_state, const char *playlist, bool empty_check);
-static bool smartpls_init(sds workdir, const char *name, const char *value);
-
-//public functions
-bool mympd_api_smartpls_default(struct t_config *config) {
-    bool rc = true;
-
-    //try to get prefix from state file, fallback to default value
-    sds prefix = state_file_rw_string(config->workdir, "state", "smartpls_prefix", MYMPD_SMARTPLS_PREFIX, vcb_isname, false);
-
-    sds smartpls_file = sdscatfmt(sdsempty(), "%S-bestRated", prefix);
-    rc = smartpls_init(config->workdir, smartpls_file,
-        "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200, \"minvalue\": 2, \"sort\": \"\"}");
-    if (rc == false) {
-        FREE_SDS(smartpls_file);
-        FREE_SDS(prefix);
-        return rc;
-    }
-
-    sdsclear(smartpls_file);
-    smartpls_file = sdscatfmt(smartpls_file, "%S-mostPlayed", prefix);
-    rc = smartpls_init(config->workdir, smartpls_file,
-        "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0, \"sort\": \"\"}");
-    if (rc == false) {
-        FREE_SDS(smartpls_file);
-        FREE_SDS(prefix);
-        return rc;
-    }
-
-    sdsclear(smartpls_file);
-    smartpls_file = sdscatfmt(smartpls_file, "%S-newestSongs", prefix);
-    rc = smartpls_init(config->workdir, smartpls_file,
-        "{\"type\": \"newest\", \"timerange\": 604800, \"sort\": \"\"}");
-    FREE_SDS(smartpls_file);
-    FREE_SDS(prefix);
-
-    return rc;
-}
-
-void mympd_api_smartpls_update(const char *playlist) {
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE, NULL);
-    request->data = tojson_char(request->data, "plist", playlist, false);
-    request->data = sdscatlen(request->data, "}}", 2);
-    mympd_queue_push(mympd_api_queue, request, 0);
-}
-
-void mympd_api_smartpls_update_all(void) {
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
-    request->data = sdscatlen(request->data, "}}", 2);
-    mympd_queue_push(mympd_api_queue, request, 0);
-}
 
 /**
  * Simple struct to save playlist data
@@ -509,7 +457,7 @@ sds mympd_api_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer,
     if (strcmp(type, "deleteEmptyPlaylists") == 0) {
         struct t_list_node *current = playlists.head;
         while (current != NULL) {
-            current->value_i = mympd_api_enum_playlist(mympd_state, current->key, true);
+            current->value_i = mpd_client_enum_playlist(mympd_state, current->key, true);
             current = current->next;
         }
     }
@@ -554,34 +502,4 @@ sds mympd_api_playlist_delete_all(struct t_mympd_state *mympd_state, sds buffer,
     list_clear(&playlists);
     buffer = jsonrpc_respond_message(buffer, method, request_id, false, "playlist", "info", "Playlists deleted");
     return buffer;
-}
-
-//private functions
-static int mympd_api_enum_playlist(struct t_mympd_state *mympd_state, const char *playlist, bool empty_check) {
-    bool rc = mpd_send_list_playlist(mympd_state->mpd_state->conn, playlist);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_playlist") == false) {
-        return -1;
-    }
-
-    struct mpd_song *song;
-    int entity_count = 0;
-    while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
-        entity_count++;
-        mpd_song_free(song);
-        if (empty_check == true) {
-            break;
-        }
-    }
-    mpd_response_finish(mympd_state->mpd_state->conn);
-    if (check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false) == false) {
-        return -1;
-    }
-    return entity_count;
-}
-
-static bool smartpls_init(sds workdir, const char *name, const char *value) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, name);
-    bool rc = write_data_to_file(filepath, value, strlen(value));
-    FREE_SDS(filepath);
-    return rc;
 }

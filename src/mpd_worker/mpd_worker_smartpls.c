@@ -13,6 +13,7 @@
 #include "../lib/mem.h"
 #include "../lib/rax_extras.h"
 #include "../lib/sds_extras.h"
+#include "../lib/smartpls.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
@@ -61,7 +62,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
             continue;
         }
         time_t playlist_mtime = mpd_client_get_playlist_mtime(mpd_worker_state->mpd_state, next_file->d_name);
-        time_t smartpls_mtime = mpd_client_get_smartpls_mtime(mpd_worker_state->config->workdir, next_file->d_name);
+        time_t smartpls_mtime = smartpls_get_mtime(mpd_worker_state->config->workdir, next_file->d_name);
         MYMPD_LOG_DEBUG("Playlist %s: playlist mtime %lld, smartpls mtime %lld", next_file->d_name, (long long)playlist_mtime, (long long)smartpls_mtime);
         if (force == true || db_mtime > playlist_mtime || smartpls_mtime > playlist_mtime) {
             mpd_worker_smartpls_update(mpd_worker_state, next_file->d_name);
@@ -201,7 +202,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
                 sds expression = sdsnewlen("(", 1);
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
                 expression = sdscatlen(expression, ")", 1);
-                rc = mpd_client_smartpls_save(mpd_worker_state->config->workdir, "search", playlist, expression, 0, 0, mpd_worker_state->smartpls_sort);
+                rc = smartpls_save_search(mpd_worker_state->config->workdir, playlist, expression, mpd_worker_state->smartpls_sort);
                 FREE_SDS(expression);
                 if (rc == true) {
                     MYMPD_LOG_INFO("Created smart playlist \"%s\"", playlist);

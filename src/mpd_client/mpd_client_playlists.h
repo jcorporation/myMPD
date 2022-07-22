@@ -16,13 +16,9 @@ enum playlist_types {
     PLTYPE_SMARTPLS_ONLY = 3
 };
 
-bool is_smartpls(sds workdir, const char *playlist);
 bool mpd_client_playlist_shuffle(struct t_mpd_state *mpd_state, const char *uri);
 bool mpd_client_playlist_sort(struct t_mpd_state *mpd_state, const char *uri, const char *tagstr);
-bool mpd_client_smartpls_save(sds workdir, const char *smartpltype,
-        const char *playlist, const char *expression, const int maxentries,
-        const int timerange, const char *sort);
 time_t mpd_client_get_playlist_mtime(struct t_mpd_state *mpd_state, const char *playlist);
-time_t mpd_client_get_smartpls_mtime(sds workdir, const char *playlist);
 time_t mpd_client_get_db_mtime(struct t_mpd_state *mpd_state);
+int mpd_client_enum_playlist(struct t_mympd_state *mympd_state, const char *playlist, bool empty_check);
 #endif

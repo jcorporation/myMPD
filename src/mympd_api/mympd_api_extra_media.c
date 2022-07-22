@@ -98,20 +98,14 @@ static void _get_extra_files(struct t_mympd_state *mympd_state, const char *uri,
     if (album_dir != NULL) {
         struct dirent *next_file;
         while ((next_file = readdir(album_dir)) != NULL) {
-            const char *ext = strrchr(next_file->d_name, '.');
             if (strcmp(next_file->d_name, mympd_state->booklet_name) == 0) {
                 MYMPD_LOG_DEBUG("Found booklet for uri %s", uri);
                 *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%S/%S", path, mympd_state->booklet_name);
             }
-            else if (ext != NULL) {
-                if (strcasecmp(ext, ".webp") == 0 || strcasecmp(ext, ".jpg") == 0 ||
-                    strcasecmp(ext, ".jpeg") == 0 || strcasecmp(ext, ".png") == 0 ||
-                    strcasecmp(ext, ".avif") == 0 || strcasecmp(ext, ".svg") == 0)
-                {
-                    fullpath = sdscatfmt(fullpath, "/browse/music/%S/%s", path, next_file->d_name);
-                    list_push(images, fullpath, 0, NULL, NULL);
-                    sdsclear(fullpath);
-                }
+            else if (is_image(next_file->d_name) == true) {
+                fullpath = sdscatfmt(fullpath, "/browse/music/%S/%s", path, next_file->d_name);
+                list_push(images, fullpath, 0, NULL, NULL);
+                sdsclear(fullpath);
             }
         }
         closedir(album_dir);

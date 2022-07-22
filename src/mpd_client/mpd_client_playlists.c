@@ -33,63 +33,6 @@ static bool _mpd_client_replace_playlist(struct t_mpd_state *mpd_state, const ch
 //public functions
 
 /**
- * Saves the smart playlist to disk.
- * @param workdir myMPD working directory
- * @param smartpltype type of the smart playlist: sticker, newest or search
- * @param playlist name of the smart playlist
- * @param expression mpd search expression
- * @param maxentries max entries for the playlist
- * @param timerange timerange for newest smart playlist type
- * @param sort mpd tag to sort or shuffle
- * @return true on success else false
- */
-bool mpd_client_smartpls_save(sds workdir, const char *smartpltype, const char *playlist,
-                              const char *expression, const int maxentries,
-                              const int timerange, const char *sort)
-{
-    sds line = sdscatlen(sdsempty(), "{", 1);
-    line = tojson_char(line, "type", smartpltype, true);
-    if (strcmp(smartpltype, "sticker") == 0) {
-        line = tojson_char(line, "sticker", expression, true);
-        line = tojson_long(line, "maxentries", maxentries, true);
-        line = tojson_long(line, "minvalue", timerange, true);
-    }
-    else if (strcmp(smartpltype, "newest") == 0) {
-        line = tojson_long(line, "timerange", timerange, true);
-    }
-    else if (strcmp(smartpltype, "search") == 0) {
-        line = tojson_char(line, "expression", expression, true);
-    }
-    line = tojson_char(line, "sort", sort, false);
-    line = sdscatlen(line, "}", 1);
-
-    sds pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
-    bool rc = write_data_to_file(pl_file, line, sdslen(line));
-    FREE_SDS(line);
-    FREE_SDS(pl_file);
-    return rc;
-}
-
-/**
- * Checks if playlist is a smart playlist
- * @param workdir myMPD working directory
- * @param playlist name of the playlist to check
- * @return true if it is a smart playlist else false
- */
-bool is_smartpls(sds workdir, const char *playlist) {
-    bool smartpls = false;
-    if (strchr(playlist, '/') == NULL) {
-        //filename only
-        sds smartpls_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
-        if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
-            smartpls = true;
-        }
-        FREE_SDS(smartpls_file);
-    }
-    return smartpls;
-}
-
-/**
  * Returns the mpd database last modification time
  * @param mpd_state pointer to struct mpd_state
  * @return last modification time
@@ -103,25 +46,6 @@ time_t mpd_client_get_db_mtime(struct t_mpd_state *mpd_state) {
     time_t mtime = (time_t)mpd_stats_get_db_update_time(stats);
     mpd_stats_free(stats);
     return mtime;
-}
-
-/**
- * Returns the samrt playlist last modification time
- * @param workdir myMPD working directory
- * @param playlist name of the playlist to check
- * @return last modification time
- */
-time_t mpd_client_get_smartpls_mtime(sds workdir, const char *playlist) {
-    sds plpath = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
-    struct stat attr;
-    errno = 0;
-    if (stat(plpath, &attr) != 0) {
-        MYMPD_LOG_ERROR("Error getting mtime for \"%s\"", plpath);
-        MYMPD_LOG_ERRNO(errno);
-        attr.st_mtime = 0;
-    }
-    FREE_SDS(plpath);
-    return attr.st_mtime;
 }
 
 /**
@@ -382,4 +306,26 @@ static bool _mpd_client_replace_playlist(struct t_mpd_state *mpd_state, const ch
     rc = mpd_run_rm(mpd_state->conn, backup_pl);
     FREE_SDS(backup_pl);
     return mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_run_rename");
+}
+
+int mpd_client_enum_playlist(struct t_mympd_state *mympd_state, const char *playlist, bool empty_check) {
+    bool rc = mpd_send_list_playlist(mympd_state->mpd_state->conn, playlist);
+    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_playlist") == false) {
+        return -1;
+    }
+
+    struct mpd_song *song;
+    int entity_count = 0;
+    while ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
+        entity_count++;
+        mpd_song_free(song);
+        if (empty_check == true) {
+            break;
+        }
+    }
+    mpd_response_finish(mympd_state->mpd_state->conn);
+    if (check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false) == false) {
+        return -1;
+    }
+    return entity_count;
 }

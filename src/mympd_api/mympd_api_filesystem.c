@@ -13,6 +13,7 @@
 #include "../lib/mem.h"
 #include "../lib/rax_extras.h"
 #include "../lib/sds_extras.h"
+#include "../lib/smartpls.h"
 #include "../lib/utility.h"
 #include "../mpd_client/mpd_client_errorhandler.h"
 #include "../mpd_client/mpd_client_playlists.h"

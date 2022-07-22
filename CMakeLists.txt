@@ -262,6 +262,7 @@ set(MYMPD_SOURCES
   src/lib/random.c
   src/lib/rax_extras.c
   src/lib/sds_extras.c
+  src/lib/smartpls.c
   src/lib/state_files.c
   src/lib/sticker_cache.c
   src/lib/utility.c
@@ -293,6 +294,7 @@ set(MYMPD_SOURCES
   src/mympd_api/mympd_api_lyrics.c
   src/mympd_api/mympd_api_mounts.c
   src/mympd_api/mympd_api_partitions.c
+  src/mympd_api/mympd_api_pictures.c
   src/mympd_api/mympd_api_playlists.c
   src/mympd_api/mympd_api_queue.c
   src/mympd_api/mympd_api_scripts.c

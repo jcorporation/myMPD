@@ -16,8 +16,8 @@
 #include "lib/mem.h"
 #include "lib/random.h"
 #include "lib/sds_extras.h"
+#include "lib/smartpls.h"
 #include "mympd_api/mympd_api.h"
-#include "mympd_api/mympd_api_playlists.h"
 #include "mympd_config.h"
 #include "web_server/web_server.h"
 
@@ -489,7 +489,7 @@ int main(int argc, char **argv) {
 
     //default smart playlists
     if (config->first_startup == true) {
-        mympd_api_smartpls_default(config);
+        smartpls_default(config->workdir);
     }
 
     //Create working threads
