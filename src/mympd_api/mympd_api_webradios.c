@@ -62,16 +62,17 @@ sds get_webradio_from_uri(sds workdir, const char *uri) {
     return entry;
 }
 
-sds mympd_api_webradio_get(sds workdir, sds buffer, sds method, long request_id, sds filename) {
+sds mympd_api_webradio_get(sds workdir, sds buffer, long request_id, sds filename) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIO_FAVORITE_GET;
     sds filepath = sdscatfmt(sdsempty(), "%S/webradios/%S", workdir, filename);
     sds entry = sdsempty();
     entry = m3u_to_json(entry, filepath, NULL);
     if (sdslen(entry) == 0) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, true,
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id, true,
             "database", "error", "Can not parse webradio favorite file");
     }
     else {
-        buffer = jsonrpc_respond_start(buffer, method, request_id);
+        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = tojson_sds(buffer, "filename", filename, true);
         buffer = sdscatsds(buffer, entry);
         buffer = jsonrpc_respond_end(buffer);
@@ -81,8 +82,9 @@ sds mympd_api_webradio_get(sds workdir, sds buffer, sds method, long request_id,
     return buffer;
 }
 
-sds mympd_api_webradio_list(sds workdir, sds buffer, sds method, long request_id, sds searchstr, long offset, long limit) {
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds searchstr, long offset, long limit) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIO_FAVORITE_GET;
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     sds webradios_dirname = sdscatfmt(sdsempty(), "%S/webradios", workdir);
     errno = 0;
@@ -91,7 +93,7 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, sds method, long request_id
         MYMPD_LOG_ERROR("Can not open directory \"%s\"", webradios_dirname);
         MYMPD_LOG_ERRNO(errno);
         FREE_SDS(webradios_dirname);
-        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "database", "error", "Can not open webradios directory");
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id, true, "database", "error", "Can not open webradios directory");
         return buffer;
     }
 

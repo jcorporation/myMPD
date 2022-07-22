@@ -114,8 +114,9 @@ void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, in
     list_clear(&script_arguments);
 }
 
-sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, sds method, long request_id) {
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request_id) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_TRIGGER_GET;
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int entities_returned = 0;
     struct t_list_node *current = trigger_list->head;
@@ -152,10 +153,11 @@ sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, sds method, 
     return buffer;
 }
 
-sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, sds method, long request_id, long id) {
+sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_id, long id) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_TRIGGER_GET;
     struct t_list_node *current = list_node_at(trigger_list, id);
     if (current != NULL) {
-        buffer = jsonrpc_respond_start(buffer, method, request_id);
+        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = tojson_long(buffer, "id", id, true);
         buffer = tojson_sds(buffer, "name", current->key, true);
         buffer = tojson_llong(buffer, "event", current->value_i, true);
@@ -175,7 +177,8 @@ sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, sds method, l
         buffer = jsonrpc_respond_end(buffer);
     }
     else {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, false, "trigger", "warn", "Trigger not found");
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_TRIGGER, JSONRPC_SEVERITY_WARN, "Trigger not found");
     }
 
     return buffer;

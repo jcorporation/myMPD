@@ -22,19 +22,46 @@
 static bool _smartpls_save(sds workdir, const char *smartpltype,
         const char *playlist, const char *expression, const int max_entries,
         const int timerange, const char *sort);
-static bool _smartpls_init(sds workdir, const char *name, const char *value);
 
 //public functions
 
-bool smartpls_save_sticker(sds workdir, sds playlist, sds sticker, int max_entries, int min_value, sds sort) {
+/**
+ * Saves a sticker based smart playlist
+ * @param workdir myMPD working directory
+ * @param playlist playlist name
+ * @param sticker sticker name
+ * @param max_entries maximum number of playlist entries
+ * @param min_value minimum integer value of sticker
+ * @param sort tag to sort the playlist: empty = no sorting, shuffle or mpd tag
+ * @return true on success else false
+ */
+bool smartpls_save_sticker(sds workdir, const char *playlist, const char *sticker,
+    int max_entries, int min_value, const char *sort)
+{
     return _smartpls_save(workdir, "sticker", playlist, sticker, max_entries, min_value, sort);
 }
 
-bool smartpls_save_newest(sds workdir, sds playlist, int timerange, sds sort) {
+/**
+ * Saves a sticker based smart playlist
+ * @param workdir myMPD working directory
+ * @param playlist playlist name
+ * @param timerange number of second since now
+ * @param sort tag to sort the playlist: empty = no sorting, shuffle or mpd tag
+ * @return true on success else false
+ */
+bool smartpls_save_newest(sds workdir, const char *playlist, int timerange, const char *sort) {
     return _smartpls_save(workdir, "newest", playlist, NULL, 0, timerange, sort);
 }
 
-bool smartpls_save_search(sds workdir, sds playlist, sds expression, sds sort) {
+/**
+ * Saves a sticker based smart playlist
+ * @param workdir myMPD working directory
+ * @param playlist playlist name
+ * @param expression mpd search expression
+ * @param sort tag to sort the playlist: empty = no sorting, shuffle or mpd tag
+ * @return true on success else false
+ */
+bool smartpls_save_search(sds workdir, const char *playlist, const char *expression, const char *sort) {
     return _smartpls_save(workdir, "search", playlist, expression, 0, 0, sort);
 }
 
@@ -76,52 +103,53 @@ time_t smartpls_get_mtime(sds workdir, const char *playlist) {
     return attr.st_mtime;
 }
 
+/**
+ * Creates the default myMPD smart playlists on first startup
+ * @param workdir myMPD working directory
+ * @return true on success else false
+ */
 bool smartpls_default(sds workdir) {
-    bool rc = true;
-
     //try to get prefix from state file, fallback to default value
     sds prefix = state_file_rw_string(workdir, "state", "smartpls_prefix", MYMPD_SMARTPLS_PREFIX, vcb_isname, false);
 
-    sds smartpls_file = sdscatfmt(sdsempty(), "%S-bestRated", prefix);
-    rc = _smartpls_init(workdir, smartpls_file,
-        "{\"type\": \"sticker\", \"sticker\": \"like\", \"maxentries\": 200, \"minvalue\": 2, \"sort\": \"\"}");
-    if (rc == false) {
-        FREE_SDS(smartpls_file);
-        FREE_SDS(prefix);
-        return rc;
+    bool rc = true;
+    sds playlist = sdscatfmt(sdsempty(), "%S-bestRated", prefix);
+    rc = smartpls_save_sticker(workdir, playlist, "like", 200, 2, "");
+    if (rc == true) {
+        sdsclear(playlist);
+        playlist = sdscatfmt(playlist, "%S-mostPlayed", prefix);
+        rc = smartpls_save_sticker(workdir, playlist, "playCount", 200, 1, "");
     }
-
-    sdsclear(smartpls_file);
-    smartpls_file = sdscatfmt(smartpls_file, "%S-mostPlayed", prefix);
-    rc = _smartpls_init(workdir, smartpls_file,
-        "{\"type\": \"sticker\", \"sticker\": \"playCount\", \"maxentries\": 200, \"minvalue\": 0, \"sort\": \"\"}");
-    if (rc == false) {
-        FREE_SDS(smartpls_file);
-        FREE_SDS(prefix);
-        return rc;
+    if (rc == true) {
+        sdsclear(playlist);
+        playlist = sdscatfmt(playlist, "%S-newestSongs", prefix);
+        rc = smartpls_save_newest(workdir, playlist, 604800, "");
     }
-
-    sdsclear(smartpls_file);
-    smartpls_file = sdscatfmt(smartpls_file, "%S-newestSongs", prefix);
-    rc = _smartpls_init(workdir, smartpls_file,
-        "{\"type\": \"newest\", \"timerange\": 604800, \"sort\": \"\"}");
-    FREE_SDS(smartpls_file);
+    FREE_SDS(playlist);
     FREE_SDS(prefix);
-
     return rc;
 }
 
-void smartpls_update(const char *playlist) {
+/**
+ * Sends a request to the mympd_api_queue to update a smart playlist
+ * @param playlist smart playlist to update
+ * @return true on success else false
+ */
+bool smartpls_update(const char *playlist) {
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE, NULL);
     request->data = tojson_char(request->data, "plist", playlist, false);
     request->data = sdscatlen(request->data, "}}", 2);
-    mympd_queue_push(mympd_api_queue, request, 0);
+    return mympd_queue_push(mympd_api_queue, request, 0);
 }
 
-void smartpls_update_all(void) {
+/**
+ * Sends a request to the mympd_api_queue to update all smart playlists
+ * @return true on success else false
+ */
+bool smartpls_update_all(void) {
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
     request->data = sdscatlen(request->data, "}}", 2);
-    mympd_queue_push(mympd_api_queue, request, 0);
+    return mympd_queue_push(mympd_api_queue, request, 0);
 }
 
 //privat functions
@@ -161,12 +189,5 @@ static bool _smartpls_save(sds workdir, const char *smartpltype, const char *pla
     bool rc = write_data_to_file(pl_file, line, sdslen(line));
     FREE_SDS(line);
     FREE_SDS(pl_file);
-    return rc;
-}
-
-static bool _smartpls_init(sds workdir, const char *name, const char *value) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, name);
-    bool rc = write_data_to_file(filepath, value, strlen(value));
-    FREE_SDS(filepath);
     return rc;
 }

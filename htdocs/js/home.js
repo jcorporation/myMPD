@@ -670,7 +670,7 @@ function saveHomeIconClose(obj) {
     }
     else {
         uiElements.modalEditHomeIcon.hide();
-        sendAPI("MYMPD_API_HOME_LIST", {}, function(obj2) {
+        sendAPI("MYMPD_API_HOME_ICON_LIST", {}, function(obj2) {
             parseHome(obj2);
         });
     }

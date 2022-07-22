@@ -11,13 +11,14 @@
 #include "../mpd_client/mpd_client_errorhandler.h"
 
 //public functions
-sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
+sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long request_id) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_PARTITION_LIST;
     bool rc = mpd_send_listpartitions(mympd_state->mpd_state->conn);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_listpartitions") == false) {
+    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_send_listpartitions") == false) {
         return buffer;
     }
 
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     long entity_count = 0;
     struct mpd_pair *partition;
@@ -37,7 +38,7 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, sds 
     buffer = jsonrpc_respond_end(buffer);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
-    if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
+    if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
         return buffer;
     }
 

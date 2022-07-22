@@ -423,7 +423,7 @@ function webSocketConnect() {
                     break;
                 case 'update_last_played':
                     if (app.id === 'QueueLastPlayed') {
-                        sendAPI('MYMPD_API_QUEUE_LAST_PLAYED', {
+                        sendAPI('MYMPD_API_LAST_PLAYED_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
                             "cols": settings.colsQueueLastPlayedFetch,

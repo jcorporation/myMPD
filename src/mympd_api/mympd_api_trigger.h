@@ -9,8 +9,8 @@
 
 #include "../lib/mympd_state.h"
 
-sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, sds method, long request_id);
-sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, sds method, long request_id, long id);
+sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request_id);
+sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_id, long id);
 bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir);
 bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir);
 void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event);

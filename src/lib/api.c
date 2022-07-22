@@ -100,7 +100,7 @@ bool is_public_api_method(enum mympd_cmd_ids cmd_id) {
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
     switch(cmd_id) {
         case MYMPD_API_CONNECTION_SAVE:
-        case MYMPD_API_HOME_LIST:
+        case MYMPD_API_HOME_ICON_LIST:
         case MYMPD_API_SCRIPT_LIST:
         case MYMPD_API_SETTINGS_GET:
             return true;

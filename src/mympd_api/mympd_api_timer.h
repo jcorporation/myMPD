@@ -28,8 +28,8 @@ void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def);
 struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str,
     sds *error);
 time_t mympd_api_timer_calc_starttime(int start_hour, int start_minute, int interval);
-sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, sds method, long request_id);
-sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, sds method, long request_id,
+sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, long request_id);
+sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, long request_id,
     int timer_id);
 bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir);
 bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir);

@@ -15,31 +15,29 @@
 #include "mympd_api_sticker.h"
 
 //public functions
-sds mympd_api_fingerprint(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                                 const char *uri)
-{
+sds mympd_api_song_fingerprint(struct t_mympd_state *mympd_state, sds buffer, long request_id, const char *uri) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_FINGERPRINT;
     char fp_buffer[8192];
     const char *fingerprint = mpd_run_getfingerprint_chromaprint(mympd_state->mpd_state->conn, uri, fp_buffer, sizeof(fp_buffer));
     if (fingerprint == NULL) {
-        check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false);
+        check_error_and_recover2(mympd_state->mpd_state, &buffer, cmd_id, request_id, false);
         return buffer;
     }
 
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = tojson_char(buffer, "fingerprint", fingerprint, false);
     buffer = jsonrpc_respond_end(buffer);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
-    check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false);
+    check_error_and_recover2(mympd_state->mpd_state, &buffer, cmd_id, request_id, false);
 
     return buffer;
 }
 
-sds mympd_api_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                               const char *uri)
-{
+sds mympd_api_song_details(struct t_mympd_state *mympd_state, sds buffer, long request_id, const char *uri) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_DETAILS;
     bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, uri);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_meta") == false) {
+    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, cmd_id, request_id, false, rc, "mpd_send_list_meta") == false) {
         return buffer;
     }
 
@@ -55,7 +53,7 @@ sds mympd_api_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds met
     }
 
     mpd_response_finish(mympd_state->mpd_state->conn);
-    if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
+    if (check_error_and_recover2(mympd_state->mpd_state, &buffer, cmd_id, request_id, false) == false) {
         return buffer;
     }
 
@@ -70,15 +68,14 @@ sds mympd_api_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds met
     return buffer;
 }
 
-sds mympd_api_read_comments(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-                             const char *uri)
-{
+sds mympd_api_comments(struct t_mympd_state *mympd_state, sds buffer, long request_id, const char *uri) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_COMMENTS;
     bool rc = mpd_send_read_comments(mympd_state->mpd_state->conn, uri);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, method, request_id, false, rc, "mpd_send_list_meta") == false) {
+    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, cmd_id, request_id, false, rc, "mpd_send_list_meta") == false) {
         return buffer;
     }
 
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":{");
     struct mpd_pair *pair;
     int entities_returned = 0;
@@ -90,7 +87,7 @@ sds mympd_api_read_comments(struct t_mympd_state *mympd_state, sds buffer, sds m
         mpd_return_pair(mympd_state->mpd_state->conn, pair);
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
-    if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
+    if (check_error_and_recover2(mympd_state->mpd_state, &buffer, cmd_id, request_id, false) == false) {
         return buffer;
     }
     buffer = sdscatlen(buffer, "},", 2);

@@ -291,6 +291,7 @@ set(MYMPD_SOURCES
   src/mympd_api/mympd_api_filesystem.c
   src/mympd_api/mympd_api_handler.c
   src/mympd_api/mympd_api_home.c
+  src/mympd_api/mympd_api_last_played.c
   src/mympd_api/mympd_api_lyrics.c
   src/mympd_api/mympd_api_mounts.c
   src/mympd_api/mympd_api_partitions.c
@@ -299,6 +300,7 @@ set(MYMPD_SOURCES
   src/mympd_api/mympd_api_queue.c
   src/mympd_api/mympd_api_scripts.c
   src/mympd_api/mympd_api_settings.c
+  src/mympd_api/mympd_api_smartpls.c
   src/mympd_api/mympd_api_song.c
   src/mympd_api/mympd_api_stats.c
   src/mympd_api/mympd_api_status.c

@@ -8,6 +8,7 @@
 #include "mympd_api_pictures.h"
 
 #include "../lib/api.h"
+#include "../lib/mimetype.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
@@ -16,6 +17,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /**
  * Returns a jsonrpc response with pictures in a directory
@@ -27,7 +29,7 @@
  */
 sds mympd_api_settings_picture_list(sds workdir, sds buffer, long request_id, sds subdir) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PICTURE_LIST;
-    sds pic_dirname = sdscatfmt(sdsempty(), "%S/pics/%S", workdir, type);
+    sds pic_dirname = sdscatfmt(sdsempty(), "%S/pics/%S", workdir, subdir);
     errno = 0;
     DIR *pic_dir = opendir(pic_dirname);
     if (pic_dir == NULL) {

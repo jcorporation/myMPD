@@ -14,9 +14,9 @@
 #include "../lib/utility.h"
 #include "../mpd_worker/mpd_worker.h"
 #include "../mympd_api/mympd_api_handler.h"
+#include "../mympd_api/mympd_api_last_played.h"
 #include "../mympd_api/mympd_api_queue.h"
 #include "../mympd_api/mympd_api_status.h"
-#include "../mympd_api/mympd_api_stats.h"
 #include "../mympd_api/mympd_api_timer.h"
 #include "../mympd_api/mympd_api_timer_handlers.h"
 #include "../mympd_api/mympd_api_trigger.h"
@@ -89,7 +89,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                 }
                 case MPD_IDLE_PLAYER:
                     //get and put mpd state
-                    buffer = mympd_api_status_get(mympd_state, buffer, NULL, 0);
+                    buffer = mympd_api_status_get(mympd_state, buffer, REQUEST_ID_NOTIFY);
                     //check if song has changed
                     if (mympd_state->mpd_state->song_id != mympd_state->mpd_state->last_song_id &&
                         mympd_state->mpd_state->last_skipped_id != mympd_state->mpd_state->last_song_id &&
@@ -116,7 +116,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                     }
                     break;
                 case MPD_IDLE_MIXER:
-                    buffer = mympd_api_status_volume_get(mympd_state, buffer, NULL, 0);
+                    buffer = mympd_api_status_volume_get(mympd_state, buffer, REQUEST_ID_NOTIFY);
                     break;
                 case MPD_IDLE_OUTPUT:
                     buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OUTPUTS);
@@ -306,7 +306,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                     mympd_state->mpd_state->last_last_played_id = mympd_state->mpd_state->song_id;
 
                     if (mympd_state->last_played_count > 0) {
-                        mympd_api_stats_last_played_add_song(mympd_state, mympd_state->mpd_state->song_id);
+                        mympd_api_last_played_add_song(mympd_state, mympd_state->mpd_state->song_id);
                     }
                     if (mympd_state->mpd_state->feat_mpd_stickers == true) {
                         sticker_inc_play_count(&mympd_state->sticker_queue, mympd_state->mpd_state->song_uri);

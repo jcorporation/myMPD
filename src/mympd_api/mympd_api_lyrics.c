@@ -55,15 +55,18 @@ static const char *_id3_field_getlanguage(union id3_field const *field);
  * @param uri song uri 
  * @return pointer to buffer
  */
-sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffer, sds method, long request_id, sds uri) {
+sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffer, long request_id, sds uri) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_LYRICS_GET;
     if (is_streamuri(uri) == true) {
         MYMPD_LOG_ERROR("Can not get lyrics for stream uri");
-        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "lyrics", "error", "Can not get lyrics for stream uri");
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_LYRICS, JSONRPC_SEVERITY_ERROR, "Can not get lyrics for stream uri");
         return buffer;
     }
     if (sdslen(music_directory) == 0) {
         MYMPD_LOG_DEBUG("Can not get lyrics, no access to music directory");
-        buffer = jsonrpc_respond_message(buffer, method, request_id, false, "lyrics", "info", "No lyrics found");
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_LYRICS, JSONRPC_SEVERITY_INFO, "No lyrics found");
         return buffer;
     }
 
@@ -75,10 +78,11 @@ sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffe
     FREE_SDS(mediafile);
 
     if (extracted.length == 0) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, false, "lyrics", "info", "No lyrics found");
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_LYRICS, JSONRPC_SEVERITY_INFO, "No lyrics found");
     }
     else {
-        buffer = jsonrpc_respond_start(buffer, method, request_id);
+        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
         struct t_list_node *current = NULL;
         int i = 0;

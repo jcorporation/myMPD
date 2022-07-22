@@ -310,7 +310,7 @@ static bool _mpd_client_replace_playlist(struct t_mpd_state *mpd_state, const ch
 
 int mpd_client_enum_playlist(struct t_mympd_state *mympd_state, const char *playlist, bool empty_check) {
     bool rc = mpd_send_list_playlist(mympd_state->mpd_state->conn, playlist);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, NULL, NULL, 0, false, rc, "mpd_send_list_playlist") == false) {
+    if (mympd_check_rc_error_and_recover(mympd_state->mpd_state, rc, "mpd_send_list_playlist") == false) {
         return -1;
     }
 
@@ -324,7 +324,7 @@ int mpd_client_enum_playlist(struct t_mympd_state *mympd_state, const char *play
         }
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
-    if (check_error_and_recover2(mympd_state->mpd_state, NULL, NULL, 0, false) == false) {
+    if (mympd_check_error_and_recover(mympd_state->mpd_state) == false) {
         return -1;
     }
     return entity_count;

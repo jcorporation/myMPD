@@ -207,7 +207,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
 
     switch(app.id) {
         case 'Home': {
-            sendAPI("MYMPD_API_HOME_LIST", {}, parseHome);
+            sendAPI("MYMPD_API_HOME_ICON_LIST", {}, parseHome);
             break;
         }
         case 'Playback': {
@@ -273,7 +273,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
         case 'QueueLastPlayed': {
             setFocusId('searchQueueLastPlayedStr');
-            sendAPI("MYMPD_API_QUEUE_LAST_PLAYED", {
+            sendAPI("MYMPD_API_LAST_PLAYED_LIST", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
                 "cols": settings.colsQueueLastPlayedFetch,

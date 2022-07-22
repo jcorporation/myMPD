@@ -63,8 +63,9 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
 static int _mympd_api_http_client(lua_State *lua_vm);
 
 //public functions
-sds mympd_api_script_list(sds workdir, sds buffer, sds method, long request_id, bool all) {
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+sds mympd_api_script_list(sds workdir, sds buffer, long request_id, bool all) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_LIST;
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     sds scriptdirname = sdscatfmt(sdsempty(), "%S/scripts", workdir);
     errno = 0;
@@ -73,7 +74,8 @@ sds mympd_api_script_list(sds workdir, sds buffer, sds method, long request_id, 
         MYMPD_LOG_ERROR("Can not open directory \"%s\"", scriptdirname);
         MYMPD_LOG_ERRNO(errno);
         FREE_SDS(scriptdirname);
-        buffer = jsonrpc_respond_message(buffer, method, request_id, true, "script", "error", "Can not open script directory");
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Can not open script directory");
         return buffer;
     }
 
@@ -147,12 +149,13 @@ bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sd
     return rc;
 }
 
-sds mympd_api_script_get(sds workdir, sds buffer, sds method, long request_id, sds script) {
+sds mympd_api_script_get(sds workdir, sds buffer, long request_id, sds script) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_GET;
     sds scriptfilename = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
     errno = 0;
     FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
     if (fp != NULL) {
-        buffer = jsonrpc_respond_start(buffer, method, request_id);
+        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = tojson_sds(buffer, "script", script, true);
         sds line = sdsempty();
         if (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0 &&
@@ -186,8 +189,8 @@ sds mympd_api_script_get(sds workdir, sds buffer, sds method, long request_id, s
     else {
         MYMPD_LOG_ERROR("Can not open file \"%s\"", scriptfilename);
         MYMPD_LOG_ERRNO(errno);
-        buffer = jsonrpc_respond_message(buffer, method, request_id, true,
-            "script", "error", "Can not open scriptfile");
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Can not open scriptfile");
     }
     FREE_SDS(scriptfilename);
 

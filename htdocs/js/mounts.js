@@ -208,7 +208,7 @@ function parseNeighbors(obj) {
 }
 
 function getUrlhandlers() {
-    sendAPI("MYMPD_API_URLHANDLERS", {}, function(obj) {
+    sendAPI("MYMPD_API_MOUNT_URLHANDLER_LIST", {}, function(obj) {
         const selectMountUrlhandler = document.getElementById('selectMountUrlhandler');
         elClear(selectMountUrlhandler);
         for (let i = 0; i < obj.result.returnedEntities; i++) {

@@ -7,7 +7,7 @@ function initSong() {
     document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             if (event.target.id === 'calcFingerprint') {
-                sendAPI("MYMPD_API_DATABASE_FINGERPRINT", {
+                sendAPI("MYMPD_API_SONG_FINGERPRINT", {
                     "uri": getData(event.target, 'uri')
                 }, parseFingerprint, true);
                 event.preventDefault();
@@ -50,7 +50,7 @@ function initSong() {
 }
 
 function songDetails(uri) {
-    sendAPI("MYMPD_API_DATABASE_SONGDETAILS", {
+    sendAPI("MYMPD_API_SONG_DETAILS", {
         "uri": uri
     }, parseSongDetails);
     uiElements.modalSongDetails.show();
@@ -252,7 +252,7 @@ function parseSongDetails(obj) {
 
 function getComments(uri, el) {
     el.classList.add('opacity05');
-    sendAPI("MYMPD_API_DATABASE_COMMENTS", {
+    sendAPI("MYMPD_API_SONG_COMMENTS", {
         "uri": uri
     }, function(obj) {
         elClear(el);

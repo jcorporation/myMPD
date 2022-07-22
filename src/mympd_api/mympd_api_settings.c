@@ -143,10 +143,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
 
     bool rc = true;
     if (check_for_mpd_error == true) {
-        *error = check_error_and_recover(mympd_state->mpd_state, *error, NULL, 0);
-        if (sdslen(*error) > 0) {
-            rc = false;
-        }
+        rc = mympd_check_error_and_recover_plain(mympd_state->mpd_state, error);
     }
 
     if (rc == true) {
@@ -527,10 +524,10 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             }
             rc = mpd_run_mixrampdelay(mympd_state->mpd_state->conn, delay);
         }
-        sds message = check_error_and_recover_notify(mympd_state->mpd_state, sdsempty());
-        if (sdslen(message) > 0) {
+        sds message = sdsempty();
+        rc = mympd_check_error_and_recover_notify(mympd_state->mpd_state, &message);
+        if (rc == false) {
             ws_notify(message);
-            rc = false;
         }
         FREE_SDS(message);
         write_state_file = false;
@@ -606,8 +603,9 @@ void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     strip_slash(mympd_state->playlist_directory);
 }
 
-sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id) {
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, long request_id) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_SETTINGS_GET;
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
     buffer = tojson_sds(buffer, "mpdHost", mympd_state->mpd_state->mpd_host, true);
     buffer = tojson_uint(buffer, "mpdPort", mympd_state->mpd_state->mpd_port, true);
@@ -677,13 +675,13 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, sds me
         buffer = tojson_bool(buffer, "mpdConnected", true, true);
         struct mpd_status *status = mpd_run_status(mympd_state->mpd_state->conn);
         if (status == NULL) {
-            buffer = check_error_and_recover(mympd_state->mpd_state, buffer, method, request_id);
+            mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id);
             return buffer;
         }
 
         enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(mympd_state->mpd_state->conn);
         if (replay_gain_mode == MPD_REPLAY_UNKNOWN) {
-            if (check_error_and_recover2(mympd_state->mpd_state, &buffer, method, request_id, false) == false) {
+            if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
                 mpd_status_free(status);
                 return buffer;
             }

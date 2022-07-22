@@ -216,19 +216,19 @@ const APImethods = {
         "desc": "Shows MPD database statistics.",
         "params": {}
     },
-    "MYMPD_API_DATABASE_SONGDETAILS": {
+    "MYMPD_API_SONG_DETAILS": {
         "desc": "Shows all details of a song.",
         "params": {
             "uri": APIparams.uri
         }
     },
-    "MYMPD_API_DATABASE_COMMENTS": {
+    "MYMPD_API_SONG_COMMENTS": {
         "desc": "Shows comments of uri.",
         "params": {
             "uri": APIparams.uri
         }
     },
-    "MYMPD_API_DATABASE_FINGERPRINT": {
+    "MYMPD_API_SONG_FINGERPRINT": {
         "desc": "Calculates the chromaprint fingerprint",
         "params": {
             "uri": APIparams.uri
@@ -423,7 +423,7 @@ const APImethods = {
             "songId": APIparams.songId
         }
     },
-    "MYMPD_API_QUEUE_LAST_PLAYED": {
+    "MYMPD_API_LAST_PLAYED_LIST": {
         "desc": "Lists the last played songs.",
         "params": {
             "offset": APIparams.offset,
@@ -798,7 +798,7 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_URLHANDLERS": {
+    "MYMPD_API_MOUNT_URLHANDLER_LIST": {
         "desc": "Lists all known url handlers of MPD.",
         "params": {}
     },
@@ -1463,7 +1463,7 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_HOME_LIST": {
+    "MYMPD_API_HOME_ICON_LIST": {
         "desc": "Lists all home icons",
         "params": {}
     },

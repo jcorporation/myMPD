@@ -9,10 +9,7 @@
 
 #include "../lib/mympd_state.h"
 
-sds mympd_api_fingerprint(struct t_mympd_state *mympd_state, sds buffer, sds method,
-        long request_id, const char *uri);
-sds mympd_api_songdetails(struct t_mympd_state *mympd_state, sds buffer, sds method,
-        long request_id, const char *uri);
-sds mympd_api_read_comments(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
-        const char *uri);
+sds mympd_api_song_fingerprint(struct t_mympd_state *mympd_state, sds buffer, long request_id, const char *uri);
+sds mympd_api_song_details(struct t_mympd_state *mympd_state, sds buffer, long request_id, const char *uri);
+sds mympd_api_song_comments(struct t_mympd_state *mympd_state, sds buffer, long request_id, const char *uri);
 #endif

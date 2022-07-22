@@ -16,8 +16,8 @@
 #include "../mpd_client/mpd_client_errorhandler.h"
 #include "../mpd_client/mpd_client_idle.h"
 #include "mympd_api_home.h"
+#include "mympd_api_last_played.h"
 #include "mympd_api_settings.h"
-#include "mympd_api_stats.h"
 #include "mympd_api_timer.h"
 #include "mympd_api_timer_handlers.h"
 #include "mympd_api_trigger.h"
@@ -67,7 +67,7 @@ void *mympd_api_loop(void *arg_config) {
     //save states
     mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
     mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
-    mympd_api_stats_last_played_file_save(&mympd_state->last_played, mympd_state->last_played_count, mympd_state->config->workdir);
+    mympd_api_last_played_file_save(&mympd_state->last_played, mympd_state->last_played_count, mympd_state->config->workdir);
     mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
     //free anything
     mympd_state_free(mympd_state);

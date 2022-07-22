@@ -99,9 +99,9 @@ void timer_handler_select(int timer_id, struct t_timer_definition *definition) {
  * @param volume mpd volume to set
  * @param playlist the mpd playlist to use
  * @param jukebox_mode the jukebox mode to set
- * @return jsonrpc response
+ * @return true on success else false
  */
-sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds method, long request_id,
+bool mympd_api_timer_startplay(struct t_mympd_state *mympd_state,
         unsigned volume, sds playlist, enum jukebox_modes jukebox_mode)
 {
     //disable jukebox to prevent adding songs to queue from old jukebox queue list
@@ -167,9 +167,7 @@ sds mympd_api_timer_startplay(struct t_mympd_state *mympd_state, sds buffer, sds
         mympd_state->jukebox_mode = old_jukebox_mode;
     }
 
-    bool result;
-    buffer = respond_with_mpd_error_or_ok(mympd_state->mpd_state, buffer, method, request_id, rc, "mympd_api_timer_startplay", &result);
-    return buffer;
+    return mympd_check_error_and_recover(mympd_state->mpd_state);
 }
 
 //private functions
