@@ -158,20 +158,6 @@ sds mympd_respond_with_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, en
     return jsonrpc_respond_ok(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD);
 }
 
-/**
- * Creates a jsonrpc respond message for a mpd error
- * @param buffer already allocated sds string for the jsonrpc response
- * @param cmd_id enum mympd_cmd_ids
- * @param request_id jsonrpc request id to respond
- * @param command mpd command that failed
- * @return pointer to buffer
- */
-sds mympd_respond_with_command_error(sds buffer, enum mympd_cmd_ids cmd_id, long request_id, const char *command) {
-    return jsonrpc_respond_message_phrase(buffer, cmd_id, request_id,
-        JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Error in response to command: %{command}",
-        2, "command", command);
-}
-
 //private functions
 
 static bool _check_rc_error_and_recover(struct t_mpd_state *mpd_state, sds *buffer,
@@ -188,7 +174,8 @@ static bool _check_rc_error_and_recover(struct t_mpd_state *mpd_state, sds *buff
         {
             switch(response_type) {
                 case RESPONSE_TYPE_JSONRPC_RESPONSE:
-                    *buffer = mympd_respond_with_command_error(*buffer, cmd_id, request_id, command);
+                    *buffer = jsonrpc_respond_message_phrase(*buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD,
+                        JSONRPC_SEVERITY_ERROR, "Error in response to command: %{command}", 2, "command", command);
                     break;
                 case RESPONSE_TYPE_JSONRPC_NOTIFY:
                     *buffer = jsonrpc_notify_phrase(*buffer, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR,

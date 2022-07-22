@@ -29,6 +29,5 @@ bool mympd_check_rc_error_and_recover_plain(struct t_mpd_state *mpd_state, sds *
 
 sds mympd_respond_with_error_or_ok(struct t_mpd_state *mpd_state, sds buffer, enum mympd_cmd_ids cmd_id,
         long request_id, bool rc, const char *command, bool *result);
-sds mympd_respond_with_command_error(sds buffer, enum mympd_cmd_ids cmd_id, long request_id, const char *command);
 
 #endif
