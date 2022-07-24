@@ -36,19 +36,19 @@ static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entit
 
 //public functions
 
-sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, long request_id,
-                              sds path, const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
+sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds buffer, long request_id,
+        sds path, const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_FILESYSTEM_LIST;
-    bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, path);
-    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_meta") == false) {
+    bool rc = mpd_send_list_meta(partition_state->conn, path);
+    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_meta") == false) {
         return buffer;
     }
     sds key = sdsempty();
     rax *entity_list = raxNew();
     long real_limit = offset + limit;
     struct mpd_entity *entity;
-    while ((entity = mpd_recv_entity(mympd_state->mpd_state->conn)) != NULL) {
+    while ((entity = mpd_recv_entity(partition_state->conn)) != NULL) {
         switch (mpd_entity_get_type(entity)) {
             case MPD_ENTITY_TYPE_SONG: {
                 const struct mpd_song *song = mpd_entity_get_song(entity);
@@ -91,8 +91,8 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, l
         sdsclear(key);
     }
     FREE_SDS(key);
-    mpd_response_finish(mympd_state->mpd_state->conn);
-    if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
         //free result
         rax_free_data(entity_list, free_t_dir_entry);
         //return error message
@@ -130,15 +130,15 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, l
                 case MPD_ENTITY_TYPE_SONG: {
                     const struct mpd_song *song = mpd_entity_get_song(entry_data->entity);
                     buffer = sdscat(buffer, "{\"Type\":\"song\",");
-                    buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
+                    buffer = get_song_tags(buffer, partition_state, tagcols, song);
                     buffer = sdscatlen(buffer, ",", 1);
                     sds filename = sdsnew(mpd_song_get_uri(song));
                     basename_uri(filename);
                     buffer = tojson_sds(buffer, "Filename", filename, false);
                     FREE_SDS(filename);
-                    if (mympd_state->mpd_state->feat_mpd_stickers) {
+                    if (partition_state->mpd_shared_state->feat_mpd_stickers) {
                         buffer = sdscatlen(buffer, ",", 1);
-                        buffer = mympd_api_sticker_list(buffer, &mympd_state->sticker_cache, mpd_song_get_uri(song));
+                        buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_shared_state->sticker_cache, mpd_song_get_uri(song));
                     }
                     buffer = sdscatlen(buffer, "}", 1);
                     break;
@@ -154,7 +154,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, l
                 }
                 case MPD_ENTITY_TYPE_PLAYLIST: {
                     const struct mpd_playlist *pl = mpd_entity_get_playlist(entry_data->entity);
-                    bool smartpls = is_smartpls(mympd_state->config->workdir, entry_data->name);
+                    bool smartpls = is_smartpls(partition_state->mpd_shared_state->config->workdir, entry_data->name);
                     buffer = sdscatfmt(buffer, "{\"Type\": \"%s\",", (smartpls == true ? "smartpls" : "plist"));
                     buffer = tojson_char(buffer, "uri", mpd_playlist_get_path(pl), true);
                     buffer = tojson_sds(buffer, "name", entry_data->name, true);
@@ -173,7 +173,7 @@ sds mympd_api_browse_filesystem(struct t_mympd_state *mympd_state, sds buffer, l
     }
     raxStop(&iter);
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = get_extra_media(mympd_state, buffer, path, true);
+    buffer = get_extra_media(partition_state->mpd_shared_state, buffer, path, true);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_llong(buffer, "totalEntities", (long long)entity_list->numele, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);

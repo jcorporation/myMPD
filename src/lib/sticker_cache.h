@@ -21,6 +21,6 @@ bool sticker_set_like(struct t_list *sticker_queue, const char *uri, int value);
 bool sticker_set_last_played(struct t_list *sticker_queue, const char *uri, time_t song_start_time);
 bool sticker_set_last_skipped(struct t_list *sticker_queue, const char *uri);
 
-bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache, struct t_mpd_state *mpd_state);
+bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache, struct t_partition_state *partition_state);
 
 #endif

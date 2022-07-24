@@ -9,5 +9,5 @@
 
 #include "../lib/mympd_state.h"
 
-int mpd_client_get_volume(struct t_mpd_state *mpd_state);
+int mpd_client_get_volume(struct t_partition_state *partition_state);
 #endif

@@ -26,7 +26,7 @@
 #include <unistd.h>
 
 //private definitions
-static sds _get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, long entity_count,
+static sds _get_last_played_obj(struct t_partition_state *partition_state, sds buffer, long entity_count,
         long long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols);
 
 //public functions
@@ -87,9 +87,9 @@ bool mympd_api_last_played_file_save(struct t_list *last_played, long last_playe
     return rc;
 }
 
-bool mympd_api_last_played_add_song(struct t_mympd_state *mympd_state, const int song_id) {
+bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, const int song_id) {
     if (song_id > -1) {
-        struct mpd_song *song = mpd_run_get_queue_song_id(mympd_state->mpd_state->conn, (unsigned)song_id);
+        struct mpd_song *song = mpd_run_get_queue_song_id(partition_state->conn, (unsigned)song_id);
         if (song) {
             const char *uri = mpd_song_get_uri(song);
             if (is_streamuri(uri) == true) {
@@ -97,13 +97,14 @@ bool mympd_api_last_played_add_song(struct t_mympd_state *mympd_state, const int
                 mpd_song_free(song);
                 return true;
             }
-            list_insert(&mympd_state->last_played, uri, (long)time(NULL), NULL, NULL);
+            list_insert(&partition_state->mpd_shared_state->last_played, uri, (long)time(NULL), NULL, NULL);
             mpd_song_free(song);
             //write last_played list to disc
-            if (mympd_state->last_played.length > 9 ||
-                mympd_state->last_played.length > mympd_state->last_played_count)
+            if (partition_state->mpd_shared_state->last_played.length > 9 ||
+                partition_state->mpd_shared_state->last_played.length > partition_state->mpd_shared_state->last_played_count)
             {
-                mympd_api_last_played_file_save(&mympd_state->last_played, mympd_state->last_played_count, mympd_state->config->workdir);
+                mympd_api_last_played_file_save(&partition_state->mpd_shared_state->last_played,
+                    partition_state->mpd_shared_state->last_played_count, partition_state->mpd_shared_state->config->workdir);
             }
             //notify clients
             send_jsonrpc_event(JSONRPC_EVENT_UPDATE_LAST_PLAYED);
@@ -112,14 +113,14 @@ bool mympd_api_last_played_add_song(struct t_mympd_state *mympd_state, const int
             MYMPD_LOG_ERROR("Can't get song from id %d", song_id);
             return false;
         }
-        if (mympd_check_error_and_recover(mympd_state->mpd_state) == false) {
+        if (mympd_check_error_and_recover(partition_state) == false) {
             return false;
         }
     }
     return true;
 }
 
-sds mympd_api_last_played_list(struct t_mympd_state *mympd_state, sds buffer,
+sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds buffer,
         long request_id, const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_LAST_PLAYED_LIST;
@@ -132,10 +133,10 @@ sds mympd_api_last_played_list(struct t_mympd_state *mympd_state, sds buffer,
 
     long real_limit = offset + limit;
 
-    if (mympd_state->last_played.length > 0) {
-        struct t_list_node *current = mympd_state->last_played.head;
+    if (partition_state->mpd_shared_state->last_played.length > 0) {
+        struct t_list_node *current = partition_state->mpd_shared_state->last_played.head;
         while (current != NULL) {
-            obj = _get_last_played_obj(mympd_state, obj, entity_count, current->value_i, current->key, searchstr, tagcols);
+            obj = _get_last_played_obj(partition_state, obj, entity_count, current->value_i, current->key, searchstr, tagcols);
             if (sdslen(obj) > 0) {
                 entity_count++;
                 if (entity_count > offset && entity_count <= real_limit) {
@@ -153,7 +154,7 @@ sds mympd_api_last_played_list(struct t_mympd_state *mympd_state, sds buffer,
     sds line = sdsempty();
     sdsclear(obj);
     char *data = NULL;
-    sds lp_file = sdscatfmt(sdsempty(), "%S/state/last_played", mympd_state->config->workdir);
+    sds lp_file = sdscatfmt(sdsempty(), "%S/state/last_played", partition_state->mpd_shared_state->config->workdir);
     errno = 0;
     FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
@@ -161,7 +162,7 @@ sds mympd_api_last_played_list(struct t_mympd_state *mympd_state, sds buffer,
             int value = (int)strtoimax(line, &data, 10);
             if (strlen(data) > 2) {
                 data = data + 2;
-                obj = _get_last_played_obj(mympd_state, obj, entity_count, value, data, searchstr, tagcols);
+                obj = _get_last_played_obj(partition_state, obj, entity_count, value, data, searchstr, tagcols);
                 if (sdslen(obj) > 0) {
                     entity_count++;
                     if (entity_count > offset && entity_count <= real_limit) {
@@ -200,26 +201,26 @@ sds mympd_api_last_played_list(struct t_mympd_state *mympd_state, sds buffer,
 }
 
 //private functions
-static sds _get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, long entity_count,
-                                         long long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols)
+static sds _get_last_played_obj(struct t_partition_state *partition_state, sds buffer, long entity_count,
+        long long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols)
 {
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_long(buffer, "Pos", entity_count, true);
     buffer = tojson_llong(buffer, "LastPlayed", last_played, true);
-    bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, uri);
-    if (mympd_check_rc_error_and_recover(mympd_state->mpd_state, rc, "mpd_send_list_meta") == false) {
-        mpd_response_finish(mympd_state->mpd_state->conn);
+    bool rc = mpd_send_list_meta(partition_state->conn, uri);
+    if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_send_list_meta") == false) {
+        mpd_response_finish(partition_state->conn);
         rc = false;
     }
     else {
         struct mpd_entity *entity;
-        if ((entity = mpd_recv_entity(mympd_state->mpd_state->conn)) != NULL) {
+        if ((entity = mpd_recv_entity(partition_state->conn)) != NULL) {
             const struct mpd_song *song = mpd_entity_get_song(entity);
             if (search_mpd_song(song, searchstr, tagcols) == true) {
-                buffer = get_song_tags(buffer, mympd_state->mpd_state, tagcols, song);
-                if (mympd_state->mpd_state->feat_mpd_stickers == true) {
+                buffer = get_song_tags(buffer, partition_state, tagcols, song);
+                if (partition_state->mpd_shared_state->feat_mpd_stickers == true) {
                     buffer = sdscatlen(buffer, ",", 1);
-                    buffer = mympd_api_sticker_list(buffer, &mympd_state->sticker_cache, mpd_song_get_uri(song));
+                    buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_shared_state->sticker_cache, mpd_song_get_uri(song));
                 }
                 rc = true;
             }
@@ -231,8 +232,8 @@ static sds _get_last_played_obj(struct t_mympd_state *mympd_state, sds buffer, l
         else {
             rc = false;
         }
-        mympd_check_error_and_recover(mympd_state->mpd_state);
-        mpd_response_finish(mympd_state->mpd_state->conn);
+        mympd_check_error_and_recover(partition_state);
+        mpd_response_finish(partition_state->conn);
     }
     buffer = sdscatlen(buffer, "}", 1);
     if (rc == false) {

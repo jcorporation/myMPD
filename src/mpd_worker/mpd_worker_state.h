@@ -16,7 +16,8 @@ struct t_mpd_worker_state {
     sds smartpls_prefix;
     struct t_tags smartpls_generate_tag_types;
     //mpd state
-    struct t_mpd_state *mpd_state;
+    struct t_partition_state *partition_state;
+    struct t_mpd_shared_state *mpd_shared_state;
     struct t_config *config;
     struct t_work_request *request;
 };

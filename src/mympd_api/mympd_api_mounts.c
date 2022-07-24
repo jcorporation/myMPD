@@ -14,10 +14,10 @@
 #include <string.h>
 
 //public functions
-sds mympd_api_mounts_list(struct t_mympd_state *mympd_state, sds buffer, long request_id) {
+sds mympd_api_mounts_list(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_MOUNT_LIST;
-    bool rc = mpd_send_list_mounts(mympd_state->mpd_state->conn);
-    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_mounts") == false) {
+    bool rc = mpd_send_list_mounts(partition_state->conn);
+    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_mounts") == false) {
         return buffer;
     }
 
@@ -25,7 +25,7 @@ sds mympd_api_mounts_list(struct t_mympd_state *mympd_state, sds buffer, long re
     buffer = sdscat(buffer, "\"data\":[");
     long entity_count = 0;
     struct mpd_mount *mount;
-    while ((mount = mpd_recv_mount(mympd_state->mpd_state->conn)) != NULL) {
+    while ((mount = mpd_recv_mount(partition_state->conn)) != NULL) {
         const char *uri = mpd_mount_get_uri(mount);
         const char *storage = mpd_mount_get_storage(mount);
         if (uri != NULL && storage != NULL) {
@@ -45,18 +45,18 @@ sds mympd_api_mounts_list(struct t_mympd_state *mympd_state, sds buffer, long re
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_respond_end(buffer);
 
-    mpd_response_finish(mympd_state->mpd_state->conn);
-    if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
         return buffer;
     }
 
     return buffer;
 }
 
-sds mympd_api_mounts_urlhandler_list(struct t_mympd_state *mympd_state, sds buffer, long request_id) {
+sds mympd_api_mounts_urlhandler_list(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_MOUNT_URLHANDLER_LIST;
-    bool rc = mpd_send_command(mympd_state->mpd_state->conn, "urlhandlers", NULL);
-    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "urlhandlers") == false) {
+    bool rc = mpd_send_command(partition_state->conn, "urlhandlers", NULL);
+    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "urlhandlers") == false) {
         return buffer;
     }
 
@@ -64,12 +64,12 @@ sds mympd_api_mounts_urlhandler_list(struct t_mympd_state *mympd_state, sds buff
     buffer = sdscat(buffer, "\"data\":[");
     long entity_count = 0;
     struct mpd_pair *pair;
-    while ((pair = mpd_recv_pair(mympd_state->mpd_state->conn)) != NULL) {
+    while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
         if (entity_count++) {
             buffer = sdscatlen(buffer, ",", 1);
         }
         buffer = sds_catjson(buffer, pair->value, strlen(pair->value));
-        mpd_return_pair(mympd_state->mpd_state->conn, pair);
+        mpd_return_pair(partition_state->conn, pair);
     }
 
     buffer = sdscatlen(buffer, "],", 2);
@@ -77,18 +77,18 @@ sds mympd_api_mounts_urlhandler_list(struct t_mympd_state *mympd_state, sds buff
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_respond_end(buffer);
 
-    mpd_response_finish(mympd_state->mpd_state->conn);
-    if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
         return buffer;
     }
 
     return buffer;
 }
 
-sds mympd_api_mounts_neighbor_list(struct t_mympd_state *mympd_state, sds buffer, long request_id) {
+sds mympd_api_mounts_neighbor_list(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_MOUNT_NEIGHBOR_LIST;
-    bool rc = mpd_send_list_neighbors(mympd_state->mpd_state->conn);
-    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_neighbors") == false) {
+    bool rc = mpd_send_list_neighbors(partition_state->conn);
+    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_neighbors") == false) {
         return buffer;
     }
 
@@ -96,7 +96,7 @@ sds mympd_api_mounts_neighbor_list(struct t_mympd_state *mympd_state, sds buffer
     buffer = sdscat(buffer, "\"data\":[");
     long entity_count = 0;
     struct mpd_neighbor *neighbor;
-    while ((neighbor = mpd_recv_neighbor(mympd_state->mpd_state->conn)) != NULL) {
+    while ((neighbor = mpd_recv_neighbor(partition_state->conn)) != NULL) {
         const char *uri = mpd_neighbor_get_uri(neighbor);
         //upnp uris can not be mounted
         if (strncmp(uri, "upnp://", 7) != 0) {
@@ -116,8 +116,8 @@ sds mympd_api_mounts_neighbor_list(struct t_mympd_state *mympd_state, sds buffer
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_respond_end(buffer);
 
-    mpd_response_finish(mympd_state->mpd_state->conn);
-    if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
         return buffer;
     }
 

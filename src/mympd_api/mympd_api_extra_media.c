@@ -35,21 +35,21 @@
 #endif
 
 //private definitons
-static void _get_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
+static void _get_extra_files(struct t_mpd_shared_state *mpd_shared_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
 static int _get_embedded_covers_count(const char *media_file);
 static int _get_embedded_covers_count_id3(const char *media_file);
 static int _get_embedded_covers_count_flac(const char *media_file, bool is_ogg);
 
 //public functions
 
-sds get_extra_media(struct t_mympd_state *mympd_state, sds buffer, const char *uri, bool is_dirname) {
+sds get_extra_media(struct t_mpd_shared_state *mpd_shared_state, sds buffer, const char *uri, bool is_dirname) {
     struct t_list images;
     list_init(&images);
     sds booklet_path = sdsempty();
     if (is_streamuri(uri) == false &&
-        mympd_state->mpd_state->feat_mpd_library == true)
+        mpd_shared_state->feat_mpd_library == true)
     {
-        _get_extra_files(mympd_state, uri, &booklet_path, &images, is_dirname);
+        _get_extra_files(mpd_shared_state, uri, &booklet_path, &images, is_dirname);
     }
     buffer = tojson_sds(buffer, "bookletPath", booklet_path, true);
     buffer = sdscat(buffer, "\"images\": [");
@@ -65,9 +65,9 @@ sds get_extra_media(struct t_mympd_state *mympd_state, sds buffer, const char *u
     int image_count = 0;
     if (is_dirname == false &&
         is_streamuri(uri) == false &&
-        mympd_state->mpd_state->feat_mpd_library == true)
+        mpd_shared_state->feat_mpd_library == true)
     {
-        sds fullpath = sdscatfmt(sdsempty(), "%S/%s", mympd_state->music_directory_value, uri);
+        sds fullpath = sdscatfmt(sdsempty(), "%S/%s", mpd_shared_state->music_directory_value, uri);
         image_count = _get_embedded_covers_count(fullpath);
         FREE_SDS(fullpath);
     }
@@ -78,19 +78,19 @@ sds get_extra_media(struct t_mympd_state *mympd_state, sds buffer, const char *u
 }
 
 //private functions
-static void _get_extra_files(struct t_mympd_state *mympd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
+static void _get_extra_files(struct t_mpd_shared_state *mpd_shared_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
     sds path = sdsnew(uri);
     if (is_dirname == false) {
         dirname(path);
         sdsupdatelen(path);
     }
 
-    if (is_virtual_cuedir(mympd_state->music_directory_value, path)) {
+    if (is_virtual_cuedir(mpd_shared_state->music_directory_value, path)) {
         //fix virtual cue sheet directories
         dirname(path);
         sdsupdatelen(path);
     }
-    sds albumpath = sdscatfmt(sdsempty(), "%S/%S", mympd_state->music_directory_value, path);
+    sds albumpath = sdscatfmt(sdsempty(), "%S/%S", mpd_shared_state->music_directory_value, path);
     sds fullpath = sdsempty();
     MYMPD_LOG_DEBUG("Read extra files from albumpath: \"%s\"", albumpath);
     errno = 0;
@@ -98,9 +98,9 @@ static void _get_extra_files(struct t_mympd_state *mympd_state, const char *uri,
     if (album_dir != NULL) {
         struct dirent *next_file;
         while ((next_file = readdir(album_dir)) != NULL) {
-            if (strcmp(next_file->d_name, mympd_state->booklet_name) == 0) {
+            if (strcmp(next_file->d_name, mpd_shared_state->booklet_name) == 0) {
                 MYMPD_LOG_DEBUG("Found booklet for uri %s", uri);
-                *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%S/%S", path, mympd_state->booklet_name);
+                *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%S/%S", path, mpd_shared_state->booklet_name);
             }
             else if (is_image(next_file->d_name) == true) {
                 fullpath = sdscatfmt(fullpath, "/browse/music/%S/%s", path, next_file->d_name);

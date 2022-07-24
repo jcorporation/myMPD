@@ -16,9 +16,9 @@
 #include <string.h>
 
 //privat definitions
-static bool _sticker_inc(struct t_cache *sticker_cache, struct t_mpd_state *mpd_state, 
+static bool _sticker_inc(struct t_cache *sticker_cache, struct t_partition_state *partition_state, 
         const char *uri, const char *name, const long value);
-static bool _sticker_set(struct t_cache *sticker_cache, struct t_mpd_state *mpd_state,
+static bool _sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
         const char *uri, const char *name, const long long value);
 
 //public functions
@@ -139,10 +139,10 @@ bool sticker_set_last_skipped(struct t_list *sticker_queue, const char *uri) {
  * Shifts through the sticker queue
  * @param sticker_queue pointer to sticker queue struct
  * @param sticker_cache pointer to sticker cache struct
- * @param mpd_state pointer to mpd_state struct
+ * @param partition_state pointer to partition specific states
  * @return true on success else false
  */
-bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache, struct t_mpd_state *mpd_state) {
+bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache, struct t_partition_state *partition_state) {
     if (sticker_cache->cache == NULL ||
         sticker_cache->building == true)
     {
@@ -158,13 +158,13 @@ bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache
         if (strcmp(current->value_p, "playCount") == 0 ||
             strcmp(current->value_p, "skipCount") == 0)
         {
-            _sticker_inc(sticker_cache, mpd_state, current->key, current->value_p, (long)current->value_i);
+            _sticker_inc(sticker_cache, partition_state, current->key, current->value_p, (long)current->value_i);
         }
         else if (strcmp(current->value_p, "like") == 0 ||
                  strcmp(current->value_p, "lastPlayed") == 0 ||
                  strcmp(current->value_p, "lastSkipped") == 0)
         {
-            _sticker_set(sticker_cache, mpd_state, current->key, current->value_p, current->value_i);
+            _sticker_set(sticker_cache, partition_state, current->key, current->value_p, current->value_i);
         }
         list_node_free(current);
     }
@@ -176,13 +176,13 @@ bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache
 /**
  * Increments a sticker by one in the cache and the mpd sticker database
  * @param sticker_cache pointer to sticker cache struct
- * @param mpd_state pointer to mpd_state struct
+ * @param partition_state pointer to partition specific states
  * @param uri song uri
  * @param name sticker name
  * @param value value to increment by
  * @return true on success else false
  */
-static bool _sticker_inc(struct t_cache *sticker_cache, struct t_mpd_state *mpd_state,
+static bool _sticker_inc(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
         const char *uri, const char *name, const long value)
 {
     struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
@@ -217,21 +217,21 @@ static bool _sticker_inc(struct t_cache *sticker_cache, struct t_mpd_state *mpd_
     //update mpd sticker
     sds value_str = sdsfromlonglong((long long)new_value);
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
-    bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, name, value_str);
+    bool rc = mpd_run_sticker_set(partition_state->conn, "song", uri, name, value_str);
     FREE_SDS(value_str);
-    return mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_run_sticker_set");
+    return mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_sticker_set");
 }
 
 /**
  * Sets a sticker in the cache and the mpd sticker database
  * @param sticker_cache pointer to sticker cache struct
- * @param mpd_state pointer to mpd_state struct
+ * @param partition_state pointer to partition specific states
  * @param uri song uri
  * @param name sticker name
  * @param value value to set
  * @return true on success else false
  */
-static bool _sticker_set(struct t_cache *sticker_cache, struct t_mpd_state *mpd_state,
+static bool _sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
         const char *uri, const char *name, const long long value)
 {
     sds value_str = sdsfromlonglong(value);
@@ -256,7 +256,7 @@ static bool _sticker_set(struct t_cache *sticker_cache, struct t_mpd_state *mpd_
     }
 
     //update mpd sticker
-    bool rc = mpd_run_sticker_set(mpd_state->conn, "song", uri, name, value_str);
+    bool rc = mpd_run_sticker_set(partition_state->conn, "song", uri, name, value_str);
     FREE_SDS(value_str);
-    return mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_run_sticker_set");
+    return mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_sticker_set");
 }

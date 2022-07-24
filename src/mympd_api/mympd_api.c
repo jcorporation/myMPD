@@ -30,11 +30,11 @@ void *mympd_api_loop(void *arg_config) {
     thread_logname = sds_replace(thread_logname, "mympdapi");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
 
-    //create mympd_state struct and set defaults
+    //create initial mympd_state struct and set defaults
     struct t_mympd_state *mympd_state = malloc_assert(sizeof(struct t_mympd_state));
     mympd_state_default(mympd_state);
     mympd_state->config = (struct t_config *) arg_config;
-    mympd_state->mpd_state->config = (struct t_config *) arg_config;
+    mympd_state->mpd_shared_state->config = (struct t_config *) arg_config;
 
     if (mympd_state->config->first_startup == true) {
         MYMPD_LOG_NOTICE("Starting myMPD autoconfiguration");
@@ -64,12 +64,9 @@ void *mympd_api_loop(void *arg_config) {
     //stop trigger
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP);
     //disconnect from mpd
-    mpd_client_disconnect(mympd_state->mpd_state);
+    mpd_client_disconnect(mympd_state->partition_state);
     //save states
-    mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
-    mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
-    mympd_api_last_played_file_save(&mympd_state->last_played, mympd_state->last_played_count, mympd_state->config->workdir);
-    mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
+    mympd_state_save(mympd_state);
     //free anything
     mympd_state_free(mympd_state);
     FREE_SDS(thread_logname);

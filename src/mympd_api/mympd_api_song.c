@@ -15,12 +15,12 @@
 #include "mympd_api_sticker.h"
 
 //public functions
-sds mympd_api_song_fingerprint(struct t_mympd_state *mympd_state, sds buffer, long request_id, const char *uri) {
+sds mympd_api_song_fingerprint(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_FINGERPRINT;
     char fp_buffer[8192];
-    const char *fingerprint = mpd_run_getfingerprint_chromaprint(mympd_state->mpd_state->conn, uri, fp_buffer, sizeof(fp_buffer));
+    const char *fingerprint = mpd_run_getfingerprint_chromaprint(partition_state->conn, uri, fp_buffer, sizeof(fp_buffer));
     if (fingerprint == NULL) {
-        mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id);
+        mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id);
         return buffer;
     }
 
@@ -28,50 +28,50 @@ sds mympd_api_song_fingerprint(struct t_mympd_state *mympd_state, sds buffer, lo
     buffer = tojson_char(buffer, "fingerprint", fingerprint, false);
     buffer = jsonrpc_respond_end(buffer);
 
-    mpd_response_finish(mympd_state->mpd_state->conn);
-    mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id);
+    mpd_response_finish(partition_state->conn);
+    mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id);
 
     return buffer;
 }
 
-sds mympd_api_song_details(struct t_mympd_state *mympd_state, sds buffer, long request_id, const char *uri) {
+sds mympd_api_song_details(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_DETAILS;
-    bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, uri);
-    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_meta") == false) {
+    bool rc = mpd_send_list_meta(partition_state->conn, uri);
+    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_meta") == false) {
         return buffer;
     }
 
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
 
     struct mpd_song *song;
-    if ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
+    if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
         const struct mpd_audio_format *audioformat = mpd_song_get_audio_format(song);
         buffer = printAudioFormat(buffer, audioformat);
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = get_song_tags(buffer, mympd_state->mpd_state, &mympd_state->mpd_state->tag_types_mympd, song);
+        buffer = get_song_tags(buffer, partition_state, &partition_state->mpd_shared_state->tag_types_mympd, song);
         mpd_song_free(song);
     }
 
-    mpd_response_finish(mympd_state->mpd_state->conn);
-    if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
         return buffer;
     }
 
-    if (mympd_state->mpd_state->feat_mpd_stickers) {
+    if (partition_state->mpd_shared_state->feat_mpd_stickers) {
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mympd_api_sticker_list(buffer, &mympd_state->sticker_cache, uri);
+        buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_shared_state->sticker_cache, uri);
     }
 
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = get_extra_media(mympd_state, buffer, uri, false);
+    buffer = get_extra_media(partition_state->mpd_shared_state, buffer, uri, false);
     buffer = jsonrpc_respond_end(buffer);
     return buffer;
 }
 
-sds mympd_api_song_comments(struct t_mympd_state *mympd_state, sds buffer, long request_id, const char *uri) {
+sds mympd_api_song_comments(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_COMMENTS;
-    bool rc = mpd_send_read_comments(mympd_state->mpd_state->conn, uri);
-    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_meta") == false) {
+    bool rc = mpd_send_read_comments(partition_state->conn, uri);
+    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_meta") == false) {
         return buffer;
     }
 
@@ -79,15 +79,15 @@ sds mympd_api_song_comments(struct t_mympd_state *mympd_state, sds buffer, long 
     buffer = sdscat(buffer, "\"data\":{");
     struct mpd_pair *pair;
     int entities_returned = 0;
-    while ((pair = mpd_recv_pair(mympd_state->mpd_state->conn)) != NULL) {
+    while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
         if (entities_returned++) {
             buffer = sdscatlen(buffer, ",", 1);
         }
         buffer = tojson_char(buffer, pair->name, pair->value,false);
-        mpd_return_pair(mympd_state->mpd_state->conn, pair);
+        mpd_return_pair(partition_state->conn, pair);
     }
-    mpd_response_finish(mympd_state->mpd_state->conn);
-    if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
         return buffer;
     }
     buffer = sdscatlen(buffer, "},", 2);

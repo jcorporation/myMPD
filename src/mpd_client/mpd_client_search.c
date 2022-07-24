@@ -18,7 +18,7 @@
 
 //private definitions
 
-static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
+static sds _mpd_client_search(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
         const char *expression, const char *sort, const bool sortdesc,
         const char *plist, unsigned to, unsigned whence,
         const unsigned offset, unsigned limit, const struct t_tags *tagcols,
@@ -28,7 +28,7 @@ static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, enum my
 
 /**
  * Searches the mpd database for songs by expression and returns a jsonrpc result
- * @param mpd_state pointer to struct mpd_state
+ * @param partition_state pointer to partition specific states
  * @param buffer already allocated sds string to append the result
  * @param request_id jsonrpc request id
  * @param expression mpd search expression
@@ -41,28 +41,28 @@ static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, enum my
  * @param result pointer to bool to set returncode
  * @return pointer to buffer
  */
-sds mpd_client_search_response(struct t_mpd_state *mpd_state, sds buffer, long request_id,
+sds mpd_client_search_response(struct t_partition_state *partition_state, sds buffer, long request_id,
         const char *expression, const char *sort, const bool sortdesc, const unsigned offset, const unsigned limit,
         const struct t_tags *tagcols, struct t_cache *sticker_cache, bool *result)
 {
-    return _mpd_client_search(mpd_state, buffer, MYMPD_API_DATABASE_SEARCH, request_id,
+    return _mpd_client_search(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, request_id,
             expression, sort, sortdesc, NULL, 0, MPD_POSITION_ABSOLUTE, offset, limit,
             tagcols, sticker_cache, result);
 }
 
 /**
  * Searches the mpd database for songs by expression and adds the result to a playlist
- * @param mpd_state pointer to struct mpd_state
+ * @param partition_state pointer to partition specific states
  * @param expression mpd search expression
  * @param plist playlist to create or add the result
  * @param to position to insert the songs, UINT_MAX to append
  * @return true on success else false
  */
-bool mpd_client_search_add_to_plist(struct t_mpd_state *mpd_state, const char *expression,
+bool mpd_client_search_add_to_plist(struct t_partition_state *partition_state, const char *expression,
         const char *plist, unsigned to)
 {
     bool result = false;
-    _mpd_client_search(mpd_state, NULL, MYMPD_API_DATABASE_SEARCH, 0,
+    _mpd_client_search(partition_state, NULL, MYMPD_API_DATABASE_SEARCH, 0,
             expression, NULL, false, plist, to, MPD_POSITION_ABSOLUTE, 0, 0,
             NULL, NULL, &result);
     return result;
@@ -70,7 +70,7 @@ bool mpd_client_search_add_to_plist(struct t_mpd_state *mpd_state, const char *e
 
 /**
  * Searches the mpd database for songs by expression and adds the result to the queue
- * @param mpd_state pointer to struct mpd_state
+ * @param partition_state pointer to partition specific states
  * @param expression mpd search expression
  * @param to position to insert the songs, UINT_MAX to append
  * @param whence enum mpd_position_whence:
@@ -79,11 +79,11 @@ bool mpd_client_search_add_to_plist(struct t_mpd_state *mpd_state, const char *e
  *               2 = MPD_POSITION_BEFORE_CURRENT
  * @return true on success else false
  */
-bool mpd_client_search_add_to_queue(struct t_mpd_state *mpd_state, const char *expression,
+bool mpd_client_search_add_to_queue(struct t_partition_state *partition_state, const char *expression,
         unsigned to, enum mpd_position_whence whence)
 {
     bool result = false;
-    _mpd_client_search(mpd_state, NULL, MYMPD_API_DATABASE_SEARCH, 0,
+    _mpd_client_search(partition_state, NULL, MYMPD_API_DATABASE_SEARCH, 0,
             expression, NULL, false, "queue", to, whence, 0, 0,
             NULL, NULL, &result);
     return result;
@@ -110,7 +110,7 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
 }
 
 //private functions
-static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
+static sds _mpd_client_search(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
         const char *expression, const char *sort, const bool sortdesc, const char *plist,
         unsigned to, unsigned whence, const unsigned offset, const unsigned limit,
         const struct t_tags *tagcols, struct t_cache *sticker_cache, bool *result)
@@ -125,9 +125,9 @@ static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, enum my
 
     if (plist == NULL) {
         //show search results
-        bool rc = mpd_search_db_songs(mpd_state->conn, false);
-        if (mympd_check_rc_error_and_recover_respond(mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_db_songs") == false) {
-            mpd_search_cancel(mpd_state->conn);
+        bool rc = mpd_search_db_songs(partition_state->conn, false);
+        if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_db_songs") == false) {
+            mpd_search_cancel(partition_state->conn);
             return buffer;
         }
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -135,48 +135,48 @@ static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, enum my
     }
     else if (strcmp(plist, "queue") == 0) {
         //add search to queue
-        bool rc = mpd_search_add_db_songs(mpd_state->conn, false);
-        if (mympd_check_rc_error_and_recover_respond(mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_db_songs") == false) {
-            mpd_search_cancel(mpd_state->conn);
+        bool rc = mpd_search_add_db_songs(partition_state->conn, false);
+        if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_db_songs") == false) {
+            mpd_search_cancel(partition_state->conn);
             return buffer;
         }
     }
     else {
         //add search to playlist
-        bool rc = mpd_search_add_db_songs_to_playlist(mpd_state->conn, plist);
-        if (mympd_check_rc_error_and_recover_respond(mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_db_songs_to_playlist") == false) {
-            mpd_search_cancel(mpd_state->conn);
+        bool rc = mpd_search_add_db_songs_to_playlist(partition_state->conn, plist);
+        if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_db_songs_to_playlist") == false) {
+            mpd_search_cancel(partition_state->conn);
             return buffer;
         }
     }
 
-    bool rc = mpd_search_add_expression(mpd_state->conn, expression);
-    if (mympd_check_rc_error_and_recover_respond(mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_expression") == false) {
-        mpd_search_cancel(mpd_state->conn);
+    bool rc = mpd_search_add_expression(partition_state->conn, expression);
+    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_expression") == false) {
+        mpd_search_cancel(partition_state->conn);
         return buffer;
     }
 
     if (plist == NULL ||
-        mpd_connection_cmp_server_version(mpd_state->conn, 0, 22, 0) >= 0)
+        mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 0) >= 0)
     {
         if (sort != NULL &&
             strcmp(sort, "") != 0 &&
             strcmp(sort, "-") != 0 &&
-            mpd_state->feat_mpd_tags == true)
+            partition_state->mpd_shared_state->feat_mpd_tags == true)
         {
             enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
             if (sort_tag != MPD_TAG_UNKNOWN) {
                 sort_tag = get_sort_tag(sort_tag);
-                rc = mpd_search_add_sort_tag(mpd_state->conn, sort_tag, sortdesc);
-                if (mympd_check_rc_error_and_recover_respond(mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_sort_tag") == false) {
-                    mpd_search_cancel(mpd_state->conn);
+                rc = mpd_search_add_sort_tag(partition_state->conn, sort_tag, sortdesc);
+                if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_sort_tag") == false) {
+                    mpd_search_cancel(partition_state->conn);
                     return buffer;
                 }
             }
             else if (strcmp(sort, "LastModified") == 0) {
-                rc = mpd_search_add_sort_name(mpd_state->conn, "Last-Modified", sortdesc);
-                if (mympd_check_rc_error_and_recover_respond(mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_sort_name") == false) {
-                    mpd_search_cancel(mpd_state->conn);
+                rc = mpd_search_add_sort_name(partition_state->conn, "Last-Modified", sortdesc);
+                if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_sort_name") == false) {
+                    mpd_search_cancel(partition_state->conn);
                     return buffer;
                 }
             }
@@ -186,39 +186,39 @@ static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, enum my
         }
 
         unsigned real_limit = limit == 0 ? offset + MPD_PLAYLIST_LENGTH_MAX : offset + limit;
-        rc = mpd_search_add_window(mpd_state->conn, offset, real_limit);
-        if (mympd_check_rc_error_and_recover_respond(mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_window") == false) {
-            mpd_search_cancel(mpd_state->conn);
+        rc = mpd_search_add_window(partition_state->conn, offset, real_limit);
+        if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_window") == false) {
+            mpd_search_cancel(partition_state->conn);
             return buffer;
         }
     }
 
-    if (mpd_state->feat_mpd_whence == true &&
+    if (partition_state->mpd_shared_state->feat_mpd_whence == true &&
         plist != NULL &&
         to < UINT_MAX) //to = UINT_MAX is append
     {
-        rc = mpd_search_add_position(mpd_state->conn, to, whence);
-        if (mympd_check_rc_error_and_recover_respond(mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_position") == false) {
-            mpd_search_cancel(mpd_state->conn);
+        rc = mpd_search_add_position(partition_state->conn, to, whence);
+        if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_position") == false) {
+            mpd_search_cancel(partition_state->conn);
             return buffer;
         }
     }
 
-    rc = mpd_search_commit(mpd_state->conn);
-    if (mympd_check_rc_error_and_recover_respond(mpd_state, &buffer, cmd_id, request_id, rc, "mpd_search_commit") == false) {
+    rc = mpd_search_commit(partition_state->conn);
+    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_commit") == false) {
         return buffer;
     }
 
     if (buffer != NULL) {
         struct mpd_song *song;
         unsigned entities_returned = 0;
-        while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
+        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
             buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_char(buffer, "Type", "song", true);
-            buffer = get_song_tags(buffer, mpd_state, tagcols, song);
+            buffer = get_song_tags(buffer, partition_state, tagcols, song);
             if (sticker_cache != NULL) {
                 buffer = sdscatlen(buffer, ",", 1);
                 buffer = mympd_api_sticker_list(buffer, sticker_cache, mpd_song_get_uri(song));
@@ -243,8 +243,8 @@ static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, enum my
         buffer = jsonrpc_respond_end(buffer);
     }
 
-    mpd_response_finish(mpd_state->conn);
-    if (mympd_check_error_and_recover_respond(mpd_state, &buffer, cmd_id, request_id) == false) {
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
        return buffer;
     }
     *result = true;

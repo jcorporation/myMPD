@@ -9,6 +9,5 @@
 
 #include "../lib/mympd_state.h"
 
-void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitmask);
 void mpd_client_idle(struct t_mympd_state *mympd_state);
 #endif

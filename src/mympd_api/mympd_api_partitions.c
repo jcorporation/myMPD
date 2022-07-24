@@ -11,10 +11,10 @@
 #include "../mpd_client/mpd_client_errorhandler.h"
 
 //public functions
-sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long request_id) {
+sds mympd_api_partition_list(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PARTITION_LIST;
-    bool rc = mpd_send_listpartitions(mympd_state->mpd_state->conn);
-    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_send_listpartitions") == false) {
+    bool rc = mpd_send_listpartitions(partition_state->conn);
+    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_listpartitions") == false) {
         return buffer;
     }
 
@@ -22,14 +22,14 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long
     buffer = sdscat(buffer, "\"data\":[");
     long entity_count = 0;
     struct mpd_pair *partition;
-    while ((partition = mpd_recv_partition_pair(mympd_state->mpd_state->conn)) != NULL) {
+    while ((partition = mpd_recv_partition_pair(partition_state->conn)) != NULL) {
         if (entity_count++) {
             buffer = sdscatlen(buffer, ",", 1);
         }
         buffer = sdscatlen(buffer, "{", 1);
         buffer = tojson_char(buffer, "name", partition->value, false);
         buffer = sdscatlen(buffer, "}", 1);
-        mpd_return_pair(mympd_state->mpd_state->conn, partition);
+        mpd_return_pair(partition_state->conn, partition);
     }
 
     buffer = sdscatlen(buffer, "],", 2);
@@ -37,8 +37,8 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long
     buffer = tojson_long(buffer, "returnedEntities", entity_count, false);
     buffer = jsonrpc_respond_end(buffer);
 
-    mpd_response_finish(mympd_state->mpd_state->conn);
-    if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
         return buffer;
     }
 

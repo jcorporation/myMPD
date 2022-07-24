@@ -92,7 +92,7 @@ void timer_handler_select(int timer_id, struct t_timer_definition *definition) {
 
 /**
  * This function is used by INTERNAL_API_TIMER_STARTPLAY and is called from the mympd_api_handler
- * @param pointer to the mympd_state the mympd_state struct
+ * @param pointer to the partition_state
  * @param buffer already alocated sds string to hold the jsonrpc response
  * @param method the API method
  * @param request_id the id of the request
@@ -101,55 +101,55 @@ void timer_handler_select(int timer_id, struct t_timer_definition *definition) {
  * @param jukebox_mode the jukebox mode to set
  * @return true on success else false
  */
-bool mympd_api_timer_startplay(struct t_mympd_state *mympd_state,
+bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         unsigned volume, sds playlist, enum jukebox_modes jukebox_mode)
 {
     //disable jukebox to prevent adding songs to queue from old jukebox queue list
-    enum jukebox_modes old_jukebox_mode = mympd_state->jukebox_mode;
-    mympd_state->jukebox_mode = JUKEBOX_OFF;
+    enum jukebox_modes old_jukebox_mode = partition_state->jukebox_mode;
+    partition_state->jukebox_mode = JUKEBOX_OFF;
 
-    int old_volume = mpd_client_get_volume(mympd_state->mpd_state);
+    int old_volume = mpd_client_get_volume(partition_state);
 
     bool rc = false;
-    if (mpd_command_list_begin(mympd_state->mpd_state->conn, false)) {
-        rc = mpd_send_stop(mympd_state->mpd_state->conn);
+    if (mpd_command_list_begin(partition_state->conn, false)) {
+        rc = mpd_send_stop(partition_state->conn);
         if (rc == false) {
             MYMPD_LOG_ERROR("Error adding command to command list mpd_send_stop");
         }
         if (old_volume != -1) {
-            rc = mpd_send_set_volume(mympd_state->mpd_state->conn, volume);
+            rc = mpd_send_set_volume(partition_state->conn, volume);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_set_volume");
             }
         }
-        rc = mpd_send_clear(mympd_state->mpd_state->conn);
+        rc = mpd_send_clear(partition_state->conn);
         if (rc == false) {
             MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
         }
         if (jukebox_mode == JUKEBOX_OFF) {
-            rc = mpd_send_load(mympd_state->mpd_state->conn, playlist);
+            rc = mpd_send_load(partition_state->conn, playlist);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_load");
             }
         }
         else {
-            rc = mpd_send_consume(mympd_state->mpd_state->conn, true);
+            rc = mpd_send_consume(partition_state->conn, true);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_consume");
             }
         }
-        rc = mpd_send_single_state(mympd_state->mpd_state->conn, MPD_SINGLE_OFF);
+        rc = mpd_send_single_state(partition_state->conn, MPD_SINGLE_OFF);
         if (rc == false) {
             MYMPD_LOG_ERROR("Error adding command to command list mpd_send_single");
         }
         if (jukebox_mode == JUKEBOX_OFF) {
-            rc = mpd_send_play(mympd_state->mpd_state->conn);
+            rc = mpd_send_play(partition_state->conn);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_play");
             }
         }
-        if (mpd_command_list_end(mympd_state->mpd_state->conn) == true) {
-            rc = mpd_response_finish(mympd_state->mpd_state->conn);
+        if (mpd_command_list_end(partition_state->conn) == true) {
+            rc = mpd_response_finish(partition_state->conn);
         }
     }
 
@@ -164,10 +164,10 @@ bool mympd_api_timer_startplay(struct t_mympd_state *mympd_state,
     }
     else {
         //restore old jukebox mode
-        mympd_state->jukebox_mode = old_jukebox_mode;
+        partition_state->jukebox_mode = old_jukebox_mode;
     }
 
-    return mympd_check_rc_error_and_recover(mympd_state->mpd_state, rc, "command_list");
+    return mympd_check_rc_error_and_recover(partition_state, rc, "command_list");
 }
 
 //private functions

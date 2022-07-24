@@ -16,42 +16,42 @@
 
 #include <string.h>
 
-bool mpd_client_connect(struct t_mpd_state *mpd_state) {
-    if (strncmp(mpd_state->mpd_host, "/", 1) == 0) {
-        MYMPD_LOG_NOTICE("Connecting to socket \"%s\"", mpd_state->mpd_host);
+bool mpd_client_connect(struct t_partition_state *partition_state) {
+    if (strncmp(partition_state->mpd_shared_state->mpd_host, "/", 1) == 0) {
+        MYMPD_LOG_NOTICE("Connecting to socket \"%s\"", partition_state->mpd_shared_state->mpd_host);
     }
     else {
-        MYMPD_LOG_NOTICE("Connecting to \"%s:%d\"", mpd_state->mpd_host, mpd_state->mpd_port);
+        MYMPD_LOG_NOTICE("Connecting to \"%s:%d\"", partition_state->mpd_shared_state->mpd_host, partition_state->mpd_shared_state->mpd_port);
     }
-    mpd_state->conn = mpd_connection_new(mpd_state->mpd_host, mpd_state->mpd_port, mpd_state->mpd_timeout);
-    if (mpd_state->conn == NULL) {
+    partition_state->conn = mpd_connection_new(partition_state->mpd_shared_state->mpd_host, partition_state->mpd_shared_state->mpd_port, partition_state->mpd_shared_state->mpd_timeout);
+    if (partition_state->conn == NULL) {
         MYMPD_LOG_ERROR("Connection failed: out-of-memory");
-        mpd_state->conn_state = MPD_FAILURE;
-        mpd_connection_free(mpd_state->conn);
-        mpd_state->conn = NULL;
+        partition_state->conn_state = MPD_FAILURE;
+        mpd_connection_free(partition_state->conn);
+        partition_state->conn = NULL;
         sds buffer = jsonrpc_event(sdsempty(), JSONRPC_EVENT_MPD_DISCONNECTED);
         ws_notify(buffer);
         FREE_SDS(buffer);
         return false;
     }
-    if (mpd_connection_get_error(mpd_state->conn) != MPD_ERROR_SUCCESS) {
-        MYMPD_LOG_ERROR("Connection: %s", mpd_connection_get_error_message(mpd_state->conn));
-        mpd_state->conn_state = MPD_FAILURE;
+    if (mpd_connection_get_error(partition_state->conn) != MPD_ERROR_SUCCESS) {
+        MYMPD_LOG_ERROR("Connection: %s", mpd_connection_get_error_message(partition_state->conn));
+        partition_state->conn_state = MPD_FAILURE;
         sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_MPD,
             JSONRPC_SEVERITY_ERROR, "MPD connection error: %{error}", 2,
-            "error", mpd_connection_get_error_message(mpd_state->conn));
+            "error", mpd_connection_get_error_message(partition_state->conn));
         ws_notify(buffer);
         FREE_SDS(buffer);
         return false;
     }
-    if (sdslen(mpd_state->mpd_pass) > 0) {
+    if (sdslen(partition_state->mpd_shared_state->mpd_pass) > 0) {
         MYMPD_LOG_DEBUG("Password set, authenticating to MPD");
-        if (mpd_run_password(mpd_state->conn, mpd_state->mpd_pass) == false) {
-            MYMPD_LOG_ERROR("MPD worker connection: %s", mpd_connection_get_error_message(mpd_state->conn));
-            mpd_state->conn_state = MPD_FAILURE;
+        if (mpd_run_password(partition_state->conn, partition_state->mpd_shared_state->mpd_pass) == false) {
+            MYMPD_LOG_ERROR("MPD worker connection: %s", mpd_connection_get_error_message(partition_state->conn));
+            partition_state->conn_state = MPD_FAILURE;
             sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_MPD,
                 JSONRPC_SEVERITY_ERROR, "MPD connection error: %{error}", 2,
-                "error", mpd_connection_get_error_message(mpd_state->conn));
+                "error", mpd_connection_get_error_message(partition_state->conn));
             ws_notify(buffer);
             FREE_SDS(buffer);
             return false;
@@ -63,25 +63,25 @@ bool mpd_client_connect(struct t_mpd_state *mpd_state) {
     }
 
     MYMPD_LOG_NOTICE("Connected to MPD");
-    mpd_state->conn_state = MPD_CONNECTED;
+    partition_state->conn_state = MPD_CONNECTED;
     //set keepalive
-    mpd_client_set_keepalive(mpd_state);
+    mpd_client_set_keepalive(partition_state);
 
     return true;
 }
 
-bool mpd_client_set_keepalive(struct t_mpd_state *mpd_state) {
-    bool rc = mpd_connection_set_keepalive(mpd_state->conn, mpd_state->mpd_keepalive);
-    return mympd_check_rc_error_and_recover(mpd_state, rc, "mpd_connection_set_keepalive");
+bool mpd_client_set_keepalive(struct t_partition_state *partition_state) {
+    bool rc = mpd_connection_set_keepalive(partition_state->conn, partition_state->mpd_shared_state->mpd_keepalive);
+    return mympd_check_rc_error_and_recover(partition_state, rc, "mpd_connection_set_keepalive");
 }
 
-bool mpd_client_set_binarylimit(struct t_mpd_state *mpd_state) {
+bool mpd_client_set_binarylimit(struct t_partition_state *partition_state) {
     bool rc = true;
-    if (mpd_state->feat_mpd_binarylimit == true) {
-        MYMPD_LOG_INFO("Setting binarylimit to %u", mpd_state->mpd_binarylimit);
-        rc = mpd_run_binarylimit(mpd_state->conn, mpd_state->mpd_binarylimit);
+    if (partition_state->mpd_shared_state->feat_mpd_binarylimit == true) {
+        MYMPD_LOG_INFO("Setting binarylimit to %u", partition_state->mpd_shared_state->mpd_binarylimit);
+        rc = mpd_run_binarylimit(partition_state->conn, partition_state->mpd_shared_state->mpd_binarylimit);
         sds message = sdsempty();
-        if (mympd_check_rc_error_and_recover_notify(mpd_state, &message, rc, "mpd_run_binarylimit") == false) {
+        if (mympd_check_rc_error_and_recover_notify(partition_state, &message, rc, "mpd_run_binarylimit") == false) {
             ws_notify(message);
         }
         FREE_SDS(message);
@@ -89,9 +89,9 @@ bool mpd_client_set_binarylimit(struct t_mpd_state *mpd_state) {
     return rc;
 }
 
-void mpd_client_disconnect(struct t_mpd_state *mpd_state) {
-    mpd_state->conn_state = MPD_DISCONNECT;
-    if (mpd_state->conn != NULL) {
-        mpd_connection_free(mpd_state->conn);
+void mpd_client_disconnect(struct t_partition_state *partition_state) {
+    partition_state->conn_state = MPD_DISCONNECT;
+    if (partition_state->conn != NULL) {
+        mpd_connection_free(partition_state->conn);
     }
 }

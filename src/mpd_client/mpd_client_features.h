@@ -10,5 +10,4 @@
 #include "../lib/mympd_state.h"
 
 void mpd_client_mpd_features(struct t_mympd_state *mympd_state);
-void mpd_client_feature_love(struct t_mympd_state *mympd_state);
 #endif
