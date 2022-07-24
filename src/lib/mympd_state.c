@@ -22,6 +22,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+/**
+ * Saves in-memory states to disc. This is done on shutdown and on SIHUP.
+ * @param mympd_state pointer to central myMPD state
+ */
 void mympd_state_save(struct t_mympd_state *mympd_state) {
     mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
     mympd_api_last_played_file_save(&mympd_state->mpd_shared_state->last_played,
@@ -30,12 +34,20 @@ void mympd_state_save(struct t_mympd_state *mympd_state) {
     mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
 }
 
-//mympd state
+/**
+ * Sets mympd_state defaults.
+ * @param mympd_state pointer to central myMPD state
+ */
 void mympd_state_default(struct t_mympd_state *mympd_state) {
+    //pointer to static config
     mympd_state->config = NULL;
+    //configured mpd music_directory, used value is in mympd_state->mpd_shared_state->music_directory_value
     mympd_state->music_directory = sdsnew(MYMPD_MUSIC_DIRECTORY);
+    //configured mpd playlist directory
     mympd_state->playlist_directory = sdsnew(MYMPD_PLAYLIST_DIRECTORY);
+    //comma separated list of albumart names - normal size
     mympd_state->coverimage_names = sdsnew(MYMPD_COVERIMAGE_NAMES);
+    //comma separated list of albumart names - thumbnails
     mympd_state->thumbnail_names = sdsnew(MYMPD_THUMBNAIL_NAMES);
     mympd_state->tag_list_search = sdsnew(MYMPD_TAG_LIST_SEARCH);
     mympd_state->tag_list_browse = sdsnew(MYMPD_TAG_LIST_BROWSE);
@@ -72,8 +84,8 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     //mpd partition state
     mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
     partition_state_default(mympd_state->partition_state, "default");
-    //add pointer to shared state
-    mympd_state->mpd_shared_state = mympd_state->mpd_shared_state;
+    //add pointer to shared state pointing to partition specific state
+    mympd_state->partition_state->mpd_shared_state = mympd_state->mpd_shared_state;
     //triggers;
     list_init(&mympd_state->trigger_list);
     //home icons
@@ -82,7 +94,11 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_api_timer_timerlist_init(&mympd_state->timer_list);
 }
 
-void *mympd_state_free(struct t_mympd_state *mympd_state) {
+/**
+ * Frees the myMPD state, frees also the referenced structs.
+ * @param mympd_state pointer to central myMPD state
+ */
+void mympd_state_free(struct t_mympd_state *mympd_state) {
     list_clear_user_data(&mympd_state->trigger_list, list_free_cb_t_list_user_data);
     list_clear(&mympd_state->home_list);
     mympd_api_timer_timerlist_clear(&mympd_state->timer_list);
@@ -119,10 +135,12 @@ void *mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->listenbrainz_token);
     //struct itself
     FREE_PTR(mympd_state);
-    return NULL;
 }
 
-//mpd shared state
+/**
+ * Sets mpd_shared_state defaults.
+ * @param mpd_shared_state pointer to mpd_shared_state
+ */
 void mpd_shared_state_default(struct t_mpd_shared_state *mpd_shared_state) {
     mpd_shared_state->config = NULL;
     mpd_shared_state->mpd_keepalive = MYMPD_MPD_KEEPALIVE;
@@ -153,7 +171,10 @@ void mpd_shared_state_default(struct t_mpd_shared_state *mpd_shared_state) {
     mpd_shared_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
 }
 
-void *mpd_shared_state_free(struct t_mpd_shared_state *mpd_shared_state) {
+/**
+ * Frees the t_mpd_shared_state struct
+ */
+void mpd_shared_state_free(struct t_mpd_shared_state *mpd_shared_state) {
     FREE_SDS(mpd_shared_state->mpd_host);
     FREE_SDS(mpd_shared_state->mpd_pass);
     FREE_SDS(mpd_shared_state->tag_list);
@@ -166,10 +187,15 @@ void *mpd_shared_state_free(struct t_mpd_shared_state *mpd_shared_state) {
     album_cache_free(&mpd_shared_state->album_cache);
 
     FREE_SDS(mpd_shared_state->booklet_name);
+    //struct itself
     FREE_PTR(mpd_shared_state);
-    return NULL;
 }
 
+/**
+ * Sets per partition state defaults
+ * @param partition_state pointer to t_partition_state struct
+ * @param name partition name
+ */
 void partition_state_default(struct t_partition_state *partition_state, const char *name) {
     partition_state->name = sdsnew(name);
     partition_state->conn = NULL;
@@ -207,7 +233,11 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->jukebox_enforce_unique = MYMPD_JUKEBOX_ENFORCE_UNIQUE;
 }
 
-void *partition_state_free(struct t_partition_state *partition_state) {
+/**
+ * Frees the t_partition_state struct
+ * @param partition_state pointer to t_partition_state struct
+ */
+void partition_state_free(struct t_partition_state *partition_state) {
     FREE_SDS(partition_state->name);
     FREE_SDS(partition_state->song_uri);
     FREE_SDS(partition_state->last_song_uri);
@@ -215,14 +245,23 @@ void *partition_state_free(struct t_partition_state *partition_state) {
     mpd_client_clear_jukebox(&partition_state->jukebox_queue);
     mpd_client_clear_jukebox(&partition_state->jukebox_queue_tmp);
     FREE_SDS(partition_state->jukebox_playlist);
-    return NULL;
+    //struct itself
+    FREE_PTR(partition_state);
 }
 
-//tagtypes
+/**
+ * Copy a struct t_tags struct to another one
+ * @param src_tag_list source
+ * @param dst_tag_list destination
+ */
 void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list) {
     memcpy((void *)dst_tag_list, (void *)src_tag_list, sizeof(struct t_tags));
 }
 
+/**
+ * (Re-)initializes a t_tags struct
+ * @param tags pointer to t_tags struct
+*/
 void reset_t_tags(struct t_tags *tags) {
     tags->len = 0;
     memset(tags->tags, 0, sizeof(tags->tags));

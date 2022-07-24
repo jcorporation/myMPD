@@ -49,11 +49,14 @@ set(TEST_SOURCES
   ../src/mpd_client/mpd_client_jukebox.c
   ../src/mpd_client/mpd_client_volume.c
   ../src/mympd_api/mympd_api_extra_media.c
+  ../src/mympd_api/mympd_api_home.c
+  ../src/mympd_api/mympd_api_last_played.c
   ../src/mympd_api/mympd_api_lyrics.c
   ../src/mympd_api/mympd_api_status.c
   ../src/mympd_api/mympd_api_sticker.c
   ../src/mympd_api/mympd_api_timer.c
   ../src/mympd_api/mympd_api_timer_handlers.c
+  ../src/mympd_api/mympd_api_trigger.c
   ../src/mympd_api/mympd_api_queue.c
   ../src/mympd_api/mympd_api_webradios.c
   main.c

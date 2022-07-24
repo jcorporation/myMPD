@@ -68,12 +68,14 @@ UTEST(album_cache, test_album_cache_set_discs) {
     song->tags[MPD_TAG_DISC].value = strdup("04");
 
     album_cache_set_discs(album, song);
+    ASSERT_EQ((unsigned) 4, mpd_song_get_pos(album));
     ASSERT_EQ((unsigned) 4, album_get_discs(album));
 
     free(song->tags[MPD_TAG_DISC].value);
     song->tags[MPD_TAG_DISC].value = strdup("02");
 
     album_cache_set_discs(album, song);
+    ASSERT_EQ((unsigned) 4, mpd_song_get_pos(album));
     ASSERT_EQ((unsigned) 4, album_get_discs(album));
 
     mpd_song_free(album);

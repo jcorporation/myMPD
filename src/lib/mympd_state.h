@@ -15,6 +15,9 @@
 #include <mpd/client.h>
 #include <time.h>
 
+/**
+ * Jukebox state
+ */
 enum jukebox_modes {
     JUKEBOX_OFF,
     JUKEBOX_ADD_SONG,
@@ -22,6 +25,10 @@ enum jukebox_modes {
     JUKEBOX_UNKNOWN
 };
 
+/**
+ * myMPD trigger events. The list is composed of MPD idle events and
+ * myMPD specific events.
+ */
 enum trigger_events {
     TRIGGER_MYMPD_SCROBBLE = -1,
     TRIGGER_MYMPD_START = -2,
@@ -45,6 +52,9 @@ enum trigger_events {
     TRIGGER_MPD_MOUNT = 0x2000
 };
 
+/**
+ * MPD connection states
+ */
 enum mpd_conn_states {
     MPD_DISCONNECTED,
     MPD_FAILURE,
@@ -56,6 +66,9 @@ enum mpd_conn_states {
     MPD_TOO_OLD
 };
 
+/**
+ * Sticker values
+ */
 struct t_sticker {
     long playCount;
     long skipCount;
@@ -64,6 +77,9 @@ struct t_sticker {
     long like;
 };
 
+/**
+ * Struct for mpd tag lists
+ */
 struct t_tags {
     size_t len;
     enum mpd_tag_type tags[64];
@@ -78,7 +94,7 @@ struct t_cache {
 };
 
 /**
- * Holds MPD specific states
+ * Holds MPD specific states shared across all partitions
  */
 struct t_mpd_shared_state {
     //static config
@@ -169,6 +185,9 @@ struct t_partition_state {
     struct t_partition_state *next;
 };
 
+/**
+ * Optional timer definition from GUI
+ */
 struct t_timer_definition {
     sds name;
     bool enabled;
@@ -183,8 +202,14 @@ struct t_timer_definition {
     struct t_list arguments;
 };
 
+/**
+ * Callback functions for timers
+ */
 typedef void (*timer_handler)(int timer_id, struct t_timer_definition *definition);
 
+/**
+ * Timer node
+ */
 struct t_timer_node {
     int fd;
     timer_handler callback;
@@ -195,6 +220,9 @@ struct t_timer_node {
     struct t_timer_node *next;
 };
 
+/**
+ * Linked list of timers containing t_timer_nodes
+ */
 struct t_timer_list {
     int length;
     int last_id;
@@ -202,6 +230,9 @@ struct t_timer_list {
     struct t_timer_node *list;
 };
 
+/**
+ * Lyrics settings
+ */
 struct t_lyrics {
     sds uslt_ext;
     sds sylt_ext;
@@ -209,6 +240,9 @@ struct t_lyrics {
     sds vorbis_sylt;
 };
 
+/**
+ * Holds central myMPD state and configuration values.
+ */
 struct t_mympd_state {
     //static config
     struct t_config *config;
@@ -255,16 +289,19 @@ struct t_mympd_state {
     sds webui_settings;
 };
 
+/**
+ * Public functions
+ */
 void mympd_state_save(struct t_mympd_state *mympd_state);
 
 void mympd_state_default(struct t_mympd_state *mympd_state);
-void *mympd_state_free(struct t_mympd_state *mympd_state);
+void mympd_state_free(struct t_mympd_state *mympd_state);
 
 void mpd_shared_state_default(struct t_mpd_shared_state *mpd_shared_state);
-void *mpd_shared_state_free(struct t_mpd_shared_state *mpd_shared_state);
+void mpd_shared_state_free(struct t_mpd_shared_state *mpd_shared_state);
 
 void partition_state_default(struct t_partition_state *partition_state, const char *name);
-void *partition_state_free(struct t_partition_state *partition_state);
+void partition_state_free(struct t_partition_state *partition_state);
 
 void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list);
 void reset_t_tags(struct t_tags *tags);
