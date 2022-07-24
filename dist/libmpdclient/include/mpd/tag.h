@@ -88,6 +88,7 @@ enum mpd_tag_type
 	MPD_TAG_MOVEMENTNUMBER,
 	MPD_TAG_LOCATION,
 	MPD_TAG_MOOD,
+	MPD_TAG_TITLE_SORT,
 
 	/* IMPORTANT: the ordering of tag types above must be
 	   retained, or else the libmpdclient ABI breaks */
