@@ -9,6 +9,6 @@
 
 #include "../lib/mympd_state.h"
 
-sds mympd_api_albumart_getcover(struct t_mympd_state *mympd_state, sds buffer, long request_id,
+sds mympd_api_albumart_getcover(struct t_mpd_state *mpd_state, sds buffer, long request_id,
         const char *uri, sds *binary);
 #endif
