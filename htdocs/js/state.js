@@ -346,9 +346,7 @@ function parseCurrentSong(obj) {
         pageTitle += obj.result.Artist.join(', ') + smallSpace + nDash + smallSpace;
         footerArtistEl.textContent = obj.result.Artist;
         setData(footerArtistEl, 'name', obj.result.Artist);
-        if (features.featAdvsearch === true) {
-            footerArtistEl.classList.add('clickable');
-        }
+        footerArtistEl.classList.add('clickable');
     }
     else {
         footerArtistEl.textContent = '';
@@ -363,9 +361,7 @@ function parseCurrentSong(obj) {
         footerAlbumEl.textContent = obj.result.Album;
         setData(footerAlbumEl, 'name', obj.result.Album);
         setData(footerAlbumEl, 'AlbumArtist', obj.result[tagAlbumArtist]);
-        if (features.featAdvsearch === true) {
-            footerAlbumEl.classList.add('clickable');
-        }
+        footerAlbumEl.classList.add('clickable');
     }
     else {
         footerAlbumEl.textContent = '';

@@ -15,9 +15,9 @@ function initSearch() {
             const colName = event.target.getAttribute('data-col');
             if (colName === null ||
                 colName === 'Duration' ||
-                colName.indexOf('sticker') === 0 ||
-                features.featAdvsearch === false)
+                colName.indexOf('sticker') === 0)
             {
+                //by this fields can not be sorted
                 return;
             }
             toggleSort(event.target, colName);
@@ -45,8 +45,7 @@ function initSearch() {
         if (event.key === 'Escape') {
             this.blur();
         }
-        else if (event.key === 'Enter' &&
-            features.featAdvsearch === true)
+        else if (event.key === 'Enter')
         {
             if (value !== '') {
                 const op = getSelectValueId('searchMatch');
@@ -59,11 +58,6 @@ function initSearch() {
                     doSearch(value);
                 }, searchTimerTimeout);
             }
-        }
-        else {
-            searchTimer = setTimeout(function() {
-                doSearch(value);
-            }, searchTimerTimeout);
         }
     }, false);
 
@@ -97,13 +91,8 @@ function initSearch() {
 }
 
 function doSearch(x) {
-    if (features.featAdvsearch) {
-        const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValueId('searchMatch'), x);
-        appGoto('Search', undefined, undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', expression, 0);
-    }
-    else {
-        appGoto('Search', undefined, undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', x, 0);
-    }
+    const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValueId('searchMatch'), x);
+    appGoto('Search', undefined, undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', expression, 0);
 }
 
 function parseSearch(obj) {

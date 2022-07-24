@@ -871,7 +871,6 @@ function setFeatures() {
 
     //mpd features
     if (settings.mpdConnected === true) {
-        features.featAdvsearch = settings.featAdvsearch;
         features.featLibrary = settings.featLibrary;
         features.featLyrics = settings.webuiSettings.enableLyrics === true ?
             (settings.featLibrary === true ? true : false) : false;
@@ -882,7 +881,6 @@ function setFeatures() {
         features.featPartitions = settings.webuiSettings.enablePartitions === true ?
             (settings.featPartitions === true ? true : false) : false;
         features.featPlaylists = settings.featPlaylists;
-        features.featSingleOneshot = settings.featSingleOneshot;
         features.featSmartpls = settings.featSmartpls === true ?
             (settings.smartpls === true ? true : false) : false;
         features.featStickers = settings.featStickers;
@@ -1010,18 +1008,6 @@ function parseMPDSettings() {
         }
         if (app.cards.Browse.tabs.Database.views.List.sort.tag === 'AlbumArtist') {
             app.cards.Browse.tabs.Database.views.List.sort.tag = tagAlbumArtist;
-        }
-    }
-
-    if (features.featAdvsearch === false) {
-        //disable tag based features
-        if (app.cards.Browse.active === 'Database') {
-            app.cards.Browse.active = 'Filesystem';
-        }
-
-        const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
-        for (let i = 0, j = tagEls.length; i < j; i++) {
-            tagEls[i].classList.remove('clickable');
         }
     }
 

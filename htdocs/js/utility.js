@@ -705,7 +705,7 @@ function addTagList(elId, list) {
         elId === 'BrowseNavWebradiodbDropdown' ||
         elId === 'BrowseNavRadiobrowserDropdown')
     {
-        if (features.featTags === true && features.featAdvsearch === true) {
+        if (features.featTags === true) {
             elClear(stack);
             stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database"}, tn('Database')));
         }

@@ -736,7 +736,6 @@ const webuiSettingsDefault = {
 
 //features
 const features = {
-    "featAdvsearch": true,
     "featCacert": false,
     "featHome": true,
     "featLibrary": false,
@@ -746,7 +745,6 @@ const features = {
     "featNeighbors": true,
     "featPartitions": true,
     "featPlaylists": true,
-    "featSingleOneShot": true,
     "featScripting": true,
     "featSmartpls": true,
     "featStickers": false,
