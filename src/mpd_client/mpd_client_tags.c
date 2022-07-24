@@ -121,6 +121,8 @@ enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
             return MPD_TAG_ALBUM_SORT;
         case MPD_TAG_COMPOSER:
             return MPD_TAG_COMPOSER_SORT;
+        case MPD_TAG_TITLE:
+            return MPD_TAG_TITLE_SORT;
         default:
             return tag;
     }

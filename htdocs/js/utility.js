@@ -1366,6 +1366,7 @@ function printValue(key, value) {
         case 'AlbumArtist':
         case 'AlbumArtistSort':
         case 'Composer':
+        case 'ComposerSort':
         case 'Performer':
         case 'Conductor':
         case 'Ensemble':
