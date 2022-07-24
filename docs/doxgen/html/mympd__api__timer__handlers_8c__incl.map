@@ -1,0 +1,28 @@
+<map id="src/mympd_api/mympd_api_timer_handlers.c" name="src/mympd_api/mympd_api_timer_handlers.c">
+<area shape="rect" id="node1" title=" " alt="" coords="871,5,1029,47"/>
+<area shape="rect" id="node2" title=" " alt="" coords="5,333,156,360"/>
+<area shape="rect" id="node3" href="$mympd__api__timer__handlers_8h.html" title=" " alt="" coords="155,102,347,129"/>
+<area shape="rect" id="node13" href="$api_8h.html" title=" " alt="" coords="791,184,869,211"/>
+<area shape="rect" id="node16" href="$covercache_8h.html" title=" " alt="" coords="1225,259,1355,285"/>
+<area shape="rect" id="node17" href="$jsonrpc_8h.html" title=" " alt="" coords="987,102,1091,129"/>
+<area shape="rect" id="node19" href="$log_8h.html" title=" " alt="" coords="1379,259,1457,285"/>
+<area shape="rect" id="node21" href="$sds__extras_8h.html" title=" " alt="" coords="1481,259,1608,285"/>
+<area shape="rect" id="node23" href="$mpd__client__errorhandler_8h.html" title=" " alt="" coords="372,95,536,136"/>
+<area shape="rect" id="node24" href="$mpd__client__jukebox_8h.html" title=" " alt="" coords="748,95,912,136"/>
+<area shape="rect" id="node25" href="$mpd__client__volume_8h.html" title=" " alt="" coords="560,95,724,136"/>
+<area shape="rect" id="node26" title=" " alt="" coords="1377,102,1443,129"/>
+<area shape="rect" id="node4" href="$mympd__state_8h.html" title=" " alt="" coords="474,184,615,211"/>
+<area shape="rect" id="node5" title=" " alt="" coords="345,259,456,285"/>
+<area shape="rect" id="node6" title=" " alt="" coords="184,333,300,360"/>
+<area shape="rect" id="node7" href="$mympd__configuration_8h.html" title=" " alt="" coords="163,259,321,285"/>
+<area shape="rect" id="node9" href="$list_8h.html" title=" " alt="" coords="945,259,995,285"/>
+<area shape="rect" id="node11" title=" " alt="" coords="582,259,675,285"/>
+<area shape="rect" id="node12" title=" " alt="" coords="577,333,635,360"/>
+<area shape="rect" id="node8" title=" " alt="" coords="933,333,1007,360"/>
+<area shape="rect" id="node10" title=" " alt="" coords="1123,333,1251,360"/>
+<area shape="rect" id="node14" href="$mympd__queue_8h.html" title=" " alt="" coords="700,259,819,285"/>
+<area shape="rect" id="node15" title=" " alt="" coords="721,333,797,360"/>
+<area shape="rect" id="node18" href="$validate_8h.html" title=" " alt="" coords="1020,259,1099,285"/>
+<area shape="rect" id="node20" title=" " alt="" coords="1383,333,1453,360"/>
+<area shape="rect" id="node22" title=" " alt="" coords="1514,333,1575,360"/>
+</map>

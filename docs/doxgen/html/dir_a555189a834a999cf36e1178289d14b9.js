@@ -1,0 +1,25 @@
+var dir_a555189a834a999cf36e1178289d14b9 =
+[
+    [ "mpd_client_autoconf.c", "mpd__client__autoconf_8c.html", "mpd__client__autoconf_8c" ],
+    [ "mpd_client_autoconf.h", "mpd__client__autoconf_8h.html", "mpd__client__autoconf_8h" ],
+    [ "mpd_client_connection.c", "mpd__client__connection_8c.html", "mpd__client__connection_8c" ],
+    [ "mpd_client_connection.h", "mpd__client__connection_8h.html", "mpd__client__connection_8h" ],
+    [ "mpd_client_errorhandler.c", "mpd__client__errorhandler_8c.html", "mpd__client__errorhandler_8c" ],
+    [ "mpd_client_errorhandler.h", "mpd__client__errorhandler_8h.html", "mpd__client__errorhandler_8h" ],
+    [ "mpd_client_features.c", "mpd__client__features_8c.html", "mpd__client__features_8c" ],
+    [ "mpd_client_features.h", "mpd__client__features_8h.html", "mpd__client__features_8h" ],
+    [ "mpd_client_idle.c", "mpd__client__idle_8c.html", "mpd__client__idle_8c" ],
+    [ "mpd_client_idle.h", "mpd__client__idle_8h.html", "mpd__client__idle_8h" ],
+    [ "mpd_client_jukebox.c", "mpd__client__jukebox_8c.html", "mpd__client__jukebox_8c" ],
+    [ "mpd_client_jukebox.h", "mpd__client__jukebox_8h.html", "mpd__client__jukebox_8h" ],
+    [ "mpd_client_playlists.c", "mpd__client__playlists_8c.html", "mpd__client__playlists_8c" ],
+    [ "mpd_client_playlists.h", "mpd__client__playlists_8h.html", "mpd__client__playlists_8h" ],
+    [ "mpd_client_search.c", "mpd__client__search_8c.html", "mpd__client__search_8c" ],
+    [ "mpd_client_search.h", "mpd__client__search_8h.html", "mpd__client__search_8h" ],
+    [ "mpd_client_search_local.c", "mpd__client__search__local_8c.html", "mpd__client__search__local_8c" ],
+    [ "mpd_client_search_local.h", "mpd__client__search__local_8h.html", "mpd__client__search__local_8h" ],
+    [ "mpd_client_tags.c", "mpd__client__tags_8c.html", "mpd__client__tags_8c" ],
+    [ "mpd_client_tags.h", "mpd__client__tags_8h.html", "mpd__client__tags_8h" ],
+    [ "mpd_client_volume.c", "mpd__client__volume_8c.html", "mpd__client__volume_8c" ],
+    [ "mpd_client_volume.h", "mpd__client__volume_8h.html", "mpd__client__volume_8h" ]
+];

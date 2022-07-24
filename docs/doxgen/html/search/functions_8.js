@@ -1,0 +1,6 @@
+var searchData=
+[
+  ['handle_5fbackend_5fclose_1210',['handle_backend_close',['../web__server__proxy_8c.html#ade462df7f97e3fe2943e5b271eda6a5d',1,'handle_backend_close(struct mg_connection *nc, struct backend_nc_data_t *backend_nc_data):&#160;web_server_proxy.c'],['../web__server__proxy_8h.html#ade462df7f97e3fe2943e5b271eda6a5d',1,'handle_backend_close(struct mg_connection *nc, struct backend_nc_data_t *backend_nc_data):&#160;web_server_proxy.c']]],
+  ['handle_5foptions_1211',['handle_options',['../handle__options_8c.html#a637dc03db5805b92785c439a252494a5',1,'handle_options(struct t_config *config, int argc, char **argv):&#160;handle_options.c'],['../handle__options_8h.html#a637dc03db5805b92785c439a252494a5',1,'handle_options(struct t_config *config, int argc, char **argv):&#160;handle_options.c']]],
+  ['http_5fclient_5frequest_1212',['http_client_request',['../http__client_8c.html#a919032ec2d3bfa1de90d877889bed287',1,'http_client_request(struct mg_client_request_t *mg_client_request, struct mg_client_response_t *mg_client_response):&#160;http_client.c'],['../http__client_8h.html#a919032ec2d3bfa1de90d877889bed287',1,'http_client_request(struct mg_client_request_t *mg_client_request, struct mg_client_response_t *mg_client_response):&#160;http_client.c']]]
+];

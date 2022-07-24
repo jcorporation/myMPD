@@ -1,0 +1,11 @@
+<map id="t_mpd_worker_state" name="t_mpd_worker_state">
+<area shape="rect" id="node1" title=" " alt="" coords="248,439,388,465"/>
+<area shape="rect" id="node2" href="$structt__mpd__shared__state.html" title=" " alt="" coords="452,244,592,271"/>
+<area shape="rect" id="node8" href="$structt__partition__state.html" title=" " alt="" coords="260,349,375,376"/>
+<area shape="rect" id="node3" href="$structt__tags.html" title=" " alt="" coords="36,109,95,136"/>
+<area shape="rect" id="node4" href="$structt__config.html" title=" " alt="" coords="292,109,360,136"/>
+<area shape="rect" id="node5" href="$structt__list.html" title=" " alt="" coords="464,109,515,136"/>
+<area shape="rect" id="node6" href="$structt__list__node.html" title=" " alt="" coords="447,5,532,32"/>
+<area shape="rect" id="node7" href="$structt__cache.html" title=" " alt="" coords="590,109,658,136"/>
+<area shape="rect" id="node9" href="$structt__work__request.html" title=" " alt="" coords="622,349,733,376"/>
+</map>
