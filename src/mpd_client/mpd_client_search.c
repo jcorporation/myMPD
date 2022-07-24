@@ -209,7 +209,7 @@ static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, enum my
         return buffer;
     }
 
-    if (plist == NULL) {
+    if (buffer != NULL) {
         struct mpd_song *song;
         unsigned entities_returned = 0;
         while ((song = mpd_recv_song(mpd_state->conn)) != NULL) {
@@ -241,14 +241,6 @@ static sds _mpd_client_search(struct t_mpd_state *mpd_state, sds buffer, enum my
         buffer = tojson_char(buffer, "sort", sort, true);
         buffer = tojson_bool(buffer, "sortdesc", sortdesc, false);
         buffer = jsonrpc_respond_end(buffer);
-    }
-    else if (strcmp(plist, "queue") == 0) {
-        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_QUEUE,
-            JSONRPC_SEVERITY_INFO, "Added songs to queue");
-    }
-    else {
-        buffer = jsonrpc_respond_message_phrase(buffer, cmd_id, request_id, JSONRPC_FACILITY_PLAYLIST,
-            JSONRPC_SEVERITY_INFO, "Added songs to %{playlist}", 2, "playlist", plist);
     }
 
     mpd_response_finish(mpd_state->conn);
