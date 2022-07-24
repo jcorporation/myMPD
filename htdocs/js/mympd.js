@@ -207,7 +207,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
 
     switch(app.id) {
         case 'Home': {
-            sendAPI("MYMPD_API_HOME_ICON_LIST", {}, parseHome);
+            sendAPI("MYMPD_API_HOME_ICON_LIST", {}, parseHomeIcons);
             break;
         }
         case 'Playback': {

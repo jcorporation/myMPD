@@ -388,7 +388,7 @@ function dragAndDropHome() {
                     isNaN(from) === false &&
                     from !== to)
                 {
-                    sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, function(obj) {
+                    sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, function() {
                         getHomeIcons();
                     });
                 }
@@ -682,7 +682,7 @@ function saveHomeIconClose(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function deleteHomeIcon(pos) {
-    sendAPI("MYMPD_API_HOME_ICON_RM", {"pos": pos}, function(obj) {
+    sendAPI("MYMPD_API_HOME_ICON_RM", {"pos": pos}, function() {
         getHomeIcons();
     });
 }
