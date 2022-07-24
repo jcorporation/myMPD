@@ -681,7 +681,6 @@ function populateSettingsFrm() {
     document.getElementById('inputBookletName').value = settings.bookletName;
     document.getElementById('inputCoverimageNames').value = settings.coverimageNames;
     document.getElementById('inputThumbnailNames').value = settings.thumbnailNames;
-    document.getElementById('inputCovercacheKeepDays').value = settings.covercacheKeepDays;
     document.getElementById('inputListenbrainzToken').value = settings.listenbrainzToken;
 
     //smart playlists
@@ -1040,7 +1039,7 @@ function saveSettings(closeModal) {
 
     for (const inputId of ['inputWebUIsettinguiThumbnailSize', 'inputSettinglastPlayedCount',
         'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
-        'inputSettingvolumeStep', 'inputCovercacheKeepDays'])
+        'inputSettingvolumeStep'])
     {
         const inputEl = document.getElementById(inputId);
         if (!validateUint(inputEl)) {
@@ -1136,7 +1135,6 @@ function saveSettings(closeModal) {
             "lyricsSyltExt": document.getElementById('inputSettinglyricsSyltExt').value,
             "lyricsVorbisUslt": document.getElementById('inputSettinglyricsVorbisUslt').value,
             "lyricsVorbisSylt": document.getElementById('inputSettinglyricsVorbisSylt').value,
-            "covercacheKeepDays": Number(document.getElementById('inputCovercacheKeepDays').value),
             "listenbrainzToken": document.getElementById('inputListenbrainzToken').value,
             "webuiSettings": webuiSettings
         };

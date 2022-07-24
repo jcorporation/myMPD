@@ -28,7 +28,6 @@ struct t_mg_user_data {
     bool publish_music;
     int connection_count;
     sds stream_uri;
-    bool covercache;
     struct t_list session_list;
 };
 

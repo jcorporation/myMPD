@@ -153,7 +153,7 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
     }
 
     //check covercache
-    if (mg_user_data->covercache == true) {
+    if (mg_user_data->config->covercache_keep_days > 0) {
         sds filename = sds_hash(uri_decoded);
         sds covercachefile = sdscatfmt(sdsempty(), "%S/covercache/%S-%i", config->cachedir, filename, offset);
         FREE_SDS(filename);
@@ -245,7 +245,8 @@ bool webserver_albumart_handler(struct mg_connection *nc, struct mg_http_message
 
         if (access(mediafile, F_OK) == 0) { /* Flawfinder: ignore */
             //try to extract albumart from media file
-            bool rc = handle_coverextract(nc, config, uri_decoded, mediafile, mg_user_data->covercache, offset);
+            bool covercache = mg_user_data->config->covercache_keep_days > 0 ? true : false;
+            bool rc = handle_coverextract(nc, config, uri_decoded, mediafile, covercache, offset);
             if (rc == true) {
                 FREE_SDS(uri_decoded);
                 FREE_SDS(mediafile);

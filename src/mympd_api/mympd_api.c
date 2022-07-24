@@ -32,8 +32,9 @@ void *mympd_api_loop(void *arg_config) {
 
     //create mympd_state struct and set defaults
     struct t_mympd_state *mympd_state = malloc_assert(sizeof(struct t_mympd_state));
-    mympd_state->config = (struct t_config *) arg_config;
     mympd_state_default(mympd_state);
+    mympd_state->config = (struct t_config *) arg_config;
+    mympd_state->mpd_state->config = (struct t_config *) arg_config;
 
     if (mympd_state->config->first_startup == true) {
         MYMPD_LOG_NOTICE("Starting myMPD autoconfiguration");
@@ -49,7 +50,7 @@ void *mympd_api_loop(void *arg_config) {
     //myMPD trigger
     mympd_api_trigger_file_read(&mympd_state->trigger_list, mympd_state->config->workdir);
     //set timers
-    if (mympd_state->covercache_keep_days > 0) {
+    if (mympd_state->config->covercache_keep_days > 0) {
         MYMPD_LOG_DEBUG("Setting timer action \"crop covercache\" to periodic each 7200s");
         mympd_api_timer_add(&mympd_state->timer_list, 60, 7200, timer_handler_by_id, TIMER_ID_COVERCACHE_CROP, NULL);
     }

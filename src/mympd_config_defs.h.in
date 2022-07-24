@@ -62,6 +62,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define CFG_MYMPD_LOGLEVEL 5 //notice
 #define CFG_MYMPD_PIN_HASH ""
 #define CFG_LOG_TO_SYSLOG false
+#define CFG_COVERCACHE_KEEP_DAYS 31
 
 //default mpd state settings
 #define MYMPD_MPD_TAG_LIST "Album,AlbumArtist,Artist,Disc,Genre,Name,Title,Track"
@@ -111,7 +112,6 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_LYRICS_SYLT_EXT "lrc"
 #define MYMPD_LYRICS_VORBIS_USLT "LYRICS"
 #define MYMPD_LYRICS_VORBIS_SYLT "SYNCEDLYRICS"
-#define MYMPD_COVERCACHE_KEEP_DAYS 7
 #define MYMPD_NAVBAR_ICONS "[{\"ligature\":\"home\",\"title\":\"Home\",\"options\":[\"Home\"]},"\
     "{\"ligature\":\"equalizer\",\"title\":\"Playback\",\"options\":[\"Playback\"]},"\
     "{\"ligature\":\"queue_music\",\"title\":\"Queue\",\"options\":[\"Queue\"]},"\
@@ -168,6 +168,10 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define OPEN_FLAGS_READ "re"
 #define OPEN_FLAGS_READ_BIN "rbe"
 #define OPEN_FLAGS_WRITE "we"
+
+//log level
+#define LOGLEVEL_MIN 0
+#define LOGLEVEL_MAX 7
 
 //certificates
 #define CA_LIFETIME 3650

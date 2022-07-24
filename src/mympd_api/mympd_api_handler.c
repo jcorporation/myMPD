@@ -373,7 +373,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         }
         case MYMPD_API_COVERCACHE_CROP:
-            int_buf1 = covercache_clear(config->cachedir, mympd_state->covercache_keep_days);
+            int_buf1 = covercache_clear(config->cachedir, mympd_state->config->covercache_keep_days);
             if (int_buf1 >= 0) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_INFO, "Successfully croped covercache");
@@ -1363,7 +1363,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case INTERNAL_API_ALBUMART:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
-                response->data = mympd_api_albumart_getcover(mympd_state, response->data, request->id, sds_buf1, &response->binary);
+                response->data = mympd_api_albumart_getcover(mympd_state->mpd_state, response->data, request->id, sds_buf1, &response->binary);
             }
             break;
         case MYMPD_API_DATABASE_ALBUMS_GET:

@@ -50,7 +50,6 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     mg_user_data->feat_mpd_albumart = false;
     mg_user_data->connection_count = 0;
     mg_user_data->stream_uri = sdsnew("http://localhost:8000");
-    mg_user_data->covercache = true;
     list_init(&mg_user_data->session_list);
 
     //init monogoose mgr
@@ -204,7 +203,6 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         FREE_SDS(new_mg_user_data->thumbnail_names);
 
         mg_user_data->feat_mpd_albumart = new_mg_user_data->feat_mpd_albumart;
-        mg_user_data->covercache = new_mg_user_data->covercache;
 
         sdsclear(mg_user_data->stream_uri);
         if (new_mg_user_data->mpd_stream_port != 0) {

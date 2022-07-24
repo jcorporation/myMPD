@@ -119,7 +119,6 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     extra->feat_mpd_albumart = mympd_state->mpd_state->feat_mpd_albumart;
     extra->mpd_stream_port = mympd_state->mpd_stream_port;
     extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
-    extra->covercache = mympd_state->covercache_keep_days > 0 ? true : false;
 
     struct t_work_response *web_server_response = create_response_new(-1, 0, INTERNAL_API_WEBSERVER_SETTINGS);
     web_server_response->extra = extra;

@@ -70,6 +70,8 @@ struct t_tags {
 };
 
 struct t_mpd_state {
+    //static config
+    struct t_config *config;
     //Connection
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;
@@ -228,7 +230,6 @@ struct t_mympd_state {
     unsigned volume_max;
     unsigned volume_step;
     struct t_lyrics lyrics;
-    int covercache_keep_days;
     sds listenbrainz_token;
     //settings only for webui
     sds webui_settings;

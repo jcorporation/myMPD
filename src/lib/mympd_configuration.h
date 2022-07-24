@@ -37,6 +37,7 @@ struct t_config {
     bool first_startup;
     bool bootstrap;
     sds pin_hash;
+    int covercache_keep_days;
 };
 
 #endif

@@ -41,10 +41,10 @@ static const char *loglevel_colors[8] = {
 };
 
 void set_loglevel(int level) {
-    if (level > 7) {
+    if (level > LOGLEVEL_MAX) {
         level = 7;
     }
-    else if (level < 0) {
+    else if (level < LOGLEVEL_MIN) {
         level = 0;
     }
     MYMPD_LOG_NOTICE("Setting loglevel to %s", loglevel_names[level]);

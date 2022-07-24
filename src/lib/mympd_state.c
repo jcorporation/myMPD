@@ -21,6 +21,7 @@
 
 //mympd state
 void mympd_state_default(struct t_mympd_state *mympd_state) {
+    mympd_state->config = NULL;
     mympd_state->music_directory = sdsnew(MYMPD_MUSIC_DIRECTORY);
     mympd_state->music_directory_value = sdsempty();
     mympd_state->playlist_directory = sdsnew(MYMPD_PLAYLIST_DIRECTORY);
@@ -62,7 +63,6 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_state->lyrics.sylt_ext = sdsnew(MYMPD_LYRICS_SYLT_EXT);
     mympd_state->lyrics.vorbis_uslt = sdsnew(MYMPD_LYRICS_VORBIS_USLT);
     mympd_state->lyrics.vorbis_sylt = sdsnew(MYMPD_LYRICS_VORBIS_SYLT);
-    mympd_state->covercache_keep_days = MYMPD_COVERCACHE_KEEP_DAYS;
     mympd_state->listenbrainz_token = sdsempty();
     mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
     reset_t_tags(&mympd_state->tag_types_search);
@@ -142,6 +142,7 @@ void *mympd_state_free(struct t_mympd_state *mympd_state) {
 
 //mpd state
 void mympd_state_default_mpd_state(struct t_mpd_state *mpd_state) {
+    mpd_state->config = NULL;
     mpd_state->conn = NULL;
     mpd_state->conn_state = MPD_DISCONNECTED;
     mpd_state->reconnect_time = 0;
