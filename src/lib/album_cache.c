@@ -55,6 +55,7 @@ sds album_cache_get_key(struct mpd_song *song, sds albumkey, enum mpd_tag_type t
 
 /**
  * Gets the album from the album cache
+ * @param album_cache pointer to t_cache struct
  * @param key the album
  * @return mpd_song struct representing the album
  */
@@ -121,8 +122,8 @@ unsigned album_get_total_time(struct mpd_song *album) {
 
 /**
  * Sets the albums disc number
- * @param key the album
- * @return mpd_song struct representing the album
+ * @param album mpd_song struct representing the album
+ * @param song mpd song to set discs from
  */
 void album_cache_set_discs(struct mpd_song *album, struct mpd_song *song) {
     const char *disc;
@@ -136,8 +137,8 @@ void album_cache_set_discs(struct mpd_song *album, struct mpd_song *song) {
 
 /**
  * Sets the albums last modified date
- * @param album pointer to a mpd_song struct
- * @param last_modified unix timestamp
+ * @param album mpd_song struct representing the album
+ * @param song mpd song to set last_modified from
  */
 void album_cache_set_last_modified(struct mpd_song *album, struct mpd_song *song) {
     time_t last_modified_old = mpd_song_get_last_modified(album);
@@ -149,7 +150,7 @@ void album_cache_set_last_modified(struct mpd_song *album, struct mpd_song *song
 
 /**
  * Increments the albums duration
- * @param album pointer to a mpd_song struct
+ * @param album mpd_song struct representing the album
  * @param song pointer to a mpd_song struct
  */
 void album_cache_inc_total_time(struct mpd_song *album, struct mpd_song *song) {
@@ -159,7 +160,7 @@ void album_cache_inc_total_time(struct mpd_song *album, struct mpd_song *song) {
 
 /**
  * Set the song count
- * @param album pointer to a mpd_song struct
+ * @param album mpd_song struct representing the album
  * @param count song count
  */
 void album_cache_set_song_count(struct mpd_song *album, unsigned count) {
@@ -169,7 +170,6 @@ void album_cache_set_song_count(struct mpd_song *album, unsigned count) {
 /**
  * Increments the song count
  * @param album pointer to a mpd_song struct
- * @param song pointer to a mpd_song struct
  */
 void album_cache_inc_song_count(struct mpd_song *album) {
     album->prio++;

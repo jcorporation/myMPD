@@ -82,7 +82,7 @@ int sds_getline_n(sds *s, FILE *fp, size_t max) {
  * @param s an already allocated sds string that should hold the file content
  * @param fp FILE pointer to read
  * @param max maximum bytes to read
- * @param remove_newline removes \r and \n if true
+ * @param remove_newline removes CR/LF if true
  * @return GETLINE_OK on success,
  *         GETLINE_EMPTY for empty file,
  *         GETLINE_TOO_LONG for too long file

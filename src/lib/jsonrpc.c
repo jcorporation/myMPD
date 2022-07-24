@@ -126,7 +126,7 @@ sds jsonrpc_notify(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_se
  * @param severity one of enum jsonrpc_severities
  * @param message the message to send
  * @param count number of following variadic arguments
- * @param variadic key/value pairs for the phrase
+ * @param ... key/value pairs for the phrase
  * @return pointer to buffer with jsonrpc string
  */
 sds jsonrpc_notify_phrase(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity,
@@ -239,7 +239,7 @@ sds jsonrpc_respond_message(sds buffer, enum mympd_cmd_ids cmd_id, long id,
  * @param severity one of enum jsonrpc_severities
  * @param message the message to send
  * @param count number of following variadic arguments
- * @param variadic key/value pairs for the phrase
+ * @param ... key/value pairs for the phrase
  * @return pointer to buffer with jsonrpc string
  */
 sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long id,

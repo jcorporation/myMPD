@@ -45,7 +45,7 @@ sds camel_to_snake(sds text) {
  * @param workdir mympd working directory
  * @param dir subdir 
  * @param name filename to read/write
- * @param dev_value default value as sds string (is freed by this function)
+ * @param def_value default value as sds string (is freed by this function)
  * @param vcb validation callback from validate.h
  * @param warn if true a warning is logged if file does not exists
  * @return newly allocated sds string
@@ -61,7 +61,7 @@ sds state_file_rw_string_sds(sds workdir, const char *dir, const char *name, sds
  * @param workdir mympd working directory
  * @param dir subdir 
  * @param name filename to read/write
- * @param dev_value default value as c string
+ * @param def_value default value as c string
  * @param vcb validation callback from validate.h
  * @param warn if true a warning is logged if file does not exists
  * @return newly allocated sds string
@@ -112,7 +112,7 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
  * @param workdir mympd working directory
  * @param dir subdir 
  * @param name filename to read/write
- * @param dev_value default value
+ * @param def_value default value
  * @param warn if true a warning is logged if file does not exists
  * @return newly allocated sds string
  */
@@ -131,9 +131,9 @@ bool state_file_rw_bool(sds workdir, const char *dir, const char *name, const bo
  * @param workdir mympd working directory
  * @param dir subdir 
  * @param name filename to read/write
- * @param dev_value default value as sds string (is freed by this function)
+ * @param def_value default value as sds string (is freed by this function)
  * @param min minimum value
- * @param min maximum value
+ * @param max maximum value
  * @param warn if true a warning is logged if file does not exists
  * @return newly allocated sds string
  */
@@ -146,9 +146,9 @@ int state_file_rw_int(sds workdir, const char *dir, const char *name, const int 
  * @param workdir mympd working directory
  * @param dir subdir 
  * @param name filename to read/write
- * @param dev_value default value as sds string (is freed by this function)
+ * @param def_value default value as sds string (is freed by this function)
  * @param min minimum value
- * @param min maximum value
+ * @param max maximum value
  * @param warn if true a warning is logged if file does not exists
  * @return newly allocated sds string
  */
@@ -170,9 +170,9 @@ long state_file_rw_long(sds workdir, const char *dir, const char *name, const lo
  * @param workdir mympd working directory
  * @param dir subdir 
  * @param name filename to read/write
- * @param dev_value default value as sds string (is freed by this function)
+ * @param def_value default value as sds string (is freed by this function)
  * @param min minimum value
- * @param min maximum value
+ * @param max maximum value
  * @param warn if true a warning is logged if file does not exists
  * @return newly allocated sds string
  */

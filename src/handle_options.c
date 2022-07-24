@@ -53,6 +53,7 @@ static void print_usage(struct t_config *config, const char *cmd) {
 
 /**
  * Handles the command line arguments
+ * @param config pointer to myMPD static configuration
  * @param argc from main function
  * @param argv from main function
  * @return OPTIONS_RC_INVALID on error

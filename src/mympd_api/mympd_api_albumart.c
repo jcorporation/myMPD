@@ -19,7 +19,6 @@
  * Reads the albumart from mpd
  * @param partition_state pointer to partition specific states
  * @param buffer already allocated sds string for the jsonrpc response
- * @param method jsonrpc method
  * @param request_id request id
  * @param uri uri to get cover from
  * @param binary pointer to an already allocated sds string for the binary response

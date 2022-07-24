@@ -29,9 +29,7 @@ static void timer_handler_caches_create(void);
  * Handles timer by timer_id, this is only used for internal timers
  * @param timer_id the internal timer_id from enum timer_ids
  * @param definition the timer definition - not used
- * @user_data custom data - not used
  */
-
 void timer_handler_by_id(int timer_id, struct t_timer_definition *definition) {
     (void) definition; // not used
     switch(timer_id) {
@@ -92,10 +90,7 @@ void timer_handler_select(int timer_id, struct t_timer_definition *definition) {
 
 /**
  * This function is used by INTERNAL_API_TIMER_STARTPLAY and is called from the mympd_api_handler
- * @param pointer to the partition_state
- * @param buffer already alocated sds string to hold the jsonrpc response
- * @param method the API method
- * @param request_id the id of the request
+ * @param partition_state pointer to the partition_state
  * @param volume mpd volume to set
  * @param playlist the mpd playlist to use
  * @param jukebox_mode the jukebox mode to set

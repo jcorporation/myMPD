@@ -128,7 +128,7 @@ const char *get_extension_from_filename(const char *filename) {
  * Calculates the basename for files and uris
  * for files the path is removed
  * for uris the query string and hash is removed
- * @param uri sds string to modify in place
+ * @param s sds string to modify in place
  */
 void basename_uri(sds s) {
     size_t len = sdslen(s);
@@ -213,7 +213,7 @@ static const char *invalid_filename_chars = "<>/.:?&$!#=;\a\b\f\n\r\t\v\\|";
 
 /**
  * Replaces invalid filename characters with "_"
- * @param sds string to sanitize
+ * @param s sds string to sanitize
  */
 void sanitize_filename(sds s) {
     const size_t len = strlen(invalid_filename_chars);

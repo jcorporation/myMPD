@@ -111,7 +111,7 @@ bool sticker_set_like(struct t_list *sticker_queue, const char *uri, int value) 
  * Sets the last played time sticker
  * @param sticker_queue pointer to sticker queue
  * @param uri song uri
- * @param value start time of song
+ * @param song_start_time start time of song
  * @return true on success else false
  */
 bool sticker_set_last_played(struct t_list *sticker_queue, const char *uri, time_t song_start_time) {

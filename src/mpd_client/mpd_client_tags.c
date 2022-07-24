@@ -83,7 +83,7 @@ bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 
 /**
  * Checks if tag is a multivalue tag
- * @param tag_type mpd tag type
+ * @param tag mpd tag type
  * @return true if it is a multivalue tag else false
  */
 bool is_multivalue_tag(enum mpd_tag_type tag) {
@@ -108,8 +108,8 @@ bool is_multivalue_tag(enum mpd_tag_type tag) {
 
 /**
  * Maps tags to its sort tags pedants
- * @param type mpd tag type
- * @return sort tag if exists else the orgiginal tag
+ * @param tag mpd tag type
+ * @return sort tag if exists else the original tag
  */
 enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
     switch(tag) {
@@ -242,8 +242,8 @@ sds mpd_client_get_tag_values(struct mpd_song const *song, const enum mpd_tag_ty
  * Gets the tag values for a mpd song as json string
  * @param buffer alread allocated sds string to append the values
  * @param partition_state pointer to partition specific states
- * @param tag_cols pointer to t_tags struct (tags to retrieve)
- * @param mpd_song pointer to a mpd_song struct to retrieve tags from
+ * @param tagcols pointer to t_tags struct (tags to retrieve)
+ * @param song pointer to a mpd_song struct to retrieve tags from
  * @return new sds pointer to buffer
  */
 sds get_song_tags(sds buffer, struct t_partition_state *partition_state, const struct t_tags *tagcols,
@@ -272,8 +272,8 @@ sds get_song_tags(sds buffer, struct t_partition_state *partition_state, const s
  * Gets the same json string as get_song_tags but with empty values, title is set to the basefilename
  * @param buffer alread allocated sds string to append the values
  * @param partition_state pointer to partition specific states
- * @param tag_cols pointer to t_tags struct (tags to retrieve)
- * @param mpd_song pointer to a mpd_song struct to retrieve tags from
+ * @param tagcols pointer to t_tags struct (tags to retrieve)
+ * @param uri uri for printing empty tags
  * @return new sds pointer to buffer
  */
 sds get_empty_song_tags(sds buffer, struct t_partition_state *partition_state, const struct t_tags *tagcols,

@@ -31,10 +31,9 @@
  * Lists album songs and details
  * @param partition_state pointer to partition specific states
  * @param buffer sds string to append response
- * @param method jsonrpc method
  * @param request_id jsonrpc request id
  * @param album name of the album
- * @param albumartist list of albumartists
+ * @param albumartists list of albumartists
  * @param tagcols t_tags struct of song tags to print
  * @return pointer to buffer
  */
@@ -159,13 +158,11 @@ sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds 
 
 /**
  * Lists albums from the album_cache
- * @param partition_state pointer to mpd state struct
- * @param album_cache pointer to album cache
+ * @param partition_state pointer to partition specific states
  * @param buffer sds string to append response
- * @param method jsonrpc method
  * @param request_id jsonrpc request id
  * @param expression mpd search expression
- * @param sort_tag to sort the result
+ * @param sort tag to sort the result
  * @param sortdesc true to sort descending, false to sort ascending
  * @param offset offset of results to print
  * @param limit max number of results to print
@@ -299,9 +296,8 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
 
 /**
  * Lists tags from the mpd database
- * @param mympd_state pointer to mympd state struct
+ * @param partition_state pointer to partition specific states
  * @param buffer sds string to append response
- * @param method jsonrpc method
  * @param request_id jsonrpc request id
  * @param searchstr string to search
  * @param tag tag type to list

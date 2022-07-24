@@ -50,8 +50,7 @@ static const char *_id3_field_getlanguage(union id3_field const *field);
  * @param lyrics pointer to lyrics configuration
  * @param music_directory music directory of mpd
  * @param buffer buffer to write the response
- * @param method jsonrpc method
- * @param id jsonrpc id
+ * @param request_id jsonrpc id
  * @param uri song uri 
  * @return pointer to buffer
  */
