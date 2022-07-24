@@ -105,7 +105,8 @@ bool mympd_api_home_file_save(struct t_list *home_list, sds workdir) {
     return rc;
 }
 
-sds mympd_api_home_icon_list(struct t_list *home_list, sds buffer, enum mympd_cmd_ids cmd_id, long request_id) {
+sds mympd_api_home_icon_list(struct t_list *home_list, sds buffer, long request_id) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_HOME_ICON_LIST;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int returned_entities = 0;

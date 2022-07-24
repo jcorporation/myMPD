@@ -151,7 +151,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             {
                 rc = mympd_api_home_icon_save(&mympd_state->home_list, bool_buf1, long_buf1, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, &options);
                 if (rc == true) {
-                    response->data = mympd_api_home_icon_list(&mympd_state->home_list, response->data, request->cmd_id, request->id);
+                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_HOME);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -167,7 +167,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             {
                 rc = mympd_api_home_icon_move(&mympd_state->home_list, long_buf1, long_buf2);
                 if (rc == true) {
-                    response->data = mympd_api_home_icon_list(&mympd_state->home_list, response->data, request->cmd_id, request->id);
+                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_HOME);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -179,7 +179,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_long(request->data, "$.params.pos", 0, LIST_HOME_ICONS_MAX, &long_buf1, &error) == true) {
                 rc = mympd_api_home_icon_delete(&mympd_state->home_list, long_buf1);
                 if (rc == true) {
-                    response->data = mympd_api_home_icon_list(&mympd_state->home_list, response->data, request->cmd_id, request->id);
+                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_HOME);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -193,7 +193,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_HOME_ICON_LIST:
-            response->data = mympd_api_home_icon_list(&mympd_state->home_list, response->data, request->cmd_id, request->id);
+            response->data = mympd_api_home_icon_list(&mympd_state->home_list, response->data, request->id);
             break;
         #ifdef ENABLE_LUA
         case MYMPD_API_SCRIPT_SAVE: {
