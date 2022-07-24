@@ -65,16 +65,14 @@ UTEST(mympd_api_webradios, test_get_webradio_from_uri) {
 }
 
 UTEST(mympd_api_webradios, test_mympd_api_webradio_list) {
-    sds method = sdsnew("METHOD");
     sds searchstr = sdsempty();
-    sds buffer = mympd_api_webradio_list(workdir, sdsempty(), method, 0, searchstr, 0, 10);
+    sds buffer = mympd_api_webradio_list(workdir, sdsempty(), 0, searchstr, 0, 10);
     sds error = sdsempty();
     int result;
     bool rc = json_get_int_max(buffer, "$.result.totalEntities", &result, &error);
     ASSERT_TRUE(rc);
     ASSERT_EQ(result, 1);
     sdsfree(error);
-    sdsfree(method);
     sdsfree(searchstr);
     sdsfree(buffer);
 }
