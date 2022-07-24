@@ -136,11 +136,12 @@ bool is_image(const char *filename) {
     if (ext == NULL) {
         return false;
     }
-    const char *p;
-    for (p = *image_extensions; p!= NULL; p++) {
-        if (strcasecmp(p, ext) == 0) {
+    const char **p = image_extensions;
+    while(*p != NULL) {
+        if (strcasecmp(*p, ext) == 0) {
             return true;
         }
+        p++;
     }
     return false;
 }
