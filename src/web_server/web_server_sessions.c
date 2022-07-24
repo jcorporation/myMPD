@@ -23,7 +23,6 @@
 #endif
 
 void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, sds body, int id, sds session, struct t_mg_user_data *mg_user_data) {
-    const char *cmd = get_cmd_id_method_name(cmd_id);
     switch(cmd_id) {
         case MYMPD_API_SESSION_LOGIN: {
             sds pin = NULL;
@@ -35,13 +34,14 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
             sds response = sdsempty();
             if (is_valid == true) {
                 sds ses = webserver_session_new(&mg_user_data->session_list);
-                response = jsonrpc_respond_start(response, "MYMPD_API_SESSION_LOGIN", 0);
+                response = jsonrpc_respond_start(response, cmd_id, 0);
                 response = tojson_sds(response, "session", ses, false);
                 response = jsonrpc_respond_end(response);
                 FREE_SDS(ses);
             }
             else {
-                response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGIN", 0, true, "session", "error", "Invalid pin");
+                response = jsonrpc_respond_message(response, cmd_id, 0,
+                    JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid pin");
             }
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
@@ -53,11 +53,13 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
             if (sdslen(session) == 20) {
                 rc = webserver_session_remove(&mg_user_data->session_list, session);
                 if (rc == true) {
-                    response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGOUT", 0, false, "session", "info", "Session removed");
+                    response = jsonrpc_respond_message(response, cmd_id, 0,
+                        JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_INFO, "Session removed");
                 }
             }
             if (rc == false) {
-                response = jsonrpc_respond_message(response, "MYMPD_API_SESSION_LOGOUT", 0, true, "session", "error", "Invalid session");
+                response = jsonrpc_respond_message(response, cmd_id, 0,
+                    JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid session");
             }
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
@@ -65,14 +67,14 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
         }
         case MYMPD_API_SESSION_VALIDATE: {
             //session is already validated
-            sds response = jsonrpc_respond_ok(sdsempty(), "MYMPD_API_SESSION_VALIDATE", 0, "session");
+            sds response = jsonrpc_respond_ok(sdsempty(), cmd_id, 0, JSONRPC_FACILITY_SESSION);
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
             break;
         }
         default: {
-            sds response = jsonrpc_respond_message(sdsempty(), cmd, id, true,
-                "general", "error", "Invalid API request");
+            sds response = jsonrpc_respond_message(sdsempty(), cmd_id, id,
+                JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid API request");
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
         }

@@ -34,6 +34,7 @@
 #include "mympd_api_last_played.h"
 #include "mympd_api_lyrics.h"
 #include "mympd_api_mounts.h"
+#include "mympd_api_outputs.h"
 #include "mympd_api_partitions.h"
 #include "mympd_api_pictures.h"
 #include "mympd_api_playlists.h"
@@ -659,7 +660,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_DATABASE_UPDATE:
         case MYMPD_API_DATABASE_RESCAN: {
-            long update_id = mympd_api_status_updatedb_id(mympd_state);
+            long update_id = mympd_api_status_updatedb_id(mympd_state->mpd_state);
             if (update_id == -1) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error getting MPD status");
@@ -829,10 +830,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_PLAYER_OUTPUT_LIST:
             if (json_get_string(request->data, "$.params.partition", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
                 if (sdslen(sds_buf1) == 0) {
-                    response->data = mympd_api_status_output_list(mympd_state, response->data, request->id);
+                    response->data = mympd_api_output_list(mympd_state->mpd_state, response->data, request->id);
                 }
                 else {
-                    response->data = mympd_api_status_partition_output_list(mympd_state, response->data, request->id, sds_buf1);
+                    response->data = mympd_api_partition_output_list(mympd_state->mpd_state, response->data, request->id, sds_buf1);
                 }
             }
             break;
@@ -863,7 +864,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_PLAYER_VOLUME_GET:
-            response->data = mympd_api_status_volume_get(mympd_state, response->data, request->id);
+            response->data = mympd_api_status_volume_get(mympd_state->mpd_state, response->data, request->id);
             break;
         case MYMPD_API_PLAYER_SEEK_CURRENT:
             if (json_get_int_max(request->data, "$.params.seek", &int_buf1, &error) == true &&

@@ -116,7 +116,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                     }
                     break;
                 case MPD_IDLE_MIXER:
-                    buffer = mympd_api_status_volume_get(mympd_state, buffer, REQUEST_ID_NOTIFY);
+                    buffer = mympd_api_status_volume_get(mympd_state->mpd_state, buffer, REQUEST_ID_NOTIFY);
                     break;
                 case MPD_IDLE_OUTPUT:
                     buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OUTPUTS);
@@ -126,7 +126,7 @@ void mpd_client_parse_idle(struct t_mympd_state *mympd_state, unsigned idle_bitm
                     buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OPTIONS);
                     break;
                 case MPD_IDLE_UPDATE:
-                    buffer = mympd_api_status_updatedb_state(mympd_state, buffer);
+                    buffer = mympd_api_status_updatedb_state(mympd_state->mpd_state, buffer);
                     break;
                 default: {
                     //other idle events not used

@@ -72,7 +72,8 @@ bool webserver_api_handler(struct mg_connection *nc, sds body, struct mg_str *au
         }
         if (rc == false) {
             MYMPD_LOG_ERROR("API method %s is protected", cmd);
-            sds response = jsonrpc_respond_message(sdsempty(), cmd, 0, true, "session", "error",
+            sds response = jsonrpc_respond_message(sdsempty(), cmd_id, 0,
+                JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR,
                 (cmd_id == MYMPD_API_SESSION_VALIDATE ? "Invalid session" : "Authentication required"));
             mg_printf(nc, "HTTP/1.1 401 Unauthorized\r\n"
                 "WWW-Authenticate: Bearer realm=\"myMPD\"\r\n"
@@ -235,7 +236,7 @@ void webserver_serverinfo_handler(struct mg_connection *nc) {
     struct sockaddr_storage localip;
     socklen_t len = sizeof(localip);
     if (getsockname((int)(long)nc->fd, (struct sockaddr *)(&localip), &len) == 0) {
-        sds response = jsonrpc_respond_start(sdsempty(), "", 0);
+        sds response = jsonrpc_respond_start(sdsempty(), GENERAL_API_UNKNOWN, 0);
         char addr_str[INET6_ADDRSTRLEN];
         const char *addr_str_ptr = nc->loc.is_ip6 == true ?
             inet_ntop(AF_INET6, &(((struct sockaddr_in6*)&localip)->sin6_addr), addr_str, INET6_ADDRSTRLEN) :
@@ -252,8 +253,8 @@ void webserver_serverinfo_handler(struct mg_connection *nc) {
         FREE_SDS(response);
     }
     else {
-        sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
-            "general", "error", "Could not get local ip");
+        sds response = jsonrpc_respond_message(sdsempty(), GENERAL_API_UNKNOWN, 0,
+            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Could not get local ip");
         webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
         FREE_SDS(response);
     }

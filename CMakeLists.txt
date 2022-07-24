@@ -294,6 +294,7 @@ set(MYMPD_SOURCES
   src/mympd_api/mympd_api_last_played.c
   src/mympd_api/mympd_api_lyrics.c
   src/mympd_api/mympd_api_mounts.c
+  src/mympd_api/mympd_api_outputs.c
   src/mympd_api/mympd_api_partitions.c
   src/mympd_api/mympd_api_pictures.c
   src/mympd_api/mympd_api_playlists.c

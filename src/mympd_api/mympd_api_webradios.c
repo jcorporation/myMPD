@@ -68,8 +68,8 @@ sds mympd_api_webradio_get(sds workdir, sds buffer, long request_id, sds filenam
     sds entry = sdsempty();
     entry = m3u_to_json(entry, filepath, NULL);
     if (sdslen(entry) == 0) {
-        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id, true,
-            "database", "error", "Can not parse webradio favorite file");
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Can not parse webradio favorite file");
     }
     else {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -93,7 +93,8 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds search
         MYMPD_LOG_ERROR("Can not open directory \"%s\"", webradios_dirname);
         MYMPD_LOG_ERRNO(errno);
         FREE_SDS(webradios_dirname);
-        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id, true, "database", "error", "Can not open webradios directory");
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Can not open webradios directory");
         return buffer;
     }
 

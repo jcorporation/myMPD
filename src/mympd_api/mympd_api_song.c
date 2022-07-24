@@ -20,7 +20,7 @@ sds mympd_api_song_fingerprint(struct t_mympd_state *mympd_state, sds buffer, lo
     char fp_buffer[8192];
     const char *fingerprint = mpd_run_getfingerprint_chromaprint(mympd_state->mpd_state->conn, uri, fp_buffer, sizeof(fp_buffer));
     if (fingerprint == NULL) {
-        check_error_and_recover2(mympd_state->mpd_state, &buffer, cmd_id, request_id, false);
+        mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id);
         return buffer;
     }
 
@@ -29,7 +29,7 @@ sds mympd_api_song_fingerprint(struct t_mympd_state *mympd_state, sds buffer, lo
     buffer = jsonrpc_respond_end(buffer);
 
     mpd_response_finish(mympd_state->mpd_state->conn);
-    check_error_and_recover2(mympd_state->mpd_state, &buffer, cmd_id, request_id, false);
+    mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id);
 
     return buffer;
 }
@@ -37,11 +37,11 @@ sds mympd_api_song_fingerprint(struct t_mympd_state *mympd_state, sds buffer, lo
 sds mympd_api_song_details(struct t_mympd_state *mympd_state, sds buffer, long request_id, const char *uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_DETAILS;
     bool rc = mpd_send_list_meta(mympd_state->mpd_state->conn, uri);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, cmd_id, request_id, false, rc, "mpd_send_list_meta") == false) {
+    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_meta") == false) {
         return buffer;
     }
 
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
 
     struct mpd_song *song;
     if ((song = mpd_recv_song(mympd_state->mpd_state->conn)) != NULL) {
@@ -53,7 +53,7 @@ sds mympd_api_song_details(struct t_mympd_state *mympd_state, sds buffer, long r
     }
 
     mpd_response_finish(mympd_state->mpd_state->conn);
-    if (check_error_and_recover2(mympd_state->mpd_state, &buffer, cmd_id, request_id, false) == false) {
+    if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
         return buffer;
     }
 
@@ -68,10 +68,10 @@ sds mympd_api_song_details(struct t_mympd_state *mympd_state, sds buffer, long r
     return buffer;
 }
 
-sds mympd_api_comments(struct t_mympd_state *mympd_state, sds buffer, long request_id, const char *uri) {
+sds mympd_api_song_comments(struct t_mympd_state *mympd_state, sds buffer, long request_id, const char *uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_COMMENTS;
     bool rc = mpd_send_read_comments(mympd_state->mpd_state->conn, uri);
-    if (check_rc_error_and_recover(mympd_state->mpd_state, &buffer, cmd_id, request_id, false, rc, "mpd_send_list_meta") == false) {
+    if (mympd_check_rc_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_meta") == false) {
         return buffer;
     }
 
@@ -87,7 +87,7 @@ sds mympd_api_comments(struct t_mympd_state *mympd_state, sds buffer, long reque
         mpd_return_pair(mympd_state->mpd_state->conn, pair);
     }
     mpd_response_finish(mympd_state->mpd_state->conn);
-    if (check_error_and_recover2(mympd_state->mpd_state, &buffer, cmd_id, request_id, false) == false) {
+    if (mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id) == false) {
         return buffer;
     }
     buffer = sdscatlen(buffer, "},", 2);

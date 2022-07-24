@@ -289,8 +289,9 @@ time_t mympd_api_timer_calc_starttime(int start_hour, int start_minute, int inte
     return start - now;
 }
 
-sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, sds method, long request_id) {
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, long request_id) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_TIMER_LIST;
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     int entities_returned = 0;
     struct t_timer_node *current = timer_list->list;
@@ -314,8 +315,9 @@ sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, sds method
     return buffer;
 }
 
-sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, sds method, long request_id, int timer_id) {
-    buffer = jsonrpc_respond_start(buffer, method, request_id);
+sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, long request_id, int timer_id) {
+    enum mympd_cmd_ids cmd_id = MYMPD_API_TIMER_GET;
+    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     bool found = false;
     struct t_timer_node *current = timer_list->list;
     while (current != NULL) {
@@ -332,8 +334,8 @@ sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, sds method,
     buffer = jsonrpc_respond_end(buffer);
 
     if (found == false) {
-        buffer = jsonrpc_respond_message(buffer, method, request_id, true,
-            "timer", "error", "Timer with given id not found");
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_TIMER, JSONRPC_SEVERITY_ERROR, "Timer with given id not found");
     }
     return buffer;
 }

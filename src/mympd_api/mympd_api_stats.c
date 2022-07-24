@@ -16,7 +16,7 @@ sds mympd_api_stats_get(struct t_mympd_state *mympd_state, sds buffer, long requ
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_STATS;
     struct mpd_stats *stats = mpd_run_stats(mympd_state->mpd_state->conn);
     if (stats == NULL) {
-        buffer = check_error_and_recover(mympd_state->mpd_state, buffer, cmd_id, request_id);
+        mympd_check_error_and_recover_respond(mympd_state->mpd_state, &buffer, cmd_id, request_id);
         return buffer;
     }
 

@@ -74,8 +74,8 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
     }
 
     if (sdslen(error) > 0) {
-        sds response = jsonrpc_respond_message(sdsempty(), cmd, id, true,
-            "general", "error", error);
+        sds response = jsonrpc_respond_message(sdsempty(), cmd_id, id,
+            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
         MYMPD_LOG_ERROR("Error processing method \"%s\"", cmd);
         webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
         FREE_SDS(response);
@@ -83,8 +83,8 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
     else {
         bool rc = radiobrowser_send(nc, backend_nc, cmd_id, uri);
         if (rc == false) {
-            sds response = jsonrpc_respond_message(sdsempty(), cmd, id, true,
-                "general", "error", "Error connection to radio-browser.info");
+            sds response = jsonrpc_respond_message(sdsempty(), cmd_id, id,
+                JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error connection to radio-browser.info");
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
         }
@@ -128,17 +128,16 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             MYMPD_LOG_DEBUG("Got response from connection \"%lu\": %lu bytes", nc->id, (unsigned long)hm->body.len);
-            const char *cmd = get_cmd_id_method_name(backend_nc_data->cmd_id);
             sds response = sdsempty();
             if (hm->body.len > 0) {
-                response = jsonrpc_respond_start(response, cmd, 0);
+                response = jsonrpc_respond_start(response, backend_nc_data->cmd_id, 0);
                 response = sdscat(response, "\"data\":");
                 response = sdscatlen(response, hm->body.ptr, hm->body.len);
                 response = jsonrpc_respond_end(response);
             }
             else {
-                response = jsonrpc_respond_message(response, cmd, 0, true,
-                    "database", "error", "Empty response from radio-browser.info");
+                response = jsonrpc_respond_message(response, backend_nc_data->cmd_id, 0,
+                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Empty response from radio-browser.info");
             }
             if (backend_nc_data->frontend_nc != NULL) {
                 webserver_send_data(backend_nc_data->frontend_nc, response, sdslen(response), "Content-Type: application/json\r\n");

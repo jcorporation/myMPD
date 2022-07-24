@@ -405,8 +405,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 FREE_SDS(body);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid API request");
-                    sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
-                        "general", "error", "Invalid API request");
+                    sds response = jsonrpc_respond_message(sdsempty(), GENERAL_API_UNKNOWN, 0,
+                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Invalid API request");
                     webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
                     FREE_SDS(response);
                 }
@@ -455,8 +455,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 FREE_SDS(body);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid script API request");
-                    sds response = jsonrpc_respond_message(sdsempty(), "", 0, true,
-                        "script", "error", "Invalid script API request");
+                    sds response = jsonrpc_respond_message(sdsempty(), GENERAL_API_UNKNOWN, 0,
+                        JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Invalid script API request");
                     webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
                     FREE_SDS(response);
                 }
