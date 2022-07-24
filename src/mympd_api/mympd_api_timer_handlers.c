@@ -167,7 +167,7 @@ bool mympd_api_timer_startplay(struct t_mympd_state *mympd_state,
         mympd_state->jukebox_mode = old_jukebox_mode;
     }
 
-    return mympd_check_error_and_recover(mympd_state->mpd_state);
+    return mympd_check_rc_error_and_recover(mympd_state->mpd_state, rc, "command_list");
 }
 
 //private functions

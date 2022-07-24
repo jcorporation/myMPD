@@ -525,7 +525,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             rc = mpd_run_mixrampdelay(mympd_state->mpd_state->conn, delay);
         }
         sds message = sdsempty();
-        rc = mympd_check_error_and_recover_notify(mympd_state->mpd_state, &message);
+        rc = mympd_check_rc_error_and_recover_notify(mympd_state->mpd_state, &message, rc, key);
         if (rc == false) {
             ws_notify(message);
         }
