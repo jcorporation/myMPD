@@ -28,7 +28,8 @@
  *   prio: number of songs
  */
 
-/** Contructs the albumkey from song info
+/**
+ * Contructs the albumkey from song info
  * @param song mpd song struct
  * @param albumkey sds string replaced by the key
  * @param tag_albumartist AlbumArtist tag
@@ -52,7 +53,8 @@ sds album_cache_get_key(struct mpd_song *song, sds albumkey, enum mpd_tag_type t
     return albumkey;
 }
 
-/** Gets the album from the album cache
+/**
+ * Gets the album from the album cache
  * @param key the album
  * @return mpd_song struct representing the album
  */
@@ -90,7 +92,8 @@ void album_cache_free(struct t_cache *album_cache) {
     album_cache->cache = NULL;
 }
 
-/** Gets the number of songs
+/**
+ * Gets the number of songs
  * @param album mpd_song struct representing the album
  * @return number of songs
  */
@@ -98,7 +101,8 @@ unsigned album_get_song_count(struct mpd_song *album) {
     return mpd_song_get_prio(album);
 }
 
-/** Gets the number of discs
+/**
+ * Gets the number of discs
  * @param album mpd_song struct representing the album
  * @return number of discs
  */
@@ -106,7 +110,8 @@ unsigned album_get_discs(struct mpd_song *album) {
     return mpd_song_get_pos(album);
 }
 
-/** Gets the total play time
+/**
+ * Gets the total play time
  * @param album mpd_song struct representing the album
  * @return total play time
  */
@@ -114,7 +119,8 @@ unsigned album_get_total_time(struct mpd_song *album) {
     return mpd_song_get_duration(album);
 }
 
-/** Sets the albums disc number
+/**
+ * Sets the albums disc number
  * @param key the album
  * @return mpd_song struct representing the album
  */
