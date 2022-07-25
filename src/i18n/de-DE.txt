@@ -687,12 +687,6 @@ Datenbank erfolgreich aktualisiert
 Database update finished
 Datenbankaktualisierung beendet
 
-Added songs to %{playlist}
-Lieder zur Wiedergabeliste %{playlist} hinzugefügt
-
-Added songs to queue
-Lieder zur Warteschlange hinzugefügt
-
 Add random
 Zufällig hinzufügen
 
@@ -960,9 +954,6 @@ Deaktiviert
 Shuffle
 Mischen
 
-Playlist is too small to shuffle
-Wiedergabeliste ist zu klein um sie zu mischen
-
 Shuffling playlist failed
 Fehler beim Mischen der Wiedergabeliste
 
@@ -1007,9 +998,6 @@ Ungültiger Prefix
 
 Invalid number
 Ungültige Zahl
-
-Leaving playlist as it is
-Wiedergabeliste wird nicht verändert
 
 Delete all playlists
 Alle Wiedergabelisten löschen
@@ -1097,9 +1085,6 @@ Aktualisierung der intelligenten Wiedergabelisten erzwingen
 
 Force update
 Erzwinge Aktualisierung
-
-No search tag defined and advanced search is disabled
-Kein Such-Tag definiert und erweiterte Suche ist deaktiviert
 
 Smart playlists are disabled
 Intelligente Wiedergabelisten sind deaktiviert
@@ -1653,9 +1638,6 @@ Timeout
 Actions
 Aktionen
 
-Covercache expiration
-Covercache Ablaufzeit
-
 Enable
 Aktivieren
 
@@ -1779,10 +1761,10 @@ Session wurde erfolgreich erstellt
 Invalid script content
 Ungültige Zeichen im Skript
 
-Error in clearing the covercache
+Error clearing the covercache
 Fehler beim Bereinigen des Covercaches
 
-Error in cropping covercache
+Error cropping the covercache
 Fehler beim Abschneides des Covercaches
 
 Saved smart playlist
@@ -1913,9 +1895,6 @@ Loglevel
 
 Open maintenance
 Öffne Wartung
-
-Covercache
-Covercache
 
 0 - Emerg
 0 - Notfall
@@ -2318,3 +2297,12 @@ Externer Link
 
 Cache update is already running
 Cache update läuft bereits
+
+Error executing timer start play
+Fehler beim Ausführen des Wiedergabe starten Timers
+
+Updateing the playlist %{playlist} failed
+Update der Wiedergabelist %{playlist} fehlgeschlagen
+
+Updateing the queue failed
+Update der Warteschlange fehlgeschlagen

@@ -687,12 +687,6 @@ Database successfully updated
 Database update finished
 数据库更新完成
 
-Added songs to %{playlist}
-添加曲目到 %{playlist}
-
-Added songs to queue
-添加曲目到播放队列
-
 Add random
 随机添加
 
@@ -960,9 +954,6 @@ Disabled
 Shuffle
 乱序
 
-Playlist is too small to shuffle
-播放列表太小无法乱序
-
 Shuffling playlist failed
 播放列表乱序失败
 
@@ -1007,9 +998,6 @@ Invalid prefix
 
 Invalid number
 无效数字
-
-Leaving playlist as it is
-保持播放列表不变
 
 Delete all playlists
 删除所有播放列表
@@ -1097,9 +1085,6 @@ Force smart playlist update
 
 Force update
 强制更新
-
-No search tag defined and advanced search is disabled
-没有定义搜索标签而且高级搜索已禁用
 
 Smart playlists are disabled
 智能播放列表已禁用
@@ -1650,9 +1635,6 @@ Timeout
 Actions
 超时
 
-Covercache expiration
-封面缓存过期
-
 Enable
 启用
 
@@ -1779,10 +1761,10 @@ Enter pin
 Invalid script content
 脚本内容无效
 
-Error in clearing the covercache
+Error clearing the covercache
 清除封面缓存错误
 
-Error in cropping covercache
+Error cropping the covercache
 裁剪封面缓存错误
 
 Saved smart playlist
@@ -1913,9 +1895,6 @@ Loglevel
 
 Open maintenance
 打开维护
-
-Covercache
-封面缓存
 
 0 - Emerg
 0 - Emerg

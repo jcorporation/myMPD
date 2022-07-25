@@ -681,12 +681,6 @@ Database successfully updated
 Database update finished
 데이터베이스 업데이트 마침
 
-Added songs to %{playlist}
-%{playlist}에 곡 추가함
-
-Added songs to queue
-순서에 곡 추가함
-
 Add random
 무작위 추가
 
@@ -951,9 +945,6 @@ Disabled
 Shuffle
 뒤섞기
 
-Playlist is too small to shuffle
-연주목록이 너무 작아 뒤섞을 수 없음
-
 Shuffle playlist
 연주목록 뒤섞기
 
@@ -992,9 +983,6 @@ Invalid prefix
 
 Invalid number
 잘못된 숫자
-
-Leaving playlist as it is
-연주목록을 그대로 둠
 
 Delete all playlists
 모든 연주목록 지우기
@@ -1082,9 +1070,6 @@ Force smart playlist update
 
 Force update
 강제 업데이트
-
-No search tag defined and advanced search is disabled
-검색 태그가 없고 고급 검색을 사용 안 함
 
 Smart playlists are disabled
 스마트 연주목록 사용 안 함
@@ -1635,9 +1620,6 @@ Timeout
 Actions
 동작
 
-Covercache expiration
-음반 표지 캐시 만료
-
 Enable
 사용함
 
@@ -1761,10 +1743,10 @@ Session successfully created
 Invalid script content
 잘못된 스크립트 내용
 
-Error in clearing the covercache
+Error clearing the covercache
 음반 표지 지우기 오류
 
-Error in cropping covercache
+Error cropping the covercache
 음반 표지 잘라내기 오류
 
 Saved smart playlist
@@ -1895,9 +1877,6 @@ Loglevel
 
 Open maintenance
 유지보수 열기
-
-Covercache
-음반표지 캐시
 
 0 - Emerg
 0 - 비상

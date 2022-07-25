@@ -381,7 +381,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             else {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error in cropping covercache");
+                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error cropping the covercache");
             }
             break;
         case MYMPD_API_COVERCACHE_CLEAR:
@@ -392,7 +392,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             else {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error in clearing the covercache");
+                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error clearing the covercache");
             }
             break;
         case MYMPD_API_TIMER_SAVE: {

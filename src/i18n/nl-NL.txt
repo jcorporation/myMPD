@@ -687,12 +687,6 @@ Database geüpdatet
 Database update finished
 Update database klaar
 
-Added songs to %{playlist}
-Nummers aan %{playlist} toegevoegd
-
-Added songs to queue
-Nummer aan wachtrij toegevoegd
-
 Add random
 Voeg willekeurige toe
 
@@ -960,9 +954,6 @@ Uitgeschakeld
 Shuffle
 Shuffle
 
-Playlist is too small to shuffle
-Afspeellijst te klein om te shufflen
-
 Shuffle playlist
 Shuffle afspeellijst
 
@@ -1001,9 +992,6 @@ Ongeldig voorvoegsel
 
 Invalid number
 Ongeldig getal
-
-Leaving playlist as it is
-Afspeellijst niet gewijzigd
 
 Delete all playlists
 Delete alle afspeellijsten
@@ -1091,9 +1079,6 @@ Forceer update smart playlist
 
 Force update
 Forceer update
-
-No search tag defined and advanced search is disabled
-Geen zoektag gedefinieerd en geavanceerd zoeken is uitgeschakeld
 
 Smart playlists are disabled
 Slimme afspeellijsten uitgeschakeld
@@ -1644,9 +1629,6 @@ Timeout
 Actions
 Acties
 
-Covercache expiration
-Covercache vervaltijd
-
 Enable
 Inschakelen
 
@@ -1770,10 +1752,10 @@ Sessie aangemaakt
 Invalid script content
 Ongeldig teken in script
 
-Error in clearing the covercache
+Error clearing the covercache
 Fout bij opschonen covercache
 
-Error in cropping covercache
+Error cropping the covercache
 Fout bij inkorten covercache
 
 Saved smart playlist
@@ -1904,9 +1886,6 @@ Loglevel
 
 Open maintenance
 Onderhoud openen
-
-Covercache
-Covercache
 
 0 - Emerg
 0 - Noodgeval
