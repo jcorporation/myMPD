@@ -62,9 +62,11 @@ bool mpd_client_search_add_to_plist(struct t_partition_state *partition_state, c
         const char *plist, unsigned to)
 {
     bool result = false;
-    _mpd_client_search(partition_state, NULL, MYMPD_API_DATABASE_SEARCH, 0,
+    sds buffer = sdsempty();
+    buffer = _mpd_client_search(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, 0,
             expression, NULL, false, plist, to, MPD_POSITION_ABSOLUTE, 0, 0,
             NULL, NULL, &result);
+    FREE_SDS(buffer);
     return result;
 }
 
@@ -83,9 +85,11 @@ bool mpd_client_search_add_to_queue(struct t_partition_state *partition_state, c
         unsigned to, enum mpd_position_whence whence)
 {
     bool result = false;
-    _mpd_client_search(partition_state, NULL, MYMPD_API_DATABASE_SEARCH, 0,
+    sds buffer = sdsempty();
+    buffer = _mpd_client_search(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, 0,
             expression, NULL, false, "queue", to, whence, 0, 0,
             NULL, NULL, &result);
+    FREE_SDS(buffer);
     return result;
 }
 
@@ -130,8 +134,6 @@ static sds _mpd_client_search(struct t_partition_state *partition_state, sds buf
             mpd_search_cancel(partition_state->conn);
             return buffer;
         }
-        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-        buffer = sdscat(buffer, "\"data\":[");
     }
     else if (strcmp(plist, "queue") == 0) {
         //add search to queue
@@ -159,6 +161,7 @@ static sds _mpd_client_search(struct t_partition_state *partition_state, sds buf
     if (plist == NULL ||
         mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 0) >= 0)
     {
+        //sorting is supported
         if (sort != NULL &&
             strcmp(sort, "") != 0 &&
             strcmp(sort, "-") != 0 &&
@@ -209,7 +212,9 @@ static sds _mpd_client_search(struct t_partition_state *partition_state, sds buf
         return buffer;
     }
 
-    if (buffer != NULL) {
+    if (plist == NULL) {
+        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+        buffer = sdscat(buffer, "\"data\":[");
         struct mpd_song *song;
         unsigned entities_returned = 0;
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
