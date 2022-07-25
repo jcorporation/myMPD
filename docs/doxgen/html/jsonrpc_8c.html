@@ -27,7 +27,7 @@
   <td id="projectalign" style="padding-left: 0.5em;">
    <div id="projectname">myMPD
    </div>
-   <div id="projectbrief">internal API documentation</div>
+   <div id="projectbrief">Internal API documentation</div>
   </td>
  </tr>
  </tbody>
@@ -230,6 +230,13 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Returns the name of a mjson token type </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">vtype</td><td>token type </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>token type as string </dd></dl>
 
 </div>
 </div>
@@ -258,6 +265,13 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Searches for a key in json object </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to search </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -310,6 +324,18 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Converts a json array to a <a class="el" href="structt__list.html">t_list</a> struct Shortcut for json_iterate_object with icb_json_get_array_string </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">l</td><td><a class="el" href="structt__list.html">t_list</a> struct to populate </td></tr>
+    <tr><td class="paramname">vcb</td><td>validation callback </td></tr>
+    <tr><td class="paramname">max_elements</td><td>maximum of elements </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -350,6 +376,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Gets a bool value by json path </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">result</td><td>pointer to bool with the result </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -384,6 +420,15 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Json parsing functions All this functions are validating the result. Helper function to get myMPD columns out of a jsonrpc request and return a validated json array </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>sds string to parse </td></tr>
+    <tr><td class="paramname">cols</td><td>sds string to append the </td></tr>
+    <tr><td class="paramname">rc</td><td>pointer to bool with the result code </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to cols </dd></dl>
 
 </div>
 </div>
@@ -436,6 +481,18 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Gets a int value by json path </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">min</td><td>minimum value (including) </td></tr>
+    <tr><td class="paramname">max</td><td>maximum value (including) </td></tr>
+    <tr><td class="paramname">result</td><td>pointer to int with the result </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -476,6 +533,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Gets a int value by json path </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">result</td><td>pointer to int with the result </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -528,6 +595,18 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Gets a long value by json path </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">min</td><td>minimum value (including) </td></tr>
+    <tr><td class="paramname">max</td><td>maximum value (including) </td></tr>
+    <tr><td class="paramname">result</td><td>pointer to long with the result </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -568,6 +647,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Gets a long value by json path </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">result</td><td>pointer to long with the result </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -620,6 +709,18 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Converts a json object key/values to a <a class="el" href="structt__list.html">t_list</a> struct Shortcut for json_iterate_object with icb_json_get_object_string </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">l</td><td><a class="el" href="structt__list.html">t_list</a> struct to populate </td></tr>
+    <tr><td class="paramname">vcb</td><td>validation callback </td></tr>
+    <tr><td class="paramname">max_elements</td><td>maximum of elements </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -678,6 +779,19 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Gets a string value by json path </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">result</td><td>pointer to int with the result </td></tr>
+    <tr><td class="paramname">min</td><td>minimum length (inclusive) </td></tr>
+    <tr><td class="paramname">max</td><td>maximum length (inclusive) </td></tr>
+    <tr><td class="paramname">vcb</td><td>validation callback </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -736,6 +850,19 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Gets a string value by json path </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">result</td><td>pointer to sds with the result </td></tr>
+    <tr><td class="paramname">min</td><td>minimum length (inclusive) </td></tr>
+    <tr><td class="paramname">max</td><td>maximum length (inclusive) </td></tr>
+    <tr><td class="paramname">cmp</td><td>compare result against this string </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -782,6 +909,17 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Gets a string value by json path </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">result</td><td>pointer to sds with the result </td></tr>
+    <tr><td class="paramname">vcb</td><td>validation callback </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -828,6 +966,17 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Converts a json object key/values to a <a class="el" href="structt__list.html">t_list</a> struct Shortcut for json_iterate_object with _icb_json_get_tag </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">tags</td><td><a class="el" href="structt__tags.html">t_tags</a> struct to populate </td></tr>
+    <tr><td class="paramname">max_elements</td><td>maximum of elements </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -880,6 +1029,18 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Gets a unsigned int value by json path </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">min</td><td>minimum value (including) </td></tr>
+    <tr><td class="paramname">max</td><td>maximum value (including) </td></tr>
+    <tr><td class="paramname">result</td><td>pointer to unsigned int with the result </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -920,6 +1081,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Gets a unsigned int value by json path </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">result</td><td>pointer to unsigned int with the result </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -978,6 +1149,19 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Iterates through all objects found by path </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>json object to parse </td></tr>
+    <tr><td class="paramname">path</td><td>mjson path expression </td></tr>
+    <tr><td class="paramname">icb</td><td>iteration callback </td></tr>
+    <tr><td class="paramname">icb_userdata</td><td>custom data for iteration callback </td></tr>
+    <tr><td class="paramname">vcb</td><td>validation callback </td></tr>
+    <tr><td class="paramname">max_elements</td><td>maximum of elements </td></tr>
+    <tr><td class="paramname">error</td><td>pointer for error string </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>true on success else false </dd></dl>
 
 </div>
 </div>
@@ -1452,6 +1636,14 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Prints the keys of a list as a json array Leading and ending square brackets are added </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">s</td><td>sds string to append </td></tr>
+    <tr><td class="paramname">l</td><td>pointer to list to add keys from </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to s </dd></dl>
 
 </div>
 </div>
@@ -1510,7 +1702,7 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
-<p>Creates and sends a jsonrpc notify to all connected websockets </p><dl class="params"><dt>Parameters</dt><dd>
+<p>public functions Jsonrpc printing Creates and sends a jsonrpc notify to all connected websockets </p><dl class="params"><dt>Parameters</dt><dd>
   <table class="params">
     <tr><td class="paramname">facility</td><td>one of enum jsonrpc_facilities </td></tr>
     <tr><td class="paramname">severity</td><td>one of enum jsonrpc_severities </td></tr>
@@ -1558,6 +1750,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Prints a json key/value pair for bool value value can be without null-termination and is encoded as json </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>sds string to append </td></tr>
+    <tr><td class="paramname">key</td><td>json key </td></tr>
+    <tr><td class="paramname">value</td><td>bool value </td></tr>
+    <tr><td class="paramname">comma</td><td>true to append a comma </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>
@@ -1598,6 +1800,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Prints a json key/value pair for 0-terminated char values value is encoded as json </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>sds string to append </td></tr>
+    <tr><td class="paramname">key</td><td>json key </td></tr>
+    <tr><td class="paramname">value</td><td>to encode as json </td></tr>
+    <tr><td class="paramname">comma</td><td>true to append a comma </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>
@@ -1644,6 +1856,17 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Prints a json key/value pair for not 0-terminated values value is encoded as json </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>sds string to append </td></tr>
+    <tr><td class="paramname">key</td><td>json key </td></tr>
+    <tr><td class="paramname">value</td><td>as sds string to encode as json </td></tr>
+    <tr><td class="paramname">len</td><td>length of value </td></tr>
+    <tr><td class="paramname">comma</td><td>true to append a comma </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>
@@ -1684,6 +1907,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Prints a json key/value pair for unsigned long long value value can be without null-termination and is encoded as json </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>sds string to append </td></tr>
+    <tr><td class="paramname">key</td><td>json key </td></tr>
+    <tr><td class="paramname">value</td><td>unsigned long long value </td></tr>
+    <tr><td class="paramname">comma</td><td>true to append a comma </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>
@@ -1724,6 +1957,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Prints a json key/value pair for int value value can be without null-termination and is encoded as json </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>sds string to append </td></tr>
+    <tr><td class="paramname">key</td><td>json key </td></tr>
+    <tr><td class="paramname">value</td><td>integer value </td></tr>
+    <tr><td class="paramname">comma</td><td>true to append a comma </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>
@@ -1764,6 +2007,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Prints a json key/value pair for long long value value can be without null-termination and is encoded as json </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>sds string to append </td></tr>
+    <tr><td class="paramname">key</td><td>json key </td></tr>
+    <tr><td class="paramname">value</td><td>long long value </td></tr>
+    <tr><td class="paramname">comma</td><td>true to append a comma </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>
@@ -1804,6 +2057,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Prints a json key/value pair for long value value can be without null-termination and is encoded as json </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>sds string to append </td></tr>
+    <tr><td class="paramname">key</td><td>json key </td></tr>
+    <tr><td class="paramname">value</td><td>long value </td></tr>
+    <tr><td class="paramname">comma</td><td>true to append a comma </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>
@@ -1844,6 +2107,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Json emmiting Prints a json key/value pair for already encoded values value is printed raw without any encoding done </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>sds string to append </td></tr>
+    <tr><td class="paramname">key</td><td>json key </td></tr>
+    <tr><td class="paramname">value</td><td>raw data </td></tr>
+    <tr><td class="paramname">comma</td><td>true to append a comma </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>
@@ -1884,6 +2157,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Prints a json key/value pair for sds values value is encoded as json </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>sds string to append </td></tr>
+    <tr><td class="paramname">key</td><td>json key </td></tr>
+    <tr><td class="paramname">value</td><td>as sds string to encode as json </td></tr>
+    <tr><td class="paramname">comma</td><td>true to append a comma </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>
@@ -1924,6 +2207,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Prints a json key/value pair for unsigned value can be without null-termination and is encoded as json </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>sds string to append </td></tr>
+    <tr><td class="paramname">key</td><td>json key </td></tr>
+    <tr><td class="paramname">value</td><td>unsigned integer value </td></tr>
+    <tr><td class="paramname">comma</td><td>true to append a comma </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>
@@ -1964,6 +2257,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Prints a json key/value pair for unsigned long long value value can be without null-termination and is encoded as json </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>sds string to append </td></tr>
+    <tr><td class="paramname">key</td><td>json key </td></tr>
+    <tr><td class="paramname">value</td><td>unsigned long long value </td></tr>
+    <tr><td class="paramname">comma</td><td>true to append a comma </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>
@@ -2004,6 +2307,16 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Prints a json key/value pair for unsigned long value value can be without null-termination and is encoded as json </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>sds string to append </td></tr>
+    <tr><td class="paramname">key</td><td>json key </td></tr>
+    <tr><td class="paramname">value</td><td>unsigned long value </td></tr>
+    <tr><td class="paramname">comma</td><td>true to append a comma </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>
