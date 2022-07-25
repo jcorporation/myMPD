@@ -109,6 +109,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (worker_threads > 5) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Too many worker threads are already running");
+                MYMPD_LOG_ERROR("Too many worker threads are already running");
                 break;
             }
             if (request->cmd_id == INTERNAL_API_CACHES_CREATE) {
@@ -117,10 +118,11 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Cache update is already running");
+                    MYMPD_LOG_WARN("Cache update is already running");
                     break;
                 }
-                mympd_state->mpd_shared_state->album_cache.building = true;
-                mympd_state->mpd_shared_state->sticker_cache.building = true;
+                mympd_state->mpd_shared_state->album_cache.building = mympd_state->mpd_shared_state->feat_mpd_tags;
+                mympd_state->mpd_shared_state->sticker_cache.building = mympd_state->mpd_shared_state->feat_mpd_stickers;
             }
             async = true;
             free_response(response);
