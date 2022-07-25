@@ -1255,6 +1255,14 @@ luascript_index() {
   exec 3>&-
 }
 
+run_doxygen() {
+  if ! check_cmd doxygen
+  then
+    return 1
+  fi
+  doxygen | grep "warning"
+}
+
 case "$ACTION" in
 	release)
 	  buildrelease
@@ -1396,6 +1404,9 @@ case "$ACTION" in
   luascript_index)
     luascript_index
   ;;
+  doxygen)
+    run_doxygen
+  ;;
 	*)
     echo "Usage: $0 <option>"
     echo "Version: ${VERSION}"
@@ -1486,6 +1497,7 @@ case "$ACTION" in
     echo "Misc options:"
     echo "  addmympduser:     adds mympd group and user"
     echo "  luascript_index:  creates the json index of lua scripts"
+    echo "  doxygen:          generates the internal api documentation with doxygen"
     echo ""
     echo "Source update options:"
     echo "  bootstrap:        updates bootstrap"
