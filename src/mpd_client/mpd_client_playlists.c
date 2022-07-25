@@ -244,7 +244,6 @@ static bool _mpd_client_playlist_sort(struct t_partition_state *partition_state,
                 i++;
                 j++;
                 rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, iter.data);
-                FREE_SDS(iter.data);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
                     break;
