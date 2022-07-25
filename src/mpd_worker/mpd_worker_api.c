@@ -95,7 +95,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
 
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", request->cmd_id);
+            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", request->method);
         MYMPD_LOG_ERROR("No response for method \"%s\"", request->method);
     }
     if (request->conn_id == -2) {
