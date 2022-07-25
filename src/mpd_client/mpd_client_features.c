@@ -36,20 +36,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     );
 
     //first disable all features
-    mympd_state->mpd_shared_state->feat_mpd_stickers = false;
-    mympd_state->mpd_shared_state->feat_mpd_playlists = false;
-    mympd_state->mpd_shared_state->feat_mpd_tags = false;
-    mympd_state->mpd_shared_state->feat_mpd_fingerprint = false;
-    mympd_state->mpd_shared_state->feat_mpd_albumart = false;
-    mympd_state->mpd_shared_state->feat_mpd_readpicture = false;
-    mympd_state->mpd_shared_state->feat_mpd_mount = false;
-    mympd_state->mpd_shared_state->feat_mpd_neighbor = false;
-    mympd_state->mpd_shared_state->feat_mpd_partitions = false;
-    mympd_state->mpd_shared_state->feat_mpd_binarylimit = false;
-    mympd_state->mpd_shared_state->feat_mpd_smartpls = false;
-    mympd_state->mpd_shared_state->feat_mpd_playlist_rm_range = false;
-    mympd_state->mpd_shared_state->feat_mpd_whence = false;
-    mympd_state->mpd_shared_state->feat_mpd_advqueue = false;
+    mpd_shared_state_features_disable(mympd_state->mpd_shared_state);
 
     //get features
     mpd_client_feature_commands(mympd_state);

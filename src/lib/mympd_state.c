@@ -169,6 +169,29 @@ void mpd_shared_state_default(struct t_mpd_shared_state *mpd_shared_state) {
     list_init(&mpd_shared_state->sticker_queue);
 
     mpd_shared_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
+    //features
+    mpd_shared_state_features_disable(mpd_shared_state);
+}
+
+/**
+ * Sets all feat states to disabled
+ * @param mpd_shared_state pointer to mpd_shared_state
+ */
+void mpd_shared_state_features_disable(struct t_mpd_shared_state *mpd_shared_state) {
+    mpd_shared_state->feat_mpd_stickers = false;
+    mpd_shared_state->feat_mpd_playlists = false;
+    mpd_shared_state->feat_mpd_tags = false;
+    mpd_shared_state->feat_mpd_fingerprint = false;
+    mpd_shared_state->feat_mpd_albumart = false;
+    mpd_shared_state->feat_mpd_readpicture = false;
+    mpd_shared_state->feat_mpd_mount = false;
+    mpd_shared_state->feat_mpd_neighbor = false;
+    mpd_shared_state->feat_mpd_partitions = false;
+    mpd_shared_state->feat_mpd_binarylimit = false;
+    mpd_shared_state->feat_mpd_smartpls = false;
+    mpd_shared_state->feat_mpd_playlist_rm_range = false;
+    mpd_shared_state->feat_mpd_whence = false;
+    mpd_shared_state->feat_mpd_advqueue = false;
 }
 
 /**

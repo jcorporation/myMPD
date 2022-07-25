@@ -296,6 +296,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state);
 void mympd_state_free(struct t_mympd_state *mympd_state);
 
 void mpd_shared_state_default(struct t_mpd_shared_state *mpd_shared_state);
+void mpd_shared_state_features_disable(struct t_mpd_shared_state *mpd_shared_state);
 void mpd_shared_state_free(struct t_mpd_shared_state *mpd_shared_state);
 
 void partition_state_default(struct t_partition_state *partition_state, const char *name);
