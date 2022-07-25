@@ -11,6 +11,9 @@
 
 #include "list.h"
 
+/**
+ * Lua variable types
+ */
 enum lua_mympd_state_type {
     LUA_TYPE_STRING,
     LUA_TYPE_INTEGER,
@@ -18,6 +21,9 @@ enum lua_mympd_state_type {
     LUA_TYPE_BOOLEAN
 };
 
+/**
+ * Holds a lua variable
+ */
 struct t_lua_mympd_state_value {
     sds p;
     long long i;

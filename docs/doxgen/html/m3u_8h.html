@@ -151,6 +151,15 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Public functions Appends the extm3u field value to buffer </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>already allocated sds string to append </td></tr>
+    <tr><td class="paramname">field</td><td>extm3u field to read </td></tr>
+    <tr><td class="paramname">filename</td><td>m3u file to open </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>
@@ -185,6 +194,15 @@ Functions</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Converts the m3u to json and appends it to buffer </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">buffer</td><td>already allocated sds string to append </td></tr>
+    <tr><td class="paramname">filename</td><td>m3u file to open </td></tr>
+    <tr><td class="paramname">m3ufields</td><td>appends all fields values (lower case) to this sds string if not NULL </td></tr>
+  </table>
+  </dd>
+</dl>
+<dl class="section return"><dt>Returns</dt><dd>pointer to buffer </dd></dl>
 
 </div>
 </div>

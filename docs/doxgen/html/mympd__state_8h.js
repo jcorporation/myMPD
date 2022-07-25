@@ -18,14 +18,12 @@ var mympd__state_8h =
       [ "JUKEBOX_UNKNOWN", "mympd__state_8h.html#a66c53b7e5a18a83b8bee873e4a866daba578d2b2424648e0d97f101e944774c90", null ]
     ] ],
     [ "mpd_conn_states", "mympd__state_8h.html#abce5b29b7e5d8225bd95c0b108aa9bf1", [
+      [ "MPD_CONNECTED", "mympd__state_8h.html#abce5b29b7e5d8225bd95c0b108aa9bf1a593ada03d26f30d1642918b195270447", null ],
       [ "MPD_DISCONNECTED", "mympd__state_8h.html#abce5b29b7e5d8225bd95c0b108aa9bf1ab5f75edceaf624e81face7187b990a75", null ],
       [ "MPD_FAILURE", "mympd__state_8h.html#abce5b29b7e5d8225bd95c0b108aa9bf1a64a09a61ddac01c4e8fdf569e1fb3d20", null ],
-      [ "MPD_CONNECTED", "mympd__state_8h.html#abce5b29b7e5d8225bd95c0b108aa9bf1a593ada03d26f30d1642918b195270447", null ],
-      [ "MPD_RECONNECT", "mympd__state_8h.html#abce5b29b7e5d8225bd95c0b108aa9bf1a4fe5ebfeee8e1b3f007d2c7f595d4959", null ],
-      [ "MPD_DISCONNECT_INSTANT", "mympd__state_8h.html#abce5b29b7e5d8225bd95c0b108aa9bf1aa7af2be46860003602b080cd5a5595f5", null ],
       [ "MPD_DISCONNECT", "mympd__state_8h.html#abce5b29b7e5d8225bd95c0b108aa9bf1adc5c27cbf35c06f2b276748851c9a0b6", null ],
-      [ "MPD_WAIT", "mympd__state_8h.html#abce5b29b7e5d8225bd95c0b108aa9bf1aa7c8d4e9615b199f5e37ca9554e1a2f5", null ],
-      [ "MPD_TOO_OLD", "mympd__state_8h.html#abce5b29b7e5d8225bd95c0b108aa9bf1a29abe7d6aeb4eefa96a99ae1be601666", null ]
+      [ "MPD_DISCONNECT_INSTANT", "mympd__state_8h.html#abce5b29b7e5d8225bd95c0b108aa9bf1aa7af2be46860003602b080cd5a5595f5", null ],
+      [ "MPD_WAIT", "mympd__state_8h.html#abce5b29b7e5d8225bd95c0b108aa9bf1aa7c8d4e9615b199f5e37ca9554e1a2f5", null ]
     ] ],
     [ "trigger_events", "mympd__state_8h.html#ad14960bae142853196e581bbb47e34a3", [
       [ "TRIGGER_MYMPD_SCROBBLE", "mympd__state_8h.html#ad14960bae142853196e581bbb47e34a3af8ad6e6c790729ee306a44605a5b8996", null ],

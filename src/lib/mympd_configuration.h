@@ -12,6 +12,9 @@
 
 #include <stdbool.h>
 
+/**
+ * Static myMPD configuration read at startup from files / environment
+ */
 struct t_config {
     sds user;
     sds workdir;

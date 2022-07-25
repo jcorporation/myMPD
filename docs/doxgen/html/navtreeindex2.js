@@ -1,6 +1,5 @@
 var NAVTREEINDEX2 =
 {
-"mpd__client__connection_8c.html#a4e667945364b678b79d6a94d6411d918":[1,0,0,1,2,1],
 "mpd__client__connection_8c.html#a50415848e48b5f888efd0f4829a7dac5":[1,0,0,1,2,3],
 "mpd__client__connection_8h.html":[1,0,0,1,3],
 "mpd__client__connection_8h.html#a2276a3ad9caecb2e208b0285b6043291":[1,0,0,1,3,0],
@@ -249,5 +248,6 @@ var NAVTREEINDEX2 =
 "mympd__api__mounts_8h_source.html":[1,0,0,3,19],
 "mympd__api__outputs_8c.html":[1,0,0,3,20],
 "mympd__api__outputs_8c.html#a24cc45a685b9b8643f76479928d523a3":[1,0,0,3,20,1],
-"mympd__api__outputs_8c.html#a3ccae7f2a2599126eea74b048dfe01c0":[1,0,0,3,20,0]
+"mympd__api__outputs_8c.html#a3ccae7f2a2599126eea74b048dfe01c0":[1,0,0,3,20,0],
+"mympd__api__outputs_8h.html":[1,0,0,3,21]
 };

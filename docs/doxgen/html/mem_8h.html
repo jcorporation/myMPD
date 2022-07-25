@@ -155,8 +155,6 @@ Macros</h2></td></tr>
 </table><table class="memberdecls">
 <tr class="heading"><td colspan="2"><h2 class="groupheader"><a name="func-members"></a>
 Functions</h2></td></tr>
-<tr class="memitem:aa8534dd5fcd5966e46ac02ad448eb17d"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8h.html#aa8534dd5fcd5966e46ac02ad448eb17d">__attribute__</a> ((malloc)) static inline void *malloc_assert(size_t <a class="el" href="mem_8h.html#a854352f53b148adc24983a58a1866d66">size</a>)</td></tr>
-<tr class="separator:aa8534dd5fcd5966e46ac02ad448eb17d"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:af8e420eeefe3d80f4a037c693b379182"><td class="memItemLeft" align="right" valign="top">&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="mem_8h.html#af8e420eeefe3d80f4a037c693b379182">assert</a> (<a class="el" href="mem_8h.html#aea3ee34289a41397855108ec6716bb37">p</a>)</td></tr>
 <tr class="separator:af8e420eeefe3d80f4a037c693b379182"><td class="memSeparator" colspan="2">&#160;</td></tr>
 </table><table class="memberdecls">
@@ -188,28 +186,16 @@ Variables</h2></td></tr>
 <div class="line">        free(PTR); \</div>
 <div class="line">    PTR = NULL; \</div>
 <div class="line">} <span class="keywordflow">while</span> (0)</div>
-</div><!-- fragment -->
+</div><!-- fragment --><p>Macro to free the pointer and set it to NULL </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">PTR</td><td>pointer to free </td></tr>
+  </table>
+  </dd>
+</dl>
+
 </div>
 </div>
 <h2 class="groupheader">Function Documentation</h2>
-<a id="aa8534dd5fcd5966e46ac02ad448eb17d"></a>
-<h2 class="memtitle"><span class="permalink"><a href="#aa8534dd5fcd5966e46ac02ad448eb17d">&#9670;&nbsp;</a></span>__attribute__()</h2>
-
-<div class="memitem">
-<div class="memproto">
-      <table class="memname">
-        <tr>
-          <td class="memname">__attribute__ </td>
-          <td>(</td>
-          <td class="paramtype">(malloc)&#160;</td>
-          <td class="paramname"></td><td>)</td>
-          <td></td>
-        </tr>
-      </table>
-</div><div class="memdoc">
-
-</div>
-</div>
 <a id="af8e420eeefe3d80f4a037c693b379182"></a>
 <h2 class="memtitle"><span class="permalink"><a href="#af8e420eeefe3d80f4a037c693b379182">&#9670;&nbsp;</a></span>assert()</h2>
 
@@ -256,8 +242,8 @@ Variables</h2></td></tr>
 </div><div class="memdoc">
 <b>Initial value:</b><div class="fragment"><div class="line">{</div>
 <div class="line">    <span class="keywordtype">void</span> *<a class="code" href="mem_8h.html#aea3ee34289a41397855108ec6716bb37">p</a> = realloc(ptr, <a class="code" href="mem_8h.html#a854352f53b148adc24983a58a1866d66">size</a>)</div>
-<div class="ttc" id="amem_8h_html_a854352f53b148adc24983a58a1866d66"><div class="ttname"><a href="mem_8h.html#a854352f53b148adc24983a58a1866d66">size</a></div><div class="ttdeci">size_t size</div><div class="ttdef"><b>Definition:</b> mem.h:21</div></div>
-<div class="ttc" id="amem_8h_html_aea3ee34289a41397855108ec6716bb37"><div class="ttname"><a href="mem_8h.html#aea3ee34289a41397855108ec6716bb37">p</a></div><div class="ttdeci">return p</div><div class="ttdef"><b>Definition:</b> mem.h:24</div></div>
+<div class="ttc" id="amem_8h_html_a854352f53b148adc24983a58a1866d66"><div class="ttname"><a href="mem_8h.html#a854352f53b148adc24983a58a1866d66">size</a></div><div class="ttdeci">size_t size</div><div class="ttdef"><b>Definition:</b> mem.h:32</div></div>
+<div class="ttc" id="amem_8h_html_aea3ee34289a41397855108ec6716bb37"><div class="ttname"><a href="mem_8h.html#aea3ee34289a41397855108ec6716bb37">p</a></div><div class="ttdeci">return p</div><div class="ttdef"><b>Definition:</b> mem.h:35</div></div>
 </div><!-- fragment -->
 </div>
 </div>

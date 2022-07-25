@@ -1,6 +1,5 @@
 var NAVTREEINDEX3 =
 {
-"mympd__api__outputs_8h.html":[1,0,0,3,21],
 "mympd__api__outputs_8h.html#a24cc45a685b9b8643f76479928d523a3":[1,0,0,3,21,1],
 "mympd__api__outputs_8h.html#a3ccae7f2a2599126eea74b048dfe01c0":[1,0,0,3,21,0],
 "mympd__api__outputs_8h_source.html":[1,0,0,3,21],
@@ -249,5 +248,6 @@ var NAVTREEINDEX3 =
 "mympd__state_8c.html#a755b5920753ecb249599afb7910869b2":[1,0,0,0,30,8],
 "mympd__state_8c.html#aaea061e4dea5f9e57c9421028cf013bb":[1,0,0,0,30,4],
 "mympd__state_8c.html#ab95b4aa213ce6b8d86f07833d3186339":[1,0,0,0,30,3],
-"mympd__state_8c.html#ae9e8016482e508a36a6907bf8ab6b589":[1,0,0,0,30,1]
+"mympd__state_8c.html#ae9e8016482e508a36a6907bf8ab6b589":[1,0,0,0,30,1],
+"mympd__state_8c.html#aeff5f1dfd2fb85c06cbc4059ed13d4a7":[1,0,0,0,30,0]
 };

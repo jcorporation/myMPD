@@ -19,11 +19,21 @@
     #include <openssl/evp.h>
 #endif
 
-//private definitions
+/**
+ * Private definitions
+ */
+
 static sds pin_hash(const char *pin);
 
-//public functions
+/**
+ * Public functions
+ */
 
+/**
+ * Reads the pin from stdin and sets it
+ * @param workdir working directory
+ * @return true on success else false
+ */
 bool pin_set(sds workdir) {
     struct termios old;
     if (tcgetattr(fileno(stdin), &old) != 0) {
@@ -84,6 +94,12 @@ bool pin_set(sds workdir) {
     return true;
 }
 
+/**
+ * Validates the pin
+ * @param pin pin to validate
+ * @param hash hash to validate against
+ * @return true on success else false
+ */
 bool pin_validate(const char *pin, const char *hash) {
     if (hash[0] == '\0') {
         MYMPD_LOG_ERROR("No pin is set");
@@ -102,8 +118,15 @@ bool pin_validate(const char *pin, const char *hash) {
     return rc;
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
+/**
+ * Hashes the pin
+ * @param pin pin to hash
+ * @return hash as newly allocated sds string
+ */
 static sds pin_hash(const char *pin) {
     sds hex_hash = sdsempty();
 #ifdef ENABLE_SSL

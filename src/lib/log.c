@@ -18,6 +18,9 @@ _Atomic int loglevel;
 bool log_to_syslog;
 bool log_on_tty;
 
+/**
+ * Maps loglevels to names
+ */
 static const char *loglevel_names[8] = {
     [LOG_EMERG] = "EMERG",
     [LOG_ALERT] = "ALERT",
@@ -29,6 +32,9 @@ static const char *loglevel_names[8] = {
     [LOG_DEBUG] = "DEBUG"
 };
 
+/**
+ * Maps loglevels to terminal colors
+ */
 static const char *loglevel_colors[8] = {
     [LOG_EMERG] = "\033[0;31m",
     [LOG_ALERT] = "\033[0;31m",
@@ -40,6 +46,10 @@ static const char *loglevel_colors[8] = {
     [LOG_DEBUG] = "\033[0;34m"
 };
 
+/**
+ * Sets the loglevel
+ * @param level loglevel to set
+ */
 void set_loglevel(int level) {
     if (level > LOGLEVEL_MAX) {
         level = 7;
@@ -51,6 +61,13 @@ void set_loglevel(int level) {
     loglevel = level;
 }
 
+/**
+ * Logs the errno string
+ * This function should be called by the suitable macro
+ * @param file filename for debug logging
+ * @param line linenumber for debug logging
+ * @param errnum errno
+ */
 void mympd_log_errno(const char *file, int line, int errnum) {
     char err_text[256];
     int rc = strerror_r(errnum, err_text, 256);
@@ -58,6 +75,15 @@ void mympd_log_errno(const char *file, int line, int errnum) {
     mympd_log(LOG_ERR, file, line, "%s", err_str);
 }
 
+/**
+ * Logs the errno string
+ * This function should be called by the suitable macro
+ * @param level loglevel of the message
+ * @param file filename for debug logging
+ * @param line linenumber for debug logging
+ * @param fmt format string to print
+ * @param ... arguments for the format string
+ */
 void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
     if (level > loglevel) {
         return;

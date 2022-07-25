@@ -224,10 +224,9 @@ var NAVTREEINDEX1 =
 "main_8c.html#af293913b5c4b327551ce4a5eb2af4953":[1,0,0,7,3],
 "mem_8h.html":[1,0,0,0,22],
 "mem_8h.html#a52217db13af595a4dbe13afc9f687790":[1,0,0,0,22,0],
-"mem_8h.html#a854352f53b148adc24983a58a1866d66":[1,0,0,0,22,4],
-"mem_8h.html#aa8534dd5fcd5966e46ac02ad448eb17d":[1,0,0,0,22,1],
-"mem_8h.html#aea3ee34289a41397855108ec6716bb37":[1,0,0,0,22,3],
-"mem_8h.html#af8e420eeefe3d80f4a037c693b379182":[1,0,0,0,22,2],
+"mem_8h.html#a854352f53b148adc24983a58a1866d66":[1,0,0,0,22,3],
+"mem_8h.html#aea3ee34289a41397855108ec6716bb37":[1,0,0,0,22,2],
+"mem_8h.html#af8e420eeefe3d80f4a037c693b379182":[1,0,0,0,22,1],
 "mem_8h_source.html":[1,0,0,0,22],
 "mimetype_8c.html":[1,0,0,0,23],
 "mimetype_8c.html#a06f7a41d984b6dd688e911be8bdf2da1":[1,0,0,0,23,4],
@@ -249,5 +248,6 @@ var NAVTREEINDEX1 =
 "mpd__client__autoconf_8h_source.html":[1,0,0,1,1],
 "mpd__client__connection_8c.html":[1,0,0,1,2],
 "mpd__client__connection_8c.html#a2276a3ad9caecb2e208b0285b6043291":[1,0,0,1,2,0],
-"mpd__client__connection_8c.html#a367715479a9e89c7f6229935529cd3f4":[1,0,0,1,2,2]
+"mpd__client__connection_8c.html#a367715479a9e89c7f6229935529cd3f4":[1,0,0,1,2,2],
+"mpd__client__connection_8c.html#a4e667945364b678b79d6a94d6411d918":[1,0,0,1,2,1]
 };

@@ -209,7 +209,7 @@ Macros</h2></td></tr>
 Functions</h2></td></tr>
 <tr class="memitem:a2aa031cf7f3425e8bce9dc46982cdabb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a2aa031cf7f3425e8bce9dc46982cdabb">mympd_log_errno</a> (const char *file, int line, int errnum)</td></tr>
 <tr class="separator:a2aa031cf7f3425e8bce9dc46982cdabb"><td class="memSeparator" colspan="2">&#160;</td></tr>
-<tr class="memitem:a0ea69669d6bde50a9c94487d72b4f573"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a0ea69669d6bde50a9c94487d72b4f573">mympd_log</a> (int level, const char *file, int line, const char *fmt,...) <a class="el" href="mem_8h.html#aa8534dd5fcd5966e46ac02ad448eb17d">__attribute__</a>((format(printf</td></tr>
+<tr class="memitem:a0ea69669d6bde50a9c94487d72b4f573"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#a0ea69669d6bde50a9c94487d72b4f573">mympd_log</a> (int level, const char *file, int line, const char *fmt,...) __attribute__((format(printf</td></tr>
 <tr class="separator:a0ea69669d6bde50a9c94487d72b4f573"><td class="memSeparator" colspan="2">&#160;</td></tr>
 <tr class="memitem:aaee51fe7075e656c2f3d02afae930be6"><td class="memItemLeft" align="right" valign="top">void void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="log_8h.html#aaee51fe7075e656c2f3d02afae930be6">set_loglevel</a> (int level)</td></tr>
 <tr class="separator:aaee51fe7075e656c2f3d02afae930be6"><td class="memSeparator" colspan="2">&#160;</td></tr>
@@ -295,6 +295,7 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Macros for logging release build should have no references to build dir </p>
 
 </div>
 </div>
@@ -466,6 +467,14 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Logs the errno string This function should be called by the suitable macro </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">file</td><td>filename for debug logging </td></tr>
+    <tr><td class="paramname">line</td><td>linenumber for debug logging </td></tr>
+    <tr><td class="paramname">errnum</td><td>errno </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -484,6 +493,12 @@ Variables</h2></td></tr>
         </tr>
       </table>
 </div><div class="memdoc">
+<p>Sets the loglevel </p><dl class="params"><dt>Parameters</dt><dd>
+  <table class="params">
+    <tr><td class="paramname">level</td><td>loglevel to set </td></tr>
+  </table>
+  </dd>
+</dl>
 
 </div>
 </div>
@@ -551,6 +566,7 @@ Variables</h2></td></tr>
   </tr>
 </table>
 </div><div class="memdoc">
+<p>Global log variables </p>
 
 </div>
 </div>
