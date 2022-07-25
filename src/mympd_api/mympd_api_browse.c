@@ -187,7 +187,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
     if (sdslen(sort) > 0) {
         enum mpd_tag_type sort_tag_org = mpd_tag_name_parse(sort);
         if (sort_tag_org != MPD_TAG_UNKNOWN) {
-            sort_tag = get_sort_tag(sort_tag_org);
+            sort_tag = get_sort_tag(sort_tag_org, &partition_state->mpd_shared_state->tag_types_mpd);
             if (mpd_client_tag_exists(&partition_state->mpd_shared_state->tag_types_mympd, sort_tag) == false) {
                 //sort tag is not enabled, revert
                 sort_tag = sort_tag_org;

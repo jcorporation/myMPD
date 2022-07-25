@@ -146,8 +146,15 @@ UTEST(mpd_client_tags, test_is_multivalue_tag) {
 }
 
 UTEST(mpd_client_tags, test_get_sort_tag) {
-    ASSERT_EQ(MPD_TAG_ALBUM_SORT, get_sort_tag(MPD_TAG_ALBUM));
-    ASSERT_EQ(MPD_TAG_PERFORMER, get_sort_tag(MPD_TAG_PERFORMER));
+    struct t_tags tags;
+    reset_t_tags(&tags);
+    tags.len = 4;
+    tags.tags[0] = MPD_TAG_ALBUM;
+    tags.tags[1] = MPD_TAG_ALBUM_SORT;
+    tags.tags[2] = MPD_TAG_PERFORMER;
+    tags.tags[3] = MPD_TAG_TITLE;
+    ASSERT_EQ(MPD_TAG_ALBUM_SORT, get_sort_tag(MPD_TAG_ALBUM, &tags));
+    ASSERT_EQ(MPD_TAG_PERFORMER, get_sort_tag(MPD_TAG_PERFORMER, &tags));
 }
 
 UTEST(mpd_client_tags, test_mpd_client_get_tag_value_string) {

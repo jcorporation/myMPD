@@ -107,25 +107,33 @@ bool is_multivalue_tag(enum mpd_tag_type tag) {
 }
 
 /**
- * Maps tags to its sort tags pedants
+ * Maps a tag to its sort tag pedant
  * @param tag mpd tag type
+ * @param available_tags pointer to enabled tags
  * @return sort tag if exists else the original tag
  */
-enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag) {
+enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag, struct t_tags *available_tags) {
+    enum mpd_tag_type sort_tag;
     switch(tag) {
         case MPD_TAG_ARTIST:
-            return MPD_TAG_ARTIST_SORT;
+            sort_tag = MPD_TAG_ARTIST_SORT;
+            break;
         case MPD_TAG_ALBUM_ARTIST:
-            return MPD_TAG_ALBUM_ARTIST_SORT;
+            sort_tag = MPD_TAG_ALBUM_ARTIST_SORT;
+            break;
         case MPD_TAG_ALBUM:
-            return MPD_TAG_ALBUM_SORT;
+            sort_tag = MPD_TAG_ALBUM_SORT;
+            break;
         case MPD_TAG_COMPOSER:
-            return MPD_TAG_COMPOSER_SORT;
+            sort_tag = MPD_TAG_COMPOSER_SORT;
+            break;
         case MPD_TAG_TITLE:
-            return MPD_TAG_TITLE_SORT;
+            sort_tag = MPD_TAG_TITLE_SORT;
+            break;
         default:
             return tag;
     }
+    return mpd_client_tag_exists(available_tags, sort_tag) == true ? sort_tag : tag;
 }
 
 /**

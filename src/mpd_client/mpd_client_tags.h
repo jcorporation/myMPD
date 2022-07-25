@@ -17,13 +17,13 @@ sds printAudioFormat(sds buffer, const struct mpd_audio_format *audioformat);
 void disable_all_mpd_tags(struct t_partition_state *partition_state);
 void enable_all_mpd_tags(struct t_partition_state *partition_state);
 void enable_mpd_tags(struct t_partition_state *partition_state, struct t_tags *enable_tags);
-enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag);
+enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag, struct t_tags *available_tags);
 sds get_song_tags(sds buffer, struct t_partition_state *partition_state, const struct t_tags *tagcols,
-                  const struct mpd_song *song);
+        const struct mpd_song *song);
 sds get_empty_song_tags(sds buffer, struct t_partition_state *partition_state, const struct t_tags *tagcols,
-                        const char *uri);
+        const char *uri);
 void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
-                struct t_tags *allowed_tag_types);
+        struct t_tags *allowed_tag_types);
 bool mpd_client_tag_exists(struct t_tags *tagtypes, const enum mpd_tag_type tag);
 sds mpd_client_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values);
 sds mpd_client_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag, sds tag_values);

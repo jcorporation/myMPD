@@ -329,7 +329,7 @@ sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds bu
 
     enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
     if (sort_tag != MPD_TAG_UNKNOWN) {
-        sort_tag = get_sort_tag(sort_tag);
+        sort_tag = get_sort_tag(sort_tag, &partition_state->mpd_shared_state->tag_types_mpd);
         rc = mpd_search_add_sort_tag(partition_state->conn, sort_tag, sortdesc);
         if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_sort_tag") == false) {
             mpd_search_cancel(partition_state->conn);
