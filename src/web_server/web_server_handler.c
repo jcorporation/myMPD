@@ -58,13 +58,14 @@ bool webserver_api_handler(struct mg_connection *nc, sds body, struct mg_str *au
 
     sds session = sdsempty();
     #ifdef ENABLE_SSL
-    if (sdslen(mg_user_data->config->pin_hash) > 0 && is_protected_api_method(cmd_id) == true) {
-        //format of authorization header must be: Bearer x
-        //bearer token must be 20 characters long
+    if (sdslen(mg_user_data->config->pin_hash) > 0 &&
+        is_protected_api_method(cmd_id) == true)
+    {
         bool rc = false;
-        if (auth_header != NULL && auth_header->len == 27 && strncmp(auth_header->ptr, "Bearer ", 7) == 0) {
+        if (auth_header != NULL &&
+            auth_header->len == 20)
+        {
             session = sdscatlen(session, auth_header->ptr, auth_header->len);
-            sdsrange(session, 7, -1);
             rc = webserver_session_validate(&mg_user_data->session_list, session);
         }
         else {

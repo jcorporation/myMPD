@@ -191,7 +191,7 @@ function sendAPI(method, params, callback, onerror) {
     ajaxRequest.open('POST', subdir + '/api/', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     if (session.token !== '') {
-        ajaxRequest.setRequestHeader('Authorization', 'Bearer ' + session.token);
+        ajaxRequest.setRequestHeader('X-myMPD-Session', session.token);
     }
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState !== 4) {

@@ -398,7 +398,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             if (mg_http_match_uri(hm, "/api/")) {
                 //api request
                 sds body = sdsnewlen(hm->body.ptr, hm->body.len);
-                struct mg_str *auth_header = mg_http_get_header(hm, "Authorization");
+                /*
+                 * We use the custom header X-myMPD-Session for authorization
+                 * to allow other authorization methods in reverse proxy setups
+                 */
+                struct mg_str *auth_header = mg_http_get_header(hm, "X-myMPD-Session");
                 bool rc = webserver_api_handler(nc, body, auth_header, mg_user_data, backend_nc);
                 FREE_SDS(body);
                 if (rc == false) {
