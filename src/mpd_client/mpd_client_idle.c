@@ -88,7 +88,6 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             //check version
             if (mpd_connection_cmp_server_version(mympd_state->partition_state->conn, 0, 21, 0) < 0) {
                 MYMPD_LOG_EMERG("MPD version too old, myMPD supports only MPD version >= 0.21.0");
-                mympd_state->partition_state->conn_state = MPD_TOO_OLD;
                 s_signal_received = 1;
             }
             //we are connected
@@ -123,13 +122,9 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             // fall through
         case MPD_DISCONNECT:
         case MPD_DISCONNECT_INSTANT:
-        case MPD_RECONNECT:
-            if (mympd_state->partition_state->conn != NULL) {
-                mpd_connection_free(mympd_state->partition_state->conn);
-            }
-            mympd_state->partition_state->conn = NULL;
+            mpd_client_disconnect(mympd_state->partition_state);
+            //set wait time for next connection attempt
             if (mympd_state->partition_state->conn_state != MPD_DISCONNECT_INSTANT) {
-                //set wait time for next connection attempt
                 mympd_state->partition_state->conn_state = MPD_WAIT;
                 if (mympd_state->partition_state->reconnect_interval < 20) {
                     mympd_state->partition_state->reconnect_interval += 2;

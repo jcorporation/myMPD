@@ -16,6 +16,11 @@
 
 #include <string.h>
 
+/**
+ * Connects to mpd and sets initial connection settings
+ * @param partition_state pointer to partition state
+ * @return true on success else false
+ */
 bool mpd_client_connect(struct t_partition_state *partition_state) {
     if (strncmp(partition_state->mpd_shared_state->mpd_host, "/", 1) == 0) {
         MYMPD_LOG_NOTICE("Connecting to socket \"%s\"", partition_state->mpd_shared_state->mpd_host);
@@ -66,15 +71,26 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
     partition_state->conn_state = MPD_CONNECTED;
     //set keepalive
     mpd_client_set_keepalive(partition_state);
-
+    //set binary limit
+    mpd_client_set_binarylimit(partition_state);
     return true;
 }
 
+/**
+ * Sets the tcp keepalive
+ * @param partition_state pointer to partition state
+ * @return true on success else false
+ */
 bool mpd_client_set_keepalive(struct t_partition_state *partition_state) {
     bool rc = mpd_connection_set_keepalive(partition_state->conn, partition_state->mpd_shared_state->mpd_keepalive);
     return mympd_check_rc_error_and_recover(partition_state, rc, "mpd_connection_set_keepalive");
 }
 
+/**
+ * Sets the binary limit
+ * @param partition_state pointer to partition state
+ * @return true on success else false
+ */
 bool mpd_client_set_binarylimit(struct t_partition_state *partition_state) {
     bool rc = true;
     if (partition_state->mpd_shared_state->feat_mpd_binarylimit == true) {
@@ -89,9 +105,13 @@ bool mpd_client_set_binarylimit(struct t_partition_state *partition_state) {
     return rc;
 }
 
+/**
+ * Disconnects from MPD
+ * @param partition_state pointer to partition state
+ */
 void mpd_client_disconnect(struct t_partition_state *partition_state) {
-    partition_state->conn_state = MPD_DISCONNECT;
     if (partition_state->conn != NULL) {
         mpd_connection_free(partition_state->conn);
     }
+    partition_state->conn = NULL;
 }
