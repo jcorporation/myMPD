@@ -943,11 +943,6 @@ const APImethods = {
                 "example": "SYNCEDLYRICS",
                 "desc": "Vorbis tag for synced lyrics"
             },
-            "covercacheKeepDays": {
-                "type": "uint",
-                "example": 7,
-                "desc": "Days before deleting cover cache files."
-            },
             "webuiSettings": {
                 "params": {
                     "clickSong": {
