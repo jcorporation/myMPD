@@ -310,7 +310,7 @@ sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long i
  * @param key json key
  * @param value raw data
  * @param comma true to append a comma
- * @param pointer to buffer
+ * @return pointer to buffer
  */
 sds tojson_raw(sds buffer, const char *key, const char *value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%s", key, value);
@@ -327,7 +327,7 @@ sds tojson_raw(sds buffer, const char *key, const char *value, bool comma) {
  * @param key json key
  * @param value to encode as json
  * @param comma true to append a comma
- * @param pointer to buffer
+ * @return pointer to buffer
  */
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
     //treat NULL values as empty
@@ -342,7 +342,7 @@ sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
  * @param key json key
  * @param value as sds string to encode as json
  * @param comma true to append a comma
- * @param pointer to buffer
+ * @return pointer to buffer
  */
 sds tojson_sds(sds buffer, const char *key, sds value, bool comma) {
     return tojson_char_len(buffer, key, value, sdslen(value), comma);
@@ -356,7 +356,7 @@ sds tojson_sds(sds buffer, const char *key, sds value, bool comma) {
  * @param value as sds string to encode as json
  * @param len length of value
  * @param comma true to append a comma
- * @param pointer to buffer
+ * @return pointer to buffer
  */
 sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":", key);
@@ -379,7 +379,7 @@ sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, 
  * @param key json key
  * @param value bool value
  * @param comma true to append a comma
- * @param pointer to buffer
+ * @return pointer to buffer
  */
 sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%s", key, value == true ? "true" : "false");
@@ -396,7 +396,7 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
  * @param key json key
  * @param value integer value
  * @param comma true to append a comma
- * @param pointer to buffer
+ * @return pointer to buffer
  */
 sds tojson_int(sds buffer, const char *key, int value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%i", key, value);
@@ -413,7 +413,7 @@ sds tojson_int(sds buffer, const char *key, int value, bool comma) {
  * @param key json key
  * @param value unsigned integer value
  * @param comma true to append a comma
- * @param pointer to buffer
+ * @return pointer to buffer
  */
 sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%u", key, value);
@@ -430,7 +430,7 @@ sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma) {
  * @param key json key
  * @param value long value
  * @param comma true to append a comma
- * @param pointer to buffer
+ * @return pointer to buffer
  */
 sds tojson_long(sds buffer, const char *key, long value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%l", key, value);
@@ -447,7 +447,7 @@ sds tojson_long(sds buffer, const char *key, long value, bool comma) {
  * @param key json key
  * @param value long long value
  * @param comma true to append a comma
- * @param pointer to buffer
+ * @return pointer to buffer
  */
 sds tojson_llong(sds buffer, const char *key, long long value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%I", key, value);
@@ -464,7 +464,7 @@ sds tojson_llong(sds buffer, const char *key, long long value, bool comma) {
  * @param key json key
  * @param value unsigned long value
  * @param comma true to append a comma
- * @param pointer to buffer
+ * @return pointer to buffer
  */
 sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%L", key, value);
@@ -481,7 +481,7 @@ sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
  * @param key json key
  * @param value unsigned long long value
  * @param comma true to append a comma
- * @param pointer to buffer
+ * @return pointer to buffer
  */
 sds tojson_ullong(sds buffer, const char *key, unsigned long long value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%U", key, value);
@@ -498,7 +498,7 @@ sds tojson_ullong(sds buffer, const char *key, unsigned long long value, bool co
  * @param key json key
  * @param value unsigned long long value
  * @param comma true to append a comma
- * @param pointer to buffer
+ * @return pointer to buffer
  */
 sds tojson_double(sds buffer, const char *key, double value, bool comma) {
     buffer = sdscatprintf(buffer, "\"%s\":%f", key, value);
@@ -540,7 +540,7 @@ sds list_to_json_array(sds s, struct t_list *l) {
  * and return a validated json array
  * @param s sds string to parse
  * @param cols sds string to append the
- * @param pointer to bool with the result code
+ * @param rc pointer to bool with the result code
  * @return pointer to cols
  */
 sds json_get_cols_as_string(sds s, sds cols, bool *rc) {
@@ -870,6 +870,7 @@ static bool icb_json_get_array_string(sds key, sds value, int vtype, validate_ca
  * Shortcut for json_iterate_object with icb_json_get_array_string
  * @param s json object to parse
  * @param path mjson path expression
+ * @param l t_list struct to populate
  * @param vcb validation callback
  * @param max_elements maximum of elements
  * @param error pointer for error string
@@ -907,6 +908,7 @@ static bool icb_json_get_object_string(sds key, sds value, int vtype, validate_c
  * Shortcut for json_iterate_object with icb_json_get_object_string
  * @param s json object to parse
  * @param path mjson path expression
+ * @param l t_list struct to populate
  * @param vcb validation callback
  * @param max_elements maximum of elements
  * @param error pointer for error string
