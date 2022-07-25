@@ -104,7 +104,9 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         FREE_SDS(filename);
         return false;
     }
-    if (strcmp(smartpltype, "sticker") == 0) {
+    if (strcmp(smartpltype, "sticker") == 0 &&
+        mpd_worker_state->mpd_shared_state->feat_mpd_stickers == true)
+    {
         if (json_get_string(content, "$.sticker", 1, 200, &sds_buf1, vcb_isalnum, NULL) == true &&
             json_get_int(content, "$.maxentries", 0, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, NULL) == true &&
             json_get_int(content, "$.minvalue", 0, 100, &int_buf2, NULL) == true)
