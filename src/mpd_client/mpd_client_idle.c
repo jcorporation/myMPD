@@ -29,12 +29,17 @@
 #include <poll.h>
 #include <string.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
+
 static bool update_mympd_caches(struct t_mpd_shared_state *mpd_shared_state, struct t_timer_list *timer_list, time_t timeout);
 static void mpd_client_parse_idle(struct t_partition_state *partition_state, unsigned idle_bitmask,
     struct t_timer_list *timer_list, struct t_list *trigger_list);
 
-//public functions
+/**
+ * Public functions
+ */
 
 /**
  * This is the central function to handle api requests and mpd events.
@@ -50,15 +55,11 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 mympd_state->partition_state->conn_state = MPD_DISCONNECTED;
                 break;
             }
-            //mympd_api_api error response
+            //process mympd_api queue
             struct t_work_request *request = mympd_queue_shift(mympd_api_queue, 50, 0);
             if (request != NULL) {
                 MYMPD_LOG_DEBUG("Handle request (mpd disconnected)");
                 if (is_mympd_only_api_method(request->cmd_id) == true) {
-                    //reconnect instantly on change of mpd host
-                    if (request->cmd_id == MYMPD_API_CONNECTION_SAVE) {
-                        mympd_state->partition_state->conn_state = MPD_DISCONNECTED;
-                    }
                     mympd_api_handler(mympd_state, request);
                 }
                 else {
@@ -74,10 +75,8 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 }
                 break;
             }
-            if (now < mympd_state->partition_state->reconnect_time) {
-                //small pause to prevent high cpu usage
-                my_msleep(100);
-            }
+            //small pause to prevent high cpu usage
+            my_msleep(100);
             break;
         }
         case MPD_DISCONNECTED:
@@ -92,15 +91,8 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             }
             //we are connected
             send_jsonrpc_event(JSONRPC_EVENT_MPD_CONNECTED);
-            //reset reconnection intervals
-            mympd_state->partition_state->reconnect_interval = 0;
-            mympd_state->partition_state->reconnect_time = 0;
-            //reset list of supported tags
-            reset_t_tags(&mympd_state->mpd_shared_state->tag_types_mpd);
             //get mpd features
             mpd_client_mpd_features(mympd_state);
-            //set binarylimit
-            mpd_client_set_binarylimit(mympd_state->partition_state);
             //initiate cache updates
             update_mympd_caches(mympd_state->mpd_shared_state, &mympd_state->timer_list, 2);
             //set timer for smart playlist update
@@ -174,10 +166,10 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 }
             }
             //check if we need to exit the idle mode
-            if (pollrc > 0 ||                          //idle event waiting
-                request != NULL ||                     //api was called
-                jukebox_add_song == true ||            //jukebox trigger
-                set_played == true ||                  //playstate of song must be set
+            if (pollrc > 0 ||                                            //idle event waiting
+                request != NULL ||                                       //api was called
+                jukebox_add_song == true ||                              //jukebox trigger
+                set_played == true ||                                    //playstate of song must be set
                 mympd_state->mpd_shared_state->sticker_queue.length > 0) //we must set waiting stickers
             {
                 MYMPD_LOG_DEBUG("Leaving mpd idle mode");
@@ -239,7 +231,9 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
     }
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
 /**
  * Handles mpd idle events
@@ -268,14 +262,15 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                     update_mympd_caches(partition_state->mpd_shared_state, timer_list, 10);
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
+                    //a playlist has changed
                     buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_STORED_PLAYLIST);
                     break;
                 case MPD_IDLE_QUEUE: {
+                    //queue has changed
                     unsigned old_queue_version = partition_state->queue_version;
                     buffer = mympd_api_queue_status(partition_state, buffer);
                     if (partition_state->queue_version == old_queue_version) {
-                        //ignore this idle event, queue version has not changed
-                        //idle event is not from current partition
+                        //ignore this idle event, queue version has not changed in this partition
                         sdsclear(buffer);
                         MYMPD_LOG_DEBUG("Queue version has not changed, ignoring idle event MPD_IDLE_QUEUE");
                         break;
@@ -304,6 +299,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                     break;
                 }
                 case MPD_IDLE_PLAYER:
+                    //player status has changed
                     //get and put mpd state
                     buffer = mympd_api_status_get(partition_state, buffer, REQUEST_ID_NOTIFY);
                     //check if song has changed
@@ -332,23 +328,29 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                     }
                     break;
                 case MPD_IDLE_MIXER:
+                    //volume has changed
                     buffer = mympd_api_status_volume_get(partition_state, buffer, REQUEST_ID_NOTIFY);
                     break;
                 case MPD_IDLE_OUTPUT:
+                    //outputs are changed
                     buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OUTPUTS);
                     break;
                 case MPD_IDLE_OPTIONS:
+                    //mpd playback options are changed
                     mympd_api_queue_status(partition_state, NULL);
                     buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OPTIONS);
                     break;
                 case MPD_IDLE_UPDATE:
+                    //database update has started or is finished
                     buffer = mympd_api_status_updatedb_state(partition_state, buffer);
                     break;
                 default: {
                     //other idle events not used
                 }
             }
+            //check for attached triggers
             mympd_api_trigger_execute(trigger_list, (enum trigger_events)idle_event);
+            //broadcast event to all websockets
             if (sdslen(buffer) > 0) {
                 ws_notify(buffer);
                 sdsclear(buffer);

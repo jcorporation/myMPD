@@ -73,6 +73,9 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
     mpd_client_set_keepalive(partition_state);
     //set binary limit
     mpd_client_set_binarylimit(partition_state);
+    //reset reconnection intervals
+    partition_state->reconnect_interval = 0;
+    partition_state->reconnect_time = 0;
     return true;
 }
 
