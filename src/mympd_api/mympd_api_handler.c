@@ -289,10 +289,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_COLS_SAVE: {
             if (json_get_string(request->data, "$.params.table", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &error) == true) {
                 rc = false;
-                sds cols = sdsnewlen("[", 1);
+                sds cols = sdsempty();
                 cols = json_get_cols_as_string(request->data, cols, &rc);
                 if (rc == true) {
-                    cols = sdscatlen(cols, "]", 1);
                     if (mympd_api_settings_cols_save(mympd_state, sds_buf1, cols) == true) {
                         response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
                     }

@@ -132,7 +132,7 @@ bool mympd_api_script_delete(sds workdir, sds script) {
 bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sds content, struct t_list *arguments) {
     sds filepath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
     sds argstr = list_to_json_array(sdsempty(), arguments);
-    sds script_content = sdscatfmt(sdsempty(), "-- {\"order\":%i,\"arguments\":[%S]}\n%S", order, argstr, content);
+    sds script_content = sdscatfmt(sdsempty(), "-- {\"order\":%i,\"arguments\":%S}\n%S", order, argstr, content);
     bool rc = write_data_to_file(filepath, script_content, sdslen(script_content));
     //delete old scriptfile
     if (rc == true &&

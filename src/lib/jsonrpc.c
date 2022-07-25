@@ -16,7 +16,14 @@
 #include <limits.h>
 #include <string.h>
 
-//private definitions
+/**
+ * This unit provides functions for jsonrpc and json parsing and printing
+ * Json parsing is done by mjson
+ */
+
+/**
+ * private definitions
+ */
 static bool _icb_json_get_tag(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);
 static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error);
 static void _set_parse_error(sds *error, const char *fmt, ...);
@@ -24,12 +31,18 @@ static const char *jsonrpc_facility_name(enum jsonrpc_facilities facility);
 static const char *jsonrpc_severity_name(enum jsonrpc_severities severity);
 static const char *jsonrpc_event_name(enum jsonrpc_events event);
 
+/**
+ * Names for enum jsonrpc_events
+ */
 static const char *jsonrpc_severity_names[JSONRPC_SEVERITY_MAX] = {
     [JSONRPC_SEVERITY_INFO] = "info",
     [JSONRPC_SEVERITY_WARN] = "warn",
     [JSONRPC_SEVERITY_ERROR] = "error"
 };
 
+/**
+ * Names for enum jsonrpc_facilities
+ */
 static const char *jsonrpc_facility_names[JSONRPC_FACILITY_MAX] = {
     [JSONRPC_FACILITY_DATABASE] = "database",
     [JSONRPC_FACILITY_GENERAL] = "general",
@@ -47,6 +60,9 @@ static const char *jsonrpc_facility_names[JSONRPC_FACILITY_MAX] = {
     [JSONRPC_FACILITY_TRIGGER] = "trigger"
 };
 
+/**
+ * Names for myMPD events
+ */
 static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
     [JSONRPC_EVENT_MPD_CONNECTED] = "mpd_connected",
     [JSONRPC_EVENT_MPD_DISCONNECTED] = "mpd_disconnected",
@@ -66,7 +82,13 @@ static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
     [JSONRPC_EVENT_WELCOME] = "welcome"
 };
 
-//public functions
+/**
+ * public functions
+ */
+
+/**
+ * Jsonrpc printing
+ */
 
 /**
  * Creates and sends a jsonrpc notify to all connected websockets
@@ -277,6 +299,19 @@ sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long i
     return buffer;
 }
 
+/**
+ * Json emmiting
+ */
+
+/**
+ * Prints a json key/value pair for already encoded values
+ * value is printed raw without any encoding done
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value raw data
+ * @param comma true to append a comma
+ * @param pointer to buffer
+ */
 sds tojson_raw(sds buffer, const char *key, const char *value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%s", key, value);
     if (comma) {
@@ -285,16 +320,44 @@ sds tojson_raw(sds buffer, const char *key, const char *value, bool comma) {
     return buffer;
 }
 
+/**
+ * Prints a json key/value pair for 0-terminated char values
+ * value is encoded as json
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value to encode as json
+ * @param comma true to append a comma
+ * @param pointer to buffer
+ */
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma) {
     //treat NULL values as empty
     size_t len = value != NULL ? strlen(value) : 0;
     return tojson_char_len(buffer, key, value, len, comma);
 }
 
+/**
+ * Prints a json key/value pair for sds values
+ * value is encoded as json
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value as sds string to encode as json
+ * @param comma true to append a comma
+ * @param pointer to buffer
+ */
 sds tojson_sds(sds buffer, const char *key, sds value, bool comma) {
     return tojson_char_len(buffer, key, value, sdslen(value), comma);
 }
 
+/**
+ * Prints a json key/value pair for not 0-terminated values
+ * value is encoded as json
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value as sds string to encode as json
+ * @param len length of value
+ * @param comma true to append a comma
+ * @param pointer to buffer
+ */
 sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":", key);
     if (value != NULL) {
@@ -309,6 +372,15 @@ sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, 
     return buffer;
 }
 
+/**
+ * Prints a json key/value pair for bool value
+ * value can be without null-termination and is encoded as json
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value bool value
+ * @param comma true to append a comma
+ * @param pointer to buffer
+ */
 sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%s", key, value == true ? "true" : "false");
     if (comma) {
@@ -317,6 +389,15 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
     return buffer;
 }
 
+/**
+ * Prints a json key/value pair for int value
+ * value can be without null-termination and is encoded as json
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value integer value
+ * @param comma true to append a comma
+ * @param pointer to buffer
+ */
 sds tojson_int(sds buffer, const char *key, int value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%i", key, value);
     if (comma) {
@@ -325,6 +406,15 @@ sds tojson_int(sds buffer, const char *key, int value, bool comma) {
     return buffer;
 }
 
+/**
+ * Prints a json key/value pair for unsigned
+ * value can be without null-termination and is encoded as json
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value unsigned integer value
+ * @param comma true to append a comma
+ * @param pointer to buffer
+ */
 sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%u", key, value);
     if (comma) {
@@ -333,6 +423,15 @@ sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma) {
     return buffer;
 }
 
+/**
+ * Prints a json key/value pair for long value
+ * value can be without null-termination and is encoded as json
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value long value
+ * @param comma true to append a comma
+ * @param pointer to buffer
+ */
 sds tojson_long(sds buffer, const char *key, long value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%l", key, value);
     if (comma) {
@@ -341,6 +440,15 @@ sds tojson_long(sds buffer, const char *key, long value, bool comma) {
     return buffer;
 }
 
+/**
+ * Prints a json key/value pair for long long value
+ * value can be without null-termination and is encoded as json
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value long long value
+ * @param comma true to append a comma
+ * @param pointer to buffer
+ */
 sds tojson_llong(sds buffer, const char *key, long long value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%I", key, value);
     if (comma) {
@@ -349,6 +457,15 @@ sds tojson_llong(sds buffer, const char *key, long long value, bool comma) {
     return buffer;
 }
 
+/**
+ * Prints a json key/value pair for unsigned long value
+ * value can be without null-termination and is encoded as json
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value unsigned long value
+ * @param comma true to append a comma
+ * @param pointer to buffer
+ */
 sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%L", key, value);
     if (comma) {
@@ -357,6 +474,15 @@ sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
     return buffer;
 }
 
+/**
+ * Prints a json key/value pair for unsigned long long value
+ * value can be without null-termination and is encoded as json
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value unsigned long long value
+ * @param comma true to append a comma
+ * @param pointer to buffer
+ */
 sds tojson_ullong(sds buffer, const char *key, unsigned long long value, bool comma) {
     buffer = sdscatfmt(buffer, "\"%s\":%U", key, value);
     if (comma) {
@@ -365,6 +491,15 @@ sds tojson_ullong(sds buffer, const char *key, unsigned long long value, bool co
     return buffer;
 }
 
+/**
+ * Prints a json key/value pair for unsigned long long value
+ * value can be without null-termination and is encoded as json
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value unsigned long long value
+ * @param comma true to append a comma
+ * @param pointer to buffer
+ */
 sds tojson_double(sds buffer, const char *key, double value, bool comma) {
     buffer = sdscatprintf(buffer, "\"%s\":%f", key, value);
     if (comma) {
@@ -373,8 +508,15 @@ sds tojson_double(sds buffer, const char *key, double value, bool comma) {
     return buffer;
 }
 
-//prints the keys of a list as a json array
+/**
+ * Prints the keys of a list as a json array
+ * Leading and ending square brackets are added
+ * @param s sds string to append
+ * @param l pointer to list to add keys from
+ * @return pointer to s
+ */
 sds list_to_json_array(sds s, struct t_list *l) {
+    s = sdscatlen(s, "[", 1);
     struct t_list_node *current = l->head;
     int i = 0;
     while (current != NULL) {
@@ -384,9 +526,23 @@ sds list_to_json_array(sds s, struct t_list *l) {
         s = sds_catjson(s, current->key, sdslen(current->key));
         current = current->next;
     }
+    s = sdscatlen(s, "]", 1);
     return s;
 }
 
+/**
+ * Json parsing functions
+ * All this functions are validating the result.
+ */
+
+/**
+ * Helper function to get myMPD columns out of a jsonrpc request
+ * and return a validated json array
+ * @param s sds string to parse
+ * @param cols sds string to append the
+ * @param pointer to bool with the result code
+ * @return pointer to cols
+ */
 sds json_get_cols_as_string(sds s, sds cols, bool *rc) {
     struct t_list col_list;
     list_init(&col_list);
@@ -401,6 +557,13 @@ sds json_get_cols_as_string(sds s, sds cols, bool *rc) {
     return cols;
 }
 
+/**
+ * Gets a bool value by json path
+ * @param s json object to parse
+ * @param path mjson path expression
+ * @param result pointer to bool with the result code
+ * @param error pointer for error string 
+ */
 bool json_get_bool(sds s, const char *path, bool *result, sds *error) {
     int v = 0;
     if (mjson_get_bool(s, (int)sdslen(s), path, &v) != 0) {
@@ -680,6 +843,16 @@ static const char *jsonrpc_event_name(enum jsonrpc_events event) {
     return jsonrpc_event_names[event];
 }
 
+/**
+ * Iteration callback to populate a t_tags struct
+ * @param key not used
+ * @param value value to parse as mpd tag
+ * @param vtype mjson value type
+ * @param vcb not used - we validate directly
+ * @param userdata void pointer to t_tags struct
+ * @param error pointer for error string
+ * @return true on success else false
+ */
 static bool _icb_json_get_tag(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
     (void) vcb;
     (void) key;
@@ -696,10 +869,19 @@ static bool _icb_json_get_tag(sds key, sds value, int vtype, validate_callback v
     return true;
 }
 
+/**
+ * Helper function to set parsing errors
+ * @param error sds string to append the error
+ *              can be NULL - error is only logged
+ * @param fmt printf format string
+ * @param ... arguments for the format string
+ */
 static void _set_parse_error(sds *error, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
-    if (error != NULL && *error != NULL) {
+    if (error != NULL &&
+        *error != NULL)
+    {
         *error = sdscatvprintf(*error, fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
         MYMPD_LOG_WARN("%s", *error);
     }
@@ -711,6 +893,17 @@ static void _set_parse_error(sds *error, const char *fmt, ...) {
     va_end(args);
 }
 
+/**
+ * Helper function to get a string from a json object
+ * Enclosing quotes are removed and string is unescaped
+ * @param s json object to parse
+ * @param path path to the string to extract
+ * @param min minimum length
+ * @param max maximum length
+ * @param result newly allocated sds string with the result
+ * @param vcb validation callback
+ * @param error pointer for error string
+ */
 static bool _json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error) {
     if (*result != NULL) {
         MYMPD_LOG_ERROR("Result parameter must be NULL, path: \"%s\"", path);
