@@ -56,16 +56,23 @@ sds mpd_client_search_response(struct t_partition_state *partition_state, sds bu
  * @param expression mpd search expression
  * @param plist playlist to create or add the result
  * @param to position to insert the songs, UINT_MAX to append
+ * @param response pointer to already allocated sds string to return the jsonrpc response
+ *                 or NULL to return no response
  * @return true on success else false
  */
 bool mpd_client_search_add_to_plist(struct t_partition_state *partition_state, const char *expression,
-        const char *plist, unsigned to)
+        const char *plist, unsigned to, sds *response)
 {
     bool result = false;
     sds buffer = sdsempty();
     buffer = _mpd_client_search(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, 0,
             expression, NULL, false, plist, to, MPD_POSITION_ABSOLUTE, 0, 0,
             NULL, NULL, &result);
+    if (response != NULL &&
+        *response != NULL)
+    {
+        *response = sdscatsds(*response, buffer);
+    }
     FREE_SDS(buffer);
     return result;
 }
@@ -79,16 +86,23 @@ bool mpd_client_search_add_to_plist(struct t_partition_state *partition_state, c
  *               0 = MPD_POSITION_ABSOLUTE
  *               1 = MPD_POSITION_AFTER_CURRENT
  *               2 = MPD_POSITION_BEFORE_CURRENT
+ * @param response pointer to already allocated sds string to return the jsonrpc response
+                   or NULL to return no response
  * @return true on success else false
  */
 bool mpd_client_search_add_to_queue(struct t_partition_state *partition_state, const char *expression,
-        unsigned to, enum mpd_position_whence whence)
+        unsigned to, enum mpd_position_whence whence, sds *response)
 {
     bool result = false;
     sds buffer = sdsempty();
     buffer = _mpd_client_search(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, 0,
             expression, NULL, false, "queue", to, whence, 0, 0,
             NULL, NULL, &result);
+    if (response != NULL &&
+        *response != NULL)
+    {
+        *response = sdscatsds(*response, buffer);
+    }
     FREE_SDS(buffer);
     return result;
 }

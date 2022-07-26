@@ -1018,14 +1018,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf2, vcb_isname, &error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true)
             {
-                result = mpd_client_search_add_to_plist(mympd_state->partition_state, sds_buf2, sds_buf1, uint_buf1);
+                result = mpd_client_search_add_to_plist(mympd_state->partition_state, sds_buf2, sds_buf1, uint_buf1, &response->data);
                 if (result == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
-                }
-                else {
-                    response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Updateing the playlist %{playlist} failed", 2, "playlist", sds_buf1);
                 }
             }
             break;
@@ -1041,7 +1037,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                         break;
                     }
                 }
-                result = mpd_client_search_add_to_plist(mympd_state->partition_state, sds_buf2, sds_buf1, UINT_MAX);
+                result = mpd_client_search_add_to_plist(mympd_state->partition_state, sds_buf2, sds_buf1, UINT_MAX, &response->data);
                 if (result == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
@@ -1253,16 +1249,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                result = mpd_client_search_add_to_queue(mympd_state->partition_state, sds_buf1, uint_buf1, uint_buf2);
+                result = mpd_client_search_add_to_queue(mympd_state->partition_state, sds_buf1, uint_buf1, uint_buf2, &response->data);
                 if (result == true &&
                     check_start_play(mympd_state->partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
                 {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Updateing the queue failed");
                 }
             }
             break;
@@ -1278,16 +1270,12 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                         break;
                     }
                 }
-                result = mpd_client_search_add_to_queue(mympd_state->partition_state, sds_buf1, UINT_MAX, MPD_POSITION_ABSOLUTE);
+                result = mpd_client_search_add_to_queue(mympd_state->partition_state, sds_buf1, UINT_MAX, MPD_POSITION_ABSOLUTE, &response->data);
                 if (result == true &&
                     check_start_play(mympd_state->partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
                 {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Updateing the queue failed");
                 }
             }
             break;
