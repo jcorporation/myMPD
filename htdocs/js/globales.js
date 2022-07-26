@@ -731,6 +731,9 @@ const webuiSettingsDefault = {
         "title": "Startup view",
         "form": "startupFrm",
         "onChange": "eventChangeTheme"
+    },
+    "enableLocalPlayback": {
+        "defaultValue": false
     }
 };
 
