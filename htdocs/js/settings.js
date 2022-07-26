@@ -274,12 +274,6 @@ function parseSettings(obj) {
         if (settings.webuiSettings[key] === undefined) {
             settings.webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
         }
-        else if (webuiSettingsDefault[key].contentType === 'integer' &&
-            typeof settings.webuiSettings[key] !== 'number')
-        {
-            //enforce number type
-            settings.webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
-        }
     }
 
     //set session state
