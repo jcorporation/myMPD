@@ -20,13 +20,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
+
 static void mpd_client_feature_commands(struct t_mympd_state *mympd_state);
 static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state);
 static void mpd_client_feature_tags(struct t_mympd_state *mympd_state);
 static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state);
 
-//public functions
+/**
+ * Public functions
+ */
+
+/**
+ * Detects MPD features and disables/enables myMPD features accordingly
+ * @param mympd_state pointer to mympd_state struct
+ */
 void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_shared_state->protocol = mpd_connection_get_server_version(mympd_state->partition_state->conn);
     MYMPD_LOG_NOTICE("MPD protocol version: %u.%u.%u",
@@ -112,7 +122,14 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     mympd_queue_push(web_server_queue, web_server_response, 0);
 }
 
-//private functions
+/**
+ * Private functions
+ */
+
+/**
+ * Looks for allowed MPD command
+ * @param mympd_state pointer to mympd_state struct
+ */
 static void mpd_client_feature_commands(struct t_mympd_state *mympd_state) {
     if (mpd_send_allowed_commands(mympd_state->partition_state->conn) == true) {
         struct mpd_pair *pair;
@@ -155,6 +172,10 @@ static void mpd_client_feature_commands(struct t_mympd_state *mympd_state) {
     mympd_check_error_and_recover(mympd_state->partition_state);
 }
 
+/**
+ * Sets enabled tags for myMPD
+ * @param mympd_state pointer to mympd_state struct
+ */
 static void mpd_client_feature_tags(struct t_mympd_state *mympd_state) {
     reset_t_tags(&mympd_state->mpd_shared_state->tag_types_search);
     reset_t_tags(&mympd_state->mpd_shared_state->tag_types_browse);
@@ -172,6 +193,10 @@ static void mpd_client_feature_tags(struct t_mympd_state *mympd_state) {
     }
 }
 
+/**
+ * Checks enabled tags from MPD
+ * @param mympd_state pointer to mympd_state struct
+ */
 static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
     reset_t_tags(&mympd_state->mpd_shared_state->tag_types_mpd);
     reset_t_tags(&mympd_state->mpd_shared_state->tag_types_mympd);
@@ -223,6 +248,10 @@ static void mpd_client_feature_mpd_tags(struct t_mympd_state *mympd_state) {
     FREE_SDS(logline);
 }
 
+/**
+ * Checks for available MPD music directory
+ * @param mympd_state pointer to mympd_state struct
+ */
 static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_shared_state->feat_mpd_library = false;
     sdsclear(mympd_state->mpd_shared_state->music_directory_value);

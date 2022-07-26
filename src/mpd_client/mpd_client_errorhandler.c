@@ -13,8 +13,13 @@
 #include "../lib/sds_extras.h"
 #include "mpd_client_tags.h"
 
-//private definitions
+/**
+ * Private definitions
+ */
 
+/**
+ * Response types for error messages
+ */
 enum response_types {
     RESPONSE_TYPE_JSONRPC_RESPONSE,
     RESPONSE_TYPE_JSONRPC_NOTIFY,
@@ -28,7 +33,9 @@ static bool _check_rc_error_and_recover(struct t_partition_state *partition_stat
 static bool _check_error_and_recover(struct t_partition_state *partition_state, sds *buffer, enum mympd_cmd_ids cmd_id,
         long request_id, enum response_types response_type);
 
-//public functions
+/**
+ * Public functions
+ */
 
 /**
  * Checks for mpd protocol error and tries to recover it
@@ -158,16 +165,32 @@ sds mympd_respond_with_error_or_ok(struct t_partition_state *partition_state, sd
     return jsonrpc_respond_ok(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD);
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
+/**
+ * Checks for an mpd error and tries to recover.
+ * It additionally checks if rc is true
+ * @param partition_state pointer to partition specific states
+ * @param buffer already allocated sds string for the jsonrpc response
+ * @param cmd_id enum mympd_cmd_ids
+ * @param request_id jsonrpc request id to respond
+ * @param response_type response message type
+ * @param rc return code to check additionally
+ * @param command command to check for the return code
+ * @return true on success else false
+ */
 static bool _check_rc_error_and_recover(struct t_partition_state *partition_state, sds *buffer,
         enum mympd_cmd_ids cmd_id, long request_id, enum response_types response_type, bool rc,
         const char *command)
 {
+    //first do normal mpd error checking
     if (_check_error_and_recover(partition_state, buffer, cmd_id, request_id, response_type) == false) {
         MYMPD_LOG_ERROR("Error in response to command %s", command);
         return false;
     }
+    //there is no mpd error at connection level but the command failed, return command error
     if (rc == false) {
         if (buffer != NULL &&
             *buffer != NULL)
@@ -191,6 +214,15 @@ static bool _check_rc_error_and_recover(struct t_partition_state *partition_stat
     return true;
 }
 
+/**
+ * Checks for an mpd error and tries to recover.
+ * @param partition_state pointer to partition specific states
+ * @param buffer already allocated sds string for the jsonrpc response
+ * @param cmd_id enum mympd_cmd_ids
+ * @param request_id jsonrpc request id to respond
+ * @param response_type response message type
+ * @return true on success else false
+ */
 static bool _check_error_and_recover(struct t_partition_state *partition_state, sds *buffer, enum mympd_cmd_ids cmd_id,
         long request_id, enum response_types response_type)
 {
