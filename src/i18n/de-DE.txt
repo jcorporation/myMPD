@@ -2300,9 +2300,3 @@ Cache update läuft bereits
 
 Error executing timer start play
 Fehler beim Ausführen des Wiedergabe starten Timers
-
-Updateing the playlist %{playlist} failed
-Update der Wiedergabelist %{playlist} fehlgeschlagen
-
-Updateing the queue failed
-Update der Warteschlange fehlgeschlagen
