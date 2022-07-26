@@ -44,7 +44,7 @@ sds mympd_api_partition_output_list(struct t_partition_state *partition_state, s
 }
 
 sds mympd_api_output_list(struct t_partition_state *partition_state, sds buffer, long request_id) {
-    enum mympd_cmd_ids cmd_id = MYMPD_API_PARTITION_LIST;
+    enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_OUTPUT_LIST;
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status == NULL) {
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
