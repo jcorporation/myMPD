@@ -734,6 +734,9 @@ const webuiSettingsDefault = {
     },
     "enableLocalPlayback": {
         "defaultValue": false
+    },
+    "enableLyrics": {
+        "defaultValue": true
     }
 };
 
