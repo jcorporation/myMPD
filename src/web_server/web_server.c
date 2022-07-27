@@ -144,6 +144,7 @@ void *web_server_loop(void *arg_mgr) {
                     send_ws_notify(mgr, response);
                 }
                 else {
+                    MYMPD_LOG_DEBUG("Discarding repeated notify");
                     free_response(response);
                 }
             }
