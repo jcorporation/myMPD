@@ -4,10 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "sticker_cache.h"
 
-#include "../mpd_client/mpd_client_errorhandler.h"
+#include "../mpd_client/errorhandler.h"
 #include "log.h"
 #include "mem.h"
 #include "sds_extras.h"

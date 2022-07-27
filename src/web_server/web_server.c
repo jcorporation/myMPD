@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "web_server.h"
 
 #include "../lib/api.h"
@@ -12,14 +12,14 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
-#include "../lib/mympd_pin.h"
+#include "../lib/pin.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "web_server_albumart.h"
-#include "web_server_handler.h"
-#include "web_server_proxy.h"
-#include "web_server_tagart.h"
+#include "albumart.h"
+#include "proxy.h"
+#include "request_handler.h"
+#include "tagart.h"
 
 #include <sys/prctl.h>
 
@@ -251,7 +251,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
     while (nc != NULL) {
         if ((int)nc->is_websocket == 0 && nc->id == (long unsigned)response->conn_id) {
             if (response->cmd_id == INTERNAL_API_ALBUMART) {
-                webserver_albumart_send(nc, response->data, response->binary);
+                webserver_send_albumart(nc, response->data, response->binary);
             }
             else {
                 MYMPD_LOG_DEBUG("Sending response to conn_id %lu (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
@@ -404,7 +404,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                  * to allow other authorization methods in reverse proxy setups
                  */
                 struct mg_str *auth_header = mg_http_get_header(hm, "X-myMPD-Session");
-                bool rc = webserver_api_handler(nc, body, auth_header, mg_user_data, backend_nc);
+                bool rc = request_handler_api(nc, body, auth_header, mg_user_data, backend_nc);
                 FREE_SDS(body);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid API request");
@@ -415,16 +415,16 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
             }
             else if (mg_http_match_uri(hm, "/albumart-thumb")) {
-                webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_THUMBNAIL);
+                request_handler_albumart(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_THUMBNAIL);
             }
             else if (mg_http_match_uri(hm, "/albumart")) {
-                webserver_albumart_handler(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_FULL);
+                request_handler_albumart(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_FULL);
             }
             else if (mg_http_match_uri(hm, "/tagart")) {
-                webserver_tagart_handler(nc, hm, mg_user_data);
+                request_handler_tagart(nc, hm, mg_user_data);
             }
             else if (mg_http_match_uri(hm, "/browse/#")) {
-                webserver_browse_handler(nc, hm, mg_user_data);
+                request_handler_browse(nc, hm, mg_user_data);
             }
             else if (mg_http_match_uri(hm, "/ws/")) {
                 mg_ws_upgrade(nc, hm, NULL);
@@ -443,10 +443,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             else if (mg_http_match_uri(hm, "/proxy")) {
                 //Makes a get request to the defined uri and returns the response
-                webserver_proxy_handler(nc, hm, backend_nc);
+                request_handler_proxy(nc, hm, backend_nc);
             }
             else if (mg_http_match_uri(hm, "/api/serverinfo")) {
-                webserver_serverinfo_handler(nc);
+                request_handler_serverinfo(nc);
             }
             else if (mg_http_match_uri(hm, "/api/script")) {
                 //check acl
@@ -454,7 +454,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     break;
                 }
                 sds body = sdsnewlen(hm->body.ptr, hm->body.len);
-                bool rc = webserver_script_api_handler((long long)nc->id, body);
+                bool rc = request_handler_script_api((long long)nc->id, body);
                 FREE_SDS(body);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid script API request");
@@ -472,7 +472,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             #ifdef ENABLE_SSL
             else if (mg_http_match_uri(hm, "/ca.crt")) {
-                webserver_ca_handler(nc, hm, mg_user_data, config);
+                request_handler_ca(nc, hm, mg_user_data, config);
             }
             #endif
             else {

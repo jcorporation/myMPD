@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "random.h"
 
 #include <limits.h>

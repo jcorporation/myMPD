@@ -479,9 +479,9 @@ check_includes() {
   rc=0
   find src/ -name \*.c | while IFS= read -r FILE
   do
-    if ! grep -m1 "#include" "$FILE" | grep -q "mympd_config_defs.h"
+    if ! grep -m1 "#include" "$FILE" | grep -q "compile_time.h"
     then
-      echo_warn "First include is not mympd_config_defs.h: $FILE"
+      echo_warn "First include is not compile_time.h: $FILE"
       rc=1
     fi
     SRCDIR=$(dirname "$FILE")
@@ -547,8 +547,8 @@ check() {
     [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="-q --force --enable=warning"
     find ./src/ -name \*.c | while read -r FILE
     do
-      [ "$FILE" = "./src/mympd_api/mympd_api_scripts_lualibs.c" ] && continue
-      [ "$FILE" = "./src/web_server/web_server_embedded_files.c" ] && continue
+      [ "$FILE" = "./src/mympd_api/scripts_lualibs.c" ] && continue
+      [ "$FILE" = "./src/web_server/embedded_files.c" ] && continue
       #shellcheck disable=SC2086
       if ! cppcheck $CPPCHECKOPTS --error-exitcode=1 "$FILE"
       then

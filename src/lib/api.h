@@ -8,7 +8,7 @@
 #define MYMPD_API_H
 
 #include "../../dist/sds/sds.h"
-#include "mympd_queue.h"
+#include "msg_queue.h"
 
 #include <stdbool.h>
 

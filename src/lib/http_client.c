@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "http_client.h"
 
 #include "../../dist/mongoose/mongoose.h"

@@ -4,12 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "../utility.h"
 
 #include "../../dist/utest/utest.h"
-#include "../../src/mympd_api/mympd_api_timer.h"
-#include "../../src/mympd_api/mympd_api_timer_handlers.h"
+#include "../../src/mympd_api/timer.h"
+#include "../../src/mympd_api/timer_handlers.h"
 
 #include <sys/stat.h>
 

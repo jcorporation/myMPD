@@ -4,14 +4,14 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "../utility.h"
 
 #include "../../dist/utest/utest.h"
 #include "../../dist/sds/sds.h"
 #include "../../src/lib/jsonrpc.h"
 #include "../../src/lib/m3u.h"
-#include "../../src/mympd_api/mympd_api_webradios.h"
+#include "../../src/mympd_api/webradios.h"
 
 #include <sys/stat.h>
 

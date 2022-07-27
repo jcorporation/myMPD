@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 
 #include "../dist/utest/utest.h"
 #include "../src/lib/log.h"

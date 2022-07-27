@@ -34,7 +34,7 @@ set(TEST_SOURCES
   ../src/lib/lua_mympd_state.c
   ../src/lib/m3u.c
   ../src/lib/mimetype.c
-  ../src/lib/mympd_queue.c
+  ../src/lib/msg_queue.c
   ../src/lib/mympd_state.c
   ../src/lib/random.c
   ../src/lib/sds_extras.c
@@ -42,23 +42,23 @@ set(TEST_SOURCES
   ../src/lib/sticker_cache.c
   ../src/lib/utility.c
   ../src/lib/validate.c
-  ../src/mpd_client/mpd_client_errorhandler.c
-  ../src/mpd_client/mpd_client_search.c
-  ../src/mpd_client/mpd_client_search_local.c
-  ../src/mpd_client/mpd_client_tags.c
-  ../src/mpd_client/mpd_client_jukebox.c
-  ../src/mpd_client/mpd_client_volume.c
-  ../src/mympd_api/mympd_api_extra_media.c
-  ../src/mympd_api/mympd_api_home.c
-  ../src/mympd_api/mympd_api_last_played.c
-  ../src/mympd_api/mympd_api_lyrics.c
-  ../src/mympd_api/mympd_api_status.c
-  ../src/mympd_api/mympd_api_sticker.c
-  ../src/mympd_api/mympd_api_timer.c
-  ../src/mympd_api/mympd_api_timer_handlers.c
-  ../src/mympd_api/mympd_api_trigger.c
-  ../src/mympd_api/mympd_api_queue.c
-  ../src/mympd_api/mympd_api_webradios.c
+  ../src/mpd_client/errorhandler.c
+  ../src/mpd_client/search.c
+  ../src/mpd_client/search_local.c
+  ../src/mpd_client/tags.c
+  ../src/mpd_client/jukebox.c
+  ../src/mpd_client/volume.c
+  ../src/mympd_api/extra_media.c
+  ../src/mympd_api/home.c
+  ../src/mympd_api/last_played.c
+  ../src/mympd_api/lyrics.c
+  ../src/mympd_api/status.c
+  ../src/mympd_api/sticker.c
+  ../src/mympd_api/timer.c
+  ../src/mympd_api/timer_handlers.c
+  ../src/mympd_api/trigger.c
+  ../src/mympd_api/queue.c
+  ../src/mympd_api/webradios.c
   main.c
   tests/test_api.c
   tests/test_cert.c
@@ -191,7 +191,7 @@ set_property(SOURCE ${LIBMPDCLIENT_SOURCES} PROPERTY COMPILE_FLAGS "-Wno-convers
 
 set(ENABLE_FLAC "ON")
 set(ENABLE_LIBID3TAG "ON")
-configure_file(../src/mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
+configure_file(../src/compile_time.h.in ${PROJECT_BINARY_DIR}/compile_time.h)
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ../dist/libmpdclient/include)
 

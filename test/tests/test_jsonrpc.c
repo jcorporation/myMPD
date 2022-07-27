@@ -4,13 +4,13 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 
 #include "../../dist/utest/utest.h"
 #include "../../src/lib/jsonrpc.h"
 #include "../../src/lib/list.h"
 #include "../../src/lib/sds_extras.h"
-#include "../../src/mpd_client/mpd_client_tags.h"
+#include "../../src/mpd_client/tags.h"
 
 UTEST(jsonrpc, test_json_get_bool) {
     bool result;

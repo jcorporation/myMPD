@@ -7,8 +7,8 @@
 #ifndef MYMPD_WEB_SERVER_H
 #define MYMPD_WEB_SERVER_H
 
-#include "../lib/mympd_configuration.h"
-#include "web_server_utility.h"
+#include "../lib/config_def.h"
+#include "utility.h"
 
 void *web_server_loop(void *arg_mgr);
 bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_user_data *mg_user_data);

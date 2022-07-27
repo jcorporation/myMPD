@@ -4,19 +4,19 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "mpd_worker.h"
 
 #include "../../dist/sds/sds.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
-#include "../mpd_client/mpd_client_connection.h"
-#include "../mpd_client/mpd_client_errorhandler.h"
-#include "../mpd_client/mpd_client_tags.h"
-#include "mpd_worker_api.h"
-#include "mpd_worker_cache.h"
-#include "mpd_worker_smartpls.h"
+#include "../mpd_client/connection.h"
+#include "../mpd_client/errorhandler.h"
+#include "../mpd_client/tags.h"
+#include "api.h"
+#include "cache.h"
+#include "smartpls.h"
 
 #include <stdlib.h>
 #include <string.h>

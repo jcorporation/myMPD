@@ -167,7 +167,7 @@ else()
 endif()
 
 #configure some files - version and path information
-configure_file(src/mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
+configure_file(src/compile_time.h.in ${PROJECT_BINARY_DIR}/compile_time.h)
 configure_file(cmake/CopyConfig.cmake.in cmake/CopyConfig.cmake @ONLY)
 configure_file(contrib/initscripts/mympd.service.in contrib/initscripts/mympd.service @ONLY)
 configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.sysVinit @ONLY)
@@ -244,11 +244,12 @@ set(MYMPD_SOURCES
   dist/rax/rax.c
   dist/sds/sds.c
   dist/tinymt/tinymt32.c
-  src/handle_options.c
   src/lib/album_cache.c
   src/lib/api.c
+  src/lib/config.c
   src/lib/covercache.c
   src/lib/filehandler.c
+  src/lib/handle_options.c
   src/lib/http_client.c
   src/lib/jsonrpc.c
   src/lib/list.c
@@ -256,8 +257,8 @@ set(MYMPD_SOURCES
   src/lib/lua_mympd_state.c
   src/lib/m3u.c
   src/lib/mimetype.c
-  src/lib/mympd_pin.c
-  src/lib/mympd_queue.c
+  src/lib/pin.c
+  src/lib/msg_queue.c
   src/lib/mympd_state.c
   src/lib/random.c
   src/lib/rax_extras.c
@@ -268,58 +269,57 @@ set(MYMPD_SOURCES
   src/lib/utility.c
   src/lib/validate.c
   src/main.c
-  src/mpd_client/mpd_client_autoconf.c
-  src/mpd_client/mpd_client_connection.c
-  src/mpd_client/mpd_client_errorhandler.c
-  src/mpd_client/mpd_client_features.c
-  src/mpd_client/mpd_client_idle.c
-  src/mpd_client/mpd_client_jukebox.c
-  src/mpd_client/mpd_client_playlists.c
-  src/mpd_client/mpd_client_search.c
-  src/mpd_client/mpd_client_search_local.c
-  src/mpd_client/mpd_client_tags.c
-  src/mpd_client/mpd_client_volume.c
+  src/mpd_client/autoconf.c
+  src/mpd_client/connection.c
+  src/mpd_client/errorhandler.c
+  src/mpd_client/features.c
+  src/mpd_client/idle.c
+  src/mpd_client/jukebox.c
+  src/mpd_client/playlists.c
+  src/mpd_client/search.c
+  src/mpd_client/search_local.c
+  src/mpd_client/tags.c
+  src/mpd_client/volume.c
   src/mpd_worker/mpd_worker.c
-  src/mpd_worker/mpd_worker_api.c
-  src/mpd_worker/mpd_worker_cache.c
-  src/mpd_worker/mpd_worker_smartpls.c
-  src/mpd_worker/mpd_worker_state.c
+  src/mpd_worker/api.c
+  src/mpd_worker/cache.c
+  src/mpd_worker/smartpls.c
+  src/mpd_worker/state.c
   src/mympd_api/mympd_api.c
-  src/mympd_api/mympd_api_albumart.c
-  src/mympd_api/mympd_api_browse.c
-  src/mympd_api/mympd_api_extra_media.c
-  src/mympd_api/mympd_api_filesystem.c
+  src/mympd_api/albumart.c
+  src/mympd_api/browse.c
+  src/mympd_api/extra_media.c
+  src/mympd_api/filesystem.c
+  src/mympd_api/home.c
+  src/mympd_api/last_played.c
+  src/mympd_api/lyrics.c
+  src/mympd_api/mounts.c
   src/mympd_api/mympd_api_handler.c
-  src/mympd_api/mympd_api_home.c
-  src/mympd_api/mympd_api_last_played.c
-  src/mympd_api/mympd_api_lyrics.c
-  src/mympd_api/mympd_api_mounts.c
-  src/mympd_api/mympd_api_outputs.c
-  src/mympd_api/mympd_api_partitions.c
-  src/mympd_api/mympd_api_pictures.c
-  src/mympd_api/mympd_api_playlists.c
-  src/mympd_api/mympd_api_queue.c
-  src/mympd_api/mympd_api_scripts.c
-  src/mympd_api/mympd_api_settings.c
-  src/mympd_api/mympd_api_smartpls.c
-  src/mympd_api/mympd_api_song.c
-  src/mympd_api/mympd_api_stats.c
-  src/mympd_api/mympd_api_status.c
-  src/mympd_api/mympd_api_sticker.c
-  src/mympd_api/mympd_api_timer.c
-  src/mympd_api/mympd_api_timer_handlers.c
-  src/mympd_api/mympd_api_trigger.c
-  src/mympd_api/mympd_api_webradios.c
-  src/mympd_config.c
+  src/mympd_api/outputs.c
+  src/mympd_api/partitions.c
+  src/mympd_api/pictures.c
+  src/mympd_api/playlists.c
+  src/mympd_api/queue.c
+  src/mympd_api/scripts.c
+  src/mympd_api/settings.c
+  src/mympd_api/smartpls.c
+  src/mympd_api/song.c
+  src/mympd_api/stats.c
+  src/mympd_api/status.c
+  src/mympd_api/sticker.c
+  src/mympd_api/timer.c
+  src/mympd_api/timer_handlers.c
+  src/mympd_api/trigger.c
+  src/mympd_api/webradios.c
   src/web_server/web_server.c
-  src/web_server/web_server_albumart.c
-  src/web_server/web_server_handler.c
-  src/web_server/web_server_proxy.c
-  src/web_server/web_server_radiobrowser.c
-  src/web_server/web_server_sessions.c
-  src/web_server/web_server_tagart.c
-  src/web_server/web_server_utility.c
-  src/web_server/web_server_webradiodb.c
+  src/web_server/albumart.c
+  src/web_server/request_handler.c
+  src/web_server/proxy.c
+  src/web_server/radiobrowser.c
+  src/web_server/sessions.c
+  src/web_server/tagart.c
+  src/web_server/utility.c
+  src/web_server/webradiodb.c
 )
 
 if("${ENABLE_SSL}" MATCHES "ON")

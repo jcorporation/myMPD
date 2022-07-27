@@ -4,11 +4,11 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 
 #include "../../dist/utest/utest.h"
 #include "../../src/lib/api.h"
-#include "../../src/lib/mympd_queue.h"
+#include "../../src/lib/msg_queue.h"
 #include "../../src/lib/sds_extras.h"
 
 UTEST(mympd_queue, push_shift) {

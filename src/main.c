@@ -4,21 +4,22 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 
 #include "../dist/mongoose/mongoose.h"
 #include "../dist/rax/rax.h"
 #include "../dist/sds/sds.h"
-#include "handle_options.h"
 #include "lib/api.h"
+#include "lib/config.h"
+#include "lib/config_def.h"
 #include "lib/filehandler.h"
+#include "lib/handle_options.h"
 #include "lib/log.h"
 #include "lib/mem.h"
 #include "lib/random.h"
 #include "lib/sds_extras.h"
 #include "lib/smartpls.h"
 #include "mympd_api/mympd_api.h"
-#include "mympd_config.h"
 #include "web_server/web_server.h"
 
 #ifdef ENABLE_SSL

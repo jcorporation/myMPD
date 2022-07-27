@@ -4,12 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "album_cache.h"
 
 #include "../../dist/libmpdclient/src/isong.h"
 #include "../lib/sds_extras.h"
-#include "../mpd_client/mpd_client_tags.h"
+#include "../mpd_client/tags.h"
 #include "log.h"
 #include "mem.h"
 #include "utility.h"

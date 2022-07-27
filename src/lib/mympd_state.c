@@ -4,17 +4,17 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "mympd_state.h"
 
 #include "../lib/album_cache.h"
 #include "../lib/sticker_cache.h"
-#include "../mpd_client/mpd_client_jukebox.h"
-#include "../mpd_client/mpd_client_tags.h"
-#include "../mympd_api/mympd_api_home.h"
-#include "../mympd_api/mympd_api_last_played.h"
-#include "../mympd_api/mympd_api_timer.h"
-#include "../mympd_api/mympd_api_trigger.h"
+#include "../mpd_client/jukebox.h"
+#include "../mpd_client/tags.h"
+#include "../mympd_api/home.h"
+#include "../mympd_api/last_played.h"
+#include "../mympd_api/timer.h"
+#include "../mympd_api/trigger.h"
 #include "log.h"
 #include "mem.h"
 #include "sds_extras.h"

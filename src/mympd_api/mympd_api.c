@@ -4,23 +4,23 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "mympd_api.h"
 
 #include "../lib/api.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
-#include "../mpd_client/mpd_client_autoconf.h"
-#include "../mpd_client/mpd_client_connection.h"
-#include "../mpd_client/mpd_client_errorhandler.h"
-#include "../mpd_client/mpd_client_idle.h"
-#include "mympd_api_home.h"
-#include "mympd_api_last_played.h"
-#include "mympd_api_settings.h"
-#include "mympd_api_timer.h"
-#include "mympd_api_timer_handlers.h"
-#include "mympd_api_trigger.h"
+#include "../mpd_client/autoconf.h"
+#include "../mpd_client/connection.h"
+#include "../mpd_client/errorhandler.h"
+#include "../mpd_client/idle.h"
+#include "home.h"
+#include "last_played.h"
+#include "settings.h"
+#include "timer.h"
+#include "timer_handlers.h"
+#include "trigger.h"
 
 #include <stdlib.h>
 #include <string.h>
