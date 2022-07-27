@@ -370,6 +370,9 @@ int main(int argc, char **argv) {
             goto cleanup;
     }
 
+    //read configuration from environment or set default values
+    mympd_config_defaults(config);
+
     //check initial directories
     if (check_dirs_initial(config, startup_uid) == false) {
         goto cleanup;
@@ -383,8 +386,6 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //read configuration from environment or set default values
-    mympd_config_defaults(config);
     //reads the config from /var/lib/mympd/config folder or writes defaults
     mympd_read_config(config);
 
