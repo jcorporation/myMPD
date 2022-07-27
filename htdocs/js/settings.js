@@ -858,24 +858,19 @@ function setFeatures() {
     features.featLocalPlayback = settings.webuiSettings.enableLocalPlayback === true ?
         (settings.mpdStreamPort > 0 ? true : false) : false;
     features.featScripting = settings.webuiSettings.enableScripting === true ?
-        (settings.featScripting === true ? true : false) : false;
+        settings.featScripting : false;
     features.featTimer = settings.webuiSettings.enableTimer;
     features.featTrigger = settings.webuiSettings.enableTrigger;
 
     //mpd features
     if (settings.mpdConnected === true) {
         features.featLibrary = settings.featLibrary;
-        features.featLyrics = settings.webuiSettings.enableLyrics === true ?
-            (settings.featLibrary === true ? true : false) : false;
-        features.featMounts = settings.webuiSettings.enableMounts === true ?
-            (settings.featMounts === true ? true : false) : false;
-        features.featNeighbors = settings.webuiSettings.enableMounts === true ?
-            (settings.featNeighbors === true ? true : false) : false;
-        features.featPartitions = settings.webuiSettings.enablePartitions === true ?
-            (settings.featPartitions === true ? true : false) : false;
+        features.featLyrics = settings.webuiSettings.enableLyrics === true ? settings.featLibrary : false;
+        features.featMounts = settings.webuiSettings.enableMounts === true ? settings.featMounts : false;
+        features.featNeighbors = settings.webuiSettings.enableMounts === true ? settings.featNeighbors : false;
+        features.featPartitions = settings.webuiSettings.enablePartitions === true ? settings.featPartitions : false;
         features.featPlaylists = settings.featPlaylists;
-        features.featSmartpls = settings.featSmartpls === true ?
-            (settings.smartpls === true ? true : false) : false;
+        features.featSmartpls = settings.featPlaylists === true ? settings.smartpls : false;
         features.featStickers = settings.featStickers;
         features.featTags = settings.featTags;
         features.featBinarylimit = settings.featBinarylimit;

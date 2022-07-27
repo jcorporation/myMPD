@@ -704,7 +704,6 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, long r
         buffer = tojson_bool(buffer, "featMounts", mympd_state->mpd_shared_state->feat_mpd_mount, true);
         buffer = tojson_bool(buffer, "featNeighbors", mympd_state->mpd_shared_state->feat_mpd_neighbor, true);
         buffer = tojson_bool(buffer, "featBinarylimit", mympd_state->mpd_shared_state->feat_mpd_binarylimit, true);
-        buffer = tojson_bool(buffer, "featSmartpls", mympd_state->mpd_shared_state->feat_mpd_smartpls, true);
         buffer = tojson_bool(buffer, "featPlaylistRmRange", mympd_state->mpd_shared_state->feat_mpd_playlist_rm_range, true);
         buffer = tojson_bool(buffer, "featWhence", mympd_state->mpd_shared_state->feat_mpd_whence, true);
         buffer = tojson_bool(buffer, "featAdvqueue", mympd_state->mpd_shared_state->feat_mpd_advqueue, true);

@@ -98,15 +98,6 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
         MYMPD_LOG_WARN("Disabling advanced queue feature, depends on mpd >= 0.24.0");
     }
 
-    if (mympd_state->mpd_shared_state->feat_mpd_playlists == true)
-    {
-        MYMPD_LOG_NOTICE("Enabling smart playlists feature");
-        mympd_state->mpd_shared_state->feat_mpd_smartpls = true;
-    }
-    else {
-        MYMPD_LOG_WARN("Disabling smart playlists feature");
-    }
-
     //push settings to web_server_queue
     struct set_mg_user_data_request *extra = malloc_assert(sizeof(struct set_mg_user_data_request));
     extra->music_directory = sdsdup(mympd_state->mpd_shared_state->music_directory_value);
