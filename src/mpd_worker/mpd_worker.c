@@ -45,7 +45,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     //create mpd worker state from mympd_state
     struct t_mpd_worker_state *mpd_worker_state = malloc_assert(sizeof(struct t_mpd_worker_state));
     mpd_worker_state->request = request;
-    mpd_worker_state->smartpls = mympd_state->smartpls == true ? mympd_state->mpd_shared_state->feat_mpd_smartpls == true ? true : false : false;
+    mpd_worker_state->smartpls = mympd_state->smartpls == true ? mympd_state->mpd_shared_state->feat_mpd_playlists : false;
     mpd_worker_state->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
     mpd_worker_state->smartpls_prefix = sdsdup(mympd_state->smartpls_prefix);
     mpd_worker_state->config = mympd_state->config;

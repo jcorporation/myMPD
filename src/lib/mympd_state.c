@@ -188,7 +188,6 @@ void mpd_shared_state_features_disable(struct t_mpd_shared_state *mpd_shared_sta
     mpd_shared_state->feat_mpd_neighbor = false;
     mpd_shared_state->feat_mpd_partitions = false;
     mpd_shared_state->feat_mpd_binarylimit = false;
-    mpd_shared_state->feat_mpd_smartpls = false;
     mpd_shared_state->feat_mpd_playlist_rm_range = false;
     mpd_shared_state->feat_mpd_whence = false;
     mpd_shared_state->feat_mpd_advqueue = false;

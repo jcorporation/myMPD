@@ -104,7 +104,7 @@ struct t_mpd_shared_state {
     unsigned mpd_binarylimit;
     unsigned mpd_timeout;
     bool mpd_keepalive;
-    //music directory
+    //real music directory set by feature detection
     sds music_directory_value;
     //tags
     sds tag_list;
@@ -113,7 +113,7 @@ struct t_mpd_shared_state {
     struct t_tags tag_types_search;
     struct t_tags tag_types_browse;
     enum mpd_tag_type tag_albumartist;
-    //Feats
+    //Features
     const unsigned *protocol;
     bool feat_mpd_library;
     bool feat_mpd_tags;
@@ -126,7 +126,6 @@ struct t_mpd_shared_state {
     bool feat_mpd_neighbor;
     bool feat_mpd_partitions;
     bool feat_mpd_binarylimit;
-    bool feat_mpd_smartpls;
     bool feat_mpd_playlist_rm_range;
     bool feat_mpd_whence;
     bool feat_mpd_advqueue;
@@ -137,7 +136,7 @@ struct t_mpd_shared_state {
     struct t_list last_played;
     long last_played_count;
     struct t_list sticker_queue;
-
+    //name of the booklet files
     sds booklet_name;
 };
 
@@ -145,30 +144,36 @@ struct t_mpd_shared_state {
  * Holds partition specific states
  */
 struct t_partition_state {
+    //partition name
     sds name;
+    //mpd connection
     struct mpd_connection *conn;
     enum mpd_conn_states conn_state;
-    time_t reconnect_time;
-    time_t reconnect_interval;
-    enum mpd_state play_state;
-    int song_id;
-    int next_song_id;
-    int last_song_id;
-    int song_pos;
-    sds song_uri;
-    sds last_song_uri;
-    unsigned queue_version;
-    long long queue_length;
-    int last_last_played_id;
-    int last_skipped_id;
-    time_t song_end_time;
-    time_t last_song_end_time;
-    time_t song_start_time;
-    time_t last_song_start_time;
-    time_t crossfade;
-    time_t set_song_played_time;
-    time_t last_song_set_song_played_time;
+    //reconnect timer
+    time_t reconnect_time; //timestamp at which next connection attempt is made
+    time_t reconnect_interval; //interval for connections attempts (increases by failed attempts)
+    //track player states
+    enum mpd_state play_state; //mpd player state
+    int song_id; //current song id from queue
+    int next_song_id; //next song id from queue
+    int last_song_id; //previous song id from queue
+    int song_pos; //current song pos in queue
+    sds song_uri; //current song uri
+    sds last_song_uri; // previous song uri
+    unsigned queue_version; //queue version number (increments on queue change)
+    long long queue_length; //length of the queue
+    int last_last_played_id; //last scrobble event was fired for this song id
+    int last_skipped_id; //last skipped event was fired for this song id
+    time_t song_end_time; //timestamp at which current song should end (starttime + duration)
+    time_t last_song_end_time; //timestamp at which previous song should end (starttime + duration)
+    time_t song_start_time; //timestamp at which current song has started
+    time_t last_song_start_time; //timestap at which previous song has started
+    time_t crossfade; //used for determine when to add next song from jukebox queue
+    time_t set_song_played_time; //timestamp at which the scrobble event will be fired
+    time_t last_song_set_song_played_time; //timestamp of the previous scrobble event
+    //start play if queue changes
     bool auto_play;
+    //jukebox
     enum jukebox_modes jukebox_mode;
     sds jukebox_playlist;
     long jukebox_queue_length;
@@ -252,15 +257,17 @@ struct t_mympd_state {
     struct t_timer_list timer_list;
     struct t_list home_list;
     struct t_list trigger_list;
-    //states - configurable with webui
+    //tags to use
     sds tag_list_search;
     sds tag_list_browse;
+    //smart playlists
     bool smartpls;
     sds smartpls_sort;
     sds smartpls_prefix;
     time_t smartpls_interval;
     struct t_tags smartpls_generate_tag_types;
     sds smartpls_generate_tag_list;
+    //columns
     sds cols_queue_current;
     sds cols_search;
     sds cols_browse_database_detail;
@@ -271,7 +278,7 @@ struct t_mympd_state {
     sds cols_queue_jukebox;
     sds cols_browse_radio_webradiodb;
     sds cols_browse_radio_radiobrowser;
-    bool localplayer;
+    //further configuration settings
     unsigned mpd_stream_port;
     sds music_directory;
     sds playlist_directory;
@@ -283,7 +290,8 @@ struct t_mympd_state {
     unsigned volume_step;
     struct t_lyrics lyrics;
     sds listenbrainz_token;
-    //settings only for webui
+    //settings only relevant for webui
+    //saved as string containing json
     sds webui_settings;
 };
 

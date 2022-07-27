@@ -12,9 +12,11 @@
 
 #include <stdbool.h>
 
-//API cmds
-//all above INTERNAL_API_COUNT are internal
-//TOTAL_API_COUNT must be the last
+/**
+ * myMPD api methodes
+ * all above INTERNAL_API_COUNT are internal
+ * TOTAL_API_COUNT must be the last
+ */
 #define MYMPD_CMDS(X) \
     X(GENERAL_API_UNKNOWN) \
     X(INTERNAL_API_ALBUMART) \
@@ -161,18 +163,30 @@
     X(MYMPD_API_WEBRADIO_FAVORITE_SAVE) \
     X(TOTAL_API_COUNT)
 
+/**
+ * Helper macros
+ */
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,
 
+/**
+ * Enum of myMPD jsonrpc api methodes
+ */
 enum mympd_cmd_ids {
     MYMPD_CMDS(GEN_ENUM)
 };
 
+/**
+ * Jsonrpc request ids
+ */
 enum request_ids {
     REQUEST_ID_NOTIFY = -1,
     REQUEST_ID_RESPONSE = 0
 };
 
+/**
+ * Struct for work request in the queue
+ */
 struct t_work_request {
     long long conn_id; // needed to identify the connection where to send the reply
     long id; //the jsonrpc id
@@ -182,6 +196,9 @@ struct t_work_request {
     void *extra;
 };
 
+/**
+ * Struct for work responses in the queue
+ */
 struct t_work_response {
     long long conn_id; // needed to identify the connection where to send the reply
     long id; //the jsonrpc id
@@ -192,7 +209,9 @@ struct t_work_response {
     void *extra;
 };
 
-//config data sent to webserver thread
+/**
+ * Config data sent to webserver thread
+ */
 struct set_mg_user_data_request {
     sds music_directory;
     sds playlist_directory;
@@ -203,7 +222,9 @@ struct set_mg_user_data_request {
     unsigned mpd_stream_port;
 };
 
-//public functions
+/**
+ * Public functions
+ */
 enum mympd_cmd_ids get_cmd_id(const char *cmd);
 const char *get_cmd_id_method_name(enum mympd_cmd_ids cmd_id);
 bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
