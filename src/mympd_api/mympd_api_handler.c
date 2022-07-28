@@ -335,7 +335,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_iterate_object(request->data, "$.params", mympd_api_settings_mpd_options_set, mympd_state, NULL, 100, &error) == true) {
                 if (mympd_state->partition_state->jukebox_mode != JUKEBOX_OFF) {
                     //start jukebox
-                    mpd_client_jukebox(mympd_state->partition_state);
+                    jukebox_run(mympd_state->partition_state);
                 }
                 //respond with ok
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD);
@@ -472,7 +472,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_JUKEBOX_RM:
             if (json_get_long(request->data, "$.params.pos", 0, MPD_PLAYLIST_LENGTH_MAX, &long_buf1, &error) == true) {
-                rc = mpd_client_rm_jukebox_entry(&mympd_state->partition_state->jukebox_queue, long_buf1);
+                rc = jukebox_rm_entry(&mympd_state->partition_state->jukebox_queue, long_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
                 }
@@ -483,7 +483,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_JUKEBOX_CLEAR:
-            mpd_client_clear_jukebox(&mympd_state->partition_state->jukebox_queue);
+            jukebox_clear(&mympd_state->partition_state->jukebox_queue);
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
             break;
         case MYMPD_API_JUKEBOX_LIST: {
@@ -494,7 +494,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
-                response->data = mpd_client_get_jukebox_list(mympd_state->partition_state, response->data, request->cmd_id, request->id,
+                response->data = jukebox_list(mympd_state->partition_state, response->data, request->cmd_id, request->id,
                     long_buf1, long_buf2, sds_buf1, &tagcols);
             }
             break;
@@ -602,7 +602,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (request->extra != NULL) {
                 //first clear the jukebox queue - it has references to the album cache
                 MYMPD_LOG_INFO("Clearing jukebox queue");
-                mpd_client_clear_jukebox(&mympd_state->partition_state->jukebox_queue);
+                jukebox_clear(&mympd_state->partition_state->jukebox_queue);
                 //free the old album cache and replace it with the freshly generated one
                 album_cache_free(&mympd_state->mpd_shared_state->album_cache);
                 mympd_state->mpd_shared_state->album_cache.cache = (rax *) request->extra;
@@ -1284,7 +1284,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_uint(request->data, "$.params.mode", 0, 2, &uint_buf1, &error) == true &&
                 json_get_long(request->data, "$.params.quantity", 0, 1000, &long_buf1, &error) == true)
             {
-                rc = mpd_client_jukebox_add_to_queue(mympd_state->partition_state, long_buf1, uint_buf1, sds_buf1, true);
+                rc = jukebox_add_to_queue(mympd_state->partition_state, long_buf1, uint_buf1, sds_buf1, true);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Successfully added random songs to queue");

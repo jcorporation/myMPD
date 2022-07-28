@@ -259,7 +259,7 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         json_get_bool(str, "$.params.weekdays[6]", &timer_def->weekdays[6], error) == true &&
         json_get_string_max(str, "$.params.jukeboxMode", &jukebox_mode_str, vcb_isalnum, error) == true)
     {
-        timer_def->jukebox_mode = mpd_client_parse_jukebox_mode(jukebox_mode_str);
+        timer_def->jukebox_mode = jukebox_mode_parse(jukebox_mode_str);
         MYMPD_LOG_DEBUG("Successfully parsed timer definition");
     }
     else {
@@ -464,7 +464,7 @@ static sds print_timer_node(sds buffer, struct t_timer_node *current) {
     buffer = tojson_sds(buffer, "subaction", current->definition->subaction, true);
     buffer = tojson_sds(buffer, "playlist", current->definition->playlist, true);
     buffer = tojson_uint(buffer, "volume", current->definition->volume, true);
-    buffer = tojson_char(buffer, "jukeboxMode", mpd_client_lookup_jukebox_mode(current->definition->jukebox_mode), true);
+    buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_lookup(current->definition->jukebox_mode), true);
     buffer = sdscat(buffer, "\"weekdays\":[");
     for (int i = 0; i < 7; i++) {
         if (i > 0) {

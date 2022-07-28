@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "jukebox.h"
 
+#include "../../dist/utf8/utf8.h"
 #include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
@@ -28,16 +29,16 @@
 #include <string.h>
 
 //private definitions
-static bool _mpd_client_jukebox(struct t_partition_state *partition_state);
-static struct t_list *mpd_client_jukebox_get_last_played(struct t_partition_state *partition_state,
+static bool _jukebox(struct t_partition_state *partition_state);
+static struct t_list *jukebox_get_last_played(struct t_partition_state *partition_state,
         enum jukebox_modes jukebox_mode);
-static bool mpd_client_jukebox_fill_jukebox_queue(struct t_partition_state *partition_state,
+static bool jukebox_fill_jukebox_queue(struct t_partition_state *partition_state,
         long add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
-static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_partition_state *partition_state,
+static bool _jukebox_fill_jukebox_queue(struct t_partition_state *partition_state,
         long add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual);
-static long mpd_client_jukebox_unique_tag(struct t_partition_state *partition_state, const char *uri,
+static long jukebox_unique_tag(struct t_partition_state *partition_state, const char *uri,
         const char *value, bool manual, struct t_list *queue_list);
-static long mpd_client_jukebox_unique_album(struct t_partition_state *partition_state, const char *album,
+static long jukebox_unique_album(struct t_partition_state *partition_state, const char *album,
         const char *albumartist, bool manual, struct t_list *queue_list);
 static bool add_album_to_queue(struct t_partition_state *partition_state, struct mpd_song *album);
 static long _fill_jukebox_queue_songs(struct t_partition_state *partition_state, long add_songs,
@@ -50,9 +51,16 @@ enum jukebox_uniq_result {
     JUKEBOX_UNIQ_IS_UNIQ = -1
 };
 
-//public functions
+/**
+ * Public functions
+ */
 
-enum jukebox_modes mpd_client_parse_jukebox_mode(const char *str) {
+/**
+ * Parses the string to the jukebox mode
+ * @param str string to parse
+ * @return jukebox mode
+ */
+enum jukebox_modes jukebox_mode_parse(const char *str) {
     if (strcmp(str, "off") == 0) {
         return JUKEBOX_OFF;
     }
@@ -65,7 +73,12 @@ enum jukebox_modes mpd_client_parse_jukebox_mode(const char *str) {
     return JUKEBOX_UNKNOWN;
 }
 
-const char *mpd_client_lookup_jukebox_mode(enum jukebox_modes mode) {
+/**
+ * Returns the jukeboxmod as string
+ * @param mode the jukebox mode
+ * @return jukebox mode as string
+ */
+const char *jukebox_mode_lookup(enum jukebox_modes mode) {
 	switch (mode) {
         case JUKEBOX_OFF:
             return "off";
@@ -79,7 +92,13 @@ const char *mpd_client_lookup_jukebox_mode(enum jukebox_modes mode) {
 	return NULL;
 }
 
-bool mpd_client_rm_jukebox_entry(struct t_list *list, long pos) {
+/**
+ * Removes an entry from the jukebox queue.
+ * @param list the jukebox queue
+ * @param pos position to remove
+ * @return true on success, else false
+ */
+bool jukebox_rm_entry(struct t_list *list, long pos) {
     struct t_list_node *node = list_node_at(list, pos);
     if (node == NULL) {
         return false;
@@ -88,11 +107,28 @@ bool mpd_client_rm_jukebox_entry(struct t_list *list, long pos) {
     return list_remove_node(list, pos);
 }
 
-void mpd_client_clear_jukebox(struct t_list *list) {
+/**
+ * Clears the jukebox queue.
+ * This is a simple wrapper arround list_clear.
+ * @param list the jukebox queue
+ */
+void jukebox_clear(struct t_list *list) {
     list_clear(list);
 }
 
-sds mpd_client_get_jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
+/**
+ * Prints the jukebox queue as an jsonrpc response
+ * @param partition_state pointer to myMPD partition state
+ * @param buffer alreay allocated sds string to append the result
+ * @param cmd_id jsonrpc method
+ * @param request_id jsonrpc request id
+ * @param offset offset for printing
+ * @param limit max entries to print
+ * @param searchstr string to search
+ * @param tagcols colums to print
+ * @return pointer to buffer
+ */
+sds jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
         const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
 {
     long entity_count = 0;
@@ -138,15 +174,9 @@ sds mpd_client_get_jukebox_list(struct t_partition_state *partition_state, sds b
     }
     else if (partition_state->jukebox_mode == JUKEBOX_ADD_ALBUM) {
         struct t_list_node *current = partition_state->jukebox_queue.head;
-        sds album_lower = sdsempty();
-        sds artist_lower = sdsempty();
         while (current != NULL) {
-            album_lower = sdscatsds(album_lower, current->key);
-            sds_utf8_tolower(album_lower);
-            artist_lower = sdscatsds(artist_lower, current->value_p);
-            sds_utf8_tolower(album_lower);
-            if (strstr(album_lower, searchstr) != NULL ||
-                strstr(artist_lower, searchstr) != NULL)
+            if (utf8casestr(current->key, searchstr) != NULL ||
+                utf8casestr(current->value_p, searchstr) != NULL)
             {
                 if (entity_count >= offset &&
                     entity_count < real_limit)
@@ -154,23 +184,22 @@ sds mpd_client_get_jukebox_list(struct t_partition_state *partition_state, sds b
                     if (entities_returned++) {
                         buffer = sdscatlen(buffer, ",", 1);
                     }
+                    struct mpd_song *album = (struct mpd_song *)current->user_data;
                     buffer = sdscatlen(buffer, "{", 1);
                     buffer = tojson_long(buffer, "Pos", entity_count, true);
                     buffer = tojson_char(buffer, "uri", "Album", true);
                     buffer = tojson_char(buffer, "Title", "", true);
-                    buffer = tojson_raw(buffer, "Album", current->key, true);
-                    buffer = tojson_raw(buffer, "AlbumArtist", current->value_p, true);
-                    buffer = tojson_raw(buffer, "Artist", current->value_p, false);
+                    buffer = tojson_char(buffer, "Album", current->key, true);
+                    buffer = sdscat(buffer, "\"AlbumArtist\":");
+                    buffer = mpd_client_get_tag_values(album, MPD_TAG_ALBUM_ARTIST, buffer);
+                    buffer = sdscat(buffer, ",\"Artist\":");
+                    buffer = mpd_client_get_tag_values(album, MPD_TAG_ARTIST, buffer);
                     buffer = sdscatlen(buffer, "}", 1);
                 }
                 entity_count++;
             }
-            sdsclear(album_lower);
-            sdsclear(artist_lower);
             current = current->next;
         }
-        FREE_SDS(album_lower);
-        FREE_SDS(artist_lower);
     }
 
     buffer = sdscatlen(buffer, "],", 2);
@@ -183,9 +212,14 @@ sds mpd_client_get_jukebox_list(struct t_partition_state *partition_state, sds b
     return buffer;
 }
 
-bool mpd_client_jukebox(struct t_partition_state *partition_state) {
+/**
+ * Wrapper for the real jukebox function that retries adding songs or albums three times.
+ * @param partition_state pointer to myMPD partition state
+ * @return true on success, else false
+ */
+bool jukebox_run(struct t_partition_state *partition_state) {
     for (int i = 1; i < 3; i++) {
-         if (_mpd_client_jukebox(partition_state) == true) {
+         if (_jukebox(partition_state) == true) {
              return true;
          }
          if (partition_state->jukebox_mode == JUKEBOX_OFF) {
@@ -196,7 +230,13 @@ bool mpd_client_jukebox(struct t_partition_state *partition_state) {
     return false;
 }
 
-static bool _mpd_client_jukebox(struct t_partition_state *partition_state) {
+/**
+ * The real jukebox function.
+ * It determines if a song must be added or not and starts playing.
+ * @param partition_state pointer to myMPD partition state
+ * @return true on success, else false
+ */
+static bool _jukebox(struct t_partition_state *partition_state) {
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status == NULL) {
         mympd_check_error_and_recover(partition_state);
@@ -244,7 +284,7 @@ static bool _mpd_client_jukebox(struct t_partition_state *partition_state) {
         return true;
     }
 
-    bool rc = mpd_client_jukebox_add_to_queue(partition_state, add_songs, partition_state->jukebox_mode, partition_state->jukebox_playlist, false);
+    bool rc = jukebox_add_to_queue(partition_state, add_songs, partition_state->jukebox_mode, partition_state->jukebox_playlist, false);
 
     //update playback state
     mympd_api_queue_status(partition_state, NULL);
@@ -265,14 +305,27 @@ static bool _mpd_client_jukebox(struct t_partition_state *partition_state) {
     return false;
 }
 
-bool mpd_client_jukebox_add_to_queue(struct t_partition_state *partition_state, long add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual) {
+/**
+ * This functions checks if the jukebox queue is long enough, refills the queue if necessary
+ * and adds songs or albums to the queue.
+ * @param partition_state pointer to myMPD partition state
+ * @param add_songs number of songs to add
+ * @param jukebox_mode jukebox mode
+ * @param playlist playlist to add songs from
+ * @param manual false = normal jukebox operation
+ *               true = create separate jukebox queue and add songs to queue once
+ * @return true on success, else false
+ */
+bool jukebox_add_to_queue(struct t_partition_state *partition_state, long add_songs,
+        enum jukebox_modes jukebox_mode, const char *playlist, bool manual)
+{
     if (manual == false) {
         MYMPD_LOG_DEBUG("Jukebox queue length: %ld", partition_state->jukebox_queue.length);
     }
     if ((manual == false && add_songs > partition_state->jukebox_queue.length) ||
         (manual == true))
     {
-        bool rc = mpd_client_jukebox_fill_jukebox_queue(partition_state, add_songs, jukebox_mode, playlist, manual);
+        bool rc = jukebox_fill_jukebox_queue(partition_state, add_songs, jukebox_mode, playlist, manual);
         if (rc == false) {
             return false;
         }
@@ -310,12 +363,12 @@ bool mpd_client_jukebox_add_to_queue(struct t_partition_state *partition_state, 
         }
         if (manual == false) {
             partition_state->jukebox_queue.head->user_data = NULL;
-            mpd_client_rm_jukebox_entry(&partition_state->jukebox_queue, 0);
+            jukebox_rm_entry(&partition_state->jukebox_queue, 0);
             current = partition_state->jukebox_queue.head;
         }
         else {
             partition_state->jukebox_queue_tmp.head->user_data = NULL;
-            mpd_client_rm_jukebox_entry(&partition_state->jukebox_queue_tmp, 0);
+            jukebox_rm_entry(&partition_state->jukebox_queue_tmp, 0);
             current = partition_state->jukebox_queue_tmp.head;
         }
     }
@@ -328,7 +381,7 @@ bool mpd_client_jukebox_add_to_queue(struct t_partition_state *partition_state, 
         if ((jukebox_mode == JUKEBOX_ADD_SONG && partition_state->jukebox_queue.length < 25) ||
             (jukebox_mode == JUKEBOX_ADD_ALBUM && partition_state->jukebox_queue.length < 5))
         {
-            bool rc = mpd_client_jukebox_fill_jukebox_queue(partition_state, add_songs, jukebox_mode, playlist, manual);
+            bool rc = jukebox_fill_jukebox_queue(partition_state, add_songs, jukebox_mode, playlist, manual);
             if (rc == false) {
                 return false;
             }
@@ -338,7 +391,16 @@ bool mpd_client_jukebox_add_to_queue(struct t_partition_state *partition_state, 
     return true;
 }
 
-//private functions
+/**
+ * Private functions
+ */
+
+/**
+ * Adds a complete album to the queue
+ * @param partition_state pointer to myMPD partition state
+ * @param album album to add
+ * @return true on success, else false
+ */
 static bool add_album_to_queue(struct t_partition_state *partition_state, struct mpd_song *album) {
     bool rc = mpd_search_add_db_songs(partition_state->conn, true);
     if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_search_add_db_songs") == false) {
@@ -368,7 +430,14 @@ static bool add_album_to_queue(struct t_partition_state *partition_state, struct
     return mympd_check_rc_error_and_recover(partition_state, rc, "mpd_search_commit");
 }
 
-static struct t_list *mpd_client_jukebox_get_last_played(struct t_partition_state *partition_state, enum jukebox_modes jukebox_mode) {
+/**
+ * Gets the song list from queue and last played.
+ * This list is used to enforce the uniq tag constraint
+ * @param partition_state pointer to myMPD partition state
+ * @param jukbox_mode the jukebox mode
+ * @return a newly allocated list with songs or albums
+ */
+static struct t_list *jukebox_get_last_played(struct t_partition_state *partition_state, enum jukebox_modes jukebox_mode) {
     struct mpd_song *song;
     struct t_list *queue_list = list_new();
 
@@ -491,7 +560,18 @@ static struct t_list *mpd_client_jukebox_get_last_played(struct t_partition_stat
     return queue_list;
 }
 
-static bool mpd_client_jukebox_fill_jukebox_queue(struct t_partition_state *partition_state,
+/**
+ * Wrapper function for the real jukebox queue filling function.
+ * It keeps track of enabling/disabling tags.
+ * @param partition_state pointer to myMPD partition state
+ * @param add_songs number of songs or albums to add
+ * @param jukebox_mode the jukebox mode
+ * @param playlist playlist to add songs from
+ * @param manual false = normal jukebox operation
+ *               true = create separate jukebox queue and add songs to queue once
+ * @return true on success, else false
+ */
+static bool jukebox_fill_jukebox_queue(struct t_partition_state *partition_state,
     long add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual)
 {
     send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_INFO, "Filling jukebox queue");
@@ -504,7 +584,7 @@ static bool mpd_client_jukebox_fill_jukebox_queue(struct t_partition_state *part
             disable_all_mpd_tags(partition_state);
         }
     }
-    bool rc = _mpd_client_jukebox_fill_jukebox_queue(partition_state, add_songs, jukebox_mode, playlist, manual);
+    bool rc = _jukebox_fill_jukebox_queue(partition_state, add_songs, jukebox_mode, playlist, manual);
     if (partition_state->mpd_shared_state->feat_mpd_tags == true) {
         enable_mpd_tags(partition_state, &partition_state->mpd_shared_state->tag_types_mympd);
     }
@@ -518,17 +598,27 @@ static bool mpd_client_jukebox_fill_jukebox_queue(struct t_partition_state *part
     return true;
 }
 
-static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_partition_state *partition_state,
+/**
+ * The real jukebox queue filling function.
+ * @param partition_state pointer to myMPD partition state
+ * @param add_songs number of songs or albums to add
+ * @param jukebox_mode the jukebox mode
+ * @param playlist playlist to add songs from
+ * @param manual false = normal jukebox operation
+ *               true = create separate jukebox queue and add songs to queue once
+ * @return true on success, else false
+ */
+static bool _jukebox_fill_jukebox_queue(struct t_partition_state *partition_state,
     long add_songs, enum jukebox_modes jukebox_mode, const char *playlist, bool manual)
 {
     long added = 0;
 
     if (manual == true) {
-        mpd_client_clear_jukebox(&partition_state->jukebox_queue_tmp);
+        jukebox_clear(&partition_state->jukebox_queue_tmp);
     }
 
     //get last_played and current queue
-    struct t_list *queue_list = mpd_client_jukebox_get_last_played(partition_state, jukebox_mode);
+    struct t_list *queue_list = jukebox_get_last_played(partition_state, jukebox_mode);
     if (queue_list == NULL) {
         return false;
     }
@@ -555,6 +645,16 @@ static bool _mpd_client_jukebox_fill_jukebox_queue(struct t_partition_state *par
     return true;
 }
 
+/**
+ * Adds albums to the jukebox queue
+ * @param partition_state pointer to myMPD partition state
+ * @param add_albums number of albums to add
+ * @param manual false = normal jukebox operation
+ *               true = create separate jukebox queue and add songs to queue once
+ * @param queue_list list of current songs in mpd queue and last played
+ * @param add_list jukebox queue to add the albums
+ * @return true on success, else false
+ */
 static long _fill_jukebox_queue_albums(struct t_partition_state *partition_state, long add_albums,
         bool manual, struct t_list *queue_list, struct t_list *add_list)
 {
@@ -575,26 +675,39 @@ static long _fill_jukebox_queue_albums(struct t_partition_state *partition_state
     long skipno = 0;
     long nkeep = 0;
     long lineno = 1;
+    time_t since = time(NULL);
+    since = since - (partition_state->jukebox_last_played * 3600);
     raxIterator iter;
     raxStart(&iter, partition_state->mpd_shared_state->album_cache.cache);
     raxSeek(&iter, "^", NULL, 0);
-    sds album = sdsempty();
-    sds albumartist = sdsempty();
+    sds tag_album = sdsempty();
+    sds tag_albumartist = sdsempty();
     while (raxNext(&iter)) {
-        struct mpd_song *song = (struct mpd_song *)iter.data;
-        sdsclear(album);
-        sdsclear(albumartist);
-        album = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, album);
-        albumartist = mpd_client_get_tag_value_string(song, partition_state->mpd_shared_state->tag_albumartist, albumartist);
+        struct mpd_song *album= (struct mpd_song *)iter.data;
+        sdsclear(tag_album);
+        sdsclear(tag_albumartist);
+        tag_album = mpd_client_get_tag_value_string(album, MPD_TAG_ALBUM, tag_album);
+        tag_albumartist = mpd_client_get_tag_value_string(album, partition_state->mpd_shared_state->tag_albumartist, tag_albumartist);
         long is_uniq = JUKEBOX_UNIQ_IS_UNIQ;
-        if (partition_state->jukebox_enforce_unique == true) {
-            is_uniq = mpd_client_jukebox_unique_album(partition_state, album, albumartist, manual, queue_list);
+
+        //we use the song uri in the album cache for enforcing last_played constraint
+        //because we do not know if an album was last played fully
+        const char *uri = mpd_song_get_uri(album);
+        struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_shared_state->sticker_cache, uri);
+        time_t last_played = sticker != NULL ? last_played = sticker->lastPlayed : 0;
+
+        if (last_played > since) {
+            //album was played too recently
+            is_uniq = JUKEBOX_UNIQ_IN_QUEUE;
+        }
+        else if (partition_state->jukebox_enforce_unique == true) {
+            is_uniq = jukebox_unique_album(partition_state, tag_album, tag_albumartist, manual, queue_list);
         }
 
         if (is_uniq == JUKEBOX_UNIQ_IS_UNIQ) {
             if (randrange(0, lineno) < add_albums) {
                 if (nkeep < add_albums) {
-                    if (list_push(add_list, album, lineno, albumartist, song) == true) {
+                    if (list_push(add_list, tag_album, lineno, tag_albumartist, album) == true) {
                         nkeep++;
                     }
                     else {
@@ -606,7 +719,7 @@ static long _fill_jukebox_queue_albums(struct t_partition_state *partition_state
                     struct t_list_node *node = list_node_at(add_list, pos);
                     if (node != NULL) {
                         node->user_data = NULL;
-                        if (list_replace(add_list, pos, album, lineno, albumartist, song) == false) {
+                        if (list_replace(add_list, pos, tag_album, lineno, tag_albumartist, album) == false) {
                             MYMPD_LOG_ERROR("Can't replace jukebox_queue element pos %ld", pos);
                         }
                     }
@@ -621,13 +734,23 @@ static long _fill_jukebox_queue_albums(struct t_partition_state *partition_state
             skipno++;
         }
     }
-    FREE_SDS(album);
-    FREE_SDS(albumartist);
+    FREE_SDS(tag_album);
+    FREE_SDS(tag_albumartist);
     raxStop(&iter);
     MYMPD_LOG_DEBUG("Jukebox iterated through %ld albums, skipped %ld", lineno, skipno);
     return (int)nkeep;
 }
 
+/**
+ * Adds songs to the jukebox queue
+ * @param partition_state pointer to myMPD partition state
+ * @param add_songs number of songs to add
+ * @param manual false = normal jukebox operation
+ *               true = create separate jukebox queue and add songs to queue once
+ * @param queue_list list of current songs in mpd queue and last played
+ * @param add_list jukebox queue to add the songs
+ * @return true on success, else false
+ */
 static long _fill_jukebox_queue_songs(struct t_partition_state *partition_state, long add_songs, const char *playlist,
         bool manual, struct t_list *queue_list, struct t_list *add_list)
 {
@@ -687,12 +810,10 @@ static long _fill_jukebox_queue_songs(struct t_partition_state *partition_state,
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             sdsclear(tag_value);
             tag_value = mpd_client_get_tag_value_string(song, partition_state->jukebox_unique_tag.tags[0], tag_value);
+
             const char *uri = mpd_song_get_uri(song);
-            time_t last_played = 0;
             struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_shared_state->sticker_cache, uri);
-            if (sticker != NULL) {
-                last_played = sticker->lastPlayed;
-            }
+            time_t last_played = sticker != NULL ? last_played = sticker->lastPlayed : 0;
 
             long is_uniq = JUKEBOX_UNIQ_IS_UNIQ;
             if (last_played > since) {
@@ -700,7 +821,7 @@ static long _fill_jukebox_queue_songs(struct t_partition_state *partition_state,
                 is_uniq = JUKEBOX_UNIQ_IN_QUEUE;
             }
             else if (partition_state->jukebox_enforce_unique == true) {
-                is_uniq = mpd_client_jukebox_unique_tag(partition_state, uri, tag_value, manual, queue_list);
+                is_uniq = jukebox_unique_tag(partition_state, uri, tag_value, manual, queue_list);
             }
 
             if (is_uniq == JUKEBOX_UNIQ_IS_UNIQ) {
@@ -740,7 +861,19 @@ static long _fill_jukebox_queue_songs(struct t_partition_state *partition_state,
     return (int)nkeep;
 }
 
-static long mpd_client_jukebox_unique_tag(struct t_partition_state *partition_state, const char *uri,
+/**
+ * Checks for the uniq tag constraint for songs
+ * @param partition_state pointer to myMPD partition state
+ * @param uri song uri
+ * @param value tag value to check
+ * @param manual false = normal jukebox operation
+ *               true = create separate jukebox queue and add songs to queue once
+ * @param queue_list list of current songs in mpd queue and last played
+ * @return value matches in the mpd queue: JUKEBOX_UNIQ_IN_QUEUE
+ *         value matches in the jukebox queue: position in the jukebox queue
+ *         value does not match, is uniq: JUKEBOX_UNIQ_IS_UNIQ
+ */
+static long jukebox_unique_tag(struct t_partition_state *partition_state, const char *uri,
         const char *value, bool manual, struct t_list *queue_list)
 {
     struct t_list_node *current = queue_list->head;
@@ -760,7 +893,7 @@ static long mpd_client_jukebox_unique_tag(struct t_partition_state *partition_st
     long i = 0;
     while (current != NULL) {
         if (strcmp(current->key, uri) == 0) {
-            return false;
+            return i;
         }
         if (value != NULL &&
             strcmp(current->value_p, value) == 0)
@@ -773,7 +906,19 @@ static long mpd_client_jukebox_unique_tag(struct t_partition_state *partition_st
     return JUKEBOX_UNIQ_IS_UNIQ;
 }
 
-static long mpd_client_jukebox_unique_album(struct t_partition_state *partition_state, const char *album,
+/**
+ * Checks for the uniq tag constraint for albums
+ * @param partition_state pointer to myMPD partition state
+ * @param album album name
+ * @param albumartist albumartist string
+ * @param manual false = normal jukebox operation
+ *               true = create separate jukebox queue and add songs to queue once
+ * @param queue_list list of current songs in mpd queue and last played
+ * @return value matches in the mpd queue: JUKEBOX_UNIQ_IN_QUEUE
+ *         value matches in the jukebox queue: position in the jukebox queue
+ *         value does not match, is uniq: JUKEBOX_UNIQ_IS_UNIQ
+ */
+static long jukebox_unique_album(struct t_partition_state *partition_state, const char *album,
         const char *albumartist, bool manual, struct t_list *queue_list)
 {
     struct t_list_node *current = queue_list->head;

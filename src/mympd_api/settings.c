@@ -395,7 +395,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
         }
     }
     else if (strcmp(key, "jukeboxMode") == 0 && vtype == MJSON_TOK_STRING) {
-        enum jukebox_modes jukebox_mode = mpd_client_parse_jukebox_mode(value);
+        enum jukebox_modes jukebox_mode = jukebox_mode_parse(value);
 
         if (jukebox_mode == JUKEBOX_UNKNOWN) {
             *error = set_invalid_value(*error, key, value);
@@ -530,7 +530,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
     }
     if (jukebox_changed == true && mympd_state->partition_state->jukebox_queue.length > 0) {
         MYMPD_LOG_INFO("Jukebox options changed, clearing jukebox queue");
-        mpd_client_clear_jukebox(&mympd_state->partition_state->jukebox_queue);
+        jukebox_clear(&mympd_state->partition_state->jukebox_queue);
     }
     if (write_state_file == true) {
         sds state_filename = camel_to_snake(key);
@@ -622,7 +622,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, long r
 #else
     buffer = tojson_bool(buffer, "debugMode", false, true);
 #endif
-    const char *jukebox_mode_str = mpd_client_lookup_jukebox_mode(mympd_state->partition_state->jukebox_mode);
+    const char *jukebox_mode_str = jukebox_mode_lookup(mympd_state->partition_state->jukebox_mode);
     buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_str, true);
 
     buffer = tojson_sds(buffer, "coverimageNames", mympd_state->coverimage_names, true);

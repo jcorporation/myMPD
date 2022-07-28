@@ -264,8 +264,8 @@ void partition_state_free(struct t_partition_state *partition_state) {
     FREE_SDS(partition_state->song_uri);
     FREE_SDS(partition_state->last_song_uri);
     //jukebox
-    mpd_client_clear_jukebox(&partition_state->jukebox_queue);
-    mpd_client_clear_jukebox(&partition_state->jukebox_queue_tmp);
+    jukebox_clear(&partition_state->jukebox_queue);
+    jukebox_clear(&partition_state->jukebox_queue_tmp);
     FREE_SDS(partition_state->jukebox_playlist);
     //struct itself
     FREE_PTR(partition_state);

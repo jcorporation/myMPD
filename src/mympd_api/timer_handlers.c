@@ -152,7 +152,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         //enable jukebox
         //use the api to persist the setting
         struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_OPTIONS_SET, NULL);
-        request->data = tojson_char(request->data, "jukeboxMode", mpd_client_lookup_jukebox_mode(jukebox_mode), true);
+        request->data = tojson_char(request->data, "jukeboxMode", jukebox_mode_lookup(jukebox_mode), true);
         request->data = tojson_sds(request->data, "jukeboxPlaylist", playlist, false);
         request->data = sdscatlen(request->data, "}}", 2);
         mympd_queue_push(mympd_api_queue, request, 0);

@@ -99,7 +99,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
             mympd_api_timer_replace(&mympd_state->timer_list, 30, (int)mympd_state->smartpls_interval, timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL);
             //jukebox
             if (mympd_state->partition_state->jukebox_mode != JUKEBOX_OFF) {
-                mpd_client_jukebox(mympd_state->partition_state);
+                jukebox_run(mympd_state->partition_state);
             }
             if (mpd_send_idle(mympd_state->partition_state->conn) == false) {
                 MYMPD_LOG_ERROR("Entering idle mode failed");
@@ -202,7 +202,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
                 }
                 //trigger jukebox
                 if (jukebox_add_song == true) {
-                    mpd_client_jukebox(mympd_state->partition_state);
+                    jukebox_run(mympd_state->partition_state);
                 }
                 //an api request is there
                 if (request != NULL) {
@@ -280,7 +280,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                         partition_state->queue_length < partition_state->jukebox_queue_length)
                     {
                         MYMPD_LOG_DEBUG("Jukebox mode: %u", partition_state->jukebox_mode);
-                        mpd_client_jukebox(partition_state);
+                        jukebox_run(partition_state);
                     }
                     //autoPlay enabled
                     if (partition_state->auto_play == true &&
