@@ -692,7 +692,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_SMARTPLS_SEARCH_SAVE:
             if (mympd_state->mpd_shared_state->feat_mpd_playlists == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Playlists are not supported");
+                    JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "MPD does not support playlists");
                 break;
             }
             rc = false;

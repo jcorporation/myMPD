@@ -435,9 +435,6 @@ Smart playlists update failed
 Smart playlist %{playlist} updated
 %{playlist} 스마트 연주목록 업데이트함
 
-Smart playlists are not supported
-스마트 연주목록이 지원되지 않음
-
 Updating smart playlist %{playlist} failed
 %{playlist} 스마트 연주목록 업데이트 실패
 
@@ -1073,9 +1070,6 @@ Force update
 
 Smart playlists are disabled
 스마트 연주목록 사용 안 함
-
-Too old MPD version for smart playlists
-스마트 연주목록에는 MPD 버전이 오래됨
 
 Smart playlists update started
 스마트 연주목록 업데이트 시작

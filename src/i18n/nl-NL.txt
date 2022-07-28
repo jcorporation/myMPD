@@ -441,9 +441,6 @@ Updaten slimmme afspeellijsten mislukt
 Smart playlist %{playlist} updated
 Slimmme afspeellijst %{playlist} geüpdatet
 
-Smart playlists are not supported
-Slimmme afspeellijsten niet ondersteund
-
 Updating smart playlist %{playlist} failed
 Updaten slimmme afspeellijst %{playlist} mislukt 
 
@@ -1082,9 +1079,6 @@ Forceer update
 
 Smart playlists are disabled
 Slimme afspeellijsten uitgeschakeld
-
-Too old MPD version for smart playlists
-MPD-versie te oud voor slimme afspeellijsten
 
 Smart playlists update started
 Slimme afspeellijsten worden geupdatet

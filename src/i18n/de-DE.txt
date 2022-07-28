@@ -441,8 +441,8 @@ Intelligente Wiedergabelisten konnten nicht aktualisiert werden
 Smart playlist %{playlist} updated
 Intelligente Wiedergabeliste %{playlist} aktualisiert
 
-Smart playlists are not supported
-Intelligente Wiedergabelisten sind nicht unterstützt
+MPD does not support playlists
+MPD unterstützt keine Wiedergabelisten
 
 Updating smart playlist %{playlist} failed
 Intelligente Wiedergabeliste %{playlist} konnte nicht aktualisiert werden
@@ -1088,9 +1088,6 @@ Erzwinge Aktualisierung
 
 Smart playlists are disabled
 Intelligente Wiedergabelisten sind deaktiviert
-
-Too old MPD version for smart playlists
-MPD ist für Intelligente Wiedergabenlisten zu alt
 
 Smart playlists update started
 Aktualisierung der intelligenten Wiedergabelisten gestartet

@@ -441,9 +441,6 @@ Smart playlists update failed
 Smart playlist %{playlist} updated
 已更新智能播放列表 %{playlist} 
 
-Smart playlists are not supported
-不支持智能播放列表
-
 Updating smart playlist %{playlist} failed
 更新智能播放列表失败 %{playlist} 
 
@@ -1088,9 +1085,6 @@ Force update
 
 Smart playlists are disabled
 智能播放列表已禁用
-
-Too old MPD version for smart playlists
-MPD 版本过低不支持智能播放列表
 
 Smart playlists update started
 智能播放列表开始更新

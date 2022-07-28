@@ -678,7 +678,7 @@ function populateSettingsFrm() {
     document.getElementById('inputListenbrainzToken').value = settings.listenbrainzToken;
 
     //smart playlists
-    if (settings.featSmartpls === true) {
+    if (settings.featPlaylists === true) {
         elEnableId('btnSmartpls');
         toggleBtnChkCollapseId('btnSmartpls', 'collapseSmartpls', settings.smartpls);
         elHideId('warnSmartpls');
