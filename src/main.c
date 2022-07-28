@@ -458,7 +458,7 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
     if (setvbuf(stderr, NULL, _IOLBF, 0) != 0) {
-        MYMPD_LOG_EMERG("Could not set stdout buffer");
+        MYMPD_LOG_EMERG("Could not set stderr buffer");
         goto cleanup;
     }
 
