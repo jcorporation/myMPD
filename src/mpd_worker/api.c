@@ -15,7 +15,10 @@
 
 #include <stdlib.h>
 
-//public functions
+/**
+ * Handler for mpd worker api requests
+ * @param mpd_worker_state pointer to mpd_worker_state struct
+ */
 void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     struct t_work_request *request = mpd_worker_state->request;
     bool rc;

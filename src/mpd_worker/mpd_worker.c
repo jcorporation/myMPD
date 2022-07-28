@@ -22,13 +22,21 @@
 #include <string.h>
 #include <sys/prctl.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
+
 static void *mpd_worker_run(void *arg);
 
-//public functions
+/**
+ * Public functions
+ */
 
 /**
- * Starts the worker thread
+ * Starts the worker thread in detached state.
+ * @param mympd_state pointer to mympd_state struct
+ * @param request the work request
+ * @return true on success, else false
  */
 bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *request) {
     MYMPD_LOG_NOTICE("Starting mpd_worker thread for %s", request->method);
@@ -79,7 +87,12 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
 }
 
 /**
- * Worker thread
+ * Private functions
+ */
+
+/**
+ * This is the main function of the worker thread.
+ * @param arg void pointer to the mpd_worker_state
  */
 static void *mpd_worker_run(void *arg) {
     thread_logname = sds_replace(thread_logname, "mpdworker");

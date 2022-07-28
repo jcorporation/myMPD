@@ -9,7 +9,11 @@
 
 #include "errorhandler.h"
 
-//returns the mpd volume, -1 if volume control is disabled
+/**
+ * Requests the volume from MPD.
+ * @param partition_state pointer to partition specific states
+ * @return mpd volume or -1 if volume control is disabled
+ */
 int mpd_client_get_volume(struct t_partition_state *partition_state) {
     int volume = -1;
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 23, 0) >= 0) {

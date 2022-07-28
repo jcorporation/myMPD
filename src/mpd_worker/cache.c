@@ -21,11 +21,15 @@
 #include <string.h>
 #include <stdlib.h>
 
-//privat definitions
+/**
+ * Privat definitions
+ */
 static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
 static bool _get_sticker_from_mpd(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker);
 
-//public functions
+/**
+ * Public functions
+ */
 
 /**
  * Creates the caches and returns it to mympd_api thread
@@ -89,7 +93,9 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     return rc;
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
 /**
  * Initializes the album and sticker cache

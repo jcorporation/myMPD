@@ -17,7 +17,13 @@
 #include <pcre2.h>
 #include <string.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
+
+/**
+ * Search operators like them from MPD
+ */
 enum search_operators {
     SEARCH_OP_EQUAL,
     SEARCH_OP_STARTS_WITH,
@@ -27,6 +33,9 @@ enum search_operators {
     SEARCH_OP_NOT_REGEX
 };
 
+/**
+ * Struct to hold a parsed search expression trible
+ */
 struct t_search_expression {
     int tag;
     enum search_operators op;
@@ -39,7 +48,9 @@ static void free_search_expression_node(struct t_list_node *current);
 static pcre2_code *_compile_regex(char *regex_str);
 static bool _cmp_regex(pcre2_code *re_compiled, const char *value);
 
-//public functions
+/**
+ * Public functions
+ */
 
 /**
  * Searches for a string in mpd tag values
@@ -245,7 +256,9 @@ bool search_song_expression(struct mpd_song *song, struct t_list *expr_list, str
     return true;
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
 /**
  * Frees the t_search_expression struct

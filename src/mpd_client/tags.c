@@ -80,7 +80,6 @@ bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 	return true;
 }
 
-
 /**
  * Checks if tag is a multivalue tag
  * @param tag mpd tag type

@@ -10,6 +10,9 @@
 #include "../lib/api.h"
 #include "../lib/mympd_state.h"
 
+/**
+ * State struct for the mpd_worker thread
+ */
 struct t_mpd_worker_state {
     bool smartpls;
     sds smartpls_sort;

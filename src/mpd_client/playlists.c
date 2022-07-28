@@ -24,13 +24,17 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
 
 static bool _mpd_client_playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr);
 static bool _mpd_client_replace_playlist(struct t_partition_state *partition_state, const char *new_pl,
         const char *to_replace_pl);
 
-//public functions
+/**
+ * Public functions
+ */
 
 /**
  * Returns the mpd database last modification time
@@ -163,7 +167,9 @@ bool mpd_client_playlist_sort(struct t_partition_state *partition_state, const c
     return rc;
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
 /**
  * Sorts a playlist.
@@ -307,6 +313,14 @@ static bool _mpd_client_replace_playlist(struct t_partition_state *partition_sta
     return mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_rename");
 }
 
+/**
+ * Counts the number of songs in the playlist
+ * @param partition_state pointer to partition specific states
+ * @param playlist playlist to enumerate
+ * @param empty_check true: checks only if playlist is not empty
+ *                    false: enumerates the complete playlist
+ * @return number of songs or -1 on error
+ */
 int mpd_client_enum_playlist(struct t_partition_state *partition_state, const char *playlist, bool empty_check) {
     bool rc = mpd_send_list_playlist(partition_state->conn, playlist);
     if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_send_list_playlist") == false) {
