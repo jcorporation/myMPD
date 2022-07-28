@@ -694,7 +694,7 @@ static long _fill_jukebox_queue_albums(struct t_partition_state *partition_state
         //because we do not know if an album was last played fully
         const char *uri = mpd_song_get_uri(album);
         struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_shared_state->sticker_cache, uri);
-        time_t last_played = sticker != NULL ? last_played = sticker->lastPlayed : 0;
+        time_t last_played = sticker != NULL ? sticker->lastPlayed : 0;
 
         if (last_played > since) {
             //album was played too recently
@@ -813,7 +813,7 @@ static long _fill_jukebox_queue_songs(struct t_partition_state *partition_state,
 
             const char *uri = mpd_song_get_uri(song);
             struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_shared_state->sticker_cache, uri);
-            time_t last_played = sticker != NULL ? last_played = sticker->lastPlayed : 0;
+            time_t last_played = sticker != NULL ? sticker->lastPlayed : 0;
 
             long is_uniq = JUKEBOX_UNIQ_IS_UNIQ;
             if (last_played > since) {
