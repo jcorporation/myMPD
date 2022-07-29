@@ -13,7 +13,13 @@
 
 #include <string.h>
 
-//public functions
+/**
+ * Prints the list of mounted mpd uris as jsonrpc response
+ * @param partition_state pointer to partition state
+ * @param buffer alreay allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @return pointer to buffer
+ */
 sds mympd_api_mounts_list(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_MOUNT_LIST;
     bool rc = mpd_send_list_mounts(partition_state->conn);
@@ -53,6 +59,13 @@ sds mympd_api_mounts_list(struct t_partition_state *partition_state, sds buffer,
     return buffer;
 }
 
+/**
+ * Prints the list of url handlers as jsonrpc response
+ * @param partition_state pointer to partition state
+ * @param buffer alreay allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @return pointer to buffer
+ */
 sds mympd_api_mounts_urlhandler_list(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_MOUNT_URLHANDLER_LIST;
     bool rc = mpd_send_command(partition_state->conn, "urlhandlers", NULL);
@@ -85,6 +98,13 @@ sds mympd_api_mounts_urlhandler_list(struct t_partition_state *partition_state, 
     return buffer;
 }
 
+/**
+ * Prints the list of neighbors as jsonrpc response
+ * @param partition_state pointer to partition state
+ * @param buffer alreay allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @return pointer to buffer
+ */
 sds mympd_api_mounts_neighbor_list(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_MOUNT_NEIGHBOR_LIST;
     bool rc = mpd_send_list_neighbors(partition_state->conn);

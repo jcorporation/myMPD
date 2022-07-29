@@ -24,8 +24,13 @@
 #include <libgen.h>
 #include <string.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
 
+/**
+ * Struct representing the entity in the rax tree
+ */
 struct t_dir_entry {
     sds name;
     struct mpd_entity *entity;
@@ -34,8 +39,23 @@ struct t_dir_entry {
 static void free_t_dir_entry(void *data);
 static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity, sds searchstr);
 
-//public functions
+/**
+ * Public functions
+ */
 
+/**
+ * Lists the entry of directory in the mpd music directory as jsonrpc response
+ * Custom order: directories, playlists, songs
+ * @param partition_state pointer to the partition state
+ * @param buffer already allocated sds string to append result
+ * @param request_id jsonrpc request id
+ * @param path path to list
+ * @param offset offset for listing
+ * @param limit max entries to list
+ * @param searchstr string to search
+ * @param tagcols columns to print
+ * @return pointer to buffer
+ */
 sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds buffer, long request_id,
         sds path, const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
 {
@@ -184,7 +204,9 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
     return buffer;
 }
 
-//private functions
+/**
+ * private functions
+ */
 
 /**
  * Frees the t_dir_entry struct used as callback for rax_free_data
@@ -197,6 +219,15 @@ static void free_t_dir_entry(void *data) {
     FREE_PTR(data);
 }
 
+/**
+ * Search the entry for searchstr and add matches to the rax tree
+ * @param rt rax tree to insert
+ * @param key key to insert
+ * @param entity_name displayname of the entity
+ * @param entity pointer to mpd entity
+ * @param searchstr string to search in entity_name
+ * @return true on match, else false
+ */
 static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entity *entity, sds searchstr) {
     if (sdslen(searchstr) == 0 ||
         utf8casestr(entity_name, searchstr) != NULL)

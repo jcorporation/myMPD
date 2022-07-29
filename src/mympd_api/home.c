@@ -18,14 +18,41 @@
 #include <string.h>
 #include <unistd.h>
 
+/**
+ * Moves a home icon in the list
+ * @param home_list pointer to home list
+ * @param from from pos
+ * @param to to pos
+ * @return true on success, else false
+ */
 bool mympd_api_home_icon_move(struct t_list *home_list, long from, long to) {
     return list_move_item_pos(home_list, from, to);
 }
 
+/**
+ * Deletes a home icon in the list
+ * @param home_list pointer to home list
+ * @param pos position to remove
+ * @return true on success, else false
+ */
 bool mympd_api_home_icon_delete(struct t_list *home_list, long pos) {
     return list_remove_node(home_list, pos);
 }
 
+/**
+ * Adds/replaces a home icon in the list
+ * @param home_list pointer to home list
+ * @param replace true to replace the icon at oldpos
+ * @param oldpos original pos of the icon
+ * @param name name
+ * @param ligature ligature
+ * @param bgcolor background color
+ * @param color color
+ * @param image image
+ * @param cmd command
+ * @param option_list options for the command
+ * @return true on success, else false
+ */
 bool mympd_api_home_icon_save(struct t_list *home_list, bool replace, long oldpos,
     sds name, sds ligature, sds bgcolor, sds color, sds image, sds cmd, struct t_list *option_list)
 {
@@ -58,6 +85,12 @@ bool mympd_api_home_icon_save(struct t_list *home_list, bool replace, long oldpo
     return rc;
 }
 
+/**
+ * Reads the home icons from the filesystem
+ * @param home_list pointer to home list
+ * @param workdir working directory
+ * @return true on success, else false
+ */
 bool mympd_api_home_file_read(struct t_list *home_list, sds workdir) {
     sds home_file = sdscatfmt(sdsempty(), "%S/state/home_list", workdir);
     errno = 0;
@@ -93,10 +126,22 @@ bool mympd_api_home_file_read(struct t_list *home_list, sds workdir) {
     return true;
 }
 
+/**
+ * Callback function for mympd_api_home_file_save
+ * @param buffer buffer to append the line
+ * @param current list node to print
+ * @return pointer to buffer
+ */
 static sds homeicon_to_line_cb(sds buffer, struct t_list_node *current) {
     return sdscatfmt(buffer, "%S\n", current->key);
 }
 
+/**
+ * Writes the home icons to the filesystem
+ * @param home_list pointer to home list
+ * @param workdir working directory
+ * @return true on success, else false
+ */
 bool mympd_api_home_file_save(struct t_list *home_list, sds workdir) {
     MYMPD_LOG_INFO("Saving home icons to disc");
     sds filepath = sdscatfmt(sdsempty(), "%S/state/home_list", workdir);
@@ -105,6 +150,13 @@ bool mympd_api_home_file_save(struct t_list *home_list, sds workdir) {
     return rc;
 }
 
+/**
+ * Returns a jsonrpc response with all home icons
+ * @param home_list pointer to home list
+ * @param buffer buffer to append the response
+ * @param request_id jsonrpc request id
+ * @return pointer to buffer
+ */
 sds mympd_api_home_icon_list(struct t_list *home_list, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_HOME_ICON_LIST;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -124,6 +176,14 @@ sds mympd_api_home_icon_list(struct t_list *home_list, sds buffer, long request_
     return buffer;
 }
 
+/**
+ * Returns a jsonrpc response with the home icon details
+ * @param home_list pointer to home list
+ * @param buffer buffer to append the response
+ * @param request_id jsonrpc request id
+ * @param pos position of the home icon to get
+ * @return pointer to buffer
+ */
 sds mympd_api_home_icon_get(struct t_list *home_list, sds buffer, long request_id, long pos) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_HOME_ICON_GET;
     struct t_list_node *current = list_node_at(home_list, pos);

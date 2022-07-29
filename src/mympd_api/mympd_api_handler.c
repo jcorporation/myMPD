@@ -54,11 +54,21 @@
 #include <stdlib.h>
 #include <string.h>
 
-//private definitions
-static bool check_start_play(struct t_partition_state *partition_state, bool play, sds *buffer, enum mympd_cmd_ids cmd_id, long id);
+/**
+ * Private definitions
+ */
+static bool check_start_play(struct t_partition_state *partition_state, bool play, sds *buffer,
+        enum mympd_cmd_ids cmd_id, long request_id);
 
-//public functions
+/**
+ * Public functions
+ */
 
+/**
+ * Central myMPD api handler function
+ * @param mympd_state pointer to mympd state struct
+ * @param request pointer to the jsonrpc request struct
+ */
 void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request *request) {
     unsigned uint_buf1;
     unsigned uint_buf2;
@@ -1574,8 +1584,22 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
     free_request(request);
 }
 
-//private
-static bool check_start_play(struct t_partition_state *partition_state, bool play, sds *buffer, enum mympd_cmd_ids cmd_id, long id) {
+/**
+ * Private functions
+ */
+
+/**
+ * Tries to play the last inserted song and checks for success
+ * @param partition_state pointer to partition state
+ * @param play realy play last inserts song
+ * @param buffer already allocated sds string to append the error response
+ * @param cmd_id jsonrpc method
+ * @param request_id jsonrpc request id
+ * @return true on success, else false
+ */
+static bool check_start_play(struct t_partition_state *partition_state, bool play, sds *buffer,
+        enum mympd_cmd_ids cmd_id, long request_idid)
+{
     if (play == true) {
         MYMPD_LOG_DEBUG("Start playing newly added songs");
         bool rc = mympd_api_queue_play_newly_inserted(partition_state);

@@ -30,7 +30,9 @@
     #include <FLAC/metadata.h>
 #endif
 
-//privat definitions
+/**
+ * Privat definitions
+ */
 static void _mympd_api_lyrics_get(struct t_lyrics *lyrics, struct t_list *extracted,
         sds mediafile, const char *mime_type_mediafile);
 static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char *ext, bool synced);
@@ -43,7 +45,9 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
 static const char *_id3_field_getlanguage(union id3_field const *field);
 #endif
 
-//public functions
+/**
+ * Public functions
+ */
 
 /**
  * Gets synced and unsynced lyrics from filesystem and embedded
@@ -101,7 +105,9 @@ sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffe
     return buffer;
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
 /**
  * Retrieves lyrics and appends it to extracted list

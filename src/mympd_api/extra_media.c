@@ -34,14 +34,27 @@
     #include <FLAC/metadata.h>
 #endif
 
-//private definitons
+/**
+ * Private definitons
+ */
+
 static void _get_extra_files(struct t_mpd_shared_state *mpd_shared_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
 static int _get_embedded_covers_count(const char *media_file);
 static int _get_embedded_covers_count_id3(const char *media_file);
 static int _get_embedded_covers_count_flac(const char *media_file, bool is_ogg);
 
-//public functions
+/**
+ * Public functions
+ */
 
+/**
+ * Looks for images and the booklet in the songs directory and counts the number of embedded images
+ * @param mpd_shared_state pointer to the shared mpd state
+ * @param buffer buffer to append the jsonrpc result
+ * @param uri song uri to get extra media for
+ * @param is_dirname true if uri is a directory, else false
+ * @return pointer to buffer
+ */
 sds get_extra_media(struct t_mpd_shared_state *mpd_shared_state, sds buffer, const char *uri, bool is_dirname) {
     struct t_list images;
     list_init(&images);
@@ -77,7 +90,18 @@ sds get_extra_media(struct t_mpd_shared_state *mpd_shared_state, sds buffer, con
     return buffer;
 }
 
-//private functions
+/**
+ * Private functions
+ */
+
+/**
+ * Looks for images and the booklet in the songs directory
+ * @param mpd_shared_state pointer to the shared mpd state
+ * @param uri song uri to get extra media for
+ * @param booklet_path pointer to sds to populate with the booklet path
+ * @param images pointer to already alocated list
+ * @param is_dirname true if uri is a directory, else false
+ */
 static void _get_extra_files(struct t_mpd_shared_state *mpd_shared_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
     sds path = sdsnew(uri);
     if (is_dirname == false) {
@@ -119,6 +143,11 @@ static void _get_extra_files(struct t_mpd_shared_state *mpd_shared_state, const 
     FREE_SDS(albumpath);
 }
 
+/**
+ * Counts embedded images
+ * @param media_file pointer to the shared mpd state
+ * @return image count
+ */
 static int _get_embedded_covers_count(const char *media_file) {
     int count = 0;
     const char *mime_type_media_file = get_mime_type_by_ext(media_file);
@@ -141,6 +170,11 @@ static int _get_embedded_covers_count(const char *media_file) {
     return count;
 }
 
+/**
+ * Counts embedded images for id3v2 tagged files
+ * @param media_file pointer to the shared mpd state
+ * @return image count
+ */
 static int _get_embedded_covers_count_id3(const char *media_file) {
     int count = 0;
     #ifdef ENABLE_LIBID3TAG
@@ -168,6 +202,11 @@ static int _get_embedded_covers_count_id3(const char *media_file) {
     return count;
 }
 
+/**
+ * Counts embedded images for vorbis und flac files
+ * @param media_file pointer to the shared mpd state
+ * @return image count
+ */
 static int _get_embedded_covers_count_flac(const char *media_file, bool is_ogg) {
     int count = 0;
     #ifdef ENABLE_FLAC
