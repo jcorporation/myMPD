@@ -56,7 +56,8 @@ void *mympd_api_loop(void *arg_config) {
     //set timers
     if (mympd_state->config->covercache_keep_days > 0) {
         MYMPD_LOG_DEBUG("Adding timer for \"crop covercache\" to execute periodic each day");
-        mympd_api_timer_add(&mympd_state->timer_list, 60, 86400, timer_handler_by_id, TIMER_ID_COVERCACHE_CROP, NULL);
+        mympd_api_timer_add(&mympd_state->timer_list, COVERCACHE_CLEANUP_OFFSET, COVERCACHE_CLEANUP_INTERVAL,
+            timer_handler_by_id, TIMER_ID_COVERCACHE_CROP, NULL);
     }
     //start trigger
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START);
