@@ -1598,13 +1598,13 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
  * @return true on success, else false
  */
 static bool check_start_play(struct t_partition_state *partition_state, bool play, sds *buffer,
-        enum mympd_cmd_ids cmd_id, long request_idid)
+        enum mympd_cmd_ids cmd_id, long request_id)
 {
     if (play == true) {
         MYMPD_LOG_DEBUG("Start playing newly added songs");
         bool rc = mympd_api_queue_play_newly_inserted(partition_state);
         if (rc == false) {
-            *buffer = jsonrpc_respond_message(*buffer, cmd_id, id,
+            *buffer = jsonrpc_respond_message(*buffer, cmd_id, request_id,
                 JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Start playing newly added song failed");
         }
         return rc;
