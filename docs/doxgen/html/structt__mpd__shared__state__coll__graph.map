@@ -1,8 +1,0 @@
-<map id="t_mpd_shared_state" name="t_mpd_shared_state">
-<area shape="rect" id="node1" title=" " alt="" coords="141,243,281,269"/>
-<area shape="rect" id="node2" href="$structt__tags.html" title=" " alt="" coords="5,109,64,136"/>
-<area shape="rect" id="node3" href="$structt__config.html" title=" " alt="" coords="142,109,210,136"/>
-<area shape="rect" id="node4" href="$structt__list.html" title=" " alt="" coords="235,109,285,136"/>
-<area shape="rect" id="node5" href="$structt__list__node.html" title=" " alt="" coords="217,5,303,32"/>
-<area shape="rect" id="node6" href="$structt__cache.html" title=" " alt="" coords="325,109,393,136"/>
-</map>

@@ -1,8 +1,0 @@
-<map id="src/lib/album_cache.h" name="src/lib/album_cache.h">
-<area shape="rect" id="node1" title=" " alt="" coords="352,5,501,32"/>
-<area shape="rect" id="node2" href="$album__cache_8c.html" title=" " alt="" coords="5,87,155,114"/>
-<area shape="rect" id="node3" href="$mympd__state_8c.html" title=" " alt="" coords="179,87,330,114"/>
-<area shape="rect" id="node4" href="$mpd__worker__cache_8c.html" title=" " alt="" coords="355,80,499,121"/>
-<area shape="rect" id="node5" href="$mympd__api__browse_8c.html" title=" " alt="" coords="523,80,682,121"/>
-<area shape="rect" id="node6" href="$mympd__api__handler_8c.html" title=" " alt="" coords="706,80,865,121"/>
-</map>

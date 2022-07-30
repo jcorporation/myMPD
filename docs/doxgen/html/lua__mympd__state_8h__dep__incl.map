@@ -1,9 +1,0 @@
-<map id="src/lib/lua_mympd_state.h" name="src/lib/lua_mympd_state.h">
-<area shape="rect" id="node1" title=" " alt="" coords="469,5,644,32"/>
-<area shape="rect" id="node2" href="$lua__mympd__state_8c.html" title=" " alt="" coords="5,87,180,114"/>
-<area shape="rect" id="node3" href="$mympd__queue_8c.html" title=" " alt="" coords="205,87,362,114"/>
-<area shape="rect" id="node4" href="$mympd__api__handler_8c.html" title=" " alt="" coords="387,80,545,121"/>
-<area shape="rect" id="node5" href="$mympd__api__outputs_8c.html" title=" " alt="" coords="569,80,728,121"/>
-<area shape="rect" id="node6" href="$mympd__api__scripts_8c.html" title=" " alt="" coords="752,80,911,121"/>
-<area shape="rect" id="node7" href="$mympd__api__status_8c.html" title=" " alt="" coords="935,80,1093,121"/>
-</map>

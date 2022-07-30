@@ -1,9 +1,0 @@
-<map id="src/mpd_client/mpd_client_playlists.h" name="src/mpd_client/mpd_client_playlists.h">
-<area shape="rect" id="node1" title=" " alt="" coords="404,5,540,47"/>
-<area shape="rect" id="node2" href="$mpd__client__playlists_8c.html" title=" " alt="" coords="5,95,141,136"/>
-<area shape="rect" id="node3" href="$mpd__worker__smartpls_8c.html" title=" " alt="" coords="165,95,309,136"/>
-<area shape="rect" id="node4" href="$mympd__api__filesystem_8c.html" title=" " alt="" coords="334,95,493,136"/>
-<area shape="rect" id="node5" href="$mympd__api__handler_8c.html" title=" " alt="" coords="477,184,635,225"/>
-<area shape="rect" id="node6" href="$mympd__api__playlists_8c.html" title=" " alt="" coords="673,184,831,225"/>
-<area shape="rect" id="node7" href="$mympd__api__playlists_8h.html" title=" " alt="" coords="569,95,727,136"/>
-</map>
