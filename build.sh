@@ -334,7 +334,7 @@ buildrelease() {
   install -d release
   cd release || exit 1
   #force rebuild of web_server with embedded assets
-  rm -vf CMakeFiles/mympd.dir/src/web_server/web_server_utility.c.o
+  rm -vf CMakeFiles/mympd.dir/src/web_server/utility.c.o
   #set INSTALL_PREFIX and build myMPD
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
   #shellcheck disable=SC2086
@@ -1028,6 +1028,7 @@ purge() {
 createi18n() {
   DST="$1"
   install -d "$DST"
+  install -d "$DST/../../js"
   echo "Creating i18n json"
   if ! perl ./src/i18n/tojson.pl "$DST"
   then
