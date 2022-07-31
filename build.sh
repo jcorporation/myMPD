@@ -234,8 +234,9 @@ createassets() {
   install -d "$MYMPD_BUILDDIR/htdocs/assets"
 
   #Create translation phrases file
-  createi18n "../../$MYMPD_BUILDDIR/htdocs/js/i18n.min.js" "" 2>/dev/null
-  transstatus $MYMPD_BUILDDIR/htdocs/js/i18n.min.js
+  createi18n "$MYMPD_BUILDDIR/htdocs/assets/i18n" 2>/dev/null
+  transstatus "$MYMPD_BUILDDIR/htdocs/assets/i18n/i18n.json"
+  mv "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$MYMPD_BUILDDIR/htdocs/js/i18n.min.js"
 
   echo "Minifying javascript"
   JSSRCFILES=""
@@ -301,6 +302,13 @@ createassets() {
   do
     DST=$(basename "${FONT}")
     $ZIPCAT "$FONT" > "$MYMPD_BUILDDIR/htdocs/assets/${DST}.gz"
+  done
+
+  echo "Compressing i18n json"
+  for I18N in "$MYMPD_BUILDDIR"/htdocs/assets/i18n/*.json
+  do
+    DST=$(basename "${I18N}")
+    $ZIPCAT "$I18N" > "$MYMPD_BUILDDIR/htdocs/assets/i18n/${DST}.gz"
   done
 
   echo "Minifying and compressing html"
@@ -382,9 +390,10 @@ installrelease() {
 }
 
 builddebug() {
-  install -d debug/htdocs/js
-  createi18n ../../debug/htdocs/js/i18n.js pretty 2>/dev/null
-  transstatus debug/htdocs/js/i18n.js
+  MYMPD_BUILDDIR="debug"
+  createi18n "$MYMPD_BUILDDIR/htdocs/assets/i18n" 2>/dev/null
+  transstatus debug/htdocs/assets/i18n/i18n.json
+
   check_docs
   check_includes
 
@@ -397,8 +406,9 @@ builddebug() {
     cp "$PWD/dist/material-icons/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
     cp "$PWD/dist/material-icons/ligatures.json" "$PWD/htdocs/assets/ligatures.json"
     cp "$PWD/debug/htdocs/js/i18n.js" "$PWD/htdocs/js/i18n.js"
+    install -d "$PWD/htdocs/assets/i18n"
+    cp "$PWD"/debug/htdocs/assets/i18n/*.json "$PWD/htdocs/assets/i18n/"
   else
-    MYMPD_BUILDDIR="debug"
     createassets
   fi
 
@@ -442,6 +452,8 @@ cleanup() {
   rm -f htdocs/js/i18n.js
   rm -f htdocs/css/bootstrap.css
   rm -f htdocs/assets/MaterialIcons-Regular.woff2
+  rm -f htdocs/assets/ligatures.json
+  rm -rf htdocs/assets/i18n
 
   #compilation database
   rm -f src/compile_commands.json
@@ -1014,23 +1026,24 @@ purge() {
 }
 
 createi18n() {
-  DST=$1
-  PRETTY=$2
-  cd src/i18n || exit 1
+  DST="$1"
+  install -d "$DST"
   echo "Creating i18n json"
-  if ! perl ./tojson.pl "$PRETTY" > "$DST"
+  if ! perl ./src/i18n/tojson.pl "$DST"
   then
     echo "Error creating translation files"
     exit 1
   fi
-  cd ../.. || exit 1
+  printf "const i18n=" > "$DST/../../js/i18n.js"
+  tr -d '\n' < "$DST/i18n.json" >> "$DST/../../js/i18n.js"
+  echo ";" >> "$DST/../../js/i18n.js"
 }
 
 transstatus() {
   if check_cmd_silent jq
   then
     TFILE=$1
-    MISSING=$(grep missingPhrases "$TFILE" | sed -e 's/.*missingPhrases=//' -e 's/;//' | jq '.' -r -M)
+    MISSING=$(jq '.missingPhrases' -r -M "$TFILE")
     if [ "$MISSING" = "{}" ]
     then
       echo "All translation phrased found"
@@ -1356,11 +1369,11 @@ case "$ACTION" in
 	  purge
 	;;
 	translate)
-	  createi18n ../../htdocs/js/i18n.js pretty
+	  createi18n debug/htdocs/assets/i18n
 	;;
 	transstatus)
-    createi18n ../../htdocs/js/i18n.js pretty 2>/dev/null
-	  transstatus htdocs/js/i18n.js
+    createi18n debug/htdocs/assets/i18n 2>/dev/null
+	  transstatus debug/htdocs/assets/i18n/i18n.json
 	;;
 	materialicons)
 		materialicons

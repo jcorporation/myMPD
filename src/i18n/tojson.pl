@@ -1,20 +1,24 @@
 #!/usr/bin/perl -w
 use strict;
 
-my $pretty = defined($ARGV[0]) ? ($ARGV[0] eq "pretty" ? 1 : 0) : 0;
+my $basedir = $ARGV[0];
+if (not defined($basedir)) {
+    print "Usage: tojson.pl <basedir>";
+    exit 1
+}
 my $phrases;
 my $i18n;
 my @langs = ();
 
 #get translation files
-opendir my $dir, "." or die "Can't open directory: $!";
+opendir my $dir, "src/i18n/" or die "Can't open directory: $!";
 while (my $entry = readdir $dir) {
     push @langs, $1 if $entry =~ /^(\w+\-\w+)\.txt$/;
 }
 closedir $dir;
 
 #extra phrases
-open my $file, "extra_phrases.txt" or die "Can't open file \"extra_phrases.txt\": $!";
+open my $file, "src/i18n/extra_phrases.txt" or die "Can't open file \"src/i18n/extra_phrases.txt\": $!";
 while (my $line = <$file>) {
     chomp($line);
     $phrases->{$line}->{"en-US"} = $line;
@@ -22,8 +26,8 @@ while (my $line = <$file>) {
 close $file;
 
 #phrases from src
-my @dirs = ("../", "../mpd_client/", "../mpd_worker/", "../mympd_api/", "../web_server/", "../../htdocs/js/");
-my @files = ("../../htdocs/index.html");
+my @dirs = ("src/", "src/mpd_client/", "src/mpd_worker/", "src/mympd_api/", "src/web_server/", "htdocs/js/");
+my @files = ("htdocs/index.html");
 for my $dirname (@dirs) {
     opendir my $dir, $dirname or die "Can't open directory \"$dirname\": $!";
     while (my $entry = readdir $dir) {
@@ -40,11 +44,6 @@ for my $filename (@files) {
     open my $file, $filename or die "Can't open file \"$filename\": $!";
     while (my $line = <$file>) {
         if ($filename =~ /\.c$/) {
-            #old syntax
-            while ($line =~ /(\s+|\()"[^"]+",\s+"(info|warn|error)",\s+"([^"]+)"(\)|,)/g) {
-                $phrases->{$3} = 1;
-            }
-            #new syntax
             while ($line =~ /JSONRPC_SEVERITY_\w+,\s+"([^"]+)"(\)|,)/g) {
                 $phrases->{$1} = 1;
             }
@@ -66,21 +65,19 @@ for my $filename (@files) {
     close $file;
 }
 
-#print i18n.js
-print "const locales=[";
-print "\n\t" if $pretty eq 1;
-print "{\"code\":\"default\",\"desc\":\"Browser default\"},";
-print "\n\t" if $pretty eq 1;
+#Write i18n.js
+open my $i18nfile, ">$basedir/i18n.json" or die "Can not open $basedir/i18n.json: $!";
+print $i18nfile "{\"locales\":[";
+print $i18nfile "{\"code\":\"default\",\"desc\":\"Browser default\"},";
 my $i = 0;
 for my $lang (sort @langs) {
     if ($i > 0) {
-        print ",";
-        print "\n\t" if $pretty eq 1;
+        print $i18nfile ",";
     }
-    open my $file, $lang.".txt" or die "Can't open ".$lang.".txt";
+    open my $file, "src/i18n/".$lang.".txt" or die "Can't open ".$lang.".txt";
     my $desc = <$file>;
     chomp($desc);
-    print "{\"code\":\"$lang\",\"desc\":\"$desc\"}";
+    print $i18nfile "{\"code\":\"$lang\",\"desc\":\"$desc\"}";
     while (my $key = <$file>) {
         next if $key =~ /^\s*$/;
         chomp($key);
@@ -93,27 +90,18 @@ for my $lang (sort @langs) {
     close $file;
     $i++;
 }
-
-print "\n" if $pretty eq 1;
-print "];";
-print "\n" if $pretty eq 1;
-print "const phrases={";
+print $i18nfile "],";
 
 my %outdated;
-
-$i = 0;
-for my $key (sort keys %$phrases) {
-    print "," if $i > 0;
-    print "\n\t" if $pretty eq 1;
-    print "\"".$key."\":{";
-    print "\n" if $pretty eq 1;
+#write translations files
+for my $lang (@langs) {
     my $j = 0;
-    for my $lang (sort @langs) {
+    open my $phrasesfile, ">$basedir/$lang.json" or die "Can not open $basedir/$lang.json: $!";
+    print $phrasesfile "{";
+    for my $key (sort keys %$phrases) {
         if (defined($i18n->{$key}->{$lang})) {
-            print "," if $j > 0;
-            print "\n" if $j > 0 and $pretty eq 1;
-            print "\t\t" if $pretty eq 1;
-            print "\"$lang\":\"".$i18n->{$key}->{$lang}."\"";
+            print $phrasesfile "," if $j > 0;
+            print $phrasesfile "\"$key\":\"".$i18n->{$key}->{$lang}."\"";
             $j++;
         }
         elsif ($lang ne "en-US") {
@@ -126,25 +114,22 @@ for my $key (sort keys %$phrases) {
             }
         }
     }
-    print "\n\t" if $pretty eq 1;
-    print "}";
-    $i++;
+    print $phrasesfile "}";
+    close($phrasesfile);
 }
-print "\n" if $pretty eq 1;
-print "};";
-print "\n" if $pretty eq 1;
 
 #print outdated translations
-print "const missingPhrases={";
+print $i18nfile "\"missingPhrases\":{";
 $i = 0;
 for my $key (keys %outdated) {
     if ($i > 0) {
-        print ",";
+        print $i18nfile ",";
     }
-    print "\"".$key."\":".$outdated{$key};
+    print $i18nfile "\"".$key."\":".$outdated{$key};
     $i++;
 }
-print "};\n";
+print $i18nfile "}}\n";
+close($i18nfile);
 
 #check for obsolet translations
 for my $key (sort keys %$i18n) {

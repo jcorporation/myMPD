@@ -833,6 +833,9 @@ function btnWaiting(btn, waiting) {
         //add a small delay, user should notice the change
         setTimeout(function() {
             elEnable(btn);
+            if (btn.firstChild === null) {
+                return;
+            }
             if (btn.firstChild.nodeName === 'SPAN' &&
                 btn.firstChild.classList.contains('spinner-border'))
             {

@@ -1006,6 +1006,10 @@ function initNavs() {
 }
 
 function getAssets() {
+    httpGet(subdir + 'assets/i18n/en-US.json', function(obj) {
+        phrasesDefault = obj;
+    }, true);
+
     httpGet(subdir + 'assets/ligatures.json', function(obj) {
         materialIcons = obj;
     }, true);

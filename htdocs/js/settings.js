@@ -492,7 +492,7 @@ function setLocale(newLocale) {
         locale = newLocale;
     }
     let localeFound = false;
-    for (const l of locales) {
+    for (const l of i18n.locales) {
         if (l.code.indexOf(locale) === 0) {
             locale = l.code;
             localeFound = true;
@@ -504,7 +504,10 @@ function setLocale(newLocale) {
         locale = 'en-US';
     }
 
-    i18nHtml(domCache.body);
+    httpGet(subdir + 'assets/i18n/' + locale + '.json', function(obj) {
+        phrases = obj;
+        i18nHtml(domCache.body);
+    }, true);
 }
 
 function populateQueueSettingsFrm() {
@@ -620,7 +623,7 @@ function populateSettingsFrm() {
     //locales
     const localeList = document.getElementById('inputWebUIsettinguiLocale');
     elClear(localeList);
-    for (const l of locales) {
+    for (const l of i18n.locales) {
         localeList.appendChild(
             elCreateText('option', {"value": l.code}, l.desc + ' (' + l.code + ')')
         );
@@ -1409,8 +1412,8 @@ function filterImageSelect(elId, searchstr) {
 function warnLocale(value) {
     const warnEl = document.getElementById('warnMissingPhrases');
     elClear(warnEl);
-    if (missingPhrases[value] !== undefined) {
-        warnEl.appendChild(elCreateText('p', {}, tn('Missing translations', missingPhrases[value])));
+    if (i18n.missingPhrases[value] !== undefined) {
+        warnEl.appendChild(elCreateText('p', {}, tn('Missing translations', i18n.missingPhrases[value])));
         warnEl.appendChild(elCreateText('a', {"class": ["alert-link", "external"], "target": "_blank",
             "href": "https://github.com/jcorporation/myMPD/discussions/167"}, tn('Help to improve myMPD')));
         elShow(warnEl);
