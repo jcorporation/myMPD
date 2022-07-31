@@ -8,6 +8,7 @@
 /htdocs/js/long-press-event.js
 /htdocs/js/i18n.js
 /htdocs/assets/MaterialIcons-Regular.woff2
+/htdocs/assets/ligatures.json
 /valgrind.out
 /callgrind.out.*
 /src/compile_commands.json

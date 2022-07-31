@@ -201,6 +201,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/mympd-background-light.svg", 34, "image/svg+xml", true, true, mympd_background_light_svg_data, mympd_background_light_svg_size},
         {"/assets/appicon-192.png", 23, "image/png", false, true, appicon_192_png_data, appicon_192_png_size},
         {"/assets/appicon-512.png", 23, "image/png", false, true, appicon_512_png_data, appicon_512_png_size},
+        {"/assets/ligatures.json", 22, "application/json", true, true, ligatures_json_data, ligatures_json_size},
         {NULL, 0, NULL, false, false, NULL, 0}
     };
     //decode uri

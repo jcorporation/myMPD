@@ -47,6 +47,7 @@ let webradioDb = null;
 const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
 const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
 let locale = navigator.language || navigator.userLanguage;
+let materialIcons = {};
 
 //this settings are saved in the browsers localStorage
 const localSettings = {

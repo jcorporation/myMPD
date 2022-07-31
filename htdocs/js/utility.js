@@ -1682,6 +1682,7 @@ function httpGet(uri, callback, json) {
                 catch(error) {
                     showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
                     logError('Can not parse response to json object:' + ajaxRequest.responseText);
+                    logError(error);
                 }
             }
             else {

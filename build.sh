@@ -296,7 +296,7 @@ createassets() {
   $ZIP "$MYMPD_BUILDDIR/htdocs/css/combined.css"
 
   echo "Compressing fonts"
-  FONTFILES="dist/material-icons/MaterialIcons-Regular.woff2"
+  FONTFILES="dist/material-icons/MaterialIcons-Regular.woff2 dist/material-icons/ligatures.json"
   for FONT in $FONTFILES
   do
     DST=$(basename "${FONT}")
@@ -395,6 +395,7 @@ builddebug() {
     cp "$PWD/dist/bootstrap-native/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
     cp "$PWD/dist/long-press-event/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
     cp "$PWD/dist/material-icons/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
+    cp "$PWD/dist/material-icons/ligatures.json" "$PWD/htdocs/assets/ligatures.json"
     cp "$PWD/debug/htdocs/js/i18n.js" "$PWD/htdocs/js/i18n.js"
   else
     MYMPD_BUILDDIR="debug"
@@ -1062,24 +1063,24 @@ materialicons() {
     exit 1
   fi
   sed -i '1d' metadata.json
-  printf "const materialIcons={" > "ligatures.js"
+  printf "{" > "ligatures.json"
   I=0
   for CAT in $(jq -r ".icons[].categories | .[]" < metadata.json | sort -u)
   do
-    [ "$I" -gt 0 ] && printf "," >> "ligatures.js"
-    printf "\"%s\":[" "$CAT" >> "ligatures.js"
+    [ "$I" -gt 0 ] && printf "," >> "ligatures.json"
+    printf "\"%s\":[" "$CAT" >> "ligatures.json"
     J=0
     for ICON in $(jq -r ".icons[] | select(.categories[]==\"$CAT\") | .name" < metadata.json)
     do
-      [ "$J" -gt 0 ] && printf "," >> "ligatures.js"
-      printf "\"%s\"" "$ICON" >> "ligatures.js"
+      [ "$J" -gt 0 ] && printf "," >> "ligatures.json"
+      printf "\"%s\"" "$ICON" >> "ligatures.json"
       J=$((J+1))
     done
-    printf "]" >> "ligatures.js"
+    printf "]" >> "ligatures.json"
     I=$((I+1))
   done
-  echo "};"  >> "ligatures.js"
-  cp ligatures.js "$STARTPATH/htdocs/js/"
+  echo "}"  >> "ligatures.json"
+  cp ligatures.json "$STARTPATH/dist/material-icons/"
   cp MaterialIcons-Regular.woff2 "$STARTPATH/dist/material-icons/"
   cd "$STARTPATH"
   rm -fr "$TMPDIR"

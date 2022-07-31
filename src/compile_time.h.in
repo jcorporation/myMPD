@@ -162,7 +162,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 
 #define EXTRA_MIME_TYPES "avif=image/avif,flac=audio/flac,oga=audio/ogg,ogg=audio/ogg,"\
     "opus=audio/ogg,spx=audio/ogg,pem=application/x-x509-ca-cert,woff2=font/woff2,"\
-    "m3u=audio/mpegurl"
+    "m3u=audio/mpegurl,json=application/json"
 
 //io defaults
 #define OPEN_FLAGS_READ "re"

@@ -722,6 +722,7 @@ function appInitStart() {
 }
 
 function appInit() {
+    getAssets();
     //collaps arrows for submenus
     const collapseArrows = document.querySelectorAll('.subMenu');
     for (const collapseArrow of collapseArrows) {
@@ -1002,6 +1003,12 @@ function initNavs() {
     document.getElementById('offcanvasMenu').addEventListener('show.bs.offcanvas', function() {
         showMessages();
     }, false);
+}
+
+function getAssets() {
+    httpGet(subdir + 'assets/ligatures.json', function(obj) {
+        materialIcons = obj;
+    }, true);
 }
 
 //Handle javascript errors
