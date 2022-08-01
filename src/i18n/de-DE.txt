@@ -2058,9 +2058,6 @@ Leere Antwort vom WebradioDB Backend
 Loading...
 Lade...
 
-Stream uri
-Stream URL
-
 clickcount
 Klick Anzahl
 
