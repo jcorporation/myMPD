@@ -505,26 +505,26 @@ function setPlaybackCardTags(songObj) {
         }, false);
         elReplaceChild(cardPlaybackWebradio,
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                elCreateText('small', {}, tn('Webradio')),
+                elCreateText('small', {"data-phrase": "Webradio"}, tn('Webradio')),
                 webradioName
             ])
         );
         cardPlaybackWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                elCreateText('small', {}, tn('Genre')),
+                elCreateText('small', {"data-phrase": "Genre"}, tn('Genre')),
                 elCreateText('p', {}, songObj.webradio.Genre)
             ])
         );
         cardPlaybackWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                elCreateText('small', {}, tn('Country')),
+                elCreateText('small', {"data-phrase": "Country"}, tn('Country')),
                 elCreateText('p', {}, songObj.webradio.Country + smallSpace + nDash + smallSpace + songObj.webradio.Language)
             ])
         );
         if (songObj.webradio.Homepage !== '') {
             cardPlaybackWebradio.appendChild(
                 elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                    elCreateText('small', {}, tn('Homepage')),
+                    elCreateText('small', {"data-phrase": "Homepage"}, tn('Homepage')),
                     elCreateNode('p', {}, 
                         elCreateText('a', {"class": ["text-success", "external"],
                             "href": myEncodeURIhost(songObj.webradio.Homepage),
@@ -539,7 +539,7 @@ function setPlaybackCardTags(songObj) {
         {
             cardPlaybackWebradio.appendChild(
                 elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                    elCreateText('small', {}, tn('Format')),
+                    elCreateText('small', {"data-phrase": "Format"}, tn('Format')),
                     elCreateText('p', {}, songObj.webradio.Codec + 
                         (songObj.webradio.Bitrate !== '' ? ' / ' + songObj.webradio.Bitrate + ' ' + tn('kbit') : ''))
                 ])
@@ -548,7 +548,7 @@ function setPlaybackCardTags(songObj) {
         if (songObj.webradio.Description !== '') {
             cardPlaybackWebradio.appendChild(
                 elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                    elCreateText('small', {}, tn('Description')),
+                    elCreateText('small', {"data-phrase": "Description"}, tn('Description')),
                     elCreateText('p', {}, songObj.webradio.Description)
                 ])
             );
