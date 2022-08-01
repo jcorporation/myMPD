@@ -236,7 +236,7 @@ createassets() {
   #Create translation phrases file
   createi18n "$MYMPD_BUILDDIR" 2>/dev/null
   transstatus
-  mv "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$MYMPD_BUILDDIR/htdocs/js/i18n.min.js"
+  minify js "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$MYMPD_BUILDDIR/htdocs/js/i18n.min.js"
 
   echo "Minifying javascript"
   JSSRCFILES=""
@@ -307,8 +307,10 @@ createassets() {
   echo "Compressing i18n json"
   for I18N in src/i18n/json/*.json
   do
-    DST=$(basename "${I18N}")
-    $ZIPCAT "$I18N" > "$MYMPD_BUILDDIR/htdocs/assets/i18n/${DST}.gz"
+    BASENAME=$(basename "${I18N}" .json)
+    minify js "$I18N" "$MYMPD_BUILDDIR/htdocs/assets/i18n/${BASENAME}.min.json"
+    echo "$DST"
+    $ZIPCAT "$MYMPD_BUILDDIR/htdocs/assets/i18n/${BASENAME}.min.json" > "$MYMPD_BUILDDIR/htdocs/assets/i18n/${BASENAME}.json.gz"
   done
 
   echo "Minifying and compressing html"

@@ -89,11 +89,11 @@ for my $lang (@langs) {
     my $j = 0;
     $outdated{$lang} = 0;
     open my $phrasesfile, ">src/i18n/json/$lang.json" or die "Can not open src/i18n/json/$lang.json: $!";
-    print $phrasesfile "{";
+    print $phrasesfile "{\n";
     for my $key (sort keys %$phrases) {
         if (defined($i18n->{$key}->{$lang})) {
-            print $phrasesfile "," if $j > 0;
-            print $phrasesfile "\"$key\":\"".$i18n->{$key}->{$lang}."\"";
+            print $phrasesfile ",\n" if $j > 0;
+            print $phrasesfile "    \"$key\": \"".$i18n->{$key}->{$lang}."\"";
             $j++;
         }
         elsif ($lang ne "en-US") {
@@ -101,14 +101,14 @@ for my $lang (@langs) {
             $outdated{$lang}++;
         }
     }
-    print $phrasesfile "}";
+    print $phrasesfile "\n}\n";
     close($phrasesfile);
 }
 
 #Write i18n.json
 open my $i18nfile, ">src/i18n/json/i18n.json" or die "Can not open src/i18n/json/i18n.json: $!";
-print $i18nfile "{\"locales\":[";
-print $i18nfile "{\"code\":\"default\",\"desc\":\"Browser default\"},";
+print $i18nfile "{\n    \"locales\": [\n";
+print $i18nfile "        {\"code\":\"default\", \"desc\":\"Browser default\", \"missingPhrases\": 0},\n";
 $i = 0;
 for my $lang (sort @langs) {
     if ($outdated{$lang} > 100) {
@@ -116,16 +116,16 @@ for my $lang (sort @langs) {
         next;
     }
     if ($i > 0) {
-        print $i18nfile ",";
+        print $i18nfile ",\n";
     }
     open my $file, "src/i18n/".$lang.".txt" or die "Can't open ".$lang.".txt";
     my $desc = <$file>;
     chomp($desc);
     close $file;
-    print $i18nfile "{\"code\":\"$lang\",\"desc\":\"$desc\", \"missingPhrases\": ".$outdated{$lang}."}";
+    print $i18nfile "        {\"code\":\"$lang\", \"desc\":\"$desc\", \"missingPhrases\": ".$outdated{$lang}."}";
     $i++;
 }
-print $i18nfile "]}\n";
+print $i18nfile "\n    ]\n}\n";
 close($i18nfile);
 
 #check for obsolet translations

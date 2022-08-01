@@ -1,1 +1,10 @@
-{"locales":[{"code":"default","desc":"Browser default"},{"code":"cn-CHS","desc":"简体中文", "missingPhrases": 4},{"code":"de-DE","desc":"Deutsch", "missingPhrases": 0},{"code":"en-US","desc":"English", "missingPhrases": 0},{"code":"ko-KR","desc":"한국어", "missingPhrases": 51},{"code":"nl-NL","desc":"Nederlands", "missingPhrases": 29}]}
+{
+    "locales": [
+        {"code":"default", "desc":"Browser default", "missingPhrases": 0},
+        {"code":"cn-CHS", "desc":"简体中文", "missingPhrases": 4},
+        {"code":"de-DE", "desc":"Deutsch", "missingPhrases": 0},
+        {"code":"en-US", "desc":"English", "missingPhrases": 0},
+        {"code":"ko-KR", "desc":"한국어", "missingPhrases": 51},
+        {"code":"nl-NL", "desc":"Nederlands", "missingPhrases": 29}
+    ]
+}
