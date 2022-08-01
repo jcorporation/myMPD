@@ -1,11 +1,9 @@
 #!/usr/bin/perl -w
+#
+# Reads the .txt files and writes the json translation files
+#
 use strict;
 
-my $basedir = $ARGV[0];
-if (not defined($basedir)) {
-    print "Usage: tojson.pl <basedir>";
-    exit 1
-}
 my $phrases;
 my $i18n;
 my @langs = ();
@@ -65,38 +63,32 @@ for my $filename (@files) {
     close $file;
 }
 
-#Write i18n.js
-open my $i18nfile, ">$basedir/i18n.json" or die "Can not open $basedir/i18n.json: $!";
-print $i18nfile "{\"locales\":[";
-print $i18nfile "{\"code\":\"default\",\"desc\":\"Browser default\"},";
+#Read translations
 my $i = 0;
 for my $lang (sort @langs) {
-    if ($i > 0) {
-        print $i18nfile ",";
-    }
     open my $file, "src/i18n/".$lang.".txt" or die "Can't open ".$lang.".txt";
+    #skip desc
     my $desc = <$file>;
-    chomp($desc);
-    print $i18nfile "{\"code\":\"$lang\",\"desc\":\"$desc\"}";
     while (my $key = <$file>) {
         next if $key =~ /^\s*$/;
         chomp($key);
         my $value = <$file>;
         chomp($value);
-        $value =~ s/\"/\\\"/g;
-        $key =~ s/\"/\\\"/g;
+        $value =~ s/\"/\\\"/g; #escape
+        $key =~ s/\"/\\\"/g;   #escape
         $i18n->{$key}->{$lang} = $value;
     }
     close $file;
     $i++;
 }
-print $i18nfile "],";
 
+#count missing phrases
 my %outdated;
 #write translations files
 for my $lang (@langs) {
     my $j = 0;
-    open my $phrasesfile, ">$basedir/$lang.json" or die "Can not open $basedir/$lang.json: $!";
+    $outdated{$lang} = 0;
+    open my $phrasesfile, ">src/i18n/json/$lang.json" or die "Can not open src/i18n/json/$lang.json: $!";
     print $phrasesfile "{";
     for my $key (sort keys %$phrases) {
         if (defined($i18n->{$key}->{$lang})) {
@@ -106,29 +98,34 @@ for my $lang (@langs) {
         }
         elsif ($lang ne "en-US") {
             warn "Phrase \"".$key."\" for ".$lang." not found\n";
-            if (defined($outdated{$lang})) {
-                $outdated{$lang}++;
-            }
-            else {
-                $outdated{$lang} = 1;
-            }
+            $outdated{$lang}++;
         }
     }
     print $phrasesfile "}";
     close($phrasesfile);
 }
 
-#print outdated translations
-print $i18nfile "\"missingPhrases\":{";
+#Write i18n.json
+open my $i18nfile, ">src/i18n/json/i18n.json" or die "Can not open src/i18n/json/i18n.json: $!";
+print $i18nfile "{\"locales\":[";
+print $i18nfile "{\"code\":\"default\",\"desc\":\"Browser default\"},";
 $i = 0;
-for my $key (keys %outdated) {
+for my $lang (sort @langs) {
+    if ($outdated{$lang} > 100) {
+        warn "Skipping $lang, too many missing phrases (".$outdated{$lang}.")\n";
+        next;
+    }
     if ($i > 0) {
         print $i18nfile ",";
     }
-    print $i18nfile "\"".$key."\":".$outdated{$key};
+    open my $file, "src/i18n/".$lang.".txt" or die "Can't open ".$lang.".txt";
+    my $desc = <$file>;
+    chomp($desc);
+    close $file;
+    print $i18nfile "{\"code\":\"$lang\",\"desc\":\"$desc\", \"missingPhrases\": ".$outdated{$lang}."}";
     $i++;
 }
-print $i18nfile "}}\n";
+print $i18nfile "]}\n";
 close($i18nfile);
 
 #check for obsolet translations
