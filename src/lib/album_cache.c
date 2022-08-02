@@ -33,6 +33,7 @@
  * @param song mpd song struct
  * @param albumkey sds string replaced by the key
  * @param tag_albumartist AlbumArtist tag
+ * @return pointer to albumkey
  */
 sds album_cache_get_key(struct mpd_song *song, sds albumkey, enum mpd_tag_type tag_albumartist) {
     sdsclear(albumkey);

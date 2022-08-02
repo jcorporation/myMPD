@@ -19,10 +19,10 @@
  * Jukebox state
  */
 enum jukebox_modes {
-    JUKEBOX_OFF,
-    JUKEBOX_ADD_SONG,
-    JUKEBOX_ADD_ALBUM,
-    JUKEBOX_UNKNOWN
+    JUKEBOX_OFF,       //!< jukebox is disabled
+    JUKEBOX_ADD_SONG,  //!< jukebox adds single songs
+    JUKEBOX_ADD_ALBUM, //!< jukebox adss whole albums
+    JUKEBOX_UNKNOWN    //!< jukebox mode is unknown
 };
 
 /**
@@ -30,73 +30,72 @@ enum jukebox_modes {
  * myMPD specific events.
  */
 enum trigger_events {
-    TRIGGER_MYMPD_SCROBBLE = -1,
-    TRIGGER_MYMPD_START = -2,
-    TRIGGER_MYMPD_STOP = -3,
-    TRIGGER_MYMPD_CONNECTED = -4,
-    TRIGGER_MYMPD_DISCONNECTED = -5,
-    TRIGGER_MYMPD_FEEDBACK = -6,
-    TRIGGER_MPD_DATABASE = 0x1,
-    TRIGGER_MPD_STORED_PLAYLIST = 0x2,
-    TRIGGER_MPD_PLAYLIST = 0x4,
-    TRIGGER_MPD_PLAYER = 0x8,
-    TRIGGER_MPD_MIXER = 0x10,
-    TRIGGER_MPD_OUTPUT = 0x20,
-    TRIGGER_MPD_OPTIONS = 0x40,
-    TRIGGER_MPD_UPDATE = 0x80,
-    TRIGGER_MPD_STICKER = 0x100,
-    TRIGGER_MPD_SUBSCRIPTION = 0x200,
-    TRIGGER_MPD_MESSAGE = 0x400,
-    TRIGGER_MPD_PARTITION = 0x800,
-    TRIGGER_MPD_NEIGHBOR = 0x1000,
-    TRIGGER_MPD_MOUNT = 0x2000
+    TRIGGER_MYMPD_SCROBBLE = -1,       //!< myMPD scrobble event (same event is used for last played sticker / list)
+    TRIGGER_MYMPD_START = -2,          //!< myMPD was started (before mpd connection)
+    TRIGGER_MYMPD_STOP = -3,           //!< myMPD stops
+    TRIGGER_MYMPD_CONNECTED = -4,      //!< myMPD connected to mpd event
+    TRIGGER_MYMPD_DISCONNECTED = -5,   //!< myMPD disconnect from mpd event
+    TRIGGER_MYMPD_FEEDBACK = -6,       //!< myMPD feedback event (love/hate)
+    TRIGGER_MPD_DATABASE = 0x1,        //!< mpd database has changed
+    TRIGGER_MPD_STORED_PLAYLIST = 0x2, //!< mpd playlist idle event
+    TRIGGER_MPD_PLAYLIST = 0x4,        //!< mpd queue idle event
+    TRIGGER_MPD_PLAYER = 0x8,          //!< mpd player idle event
+    TRIGGER_MPD_MIXER = 0x10,          //!< mpd mixer idle event (volume)
+    TRIGGER_MPD_OUTPUT = 0x20,         //!< mpd output idle event
+    TRIGGER_MPD_OPTIONS = 0x40,        //!< mpd options idle event
+    TRIGGER_MPD_UPDATE = 0x80,         //!< mpd database idle event (started or finished)
+    TRIGGER_MPD_STICKER = 0x100,       //!< mpd sticker idle event
+    TRIGGER_MPD_SUBSCRIPTION = 0x200,  //!< mpd subscription idle event
+    TRIGGER_MPD_MESSAGE = 0x400,       //!< mpd message idle event
+    TRIGGER_MPD_PARTITION = 0x800,     //!< mpd partition idle event
+    TRIGGER_MPD_NEIGHBOR = 0x1000,     //!< mpd neighbor idle event
+    TRIGGER_MPD_MOUNT = 0x2000         //!< mpd mount idle event
 };
 
 /**
  * MPD connection states
  */
 enum mpd_conn_states {
-    MPD_CONNECTED,           //<! mpd is connected
-    MPD_DISCONNECTED,        //<! mpd is disconnected, try to reconnect
-    MPD_FAILURE,             //<! mpd connection failed, disconnect mpd and reconnect after wait time
-    MPD_DISCONNECT,          //<! disconnect mpd and reconnect after wait time
-    MPD_DISCONNECT_INSTANT,  //<! disconnect mpd and reconnect as soon as possible
-    MPD_WAIT                 //<! wating for reconnection
+    MPD_CONNECTED,           //!< mpd is connected
+    MPD_DISCONNECTED,        //!< mpd is disconnected, try to reconnect
+    MPD_FAILURE,             //!< mpd connection failed, disconnect mpd and reconnect after wait time
+    MPD_DISCONNECT,          //!< disconnect mpd and reconnect after wait time
+    MPD_DISCONNECT_INSTANT,  //!< disconnect mpd and reconnect as soon as possible
+    MPD_WAIT                 //!< wating for reconnection
 };
 
 /**
- * Sticker values
+ * MPD sticker values
  */
 struct t_sticker {
-    long playCount;
-    long skipCount;
-    time_t lastPlayed;
-    time_t lastSkipped;
-    long like;
+    long playCount;      //!< number how often the song was played
+    long skipCount;      //!< number how often the song was skipped
+    time_t lastPlayed;   //!< timestamp when the song was played the last time
+    time_t lastSkipped;  //!< timestamp when the song was skipped the last time
+    long like;           //!< hate/neutral/love value
 };
 
 /**
- * Struct for mpd tag lists
+ * Struct for a mpd tag lists
  */
 struct t_tags {
-    size_t len;
-    enum mpd_tag_type tags[64];
+    size_t len;                 //!< number of tags in the array
+    enum mpd_tag_type tags[64]; //!< tags array
 };
 
 /**
  * Holds cache information
  */
 struct t_cache {
-    bool building;
-    rax *cache;
+    bool building;  //!< true if the mpd_worker thread is creating the cache
+    rax *cache;     //!< pointer to the cache
 };
 
 /**
  * Holds MPD specific states shared across all partitions
  */
 struct t_mpd_shared_state {
-    //static config
-    struct t_config *config;   
+    struct t_config *config;  //!< static config
     //connection configuration
     sds mpd_host;
     unsigned mpd_port;
@@ -136,56 +135,52 @@ struct t_mpd_shared_state {
     struct t_list last_played;
     long last_played_count;
     struct t_list sticker_queue;
-    //name of the booklet files
-    sds booklet_name;
+    sds booklet_name; //!< name of the booklet files
 };
 
 /**
  * Holds partition specific states
  */
 struct t_partition_state {
-    //partition name
-    sds name;
     //mpd connection
-    struct mpd_connection *conn;
-    enum mpd_conn_states conn_state;
+    struct mpd_connection *conn;           //!< mpd connection object from libmpdclient
+    enum mpd_conn_states conn_state;       //!< mpd connection state
     //reconnect timer
-    time_t reconnect_time; //timestamp at which next connection attempt is made
-    time_t reconnect_interval; //interval for connections attempts (increases by failed attempts)
+    time_t reconnect_time;                 //!< timestamp at which next connection attempt is made
+    time_t reconnect_interval;             //!< interval for connections attempts (increases by failed attempts)
     //track player states
-    enum mpd_state play_state; //mpd player state
-    int song_id; //current song id from queue
-    int next_song_id; //next song id from queue
-    int last_song_id; //previous song id from queue
-    int song_pos; //current song pos in queue
-    sds song_uri; //current song uri
-    sds last_song_uri; // previous song uri
-    unsigned queue_version; //queue version number (increments on queue change)
-    long long queue_length; //length of the queue
-    int last_last_played_id; //last scrobble event was fired for this song id
-    int last_skipped_id; //last skipped event was fired for this song id
-    time_t song_end_time; //timestamp at which current song should end (starttime + duration)
-    time_t last_song_end_time; //timestamp at which previous song should end (starttime + duration)
-    time_t song_start_time; //timestamp at which current song has started
-    time_t last_song_start_time; //timestap at which previous song has started
-    time_t crossfade; //used for determine when to add next song from jukebox queue
-    time_t set_song_played_time; //timestamp at which the scrobble event will be fired
-    time_t last_song_set_song_played_time; //timestamp of the previous scrobble event
-    //start play if queue changes
-    bool auto_play;
+    enum mpd_state play_state;             //!< mpd player state
+    int song_id;                           //!< current song id from queue
+    int next_song_id;                      //!< next song id from queue
+    int last_song_id;                      //!< previous song id from queue
+    int song_pos;                          //!< current song pos in queue
+    sds song_uri;                          //!< current song uri
+    sds last_song_uri;                     //!< previous song uri
+    unsigned queue_version;                //!< queue version number (increments on queue change)
+    long long queue_length;                //!< length of the queue
+    int last_last_played_id;               //!< last scrobble event was fired for this song id
+    int last_skipped_id;                   //!< last skipped event was fired for this song id
+    time_t song_end_time;                  //!< timestamp at which current song should end (starttime + duration)
+    time_t last_song_end_time;             //!< timestamp at which previous song should end (starttime + duration)
+    time_t song_start_time;                //!< timestamp at which current song has started
+    time_t last_song_start_time;           //!< timestap at which previous song has started
+    time_t crossfade;                      //!< used for determine when to add next song from jukebox queue
+    time_t set_song_played_time;           //!< timestamp at which the scrobble event will be fired
+    time_t last_song_set_song_played_time; //!< timestamp of the previous scrobble event
+    bool auto_play;                        //!< start play if queue changes
     //jukebox
-    enum jukebox_modes jukebox_mode;
-    sds jukebox_playlist;
-    long jukebox_queue_length;
-    long jukebox_last_played;
-    struct t_tags jukebox_unique_tag;
-    bool jukebox_enforce_unique;
-    struct t_list jukebox_queue;
-    struct t_list jukebox_queue_tmp;
-    //pointer to shared MPD state
-    struct t_mpd_shared_state *mpd_shared_state;
-    //pointer to next partition;
-    struct t_partition_state *next;
+    enum jukebox_modes jukebox_mode;       //!< the jukebox mode
+    sds jukebox_playlist;                  //!< playlist from which the jukebox queue is generated
+    long jukebox_queue_length;             //!< how many songs should the mpd queue have
+    long jukebox_last_played;              //!< only add songs wiht last_played state older than this timestamp
+    struct t_tags jukebox_unique_tag;      //!< single tag for the jukebox unique constraint
+    bool jukebox_enforce_unique;           //!< flag if unique constraint is enabled
+    struct t_list jukebox_queue;           //!< the jukebox queue itself
+    struct t_list jukebox_queue_tmp;       //!< temporaray jukebox queue for the add random to queue function
+    struct t_mpd_shared_state *mpd_shared_state; //!< pointer to shared MPD state
+    //partition
+    sds name;                              //!< partition name
+    struct t_partition_state *next;        //!< pointer to next partition;
 };
 
 /**
