@@ -490,17 +490,18 @@ check_docs() {
 
 check_includes() {
   rc=0
-  find src/ -name \*.c | while IFS= read -r FILE
+  FILES=$(find src/ -name \*.c)
+  for FILE in $FILES
   do
     if ! grep -m1 "#include" "$FILE" | grep -q "compile_time.h"
     then
       echo_warn "First include is not compile_time.h: $FILE"
       rc=1
     fi
-    SRCDIR=$(dirname "$FILE")
 
-    grep "#include \"" "$FILE" | grep -v "mympd_config_defs.h" | cut -d\" -f2 | \
-    while IFS= read -r INCLUDE
+    SRCDIR=$(dirname "$FILE")
+    INCLUDES=$(grep "#include \"" "$FILE" | grep -v "mympd_config_defs.h" | cut -d\" -f2)
+    for INCLUDE in $INCLUDES
     do
       if ! realpath "$SRCDIR/$INCLUDE" > /dev/null 2>&1
       then
