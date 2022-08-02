@@ -1043,26 +1043,26 @@ createi18n() {
 }
 
 transstatus() {
-  if check_cmd_silent jq
+  if ! check_cmd_silent jq
   then
-    for F in src/i18n/*.txt
-    do
-      [ "$F" = "src/i18n/extra_phrases.txt" ] && continue
-      LANG=$(basename "$F" .txt)
-      MISSING=$(jq -r ".[\"$LANG\"].missingPhrases" src/i18n/json/i18n.json)
-      if [ "$MISSING" = "null" ]
-      then
-        echo_warn "$LANG: disabled, too many missing phrases"
-      elif [ "$MISSING" -gt 0 ]
-      then
-      	echo_warn "$LANG: $MISSING phrases are not translated"
-      else
-      	echo "OK: $LANG"
-      fi
-    done
-  else
     echo_warn "jq not found - can not print translation statistics"
+    return
   fi
+  for F in src/i18n/*.txt
+  do
+    [ "$F" = "src/i18n/extra_phrases.txt" ] && continue
+    LANG=$(basename "$F" .txt)
+    MISSING=$(jq -r ".[\"$LANG\"].missingPhrases" src/i18n/json/i18n.json)
+    if [ "$MISSING" = "null" ]
+    then
+      echo_warn "$LANG: disabled, too many missing phrases"
+    elif [ "$MISSING" -gt 0 ]
+    then
+      echo_warn "$LANG: $MISSING phrases are not translated"
+    else
+      echo "OK: $LANG"
+    fi
+  done
 }
 
 materialicons() {
