@@ -455,6 +455,9 @@ cleanup() {
   rm -f htdocs/assets/ligatures.json
   rm -rf htdocs/assets/i18n
 
+  #doxygen
+  rm -rf docs/doxygen
+
   #compilation database
   rm -f src/compile_commands.json
 
