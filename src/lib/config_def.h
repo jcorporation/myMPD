@@ -17,31 +17,31 @@
  * Static myMPD configuration read at startup from files / environment
  */
 struct t_config {
-    sds user;
-    sds workdir;
-    sds cachedir;
-    sds http_host;
-    sds http_port;
+    sds user;          //!< username to drop privileges
+    sds workdir;       //!< working directory
+    sds cachedir;      //!< cache directory
+    sds http_host;     //!< ip to bind the webserver
+    sds http_port;     //!< http port to listen 
 #ifdef ENABLE_SSL
-    bool ssl;
-    sds ssl_port;
-    sds ssl_cert;
-    sds ssl_key;
-    bool custom_cert;
-    sds ssl_san;
+    bool ssl;          //!< enables ssl
+    sds ssl_port;      //!< https port to listen
+    sds ssl_cert;      //!< filename of the certificate
+    sds ssl_key;       //!< filename of the private key
+    bool custom_cert;  //!< false if myMPD uses the self generated certificates
+    sds ssl_san;       //!< additonal names for SAN of the self generated certificate
 #endif
-    sds acl;
-    sds scriptacl;
+    sds acl;           //!< IPv4 ACL string
+    sds scriptacl;     //!< IPv4 ACL string for the /api/script endpoint
 #ifdef ENABLE_LUA
-    sds lualibs;
+    sds lualibs;       //!< enabled lua libraries
 #endif
-    bool log_to_syslog;
-    int loglevel;
-    time_t startup_time;
-    bool first_startup;
-    bool bootstrap;
-    sds pin_hash;
-    int covercache_keep_days;
+    bool log_to_syslog;       //!< enable syslog logging
+    int loglevel;             //!< loglevel
+    time_t startup_time;      //!< unix timestamp of startup (not configurable)
+    bool first_startup;       //!< true if it is the first myMPD startup (not configurable)
+    bool bootstrap;           //!< true if bootstrap command line option is set
+    sds pin_hash;             //!< hash of the pin
+    int covercache_keep_days; //!< expiration time for covercache files
 };
 
 #endif

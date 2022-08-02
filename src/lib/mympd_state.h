@@ -56,12 +56,12 @@ enum trigger_events {
  * MPD connection states
  */
 enum mpd_conn_states {
-    MPD_CONNECTED,           //mpd is connected
-    MPD_DISCONNECTED,        //mpd is disconnected, try to reconnect
-    MPD_FAILURE,             //mpd connection failed, disconnect mpd and reconnect after wait time
-    MPD_DISCONNECT,          //disconnect mpd and reconnect after wait time
-    MPD_DISCONNECT_INSTANT,  //disconnect mpd and reconnect as soon as possible
-    MPD_WAIT                 //wating for reconnection
+    MPD_CONNECTED,           //<! mpd is connected
+    MPD_DISCONNECTED,        //<! mpd is disconnected, try to reconnect
+    MPD_FAILURE,             //<! mpd connection failed, disconnect mpd and reconnect after wait time
+    MPD_DISCONNECT,          //<! disconnect mpd and reconnect after wait time
+    MPD_DISCONNECT_INSTANT,  //<! disconnect mpd and reconnect as soon as possible
+    MPD_WAIT                 //<! wating for reconnection
 };
 
 /**

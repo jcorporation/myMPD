@@ -188,38 +188,38 @@ enum request_ids {
  * Struct for work request in the queue
  */
 struct t_work_request {
-    long long conn_id; // needed to identify the connection where to send the reply
-    long id; //the jsonrpc id
-    sds method; //the jsonrpc method
-    enum mympd_cmd_ids cmd_id;
-    sds data;
-    void *extra;
+    long long conn_id;         //!< needed to identify the connection where to send the reply
+    long id;                   //!< the jsonrpc id
+    sds method;                //!< the jsonrpc method as string
+    enum mympd_cmd_ids cmd_id; //!< the jsonrpc method as enum
+    sds data;                  //!< full jsonrpc request
+    void *extra;               //!< extra data for the request
 };
 
 /**
  * Struct for work responses in the queue
  */
 struct t_work_response {
-    long long conn_id; // needed to identify the connection where to send the reply
-    long id; //the jsonrpc id
-    sds method; //the jsonrpc method
-    enum mympd_cmd_ids cmd_id;
-    sds data;
-    sds binary;
-    void *extra;
+    long long conn_id;         //!< needed to identify the connection where to send the reply
+    long id;                   //!< the jsonrpc id
+    sds method;                //!< the jsonrpc method as string
+    enum mympd_cmd_ids cmd_id; //!< the jsonrpc method as enum
+    sds data;                  //!< full jsonrpc response
+    sds binary;                //!< binary data for the response
+    void *extra;               //!< extra data for the response
 };
 
 /**
  * Config data sent to webserver thread
  */
 struct set_mg_user_data_request {
-    sds music_directory;
-    sds playlist_directory;
-    sds coverimage_names;
-    sds thumbnail_names;
-    bool feat_mpd_albumart;
-    sds mpd_host;
-    unsigned mpd_stream_port;
+    sds music_directory;      //!< detected mpd music directory
+    sds playlist_directory;   //!< configured mpd playlist directory
+    sds coverimage_names;     //!< comma separated list of coverimage names
+    sds thumbnail_names;      //!< comma separated list of coverimage thumbnail names
+    bool feat_mpd_albumart;   //!< true if mpd supports the albumart protocol command
+    sds mpd_host;             //!< configured mpd host
+    unsigned mpd_stream_port; //!< mpd stream port for reverse proxy
 };
 
 /**

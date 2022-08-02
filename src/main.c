@@ -229,12 +229,17 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     return true;
 }
 
+/**
+ * Struct holding directory entry and description
+ */
 struct t_subdirs_entry {
-    const char *dirname;
-    const char *description;
+    const char *dirname;     //!< directory name
+    const char *description; //!< description of the directory
 };
 
-//subdirs in the working directory
+/**
+ * Subdirs in the working directory to check
+ */
 static const struct t_subdirs_entry workdir_subdirs[] = {
     {"empty",            "Empty dir"},
     {"pics",             "Pics dir"},
@@ -249,7 +254,9 @@ static const struct t_subdirs_entry workdir_subdirs[] = {
     {NULL, NULL}
 };
 
-//subdirs in the cache directory
+/**
+ * Subdirs in the cache directory to check
+ */
 static const struct t_subdirs_entry cachedir_subdirs[] = {
     {"covercache", "Covercache dir"},
     {"webradiodb", "Webradiodb cache dir"},
