@@ -483,6 +483,7 @@ function setCssVars(theme) {
 
 function setLocale(newLocale) {
     if (newLocale === 'default') {
+        //auto detection
         locale = navigator.language || navigator.userLanguage;
         if (locale.length === 2) {
             locale += '-';
@@ -491,19 +492,21 @@ function setLocale(newLocale) {
     else {
         locale = newLocale;
     }
+    //check if locale is available
     let localeFound = false;
-    for (const l of i18n.locales) {
-        if (l.code.indexOf(locale) === 0) {
-            locale = l.code;
+    for (const l in i18n) {
+        if (l.indexOf(locale) === 0) {
+            locale = l;
             localeFound = true;
             break;
         }
     }
+    //fallback to default locale
     if (localeFound === false) {
         logError('Locale "' + locale + '" not defined');
         locale = 'en-US';
     }
-
+    //get phrases and translate dom
     httpGet(subdir + 'assets/i18n/' + locale + '.json', function(obj) {
         phrases = obj;
         i18nHtml(domCache.body);
@@ -623,11 +626,11 @@ function populateSettingsFrm() {
     //locales
     const localeList = document.getElementById('inputWebUIsettinguiLocale');
     elClear(localeList);
-    for (const l of i18n.locales) {
+    for (const l in i18n) {
         localeList.appendChild(
-            elCreateText('option', {"value": l.code}, l.desc + ' (' + l.code + ')')
+            elCreateText('option', {"value": l}, i18n[l].desc + ' (' + l + ')')
         );
-        if (l.code === settings.webuiSettings.uiLocale) {
+        if (l === settings.webuiSettings.uiLocale) {
             localeList.lastChild.setAttribute('selected', 'selected');
         }
     }
@@ -1412,10 +1415,15 @@ function filterImageSelect(elId, searchstr) {
 function warnLocale(value) {
     const warnEl = document.getElementById('warnMissingPhrases');
     elClear(warnEl);
-    if (i18n.missingPhrases[value] !== undefined) {
-        warnEl.appendChild(elCreateText('p', {}, tn('Missing translations', i18n.missingPhrases[value])));
-        warnEl.appendChild(elCreateText('a', {"class": ["alert-link", "external"], "target": "_blank",
-            "href": "https://github.com/jcorporation/myMPD/discussions/167"}, tn('Help to improve myMPD')));
+    if (i18n[value].missingPhrases > 0) {
+        warnEl.appendChild(
+            elCreateText('p', {}, tn('Missing translations', i18n[value].missingPhrases))
+        );
+        warnEl.appendChild(
+            elCreateText('a', {"class": ["alert-link", "external"], "target": "_blank",
+                "href": "https://github.com/jcorporation/myMPD/discussions/167"}, tn('Help to improve myMPD')
+            )
+        );
         elShow(warnEl);
     }
     else {

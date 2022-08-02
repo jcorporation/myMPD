@@ -1037,22 +1037,29 @@ createi18n() {
     exit 1
   fi
   #json to js
-  printf "const i18n=" > "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
-  tr -d '\n' < "src/i18n/json/i18n.json" >> "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
+  printf "const i18n = " > "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
+  head -c -1 "src/i18n/json/i18n.json" >> "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
   echo ";" >> "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
 }
 
 transstatus() {
   if check_cmd_silent jq
   then
-    MISSING=$(jq -r ".locales | .[] | select(.missingPhrases > 0) | .code, .missingPhrases" src/i18n/json/i18n.json | paste - -)
-    if [ "$MISSING" = "" ]
-    then
-      echo "All translation phrases found"
-    else
-      echo_warn "Missing translation phrases:"
-      echo "$MISSING"
-    fi
+    for F in src/i18n/*.txt
+    do
+      [ "$F" = "src/i18n/extra_phrases.txt" ] && continue
+      LANG=$(basename "$F" .txt)
+      MISSING=$(jq -r ".[\"$LANG\"].missingPhrases" src/i18n/json/i18n.json)
+      if [ "$MISSING" = "null" ]
+      then
+        echo_warn "$LANG: disabled, too many missing phrases"
+      elif [ "$MISSING" -gt 0 ]
+      then
+      	echo_warn "$LANG: $MISSING phrases are not translated"
+      else
+      	echo "OK: $LANG"
+      fi
+    done
   else
     echo_warn "jq not found - can not print translation statistics"
   fi

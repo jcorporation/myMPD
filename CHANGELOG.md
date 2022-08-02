@@ -15,9 +15,10 @@ This release removes the compatibility code for MPD versions older than 0.21.
 - Feat: support TitleSort tag (mpd 0.24) #797
 - Feat: use custom X-myMPD-Session http header for myMPD sessions to allow other authorization methods in reverse proxy setups
 - Feat: respect last played in jukebox album mode #792 #794
+- Feat: improved translation workflow integrating [POEditor](https://poeditor.com/join/project/Z54inZwdul) #803
 - Upd: remove compatibility code for MPD 0.20 and lower
 - Upd: rename some API methodes for consistency
-- Upd: Covercache expiry time is now a config setting (removed from GUI)
+- Upd: covercache expiry time is now a config setting (removed from GUI)
 - Upd: improve many internal functions and there api
 - Upd: add doxygen style internal api documentation (WIP)
 - Upd: add more unit tests

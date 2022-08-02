@@ -107,8 +107,8 @@ for my $lang (@langs) {
 
 #Write i18n.json
 open my $i18nfile, ">src/i18n/json/i18n.json" or die "Can not open src/i18n/json/i18n.json: $!";
-print $i18nfile "{\n    \"locales\": [\n";
-print $i18nfile "        {\"code\":\"default\", \"desc\":\"Browser default\", \"missingPhrases\": 0},\n";
+print $i18nfile "{\n";
+print $i18nfile "    \"default\": {\"desc\":\"Browser default\", \"missingPhrases\": 0},\n";
 $i = 0;
 for my $lang (sort @langs) {
     if ($outdated{$lang} > 100) {
@@ -122,10 +122,10 @@ for my $lang (sort @langs) {
     my $desc = <$file>;
     chomp($desc);
     close $file;
-    print $i18nfile "        {\"code\":\"$lang\", \"desc\":\"$desc\", \"missingPhrases\": ".$outdated{$lang}."}";
+    print $i18nfile "    \"$lang\": {\"desc\":\"$desc\", \"missingPhrases\": ".$outdated{$lang}."}";
     $i++;
 }
-print $i18nfile "\n    ]\n}\n";
+print $i18nfile "\n}\n";
 close($i18nfile);
 
 #check for obsolet translations

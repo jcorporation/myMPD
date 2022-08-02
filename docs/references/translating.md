@@ -23,18 +23,26 @@ User contributed translations:
   * Italian (it-IT)
   * Spanish (es-VE)
 
-Translations are defined in one file per language. The translation files resides under ``<srcdir>/src/i18n/`` and are named by the language code, e.g. ``en-US.txt`` The perl script ``tojson.pl`` creates a combined javascript file from these files.
+## Translate
 
-## Syntax
+The translation files are imported to a public POEditor project. You can join the project at https://poeditor.com/join/project/Z54inZwdul and help translating.
+
+GitHub discussion: https://github.com/jcorporation/myMPD/discussions/803
+
+## Translation files
+
+Translations are defined in one file per language. The translation files resides under `<srcdir>/src/i18n/` and are named by the language code, e.g. `en-US.txt` The perl script `tojson.pl` creates the json files from these files, do not edit the json files directly.
+
+### Syntax
 
 * First line of the file must be the friendly name of the language (optionally following a blank line)
 * A phrase is in one line, in the next line the translation and then one blank line
-* ``%{smart_count}`` are used for pluralization
-  * `` |||| `` separates the pluralization forms
+* `%{smart_count}` are used for pluralization
+  * ` |||| ` separates the pluralization forms
   * the phrase before is used for number one
   * the phrase after is user for numbers zero or greater than one
   * more pluralization forms can be easily added (please open an issue)
-* all other ``%{variables}`` are replaced with values
+* all other `%{variables}` are replaced with values
 
 ### Example
 
@@ -44,17 +52,18 @@ English
 Num playlists
 %{smart_count} Playlist |||| %{smart_count} Playlists
 ```
-Expands to ``1 Playlist`` or ``5 Playlists`` or ``0 Playlists``
 
-## Generating the translation file
+Expands to `1 Playlist` or `5 Playlists` or `0 Playlists`
 
-You can generate the translation file for debug builds manually. The translation file is written to `htdocs/js/i18n.js`. The build process shows all missing or obsolete translations.
+### Generating the translation file
 
-``
+You can generate the translation files manually. The translation files are written to `<srcdir>/i18n/json/`. The build process shows all missing or obsolete translations.
+
+```
 ./build.sh translate
-``
+```
 
-## Adding missing translations
+### Adding missing translations
 
 This example is for the german translation (de-DE).
 
