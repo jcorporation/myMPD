@@ -95,47 +95,46 @@ struct t_cache {
  * Holds MPD specific states shared across all partitions
  */
 struct t_mpd_shared_state {
-    struct t_config *config;  //!< static config
+    struct t_config *config;            //!< static config
     //connection configuration
-    sds mpd_host;
-    unsigned mpd_port;
-    sds mpd_pass;
-    unsigned mpd_binarylimit;
-    unsigned mpd_timeout;
-    bool mpd_keepalive;
-    //real music directory set by feature detection
-    sds music_directory_value;
+    sds mpd_host;                       //!< mpd host configuration
+    unsigned mpd_port;                  //!< mpd port configuration
+    sds mpd_pass;                       //!< mpd password
+    unsigned mpd_binarylimit;           //!< mpd binary limit to set
+    unsigned mpd_timeout;               //!< mpd connection timeout
+    bool mpd_keepalive;                 //!< mpd tcp keepalive flag
+    sds music_directory_value;          //!< real music directory set by feature detection
     //tags
-    sds tag_list;
-    struct t_tags tag_types_mympd;
-    struct t_tags tag_types_mpd;
-    struct t_tags tag_types_search;
-    struct t_tags tag_types_browse;
-    enum mpd_tag_type tag_albumartist;
-    //Features
-    const unsigned *protocol;
-    bool feat_mpd_library;
-    bool feat_mpd_tags;
-    bool feat_mpd_stickers;
-    bool feat_mpd_playlists;
-    bool feat_mpd_fingerprint;
-    bool feat_mpd_albumart;
-    bool feat_mpd_readpicture;
-    bool feat_mpd_mount;
-    bool feat_mpd_neighbor;
-    bool feat_mpd_partitions;
-    bool feat_mpd_binarylimit;
-    bool feat_mpd_playlist_rm_range;
-    bool feat_mpd_whence;
-    bool feat_mpd_advqueue;
+    sds tag_list;                       //!< comma separated string of mpd tags to enable
+    struct t_tags tag_types_mympd;      //!< tags enabled by myMPD and mpd
+    struct t_tags tag_types_mpd;        //!< all available mpd tags
+    struct t_tags tag_types_search;     //!< tags enabled for search
+    struct t_tags tag_types_browse;     //!< tags enabled for browse
+    enum mpd_tag_type tag_albumartist;  //!< tag to use for AlbumArtist
+    //Feature flags
+    const unsigned *protocol;           //!< mpd protocol version
+    bool feat_mpd_library;              //!< myMPD has access to the mpd music directory
+    bool feat_mpd_tags;                 //!< mpd tags are enabled
+    bool feat_mpd_stickers;             //!< mpd supports stickers
+    bool feat_mpd_playlists;            //!< mpd supports playlists
+    bool feat_mpd_fingerprint;          //!< mpd supports the fingerprint command
+    bool feat_mpd_albumart;             //!< mpd supports the albumart command
+    bool feat_mpd_readpicture;          //!< mpd supports the readpicture command
+    bool feat_mpd_mount;                //!< mpd supports mounts
+    bool feat_mpd_neighbor;             //!< mpd supports neighbors command
+    bool feat_mpd_partitions;           //!< mpd supports partitions
+    bool feat_mpd_binarylimit;          //!< mpd supports the binarylimit command
+    bool feat_mpd_playlist_rm_range;    //!< mpd supports the playlist rm range command
+    bool feat_mpd_whence;               //!< mpd supports the whence feature (relative position in queue)
+    bool feat_mpd_advqueue;             //!< mpd supports the prio filter / sort for queue
     //caches
-    struct t_cache album_cache;
-    struct t_cache sticker_cache;
+    struct t_cache album_cache;         //!< the album cache created by the mpd_worker thread
+    struct t_cache sticker_cache;       //!< the sticker cache created by the mpd_worker thread
     //lists
-    struct t_list last_played;
-    long last_played_count;
-    struct t_list sticker_queue;
-    sds booklet_name; //!< name of the booklet files
+    struct t_list last_played;          //!< last_played list
+    long last_played_count;             //!< number of songs to keep in the last played list (disk + memory)
+    struct t_list sticker_queue;        //!< queue for stickers to set (cache if sticker cache is rebuilding) 
+    sds booklet_name;                   //!< name of the booklet files
 };
 
 /**
