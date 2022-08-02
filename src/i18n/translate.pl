@@ -1,17 +1,21 @@
 #!/usr/bin/perl -w
 #
-# Reads the .txt files and writes the json translation files
-#
+# Extracts the phrases from source, compare it to already translated phrases
+# writes the i18n.json and reports the differences
+
 use strict;
+
+my $verbose = defined($ARGV[0]) ? 1 : 0;
 
 my $phrases;
 my $i18n;
+my $desc;
 my @langs = ();
 
 #get translation files
-opendir my $dir, "src/i18n/" or die "Can't open directory: $!";
+opendir my $dir, "src/i18n/json" or die "Can't open directory \"src/i18n/json\": $!";
 while (my $entry = readdir $dir) {
-    push @langs, $1 if $entry =~ /^(\w+\-\w+)\.txt$/;
+    push @langs, $1 if $entry =~ /^(\w+\-\w+)\.json$/;
 }
 closedir $dir;
 
@@ -66,17 +70,11 @@ for my $filename (@files) {
 #Read translations
 my $i = 0;
 for my $lang (sort @langs) {
-    open my $file, "src/i18n/".$lang.".txt" or die "Can't open ".$lang.".txt";
-    #skip desc
-    my $desc = <$file>;
-    while (my $key = <$file>) {
-        next if $key =~ /^\s*$/;
-        chomp($key);
-        my $value = <$file>;
-        chomp($value);
-        $value =~ s/\"/\\\"/g; #escape
-        $key =~ s/\"/\\\"/g;   #escape
-        $i18n->{$key}->{$lang} = $value;
+    open my $file, "src/i18n/json/".$lang.".json" or die "Can't open file \"".$lang.".json\": $!";
+    while (my $line = <$file>) {
+        if ($line =~ /^\s+\"(.+)\":\s+\"(.+)\",?$/) {
+            $i18n->{$1}->{$lang} = $2;
+        }
     }
     close $file;
     $i++;
@@ -86,51 +84,66 @@ for my $lang (sort @langs) {
 my %outdated;
 #write translations files
 for my $lang (@langs) {
-    my $j = 0;
     $outdated{$lang} = 0;
-    open my $phrasesfile, ">src/i18n/json/$lang.json" or die "Can not open src/i18n/json/$lang.json: $!";
-    print $phrasesfile "{\n";
     for my $key (sort keys %$phrases) {
-        if (defined($i18n->{$key}->{$lang})) {
-            print $phrasesfile ",\n" if $j > 0;
-            print $phrasesfile "    \"$key\": \"".$i18n->{$key}->{$lang}."\"";
-            $j++;
-        }
-        elsif ($lang ne "en-US") {
-            warn "Phrase \"".$key."\" for ".$lang." not found\n";
+        if (not defined($i18n->{$key}->{$lang}) and
+            $lang ne "en-US")
+        {
+            warn "Phrase \"".$key."\" for ".$lang." not found\n" if $verbose eq 1;
             $outdated{$lang}++;
         }
     }
-    print $phrasesfile "\n}\n";
-    close($phrasesfile);
 }
 
+#read language descriptions
+open my $descfile, "src/i18n/i18n.txt"  or die "Can not open src/i18n/i18n.txt: $!";
+while (my $line = <$descfile>) {
+    if ($line =~ /^(\w+-\w+):(.*)$/) {
+        $desc->{$1} = $2;
+    }
+}
+close $descfile;
+
 #Write i18n.json
-open my $i18nfile, ">src/i18n/json/i18n.json" or die "Can not open src/i18n/json/i18n.json: $!";
+open my $docfile, ">docs/references/translating_status.md" or die "Can not open \"docs/references/translating_status.md\": $!";
+open my $i18nfile, ">src/i18n/json/i18n.json" or die "Can not open \"src/i18n/json/i18n.json\": $!";
 print $i18nfile "{\n";
 print $i18nfile "    \"default\": {\"desc\":\"Browser default\", \"missingPhrases\": 0},\n";
 $i = 0;
 for my $lang (sort @langs) {
+    if ($lang ne "de-DE" and
+        $lang ne "en-US")
+    {
+        if ($outdated{$lang} > 0) {
+            print $docfile "- $lang: $outdated{$lang} missing phrases\n";
+        }
+        else {
+            print $docfile "- $lang: fully translated\n";
+        }
+    }
     if ($outdated{$lang} > 100) {
-        warn "Skipping $lang, too many missing phrases (".$outdated{$lang}.")\n";
+        warn "$lang: skipped, too many missing phrases (".$outdated{$lang}.")\n";
         next;
     }
     if ($i > 0) {
         print $i18nfile ",\n";
     }
-    open my $file, "src/i18n/".$lang.".txt" or die "Can't open ".$lang.".txt";
-    my $desc = <$file>;
-    chomp($desc);
-    close $file;
-    print $i18nfile "    \"$lang\": {\"desc\":\"$desc\", \"missingPhrases\": ".$outdated{$lang}."}";
+    print $i18nfile "    \"".$lang."\": {\"desc\":\"".$desc->{$lang}."\", \"missingPhrases\": ".$outdated{$lang}."}";
+    if ($outdated{$lang} > 0) {
+        print STDERR "$lang: $outdated{$lang} missing phrases\n";
+    }
+    else {
+        print STDERR "$lang: fully translated\n";
+    }
     $i++;
 }
 print $i18nfile "\n}\n";
-close($i18nfile);
+close $i18nfile;
+close $docfile;
 
 #check for obsolet translations
 for my $key (sort keys %$i18n) {
     if (not defined($phrases->{$key})) {
-        warn "Obsolet translation \"".$key."\" for lang ".join(", ", keys %{$i18n->{$key}})."\n";
+        warn "Obsolet translation \"".$key."\" for lang ".join(", ", keys %{$i18n->{$key}})."\n" if $verbose eq 1;
     }
 }

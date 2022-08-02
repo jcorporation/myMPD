@@ -235,7 +235,6 @@ createassets() {
 
   #Create translation phrases file
   createi18n "$MYMPD_BUILDDIR" 2>/dev/null
-  transstatus
   minify js "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$MYMPD_BUILDDIR/htdocs/js/i18n.min.js"
 
   echo "Minifying javascript"
@@ -394,7 +393,6 @@ installrelease() {
 builddebug() {
   MYMPD_BUILDDIR="debug"
   createi18n "$MYMPD_BUILDDIR" 2>/dev/null
-  transstatus
 
   check_docs
   check_includes
@@ -1031,7 +1029,7 @@ createi18n() {
   MYMPD_BUILD_DIR="$1"
   install -d "$MYMPD_BUILD_DIR/htdocs/js"
   echo "Creating i18n json"
-  if ! perl ./src/i18n/tojson.pl
+  if ! perl ./src/i18n/translate.pl
   then
     echo "Error creating translation files"
     exit 1
@@ -1040,29 +1038,6 @@ createi18n() {
   printf "const i18n = " > "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
   head -c -1 "src/i18n/json/i18n.json" >> "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
   echo ";" >> "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
-}
-
-transstatus() {
-  if ! check_cmd_silent jq
-  then
-    echo_warn "jq not found - can not print translation statistics"
-    return
-  fi
-  for F in src/i18n/*.txt
-  do
-    [ "$F" = "src/i18n/extra_phrases.txt" ] && continue
-    LANG=$(basename "$F" .txt)
-    MISSING=$(jq -r ".[\"$LANG\"].missingPhrases" src/i18n/json/i18n.json)
-    if [ "$MISSING" = "null" ]
-    then
-      echo_warn "$LANG: disabled, too many missing phrases"
-    elif [ "$MISSING" -gt 0 ]
-    then
-      echo_warn "$LANG: $MISSING phrases are not translated"
-    else
-      echo "OK: $LANG"
-    fi
-  done
 }
 
 materialicons() {
@@ -1378,11 +1353,10 @@ case "$ACTION" in
 	  purge
 	;;
 	translate)
-	  createi18n debug
+	  src/i18n/translate.pl verbose
 	;;
 	transstatus)
-    createi18n debug 2>/dev/null
-	  transstatus
+	  src/i18n/translate.pl
 	;;
 	materialicons)
 		materialicons
