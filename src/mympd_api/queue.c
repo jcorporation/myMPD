@@ -205,21 +205,28 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
         length > 1)
     {
         //there is a current song, crop the queue
-        //remove all songs behind current song
-        playing_song_pos++;
-        if (playing_song_pos < length) {
-            bool rc = mpd_run_delete_range(partition_state->conn, playing_song_pos, UINT_MAX);
-            if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_run_delete_range") == false) {
-                return buffer;
+        if (mpd_command_list_begin(partition_state->conn, false) == true) {
+            //remove all songs behind current song
+            unsigned pos_after = playing_song_pos + 1;
+            if (pos_after < length) {
+                bool rc = mpd_send_delete_range(partition_state->conn, pos_after, UINT_MAX);
+                if (rc == false) {
+                    MYMPD_LOG_ERROR("Error adding command to command list mpd_run_delete_range");
+                }
+            }
+            //remove all songs before current song
+            if (playing_song_pos > 0) {
+                bool rc = mpd_send_delete_range(partition_state->conn, 0, playing_song_pos);
+                if (rc == false) {
+                    MYMPD_LOG_ERROR("Error adding command to command list mpd_run_delete_range");
+                }
+            }
+            if (mpd_command_list_end(partition_state->conn) == true) {
+                mpd_response_finish(partition_state->conn);
             }
         }
-        //remove all songs before current song
-        playing_song_pos--;
-        if (playing_song_pos > 0) {
-            bool rc = mpd_run_delete_range(partition_state->conn, 0, playing_song_pos--);
-            if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_run_delete_range") == false) {
-                return buffer;
-            }
+        if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
+            return buffer;
         }
         buffer = jsonrpc_respond_ok(buffer, cmd_id, request_id, JSONRPC_FACILITY_QUEUE);
     }
@@ -324,8 +331,9 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer
         mpd_search_cancel(partition_state->conn);
         return buffer;
     }
-    if (mpd_tag_name_parse(mpdtagtype) != MPD_TAG_UNKNOWN) {
-        rc = mpd_search_add_tag_constraint(partition_state->conn, MPD_OPERATOR_DEFAULT, mpd_tag_name_parse(mpdtagtype), searchstr);
+    enum mpd_tag_type tag_type = mpd_tag_name_parse(tag);
+    if (tag_type != MPD_TAG_UNKNOWN) {
+        rc = mpd_search_add_tag_constraint(partition_state->conn, MPD_OPERATOR_DEFAULT, tag_type, searchstr);
         if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_tag_constraint") == false) {
             mpd_search_cancel(partition_state->conn);
             return buffer;
@@ -367,8 +375,7 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_uint(buffer, "totalTime", total_time, true);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
-    buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
-    buffer = tojson_char(buffer, "mpdtagtype", mpdtagtype, false);
+    buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_respond_end(buffer);
 
     mpd_response_finish(partition_state->conn);
