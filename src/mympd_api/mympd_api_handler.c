@@ -839,11 +839,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_PLAYER_OUTPUT_LIST:
             if (json_get_string(request->data, "$.params.partition", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
                 if (sdslen(sds_buf1) == 0) {
-                    response->data = mympd_api_output_list(mympd_state->partition_state, response->data, request->id);
+                    sds_buf1 = sds_replace(sds_buf1, mympd_state->partition_state->name);
                 }
-                else {
-                    response->data = mympd_api_partition_output_list(mympd_state->partition_state, response->data, request->id, sds_buf1);
-                }
+                response->data = mympd_api_output_list(mympd_state->partition_state, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_PLAYER_OUTPUT_TOGGLE:
@@ -946,7 +944,14 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_PLAYLIST_RM_ALL:
             if (json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &error) == true) {
-                response->data = mympd_api_playlist_delete_all(mympd_state->partition_state, response->data, request->id, sds_buf1);
+                enum plist_delete_criterias criteria = parse_plist_delete_criteria(sds_buf1);
+                if (criteria > -1) {
+                    response->data = mympd_api_playlist_delete_all(mympd_state->partition_state, response->data, request->id, criteria);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Invalid deletion criteria");
+                }
             }
             break;
         case MYMPD_API_PLAYLIST_LIST:
