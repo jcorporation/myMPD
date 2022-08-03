@@ -14,7 +14,6 @@
 #include "extra_media.h"
 #include "sticker.h"
 
-//public functions
 sds mympd_api_song_fingerprint(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_FINGERPRINT;
     char fp_buffer[8192];

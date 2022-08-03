@@ -20,6 +20,14 @@
 #include <string.h>
 #include <unistd.h>
 
+/**
+ * Prints smart playlist details
+ * @param workdir working directory
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @param playlist smart playlist name to print
+ * @return pointer to buffer
+ */
 sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char *playlist) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SMARTPLS_GET;
     sds pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);

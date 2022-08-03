@@ -29,11 +29,23 @@
 #include <stdlib.h>
 #include <string.h>
 
-//private definitions
-static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags);
-static sds set_invalid_value(sds error, sds key, sds value);
+/**
+ * Private declarations
+ */
 
-//public functions
+static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags);
+static sds set_invalid_value(sds buffer, sds key, sds value);
+
+/**
+ * Saves connection specific settings
+ * @param key setting key
+ * @param value setting value
+ * @param vtype value type
+ * @param vcb validation callback
+ * @param userdata pointer to the t_mympd_state struct
+ * @param error pointer to a sds string to populate the error message
+ * @return true on success, else false
+ */
 bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
     (void) vcb;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
@@ -154,6 +166,13 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
     return rc;
 }
 
+/**
+ * Saves columns
+ * @param mympd_state pointer to the t_mympd_state struct
+ * @param table save columsn for this table
+ * @param cols json object with the columns
+ * @return true on success, else false
+ */
 bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, sds cols) {
     if (strcmp(table, "colsQueueCurrent") == 0) {
         mympd_state->cols_queue_current = sds_replace(mympd_state->cols_queue_current, cols);
@@ -194,6 +213,16 @@ bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, 
     return rc;
 }
 
+/**
+ * Saves settings
+ * @param key setting key
+ * @param value setting value
+ * @param vtype value type
+ * @param vcb validation callback
+ * @param userdata pointer to the t_mympd_state struct
+ * @param error pointer to a sds string to populate the error message
+ * @return true on success, else false
+ */
 bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
     (void) vcb;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
@@ -373,6 +402,16 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     return rc;
 }
 
+/**
+ * Sets mpd options and jukebox
+ * @param key setting key
+ * @param value setting value
+ * @param vtype value type
+ * @param vcb validation callback
+ * @param userdata pointer to the t_mympd_state struct
+ * @param error pointer to a sds string to populate the error message
+ * @return true on success, else false
+ */
 bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
     (void) vcb;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
@@ -540,6 +579,11 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
     return rc;
 }
 
+/**
+ * Reads the settings from the state files.
+ * If the state file does not exist, it is populated with the default value.
+ * @param mympd_state pointer to the t_mympd_state struct
+ */
 void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_NOTICE("Reading states");
     mympd_state->mpd_shared_state->mpd_host = state_file_rw_string_sds(mympd_state->config->workdir, "state", "mpd_host", mympd_state->mpd_shared_state->mpd_host, vcb_isname, false);
@@ -594,6 +638,13 @@ void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     strip_slash(mympd_state->playlist_directory);
 }
 
+/**
+ * Prints all settings
+ * @param mympd_state pointer to the t_mympd_state struct
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @return pointer to buffer
+ */
 sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SETTINGS_GET;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -730,8 +781,17 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, long r
     return buffer;
 }
 
-//privat functions
+/**
+ * Privat functions
+ */
 
+/**
+ * Helper function to print a t_tags struct as json array
+ * @param buffer already allocated sds string to append the response
+ * @param tagsname key for the json array
+ * @param tags tags to print
+ * @return pointer to buffer
+ */
 static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags) {
     buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);
     for (unsigned i = 0; i < tags.len; i++) {
@@ -745,8 +805,15 @@ static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags
     return buffer;
 }
 
-static sds set_invalid_value(sds error, sds key, sds value) {
-    error = sdscatfmt(error, "Invalid value for \"%s\": \"%s\"", key, value);
-    MYMPD_LOG_WARN("%s", error);
-    return error;
+/**
+ * Helper function to set an error message
+ * @param buffer already allocated sds string to append the response
+ * @param key setting key
+ * @param value setting value
+ * @return pointer to buffer
+ */
+static sds set_invalid_value(sds buffer, sds key, sds value) {
+    buffer = sdscatfmt(buffer, "Invalid value for \"%s\": \"%s\"", key, value);
+    MYMPD_LOG_WARN("%s", buffer);
+    return buffer;
 }

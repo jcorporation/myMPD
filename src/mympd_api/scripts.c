@@ -36,14 +36,20 @@
     #include "scripts_lualibs.c"
 #endif
 
-//private definitions
+/**
+ * Private definitions
+ */
+
+/**
+ * Struct for passing values to the script thread
+ */
 struct t_script_thread_arg {
-    sds lualibs;
-    bool localscript;
-    sds script_fullpath;
-    sds script_name;
-    sds script_content;
-    struct t_list *arguments;
+    sds lualibs;               //!< comma separated string of lua libs to load
+    bool localscript;          //!< true = read script from filesystem, false = use script_content
+    sds script_fullpath;       //!< full uri of the script
+    sds script_name;           //!< name of the script
+    sds script_content;        //!< script content if localscript = false
+    struct t_list *arguments;  //!< argumentlist
 };
 
 static void *mympd_api_script_execute(void *script_thread_arg);
@@ -59,10 +65,21 @@ static int mympd_api_raw(lua_State *lua_vm);
 static int _mympd_api(lua_State *lua_vm, bool raw);
 static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg);
 static bool mympd_luaopen(lua_State *lua_vm, const char *lualib);
-static sds parse_script_metadata(sds entry, const char *scriptfilename, int *order);
+static sds parse_script_metadata(sds buffer, const char *scriptfilename, int *order);
 static int _mympd_api_http_client(lua_State *lua_vm);
 
-//public functions
+/**
+ * Public functions
+ */
+
+/**
+ * Lists scripts
+ * @param workdir working directory
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @param all true = print all scripts, false = print only scripts with order > 0
+ * @return pointer to buffer
+ */
 sds mympd_api_script_list(sds workdir, sds buffer, long request_id, bool all) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_LIST;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -122,6 +139,12 @@ sds mympd_api_script_list(sds workdir, sds buffer, long request_id, bool all) {
     return buffer;
 }
 
+/**
+ * Deletes a script
+ * @param workdir working directory
+ * @param script script to delete (name without extension)
+ * @return true on success, else false
+ */
 bool mympd_api_script_delete(sds workdir, sds script) {
     sds filepath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
     bool rc = rm_file(filepath);
@@ -129,6 +152,16 @@ bool mympd_api_script_delete(sds workdir, sds script) {
     return rc;
 }
 
+/**
+ * Saves a script
+ * @param workdir working directory
+ * @param script scriptname
+ * @param oldscript old scriptname (leavy empty for new script)
+ * @param order script list is order by this value
+ * @param content script content
+ * @param arguments arguments for the script
+ * @return true on success, else false
+ */
 bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sds content, struct t_list *arguments) {
     sds filepath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
     sds argstr = list_to_json_array(sdsempty(), arguments);
@@ -149,6 +182,14 @@ bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sd
     return rc;
 }
 
+/**
+ * Gets the script and its details
+ * @param workdir working directory
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @param script scriptname to read from filesystem
+ * @return pointer to buffer
+ */
 sds mympd_api_script_get(sds workdir, sds buffer, long request_id, sds script) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_GET;
     sds scriptfilename = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
@@ -197,6 +238,15 @@ sds mympd_api_script_get(sds workdir, sds buffer, long request_id, sds script) {
     return buffer;
 }
 
+/**
+ * Executes a script in a new detached thread
+ * @param workdir working directory
+ * @param script script to execute (name or script content)
+ * @param lualibs comma separated string of lua libs to load
+ * @param arguments argumentlist for the script
+ * @param localscript true = load script from filesystem, false = load script from script parameter
+ * @return true on success, else false
+ */
 bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list *arguments, bool localscript) {
     pthread_t mympd_script_thread;
     pthread_attr_t attr;
@@ -231,14 +281,25 @@ bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list 
     return true;
 }
 
-//private functions
-static sds parse_script_metadata(sds entry, const char *scriptfilename, int *order) {
+/**
+ * Private functions
+ */
+
+/**
+ * Parses the script metadata line.
+ * The metadata line is the first line of the scriptfile.
+ * @param buffer already allocated sds string to append the metadata
+ * @param scriptfilename file to read
+ * @param order pointer to int to populate with order
+ * @return pointer to buffer
+ */
+static sds parse_script_metadata(sds buffer, const char *scriptfilename, int *order) {
     errno = 0;
     FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
     if (fp == NULL) {
         MYMPD_LOG_ERROR("Can not open file \"%s\"", scriptfilename);
         MYMPD_LOG_ERRNO(errno);
-        return entry;
+        return buffer;
     }
 
     sds line = sdsempty();
@@ -247,23 +308,30 @@ static sds parse_script_metadata(sds entry, const char *scriptfilename, int *ord
     {
         sdsrange(line, 3, -1);
         if (json_get_int(line, "$.order", 0, 99, order, NULL) == true) {
-            entry = sdscat(entry, "\"metadata\":");
-            entry = sdscatsds(entry, line);
+            buffer = sdscat(buffer, "\"metadata\":");
+            buffer = sdscatsds(buffer, line);
         }
         else {
             MYMPD_LOG_WARN("Invalid metadata for script %s", scriptfilename);
-            entry = sdscat(entry, "\"metadata\":{\"order\":0,\"arguments\":[]}");
+            buffer = sdscat(buffer, "\"metadata\":{\"order\":0,\"arguments\":[]}");
+            *order = 0;
         }
     }
     else {
         MYMPD_LOG_WARN("Invalid metadata for script %s", scriptfilename);
-        entry = sdscat(entry, "\"metadata\":{\"order\":0,\"arguments\":[]}");
+        buffer = sdscat(buffer, "\"metadata\":{\"order\":0,\"arguments\":[]}");
+        *order = 0;
     }
     FREE_SDS(line);
     (void) fclose(fp);
-    return entry;
+    return buffer;
 }
 
+/**
+ * Executes the script.
+ * This is the main function of the new thread.
+ * @param script_thread_arg pointer to t_script_thread_arg struct
+ */
 static void *mympd_api_script_execute(void *script_thread_arg) {
     thread_logname = sds_replace(thread_logname, "script");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
@@ -382,6 +450,14 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     return NULL;
 }
 
+/**
+ * Returns a phrase for lua errors
+ * @param buffer already allocated sds string to append the error message
+ * @param rc return code of the lua script
+ * @param phrase true if we should return a phrase for the translation framework
+ * @param script executed script
+ * @return pointer to buffer
+ */
 static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script) {
     switch(rc) {
         case LUA_ERRSYNTAX:
@@ -410,6 +486,12 @@ static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script) {
     return buffer;
 }
 
+/**
+ * Loads a lue library from filesystem or embedded in release
+ * @param lua_vm lua instance
+ * @param lualib lua library to load
+ * @return true on success, else false
+ */
 static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
     MYMPD_LOG_DEBUG("Loading embedded lua library %s", lualib);
     #ifdef EMBEDDED_ASSETS
@@ -445,30 +527,59 @@ static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
     return rc;
 }
 
+/**
+ * Helper functions to push a lua table
+ * @param lua_vm lua instance
+ * @param key the key
+ * @param value string value
+ */
 static void populate_lua_table_field_p(lua_State *lua_vm, const char *key, const char *value) {
     lua_pushstring(lua_vm, key);
     lua_pushstring(lua_vm, value);
     lua_settable(lua_vm, -3);
 }
 
+/**
+ * Helper functions to push a lua table
+ * @param lua_vm lua instance
+ * @param key the key
+ * @param value long long value (lua integer)
+ */
 static void populate_lua_table_field_i(lua_State *lua_vm, const char *key, long long value) {
     lua_pushstring(lua_vm, key);
     lua_pushinteger(lua_vm, value);
     lua_settable(lua_vm, -3);
 }
 
+/**
+ * Helper functions to push a lua table
+ * @param lua_vm lua instance
+ * @param key the key
+ * @param value double value (lua number)
+ */
 static void populate_lua_table_field_f(lua_State *lua_vm, const char *key, double value) {
     lua_pushstring(lua_vm, key);
     lua_pushnumber(lua_vm, value);
     lua_settable(lua_vm, -3);
 }
 
+/**
+ * Helper functions to push a lua table
+ * @param lua_vm lua instance
+ * @param key the key
+ * @param value bool value
+ */
 static void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool value) {
     lua_pushstring(lua_vm, key);
     lua_pushboolean(lua_vm, value);
     lua_settable(lua_vm, -3);
 }
 
+/**
+ * Populates the lua table from the lua_mympd_state struct
+ * @param lua_vm lua instance
+ * @param lua_mympd_state 
+ */
 static void populate_lua_table(lua_State *lua_vm, struct t_list *lua_mympd_state) {
     struct t_list_node *current = lua_mympd_state->head;
     while (current != NULL) {
@@ -491,6 +602,10 @@ static void populate_lua_table(lua_State *lua_vm, struct t_list *lua_mympd_state
     }
 }
 
+/**
+ * Registers myMPD specific lua functions
+ * @param lua_vm lua instance
+ */
 static void register_lua_functions(lua_State *lua_vm) {
     lua_register(lua_vm, "mympd_api", mympd_api);
     lua_register(lua_vm, "mympd_api_raw", mympd_api_raw);
@@ -505,6 +620,12 @@ static int mympd_api_raw(lua_State *lua_vm) {
     return _mympd_api(lua_vm, true);
 }
 
+/**
+ * Function that implements mympd_api and mympd_api_raw lua function
+ * @param lua_vm lue instance
+ * @param raw true = options are valid json, false = options are key/value pairs
+ * @return return code
+ */
 static int _mympd_api(lua_State *lua_vm, bool raw) {
     int n = lua_gettop(lua_vm);
     if (raw == false && n % 2 == 0) {
@@ -518,10 +639,12 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         return luaL_error(lua_vm, "Invalid method");
     }
 
+    //get the thread id
     long tid = syscall(__NR_gettid);
 
     struct t_work_request *request = create_request(-2, tid, method_id, NULL);
     if (raw == false) {
+        //options are in key/value format
         for (int i = 2; i < n; i = i + 2) {
             bool comma = i + 1 < n ? true : false;
             if (lua_isboolean(lua_vm, i + 1)) {
@@ -540,7 +663,8 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         request->data = sdscatlen(request->data, "}", 1);
     }
     else if (n == 2) {
-        sdsrange(request->data, 0, -2); //trim {
+        //options are a valid json string
+        sdsrange(request->data, 0, -2); //trim {}
         request->data = sdscat(request->data, lua_tostring(lua_vm, 2));
     }
     request->data = sdscatlen(request->data, "}", 1);
@@ -554,6 +678,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         if (response != NULL) {
             MYMPD_LOG_DEBUG("Got response: %s", response->data);
             if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
+                //this populates a lua table with some myMPD states
                 MYMPD_LOG_DEBUG("Populating lua global state table mympd");
                 struct t_list *lua_mympd_state = (struct t_list *)response->extra;
                 lua_newtable(lua_vm);
@@ -571,7 +696,7 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
                 else {
                     lua_pushinteger(lua_vm, 0);
                 }
-                //response
+                //jsonrpc response
                 lua_pushlstring(lua_vm, response->data, sdslen(response->data));
             }
             free_response(response);
@@ -581,6 +706,10 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     return luaL_error(lua_vm, "No API response, timeout after 60s");
 }
 
+/**
+ * Frees the t_script_thread_arg struct
+ * @param script_thread_arg pointer to the struct to free
+ */
 static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg) {
     FREE_SDS(script_thread_arg->script_name);
     FREE_SDS(script_thread_arg->script_fullpath);
@@ -589,6 +718,11 @@ static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_a
     FREE_PTR(script_thread_arg);
 }
 
+/**
+ * Simple HTTP client for lua
+ * @param lua_vm lua instance
+ * @return number of variables on the stack with the response
+ */
 static int _mympd_api_http_client(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
     if (n != 4) {
