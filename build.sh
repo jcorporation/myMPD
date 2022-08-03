@@ -392,7 +392,7 @@ installrelease() {
 
 builddebug() {
   MYMPD_BUILDDIR="debug"
-  createi18n "$MYMPD_BUILDDIR" 2>/dev/null
+  createi18n "$MYMPD_BUILDDIR"
 
   check_docs
   check_includes
