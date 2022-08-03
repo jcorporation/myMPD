@@ -9,7 +9,6 @@
 
 #include "../lib/mympd_state.h"
 
-sds mympd_api_output_list(struct t_partition_state *partition_state, sds buffer, long request_id);
-sds mympd_api_partition_output_list(struct t_partition_state *partition_state, sds buffer, long request_id,
+sds mympd_api_output_list(struct t_partition_state *partition_state, sds buffer, long request_id,
                                      const char *partition);
 #endif
