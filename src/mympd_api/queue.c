@@ -19,10 +19,20 @@
 
 #include <string.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
 sds _print_queue_entry(struct t_partition_state *partition_state, sds buffer, const struct t_tags *tagcols, struct mpd_song *song);
 
-//public
+/**
+ * Public functions
+ */
+
+/**
+ * Plays the newest inserted song in the queue
+ * @param partition_state pointer to partition state
+ * @return true on success, else false
+ */
 bool mympd_api_queue_play_newly_inserted(struct t_partition_state *partition_state) {
     bool rc = mpd_send_queue_changes_brief(partition_state->conn, partition_state->queue_version);
     if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_send_queue_changes_brief") == false) {
@@ -41,16 +51,30 @@ bool mympd_api_queue_play_newly_inserted(struct t_partition_state *partition_sta
     return rc;
 }
 
-bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, const unsigned trackid, const unsigned priority) {
-    //set priority, priority have only an effect in random mode
-    bool rc = mpd_run_prio_id(partition_state->conn, priority, trackid);
+/**
+ * Sets the priority of a song in the queue.
+ * The priority has only an effect in random mode.
+ * @param partition_state pointer to partition state
+ * @param song_id song id of the song in the queue
+ * @param priority priority to set, max 255
+ * @return true on success, else false
+ */
+bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, const unsigned song_id, const unsigned priority) {
+    bool rc = mpd_run_prio_id(partition_state->conn, priority, song_id);
     if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_prio_id") == false) {
         return false;
     }
     return true;
 }
 
-bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, const unsigned trackid) {
+/**
+ * Sets the priority to the highest value of a song in the queue.
+ * The priority has only an effect in random mode.
+ * @param partition_state pointer to partition state
+ * @param song_id song id of the song in the queue
+ * @return true on success, else false
+ */
+bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, const unsigned song_id) {
     //default prio is 0
     unsigned priority = 1;
 
@@ -81,9 +105,15 @@ bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state,
         MYMPD_LOG_WARN("MPD queue priority limit reached, setting it to max %d", MPD_QUEUE_PRIO_MAX);
         priority = MPD_QUEUE_PRIO_MAX;
     }
-    return mympd_api_queue_prio_set(partition_state, trackid, priority);
+    return mympd_api_queue_prio_set(partition_state, song_id, priority);
 }
 
+/**
+ * Adds a song to the queue after clearing it
+ * @param partition_state pointer to partition state
+ * @param uri song uri to add
+ * @return true on success, else false
+ */
 bool mympd_api_queue_replace_with_song(struct t_partition_state *partition_state, const char *uri) {
     if (mpd_command_list_begin(partition_state->conn, false)) {
         bool rc = mpd_send_clear(partition_state->conn);
@@ -104,6 +134,12 @@ bool mympd_api_queue_replace_with_song(struct t_partition_state *partition_state
     return true;
 }
 
+/**
+ * Adds a playlist to the queue after clearing it
+ * @param partition_state pointer to partition state
+ * @param plist playlist to add
+ * @return true on success, else false
+ */
 bool mympd_api_queue_replace_with_playlist(struct t_partition_state *partition_state, const char *plist) {
     if (mpd_command_list_begin(partition_state->conn, false)) {
         mpd_send_clear(partition_state->conn);
@@ -118,6 +154,12 @@ bool mympd_api_queue_replace_with_playlist(struct t_partition_state *partition_s
     return true;
 }
 
+/**
+ * Prints the queue status and updates internal state
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @return pointer to buffer
+ */
 sds mympd_api_queue_status(struct t_partition_state *partition_state, sds buffer) {
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status == NULL) {
@@ -139,6 +181,15 @@ sds mympd_api_queue_status(struct t_partition_state *partition_state, sds buffer
     return buffer;
 }
 
+/**
+ * Crops (removes all but playing song) or clears the queue if no song is playing
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @param cmd_id jsonrpc method
+ * @param request_id jsonrpc id
+ * @param or_clear if true: clears the queue if there is no current playing or paused song
+ * @return pointer to buffer
+ */
 sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id, bool or_clear) {
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status == NULL) {
@@ -148,10 +199,13 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
     const unsigned length = mpd_status_get_queue_length(status) - 1;
     unsigned playing_song_pos = (unsigned)mpd_status_get_song_pos(status);
     enum mpd_state play_state = mpd_status_get_state(status);
+    mpd_status_free(status);
 
     if ((play_state == MPD_STATE_PLAY || play_state == MPD_STATE_PAUSE) &&
         length > 1)
     {
+        //there is a current song, crop the queue
+        //remove all songs behind current song
         playing_song_pos++;
         if (playing_song_pos < length) {
             bool rc = mpd_run_delete_range(partition_state->conn, playing_song_pos, UINT_MAX);
@@ -159,6 +213,7 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
                 return buffer;
             }
         }
+        //remove all songs before current song
         playing_song_pos--;
         if (playing_song_pos > 0) {
             bool rc = mpd_run_delete_range(partition_state->conn, 0, playing_song_pos--);
@@ -168,25 +223,33 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
         }
         buffer = jsonrpc_respond_ok(buffer, cmd_id, request_id, JSONRPC_FACILITY_QUEUE);
     }
-    else if (or_clear == true ||
-        play_state == MPD_STATE_STOP)
-    {
+    else if (or_clear == true) {
+        //no current song
         bool rc = mpd_run_clear(partition_state->conn);
         if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_run_clear") == true) {
             buffer = jsonrpc_respond_ok(buffer, cmd_id, request_id, JSONRPC_FACILITY_QUEUE);
         }
     }
     else {
+        //queue can not be cropped
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Can not crop the queue");
         MYMPD_LOG_ERROR("Can not crop the queue");
     }
 
-    mpd_status_free(status);
-
     return buffer;
 }
 
+/**
+ * Lists the queue
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc id
+ * @param offset offset for the list
+ * @param limit maximum entries to print
+ * @param tagcols columns to print
+ * @return pointer to buffer
+ */
 sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, long request_id,
                          long offset, long limit, const struct t_tags *tagcols)
 {
@@ -240,8 +303,20 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
     return buffer;
 }
 
+/**
+ * Searches the queue
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc id
+ * @param tag tag to search
+ * @param offset offset for the list
+ * @param limit maximum entries to print
+ * @param searchstr string to search in tag
+ * @param tagcols columns to print
+ * @return pointer to buffer
+ */
 sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer, long request_id,
-                            const char *mpdtagtype, const long offset, const long limit, const char *searchstr, const struct t_tags *tagcols)
+                            const char *tag, const long offset, const long limit, const char *searchstr, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH;
     bool rc = mpd_search_queue_songs(partition_state->conn, false);
@@ -304,6 +379,19 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer
     return buffer;
 }
 
+/**
+ * Searches the queue - advanced mode for newer mpd versions
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc id
+ * @param expression mpd filter expression
+ * @param sort tag to sort
+ * @param sortdesc false = ascending, true = descending sort
+ * @param offset offset for the list
+ * @param limit maximum entries to print
+ * @param tagcols columns to print
+ * @return pointer to buffer
+ */
 sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds buffer, long request_id,
         sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
         const struct t_tags *tagcols)
@@ -402,6 +490,14 @@ sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds bu
 
 //private functions
 
+/**
+ * Prints a queue entry as an json object string
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @param tagcols columns to print
+ * @param song pointer to mpd song struct
+ * @return pointer to buffer
+ */
 sds _print_queue_entry(struct t_partition_state *partition_state, sds buffer, const struct t_tags *tagcols, struct mpd_song *song) {
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_uint(buffer, "id", mpd_song_get_id(song), true);

@@ -374,7 +374,9 @@ sds mympd_api_playlist_delete(struct t_partition_state *partition_state, sds buf
 }
 
 /**
- * 
+ * Parses the playlist delete criteria from string to enum
+ * @param str string to parse
+ * @return parsed criteria as enum
  */
 enum plist_delete_criterias parse_plist_delete_criteria(const char *str) {
     if (strcmp(str, "deleteEmptyPlaylists") == 0) {
