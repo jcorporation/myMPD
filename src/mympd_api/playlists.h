@@ -10,6 +10,15 @@
 #include "../lib/mympd_state.h"
 #include "../mpd_client/playlists.h"
 
+enum plist_delete_criterias {
+    PLAYLIST_DELETE_UNKNOWN = -1,
+    PLAYLIST_DELETE_EMPTY,
+    PLAYLIST_DELETE_SMARTPLS,
+    PLAYLIST_DELETE_ALL
+};
+
+enum plist_delete_criterias parse_plist_delete_criteria(const char *str);
+
 sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffer, long request_id,
         const long offset, const long limit, sds searchstr, enum playlist_types type);
 sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, sds buffer,
@@ -20,5 +29,5 @@ sds mympd_api_playlist_delete(struct t_partition_state *partition_state, sds buf
 sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buffer,
         long request_id, const char *old_playlist, const char *new_playlist);
 sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds buffer,
-        long request_id, const char *type);
+        long request_id, enum plist_delete_criterias criteria);
 #endif
