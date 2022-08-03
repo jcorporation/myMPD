@@ -32,8 +32,8 @@
  * Struct representing the entity in the rax tree
  */
 struct t_dir_entry {
-    sds name;
-    struct mpd_entity *entity;
+    sds name;                   //!< entity name (e.g. filname, playlistname, directory name)
+    struct mpd_entity *entity;  //!< pointer to the generic mpd entity struct
 };
 
 static void free_t_dir_entry(void *data);

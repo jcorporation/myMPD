@@ -11,10 +11,13 @@
 #include "../../dist/sds/sds.h"
 #include "../lib/api.h"
 
+/**
+ * Struct for http proxy backend connections
+ */
 struct backend_nc_data_t {
-    struct mg_connection *frontend_nc;
-    sds uri;
-    enum mympd_cmd_ids cmd_id;
+    struct mg_connection *frontend_nc;  //!< pointer to frontend connection
+    sds uri;                            //!< uri to connect the backend connection
+    enum mympd_cmd_ids cmd_id;          //!< jsonrpc method of the frontend connection
 };
 
 bool is_allowed_proxy_uri(const char *uri);

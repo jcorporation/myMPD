@@ -9,18 +9,24 @@
 
 #include "../../dist/sds/sds.h"
 
+/**
+ * Defines a http request
+ */
 struct mg_client_request_t {
-    const char *method;
-    const char *uri;
-    const char *extra_headers;
-    const char *post_data;
+    const char *method;        //!< http method (e.g. GET, POST)
+    const char *uri;           //!< full uri to connect
+    const char *extra_headers; //!< headers for the request
+    const char *post_data;     //!< optional already encoded post data
 };
 
+/**
+ * Defines a http response
+ */
 struct mg_client_response_t {
-    int rc;
-    sds response;
-    sds header;
-    sds body;
+    int rc;       //!< return code, 0 = success
+    sds response; //!< full http response
+    sds header;   //!< response header
+    sds body;     //!< response body
 };
 
 sds get_dnsserver(void);

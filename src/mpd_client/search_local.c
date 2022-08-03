@@ -37,10 +37,10 @@ enum search_operators {
  * Struct to hold a parsed search expression trible
  */
 struct t_search_expression {
-    int tag;
-    enum search_operators op;
-    sds value;
-    pcre2_code *re_compiled;
+    int tag;                   //!< tag to search in
+    enum search_operators op;  //!< search operator
+    sds value;                 //!< value to match
+    pcre2_code *re_compiled;   //!< compiled regex if operator is a regex
 };
 
 static void *free_search_expression(struct t_search_expression *expr);

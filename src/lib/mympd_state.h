@@ -95,7 +95,7 @@ struct t_cache {
  * Holds MPD specific states shared across all partitions
  */
 struct t_mpd_shared_state {
-    struct t_config *config;            //!< static config
+    struct t_config *config;            //!< pointer to static config
     //connection configuration
     sds mpd_host;                       //!< mpd host configuration
     unsigned mpd_port;                  //!< mpd port configuration
@@ -186,17 +186,17 @@ struct t_partition_state {
  * Optional timer definition from GUI
  */
 struct t_timer_definition {
-    sds name;
-    bool enabled;
-    int start_hour;
-    int start_minute;
-    sds action;
-    sds subaction;
-    unsigned volume;
-    sds playlist;
-    enum jukebox_modes jukebox_mode;
-    bool weekdays[7];
-    struct t_list arguments;
+    sds name;                         //!< name of the timer
+    bool enabled;                     //!< enabled flag
+    int start_hour;                   //!< start hour
+    int start_minute;                 //!< start minute
+    sds action;                       //!< timer action, e.g. script, play
+    sds subaction;                    //!< timer subaction, e.g. script to execute
+    unsigned volume;                  //!< volume to set
+    sds playlist;                     //!< playlist to use
+    enum jukebox_modes jukebox_mode;  //!< jukebox mode
+    bool weekdays[7];                 //!< array of weekdays for timer execution
+    struct t_list arguments;          //!< argumentlist for script timers
 };
 
 /**
@@ -208,85 +208,75 @@ typedef void (*timer_handler)(int timer_id, struct t_timer_definition *definitio
  * Timer node
  */
 struct t_timer_node {
-    int fd;
-    timer_handler callback;
-    struct t_timer_definition *definition;
-    time_t timeout;
-    int interval;
-    int timer_id;
-    struct t_timer_node *next;
+    int fd;                                 //!< hold the timerfd
+    timer_handler callback;                 //!< timer callback function
+    struct t_timer_definition *definition;  //!< optional pointer to timer definition (GUI)
+    time_t timeout;                         //!< seconds when timer will run
+    int interval;                           //!< reschedule timer interval
+    int timer_id;                           //!< id of the timer
+    struct t_timer_node *next;              //!< next timer in the timer list
 };
 
 /**
  * Linked list of timers containing t_timer_nodes
  */
 struct t_timer_list {
-    int length;
-    int last_id;
-    int active;
-    struct t_timer_node *list;
+    int length;                 //!< length of the timer list
+    int last_id;                //!< highest timer id in the list
+    int active;                 //!< number of enabled timers
+    struct t_timer_node *list;  //!< timer definition
 };
 
 /**
  * Lyrics settings
  */
 struct t_lyrics {
-    sds uslt_ext;
-    sds sylt_ext;
-    sds vorbis_uslt;
-    sds vorbis_sylt;
+    sds uslt_ext;     //!< fileextension for unsynced lyrics
+    sds sylt_ext;     //!< fileextension for synced lyrics
+    sds vorbis_uslt;  //!< vorbis comment for unsynced lyrics
+    sds vorbis_sylt;  //!< vorbis comment for synced lyrics
 };
 
 /**
  * Holds central myMPD state and configuration values.
  */
 struct t_mympd_state {
-    //static config
-    struct t_config *config;
-    //mpd state
-    struct t_mpd_shared_state *mpd_shared_state;
-    //partition state
-    struct t_partition_state *partition_state;
-    //lists
-    struct t_timer_list timer_list;
-    struct t_list home_list;
-    struct t_list trigger_list;
-    //tags to use
-    sds tag_list_search;
-    sds tag_list_browse;
-    //smart playlists
-    bool smartpls;
-    sds smartpls_sort;
-    sds smartpls_prefix;
-    time_t smartpls_interval;
-    struct t_tags smartpls_generate_tag_types;
-    sds smartpls_generate_tag_list;
-    //columns
-    sds cols_queue_current;
-    sds cols_search;
-    sds cols_browse_database_detail;
-    sds cols_browse_playlists_detail;
-    sds cols_browse_filesystem;
-    sds cols_playback;
-    sds cols_queue_last_played;
-    sds cols_queue_jukebox;
-    sds cols_browse_radio_webradiodb;
-    sds cols_browse_radio_radiobrowser;
-    //further configuration settings
-    unsigned mpd_stream_port;
-    sds music_directory;
-    sds playlist_directory;
-    sds navbar_icons;
-    sds coverimage_names;
-    sds thumbnail_names;
-    unsigned volume_min;
-    unsigned volume_max;
-    unsigned volume_step;
-    struct t_lyrics lyrics;
-    sds listenbrainz_token;
-    //settings only relevant for webui
-    //saved as string containing json
-    sds webui_settings;
+    struct t_config *config;                      //!< pointer to static config
+    struct t_mpd_shared_state *mpd_shared_state;  //!< mpd state shared accross partitions
+    struct t_partition_state *partition_state;    //!< list of partition states
+    struct t_timer_list timer_list;               //!< list of timers
+    struct t_list home_list;                      //!< list of home icons
+    struct t_list trigger_list;                   //!< list of triggers
+    sds tag_list_search;                          //!< comma separated string of tags for search
+    sds tag_list_browse;                          //!< comma separated string of tags for browse
+    bool smartpls;                                //!< enable smart playlists
+    sds smartpls_sort;                            //!< sort smart playlists by this tag
+    sds smartpls_prefix;                          //!< name prefix for smart playlists
+    time_t smartpls_interval;                     //!< interval to refresh smart playlists in seconds
+    struct t_tags smartpls_generate_tag_types;    //!< generate smart playlists for each value for this tag
+    sds smartpls_generate_tag_list;               //!< generate smart playlists for each value for this tag (string representation)
+    sds cols_queue_current;                       //!< columns for the queue view
+    sds cols_search;                              //!< columns for the search view
+    sds cols_browse_database_detail;              //!< columns for the album detail view
+    sds cols_browse_playlists_detail;             //!< columns for the listing of playlists
+    sds cols_browse_filesystem;                   //!< columns for filesystem listing
+    sds cols_playback;                            //!< columns for plaback view
+    sds cols_queue_last_played;                   //!< columns for last played view
+    sds cols_queue_jukebox;                       //!< columns for the jukebox queue view
+    sds cols_browse_radio_webradiodb;             //!< columns for the webradiodb view
+    sds cols_browse_radio_radiobrowser;           //!< columns for the radiobrowser view
+    unsigned mpd_stream_port;                     //!< mpd http stream port setting
+    sds music_directory;                          //!< mpd music directory setting (real value is in mpd_shared_state
+    sds playlist_directory;                       //!< mpd playlist directory
+    sds navbar_icons;                             //!< json strin of navigation bar icons
+    sds coverimage_names;                         //!< comma separated string of coverimage names
+    sds thumbnail_names;                          //!< comma separated string of coverimage thumbnail names
+    unsigned volume_min;                          //!< minimum mpd volume
+    unsigned volume_max;                          //!< maximum mpd volume
+    unsigned volume_step;                         //!< volume step for +/- buttons
+    struct t_lyrics lyrics;                       //!< pointer to lyrics settings
+    sds listenbrainz_token;                       //!< listenbrainz token
+    sds webui_settings;                           //!< settings only relevant for webui, saved as string containing json
 };
 
 /**

@@ -14,15 +14,13 @@
  * State struct for the mpd_worker thread
  */
 struct t_mpd_worker_state {
-    bool smartpls;
-    sds smartpls_sort;
-    sds smartpls_prefix;
-    struct t_tags smartpls_generate_tag_types;
-    //mpd state
-    struct t_partition_state *partition_state;
-    struct t_mpd_shared_state *mpd_shared_state;
-    struct t_config *config;
-    struct t_work_request *request;
+    bool smartpls;                                //!< smart playlists enabled
+    sds smartpls_sort;                            //!< smart playlists sort tag
+    sds smartpls_prefix;                          //!< prefix for smart playlist names
+    struct t_tags smartpls_generate_tag_types;    //!< generate smart playlists for each value for this tag
+    struct t_partition_state *partition_state;    //!< pointer to the partition state to work (default partion for worker threads)
+    struct t_mpd_shared_state *mpd_shared_state;  //!< pointer to mpd shared state
+    struct t_work_request *request;               //!< work request from msg queue
 };
 
 void *mpd_worker_state_free(struct t_mpd_worker_state *mpd_worker_state);

@@ -22,13 +22,14 @@ enum lua_mympd_state_type {
 };
 
 /**
- * Holds a lua variable
+ * Holds a lua variable.
+ * Which member is used is defined by lua_mympd_state_type
  */
 struct t_lua_mympd_state_value {
-    sds p;
-    long long i;
-    double f;
-    bool b;
+    sds p;        //!< lua string
+    long long i;  //!< lua number
+    double f;     //!< lua float
+    bool b;       //!< lua bool
 };
 
 void lua_mympd_state_set_p(struct t_list *lua_mympd_state, const char *k, const char *v);

@@ -14,21 +14,23 @@
 
 #include <stdbool.h>
 
-//struct for mg_mgr userdata
+/**
+ * Struct for mg_mgr userdata
+ */
 struct t_mg_user_data {
-    struct t_config *config; //pointer to mympd config
-    sds browse_directory;
-    sds music_directory;
-    sds *coverimage_names;
-    int coverimage_names_len;
-    sds *thumbnail_names;
-    int thumbnail_names_len;
-    bool feat_mpd_albumart;
-    bool publish_playlists;
-    bool publish_music;
-    int connection_count;
-    sds stream_uri;
-    struct t_list session_list;
+    struct t_config *config;     //!< Pointer to myMPD configuration
+    sds browse_directory;        //!< document root
+    sds music_directory;         //!< mpd music directory
+    sds *coverimage_names;       //!< sds array of coverimage names
+    int coverimage_names_len;    //!< length of coverimage_names array
+    sds *thumbnail_names;        //!< sds array of coverimage thumbnail names
+    int thumbnail_names_len;     //!< length of thumbnail_names array
+    bool feat_mpd_albumart;      //!< feature flag for md albumart command
+    bool publish_playlists;      //!< true if mpd playlist directory is configured
+    bool publish_music;          //!< true if mpd music directory is accessable
+    int connection_count;        //!< number of http connections
+    sds stream_uri;              //!< uri for the mpd stream reverse proxy
+    struct t_list session_list;  //!< list of myMPD sessions (pin protection mode)
 };
 
 #ifdef EMBEDDED_ASSETS

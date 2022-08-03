@@ -24,13 +24,21 @@
 #include <string.h>
 #include <unistd.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
+
+/**
+ * Struct to hold a webradio entry in the rax tree
+ */
 struct t_webradio_entry {
-    sds entry;
-    sds filename;
+    sds entry;     //!< json representation of the webradio m3u
+    sds filename;  //!< filename of the webradio m3u
 };
 
-//public functions
+/**
+ * Public functions
+ */
 
 sds resolv_mympd_uri(sds uri, sds mpd_host, sds http_host, sds http_port) {
     if (strncmp(uri, "mympd://webradio/", 17) == 0) {

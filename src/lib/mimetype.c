@@ -21,10 +21,10 @@
  * List of mime types with magic numbers and typical extensions
  */
 struct t_mime_type_entry {
-    size_t skip;
-    const char *magic_bytes;
-    const char *extension;
-    const char *mime_type;
+    size_t skip;              //!< starting bytes to skip
+    const char *magic_bytes;  //!< bytes to match to get the mime type
+    const char *extension;    //!< file extension for the mime type
+    const char *mime_type;    //!< mime type
 };
 
 const struct t_mime_type_entry mime_entries[] = {
