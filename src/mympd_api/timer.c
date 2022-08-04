@@ -287,13 +287,14 @@ void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
 }
 
 /**
- * Parses a json object string to a timer definition
+ * Parses a json object string to a timer definition.
+ * Frees the timer and sets the pointer to NULL if there is a parsing error.
  * @param timer_def pointer to timer defintion to populate
  * @param str string to parse
  * @param error pointer to sds string to populate an error string
- * @return struct t_timer_definition* 
+ * @return pointer to timer_def or NULL on error
  */
-void mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str, sds *error) {
+struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str, sds *error) {
     timer_def->name = NULL;
     timer_def->action = NULL;
     timer_def->subaction = NULL;
@@ -327,6 +328,7 @@ void mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str, sds *e
         MYMPD_LOG_ERROR("Error parsing timer definition");
     }
     FREE_SDS(jukebox_mode_str);
+    return timer_def;
 }
 
 /**
@@ -451,7 +453,7 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
         struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
         sdsclear(param);
         param = sdscatfmt(param, "{\"params\":%S}", line);
-        mympd_api_timer_parse(timer_def, param, NULL);
+        timer_def = mympd_api_timer_parse(timer_def, param, NULL);
         int interval;
         int timerid;
         if (timer_def != NULL &&

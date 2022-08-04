@@ -412,7 +412,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 break;
             }
             struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
-            mympd_api_timer_parse(timer_def, request->data, &error);
+            timer_def = mympd_api_timer_parse(timer_def, request->data, &error);
             if (timer_def != NULL &&
                 json_get_int(request->data, "$.params.interval", -1, TIMER_INTERVAL_MAX, &int_buf2, &error) == true &&
                 json_get_int(request->data, "$.params.timerid", 0, USER_TIMER_ID_MAX, &int_buf1, &error) == true)

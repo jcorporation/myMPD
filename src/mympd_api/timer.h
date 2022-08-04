@@ -25,7 +25,7 @@ bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interva
 void mympd_api_timer_remove(struct t_timer_list *l, int timer_id);
 void mympd_api_timer_toggle(struct t_timer_list *l, int timer_id);
 void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def);
-void mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str,
+struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str,
     sds *error);
 time_t mympd_api_timer_calc_starttime(int start_hour, int start_minute, int interval);
 sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, long request_id);
