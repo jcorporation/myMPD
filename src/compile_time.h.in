@@ -103,9 +103,9 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_COLS_QUEUE_JUKEBOX "[\"Pos\",\"Title\",\"Artist\",\"Album\"]"
 #define MYMPD_COLS_BROWSE_RADIO_WEBRADIODB "[\"Name\",\"Country\",\"Language\",\"Genre\"]"
 #define MYMPD_COLS_BROWSE_RADIO_RADIOBROWSER "[\"name\",\"country\",\"language\",\"tags\"]"
-#define MYMPD_VOLUME_MIN 0
-#define MYMPD_VOLUME_MAX 100
-#define MYMPD_VOLUME_STEP 5
+#define MYMPD_VOLUME_MIN 0 //prct
+#define MYMPD_VOLUME_MAX 100 //prct
+#define MYMPD_VOLUME_STEP 5 //prct
 #define MYMPD_MPD_STREAM_PORT 8000
 #define MYMPD_WEBUI_SETTINGS "{}"
 #define MYMPD_LYRICS_USLT_EXT "txt"
@@ -251,7 +251,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define LYRICS_SIZE_MAX 10000
 #define SCRIPTS_SIZE_MAX 10000
 #define SMARTPLS_SIZE_MAX 2000
-#define WEBRADIODB_SIZE_MAX 1000000
+#define WEBRADIODB_SIZE_MAX 1048576 //bytes, 1 MB
 
 //limits for stickers
 #define STICKER_PLAY_COUNT_MAX INT_MAX / 2
