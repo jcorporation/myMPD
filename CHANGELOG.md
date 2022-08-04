@@ -16,6 +16,7 @@ This release removes the compatibility code for MPD versions older than 0.21.
 - Feat: use custom X-myMPD-Session http header for myMPD sessions to allow other authorization methods in reverse proxy setups
 - Feat: respect last played in jukebox album mode #792 #794
 - Feat: improved translation workflow integrating [POEditor](https://poeditor.com/join/project/Z54inZwdul) #803
+- Feat: Album view lists albums without AlbumArtist tags again #791
 - Upd: remove compatibility code for MPD 0.20 and lower
 - Upd: rename some API methodes for consistency
 - Upd: covercache expiry time is now a config setting (removed from GUI)
@@ -559,7 +560,8 @@ This is a small bug fix release.
 ## myMPD v8.0.0 (2021-07-16)
 
 This major release improves the backend in many ways. The rework streamlines the backend, removes deprecated features, makes the configuration of myMPD easier and harmonizes the API.
-Note
+
+### Note
 
 This release changes the startup options of myMPD. Further the mympd.conf is no longer used. myMPD now saves all configuration values in state files. You can set some environment variables for initial startup settings like port, ssl, etc., afterwards you must edit the state files.
 
@@ -624,7 +626,8 @@ This is a small bug fix release.
 ## myMPD v7.0.0 (2021-03-29)
 
 This major release upgrades the integrated webserver to the mongoose 7 series and adds some http related features. The new reverse proxy integration replaces the workaround for local playback in HTTPS mode. Scripts can now make http requests. I used this feature to implement a simple scrobbler for ListenBrainz in only 20 lines of code. This script is called through an myMPD trigger.
-Notes
+
+### Notes
 
 - This major release removes some deprecated features as announced in #356.
 - This major release changes some web server related configuration options.
@@ -676,7 +679,9 @@ You can now view sticker values in all song lists, not only in the song details 
 
 Also the support of lyrics is enhanced. myMPD now parses SYLT tags in id3v2 tagged files correctly and shows all synced and unsynced of a song.
 
-Note: Since this version the source does not include prebuild assets. If you do not use the provided build scripts, you must build the assets before with ./build.sh createassets.
+### Note
+
+Since this version the source does not include prebuild assets. If you do not use the provided build scripts, you must build the assets before with `./build.sh createassets`.
 
 ### Changelog
 
