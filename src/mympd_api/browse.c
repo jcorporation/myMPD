@@ -96,7 +96,7 @@ sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds 
         }
         else {
             //on first song
-            albumkey = album_cache_get_key(song, albumkey, partition_state->mpd_shared_state->tag_albumartist);
+            albumkey = album_cache_get_key(song, albumkey);
         }
         buffer = sdscat(buffer, "{\"Type\": \"song\",");
         buffer = get_song_tags(buffer, partition_state, tagcols, song);
@@ -118,12 +118,14 @@ sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds 
     mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
         FREE_SDS(albumkey);
+        FREE_SDS(last_played_song_uri);
         return buffer;
     }
 
     struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_shared_state->album_cache, albumkey);
     if (mpd_album == NULL) {
         FREE_SDS(albumkey);
+        FREE_SDS(last_played_song_uri);
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Could not find album");
     }
