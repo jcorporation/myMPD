@@ -31,8 +31,8 @@ static sds _mpd_client_get_tag_values(struct mpd_song const *song, const enum mp
  * @param song pointer to a mpd_song struct
  * @param type mpd tag type
  * @param value tag value to add
- * @return true on success, false if the tag is not supported or if no
- * memory could be allocated or value is a duplicate
+ * @return true if tag is added or already there,
+ *         false if the tag could not be added
  */
 bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 		enum mpd_tag_type type, const char *value)
@@ -56,13 +56,13 @@ bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 		while (tag->next != NULL) {
             if (strcmp(tag->value, value) == 0) {
                 //do not add duplicate values
-                return false;
+                return true;
             }
 			tag = tag->next;
         }
         if (strcmp(tag->value, value) == 0) {
             //do not add duplicate values
-            return false;
+            return true;
         }
 		struct mpd_tag_value *prev = tag;
 		tag = malloc_assert(sizeof(*tag));
