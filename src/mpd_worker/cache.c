@@ -163,8 +163,14 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
                 //set initial soung count to 1
                 album_cache_set_song_count(song, 1);
                 //construct the key
-                key = album_cache_get_key(song, key, mpd_worker_state->partition_state->mpd_shared_state->tag_albumartist);
+                key = album_cache_get_key(song, key);
                 if (sdslen(key) > 0) {
+                    if (mpd_worker_state->partition_state->mpd_shared_state->tag_albumartist == MPD_TAG_ALBUM_ARTIST &&
+                        mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0) == NULL)
+                    {
+                        //Copy Artist tag to AlbumArtist tag
+                        album_cache_copy_tags(song, MPD_TAG_ARTIST, MPD_TAG_ALBUM_ARTIST);
+                    }
                     void *old_data;
                     if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, &old_data) == 0) {
                         struct mpd_song *album = (struct mpd_song *) old_data;
@@ -183,7 +189,6 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
                     }
                 }
                 else {
-                    MYMPD_LOG_DEBUG("Albumcache, skipping \"%s\"", mpd_song_get_uri(song));
                     skipped++;
                     mpd_song_free(song);
                 }
@@ -213,7 +218,9 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         raxStop(&iter);
     }
     MYMPD_LOG_INFO("Added %ld albums to album cache", album_count);
-    MYMPD_LOG_INFO("Skipped %ld songs", skipped);
+    if (skipped > 0) {
+        MYMPD_LOG_WARN("Skipped %ld songs for album cache", skipped);
+    }
     MYMPD_LOG_INFO("Added %ld songs to sticker cache", song_count);
     MYMPD_LOG_INFO("Cache updated successfully");
     return true;

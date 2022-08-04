@@ -13,7 +13,7 @@
 
 #include <stdbool.h>
 
-sds album_cache_get_key(struct mpd_song *song, sds albumkey, enum mpd_tag_type tag_albumartist);
+sds album_cache_get_key(struct mpd_song *song, sds albumkey);
 struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key);
 void album_cache_free(struct t_cache *album_cache);
 
@@ -28,5 +28,6 @@ void album_cache_set_song_count(struct mpd_song *album, unsigned count);
 void album_cache_inc_song_count(struct mpd_song *album);
 bool album_cache_append_tags(struct mpd_song *album,
 		struct mpd_song *song, struct t_tags *tags);
+bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mpd_tag_type dst);
 
 #endif

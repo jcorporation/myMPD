@@ -32,23 +32,28 @@
  * Contructs the albumkey from song info
  * @param song mpd song struct
  * @param albumkey sds string replaced by the key
- * @param tag_albumartist AlbumArtist tag
  * @return pointer to albumkey
  */
-sds album_cache_get_key(struct mpd_song *song, sds albumkey, enum mpd_tag_type tag_albumartist) {
+sds album_cache_get_key(struct mpd_song *song, sds albumkey) {
     sdsclear(albumkey);
     albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, albumkey);
     if (sdslen(albumkey) == 0) {
         //album tag is empty
+        MYMPD_LOG_WARN("Can not create albumkey for uri \"%s\", tag Album is empty", mpd_song_get_uri(song));
         return albumkey;
     }
     albumkey = sdscatlen(albumkey, "::", 2);
     size_t old_len = sdslen(albumkey);
-    albumkey = mpd_client_get_tag_value_string(song, tag_albumartist, albumkey);
+    //first try AlbumArtist tag
+    albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM_ARTIST, albumkey);
     if (old_len == sdslen(albumkey)) {
-        //albumartist tag is empty
+        //AlbumArtist tag is empty, fallback to Artist tag
+        MYMPD_LOG_DEBUG("AlbumArtist for uri \"%s\" is empty, falling back to Artist", mpd_song_get_uri(song));
+        albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ARTIST, albumkey);
+    }
+    if (old_len == sdslen(albumkey)) {
+        MYMPD_LOG_WARN("Can not create albumkey for uri \"%s\", tags AlbumArtist and Artist are empty", mpd_song_get_uri(song));
         sdsclear(albumkey);
-        return albumkey;
     }
     sds_utf8_tolower(albumkey);
     return albumkey;
@@ -199,6 +204,25 @@ bool album_cache_append_tags(struct mpd_song *album,
                 value_nr++;
             }
         }
+    }
+    return true;
+}
+
+/**
+ * Copies Artist tag to AlbumArtist tag
+ * @param song pointer to a mpd_song struct
+ * @param src source tag
+ * @param dst destination tag
+ * @return true on success else false
+ */
+bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mpd_tag_type dst) {
+    const char *value;
+    unsigned value_nr = 0;
+    while ((value = mpd_song_get_tag(song, src, value_nr)) != NULL) {
+        if (mympd_mpd_song_add_tag_dedup(song, dst, value) == false) {
+            return false;
+        }
+        value_nr++;
     }
     return true;
 }
