@@ -19,10 +19,16 @@
 #include "sticker.h"
 #include "webradios.h"
 
-//private definitions
+/**
+ * Private definitions
+ */
+
 static time_t _get_current_song_start_time(struct t_partition_state *partition_state);
 static const char *_get_playstate_name(enum mpd_state play_state);
 
+/**
+ * Array to resolv the mpd state to a string
+ */
 static const char *playstate_names[] = {
     [MPD_STATE_UNKNOWN] = "unknown",
     [MPD_STATE_STOP] = "stop",
@@ -30,13 +36,26 @@ static const char *playstate_names[] = {
     [MPD_STATE_PAUSE] = "pause"
 };
 
-//public functions
+/**
+ * Public functions
+ */
 
-//replacement for deprecated mpd_status_get_elapsed_time
+/**
+ * Replacement for deprecated mpd_status_get_elapsed_time
+ * @param status pointer to mpd_status struct
+ * @return elapsed seconds
+ */
 unsigned mympd_api_get_elapsed_seconds(struct mpd_status *status) {
     return mpd_status_get_elapsed_ms(status) / 1000;
 }
 
+/**
+ * Prints the mpd_status as jsonrpc object string
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @param status pointer to mpd_status struct
+ * @return pointer to buffer
+ */
 sds mympd_api_status_print(struct t_partition_state *partition_state, sds buffer, struct mpd_status *status) {
     enum mpd_state playstate = mpd_status_get_state(status);
 
@@ -63,6 +82,12 @@ sds mympd_api_status_print(struct t_partition_state *partition_state, sds buffer
     return buffer;
 }
 
+/**
+ * Gets the update database status from mpd as jsonrpc notification
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @return pointer to buffer
+ */
 sds mympd_api_status_updatedb_state(struct t_partition_state *partition_state, sds buffer) {
     long update_id = mympd_api_status_updatedb_id(partition_state);
     if (update_id == -1) {
@@ -79,6 +104,11 @@ sds mympd_api_status_updatedb_state(struct t_partition_state *partition_state, s
     return buffer;
 }
 
+/**
+ * Gets the update database id
+ * @param partition_state pointer to partition state
+ * @return database update id
+ */
 long mympd_api_status_updatedb_id(struct t_partition_state *partition_state) {
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status == NULL) {
@@ -93,6 +123,13 @@ long mympd_api_status_updatedb_id(struct t_partition_state *partition_state) {
     return update_id;
 }
 
+/**
+ * Gets the mpd status, updates internal myMPD states and returns a jsonrpc notify or response
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id, REQUEST_ID_NOTIFY or REQUEST_ID_RESPONSE
+ * @return pointer to buffer
+ */
 sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_STATE;
     struct mpd_status *status = mpd_run_status(partition_state->conn);
@@ -174,6 +211,13 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
     return buffer;
 }
 
+/**
+ * Copies mpd and myMPD states to the lua_mympd_state struct
+ * @param lua_partition_state pointer to struct t_list
+ * @param partition_state pointer to partition state
+ * @param listenbrainz_token listenbrainz token
+ * @return true on success, else false
+ */
 bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_partition_state *partition_state,
         sds listenbrainz_token)
 {
@@ -214,6 +258,13 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     return true;
 }
 
+/**
+ * Gets the mpd volume as jsonrpc notify
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @return pointer to buffer
+ */
 sds mympd_api_status_volume_get(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_VOLUME_GET;
     int volume = mpd_client_get_volume(partition_state);
@@ -228,6 +279,13 @@ sds mympd_api_status_volume_get(struct t_partition_state *partition_state, sds b
     return buffer;
 }
 
+/**
+ * Gets the current playing song as jsonrpc response
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @return pointer to buffer
+ */
 sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_CURRENT_SONG;
     struct mpd_song *song = mpd_run_current_song(partition_state->conn);
@@ -272,7 +330,15 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
     return buffer;
 }
 
-//private functions
+/**
+ * Private functions
+ */
+
+/**
+ * Gets the start time of current song as unix timestamp
+ * @param partition_state pointer to partition state
+ * @return start time of current song as unix timestamp
+ */
 static time_t _get_current_song_start_time(struct t_partition_state *partition_state) {
     if (partition_state->song_start_time > 0) {
         return partition_state->song_start_time;
@@ -290,6 +356,11 @@ static time_t _get_current_song_start_time(struct t_partition_state *partition_s
     return start_time;
 }
 
+/**
+ * Resolves the mpd_state enum to a string
+ * @param play_state mpd_state
+ * @return play state as string
+ */
 static const char *_get_playstate_name(enum mpd_state play_state) {
     if ((unsigned)play_state >= 4) {
         return playstate_names[MPD_STATE_UNKNOWN];

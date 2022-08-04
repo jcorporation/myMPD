@@ -12,6 +12,13 @@
 #include "../lib/sds_extras.h"
 #include "../mpd_client/errorhandler.h"
 
+/**
+ * Get mpd statistics
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @return pointer to buffer
+ */
 sds mympd_api_stats_get(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_STATS;
     struct mpd_stats *stats = mpd_run_stats(partition_state->conn);

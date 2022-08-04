@@ -18,9 +18,16 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
+
+static sds trigger_to_line_cb(sds buffer, struct t_list_node *current);
 void _trigger_execute(sds script, struct t_list *arguments);
 
+/**
+ * MPD idle events
+ */
 static const char *const mpd_trigger_names[] = {
     "mpd_database",
     "mpd_stored_playlist",
@@ -39,6 +46,9 @@ static const char *const mpd_trigger_names[] = {
     NULL
 };
 
+/**
+ * myMPD triggers
+ */
 static const char *const mympd_trigger_names[] = {
     "mympd_scrobble",
     "mympd_start",
@@ -49,7 +59,15 @@ static const char *const mympd_trigger_names[] = {
     NULL
 };
 
-//public functions
+/**
+ * Public functions
+ */
+
+/**
+ * Returns the trigger name
+ * @param event event to resolv
+ * @return trigger as string
+ */
 const char *mympd_api_trigger_name(long event) {
     if (event < 0) {
         for (int i = 0; mympd_trigger_names[i] != NULL; ++i) {
@@ -67,6 +85,11 @@ const char *mympd_api_trigger_name(long event) {
     return NULL;
 }
 
+/**
+ * Prints all trigger names as json string
+ * @param buffer already allocated sds string to append the response
+ * @return pointer to buffer
+ */
 sds mympd_api_trigger_print_trigger_list(sds buffer) {
     for (int i = 0; mympd_trigger_names[i] != NULL; ++i) {
         buffer = tojson_long(buffer, mympd_trigger_names[i], (-1 - i), true);
@@ -81,6 +104,11 @@ sds mympd_api_trigger_print_trigger_list(sds buffer) {
     return buffer;
 }
 
+/**
+ * Executes all scripts associated with the trigger
+ * @param trigger_list trigger list
+ * @param event trigger to execute scripts for
+ */
 void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event) {
     MYMPD_LOG_DEBUG("Trigger event: %s (%d)", mympd_api_trigger_name(event), event);
     struct t_list_node *current = trigger_list->head;
@@ -94,6 +122,12 @@ void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events 
     }
 }
 
+/**
+ * Executes the feedback timer
+ * @param trigger_list trigger list
+ * @param uri feedback uri
+ * @param vote the feedback
+ */
 void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, int vote) {
     MYMPD_LOG_DEBUG("Trigger event: mympd_feedback (-6) for \"%s\", vote %d", uri, vote);
     //trigger mympd_feedback executes scripts with uri and vote arguments
@@ -114,6 +148,13 @@ void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, in
     list_clear(&script_arguments);
 }
 
+/**
+ * Prints the trigger list as jsonrpc response
+ * @param trigger_list trigger list
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @return pointer to buffer
+ */
 sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_TRIGGER_GET;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -153,6 +194,14 @@ sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request
     return buffer;
 }
 
+/**
+ * Prints the trigger with given id as jsonrpc response
+ * @param trigger_list trigger list
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @param id trigger id to print
+ * @return pointer to buffer
+ */
 sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_id, long id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_TRIGGER_GET;
     struct t_list_node *current = list_node_at(trigger_list, id);
@@ -184,6 +233,12 @@ sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_
     return buffer;
 }
 
+/**
+ * Deletes a trigger
+ * @param trigger_list trigger list
+ * @param idx index of trigger node to remove
+ * @return true on success, else false
+ */
 bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx) {
     struct t_list_node *to_remove = list_node_extract(trigger_list, idx);
     if (to_remove != NULL) {
@@ -193,6 +248,12 @@ bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx) {
     return false;
 }
 
+/**
+ * Reads the trigger file from disc and populates the trigger list
+ * @param trigger_list trigger list
+ * @param workdir working directory
+ * @return true on success, else false
+ */
 bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
     sds trigger_file = sdscatfmt(sdsempty(), "%S/state/trigger_list", workdir);
     errno = 0;
@@ -241,6 +302,30 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
     return true;
 }
 
+/**
+ * Saves the trigger list to disc
+ * @param trigger_list trigger list
+ * @param workdir working directory
+ * @return true on success, else false
+ */
+bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir) {
+    MYMPD_LOG_INFO("Saving triggers to disc");
+    sds filepath = sdscatfmt(sdsempty(), "%S/state/trigger_list", workdir);
+    bool rc = list_write_to_disk(filepath, trigger_list, trigger_to_line_cb);
+    FREE_SDS(filepath);
+    return rc;
+}
+
+/**
+ * Private functions
+ */
+
+/**
+ * Prints a trigger as a json object string
+ * @param buffer already allocated sds string to append the response
+ * @param current trigger node to print
+ * @return pointer to buffer
+ */
 static sds trigger_to_line_cb(sds buffer, struct t_list_node *current) {
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_sds(buffer, "name", current->key, true);
@@ -261,15 +346,11 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current) {
     return buffer;
 }
 
-bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir) {
-    MYMPD_LOG_INFO("Saving triggers to disc");
-    sds filepath = sdscatfmt(sdsempty(), "%S/state/trigger_list", workdir);
-    bool rc = list_write_to_disk(filepath, trigger_list, trigger_to_line_cb);
-    FREE_SDS(filepath);
-    return rc;
-}
-
-//private functions
+/**
+ * Creates and pushes a request to execute a script
+ * @param script script to execute
+ * @param arguments arguments for the script
+ */
 void _trigger_execute(sds script, struct t_list *arguments) {
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL);
     request->data = tojson_sds(request->data, "script", script, true);

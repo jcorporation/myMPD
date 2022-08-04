@@ -18,12 +18,17 @@
 
 #include <string.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
+
 static void timer_handler_covercache_crop(void);
 static void timer_handler_smartpls_update(void);
 static void timer_handler_caches_create(void);
 
-//public functions
+/**
+ * Public functions
+ */
 
 /**
  * Handles timer by timer_id, this is only used for internal timers
@@ -165,7 +170,9 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
     return mympd_check_rc_error_and_recover(partition_state, rc, "command_list");
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
 /**
  * Timer handler for timer_id TIMER_ID_COVERCACHE_CROP

@@ -22,12 +22,22 @@
 #include <sys/timerfd.h>
 #include <unistd.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
+
 static void *mympd_api_timer_free_node(struct t_timer_node *node);
 static struct t_timer_node *get_timer_from_fd(struct t_timer_list *l, int fd);
 static sds print_timer_node(sds buffer, struct t_timer_node *current);
 
-//public functions
+/**
+ * Public functions
+ */
+
+/**
+ * Inits the timer list
+ * @param l pointer to already allocated timer list
+ */
 void mympd_api_timer_timerlist_init(struct t_timer_list *l) {
     l->length = 0;
     l->active = 0;
@@ -35,6 +45,10 @@ void mympd_api_timer_timerlist_init(struct t_timer_list *l) {
     l->list = NULL;
 }
 
+/**
+ * Checks for timers and executes the callback function
+ * @param l timer list
+ */
 void mympd_api_timer_check(struct t_timer_list *l) {
     unsigned iMaxCount = 0;
     struct pollfd ufds[LIST_TIMER_MAX] = {{0}};
@@ -115,6 +129,16 @@ void mympd_api_timer_check(struct t_timer_list *l) {
     }
 }
 
+/**
+ * Replaces a timer with given timer_id
+ * @param l timer list
+ * @param timeout seconds when timer will run
+ * @param interval reschedule timer interval
+ * @param handler timer callback function
+ * @param timer_id id of the timer
+ * @param definition pointer to timer definition (GUI) or NULL
+ * @return true on success, else false
+ */
 bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interval, timer_handler handler,
                    int timer_id, struct t_timer_definition *definition)
 {
@@ -122,6 +146,16 @@ bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interva
     return mympd_api_timer_add(l, timeout, interval, handler, timer_id, definition);
 }
 
+/**
+ * Adds a timer with given timer_id
+ * @param l timer list
+ * @param timeout seconds when timer will run
+ * @param interval reschedule timer interval
+ * @param handler timer callback function
+ * @param timer_id id of the timer
+ * @param definition pointer to timer definition (GUI) or NULL
+ * @return true on success, else false
+ */
 bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, timer_handler handler,
                int timer_id, struct t_timer_definition *definition)
 {
@@ -170,6 +204,11 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, t
     return true;
 }
 
+/**
+ * Removes a timer with given id
+ * @param l timer list
+ * @param timer_id timer id to remove
+ */
 void mympd_api_timer_remove(struct t_timer_list *l, int timer_id) {
     struct t_timer_node *current = NULL;
     struct t_timer_node *previous = NULL;
@@ -198,6 +237,11 @@ void mympd_api_timer_remove(struct t_timer_list *l, int timer_id) {
     }
 }
 
+/**
+ * Toggles the enabled state of a timer
+ * @param l timer list
+ * @param timer_id timer id to toggle
+ */
 void mympd_api_timer_toggle(struct t_timer_list *l, int timer_id) {
     struct t_timer_node *current = NULL;
     for (current = l->list; current != NULL; current = current->next) {
@@ -210,6 +254,10 @@ void mympd_api_timer_toggle(struct t_timer_list *l, int timer_id) {
     }
 }
 
+/**
+ * Clears the timer list
+ * @param l timer list
+ */
 void mympd_api_timer_timerlist_clear(struct t_timer_list *l) {
     struct t_timer_node *current = l->list;
     struct t_timer_node *tmp = NULL;
@@ -223,6 +271,11 @@ void mympd_api_timer_timerlist_clear(struct t_timer_list *l) {
     mympd_api_timer_timerlist_init(l);
 }
 
+/**
+ * Frees a timer definition
+ * @param timer_def pointer to timer definition
+ * @return NULL
+ */
 void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
     FREE_SDS(timer_def->name);
     FREE_SDS(timer_def->action);
@@ -233,7 +286,14 @@ void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
     return NULL;
 }
 
-struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str, sds *error) {
+/**
+ * Parses a json object string to a timer definition
+ * @param timer_def pointer to timer defintion to populate
+ * @param str string to parse
+ * @param error pointer to sds string to populate an error string
+ * @return struct t_timer_definition* 
+ */
+void mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str, sds *error) {
     timer_def->name = NULL;
     timer_def->action = NULL;
     timer_def->subaction = NULL;
@@ -267,9 +327,15 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         MYMPD_LOG_ERROR("Error parsing timer definition");
     }
     FREE_SDS(jukebox_mode_str);
-    return timer_def;
 }
 
+/**
+ * Calculates the next start time for a timer
+ * @param start_hour start hour
+ * @param start_minute start minute
+ * @param interval reschedule interval
+ * @return unix timestamp of next start
+ */
 time_t mympd_api_timer_calc_starttime(int start_hour, int start_minute, int interval) {
     time_t now = time(NULL);
     struct tm tms;
@@ -289,6 +355,13 @@ time_t mympd_api_timer_calc_starttime(int start_hour, int start_minute, int inte
     return start - now;
 }
 
+/**
+ * Gets the timer list as an jsonrpc response
+ * @param timer_list timer list
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @return pointer to buffer
+ */
 sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_TIMER_LIST;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -315,6 +388,14 @@ sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, long reque
     return buffer;
 }
 
+/**
+ * Gets the timer with the given id as an jsonrpc response
+ * @param timer_list timer list
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @param timer_id timer id
+ * @return pointer to buffer
+ */
 sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, long request_id, int timer_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_TIMER_GET;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -340,6 +421,12 @@ sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, long reques
     return buffer;
 }
 
+/**
+ * Reads the timer file and populates the timer list
+ * @param timer_list timer list
+ * @param workdir working directory
+ * @return true on success, else false
+ */
 bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
     sds timer_file = sdscatfmt(sdsempty(), "%S/state/timer_list", workdir);
     errno = 0;
@@ -364,7 +451,7 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
         struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
         sdsclear(param);
         param = sdscatfmt(param, "{\"params\":%S}", line);
-        timer_def = mympd_api_timer_parse(timer_def, param, NULL);
+        mympd_api_timer_parse(timer_def, param, NULL);
         int interval;
         int timerid;
         if (timer_def != NULL &&
@@ -394,6 +481,12 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
     return true;
 }
 
+/**
+ * Saves the timer list to the timer file on disc
+ * @param timer_list timer list
+ * @param workdir working directory
+ * @return true on success, else false
+ */
 bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir) {
     MYMPD_LOG_INFO("Saving timers to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%S/state/timer_list.XXXXXX", workdir);
@@ -428,8 +521,15 @@ bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir) {
     return rc;
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
+/**
+ * Frees a timer node
+ * @param node timer node to free
+ * @return NULL
+ */
 static void *mympd_api_timer_free_node(struct t_timer_node *node) {
     if (node->fd > -1) {
         close(node->fd);
@@ -441,6 +541,12 @@ static void *mympd_api_timer_free_node(struct t_timer_node *node) {
     return NULL;
 }
 
+/**
+ * Gets the timer associated with the fd
+ * @param l timer list
+ * @param fd timer fd
+ * @return timer for the fd
+ */
 static struct t_timer_node *get_timer_from_fd(struct t_timer_list *l, int fd) {
     struct t_timer_node *current = l->list;
 
@@ -453,6 +559,12 @@ static struct t_timer_node *get_timer_from_fd(struct t_timer_list *l, int fd) {
     return NULL;
 }
 
+/**
+ * Prints a timer node as a json object string
+ * @param buffer already allocated sds string to append the response
+ * @param current timer node to print
+ * @return pointer to buffer
+ */
 static sds print_timer_node(sds buffer, struct t_timer_node *current) {
     buffer = tojson_int(buffer, "timerid", current->timer_id, true);
     buffer = tojson_sds(buffer, "name", current->definition->name, true);

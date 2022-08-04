@@ -40,6 +40,14 @@ struct t_webradio_entry {
  * Public functions
  */
 
+/**
+ * Resolves mympd://webradio uris to real myMPD host address
+ * @param uri uri to resolv
+ * @param mpd_host mpd host
+ * @param http_host myMPD webserver host
+ * @param http_port myMPD webserver port
+ * @return resolved uri
+ */
 sds resolv_mympd_uri(sds uri, sds mpd_host, sds http_host, sds http_port) {
     if (strncmp(uri, "mympd://webradio/", 17) == 0) {
         sdsrange(uri, 17, -1);
@@ -52,6 +60,13 @@ sds resolv_mympd_uri(sds uri, sds mpd_host, sds http_host, sds http_port) {
     return uri;
 }
 
+/**
+ * Gets the webradio m3u as json object string.
+ * This function calculates the real filename for the m3u from the uri
+ * @param workdir working directory
+ * @param uri webradio stream uri
+ * @return new sds string with the json object string
+ */
 sds get_webradio_from_uri(sds workdir, const char *uri) {
     sds filename = sdsnew(uri);
     sanitize_filename(filename);
@@ -70,6 +85,14 @@ sds get_webradio_from_uri(sds workdir, const char *uri) {
     return entry;
 }
 
+/**
+ * Prints a webradio m3u as jsonrpc response
+ * @param workdir working directory
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @param filename webradio m3u filename
+ * @return pointer to buffer
+ */
 sds mympd_api_webradio_get(sds workdir, sds buffer, long request_id, sds filename) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIO_FAVORITE_GET;
     sds filepath = sdscatfmt(sdsempty(), "%S/webradios/%S", workdir, filename);
@@ -90,6 +113,16 @@ sds mympd_api_webradio_get(sds workdir, sds buffer, long request_id, sds filenam
     return buffer;
 }
 
+/**
+ * Prints the webradio list as a jsonrpc response
+ * @param workdir working directory 
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @param searchstr string to search
+ * @param offset offset for the list
+ * @param limit maximum entries to print
+ * @return pointer to buffer
+ */
 sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds searchstr, long offset, long limit) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_WEBRADIO_FAVORITE_GET;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -184,6 +217,22 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds search
     return buffer;
 }
 
+/**
+ * Saves a webradio as m3u
+ * @param workdir working directory
+ * @param name webradio name
+ * @param uri webradio uri
+ * @param uri_old old webradio uri
+ * @param genre comma separated list of genres
+ * @param picture picture uri
+ * @param homepage homepage
+ * @param country country
+ * @param language language
+ * @param codec codec
+ * @param bitrate bitrate
+ * @param description short description
+ * @return true on success, else false
+ */
 bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
         sds genre, sds picture, sds homepage, sds country, sds language, sds codec, int bitrate,
         sds description)
@@ -226,6 +275,12 @@ bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
     return rc;
 }
 
+/**
+ * Deletes a webradio m3u
+ * @param workdir working directory
+ * @param filename webradio m3u filename to delete
+ * @return true on success, else false
+ */
 bool mympd_api_webradio_delete(sds workdir, const char *filename) {
     sds filepath = sdscatfmt(sdsempty(), "%S/webradios/%s", workdir, filename);
     bool rc = rm_file(filepath);

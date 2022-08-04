@@ -14,6 +14,14 @@
 #include "extra_media.h"
 #include "sticker.h"
 
+/**
+ * Gets the chromaprint fingerprint for the song
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @param uri song uri
+ * @return pointer to buffer
+ */
 sds mympd_api_song_fingerprint(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_FINGERPRINT;
     char fp_buffer[8192];
@@ -33,6 +41,14 @@ sds mympd_api_song_fingerprint(struct t_partition_state *partition_state, sds bu
     return buffer;
 }
 
+/**
+ * Gets the song details, tags and stickers
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @param uri song uri
+ * @return pointer to buffer
+ */
 sds mympd_api_song_details(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_DETAILS;
     bool rc = mpd_send_list_meta(partition_state->conn, uri);
@@ -67,6 +83,14 @@ sds mympd_api_song_details(struct t_partition_state *partition_state, sds buffer
     return buffer;
 }
 
+/**
+ * Gets the comments from a song
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
+ * @param uri song uri
+ * @return pointer to buffer
+ */
 sds mympd_api_song_comments(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SONG_COMMENTS;
     bool rc = mpd_send_read_comments(partition_state->conn, uri);
