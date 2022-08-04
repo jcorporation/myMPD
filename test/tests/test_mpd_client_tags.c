@@ -53,11 +53,22 @@ struct mpd_song *new_song(void) {
 UTEST(album_cache, test_album_cache_get_key) {
     struct mpd_song *song = new_song();
     sds key = sdsempty();
-    key = album_cache_get_key(song, key, MPD_TAG_ARTIST);
-    ASSERT_STREQ("tabula rasa::einstürzende neubauten, blixa bargeld", key);
+    key = album_cache_get_key(song, key);
+    ASSERT_STREQ("tabula rasa::einstürzende neubauten", key);
     sdsfree(key);
     mpd_song_free(song);
 
+}
+
+UTEST(album_cache, test_album_cache_copy_tags) {
+    struct mpd_song *song = new_song();
+    bool rc = album_cache_copy_tags(song, MPD_TAG_ARTIST, MPD_TAG_ALBUM_ARTIST);
+    ASSERT_TRUE(rc);
+    const char *value = mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0);
+    ASSERT_STREQ("Einstürzende Neubauten", value);
+    value = mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 1);
+    ASSERT_STREQ("Blixa Bargeld", value);
+    mpd_song_free(song);
 }
 
 UTEST(album_cache, test_album_cache_set_discs) {
