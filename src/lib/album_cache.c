@@ -209,11 +209,11 @@ bool album_cache_append_tags(struct mpd_song *album,
 }
 
 /**
- * Copies Artist tag to AlbumArtist tag
+ * Copies all values from a tag to another tag
  * @param song pointer to a mpd_song struct
  * @param src source tag
  * @param dst destination tag
- * @return true on success else false
+ * @return true on success, else false
  */
 bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mpd_tag_type dst) {
     const char *value;
