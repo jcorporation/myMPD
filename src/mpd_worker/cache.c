@@ -169,6 +169,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
                         mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0) == NULL)
                     {
                         //Copy Artist tag to AlbumArtist tag
+                        //for filters mpd falls back from AlbumArtist to Artist if AlbumArtist does not exist
                         album_cache_copy_tags(song, MPD_TAG_ARTIST, MPD_TAG_ALBUM_ARTIST);
                     }
                     void *old_data;
