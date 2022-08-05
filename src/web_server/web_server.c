@@ -415,10 +415,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
             }
             else if (mg_http_match_uri(hm, "/albumart-thumb")) {
-                request_handler_albumart(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_THUMBNAIL);
+                request_handler_albumart(nc, hm, mg_user_data, (long long)nc->id, ALBUMART_THUMBNAIL);
             }
             else if (mg_http_match_uri(hm, "/albumart")) {
-                request_handler_albumart(nc, hm, mg_user_data, config, (long long)nc->id, ALBUMART_FULL);
+                request_handler_albumart(nc, hm, mg_user_data, (long long)nc->id, ALBUMART_FULL);
             }
             else if (mg_http_match_uri(hm, "/tagart")) {
                 request_handler_tagart(nc, hm, mg_user_data);
@@ -439,7 +439,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     nc->is_draining = 1;
                     break;
                 }
-                create_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_backend_to_frontend);
+                backend_nc = create_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_backend_to_frontend);
             }
             else if (mg_http_match_uri(hm, "/proxy")) {
                 //Makes a get request to the defined uri and returns the response
@@ -472,7 +472,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             #ifdef ENABLE_SSL
             else if (mg_http_match_uri(hm, "/ca.crt")) {
-                request_handler_ca(nc, hm, mg_user_data, config);
+                request_handler_ca(nc, hm, mg_user_data);
             }
             #endif
             else {

@@ -22,7 +22,7 @@ void request_handler_serverinfo(struct mg_connection *nc);
 
 #ifdef ENABLE_SSL
 void request_handler_ca(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data, struct t_config *config);
+        struct t_mg_user_data *mg_user_data);
 #endif
 
 #endif

@@ -13,15 +13,27 @@
 #include "proxy.h"
 #include "utility.h"
 
-//private definitions
+/**
+ * Private definitions
+ */
 static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *backend_nc,
         enum mympd_cmd_ids cmd_id, const char *request);
 static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 
-//public functions
+/**
+ * Public functions
+ */
 
+/**
+ * Handles the radiobrowser api requests
+ * @param nc mongoose connection
+ * @param backend_nc mongoose backend connection
+ * @param cmd_id jsonrpc method
+ * @param body request body (jsonrpc request)
+ * @param request_id jsonrpc request id
+ */
 void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc,
-    enum mympd_cmd_ids cmd_id, sds body, int id)
+        enum mympd_cmd_ids cmd_id, sds body, int request_id)
 {
     long offset;
     long limit;
@@ -74,7 +86,7 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
     }
 
     if (sdslen(error) > 0) {
-        sds response = jsonrpc_respond_message(sdsempty(), cmd_id, id,
+        sds response = jsonrpc_respond_message(sdsempty(), cmd_id, request_id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
         MYMPD_LOG_ERROR("Error processing method \"%s\"", cmd);
         webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
@@ -83,7 +95,7 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
     else {
         bool rc = radiobrowser_send(nc, backend_nc, cmd_id, uri);
         if (rc == false) {
-            sds response = jsonrpc_respond_message(sdsempty(), cmd_id, id,
+            sds response = jsonrpc_respond_message(sdsempty(), cmd_id, request_id,
                 JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error connection to radio-browser.info");
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
@@ -98,8 +110,18 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
     FREE_SDS(uri);
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
+/**
+ * Sends the request to the radiobrowser server
+ * @param nc mongoose connection
+ * @param backend_nc mongoose backend connection
+ * @param cmd_id jsonrpc method
+ * @param request request to send
+ * @return true on success, else false
+ */
 static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *backend_nc,
         enum mympd_cmd_ids cmd_id, const char *request)
 {
@@ -115,6 +137,13 @@ static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *ba
     return false;
 }
 
+/**
+ * Handler for the radiobrowser backend connection
+ * @param nc mongoose backend connection
+ * @param ev mongoose event
+ * @param ev_data mongoose ev_data
+ * @param fn_data mongoose fn_data (backend_nc_data_t)
+ */
 static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)fn_data;
     switch(ev) {

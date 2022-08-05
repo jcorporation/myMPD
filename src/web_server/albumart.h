@@ -12,6 +12,9 @@
 #include "../lib/config_def.h"
 #include "utility.h"
 
+/**
+ * Albumart types
+ */
 enum albumart_sizes {
     ALBUMART_THUMBNAIL,
     ALBUMART_FULL
@@ -19,6 +22,5 @@ enum albumart_sizes {
 
 void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary);
 bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *hm,
-    struct t_mg_user_data *mg_user_data, struct t_config *config, long long conn_id,
-    enum albumart_sizes size);
+    struct t_mg_user_data *mg_user_data, long long conn_id, enum albumart_sizes size);
 #endif

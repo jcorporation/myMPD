@@ -15,6 +15,15 @@
 #include "radiobrowser.h"
 #include "webradiodb.h"
 
+/**
+ * Request handler for api requests /api
+ * @param nc mongoose connection
+ * @param body http body (jsonrpc request)
+ * @param auth_header Authentication header (myMPD session)
+ * @param mg_user_data webserver configuration
+ * @param backend_nc backend connection
+ * @return true on success, else false
+ */
 bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth_header,
         struct t_mg_user_data *mg_user_data, struct mg_connection *backend_nc)
 {
@@ -27,11 +36,11 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
 
     sds cmd = NULL;
     sds jsonrpc = NULL;
-    int id = 0;
+    int request_id = 0;
 
     if (json_get_string_cmp(body, "$.jsonrpc", 3, 3, "2.0", &jsonrpc, NULL) == false ||
         json_get_string_max(body, "$.method", &cmd, vcb_isalnum, NULL) == false ||
-        json_get_int(body, "$.id", 0, 0, &id, NULL) == false)
+        json_get_int(body, "$.id", 0, 0, &request_id, NULL) == false)
     {
         MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
         FREE_SDS(cmd);
@@ -97,21 +106,21 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
         case MYMPD_API_SESSION_LOGIN:
         case MYMPD_API_SESSION_LOGOUT:
         case MYMPD_API_SESSION_VALIDATE:
-            webserver_session_api(nc, cmd_id, body, id, session, mg_user_data);
+            webserver_session_api(nc, cmd_id, body, request_id, session, mg_user_data);
             break;
         case MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT:
         case MYMPD_API_CLOUD_RADIOBROWSER_NEWEST:
         case MYMPD_API_CLOUD_RADIOBROWSER_SERVERLIST:
         case MYMPD_API_CLOUD_RADIOBROWSER_SEARCH:
         case MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL:
-            radiobrowser_api(nc, backend_nc, cmd_id, body, id);
+            radiobrowser_api(nc, backend_nc, cmd_id, body, request_id);
             break;
         case MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET:
-            webradiodb_api(nc, backend_nc, cmd_id, body, id);
+            webradiodb_api(nc, backend_nc, cmd_id, body, request_id);
             break;
         default: {
             //forward API request to mympd_api_handler
-            struct t_work_request *request = create_request((long long)nc->id, id, cmd_id, body);
+            struct t_work_request *request = create_request((long long)nc->id, request_id, cmd_id, body);
             mympd_queue_push(mympd_api_queue, request, 0);
         }
     }
@@ -121,6 +130,12 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
     return true;
 }
 
+/**
+ * Request handler for script api requests /api/script
+ * @param conn_id mongoose connection id
+ * @param body http body (jsonrpc request)
+ * @return true on success, else false
+ */
 bool request_handler_script_api(long long conn_id, sds body) {
     MYMPD_LOG_DEBUG("Script API request (%lld): %s", conn_id, body);
 
@@ -161,6 +176,12 @@ bool request_handler_script_api(long long conn_id, sds body) {
     return true;
 }
 
+/**
+ * Request handler for /browse endpoint
+ * @param nc mongoose connection
+ * @param hm http message
+ * @param mg_user_data webserver configuration
+ */
 void request_handler_browse(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data)
 {
@@ -205,6 +226,12 @@ void request_handler_browse(struct mg_connection *nc, struct mg_http_message *hm
     }
 }
 
+/**
+ * Request handler for proxy connections /proxy
+ * @param nc mongoose connection
+ * @param hm http body
+ * @param backend_nc mongoose backend connection
+ */
 void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
         struct mg_connection *backend_nc)
 {
@@ -233,6 +260,10 @@ void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
     FREE_SDS(uri_decoded);
 }
 
+/**
+ * Request handler for /api/serverinfo
+ * @param nc mongoose connection
+ */
 void request_handler_serverinfo(struct mg_connection *nc) {
     struct sockaddr_storage localip;
     socklen_t len = sizeof(localip);
@@ -262,12 +293,19 @@ void request_handler_serverinfo(struct mg_connection *nc) {
 }
 
 #ifdef ENABLE_SSL
+/**
+ * 
+ * @param nc mongoose connection
+ * @param hm http message
+ * @param mg_user_data webserver configuration
+ * @param config 
+ */
 void request_handler_ca(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data, struct t_config *config)
+        struct t_mg_user_data *mg_user_data)
 {
-    if (config->custom_cert == false) {
+    if (mg_user_data->config->custom_cert == false) {
         //deliver ca certificate
-        sds ca_file = sdscatfmt(sdsempty(), "%S/ssl/ca.pem", config->workdir);
+        sds ca_file = sdscatfmt(sdsempty(), "%S/ssl/ca.pem", mg_user_data->config->workdir);
         static struct mg_http_serve_opts s_http_server_opts;
         s_http_server_opts.root_dir = mg_user_data->browse_directory;
         s_http_server_opts.extra_headers = EXTRA_HEADERS_SAFE_CACHE;

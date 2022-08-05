@@ -13,7 +13,9 @@
 #include "../lib/sds_extras.h"
 #include "utility.h"
 
-//private definitions
+/**
+ * Private definitions
+ */
 static const char *allowed_proxy_hosts[] = {
     "jcorporation.github.io",
     "musicbrainz.org",
@@ -21,7 +23,15 @@ static const char *allowed_proxy_hosts[] = {
     NULL
 };
 
-//public functions
+/**
+ * Public functions
+ */
+
+/**
+ * Checks if uri is in proxy whitelist
+ * @param uri uri to check
+ * @return true if allowed, else false
+ */
 bool is_allowed_proxy_uri(const char *uri) {
     struct mg_str host = mg_url_host(uri);
     const char **p = NULL;
@@ -35,11 +45,20 @@ bool is_allowed_proxy_uri(const char *uri) {
     return false;
 }
 
+/**
+ * Frees the backend data struct
+ * @param data backend data to free
+ */
 void free_backend_nc_data(struct backend_nc_data_t *data) {
     FREE_SDS(data->uri);
     data->frontend_nc = NULL;
 }
 
+/**
+ * Handles the connection close on backend side
+ * @param nc mongoose connection
+ * @param backend_nc_data backend data
+ */
 void handle_backend_close(struct mg_connection *nc, struct backend_nc_data_t *backend_nc_data) {
     MYMPD_LOG_INFO("Backend tcp connection \"%lu\" closed", nc->id);
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
@@ -55,6 +74,11 @@ void handle_backend_close(struct mg_connection *nc, struct backend_nc_data_t *ba
     FREE_PTR(nc->fn_data);
 }
 
+/**
+ * Sends the request to the backend connection
+ * @param nc mongoose backend connection
+ * @param fn_data mongoose fn_data pointer
+ */
 void send_backend_request(struct mg_connection *nc, void *fn_data) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)fn_data;
@@ -77,6 +101,14 @@ void send_backend_request(struct mg_connection *nc, void *fn_data) {
     MYMPD_LOG_DEBUG("Sending GET %s HTTP/1.1 to backend connection \"%lu\"", mg_url_uri(backend_nc_data->uri), nc->id);
 }
 
+/**
+ * Creates the backend connection
+ * @param nc mongoose frontend connection
+ * @param backend_nc pointer to use for backend connection
+ * @param uri uri to connection
+ * @param fn mongoose fn_data pointer
+ * @return backend connection on success, else NULL
+ */
 struct mg_connection *create_backend_connection(struct mg_connection *nc, struct mg_connection *backend_nc, sds uri, mg_event_handler_t fn) {
     if (backend_nc == NULL) {
         MYMPD_LOG_INFO("Creating new http backend connection to \"%s\"", uri);
@@ -107,6 +139,14 @@ struct mg_connection *create_backend_connection(struct mg_connection *nc, struct
     return backend_nc;
 }
 
+/**
+ * Send the request to the backend and
+ * forwards the raw data from backend response to frontend connection
+ * @param nc mongoose backend connection
+ * @param ev mongoose event
+ * @param ev_data mongoose ev_data (not used)
+ * @param fn_data mongoose fn_data (backend_nc_data_t)
+ */
 void forward_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     (void) ev_data;
     struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)fn_data;

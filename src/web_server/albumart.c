@@ -29,12 +29,23 @@
     #include <FLAC/metadata.h>
 #endif
 
-//privat definitions
+/**
+ * Privat definitions
+ */
 static bool handle_coverextract(struct mg_connection *nc, sds cachedir, const char *uri, const char *media_file, bool covercache, int offset);
 static bool handle_coverextract_id3(sds cachedir, const char *uri, const char *media_file, sds *binary, bool covercache, int offset);
 static bool handle_coverextract_flac(sds cachedir, const char *uri, const char *media_file, sds *binary, bool is_ogg, bool covercache, int offset);
 
-//public functions
+/**
+ * Public functions
+ */
+
+/**
+ * Sends the albumart response from mpd to the client
+ * @param nc mongoose connection
+ * @param data jsonrpc response
+ * @param binary the image
+ */
 void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
     size_t len = sdslen(binary);
     sds mime_type = NULL;
@@ -54,12 +65,20 @@ void webserver_send_albumart(struct mg_connection *nc, sds data, sds binary) {
     FREE_SDS(mime_type);
 }
 
-//returns true if an image is served
-//returns false if waiting for mpd_client to handle request
+/**
+ * Request handler for /albumart
+ * @param nc mongoose connection
+ * @param hm http message
+ * @param mg_user_data pointer to mongoose configuration
+ * @param conn_id connection id
+ * @param size albumart size
+ * @return true if an image is served,
+ *         false if waiting for mpd_client to handle request
+ */
 bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data, struct t_config *config, long long conn_id,
-        enum albumart_sizes size)
+        struct t_mg_user_data *mg_user_data, long long conn_id, enum albumart_sizes size)
 {
+    struct t_config *config = mg_user_data->config;
     sds query = sdsnewlen(hm->query.ptr, hm->query.len);
     sds uri_decoded = sdsempty();
     int offset = 0;
@@ -275,7 +294,20 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
     return true;
 }
 
-//privat functions
+/**
+ * Privat functions
+ */
+
+/**
+ * Extracts albumart from media files
+ * @param nc mongoose connection
+ * @param cachedir covercache directory
+ * @param uri song uri
+ * @param media_file full path to the song
+ * @param covercache true = covercache is enabled
+ * @param offset number of embedded image to extract
+ * @return true on success, else false
+ */
 static bool handle_coverextract(struct mg_connection *nc, sds cachedir,
         const char *uri, const char *media_file, bool covercache, int offset)
 {
@@ -305,6 +337,16 @@ static bool handle_coverextract(struct mg_connection *nc, sds cachedir,
     return rc;
 }
 
+/**
+ * Extracts albumart from id3v2 taged files
+ * @param cachedir covercache directory
+ * @param uri song uri
+ * @param media_file full path to the song
+ * @param binary pointer to already allocates sds string to hold the image
+ * @param covercache true = covercache is enabled
+ * @param offset number of embedded image to extract
+ * @return true on success, else false
+ */
 static bool handle_coverextract_id3(sds cachedir, const char *uri, const char *media_file,
         sds *binary, bool covercache, int offset)
 {
@@ -362,6 +404,16 @@ static bool handle_coverextract_id3(sds cachedir, const char *uri, const char *m
     return rc;
 }
 
+/**
+ * Extracts albumart from vorbis tagged files
+ * @param cachedir covercache directory
+ * @param uri song uri
+ * @param media_file full path to the song
+ * @param binary pointer to already allocates sds string to hold the image
+ * @param covercache true = covercache is enabled
+ * @param offset number of embedded image to extract
+ * @return true on success, else false
+ */
 static bool handle_coverextract_flac(sds cachedir, const char *uri, const char *media_file,
         sds *binary, bool is_ogg, bool covercache, int offset)
 {
