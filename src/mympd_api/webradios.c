@@ -106,7 +106,7 @@ sds mympd_api_webradio_get(sds workdir, sds buffer, long request_id, sds filenam
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = tojson_sds(buffer, "filename", filename, true);
         buffer = sdscatsds(buffer, entry);
-        buffer = jsonrpc_respond_end(buffer);
+        buffer = jsonrpc_end(buffer);
     }
     FREE_SDS(entry);
     FREE_SDS(filepath);
@@ -212,7 +212,7 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds search
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_llong(buffer, "totalEntities", (long long)webradios->numele, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
     raxFree(webradios);
     return buffer;
 }

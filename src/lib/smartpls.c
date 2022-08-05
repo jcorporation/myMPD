@@ -138,7 +138,7 @@ bool smartpls_default(sds workdir) {
 bool smartpls_update(const char *playlist) {
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE, NULL);
     request->data = tojson_char(request->data, "plist", playlist, false);
-    request->data = sdscatlen(request->data, "}}", 2);
+    request->data = jsonrpc_end(request->data);
     return mympd_queue_push(mympd_api_queue, request, 0);
 }
 
@@ -148,7 +148,7 @@ bool smartpls_update(const char *playlist) {
  */
 bool smartpls_update_all(void) {
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
-    request->data = sdscatlen(request->data, "}}", 2);
+    request->data = jsonrpc_end(request->data);
     return mympd_queue_push(mympd_api_queue, request, 0);
 }
 

@@ -50,7 +50,7 @@ sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds 
     sds expression = sdsnewlen("(", 1);
     struct t_list_node *current = albumartists->head;
     while (current != NULL) {
-        expression = escape_mpd_search_expression(expression, mpd_tag_name(partition_state->mpd_shared_state->tag_albumartist), "==", current->key);
+        expression = escape_mpd_search_expression(expression, mpd_tag_name(partition_state->mpd_state->tag_albumartist), "==", current->key);
         expression = sdscat(expression, " AND ");
         current = current->next;
     }
@@ -100,14 +100,14 @@ sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds 
         }
         buffer = sdscat(buffer, "{\"Type\": \"song\",");
         buffer = get_song_tags(buffer, partition_state, tagcols, song);
-        if (partition_state->mpd_shared_state->feat_mpd_stickers) {
+        if (partition_state->mpd_state->feat_stickers) {
             buffer = sdscatlen(buffer, ",", 1);
-            struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_shared_state->sticker_cache, mpd_song_get_uri(song));
+            struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
             buffer = mympd_api_print_sticker(buffer, sticker);
             if (sticker != NULL &&
-                sticker->lastPlayed > last_played_max)
+                sticker->last_played > last_played_max)
             {
-                last_played_max = sticker->lastPlayed;
+                last_played_max = sticker->last_played;
                 last_played_song_uri = sds_replace(last_played_song_uri, mpd_song_get_uri(song));
             }
         }
@@ -122,7 +122,7 @@ sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds 
         return buffer;
     }
 
-    struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_shared_state->album_cache, albumkey);
+    struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumkey);
     if (mpd_album == NULL) {
         FREE_SDS(albumkey);
         FREE_SDS(last_played_song_uri);
@@ -131,13 +131,13 @@ sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds 
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = get_extra_media(partition_state->mpd_shared_state, buffer, mpd_song_get_uri(mpd_album), false);
+    buffer = get_extra_media(partition_state->mpd_state, buffer, mpd_song_get_uri(mpd_album), false);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_sds(buffer, "Album", album, true);
-    buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(partition_state->mpd_shared_state->tag_albumartist));
-    buffer = mpd_client_get_tag_values(mpd_album, partition_state->mpd_shared_state->tag_albumartist, buffer);
+    buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(partition_state->mpd_state->tag_albumartist));
+    buffer = mpd_client_get_tag_values(mpd_album, partition_state->mpd_state->tag_albumartist, buffer);
     buffer = sdscat(buffer, ",\"MusicBrainzAlbumArtistId\":");
     buffer = mpd_client_get_tag_values(mpd_album, MPD_TAG_MUSICBRAINZ_ALBUMARTISTID, buffer);
     buffer = sdscat(buffer, ",\"MusicBrainzAlbumId\":");
@@ -151,7 +151,7 @@ sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds 
     buffer = tojson_llong(buffer, "time", (long long)last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
     buffer = sdscatlen(buffer, "}", 1);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
 
     FREE_SDS(albumkey);
     FREE_SDS(last_played_song_uri);
@@ -173,7 +173,7 @@ sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds 
 sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds buffer, long request_id,
         sds expression, sds sort, bool sortdesc, const long offset, long limit)
 {
-    if (partition_state->mpd_shared_state->album_cache.cache == NULL) {
+    if (partition_state->mpd_state->album_cache.cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUMS_GET, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Albumcache not ready");
         return buffer;
@@ -189,8 +189,8 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
     if (sdslen(sort) > 0) {
         enum mpd_tag_type sort_tag_org = mpd_tag_name_parse(sort);
         if (sort_tag_org != MPD_TAG_UNKNOWN) {
-            sort_tag = get_sort_tag(sort_tag_org, &partition_state->mpd_shared_state->tag_types_mpd);
-            if (mpd_client_tag_exists(&partition_state->mpd_shared_state->tag_types_mympd, sort_tag) == false) {
+            sort_tag = get_sort_tag(sort_tag_org, &partition_state->mpd_state->tags_mpd);
+            if (mpd_client_tag_exists(&partition_state->mpd_state->tags_mympd, sort_tag) == false) {
                 //sort tag is not enabled, revert
                 sort_tag = sort_tag_org;
             }
@@ -209,13 +209,13 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
     long real_limit = offset + limit;
     rax *albums = raxNew();
     raxIterator iter;
-    raxStart(&iter, partition_state->mpd_shared_state->album_cache.cache);
+    raxStart(&iter, partition_state->mpd_state->album_cache.cache);
     raxSeek(&iter, "^", NULL, 0);
     sds key = sdsempty();
     while (raxNext(&iter)) {
         struct mpd_song *album = (struct mpd_song *)iter.data;
         if (expr_list->length == 0 ||
-            search_song_expression(album, expr_list, &partition_state->mpd_shared_state->tag_types_browse) == true)
+            search_song_expression(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
         {
             if (sort_by_last_modified == true) {
                 key = sdscatfmt(key, "%I::%s", (long long)mpd_song_get_last_modified(album), mpd_song_get_uri(album));
@@ -269,7 +269,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
             buffer = sdscat(buffer, "\"Album\":");
             buffer = mpd_client_get_tag_values(album, MPD_TAG_ALBUM, buffer);
             buffer = sdscat(buffer, ",\"AlbumArtist\":");
-            buffer = mpd_client_get_tag_values(album, partition_state->mpd_shared_state->tag_albumartist, buffer);
+            buffer = mpd_client_get_tag_values(album, partition_state->mpd_state->tag_albumartist, buffer);
             buffer = sdscatlen(buffer, ",", 1);
             buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
             buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), true);
@@ -291,7 +291,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
     buffer = tojson_sds(buffer, "sort", sort, true);
     buffer = tojson_bool(buffer, "sortdesc", sortdesc, true);
     buffer = tojson_char(buffer, "tag", "Album", false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
     raxFree(albums);
     return buffer;
 }
@@ -388,7 +388,7 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
     }
     raxStop(&iter);
     //checks if this tag has a directory with pictures in /var/lib/mympd/pics
-    sds pic_path = sdscatfmt(sdsempty(), "%S/pics/%s", partition_state->mpd_shared_state->config->workdir, tag);
+    sds pic_path = sdscatfmt(sdsempty(), "%S/pics/%s", partition_state->mpd_state->config->workdir, tag);
     bool pic = false;
     errno = 0;
     DIR* dir = opendir(pic_path);
@@ -412,7 +412,7 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
     buffer = tojson_sds(buffer, "searchstr", searchstr, true);
     buffer = tojson_sds(buffer, "tag", tag, true);
     buffer = tojson_bool(buffer, "pics", pic, false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
     raxFree(taglist);
     return buffer;
 }

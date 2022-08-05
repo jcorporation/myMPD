@@ -18,13 +18,18 @@
 
 #include <string.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
+
 static sds _mpd_client_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag,
         sds tag_values, unsigned *value_count);
 static sds _mpd_client_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag,
         sds tag_values, const bool multi, unsigned *value_count);
 
-//public functions
+/**
+ * Public functions
+ */
 
 /**
  * Adds a tag value to the album if value does not already exists
@@ -106,7 +111,7 @@ bool is_multivalue_tag(enum mpd_tag_type tag) {
 }
 
 /**
- * Maps a tag to its sort tag pedant
+ * Maps a tag to its sort tag pedant and checks if the sort tag is enabled.
  * @param tag mpd tag type
  * @param available_tags pointer to enabled tags
  * @return sort tag if exists else the original tag
@@ -140,11 +145,9 @@ enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag, struct t_tags *available_t
  * @param partition_state pointer to partition specific states
  */
 void disable_all_mpd_tags(struct t_partition_state *partition_state) {
-    if (mpd_connection_cmp_server_version(partition_state->conn, 0, 21, 0) >= 0) {
-        MYMPD_LOG_DEBUG("Disabling all mpd tag types");
-        bool rc = mpd_run_clear_tag_types(partition_state->conn);
-        mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_clear_tag_types");
-    }
+    MYMPD_LOG_DEBUG("Disabling all mpd tag types");
+    bool rc = mpd_run_clear_tag_types(partition_state->conn);
+    mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_clear_tag_types");
 }
 
 /**
@@ -152,11 +155,9 @@ void disable_all_mpd_tags(struct t_partition_state *partition_state) {
  * @param partition_state pointer to partition specific states
  */
 void enable_all_mpd_tags(struct t_partition_state *partition_state) {
-    if (mpd_connection_cmp_server_version(partition_state->conn, 0, 21, 0) >= 0) {
-        MYMPD_LOG_DEBUG("Enabling all mpd tag types");
-        bool rc = mpd_run_all_tag_types(partition_state->conn);
-        mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_all_tag_types");
-    }
+    MYMPD_LOG_DEBUG("Enabling all mpd tag types");
+    bool rc = mpd_run_all_tag_types(partition_state->conn);
+    mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_all_tag_types");
 }
 
 /**
@@ -256,7 +257,7 @@ sds mpd_client_get_tag_values(struct mpd_song const *song, const enum mpd_tag_ty
 sds get_song_tags(sds buffer, struct t_partition_state *partition_state, const struct t_tags *tagcols,
                   const struct mpd_song *song)
 {
-    if (partition_state->mpd_shared_state->feat_mpd_tags == true) {
+    if (partition_state->mpd_state->feat_tags == true) {
         for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
             buffer = mpd_client_get_tag_values(song, tagcols->tags[tagnr], buffer);
@@ -288,7 +289,7 @@ sds get_empty_song_tags(sds buffer, struct t_partition_state *partition_state, c
 {
     sds filename = sdsnew(uri);
     basename_uri(filename);
-    if (partition_state->mpd_shared_state->feat_mpd_tags == true) {
+    if (partition_state->mpd_state->feat_tags == true) {
         for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             const bool multi = is_multivalue_tag(tagcols->tags[tagnr]);
             buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
@@ -381,7 +382,9 @@ bool mpd_client_tag_exists(struct t_tags *tagtypes, const enum mpd_tag_type tag)
     return false;
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
 /**
  * Appends a comma separated list of tag values
@@ -391,7 +394,6 @@ bool mpd_client_tag_exists(struct t_tags *tagtypes, const enum mpd_tag_type tag)
  * @param value_count the number of values retrieved
  * @return new sds pointer to tag_values
  */
-
 static sds _mpd_client_get_tag_value_string(struct mpd_song const *song, const enum mpd_tag_type tag,
         sds tag_values, unsigned *value_count)
 {

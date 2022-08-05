@@ -9,5 +9,5 @@
 
 #include "../lib/mympd_state.h"
 
-sds get_extra_media(struct t_mpd_shared_state *mpd_shared_state, sds buffer, const char *uri, bool is_dirname);
+sds get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const char *uri, bool is_dirname);
 #endif

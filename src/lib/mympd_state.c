@@ -28,8 +28,8 @@
  */
 void mympd_state_save(struct t_mympd_state *mympd_state) {
     mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
-    mympd_api_last_played_file_save(&mympd_state->mpd_shared_state->last_played,
-        mympd_state->mpd_shared_state->last_played_count, mympd_state->config->workdir);
+    mympd_api_last_played_file_save(&mympd_state->mpd_state->last_played,
+        mympd_state->mpd_state->last_played_count, mympd_state->config->workdir);
     mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
     mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
 }
@@ -41,7 +41,7 @@ void mympd_state_save(struct t_mympd_state *mympd_state) {
 void mympd_state_default(struct t_mympd_state *mympd_state) {
     //pointer to static config
     mympd_state->config = NULL;
-    //configured mpd music_directory, used value is in mympd_state->mpd_shared_state->music_directory_value
+    //configured mpd music_directory, used value is in mympd_state->mpd_state->music_directory_value
     mympd_state->music_directory = sdsnew(MYMPD_MUSIC_DIRECTORY);
     //configured mpd playlist directory
     mympd_state->playlist_directory = sdsnew(MYMPD_PLAYLIST_DIRECTORY);
@@ -79,13 +79,13 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
     reset_t_tags(&mympd_state->smartpls_generate_tag_types);
     //mpd shared state
-    mympd_state->mpd_shared_state = malloc_assert(sizeof(struct t_mpd_shared_state));
-    mpd_shared_state_default(mympd_state->mpd_shared_state);
+    mympd_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
+    mpd_state_default(mympd_state->mpd_state);
     //mpd partition state
     mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
     partition_state_default(mympd_state->partition_state, "default");
     //add pointer to shared state pointing to partition specific state
-    mympd_state->partition_state->mpd_shared_state = mympd_state->mpd_shared_state;
+    mympd_state->partition_state->mpd_state = mympd_state->mpd_state;
     //triggers;
     list_init(&mympd_state->trigger_list);
     //home icons
@@ -103,7 +103,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     list_clear(&mympd_state->home_list);
     mympd_api_timer_timerlist_clear(&mympd_state->timer_list);
     //mpd shared state
-    mpd_shared_state_free(mympd_state->mpd_shared_state);
+    mpd_state_free(mympd_state->mpd_state);
     //partition state
     partition_state_free(mympd_state->partition_state);
     //sds
@@ -138,79 +138,79 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
 }
 
 /**
- * Sets mpd_shared_state defaults.
- * @param mpd_shared_state pointer to mpd_shared_state
+ * Sets mpd_state defaults.
+ * @param mpd_state pointer to mpd_state
  */
-void mpd_shared_state_default(struct t_mpd_shared_state *mpd_shared_state) {
-    mpd_shared_state->config = NULL;
-    mpd_shared_state->mpd_keepalive = MYMPD_MPD_KEEPALIVE;
-    mpd_shared_state->mpd_timeout = MYMPD_MPD_TIMEOUT;
-    mpd_shared_state->mpd_host = sdsnew(MYMPD_MPD_HOST);
-    mpd_shared_state->mpd_port = MYMPD_MPD_PORT;
-    mpd_shared_state->mpd_pass = sdsnew(MYMPD_MPD_PASS);
-    mpd_shared_state->mpd_binarylimit = MYMPD_MPD_BINARYLIMIT;
-    mpd_shared_state->music_directory_value = sdsempty();
-    mpd_shared_state->tag_list = sdsnew(MYMPD_MPD_TAG_LIST);
-    reset_t_tags(&mpd_shared_state->tag_types_mympd);
-    reset_t_tags(&mpd_shared_state->tag_types_mpd);
-    reset_t_tags(&mpd_shared_state->tag_types_search);
-    reset_t_tags(&mpd_shared_state->tag_types_browse);
-    mpd_shared_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
+void mpd_state_default(struct t_mpd_state *mpd_state) {
+    mpd_state->config = NULL;
+    mpd_state->mpd_keepalive = MYMPD_MPD_KEEPALIVE;
+    mpd_state->mpd_timeout = MYMPD_MPD_TIMEOUT;
+    mpd_state->mpd_host = sdsnew(MYMPD_MPD_HOST);
+    mpd_state->mpd_port = MYMPD_MPD_PORT;
+    mpd_state->mpd_pass = sdsnew(MYMPD_MPD_PASS);
+    mpd_state->mpd_binarylimit = MYMPD_MPD_BINARYLIMIT;
+    mpd_state->music_directory_value = sdsempty();
+    mpd_state->tag_list = sdsnew(MYMPD_MPD_TAG_LIST);
+    reset_t_tags(&mpd_state->tags_mympd);
+    reset_t_tags(&mpd_state->tags_mpd);
+    reset_t_tags(&mpd_state->tags_search);
+    reset_t_tags(&mpd_state->tags_browse);
+    mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
     //sticker cache
-    mpd_shared_state->sticker_cache.building = false;
-    mpd_shared_state->sticker_cache.cache = NULL;
+    mpd_state->sticker_cache.building = false;
+    mpd_state->sticker_cache.cache = NULL;
     //album cache
-    mpd_shared_state->album_cache.building = false;
-    mpd_shared_state->album_cache.cache = NULL;
+    mpd_state->album_cache.building = false;
+    mpd_state->album_cache.cache = NULL;
     //init last played songs list
-    list_init(&mpd_shared_state->last_played);
-    mpd_shared_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
+    list_init(&mpd_state->last_played);
+    mpd_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
     //init sticker queue
-    list_init(&mpd_shared_state->sticker_queue);
+    list_init(&mpd_state->sticker_queue);
 
-    mpd_shared_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
+    mpd_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
     //features
-    mpd_shared_state_features_disable(mpd_shared_state);
+    mpd_state_features_disable(mpd_state);
 }
 
 /**
  * Sets all feat states to disabled
- * @param mpd_shared_state pointer to mpd_shared_state
+ * @param mpd_state pointer to mpd_state
  */
-void mpd_shared_state_features_disable(struct t_mpd_shared_state *mpd_shared_state) {
-    mpd_shared_state->feat_mpd_stickers = false;
-    mpd_shared_state->feat_mpd_playlists = false;
-    mpd_shared_state->feat_mpd_tags = false;
-    mpd_shared_state->feat_mpd_fingerprint = false;
-    mpd_shared_state->feat_mpd_albumart = false;
-    mpd_shared_state->feat_mpd_readpicture = false;
-    mpd_shared_state->feat_mpd_mount = false;
-    mpd_shared_state->feat_mpd_neighbor = false;
-    mpd_shared_state->feat_mpd_partitions = false;
-    mpd_shared_state->feat_mpd_binarylimit = false;
-    mpd_shared_state->feat_mpd_playlist_rm_range = false;
-    mpd_shared_state->feat_mpd_whence = false;
-    mpd_shared_state->feat_mpd_advqueue = false;
+void mpd_state_features_disable(struct t_mpd_state *mpd_state) {
+    mpd_state->feat_stickers = false;
+    mpd_state->feat_playlists = false;
+    mpd_state->feat_tags = false;
+    mpd_state->feat_fingerprint = false;
+    mpd_state->feat_albumart = false;
+    mpd_state->feat_readpicture = false;
+    mpd_state->feat_mount = false;
+    mpd_state->feat_neighbor = false;
+    mpd_state->feat_partitions = false;
+    mpd_state->feat_binarylimit = false;
+    mpd_state->feat_playlist_rm_range = false;
+    mpd_state->feat_whence = false;
+    mpd_state->feat_advqueue = false;
 }
 
 /**
- * Frees the t_mpd_shared_state struct
+ * Frees the t_mpd_state struct
  */
-void mpd_shared_state_free(struct t_mpd_shared_state *mpd_shared_state) {
-    FREE_SDS(mpd_shared_state->mpd_host);
-    FREE_SDS(mpd_shared_state->mpd_pass);
-    FREE_SDS(mpd_shared_state->tag_list);
-    FREE_SDS(mpd_shared_state->music_directory_value);
+void mpd_state_free(struct t_mpd_state *mpd_state) {
+    FREE_SDS(mpd_state->mpd_host);
+    FREE_SDS(mpd_state->mpd_pass);
+    FREE_SDS(mpd_state->tag_list);
+    FREE_SDS(mpd_state->music_directory_value);
     //lists
-    list_clear(&mpd_shared_state->sticker_queue);
-    list_clear(&mpd_shared_state->last_played);
+    list_clear(&mpd_state->sticker_queue);
+    list_clear(&mpd_state->last_played);
     //caches
-    sticker_cache_free(&mpd_shared_state->sticker_cache);
-    album_cache_free(&mpd_shared_state->album_cache);
+    sticker_cache_free(&mpd_state->sticker_cache);
+    album_cache_free(&mpd_state->album_cache);
 
-    FREE_SDS(mpd_shared_state->booklet_name);
+    FREE_SDS(mpd_state->booklet_name);
     //struct itself
-    FREE_PTR(mpd_shared_state);
+    FREE_PTR(mpd_state);
 }
 
 /**

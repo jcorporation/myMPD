@@ -36,12 +36,12 @@ sds mympd_api_stats_get(struct t_partition_state *partition_state, sds buffer, l
     buffer = tojson_uint(buffer, "songs", mpd_stats_get_number_of_songs(stats), true);
     buffer = tojson_ulong(buffer, "playtime", mpd_stats_get_play_time(stats), true);
     buffer = tojson_ulong(buffer, "uptime", mpd_stats_get_uptime(stats), true);
-    buffer = tojson_llong(buffer, "myMPDuptime", (long long)(time(NULL) - partition_state->mpd_shared_state->config->startup_time), true);
+    buffer = tojson_llong(buffer, "myMPDuptime", (long long)(time(NULL) - partition_state->mpd_state->config->startup_time), true);
     buffer = tojson_ulong(buffer, "dbUpdated", mpd_stats_get_db_update_time(stats), true);
     buffer = tojson_ulong(buffer, "dbPlaytime", mpd_stats_get_db_play_time(stats), true);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
     buffer = tojson_char(buffer, "mpdProtocolVersion", mpd_protocol_version, false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
 
     FREE_SDS(mpd_protocol_version);
     mpd_stats_free(stats);

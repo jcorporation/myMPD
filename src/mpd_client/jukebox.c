@@ -74,7 +74,7 @@ enum jukebox_modes jukebox_mode_parse(const char *str) {
 }
 
 /**
- * Returns the jukeboxmod as string
+ * Returns the jukebox mode as string
  * @param mode the jukebox mode
  * @return jukebox mode as string
  */
@@ -154,11 +154,11 @@ sds jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mym
                             buffer = sdscatlen(buffer, "{", 1);
                             buffer = tojson_long(buffer, "Pos", entity_count, true);
                             buffer = get_song_tags(buffer, partition_state, tagcols, song);
-                            if (partition_state->mpd_shared_state->feat_mpd_stickers == true &&
-                                partition_state->mpd_shared_state->sticker_cache.cache != NULL)
+                            if (partition_state->mpd_state->feat_stickers == true &&
+                                partition_state->mpd_state->sticker_cache.cache != NULL)
                             {
                                 buffer = sdscatlen(buffer, ",", 1);
-                                buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_shared_state->sticker_cache, mpd_song_get_uri(song));
+                                buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
                             }
                             buffer = sdscatlen(buffer, "}", 1);
                         }
@@ -207,7 +207,7 @@ sds jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mym
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
 
     return buffer;
 }
@@ -279,7 +279,7 @@ static bool _jukebox(struct t_partition_state *partition_state) {
         add_songs = 99;
     }
 
-    if (partition_state->mpd_shared_state->feat_mpd_playlists == false && strcmp(partition_state->jukebox_playlist, "Database") != 0) {
+    if (partition_state->mpd_state->feat_playlists == false && strcmp(partition_state->jukebox_playlist, "Database") != 0) {
         MYMPD_LOG_WARN("Jukebox: Playlists are disabled");
         return true;
     }
@@ -411,8 +411,8 @@ static bool add_album_to_queue(struct t_partition_state *partition_state, struct
     const char *value = NULL;
     unsigned i = 0;
     sds expression = sdsnewlen("(", 1);
-    while ((value = mpd_song_get_tag(album, partition_state->mpd_shared_state->tag_albumartist, i)) != NULL) {
-        expression = escape_mpd_search_expression(expression, mpd_tag_name(partition_state->mpd_shared_state->tag_albumartist), "==", value);
+    while ((value = mpd_song_get_tag(album, partition_state->mpd_state->tag_albumartist, i)) != NULL) {
+        expression = escape_mpd_search_expression(expression, mpd_tag_name(partition_state->mpd_state->tag_albumartist), "==", value);
         expression = sdscat(expression, " AND ");
         i++;
     }
@@ -461,7 +461,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
         }
         else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
             album = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, album);
-            albumartist = mpd_client_get_tag_value_string(song, partition_state->mpd_shared_state->tag_albumartist, albumartist);
+            albumartist = mpd_client_get_tag_value_string(song, partition_state->mpd_state->tag_albumartist, albumartist);
             list_push(queue_list, album, 0, albumartist, NULL);
             sdsclear(album);
             sdsclear(albumartist);
@@ -473,7 +473,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
     mympd_check_error_and_recover(partition_state);
 
     //append last_played to queue list
-    struct t_list_node *current = partition_state->mpd_shared_state->last_played.head;
+    struct t_list_node *current = partition_state->mpd_state->last_played.head;
     while (current != NULL) {
         rc = mpd_send_list_meta(partition_state->conn, current->key);
         if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_send_list_meta") == true) {
@@ -488,7 +488,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
                 }
                 else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
                     album = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, album);
-                    albumartist = mpd_client_get_tag_value_string(song, partition_state->mpd_shared_state->tag_albumartist, albumartist);
+                    albumartist = mpd_client_get_tag_value_string(song, partition_state->mpd_state->tag_albumartist, albumartist);
                     list_push(queue_list, album, 0, albumartist, NULL);
                     sdsclear(album);
                     sdsclear(albumartist);
@@ -504,7 +504,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
     if (queue_list->length < 20) {
         sds line = sdsempty();
         char *data = NULL;
-        sds lp_file = sdscatfmt(sdsempty(), "%S/state/last_played", partition_state->mpd_shared_state->config->workdir);
+        sds lp_file = sdscatfmt(sdsempty(), "%S/state/last_played", partition_state->mpd_state->config->workdir);
         errno = 0;
         FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
         if (fp != NULL) {
@@ -527,7 +527,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
                             }
                             else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
                                 album = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, album);
-                                albumartist = mpd_client_get_tag_value_string(song, partition_state->mpd_shared_state->tag_albumartist, albumartist);
+                                albumartist = mpd_client_get_tag_value_string(song, partition_state->mpd_state->tag_albumartist, albumartist);
                                 list_push(queue_list, album, 0, albumartist, NULL);
                                 sdsclear(album);
                                 sdsclear(albumartist);
@@ -576,7 +576,7 @@ static bool jukebox_fill_jukebox_queue(struct t_partition_state *partition_state
 {
     send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_INFO, "Filling jukebox queue");
     MYMPD_LOG_DEBUG("Jukebox queue to small, adding entities");
-    if (partition_state->mpd_shared_state->feat_mpd_tags == true) {
+    if (partition_state->mpd_state->feat_tags == true) {
         if (partition_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
             enable_mpd_tags(partition_state, &partition_state->jukebox_unique_tag);
         }
@@ -585,8 +585,8 @@ static bool jukebox_fill_jukebox_queue(struct t_partition_state *partition_state
         }
     }
     bool rc = _jukebox_fill_jukebox_queue(partition_state, add_songs, jukebox_mode, playlist, manual);
-    if (partition_state->mpd_shared_state->feat_mpd_tags == true) {
-        enable_mpd_tags(partition_state, &partition_state->mpd_shared_state->tag_types_mympd);
+    if (partition_state->mpd_state->feat_tags == true) {
+        enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
     }
 
     if (rc == false) {
@@ -658,7 +658,7 @@ static bool _jukebox_fill_jukebox_queue(struct t_partition_state *partition_stat
 static long _fill_jukebox_queue_albums(struct t_partition_state *partition_state, long add_albums,
         bool manual, struct t_list *queue_list, struct t_list *add_list)
 {
-    if (partition_state->mpd_shared_state->album_cache.cache == NULL) {
+    if (partition_state->mpd_state->album_cache.cache == NULL) {
         MYMPD_LOG_WARN("Album cache is null, jukebox can not add albums");
         return -1;
     }
@@ -678,7 +678,7 @@ static long _fill_jukebox_queue_albums(struct t_partition_state *partition_state
     time_t since = time(NULL);
     since = since - (partition_state->jukebox_last_played * 3600);
     raxIterator iter;
-    raxStart(&iter, partition_state->mpd_shared_state->album_cache.cache);
+    raxStart(&iter, partition_state->mpd_state->album_cache.cache);
     raxSeek(&iter, "^", NULL, 0);
     sds tag_album = sdsempty();
     sds tag_albumartist = sdsempty();
@@ -687,14 +687,14 @@ static long _fill_jukebox_queue_albums(struct t_partition_state *partition_state
         sdsclear(tag_album);
         sdsclear(tag_albumartist);
         tag_album = mpd_client_get_tag_value_string(album, MPD_TAG_ALBUM, tag_album);
-        tag_albumartist = mpd_client_get_tag_value_string(album, partition_state->mpd_shared_state->tag_albumartist, tag_albumartist);
+        tag_albumartist = mpd_client_get_tag_value_string(album, partition_state->mpd_state->tag_albumartist, tag_albumartist);
         long is_uniq = JUKEBOX_UNIQ_IS_UNIQ;
 
         //we use the song uri in the album cache for enforcing last_played constraint
         //because we do not know if an album was last played fully
         const char *uri = mpd_song_get_uri(album);
-        struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_shared_state->sticker_cache, uri);
-        time_t last_played = sticker != NULL ? sticker->lastPlayed : 0;
+        struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_state->sticker_cache, uri);
+        time_t last_played = sticker != NULL ? sticker->last_played : 0;
 
         if (last_played > since) {
             //album was played too recently
@@ -762,7 +762,7 @@ static long _fill_jukebox_queue_songs(struct t_partition_state *partition_state,
     time_t since = time(NULL);
     since = since - (partition_state->jukebox_last_played * 3600);
 
-    if (partition_state->mpd_shared_state->sticker_cache.cache == NULL) {
+    if (partition_state->mpd_state->sticker_cache.cache == NULL) {
         MYMPD_LOG_WARN("Sticker cache is null, jukebox doesn't respect last played constraint");
     }
 
@@ -812,8 +812,8 @@ static long _fill_jukebox_queue_songs(struct t_partition_state *partition_state,
             tag_value = mpd_client_get_tag_value_string(song, partition_state->jukebox_unique_tag.tags[0], tag_value);
 
             const char *uri = mpd_song_get_uri(song);
-            struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_shared_state->sticker_cache, uri);
-            time_t last_played = sticker != NULL ? sticker->lastPlayed : 0;
+            struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_state->sticker_cache, uri);
+            time_t last_played = sticker != NULL ? sticker->last_played : 0;
 
             long is_uniq = JUKEBOX_UNIQ_IS_UNIQ;
             if (last_played > since) {

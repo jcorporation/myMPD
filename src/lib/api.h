@@ -217,7 +217,7 @@ struct set_mg_user_data_request {
     sds playlist_directory;   //!< configured mpd playlist directory
     sds coverimage_names;     //!< comma separated list of coverimage names
     sds thumbnail_names;      //!< comma separated list of coverimage thumbnail names
-    bool feat_mpd_albumart;   //!< true if mpd supports the albumart protocol command
+    bool feat_albumart;       //!< true if mpd supports the albumart protocol command
     sds mpd_host;             //!< configured mpd host
     unsigned mpd_stream_port; //!< mpd stream port for reverse proxy
 };

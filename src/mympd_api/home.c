@@ -172,7 +172,7 @@ sds mympd_api_home_icon_list(struct t_list *home_list, sds buffer, long request_
     }
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
     return buffer;
 }
 
@@ -193,7 +193,7 @@ sds mympd_api_home_icon_get(struct t_list *home_list, sds buffer, long request_i
         buffer = sdscat(buffer, current->key);
         buffer = sdscatlen(buffer, ",", 1);
         buffer = tojson_long(buffer, "returnedEntities", 1, false);
-        buffer = jsonrpc_respond_end(buffer);
+        buffer = jsonrpc_end(buffer);
         return buffer;
     }
 

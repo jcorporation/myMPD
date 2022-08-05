@@ -15,6 +15,24 @@ enum timer_intervals {
     TIMER_ONE_SHOT_DISABLE = 0
 };
 
+/**
+ * Callback functions for timers
+ */
+typedef void (*timer_handler)(int timer_id, struct t_timer_definition *definition);
+
+/**
+ * Timer node
+ */
+struct t_timer_node {
+    int fd;                                 //!< hold the timerfd
+    timer_handler callback;                 //!< timer callback function
+    struct t_timer_definition *definition;  //!< optional pointer to timer definition (GUI)
+    time_t timeout;                         //!< seconds when timer will run
+    int interval;                           //!< reschedule timer interval
+    int timer_id;                           //!< id of the timer
+    struct t_timer_node *next;              //!< next timer in the timer list
+};
+
 void mympd_api_timer_timerlist_init(struct t_timer_list *l);
 void mympd_api_timer_timerlist_clear(struct t_timer_list *l);
 void mympd_api_timer_check(struct t_timer_list *l);

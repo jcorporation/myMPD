@@ -37,7 +37,7 @@ void *mympd_api_loop(void *arg_config) {
     mympd_state_default(mympd_state);
     //add pointer to static myMPD config
     mympd_state->config = (struct t_config *) arg_config;
-    mympd_state->mpd_shared_state->config = (struct t_config *) arg_config;
+    mympd_state->mpd_state->config = (struct t_config *) arg_config;
 
     //start autoconfiguration for first startup
     if (mympd_state->config->first_startup == true) {

@@ -12,8 +12,6 @@
 #include "../lib/config_def.h"
 #include "utility.h"
 
-#include <stdbool.h>
-
 enum albumart_sizes {
     ALBUMART_THUMBNAIL,
     ALBUMART_FULL

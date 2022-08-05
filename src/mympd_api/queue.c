@@ -168,14 +168,14 @@ sds mympd_api_queue_status(struct t_partition_state *partition_state, sds buffer
     }
 
     partition_state->queue_version = mpd_status_get_queue_version(status);
-    partition_state->queue_length = mpd_status_get_queue_length(status);
+    partition_state->queue_length = (long long)mpd_status_get_queue_length(status);
     partition_state->crossfade = (time_t)mpd_status_get_crossfade(status);
     partition_state->play_state = mpd_status_get_state(status);
 
     if (buffer != NULL) {
         buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_QUEUE);
         buffer = mympd_api_status_print(partition_state, buffer, status);
-        buffer = jsonrpc_respond_end(buffer);
+        buffer = jsonrpc_end(buffer);
     }
     mpd_status_free(status);
     return buffer;
@@ -303,7 +303,7 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
     buffer = tojson_llong(buffer, "totalEntities", partition_state->queue_length, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
 
     mpd_response_finish(partition_state->conn);
     mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id);
@@ -376,7 +376,7 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
 
     mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
@@ -424,7 +424,7 @@ sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds bu
 
     enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
     if (sort_tag != MPD_TAG_UNKNOWN) {
-        sort_tag = get_sort_tag(sort_tag, &partition_state->mpd_shared_state->tag_types_mpd);
+        sort_tag = get_sort_tag(sort_tag, &partition_state->mpd_state->tags_mpd);
         rc = mpd_search_add_sort_tag(partition_state->conn, sort_tag, sortdesc);
         if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_sort_tag") == false) {
             mpd_search_cancel(partition_state->conn);
@@ -485,7 +485,7 @@ sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds bu
     }
     buffer = tojson_uint(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
 
     mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
@@ -517,7 +517,7 @@ sds _print_queue_entry(struct t_partition_state *partition_state, sds buffer, co
     const char *uri = mpd_song_get_uri(song);
     buffer = sdscatlen(buffer, ",", 1);
     if (is_streamuri(uri) == true) {
-        sds webradio = get_webradio_from_uri(partition_state->mpd_shared_state->config->workdir, uri);
+        sds webradio = get_webradio_from_uri(partition_state->mpd_state->config->workdir, uri);
         if (sdslen(webradio) > 0) {
             buffer = sdscat(buffer, "\"webradio\":{");
             buffer = sdscatsds(buffer, webradio);
@@ -532,9 +532,9 @@ sds _print_queue_entry(struct t_partition_state *partition_state, sds buffer, co
     else {
         buffer = tojson_char(buffer, "type", "song", false);
     }
-    if (partition_state->mpd_shared_state->feat_mpd_stickers == true) {
+    if (partition_state->mpd_state->feat_stickers == true) {
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_shared_state->sticker_cache, uri);
+        buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_state->sticker_cache, uri);
     }
     buffer = sdscatlen(buffer, "}", 1);
     return buffer;

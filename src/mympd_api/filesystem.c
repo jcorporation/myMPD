@@ -156,9 +156,9 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
                     basename_uri(filename);
                     buffer = tojson_sds(buffer, "Filename", filename, false);
                     FREE_SDS(filename);
-                    if (partition_state->mpd_shared_state->feat_mpd_stickers) {
+                    if (partition_state->mpd_state->feat_stickers) {
                         buffer = sdscatlen(buffer, ",", 1);
-                        buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_shared_state->sticker_cache, mpd_song_get_uri(song));
+                        buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
                     }
                     buffer = sdscatlen(buffer, "}", 1);
                     break;
@@ -174,7 +174,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
                 }
                 case MPD_ENTITY_TYPE_PLAYLIST: {
                     const struct mpd_playlist *pl = mpd_entity_get_playlist(entry_data->entity);
-                    bool smartpls = is_smartpls(partition_state->mpd_shared_state->config->workdir, entry_data->name);
+                    bool smartpls = is_smartpls(partition_state->mpd_state->config->workdir, entry_data->name);
                     buffer = sdscatfmt(buffer, "{\"Type\": \"%s\",", (smartpls == true ? "smartpls" : "plist"));
                     buffer = tojson_char(buffer, "uri", mpd_playlist_get_path(pl), true);
                     buffer = tojson_sds(buffer, "name", entry_data->name, true);
@@ -193,13 +193,13 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
     }
     raxStop(&iter);
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = get_extra_media(partition_state->mpd_shared_state, buffer, path, true);
+    buffer = get_extra_media(partition_state->mpd_state, buffer, path, true);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_llong(buffer, "totalEntities", (long long)entity_list->numele, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_sds(buffer, "search", searchstr, false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
     raxFree(entity_list);
     return buffer;
 }

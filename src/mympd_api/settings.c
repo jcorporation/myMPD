@@ -59,7 +59,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
-            mympd_state->mpd_shared_state->mpd_pass = sds_replace(mympd_state->mpd_shared_state->mpd_pass, value);
+            mympd_state->mpd_state->mpd_pass = sds_replace(mympd_state->mpd_state->mpd_pass, value);
         }
         else {
             //keep old password
@@ -71,7 +71,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        mympd_state->mpd_shared_state->mpd_host = sds_replace(mympd_state->mpd_shared_state->mpd_host, value);
+        mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, value);
     }
     else if (strcmp(key, "mpdPort") == 0 && vtype == MJSON_TOK_NUMBER) {
         unsigned mpd_port = (unsigned)strtoumax(value, NULL, 10);
@@ -79,7 +79,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        mympd_state->mpd_shared_state->mpd_port = mpd_port;
+        mympd_state->mpd_state->mpd_port = mpd_port;
     }
     else if (strcmp(key, "mpdStreamPort") == 0 && vtype == MJSON_TOK_NUMBER) {
         unsigned mpd_stream_port = (unsigned)strtoumax(value, NULL, 10);
@@ -111,8 +111,8 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        if (binarylimit != mympd_state->mpd_shared_state->mpd_binarylimit) {
-            mympd_state->mpd_shared_state->mpd_binarylimit = binarylimit;
+        if (binarylimit != mympd_state->mpd_state->mpd_binarylimit) {
+            mympd_state->mpd_state->mpd_binarylimit = binarylimit;
             if (mympd_state->partition_state->conn_state == MPD_CONNECTED) {
                 mpd_client_set_binarylimit(mympd_state->partition_state);
             }
@@ -124,10 +124,10 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        if (mpd_timeout != mympd_state->mpd_shared_state->mpd_timeout) {
-            mympd_state->mpd_shared_state->mpd_timeout = mpd_timeout;
+        if (mpd_timeout != mympd_state->mpd_state->mpd_timeout) {
+            mympd_state->mpd_state->mpd_timeout = mpd_timeout;
             if (mympd_state->partition_state->conn_state == MPD_CONNECTED) {
-                mpd_connection_set_timeout(mympd_state->partition_state->conn, mympd_state->mpd_shared_state->mpd_timeout);
+                mpd_connection_set_timeout(mympd_state->partition_state->conn, mympd_state->mpd_state->mpd_timeout);
                 check_for_mpd_error = true;
             }
         }
@@ -139,10 +139,10 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
             return false;
         }
         bool keepalive = vtype == MJSON_TOK_TRUE ? true : false;
-        if (keepalive != mympd_state->mpd_shared_state->mpd_keepalive) {
-            mympd_state->mpd_shared_state->mpd_keepalive = keepalive;
+        if (keepalive != mympd_state->mpd_state->mpd_keepalive) {
+            mympd_state->mpd_state->mpd_keepalive = keepalive;
             if (mympd_state->partition_state->conn_state == MPD_CONNECTED) {
-                mpd_connection_set_keepalive(mympd_state->partition_state->conn, mympd_state->mpd_shared_state->mpd_keepalive);
+                mpd_connection_set_keepalive(mympd_state->partition_state->conn, mympd_state->mpd_state->mpd_keepalive);
                 check_for_mpd_error = true;
             }
         }
@@ -249,7 +249,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     }
     else if (strcmp(key, "bookletName") == 0 && vtype == MJSON_TOK_STRING) {
         if (vcb_isfilename(value) == true) {
-            mympd_state->mpd_shared_state->booklet_name = sds_replace(mympd_state->mpd_shared_state->booklet_name, value);
+            mympd_state->mpd_state->booklet_name = sds_replace(mympd_state->mpd_state->booklet_name, value);
         }
         else {
             *error = set_invalid_value(*error, key, value);
@@ -262,7 +262,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        mympd_state->mpd_shared_state->last_played_count = last_played_count;
+        mympd_state->mpd_state->last_played_count = last_played_count;
     }
     else if (strcmp(key, "volumeMin") == 0 && vtype == MJSON_TOK_NUMBER) {
         unsigned volume_min = (unsigned)strtoumax(value, NULL, 10);
@@ -293,7 +293,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        mympd_state->mpd_shared_state->tag_list = sds_replace(mympd_state->mpd_shared_state->tag_list, value);
+        mympd_state->mpd_state->tag_list = sds_replace(mympd_state->mpd_state->tag_list, value);
     }
     else if (strcmp(key, "tagListSearch") == 0 && vtype == MJSON_TOK_STRING) {
         if (vcb_istaglist(value) == false) {
@@ -586,13 +586,13 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
  */
 void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_NOTICE("Reading states");
-    mympd_state->mpd_shared_state->mpd_host = state_file_rw_string_sds(mympd_state->config->workdir, "state", "mpd_host", mympd_state->mpd_shared_state->mpd_host, vcb_isname, false);
-    mympd_state->mpd_shared_state->mpd_port = state_file_rw_uint(mympd_state->config->workdir, "state", "mpd_port", mympd_state->mpd_shared_state->mpd_port, MPD_PORT_MIN, MPD_PORT_MAX, false);
-    mympd_state->mpd_shared_state->mpd_pass = state_file_rw_string_sds(mympd_state->config->workdir, "state", "mpd_pass", mympd_state->mpd_shared_state->mpd_pass, vcb_isname, false);
-    mympd_state->mpd_shared_state->mpd_binarylimit = state_file_rw_uint(mympd_state->config->workdir, "state", "mpd_binarylimit", mympd_state->mpd_shared_state->mpd_binarylimit, MPD_BINARY_SIZE_MIN, MPD_BINARY_SIZE_MAX, false);
-    mympd_state->mpd_shared_state->mpd_timeout = state_file_rw_uint(mympd_state->config->workdir, "state", "mpd_timeout", mympd_state->mpd_shared_state->mpd_timeout, MPD_TIMEOUT_MIN, MPD_TIMEOUT_MAX, false);
-    mympd_state->mpd_shared_state->mpd_keepalive = state_file_rw_bool(mympd_state->config->workdir, "state", "mpd_keepalive", mympd_state->mpd_shared_state->mpd_keepalive, false);
-    mympd_state->mpd_shared_state->tag_list = state_file_rw_string_sds(mympd_state->config->workdir, "state", "tag_list", mympd_state->mpd_shared_state->tag_list, vcb_istaglist, false);
+    mympd_state->mpd_state->mpd_host = state_file_rw_string_sds(mympd_state->config->workdir, "state", "mpd_host", mympd_state->mpd_state->mpd_host, vcb_isname, false);
+    mympd_state->mpd_state->mpd_port = state_file_rw_uint(mympd_state->config->workdir, "state", "mpd_port", mympd_state->mpd_state->mpd_port, MPD_PORT_MIN, MPD_PORT_MAX, false);
+    mympd_state->mpd_state->mpd_pass = state_file_rw_string_sds(mympd_state->config->workdir, "state", "mpd_pass", mympd_state->mpd_state->mpd_pass, vcb_isname, false);
+    mympd_state->mpd_state->mpd_binarylimit = state_file_rw_uint(mympd_state->config->workdir, "state", "mpd_binarylimit", mympd_state->mpd_state->mpd_binarylimit, MPD_BINARY_SIZE_MIN, MPD_BINARY_SIZE_MAX, false);
+    mympd_state->mpd_state->mpd_timeout = state_file_rw_uint(mympd_state->config->workdir, "state", "mpd_timeout", mympd_state->mpd_state->mpd_timeout, MPD_TIMEOUT_MIN, MPD_TIMEOUT_MAX, false);
+    mympd_state->mpd_state->mpd_keepalive = state_file_rw_bool(mympd_state->config->workdir, "state", "mpd_keepalive", mympd_state->mpd_state->mpd_keepalive, false);
+    mympd_state->mpd_state->tag_list = state_file_rw_string_sds(mympd_state->config->workdir, "state", "tag_list", mympd_state->mpd_state->tag_list, vcb_istaglist, false);
     mympd_state->tag_list_search = state_file_rw_string_sds(mympd_state->config->workdir, "state", "tag_list_search", mympd_state->tag_list_search, vcb_istaglist, false);
     mympd_state->tag_list_browse = state_file_rw_string_sds(mympd_state->config->workdir, "state", "tag_list_browse", mympd_state->tag_list_browse, vcb_istaglist, false);
     mympd_state->smartpls = state_file_rw_bool(mympd_state->config->workdir, "state", "smartpls", mympd_state->smartpls, false);
@@ -600,7 +600,7 @@ void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     mympd_state->smartpls_prefix = state_file_rw_string_sds(mympd_state->config->workdir, "state", "smartpls_prefix", mympd_state->smartpls_prefix, vcb_isname, false);
     mympd_state->smartpls_interval = state_file_rw_int(mympd_state->config->workdir, "state", "smartpls_interval", (int)mympd_state->smartpls_interval, TIMER_INTERVAL_MIN, TIMER_INTERVAL_MAX, false);
     mympd_state->smartpls_generate_tag_list = state_file_rw_string_sds(mympd_state->config->workdir, "state", "smartpls_generate_tag_list", mympd_state->smartpls_generate_tag_list, vcb_istaglist, false);
-    mympd_state->mpd_shared_state->last_played_count = state_file_rw_long(mympd_state->config->workdir, "state", "last_played_count", mympd_state->mpd_shared_state->last_played_count, 0, MPD_PLAYLIST_LENGTH_MAX, false);
+    mympd_state->mpd_state->last_played_count = state_file_rw_long(mympd_state->config->workdir, "state", "last_played_count", mympd_state->mpd_state->last_played_count, 0, MPD_PLAYLIST_LENGTH_MAX, false);
     mympd_state->partition_state->auto_play = state_file_rw_bool(mympd_state->config->workdir, "state", "auto_play", mympd_state->partition_state->auto_play, false);
     mympd_state->partition_state->jukebox_mode = state_file_rw_uint(mympd_state->config->workdir, "state", "jukebox_mode", mympd_state->partition_state->jukebox_mode, 0, 2, false);
     mympd_state->partition_state->jukebox_playlist = state_file_rw_string_sds(mympd_state->config->workdir, "state", "jukebox_playlist", mympd_state->partition_state->jukebox_playlist, vcb_isfilename, false);
@@ -621,7 +621,7 @@ void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state) {
     mympd_state->thumbnail_names = state_file_rw_string_sds(mympd_state->config->workdir, "state", "thumbnail_names", mympd_state->thumbnail_names, vcb_isfilename, false);
     mympd_state->music_directory = state_file_rw_string_sds(mympd_state->config->workdir, "state", "music_directory", mympd_state->music_directory, vcb_isfilepath, false);
     mympd_state->playlist_directory = state_file_rw_string_sds(mympd_state->config->workdir, "state", "playlist_directory", mympd_state->playlist_directory, vcb_isfilepath, false);
-    mympd_state->mpd_shared_state->booklet_name = state_file_rw_string_sds(mympd_state->config->workdir, "state", "booklet_name", mympd_state->mpd_shared_state->booklet_name, vcb_isfilename, false);
+    mympd_state->mpd_state->booklet_name = state_file_rw_string_sds(mympd_state->config->workdir, "state", "booklet_name", mympd_state->mpd_state->booklet_name, vcb_isfilename, false);
     mympd_state->volume_min = state_file_rw_uint(mympd_state->config->workdir, "state", "volume_min", mympd_state->volume_min, VOLUME_MIN, VOLUME_MAX, false);
     mympd_state->volume_max = state_file_rw_uint(mympd_state->config->workdir, "state", "volume_max", mympd_state->volume_max, VOLUME_MIN, VOLUME_MAX, false);
     mympd_state->volume_step = state_file_rw_uint(mympd_state->config->workdir, "state", "volume_step", mympd_state->volume_step, VOLUME_STEP_MIN, VOLUME_STEP_MAX, false);
@@ -649,13 +649,13 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, long r
     enum mympd_cmd_ids cmd_id = MYMPD_API_SETTINGS_GET;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
-    buffer = tojson_sds(buffer, "mpdHost", mympd_state->mpd_shared_state->mpd_host, true);
-    buffer = tojson_uint(buffer, "mpdPort", mympd_state->mpd_shared_state->mpd_port, true);
+    buffer = tojson_sds(buffer, "mpdHost", mympd_state->mpd_state->mpd_host, true);
+    buffer = tojson_uint(buffer, "mpdPort", mympd_state->mpd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
     buffer = tojson_uint(buffer, "mpdStreamPort", mympd_state->mpd_stream_port, true);
-    buffer = tojson_uint(buffer, "mpdTimeout", mympd_state->mpd_shared_state->mpd_timeout, true);
-    buffer = tojson_bool(buffer, "mpdKeepalive", mympd_state->mpd_shared_state->mpd_keepalive, true);
-    buffer = tojson_uint(buffer, "mpdBinarylimit", mympd_state->mpd_shared_state->mpd_binarylimit, true);
+    buffer = tojson_uint(buffer, "mpdTimeout", mympd_state->mpd_state->mpd_timeout, true);
+    buffer = tojson_bool(buffer, "mpdKeepalive", mympd_state->mpd_state->mpd_keepalive, true);
+    buffer = tojson_uint(buffer, "mpdBinarylimit", mympd_state->mpd_state->mpd_binarylimit, true);
 #ifdef ENABLE_SSL
     buffer = tojson_bool(buffer, "pin", (sdslen(mympd_state->config->pin_hash) == 0 ? false : true), true);
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
@@ -688,10 +688,10 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, long r
     buffer = tojson_sds(buffer, "smartplsSort", mympd_state->smartpls_sort, true);
     buffer = tojson_sds(buffer, "smartplsPrefix", mympd_state->smartpls_prefix, true);
     buffer = tojson_llong(buffer, "smartplsInterval", (long long)mympd_state->smartpls_interval, true);
-    buffer = tojson_long(buffer, "lastPlayedCount", mympd_state->mpd_shared_state->last_played_count, true);
+    buffer = tojson_long(buffer, "lastPlayedCount", mympd_state->mpd_state->last_played_count, true);
     buffer = tojson_sds(buffer, "musicDirectory", mympd_state->music_directory, true);
     buffer = tojson_sds(buffer, "playlistDirectory", mympd_state->playlist_directory, true);
-    buffer = tojson_sds(buffer, "bookletName", mympd_state->mpd_shared_state->booklet_name, true);
+    buffer = tojson_sds(buffer, "bookletName", mympd_state->mpd_state->booklet_name, true);
     buffer = tojson_uint(buffer, "volumeMin", mympd_state->volume_min, true);
     buffer = tojson_uint(buffer, "volumeMax", mympd_state->volume_max, true);
     buffer = tojson_uint(buffer, "volumeStep", mympd_state->volume_step, true);
@@ -733,7 +733,7 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, long r
         enum mpd_single_state single_state = mpd_status_get_single_state(status);
         buffer = tojson_char(buffer, "single", mpd_lookup_single_state(single_state), true);
 
-        if (mympd_state->mpd_shared_state->feat_mpd_partitions == true) {
+        if (mympd_state->mpd_state->feat_partitions == true) {
             buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
         }
         buffer = tojson_uint(buffer, "crossfade", mpd_status_get_crossfade(status), true);
@@ -745,39 +745,39 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, long r
 
         mpd_status_free(status);
 
-        buffer = tojson_bool(buffer, "featPlaylists", mympd_state->mpd_shared_state->feat_mpd_playlists, true);
-        buffer = tojson_bool(buffer, "featTags", mympd_state->mpd_shared_state->feat_mpd_tags, true);
-        buffer = tojson_bool(buffer, "featLibrary", mympd_state->mpd_shared_state->feat_mpd_library, true);
-        buffer = tojson_bool(buffer, "featStickers", mympd_state->mpd_shared_state->feat_mpd_stickers, true);
-        buffer = tojson_bool(buffer, "featFingerprint", mympd_state->mpd_shared_state->feat_mpd_fingerprint, true);
-        buffer = tojson_bool(buffer, "featPartitions", mympd_state->mpd_shared_state->feat_mpd_partitions, true);
-        buffer = tojson_sds(buffer, "musicDirectoryValue", mympd_state->mpd_shared_state->music_directory_value, true);
-        buffer = tojson_bool(buffer, "featMounts", mympd_state->mpd_shared_state->feat_mpd_mount, true);
-        buffer = tojson_bool(buffer, "featNeighbors", mympd_state->mpd_shared_state->feat_mpd_neighbor, true);
-        buffer = tojson_bool(buffer, "featBinarylimit", mympd_state->mpd_shared_state->feat_mpd_binarylimit, true);
-        buffer = tojson_bool(buffer, "featPlaylistRmRange", mympd_state->mpd_shared_state->feat_mpd_playlist_rm_range, true);
-        buffer = tojson_bool(buffer, "featWhence", mympd_state->mpd_shared_state->feat_mpd_whence, true);
-        buffer = tojson_bool(buffer, "featAdvqueue", mympd_state->mpd_shared_state->feat_mpd_advqueue, true);
+        buffer = tojson_bool(buffer, "featPlaylists", mympd_state->mpd_state->feat_playlists, true);
+        buffer = tojson_bool(buffer, "featTags", mympd_state->mpd_state->feat_tags, true);
+        buffer = tojson_bool(buffer, "featLibrary", mympd_state->mpd_state->feat_library, true);
+        buffer = tojson_bool(buffer, "featStickers", mympd_state->mpd_state->feat_stickers, true);
+        buffer = tojson_bool(buffer, "featFingerprint", mympd_state->mpd_state->feat_fingerprint, true);
+        buffer = tojson_bool(buffer, "featPartitions", mympd_state->mpd_state->feat_partitions, true);
+        buffer = tojson_sds(buffer, "musicDirectoryValue", mympd_state->mpd_state->music_directory_value, true);
+        buffer = tojson_bool(buffer, "featMounts", mympd_state->mpd_state->feat_mount, true);
+        buffer = tojson_bool(buffer, "featNeighbors", mympd_state->mpd_state->feat_neighbor, true);
+        buffer = tojson_bool(buffer, "featBinarylimit", mympd_state->mpd_state->feat_binarylimit, true);
+        buffer = tojson_bool(buffer, "featPlaylistRmRange", mympd_state->mpd_state->feat_playlist_rm_range, true);
+        buffer = tojson_bool(buffer, "featWhence", mympd_state->mpd_state->feat_whence, true);
+        buffer = tojson_bool(buffer, "featAdvqueue", mympd_state->mpd_state->feat_advqueue, true);
 
-        buffer = print_tags_array(buffer, "tagList", mympd_state->mpd_shared_state->tag_types_mympd);
+        buffer = print_tags_array(buffer, "tagList", mympd_state->mpd_state->tags_mympd);
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = print_tags_array(buffer, "tagListSearch", mympd_state->mpd_shared_state->tag_types_search);
+        buffer = print_tags_array(buffer, "tagListSearch", mympd_state->mpd_state->tags_search);
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = print_tags_array(buffer, "tagListBrowse", mympd_state->mpd_shared_state->tag_types_browse);
+        buffer = print_tags_array(buffer, "tagListBrowse", mympd_state->mpd_state->tags_browse);
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = print_tags_array(buffer, "tagListMpd", mympd_state->mpd_shared_state->tag_types_mpd);
+        buffer = print_tags_array(buffer, "tagListMpd", mympd_state->mpd_state->tags_mpd);
         buffer = sdscatlen(buffer, ",", 1);
         buffer = print_tags_array(buffer, "smartplsGenerateTagList", mympd_state->smartpls_generate_tag_types);
 
         buffer = sdscat(buffer, ",\"triggerEvents\":{");
-        buffer = mympd_api_trigger_print_trigger_list(buffer);
+        buffer = mympd_api_trigger_print_event_list(buffer);
         buffer = sdscatlen(buffer, "}", 1);
 
     }
     else {
         buffer = tojson_bool(buffer, "mpdConnected", false, false);
     }
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
     return buffer;
 }
 

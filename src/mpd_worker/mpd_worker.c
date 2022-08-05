@@ -53,28 +53,28 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     //create mpd worker state from mympd_state
     struct t_mpd_worker_state *mpd_worker_state = malloc_assert(sizeof(struct t_mpd_worker_state));
     mpd_worker_state->request = request;
-    mpd_worker_state->smartpls = mympd_state->smartpls == true ? mympd_state->mpd_shared_state->feat_mpd_playlists : false;
+    mpd_worker_state->smartpls = mympd_state->smartpls == true ? mympd_state->mpd_state->feat_playlists : false;
     mpd_worker_state->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
     mpd_worker_state->smartpls_prefix = sdsdup(mympd_state->smartpls_prefix);
     copy_tag_types(&mympd_state->smartpls_generate_tag_types, &mpd_worker_state->smartpls_generate_tag_types);
 
     //mpd state
-    mpd_worker_state->mpd_shared_state = malloc_assert(sizeof(struct t_mpd_shared_state));
-    mpd_shared_state_default(mpd_worker_state->mpd_shared_state);
+    mpd_worker_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
+    mpd_state_default(mpd_worker_state->mpd_state);
     mpd_worker_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
     partition_state_default(mpd_worker_state->partition_state, mympd_state->partition_state->name);
-    mpd_worker_state->partition_state->mpd_shared_state = mpd_worker_state->mpd_shared_state;
-    mpd_worker_state->mpd_shared_state->config = mympd_state->config;
+    mpd_worker_state->partition_state->mpd_state = mpd_worker_state->mpd_state;
+    mpd_worker_state->mpd_state->config = mympd_state->config;
 
-    mpd_worker_state->mpd_shared_state->mpd_host = sds_replace(mpd_worker_state->partition_state->mpd_shared_state->mpd_host, mympd_state->mpd_shared_state->mpd_host);
-    mpd_worker_state->mpd_shared_state->mpd_port = mympd_state->mpd_shared_state->mpd_port;
-    mpd_worker_state->mpd_shared_state->mpd_pass = sds_replace(mpd_worker_state->partition_state->mpd_shared_state->mpd_pass, mympd_state->mpd_shared_state->mpd_pass);
-    mpd_worker_state->mpd_shared_state->feat_mpd_tags = mympd_state->mpd_shared_state->feat_mpd_tags;
-    mpd_worker_state->mpd_shared_state->feat_mpd_stickers = mympd_state->mpd_shared_state->feat_mpd_stickers;
-    mpd_worker_state->mpd_shared_state->feat_mpd_playlists = mympd_state->mpd_shared_state->feat_mpd_playlists;
-    mpd_worker_state->mpd_shared_state->feat_mpd_whence = mympd_state->mpd_shared_state->feat_mpd_whence;
-    mpd_worker_state->mpd_shared_state->tag_albumartist = mympd_state->partition_state->mpd_shared_state->tag_albumartist;
-    copy_tag_types(&mympd_state->mpd_shared_state->tag_types_mympd, &mpd_worker_state->mpd_shared_state->tag_types_mympd);
+    mpd_worker_state->mpd_state->mpd_host = sds_replace(mpd_worker_state->partition_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_host);
+    mpd_worker_state->mpd_state->mpd_port = mympd_state->mpd_state->mpd_port;
+    mpd_worker_state->mpd_state->mpd_pass = sds_replace(mpd_worker_state->partition_state->mpd_state->mpd_pass, mympd_state->mpd_state->mpd_pass);
+    mpd_worker_state->mpd_state->feat_tags = mympd_state->mpd_state->feat_tags;
+    mpd_worker_state->mpd_state->feat_stickers = mympd_state->mpd_state->feat_stickers;
+    mpd_worker_state->mpd_state->feat_playlists = mympd_state->mpd_state->feat_playlists;
+    mpd_worker_state->mpd_state->feat_whence = mympd_state->mpd_state->feat_whence;
+    mpd_worker_state->mpd_state->tag_albumartist = mympd_state->partition_state->mpd_state->tag_albumartist;
+    copy_tag_types(&mympd_state->mpd_state->tags_mympd, &mpd_worker_state->mpd_state->tags_mympd);
 
     if (pthread_create(&mpd_worker_thread, &attr, mpd_worker_run, mpd_worker_state) != 0) {
         MYMPD_LOG_ERROR("Can not create mpd_worker thread");
@@ -100,7 +100,7 @@ static void *mpd_worker_run(void *arg) {
 
     if (mpd_client_connect(mpd_worker_state->partition_state) == true) {
         //set interesting tags
-        enable_mpd_tags(mpd_worker_state->partition_state, &mpd_worker_state->partition_state->mpd_shared_state->tag_types_mympd);
+        enable_mpd_tags(mpd_worker_state->partition_state, &mpd_worker_state->partition_state->mpd_state->tags_mympd);
         //call api handler
         mpd_worker_api(mpd_worker_state);
         //disconnect

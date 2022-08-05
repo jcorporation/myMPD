@@ -123,16 +123,16 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 break;
             }
             if (request->cmd_id == INTERNAL_API_CACHES_CREATE) {
-                if (mympd_state->mpd_shared_state->album_cache.building == true ||
-                    mympd_state->mpd_shared_state->sticker_cache.building == true)
+                if (mympd_state->mpd_state->album_cache.building == true ||
+                    mympd_state->mpd_state->sticker_cache.building == true)
                 {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Cache update is already running");
                     MYMPD_LOG_WARN("Cache update is already running");
                     break;
                 }
-                mympd_state->mpd_shared_state->album_cache.building = mympd_state->mpd_shared_state->feat_mpd_tags;
-                mympd_state->mpd_shared_state->sticker_cache.building = mympd_state->mpd_shared_state->feat_mpd_stickers;
+                mympd_state->mpd_state->album_cache.building = mympd_state->mpd_state->feat_tags;
+                mympd_state->mpd_state->sticker_cache.building = mympd_state->mpd_state->feat_stickers;
             }
             async = true;
             free_response(response);
@@ -360,10 +360,10 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             response->data = mympd_api_settings_get(mympd_state, response->data, request->id);
             break;
         case MYMPD_API_CONNECTION_SAVE: {
-            sds old_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_shared_state->mpd_host, mympd_state->mpd_shared_state->mpd_port, mympd_state->mpd_shared_state->mpd_pass);
+            sds old_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
 
             if (json_iterate_object(request->data, "$.params", mympd_api_settings_connection_save, mympd_state, NULL, 100, &error) == true) {
-                sds new_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_shared_state->mpd_host, mympd_state->mpd_shared_state->mpd_port, mympd_state->mpd_shared_state->mpd_pass);
+                sds new_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
                 if (strcmp(old_mpd_settings, new_mpd_settings) != 0) {
                     //reconnect to new mpd
                     MYMPD_LOG_DEBUG("MPD host has changed, disconnecting");
@@ -473,7 +473,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         case MYMPD_API_LYRICS_GET:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
-                response->data = mympd_api_lyrics_get(&mympd_state->lyrics, mympd_state->mpd_shared_state->music_directory_value, response->data, request->id, sds_buf1);
+                response->data = mympd_api_lyrics_get(&mympd_state->lyrics, mympd_state->mpd_state->music_directory_value, response->data, request->id, sds_buf1);
             }
             break;
         case INTERNAL_API_STATE_SAVE:
@@ -596,8 +596,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         }
         case INTERNAL_API_STICKERCACHE_CREATED:
             if (request->extra != NULL) {
-                sticker_cache_free(&mympd_state->mpd_shared_state->sticker_cache);
-                mympd_state->mpd_shared_state->sticker_cache.cache = (rax *) request->extra;
+                sticker_cache_free(&mympd_state->mpd_state->sticker_cache);
+                mympd_state->mpd_state->sticker_cache.cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
                 MYMPD_LOG_INFO("Sticker cache was replaced");
             }
@@ -606,7 +606,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "Sticker cache is NULL");
             }
-            mympd_state->mpd_shared_state->sticker_cache.building = false;
+            mympd_state->mpd_state->sticker_cache.building = false;
             break;
         case INTERNAL_API_ALBUMCACHE_CREATED:
             if (request->extra != NULL) {
@@ -614,8 +614,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 MYMPD_LOG_INFO("Clearing jukebox queue");
                 jukebox_clear(&mympd_state->partition_state->jukebox_queue);
                 //free the old album cache and replace it with the freshly generated one
-                album_cache_free(&mympd_state->mpd_shared_state->album_cache);
-                mympd_state->mpd_shared_state->album_cache.cache = (rax *) request->extra;
+                album_cache_free(&mympd_state->mpd_state->album_cache);
+                mympd_state->mpd_state->album_cache.cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
                 MYMPD_LOG_INFO("Album cache was replaced");
                 //send notification
@@ -628,7 +628,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album cache is NULL");
             }
-            mympd_state->mpd_shared_state->album_cache.building = false;
+            mympd_state->mpd_state->album_cache.building = false;
             break;
         case MYMPD_API_MESSAGE_SEND:
             if (json_get_string(request->data, "$.params.channel", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
@@ -639,7 +639,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_LIKE:
-            if (mympd_state->mpd_shared_state->feat_mpd_stickers == false) {
+            if (mympd_state->mpd_state->feat_stickers == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "MPD stickers are disabled");
                 MYMPD_LOG_ERROR("MPD stickers are disabled");
@@ -648,7 +648,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true &&
                 json_get_int(request->data, "$.params.like", 0, 2, &int_buf1, &error) == true)
             {
-                rc = sticker_set_like(&mympd_state->mpd_shared_state->sticker_queue, sds_buf1, int_buf1);
+                rc = sticker_set_like(&mympd_state->mpd_state->sticker_queue, sds_buf1, int_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
                 }
@@ -700,7 +700,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
         case MYMPD_API_SMARTPLS_STICKER_SAVE:
         case MYMPD_API_SMARTPLS_NEWEST_SAVE:
         case MYMPD_API_SMARTPLS_SEARCH_SAVE:
-            if (mympd_state->mpd_shared_state->feat_mpd_playlists == false) {
+            if (mympd_state->mpd_state->feat_playlists == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "MPD does not support playlists");
                 break;
@@ -919,7 +919,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_SONG_FINGERPRINT:
-            if (mympd_state->mpd_shared_state->feat_mpd_fingerprint == false) {
+            if (mympd_state->mpd_state->feat_fingerprint == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Fingerprint command not supported");
                 break;
@@ -989,7 +989,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_INSERT_URI:
-            if (mympd_state->mpd_shared_state->feat_mpd_whence == false) {
+            if (mympd_state->mpd_state->feat_whence == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Method not supported");
                 break;
@@ -1024,7 +1024,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH:
-            if (mympd_state->mpd_shared_state->feat_mpd_whence == false) {
+            if (mympd_state->mpd_state->feat_whence == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Method not supported");
                 break;
@@ -1090,7 +1090,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_RM_RANGE:
-            if (mympd_state->mpd_shared_state->feat_mpd_playlist_rm_range == false) {
+            if (mympd_state->mpd_state->feat_playlist_rm_range == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Method not supported");
                 break;
@@ -1153,7 +1153,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             break;
         }
         case MYMPD_API_QUEUE_INSERT_URI:
-            if (mympd_state->mpd_shared_state->feat_mpd_whence == false) {
+            if (mympd_state->mpd_state->feat_whence == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Method not supported");
                 break;
@@ -1205,7 +1205,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_string(request->data, "$.params.plist", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state->mpd_shared_state->mpd_host, config->http_host, config->http_port);
+                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state->mpd_state->mpd_host, config->http_host, config->http_port);
                 rc = mpd_run_load(mympd_state->partition_state->conn, sds_buf1);
                 response->data = mympd_respond_with_error_or_ok(mympd_state->partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_load", &result);
                 if (result == true &&
@@ -1217,7 +1217,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_QUEUE_INSERT_PLAYLIST:
-            if (mympd_state->mpd_shared_state->feat_mpd_whence == false) {
+            if (mympd_state->mpd_state->feat_whence == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Method not supported");
                 break;
@@ -1227,7 +1227,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state->mpd_shared_state->mpd_host, config->http_host, config->http_port);
+                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state->mpd_state->mpd_host, config->http_host, config->http_port);
                 rc = mpd_run_load_range_to(mympd_state->partition_state->conn, sds_buf1, 0, UINT_MAX, uint_buf1, uint_buf2);
                 response->data = mympd_respond_with_error_or_ok(mympd_state->partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_load_range_to", &result);
                 if (result == true &&
@@ -1242,7 +1242,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             if (json_get_string(request->data, "$.params.plist", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state->mpd_shared_state->mpd_host, config->http_host, config->http_port);
+                sds_buf1 = resolv_mympd_uri(sds_buf1, mympd_state->mpd_state->mpd_host, config->http_host, config->http_port);
                 rc = mympd_api_queue_replace_with_playlist(mympd_state->partition_state, sds_buf1);
                 response->data = mympd_respond_with_error_or_ok(mympd_state->partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_replace_with_playlist", &result);
                 if (result == true &&
@@ -1254,7 +1254,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
             }
             break;
         case MYMPD_API_QUEUE_INSERT_SEARCH:
-            if (mympd_state->mpd_shared_state->feat_mpd_whence == false) {
+            if (mympd_state->mpd_state->feat_whence == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Method not supported");
                 break;
@@ -1356,7 +1356,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
                 response->data = mpd_client_search_response(mympd_state->partition_state, response->data, request->id,
-                    sds_buf1, sds_buf2, bool_buf1, uint_buf1, uint_buf2, &tagcols, &mympd_state->mpd_shared_state->sticker_cache, &result);
+                    sds_buf1, sds_buf2, bool_buf1, uint_buf1, uint_buf2, &tagcols, &mympd_state->mpd_state->sticker_cache, &result);
             }
             break;
         }

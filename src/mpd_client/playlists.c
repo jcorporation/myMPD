@@ -163,7 +163,7 @@ bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, cons
  */
 bool mpd_client_playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr) {
     bool rc = _mpd_client_playlist_sort(partition_state, playlist, tagstr);
-    enable_mpd_tags(partition_state, &partition_state->mpd_shared_state->tag_types_mympd);
+    enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
     return rc;
 }
 

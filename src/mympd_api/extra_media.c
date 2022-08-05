@@ -38,7 +38,7 @@
  * Private definitons
  */
 
-static void _get_extra_files(struct t_mpd_shared_state *mpd_shared_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
+static void _get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
 static int _get_embedded_covers_count(const char *media_file);
 static int _get_embedded_covers_count_id3(const char *media_file);
 static int _get_embedded_covers_count_flac(const char *media_file, bool is_ogg);
@@ -49,20 +49,20 @@ static int _get_embedded_covers_count_flac(const char *media_file, bool is_ogg);
 
 /**
  * Looks for images and the booklet in the songs directory and counts the number of embedded images
- * @param mpd_shared_state pointer to the shared mpd state
+ * @param mpd_state pointer to the shared mpd state
  * @param buffer buffer to append the jsonrpc result
  * @param uri song uri to get extra media for
  * @param is_dirname true if uri is a directory, else false
  * @return pointer to buffer
  */
-sds get_extra_media(struct t_mpd_shared_state *mpd_shared_state, sds buffer, const char *uri, bool is_dirname) {
+sds get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const char *uri, bool is_dirname) {
     struct t_list images;
     list_init(&images);
     sds booklet_path = sdsempty();
     if (is_streamuri(uri) == false &&
-        mpd_shared_state->feat_mpd_library == true)
+        mpd_state->feat_library == true)
     {
-        _get_extra_files(mpd_shared_state, uri, &booklet_path, &images, is_dirname);
+        _get_extra_files(mpd_state, uri, &booklet_path, &images, is_dirname);
     }
     buffer = tojson_sds(buffer, "bookletPath", booklet_path, true);
     buffer = sdscat(buffer, "\"images\": [");
@@ -78,9 +78,9 @@ sds get_extra_media(struct t_mpd_shared_state *mpd_shared_state, sds buffer, con
     int image_count = 0;
     if (is_dirname == false &&
         is_streamuri(uri) == false &&
-        mpd_shared_state->feat_mpd_library == true)
+        mpd_state->feat_library == true)
     {
-        sds fullpath = sdscatfmt(sdsempty(), "%S/%s", mpd_shared_state->music_directory_value, uri);
+        sds fullpath = sdscatfmt(sdsempty(), "%S/%s", mpd_state->music_directory_value, uri);
         image_count = _get_embedded_covers_count(fullpath);
         FREE_SDS(fullpath);
     }
@@ -96,25 +96,25 @@ sds get_extra_media(struct t_mpd_shared_state *mpd_shared_state, sds buffer, con
 
 /**
  * Looks for images and the booklet in the songs directory
- * @param mpd_shared_state pointer to the shared mpd state
+ * @param mpd_state pointer to the shared mpd state
  * @param uri song uri to get extra media for
  * @param booklet_path pointer to sds to populate with the booklet path
  * @param images pointer to already alocated list
  * @param is_dirname true if uri is a directory, else false
  */
-static void _get_extra_files(struct t_mpd_shared_state *mpd_shared_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
+static void _get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
     sds path = sdsnew(uri);
     if (is_dirname == false) {
         dirname(path);
         sdsupdatelen(path);
     }
 
-    if (is_virtual_cuedir(mpd_shared_state->music_directory_value, path)) {
+    if (is_virtual_cuedir(mpd_state->music_directory_value, path)) {
         //fix virtual cue sheet directories
         dirname(path);
         sdsupdatelen(path);
     }
-    sds albumpath = sdscatfmt(sdsempty(), "%S/%S", mpd_shared_state->music_directory_value, path);
+    sds albumpath = sdscatfmt(sdsempty(), "%S/%S", mpd_state->music_directory_value, path);
     sds fullpath = sdsempty();
     MYMPD_LOG_DEBUG("Read extra files from albumpath: \"%s\"", albumpath);
     errno = 0;
@@ -122,9 +122,9 @@ static void _get_extra_files(struct t_mpd_shared_state *mpd_shared_state, const 
     if (album_dir != NULL) {
         struct dirent *next_file;
         while ((next_file = readdir(album_dir)) != NULL) {
-            if (strcmp(next_file->d_name, mpd_shared_state->booklet_name) == 0) {
+            if (strcmp(next_file->d_name, mpd_state->booklet_name) == 0) {
                 MYMPD_LOG_DEBUG("Found booklet for uri %s", uri);
-                *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%S/%S", path, mpd_shared_state->booklet_name);
+                *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%S/%S", path, mpd_state->booklet_name);
             }
             else if (is_image(next_file->d_name) == true) {
                 fullpath = sdscatfmt(fullpath, "/browse/music/%S/%s", path, next_file->d_name);

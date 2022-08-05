@@ -94,7 +94,7 @@ sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char 
             else {
                 buffer = tojson_char_len(buffer, "sort", "", 0, false);
             }
-            buffer = jsonrpc_respond_end(buffer);
+            buffer = jsonrpc_end(buffer);
         }
         else {
             buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,

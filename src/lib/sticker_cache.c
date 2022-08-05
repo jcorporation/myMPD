@@ -192,22 +192,22 @@ static bool _sticker_inc(struct t_cache *sticker_cache, struct t_partition_state
     //update sticker cache
     long new_value = 0;
     if (strcmp(name, "playCount") == 0) {
-        if (sticker->playCount + value > STICKER_PLAY_COUNT_MAX) {
-            sticker->playCount = STICKER_PLAY_COUNT_MAX;
+        if (sticker->play_count + value > STICKER_PLAY_COUNT_MAX) {
+            sticker->play_count = STICKER_PLAY_COUNT_MAX;
         }
         else {
-            sticker->playCount += value;
+            sticker->play_count += value;
         }
-        new_value = sticker->playCount;
+        new_value = sticker->play_count;
     }
     else if (strcmp(name, "skipCount") == 0) {
-        if (sticker->skipCount + value > STICKER_SKIP_COUNT_MAX) {
-            sticker->skipCount = STICKER_SKIP_COUNT_MAX;
+        if (sticker->skip_count + value > STICKER_SKIP_COUNT_MAX) {
+            sticker->skip_count = STICKER_SKIP_COUNT_MAX;
         }
         else {
-            sticker->skipCount += value;
+            sticker->skip_count += value;
         }
-        new_value = sticker->skipCount;
+        new_value = sticker->skip_count;
     }
     else {
         MYMPD_LOG_ERROR("Invalid sticker name \"%s\"", name);
@@ -245,10 +245,10 @@ static bool _sticker_set(struct t_cache *sticker_cache, struct t_partition_state
         sticker->like = (long)value;
     }
     else if (strcmp(name, "lastPlayed") == 0) {
-        sticker->lastPlayed = (time_t)value;
+        sticker->last_played = (time_t)value;
     }
     else if (strcmp(name, "lastSkipped") == 0) {
-        sticker->lastSkipped = (time_t)value;
+        sticker->last_skipped = (time_t)value;
     }
     else {
         MYMPD_LOG_ERROR("Invalid sticker name \"%s\"", name);

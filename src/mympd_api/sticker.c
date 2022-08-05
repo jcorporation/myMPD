@@ -32,11 +32,11 @@ sds mympd_api_sticker_list(sds buffer, struct t_cache *sticker_cache, const char
  */
 sds mympd_api_print_sticker(sds buffer, struct t_sticker *sticker) {
     if (sticker != NULL) {
-        buffer = tojson_long(buffer, "stickerPlayCount", sticker->playCount, true);
-        buffer = tojson_long(buffer, "stickerSkipCount", sticker->skipCount, true);
+        buffer = tojson_long(buffer, "stickerPlayCount", sticker->play_count, true);
+        buffer = tojson_long(buffer, "stickerSkipCount", sticker->skip_count, true);
         buffer = tojson_long(buffer, "stickerLike", sticker->like, true);
-        buffer = tojson_llong(buffer, "stickerLastPlayed", (long long)sticker->lastPlayed, true);
-        buffer = tojson_llong(buffer, "stickerLastSkipped", (long long)sticker->lastSkipped, false);
+        buffer = tojson_llong(buffer, "stickerLastPlayed", (long long)sticker->last_played, true);
+        buffer = tojson_llong(buffer, "stickerLastSkipped", (long long)sticker->last_skipped, false);
     }
     else {
         buffer = tojson_long(buffer, "stickerPlayCount", 0, true);

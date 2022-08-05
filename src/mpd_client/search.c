@@ -179,11 +179,11 @@ static sds _mpd_client_search(struct t_partition_state *partition_state, sds buf
         if (sort != NULL &&
             strcmp(sort, "") != 0 &&
             strcmp(sort, "-") != 0 &&
-            partition_state->mpd_shared_state->feat_mpd_tags == true)
+            partition_state->mpd_state->feat_tags == true)
         {
             enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
             if (sort_tag != MPD_TAG_UNKNOWN) {
-                sort_tag = get_sort_tag(sort_tag, &partition_state->mpd_shared_state->tag_types_mpd);
+                sort_tag = get_sort_tag(sort_tag, &partition_state->mpd_state->tags_mpd);
                 rc = mpd_search_add_sort_tag(partition_state->conn, sort_tag, sortdesc);
                 if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_sort_tag") == false) {
                     mpd_search_cancel(partition_state->conn);
@@ -210,7 +210,7 @@ static sds _mpd_client_search(struct t_partition_state *partition_state, sds buf
         }
     }
 
-    if (partition_state->mpd_shared_state->feat_mpd_whence == true &&
+    if (partition_state->mpd_state->feat_whence == true &&
         plist != NULL &&
         to < UINT_MAX) //to = UINT_MAX is append
     {
@@ -259,7 +259,7 @@ static sds _mpd_client_search(struct t_partition_state *partition_state, sds buf
         buffer = tojson_char(buffer, "expression", expression, true);
         buffer = tojson_char(buffer, "sort", sort, true);
         buffer = tojson_bool(buffer, "sortdesc", sortdesc, false);
-        buffer = jsonrpc_respond_end(buffer);
+        buffer = jsonrpc_end(buffer);
     }
 
     mpd_response_finish(partition_state->conn);

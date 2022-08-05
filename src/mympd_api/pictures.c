@@ -59,6 +59,6 @@ sds mympd_api_settings_picture_list(sds workdir, sds buffer, long request_id, sd
     FREE_SDS(pic_dirname);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
     return buffer;
 }

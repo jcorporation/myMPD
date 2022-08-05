@@ -12,6 +12,18 @@
 
 #include <stdbool.h>
 
+/**
+ * MPD sticker values
+ *
+ */
+struct t_sticker {
+    long play_count;      //!< number how often the song was played
+    long skip_count;      //!< number how often the song was skipped
+    time_t last_played;   //!< timestamp when the song was played the last time
+    time_t last_skipped;  //!< timestamp when the song was skipped the last time
+    long like;            //!< hate/neutral/love value
+};
+
 struct t_sticker *get_sticker_from_cache(struct t_cache *sticker_cache, const char *uri);
 void sticker_cache_free(struct t_cache *sticker_cache);
 

@@ -253,7 +253,7 @@ static bool _check_error_and_recover(struct t_partition_state *partition_state, 
         else {
             mpd_response_finish(partition_state->conn);
             //enable default mpd tags after cleaning error
-            enable_mpd_tags(partition_state, &partition_state->mpd_shared_state->tag_types_mympd);
+            enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
         }
         return false;
     }

@@ -107,7 +107,7 @@ static sds _get_outputs(struct t_partition_state *partition_state, sds buffer, e
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_char(buffer, "partition", partition, true);
     buffer = tojson_long(buffer, "numOutputs", output_count, false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
 
     return buffer;
 }

@@ -135,7 +135,7 @@ sds mympd_api_script_list(sds workdir, sds buffer, long request_id, bool all) {
     FREE_SDS(entry);
     FREE_SDS(scriptdirname);
     buffer = sdscatlen(buffer, "]", 1);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
     return buffer;
 }
 
@@ -225,7 +225,7 @@ sds mympd_api_script_get(sds workdir, sds buffer, long request_id, sds script) {
         (void) fclose(fp);
         buffer = sds_catjson(buffer, content, sdslen(content));
         FREE_SDS(content);
-        buffer = jsonrpc_respond_end(buffer);
+        buffer = jsonrpc_end(buffer);
     }
     else {
         MYMPD_LOG_ERROR("Can not open file \"%s\"", scriptfilename);

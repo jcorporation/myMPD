@@ -218,7 +218,7 @@ sds jsonrpc_respond_start(sds buffer, enum mympd_cmd_ids cmd_id, long id) {
  * @param buffer pointer to alreay allocated sds string
  * @return pointer to buffer with jsonrpc string
  */
-sds jsonrpc_respond_end(sds buffer) {
+sds jsonrpc_end(sds buffer) {
     return sdscatlen(buffer, "}}", 2);
 }
 

@@ -386,7 +386,7 @@ sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, long reque
 
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
     return buffer;
 }
 
@@ -414,7 +414,7 @@ sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, long reques
         current = current->next;
     }
 
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
 
     if (found == false) {
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,

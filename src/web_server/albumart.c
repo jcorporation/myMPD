@@ -257,13 +257,13 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
     }
 
     //ask mpd - mpd can read only first image
-    if (mg_user_data->feat_mpd_albumart == true &&
+    if (mg_user_data->feat_albumart == true &&
         offset == 0)
     {
         MYMPD_LOG_DEBUG("Sending getalbumart to mpd_client_queue");
         struct t_work_request *request = create_request(conn_id, 0, INTERNAL_API_ALBUMART, NULL);
         request->data = tojson_sds(request->data, "uri", uri_decoded, false);
-        request->data = sdscatlen(request->data, "}}", 2);
+        request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);
         FREE_SDS(uri_decoded);
         return false;

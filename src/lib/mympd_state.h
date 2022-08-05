@@ -26,33 +26,6 @@ enum jukebox_modes {
 };
 
 /**
- * myMPD trigger events. The list is composed of MPD idle events and
- * myMPD specific events.
- */
-enum trigger_events {
-    TRIGGER_MYMPD_SCROBBLE = -1,       //!< myMPD scrobble event (same event is used for last played sticker / list)
-    TRIGGER_MYMPD_START = -2,          //!< myMPD was started (before mpd connection)
-    TRIGGER_MYMPD_STOP = -3,           //!< myMPD stops
-    TRIGGER_MYMPD_CONNECTED = -4,      //!< myMPD connected to mpd event
-    TRIGGER_MYMPD_DISCONNECTED = -5,   //!< myMPD disconnect from mpd event
-    TRIGGER_MYMPD_FEEDBACK = -6,       //!< myMPD feedback event (love/hate)
-    TRIGGER_MPD_DATABASE = 0x1,        //!< mpd database has changed
-    TRIGGER_MPD_STORED_PLAYLIST = 0x2, //!< mpd playlist idle event
-    TRIGGER_MPD_PLAYLIST = 0x4,        //!< mpd queue idle event
-    TRIGGER_MPD_PLAYER = 0x8,          //!< mpd player idle event
-    TRIGGER_MPD_MIXER = 0x10,          //!< mpd mixer idle event (volume)
-    TRIGGER_MPD_OUTPUT = 0x20,         //!< mpd output idle event
-    TRIGGER_MPD_OPTIONS = 0x40,        //!< mpd options idle event
-    TRIGGER_MPD_UPDATE = 0x80,         //!< mpd database idle event (started or finished)
-    TRIGGER_MPD_STICKER = 0x100,       //!< mpd sticker idle event
-    TRIGGER_MPD_SUBSCRIPTION = 0x200,  //!< mpd subscription idle event
-    TRIGGER_MPD_MESSAGE = 0x400,       //!< mpd message idle event
-    TRIGGER_MPD_PARTITION = 0x800,     //!< mpd partition idle event
-    TRIGGER_MPD_NEIGHBOR = 0x1000,     //!< mpd neighbor idle event
-    TRIGGER_MPD_MOUNT = 0x2000         //!< mpd mount idle event
-};
-
-/**
  * MPD connection states
  */
 enum mpd_conn_states {
@@ -65,18 +38,8 @@ enum mpd_conn_states {
 };
 
 /**
- * MPD sticker values
- */
-struct t_sticker {
-    long playCount;      //!< number how often the song was played
-    long skipCount;      //!< number how often the song was skipped
-    time_t lastPlayed;   //!< timestamp when the song was played the last time
-    time_t lastSkipped;  //!< timestamp when the song was skipped the last time
-    long like;           //!< hate/neutral/love value
-};
-
-/**
  * Struct for a mpd tag lists
+ * libmpdclient uses the same declaration
  */
 struct t_tags {
     size_t len;                 //!< number of tags in the array
@@ -94,7 +57,7 @@ struct t_cache {
 /**
  * Holds MPD specific states shared across all partitions
  */
-struct t_mpd_shared_state {
+struct t_mpd_state {
     struct t_config *config;            //!< pointer to static config
     //connection configuration
     sds mpd_host;                       //!< mpd host configuration
@@ -106,27 +69,27 @@ struct t_mpd_shared_state {
     sds music_directory_value;          //!< real music directory set by feature detection
     //tags
     sds tag_list;                       //!< comma separated string of mpd tags to enable
-    struct t_tags tag_types_mympd;      //!< tags enabled by myMPD and mpd
-    struct t_tags tag_types_mpd;        //!< all available mpd tags
-    struct t_tags tag_types_search;     //!< tags enabled for search
-    struct t_tags tag_types_browse;     //!< tags enabled for browse
+    struct t_tags tags_mympd;           //!< tags enabled by myMPD and mpd
+    struct t_tags tags_mpd;             //!< all available mpd tags
+    struct t_tags tags_search;          //!< tags enabled for search
+    struct t_tags tags_browse;          //!< tags enabled for browse
     enum mpd_tag_type tag_albumartist;  //!< tag to use for AlbumArtist
     //Feature flags
     const unsigned *protocol;           //!< mpd protocol version
-    bool feat_mpd_library;              //!< myMPD has access to the mpd music directory
-    bool feat_mpd_tags;                 //!< mpd tags are enabled
-    bool feat_mpd_stickers;             //!< mpd supports stickers
-    bool feat_mpd_playlists;            //!< mpd supports playlists
-    bool feat_mpd_fingerprint;          //!< mpd supports the fingerprint command
-    bool feat_mpd_albumart;             //!< mpd supports the albumart command
-    bool feat_mpd_readpicture;          //!< mpd supports the readpicture command
-    bool feat_mpd_mount;                //!< mpd supports mounts
-    bool feat_mpd_neighbor;             //!< mpd supports neighbors command
-    bool feat_mpd_partitions;           //!< mpd supports partitions
-    bool feat_mpd_binarylimit;          //!< mpd supports the binarylimit command
-    bool feat_mpd_playlist_rm_range;    //!< mpd supports the playlist rm range command
-    bool feat_mpd_whence;               //!< mpd supports the whence feature (relative position in queue)
-    bool feat_mpd_advqueue;             //!< mpd supports the prio filter / sort for queue
+    bool feat_advqueue;                 //!< mpd supports the prio filter / sort for queue
+    bool feat_albumart;                 //!< mpd supports the albumart command
+    bool feat_binarylimit;              //!< mpd supports the binarylimit command
+    bool feat_fingerprint;              //!< mpd supports the fingerprint command
+    bool feat_library;                  //!< myMPD has access to the mpd music directory
+    bool feat_mount;                    //!< mpd supports mounts
+    bool feat_neighbor;                 //!< mpd supports neighbors command
+    bool feat_partitions;               //!< mpd supports partitions
+    bool feat_playlists;                //!< mpd supports playlists
+    bool feat_playlist_rm_range;        //!< mpd supports the playlist rm range command
+    bool feat_readpicture;              //!< mpd supports the readpicture command
+    bool feat_stickers;                 //!< mpd supports stickers
+    bool feat_tags;                     //!< mpd tags are enabled
+    bool feat_whence;                   //!< mpd supports the whence feature (relative position in queue)
     //caches
     struct t_cache album_cache;         //!< the album cache created by the mpd_worker thread
     struct t_cache sticker_cache;       //!< the sticker cache created by the mpd_worker thread
@@ -164,19 +127,19 @@ struct t_partition_state {
     time_t song_start_time;                //!< timestamp at which current song has started
     time_t last_song_start_time;           //!< timestap at which previous song has started
     time_t crossfade;                      //!< used for determine when to add next song from jukebox queue
-    time_t set_song_played_time;           //!< timestamp at which the scrobble event will be fired
+    time_t set_song_played_time;           //!< timestamp at which the next scrobble event will be fired
     time_t last_song_set_song_played_time; //!< timestamp of the previous scrobble event
     bool auto_play;                        //!< start play if queue changes
     //jukebox
     enum jukebox_modes jukebox_mode;       //!< the jukebox mode
     sds jukebox_playlist;                  //!< playlist from which the jukebox queue is generated
     long jukebox_queue_length;             //!< how many songs should the mpd queue have
-    long jukebox_last_played;              //!< only add songs wiht last_played state older than this timestamp
+    long jukebox_last_played;              //!< only add songs with last_played state older than this timestamp
     struct t_tags jukebox_unique_tag;      //!< single tag for the jukebox unique constraint
-    bool jukebox_enforce_unique;           //!< flag if unique constraint is enabled
+    bool jukebox_enforce_unique;           //!< flag indicating if unique constraint is enabled
     struct t_list jukebox_queue;           //!< the jukebox queue itself
     struct t_list jukebox_queue_tmp;       //!< temporaray jukebox queue for the add random to queue function
-    struct t_mpd_shared_state *mpd_shared_state; //!< pointer to shared MPD state
+    struct t_mpd_state *mpd_state;         //!< pointer to shared MPD state
     //partition
     sds name;                              //!< partition name
     struct t_partition_state *next;        //!< pointer to next partition;
@@ -200,22 +163,9 @@ struct t_timer_definition {
 };
 
 /**
- * Callback functions for timers
+ * forward declaration
  */
-typedef void (*timer_handler)(int timer_id, struct t_timer_definition *definition);
-
-/**
- * Timer node
- */
-struct t_timer_node {
-    int fd;                                 //!< hold the timerfd
-    timer_handler callback;                 //!< timer callback function
-    struct t_timer_definition *definition;  //!< optional pointer to timer definition (GUI)
-    time_t timeout;                         //!< seconds when timer will run
-    int interval;                           //!< reschedule timer interval
-    int timer_id;                           //!< id of the timer
-    struct t_timer_node *next;              //!< next timer in the timer list
-};
+struct t_timer_node;
 
 /**
  * Linked list of timers containing t_timer_nodes
@@ -242,7 +192,7 @@ struct t_lyrics {
  */
 struct t_mympd_state {
     struct t_config *config;                      //!< pointer to static config
-    struct t_mpd_shared_state *mpd_shared_state;  //!< mpd state shared accross partitions
+    struct t_mpd_state *mpd_state;                //!< mpd state shared accross partitions
     struct t_partition_state *partition_state;    //!< list of partition states
     struct t_timer_list timer_list;               //!< list of timers
     struct t_list home_list;                      //!< list of home icons
@@ -266,7 +216,7 @@ struct t_mympd_state {
     sds cols_browse_radio_webradiodb;             //!< columns for the webradiodb view
     sds cols_browse_radio_radiobrowser;           //!< columns for the radiobrowser view
     unsigned mpd_stream_port;                     //!< mpd http stream port setting
-    sds music_directory;                          //!< mpd music directory setting (real value is in mpd_shared_state
+    sds music_directory;                          //!< mpd music directory setting (real value is in mpd_state)
     sds playlist_directory;                       //!< mpd playlist directory
     sds navbar_icons;                             //!< json strin of navigation bar icons
     sds coverimage_names;                         //!< comma separated string of coverimage names
@@ -274,7 +224,7 @@ struct t_mympd_state {
     unsigned volume_min;                          //!< minimum mpd volume
     unsigned volume_max;                          //!< maximum mpd volume
     unsigned volume_step;                         //!< volume step for +/- buttons
-    struct t_lyrics lyrics;                       //!< pointer to lyrics settings
+    struct t_lyrics lyrics;                       //!< lyrics settings
     sds listenbrainz_token;                       //!< listenbrainz token
     sds webui_settings;                           //!< settings only relevant for webui, saved as string containing json
 };
@@ -287,9 +237,9 @@ void mympd_state_save(struct t_mympd_state *mympd_state);
 void mympd_state_default(struct t_mympd_state *mympd_state);
 void mympd_state_free(struct t_mympd_state *mympd_state);
 
-void mpd_shared_state_default(struct t_mpd_shared_state *mpd_shared_state);
-void mpd_shared_state_features_disable(struct t_mpd_shared_state *mpd_shared_state);
-void mpd_shared_state_free(struct t_mpd_shared_state *mpd_shared_state);
+void mpd_state_default(struct t_mpd_state *mpd_state);
+void mpd_state_features_disable(struct t_mpd_state *mpd_state);
+void mpd_state_free(struct t_mpd_state *mpd_state);
 
 void partition_state_default(struct t_partition_state *partition_state, const char *name);
 void partition_state_free(struct t_partition_state *partition_state);

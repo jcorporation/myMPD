@@ -26,9 +26,9 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current);
 void _trigger_execute(sds script, struct t_list *arguments);
 
 /**
- * MPD idle events
+ * MPD idle events for triggers
  */
-static const char *const mpd_trigger_names[] = {
+static const char *const mpd_event_names[] = {
     "mpd_database",
     "mpd_stored_playlist",
     "mpd_playlist",
@@ -47,9 +47,9 @@ static const char *const mpd_trigger_names[] = {
 };
 
 /**
- * myMPD triggers
+ * myMPD events for triggers
  */
-static const char *const mympd_trigger_names[] = {
+static const char *const mympd_event_names[] = {
     "mympd_scrobble",
     "mympd_start",
     "mympd_stop",
@@ -64,42 +64,42 @@ static const char *const mympd_trigger_names[] = {
  */
 
 /**
- * Returns the trigger name
+ * Returns the event name
  * @param event event to resolv
  * @return trigger as string
  */
-const char *mympd_api_trigger_name(long event) {
+const char *mympd_api_event_name(long event) {
     if (event < 0) {
-        for (int i = 0; mympd_trigger_names[i] != NULL; ++i) {
+        for (int i = 0; mympd_event_names[i] != NULL; ++i) {
             if (event == (-1 - i)) {
-                return mympd_trigger_names[i];
+                return mympd_event_names[i];
             }
         }
         return NULL;
     }
-    for (int i = 0; mpd_trigger_names[i] != NULL; ++i) {
+    for (int i = 0; mpd_event_names[i] != NULL; ++i) {
         if (event == (1 << i)) {
-            return mpd_trigger_names[i];
+            return mpd_event_names[i];
         }
     }
     return NULL;
 }
 
 /**
- * Prints all trigger names as json string
+ * Prints all events names as json string
  * @param buffer already allocated sds string to append the response
  * @return pointer to buffer
  */
-sds mympd_api_trigger_print_trigger_list(sds buffer) {
-    for (int i = 0; mympd_trigger_names[i] != NULL; ++i) {
-        buffer = tojson_long(buffer, mympd_trigger_names[i], (-1 - i), true);
+sds mympd_api_trigger_print_event_list(sds buffer) {
+    for (int i = 0; mympd_event_names[i] != NULL; ++i) {
+        buffer = tojson_long(buffer, mympd_event_names[i], (-1 - i), true);
     }
 
-    for (int i = 0; mpd_trigger_names[i] != NULL; ++i) {
+    for (int i = 0; mpd_event_names[i] != NULL; ++i) {
         if (i > 0) {
             buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = tojson_long(buffer, mpd_trigger_names[i], (1 << i), false);
+        buffer = tojson_long(buffer, mpd_event_names[i], (1 << i), false);
     }
     return buffer;
 }
@@ -110,12 +110,12 @@ sds mympd_api_trigger_print_trigger_list(sds buffer) {
  * @param event trigger to execute scripts for
  */
 void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event) {
-    MYMPD_LOG_DEBUG("Trigger event: %s (%d)", mympd_api_trigger_name(event), event);
+    MYMPD_LOG_DEBUG("Trigger event: %s (%d)", mympd_api_event_name(event), event);
     struct t_list_node *current = trigger_list->head;
     while (current != NULL) {
         if (current->value_i == event) {
             MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"%s\" (%d)", current->value_p,
-                mympd_api_trigger_name(event), event);
+                mympd_api_event_name(event), event);
             _trigger_execute(current->value_p, (struct t_list *)current->user_data);
         }
         current = current->next;
@@ -170,7 +170,7 @@ sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request
         buffer = tojson_int(buffer, "id", j, true);
         buffer = tojson_sds(buffer, "name", current->key, true);
         buffer = tojson_llong(buffer, "event", current->value_i, true);
-        buffer = tojson_char(buffer, "eventName", mympd_api_trigger_name((long)current->value_i), true);
+        buffer = tojson_char(buffer, "eventName", mympd_api_event_name((long)current->value_i), true);
         buffer = tojson_sds(buffer, "script", current->value_p, true);
         buffer = sdscat(buffer, "\"arguments\": {");
         struct t_list *arguments = (struct t_list *)current->user_data;
@@ -190,7 +190,7 @@ sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request
 
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-    buffer = jsonrpc_respond_end(buffer);
+    buffer = jsonrpc_end(buffer);
     return buffer;
 }
 
@@ -223,7 +223,7 @@ sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_
             argument = argument->next;
         }
         buffer = sdscatlen(buffer, "}", 1);
-        buffer = jsonrpc_respond_end(buffer);
+        buffer = jsonrpc_end(buffer);
     }
     else {
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,

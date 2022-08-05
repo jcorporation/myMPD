@@ -99,7 +99,7 @@ sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffe
         }
         buffer = sdscatlen(buffer, "],", 2);
         buffer = tojson_long(buffer, "returnedEntities", returned_entities, false);
-        buffer = jsonrpc_respond_end(buffer);
+        buffer = jsonrpc_end(buffer);
     }
 
     return buffer;

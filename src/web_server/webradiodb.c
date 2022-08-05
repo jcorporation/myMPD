@@ -54,7 +54,7 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
         response = jsonrpc_respond_start(response, cmd_id, 0);
         response = sdscat(response, "\"data\":");
         response = sdscatsds(response, data);
-        response = jsonrpc_respond_end(response);
+        response = jsonrpc_end(response);
         webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
         FREE_SDS(response);
     }
@@ -144,7 +144,7 @@ static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, 
                 response = jsonrpc_respond_start(response, backend_nc_data->cmd_id, 0);
                 response = sdscat(response, "\"data\":");
                 response = sdscatlen(response, hm->body.ptr, hm->body.len);
-                response = jsonrpc_respond_end(response);
+                response = jsonrpc_end(response);
             }
             else {
                 response = jsonrpc_respond_message(response, backend_nc_data->cmd_id, 0,
