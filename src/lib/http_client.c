@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "http_client.h"
 
 #include "../../dist/mongoose/mongoose.h"
@@ -19,6 +19,12 @@ static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_d
     void *fn_data);
 
 //public functions
+
+
+/**
+ * Reads the dns server from resolv.conf
+ * @return newly allocated sds string with first nameserver
+ */
 sds get_dnsserver(void) {
     //read resolv.conf directly - musl does not support res_init
     sds buffer = sdsempty();
@@ -66,6 +72,11 @@ sds get_dnsserver(void) {
     return buffer;
 }
 
+/**
+ * Makes a http request
+ * @param mg_client_request pointer to mg_client_request_t struct
+ * @param mg_client_response pointer to mg_client_response_t struct to populate
+ */
 void http_client_request(struct mg_client_request_t *mg_client_request,
     struct mg_client_response_t *mg_client_response)
 {
@@ -90,6 +101,14 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
 }
 
 //private functions
+
+/**
+ * Event handler for the http request made by http_client_request
+ * @param nc mongoose network connection
+ * @param ev event id
+ * @param ev_data event data (http response)
+ * @param fn_data struct mg_client_response
+ */
 static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_data,
     void *fn_data)
 {

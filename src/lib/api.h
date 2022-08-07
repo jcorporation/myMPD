@@ -8,25 +8,15 @@
 #define MYMPD_API_H
 
 #include "../../dist/sds/sds.h"
-#include "mympd_queue.h"
+#include "msg_queue.h"
 
-#include <signal.h>
 #include <stdbool.h>
 
-//global variables
-extern _Atomic int worker_threads;
-
-//signal handler
-extern sig_atomic_t s_signal_received;
-
-//message queue
-extern struct t_mympd_queue *web_server_queue;
-extern struct t_mympd_queue *mympd_api_queue;
-extern struct t_mympd_queue *mympd_script_queue;
-
-//API cmds
-//all above INTERNAL_API_COUNT are internal
-//TOTAL_API_COUNT must be the last
+/**
+ * myMPD api methodes
+ * all above INTERNAL_API_COUNT are internal
+ * TOTAL_API_COUNT must be the last
+ */
 #define MYMPD_CMDS(X) \
     X(GENERAL_API_UNKNOWN) \
     X(INTERNAL_API_ALBUMART) \
@@ -51,13 +41,9 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(MYMPD_API_COVERCACHE_CLEAR) \
     X(MYMPD_API_COVERCACHE_CROP) \
     X(MYMPD_API_DATABASE_ALBUMS_GET) \
-    X(MYMPD_API_DATABASE_COMMENTS) \
     X(MYMPD_API_DATABASE_FILESYSTEM_LIST) \
-    X(MYMPD_API_DATABASE_FINGERPRINT) \
     X(MYMPD_API_DATABASE_RESCAN) \
     X(MYMPD_API_DATABASE_SEARCH) \
-    X(MYMPD_API_DATABASE_SEARCH_ADV) \
-    X(MYMPD_API_DATABASE_SONGDETAILS) \
     X(MYMPD_API_DATABASE_STATS) \
     X(MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST) \
     X(MYMPD_API_DATABASE_TAG_LIST) \
@@ -66,10 +52,11 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(MYMPD_API_HOME_ICON_MOVE) \
     X(MYMPD_API_HOME_ICON_RM) \
     X(MYMPD_API_HOME_ICON_SAVE) \
-    X(MYMPD_API_HOME_LIST) \
+    X(MYMPD_API_HOME_ICON_LIST) \
     X(MYMPD_API_JUKEBOX_CLEAR) \
     X(MYMPD_API_JUKEBOX_LIST) \
     X(MYMPD_API_JUKEBOX_RM) \
+    X(MYMPD_API_LAST_PLAYED_LIST) \
     X(MYMPD_API_LIKE) \
     X(MYMPD_API_LOGLEVEL) \
     X(MYMPD_API_LYRICS_GET) \
@@ -77,6 +64,7 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(MYMPD_API_MOUNT_LIST) \
     X(MYMPD_API_MOUNT_MOUNT) \
     X(MYMPD_API_MOUNT_NEIGHBOR_LIST) \
+    X(MYMPD_API_MOUNT_URLHANDLER_LIST) \
     X(MYMPD_API_MOUNT_UNMOUNT) \
     X(MYMPD_API_PARTITION_LIST) \
     X(MYMPD_API_PARTITION_NEW) \
@@ -128,7 +116,6 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(MYMPD_API_QUEUE_INSERT_PLAYLIST) \
     X(MYMPD_API_QUEUE_INSERT_SEARCH) \
     X(MYMPD_API_QUEUE_INSERT_URI) \
-    X(MYMPD_API_QUEUE_LAST_PLAYED) \
     X(MYMPD_API_QUEUE_LIST) \
     X(MYMPD_API_QUEUE_MOVE_SONG) \
     X(MYMPD_API_QUEUE_PRIO_SET) \
@@ -158,6 +145,9 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(MYMPD_API_SMARTPLS_STICKER_SAVE) \
     X(MYMPD_API_SMARTPLS_UPDATE) \
     X(MYMPD_API_SMARTPLS_UPDATE_ALL) \
+    X(MYMPD_API_SONG_COMMENTS) \
+    X(MYMPD_API_SONG_DETAILS) \
+    X(MYMPD_API_SONG_FINGERPRINT) \
     X(MYMPD_API_TIMER_GET) \
     X(MYMPD_API_TIMER_LIST) \
     X(MYMPD_API_TIMER_RM) \
@@ -167,64 +157,84 @@ extern struct t_mympd_queue *mympd_script_queue;
     X(MYMPD_API_TRIGGER_LIST) \
     X(MYMPD_API_TRIGGER_RM) \
     X(MYMPD_API_TRIGGER_SAVE) \
-    X(MYMPD_API_URLHANDLERS) \
     X(MYMPD_API_WEBRADIO_FAVORITE_GET) \
     X(MYMPD_API_WEBRADIO_FAVORITE_LIST) \
     X(MYMPD_API_WEBRADIO_FAVORITE_RM) \
     X(MYMPD_API_WEBRADIO_FAVORITE_SAVE) \
     X(TOTAL_API_COUNT)
 
+/**
+ * Helper macros
+ */
 #define GEN_ENUM(X) X,
 #define GEN_STR(X) #X,
 
+/**
+ * Enum of myMPD jsonrpc api methodes
+ */
 enum mympd_cmd_ids {
     MYMPD_CMDS(GEN_ENUM)
 };
 
+/**
+ * Jsonrpc request ids
+ */
+enum request_ids {
+    REQUEST_ID_NOTIFY = -1,
+    REQUEST_ID_RESPONSE = 0
+};
+
+/**
+ * Struct for work request in the queue
+ */
 struct t_work_request {
-    long long conn_id; // needed to identify the connection where to send the reply
-    long id; //the jsonrpc id
-    sds method; //the jsonrpc method
-    enum mympd_cmd_ids cmd_id;
-    sds data;
-    void *extra;
+    long long conn_id;         //!< needed to identify the connection where to send the reply
+    long id;                   //!< the jsonrpc id
+    sds method;                //!< the jsonrpc method as string
+    enum mympd_cmd_ids cmd_id; //!< the jsonrpc method as enum
+    sds data;                  //!< full jsonrpc request
+    void *extra;               //!< extra data for the request
 };
 
-struct t_work_result {
-    long long conn_id; // needed to identify the connection where to send the reply
-    long id; //the jsonrpc id
-    sds method; //the jsonrpc method
-    enum mympd_cmd_ids cmd_id;
-    sds data;
-    sds binary;
-    void *extra;
+/**
+ * Struct for work responses in the queue
+ */
+struct t_work_response {
+    long long conn_id;         //!< needed to identify the connection where to send the reply
+    long id;                   //!< the jsonrpc id
+    sds method;                //!< the jsonrpc method as string
+    enum mympd_cmd_ids cmd_id; //!< the jsonrpc method as enum
+    sds data;                  //!< full jsonrpc response
+    sds binary;                //!< binary data for the response
+    void *extra;               //!< extra data for the response
 };
 
-//config data sent to webserver thread
+/**
+ * Config data sent to webserver thread
+ */
 struct set_mg_user_data_request {
-    sds music_directory;
-    sds playlist_directory;
-    sds coverimage_names;
-    sds thumbnail_names;
-    bool feat_mpd_albumart;
-    sds mpd_host;
-    unsigned mpd_stream_port;
-    bool covercache;
+    sds music_directory;      //!< detected mpd music directory
+    sds playlist_directory;   //!< configured mpd playlist directory
+    sds coverimage_names;     //!< comma separated list of coverimage names
+    sds thumbnail_names;      //!< comma separated list of coverimage thumbnail names
+    bool feat_albumart;       //!< true if mpd supports the albumart protocol command
+    sds mpd_host;             //!< configured mpd host
+    unsigned mpd_stream_port; //!< mpd stream port for reverse proxy
 };
 
-//public functions
+/**
+ * Public functions
+ */
 enum mympd_cmd_ids get_cmd_id(const char *cmd);
 const char *get_cmd_id_method_name(enum mympd_cmd_ids cmd_id);
 bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
 bool is_public_api_method(enum mympd_cmd_ids cmd_id);
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
 void ws_notify(sds message);
-struct t_work_result *create_result(struct t_work_request *request);
-struct t_work_result *create_result_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id);
+struct t_work_response *create_response(struct t_work_request *request);
+struct t_work_response *create_response_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id);
 struct t_work_request *create_request(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *data);
-int expire_request_queue(struct t_mympd_queue *queue, time_t age);
-int expire_result_queue(struct t_mympd_queue *queue, time_t age);
 void free_request(struct t_work_request *request);
-void free_result(struct t_work_result *result);
+void free_response(struct t_work_response *response);
 
 #endif

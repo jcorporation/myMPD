@@ -231,11 +231,11 @@ createassets() {
   rm -fr "$MYMPD_BUILDDIR/htdocs"
   install -d "$MYMPD_BUILDDIR/htdocs/js"
   install -d "$MYMPD_BUILDDIR/htdocs/css"
-  install -d "$MYMPD_BUILDDIR/htdocs/assets"
+  install -d "$MYMPD_BUILDDIR/htdocs/assets/i18n"
 
   #Create translation phrases file
-  createi18n "../../$MYMPD_BUILDDIR/htdocs/js/i18n.min.js" "" 2>/dev/null
-  transstatus $MYMPD_BUILDDIR/htdocs/js/i18n.min.js
+  createi18n "$MYMPD_BUILDDIR" 2>/dev/null
+  minify js "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$MYMPD_BUILDDIR/htdocs/js/i18n.min.js"
 
   echo "Minifying javascript"
   JSSRCFILES=""
@@ -296,11 +296,20 @@ createassets() {
   $ZIP "$MYMPD_BUILDDIR/htdocs/css/combined.css"
 
   echo "Compressing fonts"
-  FONTFILES="dist/material-icons/MaterialIcons-Regular.woff2"
+  FONTFILES="dist/material-icons/MaterialIcons-Regular.woff2 dist/material-icons/ligatures.json"
   for FONT in $FONTFILES
   do
     DST=$(basename "${FONT}")
     $ZIPCAT "$FONT" > "$MYMPD_BUILDDIR/htdocs/assets/${DST}.gz"
+  done
+
+  echo "Compressing i18n json"
+  for I18N in src/i18n/json/*.json
+  do
+    BASENAME=$(basename "${I18N}" .json)
+    minify js "$I18N" "$MYMPD_BUILDDIR/htdocs/assets/i18n/${BASENAME}.min.json"
+    echo "$DST"
+    $ZIPCAT "$MYMPD_BUILDDIR/htdocs/assets/i18n/${BASENAME}.min.json" > "$MYMPD_BUILDDIR/htdocs/assets/i18n/${BASENAME}.json.gz"
   done
 
   echo "Minifying and compressing html"
@@ -326,7 +335,7 @@ buildrelease() {
   install -d release
   cd release || exit 1
   #force rebuild of web_server with embedded assets
-  rm -vf CMakeFiles/mympd.dir/src/web_server/web_server_utility.c.o
+  rm -vf CMakeFiles/mympd.dir/src/web_server/utility.c.o
   #set INSTALL_PREFIX and build myMPD
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
   #shellcheck disable=SC2086
@@ -382,9 +391,9 @@ installrelease() {
 }
 
 builddebug() {
-  install -d debug/htdocs/js
-  createi18n ../../debug/htdocs/js/i18n.js pretty 2>/dev/null
-  transstatus debug/htdocs/js/i18n.js
+  MYMPD_BUILDDIR="debug"
+  createi18n "$MYMPD_BUILDDIR"
+
   check_docs
   check_includes
 
@@ -395,9 +404,11 @@ builddebug() {
     cp "$PWD/dist/bootstrap-native/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
     cp "$PWD/dist/long-press-event/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
     cp "$PWD/dist/material-icons/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
+    cp "$PWD/dist/material-icons/ligatures.json" "$PWD/htdocs/assets/ligatures.json"
     cp "$PWD/debug/htdocs/js/i18n.js" "$PWD/htdocs/js/i18n.js"
+    install -d "$PWD/htdocs/assets/i18n"
+    cp "$PWD"/src/i18n/json/*.json "$PWD/htdocs/assets/i18n/"
   else
-    MYMPD_BUILDDIR="debug"
     createassets
   fi
 
@@ -441,6 +452,11 @@ cleanup() {
   rm -f htdocs/js/i18n.js
   rm -f htdocs/css/bootstrap.css
   rm -f htdocs/assets/MaterialIcons-Regular.woff2
+  rm -f htdocs/assets/ligatures.json
+  rm -rf htdocs/assets/i18n
+
+  #doxygen
+  rm -rf docs/doxygen
 
   #compilation database
   rm -f src/compile_commands.json
@@ -477,17 +493,18 @@ check_docs() {
 
 check_includes() {
   rc=0
-  find src/ -name \*.c | while IFS= read -r FILE
+  FILES=$(find src/ -name \*.c)
+  for FILE in $FILES
   do
-    if ! grep -m1 "#include" "$FILE" | grep -q "mympd_config_defs.h"
+    if ! grep -m1 "#include" "$FILE" | grep -q "compile_time.h"
     then
-      echo_warn "First include is not mympd_config_defs.h: $FILE"
+      echo_warn "First include is not compile_time.h: $FILE"
       rc=1
     fi
-    SRCDIR=$(dirname "$FILE")
 
-    grep "#include \"" "$FILE" | grep -v "mympd_config_defs.h" | cut -d\" -f2 | \
-    while IFS= read -r INCLUDE
+    SRCDIR=$(dirname "$FILE")
+    INCLUDES=$(grep "#include \"" "$FILE" | grep -v "mympd_config_defs.h" | cut -d\" -f2)
+    for INCLUDE in $INCLUDES
     do
       if ! realpath "$SRCDIR/$INCLUDE" > /dev/null 2>&1
       then
@@ -547,8 +564,8 @@ check() {
     [ -z "${CPPCHECKOPTS+z}" ] && CPPCHECKOPTS="-q --force --enable=warning"
     find ./src/ -name \*.c | while read -r FILE
     do
-      [ "$FILE" = "./src/mympd_api/mympd_api_scripts_lualibs.c" ] && continue
-      [ "$FILE" = "./src/web_server/web_server_embedded_files.c" ] && continue
+      [ "$FILE" = "./src/mympd_api/scripts_lualibs.c" ] && continue
+      [ "$FILE" = "./src/web_server/embedded_files.c" ] && continue
       #shellcheck disable=SC2086
       if ! cppcheck $CPPCHECKOPTS --error-exitcode=1 "$FILE"
       then
@@ -1013,33 +1030,18 @@ purge() {
 }
 
 createi18n() {
-  DST=$1
-  PRETTY=$2
-  cd src/i18n || exit 1
+  MYMPD_BUILD_DIR="$1"
+  install -d "$MYMPD_BUILD_DIR/htdocs/js"
   echo "Creating i18n json"
-  if ! perl ./tojson.pl "$PRETTY" > "$DST"
+  if ! perl ./src/i18n/translate.pl
   then
     echo "Error creating translation files"
     exit 1
   fi
-  cd ../.. || exit 1
-}
-
-transstatus() {
-  if check_cmd_silent jq
-  then
-    TFILE=$1
-    MISSING=$(grep missingPhrases "$TFILE" | sed -e 's/.*missingPhrases=//' -e 's/;//' | jq '.' -r -M)
-    if [ "$MISSING" = "{}" ]
-    then
-      echo "All translation phrased found"
-    else
-      echo_warn "Missing translation phrases ($TFILE):"
-      echo "$MISSING"
-    fi
-  else
-    echo_warn "jq not found - can not print translation statistics"
-  fi
+  #json to js
+  printf "const i18n = " > "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
+  head -c -1 "src/i18n/json/i18n.json" >> "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
+  echo ";" >> "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
 }
 
 materialicons() {
@@ -1062,24 +1064,24 @@ materialicons() {
     exit 1
   fi
   sed -i '1d' metadata.json
-  printf "const materialIcons={" > "ligatures.js"
+  printf "{" > "ligatures.json"
   I=0
   for CAT in $(jq -r ".icons[].categories | .[]" < metadata.json | sort -u)
   do
-    [ "$I" -gt 0 ] && printf "," >> "ligatures.js"
-    printf "\"%s\":[" "$CAT" >> "ligatures.js"
+    [ "$I" -gt 0 ] && printf "," >> "ligatures.json"
+    printf "\"%s\":[" "$CAT" >> "ligatures.json"
     J=0
     for ICON in $(jq -r ".icons[] | select(.categories[]==\"$CAT\") | .name" < metadata.json)
     do
-      [ "$J" -gt 0 ] && printf "," >> "ligatures.js"
-      printf "\"%s\"" "$ICON" >> "ligatures.js"
+      [ "$J" -gt 0 ] && printf "," >> "ligatures.json"
+      printf "\"%s\"" "$ICON" >> "ligatures.json"
       J=$((J+1))
     done
-    printf "]" >> "ligatures.js"
+    printf "]" >> "ligatures.json"
     I=$((I+1))
   done
-  echo "};"  >> "ligatures.js"
-  cp ligatures.js "$STARTPATH/htdocs/js/"
+  echo "}"  >> "ligatures.json"
+  cp ligatures.json "$STARTPATH/dist/material-icons/"
   cp MaterialIcons-Regular.woff2 "$STARTPATH/dist/material-icons/"
   cd "$STARTPATH"
   rm -fr "$TMPDIR"
@@ -1255,6 +1257,14 @@ luascript_index() {
   exec 3>&-
 }
 
+run_doxygen() {
+  if ! check_cmd doxygen
+  then
+    return 1
+  fi
+  doxygen | grep "warning"
+}
+
 case "$ACTION" in
 	release)
 	  buildrelease
@@ -1347,11 +1357,10 @@ case "$ACTION" in
 	  purge
 	;;
 	translate)
-	  createi18n ../../htdocs/js/i18n.js pretty
+	  src/i18n/translate.pl verbose
 	;;
 	transstatus)
-    createi18n ../../htdocs/js/i18n.js pretty 2>/dev/null
-	  transstatus htdocs/js/i18n.js
+	  src/i18n/translate.pl
 	;;
 	materialicons)
 		materialicons
@@ -1395,6 +1404,9 @@ case "$ACTION" in
 	;;
   luascript_index)
     luascript_index
+  ;;
+  doxygen)
+    run_doxygen
   ;;
 	*)
     echo "Usage: $0 <option>"
@@ -1486,6 +1498,7 @@ case "$ACTION" in
     echo "Misc options:"
     echo "  addmympduser:     adds mympd group and user"
     echo "  luascript_index:  creates the json index of lua scripts"
+    echo "  doxygen:          generates the internal api documentation with doxygen"
     echo ""
     echo "Source update options:"
     echo "  bootstrap:        updates bootstrap"

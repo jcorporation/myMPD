@@ -4,37 +4,42 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "mympd_api.h"
 
 #include "../lib/api.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
-#include "../mpd_client/mpd_client_autoconf.h"
-#include "../mpd_client/mpd_client_connection.h"
-#include "../mpd_client/mpd_client_errorhandler.h"
-#include "../mpd_client/mpd_client_idle.h"
-#include "mympd_api_home.h"
-#include "mympd_api_settings.h"
-#include "mympd_api_stats.h"
-#include "mympd_api_timer.h"
-#include "mympd_api_timer_handlers.h"
-#include "mympd_api_trigger.h"
+#include "../mpd_client/autoconf.h"
+#include "../mpd_client/connection.h"
+#include "../mpd_client/errorhandler.h"
+#include "../mpd_client/idle.h"
+#include "home.h"
+#include "last_played.h"
+#include "settings.h"
+#include "timer.h"
+#include "timer_handlers.h"
+#include "trigger.h"
 
-#include <stdlib.h>
-#include <string.h>
 #include <sys/prctl.h>
 
+/**
+ * This is the main function for the mympd_api thread
+ * @param arg_config void pointer to t_config struct
+ */
 void *mympd_api_loop(void *arg_config) {
     thread_logname = sds_replace(thread_logname, "mympdapi");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
 
-    //create mympd_state struct and set defaults
+    //create initial mympd_state struct and set defaults
     struct t_mympd_state *mympd_state = malloc_assert(sizeof(struct t_mympd_state));
-    mympd_state->config = (struct t_config *) arg_config;
     mympd_state_default(mympd_state);
+    //add pointer to static myMPD config
+    mympd_state->config = (struct t_config *) arg_config;
+    mympd_state->mpd_state->config = (struct t_config *) arg_config;
 
+    //start autoconfiguration for first startup
     if (mympd_state->config->first_startup == true) {
         MYMPD_LOG_NOTICE("Starting myMPD autoconfiguration");
         mpd_client_autoconf(mympd_state);
@@ -49,29 +54,24 @@ void *mympd_api_loop(void *arg_config) {
     //myMPD trigger
     mympd_api_trigger_file_read(&mympd_state->trigger_list, mympd_state->config->workdir);
     //set timers
-    if (mympd_state->covercache_keep_days > 0) {
-        MYMPD_LOG_DEBUG("Setting timer action \"crop covercache\" to periodic each 7200s");
-        mympd_api_timer_add(&mympd_state->timer_list, 60, 7200, timer_handler_by_id, TIMER_ID_COVERCACHE_CROP, NULL);
+    if (mympd_state->config->covercache_keep_days > 0) {
+        MYMPD_LOG_DEBUG("Adding timer for \"crop covercache\" to execute periodic each day");
+        mympd_api_timer_add(&mympd_state->timer_list, COVERCACHE_CLEANUP_OFFSET, COVERCACHE_CLEANUP_INTERVAL,
+            timer_handler_by_id, TIMER_ID_COVERCACHE_CROP, NULL);
     }
     //start trigger
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START);
     //thread loop
     while (s_signal_received == 0) {
         mpd_client_idle(mympd_state);
-        if (mympd_state->mpd_state->conn_state == MPD_TOO_OLD) {
-            break;
-        }
         mympd_api_timer_check(&mympd_state->timer_list);
     }
     //stop trigger
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP);
     //disconnect from mpd
-    mpd_client_disconnect(mympd_state->mpd_state);
+    mpd_client_disconnect(mympd_state->partition_state);
     //save states
-    mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
-    mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
-    mympd_api_stats_last_played_file_save(&mympd_state->last_played, mympd_state->last_played_count, mympd_state->config->workdir);
-    mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
+    mympd_state_save(mympd_state);
     //free anything
     mympd_state_free(mympd_state);
     FREE_SDS(thread_logname);

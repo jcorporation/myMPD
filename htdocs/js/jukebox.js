@@ -60,13 +60,15 @@ function delQueueJukeboxSong(pos) {
 
 function parseJukeboxList(obj) {
     if (checkResultId(obj, 'QueueJukeboxList') === false) {
-        if (obj.result !== undefined &&
-            obj.result.jukeboxMode === 'off')
-        {
-            elHideId('QueueJukeboxList');
-            elShowId('QueueJukeboxDisabled');
+        if (obj.result !== undefined) {
+            if (obj.result.jukeboxMode === 'off') {
+                elHideId('QueueJukeboxList');
+                elShowId('QueueJukeboxDisabled');
+            }
+            else {
+                elHideId('QueueJukeboxDisabled');
+            }
         }
-        setPagination(0,0);
         return;
     }
 

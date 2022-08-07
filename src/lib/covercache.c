@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "covercache.h"
 
 #include "filehandler.h"
@@ -20,6 +20,16 @@
 #include <time.h>
 #include <unistd.h>
 
+/**
+ * Writes the coverimage (as binary buffer) to the covercache,
+ * filename is the hash of the full path
+ * @param cachedir covercache directory
+ * @param uri uri of the song for the cover
+ * @param mime_type mime_type of binary buffer
+ * @param binary binary data to save
+ * @param offset number of the coverimage
+ * @return true on success else false
+ */
 bool covercache_write_file(sds cachedir, const char *uri, const char *mime_type, sds binary, int offset) {
     if (mime_type[0] == '\0') {
         MYMPD_LOG_WARN("Covercache file for \"%s\" not written, mime_type is empty", uri);
@@ -38,6 +48,12 @@ bool covercache_write_file(sds cachedir, const char *uri, const char *mime_type,
     return rc;
 }
 
+/**
+ * Crops the covercache
+ * @param cachedir covercache directory
+ * @param keepdays delete files older than days
+ * @return deleted filecount on success else -1
+ */
 int covercache_clear(sds cachedir, int keepdays) {
     int num_deleted = 0;
     bool rc = true;

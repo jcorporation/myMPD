@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "utility.h"
 
 #include "api.h"
@@ -128,7 +128,7 @@ const char *get_extension_from_filename(const char *filename) {
  * Calculates the basename for files and uris
  * for files the path is removed
  * for uris the query string and hash is removed
- * @param uri sds string to modify in place
+ * @param s sds string to modify in place
  */
 void basename_uri(sds s) {
     size_t len = sdslen(s);
@@ -193,11 +193,27 @@ void strip_file_extension(sds s) {
     }
 }
 
+/**
+ * Replaces the file extension
+ * @param s sds string to replace the extension
+ * @param ext new file extension
+ * @return newly allocated sds string with new file extension
+ */
+sds replace_file_extension(sds s, const char *ext) {
+    sds n = sdsdup(s);
+    strip_file_extension(n);
+    if (sdslen(n) == 0) {
+        return n;
+    }
+    n = sdscatfmt(n, ".%s", ext);
+    return n;
+}
+
 static const char *invalid_filename_chars = "<>/.:?&$!#=;\a\b\f\n\r\t\v\\|";
 
 /**
  * Replaces invalid filename characters with "_"
- * @param sds string to sanitize
+ * @param s sds string to sanitize
  */
 void sanitize_filename(sds s) {
     const size_t len = strlen(invalid_filename_chars);

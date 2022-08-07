@@ -12,5 +12,4 @@
 #include "../dist/sds/sds.h"
 
 bool certificates_check(sds workdir, sds ssl_san);
-bool certificates_create(sds dir, sds custom_san);
 #endif

@@ -8,28 +8,75 @@
 #define MYMPD_JSONRPC_H
 
 #include "../../dist/sds/sds.h"
+#include "api.h"
 #include "list.h"
 #include "mympd_state.h"
 #include "validate.h"
 
 #include <stdbool.h>
 
+enum jsonrpc_severities {
+    JSONRPC_SEVERITY_INFO = 0,
+    JSONRPC_SEVERITY_WARN,
+    JSONRPC_SEVERITY_ERROR,
+    JSONRPC_SEVERITY_MAX
+};
+
+enum jsonrpc_facilities {
+    JSONRPC_FACILITY_DATABASE = 0,
+    JSONRPC_FACILITY_GENERAL,
+    JSONRPC_FACILITY_HOME,
+    JSONRPC_FACILITY_JUKEBOX,
+    JSONRPC_FACILITY_LYRICS,
+    JSONRPC_FACILITY_MPD,
+    JSONRPC_FACILITY_PLAYLIST,
+    JSONRPC_FACILITY_PLAYER,
+    JSONRPC_FACILITY_QUEUE,
+    JSONRPC_FACILITY_SESSION,
+    JSONRPC_FACILITY_SCRIPT,
+    JSONRPC_FACILITY_STICKER,
+    JSONRPC_FACILITY_TIMER,
+    JSONRPC_FACILITY_TRIGGER,
+    JSONRPC_FACILITY_MAX
+};
+
+enum jsonrpc_events {
+    JSONRPC_EVENT_MPD_CONNECTED = 0,
+    JSONRPC_EVENT_MPD_DISCONNECTED,
+    JSONRPC_EVENT_NOTIFY,
+    JSONRPC_EVENT_UPDATE_ALBUM_CACHE,
+    JSONRPC_EVENT_UPDATE_DATABASE,
+    JSONRPC_EVENT_UPDATE_FINISHED,
+    JSONRPC_EVENT_UPDATE_JUKEBOX,
+    JSONRPC_EVENT_UPDATE_LAST_PLAYED,
+    JSONRPC_EVENT_UPDATE_OPTIONS,
+    JSONRPC_EVENT_UPDATE_OUTPUTS,
+    JSONRPC_EVENT_UPDATE_QUEUE,
+    JSONRPC_EVENT_UPDATE_STARTED,
+    JSONRPC_EVENT_UPDATE_STATE,
+    JSONRPC_EVENT_UPDATE_STORED_PLAYLIST,
+    JSONRPC_EVENT_UPDATE_VOLUME,
+    JSONRPC_EVENT_WELCOME,
+    JSONRPC_EVENT_MAX
+};
+
 typedef bool (*iterate_callback) (sds, sds, int, validate_callback, void *, sds *);
 
-void send_jsonrpc_notify(const char *facility, const char *severity, const char *message);
-void send_jsonrpc_event(const char *event);
+void send_jsonrpc_notify(enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message);
+void send_jsonrpc_event(enum jsonrpc_events event);
+sds jsonrpc_event(sds buffer, enum jsonrpc_events event);
+sds jsonrpc_notify(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message);
+sds jsonrpc_notify_phrase(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message, int count, ...);
+sds jsonrpc_notify_start(sds buffer, enum jsonrpc_events event);
 
-sds jsonrpc_event(sds buffer, const char *event);
-sds jsonrpc_notify(sds buffer, const char *facility, const char *severity, const char *message);
-sds jsonrpc_notify_phrase(sds buffer, const char *facility, const char *severity, const char *message, int count, ...);
-sds jsonrpc_notify_start(sds buffer, const char *method);
-sds jsonrpc_result_start(sds buffer, const char *method, long id);
-sds jsonrpc_result_end(sds buffer);
-sds jsonrpc_respond_ok(sds buffer, const char *method, long id, const char *facility);
-sds jsonrpc_respond_message(sds buffer, const char *method, long id,
-        bool error, const char *facility, const char *severity, const char *message);
-sds jsonrpc_respond_message_phrase(sds buffer, const char *method, long id,
-        bool error, const char *facility, const char *severity, const char *message, int count, ...);
+sds jsonrpc_respond_start(sds buffer, enum mympd_cmd_ids cmd_id, long request_id);
+sds jsonrpc_end(sds buffer);
+sds jsonrpc_respond_ok(sds buffer, enum mympd_cmd_ids cmd_id, long request_id, enum jsonrpc_facilities facility);
+sds jsonrpc_respond_message(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
+        enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message);
+sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
+        enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message, int count, ...);
+
 sds tojson_raw(sds buffer, const char *key, const char *value, bool comma);
 sds tojson_sds(sds buffer, const char *key, sds value, bool comma);
 sds tojson_char(sds buffer, const char *key, const char *value, bool comma);

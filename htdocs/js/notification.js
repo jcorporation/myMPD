@@ -52,20 +52,20 @@ const severities = {
 };
 
 const facilities = {
-    "player": "Player",
-    "queue": "Queue",
-    "general": "General",
     "database": "Database",
+    "general":  "General",
+    "home":     "Home",
+    "jukebox":  "Jukebox",
+    "lyrics":   "Lyrics",
+    "mpd":      "MPD",
     "playlist": "Playlist",
-    "mpd": "MPD",
-    "lyrics": "Lyrics",
-    "jukebox": "Jukebox",
-    "trigger": "Trigger",
-    "script": "Script",
-    "sticker": "Sticker",
-    "home": "Home",
-    "timer": "Timer",
-    "session": "Session"
+    "player":   "Player",
+    "queue":    "Queue",
+    "session":  "Session",
+    "script":   "Script",
+    "sticker":  "Sticker",
+    "timer":    "Timer",
+    "trigger":  "Trigger"
 };
 
 function getSeverityIcon(severity) {

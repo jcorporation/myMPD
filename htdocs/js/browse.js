@@ -264,9 +264,6 @@ function navBrowseHandler(event) {
 }
 
 function gotoBrowse(event) {
-    if (features.featAdvsearch === false) {
-        return;
-    }
     let target = event.target;
     let tag = getData(target, 'tag');
     let name = getData(target, 'name');

@@ -54,7 +54,6 @@ function initSettings() {
                 elDisableId('inputJukeboxQueueLength');
                 elDisableId('selectJukeboxPlaylist');
                 elDisable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
-                elDisableId('inputJukeboxLastPlayed');
                 document.getElementById('selectJukeboxPlaylist').value = 'Database';
                 setDataId('selectJukeboxPlaylist', 'value', 'Database');
             }
@@ -62,7 +61,6 @@ function initSettings() {
                 elEnableId('inputJukeboxQueueLength');
                 elEnableId('selectJukeboxPlaylist');
                 elEnable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
-                elEnableId('inputJukeboxLastPlayed');
             }
             if (value !== 'off') {
                 toggleBtnChkId('btnConsume', true);
@@ -272,12 +270,6 @@ function parseSettings(obj) {
     //set webuiSettings defaults
     for (const key in webuiSettingsDefault) {
         if (settings.webuiSettings[key] === undefined) {
-            settings.webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
-        }
-        else if (webuiSettingsDefault[key].contentType === 'integer' &&
-            typeof settings.webuiSettings[key] !== 'number')
-        {
-            //enforce number type
             settings.webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
         }
     }
@@ -491,6 +483,7 @@ function setCssVars(theme) {
 
 function setLocale(newLocale) {
     if (newLocale === 'default') {
+        //auto detection
         locale = navigator.language || navigator.userLanguage;
         if (locale.length === 2) {
             locale += '-';
@@ -499,20 +492,25 @@ function setLocale(newLocale) {
     else {
         locale = newLocale;
     }
+    //check if locale is available
     let localeFound = false;
-    for (const l of locales) {
-        if (l.code.indexOf(locale) === 0) {
-            locale = l.code;
+    for (const l in i18n) {
+        if (l.indexOf(locale) === 0) {
+            locale = l;
             localeFound = true;
             break;
         }
     }
+    //fallback to default locale
     if (localeFound === false) {
         logError('Locale "' + locale + '" not defined');
         locale = 'en-US';
     }
-
-    i18nHtml(domCache.body);
+    //get phrases and translate dom
+    httpGet(subdir + 'assets/i18n/' + locale + '.json', function(obj) {
+        phrases = obj;
+        i18nHtml(domCache.body);
+    }, true);
 }
 
 function populateQueueSettingsFrm() {
@@ -529,7 +527,6 @@ function populateQueueSettingsFrm() {
     else if (settings.jukeboxMode === 'album') {
         elDisableId('inputJukeboxQueueLength');
         elDisableId('selectJukeboxPlaylist');
-        elDisableId('inputJukeboxLastPlayed');
         elDisable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
         document.getElementById('selectJukeboxPlaylist').value = 'Database';
     }
@@ -537,7 +534,6 @@ function populateQueueSettingsFrm() {
         elEnableId('inputJukeboxQueueLength');
         elEnableId('selectJukeboxPlaylist');
         elEnable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
-        elEnableId('inputJukeboxLastPlayed');
     }
 
     document.getElementById('selectJukeboxPlaylist').filterInput.value = '';
@@ -566,9 +562,7 @@ function populateQueueSettingsFrm() {
         }
         else {
             elHideId('warnPlaybackStatistics');
-            if (settings.jukeboxMode === 'song') {
-                elEnableId('inputJukeboxLastPlayed');
-            }
+            elEnableId('inputJukeboxLastPlayed');
         }
     }
     checkConsume();
@@ -632,11 +626,11 @@ function populateSettingsFrm() {
     //locales
     const localeList = document.getElementById('inputWebUIsettinguiLocale');
     elClear(localeList);
-    for (const l of locales) {
+    for (const l in i18n) {
         localeList.appendChild(
-            elCreateText('option', {"value": l.code}, l.desc + ' (' + l.code + ')')
+            elCreateText('option', {"value": l}, i18n[l].desc + ' (' + l + ')')
         );
-        if (l.code === settings.webuiSettings.uiLocale) {
+        if (l === settings.webuiSettings.uiLocale) {
             localeList.lastChild.setAttribute('selected', 'selected');
         }
     }
@@ -681,11 +675,10 @@ function populateSettingsFrm() {
     document.getElementById('inputBookletName').value = settings.bookletName;
     document.getElementById('inputCoverimageNames').value = settings.coverimageNames;
     document.getElementById('inputThumbnailNames').value = settings.thumbnailNames;
-    document.getElementById('inputCovercacheKeepDays').value = settings.covercacheKeepDays;
     document.getElementById('inputListenbrainzToken').value = settings.listenbrainzToken;
 
     //smart playlists
-    if (settings.featSmartpls === true) {
+    if (settings.featPlaylists === true) {
         elEnableId('btnSmartpls');
         toggleBtnChkCollapseId('btnSmartpls', 'collapseSmartpls', settings.smartpls);
         elHideId('warnSmartpls');
@@ -865,26 +858,19 @@ function setFeatures() {
     features.featLocalPlayback = settings.webuiSettings.enableLocalPlayback === true ?
         (settings.mpdStreamPort > 0 ? true : false) : false;
     features.featScripting = settings.webuiSettings.enableScripting === true ?
-        (settings.featScripting === true ? true : false) : false;
+        settings.featScripting : false;
     features.featTimer = settings.webuiSettings.enableTimer;
     features.featTrigger = settings.webuiSettings.enableTrigger;
 
     //mpd features
     if (settings.mpdConnected === true) {
-        features.featAdvsearch = settings.featAdvsearch;
         features.featLibrary = settings.featLibrary;
-        features.featLyrics = settings.webuiSettings.enableLyrics === true ?
-            (settings.featLibrary === true ? true : false) : false;
-        features.featMounts = settings.webuiSettings.enableMounts === true ?
-            (settings.featMounts === true ? true : false) : false;
-        features.featNeighbors = settings.webuiSettings.enableMounts === true ?
-            (settings.featNeighbors === true ? true : false) : false;
-        features.featPartitions = settings.webuiSettings.enablePartitions === true ?
-            (settings.featPartitions === true ? true : false) : false;
+        features.featLyrics = settings.webuiSettings.enableLyrics === true ? settings.featLibrary : false;
+        features.featMounts = settings.webuiSettings.enableMounts === true ? settings.featMounts : false;
+        features.featNeighbors = settings.webuiSettings.enableMounts === true ? settings.featNeighbors : false;
+        features.featPartitions = settings.webuiSettings.enablePartitions === true ? settings.featPartitions : false;
         features.featPlaylists = settings.featPlaylists;
-        features.featSingleOneshot = settings.featSingleOneshot;
-        features.featSmartpls = settings.featSmartpls === true ?
-            (settings.smartpls === true ? true : false) : false;
+        features.featSmartpls = settings.featPlaylists === true ? settings.smartpls : false;
         features.featStickers = settings.featStickers;
         features.featTags = settings.featTags;
         features.featBinarylimit = settings.featBinarylimit;
@@ -1013,18 +999,6 @@ function parseMPDSettings() {
         }
     }
 
-    if (features.featAdvsearch === false) {
-        //disable tag based features
-        if (app.cards.Browse.active === 'Database') {
-            app.cards.Browse.active = 'Filesystem';
-        }
-
-        const tagEls = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
-        for (let i = 0, j = tagEls.length; i < j; i++) {
-            tagEls[i].classList.remove('clickable');
-        }
-    }
-
     addTagList('BrowseDatabaseByTagDropdown', 'tagListBrowse');
     addTagList('BrowseNavPlaylistsDropdown', 'tagListBrowse');
     addTagList('BrowseNavFilesystemDropdown', 'tagListBrowse');
@@ -1054,7 +1028,7 @@ function saveSettings(closeModal) {
 
     for (const inputId of ['inputWebUIsettinguiThumbnailSize', 'inputSettinglastPlayedCount',
         'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
-        'inputSettingvolumeStep', 'inputCovercacheKeepDays'])
+        'inputSettingvolumeStep'])
     {
         const inputEl = document.getElementById(inputId);
         if (!validateUint(inputEl)) {
@@ -1150,7 +1124,6 @@ function saveSettings(closeModal) {
             "lyricsSyltExt": document.getElementById('inputSettinglyricsSyltExt').value,
             "lyricsVorbisUslt": document.getElementById('inputSettinglyricsVorbisUslt').value,
             "lyricsVorbisSylt": document.getElementById('inputSettinglyricsVorbisSylt').value,
-            "covercacheKeepDays": Number(document.getElementById('inputCovercacheKeepDays').value),
             "listenbrainzToken": document.getElementById('inputListenbrainzToken').value,
             "webuiSettings": webuiSettings
         };
@@ -1442,10 +1415,15 @@ function filterImageSelect(elId, searchstr) {
 function warnLocale(value) {
     const warnEl = document.getElementById('warnMissingPhrases');
     elClear(warnEl);
-    if (missingPhrases[value] !== undefined) {
-        warnEl.appendChild(elCreateText('p', {}, tn('Missing translations', missingPhrases[value])));
-        warnEl.appendChild(elCreateText('a', {"class": ["alert-link", "external"], "target": "_blank",
-            "href": "https://github.com/jcorporation/myMPD/discussions/167"}, tn('Help to improve myMPD')));
+    if (i18n[value].missingPhrases > 0) {
+        warnEl.appendChild(
+            elCreateText('p', {}, tn('Missing translations', i18n[value].missingPhrases))
+        );
+        warnEl.appendChild(
+            elCreateText('a', {"class": ["alert-link", "external"], "target": "_blank",
+                "href": "https://github.com/jcorporation/myMPD/discussions/167"}, tn('Help to improve myMPD')
+            )
+        );
         elShow(warnEl);
     }
     else {

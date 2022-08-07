@@ -207,7 +207,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
 
     switch(app.id) {
         case 'Home': {
-            sendAPI("MYMPD_API_HOME_LIST", {}, parseHome);
+            sendAPI("MYMPD_API_HOME_ICON_LIST", {}, parseHomeIcons);
             break;
         }
         case 'Playback': {
@@ -273,7 +273,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
         case 'QueueLastPlayed': {
             setFocusId('searchQueueLastPlayedStr');
-            sendAPI("MYMPD_API_QUEUE_LAST_PLAYED", {
+            sendAPI("MYMPD_API_LAST_PLAYED_LIST", {
                 "offset": app.current.offset,
                 "limit": app.current.limit,
                 "cols": settings.colsQueueLastPlayedFetch,
@@ -504,42 +504,25 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
         case 'Search': {
             setFocusId('searchStr');
-            if (features.featAdvsearch) {
-                createSearchCrumbs(app.current.search, document.getElementById('searchStr'), document.getElementById('searchCrumb'));
-            }
-            else if (document.getElementById('searchStr').value === '' &&
-                     app.current.search !== '')
-            {
-                document.getElementById('searchStr').value = app.current.search;
-            }
+            createSearchCrumbs(app.current.search, document.getElementById('searchStr'), document.getElementById('searchCrumb'));
+            
             if (app.current.search === '') {
                 document.getElementById('searchStr').value = '';
             }
             if (document.getElementById('searchStr').value.length >= 2 ||
                 document.getElementById('searchCrumb').children.length > 0)
             {
-                if (features.featAdvsearch === true) {
-                    if (app.current.sort.tag === '-') {
-                        app.current.sort.tag = settings.tagList.includes('Title') ? 'Title' : '-';
-                    }
-                    sendAPI("MYMPD_API_DATABASE_SEARCH_ADV", {
-                        "offset": app.current.offset,
-                        "limit": app.current.limit,
-                        "sort": app.current.sort.tag,
-                        "sortdesc": app.current.sort.desc,
-                        "expression": app.current.search,
-                        "cols": settings.colsSearchFetch
-                    }, parseSearch, true);
+                if (app.current.sort.tag === '-') {
+                    app.current.sort.tag = settings.tagList.includes('Title') ? 'Title' : '-';
                 }
-                else {
-                    sendAPI("MYMPD_API_DATABASE_SEARCH", {
-                        "offset": app.current.offset,
-                        "limit": app.current.limit,
-                        "filter": app.current.filter,
-                        "searchstr": app.current.search,
-                        "cols": settings.colsSearchFetch
-                    }, parseSearch, true);
-                }
+                sendAPI("MYMPD_API_DATABASE_SEARCH", {
+                    "offset": app.current.offset,
+                    "limit": app.current.limit,
+                    "sort": app.current.sort.tag,
+                    "sortdesc": app.current.sort.desc,
+                    "expression": app.current.search,
+                    "cols": settings.colsSearchFetch
+                }, parseSearch, true);
             }
             else {
                 elClear(document.getElementById('SearchList').getElementsByTagName('tbody')[0]);
@@ -739,6 +722,7 @@ function appInitStart() {
 }
 
 function appInit() {
+    getAssets();
     //collaps arrows for submenus
     const collapseArrows = document.querySelectorAll('.subMenu');
     for (const collapseArrow of collapseArrows) {
@@ -1019,6 +1003,16 @@ function initNavs() {
     document.getElementById('offcanvasMenu').addEventListener('show.bs.offcanvas', function() {
         showMessages();
     }, false);
+}
+
+function getAssets() {
+    httpGet(subdir + 'assets/i18n/en-US.json', function(obj) {
+        phrasesDefault = obj;
+    }, true);
+
+    httpGet(subdir + 'assets/ligatures.json', function(obj) {
+        materialIcons = obj;
+    }, true);
 }
 
 //Handle javascript errors

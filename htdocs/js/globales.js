@@ -47,6 +47,9 @@ let webradioDb = null;
 const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
 const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
 let locale = navigator.language || navigator.userLanguage;
+let materialIcons = {};
+let phrasesDefault = {};
+let phrases = {};
 
 //this settings are saved in the browsers localStorage
 const localSettings = {
@@ -731,12 +734,17 @@ const webuiSettingsDefault = {
         "title": "Startup view",
         "form": "startupFrm",
         "onChange": "eventChangeTheme"
+    },
+    "enableLocalPlayback": {
+        "defaultValue": false
+    },
+    "enableLyrics": {
+        "defaultValue": true
     }
 };
 
 //features
 const features = {
-    "featAdvsearch": true,
     "featCacert": false,
     "featHome": true,
     "featLibrary": false,
@@ -746,7 +754,6 @@ const features = {
     "featNeighbors": true,
     "featPartitions": true,
     "featPlaylists": true,
-    "featSingleOneShot": true,
     "featScripting": true,
     "featSmartpls": true,
     "featStickers": false,

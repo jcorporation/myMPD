@@ -122,7 +122,7 @@ const APIparams = {
 };
 
 const APImethods = {
-    "MYMPD_API_DATABASE_SEARCH_ADV": {
+    "MYMPD_API_DATABASE_SEARCH": {
         "desc": "Searches for songs in the database.",
         "params": {
             "offset": APIparams.offset,
@@ -130,16 +130,6 @@ const APImethods = {
             "expression": APIparams.expression,
             "sort": APIparams.sort,
             "sortdesc": APIparams.sortdesc,
-            "cols": APIparams.cols
-        }
-    },
-    "MYMPD_API_DATABASE_SEARCH": {
-        "desc": "Searches for songs in the database (deprecated interface).",
-        "params": {
-            "offset": APIparams.offset,
-            "limit": APIparams.limit,
-            "filter": APIparams.filter,
-            "searchstr": APIparams.searchstr,
             "cols": APIparams.cols
         }
     },
@@ -226,19 +216,19 @@ const APImethods = {
         "desc": "Shows MPD database statistics.",
         "params": {}
     },
-    "MYMPD_API_DATABASE_SONGDETAILS": {
+    "MYMPD_API_SONG_DETAILS": {
         "desc": "Shows all details of a song.",
         "params": {
             "uri": APIparams.uri
         }
     },
-    "MYMPD_API_DATABASE_COMMENTS": {
+    "MYMPD_API_SONG_COMMENTS": {
         "desc": "Shows comments of uri.",
         "params": {
             "uri": APIparams.uri
         }
     },
-    "MYMPD_API_DATABASE_FINGERPRINT": {
+    "MYMPD_API_SONG_FINGERPRINT": {
         "desc": "Calculates the chromaprint fingerprint",
         "params": {
             "uri": APIparams.uri
@@ -433,7 +423,7 @@ const APImethods = {
             "songId": APIparams.songId
         }
     },
-    "MYMPD_API_QUEUE_LAST_PLAYED": {
+    "MYMPD_API_LAST_PLAYED_LIST": {
         "desc": "Lists the last played songs.",
         "params": {
             "offset": APIparams.offset,
@@ -808,7 +798,7 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_URLHANDLERS": {
+    "MYMPD_API_MOUNT_URLHANDLER_LIST": {
         "desc": "Lists all known url handlers of MPD.",
         "params": {}
     },
@@ -952,11 +942,6 @@ const APImethods = {
                 "type": "text",
                 "example": "SYNCEDLYRICS",
                 "desc": "Vorbis tag for synced lyrics"
-            },
-            "covercacheKeepDays": {
-                "type": "uint",
-                "example": 7,
-                "desc": "Days before deleting cover cache files."
             },
             "webuiSettings": {
                 "params": {
@@ -1473,7 +1458,7 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_HOME_LIST": {
+    "MYMPD_API_HOME_ICON_LIST": {
         "desc": "Lists all home icons",
         "params": {}
     },

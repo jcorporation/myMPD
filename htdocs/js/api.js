@@ -180,7 +180,8 @@ function sendAPI(method, params, callback, onerror) {
     }
     if (settings.pin === true &&
         session.token === '' &&
-        session.timeout < getTimestamp() && APImethods[method].protected === true)
+        session.timeout < getTimestamp() &&
+        APImethods[method].protected === true)
     {
         logDebug('Request must be authorized but we have no session');
         enterPin(method, params, callback, onerror);
@@ -191,13 +192,13 @@ function sendAPI(method, params, callback, onerror) {
     ajaxRequest.open('POST', subdir + '/api/', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     if (session.token !== '') {
-        ajaxRequest.setRequestHeader('Authorization', 'Bearer ' + session.token);
+        ajaxRequest.setRequestHeader('X-myMPD-Session', session.token);
     }
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState !== 4) {
             return;
         }
-        if (ajaxRequest.status === 401 &&
+        if (ajaxRequest.status === 403 &&
             method !== 'MYMPD_API_SESSION_VALIDATE')
         {
             logDebug('Authorization required for ' + method);
@@ -351,7 +352,6 @@ function webSocketConnect() {
                 case 'welcome':
                     websocketConnected = true;
                     showNotification(tn('Connected to myMPD'), wsUrl, 'general', 'info');
-                    //appRoute();
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
                     if (session.token !== '') {
                         validateSession();
@@ -422,9 +422,9 @@ function webSocketConnect() {
                         }, parsePlaylistsDetail);
                     }
                     break;
-                case 'update_lastplayed':
+                case 'update_last_played':
                     if (app.id === 'QueueLastPlayed') {
-                        sendAPI('MYMPD_API_QUEUE_LAST_PLAYED', {
+                        sendAPI('MYMPD_API_LAST_PLAYED_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
                             "cols": settings.colsQueueLastPlayedFetch,
@@ -440,6 +440,19 @@ function webSocketConnect() {
                             "cols": settings.colsQueueJukeboxFetch,
                             "searchstr": app.current.search
                         }, parseJukeboxList);
+                    }
+                    break;
+                case 'update_album_cache':
+                    if (app.id === 'BrowseDatabaseList' &&
+                        app.current.tag === 'Album')
+                    {
+                        sendAPI("MYMPD_API_DATABASE_ALBUMS_GET", {
+                            "offset": app.current.offset,
+                            "limit": app.current.limit,
+                            "expression": app.current.search,
+                            "sort": app.current.sort.tag,
+                            "sortdesc": app.current.sort.desc
+                        }, parseDatabase, true);
                     }
                     break;
                 case 'notify':

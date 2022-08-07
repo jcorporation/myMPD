@@ -8,7 +8,7 @@
         "Atomics": "readonly",
         "SharedArrayBuffer": "readonly",
         "BSN": true,
-        "phrases": true,
+        "i18n": true,
         "locales": true,
         "missingPhrases": true,
         "MediaMetadata": true

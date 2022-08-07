@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 
 #include "../../dist/utest/utest.h"
 #include "../../src/lib/sds_extras.h"
@@ -126,6 +126,27 @@ UTEST(sds_extras, test_strip_file_extension) {
         strip_file_extension(test_input);
         ASSERT_STREQ(p->result, test_input);
         sdsclear(test_input);
+        p++;
+    }
+    sdsfree(test_input);
+}
+
+UTEST(sds_extras, test_replace_file_extension) {
+    struct t_input_result testcases[] = {
+        {"/test/test.mp3",   "/test/test.lrc"},
+        {"/test/woext",      "/test/woext.lrc"},
+        {"",                 ""},
+        {"/tes/tet.mp3.mp3", "/tes/tet.mp3.lrc"},
+        {NULL,               NULL}
+    };
+    struct t_input_result *p = testcases;
+    sds test_input = sdsempty();
+    while (p->input != NULL) {
+        test_input = sdscatfmt(test_input, "%s", p->input);
+        sds test_output = replace_file_extension(test_input, "lrc");
+        ASSERT_STREQ(p->result, test_output);
+        sdsclear(test_input);
+        sdsfree(test_output);
         p++;
     }
     sdsfree(test_input);

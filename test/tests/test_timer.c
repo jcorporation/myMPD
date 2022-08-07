@@ -4,11 +4,12 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
+#include "../utility.h"
 
 #include "../../dist/utest/utest.h"
-#include "../../src/mympd_api/mympd_api_timer.h"
-#include "../../src/mympd_api/mympd_api_timer_handlers.h"
+#include "../../src/mympd_api/timer.h"
+#include "../../src/mympd_api/timer_handlers.h"
 
 #include <sys/stat.h>
 
@@ -80,20 +81,16 @@ UTEST(timer, test_timer_write_read) {
     bool rc = mympd_api_timer_add(&l, 10, 0, timer_handler_select, 103, def1);
     ASSERT_TRUE(rc);
 
-    sds w = sdsnew("/tmp");
-    mkdir("/tmp/state", 0770);
-    rc = mympd_api_timer_file_save(&l, w);
+    rc = mympd_api_timer_file_save(&l, workdir);
     ASSERT_TRUE(rc);
     mympd_api_timer_timerlist_clear(&l);
 
-    rc = mympd_api_timer_file_read(&l, w);
+    rc = mympd_api_timer_file_read(&l, workdir);
     ASSERT_TRUE(rc);
     ASSERT_STREQ("example timer1", l.list->definition->name);
 
     mympd_api_timer_timerlist_clear(&l);
-    unlink("/tmp/state/timer_list");
-    rmdir("/tmp/state");
-    sdsfree(w);
+    unlink("/tmp/mympd-test/state/timer_list");
     sdsfree(e);
     sdsfree(s1);
 }

@@ -26,6 +26,10 @@ function initPartitions() {
         if (event.target.nodeName === 'BUTTON') {
             toggleBtnChk(event.target);
         }
+        else if (event.target.nodeName === 'TD') {
+            const target = event.target.parentNode.firstChild.firstChild;
+            toggleBtnChk(target);
+        }
     }, false);
 
     document.getElementById('modalPartitions').addEventListener('shown.bs.modal', function () {

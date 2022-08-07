@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "m3u.h"
 
 #include "filehandler.h"
@@ -17,12 +17,22 @@
 #include <string.h>
 #include <unistd.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
 static const char *m3ufields_map(sds field);
 
-//public functions
+/**
+ * Public functions
+ */
 
-//appends the extm3u field value to buffer
+/**
+ * Appends the extm3u field value to buffer
+ * @param buffer already allocated sds string to append
+ * @param field extm3u field to read
+ * @param filename m3u file to open
+ * @return pointer to buffer
+ */
 sds m3u_get_field(sds buffer, const char *field, const char *filename) {
     errno = 0;
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
@@ -48,8 +58,13 @@ sds m3u_get_field(sds buffer, const char *field, const char *filename) {
     return buffer;
 }
 
-//converts the m3u to json and appends it to buffer
-//appends all fields values (lower case) to m3ufields if not NULL
+/**
+ * Converts the m3u to json and appends it to buffer
+ * @param buffer already allocated sds string to append
+ * @param filename m3u file to open
+ * @param m3ufields appends all fields values (lower case) to this sds string if not NULL
+ * @return pointer to buffer
+ */
 sds m3u_to_json(sds buffer, const char *filename, sds *m3ufields) {
     errno = 0;
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
@@ -117,8 +132,15 @@ sds m3u_to_json(sds buffer, const char *filename, sds *m3ufields) {
     return buffer;
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
+/**
+ * Converts the extm3u field name in a better readable name
+ * @param field extm3u field name
+ * @return readable name
+ */
 static const char *m3ufields_map(sds field) {
     if (strcmp(field, "EXTGENRE") == 0)    { return "Genre"; }
     if (strcmp(field, "EXTIMG") == 0)      { return "Image"; }

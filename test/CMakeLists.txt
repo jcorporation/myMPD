@@ -14,6 +14,8 @@ find_package(Threads REQUIRED)
 find_library(MATH_LIB m REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(PCRE2 REQUIRED)
+find_package(LIBID3TAG REQUIRED)
+find_package(FLAC)
 
 set(TEST_SOURCES
   ../dist/mjson/mjson.c
@@ -21,6 +23,7 @@ set(TEST_SOURCES
   ../dist/rax/rax.c
   ../dist/sds/sds.c
   ../dist/tinymt/tinymt32.c
+  ../src/lib/album_cache.c
   ../src/lib/api.c
   ../src/lib/cert.c
   ../src/lib/filehandler.c
@@ -31,32 +34,38 @@ set(TEST_SOURCES
   ../src/lib/lua_mympd_state.c
   ../src/lib/m3u.c
   ../src/lib/mimetype.c
-  ../src/lib/mympd_queue.c
+  ../src/lib/msg_queue.c
   ../src/lib/mympd_state.c
   ../src/lib/random.c
   ../src/lib/sds_extras.c
   ../src/lib/state_files.c
+  ../src/lib/sticker_cache.c
   ../src/lib/utility.c
   ../src/lib/validate.c
-  ../src/mpd_client/mpd_client_errorhandler.c
-  ../src/mpd_client/mpd_client_search.c
-  ../src/mpd_client/mpd_client_search_local.c
-  ../src/mpd_client/mpd_client_sticker.c
-  ../src/mpd_client/mpd_client_tags.c
-  ../src/mpd_client/mpd_client_jukebox.c
-  ../src/mpd_client/mpd_client_volume.c
-  ../src/mympd_api/mympd_api_extra_media.c
-  ../src/mympd_api/mympd_api_status.c
-  ../src/mympd_api/mympd_api_timer.c
-  ../src/mympd_api/mympd_api_timer_handlers.c
-  ../src/mympd_api/mympd_api_queue.c
-  ../src/mympd_api/mympd_api_webradios.c
+  ../src/mpd_client/errorhandler.c
+  ../src/mpd_client/search.c
+  ../src/mpd_client/search_local.c
+  ../src/mpd_client/tags.c
+  ../src/mpd_client/jukebox.c
+  ../src/mpd_client/volume.c
+  ../src/mympd_api/extra_media.c
+  ../src/mympd_api/home.c
+  ../src/mympd_api/last_played.c
+  ../src/mympd_api/lyrics.c
+  ../src/mympd_api/status.c
+  ../src/mympd_api/sticker.c
+  ../src/mympd_api/timer.c
+  ../src/mympd_api/timer_handlers.c
+  ../src/mympd_api/trigger.c
+  ../src/mympd_api/queue.c
+  ../src/mympd_api/webradios.c
   main.c
   tests/test_api.c
   tests/test_cert.c
   tests/test_http_client.c
   tests/test_jsonrpc.c
   tests/test_list.c
+  tests/test_lyrics.c
   tests/test_m3u.c
   tests/test_mpd_client_tags.c
   tests/test_mimetype.c
@@ -180,7 +189,9 @@ set_property(SOURCE ../dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonlit
 #compiler flags for libmpdclient
 set_property(SOURCE ${LIBMPDCLIENT_SOURCES} PROPERTY COMPILE_FLAGS "-Wno-conversion")
 
-configure_file(../src/mympd_config_defs.h.in ${PROJECT_BINARY_DIR}/mympd_config_defs.h)
+set(ENABLE_FLAC "ON")
+set(ENABLE_LIBID3TAG "ON")
+configure_file(../src/compile_time.h.in ${PROJECT_BINARY_DIR}/compile_time.h)
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ../dist/libmpdclient/include)
 
@@ -191,3 +202,5 @@ target_link_libraries(test ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(test ${MATH_LIB})
 target_link_libraries(test ${OPENSSL_LIBRARIES})
 target_link_libraries(test ${PCRE2_LIBRARIES})
+target_link_libraries(test ${LIBID3TAG_LIBRARIES})
+target_link_libraries(test ${FLAC_LIBRARIES})

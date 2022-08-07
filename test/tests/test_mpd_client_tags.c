@@ -4,13 +4,14 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 
 #include "../../dist/utest/utest.h"
 #include <mpd/client.h>
 #include "../../dist/libmpdclient/src/isong.h"
-#include "../../src/mpd_client/mpd_client_search_local.h"
-#include "../../src/mpd_client/mpd_client_tags.h"
+#include "../../src/lib/album_cache.h"
+#include "../../src/mpd_client/search_local.h"
+#include "../../src/mpd_client/tags.h"
 
 struct mpd_song *new_song(void) {
 	struct mpd_song *song = malloc(sizeof(struct mpd_song));
@@ -26,14 +27,15 @@ struct mpd_song *new_song(void) {
     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_ALBUM, "Tabula Rasa");
     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_TITLE, "Tabula Rasa");
     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_TRACK, "01");
+    mympd_mpd_song_add_tag_dedup(song, MPD_TAG_DISC, "01");
 
 	song->duration = 10;
 	song->duration_ms = 10000;
 	song->start = 0;
 	song->end = 0;
 	song->last_modified = 2000;
-	song->pos = 1;
-	song->id = 1;
+	song->pos = 0;
+	song->id = 0;
 	song->prio = 0;
 
 	memset(&song->audio_format, 0, sizeof(song->audio_format));
@@ -48,12 +50,92 @@ struct mpd_song *new_song(void) {
 	return song;
 }
 
-UTEST(mpd_client_tags, test_mympd_mpd_song_set_last_modified) {
+UTEST(album_cache, test_album_cache_get_key) {
     struct mpd_song *song = new_song();
-    ASSERT_EQ(2000, mpd_song_get_last_modified(song));
-    mympd_mpd_song_set_last_modified(song, 3000);
-    ASSERT_EQ(3000, mpd_song_get_last_modified(song));
+    sds key = sdsempty();
+    key = album_cache_get_key(song, key);
+    ASSERT_STREQ("tabula rasa::einstürzende neubauten", key);
+    sdsfree(key);
     mpd_song_free(song);
+
+}
+
+UTEST(album_cache, test_album_cache_copy_tags) {
+    struct mpd_song *song = new_song();
+    bool rc = album_cache_copy_tags(song, MPD_TAG_ARTIST, MPD_TAG_ALBUM_ARTIST);
+    ASSERT_TRUE(rc);
+    const char *value = mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0);
+    ASSERT_STREQ("Einstürzende Neubauten", value);
+    value = mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 1);
+    ASSERT_STREQ("Blixa Bargeld", value);
+    mpd_song_free(song);
+}
+
+UTEST(album_cache, test_album_cache_set_discs) {
+    struct mpd_song *album = new_song();
+    struct mpd_song *song = new_song();
+
+    free(song->tags[MPD_TAG_DISC].value);
+    song->tags[MPD_TAG_DISC].value = strdup("04");
+
+    album_cache_set_discs(album, song);
+    ASSERT_EQ((unsigned) 4, mpd_song_get_pos(album));
+    ASSERT_EQ((unsigned) 4, album_get_discs(album));
+
+    free(song->tags[MPD_TAG_DISC].value);
+    song->tags[MPD_TAG_DISC].value = strdup("02");
+
+    album_cache_set_discs(album, song);
+    ASSERT_EQ((unsigned) 4, mpd_song_get_pos(album));
+    ASSERT_EQ((unsigned) 4, album_get_discs(album));
+
+    mpd_song_free(album);
+    mpd_song_free(song);
+}
+
+UTEST(album_cache, test_album_cache_set_last_modified) {
+    struct mpd_song *album = new_song();
+    struct mpd_song *song = new_song();
+    
+    song->last_modified = 3000;
+    album_cache_set_last_modified(album, song);
+    ASSERT_EQ(3000, mpd_song_get_last_modified(album));
+
+    song->last_modified = 1000;
+    album_cache_set_last_modified(album, song);
+    ASSERT_EQ(3000, mpd_song_get_last_modified(album));
+
+    mpd_song_free(album);
+    mpd_song_free(song);
+}
+
+UTEST(album_cache, test_album_cache_inc_total_time) {
+    struct mpd_song *album = new_song();
+    struct mpd_song *song = new_song();
+    
+    song->duration = 20;
+    album_cache_inc_total_time(album, song);
+    ASSERT_EQ((unsigned)30, album_get_total_time(album));
+
+    mpd_song_free(album);
+    mpd_song_free(song);
+}
+
+UTEST(album_cache, test_album_cache_inc_song_count) {
+    struct mpd_song *album = new_song();
+    album_cache_set_song_count(album, 1);
+
+    unsigned song_count = album_get_song_count(album);
+    ASSERT_EQ((unsigned)1, song_count);
+    //song count maps to prio
+    unsigned prio = mpd_song_get_prio(album);
+    ASSERT_EQ((unsigned)1, prio);
+
+    album_cache_inc_song_count(album);
+    song_count = album_get_song_count(album);
+    ASSERT_EQ((unsigned)2, song_count);
+
+    mpd_song_free(album);
 }
 
 UTEST(mpd_client_tags, test_mympd_mpd_song_add_tag_dedup) {
@@ -75,8 +157,15 @@ UTEST(mpd_client_tags, test_is_multivalue_tag) {
 }
 
 UTEST(mpd_client_tags, test_get_sort_tag) {
-    ASSERT_EQ(MPD_TAG_ALBUM_SORT, get_sort_tag(MPD_TAG_ALBUM));
-    ASSERT_EQ(MPD_TAG_PERFORMER, get_sort_tag(MPD_TAG_PERFORMER));
+    struct t_tags tags;
+    reset_t_tags(&tags);
+    tags.len = 4;
+    tags.tags[0] = MPD_TAG_ALBUM;
+    tags.tags[1] = MPD_TAG_ALBUM_SORT;
+    tags.tags[2] = MPD_TAG_PERFORMER;
+    tags.tags[3] = MPD_TAG_TITLE;
+    ASSERT_EQ(MPD_TAG_ALBUM_SORT, get_sort_tag(MPD_TAG_ALBUM, &tags));
+    ASSERT_EQ(MPD_TAG_PERFORMER, get_sort_tag(MPD_TAG_PERFORMER, &tags));
 }
 
 UTEST(mpd_client_tags, test_mpd_client_get_tag_value_string) {
@@ -84,7 +173,7 @@ UTEST(mpd_client_tags, test_mpd_client_get_tag_value_string) {
     sds s = mpd_client_get_tag_value_string(song, MPD_TAG_ARTIST, sdsempty());
     ASSERT_STREQ("Einstürzende Neubauten, Blixa Bargeld", s);
     sdsclear(s);
-    s = mpd_client_get_tag_value_string(song, MPD_TAG_DISC, s);
+    s = mpd_client_get_tag_value_string(song, MPD_TAG_PERFORMER, s);
     ASSERT_STREQ("", s);
     sdsfree(s);
     mpd_song_free(song);
@@ -101,7 +190,7 @@ UTEST(mpd_client_tags, test_mpd_client_get_tag_values) {
     s = mpd_client_get_tag_values(song, MPD_TAG_PERFORMER, s);
     ASSERT_STREQ("[\"-\"]", s);
     sdsclear(s);
-    s = mpd_client_get_tag_values(song, MPD_TAG_DISC, s);
+    s = mpd_client_get_tag_values(song, MPD_TAG_DATE, s);
     ASSERT_STREQ("\"-\"", s);
     sdsfree(s);
     mpd_song_free(song);

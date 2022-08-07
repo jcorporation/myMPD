@@ -2,7 +2,7 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-const CACHE = 'myMPD-cache-v9.4.1';
+const CACHE = 'myMPD-cache-v9.5.0';
 const subdir = self.location.pathname.replace('/sw.js', '').replace(/\/$/, '');
 const urlsToCache = [
     subdir + '/',
@@ -13,10 +13,15 @@ const urlsToCache = [
     subdir + '/assets/coverimage-stream.svg',
     subdir + '/assets/coverimage-notavailable.svg',
     subdir + '/assets/coverimage-loading.svg',
-	subdir + '/assets/coverimage-mympd.svg',
+    subdir + '/assets/coverimage-mympd.svg',
     subdir + '/assets/MaterialIcons-Regular.woff2',
-	subdir + '/assets/mympd-background-dark.svg',
-	subdir + '/assets/mympd-background-light.svg'
+    subdir + '/assets/mympd-background-dark.svg',
+    subdir + '/assets/mympd-background-light.svg',
+    subdir + '/assets/i18n/cn-CHS.json',
+    subdir + '/assets/i18n/de-DE.json',
+    subdir + '/assets/i18n/en-US.json',
+    subdir + '/assets/i18n/ko-KR.json',
+    subdir + '/assets/i18n/nl-NL.json'
 ];
 
 const ignoreRequests = new RegExp(subdir + '/(' + [

@@ -7,6 +7,10 @@
 #ifndef TEST_UTILITY_H
 #define TEST_UTILITY_H
 
+#include "../src/lib/sds_extras.h"
+
+extern sds workdir;
+
 struct t_input_result {
     const char *input;
     const char *result;

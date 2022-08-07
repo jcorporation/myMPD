@@ -4,7 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
+#include "../utility.h"
 
 #include "../../dist/utest/utest.h"
 #include "../../src/lib/filehandler.h"
@@ -13,17 +14,8 @@
 
 #include <sys/stat.h>
 
-void mk_workdir(void) {
-    mkdir("/tmp/test_workdir", 0770);
-}
-
-void rm_workdir(void) {
-    unlink("/tmp/test_workdir/test");
-    rmdir("/tmp/test_workdir");
-}
-
 sds get_file_content(void) {
-    FILE *fp = fopen("/tmp/test_workdir/test", "r");
+    FILE *fp = fopen("/tmp/mympd-test/state/test", "r");
     sds line = sdsempty();
     sds_getline(&line, fp, 1000);
     fclose(fp);
@@ -39,88 +31,67 @@ UTEST(state_files, test_camel_to_snake) {
 }
 
 UTEST(state_files, test_state_file_rw_string_sds) {
-    mk_workdir();
-    sds v = sdsnew("blub");
-    sds w = sdsnew("/tmp");
-    v = state_file_rw_string_sds(w, "test_workdir", "test", v, vcb_isalnum, false);
-    ASSERT_STREQ("blub", v);
-    sds c = get_file_content();
-    ASSERT_STREQ(c, v);
-    rm_workdir();
-    sdsfree(v);
-    sdsfree(c);
-    sdsfree(w);
+    sds value = sdsnew("blub");
+    value = state_file_rw_string_sds(workdir, "state", "test", value, vcb_isalnum, false);
+    ASSERT_STREQ("blub", value);
+    sds content = get_file_content();
+    ASSERT_STREQ(content, value);
+    unlink("/tmp/mympd-test/state/test");
+    sdsfree(value);
+    sdsfree(content);
 }
 
 UTEST(state_files, test_state_file_rw_string) {
-    mk_workdir();
-    sds w = sdsnew("/tmp");
-    sds v = state_file_rw_string(w, "test_workdir", "test", "blub", vcb_isalnum, false);
-    ASSERT_STREQ("blub", v);
-    sds c = get_file_content();
-    ASSERT_STREQ(v, c);
-    rm_workdir();
-    sdsfree(c);
-    sdsfree(v);
-    sdsfree(w);
+    sds value = state_file_rw_string(workdir, "state", "test", "blub", vcb_isalnum, false);
+    ASSERT_STREQ("blub", value);
+    sds content = get_file_content();
+    ASSERT_STREQ(value, content);
+    unlink("/tmp/mympd-test/state/test");
+    sdsfree(content);
+    sdsfree(value);
 }
 
 UTEST(state_files, test_state_file_rw_bool) {
-    mk_workdir();
-    sds w = sdsnew("/tmp");
-    bool v = state_file_rw_bool(w, "test_workdir", "test", true, false);
-    ASSERT_TRUE(v);
-    sds c = get_file_content();
-    ASSERT_STREQ("true", c);
-    rm_workdir();
-    sdsfree(c);
-    sdsfree(w);
+    bool value = state_file_rw_bool(workdir, "state", "test", true, false);
+    ASSERT_TRUE(value);
+    sds content = get_file_content();
+    ASSERT_STREQ("true", content);
+    unlink("/tmp/mympd-test/state/test");
+    sdsfree(content);
 }
 
 UTEST(state_files, test_state_file_rw_int) {
-    mk_workdir();
-    sds w = sdsnew("/tmp");
-    int v = state_file_rw_int(w, "test_workdir", "test", 10, 1, 20, false);
-    ASSERT_EQ(10, v);
-    sds c = get_file_content();
-    ASSERT_STREQ("10", c);
-    rm_workdir();
-    sdsfree(c);
-    sdsfree(w);
+    int value = state_file_rw_int(workdir, "state", "test", 10, 1, 20, false);
+    ASSERT_EQ(10, value);
+    sds content = get_file_content();
+    ASSERT_STREQ("10", content);
+    unlink("/tmp/mympd-test/state/test");
+    sdsfree(content);
 }
 
 UTEST(state_files, test_state_file_rw_long) {
-    mk_workdir();
-    sds w = sdsnew("/tmp");
-    long v = state_file_rw_long(w, "test_workdir", "test", 10, 1, 20, false);
-    ASSERT_EQ(10, v);
-    sds c = get_file_content();
-    ASSERT_STREQ("10", c);
-    rm_workdir();
-    sdsfree(c);
-    sdsfree(w);
+    long value = state_file_rw_long(workdir, "state", "test", 10, 1, 20, false);
+    ASSERT_EQ(10, value);
+    sds content = get_file_content();
+    ASSERT_STREQ("10", content);
+    unlink("/tmp/mympd-test/state/test");
+    sdsfree(content);
 }
 
 UTEST(state_files, test_state_file_rw_uint) {
-    mk_workdir();
-    sds w = sdsnew("/tmp");
-    unsigned v = state_file_rw_uint(w, "test_workdir", "test", 10, 1, 20, false);
-    ASSERT_EQ((unsigned)10, v);
-    sds c = get_file_content();
-    ASSERT_STREQ("10", c);
-    rm_workdir();
-    sdsfree(c);
-    sdsfree(w);
+    unsigned value = state_file_rw_uint(workdir, "state", "test", 10, 1, 20, false);
+    ASSERT_EQ((unsigned)10, value);
+    sds content = get_file_content();
+    ASSERT_STREQ("10", content);
+    unlink("/tmp/mympd-test/state/test");
+    sdsfree(content);
 }
 
 UTEST(state_files, test_state_file_write) {
-    mk_workdir();
-    sds w = sdsnew("/tmp");
-    bool rc = state_file_write(w, "test_workdir", "test", "blub");
+    bool rc = state_file_write(workdir, "state", "test", "blub");
     ASSERT_TRUE(rc);
-    sds c = get_file_content();
-    ASSERT_STREQ("blub", c);
-    rm_workdir();
-    sdsfree(c);
-    sdsfree(w);
+    sds content = get_file_content();
+    ASSERT_STREQ("blub", content);
+    unlink("/tmp/mympd-test/state/test");
+    sdsfree(content);
 }

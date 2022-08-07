@@ -705,7 +705,7 @@ function addTagList(elId, list) {
         elId === 'BrowseNavWebradiodbDropdown' ||
         elId === 'BrowseNavRadiobrowserDropdown')
     {
-        if (features.featTags === true && features.featAdvsearch === true) {
+        if (features.featTags === true) {
             elClear(stack);
             stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database"}, tn('Database')));
         }
@@ -833,6 +833,9 @@ function btnWaiting(btn, waiting) {
         //add a small delay, user should notice the change
         setTimeout(function() {
             elEnable(btn);
+            if (btn.firstChild === null) {
+                return;
+            }
             if (btn.firstChild.nodeName === 'SPAN' &&
                 btn.firstChild.classList.contains('spinner-border'))
             {
@@ -1366,6 +1369,7 @@ function printValue(key, value) {
         case 'AlbumArtist':
         case 'AlbumArtistSort':
         case 'Composer':
+        case 'ComposerSort':
         case 'Performer':
         case 'Conductor':
         case 'Ensemble':
@@ -1681,6 +1685,7 @@ function httpGet(uri, callback, json) {
                 catch(error) {
                     showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
                     logError('Can not parse response to json object:' + ajaxRequest.responseText);
+                    logError(error);
                 }
             }
             else {

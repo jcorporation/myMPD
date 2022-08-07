@@ -291,13 +291,10 @@ function addMenuItemsSingleActions(popoverBody) {
             settings.consume === false)
         {
             //repeat one song can only work with consume disabled
-            if (features.featSingleOneshot === true) {
-                addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [2]}, 'Repeat current song once');
-            }
+            addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [2]}, 'Repeat current song once');
             addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [1]}, 'Repeat current song');
         }
-        else if (features.featSingleOneshot === true &&
-                 settings.repeat === true &&
+        else if (settings.repeat === true &&
                  settings.autoPlay === false)
         {
             //single one-shot works only with disabled auto play

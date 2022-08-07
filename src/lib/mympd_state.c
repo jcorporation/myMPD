@@ -4,13 +4,17 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 #include "mympd_state.h"
 
-#include "../mpd_client/mpd_client_jukebox.h"
-#include "../mpd_client/mpd_client_sticker.h"
-#include "../mpd_client/mpd_client_tags.h"
-#include "../mympd_api/mympd_api_timer.h"
+#include "../lib/album_cache.h"
+#include "../lib/sticker_cache.h"
+#include "../mpd_client/jukebox.h"
+#include "../mpd_client/tags.h"
+#include "../mympd_api/home.h"
+#include "../mympd_api/last_played.h"
+#include "../mympd_api/timer.h"
+#include "../mympd_api/trigger.h"
 #include "log.h"
 #include "mem.h"
 #include "sds_extras.h"
@@ -18,30 +22,40 @@
 #include <stdlib.h>
 #include <string.h>
 
-//mympd state
+/**
+ * Saves in-memory states to disc. This is done on shutdown and on SIHUP.
+ * @param mympd_state pointer to central myMPD state
+ */
+void mympd_state_save(struct t_mympd_state *mympd_state) {
+    mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
+    mympd_api_last_played_file_save(&mympd_state->mpd_state->last_played,
+        mympd_state->mpd_state->last_played_count, mympd_state->config->workdir);
+    mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
+    mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
+}
+
+/**
+ * Sets mympd_state defaults.
+ * @param mympd_state pointer to central myMPD state
+ */
 void mympd_state_default(struct t_mympd_state *mympd_state) {
+    //pointer to static config
+    mympd_state->config = NULL;
+    //configured mpd music_directory, used value is in mympd_state->mpd_state->music_directory_value
     mympd_state->music_directory = sdsnew(MYMPD_MUSIC_DIRECTORY);
-    mympd_state->music_directory_value = sdsempty();
+    //configured mpd playlist directory
     mympd_state->playlist_directory = sdsnew(MYMPD_PLAYLIST_DIRECTORY);
-    mympd_state->jukebox_mode = JUKEBOX_OFF;
-    mympd_state->jukebox_playlist = sdsnew(MYMPD_JUKEBOX_PLAYLIST);
-    mympd_state->jukebox_unique_tag.len = 1;
-    mympd_state->jukebox_unique_tag.tags[0] = MYMPD_JUKEBOX_UNIQUE_TAG;
-    mympd_state->jukebox_last_played = MYMPD_JUKEBOX_LAST_PLAYED;
-    mympd_state->jukebox_queue_length = MYMPD_JUKEBOX_QUEUE_LENGTH;
-    mympd_state->jukebox_enforce_unique = MYMPD_JUKEBOX_ENFORCE_UNIQUE;
+    //comma separated list of albumart names - normal size
     mympd_state->coverimage_names = sdsnew(MYMPD_COVERIMAGE_NAMES);
+    //comma separated list of albumart names - thumbnails
     mympd_state->thumbnail_names = sdsnew(MYMPD_THUMBNAIL_NAMES);
     mympd_state->tag_list_search = sdsnew(MYMPD_TAG_LIST_SEARCH);
     mympd_state->tag_list_browse = sdsnew(MYMPD_TAG_LIST_BROWSE);
     mympd_state->smartpls_generate_tag_list = sdsnew(MYMPD_SMARTPLS_GENERATE_TAG_LIST);
-    mympd_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
     mympd_state->smartpls = MYMPD_SMARTPLS;
     mympd_state->smartpls_sort = sdsnew(MYMPD_SMARTPLS_SORT);
     mympd_state->smartpls_prefix = sdsnew(MYMPD_SMARTPLS_PREFIX);
     mympd_state->smartpls_interval = MYMPD_SMARTPLS_INTERVAL;
-    mympd_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
-    mympd_state->auto_play = MYMPD_AUTO_PLAY;
     mympd_state->cols_queue_current = sdsnew(MYMPD_COLS_QUEUE_CURRENT);
     mympd_state->cols_search = sdsnew(MYMPD_COLS_SEARCH);
     mympd_state->cols_browse_database_detail = sdsnew(MYMPD_COLS_BROWSE_DATABASE_DETAIL);
@@ -57,32 +71,21 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_state->volume_step = MYMPD_VOLUME_STEP;
     mympd_state->mpd_stream_port = MYMPD_MPD_STREAM_PORT;
     mympd_state->webui_settings = sdsnew(MYMPD_WEBUI_SETTINGS);
-    mympd_state->lyrics_uslt_ext = sdsnew(MYMPD_LYRICS_USLT_EXT);
-    mympd_state->lyrics_sylt_ext = sdsnew(MYMPD_LYRICS_SYLT_EXT);
-    mympd_state->lyrics_vorbis_uslt = sdsnew(MYMPD_LYRICS_VORBIS_USLT);
-    mympd_state->lyrics_vorbis_sylt = sdsnew(MYMPD_LYRICS_VORBIS_SYLT);
-    mympd_state->covercache_keep_days = MYMPD_COVERCACHE_KEEP_DAYS;
+    mympd_state->lyrics.uslt_ext = sdsnew(MYMPD_LYRICS_USLT_EXT);
+    mympd_state->lyrics.sylt_ext = sdsnew(MYMPD_LYRICS_SYLT_EXT);
+    mympd_state->lyrics.vorbis_uslt = sdsnew(MYMPD_LYRICS_VORBIS_USLT);
+    mympd_state->lyrics.vorbis_sylt = sdsnew(MYMPD_LYRICS_VORBIS_SYLT);
     mympd_state->listenbrainz_token = sdsempty();
     mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
-    reset_t_tags(&mympd_state->tag_types_search);
-    reset_t_tags(&mympd_state->tag_types_browse);
     reset_t_tags(&mympd_state->smartpls_generate_tag_types);
-    //init last played songs list
-    list_init(&mympd_state->last_played);
-    //init sticker queue
-    list_init(&mympd_state->sticker_queue);
-    //sticker cache
-    mympd_state->sticker_cache_building = false;
-    mympd_state->sticker_cache = NULL;
-    //album cache
-    mympd_state->album_cache_building = false;
-    mympd_state->album_cache = NULL;
-    //jukebox queue
-    list_init(&mympd_state->jukebox_queue);
-    list_init(&mympd_state->jukebox_queue_tmp);
-    //mpd state
+    //mpd shared state
     mympd_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
-    mympd_state_default_mpd_state(mympd_state->mpd_state);
+    mpd_state_default(mympd_state->mpd_state);
+    //mpd partition state
+    mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
+    partition_state_default(mympd_state->partition_state, "default");
+    //add pointer to shared state pointing to partition specific state
+    mympd_state->partition_state->mpd_state = mympd_state->mpd_state;
     //triggers;
     list_init(&mympd_state->trigger_list);
     //home icons
@@ -91,24 +94,22 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mympd_api_timer_timerlist_init(&mympd_state->timer_list);
 }
 
-void *mympd_state_free(struct t_mympd_state *mympd_state) {
-    mpd_client_clear_jukebox(&mympd_state->jukebox_queue);
-    mpd_client_clear_jukebox(&mympd_state->jukebox_queue_tmp);
-    list_clear(&mympd_state->sticker_queue);
+/**
+ * Frees the myMPD state, frees also the referenced structs.
+ * @param mympd_state pointer to central myMPD state
+ */
+void mympd_state_free(struct t_mympd_state *mympd_state) {
     list_clear_user_data(&mympd_state->trigger_list, list_free_cb_t_list_user_data);
-    list_clear(&mympd_state->last_played);
     list_clear(&mympd_state->home_list);
     mympd_api_timer_timerlist_clear(&mympd_state->timer_list);
-    //mpd state
-    mympd_state_free_mpd_state(mympd_state->mpd_state);
-    //caches
-    sticker_cache_free(mympd_state->sticker_cache);
-    album_cache_free(mympd_state->album_cache);
+    //mpd shared state
+    mpd_state_free(mympd_state->mpd_state);
+    //partition state
+    partition_state_free(mympd_state->partition_state);
     //sds
     FREE_SDS(mympd_state->tag_list_search);
     FREE_SDS(mympd_state->tag_list_browse);
     FREE_SDS(mympd_state->smartpls_generate_tag_list);
-    FREE_SDS(mympd_state->jukebox_playlist);
     FREE_SDS(mympd_state->cols_queue_current);
     FREE_SDS(mympd_state->cols_search);
     FREE_SDS(mympd_state->cols_browse_database_detail);
@@ -122,109 +123,167 @@ void *mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->coverimage_names);
     FREE_SDS(mympd_state->thumbnail_names);
     FREE_SDS(mympd_state->music_directory);
-    FREE_SDS(mympd_state->music_directory_value);
     FREE_SDS(mympd_state->smartpls_sort);
     FREE_SDS(mympd_state->smartpls_prefix);
-    FREE_SDS(mympd_state->booklet_name);
     FREE_SDS(mympd_state->navbar_icons);
     FREE_SDS(mympd_state->webui_settings);
     FREE_SDS(mympd_state->playlist_directory);
-    FREE_SDS(mympd_state->lyrics_sylt_ext);
-    FREE_SDS(mympd_state->lyrics_uslt_ext);
-    FREE_SDS(mympd_state->lyrics_vorbis_uslt);
-    FREE_SDS(mympd_state->lyrics_vorbis_sylt);
+    FREE_SDS(mympd_state->lyrics.sylt_ext);
+    FREE_SDS(mympd_state->lyrics.uslt_ext);
+    FREE_SDS(mympd_state->lyrics.vorbis_uslt);
+    FREE_SDS(mympd_state->lyrics.vorbis_sylt);
     FREE_SDS(mympd_state->listenbrainz_token);
     //struct itself
     FREE_PTR(mympd_state);
-    return NULL;
 }
 
-//mpd state
-void mympd_state_default_mpd_state(struct t_mpd_state *mpd_state) {
-    mpd_state->conn = NULL;
-    mpd_state->conn_state = MPD_DISCONNECTED;
-    mpd_state->reconnect_time = 0;
-    mpd_state->reconnect_interval = 0;
+/**
+ * Sets mpd_state defaults.
+ * @param mpd_state pointer to mpd_state
+ */
+void mpd_state_default(struct t_mpd_state *mpd_state) {
+    mpd_state->config = NULL;
     mpd_state->mpd_keepalive = MYMPD_MPD_KEEPALIVE;
     mpd_state->mpd_timeout = MYMPD_MPD_TIMEOUT;
-    mpd_state->state = MPD_STATE_UNKNOWN;
     mpd_state->mpd_host = sdsnew(MYMPD_MPD_HOST);
     mpd_state->mpd_port = MYMPD_MPD_PORT;
     mpd_state->mpd_pass = sdsnew(MYMPD_MPD_PASS);
     mpd_state->mpd_binarylimit = MYMPD_MPD_BINARYLIMIT;
-    mpd_state->song_id = -1;
-    mpd_state->song_uri = sdsempty();
-    mpd_state->next_song_id = -1;
-    mpd_state->last_song_id = -1;
-    mpd_state->last_song_uri = sdsempty();
-    mpd_state->queue_version = 0;
-    mpd_state->queue_length = 0;
-    mpd_state->last_last_played_id = -1;
-    mpd_state->song_end_time = 0;
-    mpd_state->song_start_time = 0;
-    mpd_state->last_song_end_time = 0;
-    mpd_state->last_song_start_time = 0;
-    mpd_state->last_skipped_id = 0;
-    mpd_state->set_song_played_time = 0;
-    mpd_state->last_song_set_song_played_time = 0;
-    mpd_state->crossfade = 0;
-    mpd_state->set_song_played_time = 0;
+    mpd_state->music_directory_value = sdsempty();
     mpd_state->tag_list = sdsnew(MYMPD_MPD_TAG_LIST);
-    reset_t_tags(&mpd_state->tag_types_mympd);
-    reset_t_tags(&mpd_state->tag_types_mpd);
+    reset_t_tags(&mpd_state->tags_mympd);
+    reset_t_tags(&mpd_state->tags_mpd);
+    reset_t_tags(&mpd_state->tags_search);
+    reset_t_tags(&mpd_state->tags_browse);
     mpd_state->tag_albumartist = MPD_TAG_ALBUM_ARTIST;
+    //sticker cache
+    mpd_state->sticker_cache.building = false;
+    mpd_state->sticker_cache.cache = NULL;
+    //album cache
+    mpd_state->album_cache.building = false;
+    mpd_state->album_cache.cache = NULL;
+    //init last played songs list
+    list_init(&mpd_state->last_played);
+    mpd_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
+    //init sticker queue
+    list_init(&mpd_state->sticker_queue);
+
+    mpd_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
+    //features
+    mpd_state_features_disable(mpd_state);
 }
 
-void *mympd_state_free_mpd_state(struct t_mpd_state *mpd_state) {
+/**
+ * Sets all feat states to disabled
+ * @param mpd_state pointer to mpd_state
+ */
+void mpd_state_features_disable(struct t_mpd_state *mpd_state) {
+    mpd_state->feat_stickers = false;
+    mpd_state->feat_playlists = false;
+    mpd_state->feat_tags = false;
+    mpd_state->feat_fingerprint = false;
+    mpd_state->feat_albumart = false;
+    mpd_state->feat_readpicture = false;
+    mpd_state->feat_mount = false;
+    mpd_state->feat_neighbor = false;
+    mpd_state->feat_partitions = false;
+    mpd_state->feat_binarylimit = false;
+    mpd_state->feat_playlist_rm_range = false;
+    mpd_state->feat_whence = false;
+    mpd_state->feat_advqueue = false;
+}
+
+/**
+ * Frees the t_mpd_state struct
+ */
+void mpd_state_free(struct t_mpd_state *mpd_state) {
     FREE_SDS(mpd_state->mpd_host);
     FREE_SDS(mpd_state->mpd_pass);
-    FREE_SDS(mpd_state->song_uri);
-    FREE_SDS(mpd_state->last_song_uri);
     FREE_SDS(mpd_state->tag_list);
+    FREE_SDS(mpd_state->music_directory_value);
+    //lists
+    list_clear(&mpd_state->sticker_queue);
+    list_clear(&mpd_state->last_played);
+    //caches
+    sticker_cache_free(&mpd_state->sticker_cache);
+    album_cache_free(&mpd_state->album_cache);
+
+    FREE_SDS(mpd_state->booklet_name);
+    //struct itself
     FREE_PTR(mpd_state);
-    return NULL;
 }
 
-//caches
-void *album_cache_free(rax *album_cache) {
-    if (album_cache == NULL) {
-        MYMPD_LOG_DEBUG("Album cache is NULL not freeing anything");
-        return NULL;
-    }
-    MYMPD_LOG_DEBUG("Freeing album cache");
-    raxIterator iter;
-    raxStart(&iter, album_cache);
-    raxSeek(&iter, "^", NULL, 0);
-    while (raxNext(&iter)) {
-        mpd_song_free((struct mpd_song *)iter.data);
-    }
-    raxStop(&iter);
-    raxFree(album_cache);
-    return NULL;
+/**
+ * Sets per partition state defaults
+ * @param partition_state pointer to t_partition_state struct
+ * @param name partition name
+ */
+void partition_state_default(struct t_partition_state *partition_state, const char *name) {
+    partition_state->name = sdsnew(name);
+    partition_state->conn = NULL;
+    partition_state->conn_state = MPD_DISCONNECTED;
+    partition_state->play_state = MPD_STATE_UNKNOWN;
+    partition_state->reconnect_time = 0;
+    partition_state->reconnect_interval = 0;
+    partition_state->song_id = -1;
+    partition_state->song_uri = sdsempty();
+    partition_state->next_song_id = -1;
+    partition_state->last_song_id = -1;
+    partition_state->last_song_uri = sdsempty();
+    partition_state->queue_version = 0;
+    partition_state->queue_length = 0;
+    partition_state->last_last_played_id = -1;
+    partition_state->song_end_time = 0;
+    partition_state->song_start_time = 0;
+    partition_state->last_song_end_time = 0;
+    partition_state->last_song_start_time = 0;
+    partition_state->last_skipped_id = 0;
+    partition_state->set_song_played_time = 0;
+    partition_state->last_song_set_song_played_time = 0;
+    partition_state->crossfade = 0;
+    partition_state->set_song_played_time = 0;
+    partition_state->auto_play = MYMPD_AUTO_PLAY;
+    //jukebox
+    list_init(&partition_state->jukebox_queue);
+    list_init(&partition_state->jukebox_queue_tmp);
+    partition_state->jukebox_mode = JUKEBOX_OFF;
+    partition_state->jukebox_playlist = sdsnew(MYMPD_JUKEBOX_PLAYLIST);
+    partition_state->jukebox_unique_tag.len = 1;
+    partition_state->jukebox_unique_tag.tags[0] = MYMPD_JUKEBOX_UNIQUE_TAG;
+    partition_state->jukebox_last_played = MYMPD_JUKEBOX_LAST_PLAYED;
+    partition_state->jukebox_queue_length = MYMPD_JUKEBOX_QUEUE_LENGTH;
+    partition_state->jukebox_enforce_unique = MYMPD_JUKEBOX_ENFORCE_UNIQUE;
 }
 
-void *sticker_cache_free(rax *sticker_cache) {
-    if (sticker_cache == NULL) {
-        MYMPD_LOG_DEBUG("Sticker cache is NULL not freeing anything");
-        return NULL;
-    }
-    MYMPD_LOG_DEBUG("Freeing sticker cache");
-    raxIterator iter;
-    raxStart(&iter, sticker_cache);
-    raxSeek(&iter, "^", NULL, 0);
-    while (raxNext(&iter)) {
-        FREE_PTR(iter.data);
-    }
-    raxStop(&iter);
-    raxFree(sticker_cache);
-    return NULL;
+/**
+ * Frees the t_partition_state struct
+ * @param partition_state pointer to t_partition_state struct
+ */
+void partition_state_free(struct t_partition_state *partition_state) {
+    FREE_SDS(partition_state->name);
+    FREE_SDS(partition_state->song_uri);
+    FREE_SDS(partition_state->last_song_uri);
+    //jukebox
+    jukebox_clear(&partition_state->jukebox_queue);
+    jukebox_clear(&partition_state->jukebox_queue_tmp);
+    FREE_SDS(partition_state->jukebox_playlist);
+    //struct itself
+    FREE_PTR(partition_state);
 }
 
-//tagtypes
+/**
+ * Copy a struct t_tags struct to another one
+ * @param src_tag_list source
+ * @param dst_tag_list destination
+ */
 void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list) {
     memcpy((void *)dst_tag_list, (void *)src_tag_list, sizeof(struct t_tags));
 }
 
+/**
+ * (Re-)initializes a t_tags struct
+ * @param tags pointer to t_tags struct
+*/
 void reset_t_tags(struct t_tags *tags) {
     tags->len = 0;
     memset(tags->tags, 0, sizeof(tags->tags));

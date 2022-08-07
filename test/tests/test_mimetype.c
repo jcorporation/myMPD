@@ -4,7 +4,7 @@
  https://github.com/jcorporation/mympd
 */
 
-#include "mympd_config_defs.h"
+#include "compile_time.h"
 
 #include "../../dist/utest/utest.h"
 #include "../../src/lib/mimetype.h"
@@ -52,4 +52,10 @@ UTEST(mimetype, test_get_mime_type_by_magic) {
     mime_type = get_mime_type_by_magic_stream(stream);
     ASSERT_STREQ("application/octet-stream", mime_type);
     sdsfree(stream);
+}
+
+UTEST(mimetype, test_is_image) {
+    ASSERT_TRUE(is_image("image.png"));
+    ASSERT_FALSE(is_image(""));
+    ASSERT_FALSE(is_image("test.mp3"));
 }
