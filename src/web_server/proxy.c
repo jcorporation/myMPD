@@ -119,7 +119,8 @@ struct mg_connection *create_backend_connection(struct mg_connection *nc, struct
         if (backend_nc == NULL) {
             //no backend connection, close frontend connection
             MYMPD_LOG_WARN("Can not create http backend connection");
-            nc->is_closing = 1;
+            webserver_send_error(nc, 502, "Could not create backend connection");
+            nc->is_draining = 1;
             //free backend_nc_data
             free_backend_nc_data(backend_nc_data);
             FREE_PTR(backend_nc_data);

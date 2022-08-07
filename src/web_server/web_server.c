@@ -439,7 +439,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     nc->is_draining = 1;
                     break;
                 }
-                backend_nc = create_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_backend_to_frontend);
+                create_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_backend_to_frontend);
             }
             else if (mg_http_match_uri(hm, "/proxy")) {
                 //Makes a get request to the defined uri and returns the response
