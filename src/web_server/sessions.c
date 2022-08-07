@@ -22,7 +22,18 @@
     #include <openssl/rand.h>
 #endif
 
-void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, sds body, int id, sds session, struct t_mg_user_data *mg_user_data) {
+/**
+ * Request handler for the session api
+ * @param nc mongoose connection
+ * @param cmd_id jsonrpc method
+ * @param body http body (jsonrpc request)
+ * @param request_id jsonrpc request id
+ * @param session session hash
+ * @param mg_user_data webserver configuration
+ */
+void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, sds body, int request_id,
+        sds session, struct t_mg_user_data *mg_user_data)
+{
     switch(cmd_id) {
         case MYMPD_API_SESSION_LOGIN: {
             sds pin = NULL;
@@ -34,13 +45,13 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
             sds response = sdsempty();
             if (is_valid == true) {
                 sds ses = webserver_session_new(&mg_user_data->session_list);
-                response = jsonrpc_respond_start(response, cmd_id, 0);
+                response = jsonrpc_respond_start(response, cmd_id, request_id);
                 response = tojson_sds(response, "session", ses, false);
                 response = jsonrpc_end(response);
                 FREE_SDS(ses);
             }
             else {
-                response = jsonrpc_respond_message(response, cmd_id, 0,
+                response = jsonrpc_respond_message(response, cmd_id, request_id,
                     JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid pin");
             }
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
@@ -53,12 +64,12 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
             if (sdslen(session) == 20) {
                 rc = webserver_session_remove(&mg_user_data->session_list, session);
                 if (rc == true) {
-                    response = jsonrpc_respond_message(response, cmd_id, 0,
+                    response = jsonrpc_respond_message(response, cmd_id, request_id,
                         JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_INFO, "Session removed");
                 }
             }
             if (rc == false) {
-                response = jsonrpc_respond_message(response, cmd_id, 0,
+                response = jsonrpc_respond_message(response, cmd_id, request_id,
                     JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid session");
             }
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
@@ -67,13 +78,13 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
         }
         case MYMPD_API_SESSION_VALIDATE: {
             //session is already validated
-            sds response = jsonrpc_respond_ok(sdsempty(), cmd_id, 0, JSONRPC_FACILITY_SESSION);
+            sds response = jsonrpc_respond_ok(sdsempty(), cmd_id, request_id, JSONRPC_FACILITY_SESSION);
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
             break;
         }
         default: {
-            sds response = jsonrpc_respond_message(sdsempty(), cmd_id, id,
+            sds response = jsonrpc_respond_message(sdsempty(), cmd_id, request_id,
                 JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid API request");
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
@@ -81,6 +92,11 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
     }
 }
 
+/**
+ * Creates a new session
+ * @param session_list the session list
+ * @return newly allocatded sds string with the session hash
+ */
 sds webserver_session_new(struct t_list *session_list) {
     sds session = sdsempty();
     #ifdef ENABLE_SSL
@@ -106,6 +122,12 @@ sds webserver_session_new(struct t_list *session_list) {
     return session;
 }
 
+/**
+ * Validates a session
+ * @param session_list the session list 
+ * @param session session hash to validate
+ * @return true on success, else false
+ */
 bool webserver_session_validate(struct t_list *session_list, const char *session) {
     time_t now = time(NULL);
     struct t_list_node *current = session_list->head;
@@ -135,6 +157,12 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
     return false;
 }
 
+/**
+ * 
+ * @param session_list the session list
+ * @param session session hash to remove
+ * @return true on success, else false
+ */
 bool webserver_session_remove(struct t_list *session_list, const char *session) {
     struct t_list_node *current = session_list->head;
     int i = 0;
