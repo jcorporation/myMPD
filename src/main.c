@@ -349,10 +349,6 @@ int main(int argc, char **argv) {
     //only user and group have rw access
     umask(0007); /* Flawfinder: ignore */
 
-    //get startup uid
-    uid_t startup_uid = getuid();
-    MYMPD_LOG_DEBUG("myMPD started as user id %u", startup_uid);
-
     mympd_api_queue = mympd_queue_create("mympd_api_queue", QUEUE_TYPE_REQUEST);
     web_server_queue = mympd_queue_create("web_server_queue", QUEUE_TYPE_RESPONSE);
     mympd_script_queue = mympd_queue_create("mympd_script_queue", QUEUE_TYPE_RESPONSE);
@@ -377,6 +373,10 @@ int main(int argc, char **argv) {
             rc = EXIT_SUCCESS;
             goto cleanup;
     }
+
+    //get startup uid
+    uid_t startup_uid = getuid();
+    MYMPD_LOG_DEBUG("myMPD started as user id %u", startup_uid);
 
     //read configuration from environment or set default values
     mympd_config_defaults(config);
