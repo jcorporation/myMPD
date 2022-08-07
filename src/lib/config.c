@@ -75,6 +75,7 @@ void mympd_config_defaults_initial(struct t_config *config) {
     config->http_host = NULL;
     config->http_port = NULL;
     #ifdef ENABLE_SSL
+        config->ssl_port = NULL;
         config->ssl_san = NULL;
         config->ssl_cert = NULL;
         config->ssl_key = NULL;
