@@ -220,7 +220,8 @@ static sds mympd_getenv_string(const char *env_var, const char *default_value, v
  * Gets a environment variable as int
  * @param env_var variable name to read
  * @param default_value default value if variable is not set
- * @param vcb validation callback
+ * @param min mimum value (including)
+ * @param max maximum value (including)
  * @param first_startup true for first startup else false
  * @return environment variable as integer
  */

@@ -434,7 +434,7 @@ static bool add_album_to_queue(struct t_partition_state *partition_state, struct
  * Gets the song list from queue and last played.
  * This list is used to enforce the uniq tag constraint
  * @param partition_state pointer to myMPD partition state
- * @param jukbox_mode the jukebox mode
+ * @param jukebox_mode the jukebox mode
  * @return a newly allocated list with songs or albums
  */
 static struct t_list *jukebox_get_last_played(struct t_partition_state *partition_state, enum jukebox_modes jukebox_mode) {
@@ -745,6 +745,7 @@ static long _fill_jukebox_queue_albums(struct t_partition_state *partition_state
  * Adds songs to the jukebox queue
  * @param partition_state pointer to myMPD partition state
  * @param add_songs number of songs to add
+ * @param playlist playlist from which songs are added
  * @param manual false = normal jukebox operation
  *               true = create separate jukebox queue and add songs to queue once
  * @param queue_list list of current songs in mpd queue and last played

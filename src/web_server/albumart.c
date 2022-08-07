@@ -410,6 +410,7 @@ static bool handle_coverextract_id3(sds cachedir, const char *uri, const char *m
  * @param uri song uri
  * @param media_file full path to the song
  * @param binary pointer to already allocates sds string to hold the image
+ * @param is_ogg true if it is a ogg file, false if it is a flac file
  * @param covercache true = covercache is enabled
  * @param offset number of embedded image to extract
  * @return true on success, else false

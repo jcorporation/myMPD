@@ -23,7 +23,10 @@
 
 #include <sys/prctl.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
+
 static bool parse_internal_message(struct t_work_response *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 #ifdef ENABLE_SSL
@@ -33,7 +36,17 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response);
 static bool check_acl(struct mg_connection *nc, sds acl);
 
-//public functions
+/**
+ * Public functions
+ */
+
+/**
+ * Initializes the webserver
+ * @param mgr mongoose mgr
+ * @param config pointer to myMPD config
+ * @param mg_user_data already allocated t_mg_user_data to populate
+ * @return true on success, else false
+ */
 bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_user_data *mg_user_data) {
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
@@ -98,6 +111,11 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     return mgr;
 }
 
+/**
+ * Frees the mongoose mgr
+ * @param mgr mongoose mgr to free
+ * @return NULL
+ */
 void *web_server_free(struct mg_mgr *mgr) {
     sds dns4_url = (sds)mgr->dns4.url;
     FREE_SDS(dns4_url);
@@ -106,6 +124,11 @@ void *web_server_free(struct mg_mgr *mgr) {
     return NULL;
 }
 
+/**
+ * Main function for the webserver thread
+ * @param arg_mgr void pointer to mongoose mgr
+ * @return NULL
+ */
 void *web_server_loop(void *arg_mgr) {
     thread_logname = sds_replace(thread_logname, "webserver");
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
@@ -162,7 +185,17 @@ void *web_server_loop(void *arg_mgr) {
     return NULL;
 }
 
-//private functions
+/**
+ * Private functions
+ */
+
+/**
+ * Sets the mg_user_data values from set_mg_user_data_request.
+ * Message is sent by the feature detection function in the mympd_api thread.
+ * @param response 
+ * @param mg_user_data t_mg_user_data to configure
+ * @return true on success, else false
+ */
 static bool parse_internal_message(struct t_work_response *response, struct t_mg_user_data *mg_user_data) {
     bool rc = false;
     if (response->extra != NULL) {
@@ -222,6 +255,11 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
     return rc;
 }
 
+/**
+ * Broadcasts a websocket connections to all clients
+ * @param mgr mongoose mgr
+ * @param response jsonrpc notification
+ */
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     int send_count = 0;
@@ -246,6 +284,11 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
     }
 }
 
+/**
+ * Sends a api response
+ * @param mgr mongoose mgr
+ * @param response jsonrpc response
+ */
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     while (nc != NULL) {
@@ -264,6 +307,12 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
     free_response(response);
 }
 
+/**
+ * Matches the acl against the client ip
+ * @param nc mongoose connection
+ * @param acl acl string to check
+ * @return true if acl matches, else false
+ */
 static bool check_acl(struct mg_connection *nc, sds acl) {
     if (sdslen(acl) == 0) {
         return true;
@@ -290,12 +339,18 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
     return false;
 }
 
-//nc->label usage
-//0 - connection type: F = frontend connection, B = backend connection
-//1 - http method: G = GET, H = HEAD, P = POST
-//2 - connection header: C = close, K = keepalive
-
-// Event handler
+/**
+ * Central webserver event handler
+ * nc->label usage
+ * 0 - connection type: F = frontend connection, B = backend connection
+ * 1 - http method: G = GET, H = HEAD, P = POST
+ * 2 - connection header: C = close, K = keepalive
+ *
+ * @param nc mongoose connection
+ * @param ev connection event
+ * @param ev_data event data (http / websocket message)
+ * @param fn_data backend_nc data for proxy connections
+ */
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     //initial connection specific data structure
     struct mg_connection *backend_nc = fn_data;
@@ -516,6 +571,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 }
 
 #ifdef ENABLE_SSL
+/**
+ * Redirects the client to https if ssl is enabled.
+ * Only requests to /browse/webradios are not redirected.
+ * @param nc mongoose connection
+ * @param ev connection event
+ * @param ev_data event data (http / websocket message)
+ * @param fn_data not used
+ */
 static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     (void)fn_data;
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;

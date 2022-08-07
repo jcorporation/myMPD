@@ -205,6 +205,7 @@ static int _get_embedded_covers_count_id3(const char *media_file) {
 /**
  * Counts embedded images for vorbis und flac files
  * @param media_file pointer to the shared mpd state
+ * @param is_ogg true if it is a ogg file, false if it is a flac file
  * @return image count
  */
 static int _get_embedded_covers_count_flac(const char *media_file, bool is_ogg) {

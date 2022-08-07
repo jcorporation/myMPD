@@ -12,5 +12,5 @@
 #include "../lib/api.h"
 
 void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
-    enum mympd_cmd_ids cmd_id, sds body, int id);
+    enum mympd_cmd_ids cmd_id, sds body, int request_id);
 #endif

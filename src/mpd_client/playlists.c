@@ -284,7 +284,6 @@ static bool _mpd_client_playlist_sort(struct t_partition_state *partition_state,
  * @param partition_state pointer to partition specific states
  * @param new_pl name of the new playlist to bring in place
  * @param to_replace_pl name of the playlist to replace
- * @param backup_pl name of
  * @return true 
  * @return false 
  */

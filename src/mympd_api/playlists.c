@@ -396,7 +396,7 @@ enum plist_delete_criterias parse_plist_delete_criteria(const char *str) {
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
- * @param cri deletion criteria
+ * @param criteria deletion criteria
  * @return pointer to buffer
  */
 sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds buffer,

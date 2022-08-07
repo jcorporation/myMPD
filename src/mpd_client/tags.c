@@ -416,6 +416,7 @@ static sds _mpd_client_get_tag_value_string(struct mpd_song const *song, const e
  * @param tag mpd tag type to get values for
  * @param tag_values alread allocated sds string to append the values
  * @param value_count the number of values retrieved
+ * @param multi true if it is a multi value string
  * @return new sds pointer to tag_values
  */
 static sds _mpd_client_get_tag_values(struct mpd_song const *song, const enum mpd_tag_type tag,

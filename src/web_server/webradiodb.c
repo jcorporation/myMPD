@@ -14,17 +14,30 @@
 #include "proxy.h"
 #include "utility.h"
 
-//private definitions
+/**
+ * Private definitions
+ */
+
 static bool webradiodb_send(struct mg_connection *nc, struct mg_connection *backend_nc,
-        enum mympd_cmd_ids cmd_id, const char *request);
+        enum mympd_cmd_ids cmd_id, const char *path);
 static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 static sds webradiodb_cache_check(sds cachedir, const char *cache_file);
 static bool webradiodb_cache_write(sds cachedir, const char *cache_file, const char *data, size_t data_len);
 
-//public functions
+/**
+ * Public functions
+ */
 
+/**
+ * Handles the webradiodb api requests
+ * @param nc mongoose connection
+ * @param backend_nc mongoose backend connection
+ * @param cmd_id jsonrpc method
+ * @param body request body (jsonrpc request)
+ * @param request_id jsonrpc request id
+ */
 void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
-    enum mympd_cmd_ids cmd_id, sds body, int id)
+    enum mympd_cmd_ids cmd_id, sds body, int request_id)
 {
     (void) body;
     sds error = sdsempty();
@@ -43,7 +56,7 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
     }
 
     if (sdslen(error) > 0) {
-        sds response = jsonrpc_respond_message(sdsempty(), cmd_id, id,
+        sds response = jsonrpc_respond_message(sdsempty(), cmd_id, request_id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
         MYMPD_LOG_ERROR("Error processing method \"%s\"", get_cmd_id_method_name(cmd_id));
         webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
@@ -51,7 +64,7 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
     }
     else if (data != NULL) {
         sds response = sdsempty();
-        response = jsonrpc_respond_start(response, cmd_id, 0);
+        response = jsonrpc_respond_start(response, cmd_id, request_id);
         response = sdscat(response, "\"data\":");
         response = sdscatsds(response, data);
         response = jsonrpc_end(response);
@@ -61,7 +74,7 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
     else {
         bool rc = webradiodb_send(nc, backend_nc, cmd_id, uri);
         if (rc == false) {
-            sds response = jsonrpc_respond_message(sdsempty(), cmd_id, id,
+            sds response = jsonrpc_respond_message(sdsempty(), cmd_id, request_id,
                 JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error connection to radio-browser.info");
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
@@ -72,8 +85,16 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
     FREE_SDS(data);
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
+/**
+ * Checks the webradiodb cache
+ * @param cachedir cache directory
+ * @param cache_file file to check
+ * @return file content on success, else NULL
+ */
 static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
     sds filepath = sdscatfmt(sdsempty(), "%S/webradiodb/%s", cachedir, cache_file);
     struct stat status;
@@ -103,6 +124,14 @@ static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
     return NULL;
 }
 
+/**
+ * Writes the webradiodb cache file
+ * @param cachedir cache directory
+ * @param cache_file file to write
+ * @param data data to write
+ * @param data_len data length to write
+ * @return true on success, else false
+ */
 static bool webradiodb_cache_write(sds cachedir, const char *cache_file, const char *data, size_t data_len) {
     sds filepath = sdscatfmt(sdsempty(), "%S/webradiodb/%s", cachedir, cache_file);
     bool rc = write_data_to_file(filepath, data, data_len);
@@ -110,10 +139,18 @@ static bool webradiodb_cache_write(sds cachedir, const char *cache_file, const c
     return rc;
 }
 
+/**
+ * Creates the backend connection to the webradiodb host and assigns the webradiodb_handler.
+ * @param nc mongoose connection
+ * @param backend_nc backend connection to create
+ * @param cmd_id jsonrpc method
+ * @param path path and query to send 
+ * @return true on success, else false
+ */
 static bool webradiodb_send(struct mg_connection *nc, struct mg_connection *backend_nc,
-        enum mympd_cmd_ids cmd_id, const char *request)
+        enum mympd_cmd_ids cmd_id, const char *path)
 {
-    sds uri = sdscatfmt(sdsempty(), "https://%s%s", WEBRADIODB_HOST, request);
+    sds uri = sdscatfmt(sdsempty(), "https://%s%s", WEBRADIODB_HOST, path);
     backend_nc = create_backend_connection(nc, backend_nc, uri, webradiodb_handler);
     FREE_SDS(uri);
     if (backend_nc != NULL) {
@@ -124,6 +161,13 @@ static bool webradiodb_send(struct mg_connection *nc, struct mg_connection *back
     return false;
 }
 
+/**
+ * Handler for the webradiodb backend connection
+ * @param nc mongoose backend connection
+ * @param ev mongoose event
+ * @param ev_data mongoose ev_data (http response)
+ * @param fn_data mongoose fn_data (backend_nc_data_t)
+ */
 static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)fn_data;

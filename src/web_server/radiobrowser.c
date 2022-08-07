@@ -17,7 +17,7 @@
  * Private definitions
  */
 static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *backend_nc,
-        enum mympd_cmd_ids cmd_id, const char *request);
+        enum mympd_cmd_ids cmd_id, const char *path);
 static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 
 /**
@@ -115,18 +115,18 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
  */
 
 /**
- * Sends the request to the radiobrowser server
+ * Creates the backend connection to the radiobrowser server and assigns the webradiodb_handler.
  * @param nc mongoose connection
  * @param backend_nc mongoose backend connection
  * @param cmd_id jsonrpc method
- * @param request request to send
+ * @param path path and query to send 
  * @return true on success, else false
  */
 static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *backend_nc,
-        enum mympd_cmd_ids cmd_id, const char *request)
+        enum mympd_cmd_ids cmd_id, const char *path)
 {
     const char *host = RADIOBROWSER_HOST;
-    sds uri = sdscatfmt(sdsempty(), "https://%s%s", host, request);
+    sds uri = sdscatfmt(sdsempty(), "https://%s%s", host, path);
     backend_nc = create_backend_connection(nc, backend_nc, uri, radiobrowser_handler);
     FREE_SDS(uri);
     if (backend_nc != NULL) {
@@ -141,7 +141,7 @@ static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *ba
  * Handler for the radiobrowser backend connection
  * @param nc mongoose backend connection
  * @param ev mongoose event
- * @param ev_data mongoose ev_data
+ * @param ev_data mongoose ev_data (http response)
  * @param fn_data mongoose fn_data (backend_nc_data_t)
  */
 static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {

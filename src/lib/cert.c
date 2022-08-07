@@ -41,8 +41,8 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
 static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 **cert);
 static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_file, X509 **ca_cert);
 static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
-                                      sds servercert_file, X509 **server_cert,
-                                      sds custom_san, EVP_PKEY **ca_key, X509 **ca_cert);
+        sds servercert_file, X509 **server_cert, sds custom_san, EVP_PKEY **ca_key,
+        X509 **ca_cert);
 static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_days);
 static bool certificates_cleanup(sds dir, const char *name);
 
@@ -52,7 +52,9 @@ enum expire_check_rcs {
     CERT_EXPIRE_RENEW = 1
 };
 
-//public functions
+/**
+ * Public functions
+ */
 
 /**
  * Creates the ssl directory, ca and cert and rewnews before expired
@@ -81,12 +83,14 @@ bool certificates_check(sds workdir, sds ssl_san) {
     return true;
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
 /**
  * Creates the ca and cert and rewnews before expired
  * @param dir key and certificate directory
- * @custom_san Additional subject alternative names
+ * @param custom_san Additional subject alternative names
  * @return true on success else false
  */
 static bool certificates_create(sds dir, sds custom_san) {
@@ -246,14 +250,14 @@ static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_
  * @param server_key pointer to EVP_KEY struct to populate
  * @param servercert_file filename to save the cert
  * @param server_cert pointer to X509 struct to populate
- * @param custom SAN to append
+ * @param custom_san SAN to append
  * @param ca_key CA key for signing
  * @param ca_cert CA cert for signing
  * @return true on success else false
  */
 static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
-                                      sds servercert_file, X509 **server_cert,
-                                      sds custom_san, EVP_PKEY **ca_key, X509 **ca_cert)
+        sds servercert_file, X509 **server_cert, sds custom_san, EVP_PKEY **ca_key,
+        X509 **ca_cert)
 {
     MYMPD_LOG_NOTICE("Creating server certificate");
     *server_key = generate_keypair(CERT_KEY_LENGTH);

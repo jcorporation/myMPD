@@ -21,7 +21,7 @@ This release removes the compatibility code for MPD versions older than 0.21.
 - Upd: rename some API methodes for consistency
 - Upd: covercache expiry time is now a config setting (removed from GUI)
 - Upd: improve many internal functions and there api
-- Upd: add doxygen style internal api documentation (WIP)
+- Upd: add doxygen style internal api documentation
 - Upd: add more unit tests
 - Upd: Bootstrap 5.2
 - Fix: use only sort tags that are configured in MPD

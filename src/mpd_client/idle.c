@@ -369,7 +369,8 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
 /**
  * Checks if we should create the caches and adds a one-shot timer
  * We do not create the caches instantly to debounce MPD_IDLE_DATABASE events
- * @param mympd_state pointer to the mympd_state struct
+ * @param mpd_state pointer to the mympd_state struct
+ * @param timer_list the timer list
  * @param timeout seconds after the timer triggers
  * @return true on success else false
  */

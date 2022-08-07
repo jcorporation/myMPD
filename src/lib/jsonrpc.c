@@ -202,13 +202,13 @@ sds jsonrpc_notify_start(sds buffer, enum jsonrpc_events event) {
  * Creates the start of a jsonrpc response.
  * @param buffer pointer to alreay allocated sds string
  * @param cmd_id enum mympd_cmd_ids
- * @param id id of the jsonrpc request to answer
+ * @param request_id id of the jsonrpc request to answer
  * @return pointer to buffer with jsonrpc string
  */
-sds jsonrpc_respond_start(sds buffer, enum mympd_cmd_ids cmd_id, long id) {
+sds jsonrpc_respond_start(sds buffer, enum mympd_cmd_ids cmd_id, long request_id) {
     const char *method = get_cmd_id_method_name(cmd_id);
     sdsclear(buffer);
-    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%l,\"result\":{", id);
+    buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%l,\"result\":{", request_id);
     buffer = tojson_char(buffer, "method", method, true);
     return buffer;
 }
@@ -226,28 +226,28 @@ sds jsonrpc_end(sds buffer) {
  * Creates a simple jsonrpc response with "ok" as message
  * @param buffer pointer to alreay allocated sds string
  * @param cmd_id enum mympd_cmd_ids
- * @param id id of the jsonrpc request to answer
+ * @param request_id id of the jsonrpc request to answer
  * @param facility one of enum jsonrpc_facilities
  * @return pointer to buffer with jsonrpc string
  */
-sds jsonrpc_respond_ok(sds buffer, enum mympd_cmd_ids cmd_id, long id, enum jsonrpc_facilities facility) {
-    return jsonrpc_respond_message_phrase(buffer, cmd_id, id, facility, JSONRPC_SEVERITY_INFO, "ok", 0);
+sds jsonrpc_respond_ok(sds buffer, enum mympd_cmd_ids cmd_id, long request_id, enum jsonrpc_facilities facility) {
+    return jsonrpc_respond_message_phrase(buffer, cmd_id, request_id, facility, JSONRPC_SEVERITY_INFO, "ok", 0);
 }
 
 /**
  * Creates a simple jsonrpc response with a custom message
  * @param buffer pointer to alreay allocated sds string
  * @param cmd_id enum mympd_cmd_ids
- * @param id id of the jsonrpc request to answer
+ * @param request_id id of the jsonrpc request to answer
  * @param facility one of enum jsonrpc_facilities
  * @param severity one of enum jsonrpc_severities
  * @param message the response message
  * @return pointer to buffer with jsonrpc string
  */
-sds jsonrpc_respond_message(sds buffer, enum mympd_cmd_ids cmd_id, long id,
+sds jsonrpc_respond_message(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
         enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message)
 {
-    return jsonrpc_respond_message_phrase(buffer, cmd_id, id, facility, severity, message, 0);
+    return jsonrpc_respond_message_phrase(buffer, cmd_id, request_id, facility, severity, message, 0);
 }
 
 /**
@@ -256,7 +256,7 @@ sds jsonrpc_respond_message(sds buffer, enum mympd_cmd_ids cmd_id, long id,
  * with the value. Key/value pairs are variadic arguments.
  * @param buffer pointer to alreay allocated sds string
  * @param cmd_id enum mympd_cmd_ids
- * @param id id of the jsonrpc request to answer
+ * @param request_id id of the jsonrpc request to answer
  * @param facility one of enum jsonrpc_facilities
  * @param severity one of enum jsonrpc_severities
  * @param message the message to send
@@ -264,7 +264,7 @@ sds jsonrpc_respond_message(sds buffer, enum mympd_cmd_ids cmd_id, long id,
  * @param ... key/value pairs for the phrase
  * @return pointer to buffer with jsonrpc string
  */
-sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long id,
+sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
         enum jsonrpc_facilities facility, enum jsonrpc_severities severity,
         const char *message, int count, ...)
 {
@@ -273,7 +273,7 @@ sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long i
     const char *severity_name = jsonrpc_severity_name(severity);
     sdsclear(buffer);
     buffer = sdscatfmt(buffer, "{\"jsonrpc\":\"2.0\",\"id\":%l,\"%s\":{",
-        id, (severity == JSONRPC_SEVERITY_INFO ? "result" : "error"));
+        request_id, (severity == JSONRPC_SEVERITY_INFO ? "result" : "error"));
     buffer = tojson_char(buffer, "method", method, true);
     buffer = tojson_char(buffer, "facility", facility_name, true);
     buffer = tojson_char(buffer, "severity", severity_name, true);

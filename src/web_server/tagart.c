@@ -12,6 +12,13 @@
 #include "../lib/sds_extras.h"
 #include "../lib/validate.h"
 
+/**
+ * Request handler for /tagart
+ * @param nc mongoose connection
+ * @param hm http message
+ * @param mg_user_data webserver configuration
+ * @return true on success, else false
+ */
 bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data)
 {

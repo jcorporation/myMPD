@@ -100,8 +100,8 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
 /**
  * Initializes the album and sticker cache
  * @param mpd_worker_state pointer to mpd_worker_state struct
- * @album_cache pointer to empty album_cache
- * @album sticker_cache pointer to empty sticker_cache
+ * @param album_cache pointer to empty album_cache
+ * @param sticker_cache sticker_cache pointer to empty sticker_cache
  * @return true on success else false
  */
 static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
@@ -231,7 +231,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
  * Populates the sticker struct from mpd
  * @param partition_state pointer to partition specific states
  * @param uri song uri
- * @param pointer already allocated sticker struct to populate
+ * @param sticker pointer already allocated sticker struct to populate
  * @return true on success else false
  */
 static bool _get_sticker_from_mpd(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker) {
