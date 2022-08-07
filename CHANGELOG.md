@@ -27,6 +27,7 @@ This release removes the compatibility code for MPD versions older than 0.21.
 - Fix: use only sort tags that are configured in MPD
 - Fix: add missing default values
 - Fix: cache building on reconnect if stickers are disabled
+- Fix: hide input in pin enter dialog
 
 ***
 

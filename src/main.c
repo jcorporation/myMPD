@@ -364,7 +364,7 @@ int main(int argc, char **argv) {
     int handle_options_rc = handle_options(config, argc, argv);
     switch(handle_options_rc) {
         case OPTIONS_RC_INVALID:
-            //invalid option
+            //invalid option or error
             loglevel = LOG_ERR;
             goto cleanup;
         case OPTIONS_RC_EXIT:

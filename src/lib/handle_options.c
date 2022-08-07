@@ -82,10 +82,11 @@ int handle_options(struct t_config *config, int argc, char **argv) {
                 config->bootstrap = true;
                 break;
             #ifdef ENABLE_SSL
-            case 'p':
-                pin_set(config->workdir);
-                return OPTIONS_RC_EXIT;
+            case 'p': {
+                bool rc = pin_set(config->workdir);
+                return rc == true ? OPTIONS_RC_EXIT : OPTIONS_RC_INVALID;
                 break;
+            }
             #endif
             case 'v':
             case 'h':
