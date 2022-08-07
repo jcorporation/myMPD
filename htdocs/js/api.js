@@ -180,7 +180,8 @@ function sendAPI(method, params, callback, onerror) {
     }
     if (settings.pin === true &&
         session.token === '' &&
-        session.timeout < getTimestamp() && APImethods[method].protected === true)
+        session.timeout < getTimestamp() &&
+        APImethods[method].protected === true)
     {
         logDebug('Request must be authorized but we have no session');
         enterPin(method, params, callback, onerror);
@@ -197,7 +198,7 @@ function sendAPI(method, params, callback, onerror) {
         if (ajaxRequest.readyState !== 4) {
             return;
         }
-        if (ajaxRequest.status === 401 &&
+        if (ajaxRequest.status === 403 &&
             method !== 'MYMPD_API_SESSION_VALIDATE')
         {
             logDebug('Authorization required for ' + method);

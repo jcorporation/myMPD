@@ -85,8 +85,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
             sds response = jsonrpc_respond_message(sdsempty(), cmd_id, 0,
                 JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR,
                 (cmd_id == MYMPD_API_SESSION_VALIDATE ? "Invalid session" : "Authentication required"));
-            mg_printf(nc, "HTTP/1.1 401 Unauthorized\r\n"
-                "WWW-Authenticate: Bearer realm=\"myMPD\"\r\n"
+            mg_printf(nc, "HTTP/1.1 403 Forbidden\r\n"
                 "Content-Type: application/json\r\n"
                 "Content-Length: %d\r\n\r\n",
                 (int)sdslen(response));
