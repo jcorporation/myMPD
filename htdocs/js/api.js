@@ -3,8 +3,15 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * This messages are hidden from notifications.
+ */
 const ignoreMessages = ['No current song', 'No lyrics found'];
 
+/**
+ * Removes the enter pin dialog from a modal footer.
+ * @param {HTMLElement} footer parent element of the enter pin dialog
+ */
 function removeEnterPinFooter(footer) {
     if (footer !== undefined) {
         elShow(footer.previousElementSibling);
@@ -21,6 +28,14 @@ function removeEnterPinFooter(footer) {
     }
 }
 
+/**
+ * Creates the enter pin footer and sends the original api request after the session is created.
+ * @param {HTMLElementCollection} footers modal footers to hide
+ * @param {String} method jsonrpc method of the original api request
+ * @param {Object} params json object of the original api request
+ * @param {Callback} callback callback function of the original api request
+ * @param {Boolean} onerror true = execute callback also on error
+ */
 function createEnterPinFooter(footers, method, params, callback, onerror) {
     const input = elCreateEmpty('input', {"type": "password", "autocomplete": "off", "class": ["form-control", "border-secondary"]});
     const btn = elCreateText('button', {"class": ["btn", "btn-success"]}, tn('Enter'));
@@ -72,6 +87,13 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
     }, false);
 }
 
+/**
+ * Shows the enter pin dialog in a new model or if a modal is already opened in the footer of this modal.
+ * @param {String} method jsonrpc method of the original api request
+ * @param {Object} params json object of the original api request
+ * @param {Callback} callback callback function of the original api request
+ * @param {Boolean} onerror true = execute callback also on error
+ */
 function enterPin(method, params, callback, onerror) {
     session.timeout = 0;
     setSessionState();
@@ -116,6 +138,10 @@ function enterPin(method, params, callback, onerror) {
     }
 }
 
+/**
+ * Sets the session state.
+ * Shows/hides the lock indicator and the login/logout menu entry.
+ */
 function setSessionState() {
     if (session.timeout < getTimestamp()) {
         logDebug('Session expired: ' + session.timeout);
@@ -142,6 +168,9 @@ function setSessionState() {
     }
 }
 
+/**
+ * Resets the session timer.
+ */
 function resetSessionTimer() {
     if (sessionTimer !== null) {
         clearTimeout(sessionTimer);
@@ -152,6 +181,10 @@ function resetSessionTimer() {
     }, sessionRenewInterval);
 }
 
+/**
+ * Validates a session by calling the MYMPD_API_SESSION_VALIDATE endpoint
+ * and calls setSessionState to update the DOM.
+ */
 function validateSession() {
     sendAPI('MYMPD_API_SESSION_VALIDATE', {}, function(obj) {
         if (obj.result !== undefined &&
@@ -166,6 +199,10 @@ function validateSession() {
     }, true);
 }
 
+/**
+ * Removes a session by calling the MYMPD_API_SESSION_LOGOUT endpoint
+ * and calls setSessionState to update the DOM.
+ */
 //eslint-disable-next-line no-unused-vars
 function removeSession() {
     sendAPI('MYMPD_API_SESSION_LOGOUT', {}, function() {
@@ -174,6 +211,14 @@ function removeSession() {
     }, false);
 }
 
+/**
+ * Sends a JSON-RPC API request and handles the response.
+ * @param {String} method jsonrpc api method
+ * @param {Object} params jsonrpc parameters
+ * @param {Callback} callback callback function
+ * @param {Boolean} onerror true = execute callback also on error
+ * @returns {Boolean} true on success, else false
+ */
 function sendAPI(method, params, callback, onerror) {
     if (APImethods[method] === undefined) {
         logError('Method "' + method + '" is not defined');
@@ -187,6 +232,7 @@ function sendAPI(method, params, callback, onerror) {
         enterPin(method, params, callback, onerror);
         return false;
     }
+    //we do not use the jsonrpc id field because we get the response directly.
     const request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
     const ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('POST', subdir + '/api/', true);
@@ -266,7 +312,7 @@ function sendAPI(method, params, callback, onerror) {
             logDebug('Got API response of type: ' + obj.result.method);
         }
         else {
-            //rest is invalid
+            //remaining results are invalid
             logError('Got invalid API response: ' + ajaxRequest.responseText);
             if (onerror !== true) {
                 return;
@@ -291,6 +337,9 @@ function sendAPI(method, params, callback, onerror) {
     return true;
 }
 
+/**
+ * Connects to the websocket and registers the event handlers.
+ */
 function webSocketConnect() {
     if (socket !== null &&
         socket.readyState === WebSocket.OPEN)
@@ -503,6 +552,9 @@ function webSocketConnect() {
     }
 }
 
+/**
+ * Closes the websocket and terminates the keepalive and reconnect timer
+ */
 function webSocketClose() {
     if (websocketTimer !== null) {
         clearTimeout(websocketTimer);
@@ -521,6 +573,9 @@ function webSocketClose() {
     websocketConnected = false;
 }
 
+/**
+ * Sends a ping keepalive message to the websocket endpoint.
+ */
 function websocketKeepAlive() {
     if (socket !== null &&
         socket.readyState === WebSocket.OPEN)
