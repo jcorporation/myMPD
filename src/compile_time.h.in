@@ -174,27 +174,27 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define LOGLEVEL_MAX 7
 
 //certificates
-#define CA_LIFETIME 3650
-#define CA_LIFETIME_MIN 365
-#define CA_KEY_LENGTH 4096
-#define CERT_LIFETIME 365
-#define CERT_LIFETIME_MIN 30
-#define CERT_KEY_LENGTH 2048
+#define CA_LIFETIME 3650 //days
+#define CA_LIFETIME_MIN 365 //days
+#define CA_KEY_LENGTH 4096 //bytes
+#define CERT_LIFETIME 365 //days
+#define CERT_LIFETIME_MIN 30 //days
+#define CERT_KEY_LENGTH 2048 //bytes
 
 //http limits
 #define HTTP_CONNECTIONS_MAX 100
 #define URI_LENGTH_MAX 1000
-#define BODY_SIZE_MAX 8192
+#define BODY_SIZE_MAX 8192 //bytes
 
 //session limits
 #define HTTP_SESSIONS_MAX 10
-#define HTTP_SESSION_TIMEOUT 1800
+#define HTTP_SESSION_TIMEOUT 1800 //seconds
 
 //content limits
 #define NAME_LEN_MAX 200
 #define CONTENT_LEN_MAX 3000
 #define EXPRESSION_LEN_MAX 1000
-#define MPD_OUTPUT_ID_MAX 20
+#define MPD_OUTPUT_ID_MAX 40
 #define COLS_MAX 20
 
 //mpd limits
@@ -202,10 +202,10 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MPD_PORT_MAX 65535
 #define MPD_TIMEOUT_MIN 10000 //ms
 #define MPD_TIMEOUT_MAX 1000000 //ms
-#define MPD_RESULTS_MIN 25
+#define MPD_RESULTS_MIN 1
 #define MPD_RESULTS_MAX 2000
 #define MPD_COMMANDS_MAX 2000 //max number of commands for mpd command lists
-#define MPD_PLAYLIST_LENGTH_MAX 16384 //mpd default
+#define MPD_PLAYLIST_LENGTH_MAX INT_MAX //max mpd queue or playlist length
 #define MPD_BINARY_SIZE_MIN 4096 //4 kb mpd default
 #define MPD_BINARY_SIZE_MAX 5242880 //5 MB
 #define MPD_QUEUE_PRIO_MAX 255
@@ -248,9 +248,9 @@ extern struct t_mympd_queue *mympd_script_queue;
 
 //file size limits
 #define LINE_LENGTH_MAX 2000
-#define LYRICS_SIZE_MAX 10000
-#define SCRIPTS_SIZE_MAX 10000
-#define SMARTPLS_SIZE_MAX 2000
+#define LYRICS_SIZE_MAX 10000 //bytes
+#define SCRIPTS_SIZE_MAX 10000 //bytes
+#define SMARTPLS_SIZE_MAX 2000 //bytes
 #define WEBRADIODB_SIZE_MAX 1048576 //bytes, 1 MB
 
 //limits for stickers
