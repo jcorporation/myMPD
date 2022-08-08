@@ -1,0 +1,17 @@
+{
+    "plugins": [],
+    "recurseDepth": 10,
+    "source": {
+        "includePattern": ".+\\.js$",
+        "excludePattern": "(bootstrap-native.js|long-press-event.js)"
+    },
+    "sourceType": "script",
+    "tags": {
+        "allowUnknownTags": false,
+        "dictionaries": ["jsdoc"]
+    },
+    "templates": {
+        "cleverLinks": false,
+        "monospaceLinks": false
+    }
+}

@@ -200,7 +200,7 @@ minify() {
   elif [ "$TYPE" = "js" ]
   then
     #shellcheck disable=SC2016
-    if ! perl -pe 's/^\s*//gm; s/^\/\/.+$//g; s/^logDebug\(.*$//g; s/\/\*debug\*\/.*$//g; s/\s*$//gm;' "$SRC" > "${DST}.tmp"
+    if ! perl -pe 's/^\s*//gm; s/^\s*\/?\*.*$//g; s/^\/\/.+$//g; s/^logDebug\(.*$//g; s/\/\*debug\*\/.*$//g; s/\s*$//gm;' "$SRC" > "${DST}.tmp"
     then
       rm -f "${DST}.tmp"
       echo_error "Error minifying $SRC"
@@ -1262,7 +1262,15 @@ run_doxygen() {
   then
     return 1
   fi
-  doxygen | grep "warning"
+  doxygen
+}
+
+run_jsdoc() {
+  if ! check_cmd jsdoc
+  then 
+    return 1
+  fi
+  jsdoc htdocs/js/ -c jsdoc.json -d docs/jsdoc/
 }
 
 case "$ACTION" in
@@ -1405,8 +1413,17 @@ case "$ACTION" in
   luascript_index)
     luascript_index
   ;;
-  doxygen)
-    run_doxygen
+  api_doc)
+    if ! run_doxygen
+    then
+      echo "Could not create backend api documentation"
+      exit 1
+    fi
+    if ! run_jsdoc
+    then
+      echo "Could not create frontend api documentation"
+      exit 1
+    fi
   ;;
 	*)
     echo "Usage: $0 <option>"
@@ -1498,7 +1515,8 @@ case "$ACTION" in
     echo "Misc options:"
     echo "  addmympduser:     adds mympd group and user"
     echo "  luascript_index:  creates the json index of lua scripts"
-    echo "  doxygen:          generates the internal api documentation with doxygen"
+    echo "  api_doc:          generates the backend api documentation with doxygen"
+    echo "                    generated the frontend api documentation with jsdoc"
     echo ""
     echo "Source update options:"
     echo "  bootstrap:        updates bootstrap"

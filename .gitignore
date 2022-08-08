@@ -20,5 +20,6 @@
 /dist/bootstrap/node_modules/
 /dist/bootstrap/package-lock.json
 /docs/doxygen/
+/docs/jsdoc/
 .cache/
 /build/

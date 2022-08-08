@@ -26,10 +26,11 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: doxygen
+      - name: Generate api documentation
         run: |
           sudo apt-get install -y doxygen
-          ./build.sh doxygen
+          sudo npm install -g jsdoc
+          ./build.sh api_doc
       - name: Setup Pages
         uses: actions/configure-pages@v1
       - name: Build with Jekyll
