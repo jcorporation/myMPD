@@ -1157,6 +1157,16 @@ const APImethods = {
                 "example": 0,
                 "desc": "MPD crossfade in seconds"
             },
+            "mixrampDb": {
+                "type": "float",
+                "example": 0,
+                "desc": "mixramp threshold in dB"
+            },
+            "mixrampDela": {
+                "type": "float",
+                "example": 0,
+                "desc": "mixrampdelay in seconds"
+            },
             "jukeboxMode": {
                 "type": "text",
                 "example": "off",
@@ -1165,7 +1175,7 @@ const APImethods = {
             "jukeboxPlaylist": {
                 "type": "text",
                 "example": "Database",
-                "desc": "Playlist for jukebox or \"Databas\" for whole database."
+                "desc": "Playlist for jukebox or \"Database\" for whole database."
             },
             "jukeboxQueueLength": {
                 "type": "uint",
