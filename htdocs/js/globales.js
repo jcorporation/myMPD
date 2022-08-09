@@ -648,12 +648,18 @@ const webuiSettingsDefault = {
         "form": "enableFeaturesFrm",
         "warn": "MPD does not support mounts"
     },
+    "enableLocalPlayback": {
+        "defaultValue": false
+    },
     "enablePartitions": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Partitions",
         "form": "enableFeaturesFrm",
         "warn": "MPD does not support partitions"
+    },
+    "enableLyrics": {
+        "defaultValue": true
     },
     "uiTheme": {
         "defaultValue": "theme-dark",
@@ -734,12 +740,6 @@ const webuiSettingsDefault = {
         "title": "Startup view",
         "form": "startupFrm",
         "onChange": "eventChangeTheme"
-    },
-    "enableLocalPlayback": {
-        "defaultValue": false
-    },
-    "enableLyrics": {
-        "defaultValue": true
     }
 };
 

@@ -858,6 +858,11 @@ const APImethods = {
                 "example": "folder,cover",
                 "desc": "Comma separated list of coverimages, basenames or full names"
             },
+            "thumbnailNames": {
+                "type": "text",
+                "example": "folder-sm,cover-sm",
+                "desc": "Comma separated list of coverimage thumbnails, basenames or full names"
+            },
             "lastPlayedCount": {
                 "type": "uint",
                 "example": 200,
@@ -942,6 +947,11 @@ const APImethods = {
                 "type": "text",
                 "example": "SYNCEDLYRICS",
                 "desc": "Vorbis tag for synced lyrics"
+            },
+            "listenbrainzToken": {
+                "type": "text",
+                "example": "<token>",
+                "desc": "Your ListenBrainz token"
             },
             "webuiSettings": {
                 "params": {
@@ -1040,6 +1050,21 @@ const APImethods = {
                         "example": 50,
                         "desc": "max. elements for lists: 25, 50, 100, 200 or 0 for unlimited"
                     },
+                    "uiSmallWidthTagRows": {
+                        "type": "bool",
+                        "example": true,
+                        "desc": "Display tags in rows for small displays"
+                    },
+                    "uiQuickPlayButton": {
+                        "type": "bool",
+                        "example": false,
+                        "title": "Show quick play button"
+                    },
+                    "uiQuickRemoveButton": {
+                        "type": "bool",
+                        "example": false,
+                        "title": "Show quick remove button"
+                    },
                     "enableHome": {
                         "type": "bool",
                         "example": true,
@@ -1119,6 +1144,11 @@ const APImethods = {
                         "type": "text",
                         "example": "de-DE",
                         "desc": "Language code or \"auto\" for browser default."
+                    },
+                    "uiStartupView": {
+                        "type": "text",
+                        "example": "Home",
+                        "desc": "Startup view"
                     }
                 }
             }
