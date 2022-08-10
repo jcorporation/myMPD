@@ -33,7 +33,6 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
 - cmake >= 3.4
 - libasan3 - for memcheck builds only
 - Perl - to create translation files
-- jq - to show translation statistics
 - gzip - to precompress assets
 - Devel packages:
   - pcre2 - for pcre support
