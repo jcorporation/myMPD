@@ -30,8 +30,8 @@ Nevertheless myMPD is designed with security in mind.
 - The debug and development builds are linked with libasan to detect memory errors
 - myMPD uses a [https://github.com/jcorporation/sds](dynamic string library) to prevent buffer-overflows
 - Files are served with a strict [Content Security](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) and [Trusted Types](https://developer.mozilla.org/en-US/docs/Web/API/Trusted_Types_API) Policy to prevent XSS attacks
-- The javascript completely avoids parsing of strings to dom nodes
-- All included dependecies are updated regulary
+- The javascript frontend avoids parsing of strings to dom nodes
+- All included dependencies are updated regulary
 
 ## Reporting
 

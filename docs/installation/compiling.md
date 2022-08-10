@@ -14,7 +14,7 @@ title: Compiling
 | other branches | unstable | development branches for new major and minor releases |
 {: .table .table-sm }
 
-Get the appropriated tarball or clone the git repository and switch to the wanted branch.
+Get the appropriated tarball or clone the git repository and checkout the wanted branch.
 
 **Example: Clone and use devel branch:**
 ```
@@ -117,7 +117,7 @@ To run the unit tests:
 
 ## Advanced Options
 
-For advanced options type ``./build.sh help``.
+For advanced options type `./build.sh help`.
 
 ## Cross compiling with Debian
 

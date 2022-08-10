@@ -9,7 +9,8 @@ Through the scripting and trigger features you can add a simple scrobbler to myM
 An example script is in the `docs/scripting/scripts` directory named `ListenBrainz-Scrobbler.lua`
 
 - Add your ListenBrainz token (Settings -> Cloud).
-- Copy & paste the file content in a new script (ommit the first comment line)
+- Create a new script
+  - Import the `ListenBrainz-Scrobbler.lua` script
 - Create a new trigger
   - Event: `mympd_scrobble`
   - Action: above script
