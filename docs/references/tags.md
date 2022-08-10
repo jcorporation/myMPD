@@ -26,12 +26,14 @@ If you want use ListenBrainz for scrobbling you should enable additional tags:
 
 I personally use [Picard](https://picard.musicbrainz.org/) to tag my music files.
 
-## Hints
+## Important notes
 
-1. Disable the AlbumArtist tag if your music files are not tagged with it.
-2. If you not enable the AlbumArtist tag, myMPD falls back to the Artist tag.
-3. To support multiartist albums you must use the AlbumArtist tag and set it e. g. to `Various`.
-4. `Genre` is in the default configuration used to build default smart playlists.
-5. If no tags are enabled, myMPD uses the basename of the filename as title.
-6. ID3 tags with multiple values works only for IDv2.4, older versions uses a separator for values in one tag and that is not supported by MPD.
-7. MPD does not support multi-value MusicBrainz ID tags (https://github.com/MusicPlayerDaemon/MPD/issues/687). myMPD implements a workaround and splits the MUSICBRAINZ_ARTISTID and MUSICBRAINZ_ALBUMARTISTID tags by semicolon.
+- Disable the AlbumArtist tag if your music files are not tagged with it.
+- If the AlbumArtist tag is not enabled, myMPD falls back to the Artist tag.
+- If the AlbumArtist tag is empty, MPD and myMPD falls back to Artist tag for filters.
+- To support multiartist albums you must use the AlbumArtist tag and set it e. g. to `Various`.
+- To support multidisc albums you must use the Disc tag (numeric or in the format `1/2`).
+- `Genre` is in the default configuration used to build default smart playlists.
+- If no tags are enabled, myMPD uses the basename of the filename as title.
+- ID3 tags with multiple values works only for IDv2.4, older versions uses a separator for values in one tag and that is not supported by MPD.
+- MPD does not support multi-value MusicBrainz ID tags (https://github.com/MusicPlayerDaemon/MPD/issues/687). myMPD implements a workaround and splits the MUSICBRAINZ_ARTISTID and MUSICBRAINZ_ALBUMARTISTID tags by semicolon.
