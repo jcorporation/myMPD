@@ -24,6 +24,7 @@ This release removes the compatibility code for MPD versions older than 0.21.
 - Upd: add doxygen style internal api documentation
 - Upd: add more unit tests
 - Upd: Bootstrap 5.2
+- Upd: use dh_helpers for debian packaging
 - Fix: use only sort tags that are configured in MPD
 - Fix: add missing default values
 - Fix: cache building on reconnect if stickers are disabled

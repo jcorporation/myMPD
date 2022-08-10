@@ -17,12 +17,15 @@ binary: binary-indep binary-arch
 binary-indep:
 
 binary-arch:
-	cd $(BUILDDIR); make install DESTDIR=../debian/tmp
-	mkdir -p debian/tmp/DEBIAN
-	cp debian/postinst debian/tmp/DEBIAN
-	cp debian/postrm debian/tmp/DEBIAN
-	dpkg-gencontrol -pmympd
-	dpkg --build debian/tmp ..
+	cd $(BUILDDIR); make install DESTDIR=../debian/mympd
+	mkdir -p debian/mympd/DEBIAN
+	cp debian/postinst debian/mympd/DEBIAN
+	cp debian/postrm debian/mympd/DEBIAN
+	echo 10 > debian/compat
+	dh_makeshlibs
+	dh_shlibdeps
+	dh_gencontrol
+	dh_builddeb
 
 clean:
 	rm -rf $(BUILDDIR)
