@@ -109,11 +109,10 @@ CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-avoid-const-params-in-decls"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-non-const-parameter"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-isolate-declaration"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-identifier-length"
 
 #save startpath
-STARTPATH=$(pwd)
+STARTPATH=$(dirname $(realpath $0))
 
 #set umask
 umask 0022
@@ -846,11 +845,15 @@ installdeps() {
   echo "Platform: $(uname -m)"
   if [ -f /etc/debian_version ]
   then
-    #we install lua5.3 but lua 5.4 works also
     apt-get update
+    if ! apt-get install -y --no-install-recommends liblua5.4-dev
+    then
+      #fallback to lua 5.3 for older debian versions
+      apt-get install -y --no-install-recommends liblua5.3-dev
+    fi
     apt-get install -y --no-install-recommends \
 	    gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-	    build-essential liblua5.3-dev pkg-config libpcre2-dev jq gzip
+	    build-essential pkg-config libpcre2-dev jq gzip
   elif [ -f /etc/arch-release ]
   then
     #arch
@@ -880,7 +883,7 @@ installdeps() {
     echo "  - openssl (devel)"
     echo "  - flac (devel)"
     echo "  - libid3tag (devel)"
-    echo "  - liblua5.3 or liblua5.4 (devel)"
+    echo "  - liblua5.4 or liblua5.3 (devel)"
     echo "  - libpcre2 (devel)"
   fi
 }
