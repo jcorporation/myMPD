@@ -25,7 +25,7 @@ struct t_mg_user_data {
     int coverimage_names_len;    //!< length of coverimage_names array
     sds *thumbnail_names;        //!< sds array of coverimage thumbnail names
     int thumbnail_names_len;     //!< length of thumbnail_names array
-    bool feat_albumart;      //!< feature flag for md albumart command
+    bool feat_albumart;          //!< feature flag for md albumart command
     bool publish_playlists;      //!< true if mpd playlist directory is configured
     bool publish_music;          //!< true if mpd music directory is accessable
     int connection_count;        //!< number of http connections
