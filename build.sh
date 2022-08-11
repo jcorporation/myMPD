@@ -96,7 +96,6 @@ CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-easily-swappable-parameters"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-macro-parentheses"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-signal-handler,-cert-sig30-c"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-integer-division"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-clang-diagnostic-invalid-command-line-argument"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-concurrency-mt-unsafe"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-cppcoreguidelines*"
@@ -104,15 +103,13 @@ CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-hicpp-*"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvm-header-guard"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvm-include-order"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-llvmlibc-restrict-system-libc-headers"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-misc-misplaced-const"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-identifier-length"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity,-google-readability-function-size,-readability-function-size"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-avoid-const-params-in-decls"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-non-const-parameter"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-identifier-length"
 
 #save startpath
-STARTPATH=$(dirname $(realpath $0))
+STARTPATH=$(dirname "$(realpath "$0")")
 
 #set umask
 umask 0022
@@ -546,7 +543,7 @@ check_file() {
 
   if check_cmd clang-tidy
   then
-    echo "Running clang-tidy, output goes to clang-tidy.out"
+    echo "Running clang-tidy"
     rm -f clang-tidy.out
     clang-tidy --checks="$CLANG_TIDY_CHECKS" \
     	"$FILE" > ../clang-tidy.out 2>/dev/null
