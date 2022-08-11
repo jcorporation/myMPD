@@ -56,31 +56,31 @@ endif()
 message("Executables in: ${CMAKE_INSTALL_FULL_BINDIR}")
 
 if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr/local")
-  set(VARLIB_PATH "/${CMAKE_INSTALL_LOCALSTATEDIR}${SUBDIRLIB}${SUBDIR}")
+  set(WORK_DIR "/${CMAKE_INSTALL_LOCALSTATEDIR}${SUBDIRLIB}${SUBDIR}")
 else()
-  set(VARLIB_PATH "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}${SUBDIRLIB}${SUBDIR}")
+  set(WORK_DIR "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}${SUBDIRLIB}${SUBDIR}")
 endif()
-message("Workdir: ${VARLIB_PATH}")
+message("Workdir: ${WORK_DIR}")
 
 if("${CMAKE_INSTALL_PREFIX}" MATCHES "/usr/local")
-  set(VARCACHE_PATH "/${CMAKE_INSTALL_LOCALSTATEDIR}${SUBDIRCACHE}${SUBDIR}")
+  set(CACHE_DIR "/${CMAKE_INSTALL_LOCALSTATEDIR}${SUBDIRCACHE}${SUBDIR}")
 else()
-  set(VARCACHE_PATH "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}${SUBDIRCACHE}${SUBDIR}")
+  set(CACHE_DIR "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}${SUBDIRCACHE}${SUBDIR}")
 endif()
-message("Cachedir: ${VARCACHE_PATH}")
+message("Cachedir: ${CACHE_DIR}")
 
 #default is to deliver embedded assets for release
 #and assets in htdocs for debug
 if("${EMBEDDED_ASSETS}" MATCHES "ON")
-  set(ASSETS_PATH "${VARLIB_PATH}/empty")
+  set(DOC_ROOT "${WORK_DIR}/empty")
   set(LUALIBS_PATH "")
   message("Embedding assets in binary")
 else()
-  set(ASSETS_PATH "${PROJECT_SOURCE_DIR}/htdocs")
+  set(DOC_ROOT "${PROJECT_SOURCE_DIR}/htdocs")
   set(LUALIBS_PATH "${PROJECT_SOURCE_DIR}/contrib/lualibs")
   message("Serving assets from filesystem")
 endif()
-message("Document root: ${ASSETS_PATH}")
+message("Document root: ${DOC_ROOT}")
 
 #set debug define for source
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
@@ -202,6 +202,7 @@ if("${ENABLE_IPV6}" MATCHES "ON")
 else()
   message("IPv6 is disabled")
 endif()
+
 #set mjson feature flags
 set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABLE_RPC=0 \
   -D MJSON_ENABLE_PRETTY=0 -D MJSON_ENABLE_MERGE=0")
@@ -389,20 +390,24 @@ set(LIBMPDCLIENT_SOURCES
 )
 
 #relax some compiler settings for dist sources
+
 #compiler flags for mongoose
 #-Wno-stringop-overflow: gcc 11.2.0 bug
-#-Wno-stringop-overread: gcc 12.0.1 bug
 set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
   -Wno-stringop-overflow")
+
 #compiler flags for mjson
 set_property(SOURCE dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "-Wno-conversion")
+
 #compiler flags for rax
 #-Wno-use-after-free: gcc 12.0.1 error
 set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
   -Wno-shadow -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers -Wno-use-after-free")
+
 #compiler flags for sds
 #-Wno-stringop-overflow: gcc 11.2.0 bug
 set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow -Wno-conversion")
+
 #compiler flags for libmpdclient
 set_property(SOURCE ${LIBMPDCLIENT_SOURCES} PROPERTY COMPILE_FLAGS "-Wno-conversion")
 
@@ -413,6 +418,7 @@ add_executable(mympd ${MYMPD_SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})
 target_link_libraries(mympd ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(mympd ${MATH_LIB})
 target_link_libraries(mympd ${PCRE2_LIBRARIES})
+
 #link optional dependencies
 if(OPENSSL_FOUND)
   target_link_libraries(mympd ${OPENSSL_LIBRARIES})

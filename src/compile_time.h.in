@@ -34,9 +34,9 @@
 #define MYMPD_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"
 
 //default paths from cmake
-#define DOC_ROOT "${ASSETS_PATH}"
-#define VARLIB_PATH "${VARLIB_PATH}"
-#define VARCACHE_PATH "${VARCACHE_PATH}"
+#define DOC_ROOT "${DOC_ROOT}"
+#define WORK_DIR "${WORK_DIR}"
+#define CACHE_DIR "${CACHE_DIR}"
 #define LUALIBS_PATH "${LUALIBS_PATH}"
 
 //global variables

@@ -64,8 +64,8 @@ void *mympd_free_config(struct t_config *config) {
 void mympd_config_defaults_initial(struct t_config *config) {
     //command line options
     config->user = sdsnew(CFG_MYMPD_USER);
-    config->workdir = sdsnew(VARLIB_PATH);
-    config->cachedir = sdsnew(VARCACHE_PATH);
+    config->workdir = sdsnew(WORK_DIR);
+    config->cachedir = sdsnew(CACHE_DIR);
     config->log_to_syslog = CFG_LOG_TO_SYSLOG;
     //not configureable
     config->startup_time = time(NULL);
