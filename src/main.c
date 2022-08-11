@@ -81,6 +81,7 @@ static void mympd_signal_handler(int sig_num) {
             //Wakeup queue loops
             pthread_cond_signal(&mympd_api_queue->wakeup);
             pthread_cond_signal(&mympd_script_queue->wakeup);
+            pthread_cond_signal(&web_server_queue->wakeup);
             MYMPD_LOG_NOTICE("Signal \"%s\" received, exiting", (sig_num == SIGTERM ? "SIGTERM" : "SIGINT"));
             break;
         }

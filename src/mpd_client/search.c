@@ -19,9 +19,9 @@
 //private definitions
 
 static sds _mpd_client_search(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
-        const char *expression, const char *sort, const bool sortdesc,
+        const char *expression, const char *sort, bool sortdesc,
         const char *plist, unsigned to, unsigned whence,
-        const unsigned offset, unsigned limit, const struct t_tags *tagcols,
+        unsigned offset, unsigned limit, const struct t_tags *tagcols,
         struct t_cache *sticker_cache, bool *result);
 
 //public functions
@@ -42,7 +42,7 @@ static sds _mpd_client_search(struct t_partition_state *partition_state, sds buf
  * @return pointer to buffer
  */
 sds mpd_client_search_response(struct t_partition_state *partition_state, sds buffer, long request_id,
-        const char *expression, const char *sort, const bool sortdesc, const unsigned offset, const unsigned limit,
+        const char *expression, const char *sort, bool sortdesc, unsigned offset, unsigned limit,
         const struct t_tags *tagcols, struct t_cache *sticker_cache, bool *result)
 {
     return _mpd_client_search(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, request_id,
@@ -129,8 +129,8 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
 
 //private functions
 static sds _mpd_client_search(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
-        const char *expression, const char *sort, const bool sortdesc, const char *plist,
-        unsigned to, unsigned whence, const unsigned offset, const unsigned limit,
+        const char *expression, const char *sort, bool sortdesc, const char *plist,
+        unsigned to, unsigned whence, unsigned offset, unsigned limit,
         const struct t_tags *tagcols, struct t_cache *sticker_cache, bool *result)
 {
     *result = false;

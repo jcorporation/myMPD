@@ -116,7 +116,7 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
  * @param warn if true a warning is logged if file does not exists
  * @return newly allocated sds string
  */
-bool state_file_rw_bool(sds workdir, const char *dir, const char *name, const bool def_value, bool warn) {
+bool state_file_rw_bool(sds workdir, const char *dir, const char *name, bool def_value, bool warn) {
     bool value = def_value;
     sds line = state_file_rw_string(workdir, dir, name, def_value == true ? "true" : "false", NULL, warn);
     if (sdslen(line) > 0) {
@@ -137,7 +137,7 @@ bool state_file_rw_bool(sds workdir, const char *dir, const char *name, const bo
  * @param warn if true a warning is logged if file does not exists
  * @return newly allocated sds string
  */
-int state_file_rw_int(sds workdir, const char *dir, const char *name, const int def_value, const int min, const int max, bool warn) {
+int state_file_rw_int(sds workdir, const char *dir, const char *name, int def_value, int min, int max, bool warn) {
     return (int)state_file_rw_long(workdir, dir, name, def_value, min, max, warn);
 }
 
@@ -152,7 +152,7 @@ int state_file_rw_int(sds workdir, const char *dir, const char *name, const int 
  * @param warn if true a warning is logged if file does not exists
  * @return newly allocated sds string
  */
-long state_file_rw_long(sds workdir, const char *dir, const char *name, const long def_value, const long min, const long max, bool warn) {
+long state_file_rw_long(sds workdir, const char *dir, const char *name, long def_value, long min, long max, bool warn) {
     char *crap = NULL;
     sds def_value_str = sdsfromlonglong((long long)def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
@@ -176,7 +176,7 @@ long state_file_rw_long(sds workdir, const char *dir, const char *name, const lo
  * @param warn if true a warning is logged if file does not exists
  * @return newly allocated sds string
  */
-unsigned state_file_rw_uint(sds workdir, const char *dir, const char *name, const unsigned def_value, const unsigned min, const unsigned max, bool warn) {
+unsigned state_file_rw_uint(sds workdir, const char *dir, const char *name, unsigned def_value, unsigned min, unsigned max, bool warn) {
     char *crap = NULL;
     sds def_value_str = sdsfromlonglong((long long)def_value);
     sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);

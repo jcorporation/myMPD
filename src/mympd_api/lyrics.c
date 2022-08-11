@@ -257,7 +257,7 @@ static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file)
     FREE_SDS(buffer);
 
     if (found_lyrics == 0) {
-        MYMPD_LOG_DEBUG("No embedded unsynced lyrics detected");
+        MYMPD_LOG_DEBUG("No embedded unsynced lyrics found");
     }
     #else
     (void) media_file;
@@ -348,7 +348,7 @@ static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file) {
     id3_file_close(file_struct);
     FREE_SDS(buffer);
     if (found_lyrics == 0) {
-        MYMPD_LOG_DEBUG("No embedded synced lyrics detected");
+        MYMPD_LOG_DEBUG("No embedded synced lyrics found");
     }
     #else
     (void) media_file;
@@ -571,7 +571,7 @@ static void lyricsextract_flac(struct t_list *extracted, sds media_file, bool is
     } while (FLAC__metadata_iterator_next(iterator));
 
     if (found_lyrics == 0) {
-        MYMPD_LOG_DEBUG("No embedded lyrics detected");
+        MYMPD_LOG_DEBUG("No embedded lyrics found");
     }
     FLAC__metadata_iterator_delete(iterator);
     FLAC__metadata_chain_delete(chain);

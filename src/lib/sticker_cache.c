@@ -17,9 +17,9 @@
 
 //privat definitions
 static bool _sticker_inc(struct t_cache *sticker_cache, struct t_partition_state *partition_state, 
-        const char *uri, const char *name, const long value);
+        const char *uri, const char *name, long value);
 static bool _sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
-        const char *uri, const char *name, const long long value);
+        const char *uri, const char *name, long long value);
 
 //public functions
 
@@ -183,7 +183,7 @@ bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache
  * @return true on success else false
  */
 static bool _sticker_inc(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
-        const char *uri, const char *name, const long value)
+        const char *uri, const char *name, long value)
 {
     struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
     if (sticker == NULL) {
@@ -232,7 +232,7 @@ static bool _sticker_inc(struct t_cache *sticker_cache, struct t_partition_state
  * @return true on success else false
  */
 static bool _sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
-        const char *uri, const char *name, const long long value)
+        const char *uri, const char *name, long long value)
 {
     sds value_str = sdsfromlonglong(value);
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);

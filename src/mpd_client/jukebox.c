@@ -129,7 +129,7 @@ void jukebox_clear(struct t_list *list) {
  * @return pointer to buffer
  */
 sds jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
-        const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
+        long offset, long limit, sds searchstr, const struct t_tags *tagcols)
 {
     long entity_count = 0;
     long entities_returned = 0;

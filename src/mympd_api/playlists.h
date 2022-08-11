@@ -20,9 +20,9 @@ enum plist_delete_criterias {
 enum plist_delete_criterias parse_plist_delete_criteria(const char *str);
 
 sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-        const long offset, const long limit, sds searchstr, enum playlist_types type);
+        long offset, long limit, sds searchstr, enum playlist_types type);
 sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, sds buffer,
-        long request_id, sds plist, const long offset, const long limit, sds searchstr,
+        long request_id, sds plist, long offset, long limit, sds searchstr,
         const struct t_tags *tagcols);
 sds mympd_api_playlist_delete(struct t_partition_state *partition_state, sds buffer,
         long request_id, const char *playlist, bool smartpls_only);

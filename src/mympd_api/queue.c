@@ -59,7 +59,7 @@ bool mympd_api_queue_play_newly_inserted(struct t_partition_state *partition_sta
  * @param priority priority to set, max 255
  * @return true on success, else false
  */
-bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, const unsigned song_id, const unsigned priority) {
+bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, unsigned song_id, unsigned priority) {
     bool rc = mpd_run_prio_id(partition_state->conn, priority, song_id);
     if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_prio_id") == false) {
         return false;
@@ -74,7 +74,7 @@ bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, const u
  * @param song_id song id of the song in the queue
  * @return true on success, else false
  */
-bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, const unsigned song_id) {
+bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, unsigned song_id) {
     //default prio is 0
     unsigned priority = 1;
 
@@ -197,17 +197,16 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
         return buffer;
     }
     const unsigned length = mpd_status_get_queue_length(status) - 1;
-    unsigned playing_song_pos = (unsigned)mpd_status_get_song_pos(status);
-    enum mpd_state play_state = mpd_status_get_state(status);
+    const int playing_song_pos = mpd_status_get_song_pos(status);
     mpd_status_free(status);
 
-    if ((play_state == MPD_STATE_PLAY || play_state == MPD_STATE_PAUSE) &&
+    if (playing_song_pos > -1 &&
         length > 1)
     {
         //there is a current song, crop the queue
         if (mpd_command_list_begin(partition_state->conn, false) == true) {
             //remove all songs behind current song
-            unsigned pos_after = playing_song_pos + 1;
+            unsigned pos_after = (unsigned)playing_song_pos + 1;
             if (pos_after < length) {
                 bool rc = mpd_send_delete_range(partition_state->conn, pos_after, UINT_MAX);
                 if (rc == false) {
@@ -216,7 +215,7 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
             }
             //remove all songs before current song
             if (playing_song_pos > 0) {
-                bool rc = mpd_send_delete_range(partition_state->conn, 0, playing_song_pos);
+                bool rc = mpd_send_delete_range(partition_state->conn, 0, (unsigned)playing_song_pos);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_run_delete_range");
                 }
@@ -323,7 +322,7 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
  * @return pointer to buffer
  */
 sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer, long request_id,
-                            const char *tag, const long offset, const long limit, const char *searchstr, const struct t_tags *tagcols)
+                            const char *tag, long offset, long limit, const char *searchstr, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH;
     bool rc = mpd_search_queue_songs(partition_state->conn, false);

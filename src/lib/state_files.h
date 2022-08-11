@@ -14,10 +14,10 @@
 
 sds state_file_rw_string_sds(sds workdir, const char *dir, const char *name, sds def_value, validate_callback vcb, bool warn);
 sds state_file_rw_string(sds workdir, const char *dir, const char *name, const char *def_value, validate_callback vcb, bool warn);
-bool state_file_rw_bool(sds workdir, const char *dir, const char *name, const bool def_value, bool warn);
-int state_file_rw_int(sds workdir, const char *dir, const char *name, const int def_value, const int min, const int max, bool warn);
-unsigned state_file_rw_uint(sds workdir, const char *dir, const char *name, const unsigned def_value, const unsigned min, const unsigned max, bool warn);
-long state_file_rw_long(sds workdir, const char *dir, const char *name, const long def_value, const long min, const long max, bool warn);
+bool state_file_rw_bool(sds workdir, const char *dir, const char *name, bool def_value, bool warn);
+int state_file_rw_int(sds workdir, const char *dir, const char *name, int def_value, int min, int max, bool warn);
+unsigned state_file_rw_uint(sds workdir, const char *dir, const char *name, unsigned def_value, unsigned min, unsigned max, bool warn);
+long state_file_rw_long(sds workdir, const char *dir, const char *name, long def_value, long min, long max, bool warn);
 bool state_file_write(sds workdir, const char *dir, const char *name, const char *value);
 sds camel_to_snake(sds text);
 #endif

@@ -32,10 +32,14 @@
  * Private definitions
  */
 static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_state);
-static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_state, const char *playlist);
-static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *expression);
-static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *sticker, const int maxentries, const int minvalue);
-static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_worker_state, const char *playlist, const int timerange);
+static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_state,
+        const char *playlist);
+static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_worker_state,
+        const char *playlist, const char *expression);
+static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd_worker_state,
+        const char *playlist, const char *sticker, int maxentries, int minvalue);
+static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_worker_state,
+        const char *playlist, int timerange);
 
 /**
  * Public functions
@@ -293,9 +297,12 @@ static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_sta
  * @param expression mpd search expression
  * @return true on success, else false
  */
-static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *expression) {
+static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_worker_state,
+        const char *playlist, const char *expression)
+{
     mpd_worker_smartpls_delete(mpd_worker_state, playlist);
-    bool rc = mpd_client_search_add_to_plist(mpd_worker_state->partition_state, expression, playlist, UINT_MAX, NULL);
+    bool rc = mpd_client_search_add_to_plist(mpd_worker_state->partition_state,
+        expression, playlist, UINT_MAX, NULL);
     if (rc == true) {
         MYMPD_LOG_INFO("Updated smart playlist \"%s\"", playlist);
     }
@@ -332,8 +339,8 @@ static void free_t_sticker_value(void *data) {
  * @param minvalue minimum sticker value
  * @return true on success, else false
  */
-static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd_worker_state, const char *playlist, const char *sticker,
-        const int maxentries, const int minvalue)
+static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd_worker_state,
+        const char *playlist, const char *sticker, int maxentries, int minvalue)
 {
     bool rc = mpd_send_sticker_find(mpd_worker_state->partition_state->conn, "song", "", sticker);
     if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, rc, "mpd_send_sticker_find") == false) {
@@ -417,7 +424,8 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
         raxStop(&iter);
     }
     rax_free_data(add_list, free_t_sticker_value);
-    MYMPD_LOG_INFO("Updated smart playlist \"%s\" with %d songs, minimum value: %d", playlist, i, value_min);
+    MYMPD_LOG_INFO("Updated smart playlist \"%s\" with %d songs, minimum value: %d",
+        playlist, i, value_min);
     return rc;
 }
 
@@ -428,7 +436,9 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
  * @param timerange timerange in seconds since now
  * @return true on success, else false
  */
-static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_worker_state, const char *playlist, const int timerange) {
+static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_worker_state,
+        const char *playlist, int timerange)
+{
     unsigned long value_max = 0;
     struct mpd_stats *stats = mpd_run_stats(mpd_worker_state->partition_state->conn);
     if (stats != NULL) {
@@ -449,7 +459,8 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
     mpd_worker_smartpls_delete(mpd_worker_state, playlist);
 
     sds expression = sdscatfmt(sdsempty(), "(modified-since '%U')", value_max);
-    bool rc = mpd_client_search_add_to_plist(mpd_worker_state->partition_state, expression, playlist, UINT_MAX, NULL);
+    bool rc = mpd_client_search_add_to_plist(mpd_worker_state->partition_state, expression,
+        playlist, UINT_MAX, NULL);
     FREE_SDS(expression);
     
     if (rc == true) {

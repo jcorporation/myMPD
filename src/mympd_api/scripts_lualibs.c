@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_EMBEDDED_LUALIBS_C
-#define MYMPD_EMBEDDED_LUALIBS_C
+#ifndef MYMPD_API_SCRIPTS_LUALIBS_C
+#define MYMPD_API_SCRIPTS_LUALIBS_C
 
 #define INCBIN_PREFIX
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE

@@ -106,7 +106,7 @@ bool mympd_api_last_played_file_save(struct t_list *last_played, long last_playe
  * @param song_id the song id to add
  * @return true on success, else false
  */
-bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, const int song_id) {
+bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, int song_id) {
     if (song_id == -1) {
         return false;
     }
@@ -147,7 +147,7 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, c
  * @return pointer to buffer
  */
 sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds buffer,
-        long request_id, const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
+        long request_id, long offset, long limit, sds searchstr, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_LAST_PLAYED_LIST;
     long entity_count = 0;

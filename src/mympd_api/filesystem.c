@@ -57,7 +57,7 @@ static bool search_dir_entry(rax *rt, sds key, sds entity_name, struct mpd_entit
  * @return pointer to buffer
  */
 sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds path, const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
+        sds path, long offset, long limit, sds searchstr, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_FILESYSTEM_LIST;
     bool rc = mpd_send_list_meta(partition_state->conn, path);

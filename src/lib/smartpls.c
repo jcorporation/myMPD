@@ -20,8 +20,8 @@
 
 //privat definitions
 static bool _smartpls_save(sds workdir, const char *smartpltype,
-        const char *playlist, const char *expression, const int max_entries,
-        const int timerange, const char *sort);
+        const char *playlist, const char *expression, int max_entries,
+        int timerange, const char *sort);
 
 //public functions
 
@@ -166,8 +166,8 @@ bool smartpls_update_all(void) {
  * @return true on success else false
  */
 static bool _smartpls_save(sds workdir, const char *smartpltype, const char *playlist,
-                              const char *expression, const int max_entries,
-                              const int timerange, const char *sort)
+                              const char *expression, int max_entries,
+                              int timerange, const char *sort)
 {
     sds line = sdscatlen(sdsempty(), "{", 1);
     line = tojson_char(line, "type", smartpltype, true);

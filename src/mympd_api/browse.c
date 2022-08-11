@@ -171,7 +171,7 @@ sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds 
  * @return pointer to buffer
  */
 sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds expression, sds sort, bool sortdesc, const long offset, long limit)
+        sds expression, sds sort, bool sortdesc, long offset, long limit)
 {
     if (partition_state->mpd_state->album_cache.cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUMS_GET, request_id,
@@ -309,7 +309,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
  * @return pointer to buffer
  */
 sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds searchstr, sds tag, const long offset, const long limit, bool sortdesc)
+        sds searchstr, sds tag, long offset, long limit, bool sortdesc)
 {
     size_t searchstr_len = sdslen(searchstr);
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_TAG_LIST;

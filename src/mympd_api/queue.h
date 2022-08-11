@@ -17,13 +17,13 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
 sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id,
         long request_id, bool or_clear);
 sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer, long request_id,
-        const char *tag, const long offset, const long limit,
+        const char *tag, long offset, long limit,
         const char *searchstr, const struct t_tags *tagcols);
 sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds buffer, long request_id,
         sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
         const struct t_tags *tagcols);
 bool mympd_api_queue_replace_with_song(struct t_partition_state *partition_state, const char *uri);
 bool mympd_api_queue_replace_with_playlist(struct t_partition_state *partition_state, const char *plist);
-bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, const unsigned song_id, const unsigned priority);
-bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, const unsigned song_id);
+bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, unsigned song_id, unsigned priority);
+bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, unsigned song_id);
 #endif

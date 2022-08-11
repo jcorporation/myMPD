@@ -853,7 +853,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
  * @return true on success else false
  */
 static bool icb_json_get_array_string(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
-    (void) key;
+    (void)key;
     if (vtype != MJSON_TOK_STRING ||
         vcb(value) == false)
     {
@@ -1013,8 +1013,8 @@ static const char *jsonrpc_event_name(enum jsonrpc_events event) {
  * @return true on success else false
  */
 static bool _icb_json_get_tag(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
-    (void) vcb;
     (void) key;
+    (void) vcb;
     if (vtype != MJSON_TOK_STRING) {
         _set_parse_error(error, "Value is not a string \"%s\"", value);
         return false;

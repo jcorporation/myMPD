@@ -64,7 +64,7 @@ static void free_t_pl_data(void *data) {
  * @return pointer to buffer
  */
 sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-        const long offset, const long limit, sds searchstr, enum playlist_types type)
+        long offset, long limit, sds searchstr, enum playlist_types type)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_LIST;
     bool rc = mpd_send_list_playlists(partition_state->conn);
@@ -192,7 +192,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
  * @return pointer to buffer
  */
 sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds plist, const long offset, const long limit, sds searchstr, const struct t_tags *tagcols)
+        sds plist, long offset, long limit, sds searchstr, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_CONTENT_LIST;
     bool rc = mpd_send_list_playlist_meta(partition_state->conn, plist);

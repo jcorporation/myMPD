@@ -10,7 +10,7 @@
 #include "../lib/mympd_state.h"
 
 sds mpd_client_search_response(struct t_partition_state *partition_state, sds buffer, long request_id,
-        const char *expression, const char *sort, const bool sortdesc, const unsigned offset, const unsigned limit,
+        const char *expression, const char *sort, bool sortdesc, unsigned offset, unsigned limit,
         const struct t_tags *tagcols, struct t_cache *sticker_cache, bool *result);
 bool mpd_client_search_add_to_plist(struct t_partition_state *partition_state, const char *expression,
         const char *plist, unsigned to, sds *response);

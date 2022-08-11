@@ -10,6 +10,6 @@
 #include "../lib/mympd_state.h"
 
 sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds buffer,
-        long request_id, sds path, const long offset, const long limit,
+        long request_id, sds path, long offset, long limit,
         sds searchstr, const struct t_tags *tagcols);
 #endif

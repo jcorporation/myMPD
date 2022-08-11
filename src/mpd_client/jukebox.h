@@ -15,7 +15,7 @@ const char *jukebox_mode_lookup(enum jukebox_modes mode);
 void jukebox_clear(struct t_list *list);
 bool jukebox_rm_entry(struct t_list *list, long pos);
 sds jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id,
-        long request_id, const long offset, const long limit, sds searchstr,
+        long request_id, long offset, long limit, sds searchstr,
         const struct t_tags *tagcols);
 bool jukebox_run(struct t_partition_state *partition_state);
 bool jukebox_add_to_queue(struct t_partition_state *partition_state, long add_songs,
