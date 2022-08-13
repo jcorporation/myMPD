@@ -507,7 +507,7 @@ function setLocale(newLocale) {
         locale = 'en-US';
     }
     //get phrases and translate dom
-    httpGet(subdir + 'assets/i18n/' + locale + '.json', function(obj) {
+    httpGet(subdir + '/assets/i18n/' + locale + '.json', function(obj) {
         phrases = obj;
         i18nHtml(domCache.body);
     }, true);
