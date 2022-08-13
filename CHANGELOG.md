@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v9.5.0 (not yet released)
+## myMPD v9.5.0 (2022-08-13)
 
 This release improves and documents the myMPD backend code, but there are also some minor new features added. I further added the doxygen generated internal api documentation to the myMPD documentation site: [Doxygen generated internal API documentation](https://jcorporation.github.io/myMPD/doxygen/html/index.html).
 
