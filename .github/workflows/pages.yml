@@ -29,7 +29,7 @@ jobs:
       - name: Generate api documentation
         run: |
           sudo apt-get install -y doxygen graphviz
-          sudo npm install -g jsdoc
+          sudo npm install --location=global jsdoc
           ./build.sh api_doc
       - name: Setup Pages
         uses: actions/configure-pages@v1
