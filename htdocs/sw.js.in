@@ -14,14 +14,15 @@ const urlsToCache = [
     subdir + '/assets/coverimage-notavailable.svg',
     subdir + '/assets/coverimage-loading.svg',
     subdir + '/assets/coverimage-mympd.svg',
-    subdir + '/assets/MaterialIcons-Regular.woff2',
-    subdir + '/assets/mympd-background-dark.svg',
-    subdir + '/assets/mympd-background-light.svg',
     subdir + '/assets/i18n/cn-CHS.json',
     subdir + '/assets/i18n/de-DE.json',
     subdir + '/assets/i18n/en-US.json',
     subdir + '/assets/i18n/ko-KR.json',
-    subdir + '/assets/i18n/nl-NL.json'
+    subdir + '/assets/i18n/nl-NL.json',
+    subdir + '/assets/ligatures.json',
+    subdir + '/assets/MaterialIcons-Regular.woff2',
+    subdir + '/assets/mympd-background-dark.svg',
+    subdir + '/assets/mympd-background-light.svg'
 ];
 
 const ignoreRequests = new RegExp(subdir + '/(' + [
