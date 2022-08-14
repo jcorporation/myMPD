@@ -26,20 +26,20 @@ const urlsToCache = [
 ];
 
 const ignoreRequests = new RegExp(subdir + '/(' + [
-	'api/.*',
-	'ca.crt',
-	'ws/',
-	'stream/',
-	'albumart.*',
-	'tagart.*',
-	'proxy.*',
-	'browse/.*'].join('|') + ')$');
+    'api/.*',
+    'ca.crt',
+    'ws/',
+    'stream/',
+    'albumart.*',
+    'tagart.*',
+    'proxy.*',
+    'browse/.*'].join('|') + ')$');
 
 self.addEventListener('install', function(event) {
     event.waitUntil(
         caches.open(CACHE).then(function(cache) {
             urlsToCache.map(function(url) {
-				return cache.add(url).catch(function (reason) {
+                return cache.add(url).catch(function (reason) {
                     return console.log('ServiceWorker: ' + String(reason) + ' ' + url);
                 });
             });
