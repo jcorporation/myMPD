@@ -1207,6 +1207,12 @@ run_eslint() {
       rc=1
   	fi
   done
+  echo "Check for subdir usage"
+  if grep -P "subdir\s*\+\s*\'[^/]" htdocs/js/*.js
+  then
+    echo_error "Wrong path found"
+    rc=1
+  fi
   return "$rc"
 }
 
