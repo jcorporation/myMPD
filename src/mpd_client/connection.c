@@ -34,7 +34,7 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
         partition_state->conn_state = MPD_FAILURE;
         mpd_connection_free(partition_state->conn);
         partition_state->conn = NULL;
-        sds buffer = jsonrpc_event(sdsempty(), JSONRPC_EVENT_MPD_DISCONNECTED);
+        sds buffer = jsonrpc_event(sdsempty(), JSONRPC_EVENT_MPD_DISCONNECTED, partition_state->name);
         ws_notify(buffer);
         FREE_SDS(buffer);
         return false;
@@ -43,7 +43,7 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
         MYMPD_LOG_ERROR("Connection: %s", mpd_connection_get_error_message(partition_state->conn));
         partition_state->conn_state = MPD_FAILURE;
         sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_MPD,
-            JSONRPC_SEVERITY_ERROR, "MPD connection error: %{error}", 2,
+            JSONRPC_SEVERITY_ERROR, partition_state->name, "MPD connection error: %{error}", 2,
             "error", mpd_connection_get_error_message(partition_state->conn));
         ws_notify(buffer);
         FREE_SDS(buffer);
@@ -55,7 +55,7 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
             MYMPD_LOG_ERROR("MPD worker connection: %s", mpd_connection_get_error_message(partition_state->conn));
             partition_state->conn_state = MPD_FAILURE;
             sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_MPD,
-                JSONRPC_SEVERITY_ERROR, "MPD connection error: %{error}", 2,
+                JSONRPC_SEVERITY_ERROR, partition_state->name, "MPD connection error: %{error}", 2,
                 "error", mpd_connection_get_error_message(partition_state->conn));
             ws_notify(buffer);
             FREE_SDS(buffer);

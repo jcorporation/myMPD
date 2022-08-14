@@ -49,6 +49,7 @@ struct t_script_thread_arg {
     sds script_fullpath;       //!< full uri of the script
     sds script_name;           //!< name of the script
     sds script_content;        //!< script content if localscript = false
+    sds partition;             //!< execute the script in this partition
     struct t_list *arguments;  //!< argumentlist
 };
 
@@ -262,6 +263,7 @@ bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list 
     script_thread_arg->lualibs = lualibs;
     script_thread_arg->localscript = localscript;
     script_thread_arg->arguments = arguments;
+    script_thread_arg->partition = sdsnew("default"); //TODO: full partition support
     if (localscript == true) {
         script_thread_arg->script_name = sdsnew(script);
         script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
@@ -342,7 +344,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     if (lua_vm == NULL) {
         MYMPD_LOG_ERROR("Memory allocation error in luaL_newstate");
         sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR,
-            "Error executing script %{script}: Memory allocation error", 2, "script", script_arg->script_name);
+            script_arg->partition, "Error executing script %{script}: Memory allocation error", 2, "script", script_arg->script_name);
         ws_notify(buffer);
         FREE_SDS(buffer);
         FREE_SDS(thread_logname);
@@ -416,13 +418,13 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
     if (rc == 0) {
         if (script_return_text == NULL) {
             sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT,
-                JSONRPC_SEVERITY_INFO, "Script %{script} executed successfully",
+                JSONRPC_SEVERITY_INFO, script_arg->partition, "Script %{script} executed successfully",
                 2, "script", script_arg->script_name);
             ws_notify(buffer);
             FREE_SDS(buffer);
         }
         else {
-            send_jsonrpc_notify(JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_INFO, script_return_text);
+            send_jsonrpc_notify(JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_INFO, script_arg->partition, script_return_text);
         }
     }
     else {
@@ -432,7 +434,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
             err_str = sdscatfmt(err_str, ": %s", script_return_text);
         }
         sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT,
-            JSONRPC_SEVERITY_ERROR, err_str, 2, "script", script_arg->script_name);
+            JSONRPC_SEVERITY_ERROR, script_arg->partition, err_str, 2, "script", script_arg->script_name);
         ws_notify(buffer);
         FREE_SDS(buffer);
         //Error log message
@@ -714,6 +716,7 @@ static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_a
     FREE_SDS(script_thread_arg->script_name);
     FREE_SDS(script_thread_arg->script_fullpath);
     FREE_SDS(script_thread_arg->script_content);
+    FREE_SDS(script_thread_arg->partition);
     list_free(script_thread_arg->arguments);
     FREE_PTR(script_thread_arg);
 }

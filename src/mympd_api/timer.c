@@ -50,7 +50,7 @@ void mympd_api_timer_timerlist_init(struct t_timer_list *l) {
  * @param l timer list
  */
 void mympd_api_timer_check(struct t_timer_list *l) {
-    unsigned iMaxCount = 0;
+    nfds_t iMaxCount = 0;
     struct pollfd ufds[LIST_TIMER_MAX] = {{0}};
     memset(ufds, 0, sizeof(struct pollfd) * LIST_TIMER_MAX);
     struct t_timer_node *current = l->list;

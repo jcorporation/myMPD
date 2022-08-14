@@ -62,11 +62,11 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
             request->data = jsonrpc_end(request->data);
             request->extra = (void *) album_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);
-            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, "Updated album cache");
+            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, mpd_worker_state->partition_state->name, "Updated album cache");
         }
         else {
             album_cache_free(&album_cache);
-            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Update of album cache failed");
+            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, mpd_worker_state->partition_state->name, "Update of album cache failed");
         }
     }
     else {
@@ -80,11 +80,11 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
             request->data = jsonrpc_end(request->data);
             request->extra = (void *) sticker_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);
-            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, "Updated sticker cache");
+            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, mpd_worker_state->partition_state->name, "Updated sticker cache");
         }
         else {
             sticker_cache_free(&sticker_cache);
-            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Update of sticker cache failed");
+            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, mpd_worker_state->partition_state->name, "Update of sticker cache failed");
         }
     }
     else {

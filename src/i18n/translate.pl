@@ -49,6 +49,9 @@ for my $filename (@files) {
             while ($line =~ /JSONRPC_SEVERITY_\w+,\s+"([^"]+)"(\)|,)/g) {
                 $phrases->{$1} = 1;
             }
+            while ($line =~ /JSONRPC_SEVERITY_\w+,\s+\S+,\s+"([^"]+)"(\)|,)/g) {
+                $phrases->{$1} = 1;
+            }
         }
         elsif ($filename =~ /\.js$/) {
             while ($line =~ /(\s+|\(|\+)tn?\('([^']+)'/g) {

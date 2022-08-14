@@ -131,7 +131,7 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, i
             partition_state->mpd_state->last_played_count, partition_state->mpd_state->config->workdir);
     }
     //notify clients
-    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_LAST_PLAYED);
+    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_LAST_PLAYED, partition_state->name);
     return true;
 }
 

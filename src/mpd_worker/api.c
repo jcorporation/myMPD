@@ -50,10 +50,10 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 free_request(request);
                 rc = mpd_worker_smartpls_update_all(mpd_worker_state, bool_buf1);
                 if (rc == true) {
-                    send_jsonrpc_notify(JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Smart playlists updated");
+                    send_jsonrpc_notify(JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, mpd_worker_state->partition_state->name, "Smart playlists updated");
                 }
                 else {
-                    send_jsonrpc_notify(JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Smart playlists update failed");
+                    send_jsonrpc_notify(JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, mpd_worker_state->partition_state->name, "Smart playlists update failed");
                 }
                 async = true;
             }
@@ -71,7 +71,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Smart playlist %{playlist} updated", 2, "playlist", sds_buf1);
                     //notify client
                     //send mpd event manually as fallback if mpd playlist is not created (no songs are found)
-                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_STORED_PLAYLIST);
+                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_STORED_PLAYLIST, mpd_worker_state->partition_state->name);
                 }
                 else {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,

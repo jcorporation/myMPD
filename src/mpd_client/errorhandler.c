@@ -202,7 +202,7 @@ static bool _check_rc_error_and_recover(struct t_partition_state *partition_stat
                     break;
                 case RESPONSE_TYPE_JSONRPC_NOTIFY:
                     *buffer = jsonrpc_notify_phrase(*buffer, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR,
-                        "Error in response to command: %{command}", 2, "command", command);
+                        partition_state->name, "Error in response to command: %{command}", 2, "command", command);
                     break;
                 default:
                     *buffer = sdscatfmt(*buffer, "Error in response to command: %s", command);
@@ -239,7 +239,7 @@ static bool _check_error_and_recover(struct t_partition_state *partition_state, 
                         JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, error_msg);
                     break;
                 case RESPONSE_TYPE_JSONRPC_NOTIFY:
-                    *buffer = jsonrpc_notify(*buffer, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, error_msg);
+                    *buffer = jsonrpc_notify(*buffer, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, partition_state->name, error_msg);
                     break;
                 default:
                     *buffer = sdscat(*buffer, error_msg);

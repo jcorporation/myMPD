@@ -84,6 +84,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     //mpd partition state
     mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
     partition_state_default(mympd_state->partition_state, "default");
+    mympd_state->partition_state->is_default = true;
     //add pointer to shared state pointing to partition specific state
     mympd_state->partition_state->mpd_state = mympd_state->mpd_state;
     //triggers;
@@ -105,7 +106,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     //mpd shared state
     mpd_state_free(mympd_state->mpd_state);
     //partition state
-    partition_state_free(mympd_state->partition_state);
+    partition_state_free(mympd_state->partition_state); //TODO: free linked list of partitions
     //sds
     FREE_SDS(mympd_state->tag_list_search);
     FREE_SDS(mympd_state->tag_list_browse);
@@ -220,6 +221,7 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
  */
 void partition_state_default(struct t_partition_state *partition_state, const char *name) {
     partition_state->name = sdsnew(name);
+    partition_state->is_default = false;
     partition_state->conn = NULL;
     partition_state->conn_state = MPD_DISCONNECTED;
     partition_state->play_state = MPD_STATE_UNKNOWN;

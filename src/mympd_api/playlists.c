@@ -361,7 +361,7 @@ sds mympd_api_playlist_delete(struct t_partition_state *partition_state, sds buf
     }
     FREE_SDS(pl_file);
     if (smartpls_only == true) {
-        send_jsonrpc_event(JSONRPC_EVENT_UPDATE_STORED_PLAYLIST);
+        send_jsonrpc_event(JSONRPC_EVENT_UPDATE_STORED_PLAYLIST, partition_state->name);
         buffer = jsonrpc_respond_ok(buffer, cmd_id, request_id, JSONRPC_FACILITY_PLAYLIST);
         return buffer;
     }

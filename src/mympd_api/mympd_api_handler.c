@@ -43,6 +43,7 @@
 #include "settings.h"
 #include "smartpls.h"
 #include "song.h"
+#include "src/lib/mympd_state.h"
 #include "stats.h"
 #include "status.h"
 #include "sticker.h"
@@ -619,7 +620,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_work_request 
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
                 MYMPD_LOG_INFO("Album cache was replaced");
                 //send notification
-                sds buffer = jsonrpc_event(sdsempty(), JSONRPC_EVENT_UPDATE_ALBUM_CACHE);
+                sds buffer = jsonrpc_event(sdsempty(), JSONRPC_EVENT_UPDATE_ALBUM_CACHE, mympd_state->partition_state->name);
                 ws_notify(buffer);
                 FREE_SDS(buffer);
             }

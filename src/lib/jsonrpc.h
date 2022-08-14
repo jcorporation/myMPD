@@ -62,11 +62,11 @@ enum jsonrpc_events {
 
 typedef bool (*iterate_callback) (sds, sds, int, validate_callback, void *, sds *);
 
-void send_jsonrpc_notify(enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message);
-void send_jsonrpc_event(enum jsonrpc_events event);
-sds jsonrpc_event(sds buffer, enum jsonrpc_events event);
-sds jsonrpc_notify(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message);
-sds jsonrpc_notify_phrase(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message, int count, ...);
+void send_jsonrpc_notify(enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *partition, const char *message);
+void send_jsonrpc_event(enum jsonrpc_events event, const char *partition);
+sds jsonrpc_event(sds buffer, enum jsonrpc_events event, const char *partition);
+sds jsonrpc_notify(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *partition, const char *message);
+sds jsonrpc_notify_phrase(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *partition, const char *message, int count, ...);
 sds jsonrpc_notify_start(sds buffer, enum jsonrpc_events event);
 
 sds jsonrpc_respond_start(sds buffer, enum mympd_cmd_ids cmd_id, long request_id);

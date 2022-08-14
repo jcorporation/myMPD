@@ -210,6 +210,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MPD_BINARY_SIZE_MAX 5242880 //5 MB
 #define MPD_QUEUE_PRIO_MAX 255
 #define MPD_CROSSFADE_MAX 100
+#define MPD_CONNECTION_MAX 100
 
 //limits for json parsing
 #define JSONRPC_INT_MIN INT_MIN

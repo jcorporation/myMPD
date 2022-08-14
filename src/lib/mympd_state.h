@@ -13,6 +13,7 @@
 #include "list.h"
 
 #include <mpd/client.h>
+#include <poll.h>
 #include <time.h>
 
 /**
@@ -143,6 +144,7 @@ struct t_partition_state {
     //partition
     sds name;                              //!< partition name
     struct t_partition_state *next;        //!< pointer to next partition;
+    bool is_default;                       //!< flag for the mpd default partition
 };
 
 /**
@@ -194,6 +196,8 @@ struct t_mympd_state {
     struct t_config *config;                      //!< pointer to static config
     struct t_mpd_state *mpd_state;                //!< mpd state shared accross partitions
     struct t_partition_state *partition_state;    //!< list of partition states
+    struct pollfd fds[MPD_CONNECTION_MAX];        //!< mpd connection fds
+    nfds_t nfds;                                     //!< number of mpd connection fds
     struct t_timer_list timer_list;               //!< list of timers
     struct t_list home_list;                      //!< list of home icons
     struct t_list trigger_list;                   //!< list of triggers
