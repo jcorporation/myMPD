@@ -59,6 +59,11 @@ function initSearch() {
                 }, searchTimerTimeout);
             }
         }
+        else {
+             searchTimer = setTimeout(function() {
+                 doSearch(value);
+             }, searchTimerTimeout);
+         }
     }, false);
 
     document.getElementById('searchCrumb').addEventListener('click', function(event) {
