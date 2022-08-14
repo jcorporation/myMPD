@@ -4,6 +4,17 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v9.5.1 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Advanced search is not working #809
+- Fix: Missing / fetching locales #808
+
+***
+
 ## myMPD v9.5.0 (2022-08-13)
 
 This release improves and documents the myMPD backend code, but there are also some minor new features added. I further added the doxygen generated internal api documentation to the myMPD documentation site: [Doxygen generated internal API documentation](https://jcorporation.github.io/myMPD/doxygen/html/index.html).
