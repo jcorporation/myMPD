@@ -11,7 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: Advanced search is not working #809
-- Fix: Missing / fetching locales #808
+- Fix: Fetching locales and ligatures behind reverse proxy #808
 
 ***
 
