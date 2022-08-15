@@ -40,6 +40,7 @@ This documentation is for myMPD version {% include version %}.
   - [Filesystem hierarchy]({{ site.baseurl }}/references/filesystem-hierarchy)
   - [Local playback]({{ site.baseurl }}/references/local-playback)
   - [Lyrics]({{ site.baseurl }}/references/lyrics)
+  - [Partitions]({{ site.baseurl }}/references/partitions)
   - [Pictures]({{ site.baseurl }}/references/pictures)
   - [Published directories]({{ site.baseurl }}/references/published-directories)
   - [Smart playlists]({{ site.baseurl }}/references/smart-playlists)
