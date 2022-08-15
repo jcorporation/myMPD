@@ -145,6 +145,7 @@ struct t_partition_state {
     sds name;                              //!< partition name
     struct t_partition_state *next;        //!< pointer to next partition;
     bool is_default;                       //!< flag for the mpd default partition
+    enum mpd_idle idle_mask;               //!< mpd idle mask
 };
 
 /**
@@ -245,7 +246,7 @@ void mpd_state_default(struct t_mpd_state *mpd_state);
 void mpd_state_features_disable(struct t_mpd_state *mpd_state);
 void mpd_state_free(struct t_mpd_state *mpd_state);
 
-void partition_state_default(struct t_partition_state *partition_state, const char *name);
+void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mpd_state *mpd_state);
 void partition_state_free(struct t_partition_state *partition_state);
 
 void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list);

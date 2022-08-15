@@ -53,25 +53,36 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_timer_file_read(&mympd_state->timer_list, mympd_state->config->workdir);
     //myMPD trigger
     mympd_api_trigger_file_read(&mympd_state->trigger_list, mympd_state->config->workdir);
+
     //set timers
     if (mympd_state->config->covercache_keep_days > 0) {
         MYMPD_LOG_DEBUG("Adding timer for \"crop covercache\" to execute periodic each day");
         mympd_api_timer_add(&mympd_state->timer_list, COVERCACHE_CLEANUP_OFFSET, COVERCACHE_CLEANUP_INTERVAL,
             timer_handler_by_id, TIMER_ID_COVERCACHE_CROP, NULL);
     }
+
     //start trigger
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START);
+
     //thread loop
     while (s_signal_received == 0) {
         mpd_client_idle(mympd_state);
         mympd_api_timer_check(&mympd_state->timer_list);
     }
+
     //stop trigger
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP);
+
     //disconnect from mpd
-    mpd_client_disconnect(mympd_state->partition_state);
+    struct t_partition_state *partition_state = mympd_state->partition_state;
+    while (partition_state != NULL) {
+        mpd_client_disconnect(partition_state);
+        partition_state = partition_state->next;
+    }
+
     //save states
     mympd_state_save(mympd_state);
+
     //free anything
     mympd_state_free(mympd_state);
     FREE_SDS(thread_logname);

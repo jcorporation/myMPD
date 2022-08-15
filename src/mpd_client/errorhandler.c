@@ -187,7 +187,7 @@ static bool _check_rc_error_and_recover(struct t_partition_state *partition_stat
 {
     //first do normal mpd error checking
     if (_check_error_and_recover(partition_state, buffer, cmd_id, request_id, response_type) == false) {
-        MYMPD_LOG_ERROR("Error in response to command %s", command);
+        MYMPD_LOG_ERROR("\"%s\": Error in response to command %s", partition_state->name, command);
         return false;
     }
     //there is no mpd error at connection level but the command failed, return command error
@@ -208,7 +208,7 @@ static bool _check_rc_error_and_recover(struct t_partition_state *partition_stat
                     *buffer = sdscatfmt(*buffer, "Error in response to command: %s", command);
             }
         }
-        MYMPD_LOG_ERROR("Error in response to command %s", command);
+        MYMPD_LOG_ERROR("\"%s\": Error in response to command %s", partition_state->name, command);
         return false;
     }
     return true;
@@ -229,7 +229,7 @@ static bool _check_error_and_recover(struct t_partition_state *partition_state, 
     enum mpd_error error = mpd_connection_get_error(partition_state->conn);
     if (error != MPD_ERROR_SUCCESS) {
         const char *error_msg = mpd_connection_get_error_message(partition_state->conn);
-        MYMPD_LOG_ERROR("MPD error: %s (%d)", error_msg , error);
+        MYMPD_LOG_ERROR("\"%s\": MPD error: %s (%d)", partition_state->name, error_msg , error);
         if (buffer != NULL &&
             *buffer != NULL)
         {

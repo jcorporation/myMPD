@@ -145,7 +145,7 @@ enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag, const struct t_tags *avail
  * @param partition_state pointer to partition specific states
  */
 void disable_all_mpd_tags(struct t_partition_state *partition_state) {
-    MYMPD_LOG_DEBUG("Disabling all mpd tag types");
+    MYMPD_LOG_DEBUG("\"%s\": Disabling all mpd tag types", partition_state->name);
     bool rc = mpd_run_clear_tag_types(partition_state->conn);
     mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_clear_tag_types");
 }
@@ -155,7 +155,7 @@ void disable_all_mpd_tags(struct t_partition_state *partition_state) {
  * @param partition_state pointer to partition specific states
  */
 void enable_all_mpd_tags(struct t_partition_state *partition_state) {
-    MYMPD_LOG_DEBUG("Enabling all mpd tag types");
+    MYMPD_LOG_DEBUG("\"%s\": Enabling all mpd tag types", partition_state->name);
     bool rc = mpd_run_all_tag_types(partition_state->conn);
     mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_all_tag_types");
 }
@@ -166,7 +166,7 @@ void enable_all_mpd_tags(struct t_partition_state *partition_state) {
  * @param enable_tags pointer to t_tags struct
  */
 void enable_mpd_tags(struct t_partition_state *partition_state, const struct t_tags *enable_tags) {
-    MYMPD_LOG_DEBUG("Setting interesting mpd tag types");
+    MYMPD_LOG_DEBUG("\"%s\": Setting interesting mpd tag types", partition_state->name);
     if (mpd_command_list_begin(partition_state->conn, false)) {
         bool rc = mpd_send_clear_tag_types(partition_state->conn);
         if (rc == false) {

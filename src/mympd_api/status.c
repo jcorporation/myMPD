@@ -91,7 +91,7 @@ sds mympd_api_status_print(struct t_partition_state *partition_state, sds buffer
 sds mympd_api_status_updatedb_state(struct t_partition_state *partition_state, sds buffer) {
     long update_id = mympd_api_status_updatedb_id(partition_state);
     if (update_id == -1) {
-        buffer = jsonrpc_notify(buffer, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, partition_state->name, "Error getting MPD status");
+        buffer = jsonrpc_notify(buffer, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "all", "Error getting MPD status");
     }
     else if (update_id > 0) {
         buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_STARTED);
@@ -99,7 +99,7 @@ sds mympd_api_status_updatedb_state(struct t_partition_state *partition_state, s
         buffer = jsonrpc_end(buffer);
     }
     else {
-        buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_FINISHED, partition_state->name);
+        buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_FINISHED, "all");
     }
     return buffer;
 }

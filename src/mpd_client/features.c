@@ -58,12 +58,12 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     buffer = mympd_api_status_get(mympd_state->partition_state, buffer, 0);
     FREE_SDS(buffer);
 
-    if (mpd_connection_cmp_server_version(mympd_state->partition_state->conn, 0, 22, 0) >= 0) {
+    if (mpd_connection_cmp_server_version(mympd_state->partition_state->conn, 0, 23, 8) >= 0) {
         mympd_state->mpd_state->feat_partitions = true;
         MYMPD_LOG_NOTICE("Enabling partitions feature");
     }
     else {
-        MYMPD_LOG_WARN("Disabling partitions feature, depends on mpd >= 0.22.0");
+        MYMPD_LOG_WARN("Disabling partitions feature, depends on mpd >= 0.23.8");
     }
 
     if (mpd_connection_cmp_server_version(mympd_state->partition_state->conn, 0, 22, 4) >= 0 ) {

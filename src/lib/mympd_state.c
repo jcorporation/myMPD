@@ -83,10 +83,8 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mpd_state_default(mympd_state->mpd_state);
     //mpd partition state
     mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
-    partition_state_default(mympd_state->partition_state, "default");
+    partition_state_default(mympd_state->partition_state, "default", mympd_state->mpd_state);
     mympd_state->partition_state->is_default = true;
-    //add pointer to shared state pointing to partition specific state
-    mympd_state->partition_state->mpd_state = mympd_state->mpd_state;
     //triggers;
     list_init(&mympd_state->trigger_list);
     //home icons
@@ -106,7 +104,12 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     //mpd shared state
     mpd_state_free(mympd_state->mpd_state);
     //partition state
-    partition_state_free(mympd_state->partition_state); //TODO: free linked list of partitions
+    struct t_partition_state *partition_state = mympd_state->partition_state;
+    while (partition_state != NULL) {
+        struct t_partition_state *next = partition_state->next;
+        partition_state_free(partition_state);
+        partition_state = next;
+    }
     //sds
     FREE_SDS(mympd_state->tag_list_search);
     FREE_SDS(mympd_state->tag_list_browse);
@@ -219,7 +222,7 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
  * @param partition_state pointer to t_partition_state struct
  * @param name partition name
  */
-void partition_state_default(struct t_partition_state *partition_state, const char *name) {
+void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mpd_state *mpd_state) {
     partition_state->name = sdsnew(name);
     partition_state->is_default = false;
     partition_state->conn = NULL;
@@ -245,6 +248,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->crossfade = 0;
     partition_state->set_song_played_time = 0;
     partition_state->auto_play = MYMPD_AUTO_PLAY;
+    partition_state->next = NULL;
     //jukebox
     list_init(&partition_state->jukebox_queue);
     list_init(&partition_state->jukebox_queue_tmp);
@@ -255,6 +259,18 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->jukebox_last_played = MYMPD_JUKEBOX_LAST_PLAYED;
     partition_state->jukebox_queue_length = MYMPD_JUKEBOX_QUEUE_LENGTH;
     partition_state->jukebox_enforce_unique = MYMPD_JUKEBOX_ENFORCE_UNIQUE;
+    //add pointer to shared mpd state
+    partition_state->mpd_state = mpd_state;
+    //mpd idle mask
+    if (strcmp(name, "default") == 0) {
+        //handle all
+        partition_state->idle_mask = MPD_IDLE_QUEUE | MPD_IDLE_PLAYER | MPD_IDLE_MIXER | MPD_IDLE_OUTPUT | MPD_IDLE_OPTIONS |
+            MPD_IDLE_UPDATE | MPD_IDLE_PARTITION | MPD_IDLE_DATABASE | MPD_IDLE_STORED_PLAYLIST;
+    }
+    else {
+        //handle only partition specific mpd idle events
+        partition_state->idle_mask = MPD_IDLE_QUEUE | MPD_IDLE_PLAYER | MPD_IDLE_MIXER | MPD_IDLE_OUTPUT | MPD_IDLE_OPTIONS;
+    }
 }
 
 /**
