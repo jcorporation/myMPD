@@ -36,10 +36,12 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
 
     sds cmd = NULL;
     sds jsonrpc = NULL;
+    sds partition = NULL;
     int request_id = 0;
 
     if (json_get_string_cmp(body, "$.jsonrpc", 3, 3, "2.0", &jsonrpc, NULL) == false ||
         json_get_string_max(body, "$.method", &cmd, vcb_isalnum, NULL) == false ||
+        json_get_string_max(body, "$.partition", &partition, vcb_isname, NULL) == false ||
         json_get_int(body, "$.id", 0, 0, &request_id, NULL) == false)
     {
         MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
@@ -119,13 +121,14 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
             break;
         default: {
             //forward API request to mympd_api_handler
-            struct t_work_request *request = create_request((long long)nc->id, request_id, cmd_id, body);
+            struct t_work_request *request = create_request((long long)nc->id, request_id, cmd_id, body, partition);
             mympd_queue_push(mympd_api_queue, request, 0);
         }
     }
     FREE_SDS(session);
     FREE_SDS(cmd);
     FREE_SDS(jsonrpc);
+    FREE_SDS(partition);
     return true;
 }
 
@@ -145,10 +148,12 @@ bool request_handler_script_api(long long conn_id, sds body) {
 
     sds cmd = NULL;
     sds jsonrpc = NULL;
+    sds partition = NULL;
     int id = 0;
 
     if (json_get_string_cmp(body, "$.jsonrpc", 3, 3, "2.0", &jsonrpc, NULL) == false ||
         json_get_string_max(body, "$.method", &cmd, vcb_isalnum, NULL) == false ||
+        json_get_string_max(body, "$.partition", &partition, vcb_isname, NULL) == false ||
         json_get_int(body, "$.id", 0, 0, &id, NULL) == false)
     {
         MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
@@ -167,11 +172,12 @@ bool request_handler_script_api(long long conn_id, sds body) {
         return false;
     }
 
-    struct t_work_request *request = create_request(conn_id, id, cmd_id, body);
+    struct t_work_request *request = create_request(conn_id, id, cmd_id, body, partition);
     mympd_queue_push(mympd_api_queue, request, 0);
 
     FREE_SDS(cmd);
     FREE_SDS(jsonrpc);
+    FREE_SDS(partition);
     return true;
 }
 

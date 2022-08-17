@@ -62,7 +62,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     mpd_worker_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
     mpd_state_default(mpd_worker_state->mpd_state);
     mpd_worker_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
-    partition_state_default(mpd_worker_state->partition_state, mympd_state->partition_state->name, mpd_worker_state->mpd_state);
+    partition_state_default(mpd_worker_state->partition_state, mympd_state->partition_state->name, mympd_state);
     mpd_worker_state->partition_state->mpd_state = mpd_worker_state->mpd_state;
     mpd_worker_state->mpd_state->config = mympd_state->config;
 

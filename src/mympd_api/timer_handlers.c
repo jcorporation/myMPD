@@ -60,12 +60,12 @@ void timer_handler_by_id(int timer_id, struct t_timer_definition *definition) {
 void timer_handler_select(int timer_id, struct t_timer_definition *definition) {
     MYMPD_LOG_INFO("Start timer_handler_select for timer \"%s\" (%d)", definition->name, timer_id);
     if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stopplay") == 0) {
-        struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_STOP, NULL);
+        struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_STOP, NULL, definition->partition);
         request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);
     }
     else if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "startplay") == 0) {
-        struct t_work_request *request = create_request(-1, 0, INTERNAL_API_TIMER_STARTPLAY, NULL);
+        struct t_work_request *request = create_request(-1, 0, INTERNAL_API_TIMER_STARTPLAY, NULL, definition->partition);
         request->data = tojson_uint(request->data, "volume", definition->volume, true);
         request->data = tojson_sds(request->data, "plist", definition->playlist, true);
         request->data = tojson_long(request->data, "jukeboxMode", definition->jukebox_mode, false);
@@ -73,7 +73,7 @@ void timer_handler_select(int timer_id, struct t_timer_definition *definition) {
         mympd_queue_push(mympd_api_queue, request, 0);
     }
     else if (strcmp(definition->action, "script") == 0) {
-        struct t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL);
+        struct t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL, definition->partition);
         request->data = tojson_sds(request->data, "script", definition->subaction, true);
         request->data = sdscat(request->data, "\"arguments\":{");
         struct t_list_node *argument = definition->arguments.head;
@@ -156,7 +156,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
     if (jukebox_mode != JUKEBOX_OFF) {
         //enable jukebox
         //use the api to persist the setting
-        struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_OPTIONS_SET, NULL);
+        struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_OPTIONS_SET, NULL, partition_state->name);
         request->data = tojson_char(request->data, "jukeboxMode", jukebox_mode_lookup(jukebox_mode), true);
         request->data = tojson_sds(request->data, "jukeboxPlaylist", playlist, false);
         request->data = jsonrpc_end(request->data);
@@ -179,7 +179,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
  */
 static void timer_handler_covercache_crop(void) {
     MYMPD_LOG_INFO("Start timer_handler_covercache_crop");
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_COVERCACHE_CROP, NULL);
+    struct t_work_request *request = create_request(-1, 0, MYMPD_API_COVERCACHE_CROP, NULL, MPD_PARTITION_DEFAULT);
     request->data = jsonrpc_end(request->data);
     mympd_queue_push(mympd_api_queue, request, 0);
 }
@@ -189,7 +189,7 @@ static void timer_handler_covercache_crop(void) {
  */
 static void timer_handler_smartpls_update(void) {
     MYMPD_LOG_INFO("Start timer_handler_smartpls_update");
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL);
+    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL, MPD_PARTITION_DEFAULT);
     request->data = sdscat(request->data, "\"force\":false}}"); //only update if database has changed
     mympd_queue_push(mympd_api_queue, request, 0);
 }
@@ -199,7 +199,7 @@ static void timer_handler_smartpls_update(void) {
  */
 static void timer_handler_caches_create(void) {
     MYMPD_LOG_INFO("Start timer_handler_caches_create");
-    struct t_work_request *request = create_request(-1, 0, INTERNAL_API_CACHES_CREATE, NULL);
+    struct t_work_request *request = create_request(-1, 0, INTERNAL_API_CACHES_CREATE, NULL, MPD_PARTITION_DEFAULT);
     request->data = jsonrpc_end(request->data);
     mympd_queue_push(mympd_api_queue, request, 0);
 }

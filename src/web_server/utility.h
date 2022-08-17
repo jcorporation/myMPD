@@ -33,6 +33,14 @@ struct t_mg_user_data {
     struct t_list session_list;  //!< list of myMPD sessions (pin protection mode)
 };
 
+/**
+ * Struct for http frontend connection user data
+ */
+struct frontend_nc_data_t {
+    struct mg_connection *backend_nc;  //!< pointer to backend connection
+    sds partition;                     //!< partition (for websocket connections only)
+};
+
 #ifdef EMBEDDED_ASSETS
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri);
 #endif
@@ -45,6 +53,5 @@ void webserver_send_header_redirect(struct mg_connection *nc, const char *locati
 void webserver_send_header_found(struct mg_connection *nc, const char *location);
 void webserver_send_data(struct mg_connection *nc, const char *data, size_t len, const char *headers);
 void webserver_handle_connection_close(struct mg_connection *nc);
-struct mg_str mg_str_strip_parent(struct mg_str *path, int count);
 void *mg_user_data_free(struct t_mg_user_data *mg_user_data);
 #endif

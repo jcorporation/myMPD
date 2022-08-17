@@ -141,6 +141,7 @@ struct t_partition_state {
     struct t_list jukebox_queue;           //!< the jukebox queue itself
     struct t_list jukebox_queue_tmp;       //!< temporaray jukebox queue for the add random to queue function
     struct t_mpd_state *mpd_state;         //!< pointer to shared MPD state
+    struct t_mympd_state *mympd_state;     //!< pointer to myMPD state
     //partition
     sds name;                              //!< partition name
     struct t_partition_state *next;        //!< pointer to next partition;
@@ -153,6 +154,7 @@ struct t_partition_state {
  */
 struct t_timer_definition {
     sds name;                         //!< name of the timer
+    sds partition;                    //!< mpd partition
     bool enabled;                     //!< enabled flag
     int start_hour;                   //!< start hour
     int start_minute;                 //!< start minute
@@ -246,7 +248,7 @@ void mpd_state_default(struct t_mpd_state *mpd_state);
 void mpd_state_features_disable(struct t_mpd_state *mpd_state);
 void mpd_state_free(struct t_mpd_state *mpd_state);
 
-void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mpd_state *mpd_state);
+void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mympd_state *mympd_state);
 void partition_state_free(struct t_partition_state *partition_state);
 
 void copy_tag_types(struct t_tags *src_tag_list, struct t_tags *dst_tag_list);

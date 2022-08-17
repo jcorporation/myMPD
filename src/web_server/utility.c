@@ -38,29 +38,6 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
 }
 
 /**
- * Strips directory parts from path
- * @param path path to strip
- * @param count number of parts to strip
- * @return stripped path
- */
-struct mg_str mg_str_strip_parent(struct mg_str *path, int count) {
-    //removes parent dir
-    int i = 0;
-    count++;
-    while (path->len > 0) {
-        if (path->ptr[0] == '/') {
-            i++;
-            if (i == count) {
-                break;
-            }
-        }
-        path->len--;
-        path->ptr++;
-    }
-    return *path;
-}
-
-/**
  * Image file extensions to detect
  */
 static const char *image_file_extensions[] = {

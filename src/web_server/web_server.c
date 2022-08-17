@@ -266,9 +266,14 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
     int conn_count = 0;
     while (nc != NULL) {
         if ((int)nc->is_websocket == 1) {
-            MYMPD_LOG_DEBUG("Sending notify to conn_id %lu: %s", nc->id, response->data);
-            mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
-            send_count++;
+            struct frontend_nc_data_t *frontend_nc_data = (struct frontend_nc_data_t *)nc->fn_data;
+            if (strcmp(response->partition, frontend_nc_data->partition) == 0 ||
+                strcmp(response->partition, MPD_PARTITION_ALL) == 0)
+            {
+                MYMPD_LOG_DEBUG("Sending notify to conn_id %lu: %s", nc->id, response->data);
+                mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
+                send_count++;
+            }
         }
         nc = nc->next;
         conn_count++;
@@ -349,11 +354,12 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
  * @param nc mongoose connection
  * @param ev connection event
  * @param ev_data event data (http / websocket message)
- * @param fn_data backend_nc data for proxy connections
+ * @param fn_data backend connection for proxy connections
  */
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
-    //initial connection specific data structure
-    struct mg_connection *backend_nc = fn_data;
+    //connection specific data structure
+    struct frontend_nc_data_t *frontend_nc_data = (struct frontend_nc_data_t *)fn_data;
+    //mongoose user data
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
     switch(ev) {
@@ -391,6 +397,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             nc->label[0] = 'F';
             nc->label[1] = '-';
             nc->label[2] = '-';
+            //initialize fn_data
+            struct frontend_nc_data_t *new_frontend_nc_data = malloc_assert(sizeof(struct frontend_nc_data_t));
+            new_frontend_nc_data->partition = NULL;
+            new_frontend_nc_data->backend_nc = NULL;
+            nc->fn_data = new_frontend_nc_data;
             break;
         }
         case MG_EV_WS_MSG: {
@@ -459,7 +470,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                  * to allow other authorization methods in reverse proxy setups
                  */
                 struct mg_str *auth_header = mg_http_get_header(hm, "X-myMPD-Session");
-                bool rc = request_handler_api(nc, body, auth_header, mg_user_data, backend_nc);
+                bool rc = request_handler_api(nc, body, auth_header, mg_user_data, frontend_nc_data->backend_nc);
                 FREE_SDS(body);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid API request");
@@ -481,10 +492,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_http_match_uri(hm, "/browse/#")) {
                 request_handler_browse(nc, hm, mg_user_data);
             }
-            else if (mg_http_match_uri(hm, "/ws/")) {
+            else if (mg_http_match_uri(hm, "/ws/*")) {
+                sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
+                sdsrange(partition, 4, -1);
                 mg_ws_upgrade(nc, hm, NULL);
+                frontend_nc_data->partition = partition;
                 MYMPD_LOG_INFO("New Websocket connection established (%lu)", nc->id);
-                sds response = jsonrpc_event(sdsempty(), JSONRPC_EVENT_WELCOME, "");
+                sds response = jsonrpc_event(sdsempty(), JSONRPC_EVENT_WELCOME, partition);
                 mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
                 FREE_SDS(response);
             }
@@ -494,11 +508,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     nc->is_draining = 1;
                     break;
                 }
-                create_backend_connection(nc, backend_nc, mg_user_data->stream_uri, forward_backend_to_frontend);
+                create_backend_connection(nc, frontend_nc_data->backend_nc, mg_user_data->stream_uri, forward_backend_to_frontend);
             }
             else if (mg_http_match_uri(hm, "/proxy")) {
                 //Makes a get request to the defined uri and returns the response
-                request_handler_proxy(nc, hm, backend_nc);
+                request_handler_proxy(nc, hm, frontend_nc_data->backend_nc);
             }
             else if (mg_http_match_uri(hm, "/api/serverinfo")) {
                 request_handler_serverinfo(nc);
@@ -557,14 +571,16 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         case MG_EV_CLOSE: {
             MYMPD_LOG_INFO("HTTP connection %lu closed", nc->id);
             mg_user_data->connection_count--;
-            if (backend_nc != NULL) {
-                MYMPD_LOG_INFO("Closing backend connection \"%lu\"", backend_nc->id);
+            if (frontend_nc_data->backend_nc != NULL) {
+                MYMPD_LOG_INFO("Closing backend connection \"%lu\"", frontend_nc_data->backend_nc->id);
                 //remove pointer to frontend connection
-                struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)backend_nc->fn_data;
+                struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)frontend_nc_data->backend_nc->fn_data;
                 backend_nc_data->frontend_nc = NULL;
                 //close backend connection
-                backend_nc->is_closing = 1;
+                frontend_nc_data->backend_nc->is_closing = 1;
             }
+            FREE_SDS(frontend_nc_data->partition);
+            FREE_PTR(frontend_nc_data);
             break;
         }
     }

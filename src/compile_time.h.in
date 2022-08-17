@@ -48,6 +48,10 @@ extern struct t_mympd_queue *web_server_queue;
 extern struct t_mympd_queue *mympd_api_queue;
 extern struct t_mympd_queue *mympd_script_queue;
 
+//mpd partitions
+#define MPD_PARTITION_DEFAULT "default"
+#define MPD_PARTITION_ALL "all"
+
 //default configuration
 #define CFG_MYMPD_USER "mympd"
 #define CFG_MYMPD_HTTP_HOST "0.0.0.0"

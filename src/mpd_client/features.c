@@ -108,7 +108,7 @@ void mpd_client_mpd_features(struct t_mympd_state *mympd_state) {
     extra->mpd_stream_port = mympd_state->mpd_stream_port;
     extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
 
-    struct t_work_response *web_server_response = create_response_new(-1, 0, INTERNAL_API_WEBSERVER_SETTINGS);
+    struct t_work_response *web_server_response = create_response_new(-1, 0, INTERNAL_API_WEBSERVER_SETTINGS, MPD_PARTITION_DEFAULT);
     web_server_response->extra = extra;
     mympd_queue_push(web_server_queue, web_server_response, 0);
 }

@@ -278,6 +278,7 @@ void mympd_api_timer_timerlist_clear(struct t_timer_list *l) {
  */
 void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
     FREE_SDS(timer_def->name);
+    FREE_SDS(timer_def->partition);
     FREE_SDS(timer_def->action);
     FREE_SDS(timer_def->subaction);
     FREE_SDS(timer_def->playlist);
@@ -296,6 +297,7 @@ void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
  */
 struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str, sds *error) {
     timer_def->name = NULL;
+    timer_def->partition = NULL;
     timer_def->action = NULL;
     timer_def->subaction = NULL;
     timer_def->playlist = NULL;
@@ -321,6 +323,10 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         json_get_string_max(str, "$.params.jukeboxMode", &jukebox_mode_str, vcb_isalnum, error) == true)
     {
         timer_def->jukebox_mode = jukebox_mode_parse(jukebox_mode_str);
+        if (json_get_string_max(str, "$.params.partition", &timer_def->partition, vcb_isname, NULL) == false) {
+            //fallback to default partition
+            timer_def->partition = sdsnew("default");
+        }
         MYMPD_LOG_DEBUG("Successfully parsed timer definition");
     }
     else {

@@ -35,7 +35,7 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
         mpd_connection_free(partition_state->conn);
         partition_state->conn = NULL;
         sds buffer = jsonrpc_event(sdsempty(), JSONRPC_EVENT_MPD_DISCONNECTED, partition_state->name);
-        ws_notify(buffer);
+        ws_notify(buffer, partition_state->name);
         FREE_SDS(buffer);
         return false;
     }
@@ -45,7 +45,7 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
         sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_MPD,
             JSONRPC_SEVERITY_ERROR, partition_state->name, "MPD connection error: %{error}", 2,
             "error", mpd_connection_get_error_message(partition_state->conn));
-        ws_notify(buffer);
+        ws_notify(buffer, partition_state->name);
         FREE_SDS(buffer);
         return false;
     }
@@ -57,7 +57,7 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
             sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_MPD,
                 JSONRPC_SEVERITY_ERROR, partition_state->name, "MPD connection error: %{error}", 2,
                 "error", mpd_connection_get_error_message(partition_state->conn));
-            ws_notify(buffer);
+            ws_notify(buffer, partition_state->name);
             FREE_SDS(buffer);
             return false;
         }
@@ -101,7 +101,7 @@ bool mpd_client_set_binarylimit(struct t_partition_state *partition_state) {
         rc = mpd_run_binarylimit(partition_state->conn, partition_state->mpd_state->mpd_binarylimit);
         sds message = sdsempty();
         if (mympd_check_rc_error_and_recover_notify(partition_state, &message, rc, "mpd_run_binarylimit") == false) {
-            ws_notify(message);
+            ws_notify(message, partition_state->name);
         }
         FREE_SDS(message);
     }

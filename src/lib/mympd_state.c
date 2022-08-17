@@ -83,7 +83,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     mpd_state_default(mympd_state->mpd_state);
     //mpd partition state
     mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
-    partition_state_default(mympd_state->partition_state, "default", mympd_state->mpd_state);
+    partition_state_default(mympd_state->partition_state, "default", mympd_state);
     mympd_state->partition_state->is_default = true;
     //triggers;
     list_init(&mympd_state->trigger_list);
@@ -222,7 +222,7 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
  * @param partition_state pointer to t_partition_state struct
  * @param name partition name
  */
-void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mpd_state *mpd_state) {
+void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mympd_state *mympd_state) {
     partition_state->name = sdsnew(name);
     partition_state->is_default = false;
     partition_state->conn = NULL;
@@ -259,8 +259,9 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->jukebox_last_played = MYMPD_JUKEBOX_LAST_PLAYED;
     partition_state->jukebox_queue_length = MYMPD_JUKEBOX_QUEUE_LENGTH;
     partition_state->jukebox_enforce_unique = MYMPD_JUKEBOX_ENFORCE_UNIQUE;
-    //add pointer to shared mpd state
-    partition_state->mpd_state = mpd_state;
+    //add pointer to other states
+    partition_state->mpd_state = mympd_state->mpd_state;
+    partition_state->mympd_state = mympd_state;
     //mpd idle mask
     if (strcmp(name, "default") == 0) {
         //handle all

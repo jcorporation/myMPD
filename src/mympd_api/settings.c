@@ -408,13 +408,13 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
  * @param value setting value
  * @param vtype value type
  * @param vcb validation callback
- * @param userdata pointer to the t_mympd_state struct
+ * @param userdata pointer to the t_partition_state struct
  * @param error pointer to a sds string to populate the error message
  * @return true on success, else false
  */
 bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
     (void) vcb;
-    struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
+    struct t_partition_state *partition_state = (struct t_partition_state *)userdata;
 
     bool rc = false;
     bool write_state_file = true;
@@ -423,10 +423,10 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
     MYMPD_LOG_DEBUG("Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
     if (strcmp(key, "autoPlay") == 0) {
         if (vtype == MJSON_TOK_TRUE) {
-            mympd_state->partition_state->auto_play = true;
+            partition_state->auto_play = true;
         }
         else if (vtype == MJSON_TOK_FALSE) {
-            mympd_state->partition_state->auto_play = false;
+            partition_state->auto_play = false;
         }
         else {
             *error = set_invalid_value(*error, key, value);
@@ -440,8 +440,8 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        if (mympd_state->partition_state->jukebox_mode != jukebox_mode) {
-            mympd_state->partition_state->jukebox_mode = jukebox_mode;
+        if (partition_state->jukebox_mode != jukebox_mode) {
+            partition_state->jukebox_mode = jukebox_mode;
             jukebox_changed = true;
         }
         sdsclear(value);
@@ -452,8 +452,8 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        if (strcmp(mympd_state->partition_state->jukebox_playlist, value) != 0) {
-            mympd_state->partition_state->jukebox_playlist = sds_replace(mympd_state->partition_state->jukebox_playlist, value);
+        if (strcmp(partition_state->jukebox_playlist, value) != 0) {
+            partition_state->jukebox_playlist = sds_replace(partition_state->jukebox_playlist, value);
             jukebox_changed = true;
         }
     }
@@ -463,7 +463,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        mympd_state->partition_state->jukebox_queue_length = jukebox_queue_length;
+        partition_state->jukebox_queue_length = jukebox_queue_length;
     }
     else if (strcmp(key, "jukeboxUniqueTag") == 0 && vtype == MJSON_TOK_STRING) {
         enum mpd_tag_type unique_tag = mpd_tag_name_parse(value);
@@ -471,8 +471,8 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        if (mympd_state->partition_state->jukebox_unique_tag.tags[0] != unique_tag) {
-            mympd_state->partition_state->jukebox_unique_tag.tags[0] = unique_tag;
+        if (partition_state->jukebox_unique_tag.tags[0] != unique_tag) {
+            partition_state->jukebox_unique_tag.tags[0] = unique_tag;
             jukebox_changed = true;
         }
     }
@@ -482,19 +482,19 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             *error = set_invalid_value(*error, key, value);
             return false;
         }
-        if (jukebox_last_played != mympd_state->partition_state->jukebox_last_played) {
-            mympd_state->partition_state->jukebox_last_played = jukebox_last_played;
+        if (jukebox_last_played != partition_state->jukebox_last_played) {
+            partition_state->jukebox_last_played = jukebox_last_played;
             jukebox_changed = true;
         }
     }
-    else if (mympd_state->partition_state->conn_state == MPD_CONNECTED) {
+    else if (partition_state->conn_state == MPD_CONNECTED) {
         if (strcmp(key, "random") == 0) {
             if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
             bool bool_buf = vtype == MJSON_TOK_TRUE ? true : false;
-            rc = mpd_run_random(mympd_state->partition_state->conn, bool_buf);
+            rc = mpd_run_random(partition_state->conn, bool_buf);
         }
         else if (strcmp(key, "repeat") == 0) {
             if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
@@ -502,7 +502,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 return false;
             }
             bool bool_buf = vtype == MJSON_TOK_TRUE ? true : false;
-            rc = mpd_run_repeat(mympd_state->partition_state->conn, bool_buf);
+            rc = mpd_run_repeat(partition_state->conn, bool_buf);
         }
         else if (strcmp(key, "consume") == 0) {
             if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
@@ -510,7 +510,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 return false;
             }
             bool bool_buf = vtype == MJSON_TOK_TRUE ? true : false;
-            rc = mpd_run_consume(mympd_state->partition_state->conn, bool_buf);
+            rc = mpd_run_consume(partition_state->conn, bool_buf);
         }
         else if (strcmp(key, "single") == 0) {
             enum mpd_single_state state = mpd_parse_single_state(value);
@@ -518,7 +518,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
-            rc = mpd_run_single_state(mympd_state->partition_state->conn, state);
+            rc = mpd_run_single_state(partition_state->conn, state);
         }
         else if (strcmp(key, "crossfade") == 0 && vtype == MJSON_TOK_NUMBER) {
             unsigned uint_buf = (unsigned)strtoumax(value, NULL, 10);
@@ -526,7 +526,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
-            rc = mpd_run_crossfade(mympd_state->partition_state->conn, uint_buf);
+            rc = mpd_run_crossfade(partition_state->conn, uint_buf);
         }
         else if (strcmp(key, "replaygain") == 0 && vtype == MJSON_TOK_STRING) {
             enum mpd_replay_gain_mode mode = mpd_parse_replay_gain_name(value);
@@ -534,7 +534,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
-            rc = mpd_run_replay_gain_mode(mympd_state->partition_state->conn, mode);
+            rc = mpd_run_replay_gain_mode(partition_state->conn, mode);
         }
         else if (strcmp(key, "mixrampDb") == 0 && vtype == MJSON_TOK_NUMBER) {
             float db = strtof(value, NULL);
@@ -543,7 +543,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
-            rc = mpd_run_mixrampdb(mympd_state->partition_state->conn, db);
+            rc = mpd_run_mixrampdb(partition_state->conn, db);
         }
         else if (strcmp(key, "mixrampDelay") == 0 && vtype == MJSON_TOK_NUMBER) {
             float delay = strtof(value, NULL);
@@ -553,12 +553,12 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
-            rc = mpd_run_mixrampdelay(mympd_state->partition_state->conn, delay);
+            rc = mpd_run_mixrampdelay(partition_state->conn, delay);
         }
         sds message = sdsempty();
-        rc = mympd_check_rc_error_and_recover_notify(mympd_state->partition_state, &message, rc, key);
+        rc = mympd_check_rc_error_and_recover_notify(partition_state, &message, rc, key);
         if (rc == false) {
-            ws_notify(message);
+            ws_notify(message, partition_state->name);
         }
         FREE_SDS(message);
         write_state_file = false;
@@ -567,13 +567,13 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
         MYMPD_LOG_WARN("Unknown setting \"%s\": \"%s\"", key, value);
         return false;
     }
-    if (jukebox_changed == true && mympd_state->partition_state->jukebox_queue.length > 0) {
+    if (jukebox_changed == true && partition_state->jukebox_queue.length > 0) {
         MYMPD_LOG_INFO("Jukebox options changed, clearing jukebox queue");
-        jukebox_clear(&mympd_state->partition_state->jukebox_queue);
+        jukebox_clear(&partition_state->jukebox_queue);
     }
     if (write_state_file == true) {
         sds state_filename = camel_to_snake(key);
-        rc = state_file_write(mympd_state->config->workdir, "state", state_filename, value);
+        rc = state_file_write(partition_state->mympd_state->config->workdir, "state", state_filename, value);
         FREE_SDS(state_filename);
     }
     return rc;

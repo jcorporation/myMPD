@@ -99,7 +99,7 @@ static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
  */
 void send_jsonrpc_notify(enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *partition, const char *message) {
     sds buffer = jsonrpc_notify(sdsempty(), facility, severity, partition, message);
-    ws_notify(buffer);
+    ws_notify(buffer, partition);
     FREE_SDS(buffer);
 }
 
@@ -110,7 +110,7 @@ void send_jsonrpc_notify(enum jsonrpc_facilities facility, enum jsonrpc_severiti
  */
 void send_jsonrpc_event(enum jsonrpc_events event, const char *partition) {
     sds buffer = jsonrpc_event(sdsempty(), event, partition);
-    ws_notify(buffer);
+    ws_notify(buffer, partition);
     FREE_SDS(buffer);
 }
 

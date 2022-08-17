@@ -17,6 +17,7 @@
     bool mympd_api_script_delete(sds workdir, sds script);
     sds mympd_api_script_get(sds workdir, sds buffer, long request_id, sds script);
     sds mympd_api_script_list(sds workdir, sds buffer, long request_id, bool all);
-    bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list *arguments, bool localscript);
+    bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list *arguments,
+            const char *partition, bool localscript);
 #endif
 #endif

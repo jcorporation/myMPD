@@ -248,7 +248,9 @@ sds mympd_api_script_get(sds workdir, sds buffer, long request_id, sds script) {
  * @param localscript true = load script from filesystem, false = load script from script parameter
  * @return true on success, else false
  */
-bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list *arguments, bool localscript) {
+bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list *arguments,
+        const char *partition, bool localscript)
+{
     pthread_t mympd_script_thread;
     pthread_attr_t attr;
     if (pthread_attr_init(&attr) != 0) {
@@ -263,7 +265,7 @@ bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list 
     script_thread_arg->lualibs = lualibs;
     script_thread_arg->localscript = localscript;
     script_thread_arg->arguments = arguments;
-    script_thread_arg->partition = sdsnew("default"); //TODO: full partition support
+    script_thread_arg->partition = sdsnew(partition);
     if (localscript == true) {
         script_thread_arg->script_name = sdsnew(script);
         script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
@@ -345,7 +347,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         MYMPD_LOG_ERROR("Memory allocation error in luaL_newstate");
         sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR,
             script_arg->partition, "Error executing script %{script}: Memory allocation error", 2, "script", script_arg->script_name);
-        ws_notify(buffer);
+        ws_notify(buffer, script_arg->partition);
         FREE_SDS(buffer);
         FREE_SDS(thread_logname);
         free_t_script_thread_arg(script_arg);
@@ -392,15 +394,19 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         rc = luaL_loadstring(lua_vm, script_arg->script_content);
     }
     if (rc == 0) {
+        //set global lua variable partition
+        lua_pushstring(lua_vm, script_arg->partition);
+        lua_setglobal(lua_vm, "partition");
+        //set arguments lua table
+        lua_newtable(lua_vm);
         if (script_arg->arguments->length > 0) {
-            lua_newtable(lua_vm);
             struct t_list_node *current = script_arg->arguments->head;
             while (current != NULL) {
                 populate_lua_table_field_p(lua_vm, current->key, current->value_p);
                 current = current->next;
             }
-            lua_setglobal(lua_vm, "arguments");
         }
+        lua_setglobal(lua_vm, "arguments");
         MYMPD_LOG_DEBUG("Start script");
         rc = lua_pcall(lua_vm, 0, 1, 0);
         MYMPD_LOG_DEBUG("End script");
@@ -420,7 +426,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
             sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT,
                 JSONRPC_SEVERITY_INFO, script_arg->partition, "Script %{script} executed successfully",
                 2, "script", script_arg->script_name);
-            ws_notify(buffer);
+            ws_notify(buffer, script_arg->partition);
             FREE_SDS(buffer);
         }
         else {
@@ -435,7 +441,7 @@ static void *mympd_api_script_execute(void *script_thread_arg) {
         }
         sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_SCRIPT,
             JSONRPC_SEVERITY_ERROR, script_arg->partition, err_str, 2, "script", script_arg->script_name);
-        ws_notify(buffer);
+        ws_notify(buffer, script_arg->partition);
         FREE_SDS(buffer);
         //Error log message
         sdsclear(err_str);
@@ -640,11 +646,13 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         MYMPD_LOG_ERROR("Lua - mympd_api: Invalid method \"%s\"", method);
         return luaL_error(lua_vm, "Invalid method");
     }
+    //get partition
+    lua_getglobal(lua_vm, "partition");
+    const char *partition = lua_tostring(lua_vm, -1);
 
     //get the thread id
     long tid = syscall(__NR_gettid);
-
-    struct t_work_request *request = create_request(-2, tid, method_id, NULL);
+    struct t_work_request *request = create_request(-2, tid, method_id, NULL, partition);
     if (raw == false) {
         //options are in key/value format
         for (int i = 2; i < n; i = i + 2) {

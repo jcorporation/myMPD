@@ -87,7 +87,7 @@ static void mympd_signal_handler(int sig_num) {
         }
         case SIGHUP: {
             MYMPD_LOG_NOTICE("Signal SIGHUP received, saving states");
-            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STATE_SAVE, NULL);
+            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STATE_SAVE, NULL, MPD_PARTITION_DEFAULT);
             request->data = sdscatlen(request->data, "}}", 2);
             mympd_queue_push(mympd_api_queue, request, 0);
             break;

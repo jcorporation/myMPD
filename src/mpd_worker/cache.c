@@ -58,7 +58,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     //push album cache building response to mpd_client thread
     if (mpd_worker_state->partition_state->mpd_state->feat_tags == true) {
         if (rc == true) {
-            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_CREATED, NULL);
+            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_CREATED, NULL, mpd_worker_state->partition_state->name);
             request->data = jsonrpc_end(request->data);
             request->extra = (void *) album_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);
@@ -76,7 +76,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     //push sticker cache building response to mpd_client thread
     if (mpd_worker_state->partition_state->mpd_state->feat_stickers == true) {
         if (rc == true) {
-            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STICKERCACHE_CREATED, NULL);
+            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STICKERCACHE_CREATED, NULL, mpd_worker_state->partition_state->name);
             request->data = jsonrpc_end(request->data);
             request->extra = (void *) sticker_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);

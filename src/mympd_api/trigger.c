@@ -23,7 +23,7 @@
  */
 
 static sds trigger_to_line_cb(sds buffer, struct t_list_node *current);
-void _trigger_execute(sds script, struct t_list *arguments);
+void _trigger_execute(sds script, struct t_list *arguments, const char *partition);
 
 /**
  * MPD idle events for triggers
@@ -116,7 +116,7 @@ void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events 
         if (current->value_i == event) {
             MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"%s\" (%d)", current->value_p,
                 mympd_api_event_name(event), event);
-            _trigger_execute(current->value_p, (struct t_list *)current->user_data);
+            _trigger_execute(current->value_p, (struct t_list *)current->user_data, "default"); //TODO(jc): full partition support
         }
         current = current->next;
     }
@@ -141,7 +141,7 @@ void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, in
     while (current != NULL) {
         if (current->value_i == TRIGGER_MYMPD_FEEDBACK) {
             MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"mympd_feedback\" (-6)", current->value_p);
-            _trigger_execute(current->value_p, &script_arguments);
+            _trigger_execute(current->value_p, &script_arguments, "default"); //TODO(jc): full partition support
         }
         current = current->next;
     }
@@ -351,8 +351,8 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current) {
  * @param script script to execute
  * @param arguments arguments for the script
  */
-void _trigger_execute(sds script, struct t_list *arguments) {
-    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL);
+void _trigger_execute(sds script, struct t_list *arguments, const char *partition) {
+    struct t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL, partition);
     request->data = tojson_sds(request->data, "script", script, true);
     request->data = sdscat(request->data, "\"arguments\": {");
     struct t_list_node *argument = arguments->head;

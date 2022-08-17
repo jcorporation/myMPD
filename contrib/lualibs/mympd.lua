@@ -6,13 +6,13 @@
 -- https://github.com/jcorporation/mympd
 --
 
-mympd = { _version = "0.2.1" }
+mympd = { _version = "0.3.0" }
 
 --
 -- Function to retrieve mympd_state
 --
 function mympd.init()
-  return mympd_api("INTERNAL_API_SCRIPT_INIT")
+  return mympd_api("INTERNAL_API_SCRIPT_INIT", partition)
 end
 
 --

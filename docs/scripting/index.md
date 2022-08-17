@@ -6,11 +6,15 @@ title: Scripting
 
 myMPD integrates [Lua](http://www.lua.org) for scripting purposes. Script execution can be triggered in the main menu, with timers or triggers. Scripts are executed asynchronously, therefore scripts can not block the main threads of myMPD. The script output is printed to STDOUT and the return value is broadcasted to all connected clients.
 
+## Arguments
+
+Script arguments are populated in the lua table `arguments`. myMPD populates automatically the global `partition` variable.
+
 ## Accessing myMPD and MPD status informations
 
 Accessing myMPD requires the mympd lua library to be loaded.
 
-The lua command `mympd.init()` populates the lua table `mympd_state` with configuration values and up-to-date status informations of myMPD and MPD. `mympd.init()` is only a shorthand command for `mympd_api("INTERNAL_API_SCRIPT_INIT")`
+The lua command `mympd.init()` populates the lua table `mympd_state` with configuration values and up-to-date status informations of myMPD and MPD. `mympd.init()` is only a shorthand command for `mympd_api("INTERNAL_API_SCRIPT_INIT", arguments["partition"])`
 
 - [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state)
 
@@ -59,7 +63,7 @@ Further examples can be found in the [repository](https://github.com/jcorporatio
 
 ```
 -- load a playlist
-mympd_api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", "plist", "NonPop")
+mympd_api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", "partition", partition, "plist", "NonPop")
 -- start playing
 mympd_api("MYMPD_API_PLAYER_PLAY")
 ```
@@ -69,7 +73,7 @@ mympd_api("MYMPD_API_PLAYER_PLAY")
 Script should be called with an argument named playlist.
 ```
 -- load a playlist
-mympd_api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", "plist", arguments["playlist"])
+mympd_api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", "partition", partition, "plist", arguments["playlist"])
 -- start playing
 mympd_api("MYMPD_API_PLAYER_PLAY")
 -- broadcast message to all connected myMPD clients
