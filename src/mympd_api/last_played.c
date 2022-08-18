@@ -5,9 +5,9 @@
 */
 
 #include "compile_time.h"
-#include "dist/sds/sds.h"
 #include "last_played.h"
 
+#include "../../dist/sds/sds.h"
 #include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
