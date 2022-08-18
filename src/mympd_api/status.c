@@ -174,7 +174,7 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
     time_t elapsed_time = (time_t)mympd_api_get_elapsed_seconds(status);
 
     time_t now = time(NULL);
-    time_t uptime = now - partition_state->mpd_state->config->startup_time;
+    time_t uptime = now - partition_state->mympd_state->config->startup_time;
 
     if (total_time == 0) {
         //no song end time for streams
@@ -242,7 +242,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     lua_mympd_state_set_b(lua_partition_state, "consume", mpd_status_get_consume(status));
     lua_mympd_state_set_u(lua_partition_state, "crossfade", mpd_status_get_crossfade(status));
     lua_mympd_state_set_p(lua_partition_state, "music_directory", partition_state->mpd_state->music_directory_value);
-    lua_mympd_state_set_p(lua_partition_state, "workdir", partition_state->mpd_state->config->workdir);
+    lua_mympd_state_set_p(lua_partition_state, "workdir", partition_state->mympd_state->config->workdir);
     lua_mympd_state_set_i(lua_partition_state, "jukebox_mode", partition_state->jukebox_mode);
     lua_mympd_state_set_p(lua_partition_state, "jukebox_playlist", partition_state->jukebox_playlist);
     lua_mympd_state_set_i(lua_partition_state, "jukebox_queue_length", partition_state->jukebox_queue_length);
@@ -309,7 +309,7 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
     buffer = sdscatlen(buffer, ",", 1);
     buffer = get_extra_media(partition_state->mpd_state, buffer, uri, false);
     if (is_streamuri(uri) == true) {
-        sds webradio = get_webradio_from_uri(partition_state->mpd_state->config->workdir, uri);
+        sds webradio = get_webradio_from_uri(partition_state->mympd_state->config->workdir, uri);
         if (sdslen(webradio) > 0) {
             buffer = sdscat(buffer, ",\"webradio\":{");
             buffer = sdscatsds(buffer, webradio);

@@ -59,7 +59,7 @@ struct t_cache {
  * Holds MPD specific states shared across all partitions
  */
 struct t_mpd_state {
-    struct t_config *config;            //!< pointer to static config
+    struct t_mympd_state *mympd_state;  //!< pointer to myMPD state
     //connection configuration
     sds mpd_host;                       //!< mpd host configuration
     unsigned mpd_port;                  //!< mpd port configuration
@@ -105,6 +105,8 @@ struct t_mpd_state {
  * Holds partition specific states
  */
 struct t_partition_state {
+    struct t_mympd_state *mympd_state;     //!< pointer to myMPD state
+    struct t_mpd_state *mpd_state;        //!< pointer to shared mpd state
     //mpd connection
     struct mpd_connection *conn;           //!< mpd connection object from libmpdclient
     enum mpd_conn_states conn_state;       //!< mpd connection state
@@ -140,8 +142,6 @@ struct t_partition_state {
     bool jukebox_enforce_unique;           //!< flag indicating if unique constraint is enabled
     struct t_list jukebox_queue;           //!< the jukebox queue itself
     struct t_list jukebox_queue_tmp;       //!< temporaray jukebox queue for the add random to queue function
-    struct t_mpd_state *mpd_state;         //!< pointer to shared MPD state
-    struct t_mympd_state *mympd_state;     //!< pointer to myMPD state
     //partition
     sds name;                              //!< partition name
     struct t_partition_state *next;        //!< pointer to next partition;
@@ -241,10 +241,10 @@ struct t_mympd_state {
  */
 void mympd_state_save(struct t_mympd_state *mympd_state);
 
-void mympd_state_default(struct t_mympd_state *mympd_state);
+void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *config);
 void mympd_state_free(struct t_mympd_state *mympd_state);
 
-void mpd_state_default(struct t_mpd_state *mpd_state);
+void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mympd_state);
 void mpd_state_features_disable(struct t_mpd_state *mpd_state);
 void mpd_state_free(struct t_mpd_state *mpd_state);
 

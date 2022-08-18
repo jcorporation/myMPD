@@ -516,7 +516,7 @@ sds _print_queue_entry(struct t_partition_state *partition_state, sds buffer, co
     const char *uri = mpd_song_get_uri(song);
     buffer = sdscatlen(buffer, ",", 1);
     if (is_streamuri(uri) == true) {
-        sds webradio = get_webradio_from_uri(partition_state->mpd_state->config->workdir, uri);
+        sds webradio = get_webradio_from_uri(partition_state->mympd_state->config->workdir, uri);
         if (sdslen(webradio) > 0) {
             buffer = sdscat(buffer, "\"webradio\":{");
             buffer = sdscatsds(buffer, webradio);

@@ -38,9 +38,9 @@ void mympd_state_save(struct t_mympd_state *mympd_state) {
  * Sets mympd_state defaults.
  * @param mympd_state pointer to central myMPD state
  */
-void mympd_state_default(struct t_mympd_state *mympd_state) {
+void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *config) {
     //pointer to static config
-    mympd_state->config = NULL;
+    mympd_state->config = config;
     //configured mpd music_directory, used value is in mympd_state->mpd_state->music_directory_value
     mympd_state->music_directory = sdsnew(MYMPD_MUSIC_DIRECTORY);
     //configured mpd playlist directory
@@ -80,7 +80,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state) {
     reset_t_tags(&mympd_state->smartpls_generate_tag_types);
     //mpd shared state
     mympd_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
-    mpd_state_default(mympd_state->mpd_state);
+    mpd_state_default(mympd_state->mpd_state, mympd_state);
     //mpd partition state
     mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
     partition_state_default(mympd_state->partition_state, "default", mympd_state);
@@ -145,8 +145,8 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
  * Sets mpd_state defaults.
  * @param mpd_state pointer to mpd_state
  */
-void mpd_state_default(struct t_mpd_state *mpd_state) {
-    mpd_state->config = NULL;
+void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mympd_state) {
+    mpd_state->mympd_state = mympd_state;
     mpd_state->mpd_keepalive = MYMPD_MPD_KEEPALIVE;
     mpd_state->mpd_timeout = MYMPD_MPD_TIMEOUT;
     mpd_state->mpd_host = sdsnew(MYMPD_MPD_HOST);
@@ -260,8 +260,8 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->jukebox_queue_length = MYMPD_JUKEBOX_QUEUE_LENGTH;
     partition_state->jukebox_enforce_unique = MYMPD_JUKEBOX_ENFORCE_UNIQUE;
     //add pointer to other states
-    partition_state->mpd_state = mympd_state->mpd_state;
     partition_state->mympd_state = mympd_state;
+    partition_state->mpd_state = mympd_state->mpd_state;
     //mpd idle mask
     if (strcmp(name, "default") == 0) {
         //handle all

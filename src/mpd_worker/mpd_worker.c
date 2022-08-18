@@ -57,14 +57,14 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     mpd_worker_state->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
     mpd_worker_state->smartpls_prefix = sdsdup(mympd_state->smartpls_prefix);
     copy_tag_types(&mympd_state->smartpls_generate_tag_types, &mpd_worker_state->smartpls_generate_tag_types);
-
+    mpd_worker_state->config = mympd_state->config;
     //mpd state
     mpd_worker_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
-    mpd_state_default(mpd_worker_state->mpd_state);
+    mpd_state_default(mpd_worker_state->mpd_state, mympd_state);
     mpd_worker_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
+    //worker runs always in default partition
     partition_state_default(mpd_worker_state->partition_state, mympd_state->partition_state->name, mympd_state);
     mpd_worker_state->partition_state->mpd_state = mpd_worker_state->mpd_state;
-    mpd_worker_state->mpd_state->config = mympd_state->config;
 
     mpd_worker_state->mpd_state->mpd_host = sds_replace(mpd_worker_state->partition_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_host);
     mpd_worker_state->mpd_state->mpd_port = mympd_state->mpd_state->mpd_port;

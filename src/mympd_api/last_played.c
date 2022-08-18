@@ -121,14 +121,14 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, i
         mpd_song_free(song);
         return true;
     }
-    list_insert(&partition_state->mpd_state->last_played, uri, (long long)time(NULL), NULL, NULL);
+    list_insert(&partition_state->mpd_state->last_played, uri, (long long)time(NULL), partition_state->name, NULL);
     mpd_song_free(song);
     //write last_played list to disc
     if (partition_state->mpd_state->last_played.length > 9 ||
         partition_state->mpd_state->last_played.length > partition_state->mpd_state->last_played_count)
     {
         mympd_api_last_played_file_save(&partition_state->mpd_state->last_played,
-            partition_state->mpd_state->last_played_count, partition_state->mpd_state->config->workdir);
+            partition_state->mpd_state->last_played_count, partition_state->mympd_state->config->workdir);
     }
     //notify clients
     send_jsonrpc_event(JSONRPC_EVENT_UPDATE_LAST_PLAYED, partition_state->name);
@@ -182,7 +182,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
     sds line = sdsempty();
     sdsclear(obj);
     char *data = NULL;
-    sds lp_file = sdscatfmt(sdsempty(), "%S/state/last_played", partition_state->mpd_state->config->workdir);
+    sds lp_file = sdscatfmt(sdsempty(), "%S/state/last_played", partition_state->mympd_state->config->workdir);
     errno = 0;
     FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
     if (fp != NULL) {

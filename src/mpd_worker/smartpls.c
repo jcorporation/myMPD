@@ -63,7 +63,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
     time_t db_mtime = mpd_client_get_db_mtime(mpd_worker_state->partition_state);
     MYMPD_LOG_DEBUG("Database mtime: %lld", (long long)db_mtime);
 
-    sds dirname = sdscatfmt(sdsempty(), "%S/smartpls", mpd_worker_state->mpd_state->config->workdir);
+    sds dirname = sdscatfmt(sdsempty(), "%S/smartpls", mpd_worker_state->config->workdir);
     errno = 0;
     DIR *dir = opendir (dirname);
     if (dir == NULL) {
@@ -78,7 +78,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
             continue;
         }
         time_t playlist_mtime = mpd_client_get_playlist_mtime(mpd_worker_state->partition_state, next_file->d_name);
-        time_t smartpls_mtime = smartpls_get_mtime(mpd_worker_state->mpd_state->config->workdir, next_file->d_name);
+        time_t smartpls_mtime = smartpls_get_mtime(mpd_worker_state->config->workdir, next_file->d_name);
         MYMPD_LOG_DEBUG("Playlist %s: playlist mtime %lld, smartpls mtime %lld", next_file->d_name, (long long)playlist_mtime, (long long)smartpls_mtime);
         if (force == true || db_mtime > playlist_mtime || smartpls_mtime > playlist_mtime) {
             mpd_worker_smartpls_update(mpd_worker_state, next_file->d_name);
@@ -110,7 +110,7 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
     int int_buf1;
     int int_buf2;
 
-    sds filename = sdscatfmt(sdsempty(), "%S/smartpls/%s", mpd_worker_state->mpd_state->config->workdir, playlist);
+    sds filename = sdscatfmt(sdsempty(), "%S/smartpls/%s", mpd_worker_state->config->workdir, playlist);
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
     if (fp == NULL) {
         MYMPD_LOG_ERROR("Cant open smart playlist file \"%s\"", playlist);
@@ -229,12 +229,12 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
             sds filename = sdsdup(current->key);
             sanitize_filename(filename);
             sds playlist = sdscatfmt(sdsempty(), "%S%s%s-%s", mpd_worker_state->smartpls_prefix, (sdslen(mpd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, filename);
-            sds plpath = sdscatfmt(sdsempty(), "%S/smartpls/%s", mpd_worker_state->mpd_state->config->workdir, playlist);
+            sds plpath = sdscatfmt(sdsempty(), "%S/smartpls/%s", mpd_worker_state->config->workdir, playlist);
             if (access(plpath, F_OK) == -1) { /* Flawfinder: ignore */
                 sds expression = sdsnewlen("(", 1);
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
                 expression = sdscatlen(expression, ")", 1);
-                rc = smartpls_save_search(mpd_worker_state->mpd_state->config->workdir, playlist, expression, mpd_worker_state->smartpls_sort);
+                rc = smartpls_save_search(mpd_worker_state->config->workdir, playlist, expression, mpd_worker_state->smartpls_sort);
                 FREE_SDS(expression);
                 if (rc == true) {
                     MYMPD_LOG_INFO("Created smart playlist \"%s\"", playlist);

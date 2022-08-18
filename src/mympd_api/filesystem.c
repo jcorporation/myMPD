@@ -174,7 +174,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
                 }
                 case MPD_ENTITY_TYPE_PLAYLIST: {
                     const struct mpd_playlist *pl = mpd_entity_get_playlist(entry_data->entity);
-                    bool smartpls = is_smartpls(partition_state->mpd_state->config->workdir, entry_data->name);
+                    bool smartpls = is_smartpls(partition_state->mympd_state->config->workdir, entry_data->name);
                     buffer = sdscatfmt(buffer, "{\"Type\": \"%s\",", (smartpls == true ? "smartpls" : "plist"));
                     buffer = tojson_char(buffer, "uri", mpd_playlist_get_path(pl), true);
                     buffer = tojson_sds(buffer, "name", entry_data->name, true);
