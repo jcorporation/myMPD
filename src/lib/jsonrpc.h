@@ -95,6 +95,8 @@ bool json_get_int_max(sds s, const char *path, int *result, sds *error);
 bool json_get_int(sds s, const char *path, int min, int max, int *result, sds *error);
 bool json_get_long_max(sds s, const char *path, long *result, sds *error);
 bool json_get_long(sds s, const char *path, long min, long max, long *result, sds *error);
+bool json_get_llong_max(sds s, const char *path, long long *result, sds *error);
+bool json_get_llong(sds s, const char *path, long long min, long long max, long long *result, sds *error);
 bool json_get_uint_max(sds s, const char *path, unsigned *result, sds *error);
 bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned *result, sds *error);
 bool json_get_string_max(sds s, const char *path, sds *result, validate_callback vcb, sds *error);

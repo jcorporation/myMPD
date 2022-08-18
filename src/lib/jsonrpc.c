@@ -648,6 +648,44 @@ bool json_get_long(sds s, const char *path, long min, long max, long *result, sd
 }
 
 /**
+ * Gets a long long value by json path
+ * @param s json object to parse
+ * @param path mjson path expression
+ * @param result pointer to long long with the result
+ * @param error pointer for error string
+ * @return true on success else false
+ */
+bool json_get_llong_max(sds s, const char *path, long long *result, sds *error) {
+    return json_get_llong(s, path, JSONRPC_LLONG_MIN, JSONRPC_LLONG_MAX, result, error);
+}
+
+/**
+ * Gets a long long value by json path
+ * @param s json object to parse
+ * @param path mjson path expression
+ * @param min minimum value (including)
+ * @param max maximum value (including)
+ * @param result pointer to long long with the result
+ * @param error pointer for error string
+ * @return true on success else false
+ */
+bool json_get_llong(sds s, const char *path, long long min, long long max, long long *result, sds *error) {
+    double value;
+    if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
+        long long value_llong = (long long)value;
+        if (value_llong >= min && value_llong <= max) {
+            *result = value_llong;
+            return true;
+        }
+        _set_parse_error(error, "Number out of range for JSON path \"%s\"", path);
+    }
+    else {
+        _set_parse_error(error, "JSON path \"%s\" not found", path);
+    }
+    return false;
+}
+
+/**
  * Gets a unsigned int value by json path
  * @param s json object to parse
  * @param path mjson path expression
