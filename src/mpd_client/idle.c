@@ -108,7 +108,8 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
  * This function handles api requests and mpd events per partition.
  * @param mympd_state pointer to the mympd state struct
  * @param partition_state pointer to the partition state
- * @param mpd_idle_event_waiting true if mpd idle event is waiting, else false 
+ * @param mpd_idle_event_waiting true if mpd idle event is waiting, else false
+ * @param request api request
  */
 static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         bool mpd_idle_event_waiting, struct t_work_request *request)
@@ -317,8 +318,6 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
  * @param mympd_state pointer to t_mympd_state struct
  * @param partition_state pointer to partition specific states
  * @param idle_bitmask triggered mpd idle events as bitmask
- * @param timer_list pointer to the timer_list
- * @param trigger_list pointer to the trigger_list
  */
 static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, unsigned idle_bitmask) {
     sds buffer = sdsempty();

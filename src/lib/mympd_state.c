@@ -37,6 +37,7 @@ void mympd_state_save(struct t_mympd_state *mympd_state) {
 /**
  * Sets mympd_state defaults.
  * @param mympd_state pointer to central myMPD state
+ * @param config pointer to static config
  */
 void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *config) {
     //pointer to static config
@@ -144,6 +145,7 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
 /**
  * Sets mpd_state defaults.
  * @param mpd_state pointer to mpd_state
+ * @param mympd_state pointer to central myMPD state
  */
 void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mympd_state) {
     mpd_state->mympd_state = mympd_state;
@@ -221,6 +223,7 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
  * Sets per partition state defaults
  * @param partition_state pointer to t_partition_state struct
  * @param name partition name
+ * @param mympd_state pointer to central myMPD state
  */
 void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mympd_state *mympd_state) {
     partition_state->name = sdsnew(name);

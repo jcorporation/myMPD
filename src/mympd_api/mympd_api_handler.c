@@ -67,10 +67,13 @@ static bool check_start_play(struct t_partition_state *partition_state, bool pla
 
 /**
  * Central myMPD api handler function
- * @param mympd_state pointer to mympd state struct
+ * @param mympd_state pointer to central myMPD state
+ * @param partition_state pointer to partition state
  * @param request pointer to the jsonrpc request struct
  */
-void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, struct t_work_request *request) {
+void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
+        struct t_work_request *request)
+{
     unsigned uint_buf1;
     unsigned uint_buf2;
     long long_buf1;

@@ -258,6 +258,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
  * @param entity_count position in the list
  * @param last_played songs last played time as unix timestamp
  * @param uri uri of the song
+ * @param partition mpd partition of the entry
  * @param searchstr string to search
  * @param tagcols columns to print
  * @return pointer to buffer

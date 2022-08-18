@@ -132,7 +132,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
 
 /**
  * Request handler for script api requests /api/script
- * @param conn_id mongoose connection id
+ * @param nc mongoose connection
  * @param body http body (jsonrpc request)
  * @return true on success, else false
  */

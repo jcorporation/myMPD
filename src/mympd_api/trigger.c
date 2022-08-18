@@ -108,6 +108,7 @@ sds mympd_api_trigger_print_event_list(sds buffer) {
  * Executes all scripts associated with the trigger
  * @param trigger_list trigger list
  * @param event trigger to execute scripts for
+ * @param partition mpd partition
  */
 void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event, const char *partition) {
     MYMPD_LOG_DEBUG("Trigger event: %s (%d)", mympd_api_event_name(event), event);
@@ -127,6 +128,7 @@ void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events 
  * @param trigger_list trigger list
  * @param uri feedback uri
  * @param vote the feedback
+ * @param partition mpd partition
  */
 void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, int vote, const char *partition) {
     MYMPD_LOG_DEBUG("Trigger event: mympd_feedback (-6) for \"%s\", vote %d", uri, vote);
@@ -350,6 +352,7 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current) {
  * Creates and pushes a request to execute a script
  * @param script script to execute
  * @param arguments arguments for the script
+ * @param partition mpd partition
  */
 void _trigger_execute(sds script, struct t_list *arguments, const char *partition) {
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL, partition);

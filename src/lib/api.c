@@ -112,6 +112,7 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
 /**
  * Sends a websocket notification to the browser
  * @param message the message to send
+ * @param partition mpd partition
  */
 void ws_notify(sds message, const char *partition) {
     MYMPD_LOG_DEBUG("Push websocket notify to queue: \"%s\"", message);
