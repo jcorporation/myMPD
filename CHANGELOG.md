@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: Chinese translation #813 
+- Fix: sorting albums by last-modified #806
 
 ***
 
