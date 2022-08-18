@@ -362,6 +362,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
     if (fn_data != NULL) {
         frontend_nc_data = (struct frontend_nc_data_t *)fn_data;
     }
+    else {
+        //initialize fn_data
+        frontend_nc_data = malloc_assert(sizeof(struct frontend_nc_data_t));
+        frontend_nc_data->partition = NULL;
+        frontend_nc_data->backend_nc = NULL;
+        nc->fn_data = frontend_nc_data;
+    }
     //mongoose user data
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
@@ -400,11 +407,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             nc->label[0] = 'F';
             nc->label[1] = '-';
             nc->label[2] = '-';
-            //initialize fn_data
-            struct frontend_nc_data_t *new_frontend_nc_data = malloc_assert(sizeof(struct frontend_nc_data_t));
-            new_frontend_nc_data->partition = NULL;
-            new_frontend_nc_data->backend_nc = NULL;
-            nc->fn_data = new_frontend_nc_data;
             break;
         }
         case MG_EV_WS_MSG: {
