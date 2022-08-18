@@ -8,7 +8,6 @@
 #include "api.h"
 
 #include "../../dist/mongoose/mongoose.h"
-#include "jsonrpc.h"
 #include "log.h"
 #include "mem.h"
 #include "sds_extras.h"
@@ -171,7 +170,6 @@ struct t_work_request *create_request(long long conn_id, long request_id, enum m
     request->method = sdsnew(method);
     if (data == NULL) {
         request->data = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"%s\",\"params\":{", method);
-        request->data = tojson_char(request->data, "partition", partition, true);
     }
     else {
         request->data = sdsnew(data);

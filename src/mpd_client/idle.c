@@ -72,6 +72,7 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
     struct t_partition_state *partition_state = mympd_state->partition_state;
     int i = 0;
     bool mpd_idle_event_waiting;
+    bool request_processed = request == NULL ? true : false;
     do {
         if (partition_state->conn_state == MPD_CONNECTED) {
             //only connected partitions has a fd
@@ -81,16 +82,22 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
         else {
             mpd_idle_event_waiting = false;
         }
-        if (request != NULL) {
-            if (strcmp(request->partition, partition_state->name) == 0) {
-                //API request is for this partition
-                mpd_client_idle_partition(mympd_state, partition_state, mpd_idle_event_waiting, request);
-            }
-            else {
-                mpd_client_idle_partition(mympd_state, partition_state, mpd_idle_event_waiting, NULL);
-            }
+        if (request != NULL &&
+            strcmp(request->partition, partition_state->name) == 0)
+        {
+            //API request is for this partition
+            mpd_client_idle_partition(mympd_state, partition_state, mpd_idle_event_waiting, request);
+            request_processed = true;
+        }
+        else {
+            mpd_client_idle_partition(mympd_state, partition_state, mpd_idle_event_waiting, NULL);
         }
     } while ((partition_state = partition_state->next) != NULL);
+    if (request_processed == false) {
+        //request was for unknown partition, discard it
+        MYMPD_LOG_WARN("Discarding request for unknown partition \"%s\"", request->partition);
+        free_request(request);
+    }
 }
 
 /**
@@ -181,7 +188,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 MYMPD_LOG_ERROR("\"%s\": Entering idle mode failed", partition_state->name);
                 partition_state->conn_state = MPD_FAILURE;
             }
-            mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_CONNECTED);
+            mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_CONNECTED, partition_state->name);
             break;
         case MPD_FAILURE:
             MYMPD_LOG_ERROR("\"%s\": MPD connection failed", partition_state->name);
@@ -189,7 +196,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
         case MPD_DISCONNECT:
         case MPD_DISCONNECT_INSTANT:
             send_jsonrpc_event(JSONRPC_EVENT_MPD_DISCONNECTED, partition_state->name);
-            mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED);
+            mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED, partition_state->name);
             mpd_client_disconnect(partition_state);
             //set wait time for next connection attempt
             if (partition_state->conn_state != MPD_DISCONNECT_INSTANT) {
@@ -269,7 +276,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                         sticker_set_last_played(&mympd_state->mpd_state->sticker_queue,
                             partition_state->song_uri, partition_state->last_song_start_time);
                     }
-                    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_SCROBBLE);
+                    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_SCROBBLE, partition_state->name);
                 }
                 //trigger jukebox
                 if (jukebox_add_song == true) {
@@ -327,13 +334,13 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                 case MPD_IDLE_DATABASE:
                     //database has changed - global event
                     MYMPD_LOG_INFO("MPD database has changed");
-                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_DATABASE, MPD_PARTITION_ALL);
+                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_DATABASE);
                     //add timer for cache updates
                     update_mympd_caches(partition_state->mpd_state, &mympd_state->timer_list, 10);
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
                     //a playlist has changed - global event
-                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_STORED_PLAYLIST, MPD_PARTITION_ALL);
+                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_STORED_PLAYLIST);
                     break;
                 case MPD_IDLE_UPDATE:
                     //database update has started or is finished - global event
@@ -411,22 +418,30 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                     break;
                 case MPD_IDLE_OUTPUT:
                     //outputs are changed - partition specific event
-                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OUTPUTS, partition_state->name);
+                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OUTPUTS);
                     break;
                 case MPD_IDLE_OPTIONS:
                     //mpd playback options are changed - partition specific event
                     mympd_api_queue_status(partition_state, NULL);
-                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OPTIONS, partition_state->name);
+                    buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OPTIONS);
                     break;
                 default: {
                     //other idle events not used
                 }
             }
             //check for attached triggers
-            mympd_api_trigger_execute(&mympd_state->trigger_list, (enum trigger_events)idle_event);
+            mympd_api_trigger_execute(&mympd_state->trigger_list, (enum trigger_events)idle_event, partition_state->name);
             //broadcast event to all websockets
             if (sdslen(buffer) > 0) {
-                ws_notify(buffer, partition_state->name);
+                switch(idle_event) {
+                    case MPD_IDLE_DATABASE:
+                    case MPD_IDLE_STORED_PLAYLIST:
+                    case MPD_IDLE_UPDATE:
+                        ws_notify(buffer, MPD_PARTITION_ALL);
+                        break;
+                    default:
+                        ws_notify(buffer, partition_state->name);
+                }
                 sdsclear(buffer);
             }
         }

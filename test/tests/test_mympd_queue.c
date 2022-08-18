@@ -80,7 +80,7 @@ UTEST(mympd_queue, push_shift_id) {
 UTEST(mympd_queue, expire) {
     struct t_mympd_queue *test_queue = mympd_queue_create("test", QUEUE_TYPE_REQUEST);
     for (int i = 0; i < 50; i++) {
-        struct t_work_request *request = create_request(0, 0, MYMPD_API_COLS_SAVE, "test");
+        struct t_work_request *request = create_request(0, 0, MYMPD_API_COLS_SAVE, "test", MPD_PARTITION_DEFAULT);
         request->extra = malloc(10);
         mympd_queue_push(test_queue, request, 10);
     }

@@ -14,7 +14,7 @@ Script arguments are populated in the lua table `arguments`. myMPD populates aut
 
 Accessing myMPD requires the mympd lua library to be loaded.
 
-The lua command `mympd.init()` populates the lua table `mympd_state` with configuration values and up-to-date status informations of myMPD and MPD. `mympd.init()` is only a shorthand command for `mympd_api("INTERNAL_API_SCRIPT_INIT", arguments["partition"])`
+The lua command `mympd.init()` populates the lua table `mympd_state` with configuration values and up-to-date status informations of myMPD and MPD. `mympd.init()` is only a shorthand command for `mympd_api("INTERNAL_API_SCRIPT_INIT")`
 
 - [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state)
 
@@ -63,7 +63,7 @@ Further examples can be found in the [repository](https://github.com/jcorporatio
 
 ```
 -- load a playlist
-mympd_api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", "partition", partition, "plist", "NonPop")
+mympd_api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", "plist", "NonPop")
 -- start playing
 mympd_api("MYMPD_API_PLAYER_PLAY")
 ```
@@ -73,7 +73,7 @@ mympd_api("MYMPD_API_PLAYER_PLAY")
 Script should be called with an argument named playlist.
 ```
 -- load a playlist
-mympd_api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", "partition", partition, "plist", arguments["playlist"])
+mympd_api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", "plist", arguments["playlist"])
 -- start playing
 mympd_api("MYMPD_API_PLAYER_PLAY")
 -- broadcast message to all connected myMPD clients
@@ -103,11 +103,11 @@ return output
 
 `mympd-script` is a small commandline tool to submit scripts to myMPD. It reads the script from STDIN and submits it to myMPD for execution. `Key=Value` parameters can be used to fill the arguments table in the Lua script.
 
-For security reasons this function is disabled in the default configuration, you must set `remotescripting = true` (mympd section) in the configuration file. Additionally there is a IP ACL option `scriptacl` (webserver section) set to `-0.0.0.0/0,+127.0.0.0/8` to prevent misuse of this feature.
+For security reasons this function has a default acl of `-0.0.0.0/0,+127.0.0.0/8` in the default configuration. There is a IP ACL option `scriptacl` in the config folder to   override the default acl.
 
 **Script from STDIN:**
 ```
-mympd-script https://localhost - key1=value1 <<< 'print arguments["key1"]'
+mympd-script https://localhost default - key1=value1 <<< 'print arguments["key1"]'
 ```
 
 **Call available script (test.lua):**
@@ -115,7 +115,7 @@ mympd-script https://localhost - key1=value1 <<< 'print arguments["key1"]'
 mympd-script can also call existing scripts. This API call is not controlled by the remote scripts configuration options.
 
 ```
-mympd-script https://localhost test key1=value1 
+mympd-script https://localhost default test key1=value1 
 ```
 
 ## LUA standard libraries

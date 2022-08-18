@@ -13,7 +13,7 @@
 #include "log.h"
 
 static void print_usage(char **argv) {
-    fprintf(stderr, "Usage: %s <URL> <scriptname> key=val ...\n"
+    fprintf(stderr, "Usage: %s <URL> <partition> <scriptname> key=val ...\n"
                     "myMPD script utility\n"
                     "If scriptname is -, the script is read from stdin.\n"
                     "<URL>: e.g. https://localhost\n"
@@ -22,11 +22,11 @@ static void print_usage(char **argv) {
 }
 
 static sds parse_arguments(sds post_data, char **argv, int argc) {
-    if (argc < 4) {
+    if (argc < 5) {
         return post_data;
     }
-    for (int i = 3; i < argc; i++) {
-        if (i > 3) {
+    for (int i = 4; i < argc; i++) {
+        if (i > 4) {
             post_data = sdscatlen(post_data, ",", 1);
         }
         int count = 0;
@@ -45,18 +45,17 @@ static sds parse_arguments(sds post_data, char **argv, int argc) {
 }
 
 int main(int argc, char **argv) {
-    if (argc < 3) {
+    if (argc < 4) {
         print_usage(argv);
         return EXIT_FAILURE;
     }
 
     set_loglevel(5);
 
-    sds uri = sdsnew(argv[1]);
+    sds uri = sdscatfmt(sdsempty(), "%s/script-api/%s", argv[1], argv[2]);
     sds post_data = sdsempty();
 
-    if (strlen(argv[2]) == 1 && argv[2][0] == '-') {
-        uri = sdscat(uri, "/api/script");
+    if (strlen(argv[3]) == 1 && argv[3][0] == '-') {
         int c;
         sds script_data = sdsempty();
         while ((c = getchar()) != EOF) {
@@ -70,7 +69,6 @@ int main(int argc, char **argv) {
         sdsfree(script_data);
     }
     else {
-        uri = sdscat(uri, "/api/");
         post_data = sdscat(post_data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_EXECUTE\",\"params\":{\"script\":");
         post_data = sds_catjson(post_data, argv[2], strlen(argv[2]));
         post_data = sdscat(post_data, ",arguments:{");

@@ -62,7 +62,7 @@ void *mympd_api_loop(void *arg_config) {
     }
 
     //start trigger
-    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START);
+    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START, MPD_PARTITION_ALL);
 
     //thread loop
     while (s_signal_received == 0) {
@@ -71,7 +71,7 @@ void *mympd_api_loop(void *arg_config) {
     }
 
     //stop trigger
-    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP);
+    mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP, MPD_PARTITION_ALL);
 
     //disconnect from mpd
     struct t_partition_state *partition_state = mympd_state->partition_state;

@@ -45,7 +45,7 @@ UTEST(api, test_is_mympd_only_api_method) {
 }
 
 UTEST(api, test_request_result) {
-    struct t_work_request *request = create_request(1, 1, MYMPD_API_SETTINGS_SET, "test");
+    struct t_work_request *request = create_request(1, 1, MYMPD_API_SETTINGS_SET, "test", MPD_PARTITION_DEFAULT);
     bool rc = request == NULL ? false : true;
     ASSERT_TRUE(rc);
 

@@ -620,8 +620,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
                 MYMPD_LOG_INFO("Album cache was replaced");
                 //send notification
-                sds buffer = jsonrpc_event(sdsempty(), JSONRPC_EVENT_UPDATE_ALBUM_CACHE, partition_state->name);
-                ws_notify(buffer, partition_state->name);
+                sds buffer = jsonrpc_event(sdsempty(), JSONRPC_EVENT_UPDATE_ALBUM_CACHE);
+                ws_notify(buffer, MPD_PARTITION_ALL);
                 FREE_SDS(buffer);
             }
             else {
@@ -658,7 +658,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                         JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "Failed to set like, unknown error");
                 }
                 //mympd_feedback trigger
-                mympd_api_trigger_execute_feedback(&mympd_state->trigger_list, sds_buf1, int_buf1);
+                mympd_api_trigger_execute_feedback(&mympd_state->trigger_list, sds_buf1, int_buf1, partition_state->name);
             }
             break;
         case MYMPD_API_PLAYER_STATE:

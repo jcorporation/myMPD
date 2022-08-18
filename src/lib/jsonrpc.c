@@ -98,7 +98,7 @@ static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
  * @param message the message to send
  */
 void send_jsonrpc_notify(enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *partition, const char *message) {
-    sds buffer = jsonrpc_notify(sdsempty(), facility, severity, partition, message);
+    sds buffer = jsonrpc_notify(sdsempty(), facility, severity, message);
     ws_notify(buffer, partition);
     FREE_SDS(buffer);
 }
@@ -109,7 +109,7 @@ void send_jsonrpc_notify(enum jsonrpc_facilities facility, enum jsonrpc_severiti
  * @param partition mpd partition
  */
 void send_jsonrpc_event(enum jsonrpc_events event, const char *partition) {
-    sds buffer = jsonrpc_event(sdsempty(), event, partition);
+    sds buffer = jsonrpc_event(sdsempty(), event);
     ws_notify(buffer, partition);
     FREE_SDS(buffer);
 }
@@ -118,16 +118,14 @@ void send_jsonrpc_event(enum jsonrpc_events event, const char *partition) {
  * Creates a simple jsonrpc notification with the event as method
  * @param buffer pointer to alreay allocated sds string
  * @param event the event to use
- * @param partition mpd partition
  * @return pointer to buffer with jsonrpc string
  */
-sds jsonrpc_event(sds buffer, enum jsonrpc_events event, const char *partition) {
+sds jsonrpc_event(sds buffer, enum jsonrpc_events event) {
     const char *event_name = jsonrpc_event_name(event);
     sdsclear(buffer);
     buffer = sdscat(buffer, "{\"jsonrpc\":\"2.0\",");
     buffer = tojson_char(buffer, "method", event_name, true);
     buffer = sdscat(buffer, "\"params\":{");
-    buffer = tojson_char(buffer, "partition", partition, false);
     buffer = sdscatlen(buffer, "}}", 2);
     return buffer;
 }
@@ -137,12 +135,11 @@ sds jsonrpc_event(sds buffer, enum jsonrpc_events event, const char *partition) 
  * @param buffer pointer to alreay allocated sds string
  * @param facility one of enum jsonrpc_facilities
  * @param severity one of enum jsonrpc_severities
- * @param partition mpd partition
  * @param message the message to send
  * @return pointer to buffer with jsonrpc string
  */
-sds jsonrpc_notify(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *partition, const char *message) {
-    return jsonrpc_notify_phrase(buffer, facility, severity, partition, message, 0);
+sds jsonrpc_notify(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message) {
+    return jsonrpc_notify_phrase(buffer, facility, severity, message, 0);
 }
 
 /**
@@ -153,20 +150,18 @@ sds jsonrpc_notify(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_se
  * @param facility one of enum jsonrpc_facilities
  * @param severity one of enum jsonrpc_severities
  * @param message the message to send
- * @param partition mpd partition
  * @param count number of following variadic arguments
  * @param ... key/value pairs for the phrase
  * @return pointer to buffer with jsonrpc string
  */
 sds jsonrpc_notify_phrase(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_severities severity,
-        const char *partition, const char *message, int count, ...)
+        const char *message, int count, ...)
 {
     buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_NOTIFY);
     const char *facility_name = jsonrpc_facility_name(facility);
     const char *severity_name = jsonrpc_severity_name(severity);
     buffer = tojson_char(buffer, "facility", facility_name, true);
     buffer = tojson_char(buffer, "severity", severity_name, true);
-    buffer = tojson_char(buffer, "partition", partition, true);
     buffer = tojson_char(buffer, "message", message, true);
     buffer = sdscat(buffer, "\"data\":{");
     va_list args;

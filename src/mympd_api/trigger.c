@@ -109,14 +109,14 @@ sds mympd_api_trigger_print_event_list(sds buffer) {
  * @param trigger_list trigger list
  * @param event trigger to execute scripts for
  */
-void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event) {
+void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event, const char *partition) {
     MYMPD_LOG_DEBUG("Trigger event: %s (%d)", mympd_api_event_name(event), event);
     struct t_list_node *current = trigger_list->head;
     while (current != NULL) {
         if (current->value_i == event) {
             MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"%s\" (%d)", current->value_p,
                 mympd_api_event_name(event), event);
-            _trigger_execute(current->value_p, (struct t_list *)current->user_data, "default"); //TODO(jc): full partition support
+            _trigger_execute(current->value_p, (struct t_list *)current->user_data, partition);
         }
         current = current->next;
     }
@@ -128,7 +128,7 @@ void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events 
  * @param uri feedback uri
  * @param vote the feedback
  */
-void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, int vote) {
+void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, int vote, const char *partition) {
     MYMPD_LOG_DEBUG("Trigger event: mympd_feedback (-6) for \"%s\", vote %d", uri, vote);
     //trigger mympd_feedback executes scripts with uri and vote arguments
     struct t_list script_arguments;
@@ -141,7 +141,7 @@ void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, in
     while (current != NULL) {
         if (current->value_i == TRIGGER_MYMPD_FEEDBACK) {
             MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"mympd_feedback\" (-6)", current->value_p);
-            _trigger_execute(current->value_p, &script_arguments, "default"); //TODO(jc): full partition support
+            _trigger_execute(current->value_p, &script_arguments, partition);
         }
         current = current->next;
     }

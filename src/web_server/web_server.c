@@ -358,7 +358,10 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
  */
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     //connection specific data structure
-    struct frontend_nc_data_t *frontend_nc_data = (struct frontend_nc_data_t *)fn_data;
+    struct frontend_nc_data_t *frontend_nc_data = NULL;
+    if (fn_data != NULL) {
+        frontend_nc_data = (struct frontend_nc_data_t *)fn_data;
+    }
     //mongoose user data
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
@@ -462,7 +465,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
             }
             //handle uris
-            if (mg_http_match_uri(hm, "/api/")) {
+            if (mg_http_match_uri(hm, "/api/*")) {
                 //api request
                 sds body = sdsnewlen(hm->body.ptr, hm->body.len);
                 /*
@@ -470,6 +473,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                  * to allow other authorization methods in reverse proxy setups
                  */
                 struct mg_str *auth_header = mg_http_get_header(hm, "X-myMPD-Session");
+                sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
+                sdsrange(partition, 4, -1);
+                FREE_SDS(frontend_nc_data->partition);
+                frontend_nc_data->partition = partition;
                 bool rc = request_handler_api(nc, body, auth_header, mg_user_data, frontend_nc_data->backend_nc);
                 FREE_SDS(body);
                 if (rc == false) {
@@ -498,7 +505,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 mg_ws_upgrade(nc, hm, NULL);
                 frontend_nc_data->partition = partition;
                 MYMPD_LOG_INFO("New Websocket connection established (%lu)", nc->id);
-                sds response = jsonrpc_event(sdsempty(), JSONRPC_EVENT_WELCOME, partition);
+                sds response = jsonrpc_event(sdsempty(), JSONRPC_EVENT_WELCOME);
                 mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
                 FREE_SDS(response);
             }
@@ -514,16 +521,20 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 //Makes a get request to the defined uri and returns the response
                 request_handler_proxy(nc, hm, frontend_nc_data->backend_nc);
             }
-            else if (mg_http_match_uri(hm, "/api/serverinfo")) {
+            else if (mg_http_match_uri(hm, "/serverinfo")) {
                 request_handler_serverinfo(nc);
             }
-            else if (mg_http_match_uri(hm, "/api/script")) {
+            else if (mg_http_match_uri(hm, "/script-api")) {
                 //check acl
                 if (check_acl(nc, config->scriptacl) == false) {
                     break;
                 }
                 sds body = sdsnewlen(hm->body.ptr, hm->body.len);
-                bool rc = request_handler_script_api((long long)nc->id, body);
+                sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
+                sdsrange(partition, 4, -1);
+                FREE_SDS(frontend_nc_data->partition);
+                frontend_nc_data->partition = partition;
+                bool rc = request_handler_script_api(nc, body);
                 FREE_SDS(body);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Invalid script API request");

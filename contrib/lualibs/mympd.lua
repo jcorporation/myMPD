@@ -12,7 +12,7 @@ mympd = { _version = "0.3.0" }
 -- Function to retrieve mympd_state
 --
 function mympd.init()
-  return mympd_api("INTERNAL_API_SCRIPT_INIT", partition)
+  return mympd_api("INTERNAL_API_SCRIPT_INIT")
 end
 
 --
