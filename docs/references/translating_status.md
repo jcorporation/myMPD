@@ -1,4 +1,4 @@
-- cn-CHS: 5 missing phrases
+- cn-CHS: fully translated
 - es-VE: 438 missing phrases
 - fi-FI: 434 missing phrases
 - fr-FR: 376 missing phrases

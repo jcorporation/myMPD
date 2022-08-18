@@ -218,16 +218,10 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
             search_song_expression(album, expr_list, &partition_state->mpd_state->tags_browse) == true)
         {
             if (sort_by_last_modified == true) {
-                key = sdscatfmt(key, "%I::%s", (long long)mpd_song_get_last_modified(album), mpd_song_get_uri(album));
+                key = sdscatprintf(key, "%020lld::%s", (long long)mpd_song_get_last_modified(album), mpd_song_get_uri(album));
             }
             else {
                 const char *sort_value = mpd_song_get_tag(album, sort_tag, 0);
-                if (sort_value == NULL &&
-                    sort_tag == MPD_TAG_ALBUM_ARTIST)
-                {
-                    //fallback to artist tag if albumartist tag is not set
-                    sort_value = mpd_song_get_tag(album, MPD_TAG_ARTIST, 0);
-                }
                 if (sort_value != NULL) {
                     key = sdscatfmt(key, "%s::%s", sort_value, mpd_song_get_uri(album));
                 }
