@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: Chinese translation #813 
+
 ***
 
 ## myMPD v9.5.1 (2022-08-14)
