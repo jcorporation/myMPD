@@ -1447,15 +1447,6 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_newpartition", &result);
             }
             break;
-        case MYMPD_API_PARTITION_SWITCH:
-            if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
-                rc = mpd_run_switch_partition(partition_state->conn, sds_buf1);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_switch_partition", &result);
-                if (result == true) {
-                    partition_state->name = sds_replace(partition_state->name, sds_buf1);
-                }
-            }
-            break;
         case MYMPD_API_PARTITION_RM:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
                 rc = mpd_run_delete_partition(partition_state->conn, sds_buf1);

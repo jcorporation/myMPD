@@ -1421,12 +1421,6 @@ const APImethods = {
             "name": APIparams.partName
         }
     },
-    "MYMPD_API_PARTITION_SWITCH": {
-        "desc": "Switch mpd client to this partition",
-        "params": {
-            "name": APIparams.partName
-        }
-    },
     "MYMPD_API_PARTITION_RM": {
         "desc": "Removes a mpd partition.",
         "protected": true,
