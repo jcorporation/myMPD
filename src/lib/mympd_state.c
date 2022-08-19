@@ -230,6 +230,7 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
  */
 void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mympd_state *mympd_state) {
     partition_state->name = sdsnew(name);
+    partition_state->state_dir = sdscatfmt(sdsempty(), "state/%s", name);
     partition_state->is_default = false;
     partition_state->conn = NULL;
     partition_state->conn_state = MPD_DISCONNECTED;
@@ -286,6 +287,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
  */
 void partition_state_free(struct t_partition_state *partition_state) {
     FREE_SDS(partition_state->name);
+    FREE_SDS(partition_state->state_dir);
     FREE_SDS(partition_state->song_uri);
     FREE_SDS(partition_state->last_song_uri);
     //jukebox

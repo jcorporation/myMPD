@@ -198,8 +198,14 @@ unsigned state_file_rw_uint(sds workdir, const char *dir, const char *name, unsi
  * @return true on success else false
  */
 bool state_file_write(sds workdir, const char *dir, const char *name, const char *value) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, dir, name);
-    bool rc = write_data_to_file(filepath, value, strlen(value));
-    FREE_SDS(filepath);
+    sds state_dir = sdscatfmt(sdsempty(), "%S/%s", workdir, dir);
+    bool rc = false;
+    if (testdir(name, state_dir, true, true) < 2) {
+        //dir exists or was created, write state file
+        sds filepath = sdscatfmt(sdsempty(), "%S/%s", state_dir, name);
+        rc = write_data_to_file(filepath, value, strlen(value));
+        FREE_SDS(filepath);
+    }
+    FREE_SDS(state_dir);
     return rc;
 }

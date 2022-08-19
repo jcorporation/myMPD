@@ -11,8 +11,9 @@
 #include "../lib/mympd_state.h"
 #include "../lib/validate.h"
 
-void mympd_api_settings_statefiles_read(struct t_mympd_state *mympd_state);
-sds mympd_api_settings_get(struct t_mympd_state *mympd_state, sds buffer, long request_id);
+void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state);
+void mympd_api_settings_statefiles_partition_read(struct t_partition_state *partition_state);
+sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, sds buffer, long request_id);
 bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, sds cols);
 bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);
 bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);

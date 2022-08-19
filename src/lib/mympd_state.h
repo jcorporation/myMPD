@@ -144,6 +144,7 @@ struct t_partition_state {
     struct t_list jukebox_queue_tmp;       //!< temporaray jukebox queue for the add random to queue function
     //partition
     sds name;                              //!< partition name
+    sds state_dir;                          //!< partition state folder
     struct t_partition_state *next;        //!< pointer to next partition;
     bool is_default;                       //!< flag for the mpd default partition
     enum mpd_idle idle_mask;               //!< mpd idle mask

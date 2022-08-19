@@ -42,8 +42,10 @@ void *mympd_api_loop(void *arg_config) {
         mpd_client_autoconf(mympd_state);
     }
 
-    //read myMPD states
-    mympd_api_settings_statefiles_read(mympd_state);
+    //read myMPD global states
+    mympd_api_settings_statefiles_global_read(mympd_state);
+    //read myMPD states for default partition
+    mympd_api_settings_statefiles_partition_read(mympd_state->partition_state);
     //home icons
     mympd_api_home_file_read(&mympd_state->home_list, mympd_state->config->workdir);
     //myMPD timer

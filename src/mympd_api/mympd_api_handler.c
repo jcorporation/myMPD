@@ -361,7 +361,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         }
         case MYMPD_API_SETTINGS_GET:
-            response->data = mympd_api_settings_get(mympd_state, response->data, request->id);
+            response->data = mympd_api_settings_get(mympd_state, partition_state, response->data, request->id);
             break;
         case MYMPD_API_CONNECTION_SAVE: {
             sds old_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);

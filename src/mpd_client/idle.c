@@ -17,6 +17,7 @@
 #include "../mympd_api/mympd_api_handler.h"
 #include "../mympd_api/last_played.h"
 #include "../mympd_api/queue.h"
+#include "../mympd_api/settings.h"
 #include "../mympd_api/status.h"
 #include "../mympd_api/timer.h"
 #include "../mympd_api/timer_handlers.h"
@@ -72,7 +73,6 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
     struct t_partition_state *partition_state = mympd_state->partition_state;
     int i = 0;
     bool mpd_idle_event_waiting;
-    bool request_processed = request == NULL ? true : false;
     do {
         if (partition_state->conn_state == MPD_CONNECTED) {
             //only connected partitions has a fd
@@ -87,13 +87,14 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
         {
             //API request is for this partition
             mpd_client_idle_partition(mympd_state, partition_state, mpd_idle_event_waiting, request);
-            request_processed = true;
+            request = NULL;
         }
         else {
             mpd_client_idle_partition(mympd_state, partition_state, mpd_idle_event_waiting, NULL);
         }
     } while ((partition_state = partition_state->next) != NULL);
-    if (request_processed == false) {
+    //cleanup
+    if (request != NULL) {
         //request was for unknown partition, discard it
         MYMPD_LOG_WARN("Discarding request for unknown partition \"%s\"", request->partition);
         free_request(request);
@@ -548,7 +549,10 @@ static void partitions_add(struct t_mympd_state *mympd_state, const char *name) 
     //append new partition struct and set defaults
     //connection will be established in next idle loop run
     partition_state->next = malloc_assert(sizeof(struct t_partition_state));
+    //set default partition state
     partition_state_default(partition_state->next, name, mympd_state);
+    //read partition specific state from disc
+    mympd_api_settings_statefiles_partition_read(partition_state->next);
 }
 
 /**
