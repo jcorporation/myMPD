@@ -45,6 +45,7 @@ sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request
 sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_id, long id);
 bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir);
 bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir);
+void mympd_api_trigger_list_clear(struct t_list *trigger_list);
 void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event, const char *partition);
 void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, int vote, const char *partition);
 bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx);

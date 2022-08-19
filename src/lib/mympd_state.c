@@ -99,8 +99,11 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
  * @param mympd_state pointer to central myMPD state
  */
 void mympd_state_free(struct t_mympd_state *mympd_state) {
-    list_clear_user_data(&mympd_state->trigger_list, list_free_cb_t_list_user_data);
+    //trigger
+    mympd_api_trigger_list_clear(&mympd_state->trigger_list);
+    //home icons
     list_clear(&mympd_state->home_list);
+    //timer
     mympd_api_timer_timerlist_clear(&mympd_state->timer_list);
     //mpd shared state
     mpd_state_free(mympd_state->mpd_state);
@@ -173,7 +176,7 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
     mpd_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
     //init sticker queue
     list_init(&mpd_state->sticker_queue);
-
+    //booklet name
     mpd_state->booklet_name = sdsnew(MYMPD_BOOKLET_NAME);
     //features
     mpd_state_features_disable(mpd_state);

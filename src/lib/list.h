@@ -42,7 +42,6 @@ void list_clear_user_data(struct t_list *l, user_data_callback free_cb);
 void *list_free_user_data(struct t_list *l, user_data_callback free_cb);
 void list_free_cb_ignore_user_data(struct t_list_node *current);
 void list_free_cb_sds_user_data(struct t_list_node *current);
-void list_free_cb_t_list_user_data(struct t_list_node *current);
 void *list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb);
 void *list_node_free(struct t_list_node *n);
 

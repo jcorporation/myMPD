@@ -23,6 +23,8 @@
  * Private definitions
  */
 
+static struct t_trigger_data *trigger_data_new(void);
+static void list_free_cb_trigger_data(struct t_list_node *current);
 static void trigger_data_free(struct t_trigger_data *trigger_data);
 static sds trigger_to_line_cb(sds buffer, struct t_list_node *current);
 void _trigger_execute(sds script, struct t_list *arguments, const char *partition);
@@ -264,7 +266,7 @@ sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_
 bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx) {
     struct t_list_node *to_remove = list_node_extract(trigger_list, idx);
     if (to_remove != NULL) {
-        list_node_free_user_data(to_remove, list_free_cb_t_list_user_data);
+        list_node_free_user_data(to_remove, list_free_cb_trigger_data);
         return true;
     }
     return false;
@@ -302,12 +304,12 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
         sds name = NULL;
         sds partition = NULL;
         int event;
-        struct t_trigger_data *trigger_data = malloc_assert(sizeof(struct t_trigger_data));
+        struct t_trigger_data *trigger_data = trigger_data_new();
         if (json_get_string(line, "$.name", 1, FILENAME_LEN_MAX, &name, vcb_isfilename, NULL) == true &&
-            json_get_string_max(line, "$.partition", &partition, vcb_isname, NULL) == true &&
+            json_get_string(line, "$.partition", 1, NAME_LEN_MAX, &partition, vcb_isname, NULL) == true &&
             json_get_string(line, "$.script", 0, FILENAME_LEN_MAX, &trigger_data->script, vcb_isfilename, NULL) == true &&
             json_get_int_max(line, "$.event", &event, NULL) == true &&
-            json_get_object_string(line, "$.arguments", &trigger_data->arguments, vcb_isname, 10, NULL))
+            json_get_object_string(line, "$.arguments", &trigger_data->arguments, vcb_isname, 10, NULL) == true)
         {
             list_push(trigger_list, name, event, partition, trigger_data);
         }
@@ -340,8 +342,35 @@ bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir) {
 }
 
 /**
+ * Clears the trigger list
+ * @param trigger_list trigger list to clear
+ */
+void mympd_api_trigger_list_clear(struct t_list *trigger_list) {
+    list_clear_user_data(trigger_list, list_free_cb_trigger_data);
+}
+
+/**
  * Private functions
  */
+
+/**
+ * Callback function to free user_data of type t_trigger_data
+ * @param current list node
+ */
+static void list_free_cb_trigger_data(struct t_list_node *current) {
+    trigger_data_free((struct t_trigger_data *)current->user_data);
+}
+
+/**
+ * Creates and initializes the t_trigger_data struct
+ * @return pointer to allocated t_trigger_data struct
+ */
+static struct t_trigger_data *trigger_data_new(void) {
+    struct t_trigger_data *trigger_data = malloc_assert(sizeof(struct t_trigger_data));
+    trigger_data->script = NULL;
+    list_init(&trigger_data->arguments);
+    return trigger_data;
+}
 
 /**
  * Frees the t_trigger_data struct
