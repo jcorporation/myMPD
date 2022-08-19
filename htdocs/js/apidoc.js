@@ -723,7 +723,7 @@ const APImethods = {
     "MYMPD_API_PLAYER_OUTPUT_LIST": {
         "desc": "Lists the MPD outputs.",
         "params": {
-            "partition": partition
+            "partition": APIparams.partition
         }
     },
     "MYMPD_API_PLAYER_OUTPUT_TOGGLE": {
