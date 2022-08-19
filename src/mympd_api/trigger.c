@@ -117,7 +117,9 @@ void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events 
     struct t_list_node *current = trigger_list->head;
     while (current != NULL) {
         if (current->value_i == event &&
-            strcmp(partition, current->value_p) == 0)
+                (strcmp(partition, current->value_p) == 0 ||
+                 strcmp(current->value_p, MPD_PARTITION_ALL) == 0)
+           )
         {
             struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
             MYMPD_LOG_NOTICE("\"%s\": Executing script \"%s\" for trigger \"%s\" (%d)",
@@ -147,7 +149,9 @@ void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, in
     struct t_list_node *current = trigger_list->head;
     while (current != NULL) {
         if (current->value_i == TRIGGER_MYMPD_FEEDBACK &&
-            strcmp(partition, current->value_p) == 0)
+                (strcmp(partition, current->value_p) == 0 ||
+                 strcmp(current->value_p, MPD_PARTITION_ALL) == 0)
+           )
         {
             MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"mympd_feedback\" (-6)", current->value_p);
             struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
@@ -175,7 +179,8 @@ sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request
     int j = 0;
     while (current != NULL) {
         if (strcmp(partition, current->value_p) == 0 ||
-            strcmp(partition, MPD_PARTITION_DEFAULT) == 0)
+            strcmp(partition, MPD_PARTITION_ALL) == 0 ||
+            strcmp(current->value_p, MPD_PARTITION_ALL) == 0)
         {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
