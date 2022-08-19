@@ -8,8 +8,8 @@
 #include "partitions.h"
 
 #include "../lib/jsonrpc.h"
+#include "../lib/mympd_state.h"
 #include "../mpd_client/errorhandler.h"
-#include "src/lib/mympd_state.h"
 
 #include <string.h>
 

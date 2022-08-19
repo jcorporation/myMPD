@@ -12,6 +12,7 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
+#include "../lib/mympd_state.h"
 #include "../lib/random.h"
 #include "../lib/sds_extras.h"
 #include "../lib/sticker_cache.h"
@@ -21,7 +22,6 @@
 #include "errorhandler.h"
 #include "search.h"
 #include "search_local.h"
-#include "src/lib/mympd_state.h"
 #include "tags.h"
 
 #include <errno.h>
