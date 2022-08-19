@@ -16,12 +16,14 @@
 
 #include <errno.h>
 #include <stdlib.h>
+#include <string.h>
 #include <unistd.h>
 
 /**
  * Private definitions
  */
 
+static void trigger_data_free(struct t_trigger_data *trigger_data);
 static sds trigger_to_line_cb(sds buffer, struct t_list_node *current);
 void _trigger_execute(sds script, struct t_list *arguments, const char *partition);
 
@@ -111,13 +113,16 @@ sds mympd_api_trigger_print_event_list(sds buffer) {
  * @param partition mpd partition
  */
 void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event, const char *partition) {
-    MYMPD_LOG_DEBUG("Trigger event: %s (%d)", mympd_api_event_name(event), event);
+    MYMPD_LOG_DEBUG("\"%s\": Trigger event: %s (%d)", partition, mympd_api_event_name(event), event);
     struct t_list_node *current = trigger_list->head;
     while (current != NULL) {
-        if (current->value_i == event) {
-            MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"%s\" (%d)", current->value_p,
-                mympd_api_event_name(event), event);
-            _trigger_execute(current->value_p, (struct t_list *)current->user_data, partition);
+        if (current->value_i == event &&
+            strcmp(partition, current->value_p) == 0)
+        {
+            struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
+            MYMPD_LOG_NOTICE("\"%s\": Executing script \"%s\" for trigger \"%s\" (%d)",
+                partition, trigger_data->script, mympd_api_event_name(event), event);
+            _trigger_execute(trigger_data->script, &trigger_data->arguments, partition);
         }
         current = current->next;
     }
@@ -131,7 +136,7 @@ void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events 
  * @param partition mpd partition
  */
 void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, int vote, const char *partition) {
-    MYMPD_LOG_DEBUG("Trigger event: mympd_feedback (-6) for \"%s\", vote %d", uri, vote);
+    MYMPD_LOG_DEBUG("\"%s\": Trigger event: mympd_feedback (-6) for \"%s\", vote %d", partition, uri, vote);
     //trigger mympd_feedback executes scripts with uri and vote arguments
     struct t_list script_arguments;
     list_init(&script_arguments);
@@ -141,9 +146,12 @@ void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, in
     list_push(&script_arguments, "vote", 0, vote_str, NULL);
     struct t_list_node *current = trigger_list->head;
     while (current != NULL) {
-        if (current->value_i == TRIGGER_MYMPD_FEEDBACK) {
+        if (current->value_i == TRIGGER_MYMPD_FEEDBACK &&
+            strcmp(partition, current->value_p) == 0)
+        {
             MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"mympd_feedback\" (-6)", current->value_p);
-            _trigger_execute(current->value_p, &script_arguments, partition);
+            struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
+            _trigger_execute(trigger_data->script, &trigger_data->arguments, partition);
         }
         current = current->next;
     }
@@ -155,9 +163,10 @@ void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, in
  * @param trigger_list trigger list
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
+ * @param partition mpd partition
  * @return pointer to buffer
  */
-sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request_id) {
+sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request_id, const char *partition) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_TRIGGER_GET;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -165,27 +174,32 @@ sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request
     struct t_list_node *current = trigger_list->head;
     int j = 0;
     while (current != NULL) {
-        if (entities_returned++) {
-            buffer = sdscatlen(buffer, ",", 1);
-        }
-        buffer = sdscatlen(buffer, "{", 1);
-        buffer = tojson_int(buffer, "id", j, true);
-        buffer = tojson_sds(buffer, "name", current->key, true);
-        buffer = tojson_llong(buffer, "event", current->value_i, true);
-        buffer = tojson_char(buffer, "eventName", mympd_api_event_name((long)current->value_i), true);
-        buffer = tojson_sds(buffer, "script", current->value_p, true);
-        buffer = sdscat(buffer, "\"arguments\": {");
-        struct t_list *arguments = (struct t_list *)current->user_data;
-        struct t_list_node *argument = arguments->head;
-        int i = 0;
-        while (argument != NULL) {
-            if (i++) {
+        if (strcmp(partition, current->value_p) == 0 ||
+            strcmp(partition, MPD_PARTITION_DEFAULT) == 0)
+        {
+            if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
             }
-            buffer = tojson_sds(buffer, argument->key, argument->value_p, false);
-            argument = argument->next;
+            struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
+            buffer = sdscatlen(buffer, "{", 1);
+            buffer = tojson_int(buffer, "id", j, true);
+            buffer = tojson_sds(buffer, "name", current->key, true);
+            buffer = tojson_llong(buffer, "event", current->value_i, true);
+            buffer = tojson_char(buffer, "eventName", mympd_api_event_name((long)current->value_i), true);
+            buffer = tojson_sds(buffer, "partition", current->value_p, true);
+            buffer = tojson_sds(buffer, "script", trigger_data->script, true);
+            buffer = sdscat(buffer, "\"arguments\": {");
+            struct t_list_node *argument = trigger_data->arguments.head;
+            int i = 0;
+            while (argument != NULL) {
+                if (i++) {
+                    buffer = sdscatlen(buffer, ",", 1);
+                }
+                buffer = tojson_sds(buffer, argument->key, argument->value_p, false);
+                argument = argument->next;
+            }
+            buffer = sdscatlen(buffer, "}}", 2);
         }
-        buffer = sdscatlen(buffer, "}}", 2);
         current = current->next;
         j++;
     }
@@ -208,14 +222,15 @@ sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_
     enum mympd_cmd_ids cmd_id = MYMPD_API_TRIGGER_GET;
     struct t_list_node *current = list_node_at(trigger_list, id);
     if (current != NULL) {
+        struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = tojson_long(buffer, "id", id, true);
         buffer = tojson_sds(buffer, "name", current->key, true);
         buffer = tojson_llong(buffer, "event", current->value_i, true);
-        buffer = tojson_sds(buffer, "script", current->value_p, true);
+        buffer = tojson_sds(buffer, "partition", current->value_p, true);
+        buffer = tojson_sds(buffer, "script", trigger_data->script, true);
         buffer = sdscat(buffer, "\"arguments\": {");
-        struct t_list *arguments = (struct t_list *)current->user_data;
-        struct t_list_node *argument = arguments->head;
+        struct t_list_node *argument = trigger_data->arguments.head;
         int i = 0;
         while (argument != NULL) {
             if (i++) {
@@ -280,21 +295,22 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
             break;
         }
         sds name = NULL;
-        sds script = NULL;
+        sds partition = NULL;
         int event;
-        struct t_list *arguments = list_new();
+        struct t_trigger_data *trigger_data = malloc_assert(sizeof(struct t_trigger_data));
         if (json_get_string(line, "$.name", 1, FILENAME_LEN_MAX, &name, vcb_isfilename, NULL) == true &&
-            json_get_string(line, "$.script", 0, FILENAME_LEN_MAX, &script, vcb_isfilename, NULL) == true &&
+            json_get_string_max(line, "$.partition", &partition, vcb_isname, NULL) == true &&
+            json_get_string(line, "$.script", 0, FILENAME_LEN_MAX, &trigger_data->script, vcb_isfilename, NULL) == true &&
             json_get_int_max(line, "$.event", &event, NULL) == true &&
-            json_get_object_string(line, "$.arguments", arguments, vcb_isname, 10, NULL))
+            json_get_object_string(line, "$.arguments", &trigger_data->arguments, vcb_isname, 10, NULL))
         {
-            list_push(trigger_list, name, event, script, arguments);
+            list_push(trigger_list, name, event, partition, trigger_data);
         }
         else {
-            list_free(arguments);
+            trigger_data_free(trigger_data);
         }
         FREE_SDS(name);
-        FREE_SDS(script);
+        FREE_SDS(partition);
         i++;
     }
     FREE_SDS(line);
@@ -323,19 +339,30 @@ bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir) {
  */
 
 /**
+ * Frees the t_trigger_data struct
+ * @param trigger_data pointer to trigger data
+ */
+static void trigger_data_free(struct t_trigger_data *trigger_data) {
+    FREE_SDS(trigger_data->script);
+    list_clear(&trigger_data->arguments);
+    FREE_PTR(trigger_data);
+}
+
+/**
  * Prints a trigger as a json object string
  * @param buffer already allocated sds string to append the response
  * @param current trigger node to print
  * @return pointer to buffer
  */
 static sds trigger_to_line_cb(sds buffer, struct t_list_node *current) {
+    struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_sds(buffer, "name", current->key, true);
     buffer = tojson_llong(buffer, "event", current->value_i, true);
-    buffer = tojson_sds(buffer, "script", current->value_p, true);
+    buffer = tojson_sds(buffer, "partition", current->value_p, true);
+    buffer = tojson_sds(buffer, "script", trigger_data->script, true);
     buffer = sdscat(buffer, "\"arguments\":{");
-    struct t_list *arguments = (struct t_list *)current->user_data;
-    struct t_list_node *argument = arguments->head;
+    struct t_list_node *argument = trigger_data->arguments.head;
     int i = 0;
     while (argument != NULL) {
         if (i++) {
@@ -351,7 +378,7 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current) {
 /**
  * Creates and pushes a request to execute a script
  * @param script script to execute
- * @param arguments arguments for the script
+ * @param arguments script arguments
  * @param partition mpd partition
  */
 void _trigger_execute(sds script, struct t_list *arguments, const char *partition) {

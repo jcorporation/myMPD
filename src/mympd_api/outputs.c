@@ -13,62 +13,19 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../mpd_client/errorhandler.h"
+#include "src/lib/api.h"
 
 #include <string.h>
 
 /**
- * Private definitions
- */
-static sds _get_outputs(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id, const char *partition);
-
-/**
- * Public functions
- */
-
-/**
- * Lists output for the specified partition
+ * Lists output details
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc id
- * @param partition list outputs in this partition
  * @return pointer to buffer
  */
-sds mympd_api_output_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-                                     const char *partition)
-{
+sds mympd_api_output_list(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_OUTPUT_LIST;
-    if (strcmp(partition_state->name, partition) != 0) {
-        //switch to partition
-        bool rc = mpd_run_switch_partition(partition_state->conn, partition);
-        if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_run_switch_partition") == false) {
-            return buffer;
-        }
-    }
-
-    buffer = _get_outputs(partition_state, buffer, cmd_id, request_id, partition);
-
-    if (strcmp(partition_state->name, partition) != 0) {
-        //switch back to partition
-        bool rc = mpd_run_switch_partition(partition_state->conn, partition_state->name);
-        mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_run_switch_partition");
-    }
-    return buffer;
-}
-
-/**
- * Private functions
- */
-
-/**
- * Lists output 
- * @param partition_state pointer to partition state
- * @param buffer already allocated sds string to append the response
- * @param cmd_id jsonrpc method
- * @param request_id jsonrpc id
- * @param partition list outputs in this partition
- * @return pointer to buffer
- */
-static sds _get_outputs(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id, const char *partition) {
     bool rc = mpd_send_outputs(partition_state->conn);
     if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_outputs") == false) {
         return buffer;
@@ -105,7 +62,7 @@ static sds _get_outputs(struct t_partition_state *partition_state, sds buffer, e
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_char(buffer, "partition", partition, true);
+    buffer = tojson_char(buffer, "partition", partition_state->name, true);
     buffer = tojson_long(buffer, "numOutputs", output_count, false);
     buffer = jsonrpc_end(buffer);
 

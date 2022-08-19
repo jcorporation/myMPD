@@ -9,5 +9,6 @@
 
 #include "../lib/mympd_state.h"
 
+struct t_partition_state *mympd_api_get_partition_by_name(struct t_mympd_state *mympd_state, const char *partition);
 sds mympd_api_partition_list(struct t_partition_state *partition_state, sds buffer, long request_id);
 #endif

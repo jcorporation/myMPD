@@ -104,6 +104,11 @@ const APIparams = {
         "example": 1,
         "desc": "id of the trigger"
     },
+    "partition": {
+        "type": "text",
+        "example": "default",
+        "desc": "MPD partition, \"all\" for all partitions"
+    },
     "pos": {
         "type": "uint",
         "example": 2,
@@ -718,11 +723,7 @@ const APImethods = {
     "MYMPD_API_PLAYER_OUTPUT_LIST": {
         "desc": "Lists the MPD outputs.",
         "params": {
-            "partition": {
-                "type": "text",
-                "example": "",
-                "desc": "MPD partition, blank for default partition"
-            }
+            "partition": partition
         }
     },
     "MYMPD_API_PLAYER_OUTPUT_TOGGLE": {
@@ -1313,7 +1314,9 @@ const APImethods = {
     },
     "MYMPD_API_TIMER_LIST": {
         "desc": "Lists all timers",
-        "params": {}
+        "params": {
+            "partition": APIparams.partition
+        }
     },
     "MYMPD_API_TIMER_GET": {
         "desc": "Gets options from a timer",
@@ -1444,7 +1447,9 @@ const APImethods = {
     },
     "MYMPD_API_TRIGGER_LIST": {
         "desc": "Lists all triggers",
-        "params": {}
+        "params": {
+            "partition": APIparams.partition
+        }
     },
     "MYMPD_API_TRIGGER_GET": {
         "desc": "Get the options from a trigger",

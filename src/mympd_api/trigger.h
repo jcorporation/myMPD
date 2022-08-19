@@ -36,7 +36,12 @@ enum trigger_events {
     TRIGGER_MPD_MOUNT = 0x2000         //!< mpd mount idle event
 };
 
-sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request_id);
+struct t_trigger_data {
+    sds script;
+    struct t_list arguments;
+};
+
+sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request_id, const char *partition);
 sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_id, long id);
 bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir);
 bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir);

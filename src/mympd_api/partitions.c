@@ -9,6 +9,25 @@
 
 #include "../lib/jsonrpc.h"
 #include "../mpd_client/errorhandler.h"
+#include "src/lib/mympd_state.h"
+
+#include <string.h>
+
+/**
+ * Get the partition state struct by partition anme
+ * @param mympd_state pointer to central myMPD state
+ * @param partition mpd partition name
+ * @return pointer to partition_state
+ */
+struct t_partition_state *mympd_api_get_partition_by_name(struct t_mympd_state *mympd_state, const char *partition) {
+    struct t_partition_state *partition_state = mympd_state->partition_state;
+    while (partition_state != NULL) {
+        if (strcmp(partition_state->name, partition) == 0) {
+            return partition_state;
+        }
+    }
+    return NULL;
+}
 
 /**
  * Lists partitions

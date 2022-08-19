@@ -456,7 +456,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         }
         case MYMPD_API_TIMER_LIST:
-            response->data = mympd_api_timer_list(&mympd_state->timer_list, response->data, request->id);
+            if (json_get_string(request->data, "$.params.partition", 1, NAME_LEN_MAX, &sds_buf0, vcb_isname, &error) == true) {
+                response->data = mympd_api_timer_list(&mympd_state->timer_list, response->data, request->id, sds_buf0);
+            }
             break;
         case MYMPD_API_TIMER_GET:
             if (json_get_int(request->data, "$.params.timerid", USER_TIMER_ID_MIN, USER_TIMER_ID_MAX, &int_buf1, &error) == true) {
@@ -514,7 +516,9 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         }
         case MYMPD_API_TRIGGER_LIST:
-            response->data = mympd_api_trigger_list(&mympd_state->trigger_list, response->data, request->id);
+            if (json_get_string(request->data, "$.params.partition", 1, NAME_LEN_MAX, &sds_buf0, vcb_isname, &error) == true) {
+                response->data = mympd_api_trigger_list(&mympd_state->trigger_list, response->data, request->id, sds_buf0);
+            }
             break;
         case MYMPD_API_TRIGGER_GET:
             if (json_get_long(request->data, "$.params.id", 0, LIST_TRIGGER_MAX, &long_buf1, &error) == true) {
@@ -841,11 +845,15 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             }
             break;
         case MYMPD_API_PLAYER_OUTPUT_LIST:
-            if (json_get_string(request->data, "$.params.partition", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
-                if (sdslen(sds_buf1) == 0) {
-                    sds_buf1 = sds_replace(sds_buf1, partition_state->name);
+            if (json_get_string(request->data, "$.params.partition", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
+                struct t_partition_state *outputs_partition_state = mympd_api_get_partition_by_name(partition_state->mympd_state, sds_buf1);
+                if (outputs_partition_state != NULL) {
+                    response->data = mympd_api_output_list(partition_state, response->data, request->id);
                 }
-                response->data = mympd_api_output_list(partition_state, response->data, request->id, sds_buf1);
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Invalid partition");
+                }
             }
             break;
         case MYMPD_API_PLAYER_OUTPUT_TOGGLE:

@@ -368,9 +368,10 @@ time_t mympd_api_timer_calc_starttime(int start_hour, int start_minute, int inte
  * @param timer_list timer list
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
+ * @param partition mpd partition
  * @return pointer to buffer
  */
-sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, long request_id) {
+sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, long request_id, const char *partition) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_TIMER_LIST;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -380,12 +381,16 @@ sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, long reque
         if (current->timer_id >= USER_TIMER_ID_START &&
             current->definition != NULL)
         {
-            if (entities_returned++) {
-                buffer = sdscatlen(buffer, ",", 1);
+            if (strcmp(partition, current->definition->partition) == 0 ||
+                strcmp(partition, MPD_PARTITION_DEFAULT) == 0)
+            {
+                if (entities_returned++) {
+                    buffer = sdscatlen(buffer, ",", 1);
+                }
+                buffer = sdscatlen(buffer, "{", 1);
+                buffer = print_timer_node(buffer, current);
+                buffer = sdscatlen(buffer, "}", 1);
             }
-            buffer = sdscatlen(buffer, "{", 1);
-            buffer = print_timer_node(buffer, current);
-            buffer = sdscatlen(buffer, "}", 1);
         }
         current = current->next;
     }
