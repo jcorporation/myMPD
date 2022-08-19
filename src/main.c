@@ -188,7 +188,7 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
  * @return true on success else false
  */
 static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
-    int testdir_rc = testdir("Work dir", config->workdir, true);
+    int testdir_rc = testdir("Work dir", config->workdir, true, false);
     if (testdir_rc == DIR_CREATE_FAILED) {
         //workdir is not accessible
         return false;
@@ -202,7 +202,7 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     }
     //config directory
     sds testdirname = sdscatfmt(sdsempty(), "%S/config", config->workdir);
-    testdir_rc = testdir("Config dir", testdirname, true);
+    testdir_rc = testdir("Config dir", testdirname, true, false);
     if (testdir_rc == DIR_CREATE_FAILED) {
         FREE_SDS(testdirname);
         return false;
@@ -213,7 +213,7 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     }
     FREE_SDS(testdirname);
 
-    testdir_rc = testdir("Cache dir", config->cachedir, true);
+    testdir_rc = testdir("Cache dir", config->cachedir, true, false);
     if (testdir_rc == DIR_CREATE_FAILED) {
         //cachedir is not accessible
         return false;
@@ -273,7 +273,7 @@ static const struct t_subdirs_entry cachedir_subdirs[] = {
  */
 static bool check_dir(const char *parent, const char *subdir, const char *description) {
     sds testdirname = sdscatfmt(sdsempty(), "%s/%s", parent, subdir);
-    int rc = testdir(description, testdirname, true);
+    int rc = testdir(description, testdirname, true, false);
     FREE_SDS(testdirname);
     return rc;
 }
@@ -287,7 +287,7 @@ static bool check_dirs(struct t_config *config) {
     int testdir_rc;
     #ifndef EMBEDDED_ASSETS
         //release uses empty document root and delivers embedded files
-        testdir_rc = testdir("Document root", DOC_ROOT, false);
+        testdir_rc = testdir("Document root", DOC_ROOT, false, false);
         if (testdir_rc != DIR_EXISTS) {
             return false;
         }

@@ -64,7 +64,7 @@ enum expire_check_rcs {
  */
 bool certificates_check(sds workdir, sds ssl_san) {
     sds testdirname = sdscatfmt(sdsempty(), "%S/ssl", workdir);
-    int testdir_rc = testdir("SSL cert dir", testdirname, true);
+    int testdir_rc = testdir("SSL cert dir", testdirname, true, false);
     if (testdir_rc == DIR_EXISTS ||
         testdir_rc == DIR_CREATED)
     {

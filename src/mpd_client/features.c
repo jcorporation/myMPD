@@ -287,7 +287,7 @@ static void mpd_client_feature_music_directory(struct t_mympd_state *mympd_state
         MYMPD_LOG_WARN("Disabling library feature, music directory not defined");
         mympd_state->mpd_state->feat_library = false;
     }
-    else if (testdir("MPD music_directory", mympd_state->mpd_state->music_directory_value, false) == DIR_EXISTS) {
+    else if (testdir("MPD music_directory", mympd_state->mpd_state->music_directory_value, false, false) == DIR_EXISTS) {
         MYMPD_LOG_NOTICE("Enabling library feature");
         mympd_state->mpd_state->feat_library = true;
     }

@@ -35,7 +35,7 @@ int sds_getline(sds *s, FILE *fp, size_t max);
 int sds_getline_n(sds *s, FILE *fp, size_t max);
 int sds_getfile(sds *s, FILE *fp, size_t max, bool remove_newline);
 
-int testdir(const char *name, const char *dirname, bool create);
+int testdir(const char *name, const char *dirname, bool create, bool silent);
 FILE *open_tmp_file(sds filepath);
 bool rename_tmp_file(FILE *fp, sds tmp_file, sds filepath, bool write_rc);
 bool write_data_to_file(sds filepath, const char *data, size_t data_len);

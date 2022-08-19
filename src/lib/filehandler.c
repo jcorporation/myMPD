@@ -121,13 +121,16 @@ int sds_getfile(sds *s, FILE *fp, size_t max, bool remove_newline) {
  * @param name describtive name
  * @param dirname directory path to check
  * @param create true creates the directory
+ * @param silent true to report only errors
  * @return enum testdir_status
  */
-int testdir(const char *name, const char *dirname, bool create) {
+int testdir(const char *name, const char *dirname, bool create, bool silent) {
     DIR* dir = opendir(dirname);
     if (dir != NULL) {
         closedir(dir);
-        MYMPD_LOG_NOTICE("%s: \"%s\"", name, dirname);
+        if (silent == false) {
+            MYMPD_LOG_NOTICE("%s: \"%s\"", name, dirname);
+        }
         //directory exists
         return DIR_EXISTS;
     }
