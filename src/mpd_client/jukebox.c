@@ -21,6 +21,7 @@
 #include "errorhandler.h"
 #include "search.h"
 #include "search_local.h"
+#include "src/lib/mympd_state.h"
 #include "tags.h"
 
 #include <errno.h>
@@ -105,6 +106,18 @@ bool jukebox_rm_entry(struct t_list *list, long pos) {
     }
     node->user_data = NULL;
     return list_remove_node(list, pos);
+}
+
+/**
+ * Clears the jukebox queue of all partitions.
+ * @param mympd_state pointer to central myMPD state.
+ */
+void jukebox_clear_all(struct t_mympd_state *mympd_state) {
+    struct t_partition_state *partition_state = mympd_state->partition_state;
+    while (partition_state != NULL) {
+        list_clear(&partition_state->jukebox_queue);
+        partition_state = partition_state->next;
+    }
 }
 
 /**
