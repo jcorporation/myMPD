@@ -4,6 +4,19 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v10.0.0
+
+This major release adds complete MPD partition support to myMPD. myMPD connects now to all MPD partitions simutanously and maintance separate states and settings for each partition. Each browser instance can now select the MPD partition to control.
+
+The partition feature requires now MPD >= 0.23.9. There are some anoying partition related bugs in earlier MPD versions.
+
+### Changelog
+
+- Feat: complete MPD partition support
+- Upd: add internal api documentation
+
+***
+
 ## myMPD v9.5.2 (not yet released)
 
 This is a small bug fix release.

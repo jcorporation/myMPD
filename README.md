@@ -17,10 +17,10 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 
 ## Features
 
+- Concurrent MPD partition support
 - Control mpd functions (play, pause, etc.)
 - Set mpd options (repeat, random, etc.)
 - MPD mount and neighbors support
-- MPD partition support
 - MPD output attributes
 - Browse mpd database by tags (gridview)
 - Browse filesystem
@@ -41,7 +41,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - [Lua scripting](https://jcorporation.github.io/myMPD/scripting/)
 - Embedded Webserver ([mongoose](https://github.com/cesanta/mongoose))
 - [Localized user interface](https://jcorporation.github.io/myMPD/references/translating)
-- Themeing
+- Dark and Light theme
 - [Publishing of mpd and myMPD directories via http](https://jcorporation.github.io/myMPD/references/published-directories)
 - Progressiv Web App enabled
 - Support of Media Session API
