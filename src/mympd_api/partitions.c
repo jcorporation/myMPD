@@ -17,7 +17,7 @@
  * Get the partition state struct by partition name
  * @param mympd_state pointer to central myMPD state
  * @param partition mpd partition name
- * @return pointer to partition_state
+ * @return pointer to partition_state, NULL if partition is not found
  */
 struct t_partition_state *mympd_api_get_partition_by_name(struct t_mympd_state *mympd_state, const char *partition) {
     struct t_partition_state *partition_state = mympd_state->partition_state;
