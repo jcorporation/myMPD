@@ -70,6 +70,7 @@ static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
     [JSONRPC_EVENT_UPDATE_ALBUM_CACHE] = "update_album_cache",
     [JSONRPC_EVENT_UPDATE_DATABASE] = "update_database",
     [JSONRPC_EVENT_UPDATE_FINISHED] = "update_finished",
+    [JSONRPC_EVENT_UPDATE_HOME] = "update_home",
     [JSONRPC_EVENT_UPDATE_JUKEBOX] = "update_jukebox",
     [JSONRPC_EVENT_UPDATE_LAST_PLAYED] = "update_last_played",
     [JSONRPC_EVENT_UPDATE_OPTIONS] = "update_options",
