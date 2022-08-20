@@ -14,7 +14,7 @@
 #include <string.h>
 
 /**
- * Get the partition state struct by partition anme
+ * Get the partition state struct by partition name
  * @param mympd_state pointer to central myMPD state
  * @param partition mpd partition name
  * @return pointer to partition_state
@@ -25,6 +25,7 @@ struct t_partition_state *mympd_api_get_partition_by_name(struct t_mympd_state *
         if (strcmp(partition_state->name, partition) == 0) {
             return partition_state;
         }
+        partition_state = partition_state->next;
     }
     return NULL;
 }
