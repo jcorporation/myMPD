@@ -168,7 +168,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 rc = mympd_api_home_icon_save(&mympd_state->home_list, bool_buf1, long_buf1, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, &options);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_HOME);
-                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME);
+                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME, MPD_PARTITION_ALL);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -185,7 +185,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 rc = mympd_api_home_icon_move(&mympd_state->home_list, long_buf1, long_buf2);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_HOME);
-                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME);
+                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME, MPD_PARTITION_ALL);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -198,7 +198,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 rc = mympd_api_home_icon_delete(&mympd_state->home_list, long_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_HOME);
-                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME);
+                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME, MPD_PARTITION_ALL);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -848,16 +848,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             }
             break;
         case MYMPD_API_PLAYER_OUTPUT_LIST:
-            if (json_get_string(request->data, "$.params.partition", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
-                struct t_partition_state *outputs_partition_state = mympd_api_get_partition_by_name(partition_state->mympd_state, sds_buf1);
-                if (outputs_partition_state != NULL) {
-                    response->data = mympd_api_output_list(partition_state, response->data, request->id);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Invalid partition");
-                }
-            }
+            response->data = mympd_api_output_list(partition_state, response->data, request->id);
             break;
         case MYMPD_API_PLAYER_OUTPUT_TOGGLE:
             if (json_get_uint(request->data, "$.params.outputId", 0, MPD_OUTPUT_ID_MAX, &uint_buf1, &error) == true &&
@@ -1452,8 +1443,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         case MYMPD_API_PARTITION_RM:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
-                rc = mpd_run_delete_partition(partition_state->conn, sds_buf1);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_delete_partition", &result);
+                response->data = mympd_api_partition_rm(partition_state, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_PARTITION_OUTPUT_MOVE: {

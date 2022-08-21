@@ -309,6 +309,9 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
             }
             break;
         }
+        case MPD_REMOVED:
+            MYMPD_LOG_DEBUG("\"%s\": removed", partition_state->name);
+            break;
         default:
             MYMPD_LOG_ERROR("Invalid mpd connection state");
     }
@@ -498,6 +501,7 @@ static bool partitions_populate(struct t_mympd_state *mympd_state) {
     }
     mpd_response_finish(mympd_state->partition_state->conn);
     if (mympd_check_error_and_recover(mympd_state->partition_state) == false) {
+        list_clear(&mpd_partitions);
         return false;
     }
     //remove obsolet partitions
@@ -569,7 +573,9 @@ static void partitions_get_fds(struct t_mympd_state *mympd_state) {
             MYMPD_LOG_ERROR("Too many partitions");
             break;
         }
-        if (partition_state->conn_state == MPD_CONNECTED) {
+        if (partition_state->conn != NULL &&
+            partition_state->conn_state == MPD_CONNECTED)
+        {
             mympd_state->fds[mympd_state->nfds].fd = mpd_connection_get_fd(partition_state->conn);
             mympd_state->fds[mympd_state->nfds].events = POLLIN;
             mympd_state->nfds++;

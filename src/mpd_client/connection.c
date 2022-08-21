@@ -114,7 +114,7 @@ bool mpd_client_set_binarylimit(struct t_partition_state *partition_state) {
  */
 void mpd_client_disconnect(struct t_partition_state *partition_state) {
     if (partition_state->conn != NULL) {
-        MYMPD_LOG_DEBUG("\"%s\": Disconnection from mpd", partition_state->name);
+        MYMPD_LOG_INFO("\"%s\": Disconnecting from mpd", partition_state->name);
         mpd_connection_free(partition_state->conn);
     }
     partition_state->conn = NULL;
