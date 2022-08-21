@@ -34,6 +34,7 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Feat: add update_home jsonrpc event #814
 - Fix: Advanced search is not working #809
 - Fix: Fetching locales and ligatures behind reverse proxy #808
 

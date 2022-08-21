@@ -196,12 +196,6 @@ function filterHomeIconLigatures() {
     }
 }
 
-function getHomeIcons() {
-    sendAPI("MYMPD_API_HOME_ICON_LIST", {}, function(obj) {
-        parseHomeIcons(obj);
-    });
-}
-
 function parseHomeIcons(obj) {
     const cardContainer = document.getElementById('HomeList');
     const cols = cardContainer.getElementsByClassName('col');
@@ -388,9 +382,7 @@ function dragAndDropHome() {
                     isNaN(from) === false &&
                     from !== to)
                 {
-                    sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, function() {
-                        getHomeIcons();
-                    });
+                    sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to});
                 }
             }
         }
@@ -676,15 +668,12 @@ function saveHomeIconClose(obj) {
     }
     else {
         uiElements.modalEditHomeIcon.hide();
-        getHomeIcons();
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function deleteHomeIcon(pos) {
-    sendAPI("MYMPD_API_HOME_ICON_RM", {"pos": pos}, function() {
-        getHomeIcons();
-    });
+    sendAPI("MYMPD_API_HOME_ICON_RM", {"pos": pos});
 }
 
 function showHomeIconCmdOptions(values) {

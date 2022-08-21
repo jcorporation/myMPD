@@ -481,6 +481,11 @@ function webSocketConnect() {
                         }, parseLastPlayed);
                     }
                     break;
+                case 'update_home':
+                    if (app.id === 'Home') {
+                        sendAPI("MYMPD_API_HOME_ICON_LIST", {}, parseHomeIcons);
+                    }
+                    break;
                 case 'update_jukebox':
                     if (app.id === 'QueueJukebox') {
                         sendAPI('MYMPD_API_JUKEBOX_LIST', {

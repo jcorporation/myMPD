@@ -168,6 +168,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 rc = mympd_api_home_icon_save(&mympd_state->home_list, bool_buf1, long_buf1, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, &options);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_HOME);
+                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -184,6 +185,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 rc = mympd_api_home_icon_move(&mympd_state->home_list, long_buf1, long_buf2);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_HOME);
+                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -196,6 +198,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 rc = mympd_api_home_icon_delete(&mympd_state->home_list, long_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_HOME);
+                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
