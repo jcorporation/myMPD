@@ -313,7 +313,8 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
 }
 
 /**
- * Matches the acl against the client ip
+ * Matches the acl against the client ip and
+ * sends an error repsonse / drains the connection if acl is not matched
  * @param nc mongoose connection
  * @param acl acl string to check
  * @return true if acl matches, else false
@@ -358,23 +359,18 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
  */
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     //connection specific data structure
-    struct frontend_nc_data_t *frontend_nc_data = NULL;
-    if (fn_data != NULL) {
-        frontend_nc_data = (struct frontend_nc_data_t *)fn_data;
-    }
-    else {
-        //initialize fn_data
-        frontend_nc_data = malloc_assert(sizeof(struct frontend_nc_data_t));
-        frontend_nc_data->partition = NULL;
-        frontend_nc_data->backend_nc = NULL;
-        nc->fn_data = frontend_nc_data;
-    }
+    struct frontend_nc_data_t *frontend_nc_data = (struct frontend_nc_data_t *)fn_data;
     //mongoose user data
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
     switch(ev) {
         case MG_EV_ACCEPT: {
             mg_user_data->connection_count++;
+            //initialize fn_data
+            frontend_nc_data = malloc_assert(sizeof(struct frontend_nc_data_t));
+            frontend_nc_data->partition = NULL;
+            frontend_nc_data->backend_nc = NULL;
+            nc->fn_data = frontend_nc_data;
             //ssl support
             #ifdef ENABLE_SSL
             if (config->ssl == true) {
@@ -476,7 +472,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                  */
                 struct mg_str *auth_header = mg_http_get_header(hm, "X-myMPD-Session");
                 sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
-                sdsrange(partition, 4, -1);
+                sdsrange(partition, 5, -1);
                 FREE_SDS(frontend_nc_data->partition);
                 frontend_nc_data->partition = partition;
                 bool rc = request_handler_api(nc, body, auth_header, mg_user_data, frontend_nc_data->backend_nc);
@@ -503,7 +499,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             else if (mg_http_match_uri(hm, "/ws/*")) {
                 sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
-                sdsrange(partition, 4, -1);
+                sdsrange(partition, 5, -1);
                 mg_ws_upgrade(nc, hm, NULL);
                 frontend_nc_data->partition = partition;
                 MYMPD_LOG_INFO("New Websocket connection established (%lu)", nc->id);
@@ -526,14 +522,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_http_match_uri(hm, "/serverinfo")) {
                 request_handler_serverinfo(nc);
             }
-            else if (mg_http_match_uri(hm, "/script-api")) {
+            else if (mg_http_match_uri(hm, "/script-api/*")) {
                 //check acl
                 if (check_acl(nc, config->scriptacl) == false) {
                     break;
                 }
                 sds body = sdsnewlen(hm->body.ptr, hm->body.len);
                 sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
-                sdsrange(partition, 4, -1);
+                sdsrange(partition, 5, -1);
                 FREE_SDS(frontend_nc_data->partition);
                 frontend_nc_data->partition = partition;
                 bool rc = request_handler_script_api(nc, body);
@@ -583,6 +579,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         }
         case MG_EV_CLOSE: {
             MYMPD_LOG_INFO("HTTP connection %lu closed", nc->id);
+            if (frontend_nc_data == NULL) {
+                break;
+            }
             mg_user_data->connection_count--;
             if (frontend_nc_data->backend_nc != NULL) {
                 MYMPD_LOG_INFO("Closing backend connection \"%lu\"", frontend_nc_data->backend_nc->id);
@@ -594,6 +593,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             FREE_SDS(frontend_nc_data->partition);
             FREE_PTR(frontend_nc_data);
+            nc->fn_data = NULL;
             break;
         }
     }
