@@ -22,7 +22,7 @@ enum trigger_events {
     TRIGGER_MYMPD_FEEDBACK = -6,       //!< myMPD feedback event (love/hate)
     TRIGGER_MPD_DATABASE = 0x1,        //!< mpd database has changed
     TRIGGER_MPD_STORED_PLAYLIST = 0x2, //!< mpd playlist idle event
-    TRIGGER_MPD_PLAYLIST = 0x4,        //!< mpd queue idle event
+    TRIGGER_MPD_QUEUE = 0x4,           //!< mpd queue idle event
     TRIGGER_MPD_PLAYER = 0x8,          //!< mpd player idle event
     TRIGGER_MPD_MIXER = 0x10,          //!< mpd mixer idle event (volume)
     TRIGGER_MPD_OUTPUT = 0x20,         //!< mpd output idle event

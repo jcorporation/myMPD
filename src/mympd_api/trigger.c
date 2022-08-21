@@ -30,12 +30,12 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current);
 void _trigger_execute(sds script, struct t_list *arguments, const char *partition);
 
 /**
- * MPD idle events for triggers
+ * All MPD idle events
  */
 static const char *const mpd_event_names[] = {
     "mpd_database",
     "mpd_stored_playlist",
-    "mpd_playlist",
+    "mpd_queue",
     "mpd_player",
     "mpd_mixer",
     "mpd_output",
@@ -47,6 +47,23 @@ static const char *const mpd_event_names[] = {
     "mpd_partition",
     "mpd_neighbor",
     "mpd_mount",
+    NULL
+};
+
+/**
+ * MPD idle events for triggers
+ * This events are enabled by the idle bitmask
+ */
+static const char *const trigger_event_names[] = {
+    "mpd_database",
+    "mpd_stored_playlist",
+    "mpd_queue",
+    "mpd_player",
+    "mpd_mixer",
+    "mpd_output",
+    "mpd_options",
+    "mpd_update",
+    "mpd_partition",
     NULL
 };
 
@@ -81,9 +98,9 @@ const char *mympd_api_event_name(long event) {
         }
         return NULL;
     }
-    for (int i = 0; mpd_event_names[i] != NULL; ++i) {
+    for (int i = 0; trigger_event_names[i] != NULL; ++i) {
         if (event == (1 << i)) {
-            return mpd_event_names[i];
+            return trigger_event_names[i];
         }
     }
     return NULL;

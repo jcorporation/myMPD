@@ -351,6 +351,7 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                     partitions_populate(mympd_state);
                     break;
                 case MPD_IDLE_QUEUE: {
+                    //MPD_IDLE_PLAYLIST is the same
                     //queue has changed - partition specific event
                     unsigned old_queue_version = partition_state->queue_version;
                     buffer = mympd_api_queue_status(partition_state, buffer);
@@ -435,6 +436,7 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
             if (sdslen(buffer) > 0) {
                 switch(idle_event) {
                     case MPD_IDLE_DATABASE:
+                    case MPD_IDLE_PARTITION:
                     case MPD_IDLE_STORED_PLAYLIST:
                     case MPD_IDLE_UPDATE:
                         ws_notify(buffer, MPD_PARTITION_ALL);
