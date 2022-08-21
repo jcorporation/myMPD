@@ -35,7 +35,8 @@ enum mpd_conn_states {
     MPD_FAILURE,             //!< mpd connection failed, disconnect mpd and reconnect after wait time
     MPD_DISCONNECT,          //!< disconnect mpd and reconnect after wait time
     MPD_DISCONNECT_INSTANT,  //!< disconnect mpd and reconnect as soon as possible
-    MPD_WAIT                 //!< wating for reconnection
+    MPD_WAIT,                //!< wating for reconnection
+    MPD_REMOVED              //!< connection was removed
 };
 
 /**
