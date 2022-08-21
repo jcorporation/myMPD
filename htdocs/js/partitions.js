@@ -37,17 +37,15 @@ function initPartitions() {
     });
 
     document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
-        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
-            "partition": "default"
-        }, function(obj) {
+        //get all outputs
+        sendAPIpartition("default", "MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
             const outputList = document.getElementById('partitionOutputsList');
             if (checkResult(obj, outputList) === false) {
                 return;
             }
             allOutputs = obj.result.data;
-            sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
-                "partition": settings.partition
-            }, parsePartitionOutputsList, true);
+            //get partition specific outputs
+            sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, parsePartitionOutputsList, true);
         }, true);
     });
 }
@@ -138,16 +136,6 @@ function savePartitionCheckError(obj) {
     }
 }
 
-function switchPartitionCheckError(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
-        BSN.Modal.getInstance(document.getElementById('modalPartitions')).hide();
-        showNotification(tn('Partition switched'), '', 'general', 'info');
-    }
-}
-
 //eslint-disable-next-line no-unused-vars
 function showNewPartition() {
     cleanupModalId('modalPartitions');
@@ -178,12 +166,31 @@ function deletePartition(el, partition) {
 }
 
 function switchPartition(partition) {
-    sendAPI("MYMPD_API_PARTITION_SWITCH", {
-        "name": partition
-    }, function(obj) {
-        switchPartitionCheckError(obj);
-        sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState);
-    }, true);
+    //save localSettings in browsers localStorage
+    localSettings.partition = partition;
+    try {
+        localStorage.setItem('partition', partition);
+    }
+    catch(err) {
+        const obj = {
+            "error": {
+                "message": "Can not save settings to localStorage: %{error}",
+                "data": {
+                    "error": err.message
+                }
+            }
+        }
+        showModalAlert(obj);
+        return;
+    }
+    //reconnect websocket to new ws endpoint
+    setTimeout(function() {
+        webSocketClose();
+        webSocketConnect();
+    }, 0);
+    getSettings(true);
+    BSN.Modal.getInstance(document.getElementById('modalPartitions')).hide();
+    showNotification(tn('Partition switched'), '', 'general', 'info');
 }
 
 function parsePartitionList(obj) {

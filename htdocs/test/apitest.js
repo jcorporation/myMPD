@@ -36,7 +36,7 @@ function setTest(cmd, state, response) {
 
 function sendAPI(method) {
     let ajaxRequest = new XMLHttpRequest();
-    ajaxRequest.open('POST', '/api/', true);
+    ajaxRequest.open('POST', '/api/default', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {

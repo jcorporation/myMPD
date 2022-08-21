@@ -16,9 +16,7 @@ function initOutputs() {
     }, false);
 
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
-        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
-            "partition": ""
-        }, parseOutputs, true);
+        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs, true);
     });
 
     document.getElementById('outputs').addEventListener('click', function(event) {
@@ -87,9 +85,7 @@ function parseOutputs(obj) {
 function showListOutputAttributes(outputName) {
     cleanupModalId('modalOutputAttributes');
     uiElements.modalOutputAttributes.show();
-    sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {
-        "partition": ""
-    }, function(obj) {
+    sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
         const tbody = document.getElementById('outputAttributesList');
         if (checkResult(obj, tbody) === false) {
             return;

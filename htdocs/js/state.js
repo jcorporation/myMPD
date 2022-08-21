@@ -39,7 +39,7 @@ function parseStats(obj) {
 }
 
 function getServerinfo() {
-    httpGet(subdir + '/api/serverinfo', function(obj) {
+    httpGet(subdir + '/serverinfo', function(obj) {
         document.getElementById('wsIP').textContent = obj.result.ip;
     }, true);
 }

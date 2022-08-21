@@ -119,7 +119,7 @@ function sendAPI() {
     let time_start = 0;
     let time_end = 0;
     let ajaxRequest = new XMLHttpRequest();
-    ajaxRequest.open('POST', '/api/', true);
+    ajaxRequest.open('POST', '/api/default', true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     ajaxRequest.setRequestHeader('X-myMPD-Session', document.getElementById('session').value);
     ajaxRequest.onreadystatechange = function() {

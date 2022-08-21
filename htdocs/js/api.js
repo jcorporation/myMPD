@@ -212,14 +212,27 @@ function removeSession() {
 }
 
 /**
- * Sends a JSON-RPC API request and handles the response.
+ * Sends a JSON-RPC API request to the selected partition and handles the response.
  * @param {String} method jsonrpc api method
  * @param {Object} params jsonrpc parameters
  * @param {Callback} callback callback function
  * @param {Boolean} onerror true = execute callback also on error
  * @returns {Boolean} true on success, else false
  */
-function sendAPI(method, params, callback, onerror) {
+ function sendAPI(method, params, callback, onerror) {
+    return sendAPIpartition(localSettings.partition, method, params, callback, onerror);
+ }
+
+/**
+ * Sends a JSON-RPC API request and handles the response.
+ * @param {String} partition partition endpoint
+ * @param {String} method jsonrpc api method
+ * @param {Object} params jsonrpc parameters
+ * @param {Callback} callback callback function
+ * @param {Boolean} onerror true = execute callback also on error
+ * @returns {Boolean} true on success, else false
+ */
+function sendAPIpartition(partition, method, params, callback, onerror) {
     if (APImethods[method] === undefined) {
         logError('Method "' + method + '" is not defined');
     }
@@ -235,7 +248,7 @@ function sendAPI(method, params, callback, onerror) {
     //we do not use the jsonrpc id field because we get the response directly.
     const request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
     const ajaxRequest = new XMLHttpRequest();
-    ajaxRequest.open('POST', subdir + '/api/', true);
+    ajaxRequest.open('POST', subdir + '/api/' + partition, true);
     ajaxRequest.setRequestHeader('Content-type', 'application/json');
     if (session.token !== '') {
         ajaxRequest.setRequestHeader('X-myMPD-Session', session.token);
@@ -360,7 +373,7 @@ function webSocketConnect() {
     const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
         window.location.hostname +
         (window.location.port !== '' ? ':' + window.location.port : '') +
-        subdir + '/ws/';
+        subdir + '/ws/' + localSettings.partition;
     socket = new WebSocket(wsUrl);
     logDebug('Connecting to ' + wsUrl);
 
@@ -400,7 +413,8 @@ function webSocketConnect() {
             switch (obj.method) {
                 case 'welcome':
                     websocketConnected = true;
-                    showNotification(tn('Connected to myMPD'), wsUrl, 'general', 'info');
+                    showNotification(tn('Connected to myMPD'),
+                        tn('Partition') + ': ' + localSettings.partition, 'general', 'info');
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
                     if (session.token !== '') {
                         validateSession();

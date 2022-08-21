@@ -55,7 +55,8 @@ let phrases = {};
 const localSettings = {
     "scaleRatio": "1.0",
     "localPlaybackAutoplay": false,
-    "enforceMobile": false
+    "enforceMobile": false,
+    "partition": "default"
 };
 
 //get local settings

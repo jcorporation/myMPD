@@ -94,11 +94,6 @@ const APIparams = {
         "example": "{\"argname1\": \"argvalue1\"}",
         "desc": "Script arguments"
     },
-    "partName": {
-        "type": "text",
-        "example": "partition1",
-        "desc": "Name of the new partition."
-    },
     "triggerId": {
         "type": "uint",
         "example": 1,
@@ -722,9 +717,7 @@ const APImethods = {
     },
     "MYMPD_API_PLAYER_OUTPUT_LIST": {
         "desc": "Lists the MPD outputs.",
-        "params": {
-            "partition": APIparams.partition
-        }
+        "params": {}
     },
     "MYMPD_API_PLAYER_OUTPUT_TOGGLE": {
         "desc": "Toggles the output state.",
@@ -1418,14 +1411,14 @@ const APImethods = {
         "desc": "Creates a new MPD partition",
         "protected": true,
         "params": {
-            "name": APIparams.partName
+            "name": APIparams.partition
         }
     },
     "MYMPD_API_PARTITION_RM": {
         "desc": "Removes a mpd partition.",
         "protected": true,
         "params": {
-            "name": APIparams.partName
+            "name": APIparams.partition
         }
     },
     "MYMPD_API_PARTITION_OUTPUT_MOVE": {
