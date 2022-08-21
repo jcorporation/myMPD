@@ -179,7 +179,7 @@ function switchPartition(partition) {
                     "error": err.message
                 }
             }
-        }
+        };
         showModalAlert(obj);
         return;
     }
