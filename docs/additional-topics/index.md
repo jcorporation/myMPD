@@ -9,3 +9,4 @@ title: Additional topics
 - [Recommended MPD configuration]({{ site.baseurl }}/additional-topics/recommended-mpd-configuration)
 - [Scrobble to ListenBrainz]({{ site.baseurl }}/additional-topics/scrobble-to-listenbrainz)
 - [ListenBrainz Feedback]({{ site.baseurl }}/additional-topics/listenbrainz-feedback)
+- [Battery level indicator]({{ site.baseurl }}/additional-topics/battery-indicator)
