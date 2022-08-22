@@ -23,9 +23,7 @@
  * Private definitions
  */
 
-static struct t_trigger_data *trigger_data_new(void);
 static void list_free_cb_trigger_data(struct t_list_node *current);
-static void trigger_data_free(struct t_trigger_data *trigger_data);
 static sds trigger_to_line_cb(sds buffer, struct t_list_node *current);
 void _trigger_execute(sds script, struct t_list *arguments, const char *partition);
 
@@ -198,7 +196,6 @@ sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request
     int j = 0;
     while (current != NULL) {
         if (strcmp(partition, current->value_p) == 0 ||
-            strcmp(partition, MPD_PARTITION_ALL) == 0 ||
             strcmp(current->value_p, MPD_PARTITION_ALL) == 0)
         {
             if (entities_returned++) {
@@ -323,11 +320,14 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
         int event;
         struct t_trigger_data *trigger_data = trigger_data_new();
         if (json_get_string(line, "$.name", 1, FILENAME_LEN_MAX, &name, vcb_isfilename, NULL) == true &&
-            json_get_string(line, "$.partition", 1, NAME_LEN_MAX, &partition, vcb_isname, NULL) == true &&
             json_get_string(line, "$.script", 0, FILENAME_LEN_MAX, &trigger_data->script, vcb_isfilename, NULL) == true &&
             json_get_int_max(line, "$.event", &event, NULL) == true &&
-            json_get_object_string(line, "$.arguments", &trigger_data->arguments, vcb_isname, 10, NULL) == true)
+            json_get_object_string(line, "$.arguments", &trigger_data->arguments, vcb_isname, SCRIPT_ARGUMENTS_MAX, NULL) == true)
         {
+            if (json_get_string(line, "$.partition", 1, NAME_LEN_MAX, &partition, vcb_isname, NULL) == false) {
+                //fallback to default partition
+                partition = sdsnew(MPD_PARTITION_DEFAULT);
+            }
             list_push(trigger_list, name, event, partition, trigger_data);
         }
         else {
@@ -367,22 +367,10 @@ void mympd_api_trigger_list_clear(struct t_list *trigger_list) {
 }
 
 /**
- * Private functions
- */
-
-/**
- * Callback function to free user_data of type t_trigger_data
- * @param current list node
- */
-static void list_free_cb_trigger_data(struct t_list_node *current) {
-    trigger_data_free((struct t_trigger_data *)current->user_data);
-}
-
-/**
  * Creates and initializes the t_trigger_data struct
  * @return pointer to allocated t_trigger_data struct
  */
-static struct t_trigger_data *trigger_data_new(void) {
+struct t_trigger_data *trigger_data_new(void) {
     struct t_trigger_data *trigger_data = malloc_assert(sizeof(struct t_trigger_data));
     trigger_data->script = NULL;
     list_init(&trigger_data->arguments);
@@ -393,10 +381,22 @@ static struct t_trigger_data *trigger_data_new(void) {
  * Frees the t_trigger_data struct
  * @param trigger_data pointer to trigger data
  */
-static void trigger_data_free(struct t_trigger_data *trigger_data) {
+void trigger_data_free(struct t_trigger_data *trigger_data) {
     FREE_SDS(trigger_data->script);
     list_clear(&trigger_data->arguments);
     FREE_PTR(trigger_data);
+}
+
+/**
+ * Private functions
+ */
+
+/**
+ * Callback function to free user_data of type t_trigger_data
+ * @param current list node
+ */
+static void list_free_cb_trigger_data(struct t_list_node *current) {
+    trigger_data_free((struct t_trigger_data *)current->user_data);
 }
 
 /**

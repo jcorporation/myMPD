@@ -1306,10 +1306,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_TIMER_LIST": {
-        "desc": "Lists all timers",
-        "params": {
-            "partition": APIparams.partition
-        }
+        "desc": "Lists all timers"
     },
     "MYMPD_API_TIMER_GET": {
         "desc": "Gets options from a timer",
@@ -1433,10 +1430,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_TRIGGER_LIST": {
-        "desc": "Lists all triggers",
-        "params": {
-            "partition": APIparams.partition
-        }
+        "desc": "Lists all triggers"
     },
     "MYMPD_API_TRIGGER_GET": {
         "desc": "Get the options from a trigger",
@@ -1464,6 +1458,7 @@ const APImethods = {
                 "example": "test script",
                 "desc": "Script to execute"
             },
+            "partition": APIparams.partition,
             "arguments": APIparams.scriptArguments
         }
     },

@@ -85,7 +85,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mpd_state_default(mympd_state->mpd_state, mympd_state);
     //mpd partition state
     mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
-    partition_state_default(mympd_state->partition_state, "default", mympd_state);
+    partition_state_default(mympd_state->partition_state, MPD_PARTITION_DEFAULT, mympd_state);
     mympd_state->partition_state->is_default = true;
     //triggers;
     list_init(&mympd_state->trigger_list);
@@ -274,7 +274,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->mympd_state = mympd_state;
     partition_state->mpd_state = mympd_state->mpd_state;
     //mpd idle mask
-    if (strcmp(name, "default") == 0) {
+    if (strcmp(name, MPD_PARTITION_DEFAULT) == 0) {
         //handle all
         partition_state->idle_mask = MPD_IDLE_QUEUE | MPD_IDLE_PLAYER | MPD_IDLE_MIXER | MPD_IDLE_OUTPUT | MPD_IDLE_OPTIONS |
             MPD_IDLE_UPDATE | MPD_IDLE_PARTITION | MPD_IDLE_DATABASE | MPD_IDLE_STORED_PLAYLIST;

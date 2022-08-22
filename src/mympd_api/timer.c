@@ -295,7 +295,7 @@ void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
  * @param error pointer to sds string to populate an error string
  * @return pointer to timer_def or NULL on error
  */
-struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str, sds *error) {
+struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str, const char *partition, sds *error) {
     timer_def->name = NULL;
     timer_def->partition = NULL;
     timer_def->action = NULL;
@@ -312,7 +312,7 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         json_get_string_max(str, "$.params.subaction", &timer_def->subaction, vcb_isname, error) == true &&
         json_get_uint(str, "$.params.volume", VOLUME_MIN, VOLUME_MAX, &timer_def->volume, error) == true &&
         json_get_string_max(str, "$.params.playlist", &timer_def->playlist, vcb_isfilename, error) == true &&
-        json_get_object_string(str, "$.params.arguments", &timer_def->arguments, vcb_isname, 10, error) == true &&
+        json_get_object_string(str, "$.params.arguments", &timer_def->arguments, vcb_isname, SCRIPT_ARGUMENTS_MAX, error) == true &&
         json_get_bool(str, "$.params.weekdays[0]", &timer_def->weekdays[0], error) == true &&
         json_get_bool(str, "$.params.weekdays[1]", &timer_def->weekdays[1], error) == true &&
         json_get_bool(str, "$.params.weekdays[2]", &timer_def->weekdays[2], error) == true &&
@@ -323,10 +323,7 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         json_get_string_max(str, "$.params.jukeboxMode", &jukebox_mode_str, vcb_isalnum, error) == true)
     {
         timer_def->jukebox_mode = jukebox_mode_parse(jukebox_mode_str);
-        if (json_get_string_max(str, "$.params.partition", &timer_def->partition, vcb_isname, NULL) == false) {
-            //fallback to default partition
-            timer_def->partition = sdsnew("default");
-        }
+        timer_def->partition = sdsnew(partition);
         MYMPD_LOG_DEBUG("Successfully parsed timer definition");
     }
     else {
@@ -381,9 +378,7 @@ sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, long reque
         if (current->timer_id >= USER_TIMER_ID_START &&
             current->definition != NULL)
         {
-            if (strcmp(partition, current->definition->partition) == 0 ||
-                strcmp(partition, MPD_PARTITION_DEFAULT) == 0)
-            {
+            if (strcmp(partition, current->definition->partition) == 0) {
                 if (entities_returned++) {
                     buffer = sdscatlen(buffer, ",", 1);
                 }
@@ -464,7 +459,13 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
         struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
         sdsclear(param);
         param = sdscatfmt(param, "{\"params\":%S}", line);
-        timer_def = mympd_api_timer_parse(timer_def, param, NULL);
+        sds partition = NULL;
+        if (json_get_string_max(param, "$.params.partition", &partition, vcb_isname, NULL) == false) {
+            //fallback to default partition
+            partition = sdsnew(MPD_PARTITION_DEFAULT);
+        }
+        timer_def = mympd_api_timer_parse(timer_def, param, partition, NULL);
+        FREE_SDS(partition);
         int interval;
         int timerid;
         if (timer_def != NULL &&

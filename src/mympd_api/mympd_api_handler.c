@@ -222,7 +222,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 json_get_string(request->data, "$.params.oldscript", 0, FILENAME_LEN_MAX, &sds_buf2, vcb_isfilename, &error) == true &&
                 json_get_int(request->data, "$.params.order", 0, LIST_TIMER_MAX, &int_buf1, &error) == true &&
                 json_get_string(request->data, "$.params.content", 0, CONTENT_LEN_MAX, &sds_buf3, vcb_istext, &error) == true &&
-                json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isalnum, 10, &error) == true)
+                json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isalnum, SCRIPT_ARGUMENTS_MAX, &error) == true)
             {
                 rc = mympd_api_script_save(config->workdir, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments);
                 if (rc == true) {
@@ -419,7 +419,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 break;
             }
             struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
-            timer_def = mympd_api_timer_parse(timer_def, request->data, &error);
+            timer_def = mympd_api_timer_parse(timer_def, request->data, partition_state->name, &error);
             if (timer_def != NULL &&
                 json_get_int(request->data, "$.params.interval", -1, TIMER_INTERVAL_MAX, &int_buf2, &error) == true &&
                 json_get_int(request->data, "$.params.timerid", 0, USER_TIMER_ID_MAX, &int_buf1, &error) == true)
@@ -459,9 +459,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         }
         case MYMPD_API_TIMER_LIST:
-            if (json_get_string(request->data, "$.params.partition", 1, NAME_LEN_MAX, &sds_buf0, vcb_isname, &error) == true) {
-                response->data = mympd_api_timer_list(&mympd_state->timer_list, response->data, request->id, sds_buf0);
-            }
+            response->data = mympd_api_timer_list(&mympd_state->timer_list, response->data, request->id, partition_state->name);
             break;
         case MYMPD_API_TIMER_GET:
             if (json_get_int(request->data, "$.params.timerid", USER_TIMER_ID_MIN, USER_TIMER_ID_MAX, &int_buf1, &error) == true) {
@@ -519,9 +517,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         }
         case MYMPD_API_TRIGGER_LIST:
-            if (json_get_string(request->data, "$.params.partition", 1, NAME_LEN_MAX, &sds_buf0, vcb_isname, &error) == true) {
-                response->data = mympd_api_trigger_list(&mympd_state->trigger_list, response->data, request->id, sds_buf0);
-            }
+            response->data = mympd_api_trigger_list(&mympd_state->trigger_list, response->data, request->id, partition_state->name);
             break;
         case MYMPD_API_TRIGGER_GET:
             if (json_get_long(request->data, "$.params.id", 0, LIST_TRIGGER_MAX, &long_buf1, &error) == true) {
@@ -534,16 +530,17 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                     JSONRPC_FACILITY_TRIGGER, JSONRPC_SEVERITY_ERROR, "Too many triggers defined");
                 break;
             }
-            //malloc list - it is used in trigger list
-            struct t_list *arguments = list_new();
+            //malloc trigger_data - it is used in trigger list
+            struct t_trigger_data *trigger_data = trigger_data_new();
 
             if (json_get_string(request->data, "$.params.name", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_string(request->data, "$.params.script", 0, FILENAME_LEN_MAX, &sds_buf2, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.script", 0, FILENAME_LEN_MAX, &trigger_data->script, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.partition", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &error) == true &&
                 json_get_int(request->data, "$.params.id", -1, LIST_TRIGGER_MAX, &int_buf1, &error) == true &&
                 json_get_int_max(request->data, "$.params.event", &int_buf2, &error) == true &&
-                json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
+                json_get_object_string(request->data, "$.params.arguments", &trigger_data->arguments, vcb_isname, SCRIPT_ARGUMENTS_MAX, &error) == true)
             {
-                rc = list_push(&mympd_state->trigger_list, sds_buf1, int_buf2, sds_buf2, arguments);
+                rc = list_push(&mympd_state->trigger_list, sds_buf1, int_buf2, sds_buf2, trigger_data);
                 if (rc == true) {
                     if (int_buf1 >= 0) {
                         //delete old entry
@@ -555,8 +552,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_TRIGGER, JSONRPC_SEVERITY_ERROR, "Could not save trigger");
             }
-            list_clear(arguments);
-            FREE_PTR(arguments);
+            trigger_data_free(trigger_data);
             break;
         }
         case MYMPD_API_TRIGGER_RM:
