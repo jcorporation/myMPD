@@ -32,7 +32,7 @@ jobs:
           sudo npm install --location=global jsdoc
           ./build.sh api_doc
       - name: Setup Pages
-        uses: actions/configure-pages@v1
+        uses: actions/configure-pages@v2
       - name: Build with Jekyll
         uses: actions/jekyll-build-pages@v1
         with:
