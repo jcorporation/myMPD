@@ -944,7 +944,7 @@ const APImethods = {
             },
             "listenbrainzToken": {
                 "type": "text",
-                "example": "<token>",
+                "example": "token",
                 "desc": "Your ListenBrainz token"
             },
             "webuiSettings": {
@@ -1184,12 +1184,12 @@ const APImethods = {
             "mixrampDb": {
                 "type": "float",
                 "example": 0,
-                "desc": "mixramp threshold in dB"
+                "desc": "Mixramp threshold in dB"
             },
-            "mixrampDela": {
+            "mixrampDelay": {
                 "type": "float",
                 "example": 0,
-                "desc": "mixrampdelay in seconds"
+                "desc": "Mixrampdelay in seconds"
             },
             "jukeboxMode": {
                 "type": "text",
