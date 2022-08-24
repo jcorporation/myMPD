@@ -50,7 +50,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 
 //mpd partitions
 #define MPD_PARTITION_DEFAULT "default"
-#define MPD_PARTITION_ALL "all"
+#define MPD_PARTITION_ALL "!all!"
 
 //default configuration
 #define CFG_MYMPD_USER "mympd"

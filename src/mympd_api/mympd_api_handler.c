@@ -1433,12 +1433,22 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         case MYMPD_API_PARTITION_NEW:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
+                if (strcmp(sds_buf1, MPD_PARTITION_ALL) == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD,
+                        JSONRPC_SEVERITY_ERROR, "Partition name invalid");
+                    break;
+                }
                 rc = mpd_run_newpartition(partition_state->conn, sds_buf1);
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_newpartition", &result);
             }
             break;
         case MYMPD_API_PARTITION_RM:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
+                if (strcmp(sds_buf1, MPD_PARTITION_DEFAULT) == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD,
+                        JSONRPC_SEVERITY_ERROR, "Default partition can not be deleted");
+                    break;
+                }
                 response->data = mympd_api_partition_rm(partition_state, response->data, request->id, sds_buf1);
             }
             break;
