@@ -12,5 +12,6 @@
 bool mpd_client_connect(struct t_partition_state *partition_state);
 bool mpd_client_set_keepalive(struct t_partition_state *partition_state);
 bool mpd_client_set_binarylimit(struct t_partition_state *partition_state);
-void mpd_client_disconnect(struct t_partition_state *partition_state);
+void mpd_client_disconnect(struct t_partition_state *partition_state, enum mpd_conn_states new_conn_state);
+void mpd_client_disconnect_all(struct t_mympd_state *mympd_state, enum mpd_conn_states new_conn_state);
 #endif

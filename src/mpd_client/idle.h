@@ -4,8 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_MPD_CLIENT_LOOP_H
-#define MYMPD_MPD_CLIENT_LOOP_H
+#ifndef MYMPD_MPD_CLIENT_IDLE_H
+#define MYMPD_MPD_CLIENT_IDLE_H
 
 #include "../lib/mympd_state.h"
 

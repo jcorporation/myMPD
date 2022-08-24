@@ -112,10 +112,23 @@ bool mpd_client_set_binarylimit(struct t_partition_state *partition_state) {
  * Disconnects from MPD
  * @param partition_state pointer to partition state
  */
-void mpd_client_disconnect(struct t_partition_state *partition_state) {
+void mpd_client_disconnect(struct t_partition_state *partition_state, enum mpd_conn_states new_conn_state) {
     if (partition_state->conn != NULL) {
         MYMPD_LOG_INFO("\"%s\": Disconnecting from mpd", partition_state->name);
         mpd_connection_free(partition_state->conn);
     }
     partition_state->conn = NULL;
+    partition_state->conn_state = new_conn_state;
+}
+
+/**
+ * Disconnects all MPD partitions
+ * @param partition_state pointer to partition state
+ */
+void mpd_client_disconnect_all(struct t_mympd_state *mympd_state, enum mpd_conn_states new_conn_state) {
+    struct t_partition_state *partition_state = mympd_state->partition_state;
+    while (partition_state != NULL) {
+        mpd_client_disconnect(partition_state, new_conn_state);
+        partition_state = partition_state->next;
+    }
 }

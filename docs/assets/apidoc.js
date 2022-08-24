@@ -102,7 +102,7 @@ const APIparams = {
     "partition": {
         "type": "text",
         "example": "default",
-        "desc": "MPD partition, \"all\" for all partitions"
+        "desc": "MPD partition"
     },
     "pos": {
         "type": "uint",

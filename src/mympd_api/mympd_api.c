@@ -18,6 +18,7 @@
 #include "home.h"
 #include "last_played.h"
 #include "settings.h"
+#include "src/lib/mympd_state.h"
 #include "timer.h"
 #include "timer_handlers.h"
 #include "trigger.h"
@@ -73,11 +74,7 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP, MPD_PARTITION_ALL);
 
     //disconnect from mpd
-    struct t_partition_state *partition_state = mympd_state->partition_state;
-    while (partition_state != NULL) {
-        mpd_client_disconnect(partition_state);
-        partition_state = partition_state->next;
-    }
+    mpd_client_disconnect_all(mympd_state, MPD_DISCONNECT_INSTANT);
 
     //save states
     mympd_state_save(mympd_state);

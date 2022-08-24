@@ -24,6 +24,7 @@
 #include "../mpd_client/errorhandler.h"
 #include "../mpd_client/features.h"
 #include "../mpd_client/jukebox.h"
+#include "../mpd_client/partitions.h"
 #include "../mpd_client/playlists.h"
 #include "../mpd_client/search.h"
 #include "../mpd_client/tags.h"
@@ -371,9 +372,11 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_iterate_object(request->data, "$.params", mympd_api_settings_connection_save, mympd_state, NULL, 100, &error) == true) {
                 sds new_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
                 if (strcmp(old_mpd_settings, new_mpd_settings) != 0) {
-                    //reconnect to new mpd
+                    //disconnect all partitions
                     MYMPD_LOG_DEBUG("MPD host has changed, disconnecting");
-                    partition_state->conn_state = MPD_DISCONNECT_INSTANT;
+                    mpd_client_disconnect_all(mympd_state, MPD_DISCONNECTED);
+                    //remove all but default partition
+                    partitions_list_clear(mympd_state);
                 }
                 else if (partition_state->conn_state == MPD_CONNECTED) {
                     //feature detection
