@@ -420,7 +420,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
     bool write_state_file = true;
     bool jukebox_changed = false;
 
-    MYMPD_LOG_DEBUG("Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
+    MYMPD_LOG_DEBUG("\"%s\": Parse setting \"%s\": \"%s\" (%s)", partition_state->name, key, value, get_mjson_toktype_name(vtype));
     if (strcmp(key, "autoPlay") == 0) {
         if (vtype == MJSON_TOK_TRUE) {
             partition_state->auto_play = true;
@@ -564,11 +564,11 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
         write_state_file = false;
     }
     else {
-        MYMPD_LOG_WARN("Unknown setting \"%s\": \"%s\"", key, value);
+        MYMPD_LOG_WARN("\"%s\": Unknown setting \"%s\": \"%s\"", partition_state->name, key, value);
         return false;
     }
     if (jukebox_changed == true && partition_state->jukebox_queue.length > 0) {
-        MYMPD_LOG_INFO("Jukebox options changed, clearing jukebox queue");
+        MYMPD_LOG_INFO("\"%s\": Jukebox options changed, clearing jukebox queue", partition_state->name);
         jukebox_clear(&partition_state->jukebox_queue);
     }
     if (write_state_file == true) {

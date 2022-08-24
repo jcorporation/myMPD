@@ -287,7 +287,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 //an api request is there
                 if (request != NULL) {
                     //Handle request
-                    MYMPD_LOG_DEBUG("Handle API request");
+                    MYMPD_LOG_DEBUG("\"%s\": Handle API request", partition_state->name);
                     mympd_api_handler(mympd_state, partition_state, request);
                 }
                 if (partition_state->is_default == true) {
