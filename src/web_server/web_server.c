@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "dist/mongoose/mongoose.h"
 #include "web_server.h"
 
 #include "../lib/api.h"
@@ -172,7 +173,7 @@ void *web_server_loop(void *arg_mgr) {
                 }
             }
             else {
-                MYMPD_LOG_DEBUG("Got API response for id \"%lld\"", response->conn_id);
+                MYMPD_LOG_DEBUG("\"%s\": Got API response for id \"%lld\"", response->partition, response->conn_id);
                 //api response
                 send_api_response(mgr, response);
             }
@@ -270,7 +271,7 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
             if (strcmp(response->partition, frontend_nc_data->partition) == 0 ||
                 strcmp(response->partition, MPD_PARTITION_ALL) == 0)
             {
-                MYMPD_LOG_DEBUG("Sending notify to conn_id %lu: %s", nc->id, response->data);
+                MYMPD_LOG_DEBUG("\"%s\": Sending notify to conn_id %lu: %s", response->partition, nc->id, response->data);
                 mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
                 send_count++;
             }
@@ -302,7 +303,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
                 webserver_send_albumart(nc, response->data, response->binary);
             }
             else {
-                MYMPD_LOG_DEBUG("Sending response to conn_id %lu (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
+                MYMPD_LOG_DEBUG("\"%s\": Sending response to conn_id %lu (length: %lu): %s", response->partition, nc->id, (unsigned long)sdslen(response->data), response->data);
                 webserver_send_data(nc, response->data, sdslen(response->data), "Content-Type: application/json\r\n");
             }
             break;
@@ -465,20 +466,27 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             //handle uris
             if (mg_http_match_uri(hm, "/api/*")) {
                 //api request
+                sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
+                sdsrange(partition, 5, -1);
+                FREE_SDS(frontend_nc_data->partition);
+                frontend_nc_data->partition = partition;
+                if (sdslen(partition) == 0) {
+                    //no partition identifier - close connection
+                    webserver_send_error(nc, 400, "No partition identifier");
+                    nc->is_draining = 1;
+                    break;
+                }
+                //body
                 sds body = sdsnewlen(hm->body.ptr, hm->body.len);
                 /*
                  * We use the custom header X-myMPD-Session for authorization
                  * to allow other authorization methods in reverse proxy setups
                  */
                 struct mg_str *auth_header = mg_http_get_header(hm, "X-myMPD-Session");
-                sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
-                sdsrange(partition, 5, -1);
-                FREE_SDS(frontend_nc_data->partition);
-                frontend_nc_data->partition = partition;
                 bool rc = request_handler_api(nc, body, auth_header, mg_user_data, frontend_nc_data->backend_nc);
                 FREE_SDS(body);
                 if (rc == false) {
-                    MYMPD_LOG_ERROR("Invalid API request");
+                    MYMPD_LOG_ERROR("\"%s\": Invalid API request", frontend_nc_data->partition);
                     sds response = jsonrpc_respond_message(sdsempty(), GENERAL_API_UNKNOWN, 0,
                         JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Invalid API request");
                     webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
@@ -499,10 +507,17 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             else if (mg_http_match_uri(hm, "/ws/*")) {
                 sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
-                sdsrange(partition, 5, -1);
-                mg_ws_upgrade(nc, hm, NULL);
+                sdsrange(partition, 4, -1);
+                FREE_SDS(frontend_nc_data->partition);
                 frontend_nc_data->partition = partition;
-                MYMPD_LOG_INFO("New Websocket connection established (%lu)", nc->id);
+                if (sdslen(partition) == 0) {
+                    //no partition identifier - close connection
+                    webserver_send_error(nc, 400, "No partition identifier");
+                    nc->is_draining = 1;
+                    break;
+                }
+                mg_ws_upgrade(nc, hm, NULL);
+                MYMPD_LOG_INFO("\"%s\": New Websocket connection established (%lu)", frontend_nc_data->partition, nc->id);
                 sds response = jsonrpc_event(sdsempty(), JSONRPC_EVENT_WELCOME);
                 mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
                 FREE_SDS(response);
@@ -527,15 +542,21 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 if (check_acl(nc, config->scriptacl) == false) {
                     break;
                 }
-                sds body = sdsnewlen(hm->body.ptr, hm->body.len);
                 sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
-                sdsrange(partition, 5, -1);
+                sdsrange(partition, 12, -1);
                 FREE_SDS(frontend_nc_data->partition);
                 frontend_nc_data->partition = partition;
+                if (sdslen(partition) == 0) {
+                    //no partition identifier - close connection
+                    webserver_send_error(nc, 400, "No partition identifier");
+                    nc->is_draining = 1;
+                    break;
+                }
+                sds body = sdsnewlen(hm->body.ptr, hm->body.len);
                 bool rc = request_handler_script_api(nc, body);
                 FREE_SDS(body);
                 if (rc == false) {
-                    MYMPD_LOG_ERROR("Invalid script API request");
+                    MYMPD_LOG_ERROR("\"%s\": Invalid script API request", frontend_nc_data->partition);
                     sds response = jsonrpc_respond_message(sdsempty(), GENERAL_API_UNKNOWN, 0,
                         JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Invalid script API request");
                     webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
