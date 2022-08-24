@@ -349,7 +349,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                     JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Can't set playback options: MPD not connected");
                 break;
             }
-            if (json_iterate_object(request->data, "$.params", mympd_api_settings_mpd_options_set, mympd_state, NULL, 100, &error) == true) {
+            if (json_iterate_object(request->data, "$.params", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &error) == true) {
                 if (partition_state->jukebox_mode != JUKEBOX_OFF) {
                     //start jukebox
                     jukebox_run(partition_state);
