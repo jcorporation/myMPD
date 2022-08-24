@@ -292,6 +292,7 @@ void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
  * Frees the timer and sets the pointer to NULL if there is a parsing error.
  * @param timer_def pointer to timer defintion to populate
  * @param str string to parse
+ * @param partition mpd partition
  * @param error pointer to sds string to populate an error string
  * @return pointer to timer_def or NULL on error
  */
