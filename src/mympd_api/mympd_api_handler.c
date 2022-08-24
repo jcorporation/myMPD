@@ -67,13 +67,11 @@ static bool check_start_play(struct t_partition_state *partition_state, bool pla
 
 /**
  * Central myMPD api handler function
- * @param mympd_state pointer to central myMPD state
  * @param partition_state pointer to partition state
  * @param request pointer to the jsonrpc request struct
  */
-void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
-        struct t_work_request *request)
-{
+void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_request *request) {
+    //some buffer variables
     unsigned uint_buf1;
     unsigned uint_buf2;
     long long_buf1;
@@ -103,7 +101,8 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
 
     MYMPD_LOG_INFO("\"%s\": MYMPD API request (%lld)(%ld) %s: %s", partition_state->name, request->conn_id, request->id, request->method, request->data);
 
-    //shortcut
+    //shortcuts
+    struct t_mympd_state *mympd_state = partition_state->mympd_state;
     struct t_config *config = mympd_state->config;
 
     //create response struct
@@ -332,7 +331,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             if (json_iterate_object(request->data, "$.params", mympd_api_settings_set, mympd_state, NULL, 1000, &error) == true) {
                 if (partition_state->conn_state == MPD_CONNECTED) {
                     //feature detection
-                    mpd_client_mpd_features(mympd_state);
+                    mpd_client_mpd_features(partition_state);
                 }
                 //respond with ok
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
@@ -364,7 +363,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
             break;
         }
         case MYMPD_API_SETTINGS_GET:
-            response->data = mympd_api_settings_get(mympd_state, partition_state, response->data, request->id);
+            response->data = mympd_api_settings_get(partition_state, response->data, request->id);
             break;
         case MYMPD_API_CONNECTION_SAVE: {
             sds old_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
@@ -378,7 +377,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
                 }
                 else if (partition_state->conn_state == MPD_CONNECTED) {
                     //feature detection
-                    mpd_client_mpd_features(mympd_state);
+                    mpd_client_mpd_features(partition_state);
                 }
                 FREE_SDS(new_mpd_settings);
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD);

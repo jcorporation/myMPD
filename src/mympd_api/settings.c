@@ -651,23 +651,25 @@ void mympd_api_settings_statefiles_partition_read(struct t_partition_state *part
 
 /**
  * Prints all settings
- * @param mympd_state pointer to the t_mympd_state struct
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @return pointer to buffer
  */
-sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state, sds buffer, long request_id) {
+sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer, long request_id) {
+    //shortcuts
+    struct t_mympd_state *mympd_state = partition_state->mympd_state;
+
     enum mympd_cmd_ids cmd_id = MYMPD_API_SETTINGS_GET;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = tojson_char(buffer, "mympdVersion", MYMPD_VERSION, true);
-    buffer = tojson_sds(buffer, "mpdHost", mympd_state->mpd_state->mpd_host, true);
-    buffer = tojson_uint(buffer, "mpdPort", mympd_state->mpd_state->mpd_port, true);
+    buffer = tojson_sds(buffer, "mpdHost", partition_state->mpd_state->mpd_host, true);
+    buffer = tojson_uint(buffer, "mpdPort", partition_state->mpd_state->mpd_port, true);
     buffer = tojson_char(buffer, "mpdPass", "dontsetpassword", true);
     buffer = tojson_uint(buffer, "mpdStreamPort", mympd_state->mpd_stream_port, true);
-    buffer = tojson_uint(buffer, "mpdTimeout", mympd_state->mpd_state->mpd_timeout, true);
-    buffer = tojson_bool(buffer, "mpdKeepalive", mympd_state->mpd_state->mpd_keepalive, true);
-    buffer = tojson_uint(buffer, "mpdBinarylimit", mympd_state->mpd_state->mpd_binarylimit, true);
+    buffer = tojson_uint(buffer, "mpdTimeout", partition_state->mpd_state->mpd_timeout, true);
+    buffer = tojson_bool(buffer, "mpdKeepalive", partition_state->mpd_state->mpd_keepalive, true);
+    buffer = tojson_uint(buffer, "mpdBinarylimit", partition_state->mpd_state->mpd_binarylimit, true);
 #ifdef ENABLE_SSL
     buffer = tojson_bool(buffer, "pin", (sdslen(mympd_state->config->pin_hash) == 0 ? false : true), true);
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
@@ -758,27 +760,27 @@ sds mympd_api_settings_get(struct t_mympd_state *mympd_state, struct t_partition
         buffer = tojson_bool(buffer, "consume", mpd_status_get_consume(status), true);
         mpd_status_free(status);
         //features
-        buffer = tojson_bool(buffer, "featPlaylists", mympd_state->mpd_state->feat_playlists, true);
-        buffer = tojson_bool(buffer, "featTags", mympd_state->mpd_state->feat_tags, true);
-        buffer = tojson_bool(buffer, "featLibrary", mympd_state->mpd_state->feat_library, true);
-        buffer = tojson_bool(buffer, "featStickers", mympd_state->mpd_state->feat_stickers, true);
-        buffer = tojson_bool(buffer, "featFingerprint", mympd_state->mpd_state->feat_fingerprint, true);
-        buffer = tojson_bool(buffer, "featPartitions", mympd_state->mpd_state->feat_partitions, true);
-        buffer = tojson_sds(buffer, "musicDirectoryValue", mympd_state->mpd_state->music_directory_value, true);
-        buffer = tojson_bool(buffer, "featMounts", mympd_state->mpd_state->feat_mount, true);
-        buffer = tojson_bool(buffer, "featNeighbors", mympd_state->mpd_state->feat_neighbor, true);
-        buffer = tojson_bool(buffer, "featBinarylimit", mympd_state->mpd_state->feat_binarylimit, true);
-        buffer = tojson_bool(buffer, "featPlaylistRmRange", mympd_state->mpd_state->feat_playlist_rm_range, true);
-        buffer = tojson_bool(buffer, "featWhence", mympd_state->mpd_state->feat_whence, true);
-        buffer = tojson_bool(buffer, "featAdvqueue", mympd_state->mpd_state->feat_advqueue, true);
+        buffer = tojson_bool(buffer, "featPlaylists", partition_state->mpd_state->feat_playlists, true);
+        buffer = tojson_bool(buffer, "featTags", partition_state->mpd_state->feat_tags, true);
+        buffer = tojson_bool(buffer, "featLibrary", partition_state->mpd_state->feat_library, true);
+        buffer = tojson_bool(buffer, "featStickers", partition_state->mpd_state->feat_stickers, true);
+        buffer = tojson_bool(buffer, "featFingerprint", partition_state->mpd_state->feat_fingerprint, true);
+        buffer = tojson_bool(buffer, "featPartitions", partition_state->mpd_state->feat_partitions, true);
+        buffer = tojson_sds(buffer, "musicDirectoryValue", partition_state->mpd_state->music_directory_value, true);
+        buffer = tojson_bool(buffer, "featMounts", partition_state->mpd_state->feat_mount, true);
+        buffer = tojson_bool(buffer, "featNeighbors", partition_state->mpd_state->feat_neighbor, true);
+        buffer = tojson_bool(buffer, "featBinarylimit", partition_state->mpd_state->feat_binarylimit, true);
+        buffer = tojson_bool(buffer, "featPlaylistRmRange", partition_state->mpd_state->feat_playlist_rm_range, true);
+        buffer = tojson_bool(buffer, "featWhence", partition_state->mpd_state->feat_whence, true);
+        buffer = tojson_bool(buffer, "featAdvqueue", partition_state->mpd_state->feat_advqueue, true);
         //taglists
-        buffer = print_tags_array(buffer, "tagList", mympd_state->mpd_state->tags_mympd);
+        buffer = print_tags_array(buffer, "tagList", partition_state->mpd_state->tags_mympd);
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = print_tags_array(buffer, "tagListSearch", mympd_state->mpd_state->tags_search);
+        buffer = print_tags_array(buffer, "tagListSearch", partition_state->mpd_state->tags_search);
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = print_tags_array(buffer, "tagListBrowse", mympd_state->mpd_state->tags_browse);
+        buffer = print_tags_array(buffer, "tagListBrowse", partition_state->mpd_state->tags_browse);
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = print_tags_array(buffer, "tagListMpd", mympd_state->mpd_state->tags_mpd);
+        buffer = print_tags_array(buffer, "tagListMpd", partition_state->mpd_state->tags_mpd);
         buffer = sdscatlen(buffer, ",", 1);
         buffer = print_tags_array(buffer, "smartplsGenerateTagList", mympd_state->smartpls_generate_tag_types);
         //trigger events

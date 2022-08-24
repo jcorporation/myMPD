@@ -128,7 +128,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 MYMPD_LOG_DEBUG("Handle request (mpd disconnected)");
                 if (is_mympd_only_api_method(request->cmd_id) == true) {
                     //request that are handled without a mpd connection
-                    mympd_api_handler(mympd_state, partition_state, request);
+                    mympd_api_handler(partition_state, request);
                 }
                 else {
                     //other requests not allowed
@@ -173,7 +173,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
             send_jsonrpc_event(JSONRPC_EVENT_MPD_CONNECTED, partition_state->name);
             if (partition_state->is_default == true) {
                 //get mpd features
-                mpd_client_mpd_features(mympd_state);
+                mpd_client_mpd_features(partition_state);
                 //initiate cache updates
                 update_mympd_caches(mympd_state->mpd_state, &mympd_state->timer_list, 2);
                 //set timer for smart playlist update
@@ -288,7 +288,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 if (request != NULL) {
                     //Handle request
                     MYMPD_LOG_DEBUG("\"%s\": Handle API request", partition_state->name);
-                    mympd_api_handler(mympd_state, partition_state, request);
+                    mympd_api_handler(partition_state, request);
                 }
                 if (partition_state->is_default == true) {
                     //process sticker queue
