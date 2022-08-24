@@ -101,7 +101,7 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
     MEASURE_START
     #endif
 
-    MYMPD_LOG_INFO("MYMPD API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
+    MYMPD_LOG_INFO("\"%s\": MYMPD API request (%lld)(%ld) %s: %s", partition_state->name, request->conn_id, request->id, request->method, request->data);
 
     //shortcut
     struct t_config *config = mympd_state->config;
@@ -1569,20 +1569,20 @@ void mympd_api_handler(struct t_mympd_state *mympd_state, struct t_partition_sta
     if (sdslen(error) > 0) {
         response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
-        MYMPD_LOG_ERROR("Error processing method \"%s\"", request->method);
+        MYMPD_LOG_ERROR("\"%s\": Error processing method \"%s\"", partition_state->name, request->method);
     }
     FREE_SDS(error);
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", request->method);
-        MYMPD_LOG_ERROR("No response for method \"%s\"", request->method);
+        MYMPD_LOG_ERROR("\"%s\": No response for method \"%s\"", partition_state->name, request->method);
     }
     if (request->conn_id == -2) {
-        MYMPD_LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
+        MYMPD_LOG_DEBUG("\"%s\": Push response to mympd_script_queue for thread %ld: %s", partition_state->name, request->id, response->data);
         mympd_queue_push(mympd_script_queue, response, request->id);
     }
     else if (request->conn_id > -1) {
-        MYMPD_LOG_DEBUG("Push response to web_server_queue for connection %lld: %s", request->conn_id, response->data);
+        MYMPD_LOG_DEBUG("\"%s\": Push response to web_server_queue for connection %lld: %s", partition_state->name, request->conn_id, response->data);
         mympd_queue_push(web_server_queue, response, 0);
     }
     else {

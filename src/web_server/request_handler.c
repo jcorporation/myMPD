@@ -13,6 +13,7 @@
 #include "sessions.h"
 #include "proxy.h"
 #include "radiobrowser.h"
+#include "utility.h"
 #include "webradiodb.h"
 
 /**
@@ -27,7 +28,8 @@
 bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth_header,
         struct t_mg_user_data *mg_user_data, struct mg_connection *backend_nc)
 {
-    MYMPD_LOG_DEBUG("API request (%lu): %s", nc->id, body);
+    struct frontend_nc_data_t *frontend_nc_data = (struct frontend_nc_data_t *)nc->fn_data;
+    MYMPD_LOG_DEBUG("\"%s\": API request (%lu): %s", frontend_nc_data->partition, nc->id, body);
 
     //first check if request is valid json string
     if (validate_json(body) == false) {
@@ -42,24 +44,24 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
         json_get_string_max(body, "$.method", &cmd, vcb_isalnum, NULL) == false ||
         json_get_int(body, "$.id", 0, 0, &request_id, NULL) == false)
     {
-        MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
+        MYMPD_LOG_ERROR("\"%s\": Invalid jsonrpc2 request", frontend_nc_data->partition);
         FREE_SDS(cmd);
         FREE_SDS(jsonrpc);
         return false;
     }
 
-    MYMPD_LOG_INFO("API request (%lld): %s", (long long)nc->id, cmd);
+    MYMPD_LOG_INFO("\"%s\": API request (%lld): %s", frontend_nc_data->partition, (long long)nc->id, cmd);
 
     enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
     if (cmd_id == GENERAL_API_UNKNOWN) {
-        MYMPD_LOG_ERROR("Unknown API method");
+        MYMPD_LOG_ERROR("\"%s\": Unknown API method", frontend_nc_data->partition);
         FREE_SDS(cmd);
         FREE_SDS(jsonrpc);
         return false;
     }
 
     if (is_public_api_method(cmd_id) == false) {
-        MYMPD_LOG_ERROR("API method %s is for internal use only", cmd);
+        MYMPD_LOG_ERROR("\"%s\": API method %s is for internal use only", frontend_nc_data->partition, cmd);
         FREE_SDS(cmd);
         FREE_SDS(jsonrpc);
         return false;
@@ -78,10 +80,10 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
             rc = webserver_session_validate(&mg_user_data->session_list, session);
         }
         else {
-            MYMPD_LOG_ERROR("No valid Authorization header found");
+            MYMPD_LOG_ERROR("\"%s\": No valid Authorization header found", frontend_nc_data->partition);
         }
         if (rc == false) {
-            MYMPD_LOG_ERROR("API method %s is protected", cmd);
+            MYMPD_LOG_ERROR("\"%s\": API method %s is protected", frontend_nc_data->partition, cmd);
             sds response = jsonrpc_respond_message(sdsempty(), cmd_id, 0,
                 JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR,
                 (cmd_id == MYMPD_API_SESSION_VALIDATE ? "Invalid session" : "Authentication required"));
@@ -96,7 +98,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
             FREE_SDS(response);
             return true;
         }
-        MYMPD_LOG_INFO("API request is authorized");
+        MYMPD_LOG_INFO("\"%s\": API request is authorized", frontend_nc_data->partition);
     }
     #else
     (void) auth_header;
@@ -119,7 +121,6 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
             break;
         default: {
             //forward API request to mympd_api_handler
-            struct frontend_nc_data_t *frontend_nc_data = (struct frontend_nc_data_t *)nc->fn_data;
             struct t_work_request *request = create_request((long long)nc->id, request_id, cmd_id, body, frontend_nc_data->partition);
             mympd_queue_push(mympd_api_queue, request, 0);
         }
@@ -137,7 +138,9 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
  * @return true on success, else false
  */
 bool request_handler_script_api(struct mg_connection *nc, sds body) {
-    MYMPD_LOG_DEBUG("Script API request (%lu): %s", nc->id, body);
+    struct frontend_nc_data_t *frontend_nc_data = (struct frontend_nc_data_t *)nc->fn_data;
+
+    MYMPD_LOG_DEBUG("\"%s\": Script API request (%lu): %s", frontend_nc_data->partition, nc->id, body);
 
     //first check if request is valid json string
     if (validate_json(body) == false) {
@@ -152,22 +155,21 @@ bool request_handler_script_api(struct mg_connection *nc, sds body) {
         json_get_string_max(body, "$.method", &cmd, vcb_isalnum, NULL) == false ||
         json_get_int(body, "$.id", 0, 0, &id, NULL) == false)
     {
-        MYMPD_LOG_ERROR("Invalid jsonrpc2 request");
+        MYMPD_LOG_ERROR("\"%s\": Invalid jsonrpc2 request", frontend_nc_data->partition);
         FREE_SDS(cmd);
         FREE_SDS(jsonrpc);
         return false;
     }
 
-    MYMPD_LOG_INFO("Script API request (%lu): %s", nc->id, cmd);
+    MYMPD_LOG_INFO("\"%s\": Script API request (%lu): %s", frontend_nc_data->partition, nc->id, cmd);
 
     enum mympd_cmd_ids cmd_id = get_cmd_id(cmd);
     if (cmd_id != INTERNAL_API_SCRIPT_POST_EXECUTE) {
-        MYMPD_LOG_ERROR("API method %s is invalid for this uri", cmd);
+        MYMPD_LOG_ERROR("\"%s\": API method %s is invalid for this uri", frontend_nc_data->partition,cmd);
         FREE_SDS(cmd);
         FREE_SDS(jsonrpc);
         return false;
     }
-    struct frontend_nc_data_t *frontend_nc_data = (struct frontend_nc_data_t *)nc->fn_data;
     struct t_work_request *request = create_request((long long)nc->id, id, cmd_id, body, frontend_nc_data->partition);
     mympd_queue_push(mympd_api_queue, request, 0);
 
