@@ -78,4 +78,5 @@ myMPD uses the idle protocol from mpd to detect state changes. These status chan
 | n/a | mpd_connected |
 | n/a | update_lastplayed |
 | n/a | update_jukebox |
+| n/a | update_home |
 {: .table .table-sm }

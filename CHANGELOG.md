@@ -4,12 +4,25 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v9.5.2 (2022-08-24)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Feat: add battery indicator script, thanks @furtarball #815
+- Upd: Chinese translation #813 
+- Fix: sorting albums by last-modified #806
+
+***
+
 ## myMPD v9.5.1 (2022-08-14)
 
 This is a small bug fix release.
 
 ### Changelog
 
+- Feat: add update_home jsonrpc event #814
 - Fix: Advanced search is not working #809
 - Fix: Fetching locales and ligatures behind reverse proxy #808
 
