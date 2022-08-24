@@ -1,8 +1,8 @@
 {
     "default": {"desc":"Browser default", "missingPhrases": 0},
-    "cn-CHS": {"desc":"简体中文", "missingPhrases": 3},
+    "cn-CHS": {"desc":"简体中文", "missingPhrases": 5},
     "de-DE": {"desc":"Deutsch", "missingPhrases": 0},
     "en-US": {"desc":"English", "missingPhrases": 0},
-    "ko-KR": {"desc":"한국어", "missingPhrases": 55},
-    "nl-NL": {"desc":"Nederlands", "missingPhrases": 33}
+    "ko-KR": {"desc":"한국어", "missingPhrases": 57},
+    "nl-NL": {"desc":"Nederlands", "missingPhrases": 35}
 }
