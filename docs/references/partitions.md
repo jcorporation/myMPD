@@ -1,10 +1,18 @@
 ---
 layout: page
 permalink: /references/partitions
-title: Feature matrix
+title: Partitions
 ---
 
 myMPD supports multiple mpd partitions. myMPD connects to the `default` partition, gets a list of all partitions and creates separate connections for each partition.
+
+Following items are partition specific:
+
+- Jukebox
+- Last played
+- MPD options
+- Triggers
+- Timers
 
 You can select and manage partitions in the web interface. The selected partition for the web interface is saved in the browsers localStorage.
 
