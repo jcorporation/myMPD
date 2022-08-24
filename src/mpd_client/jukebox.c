@@ -518,7 +518,6 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
 
     //get last_played from disc
     sds line = sdsempty();
-    char *data = NULL;
     sds lp_file = sdscatfmt(sdsempty(), "%S/state/last_played", partition_state->mympd_state->config->workdir);
     errno = 0;
     FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
@@ -540,7 +539,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
                                 if (partition_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
                                     tag_value = mpd_client_get_tag_value_string(song, partition_state->jukebox_unique_tag.tags[0], tag_value);
                                 }
-                                list_push(queue_list, data, 0, tag_value, NULL);
+                                list_push(queue_list, uri, 0, tag_value, NULL);
                                 sdsclear(tag_value);
                             }
                             else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
