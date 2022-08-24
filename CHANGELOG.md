@@ -4,12 +4,13 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v9.5.2 (not yet released)
+## myMPD v9.5.2 (2022-08-24)
 
 This is a small bug fix release.
 
 ### Changelog
 
+- Feat: add battery indicator script, thanks @furtarball #815
 - Upd: Chinese translation #813 
 - Fix: sorting albums by last-modified #806
 
