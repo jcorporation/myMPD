@@ -57,6 +57,7 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_MOUNT_UNMOUNT:
         case MYMPD_API_PARTITION_NEW:
         case MYMPD_API_PARTITION_RM:
+        case MYMPD_API_PARTITION_SAVE:
         case MYMPD_API_PARTITION_OUTPUT_MOVE:
         case MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET:
         case MYMPD_API_PLAYLIST_RM_ALL:
