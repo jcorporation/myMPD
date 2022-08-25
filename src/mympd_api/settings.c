@@ -647,6 +647,16 @@ void mympd_api_settings_statefiles_partition_read(struct t_partition_state *part
     partition_state->jukebox_queue_length = state_file_rw_long(workdir, partition_state->state_dir, "jukebox_queue_length", partition_state->jukebox_queue_length, 0, JUKEBOX_QUEUE_MAX, false);
     partition_state->jukebox_last_played = state_file_rw_long(workdir, partition_state->state_dir, "jukebox_last_played", partition_state->jukebox_last_played, 0, JUKEBOX_LAST_PLAYED_MAX, false);
     partition_state->jukebox_unique_tag.tags[0] = state_file_rw_int(workdir, partition_state->state_dir, "jukebox_unique_tag", partition_state->jukebox_unique_tag.tags[0], 0, 64, false);
+    partition_state->color = state_file_rw_string_sds(workdir, partition_state->state_dir, "color", partition_state->color, vcb_ishexcolor, false);
+}
+
+bool mympd_api_settings_partition_save(struct t_partition_state *partition_state, sds color) {
+    bool rc = state_file_write(partition_state->mympd_state->config->workdir, partition_state->state_dir, "color", color);
+    if (rc == false) {
+        return false;
+    }
+    partition_state->color = sds_replace(partition_state->color, color);
+    return true;
 }
 
 /**
@@ -727,6 +737,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_char(buffer, "jukeboxUniqueTag", mpd_tag_name(partition_state->jukebox_unique_tag.tags[0]), true);
     buffer = tojson_long(buffer, "jukeboxLastPlayed", partition_state->jukebox_last_played, true);
     buffer = tojson_bool(buffer, "autoPlay", partition_state->auto_play, true);
+    buffer = tojson_char(buffer, "partitionColor", partition_state->color, true);
     if (partition_state->conn_state == MPD_CONNECTED) {
         //mpd options
         buffer = tojson_bool(buffer, "mpdConnected", true, true);

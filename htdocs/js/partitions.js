@@ -36,6 +36,11 @@ function initPartitions() {
         showListPartitions();
     });
 
+    document.getElementById('modalPartitionSettings').addEventListener('show.bs.modal', function () {
+        cleanupModalId('modalPartitionSettings');
+        document.getElementById('inputPartitionColor').value = settings.partitionColor;
+    });
+
     document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
         //get all outputs
         sendAPIpartition("default", "MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
@@ -211,13 +216,16 @@ function parsePartitionList(obj) {
             tr.classList.add('not-clickable');
             tr.setAttribute('title', tn('Active partition'));
         }
+        const tdColor = elCreateText('span', {"class": ["mi", "me-2"]}, 'dashboard')
+        tdColor.style.color = obj.result.data[i].color;
         const td = elCreateEmpty('td', {});
+        td.appendChild(tdColor);
         if (obj.result.data[i].name === localSettings.partition) {
             td.classList.add('fw-bold');
-            td.textContent = obj.result.data[i].name + ' (' + tn('current') + ')';
+            td.appendChild(document.createTextNode(obj.result.data[i].name + ' (' + tn('current') + ')'));
         }
         else {
-            td.textContent = obj.result.data[i].name;
+            td.appendChild(document.createTextNode(obj.result.data[i].name));
         }
         tr.appendChild(td);
         const partitionActionTd = elCreateEmpty('td', {"data-col": "Action"});
@@ -230,5 +238,22 @@ function parsePartitionList(obj) {
         }
         tr.appendChild(partitionActionTd);
         partitionList.appendChild(tr);
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function savePartitionSettings() {
+    sendAPI('MYMPD_API_PARTITION_SAVE', {
+        "color": document.getElementById('inputPartitionColor').value
+    }, savePartitionSettingsClose, true);
+}
+
+function savePartitionSettingsClose(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        uiElements.modalPartitionSettings.hide();
+        getSettings(true);
     }
 }

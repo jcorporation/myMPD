@@ -1411,6 +1411,17 @@ const APImethods = {
             "name": APIparams.partition
         }
     },
+    "MYMPD_API_PARTITION_SAVE": {
+        "desc": "Saves MPD partition settings",
+        "protected": true,
+        "params": {
+            "color": {
+                "type": "text",
+                "example": "#28a745",
+                "desc": "Highlight color for this partition"
+            }
+        }
+    },
     "MYMPD_API_PARTITION_RM": {
         "desc": "Removes a mpd partition.",
         "protected": true,

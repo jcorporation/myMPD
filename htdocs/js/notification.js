@@ -10,7 +10,7 @@ function setStateIcon() {
         document.getElementById('logoBg').setAttribute('fill', '#6c757d');
     }
     else {
-        document.getElementById('logoBg').setAttribute('fill', settings.webuiSettings.uiHighlightColor);
+        document.getElementById('logoBg').setAttribute('fill', settings.partitionColor);
     }
 }
 

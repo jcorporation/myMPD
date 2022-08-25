@@ -757,7 +757,9 @@
           <div id="outputsDropdown" class="dropdown-menu dropdown-menu-dark">
             <form id="outputs" class="px-3 py-3 d-grid gap-2"></form>
             <div class="dropdown-divider featPartitions"></div>
-            <a class="dropdown-item featPartitions" data-title-phrase="Manage partitions" data-bs-toggle="modal" href="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
+            <div class="dropdown-item">
+              <a class="featPartitions" data-title-phrase="Manage partitions" data-bs-toggle="modal" href="#modalPartitions" data-phrase="Current partition"></a>: <a data-title-phrase="Change partition settings" data-bs-toggle="modal" href="#modalPartitionSettings" id="partitionName"></a>
+            </div>
             <a data-phrase="Move an output to this partition" class="dropdown-item featPartitions" data-bs-toggle="modal" href="#modalPartitionOutputs"></a>
             <div class="dropdown-divider"></div>
             <h2 class="dropdown-header"><span data-phrase="Volume"></span>: <span id="volumePrct"></span></h2>
@@ -2625,6 +2627,29 @@
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button id="addToWebradioFavorites" type="button" class="btn btn-success" data-phrase="Add to favorites"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalPartitionSettings" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="mi title-icon">dashboard</span> <span data-phrase="Partition settings"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="inputPartitionColor" data-phrase="Highlight color"></label>
+            <div class="col-sm-8">
+              <input class="form-control" type="color" id="inputPartitionColor"/>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "savePartitionSettings", "options": []}' data-phrase="Save"></button>
         </div>
       </div>
     </div>

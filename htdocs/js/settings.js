@@ -376,7 +376,7 @@ function parseSettings(obj) {
         settings.mpdHost + ':' + settings.mpdPort : settings.mpdHost;
 
     document.documentElement.style.setProperty('--mympd-thumbnail-size', settings.webuiSettings.uiThumbnailSize + "px");
-    document.documentElement.style.setProperty('--mympd-highlightcolor', settings.webuiSettings.uiHighlightColor);
+    document.documentElement.style.setProperty('--mympd-highlightcolor', settings.partitionColor);
 
     //default limit for all cards
     let limit = settings.webuiSettings.uiMaxElementsPerPage;

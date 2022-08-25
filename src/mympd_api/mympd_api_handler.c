@@ -1431,17 +1431,31 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             response->data = mympd_api_mounts_urlhandler_list(partition_state, response->data, request->id);
             break;
         case MYMPD_API_PARTITION_LIST:
-            response->data = mympd_api_partition_list(partition_state, response->data, request->id);
+            response->data = mympd_api_partition_list(mympd_state, response->data, request->id);
             break;
         case MYMPD_API_PARTITION_NEW:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
-                if (strcmp(sds_buf1, MPD_PARTITION_ALL) == 0) {
+                if (strcmp(sds_buf1, MPD_PARTITION_ALL) == 0 ||
+                    strcmp(sds_buf1, MPD_PARTITION_DEFAULT) == 0)
+                {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD,
                         JSONRPC_SEVERITY_ERROR, "Partition name invalid");
                     break;
                 }
                 rc = mpd_run_newpartition(partition_state->conn, sds_buf1);
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_newpartition", &result);
+            }
+            break;
+        case MYMPD_API_PARTITION_SAVE:
+            if (json_get_string_max(request->data, "$.params.color", &sds_buf1, vcb_ishexcolor, &error) == true) {
+                rc = mympd_api_settings_partition_save(partition_state, sds_buf1);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error saving partition settings");
+                }
             }
             break;
         case MYMPD_API_PARTITION_RM:

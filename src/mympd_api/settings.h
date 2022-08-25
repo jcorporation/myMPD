@@ -18,4 +18,5 @@ bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, 
 bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);
 bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);
 bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);
+bool mympd_api_settings_partition_save(struct t_partition_state *partition_state, sds color);
 #endif
