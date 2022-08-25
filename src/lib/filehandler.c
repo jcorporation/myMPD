@@ -285,6 +285,7 @@ bool clean_directory(const char *dir_name) {
         bool rc = rm_file(filepath);
         if (rc == false) {
             FREE_SDS(filepath);
+            closedir(directory);
             return false;
         }
     }
@@ -294,7 +295,7 @@ bool clean_directory(const char *dir_name) {
 }
 
 /**
- * Removes a directory and reports all errors
+ * Removes a directory and reports errors
  * @param dir_name directory to remove
  * @return true on success, else false
  */
