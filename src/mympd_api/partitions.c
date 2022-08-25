@@ -7,9 +7,12 @@
 #include "compile_time.h"
 #include "partitions.h"
 
+#include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mympd_state.h"
+#include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 #include "../mpd_client/errorhandler.h"
 #include "../mpd_client/partitions.h"
 #include "src/lib/api.h"
@@ -50,7 +53,6 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long
 
 /**
  * Disconnects and removes a partition.
- * Moves partitions outputs to default partition and disconnects the myMPD partition connection.
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
@@ -66,6 +68,8 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
     }
     //disconnect partition
     mpd_client_disconnect(partition_to_remove, MPD_DISCONNECTED);
+    //wait
+    my_msleep(100);
     //delete the partition
     bool rc = mpd_run_delete_partition(partition_state->conn, partition);
     bool result = false;
@@ -73,6 +77,9 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
     if (result == true) {
         //partition was removed
         partition_to_remove->conn_state = MPD_REMOVED;
+        sds dirpath = sdscatfmt(sdsempty(),"%S/state/%S",partition_state->mympd_state->config->workdir, partition);
+        clean_rm_directory(dirpath);
+        FREE_SDS(dirpath);
     }
     return buffer;
 }
