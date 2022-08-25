@@ -216,7 +216,7 @@ function parsePartitionList(obj) {
             tr.classList.add('not-clickable');
             tr.setAttribute('title', tn('Active partition'));
         }
-        const tdColor = elCreateText('span', {"class": ["mi", "me-2"]}, 'dashboard')
+        const tdColor = elCreateText('span', {"class": ["mi", "me-2"]}, 'dashboard');
         tdColor.style.color = obj.result.data[i].color;
         const td = elCreateEmpty('td', {});
         td.appendChild(tdColor);
