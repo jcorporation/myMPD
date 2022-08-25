@@ -284,6 +284,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
         //handle only partition specific mpd idle events
         partition_state->idle_mask = MPD_IDLE_QUEUE | MPD_IDLE_PLAYER | MPD_IDLE_MIXER | MPD_IDLE_OUTPUT | MPD_IDLE_OPTIONS;
     }
+    partition_state->set_conn_options = false;
 }
 
 /**

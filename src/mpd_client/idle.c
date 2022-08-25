@@ -250,6 +250,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 request != NULL ||                                       //api was called
                 jukebox_add_song == true ||                              //jukebox trigger
                 set_played == true ||                                    //playstate of song must be set
+                partition_state->set_conn_options == true ||             //connection options must be set
                 mympd_state->mpd_state->sticker_queue.length > 0)        //we must set waiting stickers
             {
                 MYMPD_LOG_DEBUG("\"%s\": Leaving mpd idle mode", partition_state->name);
@@ -266,6 +267,10 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 }
                 else {
                     mpd_response_finish(partition_state->conn);
+                }
+                //set mpd connection options
+                if (mpd_client_set_connection_options(partition_state) == true) {
+                    partition_state->set_conn_options = false;
                 }
                 //set song played state
                 if (set_played == true) {

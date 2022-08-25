@@ -35,6 +35,7 @@
 
 static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags);
 static sds set_invalid_value(sds buffer, sds key, sds value);
+static void enable_set_conn_options(struct t_mympd_state *mympd_state);
 
 /**
  * Saves connection specific settings
@@ -113,9 +114,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
         }
         if (binarylimit != mympd_state->mpd_state->mpd_binarylimit) {
             mympd_state->mpd_state->mpd_binarylimit = binarylimit;
-            if (mympd_state->partition_state->conn_state == MPD_CONNECTED) {
-                mpd_client_set_binarylimit(mympd_state->partition_state);
-            }
+            enable_set_conn_options(mympd_state);
         }
     }
     else if (strcmp(key, "mpdTimeout") == 0 && vtype == MJSON_TOK_NUMBER) {
@@ -126,10 +125,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
         }
         if (mpd_timeout != mympd_state->mpd_state->mpd_timeout) {
             mympd_state->mpd_state->mpd_timeout = mpd_timeout;
-            if (mympd_state->partition_state->conn_state == MPD_CONNECTED) {
-                mpd_connection_set_timeout(mympd_state->partition_state->conn, mympd_state->mpd_state->mpd_timeout);
-                check_for_mpd_error = true;
-            }
+            enable_set_conn_options(mympd_state);
         }
     }
     else if (strcmp(key, "mpdKeepalive") == 0) {
@@ -141,10 +137,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
         bool keepalive = vtype == MJSON_TOK_TRUE ? true : false;
         if (keepalive != mympd_state->mpd_state->mpd_keepalive) {
             mympd_state->mpd_state->mpd_keepalive = keepalive;
-            if (mympd_state->partition_state->conn_state == MPD_CONNECTED) {
-                mpd_connection_set_keepalive(mympd_state->partition_state->conn, mympd_state->mpd_state->mpd_keepalive);
-                check_for_mpd_error = true;
-            }
+            enable_set_conn_options(mympd_state);
         }
     }
     else {
@@ -839,4 +832,16 @@ static sds set_invalid_value(sds buffer, sds key, sds value) {
     buffer = sdscatfmt(buffer, "Invalid value for \"%s\": \"%s\"", key, value);
     MYMPD_LOG_WARN("%s", buffer);
     return buffer;
+}
+
+/**
+ * Enables the set_conn_options flag for all partitions
+ * @param mympd_state pointer to central myMPD state
+ */
+static void enable_set_conn_options(struct t_mympd_state *mympd_state) {
+    struct t_partition_state *partition_state = mympd_state->partition_state;
+    while (partition_state != NULL) {
+        partition_state->set_conn_options = true;
+        partition_state = partition_state->next;
+    }
 }

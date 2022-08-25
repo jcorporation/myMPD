@@ -13,6 +13,8 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "errorhandler.h"
+#include "mpd/binary.h"
+#include "mpd/connection.h"
 
 #include <string.h>
 
@@ -90,6 +92,16 @@ bool mpd_client_set_keepalive(struct t_partition_state *partition_state) {
 }
 
 /**
+ * Sets the mpd timeout
+ * @param partition_state pointer to partition state
+ * @return true on success, else false
+ */
+bool mpd_client_set_timeout(struct t_partition_state *partition_state) {
+    mpd_connection_set_timeout(partition_state->conn, partition_state->mpd_state->mpd_timeout);
+    return mympd_check_error_and_recover(partition_state);
+}
+
+/**
  * Sets the binary limit
  * @param partition_state pointer to partition state
  * @return true on success, else false
@@ -106,6 +118,17 @@ bool mpd_client_set_binarylimit(struct t_partition_state *partition_state) {
         FREE_SDS(message);
     }
     return rc;
+}
+
+/**
+ * Sets mpd connection options binarylimit, keepalive and timeout
+ * @param partition_state pointer to partition state
+ * @return true on success, else false
+ */
+bool mpd_client_set_connection_options(struct t_partition_state *partition_state) {
+    return mpd_client_set_binarylimit(partition_state) &&
+        mpd_client_set_keepalive(partition_state) &&
+        mpd_client_set_timeout(partition_state);
 }
 
 /**
