@@ -127,7 +127,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
             }
             //process mympd_api queue request
             if (request != NULL) {
-                MYMPD_LOG_DEBUG("Handle request (mpd disconnected)");
+                MYMPD_LOG_DEBUG("\"%s\": Handle request (mpd disconnected)", partition_state->name);
                 if (is_mympd_only_api_method(request->cmd_id) == true) {
                     //request that are handled without a mpd connection
                     mympd_api_handler(partition_state, request);
@@ -138,7 +138,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                         struct t_work_response *response = create_response(request);
                         response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                             JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "MPD disconnected");
-                        MYMPD_LOG_DEBUG("Send http response to connection %lld: %s", request->conn_id, response->data);
+                        MYMPD_LOG_DEBUG("\"%s\": Send http response to connection %lld: %s", partition_state->name, request->conn_id, response->data);
                         mympd_queue_push(web_server_queue, response, 0);
                     }
                     free_request(request);
@@ -302,7 +302,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                     if (mympd_state->mpd_state->feat_stickers == true &&
                         mympd_state->mpd_state->sticker_queue.length > 0)
                     {
-                        MYMPD_LOG_DEBUG("Processing sticker queue");
+                        MYMPD_LOG_DEBUG("\"%s\": Processing sticker queue", partition_state->name);
                         sticker_dequeue(&mympd_state->mpd_state->sticker_queue,
                             &mympd_state->mpd_state->sticker_cache, partition_state);
                     }
@@ -322,7 +322,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
             MYMPD_LOG_DEBUG("\"%s\": removed", partition_state->name);
             break;
         default:
-            MYMPD_LOG_ERROR("Invalid mpd connection state");
+            MYMPD_LOG_ERROR("\"%s\": Invalid mpd connection state", partition_state->name);
     }
 }
 
