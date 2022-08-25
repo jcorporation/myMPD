@@ -2114,32 +2114,32 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-        <div class="tab-content">
-          <div id="newPartition" class="tab-pane">
-            <form id="newPartitionForm">
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputPartitionName" data-phrase="Partition name"></label>
-                <div class="col-sm-8">
-                  <input id="inputPartitionName" class="form-control"/>
-                  <div class="invalid-feedback" data-phrase="Invalid partition name"></div>
+          <div class="tab-content">
+            <div id="newPartition" class="tab-pane">
+              <form id="newPartitionForm">
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="inputPartitionName" data-phrase="Partition name"></label>
+                  <div class="col-sm-8">
+                    <input id="inputPartitionName" class="form-control"/>
+                    <div class="invalid-feedback" data-phrase="Invalid partition name"></div>
+                  </div>
                 </div>
+              </form>
+            </div>
+            <div class="tab-pane active" id="listPartitions">
+              <div class="table-responsive-md overflow-auto">
+                <table class="table table-hover table-sm">
+                  <thead>
+                    <tr>
+                      <th data-phrase="Partition"></th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody id="listPartitionsList" class="clickable"></tbody>
+                </table>
               </div>
-            </form>
-          </div>
-          <div class="tab-pane active" id="listPartitions">
-            <div class="table-responsive-md overflow-auto">
-              <table class="table table-hover table-sm">
-                <thead>
-                  <tr>
-                    <th data-phrase="Partition"></th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody id="listPartitionsList" class="clickable"></tbody>
-              </table>
             </div>
           </div>
-        </div>
         </div>
         <div class="modal-footer justify-content-between" id="listPartitionsFooter">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
