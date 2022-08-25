@@ -11,7 +11,14 @@
 #include "../../src/lib/filehandler.h"
 #include "../../src/lib/sds_extras.h"
 
-UTEST(utility, test_testdir) {
+UTEST(filehandler, test_cleanup_rm_directory) {
+    int rc = testdir("/tmp/mympd-test/tmp2", "/tmp/mympd-test/tmp2", true);
+    ASSERT_EQ(rc, DIR_CREATED);
+    bool rc2 = clean_rm_directory("/tmp/mympd-test/tmp2");
+    ASSERT_TRUE(rc2);
+}
+
+UTEST(filehandler, test_testdir) {
     int rc = testdir("workdir", workdir, false);
     ASSERT_EQ(rc, DIR_EXISTS);
 
@@ -26,7 +33,7 @@ UTEST(utility, test_testdir) {
     ASSERT_EQ(rc, DIR_CREATE_FAILED);
 }
 
-UTEST(utility, test_write_data_to_file) {
+UTEST(filehandler, test_write_data_to_file) {
     sds file = sdsnew("/tmp/mympd-test/state/test");
     const char *data ="asdfjlkasdfjklsafd\nasfdsdfawaerwer\n";
     size_t len = strlen(data);
