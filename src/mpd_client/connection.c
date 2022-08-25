@@ -87,6 +87,12 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
  * @return true on success, else false
  */
 bool mpd_client_set_keepalive(struct t_partition_state *partition_state) {
+    if (partition_state->mpd_state->mpd_keepalive == true) {
+        MYMPD_LOG_INFO("\"%s\": Enabling keepalive", partition_state->name);
+    }
+    else {
+        MYMPD_LOG_INFO("\"%s\": Disabling keepalive", partition_state->name);
+    }
     bool rc = mpd_connection_set_keepalive(partition_state->conn, partition_state->mpd_state->mpd_keepalive);
     return mympd_check_rc_error_and_recover(partition_state, rc, "mpd_connection_set_keepalive");
 }
@@ -97,6 +103,7 @@ bool mpd_client_set_keepalive(struct t_partition_state *partition_state) {
  * @return true on success, else false
  */
 bool mpd_client_set_timeout(struct t_partition_state *partition_state) {
+    MYMPD_LOG_INFO("\"%s\": Setting timeout to %u", partition_state->name, partition_state->mpd_state->mpd_timeout);
     mpd_connection_set_timeout(partition_state->conn, partition_state->mpd_state->mpd_timeout);
     return mympd_check_error_and_recover(partition_state);
 }
