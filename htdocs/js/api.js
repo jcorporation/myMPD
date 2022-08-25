@@ -300,7 +300,12 @@ function sendAPIpartition(partition, method, params, callback, onerror) {
             typeof obj.error.message === 'string')
         {
             //show error message
-            showNotification(tn(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
+            if (appInited === false) {
+                showAppInitAlert(tn(obj.error.message, obj.error.data));
+            }
+            else {
+                showNotification(tn(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
+            }
             logError(ajaxRequest.responseText);
         }
         else if (obj.result &&
@@ -449,9 +454,7 @@ function webSocketConnect() {
                     getSettings();
                     break;
                 case 'update_outputs':
-                    sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {
-                        "partition":""
-                    }, parseOutputs);
+                    sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs);
                     break;
                 case 'update_started':
                     updateDBstarted(false, true);

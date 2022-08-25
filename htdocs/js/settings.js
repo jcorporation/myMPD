@@ -893,7 +893,7 @@ function applyFeatures() {
 }
 
 function parseMPDSettings() {
-    document.getElementById('partitionName').textContent = settings.partition;
+    document.getElementById('partitionName').textContent = localSettings.partition;
 
     if (settings.webuiSettings.uiBgCover === true) {
         setBackgroundImage(domCache.body, currentSongObj.uri);
@@ -1439,4 +1439,10 @@ function setLoglevel() {
     }, function() {
         settings.loglevel = loglevel
     }, false);
+}
+
+function resetLocalSettings() {
+    for (const key in localSettings) {
+        localStorage.removeItem(key);
+    }
 }

@@ -204,7 +204,7 @@ function parsePartitionList(obj) {
     for (let i = 0, j = obj.result.data.length; i < j; i++) {
         const tr = elCreateEmpty('tr', {});
         setData(tr, 'partition', obj.result.data[i].name);
-        if (obj.result.data[i].name !== settings.partition) {
+        if (obj.result.data[i].name !== localSettings.partition) {
             tr.setAttribute('title', tn('Switch to'));
         }
         else {
@@ -212,7 +212,7 @@ function parsePartitionList(obj) {
             tr.setAttribute('title', tn('Active partition'));
         }
         const td = elCreateEmpty('td', {});
-        if (obj.result.data[i].name === settings.partition) {
+        if (obj.result.data[i].name === localSettings.partition) {
             td.classList.add('fw-bold');
             td.textContent = obj.result.data[i].name + ' (' + tn('current') + ')';
         }
@@ -222,7 +222,7 @@ function parsePartitionList(obj) {
         tr.appendChild(td);
         const partitionActionTd = elCreateEmpty('td', {"data-col": "Action"});
         if (obj.result.data[i].name !== 'default' &&
-            obj.result.data[i].name !== settings.partition)
+            obj.result.data[i].name !== localSettings.partition)
         {
             partitionActionTd.appendChild(
                 elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["mi", "color-darkgrey", "me-2"]}, 'delete')

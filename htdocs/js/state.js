@@ -217,7 +217,7 @@ function parseState(obj) {
 
     //check if we need to get settings
     let getNewSettings = false;
-    if (settings.partition !== obj.result.partition) {
+    if (localSettings.partition !== obj.result.partition) {
         //partition has changed, fetch new settings
         getNewSettings = true;
     }

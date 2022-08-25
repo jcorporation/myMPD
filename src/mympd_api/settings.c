@@ -748,10 +748,6 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
 
         enum mpd_single_state single_state = mpd_status_get_single_state(status);
         buffer = tojson_char(buffer, "single", mpd_lookup_single_state(single_state), true);
-
-        if (mympd_state->mpd_state->feat_partitions == true) {
-            buffer = tojson_char(buffer, "partition", mpd_status_get_partition(status), true);
-        }
         buffer = tojson_uint(buffer, "crossfade", mpd_status_get_crossfade(status), true);
         buffer = tojson_double(buffer, "mixrampDb", mpd_status_get_mixrampdb(status), true);
         buffer = tojson_double(buffer, "mixrampDelay", mpd_status_get_mixrampdelay(status), true);

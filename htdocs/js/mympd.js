@@ -555,12 +555,21 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
 function showAppInitAlert(text) {
     const spa = document.getElementById('splashScreenAlert');
     elClear(spa);
-    spa.appendChild(elCreateText('p', {"class": ["text-danger"]}, tn(text)));
-    const btn = elCreateText('button', {"class": ["btn", "btn-danger"]}, tn('Reload'));
-    btn.addEventListener('click', function() {
+    spa.appendChild(elCreateText('p', {"class": ["text-light"]}, tn(text)));
+    const reloadBtn = elCreateText('button', {"class": ["btn", "btn-light", "me-2"]}, tn('Reload'));
+    reloadBtn.addEventListener('click', function() {
         clearAndReload();
     }, false);
-    spa.appendChild(elCreateNode('p', {}, btn));
+    const resetBtn = elCreateText('button', {"class": ["btn", "btn-light"]}, tn('Reset'));
+    resetBtn.addEventListener('click', function() {
+        resetLocalSettings();
+        clearAndReload();
+    }, false);
+    spa.appendChild(elCreateNodes('p', {}, [
+            reloadBtn,
+            resetBtn
+        ])
+    );
 }
 
 function clearCache() {
