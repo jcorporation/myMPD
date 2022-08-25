@@ -622,6 +622,7 @@ function populateSettingsFrm() {
     bgImageInput.value = getBgImageText(settings.webuiSettings.uiBgImage);
 
     toggleThemeInputs(settings.webuiSettings.uiTheme);
+    document.getElementById('inputHighlightColor').value = settings.partitionColor;
 
     //locales
     const localeList = document.getElementById('inputWebUIsettinguiLocale');
@@ -1129,10 +1130,16 @@ function saveSettings(closeModal) {
         };
 
         if (closeModal === true) {
-            sendAPI("MYMPD_API_SETTINGS_SET", params, saveSettingsClose, true);
+            sendAPI('MYMPD_API_SETTINGS_SET', params, saveSettingsClose, true);
+            sendAPI('MYMPD_API_PARTITION_SAVE', {
+                "color": document.getElementById('inputHighlightColor').value
+            }, null, false);
         }
         else {
-            sendAPI("MYMPD_API_SETTINGS_SET", params, saveSettingsApply, true);
+            sendAPI('MYMPD_API_SETTINGS_SET', params, saveSettingsApply, true);
+            sendAPI('MYMPD_API_PARTITION_SAVE', {
+                "color": document.getElementById('inputHighlightColor').value
+            }, null, false);
         }
     }
 }

@@ -1104,11 +1104,6 @@ const APImethods = {
                         "example": "theme-dark",
                         "desc": "\"theme-dark\", \"theme-light\" or \"theme-default\""
                     },
-                    "uiHighlightColor": {
-                        "type": "text",
-                        "example": "#28a745",
-                        "desc": "Highlight color"
-                    },
                     "uiThumbnailSize": {
                         "type": "int",
                         "example": 175,

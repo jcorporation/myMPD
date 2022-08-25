@@ -674,13 +674,6 @@ const webuiSettingsDefault = {
         "form": "themeFrm",
         "onChange": "eventChangeTheme"
     },
-    "uiHighlightColor": {
-        "defaultValue": "#28a745",
-        "inputType": "color",
-        "title": "Highlight color",
-        "form": "themeFrm",
-        "reset": true
-    },
     "uiThumbnailSize": {
         "defaultValue": 175,
         "inputType": "input",
