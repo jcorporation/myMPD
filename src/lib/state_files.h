@@ -18,6 +18,6 @@ bool state_file_rw_bool(sds workdir, const char *dir, const char *name, bool def
 int state_file_rw_int(sds workdir, const char *dir, const char *name, int def_value, int min, int max, bool warn);
 unsigned state_file_rw_uint(sds workdir, const char *dir, const char *name, unsigned def_value, unsigned min, unsigned max, bool warn);
 long state_file_rw_long(sds workdir, const char *dir, const char *name, long def_value, long min, long max, bool warn);
-bool state_file_write(sds workdir, const char *dir, const char *name, const char *value);
+bool state_file_write(sds workdir, const char *subdir, const char *name, const char *value);
 sds camel_to_snake(sds text);
 #endif

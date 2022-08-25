@@ -295,7 +295,7 @@ bool clean_directory(const char *dir_name) {
 
 /**
  * Removes a directory and reports all errors
- * @param dirpath directory to remove
+ * @param dir_name directory to remove
  * @return true on success, else false
  */
 bool rm_directory(const char *dir_name) {

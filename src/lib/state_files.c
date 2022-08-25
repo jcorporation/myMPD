@@ -192,15 +192,15 @@ unsigned state_file_rw_uint(sds workdir, const char *dir, const char *name, unsi
 /**
  * Writes the statefile
  * @param workdir mympd working directory
- * @param dir subdir 
+ * @param subdir subdir
  * @param name filename to read/write
  * @param value default value as sds string (is freed by this function)
  * @return true on success else false
  */
-bool state_file_write(sds workdir, const char *dir, const char *name, const char *value) {
-    sds state_dir = sdscatfmt(sdsempty(), "%S/%s", workdir, dir);
+bool state_file_write(sds workdir, const char *subdir, const char *name, const char *value) {
+    sds state_dir = sdscatfmt(sdsempty(), "%S/%s", workdir, subdir);
     bool rc = false;
-    if (testdir(name, state_dir, true, true) < 2) {
+    if (testdir(subdir, state_dir, true, true) < 2) {
         //dir exists or was created, write state file
         sds filepath = sdscatfmt(sdsempty(), "%S/%s", state_dir, name);
         rc = write_data_to_file(filepath, value, strlen(value));
