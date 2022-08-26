@@ -210,11 +210,33 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/appicon-192.png", 23, "image/png", false, true, appicon_192_png_data, appicon_192_png_size},
         {"/assets/appicon-512.png", 23, "image/png", false, true, appicon_512_png_data, appicon_512_png_size},
         {"/assets/ligatures.json", 22, "application/json", true, true, ligatures_json_data, ligatures_json_size},
-        {"/assets/i18n/de-DE.json", 23, "application/json", true, true, i18n_de_DE_json_data, i18n_de_DE_json_size},
+        #ifdef I18N_de_DE
+            {"/assets/i18n/de-DE.json", 23, "application/json", true, true, i18n_de_DE_json_data, i18n_de_DE_json_size},
+        #endif
+        #ifdef I18N_en_US
         {"/assets/i18n/en-US.json", 23, "application/json", true, true, i18n_en_US_json_data, i18n_en_US_json_size},
+        #endif
+        #ifdef I18N_es_VE
+        {"/assets/i18n/es-VE.json", 23, "application/json", true, true, i18n_es_VE_json_data, i18n_es_VE_json_size},
+        #endif
+        #ifdef I18N_fi_FI
+        {"/assets/i18n/fi-FI.json", 23, "application/json", true, true, i18n_fi_FI_json_data, i18n_fi_FI_json_size},
+        #endif
+        #ifdef I18N_fr_FR
+        {"/assets/i18n/fr-FR.json", 23, "application/json", true, true, i18n_fr_FR_json_data, i18n_fr_FR_json_size},
+        #endif
+        #ifdef I18N_it_IT
+        {"/assets/i18n/it-IT.json", 23, "application/json", true, true, i18n_it_IT_json_data, i18n_it_IT_json_size},
+        #endif
+        #ifdef I18N_ko_KR
         {"/assets/i18n/ko-KR.json", 23, "application/json", true, true, i18n_ko_KR_json_data, i18n_ko_KR_json_size},
+        #endif
+        #ifdef I18N_nl_NL
         {"/assets/i18n/nl-NL.json", 23, "application/json", true, true, i18n_nl_NL_json_data, i18n_nl_NL_json_size},
+        #endif
+        #ifdef I18N_zh_CN
         {"/assets/i18n/zh-CN.json", 24, "application/json", true, true, i18n_zh_CN_json_data, i18n_zh_CN_json_size},
+        #endif
         {NULL, 0, NULL, false, false, NULL, 0}
     };
     //decode uri

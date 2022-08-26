@@ -157,7 +157,7 @@ setversion() {
   DATE_F3=$(date --date=@"${TS}" +"%d %b %Y")
   echo "Setting version to ${VERSION} and date to ${DATE_F2}"
 
-  for F in htdocs/sw.js contrib/packaging/alpine/APKBUILD contrib/packaging/arch/PKGBUILD \
+  for F in contrib/packaging/alpine/APKBUILD contrib/packaging/arch/PKGBUILD \
   		contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog \
   		contrib/packaging/openwrt/Makefile contrib/man/mympd.1 contrib/man/mympd-script.1
   do
@@ -305,7 +305,7 @@ createassets() {
   jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default" | \
     while read -r CODE
     do
-      minify js "$STARTPATH/src/i18n/${CODE}.json" "$MYMPD_BUILDDIR/htdocs/assets/i18n/${CODE}.min.json"
+      minify js "$STARTPATH/src/i18n/json/${CODE}.json" "$MYMPD_BUILDDIR/htdocs/assets/i18n/${CODE}.min.json"
       $ZIPCAT "$MYMPD_BUILDDIR/htdocs/assets/i18n/${CODE}.min.json" > "$MYMPD_BUILDDIR/htdocs/assets/i18n/${CODE}.json.gz"
     done
 
@@ -1053,6 +1053,13 @@ createi18n() {
   printf "const i18n = " > "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
   head -c -1 "src/i18n/json/i18n.json" >> "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
   echo ";" >> "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
+  #Update serviceworker
+  TO_CACHE=""
+  for CODE in $(jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default")
+    do
+      TO_CACHE="${TO_CACHE}\nsubdir + '/assets/i18n/${CODE}.json',"
+    done
+  sed -e "s|__VERSION__|${VERSION}|g" -e "s|__I18NASSETS__|${TO_CACHE}|g" htdocs/sw.js.in > htdocs/sw.js
 }
 
 materialicons() {

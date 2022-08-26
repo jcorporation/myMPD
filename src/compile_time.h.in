@@ -27,6 +27,17 @@
 #cmakedefine ENABLE_LUA
 #cmakedefine ENABLE_IPV6
 
+//translation files
+#cmakedefine I18N_de_DE
+#cmakedefine I18N_en_US
+#cmakedefine I18N_es_VE
+#cmakedefine I18N_fi_FI
+#cmakedefine I18N_fr_FR
+#cmakedefine I18N_it_IT
+#cmakedefine I18N_ko_KR
+#cmakedefine I18N_nl_NL
+#cmakedefine I18N_zh_CN
+
 //myMPD version from cmake
 #define MYMPD_VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR}
 #define MYMPD_VERSION_MINOR ${CPACK_PACKAGE_VERSION_MINOR}
