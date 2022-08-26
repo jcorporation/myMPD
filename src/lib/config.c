@@ -207,13 +207,12 @@ static sds mympd_getenv_string(const char *env_var, const char *default_value, v
         return sdsnew(default_value);
     }
     sds value = sdsnew(env_value);
-    if (vcb == NULL) {
+    if (vcb == NULL ||
+        vcb(value) == true)
+    {
         return value;
     }
-    bool rc = vcb(value);
-    if (rc == true) {
-        return value;
-    }
+    FREE_SDS(value);
     return sdsnew(default_value);
 }
 
