@@ -233,11 +233,11 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/appicon-192.png", 23, "image/png", false, true, appicon_192_png_data, appicon_192_png_size},
         {"/assets/appicon-512.png", 23, "image/png", false, true, appicon_512_png_data, appicon_512_png_size},
         {"/assets/ligatures.json", 22, "application/json", true, true, ligatures_json_data, ligatures_json_size},
-        {"/assets/i18n/cn-CHS.json", 24, "application/json", true, true, i18n_cn_CHS_json_data, i18n_cn_CHS_json_size},
         {"/assets/i18n/de-DE.json", 23, "application/json", true, true, i18n_de_DE_json_data, i18n_de_DE_json_size},
         {"/assets/i18n/en-US.json", 23, "application/json", true, true, i18n_en_US_json_data, i18n_en_US_json_size},
         {"/assets/i18n/ko-KR.json", 23, "application/json", true, true, i18n_ko_KR_json_data, i18n_ko_KR_json_size},
         {"/assets/i18n/nl-NL.json", 23, "application/json", true, true, i18n_nl_NL_json_data, i18n_nl_NL_json_size},
+        {"/assets/i18n/zh-CN.json", 24, "application/json", true, true, i18n_zh_CN_json_data, i18n_zh_CN_json_size},
         {NULL, 0, NULL, false, false, NULL, 0}
     };
     //decode uri

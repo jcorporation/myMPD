@@ -29,11 +29,11 @@ INCBIN(combined_js, "htdocs/js/combined.js.gz");
 INCBIN(MaterialIcons_Regular_woff2, "htdocs/assets/MaterialIcons-Regular.woff2.gz");
 INCBIN(ligatures_json, "htdocs/assets/ligatures.json.gz");
 //translation files
-INCBIN(i18n_cn_CHS_json, "htdocs/assets/i18n/cn-CHS.json.gz");
 INCBIN(i18n_de_DE_json, "htdocs/assets/i18n/de-DE.json.gz");
 INCBIN(i18n_en_US_json, "htdocs/assets/i18n/en-US.json.gz");
 INCBIN(i18n_ko_KR_json, "htdocs/assets/i18n/ko-KR.json.gz");
 INCBIN(i18n_nl_NL_json, "htdocs/assets/i18n/nl-NL.json.gz");
+INCBIN(i18n_zh_CN_json, "htdocs/assets/i18n/zh-CN.json.gz");
 //uncompressed assets
 INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");
 INCBIN(appicon_512_png, "../htdocs/assets/appicon-512.png");
