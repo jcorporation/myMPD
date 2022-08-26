@@ -220,6 +220,8 @@ minify() {
 }
 
 createassets() {
+  check_cmd jq
+
   [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="release"
 
   echo "Creating assets in $MYMPD_BUILDDIR"
@@ -300,13 +302,12 @@ createassets() {
   done
 
   echo "Compressing i18n json"
-  for I18N in src/i18n/json/*.json
-  do
-    BASENAME=$(basename "${I18N}" .json)
-    minify js "$I18N" "$MYMPD_BUILDDIR/htdocs/assets/i18n/${BASENAME}.min.json"
-    echo "$DST"
-    $ZIPCAT "$MYMPD_BUILDDIR/htdocs/assets/i18n/${BASENAME}.min.json" > "$MYMPD_BUILDDIR/htdocs/assets/i18n/${BASENAME}.json.gz"
-  done
+  jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default" | \
+    while read -r CODE
+    do
+      minify js "$STARTPATH/src/i18n/${CODE}.json" "$MYMPD_BUILDDIR/htdocs/assets/i18n/${CODE}.min.json"
+      $ZIPCAT "$MYMPD_BUILDDIR/htdocs/assets/i18n/${CODE}.min.json" > "$MYMPD_BUILDDIR/htdocs/assets/i18n/${CODE}.json.gz"
+    done
 
   echo "Minifying and compressing html"
   minify html htdocs/index.html "$MYMPD_BUILDDIR/htdocs/index.html"
@@ -387,6 +388,8 @@ installrelease() {
 }
 
 builddebug() {
+  check_cmd jq
+
   MYMPD_BUILDDIR="debug"
   createi18n "$MYMPD_BUILDDIR"
 
@@ -396,14 +399,20 @@ builddebug() {
   if [ "$EMBEDDED_ASSETS" = "OFF" ]
   then
     echo "Copy dist assets"
-    cp "$PWD/dist/bootstrap/compiled/custom.css" "$PWD/htdocs/css/bootstrap.css"
-    cp "$PWD/dist/bootstrap-native/bootstrap-native.js" "$PWD/htdocs/js/bootstrap-native.js"
-    cp "$PWD/dist/long-press-event/long-press-event.js" "$PWD/htdocs/js/long-press-event.js"
-    cp "$PWD/dist/material-icons/MaterialIcons-Regular.woff2" "$PWD/htdocs/assets/MaterialIcons-Regular.woff2"
-    cp "$PWD/dist/material-icons/ligatures.json" "$PWD/htdocs/assets/ligatures.json"
-    cp "$PWD/debug/htdocs/js/i18n.js" "$PWD/htdocs/js/i18n.js"
-    install -d "$PWD/htdocs/assets/i18n"
-    cp "$PWD"/src/i18n/json/*.json "$PWD/htdocs/assets/i18n/"
+    cp -v "$STARTPATH/dist/bootstrap/compiled/custom.css" "$STARTPATH/htdocs/css/bootstrap.css"
+    cp -v "$STARTPATH/dist/bootstrap-native/bootstrap-native.js" "$STARTPATH/htdocs/js/bootstrap-native.js"
+    cp -v "$STARTPATH/dist/long-press-event/long-press-event.js" "$STARTPATH/htdocs/js/long-press-event.js"
+    cp -v "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2" "$STARTPATH/htdocs/assets/MaterialIcons-Regular.woff2"
+    cp -v "$STARTPATH/dist/material-icons/ligatures.json" "$STARTPATH/htdocs/assets/ligatures.json"
+    #translation files
+    cp -v "$STARTPATH/debug/htdocs/js/i18n.js" "$STARTPATH/htdocs/js/i18n.js"
+    rm -fr "$STARTPATH/htdocs/assets/i18n/"
+    install -d "$STARTPATH/htdocs/assets/i18n"
+    jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default" | \
+      while read -r CODE
+      do
+        cp -v "$STARTPATH/src/i18n/json/$CODE.json" "$STARTPATH/htdocs/assets/i18n/"
+      done
   else
     createassets
   fi
@@ -451,8 +460,9 @@ cleanup() {
   rm -f htdocs/assets/ligatures.json
   rm -rf htdocs/assets/i18n
 
-  #doxygen
+  #generated documentation
   rm -rf docs/doxygen
+  rm -rf docs/jsdoc
 
   #compilation database
   rm -f src/compile_commands.json
@@ -639,7 +649,7 @@ check() {
 
 prepare() {
   cleanup
-  SRC=$(ls -d "$PWD"/* -1)
+  SRC=$(ls -d "$STARTPATH"/* -1)
   mkdir -p package/build
   cd package/build || exit 1
   for F in $SRC
@@ -850,32 +860,34 @@ installdeps() {
     fi
     apt-get install -y --no-install-recommends \
 	    gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-	    build-essential pkg-config libpcre2-dev gzip
+	    build-essential pkg-config libpcre2-dev gzip jq
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip
+    pacman -S gcc cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip jq
   elif [ -f /etc/alpine-release ]
   then
     #alpine
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev \
-    	alpine-sdk linux-headers pkgconf pcre2-dev gzip
+    	alpine-sdk linux-headers pkgconf pcre2-dev gzip jq
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	    lua-devel unzip pcre2-devel gzip
+	    lua-devel unzip pcre2-devel gzip jq
   elif [ -f /etc/redhat-release ]
   then
     #fedora
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	    lua-devel unzip pcre2-devel gzip
+	    lua-devel unzip pcre2-devel gzip jq
   else
     echo_warn "Unsupported distribution detected."
     echo "You should manually install:"
     echo "  - gcc"
     echo "  - cmake"
     echo "  - perl"
+    echo "  - gzip"
+    echo "  - jq"
     echo "  - openssl (devel)"
     echo "  - flac (devel)"
     echo "  - libid3tag (devel)"
