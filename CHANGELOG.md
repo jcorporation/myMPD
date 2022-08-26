@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v10.0.0
+## myMPD v10.0.0 (not yet released)
 
 This major release adds concurrent MPD partition support to myMPD. myMPD connects now to all MPD partitions simutanously and maintance separate states and settings for each partition. Each browser instance can now select the MPD partition to control.
 

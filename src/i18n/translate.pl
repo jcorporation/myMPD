@@ -1,6 +1,6 @@
 #!/usr/bin/perl -w
 #
-# Extracts the phrases from source, compare it to already translated phrases
+# Extracts the phrases from source, compares it to already translated phrases
 # writes the i18n.json and reports the differences
 
 use strict;
