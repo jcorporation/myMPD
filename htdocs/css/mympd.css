@@ -522,6 +522,17 @@ div#homeActions {
   padding: 0.5rem;
 }
 
+@media only screen and (max-width: 400px) and (min-width: 300px) {
+  .card-grid {
+    width: calc((100vw - 4rem) / 2);
+  }
+
+  .album-cover-grid {
+    width: calc((100vw - 4rem) / 2);
+    height: calc((100vw - 4rem) / 2);
+  }
+}
+
 .album-cover-loading {
   background-image: url("../assets/coverimage-mympd.svg");
 }
