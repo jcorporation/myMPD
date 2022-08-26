@@ -12,6 +12,7 @@ This is a small bug fix release.
 
 - Fix: rename cn-CHS to zh-CN #820
 - Fix: read env variables at first startup #821
+- Upd: fr-FR translation
 
 ***
 
