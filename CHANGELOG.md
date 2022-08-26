@@ -4,6 +4,17 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v9.5.3 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: rename cn-CHS to zh-CN #820
+- Fix: read env variables at first startup #821
+
+***
+
 ## myMPD v9.5.2 (2022-08-24)
 
 This is a small bug fix release.
