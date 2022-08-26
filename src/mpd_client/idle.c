@@ -269,7 +269,9 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                     mpd_response_finish(partition_state->conn);
                 }
                 //set mpd connection options
-                if (mpd_client_set_connection_options(partition_state) == true) {
+                if (partition_state->set_conn_options == true &&
+                    mpd_client_set_connection_options(partition_state) == true)
+                {
                     partition_state->set_conn_options = false;
                 }
                 //set song played state
