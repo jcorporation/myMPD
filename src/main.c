@@ -379,13 +379,13 @@ int main(int argc, char **argv) {
     uid_t startup_uid = getuid();
     MYMPD_LOG_DEBUG("myMPD started as user id %u", startup_uid);
 
-    //read configuration from environment or set default values
-    mympd_config_defaults(config);
-
     //check initial directories
     if (check_dirs_initial(config, startup_uid) == false) {
         goto cleanup;
     }
+
+    //read configuration from environment or set default values
+    mympd_config_defaults(config);
 
     //go into workdir
     errno = 0;
