@@ -287,6 +287,8 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
             return false;
         }
         mympd_state->mpd_state->tag_list = sds_replace(mympd_state->mpd_state->tag_list, value);
+        //set enabled tags for all connections
+        enable_set_conn_options(mympd_state);
     }
     else if (strcmp(key, "tagListSearch") == 0 && vtype == MJSON_TOK_STRING) {
         if (vcb_istaglist(value) == false) {

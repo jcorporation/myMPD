@@ -100,8 +100,6 @@ static void *mpd_worker_run(void *arg) {
     struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *) arg;
 
     if (mpd_client_connect(mpd_worker_state->partition_state) == true) {
-        //set interesting tags
-        enable_mpd_tags(mpd_worker_state->partition_state, &mpd_worker_state->partition_state->mpd_state->tags_mympd);
         //call api handler
         mpd_worker_api(mpd_worker_state);
         //disconnect

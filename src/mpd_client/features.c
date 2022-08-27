@@ -226,7 +226,6 @@ static void mpd_client_feature_mpd_tags(struct t_partition_state *partition_stat
         MYMPD_LOG_NOTICE("%s", logline);
         check_tags(partition_state->mpd_state->tag_list, "tag_list",
             &partition_state->mpd_state->tags_mympd, &partition_state->mpd_state->tags_mpd);
-        enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
     }
 
     bool has_albumartist = mpd_client_tag_exists(&partition_state->mpd_state->tags_mympd, MPD_TAG_ALBUM_ARTIST);

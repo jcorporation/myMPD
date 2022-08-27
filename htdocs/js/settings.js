@@ -114,7 +114,7 @@ function togglePlaymode(option) {
     }
     const params = {};
     params[option] = value;
-    sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", params);
+    sendAPI('MYMPD_API_PLAYER_OPTIONS_SET', params);
     showNotification(tn(title), '', 'queue', 'info');
 }
 
@@ -211,7 +211,7 @@ function saveConnection() {
         formOK = false;
     }
     if (formOK === true) {
-        sendAPI("MYMPD_API_CONNECTION_SAVE", {
+        sendAPIpartition('default', 'MYMPD_API_CONNECTION_SAVE', {
             "mpdHost": mpdHostEl.value,
             "mpdPort": Number(mpdPortEl.value),
             "mpdPass": mpdPassEl.value,
@@ -237,7 +237,7 @@ function saveConnectionClose(obj) {
 
 function getSettings(onerror) {
     settingsParsed = 'no';
-    sendAPI("MYMPD_API_SETTINGS_GET", {}, parseSettings, onerror);
+    sendAPI('MYMPD_API_SETTINGS_GET', {}, parseSettings, onerror);
 }
 
 function checkConsume() {
@@ -1018,11 +1018,6 @@ function parseMPDSettings() {
 }
 
 //eslint-disable-next-line no-unused-vars
-function resetSettings() {
-    sendAPI("MYMPD_API_SETTINGS_RESET", {}, getSettings);
-}
-
-//eslint-disable-next-line no-unused-vars
 function saveSettings(closeModal) {
     cleanupModalId('modalSettings');
     let formOK = true;
@@ -1130,13 +1125,13 @@ function saveSettings(closeModal) {
         };
 
         if (closeModal === true) {
-            sendAPI('MYMPD_API_SETTINGS_SET', params, saveSettingsClose, true);
+            sendAPIpartition('default', 'MYMPD_API_SETTINGS_SET', params, saveSettingsClose, true);
             sendAPI('MYMPD_API_PARTITION_SAVE', {
                 "color": document.getElementById('inputHighlightColor').value
             }, null, false);
         }
         else {
-            sendAPI('MYMPD_API_SETTINGS_SET', params, saveSettingsApply, true);
+            sendAPIpartition('default', 'MYMPD_API_SETTINGS_SET', params, saveSettingsApply, true);
             sendAPI('MYMPD_API_PARTITION_SAVE', {
                 "color": document.getElementById('inputHighlightColor').value
             }, null, false);

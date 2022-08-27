@@ -13,8 +13,9 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "errorhandler.h"
-#include "mpd/binary.h"
-#include "mpd/connection.h"
+#include "features.h"
+#include "tags.h"
+#include "mpd/client.h"
 
 #include <string.h>
 
@@ -71,10 +72,12 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
 
     MYMPD_LOG_NOTICE("\"%s\": Connected to MPD", partition_state->name);
     partition_state->conn_state = MPD_CONNECTED;
-    //set keepalive
-    mpd_client_set_keepalive(partition_state);
-    //set binary limit
-    mpd_client_set_binarylimit(partition_state);
+    //get mpd features
+    if (partition_state->is_default == true) {
+        mpd_client_mpd_features(partition_state);
+    }
+    //set connection options
+    mpd_client_set_connection_options(partition_state);
     //reset reconnection intervals
     partition_state->reconnect_interval = 0;
     partition_state->reconnect_time = 0;
@@ -102,7 +105,7 @@ bool mpd_client_set_keepalive(struct t_partition_state *partition_state) {
  * @return true on success, else false
  */
 bool mpd_client_set_timeout(struct t_partition_state *partition_state) {
-    MYMPD_LOG_INFO("\"%s\": Setting timeout to %u", partition_state->name, partition_state->mpd_state->mpd_timeout);
+    MYMPD_LOG_INFO("\"%s\": Setting timeout to %u ms", partition_state->name, partition_state->mpd_state->mpd_timeout);
     mpd_connection_set_timeout(partition_state->conn, partition_state->mpd_state->mpd_timeout);
     return true;
 }
@@ -115,7 +118,7 @@ bool mpd_client_set_timeout(struct t_partition_state *partition_state) {
 bool mpd_client_set_binarylimit(struct t_partition_state *partition_state) {
     bool rc = true;
     if (partition_state->mpd_state->feat_binarylimit == true) {
-        MYMPD_LOG_INFO("\"%s\": Setting binarylimit to %u", partition_state->name, partition_state->mpd_state->mpd_binarylimit);
+        MYMPD_LOG_INFO("\"%s\": Setting binarylimit to %u kB", partition_state->name, partition_state->mpd_state->mpd_binarylimit);
         rc = mpd_run_binarylimit(partition_state->conn, partition_state->mpd_state->mpd_binarylimit);
         sds message = sdsempty();
         if (mympd_check_rc_error_and_recover_notify(partition_state, &message, rc, "mpd_run_binarylimit") == false) {
@@ -135,7 +138,8 @@ bool mpd_client_set_binarylimit(struct t_partition_state *partition_state) {
 bool mpd_client_set_connection_options(struct t_partition_state *partition_state) {
     return mpd_client_set_binarylimit(partition_state) &&
         mpd_client_set_keepalive(partition_state) &&
-        mpd_client_set_timeout(partition_state);
+        mpd_client_set_timeout(partition_state) &&
+        enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);;
 }
 
 /**
