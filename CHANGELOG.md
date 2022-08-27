@@ -36,9 +36,10 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: fr-FR translation
 - Fix: rename cn-CHS to zh-CN #820
 - Fix: read env variables at first startup #821
-- Upd: fr-FR translation
+- Fix: use correct columns to fetch current queue view #822
 
 ***
 
