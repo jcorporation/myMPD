@@ -900,7 +900,6 @@ updatelibmympdclient() {
   check_cmd git meson
 
   cd dist/libmpdclient || exit 1
-  STARTDIR=$(pwd)
 
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
@@ -908,7 +907,7 @@ updatelibmympdclient() {
   cd libmpdclient || exit 1
   meson . output -Dbuffer_size=8192
 
-  cd "$STARTDIR" || exit 1
+  cd "$STARTPATH/dist/libmpdclient" || exit 1
   install -d src
   install -d include/mpd/
 
@@ -927,25 +926,24 @@ updatelibmympdclient() {
 updatebootstrapnative() {
   check_cmd git npm
   cd dist/bootstrap-native || exit 1
-  STARTDIR=$(pwd)
 
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
   git clone --depth=1 -b master https://github.com/thednp/bootstrap.native
   cd bootstrap.native
   npm install @rollup/plugin-buble
-  cp "$STARTDIR/mympd-config.js" src/
-  cp "$STARTDIR/mympd-init.js" src/util/
+  cp "$STARTPATH/dist/bootstrap-native/mympd-config.js" src/
+  cp "$STARTPATH/dist/bootstrap-native/mympd-init.js" src/util/
   npm run custom INPUTFILE:src/mympd-config.js,OUTPUTFILE:dist/bootstrap-mympd.js,MIN:false,FORMAT:umd
   npm run custom INPUTFILE:src/mympd-config.js,OUTPUTFILE:dist/bootstrap-mympd.min.js,MIN:true,FORMAT:umd
 
-  cp dist/bootstrap-mympd.js "$STARTDIR/bootstrap-native.js"
-  cp dist/bootstrap-mympd.min.js "$STARTDIR/bootstrap-native.min.js"
+  cp dist/bootstrap-mympd.js "$STARTPATH/dist/bootstrap-native/bootstrap-native.js"
+  cp dist/bootstrap-mympd.min.js "$STARTPATH/dist/bootstrap-native/bootstrap-native.min.js"
 
-  cd "$STARTDIR" || exit 1
+  cd "$STARTPATH" || exit 1
   rm -rf "$TMPDIR"
 
-  if [ -d ../../debug ]
+  if [ -d debug ]
   then
   	cp bootstrap-native.js ../../htdocs/js/
   fi
@@ -1227,7 +1225,7 @@ run_eslint() {
   	fi
   done
   echo "Check for subdir usage"
-  if grep -P "subdir\s*\+\s*\'[^/]" htdocs/js/*.js
+  if grep -q -P "subdir\s*\+\s*\'[^/]" htdocs/js/*.js
   then
     echo_error "Wrong path found"
     rc=1
@@ -1414,12 +1412,10 @@ case "$ACTION" in
     then
       exit 1
     fi
-    pwd
     if ! run_eslint
     then
       exit 1
     fi
-    pwd
     if ! run_stylelint
     then
       exit 1
