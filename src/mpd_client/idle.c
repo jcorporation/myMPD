@@ -172,7 +172,6 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                     break;
                 }
             }
-            send_jsonrpc_event(JSONRPC_EVENT_MPD_CONNECTED, partition_state->name);
             if (partition_state->is_default == true) {
                 //initiate cache updates
                 update_mympd_caches(mympd_state->mpd_state, &mympd_state->timer_list, 2);
@@ -192,6 +191,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 MYMPD_LOG_ERROR("\"%s\": Entering idle mode failed", partition_state->name);
                 partition_state->conn_state = MPD_FAILURE;
             }
+            send_jsonrpc_event(JSONRPC_EVENT_MPD_CONNECTED, partition_state->name);
             mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_CONNECTED, partition_state->name);
             break;
         case MPD_FAILURE:
@@ -199,8 +199,6 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
             // fall through
         case MPD_DISCONNECT:
         case MPD_DISCONNECT_INSTANT:
-            send_jsonrpc_event(JSONRPC_EVENT_MPD_DISCONNECTED, partition_state->name);
-            mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED, partition_state->name);
             mpd_client_disconnect(partition_state, partition_state->conn_state);
             //set wait time for next connection attempt
             if (partition_state->conn_state != MPD_DISCONNECT_INSTANT) {

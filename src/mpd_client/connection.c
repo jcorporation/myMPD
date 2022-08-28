@@ -12,9 +12,11 @@
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
+#include "../mympd_api/trigger.h"
 #include "errorhandler.h"
 #include "features.h"
 #include "tags.h"
+
 #include "mpd/client.h"
 
 #include <string.h>
@@ -154,6 +156,8 @@ void mpd_client_disconnect(struct t_partition_state *partition_state, enum mpd_c
     }
     partition_state->conn = NULL;
     partition_state->conn_state = new_conn_state;
+    send_jsonrpc_event(JSONRPC_EVENT_MPD_DISCONNECTED, partition_state->name);
+    mympd_api_trigger_execute(&partition_state->mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED, partition_state->name);
 }
 
 /**
