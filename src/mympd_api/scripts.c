@@ -635,11 +635,16 @@ static int mympd_api_raw(lua_State *lua_vm) {
  * @return return code
  */
 static int _mympd_api(lua_State *lua_vm, bool raw) {
+    //check arguments
     int n = lua_gettop(lua_vm);
-    if (raw == false && n % 2 == 0) {
+    if (raw == false &&
+        n % 2 == 0)
+    {
+        //arguments must be key/value pairs
         MYMPD_LOG_ERROR("Lua - mympd_api: invalid number of arguments");
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
+    //get method
     const char *method = lua_tostring(lua_vm, 1);
     enum mympd_cmd_ids method_id = get_cmd_id(method);
     if (method_id == GENERAL_API_UNKNOWN) {
@@ -649,12 +654,15 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
     //get partition
     lua_getglobal(lua_vm, "partition");
     const char *partition = lua_tostring(lua_vm, -1);
-
+    if (partition == NULL) {
+        MYMPD_LOG_ERROR("Lua - mympd_api: Invalid partition");
+        return luaL_error(lua_vm, "Invalid partition");
+    }
     //get the thread id
     long tid = syscall(__NR_gettid);
     struct t_work_request *request = create_request(-2, tid, method_id, NULL, partition);
     if (raw == false) {
-        //options are in key/value format
+        //arguments are in key/value format
         for (int i = 2; i < n; i = i + 2) {
             bool comma = i + 1 < n ? true : false;
             if (lua_isboolean(lua_vm, i + 1)) {
@@ -673,8 +681,8 @@ static int _mympd_api(lua_State *lua_vm, bool raw) {
         request->data = sdscatlen(request->data, "}", 1);
     }
     else if (n == 2) {
-        //options are a valid json string
-        sdsrange(request->data, 0, -2); //trim {}
+        //argument must be a valid json string
+        sdsrange(request->data, 0, -2); //trim }
         request->data = sdscat(request->data, lua_tostring(lua_vm, 2));
     }
     request->data = sdscatlen(request->data, "}", 1);
