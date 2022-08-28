@@ -13,12 +13,14 @@
 #include "log.h"
 
 static void print_usage(char **argv) {
-    fprintf(stderr, "Usage: %s <URL> <partition> <scriptname> key=val ...\n"
-                    "myMPD script utility\n"
-                    "If scriptname is -, the script is read from stdin.\n"
-                    "<URL>: e.g. https://localhost\n"
-                    "For further details look at https://jcorporation.github.io/myMPD/scripting/\n\n",
-            argv[0]);
+    fprintf(stderr, "\nmyMPD script utility\n\n"
+        "Usage: %s <uri> <partition> <scriptname> [<arguments>]\n"
+        "  <uri>:        myMPD listening uri, e.g. \"https://localhost\"\n"
+        "  <partition>:  MPD partition, e.g. \"default\"\n"
+        "  <scriptname>: script to execute, use \"-\" to read the script from stdin.\n"
+        "  <arguments>:  optional space separated key=value pairs for script arguments.\n"
+        "\nFor further details look at https://jcorporation.github.io/myMPD/scripting/\n\n",
+        argv[0]);
 }
 
 static sds parse_arguments(sds post_data, char **argv, int argc) {
@@ -52,26 +54,29 @@ int main(int argc, char **argv) {
 
     set_loglevel(5);
 
-    sds uri = sdscatfmt(sdsempty(), "%s/script-api/%s", argv[1], argv[2]);
+    sds uri = sdsempty();
     sds post_data = sdsempty();
 
     if (strlen(argv[3]) == 1 && argv[3][0] == '-') {
+        uri = sdscatfmt(uri, "%s/script-api/%s", argv[1], argv[2]);
         int c;
         sds script_data = sdsempty();
         while ((c = getchar()) != EOF) {
             script_data = sdscatlen(script_data, &c, 1);
         }
-        post_data = sdscat(post_data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_POST_EXECUTE\",\"params\":{\"script\":");
+        post_data = sdscat(post_data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"INTERNAL_API_SCRIPT_POST_EXECUTE\",\"params\":{\"script\":");
         post_data = sds_catjson(post_data, script_data, sdslen(script_data));
-        post_data = sdscat(post_data, ",arguments:{");
+        post_data = sdscat(post_data, ",\"arguments\":{");
         post_data = parse_arguments(post_data, argv, argc);
         post_data = sdscat(post_data, "}}}");
         sdsfree(script_data);
     }
     else {
+        uri = sdscatfmt(uri, "%s/api/%s", argv[1], argv[2]);
+
         post_data = sdscat(post_data, "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"MYMPD_API_SCRIPT_EXECUTE\",\"params\":{\"script\":");
-        post_data = sds_catjson(post_data, argv[2], strlen(argv[2]));
-        post_data = sdscat(post_data, ",arguments:{");
+        post_data = sds_catjson(post_data, argv[3], strlen(argv[3]));
+        post_data = sdscat(post_data, ",\"arguments\":{");
         post_data = parse_arguments(post_data, argv, argc);
         post_data = sdscat(post_data, "}}}");
     }
@@ -91,7 +96,8 @@ int main(int argc, char **argv) {
     };
 
     http_client_request(&request, &response);
-    MYMPD_LOG_NOTICE("Response: \"%s\"", response.response);
+    puts(response.response);
+    puts(response.body);
 
     sdsfree(response.response);
     sdsfree(response.header);
