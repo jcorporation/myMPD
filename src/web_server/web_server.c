@@ -138,7 +138,7 @@ void *web_server_loop(void *arg_mgr) {
 
     //set mongoose loglevel
     #ifdef DEBUG
-    mg_log_set("1");
+    mg_log_set(1);
     #endif
 
     #ifdef ENABLE_SSL

@@ -27,6 +27,7 @@ The syntax of the last_played file has changed. You can convert it with
 - Feat: partition specific highlight color
 - Upd: add internal api documentation
 - Upd: build improvements
+- Upd: Mongoose 7.8
 
 ***
 

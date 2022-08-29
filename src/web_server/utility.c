@@ -154,6 +154,7 @@ void webserver_handle_connection_close(struct mg_connection *nc) {
         MYMPD_LOG_DEBUG("Set connection %lu to is_draining", nc->id);
         nc->is_draining = 1;
     }
+    nc->is_resp = 0;
 }
 
 /**
