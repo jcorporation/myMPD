@@ -31,7 +31,7 @@ The syntax of the last_played file has changed. You can convert it with
 
 ***
 
-## myMPD v9.5.3 (not yet released)
+## myMPD v9.5.3 (2022-08-29)
 
 This is a small bug fix release.
 
