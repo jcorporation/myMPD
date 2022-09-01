@@ -118,8 +118,13 @@ function createLocalPlaybackEl(createEvent) {
         curState === 'stop')
     {
         //load and play
-        localPlayer.src = window.location.protocol + '//' + window.location.hostname +
-            (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/stream/';
+        if (settings.partition.streamUri === '') {
+            localPlayer.src = window.location.protocol + '//' + window.location.hostname +
+                (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/stream/' + localSettings.partition;
+        }
+        else {
+            localPlayer.src = settings.partition.streamUri;
+        }
         localPlayer.load();
         localPlayer.play();
         elClear(el);

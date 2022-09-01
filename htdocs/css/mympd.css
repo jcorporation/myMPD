@@ -992,6 +992,22 @@ a.download::before {
   margin-right: 0.5rem;
 }
 
+a.launch::before {
+  content: "launch";
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  vertical-align: top;
+  text-rendering: optimizelegibility;
+  font-feature-settings: "liga";
+  margin-right: 0.5rem;
+}
+
 /* inner button for inputs */
 button.input-inner-button,
 button.input-inner-button:hover,

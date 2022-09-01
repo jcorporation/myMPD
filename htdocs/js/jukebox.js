@@ -6,10 +6,10 @@
 function initJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
-            if (settings.jukeboxMode === 'song') {
+            if (settings.partition.jukeboxMode === 'song') {
                 clickSong(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
             }
-            else if (settings.jukeboxMode === 'album') {
+            else if (settings.partition.jukeboxMode === 'album') {
                 clickAlbumPlay(getData(event.target.parentNode, 'AlbumArtist'), getData(event.target.parentNode, 'Album'));
             }
         }
@@ -75,7 +75,7 @@ function parseJukeboxList(obj) {
     elHideId('QueueJukeboxDisabled');
     elShowId('QueueJukeboxList');
 
-    const rowTitle = settings.jukeboxMode === 'song' ?
+    const rowTitle = settings.partition.jukeboxMode === 'song' ?
         webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong] :
         webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
     updateTable(obj, 'QueueJukebox', function(row, data) {

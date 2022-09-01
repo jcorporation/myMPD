@@ -151,6 +151,9 @@ struct t_partition_state {
     bool is_default;                       //!< flag for the mpd default partition
     enum mpd_idle idle_mask;               //!< mpd idle mask
     bool set_conn_options;                 //!< true if mpd connection options should be changed
+    //local playback
+    unsigned mpd_stream_port;              //!< mpd http stream port setting
+    sds stream_uri;                        //!< custom url for local playback
 };
 
 /**
@@ -226,7 +229,6 @@ struct t_mympd_state {
     sds cols_queue_jukebox;                       //!< columns for the jukebox queue view
     sds cols_browse_radio_webradiodb;             //!< columns for the webradiodb view
     sds cols_browse_radio_radiobrowser;           //!< columns for the radiobrowser view
-    unsigned mpd_stream_port;                     //!< mpd http stream port setting
     sds music_directory;                          //!< mpd music directory setting (real value is in mpd_state)
     sds playlist_directory;                       //!< mpd playlist directory
     sds navbar_icons;                             //!< json strin of navigation bar icons

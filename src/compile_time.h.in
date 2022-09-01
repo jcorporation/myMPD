@@ -79,6 +79,9 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define CFG_LOG_TO_SYSLOG false
 #define CFG_COVERCACHE_KEEP_DAYS 31
 
+//default partiton state settings
+#define PARTITION_COLOR "#28a745"
+
 //default mpd state settings
 #define MYMPD_MPD_TAG_LIST "Album,AlbumArtist,Artist,Disc,Genre,Name,Title,Track"
 #define MYMPD_MPD_KEEPALIVE true

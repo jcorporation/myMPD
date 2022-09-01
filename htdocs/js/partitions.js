@@ -10,12 +10,20 @@ function initPartitions() {
         if (event.target.nodeName === 'A') {
             const action = getData(event.target, 'action');
             const partition = getData(event.target.parentNode.parentNode, 'partition');
-            if (action === 'delete') {
-                deletePartition(event.target, partition);
+            switch(action) {
+                case 'delete':
+                    deletePartition(event.target, partition);
+                    break;
+                case 'edit':
+                    uiElements.modalPartitionSettings.show();
+                    break;
             }
         }
         else if (event.target.nodeName === 'TD') {
             const partition = getData(event.target.parentNode, 'partition');
+            if (partition === localSettings.partition) {
+                return;
+            }
             switchPartition(partition);
         }
     }, false);
@@ -38,7 +46,9 @@ function initPartitions() {
 
     document.getElementById('modalPartitionSettings').addEventListener('show.bs.modal', function () {
         cleanupModalId('modalPartitionSettings');
-        document.getElementById('inputPartitionColor').value = settings.partitionColor;
+        document.getElementById('inputPartitionColor').value = settings.partition.color;
+        document.getElementById('inputMpdStreamPort').value = settings.partition.mpdStreamPort;
+        document.getElementById('inputStreamUri').value = settings.partition.streamUri;
     });
 
     document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
@@ -236,6 +246,11 @@ function parsePartitionList(obj) {
                 elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["mi", "color-darkgrey", "me-2"]}, 'delete')
             );
         }
+        else if (obj.result.data[i].name === localSettings.partition) {
+            partitionActionTd.appendChild(
+                elCreateText('a', {"href": "#", "title": tn('Edit'), "data-action": "edit", "class": ["mi", "color-darkgrey", "me-2"]}, 'edit')
+            );
+        }
         tr.appendChild(partitionActionTd);
         partitionList.appendChild(tr);
     }
@@ -243,9 +258,25 @@ function parsePartitionList(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function savePartitionSettings() {
-    sendAPI('MYMPD_API_PARTITION_SAVE', {
-        "color": document.getElementById('inputPartitionColor').value
-    }, savePartitionSettingsClose, true);
+    cleanupModalId('modalPartitionSettings');
+    let formOK = true;
+    const mpdStreamPortEl = document.getElementById('inputMpdStreamPort');
+    const streamUriEl = document.getElementById('inputStreamUri');
+    if (validateIntRange(mpdStreamPortEl, 0, 65535) === false) {
+        formOK = false;
+    }
+    if (streamUriEl.value.length > 0 &&
+        validateStream(streamUriEl) === false)
+    {
+        formOK = false;
+    }
+    if (formOK === true) {
+        sendAPI('MYMPD_API_PARTITION_SAVE', {
+            "color": document.getElementById('inputPartitionColor').value,
+            "mpdStreamPort": Number(mpdStreamPortEl.value),
+            "streamUri": streamUriEl.value
+        }, savePartitionSettingsClose, true);
+    }
 }
 
 function savePartitionSettingsClose(obj) {

@@ -88,7 +88,7 @@ function togglePlaymode(option) {
         case 'consume':
         case 'random':
         case 'repeat':
-            if (settings[option] === true) {
+            if (settings.partition[option] === true) {
                 value = false;
                 title = 'Disable ' + option;
             }
@@ -98,15 +98,15 @@ function togglePlaymode(option) {
             }
             break;
         case 'single':
-            if (settings.single === '0') {
+            if (settings.partition.single === '0') {
                 value = 'oneshot';
                 title = 'Enable single oneshot';
             }
-            else if (settings.single === 'oneshot') {
+            else if (settings.partition.single === 'oneshot') {
                 value = '1';
                 title = 'Enable single mode';
             }
-            else if (settings.single === '1') {
+            else if (settings.partition.single === '1') {
                 value = '0';
                 title = 'Disable single mode';
             }
@@ -166,7 +166,6 @@ function saveConnection() {
     const mpdPortEl = document.getElementById('inputMpdPort');
     const mpdPassEl = document.getElementById('inputMpdPass');
     const playlistDirectoryEl = document.getElementById('inputPlaylistDirectory');
-    const mpdStreamPortEl = document.getElementById('inputMpdStreamPort');
     const mpdBinarylimitEl = document.getElementById('inputMpdBinarylimit');
     const mpdTimeoutEl = document.getElementById('inputMpdTimeout');
     const musicDirectoryEl = document.getElementById('selectMusicDirectory');
@@ -201,9 +200,6 @@ function saveConnection() {
     if (!validatePath(playlistDirectoryEl)) {
         formOK = false;
     }
-    if (!validateIntRange(mpdStreamPortEl, 1024, 65535)) {
-        formOK = false;
-    }
     if (!validateIntRange(mpdBinarylimitEl, 4, 256)) {
         formOK = false;
     }
@@ -217,7 +213,6 @@ function saveConnection() {
             "mpdPass": mpdPassEl.value,
             "musicDirectory": musicDirectory,
             "playlistDirectory": playlistDirectoryEl.value,
-            "mpdStreamPort": Number(mpdStreamPortEl.value),
             "mpdBinarylimit": Number(mpdBinarylimitEl.value) * 1024,
             "mpdTimeout": Number(mpdTimeoutEl.value) * 1000,
             "mpdKeepalive": (document.getElementById('btnMpdKeepalive').classList.contains('active') ? true : false)
@@ -362,12 +357,12 @@ function parseSettings(obj) {
         elHideId('btnStop');
     }
     
-    if (settings.jukeboxMode !== 'off') {
+    if (settings.partition.jukeboxMode !== 'off') {
         document.getElementById('btnNext').removeAttribute('disabled');
     }
 
     //parse mpd settings if connected
-    if (settings.mpdConnected === true) {
+    if (settings.partition.mpdConnected === true) {
         parseMPDSettings();
     }
 
@@ -376,7 +371,7 @@ function parseSettings(obj) {
         settings.mpdHost + ':' + settings.mpdPort : settings.mpdHost;
 
     document.documentElement.style.setProperty('--mympd-thumbnail-size', settings.webuiSettings.uiThumbnailSize + "px");
-    document.documentElement.style.setProperty('--mympd-highlightcolor', settings.partitionColor);
+    document.documentElement.style.setProperty('--mympd-highlightcolor', settings.partition.color);
 
     //default limit for all cards
     let limit = settings.webuiSettings.uiMaxElementsPerPage;
@@ -514,23 +509,23 @@ function setLocale(newLocale) {
 }
 
 function populateQueueSettingsFrm() {
-    toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.jukeboxMode);
+    toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.partition.jukeboxMode);
     addTagListSelect('selectJukeboxUniqueTag', 'tagListBrowse');
 
-    document.getElementById('selectJukeboxUniqueTag').value = settings.jukeboxUniqueTag;
-    document.getElementById('inputJukeboxQueueLength').value = settings.jukeboxQueueLength;
-    document.getElementById('inputJukeboxLastPlayed').value = settings.jukeboxLastPlayed;
-    if (settings.jukeboxMode === 'off') {
+    document.getElementById('selectJukeboxUniqueTag').value = settings.partition.jukeboxUniqueTag;
+    document.getElementById('inputJukeboxQueueLength').value = settings.partition.jukeboxQueueLength;
+    document.getElementById('inputJukeboxLastPlayed').value = settings.partition.jukeboxLastPlayed;
+    if (settings.partition.jukeboxMode === 'off') {
         elDisableId('inputJukeboxQueueLength');
         elDisableId('selectJukeboxPlaylist');
     }
-    else if (settings.jukeboxMode === 'album') {
+    else if (settings.partition.jukeboxMode === 'album') {
         elDisableId('inputJukeboxQueueLength');
         elDisableId('selectJukeboxPlaylist');
         elDisable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
         document.getElementById('selectJukeboxPlaylist').value = 'Database';
     }
-    else if (settings.jukeboxMode === 'song') {
+    else if (settings.partition.jukeboxMode === 'song') {
         elEnableId('inputJukeboxQueueLength');
         elEnableId('selectJukeboxPlaylist');
         elEnable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
@@ -538,24 +533,24 @@ function populateQueueSettingsFrm() {
 
     document.getElementById('selectJukeboxPlaylist').filterInput.value = '';
 
-    if (settings.mpdConnected === true) {
+    if (settings.partition.mpdConnected === true) {
         if (features.featPlaylists === true) {
-            filterPlaylistsSelect(0, 'selectJukeboxPlaylist', '', settings.jukeboxPlaylist);
-            setDataId('selectJukeboxPlaylist', 'value', settings.jukeboxPlaylist);
+            filterPlaylistsSelect(0, 'selectJukeboxPlaylist', '', settings.partition.jukeboxPlaylist);
+            setDataId('selectJukeboxPlaylist', 'value', settings.partition.jukeboxPlaylist);
         }
         else {
             document.getElementById('selectJukeboxPlaylist').value = tn('Database');
             setDataId('selectJukeboxPlaylist', 'value', 'Database');
         }
-        toggleBtnChkId('btnRandom', settings.random);
-        toggleBtnChkId('btnConsume', settings.consume);
-        toggleBtnChkId('btnRepeat', settings.repeat);
-        toggleBtnChkId('btnAutoPlay', settings.autoPlay);
-        toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.single);
-        toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.replaygain);
-        document.getElementById('inputCrossfade').value = settings.crossfade;
-        document.getElementById('inputMixrampDb').value = settings.mixrampDb;
-        document.getElementById('inputMixrampDelay').value = settings.mixrampDelay;
+        toggleBtnChkId('btnRandom', settings.partition.random);
+        toggleBtnChkId('btnConsume', settings.partition.consume);
+        toggleBtnChkId('btnRepeat', settings.partition.repeat);
+        toggleBtnChkId('btnAutoPlay', settings.partition.autoPlay);
+        toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.partition.single);
+        toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.partition.replaygain);
+        document.getElementById('inputCrossfade').value = settings.partition.crossfade;
+        document.getElementById('inputMixrampDb').value = settings.partition.mixrampDb;
+        document.getElementById('inputMixrampDelay').value = settings.partition.mixrampDelay;
         if (features.featStickers === false) {
             elShowId('warnPlaybackStatistics');
             elDisableId('inputJukeboxLastPlayed');
@@ -573,7 +568,6 @@ function populateConnectionFrm() {
     document.getElementById('inputMpdPort').value = settings.mpdPort;
     document.getElementById('inputMpdPass').value = settings.mpdPass;
     document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectory;
-    document.getElementById('inputMpdStreamPort').value = settings.mpdStreamPort;
     document.getElementById('inputMpdBinarylimit').value = settings.mpdBinarylimit / 1024;
     document.getElementById('inputMpdTimeout').value = settings.mpdTimeout / 1000;
 
@@ -622,7 +616,6 @@ function populateSettingsFrm() {
     bgImageInput.value = getBgImageText(settings.webuiSettings.uiBgImage);
 
     toggleThemeInputs(settings.webuiSettings.uiTheme);
-    document.getElementById('inputHighlightColor').value = settings.partitionColor;
 
     //locales
     const localeList = document.getElementById('inputWebUIsettinguiLocale');
@@ -679,7 +672,7 @@ function populateSettingsFrm() {
     document.getElementById('inputListenbrainzToken').value = settings.listenbrainzToken;
 
     //smart playlists
-    if (settings.featPlaylists === true) {
+    if (settings.features.featPlaylists === true) {
         elEnableId('btnSmartpls');
         toggleBtnChkCollapseId('btnSmartpls', 'collapseSmartpls', settings.smartpls);
         elHideId('warnSmartpls');
@@ -714,10 +707,10 @@ function populateSettingsFrm() {
     initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.tagListBrowse, settings.smartplsGenerateTagList);
 
     //features - show or hide warnings - use settings object
-    setFeatureBtnId('btnEnableLyrics', settings.featLibrary);
-    setFeatureBtnId('inputWebUIsettingenableScripting', settings.featScripting);
-    setFeatureBtnId('inputWebUIsettingenableMounts', settings.featMounts);
-    setFeatureBtnId('inputWebUIsettingenablePartitions', settings.featPartitions);
+    setFeatureBtnId('btnEnableLyrics', settings.features.featLibrary);
+    setFeatureBtnId('inputWebUIsettingenableScripting', settings.features.featScripting);
+    setFeatureBtnId('inputWebUIsettingenableMounts', settings.features.featMounts);
+    setFeatureBtnId('inputWebUIsettingenablePartitions', settings.features.featPartitions);
 }
 
 function setFeatureBtnId(id, value) {
@@ -854,31 +847,31 @@ function _createSettingsFrm(fields, defaults, prefix) {
 
 function setFeatures() {
     //web ui features
-    features.featCacert = settings.featCacert;
+    features.featCacert = settings.features.featCacert;
     features.featHome = settings.webuiSettings.enableHome;
     features.featLocalPlayback = settings.webuiSettings.enableLocalPlayback === true ?
-        (settings.mpdStreamPort > 0 ? true : false) : false;
+        (settings.partition.mpdStreamPort > 0 || settings.partition.streamUri.length > 0 ? true : false) : false;
     features.featScripting = settings.webuiSettings.enableScripting === true ?
-        settings.featScripting : false;
+        settings.features.featScripting : false;
     features.featTimer = settings.webuiSettings.enableTimer;
     features.featTrigger = settings.webuiSettings.enableTrigger;
 
     //mpd features
-    if (settings.mpdConnected === true) {
-        features.featLibrary = settings.featLibrary;
-        features.featLyrics = settings.webuiSettings.enableLyrics === true ? settings.featLibrary : false;
-        features.featMounts = settings.webuiSettings.enableMounts === true ? settings.featMounts : false;
-        features.featNeighbors = settings.webuiSettings.enableMounts === true ? settings.featNeighbors : false;
-        features.featPartitions = settings.webuiSettings.enablePartitions === true ? settings.featPartitions : false;
-        features.featPlaylists = settings.featPlaylists;
-        features.featSmartpls = settings.featPlaylists === true ? settings.smartpls : false;
-        features.featStickers = settings.featStickers;
-        features.featTags = settings.featTags;
-        features.featBinarylimit = settings.featBinarylimit;
-        features.featFingerprint = settings.featFingerprint;
-        features.featPlaylistRmRange = settings.featPlaylistRmRange;
-        features.featWhence = settings.featWhence;
-        features.featAdvqueue = settings.featAdvqueue;
+    if (settings.partition.mpdConnected === true) {
+        features.featLibrary = settings.features.featLibrary;
+        features.featLyrics = settings.webuiSettings.enableLyrics === true ? settings.features.featLibrary : false;
+        features.featMounts = settings.webuiSettings.enableMounts === true ? settings.features.featMounts : false;
+        features.featNeighbors = settings.webuiSettings.enableMounts === true ? settings.features.featNeighbors : false;
+        features.featPartitions = settings.webuiSettings.enablePartitions === true ? settings.features.featPartitions : false;
+        features.featPlaylists = settings.features.featPlaylists;
+        features.featSmartpls = settings.features.featPlaylists === true ? settings.smartpls : false;
+        features.featStickers = settings.features.featStickers;
+        features.featTags = settings.features.featTags;
+        features.featBinarylimit = settings.features.featBinarylimit;
+        features.featFingerprint = settings.features.featFingerprint;
+        features.featPlaylistRmRange = settings.features.featPlaylistRmRange;
+        features.featWhence = settings.features.featWhence;
+        features.featAdvqueue = settings.features.featAdvqueue;
     }
 }
 
@@ -935,7 +928,9 @@ function parseMPDSettings() {
     setCols('BrowseRadioRadiobrowser');
 
     //enforce disc for album details view
-    if (settings.colsBrowseDatabaseDetailFetch.includes('Disc') === false && settings.tagList.includes('Disc')) {
+    if (settings.colsBrowseDatabaseDetailFetch.includes('Disc') === false &&
+        settings.tagList.includes('Disc'))
+    {
         settings.colsBrowseDatabaseDetailFetch.push('Disc');
     }
 
@@ -1126,15 +1121,9 @@ function saveSettings(closeModal) {
 
         if (closeModal === true) {
             sendAPIpartition('default', 'MYMPD_API_SETTINGS_SET', params, saveSettingsClose, true);
-            sendAPI('MYMPD_API_PARTITION_SAVE', {
-                "color": document.getElementById('inputHighlightColor').value
-            }, null, false);
         }
         else {
             sendAPIpartition('default', 'MYMPD_API_SETTINGS_SET', params, saveSettingsApply, true);
-            sendAPI('MYMPD_API_PARTITION_SAVE', {
-                "color": document.getElementById('inputHighlightColor').value
-            }, null, false);
         }
     }
 }

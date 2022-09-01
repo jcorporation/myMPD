@@ -8,6 +8,7 @@
 #define MYMPD_API_H
 
 #include "../../dist/sds/sds.h"
+#include "list.h"
 #include "msg_queue.h"
 
 #include <stdbool.h>
@@ -221,7 +222,7 @@ struct set_mg_user_data_request {
     sds thumbnail_names;      //!< comma separated list of coverimage thumbnail names
     bool feat_albumart;       //!< true if mpd supports the albumart protocol command
     sds mpd_host;             //!< configured mpd host
-    unsigned mpd_stream_port; //!< mpd stream port for reverse proxy
+    struct t_list partitions; //!< partition specific settings
 };
 
 /**

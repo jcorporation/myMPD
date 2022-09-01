@@ -334,6 +334,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     //feature detection
                     mpd_client_mpd_features(partition_state);
                 }
+                else {
+                    settings_to_webserver(partition_state->mympd_state);
+                }
                 //respond with ok
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
             }
@@ -1447,16 +1450,15 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         case MYMPD_API_PARTITION_SAVE:
-            if (json_get_string_max(request->data, "$.params.color", &sds_buf1, vcb_ishexcolor, &error) == true) {
-                rc = mympd_api_settings_partition_save(partition_state, sds_buf1);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error saving partition settings");
-                }
+            if (json_iterate_object(request->data, "$.params", mympd_api_settings_partition_set, partition_state, NULL, 1000, &error) == true) {
+                //respond with ok
+                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
             }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error saving partition settings");
+            }
+            settings_to_webserver(partition_state->mympd_state);
             break;
         case MYMPD_API_PARTITION_RM:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {

@@ -6,6 +6,8 @@
 
 #include "compile_time.h"
 #include "dist/mongoose/mongoose.h"
+#include "dist/sds/sds.h"
+#include "src/lib/list.h"
 #include "web_server.h"
 
 #include "../lib/api.h"
@@ -63,7 +65,7 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     mg_user_data->publish_playlists = false;
     mg_user_data->feat_albumart = false;
     mg_user_data->connection_count = 0;
-    mg_user_data->stream_uri = sdsnew("http://localhost:8000");
+    list_init(&mg_user_data->stream_uris);
     list_init(&mg_user_data->session_list);
 
     //init monogoose mgr
@@ -239,13 +241,23 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
 
         mg_user_data->feat_albumart = new_mg_user_data->feat_albumart;
 
-        sdsclear(mg_user_data->stream_uri);
-        if (new_mg_user_data->mpd_stream_port != 0) {
-            mg_user_data->stream_uri = sdscatfmt(mg_user_data->stream_uri, "http://%s:%u",
-                (strncmp(new_mg_user_data->mpd_host, "/", 1) == 0 ? "127.0.0.1" : new_mg_user_data->mpd_host),
-                new_mg_user_data->mpd_stream_port);
+        list_clear(&mg_user_data->stream_uris);
+        struct t_list_node *current = new_mg_user_data->partitions.head;
+        sds uri = sdsempty();
+        while (current != NULL) {
+            if (current->value_i > 0) {
+                uri = sdscatfmt(uri, "http://%s:%I",
+                    (strncmp(new_mg_user_data->mpd_host, "/", 1) == 0 ? "127.0.0.1" : new_mg_user_data->mpd_host),
+                    current->value_i);
+                MYMPD_LOG_DEBUG("\"%s\": Setting stream uri to \"%s\"", current->key, uri);
+                list_push(&mg_user_data->stream_uris, current->key, 0, uri, NULL);
+            }
+            sdsclear(uri);
+            current = current->next;
         }
+        FREE_SDS(uri);
         FREE_SDS(new_mg_user_data->mpd_host);
+        list_clear(&new_mg_user_data->partitions);
 	    FREE_PTR(response->extra);
         rc = true;
     }
@@ -522,13 +534,17 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
                 FREE_SDS(response);
             }
-            else if (mg_http_match_uri(hm, "/stream/")) {
-                if (sdslen(mg_user_data->stream_uri) == 0) {
-                    webserver_send_error(nc, 404, "MPD stream port not configured");
+            else if (mg_http_match_uri(hm, "/stream/*")) {
+                sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
+                sdsrange(partition, 8, -1);
+                struct t_list_node *node = list_get_node(&mg_user_data->stream_uris, partition);
+                FREE_SDS(partition);
+                if (node == NULL) {
+                    webserver_send_error(nc, 404, "Stream uri not configured");
                     nc->is_draining = 1;
                     break;
                 }
-                create_backend_connection(nc, frontend_nc_data->backend_nc, mg_user_data->stream_uri, forward_backend_to_frontend);
+                create_backend_connection(nc, frontend_nc_data->backend_nc, node->value_p, forward_backend_to_frontend);
             }
             else if (mg_http_match_uri(hm, "/proxy")) {
                 //Makes a get request to the defined uri and returns the response

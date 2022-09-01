@@ -286,16 +286,16 @@ function addMenuItemsDiscActions(popoverBody, el) {
 }
 
 function addMenuItemsSingleActions(popoverBody) {
-    if (settings.single === '0') {
-        if (settings.repeat === true &&
-            settings.consume === false)
+    if (settings.partition.single === '0') {
+        if (settings.partition.repeat === true &&
+            settings.partition.consume === false)
         {
             //repeat one song can only work with consume disabled
             addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [2]}, 'Repeat current song once');
             addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [1]}, 'Repeat current song');
         }
-        else if (settings.repeat === true &&
-                 settings.autoPlay === false)
+        else if (settings.partition.repeat === true &&
+                 settings.partition.autoPlay === false)
         {
             //single one-shot works only with disabled auto play
             addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [2]}, 'Stop playback after current song');
@@ -635,10 +635,10 @@ function createMenuLists(el, tabHeader, tabContent) {
         }
         case 'QueueJukebox': {
             const pos = Number(getData(dataNode, 'pos'));
-            if (settings.jukeboxMode === 'song') {
+            if (settings.partition.jukeboxMode === 'song') {
                 addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
             }
-            else if (settings.jukeboxMode === 'album') {
+            else if (settings.partition.jukeboxMode === 'album') {
                 addMenuItemsAlbumActions(tabContent, dataNode)
             }
             addDivider(tabContent);
@@ -667,7 +667,7 @@ function createMenuListsSecondary(el, tabHeader, tabContent) {
                 (app.id === 'BrowseFilesystem' && type === 'dir') ||
                 (app.id === 'BrowseFilesystem' && type === 'plist') ||
                 (app.id === 'BrowseFilesystem' && type === 'smartpls') ||
-                (app.id === 'QueueJukebox' && settings.jukeboxMode === 'album'))
+                (app.id === 'QueueJukebox' && settings.partition.jukeboxMode === 'album'))
             {
                 return false;
             }

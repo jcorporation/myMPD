@@ -300,12 +300,7 @@ function sendAPIpartition(partition, method, params, callback, onerror) {
             typeof obj.error.message === 'string')
         {
             //show error message
-            if (appInited === false) {
-                showAppInitAlert(tn(obj.error.message, obj.error.data));
-            }
-            else {
-                showNotification(tn(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
-            }
+            showNotification(tn(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
             logError(ajaxRequest.responseText);
         }
         else if (obj.result &&
@@ -441,7 +436,7 @@ function webSocketConnect() {
                     if (progressTimer) {
                         clearTimeout(progressTimer);
                     }
-                    settings.mpdConnected = false;
+                    settings.partition.mpdConnected = false;
                     toggleUI();
                     break;
                 case 'mpd_connected':

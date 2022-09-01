@@ -5,12 +5,12 @@
 
 function setStateIcon() {
     if (websocketConnected === false ||
-        settings.mpdConnected === false)
+        settings.partition.mpdConnected === false)
     {
         document.getElementById('logoBg').setAttribute('fill', '#6c757d');
     }
     else {
-        document.getElementById('logoBg').setAttribute('fill', settings.partitionColor);
+        document.getElementById('logoBg').setAttribute('fill', settings.partition.color);
     }
 }
 
@@ -74,6 +74,10 @@ function getSeverityIcon(severity) {
 }
 
 function showNotification(title, text, facility, severity) {
+    if (appInited === false) {
+        showAppInitAlert(title);
+        return;
+    }
     setStateIcon();
     logMessage(title, text, facility, severity);
     if (severity === 'info') {
@@ -197,7 +201,7 @@ function setElsState(selector, state) {
 function toggleUI() {
     let state = 'disabled';
     if (websocketConnected === true &&
-        settings.mpdConnected === true)
+        settings.partition.mpdConnected === true)
     {
         state = 'enabled';
     }
@@ -218,7 +222,7 @@ function toggleUI() {
         uiEnabled = enabled;
     }
 
-    if (settings.mpdConnected === true) {
+    if (settings.partition.mpdConnected === true) {
         toggleAlert('alertMpdState', false, '');
     }
     else {

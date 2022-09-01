@@ -155,7 +155,7 @@ function parseState(obj) {
     }
 
     if (obj.result.nextSongPos === -1 &&
-        settings.jukeboxMode === 'off')
+        settings.partition.jukeboxMode === 'off')
     {
         elDisableId('btnNext');
     }
@@ -223,10 +223,10 @@ function parseState(obj) {
     }
     //refresh settings if mpd is not connected or ui is disabled
     //ui is disabled at startup
-    if (settings.mpdConnected === false ||
+    if (settings.partition.mpdConnected === false ||
         uiEnabled === false)
     {
-        logDebug((settings.mpdConnected === false ? 'MPD disconnected' : 'UI disabled') + ' - refreshing settings');
+        logDebug((settings.partition.mpdConnected === false ? 'MPD disconnected' : 'UI disabled') + ' - refreshing settings');
         getNewSettings = true;
     }
 

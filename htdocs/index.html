@@ -1049,15 +1049,6 @@
               <form id="InterfaceSettingsFrm">
                 <h4 data-phrase="Theme"></h4>
                 <div id="themeFrm"></div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="inputHighlightColor">
-                    <span data-phrase="Highlight color"></span>
-                    <small class="mi mi-small ms-1" data-title-phrase="Partition specific setting">dashboard</small>
-                  </label>
-                  <div class="col-sm-8">
-                    <input id="inputHighlightColor" type="color" class="form-control" placeholder="#28a745"/>
-                  </div>
-                </div>
                 <div class="mb-3 row featMobile">
                   <label class="col-sm-4 col-form-label" for="inputScaleRatio">
                     <span data-phrase="Scale ratio"></span>
@@ -1220,6 +1211,11 @@
                       </div>
                     </div>
                   </div>
+                </div>
+                <hr/>
+                <h4 data-phrase="Partition"></h4>
+                <div class="mb-3 row">
+                  <div class="col-sm-12"><a href="#" class="text-success launch" data-href='{"cmd": "showModal", "options": ["modalPartitionSettings"]}' data-phrase="Partition specific settings"></a></div>
                 </div>
               </form>
             </div>
@@ -1570,13 +1566,6 @@
                 <div class="col-sm-8 position-relative">
                   <input data-is="mympd-input-reset" id="inputPlaylistDirectory" class="form-control alwaysEnabled" placeholder="/var/lib/mpd/playlists"/>
                   <div class="invalid-feedback" data-phrase="Invalid playlist directory"></div>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputMpdStreamPort" data-phrase="Stream port"></label>
-                <div class="col-sm-8 position-relative">
-                  <input data-is="mympd-input-reset" id="inputMpdStreamPort" class="form-control alwaysEnabled" placeholder="8080"/>
-                  <div class="invalid-feedback" data-phrase="Invalid stream port"></div>
                 </div>
               </div>
               <div class="mb-3 row">
@@ -2649,10 +2638,32 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
+          <h4 data-phrase="Appearance"></h4>
           <div class="row mb-3">
             <label class="col-sm-4 col-form-label" for="inputPartitionColor" data-phrase="Highlight color"></label>
             <div class="col-sm-8">
               <input class="form-control" type="color" id="inputPartitionColor"/>
+            </div>
+          </div>
+          <div>
+            <hr/>
+            <h4 data-phrase="Local playback"></h4>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="inputMpdStreamPort" data-phrase="Stream port"></label>
+              <div class="col-sm-8 position-relative">
+                <input data-is="mympd-input-reset" id="inputMpdStreamPort" class="form-control" placeholder="8080"/>
+                <div class="invalid-feedback" data-phrase="Invalid stream port"></div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="inputStreamUri">
+                <span data-phrase="Stream URI"></span>
+                <small class="mi mi-small ms-1" data-title-phrase="OverridesStreamPort">help</small>
+              </label>
+              <div class="col-sm-8 position-relative">
+                <input data-is="mympd-input-reset" id="inputStreamUri" class="form-control" data-default="" placeholder="auto"/>
+                <div class="invalid-feedback" data-phrase="Invalid URI"></div>
+              </div>
             </div>
           </div>
         </div>

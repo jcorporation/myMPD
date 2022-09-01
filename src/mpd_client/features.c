@@ -7,13 +7,13 @@
 #include "compile_time.h"
 #include "features.h"
 
-#include "../lib/api.h"
 #include "../lib/filehandler.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../mpd_client/tags.h"
+#include "../mympd_api/settings.h"
 #include "../mympd_api/status.h"
 #include "errorhandler.h"
 
@@ -97,20 +97,7 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
     else {
         MYMPD_LOG_WARN("Disabling advanced queue feature, depends on mpd >= 0.24.0");
     }
-
-    //push settings to web_server_queue
-    struct set_mg_user_data_request *extra = malloc_assert(sizeof(struct set_mg_user_data_request));
-    extra->music_directory = sdsdup(partition_state->mpd_state->music_directory_value);
-    extra->playlist_directory = sdsdup(partition_state->mympd_state->playlist_directory);
-    extra->coverimage_names = sdsdup(partition_state->mympd_state->coverimage_names);
-    extra->thumbnail_names = sdsdup(partition_state->mympd_state->thumbnail_names);
-    extra->feat_albumart = partition_state->mpd_state->feat_albumart;
-    extra->mpd_stream_port = partition_state->mympd_state->mpd_stream_port;
-    extra->mpd_host = sdsdup(partition_state->mympd_state->mpd_state->mpd_host);
-
-    struct t_work_response *web_server_response = create_response_new(-1, 0, INTERNAL_API_WEBSERVER_SETTINGS, MPD_PARTITION_DEFAULT);
-    web_server_response->extra = extra;
-    mympd_queue_push(web_server_queue, web_server_response, 0);
+    settings_to_webserver(partition_state->mympd_state);
 }
 
 /**

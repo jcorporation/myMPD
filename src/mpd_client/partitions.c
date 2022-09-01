@@ -131,6 +131,8 @@ void partitions_add(struct t_mympd_state *mympd_state, const char *name) {
     partition_state_default(partition_state->next, name, mympd_state);
     //read partition specific state from disc
     mympd_api_settings_statefiles_partition_read(partition_state->next);
+    //push settings to web_server_queue
+    settings_to_webserver(partition_state->mympd_state);
 }
 
 /**

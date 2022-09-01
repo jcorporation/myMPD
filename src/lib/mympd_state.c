@@ -71,7 +71,6 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->volume_min = MYMPD_VOLUME_MIN;
     mympd_state->volume_max = MYMPD_VOLUME_MAX;
     mympd_state->volume_step = MYMPD_VOLUME_STEP;
-    mympd_state->mpd_stream_port = MYMPD_MPD_STREAM_PORT;
     mympd_state->webui_settings = sdsnew(MYMPD_WEBUI_SETTINGS);
     mympd_state->lyrics.uslt_ext = sdsnew(MYMPD_LYRICS_USLT_EXT);
     mympd_state->lyrics.sylt_ext = sdsnew(MYMPD_LYRICS_SYLT_EXT);
@@ -231,7 +230,7 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
  */
 void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mympd_state *mympd_state) {
     partition_state->name = sdsnew(name);
-    partition_state->color = sdsnew("#28a745");
+    partition_state->color = sdsnew(PARTITION_COLOR);
     sds partition_dir = sdsnew(name);
     sanitize_filename(partition_dir);
     partition_state->state_dir = sdscatfmt(sdsempty(), "state/%S", partition_dir);
@@ -285,6 +284,9 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
         partition_state->idle_mask = MPD_IDLE_QUEUE | MPD_IDLE_PLAYER | MPD_IDLE_MIXER | MPD_IDLE_OUTPUT | MPD_IDLE_OPTIONS;
     }
     partition_state->set_conn_options = false;
+    //local playback
+    partition_state->mpd_stream_port = MYMPD_MPD_STREAM_PORT;
+    partition_state->stream_uri = sdsempty();
 }
 
 /**
