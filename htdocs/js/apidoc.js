@@ -1405,7 +1405,7 @@ const APImethods = {
         "desc": "Saves MPD partition settings",
         "protected": true,
         "params": {
-            "color": {
+            "highlightColor": {
                 "type": "text",
                 "example": "#28a745",
                 "desc": "Highlight color for this partition"

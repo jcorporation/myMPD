@@ -39,7 +39,7 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long
         }
         buffer = sdscatlen(buffer, "{", 1);
         buffer = tojson_char(buffer, "name", partition_state->name, true);
-        buffer = tojson_char(buffer, "color", partition_state->color, false);
+        buffer = tojson_char(buffer, "color", partition_state->highlight_color, false);
         buffer = sdscatlen(buffer, "}", 1);
         partition_state = partition_state->next;
     }

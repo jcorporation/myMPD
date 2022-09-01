@@ -822,11 +822,6 @@ const APImethods = {
                 "example": "/var/lib/mpd/playlists",
                 "desc": "absolut path of playlist directory"
             },
-            "mpdStreamPort": {
-                "type": "uint",
-                "example": 8000,
-                "desc": "port of mpd http stream for local playback"
-            },
             "mpdBinarylimit": {
                 "type": "uint",
                 "example": 8192,
@@ -1410,10 +1405,20 @@ const APImethods = {
         "desc": "Saves MPD partition settings",
         "protected": true,
         "params": {
-            "color": {
+            "highlightColor": {
                 "type": "text",
                 "example": "#28a745",
                 "desc": "Highlight color for this partition"
+            },
+            "mpdStreamPort": {
+                "type": "uint",
+                "example": 8000,
+                "desc": "Port of MPD http stream for local playback"
+            },
+            "streamuri": {
+                "type": "text",
+                "exampe": "http://custom/stream/uri",
+                "desc": "Custom stream uri, overrides automatic stream uri calculation (MPD host + mpdStreamPort)"
             }
         }
     },

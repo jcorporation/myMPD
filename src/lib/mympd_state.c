@@ -230,7 +230,7 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
  */
 void partition_state_default(struct t_partition_state *partition_state, const char *name, struct t_mympd_state *mympd_state) {
     partition_state->name = sdsnew(name);
-    partition_state->color = sdsnew(PARTITION_COLOR);
+    partition_state->highlight_color = sdsnew(PARTITION_HIGHLIGHT_COLOR);
     sds partition_dir = sdsnew(name);
     sanitize_filename(partition_dir);
     partition_state->state_dir = sdscatfmt(sdsempty(), "state/%S", partition_dir);
@@ -285,7 +285,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     }
     partition_state->set_conn_options = false;
     //local playback
-    partition_state->mpd_stream_port = MYMPD_MPD_STREAM_PORT;
+    partition_state->mpd_stream_port = PARTITION_MPD_STREAM_PORT;
     partition_state->stream_uri = sdsempty();
 }
 
@@ -295,7 +295,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
  */
 void partition_state_free(struct t_partition_state *partition_state) {
     FREE_SDS(partition_state->name);
-    FREE_SDS(partition_state->color);
+    FREE_SDS(partition_state->highlight_color);
     FREE_SDS(partition_state->state_dir);
     FREE_SDS(partition_state->song_uri);
     FREE_SDS(partition_state->last_song_uri);

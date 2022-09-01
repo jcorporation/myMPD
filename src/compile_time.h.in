@@ -80,7 +80,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define CFG_COVERCACHE_KEEP_DAYS 31
 
 //default partiton state settings
-#define PARTITION_COLOR "#28a745"
+#define PARTITION_HIGHLIGHT_COLOR "#28a745"
+#define PARTITION_MPD_STREAM_PORT 8000
 
 //default mpd state settings
 #define MYMPD_MPD_TAG_LIST "Album,AlbumArtist,Artist,Disc,Genre,Name,Title,Track"
@@ -124,7 +125,6 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_VOLUME_MIN 0 //prct
 #define MYMPD_VOLUME_MAX 100 //prct
 #define MYMPD_VOLUME_STEP 5 //prct
-#define MYMPD_MPD_STREAM_PORT 8000
 #define MYMPD_WEBUI_SETTINGS "{}"
 #define MYMPD_LYRICS_USLT_EXT "txt"
 #define MYMPD_LYRICS_SYLT_EXT "lrc"

@@ -46,7 +46,7 @@ function initPartitions() {
 
     document.getElementById('modalPartitionSettings').addEventListener('show.bs.modal', function () {
         cleanupModalId('modalPartitionSettings');
-        document.getElementById('inputPartitionColor').value = settings.partition.color;
+        document.getElementById('inputHighlightColor').value = settings.partition.highlightColor;
         document.getElementById('inputMpdStreamPort').value = settings.partition.mpdStreamPort;
         document.getElementById('inputStreamUri').value = settings.partition.streamUri;
     });
@@ -227,7 +227,7 @@ function parsePartitionList(obj) {
             tr.setAttribute('title', tn('Active partition'));
         }
         const tdColor = elCreateText('span', {"class": ["mi", "me-2"]}, 'dashboard');
-        tdColor.style.color = obj.result.data[i].color;
+        tdColor.style.color = obj.result.data[i].highlightColor;
         const td = elCreateEmpty('td', {});
         td.appendChild(tdColor);
         if (obj.result.data[i].name === localSettings.partition) {
@@ -272,7 +272,7 @@ function savePartitionSettings() {
     }
     if (formOK === true) {
         sendAPI('MYMPD_API_PARTITION_SAVE', {
-            "color": document.getElementById('inputPartitionColor').value,
+            "highlightColor": document.getElementById('inputHighlightColor').value,
             "mpdStreamPort": Number(mpdStreamPortEl.value),
             "streamUri": streamUriEl.value
         }, savePartitionSettingsClose, true);
