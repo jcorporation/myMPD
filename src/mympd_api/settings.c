@@ -329,7 +329,9 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
         mympd_state->smartpls_sort = sds_replace(mympd_state->smartpls_sort, value);
     }
     else if (strcmp(key, "smartplsPrefix") == 0 && vtype == MJSON_TOK_STRING) {
-        if (vcb_isfilename(value) == false) {
+        if (sdslen(value) > 0 &&
+            vcb_isfilename(value) == false)
+        {
             *error = set_invalid_value(*error, key, value);
             return false;
         }
