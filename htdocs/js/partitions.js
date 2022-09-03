@@ -44,13 +44,6 @@ function initPartitions() {
         showListPartitions();
     });
 
-    document.getElementById('modalPartitionSettings').addEventListener('show.bs.modal', function () {
-        cleanupModalId('modalPartitionSettings');
-        document.getElementById('inputHighlightColor').value = settings.partition.highlightColor;
-        document.getElementById('inputMpdStreamPort').value = settings.partition.mpdStreamPort;
-        document.getElementById('inputStreamUri').value = settings.partition.streamUri;
-    });
-
     document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
         //get all outputs
         sendAPIpartition("default", "MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
@@ -253,38 +246,5 @@ function parsePartitionList(obj) {
         }
         tr.appendChild(partitionActionTd);
         partitionList.appendChild(tr);
-    }
-}
-
-//eslint-disable-next-line no-unused-vars
-function savePartitionSettings() {
-    cleanupModalId('modalPartitionSettings');
-    let formOK = true;
-    const mpdStreamPortEl = document.getElementById('inputMpdStreamPort');
-    const streamUriEl = document.getElementById('inputStreamUri');
-    if (validateIntRange(mpdStreamPortEl, 0, 65535) === false) {
-        formOK = false;
-    }
-    if (streamUriEl.value.length > 0 &&
-        validateStream(streamUriEl) === false)
-    {
-        formOK = false;
-    }
-    if (formOK === true) {
-        sendAPI('MYMPD_API_PARTITION_SAVE', {
-            "highlightColor": document.getElementById('inputHighlightColor').value,
-            "mpdStreamPort": Number(mpdStreamPortEl.value),
-            "streamUri": streamUriEl.value
-        }, savePartitionSettingsClose, true);
-    }
-}
-
-function savePartitionSettingsClose(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
-        uiElements.modalPartitionSettings.hide();
-        getSettings(true);
     }
 }

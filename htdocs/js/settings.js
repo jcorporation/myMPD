@@ -617,6 +617,11 @@ function populateSettingsFrm() {
 
     toggleThemeInputs(settings.webuiSettings.uiTheme);
 
+    //partition specific settings
+    document.getElementById('inputHighlightColor').value = settings.partition.highlightColor;
+    document.getElementById('inputMpdStreamPort').value = settings.partition.mpdStreamPort;
+    document.getElementById('inputStreamUri').value = settings.partition.streamUri;
+
     //locales
     const localeList = document.getElementById('inputWebUIsettinguiLocale');
     elClear(localeList);
@@ -1133,8 +1138,8 @@ function saveSettingsClose(obj) {
         showModalAlert(obj);
     }
     else {
-        getSettings(true);
-        uiElements.modalSettings.hide();
+        savePartitionSettings(true);
+        
     }
 }
 
@@ -1143,8 +1148,56 @@ function saveSettingsApply(obj) {
         showModalAlert(obj);
     }
     else {
+        savePartitionSettings(false);
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
+function savePartitionSettings(closeModal) {
+    let formOK = true;
+    const mpdStreamPortEl = document.getElementById('inputMpdStreamPort');
+    const streamUriEl = document.getElementById('inputStreamUri');
+    if (validateIntRange(mpdStreamPortEl, 0, 65535) === false) {
+        formOK = false;
+    }
+    if (streamUriEl.value.length > 0 &&
+        validateStream(streamUriEl) === false)
+    {
+        formOK = false;
+    }
+
+    if (formOK === true) {
+        const params = {
+            "highlightColor": document.getElementById('inputHighlightColor').value,
+            "mpdStreamPort": Number(mpdStreamPortEl.value),
+            "streamUri": streamUriEl.value
+        };
+        if (closeModal === true) {
+            sendAPI('MYMPD_API_PARTITION_SAVE', params, savePartitionSettingsClose, true);
+        }
+        else {
+            sendAPI('MYMPD_API_PARTITION_SAVE', params, savePartitionSettingsApply, true);
+        }
+    }
+}
+
+function savePartitionSettingsApply(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
         btnWaiting(document.getElementById('btnApplySettings'), true);
         getSettings(true);
+    }
+}
+
+function savePartitionSettingsClose(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        getSettings(true);
+        uiElements.modalSettings.hide();
     }
 }
 

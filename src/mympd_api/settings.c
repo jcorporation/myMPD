@@ -749,11 +749,6 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
 #else
     buffer = tojson_bool(buffer, "pin", false, true);
 #endif
-#ifdef ENABLE_LUA
-    buffer = tojson_bool(buffer, "featScripting", true, true);
-#else
-    buffer = tojson_bool(buffer, "featScripting", false, true);
-#endif
 #ifdef DEBUG
     buffer = tojson_bool(buffer, "debugMode", true, true);
 #else
@@ -849,9 +844,14 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_bool(buffer, "featAdvqueue", partition_state->mpd_state->feat_advqueue, true);
     }
 #ifdef ENABLE_SSL
-    buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), false);
+    buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
 #else
-    buffer = tojson_bool(buffer, "featCacert", false, false);
+    buffer = tojson_bool(buffer, "featCacert", false, true);
+#endif
+#ifdef ENABLE_LUA
+    buffer = tojson_bool(buffer, "featScripting", true, false);
+#else
+    buffer = tojson_bool(buffer, "featScripting", false, false);
 #endif
     if (partition_state->conn_state == MPD_CONNECTED) {
         buffer = sdscatlen(buffer, "},", 2);
