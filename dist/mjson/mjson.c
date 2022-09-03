@@ -34,7 +34,7 @@
 #define isnan(x) _isnan(x)
 #endif
 
-static double mystrtod(const char *str, char **end);
+static double mystrtod(const char *str, const char **end);
 
 static int mjson_esc(int c, int esc) {
   const char *p, *esc1 = "\b\f\n\r\t\\\"", *esc2 = "bfnrt\\\"";
@@ -83,7 +83,7 @@ int mjson(const char *s, int len, mjson_cb_t cb, void *ud) {
 
   for (i = 0; i < len; i++) {
     int start = i;
-    unsigned char c = ((unsigned char *) s)[i];
+    unsigned char c = ((const unsigned char *) s)[i];
     int tok = c;
     if (c == ' ' || c == '\t' || c == '\n' || c == '\r') continue;
     // printf("- %c [%.*s] %d %d\n", c, i, s, depth, expecting);
@@ -110,7 +110,7 @@ int mjson(const char *s, int len, mjson_cb_t cb, void *ud) {
           i += 4;
           tok = MJSON_TOK_FALSE;
         } else if (c == '-' || ((c >= '0' && c <= '9'))) {
-          char *end = NULL;
+          const char *end = NULL;
           mystrtod(&s[i], &end);
           if (end != NULL) i += (int) (end - &s[i] - 1);
           tok = MJSON_TOK_NUMBER;
@@ -304,7 +304,7 @@ static unsigned char unhex(unsigned char c) {
 }
 
 static unsigned char mjson_unhex_nimble(const char *s) {
-  unsigned char *u = (unsigned char *) s;
+  const unsigned char *u = (const unsigned char *) s;
   return (unsigned char) (((unsigned char) (unhex(u[0]) << 4)) | unhex(u[1]));
 }
 
@@ -699,7 +699,7 @@ int mjson_vprintf(mjson_print_fn_t fn, void *fnd, const char *fmt,
       } else if (fc == 'V') {
         int len = va_arg(*ap, int);
         const char *buf = va_arg(*ap, const char *);
-        n += mjson_print_b64(fn, fnd, (unsigned char *) buf, len);
+        n += mjson_print_b64(fn, fnd, (const unsigned char *) buf, len);
 #endif
       } else if (fc == 'H') {
         const char *hex = "0123456789abcdef";
@@ -738,7 +738,7 @@ static int is_digit(int c) {
 }
 
 /* NOTE: strtod() implementation by Yasuhiro Matsumoto. */
-static double mystrtod(const char *str, char **end) {
+static double mystrtod(const char *str, const char **end) {
   double d = 0.0;
   int sign = 1, n = 0;
   const char *p = str, *a = str;
@@ -810,7 +810,7 @@ static double mystrtod(const char *str, char **end) {
   }
 
 done:
-  if (end) *end = (char *) a;
+  if (end) *end = a;
   return d;
 }
 

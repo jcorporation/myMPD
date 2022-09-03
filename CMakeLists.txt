@@ -428,9 +428,6 @@ set(LIBMPDCLIENT_SOURCES
 set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
   -Wno-stringop-overflow")
 
-#compiler flags for mjson
-set_property(SOURCE dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "-Wno-conversion")
-
 #compiler flags for rax
 #-Wno-use-after-free: gcc 12.0.1 error
 set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
