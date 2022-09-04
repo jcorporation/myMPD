@@ -6,7 +6,7 @@ title: API
 
 myMPD uses a json-rpc 2 api for the communication between frontend and backend.
 
-**API endpoint:** /api/
+**API endpoint:** `/api/<partition>`
 
 - [API reference]({{ site.baseurl }}/references/api/methods)
 
@@ -62,7 +62,7 @@ X-myMPD-Session: <token>
 
 myMPD uses the idle protocol from mpd to detect state changes. These status changes are broadcasted to all open websocket connections.
 
-**Websocket endpoint:** /ws/
+**Websocket endpoint:** `/ws/<partition>`
 
 | MPD IDLE EVENT | MYMPD NOTIFY |
 |----------------|--------------|
