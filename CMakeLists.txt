@@ -424,9 +424,7 @@ set(LIBMPDCLIENT_SOURCES
 #relax some compiler settings for dist sources
 
 #compiler flags for mongoose
-#-Wno-stringop-overflow: gcc 11.2.0 bug
-set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
-  -Wno-stringop-overflow")
+set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion")
 
 #compiler flags for rax
 #-Wno-use-after-free: gcc 12.0.1 error
@@ -434,8 +432,7 @@ set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonlitera
   -Wno-shadow -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers -Wno-use-after-free")
 
 #compiler flags for sds
-#-Wno-stringop-overflow: gcc 11.2.0 bug
-set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-stringop-overflow -Wno-conversion")
+set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion")
 
 #compiler flags for libmpdclient
 set_property(SOURCE ${LIBMPDCLIENT_SOURCES} PROPERTY COMPILE_FLAGS "-Wno-conversion")
