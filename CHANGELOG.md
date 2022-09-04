@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## mympd v9.5.4 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: allow empty smartpls prefix #830
+
+***
+
 ## myMPD v9.5.3 (2022-08-29)
 
 This is a small bug fix release.
