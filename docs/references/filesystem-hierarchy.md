@@ -18,6 +18,7 @@ myMPD uses GNU standard installation directories.
 | /var/lib/mympd/pics/thumbs/ | Folder for homeicon, webradio and stream images |
 | /var/lib/mympd/pics/`<tagname>`/ | Images for <tagname> e.g. AlbumArtist, Artist, Genre, ... |
 | /var/lib/mympd/state/ | State files |
+| /var/lib/mympd/state/`<partition>` | Partition specific state files |
 | /var/lib/mympd/smartpls/ | Directory for smart playlists |
 | /var/lib/mympd/ssl/ | myMPD ssl ca and certificates, created on startup |
 | /var/lib/mympd/scripts/ | Directory for lua scripts|
