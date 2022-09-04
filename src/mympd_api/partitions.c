@@ -55,6 +55,7 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long
 
 /**
  * Disconnects and removes a partition.
+ * Assigned outputs are moved to the default partitition: https://github.com/MusicPlayerDaemon/MPD/discussions/1611
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
