@@ -601,10 +601,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         }
         case MG_EV_CLOSE: {
             MYMPD_LOG_INFO("HTTP connection %lu closed", nc->id);
+            mg_user_data->connection_count--;
             if (frontend_nc_data == NULL) {
                 break;
             }
-            mg_user_data->connection_count--;
             if (frontend_nc_data->backend_nc != NULL) {
                 MYMPD_LOG_INFO("Closing backend connection \"%lu\"", frontend_nc_data->backend_nc->id);
                 //remove pointer to frontend connection
