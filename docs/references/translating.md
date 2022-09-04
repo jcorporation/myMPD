@@ -72,3 +72,4 @@ Debug builds should use the new translation after a successfull build.
 - add it to `src/web_server/embedded_files.c`
 - add it to the struct `embedded_files` in `src/web_server/utility.c`
 - add it to `CMakeLists.txt`
+- add it to `src/compile_time.h.in`
