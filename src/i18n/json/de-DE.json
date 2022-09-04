@@ -211,7 +211,6 @@
     "Each 60": "jede Minute |||| jede %{smart_count}. Minute",
     "Each 604800": "jede Woche |||| jede %{smart_count} Woche",
     "Each 86400": "jeden Tag |||| jeden %{smart_count}. Tag",
-    "Edit": "Bearbeiten",
     "Edit attributes": "Eigenschaften editieren",
     "Edit home icon": "Bearbeiten",
     "Edit playlist": "Wiegergabeliste bearbeiten",

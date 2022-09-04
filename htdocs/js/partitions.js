@@ -14,9 +14,6 @@ function initPartitions() {
                 case 'delete':
                     deletePartition(event.target, partition);
                     break;
-                case 'edit':
-                    uiElements.modalPartitionSettings.show();
-                    break;
             }
         }
         else if (event.target.nodeName === 'TD') {
@@ -237,11 +234,6 @@ function parsePartitionList(obj) {
         {
             partitionActionTd.appendChild(
                 elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["mi", "color-darkgrey", "me-2"]}, 'delete')
-            );
-        }
-        else if (obj.result.data[i].name === localSettings.partition) {
-            partitionActionTd.appendChild(
-                elCreateText('a', {"href": "#", "title": tn('Edit'), "data-action": "edit", "class": ["mi", "color-darkgrey", "me-2"]}, 'edit')
             );
         }
         tr.appendChild(partitionActionTd);
