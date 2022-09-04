@@ -29,7 +29,7 @@
  * @param frontend_nc_data frontend nc data
  * @return true on success, else false
  */
-bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct frontend_nc_data_t *frontend_nc_data) {
+bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct t_frontend_nc_data *frontend_nc_data) {
     sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
     basename_uri(partition);
     FREE_SDS(frontend_nc_data->partition);

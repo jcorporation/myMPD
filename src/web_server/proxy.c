@@ -49,7 +49,7 @@ bool is_allowed_proxy_uri(const char *uri) {
  * Frees the backend data struct
  * @param data backend data to free
  */
-void free_backend_nc_data(struct backend_nc_data_t *data) {
+void free_backend_nc_data(struct t_backend_nc_data *data) {
     FREE_SDS(data->uri);
     data->frontend_nc = NULL;
 }
@@ -59,7 +59,7 @@ void free_backend_nc_data(struct backend_nc_data_t *data) {
  * @param nc mongoose connection
  * @param backend_nc_data backend data
  */
-void handle_backend_close(struct mg_connection *nc, struct backend_nc_data_t *backend_nc_data) {
+void handle_backend_close(struct mg_connection *nc, struct t_backend_nc_data *backend_nc_data) {
     MYMPD_LOG_INFO("Backend tcp connection \"%lu\" closed", nc->id);
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     mg_user_data->connection_count--;
@@ -81,7 +81,7 @@ void handle_backend_close(struct mg_connection *nc, struct backend_nc_data_t *ba
  */
 void send_backend_request(struct mg_connection *nc, void *fn_data) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
-    struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)fn_data;
+    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)fn_data;
     mg_user_data->connection_count++;
     struct mg_str host = mg_url_host(backend_nc_data->uri);
     MYMPD_LOG_INFO("Backend connection \"%lu\" established, host \"%.*s\"", nc->id, (int)host.len, host.ptr);
@@ -112,7 +112,7 @@ void send_backend_request(struct mg_connection *nc, void *fn_data) {
 struct mg_connection *create_backend_connection(struct mg_connection *nc, struct mg_connection *backend_nc, sds uri, mg_event_handler_t fn) {
     if (backend_nc == NULL) {
         MYMPD_LOG_INFO("Creating new http backend connection to \"%s\"", uri);
-        struct backend_nc_data_t *backend_nc_data = malloc(sizeof(struct backend_nc_data_t));
+        struct t_backend_nc_data *backend_nc_data = malloc(sizeof(struct t_backend_nc_data));
         backend_nc_data->uri = sdsdup(uri);
         backend_nc_data->frontend_nc = nc;
         backend_nc = mg_http_connect(nc->mgr, uri, fn, backend_nc_data);
@@ -146,11 +146,11 @@ struct mg_connection *create_backend_connection(struct mg_connection *nc, struct
  * @param nc mongoose backend connection
  * @param ev mongoose event
  * @param ev_data mongoose ev_data (not used)
- * @param fn_data mongoose fn_data (backend_nc_data_t)
+ * @param fn_data mongoose fn_data (t_backend_nc_data)
  */
 void forward_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     (void) ev_data;
-    struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)fn_data;
+    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)fn_data;
     switch(ev) {
         case MG_EV_CONNECT: {
             send_backend_request(nc, fn_data);

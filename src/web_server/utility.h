@@ -36,7 +36,7 @@ struct t_mg_user_data {
 /**
  * Struct for http frontend connection user data
  */
-struct frontend_nc_data_t {
+struct t_frontend_nc_data {
     struct mg_connection *backend_nc;  //!< pointer to backend connection
     sds partition;                     //!< partition (for websocket connections only)
 };
@@ -44,7 +44,7 @@ struct frontend_nc_data_t {
 #ifdef EMBEDDED_ASSETS
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri);
 #endif
-bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct frontend_nc_data_t *frontend_nc_data);
+bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct t_frontend_nc_data *frontend_nc_data);
 sds webserver_find_image_file(sds basefilename);
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg);
 void webserver_serve_na_image(struct mg_connection *nc);

@@ -130,7 +130,7 @@ static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *ba
     backend_nc = create_backend_connection(nc, backend_nc, uri, radiobrowser_handler);
     FREE_SDS(uri);
     if (backend_nc != NULL) {
-        struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)backend_nc->fn_data;
+        struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)backend_nc->fn_data;
         backend_nc_data->cmd_id = cmd_id;
         return true;
     }
@@ -142,10 +142,10 @@ static bool radiobrowser_send(struct mg_connection *nc, struct mg_connection *ba
  * @param nc mongoose backend connection
  * @param ev mongoose event
  * @param ev_data mongoose ev_data (http response)
- * @param fn_data mongoose fn_data (backend_nc_data_t)
+ * @param fn_data mongoose fn_data (t_backend_nc_data)
  */
 static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
-    struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)fn_data;
+    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)fn_data;
     switch(ev) {
         case MG_EV_CONNECT: {
             send_backend_request(nc, fn_data);

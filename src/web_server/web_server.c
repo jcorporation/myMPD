@@ -279,7 +279,7 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
     int conn_count = 0;
     while (nc != NULL) {
         if ((int)nc->is_websocket == 1) {
-            struct frontend_nc_data_t *frontend_nc_data = (struct frontend_nc_data_t *)nc->fn_data;
+            struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
             if (strcmp(response->partition, frontend_nc_data->partition) == 0 ||
                 strcmp(response->partition, MPD_PARTITION_ALL) == 0)
             {
@@ -372,7 +372,7 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
  */
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     //connection specific data structure
-    struct frontend_nc_data_t *frontend_nc_data = (struct frontend_nc_data_t *)fn_data;
+    struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)fn_data;
     //mongoose user data
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
@@ -380,7 +380,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         case MG_EV_OPEN: {
             mg_user_data->connection_count++;
             //initialize fn_data
-            frontend_nc_data = malloc_assert(sizeof(struct frontend_nc_data_t));
+            frontend_nc_data = malloc_assert(sizeof(struct t_frontend_nc_data));
             frontend_nc_data->partition = NULL;
             frontend_nc_data->backend_nc = NULL;
             nc->fn_data = frontend_nc_data;
@@ -608,7 +608,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             if (frontend_nc_data->backend_nc != NULL) {
                 MYMPD_LOG_INFO("Closing backend connection \"%lu\"", frontend_nc_data->backend_nc->id);
                 //remove pointer to frontend connection
-                struct backend_nc_data_t *backend_nc_data = (struct backend_nc_data_t *)frontend_nc_data->backend_nc->fn_data;
+                struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)frontend_nc_data->backend_nc->fn_data;
                 backend_nc_data->frontend_nc = NULL;
                 //close backend connection
                 frontend_nc_data->backend_nc->is_closing = 1;

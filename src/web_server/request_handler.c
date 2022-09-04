@@ -28,7 +28,7 @@
 bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth_header,
         struct t_mg_user_data *mg_user_data, struct mg_connection *backend_nc)
 {
-    struct frontend_nc_data_t *frontend_nc_data = (struct frontend_nc_data_t *)nc->fn_data;
+    struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
     MYMPD_LOG_DEBUG("\"%s\": API request (%lu): %s", frontend_nc_data->partition, nc->id, body);
 
     //first check if request is valid json string
@@ -138,7 +138,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
  * @return true on success, else false
  */
 bool request_handler_script_api(struct mg_connection *nc, sds body) {
-    struct frontend_nc_data_t *frontend_nc_data = (struct frontend_nc_data_t *)nc->fn_data;
+    struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
 
     MYMPD_LOG_DEBUG("\"%s\": Script API request (%lu): %s", frontend_nc_data->partition, nc->id, body);
 
