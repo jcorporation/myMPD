@@ -1461,6 +1461,11 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             settings_to_webserver(partition_state->mympd_state);
             break;
         case MYMPD_API_PARTITION_RM:
+            if (partition_state->is_default == false) {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD,
+                        JSONRPC_SEVERITY_ERROR, "Partitions can only be deleted from default partition");
+                break;
+            }
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
                 if (strcmp(sds_buf1, MPD_PARTITION_DEFAULT) == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD,

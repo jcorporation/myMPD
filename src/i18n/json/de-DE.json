@@ -481,6 +481,7 @@
     "Outputs moved to current partition": "Ausgabegeräte wurden in aktuelle Partition verschoben",
     "OverridesStreamPort": "Die Stream URI überschreibt die automatische Streamproxy Konfiguration (MPD Host + Stream Port)",
     "Partition": "Partition",
+    "Partitions can only be deleted from default partition": "Partitionen können nur von der Default-Partition aus gelöscht werden",
     "Partition name": "Partitionsname",
     "Partition name invalid": "Ungültiger Partitionsname",
     "Partition not found": "Partition nicht vorhanden",

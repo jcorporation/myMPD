@@ -164,7 +164,7 @@ function showListPartitions() {
 
 function deletePartition(el, partition) {
     showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the partition?', {"partition": partition}), tn('Yes, delete it'), function() {
-        sendAPI("MYMPD_API_PARTITION_RM", {
+        sendAPIpartition("default", "MYMPD_API_PARTITION_RM", {
             "name": partition
         }, savePartitionCheckError, true);
     });  
