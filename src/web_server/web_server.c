@@ -377,13 +377,19 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
     switch(ev) {
-        case MG_EV_ACCEPT: {
+        case MG_EV_OPEN: {
             mg_user_data->connection_count++;
             //initialize fn_data
             frontend_nc_data = malloc_assert(sizeof(struct frontend_nc_data_t));
             frontend_nc_data->partition = NULL;
             frontend_nc_data->backend_nc = NULL;
             nc->fn_data = frontend_nc_data;
+            //set labels
+            nc->label[0] = 'F';
+            nc->label[1] = '-';
+            nc->label[2] = '-';
+            break;
+        case MG_EV_ACCEPT:
             //ssl support
             #ifdef ENABLE_SSL
             if (config->ssl == true) {
@@ -412,10 +418,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 mg_straddr(&nc->rem, buf, INET6_ADDRSTRLEN);
                 MYMPD_LOG_DEBUG("New connection id \"%lu\" from %s, connections: %d", nc->id, buf, mg_user_data->connection_count);
             }
-            //set labels
-            nc->label[0] = 'F';
-            nc->label[1] = '-';
-            nc->label[2] = '-';
             break;
         }
         case MG_EV_WS_MSG: {
