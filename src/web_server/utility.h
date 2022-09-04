@@ -44,6 +44,7 @@ struct frontend_nc_data_t {
 #ifdef EMBEDDED_ASSETS
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri);
 #endif
+bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct frontend_nc_data_t *frontend_nc_data);
 sds webserver_find_image_file(sds basefilename);
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg);
 void webserver_serve_na_image(struct mg_connection *nc);

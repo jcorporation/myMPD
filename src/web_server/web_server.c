@@ -387,7 +387,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             //set labels
             nc->label[0] = 'F';
             nc->label[1] = '-';
-            nc->label[2] = '-';
+            nc->label[2] = 'C';
             break;
         case MG_EV_ACCEPT:
             //ssl support
@@ -480,14 +480,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             //handle uris
             if (mg_http_match_uri(hm, "/api/*")) {
                 //api request
-                sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
-                sdsrange(partition, 5, -1);
-                FREE_SDS(frontend_nc_data->partition);
-                frontend_nc_data->partition = partition;
-                if (sdslen(partition) == 0) {
-                    //no partition identifier - close connection
-                    webserver_send_error(nc, 400, "No partition identifier");
-                    nc->is_draining = 1;
+                //check partition
+                if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
                     break;
                 }
                 //body
@@ -520,14 +514,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 request_handler_browse(nc, hm, mg_user_data);
             }
             else if (mg_http_match_uri(hm, "/ws/*")) {
-                sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
-                sdsrange(partition, 4, -1);
-                FREE_SDS(frontend_nc_data->partition);
-                frontend_nc_data->partition = partition;
-                if (sdslen(partition) == 0) {
-                    //no partition identifier - close connection
-                    webserver_send_error(nc, 400, "No partition identifier");
-                    nc->is_draining = 1;
+                //check partition
+                if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
                     break;
                 }
                 mg_ws_upgrade(nc, hm, NULL);
@@ -537,10 +525,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 FREE_SDS(response);
             }
             else if (mg_http_match_uri(hm, "/stream/*")) {
-                sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
-                sdsrange(partition, 8, -1);
-                struct t_list_node *node = list_get_node(&mg_user_data->stream_uris, partition);
-                FREE_SDS(partition);
+                //check partition
+                if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
+                    break;
+                }
+                struct t_list_node *node = list_get_node(&mg_user_data->stream_uris, frontend_nc_data->partition);
                 if (node == NULL) {
                     webserver_send_error(nc, 404, "Stream uri not configured");
                     nc->is_draining = 1;
@@ -560,14 +549,8 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 if (check_acl(nc, config->scriptacl) == false) {
                     break;
                 }
-                sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
-                sdsrange(partition, 12, -1);
-                FREE_SDS(frontend_nc_data->partition);
-                frontend_nc_data->partition = partition;
-                if (sdslen(partition) == 0) {
-                    //no partition identifier - close connection
-                    webserver_send_error(nc, 400, "No partition identifier");
-                    nc->is_draining = 1;
+                //check partition
+                if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
                     break;
                 }
                 sds body = sdsnewlen(hm->body.ptr, hm->body.len);

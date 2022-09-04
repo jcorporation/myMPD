@@ -11,6 +11,7 @@
 #include "../lib/mem.h"
 #include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 
 #ifdef EMBEDDED_ASSETS
 //embedded files for release build
@@ -20,6 +21,27 @@
 /**
  * Public functions
  */
+
+/**
+ * Sets the partition from uri and handles errors
+ * @param nc mongoose connection
+ * @param hm http message
+ * @param frontend_nc_data frontend nc data
+ * @return true on success, else false
+ */
+bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct frontend_nc_data_t *frontend_nc_data) {
+    sds partition = sdsnewlen(hm->uri.ptr, hm->uri.len);
+    basename_uri(partition);
+    FREE_SDS(frontend_nc_data->partition);
+    frontend_nc_data->partition = partition;
+    if (sdslen(partition) == 0) {
+        //no partition identifier - close connection
+        webserver_send_error(nc, 400, "No partition identifier");
+        nc->is_draining = 1;
+        return false;
+    }
+    return true;
+}
 
 /**
  * Frees the members of mg_user_data struct and the struct itself
