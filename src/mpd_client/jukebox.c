@@ -486,82 +486,75 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
     mympd_check_error_and_recover(partition_state);
 
     //append last_played to queue list
-    struct t_list_node *current = partition_state->mpd_state->last_played.head;
+    struct t_list_node *current = partition_state->last_played.head;
     while (current != NULL) {
-        if (strcmp(partition_state->name, current->value_p) == 0) {
-            rc = mpd_send_list_meta(partition_state->conn, current->key);
-            if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_send_list_meta") == true) {
-                song = mpd_recv_song(partition_state->conn);
-                if (song != NULL) {
-                    if (jukebox_mode == JUKEBOX_ADD_SONG) {
-                        if (partition_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
-                            tag_value = mpd_client_get_tag_value_string(song, partition_state->jukebox_unique_tag.tags[0], tag_value);
-                        }
-                        list_push(queue_list, current->key, 0, tag_value, NULL);
-                        sdsclear(tag_value);
+        rc = mpd_send_list_meta(partition_state->conn, current->key);
+        if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_send_list_meta") == true) {
+            song = mpd_recv_song(partition_state->conn);
+            if (song != NULL) {
+                if (jukebox_mode == JUKEBOX_ADD_SONG) {
+                    if (partition_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
+                        tag_value = mpd_client_get_tag_value_string(song, partition_state->jukebox_unique_tag.tags[0], tag_value);
                     }
-                    else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
-                        album = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, album);
-                        albumartist = mpd_client_get_tag_value_string(song, partition_state->mpd_state->tag_albumartist, albumartist);
-                        list_push(queue_list, album, 0, albumartist, NULL);
-                        sdsclear(album);
-                        sdsclear(albumartist);
-                    }
-                    mpd_song_free(song);
+                    list_push(queue_list, current->key, 0, tag_value, NULL);
+                    sdsclear(tag_value);
                 }
+                else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
+                    album = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, album);
+                    albumartist = mpd_client_get_tag_value_string(song, partition_state->mpd_state->tag_albumartist, albumartist);
+                    list_push(queue_list, album, 0, albumartist, NULL);
+                    sdsclear(album);
+                    sdsclear(albumartist);
+                }
+                mpd_song_free(song);
             }
-            mpd_response_finish(partition_state->conn);
-            mympd_check_error_and_recover(partition_state);
         }
+        mpd_response_finish(partition_state->conn);
+        mympd_check_error_and_recover(partition_state);
         current = current->next;
     }
 
     //get last_played from disc
     sds line = sdsempty();
-    sds lp_file = sdscatfmt(sdsempty(), "%S/state/last_played", partition_state->mympd_state->config->workdir);
+    sds lp_file = sdscatfmt(sdsempty(), "%S/%S/%s",
+        partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
     errno = 0;
     FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
         while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0 &&
-                queue_list->length < 20)
+                queue_list->length < 50)
         {
             sds uri = NULL;
-            sds partition = NULL;
-            if (json_get_string_max(line, "$.uri", &uri, vcb_isfilepath, NULL) == true &&
-                json_get_string_max(line, "$.partition", &partition, vcb_isname, NULL) == true)
-            {
-                if (strcmp(partition_state->name, partition) == 0) {
-                    rc = mpd_send_list_meta(partition_state->conn, uri);
-                    if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_send_list_meta") == true) {
-                        song = mpd_recv_song(partition_state->conn);
-                        if (song != NULL) {
-                            if (jukebox_mode == JUKEBOX_ADD_SONG) {
-                                if (partition_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
-                                    tag_value = mpd_client_get_tag_value_string(song, partition_state->jukebox_unique_tag.tags[0], tag_value);
-                                }
-                                list_push(queue_list, uri, 0, tag_value, NULL);
-                                sdsclear(tag_value);
+            if (json_get_string_max(line, "$.uri", &uri, vcb_isfilepath, NULL) == true) {
+                rc = mpd_send_list_meta(partition_state->conn, uri);
+                if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_send_list_meta") == true) {
+                    song = mpd_recv_song(partition_state->conn);
+                    if (song != NULL) {
+                        if (jukebox_mode == JUKEBOX_ADD_SONG) {
+                            if (partition_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
+                                tag_value = mpd_client_get_tag_value_string(song, partition_state->jukebox_unique_tag.tags[0], tag_value);
                             }
-                            else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
-                                album = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, album);
-                                albumartist = mpd_client_get_tag_value_string(song, partition_state->mpd_state->tag_albumartist, albumartist);
-                                list_push(queue_list, album, 0, albumartist, NULL);
-                                sdsclear(album);
-                                sdsclear(albumartist);
-                            }
-                            mpd_song_free(song);
+                            list_push(queue_list, uri, 0, tag_value, NULL);
+                            sdsclear(tag_value);
                         }
+                        else if (jukebox_mode == JUKEBOX_ADD_ALBUM) {
+                            album = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, album);
+                            albumartist = mpd_client_get_tag_value_string(song, partition_state->mpd_state->tag_albumartist, albumartist);
+                            list_push(queue_list, album, 0, albumartist, NULL);
+                            sdsclear(album);
+                            sdsclear(albumartist);
+                        }
+                        mpd_song_free(song);
                     }
-                    mpd_response_finish(partition_state->conn);
-                    mympd_check_error_and_recover(partition_state);
                 }
+                mpd_response_finish(partition_state->conn);
+                mympd_check_error_and_recover(partition_state);
             }
             else {
                 MYMPD_LOG_ERROR("\"%s\": Reading last_played line failed", partition_state->name);
                 MYMPD_LOG_DEBUG("\"%s\": Erroneous line: %s", partition_state->name, line);
             }
             FREE_SDS(uri);
-            FREE_SDS(partition);
         }
         (void) fclose(fp);
         FREE_SDS(line);

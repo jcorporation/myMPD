@@ -96,7 +96,6 @@ struct t_mpd_state {
     struct t_cache album_cache;         //!< the album cache created by the mpd_worker thread
     struct t_cache sticker_cache;       //!< the sticker cache created by the mpd_worker thread
     //lists
-    struct t_list last_played;          //!< last_played list
     long last_played_count;             //!< number of songs to keep in the last played list (disk + memory)
     struct t_list sticker_queue;        //!< queue for stickers to set (cache if sticker cache is rebuilding) 
     sds booklet_name;                   //!< name of the booklet files
@@ -154,6 +153,8 @@ struct t_partition_state {
     //local playback
     unsigned mpd_stream_port;              //!< mpd http stream port setting
     sds stream_uri;                        //!< custom url for local playback
+    //lists
+    struct t_list last_played;             //!< last_played list
 };
 
 /**

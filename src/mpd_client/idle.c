@@ -367,14 +367,7 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
                 case MPD_IDLE_QUEUE: {
                     //MPD_IDLE_PLAYLIST is the same
                     //queue has changed - partition specific event
-                    unsigned old_queue_version = partition_state->queue_version;
                     buffer = mympd_api_queue_status(partition_state, buffer);
-                    if (partition_state->queue_version == old_queue_version) {
-                        //ignore this idle event, queue version has not changed in this partition
-                        sdsclear(buffer);
-                        MYMPD_LOG_DEBUG("\"%s\": Queue version has not changed, ignoring idle event MPD_IDLE_QUEUE", partition_state->name);
-                        break;
-                    }
                     //jukebox enabled
                     if (partition_state->jukebox_mode != JUKEBOX_OFF &&
                         partition_state->queue_length < partition_state->jukebox_queue_length)

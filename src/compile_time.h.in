@@ -59,6 +59,9 @@ extern struct t_mympd_queue *web_server_queue;
 extern struct t_mympd_queue *mympd_api_queue;
 extern struct t_mympd_queue *mympd_script_queue;
 
+//state file names
+#define FILENAME_LAST_PLAYED "last_played_list"
+
 //mpd partitions
 #define MPD_PARTITION_DEFAULT "default"
 #define MPD_PARTITION_ALL "!all!"
@@ -235,8 +238,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define JSONRPC_INT_MAX INT_MAX
 #define JSONRPC_LONG_MIN INT_MIN
 #define JSONRPC_LONG_MAX INT_MAX
-#define JSONRPC_LLONG_MIN LLONG_MAX
-#define JSONRPC_LLONG_MAX LLONG_MIN
+#define JSONRPC_LLONG_MIN LLONG_MIN
+#define JSONRPC_LLONG_MAX LLONG_MAX
 #define JSONRPC_UINT_MAX INT_MAX
 #define JSONRPC_STR_MAX 3000
 #define JSONRPC_KEY_MAX 50

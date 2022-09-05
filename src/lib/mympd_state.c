@@ -29,10 +29,14 @@
  */
 void mympd_state_save(struct t_mympd_state *mympd_state) {
     mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
-    mympd_api_last_played_file_save(&mympd_state->mpd_state->last_played,
-        mympd_state->mpd_state->last_played_count, mympd_state->config->workdir);
     mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
     mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
+
+    struct t_partition_state *partition_state = mympd_state->partition_state;
+    while (partition_state != NULL) {
+        mympd_api_last_played_file_save(partition_state);
+        partition_state = partition_state->next;
+    }
 }
 
 /**
@@ -172,7 +176,6 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
     mpd_state->album_cache.building = false;
     mpd_state->album_cache.cache = NULL;
     //init last played songs list
-    list_init(&mpd_state->last_played);
     mpd_state->last_played_count = MYMPD_LAST_PLAYED_COUNT;
     //init sticker queue
     list_init(&mpd_state->sticker_queue);
@@ -212,7 +215,6 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
     FREE_SDS(mpd_state->music_directory_value);
     //lists
     list_clear(&mpd_state->sticker_queue);
-    list_clear(&mpd_state->last_played);
     //caches
     sticker_cache_free(&mpd_state->sticker_cache);
     album_cache_free(&mpd_state->album_cache);
@@ -287,6 +289,8 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     //local playback
     partition_state->mpd_stream_port = PARTITION_MPD_STREAM_PORT;
     partition_state->stream_uri = sdsempty();
+    //init last played songs list
+    list_init(&partition_state->last_played);
 }
 
 /**
@@ -303,6 +307,10 @@ void partition_state_free(struct t_partition_state *partition_state) {
     jukebox_clear(&partition_state->jukebox_queue);
     jukebox_clear(&partition_state->jukebox_queue_tmp);
     FREE_SDS(partition_state->jukebox_playlist);
+    //lists
+    list_clear(&partition_state->last_played);
+    //local playback
+    FREE_SDS(partition_state->stream_uri);
     //struct itself
     FREE_PTR(partition_state);
 }

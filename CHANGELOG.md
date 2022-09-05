@@ -11,12 +11,14 @@ This major release adds concurrent MPD partition support to myMPD. myMPD connect
 The partition feature should be used with MPD >= 0.23.9. There are some anoying partition related bugs in earlier MPD versions.
 
 The syntax of the last_played file has changed. You can convert it with
-`sed -i -r 's/^(.*)::(.*)/{"LastPlayed":\1,"partition":"default","uri":"\2"}/g' /var/lib/mympd/state/last_played`
+`sed -r 's/^(.*)::(.*)/{"LastPlayed":\1,"uri":"\2"}/g' /var/lib/mympd/state/last_played > /var/lib/mympd/state/default/last_played_list`
 
 ### Per partition features
 
+- Highlight color
 - Jukebox
 - Last played
+- Local player
 - MPD options
 - Triggers
 - Timers
@@ -29,6 +31,7 @@ The syntax of the last_played file has changed. You can convert it with
 - Upd: add internal api documentation
 - Upd: build improvements
 - Upd: Mongoose 7.8
+- Upd: mjson
 
 ***
 
