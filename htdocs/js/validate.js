@@ -52,7 +52,7 @@ function validateFilenameString(str) {
     if (str === '') {
         return false;
     }
-    if (str.match(/^[\w-.]+$/) !== null) {
+    if (str.match(/\/|\r|\n|"|'/) === null) {
         return true;
     }
     return false;
@@ -78,11 +78,13 @@ function validateFilenameList(el) {
 }
 
 function validatePath(el) {
-    if (el.value === '') {
+    if (el.value === '' ||
+        el.value.charAt(0) !== '/')
+    {
         setIsInvalid(el);
         return false;
     }
-    if (el.value.match(/^\/[/.\w-]+$/) !== null) {
+    if (el.value.match(/\r|\n|"|'/) === null) {
         return true;
     }
     setIsInvalid(el);
@@ -97,11 +99,11 @@ function validatePlnameEl(el) {
     return true;
 }
 
-function validatePlname(x) {
-    if (x === '') {
+function validatePlname(str) {
+    if (str === '') {
         return false;
     }
-    if (x.match(/\/|\r|\n|"|'/) === null) {
+    if (str.match(/\/|\r|\n|"|'/) === null) {
         return true;
     }
     return false;
