@@ -67,10 +67,10 @@ Compile time options are set through environment variables.
 
 | ENVIRONMENT | DEFAULT | DESCRIPTION |
 | ----------- | ------- | ----------- |
-| EMBEDDED_ASSETS | - | ON = Embeds assets in binary, default ON for release else OFF |
+| EMBEDDED_ASSETS | - | ON = Embeds assets in binary, default ON for release, else OFF |
 | ENABLE_FLAC | ON | ON = Enables flac usage for extracting coverimages |
 | ENABLE_IPV6 | OFF | ON = Enables IPv6 |
-| ENABLE_LIBASAN | - | ON = compile with libasan, default ON for memcheck else OFF |
+| ENABLE_LIBASAN | - | ON = compile with libasan, default ON for memcheck, else OFF |
 | ENABLE_LIBID3TAG | ON | ON = Enables libid3tag usage for extracting coverimages |
 | ENABLE_LUA | ON | ON = Enables scripting support with lua |
 | ENABLE_SSL | ON | ON = Enables SSL, requires OpenSSL >= 1.1.0 |
