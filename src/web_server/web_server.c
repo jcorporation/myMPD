@@ -422,11 +422,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         }
         case MG_EV_WS_MSG: {
             struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
-            MYMPD_LOG_DEBUG("WS message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
+            MYMPD_LOG_DEBUG("Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
             if (strncmp(wm->data.ptr, "ping", wm->data.len) == 0) {
                 size_t sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
                 if (sent != 6) {
-                    MYMPD_LOG_WARN("WS could not reply with pong, closing connection");
+                    MYMPD_LOG_WARN("Websocket: Could not reply with pong, closing connection");
                     nc->is_closing = 1;
                 }
             }
