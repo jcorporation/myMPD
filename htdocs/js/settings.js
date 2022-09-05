@@ -178,7 +178,7 @@ function saveConnection() {
 
     if (musicDirectory === 'custom') {
         const musicDirectoryValueEl = document.getElementById('inputMusicDirectory');
-        if (!validatePath(musicDirectoryValueEl)) {
+        if (validatePath(musicDirectoryValueEl) === false) {
             formOK = false;
         }
         musicDirectory = musicDirectoryValueEl.value;
@@ -186,24 +186,24 @@ function saveConnection() {
     if (mpdPortEl.value === '') {
         mpdPortEl.value = '6600';
     }
-    if (!validateIntRange(mpdPortEl, 1024, 65535)) {
+    if (validateIntRange(mpdPortEl, 1024, 65535) === false) {
         formOK = false;
     }
     if (mpdHostEl.value.indexOf('/') !== 0) {
-        if (!validateInt(mpdPortEl)) {
+        if (validateInt(mpdPortEl) === false) {
             formOK = false;
         }
-        if (!validateHost(mpdHostEl)) {
+        if (validateHost(mpdHostEl) === false) {
             formOK = false;
         }
     }
-    if (!validatePath(playlistDirectoryEl)) {
+    if (validatePath(playlistDirectoryEl) === false) {
         formOK = false;
     }
-    if (!validateIntRange(mpdBinarylimitEl, 4, 256)) {
+    if (validateIntRange(mpdBinarylimitEl, 4, 256) === false) {
         formOK = false;
     }
-    if (!validateIntRange(mpdTimeoutEl, 1, 1000)) {
+    if (validateIntRange(mpdTimeoutEl, 1, 1000) === false) {
         formOK = false;
     }
     if (formOK === true) {
@@ -1027,29 +1027,29 @@ function saveSettings(closeModal) {
         'inputSettingvolumeStep'])
     {
         const inputEl = document.getElementById(inputId);
-        if (!validateUint(inputEl)) {
+        if (validateUint(inputEl) === false) {
             formOK = false;
         }
     }
 
     const inputCoverimageNames = document.getElementById('inputCoverimageNames');
-    if (!validateFilenameList(inputCoverimageNames)) {
+    if (validateFilenameList(inputCoverimageNames) === false) {
         formOK = false;
     }
     const inputThumbnailNames = document.getElementById('inputThumbnailNames');
-    if (!validateFilenameList(inputThumbnailNames)) {
+    if (validateFilenameList(inputThumbnailNames) === false) {
         formOK = false;
     }
 
     const inputBookletName = document.getElementById('inputBookletName');
-    if (!validateFilename(inputBookletName)) {
+    if (validateFilename(inputBookletName) === false) {
         formOK = false;
     }
 
     const inputScaleRatio = document.getElementById('inputScaleRatio');
     //handle scaleRatio only for mobile browsers
     if (userAgentData.isMobile === true) {
-        if (!validateFloat(inputScaleRatio)) {
+        if (validateFloat(inputScaleRatio) === false) {
             formOK = false;
         }
     }
