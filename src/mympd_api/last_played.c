@@ -43,7 +43,7 @@ static sds _get_last_played_obj(struct t_partition_state *partition_state, sds b
  * @return true on success, else false
  */
 bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) {
-    MYMPD_LOG_INFO("Saving last_played list to disc");
+    MYMPD_LOG_INFO("\"%s\": Saving last_played list to disc", partition_state->name);
     sds tmp_file = sdscatfmt(sdsempty(), "%S/%S/%s.XXXXXX",
         partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
     FILE *fp = open_tmp_file(tmp_file);
@@ -63,7 +63,7 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
         line = sdscatlen(line, "}\n", 2);
 
         if (fputs(line, fp) == EOF) {
-            MYMPD_LOG_ERROR("Could not write last played songs to disc");
+            MYMPD_LOG_ERROR("\"%s\": Could not write last played songs to disc", partition_state->name);
             write_rc = false;
             list_node_free(current);
             break;
@@ -83,7 +83,7 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
                 i < partition_state->mpd_state->last_played_count)
             {
                 if (fputs(line, fp) == EOF) {
-                    MYMPD_LOG_ERROR("Could not write last played songs to disc");
+                    MYMPD_LOG_ERROR("\"%s\": Could not write last played songs to disc", partition_state->name);
                     write_rc = false;
                     break;
                 }
@@ -118,7 +118,7 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, i
     }
     struct mpd_song *song = mpd_run_get_queue_song_id(partition_state->conn, (unsigned)song_id);
     if (song == NULL) {
-        MYMPD_LOG_ERROR("Can't get song from id %d", song_id);
+        MYMPD_LOG_ERROR("\"%s\": Can't get song from id %d", partition_state->name, song_id);
         return mympd_check_error_and_recover(partition_state);
     }
     const char *uri = mpd_song_get_uri(song);
@@ -215,7 +215,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
                 }
             }
             else {
-                MYMPD_LOG_ERROR("Reading last_played line failed");
+                MYMPD_LOG_ERROR("\"%s\": Reading last_played line failed", partition_state->name);
                 MYMPD_LOG_DEBUG("Errorneous line: %s", line);
             }
             FREE_SDS(uri);
