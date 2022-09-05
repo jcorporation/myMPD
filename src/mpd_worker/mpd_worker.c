@@ -106,8 +106,8 @@ static void *mpd_worker_run(void *arg) {
         mpd_client_disconnect_silent(mpd_worker_state->partition_state, MPD_REMOVED);
     }
     MYMPD_LOG_NOTICE("Stopping mpd_worker thread");
-    FREE_SDS(thread_logname);
     mpd_worker_state_free(mpd_worker_state);
     worker_threads--;
+    FREE_SDS(thread_logname);
     return NULL;
 }

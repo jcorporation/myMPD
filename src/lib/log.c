@@ -14,6 +14,7 @@
 #include <string.h>
 
 //global variables
+_Thread_local sds thread_logname;
 _Atomic int loglevel;
 bool log_to_syslog;
 bool log_on_tty;

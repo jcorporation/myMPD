@@ -45,8 +45,6 @@
 #include <pwd.h>
 #include <signal.h>
 
-_Thread_local sds thread_logname;
-
 #ifdef ENABLE_LIBASAN
 const char *__asan_default_options(void) {
     return "detect_stack_use_after_return=true";
