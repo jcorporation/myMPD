@@ -4,7 +4,7 @@ permalink: /additional-topics/multiple-myMPD-instances-on-same-host
 title: Multiple myMPD instances on same host
 ---
 
-You can run multiple myMPD instances on the same host connecting to different MPD instances. You should not point two myMPD instances to the same MPD instance.
+You can run multiple myMPD instances on the same host connecting to different MPD instances.
 
 You must define for each myMPD instance:
 - different working directory

@@ -8,8 +8,10 @@ myMPD supports multiple mpd partitions. myMPD connects to the `default` partitio
 
 Following items are partition specific:
 
+- Highlight color
 - Jukebox
 - Last played
+- Local player
 - MPD options
 - Triggers
 - Timers

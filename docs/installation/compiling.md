@@ -34,13 +34,14 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
 - libasan3 - for memcheck builds only
 - Perl - to create translation files
 - gzip - to precompress assets
+- jq - json parsing
 - Devel packages:
   - pcre2 - for pcre support
   - Optional: 
     - OpenSSL >= 1.1.0 - for https support
     - libid3tag - to extract embedded coverimages
     - flac - to extract embedded coverimages
-    - liblua >= 5.3.0 - for scripting myMPD
+    - liblua >= 5.3.0 - for myMPD scripting
 
 You can type `./build.sh installdeps` as root to install the dependencies (works only for supported distributions). For all other distributions you must install the packages manually.
 

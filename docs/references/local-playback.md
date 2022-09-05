@@ -9,7 +9,7 @@ With the local playback feature myMPD can play the http stream from MPD directly
 If myMPD is served over https the stream must be also served over https. Mixed content is prohibited by modern browsers.
 MPD can not serve a https stream, therefore myMPD integrates a reverse proxy. The reverse proxy publishes the mpd stream through the `/stream/<partition>` uri.
 
-You must set the correct stream port in the settings dialog (partition specific setting).
+You must set the correct stream port in the settings dialog (Features tab).
 
 Alternatively you can specify an uri, if the mpd stream is published through an other method.
 

@@ -37,7 +37,7 @@ The server certificates SAN is:
 - IP:`<ip of resolved hostname>`
 - IP:`all interface ips`
 
-You can edit the file `/var/lib/mympd/config/ssl_san` before starting myMPD to add additional names or ip addresses to the certificate, e.g. `DNS:jukebox.local`. 
+You can set the environment variable `MYMPD_SSL_SAN` before starting myMPD to add additional names or ip addresses to the certificate, e.g. `export MYMPD_SSL_SAN="DNS:jukebox.local"`. 
 
 To regenerate the server certificate stop myMPD, and remove the `/var/lib/mympd/ssl/server.crt` and `/var/lib/mympd/ssl/server.key` files.
 
