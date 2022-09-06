@@ -1208,7 +1208,7 @@ This is a small maintenance release.
 
 ## myMPD v6.2.0 (2020-02-14)
 
-myMPD 6.2.0 adds more functionality to smart playlists and playlists generally. The publishing feature of myMPD was completely reworked and supports now webdav to manage pics, mpd music_directory and playlists. This feature is in the default config disabled and mus be enabled in mympd.conf. Also the notification system was reworked and supports now the brand new HTML5 MediaSession API.
+myMPD 6.2.0 adds more functionality to smart playlists and playlists generally. The publishing feature of myMPD was completely reworked and supports now webdav to manage pics, mpd music_directory and playlists. This feature is in the default config disabled and must be enabled in mympd.conf. Also the notification system was reworked and supports now the brand new HTML5 MediaSession API.
 
 Please give the new tool mympd-config a chance. This tool parses your mpd.conf and generates a suitable mympd.conf. For details look at https://github.com/jcorporation/myMPD/wiki/mympd-config.
 
@@ -1558,9 +1558,9 @@ This point release fixes some bugs.
 
 ***
 
-### myMPD v5.2.0 (2019-03-25)
+## myMPD v5.2.0 (2019-03-25)
 
-myMPD 5.2.0 supports embedded albumart through a plugin, that uses libmediainfo. It became a plugin because i did not want to introduce any more dependencies. The plugin is build automatically, if libmediainfo is found. The plugin must be enabled in the configuration file.
+myMPD 5.2.0 supports embedded albumart through a plugin, that uses libmediainfo. It became a plugin because I did not want to introduce any more dependencies. The plugin is build automatically, if libmediainfo is found. The plugin must be enabled in the configuration file.
 
 Another nice feature detects the mpd music_directory automatically, if myMPD connects over a local socket to mpd. If not, you must configure the musicdirectory option in /etc/mympd/mympd.conf. The symlinks within htdocs are no longer needed.
 
