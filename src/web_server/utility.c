@@ -279,16 +279,16 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
     if (p->uri != NULL) {
         //send header
         mg_printf(nc, "HTTP/1.1 200 OK\r\n"
-                      EXTRA_HEADERS_SAFE
-                      "%s"
-                      "Content-Length: %d\r\n"
-                      "Content-Type: %s\r\n"
-                      "%s\r\n",
-                      (p->cache == true ? EXTRA_HEADERS_CACHE : ""),
-                      p->size,
-                      p->mimetype,
-                      (p->compressed == true ? EXTRA_HEADER_CONTENT_ENCODING : "")
-                 );
+            EXTRA_HEADERS_SAFE
+            "%s"
+            "Content-Length: %d\r\n"
+            "Content-Type: %s\r\n"
+            "%s\r\n",
+            (p->cache == true ? EXTRA_HEADERS_CACHE : ""),
+            p->size,
+            p->mimetype,
+            (p->compressed == true ? EXTRA_HEADER_CONTENT_ENCODING : "")
+        );
         //send data
         mg_send(nc, p->data, p->size);
         webserver_handle_connection_close(nc);

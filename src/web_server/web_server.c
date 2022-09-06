@@ -572,7 +572,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 webserver_send_header_redirect(nc, "/");
             }
             else if (mg_vcmp(&hm->uri, "/favicon.ico") == 0) {
-                webserver_send_header_redirect(nc, "/assets/favicon.ico");
+                webserver_send_header_redirect(nc, "/assets/appicon-192.png");
             }
             #ifdef ENABLE_SSL
             else if (mg_http_match_uri(hm, "/ca.crt")) {
