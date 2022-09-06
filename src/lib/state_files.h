@@ -12,6 +12,7 @@
 
 #include <stdbool.h>
 
+bool check_partition_state_dir(sds workdir, sds partition);
 sds state_file_rw_string_sds(sds workdir, const char *dir, const char *name, sds def_value, validate_callback vcb, bool warn);
 sds state_file_rw_string(sds workdir, const char *dir, const char *name, const char *def_value, validate_callback vcb, bool warn);
 bool state_file_rw_bool(sds workdir, const char *dir, const char *name, bool def_value, bool warn);

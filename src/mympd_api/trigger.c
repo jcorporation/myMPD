@@ -5,6 +5,8 @@
 */
 
 #include "compile_time.h"
+#include "dist/sds/sds.h"
+#include "src/lib/utility.h"
 #include "trigger.h"
 
 #include "../lib/filehandler.h"
@@ -13,6 +15,7 @@
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
+#include "../lib/state_files.h"
 
 #include <errno.h>
 #include <stdlib.h>
@@ -328,7 +331,14 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
                 //fallback to default partition
                 partition = sdsnew(MPD_PARTITION_DEFAULT);
             }
-            list_push(trigger_list, name, event, partition, trigger_data);
+            if (strcmp(partition, MPD_PARTITION_ALL) == 0 ||
+                check_partition_state_dir(workdir, partition) == true)
+            {
+                list_push(trigger_list, name, event, partition, trigger_data);
+            }
+            else {
+                MYMPD_LOG_WARN("Skipping trigger definition for unknown partition \"%s\"", partition);
+            }
         }
         else {
             trigger_data_free(trigger_data);

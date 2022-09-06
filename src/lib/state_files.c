@@ -10,15 +10,29 @@
 #include "filehandler.h"
 #include "log.h"
 #include "sds_extras.h"
+#include "utility.h"
 #include "validate.h"
 
 #include <ctype.h>
+#include <dirent.h>
 #include <errno.h>
 #include <inttypes.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+
+bool check_partition_state_dir(sds workdir, sds partition) {
+    sds partition_dir = sdsdup(partition);
+    sanitize_filename(partition_dir);
+    sds state_dir_name = sdscatfmt(sdsempty(), "%S/state/%S", workdir, partition_dir);
+    DIR *state_dir = opendir(state_dir_name);
+    if (state_dir == NULL) {
+        return false;
+    }
+    closedir(state_dir);
+    return true;
+}
 
 /**
  * Converts camel case to snake notation

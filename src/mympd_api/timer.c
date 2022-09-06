@@ -12,6 +12,7 @@
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
+#include "../lib/state_files.h"
 #include "../mpd_client/jukebox.h"
 #include "timer_handlers.h"
 
@@ -457,7 +458,6 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
             MYMPD_LOG_WARN("Too many timers defined");
             break;
         }
-        struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
         sdsclear(param);
         param = sdscatfmt(param, "{\"params\":%S}", line);
         sds partition = NULL;
@@ -465,28 +465,34 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
             //fallback to default partition
             partition = sdsnew(MPD_PARTITION_DEFAULT);
         }
-        timer_def = mympd_api_timer_parse(timer_def, param, partition, NULL);
-        FREE_SDS(partition);
-        int interval;
-        int timerid;
-        if (timer_def != NULL &&
-            json_get_int(param, "$.params.interval", -1, TIMER_INTERVAL_MAX, &interval, NULL) == true &&
-            json_get_int(param, "$.params.timerid", USER_TIMER_ID_MIN, USER_TIMER_ID_MAX, &timerid, NULL) == true)
-        {
-            if (timerid > timer_list->last_id) {
-                timer_list->last_id = timerid;
+        if (check_partition_state_dir(workdir, partition) == true) {
+            struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
+            timer_def = mympd_api_timer_parse(timer_def, param, partition, NULL);
+            int interval;
+            int timerid;
+            if (timer_def != NULL &&
+                json_get_int(param, "$.params.interval", -1, TIMER_INTERVAL_MAX, &interval, NULL) == true &&
+                json_get_int(param, "$.params.timerid", USER_TIMER_ID_MIN, USER_TIMER_ID_MAX, &timerid, NULL) == true)
+            {
+                if (timerid > timer_list->last_id) {
+                    timer_list->last_id = timerid;
+                }
+                time_t start = mympd_api_timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, interval);
+                mympd_api_timer_add(timer_list, start, interval, timer_handler_select, timerid, timer_def);
             }
-            time_t start = mympd_api_timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, interval);
-            mympd_api_timer_add(timer_list, start, interval, timer_handler_select, timerid, timer_def);
+            else {
+                MYMPD_LOG_ERROR("Invalid timer line");
+                MYMPD_LOG_DEBUG("Errorneous line: %s", line);
+                if (timer_def != NULL) {
+                    mympd_api_timer_free_definition(timer_def);
+                }
+            }
+            i++;
         }
         else {
-            MYMPD_LOG_ERROR("Invalid timer line");
-            MYMPD_LOG_DEBUG("Errorneous line: %s", line);
-            if (timer_def != NULL) {
-                mympd_api_timer_free_definition(timer_def);
-            }
+            MYMPD_LOG_WARN("Skipping timer definition for unknown partition \"%s\"", partition);
         }
-        i++;
+        FREE_SDS(partition);
     }
     FREE_SDS(param);
     FREE_SDS(line);
