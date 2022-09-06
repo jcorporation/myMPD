@@ -5,8 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "dist/sds/sds.h"
-#include "src/lib/utility.h"
 #include "trigger.h"
 
 #include "../lib/filehandler.h"
