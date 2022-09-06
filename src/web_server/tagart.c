@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "tagart.h"
 
+#include "../lib/config_def.h"
 #include "../lib/log.h"
 #include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"

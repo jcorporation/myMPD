@@ -9,7 +9,6 @@
 
 #include "../../dist/mongoose/mongoose.h"
 #include "../../dist/sds/sds.h"
-#include "../lib/config_def.h"
 #include "../lib/list.h"
 
 #include <stdbool.h>
