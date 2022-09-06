@@ -8,7 +8,6 @@
 #define MYMPD_WEB_SERVER_REQUEST_HANDLER_H
 
 #include "../../dist/mongoose/mongoose.h"
-#include "../lib/sds_extras.h"
 #include "utility.h"
 
 bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth_header,

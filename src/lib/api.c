@@ -7,9 +7,9 @@
 #include "compile_time.h"
 #include "api.h"
 
-#include "../../dist/mongoose/mongoose.h"
 #include "log.h"
 #include "mem.h"
+#include "msg_queue.h"
 #include "sds_extras.h"
 
 #include <mpd/client.h>

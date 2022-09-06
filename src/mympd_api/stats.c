@@ -8,7 +8,6 @@
 #include "stats.h"
 
 #include "../lib/jsonrpc.h"
-#include "../lib/log.h"
 #include "../lib/sds_extras.h"
 #include "../mpd_client/errorhandler.h"
 

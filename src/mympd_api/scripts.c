@@ -14,12 +14,13 @@
 #include "../lib/log.h"
 #include "../lib/lua_mympd_state.h"
 #include "../lib/mem.h"
-#include "../lib/mimetype.h"
+#include "../lib/msg_queue.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 
 #include <dirent.h>
 #include <errno.h>
+#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/syscall.h>

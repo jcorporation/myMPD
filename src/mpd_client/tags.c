@@ -8,7 +8,6 @@
 #include "tags.h"
 
 #include "../../dist/libmpdclient/src/isong.h"
-#include "../../dist/utf8/utf8.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"

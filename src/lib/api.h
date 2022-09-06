@@ -9,7 +9,6 @@
 
 #include "../../dist/sds/sds.h"
 #include "list.h"
-#include "msg_queue.h"
 
 #include <stdbool.h>
 

@@ -7,7 +7,6 @@
 #include "compile_time.h"
 #include "proxy.h"
 
-#include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"

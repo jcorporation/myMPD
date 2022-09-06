@@ -9,7 +9,6 @@
 
 #include "../lib/filehandler.h"
 #include "../lib/log.h"
-#include "../lib/mem.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../mpd_client/tags.h"

@@ -7,7 +7,6 @@
 #ifndef MYMPD_STICKER_CACHE_H
 #define MYMPD_STICKER_CACHE_H
 
-#include "../../dist/rax/rax.h"
 #include "../lib/mympd_state.h"
 
 #include <stdbool.h>

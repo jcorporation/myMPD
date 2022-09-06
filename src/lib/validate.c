@@ -9,7 +9,6 @@
 
 #include "../../dist/utf8/utf8.h"
 #include "log.h"
-#include "sds_extras.h"
 
 #include <ctype.h>
 #include <limits.h>

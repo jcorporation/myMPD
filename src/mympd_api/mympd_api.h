@@ -6,5 +6,7 @@
 
 #ifndef MYMPD_MYMPD_API_H
 #define MYMPD_MYMPD_API_H
+
 void *mympd_api_loop(void *arg_config);
+
 #endif

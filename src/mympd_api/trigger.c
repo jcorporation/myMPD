@@ -12,6 +12,7 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
+#include "../lib/msg_queue.h"
 #include "../lib/sds_extras.h"
 #include "../lib/state_files.h"
 

@@ -7,13 +7,10 @@
 #include "compile_time.h"
 #include "playlists.h"
 
-#include "../lib/filehandler.h"
-#include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/random.h"
 #include "../lib/rax_extras.h"
 #include "../lib/sds_extras.h"
-#include "../lib/validate.h"
 #include "errorhandler.h"
 #include "tags.h"
 

@@ -7,7 +7,6 @@
 #include "compile_time.h"
 #include "utility.h"
 
-#include "api.h"
 #include "log.h"
 #include "sds_extras.h"
 

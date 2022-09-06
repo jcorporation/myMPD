@@ -16,6 +16,7 @@
 #include "lib/handle_options.h"
 #include "lib/log.h"
 #include "lib/mem.h"
+#include "lib/msg_queue.h"
 #include "lib/random.h"
 #include "lib/sds_extras.h"
 #include "lib/smartpls.h"

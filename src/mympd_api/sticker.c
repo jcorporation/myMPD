@@ -8,7 +8,6 @@
 #include "sticker.h"
 
 #include "../lib/jsonrpc.h"
-#include "../lib/log.h"
 #include "../lib/sticker_cache.h"
 
 /**

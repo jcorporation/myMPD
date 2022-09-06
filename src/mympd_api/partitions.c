@@ -9,7 +9,6 @@
 
 #include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
-#include "../lib/log.h"
 #include "../lib/mympd_state.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"

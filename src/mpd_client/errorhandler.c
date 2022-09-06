@@ -9,8 +9,6 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
-#include "../lib/mem.h"
-#include "../lib/sds_extras.h"
 #include "tags.h"
 
 /**

@@ -8,13 +8,11 @@
 #include "mympd_state.h"
 
 #include "../mpd_client/jukebox.h"
-#include "../mpd_client/tags.h"
 #include "../mympd_api/home.h"
 #include "../mympd_api/last_played.h"
 #include "../mympd_api/timer.h"
 #include "../mympd_api/trigger.h"
 #include "album_cache.h"
-#include "log.h"
 #include "mem.h"
 #include "sds_extras.h"
 #include "sticker_cache.h"

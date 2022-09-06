@@ -11,8 +11,6 @@
 #include "../lib/sds_extras.h"
 #include "../mpd_client/tags.h"
 #include "log.h"
-#include "mem.h"
-#include "utility.h"
 
 #include <inttypes.h>
 #include <string.h>

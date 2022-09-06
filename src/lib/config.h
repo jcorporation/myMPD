@@ -7,7 +7,6 @@
 #ifndef MYMPD_CONFIG_H
 #define MYMPD_CONFIG_H
 
-#include "compile_time.h"
 #include "config_def.h"
 
 #include <stdbool.h>

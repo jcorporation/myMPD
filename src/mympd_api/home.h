@@ -8,8 +8,7 @@
 #define MYMPD_API_HOME_H
 
 #include "../../dist/sds/sds.h"
-#include "../lib/api.h"
-#include "../lib/mympd_state.h"
+#include "../lib/list.h"
 
 #include <stdbool.h>
 

@@ -11,13 +11,10 @@
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
-#include "../lib/utility.h"
 #include "../mympd_api/trigger.h"
 #include "errorhandler.h"
 #include "features.h"
 #include "tags.h"
-
-#include "mpd/client.h"
 
 #include <string.h>
 

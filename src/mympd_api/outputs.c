@@ -8,10 +8,6 @@
 #include "outputs.h"
 
 #include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/lua_mympd_state.h"
-#include "../lib/sds_extras.h"
-#include "../lib/utility.h"
 #include "../mpd_client/errorhandler.h"
 #include "src/lib/api.h"
 

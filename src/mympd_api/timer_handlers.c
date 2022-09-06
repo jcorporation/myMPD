@@ -8,10 +8,9 @@
 #include "timer_handlers.h"
 
 #include "../lib/api.h"
-#include "../lib/covercache.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
-#include "../lib/sds_extras.h"
+#include "../lib/msg_queue.h"
 #include "../mpd_client/errorhandler.h"
 #include "../mpd_client/jukebox.h"
 #include "../mpd_client/volume.h"

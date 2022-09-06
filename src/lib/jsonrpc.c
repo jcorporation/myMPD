@@ -11,7 +11,6 @@
 #include "api.h"
 #include "log.h"
 #include "sds_extras.h"
-#include "utility.h"
 
 #include <limits.h>
 #include <string.h>

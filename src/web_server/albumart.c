@@ -13,6 +13,7 @@
 #include "../lib/log.h"
 #include "../lib/m3u.h"
 #include "../lib/mimetype.h"
+#include "../lib/msg_queue.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"

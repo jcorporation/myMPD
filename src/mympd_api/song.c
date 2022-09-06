@@ -8,7 +8,6 @@
 #include "song.h"
 
 #include "../lib/jsonrpc.h"
-#include "../lib/log.h"
 #include "../mpd_client/errorhandler.h"
 #include "../mpd_client/tags.h"
 #include "extra_media.h"

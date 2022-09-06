@@ -9,7 +9,6 @@
 
 #include "../../dist/mongoose/mongoose.h"
 #include "../../dist/utf8/utf8.h"
-#include "log.h"
 
 #include <ctype.h>
 #include <inttypes.h>

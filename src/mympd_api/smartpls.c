@@ -7,12 +7,10 @@
 #include "compile_time.h"
 #include "smartpls.h"
 
-#include "../../dist/utf8/utf8.h"
 #include "../lib/api.h"
 #include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
-#include "../lib/mem.h"
 #include "../lib/sds_extras.h"
 
 #include <errno.h>

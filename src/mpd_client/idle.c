@@ -9,26 +9,21 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
-#include "../lib/mem.h"
+#include "../lib/msg_queue.h"
 #include "../lib/mympd_state.h"
 #include "../lib/sds_extras.h"
 #include "../lib/sticker_cache.h"
-#include "../lib/utility.h"
-#include "../mpd_worker/mpd_worker.h"
 #include "../mympd_api/mympd_api_handler.h"
 #include "../mympd_api/last_played.h"
 #include "../mympd_api/queue.h"
-#include "../mympd_api/settings.h"
 #include "../mympd_api/status.h"
 #include "../mympd_api/timer.h"
 #include "../mympd_api/timer_handlers.h"
 #include "../mympd_api/trigger.h"
 #include "connection.h"
 #include "errorhandler.h"
-#include "features.h"
 #include "jukebox.h"
 #include "partitions.h"
-#include "tags.h"
 
 #include <mpd/client.h>
 #include <poll.h>

@@ -10,6 +10,8 @@
 #include "../lib/api.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/msg_queue.h"
+#include "../lib/sds_extras.h"
 #include "sessions.h"
 #include "proxy.h"
 #include "radiobrowser.h"

@@ -10,6 +10,7 @@
 #include "filehandler.h"
 #include "jsonrpc.h"
 #include "log.h"
+#include "msg_queue.h"
 #include "sds_extras.h"
 #include "state_files.h"
 

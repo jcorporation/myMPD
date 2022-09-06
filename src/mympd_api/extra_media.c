@@ -13,10 +13,6 @@
 #include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
-#include "../lib/validate.h"
-#include "../mpd_client/errorhandler.h"
-#include "../mpd_client/tags.h"
-#include "timer.h"
 
 #include <dirent.h>
 #include <errno.h>

@@ -10,15 +10,12 @@
 #include "../../dist/sds/sds.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
+#include "../lib/mympd_state.h"
 #include "../lib/sds_extras.h"
 #include "../mpd_client/connection.h"
-#include "../mpd_client/errorhandler.h"
-#include "../mpd_client/tags.h"
 #include "api.h"
-#include "cache.h"
-#include "smartpls.h"
-#include "src/lib/mympd_state.h"
 
+#include <pthread.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/prctl.h>

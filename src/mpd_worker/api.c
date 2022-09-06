@@ -9,6 +9,7 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/msg_queue.h"
 #include "../lib/sds_extras.h"
 #include "cache.h"
 #include "smartpls.h"

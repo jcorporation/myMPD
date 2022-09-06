@@ -16,7 +16,6 @@
 #include "../lib/random.h"
 #include "../lib/sds_extras.h"
 #include "../lib/sticker_cache.h"
-#include "../lib/utility.h"
 #include "../mympd_api/queue.h"
 #include "../mympd_api/sticker.h"
 #include "errorhandler.h"
