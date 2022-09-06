@@ -13,8 +13,6 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-_Thread_local sds thread_logname;
-
 //message queues
 struct t_mympd_queue *web_server_queue;
 struct t_mympd_queue *mympd_api_queue;
