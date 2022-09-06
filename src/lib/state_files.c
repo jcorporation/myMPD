@@ -27,6 +27,8 @@ bool check_partition_state_dir(sds workdir, sds partition) {
     sanitize_filename(partition_dir);
     sds state_dir_name = sdscatfmt(sdsempty(), "%S/state/%S", workdir, partition_dir);
     DIR *state_dir = opendir(state_dir_name);
+    FREE_SDS(partition_dir);
+    FREE_SDS(state_dir_name);
     if (state_dir == NULL) {
         return false;
     }
