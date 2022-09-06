@@ -22,6 +22,12 @@
 #include <string.h>
 #include <unistd.h>
 
+/**
+ * Checks if the state dir for a partition exists
+ * @param workdir myMPD working directory
+ * @param partition partition name
+ * @return true on success, else false
+ */
 bool check_partition_state_dir(sds workdir, sds partition) {
     sds partition_dir = sdsdup(partition);
     sanitize_filename(partition_dir);
