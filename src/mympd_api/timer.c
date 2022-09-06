@@ -524,6 +524,7 @@ bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir) {
             current->definition != NULL)
         {
             buffer = sds_replace(buffer, "{");
+            buffer = tojson_sds(buffer, "partition", current->definition->partition, true);
             buffer = print_timer_node(buffer, current);
             buffer = sdscatlen(buffer, "}\n", 2);
             if (fputs(buffer, fp) == EOF) {
