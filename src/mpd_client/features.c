@@ -63,7 +63,7 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
         MYMPD_LOG_NOTICE("Enabling partitions feature");
     }
     else {
-        MYMPD_LOG_WARN("Disabling partitions feature, depends on mpd >= 0.23.8");
+        MYMPD_LOG_WARN("Disabling partitions feature, depends on mpd >= 0.22.0");
     }
 
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 4) >= 0 ) {
