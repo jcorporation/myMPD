@@ -38,6 +38,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response);
 static bool check_acl(struct mg_connection *nc, sds acl);
+static void mongoose_log(char ch, void *param);
 
 /**
  * Public functions
@@ -140,8 +141,11 @@ void *web_server_loop(void *arg_mgr) {
 
     //set mongoose loglevel
     #ifdef DEBUG
+    mg_log_set(2);
+    #else
     mg_log_set(1);
     #endif
+    mg_log_set_fn(mongoose_log, NULL);
 
     #ifdef ENABLE_SSL
     MYMPD_LOG_DEBUG("Using certificate: %s", mg_user_data->config->ssl_cert);
@@ -247,7 +251,7 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         while (current != NULL) {
             if (current->value_i > 0) {
                 uri = sdscatfmt(uri, "http://%s:%I",
-                    (strncmp(new_mg_user_data->mpd_host, "/", 1) == 0 ? "127.0.0.1" : new_mg_user_data->mpd_host),
+                    (new_mg_user_data->mpd_host[0] == '/' ? "127.0.0.1" : new_mg_user_data->mpd_host),
                     current->value_i);
                 MYMPD_LOG_DEBUG("\"%s\": Setting stream uri to \"%s\"", current->key, uri);
                 list_push(&mg_user_data->stream_uris, current->key, 0, uri, NULL);
@@ -423,7 +427,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         case MG_EV_WS_MSG: {
             struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
             MYMPD_LOG_DEBUG("Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
-            if (strncmp(wm->data.ptr, "ping", wm->data.len) == 0) {
+            if (mg_vcmp(&wm->data, "ping") == 0) {
                 size_t sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
                 if (sent != 6) {
                     MYMPD_LOG_WARN("Websocket: Could not reply with pong, closing connection");
@@ -436,13 +440,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             MYMPD_LOG_INFO("HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.ptr, (int)hm->uri.len, hm->uri.ptr);
             //limit allowed http methods
-            if (strncmp(hm->method.ptr, "GET", hm->method.len) == 0) {
+            if (mg_vcmp(&hm->method, "GET") == 0) {
                 nc->label[1] = 'G';
             }
-            else if (strncmp(hm->method.ptr, "HEAD", hm->method.len) == 0) {
+            else if (mg_vcmp(&hm->method, "HEAD") == 0) {
                 nc->label[1] = 'H';
             }
-            else if (strncmp(hm->method.ptr, "POST", hm->method.len) == 0) {
+            else if (mg_vcmp(&hm->method, "POST") == 0) {
                 nc->label[1] = 'P';
             }
             else {
@@ -468,11 +472,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             //respect connection close header
             struct mg_str *connection_hdr = mg_http_get_header(hm, "Connection");
             if (connection_hdr != NULL) {
-                if (strncmp(connection_hdr->ptr, "close", connection_hdr->len) == 0) {
+                if (mg_vcasecmp(connection_hdr, "close") == 0) {
                     MYMPD_LOG_DEBUG("Connection: close header found (%lu)", nc->id);
                     nc->label[2] = 'C';
                 }
-                else if (strncmp(connection_hdr->ptr, "keep-alive", connection_hdr->len) == 0) {
+                else if (mg_vcasecmp(connection_hdr, "keep-alive") == 0) {
                     MYMPD_LOG_DEBUG("Connection: keepalive header found (%lu)", nc->id);
                     nc->label[2] = 'K';
                 }
@@ -693,3 +697,21 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
     }
 }
 #endif
+
+/**
+ * Mongoose logging function
+ * @param ch character to log
+ * @param param 
+ */
+static void mongoose_log(char ch, void *param) {
+    static char buf[256];
+    static size_t len;
+    buf[len++] = ch;
+    if (ch == '\n' ||
+        len >= sizeof(buf))
+    {
+        MYMPD_LOG_DEBUG("%.*s", (int) len, buf); //Send logs
+        len = 0;
+    }
+    (void)param;
+}

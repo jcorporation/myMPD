@@ -262,7 +262,7 @@ endforeach()
 
 #set debug/release flags
 if(CMAKE_BUILD_TYPE MATCHES RELEASE)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -fPIE -DMG_ENABLE_LOG=0")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -fPIE")
   set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro,-z,now,--gc-sections -pie -s")
 else()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb -Og")
