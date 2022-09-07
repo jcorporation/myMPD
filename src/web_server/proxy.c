@@ -64,7 +64,8 @@ void handle_backend_close(struct mg_connection *nc, struct t_backend_nc_data *ba
     mg_user_data->connection_count--;
     if (backend_nc_data->frontend_nc != NULL) {
         //remove backend connection pointer from frontend connection
-        backend_nc_data->frontend_nc->fn_data = NULL;
+        struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)backend_nc_data->frontend_nc->fn_data;
+        frontend_nc_data->backend_nc = NULL;
         //close frontend connection
         backend_nc_data->frontend_nc->is_draining = 1;
     }
@@ -126,7 +127,8 @@ struct mg_connection *create_backend_connection(struct mg_connection *nc, struct
         }
         else {
             //save backend connection pointer in frontend connection fn_data
-            nc->fn_data = backend_nc;
+            struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
+            frontend_nc_data->backend_nc = backend_nc;
         }
     }
     if (backend_nc != NULL) {
