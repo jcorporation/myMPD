@@ -250,6 +250,7 @@ static const struct t_subdirs_entry workdir_subdirs[] = {
     #endif
     {"smartpls",         "Smartpls dir"},
     {"state",            "State dir"},
+    {"state/default",    "Default partition dir"},
     {"webradios",        "Webradio dir"},
     {NULL, NULL}
 };
