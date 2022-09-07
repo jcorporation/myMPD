@@ -261,7 +261,7 @@ static void dns_cb(struct mg_connection *c, int ev, void *ev_data,
     int resolved = 0;
     if (mg_dns_parse(c->recv.buf, c->recv.len, &dm) == false) {
       MG_ERROR(("Unexpected DNS response:"));
-      mg_hexdump(c->recv.buf, c->recv.len);
+      //mg_hexdump(c->recv.buf, c->recv.len);
     } else {
       MG_VERBOSE(("%s %d", dm.name, dm.resolved));
       for (d = (struct dns_data *) c->mgr->active_dns_requests; d != NULL;
@@ -2225,7 +2225,7 @@ static void deliver_chunked_chunks(struct mg_connection *c, size_t hlen,
     ofs += pl + dl + 2, del += pl + 2;  // 2 is for \r\n suffix
     processed += dl;
     if (c->recv.len != saved) processed -= dl, buf -= dl;
-    mg_hexdump(c->recv.buf, hlen + processed);
+    //mg_hexdump(c->recv.buf, hlen + processed);
     last = (dl == 0);
   }
   mg_iobuf_del(&c->recv, hlen + processed, del);
@@ -4080,7 +4080,7 @@ static void iolog(struct mg_connection *c, char *buf, long n, bool r) {
                mg_straddr(&a, t1, sizeof(t1)), r ? "<-" : "->",
                mg_straddr(&c->rem, t2, sizeof(t2)), c->label, n));
 
-      mg_hexdump(buf, (size_t) n);
+      //mg_hexdump(buf, (size_t) n);
     }
     if (r) {
       struct mg_str evd = mg_str_n(buf, (size_t) n);
