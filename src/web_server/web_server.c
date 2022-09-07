@@ -138,11 +138,7 @@ void *web_server_loop(void *arg_mgr) {
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
 
     //set mongoose loglevel
-    #ifdef DEBUG
-    mg_log_set(2);
-    #else
     mg_log_set(1);
-    #endif
     mg_log_set_fn(mongoose_log, NULL);
 
     #ifdef ENABLE_SSL
@@ -391,6 +387,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             nc->label[1] = '-';
             nc->label[2] = 'C';
             break;
+        }
         case MG_EV_ACCEPT:
             //ssl support
             #ifdef ENABLE_SSL
@@ -421,7 +418,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 MYMPD_LOG_DEBUG("New connection id \"%lu\" from %s, connections: %d", nc->id, buf, mg_user_data->connection_count);
             }
             break;
-        }
         case MG_EV_WS_MSG: {
             struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
             MYMPD_LOG_DEBUG("Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
@@ -605,6 +601,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             MYMPD_LOG_INFO("HTTP connection %lu closed", nc->id);
             mg_user_data->connection_count--;
             if (frontend_nc_data == NULL) {
+                MYMPD_LOG_WARN("frontend_nc_data not allocated");
                 break;
             }
             if (frontend_nc_data->backend_nc != NULL) {
