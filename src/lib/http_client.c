@@ -14,12 +14,15 @@
 
 #include <errno.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
 static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_data,
     void *fn_data);
 
-//public functions
-
+/**
+ * Public functions
+ */
 
 /**
  * Reads the dns server from resolv.conf
@@ -98,7 +101,9 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
     mg_mgr_free(&mgr_client);
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
 /**
  * Event handler for the http request made by http_client_request
@@ -112,10 +117,10 @@ static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_d
 {
     struct mg_client_request_t *mg_client_request = (struct mg_client_request_t *) nc->mgr->userdata;
     if (ev == MG_EV_CONNECT) {
-        // Connected to server. Extract host name from URL
+        //Connected to server. Extract host name from URL
         struct mg_str host = mg_url_host(mg_client_request->uri);
 
-        // If s_url is https://, tell client connection to use TLS
+        //If uri is https://, tell client connection to use TLS
         if (mg_url_is_ssl(mg_client_request->uri)) {
             struct mg_tls_opts tls_opts = {
                 .srvname = host
