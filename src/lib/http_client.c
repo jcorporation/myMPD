@@ -82,9 +82,7 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
 {
     struct mg_mgr mgr_client;
     mg_mgr_init(&mgr_client);
-    #ifdef DEBUG
     mg_log_set(1);
-    #endif
     //set dns server
     sds dns_uri = get_dnsserver();
     MYMPD_LOG_DEBUG("Setting dns server to %s", dns_uri);
