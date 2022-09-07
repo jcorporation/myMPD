@@ -323,8 +323,10 @@ static bool _check_for_invalid_chars(sds data, const char *invalid_chars) {
         {
             return false;
         }
-        if (i + 1 < len && data[i] == '\\' && data[i + 1] == 'u') {
-            MYMPD_LOG_ERROR("Unicode escapes are not supported");
+        if (i + 1 < len && data[i] == '\\' &&
+            (data[i + 1] == 'u' || data[i + 1] == 'U' || data[i + 1] == 'x'))
+        {
+            MYMPD_LOG_ERROR("Unicode and hex escapes are forbidden");
             return false;
         }
     }
