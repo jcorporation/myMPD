@@ -234,11 +234,10 @@ static bool _sticker_inc(struct t_cache *sticker_cache, struct t_partition_state
 static bool _sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
         const char *uri, const char *name, long long value)
 {
-    sds value_str = sdsfromlonglong(value);
-    MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     //update sticker cache
     struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
     if (sticker == NULL) {
+        MYMPD_LOG_ERROR("Sticker for \"%s\" not found in cache", uri);
         return false;
     }
     if (strcmp(name, "like") == 0) {
@@ -256,6 +255,8 @@ static bool _sticker_set(struct t_cache *sticker_cache, struct t_partition_state
     }
 
     //update mpd sticker
+    sds value_str = sdsfromlonglong(value);
+    MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
     bool rc = mpd_run_sticker_set(partition_state->conn, "song", uri, name, value_str);
     FREE_SDS(value_str);
     return mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_sticker_set");
