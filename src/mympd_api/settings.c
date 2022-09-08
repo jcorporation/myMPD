@@ -828,10 +828,14 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_bool(buffer, "random", mpd_status_get_random(status), true);
         buffer = tojson_bool(buffer, "consume", mpd_status_get_consume(status), false);
         mpd_status_free(status);
-        buffer = sdscatlen(buffer, "},", 2);
-        //end partition specific settings
-        //features
-        buffer = sdscat(buffer, "\"features\":{");
+    }
+    else {
+        //not connected to mpd
+        buffer = tojson_bool(buffer, "mpdConnected", false, false);
+    }
+    //features
+    buffer = sdscat(buffer, "},\"features\":{");
+    if (partition_state->conn_state == MPD_CONNECTED) {
         buffer = tojson_bool(buffer, "featPlaylists", partition_state->mpd_state->feat_playlists, true);
         buffer = tojson_bool(buffer, "featTags", partition_state->mpd_state->feat_tags, true);
         buffer = tojson_bool(buffer, "featLibrary", partition_state->mpd_state->feat_library, true);
@@ -855,9 +859,9 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
 #else
     buffer = tojson_bool(buffer, "featScripting", false, false);
 #endif
+    buffer = sdscatlen(buffer, "}", 1);
     if (partition_state->conn_state == MPD_CONNECTED) {
-        buffer = sdscatlen(buffer, "},", 2);
-        //end features
+        buffer = sdscatlen(buffer, ",", 1);
         buffer = tojson_sds(buffer, "musicDirectoryValue", partition_state->mpd_state->music_directory_value, true);
         //taglists
         buffer = print_tags_array(buffer, "tagList", partition_state->mpd_state->tags_mympd);
@@ -872,13 +876,6 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         //trigger events
         buffer = sdscat(buffer, ",\"triggerEvents\":{");
         buffer = mympd_api_trigger_print_event_list(buffer);
-        //end partition specific settings
-        buffer = sdscatlen(buffer, "}", 1);
-
-    }
-    else {
-        //not connected to mpd
-        buffer = tojson_bool(buffer, "mpdConnected", false, false);
         //end partition specific settings
         buffer = sdscatlen(buffer, "}", 1);
     }
