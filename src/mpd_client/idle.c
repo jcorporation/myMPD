@@ -112,6 +112,29 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
 static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct t_partition_state *partition_state,
         bool mpd_idle_event_waiting, struct t_work_request *request)
 {
+    //Handle api requests if mpd is not connected
+    if (partition_state->conn_state != MPD_CONNECTED &&
+        request != NULL)
+    {
+        if (is_mympd_only_api_method(request->cmd_id) == true) {
+            //request that are handled without a mpd connection
+            MYMPD_LOG_DEBUG("\"%s\": Handle request (mpd disconnected)", partition_state->name);
+            mympd_api_handler(partition_state, request);
+        }
+        else {
+            //other requests not allowed
+            if (request->conn_id > -1) {
+                struct t_work_response *response = create_response(request);
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "MPD disconnected");
+                MYMPD_LOG_DEBUG("\"%s\": Send http response to connection %lld: %s", partition_state->name, request->conn_id, response->data);
+                mympd_queue_push(web_server_queue, response, 0);
+            }
+            free_request(request);
+        }
+        request = NULL;
+    }
+
     switch (partition_state->conn_state) {
         case MPD_WAIT: {
             time_t now = time(NULL);
@@ -270,7 +293,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 //an api request is there
                 if (request != NULL) {
                     //Handle request
-                    MYMPD_LOG_DEBUG("\"%s\": Handle API request \"%s\"", partition_state->name, request->method);
+                    MYMPD_LOG_DEBUG("\"%s\": Handle API request", partition_state->name);
                     mympd_api_handler(partition_state, request);
                 }
                 //process sticker queue
@@ -292,35 +315,13 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                     }
                 }
             }
-            //leave function - api request was already processed
-            return;
+            break;
         }
         case MPD_REMOVED:
             MYMPD_LOG_DEBUG("\"%s\": removed", partition_state->name);
             break;
         default:
             MYMPD_LOG_ERROR("\"%s\": Invalid mpd connection state", partition_state->name);
-    }
-
-    //Handle api requests if mpd is not connected
-    if (request != NULL) {
-        if (is_mympd_only_api_method(request->cmd_id) == true) {
-            //request that are handled without a mpd connection
-            MYMPD_LOG_DEBUG("\"%s\": Handle request (mpd disconnected)", partition_state->name);
-            mympd_api_handler(partition_state, request);
-        }
-        else {
-            //other requests are not allowed
-            MYMPD_LOG_DEBUG("\"%s\": Discarding request \"%s\" (mpd disconnected)", partition_state->name, request->method);
-            if (request->conn_id > -1) {
-                struct t_work_response *response = create_response(request);
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "MPD disconnected");
-                MYMPD_LOG_DEBUG("\"%s\": Send http response to connection %lld: %s", partition_state->name, request->conn_id, response->data);
-                mympd_queue_push(web_server_queue, response, 0);
-            }
-            free_request(request);
-        }
     }
 }
 
@@ -336,7 +337,6 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
         enum mpd_idle idle_event = 1 << j;
         const char *idle_name = mpd_idle_name(idle_event);
         if (idle_name == NULL) {
-            //loop end condition
             break;
         }
         if (idle_bitmask & idle_event) {
