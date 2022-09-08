@@ -332,12 +332,13 @@ int main(int argc, char **argv) {
     //set initital states
     worker_threads = 0;
     s_signal_received = 0;
-    bool init_thread_webserver = false;
-    bool init_thread_mympdapi = false;
     struct t_config *config = NULL;
     struct t_mg_user_data *mg_user_data = NULL;
     struct mg_mgr *mgr = NULL;
     int rc = EXIT_FAILURE;
+    pthread_t web_server_thread = 0;
+    pthread_t mympd_api_thread = 0;
+    int t_rc = 0;
 
     //goto root directory
     errno = 0;
@@ -503,42 +504,45 @@ int main(int argc, char **argv) {
     }
 
     //Create working threads
-    pthread_t web_server_thread;
-    pthread_t mympd_api_thread;
     //mympd api
     MYMPD_LOG_NOTICE("Starting mympd api thread");
-    if (pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config) == 0) {
-        init_thread_mympdapi = true;
-    }
-    else {
-        MYMPD_LOG_ERROR("Can't create mympd_api thread");
+    if ((t_rc = pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config)) != 0) {
+        MYMPD_LOG_ERROR("Can't create mympd api thread: %s", strerror(t_rc));
+        mympd_api_thread = 0;
         s_signal_received = SIGTERM;
     }
 
     //webserver
     MYMPD_LOG_NOTICE("Starting webserver thread");
-    if (pthread_create(&web_server_thread, NULL, web_server_loop, mgr) == 0) {
-        init_thread_webserver = true;
-    }
-    else {
-        MYMPD_LOG_ERROR("Can't create mympd_webserver thread");
+    if ((t_rc = pthread_create(&web_server_thread, NULL, web_server_loop, mgr)) != 0) {
+        MYMPD_LOG_ERROR("Can't create webserver thread: %s", strerror(t_rc));
+        web_server_thread = 0;
         s_signal_received = SIGTERM;
     }
 
     //Outsourced all work to separate threads, do nothing...
+    MYMPD_LOG_NOTICE("myMPD is ready");
     rc = EXIT_SUCCESS;
 
     //Try to cleanup all
     cleanup:
 
     //wait for threads
-    if (init_thread_webserver == true) {
-        pthread_join(web_server_thread, NULL);
-        MYMPD_LOG_NOTICE("Stopping web server thread");
+    if (web_server_thread > 0) {
+        if ((t_rc = pthread_join(web_server_thread, (void **)&t_rc)) != 0) {
+            MYMPD_LOG_ERROR("Error stopping webserver thread: %s", strerror(t_rc));
+        }
+        else {
+            MYMPD_LOG_NOTICE("Finished web server thread");
+        }
     }
-    if (init_thread_mympdapi == true) {
-        pthread_join(mympd_api_thread, NULL);
-        MYMPD_LOG_NOTICE("Stopping mympd api thread");
+    if (mympd_api_thread > 0) {
+        if ((t_rc = pthread_join(mympd_api_thread, (void **)&t_rc)) != 0) {
+            MYMPD_LOG_ERROR("Error stopping mympd api thread: %s", strerror(t_rc));
+        }
+        else {
+            MYMPD_LOG_NOTICE("Finished mympd api thread");
+        }
     }
 
     //free queues
