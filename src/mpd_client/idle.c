@@ -118,7 +118,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
     {
         if (is_mympd_only_api_method(request->cmd_id) == true) {
             //request that are handled without a mpd connection
-            MYMPD_LOG_DEBUG("\"%s\": Handle request (mpd disconnected)", partition_state->name);
+            MYMPD_LOG_DEBUG("\"%s\": Handle request \"%s\" (mpd disconnected)", partition_state->name, request->method);
             mympd_api_handler(partition_state, request);
         }
         else {
@@ -293,7 +293,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 //an api request is there
                 if (request != NULL) {
                     //Handle request
-                    MYMPD_LOG_DEBUG("\"%s\": Handle API request", partition_state->name);
+                    MYMPD_LOG_DEBUG("\"%s\": Handle API request \"%s\"", partition_state->name, request->method);
                     mympd_api_handler(partition_state, request);
                 }
                 //process sticker queue
@@ -337,6 +337,7 @@ static void mpd_client_parse_idle(struct t_mympd_state *mympd_state, struct t_pa
         enum mpd_idle idle_event = 1 << j;
         const char *idle_name = mpd_idle_name(idle_event);
         if (idle_name == NULL) {
+            //loop end condition
             break;
         }
         if (idle_bitmask & idle_event) {
