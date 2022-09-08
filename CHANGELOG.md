@@ -32,6 +32,7 @@ The syntax of the last_played file has changed. You can convert it with
 - Upd: build improvements
 - Upd: Mongoose 7.8
 - Upd: mjson
+- Upd: Bootstrap 5.2.1
 
 ***
 
