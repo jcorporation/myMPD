@@ -495,6 +495,9 @@ function setLocale(newLocale) {
     //check if locale is available
     let localeFound = false;
     for (const l in i18n) {
+        if (l === 'default') {
+            continue;
+        }
         if (l.indexOf(locale) === 0) {
             locale = l;
             localeFound = true;
