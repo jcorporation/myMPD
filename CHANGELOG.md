@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: allow empty smartpls prefix #830
+- Fix: default fallback to en-US #830
 
 ***
 
