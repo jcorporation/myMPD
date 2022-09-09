@@ -153,7 +153,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define EXTRA_HEADERS_UNSAFE "Content-Security-Policy: default-src 'none'; "\
     "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src * data:; "\
     "connect-src 'self' ws: wss:; manifest-src 'self'; "\
-    "media-src 'self'; frame-ancestors *; base-uri 'none';\r\n"\
+    "media-src *; frame-ancestors *; base-uri 'none';\r\n"\
     EXTRA_HEADERS_PERMISSIONS_POLICY\
     EXTRA_HEADERS_MISC\
     EXTRA_HEADERS_CACHE
@@ -161,7 +161,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define EXTRA_HEADERS_SAFE "Content-Security-Policy: default-src 'none'; "\
     "style-src 'self'; font-src 'self'; script-src 'self'; img-src * data:; "\
     "connect-src 'self' ws: wss:; manifest-src 'self'; "\
-    "media-src 'self'; frame-ancestors *; base-uri 'none'; "\
+    "media-src *; frame-ancestors *; base-uri 'none'; "\
     "require-trusted-types-for 'script'\r\n"\
     EXTRA_HEADERS_PERMISSIONS_POLICY\
     EXTRA_HEADERS_MISC
