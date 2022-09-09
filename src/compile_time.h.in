@@ -255,6 +255,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define VOLUME_MAX 100 //prct
 #define VOLUME_STEP_MIN 1 //prct
 #define VOLUME_STEP_MAX 25 //prct
+#define JUKEBOX_MODE_MIN 0
+#define JUKEBOX_MODE_MAX 2
 
 //limits for lists
 #define LIST_HOME_ICONS_MAX 99
@@ -263,7 +265,9 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define USER_TIMER_ID_START 100
 #define USER_TIMER_ID_MIN 101
 #define USER_TIMER_ID_MAX 200
+#define JUKEBOX_QUEUE_MIN 0
 #define JUKEBOX_QUEUE_MAX 999
+#define JUKEBOX_LAST_PLAYED_MIN 0
 #define JUKEBOX_LAST_PLAYED_MAX 5000
 #define SCRIPT_ARGUMENTS_MAX 20
 
