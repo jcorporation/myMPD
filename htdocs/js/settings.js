@@ -45,7 +45,7 @@ function initSettings() {
 
     document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
         setTimeout(function() {
-            const value = getData(document.getElementById('btnJukeboxModeGroup').getElementsByClassName('active')[0], 'value');
+            const value = getBtnGroupValueId('btnJukeboxModeGroup');
             if (value === 'off') {
                 elDisableId('inputJukeboxQueueLength');
                 elDisableId('selectJukeboxPlaylist');

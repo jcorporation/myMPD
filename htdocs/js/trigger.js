@@ -49,7 +49,9 @@ function saveTrigger() {
         for (let i = 0, j = argEls.length; i < j; i ++) {
             args[getData(argEls[i], 'name')] = argEls[i].value;
         }
-        const partition = getSelectValueId('selectTriggerPartition') === 'all' ? '!all!' : localSettings.partition;
+
+        let partition = getBtnGroupValueId('btnTriggerPartitionGroup');
+        partition = partition === '!all!' ? partition : localSettings.partition;
 
         sendAPI("MYMPD_API_TRIGGER_SAVE", {
             "id": Number(document.getElementById('inputTriggerId').value),
@@ -80,18 +82,19 @@ function showEditTrigger(id) {
     elShowId('newTriggerFooter');
 
     const nameEl = document.getElementById('inputTriggerName');
-    nameEl.value = '';
     setFocus(nameEl);
-    document.getElementById('inputTriggerId').value = '-1';
-    document.getElementById('selectTriggerEvent').selectedIndex = 0;
-    document.getElementById('selectTriggerScript').selectedIndex = 0;
-    document.getElementById('selectTriggerPartition').selectedIndex = 0;
+
     if (id > -1) {
         sendAPI("MYMPD_API_TRIGGER_GET", {
             "id": id
         }, parseTriggerEdit, false);
     }
     else {
+        nameEl.value = '';
+        document.getElementById('inputTriggerId').value = '-1';
+        document.getElementById('selectTriggerEvent').selectedIndex = 0;
+        document.getElementById('selectTriggerScript').selectedIndex = 0;
+        toggleBtnGroupValueId('btnTriggerPartitionGroup', 'this');
         selectTriggerActionChange();
     }
 }
@@ -101,8 +104,8 @@ function parseTriggerEdit(obj) {
     document.getElementById('inputTriggerName').value = obj.result.name;
     document.getElementById('selectTriggerEvent').value = obj.result.event;
     document.getElementById('selectTriggerScript').value = obj.result.script;
-    document.getElementById('selectTriggerPartition').value =
-        obj.result.partition === '!all!' ? 'all' : 'this';
+    const partition = obj.result.partition === '!all!' ? obj.result.partition : 'this';
+    toggleBtnGroupValueId('btnTriggerPartitionGroup', partition);
     selectTriggerActionChange(obj.result.arguments);
 }
 

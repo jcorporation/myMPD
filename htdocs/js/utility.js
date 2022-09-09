@@ -899,6 +899,7 @@ function toggleBtnGroup(btn) {
 function getBtnGroupValueId(id) {
     let activeBtn = document.getElementById(id).getElementsByClassName('active');
     if (activeBtn.length === 0) {
+        //fallback to first button
         activeBtn = document.getElementById(id).getElementsByTagName('button');
     }
     return getData(activeBtn[0], 'value');

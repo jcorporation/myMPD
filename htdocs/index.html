@@ -1796,35 +1796,14 @@
               </div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" data-phrase="Weekdays"></label>
-                <div class="col-sm-8 mt-3">
-                  <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerMon">radio_button_unchecked</button>
-                    <label class="form-check-label" for="btnTimerMon" data-phrase="Mon"></label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerTue">radio_button_unchecked</button>
-                    <label class="form-check-label" for="btnTimerTue" data-phrase="Tue"></label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerWed">radio_button_unchecked</button>
-                    <label class="form-check-label" for="btnTimerWed" data-phrase="Wed"></label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerThu">radio_button_unchecked</button>
-                    <label class="form-check-label" for="btnTimerThu" data-phrase="Thu"></label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerFri">radio_button_unchecked</button>
-                    <label class="form-check-label" for="btnTimerFri" data-phrase="Fri"></label>
-                  </div>
-                  <div class="form-check form-check-inline">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerSat">radio_button_unchecked</button>
-                    <label class="form-check-label" for="btnTimerSat" data-phrase="Sat"></label>
-                  </div>
-                  <div class="form-check form-check-inline me-0">
-                    <button data-href='{"cmd":"toggleBtnChk","options":[]}' class="me-2 btn btn-secondary btn-xs mi mi-small" id="btnTimerSun">radio_button_unchecked</button>
-                    <label class="form-check-label" for="btnTimerSun" data-phrase="Sun"></label>
-                  </div>
+                <div class="col-sm-8">
+                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerMon" data-phrase="Mon"></button>
+                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerTue" data-phrase="Tue"></button>
+                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerWed" data-phrase="Wed"></button>
+                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerThu" data-phrase="Thu"></button>
+                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerFri" data-phrase="Fri"></button>
+                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerSat" data-phrase="Sat"></button>
+                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerSun" data-phrase="Sun"></button>
                   <div id="invalidTimerWeekdays" class="invalid-feedback" data-phrase="Minimum one weekday must be selected"></div>
                 </div>
               </div>
@@ -2254,12 +2233,12 @@
                   </div>
                 </div>
                 <div class="mb-3 row featPartitions">
-                  <label class="col-sm-4 col-form-label" for="selectTriggerPartition" data-phrase="Partition"></label>
+                  <label class="col-sm-4 col-form-label" data-phrase="Partition"></label>
                   <div class="col-sm-8">
-                    <select class="form-select" id="selectTriggerPartition">
-                      <option value="this" data-phrase="This partition"></option>
-                      <option value="all" data-phrase="All partitions"></option>
-                    </select>
+                    <div class="btn-group" id="btnTriggerPartitionGroup">
+                      <button data-value="this" class="btn btn-secondary clickable active" data-href='{"cmd":"toggleBtnGroup","options":[]}' type="button" data-phrase="This partition"></button>
+                      <button data-value="!all!" class="btn btn-secondary clickable" data-href='{"cmd":"toggleBtnGroup","options":[]}' type="button" data-phrase="All partitions"></button>
+                    </div>
                   </div>
                 </div>
                 <div class="mb-3 row">

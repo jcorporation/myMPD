@@ -48,7 +48,7 @@ function initTimer() {
 
     document.getElementById('btnTimerJukeboxModeGroup').addEventListener('mouseup', function () {
         setTimeout(function() {
-            const value = getData(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'value');
+            const value = getBtnGroupValueId('btnTimerJukeboxModeGroup');
             const selectTimerPlaylistEl = document.getElementById('selectTimerPlaylist');
             if (value === 'album') {
                 elDisable(selectTimerPlaylistEl);
@@ -115,7 +115,7 @@ function saveTimer() {
         setIsInvalid(document.getElementById('btnTimerSun').parentNode);
     }
     const selectTimerAction = document.getElementById('selectTimerAction');
-    const jukeboxMode = getData(document.getElementById('btnTimerJukeboxModeGroup').getElementsByClassName('active')[0], 'value');
+    const jukeboxMode = getBtnGroupValueId('btnTimerJukeboxModeGroup');
     const selectTimerPlaylist = getDataId('selectTimerPlaylist', 'value');
 
     if (selectTimerAction.selectedIndex === -1) {
@@ -202,7 +202,6 @@ function showEditTimer(timerid) {
     }
     else {
         filterPlaylistsSelect(0, 'selectTimerPlaylist', '', 'Database');
-
         document.getElementById('inputTimerId').value = '0';
         document.getElementById('inputTimerName').value = '';
         toggleBtnChkId('btnTimerEnabled', true);
@@ -210,12 +209,13 @@ function showEditTimer(timerid) {
         document.getElementById('selectTimerMinute').value = '0';
         document.getElementById('selectTimerAction').value = 'startplay';
         document.getElementById('inputTimerVolume').value = '50';
+        document.getElementById('textTimerVolume').textContent = '50 %';
         selectTimerIntervalChange(86400);
         selectTimerActionChange();
         toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), 'song');
         const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
         for (let i = 0, j = weekdayBtns.length; i < j; i++) {
-            toggleBtnChkId(weekdayBtns[i], false);
+            toggleBtnId(weekdayBtns[i], false);
         }
         elShowId('timerActionPlay');
     }
@@ -244,11 +244,12 @@ function parseEditTimer(obj) {
     selectTimerActionChange(obj.result.arguments);
     selectTimerIntervalChange(obj.result.interval);
     document.getElementById('inputTimerVolume').value = obj.result.volume;
+    document.getElementById('textTimerVolume').textContent = obj.result.volume + ' %';
     toggleBtnGroupValueId('btnTimerJukeboxModeGroup', obj.result.jukeboxMode);
 
     const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     for (let i = 0, j = weekdayBtns.length; i < j; i++) {
-        toggleBtnChkId(weekdayBtns[i], obj.result.weekdays[i]);
+        toggleBtnId(weekdayBtns[i], obj.result.weekdays[i]);
     }
 }
 
