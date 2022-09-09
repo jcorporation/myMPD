@@ -7,7 +7,6 @@
 #include "compile_time.h"
 
 #include "../dist/mongoose/mongoose.h"
-#include "../dist/rax/rax.h"
 #include "../dist/sds/sds.h"
 #include "lib/api.h"
 #include "lib/config.h"
@@ -528,7 +527,7 @@ int main(int argc, char **argv) {
     cleanup:
 
     //wait for threads
-    if (web_server_thread > 0) {
+    if (web_server_thread > (pthread_t)0) {
         if ((t_rc = pthread_join(web_server_thread, (void **)&t_rc)) != 0) {
             MYMPD_LOG_ERROR("Error stopping webserver thread: %s", strerror(t_rc));
         }
@@ -536,7 +535,7 @@ int main(int argc, char **argv) {
             MYMPD_LOG_NOTICE("Finished web server thread");
         }
     }
-    if (mympd_api_thread > 0) {
+    if (mympd_api_thread > (pthread_t)0) {
         if ((t_rc = pthread_join(mympd_api_thread, (void **)&t_rc)) != 0) {
             MYMPD_LOG_ERROR("Error stopping mympd api thread: %s", strerror(t_rc));
         }

@@ -13,16 +13,8 @@
 #include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
-#include <string.h>
 #include <sys/stat.h>
-#include <time.h>
 #include <unistd.h>
-
-#include <arpa/inet.h>
-#include <ifaddrs.h>
-#include <libgen.h>
-#include <netdb.h>
-#include <sys/socket.h>
 
 /**
  * Getline function that trims whitespace characters

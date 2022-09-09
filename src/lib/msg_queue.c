@@ -12,9 +12,7 @@
 #include "lua_mympd_state.h"
 #include "mem.h"
 
-#include <assert.h>
 #include <errno.h>
-#include <stdlib.h>
 
 /*
  Message queue implementation to transfer messages between threads asynchronously

@@ -11,7 +11,6 @@
 #include "sds_extras.h"
 #include "state_files.h"
 
-#include <stdio.h>
 #include <string.h>
 #include <termios.h>
 

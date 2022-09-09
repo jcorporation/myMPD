@@ -16,7 +16,6 @@
 #include "../mympd_api/status.h"
 #include "errorhandler.h"
 
-#include <stdlib.h>
 #include <string.h>
 
 /**

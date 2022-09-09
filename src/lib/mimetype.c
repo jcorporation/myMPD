@@ -11,11 +11,7 @@
 #include "sds_extras.h"
 #include "utility.h"
 
-#include <errno.h>
-#include <stdio.h>
 #include <string.h>
-#include <unistd.h>
-
 
 /**
  * List of mime types with magic numbers and typical extensions

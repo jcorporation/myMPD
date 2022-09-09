@@ -12,11 +12,7 @@
 #include "../lib/utility.h"
 #include "../lib/validate.h"
 
-#include <ctype.h>
-#include <errno.h>
 #include <inttypes.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
 #include <unistd.h>
 

@@ -13,8 +13,6 @@
 #include "../lib/mem.h"
 #include "../lib/mimetype.h"
 
-#include <stdlib.h>
-
 /**
  * Reads the albumart from mpd
  * @param partition_state pointer to partition specific states

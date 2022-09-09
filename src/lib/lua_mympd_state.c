@@ -10,8 +10,6 @@
 #include "mem.h"
 #include "sds_extras.h"
 
-#include <stdlib.h>
-
 /**
  * Private definitions
  */

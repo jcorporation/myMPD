@@ -10,8 +10,6 @@
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
 
-#include <stdlib.h>
-
 /**
  * Frees the mpd_worker_state struct
  * @param mpd_worker_state pointer to the t_mpd_worker_state struct

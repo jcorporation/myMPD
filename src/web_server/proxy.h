@@ -11,6 +11,8 @@
 #include "../../dist/sds/sds.h"
 #include "../lib/api.h"
 
+#include <stdbool.h>
+
 /**
  * Struct for http proxy backend connections
  */

@@ -14,8 +14,6 @@
 #include "cache.h"
 #include "smartpls.h"
 
-#include <stdlib.h>
-
 /**
  * Handler for mpd worker api requests
  * @param mpd_worker_state pointer to mpd_worker_state struct

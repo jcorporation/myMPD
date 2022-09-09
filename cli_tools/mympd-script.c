@@ -6,11 +6,13 @@
 
 #include "compile_time.h"
 
-#include "../dist/mongoose/mongoose.h"
 #include "../dist/sds/sds.h"
 #include "../src/lib/http_client.h"
 #include "../src/lib/sds_extras.h"
 #include "log.h"
+
+#include <stdlib.h>
+#include <string.h>
 
 static void print_usage(char **argv) {
     fprintf(stderr, "\nmyMPD script utility\n\n"

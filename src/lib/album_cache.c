@@ -13,7 +13,6 @@
 #include "log.h"
 
 #include <inttypes.h>
-#include <string.h>
 
 /**
  * myMPD saves album information in the album cache as a mpd_song struct.

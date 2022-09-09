@@ -9,7 +9,6 @@
 
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
-#include "../lib/mem.h"
 #include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
@@ -17,9 +16,7 @@
 #include <dirent.h>
 #include <errno.h>
 #include <libgen.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 //optional includes
 #ifdef ENABLE_LIBID3TAG
@@ -210,13 +207,17 @@ static int _get_embedded_covers_count_flac(const char *media_file, bool is_ogg) 
     FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
 
     if(! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
-        MYMPD_LOG_DEBUG("%s: ERROR: reading metadata", media_file);
+        MYMPD_LOG_DEBUG("Error reading metadata from \"%s\"", media_file);
         FLAC__metadata_chain_delete(chain);
         return 0;
     }
     FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
     FLAC__metadata_iterator_init(iterator, chain);
-    assert(iterator);
+    if (iterator == NULL) {
+        MYMPD_LOG_ERROR("Error initializing iterator for \"%s\"", media_file);
+        FLAC__metadata_chain_delete(chain);
+        return false;
+    }
     do {
         FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);
         if (block->type == FLAC__METADATA_TYPE_PICTURE) {

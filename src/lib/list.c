@@ -13,10 +13,7 @@
 #include "random.h"
 #include "sds_extras.h"
 
-#include <errno.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 /**
  * Mallocs a new list and inits it.

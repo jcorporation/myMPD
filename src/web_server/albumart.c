@@ -18,7 +18,6 @@
 #include "../lib/utility.h"
 #include "../lib/validate.h"
 
-#include <assert.h>
 #include <libgen.h>
 
 //optional includes
@@ -427,14 +426,18 @@ static bool handle_coverextract_flac(sds cachedir, const char *uri, const char *
     FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
 
     if(! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
-        MYMPD_LOG_DEBUG("%s: ERROR: reading metadata", media_file);
+        MYMPD_LOG_ERROR("Error reading metadata from \"%s\"", media_file);
         FLAC__metadata_chain_delete(chain);
         return false;
     }
 
     FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
     FLAC__metadata_iterator_init(iterator, chain);
-    assert(iterator);
+    if (iterator == NULL) {
+        MYMPD_LOG_ERROR("Error initializing iterator for \"%s\"", media_file);
+        FLAC__metadata_chain_delete(chain);
+        return false;
+    }
     int i = 0;
     do {
         FLAC__StreamMetadata *block = FLAC__metadata_iterator_get_block(iterator);

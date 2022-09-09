@@ -15,7 +15,6 @@
 #include "../mpd_client/idle.h"
 #include "home.h"
 #include "settings.h"
-#include "src/lib/mympd_state.h"
 #include "timer.h"
 #include "timer_handlers.h"
 #include "trigger.h"

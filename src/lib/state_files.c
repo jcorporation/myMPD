@@ -17,10 +17,8 @@
 #include <dirent.h>
 #include <errno.h>
 #include <inttypes.h>
-#include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
+
 
 /**
  * Checks if the state dir for a partition exists

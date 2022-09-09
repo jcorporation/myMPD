@@ -15,9 +15,7 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 
-#include <assert.h>
 #include <errno.h>
-#include <stdio.h>
 #include <string.h>
 
 //optional includes

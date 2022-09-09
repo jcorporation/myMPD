@@ -16,15 +16,13 @@
 #include "features.h"
 #include "tags.h"
 
-#include <string.h>
-
 /**
  * Connects to mpd and sets initial connection settings
  * @param partition_state pointer to partition state
  * @return true on success else false
  */
 bool mpd_client_connect(struct t_partition_state *partition_state) {
-    if (strncmp(partition_state->mpd_state->mpd_host, "/", 1) == 0) {
+    if (partition_state->mpd_state->mpd_host[0] == '/') {
         MYMPD_LOG_NOTICE("\"%s\": Connecting to socket \"%s\"", partition_state->name, partition_state->mpd_state->mpd_host);
     }
     else {

@@ -10,19 +10,12 @@
 #include "log.h"
 #include "sds_extras.h"
 
-#include <dirent.h>
 #include <errno.h>
+#include <ifaddrs.h>
+#include <netdb.h>
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <time.h>
-#include <unistd.h>
-
-#include <arpa/inet.h>
-#include <ifaddrs.h>
-#include <libgen.h>
-#include <netdb.h>
-#include <sys/socket.h>
 
 //private definitions
 static sds get_local_ip(void);

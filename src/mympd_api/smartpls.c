@@ -13,10 +13,7 @@
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
 
-#include <errno.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 /**
  * Prints smart playlist details

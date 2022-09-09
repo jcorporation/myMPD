@@ -10,10 +10,6 @@
 #include "../../dist/mongoose/mongoose.h"
 #include "../../dist/utf8/utf8.h"
 
-#include <ctype.h>
-#include <inttypes.h>
-#include <string.h>
-
 #define HEXTOI(x) (x >= '0' && x <= '9' ? x - '0' : x - 'W')
 
 /**

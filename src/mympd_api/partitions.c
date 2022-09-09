@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "partitions.h"
 
+#include "../lib/api.h"
 #include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/mympd_state.h"
@@ -15,11 +16,6 @@
 #include "../mpd_client/connection.h"
 #include "../mpd_client/errorhandler.h"
 #include "../mpd_client/partitions.h"
-#include "src/lib/api.h"
-#include "src/mpd_client/connection.h"
-
-#include <mpd/idle.h>
-#include <string.h>
 
 /**
  * Lists partitions

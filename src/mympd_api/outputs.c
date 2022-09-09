@@ -9,9 +9,6 @@
 
 #include "../lib/jsonrpc.h"
 #include "../mpd_client/errorhandler.h"
-#include "src/lib/api.h"
-
-#include <string.h>
 
 /**
  * Lists output details

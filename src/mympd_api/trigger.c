@@ -17,9 +17,7 @@
 #include "../lib/state_files.h"
 
 #include <errno.h>
-#include <stdlib.h>
 #include <string.h>
-#include <unistd.h>
 
 /**
  * Private definitions

@@ -12,9 +12,6 @@
 #include "log.h"
 #include "sds_extras.h"
 
-#include <limits.h>
-#include <string.h>
-
 /**
  * This unit provides functions for jsonrpc and json parsing and printing
  * Json parsing is done by mjson

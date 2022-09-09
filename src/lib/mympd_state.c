@@ -18,7 +18,6 @@
 #include "sticker_cache.h"
 #include "utility.h"
 
-#include <stdlib.h>
 #include <string.h>
 
 /**

@@ -12,7 +12,6 @@
 #include "sds_extras.h"
 
 #include <getopt.h>
-#include <stdio.h>
 
 static struct option long_options[] = {
     {"cachedir",  required_argument, 0, 'a'},
