@@ -98,7 +98,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     MEASURE_START
     #endif
 
-    MYMPD_LOG_INFO("\"%s\": MYMPD API request (%lld)(%ld) %s: %s", partition_state->name, request->conn_id, request->id, request->method, request->data);
+    const char *method = get_cmd_id_method_name(request->cmd_id);
+    MYMPD_LOG_INFO("\"%s\": MYMPD API request (%lld)(%ld) %s: %s",
+        partition_state->name, request->conn_id, request->id, method, request->data);
 
     //shortcuts
     struct t_mympd_state *mympd_state = partition_state->mympd_state;
@@ -1579,7 +1581,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
 
     #ifdef DEBUG
     MEASURE_END
-    MEASURE_PRINT(request->method)
+    MEASURE_PRINT(method)
     #endif
 
     if (async == true) {
@@ -1590,13 +1592,13 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     if (sdslen(error) > 0) {
         response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
-        MYMPD_LOG_ERROR("\"%s\": Error processing method \"%s\"", partition_state->name, request->method);
+        MYMPD_LOG_ERROR("\"%s\": Error processing method \"%s\"", partition_state->name, method);
     }
     FREE_SDS(error);
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", request->method);
-        MYMPD_LOG_ERROR("\"%s\": No response for method \"%s\"", partition_state->name, request->method);
+            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", method);
+        MYMPD_LOG_ERROR("\"%s\": No response for method \"%s\"", partition_state->name, method);
     }
     if (request->conn_id == -2) {
         MYMPD_LOG_DEBUG("\"%s\": Push response to mympd_script_queue for thread %ld: %s", partition_state->name, request->id, response->data);

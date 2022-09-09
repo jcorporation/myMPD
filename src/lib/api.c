@@ -145,8 +145,6 @@ struct t_work_response *create_response_new(long long conn_id, long request_id, 
     response->conn_id = conn_id;
     response->id = request_id;
     response->cmd_id = cmd_id;
-    const char *method = get_cmd_id_method_name(cmd_id);
-    response->method = sdsnew(method);
     response->data = sdsempty();
     response->binary = sdsempty();
     response->extra = NULL;
@@ -168,10 +166,8 @@ struct t_work_request *create_request(long long conn_id, long request_id, enum m
     request->conn_id = conn_id;
     request->cmd_id = cmd_id;
     request->id = request_id;
-    const char *method = get_cmd_id_method_name(cmd_id);
-    request->method = sdsnew(method);
     if (data == NULL) {
-        request->data = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"%s\",\"params\":{", method);
+        request->data = sdscatfmt(sdsempty(), "{\"jsonrpc\":\"2.0\",\"id\":0,\"method\":\"%s\",\"params\":{", get_cmd_id_method_name(cmd_id));
     }
     else {
         request->data = sdsnew(data);
@@ -188,7 +184,6 @@ struct t_work_request *create_request(long long conn_id, long request_id, enum m
 void free_request(struct t_work_request *request) {
     if (request != NULL) {
         FREE_SDS(request->data);
-        FREE_SDS(request->method);
         FREE_SDS(request->partition);
         FREE_PTR(request);
     }
@@ -201,7 +196,6 @@ void free_request(struct t_work_request *request) {
 void free_response(struct t_work_response *response) {
     if (response != NULL) {
         FREE_SDS(response->data);
-        FREE_SDS(response->method);
         FREE_SDS(response->binary);
         FREE_SDS(response->partition);
         FREE_PTR(response);

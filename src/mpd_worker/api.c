@@ -27,7 +27,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     bool async = false;
     sds sds_buf1 = NULL;
 
-    MYMPD_LOG_INFO("MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, request->method, request->data);
+    MYMPD_LOG_INFO("MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, get_cmd_id_method_name(request->cmd_id), request->data);
     //create response struct
     struct t_work_response *response = create_response(request);
 
@@ -98,9 +98,10 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     }
 
     if (sdslen(response->data) == 0) {
+        const char *method = get_cmd_id_method_name(request->cmd_id);
         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", request->method);
-        MYMPD_LOG_ERROR("No response for method \"%s\"", request->method);
+            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", method);
+        MYMPD_LOG_ERROR("No response for method \"%s\"", method);
     }
     if (request->conn_id == -2) {
         MYMPD_LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);

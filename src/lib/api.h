@@ -190,7 +190,6 @@ enum request_ids {
 struct t_work_request {
     long long conn_id;         //!< needed to identify the connection where to send the reply
     long id;                   //!< the jsonrpc id
-    sds method;                //!< the jsonrpc method as string
     enum mympd_cmd_ids cmd_id; //!< the jsonrpc method as enum
     sds data;                  //!< full jsonrpc request
     void *extra;               //!< extra data for the request
@@ -203,7 +202,6 @@ struct t_work_request {
 struct t_work_response {
     long long conn_id;         //!< needed to identify the connection where to send the reply
     long id;                   //!< the jsonrpc id
-    sds method;                //!< the jsonrpc method as string
     enum mympd_cmd_ids cmd_id; //!< the jsonrpc method as enum
     sds data;                  //!< full jsonrpc response
     sds binary;                //!< binary data for the response

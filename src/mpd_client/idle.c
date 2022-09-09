@@ -118,7 +118,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
     {
         if (is_mympd_only_api_method(request->cmd_id) == true) {
             //request that are handled without a mpd connection
-            MYMPD_LOG_DEBUG("\"%s\": Handle request \"%s\" (mpd disconnected)", partition_state->name, request->method);
+            MYMPD_LOG_DEBUG("\"%s\": Handle request \"%s\" (mpd disconnected)", partition_state->name, get_cmd_id_method_name(request->cmd_id));
             mympd_api_handler(partition_state, request);
         }
         else {
@@ -293,7 +293,7 @@ static void mpd_client_idle_partition(struct t_mympd_state *mympd_state, struct 
                 //an api request is there
                 if (request != NULL) {
                     //Handle request
-                    MYMPD_LOG_DEBUG("\"%s\": Handle API request \"%s\"", partition_state->name, request->method);
+                    MYMPD_LOG_DEBUG("\"%s\": Handle API request \"%s\"", partition_state->name, get_cmd_id_method_name(request->cmd_id));
                     mympd_api_handler(partition_state, request);
                 }
                 //process sticker queue

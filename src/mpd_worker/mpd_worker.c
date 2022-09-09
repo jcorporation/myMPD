@@ -37,7 +37,7 @@ static void *mpd_worker_run(void *arg);
  * @return true on success, else false
  */
 bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *request) {
-    MYMPD_LOG_NOTICE("Starting mpd_worker thread for %s", request->method);
+    MYMPD_LOG_NOTICE("Starting mpd_worker thread for %s", get_cmd_id_method_name(request->cmd_id));
     pthread_t mpd_worker_thread;
     pthread_attr_t attr;
     if (pthread_attr_init(&attr) != 0) {
