@@ -53,7 +53,7 @@ UTEST(api, test_request_result) {
     rc = response == NULL ? false : true;
     ASSERT_TRUE(rc);
     ASSERT_EQ(request->cmd_id, response->cmd_id);
-    ASSERT_STREQ(response->method, "MYMPD_API_SETTINGS_SET");
+    ASSERT_STREQ(get_cmd_id_method_name(response->cmd_id), "MYMPD_API_SETTINGS_SET");
 
     free_request(request);
     free_response(response);
