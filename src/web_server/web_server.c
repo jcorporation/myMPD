@@ -467,11 +467,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             struct mg_str *connection_hdr = mg_http_get_header(hm, "Connection");
             if (connection_hdr != NULL) {
                 if (mg_vcasecmp(connection_hdr, "close") == 0) {
-                    MYMPD_LOG_DEBUG("Connection: close header found (%lu)", nc->id);
                     nc->label[2] = 'C';
                 }
-                else if (mg_vcasecmp(connection_hdr, "keep-alive") == 0) {
-                    MYMPD_LOG_DEBUG("Connection: keepalive header found (%lu)", nc->id);
+                else {
                     nc->label[2] = 'K';
                 }
             }
