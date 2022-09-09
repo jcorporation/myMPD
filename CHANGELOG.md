@@ -86,6 +86,7 @@ This release removes the compatibility code for MPD versions older than 0.21.
 - Feat: respect last played in jukebox album mode #792 #794
 - Feat: improved translation workflow integrating [POEditor](https://poeditor.com/join/project/Z54inZwdul) #803
 - Feat: Album view lists albums without AlbumArtist tags again #791
+- Feat: fetch ligatures and i18n json only on demand
 - Upd: remove compatibility code for MPD 0.20 and lower
 - Upd: rename some API methodes for consistency
 - Upd: covercache expiry time is now a config setting (removed from GUI)
