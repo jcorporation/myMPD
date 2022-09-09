@@ -73,6 +73,8 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
         return false;
     }
     struct dirent *next_file;
+    int updated = 0;
+    int skipped = 0;
     while ((next_file = readdir(dir)) != NULL) {
         if (next_file->d_type != DT_REG) {
             continue;
@@ -82,13 +84,16 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
         MYMPD_LOG_DEBUG("Playlist %s: playlist mtime %lld, smartpls mtime %lld", next_file->d_name, (long long)playlist_mtime, (long long)smartpls_mtime);
         if (force == true || db_mtime > playlist_mtime || smartpls_mtime > playlist_mtime) {
             mpd_worker_smartpls_update(mpd_worker_state, next_file->d_name);
+            updated++;
         }
         else {
             MYMPD_LOG_INFO("Update of smart playlist %s skipped, already up to date", next_file->d_name);
+            skipped++;
         }
     }
     closedir (dir);
     FREE_SDS(dirname);
+    MYMPD_LOG_NOTICE("%d smart playlists updated, %d already up-to-date", updated, skipped);
     return true;
 }
 
