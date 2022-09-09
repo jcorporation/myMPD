@@ -81,7 +81,7 @@ button.active,
 .btn-success,
 .btn-success:focus,
 .btn-success:hover {
-  color: var(--mympd-highlightcolor-contrast);
+  color: var(--mympd-highlightcolor-contrast) !important;
   background-color: var(--mympd-highlightcolor);
   border-color: var(--mympd-highlightcolor);
 }
@@ -752,7 +752,7 @@ textarea.small {
 
 .btn:not(:disabled):not(.disabled).active,
 .show > .btn.dropdown-toggle {
-  color: var(--bs-white);
+  color: var(--bs-white) !important;
   background-color: var(--mympd-highlightcolor) !important;
   border-color: var(--mympd-highlightcolor) !important;
 }
@@ -1149,4 +1149,8 @@ input.innerButton {
 
 form#outputs {
   overflow: auto;
+}
+
+button.weekday {
+  min-width: 3rem;
 }

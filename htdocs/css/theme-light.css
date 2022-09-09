@@ -22,9 +22,9 @@ body.theme-light .list-group-item-action:focus {
 
 body.theme-light .btn-secondary,
 body.theme-light .bg-secondary {
-  color: var(--bs-gray-800);
+  color: var(--bs-gray-800) !important;
   background-color: var(--bs-gray-400) !important;
-  border-color: var(--bs-gray-400);
+  border-color: var(--bs-gray-400) !important;
 }
 
 body.theme-light .border-secondary {
