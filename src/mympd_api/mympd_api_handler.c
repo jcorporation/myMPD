@@ -139,7 +139,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 mympd_state->mpd_state->sticker_cache.building = mympd_state->mpd_state->feat_stickers;
             }
             async = true;
-            free_response(response);
             mpd_worker_start(mympd_state, request);
             break;
         case MYMPD_API_PICTURE_LIST:
@@ -1584,17 +1583,22 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     MEASURE_PRINT(method)
     #endif
 
-    if (async == true) {
-        FREE_SDS(error);
-        return;
-    }
-
+    //errorhandling
     if (sdslen(error) > 0) {
         response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
         MYMPD_LOG_ERROR("\"%s\": Error processing method \"%s\"", partition_state->name, method);
     }
     FREE_SDS(error);
+
+    //async request handling
+    //request was forwarded to worker thread - do not free it
+    if (async == true) {
+        free_response(response);
+        return;
+    }
+
+    //sync request handling
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", method);

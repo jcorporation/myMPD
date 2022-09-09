@@ -188,7 +188,7 @@ enum request_ids {
  * Struct for work request in the queue
  */
 struct t_work_request {
-    long long conn_id;         //!< needed to identify the connection where to send the reply
+    long long conn_id;         //!< mongoose connection id
     long id;                   //!< the jsonrpc id
     enum mympd_cmd_ids cmd_id; //!< the jsonrpc method as enum
     sds data;                  //!< full jsonrpc request
@@ -200,7 +200,7 @@ struct t_work_request {
  * Struct for work responses in the queue
  */
 struct t_work_response {
-    long long conn_id;         //!< needed to identify the connection where to send the reply
+    long long conn_id;         //!< mongoose connection id
     long id;                   //!< the jsonrpc id
     enum mympd_cmd_ids cmd_id; //!< the jsonrpc method as enum
     sds data;                  //!< full jsonrpc response
