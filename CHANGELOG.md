@@ -12,6 +12,7 @@ This is a small bug fix release.
 
 - Fix: allow empty smartpls prefix #830
 - Fix: default fallback to en-US #830
+- Fix: serving zh-CN locale #830
 
 ***
 
