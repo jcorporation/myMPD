@@ -77,9 +77,7 @@ bool is_smartpls(sds workdir, const char *playlist) {
     if (strchr(playlist, '/') == NULL) {
         //filename only
         sds smartpls_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
-        if (access(smartpls_file, F_OK ) != -1) { /* Flawfinder: ignore */
-            smartpls = true;
-        }
+        smartpls = testfile_read(smartpls_file);
         FREE_SDS(smartpls_file);
     }
     return smartpls;

@@ -71,7 +71,7 @@ sds get_webradio_from_uri(sds workdir, const char *uri) {
     filename = sdscatlen(filename, ".m3u", 4);
     sds filepath = sdscatfmt(sdsempty(), "%S/webradios/%s", workdir, filename);
     sds entry = sdsempty();
-    if (access(filepath, F_OK) == 0) { /* Flawfinder: ignore */
+    if (testfile_read(filepath) == true) {
         entry = tojson_sds(entry, "filename", filename, true);
         entry = m3u_to_json(entry, filepath, NULL);
         FREE_SDS(filepath);

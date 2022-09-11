@@ -233,7 +233,8 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
             sanitize_filename(filename);
             sds playlist = sdscatfmt(sdsempty(), "%S%s%s-%s", mpd_worker_state->smartpls_prefix, (sdslen(mpd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, filename);
             sds plpath = sdscatfmt(sdsempty(), "%S/smartpls/%s", mpd_worker_state->config->workdir, playlist);
-            if (access(plpath, F_OK) == -1) { /* Flawfinder: ignore */
+            if (testfile_read(plpath) == false) {
+                //file does not exist, create it
                 sds expression = sdsnewlen("(", 1);
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
                 expression = sdscatlen(expression, ")", 1);

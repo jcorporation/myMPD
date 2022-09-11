@@ -287,7 +287,7 @@ sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buf
     sds old_pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", partition_state->mympd_state->config->workdir, old_playlist);
     sds new_pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", partition_state->mympd_state->config->workdir, new_playlist);
     //link old name to new name
-    if (access(old_pl_file, F_OK) == 0) { /* Flawfinder: ignore */
+    if (testfile_read(old_pl_file) == true) {
         //smart playlist file exists
         errno = 0;
         if (link(old_pl_file, new_pl_file) == -1) {

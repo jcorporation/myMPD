@@ -17,6 +17,7 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
+#include "src/lib/filehandler.h"
 
 #include <libgen.h>
 
@@ -133,7 +134,7 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
             //no coverfile found, next try to find a webradio m3u
             sds webradio_file = sdscatfmt(sdsempty(), "%S/webradios/%S.m3u", config->workdir, uri_decoded);
             MYMPD_LOG_DEBUG("Check for webradio playlist \"%s\"", webradio_file);
-            if (access(webradio_file, F_OK) == 0) { /* Flawfinder: ignore */
+            if (testfile_read(webradio_file) == true) {
                 sds extimg = m3u_get_field(sdsempty(), "#EXTIMG", webradio_file);
                 if (is_streamuri(extimg) == true) {
                     //full uri, send a temporary redirect
@@ -220,7 +221,9 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
                         //basename, try extensions
                         coverfile = webserver_find_image_file(coverfile);
                     }
-                    if (sdslen(coverfile) > 0 && access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
+                    if (sdslen(coverfile) > 0 &&
+                        testfile_read(coverfile) == true)
+                    {
                         found = true;
                         break;
                     }
@@ -234,7 +237,9 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
                         //basename, try extensions
                         coverfile = webserver_find_image_file(coverfile);
                     }
-                    if (sdslen(coverfile) > 0 && access(coverfile, F_OK ) == 0) { /* Flawfinder: ignore */
+                    if (sdslen(coverfile) > 0 &&
+                        testfile_read(coverfile) == true)
+                    {
                         found = true;
                         break;
                     }
@@ -262,7 +267,8 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
             FREE_SDS(path);
         }
 
-        if (access(mediafile, F_OK) == 0) { /* Flawfinder: ignore */
+        if (testfile_read(mediafile) == true)
+        {
             //try to extract albumart from media file
             bool covercache = mg_user_data->config->covercache_keep_days > 0 ? true : false;
             bool rc = handle_coverextract(nc, config->cachedir, uri_decoded, mediafile, covercache, offset);

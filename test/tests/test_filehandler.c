@@ -42,6 +42,17 @@ UTEST(filehandler, test_write_data_to_file) {
     sdsfree(file);
 }
 
+UTEST(filehandler, test_testfile_read) {
+    sds file  = sdsnew("/tmp/mympd-test/state/test");
+    bool rc = testfile_read(file);
+    ASSERT_TRUE(rc);
+    sdsclear(file);
+    file = sdscat(file, "/tmp/mympd-test/state/test-notexist");
+    rc = testfile_read(file);
+    ASSERT_FALSE(rc);
+    sdsfree(file);
+}
+
 UTEST(sds_extras, test_sds_getfile) {
     sds line = sdsempty();
     FILE *fp = fopen("/tmp/mympd-test/state/test", "r");

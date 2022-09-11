@@ -35,7 +35,6 @@ void *mympd_api_loop(void *arg_config) {
 
     //start autoconfiguration for first startup
     if (mympd_state->config->first_startup == true) {
-        MYMPD_LOG_NOTICE("Starting myMPD autoconfiguration");
         mpd_client_autoconf(mympd_state);
     }
 

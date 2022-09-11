@@ -7,14 +7,27 @@
 #include "compile_time.h"
 #include "autoconf.h"
 
+#include "../lib/filehandler.h"
 #include "../lib/log.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
+#include "mpd/connection.h"
+
+#include <mpd/client.h>
 
 #include <inttypes.h>
 #include <string.h>
 #include <unistd.h>
+
+/**
+ * Private definitions
+ */
+ static bool test_mpd_conn(const char *socket_path);
+
+ /**
+  * Public functions
+  */
 
 /**
  * Tries to autodetect the mpd connection configuration
@@ -22,6 +35,17 @@
  * @param mympd_state pointer to mympd_state structure
  */
 void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
+    //skip autoconfiguration if mpd_host state file is configured
+    sds state_file = sdscatfmt(sdsempty(), "%S/state/mpd_host", mympd_state->config->workdir);
+    if (testfile_read(state_file) == true) {
+        MYMPD_LOG_NOTICE("Skipping myMPD autoconfiguration");
+        FREE_SDS(state_file);
+        return;
+    }
+    FREE_SDS(state_file);
+
+    //autoconfigure mpd connection
+    MYMPD_LOG_NOTICE("Starting myMPD autoconfiguration");
     MYMPD_LOG_NOTICE("Reading environment");
     bool mpd_configured = false;
     const char *mpd_host_env = getenv_check("MPD_HOST", 100);
@@ -87,27 +111,57 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     const char *xdg_runtime_dir = getenv_check("XDG_RUNTIME_DIR", 100);
     if (xdg_runtime_dir != NULL) {
         sds socket = sdscatfmt(sdsempty(), "%s/mpd/socket", xdg_runtime_dir);
-        if (access(socket, F_OK ) == 0) { /* Flawfinder: ignore */
+        if (test_mpd_conn(socket) == true) {
+            MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", socket);
             mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, socket);
             FREE_SDS(socket);
             return;
         }
         FREE_SDS(socket);
     }
-    if (access("/run/mpd/socket", F_OK ) == 0) { /* Flawfinder: ignore */
+    if (test_mpd_conn("/run/mpd/socket") == true) {
+        MYMPD_LOG_NOTICE("Setting mpd host to \"/run/mpd/socket\"");
         mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/run/mpd/socket");
         return;
     }
-    if (access("/var/run/mpd/socket", F_OK ) == 0) { /* Flawfinder: ignore */
+    if (test_mpd_conn("/var/run/mpd/socket") == true) {
+        MYMPD_LOG_NOTICE("Setting mpd host to \"/var/run/mpd/socket\"");
         mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/var/run/mpd/socket");
         return;
     }
-    if (access("/var/lib/mpd/socket", F_OK ) == 0) { /* Flawfinder: ignore */
+    if (test_mpd_conn("/var/lib/mpd/socket") == true) {
         //gentoo default 
+        MYMPD_LOG_NOTICE("Setting mpd host to \"/var/lib/mpd/socket\"");
         mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/var/lib/mpd/socket");
         return;
     }
     //fallback to localhost:6600
+    MYMPD_LOG_WARN("MPD autoconfiguration failed");
+    MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", MYMPD_MPD_HOST);
+    MYMPD_LOG_NOTICE("Setting mpd port to \"%d\"", MYMPD_MPD_PORT);
     mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, MYMPD_MPD_HOST);
     mympd_state->mpd_state->mpd_port = MYMPD_MPD_PORT;
+}
+
+ /**
+  * Public functions
+  */
+
+/**
+ * Tries a connection to mpd
+ * @param socket_path mpd socket
+ * @return true on success, else false
+ */
+static bool test_mpd_conn(const char *socket_path) {
+    struct mpd_connection *conn = mpd_connection_new(socket_path, 0, MYMPD_MPD_TIMEOUT);
+    if (conn == NULL) {
+        return false;
+    }
+    if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS) {
+        MYMPD_LOG_DEBUG("MPD connection: %s", mpd_connection_get_error_message(conn));
+        mpd_connection_free(conn);
+        return false;
+    }
+    mpd_connection_free(conn);
+    return true;
 }

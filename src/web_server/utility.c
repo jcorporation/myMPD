@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/filehandler.h"
 #include "utility.h"
 
 #include "../lib/log.h"
@@ -77,7 +78,7 @@ sds webserver_find_image_file(sds basefilename) {
     sds testfilename = sdsempty();
     while (*p != NULL) {
         testfilename = sdscatfmt(testfilename, "%S.%s", basefilename, *p);
-        if (access(testfilename, F_OK) == 0) { /* Flawfinder: ignore */
+        if (testfile_read(testfilename) == true) {
             break;
         }
         sdsclear(testfilename);

@@ -32,8 +32,6 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
     if (partition_state->conn == NULL) {
         MYMPD_LOG_ERROR("\"%s\": Connection failed: out-of-memory", partition_state->name);
         partition_state->conn_state = MPD_FAILURE;
-        mpd_connection_free(partition_state->conn);
-        partition_state->conn = NULL;
         sds buffer = jsonrpc_event(sdsempty(), JSONRPC_EVENT_MPD_DISCONNECTED);
         ws_notify(buffer, partition_state->name);
         FREE_SDS(buffer);
@@ -41,12 +39,14 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
     }
     if (mpd_connection_get_error(partition_state->conn) != MPD_ERROR_SUCCESS) {
         MYMPD_LOG_ERROR("\"%s\": Connection: %s", partition_state->name, mpd_connection_get_error_message(partition_state->conn));
-        partition_state->conn_state = MPD_FAILURE;
         sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_MPD,
             JSONRPC_SEVERITY_ERROR, "MPD connection error: %{error}", 2,
             "error", mpd_connection_get_error_message(partition_state->conn));
         ws_notify(buffer, partition_state->name);
         FREE_SDS(buffer);
+        mpd_connection_free(partition_state->conn);
+        partition_state->conn = NULL;
+        partition_state->conn_state = MPD_FAILURE;
         return false;
     }
     if (sdslen(partition_state->mpd_state->mpd_pass) > 0) {

@@ -108,6 +108,28 @@ int sds_getfile(sds *s, FILE *fp, size_t max, bool remove_newline) {
 }
 
 /**
+ * Checks if a filename can be opened read-only
+ * @param filename filename to check
+ * @return true on success, else false
+ */
+bool testfile_read(const char *filename) {
+    errno = 0;
+    FILE *fp = fopen(filename, OPEN_FLAGS_READ);
+    if (fp == NULL) {
+        if (errno == ENOENT) {
+            MYMPD_LOG_DEBUG("File does not exist \"%s\"", filename);
+        }
+        else {
+            MYMPD_LOG_ERROR("Error opening file ro \"%s\"", filename);
+            MYMPD_LOG_ERRNO(errno);
+        }
+        return false;
+    }
+    (void) fclose(fp);
+    return true;
+}
+
+/**
  * Checks if dir exists
  * @param desc descriptive name
  * @param dir_name directory path to check
