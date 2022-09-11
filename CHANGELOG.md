@@ -6,10 +6,15 @@ https://github.com/jcorporation/myMPD/
 
 ## mympd v9.5.4 (2022-09-11)
 
-This is a small bug fix release.
+This is a small bug fix release that also updates some translations.
+
+Many thanks to all translators!
 
 ### Changelog
 
+- Upd: fr-FR translation
+- Upd: nl-NL translation
+- Upd: zh-CN translation #833
 - Fix: allow empty smartpls prefix #830
 - Fix: default fallback to en-US #830
 - Fix: serving zh-CN locale #830
