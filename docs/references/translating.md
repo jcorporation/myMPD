@@ -19,9 +19,9 @@ Translations with more than 100 missing phrases are not included in the build.
 
 ## Translate
 
-The translation files are imported to a public POEditor project. You can join the project at https://poeditor.com/join/project/Z54inZwdul and help translating.
+The translation files are imported to a public POEditor project. You can [join the project](https://poeditor.com/join/project/Z54inZwdul) and help translating.
 
-GitHub discussion: https://github.com/jcorporation/myMPD/discussions/803
+[GitHub discussion](https://github.com/jcorporation/myMPD/discussions/803)
 
 ## Translation files
 
