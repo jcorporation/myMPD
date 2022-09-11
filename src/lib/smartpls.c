@@ -17,7 +17,6 @@
 #include <errno.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <unistd.h>
 
 //privat definitions
 static bool _smartpls_save(sds workdir, const char *smartpltype,

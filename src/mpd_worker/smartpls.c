@@ -24,7 +24,6 @@
 #include <errno.h>
 #include <inttypes.h>
 #include <string.h>
-#include <unistd.h>
 
 /**
  * Private definitions
