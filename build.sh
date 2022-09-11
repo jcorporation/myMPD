@@ -452,6 +452,7 @@ cleanup() {
   rm -rf test/build
 
   #htdocs
+  rm -f htdocs/sw.js
   rm -f htdocs/js/bootstrap-native.js
   rm -f htdocs/js/long-press-event.js
   rm -f htdocs/js/i18n.js
