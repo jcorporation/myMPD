@@ -30,13 +30,23 @@ Enable albumart support:
 1. only MPD >= 0.21 supports the albumart command
 2. Put the pictures in the album folders, the basename must be cover (e.g. cover.jpg)
 
+myMPD restricts the size to 5 MB.
+
 ### Embedded albumart
 
-myMPD can extract embedded albumart, if it can access the music files. If MPD >= 0.22 is detected myMPD can get the embedded albumart through the readpicture command.
+myMPD can extract embedded albumart, if it can access the music files.
+
+Supported formats:
+- id3v2 tagged MP3
+- Vorbis Comments for FLAC and OGG
+
+If MPD >= 0.22 is detected myMPD can get the embedded albumart through the readpicture command.
+
+myMPD restricts the size to 5 MB.
 
 #### Covercache
 
-myMPD caches extracted covers under `/var/cache/mympd/covercache`. Files in this directory can be safely deleted. myMPD houskeeps the covercache on startup and each two hours.
+myMPD caches extracted covers under `/var/cache/mympd/covercache`. Files in this directory can be safely deleted. myMPD houskeeps the covercache on startup and each day.
 
 You can disable the covercache by setting the `Covercache expiration` value to `0` days.
 

@@ -34,6 +34,21 @@ The syntax of the last_played file has changed. You can convert it with
 - Upd: mjson
 - Upd: Bootstrap 5.2.1
 
+## mympd v9.5.4 (2022-09-11)
+
+This is a small bug fix release that also updates some translations.
+
+Many thanks to all translators!
+
+### Changelog
+
+- Upd: fr-FR translation
+- Upd: nl-NL translation
+- Upd: zh-CN translation #833
+- Fix: allow empty smartpls prefix #830
+- Fix: default fallback to en-US #830
+- Fix: serving zh-CN locale #830
+
 ***
 
 ## myMPD v9.5.3 (2022-08-29)
