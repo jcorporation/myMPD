@@ -119,7 +119,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
             radiobrowser_api(nc, backend_nc, cmd_id, body, request_id);
             break;
         case MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET:
-            webradiodb_api(nc, backend_nc, cmd_id, body, request_id);
+            webradiodb_api(nc, backend_nc, cmd_id, request_id);
             break;
         default: {
             //forward API request to mympd_api_handler

@@ -8,9 +8,8 @@
 #define MYMPD_WEB_SERVER_WEBRADIODB_H
 
 #include "../../dist/mongoose/mongoose.h"
-#include "../../dist/sds/sds.h"
 #include "../lib/api.h"
 
 void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
-    enum mympd_cmd_ids cmd_id, sds body, int request_id);
+    enum mympd_cmd_ids cmd_id, int request_id);
 #endif

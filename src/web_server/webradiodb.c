@@ -33,13 +33,11 @@ static bool webradiodb_cache_write(sds cachedir, const char *cache_file, const c
  * @param nc mongoose connection
  * @param backend_nc mongoose backend connection
  * @param cmd_id jsonrpc method
- * @param body request body (jsonrpc request)
  * @param request_id jsonrpc request id
  */
 void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
-    enum mympd_cmd_ids cmd_id, sds body, int request_id)
+    enum mympd_cmd_ids cmd_id, int request_id)
 {
-    (void) body;
     sds error = sdsempty();
     sds uri = sdsempty();
     sds data = NULL;
