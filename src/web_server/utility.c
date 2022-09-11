@@ -216,7 +216,6 @@ struct embedded_file {
  */
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
     const struct embedded_file embedded_files[] = {
-<<<<<<< HEAD
         {"/", "text/html; charset=utf-8", true, false, index_html_data, index_html_size},
         {"/css/combined.css", "text/css; charset=utf-8", true, false, combined_css_data, combined_css_size},
         {"/js/combined.js", "application/javascript; charset=utf-8", true, false, combined_js_data, combined_js_size},
@@ -261,30 +260,6 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/i18n/zh-CN.json", "application/json", true, true, i18n_zh_CN_json_data, i18n_zh_CN_json_size},
         #endif
         {NULL, NULL, false, false, NULL, 0}
-=======
-        {"/", 1, "text/html; charset=utf-8", true, false, index_html_data, index_html_size},
-        {"/css/combined.css", 17, "text/css; charset=utf-8", true, false, combined_css_data, combined_css_size},
-        {"/js/combined.js", 15, "application/javascript; charset=utf-8", true, false, combined_js_data, combined_js_size},
-        {"/sw.js", 6, "application/javascript; charset=utf-8", true, false, sw_js_data, sw_js_size},
-        {"/mympd.webmanifest", 18, "application/manifest+json", true, false, mympd_webmanifest_data, mympd_webmanifest_size},
-        {"/assets/coverimage-notavailable.svg", 35, "image/svg+xml", true, true, coverimage_notavailable_svg_data, coverimage_notavailable_svg_size},
-        {"/assets/MaterialIcons-Regular.woff2", 35, "font/woff2", true, true, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},
-        {"/assets/coverimage-stream.svg", 29, "image/svg+xml", true, true, coverimage_stream_svg_data, coverimage_stream_svg_size},
-        {"/assets/coverimage-loading.svg", 30, "image/svg+xml", true, true, coverimage_loading_svg_data, coverimage_loading_svg_size},
-        {"/assets/coverimage-booklet.svg", 30, "image/svg+xml", true, true, coverimage_booklet_svg_data, coverimage_booklet_svg_size},
-        {"/assets/coverimage-mympd.svg", 28, "image/svg+xml", true, true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},
-        {"/assets/mympd-background-dark.svg", 33, "image/svg+xml", true, true, mympd_background_dark_svg_data, mympd_background_dark_svg_size},
-        {"/assets/mympd-background-light.svg", 34, "image/svg+xml", true, true, mympd_background_light_svg_data, mympd_background_light_svg_size},
-        {"/assets/appicon-192.png", 23, "image/png", false, true, appicon_192_png_data, appicon_192_png_size},
-        {"/assets/appicon-512.png", 23, "image/png", false, true, appicon_512_png_data, appicon_512_png_size},
-        {"/assets/ligatures.json", 22, "application/json", true, true, ligatures_json_data, ligatures_json_size},
-        {"/assets/i18n/de-DE.json", 23, "application/json", true, true, i18n_de_DE_json_data, i18n_de_DE_json_size},
-        {"/assets/i18n/en-US.json", 23, "application/json", true, true, i18n_en_US_json_data, i18n_en_US_json_size},
-        {"/assets/i18n/ko-KR.json", 23, "application/json", true, true, i18n_ko_KR_json_data, i18n_ko_KR_json_size},
-        {"/assets/i18n/nl-NL.json", 23, "application/json", true, true, i18n_nl_NL_json_data, i18n_nl_NL_json_size},
-        {"/assets/i18n/zh-CN.json", 23, "application/json", true, true, i18n_zh_CN_json_data, i18n_zh_CN_json_size},
-        {NULL, 0, NULL, false, false, NULL, 0}
->>>>>>> master
     };
     //decode uri
     sds uri_decoded = sds_urldecode(sdsempty(), uri, sdslen(uri), false);
