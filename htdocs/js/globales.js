@@ -804,6 +804,7 @@ domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');
 domCache.progressPos = document.getElementById('footerProgressPos');
 domCache.notificationCount = document.getElementById('notificationCount');
+domCache.volumeBar = document.getElementById('volumeBar');
 
 //Get BSN object references for fast access
 const uiElements = {};

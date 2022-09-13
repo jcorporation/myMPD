@@ -662,13 +662,23 @@ const APImethods = {
             "songId": APIparams.songId
         }
     },
+    "MYMPD_API_PLAYER_VOLUME_CHANGE": {
+        "desc": "Changes the volume.",
+        "params": {
+            "volume": {
+                "type": "int",
+                "example": 5,
+                "desc": "Volume percent"
+            }
+        }
+    },
     "MYMPD_API_PLAYER_VOLUME_SET": {
         "desc": "Sets the volume.",
         "params": {
             "volume": {
                 "type": "uint",
                 "example": 50,
-                "desc": "volume percent"
+                "desc": "Volume percent"
             }
         }
     },

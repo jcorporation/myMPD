@@ -11,8 +11,8 @@ function initOutputs() {
         }, false);
     }
 
-    document.getElementById('volumeBar').addEventListener('change', function() {
-        sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {"volume": Number(document.getElementById('volumeBar').value)});
+    domCache.volumeBar.addEventListener('change', function() {
+        setVolume();
     }, false);
 
     document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
@@ -169,25 +169,35 @@ function parseVolume(obj) {
             obj.result.volume === 0 ? 'volume_off' :
                 obj.result.volume < 50 ? 'volume_down' : 'volume_up';
     }
-    document.getElementById('volumeBar').value = obj.result.volume;
+    domCache.volumeBar.value = obj.result.volume;
 }
 
 //eslint-disable-next-line no-unused-vars
 function volumeStep(dir) {
-    chVolume(dir === 'up' ? settings.volumeStep : 0 - settings.volumeStep);
-}
+    const step = dir === 'up' ? settings.volumeStep : 0 - settings.volumeStep;
+    const curValue = Number(domCache.volumeBar.value);
+    let newValue = curValue + step;
 
-function chVolume(increment) {
-    const volumeBar = document.getElementById('volumeBar');
-    let newValue = Number(volumeBar.value) + increment;
     if (newValue < settings.volumeMin) {
         newValue = settings.volumeMin;
+        domCache.volumeBar.value = newValue;
+        setVolume();
     }
     else if (newValue > settings.volumeMax) {
         newValue = settings.volumeMax;
+        domCache.volumeBar.value = newValue;
+        setVolume();
     }
-    volumeBar.value = newValue;
+    else {
+        sendAPI("MYMPD_API_PLAYER_VOLUME_CHANGE", {
+            "volume": step
+        });
+        domCache.volumeBar.value = newValue;
+    }
+}
+
+function setVolume() {
     sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {
-        "volume": newValue
+        "volume": Number(domCache.volumeBar.value)
     });
 }

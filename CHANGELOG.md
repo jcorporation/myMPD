@@ -28,6 +28,7 @@ The syntax of the last_played file has changed. You can convert it with
 - Feat: concurrent MPD partition support #440
 - Feat: partition specific settings #440 #826
 - Feat: custom uri for local playback #826
+- Feat: new API method MYMPD_API_PLAYER_VOLUME_CHANGE
 - Upd: autoconfiguration improvements
 - Upd: add internal api documentation
 - Upd: build improvements
