@@ -175,25 +175,9 @@ function parseVolume(obj) {
 //eslint-disable-next-line no-unused-vars
 function volumeStep(dir) {
     const step = dir === 'up' ? settings.volumeStep : 0 - settings.volumeStep;
-    const curValue = Number(domCache.volumeBar.value);
-    let newValue = curValue + step;
-
-    if (newValue < settings.volumeMin) {
-        newValue = settings.volumeMin;
-        domCache.volumeBar.value = newValue;
-        setVolume();
-    }
-    else if (newValue > settings.volumeMax) {
-        newValue = settings.volumeMax;
-        domCache.volumeBar.value = newValue;
-        setVolume();
-    }
-    else {
-        sendAPI("MYMPD_API_PLAYER_VOLUME_CHANGE", {
-            "volume": step
-        });
-        domCache.volumeBar.value = newValue;
-    }
+    sendAPI("MYMPD_API_PLAYER_VOLUME_CHANGE", {
+        "volume": step
+    });
 }
 
 function setVolume() {

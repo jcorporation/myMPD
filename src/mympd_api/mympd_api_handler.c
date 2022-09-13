@@ -49,6 +49,7 @@
 #include "timer.h"
 #include "timer_handlers.h"
 #include "trigger.h"
+#include "volume.h"
 #include "webradios.h"
 
 #include <stdlib.h>
@@ -866,20 +867,12 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         case MYMPD_API_PLAYER_VOLUME_SET:
             if (json_get_uint(request->data, "$.params.volume", 0, 100, &uint_buf1, &error) == true) {
-                if (uint_buf1 > mympd_state->volume_max || uint_buf1 < mympd_state->volume_min) {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYER, JSONRPC_SEVERITY_ERROR, "Invalid volume level");
-                }
-                else {
-                    rc = mpd_run_set_volume(partition_state->conn, uint_buf1);
-                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_set_volume", &result);
-                }
+                response->data = mympd_api_volume_set(partition_state, response->data, request->id, uint_buf1);
             }
             break;
         case MYMPD_API_PLAYER_VOLUME_CHANGE:
             if (json_get_int(request->data, "$.params.volume", -99, 99, &int_buf1, &error) == true) {
-                rc = mpd_run_change_volume(partition_state->conn, int_buf1);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_change_volume", &result);
+                response->data = mympd_api_volume_change(partition_state, response->data, request->id, int_buf1);
             }
             break;
         case MYMPD_API_PLAYER_VOLUME_GET:
