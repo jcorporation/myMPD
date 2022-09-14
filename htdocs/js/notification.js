@@ -75,7 +75,9 @@ function getSeverityIcon(severity) {
 
 function showNotification(title, text, facility, severity) {
     if (appInited === false) {
-        showAppInitAlert(title);
+        showAppInitAlert(
+            title + (text === '' ? '' : ': ' + text);
+        );
         return;
     }
     setStateIcon();

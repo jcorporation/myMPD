@@ -250,7 +250,7 @@ function parseSettings(obj) {
     if (obj.error) {
         settingsParsed = 'error';
         if (appInited === false) {
-            showAppInitAlert(obj === '' ? tn('Can not parse settings') : tn(obj.error.message));
+            showAppInitAlert(obj.error.message === undefined ? tn('Can not parse settings') : tn(obj.error.message));
         }
         return;
     }

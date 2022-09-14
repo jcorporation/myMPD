@@ -503,14 +503,16 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             break;
         }
         case 'Search': {
-            setFocusId('searchStr');
-            createSearchCrumbs(app.current.search, document.getElementById('searchStr'), document.getElementById('searchCrumb'));
+            const searchStrEl = document.getElementById('searchStr');
+            const searchCrumbEl = document.getElementById('searchCrumb');
+            setFocus(searchStrEl);
+            createSearchCrumbs(app.current.search, searchStrEl, searchCrumbEl);
             
             if (app.current.search === '') {
                 document.getElementById('searchStr').value = '';
             }
-            if (document.getElementById('searchStr').value.length >= 2 ||
-                document.getElementById('searchCrumb').children.length > 0)
+            if (searchStrEl.value.length >= 2 ||
+                searchCrumbEl.children.length > 0)
             {
                 if (app.current.sort.tag === '-') {
                     app.current.sort.tag = settings.tagList.includes('Title') ? 'Title' : '-';
@@ -525,8 +527,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 }, parseSearch, true);
             }
             else {
-                elClear(document.getElementById('SearchList').getElementsByTagName('tbody')[0]);
-                elClear(document.getElementById('SearchList').getElementsByTagName('tfoot')[0]);
+                const SearchListEl = document.getElementById('SearchList');
+                elClear(SearchListEl.getElementsByTagName('tbody')[0]);
+                elClear(SearchListEl.getElementsByTagName('tfoot')[0]);
                 elDisableId('searchAddAllSongs');
                 elDisableId('searchAddAllSongsBtn');
                 document.getElementById('SearchList').classList.remove('opacity05');
@@ -1029,12 +1032,7 @@ if (debugMode === false) {
     window.onerror = function(msg, url, line) {
         logError('JavaScript error: ' + msg + ' (' + url + ': ' + line + ')');
         if (settings.loglevel >= 4) {
-            if (appInited === true) {
-                showNotification(tn('JavaScript error'), msg + ' (' + url + ': ' + line + ')', 'general', 'error');
-            }
-            else {
-                showAppInitAlert(tn('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ')');
-            }
+            showNotification(tn('JavaScript error'), msg + ' (' + url + ': ' + line + ')', 'general', 'error');
         }
         return true;
     };
