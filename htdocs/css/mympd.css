@@ -58,10 +58,14 @@ body.not-mobile .featMobile {
   color: var(--bs-gray-100);
 }
 
-.bg-gray-800,
-.bg-gray-800:hover {
+.bg-gray-800 {
   border-color: var(--bs-gray-800);
   background-color: var(--bs-gray-800);
+}
+
+.bg-gray-800:hover {
+  border-color: var(--bs-gray-800) !important;
+  background-color: var(--bs-gray-800) !important;
 }
 
 .highlight {
@@ -1022,7 +1026,7 @@ button.input-inner-button:focus {
   right: 0;
   padding-right: 0.5rem;
   padding-left: 0.5rem;
-  z-index: 3;
+  z-index: 5;
 }
 
 button.select-inner-button {
