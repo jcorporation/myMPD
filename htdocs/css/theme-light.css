@@ -4,7 +4,8 @@
  https://github.com/jcorporation/mympd
 */
 
-body.theme-light .btn-dark {
+body.theme-light .btn-dark,
+body.theme-light .btn-dark:hover {
   color: var(--bs-gray-800);
   background-color: var(--bs-gray-400);
   border-color: var(--bs-gray-400);

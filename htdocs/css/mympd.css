@@ -58,16 +58,6 @@ body.not-mobile .featMobile {
   color: var(--bs-gray-100);
 }
 
-.bg-gray-800 {
-  border-color: var(--bs-gray-800);
-  background-color: var(--bs-gray-800);
-}
-
-.bg-gray-800:hover {
-  border-color: var(--bs-gray-800) !important;
-  background-color: var(--bs-gray-800) !important;
-}
-
 .highlight {
   color: var(--mympd-highlightcolor) !important;
 }

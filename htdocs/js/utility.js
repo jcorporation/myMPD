@@ -1267,7 +1267,7 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
 }
 
 function createSearchCrumb(filter, op, value) {
-    const btn = elCreateNodes('button', {"class": ["btn", "btn-secondary", "bg-gray-800", "me-2"]}, [
+    const btn = elCreateNodes('button', {"class": ["btn", "btn-dark", "me-2"]}, [
         document.createTextNode(filter + ' ' + op + ' \'' + value + '\''),
         elCreateText('span', {"class": ["ml-2", "badge", "bg-secondary"]}, '×')
     ]);
