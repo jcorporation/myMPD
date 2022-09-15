@@ -44,11 +44,11 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
             FREE_SDS(pin);
             sds response = sdsempty();
             if (is_valid == true) {
-                sds ses = webserver_session_new(&mg_user_data->session_list);
+                sds new_session = webserver_session_new(&mg_user_data->session_list);
                 response = jsonrpc_respond_start(response, cmd_id, request_id);
-                response = tojson_sds(response, "session", ses, false);
+                response = tojson_sds(response, "session", new_session, false);
                 response = jsonrpc_end(response);
-                FREE_SDS(ses);
+                FREE_SDS(new_session);
             }
             else {
                 response = jsonrpc_respond_message(response, cmd_id, request_id,
@@ -141,7 +141,9 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
         }
         else {
             //validate session
-            if (session != NULL && strcmp(current->key, session) == 0) {
+            if (session != NULL &&
+                strcmp(current->key, session) == 0)
+            {
                 MYMPD_LOG_DEBUG("Extending session \"%s\"", session);
                 current->value_i = time(NULL) + 1800;
                 return true;

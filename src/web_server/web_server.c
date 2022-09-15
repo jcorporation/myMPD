@@ -354,6 +354,23 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
 }
 
 /**
+ * Enforces the connection limit
+ * @param nc mongoose connection
+ * @param connection_count connection count
+ * @return true if connection count is not exceeded, else false
+ */
+static bool check_conn_limit(struct mg_connection *nc, int connection_count) {
+    if (connection_count > HTTP_CONNECTIONS_MAX) {
+        MYMPD_LOG_DEBUG("Connections: %d", connection_count);
+        MYMPD_LOG_ERROR("Concurrent connections limit exceeded: %d", connection_count);
+        webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
+        nc->is_draining = 1;
+        return false;
+    }
+    return true;
+}
+
+/**
  * Central webserver event handler
  * nc->label usage
  * 0 - connection type: F = frontend connection, B = backend connection
@@ -398,11 +415,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             #endif
             //check connection count
-            if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
-                MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
-                MYMPD_LOG_ERROR("Concurrent connections limit exceeded: %d", mg_user_data->connection_count);
-                webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
-                nc->is_draining = 1;
+            if (check_conn_limit(nc, mg_user_data->connection_count) == false) {
                 break;
             }
             //check acl
@@ -637,14 +650,12 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
     struct t_config *config = mg_user_data->config;
 
     switch(ev) {
-        case MG_EV_ACCEPT:
+        case MG_EV_OPEN:
             mg_user_data->connection_count++;
+            break;
+        case MG_EV_ACCEPT:
             //check connection count
-            if (mg_user_data->connection_count > HTTP_CONNECTIONS_MAX) {
-                MYMPD_LOG_DEBUG("Connections: %d", mg_user_data->connection_count);
-                MYMPD_LOG_ERROR("Concurrent connections limit exceeded: %d", mg_user_data->connection_count);
-                webserver_send_error(nc, 429, "Concurrent connections limit exceeded");
-                nc->is_draining = 1;
+            if (check_conn_limit(nc, mg_user_data->connection_count) == false) {
                 break;
             }
             //check acl
