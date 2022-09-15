@@ -33,11 +33,10 @@
  * Private definitions
  */
 
-static bool update_mympd_caches(struct t_mpd_state *mpd_state,
-        struct t_timer_list *timer_list, time_t timeout);
 static void mpd_client_idle_partition(struct t_partition_state *partition_state,
         bool mpd_idle_event_waiting, struct t_work_request *request);
 static void mpd_client_parse_idle(struct t_partition_state *partition_state, unsigned idle_bitmask);
+static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeout);
 
 /**
  * Public functions
@@ -170,7 +169,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
             }
             if (partition_state->is_default == true) {
                 //initiate cache updates
-                update_mympd_caches(partition_state->mpd_state, &partition_state->mympd_state->timer_list, 2);
+                update_mympd_caches(partition_state->mympd_state, 2);
                 //set timer for smart playlist update
                 mympd_api_timer_replace(&partition_state->mympd_state->timer_list, 30, (int)partition_state->mympd_state->smartpls_interval,
                     timer_handler_by_id, TIMER_ID_SMARTPLS_UPDATE, NULL);
@@ -216,7 +215,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
             bool jukebox_add_song = false;
             bool set_played = false;
             bool set_stickers = partition_state->is_default &&
-                partition_state->mympd_state->mpd_state->sticker_queue.length > 0;
+                partition_state->mpd_state->sticker_queue.length > 0;
             //handle jukebox and last played only in mpd play state
             if (partition_state->play_state == MPD_STATE_PLAY) {
                 time_t now = time(NULL);
@@ -326,7 +325,6 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
 
 /**
  * Handles mpd idle events
- * @param mympd_state pointer to central myMPD state
  * @param partition_state pointer to partition specific state
  * @param idle_bitmask triggered mpd idle events as bitmask
  */
@@ -347,7 +345,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                     MYMPD_LOG_INFO("MPD database has changed");
                     buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_DATABASE);
                     //add timer for cache updates
-                    update_mympd_caches(partition_state->mpd_state, &partition_state->mympd_state->timer_list, 10);
+                    update_mympd_caches(partition_state->mympd_state, 10);
                     break;
                 case MPD_IDLE_STORED_PLAYLIST:
                     //a playlist has changed - global event
@@ -460,21 +458,18 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
 /**
  * Checks if we should create the caches and adds an one-shot timer
  * We do not create the caches instantly to debounce MPD_IDLE_DATABASE events
- * @param mpd_state pointer to the mympd_state struct
- * @param timer_list the timer list
+ * @param mympd_state pointer to the central mympd_state struct
  * @param timeout seconds after the timer triggers
  * @return true on success else false
  */
-static bool update_mympd_caches(struct t_mpd_state *mpd_state,
-        struct t_timer_list *timer_list, time_t timeout)
-{
-    if (mpd_state->feat_stickers == false &&
-        mpd_state->feat_tags == false)
+static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeout) {
+    if (mympd_state->mpd_state->feat_stickers == false &&
+        mympd_state->mpd_state->feat_tags == false)
     {
         MYMPD_LOG_DEBUG("Caches are disabled");
         return true;
     }
     MYMPD_LOG_DEBUG("Adding timer to update the caches");
-    return mympd_api_timer_replace(timer_list, timeout, TIMER_ONE_SHOT_REMOVE,
+    return mympd_api_timer_replace(&mympd_state->timer_list, timeout, TIMER_ONE_SHOT_REMOVE,
             timer_handler_by_id, TIMER_ID_CACHES_CREATE, NULL);
 }

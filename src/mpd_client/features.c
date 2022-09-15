@@ -36,11 +36,11 @@ static void mpd_client_feature_music_directory(struct t_partition_state *partiti
  * @param partition_state pointer to partition state
  */
 void mpd_client_mpd_features(struct t_partition_state *partition_state) {
-    partition_state->mympd_state->mpd_state->protocol = mpd_connection_get_server_version(partition_state->conn);
+    partition_state->mpd_state->protocol = mpd_connection_get_server_version(partition_state->conn);
     MYMPD_LOG_NOTICE("MPD protocol version: %u.%u.%u",
-        partition_state->mympd_state->mpd_state->protocol[0],
-        partition_state->mympd_state->mpd_state->protocol[1],
-        partition_state->mympd_state->mpd_state->protocol[2]
+        partition_state->mpd_state->protocol[0],
+        partition_state->mpd_state->protocol[1],
+        partition_state->mpd_state->protocol[2]
     );
 
     //first disable all features
