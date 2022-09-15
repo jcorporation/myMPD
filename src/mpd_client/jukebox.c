@@ -557,9 +557,11 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
         FREE_SDS(line);
     }
     else {
-        //ignore missing last_played file
         MYMPD_LOG_DEBUG("Can not open \"%s\"", lp_file);
-        MYMPD_LOG_ERRNO(errno);
+        if (errno != ENOENT) {
+            //ignore missing last_played file
+            MYMPD_LOG_ERRNO(errno);
+        }
     }
     FREE_SDS(lp_file);
 

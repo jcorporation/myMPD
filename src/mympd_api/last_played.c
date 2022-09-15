@@ -220,9 +220,9 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
         FREE_SDS(line);
     }
     else {
-        //ignore error
         MYMPD_LOG_DEBUG("Can not open file \"%s\"", lp_file);
         if (errno != ENOENT) {
+            //ignore missing last_played file
             MYMPD_LOG_ERRNO(errno);
         }
     }
