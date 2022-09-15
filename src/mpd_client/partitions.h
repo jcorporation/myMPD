@@ -9,7 +9,7 @@
 
 #include "../lib/mympd_state.h"
 
-struct t_partition_state *partitions_get_by_name(struct t_mympd_state *mympd_state, const char *partition);
+struct t_partition_state *partitions_get_by_name(struct t_mympd_state *mympd_state, const char *name);
 void partitions_list_clear(struct t_mympd_state *mympd_state);
 bool partitions_populate(struct t_mympd_state *mympd_state);
 bool partitions_check(struct t_mympd_state *mympd_state, const char *name);

@@ -1,4 +1,3 @@
-
 /*
  SPDX-License-Identifier: GPL-3.0-or-later
  myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
@@ -18,13 +17,13 @@
 /**
  * Get the partition state struct by partition name
  * @param mympd_state pointer to central myMPD state
- * @param partition mpd partition name
+ * @param name mpd partition name
  * @return pointer to partition_state, NULL if partition is not found
  */
-struct t_partition_state *partitions_get_by_name(struct t_mympd_state *mympd_state, const char *partition) {
+struct t_partition_state *partitions_get_by_name(struct t_mympd_state *mympd_state, const char *name) {
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
-        if (strcmp(partition_state->name, partition) == 0) {
+        if (strcmp(partition_state->name, name) == 0) {
             return partition_state;
         }
         partition_state = partition_state->next;
@@ -99,7 +98,7 @@ bool partitions_populate(struct t_mympd_state *mympd_state) {
 /**
  * Checks if the partition is already in the list
  * @param mympd_state pointer to t_mympd_state struct
- * @param name  partition name
+ * @param name partition name
  * @return true if partition is in the list, else false
  */
 bool partitions_check(struct t_mympd_state *mympd_state, const char *name) {
