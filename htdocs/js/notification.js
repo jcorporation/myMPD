@@ -4,13 +4,18 @@
 // https://github.com/jcorporation/mympd
 
 function setStateIcon() {
+    const logoBgs = document.getElementsByClassName('logoBg');
     if (websocketConnected === false ||
         settings.partition.mpdConnected === false)
     {
-        document.getElementById('logoBg').setAttribute('fill', '#6c757d');
+        for (const logoBg of logoBgs) {
+            logoBg.setAttribute('fill', '#6c757d');
+        }
     }
     else {
-        document.getElementById('logoBg').setAttribute('fill', settings.partition.highlightColor);
+        for (const logoBg of logoBgs) {
+            logoBg.setAttribute('fill', settings.partition.highlightColor);
+        }
     }
 }
 
