@@ -5,9 +5,9 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/filehandler.h"
 #include "utility.h"
 
+#include "../lib/filehandler.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"

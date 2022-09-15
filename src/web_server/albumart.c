@@ -9,6 +9,7 @@
 
 #include "../lib/api.h"
 #include "../lib/covercache.h"
+#include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/m3u.h"
@@ -17,7 +18,6 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "src/lib/filehandler.h"
 
 #include <libgen.h>
 

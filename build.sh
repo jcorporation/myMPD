@@ -519,6 +519,13 @@ check_includes() {
         rc=1
       fi
     done
+    INCLUDES=$(grep -r "#include \"src" src/* || true)
+    if [ -n "$INCLUDES" ]
+    then
+      echo_error "Wrong includes:"
+      echo "$INCLUDES"
+      rc=1
+    fi
     return "$rc"
   done
 }

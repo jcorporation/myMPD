@@ -16,6 +16,8 @@
 #include "features.h"
 #include "tags.h"
 
+#include <mpd/client.h>
+
 /**
  * Connects to mpd and sets initial connection settings
  * @param partition_state pointer to partition state

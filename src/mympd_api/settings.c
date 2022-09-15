@@ -20,7 +20,6 @@
 #include "../lib/validate.h"
 #include "../mpd_client/errorhandler.h"
 #include "../mpd_client/jukebox.h"
-#include "src/lib/mympd_state.h"
 #include "timer.h"
 #include "timer_handlers.h"
 #include "trigger.h"

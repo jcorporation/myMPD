@@ -26,6 +26,7 @@
 #include "partitions.h"
 
 #include <mpd/client.h>
+
 #include <poll.h>
 #include <string.h>
 

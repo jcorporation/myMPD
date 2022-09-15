@@ -5,9 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "dist/mongoose/mongoose.h"
-#include "dist/sds/sds.h"
-#include "src/lib/list.h"
 #include "web_server.h"
 
 #include "../lib/api.h"

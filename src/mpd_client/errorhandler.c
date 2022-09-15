@@ -11,6 +11,8 @@
 #include "../lib/log.h"
 #include "tags.h"
 
+#include <mpd/client.h>
+
 /**
  * Private definitions
  */
