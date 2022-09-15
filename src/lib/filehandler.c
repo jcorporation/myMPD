@@ -116,10 +116,7 @@ bool testfile_read(const char *filename) {
     errno = 0;
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
     if (fp == NULL) {
-        if (errno == ENOENT) {
-            MYMPD_LOG_DEBUG("File does not exist \"%s\"", filename);
-        }
-        else {
+        if (errno != ENOENT) {
             MYMPD_LOG_ERROR("Error opening file ro \"%s\"", filename);
             MYMPD_LOG_ERRNO(errno);
         }
