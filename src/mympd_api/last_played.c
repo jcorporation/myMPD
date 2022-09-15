@@ -183,13 +183,13 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
         }
     }
 
-    sds line = sdsempty();
     sdsclear(obj);
     sds lp_file = sdscatfmt(sdsempty(), "%S/%S/%s",
         partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
     errno = 0;
     FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
+        sds line = sdsempty();
         while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
             sds uri = NULL;
             long long last_played = 0;

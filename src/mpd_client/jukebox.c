@@ -512,12 +512,12 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
     }
 
     //get last_played from disc
-    sds line = sdsempty();
     sds lp_file = sdscatfmt(sdsempty(), "%S/%S/%s",
         partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
     errno = 0;
     FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
+        sds line = sdsempty();
         while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0 &&
                 queue_list->length < 50)
         {
