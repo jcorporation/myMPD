@@ -257,7 +257,7 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
  * @return pointer to buffer
  */
 sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-                         long offset, long limit, const struct t_tags *tagcols)
+        long offset, long limit, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_LIST;
     struct mpd_status *status = mpd_run_status(partition_state->conn);
@@ -322,7 +322,7 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
  * @return pointer to buffer
  */
 sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer, long request_id,
-                            const char *tag, long offset, long limit, const char *searchstr, const struct t_tags *tagcols)
+        const char *tag, long offset, long limit, const char *searchstr, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH;
     bool rc = mpd_search_queue_songs(partition_state->conn, false);

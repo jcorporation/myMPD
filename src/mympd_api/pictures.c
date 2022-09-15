@@ -22,7 +22,7 @@
  * @param workdir myMPD working directory
  * @param buffer sds string to append the response
  * @param request_id jsonrpc request id
- * @param subdir sub directory in workdir/pics/ to get images from
+ * @param subdir subdirectory in workdir/pics/ to get images from
  * @return pointer to buffer
  */
 sds mympd_api_settings_picture_list(sds workdir, sds buffer, long request_id, sds subdir) {
