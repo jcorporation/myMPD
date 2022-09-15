@@ -420,7 +420,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             break;
         case MG_EV_WS_MSG: {
             struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
-            MYMPD_LOG_DEBUG("Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
+            MYMPD_LOG_DEBUG("\"%s\": Websocket message (%lu): %.*s", frontend_nc_data->partition, nc->id, (int)wm->data.len, wm->data.ptr);
             if (mg_vcmp(&wm->data, "ping") == 0) {
                 size_t sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
                 if (sent != 6) {
@@ -432,7 +432,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         }
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-            MYMPD_LOG_INFO("HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.ptr, (int)hm->uri.len, hm->uri.ptr);
+            if (hm->query.len > 0) {
+                MYMPD_LOG_INFO("HTTP request (%lu): %.*s %.*s?%.*s", nc->id, (int)hm->method.len, hm->method.ptr,
+                    (int)hm->uri.len, hm->uri.ptr, (int)hm->query.len, hm->query.ptr);
+            }
+            else {
+                MYMPD_LOG_INFO("HTTP request (%lu): %.*s %.*s", nc->id, (int)hm->method.len, hm->method.ptr,
+                    (int)hm->uri.len, hm->uri.ptr);
+            }
             //limit allowed http methods
             if (mg_vcmp(&hm->method, "GET") == 0) {
                 nc->label[1] = 'G';
