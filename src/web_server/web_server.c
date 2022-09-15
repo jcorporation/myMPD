@@ -491,7 +491,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
             }
             //handle uris
-            if (mg_http_match_uri(hm, "/api/*")) {
+            if (mg_http_match_uri(hm, "/api/*") == true) {
                 //api request
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
@@ -514,19 +514,19 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     FREE_SDS(response);
                 }
             }
-            else if (mg_http_match_uri(hm, "/albumart-thumb")) {
+            else if (mg_http_match_uri(hm, "/albumart-thumb") == true) {
                 request_handler_albumart(nc, hm, mg_user_data, (long long)nc->id, ALBUMART_THUMBNAIL);
             }
-            else if (mg_http_match_uri(hm, "/albumart")) {
+            else if (mg_http_match_uri(hm, "/albumart") == true) {
                 request_handler_albumart(nc, hm, mg_user_data, (long long)nc->id, ALBUMART_FULL);
             }
-            else if (mg_http_match_uri(hm, "/tagart")) {
+            else if (mg_http_match_uri(hm, "/tagart") == true) {
                 request_handler_tagart(nc, hm, mg_user_data);
             }
-            else if (mg_http_match_uri(hm, "/browse/#")) {
+            else if (mg_http_match_uri(hm, "/browse/#") == true) {
                 request_handler_browse(nc, hm, mg_user_data);
             }
-            else if (mg_http_match_uri(hm, "/ws/*")) {
+            else if (mg_http_match_uri(hm, "/ws/*") == true) {
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
                     break;
@@ -537,7 +537,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 mg_ws_send(nc, response, sdslen(response), WEBSOCKET_OP_TEXT);
                 FREE_SDS(response);
             }
-            else if (mg_http_match_uri(hm, "/stream/*")) {
+            else if (mg_http_match_uri(hm, "/stream/*") == true) {
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
                     break;
@@ -550,14 +550,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 }
                 create_backend_connection(nc, frontend_nc_data->backend_nc, node->value_p, forward_backend_to_frontend);
             }
-            else if (mg_http_match_uri(hm, "/proxy")) {
+            else if (mg_http_match_uri(hm, "/proxy") == true) {
                 //Makes a get request to the defined uri and returns the response
                 request_handler_proxy(nc, hm, frontend_nc_data->backend_nc);
             }
-            else if (mg_http_match_uri(hm, "/serverinfo")) {
+            else if (mg_http_match_uri(hm, "/serverinfo") == true) {
                 request_handler_serverinfo(nc);
             }
-            else if (mg_http_match_uri(hm, "/script-api/*")) {
+            else if (mg_http_match_uri(hm, "/script-api/*") == true) {
                 //check acl
                 if (check_acl(nc, config->scriptacl) == false) {
                     break;
@@ -577,14 +577,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     FREE_SDS(response);
                 }
             }
-            else if (mg_vcmp(&hm->uri, "/index.html") == 0) {
+            else if (mg_http_match_uri(hm, "/index.html") == true) {
                 webserver_send_header_redirect(nc, "/");
             }
-            else if (mg_vcmp(&hm->uri, "/favicon.ico") == 0) {
+            else if (mg_http_match_uri(hm, "/favicon.ico") == true) {
                 webserver_send_header_redirect(nc, "/assets/appicon-192.png");
             }
             #ifdef ENABLE_SSL
-            else if (mg_http_match_uri(hm, "/ca.crt")) {
+            else if (mg_http_match_uri(hm, "/ca.crt") == true) {
                 request_handler_ca(nc, hm, mg_user_data);
             }
             #endif
@@ -594,7 +594,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     //serve all files from filesystem
                     static struct mg_http_serve_opts s_http_server_opts;
                     s_http_server_opts.root_dir = DOC_ROOT;
-                    if (mg_http_match_uri(hm, "/test/#")) {
+                    if (mg_http_match_uri(hm, "/test/#") == true) {
                         //test suite uses innerHTML
                         s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
                     }
@@ -665,7 +665,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
             break;
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-            if (mg_http_match_uri(hm, "/browse/webradios/*")) {
+            if (mg_http_match_uri(hm, "/browse/webradios/*") == true) {
                 //we serve the webradio directory without https to avoid ssl configuration for the mpd curl plugin
                 static struct mg_http_serve_opts s_http_server_opts;
                 s_http_server_opts.extra_headers = EXTRA_HEADERS_UNSAFE;
