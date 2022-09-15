@@ -76,8 +76,8 @@ button.active,
 .btn-success:focus,
 .btn-success:hover {
   color: var(--mympd-highlightcolor-contrast) !important;
-  background-color: var(--mympd-highlightcolor);
-  border-color: var(--mympd-highlightcolor);
+  background-color: var(--mympd-highlightcolor) !important;
+  border-color: var(--mympd-highlightcolor) !important;
 }
 
 .btn-success:disabled,
