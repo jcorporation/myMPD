@@ -112,7 +112,7 @@ function saveTimer() {
     }
     if (minOneDay === false) {
         formOK = false;
-        setIsInvalid(document.getElementById('btnTimerSun').parentNode);
+        setIsInvalidId('btnTimerSun');
     }
     const selectTimerAction = document.getElementById('selectTimerAction');
     const jukeboxMode = getBtnGroupValueId('btnTimerJukeboxModeGroup');
