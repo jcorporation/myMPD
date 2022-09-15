@@ -6,9 +6,9 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v10.0.0 (not yet released)
 
-This major release adds concurrent MPD partition support to myMPD. myMPD connects now to all MPD partitions simutanously and maintance separate states and settings for each partition. Each browser instance can now select the MPD partition to control.
+This major release adds concurrent MPD partition support to myMPD. myMPD connects now to all MPD partitions simultaneously and holds partition specific states and settings. Each browser instance can now select the MPD partition to control.
 
-The partition feature should be used with MPD >= 0.23.9. There are some anoying partition related bugs in earlier MPD versions.
+The partition feature should be used with MPD 0.23.9 or newer. There are some anoying partition related bugs in earlier MPD versions.
 
 The syntax of the last_played file has changed. You can convert it with
 `sed -r 's/^(.*)::(.*)/{"LastPlayed":\1,"uri":"\2"}/g' /var/lib/mympd/state/last_played > /var/lib/mympd/state/default/last_played_list`
