@@ -805,17 +805,6 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
             mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id);
             return buffer;
         }
-
-        enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(partition_state->conn);
-        if (replay_gain_mode == MPD_REPLAY_UNKNOWN) {
-            if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
-                mpd_status_free(status);
-                return buffer;
-            }
-        }
-        const char *replaygain = mpd_lookup_replay_gain_mode(replay_gain_mode);
-        buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, true);
-
         enum mpd_single_state single_state = mpd_status_get_single_state(status);
         buffer = tojson_char(buffer, "single", mpd_lookup_single_state(single_state), true);
         buffer = tojson_uint(buffer, "crossfade", mpd_status_get_crossfade(status), true);
@@ -823,8 +812,17 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_double(buffer, "mixrampDelay", mpd_status_get_mixrampdelay(status), true);
         buffer = tojson_bool(buffer, "repeat", mpd_status_get_repeat(status), true);
         buffer = tojson_bool(buffer, "random", mpd_status_get_random(status), true);
-        buffer = tojson_bool(buffer, "consume", mpd_status_get_consume(status), false);
+        buffer = tojson_bool(buffer, "consume", mpd_status_get_consume(status), true);
         mpd_status_free(status);
+
+        enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(partition_state->conn);
+        if (replay_gain_mode == MPD_REPLAY_UNKNOWN) {
+            if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
+                return buffer;
+            }
+        }
+        const char *replaygain = mpd_lookup_replay_gain_mode(replay_gain_mode);
+        buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, false);
     }
     else {
         //not connected to mpd
@@ -873,7 +871,6 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         //trigger events
         buffer = sdscat(buffer, ",\"triggerEvents\":{");
         buffer = mympd_api_trigger_print_event_list(buffer);
-        //end partition specific settings
         buffer = sdscatlen(buffer, "}", 1);
     }
     buffer = jsonrpc_end(buffer);
