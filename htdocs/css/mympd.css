@@ -151,7 +151,7 @@ html {
 
 body {
   min-height: 100vh;
-  padding-top: 3rem;
+  padding-top: 3.5rem;
   padding-bottom: 5rem;
   background-color: var(--mympd-backgroundcolor);
   background-position: center center;
@@ -161,7 +161,7 @@ body {
 }
 
 main {
-  padding-top: 0.5rem;
+  border-top: 3px solid transparent;
 }
 
 .navbar {
@@ -227,10 +227,6 @@ div > .albumartbg {
   body {
     padding-top: 0;
     padding-left: 4rem;
-  }
-
-  main {
-    padding-top: 0;
   }
 
   #headerLeft {
@@ -1147,4 +1143,32 @@ form#outputs {
 
 button.weekday {
   min-width: 3rem;
+}
+
+@keyframes flash_border {
+  0% {
+    border-color: var(--mympd-highlightcolor);
+  }
+  50% {
+    border-color: transparent;
+  }
+  100% {
+    border-color: var(--mympd-highlightcolor);
+  }
+}
+
+.border-progress {
+  border-top: 3px solid var(--mympd-highlightcolor);
+  animation-name: flash_border;
+  animation-duration: 2s;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+  -webkit-animation-name: flash_border;
+  -webkit-animation-duration: 2s;
+  -webkit-animation-timing-function: linear;
+  -webkit-animation-iteration-count: infinite;
+  -moz-animation-name: flash_border;
+  -moz-animation-duration: 2s;
+  -moz-animation-timing-function: linear;
+  -moz-animation-iteration-count: infinite;
 }

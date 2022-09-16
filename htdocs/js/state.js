@@ -318,8 +318,7 @@ function clearCurrentCover() {
 
 function parseCurrentSong(obj) {
     const list = document.getElementById('PlaybackList');
-    list.classList.remove('opacity05');
-    setScrollViewHeight(list);
+    unsetUpdateView(list);
 
     //check for song change
     //use title to detect stream changes
@@ -444,6 +443,8 @@ function parseCurrentSong(obj) {
     if (currentState.state === 'play') {
         showNotification(obj.result.Title, textNotification, 'player', 'info');
     }
+
+    setScrollViewHeight(list);
 
     //remember current song
     currentSong = newSong;

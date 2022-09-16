@@ -198,9 +198,8 @@ function filterHomeIconLigatures() {
 
 function parseHomeIcons(obj) {
     const cardContainer = document.getElementById('HomeList');
+    unsetUpdateView(cardContainer);
     const cols = cardContainer.getElementsByClassName('col');
-    cardContainer.classList.remove('opacity05');
-    setScrollViewHeight(cardContainer);
 
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,
@@ -285,6 +284,7 @@ function parseHomeIcons(obj) {
     for (let i = cols.length - 1; i >= obj.result.returnedEntities; i--) {
         cols[i].remove();
     }
+    setScrollViewHeight(cardContainer);
 }
 
 function showDropoverIcon(from, to) {

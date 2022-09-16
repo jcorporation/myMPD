@@ -403,7 +403,7 @@ function parseRadioFavoritesList(obj) {
     const cardContainer = document.getElementById('BrowseRadioFavoritesList');
 
     const cols = cardContainer.getElementsByClassName('col');
-    cardContainer.classList.remove('opacity05');
+    unsetUpdateView(cardContainer);
 
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,

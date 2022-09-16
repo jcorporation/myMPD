@@ -153,25 +153,25 @@ function parsePlaylistsDetail(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
-    document.getElementById('BrowsePlaylistsListList').classList.add('opacity05');
+    setUpdateViewId('BrowsePlaylistsListList');
     appGoto('Browse', 'Playlists', 'Detail', 0, undefined, uri, '-', '-', '');
 }
 
 //eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
+    setUpdateViewId('BrowsePlaylistsDetailList');
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_SHUFFLE", {
         "plist": getDataId('BrowsePlaylistsDetailList', 'uri')
     });
-    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
 }
 
 //eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
+    setUpdateViewId('BrowsePlaylistsDetailList');
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_SORT", {
         "plist": getDataId('BrowsePlaylistsDetailList', 'uri'),
         "tag": tag
     });
-    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -200,7 +200,7 @@ function removeFromPlaylist(mode, plist, start, end) {
         default:
             return;
     }
-    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
+    setUpdateViewId('BrowsePlaylistsDetailList');
 }
 
 function parseSmartPlaylist(obj) {
@@ -620,8 +620,8 @@ function updateSmartPlaylist(plist) {
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
+    setUpdateViewId('BrowsePlaylistsDetailList');
     updateSmartPlaylist(getDataId('BrowsePlaylistsDetailList', 'uri'));
-    document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -646,7 +646,7 @@ function showClearPlaylist() {
         sendAPI("MYMPD_API_PLAYLIST_CONTENT_CLEAR", {
             "plist": plist
         });
-        document.getElementById('BrowsePlaylistsDetailList').classList.add('opacity05');
+        setUpdateViewId('BrowsePlaylistsDetailList');
     });
 }
 

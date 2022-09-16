@@ -1015,7 +1015,6 @@ function parseMPDSettings() {
     addTagList('searchDatabaseTags', 'tagListBrowse');
     addTagList('databaseSortTagsList', 'tagListBrowse');
     addTagList('dropdownSortPlaylistTags', 'tagList');
-    addTagList('saveSmartPlaylistSort', 'tagList');
 
     addTagListSelect('saveSmartPlaylistSort', 'tagList');
 }

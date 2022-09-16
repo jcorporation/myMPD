@@ -50,7 +50,7 @@ function appPrepare() {
     }
     const list = document.getElementById(app.id + 'List');
     if (list) {
-        list.classList.add('opacity05');
+        setUpdateView(list);
     }
 }
 
@@ -532,7 +532,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 elClear(SearchListEl.getElementsByTagName('tfoot')[0]);
                 elDisableId('searchAddAllSongs');
                 elDisableId('searchAddAllSongsBtn');
-                document.getElementById('SearchList').classList.remove('opacity05');
+                unsetUpdateViewId('SearchList');
                 setPagination(0, 0);
             }
             selectTag('searchTags', 'searchTagsDesc', app.current.filter);
@@ -688,7 +688,7 @@ function appInitStart() {
                     serviceWorkerExists = true;
                 }
             }).catch(function(err) {
-                logError('Service Worker unregistration failed: ', err);
+                logError('Service Worker unregistration failed: ' + err);
             });
             if (serviceWorkerExists === true) {
                 clearAndReload();
@@ -1039,7 +1039,9 @@ if (debugMode === false) {
 }
 
 //allow service worker registration
-if (window.trustedTypes && window.trustedTypes.createPolicy) {
+if (window.trustedTypes &&
+    window.trustedTypes.createPolicy)
+{
     window.trustedTypes.createPolicy('default', {
         createScriptURL(dirty) {
             if (dirty === 'sw.js') {

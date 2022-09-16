@@ -799,6 +799,7 @@ const keymap = {
 //cache often accessed dom elements
 const domCache = {};
 domCache.body = document.getElementsByTagName('body')[0];
+domCache.main = document.getElementsByTagName('main')[0];
 domCache.counter = document.getElementById('counter');
 domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');

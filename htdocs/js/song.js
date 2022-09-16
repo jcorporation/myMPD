@@ -251,14 +251,14 @@ function parseSongDetails(obj) {
 }
 
 function getComments(uri, el) {
-    el.classList.add('opacity05');
+    setUpdateView(el);
     sendAPI("MYMPD_API_SONG_COMMENTS", {
         "uri": uri
     }, function(obj) {
         elClear(el);
         if (obj.result.returnedEntities === 0) {
             el.appendChild(emptyRow(2));
-            el.classList.remove('opacity05');
+            unsetUpdateView(el);
             return false;
         }
         for (const key in obj.result.data) {
@@ -269,7 +269,7 @@ function getComments(uri, el) {
                 ])
             );
         }
-        el.classList.remove('opacity05');
+        unsetUpdateView(el);
     }, false);
 }
 
@@ -280,7 +280,7 @@ function getLyrics(uri, el) {
         el.textContent = tn('No lyrics found');
         return;
     }
-    el.classList.add('opacity05');
+    setUpdateView(el);
     sendAPI("MYMPD_API_LYRICS_GET", {
         "uri": uri
     }, function(obj) {
@@ -296,7 +296,7 @@ function getLyrics(uri, el) {
         else {
             createLyricsTabs(el, obj);
         }
-        el.classList.remove('opacity05');
+        unsetUpdateView(el);
     }, true);
 }
 

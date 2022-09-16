@@ -120,6 +120,24 @@ function setFocus(el) {
     }
 }
 
+function setUpdateViewId(id) {
+    setUpdateView(document.getElementById(id));
+}
+
+function setUpdateView(el) {
+    el.classList.add('opacity05');
+    domCache.main.classList.add('border-progress');
+}
+
+function unsetUpdateViewId(id) {
+    unsetUpdateView(document.getElementById(id));
+}
+
+function unsetUpdateView(el) {
+    el.classList.remove('opacity05');
+    domCache.main.classList.remove('border-progress');
+}
+
 //replaces special characters with underscore
 function r(x) {
     return x.replace(/[^\w-]/g, '_');
@@ -571,12 +589,12 @@ function basename(uri, removeQuery) {
     return uri.split('/').reverse()[0];
 }
 
- function splitFilename(filename) {
-     const parts = filename.match(/^(.*)\.([^.]+)$/);
-     return {
+function splitFilename(filename) {
+    const parts = filename.match(/^(.*)\.([^.]+)$/);
+    return {
         "file": parts[1],
         "ext": parts[2]
-     };
+    };
  }
 
 function isCoverfile(uri) {
@@ -756,8 +774,10 @@ function addTagList(elId, list) {
 
 function addTagListSelect(elId, list) {
     const select = document.getElementById(elId);
-    select.options.length = 0;
-    if (elId === 'saveSmartPlaylistSort' || elId === 'selectSmartplsSort') {
+    elClear(select);
+    if (elId === 'saveSmartPlaylistSort' ||
+        elId === 'selectSmartplsSort')
+    {
         select.appendChild(elCreateText('option', {"value": ""}, tn('Disabled')));
         select.appendChild(elCreateText('option', {"value": "shuffle"}, tn('Shuffle')));
         const optGroup = elCreateEmpty('optgroup', {"label": tn('Sort by tag')});
@@ -767,7 +787,9 @@ function addTagListSelect(elId, list) {
         }
         select.appendChild(optGroup);
     }
-    else if (elId === 'selectJukeboxUniqueTag' && settings.tagListBrowse.includes('Title') === false) {
+    else if (elId === 'selectJukeboxUniqueTag' &&
+        settings.tagListBrowse.includes('Title') === false)
+    {
         //Title tag should be always in the list
         select.appendChild(elCreateText('option', {"value": "Title"}, tn('Song')));
         for (let i = 0, j = settings[list].length; i < j; i++) {

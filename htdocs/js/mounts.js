@@ -76,7 +76,7 @@ function mountMount() {
         sendAPI("MYMPD_API_MOUNT_MOUNT", {
             "mountUrl": getSelectValueId('selectMountUrlhandler') + inputMountUrl.value,
             "mountPoint": inputMountPoint.value,
-            }, mountMountCheckError, true);
+        }, mountMountCheckError, true);
     }
 }
 

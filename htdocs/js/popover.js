@@ -108,7 +108,7 @@ function createPopoverBody(template) {
                        elCreateEmpty('div', {"class": ["tab-pane", "pt-2", "active", "show"], "id": "popoverTab0"}),
                        elCreateEmpty('div', {"class": ["tab-pane", "pt-2"], "id": "popoverTab1"})
                    ])
-               ])
+               ]);
     }
     return elCreateEmpty('div', {"class": ["popover-body"]})
 }

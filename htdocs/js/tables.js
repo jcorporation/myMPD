@@ -411,7 +411,6 @@ function addDiscRow(disc, album, albumartist, colspan) {
 
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const table = document.getElementById(list + 'List');
-    setScrollViewHeight(table);
     const tbody = table.getElementsByTagName('tbody')[0];
     const colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
 
@@ -504,7 +503,8 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     if (nrItems === 0) {
         tbody.appendChild(emptyRow(colspan + 1));
     }
-    table.classList.remove('opacity05');
+    unsetUpdateView(table);
+    setScrollViewHeight(table);
     scrollToPosY(table.parentNode, app.current.scrollPos);
 }
 
@@ -598,7 +598,7 @@ function checkResult(obj, tbody) {
             elClear(tfoot[0]);
         }
         tbody.appendChild(errorRow(obj, colspan));
-        tbody.parentNode.classList.remove('opacity05');
+        unsetUpdateView(tbody.parentNode);
         setPagination(0, 0);
         return false;
     }
@@ -608,7 +608,7 @@ function checkResult(obj, tbody) {
             elClear(tfoot[0]);
         }
         tbody.appendChild(emptyRow(colspan));
-        tbody.parentNode.classList.remove('opacity05');
+        unsetUpdateView(tbody.parentNode);
         setPagination(0, 0);
         return false;
     }
