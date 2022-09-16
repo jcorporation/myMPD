@@ -143,6 +143,7 @@ function saveSearchAsSmartPlaylist() {
     parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MYMPD_API_SMARTPLS_GET",
         "plist": "",
         "type": "search",
+        "sort": "",
         "expression": app.current.search
     }});
 }
