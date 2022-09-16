@@ -101,7 +101,7 @@ a.text-success:focus {
 }
 
 #splashScreen {
-  background: linear-gradient(0deg, #28a745 0%, #1e7e34 100%);
+  background: radial-gradient(at 100% 0%, #32d156 0%, #28a745 30%, #155724 100%);
   width: 100vw;
   height: 100vh;
   z-index: 2000;
@@ -1145,13 +1145,15 @@ button.weekday {
   min-width: 3rem;
 }
 
-@keyframes flash_border {
+@keyframes flash-border {
   0% {
     border-color: var(--mympd-highlightcolor);
   }
+
   50% {
     border-color: transparent;
   }
+
   100% {
     border-color: var(--mympd-highlightcolor);
   }
@@ -1159,9 +1161,9 @@ button.weekday {
 
 .border-progress {
   border-top: 3px solid var(--mympd-highlightcolor);
-  animation-name: flash_border;
+  animation-name: flash-border;
   animation-duration: 2s;
-  animation-timing-function: linear;
+  animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
   -webkit-animation-name: flash_border;
   -webkit-animation-duration: 2s;
