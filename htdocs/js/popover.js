@@ -721,6 +721,8 @@ function createMenuHome(dataNode, tabHeader, tabContent) {
     switch(type) {
         case 'plist':
         case 'smartpls':
+            addMenuItemsPlaylistActions(tabContent, dataNode, type, href.options[1], href.options[1]);
+            break;
         case 'webradio':
             addMenuItemsPlaylistActions(tabContent, dataNode, type, href.options[1], href.options[1]);
             addMenuItemsWebradioFavoritesHomeActions(tabContent, href.options[1].substr(17));
