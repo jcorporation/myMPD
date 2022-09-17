@@ -93,8 +93,6 @@ CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-id-dependent-backward-branch"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-unroll-loops"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-altera-struct-pack-align,-clang-analyzer-optin.performance.Padding"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-easily-swappable-parameters"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-macro-parentheses"
-CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-reserved-identifier,-cert-dcl37-c,-cert-dcl51-cpp"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-bugprone-signal-handler,-cert-sig30-c"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-clang-diagnostic-invalid-command-line-argument"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-concurrency-mt-unsafe"
@@ -106,7 +104,7 @@ CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-non-const-parameter"
 
-#save startpath
+#save script path
 STARTPATH=$(dirname "$(realpath "$0")")
 
 #set umask
@@ -329,8 +327,9 @@ buildrelease() {
   echo "Compiling myMPD"
   install -d release
   cd release || exit 1
-  #force rebuild of web_server with embedded assets
+  #force rebuild of objects with embedded assets
   rm -vf CMakeFiles/mympd.dir/src/web_server/utility.c.o
+  rm -vf CMakeFiles/mympd.dir/src/mympd_api/scripts.c.o
   #set INSTALL_PREFIX and build myMPD
   export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
   #shellcheck disable=SC2086
