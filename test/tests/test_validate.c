@@ -12,11 +12,11 @@
 UTEST(validate, test_validate_json) {
     //valid
     sds data = sdsnew("{\"key1\":\"value1\"}");
-    ASSERT_TRUE(validate_json(data));
+    ASSERT_TRUE(validate_json_object(data));
     sdsclear(data);
     //invalid
     data = sdscat(data, "asdfsfdjlk");
-    ASSERT_FALSE(validate_json(data));
+    ASSERT_FALSE(validate_json_object(data));
     sdsfree(data);
 }
 
