@@ -13,7 +13,7 @@
 
 typedef bool (*validate_callback) (sds);
 
-bool validate_json(sds data);
+bool validate_json_object(sds data);
 bool validate_json_array(sds data);
 
 bool vcb_isalnum(sds data);

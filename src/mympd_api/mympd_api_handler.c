@@ -557,7 +557,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_TRIGGER, JSONRPC_SEVERITY_ERROR, "Could not save trigger");
             }
-            trigger_data_free(trigger_data);
+            mympd_api_trigger_data_free(trigger_data);
             break;
         }
         case MYMPD_API_TRIGGER_RM:

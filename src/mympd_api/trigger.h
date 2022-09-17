@@ -53,6 +53,6 @@ bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx);
 const char *mympd_api_event_name(long event);
 sds mympd_api_trigger_print_event_list(sds buffer);
 struct t_trigger_data *trigger_data_new(void);
-void trigger_data_free(struct t_trigger_data *trigger_data);
+void mympd_api_trigger_data_free(struct t_trigger_data *trigger_data);
 
 #endif

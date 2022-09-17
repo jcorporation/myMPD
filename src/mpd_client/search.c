@@ -18,7 +18,7 @@
 
 //private definitions
 
-static sds _mpd_client_search(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
+static sds search_songs(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
         const char *expression, const char *sort, bool sortdesc,
         const char *plist, unsigned to, unsigned whence,
         unsigned offset, unsigned limit, const struct t_tags *tagcols,
@@ -45,7 +45,7 @@ sds mpd_client_search_response(struct t_partition_state *partition_state, sds bu
         const char *expression, const char *sort, bool sortdesc, unsigned offset, unsigned limit,
         const struct t_tags *tagcols, struct t_cache *sticker_cache, bool *result)
 {
-    return _mpd_client_search(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, request_id,
+    return search_songs(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, request_id,
             expression, sort, sortdesc, NULL, 0, MPD_POSITION_ABSOLUTE, offset, limit,
             tagcols, sticker_cache, result);
 }
@@ -65,7 +65,7 @@ bool mpd_client_search_add_to_plist(struct t_partition_state *partition_state, c
 {
     bool result = false;
     sds buffer = sdsempty();
-    buffer = _mpd_client_search(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, 0,
+    buffer = search_songs(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, 0,
             expression, NULL, false, plist, to, MPD_POSITION_ABSOLUTE, 0, 0,
             NULL, NULL, &result);
     if (response != NULL &&
@@ -95,7 +95,7 @@ bool mpd_client_search_add_to_queue(struct t_partition_state *partition_state, c
 {
     bool result = false;
     sds buffer = sdsempty();
-    buffer = _mpd_client_search(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, 0,
+    buffer = search_songs(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, 0,
             expression, NULL, false, "queue", to, whence, 0, 0,
             NULL, NULL, &result);
     if (response != NULL &&
@@ -128,7 +128,7 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
 }
 
 //private functions
-static sds _mpd_client_search(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
+static sds search_songs(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
         const char *expression, const char *sort, bool sortdesc, const char *plist,
         unsigned to, unsigned whence, unsigned offset, unsigned limit,
         const struct t_tags *tagcols, struct t_cache *sticker_cache, bool *result)

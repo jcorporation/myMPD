@@ -34,7 +34,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
     MYMPD_LOG_DEBUG("\"%s\": API request (%lu): %s", frontend_nc_data->partition, nc->id, body);
 
     //first check if request is valid json string
-    if (validate_json(body) == false) {
+    if (validate_json_object(body) == false) {
         return false;
     }
 
@@ -145,7 +145,7 @@ bool request_handler_script_api(struct mg_connection *nc, sds body) {
     MYMPD_LOG_DEBUG("\"%s\": Script API request (%lu): %s", frontend_nc_data->partition, nc->id, body);
 
     //first check if request is valid json string
-    if (validate_json(body) == false) {
+    if (validate_json_object(body) == false) {
         return false;
     }
 

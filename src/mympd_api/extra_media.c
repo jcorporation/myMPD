@@ -31,10 +31,10 @@
  * Private definitons
  */
 
-static void _get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
-static int _get_embedded_covers_count(const char *media_file);
-static int _get_embedded_covers_count_id3(const char *media_file);
-static int _get_embedded_covers_count_flac(const char *media_file, bool is_ogg);
+static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname);
+static int get_embedded_covers_count(const char *media_file);
+static int get_embedded_covers_count_id3(const char *media_file);
+static int get_embedded_covers_count_flac(const char *media_file, bool is_ogg);
 
 /**
  * Public functions
@@ -48,14 +48,14 @@ static int _get_embedded_covers_count_flac(const char *media_file, bool is_ogg);
  * @param is_dirname true if uri is a directory, else false
  * @return pointer to buffer
  */
-sds get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const char *uri, bool is_dirname) {
+sds mympd_api_get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const char *uri, bool is_dirname) {
     struct t_list images;
     list_init(&images);
     sds booklet_path = sdsempty();
     if (is_streamuri(uri) == false &&
         mpd_state->feat_library == true)
     {
-        _get_extra_files(mpd_state, uri, &booklet_path, &images, is_dirname);
+        get_extra_files(mpd_state, uri, &booklet_path, &images, is_dirname);
     }
     buffer = tojson_sds(buffer, "bookletPath", booklet_path, true);
     buffer = sdscat(buffer, "\"images\": [");
@@ -74,7 +74,7 @@ sds get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const char *uri, 
         mpd_state->feat_library == true)
     {
         sds fullpath = sdscatfmt(sdsempty(), "%S/%s", mpd_state->music_directory_value, uri);
-        image_count = _get_embedded_covers_count(fullpath);
+        image_count = get_embedded_covers_count(fullpath);
         FREE_SDS(fullpath);
     }
     buffer = tojson_int(buffer, "embeddedImageCount", image_count, false);
@@ -95,7 +95,7 @@ sds get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const char *uri, 
  * @param images pointer to already alocated list
  * @param is_dirname true if uri is a directory, else false
  */
-static void _get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
+static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {
     sds path = sdsnew(uri);
     if (is_dirname == false) {
         dirname(path);
@@ -141,7 +141,7 @@ static void _get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds
  * @param media_file pointer to the shared mpd state
  * @return image count
  */
-static int _get_embedded_covers_count(const char *media_file) {
+static int get_embedded_covers_count(const char *media_file) {
     int count = 0;
     const char *mime_type_media_file = get_mime_type_by_ext(media_file);
     MYMPD_LOG_DEBUG("Mimetype of %s is %s", media_file, mime_type_media_file);
@@ -151,13 +151,13 @@ static int _get_embedded_covers_count(const char *media_file) {
     }
     MYMPD_LOG_DEBUG("Counting coverimages from %s", media_file);
     if (strcmp(mime_type_media_file, "audio/mpeg") == 0) {
-        count = _get_embedded_covers_count_id3(media_file);
+        count = get_embedded_covers_count_id3(media_file);
     }
     else if (strcmp(mime_type_media_file, "audio/ogg") == 0) {
-        count = _get_embedded_covers_count_flac(media_file, true);
+        count = get_embedded_covers_count_flac(media_file, true);
     }
     else if (strcmp(mime_type_media_file, "audio/flac") == 0) {
-        count = _get_embedded_covers_count_flac(media_file, false);
+        count = get_embedded_covers_count_flac(media_file, false);
     }
     MYMPD_LOG_DEBUG("Found %d embedded coverimages in %s", count, media_file);
     return count;
@@ -168,7 +168,7 @@ static int _get_embedded_covers_count(const char *media_file) {
  * @param media_file pointer to the shared mpd state
  * @return image count
  */
-static int _get_embedded_covers_count_id3(const char *media_file) {
+static int get_embedded_covers_count_id3(const char *media_file) {
     int count = 0;
     #ifdef ENABLE_LIBID3TAG
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
@@ -201,7 +201,7 @@ static int _get_embedded_covers_count_id3(const char *media_file) {
  * @param is_ogg true if it is a ogg file, false if it is a flac file
  * @return image count
  */
-static int _get_embedded_covers_count_flac(const char *media_file, bool is_ogg) {
+static int get_embedded_covers_count_flac(const char *media_file, bool is_ogg) {
     int count = 0;
     #ifdef ENABLE_FLAC
     FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();

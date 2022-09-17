@@ -19,7 +19,7 @@
 #include <sys/stat.h>
 
 //privat definitions
-static bool _smartpls_save(sds workdir, const char *smartpltype,
+static bool smartpls_save(sds workdir, const char *smartpltype,
         const char *playlist, const char *expression, int max_entries,
         int timerange, const char *sort);
 
@@ -38,7 +38,7 @@ static bool _smartpls_save(sds workdir, const char *smartpltype,
 bool smartpls_save_sticker(sds workdir, const char *playlist, const char *sticker,
     int max_entries, int min_value, const char *sort)
 {
-    return _smartpls_save(workdir, "sticker", playlist, sticker, max_entries, min_value, sort);
+    return smartpls_save(workdir, "sticker", playlist, sticker, max_entries, min_value, sort);
 }
 
 /**
@@ -50,7 +50,7 @@ bool smartpls_save_sticker(sds workdir, const char *playlist, const char *sticke
  * @return true on success else false
  */
 bool smartpls_save_newest(sds workdir, const char *playlist, int timerange, const char *sort) {
-    return _smartpls_save(workdir, "newest", playlist, NULL, 0, timerange, sort);
+    return smartpls_save(workdir, "newest", playlist, NULL, 0, timerange, sort);
 }
 
 /**
@@ -62,7 +62,7 @@ bool smartpls_save_newest(sds workdir, const char *playlist, int timerange, cons
  * @return true on success else false
  */
 bool smartpls_save_search(sds workdir, const char *playlist, const char *expression, const char *sort) {
-    return _smartpls_save(workdir, "search", playlist, expression, 0, 0, sort);
+    return smartpls_save(workdir, "search", playlist, expression, 0, 0, sort);
 }
 
 /**
@@ -163,7 +163,7 @@ bool smartpls_update_all(void) {
  * @param sort mpd tag to sort or shuffle
  * @return true on success else false
  */
-static bool _smartpls_save(sds workdir, const char *smartpltype, const char *playlist,
+static bool smartpls_save(sds workdir, const char *smartpltype, const char *playlist,
                               const char *expression, int max_entries,
                               int timerange, const char *sort)
 {

@@ -30,7 +30,7 @@
 /**
  * Privat definitions
  */
-static void _mympd_api_lyrics_get(struct t_lyrics *lyrics, struct t_list *extracted,
+static void lyrics_get(struct t_lyrics *lyrics, struct t_list *extracted,
         sds mediafile, const char *mime_type_mediafile);
 static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char *ext, bool synced);
 static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file);
@@ -39,7 +39,7 @@ static void lyricsextract_flac(struct t_list *extracted, sds media_file, bool is
 
 #ifdef ENABLE_LIBID3TAG
 static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length, enum id3_field_textencoding encoding);
-static const char *_id3_field_getlanguage(union id3_field const *field);
+static const char *mympd_id3_field_getlanguage(union id3_field const *field);
 #endif
 
 /**
@@ -74,7 +74,7 @@ sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffe
     const char *mime_type_mediafile = get_mime_type_by_ext(mediafile);
     struct t_list extracted;
     list_init(&extracted);
-    _mympd_api_lyrics_get(lyrics, &extracted, mediafile, mime_type_mediafile);
+    lyrics_get(lyrics, &extracted, mediafile, mime_type_mediafile);
     FREE_SDS(mediafile);
 
     if (extracted.length == 0) {
@@ -113,7 +113,7 @@ sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffe
  * @param mediafile absolut filepath of song uri
  * @param mime_type_mediafile mime type of the song uri
  */
-static void _mympd_api_lyrics_get(struct t_lyrics *lyrics, struct t_list *extracted,
+static void lyrics_get(struct t_lyrics *lyrics, struct t_list *extracted,
         sds mediafile, const char *mime_type_mediafile)
 {
     //try unsynced lyrics file in folder of the song
@@ -217,7 +217,7 @@ static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file)
         if (uslt_text != NULL) {
             buffer = sdscat(buffer, "{\"synced\":false,");
             //libid3tag has not get function for language, use own function
-            const char *lang = _id3_field_getlanguage(&frame->fields[1]);
+            const char *lang = mympd_id3_field_getlanguage(&frame->fields[1]);
             if (lang != NULL) {
                 buffer = tojson_char(buffer, "lang", lang, true);
             }
@@ -303,7 +303,7 @@ static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file) {
             enum id3_field_textencoding encoding = id3_field_gettextencoding(&frame->fields[0]);
             buffer = tojson_long(buffer, "encoding", encoding, true);
 
-            const char *lang = _id3_field_getlanguage(&frame->fields[1]);
+            const char *lang = mympd_id3_field_getlanguage(&frame->fields[1]);
             if (lang != NULL) {
                 buffer = tojson_char(buffer, "lang", lang, true);
             }
@@ -361,7 +361,7 @@ static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file) {
  * @param field pointer to frame field
  * @return language
  */
-static const char *_id3_field_getlanguage(union id3_field const *field) {
+static const char *mympd_id3_field_getlanguage(union id3_field const *field) {
     assert(field);
     if (field->type != ID3_FIELD_TYPE_LANGUAGE) {
         return NULL;

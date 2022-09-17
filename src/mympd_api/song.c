@@ -77,7 +77,7 @@ sds mympd_api_song_details(struct t_partition_state *partition_state, sds buffer
     }
 
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = get_extra_media(partition_state->mpd_state, buffer, uri, false);
+    buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, uri, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }

@@ -23,8 +23,8 @@
  * Private definitions
  */
 
-static time_t _get_current_song_start_time(struct t_partition_state *partition_state);
-static const char *_get_playstate_name(enum mpd_state play_state);
+static time_t get_current_song_start_time(struct t_partition_state *partition_state);
+static const char *get_playstate_name(enum mpd_state play_state);
 
 /**
  * Array to resolv the mpd state to a string
@@ -59,7 +59,7 @@ unsigned mympd_api_get_elapsed_seconds(struct mpd_status *status) {
 sds mympd_api_status_print(struct t_partition_state *partition_state, sds buffer, struct mpd_status *status) {
     enum mpd_state playstate = mpd_status_get_state(status);
 
-    buffer = tojson_char(buffer, "state", _get_playstate_name(playstate), true);
+    buffer = tojson_char(buffer, "state", get_playstate_name(playstate), true);
     buffer = tojson_long(buffer, "volume", mpd_status_get_volume(status), true);
     buffer = tojson_long(buffer, "songPos", mpd_status_get_song_pos(status), true);
     buffer = tojson_uint(buffer, "elapsedTime", mympd_api_get_elapsed_seconds(status), true);
@@ -307,7 +307,7 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
     buffer = sdscatlen(buffer, ",", 1);
     buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = get_extra_media(partition_state->mpd_state, buffer, uri, false);
+    buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, uri, false);
     if (is_streamuri(uri) == true) {
         sds webradio = get_webradio_from_uri(partition_state->mympd_state->config->workdir, uri);
         if (sdslen(webradio) > 0) {
@@ -324,7 +324,7 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
         return buffer;
     }
     buffer = sdscatlen(buffer, ",", 1);
-    time_t start_time = _get_current_song_start_time(partition_state);
+    time_t start_time = get_current_song_start_time(partition_state);
     buffer = tojson_llong(buffer, "startTime", (long long)start_time, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
@@ -339,7 +339,7 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
  * @param partition_state pointer to partition state
  * @return start time of current song as unix timestamp
  */
-static time_t _get_current_song_start_time(struct t_partition_state *partition_state) {
+static time_t get_current_song_start_time(struct t_partition_state *partition_state) {
     if (partition_state->song_start_time > 0) {
         return partition_state->song_start_time;
     }
@@ -361,7 +361,7 @@ static time_t _get_current_song_start_time(struct t_partition_state *partition_s
  * @param play_state mpd_state
  * @return play state as string
  */
-static const char *_get_playstate_name(enum mpd_state play_state) {
+static const char *get_playstate_name(enum mpd_state play_state) {
     if ((unsigned)play_state >= 4) {
         return playstate_names[MPD_STATE_UNKNOWN];
     }

@@ -20,8 +20,8 @@
  * Private definitions
  */
 
-static bool _mpd_client_playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr);
-static bool _mpd_client_replace_playlist(struct t_partition_state *partition_state, const char *new_pl,
+static bool playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr);
+static bool replace_playlist(struct t_partition_state *partition_state, const char *new_pl,
         const char *to_replace_pl);
 
 /**
@@ -139,7 +139,7 @@ bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, cons
     }
     list_clear(&plist);
     if (rc == true) {
-        rc = _mpd_client_replace_playlist(partition_state, playlist_tmp, playlist);
+        rc = replace_playlist(partition_state, playlist_tmp, playlist);
     }
     FREE_SDS(playlist_tmp);
     return rc;
@@ -147,14 +147,14 @@ bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, cons
 
 /**
  * Sorts a playlist.
- * Wrapper for _mpd_client_playlist_sort that enables the mympd tags afterwards
+ * Wrapper for playlist_sort that enables the mympd tags afterwards
  * @param partition_state pointer to partition specific states
  * @param playlist playlist to shuffle
  * @param tagstr mpd tag to sort by
  * @return true on success else false
  */
 bool mpd_client_playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr) {
-    bool rc = _mpd_client_playlist_sort(partition_state, playlist, tagstr);
+    bool rc = playlist_sort(partition_state, playlist, tagstr);
     enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
     return rc;
 }
@@ -170,7 +170,7 @@ bool mpd_client_playlist_sort(struct t_partition_state *partition_state, const c
  * @param tagstr mpd tag to sort by
  * @return true on success else false
  */
-static bool _mpd_client_playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr) {
+static bool playlist_sort(struct t_partition_state *partition_state, const char *playlist, const char *tagstr) {
     struct t_tags sort_tags = {
         .len = 1,
         .tags[0] = mpd_tag_name_parse(tagstr)
@@ -265,7 +265,7 @@ static bool _mpd_client_playlist_sort(struct t_partition_state *partition_state,
     raxStop(&iter);
     rax_free_sds_data(plist);
     if (rc == true) {
-        rc = _mpd_client_replace_playlist(partition_state, playlist_tmp, playlist);    
+        rc = replace_playlist(partition_state, playlist_tmp, playlist);    
     }
     FREE_SDS(playlist_tmp);
     return rc;
@@ -279,7 +279,7 @@ static bool _mpd_client_playlist_sort(struct t_partition_state *partition_state,
  * @return true 
  * @return false 
  */
-static bool _mpd_client_replace_playlist(struct t_partition_state *partition_state, const char *new_pl,
+static bool replace_playlist(struct t_partition_state *partition_state, const char *new_pl,
     const char *to_replace_pl)
 {
     sds backup_pl = sdscatfmt(sdsempty(), "%s.bak", new_pl);

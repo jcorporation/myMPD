@@ -16,9 +16,9 @@
 #include <string.h>
 
 //privat definitions
-static bool _sticker_inc(struct t_cache *sticker_cache, struct t_partition_state *partition_state, 
+static bool sticker_inc(struct t_cache *sticker_cache, struct t_partition_state *partition_state, 
         const char *uri, const char *name, long value);
-static bool _sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
+static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
         const char *uri, const char *name, long long value);
 
 //public functions
@@ -158,13 +158,13 @@ bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache
         if (strcmp(current->value_p, "playCount") == 0 ||
             strcmp(current->value_p, "skipCount") == 0)
         {
-            _sticker_inc(sticker_cache, partition_state, current->key, current->value_p, (long)current->value_i);
+            sticker_inc(sticker_cache, partition_state, current->key, current->value_p, (long)current->value_i);
         }
         else if (strcmp(current->value_p, "like") == 0 ||
                  strcmp(current->value_p, "lastPlayed") == 0 ||
                  strcmp(current->value_p, "lastSkipped") == 0)
         {
-            _sticker_set(sticker_cache, partition_state, current->key, current->value_p, current->value_i);
+            sticker_set(sticker_cache, partition_state, current->key, current->value_p, current->value_i);
         }
         list_node_free(current);
     }
@@ -182,7 +182,7 @@ bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache
  * @param value value to increment by
  * @return true on success else false
  */
-static bool _sticker_inc(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
+static bool sticker_inc(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
         const char *uri, const char *name, long value)
 {
     struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
@@ -231,7 +231,7 @@ static bool _sticker_inc(struct t_cache *sticker_cache, struct t_partition_state
  * @param value value to set
  * @return true on success else false
  */
-static bool _sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
+static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
         const char *uri, const char *name, long long value)
 {
     //update sticker cache

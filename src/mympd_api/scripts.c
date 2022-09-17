@@ -63,11 +63,11 @@ static void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool 
 static void register_lua_functions(lua_State *lua_vm);
 static int mympd_api(lua_State *lua_vm);
 static int mympd_api_raw(lua_State *lua_vm);
-static int _mympd_api(lua_State *lua_vm, bool raw);
+static int mympd_api_push(lua_State *lua_vm, bool raw);
 static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg);
 static bool mympd_luaopen(lua_State *lua_vm, const char *lualib);
 static sds parse_script_metadata(sds buffer, const char *scriptfilename, int *order);
-static int _mympd_api_http_client(lua_State *lua_vm);
+static int lua_http_client(lua_State *lua_vm);
 
 /**
  * Public functions
@@ -617,24 +617,24 @@ static void populate_lua_table(lua_State *lua_vm, struct t_list *lua_mympd_state
 static void register_lua_functions(lua_State *lua_vm) {
     lua_register(lua_vm, "mympd_api", mympd_api);
     lua_register(lua_vm, "mympd_api_raw", mympd_api_raw);
-    lua_register(lua_vm, "mympd_api_http_client", _mympd_api_http_client);
+    lua_register(lua_vm, "mympd_api_http_client", lua_http_client);
 }
 
 static int mympd_api(lua_State *lua_vm) {
-    return _mympd_api(lua_vm, false);
+    return mympd_api_push(lua_vm, false);
 }
 
 static int mympd_api_raw(lua_State *lua_vm) {
-    return _mympd_api(lua_vm, true);
+    return mympd_api_push(lua_vm, true);
 }
 
 /**
  * Function that implements mympd_api and mympd_api_raw lua function
- * @param lua_vm lue instance
+ * @param lua_vm lua instance
  * @param raw true = options are valid json, false = options are key/value pairs
  * @return return code
  */
-static int _mympd_api(lua_State *lua_vm, bool raw) {
+static int mympd_api_push(lua_State *lua_vm, bool raw) {
     //check arguments
     int n = lua_gettop(lua_vm);
     if (raw == false &&
@@ -742,7 +742,7 @@ static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_a
  * @param lua_vm lua instance
  * @return number of variables on the stack with the response
  */
-static int _mympd_api_http_client(lua_State *lua_vm) {
+static int lua_http_client(lua_State *lua_vm) {
     int n = lua_gettop(lua_vm);
     if (n != 4) {
         MYMPD_LOG_ERROR("Lua - mympd_api_http_client: invalid number of arguments");

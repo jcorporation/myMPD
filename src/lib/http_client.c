@@ -17,7 +17,7 @@
 /**
  * Private definitions
  */
-static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_data,
+static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_data,
     void *fn_data);
 
 /**
@@ -93,7 +93,7 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
 
     mgr_client.userdata = mg_client_request;
     MYMPD_LOG_DEBUG("HTTP client connecting to \"%s\"", mg_client_request->uri);
-    mg_http_connect(&mgr_client, mg_client_request->uri, _http_client_ev_handler, mg_client_response);
+    mg_http_connect(&mgr_client, mg_client_request->uri, http_client_ev_handler, mg_client_response);
     while (mg_client_response->rc == -1) {
         mg_mgr_poll(&mgr_client, 1000);
     }
@@ -112,7 +112,7 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
  * @param ev_data event data (http response)
  * @param fn_data struct mg_client_response
  */
-static void _http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_data,
+static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_data,
     void *fn_data)
 {
     struct mg_client_request_t *mg_client_request = (struct mg_client_request_t *) nc->mgr->userdata;

@@ -23,8 +23,8 @@
 /**
  * Privat definitions
  */
-static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
-static bool _get_sticker_from_mpd(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker);
+static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
+static bool get_sticker_from_mpd(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker);
 
 /**
  * Public functions
@@ -51,7 +51,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     if (mpd_worker_state->partition_state->mpd_state->feat_tags == true ||
         mpd_worker_state->partition_state->mpd_state->feat_stickers == true)
     {
-        rc =_cache_init(mpd_worker_state, album_cache.cache, sticker_cache.cache);
+        rc =cache_init(mpd_worker_state, album_cache.cache, sticker_cache.cache);
     }
 
     //push album cache building response to mpd_client thread
@@ -103,7 +103,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
  * @param sticker_cache sticker_cache pointer to empty sticker_cache
  * @return true on success else false
  */
-static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
+static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
     MYMPD_LOG_INFO("Creating caches");
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;
@@ -212,7 +212,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
         sds uri = sdsempty();
         while (raxNext(&iter)) {
             uri = sds_replacelen(uri, (char *)iter.key, iter.key_len);
-            _get_sticker_from_mpd(mpd_worker_state->partition_state, uri, (struct t_sticker *)iter.data);
+            get_sticker_from_mpd(mpd_worker_state->partition_state, uri, (struct t_sticker *)iter.data);
         }
         FREE_SDS(uri);
         raxStop(&iter);
@@ -233,7 +233,7 @@ static bool _cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_
  * @param sticker pointer already allocated sticker struct to populate
  * @return true on success else false
  */
-static bool _get_sticker_from_mpd(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker) {
+static bool get_sticker_from_mpd(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker) {
     struct mpd_pair *pair;
     char *crap = NULL;
     sticker->play_count = 0;

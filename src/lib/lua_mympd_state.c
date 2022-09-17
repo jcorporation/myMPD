@@ -13,7 +13,7 @@
 /**
  * Private definitions
  */
-static void _lua_mympd_state_free_user_data(struct t_list_node *current);
+static void lua_mympd_state_free_user_data(struct t_list_node *current);
 
 /**
  * Public functions
@@ -72,7 +72,7 @@ void lua_mympd_state_set_b(struct t_list *lua_mympd_state, const char *k, bool v
  * @param lua_mympd_state pointer to the list
  */
 void *lua_mympd_state_free(struct t_list *lua_mympd_state) {
-    return list_free_user_data(lua_mympd_state, _lua_mympd_state_free_user_data);
+    return list_free_user_data(lua_mympd_state, lua_mympd_state_free_user_data);
 }
 
 /**
@@ -83,7 +83,7 @@ void *lua_mympd_state_free(struct t_list *lua_mympd_state) {
  * Callback for lua_mympd_state_free to free string values
  * @param current pointer to the list node
  */
-static void _lua_mympd_state_free_user_data(struct t_list_node *current) {
+static void lua_mympd_state_free_user_data(struct t_list_node *current) {
     if (current->value_i == LUA_TYPE_STRING) {
         struct t_lua_mympd_state_value *user_data = (struct t_lua_mympd_state_value *)current->user_data;
         FREE_SDS(user_data->p);

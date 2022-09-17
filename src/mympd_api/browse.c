@@ -130,7 +130,7 @@ sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds 
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = get_extra_media(partition_state->mpd_state, buffer, mpd_song_get_uri(mpd_album), false);
+    buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, mpd_song_get_uri(mpd_album), false);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);

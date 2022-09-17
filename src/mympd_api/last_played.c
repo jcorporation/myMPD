@@ -26,7 +26,7 @@
  * Private definitions
  */
 
-static sds _get_last_played_obj(struct t_partition_state *partition_state, sds buffer, long entity_count,
+static sds get_last_played_obj(struct t_partition_state *partition_state, sds buffer, long entity_count,
         long long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols);
 
 /**
@@ -164,7 +164,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
         struct t_list_node *current = partition_state->last_played.head;
         while (current != NULL) {
             if (strcmp(partition_state->name, current->value_p) == 0) {
-                obj = _get_last_played_obj(partition_state, obj, entity_count, current->value_i,
+                obj = get_last_played_obj(partition_state, obj, entity_count, current->value_i,
                     current->key, searchstr, tagcols);
                 if (sdslen(obj) > 0) {
                     entity_count++;
@@ -196,7 +196,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
             if (json_get_string_max(line, "$.uri", &uri, vcb_isfilepath, NULL) == true &&
                 json_get_llong_max(line, "$.LastPlayed", &last_played, NULL) == true)
             {
-                obj = _get_last_played_obj(partition_state, obj, entity_count, last_played, uri, searchstr, tagcols);
+                obj = get_last_played_obj(partition_state, obj, entity_count, last_played, uri, searchstr, tagcols);
                 if (sdslen(obj) > 0) {
                     entity_count++;
                     if (entity_count > offset &&
@@ -252,7 +252,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
  * @param tagcols columns to print
  * @return pointer to buffer
  */
-static sds _get_last_played_obj(struct t_partition_state *partition_state, sds buffer, long entity_count,
+static sds get_last_played_obj(struct t_partition_state *partition_state, sds buffer, long entity_count,
         long long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols)
 {
     bool rc = mpd_send_list_meta(partition_state->conn, uri);

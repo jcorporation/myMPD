@@ -22,7 +22,7 @@
 /**
  * Private definitions
  */
-sds _print_queue_entry(struct t_partition_state *partition_state, sds buffer, const struct t_tags *tagcols, struct mpd_song *song);
+sds print_queue_entry(struct t_partition_state *partition_state, sds buffer, const struct t_tags *tagcols, struct mpd_song *song);
 
 /**
  * Public functions
@@ -291,7 +291,7 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
         if (entities_returned++) {
             buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = _print_queue_entry(partition_state, buffer, tagcols, song);
+        buffer = print_queue_entry(partition_state, buffer, tagcols, song);
         total_time += mpd_song_get_duration(song);
         mpd_song_free(song);
         entity_count++;
@@ -363,7 +363,7 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer
             if (entities_returned++) {
                 buffer= sdscatlen(buffer, ",", 1);
             }
-            buffer = _print_queue_entry(partition_state, buffer, tagcols, song);
+            buffer = print_queue_entry(partition_state, buffer, tagcols, song);
             total_time += mpd_song_get_duration(song);
         }
         mpd_song_free(song);
@@ -469,7 +469,7 @@ sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds bu
         if (entities_returned++) {
             buffer= sdscatlen(buffer, ",", 1);
         }
-        buffer = _print_queue_entry(partition_state, buffer, tagcols, song);
+        buffer = print_queue_entry(partition_state, buffer, tagcols, song);
         total_time += mpd_song_get_duration(song);
         mpd_song_free(song);
     }
@@ -504,7 +504,7 @@ sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds bu
  * @param song pointer to mpd song struct
  * @return pointer to buffer
  */
-sds _print_queue_entry(struct t_partition_state *partition_state, sds buffer, const struct t_tags *tagcols, struct mpd_song *song) {
+sds print_queue_entry(struct t_partition_state *partition_state, sds buffer, const struct t_tags *tagcols, struct mpd_song *song) {
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_uint(buffer, "id", mpd_song_get_id(song), true);
     buffer = tojson_uint(buffer, "Pos", mpd_song_get_pos(song), true);

@@ -191,7 +191,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
     }
     raxStop(&iter);
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = get_extra_media(partition_state->mpd_state, buffer, path, true);
+    buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, path, true);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_llong(buffer, "totalEntities", (long long)entity_list->numele, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);

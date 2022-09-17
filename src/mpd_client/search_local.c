@@ -45,8 +45,8 @@ struct t_search_expression {
 
 static void *free_search_expression(struct t_search_expression *expr);
 static void free_search_expression_node(struct t_list_node *current);
-static pcre2_code *_compile_regex(char *regex_str);
-static bool _cmp_regex(pcre2_code *re_compiled, const char *value);
+static pcre2_code *compile_regex(char *regex_str);
+static bool cmp_regex(pcre2_code *re_compiled, const char *value);
 
 /**
  * Public functions
@@ -162,7 +162,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
             expr->op == SEARCH_OP_NOT_REGEX)
         {
             //is regex, compile
-            expr->re_compiled = _compile_regex(expr->value);
+            expr->re_compiled = compile_regex(expr->value);
         }
         list_push(expr_list, "", 0, NULL, expr);
         MYMPD_LOG_DEBUG("Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, expr->value);
@@ -214,13 +214,13 @@ bool search_song_expression(struct mpd_song *song, struct t_list *expr_list, str
                 if ((expr->op == SEARCH_OP_CONTAINS && utf8casestr(value, expr->value) == NULL) ||
                     (expr->op == SEARCH_OP_STARTS_WITH && utf8ncasecmp(expr->value, value, sdslen(expr->value)) != 0) ||
                     (expr->op == SEARCH_OP_EQUAL && utf8casecmp(value, expr->value) != 0) ||
-                    (expr->op == SEARCH_OP_REGEX && _cmp_regex(expr->re_compiled, value) == false))
+                    (expr->op == SEARCH_OP_REGEX && cmp_regex(expr->re_compiled, value) == false))
                 {
                     //expression does not match
                     rc = false;
                 }
                 else if ((expr->op == SEARCH_OP_NOT_EQUAL && utf8casecmp(value, expr->value) == 0) ||
-                         (expr->op == SEARCH_OP_NOT_REGEX && _cmp_regex(expr->re_compiled, value) == true))
+                         (expr->op == SEARCH_OP_NOT_REGEX && cmp_regex(expr->re_compiled, value) == true))
                 {
                     //negated match operator - exit instantly
                     rc = false;
@@ -285,7 +285,7 @@ static void free_search_expression_node(struct t_list_node *current) {
  * @param regex_str regex string
  * @return regex code
  */
-static pcre2_code *_compile_regex(char *regex_str) {
+static pcre2_code *compile_regex(char *regex_str) {
     MYMPD_LOG_DEBUG("Compiling regex: \"%s\"", regex_str);
     utf8lwr(regex_str);
     PCRE2_SIZE erroroffset;
@@ -310,11 +310,11 @@ static pcre2_code *_compile_regex(char *regex_str) {
 
 /**
  * Matches the regex against a string
- * @param re_compiled the compiled regex from _compile_regex
+ * @param re_compiled the compiled regex from compile_regex
  * @param value string to match against
  * @return true if regex matches else false
  */
-static bool _cmp_regex(pcre2_code *re_compiled, const char *value) {
+static bool cmp_regex(pcre2_code *re_compiled, const char *value) {
     if (re_compiled == NULL) {
         return false;
     }

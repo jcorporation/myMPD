@@ -30,9 +30,9 @@ static const char *mympd_cols[]={"Pos", "Duration", "Type", "Priority", "LastPla
     "clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes", //Columns for radiobrowser
     0};
 
-static bool _check_for_invalid_chars(sds data, const char *invalid_chars);
-static bool _validate_json(sds data, char start, char end);
-static bool _is_mympd_col(sds token);
+static bool check_for_invalid_chars(sds data, const char *invalid_chars);
+static bool validate_json(sds data, char start, char end);
+static bool is_mympd_col(sds token);
 
 /**
  * Public functions
@@ -43,8 +43,8 @@ static bool _is_mympd_col(sds token);
  * @param data sds string to check
  * @return true on success else false
  */
-bool validate_json(sds data) {
-    return _validate_json(data, '{', '}');
+bool validate_json_object(sds data) {
+    return validate_json(data, '{', '}');
 }
 
 /**
@@ -53,7 +53,7 @@ bool validate_json(sds data) {
  * @return true on success else false
  */
 bool validate_json_array(sds data) {
-    return _validate_json(data, '[', ']');
+    return validate_json(data, '[', ']');
 }
 
 /**
@@ -129,7 +129,7 @@ bool vcb_ishexcolor(sds data) {
  * @return true on success else false
  */
 bool vcb_isname(sds data) {
-    bool rc = _check_for_invalid_chars(data, invalid_name_chars);
+    bool rc = check_for_invalid_chars(data, invalid_name_chars);
     if (rc == false) {
         MYMPD_LOG_WARN("Found illegal name character");
     }
@@ -143,7 +143,7 @@ bool vcb_isname(sds data) {
  * @return true on success else false
  */
 bool vcb_istext(sds data) {
-    bool rc = _check_for_invalid_chars(data, invalid_json_chars);
+    bool rc = check_for_invalid_chars(data, invalid_json_chars);
     if (rc == false) {
         MYMPD_LOG_WARN("Found illegal text character");
     }
@@ -176,7 +176,7 @@ bool vcb_isfilename_silent(sds data) {
     if (sdslen(data) == 0) {
         return false;
     }
-    return _check_for_invalid_chars(data, invalid_filename_chars);
+    return check_for_invalid_chars(data, invalid_filename_chars);
 }
 
 /**
@@ -214,7 +214,7 @@ bool vcb_isfilepath(sds data) {
         MYMPD_LOG_WARN("Found dir traversal in path \"%s\"", data);
         return false;
     }
-    bool rc = _check_for_invalid_chars(data, invalid_filepath_chars);
+    bool rc = check_for_invalid_chars(data, invalid_filepath_chars);
     if (rc == false) {
         MYMPD_LOG_WARN("Found illegal character in file path");
     }
@@ -228,7 +228,7 @@ bool vcb_isfilepath(sds data) {
  */
 bool vcb_iscolumn(sds data) {
     if (mpd_tag_name_iparse(data) != MPD_TAG_UNKNOWN ||
-        _is_mympd_col(data) == true)
+        is_mympd_col(data) == true)
     {
         return true;
     }
@@ -315,7 +315,7 @@ bool vcb_ismpdsort(sds data) {
  * @param invalid_chars invalid characters
  * @return true on success else false
  */
-static bool _check_for_invalid_chars(sds data, const char *invalid_chars) {
+static bool check_for_invalid_chars(sds data, const char *invalid_chars) {
     size_t len = sdslen(data);
     for (size_t i = 0; i < len; i++) {
         if (data[i] == '\0' ||
@@ -340,7 +340,7 @@ static bool _check_for_invalid_chars(sds data, const char *invalid_chars) {
  * @param end char the string must end with
  * @return true on success else false
  */
-static bool _validate_json(sds data, char start, char end) {
+static bool validate_json(sds data, char start, char end) {
     size_t len = sdslen(data);
     //check if it is valid utf8
     if (utf8valid(data) != 0) {
@@ -355,7 +355,7 @@ static bool _validate_json(sds data, char start, char end) {
         MYMPD_LOG_ERROR("String is not valid json");
         return false;
     }
-    return _check_for_invalid_chars(data, invalid_json_chars);
+    return check_for_invalid_chars(data, invalid_json_chars);
 }
 
 /**
@@ -363,7 +363,7 @@ static bool _validate_json(sds data, char start, char end) {
  * @param token string to check
  * @return true on success else false
  */
-static bool _is_mympd_col(sds token) {
+static bool is_mympd_col(sds token) {
     const char** ptr = mympd_cols;
     while (*ptr != 0) {
         if (strncmp(token, *ptr, sdslen(token)) == 0) {

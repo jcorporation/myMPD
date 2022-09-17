@@ -25,7 +25,7 @@
 
 static void list_free_cb_trigger_data(struct t_list_node *current);
 static sds trigger_to_line_cb(sds buffer, struct t_list_node *current);
-void _trigger_execute(sds script, struct t_list *arguments, const char *partition);
+void trigger_execute(sds script, struct t_list *arguments, const char *partition);
 
 /**
  * All MPD idle events
@@ -141,7 +141,7 @@ void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events 
             struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
             MYMPD_LOG_NOTICE("\"%s\": Executing script \"%s\" for trigger \"%s\" (%d)",
                 partition, trigger_data->script, mympd_api_event_name(event), event);
-            _trigger_execute(trigger_data->script, &trigger_data->arguments, partition);
+            trigger_execute(trigger_data->script, &trigger_data->arguments, partition);
         }
         current = current->next;
     }
@@ -172,7 +172,7 @@ void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, in
         {
             MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"mympd_feedback\" (-6)", current->value_p);
             struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
-            _trigger_execute(trigger_data->script, &trigger_data->arguments, partition);
+            trigger_execute(trigger_data->script, &trigger_data->arguments, partition);
         }
         current = current->next;
     }
@@ -311,7 +311,7 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
             MYMPD_LOG_WARN("Too many triggers defined");
             break;
         }
-        if (validate_json(line) == false) {
+        if (validate_json_object(line) == false) {
             MYMPD_LOG_ERROR("Invalid line");
             break;
         }
@@ -338,7 +338,7 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
             }
         }
         else {
-            trigger_data_free(trigger_data);
+            mympd_api_trigger_data_free(trigger_data);
         }
         FREE_SDS(name);
         FREE_SDS(partition);
@@ -388,7 +388,7 @@ struct t_trigger_data *trigger_data_new(void) {
  * Frees the t_trigger_data struct
  * @param trigger_data pointer to trigger data
  */
-void trigger_data_free(struct t_trigger_data *trigger_data) {
+void mympd_api_trigger_data_free(struct t_trigger_data *trigger_data) {
     FREE_SDS(trigger_data->script);
     list_clear(&trigger_data->arguments);
     FREE_PTR(trigger_data);
@@ -403,7 +403,7 @@ void trigger_data_free(struct t_trigger_data *trigger_data) {
  * @param current list node
  */
 static void list_free_cb_trigger_data(struct t_list_node *current) {
-    trigger_data_free((struct t_trigger_data *)current->user_data);
+    mympd_api_trigger_data_free((struct t_trigger_data *)current->user_data);
 }
 
 /**
@@ -439,7 +439,7 @@ static sds trigger_to_line_cb(sds buffer, struct t_list_node *current) {
  * @param arguments script arguments
  * @param partition mpd partition
  */
-void _trigger_execute(sds script, struct t_list *arguments, const char *partition) {
+void trigger_execute(sds script, struct t_list *arguments, const char *partition) {
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_SCRIPT_EXECUTE, NULL, partition);
     request->data = tojson_sds(request->data, "script", script, true);
     request->data = sdscat(request->data, "\"arguments\": {");

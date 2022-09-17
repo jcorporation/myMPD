@@ -21,9 +21,9 @@
  * Private definitions
  */
 
-static sds _mpd_client_get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type tag,
+static sds get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type tag,
         sds tag_values, unsigned *value_count);
-static sds _mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag,
+static sds get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag,
         sds tag_values, bool multi, unsigned *value_count);
 
 /**
@@ -196,11 +196,11 @@ bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_t
  */
 sds mpd_client_get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type tag, sds tag_values) {
     unsigned value_count = 0;
-    tag_values = _mpd_client_get_tag_value_string(song, tag, tag_values, &value_count);
+    tag_values = get_tag_value_string(song, tag, tag_values, &value_count);
     if (value_count == 0) {
         if (tag == MPD_TAG_TITLE) {
             //title fallback to name
-            tag_values = _mpd_client_get_tag_value_string(song, MPD_TAG_NAME, tag_values, &value_count);
+            tag_values = get_tag_value_string(song, MPD_TAG_NAME, tag_values, &value_count);
             if (value_count == 0) {
                 //title fallback to filename
                 tag_values = sdscat(tag_values, mpd_song_get_uri(song));
@@ -221,11 +221,11 @@ sds mpd_client_get_tag_value_string(const struct mpd_song *song, enum mpd_tag_ty
 sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag, sds tag_values) {
     const bool multi = is_multivalue_tag(tag);
     unsigned value_count = 0;
-    tag_values = _mpd_client_get_tag_values(song, tag, tag_values, multi, &value_count);
+    tag_values = get_tag_values(song, tag, tag_values, multi, &value_count);
     if (value_count == 0) {
         if (tag == MPD_TAG_TITLE) {
             //title fallback to name
-            tag_values = _mpd_client_get_tag_values(song, MPD_TAG_NAME, tag_values, multi, &value_count);
+            tag_values = get_tag_values(song, MPD_TAG_NAME, tag_values, multi, &value_count);
             if (value_count == 0) {
                 //title fallback to filename
                 sds filename = sdsnew(mpd_song_get_uri(song));
@@ -396,7 +396,7 @@ bool mpd_client_tag_exists(const struct t_tags *tagtypes, enum mpd_tag_type tag)
  * @param value_count the number of values retrieved
  * @return new sds pointer to tag_values
  */
-static sds _mpd_client_get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type tag,
+static sds get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type tag,
         sds tag_values, unsigned *value_count)
 {
     const char *value;
@@ -421,7 +421,7 @@ static sds _mpd_client_get_tag_value_string(const struct mpd_song *song, enum mp
  * @param multi true if it is a multi value string
  * @return new sds pointer to tag_values
  */
-static sds _mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag,
+static sds get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag,
         sds tag_values, bool multi, unsigned *value_count)
 {
     const char *value;

@@ -10,7 +10,7 @@
 #include "../../dist/mongoose/mongoose.h"
 #include "../../dist/utf8/utf8.h"
 
-#define HEXTOI(x) (x >= '0' && x <= '9' ? x - '0' : x - 'W')
+#define HEXTOI(x) ((x) >= '0' && (x) <= '9' ? (x) - '0' : (x) - 'W')
 
 /**
  * Splits a comma separated string and trims whitespaces from single values
