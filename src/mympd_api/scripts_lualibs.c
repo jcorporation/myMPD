@@ -4,9 +4,6 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_API_SCRIPTS_LUALIBS_C
-#define MYMPD_API_SCRIPTS_LUALIBS_C
-
 #define INCBIN_PREFIX
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE
 
@@ -15,5 +12,3 @@
 
 INCBIN(json_lua, "../contrib/lualibs/json.lua");
 INCBIN(mympd_lua, "../contrib/lualibs/mympd.lua");
-
-#endif

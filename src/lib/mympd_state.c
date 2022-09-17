@@ -86,7 +86,6 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     //mpd partition state
     mympd_state->partition_state = malloc_assert(sizeof(struct t_partition_state));
     partition_state_default(mympd_state->partition_state, MPD_PARTITION_DEFAULT, mympd_state);
-    mympd_state->partition_state->is_default = true;
     //triggers;
     list_init(&mympd_state->trigger_list);
     //home icons
@@ -234,7 +233,6 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     sanitize_filename(partition_dir);
     partition_state->state_dir = sdscatfmt(sdsempty(), "state/%S", partition_dir);
     FREE_SDS(partition_dir);
-    partition_state->is_default = false;
     partition_state->conn = NULL;
     partition_state->conn_state = MPD_DISCONNECTED;
     partition_state->play_state = MPD_STATE_UNKNOWN;
@@ -274,11 +272,13 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->mpd_state = mympd_state->mpd_state;
     //mpd idle mask
     if (strcmp(name, MPD_PARTITION_DEFAULT) == 0) {
+        partition_state->is_default = true;
         //handle all
         partition_state->idle_mask = MPD_IDLE_QUEUE | MPD_IDLE_PLAYER | MPD_IDLE_MIXER | MPD_IDLE_OUTPUT | MPD_IDLE_OPTIONS |
             MPD_IDLE_UPDATE | MPD_IDLE_PARTITION | MPD_IDLE_DATABASE | MPD_IDLE_STORED_PLAYLIST;
     }
     else {
+        partition_state->is_default = false;
         //handle only partition specific mpd idle events
         partition_state->idle_mask = MPD_IDLE_QUEUE | MPD_IDLE_PLAYER | MPD_IDLE_MIXER | MPD_IDLE_OUTPUT | MPD_IDLE_OPTIONS;
     }

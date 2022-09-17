@@ -14,8 +14,8 @@
 #include "../lib/utility.h"
 
 #ifdef EMBEDDED_ASSETS
-//embedded files for release build
-#include "embedded_files.c"
+    //embedded files for release build
+    #include "embedded_files.c"
 #endif
 
 /**

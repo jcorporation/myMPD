@@ -12,9 +12,9 @@
 #include "../lib/log.h"
 #include "../lib/msg_queue.h"
 #include "../lib/sds_extras.h"
-#include "sessions.h"
 #include "proxy.h"
 #include "radiobrowser.h"
+#include "sessions.h"
 #include "utility.h"
 #include "webradiodb.h"
 

@@ -9,9 +9,9 @@
 
 #include "../../dist/utf8/utf8.h"
 #include "../lib/log.h"
-#include "../lib/utility.h"
 #include "../lib/mem.h"
 #include "../lib/sds_extras.h"
+#include "../lib/utility.h"
 
 #define PCRE2_CODE_UNIT_WIDTH 8
 #include <pcre2.h>

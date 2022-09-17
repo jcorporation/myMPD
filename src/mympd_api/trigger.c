@@ -7,8 +7,8 @@
 #include "compile_time.h"
 #include "trigger.h"
 
-#include "../lib/filehandler.h"
 #include "../lib/api.h"
+#include "../lib/filehandler.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"

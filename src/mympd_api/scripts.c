@@ -21,17 +21,16 @@
 #include <dirent.h>
 #include <errno.h>
 #include <pthread.h>
-
 #include <string.h>
-#include <sys/syscall.h>
 #include <sys/prctl.h>
+#include <sys/syscall.h>
 #include <unistd.h>
 
 #ifdef ENABLE_LUA
 
+#include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
-#include <lauxlib.h>
 #ifdef EMBEDDED_ASSETS
     //embedded files for release build
     #include "scripts_lualibs.c"

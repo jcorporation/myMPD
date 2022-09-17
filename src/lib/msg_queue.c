@@ -107,6 +107,7 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
         assert(NULL);
     }
+    //check and wait for entries
     if (queue->length == 0) {
         if (timeout > 0) {
             struct timespec max_wait = {0, 0};
@@ -178,9 +179,9 @@ int mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
         MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
         return 0;
     }
-    //queue has entry
     int expired_count = 0;
     if (queue->head != NULL) {
+        //queue has entry
         struct t_mympd_msg *current = NULL;
         struct t_mympd_msg *previous = NULL;
 

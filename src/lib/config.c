@@ -193,7 +193,7 @@ static const char *mympd_getenv(const char *env_var, bool first_startup) {
 }
 
 /**
- * Gets a environment variable as sds string
+ * Gets an environment variable as sds string
  * @param env_var variable name to read
  * @param default_value default value if variable is not set
  * @param vcb validation callback
@@ -216,7 +216,7 @@ static sds mympd_getenv_string(const char *env_var, const char *default_value, v
 }
 
 /**
- * Gets a environment variable as int
+ * Gets an environment variable as int
  * @param env_var variable name to read
  * @param default_value default value if variable is not set
  * @param min mimum value (including)
@@ -239,7 +239,7 @@ static int mympd_getenv_int(const char *env_var, int default_value, int min, int
 
 #ifdef ENABLE_SSL
 /**
- * Gets a environment variable as bool
+ * Gets an environment variable as bool
  * @param env_var variable name to read
  * @param default_value default value if variable is not set
  * @param vcb validation callback

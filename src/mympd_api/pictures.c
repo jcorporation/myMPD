@@ -8,9 +8,9 @@
 #include "pictures.h"
 
 #include "../lib/api.h"
-#include "../lib/mimetype.h"
 #include "../lib/jsonrpc.h"
 #include "../lib/log.h"
+#include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
 
 #include <dirent.h>

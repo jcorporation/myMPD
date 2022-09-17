@@ -4,9 +4,6 @@
  https://github.com/jcorporation/mympd
 */
 
-#ifndef MYMPD_WEB_SERVER_EMBEDDED_FILES_C
-#define MYMPD_WEB_SERVER_EMBEDDED_FILES_C
-
 #define INCBIN_PREFIX
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE
 
@@ -59,5 +56,3 @@ INCBIN(ligatures_json, "htdocs/assets/ligatures.json.gz");
 //uncompressed assets
 INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");
 INCBIN(appicon_512_png, "../htdocs/assets/appicon-512.png");
-
-#endif

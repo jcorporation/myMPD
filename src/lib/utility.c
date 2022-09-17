@@ -83,7 +83,7 @@ bool is_virtual_cuedir(sds music_directory, sds filename) {
 }
 
 /**
- * Checks if uri is realy uri or a local file
+ * Checks if uri is a remote uri or a local file
  * @param uri uri to check
  * @return true it is a uri else false
  */

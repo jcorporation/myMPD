@@ -17,8 +17,8 @@
 #include "../lib/utility.h"
 #include "../lib/validate.h"
 #include "../mpd_client/errorhandler.h"
-#include "../mpd_client/search.h"
 #include "../mpd_client/playlists.h"
+#include "../mpd_client/search.h"
 
 #include <dirent.h>
 #include <errno.h>
