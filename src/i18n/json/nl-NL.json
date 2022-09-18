@@ -764,13 +764,13 @@
     "All partitions": "Alle partities",
     "Default partition can not be deleted": "Standaardpartitie mag niet verwijderd worden",
     "Error saving partition settings": "Fout bij opslaan van partitie-instellingen",
-    "OverridesStreamPort": "",
+    "OverridesStreamPort": "OverschrijvenStreamPort",
     "Partitions can only be deleted from default partition": "Partities mogen enkel vanuit de standaardpartitie verwijderd worden",
     "Partition must be connected": "Partitie moet verbonden zijn",
     "Partition name invalid": "Ongeldig partitienaam",
     "Partition not found": "Partitie niet gevonden",
     "Partition specific setting": "Partitie-specifieke instelling",
-    "Reset": "",
+    "Reset": "Reset",
     "This partition": "Deze partitie",
     "Unknown partition": "Onbekende partitie"
 }
