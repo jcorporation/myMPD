@@ -35,6 +35,12 @@ The syntax of the last_played file has changed. You can convert it with
 - Upd: Mongoose 7.8
 - Upd: mjson
 - Upd: Bootstrap 5.2.1
+- Upd: add animation for update progress of views
+- Upd: de-DE, fr-FR, nl-NL translation
+- Fix: case insensitive sorting of webradioDB
+- Fix: Popover menu for playlists on home screen
+- Fix: set default sort tag for smart playlists save modal
+- Fix: localize select options #834
 
 ***
 
