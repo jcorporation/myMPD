@@ -198,6 +198,15 @@ minify() {
       echo_error "Error minifying $SRC"
       exit 1
     fi
+  elif [ "$TYPE" = "json" ]
+  then
+    #shellcheck disable=SC2016
+    if ! jq -r tostring "$SRC" > "${DST}.tmp"
+    then
+      rm -f "${DST}.tmp"
+      echo_error "Error minifying $SRC"
+      exit 1
+    fi
   elif [ "$TYPE" = "css" ]
   then
     #shellcheck disable=SC2016
@@ -301,7 +310,7 @@ createassets() {
   jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default" | \
     while read -r CODE
     do
-      minify js "$STARTPATH/src/i18n/json/${CODE}.json" "$MYMPD_BUILDDIR/htdocs/assets/i18n/${CODE}.min.json"
+      minify json "$STARTPATH/src/i18n/json/${CODE}.json" "$MYMPD_BUILDDIR/htdocs/assets/i18n/${CODE}.min.json"
       $ZIPCAT "$MYMPD_BUILDDIR/htdocs/assets/i18n/${CODE}.min.json" > "$MYMPD_BUILDDIR/htdocs/assets/i18n/${CODE}.json.gz"
     done
 
