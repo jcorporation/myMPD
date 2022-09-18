@@ -556,48 +556,63 @@ function doSearchWebradiodb() {
 
 function searchWebradiodb(name, genre, country, language, codec, bitrate, sort, offset, limit) {
     name = name.toLowerCase();
-	const obj = {
+    const obj = {
         "result": {
             "totalEntities": 0,
             "returnedEntities": 0,
             "data": []
         }
-	};
+    };
     if (webradioDb === null) {
         logDebug('WebradioDb is empty');
         return obj;
     }
 
-	for (const key in webradioDb.webradios) {
-		if (webradioDb.webradios[key].Name.toLowerCase().indexOf(name) > -1 &&
-			(genre === '' || webradioDb.webradios[key].Genre.includes(genre)) &&
-			(country === '' || country === webradioDb.webradios[key].Country) &&
-			(language === '' || language === webradioDb.webradios[key].Language) &&
+    for (const key in webradioDb.webradios) {
+        if (webradioDb.webradios[key].Name.toLowerCase().indexOf(name) > -1 &&
+            (genre === '' || webradioDb.webradios[key].Genre.includes(genre)) &&
+            (country === '' || country === webradioDb.webradios[key].Country) &&
+            (language === '' || language === webradioDb.webradios[key].Language) &&
             (codec === '' || webradioDb.webradios[key].allCodecs.includes(codec)) &&
-			(bitrate === 0 || bitrate <= webradioDb.webradios[key].highestBitrate)
-		) {
-			obj.result.data.push(webradioDb.webradios[key]);
-			obj.result.totalEntities++;
-		}
-	}
-	obj.result.data.sort(function(a, b) {
+            (bitrate === 0 || bitrate <= webradioDb.webradios[key].highestBitrate)
+        ) {
+            obj.result.data.push(webradioDb.webradios[key]);
+            obj.result.totalEntities++;
+        }
+    }
+    obj.result.data.sort(function(a, b) {
+        //case insensitive sorting
+        let lca;
+        let lcb;
+        if (typeof a === 'string') {
+            lca = a[sort.tag].toLowerCase();
+            lcb = b[sort.tag].toLowerCase();
+        }
+        else {
+            lca = a[sort.tag];
+            lcb = b[sort.tag];
+        }
         //primary sort by defined tag
-		if (a[sort.tag] < b[sort.tag]) {
+        if (lca < lcb) {
             return sort.desc === false ? -1 : 1;
-		}
-		if (a[sort.tag] > b[sort.tag]) {
+        }
+        if (lca > lcb) {
             return sort.desc === false ? 1 : -1;
-		}
-		//secondary sort by Name
-		if (a.Name < b.Name) {
-            return sort.desc === false ? -1 : 1;
-		}
-		if (a.Name > b.Name) {
-            return sort.desc === false ? 1 : -1;
-		}
-		//equal
-		return 0;
-	});
+        }
+        //secondary sort by Name
+        if (sort.tag !== 'Name') {
+            lca = a.Name.toLowerCase();
+            lcb = b.Name.toLowerCase();
+            if (lca < lcb) {
+                return sort.desc === false ? -1 : 1;
+            }
+            if (lca > lcb) {
+                return sort.desc === false ? 1 : -1;
+            }
+        }
+        //equal
+        return 0;
+    });
     if (offset > 0) {
         obj.result.data.splice(0, offset - 1);
     }
@@ -606,7 +621,7 @@ function searchWebradiodb(name, genre, country, language, codec, bitrate, sort, 
         obj.result.data.splice(limit, last);
     }
     obj.result.returnedEntities = obj.result.data.length;
-	return obj;
+    return obj;
 }
 
 function parseSearchWebradiodb(obj) {
