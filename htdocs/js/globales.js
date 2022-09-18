@@ -727,7 +727,7 @@ const webuiSettingsDefault = {
             "Browse/Database": "Database",
             "Browse/Playlists": "Playlists",
             "Browse/Filesystem": "Filesystem",
-            "Browse/Radio": "Radio Favorites",
+            "Browse/Radio": "Webradios",
             "Search": "Search"
         },
         "inputType": "select",

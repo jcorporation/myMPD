@@ -773,7 +773,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
                 if (defaults[key].contentType === 'integer') {
                     value = Number(value);
                 }
-                select.appendChild(elCreateText('option', {"value": value}, tn(defaults[key].validValues[value])));
+                select.appendChild(elCreateText('option', {"value": value, "data-phrase": defaults[key].validValues[value]}, tn(defaults[key].validValues[value])));
                 if (fields[key] === value) {
                     select.lastChild.setAttribute('selected', 'selected');
                 }
