@@ -111,25 +111,25 @@ function enterPin(method, params, callback, onerror) {
         enterBtn.addEventListener('click', function() {
             sendAPI('MYMPD_API_SESSION_LOGIN', {
                 "pin": document.getElementById('inputPinModal').value},
-            function(obj) {
-                document.getElementById('inputPinModal').value = '';
-                if (obj.error) {
-                    const em = document.getElementById('modalEnterPinMessage');
-                    em.textContent = tn(obj.error.message);
-                    elShow(em);
-                }
-                else if (obj.result.session !== '') {
-                    session.token = obj.result.session;
-                    session.timeout = getTimestamp() + sessionLifetime;
-                    setSessionState();
-                    uiElements.modalEnterPin.hide();
-                    showNotification(tn('Session successfully created'), '', 'session', 'info');
-                    if (method !== undefined) {
-                        //call original API
-                        sendAPI(method, params, callback, onerror);
+                function(obj) {
+                    document.getElementById('inputPinModal').value = '';
+                    if (obj.error) {
+                        const em = document.getElementById('modalEnterPinMessage');
+                        em.textContent = tn(obj.error.message);
+                        elShow(em);
                     }
-                }
-            }, true);
+                    else if (obj.result.session !== '') {
+                        session.token = obj.result.session;
+                        session.timeout = getTimestamp() + sessionLifetime;
+                        setSessionState();
+                        uiElements.modalEnterPin.hide();
+                        showNotification(tn('Session successfully created'), '', 'session', 'info');
+                        if (method !== undefined) {
+                            //call original API
+                            sendAPI(method, params, callback, onerror);
+                        }
+                    }
+                }, true);
         }, false);
         document.getElementById('modalEnterPinEnterBtn').replaceWith(enterBtn);
         elHideId('modalEnterPinMessage');
