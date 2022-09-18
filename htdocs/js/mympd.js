@@ -228,7 +228,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 document.getElementById('searchQueueStr').value = '';
             }
             if (features.featAdvqueue === true) {
-                if (app.current.sort.tag === '-') {
+                if (app.current.sort.tag === '-' ||
+                    app.current.sort.tag === 'Pos')
+                {
                     app.current.sort.tag = 'Priority';
                 }
                 sendAPI("MYMPD_API_QUEUE_SEARCH_ADV", {
