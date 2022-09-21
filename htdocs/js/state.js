@@ -348,7 +348,7 @@ function parseCurrentSong(obj) {
         footerArtistEl.classList.add('clickable');
     }
     else {
-        footerArtistEl.textContent = '';
+        elClear(footerArtistEl);
         setData(footerArtistEl, 'name', ['']);
     }
 
@@ -363,7 +363,7 @@ function parseCurrentSong(obj) {
         footerAlbumEl.classList.add('clickable');
     }
     else {
-        footerAlbumEl.textContent = '';
+        elClear(footerAlbumEl);
         setData(footerAlbumEl, 'name', '');
         setData(footerAlbumEl, 'AlbumArtist', ['']);
     }
@@ -381,9 +381,9 @@ function parseCurrentSong(obj) {
         footerCoverEl.classList.add('clickable');
     }
     else {
-        document.getElementById('currentTitle').textContent = '';
+        elClear('currentTitleEl');
         setData(currentTitleEl, 'uri', '');
-        footerTitleEl.textContent = '';
+        elClear(footerTitleEl);
         currentTitleEl.classList.remove('clickable');
         footerTitleEl.classList.remove('clickable');
         footerCoverEl.classList.remove('clickable');

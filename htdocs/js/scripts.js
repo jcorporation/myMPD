@@ -291,7 +291,7 @@ function showEditScript(script) {
         document.getElementById('inputScriptName').value = '';
         document.getElementById('inputScriptOrder').value = '1';
         document.getElementById('inputScriptArgument').value = '';
-        document.getElementById('selectScriptArguments').textContent = '';
+        elClearId('selectScriptArguments');
         document.getElementById('textareaScriptContent').value = '';
     }
     setFocusId('inputScriptName');

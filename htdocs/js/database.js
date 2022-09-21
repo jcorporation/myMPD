@@ -19,7 +19,7 @@ function updateDB(uri, showUpdateModal, showUpdateNotification, rescan) {
 function updateDBerror(showUpdateModal, message) {
     const msg = tn('Database update failed') + ': ' + tn(message);
     if (showUpdateModal === true) {
-        document.getElementById('updateDBfinished').textContent = '';
+        elClearId('updateDBfinished');
         elShowId('updateDBfooter');
         const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.classList.remove('updateDBprogressAnimate');
@@ -35,14 +35,14 @@ function updateDBerror(showUpdateModal, message) {
 
 function updateDBstarted(showUpdateModal, showUpdateNotification) {
     if (showUpdateModal === true) {
-        document.getElementById('updateDBfinished').textContent = '';
+        elClearId('updateDBfinished');
         elHideId('updateDBfooter');
         const updateDBprogress = document.getElementById('updateDBprogress');
         updateDBprogress.style.width = '20px';
         updateDBprogress.style.marginLeft = '-20px';
         const errorUpdateDB = document.getElementById('errorUpdateDB');
         elHide(errorUpdateDB);
-        errorUpdateDB.textContent = '';
+        elClear(errorUpdateDB);
         uiElements.modalUpdateDB.show();
         updateDBprogress.classList.add('updateDBprogressAnimate');
     }
