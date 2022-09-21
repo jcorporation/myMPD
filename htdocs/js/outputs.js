@@ -4,13 +4,6 @@
 // https://github.com/jcorporation/mympd
 
 function initOutputs() {
-    //do not hide volume menu on click on volume change buttons
-    for (const elName of ['btnChVolumeDown', 'btnChVolumeUp', 'volumeBar']) {
-        document.getElementById(elName).addEventListener('click', function(event) {
-            event.stopPropagation();
-        }, false);
-    }
-
     domCache.volumeBar.addEventListener('change', function() {
         setVolume();
     }, false);
@@ -27,7 +20,6 @@ function initOutputs() {
         }
         else {
             const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;
-            event.stopPropagation();
             event.preventDefault();
             sendAPI("MYMPD_API_PLAYER_OUTPUT_TOGGLE", {
                 "outputId": Number(getData(target, 'output-id')),

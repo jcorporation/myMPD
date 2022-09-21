@@ -4,13 +4,6 @@
 // https://github.com/jcorporation/mympd
 
 function initLocalPlayback() {
-    //do not hide volume menu on click on volume change buttons
-    for (const elName of ['btnLocalPlaybackChVolumeDown', 'btnLocalPlaybackChVolumeUp', 'localPlaybackVolumeBar']) {
-        document.getElementById(elName).addEventListener('click', function(event) {
-            event.stopPropagation();
-        }, false);
-    }
-
     document.getElementById('localPlaybackVolumeBar').addEventListener('change', function(event) {
         setLocalPlaybackVolume(Number(event.target.value));
     }, false);
