@@ -67,13 +67,13 @@
     <div class="offcanvas-body">
       <a data-phrase="Add stream" class="dropdown-item" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["STREAM"]}'></a>
       <a id="navDBupdate" class="subMenu dropdown-item" data-bs-toggle="collapse" href="#menu-dbupdate"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Update"></span></a>
-      <div class="collapse menu-indent" id="menu-dbupdate">
+      <div class="collapse ps-3" id="menu-dbupdate">
         <a data-phrase="Update database" class="dropdown-item" href="#" data-href='{"cmd": "updateDB", "options": ["", true, false, false]}'></a>
         <a data-phrase="Rescan database" class="dropdown-item" href="#" data-href='{"cmd": "updateDB", "options": ["", true, false, true]}'></a>
         <a data-phrase="Update smart playlists" class="dropdown-item featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}'></a>
       </div>
       <a id="navSettings" class="subMenu dropdown-item alwaysEnabled" data-bs-toggle="collapse" href="#menu-settings"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Settings"></span></a>
-      <div id="menu-settings" class="collapse menu-indent">
+      <div id="menu-settings" class="collapse ps-3">
         <a data-phrase="MPD connection" class="dropdown-item alwaysEnabled" href="#modalConnection" data-bs-toggle="modal"></a>
         <a data-phrase="Settings" class="dropdown-item" data-bs-toggle="modal" href="#modalSettings"></a>
         <a data-phrase="Maintenance" class="dropdown-item" data-bs-toggle="modal" href="#modalMaintenance"></a>
@@ -94,7 +94,7 @@
       <div id="scripts" class="featScripting noInitChilds collapse"></div>
       <div class="dropdown-divider"></div>
       <a id="navNotifications" class="subMenu dropdown-item alwaysEnabled" data-bs-toggle="collapse" href="#menu-notifications"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span> <span class="badge bg-secondary" id="notificationCount">0</span></a>
-      <div id="menu-notifications" class="collapse menu-indent">
+      <div id="menu-notifications" class="collapse ps-3">
         <div id="logOverview" class="ps-4 pe-2"></div>
       </div>
     </div>
@@ -372,8 +372,7 @@
                 <button data-title-phrase="Sort playlist" id="btnSortPlaylist" class="btn btn-secondary dropdown-toggle rounded-start mi" type="button" data-bs-toggle="dropdown">sort</button>
                 <div class="dropdown-menu dropdown-menu-dark px-2" id="dropdownSortPlaylist">
                   <h2 class="dropdown-header" data-phrase="Sort playlist"></h2>
-                  <div id="dropdownSortPlaylistTags">
-                  </div>
+                  <div id="dropdownSortPlaylistTags"></div>
                 </div>
               </div>
             </div>
@@ -392,7 +391,7 @@
                   <button data-phrase="Replace queue" data-href='{"cmd": "currentPlaylistToQueue", "options": ["replaceQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
                   <button data-phrase="Replace queue and play" data-href='{"cmd": "currentPlaylistToQueue", "options": ["replacePlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
                   <button data-phrase="Add to homescreen" data-href='{"cmd": "currentPlaylistToQueue", "options": ["addToHome"]}' type="button" class="btn btn-secondary btn-sm featHome"></button>
-              </div>
+                </div>
               </div>
             </div>
             <div id="BrowsePlaylistsDetailPaginationTop" class="btn-group me-2 pagination"></div>
@@ -418,24 +417,24 @@
               <button data-title-phrase="Select view" id="btnBrowseDatabaseByTag" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
               <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseDatabaseByTagDropdown"></div>
             </div>
-              <div class="input-group me-2 flex-grow-1">
-                <div class="btn-group">
-                  <button id="btnDatabaseSearchDropdown" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
-                    <span class="mi">search</span>
-                    <span data-phrase="AlbumArtist" id="searchDatabaseTagsDesc"></span>
-                  </button>
-                  <div class="dropdown-menu dropdown-menu-dark px-2" id="searchDatabaseTags"></div>
-                </div>
-                <select class="form-select rounded-0 no-flex" id="searchDatabaseMatch">
-                  <option data-phrase="contains" value="contains"></option>
-                  <option data-phrase="starts_with" value="starts_with"></option>
-                  <option value="==">==</option>
-                  <option value="=~">=~</option>
-                  <option value="!=">!=</option>
-                  <option value="!~">!~</option>
-                </select>
-                <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="searchDatabaseStr"/>
+            <div class="input-group me-2 flex-grow-1">
+              <div class="btn-group">
+                <button id="btnDatabaseSearchDropdown" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle square-end" type="button" data-bs-toggle="dropdown">
+                  <span class="mi">search</span>
+                  <span data-phrase="AlbumArtist" id="searchDatabaseTagsDesc"></span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-dark px-2" id="searchDatabaseTags"></div>
               </div>
+              <select class="form-select rounded-0 no-flex" id="searchDatabaseMatch">
+                <option data-phrase="contains" value="contains"></option>
+                <option data-phrase="starts_with" value="starts_with"></option>
+                <option value="==">==</option>
+                <option value="=~">=~</option>
+                <option value="!=">!=</option>
+                <option value="!~">!~</option>
+              </select>
+              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="searchDatabaseStr"/>
+            </div>
             <div class="btn-group me-2">
               <button id="btnDatabaseSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">sort</button>
               <div class="dropdown-menu dropdown-menu-dark px-2" id="databaseSortTags">
@@ -475,7 +474,7 @@
                   <button data-phrase="Replace queue and play" data-href='{"cmd": "addAlbum", "options": ["replacePlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
                   <button data-phrase="Add to playlist" data-href='{"cmd": "addAlbum", "options": ["addPlaylist"]}' type="button" class="btn btn-secondary btn-sm featPlaylists"></button>
                   <button data-phrase="Add to homescreen" data-href='{"cmd": "addAlbumToHome", "options": []}' type="button" class="btn btn-secondary btn-sm featHome"></button>
-              </div>
+                </div>
               </div>
             </div>
           </div>
@@ -581,8 +580,7 @@
           <div class="btn-toolbar card-toolbar" id="BrowseRadioWebradiodbButtons">
             <div class="btn-group me-2">
               <button data-title-phrase="Select view" id="BrowseNavWebradiodb" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavWebradiodbDropdown">
-              </div>
+              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavWebradiodbDropdown"></div>
             </div>
             <div class="btn-group me-2">
               <button data-title-phrase="Webradio favorites" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Favorites"]}' type="button" class="btn btn-secondary mi">favorite</button>
@@ -761,12 +759,12 @@
             <a data-phrase="Move an output to this partition" class="dropdown-item featPartitions" data-bs-toggle="modal" href="#modalPartitionOutputs"></a>
             <div class="dropdown-divider"></div>
             <h2 class="dropdown-header"><span data-phrase="Volume"></span>: <span id="volumePrct"></span></h2>
-            <form class="px-3 py-0 pb-3" id="volumeControl">
+            <form class="px-3 pt-0 pb-3" id="volumeControl">
               <div class="btn-group w-100">
                 <button id="btnChVolumeDown" data-href='{"cmd": "volumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
-                  <div class="bg-secondary w-100 volumeRangeDiv">
-                    <input type="range" min="0" max="100" step="1" class="form-range w-100" id="volumeBar"/>
-                  </div>
+                <div class="bg-secondary w-100 volumeRangeDiv">
+                  <input type="range" min="0" max="100" step="1" class="form-range w-100" id="volumeBar"/>
+                </div>
                 <button id="btnChVolumeUp" data-href='{"cmd": "volumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
               </div>
             </form>
@@ -782,13 +780,15 @@
             <div class="d-grid mx-3 mb-3">
               <div class="mb-3"><span data-phrase="Duration"></span>: <span id="localPlayerProgress"></span></div>
               <button class="btn btn-success mi mb-3" id="localPlaybackBtn" data-href='{"cmd": "createLocalPlaybackEl", "options": []}'>play_arrow</button>
-              <div class="mb-3"><span data-phrase="Volume"></span>: <span id="localPlaybackVolume"></span></div>
+              <div class="mb-3">
+                <span data-phrase="Volume"></span>: <span id="localPlaybackVolume"></span>
+              </div>
               <form id="localPlaybackVolumeControl">
                 <div class="btn-group">
                   <button id="btnLocalPlaybackChVolumeDown" data-href='{"cmd": "localPlaybackVolumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
-                    <div class="bg-secondary volumeRangeDiv">
-                      <input type="range" min="0" max="1" step="0.1" class="form-range" id="localPlaybackVolumeBar"/>
-                    </div>
+                  <div class="bg-secondary volumeRangeDiv">
+                    <input type="range" min="0" max="1" step="0.1" class="form-range" id="localPlaybackVolumeBar"/>
+                  </div>
                   <button id="btnLocalPlaybackChVolumeUp" data-href='{"cmd": "localPlaybackVolumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
                 </div>
               </form>
@@ -809,10 +809,9 @@
         </div>
         <div class="modal-body">
           <p data-phrase="Dependent on the size of your music collection this can take a while"></p>
-          <div class="progress">
+          <div class="progress mb-3">
             <div id="updateDBprogress" class="progress-bar bg-success"></div>
           </div>
-          <br/>
           <p id="updateDBfinished"></p>
           <div id="errorUpdateDB" class="alert alert-danger d-none" data-phrase="Database update failed"></div>
         </div>
@@ -1518,7 +1517,7 @@
                     <tr><td colspan="2" class="pt-3"><h5 data-phrase="Webserver"></h5></td></tr>
                     <tr><th data-phrase="IP-Address"></th><td id="wsIP"></td></tr>
                     <tr class="featCacert"><th data-phrase="myMPD CA"></th>
-                      <td><a class="text-success download alwaysEnabled" href="/ca.crt" target="_blank" data-phrase="Download"></a></td>
+                      <td><a class="text-success download alwaysEnabled" href="ca.crt" target="_blank" data-phrase="Download"></a></td>
                     </tr>
                   </tbody>
                 </table>
@@ -2408,7 +2407,7 @@
                 <input id="inputPinModal" class="form-control" type="password" autocomplete="off"/>
               </div>
             </div>
-        </form>
+          </form>
           <div id="modalEnterPinMessage" class="alert alert-danger p-2 d-none"></div>
         </div>
         <div class="modal-footer justify-content-between">

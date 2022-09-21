@@ -688,10 +688,6 @@ tfoot td {
   animation-iteration-count: infinite;
 }
 
-.menu-indent {
-  padding-left: 1rem;
-}
-
 div.key {
   border: 1px solid var(--bs-gray-200);
   background-color: var(--bs-gray-600);
