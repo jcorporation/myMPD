@@ -85,6 +85,31 @@ enum mpd_single_state {
 	MPD_SINGLE_UNKNOWN,
 };
 
+/**
+ * MPD's consume state.
+ *
+ * @since libmpdclient 2.21, MPD 0.24.
+ */
+enum mpd_consume_state {
+	/** disabled */
+	MPD_CONSUME_OFF = 0,
+
+	/** enabled */
+	MPD_CONSUME_ON,
+
+	/**
+	 * enables consume state (#MPD_CONSUME_ONESHOT) for a single song, then
+	 * MPD disables consume state (#MPD_CONSUME_OFF) if the current song
+	 * has played.
+	 *
+	 * @since MPD 0.24
+	 **/
+	MPD_CONSUME_ONESHOT,
+
+	/** Unknown state */
+	MPD_CONSUME_UNKNOWN,
+};
+
 struct mpd_connection;
 struct mpd_pair;
 struct mpd_audio_format;
@@ -218,7 +243,44 @@ bool
 mpd_status_get_single(const struct mpd_status *status);
 
 /**
- * Returns true if consume mode is on.
+ * Returns the current state of consume mode on MPD.
+ *
+ * If the state is #MPD_CONSUME_ONESHOT, MPD will transition to #MPD_CONSUME_OFF
+ * after a song is played. The #mpd_status object will not be updated accordingly.
+ * In this case, you need to call mpd_send_status() and mpd_recv_status() again.
+ *
+ * @since MPD 0.24, libmpdclient 2.21.
+ */
+mpd_pure
+enum mpd_consume_state
+mpd_status_get_consume_state(const struct mpd_status *status);
+
+/**
+ * Looks up the name of the specified consume mode.
+ *
+ * @return the name, or NULL if the consume mode is not valid
+ *
+ * @since libmpdclient 2.21.
+ */
+const char *
+mpd_lookup_consume_state(enum mpd_consume_state state);
+
+/**
+ * Parse the string to check which consume mode it contains.
+ *
+ * @return the consume mode enum
+ *
+ * @since libmpdclient 2.21.
+ */
+enum mpd_consume_state
+mpd_parse_consume_state(const char *p);
+
+/**
+ * This function is deprecated as it does not distinguish the states of
+ * the consume mode (added to MPD 0.24). Call mpd_status_get_consume_state() in
+ * its place.
+ *
+ * Returns true if consume mode is either on or in oneshot.
  */
 mpd_pure
 bool

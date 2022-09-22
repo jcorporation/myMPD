@@ -302,6 +302,26 @@ mpd_run_single(struct mpd_connection *connection, bool mode)
 }
 
 bool
+mpd_send_consume_state(struct mpd_connection *connection,
+		      enum mpd_consume_state state)
+{
+	const char *state_str = mpd_lookup_consume_state(state);
+	if (state_str == NULL)
+		return false;
+
+	return mpd_send_command(connection, "consume", state_str, NULL);
+}
+
+bool
+mpd_run_consume_state(struct mpd_connection *connection,
+		      enum mpd_consume_state state)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_consume_state(connection, state) &&
+		mpd_response_finish(connection);
+}
+
+bool
 mpd_send_consume(struct mpd_connection *connection, bool mode)
 {
 	return mpd_send_int_command(connection, "consume", mode);

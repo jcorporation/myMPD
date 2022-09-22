@@ -57,7 +57,7 @@ struct mpd_status {
 	enum mpd_single_state single;
 
 	/** Song consume mode enabled? */
-	bool consume;
+	enum mpd_consume_state consume;
 
 	/** Number of songs in the queue */
 	unsigned queue_length;
@@ -228,6 +228,35 @@ mpd_lookup_single_state(enum mpd_single_state state)
 	return NULL;
 }
 
+enum mpd_consume_state
+mpd_parse_consume_state(const char *p)
+{
+	if (strcmp(p, "0") == 0)
+		return MPD_CONSUME_OFF;
+	else if (strcmp(p, "1") == 0)
+		return MPD_CONSUME_ON;
+	else if (strcmp(p, "oneshot") == 0)
+		return MPD_CONSUME_ONESHOT;
+	else
+		return MPD_CONSUME_UNKNOWN;
+}
+
+const char *
+mpd_lookup_consume_state(enum mpd_consume_state state)
+{
+	switch (state) {
+	case MPD_CONSUME_OFF:
+		return "0";
+	case MPD_CONSUME_ON:
+		return "1";
+	case MPD_CONSUME_ONESHOT:
+		return "oneshot";
+	case MPD_CONSUME_UNKNOWN:
+		return NULL;
+	}
+	return NULL;
+}
+
 void
 mpd_status_feed(struct mpd_status *status, const struct mpd_pair *pair)
 {
@@ -243,7 +272,7 @@ mpd_status_feed(struct mpd_status *status, const struct mpd_pair *pair)
 	else if (strcmp(pair->name, "single") == 0)
 		status->single = mpd_parse_single_state(pair->value);
 	else if (strcmp(pair->name, "consume") == 0)
-		status->consume = !!atoi(pair->value);
+		status->consume = mpd_parse_consume_state(pair->value);
 	else if (strcmp(pair->name, "playlist") == 0)
 		status->queue_version = strtoul(pair->value, NULL, 10);
 	else if (strcmp(pair->name, "playlistlength") == 0)
@@ -345,12 +374,21 @@ mpd_status_get_single(const struct mpd_status *status)
 	       status->single == MPD_SINGLE_ON;
 }
 
+enum mpd_consume_state
+mpd_status_get_consume_state(const struct mpd_status *status)
+{
+	assert(status != NULL);
+
+	return status->consume;
+}
+
 bool
 mpd_status_get_consume(const struct mpd_status *status)
 {
 	assert(status != NULL);
 
-	return status->consume;
+	return status->consume == MPD_CONSUME_ONESHOT ||
+	       status->consume == MPD_CONSUME_ON;
 }
 
 unsigned

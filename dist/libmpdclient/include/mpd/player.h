@@ -459,6 +459,9 @@ mpd_run_single(struct mpd_connection *connection, bool mode);
  * If mode is true, MPD enables consume mode: each song played is removed from
  * the playlist.
  *
+ * This function does not support the 'oneshot' state for consume mode: use
+ * mpd_send_consume_state() instead.
+ *
  * If mode is false, MPD disables consume mode.
  *
  * @param connection the connection to MPD
@@ -481,6 +484,37 @@ mpd_send_consume(struct mpd_connection *connection, bool mode);
  */
 bool
 mpd_run_consume(struct mpd_connection *connection, bool mode);
+
+/**
+ * Sets consume state for the playlist.
+ * If state is #MPD_CONSUME_ON, MPD enables consume mode: each song played is removed from
+ * the playlist.
+ *
+ * If state is #MPD_CONSUME_OFF, MPD disables consume mode.
+ *
+ * If state is #MPD_CONSUME_ONESHOT, MPD enables consume mode temporarily: consume
+ * mode is disabled (#MPD_CONSUME_OFF) after a song has been played.
+ *
+ * @param connection the connection to MPD
+ * @param state the desired single mode state
+ * @return true on success, false on error or state is #MPD_SINGLE_UNKNOWN
+ *
+ * @since MPD 0.24, libmpdclient 2.21.
+ */
+bool
+mpd_send_consume_state(struct mpd_connection *connection, enum mpd_consume_state state);
+
+/**
+ * Shortcut for mpd_send_consume_state() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param state the desired single mode state
+ * @return true on success, false on error or state is #MPD_SINGLE_UNKNOWN
+ *
+ * @since MPD 0.24, libmpdclient 2.21.
+ */
+bool
+mpd_run_consume_state(struct mpd_connection *connection, enum mpd_consume_state state);
 
 /**
  * Sets crossfading of seconds between songs on for the playlist.
