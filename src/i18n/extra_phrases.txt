@@ -166,6 +166,10 @@ Enable random
 Disable random
 Enable repeat
 Disable repeat
+Enable single oneshot
+Disable single oneshot
+Enable single mode
+Disable single mode
 Invalid response
 Quick play button
 Quick remove button
