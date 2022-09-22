@@ -381,7 +381,7 @@ function parseCurrentSong(obj) {
         footerCoverEl.classList.add('clickable');
     }
     else {
-        elClear('currentTitleEl');
+        elClear(currentTitleEl);
         setData(currentTitleEl, 'uri', '');
         elClear(footerTitleEl);
         currentTitleEl.classList.remove('clickable');

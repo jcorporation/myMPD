@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: js error clearing current title
+
 ***
 
 ## myMPD v10.0.0 (2022-09-22)
