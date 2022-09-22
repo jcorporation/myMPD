@@ -4,6 +4,14 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v10.0.1 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+***
+
 ## myMPD v10.0.0 (2022-09-22)
 
 This major release adds concurrent MPD partition support to myMPD. myMPD connects now to all MPD partitions simultaneously and holds partition specific states and settings. Each browser instance can now select the MPD partition to control.
