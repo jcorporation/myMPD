@@ -408,9 +408,9 @@ function parseSettings(obj) {
         const selectTimerAction = document.getElementById('selectTimerAction');
         elClearId('selectTimerAction');
         selectTimerAction.appendChild(
-            elCreateNodes('optgroup', {"data-value": "player", "label": tn('Playback')}, [
-                elCreateText('option', {"value": "startplay"}, tn('Start playback')),
-                elCreateText('option', {"value": "stopplay"}, tn('Stop playback'))
+            elCreateNodes('optgroup', {"data-value": "player", "data-label-phrase": "Playback", "label": tn('Playback')}, [
+                elCreateText('option', {"value": "startplay", "data-phrase": "Start playback"}, tn('Start playback')),
+                elCreateText('option', {"value": "stopplay", "data-phrase": "Stop playback"}, tn('Stop playback'))
             ])
         );
 
@@ -427,7 +427,7 @@ function parseSettings(obj) {
     document.getElementById('volumeBar').setAttribute('min', settings.volumeMin);
     document.getElementById('volumeBar').setAttribute('max', settings.volumeMax);
 
-    //update columns and handle quick playback/remove buttons
+    //set translations for pregenerated elements
     pEl.actionTdMenu.firstChild.title = tn('Actions');
 
     pEl.actionTdMenuPlay.firstChild.title = tn(webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
@@ -440,6 +440,7 @@ function parseSettings(obj) {
     pEl.actionQueueTd = settings.webuiSettings.uiQuickRemoveButton === false ? pEl.actionTdMenu : pEl.actionTdMenuRemove;
     pEl.coverPlayBtn.title = tn(webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
 
+    //goto view
     appRoute();
 
     //mediaSession support
@@ -771,10 +772,10 @@ function _createSettingsFrm(fields, defaults, prefix) {
         if (defaults[key].inputType === 'section') {
             if (defaults[key].title !== undefined) {
                 advFrm[form].appendChild(elCreateEmpty('hr', {}));
-                advFrm[form].appendChild(elCreateText('h4', {}, tn(defaults[key].title)));
+                advFrm[form].appendChild(elCreateText('h4', {"data-phrase": defaults[key].title}, tn(defaults[key].title)));
             }
             else if (defaults[key].subtitle !== undefined) {
-                advFrm[form].appendChild(elCreateText('h4', {}, tn(defaults[key].subtitle)));
+                advFrm[form].appendChild(elCreateText('h4', {"data-phrase": defaults[key].subtitle}, tn(defaults[key].subtitle)));
             }
             continue;
         }
@@ -922,7 +923,7 @@ function parseMPDSettings() {
     elClear(triggerEventList);
     for (const event in settings.triggerEvents) {
         triggerEventList.appendChild(
-            elCreateText('option', {"value": settings.triggerEvents[event]}, tn(event))
+            elCreateText('option', {"value": settings.triggerEvents[event], "data-phrase": event}, tn(event))
         );
     }
 
