@@ -92,6 +92,7 @@ struct t_mpd_state {
     bool feat_stickers;                 //!< mpd supports stickers
     bool feat_tags;                     //!< mpd tags are enabled
     bool feat_whence;                   //!< mpd supports the whence feature (relative position in queue)
+    bool feat_consume_oneshot;          //!< mpd supports consume oneshot mode
     //caches
     struct t_cache album_cache;         //!< the album cache created by the mpd_worker thread
     struct t_cache sticker_cache;       //!< the sticker cache created by the mpd_worker thread

@@ -93,9 +93,12 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) >= 0 ) {
         partition_state->mpd_state->feat_advqueue = true;
         MYMPD_LOG_NOTICE("Enabling advanced queue feature");
+        partition_state->mpd_state->feat_consume_oneshot = true;
+        MYMPD_LOG_NOTICE("Enabling consume oneshot feature");
     }
     else {
         MYMPD_LOG_WARN("Disabling advanced queue feature, depends on mpd >= 0.24.0");
+        MYMPD_LOG_WARN("Disabling consume oneshot feature, depends on mpd >= 0.24.0");
     }
     settings_to_webserver(partition_state->mympd_state);
 }

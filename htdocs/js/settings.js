@@ -69,7 +69,7 @@ function initSettings() {
         }, 100);
     });
 
-    document.getElementById('btnConsume').addEventListener('mouseup', function() {
+    document.getElementById('btnConsumeGroup').addEventListener('mouseup', function() {
         setTimeout(function() {
             checkConsume();
         }, 100);
@@ -85,7 +85,6 @@ function togglePlaymode(option) {
     let value;
     let title;
     switch(option) {
-        case 'consume':
         case 'random':
         case 'repeat':
             if (settings.partition[option] === true) {
@@ -95,6 +94,20 @@ function togglePlaymode(option) {
             else {
                 value = true;
                 title = 'Enable ' + option;
+            }
+            break;
+        case 'consume':
+            if (settings.partition.consume === '0') {
+                value = 'oneshot';
+                title = 'Enable consume oneshot';
+            }
+            else if (settings.partition.consume === 'oneshot') {
+                value = '1';
+                title = 'Enable consume mode';
+            }
+            else if (settings.partition.consume === '1') {
+                value = '0';
+                title = 'Disable consume mode';
             }
             break;
         case 'single':
@@ -236,9 +249,9 @@ function getSettings(onerror) {
 }
 
 function checkConsume() {
-    const stateConsume = document.getElementById('btnConsume').classList.contains('active') ? true : false;
+    const stateConsume = getBtnGroupValueId('btnConsumeGroup');
     const stateJukeboxMode = getBtnGroupValueId('btnJukeboxModeGroup');
-    if (stateJukeboxMode !== 'off' && stateConsume === false) {
+    if (stateJukeboxMode !== 'off' && stateConsume !== '1') {
         elShowId('warnConsume');
     }
     else {
@@ -546,9 +559,9 @@ function populateQueueSettingsFrm() {
             setDataId('selectJukeboxPlaylist', 'value', 'Database');
         }
         toggleBtnChkId('btnRandom', settings.partition.random);
-        toggleBtnChkId('btnConsume', settings.partition.consume);
         toggleBtnChkId('btnRepeat', settings.partition.repeat);
         toggleBtnChkId('btnAutoPlay', settings.partition.autoPlay);
+        toggleBtnGroupValue(document.getElementById('btnConsumeGroup'), settings.partition.consume);
         toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.partition.single);
         toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.partition.replaygain);
         document.getElementById('inputCrossfade').value = settings.partition.crossfade;
@@ -880,6 +893,7 @@ function setFeatures() {
         features.featPlaylistRmRange = settings.features.featPlaylistRmRange;
         features.featWhence = settings.features.featWhence;
         features.featAdvqueue = settings.features.featAdvqueue;
+        features.featConsumeOneshot = settings.features.featConsumeOneshot;
     }
 }
 
@@ -1225,6 +1239,7 @@ function saveQueueSettings() {
     }
 
     const singleState = getBtnGroupValueId('btnSingleGroup');
+    const consumeState = getBtnGroupValueId('btnConsumeGroup');
     const jukeboxMode = getBtnGroupValueId('btnJukeboxModeGroup');
     const replaygain = getBtnGroupValueId('btnReplaygainGroup');
     let jukeboxUniqueTag = getSelectValueId('selectJukeboxUniqueTag');
@@ -1237,9 +1252,9 @@ function saveQueueSettings() {
     if (formOK === true) {
         btnWaitingId('btnSaveQueueSettings', true);
         sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
-            "consume": (document.getElementById('btnConsume').classList.contains('active') ? true : false),
             "random": (document.getElementById('btnRandom').classList.contains('active') ? true : false),
             "single": singleState,
+            "consume": consumeState,
             "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? true : false),
             "replaygain": replaygain,
             "crossfade": Number(document.getElementById('inputCrossfade').value),

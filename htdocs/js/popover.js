@@ -288,7 +288,7 @@ function addMenuItemsDiscActions(popoverBody, el) {
 function addMenuItemsSingleActions(popoverBody) {
     if (settings.partition.single === '0') {
         if (settings.partition.repeat === true &&
-            settings.partition.consume === false)
+            settings.partition.consume === '0')
         {
             //repeat one song can only work with consume disabled
             addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [2]}, 'Repeat current song once');

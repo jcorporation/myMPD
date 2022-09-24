@@ -141,7 +141,6 @@ plugin
 Repeat current song once
 Repeat current song
 Stop playback after current song
-Disable single mode
 Show
 View
 Add to favorites
@@ -160,8 +159,9 @@ Jukebox Queue
 Startup
 Startup view
 Display tags in rows for small displays
-Enable consume
-Disable consume
+Enable consume mode
+Enable consume oneshot
+Disable consume mode
 Enable random
 Disable random
 Enable repeat

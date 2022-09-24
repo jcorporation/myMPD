@@ -182,7 +182,7 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
 }
 
 /**
- * Sets all feat states to disabled
+ * Sets all feature states to disabled
  * @param mpd_state pointer to mpd_state
  */
 void mpd_state_features_disable(struct t_mpd_state *mpd_state) {
@@ -199,6 +199,7 @@ void mpd_state_features_disable(struct t_mpd_state *mpd_state) {
     mpd_state->feat_playlist_rm_range = false;
     mpd_state->feat_whence = false;
     mpd_state->feat_advqueue = false;
+    mpd_state->feat_consume_oneshot = false;
 }
 
 /**

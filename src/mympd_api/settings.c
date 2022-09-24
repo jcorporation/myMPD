@@ -577,12 +577,12 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             rc = mpd_run_repeat(partition_state->conn, bool_buf);
         }
         else if (strcmp(key, "consume") == 0) {
-            if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
+            enum mpd_consume_state state = mpd_parse_consume_state(value);
+            if (state == MPD_CONSUME_UNKNOWN) {
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
-            bool bool_buf = vtype == MJSON_TOK_TRUE ? true : false;
-            rc = mpd_run_consume(partition_state->conn, bool_buf);
+            rc = mpd_run_consume_state(partition_state->conn, state);
         }
         else if (strcmp(key, "single") == 0) {
             enum mpd_single_state state = mpd_parse_single_state(value);
@@ -812,7 +812,8 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_double(buffer, "mixrampDelay", mpd_status_get_mixrampdelay(status), true);
         buffer = tojson_bool(buffer, "repeat", mpd_status_get_repeat(status), true);
         buffer = tojson_bool(buffer, "random", mpd_status_get_random(status), true);
-        buffer = tojson_bool(buffer, "consume", mpd_status_get_consume(status), true);
+        enum mpd_consume_state consume_state = mpd_status_get_consume_state(status);
+        buffer = tojson_char(buffer, "consume", mpd_lookup_consume_state(consume_state), true);
         mpd_status_free(status);
 
         enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(partition_state->conn);
@@ -843,6 +844,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_bool(buffer, "featPlaylistRmRange", partition_state->mpd_state->feat_playlist_rm_range, true);
         buffer = tojson_bool(buffer, "featWhence", partition_state->mpd_state->feat_whence, true);
         buffer = tojson_bool(buffer, "featAdvqueue", partition_state->mpd_state->feat_advqueue, true);
+        buffer = tojson_bool(buffer, "featConsumeOneshot", partition_state->mpd_state->feat_consume_oneshot, true);
     }
 #ifdef ENABLE_SSL
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);

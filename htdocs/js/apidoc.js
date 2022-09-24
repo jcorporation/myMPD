@@ -1152,9 +1152,9 @@ const APImethods = {
         "desc": "Sets MPD and jukebox options.",
         "params":{
             "consume": {
-                "type": "bool",
-                "example": true,
-                "desc": "MPD consume mode."
+                "type": "text",
+                "example": "1",
+                "desc": "MPD consume mode: 0, 1, oneshot"
             },
             "random": {
                 "type": "bool",
