@@ -1590,10 +1590,16 @@
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputPlaylistDirectory" data-phrase="Playlist directory"></label>
                 <div class="col-sm-8 position-relative">
-                  <input data-is="mympd-input-reset" id="inputPlaylistDirectory" class="form-control alwaysEnabled" placeholder="/var/lib/mpd/playlists"/>
+                  <select id="selectPlaylistDirectory" class="form-select alwaysEnabled">
+                    <option value="auto" data-phrase="Autodetect"></option>
+                    <option value="none" data-phrase="None"></option>
+                    <option value="custom" data-phrase="Specify"></option>
+                  </select>
+                  <input id="inputPlaylistDirectory" class="form-control alwaysEnabled" placeholder="/var/lib/mpd/playlists"/>
                   <div class="invalid-feedback" data-phrase="Invalid playlist directory"></div>
                 </div>
               </div>
+              <div id="warnPlaylistDirectory" class="alert alert-warning d-none" data-phrase="Playlist directory not found"></div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputMpdTimeout" data-phrase="Timeout"></label>
                 <div class="col-sm-8">

@@ -159,6 +159,7 @@ void mpd_state_default(struct t_mpd_state *mpd_state, struct t_mympd_state *mymp
     mpd_state->mpd_pass = sdsnew(MYMPD_MPD_PASS);
     mpd_state->mpd_binarylimit = MYMPD_MPD_BINARYLIMIT;
     mpd_state->music_directory_value = sdsempty();
+    mpd_state->playlist_directory_value = sdsempty();
     mpd_state->tag_list = sdsnew(MYMPD_MPD_TAG_LIST);
     reset_t_tags(&mpd_state->tags_mympd);
     reset_t_tags(&mpd_state->tags_mpd);
@@ -210,6 +211,7 @@ void mpd_state_free(struct t_mpd_state *mpd_state) {
     FREE_SDS(mpd_state->mpd_pass);
     FREE_SDS(mpd_state->tag_list);
     FREE_SDS(mpd_state->music_directory_value);
+    FREE_SDS(mpd_state->playlist_directory_value);
     //lists
     list_clear(&mpd_state->sticker_queue);
     //caches

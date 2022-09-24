@@ -97,7 +97,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 
 //default mympd state settings
 #define MYMPD_MUSIC_DIRECTORY "auto"
-#define MYMPD_PLAYLIST_DIRECTORY "/var/lib/mpd/playlists"
+#define MYMPD_PLAYLIST_DIRECTORY "auto"
 #define MYMPD_JUKEBOX_PLAYLIST "Database"
 #define MYMPD_JUKEBOX_UNIQUE_TAG MPD_TAG_ARTIST
 #define MYMPD_JUKEBOX_LAST_PLAYED 24 //hours

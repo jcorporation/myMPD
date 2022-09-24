@@ -27,7 +27,8 @@
 static void mpd_client_feature_commands(struct t_partition_state *partition_state);
 static void mpd_client_feature_mpd_tags(struct t_partition_state *partition_state);
 static void mpd_client_feature_tags(struct t_partition_state *partition_state);
-static void mpd_client_feature_music_directory(struct t_partition_state *partition_state);
+static void mpd_client_feature_directories(struct t_partition_state *partition_state);
+static sds set_directory(const char *desc, sds directory, sds value);
 
 /**
  * Public functions
@@ -50,7 +51,7 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
 
     //get features
     mpd_client_feature_commands(partition_state);
-    mpd_client_feature_music_directory(partition_state);
+    mpd_client_feature_directories(partition_state);
     mpd_client_feature_tags(partition_state);
 
     //set state
@@ -233,21 +234,26 @@ static void mpd_client_feature_mpd_tags(struct t_partition_state *partition_stat
  * Checks for available MPD music directory
  * @param partition_state pointer to partition state
  */
-static void mpd_client_feature_music_directory(struct t_partition_state *partition_state) {
+static void mpd_client_feature_directories(struct t_partition_state *partition_state) {
     partition_state->mpd_state->feat_library = false;
     sdsclear(partition_state->mpd_state->music_directory_value);
+    sdsclear(partition_state->mpd_state->playlist_directory_value);
 
-    if (strncmp(partition_state->mpd_state->mpd_host, "/", 1) == 0 &&
-        strncmp(partition_state->mympd_state->music_directory, "auto", 4) == 0)
-    {
-        //get musicdirectory from mpd
+    if (partition_state->mpd_state->mpd_host[0] == '/') {
+        //get directories from mpd
         if (mpd_send_command(partition_state->conn, "config", NULL) == true) {
             struct mpd_pair *pair;
             while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
                 if (strcmp(pair->name, "music_directory") == 0 &&
-                    is_streamuri(pair->value) == false)
+                    is_streamuri(pair->value) == false &&
+                    strncmp(partition_state->mympd_state->music_directory, "auto", 4) == 0)
                 {
                     partition_state->mpd_state->music_directory_value = sds_replace(partition_state->mpd_state->music_directory_value, pair->value);
+                }
+                else if (strcmp(pair->name, "playlist_directory") == 0 &&
+                    strncmp(partition_state->mympd_state->playlist_directory, "auto", 4) == 0)
+                {
+                    partition_state->mpd_state->playlist_directory_value = sds_replace(partition_state->mpd_state->playlist_directory_value, pair->value);
                 }
                 mpd_return_pair(partition_state->conn, pair);
             }
@@ -260,30 +266,41 @@ static void mpd_client_feature_music_directory(struct t_partition_state *partiti
             MYMPD_LOG_ERROR("Can't get music_directory value from mpd");
         }
     }
-    else if (strncmp(partition_state->mympd_state->music_directory, "/", 1) == 0) {
-        partition_state->mpd_state->music_directory_value = sds_replace(partition_state->mpd_state->music_directory_value, partition_state->mympd_state->music_directory);
-    }
-    else if (strncmp(partition_state->mympd_state->music_directory, "none", 4) == 0) {
-        //empty music_directory
-    }
-    else {
-        MYMPD_LOG_ERROR("Invalid music_directory value: \"%s\"", partition_state->mympd_state->music_directory);
-    }
-    strip_slash(partition_state->mpd_state->music_directory_value);
-    MYMPD_LOG_INFO("Music directory is \"%s\"", partition_state->mpd_state->music_directory_value);
+
+    partition_state->mpd_state->music_directory_value = set_directory("music", partition_state->mympd_state->music_directory,
+        partition_state->mpd_state->music_directory_value);
+    partition_state->mpd_state->playlist_directory_value = set_directory("playlist", partition_state->mympd_state->playlist_directory,
+        partition_state->mpd_state->playlist_directory_value);
 
     //set feat_library
     if (sdslen(partition_state->mpd_state->music_directory_value) == 0) {
         MYMPD_LOG_WARN("Disabling library feature, music directory not defined");
         partition_state->mpd_state->feat_library = false;
     }
-    else if (testdir("MPD music_directory", partition_state->mpd_state->music_directory_value, false, false) == DIR_EXISTS) {
-        MYMPD_LOG_NOTICE("Enabling library feature");
+    else {
         partition_state->mpd_state->feat_library = true;
     }
-    else {
-        MYMPD_LOG_WARN("Disabling library feature, music directory not accessible");
-        partition_state->mpd_state->feat_library = false;
-        sdsclear(partition_state->mpd_state->music_directory_value);
+}
+
+static sds set_directory(const char *desc, sds directory, sds value) {
+    if (strncmp(directory, "auto", 4) == 0) {
+        //valid
     }
+    else if (directory[0] == '/') {
+        value = sds_replace(value, directory);
+    }
+    else if (strncmp(directory, "none", 4) == 0) {
+        //empty playlist_directory
+        return value;
+    }
+    else {
+        MYMPD_LOG_ERROR("Invalid %s directory value: \"%s\"", desc, directory);
+        return value;
+    }
+    strip_slash(value);
+    if (testdir("Directory", value, false, true) != DIR_EXISTS) {
+        sdsclear(value);
+    }
+    MYMPD_LOG_INFO("%s directory is \"%s\"", desc, value);
+    return value;
 }

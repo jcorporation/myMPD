@@ -46,7 +46,7 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
     //push settings to web_server_queue
     struct set_mg_user_data_request *extra = malloc_assert(sizeof(struct set_mg_user_data_request));
     extra->music_directory = sdsdup(mympd_state->mpd_state->music_directory_value);
-    extra->playlist_directory = sdsdup(mympd_state->playlist_directory);
+    extra->playlist_directory = sdsdup(mympd_state->mpd_state->playlist_directory_value);
     extra->coverimage_names = sdsdup(mympd_state->coverimage_names);
     extra->thumbnail_names = sdsdup(mympd_state->thumbnail_names);
     extra->feat_albumart = mympd_state->mpd_state->feat_albumart;
@@ -860,6 +860,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     if (partition_state->conn_state == MPD_CONNECTED) {
         buffer = sdscatlen(buffer, ",", 1);
         buffer = tojson_sds(buffer, "musicDirectoryValue", partition_state->mpd_state->music_directory_value, true);
+        buffer = tojson_sds(buffer, "playlistDirectoryValue", partition_state->mpd_state->playlist_directory_value, true);
         //taglists
         buffer = print_tags_array(buffer, "tagList", partition_state->mpd_state->tags_mympd);
         buffer = sdscatlen(buffer, ",", 1);

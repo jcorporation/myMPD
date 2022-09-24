@@ -498,6 +498,7 @@
     "Playback statistics are disabled": "Wiedergabestatistiken sind deaktiviert",
     "Playlist": "Wiedergabeliste",
     "Playlist directory": "Wiedergabelisten Verzeichnis",
+    "Playlist directory not found": "Wiedergabelisten Verzeichnis nicht gefunden",
     "Playlist is empty": "Wiedergabelist ist leer",
     "Playlist name": "Wiedergabelistenname",
     "Playlist to small, disabling jukebox unique constraints temporarily": "Die Wiedergabeliste ist zu klein, die Jukebox Regeln werden deaktiviert",

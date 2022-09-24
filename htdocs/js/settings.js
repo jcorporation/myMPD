@@ -20,6 +20,22 @@ function initSettings() {
         }
     }, false);
 
+    document.getElementById('selectPlaylistDirectory').addEventListener('change', function () {
+        const playlistDirMode = getSelectValue(this);
+        if (playlistDirMode === 'auto') {
+            document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectoryValue;
+            document.getElementById('inputPlaylistDirectory').setAttribute('readonly', 'readonly');
+        }
+        else if (playlistDirMode === 'none') {
+            document.getElementById('inputPlaylistDirectory').value = '';
+            document.getElementById('inputPlaylistDirectory').setAttribute('readonly', 'readonly');
+        }
+        else {
+            document.getElementById('inputPlaylistDirectory').value = '';
+            document.getElementById('inputPlaylistDirectory').removeAttribute('readonly');
+        }
+    }, false);
+
     document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
         cleanupModalId('modalSettings');
         getSettings();
@@ -178,24 +194,41 @@ function saveConnection() {
     const mpdHostEl = document.getElementById('inputMpdHost');
     const mpdPortEl = document.getElementById('inputMpdPort');
     const mpdPassEl = document.getElementById('inputMpdPass');
-    const playlistDirectoryEl = document.getElementById('inputPlaylistDirectory');
     const mpdBinarylimitEl = document.getElementById('inputMpdBinarylimit');
     const mpdTimeoutEl = document.getElementById('inputMpdTimeout');
+
     const musicDirectoryEl = document.getElementById('selectMusicDirectory');
     let musicDirectory = getSelectValue(musicDirectoryEl);
-
-    if (musicDirectory === 'auto' && mpdHostEl.value.indexOf('/') !== 0) {
+    if (musicDirectory === 'auto' &&
+        mpdHostEl.value.indexOf('/') !== 0)
+    {
         formOK = false;
         setIsInvalid(musicDirectoryEl);
     }
-
-    if (musicDirectory === 'custom') {
+    else if (musicDirectory === 'custom') {
         const musicDirectoryValueEl = document.getElementById('inputMusicDirectory');
         if (validatePath(musicDirectoryValueEl) === false) {
             formOK = false;
         }
         musicDirectory = musicDirectoryValueEl.value;
     }
+
+    const playlistDirectoryEl = document.getElementById('selectPlaylistDirectory');
+    let playlistDirectory = getSelectValue(playlistDirectoryEl);
+    if (playlistDirectory === 'auto' &&
+        mpdHostEl.value.indexOf('/') !== 0)
+    {
+        formOK = false;
+        setIsInvalid(playlistDirectoryEl);
+    }
+    else if (playlistDirectory === 'custom') {
+        const playlistDirectoryValueEl = document.getElementById('inputPlaylistDirectory');
+        if (validatePath(playlistDirectoryValueEl) === false) {
+            formOK = false;
+        }
+        playlistDirectory = playlistDirectoryValueEl.value;
+    }
+
     if (mpdPortEl.value === '') {
         mpdPortEl.value = '6600';
     }
@@ -210,9 +243,6 @@ function saveConnection() {
             formOK = false;
         }
     }
-    if (validatePath(playlistDirectoryEl) === false) {
-        formOK = false;
-    }
     if (validateIntRange(mpdBinarylimitEl, 4, 256) === false) {
         formOK = false;
     }
@@ -225,7 +255,7 @@ function saveConnection() {
             "mpdPort": Number(mpdPortEl.value),
             "mpdPass": mpdPassEl.value,
             "musicDirectory": musicDirectory,
-            "playlistDirectory": playlistDirectoryEl.value,
+            "playlistDirectory": playlistDirectory,
             "mpdBinarylimit": Number(mpdBinarylimitEl.value) * 1024,
             "mpdTimeout": Number(mpdTimeoutEl.value) * 1000,
             "mpdKeepalive": (document.getElementById('btnMpdKeepalive').classList.contains('active') ? true : false)
@@ -584,10 +614,8 @@ function populateConnectionFrm() {
     document.getElementById('inputMpdHost').value = settings.mpdHost;
     document.getElementById('inputMpdPort').value = settings.mpdPort;
     document.getElementById('inputMpdPass').value = settings.mpdPass;
-    document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectory;
     document.getElementById('inputMpdBinarylimit').value = settings.mpdBinarylimit / 1024;
     document.getElementById('inputMpdTimeout').value = settings.mpdTimeout / 1000;
-
     toggleBtnChkId('btnMpdKeepalive', settings.mpdKeepalive);
 
     if (settings.musicDirectory === 'auto') {
@@ -606,11 +634,38 @@ function populateConnectionFrm() {
         document.getElementById('inputMusicDirectory').removeAttribute('readonly');
     }
 
-    if (settings.musicDirectoryValue === '' && settings.musicDirectory !== 'none') {
+    if (settings.musicDirectoryValue === '' &&
+        settings.musicDirectory !== 'none')
+    {
         elShowId('warnMusicDirectory');
     }
     else {
         elHideId('warnMusicDirectory');
+    }
+
+    if (settings.playlistDirectory === 'auto') {
+        document.getElementById('selectPlaylistDirectory').value = settings.playlistDirectory;
+        document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectoryValue !== undefined ? settings.playlistDirectoryValue : '';
+        document.getElementById('inputPlaylistDirectory').setAttribute('readonly', 'readonly');
+    }
+    else if (settings.playlistDirectory === 'none') {
+        document.getElementById('selectPlaylistDirectory').value = settings.playlistDirectory;
+        document.getElementById('inputPlaylistDirectory').value = '';
+        document.getElementById('inputPlaylistDirectory').setAttribute('readonly', 'readonly');
+    }
+    else {
+        document.getElementById('selectPlaylistDirectory').value = 'custom';
+        document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectoryValue;
+        document.getElementById('inputPlaylistDirectory').removeAttribute('readonly');
+    }
+
+    if (settings.playlistDirectoryValue === '' &&
+        settings.playlistDirectory !== 'none')
+    {
+        elShowId('warnPlaylistDirectory');
+    }
+    else {
+        elHideId('warnPlaylistDirectory');
     }
 }
 

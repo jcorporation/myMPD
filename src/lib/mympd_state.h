@@ -69,6 +69,7 @@ struct t_mpd_state {
     unsigned mpd_timeout;               //!< mpd connection timeout
     bool mpd_keepalive;                 //!< mpd tcp keepalive flag
     sds music_directory_value;          //!< real music directory set by feature detection
+    sds playlist_directory_value;       //!< real playlist directory set by feature detection
     //tags
     sds tag_list;                       //!< comma separated string of mpd tags to enable
     struct t_tags tags_mympd;           //!< tags enabled by myMPD and mpd
@@ -232,7 +233,7 @@ struct t_mympd_state {
     sds cols_browse_radio_webradiodb;             //!< columns for the webradiodb view
     sds cols_browse_radio_radiobrowser;           //!< columns for the radiobrowser view
     sds music_directory;                          //!< mpd music directory setting (real value is in mpd_state)
-    sds playlist_directory;                       //!< mpd playlist directory
+    sds playlist_directory;                       //!< mpd playlist directory (real value is in mpd_state)
     sds navbar_icons;                             //!< json strin of navigation bar icons
     sds coverimage_names;                         //!< comma separated string of coverimage names
     sds thumbnail_names;                          //!< comma separated string of coverimage thumbnail names
