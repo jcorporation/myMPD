@@ -845,6 +845,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_bool(buffer, "featWhence", partition_state->mpd_state->feat_whence, true);
         buffer = tojson_bool(buffer, "featAdvqueue", partition_state->mpd_state->feat_advqueue, true);
         buffer = tojson_bool(buffer, "featConsumeOneshot", partition_state->mpd_state->feat_consume_oneshot, true);
+        buffer = tojson_bool(buffer, "featPlaylistDirAuto", partition_state->mpd_state->feat_playlist_dir_auto, true);
     }
 #ifdef ENABLE_SSL
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);

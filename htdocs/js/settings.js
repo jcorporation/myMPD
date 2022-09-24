@@ -950,6 +950,7 @@ function setFeatures() {
         features.featWhence = settings.features.featWhence;
         features.featAdvqueue = settings.features.featAdvqueue;
         features.featConsumeOneshot = settings.features.featConsumeOneshot;
+        features.featPlaylistDirAuto = settings.features.featPlaylistDirAuto;
     }
 }
 
@@ -961,6 +962,11 @@ function applyFeatures() {
         for (const el of els) {
             el.style.display = displayValue;
         }
+    }
+    if (features.featPlaylistDirAuto === false &&
+        settings.playlistDirectory === 'auto')
+    {
+        settings.playlistDirectory = 'none';
     }
 }
 

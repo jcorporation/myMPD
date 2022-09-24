@@ -756,7 +756,8 @@ const features = {
     "featTrigger": true,
     "featBinarylimit": true,
     "featFingerprint": false,
-    "featConsumeOneshot": false
+    "featConsumeOneshot": false,
+    "featPlaylistDirAuto": false
 };
 
 //keyboard shortcuts
