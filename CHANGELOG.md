@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v10.1.0 (not yet released)
+
+This release adds support of new MPD 0.24 features.
+
+### Changelog
+
+- Feat: support consume oneshot #837
+
+***
+
 ## myMPD v10.0.1 (not yet released)
 
 This is a small bug fix release.
