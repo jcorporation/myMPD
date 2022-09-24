@@ -80,6 +80,7 @@ function i18nHtml(root) {
     const attributes = [
         ['data-phrase', 'textContent'],
         ['data-title-phrase', 'title'],
+        ['data-label-phrase', 'label'],
         ['data-placeholder-phrase', 'placeholder']
     ];
     for (let i = 0, j = attributes.length; i < j; i++) {

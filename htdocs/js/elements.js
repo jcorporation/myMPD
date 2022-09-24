@@ -6,15 +6,15 @@
 //pre-generated elements
 const pEl = {};
 pEl.actionTdMenu = elCreateNode('td', {"data-col": "Action"},
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions", "title": tn('Actions')}, ligatureMore)
 );
 pEl.actionTdMenuPlay = elCreateNodes('td', {"data-col": "Action"}, [
-    elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Quick play')}, 'play_arrow'),
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+    elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Quick play", "title": tn('Quick play')}, 'play_arrow'),
+    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions", "title": tn('Actions')}, ligatureMore)
 ]);
 pEl.actionTdMenuRemove = elCreateNodes('td', {"data-col": "Action"}, [
-    elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Remove')}, 'clear'),
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+    elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Remove", "title": tn('Remove')}, 'clear'),
+    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions", "title": tn('Actions')}, ligatureMore)
 ]);
 pEl.actionTd = pEl.actionTdMenu;
 pEl.actionQueueTd = pEl.actionTdMenu;
