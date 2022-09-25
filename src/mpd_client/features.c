@@ -244,7 +244,8 @@ static void mpd_client_feature_directories(struct t_partition_state *partition_s
 
     if (partition_state->mpd_state->mpd_host[0] == '/') {
         //get directories from mpd
-        if (mpd_send_command(partition_state->conn, "config", NULL) == true) {
+        bool rc = mpd_send_command(partition_state->conn, "config", NULL);
+        if (rc == true) {
             struct mpd_pair *pair;
             while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
                 if (strcmp(pair->name, "music_directory") == 0 &&
@@ -261,13 +262,8 @@ static void mpd_client_feature_directories(struct t_partition_state *partition_s
                 mpd_return_pair(partition_state->conn, pair);
             }
         }
-        else {
-            MYMPD_LOG_ERROR("Error in response to command: config");
-        }
         mpd_response_finish(partition_state->conn);
-        if (mympd_check_error_and_recover(partition_state) == false) {
-            MYMPD_LOG_ERROR("Can't get music_directory value from mpd");
-        }
+        mympd_check_rc_error_and_recover(partition_state, rc, "config");
     }
 
     partition_state->mpd_state->music_directory_value = set_directory("music", partition_state->mympd_state->music_directory,
@@ -301,9 +297,16 @@ static sds set_directory(const char *desc, sds directory, sds value) {
         return value;
     }
     strip_slash(value);
-    if (testdir("Directory", value, false, true) != DIR_EXISTS) {
+    if (sdslen(value) > 0 &&
+        testdir("Directory", value, false, true) != DIR_EXISTS)
+    {
         sdsclear(value);
     }
-    MYMPD_LOG_INFO("%s directory is \"%s\"", desc, value);
+    if (sdslen(value) == 0) {
+        MYMPD_LOG_INFO("MPD %s directory is not set", desc);
+    }
+    else {
+        MYMPD_LOG_INFO("MPD %s directory is \"%s\"", desc, value);
+    }
     return value;
 }

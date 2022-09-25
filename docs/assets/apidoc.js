@@ -823,14 +823,18 @@ const APImethods = {
             "musicDirectory": {
                 "type": "text",
                 "example": "auto",
-                "desc": "\"auto\" = autodetect (needs socket connection), " +
+                "desc": "MPD music directory" +
+                        "\"auto\" = autodetect (needs socket connection), " +
                         "\"none\" = no music directory, " +
                         "or absolute path of music directory"
             },
             "playlistDirectory": {
                 "type": "text",
-                "example": "/var/lib/mpd/playlists",
-                "desc": "absolut path of playlist directory"
+                "example": "auto",
+                "desc": "MPD playlist directory" +
+                        "\"auto\" = autodetect (needs socket connection), " +
+                        "\"none\" = no playlist directory, " +
+                        "or absolute path of playlist directory"
             },
             "mpdBinarylimit": {
                 "type": "uint",

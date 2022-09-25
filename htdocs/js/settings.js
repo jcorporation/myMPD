@@ -643,6 +643,12 @@ function populateConnectionFrm() {
         elHideId('warnMusicDirectory');
     }
 
+    if (features.featPlaylistDirAuto === false &&
+        settings.playlistDirectory === 'auto')
+    {
+        settings.playlistDirectory = 'none';
+    }
+
     if (settings.playlistDirectory === 'auto') {
         document.getElementById('selectPlaylistDirectory').value = settings.playlistDirectory;
         document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectoryValue !== undefined ? settings.playlistDirectoryValue : '';
@@ -962,11 +968,6 @@ function applyFeatures() {
         for (const el of els) {
             el.style.display = displayValue;
         }
-    }
-    if (features.featPlaylistDirAuto === false &&
-        settings.playlistDirectory === 'auto')
-    {
-        settings.playlistDirectory = 'none';
     }
 }
 

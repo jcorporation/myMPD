@@ -10,8 +10,8 @@ This release adds support of new MPD 0.24 features.
 
 ### Changelog
 
-- Feat: autoconfiguration for playlist_directory #836
-- Feat: support consume oneshot #837
+- Feat: autoconfiguration for playlist_directory (MPD 0.24) #836
+- Feat: support consume oneshot #837 (MPD 0.24)
 
 ***
 
