@@ -67,7 +67,7 @@
     "Background color": "Couleur d'arrière-plan",
     "Best rated": "Mieux notés",
     "Binary limit": "Limite binaire",
-    "BinaryLimitHelpText": "Text d'aide de limite binaire",
+    "BinaryLimitHelpText": "La limite binaire doit être configurée entre 4 et 256 kB",
     "Bitrate": "Bitrate",
     "Booklet": "Livret",
     "Booklet filename": "Nom de fichier du livret",
@@ -583,7 +583,7 @@
     "Shuffle queue": "Mélanger la queue",
     "Shuffled playlist succesfully": "Liste de lecture mélangée",
     "Shuffling playlist failed": "Mélange de la liste de lecture échoué",
-    "Single": "Single",
+    "Single": "Mode unique",
     "Smart playlist": "Liste de lecture intelligente",
     "Smart playlist %{playlist} updated": "Liste de lecture intelligente %{playlist} mise à jour",
     "Smart playlists": "Listes de lecture intelligente",
@@ -772,5 +772,8 @@
     "Partition specific setting": "Paramètre spécifique à la partition",
     "Reset": "Réinitialser",
     "This partition": "Cette partition",
-    "Unknown partition": "Partition inconnue"
+    "Unknown partition": "Partition inconnue",
+    "Disable single oneshot": "Désactiver mode unique ponctuel",
+    "Enable single mode": "Activer mode unique",
+    "Enable single oneshot": "Activer mode unique ponctuel"
 }

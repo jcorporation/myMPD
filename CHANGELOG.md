@@ -21,6 +21,7 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: fr-FR, nl-NL translations
 - Fix: js error clearing current title
 - Fix: translate more elements
 
