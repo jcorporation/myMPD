@@ -1,8 +1,9 @@
-zh-CN:简体中文
 de-DE:Deutsch
 en-US:English
 es-VE:Español
 fi-FI:Finnish
 fr-FR:Français
+it-IT:Italiano
 ko-KR:한국어
 nl-NL:Nederlands
+zh-CN:简体中文
