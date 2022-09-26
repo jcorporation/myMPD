@@ -4,4 +4,4 @@
 - it-IT: fully translated
 - ko-KR: 67 missing phrases
 - nl-NL: fully translated
-- zh-CN: 15 missing phrases
+- zh-CN: fully translated
