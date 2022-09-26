@@ -15,7 +15,19 @@ This release adds support of new MPD 0.24 features.
 
 ***
 
-## myMPD v10.0.1 (not yet released)
+## myMPD v10.0.2 (not yet released)
+
+This is a small bug fix release that also updates some translations.
+
+Many thanks to all translators!
+
+### Changelog
+
+- Upd: zh-CN, it-IT translations
+
+***
+
+## myMPD v10.0.1 (2022-09-25)
 
 This is a small bug fix release.
 

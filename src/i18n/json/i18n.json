@@ -3,7 +3,8 @@
     "de-DE": {"desc":"Deutsch", "missingPhrases": 0},
     "en-US": {"desc":"English", "missingPhrases": 0},
     "fr-FR": {"desc":"Français", "missingPhrases": 4},
+    "it-IT": {"desc":"", "missingPhrases": 4},
     "ko-KR": {"desc":"한국어", "missingPhrases": 71},
     "nl-NL": {"desc":"Nederlands", "missingPhrases": 4},
-    "zh-CN": {"desc":"简体中文", "missingPhrases": 19}
+    "zh-CN": {"desc":"简体中文", "missingPhrases": 4}
 }
