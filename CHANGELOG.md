@@ -12,6 +12,8 @@ This release adds support of new MPD 0.24 features.
 
 - Feat: autoconfiguration for playlist_directory (MPD 0.24) #836
 - Feat: support consume oneshot #837 (MPD 0.24)
+- Feat: autoconfiguration for pcre support (MPD 0.24) #843
+- Feat: support starts_with filter expression (MPD 0.24) #843
 
 ***
 
