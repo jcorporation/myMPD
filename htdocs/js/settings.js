@@ -957,6 +957,8 @@ function setFeatures() {
         features.featAdvqueue = settings.features.featAdvqueue;
         features.featConsumeOneshot = settings.features.featConsumeOneshot;
         features.featPlaylistDirAuto = settings.features.featPlaylistDirAuto;
+        features.featStartsWith = settings.features.featStartsWith;
+        features.featPcre = settings.features.featPcre;
     }
 }
 

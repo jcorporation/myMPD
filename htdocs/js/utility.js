@@ -1301,11 +1301,19 @@ function createSearchCrumb(filter, op, value) {
 
 function _createSearchExpression(tag, op, value) {
     if (op === 'starts_with' &&
-        app.id !== 'BrowseDatabaseList')
+        app.id !== 'BrowseDatabaseList' &&
+        features.featStartsWith === false)
     {
         //mpd does not support starts_with, convert it to regex
-        op = '=~';
-        value = '^' + value;
+        if (features.featPcre === true) {
+            //regex is supported
+            op = '=~';
+            value = '^' + value;
+        }
+        else {
+            //best option without starts_with and regex is contains
+            op = 'contains';
+        }
     }
     return '(' + tag + ' ' + op + ' ' +
         (op === '>=' ? value : '\'' + escapeMPD(value) + '\'') +

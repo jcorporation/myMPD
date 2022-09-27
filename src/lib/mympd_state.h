@@ -95,6 +95,8 @@ struct t_mpd_state {
     bool feat_whence;                   //!< mpd supports the whence feature (relative position in queue)
     bool feat_consume_oneshot;          //!< mpd supports consume oneshot mode
     bool feat_playlist_dir_auto;        //!< mpd supports autodetection of playlist directory
+    bool feat_starts_with;              //!< mpd supports starts_with filter expression
+    bool feat_pcre;                     //!< mpd supports pcre for filter expressions
     //caches
     struct t_cache album_cache;         //!< the album cache created by the mpd_worker thread
     struct t_cache sticker_cache;       //!< the sticker cache created by the mpd_worker thread

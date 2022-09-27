@@ -27,7 +27,7 @@
 static void mpd_client_feature_commands(struct t_partition_state *partition_state);
 static void mpd_client_feature_mpd_tags(struct t_partition_state *partition_state);
 static void mpd_client_feature_tags(struct t_partition_state *partition_state);
-static void mpd_client_feature_directories(struct t_partition_state *partition_state);
+static void mpd_client_feature_config(struct t_partition_state *partition_state);
 static sds set_directory(const char *desc, sds directory, sds value);
 
 /**
@@ -51,7 +51,7 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
 
     //get features
     mpd_client_feature_commands(partition_state);
-    mpd_client_feature_directories(partition_state);
+    mpd_client_feature_config(partition_state);
     mpd_client_feature_tags(partition_state);
 
     //set state
@@ -98,11 +98,14 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
         MYMPD_LOG_NOTICE("Enabling consume oneshot feature");
         partition_state->mpd_state->feat_playlist_dir_auto = true;
         MYMPD_LOG_NOTICE("Enabling playlist directory autoconfiguration feature");
+        partition_state->mpd_state->feat_starts_with = true;
+        MYMPD_LOG_NOTICE("Enabling starts_with filter expression feature");
     }
     else {
         MYMPD_LOG_WARN("Disabling advanced queue feature, depends on mpd >= 0.24.0");
         MYMPD_LOG_WARN("Disabling consume oneshot feature, depends on mpd >= 0.24.0");
         MYMPD_LOG_WARN("Disabling playlist directory autoconfiguration feature, depends on mpd >= 0.24.0");
+        MYMPD_LOG_WARN("Disabling starts_with filter expression feature, depends on mpd >= 0.24.0");
     }
     settings_to_webserver(partition_state->mympd_state);
 }
@@ -234,15 +237,21 @@ static void mpd_client_feature_mpd_tags(struct t_partition_state *partition_stat
 }
 
 /**
- * Checks for available MPD music directory
+ * Checks for MPD features by response to the config command
  * @param partition_state pointer to partition state
  */
-static void mpd_client_feature_directories(struct t_partition_state *partition_state) {
+static void mpd_client_feature_config(struct t_partition_state *partition_state) {
     partition_state->mpd_state->feat_library = false;
     sdsclear(partition_state->mpd_state->music_directory_value);
     sdsclear(partition_state->mpd_state->playlist_directory_value);
 
+    //config command is only supported for socket connections
     if (partition_state->mpd_state->mpd_host[0] == '/') {
+        if (mpd_connection_cmp_server_version(partition_state->conn, 0, 24, 0) == -1 ) {
+            //assume true for older MPD versions
+            partition_state->mpd_state->feat_pcre = true;
+            MYMPD_LOG_NOTICE("Enabling pcre feature");
+        }
         //get directories from mpd
         bool rc = mpd_send_command(partition_state->conn, "config", NULL);
         if (rc == true) {
@@ -257,7 +266,19 @@ static void mpd_client_feature_directories(struct t_partition_state *partition_s
                 else if (strcmp(pair->name, "playlist_directory") == 0 &&
                     strncmp(partition_state->mympd_state->playlist_directory, "auto", 4) == 0)
                 {
+                    //supported since MPD 0.24
                     partition_state->mpd_state->playlist_directory_value = sds_replace(partition_state->mpd_state->playlist_directory_value, pair->value);
+                }
+                else if (strcmp(pair->name, "pcre") == 0) {
+                    //supported since MPD 0.24
+                    if (pair->value[0] == '1') {
+                        partition_state->mpd_state->feat_pcre = true;
+                        MYMPD_LOG_NOTICE("Enabling pcre feature");
+                    }
+                    else {
+                        partition_state->mpd_state->feat_pcre = false;
+                        MYMPD_LOG_WARN("Disabling pcre feature");
+                    }
                 }
                 mpd_return_pair(partition_state->conn, pair);
             }
