@@ -631,7 +631,7 @@ function populateSettingsFrm() {
     elClear(localeList);
     for (const l in i18n) {
         localeList.appendChild(
-            elCreateText('option', {"value": l}, i18n[l].desc + ' (' + l + ')')
+            elCreateText('option', {"value": l, "data-phrase": i18n[l].desc}, tn(i18n[l].desc) + ' (' + l + ')')
         );
         if (l === settings.webuiSettings.uiLocale) {
             localeList.lastChild.setAttribute('selected', 'selected');
