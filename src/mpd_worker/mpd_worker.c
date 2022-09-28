@@ -94,7 +94,7 @@ static void *mpd_worker_run(void *arg) {
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
     struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *) arg;
 
-    if (mpd_client_connect(mpd_worker_state->partition_state) == true) {
+    if (mpd_client_connect(mpd_worker_state->partition_state, false) == true) {
         //call api handler
         mpd_worker_api(mpd_worker_state);
         //disconnect

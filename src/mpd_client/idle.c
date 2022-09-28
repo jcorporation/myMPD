@@ -146,7 +146,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
         case MPD_DISCONNECTED:
             //try to connect
             MYMPD_LOG_INFO("Creating mpd connection for partition \"%s\"", partition_state->name);
-            if (mpd_client_connect(partition_state) == false) {
+            if (mpd_client_connect(partition_state, partition_state->is_default) == false) {
                 break;
             }
             if (partition_state->is_default == true) {

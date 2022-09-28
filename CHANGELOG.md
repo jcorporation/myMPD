@@ -16,6 +16,7 @@ Many thanks to all translators!
 - Fix: contextmenu for discs
 - Fix: flashing progress bar
 - Fix: translate locale select
+- Fix: run feature detection only in main thread #845
 
 ***
 
