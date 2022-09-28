@@ -23,7 +23,7 @@
  * @param partition_state pointer to partition state
  * @return true on success else false
  */
-bool mpd_client_connect(struct t_partition_state *partition_state) {
+bool mpd_client_connect(struct t_partition_state *partition_state, bool detect_feat) {
     if (partition_state->mpd_state->mpd_host[0] == '/') {
         MYMPD_LOG_NOTICE("\"%s\": Connecting to socket \"%s\"", partition_state->name, partition_state->mpd_state->mpd_host);
     }
@@ -72,7 +72,7 @@ bool mpd_client_connect(struct t_partition_state *partition_state) {
     MYMPD_LOG_NOTICE("\"%s\": Connected to MPD", partition_state->name);
     partition_state->conn_state = MPD_CONNECTED;
     //get mpd features
-    if (partition_state->is_default == true) {
+    if (detect_feat == true) {
         mpd_client_mpd_features(partition_state);
     }
     //set connection options
