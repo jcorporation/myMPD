@@ -1161,12 +1161,4 @@ button.weekday {
   animation-duration: 2s;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
-  -webkit-animation-name: flash_border;
-  -webkit-animation-duration: 2s;
-  -webkit-animation-timing-function: linear;
-  -webkit-animation-iteration-count: infinite;
-  -moz-animation-name: flash_border;
-  -moz-animation-duration: 2s;
-  -moz-animation-timing-function: linear;
-  -moz-animation-iteration-count: infinite;
 }
