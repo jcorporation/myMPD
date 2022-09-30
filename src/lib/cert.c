@@ -56,7 +56,7 @@ enum expire_check_rcs {
  */
 
 /**
- * Creates the ssl directory, ca and cert and rewnews before expired
+ * Creates the ssl directory, ca and cert and renews before expired
  * @param workdir myMPD working directory
  * @param ssl_san Additional subject alternative names
  * @return true on success else false
@@ -87,7 +87,7 @@ bool certificates_check(sds workdir, sds ssl_san) {
  */
 
 /**
- * Creates the ca and cert and rewnews before expired
+ * Creates the ca and cert and renews before expired
  * @param dir key and certificate directory
  * @param custom_san Additional subject alternative names
  * @return true on success else false
@@ -129,7 +129,7 @@ static bool certificates_create(sds dir, sds custom_san) {
         }
     }
 
-    //read server certificate / privat key or create it
+    //read server certificate / private key or create it
     sds servercert_file = sdscatfmt(sdsempty(), "%S/server.pem", dir);
     sds serverkey_file = sdscatfmt(sdsempty(), "%S/server.key", dir);
     EVP_PKEY *server_key = NULL;
@@ -445,7 +445,7 @@ static bool generate_set_random_serial(X509 *cert) {
 /**
  * Generates a certificate signing request
  * @param pkey pointer to private key
- * @return certifcate signing request as X509_REQ struct
+ * @return certificate signing request as X509_REQ struct
  */
 static X509_REQ *generate_request(EVP_PKEY *pkey) {
     X509_REQ *req = X509_REQ_new();

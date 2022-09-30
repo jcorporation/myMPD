@@ -54,7 +54,7 @@ sds mpd_client_search_response(struct t_partition_state *partition_state, sds bu
  * Searches the mpd database for songs by expression and adds the result to a playlist
  * @param partition_state pointer to partition specific states
  * @param expression mpd search expression
- * @param plist playlist to create or add the result
+ * @param plist playlist to create or to append the result
  * @param to position to insert the songs, UINT_MAX to append
  * @param response pointer to already allocated sds string to return the jsonrpc response
  *                 or NULL to return no response
@@ -128,6 +128,32 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
 }
 
 //private functions
+
+/**
+ * Searches the mpd database for songs by expression and returns a jsonrpc result
+ * @param partition_state pointer to partition specific states
+ * @param buffer already allocated sds string to append the result
+ * @param cmd_id jsonrpc method
+ * @param request_id jsonrpc request id
+ * @param expression mpd search expression
+ * @param sort tag to sort
+ * @param sortdesc false = ascending, true = descending
+ * @param plist playlist to create or to append the result
+ *              NULL = print the result
+ *              queue = add to queue
+ *              other string = playlist name
+ * @param to position to insert the songs, UINT_MAX to append
+ * @param whence enum mpd_position_whence:
+ *               0 = MPD_POSITION_ABSOLUTE
+ *               1 = MPD_POSITION_AFTER_CURRENT
+ *               2 = MPD_POSITION_BEFORE_CURRENT
+ * @param offset result offset
+ * @param limit max number of results to return
+ * @param tagcols tags to return
+ * @param sticker_cache pointer to sticker cache
+ * @param result pointer to bool to set returncode
+ * @return pointer to buffer
+ */
 static sds search_songs(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
         const char *expression, const char *sort, bool sortdesc, const char *plist,
         unsigned to, unsigned whence, unsigned offset, unsigned limit,

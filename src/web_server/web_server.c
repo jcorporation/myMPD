@@ -322,7 +322,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
 
 /**
  * Matches the acl against the client ip and
- * sends an error repsonse / drains the connection if acl is not matched
+ * sends an error response / drains the connection if acl is not matched
  * @param nc mongoose connection
  * @param acl acl string to check
  * @return true if acl matches, else false

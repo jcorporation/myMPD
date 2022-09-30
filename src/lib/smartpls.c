@@ -83,7 +83,7 @@ bool is_smartpls(sds workdir, const char *playlist) {
 }
 
 /**
- * Returns the samrt playlist last modification time
+ * Returns the smart playlist last modification time
  * @param workdir myMPD working directory
  * @param playlist name of the playlist to check
  * @return last modification time

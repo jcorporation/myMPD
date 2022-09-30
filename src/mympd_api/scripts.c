@@ -157,7 +157,7 @@ bool mympd_api_script_delete(sds workdir, sds script) {
  * Saves a script
  * @param workdir working directory
  * @param script scriptname
- * @param oldscript old scriptname (leavy empty for new script)
+ * @param oldscript old scriptname (leave empty for a new script)
  * @param order script list is order by this value
  * @param content script content
  * @param arguments arguments for the script
@@ -244,7 +244,7 @@ sds mympd_api_script_get(sds workdir, sds buffer, long request_id, sds script) {
  * @param workdir working directory
  * @param script script to execute (name or script content)
  * @param lualibs comma separated string of lua libs to load
- * @param arguments argumentlist for the script
+ * @param arguments argument list for the script
  * @param localscript true = load script from filesystem, false = load script from script parameter
  * @return true on success, else false
  */

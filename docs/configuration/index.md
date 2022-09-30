@@ -4,7 +4,7 @@ permalink: /configuration/
 title: Configuration
 ---
 
-myMPD has no single configuration file. Most of the options are configureable through the settings dialog in the web ui.
+myMPD has no single configuration file. Most of the options are configurable through the settings dialog in the web ui.
 
 ## Command line options
 
@@ -77,4 +77,4 @@ myMPD tries to autodetect the mpd connection only at first start. Afterwards you
 | MPD_TIMEOUT | 30 | MPD timeout |
 {: .table .table-sm}
 
-This is done after droping privileges to the mympd user.
+This is done after dropping privileges to the mympd user.

@@ -21,6 +21,7 @@
 /**
  * Connects to mpd and sets initial connection settings
  * @param partition_state pointer to partition state
+ * @param detect_feat true = run feature detection, else not
  * @return true on success else false
  */
 bool mpd_client_connect(struct t_partition_state *partition_state, bool detect_feat) {

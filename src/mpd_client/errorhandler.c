@@ -144,7 +144,7 @@ bool mympd_check_rc_error_and_recover_plain(struct t_partition_state *partition_
 /**
  * Checks for mpd protocol error and return code of last mpd command and tries to recover it.
  * Creates always a jsonrpc response.
- * Shortcut for mpdcheck_rc_error_and_recove_respond and jsonrpc_respond_ok
+ * Shortcut for mympd_check_rc_error_and_recover and jsonrpc_respond_ok
  * @param partition_state pointer to partition specific states
  * @param buffer already allocated sds string for the jsonrpc response
  * @param cmd_id enum mympd_cmd_ids

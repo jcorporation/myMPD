@@ -28,7 +28,7 @@ struct t_config {
         sds ssl_cert;         //!< filename of the certificate
         sds ssl_key;          //!< filename of the private key
         bool custom_cert;     //!< false if myMPD uses the self generated certificates
-        sds ssl_san;          //!< additonal names for SAN of the self generated certificate
+        sds ssl_san;          //!< additional names for SAN of the self generated certificate
     #endif
     sds acl;                  //!< IPv4 ACL string
     sds scriptacl;            //!< IPv4 ACL string for the /api/script endpoint

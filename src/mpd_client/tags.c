@@ -191,7 +191,7 @@ bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_t
  * Appends a comma separated list of tag values
  * @param song pointer to mpd song struct
  * @param tag mpd tag type to get values for
- * @param tag_values alread allocated sds string to append the values
+ * @param tag_values already allocated sds string to append the values
  * @return new sds pointer to tag_values
  */
 sds mpd_client_get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type tag, sds tag_values) {
@@ -215,7 +215,7 @@ sds mpd_client_get_tag_value_string(const struct mpd_song *song, enum mpd_tag_ty
  * Appends a a json string/array of tag values
  * @param song pointer to mpd song struct
  * @param tag mpd tag type to get values for
- * @param tag_values alread allocated sds string to append the values
+ * @param tag_values already allocated sds string to append the values
  * @return new sds pointer to tag_values
  */
 sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag, sds tag_values) {
@@ -250,7 +250,7 @@ sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag
 
 /**
  * Gets the tag values for a mpd song as json string
- * @param buffer alread allocated sds string to append the values
+ * @param buffer already allocated sds string to append the values
  * @param partition_state pointer to partition specific states
  * @param tagcols pointer to t_tags struct (tags to retrieve)
  * @param song pointer to a mpd_song struct to retrieve tags from
@@ -322,7 +322,7 @@ sds get_empty_song_tags(sds buffer, struct t_partition_state *partition_state, c
 
 /**
  * Prints the audioformat as json object
- * @param buffer alread allocated sds string to append the values
+ * @param buffer already allocated sds string to append the values
  * @param audioformat pointer to t_tags struct (tags to retrieve)
  * @return new sds pointer to buffer
  */
@@ -392,7 +392,7 @@ bool mpd_client_tag_exists(const struct t_tags *tagtypes, enum mpd_tag_type tag)
  * Appends a comma separated list of tag values
  * @param song pointer to mpd song struct
  * @param tag mpd tag type to get values for
- * @param tag_values alread allocated sds string to append the values
+ * @param tag_values already allocated sds string to append the values
  * @param value_count the number of values retrieved
  * @return new sds pointer to tag_values
  */
@@ -416,7 +416,7 @@ static sds get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type t
  * Appends a json string or array to tag_values
  * @param song pointer to mpd song struct
  * @param tag mpd tag type to get values for
- * @param tag_values alread allocated sds string to append the values
+ * @param tag_values already allocated sds string to append the values
  * @param value_count the number of values retrieved
  * @param multi true if it is a multi value string
  * @return new sds pointer to tag_values

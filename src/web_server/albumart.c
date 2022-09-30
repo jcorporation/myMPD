@@ -301,7 +301,7 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
 }
 
 /**
- * Privat functions
+ * Private functions
  */
 
 /**
@@ -344,7 +344,7 @@ static bool handle_coverextract(struct mg_connection *nc, sds cachedir,
 }
 
 /**
- * Extracts albumart from id3v2 taged files
+ * Extracts albumart from id3v2 tagged files
  * @param cachedir covercache directory
  * @param uri song uri
  * @param media_file full path to the song

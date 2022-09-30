@@ -1624,7 +1624,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
 /**
  * Tries to play the last inserted song and checks for success
  * @param partition_state pointer to partition state
- * @param play realy play last inserts song
+ * @param play really play last inserts song
  * @param buffer already allocated sds string to append the error response
  * @param cmd_id jsonrpc method
  * @param request_id jsonrpc request id

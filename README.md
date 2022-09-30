@@ -43,7 +43,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 - [Localized user interface](https://jcorporation.github.io/myMPD/references/translating)
 - Dark and Light theme
 - [Publishing of mpd and myMPD directories via http](https://jcorporation.github.io/myMPD/references/published-directories)
-- Progressiv Web App enabled
+- Progressive Web App enabled
 - Support of Media Session API
 - ListenBrainz and MusicBrainz integration
 
@@ -88,4 +88,4 @@ For further information on installation and configuration, see the [myMPD docume
 
 2018-2022 Juergen Mang <mail@jcgames.de>
 
-myMPD was originally a fork of [ympd](https://github.com/notandy/ympd), but it has evolved into a much more featurefull MPD client.
+myMPD was originally a fork of [ympd](https://github.com/notandy/ympd), but it has evolved into a much more comprehensive MPD client.

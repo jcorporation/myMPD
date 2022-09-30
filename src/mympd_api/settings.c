@@ -184,7 +184,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
 /**
  * Saves columns
  * @param mympd_state pointer to the t_mympd_state struct
- * @param table save columsn for this table
+ * @param table save columns for this table
  * @param cols json object with the columns
  * @return true on success, else false
  */

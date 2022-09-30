@@ -237,7 +237,7 @@ static void mpd_client_feature_mpd_tags(struct t_partition_state *partition_stat
 }
 
 /**
- * Checks for MPD features by response to the config command
+ * Uses the config command to checks for MPD features
  * @param partition_state pointer to partition state
  */
 static void mpd_client_feature_config(struct t_partition_state *partition_state) {
@@ -302,6 +302,13 @@ static void mpd_client_feature_config(struct t_partition_state *partition_state)
     }
 }
 
+/**
+ * Checks and sets a mpd directory
+ * @param desc descriptive name
+ * @param directory directory setting (auto, none or a directory)
+ * @param value already allocated sds string to set
+ * @return pointer to value
+ */
 static sds set_directory(const char *desc, sds directory, sds value) {
     if (strncmp(directory, "auto", 4) == 0) {
         //valid

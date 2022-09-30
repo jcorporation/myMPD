@@ -27,7 +27,7 @@ None
 
 The mpd client library libmpclient uses a fixed buffer of 4096 bytes to get
 response lines from MPD. If a response line is larger than this limit, this
-error occurs. Most of the time the reponse line is to large, because of a tag
+error occurs. Most of the time the response line is to large, because of a tag
 that length exceeds this limit.
 
 libmympdclient uses a fixed buffer size of 8192 bytes.

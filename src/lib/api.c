@@ -190,7 +190,7 @@ void free_request(struct t_work_request *request) {
 }
 
 /**
- * Frees the reponse struct
+ * Frees the response struct
  * @param response response struct to free
  */
 void free_response(struct t_work_response *response) {

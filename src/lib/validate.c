@@ -168,7 +168,7 @@ bool vcb_isuri(sds data) {
 
 /**
  * Checks if string is a valid filename
- * Does not emmit a warning
+ * Does not emit a warning
  * @param data sds string to check
  * @return true on success else false
  */

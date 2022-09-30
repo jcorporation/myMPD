@@ -113,7 +113,7 @@ void send_jsonrpc_event(enum jsonrpc_events event, const char *partition) {
 
 /**
  * Creates a simple jsonrpc notification with the event as method
- * @param buffer pointer to alreay allocated sds string
+ * @param buffer pointer to already allocated sds string
  * @param event the event to use
  * @return pointer to buffer with jsonrpc string
  */
@@ -129,7 +129,7 @@ sds jsonrpc_event(sds buffer, enum jsonrpc_events event) {
 
 /**
  * Creates a jsonrpc notification with facility, severity and a message
- * @param buffer pointer to alreay allocated sds string
+ * @param buffer pointer to already allocated sds string
  * @param facility one of enum jsonrpc_facilities
  * @param severity one of enum jsonrpc_severities
  * @param message the message to send
@@ -143,7 +143,7 @@ sds jsonrpc_notify(sds buffer, enum jsonrpc_facilities facility, enum jsonrpc_se
  * Creates a jsonrpc notification with facility, severity and a message phrase.
  * A message phrase can include %{key} placeholders that are replaced on the client side
  * with the value. Key/value pairs are variadic arguments.
- * @param buffer pointer to alreay allocated sds string
+ * @param buffer pointer to already allocated sds string
  * @param facility one of enum jsonrpc_facilities
  * @param severity one of enum jsonrpc_severities
  * @param message the message to send
@@ -185,7 +185,7 @@ sds jsonrpc_notify_phrase(sds buffer, enum jsonrpc_facilities facility, enum jso
 
 /**
  * Creates the start of a jsonrpc notification.
- * @param buffer pointer to alreay allocated sds string
+ * @param buffer pointer to already allocated sds string
  * @param event the event to use
  * @return pointer to buffer with jsonrpc string
  */
@@ -200,7 +200,7 @@ sds jsonrpc_notify_start(sds buffer, enum jsonrpc_events event) {
 
 /**
  * Creates the start of a jsonrpc response.
- * @param buffer pointer to alreay allocated sds string
+ * @param buffer pointer to already allocated sds string
  * @param cmd_id enum mympd_cmd_ids
  * @param request_id id of the jsonrpc request to answer
  * @return pointer to buffer with jsonrpc string
@@ -215,7 +215,7 @@ sds jsonrpc_respond_start(sds buffer, enum mympd_cmd_ids cmd_id, long request_id
 
 /**
  * Creates the end of a jsonrpc response
- * @param buffer pointer to alreay allocated sds string
+ * @param buffer pointer to already allocated sds string
  * @return pointer to buffer with jsonrpc string
  */
 sds jsonrpc_end(sds buffer) {
@@ -224,7 +224,7 @@ sds jsonrpc_end(sds buffer) {
 
 /**
  * Creates a simple jsonrpc response with "ok" as message
- * @param buffer pointer to alreay allocated sds string
+ * @param buffer pointer to already allocated sds string
  * @param cmd_id enum mympd_cmd_ids
  * @param request_id id of the jsonrpc request to answer
  * @param facility one of enum jsonrpc_facilities
@@ -236,7 +236,7 @@ sds jsonrpc_respond_ok(sds buffer, enum mympd_cmd_ids cmd_id, long request_id, e
 
 /**
  * Creates a simple jsonrpc response with a custom message
- * @param buffer pointer to alreay allocated sds string
+ * @param buffer pointer to already allocated sds string
  * @param cmd_id enum mympd_cmd_ids
  * @param request_id id of the jsonrpc request to answer
  * @param facility one of enum jsonrpc_facilities
@@ -254,7 +254,7 @@ sds jsonrpc_respond_message(sds buffer, enum mympd_cmd_ids cmd_id, long request_
  * Creates a jsonrpc response with facility, severity and a message phrase.
  * A message phrase can include %{key} placeholders that are replaced on the client side
  * with the value. Key/value pairs are variadic arguments.
- * @param buffer pointer to alreay allocated sds string
+ * @param buffer pointer to already allocated sds string
  * @param cmd_id enum mympd_cmd_ids
  * @param request_id id of the jsonrpc request to answer
  * @param facility one of enum jsonrpc_facilities

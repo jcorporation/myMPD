@@ -21,7 +21,7 @@
 #include <string.h>
 
 /**
- * Saves in-memory states to disc. This is done on shutdown and on SIHUP.
+ * Saves in-memory states to disc. This is done on shutdown and on SIGHUP.
  * @param mympd_state pointer to central myMPD state
  */
 void mympd_state_save(struct t_mympd_state *mympd_state) {

@@ -14,7 +14,7 @@ Script arguments are populated in the lua table `arguments`. myMPD populates aut
 
 Accessing myMPD requires the mympd lua library to be loaded.
 
-The lua command `mympd.init()` populates the lua table `mympd_state` with configuration values and up-to-date status informations of myMPD and MPD. `mympd.init()` is only a shorthand command for `mympd_api("INTERNAL_API_SCRIPT_INIT")`
+The lua command `mympd.init()` populates the lua table `mympd_state` with configuration values and up-to-date status information's of myMPD and MPD. `mympd.init()` is only a shorthand command for `mympd_api("INTERNAL_API_SCRIPT_INIT")`
 
 - [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state)
 

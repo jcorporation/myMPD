@@ -13,7 +13,7 @@
 #include <stdbool.h>
 
 /**
- * myMPD api methodes
+ * myMPD api methods
  * all above INTERNAL_API_COUNT are internal
  * TOTAL_API_COUNT must be the last
  */
@@ -171,7 +171,7 @@
 #define GEN_STR(X) #X,
 
 /**
- * Enum of myMPD jsonrpc api methodes
+ * Enum of myMPD jsonrpc api methods
  */
 enum mympd_cmd_ids {
     MYMPD_CMDS(GEN_ENUM)

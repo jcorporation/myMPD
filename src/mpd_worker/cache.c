@@ -21,7 +21,7 @@
 #include <string.h>
 
 /**
- * Privat definitions
+ * Private definitions
  */
 static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache);
 static bool get_sticker_from_mpd(struct t_partition_state *partition_state, const char *uri, struct t_sticker *sticker);
@@ -159,7 +159,7 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
             }
             //album cache
             if (create_album_cache == true) {
-                //set initial soung count to 1
+                //set initial song count to 1
                 album_cache_set_song_count(song, 1);
                 //construct the key
                 key = album_cache_get_key(song, key);

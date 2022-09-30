@@ -95,7 +95,7 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
 /**
  * Creates a new session
  * @param session_list the session list
- * @return newly allocatded sds string with the session hash
+ * @return newly allocated sds string with the session hash
  */
 sds webserver_session_new(struct t_list *session_list) {
     sds session = sdsempty();

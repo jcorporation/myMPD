@@ -119,7 +119,7 @@ void jukebox_clear_all(struct t_mympd_state *mympd_state) {
 
 /**
  * Clears the jukebox queue.
- * This is a simple wrapper arround list_clear.
+ * This is a simple wrapper around list_clear.
  * @param list the jukebox queue
  */
 void jukebox_clear(struct t_list *list) {
@@ -129,13 +129,13 @@ void jukebox_clear(struct t_list *list) {
 /**
  * Prints the jukebox queue as an jsonrpc response
  * @param partition_state pointer to myMPD partition state
- * @param buffer alreay allocated sds string to append the result
+ * @param buffer already allocated sds string to append the result
  * @param cmd_id jsonrpc method
  * @param request_id jsonrpc request id
  * @param offset offset for printing
  * @param limit max entries to print
  * @param searchstr string to search
- * @param tagcols colums to print
+ * @param tagcols columns to print
  * @return pointer to buffer
  */
 sds jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
