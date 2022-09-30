@@ -55,6 +55,9 @@ function initBrowse() {
             return;
         }
         if (event.target.nodeName === 'TD') {
+            if (event.target.parentNode.classList.contains('not-clickable')) {
+                return;
+            }
             clickSong(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
         }
         else if (event.target.nodeName === 'A') {
