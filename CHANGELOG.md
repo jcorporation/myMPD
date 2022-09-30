@@ -13,6 +13,9 @@ Many thanks to all translators!
 ### Changelog
 
 - Upd: zh-CN, it-IT translations
+- Fix: contextmenu for discs
+- Fix: flashing progress bar
+- Fix: translate locale select
 
 ***
 
