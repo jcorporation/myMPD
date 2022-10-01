@@ -186,19 +186,16 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
     enum mpd_tag_type sort_tag = MPD_TAG_ALBUM;
 
     if (sdslen(sort) > 0) {
-        enum mpd_tag_type sort_tag_org = mpd_tag_name_parse(sort);
-        if (sort_tag_org != MPD_TAG_UNKNOWN) {
-            sort_tag = get_sort_tag(sort_tag_org, &partition_state->mpd_state->tags_mpd);
-            if (mpd_client_tag_exists(&partition_state->mpd_state->tags_mympd, sort_tag) == false) {
-                //sort tag is not enabled, revert
-                sort_tag = sort_tag_org;
-            }
+        sort_tag = mpd_tag_name_parse(sort);
+        if (sort_tag != MPD_TAG_UNKNOWN) {
+            sort_tag = get_sort_tag(sort_tag, &partition_state->mpd_state->tags_mpd);
         }
         else if (strcmp(sort, "LastModified") == 0) {
             sort_by_last_modified = true;
         }
         else {
             MYMPD_LOG_WARN("Unknown sort tag: %s", sort);
+            sort_tag = MPD_TAG_ALBUM;
         }
     }
     //parse mpd search expression
@@ -220,12 +217,13 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
                 key = sdscatprintf(key, "%020lld::%s", (long long)mpd_song_get_last_modified(album), mpd_song_get_uri(album));
             }
             else {
-                const char *sort_value = mpd_song_get_tag(album, sort_tag, 0);
-                if (sort_value != NULL) {
-                    key = sdscatfmt(key, "%s::%s", sort_value, mpd_song_get_uri(album));
+                key = mpd_client_get_tag_value_string(album, sort_tag, key);
+                if (sdslen(key) > 0) {
+                    key = sdscatfmt(key, "::%s", mpd_song_get_uri(album));
                 }
                 else {
                     //sort tag not present, append to end of the list
+                    MYMPD_LOG_WARN("Sort tag \"%s\" not set", mpd_tag_name(sort_tag));
                     key = sdscatfmt(key, "zzzzzzzzzz::%s", mpd_song_get_uri(album));
                 }
             }
