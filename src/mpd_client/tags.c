@@ -39,55 +39,55 @@ static sds get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag,
  *         false if the tag could not be added
  */
 bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
-		enum mpd_tag_type type, const char *value)
+        enum mpd_tag_type type, const char *value)
 {
-	struct mpd_tag_value *tag = &song->tags[type];
+    struct mpd_tag_value *tag = &song->tags[type];
 
-	if ((int)type < 0 ||
+    if ((int)type < 0 ||
         type >= MPD_TAG_COUNT)
     {
-		return false;
+        return false;
     }
 
     if (tag->value == NULL) {
-		tag->next = NULL;
-		tag->value = strdup(value);
-		if (tag->value == NULL) {
-			return false;
+        tag->next = NULL;
+        tag->value = strdup(value);
+        if (tag->value == NULL) {
+            return false;
         }
-	}
+    }
     else {
-		while (tag->next != NULL) {
+        while (tag->next != NULL) {
             if (strcmp(tag->value, value) == 0) {
                 //do not add duplicate values
                 return true;
             }
-			tag = tag->next;
+            tag = tag->next;
         }
         if (strcmp(tag->value, value) == 0) {
             //do not add duplicate values
             return true;
         }
-		struct mpd_tag_value *prev = tag;
-		tag = malloc_assert(sizeof(*tag));
+        struct mpd_tag_value *prev = tag;
+        tag = malloc_assert(sizeof(*tag));
 
-		tag->value = strdup(value);
-		if (tag->value == NULL) {
-		FREE_PTR(tag);
-			return false;
-		}
+        tag->value = strdup(value);
+        if (tag->value == NULL) {
+        FREE_PTR(tag);
+            return false;
+        }
 
-		tag->next = NULL;
-		prev->next = tag;
-	}
+        tag->next = NULL;
+        prev->next = tag;
+    }
 
-	return true;
+    return true;
 }
 
 /**
  * Checks if tag is a multivalue tag
  * @param tag mpd tag type
- * @return true if it is a multivalue tag else false
+ * @return true if it is a multivalue tag, else false
  */
 bool is_multivalue_tag(enum mpd_tag_type tag) {
     switch(tag) {
@@ -113,7 +113,7 @@ bool is_multivalue_tag(enum mpd_tag_type tag) {
  * Maps a tag to its sort tag pedant and checks if the sort tag is enabled.
  * @param tag mpd tag type
  * @param available_tags pointer to enabled tags
- * @return sort tag if exists else the original tag
+ * @return sort tag if exists, else the original tag
  */
 enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag, const struct t_tags *available_tags) {
     enum mpd_tag_type sort_tag;
@@ -401,7 +401,7 @@ static sds get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type t
 {
     const char *value;
     unsigned count = 0;
-    //return json string
+    //return comma separated tag list
     while ((value = mpd_song_get_tag(song, tag, count)) != NULL) {
         if (count++) {
             tag_values = sdscatlen(tag_values, ", ", 2);
