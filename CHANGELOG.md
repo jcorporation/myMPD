@@ -26,6 +26,10 @@ Many thanks to all translators!
 ### Changelog
 
 - Upd: zh-CN, it-IT translations
+- Fix: contextmenu for discs
+- Fix: flashing progress bar
+- Fix: translate locale select
+- Fix: run feature detection only in main thread #845
 
 ***
 
