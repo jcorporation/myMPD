@@ -223,7 +223,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
                 }
                 else {
                     //sort tag not present, append to end of the list
-                    MYMPD_LOG_WARN("Sort tag \"%s\" not set", mpd_tag_name(sort_tag));
+                    MYMPD_LOG_WARN("Sort tag \"%s\" not set for \"%.*s\"", mpd_tag_name(sort_tag), (int)iter.key_len, (char *)iter.key);
                     key = sdscatfmt(key, "zzzzzzzzzz::%s", mpd_song_get_uri(album));
                 }
             }
