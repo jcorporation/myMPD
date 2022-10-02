@@ -19,6 +19,7 @@ Many thanks to all translators!
 - Fix: run feature detection only in main thread #845
 - Fix: pass script_arguments in feedback trigger #846
 - Fix: Gentoo Linux ebuild, thanks @itspec-ru #847
+- Fix: add missing translation phrases attributes #849
 
 ***
 
