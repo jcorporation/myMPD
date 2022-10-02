@@ -33,7 +33,6 @@ RDEPEND="
 
 QA_PRESTRIPPED="
 	usr/bin/mympd
-	usr/bin/mympd-config
 	usr/bin/mympd-script"
 
 S="${WORKDIR}/${MY_PN}-${PV}"
