@@ -176,7 +176,7 @@ function setSelectSearch(el) {
         event.stopPropagation();
     }, false);
     el.addFilterResult = function(text, value) {
-        const item = elCreateText('li', {"class": ["list-group-item", "list-group-item-action", "clickable"]}, text);
+        const item = elCreateText('li', {"class": ["list-group-item", "list-group-item-action", "clickable"], "data-phrase": text}, tn(text));
         setData(item, 'value', value);
         el.filterResult.appendChild(item);
     };

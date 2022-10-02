@@ -80,7 +80,7 @@ function initScripts() {
     const selectAPIcallEl = document.getElementById('selectAPIcall');
     elClear(selectAPIcallEl);
     selectAPIcallEl.appendChild(
-        elCreateText('option', {"value": ""}, tn('Select method'))
+        elCreateText('option', {"value": "", "data-phrase": "Select method"}, tn('Select method'))
     );
     for (const m in APImethods) {
         selectAPIcallEl.appendChild(
@@ -120,7 +120,7 @@ function initScripts() {
     const selectFunctionEl = document.getElementById('selectFunction');
     elClear(selectFunctionEl);
     selectFunctionEl.appendChild(
-        elCreateText('option', {"value": ""}, tn('Select function'))
+        elCreateText('option', {"value": "", "data-phrase": "Select function"}, tn('Select function'))
     );
     for (const m in LUAfunctions) {
         selectFunctionEl.appendChild(

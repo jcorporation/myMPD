@@ -18,7 +18,8 @@ IUSE="+flac +id3tag +ssl +lua systemd"
 
 BDEPEND="
 	>=dev-util/cmake-3.4
-	dev-lang/perl"
+	dev-lang/perl
+	app-misc/jq"
 
 RDEPEND="
 	acct-group/mympd
@@ -32,7 +33,6 @@ RDEPEND="
 
 QA_PRESTRIPPED="
 	usr/bin/mympd
-	usr/bin/mympd-config
 	usr/bin/mympd-script"
 
 S="${WORKDIR}/${MY_PN}-${PV}"

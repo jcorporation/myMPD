@@ -1384,7 +1384,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
         list.appendChild(
             elCreateNodes('div', {"class": ["form-check"]}, [
                 btn,
-                elCreateText('label', {"class": ["form-check-label"], "for": allTags[i]}, allTags[i])
+                elCreateText('label', {"class": ["form-check-label"], "for": allTags[i], "data-phrase": allTags[i]}, tn(allTags[i]))
             ])
         );
     }

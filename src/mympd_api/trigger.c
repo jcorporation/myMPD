@@ -172,7 +172,7 @@ void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, in
         {
             MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"mympd_feedback\" (-6)", current->value_p);
             struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
-            trigger_execute(trigger_data->script, &trigger_data->arguments, partition);
+            trigger_execute(trigger_data->script, &script_arguments, partition);
         }
         current = current->next;
     }
