@@ -22,7 +22,7 @@
 enum jukebox_modes {
     JUKEBOX_OFF,       //!< jukebox is disabled
     JUKEBOX_ADD_SONG,  //!< jukebox adds single songs
-    JUKEBOX_ADD_ALBUM, //!< jukebox adss whole albums
+    JUKEBOX_ADD_ALBUM, //!< jukebox adds whole albums
     JUKEBOX_UNKNOWN    //!< jukebox mode is unknown
 };
 
@@ -35,7 +35,7 @@ enum mpd_conn_states {
     MPD_FAILURE,             //!< mpd connection failed, disconnect mpd and reconnect after wait time
     MPD_DISCONNECT,          //!< disconnect mpd and reconnect after wait time
     MPD_DISCONNECT_INSTANT,  //!< disconnect mpd and reconnect as soon as possible
-    MPD_WAIT,                //!< wating for reconnection
+    MPD_WAIT,                //!< waiting for reconnection
     MPD_REMOVED              //!< connection was removed
 };
 
@@ -79,7 +79,7 @@ struct t_mpd_state {
     enum mpd_tag_type tag_albumartist;  //!< tag to use for AlbumArtist
     //Feature flags
     const unsigned *protocol;           //!< mpd protocol version
-    bool feat_advqueue;                 //!< mpd supports the prio filter / sort for queue
+    bool feat_advqueue;                 //!< mpd supports the prio filter / sort for queue and the save modes
     bool feat_albumart;                 //!< mpd supports the albumart command
     bool feat_binarylimit;              //!< mpd supports the binarylimit command
     bool feat_fingerprint;              //!< mpd supports the fingerprint command
@@ -133,7 +133,7 @@ struct t_partition_state {
     time_t song_end_time;                  //!< timestamp at which current song should end (starttime + duration)
     time_t last_song_end_time;             //!< timestamp at which previous song should end (starttime + duration)
     time_t song_start_time;                //!< timestamp at which current song has started
-    time_t last_song_start_time;           //!< timestap at which previous song has started
+    time_t last_song_start_time;           //!< timestamp at which previous song has started
     time_t crossfade;                      //!< used for determine when to add next song from jukebox queue
     time_t set_song_played_time;           //!< timestamp at which the next scrobble event will be fired
     time_t last_song_set_song_played_time; //!< timestamp of the previous scrobble event
@@ -146,7 +146,7 @@ struct t_partition_state {
     struct t_tags jukebox_unique_tag;      //!< single tag for the jukebox unique constraint
     bool jukebox_enforce_unique;           //!< flag indicating if unique constraint is enabled
     struct t_list jukebox_queue;           //!< the jukebox queue itself
-    struct t_list jukebox_queue_tmp;       //!< temporaray jukebox queue for the add random to queue function
+    struct t_list jukebox_queue_tmp;       //!< temporary jukebox queue for the add random to queue function
     //partition
     sds name;                              //!< partition name
     sds highlight_color;                   //!< highlight color
@@ -210,7 +210,7 @@ struct t_lyrics {
  */
 struct t_mympd_state {
     struct t_config *config;                      //!< pointer to static config
-    struct t_mpd_state *mpd_state;                //!< mpd state shared accross partitions
+    struct t_mpd_state *mpd_state;                //!< mpd state shared across partitions
     struct t_partition_state *partition_state;    //!< list of partition states
     struct pollfd fds[MPD_CONNECTION_MAX];        //!< mpd connection fds
     nfds_t nfds;                                     //!< number of mpd connection fds
@@ -230,14 +230,14 @@ struct t_mympd_state {
     sds cols_browse_database_detail;              //!< columns for the album detail view
     sds cols_browse_playlists_detail;             //!< columns for the listing of playlists
     sds cols_browse_filesystem;                   //!< columns for filesystem listing
-    sds cols_playback;                            //!< columns for plaback view
+    sds cols_playback;                            //!< columns for playback view
     sds cols_queue_last_played;                   //!< columns for last played view
     sds cols_queue_jukebox;                       //!< columns for the jukebox queue view
     sds cols_browse_radio_webradiodb;             //!< columns for the webradiodb view
     sds cols_browse_radio_radiobrowser;           //!< columns for the radiobrowser view
     sds music_directory;                          //!< mpd music directory setting (real value is in mpd_state)
     sds playlist_directory;                       //!< mpd playlist directory (real value is in mpd_state)
-    sds navbar_icons;                             //!< json strin of navigation bar icons
+    sds navbar_icons;                             //!< json string of navigation bar icons
     sds coverimage_names;                         //!< comma separated string of coverimage names
     sds thumbnail_names;                          //!< comma separated string of coverimage thumbnail names
     unsigned volume_min;                          //!< minimum mpd volume
