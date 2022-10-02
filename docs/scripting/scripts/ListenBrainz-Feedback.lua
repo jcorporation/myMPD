@@ -5,7 +5,7 @@ headers = "Content-type: application/json\r\n"..
   "Authorization: Token "..mympd_state["listenbrainz_token"].."\r\n"
 
 vote = arguments["vote"] - 1
-rc, raw_song = mympd_api("MYMPD_API_DATABASE_SONGDETAILS", "uri", arguments["uri"])
+rc, raw_song = mympd_api("MYMPD_API_SONG_DETAILS", "uri", arguments["uri"])
 if rc == 0 then
   song = json.decode(raw_song)
   mbid = song["result"]["MUSICBRAINZ_TRACKID"]

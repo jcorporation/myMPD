@@ -8,7 +8,7 @@ payload = ""
 uri = ""
 
 if arguments["uri"] ~= "" then
-  rc, raw_song = mympd_api("MYMPD_API_DATABASE_SONGDETAILS", "uri", arguments["uri"])
+  rc, raw_song = mympd_api("MYMPD_API_SONG_DETAILS", "uri", arguments["uri"])
   if rc == 0 then
     song = json.decode(raw_song)
     mbid = song["result"]["MUSICBRAINZ_TRACKID"]
