@@ -20,6 +20,7 @@ Many thanks to all translators!
 - Fix: pass script_arguments in feedback trigger #846
 - Fix: Gentoo Linux ebuild, thanks @itspec-ru #847
 - Fix: add missing translation phrases attributes #849
+- Fix: API usage in some example scripts #846
 
 ***
 
