@@ -1224,6 +1224,7 @@ function parseCmd(event, href) {
             case 'setPlaySettings':
             case 'voteSong':
             case 'toggleAddToPlaylistFrm':
+            case 'toggleSaveQueueMode':
                 window[cmd.cmd](event.target, ... cmd.options);
                 break;
             case 'toggleBtnChkCollapse':

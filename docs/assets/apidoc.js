@@ -273,6 +273,11 @@ const APImethods = {
                 "type": "text",
                 "example": "test_plist",
                 "desc": "Playlist name"
+            },
+            "mode": {
+                "type": "text",
+                "example": "create",
+                "desc": "Save mode: create, append, replace"
             }
         }
     },

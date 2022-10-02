@@ -356,11 +356,11 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
         playlistSelectId === 'selectAddToQueuePlaylist' ||
         playlistSelectId === 'selectTimerPlaylist')
     {
-        selectEl.addFilterResult(tn('Database'), 'Database');
+        selectEl.addFilterResult('Database', 'Database');
     }
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        selectEl.addFilterResult(obj.result.data[i].uri, obj.result.data[i].uri);
+        selectEl.addFilterResultPlain(obj.result.data[i].uri);
         if (obj.result.data[i].uri === selectedPlaylist) {
             selectEl.filterResult.lastChild.classList.add('active');
         }

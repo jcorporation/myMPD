@@ -180,6 +180,11 @@ function setSelectSearch(el) {
         setData(item, 'value', value);
         el.filterResult.appendChild(item);
     };
+    el.addFilterResultPlain = function(value) {
+        const item = elCreateText('li', {"class": ["list-group-item", "list-group-item-action", "clickable"]}, value);
+        setData(item, 'value', value);
+        el.filterResult.appendChild(item);
+    };
     new BSN.Dropdown(el.dropdownButton);
     if (el.getAttribute('readonly') === 'readonly') {
         el.addEventListener('click', function(event) {

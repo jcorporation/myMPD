@@ -93,8 +93,16 @@ function initQueue() {
         const plName = document.getElementById('saveQueueName');
         setFocus(plName);
         plName.value = '';
+        toggleBtnGroupValueId('btnQueueSaveMode', 'create');
+        toggleSaveQueueMode(document.getElementById('btnQueueSaveMode').firstElementChild);
+        document.getElementById('saveQueueNameSelect').value = '';
+        document.getElementById('saveQueueNameSelect').filterInput.value = '';
+        filterPlaylistsSelect(1, 'saveQueueNameSelect', '');
         cleanupModalId('modalSaveQueue');
     });
+
+    setDataId('saveQueueNameSelect', 'cb-filter', 'filterPlaylistsSelect');
+    setDataId('saveQueueNameSelect', 'cb-filter-options', [1, 'saveQueueNameSelect']);
 
     document.getElementById('modalSetSongPriority').addEventListener('shown.bs.modal', function() {
         const prioEl = document.getElementById('inputSongPriority');
@@ -459,12 +467,44 @@ function addToQueue() {
 }
 
 //eslint-disable-next-line no-unused-vars
+function toggleSaveQueueMode(target) {
+    toggleBtnGroup(target);
+    const value = getData(target, 'value');
+    if (value === 'create') {
+        elShowId('rowSaveQueueName');
+        elHideId('rowSaveQueueNameSelect');
+    }
+    else {
+        elHideId('rowSaveQueueName');
+        elShowId('rowSaveQueueNameSelect');
+    }
+}
+
+//eslint-disable-next-line no-unused-vars
 function saveQueue() {
     cleanupModalId('modalSaveQueue');
     const plNameEl = document.getElementById('saveQueueName');
-    if (validatePlnameEl(plNameEl) === true) {
+    let name = plNameEl.value;
+    let saveMode = 'create';
+    let formOK = true;
+    if (features.featAdvqueue === true) {
+        //support queue save modes (since MPD 0.24)
+        saveMode = getBtnGroupValueId('btnQueueSaveMode');
+        if (saveMode !== 'create') {
+            //append or replace existing playlist
+            name = getDataId('saveQueueNameSelect', 'value');
+        }
+        else {
+            formOK = validatePlnameEl(plNameEl);
+        }
+    }
+    else {
+        formOK = validatePlnameEl(plNameEl);
+    }
+    if (formOK === true) {
         sendAPI("MYMPD_API_QUEUE_SAVE", {
-            "plist": plNameEl.value
+            "plist": name,
+            "mode": saveMode
         }, saveQueueCheckError, true);
     }
 }
