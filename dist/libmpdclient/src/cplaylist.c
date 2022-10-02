@@ -35,6 +35,7 @@
 
 #include <limits.h>
 #include <stdio.h>
+#include <string.h>
 
 /* (bits+1)/3 (plus the sign character) */
 enum {
@@ -178,7 +179,19 @@ mpd_run_save(struct mpd_connection *connection, const char *name)
 		mpd_response_finish(connection);
 }
 
-static const char *
+enum mpd_queue_save_mode mpd_parse_queue_save_mode(const char *mode)
+{
+	if (strcmp(mode, "create") == 0)
+		return MPD_QUEUE_SAVE_MODE_CREATE;
+	else if (strcmp(mode, "replace") == 0)
+		return MPD_QUEUE_SAVE_MODE_REPLACE;
+	else if (strcmp(mode, "append") == 0)
+		return MPD_QUEUE_SAVE_MODE_APPEND;
+	else
+		return MPD_QUEUE_SAVE_MODE_UNKNOWN;
+}
+
+const char *
 mpd_lookup_queue_save_mode(enum mpd_queue_save_mode mode)
 {
 	switch (mode) {
@@ -188,6 +201,8 @@ mpd_lookup_queue_save_mode(enum mpd_queue_save_mode mode)
 		return "replace";
 	case MPD_QUEUE_SAVE_MODE_APPEND:
 		return "append";
+	case MPD_QUEUE_SAVE_MODE_UNKNOWN:
+		return NULL;
 	}
 	return NULL;
 }

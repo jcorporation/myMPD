@@ -64,11 +64,18 @@ struct mpd_playlist;
  *
  * @since libmpdclient 2.21, MPD 0.24.
  */
-
 enum mpd_queue_save_mode {
+   /** Create new playlist */
 	MPD_QUEUE_SAVE_MODE_CREATE = 0,
+
+   /** Replace existing playlist */
 	MPD_QUEUE_SAVE_MODE_REPLACE,
-	MPD_QUEUE_SAVE_MODE_APPEND
+
+   /** Append to existing playlist */
+	MPD_QUEUE_SAVE_MODE_APPEND,
+
+   /** Unknown state */
+   MPD_QUEUE_SAVE_MODE_UNKNOWN
 };
 
 #ifdef __cplusplus
@@ -384,6 +391,26 @@ mpd_send_save_queue(struct mpd_connection *connection, const char *name,
 bool
 mpd_run_save_queue(struct mpd_connection *connection, const char *name,
 			enum mpd_queue_save_mode mode);
+
+/**
+ * Looks up the name of the specified queue save mode.
+ *
+ * @return the name, or NULL if the queue save mode is not valid
+ *
+ * @since libmpdclient 2.21.
+ */
+const char *
+mpd_lookup_queue_save_mode(enum mpd_queue_save_mode mode);
+
+/**
+ * Parse the string to check which queue save mode it contains.
+ *
+ * @return the queue save mode enum
+ *
+ * @since libmpdclient 2.21.
+ */
+enum mpd_queue_save_mode
+mpd_parse_queue_save_mode(const char *mode);
 
 /**
  * Load a stored playlist into the queue.
