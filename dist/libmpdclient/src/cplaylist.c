@@ -178,6 +178,39 @@ mpd_run_save(struct mpd_connection *connection, const char *name)
 		mpd_response_finish(connection);
 }
 
+static const char *
+mpd_lookup_queue_save_mode(enum mpd_queue_save_mode mode)
+{
+	switch (mode) {
+	case MPD_QUEUE_SAVE_MODE_CREATE:
+		return "create";
+	case MPD_QUEUE_SAVE_MODE_REPLACE:
+		return "replace";
+	case MPD_QUEUE_SAVE_MODE_APPEND:
+		return "append";
+	}
+	return NULL;
+}
+
+bool
+mpd_send_save_queue(struct mpd_connection *connection, const char *name,
+		enum mpd_queue_save_mode mode)
+{
+	const char *mode_str = mpd_lookup_queue_save_mode(mode);
+	if (mode_str == NULL)
+		return false;
+	return mpd_send_command(connection, "save", name, mode_str, NULL);
+}
+
+bool
+mpd_run_save_queue(struct mpd_connection *connection, const char *name,
+		enum mpd_queue_save_mode mode)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_save_queue(connection, name, mode) &&
+		mpd_response_finish(connection);
+}
+
 bool
 mpd_send_load(struct mpd_connection *connection, const char *name)
 {

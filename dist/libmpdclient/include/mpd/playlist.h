@@ -59,6 +59,18 @@ struct mpd_connection;
  */
 struct mpd_playlist;
 
+/**
+ * MPDs queue save modes.
+ *
+ * @since libmpdclient 2.21, MPD 0.24.
+ */
+
+enum mpd_queue_save_mode {
+	MPD_QUEUE_SAVE_MODE_CREATE = 0,
+	MPD_QUEUE_SAVE_MODE_REPLACE,
+	MPD_QUEUE_SAVE_MODE_APPEND
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -339,6 +351,39 @@ mpd_send_save(struct mpd_connection *connection, const char *name);
  */
 bool
 mpd_run_save(struct mpd_connection *connection, const char *name);
+
+/**
+ * Saves the current queue as a m3u file in the playlist directory
+ * (i.e. name.m3u).
+ * This function supports the mode argument that can be
+ * MPD_QUEUE_SAVE_MODE_CREATE: creates a new playlist, same as mpd_send_save
+ * MPD_QUEUE_SAVE_MODE_REPLACE: replaces an existing playlist
+ * MPD_QUEUE_SAVE_MODE_APPEND: appends to an existing playlist
+ *
+ * @since libmpdclient 2.21, MPD 0.24.
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist file
+ * @param mode the desired save mode
+ * @return true on success, false on error
+ */
+bool
+mpd_send_save_queue(struct mpd_connection *connection, const char *name,
+			enum mpd_queue_save_mode mode);
+
+/**
+ * Shortcut for mpd_send_save_queue() and mpd_response_finish().
+ *
+ * @since libmpdclient 2.21, MPD 0.24.
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist file
+ * @param mode the desired save mode
+ * @return true on success, false on error
+ */
+bool
+mpd_run_save_queue(struct mpd_connection *connection, const char *name,
+			enum mpd_queue_save_mode mode);
 
 /**
  * Load a stored playlist into the queue.
