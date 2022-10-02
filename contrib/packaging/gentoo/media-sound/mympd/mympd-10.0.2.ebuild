@@ -18,7 +18,8 @@ IUSE="+flac +id3tag +ssl +lua systemd"
 
 BDEPEND="
 	>=dev-util/cmake-3.4
-	dev-lang/perl"
+	dev-lang/perl
+	app-misc/jq"
 
 RDEPEND="
 	acct-group/mympd
