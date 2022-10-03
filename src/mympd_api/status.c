@@ -195,7 +195,7 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
         partition_state->set_song_played_time = now - elapsed_time + 240;
     }
     else { //set played after halftime of song
-        partition_state->set_song_played_time = elapsed_time < half_time ? now - (long)elapsed_time + (long)half_time : now;
+        partition_state->set_song_played_time = elapsed_time < half_time ? now - elapsed_time + half_time : now;
     }
 
     if (request_id == REQUEST_ID_NOTIFY) {
