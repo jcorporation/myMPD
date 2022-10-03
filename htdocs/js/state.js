@@ -33,7 +33,7 @@ function parseStats(obj) {
        )
     {
         mpdInfoVersionEl.appendChild(
-            elCreateTextTn('div', {"class": ["alert", "alert-warning", "mt-2", "mb-1"], "data-phrase": 'MPD version is outdated'}, 'MPD version is outdated')
+            elCreateTextTn('div', {"class": ["alert", "alert-warning", "mt-2", "mb-1"]}, 'MPD version is outdated')
         );
     }
 }

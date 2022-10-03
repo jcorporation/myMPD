@@ -884,7 +884,7 @@ function initGlobalModals() {
             tab.appendChild(
                 elCreateNode('div', {"class": ["row", "mb-2", "mt-3"]},
                     elCreateNode('div', {"class": ["col-12"]},
-                        elCreateTextTn('h5', {"data-phrase": keymap[key].desc}, keymap[key].desc)
+                        elCreateTextTn('h5', {}, keymap[key].desc)
                     )
                 )
             );
