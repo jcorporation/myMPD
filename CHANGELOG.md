@@ -20,7 +20,7 @@ This minor release adds support of new MPD 0.24 features.
 
 ***
 
-## myMPD v10.0.2 (not yet released)
+## myMPD v10.0.2 (2022-10-03)
 
 This is a small bug fix release that also updates some translations.
 
