@@ -79,7 +79,8 @@ function initSettings() {
                 elEnable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
             }
             if (value !== 'off') {
-                toggleBtnChkId('btnConsume', true);
+                toggleBtnGroupValueId('btnConsumeGroup', '1');
+                toggleBtnGroupValueId('btnSingleGroup', '0');
             }
             checkConsume();
         }, 100);
