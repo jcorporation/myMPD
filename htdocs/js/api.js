@@ -64,7 +64,7 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
             }
             if (obj.error) {
                 newFooter.appendChild(
-                    elCreateTextTn('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]}, obj.error.message)
+                    elCreateTextTnData('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]}, obj.error.message, obj.error.data)
                 );
             }
             else if (obj.result.session !== '') {
@@ -115,7 +115,7 @@ function enterPin(method, params, callback, onerror) {
                     document.getElementById('inputPinModal').value = '';
                     if (obj.error) {
                         const em = document.getElementById('modalEnterPinMessage');
-                        em.textContent = tn(obj.error.message);
+                        em.textContent = tn(obj.error.message, obj.error.data);
                         elShow(em);
                     }
                     else if (obj.result.session !== '') {
