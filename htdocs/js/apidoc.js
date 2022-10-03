@@ -62,7 +62,7 @@ const APIparams = {
     "whence": {
         "type": "uint",
         "example": 0,
-        "desc": "How to interpret the to parameter: 0 = absolut, 1 = after, 2 = before current song"
+        "desc": "How to interpret the to parameter: 0 = absolute, 1 = after, 2 = before current song"
     },
     "plist": {
         "type": "text",
@@ -138,7 +138,7 @@ const APImethods = {
         "params": {
             "uri": {
                 "type": "text",
-                "example": "Alben",
+                "example": "Albums",
                 "desc": "Root directory for update"
             }
         }
@@ -773,7 +773,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_MOUNT_LIST": {
-        "desc": "Lists the MPD monts.",
+        "desc": "Lists the MPD mounts.",
         "params": {}
     },
     "MYMPD_API_MOUNT_NEIGHBOR_LIST": {
@@ -1131,7 +1131,7 @@ const APImethods = {
                     "uiBgImage": {
                         "type": "text",
                         "example": "",
-                        "desc": "Uri for bacckground image"
+                        "desc": "Uri for background image"
                     },
                     "uiBgCover": {
                         "type": "bool",
@@ -1233,7 +1233,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_COLS_SAVE": {
-        "desc": "Saves columnes for a table.",
+        "desc": "Saves columns for a table.",
         "params": {
             "table": {
                 "type": "text",
