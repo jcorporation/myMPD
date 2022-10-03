@@ -137,14 +137,14 @@ function populateHomeIconLigatures() {
     elClear(listHomeIconLigature);
     elClear(searchHomeIconCat);
     searchHomeIconCat.appendChild(
-        elCreateText('option', {"value": "all"}, tn('All'))
+        elCreateTextTn('option', {"value": "all"}, 'All')
     );
     for (const cat in materialIcons) {
         listHomeIconLigature.appendChild(
-            elCreateText('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat))
+            elCreateTextTn('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat))
         );
         searchHomeIconCat.appendChild(
-            elCreateText('option', {"value": cat}, ucFirst(cat))
+            elCreateTextTn('option', {"value": cat}, ucFirst(cat))
         );
         for (const icon of materialIcons[cat]) {
             listHomeIconLigature.appendChild(
@@ -203,7 +203,7 @@ function parseHomeIcons(obj) {
 
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,
-            elCreateText('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
+            elCreateTextTnData('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         return;
     }
@@ -213,7 +213,7 @@ function parseHomeIcons(obj) {
     if (obj.result.returnedEntities === 0) {
         elClear(cardContainer);
         const div = elCreateNodes('div', {"class": ["px-3", "py-1"]}, [
-            elCreateText('h3', {}, tn('Homescreen')),
+            elCreateTextTn('h3', {}, 'Homescreen'),
             elCreateNodes('p', {}, [
                 document.createTextNode(tn('Homescreen welcome')),
                 elCreateText('span', {"class": ["mi"]}, 'add_to_home_screen'),
@@ -398,50 +398,50 @@ function populateHomeIconCmdSelect(cmd, type) {
     elClear(selectHomeIconCmd);
     switch(cmd) {
         case 'appGoto': {
-            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appGoto"}, tn('Goto view')));
+            selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "appGoto"}, 'Goto view'));
             setData(selectHomeIconCmd.lastChild, 'options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
             break;
         }
         case 'openExternalLink': {
-            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "openExternalLink"}, tn('Open external link')));
+            selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "openExternalLink"}, 'Open external link'));
             setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Uri"]});
             break;
         }
         case 'execScriptFromOptions': {
-            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
+            selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "execScriptFromOptions"}, 'Execute Script'));
             setData(selectHomeIconCmd.lastChild, 'options', {"options":["Script", "Arguments"]});
             break;
         }
         default: {
             if (type === 'album') {
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueueAlbum"}, tn('Replace queue')));
+                selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "replaceQueueAlbum"}, 'Replace queue'));
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replacePlayQueueAlbum"}, tn('Replace queue and play')));
+                selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "replacePlayQueueAlbum"}, 'Replace queue and play'));
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
                 if (features.featWhence === true) {
-                    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueueAlbum"}, tn('Insert after current playing song')));
+                    selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "insertAfterCurrentQueueAlbum"}, 'Insert after current playing song'));
                     setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
                 }
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueueAlbum"}, tn('Append to queue')));
+                selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "appendQueueAlbum"}, 'Append to queue'));
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendPlayQueueAlbum"}, tn('Append to queue and play')));
+                selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "appendPlayQueueAlbum"}, 'Append to queue and play'));
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "homeIconGoto"}, tn('Album details')));
+                selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "homeIconGoto"}, 'Album details'));
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
             }
             else {
                 const paramName = type === 'search' ? 'Expression' : 'Uri';
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueue"}, tn('Replace queue')));
+                selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "replaceQueue"}, 'Replace queue'));
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replacePlayQueue"}, tn('Replace queue and play')));
+                selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "replacePlayQueue"}, 'Replace queue and play'));
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
                 if (features.featWhence === true) {
-                    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueue"}, tn('Insert after current playing song')));
+                    selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "insertAfterCurrentQueue"}, 'Insert after current playing song'));
                     setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
                 }
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueue"}, tn('Append to queue')));
+                selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "appendQueue"}, 'Append to queue'));
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendPlayQueue"}, tn('Append to queue and play')));
+                selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "appendPlayQueue"}, 'Append to queue and play'));
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
                 if (type === 'dir' ||
                     type === 'search' ||
@@ -450,7 +450,7 @@ function populateHomeIconCmdSelect(cmd, type) {
                 {
                     const title = type === 'dir' ? 'Open directory' :
                                 type === 'search' ? 'Show search' : 'View playlist';
-                    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "homeIconGoto"}, tn(title)));
+                    selectHomeIconCmd.appendChild(elCreateTextTn('option', {"value": "homeIconGoto"}, title));
                     setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
                 }
             }
@@ -696,7 +696,7 @@ function showHomeIconCmdOptions(values) {
                 value = JSON.stringify(value);
             }
             const row = elCreateNodes('div', {"class": ["mb-3", "row"]}, [
-                elCreateText('label', {"class": ["col-sm-4"]}, tn(options.options[i])),
+                elCreateTextTn('label', {"class": ["col-sm-4"]}, options.options[i]),
                 elCreateNode('div', {"class": ["col-sm-8"]}, 
                     elCreateEmpty('input', {"class": ["form-control", "border-secondary"], "name": options.options[i], "value": value})
                 )

@@ -32,7 +32,7 @@ function initMounts() {
         else {
             const dropdownNeighbors = document.getElementById('dropdownNeighbors').firstElementChild;
             elReplaceChild(dropdownNeighbors,
-                elCreateText('div', {"class": ["list-group-item", "nowrap"]}, tn('Neighbors are disabled'))
+                elCreateTextTn('div', {"class": ["list-group-item", "nowrap"]}, 'Neighbors are disabled')
             );
         }
     }, false);
@@ -149,10 +149,10 @@ function parseListMounts(obj) {
         const mountActionTd = elCreateEmpty('td', {"data-col": "Action"});
         if (obj.result.data[i].mountPoint !== '') {
             mountActionTd.appendChild(
-                elCreateText('a', {"href": "#", "title": tn('Unmount'), "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete')
+                elCreateText('a', {"href": "#", "data-title-phrase": "Unmount", "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete')
             );
             mountActionTd.appendChild(
-                elCreateText('a', {"href": "#", "title": tn('Update'), "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh')
+                elCreateText('a', {"href": "#", "data-title-phrase": "Update", "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh')
             );
         }
         const row = elCreateNodes('tr', {}, [
@@ -185,13 +185,13 @@ function parseNeighbors(obj) {
 
     if (obj.error) {
         dropdownNeighbors.appendChild(
-            elCreateText('div', {"class": ["list-group-item", "alert", "alert-danger"]}, tn(obj.error.message))
+            elCreateTextTnData('div', {"class": ["list-group-item", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         return;
     }
     if (obj.result.returnedEntities === 0) {
         dropdownNeighbors.appendChild(
-            elCreateText('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, tn('Empty list'))
+            elCreateTextTn('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, 'Empty list')
         );
         return;
     }

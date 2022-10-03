@@ -6,20 +6,20 @@
 //pre-generated elements
 const pEl = {};
 pEl.actionTdMenu = elCreateNode('td', {"data-col": "Action"},
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions", "title": tn('Actions')}, ligatureMore)
+    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
 );
 pEl.actionTdMenuPlay = elCreateNodes('td', {"data-col": "Action"}, [
-    elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Quick play", "title": tn('Quick play')}, 'play_arrow'),
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions", "title": tn('Actions')}, ligatureMore)
+    elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Quick play"}, 'play_arrow'),
+    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
 ]);
 pEl.actionTdMenuRemove = elCreateNodes('td', {"data-col": "Action"}, [
-    elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Remove", "title": tn('Remove')}, 'clear'),
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions", "title": tn('Actions')}, ligatureMore)
+    elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Remove"}, 'clear'),
+    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
 ]);
 pEl.actionTd = pEl.actionTdMenu;
 pEl.actionQueueTd = pEl.actionTdMenu;
 pEl.coverPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
-    "title": tn('Quick play')}, 'play_arrow');
+    "data-title-phrase": "Quick play"}, 'play_arrow');
 
 //we do not use the custom element is="" feature - safari does not support it
 function initElements(parent) {
@@ -47,7 +47,7 @@ function initElement(el, elType) {
 }
 
 function setInputClear(el) {
-    const button = elCreateText('button', {"data-title-phrase": "Clear", "title": tn('Clear'), "class": ["mi", "mi-small", "input-inner-button"]}, 'clear');
+    const button = elCreateText('button', {"data-title-phrase": "Clear", "class": ["mi", "mi-small", "input-inner-button"]}, 'clear');
     el.button = button;
     el.classList.add('innerButton');
     if (el.parentNode.classList.contains('col')) {
@@ -84,7 +84,7 @@ function setInputClear(el) {
 }
 
 function setInputReset(el) {
-    const button = elCreateText('button', {"data-title-phrase": "Reset to default", "title": tn('Reset to default'), "class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
+    const button = elCreateText('button', {"data-title-phrase": "Reset to default", "class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
     el.button = button;
     el.classList.add('innerButton');
     if (el.parentNode.firstElementChild.getAttribute('type') === 'color' ||
@@ -108,7 +108,7 @@ function setInputReset(el) {
 }
 
 function setInputPassword(el) {
-    const button = elCreateText('button', {"data-title-phrase": "Show or hide", "title": tn('Show or hide'), "class": ["mi", "mi-small", "input-inner-button"]}, 'visibility');
+    const button = elCreateText('button', {"data-title-phrase": "Show or hide", "class": ["mi", "mi-small", "input-inner-button"]}, 'visibility');
     el.button = button;
     el.classList.add('innerButton');
     if (el.parentNode.classList.contains('col-sm-8')) {
@@ -176,7 +176,7 @@ function setSelectSearch(el) {
         event.stopPropagation();
     }, false);
     el.addFilterResult = function(text, value) {
-        const item = elCreateText('li', {"class": ["list-group-item", "list-group-item-action", "clickable"], "data-phrase": text}, tn(text));
+        const item = elCreateTextTn('li', {"class": ["list-group-item", "list-group-item-action", "clickable"]}, text);
         setData(item, 'value', value);
         el.filterResult.appendChild(item);
     };

@@ -60,6 +60,9 @@ for my $filename (@files) {
             while ($line =~ /"desc":\s*"([^"]+)"/g) {
                 $phrases->{$1} = 1;
             }
+            while ($line =~ /(elCreateTextTnNr|elCreateTextTnData|elCreateTextTn)\('\w+', \{[^}]*\}, '([^']+)'/g) {
+                $phrases->{$2} = 1;
+            }
         }
         elsif ($filename =~ /\.html$/) {
             while ($line =~ /data-(\w+-)?phrase="([^"]+)"/g) {
@@ -131,7 +134,7 @@ for my $lang (sort @langs) {
     if ($i > 0) {
         print $i18nfile ",\n";
     }
-    print $i18nfile "    \"".$lang."\": {\"desc\":\"".$desc->{$lang}."\", \"missingPhrases\": ".$outdated{$lang}."}";
+    print $i18nfile "    \"".$lang."\": {\"desc\":\"".$desc->{$lang}." (".$lang.")\", \"missingPhrases\": ".$outdated{$lang}."}";
     if ($outdated{$lang} > 0) {
         print STDERR "$lang: $outdated{$lang} missing phrases\n";
     }

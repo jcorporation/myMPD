@@ -4,7 +4,27 @@
 // https://github.com/jcorporation/mympd
 
 //element handling shortcuts
+function elCreateTextTnNr(tagName, attributes, text, number) {
+    attributes["data-phrase"] = text;
+    attributes["data-phrase-number"] = number;
+    return elCreateText(tagName, attributes, tn(text, number));
+}
+
+function elCreateTextTnData(tagName, attributes, text, data) {
+    attributes["data-phrase"] = text;
+    attributes["data-phrase-data"] = JSON.stringify(data);
+    return elCreateText(tagName, attributes, tn(text, data));
+}
+
+function elCreateTextTn(tagName, attributes, text) {
+    attributes["data-phrase"] = text;
+    return elCreateText(tagName, attributes, tn(text));
+}
+
 function elCreateText(tagName, attributes, text) {
+    if (attributes["data-title-phrase"] !== undefined) {
+        attributes["title"] = tn(attributes["data-title-phrase"]);
+    }
     const tag = elCreateEmpty(tagName, attributes);
     tag.textContent = text;
     return tag;
@@ -185,7 +205,7 @@ function showConfirmInline(el, text, btnText, callback) {
         elCreateText('p', {}, text)
     );
 
-    const cancelBtn = elCreateText('button', {"class": ["btn", "btn-secondary"]}, tn('Cancel'));
+    const cancelBtn = elCreateTextTn('button', {"class": ["btn", "btn-secondary"]}, 'Cancel');
     cancelBtn.addEventListener('click', function(event) {
         event.stopPropagation();
         this.parentNode.remove();
@@ -707,15 +727,15 @@ function addTagList(elId, list) {
     const stack = elCreateEmpty('div', {"class": ["d-grid", "gap-2"]});
     if (list === 'tagListSearch') {
         if (features.featTags === true) {
-            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any", "data-phrase": "Any Tag"}, tn('Any Tag')));
+            stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag'));
         }
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename", "data-phrase": "Filename"}, tn('Filename')));
+        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename"}, 'Filename'));
     }
     if (elId === 'searchDatabaseTags') {
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any", "data-phrase": "Any Tag"}, tn('Any Tag')));
+        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag'));
     }
     for (let i = 0, j = settings[list].length; i < j; i++) {
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, tn(settings[list][i])));
+        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, settings[list][i]));
     }
     if (elId === 'BrowseNavFilesystemDropdown' ||
         elId === 'BrowseNavPlaylistsDropdown' ||
@@ -725,7 +745,7 @@ function addTagList(elId, list) {
     {
         if (features.featTags === true) {
             elClear(stack);
-            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database", "data-phrase": "Database"}, tn('Database')));
+            stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database"}, 'Database'));
         }
     }
     if (elId === 'BrowseDatabaseByTagDropdown' ||
@@ -738,15 +758,15 @@ function addTagList(elId, list) {
         if (elId === 'BrowseDatabaseByTagDropdown') {
             stack.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
         }
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlists", "data-phrase": "Playlists"}, tn('Playlists')));
+        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlists"}, 'Playlists'));
         if (elId === 'BrowseNavPlaylistsDropdown') {
             stack.lastChild.classList.add('active');
         }
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Filesystem", "data-phrase": "Filesystem"}, tn('Filesystem')));
+        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Filesystem"}, 'Filesystem'));
         if (elId === 'BrowseNavFilesystemDropdown') {
             stack.lastChild.classList.add('active');
         }
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Radio", "data-phrase": "Webradios"}, tn('Webradios')));
+        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Radio"}, 'Webradios'));
         if (elId === 'BrowseNavRadioFavoritesDropdown' ||
             elId === 'BrowseNavWebradiodbDropdown' ||
             elId === 'BrowseNavRadiobrowserDropdown')
@@ -758,14 +778,14 @@ function addTagList(elId, list) {
         if (settings.tagList.includes('Date') === true &&
             settings[list].includes('Date') === false)
         {
-            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date", "data-phrase": "Date"}, tn('Date')));
+            stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date"}, 'Date'));
         }
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified", "data-phrase": "Last modified"}, tn('Last modified')));
+        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified"}, 'Last modified'));
     }
     else if (elId === 'searchQueueTags') {
         if (features.featAdvqueue === true)
         {
-            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "prio", "data-phrase": "Priority"}, tn('Priority')));
+            stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "prio"}, 'Priority'));
         }
     }
     const el = document.getElementById(elId);
@@ -778,12 +798,12 @@ function addTagListSelect(elId, list) {
     if (elId === 'saveSmartPlaylistSort' ||
         elId === 'selectSmartplsSort')
     {
-        select.appendChild(elCreateText('option', {"value": "", "data-phrase": "Disabled"}, tn('Disabled')));
-        select.appendChild(elCreateText('option', {"value": "shuffle", "data-phrase": "Shuffle"}, tn('Shuffle')));
+        select.appendChild(elCreateTextTn('option', {"value": ""}, 'Disabled'));
+        select.appendChild(elCreateTextTn('option', {"value": "shuffle"}, 'Shuffle'));
         const optGroup = elCreateEmpty('optgroup', {"label": tn('Sort by tag'), "data-label-phrase": "Sort by tag"});
-        optGroup.appendChild(elCreateText('option', {"value": "filename", "data-phrase": "Filename"}, tn('Filename')));
+        optGroup.appendChild(elCreateTextTn('option', {"value": "filename"}, 'Filename'));
         for (let i = 0, j = settings[list].length; i < j; i++) {
-            optGroup.appendChild(elCreateText('option', {"value": settings[list][i], "data-phrase": settings[list][i]}, tn(settings[list][i])));
+            optGroup.appendChild(elCreateTextTn('option', {"value": settings[list][i]}, settings[list][i]));
         }
         select.appendChild(optGroup);
     }
@@ -791,9 +811,9 @@ function addTagListSelect(elId, list) {
         settings.tagListBrowse.includes('Title') === false)
     {
         //Title tag should be always in the list
-        select.appendChild(elCreateText('option', {"value": "Title"}, tn('Song')));
+        select.appendChild(elCreateTextTn('option', {"value": "Title"}, 'Song'));
         for (let i = 0, j = settings[list].length; i < j; i++) {
-            select.appendChild(elCreateText('option', {"value": settings[list][i], "data-phrase": settings[list][i]}, tn(settings[list][i])));
+            select.appendChild(elCreateTextTn('option', {"value": settings[list][i]}, settings[list][i]));
         }
     }
 }
@@ -1031,7 +1051,8 @@ function setPagination(total, returned) {
         elHide(bottomBar);
         return;
     }
-    const toTop = elCreateText('button', {"class": ["btn", "btn-secondary", "mi"], "data-title-phrase": "To top", "title": tn('To top')}, 'keyboard_arrow_up');
+    const toTop = elCreateText('button', {"class": ["btn", "btn-secondary", "mi"],
+        "data-title-phrase": "To top"}, 'keyboard_arrow_up');
     toTop.addEventListener('click', function(event) {
         event.preventDefault();
         scrollToPosY(0);
@@ -1044,7 +1065,8 @@ function setPagination(total, returned) {
 }
 
 function createPaginationEls(totalPages, curPage) {
-    const prev = elCreateText('button', {"title": tn('Previous page'), "type": "button", "class": ["btn", "btn-secondary", "mi"]}, 'navigate_before');
+    const prev = elCreateText('button', {"data-title-phrase": "Previous page",
+        "type": "button", "class": ["btn", "btn-secondary", "mi"]}, 'navigate_before');
     if (curPage === 1) {
         elDisable(prev);
     }
@@ -1063,7 +1085,7 @@ function createPaginationEls(totalPages, curPage) {
     const pageDropdownMenu = elCreateEmpty('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "page-dropdown", "dropdown-menu-dark"]});
 
     const row = elCreateNodes('div', {"class": ["row"]}, [
-        elCreateText('label', {"class": ["col-sm-8", "col-form-label"], "data-phrase": "Elements per page"}, tn('Elements per page')),
+        elCreateTextTn('label', {"class": ["col-sm-8", "col-form-label"]}, 'Elements per page'),
         elCreateEmpty('div', {"class": ["col-sm-4"]})
     ]);
 
@@ -1098,7 +1120,7 @@ function createPaginationEls(totalPages, curPage) {
         start = end - 6 > 1 ? end - 6 : 1;
     }
 
-    const first = elCreateEmpty('button', {"title": tn('First page'), "data-title-phrase": "First page", "type": "button", "class": ["btn", "btn-secondary"]});
+    const first = elCreateEmpty('button', {"data-title-phrase": "First page", "type": "button", "class": ["btn", "btn-secondary"]});
     if (start === 1) {
         first.textContent = '1';
     }
@@ -1134,7 +1156,7 @@ function createPaginationEls(totalPages, curPage) {
         }
     }
 
-    const last = elCreateEmpty('button', {"title": tn('Last page'), "data-title-phrase": "Last page", "type": "button", "class": ["btn", "btn-secondary"]});
+    const last = elCreateEmpty('button', {"data-title-phrase": "Last page", "type": "button", "class": ["btn", "btn-secondary"]});
     if (totalPages === end + 1) {
         last.textContent = end + 1;
     }
@@ -1164,7 +1186,7 @@ function createPaginationEls(totalPages, curPage) {
     );
     pageDropdownMenu.appendChild(row);
 
-    const next = elCreateText('button', {"title": tn('Next page'), "data-title-phrase": "Next page", "type": "button", "class": ["btn", "btn-secondary", "mi"]}, 'navigate_next');
+    const next = elCreateText('button', {"data-title-phrase": "Next page", "type": "button", "class": ["btn", "btn-secondary", "mi"]}, 'navigate_next');
     if (totalPages !== -1 && totalPages === curPage) {
         elDisable(next);
     }

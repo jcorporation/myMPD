@@ -399,7 +399,7 @@ function parseFilesystem(obj) {
     const colspan = settings.colsBrowseFilesystem.length + 1;
     tfoot.appendChild(
         elCreateNode('tr', {},
-            elCreateText('td', {"colspan": colspan}, tn('Num entries', obj.result.totalEntities))
+            elCreateTextTnNr('td', {"colspan": colspan}, 'Num entries', obj.result.totalEntities)
         )
     );
 }
@@ -411,7 +411,7 @@ function parseDatabase(obj) {
 
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,
-            elCreateText('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
+            elCreateTextTnData('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         setPagination(0, 0);
         return;
@@ -420,7 +420,7 @@ function parseDatabase(obj) {
     const nrItems = obj.result.returnedEntities;
     if (nrItems === 0) {
         elReplaceChild(cardContainer,
-            elCreateText('div', {"class": ["col", "not-clickable", "alert", "alert-secondary"]}, tn('Empty list'))
+            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-secondary"]}, 'Empty list')
         );
         setPagination(0, 0);
         return;
@@ -549,7 +549,7 @@ function parseAlbumDetails(obj) {
     for (const tag of [tagAlbumArtist, 'Genre']) {
         if (settings.tagList.includes(tag)) {
             const p = elCreateEmpty('p', {}, '');
-            infoEl.appendChild(elCreateText('small', {}, tn(tag)));   
+            infoEl.appendChild(elCreateTextTn('small', {}, tag));   
             printBrowseLink(p, tag, obj.result[tag]);
             infoEl.appendChild(p);
         }
@@ -561,7 +561,7 @@ function parseAlbumDetails(obj) {
         infoEl.appendChild(
             elCreateNodes('p', {}, [
                 elCreateText('span', {"class": ["mi", "me-2"]}, 'description'),
-                elCreateText('a', {"target": "_blank", "href": subdir + myEncodeURI(obj.result.bookletPath)}, tn('Download booklet'))
+                elCreateTextTn('a', {"target": "_blank", "href": subdir + myEncodeURI(obj.result.bookletPath)}, 'Download booklet')
             ])
         );
     }
@@ -569,7 +569,7 @@ function parseAlbumDetails(obj) {
     if (obj.result.MusicBrainzAlbumId !== '-' ||
         checkTagValue(obj.result.MusicBrainzAlbumArtistId, '-') === false)
     {
-        infoEl.appendChild(elCreateText('small', {}, tn('MusicBrainz')));
+        infoEl.appendChild(elCreateTextTn('small', {}, 'MusicBrainz'));
         if (obj.result.MusicBrainzAlbumId !== '-') {
             const albumLink = getMBtagLink('MUSICBRAINZ_ALBUMID', obj.result.MusicBrainzAlbumId);
             albumLink.textContent = tn('Goto album');

@@ -135,9 +135,12 @@ function parsePlaylistsDetail(obj) {
 
     elReplaceChild(tfoot, elCreateNode('tr', {},
         elCreateNode('td', {"colspan": colspan},
-            elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) + 
-                smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))))
-    );
+            elCreateNodes('small', {}, [
+                elCreateTextTn('span', {}, 'Num songs', obj.result.totalEntities), 
+                elCreateText('span', {}, smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))
+            ])
+        )
+    ));
 
     updateTable(obj, 'BrowsePlaylistsDetail', function(row, data) {
         row.setAttribute('id', 'playlistTrackId' + data.Pos);

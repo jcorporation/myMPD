@@ -560,12 +560,12 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
 function showAppInitAlert(text) {
     const spa = document.getElementById('splashScreenAlert');
     elClear(spa);
-    spa.appendChild(elCreateText('p', {"class": ["text-light"]}, tn(text)));
-    const reloadBtn = elCreateText('button', {"class": ["btn", "btn-light", "me-2"], "data-phrase": "Reload"}, tn('Reload'));
+    spa.appendChild(elCreateTextTn('p', {"class": ["text-light"]}, text));
+    const reloadBtn = elCreateTextTn('button', {"class": ["btn", "btn-light", "me-2"]}, 'Reload');
     reloadBtn.addEventListener('click', function() {
         clearAndReload();
     }, false);
-    const resetBtn = elCreateText('button', {"class": ["btn", "btn-light"], "data-phrase": "Reset"}, tn('Reset'));
+    const resetBtn = elCreateTextTn('button', {"class": ["btn", "btn-light"]}, 'Reset');
     resetBtn.addEventListener('click', function() {
         resetLocalSettings();
         clearAndReload();
@@ -884,7 +884,7 @@ function initGlobalModals() {
             tab.appendChild(
                 elCreateNode('div', {"class": ["row", "mb-2", "mt-3"]},
                     elCreateNode('div', {"class": ["col-12"]},
-                        elCreateText('h5', {"data-phrase": keymap[key].desc}, tn(keymap[key].desc))
+                        elCreateTextTn('h5', {"data-phrase": keymap[key].desc}, keymap[key].desc)
                     )
                 )
             );
@@ -897,7 +897,7 @@ function initGlobalModals() {
             k.classList.add('mi', 'mi-small');
         }
         col.appendChild(k);
-        col.appendChild(elCreateText('div', {"data-phrase": keymap[key].desc}, tn(keymap[key].desc)));
+        col.appendChild(elCreateTextTn('div', {}, keymap[key].desc));
         tab.lastChild.appendChild(col);
     }
 

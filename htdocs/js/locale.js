@@ -87,7 +87,20 @@ function i18nHtml(root) {
         const els = root.querySelectorAll('[' + attributes[i][0] + ']');
         const elsLen = els.length;
         for (let k = 0, l = elsLen; k < l; k++) {
-            els[k][attributes[i][1]] = tn(els[k].getAttribute(attributes[i][0]));
+            const smartNumber = els[k].getAttribute('data-phrase-number');
+            if (smartNumber !== null) {
+                els[k][attributes[i][1]] = tn(els[k].getAttribute(attributes[i][0]), smartNumber);
+            }
+            else {
+                const data = els[k].getAttribute('data-phrase-data');
+                if (data !== null) {
+                    const dataObj = JSON.parse(data);
+                    els[k][attributes[i][1]] = tn(els[k].getAttribute(attributes[i][0]), dataObj);
+                }
+                else {
+                    els[k][attributes[i][1]] = tn(els[k].getAttribute(attributes[i][0]));
+                }
+            }
         }
     }
 }

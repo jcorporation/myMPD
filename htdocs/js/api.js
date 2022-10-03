@@ -38,10 +38,10 @@ function removeEnterPinFooter(footer) {
  */
 function createEnterPinFooter(footers, method, params, callback, onerror) {
     const input = elCreateEmpty('input', {"type": "password", "autocomplete": "off", "class": ["form-control", "border-secondary"]});
-    const btn = elCreateText('button', {"class": ["btn", "btn-success"]}, tn('Enter'));
+    const btn = elCreateTextTn('button', {"class": ["btn", "btn-success"]}, 'Enter');
     const newFooter = elCreateNode('div', {"class": ["modal-footer", "enterPinFooter"]},
         elCreateNodes('div', {"class": ["row", "w-100"]}, [
-            elCreateText('label', {"class": ["col-4", "col-form-label", "ps-0"]}, tn('Enter pin')),
+            elCreateTextTn('label', {"class": ["col-4", "col-form-label", "ps-0"]}, 'Enter pin'),
             elCreateNode('div', {"class": ["col-8", "pe-0"]},
                 elCreateNodes('div', {"class": ["input-group"]}, [
                     input,
@@ -64,7 +64,7 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
             }
             if (obj.error) {
                 newFooter.appendChild(
-                    elCreateText('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]}, tn(obj.error.message))
+                    elCreateTextTn('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]}, obj.error.message)
                 );
             }
             else if (obj.result.session !== '') {
@@ -107,7 +107,7 @@ function enterPin(method, params, callback, onerror) {
     else {
         logDebug('Open pin modal');
         //open modal to enter pin and resend API request
-        const enterBtn = elCreateText('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, tn('Enter'));
+        const enterBtn = elCreateTextTn('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, 'Enter');
         enterBtn.addEventListener('click', function() {
             sendAPI('MYMPD_API_SESSION_LOGIN', {
                 "pin": document.getElementById('inputPinModal').value},

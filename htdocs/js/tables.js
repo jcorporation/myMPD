@@ -219,7 +219,7 @@ function setColsChecklist(table, menu) {
             continue;
         }
         if (tags[i] === 'dropdownTitleSticker') {
-            menu.appendChild(elCreateText('h6', {"class": ["dropdown-header"]}, tn('Sticker')));
+            menu.appendChild(elCreateTextTn('h6', {"class": ["dropdown-header"]}, 'Sticker'));
         }
         else {
             const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-small", "me-2"], "name": tags[i]}, 'radio_button_unchecked');
@@ -229,7 +229,7 @@ function setColsChecklist(table, menu) {
             }
             const div = elCreateNodes('div', {"class": ["form-check"]}, [
                 btn,
-                elCreateText('lable', {"class": ["form-check-label"], "for": tags[i]}, tn(tags[i]))
+                elCreateTextTn('lable', {"class": ["form-check-label"], "for": tags[i]}, tags[i])
             ]);
             menu.appendChild(div);
         }
@@ -256,7 +256,7 @@ function setCols(table) {
 
     for (let i = 0, j = settings['cols' + table].length; i < j; i++) {
         const hname = settings['cols' + table][i];
-        const th = elCreateText('th', {"draggable": "true", "data-col": settings['cols' + table][i]}, tn(hname));
+        const th = elCreateTextTn('th', {"draggable": "true", "data-col": settings['cols' + table][i]}, hname);
         if (hname === 'Track' ||
             hname === 'Pos')
         {
@@ -276,7 +276,8 @@ function setCols(table) {
     const th = elCreateEmpty('th', {"data-col": "Action"});
     if (features.featTags === true) {
         th.appendChild(
-            elCreateText('a', {"href": "#", "data-action": "popover", "data-popover": "columns", "class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": "Columns", "title": tn('Columns')}, 'settings')
+            elCreateText('a', {"href": "#", "data-action": "popover", "data-popover": "columns",
+                "class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": "Columns"}, 'settings')
         );
     }
     thead.appendChild(th);
@@ -307,7 +308,7 @@ function saveCols(table, tableEl) {
                 }
             }
             else if (!th) {
-                th = elCreateText('th', {"data-col": colInputs[i].name}, colInputs[i].name);
+                th = elCreateTextTn('th', {"data-col": colInputs[i].name}, colInputs[i].name);
                 header.insertBefore(th, header.lastChild);
             }
         }
@@ -340,7 +341,7 @@ function saveColsPlayback(table) {
         else if (!th) {
             //add enabled tags if not already shown
             th = elCreateNodes('div', {"id": "current" + colInputs[i].name}, [
-                elCreateText('small', {}, tn(colInputs[i].name)),
+                elCreateTextTn('small', {}, colInputs[i].name),
                 elCreateEmpty('p', {})
             ]);
             setData(th, 'tag', colInputs[i].name);
@@ -398,9 +399,10 @@ function addDiscRow(disc, album, albumartist, colspan) {
         elCreateNode('td', {},
             elCreateText('span', {"class": ["mi"]}, 'album')
         ),
-        elCreateText('td', {"colspan": (colspan - 1)}, tn('Disc') + ' ' + disc),
+        elCreateTextTnNr('td', {"colspan": (colspan - 1)}, 'Discnum', disc),
         elCreateNode('td', {"data-col": "Action"},
-            elCreateText('a', {"data-action": "popover", "data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+            elCreateText('a', {"data-action": "popover", "data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"],
+                "data-title-phrase":"Actions"}, ligatureMore)
         )
     ]);
     setData(row, 'Disc', disc);
@@ -510,7 +512,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 
 function tableRow(row, data, list, colspan, smallWidth) {
     if (data.Type === 'parentDir') {
-        row.appendChild(elCreateText('td', {"colspan": (colspan + 1), "title": tn('Open parent folder')}, '..'));
+        row.appendChild(elCreateText('td', {"colspan": (colspan + 1), "data-title-phrase": "Open parent folder"}, '..'));
     }
     else {
         if (smallWidth === true) {
@@ -518,7 +520,7 @@ function tableRow(row, data, list, colspan, smallWidth) {
             for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
                 td.appendChild(
                     elCreateNodes('div', {"class": ["row"]}, [
-                        elCreateText('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])),
+                        elCreateTextTn('small', {"class": ["col-3"]}, settings['cols' + list][c]),
                         elCreateNode('span', {"data-col": settings['cols' + list][c], "class": ["col-9"]},
                             printValue(settings['cols' + list][c], data[settings['cols' + list][c]])
                         )
@@ -554,7 +556,7 @@ function tableRow(row, data, list, colspan, smallWidth) {
 function emptyRow(colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},
-            elCreateText('div', {"class": ["alert", "alert-secondary"]}, tn('Empty list'))
+            elCreateTextTn('div', {"class": ["alert", "alert-secondary"]}, 'Empty list')
         )
     );
 }
@@ -562,7 +564,7 @@ function emptyRow(colspan) {
 function loadingRow(colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},
-            elCreateText('div', {"class": ["alert", "alert-secondary"]}, tn('Loading...'))
+            elCreateTextTn('div', {"class": ["alert", "alert-secondary"]}, 'Loading...')
         )
     );
 }
@@ -570,7 +572,7 @@ function loadingRow(colspan) {
 function errorRow(obj, colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},
-            elCreateText('div', {"class": ["alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
+            elCreateTextTnData('div', {"class": ["alert", "alert-danger"]}, obj.error.message, obj.error.data)
         )
     );
 }
@@ -579,7 +581,7 @@ function errorRow(obj, colspan) {
 function warningRow(message, colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},
-            elCreateText('div', {"class": ["alert", "alert-warning"]}, tn(message))
+            elCreateTextTn('div', {"class": ["alert", "alert-warning"]}, message)
         )
     );
 }

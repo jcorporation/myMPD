@@ -33,7 +33,7 @@ function parseStats(obj) {
        )
     {
         mpdInfoVersionEl.appendChild(
-            elCreateText('div', {"class": ["alert", "alert-warning", "mt-2", "mb-1"], "data-phrase": 'MPD version is outdated'}, tn('MPD version is outdated'))
+            elCreateTextTn('div', {"class": ["alert", "alert-warning", "mt-2", "mb-1"], "data-phrase": 'MPD version is outdated'}, 'MPD version is outdated')
         );
     }
 }
@@ -424,8 +424,8 @@ function parseCurrentSong(obj) {
         features.featLibrary === true)
     {
         bookletEl.appendChild(elCreateText('span', {"class": ["mi", "me-2"]}, 'description'));
-        bookletEl.appendChild(elCreateText('a', {"target": "_blank", "href": myEncodeURI(subdir + obj.result.bookletPath)},
-            tn('Download booklet')));
+        bookletEl.appendChild(elCreateTextTn('a', {"target": "_blank", "href": myEncodeURI(subdir + obj.result.bookletPath)},
+            'Download booklet'));
     }
 
     //update queue card
@@ -506,26 +506,26 @@ function setPlaybackCardTags(songObj) {
         }, false);
         elReplaceChild(cardPlaybackWebradio,
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                elCreateText('small', {"data-phrase": "Webradio"}, tn('Webradio')),
+                elCreateTextTn('small', {}, 'Webradio'),
                 webradioName
             ])
         );
         cardPlaybackWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                elCreateText('small', {"data-phrase": "Genre"}, tn('Genre')),
+                elCreateTextTn('small', {}, 'Genre'),
                 elCreateText('p', {}, songObj.webradio.Genre)
             ])
         );
         cardPlaybackWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                elCreateText('small', {"data-phrase": "Country"}, tn('Country')),
+                elCreateTextTn('small', {}, 'Country'),
                 elCreateText('p', {}, songObj.webradio.Country + smallSpace + nDash + smallSpace + songObj.webradio.Language)
             ])
         );
         if (songObj.webradio.Homepage !== '') {
             cardPlaybackWebradio.appendChild(
                 elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                    elCreateText('small', {"data-phrase": "Homepage"}, tn('Homepage')),
+                    elCreateTextTn('small', {}, 'Homepage'),
                     elCreateNode('p', {}, 
                         elCreateText('a', {"class": ["text-success", "external"],
                             "href": myEncodeURIhost(songObj.webradio.Homepage),
@@ -540,7 +540,7 @@ function setPlaybackCardTags(songObj) {
         {
             cardPlaybackWebradio.appendChild(
                 elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                    elCreateText('small', {"data-phrase": "Format"}, tn('Format')),
+                    elCreateTextTn('small', {}, 'Format'),
                     elCreateText('p', {}, songObj.webradio.Codec + 
                         (songObj.webradio.Bitrate !== '' ? ' / ' + songObj.webradio.Bitrate + ' ' + tn('kbit') : ''))
                 ])
@@ -549,7 +549,7 @@ function setPlaybackCardTags(songObj) {
         if (songObj.webradio.Description !== '') {
             cardPlaybackWebradio.appendChild(
                 elCreateNodes('div', {"class": ["col-xl-6"]}, [
-                    elCreateText('small', {"data-phrase": "Description"}, tn('Description')),
+                    elCreateTextTn('small', {}, 'Description'),
                     elCreateText('p', {}, songObj.webradio.Description)
                 ])
             );

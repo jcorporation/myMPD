@@ -407,7 +407,7 @@ function parseRadioFavoritesList(obj) {
 
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,
-            elCreateText('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
+            elCreateTextTnData('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         setPagination(0, 0);
         return;
@@ -416,7 +416,7 @@ function parseRadioFavoritesList(obj) {
     const nrItems = obj.result.returnedEntities;
     if (nrItems === 0) {
         elReplaceChild(cardContainer,
-            elCreateText('div', {"class": ["col", "not-clickable", "alert", "alert-secondary"]}, tn('Empty list'))
+            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-secondary"]}, 'Empty list')
         );
         setPagination(0, 0);
         return;
@@ -664,7 +664,7 @@ function parseSearchWebradiodb(obj) {
         const colspan = settings.colsBrowseRadioWebradiodb.length + 1;
         tfoot.appendChild(
             elCreateNode('tr', {},
-                elCreateText('td', {"colspan": colspan}, tn('Num entries', obj.result.totalEntities))
+                elCreateTextTnNr('td', {"colspan": colspan}, 'Num entries', obj.result.totalEntities)
             )
         );
     }
@@ -706,7 +706,7 @@ function showWebradiodbDetails(uri) {
         const value = printValue(field, result[field]);
         tbody.appendChild(
             elCreateNodes('tr', {}, [
-                elCreateText('th', {}, tn(field)),
+                elCreateTextTn('th', {}, field),
                 elCreateNode('td', {}, value)
             ])
         );
@@ -715,8 +715,8 @@ function showWebradiodbDetails(uri) {
     if (alternateStreams.length > 0) {
         const td = elCreateEmpty('td', {});
         for (const name of alternateStreams) {
-            const p = elCreateText('p', {"class": ["pb-0"]}, result.alternativeStreams[name].Codec + ' / ' + 
-                result.alternativeStreams[name].Bitrate + ' ' + tn('kbit'));
+            const p = elCreateTextTnData('p', {"class": ["pb-0"]}, 'Webradioformat',
+                {"codec": result.alternativeStreams[name].Codec, "bitrate": result.alternativeStreams[name].Bitrate});
             const btn = elCreateText('button', {"class": ["btn", "btn-sm", "btn-secondary", "mi", "mi-small", "ms-2"]}, 'favorite');
             p.appendChild(btn);
             td.appendChild(p);
@@ -738,7 +738,7 @@ function showWebradiodbDetails(uri) {
         }
         tbody.appendChild(
             elCreateNodes('tr', {}, [
-                elCreateText('th', {}, tn('Alternative streams')),
+                elCreateTextTn('th', {}, 'Alternative streams'),
                 td
             ])
         );
@@ -772,7 +772,7 @@ function showRadiobrowserDetails(uuid) {
     uiElements.modalRadiobrowserDetails.show();
     elReplaceChildId('modalRadiobrowserDetailsList',
         elCreateNode('tr', {}, 
-            elCreateText('td', {"colspan": 2}, tn('Loading...'))
+            elCreateTextTn('td', {"colspan": 2}, 'Loading...')
         )
     );
     countClickRadiobrowser(uuid);
@@ -826,7 +826,7 @@ function parseRadiobrowserDetails(obj) {
         const value = printValue(field, result[field]);
         tbody.appendChild(
             elCreateNodes('tr', {}, [
-                elCreateText('th', {}, tn(showFields[field])),
+                elCreateTextTn('th', {}, showFields[field]),
                 elCreateNode('td', {}, value)
             ])
         );

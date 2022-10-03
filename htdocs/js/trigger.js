@@ -158,10 +158,10 @@ function parseTriggerList(obj) {
             elCreateText('td', {}, obj.result.data[i].name + 
                 (obj.result.data[i].partition === '!all!' ? ' (' + tn('All partitions') + ')' : '')
             ),
-            elCreateText('td', {}, tn(obj.result.data[i].eventName)),
+            elCreateTextTn('td', {}, obj.result.data[i].eventName),
             elCreateText('td', {}, obj.result.data[i].script),
             elCreateNode('td', {"data-col": "Action"},
-                elCreateText('a', {"href": "#", "title": tn("Delete"), "data-action": "delete", "class": ["mi", "color-darkgrey"]}, 'delete')
+                elCreateText('a', {"href": "#", "data-title-phrase": "Delete", "data-action": "delete", "class": ["mi", "color-darkgrey"]}, 'delete')
             )
         ]);
         setData(row, 'trigger-id', obj.result.data[i].id);

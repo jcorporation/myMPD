@@ -233,7 +233,7 @@ function parsePartitionList(obj) {
             obj.result.data[i].name !== localSettings.partition)
         {
             partitionActionTd.appendChild(
-                elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["mi", "color-darkgrey", "me-2"]}, 'delete')
+                elCreateText('a', {"href": "#", "data-title-phrase": "Delete", "data-action": "delete", "class": ["mi", "color-darkgrey", "me-2"]}, 'delete')
             );
         }
         tr.appendChild(partitionActionTd);

@@ -74,7 +74,7 @@ const facilities = {
 };
 
 function getSeverityIcon(severity) {
-    return elCreateText('span', {"title": tn(severities[severity].text),
+    return elCreateText('span', {"data-title-phrase": severities[severity].text,
         "class": ["mi", severities[severity].class, "me-2"]}, severities[severity].icon);
 }
 
@@ -268,7 +268,7 @@ function toggleTopAlert() {
 function showModalAlert(obj) {
     const aModal = getOpenModal();
     const activeAlert = aModal.getElementsByClassName('modalAlert')[0];
-    const div = elCreateText('div', {"class": ["alert", "alert-danger", "modalAlert"]}, tn(obj.error.message, obj.error.data));
+    const div = elCreateTextTn('div', {"class": ["alert", "alert-danger", "modalAlert"]}, obj.error.message, obj.error.data);
     if (activeAlert === undefined) {
         aModal.getElementsByClassName('modal-body')[0].appendChild(div);
     }

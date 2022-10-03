@@ -80,7 +80,7 @@ function initScripts() {
     const selectAPIcallEl = document.getElementById('selectAPIcall');
     elClear(selectAPIcallEl);
     selectAPIcallEl.appendChild(
-        elCreateText('option', {"value": "", "data-phrase": "Select method"}, tn('Select method'))
+        elCreateTextTn('option', {"value": ""}, 'Select method')
     );
     for (const m in APImethods) {
         selectAPIcallEl.appendChild(
@@ -120,7 +120,7 @@ function initScripts() {
     const selectFunctionEl = document.getElementById('selectFunction');
     elClear(selectFunctionEl);
     selectFunctionEl.appendChild(
-        elCreateText('option', {"value": "", "data-phrase": "Select function"}, tn('Select function'))
+        elCreateTextTn('option', {"value": ""}, 'Select function')
     );
     for (const m in LUAfunctions) {
         selectFunctionEl.appendChild(
@@ -377,9 +377,9 @@ function parseScriptList(obj) {
             const tr = elCreateNodes('tr', {}, [
                 elCreateText('td', {}, obj.result.data[i].name),
                 elCreateNodes('td', {"data-col": "Action"}, [
-                    elCreateText('a', {"href": "#", "title": tn('Delete'), "data-action": "delete", "class": ["me-2", "mi", "color-darkgrey"]}, 'delete'),
-                    elCreateText('a', {"href": "#", "title": tn('Execute'), "data-action": "execute", "class": ["me-2", "mi", "color-darkgrey"]}, 'play_arrow'),
-                    elCreateText('a', {"href": "#", "title": tn('Add to homescreen'), "data-action": "add2home", "class": ["me-2", "mi", "color-darkgrey"]}, 'add_to_home_screen')
+                    elCreateText('a', {"href": "#", "data-title-phrase": "Delete", "data-action": "delete", "class": ["me-2", "mi", "color-darkgrey"]}, 'delete'),
+                    elCreateText('a', {"href": "#", "data-title-phrase": "Execute", "data-action": "execute", "class": ["me-2", "mi", "color-darkgrey"]}, 'play_arrow'),
+                    elCreateText('a', {"href": "#", "data-title-phrase": "Add to homescreen", "data-action": "add2home", "class": ["me-2", "mi", "color-darkgrey"]}, 'add_to_home_screen')
                 ])
             ]);
             setData(tr, 'script', obj.result.data[i].name);

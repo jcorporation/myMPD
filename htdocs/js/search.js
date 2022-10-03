@@ -132,7 +132,7 @@ function parseSearch(obj) {
         const colspan = settings.colsSearch.length + 1;
         tfoot.appendChild(
             elCreateNode('tr', {},
-                elCreateText('td', {"colspan": colspan}, tn('Num songs', obj.result.totalEntities))
+                elCreateTextTnNr('td', {"colspan": colspan}, 'Num songs', obj.result.totalEntities)
             )
         );
     }

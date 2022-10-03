@@ -59,7 +59,7 @@ function songDetails(uri) {
 function parseFingerprint(obj) {
     if (obj.error) {
         elReplaceChildId('fingerprint',
-            elCreateText('div', {"class": ["alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
+            elCreateTextTnData('div', {"class": ["alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         return;
     }
@@ -91,7 +91,8 @@ function getMBtagLink(tag, value) {
         return elCreateText('span', {}, value);
     }
     else {
-        return elCreateText('a', {"title": tn('Lookup at musicbrainz'), "class": ["text-success", "external"], "target": "_musicbrainz",
+        return elCreateText('a', {"data-title-phrase": "Lookup at musicbrainz",
+            "class": ["text-success", "external"], "target": "_musicbrainz",
             "href": "https://musicbrainz.org/" + MBentity + "/" + myEncodeURI(value)}, value);
     }
 }
@@ -105,7 +106,7 @@ function songDetailsRow(thContent, tdContent) {
         td.textContent = tdContent;
     }
     const tr = elCreateNodes('tr', {}, [
-        elCreateText('th', {}, tn(thContent)),
+        elCreateTextTn('th', {}, thContent),
         td
     ]);
     return tr;
@@ -129,7 +130,7 @@ function parseSongDetails(obj) {
             continue;
         }
         const tr = elCreateEmpty('tr', {});
-        tr.appendChild(elCreateText('th', {}, tn(settings.tagList[i])));
+        tr.appendChild(elCreateTextTn('th', {}, settings.tagList[i]));
         const td = elCreateEmpty('td', {});
         setData(td, 'tag', settings.tagList[i]);
         setData(td, 'name', obj.result[settings.tagList[i]]);
@@ -165,12 +166,12 @@ function parseSongDetails(obj) {
 
     const shortName = basename(rUri, false) + (isCuesheet === true ? ' (' + cuesheetTrack(obj.result.uri) + ')' : '');
     const openFolderBtn = elCreateText('button', {"id": "gotoContainingFolder", "class": ["btn", "btn-secondary", "mi"],
-        "title": tn("Open folder")}, 'folder_open');
+        "data-title-phrase": "Open folder"}, 'folder_open');
     setData(openFolderBtn, 'folder', dirname(obj.result.uri));
     let downloadBtn = null;
     if (features.featLibrary === true) {
         downloadBtn = elCreateText('button', {"id": "downloadSong","class": ["btn", "btn-secondary", "mi"],
-            "title": tn("Download")}, 'file_download');
+            "data-title-phrase": "Download"}, 'file_download');
         setData(downloadBtn, 'href', myEncodeURI(subdir + '/browse/music/' + rUri));
     }
     tbody.appendChild(
@@ -193,31 +194,34 @@ function parseSongDetails(obj) {
     if (features.featFingerprint === true &&
         isCuesheet === false)
     {
-        const a = elCreateText('a', {"class": ["text-success"], "id": "calcFingerprint", "href": "#"}, tn('Calculate'));
+        const a = elCreateTextTn('a', {"class": ["text-success"], "id": "calcFingerprint", "href": "#"}, 'Calculate');
         setData(a, 'uri', obj.result.uri);
         tbody.appendChild(songDetailsRow('Fingerprint', a));
         tbody.lastChild.lastChild.setAttribute('id', 'fingerprint');
     }
     if (obj.result.bookletPath !== '') {
-        tbody.appendChild(songDetailsRow('Booklet', elCreateText('a', {"class": ["text-success"],
-            "href": myEncodeURI(subdir + obj.result.bookletPath), "target": "_blank"},
-            tn('Download'))));
+        tbody.appendChild(
+            songDetailsRow('Booklet',
+                elCreateTextTn('a', {"class": ["text-success"],
+                    "href": myEncodeURI(subdir + obj.result.bookletPath), "target": "_blank"}, 'Download')
+            )
+        );
     }
     if (features.featStickers === true) {
         tbody.appendChild(
             elCreateNode('tr', {},
                 elCreateNode('th', {"colspan": "2", "class": ["pt-3"]},
-                    elCreateText('h5', {}, tn('Statistics'))
+                    elCreateTextTn('h5', {}, 'Statistics')
                 )
             )
         );
         for (const sticker of stickerList) {
             if (sticker === 'stickerLike') {
-                const thDown = elCreateText('button', {"data-vote": "0", "title": tn('Hate song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
+                const thDown = elCreateText('button', {"data-vote": "0", "data-title-phrase": "Hate song", "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
                 if (obj.result[sticker] === 0) {
                     thDown.classList.add('active');
                 }
-                const thUp = elCreateText('button', {"data-vote": "2", "title": tn('Love song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_up');
+                const thUp = elCreateText('button', {"data-vote": "2", "data-title-phrase": "Love song", "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_up');
                 if (obj.result[sticker] === 2) {
                     thUp.classList.add('active');
                 }
@@ -229,7 +233,7 @@ function parseSongDetails(obj) {
                 setData(grp, 'uri', obj.result.uri);
                 tbody.appendChild(
                     elCreateNodes('tr', {}, [
-                        elCreateText('th', {}, tn('Like')),
+                        elCreateTextTn('th', {}, 'Like'),
                         elCreateNode('td', {}, grp)
                     ])
                 );
@@ -347,10 +351,10 @@ function createLyricsTabs(el, obj) {
     if (currentLyrics === true) {
         //buttons for lyris in playback view
         lyricsHeader.appendChild(
-            elCreateText('button', {"title": tn('Toggle autoscrolling'), "class": ["btn", "btn-sm", "me-2", "active", "d-none", "mi"], "id": "lyricsScroll"}, 'autorenew')
+            elCreateText('button', {"data-title-phrase": "Toggle autoscrolling", "class": ["btn", "btn-sm", "me-2", "active", "d-none", "mi"], "id": "lyricsScroll"}, 'autorenew')
         );
         lyricsHeader.appendChild(
-            elCreateText('button', {"title": tn('Resize'), "class": ["btn", "btn-sm", "me-2", "active", "mi"], "id": "lyricsResize"}, 'aspect_ratio')
+            elCreateText('button', {"data-title-phrase": "Resize", "class": ["btn", "btn-sm", "me-2", "active", "mi"], "id": "lyricsResize"}, 'aspect_ratio')
         );
     }
     elClear(el);

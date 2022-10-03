@@ -255,14 +255,17 @@ function parseQueue(obj) {
     {
         elReplaceChild(tfoot, elCreateNode('tr', {},
             elCreateNode('td', {"colspan": (colspan + 1)},
-                elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) +
-                    smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))))
-        );
+                elCreateNodes('small', {}, [
+                    elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),
+                    elCreateText('span', {}, smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))
+                ])
+            )
+        ));
     }
     else if (obj.result.totalEntities > 0) {
         elReplaceChild(tfoot, elCreateNode('tr', {},
             elCreateNode('td', {"colspan": (colspan + 1)},
-                elCreateText('small', {}, tn('Num songs', obj.result.totalEntities))))
+                elCreateTextTn('small', {}, 'Num songs', obj.result.totalEntities)))
         );
     }
 }

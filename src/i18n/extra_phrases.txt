@@ -174,3 +174,5 @@ Invalid response
 Quick play button
 Quick remove button
 External link
+Edit attributes
+Show attributes

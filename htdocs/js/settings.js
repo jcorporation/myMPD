@@ -439,8 +439,8 @@ function parseSettings(obj) {
         elClearId('selectTimerAction');
         selectTimerAction.appendChild(
             elCreateNodes('optgroup', {"data-value": "player", "data-label-phrase": "Playback", "label": tn('Playback')}, [
-                elCreateText('option', {"value": "startplay", "data-phrase": "Start playback"}, tn('Start playback')),
-                elCreateText('option', {"value": "stopplay", "data-phrase": "Stop playback"}, tn('Stop playback'))
+                elCreateTextTn('option', {"value": "startplay"}, 'Start playback'),
+                elCreateTextTn('option', {"value": "stopplay"}, 'Stop playback')
             ])
         );
 
@@ -705,7 +705,7 @@ function populateSettingsFrm() {
     elClear(localeList);
     for (const l in i18n) {
         localeList.appendChild(
-            elCreateText('option', {"value": l, "data-phrase": i18n[l].desc}, tn(i18n[l].desc) + ' (' + l + ')')
+            elCreateTextTn('option', {"value": l}, i18n[l].desc)
         );
         if (l === settings.webuiSettings.uiLocale) {
             localeList.lastChild.setAttribute('selected', 'selected');
@@ -833,10 +833,10 @@ function _createSettingsFrm(fields, defaults, prefix) {
         if (defaults[key].inputType === 'section') {
             if (defaults[key].title !== undefined) {
                 advFrm[form].appendChild(elCreateEmpty('hr', {}));
-                advFrm[form].appendChild(elCreateText('h4', {"data-phrase": defaults[key].title}, tn(defaults[key].title)));
+                advFrm[form].appendChild(elCreateTextTn('h4', {}, defaults[key].title));
             }
             else if (defaults[key].subtitle !== undefined) {
-                advFrm[form].appendChild(elCreateText('h4', {"data-phrase": defaults[key].subtitle}, tn(defaults[key].subtitle)));
+                advFrm[form].appendChild(elCreateTextTn('h4', {}, defaults[key].subtitle));
             }
             continue;
         }
@@ -848,7 +848,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
                 if (defaults[key].contentType === 'integer') {
                     value = Number(value);
                 }
-                select.appendChild(elCreateText('option', {"value": value, "data-phrase": defaults[key].validValues[value]}, tn(defaults[key].validValues[value])));
+                select.appendChild(elCreateTextTn('option', {"value": value}, defaults[key].validValues[value]));
                 if (fields[key] === value) {
                     select.lastChild.setAttribute('selected', 'selected');
                 }
@@ -892,15 +892,15 @@ function _createSettingsFrm(fields, defaults, prefix) {
             col.appendChild(input);
         }
         if (defaults[key].invalid !== undefined) {
-            col.appendChild(elCreateText('div', {"class": ["invalid-feedback"], "data-phrase": defaults[key].invalid}, tn(defaults[key].invalid)));
+            col.appendChild(elCreateTextTn('div', {"class": ["invalid-feedback"]}, defaults[key].invalid));
         }
         if (defaults[key].warn !== undefined) {
-            col.appendChild(elCreateText('div', {"id": "warn" + prefix + r(key), "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"], "data-prase": defaults[key].warn}, tn(defaults[key].warn)));
+            col.appendChild(elCreateTextTn('div', {"id": "warn" + prefix + r(key), "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"]}, defaults[key].warn));
         }
 
         advFrm[form].appendChild(
             elCreateNodes('div', {"class": ["mb-3", "row"]}, [
-                elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key), "data-phrase": defaults[key].title}, defaults[key].title),
+                elCreateTextTn('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key)}, defaults[key].title),
                 col
             ])
         );
@@ -987,7 +987,7 @@ function parseMPDSettings() {
     elClear(triggerEventList);
     for (const event in settings.triggerEvents) {
         triggerEventList.appendChild(
-            elCreateText('option', {"value": settings.triggerEvents[event], "data-phrase": event}, tn(event))
+            elCreateTextTn('option', {"value": settings.triggerEvents[event]}, event)
         );
     }
 
@@ -1048,7 +1048,7 @@ function parseMPDSettings() {
                     colWidth = "col-xl-6";
             }
             const div = elCreateNodes('div', {"id": "current" + settings.colsPlayback[i],"class": [colWidth]}, [
-                elCreateText('small', {}, tn(settings.colsPlayback[i])),
+                elCreateTextTn('small', {}, settings.colsPlayback[i]),
                 elCreateEmpty('p', {})
             ]);
             setData(div, 'tag', settings.colsPlayback[i]);
@@ -1384,7 +1384,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
         list.appendChild(
             elCreateNodes('div', {"class": ["form-check"]}, [
                 btn,
-                elCreateText('label', {"class": ["form-check-label"], "for": allTags[i], "data-phrase": allTags[i]}, tn(allTags[i]))
+                elCreateTextTn('label', {"class": ["form-check-label"], "for": allTags[i]}, allTags[i])
             ])
         );
     }
@@ -1471,7 +1471,7 @@ function setNavbarIcons() {
         {
             elHide(btn);
         }
-        const a = elCreateNode('a', {"data-title-phrase": icon.title, "title": tn(icon.title), "href": "#", "class": ["nav-link"]},
+        const a = elCreateNode('a', {"data-title-phrase": icon.title, "href": "#", "class": ["nav-link"]},
             elCreateText('span', {"class": ["mi"]}, icon.ligature)
         );
         if (icon.options.length === 1 &&
@@ -1543,12 +1543,11 @@ function warnLocale(value) {
     elClear(warnEl);
     if (i18n[value].missingPhrases > 0) {
         warnEl.appendChild(
-            elCreateText('p', {}, tn('Missing translations', i18n[value].missingPhrases))
+            elCreateTextTn('p', {}, 'Missing translations', i18n[value].missingPhrases)
         );
         warnEl.appendChild(
-            elCreateText('a', {"class": ["alert-link", "external"], "target": "_blank",
-                "href": "https://github.com/jcorporation/myMPD/discussions/167"}, tn('Help to improve myMPD')
-            )
+            elCreateTextTn('a', {"class": ["alert-link", "external"], "target": "_blank",
+                "href": "https://github.com/jcorporation/myMPD/discussions/167"}, 'Help to improve myMPD')
         );
         elShow(warnEl);
     }

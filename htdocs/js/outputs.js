@@ -35,13 +35,13 @@ function parseOutputs(obj) {
     elClear(outputList);
     if (obj.error) {
         outputList.appendChild(
-            elCreateText('div', {"class": ["list-group-item", "alert", "alert-danger"]}, tn(obj.error.message))
+            elCreateTextTn('div', {"class": ["list-group-item", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         return;
     }
     if (obj.result.numOutputs === 0) {
         outputList.appendChild(
-            elCreateText('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, tn('No outputs found'))
+            elCreateTextTn('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, 'No outputs found')
         );
         return;
     }
@@ -50,11 +50,12 @@ function parseOutputs(obj) {
         if (obj.result.data[i].plugin === 'dummy') {
             continue;
         }
+        const titlePhrase = Object.keys(obj.result.data[i].attributes).length > 0 ? 'Edit attributes' : 'Show attributes';
         const btn = elCreateNodes('button', {"class": ["btn", "btn-secondary", "d-flex", "justify-content-between"], "id": "btnOutput" + obj.result.data[i].id}, [
             elCreateText('span', {"class": ["mi", "align-self-center"]}, (obj.result.data[i].plugin === 'httpd' ? 'cast' : 'volume_up')),
             elCreateText('span', {"class": ["mx-2", "align-self-center"]}, obj.result.data[i].name),
             elCreateText('a', {"class": ["mi", "text-light", "align-self-center"],
-                "title": (Object.keys(obj.result.data[i].attributes).length > 0 ? tn('Edit attributes') : tn('Show attributes'))}, 'settings')
+                "data-title-phrase": titlePhrase}, 'settings')
         ]);
         setData(btn, 'output-name', obj.result.data[i].name);
         setData(btn, 'output-id', obj.result.data[i].id);
@@ -102,7 +103,7 @@ function parseOutputAttributes(output) {
         }
         tbody.appendChild(
             elCreateNodes('tr', {}, [
-                elCreateText('td', {}, tn(n)),
+                elCreateTextTn('td', {}, n),
                 elCreateText('td', {}, output[n])
             ])
         );

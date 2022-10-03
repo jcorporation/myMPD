@@ -156,7 +156,7 @@ function createPopoverColumns(el) {
     el.addEventListener('show.bs.popover', function() {
         const menu = elCreateEmpty('form', {});
         setColsChecklist(app.id, menu);
-        menu.appendChild(elCreateText('button', {"class": ["btn", "btn-success", "btn-sm", "w-100", "mt-2"]}, tn('Apply')));
+        menu.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-success", "btn-sm", "w-100", "mt-2"]}, 'Apply'));
         menu.addEventListener('click', function(eventClick) {
             if (eventClick.target.nodeName === 'BUTTON' &&
                 eventClick.target.classList.contains('mi'))
@@ -234,7 +234,7 @@ function addDivider(tabContent) {
 }
 
 function addMenuItem(tabContent, cmd, text) {
-    const a = elCreateText('a', {"class": ["dropdown-item"], "href": "#"}, tn(text));
+    const a = elCreateTextTn('a', {"class": ["dropdown-item"], "href": "#"}, text);
     setData(a, 'href', cmd);
     tabContent.appendChild(a);
 }

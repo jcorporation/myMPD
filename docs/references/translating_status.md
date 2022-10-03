@@ -1,7 +1,7 @@
-- es-VE: 461 missing phrases
-- fi-FI: 457 missing phrases
-- fr-FR: 10 missing phrases
-- it-IT: 10 missing phrases
+- es-VE: 456 missing phrases
+- fi-FI: 452 missing phrases
+- fr-FR: 12 missing phrases
+- it-IT: 12 missing phrases
 - ko-KR: 77 missing phrases
-- nl-NL: 10 missing phrases
-- zh-CN: 10 missing phrases
+- nl-NL: 12 missing phrases
+- zh-CN: 12 missing phrases
