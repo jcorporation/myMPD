@@ -423,9 +423,12 @@ function parseCurrentSong(obj) {
         obj.result.bookletPath !== undefined &&
         features.featLibrary === true)
     {
-        bookletEl.appendChild(elCreateText('span', {"class": ["mi", "me-2"]}, 'description'));
-        bookletEl.appendChild(elCreateTextTn('a', {"target": "_blank", "href": myEncodeURI(subdir + obj.result.bookletPath)},
-            'Download booklet'));
+        bookletEl.appendChild(
+            elCreateText('span', {"class": ["mi", "me-2"]}, 'description')
+        );
+        bookletEl.appendChild(
+            elCreateTextTn('a', {"target": "_blank", "href": myEncodeURI(subdir + obj.result.bookletPath)}, 'Download booklet')
+        );
     }
 
     //update queue card

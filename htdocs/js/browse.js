@@ -545,11 +545,15 @@ function parseAlbumDetails(obj) {
     setData(coverEl, 'uri', obj.result.data[0].uri);
 
     elClear(infoEl);
-    infoEl.appendChild(elCreateText('h1', {}, obj.result.Album));
+    infoEl.appendChild(
+        elCreateText('h1', {}, obj.result.Album)
+    );
     for (const tag of [tagAlbumArtist, 'Genre']) {
         if (settings.tagList.includes(tag)) {
             const p = elCreateEmpty('p', {}, '');
-            infoEl.appendChild(elCreateTextTn('small', {}, tag));   
+            infoEl.appendChild(
+                elCreateTextTn('small', {}, tag)
+            );
             printBrowseLink(p, tag, obj.result[tag]);
             infoEl.appendChild(p);
         }
@@ -569,17 +573,23 @@ function parseAlbumDetails(obj) {
     if (obj.result.MusicBrainzAlbumId !== '-' ||
         checkTagValue(obj.result.MusicBrainzAlbumArtistId, '-') === false)
     {
-        infoEl.appendChild(elCreateTextTn('small', {}, 'MusicBrainz'));
+        infoEl.appendChild(
+            elCreateTextTn('small', {}, 'MusicBrainz')
+        );
         if (obj.result.MusicBrainzAlbumId !== '-') {
             const albumLink = getMBtagLink('MUSICBRAINZ_ALBUMID', obj.result.MusicBrainzAlbumId);
             albumLink.textContent = tn('Goto album');
-            infoEl.appendChild(elCreateNode('p', {"class": ["mb-1"]}, albumLink));
+            infoEl.appendChild(
+                elCreateNode('p', {"class": ["mb-1"]}, albumLink)
+            );
         }
         if (checkTagValue(obj.result.MusicBrainzAlbumArtistId, '-') === false) {
             for (let i = 0, j = obj.result.MusicBrainzAlbumArtistId.length; i < j; i++) {
                 const artistLink = getMBtagLink('MUSICBRAINZ_ALBUMARTISTID', obj.result.MusicBrainzAlbumArtistId[i]);
                 artistLink.textContent = tn('Goto artist') + ': ' + obj.result.AlbumArtist[i];
-                infoEl.appendChild(elCreateNode('p', {"class": ["mb-1"]}, artistLink));
+                infoEl.appendChild(
+                    elCreateNode('p', {"class": ["mb-1"]}, artistLink)
+                );
             }
         }
     }

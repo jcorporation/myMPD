@@ -133,14 +133,16 @@ function parsePlaylistsDetail(obj) {
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
 
-    elReplaceChild(tfoot, elCreateNode('tr', {},
-        elCreateNode('td', {"colspan": colspan},
-            elCreateNodes('small', {}, [
-                elCreateTextTn('span', {}, 'Num songs', obj.result.totalEntities), 
-                elCreateText('span', {}, smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))
-            ])
+    elReplaceChild(tfoot,
+        elCreateNode('tr', {},
+            elCreateNode('td', {"colspan": colspan},
+                elCreateNodes('small', {}, [
+                    elCreateTextTn('span', {}, 'Num songs', obj.result.totalEntities), 
+                    elCreateText('span', {}, smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))
+                ])
+            )
         )
-    ));
+    );
 
     updateTable(obj, 'BrowsePlaylistsDetail', function(row, data) {
         row.setAttribute('id', 'playlistTrackId' + data.Pos);

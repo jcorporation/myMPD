@@ -141,7 +141,9 @@ function parseListMounts(obj) {
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const td1 = elCreateEmpty('td', {});
         if (obj.result.data[i].mountPoint === '') {
-            td1.appendChild(elCreateText('span', {"class": ["mi"]}, 'home'));
+            td1.appendChild(
+                elCreateText('span', {"class": ["mi"]}, 'home')
+            );
         }
         else {
             td1.textContent = obj.result.data[i].mountPoint;
@@ -217,7 +219,9 @@ function getUrlhandlers() {
                 case 'http://':
                 case 'https://':
                 case 'nfs://':
-                    selectMountUrlhandler.appendChild(elCreateText('option', {"value": obj.result.data[i]}, obj.result.data[i]));
+                    selectMountUrlhandler.appendChild(
+                        elCreateText('option', {"value": obj.result.data[i]}, obj.result.data[i])
+                    );
                     break;
             }
         }

@@ -219,10 +219,13 @@ function setColsChecklist(table, menu) {
             continue;
         }
         if (tags[i] === 'dropdownTitleSticker') {
-            menu.appendChild(elCreateTextTn('h6', {"class": ["dropdown-header"]}, 'Sticker'));
+            menu.appendChild(
+                elCreateTextTn('h6', {"class": ["dropdown-header"]}, 'Sticker')
+            );
         }
         else {
-            const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-small", "me-2"], "name": tags[i]}, 'radio_button_unchecked');
+            const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-small", "me-2"],
+                "name": tags[i]}, 'radio_button_unchecked');
             if (settings['cols' + table].includes(tags[i])) {
                 btn.classList.add('active');
                 btn.textContent = 'check'

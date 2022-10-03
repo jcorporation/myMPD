@@ -833,11 +833,17 @@ function _createSettingsFrm(fields, defaults, prefix) {
 
         if (defaults[key].inputType === 'section') {
             if (defaults[key].title !== undefined) {
-                advFrm[form].appendChild(elCreateEmpty('hr', {}));
-                advFrm[form].appendChild(elCreateTextTn('h4', {}, defaults[key].title));
+                advFrm[form].appendChild(
+                    elCreateEmpty('hr', {})
+                );
+                advFrm[form].appendChild(
+                    elCreateTextTn('h4', {}, defaults[key].title)
+                );
             }
             else if (defaults[key].subtitle !== undefined) {
-                advFrm[form].appendChild(elCreateTextTn('h4', {}, defaults[key].subtitle));
+                advFrm[form].appendChild(
+                    elCreateTextTn('h4', {}, defaults[key].subtitle)
+                );
             }
             continue;
         }
@@ -849,7 +855,9 @@ function _createSettingsFrm(fields, defaults, prefix) {
                 if (defaults[key].contentType === 'integer') {
                     value = Number(value);
                 }
-                select.appendChild(elCreateTextTn('option', {"value": value}, defaults[key].validValues[value]));
+                select.appendChild(
+                    elCreateTextTn('option', {"value": value}, defaults[key].validValues[value])
+                );
                 if (fields[key] === value) {
                     select.lastChild.setAttribute('selected', 'selected');
                 }
@@ -893,10 +901,14 @@ function _createSettingsFrm(fields, defaults, prefix) {
             col.appendChild(input);
         }
         if (defaults[key].invalid !== undefined) {
-            col.appendChild(elCreateTextTn('div', {"class": ["invalid-feedback"]}, defaults[key].invalid));
+            col.appendChild(
+                elCreateTextTn('div', {"class": ["invalid-feedback"]}, defaults[key].invalid)
+            );
         }
         if (defaults[key].warn !== undefined) {
-            col.appendChild(elCreateTextTn('div', {"id": "warn" + prefix + r(key), "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"]}, defaults[key].warn));
+            col.appendChild(
+                elCreateTextTn('div', {"id": "warn" + prefix + r(key), "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"]}, defaults[key].warn)
+            );
         }
 
         advFrm[form].appendChild(

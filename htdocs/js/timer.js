@@ -22,12 +22,16 @@ function initTimer() {
 
     const selectTimerHourEl = document.getElementById('selectTimerHour');
     for (let i = 0; i < 24; i++) {
-        selectTimerHourEl.appendChild(elCreateText('option', {"value": i}, zeroPad(i, 2)));
+        selectTimerHourEl.appendChild(
+            elCreateText('option', {"value": i}, zeroPad(i, 2))
+        );
     }
 
     const selectTimerMinuteEl = document.getElementById('selectTimerMinute');
     for (let i = 0; i < 60; i = i + 5) {
-        selectTimerMinuteEl.appendChild(elCreateText('option', {"value": i}, zeroPad(i, 2)));
+        selectTimerMinuteEl.appendChild(
+            elCreateText('option', {"value": i}, zeroPad(i, 2))
+        );
     }
 
     document.getElementById('inputTimerVolume').addEventListener('change', function() {

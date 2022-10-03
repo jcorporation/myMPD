@@ -130,7 +130,9 @@ function parseSongDetails(obj) {
             continue;
         }
         const tr = elCreateEmpty('tr', {});
-        tr.appendChild(elCreateTextTn('th', {}, settings.tagList[i]));
+        tr.appendChild(
+            elCreateTextTn('th', {}, settings.tagList[i])
+        );
         const td = elCreateEmpty('td', {});
         setData(td, 'tag', settings.tagList[i]);
         setData(td, 'name', obj.result[settings.tagList[i]]);
@@ -141,14 +143,20 @@ function parseSongDetails(obj) {
             checkTagValue(obj.result[settings.tagList[i]], '-') === false)
         {
             if (typeof obj.result[settings.tagList[i]] === 'string') {
-                td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]]));
+                td.appendChild(
+                    elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]])
+                );
             }
             else {
-                td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]].join(', ')));
+                td.appendChild(
+                    elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]].join(', '))
+                );
             }
         }
         else if (settings.tagList[i].indexOf('MUSICBRAINZ') === 0) {
-            td.appendChild(printValue(settings.tagList[i], obj.result[settings.tagList[i]]));
+            td.appendChild(
+                printValue(settings.tagList[i], obj.result[settings.tagList[i]])
+            );
         }
         else {
             td.textContent = obj.result[settings.tagList[i]];
@@ -320,8 +328,10 @@ function createLyricsTabs(el, obj) {
         else {
             ht = i;
         }
-        lyricsTabs.appendChild(elCreateText('button', {"data-num": i, "class": ["btn", "btn-sm", "btn-outline-secondary", "me-2", "lyricsChangeButton"],
-            "title": (obj.result.data[i].synced === true ? tn('Synced lyrics') : tn('Unsynced lyrics')) + ': ' + ht}, ht));
+        lyricsTabs.appendChild(
+            elCreateText('button', {"data-num": i, "class": ["btn", "btn-sm", "btn-outline-secondary", "me-2", "lyricsChangeButton"],
+                "title": (obj.result.data[i].synced === true ? tn('Synced lyrics') : tn('Unsynced lyrics')) + ': ' + ht}, ht)
+        );
         if (i === 0) {
             lyricsTabs.lastChild.classList.add('active');
         }
@@ -425,8 +435,12 @@ function createLyricsTabs(el, obj) {
 
 function parseUnsyncedLyrics(parent, text) {
     for (const line of text.replace(/\r/g, '').split('\n')) {
-        parent.appendChild(document.createTextNode(line));
-        parent.appendChild(elCreateEmpty('br', {}));
+        parent.appendChild(
+            document.createTextNode(line)
+        );
+        parent.appendChild(
+            elCreateEmpty('br', {})
+        );
     }
 }
 

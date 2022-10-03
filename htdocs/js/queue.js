@@ -253,19 +253,24 @@ function parseQueue(obj) {
         obj.result.totalTime > 0 &&
         obj.result.totalEntities <= app.current.limit)
     {
-        elReplaceChild(tfoot, elCreateNode('tr', {},
-            elCreateNode('td', {"colspan": (colspan + 1)},
-                elCreateNodes('small', {}, [
-                    elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),
-                    elCreateText('span', {}, smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))
-                ])
+        elReplaceChild(tfoot,
+            elCreateNode('tr', {},
+                elCreateNode('td', {"colspan": (colspan + 1)},
+                    elCreateNodes('small', {}, [
+                        elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),
+                        elCreateText('span', {}, smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))
+                    ])
+                )
             )
-        ));
+        );
     }
     else if (obj.result.totalEntities > 0) {
-        elReplaceChild(tfoot, elCreateNode('tr', {},
-            elCreateNode('td', {"colspan": (colspan + 1)},
-                elCreateTextTn('small', {}, 'Num songs', obj.result.totalEntities)))
+        elReplaceChild(tfoot,
+            elCreateNode('tr', {},
+                elCreateNode('td', {"colspan": (colspan + 1)},
+                    elCreateTextTn('small', {}, 'Num songs', obj.result.totalEntities)
+                )
+            )
         );
     }
 }

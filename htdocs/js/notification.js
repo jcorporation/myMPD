@@ -119,7 +119,9 @@ function showNotification(title, text, facility, severity) {
             ])
         );
         if (text !== '') {
-            toast.appendChild(elCreateText('div', {"class": ["toast-body"]}, text));
+            toast.appendChild(
+                elCreateText('div', {"class": ["toast-body"]}, text)
+            );
         }
         document.getElementById('alertBox').prepend(toast);
         const toastInit = new BSN.Toast(toast, {delay: 2500});
@@ -162,16 +164,26 @@ function showMessages() {
     elClear(overview);
     for (const message of messages) {
         const entry = elCreateEmpty('div', {"class": ["row", "align-items-center", "mb-2", "me-0"]});
-        entry.appendChild(elCreateNode('div', {"class": ["col", "col-1", "ps-0"]}, getSeverityIcon(message.severity)));
+        entry.appendChild(
+            elCreateNode('div', {"class": ["col", "col-1", "ps-0"]}, getSeverityIcon(message.severity))
+        );
         const col = elCreateEmpty('div', {"class": ["col", "col-11"]});
-        col.appendChild(elCreateText('small', {"class": ["me-2"]}, localeDate(message.timestamp) +
-            smallSpace + nDash + smallSpace + tn(facilities[message.facility])));
+        col.appendChild(
+            elCreateText('small', {"class": ["me-2"]}, localeDate(message.timestamp) +
+                smallSpace + nDash + smallSpace + tn(facilities[message.facility]))
+        );
         if (message.occurence > 1) {
-            col.appendChild(elCreateText('div', {"class": ["badge", "bg-secondary"]}, message.occurence));
+            col.appendChild(
+                elCreateText('div', {"class": ["badge", "bg-secondary"]}, message.occurence)
+            );
         }
-        col.appendChild(elCreateText('p', {"class": ["mb-0"]}, message.title));
+        col.appendChild(
+            elCreateText('p', {"class": ["mb-0"]}, message.title)
+        );
         if (message.text !== '') {
-            col.appendChild(elCreateText('p', {"class": ["mb-0"]}, message.text));
+            col.appendChild(
+                elCreateText('p', {"class": ["mb-0"]}, message.text)
+            );
         }
         entry.appendChild(col);
         overview.insertBefore(entry, overview.firstElementChild);

@@ -368,20 +368,26 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             elClear(crumbEl);
             const home = elCreateText('a', {"class": ["mi"]}, 'home');
             setData(home, 'uri', '');
-            crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, home));
+            crumbEl.appendChild(
+                elCreateNode('li', {"class": ["breadcrumb-item"]}, home)
+            );
 
             const pathArray = app.current.search.split('/');
             const pathArrayLen = pathArray.length;
             let fullPath = '';
             for (let i = 0; i < pathArrayLen; i++) {
                 if (pathArrayLen - 1 === i) {
-                    crumbEl.appendChild(elCreateText('li', {"class": ["breadcrumb-item", "active"]}, pathArray[i]));
+                    crumbEl.appendChild(
+                        elCreateText('li', {"class": ["breadcrumb-item", "active"]}, pathArray[i])
+                    );
                     break;
                 }
                 fullPath += pathArray[i];
                 const a = elCreateText('a', {"href": "#"}, pathArray[i]);
                 setData(a, 'uri', fullPath);
-                crumbEl.appendChild(elCreateNode('li', {"class": ["breadcrumb-item"]}, a));
+                crumbEl.appendChild(
+                    elCreateNode('li', {"class": ["breadcrumb-item"]}, a)
+                );
                 fullPath += '/';
             }
             const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
@@ -560,7 +566,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
 function showAppInitAlert(text) {
     const spa = document.getElementById('splashScreenAlert');
     elClear(spa);
-    spa.appendChild(elCreateTextTn('p', {"class": ["text-light"]}, text));
+    spa.appendChild(
+        elCreateTextTn('p', {"class": ["text-light"]}, text)
+    );
     const reloadBtn = elCreateTextTn('button', {"class": ["btn", "btn-light", "me-2"]}, 'Reload');
     reloadBtn.addEventListener('click', function() {
         clearAndReload();
@@ -570,7 +578,8 @@ function showAppInitAlert(text) {
         resetLocalSettings();
         clearAndReload();
     }, false);
-    spa.appendChild(elCreateNodes('p', {}, [
+    spa.appendChild(
+        elCreateNodes('p', {}, [
             reloadBtn,
             resetBtn
         ])
@@ -888,7 +897,9 @@ function initGlobalModals() {
                     )
                 )
             );
-            tab.appendChild(elCreateEmpty('div', {"class": ["row"]}));
+            tab.appendChild(
+                elCreateEmpty('div', {"class": ["row"]})
+            );
             continue;
         }
         const col = elCreateEmpty('div', {"class": ["col", "col-6", "mb-3", "align-items-center"]});
@@ -897,7 +908,9 @@ function initGlobalModals() {
             k.classList.add('mi', 'mi-small');
         }
         col.appendChild(k);
-        col.appendChild(elCreateTextTn('div', {}, keymap[key].desc));
+        col.appendChild(
+            elCreateTextTn('div', {}, keymap[key].desc)
+        );
         tab.lastChild.appendChild(col);
     }
 

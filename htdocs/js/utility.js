@@ -727,15 +727,23 @@ function addTagList(elId, list) {
     const stack = elCreateEmpty('div', {"class": ["d-grid", "gap-2"]});
     if (list === 'tagListSearch') {
         if (features.featTags === true) {
-            stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag'));
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag')
+            );
         }
-        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename"}, 'Filename'));
+        stack.appendChild(
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename"}, 'Filename')
+        );
     }
     if (elId === 'searchDatabaseTags') {
-        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag'));
+        stack.appendChild(
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag')
+        );
     }
     for (let i = 0, j = settings[list].length; i < j; i++) {
-        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, settings[list][i]));
+        stack.appendChild(
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, settings[list][i])
+        );
     }
     if (elId === 'BrowseNavFilesystemDropdown' ||
         elId === 'BrowseNavPlaylistsDropdown' ||
@@ -745,7 +753,9 @@ function addTagList(elId, list) {
     {
         if (features.featTags === true) {
             elClear(stack);
-            stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database"}, 'Database'));
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database"}, 'Database')
+            );
         }
     }
     if (elId === 'BrowseDatabaseByTagDropdown' ||
@@ -756,17 +766,25 @@ function addTagList(elId, list) {
         elId === 'BrowseNavRadiobrowserDropdown')
     {
         if (elId === 'BrowseDatabaseByTagDropdown') {
-            stack.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
+            stack.appendChild(
+                elCreateEmpty('div', {"class": ["dropdown-divider"]})
+            );
         }
-        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlists"}, 'Playlists'));
+        stack.appendChild(
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlists"}, 'Playlists')
+        );
         if (elId === 'BrowseNavPlaylistsDropdown') {
             stack.lastChild.classList.add('active');
         }
-        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Filesystem"}, 'Filesystem'));
+        stack.appendChild(
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Filesystem"}, 'Filesystem')
+        );
         if (elId === 'BrowseNavFilesystemDropdown') {
             stack.lastChild.classList.add('active');
         }
-        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Radio"}, 'Webradios'));
+        stack.appendChild(
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Radio"}, 'Webradios')
+        );
         if (elId === 'BrowseNavRadioFavoritesDropdown' ||
             elId === 'BrowseNavWebradiodbDropdown' ||
             elId === 'BrowseNavRadiobrowserDropdown')
@@ -778,14 +796,20 @@ function addTagList(elId, list) {
         if (settings.tagList.includes('Date') === true &&
             settings[list].includes('Date') === false)
         {
-            stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date"}, 'Date'));
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date"}, 'Date')
+            );
         }
-        stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified"}, 'Last modified'));
+        stack.appendChild(
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified"}, 'Last modified')
+        );
     }
     else if (elId === 'searchQueueTags') {
         if (features.featAdvqueue === true)
         {
-            stack.appendChild(elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "prio"}, 'Priority'));
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "prio"}, 'Priority')
+            );
         }
     }
     const el = document.getElementById(elId);
@@ -798,12 +822,20 @@ function addTagListSelect(elId, list) {
     if (elId === 'saveSmartPlaylistSort' ||
         elId === 'selectSmartplsSort')
     {
-        select.appendChild(elCreateTextTn('option', {"value": ""}, 'Disabled'));
-        select.appendChild(elCreateTextTn('option', {"value": "shuffle"}, 'Shuffle'));
+        select.appendChild(
+            elCreateTextTn('option', {"value": ""}, 'Disabled')
+        );
+        select.appendChild(
+            elCreateTextTn('option', {"value": "shuffle"}, 'Shuffle')
+        );
         const optGroup = elCreateEmpty('optgroup', {"label": tn('Sort by tag'), "data-label-phrase": "Sort by tag"});
-        optGroup.appendChild(elCreateTextTn('option', {"value": "filename"}, 'Filename'));
+        optGroup.appendChild(
+            elCreateTextTn('option', {"value": "filename"}, 'Filename')
+        );
         for (let i = 0, j = settings[list].length; i < j; i++) {
-            optGroup.appendChild(elCreateTextTn('option', {"value": settings[list][i]}, settings[list][i]));
+            optGroup.appendChild(
+                elCreateTextTn('option', {"value": settings[list][i]}, settings[list][i])
+            );
         }
         select.appendChild(optGroup);
     }
@@ -811,9 +843,13 @@ function addTagListSelect(elId, list) {
         settings.tagListBrowse.includes('Title') === false)
     {
         //Title tag should be always in the list
-        select.appendChild(elCreateTextTn('option', {"value": "Title"}, 'Song'));
+        select.appendChild(
+            elCreateTextTn('option', {"value": "Title"}, 'Song')
+        );
         for (let i = 0, j = settings[list].length; i < j; i++) {
-            select.appendChild(elCreateTextTn('option', {"value": settings[list][i]}, settings[list][i]));
+            select.appendChild(
+                elCreateTextTn('option', {"value": settings[list][i]}, settings[list][i])
+            );
         }
     }
 }
@@ -1091,7 +1127,9 @@ function createPaginationEls(totalPages, curPage) {
 
     const elPerPage = elCreateEmpty('select', {"class": ["form-control", "form-select", "border-secondary"]});
     for (const i in webuiSettingsDefault.uiMaxElementsPerPage.validValues) {
-        elPerPage.appendChild(elCreateText('option', {"value": i}, i));
+        elPerPage.appendChild(
+            elCreateText('option', {"value": i}, i)
+        );
         if (Number(i) === app.current.limit) {
             elPerPage.lastChild.setAttribute('selected', 'selected');
         }
@@ -1141,7 +1179,9 @@ function createPaginationEls(totalPages, curPage) {
     pageGrp.appendChild(first);
 
     for (let i = start; i < end; i++) {
-        pageGrp.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary"]}, i + 1));
+        pageGrp.appendChild(
+            elCreateText('button', {"class": ["btn", "btn-secondary"]}, i + 1)
+        );
         if (i + 1 === curPage) {
             pageGrp.lastChild.classList.add('active');
         }
@@ -1380,7 +1420,9 @@ function printBrowseLink(el, tag, values) {
                 gotoBrowse(event);
             }, false);
             el.appendChild(link);
-            el.appendChild(elCreateEmpty('br', {}));
+            el.appendChild(
+                elCreateEmpty('br', {})
+            );
         }
     }
     else {
@@ -1433,13 +1475,19 @@ function printValue(key, value) {
             const span = elCreateEmpty('span', {});
             for (let i = 0, j = value.length; i < j; i++) {
                 if (i > 0) {
-                    span.appendChild(elCreateEmpty('br', {}));
+                    span.appendChild(
+                        elCreateEmpty('br', {})
+                    );
                 }
                 if (key.indexOf('MUSICBRAINZ') === 0) {
-                    span.appendChild(getMBtagLink(key, value[i]));
+                    span.appendChild(
+                        getMBtagLink(key, value[i])
+                    );
                 }
                 else {
-                    span.appendChild(document.createTextNode(value[i]));
+                    span.appendChild(
+                        document.createTextNode(value[i])
+                    );
                 }
             }
             return span;
@@ -1597,7 +1645,9 @@ function _createImgCarousel(imgEl, name, images) {
     if (nrImages > 1) {
         const carouselIndicators = elCreateEmpty('div', {"class": ["carousel-indicators"]});
         for (let i = 0; i < nrImages; i++) {
-            carouselIndicators.appendChild(elCreateEmpty('button', {"type": "button", "data-bs-target": "#" + name, "data-bs-slide-to": i}));
+            carouselIndicators.appendChild(
+                elCreateEmpty('button', {"type": "button", "data-bs-target": "#" + name, "data-bs-slide-to": i})
+            );
             if (i === 0) {
                 carouselIndicators.lastChild.classList.add('active');
             }

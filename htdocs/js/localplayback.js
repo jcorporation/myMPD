@@ -59,7 +59,9 @@ function createLocalPlaybackEl(createEvent) {
     createEvent.stopPropagation();
     const el = createEvent.target.nodeName === 'SPAN' ? createEvent.target.parentNode : createEvent.target;
     const curState = getData(el, 'state');
-    elReplaceChild(el, elCreateText('span', {"class": ["mi"]}, 'play_arrow'));
+    elReplaceChild(el,
+        elCreateText('span', {"class": ["mi"]}, 'play_arrow')
+    );
 
     //stop playback off old audio element
     const curAudioEl = document.getElementById('localPlayer');
@@ -80,7 +82,9 @@ function createLocalPlaybackEl(createEvent) {
         elHideId('errorLocalPlayback');
         setData(el, 'state', 'play');
         btnWaiting(el, false);
-        elReplaceChild(el, elCreateText('span', {"class": ["mi"]}, 'stop'));
+        elReplaceChild(el,
+            elCreateText('span', {"class": ["mi"]}, 'stop')
+        );
     });
     document.getElementById('localPlayer').addEventListener('progress', function(event) {
         if (isNaN(event.target.duration)) {
@@ -91,7 +95,7 @@ function createLocalPlaybackEl(createEvent) {
     document.getElementById('localPlayer').addEventListener('volumechange', function(event) {
         document.getElementById('localPlaybackVolumeBar').value = document.getElementById('localPlayer').volume;
         document.getElementById('localPlaybackVolume').textContent = Math.floor(
-                event.target.volume * 100) + ' %';
+            event.target.volume * 100) + ' %';
     });
     for (const ev of ['error', 'abort', 'stalled']) {
         document.getElementById('localPlayer').addEventListener(ev, function(event) {
@@ -103,7 +107,9 @@ function createLocalPlaybackEl(createEvent) {
             elShowId('errorLocalPlayback');
             setData(el, 'state', 'stop');
             btnWaiting(el, false);
-            elReplaceChild(el, elCreateText('span', {"class": ["mi"]}, 'play_arrow'));
+            elReplaceChild(el,
+                elCreateText('span', {"class": ["mi"]}, 'play_arrow')
+            );
             elClear(document.getElementById('localPlayerProgress'));
         });
     }
