@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: Segmentation fault when clicking on last played list #850
+
 ***
 
 ## myMPD v10.0.2 (2022-10-03)
