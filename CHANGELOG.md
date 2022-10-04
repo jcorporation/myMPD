@@ -21,6 +21,16 @@ This minor release adds support of new MPD 0.24 features.
 
 ***
 
+## myMPD v10.0.3 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: Segmentation fault when clicking on last played list #850
+
+***
+
 ## myMPD v10.0.2 (2022-10-03)
 
 This is a small bug fix release that also updates some translations.
