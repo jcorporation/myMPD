@@ -139,7 +139,7 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, i
 /**
  * Prints a jsonrpc response with the last played songs (memory and disc)
  * @param partition_state pointer to partition state
- * @param buffer alreay allocated sds string to append the response
+ * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @param offset offset
  * @param limit max number of entries to return
@@ -160,76 +160,81 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
 
     long real_limit = offset + limit;
 
-    if (partition_state->last_played.length > 0) {
+    if (offset < partition_state->last_played.length) {
         struct t_list_node *current = partition_state->last_played.head;
         while (current != NULL) {
-            if (strcmp(partition_state->name, current->value_p) == 0) {
-                obj = get_last_played_obj(partition_state, obj, entity_count, current->value_i,
-                    current->key, searchstr, tagcols);
-                if (sdslen(obj) > 0) {
-                    entity_count++;
-                    if (entity_count > offset &&
-                        entity_count <= real_limit)
-                    {
-                        if (entities_returned++) {
-                            buffer = sdscatlen(buffer, ",", 1);
-                        }
-                        buffer = sdscatsds(buffer, obj);
-                        sdsclear(obj);
+            obj = get_last_played_obj(partition_state, obj, entity_count, current->value_i,
+                current->key, searchstr, tagcols);
+            if (sdslen(obj) > 0) {
+                if (entity_count >= offset) {
+                    if (entities_returned++) {
+                        buffer = sdscatlen(buffer, ",", 1);
                     }
+                    buffer = sdscatsds(buffer, obj);
+                }
+                sdsclear(obj);
+                entity_count++;
+                if (entity_count == real_limit) {
+                    break;
                 }
             }
             current = current->next;
         }
     }
+    else {
+        entity_count = partition_state->last_played.length;
+    }
 
-    sdsclear(obj);
-    sds lp_file = sdscatfmt(sdsempty(), "%S/%S/%s",
-        partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
-    errno = 0;
-    FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
-    if (fp != NULL) {
-        sds line = sdsempty();
-        while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
-            sds uri = NULL;
-            long long last_played = 0;
-            if (json_get_string_max(line, "$.uri", &uri, vcb_isfilepath, NULL) == true &&
-                json_get_llong_max(line, "$.LastPlayed", &last_played, NULL) == true)
-            {
-                obj = get_last_played_obj(partition_state, obj, entity_count, last_played, uri, searchstr, tagcols);
-                if (sdslen(obj) > 0) {
-                    entity_count++;
-                    if (entity_count > offset &&
-                        entity_count <= real_limit)
-                    {
-                        if (entities_returned++) {
-                            buffer = sdscatlen(buffer, ",", 1);
+    if (entity_count < real_limit) {
+        sds lp_file = sdscatfmt(sdsempty(), "%S/%S/%s",
+            partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
+        errno = 0;
+        FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
+        if (fp != NULL) {
+            sds line = sdsempty();
+            while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
+                sds uri = NULL;
+                long long last_played = 0;
+                if (json_get_string_max(line, "$.uri", &uri, vcb_isfilepath, NULL) == true &&
+                    json_get_llong_max(line, "$.LastPlayed", &last_played, NULL) == true)
+                {
+                    obj = get_last_played_obj(partition_state, obj, entity_count, last_played, uri, searchstr, tagcols);
+                    FREE_SDS(uri);
+                    if (sdslen(obj) > 0) {
+                        if (entity_count >= offset) {
+                            if (entities_returned++) {
+                                buffer = sdscatlen(buffer, ",", 1);
+                            }
+                            buffer = sdscatsds(buffer, obj);
                         }
-                        buffer = sdscatsds(buffer, obj);
                         sdsclear(obj);
+                        entity_count++;
+                        if (entity_count == real_limit) {
+                            break;
+                        }
                     }
                 }
+                else {
+                    MYMPD_LOG_ERROR("\"%s\": Reading last_played line failed", partition_state->name);
+                    MYMPD_LOG_DEBUG("Errorneous line: %s", line);
+                    FREE_SDS(uri);
+                }
             }
-            else {
-                MYMPD_LOG_ERROR("\"%s\": Reading last_played line failed", partition_state->name);
-                MYMPD_LOG_DEBUG("Errorneous line: %s", line);
+            (void) fclose(fp);
+            FREE_SDS(line);
+        }
+        else {
+            MYMPD_LOG_DEBUG("Can not open file \"%s\"", lp_file);
+            if (errno != ENOENT) {
+                //ignore missing last_played file
+                MYMPD_LOG_ERRNO(errno);
             }
-            FREE_SDS(uri);
         }
-        (void) fclose(fp);
-        FREE_SDS(line);
+        FREE_SDS(lp_file);
     }
-    else {
-        MYMPD_LOG_DEBUG("Can not open file \"%s\"", lp_file);
-        if (errno != ENOENT) {
-            //ignore missing last_played file
-            MYMPD_LOG_ERRNO(errno);
-        }
-    }
-    FREE_SDS(lp_file);
     FREE_SDS(obj);
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "totalEntities", -1, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_end(buffer);
