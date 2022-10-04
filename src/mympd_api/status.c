@@ -209,7 +209,6 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
  * Copies mpd and myMPD states to the lua_mympd_state struct
  * @param lua_partition_state pointer to struct t_list
  * @param partition_state pointer to partition state
- * @param listenbrainz_token listenbrainz token
  * @return true on success, else false
  */
 bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_partition_state *partition_state) {
