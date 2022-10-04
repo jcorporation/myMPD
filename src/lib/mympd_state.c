@@ -251,16 +251,15 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->last_song_uri = sdsempty();
     partition_state->queue_version = 0;
     partition_state->queue_length = 0;
-    partition_state->last_last_played_id = -1;
-    partition_state->song_end_time = 0;
+    partition_state->last_scrobbled_id = -1;
     partition_state->song_start_time = 0;
-    partition_state->last_song_end_time = 0;
+    partition_state->song_scrobble_time = 0;
+    partition_state->song_end_time = 0;
     partition_state->last_song_start_time = 0;
+    partition_state->last_song_scrobble_time = 0;
+    partition_state->last_song_end_time = 0;
     partition_state->last_skipped_id = 0;
-    partition_state->set_song_played_time = 0;
-    partition_state->last_song_set_song_played_time = 0;
     partition_state->crossfade = 0;
-    partition_state->set_song_played_time = 0;
     partition_state->auto_play = MYMPD_AUTO_PLAY;
     partition_state->next = NULL;
     //jukebox

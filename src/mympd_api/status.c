@@ -142,13 +142,14 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
         }
         return buffer;
     }
-
+    time_t now = time(NULL);
     int song_id = mpd_status_get_song_id(status);
     if (partition_state->song_id != song_id) {
+        //song has changed, save old state
         partition_state->last_song_id = partition_state->song_id;
         partition_state->last_song_end_time = partition_state->song_end_time;
         partition_state->last_song_start_time = partition_state->song_start_time;
-        partition_state->last_song_set_song_played_time = partition_state->set_song_played_time;
+        partition_state->last_song_scrobble_time = partition_state->song_scrobble_time;
         struct mpd_song *song = mpd_run_current_song(partition_state->conn);
         if (song != NULL) {
             partition_state->last_song_uri = sds_replace(partition_state->last_song_uri, partition_state->song_uri);
@@ -172,31 +173,24 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
 
     time_t total_time = (time_t)mpd_status_get_total_time(status);
     time_t elapsed_time = (time_t)mympd_api_get_elapsed_seconds(status);
+    //scrobble time is half length of song or SCROBBLE_TIME_MAX (4 minutes) whatever is shorter
+    time_t scrobble_time = total_time > SCROBBLE_TIME_TOTAL ? SCROBBLE_TIME_MAX
+                                                            : total_time / 2;
 
-    time_t now = time(NULL);
-    time_t uptime = now - partition_state->mympd_state->config->startup_time;
+    partition_state->song_start_time = now - elapsed_time;
+    partition_state->song_end_time = total_time == 0 ? 0 : now + total_time - elapsed_time;
 
-    if (total_time == 0) {
-        //no song end time for streams
-        partition_state->song_end_time = 0;
+    if (total_time <= SCROBBLE_TIME_MIN ||  //don't track songs with length < SCROBBLE_TIME_MIN (10s)
+        elapsed_time > scrobble_time)       //don't track songs that exceeded scrobble time
+    {
+        partition_state->song_scrobble_time = 0;
     }
     else {
-        partition_state->song_end_time = now + total_time - elapsed_time;
+        partition_state->song_scrobble_time = now - elapsed_time + scrobble_time;
     }
-    partition_state->song_start_time = now - elapsed_time;
-    time_t half_time = total_time / 2;
-
-    if (total_time <= 10 ||  //don't track songs with length < 10s
-        uptime < half_time)  //don't track songs with played more then half before startup
-    {
-        partition_state->set_song_played_time = 0;
-    }
-    else if (half_time > 240) {  //set played after 4 minutes
-        partition_state->set_song_played_time = now - elapsed_time + 240;
-    }
-    else { //set played after halftime of song
-        partition_state->set_song_played_time = elapsed_time < half_time ? now - elapsed_time + half_time : now;
-    }
+    MYMPD_LOG_DEBUG("Now %lld, start time %lld, scrobble time %lld, end time %lld",
+        (long long)now, (long long)partition_state->song_start_time, 
+        (long long)partition_state->song_scrobble_time, (long long)partition_state->song_end_time);
 
     if (request_id == REQUEST_ID_NOTIFY) {
         buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_STATE);
@@ -218,9 +212,7 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
  * @param listenbrainz_token listenbrainz token
  * @return true on success, else false
  */
-bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_partition_state *partition_state,
-        sds listenbrainz_token)
-{
+bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_partition_state *partition_state) {
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status == NULL) {
         mympd_check_error_and_recover(partition_state);
@@ -254,7 +246,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     mpd_response_finish(partition_state->conn);
     mympd_check_error_and_recover(partition_state);
     lua_mympd_state_set_p(lua_partition_state, "jukebox_unique_tag", mpd_tag_name(partition_state->jukebox_unique_tag.tags[0]));
-    lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", listenbrainz_token);
+    lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", partition_state->mympd_state->listenbrainz_token);
     return true;
 }
 

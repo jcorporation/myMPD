@@ -575,7 +575,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         case INTERNAL_API_SCRIPT_INIT: {
             struct t_list *lua_mympd_state = list_new();
-            rc = mympd_api_status_lua_mympd_state_set(lua_mympd_state, partition_state, mympd_state->listenbrainz_token);
+            rc = mympd_api_status_lua_mympd_state_set(lua_mympd_state, partition_state);
             if (rc == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_SCRIPT);
                 response->extra = lua_mympd_state;

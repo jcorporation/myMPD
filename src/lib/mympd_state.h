@@ -128,15 +128,15 @@ struct t_partition_state {
     sds last_song_uri;                     //!< previous song uri
     unsigned queue_version;                //!< queue version number (increments on queue change)
     long long queue_length;                //!< length of the queue
-    int last_last_played_id;               //!< last scrobble event was fired for this song id
+    int last_scrobbled_id;                 //!< last scrobble event was fired for this song id
     int last_skipped_id;                   //!< last skipped event was fired for this song id
     time_t song_end_time;                  //!< timestamp at which current song should end (starttime + duration)
     time_t last_song_end_time;             //!< timestamp at which previous song should end (starttime + duration)
     time_t song_start_time;                //!< timestamp at which current song has started
     time_t last_song_start_time;           //!< timestamp at which previous song has started
     time_t crossfade;                      //!< used for determine when to add next song from jukebox queue
-    time_t set_song_played_time;           //!< timestamp at which the next scrobble event will be fired
-    time_t last_song_set_song_played_time; //!< timestamp of the previous scrobble event
+    time_t song_scrobble_time;             //!< timestamp at which the next scrobble event will be fired
+    time_t last_song_scrobble_time;        //!< timestamp of the previous scrobble event
     bool auto_play;                        //!< start play if queue changes
     //jukebox
     enum jukebox_modes jukebox_mode;       //!< the jukebox mode

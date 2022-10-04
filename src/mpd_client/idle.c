@@ -221,11 +221,11 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
             if (partition_state->play_state == MPD_STATE_PLAY) {
                 time_t now = time(NULL);
                 //check if we should set the played state of current song
-                if (now > partition_state->set_song_played_time &&
-                    partition_state->set_song_played_time > 0 &&
-                    partition_state->last_last_played_id != partition_state->song_id)
+                if (now > partition_state->song_scrobble_time &&
+                    partition_state->song_scrobble_time > 0 &&
+                    partition_state->last_scrobbled_id != partition_state->song_id)
                 {
-                    MYMPD_LOG_DEBUG("\"%s\": Song has played half: %lld", partition_state->name, (long long)partition_state->set_song_played_time);
+                    MYMPD_LOG_DEBUG("\"%s\": Song scrobble time reached: %lld", partition_state->name, (long long)partition_state->song_scrobble_time);
                     set_played = true;
                 }
                 //check if the jukebox should add a song
@@ -272,7 +272,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                 }
                 //set song played state
                 if (set_played == true) {
-                    partition_state->last_last_played_id = partition_state->song_id;
+                    partition_state->last_scrobbled_id = partition_state->song_id;
 
                     if (partition_state->mpd_state->last_played_count > 0) {
                         mympd_api_last_played_add_song(partition_state, partition_state->song_id);
@@ -398,7 +398,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                     {
                         time_t now = time(NULL);
                         if (partition_state->mpd_state->feat_stickers == true &&   //stickers enabled
-                            partition_state->last_song_set_song_played_time > now) //time in the future
+                            partition_state->last_song_scrobble_time > now) //time is in the future
                         {
                             //last song skipped
                             time_t elapsed = now - partition_state->last_song_start_time;
