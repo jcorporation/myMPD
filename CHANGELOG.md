@@ -15,6 +15,7 @@ This minor release adds support of new MPD 0.24 features.
 - Feat: autoconfiguration for pcre support (MPD 0.24) #843
 - Feat: support starts_with filter expression (MPD 0.24) #843
 - Feat: support queue save modes (MPD 0.24) #848
+- Feat: add elapsed sticker to save recent position from songs #781
 - Upd: libmympdclient 1.0.15
 - Upd: improve translation framework
 

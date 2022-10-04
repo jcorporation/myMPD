@@ -105,7 +105,7 @@ const browseFilesystemHistory = {};
 
 //list of stickers
 const stickerList = ['stickerPlayCount', 'stickerSkipCount', 'stickerLastPlayed',
-    'stickerLastSkipped', 'stickerLike'];
+    'stickerLastSkipped', 'stickerLike', 'stickerElapsed'];
 
 //application state
 const app = {};

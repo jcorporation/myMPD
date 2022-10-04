@@ -241,6 +241,7 @@ static bool get_sticker_from_mpd(struct t_partition_state *partition_state, cons
     sticker->last_played = 0;
     sticker->last_skipped = 0;
     sticker->like = 1;
+    sticker->elapsed = 0;
 
     bool rc = mpd_send_sticker_list(partition_state->conn, "song", uri);
     if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_send_sticker_list") == false) {

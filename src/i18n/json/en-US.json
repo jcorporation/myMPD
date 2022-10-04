@@ -23,6 +23,7 @@
     "stickerLike": "Like",
     "stickerPlayCount": "Play count",
     "stickerSkipCount": "Skip count",
+    "stickerElapsed": "Elapsed",
     "Discnum": "Disc %{smart_count}",
     "Webradioformat": "%{codec} / %{bitrate} kbit"
 }

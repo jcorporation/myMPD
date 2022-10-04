@@ -136,6 +136,20 @@ bool sticker_set_last_skipped(struct t_list *sticker_queue, const char *uri) {
 }
 
 /**
+ * Sets the elapsed sticker
+ * @param sticker_queue pointer to sticker queue
+ * @param uri song uri
+ * @param elapsed elapsed time of the song
+ * @return true on success else false
+ */
+bool sticker_set_elapsed(struct t_list *sticker_queue, const char *uri, time_t elapsed) {
+    if (is_streamuri(uri) == true) {
+        return true;
+    }
+    return list_push(sticker_queue, uri, (long long)elapsed, "elapsed", NULL);
+}
+
+/**
  * Shifts through the sticker queue
  * @param sticker_queue pointer to sticker queue struct
  * @param sticker_cache pointer to sticker cache struct
@@ -162,7 +176,8 @@ bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache
         }
         else if (strcmp(current->value_p, "like") == 0 ||
                  strcmp(current->value_p, "lastPlayed") == 0 ||
-                 strcmp(current->value_p, "lastSkipped") == 0)
+                 strcmp(current->value_p, "lastSkipped") == 0 ||
+                 strcmp(current->value_p, "elapsed") == 0)
         {
             sticker_set(sticker_cache, partition_state, current->key, current->value_p, current->value_i);
         }
@@ -248,6 +263,9 @@ static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state 
     }
     else if (strcmp(name, "lastSkipped") == 0) {
         sticker->last_skipped = (time_t)value;
+    }
+    else if (strcmp(name, "elapsed") == 0) {
+        sticker->elapsed = (time_t)value;
     }
     else {
         MYMPD_LOG_ERROR("Invalid sticker name \"%s\"", name);

@@ -392,6 +392,21 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                 }
                 case MPD_IDLE_PLAYER:
                     //player status has changed - partition specific event
+                    if (partition_state->mpd_state->feat_stickers == true &&
+                        partition_state->song_id > -1)
+                    {
+                        //set song elapsed sticker
+                        time_t now = time(NULL);
+                        time_t elapsed = now - partition_state->song_start_time;
+                        time_t total_time = partition_state->song_end_time - partition_state->song_start_time - elapsed;
+                        if (elapsed < 10 ||
+                            total_time < 10)
+                        {
+                            //10 seconds inaccuracy
+                            elapsed = 0;
+                        }
+                        sticker_set_elapsed(&partition_state->mpd_state->sticker_queue, partition_state->song_uri, elapsed);
+                    }
                     //get and put mpd state
                     buffer = mympd_api_status_get(partition_state, buffer, REQUEST_ID_NOTIFY);
                     //check if song has changed
@@ -400,8 +415,8 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                         partition_state->last_song_uri != NULL)
                     {
                         time_t now = time(NULL);
-                        if (partition_state->mpd_state->feat_stickers == true &&   //stickers enabled
-                            partition_state->last_song_scrobble_time > now) //time is in the future
+                        if (partition_state->mpd_state->feat_stickers == true &&  //stickers enabled
+                            partition_state->last_song_scrobble_time > now)       //time is in the future
                         {
                             //last song skipped
                             time_t elapsed = now - partition_state->last_song_start_time;

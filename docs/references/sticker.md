@@ -8,11 +8,12 @@ myMPD uses stickers to save statistics and votes of songs.
 
 | STICKER | DESCRIPTION |
 | ------- | ----------- |
-| playCount | How often the song was played (1) |
-| skipCount | How often the song was skipped |
-| like | 0 - dislike, 1 - neutral, 2 - like |
+| elapsed | recent song position |
 | lastPlayed | last played time of song (unix timestamp) |
 | lastSkipped | last skipped time of songs (unix timestamp) |
+| like | 0 - dislike, 1 - neutral, 2 - like |
+| playCount | How often the song was played |
+| skipCount | How often the song was skipped |
 {: .table .table-sm }
 
 **playCount is updated:**

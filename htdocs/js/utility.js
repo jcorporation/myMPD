@@ -1460,6 +1460,8 @@ function printValue(key, value) {
         case 'stickerLike':
             return elCreateText('span', {"class": ["mi"]},
                 value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up');
+        case 'stickerElapsed':
+            return document.createTextNode(beautifySongDuration(value));
         case 'Artist':
         case 'ArtistSort':
         case 'AlbumArtist':
