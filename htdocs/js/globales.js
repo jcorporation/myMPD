@@ -77,7 +77,7 @@ const userAgentData = {};
 userAgentData.hasIO = 'IntersectionObserver' in window ? true : false;
 
 function setUserAgentData() {
-    //get interresting browser agent data
+    //get interesting browser agent data
     //https://developer.mozilla.org/en-US/docs/Web/API/User-Agent_Client_Hints_API
     if (navigator.userAgentData) {
         navigator.userAgentData.getHighEntropyValues(["platform"]).then(ua => {
@@ -93,7 +93,7 @@ function setUserAgentData() {
 }
 setUserAgentData();
 
-//minimum mpd version to support all myMPD features
+//minimum stable mpd version to support all myMPD features
 const mpdVersion = {
     "major": 0,
     "minor": 23,
