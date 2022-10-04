@@ -275,14 +275,17 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                     partition_state->last_scrobbled_id = partition_state->song_id;
 
                     if (partition_state->mpd_state->last_played_count > 0) {
+                        //add song to the last_played list
                         mympd_api_last_played_add_song(partition_state, partition_state->song_id);
                     }
                     if (partition_state->mpd_state->feat_stickers == true) {
+                        //set stickers
                         sticker_inc_play_count(&partition_state->mpd_state->sticker_queue,
                             partition_state->song_uri);
                         sticker_set_last_played(&partition_state->mpd_state->sticker_queue,
                             partition_state->song_uri, partition_state->last_song_start_time);
                     }
+                    //scrobble event
                     mympd_api_trigger_execute(&partition_state->mympd_state->trigger_list, TRIGGER_MYMPD_SCROBBLE, partition_state->name);
                 }
                 //trigger jukebox
