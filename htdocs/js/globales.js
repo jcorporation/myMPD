@@ -10,7 +10,6 @@ let websocketTimer = null;
 let websocketKeepAliveTimer = null;
 let searchTimer = null;
 const searchTimerTimeout = 500;
-let currentSong = '';
 let currentSongObj = {};
 let currentState = {};
 let settings = {

@@ -320,12 +320,6 @@ function parseCurrentSong(obj) {
     const list = document.getElementById('PlaybackList');
     unsetUpdateView(list);
 
-    //check for song change
-    //use title to detect stream changes
-    const newSong = obj.result.uri + ':' + obj.result.Title + ':' + obj.result.currentSongId;
-    if (currentSong === newSong) {
-        return;
-    }
     let textNotification = '';
     let pageTitle = '';
 
@@ -450,7 +444,6 @@ function parseCurrentSong(obj) {
     setScrollViewHeight(list);
 
     //remember current song
-    currentSong = newSong;
     currentSongObj = obj.result;
 }
 
