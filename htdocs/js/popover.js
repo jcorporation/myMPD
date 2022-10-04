@@ -156,25 +156,23 @@ function createPopoverColumns(el) {
     el.addEventListener('show.bs.popover', function() {
         const menu = elCreateEmpty('form', {});
         setColsChecklist(app.id, menu);
-        menu.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-success", "btn-sm", "w-100", "mt-2"]}, 'Apply')
-        );
         menu.addEventListener('click', function(eventClick) {
-            if (eventClick.target.nodeName === 'BUTTON' &&
-                eventClick.target.classList.contains('mi'))
-            {
+            if (eventClick.target.nodeName === 'BUTTON') {
                 toggleBtnChk(eventClick.target);
                 eventClick.preventDefault();
                 eventClick.stopPropagation();
             }
-            else if (eventClick.target.nodeName === 'BUTTON') {
-                eventClick.preventDefault();
-                saveCols(app.id);
-            }
         }, false);
         const popoverBody = popoverInit.tooltip.getElementsByClassName('popover-body')[0];
         elReplaceChild(popoverBody, menu);
+        const applyEl = elCreateTextTn('button', {"class": ["btn", "btn-success", "btn-sm", "w-100", "mt-2"]}, 'Apply');
+        popoverBody.appendChild(applyEl);
+        applyEl.addEventListener('click', function(eventClick) {
+            eventClick.preventDefault();
+            saveCols(app.id);
+        }, false);
         popoverBody.setAttribute('id', app.id + 'ColsDropdown');
+        popoverHeight(el, popoverBody.firstElementChild);
     }, false);
 
     return popoverInit;
@@ -189,6 +187,7 @@ function createPopoverSimple(el, title, contentCallback) {
         contentCallback(popoverBody, el);
         createPopoverClickHandler(popoverBody);
     }, false);
+
     return popoverInit;
 }
 
@@ -224,6 +223,7 @@ function createPopoverTabs(el, tab1Callback, tab2Callback) {
             }
         }
     }, false);
+
     return popoverInit;
 }
 

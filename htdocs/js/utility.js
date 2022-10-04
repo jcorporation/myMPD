@@ -575,6 +575,12 @@ function alignDropdown(el) {
     }
 }
 
+function popoverHeight(el, scrollEl) {
+    const mh = window.innerHeight / 3 * 2;
+    scrollEl.style.maxHeight = mh + 'px';
+    scrollEl.style.overflow = 'auto';
+}
+
 function getXpos(el) {
     let xPos = 0;
     while (el) {
