@@ -192,7 +192,7 @@ function parseState(obj) {
         document.getElementById('footerCover').classList.remove('clickable');
         document.getElementById('currentTitle').classList.remove('clickable');
         clearCurrentCover();
-        const pb = document.querySelector('#cardPlaybackTags p');
+        const pb = document.querySelectorAll('#cardPlaybackTags p');
         for (let i = 0, j = pb.length; i < j; i++) {
             elClear(pb[i]);
         }

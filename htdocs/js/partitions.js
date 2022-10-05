@@ -29,11 +29,11 @@ function initPartitions() {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'BUTTON') {
-            toggleBtnChk(event.target);
+            toggleBtnChk(event.target, undefined);
         }
         else if (event.target.nodeName === 'TD') {
             const target = event.target.parentNode.firstChild.firstChild;
-            toggleBtnChk(target);
+            toggleBtnChk(target, undefined);
         }
     }, false);
 

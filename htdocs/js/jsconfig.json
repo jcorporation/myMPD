@@ -6,5 +6,9 @@
     "include": [
       "*.js",
       "*.ts"
+    ],
+    "exclude": [
+      "bootstrap-native.js",
+      "long-press-event.js"
     ]
 }

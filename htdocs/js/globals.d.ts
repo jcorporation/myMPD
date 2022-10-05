@@ -5,11 +5,23 @@ declare var BSN: object;
 interface ChildNode {
     querySelectorAll: any;
     setAttribute: any;
+    style: any;
+    title: any;
 }
 
 interface Element {
+    addFilterResult: any; //custom elements
+    addFilterResultPlain: any; //custom elements
     button: any; //custom elements
+    dropdownButton: any; //custom elements
+    filterInput: any; //custom elements
+    filterResult: any; //custom elements
     name: any;
+    offsetHeight: any;
+    offsetParent: any;
+    offsetTop: any;
+    options: any;
+    selectedIndex: any;
     style: any;
     value: any;
 }
@@ -20,11 +32,16 @@ interface EventTarget {
     cloneNode
     getAttribute: any;
     id: any;
+    nextElementSibling: any;
     nodeName: any;
     offsetWidth: any;
+    options: any;
     parentNode: any;
+    querySelector: any;
     remove: any;
+    selectedIndex: any;
     tagName: any;
+    textContent: any;
     value: any;
 }
 
@@ -53,6 +70,8 @@ interface Navigator {
 interface Node {
     classList: any;
     querySelector: any;
+    removeAttribute: any;
+    setAttribute: any;
 }
 
 interface Object {

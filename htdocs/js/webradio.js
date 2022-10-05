@@ -516,9 +516,9 @@ function getWebradiodb() {
         filterWebradiodbFilter('filterWebradiodbLanguage', 'webradioLanguages', 'Language', '');
         filterWebradiodbFilter('filterWebradiodbCodec', 'webradioCodecs', 'Codec', '');
         filterWebradiodbFilter('filterWebradiodbBitrate', 'webradioBitrates', 'Bitrate', '');
-        const result = searchWebradiodb(app.current.search, app.current.filter.genre,
-            app.current.filter.country, app.current.filter.language, app.current.filter.codec,
-            app.current.filter.bitrate, app.current.sort, app.current.offset, app.current.limit);
+        const result = searchWebradiodb(app.current.search, app.current.filter['genre'],
+            app.current.filter['country'], app.current.filter['language'], app.current.filter['codec'],
+            app.current.filter['bitrate'], app.current.sort, app.current.offset, app.current.limit);
         parseSearchWebradiodb(result);
     }, false);
 }
@@ -628,9 +628,9 @@ function parseSearchWebradiodb(obj) {
     const tfoot = document.querySelector('#BrowseRadioWebradiodbList > tfoot');
     elClear(tfoot);
 
-    if (app.current.filter.genre === '' &&
-        app.current.filter.country === '' &&
-        app.current.filter.language === '')
+    if (app.current.filter['genre'] === '' &&
+        app.current.filter['country'] === '' &&
+        app.current.filter['language'] === '')
     {
         document.getElementById('BrowseRadioWebradiodbFilterBtn').textContent = 'filter_list_off';
     }
@@ -756,9 +756,9 @@ function countClickRadiobrowser(uuid) {
 }
 
 function searchRadiobrowser() {
-    app.current.filter.tags = document.getElementById('inputRadiobrowserTags').value;
-    app.current.filter.country = document.getElementById('inputRadiobrowserCountry').value;
-    app.current.filter.language = document.getElementById('inputRadiobrowserLanguage').value;
+    app.current.filter['tags'] = document.getElementById('inputRadiobrowserTags').value;
+    app.current.filter['country'] = document.getElementById('inputRadiobrowserCountry').value;
+    app.current.filter['language'] = document.getElementById('inputRadiobrowserLanguage').value;
     appGoto(app.current.card, app.current.tab, app.current.view,
         0, app.current.limit, app.current.filter, '-', '-', document.getElementById('BrowseRadioRadiobrowserSearchStr').value);
 }
@@ -833,9 +833,9 @@ function parseRadiobrowserDetails(obj) {
 }
 
 function parseRadiobrowserList(obj) {
-    if (app.current.filter.tags === '' &&
-        app.current.filter.country === '' &&
-        app.current.filter.language === '')
+    if (app.current.filter['tags'] === '' &&
+        app.current.filter['country'] === '' &&
+        app.current.filter['language'] === '')
     {
         document.getElementById('BrowseRadioRadiobrowserFilterBtn').textContent = 'filter_list_off';
     }

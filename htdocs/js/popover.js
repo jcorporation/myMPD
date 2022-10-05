@@ -158,7 +158,7 @@ function createPopoverColumns(el) {
         setColsChecklist(app.id, menu);
         menu.addEventListener('click', function(eventClick) {
             if (eventClick.target.nodeName === 'BUTTON') {
-                toggleBtnChk(eventClick.target);
+                toggleBtnChk(eventClick.target, undefined);
                 eventClick.preventDefault();
                 eventClick.stopPropagation();
             }
@@ -172,7 +172,7 @@ function createPopoverColumns(el) {
             saveCols(app.id);
         }, false);
         popoverBody.setAttribute('id', app.id + 'ColsDropdown');
-        popoverHeight(el, popoverBody.firstElementChild);
+        popoverHeight(popoverBody.firstElementChild);
     }, false);
 
     return popoverInit;

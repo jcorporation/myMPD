@@ -889,7 +889,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
             }
             else {
                 btn.addEventListener('click', function(event) {
-                    toggleBtnChk(event.target);
+                    toggleBtnChk(event.target, undefined);
                 }, false);
             }
             col.appendChild(btn);
@@ -1362,7 +1362,7 @@ function saveQueueSettingsClose(obj) {
 
 function getTagMultiSelectValues(taglist, translated) {
     const values = [];
-    const chkBoxes = taglist.querySelector('button');
+    const chkBoxes = taglist.querySelectorAll('button');
     for (let i = 0, j = chkBoxes.length; i < j; i++) {
         if (chkBoxes[i].classList.contains('active')) {
             if (translated === true) {
@@ -1413,7 +1413,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'BUTTON') {
-            toggleBtnChk(event.target);
+            toggleBtnChk(event.target, undefined);
             event.target.parentNode.parentNode.parentNode.previousElementSibling.value =
                 getTagMultiSelectValues(event.target.parentNode.parentNode, true);
         }
@@ -1496,12 +1496,12 @@ function setNavbarIcons() {
             icon.options.length === 1)
         {
             a.appendChild(
-                elCreateText('span', {"id": "badgeQueueItems", "class": ["badge", "bg-secondary"]}, oldQueueLength)
+                elCreateText('span', {"id": "badgeQueueItems", "class": ["badge", "bg-secondary"]}, oldQueueLength.toString())
             );
         }
         btn.appendChild(a);
         container.appendChild(btn);
-        setData(a, 'href', JSON.stringify({"cmd": "appGoto", "options": icon.options}));
+        setData(a, 'href', {"cmd": "appGoto", "options": icon.options});
     }
 
     //cache elements, reused in appPrepare

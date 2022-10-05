@@ -422,7 +422,7 @@ function createLyricsTabs(el, obj) {
         const lr = document.getElementById('lyricsResize');
         if (lr !== null) {
             lr.addEventListener('click', function(event) {
-                toggleBtn(event.target);
+                toggleBtn(event.target, undefined);
                 const mh = event.target.classList.contains('active') ? '16rem' : 'unset';
                 const lt = document.querySelectorAll('.lyricsText');
                 for (const l of lt) {

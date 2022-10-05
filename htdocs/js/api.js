@@ -3,7 +3,10 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @type {Object} This messages are hidden from notifications. */
+/**
+ * This messages are hidden from notifications.
+ */
+/** @type {Object} */
 const ignoreMessages = ['No current song', 'No lyrics found'];
 
 /**

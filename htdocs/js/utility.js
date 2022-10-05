@@ -3,123 +3,10 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-//element handling shortcuts
-function elCreateTextTnNr(tagName, attributes, text, number) {
-    attributes["data-phrase"] = text;
-    attributes["data-phrase-number"] = number;
-    return elCreateText(tagName, attributes, tn(text, number));
-}
-
-function elCreateTextTnData(tagName, attributes, text, data) {
-    attributes["data-phrase"] = text;
-    attributes["data-phrase-data"] = JSON.stringify(data);
-    return elCreateText(tagName, attributes, tn(text, data));
-}
-
-function elCreateTextTn(tagName, attributes, text) {
-    attributes["data-phrase"] = text;
-    return elCreateText(tagName, attributes, tn(text));
-}
-
-function elCreateText(tagName, attributes, text) {
-    if (attributes["data-title-phrase"] !== undefined) {
-        attributes["title"] = tn(attributes["data-title-phrase"]);
-    }
-    const tag = elCreateEmpty(tagName, attributes);
-    tag.textContent = text;
-    return tag;
-}
-
-function elCreateNode(tagName, attributes, node) {
-    const tag = elCreateEmpty(tagName, attributes);
-    tag.appendChild(node);
-    return tag;
-}
-
-function elCreateNodes(tagName, attributes, nodes) {
-    const tag = elCreateEmpty(tagName, attributes);
-    for (const node of nodes) {
-        if (node !== null) {
-            tag.appendChild(node);
-        }
-    }
-    return tag;
-}
-
-function elCreateEmpty(tagName, attributes) {
-    const tag = document.createElement(tagName);
-    for (const key in attributes) {
-        switch(key) {
-            case 'class':
-                tag.classList.add(...attributes[key]);
-                break;
-            case 'is':
-                tag.setAttribute('data-is', attributes[key]);
-                break;
-            default:
-                tag.setAttribute(key, attributes[key]);
-        }
-    }
-    return tag;
-}
-
-function elReplaceChildId(id, child) {
-    elReplaceChild(document.getElementById(id), child);
-}
-
-function elReplaceChild(el, child) {
-    elClear(el);
-    el.appendChild(child);
-}
-
-function elHideId(id) {
-    document.getElementById(id).classList.add('d-none');
-}
-
-function elShowId(id) {
-    document.getElementById(id).classList.remove('d-none');
-}
-
-function elClearId(id) {
-    document.getElementById(id).textContent = '';
-}
-
-function elHide(el) {
-    el.classList.add('d-none');
-}
-
-function elShow(el) {
-    el.classList.remove('d-none');
-}
-
-function elClear(el) {
-    el.textContent = '';
-}
-
-function elDisableId(el) {
-    document.getElementById(el).setAttribute('disabled', 'disabled');
-}
-
-function elDisable(el) {
-    el.setAttribute('disabled', 'disabled');
-    //manually disabled, remove disabled class
-    el.classList.remove('disabled');
-    el.classList.replace('clickable', 'not-clickable');
-}
-
-function elEnableId(el) {
-    document.getElementById(el).removeAttribute('disabled');
-}
-
-function elEnable(el) {
-    el.removeAttribute('disabled');
-    el.classList.replace('not-clickable', 'clickable');
-}
-
-function elReflow(el) {
-    return el.offsetHeight;
-}
-
+/**
+ * Gets the currently opened modal
+ * @returns {Element} the opened modal or null if no modal is opened
+ */
 function getOpenModal() {
     const modals = document.querySelectorAll('.modal');
     for (const modal of modals) {
@@ -130,43 +17,60 @@ function getOpenModal() {
     return null;
 }
 
-function setFocusId(id) {
-    setFocus(document.getElementById(id));
-}
-
-function setFocus(el) {
-    if (userAgentData.isMobile === false) {
-        el.focus();
-    }
-}
-
+/**
+ * Sets the updating indicator(s) for a view with the given id
+ * @param {String} id 
+ */
 function setUpdateViewId(id) {
     setUpdateView(document.getElementById(id));
 }
 
+/**
+ * Sets the updating indicator(s) for the element
+ * @param {Element} el 
+ */
 function setUpdateView(el) {
     el.classList.add('opacity05');
     domCache.main.classList.add('border-progress');
 }
 
+/**
+ * Removes the updating indicator(s) for a view with the given id
+ * @param {String} id 
+ */
 function unsetUpdateViewId(id) {
     unsetUpdateView(document.getElementById(id));
 }
 
+/**
+ * Removes the updating indicator(s) for the element
+ * @param {Element} el 
+ */
 function unsetUpdateView(el) {
     el.classList.remove('opacity05');
     domCache.main.classList.remove('border-progress');
 }
 
-//replaces special characters with underscore
+/**
+ * Replaces special characters with underscore
+ * @param {String} x string to replace
+ */
 function r(x) {
     return x.replace(/[^\w-]/g, '_');
 }
 
+/**
+ * Removes all invalid indicators and warning messages from a modal with the given id.
+ * @param {String} id id of the modal
+ */
 function cleanupModalId(id) {
     cleanupModal(document.getElementById(id));
 }
 
+/**
+ * Removes all invalid indicators and warning messages from a modal pointed by el.
+ * @param {Element} el the modal element
+ */
 function cleanupModal(el) {
     //remove validation warnings
     removeIsInvalid(el);
@@ -184,7 +88,12 @@ function cleanupModal(el) {
     }
 }
 
-//confirmation dialogs
+/**
+ * Shows a confirmation modal
+ * @param {String} text text to show (already translated)
+ * @param {String} btnText text for the yes button (already translated)
+ * @param {Function} callback callback function on confirmation
+ */
 function showConfirm(text, btnText, callback) {
     document.getElementById('modalConfirmText').textContent = text;
     const yesBtn = elCreateText('button', {"id": "modalConfirmYesBtn", "class": ["btn", "btn-danger"]}, btnText);
@@ -200,6 +109,13 @@ function showConfirm(text, btnText, callback) {
     uiElements.modalConfirm.show();
 }
 
+/**
+ * Shows an inline confirmation (for open modals)
+ * @param {Element} el parent element to add the confirmation dialog
+ * @param {String} text text to show (already translated)
+ * @param {String} btnText text for the yes button (already translated)
+ * @param {Function} callback callback function on confirmation
+ */
 function showConfirmInline(el, text, btnText, callback) {
     const confirm = elCreateNode('div', {"class": ["alert", "alert-danger", "mt-2"]},
         elCreateText('p', {}, text)
@@ -226,6 +142,11 @@ function showConfirmInline(el, text, btnText, callback) {
     el.appendChild(confirm);
 }
 
+/**
+ * URL-Encodes the path, ignoring the host
+ * @param {String} str 
+ * @returns encoded string
+ */
 function myEncodeURIhost(str) {
     const match = str.match(/(https?:\/\/[^/]+)(.*)$/);
     if (match) {
@@ -235,249 +156,54 @@ function myEncodeURIhost(str) {
     return myEncodeURI(str);
 }
 
-//custom encoding function
-//works like encodeURIComponent but
-//- does not escape /
-//- escapes further reserved characters
+/**
+ * Custom encoding function, works like encodeURIComponent but
+ * - does not escape /
+ * - escapes further reserved characters
+ * @param {String} str string to encode
+ * @returns the encoded string
+ */
 function myEncodeURI(str) {
     return encodeURI(str).replace(/[!'()*#?;:,@&=+$~]/g, function(c) {
         return '%' + c.charCodeAt(0).toString(16);
     });
 }
 
+/**
+ * Custom encoding function, works like encodeURIComponent but
+ * - escapes further reserved characters
+ * @param {String} str string to encode
+ * @returns the encoded string
+ */
 function myEncodeURIComponent(str) {
     return encodeURIComponent(str).replace(/[!'()*~]/g, function(c) {
         return '%' + c.charCodeAt(0).toString(16);
     });
 }
 
+/**
+ * Wrapper for decodeURIComponent
+ * @param {String} str uri encoded string
+ * @returns decoded string
+ */
 function myDecodeURIComponent(str) {
     return decodeURIComponent(str);
 }
 
+/**
+ * Joins an array to a comma separated text
+ * @param {Array} a 
+ * @returns {String} joined array
+ */
 function joinArray(a) {
     return a === undefined ? '' : a.join(', ');
 }
 
-//functions to execute default actions
-function clickQuickRemove(target) {
-    switch(app.id) {
-        case 'QueueCurrent': {
-            const songId = getData(target.parentNode.parentNode, 'songid');
-            removeFromQueue('single', songId);
-            break;
-        }
-        case 'BrowsePlaylistsDetail': {
-            const pos = getData(target.parentNode.parentNode, 'songpos');
-            const plist = getDataId('BrowsePlaylistsDetailList', 'uri');
-            removeFromPlaylist('single', plist, pos);
-            break;
-        }
-    }
-}
-
-function clickQuickPlay(target) {
-    const type = getData(target.parentNode.parentNode, 'type');
-    let uri = getData(target.parentNode.parentNode, 'uri');
-    if (type === 'webradio') {
-        uri = getRadioFavoriteUri(uri);
-    }
-    switch(settings.webuiSettings.clickQuickPlay) {
-        case 'append': return appendQueue(type, uri);
-        case 'appendPlay': return appendPlayQueue(type, uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue(type, uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue(type, uri);
-        case 'replace': return replaceQueue(type, uri);
-        case 'replacePlay': return replacePlayQueue(type, uri);
-    }
-}
-
-function clickAlbumPlay(albumArtist, album) {
-    switch(settings.webuiSettings.clickQuickPlay) {
-        case 'append': return _addAlbum('appendQueue', albumArtist, album, undefined);
-        case 'appendPlay': return _addAlbum('appendPlayQueue', albumArtist, album, undefined);
-        case 'insertAfterCurrent': return _addAlbum('insertAfterCurrentQueue', albumArtist, album, undefined);
-        case 'insertPlayAfterCurrent': return _addAlbum('insertPlayAfterCurrentQueue', albumArtist, album, undefined);
-        case 'replace': return _addAlbum('replaceQueue', albumArtist, album, undefined);
-        case 'replacePlay': return _addAlbum('replacePlayQueue', albumArtist, album, undefined);
-    }
-}
-
 /**
- * Click song handler
- * @param {String} uri song uri
+ * Escape a MPD filter value
+ * @param {String} x value to escape
+ * @returns {String} escaped value
  */
-function clickSong(uri) {
-    switch (settings.webuiSettings.clickSong) {
-        case 'append': return appendQueue('song', uri);
-        case 'appendPlay': return appendPlayQueue('song', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
-        case 'replace': return replaceQueue('song', uri);
-        case 'replacePlay': return replacePlayQueue('song', uri);
-        case 'view': return songDetails(uri);
-    }
-}
-
-function clickRadiobrowser(uri, uuid) {
-    switch (settings.webuiSettings.clickRadiobrowser) {
-        case 'append': return appendQueue('song', uri);
-        case 'appendPlay': return appendPlayQueue('song', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
-        case 'replace': return replaceQueue('song', uri);
-        case 'replacePlay': return replacePlayQueue('song', uri);
-    }
-    countClickRadiobrowser(uuid);
-}
-
-function clickWebradiodb(uri) {
-    switch (settings.webuiSettings.clickRadiobrowser) {
-        case 'append': return appendQueue('song', uri);
-        case 'appendPlay': return appendPlayQueue('song', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
-        case 'replace': return replaceQueue('song', uri);
-        case 'replacePlay': return replacePlayQueue('song', uri);
-    }
-}
-
-function clickRadioFavorites(uri) {
-    const fullUri = getRadioFavoriteUri(uri);
-    switch(settings.webuiSettings.clickRadioFavorites) {
-        case 'append': return appendQueue('plist', fullUri);
-        case 'appendPlay': return appendPlayQueue('plist', fullUri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', fullUri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', fullUri);
-        case 'replace': return replaceQueue('plist', fullUri);
-        case 'replacePlay': return replacePlayQueue('plist', fullUri);
-        case 'edit': return editRadioFavorite(uri);
-    }
-}
-
-function clickQueueSong(songid, uri) {
-    switch(settings.webuiSettings.clickQueueSong) {
-        case 'play':
-            if (songid === null) {
-                return;
-            }
-            sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {
-                "songId": songid
-            }, null, false);
-            break;
-        case 'view':
-            if (uri === null) {
-                return;
-            }
-            return songDetails(uri);
-    }
-}
-
-function clickPlaylist(uri) {
-    switch(settings.webuiSettings.clickPlaylist) {
-        case 'append': return appendQueue('plist', uri);
-        case 'appendPlay': return appendPlayQueue('plist', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', uri);
-        case 'replace': return replaceQueue('plist', uri);
-        case 'replacePlay': return replacePlayQueue('plist', uri);
-        case 'view': return playlistDetails(uri);
-    }
-}
-
-function clickFilesystemPlaylist(uri) {
-    switch(settings.webuiSettings.clickFilesystemPlaylist) {
-        case 'append': return appendQueue('plist', uri);
-        case 'appendPlay': return appendPlayQueue('plist', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', uri);
-        case 'replace': return replaceQueue('plist', uri);
-        case 'replacePlay': return replacePlayQueue('plist', uri);
-        case 'view':
-            //remember offset for current browse uri
-            browseFilesystemHistory[app.current.search] = {
-                "offset": app.current.offset,
-                "scrollPos": document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop
-            };
-            //reset filter and show playlist
-            app.current.filter = '-';
-            appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, 'plist', uri);
-    }
-}
-
-function clickFolder(uri) {
-    //remember offset for current browse uri
-    browseFilesystemHistory[app.current.search] = {
-        "offset": app.current.offset,
-        "scrollPos": getScrollPosY()
-    };
-    //reset filter and open folder
-    app.current.filter = '-';
-    appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, 'dir', uri);
-}
-
-function seekRelativeForward() {
-    seekRelative(5);
-}
-
-function seekRelativeBackward() {
-    seekRelative(-5);
-}
-
-function seekRelative(offset) {
-    sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
-        "seek": offset,
-        "relative": true
-    }, null, false);
-}
-
-//eslint-disable-next-line no-unused-vars
-function clickPlay() {
-    switch(currentState.state) {
-        case 'play':
-            if (settings.webuiSettings.uiFooterPlaybackControls === 'stop' ||
-                isStreamUri(currentSongObj.uri) === true)
-            {
-                //always stop streams
-                sendAPI("MYMPD_API_PLAYER_STOP", {}, null, false);
-            }
-            else {
-                sendAPI("MYMPD_API_PLAYER_PAUSE", {}, null, false);
-            }
-            break;
-        case 'pause':
-            sendAPI("MYMPD_API_PLAYER_RESUME", {}, null, false);
-            break;
-        default:
-            //fallback if playstate is stop or unknown
-            sendAPI("MYMPD_API_PLAYER_PLAY", {}, null, false);
-    }
-}
-
-//eslint-disable-next-line no-unused-vars
-function clickStop() {
-    sendAPI("MYMPD_API_PLAYER_STOP", {}, null, false);
-}
-
-//eslint-disable-next-line no-unused-vars
-function clickPrev() {
-    sendAPI("MYMPD_API_PLAYER_PREV", {}, null, false);
-}
-
-//eslint-disable-next-line no-unused-vars
-function clickNext() {
-    sendAPI("MYMPD_API_PLAYER_NEXT", {}, null, false);
-}
-
-//eslint-disable-next-line no-unused-vars
-function clickSingle(mode) {
-    //mode: 0 = off, 1 = single, 2 = single one shot
-    sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
-        "single": mode
-    }, null, false);
-}
-
-//escape and unescape MPD filter values
 function escapeMPD(x) {
     if (typeof x === 'number') {
         return x;
@@ -491,6 +217,11 @@ function escapeMPD(x) {
     });
 }
 
+/**
+ * Unescape a MPD filter value
+ * @param {String} x value to unescape
+ * @returns {String} unescaped value
+ */
 function unescapeMPD(x) {
     if (typeof x === 'number') {
         return x;
@@ -504,70 +235,10 @@ function unescapeMPD(x) {
     });
 }
 
-//get and set custom dom properties
-//replaces data-* attributes
-function setDataId(id, attribute, value) {
-    document.getElementById(id)['myMPD-' + attribute] = value;
-}
-
-function setData(el, attribute, value) {
-    el['myMPD-' + attribute] = value;
-}
-
-function getDataId(id, attribute) {
-    return getData(document.getElementById(id), attribute);
-}
-
-function getData(el, attribute) {
-    let value = el['myMPD-' + attribute];
-    if (value === undefined) {
-        //fallback to attribute
-        value = el.getAttribute('data-' + attribute);
-        if (value === null) {
-            //return undefined if attribute is null
-            value = undefined;
-        }
-    }
-    logDebug('getData: "' + attribute + '":"' + value + '"');
-    return value;
-}
-
-//utility functions
-function getSelectValueId(id) {
-    return getSelectValue(document.getElementById(id));
-}
-
-function getSelectValue(el) {
-    if (el && el.selectedIndex >= 0) {
-        return el.options[el.selectedIndex].getAttribute('value');
-    }
-    return undefined;
-}
-
-function getSelectedOptionDataId(id, attribute) {
-    return getSelectedOptionData(document.getElementById(id), attribute)
-}
-
-function getSelectedOptionData(el, attribute) {
-    if (el && el.selectedIndex >= 0) {
-        return getData(el.options[el.selectedIndex], attribute);
-    }
-    return undefined;
-}
-
-function getRadioBoxValueId(id) {
-    return getRadioBoxValue(document.getElementById(id));
-}
-
-function getRadioBoxValue(el) {
-    const radiobuttons = el.querySelectorAll('.form-check-input');
-    for(const button of radiobuttons) {
-        if (button.checked === true){
-            return button.value;
-        }
-    }
-}
-
+/**
+ * Aligns a dropdown left or right from the triggering button.
+ * @param {Element | EventTarget} el 
+ */
 function alignDropdown(el) {
     const toggleEl = el.querySelector('.dropdown-toggle');
     const x = getXpos(toggleEl);
@@ -579,39 +250,42 @@ function alignDropdown(el) {
     }
 }
 
-function popoverHeight(el, scrollEl) {
+/**
+ * Sets the popover height to 2/3 of screen height
+ * @param {Element} el popover element to resize
+ */
+function popoverHeight(el) {
     const mh = window.innerHeight / 3 * 2;
-    scrollEl.style.maxHeight = mh + 'px';
-    scrollEl.style.overflow = 'auto';
+    el.style.maxHeight = mh + 'px';
+    el.style.overflow = 'auto';
 }
 
-function getXpos(el) {
-    let xPos = 0;
-    while (el) {
-        xPos += (el.offsetLeft - el.scrollLeft + el.clientLeft);
-        el = el.offsetParent;
-    }
-    return xPos;
-}
-
-function getYpos(el) {
-    let yPos = 0;
-    while (el) {
-        yPos += (el.offsetTop + el.clientTop);
-        el = el.offsetParent;
-    }
-    return yPos;
-}
-
+/**
+ * Pads a number with zeros
+ * @param {Number} num number to pad
+ * @param {Number} places complete width
+ * @returns {String} padded number
+ */
 function zeroPad(num, places) {
     const zero = places - num.toString().length + 1;
     return Array(+(zero > 0 && zero)).join("0") + num;
 }
 
+/**
+ * Gets the directory from the given uri
+ * @param {String} uri 
+ * @returns {String}
+ */
 function dirname(uri) {
     return uri.replace(/\/[^/]*$/, '');
 }
 
+/**
+ * Gets the filename from the given uri
+ * @param {String} uri 
+ * @param {Boolean} removeQuery true = remove query string or hash
+ * @returns {String}
+ */
 function basename(uri, removeQuery) {
     if (removeQuery === true) {
         return uri.split('/').reverse()[0].split(/[?#]/)[0];
@@ -619,6 +293,11 @@ function basename(uri, removeQuery) {
     return uri.split('/').reverse()[0];
 }
 
+/**
+ * Splits a string in path + filename and extension
+ * @param {String} filename 
+ * @returns {Object}
+ */
 function splitFilename(filename) {
     const parts = filename.match(/^(.*)\.([^.]+)$/);
     return {
@@ -627,8 +306,13 @@ function splitFilename(filename) {
     };
  }
 
+/**
+ * Checks if the uri is defined as an albumart file
+ * @param {*} uri 
+ * @returns {Boolean}
+ */
 function isCoverfile(uri) {
-    const filename = basename(uri);
+    const filename = basename(uri, true);
     const fileparts = splitFilename(filename);
 
     const coverimageNames = [...settings.coverimageNames.split(','), ...settings.thumbnailNames.split(',')];
@@ -646,8 +330,13 @@ function isCoverfile(uri) {
     return false;
 }
 
+/**
+ * Checks if the uri is defined as an albumart thumbnail file
+ * @param {*} uri 
+ * @returns {Boolean}
+ */
 function isThumbnailfile(uri) {
-    const filename = basename(uri);
+    const filename = basename(uri, true);
     const fileparts = splitFilename(filename);
 
     const coverimageNames = settings.thumbnailNames.split(',');
@@ -665,6 +354,11 @@ function isThumbnailfile(uri) {
     return false;
 }
 
+/**
+ * Returns a description of the filetype from uri
+ * @param {String} uri 
+ * @returns {String} description of filetype
+ */
 function filetype(uri) {
     if (uri === undefined) {
         return '';
@@ -687,6 +381,10 @@ function filetype(uri) {
     }
 }
 
+/**
+ * Gets the y-scrolling position
+ * @returns {Number}
+ */
 function getScrollPosY() {
     if (userAgentData.isMobile === true) {
         return document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
@@ -702,8 +400,15 @@ function getScrollPosY() {
     }
 }
 
+/**
+ * Scrolls the container to the y-position
+ * @param {Element | ParentNode} container or null
+ * @param {Number} pos position to scroll
+ */
 function scrollToPosY(container, pos) {
-    if (userAgentData.isMobile === true) {
+    if (userAgentData.isMobile === true ||
+        container === null)
+    {
         // For Safari
         document.body.scrollTop = pos;
         // For Chrome, Firefox, IE and Opera
@@ -714,25 +419,36 @@ function scrollToPosY(container, pos) {
     }
 }
 
-function selectTag(btnsId, desc, setTo) {
-    const btns = document.getElementById(btnsId);
+/**
+ * Marks a tag from a tag dropdown as active and sets the element with descId to its phrase
+ * @param {String} containerId container id (dropdown)
+ * @param {String} descId id of the descriptive element
+ * @param {String} setTo tag to select
+ */
+function selectTag(containerId, descId, setTo) {
+    const btns = document.getElementById(containerId);
     let aBtn = btns.querySelector('.active');
-    if (aBtn) {
+    if (aBtn !== null) {
         aBtn.classList.remove('active');
     }
     aBtn = btns.querySelector('[data-tag=' + setTo + ']');
-    if (aBtn) {
+    if (aBtn !== null) {
         aBtn.classList.add('active');
-        if (desc !== undefined) {
-            const descEl = document.getElementById(desc);
+        if (descId !== undefined) {
+            const descEl = document.getElementById(descId);
             if (descEl !== null) {
                 descEl.textContent = aBtn.textContent;
-                descEl.setAttribute('data-phrase', aBtn.textContent);
+                descEl.setAttribute('data-phrase', aBtn.getAttribute('data-phrase'));
             }
         }
     }
 }
 
+/**
+ * Populates a container with buttons for tags
+ * @param {String} elId id of the element to populate
+ * @param {*} list taglist
+ */
 function addTagList(elId, list) {
     const stack = elCreateEmpty('div', {"class": ["d-grid", "gap-2"]});
     if (list === 'tagListSearch') {
@@ -826,6 +542,11 @@ function addTagList(elId, list) {
     elReplaceChild(el, stack);
 }
 
+/**
+ * Populates a select element with options for tags
+ * @param {String} elId id of the select to populate
+ * @param {*} list taglist
+ */
 function addTagListSelect(elId, list) {
     const select = document.getElementById(elId);
     elClear(select);
@@ -864,11 +585,18 @@ function addTagListSelect(elId, list) {
     }
 }
 
+/**
+ * Opens a modal
+ * @param {String} modal 
+ */
 //eslint-disable-next-line no-unused-vars
 function openModal(modal) {
     uiElements[modal].show();
 }
 
+/**
+ * View specific focus of the search input 
+ */
 //eslint-disable-next-line no-unused-vars
 function focusSearch() {
     switch(app.id) {
@@ -907,374 +635,42 @@ function focusSearch() {
     }
 }
 
-function btnWaitingId(id, waiting) {
-    btnWaiting(document.getElementById(id), waiting);
-}
-
-function btnWaiting(btn, waiting) {
-    if (waiting === true) {
-        const spinner = elCreateEmpty('span', {"class": ["spinner-border", "spinner-border-sm", "me-2"]});
-        btn.insertBefore(spinner, btn.firstChild);
-        elDisable(btn);
-    }
-    else {
-        //add a small delay, user should notice the change
-        setTimeout(function() {
-            elEnable(btn);
-            if (btn.firstChild === null) {
-                return;
-            }
-            if (btn.firstChild.nodeName === 'SPAN' &&
-                btn.firstChild.classList.contains('spinner-border'))
-            {
-                btn.firstChild.remove();
-            }
-        }, 100);
-    }
-}
-
-function toggleBtnGroupValueId(id, value) {
-    return toggleBtnGroupValue(document.getElementById(id), value)
-}
-
-function toggleBtnGroupValue(btngrp, value) {
-    const btns = btngrp.querySelectorAll('button');
-    let b = btns[0];
-    let valuestr = value;
-    if (isNaN(value) === false) {
-        valuestr = value.toString();
-    }
-    for (let i = 0, j = btns.length; i < j; i++) {
-        if (getData(btns[i], 'value') === valuestr) {
-            btns[i].classList.add('active');
-            b = btns[i];
-        }
-        else {
-            btns[i].classList.remove('active');
-        }
-    }
-    return b;
-}
-
-function toggleBtnGroupValueCollapse(btngrp, collapse, value) {
-    const activeBtn = toggleBtnGroupValue(btngrp, value);
-    if (activeBtn.getAttribute('data-collapse') === 'show') {
-        document.getElementById(collapse).classList.add('show');
-    }
-    else {
-        document.getElementById(collapse).classList.remove('show');
-    }
-}
-
-//eslint-disable-next-line no-unused-vars
-function toggleBtnGroupId(id) {
-    return toggleBtnGroup(document.getElementById(id));
-}
-
-function toggleBtnGroup(btn) {
-    const btns = btn.parentNode.querySelectorAll('button');
-    for (let i = 0, j = btns.length; i < j; i++) {
-        if (btns[i] === btn) {
-            btns[i].classList.add('active');
-        }
-        else {
-            btns[i].classList.remove('active');
-        }
-    }
-    return btn;
-}
-
-function getBtnGroupValueId(id) {
-    let activeBtn = document.querySelector('#' + id + ' > .active');
-    if (activeBtn === null) {
-        //fallback to first button
-        activeBtn = document.querySelector('#' + id + ' > button');
-    }
-    return getData(activeBtn, 'value');
-}
-
-//eslint-disable-next-line no-unused-vars
-function toggleBtnGroupCollapse(el, collapse) {
-    const activeBtn = toggleBtnGroup(el);
-    if (activeBtn.getAttribute('data-collapse') === 'show') {
-        if (document.getElementById(collapse).classList.contains('show') === false) {
-            uiElements[collapse].show();
-        }
-    }
-    else {
-        uiElements[collapse].hide();
-    }
-}
-
-//eslint-disable-next-line no-unused-vars
-function toggleBtnId(id, state) {
-    toggleBtn(document.getElementById(id), state);
-}
-
-function toggleBtn(btn, state) {
-    if (state === undefined) {
-        //toggle state
-        state = btn.classList.contains('active') ? false : true;
-    }
-
-    if (state === true ||
-        state === 1)
-    {
-        btn.classList.add('active');
-    }
-    else {
-        btn.classList.remove('active');
-    }
-}
-
-function toggleBtnChkId(id, state) {
-    toggleBtnChk(document.getElementById(id), state);
-}
-
-function toggleBtnChk(btn, state) {
-    if (state === undefined) {
-        //toggle state
-        state = btn.classList.contains('active') ? false : true;
-    }
-
-    if (state === true ||
-        state === 1)
-    {
-        btn.classList.add('active');
-        btn.textContent = 'check';
-        return true;
-    }
-    else {
-        btn.classList.remove('active');
-        btn.textContent = 'radio_button_unchecked';
-        return false;
-    }
-}
-
-function toggleBtnChkCollapseId(id, collapse, state) {
-    toggleBtnChkCollapse(document.getElementById(id), collapse, state);
-}
-
-function toggleBtnChkCollapse(btn, collapse, state) {
-    const checked = toggleBtnChk(btn, state);
-    if (checked === true) {
-        document.getElementById(collapse).classList.add('show');
-    }
-    else {
-        document.getElementById(collapse).classList.remove('show');
-    }
-}
-
-function setPagination(total, returned) {
-    const curPaginationTop = document.getElementById(app.id + 'PaginationTop');
-    if (curPaginationTop === null) {
-        return;
-    }
-
-    if (app.current.limit === 0) {
-        app.current.limit = 500;
-    }
-
-    let totalPages = total < app.current.limit ?
-        total === -1 ? -1 : 1 : Math.ceil(total / app.current.limit);
-    const curPage = Math.ceil(app.current.offset / app.current.limit) + 1;
-    if (app.current.limit > returned) {
-        totalPages = curPage;
-    }
-
-    //toolbar
-    const paginationTop = createPaginationEls(totalPages, curPage);
-    paginationTop.classList.add('me-2');
-    paginationTop.setAttribute('id', curPaginationTop.id);
-    curPaginationTop.replaceWith(paginationTop);
-
-    //bottom
-    const bottomBar = document.getElementById(app.id + 'ButtonsBottom');
-    elClear(bottomBar);
-    if (domCache.body.classList.contains('not-mobile') ||
-        returned < 25)
-    {
-        elHide(bottomBar);
-        return;
-    }
-    const toTop = elCreateText('button', {"class": ["btn", "btn-secondary", "mi"],
-        "data-title-phrase": "To top"}, 'keyboard_arrow_up');
-    toTop.addEventListener('click', function(event) {
-        event.preventDefault();
-        scrollToPosY(0);
-    }, false);
-    bottomBar.appendChild(toTop);
-    const paginationBottom = createPaginationEls(totalPages, curPage);
-    paginationBottom.classList.add('dropup');
-    bottomBar.appendChild(paginationBottom);
-    elShow(bottomBar);
-}
-
-function createPaginationEls(totalPages, curPage) {
-    const prev = elCreateText('button', {"data-title-phrase": "Previous page",
-        "type": "button", "class": ["btn", "btn-secondary", "mi"]}, 'navigate_before');
-    if (curPage === 1) {
-        elDisable(prev);
-    }
-    else {
-        prev.addEventListener('click', function(event) {
-            event.preventDefault();
-            gotoPage('prev');
-        }, false);
-    }
-
-    const pageDropdownBtn = elCreateText('button', {"type": "button", "data-bs-toggle": "dropdown",
-        "class": ["square-end", "btn", "btn-secondary", "dropdown-toggle", "px-2"]}, curPage);
-    pageDropdownBtn.addEventListener('show.bs.dropdown', function () {
-        alignDropdown(this);
-    });
-    const pageDropdownMenu = elCreateEmpty('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "page-dropdown", "dropdown-menu-dark"]});
-
-    const row = elCreateNodes('div', {"class": ["row"]}, [
-        elCreateTextTn('label', {"class": ["col-sm-8", "col-form-label"]}, 'Elements per page'),
-        elCreateEmpty('div', {"class": ["col-sm-4"]})
-    ]);
-
-    const elPerPage = elCreateEmpty('select', {"class": ["form-control", "form-select", "border-secondary"]});
-    for (const i in webuiSettingsDefault.uiMaxElementsPerPage.validValues) {
-        elPerPage.appendChild(
-            elCreateText('option', {"value": i}, i)
-        );
-        if (Number(i) === app.current.limit) {
-            elPerPage.lastChild.setAttribute('selected', 'selected');
-        }
-    }
-    elPerPage.addEventListener('click', function(event) {
-        event.stopPropagation();
-    }, false);
-    elPerPage.addEventListener('change', function(event) {
-        const newLimit = Number(getSelectValue(event.target));
-        if (app.current.limit !== newLimit) {
-            BSN.Dropdown.getInstance(event.target.parentNode.parentNode.parentNode.previousElementSibling).hide();
-            gotoPage(app.current.offset, newLimit);
-        }
-    }, false);
-    row.lastChild.appendChild(elPerPage);
-
-    const pageGrp = elCreateEmpty('div', {"class": ["btn-group"]});
-
-    let start = curPage - 3;
-    if (start < 1) {
-        start = 1;
-    }
-    let end = start + 5;
-    if (end >= totalPages) {
-        end = totalPages - 1;
-        start = end - 6 > 1 ? end - 6 : 1;
-    }
-
-    const first = elCreateEmpty('button', {"data-title-phrase": "First page", "type": "button", "class": ["btn", "btn-secondary"]});
-    if (start === 1) {
-        first.textContent = '1';
-    }
-    else {
-        first.textContent = 'first_page';
-        first.classList.add('mi');
-    }
-    if (curPage === 1) {
-        elDisable(first);
-        first.classList.add('active');
-    }
-    else {
-        first.addEventListener('click', function(event) {
-            event.preventDefault();
-            gotoPage(0);
-        }, false);
-    }
-    pageGrp.appendChild(first);
-
-    for (let i = start; i < end; i++) {
-        pageGrp.appendChild(
-            elCreateText('button', {"class": ["btn", "btn-secondary"]}, i + 1)
-        );
-        if (i + 1 === curPage) {
-            pageGrp.lastChild.classList.add('active');
-        }
-        if (totalPages === -1) {
-            elDisable(pageGrp.lastChild);
-        }
-        else {
-            pageGrp.lastChild.addEventListener('click', function(event) {
-                event.preventDefault();
-                gotoPage(i * app.current.limit);
-            }, false);
-        }
-    }
-
-    const last = elCreateEmpty('button', {"data-title-phrase": "Last page", "type": "button", "class": ["btn", "btn-secondary"]});
-    if (totalPages === end + 1) {
-        last.textContent = end + 1;
-    }
-    else {
-        last.textContent = 'last_page';
-        last.classList.add('mi');
-    }
-    if (totalPages === -1) {
-        elDisable(last);
-    }
-    else if (totalPages === curPage) {
-        if (curPage !== 1) {
-            last.classList.add('active');
-        }
-        elDisable(last);
-    }
-    else {
-        last.addEventListener('click', function(event) {
-            event.preventDefault();
-            gotoPage(totalPages * app.current.limit - app.current.limit);
-        }, false);
-    }
-    pageGrp.appendChild(last);
-
-    pageDropdownMenu.appendChild(
-        elCreateNode('div', {"class": ["row", "mb-3"]}, pageGrp)
-    );
-    pageDropdownMenu.appendChild(row);
-
-    const next = elCreateText('button', {"data-title-phrase": "Next page", "type": "button", "class": ["btn", "btn-secondary", "mi"]}, 'navigate_next');
-    if (totalPages !== -1 && totalPages === curPage) {
-        elDisable(next);
-    }
-    else {
-        next.addEventListener('click', function(event) {
-            event.preventDefault();
-            gotoPage('next');
-        }, false);
-    }
-
-    const outer = elCreateNodes('div', {"class": ["btn-group", "pagination"]}, [
-        prev,
-        elCreateNodes('div', {"class": ["btn-group"]}, [
-            pageDropdownBtn,
-            pageDropdownMenu
-        ]),
-        next
-    ]);
-    new BSN.Dropdown(pageDropdownBtn);
-    pageDropdownBtn.parentNode.addEventListener('show.bs.dropdown', function (event) {
-        alignDropdown(event.target);
-    });
-    return outer;
-}
-
+/**
+ * Generates a valid id from string
+ * @param {String} x
+ * @returns {String}
+ */
 function genId(x) {
     return 'id' + x.replace(/[^\w-]/g, '');
 }
 
-function parseCmd(event, href) {
-    if (event !== null && event !== undefined) {
+/**
+ * Parses a string to a javascript command object
+ * @param {Event} event triggering event
+ * @param {Object} str string to parse
+ */
+function parseCmdFromJSON(event, str) {
+    const cmd = JSON.parse(str);
+    parseCmd(event, cmd);
+}
+
+/**
+ * Executes a javascript command object
+ * @param {Event} event triggering event
+ * @param {Object} cmd string to parse
+ */
+function parseCmd(event, cmd) {
+    if (typeof cmd === 'string') {
+        //TODO: remove
+        logError('Invalid type of cmd');
+        parseCmdFromJSON(event, cmd);
+        return;
+    }
+    if (event !== null &&
+        event !== undefined)
+    {
         event.preventDefault();
     }
-    let cmd = href;
-    if (typeof(href) === 'string') {
-        cmd = JSON.parse(href);
-    }
-
     if (typeof window[cmd.cmd] === 'function') {
         for (let i = 0, j = cmd.options.length; i < j; i++) {
             if (cmd.options[i] === 'event') {
@@ -1315,56 +711,41 @@ function parseCmd(event, href) {
     }
 }
 
-function gotoPage(x, limit) {
-    switch (x) {
-        case 'next':
-            app.current.offset = app.current.offset + app.current.limit;
-            break;
-        case 'prev':
-            app.current.offset = app.current.offset - app.current.limit;
-            if (app.current.offset < 0) {
-                app.current.offset = 0;
-            }
-            break;
-        default:
-            app.current.offset = x;
-    }
-    if (limit !== undefined) {
-        if (limit === 0) {
-            limit = 500;
-        }
-        app.current.limit = limit;
-        if (app.current.offset % app.current.limit > 0) {
-            app.current.offset = Math.floor(app.current.offset / app.current.limit);
-        }
-    }
-    appGoto(app.current.card, app.current.tab, app.current.view,
-        app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search, 0);
-}
-
+/**
+ * Creates the search breadcrumbs
+ * @param {String} searchStr 
+ * @param {*} searchEl se
+ * @param {HTMLElement} crumbEl element to add the crumbs
+ */
 function createSearchCrumbs(searchStr, searchEl, crumbEl) {
     elClear(crumbEl);
     const elements = searchStr.substring(1, app.current.search.length - 1).split(' AND ');
+    //add all but last element to crumbs
     for (let i = 0, j = elements.length - 1; i < j; i++) {
-        const expression = elements[i].substring(1, elements[i].length - 1);
-        const fields = expression.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
+        const fields = elements[i].match(/^\((\w+)\s+(\S+)\s+'(.*)'\)$/);
         if (fields !== null && fields.length === 4) {
             crumbEl.appendChild(createSearchCrumb(fields[1], fields[2], unescapeMPD(fields[3])));
         }
     }
-    if (searchEl.value === '' && elements.length >= 1) {
-        const lastEl = elements[elements.length - 1].substring(1, elements[elements.length - 1].length - 1);
-        const lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
-        if (searchEl.value !== lastElValue) {
-            const fields = lastEl.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
-            if (fields !== null && fields.length === 4) {
-                crumbEl.appendChild(createSearchCrumb(fields[1], fields[2], unescapeMPD(fields[3])));
-            }
+    //check if we should add the last element to the crumbs
+    if (searchEl.value === '' &&
+        elements.length >= 1)
+    {
+        const fields = elements[elements.length - 1].match(/^\((\w+)\s+(\S+)\s+'(.*)'\)$/);
+        if (fields !== null && fields.length === 4) {
+            crumbEl.appendChild(createSearchCrumb(fields[1], fields[2], unescapeMPD(fields[3])));
         }
     }
     crumbEl.childElementCount > 0 ? elShow(crumbEl) : elHide(crumbEl);
 }
 
+/**
+ * Creates a search crumb element
+ * @param {String} filter 
+ * @param {String} op 
+ * @param {String} value 
+ * @returns {HTMLElement}
+ */
 function createSearchCrumb(filter, op, value) {
     const btn = elCreateNodes('button', {"class": ["btn", "btn-dark", "me-2"]}, [
         document.createTextNode(filter + ' ' + op + ' \'' + value + '\''),
@@ -1376,6 +757,13 @@ function createSearchCrumb(filter, op, value) {
     return btn;
 }
 
+/**
+ * Creates a MPD search expression
+ * @param {String} tag tag to search
+ * @param {String} op search operator
+ * @param {String} value value to search
+ * @returns {String} the search expression in parenthesis
+ */
 function _createSearchExpression(tag, op, value) {
     if (op === 'starts_with' &&
         app.id !== 'BrowseDatabaseList' &&
@@ -1397,6 +785,14 @@ function _createSearchExpression(tag, op, value) {
         ')';
 }
 
+/**
+ * Creates the MPD search expression from crumbs and parameters
+ * @param {*} crumbsEl crumbs container element
+ * @param {*} tag tag to search
+ * @param {*} op search operator
+ * @param {*} value value to search
+ * @returns the search expression in parenthesis
+ */
 function createSearchExpression(crumbsEl, tag, op, value) {
     let expression = '(';
     const crumbs = crumbsEl.children;
@@ -1423,6 +819,12 @@ function createSearchExpression(crumbsEl, tag, op, value) {
     return expression;
 }
 
+/**
+ * Appends a link to the browse views to the element
+ * @param {HTMLElement} el element to append the link
+ * @param {String} tag mpd tag
+ * @param {*} values tag values
+ */
 function printBrowseLink(el, tag, values) {
     if (settings.tagListBrowse.includes(tag)) {
         for (const value of values) {
@@ -1444,6 +846,12 @@ function printBrowseLink(el, tag, values) {
     }
 }
 
+/**
+ * Returns a tag value as dom element
+ * @param {String} key 
+ * @param {*} value 
+ * @returns {Node}
+ */
 function printValue(key, value) {
     if (value === undefined || value === null || value === '') {
         return document.createTextNode('-');
@@ -1546,6 +954,10 @@ function printValue(key, value) {
     }
 }
 
+/**
+ * Gets a unix timestamp
+ * @returns {Number}
+ */
 function getTimestamp() {
     return Math.floor(Date.now() / 1000);
 }

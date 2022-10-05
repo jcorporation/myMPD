@@ -77,6 +77,8 @@ function createLocalPlaybackEl(createEvent) {
     // @ts-ignore
     const oldVolume = curAudioEl.volume;
     curAudioEl.remove();
+    /** @type {HTMLAudioElement} */
+    // @ts-ignore
     const localPlayer = elCreateEmpty('audio', {"class": ["mx-4"], "preload": "none", "id": "localPlayer"});
     localPlayer.volume = oldVolume;
     parent.appendChild(localPlayer);

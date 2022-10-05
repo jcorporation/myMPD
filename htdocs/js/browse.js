@@ -79,7 +79,7 @@ function initBrowse() {
     document.getElementById('databaseSortDesc').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        toggleBtnChk(this);
+        toggleBtnChk(this, undefined);
         app.current.sort.desc = app.current.sort.desc === true ? false : true;
         appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
     }, false);
@@ -556,7 +556,7 @@ function setGridImage(changes, observer) {
 
 /**
  * Adds the album play button
- * @param {HTMLElement} parentEl parent element for the button
+ * @param {HTMLElement | ChildNode} parentEl parent element for the button
  */
 function addAlbumPlayButton(parentEl) {
     const div = pEl.coverPlayBtn.cloneNode(true);
@@ -652,9 +652,9 @@ function parseAlbumDetails(obj) {
     elReplaceChild(tfoot,
         elCreateNode('tr', {},
             elCreateNode('td', {"colspan": colspan + 1},
-                elCreateNode('small', {},
-                    document.createTextNode(tn('Num songs', obj.result.totalEntities) +
-                        smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))
+                elCreateText('small', {},
+                    tn('Num songs', obj.result.totalEntities) +
+                        smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime)
                 )
             )
         )

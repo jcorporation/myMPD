@@ -25,7 +25,7 @@ function initOutputs() {
                 "outputId": Number(getData(target, 'output-id')),
                 "state": (target.classList.contains('active') ? 0 : 1)
             }, null, false);
-            toggleBtn(target);
+            toggleBtn(target, undefined);
         }
     }, false);
 }

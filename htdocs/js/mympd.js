@@ -470,28 +470,28 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 getWebradiodb();
                 break;
             }
-            setDataId('filterWebradiodbGenre', 'value', app.current.filter.genre);
-            document.getElementById('filterWebradiodbGenre').value = app.current.filter.genre;
-            setDataId('filterWebradiodbCountry', 'value', app.current.filter.country);
-            document.getElementById('filterWebradiodbCountry').value = app.current.filter.country;
-            setDataId('filterWebradiodbLanguage', 'value', app.current.filter.language);
-            document.getElementById('filterWebradiodbLanguage').value = app.current.filter.language;
-            setDataId('filterWebradiodbCodec', 'value', app.current.filter.codec);
-            document.getElementById('filterWebradiodbCodec').value = app.current.filter.codec;
-            setDataId('filterWebradiodbBitrate', 'value', app.current.filter.bitrate);
-            document.getElementById('filterWebradiodbBitrate').value = app.current.filter.bitrate;
+            setDataId('filterWebradiodbGenre', 'value', app.current.filter['genre']);
+            document.getElementById('filterWebradiodbGenre').value = app.current.filter['genre'];
+            setDataId('filterWebradiodbCountry', 'value', app.current.filter['country']);
+            document.getElementById('filterWebradiodbCountry').value = app.current.filter['country'];
+            setDataId('filterWebradiodbLanguage', 'value', app.current.filter['language']);
+            document.getElementById('filterWebradiodbLanguage').value = app.current.filter['language'];
+            setDataId('filterWebradiodbCodec', 'value', app.current.filter['codec']);
+            document.getElementById('filterWebradiodbCodec').value = app.current.filter['codec'];
+            setDataId('filterWebradiodbBitrate', 'value', app.current.filter['bitrate']);
+            document.getElementById('filterWebradiodbBitrate').value = app.current.filter['bitrate'];
 
-            const result = searchWebradiodb(app.current.search, app.current.filter.genre,
-                app.current.filter.country, app.current.filter.language, app.current.filter.codec,
-                app.current.filter.bitrate, app.current.sort, app.current.offset, app.current.limit);
+            const result = searchWebradiodb(app.current.search, app.current.filter['genre'],
+                app.current.filter['country'], app.current.filter['language'], app.current.filter['codec'],
+                app.current.filter['bitrate'], app.current.sort, app.current.offset, app.current.limit);
             parseSearchWebradiodb(result);
             break;
         }
         case 'BrowseRadioRadiobrowser': {
             setFocusId('BrowseRadioRadiobrowserSearchStr');
-            document.getElementById('inputRadiobrowserTags').value = app.current.filter.tags;
-            document.getElementById('inputRadiobrowserCountry').value = app.current.filter.country;
-            document.getElementById('inputRadiobrowserLanguage').value = app.current.filter.language;
+            document.getElementById('inputRadiobrowserTags').value = app.current.filter['tags'];
+            document.getElementById('inputRadiobrowserCountry').value = app.current.filter['country'];
+            document.getElementById('inputRadiobrowserLanguage').value = app.current.filter['language'];
             if (app.current.search === '') {
                 sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_NEWEST", {
                     "offset": app.current.offset,
@@ -502,9 +502,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_SEARCH", {
                     "offset": app.current.offset,
                     "limit": app.current.limit,
-                    "tags": app.current.filter.tags,
-                    "country": app.current.filter.country,
-                    "language": app.current.filter.language,
+                    "tags": app.current.filter['tags'],
+                    "country": app.current.filter['country'],
+                    "language": app.current.filter['language'],
                     "searchstr": app.current.search
                 }, parseRadiobrowserList, true);
             }
@@ -777,7 +777,7 @@ function appInit() {
             continue;
         }
         href.addEventListener('click', function(event) {
-            parseCmd(event, getData(this, 'href'));
+            parseCmdFromJSON(event, getData(this, 'href'));
         }, false);
     }
     //hide popover
@@ -942,7 +942,7 @@ function initPlayback() {
         {
             event.stopPropagation();
             event.preventDefault();
-            toggleBtnChk(event.target);
+            toggleBtnChk(event.target, undefined);
         }
     }, false);
 
