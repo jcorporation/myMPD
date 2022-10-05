@@ -144,7 +144,7 @@ function togglePlaymode(option) {
     }
     const params = {};
     params[option] = value;
-    sendAPI('MYMPD_API_PLAYER_OPTIONS_SET', params);
+    sendAPI('MYMPD_API_PLAYER_OPTIONS_SET', params, null, false);
     showNotification(tn(title), '', 'queue', 'info');
 }
 
@@ -689,7 +689,7 @@ function getBgImageText(value) {
 }
 
 function populateSettingsFrm() {
-    getBgImageList(settings.webuiSettings.uiBgImage);
+    getBgImageList();
     const bgImageInput = document.getElementById('inputWebUIsettinguiBgImage');
     setData(bgImageInput, 'value', settings.webuiSettings.uiBgImage);
     bgImageInput.value = getBgImageText(settings.webuiSettings.uiBgImage);
@@ -851,14 +851,13 @@ function _createSettingsFrm(fields, defaults, prefix) {
         const col = elCreateEmpty('div', {"class": ["col-sm-8", "position-relative"]});
         if (defaults[key].inputType === 'select') {
             const select = elCreateEmpty('select', {"class": ["form-select"], "id": prefix + r(key)});
-            for (let value in defaults[key].validValues) {
-                if (defaults[key].contentType === 'integer') {
-                    value = Number(value);
-                }
+            for (const value in defaults[key].validValues) {
                 select.appendChild(
                     elCreateTextTn('option', {"value": value}, defaults[key].validValues[value])
                 );
-                if (fields[key] === value) {
+                if ((defaults[key].contentType === 'integer' && fields[key] === Number(value)) ||
+                    fields[key] === value)
+                {
                     select.lastChild.setAttribute('selected', 'selected');
                 }
             }
@@ -884,6 +883,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
             }
             if (defaults[key].onClick !== undefined) {
                 btn.addEventListener('click', function(event) {
+                    // @ts-ignore
                     window[defaults[key].onClick](event);
                 }, false);
             }
@@ -922,6 +922,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
     for (const key in defaults) {
         if (defaults[key].onChange !== undefined) {
             document.getElementById(prefix + r(key)).addEventListener('change', function(event) {
+                // @ts-ignore
                 window[defaults[key].onChange](event);
             }, false);
         }
@@ -932,7 +933,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
         'inputWebUIsettingclickPlaylist', 'inputWebUIsettingclickSong',
         'inputWebUIsettingclickRadioFavorites', 'inputWebUIsettingclickRadiobrowser'])
     {
-        const options = document.getElementById(sel).getElementsByTagName('option');
+        const options = document.querySelectorAll('#' + sel + ' > option');
         for (const opt of options) {
             if (opt.value === 'insert' || opt.value === 'play') {
                 opt.classList.add('featWhence');
@@ -978,7 +979,7 @@ function setFeatures() {
 function applyFeatures() {
     //show or hide elements
     for (const feature in features) {
-        const els = document.getElementsByClassName(feature);
+        const els = document.querySelectorAll('.' + feature);
         const displayValue = features[feature] === true ? '' : 'none';
         for (const el of els) {
             el.style.display = displayValue;
@@ -1072,7 +1073,7 @@ function parseMPDSettings() {
             setPlaybackCardTags(currentSongObj);
         }
         //tagselect dropdown
-        const menu = document.getElementById('PlaybackColsDropdown').getElementsByTagName('form')[0];
+        const menu = document.querySelector('#PlaybackColsDropdown > form');
         elClear(menu);
         setColsChecklist('Playback', menu);
     }
@@ -1156,7 +1157,7 @@ function saveSettings(closeModal) {
 
         //use scaleRatio only for mobile browsers
         localSettings.scaleRatio = userAgentData.isMobile === true ?
-            parseFloat(inputScaleRatio.value) : 1.0;
+            inputScaleRatio.value : '1.0';
         setViewport();
 
         //save localSettings in browsers localStorage
@@ -1361,7 +1362,7 @@ function saveQueueSettingsClose(obj) {
 
 function getTagMultiSelectValues(taglist, translated) {
     const values = [];
-    const chkBoxes = taglist.getElementsByTagName('button');
+    const chkBoxes = taglist.querySelector('button');
     for (let i = 0, j = chkBoxes.length; i < j; i++) {
         if (chkBoxes[i].classList.contains('active')) {
             if (translated === true) {
@@ -1448,9 +1449,6 @@ function toggleBtnNotifyWeb(event) {
         return;
     }
     Notification.requestPermission(function (permission) {
-        if (!('permission' in Notification)) {
-            Notification.permission = permission;
-        }
         if (permission === 'granted') {
             toggleBtnChk(btnNotifyWeb, true);
             settings.webuiSettings.notifyWeb = true;
@@ -1468,7 +1466,7 @@ function setNavbarIcons() {
     const oldBadgeQueueItems = document.getElementById('badgeQueueItems');
     let oldQueueLength = 0;
     if (oldBadgeQueueItems) {
-        oldQueueLength = oldBadgeQueueItems.textContent;
+        oldQueueLength = Number(oldBadgeQueueItems.textContent);
     }
 
     const container = document.getElementById('navbar-main');
@@ -1507,7 +1505,7 @@ function setNavbarIcons() {
     }
 
     //cache elements, reused in appPrepare
-    domCache.navbarBtns = container.getElementsByTagName('div');
+    domCache.navbarBtns = container.querySelectorAll('div');
     domCache.navbarBtnsLen = domCache.navbarBtns.length;
 }
 
@@ -1532,14 +1530,14 @@ function getImageList(sel, addOptions, type) {
         for (let i = 0; i < obj.result.returnedEntities; i++) {
             sel.addFilterResult(obj.result.data[i], obj.result.data[i]);
         }
-    });
+    }, false);
 }
 
 //eslint-disable-next-line no-unused-vars
 function filterImageSelect(elId, searchstr) {
     const select = document.getElementById(elId).filterResult;
     searchstr = searchstr.toLowerCase();
-    const items = select.getElementsByTagName('li');
+    const items = select.querySelectorAll('li');
     for (const item of items) {
         const value = item.textContent.toLowerCase();
         if (value.indexOf(searchstr) >= 0) {
@@ -1556,7 +1554,7 @@ function warnLocale(value) {
     elClear(warnEl);
     if (i18n[value].missingPhrases > 0) {
         warnEl.appendChild(
-            elCreateTextTn('p', {}, 'Missing translations', i18n[value].missingPhrases)
+            elCreateTextTnNr('p', {}, 'Missing translations', i18n[value].missingPhrases)
         );
         warnEl.appendChild(
             elCreateTextTn('a', {"class": ["alert-link", "external"], "target": "_blank",

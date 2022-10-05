@@ -4,7 +4,7 @@
 // https://github.com/jcorporation/mympd
 
 function setStateIcon() {
-    const logoBgs = document.getElementsByClassName('logoBg');
+    const logoBgs = document.querySelectorAll('.logoBg');
     if (websocketConnected === false ||
         settings.partition.mpdConnected === false)
     {
@@ -20,7 +20,7 @@ function setStateIcon() {
 }
 
 function toggleAlert(alertBox, state, msg) {
-    const alertBoxEl = document.getElementById(alertBox);
+    const alertBoxEl = document.querySelector('#' + alertBox);
     if (state === false) {
         elHide(alertBoxEl);
         elClear(alertBoxEl);
@@ -156,7 +156,7 @@ function logMessage(title, text, facility, severity) {
         messages.shift();
         messagesLen = 10;
     }
-    domCache.notificationCount.textContent = messagesLen;
+    domCache.notificationCount.textContent = messagesLen.toString();
 }
 
 function showMessages() {
@@ -227,16 +227,16 @@ function toggleUI() {
     const enabled = state === 'disabled' ? false : true;
     if (enabled !== uiEnabled) {
         logDebug('Setting ui state to ' + state);
-        setElsState('a', state, 'tag');
-        setElsState('input', state, 'tag');
-        setElsState('select', state, 'tag');
-        setElsState('button', state, 'tag');
-        setElsState('textarea', state, 'tag');
+        setElsState('a', state);
+        setElsState('input', state);
+        setElsState('select', state);
+        setElsState('button', state);
+        setElsState('textarea', state);
         if (enabled === false) {
-            setElsState('.clickable', state, 'class');
+            setElsState('.clickable', state);
         }
         else {
-            setElsState('.not-clickable', state, 'class');
+            setElsState('.not-clickable', state);
         }
         uiEnabled = enabled;
     }
@@ -262,36 +262,36 @@ function toggleUI() {
 }
 
 function toggleTopAlert() {
-    const topAlert = document.getElementById('top-alerts');
+    const topAlert = document.querySelector('#top-alerts');
     if (uiEnabled === false ||
         (currentState !== undefined && currentState.lastError !== '')
     ) {
         elShow(topAlert);
         const topPadding = window.innerWidth < window.innerHeight ? document.getElementById('header').offsetHeight : 0;
         const mt = topAlert.offsetHeight - topPadding;
-        document.getElementsByTagName('main')[0].style.marginTop = mt + 'px';
+        domCache.main.style.marginTop = mt + 'px';
     }
     else {
-        document.getElementsByTagName('main')[0].style.marginTop = 0;
+        domCache.main.style.marginTop = '0';
         elHide(topAlert);
     }
 }
 
 function showModalAlert(obj) {
     const aModal = getOpenModal();
-    const activeAlert = aModal.getElementsByClassName('modalAlert')[0];
-    const div = elCreateTextTn('div', {"class": ["alert", "alert-danger", "modalAlert"]}, obj.error.message, obj.error.data);
+    const activeAlert = aModal.querySelector('.modalAlert');
+    const div = elCreateTextTnData('div', {"class": ["alert", "alert-danger", "modalAlert"]}, obj.error.message, obj.error.data);
     if (activeAlert === undefined) {
-        aModal.getElementsByClassName('modal-body')[0].appendChild(div);
+        aModal.querySelector('.modal-body').appendChild(div);
     }
     else {
-        aModal.getElementsByClassName('modal-body')[0].replaceChild(div, activeAlert);
+        aModal.querySelector('.modal-body').replaceChild(div, activeAlert);
     }
 }
 
 function hideModalAlert(el) {
-    const activeAlerts = el.getElementsByClassName('modalAlert');
-    for (let i = activeAlerts.length - 1; i >= 0; i--) {
+    const activeAlerts = el.querySelectorAll('.modalAlert');
+    for (let i = 0, j = activeAlerts.length; i < j; i++) {
         activeAlerts[i].remove();
     }
 }

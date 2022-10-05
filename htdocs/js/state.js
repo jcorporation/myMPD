@@ -86,7 +86,7 @@ function setCounter() {
     {
         const sl = document.getElementById('currentLyrics');
         const toHighlight = sl.querySelector('[data-sec="' + currentState.elapsedTime + '"]');
-        const highlighted = sl.getElementsByClassName('highlight')[0];
+        const highlighted = sl.querySelector('.highlight');
         if (highlighted !== toHighlight &&
             toHighlight !== null)
         {
@@ -116,12 +116,11 @@ function parseState(obj) {
         logError('State is undefined');
         return;
     }
-    //Get current song if songid has changed
-    //Get current song if queueVersion has changed - updates stream titles
+    //Get current song if songid or queueVersion has changed
     if (currentState.currentSongId !== obj.result.currentSongId ||
         currentState.queueVersion !== obj.result.queueVersion)
     {
-        sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, parseCurrentSong);
+        sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, parseCurrentSong, false);
     }
     //save state
     currentState = obj.result;
@@ -193,7 +192,7 @@ function parseState(obj) {
         document.getElementById('footerCover').classList.remove('clickable');
         document.getElementById('currentTitle').classList.remove('clickable');
         clearCurrentCover();
-        const pb = document.getElementById('cardPlaybackTags').getElementsByTagName('p');
+        const pb = document.querySelector('#cardPlaybackTags p');
         for (let i = 0, j = pb.length; i < j; i++) {
             elClear(pb[i]);
         }
@@ -201,8 +200,10 @@ function parseState(obj) {
     else {
         const cff = document.getElementById('currentAudioFormat');
         if (cff) {
-            elClear(cff.getElementsByTagName('p')[0]);
-            cff.getElementsByTagName('p')[0].appendChild(printValue('AudioFormat', obj.result.AudioFormat));
+            elReplaceChild(
+                cff.querySelector('p'),
+                printValue('AudioFormat', obj.result.AudioFormat)
+            );
         }
     }
 
@@ -458,26 +459,26 @@ function setPlaybackCardTags(songObj) {
             }
             switch(col) {
                 case 'Lyrics':
-                    getLyrics(songObj.uri, c.getElementsByTagName('p')[0]);
+                    getLyrics(songObj.uri, c.querySelector('p'));
                     break;
                 case 'AudioFormat':
                     //songObj has no audioformat definition - use current state
-                    elReplaceChild(c.getElementsByTagName('p')[0], printValue('AudioFormat', currentState.AudioFormat));
+                    elReplaceChild(c.querySelector('p'), printValue('AudioFormat', currentState.AudioFormat));
                     break;
                 default: {
                     let value = songObj[col];
                     if (value === undefined) {
                         value = '-';
                     }
-                    elReplaceChild(c.getElementsByTagName('p')[0], printValue(col, value));
+                    elReplaceChild(c.querySelector('p'), printValue(col, value));
                     if ((typeof value === 'string' && value === '-') ||
                         (typeof value === 'object' && value[0] === '-') ||
                         settings.tagListBrowse.includes(col) === false)
                     {
-                        c.getElementsByTagName('p')[0].classList.remove('clickable');
+                        c.querySelector('p').classList.remove('clickable');
                     }
                     else {
-                        c.getElementsByTagName('p')[0].classList.add('clickable');
+                        c.querySelector('p').classList.add('clickable');
                     }
                     setData(c, 'name', value);
                     if (col === 'Album' &&

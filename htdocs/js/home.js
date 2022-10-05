@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Initializes the home feature elements
+ */
 function initHome() {
     //home screen
     document.getElementById('HomeList').addEventListener('click', function(event) {
@@ -116,7 +119,7 @@ function initHome() {
 
     searchHomeIconLigature.addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
-            const sel = document.getElementById('listHomeIconLigature').getElementsByClassName('active')[0];
+            const sel = document.querySelector('#listHomeIconLigature .active');
             if (sel !== undefined) {
                 selectHomeIconLigature(sel);
                 uiElements.dropdownHomeIconLigature.hide();
@@ -128,6 +131,9 @@ function initHome() {
     }, false);
 }
 
+/**
+ * Populates the ligatures dropdown
+ */
 function populateHomeIconLigatures() {
     const listHomeIconLigature = document.getElementById('listHomeIconLigature');
     const searchHomeIconCat = document.getElementById('searchHomeIconCat');
@@ -154,18 +160,25 @@ function populateHomeIconLigatures() {
     }
 }
 
-function selectHomeIconLigature(x) {
-    document.getElementById('inputHomeIconLigature').value = x.getAttribute('title');
-    document.getElementById('homeIconPreview').textContent = x.getAttribute('title');
+/**
+ * Event handler for selecting a ligature
+ * @param {EventTarget} el selected element
+ */
+function selectHomeIconLigature(el) {
+    document.getElementById('inputHomeIconLigature').value = el.getAttribute('title');
+    document.getElementById('homeIconPreview').textContent = el.getAttribute('title');
     document.getElementById('homeIconPreview').style.backgroundImage = '';
     document.getElementById('inputHomeIconImage').value = tn('Use ligature');
     setData(document.getElementById('inputHomeIconImage'), 'value', '');
 }
 
+/**
+ * Event handler for ligature search
+ */
 function filterHomeIconLigatures() {
     const str = document.getElementById('searchHomeIconLigature').value.toLowerCase();
     const cat = getSelectValueId('searchHomeIconCat');
-    const els = document.getElementById('listHomeIconLigature').getElementsByTagName('button');
+    const els = document.querySelectorAll('#listHomeIconLigature button');
     for (let i = 0, j = els.length; i < j; i++) {
         if ((str === '' || els[i].getAttribute('title').indexOf(str) > -1) &&
             (cat === 'all' || els[i].getAttribute('data-cat') === cat))
@@ -183,7 +196,7 @@ function filterHomeIconLigatures() {
             els[i].classList.remove('active' );
         }
     }
-    const catTitles = document.getElementById('listHomeIconLigature').getElementsByTagName('h5');
+    const catTitles = document.querySelectorAll('#listHomeIconLigature h5');
     if (cat === '') {
         for (let i = 0, j = catTitles.length; i < j; i++) {
             elShow(catTitles[i]);
@@ -196,10 +209,14 @@ function filterHomeIconLigatures() {
     }
 }
 
+/**
+ * Parses the MYMPD_API_HOME_ICON_LIST response
+ * @param {Object} obj jsonrpc response object
+ */
 function parseHomeIcons(obj) {
     const cardContainer = document.getElementById('HomeList');
     unsetUpdateView(cardContainer);
-    const cols = cardContainer.getElementsByClassName('col');
+    const cols = cardContainer.querySelectorAll('.col');
 
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,
@@ -289,6 +306,11 @@ function parseHomeIcons(obj) {
     setScrollViewHeight(cardContainer);
 }
 
+/**
+ * Shows the dragover tip
+ * @param {EventTarget} from from element
+ * @param {EventTarget} to to element
+ */
 function showDropoverIcon(from, to) {
     const fromPos = getData(from, 'pos');
     const toPos = getData(to, 'pos');
@@ -301,17 +323,24 @@ function showDropoverIcon(from, to) {
     to.classList.add('dragover-icon');
 }
 
+/**
+ * Hides the dragover tip
+ * @param {EventTarget} el 
+ */
 function hideDropoverIcon(el) {
-    el.classList.remove('dragover-icon-left');
-    el.classList.remove('dragover-icon-right');
+    el.classList.remove('dragover-icon-left', 'dragover-icon-right');
 }
 
+/**
+ * Drag and drop event handler
+ */
 function dragAndDropHome() {
     const HomeList = document.getElementById('HomeList');
 
     HomeList.addEventListener('dragstart', function(event) {
         if (event.target.classList.contains('home-icons')) {
             event.target.classList.add('opacity05');
+            // @ts-ignore
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
             dragSrc = event.target;
@@ -336,7 +365,7 @@ function dragAndDropHome() {
         if (dragEl.classList.contains('home-icons') === false) {
             return;
         }
-        const ths = HomeList.getElementsByClassName('dragover-icon');
+        const ths = HomeList.querySelectorAll('.dragover-icon');
         for (const th of ths) {
             th.classList.remove('dragover-icon');
         }
@@ -358,7 +387,7 @@ function dragAndDropHome() {
         if (dragEl.classList.contains('home-icons') === false) {
             return;
         }
-        const ths = HomeList.getElementsByClassName('dragover-icon');
+        const ths = HomeList.querySelectorAll('.dragover-icon');
         for (const th of ths) {
             hideDropoverIcon(th);
         }
@@ -384,11 +413,11 @@ function dragAndDropHome() {
                     isNaN(from) === false &&
                     from !== to)
                 {
-                    sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to});
+                    sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, null, false);
                 }
             }
         }
-        const ths = HomeList.getElementsByClassName('dragover-icon');
+        const ths = HomeList.querySelectorAll('.dragover-icon');
         for (const th of ths) {
             hideDropoverIcon(th);
         }
@@ -662,7 +691,7 @@ function _editHomeIcon(pos, replace, title) {
         //show modal
         cleanupModalId('modalEditHomeIcon');
         uiElements.modalEditHomeIcon.show();
-    });
+    }, false);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -675,7 +704,7 @@ function saveHomeIcon() {
     }
     if (formOK === true) {
         const options = [];
-        const optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
+        const optionEls = document.querySelectorAll('#divHomeIconOptions input');
         for (const optionEl of optionEls) {
             options.push(optionEl.value);
         }
@@ -705,12 +734,12 @@ function saveHomeIconClose(obj) {
 
 //eslint-disable-next-line no-unused-vars
 function deleteHomeIcon(pos) {
-    sendAPI("MYMPD_API_HOME_ICON_RM", {"pos": pos});
+    sendAPI("MYMPD_API_HOME_ICON_RM", {"pos": pos}, null, false);
 }
 
 function showHomeIconCmdOptions(values) {
     const oldOptions = [];
-    const optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
+    const optionEls = document.querySelectorAll('#divHomeIconOptions input');
     for (const optionEl of optionEls) {
         oldOptions.push(optionEl.value);
     }

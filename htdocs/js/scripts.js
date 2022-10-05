@@ -434,7 +434,7 @@ function execScript(cmd) {
         sendAPI("MYMPD_API_SCRIPT_EXECUTE", {
             "script": cmd.script,
             "arguments": {}
-        });
+        }, null, false);
     }
     else {
         const arglist = document.getElementById('execScriptArguments');
@@ -458,13 +458,13 @@ function execScript(cmd) {
 function execScriptArgs() {
     const script = document.getElementById('modalExecScriptScriptname').value;
     const args = {};
-    const inputs = document.getElementById('execScriptArguments').getElementsByTagName('input');
+    const inputs = document.querySelectorAll('#execScriptArguments input');
     for (let i = 0, j = inputs.length; i < j; i++) {
         args[inputs[i].name] = inputs[i].value;
     }
     sendAPI("MYMPD_API_SCRIPT_EXECUTE", {
         "script": script,
         "arguments": args
-    });
+    }, null, false);
     uiElements.modalExecScript.hide();
 }

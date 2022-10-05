@@ -48,7 +48,7 @@ function initPlaylists() {
    document.getElementById('BrowsePlaylistsListList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             if (getData(event.target.parentNode, 'smartpls-only') === false) {
-                clickPlaylist(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
+                clickPlaylist(getData(event.target.parentNode, 'uri'));
             }
             else {
                 showNotification(tn('Playlist is empty'), '', 'playlist', 'warn')
@@ -65,7 +65,7 @@ function initPlaylists() {
             return;
         }
         if (event.target.nodeName === 'TD') {
-            clickSong(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
+            clickSong(getData(event.target.parentNode, 'uri'));
         }
         else if (event.target.nodeName === 'A') {
             //action td
@@ -106,7 +106,7 @@ function parsePlaylistsList(obj) {
 
 function parsePlaylistsDetail(obj) {
     const table = document.getElementById('BrowsePlaylistsDetailList');
-    const tfoot = table.getElementsByTagName('tfoot')[0];
+    const tfoot = table.querySelector('tfoot');
     const colspan = settings.colsBrowsePlaylistsDetail.length + 1;
 
     if (checkResultId(obj, 'BrowsePlaylistsDetailList') === false) {
@@ -129,7 +129,7 @@ function parsePlaylistsDetail(obj) {
     setData(table, 'playlistlength', obj.result.totalEntities);
     setData(table, 'uri', obj.result.plist);
     setData(table, 'type', obj.result.smartpls === true ? 'smartpls' : 'plist');
-    table.getElementsByTagName('caption')[0].textContent =
+    table.querySelector('caption').textContent =
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
 
@@ -137,7 +137,7 @@ function parsePlaylistsDetail(obj) {
         elCreateNode('tr', {},
             elCreateNode('td', {"colspan": colspan},
                 elCreateNodes('small', {}, [
-                    elCreateTextTn('span', {}, 'Num songs', obj.result.totalEntities), 
+                    elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities), 
                     elCreateText('span', {}, smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))
                 ])
             )
@@ -167,7 +167,7 @@ function playlistShuffle() {
     setUpdateViewId('BrowsePlaylistsDetailList');
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_SHUFFLE", {
         "plist": getDataId('BrowsePlaylistsDetailList', 'uri')
-    });
+    }, null, false);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -176,14 +176,14 @@ function playlistSort(tag) {
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_SORT", {
         "plist": getDataId('BrowsePlaylistsDetailList', 'uri'),
         "tag": tag
-    });
+    }, null, false);
 }
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylists(force) {
     sendAPI("MYMPD_API_SMARTPLS_UPDATE_ALL", {
         "force": force
-    });
+    }, null, false);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -194,13 +194,13 @@ function removeFromPlaylist(mode, plist, start, end) {
                 "plist": plist,
                 "start": start,
                 "end": end
-            });
+            }, null, false);
             break;
         case 'single':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_RM_SONG", {
                 "plist": plist,
                 "pos": start
-            });
+            }, null, false);
             break;
         default:
             return;
@@ -334,7 +334,7 @@ function addSmartpls(type) {
 function deletePlaylists() {
     sendAPI("MYMPD_API_PLAYLIST_RM_ALL", {
         "type": getSelectValueId('selectDeletePlaylists')
-    });
+    }, null, false);
 }
 
 function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
@@ -345,7 +345,7 @@ function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
         "type": type
     }, function(obj) {
         populatePlaylistSelect(obj, elId, selectedPlaylist);
-    });
+    }, false);
 }
 
 //populates the custom input element mympd-select-search
@@ -492,7 +492,7 @@ function addToPlaylist() {
                 appendPlayQueue(type, uri, addToPlaylistClose);
                 break;
             case 'insertAfterCurrent':
-                insertAfterCurrentQueue(type, uri,addToPlaylistClose);
+                insertAfterCurrentQueue(type, uri, addToPlaylistClose);
                 break;
             case 'insertPlayAfterCurrent':
                 insertPlayAfterCurrentQueue(type, uri, addToPlaylistClose);
@@ -613,14 +613,14 @@ function renamePlaylistClose(obj) {
 function showSmartPlaylist(plist) {
     sendAPI("MYMPD_API_SMARTPLS_GET", {
         "plist": plist
-    }, parseSmartPlaylist);
+    }, parseSmartPlaylist, false);
 }
 
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylist(plist) {
     sendAPI("MYMPD_API_SMARTPLS_UPDATE", {
         "plist": plist
-    });
+    }, null, false);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -640,7 +640,7 @@ function showDelPlaylist(plist, smartplsOnly) {
         sendAPI("MYMPD_API_PLAYLIST_RM", {
             "plist": plist,
             "smartplsOnly": smartplsOnly
-        });
+        }, null, false);
     });
 }
 
@@ -650,7 +650,7 @@ function showClearPlaylist() {
     showConfirm(tn('Do you really want to clear the playlist?', {"playlist": plist}), tn('Yes, clear it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_CONTENT_CLEAR", {
             "plist": plist
-        });
+        }, null, false);
         setUpdateViewId('BrowsePlaylistsDetailList');
     });
 }
@@ -660,7 +660,7 @@ function playlistMoveSong(from, to) {
         "plist": app.current.filter,
         "from": from,
         "to": to
-    });
+    }, null, false);
 }
 
 function isMPDplaylist(uri) {
@@ -685,7 +685,7 @@ function currentPlaylistToQueue(action) {
             appendPlayQueue(type, uri);
             break;
         case 'insertAfterCurrentQueue':
-            insertAfterCurrentQueue(type, uri, 0, 1, false);
+            insertAfterCurrentQueue(type, uri, null);
             break;
         case 'replaceQueue':
             replaceQueue(type, uri);

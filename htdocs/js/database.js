@@ -3,6 +3,13 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Updates or rescans the database
+ * @param {String} uri baseuri
+ * @param {Boolean} showUpdateModal true = open db update modal
+ * @param {Boolean} showUpdateNotification true = show update notification
+ * @param {Boolean} rescan true = rescan, false = update
+ */
 //eslint-disable-next-line no-unused-vars
 function updateDB(uri, showUpdateModal, showUpdateNotification, rescan) {
     const method = rescan === true ? "MYMPD_API_DATABASE_RESCAN" : "MYMPD_API_DATABASE_UPDATE";
@@ -16,6 +23,11 @@ function updateDB(uri, showUpdateModal, showUpdateNotification, rescan) {
     }, true);
 }
 
+/**
+ * Update database error handler
+ * @param {Boolean} showUpdateModal true = open db update modal
+ * @param {String} message the error message
+ */
 function updateDBerror(showUpdateModal, message) {
     const msg = tn('Database update failed') + ': ' + tn(message);
     if (showUpdateModal === true) {
@@ -33,6 +45,11 @@ function updateDBerror(showUpdateModal, message) {
     showNotification(msg, '', 'database', 'error');
 }
 
+/**
+ * Update database started handler
+ * @param {Boolean} showUpdateModal true = open db update modal
+ * @param {Boolean} showUpdateNotification true = show update notification
+ */
 function updateDBstarted(showUpdateModal, showUpdateNotification) {
     if (showUpdateModal === true) {
         elClearId('updateDBfinished');
@@ -51,6 +68,10 @@ function updateDBstarted(showUpdateModal, showUpdateNotification) {
     }
 }
 
+/**
+ * Wrapper for update database finished handler that checks for an already opened modal
+ * @param {String} idleEvent mpd idle event
+ */
 function updateDBfinished(idleEvent) {
     if (document.getElementById('modalUpdateDB').classList.contains('show')) {
         _updateDBfinished(idleEvent);
@@ -63,6 +84,10 @@ function updateDBfinished(idleEvent) {
     }
 }
 
+/**
+ * Update database finished handler
+ * @param {String} idleEvent mpd idle event
+ */
 function _updateDBfinished(idleEvent) {
     //spinner in mounts modal
     const el = document.getElementById('spinnerUpdateProgress');

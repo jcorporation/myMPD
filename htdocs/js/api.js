@@ -3,9 +3,7 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/**
- * This messages are hidden from notifications.
- */
+/** @type {Object} This messages are hidden from notifications. */
 const ignoreMessages = ['No current song', 'No lyrics found'];
 
 /**
@@ -18,7 +16,7 @@ function removeEnterPinFooter(footer) {
         footer.remove();
         return;
     }
-    const f = document.getElementsByClassName('enterPinFooter');
+    const f = document.querySelectorAll('.enterPinFooter');
     for (let i = f.length - 1; i >= 0; i--) {
         const prev = f[i].previousElementSibling;
         if (prev.classList.contains('modal-footer')) {
@@ -30,10 +28,10 @@ function removeEnterPinFooter(footer) {
 
 /**
  * Creates the enter pin footer and sends the original api request after the session is created.
- * @param {HTMLElementCollection} footers modal footers to hide
+ * @param {NodeList} footers modal footers to hide
  * @param {String} method jsonrpc method of the original api request
  * @param {Object} params json object of the original api request
- * @param {Callback} callback callback function of the original api request
+ * @param {Function} callback callback function of the original api request
  * @param {Boolean} onerror true = execute callback also on error
  */
 function createEnterPinFooter(footers, method, params, callback, onerror) {
@@ -58,7 +56,7 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
     btn.addEventListener('click', function() {
         sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": input.value}, function(obj) {
             input.value = '';
-            const alert = footers[0].getElementsByClassName('alert')[0];
+            const alert = footers[0].querySelector('.alert');
             if (alert !== undefined) {
                 alert.remove();
             }
@@ -91,7 +89,7 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
  * Shows the enter pin dialog in a new model or if a modal is already opened in the footer of this modal.
  * @param {String} method jsonrpc method of the original api request
  * @param {Object} params json object of the original api request
- * @param {Callback} callback callback function of the original api request
+ * @param {Function} callback callback function of the original api request
  * @param {Boolean} onerror true = execute callback also on error
  */
 function enterPin(method, params, callback, onerror) {
@@ -101,7 +99,7 @@ function enterPin(method, params, callback, onerror) {
     if (modal !== null) {
         logDebug('Show pin dialog in modal');
         //a modal is already opened, show enter pin dialog in footer
-        const footer = modal.getElementsByClassName('modal-footer');
+        const footer = modal.querySelectorAll('.modal-footer');
         createEnterPinFooter(footer, method, params, callback, onerror);
     }
     else {
@@ -215,7 +213,7 @@ function removeSession() {
  * Sends a JSON-RPC API request to the selected partition and handles the response.
  * @param {String} method jsonrpc api method
  * @param {Object} params jsonrpc parameters
- * @param {Callback} callback callback function
+ * @param {Function} callback callback function
  * @param {Boolean} onerror true = execute callback also on error
  * @returns {Boolean} true on success, else false
  */
@@ -228,7 +226,7 @@ function removeSession() {
  * @param {String} partition partition endpoint
  * @param {String} method jsonrpc api method
  * @param {Object} params jsonrpc parameters
- * @param {Callback} callback callback function
+ * @param {Function} callback callback function
  * @param {Boolean} onerror true = execute callback also on error
  * @returns {Boolean} true on success, else false
  */
@@ -428,7 +426,7 @@ function webSocketConnect() {
                     if (app.id === 'QueueCurrent' &&
                         obj.method === 'update_queue')
                     {
-                        getQueue(document.getElementById('searchQueueStr').value);
+                        getQueue(document.getElementById('searchQueueStr').getAttribute('value'));
                     }
                     parseState(obj);
                     break;
@@ -442,14 +440,14 @@ function webSocketConnect() {
                 case 'mpd_connected':
                     //MPD connection established get state and settings
                     showNotification(tn('Connected to MPD'), '', 'general', 'info');
-                    sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState);
+                    sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, false);
                     getSettings(true);
                     break;
                 case 'update_options':
                     getSettings();
                     break;
                 case 'update_outputs':
-                    sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs);
+                    sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs, false);
                     break;
                 case 'update_started':
                     updateDBstarted(false, true);
@@ -471,7 +469,7 @@ function webSocketConnect() {
                             "limit": app.current.limit,
                             "searchstr": app.current.search,
                             "type": 0
-                        }, parsePlaylistsList);
+                        }, parsePlaylistsList, false);
                     }
                     else if (app.id === 'BrowsePlaylistsDetail') {
                         sendAPI('MYMPD_API_PLAYLIST_CONTENT_LIST', {
@@ -480,7 +478,7 @@ function webSocketConnect() {
                             "searchstr": app.current.search,
                             "plist": app.current.filter,
                             "cols": settings.colsBrowsePlaylistsDetailFetch
-                        }, parsePlaylistsDetail);
+                        }, parsePlaylistsDetail, false);
                     }
                     break;
                 case 'update_last_played':
@@ -490,12 +488,12 @@ function webSocketConnect() {
                             "limit": app.current.limit,
                             "cols": settings.colsQueueLastPlayedFetch,
                             "searchstr": app.current.search
-                        }, parseLastPlayed);
+                        }, parseLastPlayed, false);
                     }
                     break;
                 case 'update_home':
                     if (app.id === 'Home') {
-                        sendAPI("MYMPD_API_HOME_ICON_LIST", {}, parseHomeIcons);
+                        sendAPI("MYMPD_API_HOME_ICON_LIST", {}, parseHomeIcons, false);
                     }
                     break;
                 case 'update_jukebox':
@@ -505,7 +503,7 @@ function webSocketConnect() {
                             "limit": app.current.limit,
                             "cols": settings.colsQueueJukeboxFetch,
                             "searchstr": app.current.search
-                        }, parseJukeboxList);
+                        }, parseJukeboxList, false);
                     }
                     break;
                 case 'update_album_cache':
@@ -558,7 +556,7 @@ function webSocketConnect() {
         };
 
         socket.onerror = function() {
-            logError('Websocket error occured');
+            logError('Websocket error occurred');
             if (socket !== null) {
                 socket.close();
             }

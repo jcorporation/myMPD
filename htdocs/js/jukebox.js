@@ -7,7 +7,7 @@ function initJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             if (settings.partition.jukeboxMode === 'song') {
-                clickSong(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
+                clickSong(getData(event.target.parentNode, 'uri'));
             }
             else if (settings.partition.jukeboxMode === 'album') {
                 clickAlbumPlay(getData(event.target.parentNode, 'AlbumArtist'), getData(event.target.parentNode, 'Album'));
@@ -40,8 +40,8 @@ function clearJukeboxQueue() {
             "limit": app.current.limit,
             "cols": settings.colsQueueJukeboxFetch,
             "searchstr": app.current.search
-        }, parseJukeboxList);
-    });
+        }, parseJukeboxList, false);
+    }, false);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -54,8 +54,8 @@ function delQueueJukeboxSong(pos) {
             "limit": app.current.limit,
             "cols": settings.colsQueueJukeboxFetch,
             "searchstr": app.current.search
-        }, parseJukeboxList);
-    });
+        }, parseJukeboxList, false);
+    }, false);
 }
 
 function parseJukeboxList(obj) {

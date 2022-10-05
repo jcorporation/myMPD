@@ -28,6 +28,7 @@ function chLocalPlaybackVolume(increment) {
 }
 
 function setLocalPlaybackVolume(volume) {
+    // @ts-ignore
     document.getElementById('localPlayer').volume = volume;
 }
 
@@ -66,11 +67,14 @@ function createLocalPlaybackEl(createEvent) {
     //stop playback off old audio element
     const curAudioEl = document.getElementById('localPlayer');
     curAudioEl.setAttribute('disabled', 'disabled');
+    // @ts-ignore
     curAudioEl.pause();
+    // @ts-ignore
     curAudioEl.src = '';
 
     //replace old audio element
     const parent = curAudioEl.parentNode;
+    // @ts-ignore
     const oldVolume = curAudioEl.volume;
     curAudioEl.remove();
     const localPlayer = elCreateEmpty('audio', {"class": ["mx-4"], "preload": "none", "id": "localPlayer"});
@@ -87,14 +91,18 @@ function createLocalPlaybackEl(createEvent) {
         );
     });
     document.getElementById('localPlayer').addEventListener('progress', function(event) {
+        // @ts-ignore
         if (isNaN(event.target.duration)) {
             return;
         }
+        // @ts-ignore
         document.getElementById('localPlayerProgress').textContent = beautifySongDuration(event.target.currentTime);
     });
     document.getElementById('localPlayer').addEventListener('volumechange', function(event) {
+        // @ts-ignore
         document.getElementById('localPlaybackVolumeBar').value = document.getElementById('localPlayer').volume;
         document.getElementById('localPlaybackVolume').textContent = Math.floor(
+            // @ts-ignore
             event.target.volume * 100) + ' %';
     });
     for (const ev of ['error', 'abort', 'stalled']) {

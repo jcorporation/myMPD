@@ -121,7 +121,7 @@ function elReflow(el) {
 }
 
 function getOpenModal() {
-    const modals = document.getElementsByClassName('modal');
+    const modals = document.querySelectorAll('.modal');
     for (const modal of modals) {
         if (modal.classList.contains('show')) {
             return modal;
@@ -171,14 +171,14 @@ function cleanupModal(el) {
     //remove validation warnings
     removeIsInvalid(el);
     //remove enter pin footer
-    const enterPinFooter = el.getElementsByClassName('enterPinFooter');
-    if (enterPinFooter.length > 0) {
-        removeEnterPinFooter(enterPinFooter[0]);
+    const enterPinFooter = el.querySelector('.enterPinFooter');
+    if (enterPinFooter !== null) {
+        removeEnterPinFooter(enterPinFooter);
     }
     //remove error messages
     hideModalAlert(el);
     //remove spinners
-    const spinners = el.getElementsByClassName('spinner-border');
+    const spinners = el.querySelectorAll('.spinner-border');
     for (let i = spinners.length - 1; i >= 0; i--) {
         spinners[i].remove();
     }
@@ -294,15 +294,19 @@ function clickQuickPlay(target) {
 
 function clickAlbumPlay(albumArtist, album) {
     switch(settings.webuiSettings.clickQuickPlay) {
-        case 'append': return _addAlbum('appendQueue', albumArtist, album);
-        case 'appendPlay': return _addAlbum('appendPlayQueue', albumArtist, album);
-        case 'insertAfterCurrent': return _addAlbum('insertAfterCurrentQueue', albumArtist, album);
-        case 'insertPlayAfterCurrent': return _addAlbum('insertPlayAfterCurrentQueue', albumArtist, album);
-        case 'replace': return _addAlbum('replaceQueue', albumArtist, album);
-        case 'replacePlay': return _addAlbum('replacePlayQueue', albumArtist, album);
+        case 'append': return _addAlbum('appendQueue', albumArtist, album, undefined);
+        case 'appendPlay': return _addAlbum('appendPlayQueue', albumArtist, album, undefined);
+        case 'insertAfterCurrent': return _addAlbum('insertAfterCurrentQueue', albumArtist, album, undefined);
+        case 'insertPlayAfterCurrent': return _addAlbum('insertPlayAfterCurrentQueue', albumArtist, album, undefined);
+        case 'replace': return _addAlbum('replaceQueue', albumArtist, album, undefined);
+        case 'replacePlay': return _addAlbum('replacePlayQueue', albumArtist, album, undefined);
     }
 }
 
+/**
+ * Click song handler
+ * @param {String} uri song uri
+ */
 function clickSong(uri) {
     switch (settings.webuiSettings.clickSong) {
         case 'append': return appendQueue('song', uri);
@@ -359,7 +363,7 @@ function clickQueueSong(songid, uri) {
             }
             sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {
                 "songId": songid
-            });
+            }, null, false);
             break;
         case 'view':
             if (uri === null) {
@@ -424,7 +428,7 @@ function seekRelative(offset) {
     sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
         "seek": offset,
         "relative": true
-    });
+    }, null, false);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -435,34 +439,34 @@ function clickPlay() {
                 isStreamUri(currentSongObj.uri) === true)
             {
                 //always stop streams
-                sendAPI("MYMPD_API_PLAYER_STOP", {});
+                sendAPI("MYMPD_API_PLAYER_STOP", {}, null, false);
             }
             else {
-                sendAPI("MYMPD_API_PLAYER_PAUSE", {});
+                sendAPI("MYMPD_API_PLAYER_PAUSE", {}, null, false);
             }
             break;
         case 'pause':
-            sendAPI("MYMPD_API_PLAYER_RESUME", {});
+            sendAPI("MYMPD_API_PLAYER_RESUME", {}, null, false);
             break;
         default:
             //fallback if playstate is stop or unknown
-            sendAPI("MYMPD_API_PLAYER_PLAY", {});
+            sendAPI("MYMPD_API_PLAYER_PLAY", {}, null, false);
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function clickStop() {
-    sendAPI("MYMPD_API_PLAYER_STOP", {});
+    sendAPI("MYMPD_API_PLAYER_STOP", {}, null, false);
 }
 
 //eslint-disable-next-line no-unused-vars
 function clickPrev() {
-    sendAPI("MYMPD_API_PLAYER_PREV", {});
+    sendAPI("MYMPD_API_PLAYER_PREV", {}, null, false);
 }
 
 //eslint-disable-next-line no-unused-vars
 function clickNext() {
-    sendAPI("MYMPD_API_PLAYER_NEXT", {});
+    sendAPI("MYMPD_API_PLAYER_NEXT", {}, null, false);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -470,7 +474,7 @@ function clickSingle(mode) {
     //mode: 0 = off, 1 = single, 2 = single one shot
     sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
         "single": mode
-    });
+    }, null, false);
 }
 
 //escape and unescape MPD filter values
@@ -556,7 +560,7 @@ function getRadioBoxValueId(id) {
 }
 
 function getRadioBoxValue(el) {
-    const radiobuttons = el.getElementsByClassName('form-check-input');
+    const radiobuttons = el.querySelectorAll('.form-check-input');
     for(const button of radiobuttons) {
         if (button.checked === true){
             return button.value;
@@ -565,13 +569,13 @@ function getRadioBoxValue(el) {
 }
 
 function alignDropdown(el) {
-    const toggleEl = el.getElementsByClassName('dropdown-toggle')[0];
+    const toggleEl = el.querySelector('.dropdown-toggle');
     const x = getXpos(toggleEl);
     if (x < domCache.body.offsetWidth * 0.66) {
-        el.getElementsByClassName('dropdown-menu')[0].classList.remove('dropdown-menu-end');
+        el.querySelector('.dropdown-menu').classList.remove('dropdown-menu-end');
     }
     else {
-        el.getElementsByClassName('dropdown-menu')[0].classList.add('dropdown-menu-end');
+        el.querySelector('.dropdown-menu').classList.add('dropdown-menu-end');
     }
 }
 
@@ -934,7 +938,7 @@ function toggleBtnGroupValueId(id, value) {
 }
 
 function toggleBtnGroupValue(btngrp, value) {
-    const btns = btngrp.getElementsByTagName('button');
+    const btns = btngrp.querySelectorAll('button');
     let b = btns[0];
     let valuestr = value;
     if (isNaN(value) === false) {
@@ -968,7 +972,7 @@ function toggleBtnGroupId(id) {
 }
 
 function toggleBtnGroup(btn) {
-    const btns = btn.parentNode.getElementsByTagName('button');
+    const btns = btn.parentNode.querySelectorAll('button');
     for (let i = 0, j = btns.length; i < j; i++) {
         if (btns[i] === btn) {
             btns[i].classList.add('active');
@@ -981,12 +985,12 @@ function toggleBtnGroup(btn) {
 }
 
 function getBtnGroupValueId(id) {
-    let activeBtn = document.getElementById(id).getElementsByClassName('active');
-    if (activeBtn.length === 0) {
+    let activeBtn = document.querySelector('#' + id + ' > .active');
+    if (activeBtn === null) {
         //fallback to first button
-        activeBtn = document.getElementById(id).getElementsByTagName('button');
+        activeBtn = document.querySelector('#' + id + ' > button');
     }
-    return getData(activeBtn[0], 'value');
+    return getData(activeBtn, 'value');
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -1279,9 +1283,10 @@ function parseCmd(event, href) {
         }
         switch(cmd.cmd) {
             case 'sendAPI':
-                sendAPI(cmd.options[0].cmd, {});
+                sendAPI(cmd.options[0].cmd, {}, null, false);
                 break;
             case 'createLocalPlaybackEl':
+                // @ts-ignore
                 window[cmd.cmd](event, ... cmd.options);
                 break;
             case 'toggleBtn':
@@ -1293,12 +1298,15 @@ function parseCmd(event, href) {
             case 'voteSong':
             case 'toggleAddToPlaylistFrm':
             case 'toggleSaveQueueMode':
+                // @ts-ignore
                 window[cmd.cmd](event.target, ... cmd.options);
                 break;
             case 'toggleBtnChkCollapse':
+                // @ts-ignore
                 window[cmd.cmd](event.target, undefined, ... cmd.options);
                 break;
             default:
+                // @ts-ignore
                 window[cmd.cmd](... cmd.options);
         }
     }
@@ -1543,7 +1551,7 @@ function getTimestamp() {
 }
 
 function toggleCollapseArrow(el) {
-    const icon = el.getElementsByTagName('span')[0];
+    const icon = el.querySelector('span');
     icon.textContent = icon.textContent === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
 }
 
@@ -1573,12 +1581,12 @@ function openFullscreen() {
 
 //eslint-disable-next-line no-unused-vars
 function clearCovercache() {
-    sendAPI("MYMPD_API_COVERCACHE_CLEAR", {});
+    sendAPI("MYMPD_API_COVERCACHE_CLEAR", {}, null, false);
 }
 
 //eslint-disable-next-line no-unused-vars
 function cropCovercache() {
-    sendAPI("MYMPD_API_COVERCACHE_CROP", {});
+    sendAPI("MYMPD_API_COVERCACHE_CROP", {}, null, false);
 }
 
 //eslint-disable-next-line no-unused-vars
@@ -1768,7 +1776,7 @@ function setScrollViewHeight(container) {
         container.parentNode.style.maxHeight = '';
         return;
     }
-    const footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
+    const footerHeight = domCache.footer.offsetHeight;
     const tpos = getYpos(container.parentNode);
     const maxHeight = window.innerHeight - tpos - footerHeight;
     container.parentNode.style.maxHeight = maxHeight + 'px';

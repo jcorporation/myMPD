@@ -248,7 +248,7 @@ function parseQueue(obj) {
         }
     });
 
-    const tfoot = table.getElementsByTagName('tfoot')[0];
+    const tfoot = table.querySelector('tfoot');
     if (obj.result.totalTime &&
         obj.result.totalTime > 0 &&
         obj.result.totalEntities <= app.current.limit)
@@ -268,7 +268,7 @@ function parseQueue(obj) {
         elReplaceChild(tfoot,
             elCreateNode('tr', {},
                 elCreateNode('td', {"colspan": (colspan + 1)},
-                    elCreateTextTn('small', {}, 'Num songs', obj.result.totalEntities)
+                    elCreateTextTnNr('small', {}, 'Num songs', obj.result.totalEntities)
                 )
             )
         );
@@ -291,7 +291,6 @@ function queueSetCurrentSong() {
             posTd.textContent = getData(old, 'songpos') + 1;
         }
         old.classList.remove('queue-playing');
-        old.style = '';
     }
     //set playing row
     setPlayingRow();
@@ -469,7 +468,7 @@ function addToQueue() {
             "mode": Number(getSelectValueId('selectAddToQueueMode')),
             "plist": selectAddToQueuePlaylistValue,
             "quantity": Number(document.getElementById('inputAddToQueueQuantity').value)
-        });
+        }, null, false);
         uiElements.modalAddToQueue.hide();
     }
 }
@@ -562,12 +561,12 @@ function removeFromQueue(mode, start, end) {
         sendAPI("MYMPD_API_QUEUE_RM_RANGE", {
             "start": start,
             "end": end
-        });
+        }, null, false);
     }
     else if (mode === 'single') {
         sendAPI("MYMPD_API_QUEUE_RM_SONG", {
             "songId": start
-        });
+        }, null, false);
     }
 }
 
@@ -581,7 +580,7 @@ function gotoPlayingSong() {
         currentState.songPos < app.current.offset + app.current.limit)
     {
         //playing song is in this page
-        document.getElementsByClassName('queue-playing')[0].scrollIntoView(true);
+        document.querySelector('queue-playing').scrollIntoView(true);
     }
     else {
         gotoPage(Math.floor(currentState.songPos / app.current.limit) * app.current.limit);
@@ -595,19 +594,19 @@ function playAfterCurrent(songId, songPos) {
         sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
             "from": songPos,
             "to": currentState.songPos !== undefined ? currentState.songPos + 1 : 0
-        });
+        }, null, false);
     }
     else {
         //in random mode - set song priority
         sendAPI("MYMPD_API_QUEUE_PRIO_SET_HIGHEST", {
             "songId": songId
-        });
+        }, null, false);
     }
 }
 
 //eslint-disable-next-line no-unused-vars
 function clearQueue() {
     showConfirm(tn('Do you really want to clear the queue?'), tn('Yes, clear it'), function() {
-        sendAPI("MYMPD_API_QUEUE_CROP_OR_CLEAR", {});
+        sendAPI("MYMPD_API_QUEUE_CROP_OR_CLEAR", {}, null, false);
     });
 }

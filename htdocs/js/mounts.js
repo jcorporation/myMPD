@@ -131,8 +131,8 @@ function showListMounts() {
 }
 
 function parseListMounts(obj) {
-    const tbody = document.getElementById('listMounts').getElementsByTagName('tbody')[0];
-    const tr = tbody.getElementsByTagName('tr');
+    const tbody = document.querySelector('#listMountsList');
+    elClear(tbody);
 
     if (checkResult(obj, tbody) === false) {
         return;
@@ -168,16 +168,7 @@ function parseListMounts(obj) {
         if (obj.result.data[i].mountPoint === '') {
             row.classList.add('not-clickable');
         }
-
-        if (i < tr.length) {
-            replaceTblRow(tr[i], row);
-        }
-        else {
-            tbody.append(row);
-        }
-    }
-    for (let i = tr.length - 1; i >= obj.result.returnedEntities; i--) {
-        tr[i].remove();
+        tbody.append(row);
     }
 }
 

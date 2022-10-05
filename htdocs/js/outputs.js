@@ -24,7 +24,7 @@ function initOutputs() {
             sendAPI("MYMPD_API_PLAYER_OUTPUT_TOGGLE", {
                 "outputId": Number(getData(target, 'output-id')),
                 "state": (target.classList.contains('active') ? 0 : 1)
-            });
+            }, null, false);
             toggleBtn(target);
         }
     }, false);
@@ -35,7 +35,7 @@ function parseOutputs(obj) {
     elClear(outputList);
     if (obj.error) {
         outputList.appendChild(
-            elCreateTextTn('div', {"class": ["list-group-item", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
+            elCreateTextTnData('div', {"class": ["list-group-item", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         return;
     }
@@ -134,11 +134,11 @@ function saveOutputAttributes() {
     const params = {};
     params.outputId = Number(document.getElementById('modalOutputAttributesId').value);
     params.attributes = {};
-    const els = document.getElementById('outputAttributesList').getElementsByTagName('input');
+    const els = document.querySelectorAll('#outputAttributesList input');
     for (let i = 0, j = els.length; i < j; i++) {
         params.attributes[els[i].name] = els[i].value;
     }
-    sendAPI('MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET', params, saveOutputAttributesClose, true);
+    sendAPI('MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET', params, saveOutputAttributesClose, true);
 }
 
 function saveOutputAttributesClose(obj) {
@@ -170,11 +170,11 @@ function volumeStep(dir) {
     const step = dir === 'up' ? settings.volumeStep : 0 - settings.volumeStep;
     sendAPI("MYMPD_API_PLAYER_VOLUME_CHANGE", {
         "volume": step
-    });
+    }, null, false);
 }
 
 function setVolume() {
     sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {
         "volume": Number(domCache.volumeBar.value)
-    });
+    }, null, false);
 }

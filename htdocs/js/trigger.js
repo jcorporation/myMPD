@@ -45,7 +45,7 @@ function saveTrigger() {
 
     if (formOK === true) {
         const args = {};
-        const argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
+        const argEls = document.querySelectorAll('#triggerActionScriptArguments input');
         for (let i = 0, j = argEls.length; i < j; i ++) {
             args[getData(argEls[i], 'name')] = argEls[i].value;
         }

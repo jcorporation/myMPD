@@ -129,7 +129,7 @@ function isArrayOrString(obj) {
 }
 
 function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
-    if (settingsParsed === false) {
+    if (settingsParsed === 'false') {
         appInitStart();
         return;
     }
@@ -207,11 +207,11 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
 
     switch(app.id) {
         case 'Home': {
-            sendAPI("MYMPD_API_HOME_ICON_LIST", {}, parseHomeIcons);
+            sendAPI("MYMPD_API_HOME_ICON_LIST", {}, parseHomeIcons, false);
             break;
         }
         case 'Playback': {
-            sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, parseCurrentSong);
+            sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, parseCurrentSong, false);
             break;
         }
         case 'QueueCurrent': {
@@ -406,7 +406,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                     document.getElementById('searchDatabaseStr').value = '';
                 }
                 elShowId('searchDatabaseMatch');
-                const sortBtns = document.getElementById('databaseSortTagsList').firstElementChild.getElementsByTagName('button');
+                const sortBtns = document.querySelectorAll('databaseSortTagsList > div > button');
                 for (const sortBtn of sortBtns) {
                     elShow(sortBtn);
                 }
@@ -422,7 +422,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             else {
                 elHideId('searchDatabaseCrumb');
                 elHideId('searchDatabaseMatch');
-                const sortBtns = document.getElementById('databaseSortTagsList').firstElementChild.getElementsByTagName('button');
+                const sortBtns = document.querySelectorAll('databaseSortTagsList > div > button');
                 for (const sortBtn of sortBtns) {
                     if (sortBtn.getAttribute('data-tag') === app.current.tag) {
                         elShow(sortBtn);
@@ -536,8 +536,8 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             }
             else {
                 const SearchListEl = document.getElementById('SearchList');
-                elClear(SearchListEl.getElementsByTagName('tbody')[0]);
-                elClear(SearchListEl.getElementsByTagName('tfoot')[0]);
+                elClear(SearchListEl.querySelector('tbody'));
+                elClear(SearchListEl.querySelector('tfoot'));
                 elDisableId('searchAddAllSongs');
                 elDisableId('searchAddAllSongsBtn');
                 unsetUpdateViewId('SearchList');
@@ -698,15 +698,15 @@ function appInitStart() {
                     registration.unregister();
                     serviceWorkerExists = true;
                 }
+                if (serviceWorkerExists === true) {
+                    clearAndReload();
+                }
+                else {
+                    clearCache();
+                }
             }).catch(function(err) {
                 logError('Service Worker unregistration failed: ' + err);
             });
-            if (serviceWorkerExists === true) {
-                clearAndReload();
-            }
-            else {
-                clearCache();
-            }
         }
     }
 
@@ -722,7 +722,7 @@ function appInitStart() {
     appInited = false;
     settingsParsed = 'no';
     sendAPI("MYMPD_API_SETTINGS_GET", {}, function(obj) {
-        parseSettings(obj, true);
+        parseSettings(obj);
         if (settingsParsed === 'parsed') {
             //connect to websocket in background
             setTimeout(function() {
@@ -827,7 +827,7 @@ function appInit() {
     //update state on window focus - browser pauses javascript
     window.addEventListener('focus', function() {
         logDebug('Browser tab gots the focus -> update player state');
-        sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState);
+        sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState, false);
     }, false);
     //global keymap
     document.addEventListener('keydown', function(event) {
@@ -854,8 +854,9 @@ function appInit() {
     const tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList',
         'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList',
         'BrowseRadioRadiobrowserList', 'BrowseRadioWebradiodbList'];
-    for (const tableName of tables) {
-        document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('long-press', function(event) {
+    for (const tableId of tables) {
+        const tbody = document.querySelector('#' + tableId + ' > tbody');
+        tbody.addEventListener('long-press', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') ||
                 event.target.parentNode.parentNode.classList.contains('not-clickable') ||
                 getData(event.target.parentNode, 'type') === 'parentDir')
@@ -865,7 +866,7 @@ function appInit() {
             showPopover(event);
         }, false);
 
-        document.getElementById(tableName).getElementsByTagName('tbody')[0].addEventListener('contextmenu', function(event) {
+        tbody.addEventListener('contextmenu', function(event) {
             if (event.target.parentNode.classList.contains('not-clickable') ||
                 event.target.parentNode.parentNode.classList.contains('not-clickable') ||
                 getData(event.target.parentNode, 'type') === 'parentDir')
@@ -915,7 +916,7 @@ function initGlobalModals() {
     }
 
     document.getElementById('modalAbout').addEventListener('show.bs.modal', function () {
-        sendAPI("MYMPD_API_DATABASE_STATS", {}, parseStats);
+        sendAPI("MYMPD_API_DATABASE_STATS", {}, parseStats, false);
         getServerinfo();
     }, false);
 
@@ -963,7 +964,7 @@ function initNavs() {
             sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
                 "seek": seekVal,
                 "relative": false
-            });
+            }, null, false);
         }
     }, false);
 

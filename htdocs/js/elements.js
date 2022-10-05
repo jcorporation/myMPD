@@ -3,7 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-//pre-generated elements
+/**
+ * Some pre-generated elements.
+ */
 const pEl = {};
 pEl.actionTdMenu = elCreateNode('td', {"data-col": "Action"},
     elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
@@ -21,13 +23,22 @@ pEl.actionQueueTd = pEl.actionTdMenu;
 pEl.coverPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
     "data-title-phrase": "Quick play"}, 'play_arrow');
 
-//we do not use the custom element is="" feature - safari does not support it
+/**
+ * Initializes all elements with data-is attribute
+ * We do not use the custom element is="" feature - safari does not support it
+ * @param {Element} parent 
+ */
 function initElements(parent) {
     for (const el of parent.querySelectorAll('[data-is]')) {
         initElement(el, el.getAttribute('data-is'));
     }
 }
 
+/**
+ * Initializes a custom element
+ * @param {Element} el 
+ * @param {String} elType type of the custom element
+ */
 function initElement(el, elType) {
     switch(elType) {
         case 'mympd-input-clear':
@@ -46,6 +57,10 @@ function initElement(el, elType) {
     el.removeAttribute('data-is');
 }
 
+/**
+ * Creates an input element with clear button
+ * @param {Element} el 
+ */
 function setInputClear(el) {
     const button = elCreateText('button', {"data-title-phrase": "Clear", "class": ["mi", "mi-small", "input-inner-button"]}, 'clear');
     el.button = button;
@@ -83,6 +98,10 @@ function setInputClear(el) {
     }, false);
 }
 
+/**
+ * Creates an input element with reset to default button
+ * @param {Element} el 
+ */
 function setInputReset(el) {
     const button = elCreateText('button', {"data-title-phrase": "Reset to default", "class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
     el.button = button;
@@ -107,6 +126,10 @@ function setInputReset(el) {
     }, false);
 }
 
+/**
+ * Creates an password input element with show button
+ * @param {Element} el 
+ */
 function setInputPassword(el) {
     const button = elCreateText('button', {"data-title-phrase": "Show or hide", "class": ["mi", "mi-small", "input-inner-button"]}, 'visibility');
     el.button = button;
@@ -135,6 +158,10 @@ function setInputPassword(el) {
     }, false);
 }
 
+/**
+ * Creates an combined select + input element from an input element
+ * @param {Element} el 
+ */
 function setSelectSearch(el) {
     const filterInput = elCreateEmpty('input', {"class": ["form-control", "form-control-sm", "mb-1"], "data-placeholder-phrase": "Filter", "placeholder": tn('Filter')});
     const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll", "border", "border-secondary"]});
@@ -170,6 +197,7 @@ function setSelectSearch(el) {
     el.filterInput.addEventListener('keyup', function(event) {
         const cb = getData(el, 'cb-filter');
         const cbOptions = getData(el, 'cb-filter-options');
+        // @ts-ignore
         window[cb](... cbOptions, event.target.value);
     }, false);
     el.filterInput.addEventListener('click', function(event) {

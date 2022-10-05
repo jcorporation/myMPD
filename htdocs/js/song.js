@@ -52,7 +52,7 @@ function initSong() {
 function songDetails(uri) {
     sendAPI("MYMPD_API_SONG_DETAILS", {
         "uri": uri
-    }, parseSongDetails);
+    }, parseSongDetails, false);
     uiElements.modalSongDetails.show();
 }
 
@@ -114,10 +114,10 @@ function songDetailsRow(thContent, tdContent) {
 
 function parseSongDetails(obj) {
     const modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' +
+    modal.querySelector('.album-cover').style.backgroundImage = 'url("' +
         subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
 
-    const elH1s = modal.getElementsByTagName('h1');
+    const elH1s = modal.querySelectorAll('h1');
     for (let i = 0, j = elH1s.length; i < j; i++) {
         elH1s[i].textContent = obj.result.Title;
     }
@@ -373,12 +373,12 @@ function createLyricsTabs(el, obj) {
         lyricsHeader.appendChild(lyricsTabs);
         el.appendChild(lyricsHeader);
         el.appendChild(lyrics);
-        el.getElementsByClassName('lyricsTabs')[0].addEventListener('click', function(event) {
+        el.querySelector('.lyricsTabs').addEventListener('click', function(event) {
             if (event.target.nodeName === 'BUTTON') {
-                event.target.parentNode.getElementsByClassName('active')[0].classList.remove('active');
+                event.target.parentNode.querySelector('.active').classList.remove('active');
                 event.target.classList.add('active');
                 const nr = Number(event.target.getAttribute('data-num'));
-                const tEls = el.getElementsByClassName('lyricsText');
+                const tEls = el.querySelectorAll('.lyricsText');
                 for (let i = 0, j = tEls.length; i < j; i++) {
                     if (i === nr) {
                         elShow(tEls[i]);
@@ -404,7 +404,7 @@ function createLyricsTabs(el, obj) {
                     scrollSyncedLyrics = event.target.classList.contains('active');
                 }, false);
                 //seek to songpos on click
-                const textEls = el.getElementsByClassName('lyricsSyncedText');
+                const textEls = el.querySelectorAll('.lyricsSyncedText');
                 for (let i = 0, j = textEls.length; i < j; i++) {
                     textEls[i].addEventListener('click', function(event) {
                         const sec = event.target.getAttribute('data-sec');
@@ -412,7 +412,7 @@ function createLyricsTabs(el, obj) {
                             sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
                                 "seek": Number(sec),
                                 "relative": false
-                            });
+                            }, null, false);
                         }
                     }, false);
                 }
@@ -424,7 +424,7 @@ function createLyricsTabs(el, obj) {
             lr.addEventListener('click', function(event) {
                 toggleBtn(event.target);
                 const mh = event.target.classList.contains('active') ? '16rem' : 'unset';
-                const lt = document.getElementsByClassName('lyricsText');
+                const lt = document.querySelectorAll('.lyricsText');
                 for (const l of lt) {
                     l.style.maxHeight = mh;
                 }
@@ -498,7 +498,7 @@ function voteSong(el) {
         vote = 1;
         el.classList.remove('active');
     }
-    const aEl = el.parentNode.getElementsByClassName('active')[0];
+    const aEl = el.parentNode.querySelector('.active');
     if (aEl !== undefined) {
         aEl.classList.remove('active');
     }
@@ -515,7 +515,7 @@ function voteSong(el) {
     sendAPI("MYMPD_API_LIKE", {
         "uri": uri,
         "like": vote
-    });
+    }, null, false);
 }
 
 function setVoteSongBtns(vote, uri) {

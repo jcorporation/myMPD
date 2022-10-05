@@ -32,6 +32,7 @@ const progressBarTransition = 'width 1s linear';
 const smallSpace = '\u2009';
 const nDash = '\u2013';
 let tagAlbumArtist = 'AlbumArtist';
+/** @type {Object} */
 const albumFilters = ["Composer", "Performer", "Conductor", "Ensemble"];
 const session = {
     "token": "",
@@ -41,9 +42,10 @@ const sessionLifetime = 1780;
 const sessionRenewInterval = sessionLifetime * 500;
 let sessionTimer = null;
 const messages = [];
-const debugMode = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
+const debugMode = document.querySelector("script").src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
 let webradioDb = null;
 const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
+/** @type {Object} */
 const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
 let locale = navigator.language || navigator.userLanguage;
 let materialIcons = {};
@@ -799,8 +801,9 @@ const keymap = {
 
 //cache often accessed dom elements
 const domCache = {};
-domCache.body = document.getElementsByTagName('body')[0];
-domCache.main = document.getElementsByTagName('main')[0];
+domCache.body = document.querySelector('body');
+domCache.main = document.querySelector('main');
+domCache.footer = document.querySelector('footer');
 domCache.counter = document.getElementById('counter');
 domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');
@@ -811,7 +814,7 @@ domCache.volumeBar = document.getElementById('volumeBar');
 //Get BSN object references for fast access
 const uiElements = {};
 //all modals
-for (const m of document.getElementsByClassName('modal')) {
+for (const m of document.querySelectorAll('.modal')) {
     uiElements[m.id] = BSN.Modal.getInstance(m);
 }
 //other directly accessed BSN objects

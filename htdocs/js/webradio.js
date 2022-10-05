@@ -76,7 +76,7 @@ function initWebradio() {
     initWebradiodbFilter('filterWebradiodbCodec', 'webradioCodecs', 'Codec');
     initWebradiodbFilter('filterWebradiodbBitrate', 'webradioBitrates', 'Bitrate');
 
-    document.getElementById('BrowseRadioWebradiodbList').getElementsByTagName('tr')[0].addEventListener('click', function(event) {
+    document.querySelector('#BrowseRadioWebradiodbList > thead > tr').addEventListener('click', function(event) {
         const colName = event.target.getAttribute('data-col');
         toggleSort(event.target, colName);
         appGoto(app.current.card, app.current.tab, app.current.view,
@@ -402,7 +402,7 @@ function saveRadioFavoriteClose(obj) {
 function parseRadioFavoritesList(obj) {
     const cardContainer = document.getElementById('BrowseRadioFavoritesList');
 
-    const cols = cardContainer.getElementsByClassName('col');
+    const cols = cardContainer.querySelectorAll('.col');
     unsetUpdateView(cardContainer);
 
     if (obj.error !== undefined) {
@@ -422,7 +422,7 @@ function parseRadioFavoritesList(obj) {
         return;
     }
 
-    if (cardContainer.getElementsByClassName('not-clickable').length > 0) {
+    if (cardContainer.querySelector('.not-clickable') !== null) {
         elClear(cardContainer);
     }
     const rowTitle = tn(webuiSettingsDefault.clickRadioFavorites.validValues[settings.webuiSettings.clickRadioFavorites]);
@@ -505,7 +505,7 @@ function addRadioFavoritesPlayButton(parentEl) {
 //webradiodb api
 
 function getWebradiodb() {
-    const list = document.getElementById('BrowseRadioWebradiodbList').getElementsByTagName('tbody')[0];
+    const list = document.querySelector('#BrowseRadioWebradiodbList > tbody');
     elReplaceChild(list, 
         loadingRow(settings.colsBrowseRadioWebradiodb.length + 1)
     );
@@ -625,8 +625,7 @@ function searchWebradiodb(name, genre, country, language, codec, bitrate, sort, 
 }
 
 function parseSearchWebradiodb(obj) {
-    const table = document.getElementById('BrowseRadioWebradiodbList');
-    const tfoot = table.getElementsByTagName('tfoot')[0];
+    const tfoot = document.querySelector('#BrowseRadioWebradiodbList > tfoot');
     elClear(tfoot);
 
     if (app.current.filter.genre === '' &&
@@ -752,7 +751,7 @@ function countClickRadiobrowser(uuid) {
     if (uuid !== '') {
         sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT", {
             "uuid": uuid
-        });
+        }, null, false);
     }
 }
 

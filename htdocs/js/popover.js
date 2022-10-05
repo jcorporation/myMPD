@@ -14,8 +14,8 @@ function hidePopover(thisEl) {
     }
     if (popoverEls.length === 0) {
         //handle popover dom nodes without a trigger element
-        const popover = document.getElementsByClassName('popover')[0];
-        if (popover) {
+        const popover = document.querySelector('.popover');
+        if (popover !== null) {
             //simply remove the popover dom node
             popover.remove();
         }
@@ -163,7 +163,7 @@ function createPopoverColumns(el) {
                 eventClick.stopPropagation();
             }
         }, false);
-        const popoverBody = popoverInit.tooltip.getElementsByClassName('popover-body')[0];
+        const popoverBody = popoverInit.tooltip.querySelector('.popover-body');
         elReplaceChild(popoverBody, menu);
         const applyEl = elCreateTextTn('button', {"class": ["btn", "btn-success", "btn-sm", "w-100", "mt-2"]}, 'Apply');
         popoverBody.appendChild(applyEl);
@@ -183,7 +183,7 @@ function createPopoverSimple(el, title, contentCallback) {
     //update content on each show event
     el.addEventListener('show.bs.popover', function() {
         const popoverBody = elCreateEmpty('div', {"class": ["popover-body", "px-0"]});
-        popoverInit.tooltip.getElementsByClassName('popover-body')[0].replaceWith(popoverBody);
+        popoverInit.tooltip.querySelector('.popover-body').replaceWith(popoverBody);
         contentCallback(popoverBody, el);
         createPopoverClickHandler(popoverBody);
     }, false);
@@ -195,9 +195,9 @@ function createPopoverTabs(el, tab1Callback, tab2Callback) {
     const popoverInit = createPopoverInit(el, '', 'tabs');
     //update content on each show event
     el.addEventListener('show.bs.popover', function() {
-        popoverInit.tooltip.getElementsByClassName('popover-tabs')[0].replaceWith(createPopoverBody('tabs'));
-        const tabHeader = popoverInit.tooltip.getElementsByClassName('nav-link');
-        const tabPanes = popoverInit.tooltip.getElementsByClassName('tab-pane');
+        popoverInit.tooltip.querySelector('.popover-tabs').replaceWith(createPopoverBody('tabs'));
+        const tabHeader = popoverInit.tooltip.querySelectorAll('.nav-link');
+        const tabPanes = popoverInit.tooltip.querySelectorAll('.tab-pane');
         for (let i = 0; i < 2; i++) {
             tabHeader[i].addEventListener('click', function(event) {
                 tabHeader[i].classList.add('active');
@@ -218,7 +218,7 @@ function createPopoverTabs(el, tab1Callback, tab2Callback) {
                 createPopoverClickHandler(tabPanes[i]);
             }
             else {
-                popoverInit.tooltip.getElementsByClassName('popover-header')[0].textContent = tabHeader[0].textContent;
+                popoverInit.tooltip.querySelector('.popover-header').textContent = tabHeader[0].textContent;
                 tabHeader[0].parentNode.parentNode.remove();
             }
         }
@@ -665,7 +665,6 @@ function createMenuListsSecondary(el, tabHeader, tabContent) {
             const dataNode = el.parentNode.parentNode;
             const type = getData(dataNode, 'type');
             const uri = getData(dataNode, 'uri');
-            const name = getData(dataNode, 'name');
 
             if (isStreamUri(uri) === true ||
                 (app.id === 'BrowseFilesystem' && type === 'dir') ||
@@ -688,7 +687,7 @@ function createMenuListsSecondary(el, tabHeader, tabContent) {
             else {
                 tabHeader.textContent = tn('Directory');
                 const baseuri = dirname(uri);
-                addMenuItemsDirectoryActions(tabContent, baseuri, name);
+                addMenuItemsDirectoryActions(tabContent, baseuri);
             }
             return true;
         }

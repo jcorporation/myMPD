@@ -29,22 +29,32 @@ function isHttpUri(uri) {
     return false;
 }
 
+/**
+ * Removes all is-invalid classes
+ * @param {Element} parentEl 
+ */
 function removeIsInvalid(parentEl) {
-    const els = parentEl.getElementsByClassName('is-invalid');
-    for (let i = els.length - 1; i >= 0; i--) {
+    const els = parentEl.querySelectorAll('.is-invalid');
+    for (let i = 0, j = els.length; i < j; i++) {
         els[i].classList.remove('is-invalid');
     }
 }
 
+/**
+ * Marks an element as invalid
+ * @param {String} id 
+ */
 function setIsInvalidId(id) {
     setIsInvalid(document.getElementById(id));
 }
 
+/**
+ * Marks an element as invalid
+ * @param {Element} el 
+ */
 function setIsInvalid(el) {
-    if (el.parentNode.getElementsByClassName('is-invalid').length === 0) {
-        //set is-invalid on parent node
-        el.parentNode.classList.add('is-invalid');
-    }
+    //set is-invalid on parent node
+    el.parentNode.classList.add('is-invalid');
     el.classList.add('is-invalid');
 }
 

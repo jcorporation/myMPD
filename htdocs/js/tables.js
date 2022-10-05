@@ -4,11 +4,12 @@
 // https://github.com/jcorporation/mympd
 
 function dragAndDropTable(table) {
-    const tableBody = document.getElementById(table).getElementsByTagName('tbody')[0];
+    const tableBody = document.querySelector('#' + table + ' > tbody');
     tableBody.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TR') {
             hidePopover();
             event.target.classList.add('opacity05');
+            // @ts-ignore
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
             event.dataTransfer.setData('Text', event.target.getAttribute('id'));
@@ -33,7 +34,7 @@ function dragAndDropTable(table) {
         if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
-        const tr = tableBody.getElementsByClassName('dragover');
+        const tr = tableBody.querySelectorAll('.dragover');
         for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
@@ -51,7 +52,7 @@ function dragAndDropTable(table) {
         if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
-        const tr = tableBody.getElementsByClassName('dragover');
+        const tr = tableBody.querySelectorAll('.dragover');
         for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
@@ -74,14 +75,18 @@ function dragAndDropTable(table) {
         const newSongpos = getData(target, 'songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
+        // @ts-ignore
         tableBody.insertBefore(dragEl, target);
-        const tr = tableBody.getElementsByClassName('dragover');
+        const tr = tableBody.querySelectorAll('.dragover');
         for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
         document.getElementById(table).classList.add('opacity05');
         if (app.id === 'QueueCurrent') {
-            sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {"from": oldSongpos, "to": newSongpos});
+            sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
+                "from": oldSongpos,
+                "to": newSongpos
+            }, null, false);
         }
         else if (app.id === 'BrowsePlaylistsDetail') {
             playlistMoveSong(oldSongpos, newSongpos);
@@ -90,11 +95,12 @@ function dragAndDropTable(table) {
 }
 
 function dragAndDropTableHeader(table) {
-    const tableHeader = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+    const tableHeader = document.querySelector('#' + table + 'List > thead > tr');
 
     tableHeader.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TH') {
             event.target.classList.add('opacity05');
+            // @ts-ignore
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
             event.dataTransfer.setData('Text', event.target.getAttribute('data-col'));
@@ -115,7 +121,7 @@ function dragAndDropTableHeader(table) {
         if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
-        const th = tableHeader.getElementsByClassName('dragover-th');
+        const th = tableHeader.querySelectorAll('.dragover-th');
         for (let i = 0, j = th.length; i < j; i++) {
             th[i].classList.remove('dragover-th');
         }
@@ -129,7 +135,7 @@ function dragAndDropTableHeader(table) {
         if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
-        const th = tableHeader.getElementsByClassName('dragover-th');
+        const th = tableHeader.querySelectorAll('.dragover-th');
         for (let i = 0, j = th.length; i < j; i++) {
             th[i].classList.remove('dragover-th');
         }
@@ -146,8 +152,9 @@ function dragAndDropTableHeader(table) {
         }
         this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').remove();
         dragEl.classList.remove('opacity05');
+        // @ts-ignore
         tableHeader.insertBefore(dragEl, event.target);
-        const th = tableHeader.getElementsByClassName('dragover-th');
+        const th = tableHeader.querySelectorAll('.dragover-th');
         for (let i = 0, j = th.length; i < j; i++) {
             th[i].classList.remove('dragover-th');
         }
@@ -254,7 +261,7 @@ function setCols(table) {
         }
     }
 
-    const thead = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+    const thead = document.querySelector('#' + table + 'List > thead > tr');
     elClear(thead);
 
     for (let i = 0, j = settings['cols' + table].length; i < j; i++) {
@@ -290,16 +297,16 @@ function saveCols(table, tableEl) {
     const colsDropdown = document.getElementById(table + 'ColsDropdown');
     let header;
     if (tableEl === undefined) {
-        header = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+        header = document.querySelector('#' + table + 'List > thead > tr');
     }
     else if (typeof(tableEl) === 'string') {
-        header = document.querySelector(tableEl).getElementsByTagName('tr')[0];
+        header = document.querySelector(tableEl + ' > thead > tr');
     }
     else {
-        header = tableEl.getElementsByTagName('tr')[0];
+        header = tableEl.querySelector('tr');
     }
     if (colsDropdown) {
-        const colInputs = colsDropdown.firstChild.getElementsByTagName('button');
+        const colInputs = colsDropdown.firstChild.querySelectorAll('button');
         for (let i = 0, j = colInputs.length; i < j; i++) {
             if (colInputs[i].getAttribute('name') === null) {
                 continue;
@@ -318,19 +325,19 @@ function saveCols(table, tableEl) {
     }
 
     const params = {"table": "cols" + table, "cols": []};
-    const ths = header.getElementsByTagName('th');
+    const ths = header.querySelector('th');
     for (let i = 0, j = ths.length; i < j; i++) {
         const name = ths[i].getAttribute('data-col');
         if (name !== 'Action' && name !== null) {
             params.cols.push(name);
         }
     }
-    sendAPI("MYMPD_API_COLS_SAVE", params, getSettings);
+    sendAPI("MYMPD_API_COLS_SAVE", params, getSettings, true);
 }
 
 //eslint-disable-next-line no-unused-vars
 function saveColsPlayback(table) {
-    const colInputs = document.getElementById(table + 'ColsDropdown').firstElementChild.getElementsByTagName('button');
+    const colInputs = document.querySelectorAll(table + 'ColsDropdown > form > button');
     const header = document.getElementById('cardPlaybackTags');
 
     for (let i = 0, j = colInputs.length - 1; i < j; i++) {
@@ -354,14 +361,14 @@ function saveColsPlayback(table) {
 
     //construct columns to save from actual playback card
     const params = {"table": "cols" + table, "cols": []};
-    const ths = header.getElementsByTagName('div');
+    const ths = header.querySelectorAll('div');
     for (let i = 0, j = ths.length; i < j; i++) {
         const name = getData(ths[i], 'tag');
         if (name) {
             params.cols.push(name);
         }
     }
-    sendAPI("MYMPD_API_COLS_SAVE", params, getSettings);
+    sendAPI("MYMPD_API_COLS_SAVE", params, getSettings, true);
 }
 
 function toggleSort(th, colName) {
@@ -379,7 +386,7 @@ function toggleSort(th, colName) {
         app.current.sort.tag = colName;
     }
     //remove old sort indicator
-    const sdi = th.parentNode.getElementsByClassName('sort-dir');
+    const sdi = th.parentNode.querySelector('.sort-dir');
     for (const s of sdi) {
         s.remove();
     }
@@ -416,11 +423,11 @@ function addDiscRow(disc, album, albumartist, colspan) {
 
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const table = document.getElementById(list + 'List');
-    const tbody = table.getElementsByTagName('tbody')[0];
+    const tbody = table.querySelector('tbody');
     const colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
 
     const nrItems = obj.result.returnedEntities;
-    const tr = tbody.getElementsByTagName('tr');
+    const tr = tbody.querySelectorAll('tr');
     const smallWidth = uiSmallWidthTagRows();
 
     if (smallWidth === true) {
@@ -590,17 +597,17 @@ function warningRow(message, colspan) {
 }
 
 function checkResultId(obj, id) {
-    return checkResult(obj, document.getElementById(id).getElementsByTagName('tbody')[0]);
+    return checkResult(obj, document.querySelector('#' + id + ' > tbody'));
 }
 
 function checkResult(obj, tbody) {
-    const thead = tbody.parentNode.getElementsByTagName('tr')[0];
-    const colspan = thead !== undefined ? thead.getElementsByTagName('th').length : 0;
-    const tfoot = tbody.parentNode.getElementsByTagName('tfoot');
+    const thead = tbody.parentNode.querySelector('tr');
+    const colspan = thead !== undefined ? thead.querySelectorAll('th').length : 0;
+    const tfoot = tbody.parentNode.querySelector('tfoot');
     if (obj.error) {
         elClear(tbody);
-        if (tfoot.length === 1) {
-            elClear(tfoot[0]);
+        if (tfoot !== null) {
+            elClear(tfoot);
         }
         tbody.appendChild(errorRow(obj, colspan));
         unsetUpdateView(tbody.parentNode);
@@ -609,8 +616,8 @@ function checkResult(obj, tbody) {
     }
     if (obj.result.returnedEntities === 0) {
         elClear(tbody);
-        if (tfoot.length === 1) {
-            elClear(tfoot[0]);
+        if (tfoot !== 1) {
+            elClear(tfoot);
         }
         tbody.appendChild(emptyRow(colspan));
         unsetUpdateView(tbody.parentNode);

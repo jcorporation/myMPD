@@ -102,7 +102,7 @@ function doSearch(x) {
 
 function parseSearch(obj) {
     const table = document.getElementById('SearchList');
-    const tfoot = table.getElementsByTagName('tfoot')[0];
+    const tfoot = table.querySelector('tfoot');
     elClear(tfoot);
 
     if (checkResultId(obj, 'SearchList') === false) {

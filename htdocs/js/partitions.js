@@ -58,7 +58,7 @@ function initPartitions() {
 //eslint-disable-next-line no-unused-vars
 function moveOutputs() {
     const outputs = [];
-    const selection = document.getElementById('partitionOutputsList').getElementsByClassName('active');
+    const selection = document.querySelectorAll('#partitionOutputsList .active');
     if (selection.length === 0) {
         return;
     }
@@ -87,6 +87,7 @@ function parsePartitionOutputsList(obj) {
     }
 
     elClear(outputList);
+    /** @type {Object} */
     const curOutputs = [];
     for (let i = 0; i < obj.result.numOutputs; i++) {
         if (obj.result.data[i].plugin !== 'dummy') {

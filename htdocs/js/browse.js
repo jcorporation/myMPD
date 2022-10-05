@@ -61,7 +61,7 @@ function initBrowse() {
             if (event.target.parentNode.classList.contains('not-clickable')) {
                 return;
             }
-            clickSong(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
+            clickSong(getData(event.target.parentNode, 'uri'));
         }
         else if (event.target.nodeName === 'A') {
             //action td
@@ -371,7 +371,7 @@ function parseFilesystem(obj) {
     elClear(imageList);
 
     const table = document.getElementById('BrowseFilesystemList');
-    const tfoot = table.getElementsByTagName('tfoot')[0];
+    const tfoot = table.querySelector('tfoot');
     elClear(tfoot);
 
     if (checkResultId(obj, 'BrowseFilesystemList') === false) {
@@ -441,7 +441,7 @@ function parseFilesystem(obj) {
 function parseDatabase(obj) {
     const cardContainer = document.getElementById('BrowseDatabaseListList');
     unsetUpdateView(cardContainer);
-    const cols = cardContainer.getElementsByClassName('col');
+    const cols = cardContainer.querySelectorAll('.col');
 
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,
@@ -460,7 +460,7 @@ function parseDatabase(obj) {
         return;
     }
 
-    if (cardContainer.getElementsByClassName('not-clickable').length > 0) {
+    if (cardContainer.querySelector('.not-clickable') !== null) {
         elClear(cardContainer);
     }
     for (let i = 0; i < nrItems; i++) {
@@ -545,7 +545,7 @@ function setGridImage(changes, observer) {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
             const uri = getData(change.target.firstChild, 'image');
-            const body = change.target.firstChild.getElementsByClassName('card-body')[0];
+            const body = change.target.firstChild.querySelector('.card-body');
             if (body) {
                 body.style.backgroundImage = 'url("' + uri + '"),' +
                     'url("' + subdir + '/assets/coverimage-loading.svg")';
@@ -574,7 +574,7 @@ function addAlbumPlayButton(parentEl) {
  */
 function parseAlbumDetails(obj) {
     const table = document.getElementById('BrowseDatabaseDetailList');
-    const tfoot = table.getElementsByTagName('tfoot')[0];
+    const tfoot = table.querySelector('tfoot');
     const colspan = settings.colsBrowseDatabaseDetail.length;
     const infoEl = document.getElementById('viewDetailDatabaseInfo');
 
@@ -597,7 +597,7 @@ function parseAlbumDetails(obj) {
     );
     for (const tag of [tagAlbumArtist, 'Genre']) {
         if (settings.tagList.includes(tag)) {
-            const p = elCreateEmpty('p', {}, '');
+            const p = elCreateEmpty('p', {});
             infoEl.appendChild(
                 elCreateTextTn('small', {}, tag)
             );
@@ -675,7 +675,8 @@ function backToAlbumGrid() {
  */
 //eslint-disable-next-line no-unused-vars
 function addAlbum(action) {
-    _addAlbum(action, app.current.search, app.current.tag);
+    // @ts-ignore search in this view an array
+    _addAlbum(action, app.current.search, app.current.tag, undefined);
 }
 
 /**

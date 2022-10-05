@@ -85,14 +85,14 @@ function toggleTimer(target, timerid) {
         sendAPI("MYMPD_API_TIMER_TOGGLE", {
             "timerid": timerid,
             "enabled": false
-        }, showListTimer);
+        }, showListTimer, false);
     }
     else {
         target.classList.add('active');
         sendAPI("MYMPD_API_TIMER_TOGGLE", {
             "timerid": timerid,
             "enabled": true
-        }, showListTimer);
+        }, showListTimer, false);
     }
 }
 
@@ -149,7 +149,7 @@ function saveTimer() {
 
     if (formOK === true) {
         const args = {};
-        const argEls = document.getElementById('timerActionScriptArguments').getElementsByTagName('input');
+        const argEls = document.querySelectorAll('#timerActionScriptArguments input');
         for (let i = 0, j = argEls.length; i < j; i++) {
             args[getData(argEls[i], 'name')] = argEls[i].value;
         }
@@ -202,7 +202,7 @@ function showEditTimer(timerid) {
     if (timerid !== 0) {
         sendAPI("MYMPD_API_TIMER_GET", {
             "timerid": timerid
-        }, parseEditTimer);
+        }, parseEditTimer, false);
     }
     else {
         filterPlaylistsSelect(0, 'selectTimerPlaylist', '', 'Database');
@@ -346,7 +346,7 @@ function showListTimer() {
 }
 
 function parseListTimer(obj) {
-    const tbody = document.getElementById('listTimer').getElementsByTagName('tbody')[0];
+    const tbody = document.querySelector('#listTimer > tbody');
     if (checkResult(obj, tbody) === false) {
         return;
     }
