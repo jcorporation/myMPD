@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Initialization function for the browse view
+ */
 function initBrowse() {
     document.getElementById('BrowseDatabaseListList').addEventListener('click', function(event) {
         if (event.target.classList.contains('row')) {
@@ -231,6 +234,10 @@ function initBrowse() {
     }, false);
 }
 
+/**
+ * Event handler for the navigation dropdown in the browse views
+ * @param {event} event triggering event
+ */
 function navBrowseHandler(event) {
     if (event.target.nodeName === 'BUTTON') {
         const tag = getData(event.target, 'tag');
@@ -266,6 +273,10 @@ function navBrowseHandler(event) {
     }
 }
 
+/**
+ * Event handler for links to browse views
+ * @param {event} event triggering event
+ */
 function gotoBrowse(event) {
     let target = event.target;
     let tag = getData(target, 'tag');
@@ -306,11 +317,21 @@ function gotoBrowse(event) {
     }
 }
 
+/**
+ * Go's to the album detail view
+ * @param {Array} artist albumartist names
+ * @param {String} album album name
+ */
 //eslint-disable-next-line no-unused-vars
 function gotoAlbum(artist, album) {
     appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', tagAlbumArtist, album, artist);
 }
 
+/**
+ * Go's to a filtered album list
+ * @param {String} tag tag to search
+ * @param {Array} value array of values to match
+ */
 //eslint-disable-next-line no-unused-vars
 function gotoAlbumList(tag, value) {
     if (typeof value === 'string') {
@@ -329,12 +350,21 @@ function gotoAlbumList(tag, value) {
     appGoto('Browse', 'Database', 'List', 0, undefined, tag, {"tag": tagAlbumArtist, "desc": false}, 'Album', expression);
 }
 
+/**
+ * Go's to the filesystem view
+ * @param {String} uri uri to list
+ * @param {*} type "dir" or "plist"
+ */
 //eslint-disable-next-line no-unused-vars
 function gotoFilesystem(uri, type) {
     document.getElementById('searchFilesystemStr').value = '';
     appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-', '-', type, uri);
 }
 
+/**
+ * Parses the MYMPD_API_DATABASE_FILESYSTEM_LIST response
+ * @param {Object} obj jsonrpc response object
+ */
 function parseFilesystem(obj) {
     //show images in folder
     const imageList = document.getElementById('BrowseFilesystemImages');
@@ -404,6 +434,10 @@ function parseFilesystem(obj) {
     );
 }
 
+/**
+ * Parsed the MYMPD_API_DATABASE_ALBUMS_GET and MYMPD_API_DATABASE_TAG_LIST response
+ * @param {Object} obj jsonrpc response object
+ */
 function parseDatabase(obj) {
     const cardContainer = document.getElementById('BrowseDatabaseListList');
     unsetUpdateView(cardContainer);
@@ -501,6 +535,11 @@ function parseDatabase(obj) {
     scrollToPosY(cardContainer.parentNode, app.current.scrollPos);
 }
 
+/**
+ * Callback function for intersection observer to lazy load cover images
+ * @param {Object} changes IntersectionObserverEntry objects
+ * @param {Object} observer IntersectionObserver
+ */
 function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
@@ -515,6 +554,10 @@ function setGridImage(changes, observer) {
     });
 }
 
+/**
+ * Adds the album play button
+ * @param {HTMLElement} parentEl parent element for the button
+ */
 function addAlbumPlayButton(parentEl) {
     const div = pEl.coverPlayBtn.cloneNode(true);
     parentEl.appendChild(div);
@@ -525,6 +568,10 @@ function addAlbumPlayButton(parentEl) {
     }, false);
 }
 
+/**
+ * Parses the MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST response
+ * @param {Object} obj jsonrpc response object
+ */
 function parseAlbumDetails(obj) {
     const table = document.getElementById('BrowseDatabaseDetailList');
     const tfoot = table.getElementsByTagName('tfoot')[0];
@@ -614,53 +661,108 @@ function parseAlbumDetails(obj) {
     );
 }
 
+/**
+ * Go's to the last browse database grid view
+ */
 //eslint-disable-next-line no-unused-vars
 function backToAlbumGrid() {
     appGoto('Browse', 'Database', 'List');
 }
 
-//wrapper for buttons in album view
+/**
+ * Wrapper for _addAlbum for add buttons in the album detail view
+ * @param {String} action action to perform
+ */
 //eslint-disable-next-line no-unused-vars
 function addAlbum(action) {
     _addAlbum(action, app.current.search, app.current.tag);
 }
-//wrapper for home icon action
+
+/**
+ * Appends an album to the queue.
+ * Wrapper for _addAlbum for home icon action.
+ * @param {*} type not used
+ * @param {Array} albumArtist array of albumartists
+ * @param {String} album album name
+ */
 //eslint-disable-next-line no-unused-vars
 function appendQueueAlbum(type, albumArtist, album) {
     //type not used but required for home icon cmd
     _addAlbum('appendQueue', albumArtist, album, undefined);
 }
-//wrapper for home icon action
+
+/**
+ * Appends an album to the queue and plays it.
+ * Wrapper for _addAlbum for home icon action.
+ * @param {*} type not used
+ * @param {Array} albumArtist array of albumartists
+ * @param {String} album album name
+ */
 //eslint-disable-next-line no-unused-vars
 function appendPlayQueueAlbum(type, albumArtist, album) {
     //type not used but required for home icon cmd
     _addAlbum('appendPlayQueue', albumArtist, album, undefined);
 }
-//wrapper for home icon action
+
+/**
+ * Replaces the queue with an album.
+ * Wrapper for _addAlbum for home icon action.
+ * @param {*} type not used
+ * @param {Array} albumArtist array of albumartists
+ * @param {String} album album name
+ */
 //eslint-disable-next-line no-unused-vars
 function replaceQueueAlbum(type, albumArtist, album) {
     //type not used but required for home icon cmd
     _addAlbum('replaceQueue', albumArtist, album, undefined);
 }
-//wrapper for home icon action
+
+/**
+ * Replaces the queue with an album and plays it.
+ * Wrapper for _addAlbum for home icon action.
+ * @param {*} type not used
+ * @param {Array} albumArtist array of albumartists
+ * @param {String} album album name
+ */
 //eslint-disable-next-line no-unused-vars
 function replacePlayQueueAlbum(type, albumArtist, album) {
     //type not used but required for home icon cmd
     _addAlbum('replacePlayQueue', albumArtist, album, undefined);
 }
-//wrapper for home icon action
+
+/**
+ * Inserts the an album after the current playing song.
+ * Wrapper for _addAlbum for home icon action.
+ * @param {*} type not used
+ * @param {Array} albumArtist array of albumartists
+ * @param {String} album album name
+ */
 //eslint-disable-next-line no-unused-vars
 function insertAfterCurrentQueueAlbum(type, albumArtist, album) {
     //type not used but required for home icon cmd
     _addAlbum('insertQueue', albumArtist, album, undefined);
 }
-//wrapper for home icon action
+
+/**
+ * Inserts the an album after the current playing song and plays it.
+ * Wrapper for _addAlbum for home icon action.
+ * @param {*} type not used
+ * @param {Array} albumArtist array of albumartists
+ * @param {String} album album name
+ */
 //eslint-disable-next-line no-unused-vars
 function insertPlayAfterCurrentQueueAlbum(type, albumArtist, album) {
     //type not used but required for home icon cmd
     _addAlbum('insertPlayQueue', albumArtist, album, undefined);
 }
 
+/**
+ * Adds an album to the queue or a playlist
+ * @param {String} action action to perform
+ * @param {Array} albumArtist array of albumartists
+ * @param {String} album album name
+ * @param {String} disc optional disc number, "undefined" to add the whole album
+ */
 function _addAlbum(action, albumArtist, album, disc) {
     let expression = '((Album == \'' + escapeMPD(album) + '\')';
     for (const artist of albumArtist) {
@@ -696,8 +798,13 @@ function _addAlbum(action, albumArtist, album, disc) {
     }
 }
 
-function searchAlbumgrid(x) {
-    const expression = createSearchExpression(document.getElementById('searchDatabaseCrumb'), app.current.filter, getSelectValueId('searchDatabaseMatch'), x);
+/**
+ * Creates and executes the mpd filter expression from the search crumbs and current search values
+ * for the album grid search.
+ * @param {*} searchStr string to search
+ */
+function searchAlbumgrid(searchStr) {
+    const expression = createSearchExpression(document.getElementById('searchDatabaseCrumb'), app.current.filter, getSelectValueId('searchDatabaseMatch'), searchStr);
     appGoto(app.current.card, app.current.tab, app.current.view,
         0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
 }
