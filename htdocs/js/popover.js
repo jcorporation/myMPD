@@ -280,7 +280,7 @@ function addMenuItemsDiscActions(popoverBody, el) {
     addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album, disc]}, 'Append to queue');
     addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["appendPlayQueue", albumArtist, album, disc]}, 'Append to queue and play');
     if (features.featWhence === true) {
-        addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["insertAfterCurrentQueue", albumArtist, album]}, 'Insert after current playing song');
+        addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["insertAfterCurrentQueue", albumArtist, album, disc]}, 'Insert after current playing song');
     }
     addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album, disc]}, 'Replace queue');
     addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["replacePlayQueue", albumArtist, album, disc]}, 'Replace queue and play');
@@ -316,19 +316,19 @@ function addMenuItemsAlbumActions(tabContent, dataNode, albumArtist, album) {
         album = getData(dataNode, 'Album');
     }
     if (app.id !== 'QueueCurrent') {
-        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album]}, 'Append to queue');
-        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["appendPlayQueue", albumArtist, album]}, 'Append to queue and play');
+        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album, undefined]}, 'Append to queue');
+        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["appendPlayQueue", albumArtist, album, undefined]}, 'Append to queue and play');
         if (features.featWhence === true) {
-            addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["insertAfterCurrentQueue", albumArtist, album]}, 'Insert after current playing song');
+            addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["insertAfterCurrentQueue", albumArtist, album, undefined]}, 'Insert after current playing song');
         }
-        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album]}, 'Replace queue');
-        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["replacePlayQueue", albumArtist, album]}, 'Replace queue and play');
+        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album, undefined]}, 'Replace queue');
+        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["replacePlayQueue", albumArtist, album, undefined]}, 'Replace queue and play');
     }
     if (features.featPlaylists === true &&
         app.id !== 'Home')
     {
         addDivider(tabContent);
-        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album]}, 'Add to playlist');
+        addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album, undefined]}, 'Add to playlist');
     }
     addDivider(tabContent);
     if (app.id !== 'BrowseDatabaseDetail') {
