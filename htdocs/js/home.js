@@ -752,7 +752,7 @@ function openExternalLink(link) {
 function homeIconGoto(type, uri, album) {
     switch(type) {
         case 'dir':
-            gotoFilesystem(uri);
+            gotoFilesystem(uri, type);
             break;
         case 'search':
             appGoto('Search', undefined, undefined, 0, undefined, 'any', 'Title', '-', uri);
