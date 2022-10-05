@@ -1229,7 +1229,7 @@ run_eslint() {
     fi
   done
   echo "Check for forbidden js functions"
-  FORBIDDEN_CMDS="innerHTML outerHTML insertAdjacentHTML innerText"
+  FORBIDDEN_CMDS="innerHTML outerHTML insertAdjacentHTML innerText getElements"
   for F in $FORBIDDEN_CMDS
   do
   	if grep -q "$F" release/htdocs/js/mympd.min.js
