@@ -1499,7 +1499,7 @@ const APImethods = {
             "id": APIparams.triggerId
         }
     },
-    "MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET": {
+    "MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET": {
         "desc": "Sets an MPD output attribute",
         "protected": true,
         "params": {

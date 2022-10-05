@@ -588,7 +588,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         }
-        case MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET: {
+        case MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET: {
             struct t_list attributes;
             list_init(&attributes);
             if (json_get_uint(request->data, "$.params.outputId", 0, MPD_OUTPUT_ID_MAX, &uint_buf1, &error) == true &&
