@@ -1204,6 +1204,19 @@ sbuild_cleanup() {
   rm -rf "${WORKDIR}"
 }
 
+run_tsc() {
+  if ! check_cmd npx
+  then
+    return 1
+  fi
+  echo "Running typscript compiler for validation"
+  if ! npx tsc -p htdocs/js/jsconfig.json
+  then
+    return 1
+  fi
+  return 0
+}
+
 run_eslint() {
   if ! check_cmd npx
   then
@@ -1431,6 +1444,10 @@ case "$ACTION" in
       exit 1
     fi
     if ! run_stylelint
+    then
+      exit 1
+    fi
+    if ! run_tsc
     then
       exit 1
     fi

@@ -14,6 +14,7 @@ jobs:
         npm install stylelint --save-dev
         npm install stylelint-config-standard --save-dev
         npm install htmlhint --save-dev
+        npm install typescript --save-dev
     - name: lint js css html
       run: ./build.sh lint
     - name: build debug and lint
