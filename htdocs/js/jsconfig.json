@@ -1,8 +1,10 @@
 {
     "compilerOptions": {
-      "module": "commonjs",
-      "target": "es6",
-      "checkJs": true
+      "checkJs": true,
+      "target": "ES2015"
     },
-    "include": ["*.js"]
+    "include": [
+      "*.js",
+      "*.ts"
+    ]
 }
