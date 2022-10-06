@@ -475,7 +475,7 @@ function parseSettings(obj) {
     appRoute();
 
     //mediaSession support
-    if (checkMediaSessionSupport() === true) {
+    if (features.featMediaSession === true) {
         try {
             navigator.mediaSession.setActionHandler('play', clickPlay);
             navigator.mediaSession.setActionHandler('pause', clickPlay);
@@ -740,7 +740,7 @@ function populateSettingsFrm() {
 
     //media session support
     const btnMediaSession = document.getElementById('inputWebUIsettingmediaSession');
-    if (checkMediaSessionSupport() === false) {
+    if (features.featMediaSession === false) {
         elShowId('warninputWebUIsettingmediaSession');
         elDisable(btnMediaSession);
         toggleBtnChk(btnMediaSession, false);
@@ -952,6 +952,7 @@ function setFeatures() {
         settings.features.featScripting : false;
     features.featTimer = settings.webuiSettings.enableTimer;
     features.featTrigger = settings.webuiSettings.enableTrigger;
+    features.featMediaSession = checkMediaSessionSupport();
 
     //mpd features
     if (settings.partition.mpdConnected === true) {

@@ -59,7 +59,7 @@ function songDetails(uri) {
 function parseFingerprint(obj) {
     if (obj.error) {
         elReplaceChildId('fingerprint',
-            elCreateTextTnData('div', {"class": ["alert", "alert-danger"]}, obj.error.message, obj.error.data)
+            elCreateTextTn('div', {"class": ["alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         return;
     }

@@ -582,7 +582,7 @@ function loadingRow(colspan) {
 function errorRow(obj, colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},
-            elCreateTextTnData('div', {"class": ["alert", "alert-danger"]}, obj.error.message, obj.error.data)
+            elCreateTextTn('div', {"class": ["alert", "alert-danger"]}, obj.error.message, obj.error.data)
         )
     );
 }

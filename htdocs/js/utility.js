@@ -962,15 +962,27 @@ function getTimestamp() {
     return Math.floor(Date.now() / 1000);
 }
 
+/**
+ * Toggles the collapse indicator
+ * @param {HTMLElement} el 
+ */
 function toggleCollapseArrow(el) {
     const icon = el.querySelector('span');
     icon.textContent = icon.textContent === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
 }
 
-function ucFirst(string) {
-    return string[0].toUpperCase() + string.slice(1);
+/**
+ * Uppercases the first letter
+ * @param {String} str 
+ * @returns {String}
+ */
+function ucFirst(str) {
+    return str[0].toUpperCase() + str.slice(1);
 }
 
+/**
+ * Go's into fullscreen mode
+ */
 //eslint-disable-next-line no-unused-vars
 function openFullscreen() {
     const elem = document.documentElement;
@@ -991,16 +1003,26 @@ function openFullscreen() {
     }
 }
 
+/**
+ * Clears the covercache
+ */
 //eslint-disable-next-line no-unused-vars
 function clearCovercache() {
     sendAPI("MYMPD_API_COVERCACHE_CLEAR", {}, null, false);
 }
 
+/**
+ * Crops the covercache
+ */
 //eslint-disable-next-line no-unused-vars
 function cropCovercache() {
     sendAPI("MYMPD_API_COVERCACHE_CROP", {}, null, false);
 }
 
+/**
+ * Opens the picture modal
+ * @param {HTMLElement} el 
+ */
 //eslint-disable-next-line no-unused-vars
 function zoomPicture(el) {
     if (el.classList.contains('booklet')) {
@@ -1043,11 +1065,22 @@ function zoomPicture(el) {
     }
 }
 
+/**
+ * Opens the picture in a new window
+ */
 //eslint-disable-next-line no-unused-vars
 function zoomZoomPicture() {
     window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
 }
 
+/**
+ * Creates the array of images and creates the image carousel
+ * @param {HTMLElement} imgEl 
+ * @param {String} name name to construct the image carousel id from
+ * @param {*} uri uri of the image
+ * @param {Object} images array of additional images
+ * @param {Number} embeddedImageCount 
+ */
 function createImgCarousel(imgEl, name, uri, images, embeddedImageCount) {
     //embedded albumart
     if (embeddedImageCount === 0) {
@@ -1067,6 +1100,12 @@ function createImgCarousel(imgEl, name, uri, images, embeddedImageCount) {
     _createImgCarousel(imgEl, name, aImages);
 }
 
+/**
+ * Creates the image carousel
+ * @param {HTMLElement} imgEl 
+ * @param {String} name 
+ * @param {Object} images array of all images to display
+ */
 function _createImgCarousel(imgEl, name, images) {
     const nrImages = images.length;
     const carousel = elCreateEmpty('div', {"id": name, "class": ["carousel", "slide"], "data-bs-ride": "carousel"});
@@ -1116,11 +1155,19 @@ function _createImgCarousel(imgEl, name, images) {
     });
 }
 
+/**
+ * Opens a modal
+ * @param {String} modal 
+ */
 //eslint-disable-next-line no-unused-vars
 function showModal(modal) {
     uiElements[modal].show();
 }
 
+/**
+ * Checks for support of the media session api
+ * @returns {Boolean} true if media session api is supported, else false
+ */
 function checkMediaSessionSupport() {
     if (settings.mediaSession === false ||
         navigator.mediaSession === undefined)
@@ -1130,6 +1177,12 @@ function checkMediaSessionSupport() {
     return true;
 }
 
+/**
+ * Checks if tag matches the value
+ * @param {String | Object} tag 
+ * @param {String} value 
+ * @returns {Boolean} true if tag matches value, else false
+ */
 function checkTagValue(tag, value) {
     if (typeof tag === 'string') {
         return tag === value;
@@ -1137,23 +1190,18 @@ function checkTagValue(tag, value) {
     return tag[0] === value;
 }
 
+/**
+ * Converts a string to a boolean
+ * @param {String} str 
+ * @returns {Boolean}
+ */
 function strToBool(str) {
     return str === 'true';
 }
 
-function getParent(el, nodeName) {
-    let target = el;
-    let i = 0;
-    while (target.nodeName !== nodeName) {
-        i++;
-        if (i > 10) {
-            return null;
-        }
-        target = target.parentNode;
-    }
-    return target;
-}
-
+/**
+ * Removes the search timer
+ */
 function clearSearchTimer() {
     if (searchTimer !== null) {
         clearTimeout(searchTimer);
@@ -1161,7 +1209,11 @@ function clearSearchTimer() {
     }
 }
 
-//cuesheet handling
+/**
+ * Returns the cuesheet name
+ * @param {String} uri 
+ * @returns {String}
+ */
 function cuesheetUri(uri) {
     const cuesheet = uri.match(/^(.*\.cue)\/(track\d+)$/);
     if (cuesheet !== null) {
@@ -1170,6 +1222,11 @@ function cuesheetUri(uri) {
     return uri;
 }
 
+/**
+ * Returns the cuesheet track name
+ * @param {String} uri 
+ * @returns {String}
+ */
 function cuesheetTrack(uri) {
     const cuesheet = uri.match(/^(.*\.cue)\/(track\d+)$/);
     if (cuesheet !== null) {
@@ -1178,13 +1235,21 @@ function cuesheetTrack(uri) {
     return '';
 }
 
+/**
+ * Sets the viewport tag scaling option
+ */
 function setViewport() {
     document.querySelector("meta[name=viewport]").setAttribute('content', 'width=device-width, initial-scale=' +
         localSettings.scaleRatio + ', maximum-scale=' + localSettings.scaleRatio);
 }
 
+/**
+ * Sets the height of the container for scrolling
+ * @param {HTMLElement} container 
+ */
 function setScrollViewHeight(container) {
     if (userAgentData.isMobile === true) {
+        //no scrolling container in the mobile view
         container.parentNode.style.maxHeight = '';
         return;
     }
@@ -1194,6 +1259,9 @@ function setScrollViewHeight(container) {
     container.parentNode.style.maxHeight = maxHeight + 'px';
 }
 
+/**
+ * Enables the mobile view for specific user agents
+ */
 function setMobileView() {
     if (userAgentData.isMobile === true) {
         setViewport();
@@ -1204,6 +1272,12 @@ function setMobileView() {
     }
 }
 
+/**
+ * Generic http get request
+ * @param {String} uri 
+ * @param {Function} callback 
+ * @param {Boolean} json true = parses the response as json, else pass the plain text response
+ */
 function httpGet(uri, callback, json) {
     const ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('GET', uri, true);
@@ -1215,8 +1289,8 @@ function httpGet(uri, callback, json) {
                     callback(obj);
                 }
                 catch(error) {
-                    showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
-                    logError('Can not parse response to json object:' + ajaxRequest.responseText);
+                    showNotification(tn('Can not parse response from %{uri} to json object', {"uri": uri}), '', 'general', 'error');
+                    logError('Can not parse response from ' + uri + ' to json object.');
                     logError(error);
                 }
             }

@@ -445,7 +445,7 @@ function parseDatabase(obj) {
 
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,
-            elCreateTextTnData('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
+            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         setPagination(0, 0);
         return;

@@ -220,7 +220,7 @@ function parseHomeIcons(obj) {
 
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,
-            elCreateTextTnData('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
+            elCreateTextTn('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         return;
     }

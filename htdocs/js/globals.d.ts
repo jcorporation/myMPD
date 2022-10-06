@@ -1,6 +1,7 @@
 // https://code.visualstudio.com/docs/nodejs/working-with-javascript
 
 declare var BSN: object;
+declare var i18n: object;
 
 interface ChildNode {
     querySelectorAll: any;
@@ -84,8 +85,12 @@ interface Object {
 }
 
 interface ParentNode {
+    clientTop: any;
     offsetLeft: any;
+    offsetParent: any;
+    offsetTop: any;
     scrollTop: any;
+    style: any;
 }
 
 interface Window {

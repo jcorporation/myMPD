@@ -758,7 +758,8 @@ const features = {
     "featBinarylimit": true,
     "featFingerprint": false,
     "featConsumeOneshot": false,
-    "featPlaylistDirAuto": false
+    "featPlaylistDirAuto": false,
+    "featMediaSession": false
 };
 
 //keyboard shortcuts

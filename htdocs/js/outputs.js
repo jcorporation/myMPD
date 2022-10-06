@@ -35,7 +35,7 @@ function parseOutputs(obj) {
     elClear(outputList);
     if (obj.error) {
         outputList.appendChild(
-            elCreateTextTnData('div', {"class": ["list-group-item", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
+            elCreateTextTn('div', {"class": ["list-group-item", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         return;
     }

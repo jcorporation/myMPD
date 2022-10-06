@@ -280,7 +280,7 @@ function toggleTopAlert() {
 function showModalAlert(obj) {
     const aModal = getOpenModal();
     const activeAlert = aModal.querySelector('.modalAlert');
-    const div = elCreateTextTnData('div', {"class": ["alert", "alert-danger", "modalAlert"]}, obj.error.message, obj.error.data);
+    const div = elCreateTextTn('div', {"class": ["alert", "alert-danger", "modalAlert"]}, obj.error.message, obj.error.data);
     if (activeAlert === undefined) {
         aModal.querySelector('.modal-body').appendChild(div);
     }

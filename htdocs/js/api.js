@@ -65,7 +65,7 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
             }
             if (obj.error) {
                 newFooter.appendChild(
-                    elCreateTextTnData('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]}, obj.error.message, obj.error.data)
+                    elCreateTextTn('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]}, obj.error.message, obj.error.data)
                 );
             }
             else if (obj.result.session !== '') {
@@ -294,7 +294,7 @@ function sendAPIpartition(partition, method, params, callback, onerror) {
             obj = JSON.parse(ajaxRequest.responseText);
         }
         catch(error) {
-            showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
+            showNotification(tn('Can not parse response from %{uri} to json object', {"uri": subdir + '/api/' + partition}), '', 'general', 'error');
             logError('Can not parse response to json object:' + ajaxRequest.responseText);
         }
         if (obj.error &&

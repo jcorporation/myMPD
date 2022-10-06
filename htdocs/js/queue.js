@@ -202,7 +202,7 @@ function parseQueue(obj) {
     }
 
     if (obj.result.offset < app.current.offset) {
-        gotoPage(obj.result.offset);
+        gotoPage(obj.result.offset, undefined);
         return;
     }
 
@@ -583,7 +583,7 @@ function gotoPlayingSong() {
         document.querySelector('queue-playing').scrollIntoView(true);
     }
     else {
-        gotoPage(Math.floor(currentState.songPos / app.current.limit) * app.current.limit);
+        gotoPage(Math.floor(currentState.songPos / app.current.limit) * app.current.limit, undefined);
     }
 }
 

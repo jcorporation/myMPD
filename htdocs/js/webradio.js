@@ -407,7 +407,7 @@ function parseRadioFavoritesList(obj) {
 
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,
-            elCreateTextTnData('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
+            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         setPagination(0, 0);
         return;
@@ -714,7 +714,7 @@ function showWebradiodbDetails(uri) {
     if (alternateStreams.length > 0) {
         const td = elCreateEmpty('td', {});
         for (const name of alternateStreams) {
-            const p = elCreateTextTnData('p', {"class": ["pb-0"]}, 'Webradioformat',
+            const p = elCreateTextTn('p', {"class": ["pb-0"]}, 'Webradioformat',
                 {"codec": result.alternativeStreams[name].Codec, "bitrate": result.alternativeStreams[name].Bitrate});
             const btn = elCreateText('button', {"class": ["btn", "btn-sm", "btn-secondary", "mi", "mi-small", "ms-2"]}, 'favorite');
             p.appendChild(btn);

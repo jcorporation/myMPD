@@ -4,6 +4,11 @@
 // https://github.com/jcorporation/mympd
 
 //functions to execute default actions
+
+/**
+ * Handler for quick remove button
+ * @param {EventTarget} target 
+ */
 function clickQuickRemove(target) {
     switch(app.id) {
         case 'QueueCurrent': {
@@ -20,6 +25,10 @@ function clickQuickRemove(target) {
     }
 }
 
+/**
+ * Handler for quick play button
+ * @param {EventTarget} target 
+ */
 function clickQuickPlay(target) {
     const type = getData(target.parentNode.parentNode, 'type');
     let uri = getData(target.parentNode.parentNode, 'uri');
@@ -36,6 +45,11 @@ function clickQuickPlay(target) {
     }
 }
 
+/**
+ * Handler for album play button
+ * @param {Object} albumArtist
+ * @param {String} album
+ */
 function clickAlbumPlay(albumArtist, album) {
     switch(settings.webuiSettings.clickQuickPlay) {
         case 'append': return _addAlbum('appendQueue', albumArtist, album, undefined);
@@ -63,6 +77,11 @@ function clickSong(uri) {
     }
 }
 
+/**
+ * Handler for radiobrowser links
+ * @param {String} uri stream uri
+ * @param {String} uuid radiobrowser station uuid
+ */
 function clickRadiobrowser(uri, uuid) {
     switch (settings.webuiSettings.clickRadiobrowser) {
         case 'append': return appendQueue('song', uri);
@@ -75,6 +94,10 @@ function clickRadiobrowser(uri, uuid) {
     countClickRadiobrowser(uuid);
 }
 
+/**
+ * Handler for webradioDB links
+ * @param {String} uri 
+ */
 function clickWebradiodb(uri) {
     switch (settings.webuiSettings.clickRadiobrowser) {
         case 'append': return appendQueue('song', uri);
@@ -86,6 +109,10 @@ function clickWebradiodb(uri) {
     }
 }
 
+/**
+ * Handler for webradio favorites links
+ * @param {String} uri
+ */
 function clickRadioFavorites(uri) {
     const fullUri = getRadioFavoriteUri(uri);
     switch(settings.webuiSettings.clickRadioFavorites) {
@@ -99,6 +126,11 @@ function clickRadioFavorites(uri) {
     }
 }
 
+/**
+ * Handler for song links in queue
+ * @param {String} songid 
+ * @param {String} uri 
+ */
 function clickQueueSong(songid, uri) {
     switch(settings.webuiSettings.clickQueueSong) {
         case 'play':
@@ -117,6 +149,10 @@ function clickQueueSong(songid, uri) {
     }
 }
 
+/**
+ * Handler for playlist links
+ * @param {String} uri 
+ */
 function clickPlaylist(uri) {
     switch(settings.webuiSettings.clickPlaylist) {
         case 'append': return appendQueue('plist', uri);
@@ -129,6 +165,10 @@ function clickPlaylist(uri) {
     }
 }
 
+/**
+ * Handler for click on playlists in filesystem view
+ * @param {String} uri 
+ */
 function clickFilesystemPlaylist(uri) {
     switch(settings.webuiSettings.clickFilesystemPlaylist) {
         case 'append': return appendQueue('plist', uri);
@@ -149,6 +189,10 @@ function clickFilesystemPlaylist(uri) {
     }
 }
 
+/**
+ * Handler for click on folder in filesystem view
+ * @param {String} uri 
+ */
 function clickFolder(uri) {
     //remember offset for current browse uri
     browseFilesystemHistory[app.current.search] = {
@@ -160,14 +204,24 @@ function clickFolder(uri) {
     appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, 'dir', uri);
 }
 
+/**
+ * Seeks the current song forward by 5s
+ */
 function seekRelativeForward() {
     seekRelative(5);
 }
 
+/**
+ * Seeks the current song backward by 5s
+ */
 function seekRelativeBackward() {
     seekRelative(-5);
 }
 
+/**
+ * Seeks the current song by offset seconds
+ * @param {Number} offset 
+ */
 function seekRelative(offset) {
     sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
         "seek": offset,
@@ -175,6 +229,9 @@ function seekRelative(offset) {
     }, null, false);
 }
 
+/**
+ * Handler for click on play button
+ */
 //eslint-disable-next-line no-unused-vars
 function clickPlay() {
     switch(currentState.state) {
@@ -198,24 +255,37 @@ function clickPlay() {
     }
 }
 
+/**
+ * Handler for click on stop button
+ */
 //eslint-disable-next-line no-unused-vars
 function clickStop() {
     sendAPI("MYMPD_API_PLAYER_STOP", {}, null, false);
 }
 
+/**
+ * Handler for click on prev song button
+ */
 //eslint-disable-next-line no-unused-vars
 function clickPrev() {
     sendAPI("MYMPD_API_PLAYER_PREV", {}, null, false);
 }
 
+/**
+ * Handler for click on next song button
+ */
 //eslint-disable-next-line no-unused-vars
 function clickNext() {
     sendAPI("MYMPD_API_PLAYER_NEXT", {}, null, false);
 }
 
+/**
+ * Handler for click on single button
+ * @param {String} mode 
+ */
 //eslint-disable-next-line no-unused-vars
 function clickSingle(mode) {
-    //mode: 0 = off, 1 = single, 2 = single one shot
+    //mode: "0" = off, "1" = single, "oneshot" = single one shot
     sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
         "single": mode
     }, null, false);

@@ -178,7 +178,7 @@ function parseNeighbors(obj) {
 
     if (obj.error) {
         dropdownNeighbors.appendChild(
-            elCreateTextTnData('div', {"class": ["list-group-item", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
+            elCreateTextTn('div', {"class": ["list-group-item", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         return;
     }

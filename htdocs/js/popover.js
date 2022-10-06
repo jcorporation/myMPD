@@ -295,18 +295,18 @@ function addMenuItemsSingleActions(popoverBody) {
             settings.partition.consume === '0')
         {
             //repeat one song can only work with consume disabled
-            addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [2]}, 'Repeat current song once');
-            addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [1]}, 'Repeat current song');
+            addMenuItem(popoverBody, {"cmd": "clickSingle", "options": ["oneshot"]}, 'Repeat current song once');
+            addMenuItem(popoverBody, {"cmd": "clickSingle", "options": ["1"]}, 'Repeat current song');
         }
         else if (settings.partition.repeat === true &&
                  settings.partition.autoPlay === false)
         {
             //single one-shot works only with disabled auto play
-            addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [2]}, 'Stop playback after current song');
+            addMenuItem(popoverBody, {"cmd": "clickSingle", "options": ["oneshot"]}, 'Stop playback after current song');
         }
     }
     else {
-        addMenuItem(popoverBody, {"cmd": "clickSingle", "options": [0]}, 'Disable single mode');
+        addMenuItem(popoverBody, {"cmd": "clickSingle", "options": ["0"]}, 'Disable single mode');
     }
 }
 

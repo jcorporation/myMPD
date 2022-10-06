@@ -570,7 +570,7 @@ function clickTitle() {
 }
 
 function mediaSessionSetPositionState(duration, position) {
-    if (checkMediaSessionSupport() === false ||
+    if (features.featMediaSession === false ||
         navigator.mediaSession.setPositionState === undefined)
     {
         return;
@@ -585,7 +585,7 @@ function mediaSessionSetPositionState(duration, position) {
 }
 
 function mediaSessionSetState() {
-    if (checkMediaSessionSupport() === false) {
+    if (features.featMediaSession === false) {
         return;
     }
     const state = currentState.state === 'play' ? 'playing' : 'paused';
@@ -594,7 +594,7 @@ function mediaSessionSetState() {
 }
 
 function mediaSessionSetMetadata(title, artist, album, url) {
-    if (checkMediaSessionSupport() === false) {
+    if (features.featMediaSession === false) {
         return;
     }
     const artwork = window.location.protocol + '//' + window.location.hostname +
