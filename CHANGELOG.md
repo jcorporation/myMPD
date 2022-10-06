@@ -18,7 +18,8 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 - Feat: add elapsed sticker to save recent position from songs #781
 - Feat: jsDoc compatible API documentation and linting with typescript compiler
 - Upd: libmympdclient 1.0.15
-- Upd: improve translation framework
+- Upd: refactor translation framework
+- Upd: Bootstrap 5.2.2
 
 ***
 
