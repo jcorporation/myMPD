@@ -30,6 +30,9 @@ function elCreateTextTn(tagName, attributes, text, data) {
         attributes["data-phrase-data"] = JSON.stringify(data);
     }
     if (attributes["data-phrase-number"] !== undefined) {
+        if (data === undefined) {
+            data = {};
+        }
         //add smartCount to data from data-phrase-number attribute
         data.smartCount = Number(attributes["data-phrase-number"]);
     }
