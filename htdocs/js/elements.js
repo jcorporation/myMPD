@@ -26,7 +26,7 @@ function elCreateTextTnNr(tagName, attributes, text, smartCount) {
  */
 function elCreateTextTn(tagName, attributes, text, data) {
     attributes["data-phrase"] = text;
-    if (data !== null) {
+    if (data !== undefined) {
         attributes["data-phrase-data"] = JSON.stringify(data);
     }
     if (attributes["data-phrase-number"] !== undefined) {

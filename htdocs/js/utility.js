@@ -1284,15 +1284,16 @@ function httpGet(uri, callback, json) {
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
             if (json === true) {
+                let obj = {};
                 try {
-                    const obj = JSON.parse(ajaxRequest.responseText);
-                    callback(obj);
+                    obj = JSON.parse(ajaxRequest.responseText);
                 }
                 catch(error) {
                     showNotification(tn('Can not parse response from %{uri} to json object', {"uri": uri}), '', 'general', 'error');
                     logError('Can not parse response from ' + uri + ' to json object.');
                     logError(error);
                 }
+                callback(obj);
             }
             else {
                 callback(ajaxRequest.responseText);

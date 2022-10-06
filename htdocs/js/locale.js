@@ -8,7 +8,7 @@
  * @param {Number} number 
  * @returns {Number} 0 = singular, 1 = plural
  */
-function smartCount(number) {
+function checkSmartCount(number) {
     if (number === 1) { return 0; }
     return 1;
 }
@@ -20,7 +20,7 @@ function smartCount(number) {
  * Singular or plural is detected by the special data key smartCount
  * @param {String} phrase 
  * @param {Object} data 
- * @returns 
+ * @returns {String}
  */
 function tn(phrase, data) {
     // @ts-ignore
@@ -50,7 +50,7 @@ function tn(phrase, data) {
     {
         const p = result.split(' |||| ');
         if (p.length > 1) {
-            result = p[smartCount(data.smartCount)];
+            result = p[checkSmartCount(data.smartCount)];
         }
         result = result.replace('%{smart_count}', data.smartCount);
     }
@@ -119,7 +119,7 @@ function i18nHtml(root) {
     for (let i = 0, j = attributes.length; i < j; i++) {
         const els = root.querySelectorAll('[' + attributes[i][0] + ']');
         const elsLen = els.length;
-        for (let k = 0, l = elsLen; k < l; k++) {
+        for (let k = 0; k < elsLen; k++) {
             //get phrase data
             const data = els[k].getAttribute('data-phrase-data');
             let dataObj = {};
