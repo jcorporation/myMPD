@@ -104,8 +104,9 @@ CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-non-const-parameter"
 
-#save script path
+#save script path and change to it
 STARTPATH=$(dirname "$(realpath "$0")")
+cd "$STARTPATH" || exit 1
 
 #set umask
 umask 0022
