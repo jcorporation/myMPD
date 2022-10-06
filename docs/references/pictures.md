@@ -46,7 +46,7 @@ myMPD restricts the size to 5 MB.
 
 #### Covercache
 
-myMPD caches extracted covers under `/var/cache/mympd/covercache`. Files in this directory can be safely deleted. myMPD houskeeps the covercache on startup and each day.
+myMPD caches extracted covers under `/var/cache/mympd/covercache`. Files in this directory can be safely deleted. myMPD housekeeps the covercache on startup and each day.
 
 You can disable the covercache by setting the `Covercache expiration` value to `0` days.
 

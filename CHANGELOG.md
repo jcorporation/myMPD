@@ -1048,7 +1048,7 @@ Further new features are the support for multiple tag values, multidisc albums a
 - Feat: show extra pictures and booklet in album view, filesystem and playback view
 - Feat: docker images based on Alpine for aarch64 and amd64 platforms, thanks to @niawag #333
 - Feat: view jukebox queue
-- Feat: customizeable navbar icons #352
+- Feat: customizable navbar icons #352
 - Feat: add fr-FR translation, thanks to @niawag #353
 - Upd: KO translation, thanks to @parkmino #341
 - Upd: NL translation, thanks to @pinkdotnl #349
@@ -1786,12 +1786,12 @@ This release uses detection of mpd features and many new configuration options t
 
 - Feat: add settings for coverimages, localplayer, streamurl, searchtaglist, browsetaglist, syscmds #70
 - Feat: disable playlists and browse database feature if not enabled in mpd #68 #69
-- Feat: configureable columns in all song views #47
+- Feat: configurable columns in all song views #47
 - Feat: reworked view of albums
 - Feat: add ability to define and execute system commands, e.g. reboot and shutdown
 - Fix: use AlbumArtist tag only if it found in enabled tags #69
 - Fix: link uri in song details only if mpd music_directory is linked
-- Fix: hidding of popover menus
+- Fix: hiding of popover menus
 - Fix: some memory free errors
 
 ***
@@ -1835,7 +1835,7 @@ Installing this release resets all myMPD state settings.
 - Feat: improve state store
 - Fix: filename check in save dialogs #61
 - Fix: encoding of special characters in popover #60
-- Fix: popover eventhandling
+- Fix: popover event handling
 - Fix: calculate correct websocket url if connected by ip
 
 ***
@@ -1867,7 +1867,7 @@ In jukebox mode, myMPD adds random songs from database or selected playlist to t
 
 - Feat: jukebox mode #37
 - Feat: configuration option for used tags in ui #52
-- Fix: don't add redundant eventhandler on popovers
+- Fix: don't add redundant event handler on popovers
 - Fix: don't hide "connection error"
 - Fix: check if document root exists
 - Fix: allow websocket connections only to /ws
