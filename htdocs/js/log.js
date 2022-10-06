@@ -3,44 +3,69 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-function logLog(loglevel, line) {
+/**
+ * Central logging function
+ * @param {Number} loglevel 
+ * @param {String} message 
+ */
+function logLog(loglevel, message) {
     if (settings.loglevel >= loglevel) {
         if (loglevel === 0) {
-            console.error(line);
+            console.error(message);
         }
         else if (loglevel === 1) {
-            console.warn(line);
+            console.warn(message);
         }
         else if (loglevel === 4) {
-            console.debug(line);
+            console.debug(message);
         }
         else {
-            console.log(line);
+            console.log(message);
         }
     }
 }
 
+/**
+ * Logs an error message
+ * @param {String} message 
+ */
 //eslint-disable-next-line no-unused-vars
-function logError(line) {
-    logLog(0, 'ERROR: ' + line);
+function logError(message) {
+    logLog(0, 'ERROR: ' + message);
 }
 
+/**
+ * Logs a warn message
+ * @param {String} message 
+ */
 //eslint-disable-next-line no-unused-vars
-function logWarn(line) {
-    logLog(1, 'WARN: ' + line);
+function logWarn(message) {
+    logLog(1, 'WARN: ' + message);
 }
 
+/**
+ * Logs an info message
+ * @param {String} message 
+ */
 //eslint-disable-next-line no-unused-vars
-function logInfo(line) {
-    logLog(2, 'INFO: ' + line);
+function logInfo(message) {
+    logLog(2, 'INFO: ' + message);
 }
 
+/**
+ * Logs a verbose message
+ * @param {String} message 
+ */
 //eslint-disable-next-line no-unused-vars
-function logVerbose(line) {
-    logLog(3, 'VERBOSE: ' + line);
+function logVerbose(message) {
+    logLog(3, 'VERBOSE: ' + message);
 }
 
+/**
+ * Logs a debug message
+ * @param {String} message 
+ */
 //eslint-disable-next-line no-unused-vars
-function logDebug(line) {
-    logLog(4, 'DEBUG: ' + line);
+function logDebug(message) {
+    logLog(4, 'DEBUG: ' + message);
 }

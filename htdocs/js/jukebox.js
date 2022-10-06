@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Initializes the jukebox related elements
+ */
 function initJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
@@ -32,6 +35,9 @@ function initJukebox() {
     }, false);
 }
 
+/**
+ * Clears the jukebox queue
+ */
 //eslint-disable-next-line no-unused-vars
 function clearJukeboxQueue() {
     sendAPI("MYMPD_API_JUKEBOX_CLEAR", {}, function() {
@@ -44,6 +50,10 @@ function clearJukeboxQueue() {
     }, false);
 }
 
+/**
+ * Removes a song / album from the jukebox queue
+ * @param {Number} pos 
+ */
 //eslint-disable-next-line no-unused-vars
 function delQueueJukeboxSong(pos) {
     sendAPI("MYMPD_API_JUKEBOX_RM", {
@@ -58,6 +68,10 @@ function delQueueJukeboxSong(pos) {
     }, false);
 }
 
+/**
+ * Parses the response from MYMPD_API_JUKEBOX_LIST
+ * @param {Object} obj jsonrpc response
+ */
 function parseJukeboxList(obj) {
     if (checkResultId(obj, 'QueueJukeboxList') === false) {
         if (obj.result !== undefined) {

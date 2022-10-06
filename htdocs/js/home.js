@@ -424,6 +424,11 @@ function dragAndDropHome() {
     }, false);
 }
 
+/**
+ * Populates the cmd select box in the add to homescreen dialog
+ * @param {String} cmd command
+ * @param {String} type one of album, song, dir, search, plist, smartpls
+ */
 function populateHomeIconCmdSelect(cmd, type) {
     const selectHomeIconCmd = document.getElementById('selectHomeIconCmd');
     elClear(selectHomeIconCmd);
@@ -519,44 +524,84 @@ function populateHomeIconCmdSelect(cmd, type) {
     }
 }
 
+/**
+ * Executes the home icon action
+ * @param {Number} pos 
+ */
 //eslint-disable-next-line no-unused-vars
 function executeHomeIcon(pos) {
     const el = document.getElementById('HomeList').children[pos].firstChild;
     parseCmd(null, getData(el, 'href'));
 }
 
+/**
+ * Adds a link to a view to the homescreen
+ */
 //eslint-disable-next-line no-unused-vars
 function addViewToHome() {
     _addHomeIcon('appGoto', '', 'preview', '', [app.current.card, app.current.tab, app.current.view,
         app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search]);
 }
 
+/**
+ * Adds a external link to the homescreen
+ */
 //eslint-disable-next-line no-unused-vars
 function addExternalLinkToHome() {
     _addHomeIcon('openExternalLink', '', 'link', '', []);
 }
 
+/**
+ * Adds a script to the homescreen
+ * @param {String} name name for the home icon
+ * @param {Object} script script object
+ */
 //eslint-disable-next-line no-unused-vars
 function addScriptToHome(name, script) {
     const options = [script.script, script.arguments.join(',')];
     _addHomeIcon('execScriptFromOptions', name, 'code', '', options);
 }
 
+/**
+ * Adds a playlist to the homescreen
+ * @param {String} uri uri of the playlist
+ * @param {String} type one of plist, smartpls
+ * @param {String} name name for the home icon
+ */
 //eslint-disable-next-line no-unused-vars
 function addPlistToHome(uri, type, name) {
     _addHomeIcon('replaceQueue', name, 'list', '', [type, uri]);
 }
 
+/**
+ * Adds a webradio favorite to the homescreen
+ * @param {String} uri uri of the webradio favorite
+ * @param {String} type must be webradio
+ * @param {String} name name for the home icon
+ * @param {String} image image for the home icon
+ */
 //eslint-disable-next-line no-unused-vars
 function addRadioFavoriteToHome(uri, type, name, image) {
     _addHomeIcon('replaceQueue', name, '', image, [type, uri]);
 }
 
+/**
+ * Adds a webradioDB entry to the homescreen
+ * @param {String} uri uri of the stream
+ * @param {String} type must be stream
+ * @param {String} name name for the home icon
+ * @param {String} image image for the home icon
+ */
 //eslint-disable-next-line no-unused-vars
 function addWebRadiodbToHome(uri, type, name, image) {
     _addHomeIcon('replaceQueue', name, '', image, [type, uri]);
 }
 
+/**
+ * Adds a directory to the homescreen
+ * @param {String} uri directory uri
+ * @param {String} name name for the home icon
+ */
 //eslint-disable-next-line no-unused-vars
 function addDirToHome(uri, name) {
     if(uri === undefined) {
@@ -566,17 +611,31 @@ function addDirToHome(uri, name) {
     _addHomeIcon('replaceQueue', name, 'folder_open', '', ['dir', uri]);
 }
 
+/**
+ * Adds a song or stream to the homescreen
+ * @param {String} uri song or stream uri
+ * @param {String} type one of song, stream
+ * @param {String} name name for the home icon
+ */
 //eslint-disable-next-line no-unused-vars
 function addSongToHome(uri, type, name) {
     const ligature = type === 'song' ? 'music_note' : 'stream';
     _addHomeIcon('replaceQueue', name, ligature, '', [type, uri]);
 }
 
+/**
+ * Adds the current search to the homescreen
+ */
 //eslint-disable-next-line no-unused-vars
 function addSearchToHome() {
     _addHomeIcon('replaceQueue', tn('Current search'), '', 'saved_search', ['search', app.current.search]);
 }
 
+/**
+ * Adds an album to the homescreen
+ * @param {Object} albumArtist array of albumartists
+ * @param {String} album albumname
+ */
 //eslint-disable-next-line no-unused-vars
 function addAlbumToHome(albumArtist, album) {
     if (albumArtist === undefined) {
@@ -586,6 +645,9 @@ function addAlbumToHome(albumArtist, album) {
     _addHomeIcon('replaceQueueAlbum', album, 'album', '', ['album', JSON.stringify(albumArtist), album]);
 }
 
+/**
+ * Adds a new stream to the homescreen
+ */
 //eslint-disable-next-line no-unused-vars
 function addStreamToHome() {
     const mode = getRadioBoxValueId('addToPlaylistPos');
@@ -602,6 +664,14 @@ function addStreamToHome() {
     _addHomeIcon(action, '', 'stream', '', ['stream', uri]);
 }
 
+/**
+ * Opens the add to homescreen modal, this function is called by the add*ToHome functions above.
+ * @param {String} cmd action
+ * @param {String} name name for the home icon
+ * @param {String} ligature ligature for the home icon
+ * @param {String} image picture for the home icon
+ * @param {Object} options options array
+ */
 function _addHomeIcon(cmd, name, ligature, image, options) {
     document.getElementById('modalEditHomeIconTitle').textContent = tn('Add to homescreen');
     document.getElementById('inputHomeIconReplace').value = 'false';
@@ -642,16 +712,30 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
     uiElements.modalEditHomeIcon.show();
 }
 
+/**
+ * Duplicates a home icon
+ * @param {Number} pos 
+ */
 //eslint-disable-next-line no-unused-vars
 function duplicateHomeIcon(pos) {
     _editHomeIcon(pos, false, "Duplicate home icon");
 }
 
+/**
+ * Opens the edit home icon dialog
+ * @param {Number} pos 
+ */
 //eslint-disable-next-line no-unused-vars
 function editHomeIcon(pos) {
     _editHomeIcon(pos, true, "Edit home icon");
 }
 
+/**
+ * The real edit home icon function
+ * @param {Number} pos 
+ * @param {Boolean} replace true = replace existing home icon, false = duplicate home icon
+ * @param {String} title title for the modal
+ */
 function _editHomeIcon(pos, replace, title) {
     document.getElementById('modalEditHomeIconTitle').textContent = tn(title);
     sendAPI("MYMPD_API_HOME_ICON_GET", {"pos": pos}, function(obj) {
@@ -694,6 +778,9 @@ function _editHomeIcon(pos, replace, title) {
     }, false);
 }
 
+/**
+ * Saves the home icon
+ */
 //eslint-disable-next-line no-unused-vars
 function saveHomeIcon() {
     cleanupModalId('modalEditHomeIcon');
@@ -723,6 +810,10 @@ function saveHomeIcon() {
     }
 }
 
+/**
+ * Response handler for save home icon
+ * @param {Object} obj 
+ */
 function saveHomeIconClose(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -732,11 +823,19 @@ function saveHomeIconClose(obj) {
     }
 }
 
+/**
+ * Deletes a home icon
+ * @param {Number} pos 
+ */
 //eslint-disable-next-line no-unused-vars
 function deleteHomeIcon(pos) {
     sendAPI("MYMPD_API_HOME_ICON_RM", {"pos": pos}, null, false);
 }
 
+/**
+ * Changes the options in the home icon edit modal for the selected cmd.
+ * @param {*} values values to set for the options
+ */
 function showHomeIconCmdOptions(values) {
     const oldOptions = [];
     const optionEls = document.querySelectorAll('#divHomeIconOptions input');
@@ -767,16 +866,31 @@ function showHomeIconCmdOptions(values) {
     }
 }
 
+/**
+ * Populates the picture list in the home icon edit modal
+ */
 function getHomeIconPictureList() {
     const selectHomeIconImage = document.getElementById('inputHomeIconImage');
     getImageList(selectHomeIconImage, [{"value": "", "text": tn('Use ligature')}], 'thumbs');
 }
 
+/**
+ * Opens the link in a new window
+ * @param {String} link 
+ */
 //eslint-disable-next-line no-unused-vars
 function openExternalLink(link) {
     window.open(link);
 }
 
+/**
+ * Goto handler for home icons
+ * @param {*} type one of dir, search, album, plist, smartpls
+ * @param {*} uri type = search: search expression
+ *                type = album: AlbumArtist
+ *                else uri of directory or playlist
+ * @param {*} album albumname (only valid for type = album)
+ */
 //eslint-disable-next-line no-unused-vars
 function homeIconGoto(type, uri, album) {
     switch(type) {

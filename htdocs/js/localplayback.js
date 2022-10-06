@@ -3,18 +3,22 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Initializes the local playback related elements
+ */
 function initLocalPlayback() {
     document.getElementById('localPlaybackVolumeBar').addEventListener('change', function(event) {
         setLocalPlaybackVolume(Number(event.target.value));
     }, false);
 }
 
+/**
+ * Changes the local volume by +/-10%
+ * @param {String} dir direction, up or down
+ */
 //eslint-disable-next-line no-unused-vars
 function localPlaybackVolumeStep(dir) {
-    chLocalPlaybackVolume(dir === 'up' ? 0.1 : -0.1);
-}
-
-function chLocalPlaybackVolume(increment) {
+    const increment = dir === 'up' ? 0.1 : -0.1;
     const volumeBar = document.getElementById('localPlaybackVolumeBar');
     let newValue = Number(volumeBar.value) + increment;
     if (newValue < 0) {
@@ -27,11 +31,19 @@ function chLocalPlaybackVolume(increment) {
     setLocalPlaybackVolume(newValue);
 }
 
+/**
+ * Sets local playback volume
+ * @param {Number} volume 
+ */
 function setLocalPlaybackVolume(volume) {
     // @ts-ignore
     document.getElementById('localPlayer').volume = volume;
 }
 
+/**
+ * Sets the local playback state
+ * @param {String} newState one of play, stop, pause
+ */
 function controlLocalPlayback(newState) {
     if (features.featLocalPlayback === false ||
         localSettings.localPlaybackAutoplay === false)
@@ -55,6 +67,10 @@ function controlLocalPlayback(newState) {
     }
 }
 
+/**
+ * Creates the local playback element
+ * @param {*} createEvent triggering event
+ */
 //eslint-disable-next-line no-unused-vars
 function createLocalPlaybackEl(createEvent) {
     createEvent.stopPropagation();
