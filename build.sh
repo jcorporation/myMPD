@@ -201,7 +201,7 @@ minify() {
   elif [ "$TYPE" = "json" ]
   then
     #shellcheck disable=SC2016
-    if ! jq -r tostring "$SRC" > "${DST}.tmp"
+    if ! jq -r tostring "$SRC" | tr -d '\n' > "${DST}.tmp"
     then
       rm -f "${DST}.tmp"
       echo_error "Error minifying $SRC"
@@ -417,7 +417,7 @@ builddebug() {
     jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default" | \
       while read -r CODE
       do
-        cp -v "$STARTPATH/src/i18n/json/$CODE.json" "$STARTPATH/htdocs/assets/i18n/"
+        minify json "$STARTPATH/src/i18n/json/${CODE}.json" "$STARTPATH/htdocs/assets/i18n/${CODE}.json"
       done
   else
     createassets

@@ -89,7 +89,7 @@
     "Can not open script directory": "Skriptverzeichnis konnte nicht geöffnet werden",
     "Can not open scriptfile": "Skript konnte nicht geöffnet werden",
     "Can not open webradios directory": "Konnte das Webradio Verzeichnis nicht öffnen",
-    "Can not parse response to json object": "Antwort konnte nicht geparsed werden",
+    "Can not parse response from %{uri} to json object": "Antwort von %{uri} konnte nicht zu einem JSON Objekt geparsed werden",
     "Can not parse script arguments": "Skriptargumente konnten nicht eingelesen werden",
     "Can not parse settings": "Einstellungen können nicht geladen werden",
     "Can not parse smart playlist file": "Intelligente Wiedergabeliste konnte nicht geparsed werden",

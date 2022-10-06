@@ -37,7 +37,7 @@ for my $dirname (@dirs) {
         next if $entry eq "long-press-event.js";
         next if $entry eq "i18n.js";
         next if $entry eq "apidoc.js";
-        push @files, $dirname.$1 if $entry =~ /^(\w+\.(c|js))$/;
+        push @files, $dirname.$1 if $entry =~ /^([\w-]+\.(c|js))$/;
     }
     closedir $dir;
 }
@@ -54,13 +54,16 @@ for my $filename (@files) {
             }
         }
         elsif ($filename =~ /\.js$/) {
+            while ($line =~ /\"data-(\w+-)?phrase\":\s*"([^"]+)"/g) {
+                $phrases->{$2} = 1;
+            }
             while ($line =~ /(\s+|\(|\+)tn?\('([^']+)'/g) {
                 $phrases->{$2} = 1;
             }
             while ($line =~ /"desc":\s*"([^"]+)"/g) {
                 $phrases->{$1} = 1;
             }
-            while ($line =~ /(elCreateTextTnNr|elCreateTextTnData|elCreateTextTn)\('\w+', \{[^}]*\}, '([^']+)'/g) {
+            while ($line =~ /(elCreateTextTnNr|elCreateTextTn)\('\w+', \{[^}]*\}, '([^']+)'/g) {
                 $phrases->{$2} = 1;
             }
         }

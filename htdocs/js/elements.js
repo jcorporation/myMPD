@@ -4,31 +4,16 @@
 // https://github.com/jcorporation/mympd
 
 /**
- * Creates and translates a html element with %{smart_count} phrase
- * @param {String} tagName name of the tag
- * @param {Object} attributes tag attributes
- * @param {String} text text phrase to translate
- * @param {Number} number number for %{smart_count}
+ * Shortcut for elCreateTextTn for smartCount only
+ * @param {String} tagName 
+ * @param {Object} attributes 
+ * @param {String} text 
+ * @param {Number} smartCount 
  * @returns {HTMLElement} created dom node
  */
- function elCreateTextTnNr(tagName, attributes, text, number) {
-    attributes["data-phrase"] = text;
-    attributes["data-phrase-number"] = number;
-    return elCreateText(tagName, attributes, tn(text, number));
-}
-
-/**
- * Creates and translates a html element with %{variable} phrase
- * @param {String} tagName name of the tag
- * @param {Object} attributes tag attributes
- * @param {String} text text phrase to translate
- * @param {Object} data object to resolve variables from the phrase
- * @returns {HTMLElement} created dom node
- */
-function elCreateTextTnData(tagName, attributes, text, data) {
-    attributes["data-phrase"] = text;
-    attributes["data-phrase-data"] = JSON.stringify(data);
-    return elCreateText(tagName, attributes, tn(text, data));
+function elCreateTextTnNr(tagName, attributes, text, smartCount) {
+    attributes["data-phrase-number"] = smartCount;
+    return elCreateTextTn(tagName, attributes, text, undefined);
 }
 
 /**
@@ -36,11 +21,19 @@ function elCreateTextTnData(tagName, attributes, text, data) {
  * @param {String} tagName name of the tag
  * @param {Object} attributes tag attributes
  * @param {String} text text phrase to translate
+ * @param {Object} data object to resolve variables from the phrase
  * @returns {HTMLElement} created dom node
  */
-function elCreateTextTn(tagName, attributes, text) {
+function elCreateTextTn(tagName, attributes, text, data) {
     attributes["data-phrase"] = text;
-    return elCreateText(tagName, attributes, tn(text));
+    if (data !== null) {
+        attributes["data-phrase-data"] = JSON.stringify(data);
+    }
+    if (attributes["data-phrase-number"] !== undefined) {
+        //add smartCount to data from data-phrase-number attribute
+        data.smartCount = Number(attributes["data-phrase-number"]);
+    }
+    return elCreateText(tagName, attributes, tn(text, data));
 }
 
 /**
@@ -375,7 +368,7 @@ function getXpos(el) {
 
 /**
  * Gets the y-position of the given element
- * @param {Element} el 
+ * @param {Element | ParentNode} el 
  * @returns {Number} y-position
  */
 function getYpos(el) {
@@ -385,6 +378,26 @@ function getYpos(el) {
         el = el.offsetParent;
     }
     return yPos;
+}
+
+/**
+ * Returns the nearest parent of type nodeName
+ * @param {HTMLElement | EventTarget} el 
+ * @param {String} nodeName 
+ * @returns {ParentNode}
+ */
+ function getParent(el, nodeName) {
+    /** @type {ParentNode} */
+    let target = el.parentNode;
+    let i = 0;
+    while (target.nodeName !== nodeName) {
+        i++;
+        if (i > 10) {
+            return null;
+        }
+        target = target.parentNode;
+    }
+    return target;
 }
 
 /**

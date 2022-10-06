@@ -3,13 +3,27 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Checks for singular or plural
+ * @param {Number} number 
+ * @returns {Number} 0 = singular, 1 = plural
+ */
 function smartCount(number) {
-    if (number === 0) { return 1; }
-    else if (number === 1) { return 0; }
-    else { return 1; }
+    if (number === 1) { return 0; }
+    return 1;
 }
 
-function tn(phrase, number, data) {
+/**
+ * Translates the phrase and resolves variables
+ * Variables are in the format %{name}
+ * Phrase can include singular and plural separated by ||||
+ * Singular or plural is detected by the special data key smartCount
+ * @param {String} phrase 
+ * @param {Object} data 
+ * @returns 
+ */
+function tn(phrase, data) {
+    // @ts-ignore
     if (isNaN(phrase) === false) {
         //do not translate numbers
         return phrase;
@@ -18,6 +32,7 @@ function tn(phrase, number, data) {
         logError('Phrase is undefined');
         return 'undefinedPhrase';
     }
+    //translate
     let result = phrases[phrase];
 /*debug*/    if (result !== undefined &&
 /*debug*/        locale !== 'en-US')
@@ -29,19 +44,18 @@ function tn(phrase, number, data) {
     if (result === undefined) {
         result = phrasesDefault[phrase] !== undefined ? phrasesDefault[phrase] : phrase;
     }
-
-    if (isNaN(number)) {
-        data = number;
-    }
-    else {
+    //check for smartCount
+    if (data !== undefined &&
+        data.smartCount !== undefined)
+    {
         const p = result.split(' |||| ');
         if (p.length > 1) {
-            result = p[smartCount(number)];
+            result = p[smartCount(data.smartCount)];
         }
-        result = result.replace('%{smart_count}', number);
+        result = result.replace('%{smart_count}', data.smartCount);
     }
-
-    if (data !== null) {
+    //replace variables
+    if (data !== undefined) {
         //eslint-disable-next-line no-useless-escape
         const tnRegex = /%\{(\w+)\}/g;
         result = result.replace(tnRegex, function(m0, m1) {
@@ -51,15 +65,25 @@ function tn(phrase, number, data) {
     return result;
 }
 
+/**
+ * Returns timestamp as formatted date string
+ * @param {Number} secs 
+ * @returns {String}
+ */
 function localeDate(secs) {
     return new Date(secs * 1000).toLocaleString(locale);
 }
 
-function beautifyDuration(x) {
-    const days = Math.floor(x / 86400);
-    const hours = Math.floor(x / 3600) - days * 24;
-    const minutes = Math.floor(x / 60) - hours * 60 - days * 1440;
-    const seconds = x - days * 86400 - hours * 3600 - minutes * 60;
+/**
+ * Returns seconds as formatted duration string
+ * @param {Number} secs
+ * @returns {String}
+ */
+function beautifyDuration(secs) {
+    const days = Math.floor(secs / 86400);
+    const hours = Math.floor(secs / 3600) - days * 24;
+    const minutes = Math.floor(secs / 60) - hours * 60 - days * 1440;
+    const seconds = secs - days * 86400 - hours * 3600 - minutes * 60;
 
     return (days > 0 ? days + smallSpace + tn('Days') + ' ' : '') +
         (hours > 0 ? hours + smallSpace + tn('Hours') + ' ' +
@@ -67,15 +91,24 @@ function beautifyDuration(x) {
         (seconds < 10 ? '0' : '') + seconds + smallSpace + tn('Seconds');
 }
 
-function beautifySongDuration(x) {
-    const hours = Math.floor(x / 3600);
-    const minutes = Math.floor(x / 60) - hours * 60;
-    const seconds = Math.floor(x - hours * 3600 - minutes * 60);
+/**
+ * Returns seconds as formatted song duration string
+ * @param {Number} secs
+ * @returns {String}
+ */
+function beautifySongDuration(secs) {
+    const hours = Math.floor(secs / 3600);
+    const minutes = Math.floor(secs / 60) - hours * 60;
+    const seconds = Math.floor(secs - hours * 3600 - minutes * 60);
 
     return (hours > 0 ? hours + ':' + (minutes < 10 ? '0' : '') : '') +
         minutes + ':' + (seconds < 10 ? '0' : '') + seconds;
 }
 
+/**
+ * Translates all phrases in the dom
+ * @param {HTMLElement} root 
+ */
 function i18nHtml(root) {
     const attributes = [
         ['data-phrase', 'textContent'],
@@ -87,20 +120,19 @@ function i18nHtml(root) {
         const els = root.querySelectorAll('[' + attributes[i][0] + ']');
         const elsLen = els.length;
         for (let k = 0, l = elsLen; k < l; k++) {
-            const smartNumber = els[k].getAttribute('data-phrase-number');
-            if (smartNumber !== null) {
-                els[k][attributes[i][1]] = tn(els[k].getAttribute(attributes[i][0]), smartNumber);
+            //get phrase data
+            const data = els[k].getAttribute('data-phrase-data');
+            let dataObj = {};
+            if (data !== null) {
+                dataObj = JSON.parse(data);
             }
-            else {
-                const data = els[k].getAttribute('data-phrase-data');
-                if (data !== null) {
-                    const dataObj = JSON.parse(data);
-                    els[k][attributes[i][1]] = tn(els[k].getAttribute(attributes[i][0]), dataObj);
-                }
-                else {
-                    els[k][attributes[i][1]] = tn(els[k].getAttribute(attributes[i][0]));
-                }
+            //add smartCount to data from data-phrase-number attribute
+            const smartCount = els[k].getAttribute('data-phrase-number');
+            if (smartCount !== null) {
+                dataObj.smartCount = Number(smartCount);
             }
+            //translate
+            els[k][attributes[i][1]] = tn(els[k].getAttribute(attributes[i][0]), dataObj);
         }
     }
 }

@@ -74,6 +74,7 @@ stickerSkipCount
 stickerLastPlayed
 stickerLastSkipped
 stickerLike
+stickerElapsed
 Playback controls
 pause and stop
 pause only
