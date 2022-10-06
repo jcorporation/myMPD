@@ -449,7 +449,7 @@ function populateHomeIconCmdSelect(cmd, type) {
         }
         case 'execScriptFromOptions': {
             selectHomeIconCmd.appendChild(
-                elCreateTextTn('option', {"value": "execScriptFromOptions"}, 'Execute Script')
+                elCreateTextTn('option', {"value": "execScriptFromOptions"}, 'Execute script')
             );
             setData(selectHomeIconCmd.lastChild, 'options', {"options":["Script", "Arguments"]});
             break;

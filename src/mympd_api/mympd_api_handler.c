@@ -1116,7 +1116,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 rc = mpd_client_playlist_shuffle(partition_state, sds_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Shuffled playlist succesfully");
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Shuffled playlist successfully");
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -1131,7 +1131,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 rc = mpd_client_playlist_sort(partition_state, sds_buf1, sds_buf2);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Sorted playlist succesfully");
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Sorted playlist successfully");
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,

@@ -19,6 +19,7 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 - Feat: jsDoc compatible API documentation and linting with typescript compiler
 - Upd: libmympdclient 1.0.15
 - Upd: refactor translation framework
+- Upd: en-US, de-DE translations
 - Upd: Bootstrap 5.2.2
 
 ***

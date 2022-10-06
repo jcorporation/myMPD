@@ -1,5 +1,5 @@
-- es-VE: 464 missing phrases
-- fi-FI: 460 missing phrases
+- es-VE: 463 missing phrases
+- fi-FI: 459 missing phrases
 - fr-FR: 14 missing phrases
 - it-IT: 14 missing phrases
 - ko-KR: 81 missing phrases
