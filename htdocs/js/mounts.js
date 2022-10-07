@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Initializes the mounts related elements
+ */
 function initMounts() {
     document.getElementById('listMountsList').addEventListener('click', function(event) {
         event.stopPropagation();
@@ -53,6 +56,10 @@ function initMounts() {
     });
 }
 
+/**
+ * Unmounts a mount point
+ * @param {String} mountPoint 
+ */
 //eslint-disable-next-line no-unused-vars
 function unmountMount(mountPoint) {
     sendAPI("MYMPD_API_MOUNT_UNMOUNT", {
@@ -60,6 +67,9 @@ function unmountMount(mountPoint) {
     }, mountMountCheckError, true);
 }
 
+/**
+ * Mounts a mount
+ */
 //eslint-disable-next-line no-unused-vars
 function mountMount() {
     cleanupModalId('modalMounts');
@@ -80,6 +90,10 @@ function mountMount() {
     }
 }
 
+/**
+ * Response handler for MYMPD_API_MOUNT_MOUNT
+ * @param {Object} obj 
+ */
 function mountMountCheckError(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -89,17 +103,30 @@ function mountMountCheckError(obj) {
     }
 }
 
+/**
+ * Updates a mount point
+ * @param {HTMLElement | EventTarget} el 
+ * @param {String} uri 
+ */
 //eslint-disable-next-line no-unused-vars
 function updateMount(el, uri) {
+    //hide action items
     const parent = el.parentNode;
     for (let i = 0, j = parent.children.length; i < j; i++) {
         elHide(parent.children[i]);
     }
+    //add spinner
     const spinner = elCreateEmpty('div', {"id": "spinnerUpdateProgress", "class": ["spinner-border", "spinner-border-sm"]});
     el.parentNode.insertBefore(spinner, el);
+    //update
     updateDB(uri, false, false, false);
 }
 
+/**
+ * Shows the edit mount tab from the mount modal
+ * @param {String} uri 
+ * @param {String} storage 
+ */
 //eslint-disable-next-line no-unused-vars
 function showEditMount(uri, storage) {
     cleanupModalId('modalMounts');
@@ -121,6 +148,9 @@ function showEditMount(uri, storage) {
     setFocusId('inputMountPoint');
 }
 
+/**
+ * Shows the list mount tab from the mount modal
+ */
 function showListMounts() {
     cleanupModalId('modalMounts');
     document.getElementById('listMounts').classList.add('active');
@@ -130,6 +160,10 @@ function showListMounts() {
     sendAPI("MYMPD_API_MOUNT_LIST", {}, parseListMounts, true);
 }
 
+/**
+ * Parses the MYMPD_API_MOUNT_LIST response
+ * @param {Object} obj jsonrpc response object
+ */
 function parseListMounts(obj) {
     const tbody = document.querySelector('#listMountsList');
     elClear(tbody);
@@ -172,6 +206,10 @@ function parseListMounts(obj) {
     }
 }
 
+/**
+ * Parses the MYMPD_API_MOUNT_NEIGHBOR_LIST response
+ * @param {Object} obj jsonrpc response object
+ */
 function parseNeighbors(obj) {
     const dropdownNeighbors = document.getElementById('dropdownNeighbors').children[0];
     elClear(dropdownNeighbors);
@@ -200,6 +238,9 @@ function parseNeighbors(obj) {
     }
 }
 
+/**
+ * Populates the urlhandler select in the mount modal
+ */
 function getUrlhandlers() {
     sendAPI("MYMPD_API_MOUNT_URLHANDLER_LIST", {}, function(obj) {
         const selectMountUrlhandler = document.getElementById('selectMountUrlhandler');
