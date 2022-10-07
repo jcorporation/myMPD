@@ -671,7 +671,8 @@ function parseCmd(event, cmd) {
     {
         event.preventDefault();
     }
-    if (typeof window[cmd.cmd] === 'function') {
+    const func = getFunctionByName(cmd.cmd);
+    if (typeof func === 'function') {
         for (let i = 0, j = cmd.options.length; i < j; i++) {
             if (cmd.options[i] === 'event') {
                 cmd.options[i] = event;
@@ -683,7 +684,7 @@ function parseCmd(event, cmd) {
                 break;
             case 'createLocalPlaybackEl':
                 // @ts-ignore
-                window[cmd.cmd](event, ... cmd.options);
+                func(event, ... cmd.options);
                 break;
             case 'toggleBtn':
             case 'toggleBtnChk':
@@ -695,20 +696,34 @@ function parseCmd(event, cmd) {
             case 'toggleAddToPlaylistFrm':
             case 'toggleSaveQueueMode':
                 // @ts-ignore
-                window[cmd.cmd](event.target, ... cmd.options);
+                func(event.target, ... cmd.options);
                 break;
             case 'toggleBtnChkCollapse':
                 // @ts-ignore
-                window[cmd.cmd](event.target, undefined, ... cmd.options);
+                func(event.target, undefined, ... cmd.options);
                 break;
             default:
                 // @ts-ignore
-                window[cmd.cmd](... cmd.options);
+                func(... cmd.options);
         }
     }
     else {
-        logError('Can not execute cmd: ' + cmd);
+        logError('Can not execute cmd: ' + cmd.cmd);
     }
+}
+
+/**
+ * Returns the function by name
+ * @param functionName {String}
+ */
+ function getFunctionByName(functionName) {
+    let namespace = functionName.split('.');
+    if (namespace.length === 2) {
+        let context = namespace.shift();
+        let functionToExecute = namespace.shift();
+        return window[context][functionToExecute];
+    }
+    return window[functionName];
 }
 
 /**
