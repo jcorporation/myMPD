@@ -1218,6 +1218,15 @@ run_tsc() {
   return 0
 }
 
+run_checkjs() {
+  echo "Check for defined javascript functions"
+  if ! linter/checkjs.pl
+  then
+    return 1
+  fi
+  return 0
+}
+
 run_eslint() {
   if ! check_cmd npx
   then
@@ -1449,6 +1458,10 @@ case "$ACTION" in
       exit 1
     fi
     if ! run_tsc
+    then
+      exit 1
+    fi
+    if ! run_checkjs
     then
       exit 1
     fi
