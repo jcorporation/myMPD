@@ -12,6 +12,17 @@ if rc == 0 then
       current_song["result"][k] = ""
     end
   end
+  artist_mbids = {}
+  if current_song["result"]["MUSICBRAINZ_ARTISTID"] ~= nil then
+    for k, v in pairs(current_song["result"]["MUSICBRAINZ_ARTISTID"]) do
+      artist_mbids[#artist_mbids + 1] = v
+    end
+  end
+  if current_song["result"]["MUSICBRAINZ_ALBUMARTISTID"] ~= nil then
+    for k, v in pairs(current_song["result"]["MUSICBRAINZ_ALBUMARTISTID"]) do
+      artist_mbids[#artist_mbids + 1] = v
+    end
+  end
   payload = json.encode({
     listen_type = "single",
     payload = {{
@@ -20,10 +31,7 @@ if rc == 0 then
         additional_info = {
           release_mbid = current_song["result"]["MUSICBRAINZ_RELEASETRACKID"],
           recording_mbid = current_song["result"]["MUSICBRAINZ_TRACKID"],
-          artist_mbids = {
-            current_song["result"]["MUSICBRAINZ_ARTISTID"],
-            current_song["result"]["MUSICBRAINZ_ALBUMARTISTID"]
-          }
+          artist_mbids = artist_mbids
         },
         artist_name = current_song["result"]["Artist"][1],
         track_name = current_song["result"]["Title"],
