@@ -3,7 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/* eslint-enable no-unused-vars */
+/**
+ * Shows the current view and highlights the navbar icon
+ */
 function appPrepare() {
     if (app.current.card !== app.last.card ||
         app.current.tab !== app.last.tab ||
@@ -54,6 +56,19 @@ function appPrepare() {
     }
 }
 
+/**
+ * Calculates the location hash and calls appRoute
+ * @param {String} card 
+ * @param {String} [tab]
+ * @param {String} [view]
+ * @param {Number} [offset]
+ * @param {Number} [limit]
+ * @param {String | Object} [filter]
+ * @param {Object} [sort]
+ * @param {String} [tag]
+ * @param {String | Object} [search]
+ * @param {Number} [newScrollPos]
+ */
 function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newScrollPos) {
     //old app
     const oldptr = app.cards[app.current.card].offset !== undefined ? app.cards[app.current.card] :
@@ -121,6 +136,11 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
     appRoute(card, tab, view, offset, limit, filter, sort, tag, search);
 }
 
+/**
+ * Checks if obj is string or object
+ * @param {String | Object} obj 
+ * @returns {Boolean} true if obj is object or string, else false
+ */
 function isArrayOrString(obj) {
     if (typeof obj === 'string') {
         return true;
@@ -128,6 +148,18 @@ function isArrayOrString(obj) {
     return Array.isArray(obj);
 }
 
+/**
+ * Executes the actions after the view is shown
+ * @param {String} [card]
+ * @param {String} [tab]
+ * @param {String} [view]
+ * @param {Number} [offset]
+ * @param {Number} [limit]
+ * @param {String | Object} [filter]
+ * @param {Object} [sort]
+ * @param {String} [tag]
+ * @param {String} [search]
+ */
 function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
     if (settingsParsed === 'false') {
         appInitStart();
@@ -162,6 +194,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 initialStartupView = features.featHome === true ? 'Home' : 'Playback';
             }
             const path = initialStartupView.split('/');
+            // @ts-ignore
             appGoto(...path);
             return;
         }
@@ -554,6 +587,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
                 initialStartupView = features.featHome === true ? 'Home' : 'Playback';
             }
             const path = initialStartupView.split('/');
+            // @ts-ignore
             appGoto(...path);
         }
     }
