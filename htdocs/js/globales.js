@@ -5,7 +5,6 @@
 
 const startTime = Date.now();
 let socket = null;
-let websocketConnected = false;
 let websocketTimer = null;
 let websocketKeepAliveTimer = null;
 let searchTimer = null;

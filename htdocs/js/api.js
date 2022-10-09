@@ -352,25 +352,29 @@ function sendAPIpartition(partition, method, params, callback, onerror) {
 }
 
 /**
+ * Checks if the websocket is connected
+ * @returns {Boolean} true if websocket is connected, else false
+ */
+function getWebsocketState() {
+    return socket !== null && socket.readyState === WebSocket.OPEN;
+}
+
+/**
  * Connects to the websocket and registers the event handlers.
  */
 function webSocketConnect() {
-    if (socket !== null &&
-        socket.readyState === WebSocket.OPEN)
+    if (getWebsocketState() === true)
     {
         logDebug('Socket already connected');
-        websocketConnected = true;
         return;
     }
     else if (socket !== null &&
         socket.readyState === WebSocket.CONNECTING)
     {
         logDebug('Socket connection in progress');
-        websocketConnected = false;
         return;
     }
 
-    websocketConnected = false;
     const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
         window.location.hostname +
         (window.location.port !== '' ? ':' + window.location.port : '') +
@@ -381,7 +385,6 @@ function webSocketConnect() {
     try {
         socket.onopen = function() {
             logDebug('Websocket is connected');
-            websocketConnected = true;
             if (websocketTimer !== null) {
                 clearTimeout(websocketTimer);
                 websocketTimer = null;
@@ -413,7 +416,6 @@ function webSocketConnect() {
 
             switch (obj.method) {
                 case 'welcome':
-                    websocketConnected = true;
                     showNotification(tn('Connected to myMPD'),
                         tn('Partition') + ': ' + localSettings.partition, 'general', 'info');
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
@@ -532,7 +534,6 @@ function webSocketConnect() {
 
         socket.onclose = function(event) {
             logError('Websocket connection closed: ' + event.code);
-            websocketConnected = false;
             if (appInited === true) {
                 toggleUI();
                 if (progressTimer) {
@@ -588,7 +589,6 @@ function webSocketClose() {
         socket.close();
         socket = null;
     }
-    websocketConnected = false;
 }
 
 /**

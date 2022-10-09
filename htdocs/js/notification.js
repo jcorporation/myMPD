@@ -5,7 +5,7 @@
 
 function setStateIcon() {
     const logoBgs = document.querySelectorAll('.logoBg');
-    if (websocketConnected === false ||
+    if (getWebsocketState() === false ||
         settings.partition.mpdConnected === false)
     {
         for (const logoBg of logoBgs) {
@@ -219,7 +219,7 @@ function setElsState(selector, state) {
 
 function toggleUI() {
     let state = 'disabled';
-    if (websocketConnected === true &&
+    if (getWebsocketState() === true &&
         settings.partition.mpdConnected === true)
     {
         state = 'enabled';
@@ -249,7 +249,7 @@ function toggleUI() {
         logMessage(tn('MPD disconnected'), '', 'mpd', 'error');
     }
 
-    if (websocketConnected === true) {
+    if (getWebsocketState() === true) {
         toggleAlert('alertMympdState', false, '');
     }
     else if (appInited === true) {
