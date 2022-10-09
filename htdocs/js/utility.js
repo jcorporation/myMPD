@@ -717,10 +717,10 @@ function parseCmd(event, cmd) {
  * @param functionName {String}
  */
  function getFunctionByName(functionName) {
-    let namespace = functionName.split('.');
+    const namespace = functionName.split('.');
     if (namespace.length === 2) {
-        let context = namespace.shift();
-        let functionToExecute = namespace.shift();
+        const context = namespace.shift();
+        const functionToExecute = namespace.shift();
         return window[context][functionToExecute];
     }
     return window[functionName];

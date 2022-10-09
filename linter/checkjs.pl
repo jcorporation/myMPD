@@ -34,24 +34,12 @@ closedir $dir;
 #get all cmds from javascript
 for my $filename (@files) {
     open my $file, $filename or die "Can't open file \"$filename\": $!";
-    my $namespace = "";
     while (my $line = <$file>) {
         while ($line =~ s/"cmd": "([^"]+)"//g) {
             $used_cmds->{$1} = $filename;
         }
         if ($line =~ /function ([^)]+)\(/) {
             $functions->{$1} = 1;
-        }
-        elsif ($line =~ /^\s+([^:]+): function\(/) {
-            if ($namespace eq "") {
-                $functions->{$1} = 1;
-            }
-            else {
-                $functions->{$namespace.".".$1} = 1;
-            }
-        }
-        elsif ($line =~ /^var (\S+) = \{/) {
-            $namespace = $1;
         }
     }
     close($file);
