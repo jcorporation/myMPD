@@ -597,6 +597,10 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
     app.last.view = app.current.view;
 }
 
+/**
+ * Shows an error message on the splashscreen
+ * @param {String} text message to display (untranslated)
+ */
 function showAppInitAlert(text) {
     const spa = document.getElementById('splashScreenAlert');
     elClear(spa);
@@ -620,6 +624,9 @@ function showAppInitAlert(text) {
     );
 }
 
+/**
+ * Clears the service worker caches
+ */
 function clearCache() {
     if ('serviceWorker' in navigator) {
         caches.keys().then(function(cacheNames) {
@@ -630,11 +637,17 @@ function clearCache() {
     }
 }
 
+/**
+ * Clears the service worker caches and reloads the app
+ */
 function clearAndReload() {
     clearCache();
     location.reload();
 }
 
+/**
+ * Initializes the add to homescreen function
+ */
 function a2hsInit() {
     window.addEventListener('beforeinstallprompt', function(event) {
         logDebug('Event: beforeinstallprompt');
@@ -652,8 +665,7 @@ function a2hsInit() {
         // Show the prompt
         deferredA2HSprompt.prompt();
         // Wait for the user to respond to the prompt
-        deferredA2HSprompt.userChoice.then((choiceResult) => {
-            logDebug(choiceResult.outcome === 'accepted' ? 'User accepted the A2HS prompt' : 'User dismissed the A2HS prompt');
+        deferredA2HSprompt.userChoice.then(() => {
             deferredA2HSprompt = null;
         });
     });
@@ -663,6 +675,9 @@ function a2hsInit() {
     });
 }
 
+/**
+ * Starts the app
+ */
 function appInitStart() {
     //add app routing event handler
     window.addEventListener('hashchange', function() {
@@ -778,6 +793,9 @@ function appInitStart() {
     }, true);
 }
 
+/**
+ * Initializes the html elements
+ */
 function appInit() {
     getAssets();
     //collaps arrows for submenus
@@ -917,6 +935,9 @@ function appInit() {
     });
 }
 
+/**
+ * Initializes the html elements
+ */
 function initGlobalModals() {
     const tab = document.getElementById('tabShortcuts');
     elClear(tab);
@@ -969,6 +990,9 @@ function initGlobalModals() {
     }, false);
 }
 
+/**
+ * Initializes the playback html elements
+ */
 function initPlayback() {
     document.getElementById('PlaybackColsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON' &&
@@ -989,6 +1013,9 @@ function initPlayback() {
     }, false);
 }
 
+/**
+ * Initializes the navigation html elements
+ */
 function initNavs() {
     domCache.progress.addEventListener('click', function(event) {
         if (currentState.currentSongId >= 0 &&
@@ -1067,6 +1094,9 @@ function initNavs() {
     }, false);
 }
 
+/**
+ * Gets the initial assets
+ */
 function getAssets() {
     httpGet(subdir + '/assets/i18n/en-US.json', function(obj) {
         phrasesDefault = obj;
@@ -1077,7 +1107,9 @@ function getAssets() {
     }, true);
 }
 
-//Handle javascript errors
+/**
+ * Handle javascript errors
+ */
 if (debugMode === false) {
     window.onerror = function(msg, url, line) {
         logError('JavaScript error: ' + msg + ' (' + url + ': ' + line + ')');
@@ -1088,7 +1120,9 @@ if (debugMode === false) {
     };
 }
 
-//allow service worker registration
+/**
+ * Configure trusted types to allow service worker registration
+ */
 if (window.trustedTypes &&
     window.trustedTypes.createPolicy)
 {
