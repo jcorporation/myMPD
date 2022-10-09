@@ -101,13 +101,6 @@ function initBrowse() {
         }, false);
     }
 
-    document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            event.preventDefault();
-            playlistSort(getData(event.target, 'tag'));
-        }
-    }, false);
-
     document.getElementById('searchFilesystemStr').addEventListener('keyup', function(event) {
         clearSearchTimer();
         if (event.key === 'Escape') {

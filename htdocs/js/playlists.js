@@ -17,6 +17,13 @@ function initPlaylists() {
     setDataId('addToPlaylistPlaylist', 'cb-filter', 'filterPlaylistsSelect');
     setDataId('addToPlaylistPlaylist', 'cb-filter-options', [1, 'addToPlaylistPlaylist']);
 
+    document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            event.preventDefault();
+            playlistSort(getData(event.target, 'tag'));
+        }
+    }, false);
+
     document.getElementById('searchPlaylistsDetailStr').addEventListener('keyup', function(event) {
         clearSearchTimer();
         if (event.key === 'Escape') {
