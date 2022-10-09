@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Sets the background color of the myMPD logo according to the websocket state
+ */
 function setStateIcon() {
     const logoBgs = document.querySelectorAll('.logoBg');
     if (getWebsocketState() === false ||
@@ -19,8 +22,14 @@ function setStateIcon() {
     }
 }
 
-function toggleAlert(alertBox, state, msg) {
-    const alertBoxEl = document.querySelector('#' + alertBox);
+/**
+ * Toggles and sets/clears the message of the top alertBox
+ * @param {String} alertBoxId the id of alertBox to toggle
+ * @param {Boolean} state false = hides the alertBox, true = shows the alertBox
+ * @param {*} msg already translated message
+ */
+function toggleAlert(alertBoxId, state, msg) {
+    const alertBoxEl = document.querySelector('#' + alertBoxId);
     if (state === false) {
         elHide(alertBoxEl);
         elClear(alertBoxEl);
@@ -28,7 +37,7 @@ function toggleAlert(alertBox, state, msg) {
     }
 
     alertBoxEl.textContent = msg;
-    if (alertBox === 'alertMpdStatusError') {
+    if (alertBoxId === 'alertMpdStatusError') {
         const clBtn = elCreateEmpty('button', {"class": ["btn-close", "btn-close-alert"]});
         alertBoxEl.appendChild(clBtn);
         clBtn.addEventListener('click', function() {
@@ -38,6 +47,10 @@ function toggleAlert(alertBox, state, msg) {
     elShow(alertBoxEl);
 }
 
+/**
+ * Notification severities
+ * @type {Object}
+ */
 const severities = {
     "info": {
         "text": "Info",
@@ -56,6 +69,10 @@ const severities = {
     }
 };
 
+/**
+ * Notification facilities
+ * @type {Object}
+ */
 const facilities = {
     "database": "Database",
     "general":  "General",
@@ -73,11 +90,23 @@ const facilities = {
     "trigger":  "Trigger"
 };
 
-function getSeverityIcon(severity) {
+/**
+ * Creates a severity icon
+ * @param {String} severity 
+ * @returns {HTMLElement}
+ */
+function createSeverityIcon(severity) {
     return elCreateText('span', {"data-title-phrase": severities[severity].text,
         "class": ["mi", severities[severity].class, "me-2"]}, severities[severity].icon);
 }
 
+/**
+ * Shows a toast notification or an appinit alert
+ * @param {String} title 
+ * @param {String} text 
+ * @param {String} facility 
+ * @param {String} severity 
+ */
 function showNotification(title, text, facility, severity) {
     if (appInited === false) {
         showAppInitAlert(
@@ -113,7 +142,7 @@ function showNotification(title, text, facility, severity) {
     if (settings.webuiSettings.notifyPage === true) {
         const toast = elCreateNode('div', {"class": ["toast"]},
             elCreateNodes('div', {"class": ["toast-header"]}, [
-                getSeverityIcon(severity),
+                createSeverityIcon(severity),
                 elCreateText('strong', {"class": ["me-auto"]}, title),
                 elCreateEmpty('button', {"type": "button", "class": ["btn-close"], "data-bs-dismiss": "toast"})
             ])
@@ -132,13 +161,20 @@ function showNotification(title, text, facility, severity) {
     }
 }
 
+/**
+ * Appends a log message to the log buffer
+ * @param {String} title 
+ * @param {String} text 
+ * @param {String} facility 
+ * @param {String} severity 
+ */
 function logMessage(title, text, facility, severity) {
     let messagesLen = messages.length;
     const lastMessage = messagesLen > 0 ? messages[messagesLen - 1] : null;
     if (lastMessage &&
         lastMessage.title === title)
     {
-        lastMessage.occurence++;
+        lastMessage.occurrence++;
         lastMessage.timestamp = getTimestamp();
     }
     else {
@@ -147,7 +183,7 @@ function logMessage(title, text, facility, severity) {
             "text": text,
             "facility": facility,
             "severity": severity,
-            "occurence": 1,
+            "occurrence": 1,
             "timestamp": getTimestamp()
         });
         messagesLen++;
@@ -159,22 +195,27 @@ function logMessage(title, text, facility, severity) {
     domCache.notificationCount.textContent = messagesLen.toString();
 }
 
+/**
+ * Lists the logbuffer in the logOverview element
+ */
 function showMessages() {
     const overview = document.getElementById('logOverview');
     elClear(overview);
     for (const message of messages) {
         const entry = elCreateEmpty('div', {"class": ["row", "align-items-center", "mb-2", "me-0"]});
         entry.appendChild(
-            elCreateNode('div', {"class": ["col", "col-1", "ps-0"]}, getSeverityIcon(message.severity))
+            elCreateNode('div', {"class": ["col", "col-1", "ps-0"]},
+                createSeverityIcon(message.severity)
+            )
         );
         const col = elCreateEmpty('div', {"class": ["col", "col-11"]});
         col.appendChild(
-            elCreateText('small', {"class": ["me-2"]}, localeDate(message.timestamp) +
+            elCreateText('small', {"class": ["me-2"]}, fmtDate(message.timestamp) +
                 smallSpace + nDash + smallSpace + tn(facilities[message.facility]))
         );
-        if (message.occurence > 1) {
+        if (message.occurrence > 1) {
             col.appendChild(
-                elCreateText('div', {"class": ["badge", "bg-secondary"]}, message.occurence)
+                elCreateText('div', {"class": ["badge", "bg-secondary"]}, message.occurrence)
             );
         }
         col.appendChild(
@@ -190,10 +231,19 @@ function showMessages() {
     }
 }
 
+/**
+ * Checks for web notification support
+ * @returns true if web notifications are supported, else false
+ */
 function notificationsSupported() {
     return "Notification" in window;
 }
 
+/**
+ * Toggles the disabled state of elements
+ * @param {String} selector 
+ * @param {String} state 
+ */
 function setElsState(selector, state) {
     const els = document.querySelectorAll(selector);
     for (const el of els) {
@@ -217,6 +267,9 @@ function setElsState(selector, state) {
     }
 }
 
+/**
+ * Toggles the ui state
+ */
 function toggleUI() {
     let state = 'disabled';
     if (getWebsocketState() === true &&
@@ -261,6 +314,9 @@ function toggleUI() {
     setStateIcon();
 }
 
+/**
+ * Toggle the visibility of the topAlert container
+ */
 function toggleTopAlert() {
     const topAlert = document.querySelector('#top-alerts');
     if (uiEnabled === false ||
@@ -277,6 +333,10 @@ function toggleTopAlert() {
     }
 }
 
+/**
+ * Shows an alert in a modal
+ * @param {Object} obj jsonrpc error response
+ */
 function showModalAlert(obj) {
     const aModal = getOpenModal();
     const activeAlert = aModal.querySelector('.modalAlert');
@@ -289,6 +349,10 @@ function showModalAlert(obj) {
     }
 }
 
+/**
+ * Removes all alerts in a modal
+ * @param {HTMLElement | Element} el the modal element
+ */
 function hideModalAlert(el) {
     const activeAlerts = el.querySelectorAll('.modalAlert');
     for (let i = 0, j = activeAlerts.length; i < j; i++) {

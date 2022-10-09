@@ -44,7 +44,7 @@ function unsetUpdateViewId(id) {
 
 /**
  * Removes the updating indicator(s) for the element
- * @param {Element} el 
+ * @param {Element | ParentNode} el 
  */
 function unsetUpdateView(el) {
     el.classList.remove('opacity05');
@@ -447,7 +447,7 @@ function selectTag(containerId, descId, setTo) {
 /**
  * Populates a container with buttons for tags
  * @param {String} elId id of the element to populate
- * @param {*} list taglist
+ * @param {String} list taglist
  */
 function addTagList(elId, list) {
     const stack = elCreateEmpty('div', {"class": ["d-grid", "gap-2"]});
@@ -883,7 +883,7 @@ function printValue(key, value) {
                 default:         return elCreateText('span', {"class": ["mi"]}, 'radio_button_unchecked');
             }
         case 'Duration':
-            return document.createTextNode(beautifySongDuration(value));
+            return document.createTextNode(fmtSongDuration(value));
         case 'AudioFormat':
             return document.createTextNode(value.bits + tn('bits') + smallSpace + nDash + smallSpace + value.sampleRate / 1000 + tn('kHz'));
         case 'Pos':
@@ -893,12 +893,12 @@ function printValue(key, value) {
         case 'LastPlayed':
         case 'stickerLastPlayed':
         case 'stickerLastSkipped':
-            return document.createTextNode(value === 0 ? tn('never') : localeDate(value));
+            return document.createTextNode(value === 0 ? tn('never') : fmtDate(value));
         case 'stickerLike':
             return elCreateText('span', {"class": ["mi"]},
                 value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up');
         case 'stickerElapsed':
-            return document.createTextNode(beautifySongDuration(value));
+            return document.createTextNode(fmtSongDuration(value));
         case 'Artist':
         case 'ArtistSort':
         case 'AlbumArtist':

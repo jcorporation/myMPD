@@ -654,7 +654,7 @@ function parseAlbumDetails(obj) {
             elCreateNode('td', {"colspan": colspan + 1},
                 elCreateText('small', {},
                     tn('Num songs', obj.result.totalEntities) +
-                        smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime)
+                        smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime)
                 )
             )
         )

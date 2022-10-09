@@ -3,8 +3,12 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-function dragAndDropTable(table) {
-    const tableBody = document.querySelector('#' + table + ' > tbody');
+/**
+ * Initializes a table body for drag and drop of rows
+ * @param {String} tableName 
+ */
+function dragAndDropTable(tableName) {
+    const tableBody = document.querySelector('#' + tableName + ' > tbody');
     tableBody.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TR') {
             hidePopover();
@@ -81,7 +85,7 @@ function dragAndDropTable(table) {
         for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
-        document.getElementById(table).classList.add('opacity05');
+        document.getElementById(tableName).classList.add('opacity05');
         if (app.id === 'QueueCurrent') {
             sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
                 "from": oldSongpos,
@@ -94,8 +98,12 @@ function dragAndDropTable(table) {
     }, false);
 }
 
-function dragAndDropTableHeader(table) {
-    const tableHeader = document.querySelector('#' + table + 'List > thead > tr');
+/**
+ * Initializes a table header for drag and drop of columns
+ * @param {String} tableName 
+ */
+function dragAndDropTableHeader(tableName) {
+    const tableHeader = document.querySelector('#' + tableName + 'List > thead > tr');
 
     tableHeader.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TH') {
@@ -158,21 +166,26 @@ function dragAndDropTableHeader(table) {
         for (let i = 0, j = th.length; i < j; i++) {
             th[i].classList.remove('dragover-th');
         }
-        if (document.getElementById(table + 'List')) {
-            document.getElementById(table + 'List').classList.add('opacity05');
-            saveCols(table);
+        if (document.getElementById(tableName + 'List')) {
+            document.getElementById(tableName + 'List').classList.add('opacity05');
+            saveCols(tableName);
         }
         else {
-            saveCols(table, this.parentNode.parentNode);
+            saveCols(tableName, this.parentNode.parentNode);
         }
     }, false);
 }
 
-function setColTags(table) {
-    if (table === 'BrowseRadioWebradiodb') {
+/**
+ * Sets the available table columns
+ * @param {String} tableName
+ * @return {Object}
+ */
+function setColTags(tableName) {
+    if (tableName === 'BrowseRadioWebradiodb') {
         return ["Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate"];
     }
-    else if (table === 'BrowseRadioRadiobrowser') {
+    else if (tableName === 'BrowseRadioRadiobrowser') {
         return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
     }
 
@@ -183,7 +196,7 @@ function setColTags(table) {
     tags.push('Duration');
     tags.push('LastModified');
 
-    switch(table) {
+    switch(tableName) {
         case 'QueueCurrent':
             tags.push('AudioFormat');
             tags.push('Priority');
@@ -219,10 +232,15 @@ function setColTags(table) {
     return tags;
 }
 
-function setColsChecklist(table, menu) {
-    const tags = setColTags(table);
+/**
+ * Creates the select columns checkbox list
+ * @param {String} tableName 
+ * @param {HTMLElement} menu 
+ */
+function setColsChecklist(tableName, menu) {
+    const tags = setColTags(tableName);
     for (let i = 0, j = tags.length; i < j; i++) {
-        if (table === 'Playback' && tags[i] === 'Title') {
+        if (tableName === 'Playback' && tags[i] === 'Title') {
             continue;
         }
         if (tags[i] === 'dropdownTitleSticker') {
@@ -233,7 +251,7 @@ function setColsChecklist(table, menu) {
         else {
             const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-small", "me-2"],
                 "name": tags[i]}, 'radio_button_unchecked');
-            if (settings['cols' + table].includes(tags[i])) {
+            if (settings['cols' + tableName].includes(tags[i])) {
                 btn.classList.add('active');
                 btn.textContent = 'check'
             }
@@ -246,8 +264,12 @@ function setColsChecklist(table, menu) {
     }
 }
 
-function setCols(table) {
-    if (table === 'Search' &&
+/**
+ * Sets the table header columns
+ * @param {String} tableName 
+ */
+function setCols(tableName) {
+    if (tableName === 'Search' &&
         app.cards.Search.sort.tag === 'Title')
     {
         if (settings.tagList.includes('Title')) {
@@ -261,19 +283,19 @@ function setCols(table) {
         }
     }
 
-    const thead = document.querySelector('#' + table + 'List > thead > tr');
+    const thead = document.querySelector('#' + tableName + 'List > thead > tr');
     elClear(thead);
 
-    for (let i = 0, j = settings['cols' + table].length; i < j; i++) {
-        const hname = settings['cols' + table][i];
-        const th = elCreateTextTn('th', {"draggable": "true", "data-col": settings['cols' + table][i]}, hname);
+    for (let i = 0, j = settings['cols' + tableName].length; i < j; i++) {
+        const hname = settings['cols' + tableName][i];
+        const th = elCreateTextTn('th', {"draggable": "true", "data-col": settings['cols' + tableName][i]}, hname);
         if (hname === 'Track' ||
             hname === 'Pos')
         {
             th.textContent = '#';
         }
-        if ((table === 'Search' && hname === app.cards.Search.sort.tag) ||
-            (table === 'BrowseRadioWebradiodb' && hname === app.cards.Browse.tabs.Radio.views.Webradiodb.sort.tag)
+        if ((tableName === 'Search' && hname === app.cards.Search.sort.tag) ||
+            (tableName === 'BrowseRadioWebradiodb' && hname === app.cards.Browse.tabs.Radio.views.Webradiodb.sort.tag)
            )
         {
             th.appendChild(
@@ -293,39 +315,38 @@ function setCols(table) {
     thead.appendChild(th);
 }
 
-function saveCols(table, tableEl) {
-    const colsDropdown = document.getElementById(table + 'ColsDropdown');
-    let header;
+/**
+ * Saves the selected columns for the table
+ * @param {String} tableName 
+ * @param {HTMLElement} [tableEl]
+ */
+function saveCols(tableName, tableEl) {
+    const colsDropdown = document.getElementById(tableName + 'ColsDropdown');
     if (tableEl === undefined) {
-        header = document.querySelector('#' + table + 'List > thead > tr');
+        //select the table by name
+        tableEl = document.getElementById(tableName + 'List');
     }
-    else if (typeof(tableEl) === 'string') {
-        header = document.querySelector(tableEl + ' > thead > tr');
-    }
-    else {
-        header = tableEl.querySelector('tr');
-    }
-    if (colsDropdown) {
-        const colInputs = colsDropdown.firstChild.querySelectorAll('button');
-        for (let i = 0, j = colInputs.length; i < j; i++) {
-            if (colInputs[i].getAttribute('name') === null) {
-                continue;
-            }
-            let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
-            if (colInputs[i].classList.contains('active') === false) {
-                if (th) {
-                    th.remove();
-                }
-            }
-            else if (!th) {
-                th = elCreateTextTn('th', {"data-col": colInputs[i].name}, colInputs[i].name);
-                header.insertBefore(th, header.lastChild);
+    const header = tableEl.querySelector('tr');
+    //apply the columns select list to the playback card
+    const colInputs = colsDropdown.firstChild.querySelectorAll('button');
+    for (let i = 0, j = colInputs.length; i < j; i++) {
+        if (colInputs[i].getAttribute('name') === null) {
+            continue;
+        }
+        let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
+        if (colInputs[i].classList.contains('active') === false) {
+            if (th) {
+                th.remove();
             }
         }
+        else if (!th) {
+            th = elCreateTextTn('th', {"data-col": colInputs[i].name}, colInputs[i].name);
+            header.insertBefore(th, header.lastChild);
+        }
     }
-
-    const params = {"table": "cols" + table, "cols": []};
-    const ths = header.querySelector('th');
+    //construct columns to save from actual table header
+    const params = {"table": "cols" + tableName, "cols": []};
+    const ths = header.querySelectorAll('th');
     for (let i = 0, j = ths.length; i < j; i++) {
         const name = ths[i].getAttribute('data-col');
         if (name !== 'Action' && name !== null) {
@@ -335,11 +356,15 @@ function saveCols(table, tableEl) {
     sendAPI("MYMPD_API_COLS_SAVE", params, getSettings, true);
 }
 
+/**
+ * Saves the fields for the playback card
+ */
 //eslint-disable-next-line no-unused-vars
-function saveColsPlayback(table) {
-    const colInputs = document.querySelectorAll(table + 'ColsDropdown > form > button');
+function saveColsPlayback() {
+    const colInputs = document.querySelectorAll('#PlaybackColsDropdown button');
     const header = document.getElementById('cardPlaybackTags');
 
+    //apply the columns select list to the playback card
     for (let i = 0, j = colInputs.length - 1; i < j; i++) {
         let th = document.getElementById('current' + colInputs[i].name);
         if (colInputs[i].classList.contains('active') === false) {
@@ -360,7 +385,7 @@ function saveColsPlayback(table) {
     }
 
     //construct columns to save from actual playback card
-    const params = {"table": "cols" + table, "cols": []};
+    const params = {"table": "colsPlayback", "cols": []};
     const ths = header.querySelectorAll('div');
     for (let i = 0, j = ths.length; i < j; i++) {
         const name = getData(ths[i], 'tag');
@@ -371,9 +396,15 @@ function saveColsPlayback(table) {
     sendAPI("MYMPD_API_COLS_SAVE", params, getSettings, true);
 }
 
+/**
+ * Toggles the sorting of the table
+ * @param {EventTarget} th clicked table header column
+ * @param {String} colName 
+ */
 function toggleSort(th, colName) {
     if (th.nodeName !== 'TH' ||
-        th.textContent === '')
+        th.textContent === '' ||
+        th.getAttribute('data-col') === 'Action')
     {
         return;
     }
@@ -386,16 +417,22 @@ function toggleSort(th, colName) {
         app.current.sort.tag = colName;
     }
     //remove old sort indicator
-    const sdi = th.parentNode.querySelector('.sort-dir');
+    const sdi = th.parentNode.querySelectorAll('.sort-dir');
     for (const s of sdi) {
         s.remove();
     }
     //set new sort indicator
+    // @ts-ignore
     th.appendChild(
         elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (app.current.sort.desc === true ? 'arrow_drop_up' : 'arrow_drop_down'))
     );
 }
 
+/**
+ * Replaces a table row
+ * @param {HTMLElement} row row to replace
+ * @param {HTMLElement} el replacement row
+ */
 function replaceTblRow(row, el) {
     const menuEl = row.querySelector('[data-popover]');
     if (menuEl) {
@@ -404,6 +441,14 @@ function replaceTblRow(row, el) {
     row.replaceWith(el);
 }
 
+/**
+ * Adds a row with discnumber to the table
+ * @param {Number} disc discnumber
+ * @param {String} album 
+ * @param {Object} albumartist 
+ * @param {Number} colspan 
+ * @returns {HTMLElement} the created row
+ */
 function addDiscRow(disc, album, albumartist, colspan) {
     const row = elCreateNodes('tr', {"class": ["not-clickable"]}, [
         elCreateNode('td', {},
@@ -421,6 +466,13 @@ function addDiscRow(disc, album, albumartist, colspan) {
     return row;
 }
 
+/**
+ * Updates the table from the jsonrpc response
+ * @param {Object} obj jsonrpc response
+ * @param {String} list table name to populate
+ * @param {Function} [perRowCallback]
+ * @param {Function} [createRowCellsCallback]
+ */
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const table = document.getElementById(list + 'List');
     const tbody = table.querySelector('tbody');
@@ -520,6 +572,14 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     scrollToPosY(table.parentNode, app.current.scrollPos);
 }
 
+/**
+ * Creates the columns in the row
+ * @param {HTMLElement} row the row to populate
+ * @param {Object} data data to populate
+ * @param {String} list table name
+ * @param {Number} colspan number of columns
+ * @param {Boolean} smallWidth true = print data in rows, false = print data in columns
+ */
 function tableRow(row, data, list, colspan, smallWidth) {
     if (data.Type === 'parentDir') {
         row.appendChild(elCreateText('td', {"colspan": (colspan + 1), "data-title-phrase": "Open parent folder"}, '..'));
@@ -563,6 +623,11 @@ function tableRow(row, data, list, colspan, smallWidth) {
     }
 }
 
+/**
+ * Creates an empty list hint
+ * @param {Number} colspan 
+ * @returns {HTMLElement}
+ */
 function emptyRow(colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},
@@ -571,6 +636,11 @@ function emptyRow(colspan) {
     );
 }
 
+/**
+ * Creates a loading list hint
+ * @param {Number} colspan 
+ * @returns {HTMLElement}
+ */
 function loadingRow(colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},
@@ -579,6 +649,12 @@ function loadingRow(colspan) {
     );
 }
 
+/**
+ * Creates a row with the error message
+ * @param {Object} obj jsonrpc error object
+ * @param {Number} colspan 
+ * @returns {HTMLElement}
+ */
 function errorRow(obj, colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},
@@ -587,6 +663,12 @@ function errorRow(obj, colspan) {
     );
 }
 
+/**
+ * Creates a row with the warning message
+ * @param {String} message phrase to display
+ * @param {Number} colspan 
+ * @returns {HTMLElement}
+ */
 //eslint-disable-next-line no-unused-vars
 function warningRow(message, colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
@@ -596,10 +678,22 @@ function warningRow(message, colspan) {
     );
 }
 
+/**
+ * Wrapper for checkResult with id selector
+ * @param {Object} obj jsonrpc object to check
+ * @param {String} id table id
+ * @returns {Boolean}
+ */
 function checkResultId(obj, id) {
     return checkResult(obj, document.querySelector('#' + id + ' > tbody'));
 }
 
+/**
+ * 
+ * @param {Object} obj jsonrpc object to check
+ * @param {HTMLElement} tbody body of the table
+ * @returns {Boolean}
+ */
 function checkResult(obj, tbody) {
     const thead = tbody.parentNode.querySelector('tr');
     const colspan = thead !== undefined ? thead.querySelectorAll('th').length : 0;
@@ -616,7 +710,7 @@ function checkResult(obj, tbody) {
     }
     if (obj.result.returnedEntities === 0) {
         elClear(tbody);
-        if (tfoot !== 1) {
+        if (tfoot !== null) {
             elClear(tfoot);
         }
         tbody.appendChild(emptyRow(colspan));
@@ -627,6 +721,10 @@ function checkResult(obj, tbody) {
     return true;
 }
 
+/**
+ * Checks if we should display data in rows or cols
+ * @returns true if window is small and the uiSmallWidthTagRows settings is true, else false
+ */
 function uiSmallWidthTagRows() {
     if (settings.webuiSettings.uiSmallWidthTagRows === true) {
         return window.innerWidth < 576 ? true : false;
@@ -634,6 +732,10 @@ function uiSmallWidthTagRows() {
     return false;
 }
 
+/**
+ * Handles the click on the actions column
+ * @param {MouseEvent} event 
+ */
 function handleActionTdClick(event) {
     event.preventDefault();
     switch(event.target.getAttribute('data-action')) {

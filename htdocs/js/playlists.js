@@ -96,7 +96,7 @@ function parsePlaylistsList(obj) {
             elCreateText('td', {}, data.name)
         );
         row.appendChild(
-            elCreateText('td', {}, localeDate(data.lastModified))
+            elCreateText('td', {}, fmtDate(data.lastModified))
         );
         row.appendChild(
             pEl.actionTd.cloneNode(true)
@@ -138,7 +138,7 @@ function parsePlaylistsDetail(obj) {
             elCreateNode('td', {"colspan": colspan},
                 elCreateNodes('small', {}, [
                     elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities), 
-                    elCreateText('span', {}, smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))
+                    elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime))
                 ])
             )
         )

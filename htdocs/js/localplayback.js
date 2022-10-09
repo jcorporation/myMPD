@@ -114,7 +114,7 @@ function createLocalPlaybackEl(createEvent) {
             return;
         }
         // @ts-ignore
-        document.getElementById('localPlayerProgress').textContent = beautifySongDuration(event.target.currentTime);
+        document.getElementById('localPlayerProgress').textContent = fmtSongDuration(event.target.currentTime);
     });
     document.getElementById('localPlayer').addEventListener('volumechange', function(event) {
         // @ts-ignore

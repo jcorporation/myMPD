@@ -258,7 +258,7 @@ function parseQueue(obj) {
                 elCreateNode('td', {"colspan": (colspan + 1)},
                     elCreateNodes('small', {}, [
                         elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),
-                        elCreateText('span', {}, smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))
+                        elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime))
                     ])
                 )
             )
@@ -283,7 +283,7 @@ function queueSetCurrentSong() {
     {
         const durationTd = old.querySelector('[data-col=Duration]');
         if (durationTd) {
-            durationTd.textContent = beautifySongDuration(getData(old, 'duration'));
+            durationTd.textContent = fmtSongDuration(getData(old, 'duration'));
         }
         const posTd = old.querySelector('[data-col=Pos]');
         if (posTd) {

@@ -18,8 +18,8 @@ function checkSmartCount(number) {
  * Variables are in the format %{name}
  * Phrase can include singular and plural separated by ||||
  * Singular or plural is detected by the special data key smartCount
- * @param {String} phrase 
- * @param {Object} data 
+ * @param {String} phrase the prase to translate
+ * @param {Object} [data] variable data
  * @returns {String}
  */
 function tn(phrase, data) {
@@ -70,7 +70,7 @@ function tn(phrase, data) {
  * @param {Number} secs 
  * @returns {String}
  */
-function localeDate(secs) {
+function fmtDate(secs) {
     return new Date(secs * 1000).toLocaleString(locale);
 }
 
@@ -79,7 +79,7 @@ function localeDate(secs) {
  * @param {Number} secs
  * @returns {String}
  */
-function beautifyDuration(secs) {
+function fmtDuration(secs) {
     const days = Math.floor(secs / 86400);
     const hours = Math.floor(secs / 3600) - days * 24;
     const minutes = Math.floor(secs / 60) - hours * 60 - days * 1440;
@@ -96,7 +96,7 @@ function beautifyDuration(secs) {
  * @param {Number} secs
  * @returns {String}
  */
-function beautifySongDuration(secs) {
+function fmtSongDuration(secs) {
     const hours = Math.floor(secs / 3600);
     const minutes = Math.floor(secs / 60) - hours * 60;
     const seconds = Math.floor(secs - hours * 3600 - minutes * 60);

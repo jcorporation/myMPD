@@ -15,11 +15,11 @@ function parseStats(obj) {
     document.getElementById('mpdstatsArtists').textContent = obj.result.artists;
     document.getElementById('mpdstatsAlbums').textContent = obj.result.albums;
     document.getElementById('mpdstatsSongs').textContent = obj.result.songs;
-    document.getElementById('mpdstatsDbPlaytime').textContent = beautifyDuration(obj.result.dbPlaytime);
-    document.getElementById('mpdstatsPlaytime').textContent = beautifyDuration(obj.result.playtime);
-    document.getElementById('mpdstatsUptime').textContent = beautifyDuration(obj.result.uptime);
-    document.getElementById('mpdstatsMympd_uptime').textContent = beautifyDuration(obj.result.myMPDuptime);
-    document.getElementById('mpdstatsDbUpdated').textContent = localeDate(obj.result.dbUpdated);
+    document.getElementById('mpdstatsDbPlaytime').textContent = fmtDuration(obj.result.dbPlaytime);
+    document.getElementById('mpdstatsPlaytime').textContent = fmtDuration(obj.result.playtime);
+    document.getElementById('mpdstatsUptime').textContent = fmtDuration(obj.result.uptime);
+    document.getElementById('mpdstatsMympd_uptime').textContent = fmtDuration(obj.result.myMPDuptime);
+    document.getElementById('mpdstatsDbUpdated').textContent = fmtDate(obj.result.dbUpdated);
     document.getElementById('mympdVersion').textContent = obj.result.mympdVersion;
 
     const mpdInfoVersionEl = document.getElementById('mpdInfoVersion');
@@ -45,8 +45,8 @@ function getServerinfo() {
 }
 
 function getCounterText() {
-    return beautifySongDuration(currentState.elapsedTime) + smallSpace +
-        '/' + smallSpace + beautifySongDuration(currentState.totalTime);
+    return fmtSongDuration(currentState.elapsedTime) + smallSpace +
+        '/' + smallSpace + fmtSongDuration(currentState.totalTime);
 }
 
 function setCounter() {

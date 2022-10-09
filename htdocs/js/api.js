@@ -595,9 +595,7 @@ function webSocketClose() {
  * Sends a ping keepalive message to the websocket endpoint.
  */
 function websocketKeepAlive() {
-    if (socket !== null &&
-        socket.readyState === WebSocket.OPEN)
-    {
+    if (getWebsocketState() === true) {
         socket.send('ping');
     }
 }

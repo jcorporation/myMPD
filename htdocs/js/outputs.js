@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Initializes the outputs html elements
+ */
 function initOutputs() {
     domCache.volumeBar.addEventListener('change', function() {
         setVolume();
@@ -30,6 +33,11 @@ function initOutputs() {
     }, false);
 }
 
+/**
+ * Parses the response of MYMPD_API_PLAYER_OUTPUT_LIST
+ * @param {Object} obj jsonrpc response
+ * @returns 
+ */
 function parseOutputs(obj) {
     const outputList = document.getElementById('outputs');
     elClear(outputList);
@@ -75,9 +83,12 @@ function parseOutputs(obj) {
     }
 }
 
+/**
+ * Shows the output attributes modal 
+ * @param {String} outputName the output name
+ */
 function showListOutputAttributes(outputName) {
     cleanupModalId('modalOutputAttributes');
-    uiElements.modalOutputAttributes.show();
     sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
         const tbody = document.getElementById('outputAttributesList');
         if (checkResult(obj, tbody) === false) {
@@ -91,8 +102,13 @@ function showListOutputAttributes(outputName) {
             }
         }
     }, false);
+    uiElements.modalOutputAttributes.show();
 }
 
+/**
+ * Creates the output attributes table content
+ * @param {Object} output 
+ */
 function parseOutputAttributes(output) {
     document.getElementById('modalOutputAttributesId').value = output.id;
     const tbody = document.getElementById('outputAttributesList');
@@ -128,6 +144,9 @@ function parseOutputAttributes(output) {
     }
 }
 
+/**
+ * Saves the output attributes
+ */
 //eslint-disable-next-line no-unused-vars
 function saveOutputAttributes() {
     cleanupModalId('modalOutputAttributes');
@@ -141,6 +160,10 @@ function saveOutputAttributes() {
     sendAPI('MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET', params, saveOutputAttributesClose, true);
 }
 
+/**
+ * Handler for MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET response
+ * @param {Object} obj 
+ */
 function saveOutputAttributesClose(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -150,6 +173,10 @@ function saveOutputAttributesClose(obj) {
     }
 }
 
+/**
+ * Parses the response of MYMPD_API_PLAYER_VOLUME_GET
+ * @param {Object} obj 
+ */
 function parseVolume(obj) {
     if (obj.result.volume === -1) {
         document.getElementById('volumePrct').textContent = tn('Volumecontrol disabled');
@@ -165,6 +192,10 @@ function parseVolume(obj) {
     domCache.volumeBar.value = obj.result.volume;
 }
 
+/**
+ * Changes the relative volume 
+ * @param {*} dir 
+ */
 //eslint-disable-next-line no-unused-vars
 function volumeStep(dir) {
     const step = dir === 'up' ? settings.volumeStep : 0 - settings.volumeStep;
@@ -173,6 +204,9 @@ function volumeStep(dir) {
     }, null, false);
 }
 
+/**
+ * Sets the volume to an absolute value
+ */
 function setVolume() {
     sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {
         "volume": Number(domCache.volumeBar.value)

@@ -706,10 +706,16 @@ function appInitStart() {
 
     //update table height on window resize
     window.addEventListener('resize', function() {
-        const list = document.getElementById(app.id + 'List');
-        if (list) {
-            setScrollViewHeight(list);
+        if (resizeTimer !== null) {
+            clearTimeout(resizeTimer);
         }
+        resizeTimer = setTimeout(function() {
+            const list = document.getElementById(app.id + 'List');
+            if (list) {
+                setScrollViewHeight(list);
+            }
+            resizeTimer = null;
+        }, 100);
     }, false);
 
     setMobileView();
@@ -798,7 +804,7 @@ function appInitStart() {
  */
 function appInit() {
     getAssets();
-    //collaps arrows for submenus
+    //collapse arrows for submenus
     const collapseArrows = document.querySelectorAll('.subMenu');
     for (const collapseArrow of collapseArrows) {
         collapseArrow.addEventListener('click', function(event) {
@@ -836,7 +842,7 @@ function appInit() {
     domCache.body.addEventListener('click', function() {
         hidePopover();
     }, false);
-    //init moduls
+    //init modules
     initGlobalModals();
     initSong();
     initHome();
@@ -1033,7 +1039,7 @@ function initNavs() {
         if ((currentState.state === 'pause' || currentState.state === 'play') &&
             currentState.totalTime > 0)
         {
-            domCache.progressPos.textContent = beautifySongDuration(Math.ceil((currentState.totalTime / event.target.offsetWidth) * event.clientX));
+            domCache.progressPos.textContent = fmtSongDuration(Math.ceil((currentState.totalTime / event.target.offsetWidth) * event.clientX));
             domCache.progressPos.style.display = 'block';
             const w = domCache.progressPos.offsetWidth / 2;
             const posX = event.clientX < w ? event.clientX : (event.clientX < window.innerWidth - w ? event.clientX - w : event.clientX - (w * 2));

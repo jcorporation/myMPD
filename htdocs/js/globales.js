@@ -3,50 +3,93 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @type {Number} */
 const startTime = Date.now();
+
 let socket = null;
 let websocketTimer = null;
 let websocketKeepAliveTimer = null;
 let searchTimer = null;
+let resizeTimer = null;
+
+/** @type {Number} */
 const searchTimerTimeout = 500;
+
 let currentSongObj = {};
 let currentState = {};
 let settings = {
+    /** @type {Number} */
     "loglevel": 2
 };
+
+/** @type {String} */
 let settingsParsed = 'no';
+
 let progressTimer = null;
 let deferredA2HSprompt;
 let dragSrc;
 let dragEl;
+
+/** @type {Boolean} */
 let showSyncedLyrics = false;
+
+/** @type {Boolean} */
 let scrollSyncedLyrics = true;
+
+/** @type {Boolean} */
 let appInited = false;
+
+/** @type {Boolean} */
 let scriptsInited = false;
 let subdir = '';
+
+/** @type {Boolean} */
 let uiEnabled = true;
+
 let allOutputs = null;
+
+/** @type {String} */
 const ligatureMore = 'menu';
+
+/** @type {String} */
 const progressBarTransition = 'width 1s linear';
+
+/** @type {String} */
 const smallSpace = '\u2009';
+
+/** @type {String} */
 const nDash = '\u2013';
+
 let tagAlbumArtist = 'AlbumArtist';
+
 /** @type {Object} */
 const albumFilters = ["Composer", "Performer", "Conductor", "Ensemble"];
+
 const session = {
     "token": "",
     "timeout": 0
 };
+
+/** @type {Number} */
 const sessionLifetime = 1780;
+
+/** @type {Number} */
 const sessionRenewInterval = sessionLifetime * 500;
 let sessionTimer = null;
 const messages = [];
+
+/** @type {Boolean} */
 const debugMode = document.querySelector("script").src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
+
 let webradioDb = null;
 const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
+
 /** @type {Object} */
 const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
+
+/** @type {String} */
 let locale = navigator.language || navigator.userLanguage;
+
 let materialIcons = {};
 let phrasesDefault = {};
 let phrases = {};
@@ -82,13 +125,17 @@ function setUserAgentData() {
     //https://developer.mozilla.org/en-US/docs/Web/API/User-Agent_Client_Hints_API
     if (navigator.userAgentData) {
         navigator.userAgentData.getHighEntropyValues(["platform"]).then(ua => {
+            /** @type {Boolean} */
             userAgentData.isMobile = localSettings.enforceMobile === true ? true : ua.mobile;
             //Safari does not support this API
+            /** @type {Boolean} */
             userAgentData.isSafari = false;
         });
     }
     else {
+        /** @type {Boolean} */
         userAgentData.isMobile = localSettings.enforceMobile === true ? true : /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
+        /** @type {Boolean} */
         userAgentData.isSafari = /Safari/i.test(navigator.userAgent);
     }
 }

@@ -390,8 +390,7 @@ function getYpos(el) {
  * @returns {ParentNode}
  */
  function getParent(el, nodeName) {
-    /** @type {ParentNode} */
-    let target = el.parentNode;
+    let target = el;
     let i = 0;
     while (target.nodeName !== nodeName) {
         i++;
@@ -400,6 +399,7 @@ function getYpos(el) {
         }
         target = target.parentNode;
     }
+    // @ts-ignore
     return target;
 }
 

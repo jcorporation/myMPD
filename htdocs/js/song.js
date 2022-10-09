@@ -164,7 +164,7 @@ function parseSongDetails(obj) {
         tr.appendChild(td);
         tbody.appendChild(tr);
     }
-    tbody.appendChild(songDetailsRow('Duration', beautifyDuration(obj.result.Duration)));
+    tbody.appendChild(songDetailsRow('Duration', fmtDuration(obj.result.Duration)));
     //resolves cuesheet virtual tracks
     const rUri = cuesheetUri(obj.result.uri);
     let isCuesheet = false;
@@ -197,7 +197,7 @@ function parseSongDetails(obj) {
 
     tbody.appendChild(songDetailsRow('AudioFormat', printValue('AudioFormat', obj.result.AudioFormat)));
     tbody.appendChild(songDetailsRow('Filetype', filetype(rUri)));
-    tbody.appendChild(songDetailsRow('LastModified', localeDate(obj.result.LastModified)));
+    tbody.appendChild(songDetailsRow('LastModified', fmtDate(obj.result.LastModified)));
     //fingerprint command is not supported for cuesheet virtual tracks
     if (features.featFingerprint === true &&
         isCuesheet === false)
@@ -468,7 +468,7 @@ function parseSyncedLyrics(parent, lyrics, currentLyrics) {
             }
             const p = elCreateEmpty('p', {});
             for (let i = 0, j = ts.length; i < j; i++) {
-                const span = elCreateText('span', {"data-sec": ts[i], "title": beautifySongDuration(ts[i])}, text[i]);
+                const span = elCreateText('span', {"data-sec": ts[i], "title": fmtSongDuration(ts[i])}, text[i]);
                 if (currentLyrics === true) {
                     span.classList.add('clickable');
                 }
