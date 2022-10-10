@@ -60,7 +60,6 @@ static const char *const trigger_event_names[] = {
     "mpd_mixer",
     "mpd_output",
     "mpd_options",
-    "mpd_update",
     "mpd_partition",
     NULL
 };
@@ -96,9 +95,9 @@ const char *mympd_api_event_name(long event) {
         }
         return NULL;
     }
-    for (int i = 0; trigger_event_names[i] != NULL; ++i) {
+    for (int i = 0; mpd_event_names[i] != NULL; ++i) {
         if (event == (1 << i)) {
-            return trigger_event_names[i];
+            return mpd_event_names[i];
         }
     }
     return NULL;
@@ -114,11 +113,11 @@ sds mympd_api_trigger_print_event_list(sds buffer) {
         buffer = tojson_long(buffer, mympd_event_names[i], (-1 - i), true);
     }
 
-    for (int i = 0; mpd_event_names[i] != NULL; ++i) {
+    for (int i = 0; trigger_event_names[i] != NULL; ++i) {
         if (i > 0) {
             buffer = sdscatlen(buffer, ",", 1);
         }
-        buffer = tojson_long(buffer, mpd_event_names[i], (1 << i), false);
+        buffer = tojson_long(buffer, trigger_event_names[i], (1 << i), false);
     }
     return buffer;
 }
