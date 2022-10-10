@@ -645,10 +645,10 @@ function parseAlbumDetails(obj) {
     elReplaceChild(tfoot,
         elCreateNode('tr', {},
             elCreateNode('td', {"colspan": colspan + 1},
-                elCreateText('small', {},
-                    tn('Num songs', obj.result.totalEntities) +
-                        smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime)
-                )
+                elCreateNodes('small', {}, [
+                    elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),
+                    elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime))
+                ])
             )
         )
     );
