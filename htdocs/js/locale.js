@@ -34,7 +34,7 @@ function tn(phrase, data) {
     }
     //translate
     let result = phrases[phrase];
-/*debug*/    if (result !== undefined &&
+/*debug*/    if (result === undefined &&
 /*debug*/        locale !== 'en-US')
 /*debug*/    {
 /*debug*/        logDebug('Phrase "' + phrase + '" for locale ' + locale + ' not found');
