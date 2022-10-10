@@ -392,9 +392,7 @@ function showAddToPlaylist(uri, searchstr) {
     document.getElementById('addToPlaylistPlaylist').value = '';
     document.getElementById('addToPlaylistPlaylist').filterInput.value = '';
     document.getElementById('addToPlaylistPosAppend').checked = 'checked';
-    const streamUrl = document.getElementById('streamUrl');
-    setFocus(streamUrl);
-    streamUrl.value = '';
+    document.getElementById('streamUrl').value = '';
     if (uri === 'STREAM') {
         //add stream
         toggleAddToPlaylistFrm(document.getElementById('toggleAddToPlaylistQueue'));
@@ -404,6 +402,7 @@ function showAddToPlaylist(uri, searchstr) {
     else {
         //add to playlist
         toggleAddToPlaylistFrm(document.getElementById('toggleAddToPlaylistPlaylist'));
+        elHideId('addStreamFrm');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
     }
     uiElements.modalAddToPlaylist.show();
