@@ -3,6 +3,42 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+function handleSearch() {
+    const searchStrEl = document.getElementById('searchStr');
+    const searchCrumbEl = document.getElementById('searchCrumb');
+    setFocus(searchStrEl);
+    createSearchCrumbs(app.current.search, searchStrEl, searchCrumbEl);
+    
+    if (app.current.search === '') {
+        document.getElementById('searchStr').value = '';
+    }
+    if (searchStrEl.value.length >= 2 ||
+        searchCrumbEl.children.length > 0)
+    {
+        if (app.current.sort.tag === '-') {
+            app.current.sort.tag = settings.tagList.includes('Title') ? 'Title' : '-';
+        }
+        sendAPI("MYMPD_API_DATABASE_SEARCH", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "sort": app.current.sort.tag,
+            "sortdesc": app.current.sort.desc,
+            "expression": app.current.search,
+            "cols": settings.colsSearchFetch
+        }, parseSearch, true);
+    }
+    else {
+        const SearchListEl = document.getElementById('SearchList');
+        elClear(SearchListEl.querySelector('tbody'));
+        elClear(SearchListEl.querySelector('tfoot'));
+        elDisableId('searchAddAllSongs');
+        elDisableId('searchAddAllSongsBtn');
+        unsetUpdateViewId('SearchList');
+        setPagination(0, 0);
+    }
+    selectTag('searchTags', 'searchTagsDesc', app.current.filter);
+}
+
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
         //action td
@@ -170,4 +206,12 @@ function addAllFromSearch(mode, type) {
             replacePlayQueue(type, app.current.search, true);
             break;
     }
+}
+
+/**
+ * Adds the current search to a playlist
+ */
+//eslint-disable-next-line no-unused-vars
+function showAddToPlaylistCurrentSearch() {
+    showAddToPlaylist('SEARCH', app.current.search);
 }

@@ -3,6 +3,48 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Handles BrowsePlaylistsDetail
+ */
+function handleBrowsePlaylistsDetail() {
+    setFocusId('searchPlaylistsDetailStr');
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_LIST", {
+        "offset": app.current.offset,
+        "limit": app.current.limit,
+        "searchstr": app.current.search,
+        "plist": app.current.filter,
+        "cols": settings.colsBrowsePlaylistsDetailFetch
+    }, parsePlaylistsDetail, true);
+    const searchPlaylistsStrEl = document.getElementById('searchPlaylistsDetailStr');
+    if (searchPlaylistsStrEl.value === '' &&
+        app.current.search !== '')
+    {
+        searchPlaylistsStrEl.value = app.current.search;
+    }
+}
+
+/**
+ * Handles BrowsePlaylistsList
+ */
+function handleBrowsePlaylistsList() {
+    setFocusId('searchPlaylistsListStr');
+    sendAPI("MYMPD_API_PLAYLIST_LIST", {
+        "offset": app.current.offset,
+        "limit": app.current.limit,
+        "searchstr": app.current.search,
+        "type": 0
+    }, parsePlaylistsList, true);
+    const searchPlaylistsStrEl = document.getElementById('searchPlaylistsListStr');
+    if (searchPlaylistsStrEl.value === '' &&
+        app.current.search !== '')
+    {
+        searchPlaylistsStrEl.value = app.current.search;
+    }
+}
+
+/**
+ * Initializes the playlist elements
+ */
 function initPlaylists() {
     document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
         if (document.getElementById('addStreamFrm').classList.contains('d-none')) {
@@ -81,6 +123,10 @@ function initPlaylists() {
     }, false);
 }
 
+/**
+ * Parses the MYMPD_API_PLAYLIST_LIST jsonrpc response
+ * @param {Object} obj 
+ */
 function parsePlaylistsList(obj) {
     if (checkResultId(obj, 'BrowsePlaylistsListList') === false) {
         return;
@@ -111,6 +157,10 @@ function parsePlaylistsList(obj) {
     });
 }
 
+/**
+ * Parses the MYMPD_API_PLAYLIST_CONTENT_LIST jsonrpc response
+ * @param {Object} obj 
+ */
 function parsePlaylistsDetail(obj) {
     const table = document.getElementById('BrowsePlaylistsDetailList');
     const tfoot = table.querySelector('tfoot');
@@ -163,12 +213,19 @@ function parsePlaylistsDetail(obj) {
     });
 }
 
+/**
+ * Opens the playlist detail view
+ * @param {String} uri 
+ */
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
     setUpdateViewId('BrowsePlaylistsListList');
     appGoto('Browse', 'Playlists', 'Detail', 0, undefined, uri, '-', '-', '');
 }
 
+/**
+ * Shuffles the playlist
+ */
 //eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
     setUpdateViewId('BrowsePlaylistsDetailList');
@@ -177,6 +234,10 @@ function playlistShuffle() {
     }, null, false);
 }
 
+/**
+ * Sorts the playlist by tag
+ * @param {String} tag 
+ */
 //eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
     setUpdateViewId('BrowsePlaylistsDetailList');
@@ -186,6 +247,11 @@ function playlistSort(tag) {
     }, null, false);
 }
 
+/**
+ * Updates all smart playlists
+ * @param {Boolean} force true = forces update of all smart playlists,
+ *                        false = updates only outdated smart playlists
+ */
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylists(force) {
     sendAPI("MYMPD_API_SMARTPLS_UPDATE_ALL", {
@@ -193,6 +259,14 @@ function updateSmartPlaylists(force) {
     }, null, false);
 }
 
+/**
+ * Removes a song from a playlist
+ * @param {String} mode range = remove a range of songs,
+ *                      single = remove one song
+ * @param {String} plist the playlist
+ * @param {Number} start Start of the range (including) / song pos
+ * @param {Number} [end] End playlist position (excluding), use -1 for open end
+ */
 //eslint-disable-next-line no-unused-vars
 function removeFromPlaylist(mode, plist, start, end) {
     switch(mode) {
@@ -215,6 +289,10 @@ function removeFromPlaylist(mode, plist, start, end) {
     setUpdateViewId('BrowsePlaylistsDetailList');
 }
 
+/**
+ * Parses the MYMPD_API_SMARTPLS_GET jsonrpc response
+ * @param {Object} obj jsonrpc response
+ */
 function parseSmartPlaylist(obj) {
     document.getElementById('saveSmartPlaylistName').value = obj.result.plist;
     document.getElementById('saveSmartPlaylistType').value = tn(obj.result.type);
@@ -244,6 +322,9 @@ function parseSmartPlaylist(obj) {
     uiElements.modalSaveSmartPlaylist.show();
 }
 
+/**
+ * Saves a smart playlist
+ */
 //eslint-disable-next-line no-unused-vars
 function saveSmartPlaylist() {
     cleanupModalId('modalSaveSmartPlaylist');
@@ -299,6 +380,10 @@ function saveSmartPlaylist() {
     }
 }
 
+/**
+ * Handles the MYMPD_API_SMARTPLS_*_SAVE responses
+ * @param {Object} obj jsonrpc response
+ */
 function saveSmartPlaylistClose(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -309,6 +394,10 @@ function saveSmartPlaylistClose(obj) {
     }
 }
 
+/**
+ * Adds a default smart playlist
+ * @param {string} type one of mostPlayed, newest, bestRated
+ */
 //eslint-disable-next-line no-unused-vars
 function addSmartpls(type) {
     const obj = {"jsonrpc": "2.0", "id": 0, "result": {"method": "MYMPD_API_SMARTPLS_GET"}};
@@ -337,13 +426,16 @@ function addSmartpls(type) {
     parseSmartPlaylist(obj);
 }
 
-//eslint-disable-next-line no-unused-vars
-function deletePlaylists() {
-    sendAPI("MYMPD_API_PLAYLIST_RM_ALL", {
-        "type": getSelectValueId('selectDeletePlaylists')
-    }, null, false);
-}
-
+/**
+ * Gets playlists and populates a select
+ * @param {Number} type type of the playlist
+ *                      0 = all playlists,
+ *                      1 = static playlists,
+ *                      2 = smart playlists
+ * @param {*} elId select element id
+ * @param {*} searchstr search string
+ * @param {*} selectedPlaylist current selected playlist
+ */
 function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
     sendAPI("MYMPD_API_PLAYLIST_LIST", {
         "searchstr": searchstr,
@@ -355,7 +447,12 @@ function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
     }, false);
 }
 
-//populates the custom input element mympd-select-search
+/**
+ * Populates the custom input element mympd-select-search
+ * @param {Object} obj jsonrpc response
+ * @param {*} playlistSelectId select element id
+ * @param {*} selectedPlaylist current selected playlist
+ */
 function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
     const selectEl = document.getElementById(playlistSelectId);
     if (selectedPlaylist !== undefined) {
@@ -379,24 +476,11 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
     }
 }
 
-//eslint-disable-next-line no-unused-vars
-function showAddToPlaylistCurrentSong() {
-    const uri = getDataId('currentTitle', 'uri');
-    if (uri !== '') {
-        showAddToPlaylist(uri, '');
-    }
-}
-
-//eslint-disable-next-line no-unused-vars
-function showAddToPlaylistCurrentSearch() {
-    showAddToPlaylist('SEARCH', app.current.search);
-}
-
-//eslint-disable-next-line no-unused-vars
-function showAddToPlaylistFromFilesystem() {
-    showAddToPlaylist(app.current.search, '');
-}
-
+/**
+ * Shows the add to playlist modal
+ * @param {String} uri the uri or "STREAM" to add a stream
+ * @param {String} searchstr searchstring for uri = ALBUM, SEARCH
+ */
 function showAddToPlaylist(uri, searchstr) {
     cleanupModalId('modalAddToPlaylist');
     document.getElementById('addToPlaylistUri').value = uri;
@@ -423,6 +507,10 @@ function showAddToPlaylist(uri, searchstr) {
     }
 }
 
+/**
+ * Toggles the view in the add to playlist modal
+ * @param {EventTarget} target 
+ */
 //eslint-disable-next-line no-unused-vars
 function toggleAddToPlaylistFrm(target) {
     toggleBtnGroup(target);
@@ -444,6 +532,9 @@ function toggleAddToPlaylistFrm(target) {
     }
 }
 
+/**
+ * Adds the selected elemens from the "add to playlist" modal to the playlist or queue
+ */
 //eslint-disable-next-line no-unused-vars
 function addToPlaylist() {
     cleanupModalId('modalAddToPlaylist');
@@ -513,6 +604,10 @@ function addToPlaylist() {
     }
 }
 
+/**
+ * Handles the response of "add to playlist" modal
+ * @param {Object} obj jsonrpc response
+ */
 function addToPlaylistClose(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -522,6 +617,13 @@ function addToPlaylistClose(obj) {
     }
 }
 
+/**
+ * Appends an element to a playlist
+ * @param {String} type one of song, stream, dir, search
+ * @param {String} uri uri to add
+ * @param {String} plist playlist to append the uri
+ * @param {Function} callback 
+ */
 function appendPlaylist(type, uri, plist, callback) {
     switch(type) {
         case 'song':
@@ -541,6 +643,14 @@ function appendPlaylist(type, uri, plist, callback) {
     }
 }
 
+/**
+ * Inserts an element to a playlist
+ * @param {String} type one of song, stream, dir, search
+ * @param {String} uri uri to add
+ * @param {String} plist playlist to insert the uri
+ * @param {Number} to position to insert
+ * @param {Function} callback 
+ */
 function insertPlaylist(type, uri, plist, to, callback) {
     switch(type) {
         case 'song':
@@ -562,6 +672,13 @@ function insertPlaylist(type, uri, plist, to, callback) {
     }
 }
 
+/**
+ * Replaces a playlist
+ * @param {String} type one of song, stream, dir, search
+ * @param {String} uri uri to add
+ * @param {String} plist playlist to replace
+ * @param {Function} callback 
+ */
 function replacePlaylist(type, uri, plist, callback) {
     switch(type) {
         case 'song':
@@ -581,6 +698,10 @@ function replacePlaylist(type, uri, plist, callback) {
     }
 }
 
+/**
+ * Shows the rename playlist modal
+ * @param {String} from 
+ */
 //eslint-disable-next-line no-unused-vars
 function showRenamePlaylist(from) {
     cleanupModalId('modalRenamePlaylist');
@@ -589,6 +710,9 @@ function showRenamePlaylist(from) {
     uiElements.modalRenamePlaylist.show();
 }
 
+/**
+ * Renames the playlist
+ */
 //eslint-disable-next-line no-unused-vars
 function renamePlaylist() {
     cleanupModalId('modalRenamePlaylist');
@@ -606,6 +730,10 @@ function renamePlaylist() {
     }
 }
 
+/**
+ * Handles the MYMPD_API_PLAYLIST_RENAME jsonrpc response
+ * @param {Object} obj jsonrpc response
+ */
 function renamePlaylistClose(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -615,6 +743,10 @@ function renamePlaylistClose(obj) {
     }
 }
 
+/**
+ * Shows the settings of the smart playlist
+ * @param {String} plist 
+ */
 //eslint-disable-next-line no-unused-vars
 function showSmartPlaylist(plist) {
     sendAPI("MYMPD_API_SMARTPLS_GET", {
@@ -622,6 +754,10 @@ function showSmartPlaylist(plist) {
     }, parseSmartPlaylist, false);
 }
 
+/**
+ * Updates a smart playlist
+ * @param {String} plist 
+ */
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylist(plist) {
     sendAPI("MYMPD_API_SMARTPLS_UPDATE", {
@@ -629,17 +765,28 @@ function updateSmartPlaylist(plist) {
     }, null, false);
 }
 
+/**
+ * Click handler for update smart playlist
+ */
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
     setUpdateViewId('BrowsePlaylistsDetailList');
     updateSmartPlaylist(getDataId('BrowsePlaylistsDetailList', 'uri'));
 }
 
+/**
+ * Click handler for edit smart playlist
+ */
 //eslint-disable-next-line no-unused-vars
 function editSmartPlaylistClick() {
     showSmartPlaylist(getDataId('BrowsePlaylistsDetailList', 'uri'));
 }
 
+/**
+ * Deletes a playlist and shows a confirmation modal
+ * @param {String} plist playlist to delete
+ * @param {Boolean} smartplsOnly delete only the smart playlist definition
+ */
 //eslint-disable-next-line no-unused-vars
 function showDelPlaylist(plist, smartplsOnly) {
     showConfirm(tn('Do you really want to delete the playlist?', {"playlist": plist}), tn('Yes, delete it'), function() {
@@ -650,6 +797,9 @@ function showDelPlaylist(plist, smartplsOnly) {
     });
 }
 
+/**
+ * Clears a playlist and shows a confirmation modal
+ */
 //eslint-disable-next-line no-unused-vars
 function showClearPlaylist() {
     const plist = getDataId('BrowsePlaylistsDetailList', 'uri');
@@ -661,6 +811,11 @@ function showClearPlaylist() {
     });
 }
 
+/**
+ * Moves a song in the current displayed playlist
+ * @param {Number} from 
+ * @param {Number} to 
+ */
 function playlistMoveSong(from, to) {
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG", {
         "plist": app.current.filter,
@@ -669,18 +824,28 @@ function playlistMoveSong(from, to) {
     }, null, false);
 }
 
+/**
+ * Checks if the playlist is a stored playlist of mpd
+ * @param {String} uri 
+ * @returns true = stored playlist, false = playlist in music directory
+ */
 function isMPDplaylist(uri) {
-    if (uri.indexOf('/') > -1 ||
-        uri.indexOf('.m3u') > -1 ||
-        uri.indexOf('.pls') > -1)
+    if (uri.charAt(1) === '/' ||
+        uri.match(/\.(m3u|pls|asx|xspf)/) !== null)
     {
         return false;
     }
     return true;
 }
 
+/**
+ * Adds the currently displayed playlist to the queue or home screen
+ * @param {String} action one of appendQueue, appendPlayQueue,
+ *                               insertAfterCurrentQueue, replaceQueue,
+ *                               replacePlayQueue, addToHome
+ */
 //eslint-disable-next-line no-unused-vars
-function currentPlaylistToQueue(action) {
+function currentPlaylistAddTo(action) {
     const uri = getDataId('BrowsePlaylistsDetailList', 'uri');
     const type = getDataId('BrowsePlaylistsDetailList', 'type');
     switch(action) {

@@ -227,6 +227,16 @@ function createPopoverTabs(el, tab1Callback, tab2Callback) {
     return popoverInit;
 }
 
+/**
+ * Sets the popover height to 2/3 of screen height
+ * @param {Element} el popover element to resize
+ */
+ function popoverHeight(el) {
+    const mh = window.innerHeight / 3 * 2;
+    el.style.maxHeight = mh + 'px';
+    el.style.overflow = 'auto';
+}
+
 function addDivider(tabContent) {
     if (tabContent.lastChild &&
         tabContent.lastChild.nodeName !== 'div')
@@ -247,7 +257,7 @@ function addMenuItemsNavbarActions(popoverBody, el) {
     const type = el.getAttribute('data-popover');
     switch(type) {
         case 'NavbarPlayback':
-            addMenuItem(popoverBody, {"cmd": "showModal", "options": ["modalQueueSettings"]}, 'Playback settings');
+            addMenuItem(popoverBody, {"cmd": "openModal", "options": ["modalQueueSettings"]}, 'Playback settings');
             addMenuItemsSingleActions(popoverBody);
             addDivider(popoverBody);
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Playback", undefined, undefined]}, 'Show playback');

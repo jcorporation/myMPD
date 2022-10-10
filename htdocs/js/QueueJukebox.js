@@ -3,10 +3,26 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+function handleQueueJukebox() {
+    setFocusId('searchQueueJukeboxStr');
+    sendAPI("MYMPD_API_JUKEBOX_LIST", {
+        "offset": app.current.offset,
+        "limit": app.current.limit,
+        "cols": settings.colsQueueJukeboxFetch,
+        "searchstr": app.current.search
+    }, parseJukeboxList, true);
+    const searchQueueJukeboxStrEl = document.getElementById('searchQueueJukeboxStr');
+    if (searchQueueJukeboxStrEl.value === '' &&
+        app.current.search !== '')
+    {
+        searchQueueJukeboxStrEl.value = app.current.search;
+    }
+}
+
 /**
  * Initializes the jukebox related elements
  */
-function initJukebox() {
+function initQueueJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             if (settings.partition.jukeboxMode === 'song') {

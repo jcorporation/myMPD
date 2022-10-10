@@ -493,7 +493,7 @@ function toggleBtnGroupValueCollapse(btngrp, collapseId, value) {
 /**
  * Toggles a button group by triggering element
  * @param {String} id id of triggered button
- * @returns {HTMLElement} active button
+ * @returns {HTMLElement | EventTarget} active button
  */
 //eslint-disable-next-line no-unused-vars
 function toggleBtnGroupId(id) {
@@ -502,8 +502,8 @@ function toggleBtnGroupId(id) {
 
 /**
  * Toggles a button group by triggering element
- * @param {HTMLElement} btn triggered button
- * @returns {HTMLElement} active button
+ * @param {HTMLElement | EventTarget} btn triggered button
+ * @returns {HTMLElement | EventTarget} active button
  */
 function toggleBtnGroup(btn) {
     const btns = btn.parentNode.querySelectorAll('button');
@@ -633,5 +633,58 @@ function toggleBtnChkCollapse(btn, collapseId, state) {
     }
     else {
         document.getElementById(collapseId).classList.remove('show');
+    }
+}
+
+/**
+ * Aligns a dropdown left or right from the triggering button.
+ * @param {Element | EventTarget} el 
+ */
+ function alignDropdown(el) {
+    const toggleEl = el.querySelector('.dropdown-toggle');
+    const x = getXpos(toggleEl);
+    if (x < domCache.body.offsetWidth * 0.66) {
+        el.querySelector('.dropdown-menu').classList.remove('dropdown-menu-end');
+    }
+    else {
+        el.querySelector('.dropdown-menu').classList.add('dropdown-menu-end');
+    }
+}
+
+/**
+ * Gets the y-scrolling position
+ * @returns {Number}
+ */
+ function getScrollPosY() {
+    if (userAgentData.isMobile === true) {
+        return document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
+    }
+    else {
+        const container = document.getElementById(app.id + 'List');
+        if (container) {
+            return container.parentNode.scrollTop;
+        }
+        else {
+            return 0;
+        }
+    }
+}
+
+/**
+ * Scrolls the container to the y-position
+ * @param {Element | ParentNode} container or null
+ * @param {Number} pos position to scroll
+ */
+function scrollToPosY(container, pos) {
+    if (userAgentData.isMobile === true ||
+        container === null)
+    {
+        // For Safari
+        document.body.scrollTop = pos;
+        // For Chrome, Firefox, IE and Opera
+        document.documentElement.scrollTop = pos;
+    }
+    else {
+        container.scrollTop = pos;
     }
 }

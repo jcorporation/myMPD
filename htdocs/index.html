@@ -381,16 +381,16 @@
               <button data-title-phrase="Update smart playlist" type="button" class="btn btn-secondary mi rounded-end me-2" data-href='{"cmd": "updateSmartPlaylistClick", "options": []}'>refresh</button>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Append to queue" class="btn btn-secondary mi" data-href='{"cmd": "currentPlaylistToQueue", "options": ["appendQueue"]}'>library_add</button>
+              <button data-title-phrase="Append to queue" class="btn btn-secondary mi" data-href='{"cmd": "currentPlaylistAddTo", "options": ["appendQueue"]}'>library_add</button>
               <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
               <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide">
                 <div class="d-grid gap-2">
-                  <button data-phrase="Append to queue" data-href='{"cmd": "currentPlaylistToQueue", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
-                  <button data-phrase="Append to queue and play" data-href='{"cmd": "currentPlaylistToQueue", "options": ["appendPlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
-                  <button data-phrase="Insert after current playing song" data-href='{"cmd": "currentPlaylistToQueue", "options": ["insertAfterCurrentQueue"]}' type="button" class="featWhence btn btn-secondary btn-sm"></button>
-                  <button data-phrase="Replace queue" data-href='{"cmd": "currentPlaylistToQueue", "options": ["replaceQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
-                  <button data-phrase="Replace queue and play" data-href='{"cmd": "currentPlaylistToQueue", "options": ["replacePlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
-                  <button data-phrase="Add to homescreen" data-href='{"cmd": "currentPlaylistToQueue", "options": ["addToHome"]}' type="button" class="btn btn-secondary btn-sm featHome"></button>
+                  <button data-phrase="Append to queue" data-href='{"cmd": "currentPlaylistAddTo", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                  <button data-phrase="Append to queue and play" data-href='{"cmd": "currentPlaylistAddTo", "options": ["appendPlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                  <button data-phrase="Insert after current playing song" data-href='{"cmd": "currentPlaylistAddTo", "options": ["insertAfterCurrentQueue"]}' type="button" class="featWhence btn btn-secondary btn-sm"></button>
+                  <button data-phrase="Replace queue" data-href='{"cmd": "currentPlaylistAddTo", "options": ["replaceQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                  <button data-phrase="Replace queue and play" data-href='{"cmd": "currentPlaylistAddTo", "options": ["replacePlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                  <button data-phrase="Add to homescreen" data-href='{"cmd": "currentPlaylistAddTo", "options": ["addToHome"]}' type="button" class="btn btn-secondary btn-sm featHome"></button>
                 </div>
               </div>
             </div>
@@ -2670,32 +2670,47 @@
 <!--debug-->  <script src="js/elements.js"></script>
 <!--debug-->  <script src="js/pagination.js"></script>
 <!--debug-->  <script src="js/utility.js"></script>
-<!--debug-->  <script src="js/click-actions.js"></script>
-<!--debug-->  <script src="js/custom-elements.js"></script>
+<!--debug-->  <script src="js/images.js"></script>
+<!--debug-->  <script src="js/modal.js"></script>
+<!--debug-->  <script src="js/tags.js"></script>
+<!--debug-->  <script src="js/clickActions.js"></script>
+<!--debug-->  <script src="js/customElements.js"></script>
 <!--debug-->  <script src="js/validate.js"></script>
 <!--debug-->  <script src="js/notification.js"></script>
 <!--debug-->  <script src="js/settings.js"></script>
+<!--debug-->  <script src="js/settingsConnection.js"></script>
+<!--debug-->  <script src="js/settingsPlayback.js"></script>
 <!--debug-->  <script src="js/timer.js"></script>
 <!--debug-->  <script src="js/mounts.js"></script>
 <!--debug-->  <script src="js/partitions.js"></script>
 <!--debug-->  <script src="js/api.js"></script>
+<!--debug-->  <script src="js/session.js"></script>
+<!--debug-->  <script src="js/websocket.js"></script>
 <!--debug-->  <script src="js/tables.js"></script>
-<!--debug-->  <script src="js/search.js"></script>
-<!--debug-->  <script src="js/queue.js"></script>
-<!--debug-->  <script src="js/playlists.js"></script>
-<!--debug-->  <script src="js/browse.js"></script>
+<!--debug-->  <script src="js/Browse.js"></script>
+<!--debug-->  <script src="js/BrowseDatabase.js"></script>
+<!--debug-->  <script src="js/BrowseFilesystem.js"></script>
+<!--debug-->  <script src="js/BrowsePlaylists.js"></script>
+<!--debug-->  <script src="js/BrowseRadioFavorites.js"></script>
+<!--debug-->  <script src="js/BrowseRadioRadiobrowser.js"></script>
+<!--debug-->  <script src="js/BrowseRadioWebradiodb.js"></script>
+<!--debug-->  <script src="js/Home.js"></script>
+<!--debug-->  <script src="js/Playback.js"></script>
+<!--debug-->  <script src="js/QueueCurrent.js"></script>
+<!--debug-->  <script src="js/QueueLastPlayed.js"></script>
+<!--debug-->  <script src="js/QueueJukebox.js"></script>
+<!--debug-->  <script src="js/Search.js"></script>
 <!--debug-->  <script src="js/state.js"></script>
 <!--debug-->  <script src="js/outputs.js"></script>
 <!--debug-->  <script src="js/song.js"></script>
-<!--debug-->  <script src="js/database.js"></script>
+<!--debug-->  <script src="js/updateDB.js"></script>
 <!--debug-->  <script src="js/scripts.js"></script>
 <!--debug-->  <script src="js/trigger.js"></script>
 <!--debug-->  <script src="js/popover.js"></script>
 <!--debug-->  <script src="js/localplayback.js"></script>
-<!--debug-->  <script src="js/home.js"></script>
-<!--debug-->  <script src="js/jukebox.js"></script>
-<!--debug-->  <script src="js/webradio.js"></script>
-<!--debug-->  <script src="js/mympd.js"></script>
+<!--debug-->  <script src="js/maintenance.js"></script>
+<!--debug-->  <script src="js/router.js"></script>
+<!--debug-->  <script src="js/init.js"></script>
 <!--release   <script src="js/combined.js"></script>-->
  </body>
 </html>

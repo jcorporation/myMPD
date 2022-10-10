@@ -3,21 +3,66 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-function initQueue() {
-    document.getElementById('searchQueueLastPlayedStr').addEventListener('keyup', function(event) {
-        clearSearchTimer();
-        if (event.key === 'Escape') {
-            this.blur();
+function handleQueueCurrent() {
+    setFocusId('searchQueueStr');
+    if (features.featAdvqueue === true) {
+        createSearchCrumbs(app.current.search, document.getElementById('searchQueueStr'), document.getElementById('searchQueueCrumb'));
+    }
+    else if (document.getElementById('searchQueueStr').value === '' &&
+        app.current.search !== '')
+    {
+        document.getElementById('searchQueueStr').value = app.current.search;
+    }
+    if (app.current.search === '') {
+        document.getElementById('searchQueueStr').value = '';
+    }
+    if (features.featAdvqueue === true) {
+        if (app.current.sort.tag === '-' ||
+            app.current.sort.tag === 'Pos')
+        {
+            app.current.sort.tag = 'Priority';
+        }
+        sendAPI("MYMPD_API_QUEUE_SEARCH_ADV", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "sort": app.current.sort.tag,
+            "sortdesc": app.current.sort.desc,
+            "expression": app.current.search,
+            "cols": settings.colsQueueCurrentFetch
+        }, parseQueue, true);
+        if (app.current.filter === 'prio') {
+            elShowId('priorityMatch');
+            document.getElementById('searchQueueMatch').value = '>=';
         }
         else {
-            const value = this.value;
-            searchTimer = setTimeout(function() {
-                appGoto(app.current.card, app.current.tab, app.current.view,
-                    0, app.current.limit, app.current.filter, app.current.sort, '-', value);
-            }, searchTimerTimeout);
+            if (getSelectValueId('searchQueueMatch') === '>=') {
+                document.getElementById('searchQueueMatch').value = 'contains';
+            }
+            elHideId('priorityMatch');
         }
-    }, false);
+    }
+    else if (document.getElementById('searchQueueStr').value.length >= 2 ||
+             document.getElementById('searchQueueCrumb').children.length > 0)
+    {
+        sendAPI("MYMPD_API_QUEUE_SEARCH", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "filter": app.current.filter,
+            "searchstr": app.current.search,
+            "cols": settings.colsQueueCurrentFetch
+        }, parseQueue, true);
+    }
+    else {
+        sendAPI("MYMPD_API_QUEUE_LIST", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "cols": settings.colsQueueCurrentFetch
+        }, parseQueue, true);
+    }
+    selectTag('searchQueueTags', 'searchQueueTagsDesc', app.current.filter);
+}
 
+function initQueueCurrent() {
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
         //popover
         if (event.target.nodeName === 'A') {
@@ -47,16 +92,6 @@ function initQueue() {
         const target = getParent(event.target, 'TR');
         if (target !== null) {
             clickQueueSong(getData(target, 'songid'), getData(target, 'uri'));
-        }
-    }, false);
-
-    document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            clickSong(getData(event.target.parentNode, 'uri'));
-        }
-        else if (event.target.nodeName === 'A') {
-            //action td
-            handleActionTdClick(event);
         }
     }, false);
 
@@ -325,20 +360,6 @@ function setPlayingRow(playingRow) {
         }
         playingRow.classList.add('queue-playing');
     }
-}
-
-function parseLastPlayed(obj) {
-    if (checkResultId(obj, 'QueueLastPlayedList') === false) {
-        return;
-    }
-
-    const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
-    updateTable(obj, 'QueueLastPlayed', function(row, data) {
-        setData(row, 'uri', data.uri);
-        setData(row, 'name', data.Title);
-        setData(row, 'type', 'song');
-        row.setAttribute('title', tn(rowTitle));
-    });
 }
 
 function appendQueue(type, uri, callback) {

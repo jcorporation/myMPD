@@ -106,6 +106,45 @@ function fmtSongDuration(secs) {
 }
 
 /**
+ * Sets and fetches the locale and translates the dom
+ * @param {String} newLocale 
+ */
+function setLocale(newLocale) {
+    if (newLocale === 'default') {
+        //auto detection
+        locale = navigator.language || navigator.userLanguage;
+        if (locale.length === 2) {
+            locale += '-';
+        }
+    }
+    else {
+        locale = newLocale;
+    }
+    //check if locale is available
+    let localeFound = false;
+    for (const l in i18n) {
+        if (l === 'default') {
+            continue;
+        }
+        if (l.indexOf(locale) === 0) {
+            locale = l;
+            localeFound = true;
+            break;
+        }
+    }
+    //fallback to default locale
+    if (localeFound === false) {
+        logError('Locale "' + locale + '" not defined');
+        locale = 'en-US';
+    }
+    //get phrases and translate dom
+    httpGet(subdir + '/assets/i18n/' + locale + '.json', function(obj) {
+        phrases = obj;
+        i18nHtml(domCache.body);
+    }, true);
+}
+
+/**
  * Translates all phrases in the dom
  * @param {HTMLElement} root 
  */

@@ -4,6 +4,13 @@
 // https://github.com/jcorporation/mympd
 
 /**
+ * Handles home
+ */
+function handleHome() {
+    sendAPI("MYMPD_API_HOME_ICON_LIST", {}, parseHomeIcons, false);
+}
+
+/**
  * Initializes the home feature elements
  */
 function initHome() {

@@ -3,6 +3,12 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+function initUpdateDB() {
+    document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function() {
+        document.getElementById('updateDBprogress').classList.remove('updateDBprogressAnimate');
+    }, false);
+}
+
 /**
  * Updates or rescans the database
  * @param {String} uri baseuri
