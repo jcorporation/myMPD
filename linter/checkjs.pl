@@ -9,11 +9,13 @@ use strict;
 
 my $used_cmds;
 my $functions;
+my $methodes;
 my @files = ();
+my $file;
 
 #get all cmds from html
-open D, "htdocs/index.html" or die "Can not open \"htdocs/index.html\": $!";
-while (my $line=<D>) {
+open $file, "htdocs/index.html" or die "Can not open \"htdocs/index.html\": $!";
+while (my $line = <$file>) {
     while ($line =~ s/data-href='\{"cmd":\s*"([^"]+)"//g) {
         $used_cmds->{$1} = "index.html";
     }
@@ -33,7 +35,7 @@ closedir $dir;
 
 #get all cmds from javascript
 for my $filename (@files) {
-    open my $file, $filename or die "Can't open file \"$filename\": $!";
+    open $file, $filename or die "Can't open file \"$filename\": $!";
     while (my $line = <$file>) {
         while ($line =~ s/"cmd": "([^"]+)"//g) {
             $used_cmds->{$1} = $filename;
@@ -45,14 +47,24 @@ for my $filename (@files) {
     close($file);
 }
 
+open $file, "src/lib/api.h" or die "Can't open file \"src/lib/api.h\": $!";
+while (my $line = <$file>) {
+    if ($line =~ /^\s+X\(([^)]+)\)/) {
+        $methodes->{$1} = 1;
+    }
+}
+close $file;
+
 #check if all used cmds are defined
 my $rc = 0;
 for my $cmd (keys %$used_cmds) {
     if ($cmd =~ /^MYMPD_API/) {
-        next;
+        if (not defined($methodes->{$cmd})) {
+            print "Method $cmd not defined: $used_cmds->{$cmd}\n";
+        }
     }
-    if (not defined($functions->{$cmd})) {
-        print "$cmd not defined: $used_cmds->{$cmd}\n";
+    elsif (not defined($functions->{$cmd})) {
+        print "Function $cmd not defined: $used_cmds->{$cmd}\n";
         $rc=1;
     }
 }
