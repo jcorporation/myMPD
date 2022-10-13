@@ -231,11 +231,10 @@ function initBrowseDatabase() {
  function parseDatabase(obj) {
     const cardContainer = document.getElementById('BrowseDatabaseListList');
     unsetUpdateView(cardContainer);
-    const cols = cardContainer.querySelectorAll('.col');
 
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,
-            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
+            elCreateTextTn('div', {"class": ["col", "not-clickable", "alert", "alert-warning"]}, obj.error.message, obj.error.data)
         );
         setPagination(0, 0);
         return;
@@ -253,12 +252,14 @@ function initBrowseDatabase() {
     if (cardContainer.querySelector('.not-clickable') !== null) {
         elClear(cardContainer);
     }
+    const cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
         //id is used only to check if card should be refreshed
         const id = obj.result.tag === 'Album' ? genId('database' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist)
                                               : genId('database' + obj.result.data[i].value);
 
-        if (cols[i] !== undefined && cols[i].firstChild.firstChild.getAttribute('id') === id) {
+        if (cols[i] !== undefined &&
+            cols[i].firstChild.firstChild.getAttribute('id') === id) {
             continue;
         }
 
