@@ -31,6 +31,8 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: Segmentation fault when clicking on last played list #850
+- Fix: Scrobble script - artist_mbids MBID format invalid #853
+- Fix: do not show streamUri input on showAddToPlaylistCurrentSong 
 
 ***
 
