@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v10.0.3 (not yet released)
+## myMPD v10.0.3 (2022-10-13)
 
 This is a small bug fix release.
 
