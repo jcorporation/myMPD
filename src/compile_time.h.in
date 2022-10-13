@@ -34,6 +34,7 @@
 #cmakedefine I18N_fi_FI
 #cmakedefine I18N_fr_FR
 #cmakedefine I18N_it_IT
+#cmakedefine I18N_ja_JP
 #cmakedefine I18N_ko_KR
 #cmakedefine I18N_nl_NL
 #cmakedefine I18N_zh_CN

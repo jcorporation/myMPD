@@ -4,6 +4,7 @@ es-VE:Español
 fi-FI:Finnish
 fr-FR:Français
 it-IT:Italiano
+ja-JP:Japanese
 ko-KR:한국어
 nl-NL:Nederlands
 zh-CN:简体中文

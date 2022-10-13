@@ -44,6 +44,9 @@ INCBIN(ligatures_json, "htdocs/assets/ligatures.json.gz");
 #ifdef I18N_it_IT
     INCBIN(i18n_it_IT_json, "htdocs/assets/i18n/it-IT.json.gz");
 #endif
+#ifdef I18N_ja_JP
+    INCBIN(i18n_ja_JP_json, "htdocs/assets/i18n/ja-JP.json.gz");
+#endif
 #ifdef I18N_ko_KR
     INCBIN(i18n_ko_KR_json, "htdocs/assets/i18n/ko-KR.json.gz");
 #endif
