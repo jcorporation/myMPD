@@ -239,62 +239,20 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
     appPrepare();
 
     switch(app.id) {
-        case 'Home': {
-            handleHome();
-            break;
-        }
-        case 'Playback': {
-            handlePlayback();
-            break;
-        }
-        case 'QueueCurrent': {
-            handleQueueCurrent();
-            break;
-        }
-        case 'QueueLastPlayed': {
-            handleQueueLastPlayed();
-            break;
-        }
-        case 'QueueJukebox': {
-            handleQueueJukebox();
-            break;
-        }
-        case 'BrowsePlaylistsList': {
-            handleBrowsePlaylistsList();
-            break;
-        }
-        case 'BrowsePlaylistsDetail': {
-            handleBrowsePlaylistsDetail();
-            break;
-        }
-        case 'BrowseFilesystem': {
-            handleBrowseFilesystem();
-            break;
-        }
-        case 'BrowseDatabaseList': {
-            handleBrowseDatabaseList();
-            break;
-        }
-        case 'BrowseDatabaseDetail': {
-            handleBrowseDatabaseDetail();
-            break;
-        }
-        case 'BrowseRadioFavorites': {
-            handleBrowseRadioFavorites();
-            break;
-        }
-        case 'BrowseRadioWebradiodb': {
-            handleBrowseRadioWebradiodb();
-            break;
-        }
-        case 'BrowseRadioRadiobrowser': {
-            handleBrowseRadioRadiobrowser();
-            break;
-        }
-        case 'Search': {
-            handleSearch();
-            break;
-        }
+        case 'Home':                    handleHome(); break;
+        case 'Playback':                handlePlayback(); break;
+        case 'QueueCurrent':            handleQueueCurrent(); break;
+        case 'QueueLastPlayed':         handleQueueLastPlayed(); break;
+        case 'QueueJukebox':            handleQueueJukebox(); break;
+        case 'BrowsePlaylistsList':     handleBrowsePlaylistsList(); break;
+        case 'BrowsePlaylistsDetail':   handleBrowsePlaylistsDetail(); break;
+        case 'BrowseFilesystem':        handleBrowseFilesystem(); break;
+        case 'BrowseDatabaseList':      handleBrowseDatabaseList(); break;
+        case 'BrowseDatabaseDetail':    handleBrowseDatabaseDetail(); break;
+        case 'BrowseRadioFavorites':    handleBrowseRadioFavorites(); break;
+        case 'BrowseRadioWebradiodb':   handleBrowseRadioWebradiodb(); break;
+        case 'BrowseRadioRadiobrowser': handleBrowseRadioRadiobrowser(); break;
+        case 'Search':                  handleSearch(); break;
         default: {
             let initialStartupView = settings.webuiSettings.uiStartupView;
             if (initialStartupView === undefined ||
