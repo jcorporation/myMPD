@@ -174,7 +174,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
 {
     if (partition_state->mpd_state->album_cache.cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUMS_GET, request_id,
-            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Albumcache not ready");
+            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_WARN, "Albumcache not ready");
         return buffer;
     }
 
