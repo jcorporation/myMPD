@@ -102,7 +102,7 @@ function gotoBrowse(event) {
 /**
  * Go's to the album detail view
  * @param {Array} artist albumartist names
- * @param {String} album album name
+ * @param {string} album album name
  */
 //eslint-disable-next-line no-unused-vars
 function gotoAlbum(artist, album) {
@@ -111,7 +111,7 @@ function gotoAlbum(artist, album) {
 
 /**
  * Go's to a filtered album list
- * @param {String} tag tag to search
+ * @param {string} tag tag to search
  * @param {Array} value array of values to match
  */
 //eslint-disable-next-line no-unused-vars
@@ -134,7 +134,7 @@ function gotoAlbumList(tag, value) {
 
 /**
  * Go's to the filesystem view
- * @param {String} uri uri to list
+ * @param {string} uri uri to list
  * @param {*} type "dir" or "plist"
  */
 //eslint-disable-next-line no-unused-vars

@@ -68,7 +68,7 @@ function clearJukeboxQueue() {
 
 /**
  * Removes a song / album from the jukebox queue
- * @param {Number} pos 
+ * @param {number} pos 
  */
 //eslint-disable-next-line no-unused-vars
 function delQueueJukeboxSong(pos) {
@@ -86,7 +86,7 @@ function delQueueJukeboxSong(pos) {
 
 /**
  * Parses the response from MYMPD_API_JUKEBOX_LIST
- * @param {Object} obj jsonrpc response
+ * @param {object} obj jsonrpc response
  */
 function parseJukeboxList(obj) {
     if (checkResultId(obj, 'QueueJukeboxList') === false) {

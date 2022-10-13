@@ -35,8 +35,7 @@ function initOutputs() {
 
 /**
  * Parses the response of MYMPD_API_PLAYER_OUTPUT_LIST
- * @param {Object} obj jsonrpc response
- * @returns 
+ * @param {object} obj jsonrpc response
  */
 function parseOutputs(obj) {
     const outputList = document.getElementById('outputs');
@@ -85,7 +84,7 @@ function parseOutputs(obj) {
 
 /**
  * Shows the output attributes modal 
- * @param {String} outputName the output name
+ * @param {string} outputName the output name
  */
 function showListOutputAttributes(outputName) {
     cleanupModalId('modalOutputAttributes');
@@ -107,7 +106,7 @@ function showListOutputAttributes(outputName) {
 
 /**
  * Creates the output attributes table content
- * @param {Object} output 
+ * @param {object} output 
  */
 function parseOutputAttributes(output) {
     document.getElementById('modalOutputAttributesId').value = output.id;
@@ -162,7 +161,7 @@ function saveOutputAttributes() {
 
 /**
  * Handler for MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET response
- * @param {Object} obj 
+ * @param {object} obj 
  */
 function saveOutputAttributesClose(obj) {
     if (obj.error) {
@@ -175,7 +174,7 @@ function saveOutputAttributesClose(obj) {
 
 /**
  * Parses the response of MYMPD_API_PLAYER_VOLUME_GET
- * @param {Object} obj 
+ * @param {object} obj 
  */
 function parseVolume(obj) {
     if (obj.result.volume === -1) {

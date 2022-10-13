@@ -5,7 +5,7 @@
 
 /**
  * Opens a modal
- * @param {String} modal 
+ * @param {string} modal name of the modal
  */
 //eslint-disable-next-line no-unused-vars
 function openModal(modal) {
@@ -28,7 +28,7 @@ function openModal(modal) {
 
 /**
  * Removes all invalid indicators and warning messages from a modal with the given id.
- * @param {String} id id of the modal
+ * @param {string} id id of the modal
  */
  function cleanupModalId(id) {
     cleanupModal(document.getElementById(id));
@@ -57,8 +57,8 @@ function cleanupModal(el) {
 
 /**
  * Shows a confirmation modal
- * @param {String} text text to show (already translated)
- * @param {String} btnText text for the yes button (already translated)
+ * @param {string} text text to show (already translated)
+ * @param {string} btnText text for the yes button (already translated)
  * @param {Function} callback callback function on confirmation
  */
  function showConfirm(text, btnText, callback) {
@@ -79,8 +79,8 @@ function cleanupModal(el) {
 /**
  * Shows an inline confirmation (for open modals)
  * @param {Element} el parent element to add the confirmation dialog
- * @param {String} text text to show (already translated)
- * @param {String} btnText text for the yes button (already translated)
+ * @param {string} text text to show (already translated)
+ * @param {string} btnText text for the yes button (already translated)
  * @param {Function} callback callback function on confirmation
  */
 function showConfirmInline(el, text, btnText, callback) {

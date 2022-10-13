@@ -58,7 +58,7 @@ function initMounts() {
 
 /**
  * Unmounts a mount point
- * @param {String} mountPoint 
+ * @param {string} mountPoint 
  */
 //eslint-disable-next-line no-unused-vars
 function unmountMount(mountPoint) {
@@ -92,7 +92,7 @@ function mountMount() {
 
 /**
  * Response handler for MYMPD_API_MOUNT_MOUNT
- * @param {Object} obj 
+ * @param {object} obj 
  */
 function mountMountCheckError(obj) {
     if (obj.error) {
@@ -106,7 +106,7 @@ function mountMountCheckError(obj) {
 /**
  * Updates a mount point
  * @param {HTMLElement | EventTarget} el 
- * @param {String} uri 
+ * @param {string} uri 
  */
 //eslint-disable-next-line no-unused-vars
 function updateMount(el, uri) {
@@ -124,8 +124,8 @@ function updateMount(el, uri) {
 
 /**
  * Shows the edit mount tab from the mount modal
- * @param {String} uri 
- * @param {String} storage 
+ * @param {string} uri 
+ * @param {string} storage 
  */
 //eslint-disable-next-line no-unused-vars
 function showEditMount(uri, storage) {
@@ -162,7 +162,7 @@ function showListMounts() {
 
 /**
  * Parses the MYMPD_API_MOUNT_LIST response
- * @param {Object} obj jsonrpc response object
+ * @param {object} obj jsonrpc response object
  */
 function parseListMounts(obj) {
     const tbody = document.querySelector('#listMountsList');
@@ -208,7 +208,7 @@ function parseListMounts(obj) {
 
 /**
  * Parses the MYMPD_API_MOUNT_NEIGHBOR_LIST response
- * @param {Object} obj jsonrpc response object
+ * @param {object} obj jsonrpc response object
  */
 function parseNeighbors(obj) {
     const dropdownNeighbors = document.getElementById('dropdownNeighbors').children[0];

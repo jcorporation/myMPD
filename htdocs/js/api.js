@@ -6,16 +6,16 @@
 /**
  * This messages are hidden from notifications.
  */
-/** @type {Object} */
+/** @type {object} */
 const ignoreMessages = ['No current song', 'No lyrics found'];
 
 /**
  * Sends a JSON-RPC API request to the selected partition and handles the response.
- * @param {String} method jsonrpc api method
- * @param {Object} params jsonrpc parameters
+ * @param {string} method jsonrpc api method
+ * @param {object} params jsonrpc parameters
  * @param {Function} callback callback function
- * @param {Boolean} onerror true = execute callback also on error
- * @returns {Boolean} true on success, else false
+ * @param {boolean} onerror true = execute callback also on error
+ * @returns {boolean} true on success, else false
  */
  function sendAPI(method, params, callback, onerror) {
     return sendAPIpartition(localSettings.partition, method, params, callback, onerror);
@@ -23,12 +23,12 @@ const ignoreMessages = ['No current song', 'No lyrics found'];
 
 /**
  * Sends a JSON-RPC API request and handles the response.
- * @param {String} partition partition endpoint
- * @param {String} method jsonrpc api method
- * @param {Object} params jsonrpc parameters
+ * @param {string} partition partition endpoint
+ * @param {string} method jsonrpc api method
+ * @param {object} params jsonrpc parameters
  * @param {Function} callback callback function
- * @param {Boolean} onerror true = execute callback also on error
- * @returns {Boolean} true on success, else false
+ * @param {boolean} onerror true = execute callback also on error
+ * @returns {boolean} true on success, else false
  */
 function sendAPIpartition(partition, method, params, callback, onerror) {
     if (APImethods[method] === undefined) {

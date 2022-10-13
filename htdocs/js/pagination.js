@@ -5,8 +5,8 @@
 
 /**
  * Go's to previous or next page
- * @param {String} direction 
- * @param {Number} limit 
+ * @param {string} direction on of next, prev
+ * @param {number} limit maximum entries to display
  */
 function gotoPageDir(direction, limit) {
     let offset = app.current.offset;
@@ -25,8 +25,8 @@ function gotoPageDir(direction, limit) {
 
 /**
  * Go's to page defined by offset
- * @param {Number} offset 
- * @param {Number} limit 
+ * @param {number} offset page offset
+ * @param {number} limit maximum entries to display
  */
  function gotoPage(offset, limit) {
     app.current.offset = offset;
@@ -45,8 +45,8 @@ function gotoPageDir(direction, limit) {
 
 /**
  * Pagination function
- * @param {Number} total number of total entries
- * @param {Number} returned number of returned entries
+ * @param {number} total number of total entries
+ * @param {number} returned number of returned entries
  */
 function setPagination(total, returned) {
     const curPaginationTop = document.getElementById(app.id + 'PaginationTop');
@@ -95,8 +95,8 @@ function setPagination(total, returned) {
 
 /**
  * Creates the pagination elements with the dropdown
- * @param {Number} totalPages 
- * @param {Number} curPage 
+ * @param {number} totalPages number of total pages
+ * @param {number} curPage current page
  * @returns {HTMLElement} button group with pagination
  */
 function createPaginationEls(totalPages, curPage) {

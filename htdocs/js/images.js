@@ -3,16 +3,31 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Gets the background images list and populates the select element
+ */
 function getBgImageList() {
     const list = document.getElementById('inputWebUIsettinguiBgImage');
     getImageList(list, bgImageValues, 'backgrounds');
 }
 
+/**
+ * Gets the list of images and populates the select element
+ * @param {string} selectId id of select to populate
+ * @param {object} addOptions additional options to add
+ * @param {string} type one of thumbs, backgrounds
+ */
 //eslint-disable-next-line no-unused-vars
 function getImageListId(selectId, addOptions, type) {
     getImageList(document.getElementById(selectId), addOptions, type)
 }
 
+/**
+ * Gets the list of images and populates the select element
+ * @param {HTMLElement} sel select element to populate
+ * @param {object} addOptions additional options to add
+ * @param {string} type one of thumbs, backgrounds
+ */
 function getImageList(sel, addOptions, type) {
     sendAPI("MYMPD_API_PICTURE_LIST", {
         "type": type
@@ -27,6 +42,11 @@ function getImageList(sel, addOptions, type) {
     }, false);
 }
 
+/**
+ * Filters the image select
+ * @param {string} elId element id
+ * @param {string} searchstr search string
+ */
 //eslint-disable-next-line no-unused-vars
 function filterImageSelect(elId, searchstr) {
     const select = document.getElementById(elId).filterResult;
@@ -45,8 +65,8 @@ function filterImageSelect(elId, searchstr) {
 
 /**
  * Checks if the uri is defined as an albumart file
- * @param {*} uri 
- * @returns {Boolean}
+ * @param {string} uri uri to check
+ * @returns {boolean} true if it is albumart file, else false
  */
  function isCoverfile(uri) {
     const filename = basename(uri, true);
@@ -69,8 +89,8 @@ function filterImageSelect(elId, searchstr) {
 
 /**
  * Checks if the uri is defined as an albumart thumbnail file
- * @param {*} uri 
- * @returns {Boolean}
+ * @param {string} uri uri to check
+ * @returns {boolean} true if it is albumart thumbnail file, else false
  */
 function isThumbnailfile(uri) {
     const filename = basename(uri, true);
@@ -93,7 +113,7 @@ function isThumbnailfile(uri) {
 
 /**
  * Opens the picture modal
- * @param {HTMLElement} el 
+ * @param {HTMLElement} el image element
  */
 //eslint-disable-next-line no-unused-vars
 function zoomPicture(el) {
@@ -147,11 +167,11 @@ function zoomZoomPicture() {
 
 /**
  * Creates the array of images and creates the image carousel
- * @param {HTMLElement} imgEl 
- * @param {String} name name to construct the image carousel id from
- * @param {*} uri uri of the image
- * @param {Object} images array of additional images
- * @param {Number} embeddedImageCount 
+ * @param {HTMLElement} imgEl element to populate with the carousel
+ * @param {string} name name to construct the image carousel id from
+ * @param {string} uri uri of the image
+ * @param {object} images array of additional images
+ * @param {number} embeddedImageCount number of embedded images
  */
 function createImgCarousel(imgEl, name, uri, images, embeddedImageCount) {
     //embedded albumart
@@ -174,9 +194,9 @@ function createImgCarousel(imgEl, name, uri, images, embeddedImageCount) {
 
 /**
  * Creates the image carousel
- * @param {HTMLElement} imgEl 
- * @param {String} name 
- * @param {Object} images array of all images to display
+ * @param {HTMLElement} imgEl element to populate with the carousel
+ * @param {string} name name to construct the image carousel id from
+ * @param {object} images array of all images to display
  */
 function _createImgCarousel(imgEl, name, images) {
     const nrImages = images.length;

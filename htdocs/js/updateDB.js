@@ -11,10 +11,10 @@ function initUpdateDB() {
 
 /**
  * Updates or rescans the database
- * @param {String} uri baseuri
- * @param {Boolean} showUpdateModal true = open db update modal
- * @param {Boolean} showUpdateNotification true = show update notification
- * @param {Boolean} rescan true = rescan, false = update
+ * @param {string} uri baseuri
+ * @param {boolean} showUpdateModal true = open db update modal
+ * @param {boolean} showUpdateNotification true = show update notification
+ * @param {boolean} rescan true = rescan, false = update
  */
 //eslint-disable-next-line no-unused-vars
 function updateDB(uri, showUpdateModal, showUpdateNotification, rescan) {
@@ -31,8 +31,8 @@ function updateDB(uri, showUpdateModal, showUpdateNotification, rescan) {
 
 /**
  * Update database error handler
- * @param {Boolean} showUpdateModal true = open db update modal
- * @param {String} message the error message
+ * @param {boolean} showUpdateModal true = open db update modal
+ * @param {string} message the error message
  */
 function updateDBerror(showUpdateModal, message) {
     const msg = tn('Database update failed') + ': ' + tn(message);
@@ -53,8 +53,8 @@ function updateDBerror(showUpdateModal, message) {
 
 /**
  * Update database started handler
- * @param {Boolean} showUpdateModal true = open db update modal
- * @param {Boolean} showUpdateNotification true = show update notification
+ * @param {boolean} showUpdateModal true = open db update modal
+ * @param {boolean} showUpdateNotification true = show update notification
  */
 function updateDBstarted(showUpdateModal, showUpdateNotification) {
     if (showUpdateModal === true) {
@@ -76,7 +76,7 @@ function updateDBstarted(showUpdateModal, showUpdateNotification) {
 
 /**
  * Wrapper for update database finished handler that checks for an already opened modal
- * @param {String} idleEvent mpd idle event
+ * @param {string} idleEvent mpd idle event
  */
 function updateDBfinished(idleEvent) {
     if (document.getElementById('modalUpdateDB').classList.contains('show')) {
@@ -92,7 +92,7 @@ function updateDBfinished(idleEvent) {
 
 /**
  * Update database finished handler
- * @param {String} idleEvent mpd idle event
+ * @param {string} idleEvent mpd idle event
  */
 function _updateDBfinished(idleEvent) {
     //spinner in mounts modal

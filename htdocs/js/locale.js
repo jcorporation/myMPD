@@ -5,8 +5,8 @@
 
 /**
  * Checks for singular or plural
- * @param {Number} number 
- * @returns {Number} 0 = singular, 1 = plural
+ * @param {number} number number to check
+ * @returns {number} 0 = singular, 1 = plural
  */
 function checkSmartCount(number) {
     if (number === 1) { return 0; }
@@ -18,9 +18,9 @@ function checkSmartCount(number) {
  * Variables are in the format %{name}
  * Phrase can include singular and plural separated by ||||
  * Singular or plural is detected by the special data key smartCount
- * @param {String} phrase the prase to translate
- * @param {Object} [data] variable data
- * @returns {String}
+ * @param {string} phrase the prase to translate
+ * @param {object} [data] variable data
+ * @returns {string} translated phrase
  */
 function tn(phrase, data) {
     // @ts-ignore
@@ -67,8 +67,8 @@ function tn(phrase, data) {
 
 /**
  * Returns timestamp as formatted date string
- * @param {Number} secs 
- * @returns {String}
+ * @param {number} secs unix timestamp
+ * @returns {string} formatted date
  */
 function fmtDate(secs) {
     return new Date(secs * 1000).toLocaleString(locale);
@@ -76,8 +76,8 @@ function fmtDate(secs) {
 
 /**
  * Returns seconds as formatted duration string
- * @param {Number} secs
- * @returns {String}
+ * @param {number} secs duration to format
+ * @returns {string} formatted duration
  */
 function fmtDuration(secs) {
     const days = Math.floor(secs / 86400);
@@ -93,8 +93,8 @@ function fmtDuration(secs) {
 
 /**
  * Returns seconds as formatted song duration string
- * @param {Number} secs
- * @returns {String}
+ * @param {number} secs duration to format
+ * @returns {string} formatted song duration
  */
 function fmtSongDuration(secs) {
     const hours = Math.floor(secs / 3600);
@@ -107,7 +107,7 @@ function fmtSongDuration(secs) {
 
 /**
  * Sets and fetches the locale and translates the dom
- * @param {String} newLocale 
+ * @param {string} newLocale locale to set
  */
 function setLocale(newLocale) {
     if (newLocale === 'default') {
@@ -146,7 +146,7 @@ function setLocale(newLocale) {
 
 /**
  * Translates all phrases in the dom
- * @param {HTMLElement} root 
+ * @param {HTMLElement} root root element to translate
  */
 function i18nHtml(root) {
     const attributes = [

@@ -14,7 +14,7 @@ function initLocalPlayback() {
 
 /**
  * Changes the local volume by +/-10%
- * @param {String} dir direction, up or down
+ * @param {string} dir direction, up or down
  */
 //eslint-disable-next-line no-unused-vars
 function localPlaybackVolumeStep(dir) {
@@ -33,7 +33,7 @@ function localPlaybackVolumeStep(dir) {
 
 /**
  * Sets local playback volume
- * @param {Number} volume 
+ * @param {number} volume 
  */
 function setLocalPlaybackVolume(volume) {
     // @ts-ignore
@@ -42,7 +42,7 @@ function setLocalPlaybackVolume(volume) {
 
 /**
  * Sets the local playback state
- * @param {String} newState one of play, stop, pause
+ * @param {string} newState one of play, stop, pause
  */
 function controlLocalPlayback(newState) {
     if (features.featLocalPlayback === false ||

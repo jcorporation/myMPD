@@ -24,9 +24,9 @@ function setStateIcon() {
 
 /**
  * Toggles and sets/clears the message of the top alertBox
- * @param {String} alertBoxId the id of alertBox to toggle
- * @param {Boolean} state false = hides the alertBox, true = shows the alertBox
- * @param {*} msg already translated message
+ * @param {string} alertBoxId the id of alertBox to toggle
+ * @param {boolean} state false = hides the alertBox, true = shows the alertBox
+ * @param {string} msg already translated message
  */
 function toggleAlert(alertBoxId, state, msg) {
     const alertBoxEl = document.querySelector('#' + alertBoxId);
@@ -49,7 +49,7 @@ function toggleAlert(alertBoxId, state, msg) {
 
 /**
  * Notification severities
- * @type {Object}
+ * @type {object}
  */
 const severities = {
     "info": {
@@ -71,7 +71,7 @@ const severities = {
 
 /**
  * Notification facilities
- * @type {Object}
+ * @type {object}
  */
 const facilities = {
     "database": "Database",
@@ -92,7 +92,7 @@ const facilities = {
 
 /**
  * Creates a severity icon
- * @param {String} severity 
+ * @param {string} severity 
  * @returns {HTMLElement}
  */
 function createSeverityIcon(severity) {
@@ -102,10 +102,10 @@ function createSeverityIcon(severity) {
 
 /**
  * Shows a toast notification or an appinit alert
- * @param {String} title 
- * @param {String} text 
- * @param {String} facility 
- * @param {String} severity 
+ * @param {string} title title of the notification 
+ * @param {string} text notification text
+ * @param {string} facility facility
+ * @param {string} severity one off info, warn, error
  */
 function showNotification(title, text, facility, severity) {
     if (appInited === false) {
@@ -163,10 +163,10 @@ function showNotification(title, text, facility, severity) {
 
 /**
  * Appends a log message to the log buffer
- * @param {String} title 
- * @param {String} text 
- * @param {String} facility 
- * @param {String} severity 
+ * @param {string} title title
+ * @param {string} text message
+ * @param {string} facility facility
+ * @param {string} severity one off info, warn, error
  */
 function logMessage(title, text, facility, severity) {
     let messagesLen = messages.length;
@@ -233,7 +233,7 @@ function showMessages() {
 
 /**
  * Checks for web notification support
- * @returns true if web notifications are supported, else false
+ * @returns {boolean} true if web notifications are supported, else false
  */
 function notificationsSupported() {
     return "Notification" in window;
@@ -241,8 +241,8 @@ function notificationsSupported() {
 
 /**
  * Toggles the disabled state of elements
- * @param {String} selector 
- * @param {String} state 
+ * @param {string} selector query selector
+ * @param {string} state disabled or enabled
  */
 function setElsState(selector, state) {
     const els = document.querySelectorAll(selector);
@@ -335,7 +335,7 @@ function toggleTopAlert() {
 
 /**
  * Shows an alert in a modal
- * @param {Object} obj jsonrpc error response
+ * @param {object} obj jsonrpc error response
  */
 function showModalAlert(obj) {
     const aModal = getOpenModal();

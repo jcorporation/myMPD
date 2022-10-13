@@ -5,8 +5,8 @@
 
 /**
  * Central logging function
- * @param {Number} loglevel 
- * @param {String} message 
+ * @param {number} loglevel the numeric loglevel: 0 = error, 1 = warn, 2 = info, 3 = verbose, 4 = debug
+ * @param {string} message message to log
  */
 function logLog(loglevel, message) {
     if (settings.loglevel >= loglevel) {
@@ -21,8 +21,8 @@ function logLog(loglevel, message) {
 
 /**
  * Logs a message by jsonrpc severity
- * @param {String} severity
- * @param {String} message
+ * @param {string} severity jsonrpc severity, on off error, warn, info
+ * @param {string} message message to log
  */
 function logSeverity(severity, message) {
     switch (severity) {
@@ -34,7 +34,7 @@ function logSeverity(severity, message) {
 
 /**
  * Logs an error message
- * @param {String} message 
+ * @param {string} message message to log
  */
 //eslint-disable-next-line no-unused-vars
 function logError(message) {
@@ -43,7 +43,7 @@ function logError(message) {
 
 /**
  * Logs a warn message
- * @param {String} message 
+ * @param {string} message message to log
  */
 //eslint-disable-next-line no-unused-vars
 function logWarn(message) {
@@ -52,7 +52,7 @@ function logWarn(message) {
 
 /**
  * Logs an info message
- * @param {String} message 
+ * @param {string} message message to log
  */
 //eslint-disable-next-line no-unused-vars
 function logInfo(message) {
@@ -61,7 +61,7 @@ function logInfo(message) {
 
 /**
  * Logs a verbose message
- * @param {String} message 
+ * @param {string} message message to log
  */
 //eslint-disable-next-line no-unused-vars
 function logVerbose(message) {
@@ -70,7 +70,7 @@ function logVerbose(message) {
 
 /**
  * Logs a debug message
- * @param {String} message 
+ * @param {string} message message to log
  */
 //eslint-disable-next-line no-unused-vars
 function logDebug(message) {

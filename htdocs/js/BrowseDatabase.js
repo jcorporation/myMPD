@@ -226,7 +226,7 @@ function initBrowseDatabase() {
 
 /**
  * Parsed the MYMPD_API_DATABASE_ALBUMS_GET and MYMPD_API_DATABASE_TAG_LIST response
- * @param {Object} obj jsonrpc response object
+ * @param {object} obj jsonrpc response object
  */
  function parseDatabase(obj) {
     const cardContainer = document.getElementById('BrowseDatabaseListList');
@@ -328,8 +328,8 @@ function initBrowseDatabase() {
 
 /**
  * Callback function for intersection observer to lazy load cover images
- * @param {Object} changes IntersectionObserverEntry objects
- * @param {Object} observer IntersectionObserver
+ * @param {object} changes IntersectionObserverEntry objects
+ * @param {object} observer IntersectionObserver
  */
 function setGridImage(changes, observer) {
     changes.forEach(change => {
@@ -347,7 +347,7 @@ function setGridImage(changes, observer) {
 
 /**
  * Adds the album play button
- * @param {HTMLElement | ChildNode} parentEl parent element for the button
+ * @param {ChildNode | HTMLElement} parentEl parent element for the button
  */
 function addAlbumPlayButton(parentEl) {
     const div = pEl.coverPlayBtn.cloneNode(true);
@@ -361,7 +361,7 @@ function addAlbumPlayButton(parentEl) {
 
 /**
  * Parses the MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST response
- * @param {Object} obj jsonrpc response object
+ * @param {object} obj jsonrpc response object
  */
 function parseAlbumDetails(obj) {
     const table = document.getElementById('BrowseDatabaseDetailList');
@@ -462,7 +462,7 @@ function backToAlbumGrid() {
 
 /**
  * Wrapper for _addAlbum for add buttons in the album detail view
- * @param {String} action action to perform
+ * @param {string} action action to perform
  */
 //eslint-disable-next-line no-unused-vars
 function addAlbum(action) {
@@ -475,7 +475,7 @@ function addAlbum(action) {
  * Wrapper for _addAlbum for home icon action.
  * @param {*} type not used
  * @param {Array} albumArtist array of albumartists
- * @param {String} album album name
+ * @param {string} album album name
  */
 //eslint-disable-next-line no-unused-vars
 function appendQueueAlbum(type, albumArtist, album) {
@@ -488,7 +488,7 @@ function appendQueueAlbum(type, albumArtist, album) {
  * Wrapper for _addAlbum for home icon action.
  * @param {*} type not used
  * @param {Array} albumArtist array of albumartists
- * @param {String} album album name
+ * @param {string} album album name
  */
 //eslint-disable-next-line no-unused-vars
 function appendPlayQueueAlbum(type, albumArtist, album) {
@@ -501,7 +501,7 @@ function appendPlayQueueAlbum(type, albumArtist, album) {
  * Wrapper for _addAlbum for home icon action.
  * @param {*} type not used
  * @param {Array} albumArtist array of albumartists
- * @param {String} album album name
+ * @param {string} album album name
  */
 //eslint-disable-next-line no-unused-vars
 function replaceQueueAlbum(type, albumArtist, album) {
@@ -514,7 +514,7 @@ function replaceQueueAlbum(type, albumArtist, album) {
  * Wrapper for _addAlbum for home icon action.
  * @param {*} type not used
  * @param {Array} albumArtist array of albumartists
- * @param {String} album album name
+ * @param {string} album album name
  */
 //eslint-disable-next-line no-unused-vars
 function replacePlayQueueAlbum(type, albumArtist, album) {
@@ -527,7 +527,7 @@ function replacePlayQueueAlbum(type, albumArtist, album) {
  * Wrapper for _addAlbum for home icon action.
  * @param {*} type not used
  * @param {Array} albumArtist array of albumartists
- * @param {String} album album name
+ * @param {string} album album name
  */
 //eslint-disable-next-line no-unused-vars
 function insertAfterCurrentQueueAlbum(type, albumArtist, album) {
@@ -540,7 +540,7 @@ function insertAfterCurrentQueueAlbum(type, albumArtist, album) {
  * Wrapper for _addAlbum for home icon action.
  * @param {*} type not used
  * @param {Array} albumArtist array of albumartists
- * @param {String} album album name
+ * @param {string} album album name
  */
 //eslint-disable-next-line no-unused-vars
 function insertPlayAfterCurrentQueueAlbum(type, albumArtist, album) {
@@ -550,10 +550,10 @@ function insertPlayAfterCurrentQueueAlbum(type, albumArtist, album) {
 
 /**
  * Adds an album to the queue or a playlist
- * @param {String} action action to perform
+ * @param {string} action action to perform
  * @param {Array} albumArtist array of albumartists
- * @param {String} album album name
- * @param {String} disc optional disc number, "undefined" to add the whole album
+ * @param {string} album album name
+ * @param {string} disc optional disc number, "undefined" to add the whole album
  */
 function _addAlbum(action, albumArtist, album, disc) {
     let expression = '((Album == \'' + escapeMPD(album) + '\')';

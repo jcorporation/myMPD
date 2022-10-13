@@ -5,10 +5,10 @@
 
 /**
  * Shortcut for elCreateTextTn for smartCount only
- * @param {String} tagName 
- * @param {Object} attributes 
- * @param {String} text 
- * @param {Number} smartCount 
+ * @param {string} tagName name of the tag to create
+ * @param {object} attributes attributes to set
+ * @param {string} text phrase to translate
+ * @param {number} smartCount smart number for translation
  * @returns {HTMLElement} created dom node
  */
 function elCreateTextTnNr(tagName, attributes, text, smartCount) {
@@ -18,10 +18,10 @@ function elCreateTextTnNr(tagName, attributes, text, smartCount) {
 
 /**
  * Creates and translates a html element
- * @param {String} tagName name of the tag
- * @param {Object} attributes tag attributes
- * @param {String} text text phrase to translate
- * @param {Object} data object to resolve variables from the phrase
+ * @param {string} tagName name of the tag to create
+ * @param {object} attributes tag attributes
+ * @param {string} text text phrase to translate
+ * @param {object} data object to resolve variables from the phrase
  * @returns {HTMLElement} created dom node
  */
 function elCreateTextTn(tagName, attributes, text, data) {
@@ -41,9 +41,9 @@ function elCreateTextTn(tagName, attributes, text, data) {
 
 /**
  * Creates a html element with text content
- * @param {String} tagName name of the tag
- * @param {Object} attributes tag attributes
- * @param {String} text text phrase to translate
+ * @param {string} tagName name of the tag
+ * @param {object} attributes tag attributes
+ * @param {string} text text phrase to translate
  * @returns {HTMLElement} created dom node
  */
 function elCreateText(tagName, attributes, text) {
@@ -57,8 +57,8 @@ function elCreateText(tagName, attributes, text) {
 
 /**
  * Creates a html element with a child node
- * @param {String} tagName name of the tag
- * @param {Object} attributes tag attributes
+ * @param {string} tagName name of the tag
+ * @param {object} attributes tag attributes
  * @param {Element | Node} node node to add as child
  * @returns {HTMLElement} created dom node
  */
@@ -70,9 +70,9 @@ function elCreateNode(tagName, attributes, node) {
 
 /**
  * Creates a html element with child nodes
- * @param {String} tagName name of the tag
- * @param {Object} attributes tag attributes
- * @param {Object} nodes array of nodes to add as childs
+ * @param {string} tagName name of the tag
+ * @param {object} attributes tag attributes
+ * @param {object} nodes array of nodes to add as childs
  * @returns {HTMLElement} created dom node
  */
 function elCreateNodes(tagName, attributes, nodes) {
@@ -87,8 +87,8 @@ function elCreateNodes(tagName, attributes, nodes) {
 
 /**
  * Creates an empty html element
- * @param {String} tagName name of the tag
- * @param {Object} attributes tag attributes
+ * @param {string} tagName name of the tag
+ * @param {object} attributes tag attributes
  * @returns {HTMLElement} created dom node
  */
 function elCreateEmpty(tagName, attributes) {
@@ -110,7 +110,7 @@ function elCreateEmpty(tagName, attributes) {
 
 /**
  * Clears the element with given id and appends the new child
- * @param {String} id id of the parent element
+ * @param {string} id id of the parent element
  * @param {Element | Node} child element to add
  */
 function elReplaceChildId(id, child) {
@@ -129,7 +129,7 @@ function elReplaceChild(el, child) {
 
 /**
  * Hides the element with the given id
- * @param {String} id element id
+ * @param {string} id element id
  */
 function elHideId(id) {
     document.getElementById(id).classList.add('d-none');
@@ -137,7 +137,7 @@ function elHideId(id) {
 
 /**
  * Shows the element with the given id
- * @param {String} id element id
+ * @param {string} id element id
  */
 function elShowId(id) {
     document.getElementById(id).classList.remove('d-none');
@@ -145,7 +145,7 @@ function elShowId(id) {
 
 /**
  * Clears the element with the given id
- * @param {String} id element id
+ * @param {string} id element id to clear
  */
 function elClearId(id) {
     document.getElementById(id).textContent = '';
@@ -153,7 +153,7 @@ function elClearId(id) {
 
 /**
  * Hides the element
- * @param {Element | EventTarget} el 
+ * @param {Element | EventTarget} el element to hide
  */
 function elHide(el) {
     el.classList.add('d-none');
@@ -161,7 +161,7 @@ function elHide(el) {
 
 /**
  * Shows the element
- * @param {Element} el 
+ * @param {Element} el element to show
  */
 function elShow(el) {
     el.classList.remove('d-none');
@@ -169,7 +169,7 @@ function elShow(el) {
 
 /**
  * Clears the element
- * @param {Element} el 
+ * @param {Element} el element to clear
  */
 function elClear(el) {
     el.textContent = '';
@@ -177,7 +177,7 @@ function elClear(el) {
 
 /**
  * Disables the element with the given id
- * @param {String} id element id
+ * @param {string} id element id
  */
 function elDisableId(id) {
     document.getElementById(id).setAttribute('disabled', 'disabled');
@@ -185,7 +185,7 @@ function elDisableId(id) {
 
 /**
  * Disables the element
- * @param {Node} el 
+ * @param {Node} el element to disable
  */
 function elDisable(el) {
     el.setAttribute('disabled', 'disabled');
@@ -196,7 +196,7 @@ function elDisable(el) {
 
 /**
  * Enables the element with the given id
- * @param {String} id element id
+ * @param {string} id element id
  */
 function elEnableId(id) {
     document.getElementById(id).removeAttribute('disabled');
@@ -204,7 +204,7 @@ function elEnableId(id) {
 
 /**
  * Enables the element
- * @param {Element | Node} el 
+ * @param {Element | Node} el element to enable
  */
 function elEnable(el) {
     el.removeAttribute('disabled');
@@ -213,8 +213,8 @@ function elEnable(el) {
 
 /**
  * Triggers a layout reflow
- * @param {Element} el 
- * @returns {Number} element height
+ * @param {Element} el element to trigger the reflow
+ * @returns {number} element height
  */
 function elReflow(el) {
     return el.offsetHeight;
@@ -222,7 +222,7 @@ function elReflow(el) {
 
 /**
  * Sets the focus on the element with given id
- * @param {String} id 
+ * @param {string} id element id
  */
  function setFocusId(id) {
     setFocus(document.getElementById(id));
@@ -230,7 +230,7 @@ function elReflow(el) {
 
 /**
  * Set the focus on the given element.
- * @param {HTMLElement} el 
+ * @param {HTMLElement} el element to focus
  */
 function setFocus(el) {
     if (userAgentData.isMobile === false) {
@@ -240,8 +240,8 @@ function setFocus(el) {
 
 /**
  * Sets an attribute on the element given by id.
- * @param {String} id element id
- * @param {String} attribute 
+ * @param {string} id element id
+ * @param {string} attribute attribute name
  * @param {*} value could be any type
  */
 function setDataId(id, attribute, value) {
@@ -250,8 +250,8 @@ function setDataId(id, attribute, value) {
 
 /**
  * Sets an attribute on the given element.
- * @param {Element | Node} el
- * @param {String} attribute 
+ * @param {Element | Node} el element
+ * @param {string} attribute attribute name
  * @param {*} value could be any type
  */
 function setData(el, attribute, value) {
@@ -260,8 +260,8 @@ function setData(el, attribute, value) {
 
 /**
  * Gets the attributes value from the element given by id.
- * @param {String} id element id
- * @param {String} attribute 
+ * @param {string} id element id
+ * @param {string} attribute attribute name
  * @returns {*} attribute value
  */
 function getDataId(id, attribute) {
@@ -270,8 +270,8 @@ function getDataId(id, attribute) {
 
 /**
  * Gets the attributes value from the element
- * @param {Element | EventTarget} el
- * @param {String} attribute 
+ * @param {Element | EventTarget} el element
+ * @param {string} attribute attribute name
  * @returns {*} attribute value
  */
 function getData(el, attribute) {
@@ -290,8 +290,8 @@ function getData(el, attribute) {
 
 /**
  * Gets the value of the selected option of a select element
- * @param {String} id element id
- * @returns {String}
+ * @param {string} id element id
+ * @returns {string} selected option value
  */
 function getSelectValueId(id) {
     return getSelectValue(document.getElementById(id));
@@ -299,8 +299,8 @@ function getSelectValueId(id) {
 
 /**
  * Gets the value of the selected option of a select element
- * @param {Element | EventTarget} el 
- * @returns {String}
+ * @param {Element | EventTarget} el element
+ * @returns {string} selected option value
  */
 function getSelectValue(el) {
     if (el && el.selectedIndex >= 0) {
@@ -311,9 +311,9 @@ function getSelectValue(el) {
 
 /**
  * Gets the attribute value of the selected option of a select element
- * @param {String} id 
- * @param {String} attribute 
- * @returns {*}
+ * @param {string} id element id
+ * @param {string} attribute attribute name
+ * @returns {*} selected option data value
  */
 function getSelectedOptionDataId(id, attribute) {
     return getSelectedOptionData(document.getElementById(id), attribute)
@@ -321,9 +321,9 @@ function getSelectedOptionDataId(id, attribute) {
 
 /**
  * Gets the attribute value of the selected option of a select element
- * @param {Element} el 
- * @param {String} attribute 
- * @returns {*}
+ * @param {Element} el element
+ * @param {string} attribute attribute name
+ * @returns {*} selected option data value
  */
 function getSelectedOptionData(el, attribute) {
     if (el && el.selectedIndex >= 0) {
@@ -334,8 +334,8 @@ function getSelectedOptionData(el, attribute) {
 
 /**
  * Gets the value of the checked radio box
- * @param {String} id 
- * @returns {String} radio box value
+ * @param {string} id element id
+ * @returns {string} radio box value
  */
 function getRadioBoxValueId(id) {
     return getRadioBoxValue(document.getElementById(id));
@@ -343,8 +343,8 @@ function getRadioBoxValueId(id) {
 
 /**
  * Gets the value of the checked radio box
- * @param {Element} el
- * @returns {String} radio box value
+ * @param {Element} el element
+ * @returns {string} radio box value
  */
 function getRadioBoxValue(el) {
     const radiobuttons = el.querySelectorAll('.form-check-input');
@@ -357,8 +357,8 @@ function getRadioBoxValue(el) {
 
 /**
  * Gets the x-position of the given element
- * @param {Element} el 
- * @returns {Number} x-position
+ * @param {Element} el element
+ * @returns {number} x-position
  */
 function getXpos(el) {
     let xPos = 0;
@@ -371,8 +371,8 @@ function getXpos(el) {
 
 /**
  * Gets the y-position of the given element
- * @param {Element | ParentNode} el 
- * @returns {Number} y-position
+ * @param {Element | ParentNode} el element
+ * @returns {number} y-position
  */
 function getYpos(el) {
     let yPos = 0;
@@ -385,9 +385,9 @@ function getYpos(el) {
 
 /**
  * Returns the nearest parent of type nodeName
- * @param {HTMLElement | EventTarget} el 
- * @param {String} nodeName 
- * @returns {ParentNode}
+ * @param {HTMLElement | EventTarget} el start element for search
+ * @param {string} nodeName nodeName to search
+ * @returns {HTMLElement} the nearest parent node with the given nodeName
  */
  function getParent(el, nodeName) {
     let target = el;
@@ -405,8 +405,8 @@ function getYpos(el) {
 
 /**
  * Adds a waiting animation to a button
- * @param {String} id id of the button
- * @param {Boolean} waiting true = add animation, false = remove animation
+ * @param {string} id id of the button
+ * @param {boolean} waiting true = add animation, false = remove animation
  */
  function btnWaitingId(id, waiting) {
     btnWaiting(document.getElementById(id), waiting);
@@ -415,7 +415,7 @@ function getYpos(el) {
 /**
  * Adds a waiting animation to a button
  * @param {HTMLElement} btn id of the button
- * @param {Boolean} waiting true = add animation, false = remove animation
+ * @param {boolean} waiting true = add animation, false = remove animation
  */
 function btnWaiting(btn, waiting) {
     if (waiting === true) {
@@ -441,8 +441,8 @@ function btnWaiting(btn, waiting) {
 
 /**
  * Toggles a button group by value
- * @param {String} id button group id
- * @param {String | Number} value value to select
+ * @param {string} id button group id
+ * @param {string | number} value value to select
  * @returns {HTMLElement} selected button
  */
 function toggleBtnGroupValueId(id, value) {
@@ -452,7 +452,7 @@ function toggleBtnGroupValueId(id, value) {
 /**
  * Toggles a button group by value
  * @param {Element} btngrp button group to toggle
- * @param {String | Number} value value to select
+ * @param {string | number} value value to select
  * @returns {HTMLElement} selected button
  */
 function toggleBtnGroupValue(btngrp, value) {
@@ -477,8 +477,8 @@ function toggleBtnGroupValue(btngrp, value) {
 /**
  * Toggles a button group by value and toggle a collapse
  * @param {Element} btngrp button group to toggle
- * @param {String} collapseId id of element to collapse
- * @param {String | Number} value value to select
+ * @param {string} collapseId id of element to collapse
+ * @param {string | number} value value to select
  */
 function toggleBtnGroupValueCollapse(btngrp, collapseId, value) {
     const activeBtn = toggleBtnGroupValue(btngrp, value);
@@ -492,7 +492,7 @@ function toggleBtnGroupValueCollapse(btngrp, collapseId, value) {
 
 /**
  * Toggles a button group by triggering element
- * @param {String} id id of triggered button
+ * @param {string} id id of triggered button
  * @returns {HTMLElement | EventTarget} active button
  */
 //eslint-disable-next-line no-unused-vars
@@ -521,7 +521,7 @@ function toggleBtnGroup(btn) {
 /**
  * Toggles a button group by triggering element and toggle a collapse
  * @param {HTMLElement} el triggering button 
- * @param {String} collapseId id of element to collapse
+ * @param {string} collapseId id of element to collapse
  */
 //eslint-disable-next-line no-unused-vars
 function toggleBtnGroupCollapse(el, collapseId) {
@@ -538,8 +538,8 @@ function toggleBtnGroupCollapse(el, collapseId) {
 
 /**
  * Gets the value from the active button in a button group
- * @param {String} id id of the button group
- * @returns {*} value
+ * @param {string} id id of the button group
+ * @returns {*} value the value of the active button
  */
 function getBtnGroupValueId(id) {
     let activeBtn = document.querySelector('#' + id + ' > .active');
@@ -558,7 +558,7 @@ function toggleBtnId(id, state) {
 /**
  * Toggles the active state of a button
  * @param {HTMLElement | EventTarget} btn button to toggle
- * @param {Boolean | Number} state true = active, false = inactive 
+ * @param {boolean | number} state true = active, false = inactive 
  */
 function toggleBtn(btn, state) {
     if (state === undefined) {
@@ -578,8 +578,8 @@ function toggleBtn(btn, state) {
 
 /**
  * Toggles a check button
- * @param {String} id id of the button to toggle
- * @param {Boolean} state true = active, false = inactive 
+ * @param {string} id id of the button to toggle
+ * @param {boolean} state true = active, false = inactive 
  */
 function toggleBtnChkId(id, state) {
     toggleBtnChk(document.getElementById(id), state);
@@ -588,7 +588,8 @@ function toggleBtnChkId(id, state) {
 /**
  * Toggles a check button
  * @param {HTMLElement | EventTarget} btn the button to toggle
- * @param {Boolean | Number} state true = active, false = inactive 
+ * @param {boolean | number} state true = active, false = inactive 
+ * @returns {boolean} true if button is checked, else false
  */
 function toggleBtnChk(btn, state) {
     if (state === undefined) {
@@ -612,9 +613,9 @@ function toggleBtnChk(btn, state) {
 
 /**
  * Toggles a check button and an assigned collapse
- * @param {String} id the id of the triggering button
- * @param {String} collapseId id of element to collapse
- * @param {Boolean | Number} state true = active, false = inactive 
+ * @param {string} id the id of the triggering button
+ * @param {string} collapseId id of element to collapse
+ * @param {boolean | number} state true = active, false = inactive 
  */
 function toggleBtnChkCollapseId(id, collapseId, state) {
     toggleBtnChkCollapse(document.getElementById(id), collapseId, state);
@@ -623,8 +624,8 @@ function toggleBtnChkCollapseId(id, collapseId, state) {
 /**
  * Toggles a check button and an assigned collapse
  * @param {HTMLElement} btn triggering button
- * @param {String} collapseId id of element to collapse
- * @param {Boolean | Number} state true = active, false = inactive 
+ * @param {string} collapseId id of element to collapse
+ * @param {boolean | number} state true = active, false = inactive 
  */
 function toggleBtnChkCollapse(btn, collapseId, state) {
     const checked = toggleBtnChk(btn, state);
@@ -638,7 +639,7 @@ function toggleBtnChkCollapse(btn, collapseId, state) {
 
 /**
  * Aligns a dropdown left or right from the triggering button.
- * @param {Element | EventTarget} el 
+ * @param {Element | EventTarget} el dropdown element
  */
  function alignDropdown(el) {
     const toggleEl = el.querySelector('.dropdown-toggle');
@@ -653,7 +654,7 @@ function toggleBtnChkCollapse(btn, collapseId, state) {
 
 /**
  * Gets the y-scrolling position
- * @returns {Number}
+ * @returns {number} the vertical scrolling position
  */
  function getScrollPosY() {
     if (userAgentData.isMobile === true) {
@@ -671,9 +672,9 @@ function toggleBtnChkCollapse(btn, collapseId, state) {
 }
 
 /**
- * Scrolls the container to the y-position
+ * Scrolls the container or the window to the y-position
  * @param {Element | ParentNode} container or null
- * @param {Number} pos position to scroll
+ * @param {number} pos position to scroll to
  */
 function scrollToPosY(container, pos) {
     if (userAgentData.isMobile === true ||

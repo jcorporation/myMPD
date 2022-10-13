@@ -26,7 +26,7 @@ pEl.coverPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-
 /**
  * Initializes all elements with data-is attribute
  * We do not use the custom element is="" feature - safari does not support it
- * @param {Element} parent 
+ * @param {Element} parent root element to find custom elements
  */
 function initElements(parent) {
     for (const el of parent.querySelectorAll('[data-is]')) {
@@ -36,8 +36,8 @@ function initElements(parent) {
 
 /**
  * Initializes a custom element
- * @param {Element} el 
- * @param {String} elType type of the custom element
+ * @param {Element} el elment
+ * @param {string} elType type of the custom element
  */
 function initElement(el, elType) {
     switch(elType) {
@@ -59,7 +59,7 @@ function initElement(el, elType) {
 
 /**
  * Creates an input element with clear button
- * @param {Element} el 
+ * @param {Element} el element
  */
 function setInputClear(el) {
     const button = elCreateText('button', {"data-title-phrase": "Clear", "class": ["mi", "mi-small", "input-inner-button"]}, 'clear');
@@ -100,7 +100,7 @@ function setInputClear(el) {
 
 /**
  * Creates an input element with reset to default button
- * @param {Element} el 
+ * @param {Element} el element
  */
 function setInputReset(el) {
     const button = elCreateText('button', {"data-title-phrase": "Reset to default", "class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
@@ -128,7 +128,7 @@ function setInputReset(el) {
 
 /**
  * Creates an password input element with show button
- * @param {Element} el 
+ * @param {Element} el element
  */
 function setInputPassword(el) {
     const button = elCreateText('button', {"data-title-phrase": "Show or hide", "class": ["mi", "mi-small", "input-inner-button"]}, 'visibility');
@@ -160,7 +160,7 @@ function setInputPassword(el) {
 
 /**
  * Creates an combined select + input element from an input element
- * @param {Element} el 
+ * @param {Element} el element
  */
 function setSelectSearch(el) {
     const filterInput = elCreateEmpty('input', {"class": ["form-control", "form-control-sm", "mb-1"], "data-placeholder-phrase": "Filter", "placeholder": tn('Filter')});

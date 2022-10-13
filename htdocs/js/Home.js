@@ -218,7 +218,7 @@ function filterHomeIconLigatures() {
 
 /**
  * Parses the MYMPD_API_HOME_ICON_LIST response
- * @param {Object} obj jsonrpc response object
+ * @param {object} obj jsonrpc response object
  */
 function parseHomeIcons(obj) {
     const cardContainer = document.getElementById('HomeList');
@@ -433,8 +433,8 @@ function dragAndDropHome() {
 
 /**
  * Populates the cmd select box in the add to homescreen dialog
- * @param {String} cmd command
- * @param {String} type one of album, song, dir, search, plist, smartpls
+ * @param {string} cmd command
+ * @param {string} type one of album, song, dir, search, plist, smartpls
  */
 function populateHomeIconCmdSelect(cmd, type) {
     const selectHomeIconCmd = document.getElementById('selectHomeIconCmd');
@@ -533,7 +533,7 @@ function populateHomeIconCmdSelect(cmd, type) {
 
 /**
  * Executes the home icon action
- * @param {Number} pos 
+ * @param {number} pos 
  */
 //eslint-disable-next-line no-unused-vars
 function executeHomeIcon(pos) {
@@ -560,8 +560,8 @@ function addExternalLinkToHome() {
 
 /**
  * Adds a script to the homescreen
- * @param {String} name name for the home icon
- * @param {Object} script script object
+ * @param {string} name name for the home icon
+ * @param {object} script script object
  */
 //eslint-disable-next-line no-unused-vars
 function addScriptToHome(name, script) {
@@ -571,9 +571,9 @@ function addScriptToHome(name, script) {
 
 /**
  * Adds a playlist to the homescreen
- * @param {String} uri uri of the playlist
- * @param {String} type one of plist, smartpls
- * @param {String} name name for the home icon
+ * @param {string} uri uri of the playlist
+ * @param {string} type one of plist, smartpls
+ * @param {string} name name for the home icon
  */
 //eslint-disable-next-line no-unused-vars
 function addPlistToHome(uri, type, name) {
@@ -582,10 +582,10 @@ function addPlistToHome(uri, type, name) {
 
 /**
  * Adds a webradio favorite to the homescreen
- * @param {String} uri uri of the webradio favorite
- * @param {String} type must be webradio
- * @param {String} name name for the home icon
- * @param {String} image image for the home icon
+ * @param {string} uri uri of the webradio favorite
+ * @param {string} type must be webradio
+ * @param {string} name name for the home icon
+ * @param {string} image image for the home icon
  */
 //eslint-disable-next-line no-unused-vars
 function addRadioFavoriteToHome(uri, type, name, image) {
@@ -594,10 +594,10 @@ function addRadioFavoriteToHome(uri, type, name, image) {
 
 /**
  * Adds a webradioDB entry to the homescreen
- * @param {String} uri uri of the stream
- * @param {String} type must be stream
- * @param {String} name name for the home icon
- * @param {String} image image for the home icon
+ * @param {string} uri uri of the stream
+ * @param {string} type must be stream
+ * @param {string} name name for the home icon
+ * @param {string} image image for the home icon
  */
 //eslint-disable-next-line no-unused-vars
 function addWebRadiodbToHome(uri, type, name, image) {
@@ -606,8 +606,8 @@ function addWebRadiodbToHome(uri, type, name, image) {
 
 /**
  * Adds a directory to the homescreen
- * @param {String} uri directory uri
- * @param {String} name name for the home icon
+ * @param {string} uri directory uri
+ * @param {string} name name for the home icon
  */
 //eslint-disable-next-line no-unused-vars
 function addDirToHome(uri, name) {
@@ -620,9 +620,9 @@ function addDirToHome(uri, name) {
 
 /**
  * Adds a song or stream to the homescreen
- * @param {String} uri song or stream uri
- * @param {String} type one of song, stream
- * @param {String} name name for the home icon
+ * @param {string} uri song or stream uri
+ * @param {string} type one of song, stream
+ * @param {string} name name for the home icon
  */
 //eslint-disable-next-line no-unused-vars
 function addSongToHome(uri, type, name) {
@@ -640,8 +640,8 @@ function addSearchToHome() {
 
 /**
  * Adds an album to the homescreen
- * @param {Object} albumArtist array of albumartists
- * @param {String} album albumname
+ * @param {object} albumArtist array of albumartists
+ * @param {string} album albumname
  */
 //eslint-disable-next-line no-unused-vars
 function addAlbumToHome(albumArtist, album) {
@@ -673,11 +673,11 @@ function addStreamToHome() {
 
 /**
  * Opens the add to homescreen modal, this function is called by the add*ToHome functions above.
- * @param {String} cmd action
- * @param {String} name name for the home icon
- * @param {String} ligature ligature for the home icon
- * @param {String} image picture for the home icon
- * @param {Object} options options array
+ * @param {string} cmd action
+ * @param {string} name name for the home icon
+ * @param {string} ligature ligature for the home icon
+ * @param {string} image picture for the home icon
+ * @param {object} options options array
  */
 function _addHomeIcon(cmd, name, ligature, image, options) {
     document.getElementById('modalEditHomeIconTitle').textContent = tn('Add to homescreen');
@@ -721,7 +721,7 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
 
 /**
  * Duplicates a home icon
- * @param {Number} pos 
+ * @param {number} pos 
  */
 //eslint-disable-next-line no-unused-vars
 function duplicateHomeIcon(pos) {
@@ -730,7 +730,7 @@ function duplicateHomeIcon(pos) {
 
 /**
  * Opens the edit home icon dialog
- * @param {Number} pos 
+ * @param {number} pos 
  */
 //eslint-disable-next-line no-unused-vars
 function editHomeIcon(pos) {
@@ -739,9 +739,9 @@ function editHomeIcon(pos) {
 
 /**
  * The real edit home icon function
- * @param {Number} pos 
- * @param {Boolean} replace true = replace existing home icon, false = duplicate home icon
- * @param {String} title title for the modal
+ * @param {number} pos 
+ * @param {boolean} replace true = replace existing home icon, false = duplicate home icon
+ * @param {string} title title for the modal
  */
 function _editHomeIcon(pos, replace, title) {
     document.getElementById('modalEditHomeIconTitle').textContent = tn(title);
@@ -819,7 +819,7 @@ function saveHomeIcon() {
 
 /**
  * Response handler for save home icon
- * @param {Object} obj 
+ * @param {object} obj 
  */
 function saveHomeIconClose(obj) {
     if (obj.error) {
@@ -832,7 +832,7 @@ function saveHomeIconClose(obj) {
 
 /**
  * Deletes a home icon
- * @param {Number} pos 
+ * @param {number} pos 
  */
 //eslint-disable-next-line no-unused-vars
 function deleteHomeIcon(pos) {
@@ -883,7 +883,7 @@ function getHomeIconPictureList() {
 
 /**
  * Opens the link in a new window
- * @param {String} link 
+ * @param {string} link 
  */
 //eslint-disable-next-line no-unused-vars
 function openExternalLink(link) {

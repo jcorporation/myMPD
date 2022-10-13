@@ -3,7 +3,7 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @type {Number} */
+/** @type {number} */
 const startTime = Date.now();
 
 let socket = null;
@@ -12,17 +12,17 @@ let websocketKeepAliveTimer = null;
 let searchTimer = null;
 let resizeTimer = null;
 
-/** @type {Number} */
+/** @type {number} */
 const searchTimerTimeout = 500;
 
 let currentSongObj = {};
 let currentState = {};
 let settings = {
-    /** @type {Number} */
+    /** @type {number} */
     "loglevel": 2
 };
 
-/** @type {String} */
+/** @type {string} */
 let settingsParsed = 'no';
 
 let progressTimer = null;
@@ -30,39 +30,39 @@ let deferredA2HSprompt;
 let dragSrc;
 let dragEl;
 
-/** @type {Boolean} */
+/** @type {boolean} */
 let showSyncedLyrics = false;
 
-/** @type {Boolean} */
+/** @type {boolean} */
 let scrollSyncedLyrics = true;
 
-/** @type {Boolean} */
+/** @type {boolean} */
 let appInited = false;
 
-/** @type {Boolean} */
+/** @type {boolean} */
 let scriptsInited = false;
 let subdir = '';
 
-/** @type {Boolean} */
+/** @type {boolean} */
 let uiEnabled = true;
 
 let allOutputs = null;
 
-/** @type {String} */
+/** @type {string} */
 const ligatureMore = 'menu';
 
-/** @type {String} */
+/** @type {string} */
 const progressBarTransition = 'width 1s linear';
 
-/** @type {String} */
+/** @type {string} */
 const smallSpace = '\u2009';
 
-/** @type {String} */
+/** @type {string} */
 const nDash = '\u2013';
 
 let tagAlbumArtist = 'AlbumArtist';
 
-/** @type {Object} */
+/** @type {object} */
 const albumFilters = ["Composer", "Performer", "Conductor", "Ensemble"];
 
 const session = {
@@ -70,24 +70,24 @@ const session = {
     "timeout": 0
 };
 
-/** @type {Number} */
+/** @type {number} */
 const sessionLifetime = 1780;
 
-/** @type {Number} */
+/** @type {number} */
 const sessionRenewInterval = sessionLifetime * 500;
 let sessionTimer = null;
 const messages = [];
 
-/** @type {Boolean} */
+/** @type {boolean} */
 const debugMode = document.querySelector("script").src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
 
 let webradioDb = null;
 const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
 
-/** @type {Object} */
+/** @type {object} */
 const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
 
-/** @type {String} */
+/** @type {string} */
 let locale = navigator.language || navigator.userLanguage;
 
 let materialIcons = {};
@@ -102,14 +102,20 @@ const localSettings = {
     "partition": "default"
 };
 
-//get local settings
+/**
+ * Parses a string to boolean or number
+ * @param {string} str string to parse
+ * @returns {string | number | boolean} parsed string
+ */
 function parseString(str) {
     return str === 'true' ? true :
            str === 'false' ? false :
+           // @ts-ignore
            isNaN(str) ? str :
            Number(str);
 }
 
+//Get settings from localStorage
 for (const key in localSettings) {
     const value = localStorage.getItem(key);
     if (value !== null) {
@@ -120,22 +126,25 @@ for (const key in localSettings) {
 const userAgentData = {};
 userAgentData.hasIO = 'IntersectionObserver' in window ? true : false;
 
+/**
+ * Sets the useragentData object
+ */
 function setUserAgentData() {
     //get interesting browser agent data
     //https://developer.mozilla.org/en-US/docs/Web/API/User-Agent_Client_Hints_API
     if (navigator.userAgentData) {
         navigator.userAgentData.getHighEntropyValues(["platform"]).then(ua => {
-            /** @type {Boolean} */
+            /** @type {boolean} */
             userAgentData.isMobile = localSettings.enforceMobile === true ? true : ua.mobile;
             //Safari does not support this API
-            /** @type {Boolean} */
+            /** @type {boolean} */
             userAgentData.isSafari = false;
         });
     }
     else {
-        /** @type {Boolean} */
+        /** @type {boolean} */
         userAgentData.isMobile = localSettings.enforceMobile === true ? true : /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
-        /** @type {Boolean} */
+        /** @type {boolean} */
         userAgentData.isSafari = /Safari/i.test(navigator.userAgent);
     }
 }

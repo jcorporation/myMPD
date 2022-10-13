@@ -130,7 +130,7 @@ function initBrowseFilesystem() {
 
 /**
  * Parses the MYMPD_API_DATABASE_FILESYSTEM_LIST response
- * @param {Object} obj jsonrpc response object
+ * @param {object} obj jsonrpc response object
  */
  function parseFilesystem(obj) {
     //show images in folder

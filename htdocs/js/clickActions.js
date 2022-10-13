@@ -7,7 +7,7 @@
 
 /**
  * Handler for quick remove button
- * @param {EventTarget} target 
+ * @param {EventTarget} target event target
  */
 function clickQuickRemove(target) {
     switch(app.id) {
@@ -27,7 +27,8 @@ function clickQuickRemove(target) {
 
 /**
  * Handler for quick play button
- * @param {EventTarget} target 
+ * @param {EventTarget} target event target
+ * @returns {void}
  */
 function clickQuickPlay(target) {
     const type = getData(target.parentNode.parentNode, 'type');
@@ -47,8 +48,9 @@ function clickQuickPlay(target) {
 
 /**
  * Handler for album play button
- * @param {Object} albumArtist
- * @param {String} album
+ * @param {object} albumArtist album artists
+ * @param {string} album album name
+ * @returns {void}
  */
 function clickAlbumPlay(albumArtist, album) {
     switch(settings.webuiSettings.clickQuickPlay) {
@@ -63,7 +65,8 @@ function clickAlbumPlay(albumArtist, album) {
 
 /**
  * Click song handler
- * @param {String} uri song uri
+ * @param {string} uri song uri
+ * @returns {void}
  */
 function clickSong(uri) {
     switch (settings.webuiSettings.clickSong) {
@@ -79,8 +82,9 @@ function clickSong(uri) {
 
 /**
  * Handler for radiobrowser links
- * @param {String} uri stream uri
- * @param {String} uuid radiobrowser station uuid
+ * @param {string} uri stream uri
+ * @param {string} uuid radiobrowser station uuid
+ * @returns {void}
  */
 function clickRadiobrowser(uri, uuid) {
     switch (settings.webuiSettings.clickRadiobrowser) {
@@ -96,7 +100,8 @@ function clickRadiobrowser(uri, uuid) {
 
 /**
  * Handler for webradioDB links
- * @param {String} uri 
+ * @param {string} uri stream uri
+ * @returns {void}
  */
 function clickWebradiodb(uri) {
     switch (settings.webuiSettings.clickRadiobrowser) {
@@ -111,7 +116,8 @@ function clickWebradiodb(uri) {
 
 /**
  * Handler for webradio favorites links
- * @param {String} uri
+ * @param {string} uri webradio favorite uri, starting with mympd://webradio/
+ * @returns {void}
  */
 function clickRadioFavorites(uri) {
     const fullUri = getRadioFavoriteUri(uri);
@@ -128,8 +134,9 @@ function clickRadioFavorites(uri) {
 
 /**
  * Handler for song links in queue
- * @param {String} songid 
- * @param {String} uri 
+ * @param {string} songid the song id
+ * @param {string} uri the song uri
+ * @returns {void}
  */
 function clickQueueSong(songid, uri) {
     switch(settings.webuiSettings.clickQueueSong) {
@@ -151,7 +158,8 @@ function clickQueueSong(songid, uri) {
 
 /**
  * Handler for playlist links
- * @param {String} uri 
+ * @param {string} uri playlist uri
+ * @returns {void}
  */
 function clickPlaylist(uri) {
     switch(settings.webuiSettings.clickPlaylist) {
@@ -167,7 +175,8 @@ function clickPlaylist(uri) {
 
 /**
  * Handler for click on playlists in filesystem view
- * @param {String} uri 
+ * @param {string} uri playlist uri
+ * @returns {void}
  */
 function clickFilesystemPlaylist(uri) {
     switch(settings.webuiSettings.clickFilesystemPlaylist) {
@@ -191,7 +200,7 @@ function clickFilesystemPlaylist(uri) {
 
 /**
  * Handler for click on folder in filesystem view
- * @param {String} uri 
+ * @param {string} uri folder uri
  */
 function clickFolder(uri) {
     //remember offset for current browse uri
@@ -220,7 +229,7 @@ function seekRelativeBackward() {
 
 /**
  * Seeks the current song by offset seconds
- * @param {Number} offset 
+ * @param {number} offset relative seek offset
  */
 function seekRelative(offset) {
     sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
@@ -281,11 +290,10 @@ function clickNext() {
 
 /**
  * Handler for click on single button
- * @param {String} mode 
+ * @param {string} mode single mode: "0" = off, "1" = single, "oneshot" = single one shot
  */
 //eslint-disable-next-line no-unused-vars
 function clickSingle(mode) {
-    //mode: "0" = off, "1" = single, "oneshot" = single one shot
     sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
         "single": mode
     }, null, false);

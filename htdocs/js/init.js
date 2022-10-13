@@ -9,7 +9,7 @@
 
 /**
  * Shows an error message on the splashscreen
- * @param {String} text message to display (untranslated)
+ * @param {string} text message to display (untranslated)
  */
  function showAppInitAlert(text) {
     const spa = document.getElementById('splashScreenAlert');

@@ -58,16 +58,16 @@ function appPrepare() {
 
 /**
  * Calculates the location hash and calls appRoute
- * @param {String} card 
- * @param {String} [tab]
- * @param {String} [view]
- * @param {Number} [offset]
- * @param {Number} [limit]
- * @param {String | Object} [filter]
- * @param {Object} [sort]
- * @param {String} [tag]
- * @param {String | Object} [search]
- * @param {Number} [newScrollPos]
+ * @param {string} card 
+ * @param {string} [tab]
+ * @param {string} [view]
+ * @param {number} [offset]
+ * @param {number} [limit]
+ * @param {string | object} [filter]
+ * @param {object} [sort]
+ * @param {string} [tag]
+ * @param {string | object} [search]
+ * @param {number} [newScrollPos]
  */
 function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newScrollPos) {
     //old app
@@ -138,8 +138,8 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
 
 /**
  * Checks if obj is string or object
- * @param {String | Object} obj 
- * @returns {Boolean} true if obj is object or string, else false
+ * @param {string | object} obj 
+ * @returns {boolean} true if obj is object or string, else false
  */
 function isArrayOrString(obj) {
     if (typeof obj === 'string') {
@@ -150,15 +150,15 @@ function isArrayOrString(obj) {
 
 /**
  * Executes the actions after the view is shown
- * @param {String} [card]
- * @param {String} [tab]
- * @param {String} [view]
- * @param {Number} [offset]
- * @param {Number} [limit]
- * @param {String | Object} [filter]
- * @param {Object} [sort]
- * @param {String} [tag]
- * @param {String} [search]
+ * @param {string} [card]
+ * @param {string} [tab]
+ * @param {string} [view]
+ * @param {number} [offset]
+ * @param {number} [limit]
+ * @param {string | object} [filter]
+ * @param {object} [sort]
+ * @param {string} [tag]
+ * @param {string} [search]
  */
 function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
     if (settingsParsed === 'false') {

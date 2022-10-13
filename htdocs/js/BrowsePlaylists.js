@@ -125,7 +125,7 @@ function initPlaylists() {
 
 /**
  * Parses the MYMPD_API_PLAYLIST_LIST jsonrpc response
- * @param {Object} obj 
+ * @param {object} obj 
  */
 function parsePlaylistsList(obj) {
     if (checkResultId(obj, 'BrowsePlaylistsListList') === false) {
@@ -159,7 +159,7 @@ function parsePlaylistsList(obj) {
 
 /**
  * Parses the MYMPD_API_PLAYLIST_CONTENT_LIST jsonrpc response
- * @param {Object} obj 
+ * @param {object} obj 
  */
 function parsePlaylistsDetail(obj) {
     const table = document.getElementById('BrowsePlaylistsDetailList');
@@ -215,7 +215,7 @@ function parsePlaylistsDetail(obj) {
 
 /**
  * Opens the playlist detail view
- * @param {String} uri 
+ * @param {string} uri 
  */
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
@@ -236,7 +236,7 @@ function playlistShuffle() {
 
 /**
  * Sorts the playlist by tag
- * @param {String} tag 
+ * @param {string} tag 
  */
 //eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
@@ -249,7 +249,7 @@ function playlistSort(tag) {
 
 /**
  * Updates all smart playlists
- * @param {Boolean} force true = forces update of all smart playlists,
+ * @param {boolean} force true = forces update of all smart playlists,
  *                        false = updates only outdated smart playlists
  */
 //eslint-disable-next-line no-unused-vars
@@ -261,11 +261,11 @@ function updateSmartPlaylists(force) {
 
 /**
  * Removes a song from a playlist
- * @param {String} mode range = remove a range of songs,
+ * @param {string} mode range = remove a range of songs,
  *                      single = remove one song
- * @param {String} plist the playlist
- * @param {Number} start Start of the range (including) / song pos
- * @param {Number} [end] End playlist position (excluding), use -1 for open end
+ * @param {string} plist the playlist
+ * @param {number} start Start of the range (including) / song pos
+ * @param {number} [end] End playlist position (excluding), use -1 for open end
  */
 //eslint-disable-next-line no-unused-vars
 function removeFromPlaylist(mode, plist, start, end) {
@@ -291,7 +291,7 @@ function removeFromPlaylist(mode, plist, start, end) {
 
 /**
  * Parses the MYMPD_API_SMARTPLS_GET jsonrpc response
- * @param {Object} obj jsonrpc response
+ * @param {object} obj jsonrpc response
  */
 function parseSmartPlaylist(obj) {
     document.getElementById('saveSmartPlaylistName').value = obj.result.plist;
@@ -382,7 +382,7 @@ function saveSmartPlaylist() {
 
 /**
  * Handles the MYMPD_API_SMARTPLS_*_SAVE responses
- * @param {Object} obj jsonrpc response
+ * @param {object} obj jsonrpc response
  */
 function saveSmartPlaylistClose(obj) {
     if (obj.error) {
@@ -428,7 +428,7 @@ function addSmartpls(type) {
 
 /**
  * Gets playlists and populates a select
- * @param {Number} type type of the playlist
+ * @param {number} type type of the playlist
  *                      0 = all playlists,
  *                      1 = static playlists,
  *                      2 = smart playlists
@@ -449,7 +449,7 @@ function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
 
 /**
  * Populates the custom input element mympd-select-search
- * @param {Object} obj jsonrpc response
+ * @param {object} obj jsonrpc response
  * @param {*} playlistSelectId select element id
  * @param {*} selectedPlaylist current selected playlist
  */
@@ -478,8 +478,8 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
 
 /**
  * Shows the add to playlist modal
- * @param {String} uri the uri or "STREAM" to add a stream
- * @param {String} searchstr searchstring for uri = ALBUM, SEARCH
+ * @param {string} uri the uri or "STREAM" to add a stream
+ * @param {string} searchstr searchstring for uri = ALBUM, SEARCH
  */
 function showAddToPlaylist(uri, searchstr) {
     cleanupModalId('modalAddToPlaylist');
@@ -606,7 +606,7 @@ function addToPlaylist() {
 
 /**
  * Handles the response of "add to playlist" modal
- * @param {Object} obj jsonrpc response
+ * @param {object} obj jsonrpc response
  */
 function addToPlaylistClose(obj) {
     if (obj.error) {
@@ -619,9 +619,9 @@ function addToPlaylistClose(obj) {
 
 /**
  * Appends an element to a playlist
- * @param {String} type one of song, stream, dir, search
- * @param {String} uri uri to add
- * @param {String} plist playlist to append the uri
+ * @param {string} type one of song, stream, dir, search
+ * @param {string} uri uri to add
+ * @param {string} plist playlist to append the uri
  * @param {Function} callback 
  */
 function appendPlaylist(type, uri, plist, callback) {
@@ -645,10 +645,10 @@ function appendPlaylist(type, uri, plist, callback) {
 
 /**
  * Inserts an element to a playlist
- * @param {String} type one of song, stream, dir, search
- * @param {String} uri uri to add
- * @param {String} plist playlist to insert the uri
- * @param {Number} to position to insert
+ * @param {string} type one of song, stream, dir, search
+ * @param {string} uri uri to add
+ * @param {string} plist playlist to insert the uri
+ * @param {number} to position to insert
  * @param {Function} callback 
  */
 function insertPlaylist(type, uri, plist, to, callback) {
@@ -674,9 +674,9 @@ function insertPlaylist(type, uri, plist, to, callback) {
 
 /**
  * Replaces a playlist
- * @param {String} type one of song, stream, dir, search
- * @param {String} uri uri to add
- * @param {String} plist playlist to replace
+ * @param {string} type one of song, stream, dir, search
+ * @param {string} uri uri to add
+ * @param {string} plist playlist to replace
  * @param {Function} callback 
  */
 function replacePlaylist(type, uri, plist, callback) {
@@ -700,7 +700,7 @@ function replacePlaylist(type, uri, plist, callback) {
 
 /**
  * Shows the rename playlist modal
- * @param {String} from 
+ * @param {string} from 
  */
 //eslint-disable-next-line no-unused-vars
 function showRenamePlaylist(from) {
@@ -732,7 +732,7 @@ function renamePlaylist() {
 
 /**
  * Handles the MYMPD_API_PLAYLIST_RENAME jsonrpc response
- * @param {Object} obj jsonrpc response
+ * @param {object} obj jsonrpc response
  */
 function renamePlaylistClose(obj) {
     if (obj.error) {
@@ -745,7 +745,7 @@ function renamePlaylistClose(obj) {
 
 /**
  * Shows the settings of the smart playlist
- * @param {String} plist 
+ * @param {string} plist 
  */
 //eslint-disable-next-line no-unused-vars
 function showSmartPlaylist(plist) {
@@ -756,7 +756,7 @@ function showSmartPlaylist(plist) {
 
 /**
  * Updates a smart playlist
- * @param {String} plist 
+ * @param {string} plist 
  */
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylist(plist) {
@@ -784,8 +784,8 @@ function editSmartPlaylistClick() {
 
 /**
  * Deletes a playlist and shows a confirmation modal
- * @param {String} plist playlist to delete
- * @param {Boolean} smartplsOnly delete only the smart playlist definition
+ * @param {string} plist playlist to delete
+ * @param {boolean} smartplsOnly delete only the smart playlist definition
  */
 //eslint-disable-next-line no-unused-vars
 function showDelPlaylist(plist, smartplsOnly) {
@@ -813,8 +813,8 @@ function showClearPlaylist() {
 
 /**
  * Moves a song in the current displayed playlist
- * @param {Number} from 
- * @param {Number} to 
+ * @param {number} from 
+ * @param {number} to 
  */
 function playlistMoveSong(from, to) {
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG", {
@@ -826,8 +826,8 @@ function playlistMoveSong(from, to) {
 
 /**
  * Checks if the playlist is a stored playlist of mpd
- * @param {String} uri 
- * @returns true = stored playlist, false = playlist in music directory
+ * @param {string} uri 
+ * @returns {boolean} true = stored playlist, false = playlist in music directory
  */
 function isMPDplaylist(uri) {
     if (uri.charAt(1) === '/' ||
@@ -840,7 +840,7 @@ function isMPDplaylist(uri) {
 
 /**
  * Adds the currently displayed playlist to the queue or home screen
- * @param {String} action one of appendQueue, appendPlayQueue,
+ * @param {string} action one of appendQueue, appendPlayQueue,
  *                               insertAfterCurrentQueue, replaceQueue,
  *                               replacePlayQueue, addToHome
  */

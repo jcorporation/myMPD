@@ -5,7 +5,7 @@
 
 /**
  * Initializes a table body for drag and drop of rows
- * @param {String} tableName 
+ * @param {string} tableName 
  */
 function dragAndDropTable(tableName) {
     const tableBody = document.querySelector('#' + tableName + ' > tbody');
@@ -100,7 +100,7 @@ function dragAndDropTable(tableName) {
 
 /**
  * Initializes a table header for drag and drop of columns
- * @param {String} tableName 
+ * @param {string} tableName 
  */
 function dragAndDropTableHeader(tableName) {
     const tableHeader = document.querySelector('#' + tableName + 'List > thead > tr');
@@ -178,8 +178,8 @@ function dragAndDropTableHeader(tableName) {
 
 /**
  * Sets the available table columns
- * @param {String} tableName
- * @return {Object}
+ * @param {string} tableName
+ * @returns {object} array of available columns
  */
 function setColTags(tableName) {
     if (tableName === 'BrowseRadioWebradiodb') {
@@ -234,7 +234,7 @@ function setColTags(tableName) {
 
 /**
  * Creates the select columns checkbox list
- * @param {String} tableName 
+ * @param {string} tableName 
  * @param {HTMLElement} menu 
  */
 function setColsChecklist(tableName, menu) {
@@ -266,7 +266,7 @@ function setColsChecklist(tableName, menu) {
 
 /**
  * Sets the table header columns
- * @param {String} tableName 
+ * @param {string} tableName 
  */
 function setCols(tableName) {
     if (tableName === 'Search' &&
@@ -317,7 +317,7 @@ function setCols(tableName) {
 
 /**
  * Saves the selected columns for the table
- * @param {String} tableName 
+ * @param {string} tableName 
  * @param {HTMLElement} [tableEl]
  */
 function saveCols(tableName, tableEl) {
@@ -399,7 +399,8 @@ function saveColsPlayback() {
 /**
  * Toggles the sorting of the table
  * @param {EventTarget} th clicked table header column
- * @param {String} colName 
+ * @param {string} colName column name
+ * @returns {void}
  */
 function toggleSort(th, colName) {
     if (th.nodeName !== 'TH' ||
@@ -443,10 +444,10 @@ function replaceTblRow(row, el) {
 
 /**
  * Adds a row with discnumber to the table
- * @param {Number} disc discnumber
- * @param {String} album 
- * @param {Object} albumartist 
- * @param {Number} colspan 
+ * @param {number} disc discnumber
+ * @param {string} album 
+ * @param {object} albumartist 
+ * @param {number} colspan 
  * @returns {HTMLElement} the created row
  */
 function addDiscRow(disc, album, albumartist, colspan) {
@@ -468,8 +469,8 @@ function addDiscRow(disc, album, albumartist, colspan) {
 
 /**
  * Updates the table from the jsonrpc response
- * @param {Object} obj jsonrpc response
- * @param {String} list table name to populate
+ * @param {object} obj jsonrpc response
+ * @param {string} list table name to populate
  * @param {Function} [perRowCallback]
  * @param {Function} [createRowCellsCallback]
  */
@@ -575,10 +576,10 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
 /**
  * Creates the columns in the row
  * @param {HTMLElement} row the row to populate
- * @param {Object} data data to populate
- * @param {String} list table name
- * @param {Number} colspan number of columns
- * @param {Boolean} smallWidth true = print data in rows, false = print data in columns
+ * @param {object} data data to populate
+ * @param {string} list table name
+ * @param {number} colspan number of columns
+ * @param {boolean} smallWidth true = print data in rows, false = print data in columns
  */
 function tableRow(row, data, list, colspan, smallWidth) {
     if (data.Type === 'parentDir') {
@@ -625,7 +626,7 @@ function tableRow(row, data, list, colspan, smallWidth) {
 
 /**
  * Creates an empty list hint
- * @param {Number} colspan 
+ * @param {number} colspan 
  * @returns {HTMLElement}
  */
 function emptyRow(colspan) {
@@ -638,7 +639,7 @@ function emptyRow(colspan) {
 
 /**
  * Creates a loading list hint
- * @param {Number} colspan 
+ * @param {number} colspan 
  * @returns {HTMLElement}
  */
 function loadingRow(colspan) {
@@ -651,8 +652,8 @@ function loadingRow(colspan) {
 
 /**
  * Creates a row with the error message
- * @param {Object} obj jsonrpc error object
- * @param {Number} colspan 
+ * @param {object} obj jsonrpc error object
+ * @param {number} colspan 
  * @returns {HTMLElement}
  */
 function errorRow(obj, colspan) {
@@ -665,8 +666,8 @@ function errorRow(obj, colspan) {
 
 /**
  * Creates a row with the warning message
- * @param {String} message phrase to display
- * @param {Number} colspan 
+ * @param {string} message phrase to display
+ * @param {number} colspan 
  * @returns {HTMLElement}
  */
 //eslint-disable-next-line no-unused-vars
@@ -680,9 +681,9 @@ function warningRow(message, colspan) {
 
 /**
  * Wrapper for checkResult with id selector
- * @param {Object} obj jsonrpc object to check
- * @param {String} id table id
- * @returns {Boolean}
+ * @param {object} obj jsonrpc object to check
+ * @param {string} id table id
+ * @returns {boolean}
  */
 function checkResultId(obj, id) {
     return checkResult(obj, document.querySelector('#' + id + ' > tbody'));
@@ -690,9 +691,9 @@ function checkResultId(obj, id) {
 
 /**
  * 
- * @param {Object} obj jsonrpc object to check
+ * @param {object} obj jsonrpc object to check
  * @param {HTMLElement} tbody body of the table
- * @returns {Boolean}
+ * @returns {boolean}
  */
 function checkResult(obj, tbody) {
     const thead = tbody.parentNode.querySelector('tr');
@@ -723,7 +724,7 @@ function checkResult(obj, tbody) {
 
 /**
  * Checks if we should display data in rows or cols
- * @returns true if window is small and the uiSmallWidthTagRows settings is true, else false
+ * @returns {boolean} true if window is small and the uiSmallWidthTagRows settings is true, else false
  */
 function uiSmallWidthTagRows() {
     if (settings.webuiSettings.uiSmallWidthTagRows === true) {

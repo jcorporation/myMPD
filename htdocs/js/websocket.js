@@ -5,7 +5,7 @@
 
 /**
  * Checks if the websocket is connected
- * @returns {Boolean} true if websocket is connected, else false
+ * @returns {boolean} true if websocket is connected, else false
  */
  function getWebsocketState() {
     return socket !== null && socket.readyState === WebSocket.OPEN;

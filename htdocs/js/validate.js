@@ -42,7 +42,7 @@ function removeIsInvalid(parentEl) {
 
 /**
  * Marks an element as invalid
- * @param {String} id 
+ * @param {string} id 
  */
 function setIsInvalidId(id) {
     setIsInvalid(document.getElementById(id));

@@ -87,7 +87,7 @@ function parsePartitionOutputsList(obj) {
     }
 
     elClear(outputList);
-    /** @type {Object} */
+    /** @type {object} */
     const curOutputs = [];
     for (let i = 0; i < obj.result.numOutputs; i++) {
         if (obj.result.data[i].plugin !== 'dummy') {

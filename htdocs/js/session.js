@@ -38,10 +38,10 @@ function initSession() {
 /**
  * Creates the enter pin footer and sends the original api request after the session is created.
  * @param {NodeList} footers modal footers to hide
- * @param {String} method jsonrpc method of the original api request
- * @param {Object} params json object of the original api request
+ * @param {string} method jsonrpc method of the original api request
+ * @param {object} params json object of the original api request
  * @param {Function} callback callback function of the original api request
- * @param {Boolean} onerror true = execute callback also on error
+ * @param {boolean} onerror true = execute callback also on error
  */
 function createEnterPinFooter(footers, method, params, callback, onerror) {
     const input = elCreateEmpty('input', {"type": "password", "autocomplete": "off", "class": ["form-control", "border-secondary"]});
@@ -96,10 +96,10 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
 
 /**
  * Shows the enter pin dialog in a new model or if a modal is already opened in the footer of this modal.
- * @param {String} method jsonrpc method of the original api request
- * @param {Object} params json object of the original api request
+ * @param {string} method jsonrpc method of the original api request
+ * @param {object} params json object of the original api request
  * @param {Function} callback callback function of the original api request
- * @param {Boolean} onerror true = execute callback also on error
+ * @param {boolean} onerror true = execute callback also on error
  */
 function enterPin(method, params, callback, onerror) {
     session.timeout = 0;

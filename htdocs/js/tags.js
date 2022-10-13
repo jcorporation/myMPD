@@ -5,9 +5,9 @@
 
 /**
  * Marks a tag from a tag dropdown as active and sets the element with descId to its phrase
- * @param {String} containerId container id (dropdown)
- * @param {String} descId id of the descriptive element
- * @param {String} setTo tag to select
+ * @param {string} containerId container id (dropdown)
+ * @param {string} descId id of the descriptive element
+ * @param {string} setTo tag to select
  */
  function selectTag(containerId, descId, setTo) {
     const btns = document.getElementById(containerId);
@@ -30,8 +30,8 @@
 
 /**
  * Populates a container with buttons for tags
- * @param {String} elId id of the element to populate
- * @param {String} list taglist
+ * @param {string} elId id of the element to populate
+ * @param {string} list name of the taglist
  */
 function addTagList(elId, list) {
     const stack = elCreateEmpty('div', {"class": ["d-grid", "gap-2"]});
@@ -128,8 +128,8 @@ function addTagList(elId, list) {
 
 /**
  * Populates a select element with options for tags
- * @param {String} elId id of the select to populate
- * @param {*} list taglist
+ * @param {string} elId id of the select to populate
+ * @param {string} list name of the taglist
  */
 function addTagListSelect(elId, list) {
     const select = document.getElementById(elId);
@@ -172,8 +172,8 @@ function addTagListSelect(elId, list) {
 /**
  * Appends a link to the browse views to the element
  * @param {HTMLElement} el element to append the link
- * @param {String} tag mpd tag
- * @param {*} values tag values
+ * @param {string} tag mpd tag
+ * @param {object} values tag values
  */
  function printBrowseLink(el, tag, values) {
     if (settings.tagListBrowse.includes(tag)) {
@@ -198,9 +198,9 @@ function addTagListSelect(elId, list) {
 
 /**
  * Returns a tag value as dom element
- * @param {String} key 
- * @param {*} value 
- * @returns {Node}
+ * @param {string | object} key the tag type
+ * @param {*} value the tag value
+ * @returns {Node} the created node
  */
 function printValue(key, value) {
     if (value === undefined || value === null || value === '') {
@@ -306,9 +306,9 @@ function printValue(key, value) {
 
 /**
  * Checks if tag matches the value
- * @param {String | Object} tag 
- * @param {String} value 
- * @returns {Boolean} true if tag matches value, else false
+ * @param {string | object} tag tag to check
+ * @param {string} value value to check
+ * @returns {boolean} true if tag matches value, else false
  */
  function checkTagValue(tag, value) {
     if (typeof tag === 'string') {

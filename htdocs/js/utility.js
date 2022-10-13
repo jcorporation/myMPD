@@ -5,7 +5,7 @@
 
 /**
  * Sets the updating indicator(s) for a view with the given id
- * @param {String} id 
+ * @param {string} id element id
  */
 function setUpdateViewId(id) {
     setUpdateView(document.getElementById(id));
@@ -13,7 +13,7 @@ function setUpdateViewId(id) {
 
 /**
  * Sets the updating indicator(s) for the element
- * @param {Element} el 
+ * @param {Element} el element
  */
 function setUpdateView(el) {
     el.classList.add('opacity05');
@@ -22,7 +22,7 @@ function setUpdateView(el) {
 
 /**
  * Removes the updating indicator(s) for a view with the given id
- * @param {String} id 
+ * @param {string} id element id
  */
 function unsetUpdateViewId(id) {
     unsetUpdateView(document.getElementById(id));
@@ -30,7 +30,7 @@ function unsetUpdateViewId(id) {
 
 /**
  * Removes the updating indicator(s) for the element
- * @param {Element | ParentNode} el 
+ * @param {Element | ParentNode} el element
  */
 function unsetUpdateView(el) {
     el.classList.remove('opacity05');
@@ -39,7 +39,8 @@ function unsetUpdateView(el) {
 
 /**
  * Replaces special characters with underscore
- * @param {String} x string to replace
+ * @param {string} x string to replace
+ * @returns {string} result string
  */
 function r(x) {
     return x.replace(/[^\w-]/g, '_');
@@ -47,8 +48,8 @@ function r(x) {
 
 /**
  * URL-Encodes the path, ignoring the host
- * @param {String} str 
- * @returns encoded string
+ * @param {string} str string to decode
+ * @returns {string} encoded string
  */
 function myEncodeURIhost(str) {
     const match = str.match(/(https?:\/\/[^/]+)(.*)$/);
@@ -63,8 +64,8 @@ function myEncodeURIhost(str) {
  * Custom encoding function, works like encodeURIComponent but
  * - does not escape /
  * - escapes further reserved characters
- * @param {String} str string to encode
- * @returns the encoded string
+ * @param {string} str string to encode
+ * @returns {string} the encoded string
  */
 function myEncodeURI(str) {
     return encodeURI(str).replace(/[!'()*#?;:,@&=+$~]/g, function(c) {
@@ -75,8 +76,8 @@ function myEncodeURI(str) {
 /**
  * Custom encoding function, works like encodeURIComponent but
  * - escapes further reserved characters
- * @param {String} str string to encode
- * @returns the encoded string
+ * @param {string} str string to encode
+ * @returns {string} the encoded string
  */
 function myEncodeURIComponent(str) {
     return encodeURIComponent(str).replace(/[!'()*~]/g, function(c) {
@@ -86,8 +87,8 @@ function myEncodeURIComponent(str) {
 
 /**
  * Wrapper for decodeURIComponent
- * @param {String} str uri encoded string
- * @returns decoded string
+ * @param {string} str uri encoded string
+ * @returns {string} decoded string
  */
 function myDecodeURIComponent(str) {
     return decodeURIComponent(str);
@@ -95,8 +96,8 @@ function myDecodeURIComponent(str) {
 
 /**
  * Joins an array to a comma separated text
- * @param {Array} a 
- * @returns {String} joined array
+ * @param {Array} a array to join
+ * @returns {string} joined array
  */
 function joinArray(a) {
     return a === undefined ? '' : a.join(', ');
@@ -104,8 +105,8 @@ function joinArray(a) {
 
 /**
  * Escape a MPD filter value
- * @param {String} x value to escape
- * @returns {String} escaped value
+ * @param {string} x value to escape
+ * @returns {string} escaped value
  */
 function escapeMPD(x) {
     if (typeof x === 'number') {
@@ -122,8 +123,8 @@ function escapeMPD(x) {
 
 /**
  * Unescape a MPD filter value
- * @param {String} x value to unescape
- * @returns {String} unescaped value
+ * @param {string} x value to unescape
+ * @returns {string} unescaped value
  */
 function unescapeMPD(x) {
     if (typeof x === 'number') {
@@ -140,9 +141,9 @@ function unescapeMPD(x) {
 
 /**
  * Pads a number with zeros
- * @param {Number} num number to pad
- * @param {Number} places complete width
- * @returns {String} padded number
+ * @param {number} num number to pad
+ * @param {number} places complete width
+ * @returns {string} padded number
  */
 function zeroPad(num, places) {
     const zero = places - num.toString().length + 1;
@@ -151,8 +152,8 @@ function zeroPad(num, places) {
 
 /**
  * Gets the directory from the given uri
- * @param {String} uri 
- * @returns {String}
+ * @param {string} uri the uri
+ * @returns {string} directory part of the uri
  */
 function dirname(uri) {
     return uri.replace(/\/[^/]*$/, '');
@@ -160,9 +161,9 @@ function dirname(uri) {
 
 /**
  * Gets the filename from the given uri
- * @param {String} uri 
- * @param {Boolean} removeQuery true = remove query string or hash
- * @returns {String}
+ * @param {string} uri the uri
+ * @param {boolean} removeQuery true = remove query string or hash
+ * @returns {string} filename part of the uri
  */
 function basename(uri, removeQuery) {
     if (removeQuery === true) {
@@ -173,8 +174,8 @@ function basename(uri, removeQuery) {
 
 /**
  * Splits a string in path + filename and extension
- * @param {String} filename 
- * @returns {Object}
+ * @param {string} filename filename to split
+ * @returns {object} object with file and ext keys
  */
 function splitFilename(filename) {
     const parts = filename.match(/^(.*)\.([^.]+)$/);
@@ -186,8 +187,8 @@ function splitFilename(filename) {
 
 /**
  * Returns a description of the filetype from uri
- * @param {String} uri 
- * @returns {String} description of filetype
+ * @param {string} uri the uri
+ * @returns {string} description of filetype
  */
 function filetype(uri) {
     if (uri === undefined) {
@@ -254,17 +255,17 @@ function focusSearch() {
 
 /**
  * Generates a valid id from string
- * @param {String} x
- * @returns {String}
+ * @param {string} str string to generate the id from
+ * @returns {string} the generated id
  */
-function genId(x) {
-    return 'id' + x.replace(/[^\w-]/g, '');
+function genId(str) {
+    return 'id' + str.replace(/[^\w-]/g, '');
 }
 
 /**
  * Parses a string to a javascript command object
  * @param {Event} event triggering event
- * @param {Object} str string to parse
+ * @param {object} str string to parse
  */
 function parseCmdFromJSON(event, str) {
     const cmd = JSON.parse(str);
@@ -274,7 +275,7 @@ function parseCmdFromJSON(event, str) {
 /**
  * Executes a javascript command object
  * @param {Event} event triggering event
- * @param {Object} cmd string to parse
+ * @param {object} cmd string to parse
  */
 function parseCmd(event, cmd) {
     if (typeof cmd === 'string') {
@@ -331,7 +332,8 @@ function parseCmd(event, cmd) {
 
 /**
  * Returns the function by name
- * @param functionName {String}
+ * @param {string} functionName name of the function
+ * @returns {Function} the function
  */
  function getFunctionByName(functionName) {
     const namespace = functionName.split('.');
@@ -344,9 +346,9 @@ function parseCmd(event, cmd) {
 }
 
 /**
- * Creates the search breadcrumbs
- * @param {String} searchStr 
- * @param {*} searchEl se
+ * Creates the search breadcrumbs from a mpd search expression
+ * @param {string} searchStr the search expression
+ * @param {HTMLElement} searchEl search input element
  * @param {HTMLElement} crumbEl element to add the crumbs
  */
 function createSearchCrumbs(searchStr, searchEl, crumbEl) {
@@ -373,10 +375,10 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
 
 /**
  * Creates a search crumb element
- * @param {String} filter 
- * @param {String} op 
- * @param {String} value 
- * @returns {HTMLElement}
+ * @param {string} filter the tag
+ * @param {string} op search operator
+ * @param {string} value filter value
+ * @returns {HTMLElement} search crumb element
  */
 function createSearchCrumb(filter, op, value) {
     const btn = elCreateNodes('button', {"class": ["btn", "btn-dark", "me-2"]}, [
@@ -391,10 +393,10 @@ function createSearchCrumb(filter, op, value) {
 
 /**
  * Creates a MPD search expression
- * @param {String} tag tag to search
- * @param {String} op search operator
- * @param {String} value value to search
- * @returns {String} the search expression in parenthesis
+ * @param {string} tag tag to search
+ * @param {string} op search operator
+ * @param {string} value value to search
+ * @returns {string} the search expression in parenthesis
  */
 function _createSearchExpression(tag, op, value) {
     if (op === 'starts_with' &&
@@ -419,11 +421,11 @@ function _createSearchExpression(tag, op, value) {
 
 /**
  * Creates the MPD search expression from crumbs and parameters
- * @param {*} crumbsEl crumbs container element
- * @param {*} tag tag to search
- * @param {*} op search operator
- * @param {*} value value to search
- * @returns the search expression in parenthesis
+ * @param {HTMLElement} crumbsEl crumbs container element
+ * @param {string} tag tag to search
+ * @param {string} op search operator
+ * @param {string} value value to search
+ * @returns {string} the search expression in parenthesis
  */
 function createSearchExpression(crumbsEl, tag, op, value) {
     let expression = '(';
@@ -453,7 +455,7 @@ function createSearchExpression(crumbsEl, tag, op, value) {
 
 /**
  * Gets a unix timestamp
- * @returns {Number}
+ * @returns {number} the unix timestamp
  */
 function getTimestamp() {
     return Math.floor(Date.now() / 1000);
@@ -461,7 +463,7 @@ function getTimestamp() {
 
 /**
  * Toggles the collapse indicator
- * @param {HTMLElement} el 
+ * @param {HTMLElement} el arrow element to toggle
  */
 function toggleCollapseArrow(el) {
     const icon = el.querySelector('span');
@@ -470,8 +472,8 @@ function toggleCollapseArrow(el) {
 
 /**
  * Uppercases the first letter
- * @param {String} str 
- * @returns {String}
+ * @param {string} str string to change
+ * @returns {string} changed string
  */
 function ucFirst(str) {
     return str[0].toUpperCase() + str.slice(1);
@@ -502,7 +504,7 @@ function openFullscreen() {
 
 /**
  * Checks for support of the media session api
- * @returns {Boolean} true if media session api is supported, else false
+ * @returns {boolean} true if media session api is supported, else false
  */
 function checkMediaSessionSupport() {
     if (settings.mediaSession === false ||
@@ -515,8 +517,8 @@ function checkMediaSessionSupport() {
 
 /**
  * Converts a string to a boolean
- * @param {String} str 
- * @returns {Boolean}
+ * @param {string} str string to parse
+ * @returns {boolean} the boolean value
  */
 function strToBool(str) {
     return str === 'true';
@@ -534,8 +536,8 @@ function clearSearchTimer() {
 
 /**
  * Returns the cuesheet name
- * @param {String} uri 
- * @returns {String}
+ * @param {string} uri uri to check
+ * @returns {string} the uri part
  */
 function cuesheetUri(uri) {
     const cuesheet = uri.match(/^(.*\.cue)\/(track\d+)$/);
@@ -547,8 +549,8 @@ function cuesheetUri(uri) {
 
 /**
  * Returns the cuesheet track name
- * @param {String} uri 
- * @returns {String}
+ * @param {string} uri uri to check
+ * @returns {string} the track part
  */
 function cuesheetTrack(uri) {
     const cuesheet = uri.match(/^(.*\.cue)\/(track\d+)$/);
@@ -568,7 +570,7 @@ function setViewport() {
 
 /**
  * Sets the height of the container for scrolling
- * @param {HTMLElement} container 
+ * @param {HTMLElement} container scrolling container element
  */
 function setScrollViewHeight(container) {
     if (userAgentData.isMobile === true) {
@@ -597,9 +599,9 @@ function setMobileView() {
 
 /**
  * Generic http get request
- * @param {String} uri 
- * @param {Function} callback 
- * @param {Boolean} json true = parses the response as json, else pass the plain text response
+ * @param {string} uri uri for the request
+ * @param {Function} callback callback function
+ * @param {boolean} json true = parses the response as json, else pass the plain text response
  */
 function httpGet(uri, callback, json) {
     const ajaxRequest = new XMLHttpRequest();
