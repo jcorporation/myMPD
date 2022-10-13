@@ -24,7 +24,7 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 
 ***
 
-## myMPD v10.0.3 (not yet released)
+## myMPD v10.0.3 (2022-10-13)
 
 This is a small bug fix release.
 
