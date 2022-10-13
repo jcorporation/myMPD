@@ -97,9 +97,9 @@ function sendAPIpartition(partition, method, params, callback, onerror) {
         if (obj.error &&
             typeof obj.error.message === 'string')
         {
-            //show error message
+            //show and log message
             showNotification(tn(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
-            logError(ajaxRequest.responseText);
+            logSeverity(obj.error.severity, ajaxRequest.responseText);
         }
         else if (obj.result &&
                  obj.result.message === 'ok')

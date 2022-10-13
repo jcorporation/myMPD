@@ -10,18 +10,25 @@
  */
 function logLog(loglevel, message) {
     if (settings.loglevel >= loglevel) {
-        if (loglevel === 0) {
-            console.error(message);
+        switch(loglevel) {
+            case 0:  console.error(message); break;
+            case 1:  console.warn(message); break;
+            case 4:  console.debug(message); break;
+            default: console.log(message);
         }
-        else if (loglevel === 1) {
-            console.warn(message);
-        }
-        else if (loglevel === 4) {
-            console.debug(message);
-        }
-        else {
-            console.log(message);
-        }
+    }
+}
+
+/**
+ * Logs a message by jsonrpc severity
+ * @param {String} severity
+ * @param {String} message
+ */
+function logSeverity(severity, message) {
+    switch (severity) {
+        case 'error': logError(message); break;
+        case 'warn':  logWarn(message); break;
+        default:      logInfo(message);
     }
 }
 
