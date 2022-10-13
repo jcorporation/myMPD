@@ -15,6 +15,7 @@ jobs:
         npm install stylelint-config-standard --save-dev
         npm install htmlhint --save-dev
         npm install typescript --save-dev
+        npm install eslint-plugin-jsdoc --save-dev
     - name: lint js css html
       run: ./build.sh lint
     - name: build debug and lint

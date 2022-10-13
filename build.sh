@@ -1246,7 +1246,7 @@ run_eslint() {
   for F in release/htdocs/sw.min.js release/htdocs/js/mympd.min.js release/htdocs/js/i18n.min.js
   do
     echo "Linting $F"
-    if ! npx eslint -c .eslintrc-min.json $F
+    if ! npx eslint --no-eslintrc -c .eslintrc-min.json $F
     then
       rc=1
     fi
