@@ -250,6 +250,9 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         #ifdef I18N_it_IT
         {"/assets/i18n/it-IT.json", "application/json", true, true, i18n_it_IT_json_data, i18n_it_IT_json_size},
         #endif
+        #ifdef I18N_ja_JP
+        {"/assets/i18n/ja-JP.json", "application/json", true, true, i18n_ja_JP_json_data, i18n_ja_JP_json_size},
+        #endif
         #ifdef I18N_ko_KR
         {"/assets/i18n/ko-KR.json", "application/json", true, true, i18n_ko_KR_json_data, i18n_ko_KR_json_size},
         #endif
