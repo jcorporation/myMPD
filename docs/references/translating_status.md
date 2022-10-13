@@ -2,6 +2,7 @@
 - fi-FI: 449 missing phrases
 - fr-FR: fully translated
 - it-IT: fully translated
+- ja-JP: fully translated
 - ko-KR: 67 missing phrases
 - nl-NL: fully translated
 - zh-CN: fully translated
