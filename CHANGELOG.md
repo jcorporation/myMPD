@@ -21,6 +21,7 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 - Upd: refactor translation framework
 - Upd: en-US, de-DE translations
 - Upd: Bootstrap 5.2.2
+- Upd: parse mpd bitrate #855
 
 ***
 
