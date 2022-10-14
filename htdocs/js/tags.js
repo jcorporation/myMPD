@@ -197,6 +197,19 @@ function addTagListSelect(elId, list) {
 }
 
 /**
+ * Parses the bits to the bitrate
+ * @param {number} bits bits to parse
+ * @returns {string} bitrate as string
+ */
+function parseBits(bits) {
+    switch(bits) {
+        case 224: return tn('32 bit floating');
+        case 225: return tn('DSD');
+        default:  return bits + ' ' + tn('bit');
+    }
+}
+
+/**
  * Returns a tag value as dom element
  * @param {string | object} key the tag type
  * @param {*} value the tag value
@@ -220,7 +233,7 @@ function printValue(key, value) {
         case 'Duration':
             return document.createTextNode(fmtSongDuration(value));
         case 'AudioFormat':
-            return document.createTextNode(value.bits + tn('bits') + smallSpace + nDash + smallSpace + value.sampleRate / 1000 + tn('kHz'));
+            return document.createTextNode(parseBits(value.bits) + smallSpace + nDash + smallSpace + value.sampleRate / 1000 + tn('kHz'));
         case 'Pos':
             //mpd is 0-indexed but humans wants 1-indexed lists
             return document.createTextNode(value + 1);
