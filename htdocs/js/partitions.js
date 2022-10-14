@@ -122,7 +122,7 @@ function savePartition() {
     let formOK = true;
 
     const nameEl = document.getElementById('inputPartitionName');
-    if (!validatePlnameEl(nameEl)) {
+    if (!validatePlistEl(nameEl)) {
         formOK = false;
     }
 

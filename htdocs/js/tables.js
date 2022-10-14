@@ -5,10 +5,10 @@
 
 /**
  * Initializes a table body for drag and drop of rows
- * @param {string} tableName 
+ * @param {string} tableId table id
  */
-function dragAndDropTable(tableName) {
-    const tableBody = document.querySelector('#' + tableName + ' > tbody');
+function dragAndDropTable(tableId) {
+    const tableBody = document.querySelector('#' + tableId + ' > tbody');
     tableBody.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TR') {
             hidePopover();
@@ -85,7 +85,7 @@ function dragAndDropTable(tableName) {
         for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
-        document.getElementById(tableName).classList.add('opacity05');
+        document.getElementById(tableId).classList.add('opacity05');
         if (app.id === 'QueueCurrent') {
             sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
                 "from": oldSongpos,
@@ -100,7 +100,7 @@ function dragAndDropTable(tableName) {
 
 /**
  * Initializes a table header for drag and drop of columns
- * @param {string} tableName 
+ * @param {string} tableName table name
  */
 function dragAndDropTableHeader(tableName) {
     const tableHeader = document.querySelector('#' + tableName + 'List > thead > tr');
@@ -178,7 +178,7 @@ function dragAndDropTableHeader(tableName) {
 
 /**
  * Sets the available table columns
- * @param {string} tableName
+ * @param {string} tableName table name
  * @returns {object} array of available columns
  */
 function setColTags(tableName) {
@@ -234,8 +234,8 @@ function setColTags(tableName) {
 
 /**
  * Creates the select columns checkbox list
- * @param {string} tableName 
- * @param {HTMLElement} menu 
+ * @param {string} tableName table name
+ * @param {HTMLElement} menu element to populate
  */
 function setColsChecklist(tableName, menu) {
     const tags = setColTags(tableName);
@@ -266,7 +266,7 @@ function setColsChecklist(tableName, menu) {
 
 /**
  * Sets the table header columns
- * @param {string} tableName 
+ * @param {string} tableName table name
  */
 function setCols(tableName) {
     if (tableName === 'Search' &&
@@ -317,8 +317,8 @@ function setCols(tableName) {
 
 /**
  * Saves the selected columns for the table
- * @param {string} tableName 
- * @param {HTMLElement} [tableEl]
+ * @param {string} tableName table name
+ * @param {HTMLElement} [tableEl] table element or undefined
  */
 function saveCols(tableName, tableEl) {
     const colsDropdown = document.getElementById(tableName + 'ColsDropdown');
@@ -445,9 +445,9 @@ function replaceTblRow(row, el) {
 /**
  * Adds a row with discnumber to the table
  * @param {number} disc discnumber
- * @param {string} album 
- * @param {object} albumartist 
- * @param {number} colspan 
+ * @param {string} album album
+ * @param {object} albumartist album artists 
+ * @param {number} colspan column count
  * @returns {HTMLElement} the created row
  */
 function addDiscRow(disc, album, albumartist, colspan) {
@@ -471,8 +471,8 @@ function addDiscRow(disc, album, albumartist, colspan) {
  * Updates the table from the jsonrpc response
  * @param {object} obj jsonrpc response
  * @param {string} list table name to populate
- * @param {Function} [perRowCallback]
- * @param {Function} [createRowCellsCallback]
+ * @param {Function} [perRowCallback] callback per row
+ * @param {Function} [createRowCellsCallback] callback to create the row
  */
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const table = document.getElementById(list + 'List');
@@ -626,8 +626,8 @@ function tableRow(row, data, list, colspan, smallWidth) {
 
 /**
  * Creates an empty list hint
- * @param {number} colspan 
- * @returns {HTMLElement}
+ * @param {number} colspan column count
+ * @returns {HTMLElement} created row
  */
 function emptyRow(colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
@@ -639,8 +639,8 @@ function emptyRow(colspan) {
 
 /**
  * Creates a loading list hint
- * @param {number} colspan 
- * @returns {HTMLElement}
+ * @param {number} colspan column count
+ * @returns {HTMLElement} created row
  */
 function loadingRow(colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
@@ -653,8 +653,8 @@ function loadingRow(colspan) {
 /**
  * Creates a row with the error message
  * @param {object} obj jsonrpc error object
- * @param {number} colspan 
- * @returns {HTMLElement}
+ * @param {number} colspan column count
+ * @returns {HTMLElement} created row
  */
 function errorRow(obj, colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
@@ -667,8 +667,8 @@ function errorRow(obj, colspan) {
 /**
  * Creates a row with the warning message
  * @param {string} message phrase to display
- * @param {number} colspan 
- * @returns {HTMLElement}
+ * @param {number} colspan column count
+ * @returns {HTMLElement} created row
  */
 //eslint-disable-next-line no-unused-vars
 function warningRow(message, colspan) {
@@ -683,7 +683,7 @@ function warningRow(message, colspan) {
  * Wrapper for checkResult with id selector
  * @param {object} obj jsonrpc object to check
  * @param {string} id table id
- * @returns {boolean}
+ * @returns {boolean} true = result is not an error, else false
  */
 function checkResultId(obj, id) {
     return checkResult(obj, document.querySelector('#' + id + ' > tbody'));
@@ -693,7 +693,7 @@ function checkResultId(obj, id) {
  * 
  * @param {object} obj jsonrpc object to check
  * @param {HTMLElement} tbody body of the table
- * @returns {boolean}
+ * @returns {boolean} true = result is not an error, else false
  */
 function checkResult(obj, tbody) {
     const thead = tbody.parentNode.querySelector('tr');
@@ -735,7 +735,7 @@ function uiSmallWidthTagRows() {
 
 /**
  * Handles the click on the actions column
- * @param {MouseEvent} event 
+ * @param {MouseEvent} event click event
  */
 function handleActionTdClick(event) {
     event.preventDefault();

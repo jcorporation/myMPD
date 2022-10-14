@@ -735,29 +735,29 @@ function saveSettings(closeModal) {
         'inputSettingvolumeStep'])
     {
         const inputEl = document.getElementById(inputId);
-        if (validateUint(inputEl) === false) {
+        if (validateUintEl(inputEl) === false) {
             formOK = false;
         }
     }
 
     const inputCoverimageNames = document.getElementById('inputCoverimageNames');
-    if (validateFilenameList(inputCoverimageNames) === false) {
+    if (validateFilenameListEl(inputCoverimageNames) === false) {
         formOK = false;
     }
     const inputThumbnailNames = document.getElementById('inputThumbnailNames');
-    if (validateFilenameList(inputThumbnailNames) === false) {
+    if (validateFilenameListEl(inputThumbnailNames) === false) {
         formOK = false;
     }
 
     const inputBookletName = document.getElementById('inputBookletName');
-    if (validateFilename(inputBookletName) === false) {
+    if (validateFilenameEl(inputBookletName) === false) {
         formOK = false;
     }
 
     const inputScaleRatio = document.getElementById('inputScaleRatio');
     //handle scaleRatio only for mobile browsers
     if (userAgentData.isMobile === true) {
-        if (validateFloat(inputScaleRatio) === false) {
+        if (validateFloatEl(inputScaleRatio) === false) {
             formOK = false;
         }
     }
@@ -865,11 +865,11 @@ function savePartitionSettings(closeModal) {
     let formOK = true;
     const mpdStreamPortEl = document.getElementById('inputMpdStreamPort');
     const streamUriEl = document.getElementById('inputStreamUri');
-    if (validateIntRange(mpdStreamPortEl, 0, 65535) === false) {
+    if (validateIntRangeEl(mpdStreamPortEl, 0, 65535) === false) {
         formOK = false;
     }
     if (streamUriEl.value.length > 0 &&
-        validateStream(streamUriEl) === false)
+        validateStreamEl(streamUriEl) === false)
     {
         formOK = false;
     }

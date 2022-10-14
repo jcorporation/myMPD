@@ -44,7 +44,6 @@
         "no-var": "error",
         "prefer-const": "error",
         "jsdoc/newline-after-description": "off",
-        "jsdoc/require-jsdoc": "off",
         "jsdoc/no-undefined-types": ["warn", {
             "definedTypes": [
                 "ChildNode",

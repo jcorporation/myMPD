@@ -64,7 +64,7 @@ function saveConnection() {
     }
     else if (musicDirectory === 'custom') {
         const musicDirectoryValueEl = document.getElementById('inputMusicDirectory');
-        if (validatePath(musicDirectoryValueEl) === false) {
+        if (validatePathEl(musicDirectoryValueEl) === false) {
             formOK = false;
         }
         musicDirectory = musicDirectoryValueEl.value;
@@ -80,7 +80,7 @@ function saveConnection() {
     }
     else if (playlistDirectory === 'custom') {
         const playlistDirectoryValueEl = document.getElementById('inputPlaylistDirectory');
-        if (validatePath(playlistDirectoryValueEl) === false) {
+        if (validatePathEl(playlistDirectoryValueEl) === false) {
             formOK = false;
         }
         playlistDirectory = playlistDirectoryValueEl.value;
@@ -89,21 +89,21 @@ function saveConnection() {
     if (mpdPortEl.value === '') {
         mpdPortEl.value = '6600';
     }
-    if (validateIntRange(mpdPortEl, 1024, 65535) === false) {
+    if (validateIntRangeEl(mpdPortEl, 1024, 65535) === false) {
         formOK = false;
     }
     if (mpdHostEl.value.indexOf('/') !== 0) {
-        if (validateInt(mpdPortEl) === false) {
+        if (validateIntEl(mpdPortEl) === false) {
             formOK = false;
         }
-        if (validateHost(mpdHostEl) === false) {
+        if (validateHostEl(mpdHostEl) === false) {
             formOK = false;
         }
     }
-    if (validateIntRange(mpdBinarylimitEl, 4, 256) === false) {
+    if (validateIntRangeEl(mpdBinarylimitEl, 4, 256) === false) {
         formOK = false;
     }
-    if (validateIntRange(mpdTimeoutEl, 1, 1000) === false) {
+    if (validateIntRangeEl(mpdTimeoutEl, 1, 1000) === false) {
         formOK = false;
     }
     if (formOK === true) {

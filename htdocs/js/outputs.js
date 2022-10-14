@@ -106,7 +106,7 @@ function showListOutputAttributes(outputName) {
 
 /**
  * Creates the output attributes table content
- * @param {object} output 
+ * @param {object} output output object
  */
 function parseOutputAttributes(output) {
     document.getElementById('modalOutputAttributesId').value = output.id;
@@ -161,7 +161,7 @@ function saveOutputAttributes() {
 
 /**
  * Handler for MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET response
- * @param {object} obj 
+ * @param {object} obj jsonrpc response
  */
 function saveOutputAttributesClose(obj) {
     if (obj.error) {
@@ -174,7 +174,7 @@ function saveOutputAttributesClose(obj) {
 
 /**
  * Parses the response of MYMPD_API_PLAYER_VOLUME_GET
- * @param {object} obj 
+ * @param {object} obj jsonrpc response
  */
 function parseVolume(obj) {
     if (obj.result.volume === -1) {
@@ -193,7 +193,7 @@ function parseVolume(obj) {
 
 /**
  * Changes the relative volume 
- * @param {*} dir 
+ * @param {string} dir direction: on of up, down
  */
 //eslint-disable-next-line no-unused-vars
 function volumeStep(dir) {

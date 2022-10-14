@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * QueueJukebox handler
+ */
 function handleQueueJukebox() {
     setFocusId('searchQueueJukeboxStr');
     sendAPI("MYMPD_API_JUKEBOX_LIST", {
@@ -68,7 +71,7 @@ function clearJukeboxQueue() {
 
 /**
  * Removes a song / album from the jukebox queue
- * @param {number} pos 
+ * @param {number} pos position
  */
 //eslint-disable-next-line no-unused-vars
 function delQueueJukeboxSong(pos) {

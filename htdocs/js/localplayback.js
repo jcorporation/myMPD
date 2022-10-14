@@ -33,7 +33,7 @@ function localPlaybackVolumeStep(dir) {
 
 /**
  * Sets local playback volume
- * @param {number} volume 
+ * @param {number} volume volume to set
  */
 function setLocalPlaybackVolume(volume) {
     // @ts-ignore
@@ -69,7 +69,7 @@ function controlLocalPlayback(newState) {
 
 /**
  * Creates the local playback element
- * @param {*} createEvent triggering event
+ * @param {Event} createEvent triggering event
  */
 //eslint-disable-next-line no-unused-vars
 function createLocalPlaybackEl(createEvent) {

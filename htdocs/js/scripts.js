@@ -223,12 +223,12 @@ function saveScript() {
     let formOK = true;
 
     const nameEl = document.getElementById('inputScriptName');
-    if (!validatePlnameEl(nameEl)) {
+    if (!validatePlistEl(nameEl)) {
         formOK = false;
     }
 
     const orderEl = document.getElementById('inputScriptOrder');
-    if (!validateInt(orderEl)) {
+    if (!validateIntEl(orderEl)) {
         formOK = false;
     }
 
@@ -259,7 +259,7 @@ function saveScriptCheckError(obj) {
 
 function addScriptArgument() {
     const el = document.getElementById('inputScriptArgument');
-    if (validatePrintable(el)) {
+    if (validatePrintableEl(el)) {
         document.getElementById('selectScriptArguments').appendChild(
             elCreateText('option', {}, el.value)
         );

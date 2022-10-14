@@ -125,7 +125,7 @@ function initPlaylists() {
 
 /**
  * Parses the MYMPD_API_PLAYLIST_LIST jsonrpc response
- * @param {object} obj 
+ * @param {object} obj jsonrpc response
  */
 function parsePlaylistsList(obj) {
     if (checkResultId(obj, 'BrowsePlaylistsListList') === false) {
@@ -159,7 +159,7 @@ function parsePlaylistsList(obj) {
 
 /**
  * Parses the MYMPD_API_PLAYLIST_CONTENT_LIST jsonrpc response
- * @param {object} obj 
+ * @param {object} obj jsonrpc response
  */
 function parsePlaylistsDetail(obj) {
     const table = document.getElementById('BrowsePlaylistsDetailList');
@@ -215,7 +215,7 @@ function parsePlaylistsDetail(obj) {
 
 /**
  * Opens the playlist detail view
- * @param {string} uri 
+ * @param {string} uri shows the playlist detail view
  */
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
@@ -236,7 +236,7 @@ function playlistShuffle() {
 
 /**
  * Sorts the playlist by tag
- * @param {string} tag 
+ * @param {string} tag sort tag
  */
 //eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
@@ -332,7 +332,7 @@ function saveSmartPlaylist() {
     const name = document.getElementById('saveSmartPlaylistName').value;
     const type = getDataId('saveSmartPlaylistType', 'value');
     const sort = getSelectValueId('saveSmartPlaylistSort');
-    if (validatePlname(name) === false) {
+    if (validatePlist(name) === false) {
         document.getElementById('saveSmartPlaylistName').classList.add('is-invalid');
         return;
     }
@@ -347,11 +347,11 @@ function saveSmartPlaylist() {
             break;
         case 'sticker': {
             const maxentriesEl = document.getElementById('inputSaveSmartPlaylistStickerMaxentries');
-            if (!validateInt(maxentriesEl)) {
+            if (!validateIntEl(maxentriesEl)) {
                 return;
             }
             const minvalueEl = document.getElementById('inputSaveSmartPlaylistStickerMinvalue');
-            if (!validateInt(minvalueEl)) {
+            if (!validateIntEl(minvalueEl)) {
                 return;
             }
             sendAPI("MYMPD_API_SMARTPLS_STICKER_SAVE", {
@@ -365,7 +365,7 @@ function saveSmartPlaylist() {
         }
         case 'newest': {
             const timerangeEl = document.getElementById('inputSaveSmartPlaylistNewestTimerange');
-            if (!validateInt(timerangeEl)) {
+            if (!validateIntEl(timerangeEl)) {
                 return;
             }
             sendAPI("MYMPD_API_SMARTPLS_NEWEST_SAVE", {
@@ -509,7 +509,7 @@ function showAddToPlaylist(uri, searchstr) {
 
 /**
  * Toggles the view in the add to playlist modal
- * @param {EventTarget} target 
+ * @param {EventTarget} target event target
  */
 //eslint-disable-next-line no-unused-vars
 function toggleAddToPlaylistFrm(target) {
@@ -549,7 +549,7 @@ function addToPlaylist() {
             break;
         case 'STREAM': {
             const streamUrlEl = document.getElementById('streamUrl');
-            if (validateStream(streamUrlEl) === false) {
+            if (validateStreamEl(streamUrlEl) === false) {
                 return;
             }
             uri = streamUrlEl.value;
@@ -564,7 +564,7 @@ function addToPlaylist() {
     if (document.getElementById('addToPlaylistFrm').classList.contains('d-none') === false) {
         //add to playlist
         const plistEl = document.getElementById('addToPlaylistPlaylist');
-        if (validatePlnameEl(plistEl) === false) {
+        if (validatePlistEl(plistEl) === false) {
             return;
         }
         switch(mode) {
@@ -622,7 +622,7 @@ function addToPlaylistClose(obj) {
  * @param {string} type one of song, stream, dir, search
  * @param {string} uri uri to add
  * @param {string} plist playlist to append the uri
- * @param {Function} callback 
+ * @param {Function} callback response handling callback
  */
 function appendPlaylist(type, uri, plist, callback) {
     switch(type) {
@@ -649,7 +649,7 @@ function appendPlaylist(type, uri, plist, callback) {
  * @param {string} uri uri to add
  * @param {string} plist playlist to insert the uri
  * @param {number} to position to insert
- * @param {Function} callback 
+ * @param {Function} callback response handling callback
  */
 function insertPlaylist(type, uri, plist, to, callback) {
     switch(type) {
@@ -677,7 +677,7 @@ function insertPlaylist(type, uri, plist, to, callback) {
  * @param {string} type one of song, stream, dir, search
  * @param {string} uri uri to add
  * @param {string} plist playlist to replace
- * @param {Function} callback 
+ * @param {Function} callback response handling callback
  */
 function replacePlaylist(type, uri, plist, callback) {
     switch(type) {
@@ -700,7 +700,7 @@ function replacePlaylist(type, uri, plist, callback) {
 
 /**
  * Shows the rename playlist modal
- * @param {string} from 
+ * @param {string} from original playlist name
  */
 //eslint-disable-next-line no-unused-vars
 function showRenamePlaylist(from) {
@@ -719,7 +719,7 @@ function renamePlaylist() {
 
     const from = document.getElementById('renamePlaylistFrom').value;
     const to = document.getElementById('renamePlaylistTo').value;
-    if (to !== from && validatePlname(to) === true) {
+    if (to !== from && validatePlist(to) === true) {
         sendAPI("MYMPD_API_PLAYLIST_RENAME", {
             "plist": from,
             "newName": to
@@ -745,7 +745,7 @@ function renamePlaylistClose(obj) {
 
 /**
  * Shows the settings of the smart playlist
- * @param {string} plist 
+ * @param {string} plist smart playlist name
  */
 //eslint-disable-next-line no-unused-vars
 function showSmartPlaylist(plist) {
@@ -756,7 +756,7 @@ function showSmartPlaylist(plist) {
 
 /**
  * Updates a smart playlist
- * @param {string} plist 
+ * @param {string} plist smart playlist name
  */
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylist(plist) {
@@ -813,8 +813,8 @@ function showClearPlaylist() {
 
 /**
  * Moves a song in the current displayed playlist
- * @param {number} from 
- * @param {number} to 
+ * @param {number} from from position
+ * @param {number} to to position
  */
 function playlistMoveSong(from, to) {
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG", {
@@ -826,7 +826,7 @@ function playlistMoveSong(from, to) {
 
 /**
  * Checks if the playlist is a stored playlist of mpd
- * @param {string} uri 
+ * @param {string} uri playlist uri
  * @returns {boolean} true = stored playlist, false = playlist in music directory
  */
 function isMPDplaylist(uri) {

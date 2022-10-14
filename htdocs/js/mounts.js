@@ -58,7 +58,7 @@ function initMounts() {
 
 /**
  * Unmounts a mount point
- * @param {string} mountPoint 
+ * @param {string} mountPoint mount point
  */
 //eslint-disable-next-line no-unused-vars
 function unmountMount(mountPoint) {
@@ -76,10 +76,10 @@ function mountMount() {
     let formOK = true;
     const inputMountUrl = document.getElementById('inputMountUrl');
     const inputMountPoint = document.getElementById('inputMountPoint');
-    if (!validateNotBlank(inputMountUrl)) {
+    if (!validateNotBlankEl(inputMountUrl)) {
         formOK = false;
     }
-    if (!validateNotBlank(inputMountPoint)) {
+    if (!validateNotBlankEl(inputMountPoint)) {
         formOK = false;
     }
     if (formOK === true) {
@@ -92,7 +92,7 @@ function mountMount() {
 
 /**
  * Response handler for MYMPD_API_MOUNT_MOUNT
- * @param {object} obj 
+ * @param {object} obj jsonrpc response
  */
 function mountMountCheckError(obj) {
     if (obj.error) {
@@ -105,8 +105,8 @@ function mountMountCheckError(obj) {
 
 /**
  * Updates a mount point
- * @param {HTMLElement | EventTarget} el 
- * @param {string} uri 
+ * @param {HTMLElement | EventTarget} el event target
+ * @param {string} uri mount point
  */
 //eslint-disable-next-line no-unused-vars
 function updateMount(el, uri) {
@@ -124,8 +124,8 @@ function updateMount(el, uri) {
 
 /**
  * Shows the edit mount tab from the mount modal
- * @param {string} uri 
- * @param {string} storage 
+ * @param {string} uri mounted uri
+ * @param {string} storage mount point
  */
 //eslint-disable-next-line no-unused-vars
 function showEditMount(uri, storage) {

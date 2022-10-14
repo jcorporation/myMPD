@@ -34,12 +34,12 @@ function saveTrigger() {
     let formOK = true;
 
     const nameEl = document.getElementById('inputTriggerName');
-    if (!validatePlnameEl(nameEl)) {
+    if (!validatePlistEl(nameEl)) {
         formOK = false;
     }
 
     const scriptEl = document.getElementById('selectTriggerScript');
-    if (!validateSelect(scriptEl)) {
+    if (!validateSelectEl(scriptEl)) {
         formOK = false;
     }
 

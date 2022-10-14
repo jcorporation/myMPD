@@ -58,16 +58,16 @@ function appPrepare() {
 
 /**
  * Calculates the location hash and calls appRoute
- * @param {string} card 
- * @param {string} [tab]
- * @param {string} [view]
- * @param {number} [offset]
- * @param {number} [limit]
- * @param {string | object} [filter]
- * @param {object} [sort]
- * @param {string} [tag]
- * @param {string | object} [search]
- * @param {number} [newScrollPos]
+ * @param {string} card card element name
+ * @param {string} [tab] tab element name
+ * @param {string} [view] view element name
+ * @param {number} [offset] list offset
+ * @param {number} [limit] list limit
+ * @param {string | object} [filter] filter
+ * @param {object} [sort] sort object
+ * @param {string} [tag] tag name
+ * @param {string | object} [search] search object or string
+ * @param {number} [newScrollPos] new scrolling position
  */
 function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newScrollPos) {
     //old app
@@ -138,7 +138,7 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
 
 /**
  * Checks if obj is string or object
- * @param {string | object} obj 
+ * @param {string | object} obj object to check
  * @returns {boolean} true if obj is object or string, else false
  */
 function isArrayOrString(obj) {
@@ -150,15 +150,15 @@ function isArrayOrString(obj) {
 
 /**
  * Executes the actions after the view is shown
- * @param {string} [card]
- * @param {string} [tab]
- * @param {string} [view]
- * @param {number} [offset]
- * @param {number} [limit]
- * @param {string | object} [filter]
- * @param {object} [sort]
- * @param {string} [tag]
- * @param {string} [search]
+ * @param {string} [card] card element name
+ * @param {string} [tab] tab element name
+ * @param {string} [view] view element name
+ * @param {number} [offset] list offset
+ * @param {number} [limit] list limit
+ * @param {string | object} [filter] filter
+ * @param {object} [sort] sort object
+ * @param {string} [tag] tag name
+ * @param {string | object} [search] search object or string
  */
 function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
     if (settingsParsed === 'false') {

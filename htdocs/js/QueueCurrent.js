@@ -480,7 +480,7 @@ function addToQueue() {
     cleanupModalId('modalAddToQueue');
     let formOK = true;
     const inputAddToQueueQuantityEl = document.getElementById('inputAddToQueueQuantity');
-    if (!validateInt(inputAddToQueueQuantityEl)) {
+    if (!validateIntEl(inputAddToQueueQuantityEl)) {
         formOK = false;
     }
     const selectAddToQueuePlaylistValue = getDataId('selectAddToQueuePlaylist', 'value');
@@ -523,11 +523,11 @@ function saveQueue() {
             name = getDataId('saveQueueNameSelect', 'value');
         }
         else {
-            formOK = validatePlnameEl(plNameEl);
+            formOK = validatePlistEl(plNameEl);
         }
     }
     else {
-        formOK = validatePlnameEl(plNameEl);
+        formOK = validatePlistEl(plNameEl);
     }
     if (formOK === true) {
         sendAPI("MYMPD_API_QUEUE_SAVE", {
@@ -559,7 +559,7 @@ function setSongPriority() {
 
     const trackId = Number(document.getElementById('inputSongPriorityTrackId').value);
     const priorityEl = document.getElementById('inputSongPriority');
-    if (validateIntRange(priorityEl, 0, 255) === true) {
+    if (validateIntRangeEl(priorityEl, 0, 255) === true) {
         sendAPI("MYMPD_API_QUEUE_PRIO_SET", {
             "songId": trackId,
             "priority": Number(priorityEl.value)

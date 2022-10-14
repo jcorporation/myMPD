@@ -3,16 +3,27 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Checks if string is a valid uri (not empty)
+ * @param {string} uri uri to check 
+ * @returns {boolean} true = valid uri, else false
+ */
 function isValidUri(uri) {
     if (uri === '' ||
         uri === undefined ||
-        uri === null)
+        uri === null ||
+        uri.match(/^\s*$/) !== null)
     {
         return false;
     }
     return true;
 }
 
+/**
+ * Checks if string is a stream uri
+ * @param {string} uri uri to check
+ * @returns {boolean} true = stream uri, else false
+ */
 function isStreamUri(uri) {
     if (uri.indexOf('://') > -1) {
         return true;
@@ -20,6 +31,11 @@ function isStreamUri(uri) {
     return false;
 }
 
+/**
+ * Checks if string is a http uri
+ * @param {string} uri uri to check
+ * @returns {boolean} true = http uri, else false
+ */
 function isHttpUri(uri) {
     if (uri.indexOf('http://') === 0 ||
         uri.indexOf('https://') === 0)
@@ -31,7 +47,7 @@ function isHttpUri(uri) {
 
 /**
  * Removes all is-invalid classes
- * @param {Element} parentEl 
+ * @param {Element} parentEl root element
  */
 function removeIsInvalid(parentEl) {
     const els = parentEl.querySelectorAll('.is-invalid');
@@ -42,7 +58,7 @@ function removeIsInvalid(parentEl) {
 
 /**
  * Marks an element as invalid
- * @param {string} id 
+ * @param {string} id element id
  */
 function setIsInvalidId(id) {
     setIsInvalid(document.getElementById(id));
@@ -50,7 +66,7 @@ function setIsInvalidId(id) {
 
 /**
  * Marks an element as invalid
- * @param {Element} el 
+ * @param {Element} el element
  */
 function setIsInvalid(el) {
     //set is-invalid on parent node
@@ -58,6 +74,11 @@ function setIsInvalid(el) {
     el.classList.add('is-invalid');
 }
 
+/**
+ * Checks if string is a valid filename
+ * @param {string} str string to check
+ * @returns {boolean} true = valid filename, else false
+ */
 function validateFilenameString(str) {
     if (str === '') {
         return false;
@@ -68,7 +89,12 @@ function validateFilenameString(str) {
     return false;
 }
 
-function validateFilename(el) {
+/**
+ * Checks if the value of the input element is a valid filename
+ * @param {Element} el input element
+ * @returns {boolean} true = valid filename, else false
+ */
+function validateFilenameEl(el) {
     if (validateFilenameString(el.value) === false) {
         setIsInvalid(el);
         return false;
@@ -76,7 +102,12 @@ function validateFilename(el) {
     return true;
 }
 
-function validateFilenameList(el) {
+/**
+ * Checks if the value of the input element is a valid filename list
+ * @param {Element} el input element
+ * @returns {boolean} true = valid filename, else false
+ */
+function validateFilenameListEl(el) {
     const filenames = el.value.split(',');
     for (let i = 0, j = filenames.length; i < j; i++) {
         if (validateFilenameString(filenames[i].trim()) === false) {
@@ -87,7 +118,12 @@ function validateFilenameList(el) {
     return true;
 }
 
-function validatePath(el) {
+/**
+ * Checks if the value of the input element is a valid filepath
+ * @param {Element} el input element
+ * @returns {boolean} true = valid filepath, else false
+ */
+function validatePathEl(el) {
     if (el.value === '' ||
         el.value.charAt(0) !== '/')
     {
@@ -101,15 +137,25 @@ function validatePath(el) {
     return false;
 }
 
-function validatePlnameEl(el) {
-    if (validatePlname(el.value) === false) {
+/**
+ * Checks if the value of the input element is a valid playlist name
+ * @param {Element} el input element
+ * @returns {boolean} true = valid playlist name, else false
+ */
+function validatePlistEl(el) {
+    if (validatePlist(el.value) === false) {
         setIsInvalid(el);
         return false;
     }
     return true;
 }
 
-function validatePlname(str) {
+/**
+ * Checks if the string is a valid playlist name
+ * @param {string} str input element
+ * @returns {boolean} true = valid playlist name, else false
+ */
+function validatePlist(str) {
     if (str === '') {
         return false;
     }
@@ -119,7 +165,12 @@ function validatePlname(str) {
     return false;
 }
 
-function validateNotBlank(el) {
+/**
+ * Checks if the the value of the input element is not blank
+ * @param {Element} el input element
+ * @returns {boolean} true = not empty, else false
+ */
+function validateNotBlankEl(el) {
     const value = el.value.replace(/\s/g, '');
     if (value === '') {
         setIsInvalid(el);
@@ -128,7 +179,12 @@ function validateNotBlank(el) {
     return true;
 }
 
-function validateInt(el) {
+/**
+ * Checks if the the value of the input element is an integer
+ * @param {Element} el input element
+ * @returns {boolean} true = integer, else false
+ */
+function validateIntEl(el) {
     const value = el.value.replace(/[\d-]/g, '');
     if (value !== '') {
         setIsInvalid(el);
@@ -137,7 +193,12 @@ function validateInt(el) {
     return true;
 }
 
-function validateUint(el) {
+/**
+ * Checks if the the value of the input element is an unsigned integer
+ * @param {Element} el input element
+ * @returns {boolean} true = unsigned integer, else false
+ */
+function validateUintEl(el) {
     const value = el.value.replace(/[\d]/g, '');
     if (value !== '') {
         setIsInvalid(el);
@@ -146,8 +207,15 @@ function validateUint(el) {
     return true;
 }
 
-function validateIntRange(el, min, max) {
-    if (validateInt(el) === false) {
+/**
+ * Checks if the the value of the input element is an integer in range
+ * @param {Element} el input element
+ * @param {number} min minimum value (including)
+ * @param {number} max maximum value (including)
+ * @returns {boolean} true = integer in range, else false
+ */
+function validateIntRangeEl(el, min, max) {
+    if (validateIntEl(el) === false) {
         return false;
     }
     const intValue = Number(el.value);
@@ -158,7 +226,12 @@ function validateIntRange(el, min, max) {
     return true;
 }
 
-function validateFloat(el) {
+/**
+ * Checks if the the value of the input element is a float
+ * @param {Element} el input element
+ * @returns {boolean} true = float, else false
+ */
+function validateFloatEl(el) {
     const value = el.value.replace(/[\d-.]/g, '');
     if (value !== '') {
         setIsInvalid(el);
@@ -167,8 +240,15 @@ function validateFloat(el) {
     return true;
 }
 
-function validateFloatRange(el, min, max) {
-    if (validateFloat(el) === false) {
+/**
+ * Checks if the the value of the input element is an float in range
+ * @param {Element} el input element
+ * @param {number} min minimum value (including)
+ * @param {number} max maximum value (including)
+ * @returns {boolean} true = integer in range, else false
+ */
+function validateFloatRangeEl(el, min, max) {
+    if (validateFloatEl(el) === false) {
         return false;
     }
     const floatValue = Number(el.value);
@@ -179,7 +259,12 @@ function validateFloatRange(el, min, max) {
     return true;
 }
 
-function validateStream(el) {
+/**
+ * Checks if the the value of the input element is a valid stream uri
+ * @param {Element} el input element
+ * @returns {boolean} true = valid stream uri, else false
+ */
+function validateStreamEl(el) {
     if (isStreamUri(el.value) === true) {
         return true;
     }
@@ -187,7 +272,12 @@ function validateStream(el) {
     return false;
 }
 
-function validateHost(el) {
+/**
+ * Checks if the the value of the input element is a valid host
+ * @param {Element} el input element
+ * @returns {boolean} true = valid host, else false
+ */
+function validateHostEl(el) {
     if (el.value.match(/^([\w-.]+)$/) !== null) {
         return true;
     }
@@ -195,7 +285,12 @@ function validateHost(el) {
     return false;
 }
 
-function validateSelect(el) {
+/**
+ * Checks if the select element has an option selected
+ * @param {Element} el select element
+ * @returns {boolean} true = valid, else false
+ */
+function validateSelectEl(el) {
     if (getSelectValue(el) !== undefined) {
         return true;
     }
@@ -203,7 +298,12 @@ function validateSelect(el) {
     return false;
 }
 
-function validatePrintable(el) {
+/**
+ * Checks if the value of the input element contains only printable characters
+ * @param {Element} el input element
+ * @returns {boolean} true = only printable characters, else false
+ */
+function validatePrintableEl(el) {
     const value = el.value.replace(/[\w-]+/g, '');
     if (value !== '') {
         setIsInvalid(el);

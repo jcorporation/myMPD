@@ -332,7 +332,7 @@ function showDropoverIcon(from, to) {
 
 /**
  * Hides the dragover tip
- * @param {EventTarget} el 
+ * @param {EventTarget} el element
  */
 function hideDropoverIcon(el) {
     el.classList.remove('dragover-icon-left', 'dragover-icon-right');
@@ -533,7 +533,7 @@ function populateHomeIconCmdSelect(cmd, type) {
 
 /**
  * Executes the home icon action
- * @param {number} pos 
+ * @param {number} pos home icon position
  */
 //eslint-disable-next-line no-unused-vars
 function executeHomeIcon(pos) {
@@ -721,7 +721,7 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
 
 /**
  * Duplicates a home icon
- * @param {number} pos 
+ * @param {number} pos home icon position
  */
 //eslint-disable-next-line no-unused-vars
 function duplicateHomeIcon(pos) {
@@ -730,7 +730,7 @@ function duplicateHomeIcon(pos) {
 
 /**
  * Opens the edit home icon dialog
- * @param {number} pos 
+ * @param {number} pos home icon position
  */
 //eslint-disable-next-line no-unused-vars
 function editHomeIcon(pos) {
@@ -739,7 +739,7 @@ function editHomeIcon(pos) {
 
 /**
  * The real edit home icon function
- * @param {number} pos 
+ * @param {number} pos home icon position
  * @param {boolean} replace true = replace existing home icon, false = duplicate home icon
  * @param {string} title title for the modal
  */
@@ -793,7 +793,7 @@ function saveHomeIcon() {
     cleanupModalId('modalEditHomeIcon');
     let formOK = true;
     const nameEl = document.getElementById('inputHomeIconName');
-    if (!validateNotBlank(nameEl)) {
+    if (!validateNotBlankEl(nameEl)) {
         formOK = false;
     }
     if (formOK === true) {
@@ -819,7 +819,7 @@ function saveHomeIcon() {
 
 /**
  * Response handler for save home icon
- * @param {object} obj 
+ * @param {object} obj jsonrpc response
  */
 function saveHomeIconClose(obj) {
     if (obj.error) {
@@ -832,7 +832,7 @@ function saveHomeIconClose(obj) {
 
 /**
  * Deletes a home icon
- * @param {number} pos 
+ * @param {number} pos home icon position
  */
 //eslint-disable-next-line no-unused-vars
 function deleteHomeIcon(pos) {
@@ -883,7 +883,7 @@ function getHomeIconPictureList() {
 
 /**
  * Opens the link in a new window
- * @param {string} link 
+ * @param {string} link uri to open
  */
 //eslint-disable-next-line no-unused-vars
 function openExternalLink(link) {
@@ -892,11 +892,11 @@ function openExternalLink(link) {
 
 /**
  * Goto handler for home icons
- * @param {*} type one of dir, search, album, plist, smartpls
- * @param {*} uri type = search: search expression
+ * @param {string} type one of dir, search, album, plist, smartpls
+ * @param {string | object} uri type = search: search expression
  *                type = album: AlbumArtist
  *                else uri of directory or playlist
- * @param {*} album albumname (only valid for type = album)
+ * @param {string} [album] albumname (only valid for type = album)
  */
 //eslint-disable-next-line no-unused-vars
 function homeIconGoto(type, uri, album) {

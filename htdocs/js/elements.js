@@ -550,6 +550,11 @@ function getBtnGroupValueId(id) {
     return getData(activeBtn, 'value');
 }
 
+/**
+ * Toggles the active state of a button
+ * @param {string} id id of button to toggle
+ * @param {*} state true = active, false = inactive 
+ */
 //eslint-disable-next-line no-unused-vars
 function toggleBtnId(id, state) {
     toggleBtn(document.getElementById(id), state);

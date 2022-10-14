@@ -92,8 +92,8 @@ const facilities = {
 
 /**
  * Creates a severity icon
- * @param {string} severity 
- * @returns {HTMLElement}
+ * @param {string} severity severity
+ * @returns {HTMLElement} severity icon
  */
 function createSeverityIcon(severity) {
     return elCreateText('span', {"data-title-phrase": severities[severity].text,

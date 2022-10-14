@@ -101,7 +101,7 @@ function saveTimer() {
     cleanupModalId('modalTimer');
     let formOK = true;
     const nameEl = document.getElementById('inputTimerName');
-    if (!validateNotBlank(nameEl)) {
+    if (!validateNotBlankEl(nameEl)) {
         formOK = false;
     }
     let minOneDay = false;
@@ -143,7 +143,7 @@ function saveTimer() {
     }
 
     const inputTimerIntervalEl = document.getElementById('inputTimerInterval');
-    if (!validateInt(inputTimerIntervalEl)) {
+    if (!validateIntEl(inputTimerIntervalEl)) {
         formOK = false;
     }
 

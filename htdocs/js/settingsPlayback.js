@@ -172,17 +172,17 @@ function saveQueueSettings() {
 
     for (const inputId of ['inputCrossfade', 'inputJukeboxQueueLength', 'inputJukeboxLastPlayed']) {
         const inputEl = document.getElementById(inputId);
-        if (validateInt(inputEl) === false) {
+        if (validateIntEl(inputEl) === false) {
             formOK = false;
         }
     }
 
     const mixrampDbEl = document.getElementById('inputMixrampDb');
-    if (validateFloatRange(mixrampDbEl, -100, 0) === false) {
+    if (validateFloatRangeEl(mixrampDbEl, -100, 0) === false) {
         formOK = false;
     }
     const mixrampDelayEl = document.getElementById('inputMixrampDelay');
-    if (validateFloatRange(mixrampDelayEl, -1, 100) === false) {
+    if (validateFloatRangeEl(mixrampDelayEl, -1, 100) === false) {
         formOK = false;
     }
 
