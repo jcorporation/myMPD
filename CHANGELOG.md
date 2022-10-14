@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v10.0.4 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: language name in Japanese #854
+
+***
+
 ## myMPD v10.0.3 (2022-10-13)
 
 This is a small bug fix release.
