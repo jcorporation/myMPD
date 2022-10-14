@@ -113,10 +113,10 @@
     <div class="card" id="cardHome">
       <div class="card-body">
         <div id="homeActions" class="btn-group">
-            <button data-title-phrase="Homescreen" class="btn btn-xs btn-transparent dropdown-toggle mi mi-small" type="button" data-bs-toggle="dropdown">settings</button>
-            <div class="dropdown-menu dropdown-menu-dark px-2" id="homeActionsDropdown">
-              <button data-phrase="Add external link" data-href='{"cmd": "addExternalLinkToHome", "options": []}' class="btn btn-secondary w-100 btn-sm"></button>
-            </div>
+          <button data-title-phrase="Homescreen" class="btn btn-xs btn-transparent dropdown-toggle mi mi-small" type="button" data-bs-toggle="dropdown">settings</button>
+          <div class="dropdown-menu dropdown-menu-dark px-2" id="homeActionsDropdown">
+            <button data-phrase="Add external link" data-href='{"cmd": "addExternalLinkToHome", "options": []}' class="btn btn-secondary w-100 btn-sm"></button>
+          </div>
         </div>
         <div class="container-fluid cardsContainer scrollContainer">
           <div id="HomeList" class="row noInitChilds"></div>
@@ -2234,7 +2234,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
-          <button id="modalPictureZoom" data-href='{"cmd":"zoomZoomPicture","options":[]}' type="button" class="btn btn-success" data-phrase="Zoom"></button>
+          <button id="btnOpenPictureWindow" data-href='{"cmd":"openPictureWindow","options":[]}' type="button" class="btn btn-success" data-phrase="Open in new window"></button>
         </div>
       </div>
     </div>
@@ -2548,7 +2548,7 @@
         </div>
         <div class="modal-body">
           <form id="saveRadioFavoriteFrm">
-            <input type="hidden" id="editRadioFavoriteStreamUriOld" value=""/>
+            <input type="hidden" id="editRadioFavoriteStreamUriOld"/>
             <div class="row mb-3">
               <label class="col-sm-4 col-form-label" for="editRadioFavoriteName" data-phrase="Name"></label>
               <div class="col-sm-8">

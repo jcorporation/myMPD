@@ -142,7 +142,7 @@ function zoomPicture(el) {
         const imgEl = document.getElementById('modalPictureImg');
         imgEl.style.paddingTop = 0;
         createImgCarousel(imgEl, 'picsCarousel', uri, images, embeddedImageCount);
-        elHideId('modalPictureZoom');
+        elHideId('btnOpenPictureWindow');
         uiElements.modalPicture.show();
         return;
     }
@@ -152,7 +152,7 @@ function zoomPicture(el) {
         elClear(imgEl);
         imgEl.style.paddingTop = '100%';
         imgEl.style.backgroundImage = el.style.backgroundImage;
-        elShowId('modalPictureZoom');
+        elShowId('btnOpenPictureWindow');
         uiElements.modalPicture.show();
     }
 }
@@ -161,7 +161,7 @@ function zoomPicture(el) {
  * Opens the picture in a new window
  */
 //eslint-disable-next-line no-unused-vars
-function zoomZoomPicture() {
+function openPictureWindow() {
     window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
 }
 
