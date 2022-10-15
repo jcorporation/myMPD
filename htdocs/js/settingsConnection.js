@@ -125,7 +125,7 @@ function saveConnectionClose(obj) {
         showModalAlert(obj);
     }
     else {
-        getSettings(false);
+        getSettings();
         uiElements.modalConnection.hide();
     }
 }

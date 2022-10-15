@@ -232,7 +232,7 @@ function parseState(obj) {
     }
 
     if (getNewSettings === true) {
-        getSettings(true);
+        getSettings();
     }
 }
 

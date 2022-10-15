@@ -98,7 +98,7 @@ function webSocketConnect() {
                     //MPD connection established get state and settings
                     showNotification(tn('Connected to MPD'), '', 'general', 'info');
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, false);
-                    getSettings(true);
+                    getSettings();
                     break;
                 case 'update_options':
                     getSettings();

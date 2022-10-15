@@ -194,7 +194,7 @@ function switchPartition(partition) {
         webSocketClose();
         webSocketConnect();
     }, 0);
-    getSettings(true);
+    getSettings();
     BSN.Modal.getInstance(document.getElementById('modalPartitions')).hide();
     showNotification(tn('Partition switched'), '', 'general', 'info');
 }

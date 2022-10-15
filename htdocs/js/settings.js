@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Initialization function for the settings elements
+ */
 function initSettings() {
     document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
         cleanupModalId('modalSettings');
@@ -12,12 +15,20 @@ function initSettings() {
     createSettingsFrm();
 }
 
+/**
+ * Change eventhandler for the locale select
+ * @param {Event} event change event
+ */
 //eslint-disable-next-line no-unused-vars
 function eventChangeLocale(event) {
     const value = getSelectValue(event.target);
     warnLocale(value);
 }
 
+/**
+ * Change eventhandler for the theme select
+ * @param {Event} event change event
+ */
 //eslint-disable-next-line no-unused-vars
 function eventChangeTheme(event) {
     const value = getSelectValue(event.target);
@@ -41,6 +52,10 @@ function eventChangeTheme(event) {
     toggleThemeInputs(value);
 }
 
+/**
+ * Shows or hides the background color and image inputs
+ * @param {string} theme theme name
+ */
 function toggleThemeInputs(theme) {
     if (theme === 'theme-autodetect') {
         document.getElementById('inputWebUIsettinguiBgColor').parentNode.parentNode.classList.add('d-none');
@@ -52,11 +67,19 @@ function toggleThemeInputs(theme) {
     }
 }
 
-function getSettings(onerror) {
+/**
+ * Fetches all myMPD and MPD settings
+ */
+function getSettings() {
     settingsParsed = 'no';
-    sendAPI('MYMPD_API_SETTINGS_GET', {}, parseSettings, onerror);
+    sendAPI('MYMPD_API_SETTINGS_GET', {}, parseSettings, true);
 }
 
+/**
+ * Parses the MYMPD_API_SETTINGS_GET jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseSettings(obj) {
     if (obj.error) {
         settingsParsed = 'error';
@@ -270,6 +293,10 @@ function parseSettings(obj) {
     settingsParsed = 'parsed';
 }
 
+/**
+ * Sets theme specific css variables
+ * @param {string} theme theme name
+ */
 function setCssVars(theme) {
     switch(theme) {
         case 'theme-light':
@@ -288,6 +315,11 @@ function setCssVars(theme) {
     }
 }
 
+/**
+ * Sets the text for the bgImage input
+ * @param {string} value bgImage value
+ * @returns {string} bgImage text
+ */
 function getBgImageText(value) {
     if (value === '') {
         return 'None';
@@ -300,6 +332,9 @@ function getBgImageText(value) {
     return value;
 }
 
+/**
+ * Populates the settings modal
+ */
 function populateSettingsFrm() {
     getBgImageList();
     const bgImageInput = document.getElementById('inputWebUIsettinguiBgImage');
@@ -409,6 +444,12 @@ function populateSettingsFrm() {
     setFeatureBtnId('inputWebUIsettingenablePartitions', settings.features.featPartitions);
 }
 
+/**
+ * Shows the warning for a disabled feature button (feature is not supported by the backend)
+ * @param {string} id button id
+ * @param {boolean} value true = enable button and hide warning
+ *                        false = disable button and show warning
+ */
 function setFeatureBtnId(id, value) {
     if (value === true) {
         elEnableId(id);
@@ -421,12 +462,21 @@ function setFeatureBtnId(id, value) {
     }
 }
 
+/**
+ * Creates the settings modal and initializes the elements
+ */
 function createSettingsFrm() {
     _createSettingsFrm(settings.webuiSettings, webuiSettingsDefault, 'inputWebUIsetting');
     _createSettingsFrm(settings, settingFields, 'inputSetting');
     initElements(document.getElementById('modalSettings'));
 }
 
+/**
+ * Creates the settings modal
+ * @param {object} fields elements to create
+ * @param {object} defaults default values for the elements
+ * @param {string} prefix prefix for element ids
+ */
 function _createSettingsFrm(fields, defaults, prefix) {
     //build form for web ui settings
     const advFrm = {};
@@ -554,6 +604,9 @@ function _createSettingsFrm(fields, defaults, prefix) {
     }
 }
 
+/**
+ * Sets the features object accordingly to the backend features and settings
+ */
 function setFeatures() {
     //web ui features
     features.featCacert = settings.features.featCacert;
@@ -589,6 +642,9 @@ function setFeatures() {
     }
 }
 
+/**
+ * Shows or hides feature related elements
+ */
 function applyFeatures() {
     //show or hide elements
     for (const feature in features) {
@@ -600,6 +656,9 @@ function applyFeatures() {
     }
 }
 
+/**
+ * Parses the MPD options
+ */
 function parseMPDSettings() {
     document.getElementById('partitionName').textContent = localSettings.partition;
 
@@ -725,6 +784,10 @@ function parseMPDSettings() {
     addTagListSelect('saveSmartPlaylistSort', 'tagList');
 }
 
+/**
+ * Saves the settings
+ * @param {boolean} closeModal true = close modal, else not
+ */
 //eslint-disable-next-line no-unused-vars
 function saveSettings(closeModal) {
     cleanupModalId('modalSettings');
@@ -841,16 +904,23 @@ function saveSettings(closeModal) {
     }
 }
 
+/**
+ * Response handler for MYMPD_API_SETTINGS_SET that closes the modal
+ * @param {object} obj jsonrpc response
+ */
 function saveSettingsClose(obj) {
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
         savePartitionSettings(true);
-        
     }
 }
 
+/**
+ * Response handler for MYMPD_API_SETTINGS_SET
+ * @param {object} obj jsonrpc response
+ */
 function saveSettingsApply(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -860,6 +930,10 @@ function saveSettingsApply(obj) {
     }
 }
 
+/**
+ * Saves the partition specific settings
+ * @param {boolean} closeModal true = close modal, else not
+ */
 //eslint-disable-next-line no-unused-vars
 function savePartitionSettings(closeModal) {
     let formOK = true;
@@ -889,32 +963,46 @@ function savePartitionSettings(closeModal) {
     }
 }
 
+/**
+ * Response handler for MYMPD_API_PARTITION_SAVE that closes the modal
+ * @param {object} obj jsonrpc response
+ */
 function savePartitionSettingsApply(obj) {
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
         btnWaiting(document.getElementById('btnApplySettings'), true);
-        getSettings(true);
+        getSettings();
     }
 }
 
+/**
+ * Response handler for MYMPD_API_PARTITION_SAVE
+ * @param {object} obj jsonrpc response
+ */
 function savePartitionSettingsClose(obj) {
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
-        getSettings(true);
+        getSettings();
         uiElements.modalSettings.hide();
     }
 }
 
-function getTagMultiSelectValues(taglist, translated) {
+/**
+ * Gets all selected tags from a tag multiselect
+ * @param {HTMLElement} taglist container of the checkboxes
+ * @param {boolean} translate true = translate the name, else not
+ * @returns {string} comma separated list of selected tags
+ */
+function getTagMultiSelectValues(taglist, translate) {
     const values = [];
     const chkBoxes = taglist.querySelectorAll('button');
     for (let i = 0, j = chkBoxes.length; i < j; i++) {
         if (chkBoxes[i].classList.contains('active')) {
-            if (translated === true) {
+            if (translate === true) {
                 values.push(tn(chkBoxes[i].name));
             }
             else {
@@ -922,12 +1010,20 @@ function getTagMultiSelectValues(taglist, translated) {
             }
         }
     }
-    if (translated === true) {
+    if (translate === true) {
         return values.join(', ');
     }
     return values.join(',');
 }
 
+/**
+ * Initializes a tag multiselect
+ * @param {string} inputId input element id to initialize
+ * @param {string} listId list container element id to initialize
+ * @param {object} allTags all tags to list
+ * @param {object} enabledTags already enabled tags
+ * @returns {void}
+ */
 function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
     const values = [];
     const list = document.getElementById(listId);
@@ -969,9 +1065,13 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
     });
 }
 
-function filterCols(x) {
-    const tags = setColTags(x);
-    const set = "cols" + x;
+/**
+ * Filters the columns by available mpd tags
+ * @param {string} tableName the table name
+ */
+function filterCols(tableName) {
+    const tags = setColTags(tableName);
+    const set = "cols" + tableName;
     const cols = [];
     for (let i = 0, j = settings[set].length; i < j; i++) {
         if (tags.includes(settings[set][i])) {
@@ -982,6 +1082,11 @@ function filterCols(x) {
     logDebug('Columns for ' + set + ': ' + cols);
 }
 
+/**
+ * Event handler for the enable web notification button that requests the permission from the user
+ * @param {Event} event change event
+ * @returns {void}
+ */
 //eslint-disable-next-line no-unused-vars
 function toggleBtnNotifyWeb(event) {
     const btnNotifyWeb = event.target;
@@ -1011,6 +1116,9 @@ function toggleBtnNotifyWeb(event) {
     });
 }
 
+/**
+ * Populates the navbar with the icons
+ */
 function setNavbarIcons() {
     const oldBadgeQueueItems = document.getElementById('badgeQueueItems');
     let oldQueueLength = 0;
@@ -1058,6 +1166,10 @@ function setNavbarIcons() {
     domCache.navbarBtnsLen = domCache.navbarBtns.length;
 }
 
+/**
+ * Shows the missing translations warning
+ * @param {string} value locale name
+ */
 function warnLocale(value) {
     const warnEl = document.getElementById('warnMissingPhrases');
     elClear(warnEl);
@@ -1076,6 +1188,9 @@ function warnLocale(value) {
     }
 }
 
+/**
+ * Removes all settings from localStorage
+ */
 function resetLocalSettings() {
     for (const key in localSettings) {
         localStorage.removeItem(key);
