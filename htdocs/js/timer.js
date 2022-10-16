@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Initialization function for the timer elements
+ */
 function initTimer() {
     document.getElementById('listTimerList').addEventListener('click', function(event) {
         event.stopPropagation();
@@ -69,6 +72,11 @@ function initTimer() {
     setDataId('selectTimerPlaylist', 'cb-filter-options', [0, 'selectTimerPlaylist']);
 }
 
+/**
+ * Deletes a timer
+ * @param {EventTarget} el triggering element
+ * @param {number} timerid the timer id
+ */
 //eslint-disable-next-line no-unused-vars
 function deleteTimer(el, timerid) {
     showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the timer?'), tn('Yes, delete it'), function() {
@@ -78,6 +86,11 @@ function deleteTimer(el, timerid) {
     });
 }
 
+/**
+ * Toggles the timer enabled state
+ * @param {EventTarget} target triggering element
+ * @param {number} timerid the timer id
+ */
 //eslint-disable-next-line no-unused-vars
 function toggleTimer(target, timerid) {
     if (target.classList.contains('active')) {
@@ -96,6 +109,9 @@ function toggleTimer(target, timerid) {
     }
 }
 
+/**
+ * Saves the timer
+ */
 //eslint-disable-next-line no-unused-vars
 function saveTimer() {
     cleanupModalId('modalTimer');
@@ -179,6 +195,10 @@ function saveTimer() {
     }
 }
 
+/**
+ * Handler for the MYMPD_API_TIMER_SAVE jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
 function saveTimerCheckError(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -188,6 +208,10 @@ function saveTimerCheckError(obj) {
     }
 }
 
+/**
+ * Shows the edit timer tab
+ * @param {number} timerid the timer id
+ */
 //eslint-disable-next-line no-unused-vars
 function showEditTimer(timerid) {
     cleanupModalId('modalTimer');
@@ -226,6 +250,10 @@ function showEditTimer(timerid) {
     setFocusId('inputTimerName');
 }
 
+/**
+ * Parses the MYMPD_API_TIMER_GET response
+ * @param {object} obj jsonrpc response
+ */
 function parseEditTimer(obj) {
     let playlistValue = obj.result.playlist;
     const selectTimerPlaylistEl = document.getElementById('selectTimerPlaylist');
@@ -257,6 +285,10 @@ function parseEditTimer(obj) {
     }
 }
 
+/**
+ * Handler for the timer interval select change event
+ * @param {number} [value] the timer interval
+ */
 function selectTimerIntervalChange(value) {
     if (value === undefined) {
         //change event from select itself
@@ -296,6 +328,10 @@ function selectTimerIntervalChange(value) {
     }
 }
 
+/**
+ * Handler for the timer action change event
+ * @param {object} [values] argument values object 
+ */
 function selectTimerActionChange(values) {
     const el = document.getElementById('selectTimerAction');
 
@@ -314,11 +350,16 @@ function selectTimerActionChange(values) {
     }
 }
 
-function showTimerScriptArgs(option, values) {
+/**
+ * Shows the arguments for a timer script
+ * @param {HTMLElement} optionEl the selected timer script option element
+ * @param {object} values argument values object
+ */
+function showTimerScriptArgs(optionEl, values) {
     if (values === undefined) {
         values = {};
     }
-    const args = getData(option, 'arguments');
+    const args = getData(optionEl, 'arguments');
     const list = document.getElementById('timerActionScriptArguments');
     elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {
@@ -336,6 +377,9 @@ function showTimerScriptArgs(option, values) {
     }
 }
 
+/**
+ * Shows the list timer tab
+ */
 function showListTimer() {
     cleanupModalId('modalTimer');
     document.getElementById('listTimer').classList.add('active');
@@ -345,6 +389,11 @@ function showListTimer() {
     sendAPI("MYMPD_API_TIMER_LIST", {}, parseListTimer, true);
 }
 
+/**
+ * Parses the MYMPD_API_TIMER_LIST jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseListTimer(obj) {
     const tbody = document.querySelector('#listTimer > tbody');
     if (checkResult(obj, tbody) === false) {
@@ -398,11 +447,21 @@ function parseListTimer(obj) {
     }
 }
 
+/**
+ * Pretty prints the timer action
+ * @param {string} action the action
+ * @param {string} subaction the sub action
+ * @returns {string} the translated action
+ */
 function prettyTimerAction(action, subaction) {
-    if (action === 'player' && subaction === 'startplay') {
+    if (action === 'player' &&
+        subaction === 'startplay')
+    {
         return tn('Start playback');
     }
-    if (action === 'player' && subaction === 'stopplay') {
+    if (action === 'player' &&
+        subaction === 'stopplay')
+    {
         return tn('Stop playback');
     }
     if (action === 'script') {

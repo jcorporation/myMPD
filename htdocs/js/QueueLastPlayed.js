@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * QueueLastPlayed handler
+ */
 function handleQueueLastPlayed() {
     setFocusId('searchQueueLastPlayedStr');
     sendAPI("MYMPD_API_LAST_PLAYED_LIST", {
@@ -19,6 +22,9 @@ function handleQueueLastPlayed() {
     }
 }
 
+/**
+ * Initialization function for last played elements
+ */
 function initQueueLastPlayed() {
     document.getElementById('searchQueueLastPlayedStr').addEventListener('keyup', function(event) {
         clearSearchTimer();
@@ -45,6 +51,11 @@ function initQueueLastPlayed() {
     }, false);
 }
 
+/**
+ * Handler for the MYMPD_API_LAST_PLAYED_LIST jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseLastPlayed(obj) {
     if (checkResultId(obj, 'QueueLastPlayedList') === false) {
         return;

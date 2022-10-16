@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Initialization function for the playback settings elements
+ */
 function initSettingsPlayback() {
     initElements(document.getElementById('modalQueueSettings'));
 
@@ -48,6 +51,10 @@ function initSettingsPlayback() {
     setDataId('selectJukeboxPlaylist', 'cb-filter-options', [0, 'selectJukeboxPlaylist']);
 }
 
+/**
+ * Toggles the mpd playback mode
+ * @param {string} option playback option to toggle
+ */
 //eslint-disable-next-line no-unused-vars
 function togglePlaymode(option) {
     let value;
@@ -99,10 +106,15 @@ function togglePlaymode(option) {
     showNotification(tn(title), '', 'queue', 'info');
 }
 
+/**
+ * Checks the state of the consume mode
+ */
 function checkConsume() {
     const stateConsume = getBtnGroupValueId('btnConsumeGroup');
     const stateJukeboxMode = getBtnGroupValueId('btnJukeboxModeGroup');
-    if (stateJukeboxMode !== 'off' && stateConsume !== '1') {
+    if (stateJukeboxMode !== 'off' &&
+        stateConsume !== '1')
+    {
         elShowId('warnConsume');
     }
     else {
@@ -110,6 +122,9 @@ function checkConsume() {
     }
 }
 
+/**
+ * Populates the playback settings modal
+ */
 function populateQueueSettingsFrm() {
     toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.partition.jukeboxMode);
     addTagListSelect('selectJukeboxUniqueTag', 'tagListBrowse');
@@ -165,6 +180,9 @@ function populateQueueSettingsFrm() {
     checkConsume();
 }
 
+/**
+ * Saves the playback settings
+ */
 //eslint-disable-next-line no-unused-vars
 function saveQueueSettings() {
     cleanupModalId('modalQueueSettings');
@@ -218,6 +236,10 @@ function saveQueueSettings() {
     }
 }
 
+/**
+ * Handler for the MYMPD_API_PLAYER_OPTIONS_SET jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
 function saveQueueSettingsClose(obj) {
     btnWaitingId('btnSaveQueueSettings', false);
     if (obj.error) {

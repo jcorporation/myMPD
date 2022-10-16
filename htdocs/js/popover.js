@@ -3,6 +3,10 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Hides all popovers
+ * @param {EventTarget} [thisEl] triggering element
+ */
 function hidePopover(thisEl) {
     const popoverEls = document.querySelectorAll('[aria-describedby]');
     for (const el of popoverEls) {
@@ -22,6 +26,11 @@ function hidePopover(thisEl) {
     }
 }
 
+/**
+ * Shows a popover menu
+ * @param {Event} event triggering event
+ * @returns {void}
+ */
 function showPopover(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -93,6 +102,11 @@ function showPopover(event) {
     popoverInit.show();
 }
 
+/**
+ * Creates the popover body
+ * @param {string} template tabs = create a popover body with two tabes, else create an empty body
+ * @returns {HTMLElement} the popover body
+ */
 function createPopoverBody(template) {
     if (template === 'tabs') {
         return elCreateNodes('div', {"class": ["popover-tabs", "py-2"]}, [
@@ -113,6 +127,13 @@ function createPopoverBody(template) {
     return elCreateEmpty('div', {"class": ["popover-body"]})
 }
 
+/**
+ * Creates a new BSN popover
+ * @param {EventTarget} el triggering element
+ * @param {string} title popover title 
+ * @param {string} [bodyTemplate] the popover body
+ * @returns {object} BSN popover object
+ */
 function createPopoverInit(el, title, bodyTemplate) {
     const template = elCreateNodes('div', {"class": ["popover"]}, [
                    elCreateEmpty('div', {"class": ["popover-arrow"]}),
@@ -136,6 +157,10 @@ function createPopoverInit(el, title, bodyTemplate) {
     return new BSN.Popover(el, options);
 }
 
+/**
+ * Creates the click handler for the popover menu
+ * @param {HTMLElement} el container of the menu items
+ */
 function createPopoverClickHandler(el) {
     el.addEventListener('click', function(eventClick) {
         if (eventClick.target.nodeName === 'A') {
@@ -150,6 +175,11 @@ function createPopoverClickHandler(el) {
     }, false);
 }
 
+/**
+ * Creates a popover for the column select for tables
+ * @param {EventTarget} el triggering element
+ * @returns {object} BSN popover object
+ */
 function createPopoverColumns(el) {
     const popoverInit = createPopoverInit(el, tn('Columns'), "simple");
     //update content on each show event
@@ -178,6 +208,13 @@ function createPopoverColumns(el) {
     return popoverInit;
 }
 
+/**
+ * Creates a simple popover
+ * @param {EventTarget} el triggering element
+ * @param {string} title popover title
+ * @param {Function} contentCallback callback to create the popover content
+ * @returns {object} BSN popover object
+ */
 function createPopoverSimple(el, title, contentCallback) {
     const popoverInit = createPopoverInit(el, tn(title));
     //update content on each show event
@@ -191,6 +228,13 @@ function createPopoverSimple(el, title, contentCallback) {
     return popoverInit;
 }
 
+/**
+ * Creates a popover with two tabs
+ * @param {EventTarget} el triggering element
+ * @param {Function} tab1Callback callback to create the popover content for the first tab
+ * @param {Function} tab2Callback callback to create the popover content for the second tab
+ * @returns {object} BSN popover object
+ */
 function createPopoverTabs(el, tab1Callback, tab2Callback) {
     const popoverInit = createPopoverInit(el, '', 'tabs');
     //update content on each show event
@@ -228,7 +272,7 @@ function createPopoverTabs(el, tab1Callback, tab2Callback) {
 }
 
 /**
- * Sets the popover height to 2/3 of screen height
+ * Sets the popover height to 2/3 of the screen height
  * @param {Element} el popover element to resize
  */
  function popoverHeight(el) {
@@ -237,6 +281,10 @@ function createPopoverTabs(el, tab1Callback, tab2Callback) {
     el.style.overflow = 'auto';
 }
 
+/**
+ * Adds a divider to the popover menu
+ * @param {HTMLElement} tabContent element to append the divider
+ */
 function addDivider(tabContent) {
     if (tabContent.lastChild &&
         tabContent.lastChild.nodeName !== 'div')
@@ -247,12 +295,23 @@ function addDivider(tabContent) {
     }
 }
 
+/**
+ * Adds a menu item to the popover menut
+ * @param {HTMLElement} tabContent element to append the menu item
+ * @param {*} cmd the command
+ * @param {*} text menu text, will be translated
+ */
 function addMenuItem(tabContent, cmd, text) {
     const a = elCreateTextTn('a', {"class": ["dropdown-item"], "href": "#"}, text);
     setData(a, 'href', cmd);
     tabContent.appendChild(a);
 }
 
+/**
+ * Callback function to create the navbar popover menu body
+ * @param {HTMLElement} popoverBody element to append the menu items
+ * @param {EventTarget} el triggering element
+ */
 function addMenuItemsNavbarActions(popoverBody, el) {
     const type = el.getAttribute('data-popover');
     switch(type) {
@@ -282,6 +341,11 @@ function addMenuItemsNavbarActions(popoverBody, el) {
     }
 }
 
+/**
+ * Callback function to create the disc popover menu body
+ * @param {HTMLElement} popoverBody element to append the menu items
+ * @param {EventTarget} el triggering element
+ */
 function addMenuItemsDiscActions(popoverBody, el) {
     const disc = getData(el.parentNode.parentNode, 'Disc');
     const album = getData(el.parentNode.parentNode, 'Album');
@@ -299,6 +363,10 @@ function addMenuItemsDiscActions(popoverBody, el) {
     }
 }
 
+/**
+ * Appends single actions for the queue actions popover
+ * @param {HTMLElement} popoverBody element to append the menu items
+ */
 function addMenuItemsSingleActions(popoverBody) {
     if (settings.partition.single === '0') {
         if (settings.partition.repeat === true &&
@@ -320,6 +388,13 @@ function addMenuItemsSingleActions(popoverBody) {
     }
 }
 
+/**
+ * Appends album actions to the popover
+ * @param {HTMLElement} tabContent element to append the menu items
+ * @param {HTMLElement} dataNode element with the album data
+ * @param {object} [albumArtist] array of album artist names
+ * @param {string} [album] album name
+ */
 function addMenuItemsAlbumActions(tabContent, dataNode, albumArtist, album) {
     if (dataNode !== null) {
         albumArtist = getData(dataNode, 'AlbumArtist');
@@ -363,7 +438,14 @@ function addMenuItemsAlbumActions(tabContent, dataNode, albumArtist, album) {
     }
 }
 
-//for single songs and streams
+/**
+ * Appends actions for single songs or streams to the popover
+ * @param {HTMLElement} tabContent element to append the menu items
+ * @param {HTMLElement} dataNode element with the album data
+ * @param {string} uri song or stream uri
+ * @param {string} type type of the element: song, stream, ...
+ * @param {string} name name of the element
+ */
 function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
     if (app.id !== 'QueueCurrent') {
         addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');
@@ -441,26 +523,36 @@ function addMenuItemsSongActions(tabContent, dataNode, uri, type, name) {
     }
 }
 
-function addMenuItemsSearchActions(tabContent, uri) {
-    addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["search", uri]}, 'Append to queue');
-    addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": ["search", uri]}, 'Append to queue and play');
+/**
+ * Appends search actions to the popover
+ * @param {HTMLElement} tabContent element to append the menu items
+ * @param {string} expression search expression
+ */
+function addMenuItemsSearchActions(tabContent, expression) {
+    addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["search", expression]}, 'Append to queue');
+    addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": ["search", expression]}, 'Append to queue and play');
     if (features.featWhence === true) {
-        addMenuItem(tabContent, {"cmd": "insertAfterCurrentQueue", "options": ["search", uri, 0, 1, false]}, 'Insert after current playing song');
+        addMenuItem(tabContent, {"cmd": "insertAfterCurrentQueue", "options": ["search", expression, 0, 1, false]}, 'Insert after current playing song');
     }
-    addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["search", uri]}, 'Replace queue');
-    addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": ["search", uri]}, 'Replace queue and play');
+    addMenuItem(tabContent, {"cmd": "replaceQueue", "options": ["search", expression]}, 'Replace queue');
+    addMenuItem(tabContent, {"cmd": "replacePlayQueue", "options": ["search", expression]}, 'Replace queue and play');
     if (features.featPlaylists === true &&
         app.id !== 'Home')
     {
         addDivider(tabContent);
-        addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": ["SEARCH", uri]}, 'Add to playlist');
+        addMenuItem(tabContent, {"cmd": "showAddToPlaylist", "options": ["SEARCH", expression]}, 'Add to playlist');
     }
     addDivider(tabContent);
-    addMenuItem(tabContent, {"cmd": "appGoto", "options": ["Search", undefined, undefined, 0, undefined, "any", "Title", "-", uri]}, 'Show search');
+    addMenuItem(tabContent, {"cmd": "appGoto", "options": ["Search", undefined, undefined, 0, undefined, "any", "Title", "-", expression]}, 'Show search');
 }
 
+/**
+ * Appends directory actions to the popover
+ * @param {HTMLElement} tabContent element to append the menu items
+ * @param {string} baseuri directory
+ */
 function addMenuItemsDirectoryActions(tabContent, baseuri) {
-    //songs must be arragend in one album per folder
+    //songs must be arranged in one album per folder
     addMenuItem(tabContent, {"cmd": "appendQueue", "options": ["dir", baseuri]}, 'Append to queue');
     addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": ["dir", baseuri]}, 'Append to queue and play');
     if (features.featWhence === true) {
@@ -489,6 +581,11 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
     }
 }
 
+/**
+ * Appends actions for webradio favorites
+ * @param {HTMLElement} tabContent element to append the menu items
+ * @param {HTMLElement} dataNode element with the data
+ */
 function addMenuItemsWebradioFavoritesActions(tabContent, dataNode) {
     const type = getData(dataNode, 'type');
     const uri = getData(dataNode, 'uri');
@@ -500,11 +597,24 @@ function addMenuItemsWebradioFavoritesActions(tabContent, dataNode) {
     addMenuItem(tabContent, {"cmd": "deleteRadioFavorite", "options": [uri]}, 'Delete webradio favorite');
 }
 
+/**
+ * Appends actions for webradio favorites home icon
+ * @param {HTMLElement} tabContent element to append the menu items
+ * @param {string} uri webradio favorite uri
+ */
 function addMenuItemsWebradioFavoritesHomeActions(tabContent, uri) {
     addDivider(tabContent);
     addMenuItem(tabContent, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
 }
 
+/**
+ * Appends actions for playlists to the popover
+ * @param {HTMLElement} tabContent element to append the menu items
+ * @param {HTMLElement | EventTarget} dataNode element with the data
+ * @param {string} type playlist type: plist, smartpls
+ * @param {string} uri playlist uri
+ * @param {string} name playlist name
+ */
 function addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name) {
     addMenuItem(tabContent, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');
     addMenuItem(tabContent, {"cmd": "appendPlayQueue", "options": [type, uri]}, 'Append to queue and play');
@@ -543,6 +653,13 @@ function addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name) {
     }
 }
 
+/**
+ * Creates the first tab content for list popovers
+ * @param {EventTarget} el triggering element
+ * @param {HTMLElement} tabHeader tab header element
+ * @param {HTMLElement} tabContent tab content element
+ * @returns {boolean} true on success, else false
+ */
 function createMenuLists(el, tabHeader, tabContent) {
     const dataNode = el.parentNode.parentNode;
     const type = getData(dataNode, 'type');
@@ -663,6 +780,13 @@ function createMenuLists(el, tabHeader, tabContent) {
     return false;
 }
 
+/**
+ * Creates the secondary tab content for list popovers
+ * @param {EventTarget} el triggering element
+ * @param {HTMLElement} tabHeader tab header element
+ * @param {HTMLElement} tabContent tab content element
+ * @returns {boolean} true on success, else false
+ */
 function createMenuListsSecondary(el, tabHeader, tabContent) {
     switch(app.id) {
         case 'Search':
@@ -705,11 +829,18 @@ function createMenuListsSecondary(el, tabHeader, tabContent) {
     return false;
 }
 
+/**
+ * Creates the content of the first home popover tab
+ * @param {EventTarget} dataNode triggering element
+ * @param {HTMLElement} tabHeader tab header element
+ * @param {HTMLElement} tabContent tab content element
+ * @returns {boolean} true on success, else false
+ */
 function createMenuHome(dataNode, tabHeader, tabContent) {
     const pos = getData(dataNode, 'pos');
     const href = getData(dataNode, 'href');
     if (href === undefined) {
-        return;
+        return false;
     }
     let type = '';
     let actionDesc = '';
@@ -761,6 +892,13 @@ function createMenuHome(dataNode, tabHeader, tabContent) {
     return true;
 }
 
+/**
+ * Creates the content of the second home popover tab
+ * @param {EventTarget} el triggering element
+ * @param {HTMLElement} tabHeader tab header element
+ * @param {HTMLElement} tabContent tab content element
+ * @returns {boolean} true on success, else false
+ */
 function createMenuHomeSecondary(el, tabHeader, tabContent) {
     const pos = getData(el, 'pos');
     tabHeader.textContent = tn('Homeicon');

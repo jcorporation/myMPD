@@ -33,6 +33,10 @@ function handlePlayback() {
     }, false);
 }
 
+/**
+ * Parses the MYMPD_API_PLAYER_CURRENT_SONG jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
 function parseCurrentSong(obj) {
     const list = document.getElementById('PlaybackList');
     unsetUpdateView(list);
@@ -164,6 +168,10 @@ function parseCurrentSong(obj) {
     currentSongObj = obj.result;
 }
 
+/**
+ * Sets the values of the tags displayed in the playback view
+ * @param {object} songObj song object (result object of MYMPD_API_PLAYER_CURRENT_SONG jsonrpc response)
+ */
 function setPlaybackCardTags(songObj) {
     if (songObj.webradio === undefined) {
         for (const col of settings.colsPlayback) {
@@ -270,6 +278,9 @@ function setPlaybackCardTags(songObj) {
     }
 }
 
+/**
+ * Handler for the currentTitle element click event
+ */
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
     const uri = getDataId('currentTitle', 'uri');

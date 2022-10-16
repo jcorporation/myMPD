@@ -78,7 +78,7 @@ function cleanupModal(el) {
 
 /**
  * Shows an inline confirmation (for open modals)
- * @param {Element} el parent element to add the confirmation dialog
+ * @param {Element | ChildNode} el parent element to add the confirmation dialog
  * @param {string} text text to show (already translated)
  * @param {string} btnText text for the yes button (already translated)
  * @param {Function} callback callback function on confirmation

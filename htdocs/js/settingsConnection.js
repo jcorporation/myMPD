@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Initialization function for the connection settings elements
+ */
 function initSettingsConnection() {
     initElements(document.getElementById('modalConnection'));
 
@@ -44,6 +47,9 @@ function initSettingsConnection() {
     });
 }
 
+/**
+ * Saves the mpd connection settings
+ */
 //eslint-disable-next-line no-unused-vars
 function saveConnection() {
     cleanupModalId('modalConnection');
@@ -120,6 +126,10 @@ function saveConnection() {
     }
 }
 
+/**
+ * Handler for the MYMPD_API_CONNECTION_SAVE jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
 function saveConnectionClose(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -130,6 +140,9 @@ function saveConnectionClose(obj) {
     }
 }
 
+/**
+ * Populates the connection modal
+ */
 function populateConnectionFrm() {
     document.getElementById('inputMpdHost').value = settings.mpdHost;
     document.getElementById('inputMpdPort').value = settings.mpdPort;
