@@ -33,6 +33,10 @@ body.not-mobile .featMobile {
   display: none;
 }
 
+body.mobile > footer > nav {
+  padding-bottom: 1.5rem !important;
+}
+
 :root {
   --mympd-thumbnail-size: 175px;
   --mympd-highlightcolor: #28a745;

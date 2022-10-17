@@ -591,8 +591,10 @@ function setMobileView() {
     if (userAgentData.isMobile === true) {
         setViewport();
         domCache.body.classList.remove('not-mobile');
+        domCache.body.classList.add('mobile');
     }
     else {
+        domCache.body.classList.remove('mobile');
         domCache.body.classList.add('not-mobile');
     }
 }
