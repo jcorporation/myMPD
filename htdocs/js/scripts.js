@@ -3,6 +3,8 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module scripts_js */
+
 /**
  * Initialization functions for the script elements
  */

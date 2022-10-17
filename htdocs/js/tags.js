@@ -3,6 +3,8 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module tags_js */
+
 /**
  * Marks a tag from a tag dropdown as active and sets the element with descId to its phrase
  * @param {string} containerId container id (dropdown)

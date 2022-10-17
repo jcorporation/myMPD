@@ -3,7 +3,7 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-//functions to execute default actions
+/** @module clickActions_js */
 
 /**
  * Handler for quick remove button

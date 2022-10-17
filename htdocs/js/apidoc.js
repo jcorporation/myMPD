@@ -3,6 +3,12 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module apidoc_js */
+
+/** 
+ * API parameters
+ * @type {object}
+ */
 const APIparams = {
     "offset": {
             "type": "uint",
@@ -121,6 +127,10 @@ const APIparams = {
     }
 };
 
+/**
+ * API methods
+ * @type {object}
+ */
 const APImethods = {
     "MYMPD_API_DATABASE_SEARCH": {
         "desc": "Searches for songs in the database.",

@@ -3,6 +3,8 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module router_js */
+
 /**
  * Shows the current view and highlights the navbar icon
  */

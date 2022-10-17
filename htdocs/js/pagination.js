@@ -3,6 +3,8 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module pagination_js */
+
 /**
  * Go's to the previous or next page
  * @param {string} direction on of next, prev

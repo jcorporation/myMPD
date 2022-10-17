@@ -3,6 +3,8 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module validate_js */
+
 /**
  * Checks if string is a valid uri (not empty)
  * @param {string} uri uri to check 

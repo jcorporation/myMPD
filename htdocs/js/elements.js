@@ -3,6 +3,8 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module elements_js */
+
 /**
  * Shortcut for elCreateTextTn for smartCount only
  * @param {string} tagName name of the tag to create

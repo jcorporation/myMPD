@@ -3,6 +3,8 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module locale_js */
+
 /**
  * Checks for singular or plural
  * @param {number} number number to check

@@ -3,6 +3,8 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module utility_js */
+
 /**
  * Sets the updating indicator(s) for a view with the given id
  * @param {string} id element id

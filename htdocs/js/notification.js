@@ -3,6 +3,8 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module notifications_js */
+
 /**
  * Sets the background color of the myMPD logo according to the websocket state
  */

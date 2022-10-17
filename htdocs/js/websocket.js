@@ -3,6 +3,8 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module websocket_js */
+
 /**
  * Checks if the websocket is connected
  * @returns {boolean} true if websocket is connected, else false

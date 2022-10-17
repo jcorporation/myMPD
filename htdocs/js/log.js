@@ -3,6 +3,8 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module log_js */
+
 /**
  * Central logging function
  * @param {number} loglevel the numeric loglevel: 0 = error, 1 = warn, 2 = info, 3 = verbose, 4 = debug
