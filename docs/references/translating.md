@@ -33,7 +33,7 @@ The perl script `translate.pl` creates the `i18n.json` from these files, do not 
 - JSON key / value pairs
 - key is the phrase, value the translation
 - `%{smart_count}` is used for pluralization
-  - ` |||| ` separates the pluralization forms
+  - `` |||| `` separates the pluralization forms
   - the phrase before is used for number one
   - the phrase after is user for numbers zero or greater than one
   - more pluralization forms can be easily added (please open an issue)
