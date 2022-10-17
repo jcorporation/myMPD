@@ -4,7 +4,7 @@
 // https://github.com/jcorporation/mympd
 
 /**
- * Go's to previous or next page
+ * Go's to the previous or next page
  * @param {string} direction on of next, prev
  * @param {number} limit maximum entries to display
  */
@@ -24,7 +24,7 @@ function gotoPageDir(direction, limit) {
 }
 
 /**
- * Go's to page defined by offset
+ * Go's to the page defined by offset
  * @param {number} offset page offset
  * @param {number} limit maximum entries to display
  */

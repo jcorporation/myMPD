@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Initialization function for song elements
+ */
 function initSong() {
     document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
@@ -49,6 +52,10 @@ function initSong() {
     }, false);
 }
 
+/**
+ * Shows the song details modal
+ * @param {string} uri song uri
+ */
 function songDetails(uri) {
     sendAPI("MYMPD_API_SONG_DETAILS", {
         "uri": uri
@@ -56,6 +63,11 @@ function songDetails(uri) {
     uiElements.modalSongDetails.show();
 }
 
+/**
+ * Parses the MYMPD_API_SONG_FINGERPRINT jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseFingerprint(obj) {
     if (obj.error) {
         elReplaceChildId('fingerprint',
@@ -68,6 +80,12 @@ function parseFingerprint(obj) {
     elReplaceChildId('fingerprint', textarea);
 }
 
+/**
+ * Returns a link to MusicBrainz
+ * @param {string} tag tag name
+ * @param {string} value tag value
+ * @returns {HTMLElement} a link or the value as text
+ */
 function getMBtagLink(tag, value) {
     let MBentity = '';
     switch (tag) {
@@ -97,6 +115,12 @@ function getMBtagLink(tag, value) {
     }
 }
 
+/**
+ * Adds a row to the song details modal
+ * @param {string} thContent text for th
+ * @param {HTMLElement | Node | string} tdContent content element fot td
+ * @returns {HTMLElement} created row
+ */
 function songDetailsRow(thContent, tdContent) {
     const td = elCreateEmpty('td', {});
     if (typeof tdContent === 'object') {
@@ -112,6 +136,10 @@ function songDetailsRow(thContent, tdContent) {
     return tr;
 }
 
+/**
+ * Parses the MYMPD_API_SONG_DETAILS jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
 function parseSongDetails(obj) {
     const modal = document.getElementById('modalSongDetails');
     modal.querySelector('.album-cover').style.backgroundImage = 'url("' +
@@ -262,6 +290,11 @@ function parseSongDetails(obj) {
     createImgCarousel(imgEl, 'songPicsCarousel', obj.result.uri, obj.result.images, obj.result.embeddedImageCount);
 }
 
+/**
+ * Gets the song comments
+ * @param {string} uri song uri
+ * @param {HTMLElement} el container to add the comments
+ */
 function getComments(uri, el) {
     setUpdateView(el);
     sendAPI("MYMPD_API_SONG_COMMENTS", {
@@ -285,6 +318,12 @@ function getComments(uri, el) {
     }, false);
 }
 
+/**
+ * Gets the lyrics
+ * @param {string} uri song uri
+ * @param {HTMLElement} el container element to show the lyrics
+ * @returns {void}
+ */
 function getLyrics(uri, el) {
     if (isValidUri(uri) === false ||
         isStreamUri(uri) === true)
@@ -312,6 +351,11 @@ function getLyrics(uri, el) {
     }, true);
 }
 
+/**
+ * Parses the MYMPD_API_LYRICS_GET jsonrpc response
+ * @param {*} el container element to show the lyrics
+ * @param {*} obj jsonrpc response
+ */
 function createLyricsTabs(el, obj) {
     const lyricsTabs = elCreateEmpty('div', {"class": [ "lyricsTabs"]});
     const lyrics = elCreateEmpty('div', {"class": ["lyricsTextContainer", "mt-3"]});
@@ -433,6 +477,11 @@ function createLyricsTabs(el, obj) {
     }
 }
 
+/**
+ * Parses unsynced lyrics
+ * @param {HTMLElement} parent element to append the lyrics
+ * @param {string} text the lyrics
+ */
 function parseUnsyncedLyrics(parent, text) {
     for (const line of text.replace(/\r/g, '').split('\n')) {
         parent.appendChild(
@@ -444,6 +493,12 @@ function parseUnsyncedLyrics(parent, text) {
     }
 }
 
+/**
+ * Parses synced lyrics (lrc format)
+ * @param {HTMLElement} parent element to append the lyrics
+ * @param {string} lyrics the lyrics
+ * @param {boolean} currentLyrics true = lyrics in playback view, false lyrics in song details modal
+ */
 function parseSyncedLyrics(parent, lyrics, currentLyrics) {
     for (const line of lyrics.replace(/\r/g, '').split('\n')) {
         //line must start with timestamp
@@ -479,7 +534,11 @@ function parseSyncedLyrics(parent, lyrics, currentLyrics) {
     }
 }
 
-//used in songdetails modal
+/**
+ * Song love/hate event handler
+ * @param {EventTarget} el triggering element
+ * @returns {void}
+ */
 //eslint-disable-next-line no-unused-vars
 function voteSong(el) {
     if (el.nodeName === 'DIV') {
@@ -518,6 +577,11 @@ function voteSong(el) {
     }, null, false);
 }
 
+/**
+ * Sets the state of the song vote button group
+ * @param {number} vote the vote 0 = hate, 1 = neutral, 2 = love
+ * @param {string} uri song uri
+ */
 function setVoteSongBtns(vote, uri) {
     if (uri === undefined) {
         uri = '';

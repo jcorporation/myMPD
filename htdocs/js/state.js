@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Clears the mpd error
+ */
 function clearMPDerror() {
     sendAPI('MYMPD_API_PLAYER_CLEARERROR',{}, function() {
         sendAPI('MYMPD_API_PLAYER_STATE', {}, function(obj) {
@@ -11,6 +14,10 @@ function clearMPDerror() {
     }, false);
 }
 
+/**
+ * Parses the MYMPD_API_DATABASE_STATS jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
 function parseStats(obj) {
     document.getElementById('mpdstatsArtists').textContent = obj.result.artists;
     document.getElementById('mpdstatsAlbums').textContent = obj.result.albums;
@@ -38,17 +45,27 @@ function parseStats(obj) {
     }
 }
 
+/**
+ * Gets the serverinfo (ip address)
+ */
 function getServerinfo() {
     httpGet(subdir + '/serverinfo', function(obj) {
         document.getElementById('wsIP').textContent = obj.result.ip;
     }, true);
 }
 
+/**
+ * Creates the elapsed / duration counter text
+ * @returns {string} song counter text
+ */
 function getCounterText() {
     return fmtSongDuration(currentState.elapsedTime) + smallSpace +
         '/' + smallSpace + fmtSongDuration(currentState.totalTime);
 }
 
+/**
+ * Sets the song counters
+ */
 function setCounter() {
     //progressbar in footer
     const progressPx = currentState.totalTime > 0 ?
@@ -74,7 +91,7 @@ function setCounter() {
     //counter in footer
     domCache.counter.textContent = counterText;
     //update queue card
-    const playingRow = document.getElementById('queueTrackId' + currentState.currentSongId);
+    const playingRow = document.getElementById('queueSongId' + currentState.currentSongId);
     if (playingRow !== null) {
         //progressbar and counter in queue card
         setQueueCounter(playingRow, counterText);
@@ -111,6 +128,11 @@ function setCounter() {
     }
 }
 
+/**
+ * Parses the MYMPD_API_PLAYER_STATE jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseState(obj) {
     if (obj.result === undefined) {
         logError('State is undefined');
@@ -236,6 +258,12 @@ function parseState(obj) {
     }
 }
 
+/**
+ * Sets the background image
+ * @param {HTMLElement} el element for the background image
+ * @param {string} url background image url
+ * @returns {void}
+ */
 function setBackgroundImage(el, url) {
     if (url === undefined) {
         clearBackgroundImage(el);
@@ -288,6 +316,10 @@ function setBackgroundImage(el, url) {
     img.src = bgImageUrl;
 }
 
+/**
+ * Clears the background image
+ * @param {HTMLElement} el element for the background image
+ */
 function clearBackgroundImage(el) {
     const old = el.parentNode.querySelectorAll(el.tagName + '> div.albumartbg');
     for (let i = 0, j = old.length; i < j; i++) {
@@ -301,6 +333,10 @@ function clearBackgroundImage(el) {
     }
 }
 
+/**
+ * Sets the current cover in playback view and footer
+ * @param {string} url song uri
+ */
 function setCurrentCover(url) {
     setBackgroundImage(document.getElementById('currentCover'), url);
     setBackgroundImage(document.getElementById('footerCover'), url);
@@ -309,6 +345,9 @@ function setCurrentCover(url) {
     }
 }
 
+/**
+ * Clears the current cover in playback view and footer
+ */
 function clearCurrentCover() {
     clearBackgroundImage(document.getElementById('currentCover'));
     clearBackgroundImage(document.getElementById('footerCover'));
@@ -317,11 +356,12 @@ function clearCurrentCover() {
     }
 }
 
-//eslint-disable-next-line no-unused-vars
-function gotoTagList() {
-    appGoto(app.current.card, app.current.tab, app.current.view, 0, undefined, '-', '-', '-', '');
-}
-
+/**
+ * Sets the elapsed time for the media session api
+ * @param {number} duration song duration
+ * @param {number} position elapsed time
+ * @returns {void}
+ */
 function mediaSessionSetPositionState(duration, position) {
     if (features.featMediaSession === false ||
         navigator.mediaSession.setPositionState === undefined)
@@ -337,6 +377,10 @@ function mediaSessionSetPositionState(duration, position) {
     }
 }
 
+/**
+ * Sets the state for the media session api
+ * @returns {void}
+ */
 function mediaSessionSetState() {
     if (features.featMediaSession === false) {
         return;
@@ -346,6 +390,14 @@ function mediaSessionSetState() {
     navigator.mediaSession.playbackState = state;
 }
 
+/**
+ * Sets metadata for the media session api
+ * @param {string} title song title
+ * @param {object} artist array of artists
+ * @param {string} album album name
+ * @param {string} url song uri
+ * @returns {void}
+ */
 function mediaSessionSetMetadata(title, artist, album, url) {
     if (features.featMediaSession === false) {
         return;
@@ -354,7 +406,7 @@ function mediaSessionSetMetadata(title, artist, album, url) {
         (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(url);
     navigator.mediaSession.metadata = new MediaMetadata({
         title: title,
-        artist: artist,
+        artist: joinArray(artist),
         album: album,
         artwork: [{src: artwork}]
     });

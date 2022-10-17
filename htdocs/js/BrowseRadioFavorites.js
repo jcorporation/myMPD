@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Browse RadioFavorites handler
+ */
 function handleBrowseRadioFavorites() {
     setFocusId('BrowseRadioFavoritesSearchStr');
     sendAPI("MYMPD_API_WEBRADIO_FAVORITE_LIST", {
@@ -12,6 +15,9 @@ function handleBrowseRadioFavorites() {
     }, parseRadioFavoritesList, true);
 }
 
+/**
+ * Initialization function for radio favorites elements
+ */
 function initBrowseRadioFavorites() {
     document.getElementById('addToWebradioFavorites').addEventListener('click', function(event) {
         event.preventDefault();
@@ -68,11 +74,19 @@ function initBrowseRadioFavorites() {
     setDataId('editRadioFavoriteImage', 'cb-filter-options', ['editRadioFavoriteImage']);
 }
 
-function getRadioFavoriteUri(uri) {
+/**
+ * Constructs a special webradio favorite uri
+ * @param {string} filename base uri
+ * @returns {string} constructed uri
+ */
+function getRadioFavoriteUri(filename) {
     //construct special url, it will be resolved by the myMPD api handler
-    return 'mympd://webradio/' + myEncodeURI(uri);
+    return 'mympd://webradio/' + myEncodeURI(filename);
 }
 
+/**
+ * Gets the list of webradio favorites
+ */
 function getRadioFavoriteList() {
     sendAPI("MYMPD_API_WEBRADIO_FAVORITE_LIST", {
         "offset": app.current.offset,
@@ -81,6 +95,10 @@ function getRadioFavoriteList() {
     }, parseRadioFavoritesList, true);
 }
 
+/**
+ * Deletes a webradio favorite
+ * @param {string} filename filename to delete
+ */
 //eslint-disable-next-line no-unused-vars
 function deleteRadioFavorite(filename) {
     sendAPI("MYMPD_API_WEBRADIO_FAVORITE_RM", {
@@ -90,6 +108,10 @@ function deleteRadioFavorite(filename) {
     }, false);
 }
 
+/**
+ * Gets the webradio favorite and opens the edit modal
+ * @param {string} filename filename to delete
+ */
 //eslint-disable-next-line no-unused-vars
 function editRadioFavorite(filename) {
     sendAPI("MYMPD_API_WEBRADIO_FAVORITE_GET", {
@@ -99,6 +121,9 @@ function editRadioFavorite(filename) {
     }, false);
 }
 
+/**
+ * Shows the add webradio favorite modal
+ */
 //eslint-disable-next-line no-unused-vars
 function manualAddRadioFavorite() {
     showEditRadioFavorite({
@@ -114,6 +139,10 @@ function manualAddRadioFavorite() {
     });
 }
 
+/**
+ * Opens the edit modal and populates the values from obj
+ * @param {object} obj jsonrpc response
+ */
 function showEditRadioFavorite(obj) {
     cleanupModalId('modalSaveRadioFavorite');
     document.getElementById('editRadioFavoriteName').value = obj.Name === undefined ? '' : obj.Name;
@@ -141,6 +170,9 @@ function showEditRadioFavorite(obj) {
     uiElements.modalSaveRadioFavorite.show();
 }
 
+/**
+ * Saves a webradio favorite
+ */
 //eslint-disable-next-line no-unused-vars
 function saveRadioFavorite() {
     cleanupModalId('modalSaveRadioFavorite');
@@ -159,6 +191,9 @@ function saveRadioFavorite() {
     }, saveRadioFavoriteClose, true);
 }
 
+/**
+ * Wrapper for _checkWebradioDb that fetches the webradioDB if needed
+ */
 //eslint-disable-next-line no-unused-vars
 function checkWebradioDb() {
     document.getElementById('webradiodbCheckState').textContent = tn('Checking...');
@@ -175,6 +210,9 @@ function checkWebradioDb() {
     }
 }
 
+/**
+ * Checks the local webradio favorite against the webradioDB entry
+ */
 function _checkWebradioDb() {
     const streamUri = document.getElementById('editRadioFavoriteStreamUri').value;
     if (streamUri !== '') {
@@ -228,6 +266,10 @@ function _checkWebradioDb() {
     btnWaitingId('btnCheckWebradiodb', false);
 }
 
+/**
+ * Compares the local webradio favorite with the entry from webradioDB
+ * @returns {boolean} true if entries are equal, else false
+ */
 function compareWebradioDb() {
     let v1 = '';
     let v2 = '';
@@ -244,6 +286,9 @@ function compareWebradioDb() {
     return v1 === v2;
 }
 
+/**
+ * Updates the local webradio favorite from webradioDB
+ */
 //eslint-disable-next-line no-unused-vars
 function updateFromWebradioDb() {
     const webradio = streamUriToName(document.getElementById('editRadioFavoriteStreamUri').value) + '.m3u';
@@ -258,6 +303,9 @@ function updateFromWebradioDb() {
     _checkWebradioDb();
 }
 
+/**
+ * Adds the local webradio favorite to the webradioDB
+ */
 //eslint-disable-next-line no-unused-vars
 function addToWebradioDb() {
     const uri = 'https://github.com/jcorporation/webradiodb/issues/new?labels=AddWebradio&template=add-webradio.yml' +
@@ -275,6 +323,9 @@ function addToWebradioDb() {
     window.open(uri, '_blank');
 }
 
+/**
+ * Updates the webradioDB entry from the local webradio favorite
+ */
 //eslint-disable-next-line no-unused-vars
 function updateWebradioDb() {
     const uri = 'https://github.com/jcorporation/webradiodb/issues/new?labels=ModifyWebradio&template=modify-webradio.yml' +
@@ -293,6 +344,10 @@ function updateWebradioDb() {
     window.open(uri, '_blank');
 }
 
+/**
+ * Handler for the MYMPD_API_WEBRADIO_FAVORITE_SAVE jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
 function saveRadioFavoriteClose(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -305,6 +360,11 @@ function saveRadioFavoriteClose(obj) {
     }
 }
 
+/**
+ * Parses the jsnorpc response from MYMPD_API_WEBRADIO_FAVORITE_LIST
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseRadioFavoritesList(obj) {
     const cardContainer = document.getElementById('BrowseRadioFavoritesList');
 
@@ -398,6 +458,10 @@ function parseRadioFavoritesList(obj) {
     scrollToPosY(cardContainer.parentNode, app.current.scrollPos);
 }
 
+/**
+ * Adds the quick play button to the webradio favorite icon
+ * @param {ChildNode} parentEl the containing element
+ */
 function addRadioFavoritesPlayButton(parentEl) {
     const div = pEl.coverPlayBtn.cloneNode(true);
     parentEl.appendChild(div);

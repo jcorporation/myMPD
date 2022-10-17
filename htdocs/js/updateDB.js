@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Initialization function for the update database elements
+ */
 function initUpdateDB() {
     document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function() {
         document.getElementById('updateDBprogress').classList.remove('updateDBprogressAnimate');

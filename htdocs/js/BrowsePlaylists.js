@@ -202,7 +202,7 @@ function parsePlaylistsDetail(obj) {
     );
 
     updateTable(obj, 'BrowsePlaylistsDetail', function(row, data) {
-        row.setAttribute('id', 'playlistTrackId' + data.Pos);
+        row.setAttribute('id', 'playlistSongId' + data.Pos);
         row.setAttribute('draggable', 'true');
         row.setAttribute('tabindex', 0);
         setData(row, 'type', data.Type);

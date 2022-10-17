@@ -3,7 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-
+/**
+ * Browse Radiobrowser handler
+ */
 function handleBrowseRadioRadiobrowser() {
     setFocusId('BrowseRadioRadiobrowserSearchStr');
     document.getElementById('inputRadiobrowserTags').value = app.current.filter['tags'];
@@ -27,6 +29,9 @@ function handleBrowseRadioRadiobrowser() {
     }
 }
 
+/**
+ * Initializes the radiobrowser elements
+ */
 function initBrowseRadioRadiobrowser() {
     document.getElementById('BrowseRadioRadiobrowserSearchStr').addEventListener('keyup', function(event) {
         clearSearchTimer();
@@ -70,6 +75,10 @@ function initBrowseRadioRadiobrowser() {
     }, false);
 }
 
+/**
+ * Sends a click count message to the radiobrowser api
+ * @param {string} uuid station uuid
+ */
 function countClickRadiobrowser(uuid) {
     if (uuid !== '') {
         sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_CLICK_COUNT", {
@@ -78,6 +87,9 @@ function countClickRadiobrowser(uuid) {
     }
 }
 
+/**
+ * Searches the radiobrowser
+ */
 function searchRadiobrowser() {
     app.current.filter['tags'] = document.getElementById('inputRadiobrowserTags').value;
     app.current.filter['country'] = document.getElementById('inputRadiobrowserCountry').value;
@@ -86,6 +98,10 @@ function searchRadiobrowser() {
         0, app.current.limit, app.current.filter, '-', '-', document.getElementById('BrowseRadioRadiobrowserSearchStr').value);
 }
 
+/**
+ * Shows the details of a radiobrowser station
+ * @param {string} uuid station uuid
+ */
 //eslint-disable-next-line no-unused-vars
 function showRadiobrowserDetails(uuid) {
     sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL", {
@@ -100,6 +116,11 @@ function showRadiobrowserDetails(uuid) {
     countClickRadiobrowser(uuid);
 }
 
+/**
+ * Parses the MYMPD_API_CLOUD_RADIOBROWSER_STATION_DETAIL jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseRadiobrowserDetails(obj) {
     const tbody = document.getElementById('modalRadiobrowserDetailsList');
     if (checkResult(obj, tbody) === false) {
@@ -155,6 +176,12 @@ function parseRadiobrowserDetails(obj) {
     }
 }
 
+/**
+ * Parses the MYMPD_API_CLOUD_RADIOBROWSER_NEWEST and
+ * MYMPD_API_CLOUD_RADIOBROWSER_SEARCH jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseRadiobrowserList(obj) {
     if (app.current.filter['tags'] === '' &&
         app.current.filter['country'] === '' &&

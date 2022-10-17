@@ -3,6 +3,9 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * Handler for song search
+ */
 function handleSearch() {
     const searchStrEl = document.getElementById('searchStr');
     const searchCrumbEl = document.getElementById('searchCrumb');
@@ -39,6 +42,9 @@ function handleSearch() {
     selectTag('searchTags', 'searchTagsDesc', app.current.filter);
 }
 
+/**
+ * Initialization function for the search elements
+ */
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
         //action td
@@ -131,11 +137,20 @@ function initSearch() {
     }, false);
 }
 
-function doSearch(x) {
-    const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValueId('searchMatch'), x);
+/**
+ * Searches for songs
+ * @param {string} value current search input value
+ */
+function doSearch(value) {
+    const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValueId('searchMatch'), value);
     appGoto('Search', undefined, undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', expression, 0);
 }
 
+/**
+ * Parses the MYMPD_API_DATABASE_SEARCH jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseSearch(obj) {
     const table = document.getElementById('SearchList');
     const tfoot = table.querySelector('tfoot');
@@ -174,6 +189,9 @@ function parseSearch(obj) {
     }
 }
 
+/**
+ * Saves the current search as a smart playlist
+ */
 //eslint-disable-next-line no-unused-vars
 function saveSearchAsSmartPlaylist() {
     parseSmartPlaylist({"jsonrpc":"2.0","id":0,"result":{"method":"MYMPD_API_SMARTPLS_GET",
@@ -184,6 +202,11 @@ function saveSearchAsSmartPlaylist() {
     }});
 }
 
+/**
+ * Appends the current search to the queue
+ * @param {string} mode one of: append, appendPlay, insertAfterCurrent, insertPlayAfterCurrent, replace, replacePlay
+ * @param {string} type one of: search, dir
+ */
 //eslint-disable-next-line no-unused-vars
 function addAllFromSearch(mode, type) {
     switch(mode) {
@@ -200,10 +223,10 @@ function addAllFromSearch(mode, type) {
             insertPlayAfterCurrentQueue(type, app.current.search);
             break;
         case 'replace':
-            replaceQueue(type, app.current.search, false);
+            replaceQueue(type, app.current.search);
             break;
         case 'replacePlay':
-            replacePlayQueue(type, app.current.search, true);
+            replacePlayQueue(type, app.current.search);
             break;
     }
 }

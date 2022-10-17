@@ -44,7 +44,7 @@ function parseCurrentSong(obj) {
     let textNotification = '';
     let pageTitle = '';
 
-    mediaSessionSetMetadata(obj.result.Title, joinArray(obj.result.Artist), obj.result.Album, obj.result.uri);
+    mediaSessionSetMetadata(obj.result.Title, obj.result.Artist, obj.result.Album, obj.result.uri);
 
     setCurrentCover(obj.result.uri);
 
@@ -150,7 +150,7 @@ function parseCurrentSong(obj) {
     queueSetCurrentSong();
 
     //update title in queue view for http streams
-    const playingTr = document.getElementById('queueTrackId' + obj.result.currentSongId);
+    const playingTr = document.getElementById('queueSongId' + obj.result.currentSongId);
     if (playingTr !== null) {
         const titleCol = playingTr.querySelector('[data-col=Title');
         if (titleCol) {

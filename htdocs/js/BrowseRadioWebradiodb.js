@@ -3,6 +3,10 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/**
+ * WebradioDB Browse handler
+ * @returns {void}
+ */
 function handleBrowseRadioWebradiodb() {
     setFocusId('BrowseRadioWebradiodbSearchStr');
     if (webradioDb === null) {
@@ -27,6 +31,9 @@ function handleBrowseRadioWebradiodb() {
     parseSearchWebradiodb(result);
 }
 
+/**
+ * Initialization function for webradioDB elements
+ */
 function initBrowseRadioWebradiodb() {
     document.getElementById('BrowseRadioWebradiodbSearchStr').addEventListener('keyup', function(event) {
         clearSearchTimer();
@@ -83,6 +90,12 @@ function initBrowseRadioWebradiodb() {
     }, false);
 }
 
+/**
+ * Initializes the webradioDB filter elements
+ * @param {string} id input id to initialize
+ * @param {string} dbField database fields
+ * @param {string} name name of the field
+ */
 function initWebradiodbFilter(id, dbField, name) {
     document.getElementById(id).addEventListener('change', function() {
         doSearchWebradiodb();
@@ -91,6 +104,9 @@ function initWebradiodbFilter(id, dbField, name) {
     setDataId(id, 'cb-filter-options', [id, dbField, name]);
 }
 
+/**
+ * Fetches the webradioDB
+ */
 function getWebradiodb() {
     const list = document.querySelector('#BrowseRadioWebradiodbList > tbody');
     elReplaceChild(list, 
@@ -110,13 +126,20 @@ function getWebradiodb() {
     }, false);
 }
 
-function filterWebradiodbFilter(id, source, placeholder, searchStr) {
+/**
+ * Callback function for the custom select filter for webradioDB
+ * @param {string} id element id
+ * @param {string} dbField name of the array to filter
+ * @param {string} placeholder placeholder value
+ * @param {string} searchStr search string
+ */
+function filterWebradiodbFilter(id, dbField, placeholder, searchStr) {
     searchStr = searchStr.toLowerCase();
     const el = document.getElementById(id);
     elClear(el.filterResult);
     el.addFilterResult(tn(placeholder), '');
     let i = 0;
-    for (const value of webradioDb[source]) {
+    for (const value of webradioDb[dbField]) {
         if (searchStr === '' ||
             value.toLowerCase().indexOf(searchStr) > -1)
         {
@@ -129,6 +152,9 @@ function filterWebradiodbFilter(id, source, placeholder, searchStr) {
     }
 }
 
+/**
+ * Starts the webradioDB search
+ */
 function doSearchWebradiodb() {
     const searchstr = document.getElementById('BrowseRadioWebradiodbSearchStr').value;
     const genre = getDataId('filterWebradiodbGenre', 'value');
@@ -141,6 +167,19 @@ function doSearchWebradiodb() {
         app.current.sort, undefined, searchstr, 0);
 }
 
+/**
+ * Searches the webradioDB
+ * @param {string} name webradio name
+ * @param {string} genre webradio genre
+ * @param {string} country webradio country
+ * @param {string} language webradio language
+ * @param {string} codec webradio codec
+ * @param {number} bitrate webradio bitrate
+ * @param {object} sort webradio sort
+ * @param {number} offset start offset
+ * @param {number} limit maximum number of results
+ * @returns {object} the search result
+ */
 function searchWebradiodb(name, genre, country, language, codec, bitrate, sort, offset, limit) {
     name = name.toLowerCase();
     const obj = {
@@ -211,6 +250,11 @@ function searchWebradiodb(name, genre, country, language, codec, bitrate, sort, 
     return obj;
 }
 
+/**
+ * Parses the webradioDB search result
+ * @param {object} obj the search result
+ * @returns {void}
+ */
 function parseSearchWebradiodb(obj) {
     const tfoot = document.querySelector('#BrowseRadioWebradiodbList > tfoot');
     elClear(tfoot);
@@ -256,10 +300,19 @@ function parseSearchWebradiodb(obj) {
     }
 }
 
+/**
+ * Converts a stream uri to the webradioDB and webradio favorites filename
+ * @param {string} uri uri to convert
+ * @returns {string} converted string
+ */
 function streamUriToName(uri) {
     return uri.replace(/[<>/.:?&$!#|;=]/g, '_');
 }
 
+/**
+ * Shows the details of a webradioDB entry
+ * @param {string} uri webradio uri
+ */
 //eslint-disable-next-line no-unused-vars
 function showWebradiodbDetails(uri) {
     //reuse the radiobrowser modal
