@@ -357,7 +357,7 @@ bool list_replace(struct t_list *l, long idx, const char *key, long long value_i
 }
 
 /**
- * Replaces a list nodes values at pos .
+ * Replaces a list nodes values at pos.
  * Frees the old user_data pointer.
  * @param l list
  * @param idx index of node to change

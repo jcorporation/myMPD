@@ -41,7 +41,7 @@ sds mympd_api_volume_set(struct t_partition_state *partition_state, sds buffer, 
 }
 
 /**
- * 
+ * Changes the volume by relative_volume
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id

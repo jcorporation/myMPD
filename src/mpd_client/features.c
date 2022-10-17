@@ -24,10 +24,10 @@
  * Private definitions
  */
 
-static void mpd_client_feature_commands(struct t_partition_state *partition_state);
-static void mpd_client_feature_mpd_tags(struct t_partition_state *partition_state);
-static void mpd_client_feature_tags(struct t_partition_state *partition_state);
-static void mpd_client_feature_config(struct t_partition_state *partition_state);
+static void features_commands(struct t_partition_state *partition_state);
+static void features_mpd_tags(struct t_partition_state *partition_state);
+static void features_tags(struct t_partition_state *partition_state);
+static void features_config(struct t_partition_state *partition_state);
 static sds set_directory(const char *desc, sds directory, sds value);
 
 /**
@@ -50,9 +50,9 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
     mpd_state_features_disable(partition_state->mpd_state);
 
     //get features
-    mpd_client_feature_commands(partition_state);
-    mpd_client_feature_config(partition_state);
-    mpd_client_feature_tags(partition_state);
+    features_commands(partition_state);
+    features_config(partition_state);
+    features_tags(partition_state);
 
     //set state
     sds buffer = sdsempty();
@@ -118,7 +118,7 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
  * Looks for allowed MPD command
  * @param partition_state pointer to partition state
  */
-static void mpd_client_feature_commands(struct t_partition_state *partition_state) {
+static void features_commands(struct t_partition_state *partition_state) {
     if (mpd_send_allowed_commands(partition_state->conn) == true) {
         struct mpd_pair *pair;
         while ((pair = mpd_recv_command_pair(partition_state->conn)) != NULL) {
@@ -164,12 +164,12 @@ static void mpd_client_feature_commands(struct t_partition_state *partition_stat
  * Sets enabled tags for myMPD
  * @param partition_state pointer to partition state
  */
-static void mpd_client_feature_tags(struct t_partition_state *partition_state) {
+static void features_tags(struct t_partition_state *partition_state) {
     reset_t_tags(&partition_state->mpd_state->tags_search);
     reset_t_tags(&partition_state->mpd_state->tags_browse);
     reset_t_tags(&partition_state->mympd_state->smartpls_generate_tag_types);
 
-    mpd_client_feature_mpd_tags(partition_state);
+    features_mpd_tags(partition_state);
 
     if (partition_state->mpd_state->feat_tags == true) {
         check_tags(partition_state->mympd_state->tag_list_search, "tag_list_search",
@@ -185,7 +185,7 @@ static void mpd_client_feature_tags(struct t_partition_state *partition_state) {
  * Checks enabled tags from MPD
  * @param partition_state pointer to partition state
  */
-static void mpd_client_feature_mpd_tags(struct t_partition_state *partition_state) {
+static void features_mpd_tags(struct t_partition_state *partition_state) {
     reset_t_tags(&partition_state->mpd_state->tags_mpd);
     reset_t_tags(&partition_state->mpd_state->tags_mympd);
 
@@ -237,10 +237,10 @@ static void mpd_client_feature_mpd_tags(struct t_partition_state *partition_stat
 }
 
 /**
- * Uses the config command to checks for MPD features
+ * Uses the config command to check for MPD features
  * @param partition_state pointer to partition state
  */
-static void mpd_client_feature_config(struct t_partition_state *partition_state) {
+static void features_config(struct t_partition_state *partition_state) {
     partition_state->mpd_state->feat_library = false;
     sdsclear(partition_state->mpd_state->music_directory_value);
     sdsclear(partition_state->mpd_state->playlist_directory_value);
