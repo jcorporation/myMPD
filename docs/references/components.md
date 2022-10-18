@@ -11,7 +11,7 @@ myMPD is opensource and build on top off other great opensource software.
 - [Bootstrap](https://getbootstrap.com) (only the css part)
 - [Bootstrap Native](http://thednp.github.io/bootstrap.native/) (replaces the javascript for bootstrap)
 - [long-press-event](https://github.com/john-doherty/long-press-event) (support of long touch events)
-- [Material Design Icons](https://material.io/tools/icons/) (Icons)
+- [Material Design Icons](https://fonts.google.com/icons?selected=Material+Icons) (Icons)
 
 ## Backend
 
