@@ -8,7 +8,7 @@ The navbar icons can be customized. You must edit the file `/var/lib/mympd/state
 
 | FIELD | DESCRIPTION |
 | ----- | ----------- |
-| ligature | the same as for home icons from [material.io](https://material.io/resources/icons/?style=baseline) |
+| ligature | the same as for home icons from [Material Icons](https://fonts.google.com/icons?selected=Material+Icons&icon.style=Filled) |
 | title | title of the icon (would be translated) |
 | options | array of the view to open (take the part before the exclamation mark and split it by the `/` character), ending hyphens can be ommited |
 {: .table .table-sm }
