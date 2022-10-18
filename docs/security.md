@@ -37,4 +37,4 @@ Nevertheless myMPD is designed with security in mind.
 
 If you find a security bug in myMPD please report it and I will fix it as soon as possible.
 
-Write a mail to [mail@jcgames.de](mail@jcgames.de).
+Write a mail to [mail@jcgames.de](mailto:mail@jcgames.de).
