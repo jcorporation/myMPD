@@ -126,7 +126,7 @@ myMPD loads in the default config all lua standard libraries. The config option 
 - Available (standard lua libraries): base, coroutine, debug, io, math, os, package, string, table, utf8  
 - Available (myMPD custom libraries):
   - mympd
-  - json (https://github.com/rxi/json.lua)
+  - [json](https://github.com/rxi/json.lua)
 
 ## Script file format
 
