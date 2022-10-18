@@ -216,7 +216,8 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
             bool jukebox_add_song = false;
             bool set_played = false;
             bool set_stickers = partition_state->is_default &&
-                partition_state->mpd_state->sticker_queue.length > 0;
+                partition_state->mpd_state->sticker_queue.length > 0 &&
+                partition_state->mpd_state->sticker_cache.building == false;
             //handle jukebox and last played only in mpd play state
             if (partition_state->play_state == MPD_STATE_PLAY) {
                 time_t now = time(NULL);
