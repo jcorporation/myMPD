@@ -905,6 +905,11 @@ div.album-grid-mouseover {
   font-size: 2.4rem;
 }
 
+div.album-grid-mouseover:hover {
+  transform: scale(1.05);
+  background-color: rgba(0, 0, 0, 55%);
+}
+
 .page-dropdown {
   min-width: 20rem;
 }
