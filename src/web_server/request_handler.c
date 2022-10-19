@@ -271,7 +271,7 @@ void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
 void request_handler_serverinfo(struct mg_connection *nc) {
     struct sockaddr_storage localip;
     socklen_t len = sizeof(localip);
-    if (getsockname((int)nc->fd, (struct sockaddr *)(&localip), &len) == 0) {
+    if (getsockname((int)(long)nc->fd, (struct sockaddr *)(&localip), &len) == 0) {
         sds response = jsonrpc_respond_start(sdsempty(), GENERAL_API_UNKNOWN, 0);
         char addr_str[INET6_ADDRSTRLEN];
         const char *addr_str_ptr = nc->loc.is_ip6 == true ?
