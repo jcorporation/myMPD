@@ -17,6 +17,7 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 - Feat: support queue save modes (MPD 0.24) #848
 - Feat: add elapsed sticker to save recent position from songs #781
 - Feat: jsDoc compatible API documentation and linting with typescript compiler
+- Feat: add view action to default radio click actions
 - Upd: libmympdclient 1.0.15
 - Upd: refactor translation framework
 - Upd: en-US, de-DE translations

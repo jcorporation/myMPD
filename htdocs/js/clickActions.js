@@ -94,6 +94,7 @@ function clickRadiobrowser(uri, uuid) {
         case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
         case 'replace': return replaceQueue('song', uri);
         case 'replacePlay': return replacePlayQueue('song', uri);
+        case 'view': return showRadiobrowserDetails(uuid);
     }
     countClickRadiobrowser(uuid);
 }
@@ -111,6 +112,7 @@ function clickWebradiodb(uri) {
         case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
         case 'replace': return replaceQueue('song', uri);
         case 'replacePlay': return replacePlayQueue('song', uri);
+        case 'view': return showWebradiodbDetails(uri);
     }
 }
 

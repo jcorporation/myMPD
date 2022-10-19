@@ -494,7 +494,8 @@ const webuiSettingsDefault = {
             "insertAfterCurrent": "Insert after current playing song",
             "replace": "Replace queue",
             "replacePlay": "Replace queue and play",
-            "add": "Add to favorites"
+            "add": "Add to favorites",
+            "view": "Webradio details"
         },
         "inputType": "select",
         "title": "Click webradio",
