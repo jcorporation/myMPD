@@ -246,7 +246,7 @@ app.cards = {
                     "desc": false
                 },
                 "tag": "dir",
-                "search": "",
+                "search": "/",
                 "scrollPos": 0
             },
             "Playlists": {

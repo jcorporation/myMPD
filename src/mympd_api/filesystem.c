@@ -126,7 +126,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
         char *path_cpy = strdup(path);
         char *parent_dir = dirname(path_cpy);
         buffer = sdscat(buffer, "{\"Type\":\"parentDir\",\"name\":\"parentDir\",");
-        buffer = tojson_char(buffer, "uri", (parent_dir[0] == '.' ? "" : parent_dir), false);
+        buffer = tojson_char(buffer, "uri", (parent_dir[0] == '.' ? "/" : parent_dir), false);
         buffer = sdscatlen(buffer, "}", 1);
         entity_count++;
         entities_returned++;

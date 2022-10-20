@@ -17,48 +17,38 @@ function handleBrowseFilesystem() {
     sendAPI("MYMPD_API_DATABASE_FILESYSTEM_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
-        "path": (app.current.search ? app.current.search : "/"),
+        "path": app.current.search,
         "searchstr": (app.current.filter !== '-' ? app.current.filter : ''),
         "type": app.current.tag,
         "cols": settings.colsBrowseFilesystemFetch
     }, parseFilesystem, true);
-    //Don't add all songs from root
-    if (app.current.search === '') {
-        elHideId('BrowseFilesystemAddAllSongsGrp');
-        if (features.featHome === true) {
-            elShowId('BrowseFilesystemAddToHome');
-        }
-    }
-    else {
-        elShowId('BrowseFilesystemAddAllSongsGrp');
-        elHideId('BrowseFilesystemAddToHome');
-    }
     //Create breadcrumb
     const crumbEl = document.getElementById('BrowseBreadcrumb');
     elClear(crumbEl);
     const home = elCreateText('a', {"class": ["mi"]}, 'home');
-    setData(home, 'uri', '');
+    setData(home, 'uri', '/');
     crumbEl.appendChild(
         elCreateNode('li', {"class": ["breadcrumb-item"]}, home)
     );
-
-    const pathArray = app.current.search.split('/');
-    const pathArrayLen = pathArray.length;
-    let fullPath = '';
-    for (let i = 0; i < pathArrayLen; i++) {
-        if (pathArrayLen - 1 === i) {
+    if (app.current.search !== '/') {
+        const pathArray = app.current.search.split('/');
+        const pathArrayLen = pathArray.length;
+        let fullPath = '';
+        for (let i = 0; i < pathArrayLen; i++) {
+            if (pathArrayLen - 1 === i) {
+                crumbEl.appendChild(
+                    elCreateText('li', {"class": ["breadcrumb-item", "active"]}, pathArray[i])
+                );
+                break;
+            }
+            fullPath += pathArray[i];
+            const a = elCreateText('a', {"href": "#"}, pathArray[i]);
+            setData(a, 'uri', fullPath);
             crumbEl.appendChild(
-                elCreateText('li', {"class": ["breadcrumb-item", "active"]}, pathArray[i])
+                elCreateNode('li', {"class": ["breadcrumb-item"]}, a)
             );
-            break;
+            fullPath += '/';
         }
-        fullPath += pathArray[i];
-        const a = elCreateText('a', {"href": "#"}, pathArray[i]);
-        setData(a, 'uri', fullPath);
-        crumbEl.appendChild(
-            elCreateNode('li', {"class": ["breadcrumb-item"]}, a)
-        );
-        fullPath += '/';
     }
     const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
     searchFilesystemStrEl.value = app.current.filter === '-' ? '' :  app.current.filter;
