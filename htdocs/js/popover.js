@@ -298,7 +298,7 @@ function addDivider(tabContent) {
 }
 
 /**
- * Adds a menu item to the popover menut
+ * Adds a menu item to the popover menu
  * @param {HTMLElement} tabContent element to append the menu item
  * @param {*} cmd the command
  * @param {*} text menu text, will be translated

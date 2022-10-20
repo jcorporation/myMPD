@@ -25,7 +25,7 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 - Upd: Bootstrap 5.2.2
 - Upd: parse mpd bitrate #855
 - Upd: italian translation, thanks @DoDiesis
-- Fix: language name in Japanese #854
+- Fix: language name in japanese #854
 
 ***
 
@@ -36,8 +36,8 @@ This is a small bug fix release.
 ### Changelog
 
 - Feat: add japanese translation
-- Fix: Segmentation fault when clicking on last played list #850
-- Fix: Scrobble script - artist_mbids MBID format invalid #853
+- Fix: segmentation fault when clicking on last played list #850
+- Fix: scrobble script - artist_mbids MBID format invalid #853
 - Fix: do not show streamUri input on showAddToPlaylistCurrentSong 
 
 ***
