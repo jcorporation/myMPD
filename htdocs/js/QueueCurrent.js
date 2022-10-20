@@ -99,6 +99,9 @@ function initQueueCurrent() {
         //table body
         const target = getParent(event.target, 'TR');
         if (target !== null) {
+            if (target.classList.contains('not-clickable')) {
+                return;
+            }
             clickQueueSong(getData(target, 'songid'), getData(target, 'uri'));
         }
     }, false);
@@ -220,7 +223,7 @@ function initQueueCurrent() {
 
 /**
  * Wrapper for queue search that respects featAdvqueue
- * @param {*} value search value
+ * @param {string} value search value
  */
 function getQueue(value) {
     if (features.featAdvqueue) {
