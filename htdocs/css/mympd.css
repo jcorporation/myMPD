@@ -906,8 +906,7 @@ div.album-grid-mouseover {
 }
 
 div.album-grid-mouseover:hover {
-  transform: scale(1.05);
-  background-color: rgba(0, 0, 0, 55%);
+  background-color: var(--mympd-highlightcolor);
 }
 
 .page-dropdown {
