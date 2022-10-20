@@ -1,4 +1,4 @@
-<a href='{{ site.baseurl }}'>Index</a>
+<a href='{{ site.baseurl }}/'>Index</a>
 {% assign crumbs = page.url | split: '/' %}
 {% for crumb in crumbs offset: 1 %}
   {% if forloop.last %}

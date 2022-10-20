@@ -28,7 +28,7 @@ Nevertheless myMPD is designed with security in mind.
 - The webserver limits the number of connections and request sizes
 - The C backend is compiled with hardening flags and is regulary checked with static code analyzers
 - The debug and development builds are linked with libasan to detect memory errors
-- myMPD uses a [https://github.com/jcorporation/sds](dynamic string library) to prevent buffer-overflows
+- myMPD uses a fork of [Simple Dynamic Strings](https://github.com/jcorporation/sds) to prevent buffer-overflows
 - Files are served with a strict [Content Security](https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP) and [Trusted Types](https://developer.mozilla.org/en-US/docs/Web/API/Trusted_Types_API) Policy to prevent XSS attacks
 - The javascript frontend avoids parsing of strings to dom nodes
 - All included dependencies are updated regulary
@@ -37,4 +37,4 @@ Nevertheless myMPD is designed with security in mind.
 
 If you find a security bug in myMPD please report it and I will fix it as soon as possible.
 
-Write a mail to [mail@jcgames.de](mail@jcgames.de).
+Write a mail to [mail@jcgames.de](mailto:mail@jcgames.de).
