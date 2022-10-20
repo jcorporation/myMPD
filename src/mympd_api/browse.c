@@ -174,7 +174,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
 {
     if (partition_state->mpd_state->album_cache.cache == NULL) {
         buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUMS_GET, request_id,
-            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Albumcache not ready");
+            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_WARN, "Albumcache not ready");
         return buffer;
     }
 
@@ -223,7 +223,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
                 }
                 else {
                     //sort tag not present, append to end of the list
-                    MYMPD_LOG_WARN("Sort tag \"%s\" not set", mpd_tag_name(sort_tag));
+                    MYMPD_LOG_WARN("Sort tag \"%s\" not set for \"%.*s\"", mpd_tag_name(sort_tag), (int)iter.key_len, (char *)iter.key);
                     key = sdscatfmt(key, "zzzzzzzzzz::%s", mpd_song_get_uri(album));
                 }
             }

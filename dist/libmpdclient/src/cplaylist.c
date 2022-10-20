@@ -35,6 +35,7 @@
 
 #include <limits.h>
 #include <stdio.h>
+#include <string.h>
 
 /* (bits+1)/3 (plus the sign character) */
 enum {
@@ -175,6 +176,53 @@ mpd_run_save(struct mpd_connection *connection, const char *name)
 {
 	return mpd_run_check(connection) &&
 		mpd_send_save(connection, name) &&
+		mpd_response_finish(connection);
+}
+
+enum mpd_queue_save_mode mpd_parse_queue_save_mode(const char *mode)
+{
+	if (strcmp(mode, "create") == 0)
+		return MPD_QUEUE_SAVE_MODE_CREATE;
+	else if (strcmp(mode, "replace") == 0)
+		return MPD_QUEUE_SAVE_MODE_REPLACE;
+	else if (strcmp(mode, "append") == 0)
+		return MPD_QUEUE_SAVE_MODE_APPEND;
+	else
+		return MPD_QUEUE_SAVE_MODE_UNKNOWN;
+}
+
+const char *
+mpd_lookup_queue_save_mode(enum mpd_queue_save_mode mode)
+{
+	switch (mode) {
+	case MPD_QUEUE_SAVE_MODE_CREATE:
+		return "create";
+	case MPD_QUEUE_SAVE_MODE_REPLACE:
+		return "replace";
+	case MPD_QUEUE_SAVE_MODE_APPEND:
+		return "append";
+	case MPD_QUEUE_SAVE_MODE_UNKNOWN:
+		return NULL;
+	}
+	return NULL;
+}
+
+bool
+mpd_send_save_queue(struct mpd_connection *connection, const char *name,
+		enum mpd_queue_save_mode mode)
+{
+	const char *mode_str = mpd_lookup_queue_save_mode(mode);
+	if (mode_str == NULL)
+		return false;
+	return mpd_send_command(connection, "save", name, mode_str, NULL);
+}
+
+bool
+mpd_run_save_queue(struct mpd_connection *connection, const char *name,
+		enum mpd_queue_save_mode mode)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_save_queue(connection, name, mode) &&
 		mpd_response_finish(connection);
 }
 

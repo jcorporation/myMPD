@@ -104,8 +104,9 @@ CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-non-const-parameter"
 
-#save script path
+#save script path and change to it
 STARTPATH=$(dirname "$(realpath "$0")")
+cd "$STARTPATH" || exit 1
 
 #set umask
 umask 0022
@@ -201,7 +202,7 @@ minify() {
   elif [ "$TYPE" = "json" ]
   then
     #shellcheck disable=SC2016
-    if ! jq -r tostring "$SRC" > "${DST}.tmp"
+    if ! jq -r tostring "$SRC" | tr -d '\n' > "${DST}.tmp"
     then
       rm -f "${DST}.tmp"
       echo_error "Error minifying $SRC"
@@ -417,7 +418,7 @@ builddebug() {
     jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default" | \
       while read -r CODE
       do
-        cp -v "$STARTPATH/src/i18n/json/$CODE.json" "$STARTPATH/htdocs/assets/i18n/"
+        minify json "$STARTPATH/src/i18n/json/${CODE}.json" "$STARTPATH/htdocs/assets/i18n/${CODE}.json"
       done
   else
     createassets
@@ -1204,6 +1205,28 @@ sbuild_cleanup() {
   rm -rf "${WORKDIR}"
 }
 
+run_tsc() {
+  if ! check_cmd npx
+  then
+    return 1
+  fi
+  echo "Running typscript compiler for validation"
+  if ! npx tsc -p htdocs/js/jsconfig.json
+  then
+    return 1
+  fi
+  return 0
+}
+
+run_checkjs() {
+  echo "Check for defined javascript functions"
+  if ! linter/checkjs.pl
+  then
+    return 1
+  fi
+  return 0
+}
+
 run_eslint() {
   if ! check_cmd npx
   then
@@ -1223,13 +1246,13 @@ run_eslint() {
   for F in release/htdocs/sw.min.js release/htdocs/js/mympd.min.js release/htdocs/js/i18n.min.js
   do
     echo "Linting $F"
-    if ! npx eslint -c .eslintrc-min.json $F
+    if ! npx eslint --no-eslintrc -c .eslintrc-min.json $F
     then
       rc=1
     fi
   done
   echo "Check for forbidden js functions"
-  FORBIDDEN_CMDS="innerHTML outerHTML insertAdjacentHTML innerText"
+  FORBIDDEN_CMDS="innerHTML outerHTML insertAdjacentHTML innerText getElements"
   for F in $FORBIDDEN_CMDS
   do
   	if grep -q "$F" release/htdocs/js/mympd.min.js
@@ -1431,6 +1454,14 @@ case "$ACTION" in
       exit 1
     fi
     if ! run_stylelint
+    then
+      exit 1
+    fi
+    if ! run_tsc
+    then
+      exit 1
+    fi
+    if ! run_checkjs
     then
       exit 1
     fi

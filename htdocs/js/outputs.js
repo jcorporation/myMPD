@@ -3,6 +3,11 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module outputs_js */
+
+/**
+ * Initializes the outputs html elements
+ */
 function initOutputs() {
     domCache.volumeBar.addEventListener('change', function() {
         setVolume();
@@ -24,24 +29,28 @@ function initOutputs() {
             sendAPI("MYMPD_API_PLAYER_OUTPUT_TOGGLE", {
                 "outputId": Number(getData(target, 'output-id')),
                 "state": (target.classList.contains('active') ? 0 : 1)
-            });
-            toggleBtn(target);
+            }, null, false);
+            toggleBtn(target, undefined);
         }
     }, false);
 }
 
+/**
+ * Parses the response of MYMPD_API_PLAYER_OUTPUT_LIST
+ * @param {object} obj jsonrpc response
+ */
 function parseOutputs(obj) {
     const outputList = document.getElementById('outputs');
     elClear(outputList);
     if (obj.error) {
         outputList.appendChild(
-            elCreateText('div', {"class": ["list-group-item", "alert", "alert-danger"]}, tn(obj.error.message))
+            elCreateTextTn('div', {"class": ["list-group-item", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         return;
     }
     if (obj.result.numOutputs === 0) {
         outputList.appendChild(
-            elCreateText('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, tn('No outputs found'))
+            elCreateTextTn('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, 'No outputs found')
         );
         return;
     }
@@ -50,11 +59,12 @@ function parseOutputs(obj) {
         if (obj.result.data[i].plugin === 'dummy') {
             continue;
         }
+        const titlePhrase = Object.keys(obj.result.data[i].attributes).length > 0 ? 'Edit attributes' : 'Show attributes';
         const btn = elCreateNodes('button', {"class": ["btn", "btn-secondary", "d-flex", "justify-content-between"], "id": "btnOutput" + obj.result.data[i].id}, [
             elCreateText('span', {"class": ["mi", "align-self-center"]}, (obj.result.data[i].plugin === 'httpd' ? 'cast' : 'volume_up')),
             elCreateText('span', {"class": ["mx-2", "align-self-center"]}, obj.result.data[i].name),
             elCreateText('a', {"class": ["mi", "text-light", "align-self-center"],
-                "title": (Object.keys(obj.result.data[i].attributes).length > 0 ? tn('Edit attributes') : tn('Show attributes'))}, 'settings')
+                "data-title-phrase": titlePhrase}, 'settings')
         ]);
         setData(btn, 'output-name', obj.result.data[i].name);
         setData(btn, 'output-id', obj.result.data[i].id);
@@ -74,9 +84,12 @@ function parseOutputs(obj) {
     }
 }
 
+/**
+ * Shows the output attributes modal 
+ * @param {string} outputName the output name
+ */
 function showListOutputAttributes(outputName) {
     cleanupModalId('modalOutputAttributes');
-    uiElements.modalOutputAttributes.show();
     sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
         const tbody = document.getElementById('outputAttributesList');
         if (checkResult(obj, tbody) === false) {
@@ -90,8 +103,13 @@ function showListOutputAttributes(outputName) {
             }
         }
     }, false);
+    uiElements.modalOutputAttributes.show();
 }
 
+/**
+ * Creates the output attributes table content
+ * @param {object} output output object
+ */
 function parseOutputAttributes(output) {
     document.getElementById('modalOutputAttributesId').value = output.id;
     const tbody = document.getElementById('outputAttributesList');
@@ -102,7 +120,7 @@ function parseOutputAttributes(output) {
         }
         tbody.appendChild(
             elCreateNodes('tr', {}, [
-                elCreateText('td', {}, tn(n)),
+                elCreateTextTn('td', {}, n),
                 elCreateText('td', {}, output[n])
             ])
         );
@@ -127,19 +145,26 @@ function parseOutputAttributes(output) {
     }
 }
 
+/**
+ * Saves the output attributes
+ */
 //eslint-disable-next-line no-unused-vars
 function saveOutputAttributes() {
     cleanupModalId('modalOutputAttributes');
     const params = {};
     params.outputId = Number(document.getElementById('modalOutputAttributesId').value);
     params.attributes = {};
-    const els = document.getElementById('outputAttributesList').getElementsByTagName('input');
+    const els = document.querySelectorAll('#outputAttributesList input');
     for (let i = 0, j = els.length; i < j; i++) {
         params.attributes[els[i].name] = els[i].value;
     }
-    sendAPI('MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET', params, saveOutputAttributesClose, true);
+    sendAPI('MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET', params, saveOutputAttributesClose, true);
 }
 
+/**
+ * Handler for MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET response
+ * @param {object} obj jsonrpc response
+ */
 function saveOutputAttributesClose(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -149,6 +174,10 @@ function saveOutputAttributesClose(obj) {
     }
 }
 
+/**
+ * Parses the response of MYMPD_API_PLAYER_VOLUME_GET
+ * @param {object} obj jsonrpc response
+ */
 function parseVolume(obj) {
     if (obj.result.volume === -1) {
         document.getElementById('volumePrct').textContent = tn('Volumecontrol disabled');
@@ -164,16 +193,23 @@ function parseVolume(obj) {
     domCache.volumeBar.value = obj.result.volume;
 }
 
+/**
+ * Changes the relative volume 
+ * @param {string} dir direction: on of up, down
+ */
 //eslint-disable-next-line no-unused-vars
 function volumeStep(dir) {
     const step = dir === 'up' ? settings.volumeStep : 0 - settings.volumeStep;
     sendAPI("MYMPD_API_PLAYER_VOLUME_CHANGE", {
         "volume": step
-    });
+    }, null, false);
 }
 
+/**
+ * Sets the volume to an absolute value
+ */
 function setVolume() {
     sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {
         "volume": Number(domCache.volumeBar.value)
-    });
+    }, null, false);
 }

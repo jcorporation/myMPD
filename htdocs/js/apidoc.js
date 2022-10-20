@@ -3,6 +3,12 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module apidoc_js */
+
+/** 
+ * API parameters
+ * @type {object}
+ */
 const APIparams = {
     "offset": {
             "type": "uint",
@@ -62,7 +68,7 @@ const APIparams = {
     "whence": {
         "type": "uint",
         "example": 0,
-        "desc": "How to interpret the to parameter: 0 = absolut, 1 = after, 2 = before current song"
+        "desc": "How to interpret the to parameter: 0 = absolute, 1 = after, 2 = before current song"
     },
     "plist": {
         "type": "text",
@@ -121,6 +127,10 @@ const APIparams = {
     }
 };
 
+/**
+ * API methods
+ * @type {object}
+ */
 const APImethods = {
     "MYMPD_API_DATABASE_SEARCH": {
         "desc": "Searches for songs in the database.",
@@ -138,7 +148,7 @@ const APImethods = {
         "params": {
             "uri": {
                 "type": "text",
-                "example": "Alben",
+                "example": "Albums",
                 "desc": "Root directory for update"
             }
         }
@@ -273,6 +283,11 @@ const APImethods = {
                 "type": "text",
                 "example": "test_plist",
                 "desc": "Playlist name"
+            },
+            "mode": {
+                "type": "text",
+                "example": "create",
+                "desc": "Save mode: create, append, replace"
             }
         }
     },
@@ -768,7 +783,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_MOUNT_LIST": {
-        "desc": "Lists the MPD monts.",
+        "desc": "Lists the MPD mounts.",
         "params": {}
     },
     "MYMPD_API_MOUNT_NEIGHBOR_LIST": {
@@ -823,14 +838,18 @@ const APImethods = {
             "musicDirectory": {
                 "type": "text",
                 "example": "auto",
-                "desc": "\"auto\" = autodetect (needs socket connection), " +
+                "desc": "MPD music directory" +
+                        "\"auto\" = autodetect (needs socket connection), " +
                         "\"none\" = no music directory, " +
                         "or absolute path of music directory"
             },
             "playlistDirectory": {
                 "type": "text",
-                "example": "/var/lib/mpd/playlists",
-                "desc": "absolut path of playlist directory"
+                "example": "auto",
+                "desc": "MPD playlist directory" +
+                        "\"auto\" = autodetect (needs socket connection), " +
+                        "\"none\" = no playlist directory, " +
+                        "or absolute path of playlist directory"
             },
             "mpdBinarylimit": {
                 "type": "uint",
@@ -1122,7 +1141,7 @@ const APImethods = {
                     "uiBgImage": {
                         "type": "text",
                         "example": "",
-                        "desc": "Uri for bacckground image"
+                        "desc": "Uri for background image"
                     },
                     "uiBgCover": {
                         "type": "bool",
@@ -1152,9 +1171,9 @@ const APImethods = {
         "desc": "Sets MPD and jukebox options.",
         "params":{
             "consume": {
-                "type": "bool",
-                "example": true,
-                "desc": "MPD consume mode."
+                "type": "text",
+                "example": "1",
+                "desc": "MPD consume mode: 0, 1, oneshot"
             },
             "random": {
                 "type": "bool",
@@ -1224,7 +1243,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_COLS_SAVE": {
-        "desc": "Saves columnes for a table.",
+        "desc": "Saves columns for a table.",
         "params": {
             "table": {
                 "type": "text",
@@ -1490,7 +1509,7 @@ const APImethods = {
             "id": APIparams.triggerId
         }
     },
-    "MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET": {
+    "MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET": {
         "desc": "Sets an MPD output attribute",
         "protected": true,
         "params": {

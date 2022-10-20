@@ -3,6 +3,11 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module mounts_js */
+
+/**
+ * Initializes the mounts related elements
+ */
 function initMounts() {
     document.getElementById('listMountsList').addEventListener('click', function(event) {
         event.stopPropagation();
@@ -32,7 +37,7 @@ function initMounts() {
         else {
             const dropdownNeighbors = document.getElementById('dropdownNeighbors').firstElementChild;
             elReplaceChild(dropdownNeighbors,
-                elCreateText('div', {"class": ["list-group-item", "nowrap"]}, tn('Neighbors are disabled'))
+                elCreateTextTn('div', {"class": ["list-group-item", "nowrap"]}, 'Neighbors are disabled')
             );
         }
     }, false);
@@ -53,6 +58,10 @@ function initMounts() {
     });
 }
 
+/**
+ * Unmounts a mount point
+ * @param {string} mountPoint mount point
+ */
 //eslint-disable-next-line no-unused-vars
 function unmountMount(mountPoint) {
     sendAPI("MYMPD_API_MOUNT_UNMOUNT", {
@@ -60,16 +69,19 @@ function unmountMount(mountPoint) {
     }, mountMountCheckError, true);
 }
 
+/**
+ * Mounts a mount
+ */
 //eslint-disable-next-line no-unused-vars
 function mountMount() {
     cleanupModalId('modalMounts');
     let formOK = true;
     const inputMountUrl = document.getElementById('inputMountUrl');
     const inputMountPoint = document.getElementById('inputMountPoint');
-    if (!validateNotBlank(inputMountUrl)) {
+    if (!validateNotBlankEl(inputMountUrl)) {
         formOK = false;
     }
-    if (!validateNotBlank(inputMountPoint)) {
+    if (!validateNotBlankEl(inputMountPoint)) {
         formOK = false;
     }
     if (formOK === true) {
@@ -80,6 +92,10 @@ function mountMount() {
     }
 }
 
+/**
+ * Response handler for MYMPD_API_MOUNT_MOUNT
+ * @param {object} obj jsonrpc response
+ */
 function mountMountCheckError(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -89,17 +105,30 @@ function mountMountCheckError(obj) {
     }
 }
 
+/**
+ * Updates a mount point
+ * @param {HTMLElement | EventTarget} el event target
+ * @param {string} uri mount point
+ */
 //eslint-disable-next-line no-unused-vars
 function updateMount(el, uri) {
+    //hide action items
     const parent = el.parentNode;
     for (let i = 0, j = parent.children.length; i < j; i++) {
         elHide(parent.children[i]);
     }
+    //add spinner
     const spinner = elCreateEmpty('div', {"id": "spinnerUpdateProgress", "class": ["spinner-border", "spinner-border-sm"]});
     el.parentNode.insertBefore(spinner, el);
+    //update
     updateDB(uri, false, false, false);
 }
 
+/**
+ * Shows the edit mount tab from the mount modal
+ * @param {string} uri mounted uri
+ * @param {string} storage mount point
+ */
 //eslint-disable-next-line no-unused-vars
 function showEditMount(uri, storage) {
     cleanupModalId('modalMounts');
@@ -121,6 +150,9 @@ function showEditMount(uri, storage) {
     setFocusId('inputMountPoint');
 }
 
+/**
+ * Shows the list mount tab from the mount modal
+ */
 function showListMounts() {
     cleanupModalId('modalMounts');
     document.getElementById('listMounts').classList.add('active');
@@ -130,9 +162,13 @@ function showListMounts() {
     sendAPI("MYMPD_API_MOUNT_LIST", {}, parseListMounts, true);
 }
 
+/**
+ * Parses the MYMPD_API_MOUNT_LIST response
+ * @param {object} obj jsonrpc response object
+ */
 function parseListMounts(obj) {
-    const tbody = document.getElementById('listMounts').getElementsByTagName('tbody')[0];
-    const tr = tbody.getElementsByTagName('tr');
+    const tbody = document.querySelector('#listMountsList');
+    elClear(tbody);
 
     if (checkResult(obj, tbody) === false) {
         return;
@@ -141,7 +177,9 @@ function parseListMounts(obj) {
     for (let i = 0; i < obj.result.returnedEntities; i++) {
         const td1 = elCreateEmpty('td', {});
         if (obj.result.data[i].mountPoint === '') {
-            td1.appendChild(elCreateText('span', {"class": ["mi"]}, 'home'));
+            td1.appendChild(
+                elCreateText('span', {"class": ["mi"]}, 'home')
+            );
         }
         else {
             td1.textContent = obj.result.data[i].mountPoint;
@@ -149,10 +187,10 @@ function parseListMounts(obj) {
         const mountActionTd = elCreateEmpty('td', {"data-col": "Action"});
         if (obj.result.data[i].mountPoint !== '') {
             mountActionTd.appendChild(
-                elCreateText('a', {"href": "#", "title": tn('Unmount'), "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete')
+                elCreateText('a', {"href": "#", "data-title-phrase": "Unmount", "data-action": "unmount", "class": ["mi", "color-darkgrey"]}, 'delete')
             );
             mountActionTd.appendChild(
-                elCreateText('a', {"href": "#", "title": tn('Update'), "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh')
+                elCreateText('a', {"href": "#", "data-title-phrase": "Update", "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh')
             );
         }
         const row = elCreateNodes('tr', {}, [
@@ -166,32 +204,27 @@ function parseListMounts(obj) {
         if (obj.result.data[i].mountPoint === '') {
             row.classList.add('not-clickable');
         }
-
-        if (i < tr.length) {
-            replaceTblRow(tr[i], row);
-        }
-        else {
-            tbody.append(row);
-        }
-    }
-    for (let i = tr.length - 1; i >= obj.result.returnedEntities; i--) {
-        tr[i].remove();
+        tbody.append(row);
     }
 }
 
+/**
+ * Parses the MYMPD_API_MOUNT_NEIGHBOR_LIST response
+ * @param {object} obj jsonrpc response object
+ */
 function parseNeighbors(obj) {
     const dropdownNeighbors = document.getElementById('dropdownNeighbors').children[0];
     elClear(dropdownNeighbors);
 
     if (obj.error) {
         dropdownNeighbors.appendChild(
-            elCreateText('div', {"class": ["list-group-item", "alert", "alert-danger"]}, tn(obj.error.message))
+            elCreateTextTn('div', {"class": ["list-group-item", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         return;
     }
     if (obj.result.returnedEntities === 0) {
         dropdownNeighbors.appendChild(
-            elCreateText('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, tn('Empty list'))
+            elCreateTextTn('div', {"class": ["list-group-item", "alert", "alert-secondary"]}, 'Empty list')
         );
         return;
     }
@@ -207,6 +240,9 @@ function parseNeighbors(obj) {
     }
 }
 
+/**
+ * Populates the urlhandler select in the mount modal
+ */
 function getUrlhandlers() {
     sendAPI("MYMPD_API_MOUNT_URLHANDLER_LIST", {}, function(obj) {
         const selectMountUrlhandler = document.getElementById('selectMountUrlhandler');
@@ -217,7 +253,9 @@ function getUrlhandlers() {
                 case 'http://':
                 case 'https://':
                 case 'nfs://':
-                    selectMountUrlhandler.appendChild(elCreateText('option', {"value": obj.result.data[i]}, obj.result.data[i]));
+                    selectMountUrlhandler.appendChild(
+                        elCreateText('option', {"value": obj.result.data[i]}, obj.result.data[i])
+                    );
                     break;
             }
         }

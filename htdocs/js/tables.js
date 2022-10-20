@@ -3,12 +3,19 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-function dragAndDropTable(table) {
-    const tableBody = document.getElementById(table).getElementsByTagName('tbody')[0];
+/** @module tables_js */
+
+/**
+ * Initializes a table body for drag and drop of rows
+ * @param {string} tableId table id
+ */
+function dragAndDropTable(tableId) {
+    const tableBody = document.querySelector('#' + tableId + ' > tbody');
     tableBody.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TR') {
             hidePopover();
             event.target.classList.add('opacity05');
+            // @ts-ignore
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
             event.dataTransfer.setData('Text', event.target.getAttribute('id'));
@@ -33,7 +40,7 @@ function dragAndDropTable(table) {
         if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
-        const tr = tableBody.getElementsByClassName('dragover');
+        const tr = tableBody.querySelectorAll('.dragover');
         for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
@@ -51,7 +58,7 @@ function dragAndDropTable(table) {
         if (dragEl === undefined || dragEl.nodeName !== 'TR') {
             return;
         }
-        const tr = tableBody.getElementsByClassName('dragover');
+        const tr = tableBody.querySelectorAll('.dragover');
         for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
@@ -74,14 +81,18 @@ function dragAndDropTable(table) {
         const newSongpos = getData(target, 'songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
+        // @ts-ignore
         tableBody.insertBefore(dragEl, target);
-        const tr = tableBody.getElementsByClassName('dragover');
+        const tr = tableBody.querySelectorAll('.dragover');
         for (let i = 0, j = tr.length; i < j; i++) {
             tr[i].classList.remove('dragover');
         }
-        document.getElementById(table).classList.add('opacity05');
+        document.getElementById(tableId).classList.add('opacity05');
         if (app.id === 'QueueCurrent') {
-            sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {"from": oldSongpos, "to": newSongpos});
+            sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
+                "from": oldSongpos,
+                "to": newSongpos
+            }, null, false);
         }
         else if (app.id === 'BrowsePlaylistsDetail') {
             playlistMoveSong(oldSongpos, newSongpos);
@@ -89,12 +100,17 @@ function dragAndDropTable(table) {
     }, false);
 }
 
-function dragAndDropTableHeader(table) {
-    const tableHeader = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+/**
+ * Initializes a table header for drag and drop of columns
+ * @param {string} tableName table name
+ */
+function dragAndDropTableHeader(tableName) {
+    const tableHeader = document.querySelector('#' + tableName + 'List > thead > tr');
 
     tableHeader.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TH') {
             event.target.classList.add('opacity05');
+            // @ts-ignore
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
             event.dataTransfer.setData('Text', event.target.getAttribute('data-col'));
@@ -115,7 +131,7 @@ function dragAndDropTableHeader(table) {
         if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
-        const th = tableHeader.getElementsByClassName('dragover-th');
+        const th = tableHeader.querySelectorAll('.dragover-th');
         for (let i = 0, j = th.length; i < j; i++) {
             th[i].classList.remove('dragover-th');
         }
@@ -129,7 +145,7 @@ function dragAndDropTableHeader(table) {
         if (dragEl === undefined || dragEl.nodeName !== 'TH') {
             return;
         }
-        const th = tableHeader.getElementsByClassName('dragover-th');
+        const th = tableHeader.querySelectorAll('.dragover-th');
         for (let i = 0, j = th.length; i < j; i++) {
             th[i].classList.remove('dragover-th');
         }
@@ -146,26 +162,32 @@ function dragAndDropTableHeader(table) {
         }
         this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').remove();
         dragEl.classList.remove('opacity05');
+        // @ts-ignore
         tableHeader.insertBefore(dragEl, event.target);
-        const th = tableHeader.getElementsByClassName('dragover-th');
+        const th = tableHeader.querySelectorAll('.dragover-th');
         for (let i = 0, j = th.length; i < j; i++) {
             th[i].classList.remove('dragover-th');
         }
-        if (document.getElementById(table + 'List')) {
-            document.getElementById(table + 'List').classList.add('opacity05');
-            saveCols(table);
+        if (document.getElementById(tableName + 'List')) {
+            document.getElementById(tableName + 'List').classList.add('opacity05');
+            saveCols(tableName);
         }
         else {
-            saveCols(table, this.parentNode.parentNode);
+            saveCols(tableName, this.parentNode.parentNode);
         }
     }, false);
 }
 
-function setColTags(table) {
-    if (table === 'BrowseRadioWebradiodb') {
+/**
+ * Sets the available table columns
+ * @param {string} tableName table name
+ * @returns {object} array of available columns
+ */
+function setColTags(tableName) {
+    if (tableName === 'BrowseRadioWebradiodb') {
         return ["Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate"];
     }
-    else if (table === 'BrowseRadioRadiobrowser') {
+    else if (tableName === 'BrowseRadioRadiobrowser') {
         return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
     }
 
@@ -176,7 +198,7 @@ function setColTags(table) {
     tags.push('Duration');
     tags.push('LastModified');
 
-    switch(table) {
+    switch(tableName) {
         case 'QueueCurrent':
             tags.push('AudioFormat');
             tags.push('Priority');
@@ -212,32 +234,44 @@ function setColTags(table) {
     return tags;
 }
 
-function setColsChecklist(table, menu) {
-    const tags = setColTags(table);
+/**
+ * Creates the select columns checkbox list
+ * @param {string} tableName table name
+ * @param {HTMLElement} menu element to populate
+ */
+function setColsChecklist(tableName, menu) {
+    const tags = setColTags(tableName);
     for (let i = 0, j = tags.length; i < j; i++) {
-        if (table === 'Playback' && tags[i] === 'Title') {
+        if (tableName === 'Playback' && tags[i] === 'Title') {
             continue;
         }
         if (tags[i] === 'dropdownTitleSticker') {
-            menu.appendChild(elCreateText('h6', {"class": ["dropdown-header"]}, tn('Sticker')));
+            menu.appendChild(
+                elCreateTextTn('h6', {"class": ["dropdown-header"]}, 'Sticker')
+            );
         }
         else {
-            const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-small", "me-2"], "name": tags[i]}, 'radio_button_unchecked');
-            if (settings['cols' + table].includes(tags[i])) {
+            const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-small", "me-2"],
+                "name": tags[i]}, 'radio_button_unchecked');
+            if (settings['cols' + tableName].includes(tags[i])) {
                 btn.classList.add('active');
                 btn.textContent = 'check'
             }
             const div = elCreateNodes('div', {"class": ["form-check"]}, [
                 btn,
-                elCreateText('lable', {"class": ["form-check-label"], "for": tags[i]}, tn(tags[i]))
+                elCreateTextTn('lable', {"class": ["form-check-label"], "for": tags[i]}, tags[i])
             ]);
             menu.appendChild(div);
         }
     }
 }
 
-function setCols(table) {
-    if (table === 'Search' &&
+/**
+ * Sets the table header columns
+ * @param {string} tableName table name
+ */
+function setCols(tableName) {
+    if (tableName === 'Search' &&
         app.cards.Search.sort.tag === 'Title')
     {
         if (settings.tagList.includes('Title')) {
@@ -251,19 +285,19 @@ function setCols(table) {
         }
     }
 
-    const thead = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+    const thead = document.querySelector('#' + tableName + 'List > thead > tr');
     elClear(thead);
 
-    for (let i = 0, j = settings['cols' + table].length; i < j; i++) {
-        const hname = settings['cols' + table][i];
-        const th = elCreateText('th', {"draggable": "true", "data-col": settings['cols' + table][i]}, tn(hname));
+    for (let i = 0, j = settings['cols' + tableName].length; i < j; i++) {
+        const hname = settings['cols' + tableName][i];
+        const th = elCreateTextTn('th', {"draggable": "true", "data-col": settings['cols' + tableName][i]}, hname);
         if (hname === 'Track' ||
             hname === 'Pos')
         {
             th.textContent = '#';
         }
-        if ((table === 'Search' && hname === app.cards.Search.sort.tag) ||
-            (table === 'BrowseRadioWebradiodb' && hname === app.cards.Browse.tabs.Radio.views.Webradiodb.sort.tag)
+        if ((tableName === 'Search' && hname === app.cards.Search.sort.tag) ||
+            (tableName === 'BrowseRadioWebradiodb' && hname === app.cards.Browse.tabs.Radio.views.Webradiodb.sort.tag)
            )
         {
             th.appendChild(
@@ -276,59 +310,63 @@ function setCols(table) {
     const th = elCreateEmpty('th', {"data-col": "Action"});
     if (features.featTags === true) {
         th.appendChild(
-            elCreateText('a', {"href": "#", "data-action": "popover", "data-popover": "columns", "class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": "Columns", "title": tn('Columns')}, 'settings')
+            elCreateText('a', {"href": "#", "data-action": "popover", "data-popover": "columns",
+                "class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": "Columns"}, 'settings')
         );
     }
     thead.appendChild(th);
 }
 
-function saveCols(table, tableEl) {
-    const colsDropdown = document.getElementById(table + 'ColsDropdown');
-    let header;
+/**
+ * Saves the selected columns for the table
+ * @param {string} tableName table name
+ * @param {HTMLElement} [tableEl] table element or undefined
+ */
+function saveCols(tableName, tableEl) {
+    const colsDropdown = document.getElementById(tableName + 'ColsDropdown');
     if (tableEl === undefined) {
-        header = document.getElementById(table + 'List').getElementsByTagName('tr')[0];
+        //select the table by name
+        tableEl = document.getElementById(tableName + 'List');
     }
-    else if (typeof(tableEl) === 'string') {
-        header = document.querySelector(tableEl).getElementsByTagName('tr')[0];
-    }
-    else {
-        header = tableEl.getElementsByTagName('tr')[0];
-    }
-    if (colsDropdown) {
-        const colInputs = colsDropdown.firstChild.getElementsByTagName('button');
-        for (let i = 0, j = colInputs.length; i < j; i++) {
-            if (colInputs[i].getAttribute('name') === null) {
-                continue;
-            }
-            let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
-            if (colInputs[i].classList.contains('active') === false) {
-                if (th) {
-                    th.remove();
-                }
-            }
-            else if (!th) {
-                th = elCreateText('th', {"data-col": colInputs[i].name}, colInputs[i].name);
-                header.insertBefore(th, header.lastChild);
+    const header = tableEl.querySelector('tr');
+    //apply the columns select list to the playback card
+    const colInputs = colsDropdown.firstChild.querySelectorAll('button');
+    for (let i = 0, j = colInputs.length; i < j; i++) {
+        if (colInputs[i].getAttribute('name') === null) {
+            continue;
+        }
+        let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
+        if (colInputs[i].classList.contains('active') === false) {
+            if (th) {
+                th.remove();
             }
         }
+        else if (!th) {
+            th = elCreateTextTn('th', {"data-col": colInputs[i].name}, colInputs[i].name);
+            header.insertBefore(th, header.lastChild);
+        }
     }
-
-    const params = {"table": "cols" + table, "cols": []};
-    const ths = header.getElementsByTagName('th');
+    //construct columns to save from actual table header
+    const params = {"table": "cols" + tableName, "cols": []};
+    const ths = header.querySelectorAll('th');
     for (let i = 0, j = ths.length; i < j; i++) {
         const name = ths[i].getAttribute('data-col');
         if (name !== 'Action' && name !== null) {
             params.cols.push(name);
         }
     }
-    sendAPI("MYMPD_API_COLS_SAVE", params, getSettings);
+    sendAPI("MYMPD_API_COLS_SAVE", params, getSettings, true);
 }
 
+/**
+ * Saves the fields for the playback card
+ */
 //eslint-disable-next-line no-unused-vars
-function saveColsPlayback(table) {
-    const colInputs = document.getElementById(table + 'ColsDropdown').firstElementChild.getElementsByTagName('button');
+function saveColsPlayback() {
+    const colInputs = document.querySelectorAll('#PlaybackColsDropdown button');
     const header = document.getElementById('cardPlaybackTags');
 
+    //apply the columns select list to the playback card
     for (let i = 0, j = colInputs.length - 1; i < j; i++) {
         let th = document.getElementById('current' + colInputs[i].name);
         if (colInputs[i].classList.contains('active') === false) {
@@ -340,7 +378,7 @@ function saveColsPlayback(table) {
         else if (!th) {
             //add enabled tags if not already shown
             th = elCreateNodes('div', {"id": "current" + colInputs[i].name}, [
-                elCreateText('small', {}, tn(colInputs[i].name)),
+                elCreateTextTn('small', {}, colInputs[i].name),
                 elCreateEmpty('p', {})
             ]);
             setData(th, 'tag', colInputs[i].name);
@@ -349,20 +387,27 @@ function saveColsPlayback(table) {
     }
 
     //construct columns to save from actual playback card
-    const params = {"table": "cols" + table, "cols": []};
-    const ths = header.getElementsByTagName('div');
+    const params = {"table": "colsPlayback", "cols": []};
+    const ths = header.querySelectorAll('div');
     for (let i = 0, j = ths.length; i < j; i++) {
         const name = getData(ths[i], 'tag');
         if (name) {
             params.cols.push(name);
         }
     }
-    sendAPI("MYMPD_API_COLS_SAVE", params, getSettings);
+    sendAPI("MYMPD_API_COLS_SAVE", params, getSettings, true);
 }
 
+/**
+ * Toggles the sorting of the table
+ * @param {EventTarget} th clicked table header column
+ * @param {string} colName column name
+ * @returns {void}
+ */
 function toggleSort(th, colName) {
     if (th.nodeName !== 'TH' ||
-        th.textContent === '')
+        th.textContent === '' ||
+        th.getAttribute('data-col') === 'Action')
     {
         return;
     }
@@ -375,16 +420,22 @@ function toggleSort(th, colName) {
         app.current.sort.tag = colName;
     }
     //remove old sort indicator
-    const sdi = th.parentNode.getElementsByClassName('sort-dir');
+    const sdi = th.parentNode.querySelectorAll('.sort-dir');
     for (const s of sdi) {
         s.remove();
     }
     //set new sort indicator
+    // @ts-ignore
     th.appendChild(
         elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (app.current.sort.desc === true ? 'arrow_drop_up' : 'arrow_drop_down'))
     );
 }
 
+/**
+ * Replaces a table row
+ * @param {HTMLElement} row row to replace
+ * @param {HTMLElement} el replacement row
+ */
 function replaceTblRow(row, el) {
     const menuEl = row.querySelector('[data-popover]');
     if (menuEl) {
@@ -393,14 +444,23 @@ function replaceTblRow(row, el) {
     row.replaceWith(el);
 }
 
+/**
+ * Adds a row with discnumber to the table
+ * @param {number} disc discnumber
+ * @param {string} album album
+ * @param {object} albumartist album artists 
+ * @param {number} colspan column count
+ * @returns {HTMLElement} the created row
+ */
 function addDiscRow(disc, album, albumartist, colspan) {
     const row = elCreateNodes('tr', {"class": ["not-clickable"]}, [
         elCreateNode('td', {},
             elCreateText('span', {"class": ["mi"]}, 'album')
         ),
-        elCreateText('td', {"colspan": (colspan - 1)}, tn('Disc') + ' ' + disc),
+        elCreateTextTnNr('td', {"colspan": (colspan - 1)}, 'Discnum', disc),
         elCreateNode('td', {"data-col": "Action"},
-            elCreateText('a', {"data-action": "popover", "data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"], "title": tn('Actions')}, ligatureMore)
+            elCreateText('a', {"data-action": "popover", "data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"],
+                "data-title-phrase":"Actions"}, ligatureMore)
         )
     ]);
     setData(row, 'Disc', disc);
@@ -409,13 +469,20 @@ function addDiscRow(disc, album, albumartist, colspan) {
     return row;
 }
 
+/**
+ * Updates the table from the jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @param {string} list table name to populate
+ * @param {Function} [perRowCallback] callback per row
+ * @param {Function} [createRowCellsCallback] callback to create the row
+ */
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const table = document.getElementById(list + 'List');
-    const tbody = table.getElementsByTagName('tbody')[0];
+    const tbody = table.querySelector('tbody');
     const colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
 
     const nrItems = obj.result.returnedEntities;
-    const tr = tbody.getElementsByTagName('tr');
+    const tr = tbody.querySelectorAll('tr');
     const smallWidth = uiSmallWidthTagRows();
 
     if (smallWidth === true) {
@@ -508,9 +575,17 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     scrollToPosY(table.parentNode, app.current.scrollPos);
 }
 
+/**
+ * Creates the columns in the row
+ * @param {HTMLElement} row the row to populate
+ * @param {object} data data to populate
+ * @param {string} list table name
+ * @param {number} colspan number of columns
+ * @param {boolean} smallWidth true = print data in rows, false = print data in columns
+ */
 function tableRow(row, data, list, colspan, smallWidth) {
     if (data.Type === 'parentDir') {
-        row.appendChild(elCreateText('td', {"colspan": (colspan + 1), "title": tn('Open parent folder')}, '..'));
+        row.appendChild(elCreateText('td', {"colspan": (colspan + 1), "data-title-phrase": "Open parent folder"}, '..'));
     }
     else {
         if (smallWidth === true) {
@@ -518,7 +593,7 @@ function tableRow(row, data, list, colspan, smallWidth) {
             for (let c = 0, d = settings['cols' + list].length; c < d; c++) {
                 td.appendChild(
                     elCreateNodes('div', {"class": ["row"]}, [
-                        elCreateText('small', {"class": ["col-3"]}, tn(settings['cols' + list][c])),
+                        elCreateTextTn('small', {"class": ["col-3"]}, settings['cols' + list][c]),
                         elCreateNode('span', {"data-col": settings['cols' + list][c], "class": ["col-9"]},
                             printValue(settings['cols' + list][c], data[settings['cols' + list][c]])
                         )
@@ -551,51 +626,85 @@ function tableRow(row, data, list, colspan, smallWidth) {
     }
 }
 
+/**
+ * Creates an empty list hint
+ * @param {number} colspan column count
+ * @returns {HTMLElement} created row
+ */
 function emptyRow(colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},
-            elCreateText('div', {"class": ["alert", "alert-secondary"]}, tn('Empty list'))
+            elCreateTextTn('div', {"class": ["alert", "alert-secondary"]}, 'Empty list')
         )
     );
 }
 
+/**
+ * Creates a loading list hint
+ * @param {number} colspan column count
+ * @returns {HTMLElement} created row
+ */
 function loadingRow(colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},
-            elCreateText('div', {"class": ["alert", "alert-secondary"]}, tn('Loading...'))
+            elCreateTextTn('div', {"class": ["alert", "alert-secondary"]}, 'Loading...')
         )
     );
 }
 
+/**
+ * Creates a row with the error message
+ * @param {object} obj jsonrpc error object
+ * @param {number} colspan column count
+ * @returns {HTMLElement} created row
+ */
 function errorRow(obj, colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},
-            elCreateText('div', {"class": ["alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
+            elCreateTextTn('div', {"class": ["alert", "alert-danger"]}, obj.error.message, obj.error.data)
         )
     );
 }
 
+/**
+ * Creates a row with the warning message
+ * @param {string} message phrase to display
+ * @param {number} colspan column count
+ * @returns {HTMLElement} created row
+ */
 //eslint-disable-next-line no-unused-vars
 function warningRow(message, colspan) {
     return elCreateNode('tr', {"class": ["not-clickable"]},
         elCreateNode('td', {"colspan": colspan},
-            elCreateText('div', {"class": ["alert", "alert-warning"]}, tn(message))
+            elCreateTextTn('div', {"class": ["alert", "alert-warning"]}, message)
         )
     );
 }
 
+/**
+ * Wrapper for checkResult with id selector
+ * @param {object} obj jsonrpc object to check
+ * @param {string} id table id
+ * @returns {boolean} true = result is not an error, else false
+ */
 function checkResultId(obj, id) {
-    return checkResult(obj, document.getElementById(id).getElementsByTagName('tbody')[0]);
+    return checkResult(obj, document.querySelector('#' + id + ' > tbody'));
 }
 
+/**
+ * 
+ * @param {object} obj jsonrpc object to check
+ * @param {HTMLElement} tbody body of the table
+ * @returns {boolean} true = result is not an error, else false
+ */
 function checkResult(obj, tbody) {
-    const thead = tbody.parentNode.getElementsByTagName('tr')[0];
-    const colspan = thead !== undefined ? thead.getElementsByTagName('th').length : 0;
-    const tfoot = tbody.parentNode.getElementsByTagName('tfoot');
+    const thead = tbody.parentNode.querySelector('tr');
+    const colspan = thead !== undefined ? thead.querySelectorAll('th').length : 0;
+    const tfoot = tbody.parentNode.querySelector('tfoot');
     if (obj.error) {
         elClear(tbody);
-        if (tfoot.length === 1) {
-            elClear(tfoot[0]);
+        if (tfoot !== null) {
+            elClear(tfoot);
         }
         tbody.appendChild(errorRow(obj, colspan));
         unsetUpdateView(tbody.parentNode);
@@ -604,8 +713,8 @@ function checkResult(obj, tbody) {
     }
     if (obj.result.returnedEntities === 0) {
         elClear(tbody);
-        if (tfoot.length === 1) {
-            elClear(tfoot[0]);
+        if (tfoot !== null) {
+            elClear(tfoot);
         }
         tbody.appendChild(emptyRow(colspan));
         unsetUpdateView(tbody.parentNode);
@@ -615,6 +724,10 @@ function checkResult(obj, tbody) {
     return true;
 }
 
+/**
+ * Checks if we should display data in rows or cols
+ * @returns {boolean} true if window is small and the uiSmallWidthTagRows settings is true, else false
+ */
 function uiSmallWidthTagRows() {
     if (settings.webuiSettings.uiSmallWidthTagRows === true) {
         return window.innerWidth < 576 ? true : false;
@@ -622,6 +735,10 @@ function uiSmallWidthTagRows() {
     return false;
 }
 
+/**
+ * Handles the click on the actions column
+ * @param {MouseEvent} event click event
+ */
 function handleActionTdClick(event) {
     event.preventDefault();
     switch(event.target.getAttribute('data-action')) {

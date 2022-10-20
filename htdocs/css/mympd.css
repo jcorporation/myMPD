@@ -33,6 +33,10 @@ body.not-mobile .featMobile {
   display: none;
 }
 
+body.mobile > footer > nav {
+  padding-bottom: 1.5rem !important;
+}
+
 :root {
   --mympd-thumbnail-size: 175px;
   --mympd-highlightcolor: #28a745;
@@ -902,8 +906,7 @@ div.album-grid-mouseover {
 }
 
 div.album-grid-mouseover:hover {
-  transform: scale(1.05);
-  background-color: rgba(0, 0, 0, 55%);
+  background-color: var(--mympd-highlightcolor);
 }
 
 .page-dropdown {

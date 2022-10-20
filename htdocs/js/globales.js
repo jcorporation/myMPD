@@ -3,50 +3,95 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module globales_js */
+
+/** @type {number} */
 const startTime = Date.now();
+
 let socket = null;
-let websocketConnected = false;
 let websocketTimer = null;
 let websocketKeepAliveTimer = null;
 let searchTimer = null;
+let resizeTimer = null;
+
+/** @type {number} */
 const searchTimerTimeout = 500;
-let currentSong = '';
+
 let currentSongObj = {};
 let currentState = {};
 let settings = {
+    /** @type {number} */
     "loglevel": 2
 };
+
+/** @type {string} */
 let settingsParsed = 'no';
+
 let progressTimer = null;
 let deferredA2HSprompt;
 let dragSrc;
 let dragEl;
+
+/** @type {boolean} */
 let showSyncedLyrics = false;
+
+/** @type {boolean} */
 let scrollSyncedLyrics = true;
+
+/** @type {boolean} */
 let appInited = false;
+
+/** @type {boolean} */
 let scriptsInited = false;
 let subdir = '';
+
+/** @type {boolean} */
 let uiEnabled = true;
+
 let allOutputs = null;
+
+/** @type {string} */
 const ligatureMore = 'menu';
+
+/** @type {string} */
 const progressBarTransition = 'width 1s linear';
+
+/** @type {string} */
 const smallSpace = '\u2009';
+
+/** @type {string} */
 const nDash = '\u2013';
+
 let tagAlbumArtist = 'AlbumArtist';
+
+/** @type {object} */
 const albumFilters = ["Composer", "Performer", "Conductor", "Ensemble"];
+
 const session = {
     "token": "",
     "timeout": 0
 };
+
+/** @type {number} */
 const sessionLifetime = 1780;
+
+/** @type {number} */
 const sessionRenewInterval = sessionLifetime * 500;
 let sessionTimer = null;
 const messages = [];
-const debugMode = document.getElementsByTagName("script")[0].src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
+
+/** @type {boolean} */
+const debugMode = document.querySelector("script").src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
+
 let webradioDb = null;
 const webradioDbPicsUri = 'https://jcorporation.github.io/webradiodb/db/pics/';
+
+/** @type {object} */
 const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
+
+/** @type {string} */
 let locale = navigator.language || navigator.userLanguage;
+
 let materialIcons = {};
 let phrasesDefault = {};
 let phrases = {};
@@ -59,14 +104,20 @@ const localSettings = {
     "partition": "default"
 };
 
-//get local settings
+/**
+ * Parses a string to boolean or number
+ * @param {string} str string to parse
+ * @returns {string | number | boolean} parsed string
+ */
 function parseString(str) {
     return str === 'true' ? true :
            str === 'false' ? false :
+           // @ts-ignore
            isNaN(str) ? str :
            Number(str);
 }
 
+//Get settings from localStorage
 for (const key in localSettings) {
     const value = localStorage.getItem(key);
     if (value !== null) {
@@ -77,24 +128,31 @@ for (const key in localSettings) {
 const userAgentData = {};
 userAgentData.hasIO = 'IntersectionObserver' in window ? true : false;
 
+/**
+ * Sets the useragentData object
+ */
 function setUserAgentData() {
-    //get interresting browser agent data
+    //get interesting browser agent data
     //https://developer.mozilla.org/en-US/docs/Web/API/User-Agent_Client_Hints_API
     if (navigator.userAgentData) {
         navigator.userAgentData.getHighEntropyValues(["platform"]).then(ua => {
+            /** @type {boolean} */
             userAgentData.isMobile = localSettings.enforceMobile === true ? true : ua.mobile;
             //Safari does not support this API
+            /** @type {boolean} */
             userAgentData.isSafari = false;
         });
     }
     else {
+        /** @type {boolean} */
         userAgentData.isMobile = localSettings.enforceMobile === true ? true : /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
+        /** @type {boolean} */
         userAgentData.isSafari = /Safari/i.test(navigator.userAgent);
     }
 }
 setUserAgentData();
 
-//minimum mpd version to support all myMPD features
+//minimum stable mpd version to support all myMPD features
 const mpdVersion = {
     "major": 0,
     "minor": 23,
@@ -106,7 +164,7 @@ const browseFilesystemHistory = {};
 
 //list of stickers
 const stickerList = ['stickerPlayCount', 'stickerSkipCount', 'stickerLastPlayed',
-    'stickerLastSkipped', 'stickerLike'];
+    'stickerLastSkipped', 'stickerLike', 'stickerElapsed'];
 
 //application state
 const app = {};
@@ -188,7 +246,7 @@ app.cards = {
                     "desc": false
                 },
                 "tag": "dir",
-                "search": "",
+                "search": "/",
                 "scrollPos": 0
             },
             "Playlists": {
@@ -436,7 +494,8 @@ const webuiSettingsDefault = {
             "insertAfterCurrent": "Insert after current playing song",
             "replace": "Replace queue",
             "replacePlay": "Replace queue and play",
-            "add": "Add to favorites"
+            "add": "Add to favorites",
+            "view": "Webradio details"
         },
         "inputType": "select",
         "title": "Click webradio",
@@ -755,7 +814,10 @@ const features = {
     "featTimer": true,
     "featTrigger": true,
     "featBinarylimit": true,
-    "featFingerprint": false
+    "featFingerprint": false,
+    "featConsumeOneshot": false,
+    "featPlaylistDirAuto": false,
+    "featMediaSession": false
 };
 
 //keyboard shortcuts
@@ -772,8 +834,8 @@ const keymap = {
         "p": {"order": 9, "cmd": "togglePlaymode", "options": ["repeat"], "desc": "Toggle repeat"},
         "i": {"order": 9, "cmd": "togglePlaymode", "options": ["single"], "desc": "Switch single mode"},
     "update": {"order": 100, "desc": "Update"},
-        "U": {"order": 101, "cmd": "updateDB", "options": ["", true, false], "desc": "Update database"},
-        "R": {"order": 102, "cmd": "updateDB", "options": ["", true, true], "desc": "Rescan database"},
+        "U": {"order": 101, "cmd": "updateDB", "options": ["", true, false, false], "desc": "Update database"},
+        "R": {"order": 102, "cmd": "updateDB", "options": ["", true, false, true], "desc": "Rescan database"},
         "P": {"order": 103, "cmd": "updateSmartPlaylists", "options": [false], "desc": "Update smart playlists", "req": "featSmartpls"},
     "modals": {"order": 200, "desc": "Dialogs"},
         "A": {"order": 201, "cmd": "showAddToPlaylist", "options": ["STREAM"], "desc": "Add stream"},
@@ -798,8 +860,9 @@ const keymap = {
 
 //cache often accessed dom elements
 const domCache = {};
-domCache.body = document.getElementsByTagName('body')[0];
-domCache.main = document.getElementsByTagName('main')[0];
+domCache.body = document.querySelector('body');
+domCache.main = document.querySelector('main');
+domCache.footer = document.querySelector('footer');
 domCache.counter = document.getElementById('counter');
 domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');
@@ -810,7 +873,7 @@ domCache.volumeBar = document.getElementById('volumeBar');
 //Get BSN object references for fast access
 const uiElements = {};
 //all modals
-for (const m of document.getElementsByClassName('modal')) {
+for (const m of document.querySelectorAll('.modal')) {
     uiElements[m.id] = BSN.Modal.getInstance(m);
 }
 //other directly accessed BSN objects

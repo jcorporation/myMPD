@@ -3,6 +3,11 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module song_js */
+
+/**
+ * Initialization function for song elements
+ */
 function initSong() {
     document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
@@ -49,17 +54,26 @@ function initSong() {
     }, false);
 }
 
+/**
+ * Shows the song details modal
+ * @param {string} uri song uri
+ */
 function songDetails(uri) {
     sendAPI("MYMPD_API_SONG_DETAILS", {
         "uri": uri
-    }, parseSongDetails);
+    }, parseSongDetails, false);
     uiElements.modalSongDetails.show();
 }
 
+/**
+ * Parses the MYMPD_API_SONG_FINGERPRINT jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseFingerprint(obj) {
     if (obj.error) {
         elReplaceChildId('fingerprint',
-            elCreateText('div', {"class": ["alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
+            elCreateTextTn('div', {"class": ["alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         return;
     }
@@ -68,6 +82,12 @@ function parseFingerprint(obj) {
     elReplaceChildId('fingerprint', textarea);
 }
 
+/**
+ * Returns a link to MusicBrainz
+ * @param {string} tag tag name
+ * @param {string} value tag value
+ * @returns {HTMLElement} a link or the value as text
+ */
 function getMBtagLink(tag, value) {
     let MBentity = '';
     switch (tag) {
@@ -91,11 +111,18 @@ function getMBtagLink(tag, value) {
         return elCreateText('span', {}, value);
     }
     else {
-        return elCreateText('a', {"title": tn('Lookup at musicbrainz'), "class": ["text-success", "external"], "target": "_musicbrainz",
+        return elCreateText('a', {"data-title-phrase": "Lookup at musicbrainz",
+            "class": ["text-success", "external"], "target": "_musicbrainz",
             "href": "https://musicbrainz.org/" + MBentity + "/" + myEncodeURI(value)}, value);
     }
 }
 
+/**
+ * Adds a row to the song details modal
+ * @param {string} thContent text for th
+ * @param {HTMLElement | Node | string} tdContent content element fot td
+ * @returns {HTMLElement} created row
+ */
 function songDetailsRow(thContent, tdContent) {
     const td = elCreateEmpty('td', {});
     if (typeof tdContent === 'object') {
@@ -105,18 +132,22 @@ function songDetailsRow(thContent, tdContent) {
         td.textContent = tdContent;
     }
     const tr = elCreateNodes('tr', {}, [
-        elCreateText('th', {}, tn(thContent)),
+        elCreateTextTn('th', {}, thContent),
         td
     ]);
     return tr;
 }
 
+/**
+ * Parses the MYMPD_API_SONG_DETAILS jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
 function parseSongDetails(obj) {
     const modal = document.getElementById('modalSongDetails');
-    modal.getElementsByClassName('album-cover')[0].style.backgroundImage = 'url("' +
+    modal.querySelector('.album-cover').style.backgroundImage = 'url("' +
         subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
 
-    const elH1s = modal.getElementsByTagName('h1');
+    const elH1s = modal.querySelectorAll('h1');
     for (let i = 0, j = elH1s.length; i < j; i++) {
         elH1s[i].textContent = obj.result.Title;
     }
@@ -129,7 +160,9 @@ function parseSongDetails(obj) {
             continue;
         }
         const tr = elCreateEmpty('tr', {});
-        tr.appendChild(elCreateText('th', {}, tn(settings.tagList[i])));
+        tr.appendChild(
+            elCreateTextTn('th', {}, settings.tagList[i])
+        );
         const td = elCreateEmpty('td', {});
         setData(td, 'tag', settings.tagList[i]);
         setData(td, 'name', obj.result[settings.tagList[i]]);
@@ -140,14 +173,20 @@ function parseSongDetails(obj) {
             checkTagValue(obj.result[settings.tagList[i]], '-') === false)
         {
             if (typeof obj.result[settings.tagList[i]] === 'string') {
-                td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]]));
+                td.appendChild(
+                    elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]])
+                );
             }
             else {
-                td.appendChild(elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]].join(', ')));
+                td.appendChild(
+                    elCreateText('a', {"class": ["text-success"], "href": "#"}, obj.result[settings.tagList[i]].join(', '))
+                );
             }
         }
         else if (settings.tagList[i].indexOf('MUSICBRAINZ') === 0) {
-            td.appendChild(printValue(settings.tagList[i], obj.result[settings.tagList[i]]));
+            td.appendChild(
+                printValue(settings.tagList[i], obj.result[settings.tagList[i]])
+            );
         }
         else {
             td.textContent = obj.result[settings.tagList[i]];
@@ -155,7 +194,7 @@ function parseSongDetails(obj) {
         tr.appendChild(td);
         tbody.appendChild(tr);
     }
-    tbody.appendChild(songDetailsRow('Duration', beautifyDuration(obj.result.Duration)));
+    tbody.appendChild(songDetailsRow('Duration', fmtDuration(obj.result.Duration)));
     //resolves cuesheet virtual tracks
     const rUri = cuesheetUri(obj.result.uri);
     let isCuesheet = false;
@@ -165,12 +204,12 @@ function parseSongDetails(obj) {
 
     const shortName = basename(rUri, false) + (isCuesheet === true ? ' (' + cuesheetTrack(obj.result.uri) + ')' : '');
     const openFolderBtn = elCreateText('button', {"id": "gotoContainingFolder", "class": ["btn", "btn-secondary", "mi"],
-        "title": tn("Open folder")}, 'folder_open');
+        "data-title-phrase": "Open folder"}, 'folder_open');
     setData(openFolderBtn, 'folder', dirname(obj.result.uri));
     let downloadBtn = null;
     if (features.featLibrary === true) {
         downloadBtn = elCreateText('button', {"id": "downloadSong","class": ["btn", "btn-secondary", "mi"],
-            "title": tn("Download")}, 'file_download');
+            "data-title-phrase": "Download"}, 'file_download');
         setData(downloadBtn, 'href', myEncodeURI(subdir + '/browse/music/' + rUri));
     }
     tbody.appendChild(
@@ -188,36 +227,39 @@ function parseSongDetails(obj) {
 
     tbody.appendChild(songDetailsRow('AudioFormat', printValue('AudioFormat', obj.result.AudioFormat)));
     tbody.appendChild(songDetailsRow('Filetype', filetype(rUri)));
-    tbody.appendChild(songDetailsRow('LastModified', localeDate(obj.result.LastModified)));
+    tbody.appendChild(songDetailsRow('LastModified', fmtDate(obj.result.LastModified)));
     //fingerprint command is not supported for cuesheet virtual tracks
     if (features.featFingerprint === true &&
         isCuesheet === false)
     {
-        const a = elCreateText('a', {"class": ["text-success"], "id": "calcFingerprint", "href": "#"}, tn('Calculate'));
+        const a = elCreateTextTn('a', {"class": ["text-success"], "id": "calcFingerprint", "href": "#"}, 'Calculate');
         setData(a, 'uri', obj.result.uri);
         tbody.appendChild(songDetailsRow('Fingerprint', a));
         tbody.lastChild.lastChild.setAttribute('id', 'fingerprint');
     }
     if (obj.result.bookletPath !== '') {
-        tbody.appendChild(songDetailsRow('Booklet', elCreateText('a', {"class": ["text-success"],
-            "href": myEncodeURI(subdir + obj.result.bookletPath), "target": "_blank"},
-            tn('Download'))));
+        tbody.appendChild(
+            songDetailsRow('Booklet',
+                elCreateTextTn('a', {"class": ["text-success"],
+                    "href": myEncodeURI(subdir + obj.result.bookletPath), "target": "_blank"}, 'Download')
+            )
+        );
     }
     if (features.featStickers === true) {
         tbody.appendChild(
             elCreateNode('tr', {},
                 elCreateNode('th', {"colspan": "2", "class": ["pt-3"]},
-                    elCreateText('h5', {}, tn('Statistics'))
+                    elCreateTextTn('h5', {}, 'Statistics')
                 )
             )
         );
         for (const sticker of stickerList) {
             if (sticker === 'stickerLike') {
-                const thDown = elCreateText('button', {"data-vote": "0", "title": tn('Hate song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
+                const thDown = elCreateText('button', {"data-vote": "0", "data-title-phrase": "Hate song", "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_down');
                 if (obj.result[sticker] === 0) {
                     thDown.classList.add('active');
                 }
-                const thUp = elCreateText('button', {"data-vote": "2", "title": tn('Love song'), "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_up');
+                const thUp = elCreateText('button', {"data-vote": "2", "data-title-phrase": "Love song", "class": ["btn", "btn-sm", "btn-secondary", "mi"]}, 'thumb_up');
                 if (obj.result[sticker] === 2) {
                     thUp.classList.add('active');
                 }
@@ -229,7 +271,7 @@ function parseSongDetails(obj) {
                 setData(grp, 'uri', obj.result.uri);
                 tbody.appendChild(
                     elCreateNodes('tr', {}, [
-                        elCreateText('th', {}, tn('Like')),
+                        elCreateTextTn('th', {}, 'Like'),
                         elCreateNode('td', {}, grp)
                     ])
                 );
@@ -250,6 +292,11 @@ function parseSongDetails(obj) {
     createImgCarousel(imgEl, 'songPicsCarousel', obj.result.uri, obj.result.images, obj.result.embeddedImageCount);
 }
 
+/**
+ * Gets the song comments
+ * @param {string} uri song uri
+ * @param {HTMLElement} el container to add the comments
+ */
 function getComments(uri, el) {
     setUpdateView(el);
     sendAPI("MYMPD_API_SONG_COMMENTS", {
@@ -273,6 +320,12 @@ function getComments(uri, el) {
     }, false);
 }
 
+/**
+ * Gets the lyrics
+ * @param {string} uri song uri
+ * @param {HTMLElement} el container element to show the lyrics
+ * @returns {void}
+ */
 function getLyrics(uri, el) {
     if (isValidUri(uri) === false ||
         isStreamUri(uri) === true)
@@ -300,6 +353,11 @@ function getLyrics(uri, el) {
     }, true);
 }
 
+/**
+ * Parses the MYMPD_API_LYRICS_GET jsonrpc response
+ * @param {*} el container element to show the lyrics
+ * @param {*} obj jsonrpc response
+ */
 function createLyricsTabs(el, obj) {
     const lyricsTabs = elCreateEmpty('div', {"class": [ "lyricsTabs"]});
     const lyrics = elCreateEmpty('div', {"class": ["lyricsTextContainer", "mt-3"]});
@@ -316,8 +374,10 @@ function createLyricsTabs(el, obj) {
         else {
             ht = i;
         }
-        lyricsTabs.appendChild(elCreateText('button', {"data-num": i, "class": ["btn", "btn-sm", "btn-outline-secondary", "me-2", "lyricsChangeButton"],
-            "title": (obj.result.data[i].synced === true ? tn('Synced lyrics') : tn('Unsynced lyrics')) + ': ' + ht}, ht));
+        lyricsTabs.appendChild(
+            elCreateText('button', {"data-num": i, "class": ["btn", "btn-sm", "btn-outline-secondary", "me-2", "lyricsChangeButton"],
+                "title": (obj.result.data[i].synced === true ? tn('Synced lyrics') : tn('Unsynced lyrics')) + ': ' + ht}, ht)
+        );
         if (i === 0) {
             lyricsTabs.lastChild.classList.add('active');
         }
@@ -347,10 +407,10 @@ function createLyricsTabs(el, obj) {
     if (currentLyrics === true) {
         //buttons for lyris in playback view
         lyricsHeader.appendChild(
-            elCreateText('button', {"title": tn('Toggle autoscrolling'), "class": ["btn", "btn-sm", "me-2", "active", "d-none", "mi"], "id": "lyricsScroll"}, 'autorenew')
+            elCreateText('button', {"data-title-phrase": "Toggle autoscrolling", "class": ["btn", "btn-sm", "me-2", "active", "d-none", "mi"], "id": "lyricsScroll"}, 'autorenew')
         );
         lyricsHeader.appendChild(
-            elCreateText('button', {"title": tn('Resize'), "class": ["btn", "btn-sm", "me-2", "active", "mi"], "id": "lyricsResize"}, 'aspect_ratio')
+            elCreateText('button', {"data-title-phrase": "Resize", "class": ["btn", "btn-sm", "me-2", "active", "mi"], "id": "lyricsResize"}, 'aspect_ratio')
         );
     }
     elClear(el);
@@ -359,12 +419,12 @@ function createLyricsTabs(el, obj) {
         lyricsHeader.appendChild(lyricsTabs);
         el.appendChild(lyricsHeader);
         el.appendChild(lyrics);
-        el.getElementsByClassName('lyricsTabs')[0].addEventListener('click', function(event) {
+        el.querySelector('.lyricsTabs').addEventListener('click', function(event) {
             if (event.target.nodeName === 'BUTTON') {
-                event.target.parentNode.getElementsByClassName('active')[0].classList.remove('active');
+                event.target.parentNode.querySelector('.active').classList.remove('active');
                 event.target.classList.add('active');
                 const nr = Number(event.target.getAttribute('data-num'));
-                const tEls = el.getElementsByClassName('lyricsText');
+                const tEls = el.querySelectorAll('.lyricsText');
                 for (let i = 0, j = tEls.length; i < j; i++) {
                     if (i === nr) {
                         elShow(tEls[i]);
@@ -390,7 +450,7 @@ function createLyricsTabs(el, obj) {
                     scrollSyncedLyrics = event.target.classList.contains('active');
                 }, false);
                 //seek to songpos on click
-                const textEls = el.getElementsByClassName('lyricsSyncedText');
+                const textEls = el.querySelectorAll('.lyricsSyncedText');
                 for (let i = 0, j = textEls.length; i < j; i++) {
                     textEls[i].addEventListener('click', function(event) {
                         const sec = event.target.getAttribute('data-sec');
@@ -398,7 +458,7 @@ function createLyricsTabs(el, obj) {
                             sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
                                 "seek": Number(sec),
                                 "relative": false
-                            });
+                            }, null, false);
                         }
                     }, false);
                 }
@@ -408,9 +468,9 @@ function createLyricsTabs(el, obj) {
         const lr = document.getElementById('lyricsResize');
         if (lr !== null) {
             lr.addEventListener('click', function(event) {
-                toggleBtn(event.target);
+                toggleBtn(event.target, undefined);
                 const mh = event.target.classList.contains('active') ? '16rem' : 'unset';
-                const lt = document.getElementsByClassName('lyricsText');
+                const lt = document.querySelectorAll('.lyricsText');
                 for (const l of lt) {
                     l.style.maxHeight = mh;
                 }
@@ -419,13 +479,28 @@ function createLyricsTabs(el, obj) {
     }
 }
 
+/**
+ * Parses unsynced lyrics
+ * @param {HTMLElement} parent element to append the lyrics
+ * @param {string} text the lyrics
+ */
 function parseUnsyncedLyrics(parent, text) {
     for (const line of text.replace(/\r/g, '').split('\n')) {
-        parent.appendChild(document.createTextNode(line));
-        parent.appendChild(elCreateEmpty('br', {}));
+        parent.appendChild(
+            document.createTextNode(line)
+        );
+        parent.appendChild(
+            elCreateEmpty('br', {})
+        );
     }
 }
 
+/**
+ * Parses synced lyrics (lrc format)
+ * @param {HTMLElement} parent element to append the lyrics
+ * @param {string} lyrics the lyrics
+ * @param {boolean} currentLyrics true = lyrics in playback view, false lyrics in song details modal
+ */
 function parseSyncedLyrics(parent, lyrics, currentLyrics) {
     for (const line of lyrics.replace(/\r/g, '').split('\n')) {
         //line must start with timestamp
@@ -450,7 +525,7 @@ function parseSyncedLyrics(parent, lyrics, currentLyrics) {
             }
             const p = elCreateEmpty('p', {});
             for (let i = 0, j = ts.length; i < j; i++) {
-                const span = elCreateText('span', {"data-sec": ts[i], "title": beautifySongDuration(ts[i])}, text[i]);
+                const span = elCreateText('span', {"data-sec": ts[i], "title": fmtSongDuration(ts[i])}, text[i]);
                 if (currentLyrics === true) {
                     span.classList.add('clickable');
                 }
@@ -461,7 +536,11 @@ function parseSyncedLyrics(parent, lyrics, currentLyrics) {
     }
 }
 
-//used in songdetails modal
+/**
+ * Song love/hate event handler
+ * @param {EventTarget} el triggering element
+ * @returns {void}
+ */
 //eslint-disable-next-line no-unused-vars
 function voteSong(el) {
     if (el.nodeName === 'DIV') {
@@ -480,7 +559,7 @@ function voteSong(el) {
         vote = 1;
         el.classList.remove('active');
     }
-    const aEl = el.parentNode.getElementsByClassName('active')[0];
+    const aEl = el.parentNode.querySelector('.active');
     if (aEl !== undefined) {
         aEl.classList.remove('active');
     }
@@ -497,9 +576,14 @@ function voteSong(el) {
     sendAPI("MYMPD_API_LIKE", {
         "uri": uri,
         "like": vote
-    });
+    }, null, false);
 }
 
+/**
+ * Sets the state of the song vote button group
+ * @param {number} vote the vote 0 = hate, 1 = neutral, 2 = love
+ * @param {string} uri song uri
+ */
 function setVoteSongBtns(vote, uri) {
     if (uri === undefined) {
         uri = '';

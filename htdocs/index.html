@@ -21,7 +21,7 @@
   <link href="assets/appicon-192.png" rel="apple-touch-icon"/>
   <link href="assets/appicon-192.png" rel="icon"/>
 </head>
-<body class="overflow-hidden">
+<body class="overflow-hidden mobile">
   <!-- Splash screen -->
   <div id="splashScreen">
     <div id="splashScreenLogo">
@@ -113,10 +113,10 @@
     <div class="card" id="cardHome">
       <div class="card-body">
         <div id="homeActions" class="btn-group">
-            <button data-title-phrase="Homescreen" class="btn btn-xs btn-transparent dropdown-toggle mi mi-small" type="button" data-bs-toggle="dropdown">settings</button>
-            <div class="dropdown-menu dropdown-menu-dark px-2" id="homeActionsDropdown">
-              <button data-phrase="Add external link" data-href='{"cmd": "addExternalLinkToHome", "options": []}' class="btn btn-secondary w-100 btn-sm"></button>
-            </div>
+          <button data-title-phrase="Homescreen" class="btn btn-xs btn-transparent dropdown-toggle mi mi-small" type="button" data-bs-toggle="dropdown">settings</button>
+          <div class="dropdown-menu dropdown-menu-dark px-2" id="homeActionsDropdown">
+            <button data-phrase="Add external link" data-href='{"cmd": "addExternalLinkToHome", "options": []}' class="btn btn-secondary w-100 btn-sm"></button>
+          </div>
         </div>
         <div class="container-fluid cardsContainer scrollContainer">
           <div id="HomeList" class="row noInitChilds"></div>
@@ -140,7 +140,7 @@
             <button data-title-phrase="Display tags" id="PlaybackColsBtn" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
             <div class="dropdown-menu dropdown-menu-dark px-2" id="PlaybackColsDropdown">
               <form></form>
-              <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": ["Playback"]}' class="btn btn-success w-100 btn-sm mt-2"></button>
+              <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": []}' class="btn btn-success w-100 btn-sm mt-2"></button>
             </div>
           </div>
         </div>
@@ -183,7 +183,7 @@
             </div>
             <select class="featAdvqueue form-select rounded-0 no-flex" id="searchQueueMatch">
               <option data-phrase="contains" value="contains"></option>
-              <option data-phrase="starts_with" value="starts_with"></option>
+              <option data-phrase="starts_with" value="starts_with" class="featPcre"></option>
               <option value="==">==</option>
               <option value="=~">=~</option>
               <option value="!=">!=</option>
@@ -381,16 +381,16 @@
               <button data-title-phrase="Update smart playlist" type="button" class="btn btn-secondary mi rounded-end me-2" data-href='{"cmd": "updateSmartPlaylistClick", "options": []}'>refresh</button>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Append to queue" class="btn btn-secondary mi" data-href='{"cmd": "currentPlaylistToQueue", "options": ["appendQueue"]}'>library_add</button>
+              <button data-title-phrase="Append to queue" class="btn btn-secondary mi" data-href='{"cmd": "currentPlaylistAddTo", "options": ["appendQueue"]}'>library_add</button>
               <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
               <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide">
                 <div class="d-grid gap-2">
-                  <button data-phrase="Append to queue" data-href='{"cmd": "currentPlaylistToQueue", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
-                  <button data-phrase="Append to queue and play" data-href='{"cmd": "currentPlaylistToQueue", "options": ["appendPlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
-                  <button data-phrase="Insert after current playing song" data-href='{"cmd": "currentPlaylistToQueue", "options": ["insertAfterCurrentQueue"]}' type="button" class="featWhence btn btn-secondary btn-sm"></button>
-                  <button data-phrase="Replace queue" data-href='{"cmd": "currentPlaylistToQueue", "options": ["replaceQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
-                  <button data-phrase="Replace queue and play" data-href='{"cmd": "currentPlaylistToQueue", "options": ["replacePlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
-                  <button data-phrase="Add to homescreen" data-href='{"cmd": "currentPlaylistToQueue", "options": ["addToHome"]}' type="button" class="btn btn-secondary btn-sm featHome"></button>
+                  <button data-phrase="Append to queue" data-href='{"cmd": "currentPlaylistAddTo", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                  <button data-phrase="Append to queue and play" data-href='{"cmd": "currentPlaylistAddTo", "options": ["appendPlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                  <button data-phrase="Insert after current playing song" data-href='{"cmd": "currentPlaylistAddTo", "options": ["insertAfterCurrentQueue"]}' type="button" class="featWhence btn btn-secondary btn-sm"></button>
+                  <button data-phrase="Replace queue" data-href='{"cmd": "currentPlaylistAddTo", "options": ["replaceQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                  <button data-phrase="Replace queue and play" data-href='{"cmd": "currentPlaylistAddTo", "options": ["replacePlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
+                  <button data-phrase="Add to homescreen" data-href='{"cmd": "currentPlaylistAddTo", "options": ["addToHome"]}' type="button" class="btn btn-secondary btn-sm featHome"></button>
                 </div>
               </div>
             </div>
@@ -522,9 +522,6 @@
                 <button data-href='{"cmd": "addDirToHome", "options": []}' data-phrase="Add to homescreen" type="button" class="btn btn-secondary btn-sm featHome"></button>
               </div>
             </div>
-          </div>
-          <div class="btn-group me-2 featHome" id="BrowseFilesystemAddToHome">
-            <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
           </div>
           <div id="BrowseFilesystemPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
@@ -680,7 +677,7 @@
             </div>
             <select class="form-select rounded-0 no-flex" id="searchMatch">
               <option data-phrase="contains" value="contains"></option>
-              <option data-phrase="starts_with" value="starts_with"></option>
+              <option data-phrase="starts_with" value="starts_with" class="featPcre"></option>
               <option value="==">==</option>
               <option value="=~">=~</option>
               <option value="!=">!=</option>
@@ -722,7 +719,7 @@
     <div id="alertBox"></div>
   </main>
   <!-- Footer -->
-  <footer class="footer fixed-bottom">
+  <footer class="fixed-bottom">
     <div id="footerProgressPos" class="bg-secondary px-2 py-1 rounded-sm"></div>
     <div id="footerProgress" class="progress clickable align-items-center">
       <div id="footerProgressBar" class="progress-bar highlight-bg"></div>
@@ -753,7 +750,7 @@
         <div class="btn-group dropup">
           <button data-title-phrase="Outputs" id="volumeMenu" class="btn btn-dark dropdown-toggle px-2 mi" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">volume_up</button>
           <div id="outputsDropdown" class="dropdown-menu dropdown-menu-dark">
-            <form id="outputs" class="px-3 py-3 d-grid gap-2"></form>
+            <form id="outputs" class="px-3 py-2 d-grid gap-2"></form>
             <div class="dropdown-divider featPartitions"></div>
               <a class="dropdown-item featPartitions" data-title-phrase="Manage partitions" data-bs-toggle="modal" href="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
             <a data-phrase="Move an output to this partition" class="dropdown-item featPartitions" data-bs-toggle="modal" href="#modalPartitionOutputs"></a>
@@ -1332,12 +1329,6 @@
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="btnConsume" data-phrase="Consume"></label>
-                  <div class="col-sm-8">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnConsume" type="button" class="btn btn-secondary btn-sm mi"></button>
-                  </div>
-                </div>
-                <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="btnRepeat" data-phrase="Repeat"></label>
                   <div class="col-sm-8">
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnRepeat" type="button" class="btn btn-secondary btn-sm mi"></button>
@@ -1347,6 +1338,16 @@
                   <label class="col-sm-4 col-form-label" for="btnAutoPlay" data-phrase="Autoplay"></label>
                   <div class="col-sm-8">
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-sm mi"></button>
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" data-phrase="Consume"></label>
+                  <div class="col-sm-8">
+                    <div class="btn-group" id="btnConsumeGroup">
+                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                      <button data-value="oneshot" class="btn btn-secondary featConsumeOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
+                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
+                    </div>
                   </div>
                 </div>
                 <div class="mb-3 row">
@@ -1584,12 +1585,18 @@
               </div>
               <div id="warnMusicDirectory" class="alert alert-warning d-none" data-phrase="Music directory not found"></div>
               <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputPlaylistDirectory" data-phrase="Playlist directory"></label>
-                <div class="col-sm-8 position-relative">
-                  <input data-is="mympd-input-reset" id="inputPlaylistDirectory" class="form-control alwaysEnabled" placeholder="/var/lib/mpd/playlists"/>
+                <label class="col-sm-4 col-form-label" for="selectPlaylistDirectory" data-phrase="Playlist directory"></label>
+                <div class="col-sm-8">
+                  <select id="selectPlaylistDirectory" class="form-select alwaysEnabled">
+                    <option value="auto" data-phrase="Autodetect" class="featPlaylistDirAuto"></option>
+                    <option value="none" data-phrase="None"></option>
+                    <option value="custom" data-phrase="Specify"></option>
+                  </select>
+                  <input id="inputPlaylistDirectory" class="form-control mt-2 alwaysEnabled" placeholder="/var/lib/mpd/playlists"/>
                   <div class="invalid-feedback" data-phrase="Invalid playlist directory"></div>
                 </div>
               </div>
+              <div id="warnPlaylistDirectory" class="alert alert-warning d-none" data-phrase="Playlist directory not found"></div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="inputMpdTimeout" data-phrase="Timeout"></label>
                 <div class="col-sm-8">
@@ -1643,11 +1650,29 @@
         </div>
         <div class="modal-body">
           <form id="saveQueueFrm">
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="saveQueueName" data-phrase="Playlist name"></label>
+            <div class="row mb-3 featAdvqueue">
+              <label class="col-sm-4 col-form-label" data-phrase="Save mode"></label>
+              <div class="col-sm-8">
+                <div class="btn-group" id="btnQueueSaveMode">
+                  <button data-value="create" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": []}' type="button" data-phrase="Create new"></button>
+                  <button data-value="append" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": []}' type="button" data-phrase="Append"></button>
+                  <button data-value="replace" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": []}' type="button" data-phrase="Replace"></button>
+                </div>
+              </div>
+            </div>
+            <div class="row mb-3" id="rowSaveQueueName">
+              <label class="col-sm-4 col-form-label" for="saveQueueName" data-phrase="New playlist"></label>
               <div class="col-sm-8">
                 <input class="form-control" id="saveQueueName"/>
                 <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+              </div>
+            </div>
+            <div class="row mb-3 d-none" id="rowSaveQueueNameSelect">
+              <label class="col-sm-4 col-form-label" for="saveQueueNameSelect" data-phrase="Existing playlist"></label>
+              <div class="col-sm-8 position-relative">
+                <div class="btn-group d-flex">
+                  <input data-is="mympd-select-search" id="saveQueueNameSelect" data-placeholder-phrase="Choose a playlist" class="form-control" readonly="readonly"/>
+                </div>
               </div>
             </div>
           </form>
@@ -1697,7 +1722,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success" data-href='{"cmd": "addToQueue", "options": []}' data-phrase="Add"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "addRandomToQueue", "options": []}' data-phrase="Add"></button>
         </div>
       </div>
     </div>
@@ -2206,7 +2231,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
-          <button id="modalPictureZoom" data-href='{"cmd":"zoomZoomPicture","options":[]}' type="button" class="btn btn-success" data-phrase="Zoom"></button>
+          <button id="btnOpenPictureWindow" data-href='{"cmd":"openPictureWindow","options":[]}' type="button" class="btn btn-success" data-phrase="Open in new window"></button>
         </div>
       </div>
     </div>
@@ -2426,7 +2451,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <input type="hidden" id="inputSongPriorityTrackId"/>
+          <input type="hidden" id="inputSongPrioritySongId"/>
           <div class="mb-3 row">
             <label class="col-sm-4 col-form-label" for="inputSongPriority" data-phrase="Priority"></label>
             <div class="col-sm-8">
@@ -2520,7 +2545,7 @@
         </div>
         <div class="modal-body">
           <form id="saveRadioFavoriteFrm">
-            <input type="hidden" id="editRadioFavoriteStreamUriOld" value=""/>
+            <input type="hidden" id="editRadioFavoriteStreamUriOld"/>
             <div class="row mb-3">
               <label class="col-sm-4 col-form-label" for="editRadioFavoriteName" data-phrase="Name"></label>
               <div class="col-sm-8">
@@ -2639,32 +2664,50 @@
 <!--debug-->  <script src="js/i18n.js"></script>
 <!--debug-->  <script src="js/locale.js"></script>
 <!--debug-->  <script src="js/apidoc.js"></script>
-<!--debug-->  <script src="js/utility.js"></script>
 <!--debug-->  <script src="js/elements.js"></script>
+<!--debug-->  <script src="js/pagination.js"></script>
+<!--debug-->  <script src="js/utility.js"></script>
+<!--debug-->  <script src="js/images.js"></script>
+<!--debug-->  <script src="js/modal.js"></script>
+<!--debug-->  <script src="js/tags.js"></script>
+<!--debug-->  <script src="js/clickActions.js"></script>
+<!--debug-->  <script src="js/customElements.js"></script>
 <!--debug-->  <script src="js/validate.js"></script>
 <!--debug-->  <script src="js/notification.js"></script>
 <!--debug-->  <script src="js/settings.js"></script>
+<!--debug-->  <script src="js/settingsConnection.js"></script>
+<!--debug-->  <script src="js/settingsPlayback.js"></script>
 <!--debug-->  <script src="js/timer.js"></script>
 <!--debug-->  <script src="js/mounts.js"></script>
 <!--debug-->  <script src="js/partitions.js"></script>
 <!--debug-->  <script src="js/api.js"></script>
+<!--debug-->  <script src="js/session.js"></script>
+<!--debug-->  <script src="js/websocket.js"></script>
 <!--debug-->  <script src="js/tables.js"></script>
-<!--debug-->  <script src="js/search.js"></script>
-<!--debug-->  <script src="js/queue.js"></script>
-<!--debug-->  <script src="js/playlists.js"></script>
-<!--debug-->  <script src="js/browse.js"></script>
+<!--debug-->  <script src="js/Browse.js"></script>
+<!--debug-->  <script src="js/BrowseDatabase.js"></script>
+<!--debug-->  <script src="js/BrowseFilesystem.js"></script>
+<!--debug-->  <script src="js/BrowsePlaylists.js"></script>
+<!--debug-->  <script src="js/BrowseRadioFavorites.js"></script>
+<!--debug-->  <script src="js/BrowseRadioRadiobrowser.js"></script>
+<!--debug-->  <script src="js/BrowseRadioWebradiodb.js"></script>
+<!--debug-->  <script src="js/Home.js"></script>
+<!--debug-->  <script src="js/Playback.js"></script>
+<!--debug-->  <script src="js/QueueCurrent.js"></script>
+<!--debug-->  <script src="js/QueueLastPlayed.js"></script>
+<!--debug-->  <script src="js/QueueJukebox.js"></script>
+<!--debug-->  <script src="js/Search.js"></script>
 <!--debug-->  <script src="js/state.js"></script>
 <!--debug-->  <script src="js/outputs.js"></script>
 <!--debug-->  <script src="js/song.js"></script>
-<!--debug-->  <script src="js/database.js"></script>
+<!--debug-->  <script src="js/updateDB.js"></script>
 <!--debug-->  <script src="js/scripts.js"></script>
 <!--debug-->  <script src="js/trigger.js"></script>
 <!--debug-->  <script src="js/popover.js"></script>
 <!--debug-->  <script src="js/localplayback.js"></script>
-<!--debug-->  <script src="js/home.js"></script>
-<!--debug-->  <script src="js/jukebox.js"></script>
-<!--debug-->  <script src="js/webradio.js"></script>
-<!--debug-->  <script src="js/mympd.js"></script>
+<!--debug-->  <script src="js/maintenance.js"></script>
+<!--debug-->  <script src="js/router.js"></script>
+<!--debug-->  <script src="js/init.js"></script>
 <!--release   <script src="js/combined.js"></script>-->
  </body>
 </html>

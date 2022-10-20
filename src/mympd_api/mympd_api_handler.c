@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "mpd/playlist.h"
 #include "mympd_api_handler.h"
 
 #include "../lib/album_cache.h"
@@ -574,7 +575,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         case INTERNAL_API_SCRIPT_INIT: {
             struct t_list *lua_mympd_state = list_new();
-            rc = mympd_api_status_lua_mympd_state_set(lua_mympd_state, partition_state, mympd_state->listenbrainz_token);
+            rc = mympd_api_status_lua_mympd_state_set(lua_mympd_state, partition_state);
             if (rc == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_SCRIPT);
                 response->extra = lua_mympd_state;
@@ -587,7 +588,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         }
-        case MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET: {
+        case MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET: {
             struct t_list attributes;
             list_init(&attributes);
             if (json_get_uint(request->data, "$.params.outputId", 0, MPD_OUTPUT_ID_MAX, &uint_buf1, &error) == true &&
@@ -1115,7 +1116,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 rc = mpd_client_playlist_shuffle(partition_state, sds_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Shuffled playlist succesfully");
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Shuffled playlist successfully");
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -1130,7 +1131,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 rc = mpd_client_playlist_sort(partition_state, sds_buf1, sds_buf2);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Sorted playlist succesfully");
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Sorted playlist successfully");
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -1316,9 +1317,24 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         case MYMPD_API_QUEUE_SAVE:
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                rc = mpd_run_save(partition_state->conn, sds_buf1);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_save", &result);
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.mode", 1, NAME_LEN_MAX, &sds_buf2, vcb_isalnum, &error) == true)
+            {
+                if (mympd_state->mpd_state->feat_advqueue == true) {
+                    enum mpd_queue_save_mode save_mode = mpd_parse_queue_save_mode(sds_buf2);
+                    if (save_mode != MPD_QUEUE_SAVE_MODE_UNKNOWN) {
+                        rc = mpd_run_save_queue(partition_state->conn, sds_buf1, save_mode);
+                        response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_save_queue", &result);
+                    }
+                    else {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Unknown queue save mode");
+                    }
+                }
+                else {
+                    rc = mpd_run_save(partition_state->conn, sds_buf1);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_save", &result);
+                }
             }
             break;
         case MYMPD_API_QUEUE_SEARCH: {
@@ -1624,7 +1640,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
 /**
  * Tries to play the last inserted song and checks for success
  * @param partition_state pointer to partition state
- * @param play realy play last inserts song
+ * @param play really play last inserts song
  * @param buffer already allocated sds string to append the error response
  * @param cmd_id jsonrpc method
  * @param request_id jsonrpc request id

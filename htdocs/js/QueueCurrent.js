@@ -3,21 +3,74 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-function initQueue() {
-    document.getElementById('searchQueueLastPlayedStr').addEventListener('keyup', function(event) {
-        clearSearchTimer();
-        if (event.key === 'Escape') {
-            this.blur();
+/** @module QueueCurrent_js */
+
+/**
+ * Current queue handler
+ */
+function handleQueueCurrent() {
+    setFocusId('searchQueueStr');
+    if (features.featAdvqueue === true) {
+        createSearchCrumbs(app.current.search, document.getElementById('searchQueueStr'), document.getElementById('searchQueueCrumb'));
+    }
+    else if (document.getElementById('searchQueueStr').value === '' &&
+        app.current.search !== '')
+    {
+        document.getElementById('searchQueueStr').value = app.current.search;
+    }
+    if (app.current.search === '') {
+        document.getElementById('searchQueueStr').value = '';
+    }
+    if (features.featAdvqueue === true) {
+        if (app.current.sort.tag === '-' ||
+            app.current.sort.tag === 'Pos')
+        {
+            app.current.sort.tag = 'Priority';
+        }
+        sendAPI("MYMPD_API_QUEUE_SEARCH_ADV", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "sort": app.current.sort.tag,
+            "sortdesc": app.current.sort.desc,
+            "expression": app.current.search,
+            "cols": settings.colsQueueCurrentFetch
+        }, parseQueue, true);
+        if (app.current.filter === 'prio') {
+            elShowId('priorityMatch');
+            document.getElementById('searchQueueMatch').value = '>=';
         }
         else {
-            const value = this.value;
-            searchTimer = setTimeout(function() {
-                appGoto(app.current.card, app.current.tab, app.current.view,
-                    0, app.current.limit, app.current.filter, app.current.sort, '-', value);
-            }, searchTimerTimeout);
+            if (getSelectValueId('searchQueueMatch') === '>=') {
+                document.getElementById('searchQueueMatch').value = 'contains';
+            }
+            elHideId('priorityMatch');
         }
-    }, false);
+    }
+    else if (document.getElementById('searchQueueStr').value.length >= 2 ||
+             document.getElementById('searchQueueCrumb').children.length > 0)
+    {
+        sendAPI("MYMPD_API_QUEUE_SEARCH", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "filter": app.current.filter,
+            "searchstr": app.current.search,
+            "cols": settings.colsQueueCurrentFetch
+        }, parseQueue, true);
+    }
+    else {
+        sendAPI("MYMPD_API_QUEUE_LIST", {
+            "offset": app.current.offset,
+            "limit": app.current.limit,
+            "cols": settings.colsQueueCurrentFetch
+        }, parseQueue, true);
+    }
+    selectTag('searchQueueTags', 'searchQueueTagsDesc', app.current.filter);
+}
 
+/**
+ * Initializes the current queue elements
+ */
+function initQueueCurrent() {
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
         //popover
         if (event.target.nodeName === 'A') {
@@ -47,16 +100,6 @@ function initQueue() {
         const target = getParent(event.target, 'TR');
         if (target !== null) {
             clickQueueSong(getData(target, 'songid'), getData(target, 'uri'));
-        }
-    }, false);
-
-    document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            clickSong(getData(event.target.parentNode, 'uri'));
-        }
-        else if (event.target.nodeName === 'A') {
-            //action td
-            handleActionTdClick(event);
         }
     }, false);
 
@@ -93,8 +136,16 @@ function initQueue() {
         const plName = document.getElementById('saveQueueName');
         setFocus(plName);
         plName.value = '';
+        toggleBtnGroupValueId('btnQueueSaveMode', 'create');
+        toggleSaveQueueMode(document.getElementById('btnQueueSaveMode').firstElementChild);
+        document.getElementById('saveQueueNameSelect').value = '';
+        document.getElementById('saveQueueNameSelect').filterInput.value = '';
+        filterPlaylistsSelect(1, 'saveQueueNameSelect', '');
         cleanupModalId('modalSaveQueue');
     });
+
+    setDataId('saveQueueNameSelect', 'cb-filter', 'filterPlaylistsSelect');
+    setDataId('saveQueueNameSelect', 'cb-filter-options', [1, 'saveQueueNameSelect']);
 
     document.getElementById('modalSetSongPriority').addEventListener('shown.bs.modal', function() {
         const prioEl = document.getElementById('inputSongPriority');
@@ -167,16 +218,25 @@ function initQueue() {
     }, false);
 }
 
-function getQueue(x) {
+/**
+ * Wrapper for queue search that respects featAdvqueue
+ * @param {*} value search value
+ */
+function getQueue(value) {
     if (features.featAdvqueue) {
-        const expression = createSearchExpression(document.getElementById('searchQueueCrumb'), app.current.filter, getSelectValueId('searchQueueMatch'), x);
+        const expression = createSearchExpression(document.getElementById('searchQueueCrumb'), app.current.filter, getSelectValueId('searchQueueMatch'), value);
         appGoto('Queue', 'Current', undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', expression, 0);
     }
     else {
-        appGoto('Queue', 'Current', undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', x, 0);
+        appGoto('Queue', 'Current', undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', value, 0);
     }
 }
 
+/**
+ * Parses the queue list and search responses
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseQueue(obj) {
     //goto playing song button
     if (obj.result &&
@@ -194,7 +254,7 @@ function parseQueue(obj) {
     }
 
     if (obj.result.offset < app.current.offset) {
-        gotoPage(obj.result.offset);
+        gotoPage(obj.result.offset, undefined);
         return;
     }
 
@@ -204,7 +264,7 @@ function parseQueue(obj) {
     const rowTitle = webuiSettingsDefault.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
     updateTable(obj, 'QueueCurrent', function(row, data) {
         row.setAttribute('draggable', 'true');
-        row.setAttribute('id', 'queueTrackId' + data.id);
+        row.setAttribute('id', 'queueSongId' + data.id);
         row.setAttribute('title', tn(rowTitle));
         setData(row, 'songid', data.id);
         setData(row, 'songpos', data.Pos);
@@ -240,34 +300,45 @@ function parseQueue(obj) {
         }
     });
 
-    const tfoot = table.getElementsByTagName('tfoot')[0];
+    const tfoot = table.querySelector('tfoot');
     if (obj.result.totalTime &&
         obj.result.totalTime > 0 &&
         obj.result.totalEntities <= app.current.limit)
     {
-        elReplaceChild(tfoot, elCreateNode('tr', {},
-            elCreateNode('td', {"colspan": (colspan + 1)},
-                elCreateText('small', {}, tn('Num songs', obj.result.totalEntities) +
-                    smallSpace + nDash + smallSpace + beautifyDuration(obj.result.totalTime))))
+        elReplaceChild(tfoot,
+            elCreateNode('tr', {},
+                elCreateNode('td', {"colspan": (colspan + 1)},
+                    elCreateNodes('small', {}, [
+                        elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),
+                        elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime))
+                    ])
+                )
+            )
         );
     }
     else if (obj.result.totalEntities > 0) {
-        elReplaceChild(tfoot, elCreateNode('tr', {},
-            elCreateNode('td', {"colspan": (colspan + 1)},
-                elCreateText('small', {}, tn('Num songs', obj.result.totalEntities))))
+        elReplaceChild(tfoot,
+            elCreateNode('tr', {},
+                elCreateNode('td', {"colspan": (colspan + 1)},
+                    elCreateTextTnNr('small', {}, 'Num songs', obj.result.totalEntities)
+                )
+            )
         );
     }
 }
 
+/**
+ * Removes the old playing row and sets the new playing row in the queue view
+ */
 function queueSetCurrentSong() {
     //remove old playing row
-    const old = document.getElementById('queueTrackId' + currentState.lastSongId);
+    const old = document.getElementById('queueSongId' + currentState.lastSongId);
     if (old !== null &&
         old.classList.contains('queue-playing'))
     {
         const durationTd = old.querySelector('[data-col=Duration]');
         if (durationTd) {
-            durationTd.textContent = beautifySongDuration(getData(old, 'duration'));
+            durationTd.textContent = fmtSongDuration(getData(old, 'duration'));
         }
         const posTd = old.querySelector('[data-col=Pos]');
         if (posTd) {
@@ -275,12 +346,16 @@ function queueSetCurrentSong() {
             posTd.textContent = getData(old, 'songpos') + 1;
         }
         old.classList.remove('queue-playing');
-        old.style = '';
     }
     //set playing row
     setPlayingRow();
 }
 
+/**
+ * Sets the playing progress in the queue view
+ * @param {HTMLElement} playingRow the playing row element
+ * @param {string} counterText text to set for the duration
+ */
 function setQueueCounter(playingRow, counterText) {
     if (userAgentData.isSafari === false) {
         //safari does not support gradient backgrounds at row level
@@ -297,9 +372,13 @@ function setQueueCounter(playingRow, counterText) {
     }
 }
 
+/**
+ * Sets the playing song in the current queue view
+ * @param {HTMLElement} [playingRow] playing row element
+ */
 function setPlayingRow(playingRow) {
     if (playingRow === undefined) {
-        playingRow = document.getElementById('queueTrackId' + currentState.currentSongId);
+        playingRow = document.getElementById('queueSongId' + currentState.currentSongId);
     }
     if (playingRow !== null) {
         const posTd = playingRow.querySelector('[data-col=Pos]');
@@ -312,28 +391,33 @@ function setPlayingRow(playingRow) {
     }
 }
 
-function parseLastPlayed(obj) {
-    if (checkResultId(obj, 'QueueLastPlayedList') === false) {
-        return;
-    }
-
-    const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
-    updateTable(obj, 'QueueLastPlayed', function(row, data) {
-        setData(row, 'uri', data.uri);
-        setData(row, 'name', data.Title);
-        setData(row, 'type', 'song');
-        row.setAttribute('title', tn(rowTitle));
-    });
-}
-
+/**
+ * Appends an element to the queue
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
+ * @param {string} uri element uri
+ * @param {Function} [callback] callback function
+ */
 function appendQueue(type, uri, callback) {
     _appendQueue(type, uri, false, callback);
 }
 
+/**
+ * Appends an element to the queue and plays it
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
+ * @param {string} uri element uri
+ * @param {Function} [callback] callback function
+ */
 function appendPlayQueue(type, uri, callback) {
     _appendQueue(type, uri, true, callback);
 }
 
+/**
+ * Appends an element to the queue
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
+ * @param {string} uri element uri
+ * @param {boolean} play true = play added entry, false = append only
+ * @param {Function} callback callback function
+ */
 function _appendQueue(type, uri, play, callback) {
     switch(type) {
         case 'song':
@@ -361,16 +445,37 @@ function _appendQueue(type, uri, play, callback) {
     }
 }
 
+/**
+ * Inserts the element after the current playing song
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
+ * @param {string} uri element uri
+ * @param {Function} [callback] callback function
+ */
 //eslint-disable-next-line no-unused-vars
 function insertAfterCurrentQueue(type, uri, callback) {
     insertQueue(type, uri, 0, 1, false, callback);
 }
 
+/**
+ * Inserts the element after the current playing song
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
+ * @param {string} uri element uri
+ * @param {Function} [callback] callback function
+ */
 //eslint-disable-next-line no-unused-vars
 function insertPlayAfterCurrentQueue(type, uri, callback) {
     insertQueue(type, uri, 0, 1, true, callback);
 }
 
+/**
+ * Inserts the element in the queue
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
+ * @param {string} uri element uri
+ * @param {number} to position to insert
+ * @param {number} whence how t interpret the to parameter: 0 = absolute, 1 = after, 2 = before current song
+ * @param {boolean} play true = play added entry, false = insert only
+ * @param {Function} callback callback function
+ */
 function insertQueue(type, uri, to, whence, play, callback) {
     switch(type) {
         case 'song':
@@ -404,14 +509,33 @@ function insertQueue(type, uri, to, whence, play, callback) {
     }
 }
 
+/**
+ * Replaces the queue with the element
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
+ * @param {string} uri element uri
+ * @param {Function} [callback] callback function
+ */
 function replaceQueue(type, uri, callback) {
     _replaceQueue(type, uri, false, callback)
 }
 
+/**
+ * Replaces the queue with the element and plays it
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
+ * @param {string} uri element uri
+ * @param {Function} [callback] callback function
+ */
 function replacePlayQueue(type, uri, callback) {
     _replaceQueue(type, uri, true, callback)
 }
 
+/**
+ * Replaces the queue with the element
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
+ * @param {string} uri element uri
+ * @param {boolean} play true = play added entry, false = insert only
+ * @param {Function} callback callback function
+ */
 function _replaceQueue(type, uri, play, callback) {
     switch(type) {
         case 'song':
@@ -439,12 +563,15 @@ function _replaceQueue(type, uri, play, callback) {
     }
 }
 
+/**
+ * Adds random songs/albums to the queue, one-shot jukebox mode.
+ */
 //eslint-disable-next-line no-unused-vars
-function addToQueue() {
+function addRandomToQueue() {
     cleanupModalId('modalAddToQueue');
     let formOK = true;
     const inputAddToQueueQuantityEl = document.getElementById('inputAddToQueueQuantity');
-    if (!validateInt(inputAddToQueueQuantityEl)) {
+    if (!validateIntEl(inputAddToQueueQuantityEl)) {
         formOK = false;
     }
     const selectAddToQueuePlaylistValue = getDataId('selectAddToQueuePlaylist', 'value');
@@ -453,22 +580,65 @@ function addToQueue() {
             "mode": Number(getSelectValueId('selectAddToQueueMode')),
             "plist": selectAddToQueuePlaylistValue,
             "quantity": Number(document.getElementById('inputAddToQueueQuantity').value)
-        });
+        }, null, false);
         uiElements.modalAddToQueue.hide();
     }
 }
 
+/**
+ * Toggles the queue save mode options
+ * @param {EventTarget} target triggering element
+ */
+//eslint-disable-next-line no-unused-vars
+function toggleSaveQueueMode(target) {
+    toggleBtnGroup(target);
+    const value = getData(target, 'value');
+    if (value === 'create') {
+        elShowId('rowSaveQueueName');
+        elHideId('rowSaveQueueNameSelect');
+    }
+    else {
+        elHideId('rowSaveQueueName');
+        elShowId('rowSaveQueueNameSelect');
+    }
+}
+
+/**
+ * Saves the queue as a playlist
+ */
 //eslint-disable-next-line no-unused-vars
 function saveQueue() {
     cleanupModalId('modalSaveQueue');
     const plNameEl = document.getElementById('saveQueueName');
-    if (validatePlnameEl(plNameEl) === true) {
+    let name = plNameEl.value;
+    let saveMode = 'create';
+    let formOK = true;
+    if (features.featAdvqueue === true) {
+        //support queue save modes (since MPD 0.24)
+        saveMode = getBtnGroupValueId('btnQueueSaveMode');
+        if (saveMode !== 'create') {
+            //append or replace existing playlist
+            name = getDataId('saveQueueNameSelect', 'value');
+        }
+        else {
+            formOK = validatePlistEl(plNameEl);
+        }
+    }
+    else {
+        formOK = validatePlistEl(plNameEl);
+    }
+    if (formOK === true) {
         sendAPI("MYMPD_API_QUEUE_SAVE", {
-            "plist": plNameEl.value
+            "plist": name,
+            "mode": saveMode
         }, saveQueueCheckError, true);
     }
 }
 
+/**
+ * Handler for the MYMPD_API_QUEUE_SAVE jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
 function saveQueueCheckError(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -478,27 +648,38 @@ function saveQueueCheckError(obj) {
     }
 }
 
+/**
+ * Shows the set song priority modal
+ * @param {number} songId the mpd song id
+ */
 //eslint-disable-next-line no-unused-vars
-function showSetSongPriority(trackId) {
+function showSetSongPriority(songId) {
     cleanupModalId('modalSetSongPriority');
-    document.getElementById('inputSongPriorityTrackId').value = trackId;
+    document.getElementById('inputSongPrioritySondId').value = songId;
     uiElements.modalSetSongPriority.show();
 }
 
+/**
+ * Sets song priority
+ */
 //eslint-disable-next-line no-unused-vars
 function setSongPriority() {
     cleanupModalId('modalSetSongPriority');
 
-    const trackId = Number(document.getElementById('inputSongPriorityTrackId').value);
+    const songId = Number(document.getElementById('inputSongPrioritySongId').value);
     const priorityEl = document.getElementById('inputSongPriority');
-    if (validateIntRange(priorityEl, 0, 255) === true) {
+    if (validateIntRangeEl(priorityEl, 0, 255) === true) {
         sendAPI("MYMPD_API_QUEUE_PRIO_SET", {
-            "songId": trackId,
+            "songId": songId,
             "priority": Number(priorityEl.value)
         }, setSongPriorityCheckError, true);
     }
 }
 
+/**
+ * Handles the MYMPD_API_QUEUE_PRIO_SET jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
 function setSongPriorityCheckError(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -508,21 +689,31 @@ function setSongPriorityCheckError(obj) {
     }
 }
 
+/**
+ * Removes song(s) from the queue
+ * @param {string} mode range or single
+ * @param {number} start start of the range (including) or song id to remove
+ * @param {number} [end] end of the range (excluding), -1 for open end
+ */
 //eslint-disable-next-line no-unused-vars
 function removeFromQueue(mode, start, end) {
     if (mode === 'range') {
         sendAPI("MYMPD_API_QUEUE_RM_RANGE", {
             "start": start,
             "end": end
-        });
+        }, null, false);
     }
     else if (mode === 'single') {
         sendAPI("MYMPD_API_QUEUE_RM_SONG", {
             "songId": start
-        });
+        }, null, false);
     }
 }
 
+/**
+ * Scrolls to the current song
+ * @returns {void}
+ */
 //eslint-disable-next-line no-unused-vars
 function gotoPlayingSong() {
     if (currentState.songPos === -1) {
@@ -533,13 +724,19 @@ function gotoPlayingSong() {
         currentState.songPos < app.current.offset + app.current.limit)
     {
         //playing song is in this page
-        document.getElementsByClassName('queue-playing')[0].scrollIntoView(true);
+        document.querySelector('queue-playing').scrollIntoView(true);
     }
     else {
-        gotoPage(Math.floor(currentState.songPos / app.current.limit) * app.current.limit);
+        gotoPage(Math.floor(currentState.songPos / app.current.limit) * app.current.limit, undefined);
     }
 }
 
+/**
+ * Plays the selected song after the current song.
+ * Uses the priority if in random mode else moves the song after current playing song.
+ * @param {number} songId current playing song id (for priority mode)
+ * @param {number} songPos current playing song position (for move mode)
+ */
 //eslint-disable-next-line no-unused-vars
 function playAfterCurrent(songId, songPos) {
     if (settings.partition.random === false) {
@@ -547,19 +744,22 @@ function playAfterCurrent(songId, songPos) {
         sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
             "from": songPos,
             "to": currentState.songPos !== undefined ? currentState.songPos + 1 : 0
-        });
+        }, null, false);
     }
     else {
         //in random mode - set song priority
         sendAPI("MYMPD_API_QUEUE_PRIO_SET_HIGHEST", {
             "songId": songId
-        });
+        }, null, false);
     }
 }
 
+/**
+ * Clears or crops the queue after confirmation
+ */
 //eslint-disable-next-line no-unused-vars
 function clearQueue() {
     showConfirm(tn('Do you really want to clear the queue?'), tn('Yes, clear it'), function() {
-        sendAPI("MYMPD_API_QUEUE_CROP_OR_CLEAR", {});
+        sendAPI("MYMPD_API_QUEUE_CROP_OR_CLEAR", {}, null, false);
     });
 }

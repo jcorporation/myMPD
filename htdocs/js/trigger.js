@@ -3,6 +3,11 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module trigger_js */
+
+/**
+ * Initialization function for trigger elements
+ */
 function initTrigger() {
     document.getElementById('listTriggerList').addEventListener('click', function(event) {
         event.stopPropagation();
@@ -28,24 +33,27 @@ function initTrigger() {
     });
 }
 
+/**
+ * Saves a trigger
+ */
 //eslint-disable-next-line no-unused-vars
 function saveTrigger() {
     cleanupModalId('modalTrigger');
     let formOK = true;
 
     const nameEl = document.getElementById('inputTriggerName');
-    if (!validatePlnameEl(nameEl)) {
+    if (!validatePlistEl(nameEl)) {
         formOK = false;
     }
 
     const scriptEl = document.getElementById('selectTriggerScript');
-    if (!validateSelect(scriptEl)) {
+    if (!validateSelectEl(scriptEl)) {
         formOK = false;
     }
 
     if (formOK === true) {
         const args = {};
-        const argEls = document.getElementById('triggerActionScriptArguments').getElementsByTagName('input');
+        const argEls = document.querySelectorAll('#triggerActionScriptArguments input');
         for (let i = 0, j = argEls.length; i < j; i ++) {
             args[getData(argEls[i], 'name')] = argEls[i].value;
         }
@@ -64,6 +72,10 @@ function saveTrigger() {
     }
 }
 
+/**
+ * Handler for the MYMPD_API_TRIGGER_SAVE jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
 function saveTriggerCheckError(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -73,6 +85,10 @@ function saveTriggerCheckError(obj) {
     }
 }
 
+/**
+ * Shows the edit trigger tab
+ * @param {number} id trigger id
+ */
 //eslint-disable-next-line no-unused-vars
 function showEditTrigger(id) {
     cleanupModalId('modalTrigger');
@@ -99,6 +115,10 @@ function showEditTrigger(id) {
     }
 }
 
+/**
+ * Parses the MYMPD_API_TRIGGER_GET jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
 function parseTriggerEdit(obj) {
     document.getElementById('inputTriggerId').value = obj.result.id;
     document.getElementById('inputTriggerName').value = obj.result.name;
@@ -109,6 +129,10 @@ function parseTriggerEdit(obj) {
     selectTriggerActionChange(obj.result.arguments);
 }
 
+/**
+ * Calls showTriggerScriptArgs for the selected script
+ * @param {object} [values] array of values for the script arguments
+ */
 function selectTriggerActionChange(values) {
     const el = document.getElementById('selectTriggerScript');
     if (el.selectedIndex > -1) {
@@ -116,6 +140,11 @@ function selectTriggerActionChange(values) {
     }
 }
 
+/**
+ * Shows the list of arguments and values for the selected script
+ * @param {HTMLElement} option selected option from script select
+ * @param {object} values array of values for the script arguments
+ */
 function showTriggerScriptArgs(option, values) {
     if (values === undefined) {
         values = {};
@@ -138,6 +167,9 @@ function showTriggerScriptArgs(option, values) {
     }
 }
 
+/**
+ * Shows the trigger list tab
+ */
 function showListTrigger() {
     cleanupModalId('modalTrigger');
     document.getElementById('listTrigger').classList.add('active');
@@ -147,6 +179,11 @@ function showListTrigger() {
     sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, true);
 }
 
+/**
+ * Parses the MYMPD_API_TRIGGER_LIST jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
 function parseTriggerList(obj) {
     const tbody = document.getElementById('listTriggerList');
     if (checkResult(obj, tbody) === false) {
@@ -158,10 +195,10 @@ function parseTriggerList(obj) {
             elCreateText('td', {}, obj.result.data[i].name + 
                 (obj.result.data[i].partition === '!all!' ? ' (' + tn('All partitions') + ')' : '')
             ),
-            elCreateText('td', {}, tn(obj.result.data[i].eventName)),
+            elCreateTextTn('td', {}, obj.result.data[i].eventName),
             elCreateText('td', {}, obj.result.data[i].script),
             elCreateNode('td', {"data-col": "Action"},
-                elCreateText('a', {"href": "#", "title": tn("Delete"), "data-action": "delete", "class": ["mi", "color-darkgrey"]}, 'delete')
+                elCreateText('a', {"href": "#", "data-title-phrase": "Delete", "data-action": "delete", "class": ["mi", "color-darkgrey"]}, 'delete')
             )
         ]);
         setData(row, 'trigger-id', obj.result.data[i].id);
@@ -169,6 +206,11 @@ function parseTriggerList(obj) {
     }
 }
 
+/**
+ * Deletes a trigger after confirmation
+ * @param {EventTarget} el triggering element
+ * @param {number} id trigger id
+ */
 function deleteTrigger(el, id) {
     showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the trigger?'), tn('Yes, delete it'), function() {
         sendAPI("MYMPD_API_TRIGGER_RM", {

@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+      "checkJs": true,
+      "target": "ES2015"
+    },
+    "include": [
+      "*.js",
+      "*.ts"
+    ],
+    "exclude": [
+      "bootstrap-native.js",
+      "i18n.js",
+      "long-press-event.js"
+    ]
+}

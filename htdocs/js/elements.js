@@ -3,200 +3,696 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-//pre-generated elements
-const pEl = {};
-pEl.actionTdMenu = elCreateNode('td', {"data-col": "Action"},
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions", "title": tn('Actions')}, ligatureMore)
-);
-pEl.actionTdMenuPlay = elCreateNodes('td', {"data-col": "Action"}, [
-    elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Quick play", "title": tn('Quick play')}, 'play_arrow'),
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions", "title": tn('Actions')}, ligatureMore)
-]);
-pEl.actionTdMenuRemove = elCreateNodes('td', {"data-col": "Action"}, [
-    elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Remove", "title": tn('Remove')}, 'clear'),
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions", "title": tn('Actions')}, ligatureMore)
-]);
-pEl.actionTd = pEl.actionTdMenu;
-pEl.actionQueueTd = pEl.actionTdMenu;
-pEl.coverPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
-    "title": tn('Quick play')}, 'play_arrow');
+/** @module elements_js */
 
-//we do not use the custom element is="" feature - safari does not support it
-function initElements(parent) {
-    for (const el of parent.querySelectorAll('[data-is]')) {
-        initElement(el, el.getAttribute('data-is'));
+/**
+ * Shortcut for elCreateTextTn for smartCount only
+ * @param {string} tagName name of the tag to create
+ * @param {object} attributes attributes to set
+ * @param {string} text phrase to translate
+ * @param {number} smartCount smart number for translation
+ * @returns {HTMLElement} created dom node
+ */
+function elCreateTextTnNr(tagName, attributes, text, smartCount) {
+    attributes["data-phrase-number"] = smartCount;
+    return elCreateTextTn(tagName, attributes, text, undefined);
+}
+
+/**
+ * Creates and translates a html element
+ * @param {string} tagName name of the tag to create
+ * @param {object} attributes tag attributes
+ * @param {string} text text phrase to translate
+ * @param {object} data object to resolve variables from the phrase
+ * @returns {HTMLElement} created dom node
+ */
+function elCreateTextTn(tagName, attributes, text, data) {
+    attributes["data-phrase"] = text;
+    if (data !== undefined) {
+        attributes["data-phrase-data"] = JSON.stringify(data);
+    }
+    if (attributes["data-phrase-number"] !== undefined) {
+        if (data === undefined) {
+            data = {};
+        }
+        //add smartCount to data from data-phrase-number attribute
+        data.smartCount = Number(attributes["data-phrase-number"]);
+    }
+    return elCreateText(tagName, attributes, tn(text, data));
+}
+
+/**
+ * Creates a html element with text content
+ * @param {string} tagName name of the tag
+ * @param {object} attributes tag attributes
+ * @param {string} text text phrase to translate
+ * @returns {HTMLElement} created dom node
+ */
+function elCreateText(tagName, attributes, text) {
+    if (attributes["data-title-phrase"] !== undefined) {
+        attributes["title"] = tn(attributes["data-title-phrase"]);
+    }
+    const tag = elCreateEmpty(tagName, attributes);
+    tag.textContent = text;
+    return tag;
+}
+
+/**
+ * Creates a html element with a child node
+ * @param {string} tagName name of the tag
+ * @param {object} attributes tag attributes
+ * @param {Element | Node} node node to add as child
+ * @returns {HTMLElement} created dom node
+ */
+function elCreateNode(tagName, attributes, node) {
+    const tag = elCreateEmpty(tagName, attributes);
+    tag.appendChild(node);
+    return tag;
+}
+
+/**
+ * Creates a html element with child nodes
+ * @param {string} tagName name of the tag
+ * @param {object} attributes tag attributes
+ * @param {object} nodes array of nodes to add as childs
+ * @returns {HTMLElement} created dom node
+ */
+function elCreateNodes(tagName, attributes, nodes) {
+    const tag = elCreateEmpty(tagName, attributes);
+    for (const node of nodes) {
+        if (node !== null) {
+            tag.appendChild(node);
+        }
+    }
+    return tag;
+}
+
+/**
+ * Creates an empty html element
+ * @param {string} tagName name of the tag
+ * @param {object} attributes tag attributes
+ * @returns {HTMLElement} created dom node
+ */
+function elCreateEmpty(tagName, attributes) {
+    const tag = document.createElement(tagName);
+    for (const key in attributes) {
+        switch(key) {
+            case 'class':
+                tag.classList.add(...attributes[key]);
+                break;
+            case 'is':
+                tag.setAttribute('data-is', attributes[key]);
+                break;
+            default:
+                tag.setAttribute(key, attributes[key]);
+        }
+    }
+    return tag;
+}
+
+/**
+ * Clears the element with given id and appends the new child
+ * @param {string} id id of the parent element
+ * @param {Element | Node} child element to add
+ */
+function elReplaceChildId(id, child) {
+    elReplaceChild(document.getElementById(id), child);
+}
+
+/**
+ * Clears the given element and appends the new child
+ * @param {Element} el id of the parent element
+ * @param {Element | Node} child element to add
+ */
+function elReplaceChild(el, child) {
+    elClear(el);
+    el.appendChild(child);
+}
+
+/**
+ * Hides the element with the given id
+ * @param {string} id element id
+ */
+function elHideId(id) {
+    document.getElementById(id).classList.add('d-none');
+}
+
+/**
+ * Shows the element with the given id
+ * @param {string} id element id
+ */
+function elShowId(id) {
+    document.getElementById(id).classList.remove('d-none');
+}
+
+/**
+ * Clears the element with the given id
+ * @param {string} id element id to clear
+ */
+function elClearId(id) {
+    document.getElementById(id).textContent = '';
+}
+
+/**
+ * Hides the element
+ * @param {Element | EventTarget} el element to hide
+ */
+function elHide(el) {
+    el.classList.add('d-none');
+}
+
+/**
+ * Shows the element
+ * @param {Element} el element to show
+ */
+function elShow(el) {
+    el.classList.remove('d-none');
+}
+
+/**
+ * Clears the element
+ * @param {Element} el element to clear
+ */
+function elClear(el) {
+    el.textContent = '';
+}
+
+/**
+ * Disables the element with the given id
+ * @param {string} id element id
+ */
+function elDisableId(id) {
+    document.getElementById(id).setAttribute('disabled', 'disabled');
+}
+
+/**
+ * Disables the element
+ * @param {Node} el element to disable
+ */
+function elDisable(el) {
+    el.setAttribute('disabled', 'disabled');
+    //manually disabled, remove disabled class
+    el.classList.remove('disabled');
+    el.classList.replace('clickable', 'not-clickable');
+}
+
+/**
+ * Enables the element with the given id
+ * @param {string} id element id
+ */
+function elEnableId(id) {
+    document.getElementById(id).removeAttribute('disabled');
+}
+
+/**
+ * Enables the element
+ * @param {Element | Node} el element to enable
+ */
+function elEnable(el) {
+    el.removeAttribute('disabled');
+    el.classList.replace('not-clickable', 'clickable');
+}
+
+/**
+ * Triggers a layout reflow
+ * @param {Element} el element to trigger the reflow
+ * @returns {number} element height
+ */
+function elReflow(el) {
+    return el.offsetHeight;
+}
+
+/**
+ * Sets the focus on the element with given id
+ * @param {string} id element id
+ */
+ function setFocusId(id) {
+    setFocus(document.getElementById(id));
+}
+
+/**
+ * Set the focus on the given element.
+ * @param {HTMLElement} el element to focus
+ */
+function setFocus(el) {
+    if (userAgentData.isMobile === false) {
+        el.focus();
     }
 }
 
-function initElement(el, elType) {
-    switch(elType) {
-        case 'mympd-input-clear':
-            setInputClear(el);
-            break;
-        case 'mympd-input-reset':
-            setInputReset(el);
-            break;
-        case 'mympd-input-password':
-            setInputPassword(el);
-            break;
-        case 'mympd-select-search':
-            setSelectSearch(el);
-            break;
-    }
-    el.removeAttribute('data-is');
+/**
+ * Sets an attribute on the element given by id.
+ * @param {string} id element id
+ * @param {string} attribute attribute name
+ * @param {*} value could be any type
+ */
+function setDataId(id, attribute, value) {
+    document.getElementById(id)['myMPD-' + attribute] = value;
 }
 
-function setInputClear(el) {
-    const button = elCreateText('button', {"data-title-phrase": "Clear", "title": tn('Clear'), "class": ["mi", "mi-small", "input-inner-button"]}, 'clear');
-    el.button = button;
-    el.classList.add('innerButton');
-    if (el.parentNode.classList.contains('col')) {
-        el.button.style.right = '1rem';
+/**
+ * Sets an attribute on the given element.
+ * @param {Element | Node} el element
+ * @param {string} attribute attribute name
+ * @param {*} value could be any type
+ */
+function setData(el, attribute, value) {
+    el['myMPD-' + attribute] = value;
+}
+
+/**
+ * Gets the attributes value from the element given by id.
+ * @param {string} id element id
+ * @param {string} attribute attribute name
+ * @returns {*} attribute value
+ */
+function getDataId(id, attribute) {
+    return getData(document.getElementById(id), attribute);
+}
+
+/**
+ * Gets the attributes value from the element
+ * @param {Element | EventTarget} el element
+ * @param {string} attribute attribute name
+ * @returns {*} attribute value
+ */
+function getData(el, attribute) {
+    let value = el['myMPD-' + attribute];
+    if (value === undefined) {
+        //fallback to attribute
+        value = el.getAttribute('data-' + attribute);
+        if (value === null) {
+            //return undefined if attribute is null
+            value = undefined;
+        }
     }
-    el.parentNode.insertBefore(el.button, el.nextElementSibling);
-    if (el.value === '') {
-        elHide(el.button);
+    logDebug('getData: "' + attribute + '":"' + value + '"');
+    return value;
+}
+
+/**
+ * Gets the value of the selected option of a select element
+ * @param {string} id element id
+ * @returns {string} selected option value
+ */
+function getSelectValueId(id) {
+    return getSelectValue(document.getElementById(id));
+}
+
+/**
+ * Gets the value of the selected option of a select element
+ * @param {Element | EventTarget} el element
+ * @returns {string} selected option value
+ */
+function getSelectValue(el) {
+    if (el && el.selectedIndex >= 0) {
+        return el.options[el.selectedIndex].getAttribute('value');
+    }
+    return undefined;
+}
+
+/**
+ * Gets the attribute value of the selected option of a select element
+ * @param {string} id element id
+ * @param {string} attribute attribute name
+ * @returns {*} selected option data value
+ */
+function getSelectedOptionDataId(id, attribute) {
+    return getSelectedOptionData(document.getElementById(id), attribute)
+}
+
+/**
+ * Gets the attribute value of the selected option of a select element
+ * @param {Element} el element
+ * @param {string} attribute attribute name
+ * @returns {*} selected option data value
+ */
+function getSelectedOptionData(el, attribute) {
+    if (el && el.selectedIndex >= 0) {
+        return getData(el.options[el.selectedIndex], attribute);
+    }
+    return undefined;
+}
+
+/**
+ * Gets the value of the checked radio box
+ * @param {string} id element id
+ * @returns {string} radio box value
+ */
+function getRadioBoxValueId(id) {
+    return getRadioBoxValue(document.getElementById(id));
+}
+
+/**
+ * Gets the value of the checked radio box
+ * @param {Element} el element
+ * @returns {string} radio box value
+ */
+function getRadioBoxValue(el) {
+    const radiobuttons = el.querySelectorAll('.form-check-input');
+    for(const button of radiobuttons) {
+        if (button.checked === true){
+            return button.value;
+        }
+    }
+}
+
+/**
+ * Gets the x-position of the given element
+ * @param {Element} el element
+ * @returns {number} x-position
+ */
+function getXpos(el) {
+    let xPos = 0;
+    while (el) {
+        xPos += (el.offsetLeft - el.scrollLeft + el.clientLeft);
+        el = el.offsetParent;
+    }
+    return xPos;
+}
+
+/**
+ * Gets the y-position of the given element
+ * @param {Element | ParentNode} el element
+ * @returns {number} y-position
+ */
+function getYpos(el) {
+    let yPos = 0;
+    while (el) {
+        yPos += (el.offsetTop + el.clientTop);
+        el = el.offsetParent;
+    }
+    return yPos;
+}
+
+/**
+ * Returns the nearest parent of type nodeName
+ * @param {HTMLElement | EventTarget} el start element for search
+ * @param {string} nodeName nodeName to search
+ * @returns {HTMLElement} the nearest parent node with the given nodeName
+ */
+ function getParent(el, nodeName) {
+    let target = el;
+    let i = 0;
+    while (target.nodeName !== nodeName) {
+        i++;
+        if (i > 10) {
+            return null;
+        }
+        target = target.parentNode;
+    }
+    // @ts-ignore
+    return target;
+}
+
+/**
+ * Adds a waiting animation to a button
+ * @param {string} id id of the button
+ * @param {boolean} waiting true = add animation, false = remove animation
+ */
+ function btnWaitingId(id, waiting) {
+    btnWaiting(document.getElementById(id), waiting);
+}
+
+/**
+ * Adds a waiting animation to a button
+ * @param {HTMLElement} btn id of the button
+ * @param {boolean} waiting true = add animation, false = remove animation
+ */
+function btnWaiting(btn, waiting) {
+    if (waiting === true) {
+        const spinner = elCreateEmpty('span', {"class": ["spinner-border", "spinner-border-sm", "me-2"]});
+        btn.insertBefore(spinner, btn.firstChild);
+        elDisable(btn);
     }
     else {
-        elShow(el.button);
+        //add a small delay, user should notice the change
+        setTimeout(function() {
+            elEnable(btn);
+            if (btn.firstChild === null) {
+                return;
+            }
+            if (btn.firstChild.nodeName === 'SPAN' &&
+                btn.firstChild.classList.contains('spinner-border'))
+            {
+                btn.firstChild.remove();
+            }
+        }, 100);
     }
-    el.addEventListener('keyup', function(event) {
-        if (event.target.value === '') {
-            elHide(event.target.button);
-        }
-        else {
-            elShow(event.target.button);
-        }
-    }, false);
-
-    el.button.addEventListener('click', function(event) {
-        event.preventDefault();
-    }, false);
-
-    el.button.addEventListener('mouseup', function(event) {
-        event.target.previousElementSibling.value = '';
-        const dataClearEvent = event.target.previousElementSibling.getAttribute('data-clear-event');
-        if (dataClearEvent !== null) {
-            const clearEvent = new Event(dataClearEvent);
-            event.target.previousElementSibling.dispatchEvent(clearEvent);
-        }
-    }, false);
 }
 
-function setInputReset(el) {
-    const button = elCreateText('button', {"data-title-phrase": "Reset to default", "title": tn('Reset to default'), "class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
-    el.button = button;
-    el.classList.add('innerButton');
-    if (el.parentNode.firstElementChild.getAttribute('type') === 'color' ||
-        el.parentNode.classList.contains('col-sm-8'))
+/**
+ * Toggles a button group by value
+ * @param {string} id button group id
+ * @param {string | number} value value to select
+ * @returns {HTMLElement} selected button
+ */
+function toggleBtnGroupValueId(id, value) {
+    return toggleBtnGroupValue(document.getElementById(id), value)
+}
+
+/**
+ * Toggles a button group by value
+ * @param {Element} btngrp button group to toggle
+ * @param {string | number} value value to select
+ * @returns {HTMLElement} selected button
+ */
+function toggleBtnGroupValue(btngrp, value) {
+    const btns = btngrp.querySelectorAll('button');
+    //first button
+    let b = btns[0];
+    // @ts-ignore
+    const valuestr = isNaN(value) ? value : value.toString();
+
+    for (let i = 0, j = btns.length; i < j; i++) {
+        if (getData(btns[i], 'value') === valuestr) {
+            b = btns[i];
+        }
+        else {
+            btns[i].classList.remove('active');
+        }
+    }
+    b.classList.add('active');
+    return b;
+}
+
+/**
+ * Toggles a button group by value and toggle a collapse
+ * @param {Element} btngrp button group to toggle
+ * @param {string} collapseId id of element to collapse
+ * @param {string | number} value value to select
+ */
+function toggleBtnGroupValueCollapse(btngrp, collapseId, value) {
+    const activeBtn = toggleBtnGroupValue(btngrp, value);
+    if (activeBtn.getAttribute('data-collapse') === 'show') {
+        document.getElementById(collapseId).classList.add('show');
+    }
+    else {
+        document.getElementById(collapseId).classList.remove('show');
+    }
+}
+
+/**
+ * Toggles a button group by triggering element
+ * @param {string} id id of triggered button
+ * @returns {HTMLElement | EventTarget} active button
+ */
+//eslint-disable-next-line no-unused-vars
+function toggleBtnGroupId(id) {
+    return toggleBtnGroup(document.getElementById(id));
+}
+
+/**
+ * Toggles a button group by triggering element
+ * @param {HTMLElement | EventTarget} btn triggered button
+ * @returns {HTMLElement | EventTarget} active button
+ */
+function toggleBtnGroup(btn) {
+    const btns = btn.parentNode.querySelectorAll('button');
+    for (let i = 0, j = btns.length; i < j; i++) {
+        if (btns[i] === btn) {
+            btns[i].classList.add('active');
+        }
+        else {
+            btns[i].classList.remove('active');
+        }
+    }
+    return btn;
+}
+
+/**
+ * Toggles a button group by triggering element and toggle a collapse
+ * @param {HTMLElement} el triggering button 
+ * @param {string} collapseId id of element to collapse
+ */
+//eslint-disable-next-line no-unused-vars
+function toggleBtnGroupCollapse(el, collapseId) {
+    const activeBtn = toggleBtnGroup(el);
+    if (activeBtn.getAttribute('data-collapse') === 'show') {
+        if (document.getElementById(collapseId).classList.contains('show') === false) {
+            uiElements[collapseId].show();
+        }
+    }
+    else {
+        uiElements[collapseId].hide();
+    }
+}
+
+/**
+ * Gets the value from the active button in a button group
+ * @param {string} id id of the button group
+ * @returns {*} value the value of the active button
+ */
+function getBtnGroupValueId(id) {
+    let activeBtn = document.querySelector('#' + id + ' > .active');
+    if (activeBtn === null) {
+        //fallback to first button
+        activeBtn = document.querySelector('#' + id + ' > button');
+    }
+    return getData(activeBtn, 'value');
+}
+
+/**
+ * Toggles the active state of a button
+ * @param {string} id id of button to toggle
+ * @param {*} state true = active, false = inactive 
+ */
+//eslint-disable-next-line no-unused-vars
+function toggleBtnId(id, state) {
+    toggleBtn(document.getElementById(id), state);
+}
+
+/**
+ * Toggles the active state of a button
+ * @param {HTMLElement | EventTarget} btn button to toggle
+ * @param {boolean | number} state true = active, false = inactive 
+ */
+function toggleBtn(btn, state) {
+    if (state === undefined) {
+        //toggle state
+        state = btn.classList.contains('active') ? false : true;
+    }
+
+    if (state === true ||
+        state === 1)
     {
-        el.button.style.right = '1rem';
-    }
-    if (el.nextElementSibling) {
-        el.parentNode.insertBefore(el.button, el.nextElementSibling);
+        btn.classList.add('active');
     }
     else {
-        el.parentNode.appendChild(el.button);
+        btn.classList.remove('active');
     }
-    el.button.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        const input = event.target.previousElementSibling;
-        input.value = getData(input, 'default') !== undefined ? getData(input, 'default') :
-            (input.getAttribute('placeholder') !== null ? input.getAttribute('placeholder') : '');
-    }, false);
 }
 
-function setInputPassword(el) {
-    const button = elCreateText('button', {"data-title-phrase": "Show or hide", "title": tn('Show or hide'), "class": ["mi", "mi-small", "input-inner-button"]}, 'visibility');
-    el.button = button;
-    el.classList.add('innerButton');
-    if (el.parentNode.classList.contains('col-sm-8')) {
-        el.button.style.right = '1rem';
+/**
+ * Toggles a check button
+ * @param {string} id id of the button to toggle
+ * @param {boolean} state true = active, false = inactive 
+ */
+function toggleBtnChkId(id, state) {
+    toggleBtnChk(document.getElementById(id), state);
+}
+
+/**
+ * Toggles a check button
+ * @param {HTMLElement | EventTarget} btn the button to toggle
+ * @param {boolean | number} state true = active, false = inactive 
+ * @returns {boolean} true if button is checked, else false
+ */
+function toggleBtnChk(btn, state) {
+    if (state === undefined) {
+        //toggle state
+        state = btn.classList.contains('active') ? false : true;
     }
-    if (el.nextElementSibling) {
-        el.parentNode.insertBefore(el.button, el.nextElementSibling);
+
+    if (state === true ||
+        state === 1)
+    {
+        btn.classList.add('active');
+        btn.textContent = 'check';
+        return true;
     }
     else {
-        el.parentNode.appendChild(el.button);
+        btn.classList.remove('active');
+        btn.textContent = 'radio_button_unchecked';
+        return false;
     }
-    el.button.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        const input = event.target.previousElementSibling;
-        if (input.type === 'password') {
-            input.type = 'text';
-            event.target.textContent = 'visibility_off';
+}
+
+/**
+ * Toggles a check button and an assigned collapse
+ * @param {string} id the id of the triggering button
+ * @param {string} collapseId id of element to collapse
+ * @param {boolean | number} state true = active, false = inactive 
+ */
+function toggleBtnChkCollapseId(id, collapseId, state) {
+    toggleBtnChkCollapse(document.getElementById(id), collapseId, state);
+}
+
+/**
+ * Toggles a check button and an assigned collapse
+ * @param {HTMLElement} btn triggering button
+ * @param {string} collapseId id of element to collapse
+ * @param {boolean | number} state true = active, false = inactive 
+ */
+function toggleBtnChkCollapse(btn, collapseId, state) {
+    const checked = toggleBtnChk(btn, state);
+    if (checked === true) {
+        document.getElementById(collapseId).classList.add('show');
+    }
+    else {
+        document.getElementById(collapseId).classList.remove('show');
+    }
+}
+
+/**
+ * Aligns a dropdown left or right from the triggering button.
+ * @param {Element | EventTarget} el dropdown element
+ */
+ function alignDropdown(el) {
+    const toggleEl = el.querySelector('.dropdown-toggle');
+    const x = getXpos(toggleEl);
+    if (x < domCache.body.offsetWidth * 0.66) {
+        el.querySelector('.dropdown-menu').classList.remove('dropdown-menu-end');
+    }
+    else {
+        el.querySelector('.dropdown-menu').classList.add('dropdown-menu-end');
+    }
+}
+
+/**
+ * Gets the y-scrolling position
+ * @returns {number} the vertical scrolling position
+ */
+ function getScrollPosY() {
+    if (userAgentData.isMobile === true) {
+        return document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
+    }
+    else {
+        const container = document.getElementById(app.id + 'List');
+        if (container) {
+            return container.parentNode.scrollTop;
         }
         else {
-            input.type = 'password';
-            event.target.textContent = 'visibility';
+            return 0;
         }
-    }, false);
+    }
 }
 
-function setSelectSearch(el) {
-    const filterInput = elCreateEmpty('input', {"class": ["form-control", "form-control-sm", "mb-1"], "data-placeholder-phrase": "Filter", "placeholder": tn('Filter')});
-    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll", "border", "border-secondary"]});
-    const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "dropdown-menu-dark", "p-2", "w-100"]}, [
-        filterInput,
-        filterResult
-    ]);
-    el.parentNode.insertBefore(dropdown, el.nextElementSibling);
-
-    const button = elCreateEmpty('button', {"class": ["input-inner-button", "select-inner-button"], "data-bs-toggle": "dropdown"});
-    if (el.parentNode.classList.contains('col-sm-8')) {
-        button.style.right = '1rem';
+/**
+ * Scrolls the container or the window to the y-position
+ * @param {Element | ParentNode} container or null
+ * @param {number} pos position to scroll to
+ */
+function scrollToPosY(container, pos) {
+    if (userAgentData.isMobile === true ||
+        container === null)
+    {
+        // For Safari
+        document.body.scrollTop = pos;
+        // For Chrome, Firefox, IE and Opera
+        document.documentElement.scrollTop = pos;
     }
-    button.style.cursor = 'default';
-    el.parentNode.insertBefore(button, el.nextElementSibling);
-    el.dropdownButton = button;
-    el.filterInput = filterInput;
-    el.filterResult = filterResult;
-    el.classList.add('innerButton');
-    setData(el, 'value', el.value);
-    el.addEventListener('keyup', function(event) {
-        setData(el, 'value', event.target.value);
-    }, false);
-    el.filterResult.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        el.value = event.target.textContent;
-        setData(el, 'value', getData(event.target, 'value'));
-        BSN.Dropdown.getInstance(el.nextElementSibling).hide();
-        const changeEvent = new Event('change');
-        el.dispatchEvent(changeEvent);
-    }, false);
-    el.filterInput.addEventListener('keyup', function(event) {
-        const cb = getData(el, 'cb-filter');
-        const cbOptions = getData(el, 'cb-filter-options');
-        window[cb](... cbOptions, event.target.value);
-    }, false);
-    el.filterInput.addEventListener('click', function(event) {
-        event.stopPropagation();
-    }, false);
-    el.addFilterResult = function(text, value) {
-        const item = elCreateText('li', {"class": ["list-group-item", "list-group-item-action", "clickable"], "data-phrase": text}, tn(text));
-        setData(item, 'value', value);
-        el.filterResult.appendChild(item);
-    };
-    new BSN.Dropdown(el.dropdownButton);
-    if (el.getAttribute('readonly') === 'readonly') {
-        el.addEventListener('click', function(event) {
-            BSN.Dropdown.getInstance(event.target.nextElementSibling).toggle();
-        }, false);
+    else {
+        container.scrollTop = pos;
     }
-    if (userAgentData.isMobile === true) {
-        //scrolling optimization for mobile browsers
-        el.parentNode.addEventListener('shown.bs.dropdown', function() {
-            domCache.body.style.overflow = 'hidden';
-        }, false);
-        el.parentNode.addEventListener('hidden.bs.dropdown', function() {
-            domCache.body.style.overflow = 'initial';
-        }, false);
-    }
-    el.dropdownButton.addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-    }, false);
 }

@@ -59,7 +59,7 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id) {
         case MYMPD_API_PARTITION_RM:
         case MYMPD_API_PARTITION_SAVE:
         case MYMPD_API_PARTITION_OUTPUT_MOVE:
-        case MYMPD_API_PLAYER_OUTPUT_ATTRIBUTS_SET:
+        case MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET:
         case MYMPD_API_PLAYLIST_RM_ALL:
         case MYMPD_API_SESSION_LOGOUT:
         case MYMPD_API_SESSION_VALIDATE:
@@ -190,7 +190,7 @@ void free_request(struct t_work_request *request) {
 }
 
 /**
- * Frees the reponse struct
+ * Frees the response struct
  * @param response response struct to free
  */
 void free_response(struct t_work_response *response) {

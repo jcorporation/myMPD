@@ -3,6 +3,18 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module Home_js */
+
+/**
+ * Handles home
+ */
+function handleHome() {
+    sendAPI("MYMPD_API_HOME_ICON_LIST", {}, parseHomeIcons, false);
+}
+
+/**
+ * Initializes the home feature elements
+ */
 function initHome() {
     //home screen
     document.getElementById('HomeList').addEventListener('click', function(event) {
@@ -116,7 +128,7 @@ function initHome() {
 
     searchHomeIconLigature.addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
-            const sel = document.getElementById('listHomeIconLigature').getElementsByClassName('active')[0];
+            const sel = document.querySelector('#listHomeIconLigature .active');
             if (sel !== undefined) {
                 selectHomeIconLigature(sel);
                 uiElements.dropdownHomeIconLigature.hide();
@@ -128,6 +140,9 @@ function initHome() {
     }, false);
 }
 
+/**
+ * Populates the ligatures dropdown
+ */
 function populateHomeIconLigatures() {
     const listHomeIconLigature = document.getElementById('listHomeIconLigature');
     const searchHomeIconCat = document.getElementById('searchHomeIconCat');
@@ -137,14 +152,14 @@ function populateHomeIconLigatures() {
     elClear(listHomeIconLigature);
     elClear(searchHomeIconCat);
     searchHomeIconCat.appendChild(
-        elCreateText('option', {"value": "all"}, tn('All'))
+        elCreateTextTn('option', {"value": "all"}, 'All')
     );
     for (const cat in materialIcons) {
         listHomeIconLigature.appendChild(
-            elCreateText('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat))
+            elCreateTextTn('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat))
         );
         searchHomeIconCat.appendChild(
-            elCreateText('option', {"value": cat}, ucFirst(cat))
+            elCreateTextTn('option', {"value": cat}, ucFirst(cat))
         );
         for (const icon of materialIcons[cat]) {
             listHomeIconLigature.appendChild(
@@ -154,18 +169,25 @@ function populateHomeIconLigatures() {
     }
 }
 
-function selectHomeIconLigature(x) {
-    document.getElementById('inputHomeIconLigature').value = x.getAttribute('title');
-    document.getElementById('homeIconPreview').textContent = x.getAttribute('title');
+/**
+ * Event handler for selecting a ligature
+ * @param {EventTarget} el selected element
+ */
+function selectHomeIconLigature(el) {
+    document.getElementById('inputHomeIconLigature').value = el.getAttribute('title');
+    document.getElementById('homeIconPreview').textContent = el.getAttribute('title');
     document.getElementById('homeIconPreview').style.backgroundImage = '';
     document.getElementById('inputHomeIconImage').value = tn('Use ligature');
     setData(document.getElementById('inputHomeIconImage'), 'value', '');
 }
 
+/**
+ * Event handler for ligature search
+ */
 function filterHomeIconLigatures() {
     const str = document.getElementById('searchHomeIconLigature').value.toLowerCase();
     const cat = getSelectValueId('searchHomeIconCat');
-    const els = document.getElementById('listHomeIconLigature').getElementsByTagName('button');
+    const els = document.querySelectorAll('#listHomeIconLigature button');
     for (let i = 0, j = els.length; i < j; i++) {
         if ((str === '' || els[i].getAttribute('title').indexOf(str) > -1) &&
             (cat === 'all' || els[i].getAttribute('data-cat') === cat))
@@ -183,7 +205,7 @@ function filterHomeIconLigatures() {
             els[i].classList.remove('active' );
         }
     }
-    const catTitles = document.getElementById('listHomeIconLigature').getElementsByTagName('h5');
+    const catTitles = document.querySelectorAll('#listHomeIconLigature h5');
     if (cat === '') {
         for (let i = 0, j = catTitles.length; i < j; i++) {
             elShow(catTitles[i]);
@@ -196,14 +218,18 @@ function filterHomeIconLigatures() {
     }
 }
 
+/**
+ * Parses the MYMPD_API_HOME_ICON_LIST response
+ * @param {object} obj jsonrpc response object
+ */
 function parseHomeIcons(obj) {
     const cardContainer = document.getElementById('HomeList');
     unsetUpdateView(cardContainer);
-    const cols = cardContainer.getElementsByClassName('col');
+    const cols = cardContainer.querySelectorAll('.col');
 
     if (obj.error !== undefined) {
         elReplaceChild(cardContainer,
-            elCreateText('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, tn(obj.error.message, obj.error.data))
+            elCreateTextTn('div', {"class": ["ms-3", "mb-3", "not-clickable", "alert", "alert-danger"]}, obj.error.message, obj.error.data)
         );
         return;
     }
@@ -213,7 +239,7 @@ function parseHomeIcons(obj) {
     if (obj.result.returnedEntities === 0) {
         elClear(cardContainer);
         const div = elCreateNodes('div', {"class": ["px-3", "py-1"]}, [
-            elCreateText('h3', {}, tn('Homescreen')),
+            elCreateTextTn('h3', {}, 'Homescreen'),
             elCreateNodes('p', {}, [
                 document.createTextNode(tn('Homescreen welcome')),
                 elCreateText('span', {"class": ["mi"]}, 'add_to_home_screen'),
@@ -272,7 +298,9 @@ function parseHomeIcons(obj) {
             cardBody.style.color = obj.result.data[i].color;
         }
         card.appendChild(cardBody);
-        card.appendChild(elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2", "clickable"]}, obj.result.data[i].name));
+        card.appendChild(
+            elCreateText('div', {"class": ["card-footer", "card-footer-grid", "p-2", "clickable"]}, obj.result.data[i].name)
+        );
         col.appendChild(card);
         if (i < cols.length) {
             cols[i].replaceWith(col);
@@ -287,6 +315,11 @@ function parseHomeIcons(obj) {
     setScrollViewHeight(cardContainer);
 }
 
+/**
+ * Shows the dragover tip
+ * @param {EventTarget} from from element
+ * @param {EventTarget} to to element
+ */
 function showDropoverIcon(from, to) {
     const fromPos = getData(from, 'pos');
     const toPos = getData(to, 'pos');
@@ -299,17 +332,24 @@ function showDropoverIcon(from, to) {
     to.classList.add('dragover-icon');
 }
 
+/**
+ * Hides the dragover tip
+ * @param {EventTarget} el element
+ */
 function hideDropoverIcon(el) {
-    el.classList.remove('dragover-icon-left');
-    el.classList.remove('dragover-icon-right');
+    el.classList.remove('dragover-icon-left', 'dragover-icon-right');
 }
 
+/**
+ * Drag and drop event handler
+ */
 function dragAndDropHome() {
     const HomeList = document.getElementById('HomeList');
 
     HomeList.addEventListener('dragstart', function(event) {
         if (event.target.classList.contains('home-icons')) {
             event.target.classList.add('opacity05');
+            // @ts-ignore
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
             dragSrc = event.target;
@@ -334,7 +374,7 @@ function dragAndDropHome() {
         if (dragEl.classList.contains('home-icons') === false) {
             return;
         }
-        const ths = HomeList.getElementsByClassName('dragover-icon');
+        const ths = HomeList.querySelectorAll('.dragover-icon');
         for (const th of ths) {
             th.classList.remove('dragover-icon');
         }
@@ -356,7 +396,7 @@ function dragAndDropHome() {
         if (dragEl.classList.contains('home-icons') === false) {
             return;
         }
-        const ths = HomeList.getElementsByClassName('dragover-icon');
+        const ths = HomeList.querySelectorAll('.dragover-icon');
         for (const th of ths) {
             hideDropoverIcon(th);
         }
@@ -382,66 +422,99 @@ function dragAndDropHome() {
                     isNaN(from) === false &&
                     from !== to)
                 {
-                    sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to});
+                    sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, null, false);
                 }
             }
         }
-        const ths = HomeList.getElementsByClassName('dragover-icon');
+        const ths = HomeList.querySelectorAll('.dragover-icon');
         for (const th of ths) {
             hideDropoverIcon(th);
         }
     }, false);
 }
 
+/**
+ * Populates the cmd select box in the add to homescreen dialog
+ * @param {string} cmd command
+ * @param {string} type one of album, song, dir, search, plist, smartpls
+ */
 function populateHomeIconCmdSelect(cmd, type) {
     const selectHomeIconCmd = document.getElementById('selectHomeIconCmd');
     elClear(selectHomeIconCmd);
     switch(cmd) {
         case 'appGoto': {
-            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appGoto"}, tn('Goto view')));
+            selectHomeIconCmd.appendChild(
+                elCreateTextTn('option', {"value": "appGoto"}, 'Goto view')
+            );
             setData(selectHomeIconCmd.lastChild, 'options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
             break;
         }
         case 'openExternalLink': {
-            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "openExternalLink"}, tn('Open external link')));
+            selectHomeIconCmd.appendChild(
+                elCreateTextTn('option', {"value": "openExternalLink"}, 'Open external link')
+            );
             setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Uri"]});
             break;
         }
         case 'execScriptFromOptions': {
-            selectHomeIconCmd.appendChild(elCreateText('option', {"value": "execScriptFromOptions"}, tn('Execute Script')));
+            selectHomeIconCmd.appendChild(
+                elCreateTextTn('option', {"value": "execScriptFromOptions"}, 'Execute script')
+            );
             setData(selectHomeIconCmd.lastChild, 'options', {"options":["Script", "Arguments"]});
             break;
         }
         default: {
             if (type === 'album') {
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueueAlbum"}, tn('Replace queue')));
+                selectHomeIconCmd.appendChild(
+                    elCreateTextTn('option', {"value": "replaceQueueAlbum"}, 'Replace queue')
+                );
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replacePlayQueueAlbum"}, tn('Replace queue and play')));
+                selectHomeIconCmd.appendChild(
+                    elCreateTextTn('option', {"value": "replacePlayQueueAlbum"}, 'Replace queue and play')
+                );
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
                 if (features.featWhence === true) {
-                    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueueAlbum"}, tn('Insert after current playing song')));
+                    selectHomeIconCmd.appendChild(
+                        elCreateTextTn('option', {"value": "insertAfterCurrentQueueAlbum"}, 'Insert after current playing song')
+                    );
                     setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
                 }
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueueAlbum"}, tn('Append to queue')));
+                selectHomeIconCmd.appendChild(
+                    elCreateTextTn('option', {"value": "appendQueueAlbum"}, 'Append to queue')
+                );
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendPlayQueueAlbum"}, tn('Append to queue and play')));
+                selectHomeIconCmd.appendChild(
+                    elCreateTextTn('option', {"value": "appendPlayQueueAlbum"}, 'Append to queue and play')
+                );
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "homeIconGoto"}, tn('Album details')));
+                selectHomeIconCmd.appendChild(
+                    elCreateTextTn('option', {"value": "homeIconGoto"}, 'Album details')
+                );
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
             }
             else {
                 const paramName = type === 'search' ? 'Expression' : 'Uri';
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replaceQueue"}, tn('Replace queue')));
+                selectHomeIconCmd.appendChild(
+                    elCreateTextTn('option', {"value": "replaceQueue"}, 'Replace queue')
+                );
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "replacePlayQueue"}, tn('Replace queue and play')));
+                selectHomeIconCmd.appendChild(
+                    elCreateTextTn('option', {"value": "replacePlayQueue"}, 'Replace queue and play')
+                );
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
                 if (features.featWhence === true) {
-                    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "insertAfterCurrentQueue"}, tn('Insert after current playing song')));
+                    selectHomeIconCmd.appendChild(
+                        elCreateTextTn('option', {"value": "insertAfterCurrentQueue"}, 'Insert after current playing song')
+                    );
                     setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
                 }
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendQueue"}, tn('Append to queue')));
+                selectHomeIconCmd.appendChild(
+                    elCreateTextTn('option', {"value": "appendQueue"}, 'Append to queue')
+                );
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-                selectHomeIconCmd.appendChild(elCreateText('option', {"value": "appendPlayQueue"}, tn('Append to queue and play')));
+                selectHomeIconCmd.appendChild(
+                    elCreateTextTn('option', {"value": "appendPlayQueue"}, 'Append to queue and play')
+                );
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
                 if (type === 'dir' ||
                     type === 'search' ||
@@ -450,7 +523,9 @@ function populateHomeIconCmdSelect(cmd, type) {
                 {
                     const title = type === 'dir' ? 'Open directory' :
                                 type === 'search' ? 'Show search' : 'View playlist';
-                    selectHomeIconCmd.appendChild(elCreateText('option', {"value": "homeIconGoto"}, tn(title)));
+                    selectHomeIconCmd.appendChild(
+                        elCreateTextTn('option', {"value": "homeIconGoto"}, title)
+                    );
                     setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
                 }
             }
@@ -458,44 +533,84 @@ function populateHomeIconCmdSelect(cmd, type) {
     }
 }
 
+/**
+ * Executes the home icon action
+ * @param {number} pos home icon position
+ */
 //eslint-disable-next-line no-unused-vars
 function executeHomeIcon(pos) {
     const el = document.getElementById('HomeList').children[pos].firstChild;
     parseCmd(null, getData(el, 'href'));
 }
 
+/**
+ * Adds a link to a view to the homescreen
+ */
 //eslint-disable-next-line no-unused-vars
 function addViewToHome() {
     _addHomeIcon('appGoto', '', 'preview', '', [app.current.card, app.current.tab, app.current.view,
         app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search]);
 }
 
+/**
+ * Adds a external link to the homescreen
+ */
 //eslint-disable-next-line no-unused-vars
 function addExternalLinkToHome() {
     _addHomeIcon('openExternalLink', '', 'link', '', []);
 }
 
+/**
+ * Adds a script to the homescreen
+ * @param {string} name name for the home icon
+ * @param {object} script script object
+ */
 //eslint-disable-next-line no-unused-vars
 function addScriptToHome(name, script) {
     const options = [script.script, script.arguments.join(',')];
     _addHomeIcon('execScriptFromOptions', name, 'code', '', options);
 }
 
+/**
+ * Adds a playlist to the homescreen
+ * @param {string} uri uri of the playlist
+ * @param {string} type one of plist, smartpls
+ * @param {string} name name for the home icon
+ */
 //eslint-disable-next-line no-unused-vars
 function addPlistToHome(uri, type, name) {
     _addHomeIcon('replaceQueue', name, 'list', '', [type, uri]);
 }
 
+/**
+ * Adds a webradio favorite to the homescreen
+ * @param {string} uri uri of the webradio favorite
+ * @param {string} type must be webradio
+ * @param {string} name name for the home icon
+ * @param {string} image image for the home icon
+ */
 //eslint-disable-next-line no-unused-vars
 function addRadioFavoriteToHome(uri, type, name, image) {
     _addHomeIcon('replaceQueue', name, '', image, [type, uri]);
 }
 
+/**
+ * Adds a webradioDB entry to the homescreen
+ * @param {string} uri uri of the stream
+ * @param {string} type must be stream
+ * @param {string} name name for the home icon
+ * @param {string} image image for the home icon
+ */
 //eslint-disable-next-line no-unused-vars
 function addWebRadiodbToHome(uri, type, name, image) {
     _addHomeIcon('replaceQueue', name, '', image, [type, uri]);
 }
 
+/**
+ * Adds a directory to the homescreen
+ * @param {string} uri directory uri
+ * @param {string} name name for the home icon
+ */
 //eslint-disable-next-line no-unused-vars
 function addDirToHome(uri, name) {
     if(uri === undefined) {
@@ -505,17 +620,31 @@ function addDirToHome(uri, name) {
     _addHomeIcon('replaceQueue', name, 'folder_open', '', ['dir', uri]);
 }
 
+/**
+ * Adds a song or stream to the homescreen
+ * @param {string} uri song or stream uri
+ * @param {string} type one of song, stream
+ * @param {string} name name for the home icon
+ */
 //eslint-disable-next-line no-unused-vars
 function addSongToHome(uri, type, name) {
     const ligature = type === 'song' ? 'music_note' : 'stream';
     _addHomeIcon('replaceQueue', name, ligature, '', [type, uri]);
 }
 
+/**
+ * Adds the current search to the homescreen
+ */
 //eslint-disable-next-line no-unused-vars
 function addSearchToHome() {
     _addHomeIcon('replaceQueue', tn('Current search'), '', 'saved_search', ['search', app.current.search]);
 }
 
+/**
+ * Adds an album to the homescreen
+ * @param {object} albumArtist array of albumartists
+ * @param {string} album albumname
+ */
 //eslint-disable-next-line no-unused-vars
 function addAlbumToHome(albumArtist, album) {
     if (albumArtist === undefined) {
@@ -525,6 +654,9 @@ function addAlbumToHome(albumArtist, album) {
     _addHomeIcon('replaceQueueAlbum', album, 'album', '', ['album', JSON.stringify(albumArtist), album]);
 }
 
+/**
+ * Adds a new stream to the homescreen
+ */
 //eslint-disable-next-line no-unused-vars
 function addStreamToHome() {
     const mode = getRadioBoxValueId('addToPlaylistPos');
@@ -541,6 +673,14 @@ function addStreamToHome() {
     _addHomeIcon(action, '', 'stream', '', ['stream', uri]);
 }
 
+/**
+ * Opens the add to homescreen modal, this function is called by the add*ToHome functions above.
+ * @param {string} cmd action
+ * @param {string} name name for the home icon
+ * @param {string} ligature ligature for the home icon
+ * @param {string} image picture for the home icon
+ * @param {object} options options array
+ */
 function _addHomeIcon(cmd, name, ligature, image, options) {
     document.getElementById('modalEditHomeIconTitle').textContent = tn('Add to homescreen');
     document.getElementById('inputHomeIconReplace').value = 'false';
@@ -581,16 +721,30 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
     uiElements.modalEditHomeIcon.show();
 }
 
+/**
+ * Duplicates a home icon
+ * @param {number} pos home icon position
+ */
 //eslint-disable-next-line no-unused-vars
 function duplicateHomeIcon(pos) {
     _editHomeIcon(pos, false, "Duplicate home icon");
 }
 
+/**
+ * Opens the edit home icon dialog
+ * @param {number} pos home icon position
+ */
 //eslint-disable-next-line no-unused-vars
 function editHomeIcon(pos) {
     _editHomeIcon(pos, true, "Edit home icon");
 }
 
+/**
+ * The real edit home icon function
+ * @param {number} pos home icon position
+ * @param {boolean} replace true = replace existing home icon, false = duplicate home icon
+ * @param {string} title title for the modal
+ */
 function _editHomeIcon(pos, replace, title) {
     document.getElementById('modalEditHomeIconTitle').textContent = tn(title);
     sendAPI("MYMPD_API_HOME_ICON_GET", {"pos": pos}, function(obj) {
@@ -630,20 +784,23 @@ function _editHomeIcon(pos, replace, title) {
         //show modal
         cleanupModalId('modalEditHomeIcon');
         uiElements.modalEditHomeIcon.show();
-    });
+    }, false);
 }
 
+/**
+ * Saves the home icon
+ */
 //eslint-disable-next-line no-unused-vars
 function saveHomeIcon() {
     cleanupModalId('modalEditHomeIcon');
     let formOK = true;
     const nameEl = document.getElementById('inputHomeIconName');
-    if (!validateNotBlank(nameEl)) {
+    if (!validateNotBlankEl(nameEl)) {
         formOK = false;
     }
     if (formOK === true) {
         const options = [];
-        const optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
+        const optionEls = document.querySelectorAll('#divHomeIconOptions input');
         for (const optionEl of optionEls) {
             options.push(optionEl.value);
         }
@@ -662,6 +819,10 @@ function saveHomeIcon() {
     }
 }
 
+/**
+ * Response handler for save home icon
+ * @param {object} obj jsonrpc response
+ */
 function saveHomeIconClose(obj) {
     if (obj.error) {
         showModalAlert(obj);
@@ -671,14 +832,22 @@ function saveHomeIconClose(obj) {
     }
 }
 
+/**
+ * Deletes a home icon
+ * @param {number} pos home icon position
+ */
 //eslint-disable-next-line no-unused-vars
 function deleteHomeIcon(pos) {
-    sendAPI("MYMPD_API_HOME_ICON_RM", {"pos": pos});
+    sendAPI("MYMPD_API_HOME_ICON_RM", {"pos": pos}, null, false);
 }
 
+/**
+ * Changes the options in the home icon edit modal for the selected cmd.
+ * @param {*} values values to set for the options
+ */
 function showHomeIconCmdOptions(values) {
     const oldOptions = [];
-    const optionEls = document.getElementById('divHomeIconOptions').getElementsByTagName('input');
+    const optionEls = document.querySelectorAll('#divHomeIconOptions input');
     for (const optionEl of optionEls) {
         oldOptions.push(optionEl.value);
     }
@@ -696,7 +865,7 @@ function showHomeIconCmdOptions(values) {
                 value = JSON.stringify(value);
             }
             const row = elCreateNodes('div', {"class": ["mb-3", "row"]}, [
-                elCreateText('label', {"class": ["col-sm-4"]}, tn(options.options[i])),
+                elCreateTextTn('label', {"class": ["col-sm-4"]}, options.options[i]),
                 elCreateNode('div', {"class": ["col-sm-8"]}, 
                     elCreateEmpty('input', {"class": ["form-control", "border-secondary"], "name": options.options[i], "value": value})
                 )
@@ -706,21 +875,36 @@ function showHomeIconCmdOptions(values) {
     }
 }
 
+/**
+ * Populates the picture list in the home icon edit modal
+ */
 function getHomeIconPictureList() {
     const selectHomeIconImage = document.getElementById('inputHomeIconImage');
     getImageList(selectHomeIconImage, [{"value": "", "text": tn('Use ligature')}], 'thumbs');
 }
 
+/**
+ * Opens the link in a new window
+ * @param {string} link uri to open
+ */
 //eslint-disable-next-line no-unused-vars
 function openExternalLink(link) {
     window.open(link);
 }
 
+/**
+ * Goto handler for home icons
+ * @param {string} type one of dir, search, album, plist, smartpls
+ * @param {string | object} uri type = search: search expression
+ *                type = album: AlbumArtist
+ *                else uri of directory or playlist
+ * @param {string} [album] albumname (only valid for type = album)
+ */
 //eslint-disable-next-line no-unused-vars
 function homeIconGoto(type, uri, album) {
     switch(type) {
         case 'dir':
-            gotoFilesystem(uri);
+            gotoFilesystem(uri, type);
             break;
         case 'search':
             appGoto('Search', undefined, undefined, 0, undefined, 'any', 'Title', '-', uri);

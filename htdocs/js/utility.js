@@ -3,209 +3,56 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-//element handling shortcuts
-function elCreateText(tagName, attributes, text) {
-    const tag = elCreateEmpty(tagName, attributes);
-    tag.textContent = text;
-    return tag;
-}
+/** @module utility_js */
 
-function elCreateNode(tagName, attributes, node) {
-    const tag = elCreateEmpty(tagName, attributes);
-    tag.appendChild(node);
-    return tag;
-}
-
-function elCreateNodes(tagName, attributes, nodes) {
-    const tag = elCreateEmpty(tagName, attributes);
-    for (const node of nodes) {
-        if (node !== null) {
-            tag.appendChild(node);
-        }
-    }
-    return tag;
-}
-
-function elCreateEmpty(tagName, attributes) {
-    const tag = document.createElement(tagName);
-    for (const key in attributes) {
-        switch(key) {
-            case 'class':
-                tag.classList.add(...attributes[key]);
-                break;
-            case 'is':
-                tag.setAttribute('data-is', attributes[key]);
-                break;
-            default:
-                tag.setAttribute(key, attributes[key]);
-        }
-    }
-    return tag;
-}
-
-function elReplaceChildId(id, child) {
-    elReplaceChild(document.getElementById(id), child);
-}
-
-function elReplaceChild(el, child) {
-    elClear(el);
-    el.appendChild(child);
-}
-
-function elHideId(id) {
-    document.getElementById(id).classList.add('d-none');
-}
-
-function elShowId(id) {
-    document.getElementById(id).classList.remove('d-none');
-}
-
-function elClearId(id) {
-    document.getElementById(id).textContent = '';
-}
-
-function elHide(el) {
-    el.classList.add('d-none');
-}
-
-function elShow(el) {
-    el.classList.remove('d-none');
-}
-
-function elClear(el) {
-    el.textContent = '';
-}
-
-function elDisableId(el) {
-    document.getElementById(el).setAttribute('disabled', 'disabled');
-}
-
-function elDisable(el) {
-    el.setAttribute('disabled', 'disabled');
-    //manually disabled, remove disabled class
-    el.classList.remove('disabled');
-    el.classList.replace('clickable', 'not-clickable');
-}
-
-function elEnableId(el) {
-    document.getElementById(el).removeAttribute('disabled');
-}
-
-function elEnable(el) {
-    el.removeAttribute('disabled');
-    el.classList.replace('not-clickable', 'clickable');
-}
-
-function elReflow(el) {
-    return el.offsetHeight;
-}
-
-function getOpenModal() {
-    const modals = document.getElementsByClassName('modal');
-    for (const modal of modals) {
-        if (modal.classList.contains('show')) {
-            return modal;
-        }
-    }
-    return null;
-}
-
-function setFocusId(id) {
-    setFocus(document.getElementById(id));
-}
-
-function setFocus(el) {
-    if (userAgentData.isMobile === false) {
-        el.focus();
-    }
-}
-
+/**
+ * Sets the updating indicator(s) for a view with the given id
+ * @param {string} id element id
+ */
 function setUpdateViewId(id) {
     setUpdateView(document.getElementById(id));
 }
 
+/**
+ * Sets the updating indicator(s) for the element
+ * @param {Element} el element
+ */
 function setUpdateView(el) {
     el.classList.add('opacity05');
     domCache.main.classList.add('border-progress');
 }
 
+/**
+ * Removes the updating indicator(s) for a view with the given id
+ * @param {string} id element id
+ */
 function unsetUpdateViewId(id) {
     unsetUpdateView(document.getElementById(id));
 }
 
+/**
+ * Removes the updating indicator(s) for the element
+ * @param {Element | ParentNode} el element
+ */
 function unsetUpdateView(el) {
     el.classList.remove('opacity05');
     domCache.main.classList.remove('border-progress');
 }
 
-//replaces special characters with underscore
+/**
+ * Replaces special characters with underscore
+ * @param {string} x string to replace
+ * @returns {string} result string
+ */
 function r(x) {
     return x.replace(/[^\w-]/g, '_');
 }
 
-function cleanupModalId(id) {
-    cleanupModal(document.getElementById(id));
-}
-
-function cleanupModal(el) {
-    //remove validation warnings
-    removeIsInvalid(el);
-    //remove enter pin footer
-    const enterPinFooter = el.getElementsByClassName('enterPinFooter');
-    if (enterPinFooter.length > 0) {
-        removeEnterPinFooter(enterPinFooter[0]);
-    }
-    //remove error messages
-    hideModalAlert(el);
-    //remove spinners
-    const spinners = el.getElementsByClassName('spinner-border');
-    for (let i = spinners.length - 1; i >= 0; i--) {
-        spinners[i].remove();
-    }
-}
-
-//confirmation dialogs
-function showConfirm(text, btnText, callback) {
-    document.getElementById('modalConfirmText').textContent = text;
-    const yesBtn = elCreateText('button', {"id": "modalConfirmYesBtn", "class": ["btn", "btn-danger"]}, btnText);
-    yesBtn.addEventListener('click', function() {
-        if (callback !== undefined &&
-            typeof(callback) === 'function')
-        {
-            callback();
-        }
-        uiElements.modalConfirm.hide();
-    }, false);
-    document.getElementById('modalConfirmYesBtn').replaceWith(yesBtn);
-    uiElements.modalConfirm.show();
-}
-
-function showConfirmInline(el, text, btnText, callback) {
-    const confirm = elCreateNode('div', {"class": ["alert", "alert-danger", "mt-2"]},
-        elCreateText('p', {}, text)
-    );
-
-    const cancelBtn = elCreateText('button', {"class": ["btn", "btn-secondary"]}, tn('Cancel'));
-    cancelBtn.addEventListener('click', function(event) {
-        event.stopPropagation();
-        this.parentNode.remove();
-    }, false);
-    confirm.appendChild(cancelBtn);
-
-    const yesBtn = elCreateText('button', {"class": ["btn", "btn-danger", "float-end"]}, btnText);
-    yesBtn.addEventListener('click', function(event) {
-        event.stopPropagation();
-        if (callback !== undefined &&
-            typeof(callback) === 'function')
-        {
-            callback();
-        }
-        this.parentNode.remove();
-    }, false);
-    confirm.appendChild(yesBtn);
-    el.appendChild(confirm);
-}
-
+/**
+ * URL-Encodes the path, ignoring the host
+ * @param {string} str string to decode
+ * @returns {string} encoded string
+ */
 function myEncodeURIhost(str) {
     const match = str.match(/(https?:\/\/[^/]+)(.*)$/);
     if (match) {
@@ -215,245 +62,54 @@ function myEncodeURIhost(str) {
     return myEncodeURI(str);
 }
 
-//custom encoding function
-//works like encodeURIComponent but
-//- does not escape /
-//- escapes further reserved characters
+/**
+ * Custom encoding function, works like encodeURIComponent but
+ * - does not escape /
+ * - escapes further reserved characters
+ * @param {string} str string to encode
+ * @returns {string} the encoded string
+ */
 function myEncodeURI(str) {
     return encodeURI(str).replace(/[!'()*#?;:,@&=+$~]/g, function(c) {
         return '%' + c.charCodeAt(0).toString(16);
     });
 }
 
+/**
+ * Custom encoding function, works like encodeURIComponent but
+ * - escapes further reserved characters
+ * @param {string} str string to encode
+ * @returns {string} the encoded string
+ */
 function myEncodeURIComponent(str) {
     return encodeURIComponent(str).replace(/[!'()*~]/g, function(c) {
         return '%' + c.charCodeAt(0).toString(16);
     });
 }
 
+/**
+ * Wrapper for decodeURIComponent
+ * @param {string} str uri encoded string
+ * @returns {string} decoded string
+ */
 function myDecodeURIComponent(str) {
     return decodeURIComponent(str);
 }
 
+/**
+ * Joins an array to a comma separated text
+ * @param {Array} a array to join
+ * @returns {string} joined array
+ */
 function joinArray(a) {
     return a === undefined ? '' : a.join(', ');
 }
 
-//functions to execute default actions
-function clickQuickRemove(target) {
-    switch(app.id) {
-        case 'QueueCurrent': {
-            const songId = getData(target.parentNode.parentNode, 'songid');
-            removeFromQueue('single', songId);
-            break;
-        }
-        case 'BrowsePlaylistsDetail': {
-            const pos = getData(target.parentNode.parentNode, 'songpos');
-            const plist = getDataId('BrowsePlaylistsDetailList', 'uri');
-            removeFromPlaylist('single', plist, pos);
-            break;
-        }
-    }
-}
-
-function clickQuickPlay(target) {
-    const type = getData(target.parentNode.parentNode, 'type');
-    let uri = getData(target.parentNode.parentNode, 'uri');
-    if (type === 'webradio') {
-        uri = getRadioFavoriteUri(uri);
-    }
-    switch(settings.webuiSettings.clickQuickPlay) {
-        case 'append': return appendQueue(type, uri);
-        case 'appendPlay': return appendPlayQueue(type, uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue(type, uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue(type, uri);
-        case 'replace': return replaceQueue(type, uri);
-        case 'replacePlay': return replacePlayQueue(type, uri);
-    }
-}
-
-function clickAlbumPlay(albumArtist, album) {
-    switch(settings.webuiSettings.clickQuickPlay) {
-        case 'append': return _addAlbum('appendQueue', albumArtist, album);
-        case 'appendPlay': return _addAlbum('appendPlayQueue', albumArtist, album);
-        case 'insertAfterCurrent': return _addAlbum('insertAfterCurrentQueue', albumArtist, album);
-        case 'insertPlayAfterCurrent': return _addAlbum('insertPlayAfterCurrentQueue', albumArtist, album);
-        case 'replace': return _addAlbum('replaceQueue', albumArtist, album);
-        case 'replacePlay': return _addAlbum('replacePlayQueue', albumArtist, album);
-    }
-}
-
-function clickSong(uri) {
-    switch (settings.webuiSettings.clickSong) {
-        case 'append': return appendQueue('song', uri);
-        case 'appendPlay': return appendPlayQueue('song', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
-        case 'replace': return replaceQueue('song', uri);
-        case 'replacePlay': return replacePlayQueue('song', uri);
-        case 'view': return songDetails(uri);
-    }
-}
-
-function clickRadiobrowser(uri, uuid) {
-    switch (settings.webuiSettings.clickRadiobrowser) {
-        case 'append': return appendQueue('song', uri);
-        case 'appendPlay': return appendPlayQueue('song', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
-        case 'replace': return replaceQueue('song', uri);
-        case 'replacePlay': return replacePlayQueue('song', uri);
-    }
-    countClickRadiobrowser(uuid);
-}
-
-function clickWebradiodb(uri) {
-    switch (settings.webuiSettings.clickRadiobrowser) {
-        case 'append': return appendQueue('song', uri);
-        case 'appendPlay': return appendPlayQueue('song', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
-        case 'replace': return replaceQueue('song', uri);
-        case 'replacePlay': return replacePlayQueue('song', uri);
-    }
-}
-
-function clickRadioFavorites(uri) {
-    const fullUri = getRadioFavoriteUri(uri);
-    switch(settings.webuiSettings.clickRadioFavorites) {
-        case 'append': return appendQueue('plist', fullUri);
-        case 'appendPlay': return appendPlayQueue('plist', fullUri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', fullUri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', fullUri);
-        case 'replace': return replaceQueue('plist', fullUri);
-        case 'replacePlay': return replacePlayQueue('plist', fullUri);
-        case 'edit': return editRadioFavorite(uri);
-    }
-}
-
-function clickQueueSong(songid, uri) {
-    switch(settings.webuiSettings.clickQueueSong) {
-        case 'play':
-            if (songid === null) {
-                return;
-            }
-            sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {
-                "songId": songid
-            });
-            break;
-        case 'view':
-            if (uri === null) {
-                return;
-            }
-            return songDetails(uri);
-    }
-}
-
-function clickPlaylist(uri) {
-    switch(settings.webuiSettings.clickPlaylist) {
-        case 'append': return appendQueue('plist', uri);
-        case 'appendPlay': return appendPlayQueue('plist', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', uri);
-        case 'replace': return replaceQueue('plist', uri);
-        case 'replacePlay': return replacePlayQueue('plist', uri);
-        case 'view': return playlistDetails(uri);
-    }
-}
-
-function clickFilesystemPlaylist(uri) {
-    switch(settings.webuiSettings.clickFilesystemPlaylist) {
-        case 'append': return appendQueue('plist', uri);
-        case 'appendPlay': return appendPlayQueue('plist', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', uri);
-        case 'replace': return replaceQueue('plist', uri);
-        case 'replacePlay': return replacePlayQueue('plist', uri);
-        case 'view':
-            //remember offset for current browse uri
-            browseFilesystemHistory[app.current.search] = {
-                "offset": app.current.offset,
-                "scrollPos": document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop
-            };
-            //reset filter and show playlist
-            app.current.filter = '-';
-            appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, 'plist', uri);
-    }
-}
-
-function clickFolder(uri) {
-    //remember offset for current browse uri
-    browseFilesystemHistory[app.current.search] = {
-        "offset": app.current.offset,
-        "scrollPos": getScrollPosY()
-    };
-    //reset filter and open folder
-    app.current.filter = '-';
-    appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, 'dir', uri);
-}
-
-function seekRelativeForward() {
-    seekRelative(5);
-}
-
-function seekRelativeBackward() {
-    seekRelative(-5);
-}
-
-function seekRelative(offset) {
-    sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
-        "seek": offset,
-        "relative": true
-    });
-}
-
-//eslint-disable-next-line no-unused-vars
-function clickPlay() {
-    switch(currentState.state) {
-        case 'play':
-            if (settings.webuiSettings.uiFooterPlaybackControls === 'stop' ||
-                isStreamUri(currentSongObj.uri) === true)
-            {
-                //always stop streams
-                sendAPI("MYMPD_API_PLAYER_STOP", {});
-            }
-            else {
-                sendAPI("MYMPD_API_PLAYER_PAUSE", {});
-            }
-            break;
-        case 'pause':
-            sendAPI("MYMPD_API_PLAYER_RESUME", {});
-            break;
-        default:
-            //fallback if playstate is stop or unknown
-            sendAPI("MYMPD_API_PLAYER_PLAY", {});
-    }
-}
-
-//eslint-disable-next-line no-unused-vars
-function clickStop() {
-    sendAPI("MYMPD_API_PLAYER_STOP", {});
-}
-
-//eslint-disable-next-line no-unused-vars
-function clickPrev() {
-    sendAPI("MYMPD_API_PLAYER_PREV", {});
-}
-
-//eslint-disable-next-line no-unused-vars
-function clickNext() {
-    sendAPI("MYMPD_API_PLAYER_NEXT", {});
-}
-
-//eslint-disable-next-line no-unused-vars
-function clickSingle(mode) {
-    //mode: 0 = off, 1 = single, 2 = single one shot
-    sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
-        "single": mode
-    });
-}
-
-//escape and unescape MPD filter values
+/**
+ * Escape a MPD filter value
+ * @param {string} x value to escape
+ * @returns {string} escaped value
+ */
 function escapeMPD(x) {
     if (typeof x === 'number') {
         return x;
@@ -467,6 +123,11 @@ function escapeMPD(x) {
     });
 }
 
+/**
+ * Unescape a MPD filter value
+ * @param {string} x value to unescape
+ * @returns {string} unescaped value
+ */
 function unescapeMPD(x) {
     if (typeof x === 'number') {
         return x;
@@ -480,108 +141,32 @@ function unescapeMPD(x) {
     });
 }
 
-//get and set custom dom properties
-//replaces data-* attributes
-function setDataId(id, attribute, value) {
-    document.getElementById(id)['myMPD-' + attribute] = value;
-}
-
-function setData(el, attribute, value) {
-    el['myMPD-' + attribute] = value;
-}
-
-function getDataId(id, attribute) {
-    return getData(document.getElementById(id), attribute);
-}
-
-function getData(el, attribute) {
-    let value = el['myMPD-' + attribute];
-    if (value === undefined) {
-        //fallback to attribute
-        value = el.getAttribute('data-' + attribute);
-        if (value === null) {
-            //return undefined if attribute is null
-            value = undefined;
-        }
-    }
-    logDebug('getData: "' + attribute + '":"' + value + '"');
-    return value;
-}
-
-//utility functions
-function getSelectValueId(id) {
-    return getSelectValue(document.getElementById(id));
-}
-
-function getSelectValue(el) {
-    if (el && el.selectedIndex >= 0) {
-        return el.options[el.selectedIndex].getAttribute('value');
-    }
-    return undefined;
-}
-
-function getSelectedOptionDataId(id, attribute) {
-    return getSelectedOptionData(document.getElementById(id), attribute)
-}
-
-function getSelectedOptionData(el, attribute) {
-    if (el && el.selectedIndex >= 0) {
-        return getData(el.options[el.selectedIndex], attribute);
-    }
-    return undefined;
-}
-
-function getRadioBoxValueId(id) {
-    return getRadioBoxValue(document.getElementById(id));
-}
-
-function getRadioBoxValue(el) {
-    const radiobuttons = el.getElementsByClassName('form-check-input');
-    for(const button of radiobuttons) {
-        if (button.checked === true){
-            return button.value;
-        }
-    }
-}
-
-function alignDropdown(el) {
-    const toggleEl = el.getElementsByClassName('dropdown-toggle')[0];
-    const x = getXpos(toggleEl);
-    if (x < domCache.body.offsetWidth * 0.66) {
-        el.getElementsByClassName('dropdown-menu')[0].classList.remove('dropdown-menu-end');
-    }
-    else {
-        el.getElementsByClassName('dropdown-menu')[0].classList.add('dropdown-menu-end');
-    }
-}
-
-function getXpos(el) {
-    let xPos = 0;
-    while (el) {
-        xPos += (el.offsetLeft - el.scrollLeft + el.clientLeft);
-        el = el.offsetParent;
-    }
-    return xPos;
-}
-
-function getYpos(el) {
-    let yPos = 0;
-    while (el) {
-        yPos += (el.offsetTop + el.clientTop);
-        el = el.offsetParent;
-    }
-    return yPos;
-}
-
+/**
+ * Pads a number with zeros
+ * @param {number} num number to pad
+ * @param {number} places complete width
+ * @returns {string} padded number
+ */
 function zeroPad(num, places) {
     const zero = places - num.toString().length + 1;
     return Array(+(zero > 0 && zero)).join("0") + num;
 }
 
+/**
+ * Gets the directory from the given uri
+ * @param {string} uri the uri
+ * @returns {string} directory part of the uri
+ */
 function dirname(uri) {
     return uri.replace(/\/[^/]*$/, '');
 }
 
+/**
+ * Gets the filename from the given uri
+ * @param {string} uri the uri
+ * @param {boolean} removeQuery true = remove query string or hash
+ * @returns {string} filename part of the uri
+ */
 function basename(uri, removeQuery) {
     if (removeQuery === true) {
         return uri.split('/').reverse()[0].split(/[?#]/)[0];
@@ -589,6 +174,11 @@ function basename(uri, removeQuery) {
     return uri.split('/').reverse()[0];
 }
 
+/**
+ * Splits a string in path + filename and extension
+ * @param {string} filename filename to split
+ * @returns {object} object with file and ext keys
+ */
 function splitFilename(filename) {
     const parts = filename.match(/^(.*)\.([^.]+)$/);
     return {
@@ -597,44 +187,11 @@ function splitFilename(filename) {
     };
  }
 
-function isCoverfile(uri) {
-    const filename = basename(uri);
-    const fileparts = splitFilename(filename);
-
-    const coverimageNames = [...settings.coverimageNames.split(','), ...settings.thumbnailNames.split(',')];
-    for (let i = 0, j = coverimageNames.length; i < j; i++) {
-        const name = coverimageNames[i].trim();
-        if (filename === name) {
-            return true;
-        }
-        if (name === fileparts.file &&
-            imageExtensions.includes(fileparts.ext))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-function isThumbnailfile(uri) {
-    const filename = basename(uri);
-    const fileparts = splitFilename(filename);
-
-    const coverimageNames = settings.thumbnailNames.split(',');
-    for (let i = 0, j = coverimageNames.length; i < j; i++) {
-        const name = coverimageNames[i].trim();
-        if (filename === name) {
-            return true;
-        }
-        if (name === fileparts.file &&
-            imageExtensions.includes(fileparts.ext))
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
+/**
+ * Returns a description of the filetype from uri
+ * @param {string} uri the uri
+ * @returns {string} description of filetype
+ */
 function filetype(uri) {
     if (uri === undefined) {
         return '';
@@ -657,152 +214,9 @@ function filetype(uri) {
     }
 }
 
-function getScrollPosY() {
-    if (userAgentData.isMobile === true) {
-        return document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
-    }
-    else {
-        const container = document.getElementById(app.id + 'List');
-        if (container) {
-            return container.parentNode.scrollTop;
-        }
-        else {
-            return 0;
-        }
-    }
-}
-
-function scrollToPosY(container, pos) {
-    if (userAgentData.isMobile === true) {
-        // For Safari
-        document.body.scrollTop = pos;
-        // For Chrome, Firefox, IE and Opera
-        document.documentElement.scrollTop = pos;
-    }
-    else {
-        container.scrollTop = pos;
-    }
-}
-
-function selectTag(btnsId, desc, setTo) {
-    const btns = document.getElementById(btnsId);
-    let aBtn = btns.querySelector('.active');
-    if (aBtn) {
-        aBtn.classList.remove('active');
-    }
-    aBtn = btns.querySelector('[data-tag=' + setTo + ']');
-    if (aBtn) {
-        aBtn.classList.add('active');
-        if (desc !== undefined) {
-            const descEl = document.getElementById(desc);
-            if (descEl !== null) {
-                descEl.textContent = aBtn.textContent;
-                descEl.setAttribute('data-phrase', aBtn.textContent);
-            }
-        }
-    }
-}
-
-function addTagList(elId, list) {
-    const stack = elCreateEmpty('div', {"class": ["d-grid", "gap-2"]});
-    if (list === 'tagListSearch') {
-        if (features.featTags === true) {
-            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any", "data-phrase": "Any Tag"}, tn('Any Tag')));
-        }
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename", "data-phrase": "Filename"}, tn('Filename')));
-    }
-    if (elId === 'searchDatabaseTags') {
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any", "data-phrase": "Any Tag"}, tn('Any Tag')));
-    }
-    for (let i = 0, j = settings[list].length; i < j; i++) {
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, tn(settings[list][i])));
-    }
-    if (elId === 'BrowseNavFilesystemDropdown' ||
-        elId === 'BrowseNavPlaylistsDropdown' ||
-        elId === 'BrowseNavRadioFavoritesDropdown' ||
-        elId === 'BrowseNavWebradiodbDropdown' ||
-        elId === 'BrowseNavRadiobrowserDropdown')
-    {
-        if (features.featTags === true) {
-            elClear(stack);
-            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database", "data-phrase": "Database"}, tn('Database')));
-        }
-    }
-    if (elId === 'BrowseDatabaseByTagDropdown' ||
-        elId === 'BrowseNavFilesystemDropdown' ||
-        elId === 'BrowseNavPlaylistsDropdown' ||
-        elId === 'BrowseNavRadioFavoritesDropdown' ||
-        elId === 'BrowseNavWebradiodbDropdown' ||
-        elId === 'BrowseNavRadiobrowserDropdown')
-    {
-        if (elId === 'BrowseDatabaseByTagDropdown') {
-            stack.appendChild(elCreateEmpty('div', {"class": ["dropdown-divider"]}));
-        }
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlists", "data-phrase": "Playlists"}, tn('Playlists')));
-        if (elId === 'BrowseNavPlaylistsDropdown') {
-            stack.lastChild.classList.add('active');
-        }
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Filesystem", "data-phrase": "Filesystem"}, tn('Filesystem')));
-        if (elId === 'BrowseNavFilesystemDropdown') {
-            stack.lastChild.classList.add('active');
-        }
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Radio", "data-phrase": "Webradios"}, tn('Webradios')));
-        if (elId === 'BrowseNavRadioFavoritesDropdown' ||
-            elId === 'BrowseNavWebradiodbDropdown' ||
-            elId === 'BrowseNavRadiobrowserDropdown')
-        {
-            stack.lastChild.classList.add('active');
-        }
-    }
-    else if (elId === 'databaseSortTagsList') {
-        if (settings.tagList.includes('Date') === true &&
-            settings[list].includes('Date') === false)
-        {
-            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Date", "data-phrase": "Date"}, tn('Date')));
-        }
-        stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified", "data-phrase": "Last modified"}, tn('Last modified')));
-    }
-    else if (elId === 'searchQueueTags') {
-        if (features.featAdvqueue === true)
-        {
-            stack.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "prio", "data-phrase": "Priority"}, tn('Priority')));
-        }
-    }
-    const el = document.getElementById(elId);
-    elReplaceChild(el, stack);
-}
-
-function addTagListSelect(elId, list) {
-    const select = document.getElementById(elId);
-    elClear(select);
-    if (elId === 'saveSmartPlaylistSort' ||
-        elId === 'selectSmartplsSort')
-    {
-        select.appendChild(elCreateText('option', {"value": "", "data-phrase": "Disabled"}, tn('Disabled')));
-        select.appendChild(elCreateText('option', {"value": "shuffle", "data-phrase": "Shuffle"}, tn('Shuffle')));
-        const optGroup = elCreateEmpty('optgroup', {"label": tn('Sort by tag'), "data-label-phrase": "Sort by tag"});
-        optGroup.appendChild(elCreateText('option', {"value": "filename", "data-phrase": "Filename"}, tn('Filename')));
-        for (let i = 0, j = settings[list].length; i < j; i++) {
-            optGroup.appendChild(elCreateText('option', {"value": settings[list][i], "data-phrase": settings[list][i]}, tn(settings[list][i])));
-        }
-        select.appendChild(optGroup);
-    }
-    else if (elId === 'selectJukeboxUniqueTag' &&
-        settings.tagListBrowse.includes('Title') === false)
-    {
-        //Title tag should be always in the list
-        select.appendChild(elCreateText('option', {"value": "Title"}, tn('Song')));
-        for (let i = 0, j = settings[list].length; i < j; i++) {
-            select.appendChild(elCreateText('option', {"value": settings[list][i], "data-phrase": settings[list][i]}, tn(settings[list][i])));
-        }
-    }
-}
-
-//eslint-disable-next-line no-unused-vars
-function openModal(modal) {
-    uiElements[modal].show();
-}
-
+/**
+ * View specific focus of the search input 
+ */
 //eslint-disable-next-line no-unused-vars
 function focusSearch() {
     switch(app.id) {
@@ -841,369 +255,44 @@ function focusSearch() {
     }
 }
 
-function btnWaitingId(id, waiting) {
-    btnWaiting(document.getElementById(id), waiting);
+/**
+ * Generates a valid id from string
+ * @param {string} str string to generate the id from
+ * @returns {string} the generated id
+ */
+function genId(str) {
+    return 'id' + str.replace(/[^\w-]/g, '');
 }
 
-function btnWaiting(btn, waiting) {
-    if (waiting === true) {
-        const spinner = elCreateEmpty('span', {"class": ["spinner-border", "spinner-border-sm", "me-2"]});
-        btn.insertBefore(spinner, btn.firstChild);
-        elDisable(btn);
-    }
-    else {
-        //add a small delay, user should notice the change
-        setTimeout(function() {
-            elEnable(btn);
-            if (btn.firstChild === null) {
-                return;
-            }
-            if (btn.firstChild.nodeName === 'SPAN' &&
-                btn.firstChild.classList.contains('spinner-border'))
-            {
-                btn.firstChild.remove();
-            }
-        }, 100);
-    }
+/**
+ * Parses a string to a javascript command object
+ * @param {Event} event triggering event
+ * @param {object} str string to parse
+ */
+function parseCmdFromJSON(event, str) {
+    const cmd = JSON.parse(str);
+    parseCmd(event, cmd);
 }
 
-function toggleBtnGroupValueId(id, value) {
-    return toggleBtnGroupValue(document.getElementById(id), value)
-}
-
-function toggleBtnGroupValue(btngrp, value) {
-    const btns = btngrp.getElementsByTagName('button');
-    let b = btns[0];
-    let valuestr = value;
-    if (isNaN(value) === false) {
-        valuestr = value.toString();
-    }
-    for (let i = 0, j = btns.length; i < j; i++) {
-        if (getData(btns[i], 'value') === valuestr) {
-            btns[i].classList.add('active');
-            b = btns[i];
-        }
-        else {
-            btns[i].classList.remove('active');
-        }
-    }
-    return b;
-}
-
-function toggleBtnGroupValueCollapse(btngrp, collapse, value) {
-    const activeBtn = toggleBtnGroupValue(btngrp, value);
-    if (activeBtn.getAttribute('data-collapse') === 'show') {
-        document.getElementById(collapse).classList.add('show');
-    }
-    else {
-        document.getElementById(collapse).classList.remove('show');
-    }
-}
-
-//eslint-disable-next-line no-unused-vars
-function toggleBtnGroupId(id) {
-    return toggleBtnGroup(document.getElementById(id));
-}
-
-function toggleBtnGroup(btn) {
-    const btns = btn.parentNode.getElementsByTagName('button');
-    for (let i = 0, j = btns.length; i < j; i++) {
-        if (btns[i] === btn) {
-            btns[i].classList.add('active');
-        }
-        else {
-            btns[i].classList.remove('active');
-        }
-    }
-    return btn;
-}
-
-function getBtnGroupValueId(id) {
-    let activeBtn = document.getElementById(id).getElementsByClassName('active');
-    if (activeBtn.length === 0) {
-        //fallback to first button
-        activeBtn = document.getElementById(id).getElementsByTagName('button');
-    }
-    return getData(activeBtn[0], 'value');
-}
-
-//eslint-disable-next-line no-unused-vars
-function toggleBtnGroupCollapse(el, collapse) {
-    const activeBtn = toggleBtnGroup(el);
-    if (activeBtn.getAttribute('data-collapse') === 'show') {
-        if (document.getElementById(collapse).classList.contains('show') === false) {
-            uiElements[collapse].show();
-        }
-    }
-    else {
-        uiElements[collapse].hide();
-    }
-}
-
-//eslint-disable-next-line no-unused-vars
-function toggleBtnId(id, state) {
-    toggleBtn(document.getElementById(id), state);
-}
-
-function toggleBtn(btn, state) {
-    if (state === undefined) {
-        //toggle state
-        state = btn.classList.contains('active') ? false : true;
-    }
-
-    if (state === true ||
-        state === 1)
-    {
-        btn.classList.add('active');
-    }
-    else {
-        btn.classList.remove('active');
-    }
-}
-
-function toggleBtnChkId(id, state) {
-    toggleBtnChk(document.getElementById(id), state);
-}
-
-function toggleBtnChk(btn, state) {
-    if (state === undefined) {
-        //toggle state
-        state = btn.classList.contains('active') ? false : true;
-    }
-
-    if (state === true ||
-        state === 1)
-    {
-        btn.classList.add('active');
-        btn.textContent = 'check';
-        return true;
-    }
-    else {
-        btn.classList.remove('active');
-        btn.textContent = 'radio_button_unchecked';
-        return false;
-    }
-}
-
-function toggleBtnChkCollapseId(id, collapse, state) {
-    toggleBtnChkCollapse(document.getElementById(id), collapse, state);
-}
-
-function toggleBtnChkCollapse(btn, collapse, state) {
-    const checked = toggleBtnChk(btn, state);
-    if (checked === true) {
-        document.getElementById(collapse).classList.add('show');
-    }
-    else {
-        document.getElementById(collapse).classList.remove('show');
-    }
-}
-
-function setPagination(total, returned) {
-    const curPaginationTop = document.getElementById(app.id + 'PaginationTop');
-    if (curPaginationTop === null) {
+/**
+ * Executes a javascript command object
+ * @param {Event} event triggering event
+ * @param {object} cmd string to parse
+ */
+function parseCmd(event, cmd) {
+    if (typeof cmd === 'string') {
+        //TODO: remove
+        logError('Invalid type of cmd');
+        parseCmdFromJSON(event, cmd);
         return;
     }
-
-    if (app.current.limit === 0) {
-        app.current.limit = 500;
-    }
-
-    let totalPages = total < app.current.limit ?
-        total === -1 ? -1 : 1 : Math.ceil(total / app.current.limit);
-    const curPage = Math.ceil(app.current.offset / app.current.limit) + 1;
-    if (app.current.limit > returned) {
-        totalPages = curPage;
-    }
-
-    //toolbar
-    const paginationTop = createPaginationEls(totalPages, curPage);
-    paginationTop.classList.add('me-2');
-    paginationTop.setAttribute('id', curPaginationTop.id);
-    curPaginationTop.replaceWith(paginationTop);
-
-    //bottom
-    const bottomBar = document.getElementById(app.id + 'ButtonsBottom');
-    elClear(bottomBar);
-    if (domCache.body.classList.contains('not-mobile') ||
-        returned < 25)
+    if (event !== null &&
+        event !== undefined)
     {
-        elHide(bottomBar);
-        return;
-    }
-    const toTop = elCreateText('button', {"class": ["btn", "btn-secondary", "mi"], "data-title-phrase": "To top", "title": tn('To top')}, 'keyboard_arrow_up');
-    toTop.addEventListener('click', function(event) {
-        event.preventDefault();
-        scrollToPosY(0);
-    }, false);
-    bottomBar.appendChild(toTop);
-    const paginationBottom = createPaginationEls(totalPages, curPage);
-    paginationBottom.classList.add('dropup');
-    bottomBar.appendChild(paginationBottom);
-    elShow(bottomBar);
-}
-
-function createPaginationEls(totalPages, curPage) {
-    const prev = elCreateText('button', {"title": tn('Previous page'), "type": "button", "class": ["btn", "btn-secondary", "mi"]}, 'navigate_before');
-    if (curPage === 1) {
-        elDisable(prev);
-    }
-    else {
-        prev.addEventListener('click', function(event) {
-            event.preventDefault();
-            gotoPage('prev');
-        }, false);
-    }
-
-    const pageDropdownBtn = elCreateText('button', {"type": "button", "data-bs-toggle": "dropdown",
-        "class": ["square-end", "btn", "btn-secondary", "dropdown-toggle", "px-2"]}, curPage);
-    pageDropdownBtn.addEventListener('show.bs.dropdown', function () {
-        alignDropdown(this);
-    });
-    const pageDropdownMenu = elCreateEmpty('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "page-dropdown", "dropdown-menu-dark"]});
-
-    const row = elCreateNodes('div', {"class": ["row"]}, [
-        elCreateText('label', {"class": ["col-sm-8", "col-form-label"], "data-phrase": "Elements per page"}, tn('Elements per page')),
-        elCreateEmpty('div', {"class": ["col-sm-4"]})
-    ]);
-
-    const elPerPage = elCreateEmpty('select', {"class": ["form-control", "form-select", "border-secondary"]});
-    for (const i in webuiSettingsDefault.uiMaxElementsPerPage.validValues) {
-        elPerPage.appendChild(elCreateText('option', {"value": i}, i));
-        if (Number(i) === app.current.limit) {
-            elPerPage.lastChild.setAttribute('selected', 'selected');
-        }
-    }
-    elPerPage.addEventListener('click', function(event) {
-        event.stopPropagation();
-    }, false);
-    elPerPage.addEventListener('change', function(event) {
-        const newLimit = Number(getSelectValue(event.target));
-        if (app.current.limit !== newLimit) {
-            BSN.Dropdown.getInstance(event.target.parentNode.parentNode.parentNode.previousElementSibling).hide();
-            gotoPage(app.current.offset, newLimit);
-        }
-    }, false);
-    row.lastChild.appendChild(elPerPage);
-
-    const pageGrp = elCreateEmpty('div', {"class": ["btn-group"]});
-
-    let start = curPage - 3;
-    if (start < 1) {
-        start = 1;
-    }
-    let end = start + 5;
-    if (end >= totalPages) {
-        end = totalPages - 1;
-        start = end - 6 > 1 ? end - 6 : 1;
-    }
-
-    const first = elCreateEmpty('button', {"title": tn('First page'), "data-title-phrase": "First page", "type": "button", "class": ["btn", "btn-secondary"]});
-    if (start === 1) {
-        first.textContent = '1';
-    }
-    else {
-        first.textContent = 'first_page';
-        first.classList.add('mi');
-    }
-    if (curPage === 1) {
-        elDisable(first);
-        first.classList.add('active');
-    }
-    else {
-        first.addEventListener('click', function(event) {
-            event.preventDefault();
-            gotoPage(0);
-        }, false);
-    }
-    pageGrp.appendChild(first);
-
-    for (let i = start; i < end; i++) {
-        pageGrp.appendChild(elCreateText('button', {"class": ["btn", "btn-secondary"]}, i + 1));
-        if (i + 1 === curPage) {
-            pageGrp.lastChild.classList.add('active');
-        }
-        if (totalPages === -1) {
-            elDisable(pageGrp.lastChild);
-        }
-        else {
-            pageGrp.lastChild.addEventListener('click', function(event) {
-                event.preventDefault();
-                gotoPage(i * app.current.limit);
-            }, false);
-        }
-    }
-
-    const last = elCreateEmpty('button', {"title": tn('Last page'), "data-title-phrase": "Last page", "type": "button", "class": ["btn", "btn-secondary"]});
-    if (totalPages === end + 1) {
-        last.textContent = end + 1;
-    }
-    else {
-        last.textContent = 'last_page';
-        last.classList.add('mi');
-    }
-    if (totalPages === -1) {
-        elDisable(last);
-    }
-    else if (totalPages === curPage) {
-        if (curPage !== 1) {
-            last.classList.add('active');
-        }
-        elDisable(last);
-    }
-    else {
-        last.addEventListener('click', function(event) {
-            event.preventDefault();
-            gotoPage(totalPages * app.current.limit - app.current.limit);
-        }, false);
-    }
-    pageGrp.appendChild(last);
-
-    pageDropdownMenu.appendChild(
-        elCreateNode('div', {"class": ["row", "mb-3"]}, pageGrp)
-    );
-    pageDropdownMenu.appendChild(row);
-
-    const next = elCreateText('button', {"title": tn('Next page'), "data-title-phrase": "Next page", "type": "button", "class": ["btn", "btn-secondary", "mi"]}, 'navigate_next');
-    if (totalPages !== -1 && totalPages === curPage) {
-        elDisable(next);
-    }
-    else {
-        next.addEventListener('click', function(event) {
-            event.preventDefault();
-            gotoPage('next');
-        }, false);
-    }
-
-    const outer = elCreateNodes('div', {"class": ["btn-group", "pagination"]}, [
-        prev,
-        elCreateNodes('div', {"class": ["btn-group"]}, [
-            pageDropdownBtn,
-            pageDropdownMenu
-        ]),
-        next
-    ]);
-    new BSN.Dropdown(pageDropdownBtn);
-    pageDropdownBtn.parentNode.addEventListener('show.bs.dropdown', function (event) {
-        alignDropdown(event.target);
-    });
-    return outer;
-}
-
-function genId(x) {
-    return 'id' + x.replace(/[^\w-]/g, '');
-}
-
-function parseCmd(event, href) {
-    if (event !== null && event !== undefined) {
         event.preventDefault();
     }
-    let cmd = href;
-    if (typeof(href) === 'string') {
-        cmd = JSON.parse(href);
-    }
-
-    if (typeof window[cmd.cmd] === 'function') {
+    const func = getFunctionByName(cmd.cmd);
+    if (typeof func === 'function') {
         for (let i = 0, j = cmd.options.length; i < j; i++) {
             if (cmd.options[i] === 'event') {
                 cmd.options[i] = event;
@@ -1211,10 +300,11 @@ function parseCmd(event, href) {
         }
         switch(cmd.cmd) {
             case 'sendAPI':
-                sendAPI(cmd.options[0].cmd, {});
+                sendAPI(cmd.options[0].cmd, {}, null, false);
                 break;
             case 'createLocalPlaybackEl':
-                window[cmd.cmd](event, ... cmd.options);
+                // @ts-ignore
+                func(event, ... cmd.options);
                 break;
             case 'toggleBtn':
             case 'toggleBtnChk':
@@ -1224,70 +314,74 @@ function parseCmd(event, href) {
             case 'setPlaySettings':
             case 'voteSong':
             case 'toggleAddToPlaylistFrm':
-                window[cmd.cmd](event.target, ... cmd.options);
+            case 'toggleSaveQueueMode':
+                // @ts-ignore
+                func(event.target, ... cmd.options);
                 break;
             case 'toggleBtnChkCollapse':
-                window[cmd.cmd](event.target, undefined, ... cmd.options);
+                // @ts-ignore
+                func(event.target, undefined, ... cmd.options);
                 break;
             default:
-                window[cmd.cmd](... cmd.options);
+                // @ts-ignore
+                func(... cmd.options);
         }
     }
     else {
-        logError('Can not execute cmd: ' + cmd);
+        logError('Can not execute cmd: ' + cmd.cmd);
     }
 }
 
-function gotoPage(x, limit) {
-    switch (x) {
-        case 'next':
-            app.current.offset = app.current.offset + app.current.limit;
-            break;
-        case 'prev':
-            app.current.offset = app.current.offset - app.current.limit;
-            if (app.current.offset < 0) {
-                app.current.offset = 0;
-            }
-            break;
-        default:
-            app.current.offset = x;
+/**
+ * Returns the function by name
+ * @param {string} functionName name of the function
+ * @returns {Function} the function
+ */
+ function getFunctionByName(functionName) {
+    const namespace = functionName.split('.');
+    if (namespace.length === 2) {
+        const context = namespace.shift();
+        const functionToExecute = namespace.shift();
+        return window[context][functionToExecute];
     }
-    if (limit !== undefined) {
-        if (limit === 0) {
-            limit = 500;
-        }
-        app.current.limit = limit;
-        if (app.current.offset % app.current.limit > 0) {
-            app.current.offset = Math.floor(app.current.offset / app.current.limit);
-        }
-    }
-    appGoto(app.current.card, app.current.tab, app.current.view,
-        app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search, 0);
+    return window[functionName];
 }
 
+/**
+ * Creates the search breadcrumbs from a mpd search expression
+ * @param {string} searchStr the search expression
+ * @param {HTMLElement} searchEl search input element
+ * @param {HTMLElement} crumbEl element to add the crumbs
+ */
 function createSearchCrumbs(searchStr, searchEl, crumbEl) {
     elClear(crumbEl);
     const elements = searchStr.substring(1, app.current.search.length - 1).split(' AND ');
+    //add all but last element to crumbs
     for (let i = 0, j = elements.length - 1; i < j; i++) {
-        const expression = elements[i].substring(1, elements[i].length - 1);
-        const fields = expression.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
+        const fields = elements[i].match(/^\((\w+)\s+(\S+)\s+'(.*)'\)$/);
         if (fields !== null && fields.length === 4) {
             crumbEl.appendChild(createSearchCrumb(fields[1], fields[2], unescapeMPD(fields[3])));
         }
     }
-    if (searchEl.value === '' && elements.length >= 1) {
-        const lastEl = elements[elements.length - 1].substring(1, elements[elements.length - 1].length - 1);
-        const lastElValue = lastEl.substring(lastEl.indexOf('\'') + 1, lastEl.length - 1);
-        if (searchEl.value !== lastElValue) {
-            const fields = lastEl.match(/^(\w+)\s+(\S+)\s+'(.*)'$/);
-            if (fields !== null && fields.length === 4) {
-                crumbEl.appendChild(createSearchCrumb(fields[1], fields[2], unescapeMPD(fields[3])));
-            }
+    //check if we should add the last element to the crumbs
+    if (searchEl.value === '' &&
+        elements.length >= 1)
+    {
+        const fields = elements[elements.length - 1].match(/^\((\w+)\s+(\S+)\s+'(.*)'\)$/);
+        if (fields !== null && fields.length === 4) {
+            crumbEl.appendChild(createSearchCrumb(fields[1], fields[2], unescapeMPD(fields[3])));
         }
     }
     crumbEl.childElementCount > 0 ? elShow(crumbEl) : elHide(crumbEl);
 }
 
+/**
+ * Creates a search crumb element
+ * @param {string} filter the tag
+ * @param {string} op search operator
+ * @param {string} value filter value
+ * @returns {HTMLElement} search crumb element
+ */
 function createSearchCrumb(filter, op, value) {
     const btn = elCreateNodes('button', {"class": ["btn", "btn-dark", "me-2"]}, [
         document.createTextNode(filter + ' ' + op + ' \'' + value + '\''),
@@ -1299,19 +393,42 @@ function createSearchCrumb(filter, op, value) {
     return btn;
 }
 
+/**
+ * Creates a MPD search expression
+ * @param {string} tag tag to search
+ * @param {string} op search operator
+ * @param {string} value value to search
+ * @returns {string} the search expression in parenthesis
+ */
 function _createSearchExpression(tag, op, value) {
     if (op === 'starts_with' &&
-        app.id !== 'BrowseDatabaseList')
+        app.id !== 'BrowseDatabaseList' &&
+        features.featStartsWith === false)
     {
         //mpd does not support starts_with, convert it to regex
-        op = '=~';
-        value = '^' + value;
+        if (features.featPcre === true) {
+            //regex is supported
+            op = '=~';
+            value = '^' + value;
+        }
+        else {
+            //best option without starts_with and regex is contains
+            op = 'contains';
+        }
     }
     return '(' + tag + ' ' + op + ' ' +
         (op === '>=' ? value : '\'' + escapeMPD(value) + '\'') +
         ')';
 }
 
+/**
+ * Creates the MPD search expression from crumbs and parameters
+ * @param {HTMLElement} crumbsEl crumbs container element
+ * @param {string} tag tag to search
+ * @param {string} op search operator
+ * @param {string} value value to search
+ * @returns {string} the search expression in parenthesis
+ */
 function createSearchExpression(crumbsEl, tag, op, value) {
     let expression = '(';
     const crumbs = crumbsEl.children;
@@ -1338,132 +455,35 @@ function createSearchExpression(crumbsEl, tag, op, value) {
     return expression;
 }
 
-function printBrowseLink(el, tag, values) {
-    if (settings.tagListBrowse.includes(tag)) {
-        for (const value of values) {
-            const link = elCreateText('a', {"href": "#"}, value);
-            setData(link, 'tag', tag);
-            setData(link, 'name', value);
-            link.addEventListener('click', function(event) {
-                event.preventDefault();
-                gotoBrowse(event);
-            }, false);
-            el.appendChild(link);
-            el.appendChild(elCreateEmpty('br', {}));
-        }
-    }
-    else {
-        el.appendChild(printValue(tag, values));
-    }
-}
-
-function printValue(key, value) {
-    if (value === undefined || value === null || value === '') {
-        return document.createTextNode('-');
-    }
-    switch(key) {
-        case 'Type':
-            switch(value) {
-                case 'song':     return elCreateText('span', {"class": ["mi"]}, 'music_note');
-                case 'smartpls': return elCreateText('span', {"class": ["mi"]}, 'queue_music');
-                case 'plist':    return elCreateText('span', {"class": ["mi"]}, 'list');
-                case 'dir':      return elCreateText('span', {"class": ["mi"]}, 'folder_open');
-                case 'stream':	 return elCreateText('span', {"class": ["mi"]}, 'stream');
-                case 'webradio': return elCreateText('span', {"class": ["mi"]}, 'radio');
-                default:         return elCreateText('span', {"class": ["mi"]}, 'radio_button_unchecked');
-            }
-        case 'Duration':
-            return document.createTextNode(beautifySongDuration(value));
-        case 'AudioFormat':
-            return document.createTextNode(value.bits + tn('bits') + smallSpace + nDash + smallSpace + value.sampleRate / 1000 + tn('kHz'));
-        case 'Pos':
-            //mpd is 0-indexed but humans wants 1-indexed lists
-            return document.createTextNode(value + 1);
-        case 'LastModified':
-        case 'LastPlayed':
-        case 'stickerLastPlayed':
-        case 'stickerLastSkipped':
-            return document.createTextNode(value === 0 ? tn('never') : localeDate(value));
-        case 'stickerLike':
-            return elCreateText('span', {"class": ["mi"]},
-                value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up');
-        case 'Artist':
-        case 'ArtistSort':
-        case 'AlbumArtist':
-        case 'AlbumArtistSort':
-        case 'Composer':
-        case 'ComposerSort':
-        case 'Performer':
-        case 'Conductor':
-        case 'Ensemble':
-        case 'MUSICBRAINZ_ARTISTID':
-        case 'MUSICBRAINZ_ALBUMARTISTID': {
-            //multi value tags - print one line per value
-            const span = elCreateEmpty('span', {});
-            for (let i = 0, j = value.length; i < j; i++) {
-                if (i > 0) {
-                    span.appendChild(elCreateEmpty('br', {}));
-                }
-                if (key.indexOf('MUSICBRAINZ') === 0) {
-                    span.appendChild(getMBtagLink(key, value[i]));
-                }
-                else {
-                    span.appendChild(document.createTextNode(value[i]));
-                }
-            }
-            return span;
-        }
-        case 'Genre':
-            //multi value tags - print comma separated
-            if (typeof value === 'string') {
-                return document.createTextNode(value);
-            }
-            return document.createTextNode(
-                value.join(', ')
-            );
-        case 'tags':
-            //radiobrowser.info
-            return document.createTextNode(
-                value.replace(/,(\S)/g, ', $1')
-            );
-        case 'homepage':
-        case 'Homepage':
-            //webradios
-            if (value === '') {
-                return document.createTextNode(value);
-            }
-            return elCreateText('a', {"class": ["text-success", "external"],
-                "href": myEncodeURIhost(value), "target": "_blank"}, value);
-        case 'lastcheckok':
-            //radiobrowser.info
-            return elCreateText('span', {"class": ["mi"]},
-                (value === 1 ? 'check_circle' : 'error')
-            );
-        case 'Bitrate':
-            return document.createTextNode(value + ' ' + tn('kbit'));
-        default:
-            if (key.indexOf('MUSICBRAINZ') === 0) {
-                return getMBtagLink(key, value);
-            }
-            else {
-                return document.createTextNode(value);
-            }
-    }
-}
-
+/**
+ * Gets a unix timestamp
+ * @returns {number} the unix timestamp
+ */
 function getTimestamp() {
     return Math.floor(Date.now() / 1000);
 }
 
+/**
+ * Toggles the collapse indicator
+ * @param {HTMLElement} el arrow element to toggle
+ */
 function toggleCollapseArrow(el) {
-    const icon = el.getElementsByTagName('span')[0];
+    const icon = el.querySelector('span');
     icon.textContent = icon.textContent === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
 }
 
-function ucFirst(string) {
-    return string[0].toUpperCase() + string.slice(1);
+/**
+ * Uppercases the first letter
+ * @param {string} str string to change
+ * @returns {string} changed string
+ */
+function ucFirst(str) {
+    return str[0].toUpperCase() + str.slice(1);
 }
 
+/**
+ * Go's into fullscreen mode
+ */
 //eslint-disable-next-line no-unused-vars
 function openFullscreen() {
     const elem = document.documentElement;
@@ -1484,134 +504,10 @@ function openFullscreen() {
     }
 }
 
-//eslint-disable-next-line no-unused-vars
-function clearCovercache() {
-    sendAPI("MYMPD_API_COVERCACHE_CLEAR", {});
-}
-
-//eslint-disable-next-line no-unused-vars
-function cropCovercache() {
-    sendAPI("MYMPD_API_COVERCACHE_CROP", {});
-}
-
-//eslint-disable-next-line no-unused-vars
-function zoomPicture(el) {
-    if (el.classList.contains('booklet')) {
-        window.open(getData(el, 'href'));
-        return;
-    }
-
-    if (el.classList.contains('carousel')) {
-        let images;
-        let embeddedImageCount;
-        const dataImages = getData(el, 'images');
-        if (dataImages !== undefined) {
-            images = dataImages.slice();
-            embeddedImageCount = getData(el, 'embeddedImageCount');
-        }
-        else if (currentSongObj.images) {
-            images = currentSongObj.images.slice();
-            embeddedImageCount = currentSongObj.embeddedImageCount;
-        }
-        else {
-            return;
-        }
-
-        const uri = getData(el, 'uri');
-        const imgEl = document.getElementById('modalPictureImg');
-        imgEl.style.paddingTop = 0;
-        createImgCarousel(imgEl, 'picsCarousel', uri, images, embeddedImageCount);
-        elHideId('modalPictureZoom');
-        uiElements.modalPicture.show();
-        return;
-    }
-
-    if (el.style.backgroundImage !== '') {
-        const imgEl = document.getElementById('modalPictureImg');
-        elClear(imgEl);
-        imgEl.style.paddingTop = '100%';
-        imgEl.style.backgroundImage = el.style.backgroundImage;
-        elShowId('modalPictureZoom');
-        uiElements.modalPicture.show();
-    }
-}
-
-//eslint-disable-next-line no-unused-vars
-function zoomZoomPicture() {
-    window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
-}
-
-function createImgCarousel(imgEl, name, uri, images, embeddedImageCount) {
-    //embedded albumart
-    if (embeddedImageCount === 0) {
-        //enforce first coverimage
-        embeddedImageCount++;
-    }
-    const aImages = [];
-    for (let i = 0; i < embeddedImageCount; i++) {
-        aImages.push(subdir + '/albumart?offset=' + i + '&uri=' + myEncodeURIComponent(uri));
-    }
-    //add all but coverfiles to image list
-    for (let i = 0, j = images.length; i < j; i++) {
-        if (isCoverfile(images[i]) === false) {
-            aImages.push(subdir + myEncodeURI(images[i]));
-        }
-    }
-    _createImgCarousel(imgEl, name, aImages);
-}
-
-function _createImgCarousel(imgEl, name, images) {
-    const nrImages = images.length;
-    const carousel = elCreateEmpty('div', {"id": name, "class": ["carousel", "slide"], "data-bs-ride": "carousel"});
-    if (nrImages > 1) {
-        const carouselIndicators = elCreateEmpty('div', {"class": ["carousel-indicators"]});
-        for (let i = 0; i < nrImages; i++) {
-            carouselIndicators.appendChild(elCreateEmpty('button', {"type": "button", "data-bs-target": "#" + name, "data-bs-slide-to": i}));
-            if (i === 0) {
-                carouselIndicators.lastChild.classList.add('active');
-            }
-        }
-        carousel.appendChild(carouselIndicators);
-    }
-    const carouselInner = elCreateEmpty('div', {"class": ["carousel-inner"]});
-    for (let i = 0; i < nrImages; i++) {
-        const carouselItem = elCreateNode('div', {"class": ["carousel-item"]},
-            elCreateEmpty('div', {})
-        );
-
-        carouselItem.style.backgroundImage = 'url("' + images[i] + '")';
-        carouselInner.appendChild(carouselItem);
-        if (i === 0) {
-            carouselItem.classList.add('active');
-        }
-    }
-    carousel.appendChild(carouselInner);
-    if (nrImages > 1) {
-        carousel.appendChild(
-            elCreateNode('a', {"href": "#" + name, "data-bs-slide": "prev", "class": ["carousel-control-prev"]},
-                elCreateEmpty('span', {"class": ["carousel-control-prev-icon"]})
-            )
-        );
-        carousel.appendChild(
-            elCreateNode('a', {"href": "#" + name, "data-bs-slide": "next", "class": ["carousel-control-next"]},
-                elCreateEmpty('span', {"class": ["carousel-control-next-icon"]})
-            )
-        );
-    }
-
-    elClear(imgEl);
-    imgEl.appendChild(carousel);
-    uiElements.albumartCarousel = new BSN.Carousel(carousel, {
-        interval: false,
-        pause: false
-    });
-}
-
-//eslint-disable-next-line no-unused-vars
-function showModal(modal) {
-    uiElements[modal].show();
-}
-
+/**
+ * Checks for support of the media session api
+ * @returns {boolean} true if media session api is supported, else false
+ */
 function checkMediaSessionSupport() {
     if (settings.mediaSession === false ||
         navigator.mediaSession === undefined)
@@ -1621,30 +517,18 @@ function checkMediaSessionSupport() {
     return true;
 }
 
-function checkTagValue(tag, value) {
-    if (typeof tag === 'string') {
-        return tag === value;
-    }
-    return tag[0] === value;
-}
-
+/**
+ * Converts a string to a boolean
+ * @param {string} str string to parse
+ * @returns {boolean} the boolean value
+ */
 function strToBool(str) {
     return str === 'true';
 }
 
-function getParent(el, nodeName) {
-    let target = el;
-    let i = 0;
-    while (target.nodeName !== nodeName) {
-        i++;
-        if (i > 10) {
-            return null;
-        }
-        target = target.parentNode;
-    }
-    return target;
-}
-
+/**
+ * Removes the search timer
+ */
 function clearSearchTimer() {
     if (searchTimer !== null) {
         clearTimeout(searchTimer);
@@ -1652,7 +536,11 @@ function clearSearchTimer() {
     }
 }
 
-//cuesheet handling
+/**
+ * Returns the cuesheet name
+ * @param {string} uri uri to check
+ * @returns {string} the uri part
+ */
 function cuesheetUri(uri) {
     const cuesheet = uri.match(/^(.*\.cue)\/(track\d+)$/);
     if (cuesheet !== null) {
@@ -1661,6 +549,11 @@ function cuesheetUri(uri) {
     return uri;
 }
 
+/**
+ * Returns the cuesheet track name
+ * @param {string} uri uri to check
+ * @returns {string} the track part
+ */
 function cuesheetTrack(uri) {
     const cuesheet = uri.match(/^(.*\.cue)\/(track\d+)$/);
     if (cuesheet !== null) {
@@ -1669,47 +562,67 @@ function cuesheetTrack(uri) {
     return '';
 }
 
+/**
+ * Sets the viewport tag scaling option
+ */
 function setViewport() {
     document.querySelector("meta[name=viewport]").setAttribute('content', 'width=device-width, initial-scale=' +
         localSettings.scaleRatio + ', maximum-scale=' + localSettings.scaleRatio);
 }
 
+/**
+ * Sets the height of the container for scrolling
+ * @param {HTMLElement} container scrolling container element
+ */
 function setScrollViewHeight(container) {
     if (userAgentData.isMobile === true) {
+        //no scrolling container in the mobile view
         container.parentNode.style.maxHeight = '';
         return;
     }
-    const footerHeight = document.getElementsByTagName('footer')[0].offsetHeight;
+    const footerHeight = domCache.footer.offsetHeight;
     const tpos = getYpos(container.parentNode);
     const maxHeight = window.innerHeight - tpos - footerHeight;
     container.parentNode.style.maxHeight = maxHeight + 'px';
 }
 
+/**
+ * Enables the mobile view for specific user agents
+ */
 function setMobileView() {
     if (userAgentData.isMobile === true) {
         setViewport();
         domCache.body.classList.remove('not-mobile');
+        domCache.body.classList.add('mobile');
     }
     else {
+        domCache.body.classList.remove('mobile');
         domCache.body.classList.add('not-mobile');
     }
 }
 
+/**
+ * Generic http get request
+ * @param {string} uri uri for the request
+ * @param {Function} callback callback function
+ * @param {boolean} json true = parses the response as json, else pass the plain text response
+ */
 function httpGet(uri, callback, json) {
     const ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('GET', uri, true);
     ajaxRequest.onreadystatechange = function() {
         if (ajaxRequest.readyState === 4) {
             if (json === true) {
+                let obj = {};
                 try {
-                    const obj = JSON.parse(ajaxRequest.responseText);
-                    callback(obj);
+                    obj = JSON.parse(ajaxRequest.responseText);
                 }
                 catch(error) {
-                    showNotification(tn('Can not parse response to json object'), '', 'general', 'error');
-                    logError('Can not parse response to json object:' + ajaxRequest.responseText);
+                    showNotification(tn('Can not parse response from %{uri} to json object', {"uri": uri}), '', 'general', 'error');
+                    logError('Can not parse response from ' + uri + ' to json object.');
                     logError(error);
                 }
+                callback(obj);
             }
             else {
                 callback(ajaxRequest.responseText);

@@ -179,7 +179,7 @@ sds sds_catchar(sds s, const char c) {
  * "dst" must be a pointer to a allocated sds string.
  * @param src string to unescape
  * @param slen string length to unescape
- * @param dst pointer to sds string to append the unsecaped string
+ * @param dst pointer to sds string to append the unescaped string
  * @return true on success, false on error
  */
 bool sds_json_unescape(const char *src, size_t slen, sds *dst) {

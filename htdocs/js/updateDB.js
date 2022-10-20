@@ -3,6 +3,24 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
+/** @module updateDB_js */
+
+/**
+ * Initialization function for the update database elements
+ */
+function initUpdateDB() {
+    document.getElementById('modalUpdateDB').addEventListener('hidden.bs.modal', function() {
+        document.getElementById('updateDBprogress').classList.remove('updateDBprogressAnimate');
+    }, false);
+}
+
+/**
+ * Updates or rescans the database
+ * @param {string} uri baseuri
+ * @param {boolean} showUpdateModal true = open db update modal
+ * @param {boolean} showUpdateNotification true = show update notification
+ * @param {boolean} rescan true = rescan, false = update
+ */
 //eslint-disable-next-line no-unused-vars
 function updateDB(uri, showUpdateModal, showUpdateNotification, rescan) {
     const method = rescan === true ? "MYMPD_API_DATABASE_RESCAN" : "MYMPD_API_DATABASE_UPDATE";
@@ -16,6 +34,11 @@ function updateDB(uri, showUpdateModal, showUpdateNotification, rescan) {
     }, true);
 }
 
+/**
+ * Update database error handler
+ * @param {boolean} showUpdateModal true = open db update modal
+ * @param {string} message the error message
+ */
 function updateDBerror(showUpdateModal, message) {
     const msg = tn('Database update failed') + ': ' + tn(message);
     if (showUpdateModal === true) {
@@ -33,6 +56,11 @@ function updateDBerror(showUpdateModal, message) {
     showNotification(msg, '', 'database', 'error');
 }
 
+/**
+ * Update database started handler
+ * @param {boolean} showUpdateModal true = open db update modal
+ * @param {boolean} showUpdateNotification true = show update notification
+ */
 function updateDBstarted(showUpdateModal, showUpdateNotification) {
     if (showUpdateModal === true) {
         elClearId('updateDBfinished');
@@ -51,6 +79,10 @@ function updateDBstarted(showUpdateModal, showUpdateNotification) {
     }
 }
 
+/**
+ * Wrapper for update database finished handler that checks for an already opened modal
+ * @param {string} idleEvent mpd idle event
+ */
 function updateDBfinished(idleEvent) {
     if (document.getElementById('modalUpdateDB').classList.contains('show')) {
         _updateDBfinished(idleEvent);
@@ -63,6 +95,10 @@ function updateDBfinished(idleEvent) {
     }
 }
 
+/**
+ * Update database finished handler
+ * @param {string} idleEvent mpd idle event
+ */
 function _updateDBfinished(idleEvent) {
     //spinner in mounts modal
     const el = document.getElementById('spinnerUpdateProgress');

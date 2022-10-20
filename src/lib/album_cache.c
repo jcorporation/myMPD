@@ -26,7 +26,7 @@
  */
 
 /**
- * Contructs the albumkey from song info
+ * Constructs the albumkey from song info
  * @param song mpd song struct
  * @param albumkey sds string replaced by the key
  * @return pointer to albumkey

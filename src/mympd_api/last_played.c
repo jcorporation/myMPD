@@ -249,7 +249,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
 /**
  * Gets the song and searches for searchstr and prints it as json object
  * @param partition_state pointer to partition state
- * @param buffer alreay allocated buffer to append the result
+ * @param buffer already allocated buffer to append the result
  * @param entity_count position in the list
  * @param last_played songs last played time as unix timestamp
  * @param uri uri of the song

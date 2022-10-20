@@ -98,7 +98,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 
 //default mympd state settings
 #define MYMPD_MUSIC_DIRECTORY "auto"
-#define MYMPD_PLAYLIST_DIRECTORY "/var/lib/mpd/playlists"
+#define MYMPD_PLAYLIST_DIRECTORY "auto"
 #define MYMPD_JUKEBOX_PLAYLIST "Database"
 #define MYMPD_JUKEBOX_UNIQUE_TAG MPD_TAG_ARTIST
 #define MYMPD_JUKEBOX_LAST_PLAYED 24 //hours
@@ -246,7 +246,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define JSONRPC_KEY_MAX 50
 
 //some other limits
-#define TIMER_INTERVAL_MIN 5 //5 seconds
+#define TIMER_INTERVAL_MIN 5 //seconds
 #define TIMER_INTERVAL_MAX 7257600 //12 weeks
 #define COVERCACHE_AGE_MIN 0 //days
 #define COVERCACHE_AGE_MAX 365 //days
@@ -258,6 +258,9 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define VOLUME_STEP_MAX 25 //prct
 #define JUKEBOX_MODE_MIN 0
 #define JUKEBOX_MODE_MAX 2
+#define SCROBBLE_TIME_MIN 10 //minimum song length in seconds for the scrobble event
+#define SCROBBLE_TIME_MAX 240 //maximum elapsed seconds before scrobble event occurs
+#define SCROBBLE_TIME_TOTAL 480
 
 //limits for lists
 #define LIST_HOME_ICONS_MAX 99

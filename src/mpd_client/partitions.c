@@ -75,7 +75,7 @@ bool partitions_populate(struct t_mympd_state *mympd_state) {
         list_clear(&mpd_partitions);
         return false;
     }
-    //remove obsolet partitions
+    //remove obsolete partitions
     //skip default partition (first entry)
     struct t_partition_state *current = mympd_state->partition_state->next;
     struct t_partition_state *previous = mympd_state->partition_state;

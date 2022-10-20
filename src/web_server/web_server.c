@@ -322,7 +322,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
 
 /**
  * Matches the acl against the client ip and
- * sends an error repsonse / drains the connection if acl is not matched
+ * sends an error response / drains the connection if acl is not matched
  * @param nc mongoose connection
  * @param acl acl string to check
  * @return true if acl matches, else false
@@ -384,7 +384,7 @@ static bool check_conn_limit(struct mg_connection *nc, int connection_count) {
  */
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     //connection specific data structure
-    struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)fn_data;
+    struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *) fn_data;
     //mongoose user data
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     struct t_config *config = mg_user_data->config;
@@ -403,6 +403,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             break;
         }
         case MG_EV_ACCEPT:
+            if (loglevel == LOG_DEBUG) {
+                char buf[INET6_ADDRSTRLEN];
+                mg_straddr(&nc->rem, buf, INET6_ADDRSTRLEN);
+                MYMPD_LOG_DEBUG("New connection id \"%lu\" from %s, connections: %d", nc->id, buf, mg_user_data->connection_count);
+            }
             //ssl support
             #ifdef ENABLE_SSL
             if (config->ssl == true) {
@@ -421,11 +426,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             //check acl
             if (check_acl(nc, config->acl) == false) {
                 break;
-            }
-            if (loglevel == LOG_DEBUG) {
-                char buf[INET6_ADDRSTRLEN];
-                mg_straddr(&nc->rem, buf, INET6_ADDRSTRLEN);
-                MYMPD_LOG_DEBUG("New connection id \"%lu\" from %s, connections: %d", nc->id, buf, mg_user_data->connection_count);
             }
             break;
         case MG_EV_WS_MSG: {

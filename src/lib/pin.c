@@ -66,13 +66,7 @@ bool pin_set(sds workdir) {
         return false;
     }
 
-    sds hex_hash;
-    if (sdslen(pin) == 0) {
-        hex_hash = sdsempty();
-    }
-    else {
-        hex_hash = pin_hash(pin);
-    }
+    sds hex_hash = sdslen(pin) == 0 ? sdsempty() : pin_hash(pin);
     bool rc = state_file_write(workdir, "config", "pin_hash", hex_hash);
     FREE_SDS(hex_hash);
 

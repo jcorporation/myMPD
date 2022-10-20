@@ -66,7 +66,7 @@ You can check the translation files manually. The build process shows all missin
 ./build.sh translate
 ```
 
-Debug builds should use the new translation after a successfull build.
+Debug builds should use the new translation after a successful build.
 
 **To include it in a release build**
 - add it to `src/web_server/embedded_files.c`

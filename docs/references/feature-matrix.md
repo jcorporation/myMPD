@@ -10,10 +10,14 @@ myMPD support only MPD 0.21.0 and above.
 
 | MYMPD FEATURE | MPD FEATURE | MPD VERSION | DESCRIPTION |
 | ------------- | ----------- | ----------- | ----------- |
+| starts_with filter expression | | 0.24.0 | |
+| Autodetection of pcre support | | 0.24.0 | |
+| Autoconfiguration of playlist directory | | 0.24.0 | |
+| Consume OneShot | | 0.24.0 | |
 | Advanced queue search |  | 0.24.0 | sort/window arg and prio filter for playlistsearch |
 | Add after current song | position/whence arg for load/searchadd | 0.23.5 | |
 | Insert into playlist | position arg for playlistadd | 0.23.5 | |
 | Remove range in playlist | range arg for playlistdelete | 0.23.3 | |
-| Partitions | Partition | 0.22.0 | |
-| Embedded albumart| Readpicture | 0.22.0 | myMPD can read pictures tags directly if it has access to the musicdirectory |
+| Partitions | | 0.22.0 | |
+| Embedded albumart| readpicture | 0.22.0 | myMPD can read pictures tags directly if it has access to the musicdirectory |
 {: .table .table-sm }

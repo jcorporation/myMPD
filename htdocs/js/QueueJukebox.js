@@ -3,11 +3,35 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-function initJukebox() {
+/** @module QueueJukebox_js */
+
+/**
+ * QueueJukebox handler
+ */
+function handleQueueJukebox() {
+    setFocusId('searchQueueJukeboxStr');
+    sendAPI("MYMPD_API_JUKEBOX_LIST", {
+        "offset": app.current.offset,
+        "limit": app.current.limit,
+        "cols": settings.colsQueueJukeboxFetch,
+        "searchstr": app.current.search
+    }, parseJukeboxList, true);
+    const searchQueueJukeboxStrEl = document.getElementById('searchQueueJukeboxStr');
+    if (searchQueueJukeboxStrEl.value === '' &&
+        app.current.search !== '')
+    {
+        searchQueueJukeboxStrEl.value = app.current.search;
+    }
+}
+
+/**
+ * Initializes the jukebox related elements
+ */
+function initQueueJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'TD') {
             if (settings.partition.jukeboxMode === 'song') {
-                clickSong(getData(event.target.parentNode, 'uri'), getData(event.target.parentNode, 'name'));
+                clickSong(getData(event.target.parentNode, 'uri'));
             }
             else if (settings.partition.jukeboxMode === 'album') {
                 clickAlbumPlay(getData(event.target.parentNode, 'AlbumArtist'), getData(event.target.parentNode, 'Album'));
@@ -32,6 +56,9 @@ function initJukebox() {
     }, false);
 }
 
+/**
+ * Clears the jukebox queue
+ */
 //eslint-disable-next-line no-unused-vars
 function clearJukeboxQueue() {
     sendAPI("MYMPD_API_JUKEBOX_CLEAR", {}, function() {
@@ -40,10 +67,14 @@ function clearJukeboxQueue() {
             "limit": app.current.limit,
             "cols": settings.colsQueueJukeboxFetch,
             "searchstr": app.current.search
-        }, parseJukeboxList);
-    });
+        }, parseJukeboxList, false);
+    }, false);
 }
 
+/**
+ * Removes a song / album from the jukebox queue
+ * @param {number} pos position
+ */
 //eslint-disable-next-line no-unused-vars
 function delQueueJukeboxSong(pos) {
     sendAPI("MYMPD_API_JUKEBOX_RM", {
@@ -54,10 +85,14 @@ function delQueueJukeboxSong(pos) {
             "limit": app.current.limit,
             "cols": settings.colsQueueJukeboxFetch,
             "searchstr": app.current.search
-        }, parseJukeboxList);
-    });
+        }, parseJukeboxList, false);
+    }, false);
 }
 
+/**
+ * Parses the response from MYMPD_API_JUKEBOX_LIST
+ * @param {object} obj jsonrpc response
+ */
 function parseJukeboxList(obj) {
     if (checkResultId(obj, 'QueueJukeboxList') === false) {
         if (obj.result !== undefined) {

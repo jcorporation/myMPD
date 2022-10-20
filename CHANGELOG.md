@@ -4,12 +4,27 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v10.0.4 (not yet released)
+## myMPD v10.1.0 (not yet released)
 
-This is a small bug fix release.
+This minor release adds support of new MPD 0.24 features. The javascript frontend is now documented with jsDoc and linted with the typescript compiler.
 
 ### Changelog
 
+- Feat: autoconfiguration for playlist_directory (MPD 0.24) #836
+- Feat: support consume oneshot (MPD 0.24) #837
+- Feat: autoconfiguration for pcre support (MPD 0.24) #843
+- Feat: support starts_with filter expression (MPD 0.24) #843
+- Feat: support queue save modes (MPD 0.24) #848
+- Feat: add elapsed sticker to save recent position from songs #781
+- Feat: jsDoc compatible API documentation and linting with typescript compiler
+- Feat: add view action to default radio click actions
+- Feat: add "Add to" button to filesystem root #860 
+- Upd: libmympdclient 1.0.15
+- Upd: refactor translation framework
+- Upd: en-US, de-DE translations
+- Upd: Bootstrap 5.2.2
+- Upd: parse mpd bitrate #855
+- Upd: italian translation, thanks @DoDiesis
 - Fix: language name in Japanese #854
 
 ***
@@ -63,7 +78,7 @@ This is a small bug fix release.
 
 This major release adds concurrent MPD partition support to myMPD. myMPD connects now to all MPD partitions simultaneously and holds partition specific states and settings. Each browser instance can now select the MPD partition to control.
 
-The partition feature should be used with MPD 0.23.9 or newer. There are some anoying partition related bugs in earlier MPD versions.
+The partition feature should be used with MPD 0.23.9 or newer. There are some annoying partition related bugs in earlier MPD versions.
 
 The syntax of the last_played file has changed. You can convert it with
 `sed -r 's/^(.*)::(.*)/{"LastPlayed":\1,"uri":"\2"}/g' /var/lib/mympd/state/last_played > /var/lib/mympd/state/default/last_played_list`
@@ -109,7 +124,7 @@ Many thanks to all translators!
 ### Changelog
 
 - Upd: fr-FR, nl-NL, zh-CN (#833) translations
-- Fix: allow empty smartpls prefix #830
+- Fix: allow empty smart playlist prefix #830
 - Fix: default fallback to en-US #830
 - Fix: serving zh-CN locale #830
 
@@ -167,7 +182,7 @@ This release removes the compatibility code for MPD versions older than 0.21.
 - Feat: album view lists albums without AlbumArtist tags again #791
 - Feat: fetch ligatures and i18n json only on demand
 - Upd: remove compatibility code for MPD 0.20 and lower
-- Upd: rename some API methodes for consistency
+- Upd: rename some API methods for consistency
 - Upd: covercache expiry time is now a config setting (removed from GUI)
 - Upd: improve many internal functions and there api
 - Upd: add doxygen style internal api documentation
@@ -293,7 +308,7 @@ This release adds many small improvements and starts the integration of MusicBra
 - Feat: add shell script to download and manage albumart
 - Feat: new quick play and remove action #749
 - Upd: mobile ux enhancements #748 #752
-- Upd: remove obsolet headers #733
+- Upd: remove obsolete headers #733
 - Upd: responsive design enhancements for covers and playback card
 - Fix: compilation with gentoo #731
 - Fix: set crossorigin="use-credentials" for webmanifest #739
@@ -420,7 +435,7 @@ This is a small maintenance release.
 
 This release adds the webradio feature and some other small enhancements and updates.
 
-You can now manage your own webradio favorites and browse the databases of my WebradioDB project and the popular RadioBrowser.
+You can now manage your own webradio favorites and browse the databases of my webradioDB project and the popular RadioBrowser.
 
 myMPD now supports also extended m3u playlists and can list the contents of playlists saved in the music directory.
 
@@ -430,7 +445,7 @@ The central folder for images has been replaced by individual folders by image t
 
 - Feat: webradio favorites #502
 - Feat: search radio-browser.info for webradios #502
-- Feat: integration of my new webradiodb project #502
+- Feat: integration of my new webradioDB project #502
 - Feat: list playlist contents from filesystem
 - Feat: support of extended m3u playlistinfo #650
 - Feat: support of mixrampdb
@@ -598,7 +613,7 @@ This is a small bug fix release.
 - Upd: documentation for nginx as reverse proxy
 - Upd: OpenSSL 3.0 compatibility
 - Upd: add sds_urldecode unit test
-- Fix: anoying js error in navbar event handler #574
+- Fix: annoying js error in navbar event handler #574
 - Fix: parser error in parsing internal timer script actions #575
 - Fix: duplicate content in timer script list
 - Fix: compile issues with Debian 9
@@ -642,7 +657,7 @@ This release adds pin protection for all settings dialogs and enhances the valid
 - Upd: change license to GPLv3
 - Upd: improve handling of empty smart playlists
 - Upd: renamed some api methods
-- Upd: rework C include strategie
+- Upd: rework C include strategy
 - Upd: rearrange source tree
 - Upd: improve cmake dependency messages
 - Fix: respect connection: close header #551
@@ -912,7 +927,7 @@ This release fixes some bugs, enhances the build script and packaging and fixes 
 
 ## myMPD v6.11.0 (2021-01-30)
 
-This is a small release that improves the overall usability of myMPD. The bigest change is the new backend for the albumgrid. It should be faster and displays now also incomplete albums without track#1 or disc#1.
+This is a small release that improves the overall usability of myMPD. The biggest change is the new backend for the albumgrid. It should be faster and displays now also incomplete albums without track#1 or disc#1.
 
 myMPD now supports right click and long touch to open context menus and you can set some default actions in the advanced settings.
 
@@ -940,7 +955,7 @@ This myMPD version ships many small enhancements and some bugfixes. One of the b
 
 ### Changelog
 
-- Feat: support syncronized lyrics #262, [Documentation](https://github.com/jcorporation/myMPD/wiki/Lyrics)
+- Feat: support synchronized lyrics #262, [Documentation](https://github.com/jcorporation/myMPD/wiki/Lyrics)
 - Feat: improve pagination #346
 - Feat: add italian translation, thanks @roberto
 - Feat: show queue and playlists length and total play time in table footer
@@ -1041,7 +1056,7 @@ Further new features are the support for multiple tag values, multidisc albums a
 - Feat: show extra pictures and booklet in album view, filesystem and playback view
 - Feat: docker images based on Alpine for aarch64 and amd64 platforms, thanks to @niawag #333
 - Feat: view jukebox queue
-- Feat: customizeable navbar icons #352
+- Feat: customizable navbar icons #352
 - Feat: add fr-FR translation, thanks to @niawag #353
 - Upd: KO translation, thanks to @parkmino #341
 - Upd: NL translation, thanks to @pinkdotnl #349
@@ -1092,7 +1107,7 @@ This is a small maintenance release.
 ## myMPD v6.6.0 (2020-08-28)
 
 This release improves the scripting capabilities of myMPD further. Triggers can now be defined to execute scripts on events, e.g. song change.
-I am not so familiar with Lua, but for my new project myMPDos I want write some scripts to enhance myMPD. The system commands feature is now deprectated and will be removed in one of the next versions.
+I am not so familiar with Lua, but for my new project myMPDos I want write some scripts to enhance myMPD. The system commands feature is now deprecated and will be removed in one of the next versions.
 
 The second new feature is the beginning support for MPD partitions (usable only with MPD 0.22.x). Now you can fully manage this partitions. In the next release the support will be enhanced (#304).
 
@@ -1401,7 +1416,7 @@ This is a small maintenance release.
 ## Changelog
 
 - Feat: display fileformat, filetype and duration in playback card #180
-- Feat: dispay filetype in songdetails dialog #180
+- Feat: display filetype in songdetails dialog #180
 - Feat: add configurable step for volume change, defaults to 5%
 - Feat: reload and Clear function in advanced settings
 - Fix: close http connection after error response
@@ -1499,7 +1514,7 @@ This minor release supports now table and popup menu navigation through the keyb
 - Feat: embedded document root for release build
   - gzip compressed files
 - Feat: new splash screen
-- Fix: better table formating #143 #148
+- Fix: better table formatting #143 #148
 - Fix: close popup menus if associated row is replaced
 - Fix: prettier keyboard shortcuts help
 - Fix: more resource friendly last_played implementation
@@ -1779,12 +1794,12 @@ This release uses detection of mpd features and many new configuration options t
 
 - Feat: add settings for coverimages, localplayer, streamurl, searchtaglist, browsetaglist, syscmds #70
 - Feat: disable playlists and browse database feature if not enabled in mpd #68 #69
-- Feat: configureable columns in all song views #47
+- Feat: configurable columns in all song views #47
 - Feat: reworked view of albums
 - Feat: add ability to define and execute system commands, e.g. reboot and shutdown
 - Fix: use AlbumArtist tag only if it found in enabled tags #69
 - Fix: link uri in song details only if mpd music_directory is linked
-- Fix: hidding of popover menus
+- Fix: hiding of popover menus
 - Fix: some memory free errors
 
 ***
@@ -1828,7 +1843,7 @@ Installing this release resets all myMPD state settings.
 - Feat: improve state store
 - Fix: filename check in save dialogs #61
 - Fix: encoding of special characters in popover #60
-- Fix: popover eventhandling
+- Fix: popover event handling
 - Fix: calculate correct websocket url if connected by ip
 
 ***
@@ -1860,7 +1875,7 @@ In jukebox mode, myMPD adds random songs from database or selected playlist to t
 
 - Feat: jukebox mode #37
 - Feat: configuration option for used tags in ui #52
-- Fix: don't add redundant eventhandler on popovers
+- Fix: don't add redundant event handler on popovers
 - Fix: don't hide "connection error"
 - Fix: check if document root exists
 - Fix: allow websocket connections only to /ws

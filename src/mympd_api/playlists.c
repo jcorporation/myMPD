@@ -271,7 +271,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
 }
 
 /**
- * Rename the mpd playlists and the correspodending myMPD smart playlist
+ * Rename the mpd playlists and the corresponding myMPD smart playlist
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id

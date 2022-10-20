@@ -68,7 +68,7 @@ static const char *image_file_extensions[] = {
     NULL};
 
 /**
- * Finds the first image with basefilename by trying out extentions
+ * Finds the first image with basefilename by trying out extensions
  * @param basefilename basefilename to append extensions
  * @return pointer to basefilename
  */
@@ -140,7 +140,7 @@ void webserver_send_data(struct mg_connection *nc, const char *data, size_t len,
 }
 
 /**
- * Sends a 301 moved permamently header
+ * Sends a 301 moved permanently header
  * @param nc mongoose connection
  * @param location destination for the redirect
  */

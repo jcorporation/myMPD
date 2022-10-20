@@ -92,7 +92,7 @@ sds mympd_api_get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const c
  * @param mpd_state pointer to the shared mpd state
  * @param uri song uri to get extra media for
  * @param booklet_path pointer to sds to populate with the booklet path
- * @param images pointer to already alocated list
+ * @param images pointer to already allocated list
  * @param is_dirname true if uri is a directory, else false
  */
 static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds *booklet_path, struct t_list *images, bool is_dirname) {

@@ -1,176 +1,201 @@
-Artist
-ArtistSort
+Add after current playing song
+Add to favorites
 Album
-AlbumSort
 AlbumArtist
 AlbumArtistSort
-Title
-Track
-Name
-Genre
-Date
-Composer
-Performer
-Work
-Grouping
+Album details
+AlbumSort
+App
+Artist
+ArtistSort
+AudioFormat
+Authentication required
+Browse
+Browser default
+Browser has no MediaSession support
+Click album play button
+clickcount
+Click filesystem playlist
+Click folder
+Click playlist
+Click quick play button
+Click song
+Click song in queue
+Click webradio
+Click webradio favorite
+Color
 Comment
-Disc
-Label
+Composer
+ComposerSort
 Conductor
+country
+CSS filter
+Dark
+Date
+Default
+Default image
+Default image dark
+Default image light
+Delete home icon
+Delete playlist
+Delete webradio favorite
+Description
+Disable consume mode
+Disable random
+Disable repeat
+Disable single mode
+Disable single oneshot
+Disc
+Display tags in rows for small displays
+Duplicate home icon
+Duration
+Each 1
+Each 3600
+Each 60
+Each 604800
+Each 86400
+Edit attributes
+Edit playlist
+Edit smart playlist
+Enable consume mode
+Enable consume oneshot
+Enable random
+Enable repeat
+Enable single mode
+Enable single oneshot
+Ensemble
+Error executing script %{script}
+Error executing script %{script}: Can not open or read script file
+Error executing script %{script}: Error in garbage collector
+Error executing script %{script}: Error while running the message handler
+Error executing script %{script}: Memory allocation error
+Error executing script %{script}: Runtime error
+Error executing script %{script}: Syntax error during precompilation
+Error getting mympd state for script execution
+External link
+Facilities
+Fileformat
+Filetype
+Filter
+Fingerprint
+Genre
+Grouping
+Highlight color
+Home
+homepage
+Image
+Info
+Invalid response
+Jukebox Queue
+Label
+language
+lastchangetime
+lastcheckok
+LastModified
+LastPlayed
+Last played list count
+Light
+Location
+Lua is not compiled in
+Media session
+Movement
+MovementNumber
+mpd_database
+MPD does not support mounts
+MPD does not support partitions
+mpd_message
+mpd_mixer
+mpd_mount
+mpd_neighbor
+mpd_options
+mpd_output
+mpd_partition
+mpd_player
+mpd_queue
+mpd_sticker
+mpd_stored_playlist
+mpd_subscription
 MUSICBRAINZ_ALBUMARTISTID
 MUSICBRAINZ_ALBUMID
 MUSICBRAINZ_ARTISTID
 MUSICBRAINZ_RELEASETRACKID
 MUSICBRAINZ_TRACKID
 MUSICBRAINZ_WORKID
-ComposerSort
-Ensemble
-Movement
-MovementNumber
-Location
-Type
-Pos
-Fileformat
-Duration
-Dark
-Default
-Light
-search
+mympd_connected
+mympd_disconnected
+mympd_feedback
+mympd_scrobble
+mympd_start
+mympd_stop
+name
+Name
 newest
-sticker
-Info
-Error executing script %{script}: Syntax error during precompilation
-Error executing script %{script}: Memory allocation error
-Error executing script %{script}: Error in garbage collector
-Error executing script %{script}: Can not open or read script file
-Error executing script %{script}: Runtime error
-Error executing script %{script}: Error while running the message handler
-Error executing script %{script}
-Browse
-Home
-App
-Filter
-Offset
-Sort
-Tab
-Open parent folder
-Click album play button
-Click folder
-Click playlist
-Click song in queue
-Click filesystem playlist
-Click song
-Click webradio
-Click webradio favorite
-Click quick play button
-Play
 Num entries
-Song change
-Use ligature
-Show playback settings in footer
-LastPlayed
-stickerPlayCount
-stickerSkipCount
-stickerLastPlayed
-stickerLastSkipped
-stickerLike
-Playback controls
+Offset
+On page notifications
+Open directory
+Open folder
+Open parent folder
 pause and stop
 pause only
-stop only
-Facilities
-Default image
-Default image dark
-Default image light
-Browser default
-Highlight color
-Media session
-On page notifications
-Web notifications
-Open folder
-Thumbnail size
-CSS filter
-Color
-Error getting mympd state for script execution
-MPD does not support partitions
-Lua is not compiled in
-MPD does not support mounts
-Volume max.
-Volume min.
-Volume step
-Synced lyrics extension
-Synced lyrics vorbis comment
-Unsynced lyrics extension
-Unsynced lyrics vorbis comment
-Last played list count
-Reset to default
-Image
-Authentication required
-Priority
-Add after current playing song
-Replace queue with playlist
-Delete home icon
-Delete playlist
-Duplicate home icon
-Edit playlist
-Edit smart playlist
+Performer
+Play
 Play after current playing song
+Playback controls
+plugin
+Pos
+Priority
+Quick play button
+Quick remove button
 Remove
 Remove all downwards
 Remove all upwards
-Rescan directory
-Update directory
-View playlist
-Set priority
-Album details
-Too many results, list is cropped
-AudioFormat
-Filetype
-Fingerprint
-LastModified
-Each 1
-Each 3600
-Each 60
-Each 604800
-Each 86400
-Show all albums from artist
-Open directory
-name
-state
-plugin
-Repeat current song once
 Repeat current song
-Stop playback after current song
-Disable single mode
+Repeat current song once
+Replace queue with playlist
+Rescan directory
+Reset to default
+Scripting
+search
+Set priority
 Show
-View
-Add to favorites
-Delete webradio favorite
-Description
-clickcount
-country
-homepage
-language
-lastchangetime
-lastcheckok
-tags
-url_resolved
-votes
-Jukebox Queue
+Show all albums from artist
+Show attributes
+Show playback settings in footer
+Song change
+Sort
 Startup
 Startup view
-Display tags in rows for small displays
-Enable consume
-Disable consume
-Enable random
-Disable random
-Enable repeat
-Disable repeat
-Enable single oneshot
-Disable single oneshot
-Enable single mode
-Disable single mode
-Invalid response
-Quick play button
-Quick remove button
-External link
+state
+sticker
+stickerElapsed
+stickerLastPlayed
+stickerLastSkipped
+stickerLike
+stickerPlayCount
+stickerSkipCount
+stop only
+Stop playback after current song
+Stream
+Synced lyrics extension
+Synced lyrics vorbis comment
+Tab
+tags
+Thumbnail size
+Title
+Too many results, list is cropped
+Track
+Type
+Unsynced lyrics extension
+Unsynced lyrics vorbis comment
+Update directory
+url_resolved
+Use ligature
+View
+View playlist
+Volume max.
+Volume min.
+Volume step
+votes
+Web notifications
+Work

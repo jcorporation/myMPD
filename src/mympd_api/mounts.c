@@ -16,7 +16,7 @@
 /**
  * Prints the list of mounted mpd uris as jsonrpc response
  * @param partition_state pointer to partition state
- * @param buffer alreay allocated sds string to append the response
+ * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @return pointer to buffer
  */
@@ -62,7 +62,7 @@ sds mympd_api_mounts_list(struct t_partition_state *partition_state, sds buffer,
 /**
  * Prints the list of url handlers as jsonrpc response
  * @param partition_state pointer to partition state
- * @param buffer alreay allocated sds string to append the response
+ * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @return pointer to buffer
  */
@@ -101,7 +101,7 @@ sds mympd_api_mounts_urlhandler_list(struct t_partition_state *partition_state, 
 /**
  * Prints the list of neighbors as jsonrpc response
  * @param partition_state pointer to partition state
- * @param buffer alreay allocated sds string to append the response
+ * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
  * @return pointer to buffer
  */

@@ -21,7 +21,8 @@
 /**
  * Connects to mpd and sets initial connection settings
  * @param partition_state pointer to partition state
- * @return true on success else false
+ * @param detect_feat true = run feature detection, else not
+ * @return true on success, else false
  */
 bool mpd_client_connect(struct t_partition_state *partition_state, bool detect_feat) {
     if (partition_state->mpd_state->mpd_host[0] == '/') {
@@ -142,17 +143,12 @@ bool mpd_client_set_connection_options(struct t_partition_state *partition_state
 }
 
 /**
- * Disconnects from MPD, send notification and execute triggers
+ * Disconnects from MPD, sends a notification and execute triggers
  * @param partition_state pointer to partition state
  * @param new_conn_state new connection state
  */
 void mpd_client_disconnect(struct t_partition_state *partition_state, enum mpd_conn_states new_conn_state) {
-    if (partition_state->conn != NULL) {
-        MYMPD_LOG_INFO("\"%s\": Disconnecting from mpd", partition_state->name);
-        mpd_connection_free(partition_state->conn);
-    }
-    partition_state->conn = NULL;
-    partition_state->conn_state = new_conn_state;
+    mpd_client_disconnect_silent(partition_state, new_conn_state);
     send_jsonrpc_event(JSONRPC_EVENT_MPD_DISCONNECTED, partition_state->name);
     mympd_api_trigger_execute(&partition_state->mympd_state->trigger_list, TRIGGER_MYMPD_DISCONNECTED, partition_state->name);
 }

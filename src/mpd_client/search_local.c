@@ -34,7 +34,7 @@ enum search_operators {
 };
 
 /**
- * Struct to hold a parsed search expression trible
+ * Struct to hold a parsed search expression triple
  */
 struct t_search_expression {
     int tag;                   //!< tag to search in
