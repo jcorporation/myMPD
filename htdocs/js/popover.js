@@ -82,7 +82,6 @@ function showPopover(event) {
             case 'NavbarBrowse':
                 //navbar icons
                 popoverInit = createPopoverSimple(target, target.getAttribute('title'), addMenuItemsNavbarActions);
-                popoverInit.options.placement = getXpos(target) < 100 ? 'right' : 'bottom';
                 break;
             case 'home':
                 //home card actions
@@ -154,6 +153,13 @@ function createPopoverInit(el, title, bodyTemplate) {
         case 'columns':
         case 'Action':
             options.placement = 'left';
+            break;
+        case 'NavbarPlayback':
+        case 'NavbarQueue':
+        case 'NavbarBrowse':
+            // @ts-ignore
+            options.placement = getXpos(el) < 100 ? 'right' : 'bottom';
+            break;
     }
 
     return new BSN.Popover(el, options);
