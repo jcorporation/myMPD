@@ -23,10 +23,10 @@ struct mg_client_request_t {
  * Defines a http response
  */
 struct mg_client_response_t {
-    int rc;       //!< return code, 0 = success
-    sds response; //!< full http response
-    sds header;   //!< response header
-    sds body;     //!< response body
+    int rc;            //!< return code, 0 = success
+    int response_code; //!< http response code
+    sds header;        //!< response header
+    sds body;          //!< response body
 };
 
 sds get_dnsserver(void);

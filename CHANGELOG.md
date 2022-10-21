@@ -18,13 +18,14 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 - Feat: add elapsed sticker to save recent position from songs #781
 - Feat: jsDoc compatible API documentation and linting with typescript compiler
 - Feat: add view action to default radio click actions
-- Feat: add "Add to" button to filesystem root #860 
+- Feat: add "Add to" button to filesystem root #860
 - Upd: libmympdclient 1.0.15
 - Upd: refactor translation framework
 - Upd: en-US, de-DE translations
 - Upd: Bootstrap 5.2.2
 - Upd: parse mpd bitrate #855
 - Upd: italian translation, thanks @DoDiesis
+- Upd: improve integrated http client
 - Fix: language name in japanese #854
 
 ***

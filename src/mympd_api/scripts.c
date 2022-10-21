@@ -758,7 +758,7 @@ static int lua_http_client(lua_State *lua_vm) {
 
     struct mg_client_response_t mg_client_response = {
         .rc = -1,
-        .response = sdsempty(),
+        .response_code = 0,
         .header = sdsempty(),
         .body = sdsempty()
     };
@@ -766,10 +766,9 @@ static int lua_http_client(lua_State *lua_vm) {
     http_client_request(&mg_client_request, &mg_client_response);
 
     lua_pushinteger(lua_vm, mg_client_response.rc);
-    lua_pushlstring(lua_vm, mg_client_response.response, sdslen(mg_client_response.response));
+    lua_pushinteger(lua_vm, mg_client_response.response_code);
     lua_pushlstring(lua_vm, mg_client_response.header, sdslen(mg_client_response.header));
     lua_pushlstring(lua_vm, mg_client_response.body, sdslen(mg_client_response.body));
-    FREE_SDS(mg_client_response.response);
     FREE_SDS(mg_client_response.header);
     FREE_SDS(mg_client_response.body);
     return 4;

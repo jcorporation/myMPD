@@ -26,7 +26,7 @@ else
 end
 
 if uri ~= "" then
-  rc, response, header, body = mympd_api_http_client("POST", uri, headers, payload)
+  rc, code, header, body = mympd_api_http_client("POST", uri, headers, payload)
   if rc > 0 then
     return body
   end

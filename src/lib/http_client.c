@@ -13,6 +13,7 @@
 #include "sds_extras.h"
 
 #include <errno.h>
+#include <inttypes.h>
 
 /**
  * Private definitions
@@ -170,23 +171,12 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
             mg_client_response->header = sdscatlen(mg_client_response->header, hm->headers[i].value.ptr, hm->headers[i].value.len);
             mg_client_response->header = sdscatlen(mg_client_response->header, "\n", 1);
         }
-        //response code line
-        for (unsigned i = 0; i < hm->message.len; i++) {
-            if (hm->message.ptr[i] == '\n') {
-                break;
-            }
-            if (isprint(hm->message.ptr[i])) {
-                mg_client_response->response = sds_catchar(mg_client_response->response, hm->message.ptr[i]);
-            }
-        }
+        //http response code
+        mg_client_response->response_code = (int)mg_to64(hm->uri);
         //set response code
-        if (strncmp("HTTP/1.1 200", mg_client_response->response, 12) == 0) {;
-            mg_client_response->rc = 0;
-        }
-        else {
-            mg_client_response->rc = 1;
-        }
-        MYMPD_LOG_DEBUG("HTTP client received response \"%s\"", mg_client_response->response);
+        mg_client_response->rc =  mg_client_response->response_code == 200 ? 0: 1;
+
+        MYMPD_LOG_DEBUG("HTTP client response code \"%d\"", mg_client_response->response_code);
         MYMPD_LOG_DEBUG("HTTP client received body \"%s\"", mg_client_response->body);
         //Tell mongoose to close this connection
         nc->is_closing = 1;

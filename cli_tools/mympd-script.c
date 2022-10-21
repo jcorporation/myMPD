@@ -92,16 +92,15 @@ int main(int argc, char **argv) {
 
     struct mg_client_response_t response = {
         .rc = -1,
-        .response = sdsempty(),
+        .response_code = 0,
         .header = sdsempty(),
         .body = sdsempty()
     };
 
     http_client_request(&request, &response);
-    puts(response.response);
+    printf("Response code: %d\n\n", response.response_code);
     puts(response.body);
 
-    sdsfree(response.response);
     sdsfree(response.header);
     sdsfree(response.body);
     sdsfree(uri);

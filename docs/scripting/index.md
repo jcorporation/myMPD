@@ -48,8 +48,15 @@ This lua command executes an http request.
 - payload: body of a post request
 
 ```
-rc, response, header, body = mympd_api_http_client(method, uri, headers, payload)
+rc, code, header, body = mympd_api_http_client(method, uri, headers, payload)
 ```
+
+| FIELD | DESCRIPTION |
+| ----- | ----------- |
+| rc | 0 = success, 1 = error|
+| code | http response code, e.g. 200 |
+| header | http headers |
+| body | http body |
 
 ## Lua manual
 
