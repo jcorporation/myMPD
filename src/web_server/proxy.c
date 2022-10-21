@@ -5,10 +5,14 @@
 */
 
 #include "compile_time.h"
+#include "dist/mongoose/mongoose.h"
 #include "proxy.h"
 
+#include "../lib/config_def.h"
+#include "../lib/covercache.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
+#include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
 #include "utility.h"
 
@@ -149,7 +153,7 @@ struct mg_connection *create_backend_connection(struct mg_connection *nc, struct
  * @param ev_data mongoose ev_data (not used)
  * @param fn_data mongoose fn_data (t_backend_nc_data)
  */
-void forward_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
+void forward_backend_to_frontend_stream(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
     (void) ev_data;
     struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)fn_data;
     switch(ev) {
@@ -166,6 +170,56 @@ void forward_backend_to_frontend(struct mg_connection *nc, int ev, void *ev_data
             }
             mg_iobuf_del(&nc->recv, 0, nc->recv.len);
             break;
+        case MG_EV_CLOSE: {
+            handle_backend_close(nc, backend_nc_data);
+            break;
+        }
+    }
+}
+
+/**
+ * Gets images from the backend, caches and forwards the response
+ * @param nc mongoose backend connection
+ * @param ev mongoose event
+ * @param ev_data mongoose ev_data (not used)
+ * @param fn_data mongoose fn_data (t_backend_nc_data)
+ */
+void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, void *ev_data, void *fn_data) {
+    struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)fn_data;
+    switch(ev) {
+        case MG_EV_CONNECT: {
+            send_backend_request(nc, fn_data);
+            break;
+        }
+        case MG_EV_ERROR: {
+            MYMPD_LOG_ERROR("HTTP connection \"%lu\" failed", nc->id);
+            break;
+        }
+        case MG_EV_HTTP_MSG: {
+            struct mg_http_message *hm = (struct mg_http_message *) ev_data;
+            if (backend_nc_data->frontend_nc != NULL) {
+                if (mg_vcmp(&hm->uri, "200") == 0) {
+                    //cache the image
+                    sds binary = sdsnewlen(hm->body.ptr, hm->body.len);
+                    const char *mime_type = get_mime_type_by_magic_stream(binary);
+                    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
+                    struct t_config *config = mg_user_data->config;
+                    covercache_write_file(config->cachedir, backend_nc_data->uri, mime_type, binary, 0);
+                    FREE_SDS(binary);
+                    //send to frontend
+                    sds headers = sdscatfmt(sdsempty(), "%s"
+                        "Content-Type: %s\r\n",
+                        EXTRA_HEADERS_IMAGE,
+                        mime_type);
+                    webserver_send_data(backend_nc_data->frontend_nc, hm->body.ptr, hm->body.len, headers);
+                    FREE_SDS(headers);
+                }
+                else {
+                    webserver_serve_na_image(backend_nc_data->frontend_nc);
+                }
+            }
+            break;
+        }
         case MG_EV_CLOSE: {
             handle_backend_close(nc, backend_nc_data);
             break;

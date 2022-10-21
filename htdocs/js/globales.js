@@ -883,7 +883,7 @@ uiElements.collapseJukeboxMode = BSN.Collapse.getInstance(document.getElementByI
 const LUAfunctions = {
     "mympd_api_http_client": {
         "desc": "HTTP client",
-        "func": "rc, response, header, body = mympd_api_http_client(method, uri, headers, payload)"
+        "func": "rc, code, header, body = mympd_api_http_client(method, uri, headers, payload)"
     },
     "mympd.init": {
         "desc": "Initializes the mympd_state lua table",

@@ -170,6 +170,9 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define EXTRA_HEADERS_SAFE_CACHE EXTRA_HEADERS_SAFE\
     EXTRA_HEADERS_CACHE
 
+#define EXTRA_HEADERS_IMAGE EXTRA_HEADERS_MISC\
+    EXTRA_HEADERS_CACHE
+
 #define EXTRA_HEADER_CONTENT_ENCODING "Content-Encoding: gzip\r\n"
 
 #define DIRECTORY_LISTING_CSS "h1{top:0;font-size:inherit;font-weight:inherit}address{bottom:0;font-style:normal}"\

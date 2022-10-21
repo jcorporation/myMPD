@@ -421,7 +421,7 @@ function parseRadioFavoritesList(obj) {
         }
         else {
             image = isHttpUri(obj.result.data[i].Image) === true ?
-                obj.result.data[i].Image :
+                subdir + '/albumart?offset=0&uri=' + obj.result.data[i].StreamUri :
                 subdir + '/browse/pics/thumbs/' + obj.result.data[i].Image;
         }
         setData(card, 'image', image);
