@@ -98,7 +98,6 @@ int main(int argc, char **argv) {
     };
 
     http_client_request(&request, &response);
-    printf("Response code: %d\n\n", response.response_code);
     puts(response.body);
 
     sdsfree(response.header);
