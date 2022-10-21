@@ -18,13 +18,14 @@ cmake_minimum_required(VERSION 3.4)
 message("Cmake version: ${CMAKE_VERSION}")
 
 #available options
-option(EMBEDDED_ASSETS "Embeds assets in binary, default ON" ON)
-option(ENABLE_FLAC "Enables flac usage, default ON" ON)
-option(ENABLE_IPV6 "Enables IPv6, default ON" ON)
-option(ENABLE_LUA "Enables lua usage, default ON" ON)
-option(ENABLE_LIBASAN "Enables build with libasan, default OFF" OFF)
-option(ENABLE_LIBID3TAG "Enables libid3tag usage, default ON" ON)
-option(ENABLE_SSL "Enables OpenSSL usage, default ON" ON)
+option(EMBEDDED_ASSETS "Embeds assets in binary, default ON" "ON")
+option(ENABLE_FLAC "Enables flac usage, default ON" "ON")
+option(ENABLE_IPV6 "Enables IPv6, default ON" "ON")
+option(ENABLE_LUA "Enables lua usage, default ON" "ON")
+option(ENABLE_LIBASAN "Enables build with libasan, default OFF" "OFF")
+option(ENABLE_LIBID3TAG "Enables libid3tag usage, default ON" "ON")
+option(ENABLE_SSL "Enables OpenSSL usage, default ON" "ON")
+option(STRIP_BINARY "Enables stripping of the release binary, default ON" "ON")
 
 #cmake modules
 include(GNUInstallDirs)
@@ -264,12 +265,19 @@ foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection" 
 endforeach()
 
 #set debug/release flags
-if(CMAKE_BUILD_TYPE MATCHES RELEASE)
+if(CMAKE_BUILD_TYPE MATCHES "RELEASE")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -fPIE")
-  set (CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro,-z,now,--gc-sections -pie -s")
+  set(CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro,-z,now,--gc-sections -pie")
+  if(STRIP_BINARY MATCHES "ON")
+    message("Generating stripped binary")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")
+  else()
+    message("Generating binary with debug symbols")
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
+  endif()
 else()
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb -Og")
-  set (CMAKE_EXE_LINKER_FLAGS "")
+  set(CMAKE_EXE_LINKER_FLAGS "")
 endif()
 
 #set source files

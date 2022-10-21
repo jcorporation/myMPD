@@ -9,7 +9,7 @@ build-indep: build
 
 build:
 	./build.sh createassets
-	cd $(BUILDDIR); cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
+	cd $(BUILDDIR); cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE -DSTRIP_BINARY=OFF ..
 	make -C $(BUILDDIR)
 
 binary: binary-indep binary-arch
@@ -24,6 +24,7 @@ binary-arch:
 	echo 10 > debian/compat
 	dh_makeshlibs
 	dh_shlibdeps
+	dh_strip
 	dh_gencontrol
 	dh_builddeb
 

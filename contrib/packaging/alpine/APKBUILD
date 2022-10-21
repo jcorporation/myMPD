@@ -15,6 +15,7 @@ license="GPL-3.0-or-later"
 depends="libid3tag flac openssl lua5.4 pcre2"
 makedepends="cmake perl gzip jq libid3tag-dev flac-dev openssl-dev linux-headers lua5.4-dev pcre2-dev"
 install="$pkgname.pre-install $pkgname.post-install"
+subpackages="$pkgname-dbg"
 source="mympd_$pkgver.orig.tar.gz"
 builddir="$srcdir"
 options="!check"
@@ -25,7 +26,7 @@ build() {
 	./build.sh createassets
 	cd release || exit 1
 	export MANPAGES="OFF"
-	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
+	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE -DSTRIP_BINARY=OFF ..
 	make
 }
 

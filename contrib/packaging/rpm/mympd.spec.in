@@ -26,12 +26,12 @@ BuildRequires:  gzip
 BuildRequires:  jq
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 
-%global debug_package %{nil}
-
 %description
 myMPD is a standalone and lightweight web-based MPD client.
 It's tuned for minimal resource usage and requires only very few dependencies.
 Therefore myMPD is ideal for raspberry pis and similar devices.
+
+%debug_package
 
 %prep
 %setup -q -n %{name}-%{version}
@@ -39,7 +39,7 @@ Therefore myMPD is ideal for raspberry pis and similar devices.
 %build
 ./build.sh createassets
 cd release || exit 1
-cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
+cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE -DSTRIP_BINARY=OFF ..
 make
 
 %install

@@ -20,12 +20,13 @@ backup=()
 install=archlinux.install
 source=("mympd_${pkgver}.orig.tar.gz")
 sha256sums=('SKIP')
+options=(debug strip)
 
 build() {
   cd "${srcdir}" || exit 1
   ./build.sh createassets
   cd release || exit 1
-  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
+  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE -DSTRIP_BINARY=OFF ..
   make
 }
 

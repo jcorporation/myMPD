@@ -67,6 +67,11 @@ then
   export ENABLE_IPV6="ON"
 fi
 
+if [ -z "${STRIP_BINARY+x}" ]
+then
+  export STRIP_BINARY="ON"
+fi
+
 if [ -z "${EXTRA_CMAKE_OPTIONS+x}" ]
 then
   export EXTRA_CMAKE_OPTIONS=""
@@ -347,7 +352,8 @@ buildrelease() {
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
   	-DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
     -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
-    -DENABLE_IPV6="$ENABLE_IPV6" $EXTRA_CMAKE_OPTIONS ..
+    -DENABLE_IPV6="$ENABLE_IPV6" -DSTRIP_BINARY="$STRIP_BINARY" \
+    $EXTRA_CMAKE_OPTIONS ..
   make
 }
 
@@ -1601,6 +1607,7 @@ case "$ACTION" in
     echo "  - EXTRA_CMAKE_OPTIONS=\"\""
     echo "  - MANPAGES=\"ON\""
     echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
+    echo "  - STRIP_BINARY=\"\""
     echo ""
     exit 1
 	;;
