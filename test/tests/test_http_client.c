@@ -20,13 +20,12 @@ UTEST(http_client, test_http_client) {
 
     struct mg_client_response_t response = {
         .rc = -1,
-        .response = sdsempty(),
+        .response_code = 0,
         .header = sdsempty(),
         .body = sdsempty()
     };
 
     http_client_request(&request, &response);
-    sdsfree(response.response);
     sdsfree(response.header);
     sdsfree(response.body);
     ASSERT_EQ(0, response.rc);
