@@ -77,6 +77,7 @@ Compile time options are set through environment variables.
 | EXTRA_CMAKE_OPTIONS | | Extra options for cmake |
 | MANPAGES | ON | ON = build manpages |
 | MYMPD_INSTALL_PREFIX | /usr | Installation prefix for myMPD |
+| STRIP_BINARY | ON | release = ON, debug = OFF |
 {: .table .table-sm}
 
 There are three compile targets for myMPD.
