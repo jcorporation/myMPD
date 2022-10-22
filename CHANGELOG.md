@@ -19,7 +19,7 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 - Feat: jsDoc compatible API documentation and linting with typescript compiler
 - Feat: add view action to default radio click actions
 - Feat: add "Add to" button to filesystem root #860
-- Feat: cache coverimages for webradio favorites
+- Feat: cache coverimages for webradios
 - Feat: add STRIP_BINARY option to build
 - Feat: create debug packages for Alpine, Arch, Debian and RPM
 - Upd: libmympdclient 1.0.15
@@ -29,6 +29,7 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 - Upd: parse mpd bitrate #855
 - Upd: italian translation, thanks @DoDiesis
 - Upd: improve integrated http client
+- Upd: content-security-policy allows fetching images only from myMPD host
 - Fix: language name in japanese #854
 - Fix: mime type detection of special jpg images #864
 
