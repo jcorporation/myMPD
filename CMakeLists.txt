@@ -438,6 +438,10 @@ set(LIBMPDCLIENT_SOURCES
 #compiler flags for mongoose
 set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion")
 
+#compiler flags for mjson
+#clang15 warning
+set_property(SOURCE dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "-Wno-unused-but-set-variable")
+
 #compiler flags for rax
 #-Wno-use-after-free: gcc 12.0.1 error
 set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
