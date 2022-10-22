@@ -650,9 +650,14 @@ function setFeatures() {
 function applyFeatures() {
     //show or hide elements
     for (const feature in features) {
-        const els = document.querySelectorAll('.' + feature);
-        const displayValue = features[feature] === true ? '' : 'none';
-        for (const el of els) {
+        const featureEls = document.querySelectorAll('.' + feature);
+        let displayValue = features[feature] === true ? '' : 'none';
+        for (const el of featureEls) {
+            el.style.display = displayValue;
+        }
+        const notfeatureEls = document.querySelectorAll('.not' + feature);
+        displayValue = features[feature] === true ? 'none' : '';
+        for (const el of notfeatureEls) {
             el.style.display = displayValue;
         }
     }

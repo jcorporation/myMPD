@@ -1076,14 +1076,15 @@
                 <div id="bgFrm"></div>
                 <hr/>
                 <h4 data-phrase="Albumart"></h4>
-                <div class="mb-3 row">
+                <div class="alert alert-warning notfeatLibrary" data-phrase="Music directory not available"></div>
+                <div class="mb-3 row featLibrary">
                   <label class="col-sm-4 col-form-label" for="inputCoverimageNames" data-phrase="Filenames"></label>
                   <div class="col-sm-8 position-relative">
                     <input data-is="mympd-input-reset" id="inputCoverimageNames" class="form-control" placeholder="folder,cover"/>
                     <div class="invalid-feedback" data-phrase="Invalid filename"></div>
                   </div>
                 </div>
-                <div class="mb-3 row">
+                <div class="mb-3 row featLibrary">
                   <label class="col-sm-4 col-form-label" for="inputThumbnailNames" data-phrase="Thumbnail names"></label>
                   <div class="col-sm-8 position-relative">
                     <input data-is="mympd-input-reset" id="inputThumbnailNames" class="form-control" placeholder="folder-sm,cover-sm"/>
@@ -1091,7 +1092,7 @@
                   </div>
                 </div>
                 <div id="coverimageFrm"></div>
-                <div class="mb-3 row">
+                <div class="mb-3 row featLibrary">
                   <label class="col-sm-4 col-form-label" for="inputBookletName" data-phrase="Booklet filename"></label>
                   <div class="col-sm-8 position-relative">
                     <input data-is="mympd-input-reset" id="inputBookletName" class="form-control" placeholder="booklet.pdf"/>
@@ -1227,7 +1228,7 @@
                   </div>
                 </div>
                 <div class="collapse" id="collapseEnableLyrics"></div>
-                <div id="warnbtnEnableLyrics" class="alert alert-warning" data-phrase="Music directory not available"></div>
+                <div id="warnbtnEnableLyrics" class="alert alert-warning notfeatLibrary" data-phrase="Music directory not available"></div>
               </form>
               <hr/>
               <h4 data-phrase="Local playback"></h4>
