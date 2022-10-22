@@ -284,7 +284,6 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     unsigned total_time = 0;
-    long entity_count = 0;
     long entities_returned = 0;
     struct mpd_song *song;
     while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
@@ -294,7 +293,6 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
         buffer = print_queue_entry(partition_state, buffer, tagcols, song);
         total_time += mpd_song_get_duration(song);
         mpd_song_free(song);
-        entity_count++;
     }
 
     buffer = sdscatlen(buffer, "],", 2);
