@@ -30,6 +30,7 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 - Upd: italian translation, thanks @DoDiesis
 - Upd: improve integrated http client
 - Fix: language name in japanese #854
+- Fix: mime type detection of special jpg images #864
 
 ***
 

@@ -25,10 +25,8 @@ struct t_mime_type_entry {
 
 const struct t_mime_type_entry mime_entries[] = {
     {0, "89504E470D0A1A0A", "png",  "image/png"},
-    {0, "FFD8FFDB",         "jpg",  "image/jpeg"},
-    {0, "FFD8FFE0",         "jpeg", "image/jpeg"},
-    {0, "FFD8FFEE",         "jpeg", "image/jpeg"},
-    {0, "FFD8FFE1",         "jpeg", "image/jpeg"},
+    {0, "FFD8FF",           "jpg",  "image/jpeg"},
+    {0, "FFD8FF",           "jpeg", "image/jpeg"},
     {0, "52494646",         "webp", "image/webp"},
     {4, "667479706d696631", "avif", "image/avif"},
     {0, "494433",           "mp3",  "audio/mpeg"},
