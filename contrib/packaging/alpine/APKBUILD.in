@@ -26,7 +26,7 @@ build() {
 	./build.sh createassets
 	cd release || exit 1
 	export MANPAGES="OFF"
-	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE ..
+	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE -DSTRIP_BINARY=OFF ..
 	make
 }
 
