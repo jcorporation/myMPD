@@ -395,17 +395,8 @@ function parseRadioFavoritesList(obj) {
     }
     const rowTitle = tn(webuiSettingsDefault.clickRadioFavorites.validValues[settings.webuiSettings.clickRadioFavorites]);
     for (let i = 0; i < nrItems; i++) {
-        //id is used only to check if card should be refreshed
-        const id = genId('WebradioFavorite' + obj.result.data[i].filename);
-
-        if (cols[i] !== undefined &&
-            cols[i].firstChild.firstChild.getAttribute('id') === id)
-        {
-            continue;
-        }
-
         const card = elCreateNodes('div', {"data-popover": "webradio", "class": ["card", "card-grid", "clickable"], "tabindex": 0}, [
-            elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id, "title": rowTitle}),
+            elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "title": rowTitle}),
             elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "p-2"]}, [
                 document.createTextNode(obj.result.data[i].Name),
                 elCreateEmpty('br', {}),
@@ -421,8 +412,8 @@ function parseRadioFavoritesList(obj) {
         }
         else {
             image = isHttpUri(obj.result.data[i].Image) === true ?
-                subdir + '/albumart?offset=0&uri=' + obj.result.data[i].StreamUri :
-                subdir + '/browse/pics/thumbs/' + obj.result.data[i].Image;
+                '/albumart?offset=0&uri=' + myEncodeURI(obj.result.data[i].StreamUri) :
+                '/browse/pics/thumbs/' + myEncodeURI(obj.result.data[i].Image);
         }
         setData(card, 'image', image);
         setData(card, 'uri', obj.result.data[i].filename);
@@ -448,7 +439,7 @@ function parseRadioFavoritesList(obj) {
             observer.observe(col);
         }
         else {
-            col.firstChild.firstChild.style.backgroundImage = myEncodeURIhost(image);
+            col.firstChild.firstChild.style.backgroundImage = subdir + image;
         }
     }
     for (let i = cols.length - 1; i >= nrItems; i--) {

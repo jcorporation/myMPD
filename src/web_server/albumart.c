@@ -155,6 +155,7 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
                     return true;
                 }
                 if (sdslen(extimg) > 0) {
+                    //local coverfile
                     coverfile = sdscatfmt(sdsempty(), "%S/pics/thumbs/%S", config->workdir, extimg);
                 }
                 FREE_SDS(extimg);

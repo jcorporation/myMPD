@@ -285,9 +285,11 @@ function parseHomeIcons(obj) {
         setData(card, 'pos', i);
         const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
         if (obj.result.data[i].image !== '') {
-            cardBody.style.backgroundImage = isHttpUri(obj.result.data[i].image) === true ?
-                'url("' + myEncodeURIhost(obj.result.data[i].image) +'")' :
-                'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(obj.result.data[i].image) + '")';
+            cardBody.style.backgroundImage = isHttpUri(obj.result.data[i].image) === true
+                ? 'url("' + myEncodeURIhost(obj.result.data[i].image) +'")'
+                : obj.result.data[i].image.indexOf('/albumart') === 0
+                    ? 'url("' + subdir + obj.result.data[i].image + '")'
+                    : 'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(obj.result.data[i].image) + '")';
         }
         if (obj.result.data[i].bgcolor !== '') {
             cardBody.style.backgroundColor = obj.result.data[i].bgcolor;
