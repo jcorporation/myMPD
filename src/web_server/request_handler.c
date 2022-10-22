@@ -244,7 +244,7 @@ void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
     if (sdslen(query) > 4 &&
         strncmp(query, "uri=", 4) == 0)
     {
-        //remove &uri=
+        //remove uri=
         sdsrange(query, 4, -1);
         //decode uri
         uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
@@ -278,7 +278,7 @@ void request_handler_proxy_covercache(struct mg_connection *nc, struct mg_http_m
     if (sdslen(query) > 4 &&
         strncmp(query, "uri=", 4) == 0)
     {
-        //remove &uri=
+        //remove uri=
         sdsrange(query, 4, -1);
         //decode uri
         uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
