@@ -554,6 +554,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 //Makes a get request to the defined uri and returns the response
                 request_handler_proxy(nc, hm, frontend_nc_data->backend_nc);
             }
+            else if (mg_http_match_uri(hm, "/proxy-covercache") == true) {
+                //Makes a get request to the defined uri and caches and returns the response
+                request_handler_proxy_covercache(nc, hm, frontend_nc_data->backend_nc);
+            }
             else if (mg_http_match_uri(hm, "/serverinfo") == true) {
                 request_handler_serverinfo(nc);
             }

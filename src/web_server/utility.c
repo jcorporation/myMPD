@@ -7,9 +7,11 @@
 #include "compile_time.h"
 #include "utility.h"
 
+#include "../lib/config_def.h"
 #include "../lib/filehandler.h"
 #include "../lib/log.h"
 #include "../lib/mem.h"
+#include "../lib/mimetype.h"
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 
@@ -57,6 +59,42 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     list_clear(&mg_user_data->session_list);
     FREE_PTR(mg_user_data);
     return NULL;
+}
+
+/**
+ * Checks the covercache and serves the image
+ * @param nc mongoose connection
+ * @param hm http message
+ * @param mg_user_data pointer to mongoose configuration
+ * @param uri_decoded image uri
+ * @param offset embedded image offset
+ * @return true if an image is served,
+ *         false if waiting for mpd_client to handle request
+ */
+bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
+        struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset)
+{
+    if (mg_user_data->config->covercache_keep_days > 0) {
+        sds filename = sds_hash(uri_decoded);
+        sds covercachefile = sdscatfmt(sdsempty(), "%S/covercache/%S-%i", mg_user_data->config->cachedir, filename, offset);
+        FREE_SDS(filename);
+        covercachefile = webserver_find_image_file(covercachefile);
+        if (sdslen(covercachefile) > 0) {
+            const char *mime_type = get_mime_type_by_ext(covercachefile);
+            MYMPD_LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
+            static struct mg_http_serve_opts s_http_server_opts;
+            s_http_server_opts.root_dir = mg_user_data->browse_directory;
+            s_http_server_opts.extra_headers = EXTRA_HEADERS_IMAGE;
+            s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
+            mg_http_serve_file(nc, hm, covercachefile, &s_http_server_opts);
+            webserver_handle_connection_close(nc);
+            FREE_SDS(covercachefile);
+            return true;
+        }
+        MYMPD_LOG_DEBUG("No covercache file found");
+        FREE_SDS(covercachefile);
+    }
+    return false;
 }
 
 /**

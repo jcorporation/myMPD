@@ -160,6 +160,9 @@ function gotoFilesystem(uri, type) {
                 if (isHttpUri(uri) === false) {
                     uri = subdir + uri;
                 }
+                else {
+                    uri = subdir + '/proxy-covercache?uri=' + myEncodeURI(uri);
+                }
                 body.style.backgroundImage = 'url("' + uri + '"),' +
                     'url("' + subdir + '/assets/coverimage-loading.svg")';
             }

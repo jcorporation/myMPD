@@ -636,8 +636,7 @@ function addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name) {
             addDivider(tabContent);
             if (app.id === 'BrowseRadioFavorites') {
                 let image = getData(dataNode, 'image');
-                if (isHttpUri(image) === false &&
-                    image.indexOf('/albumart') !== 0)
+                if (isHttpUri(image) === false)
                 {
                     image = basename(image, false);
                 }

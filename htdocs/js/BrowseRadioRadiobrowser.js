@@ -132,7 +132,7 @@ function parseRadiobrowserDetails(obj) {
     const result = obj.result.data[0];
     if (result.favicon !== '') {
         document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
-            'url("' + myEncodeURIhost(result.favicon) + '")' +
+            'url("' + subdir + '/proxy-covercache?uri=' + myEncodeURI(result.favicon) + '")' +
             ', url("' + subdir + '/assets/coverimage-loading.svg")';
     }
     else {

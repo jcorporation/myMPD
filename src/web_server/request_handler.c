@@ -265,6 +265,37 @@ void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
 }
 
 /**
+ * Request handler for proxy connections /proxy-covercache
+ * @param nc mongoose connection
+ * @param hm http body
+ * @param backend_nc mongoose backend connection
+ */
+void request_handler_proxy_covercache(struct mg_connection *nc, struct mg_http_message *hm,
+        struct mg_connection *backend_nc)
+{
+    sds query = sdsnewlen(hm->query.ptr, hm->query.len);
+    sds uri_decoded = sdsempty();
+    if (sdslen(query) > 4 &&
+        strncmp(query, "uri=", 4) == 0)
+    {
+        //remove &uri=
+        sdsrange(query, 4, -1);
+        //decode uri
+        uri_decoded = sds_urldecode(uri_decoded, query, sdslen(query), false);
+        struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *)nc->mgr->userdata;
+        if (check_covercache(nc, hm, mg_user_data, uri_decoded, 0) == false) {
+            create_backend_connection(nc, backend_nc, uri_decoded, forward_backend_to_frontend_covercache);
+        }
+    }
+    else {
+        webserver_send_error(nc, 400, "Invalid query parameter");
+        nc->is_draining = 1;
+    }
+    FREE_SDS(query);
+    FREE_SDS(uri_decoded);
+}
+
+/**
  * Request handler for /serverinfo
  * @param nc mongoose connection
  */

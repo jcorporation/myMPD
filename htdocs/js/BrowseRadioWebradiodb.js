@@ -324,7 +324,7 @@ function showWebradiodbDetails(uri) {
     const result = webradioDb.webradios[m3u];
     if (result.Image !== '') {
         document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
-            'url("' + myEncodeURIhost(webradioDbPicsUri + result.Image) + '")' +
+            'url("' + subdir + '/proxy-covercache?uri=' + myEncodeURI(webradioDbPicsUri + result.Image) + '")' +
             ', url("' + subdir + '/assets/coverimage-loading.svg")';
     }
     else {

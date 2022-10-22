@@ -412,7 +412,7 @@ function parseRadioFavoritesList(obj) {
         }
         else {
             image = isHttpUri(obj.result.data[i].Image) === true ?
-                '/albumart?offset=0&uri=' + myEncodeURI(obj.result.data[i].StreamUri) :
+                obj.result.data[i].Image :
                 '/browse/pics/thumbs/' + myEncodeURI(obj.result.data[i].Image);
         }
         setData(card, 'image', image);

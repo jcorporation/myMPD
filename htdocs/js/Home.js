@@ -66,7 +66,7 @@ function initHome() {
         if (value !== '') {
             document.getElementById('homeIconPreview').style.backgroundImage =
                 isHttpUri(value) === true ?
-                    'url("' + myEncodeURIhost(value)  + '")':
+                    'url("' + subdir + '/proxy-covercache?uri=' + myEncodeURI(value)  + '")':
                     'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(value)  + '")';
             elHideId('divHomeIconLigature');
             elClearId('homeIconPreview');
@@ -286,10 +286,8 @@ function parseHomeIcons(obj) {
         const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
         if (obj.result.data[i].image !== '') {
             cardBody.style.backgroundImage = isHttpUri(obj.result.data[i].image) === true
-                ? 'url("' + myEncodeURIhost(obj.result.data[i].image) +'")'
-                : obj.result.data[i].image.indexOf('/albumart') === 0
-                    ? 'url("' + subdir + obj.result.data[i].image + '")'
-                    : 'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(obj.result.data[i].image) + '")';
+                ? 'url("' + subdir + '/proxy-covercache?uri=' + myEncodeURI(obj.result.data[i].image) +'")'
+                : 'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(obj.result.data[i].image) + '")';
         }
         if (obj.result.data[i].bgcolor !== '') {
             cardBody.style.backgroundColor = obj.result.data[i].bgcolor;
@@ -704,7 +702,7 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
         elClear(homeIconPreviewEl);
         homeIconPreviewEl.style.backgroundImage =
             isHttpUri(image) === true ?
-                'url("' + myEncodeURIhost(image) +'")' :
+                'url("' + subdir + '/proxy-covercache?uri=' + myEncodeURI(image) +'")' :
                 'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(image) + '")';
         elHideId('divHomeIconLigature');
     }

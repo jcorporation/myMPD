@@ -17,6 +17,8 @@ void request_handler_browse(struct mg_connection *nc, struct mg_http_message *hm
         struct t_mg_user_data *mg_user_data);
 void request_handler_proxy(struct mg_connection *nc, struct mg_http_message *hm,
         struct mg_connection *backend_nc);
+void request_handler_proxy_covercache(struct mg_connection *nc, struct mg_http_message *hm,
+        struct mg_connection *backend_nc);
 void request_handler_serverinfo(struct mg_connection *nc);
 
 #ifdef ENABLE_SSL

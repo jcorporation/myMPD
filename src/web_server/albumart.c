@@ -34,8 +34,6 @@
 /**
  * Privat definitions
  */
-static bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset);
 static bool handle_coverextract(struct mg_connection *nc, sds cachedir, const char *uri, const char *media_file, bool covercache, int offset);
 static bool handle_coverextract_id3(sds cachedir, const char *uri, const char *media_file, sds *binary, bool covercache, int offset);
 static bool handle_coverextract_flac(sds cachedir, const char *uri, const char *media_file, sds *binary, bool is_ogg, bool covercache, int offset);
@@ -141,13 +139,11 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
             if (testfile_read(webradio_file) == true) {
                 sds extimg = m3u_get_field(sdsempty(), "#EXTIMG", webradio_file);
                 if (is_streamuri(extimg) == true) {
-                    //full uri
-                    //check covercache
-                    if (check_covercache(nc, hm, mg_user_data, extimg, offset) == false) {
-                        //proxy the request
-                        struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
-                        create_backend_connection(nc, frontend_nc_data->backend_nc, extimg, forward_backend_to_frontend_covercache);
-                    }
+                    //full uri, send redirect to covercache proxy
+                    sds redirect_uri = sdsnew("proxy-covercache?uri=");
+                    sds_urlencode(redirect_uri, uri_decoded, sdslen(uri_decoded));
+                    webserver_send_header_found(nc, redirect_uri);
+                    FREE_SDS(redirect_uri);
                     FREE_SDS(uri_decoded);
                     FREE_SDS(coverfile);
                     FREE_SDS(extimg);
@@ -295,42 +291,6 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
 /**
  * Private functions
  */
-
-/**
- * Checks the covercache and serves the image
- * @param nc mongoose connection
- * @param hm http message
- * @param mg_user_data pointer to mongoose configuration
- * @param uri_decoded image uri
- * @param offset embedded image offset
- * @return true if an image is served,
- *         false if waiting for mpd_client to handle request
- */
-static bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
-        struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset)
-{
-    if (mg_user_data->config->covercache_keep_days > 0) {
-        sds filename = sds_hash(uri_decoded);
-        sds covercachefile = sdscatfmt(sdsempty(), "%S/covercache/%S-%i", mg_user_data->config->cachedir, filename, offset);
-        FREE_SDS(filename);
-        covercachefile = webserver_find_image_file(covercachefile);
-        if (sdslen(covercachefile) > 0) {
-            const char *mime_type = get_mime_type_by_ext(covercachefile);
-            MYMPD_LOG_DEBUG("Serving file %s (%s)", covercachefile, mime_type);
-            static struct mg_http_serve_opts s_http_server_opts;
-            s_http_server_opts.root_dir = mg_user_data->browse_directory;
-            s_http_server_opts.extra_headers = EXTRA_HEADERS_IMAGE;
-            s_http_server_opts.mime_types = EXTRA_MIME_TYPES;
-            mg_http_serve_file(nc, hm, covercachefile, &s_http_server_opts);
-            webserver_handle_connection_close(nc);
-            FREE_SDS(covercachefile);
-            return true;
-        }
-        MYMPD_LOG_DEBUG("No covercache file found");
-        FREE_SDS(covercachefile);
-    }
-    return false;
-}
 
 /**
  * Extracts albumart from media files
