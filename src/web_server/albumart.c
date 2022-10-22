@@ -142,7 +142,7 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
                     //full uri, send redirect to covercache proxy
                     //use relative path to support hosting myMPD behind a reverse proxy in a subdir
                     sds redirect_uri = sdsnew("proxy-covercache?uri=");
-                    sds_urlencode(redirect_uri, extimg, sdslen(extimg));
+                    redirect_uri = sds_urlencode(redirect_uri, extimg, sdslen(extimg));
                     webserver_send_header_found(nc, redirect_uri);
                     FREE_SDS(redirect_uri);
                     FREE_SDS(uri_decoded);
