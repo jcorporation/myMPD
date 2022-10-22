@@ -154,17 +154,10 @@ function gotoFilesystem(uri, type) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);
-            let uri = getData(change.target.firstChild, 'image');
+            const uri = getData(change.target.firstChild, 'image');
             const body = change.target.firstChild.querySelector('.card-body');
             if (body) {
-                if (isHttpUri(uri) === false) {
-                    uri = subdir + uri;
-                }
-                else {
-                    uri = subdir + '/proxy-covercache?uri=' + myEncodeURI(uri);
-                }
-                body.style.backgroundImage = 'url("' + uri + '"),' +
-                    'url("' + subdir + '/assets/coverimage-loading.svg")';
+                body.style.backgroundImage = getCssImageUri(uri);
             }
         }
     });

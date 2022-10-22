@@ -250,10 +250,7 @@ function setPlaybackCardTags(songObj) {
                 elCreateNodes('div', {"class": ["col-xl-6"]}, [
                     elCreateTextTn('small', {}, 'Homepage'),
                     elCreateNode('p', {}, 
-                        elCreateText('a', {"class": ["text-success", "external"],
-                            "href": myEncodeURIhost(songObj.webradio.Homepage),
-                            "rel": "noreferrer",
-                            "target": "_blank"}, songObj.webradio.Homepage)
+                        printValue('homepage', songObj.webradio.Homepage)
                     )
                 ])
             );
@@ -265,7 +262,11 @@ function setPlaybackCardTags(songObj) {
                 elCreateNodes('div', {"class": ["col-xl-6"]}, [
                     elCreateTextTn('small', {}, 'Format'),
                     elCreateText('p', {}, songObj.webradio.Codec + 
-                        (songObj.webradio.Bitrate !== '' ? ' / ' + songObj.webradio.Bitrate + ' ' + tn('kbit') : ''))
+                        (songObj.webradio.Bitrate !== ''
+                            ? ' / ' + songObj.webradio.Bitrate + ' ' + tn('kbit')
+                            : ''
+                        )
+                    )
                 ])
             );
         }

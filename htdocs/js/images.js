@@ -6,6 +6,20 @@
 /** @module images_js */
 
 /**
+ * Constructs an absolute image uri
+ * @param {string} uri image uri
+ * @returns {string} absolute image uri
+ */
+function getCssImageUri(uri) {
+    return (isHttpUri(uri) === true
+            ? 'url("' + subdir + '/proxy-covercache?uri=' + myEncodeURIComponent(uri) +'")'
+            : uri.charAt(0) === '/'
+                ? 'url("' + subdir + uri + '")'
+                : 'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(uri) + '")') +
+        ',url("' + subdir + '/assets/coverimage-loading.svg")'
+}
+
+/**
  * Gets the background images list and populates the select element
  */
 function getBgImageList() {

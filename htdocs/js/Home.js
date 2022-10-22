@@ -64,10 +64,7 @@ function initHome() {
     document.getElementById('inputHomeIconImage').addEventListener('change', function(event) {
         const value = getData(event.target, 'value');
         if (value !== '') {
-            document.getElementById('homeIconPreview').style.backgroundImage =
-                isHttpUri(value) === true ?
-                    'url("' + subdir + '/proxy-covercache?uri=' + myEncodeURI(value)  + '")':
-                    'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(value)  + '")';
+            document.getElementById('homeIconPreview').style.backgroundImage = getCssImageUri(value);
             elHideId('divHomeIconLigature');
             elClearId('homeIconPreview');
         }
@@ -285,9 +282,7 @@ function parseHomeIcons(obj) {
         setData(card, 'pos', i);
         const cardBody = elCreateText('div', {"class": ["card-body", "mi", "rounded", "clickable"]}, obj.result.data[i].ligature);
         if (obj.result.data[i].image !== '') {
-            cardBody.style.backgroundImage = isHttpUri(obj.result.data[i].image) === true
-                ? 'url("' + subdir + '/proxy-covercache?uri=' + myEncodeURI(obj.result.data[i].image) +'")'
-                : 'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(obj.result.data[i].image) + '")';
+            cardBody.style.backgroundImage = getCssImageUri(obj.result.data[i].image);
         }
         if (obj.result.data[i].bgcolor !== '') {
             cardBody.style.backgroundColor = obj.result.data[i].bgcolor;
@@ -700,10 +695,7 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
         setData(homeIconImageInput, 'value', image);
         document.getElementById('inputHomeIconLigature').value = '';
         elClear(homeIconPreviewEl);
-        homeIconPreviewEl.style.backgroundImage =
-            isHttpUri(image) === true ?
-                'url("' + subdir + '/proxy-covercache?uri=' + myEncodeURI(image) +'")' :
-                'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(image) + '")';
+        homeIconPreviewEl.style.backgroundImage = getCssImageUri(image);
         elHideId('divHomeIconLigature');
     }
     else {
@@ -772,10 +764,7 @@ function _editHomeIcon(pos, replace, title) {
         }
         else {
             elHideId('divHomeIconLigature');
-            document.getElementById('homeIconPreview').style.backgroundImage =
-                isHttpUri(obj.result.data.image) === true ?
-                    'url("' + myEncodeURIhost(obj.result.data.image) +'")' :
-                    'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(obj.result.data.image) + '")';
+            document.getElementById('homeIconPreview').style.backgroundImage = getCssImageUri(obj.result.data.image);
         }
         //reset ligature selection
         document.getElementById('searchHomeIconLigature').value = '';

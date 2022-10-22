@@ -49,20 +49,6 @@ function r(x) {
 }
 
 /**
- * URL-Encodes the path, ignoring the host
- * @param {string} str string to decode
- * @returns {string} encoded string
- */
-function myEncodeURIhost(str) {
-    const match = str.match(/(https?:\/\/[^/]+)(.*)$/);
-    if (match) {
-        //encode only non host part of uri
-        return match[1] + myEncodeURI(match[2]);
-    }
-    return myEncodeURI(str);
-}
-
-/**
  * Custom encoding function, works like encodeURIComponent but
  * - does not escape /
  * - escapes further reserved characters
@@ -77,7 +63,7 @@ function myEncodeURI(str) {
 
 /**
  * Custom encoding function, works like encodeURIComponent but
- * - escapes further reserved characters
+ * escapes further reserved characters
  * @param {string} str string to encode
  * @returns {string} the encoded string
  */
@@ -85,15 +71,6 @@ function myEncodeURIComponent(str) {
     return encodeURIComponent(str).replace(/[!'()*~]/g, function(c) {
         return '%' + c.charCodeAt(0).toString(16);
     });
-}
-
-/**
- * Wrapper for decodeURIComponent
- * @param {string} str uri encoded string
- * @returns {string} decoded string
- */
-function myDecodeURIComponent(str) {
-    return decodeURIComponent(str);
 }
 
 /**

@@ -257,8 +257,9 @@ function initBrowseDatabase() {
     const cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
         //id is used only to check if card should be refreshed
-        const id = obj.result.tag === 'Album' ? genId('database' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist)
-                                              : genId('database' + obj.result.data[i].value);
+        const id = obj.result.tag === 'Album'
+            ? genId('database' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist)
+            : genId('database' + obj.result.data[i].value);
 
         if (cols[i] !== undefined &&
             cols[i].firstChild.firstChild.getAttribute('id') === id) {

@@ -323,9 +323,7 @@ function showWebradiodbDetails(uri) {
     const m3u = isStreamUri(uri) ? streamUriToName(uri) + '.m3u' : uri;
     const result = webradioDb.webradios[m3u];
     if (result.Image !== '') {
-        document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
-            'url("' + subdir + '/proxy-covercache?uri=' + myEncodeURI(webradioDbPicsUri + result.Image) + '")' +
-            ', url("' + subdir + '/assets/coverimage-loading.svg")';
+        document.getElementById('RadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(webradioDbPicsUri + result.Image);
     }
     else {
         document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =

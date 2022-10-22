@@ -193,6 +193,7 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
         }
         case MG_EV_ERROR: {
             MYMPD_LOG_ERROR("HTTP connection \"%lu\" failed", nc->id);
+            webserver_serve_na_image(backend_nc_data->frontend_nc);
             break;
         }
         case MG_EV_HTTP_MSG: {

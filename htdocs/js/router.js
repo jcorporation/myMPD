@@ -172,7 +172,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         let jsonHash = null;
         if (hash !== null) {
             try {
-                jsonHash = JSON.parse(myDecodeURIComponent(hash[1]));
+                jsonHash = JSON.parse(decodeURIComponent(hash[1]));
                 app.current.card = isArrayOrString(jsonHash.card) ? jsonHash.card : undefined;
                 app.current.tab = typeof jsonHash.tab === 'string' ? jsonHash.tab : undefined;
                 app.current.view = typeof jsonHash.view === 'string' ? jsonHash.view : undefined;

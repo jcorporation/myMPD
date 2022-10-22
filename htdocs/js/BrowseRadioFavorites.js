@@ -363,7 +363,7 @@ function saveRadioFavoriteClose(obj) {
 }
 
 /**
- * Parses the jsnorpc response from MYMPD_API_WEBRADIO_FAVORITE_LIST
+ * Parses the jsonrpc response from MYMPD_API_WEBRADIO_FAVORITE_LIST
  * @param {object} obj jsonrpc response
  * @returns {void}
  */
@@ -406,15 +406,9 @@ function parseRadioFavoritesList(obj) {
                     smallSpace + nDash + smallSpace + obj.result.data[i].Language)
             ])
         ]);
-        let image;
-        if (obj.result.data[i].Image === '') {
-            image = subdir + '/assets/coverimage-stream.svg';
-        }
-        else {
-            image = isHttpUri(obj.result.data[i].Image) === true ?
-                obj.result.data[i].Image :
-                '/browse/pics/thumbs/' + myEncodeURI(obj.result.data[i].Image);
-        }
+        const image = obj.result.data[i].Image === ''
+            ? '/assets/coverimage-stream.svg'
+            : obj.result.data[i].Image;
         setData(card, 'image', image);
         setData(card, 'uri', obj.result.data[i].filename);
         setData(card, 'name', obj.result.data[i].Name);

@@ -301,7 +301,7 @@ function printValue(key, value) {
                 return document.createTextNode(value);
             }
             return elCreateText('a', {"class": ["text-success", "external"],
-                "href": myEncodeURIhost(value), "target": "_blank"}, value);
+                "href": value, "rel": "noreferrer", "target": "_blank"}, value);
         case 'lastcheckok':
             //radiobrowser.info
             return elCreateText('span', {"class": ["mi"]},
