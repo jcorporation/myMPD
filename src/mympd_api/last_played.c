@@ -216,7 +216,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
                 }
                 else {
                     MYMPD_LOG_ERROR("\"%s\": Reading last_played line failed", partition_state->name);
-                    MYMPD_LOG_DEBUG("Errorneous line: %s", line);
+                    MYMPD_LOG_DEBUG("Erroneous line: %s", line);
                     FREE_SDS(uri);
                 }
             }

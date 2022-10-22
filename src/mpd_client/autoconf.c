@@ -24,9 +24,9 @@
  */
  static bool test_mpd_conn(const char *socket_path);
 
- /**
-  * Public functions
-  */
+/**
+* Public functions
+*/
 
 /**
  * Tries to autodetect the mpd connection configuration
@@ -142,9 +142,9 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     mympd_state->mpd_state->mpd_port = MYMPD_MPD_PORT;
 }
 
- /**
-  * Public functions
-  */
+/**
+* Public functions
+*/
 
 /**
  * Tries a connection to mpd
