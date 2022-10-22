@@ -144,3 +144,25 @@ function gotoFilesystem(uri, type) {
     document.getElementById('searchFilesystemStr').value = '';
     appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-', '-', type, uri);
 }
+
+/**
+ * Callback function for intersection observer to lazy load cover images
+ * @param {object} changes IntersectionObserverEntry objects
+ * @param {object} observer IntersectionObserver
+ */
+ function setGridImage(changes, observer) {
+    changes.forEach(change => {
+        if (change.intersectionRatio > 0) {
+            observer.unobserve(change.target);
+            let uri = getData(change.target.firstChild, 'image');
+            const body = change.target.firstChild.querySelector('.card-body');
+            if (body) {
+                if (isHttpUri(uri) === false) {
+                    uri = subdir + uri;
+                }
+                body.style.backgroundImage = 'url("' + uri + '"),' +
+                    'url("' + subdir + '/assets/coverimage-loading.svg")';
+            }
+        }
+    });
+}

@@ -268,7 +268,7 @@ function initBrowseDatabase() {
         let image = '';
         const card = elCreateEmpty('div', {"data-popover": "album", "class": ["card", "card-grid", "clickable"]});
         if (obj.result.tag === 'Album') {
-            image = subdir + '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri);
+            image = '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri);
             card.appendChild(
                 elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
             );
@@ -289,7 +289,7 @@ function initBrowseDatabase() {
             addAlbumPlayButton(card.firstChild);
         }
         else {
-            image = subdir + '/tagart?uri=' + obj.result.tag + '/' + obj.result.data[i].value;
+            image = '/tagart?uri=' + obj.result.tag + '/' + obj.result.data[i].value;
             if (obj.result.pics === true) {
                 card.appendChild(
                     elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
@@ -316,7 +316,7 @@ function initBrowseDatabase() {
             observer.observe(col);
         }
         else {
-            col.firstChild.firstChild.style.backgroundImage = myEncodeURI(image);
+            col.firstChild.firstChild.style.backgroundImage = subdir + myEncodeURI(image);
         }
     }
     for (let i = cols.length - 1; i >= nrItems; i--) {
@@ -326,25 +326,6 @@ function initBrowseDatabase() {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     setScrollViewHeight(cardContainer);
     scrollToPosY(cardContainer.parentNode, app.current.scrollPos);
-}
-
-/**
- * Callback function for intersection observer to lazy load cover images
- * @param {object} changes IntersectionObserverEntry objects
- * @param {object} observer IntersectionObserver
- */
-function setGridImage(changes, observer) {
-    changes.forEach(change => {
-        if (change.intersectionRatio > 0) {
-            observer.unobserve(change.target);
-            const uri = getData(change.target.firstChild, 'image');
-            const body = change.target.firstChild.querySelector('.card-body');
-            if (body) {
-                body.style.backgroundImage = 'url("' + uri + '"),' +
-                    'url("' + subdir + '/assets/coverimage-loading.svg")';
-            }
-        }
-    });
 }
 
 /**
