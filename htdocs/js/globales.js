@@ -98,10 +98,10 @@ let phrases = {};
 
 //this settings are saved in the browsers localStorage
 const localSettings = {
-    "scaleRatio": "1.0",
-    "localPlaybackAutoplay": false,
     "enforceMobile": false,
-    "partition": "default"
+    "localPlaybackAutoplay": false,
+    "partition": "default",
+    "scaleRatio": "1.0"
 };
 
 /**
@@ -110,11 +110,14 @@ const localSettings = {
  * @returns {string | number | boolean} parsed string
  */
 function parseString(str) {
-    return str === 'true' ? true :
-           str === 'false' ? false :
-           // @ts-ignore
-           isNaN(str) ? str :
-           Number(str);
+    return str === 'true'
+        ? true
+        : str === 'false'
+            ? false
+            // @ts-ignore
+            : isNaN(str)
+                ? str
+                : Number(str);
 }
 
 //Get settings from localStorage
@@ -798,26 +801,26 @@ const webuiSettingsDefault = {
 
 //features
 const features = {
+    "featBinarylimit": true,
     "featCacert": false,
+    "featConsumeOneshot": false,
+    "featFingerprint": false,
     "featHome": true,
     "featLibrary": false,
     "featLocalPlayback": false,
     "featLyrics": false,
+    "featMediaSession": false,
     "featMounts": true,
     "featNeighbors": true,
     "featPartitions": true,
+    "featPlaylistDirAuto": false,
     "featPlaylists": true,
     "featScripting": true,
     "featSmartpls": true,
     "featStickers": false,
     "featTags": true,
     "featTimer": true,
-    "featTrigger": true,
-    "featBinarylimit": true,
-    "featFingerprint": false,
-    "featConsumeOneshot": false,
-    "featPlaylistDirAuto": false,
-    "featMediaSession": false
+    "featTrigger": true
 };
 
 //keyboard shortcuts
@@ -861,13 +864,13 @@ const keymap = {
 //cache often accessed dom elements
 const domCache = {};
 domCache.body = document.querySelector('body');
-domCache.main = document.querySelector('main');
-domCache.footer = document.querySelector('footer');
 domCache.counter = document.getElementById('counter');
+domCache.footer = document.querySelector('footer');
+domCache.main = document.querySelector('main');
+domCache.notificationCount = document.getElementById('notificationCount');
 domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');
 domCache.progressPos = document.getElementById('footerProgressPos');
-domCache.notificationCount = document.getElementById('notificationCount');
 domCache.volumeBar = document.getElementById('volumeBar');
 
 //Get BSN object references for fast access
@@ -896,34 +899,34 @@ const LUAfunctions = {
 };
 
 const typeFriendly = {
-    'plist': 'Playlist',
-    'smartpls': 'Smart playlist',
-    'dir': 'Directory',
-    'song': 'Song',
-    'search': 'Search',
     'album': 'Album',
+    'dir': 'Directory',
+    'externalLink': 'External link',
+    'plist': 'Playlist',
+    'script': 'Script',
+    'search': 'Search',
+    'smartpls': 'Smart playlist',
+    'song': 'Song',
     'stream': 'Stream',
     'view': 'View',
-    'script': 'Script',
-    'webradio': 'Webradio',
-    'externalLink': 'External link'
+    'webradio': 'Webradio'
 };
 
 const friendlyActions = {
-    'replaceQueue': 'Replace queue',
-    'replacePlayQueue': 'Replace queue and play',
-    'insertAfterCurrentQueue': 'Insert after current playing song',
-    'appendQueue': 'Append to queue',
-    'appendPlayQueue': 'Append to queue and play',
-    'replaceQueueAlbum': 'Replace queue',
-    'replacePlayQueueAlbum': 'Replace queue and play',
-    'insertAfterCurrentQueueAlbum': 'Insert after current playing song',
-    'appendQueueAlbum': 'Append to queue',
     'appendPlayQueueAlbum': 'Append to queue and play',
+    'appendPlayQueue': 'Append to queue and play',
+    'appendQueueAlbum': 'Append to queue',
+    'appendQueue': 'Append to queue',
     'appGoto': 'Goto view',
-    'homeIconGoto': 'Show',
     'execScriptFromOptions': 'Execute script',
-    'openExternalLink': 'Open external link'
+    'homeIconGoto': 'Show',
+    'insertAfterCurrentQueueAlbum': 'Insert after current playing song',
+    'insertAfterCurrentQueue': 'Insert after current playing song',
+    'openExternalLink': 'Open external link',
+    'replacePlayQueueAlbum': 'Replace queue and play',
+    'replacePlayQueue': 'Replace queue and play',
+    'replaceQueueAlbum': 'Replace queue',
+    'replaceQueue': 'Replace queue'
 };
 
 const bgImageValues = [
