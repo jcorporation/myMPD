@@ -289,7 +289,7 @@ function initBrowseDatabase() {
             addAlbumPlayButton(card.firstChild);
         }
         else {
-            image = '/tagart?uri=' + obj.result.tag + '/' + obj.result.data[i].value;
+            image = '/tagart?uri=' + myEncodeURIComponent(obj.result.tag + '/' + obj.result.data[i].value);
             if (obj.result.pics === true) {
                 card.appendChild(
                     elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
