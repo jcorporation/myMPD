@@ -9,8 +9,6 @@
         "SharedArrayBuffer": "readonly",
         "BSN": true,
         "i18n": true,
-        "locales": true,
-        "missingPhrases": true,
         "MediaMetadata": true
     },
     "parserOptions": {
