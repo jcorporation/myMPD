@@ -11,8 +11,8 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 ### Changelog
 
 - Feat: autoconfiguration for playlist_directory (MPD 0.24) #836
-- Feat: support consume oneshot (MPD 0.24) #837
 - Feat: autoconfiguration for pcre support (MPD 0.24) #843
+- Feat: support consume oneshot (MPD 0.24) #837
 - Feat: support starts_with filter expression (MPD 0.24) #843
 - Feat: support queue save modes (MPD 0.24) #848
 - Feat: add elapsed sticker to save recent position from songs #781
@@ -24,10 +24,9 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 - Feat: create debug packages for Alpine, Arch, Debian and RPM
 - Upd: libmympdclient 1.0.15
 - Upd: refactor translation framework
-- Upd: en-US, de-DE translations
+- Upd: de-DE, en-US, fr-FR, it-IT, nl-NL translations
 - Upd: Bootstrap 5.2.2
 - Upd: parse mpd bitrate #855
-- Upd: italian translation, thanks @DoDiesis
 - Upd: improve integrated http client
 - Upd: content-security-policy allows fetching images only from myMPD host
 - Fix: language name in japanese #854
