@@ -18,7 +18,6 @@
 #include "../lib/sds_extras.h"
 #include "../lib/utility.h"
 #include "../lib/validate.h"
-#include "proxy.h"
 
 #include <libgen.h>
 
