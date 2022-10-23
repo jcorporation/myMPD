@@ -19,6 +19,7 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 - Feat: jsDoc compatible API documentation and linting with typescript compiler
 - Feat: add view action to default radio click actions
 - Feat: add "Add to" button to filesystem root #860
+- Feat: add "Open modal" to home icon actions
 - Feat: cache coverimages for webradios
 - Feat: add STRIP_BINARY option to build
 - Feat: create debug packages for Alpine, Arch, Debian and RPM
