@@ -322,8 +322,8 @@ function toggleUI() {
 function toggleTopAlert() {
     const topAlert = document.querySelector('#top-alerts');
     if (uiEnabled === false ||
-        (currentState !== undefined && currentState.lastError !== '')
-    ) {
+        (currentState !== undefined && currentState.lastError !== ''))
+    {
         elShow(topAlert);
         const topPadding = window.innerWidth < window.innerHeight ? document.getElementById('header').offsetHeight : 0;
         const mt = topAlert.offsetHeight - topPadding;
@@ -343,7 +343,7 @@ function showModalAlert(obj) {
     const aModal = getOpenModal();
     const activeAlert = aModal.querySelector('.modalAlert');
     const div = elCreateTextTn('div', {"class": ["alert", "alert-danger", "modalAlert"]}, obj.error.message, obj.error.data);
-    if (activeAlert === undefined) {
+    if (activeAlert === null) {
         aModal.querySelector('.modal-body').appendChild(div);
     }
     else {
