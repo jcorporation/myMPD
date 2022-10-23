@@ -226,8 +226,6 @@ div > .albumartbg {
     flex-flow: column;
     padding: 1.2rem 0 6.5rem;
     justify-content: normal !important;
-    /* needed for popover positioning */
-    position: absolute !important;
   }
 
   body {
