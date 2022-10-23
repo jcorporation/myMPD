@@ -866,6 +866,10 @@ function createMenuHome(dataNode, tabHeader, tabContent) {
             type = 'externalLink';
             actionDesc = friendlyActions[href.cmd];
             break;
+        case 'openModal':
+            type = 'modal';
+            actionDesc = friendlyActions[href.cmd];
+            break;
         default:
             type = href.options[0];
             actionDesc = friendlyActions[href.cmd];
@@ -896,6 +900,7 @@ function createMenuHome(dataNode, tabHeader, tabContent) {
         case 'view':
         case 'script':
         case 'externalLink':
+        case 'modal':
             addMenuItem(tabContent, {"cmd": "executeHomeIcon", "options": [pos]}, actionDesc);
     }
     return true;

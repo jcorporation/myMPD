@@ -98,11 +98,20 @@ Light
 Location
 Lua is not compiled in
 Media session
+Modal
 Movement
 MovementNumber
 mpd_database
 MPD does not support mounts
 MPD does not support partitions
+modalConnection
+modalSettings
+modalMaintenance
+modalScripts
+modalTimer
+modalTrigger
+modalMounts
+modalAbout
 mpd_message
 mpd_mixer
 mpd_mount

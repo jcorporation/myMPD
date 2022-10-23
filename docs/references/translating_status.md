@@ -1,8 +1,8 @@
-- es-VE: 488 missing phrases
-- fi-FI: 484 missing phrases
-- fr-FR: fully translated
-- it-IT: fully translated
-- ja-JP: 42 missing phrases
-- ko-KR: 107 missing phrases
-- nl-NL: fully translated
-- zh-CN: 40 missing phrases
+- es-VE: 499 missing phrases
+- fi-FI: 495 missing phrases
+- fr-FR: 11 missing phrases
+- it-IT: 11 missing phrases
+- ja-JP: 53 missing phrases
+- ko-KR: 118 missing phrases
+- nl-NL: 11 missing phrases
+- zh-CN: 51 missing phrases

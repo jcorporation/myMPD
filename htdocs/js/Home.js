@@ -260,6 +260,9 @@ function parseHomeIcons(obj) {
             case 'openExternalLink':
                 homeType = typeFriendly['externalLink'];
                 break;
+            case 'openModal':
+                homeType = typeFriendly['modal'];
+                break;
             default:
                 homeType = typeFriendly[obj.result.data[i].options[0]];
                 break;
@@ -451,6 +454,13 @@ function populateHomeIconCmdSelect(cmd, type) {
             setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Uri"]});
             break;
         }
+        case 'openModal': {
+            selectHomeIconCmd.appendChild(
+                elCreateTextTn('option', {"value": "openModal"}, 'Open modal')
+            );
+            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Modal"]});
+            break;
+        }
         case 'execScriptFromOptions': {
             selectHomeIconCmd.appendChild(
                 elCreateTextTn('option', {"value": "execScriptFromOptions"}, 'Execute script')
@@ -545,6 +555,14 @@ function executeHomeIcon(pos) {
 function addViewToHome() {
     _addHomeIcon('appGoto', '', 'preview', '', [app.current.card, app.current.tab, app.current.view,
         app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search]);
+}
+
+/**
+ * Adds a modal shortcut to the homescreen
+ */
+//eslint-disable-next-line no-unused-vars
+function addOpenModalToHome() {
+    _addHomeIcon('openModal', '', 'web_asset', '', []);
 }
 
 /**
@@ -686,6 +704,7 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
 
     populateHomeIconCmdSelect(cmd, options[0]);
     document.getElementById('selectHomeIconCmd').value = cmd;
+    elClearId('divHomeIconOptions');
     showHomeIconCmdOptions(options);
     getHomeIconPictureList();
     const homeIconPreviewEl = document.getElementById('homeIconPreview');
@@ -789,9 +808,15 @@ function saveHomeIcon() {
     }
     if (formOK === true) {
         const options = [];
-        const optionEls = document.querySelectorAll('#divHomeIconOptions input');
+        const optionEls = document.querySelectorAll('#divHomeIconOptions input, #divHomeIconOptions select');
         for (const optionEl of optionEls) {
-            options.push(optionEl.value);
+            switch(optionEl.nodeName) {
+                case 'SELECT':
+                    options.push(getSelectValue(optionEl));
+                    break;
+                default:
+                    options.push(optionEl.value);
+            }
         }
         const image = getData(document.getElementById('inputHomeIconImage'), 'value');
         sendAPI("MYMPD_API_HOME_ICON_SAVE", {
@@ -856,12 +881,36 @@ function showHomeIconCmdOptions(values) {
             const row = elCreateNodes('div', {"class": ["mb-3", "row"]}, [
                 elCreateTextTn('label', {"class": ["col-sm-4"]}, options.options[i]),
                 elCreateNode('div', {"class": ["col-sm-8"]}, 
-                    elCreateEmpty('input', {"class": ["form-control", "border-secondary"], "name": options.options[i], "value": value})
+                    createHomeIconCmdOptionEl(options.options[i], value)
                 )
             ]);
             divHomeIconOptions.appendChild(row);
         }
     }
+}
+
+/**
+ * Creates the form element to select the option value for home icon cmd
+ * @param {string} name name of the element
+ * @param {string} value value of the element
+ * @returns {HTMLElement} the created form element
+ */
+function createHomeIconCmdOptionEl(name, value) {
+    switch(name) {
+        case 'Modal': {
+            const sel = elCreateEmpty('select', {"class": ["form-select", "border-secondary"], "name": name});
+            for (const v of ["modalConnection", "modalSettings", "modalMaintenance", "modalScripts",
+                             "modalTimer", "modalTrigger", "modalMounts", "modalAbout"])
+            {
+                sel.appendChild(
+                    elCreateTextTn('option', {"value": v}, v)
+                );
+            }
+            sel.value = value;
+            return sel;
+        }
+    }
+    return elCreateEmpty('input', {"class": ["form-control", "border-secondary"], "name": name, "value": value});
 }
 
 /**
