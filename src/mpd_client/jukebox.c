@@ -384,7 +384,7 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state, long add_so
     }
     if (added == 0) {
         MYMPD_LOG_ERROR("\"%s\": Error adding song(s)", partition_state->name);
-        send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, partition_state->name, "Addings songs from jukebox to queue failed");
+        send_jsonrpc_notify(JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, partition_state->name, "Adding songs from jukebox to queue failed");
         return false;
     }
     if (manual == false) {
