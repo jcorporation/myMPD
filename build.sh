@@ -501,14 +501,6 @@ check_docs() {
       rc=1
     fi
   done
-  O=$(md5sum htdocs/js/apidoc.js | awk '{print $1}')
-  C=$(md5sum docs/assets/apidoc.js | awk '{print $1}')
-  if [ "$O" != "$C" ]
-  then
-  	echo_warn "apidoc.js in docs differs"
-    cp htdocs/js/apidoc.js docs/assets/apidoc.js
-    rc=1
-  fi
   return "$rc"
 }
 
@@ -1328,6 +1320,7 @@ run_doxygen() {
   then
     return 1
   fi
+  echo "Running doxygen"
   doxygen
 }
 
@@ -1336,6 +1329,7 @@ run_jsdoc() {
   then 
     return 1
   fi
+  echo "Running jsdoc"
   jsdoc htdocs/js/ -c jsdoc.json -d docs/jsdoc/
 }
 
@@ -1496,6 +1490,7 @@ case "$ACTION" in
       echo "Could not create frontend api documentation"
       exit 1
     fi
+    cp -v htdocs/js/apidoc.js docs/assets/apidoc.js
   ;;
 	*)
     echo "Usage: $0 <option>"
