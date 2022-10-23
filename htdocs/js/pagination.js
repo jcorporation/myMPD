@@ -90,7 +90,7 @@ function setPagination(total, returned) {
     }, false);
     bottomBar.appendChild(toTop);
     const paginationBottom = createPaginationEls(totalPages, curPage);
-    paginationBottom.classList.add('dropup');
+    paginationBottom.childNodes[1].classList.add('dropup');
     bottomBar.appendChild(paginationBottom);
     elShow(bottomBar);
 }
