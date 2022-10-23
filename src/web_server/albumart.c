@@ -180,6 +180,7 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
 
     //check covercache
     if (check_covercache(nc, hm, mg_user_data, uri_decoded, offset) == true) {
+        FREE_SDS(uri_decoded);
         return true;
     }
 
