@@ -687,6 +687,7 @@ function scrollToPosY(container, pos) {
     if (userAgentData.isMobile === true ||
         container === null)
     {
+        elReflow(domCache.body);
         // For Safari
         document.body.scrollTop = pos;
         // For Chrome, Firefox, IE and Opera
