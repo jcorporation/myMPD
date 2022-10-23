@@ -1582,8 +1582,7 @@ case "$ACTION" in
     echo "Misc options:"
     echo "  addmympduser:     adds mympd group and user"
     echo "  luascript_index:  creates the json index of lua scripts"
-    echo "  api_doc:          generates the backend api documentation with doxygen"
-    echo "                    generated the frontend api documentation with jsdoc"
+    echo "  api_doc:          generates the api documentation"
     echo ""
     echo "Source update options:"
     echo "  bootstrap:        updates bootstrap"
@@ -1603,7 +1602,7 @@ case "$ACTION" in
     echo "  - EXTRA_CMAKE_OPTIONS=\"\""
     echo "  - MANPAGES=\"ON\""
     echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
-    echo "  - STRIP_BINARY=\"\""
+    echo "  - STRIP_BINARY=\"ON\""
     echo ""
     exit 1
 	;;

@@ -1,27 +1,37 @@
+#temporary files
 *~
+.cache/
+/callgrind.out.*
+/clang-tidy.out
+/src/compile_commands.json
+/valgrind.out
+
+#build dirs
+/build/
+/builder/
 /debug/
-/release/
+/dist/bootstrap/node_modules/
+/dist/bootstrap/package-lock.json
 /osc/
 /package/
-/htdocs/sw.js
+/release/
+/test/build/
+
+#debug build files
+/htdocs/assets/ligatures.json
+/htdocs/assets/MaterialIcons-Regular.woff2
+/htdocs/assets/i18n/
 /htdocs/css/bootstrap.css
 /htdocs/js/bootstrap-native.js
 /htdocs/js/i18n.js
 /htdocs/js/long-press-event.js
-/htdocs/assets/MaterialIcons-Regular.woff2
-/htdocs/assets/ligatures.json
-/htdocs/assets/i18n/
-/valgrind.out
-/callgrind.out.*
-/src/compile_commands.json
-/clang-tidy.out
-/test/build/
-/builder/
+/htdocs/sw.js
+
+#private configuration
 /.vscode/
-/dist/bootstrap/node_modules/
-/dist/bootstrap/package-lock.json
+
+#documentation (github pages)
 /docs/doxygen/
 /docs/jsdoc/
 /docs/assets/apidoc.js
-.cache/
-/build/
+/docs/scripting/scripts/index.json
