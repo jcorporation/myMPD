@@ -1228,7 +1228,7 @@
                   </div>
                 </div>
                 <div class="collapse" id="collapseEnableLyrics"></div>
-                <div id="warnbtnEnableLyrics" class="alert alert-warning notfeatLibrary" data-phrase="Music directory not available"></div>
+                <div id="warnbtnEnableLyrics" class="alert alert-warning" data-phrase="Music directory not available"></div>
               </form>
               <hr/>
               <h4 data-phrase="Local playback"></h4>
@@ -1557,6 +1557,19 @@
                 <div class="invalid-feedback" data-phrase="Invalid MPD port"></div>
               </div>
             </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="selectMusicDirectory" data-phrase="Music directory"></label>
+              <div class="col-sm-8">
+                <select id="selectMusicDirectory" class="form-select alwaysEnabled">
+                  <option value="auto" data-phrase="Autodetect"></option>
+                  <option value="none" data-phrase="None"></option>
+                  <option value="custom" data-phrase="Specify"></option>
+                </select>
+                <input id="inputMusicDirectory" class="form-control mt-2 alwaysEnabled"/>
+                <div class="invalid-feedback" data-phrase="Invalid music directory"></div>
+              </div>
+            </div>
+            <div id="warnMusicDirectory" class="alert alert-warning d-none" data-phrase="Music directory not found"></div>
             <hr/>
             <div class="mb-3 row">
               <div class="col-sm-4"></div>
@@ -1572,19 +1585,6 @@
                   <div class="invalid-feedback" data-phrase="Invalid MPD password"></div>
                 </div>
               </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="selectMusicDirectory" data-phrase="Music directory"></label>
-                <div class="col-sm-8">
-                  <select id="selectMusicDirectory" class="form-select alwaysEnabled">
-                    <option value="auto" data-phrase="Autodetect"></option>
-                    <option value="none" data-phrase="None"></option>
-                    <option value="custom" data-phrase="Specify"></option>
-                  </select>
-                  <input id="inputMusicDirectory" class="form-control mt-2 alwaysEnabled"/>
-                  <div class="invalid-feedback" data-phrase="Invalid music directory"></div>
-                </div>
-              </div>
-              <div id="warnMusicDirectory" class="alert alert-warning d-none" data-phrase="Music directory not found"></div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="selectPlaylistDirectory" data-phrase="Playlist directory"></label>
                 <div class="col-sm-8">
