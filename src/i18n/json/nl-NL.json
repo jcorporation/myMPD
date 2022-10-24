@@ -27,7 +27,7 @@
     "Add view to homescreen": "Weergave toevegen aan startscherm",
     "Adding random songs to queue failed": "Toevoegen willekeurig nummer mislukt",
     "Adding timer failed": "Toevoegen timer mislukt",
-    "Adding songs from jukebox to queue failed": "Toevoegen van Jukebox-nummers naar wachtrij mislukt",
+    "Addings songs from jukebox to queue failed": "Toevoegen van Jukebox-nummers naar wachtrij mislukt",
     "Advanced": "Geavanceerd",
     "Advanced Audio Coding": "Geavanceerde audio codering",
     "Album": "Album",
@@ -817,5 +817,18 @@
     "mympd_feedback": "Feedback",
     "mympd_scrobble": "Scrobble",
     "mympd_start": "Start",
-    "mympd_stop": "Stop"
+    "mympd_stop": "Stop",
+    "Add modal shortcut": "Open dialoog",
+    "Adding songs from jukebox to queue failed": "Toevoegen van Jukebox-nummers naar wachtrij mislukt",
+    "Modal": "Dialoog",
+    "Open modal": "Dialoog openen",
+    "modalConnection": "MPD verbinding",
+    "modalSettings": "Instellingen",
+    "modalMaintenance": "Onderhoud",
+    "modalScripts": "Script",
+    "modalTimer": "Timer",
+    "modalTrigger": "Trigger",
+    "modalMounts": "Monteringspunt",
+    "modalAbout": "Over myMPD",
+    "Modal shortcut": "Open dialoog"
 }
