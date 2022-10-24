@@ -32,6 +32,10 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 - Upd: content-security-policy allows fetching images only from myMPD host
 - Fix: language name in japanese #854
 - Fix: mime type detection of special jpg images #864
+- Fix: Popover position for left sidebar #869
+- Fix: max-width for page dropdown ist 80vW #868
+- Fix: force reflow of body before scrolling to pos #868
+- Fix: clang 15 compatibility
 
 ***
 
