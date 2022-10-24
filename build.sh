@@ -943,7 +943,7 @@ updatebootstrapnative() {
 
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
-  git clone --depth=1 -b master https://github.com/thednp/bootstrap.native
+  git clone --depth=1 -b master https://github.com/jcorporation/bootstrap.native.git
   cd bootstrap.native
   npm install @rollup/plugin-buble
   cp "$STARTPATH/dist/bootstrap-native/mympd-config.js" src/
@@ -959,7 +959,7 @@ updatebootstrapnative() {
 
   if [ -d debug ]
   then
-  	cp bootstrap-native.js ../../htdocs/js/
+  	cp dist/bootstrap-native/bootstrap-native.js htdocs/js/
   fi
 }
 
