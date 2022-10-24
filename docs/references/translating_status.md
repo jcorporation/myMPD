@@ -4,5 +4,5 @@
 - it-IT: fully translated
 - ja-JP: 53 missing phrases
 - ko-KR: 117 missing phrases
-- nl-NL: 11 missing phrases
+- nl-NL: fully translated
 - zh-CN: 51 missing phrases
