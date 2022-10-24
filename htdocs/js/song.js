@@ -560,7 +560,7 @@ function voteSong(el) {
         el.classList.remove('active');
     }
     const aEl = el.parentNode.querySelector('.active');
-    if (aEl !== undefined) {
+    if (aEl !== null) {
         aEl.classList.remove('active');
     }
     if (vote === 0 ||
