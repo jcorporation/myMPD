@@ -2328,6 +2328,14 @@
       if (posAjust) ObjectAssign(dropdownPosition[positionClass], posAjust);
     }
 
+    //check if dropdown overflows window bottom
+    const bottomPos = window.innerHeight - targetTop - targetHeight - menuHeight - offset;
+    if (bottomPos < 0) {
+      menu.style.overflowY = 'auto';
+      menu.style.overflowX = 'hidden';
+      menu.style.maxHeight = menuHeight + bottomPos - offset + 'px';
+    }
+
     dropdownMargin = dropdownMargin[positionClass];
     setElementStyle(menu, {
       ...dropdownPosition[positionClass],
@@ -4097,6 +4105,26 @@
           arrowLeft = tipWidth / 2 - arrowAdjust;
         }
       }
+    }
+
+    //check if tooltip/popover overflows window bottom
+    const bottomPos = window.innerHeight - topPosition - tipHeight;
+    if (bottomPos < 0) {
+      topPosition = topPosition + bottomPos;
+      arrowTop = 0 - bottomPos;
+
+    }
+    //check if tooltip/popover overflows window top
+    if (topPosition < 0) {
+      arrowTop = elemRectTop;
+      topPosition = 0;
+
+    }
+    //check if tooltip/popover is higher as the window
+    if (tipHeight > window.innerHeight) {
+      tooltip.style.overflowY = 'auto';
+      tooltip.style.overflowX = 'hidden';
+      tooltip.style.maxHeight = '100vh';
     }
 
     // apply style to tooltip/popover
