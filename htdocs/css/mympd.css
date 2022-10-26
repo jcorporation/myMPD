@@ -1173,6 +1173,7 @@ button.weekday {
 
 .dropdown-menu {
   max-width: 80vw;
+
   --bs-dropdown-zindex: 1050;
 }
 
