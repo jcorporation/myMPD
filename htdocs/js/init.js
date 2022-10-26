@@ -225,13 +225,6 @@ function appInit() {
             toggleCollapseArrow(this);
         }, false);
     }
-    //align dropdowns
-    const dropdowns = document.querySelectorAll('.dropdown-toggle');
-    for (const dropdown of dropdowns) {
-        dropdown.parentNode.addEventListener('show.bs.dropdown', function (event) {
-            alignDropdown(event.target);
-        });
-    }
     //init links
     const hrefs = document.querySelectorAll('[data-href]');
     for (const href of hrefs) {

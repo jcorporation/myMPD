@@ -149,6 +149,9 @@ function createPopoverInit(el, title, bodyTemplate) {
     if (popoverType === null) {
         popoverType = el.getAttribute('data-col');
     }
+    if (popoverType === null) {
+        popoverType = el.parentNode.getAttribute('data-col');
+    }
     switch(popoverType) {
         case 'columns':
         case 'Action':
@@ -210,7 +213,6 @@ function createPopoverColumns(el) {
             saveCols(app.id);
         }, false);
         popoverBody.setAttribute('id', app.id + 'ColsDropdown');
-        popoverHeight(popoverBody.firstElementChild);
     }, false);
 
     return popoverInit;
@@ -277,16 +279,6 @@ function createPopoverTabs(el, tab1Callback, tab2Callback) {
     }, false);
 
     return popoverInit;
-}
-
-/**
- * Sets the popover height to 2/3 of the screen height
- * @param {Element} el popover element to resize
- */
- function popoverHeight(el) {
-    const mh = window.innerHeight / 3 * 2;
-    el.style.maxHeight = mh + 'px';
-    el.style.overflow = 'auto';
 }
 
 /**

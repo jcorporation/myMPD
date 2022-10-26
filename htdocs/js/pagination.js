@@ -116,9 +116,6 @@ function createPaginationEls(totalPages, curPage) {
 
     const pageDropdownBtn = elCreateText('button', {"type": "button", "data-bs-toggle": "dropdown",
         "class": ["square-end", "btn", "btn-secondary", "dropdown-toggle", "px-2"]}, curPage.toString());
-    pageDropdownBtn.addEventListener('show.bs.dropdown', function () {
-        alignDropdown(this);
-    });
     const pageDropdownMenu = elCreateEmpty('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "page-dropdown", "dropdown-menu-dark"]});
 
     const row = elCreateNodes('div', {"class": ["row"]}, [
@@ -247,8 +244,5 @@ function createPaginationEls(totalPages, curPage) {
         next
     ]);
     new BSN.Dropdown(pageDropdownBtn);
-    pageDropdownBtn.parentNode.addEventListener('show.bs.dropdown', function (event) {
-        alignDropdown(event.target);
-    });
     return outer;
 }

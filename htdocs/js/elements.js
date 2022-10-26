@@ -645,21 +645,6 @@ function toggleBtnChkCollapse(btn, collapseId, state) {
 }
 
 /**
- * Aligns a dropdown left or right from the triggering button.
- * @param {Element | EventTarget} el dropdown element
- */
- function alignDropdown(el) {
-    const toggleEl = el.querySelector('.dropdown-toggle');
-    const x = getXpos(toggleEl);
-    if (x < domCache.body.offsetWidth * 0.66) {
-        el.querySelector('.dropdown-menu').classList.remove('dropdown-menu-end');
-    }
-    else {
-        el.querySelector('.dropdown-menu').classList.add('dropdown-menu-end');
-    }
-}
-
-/**
  * Gets the y-scrolling position
  * @returns {number} the vertical scrolling position
  */

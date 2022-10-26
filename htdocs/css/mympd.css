@@ -911,7 +911,6 @@ div.album-grid-mouseover:hover {
 
 .page-dropdown {
   width: 20rem;
-  max-width: 80vw;
 }
 
 .fullHeight {
@@ -1170,4 +1169,14 @@ button.weekday {
   animation-duration: 2s;
   animation-timing-function: ease-in-out;
   animation-iteration-count: infinite;
+}
+
+.dropdown-menu {
+  max-width: 80vw;
+  --bs-dropdown-zindex: 1050;
+}
+
+.dropdown-item {
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
