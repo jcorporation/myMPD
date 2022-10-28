@@ -141,8 +141,12 @@ function createPopoverInit(el, title, bodyTemplate) {
                    elCreateEmpty('h3', {"class": ["popover-header"]}),
                    createPopoverBody(bodyTemplate)
                ]);
-    const options = {trigger: 'manual', delay: 0, dismissible: false,
-        title: document.createTextNode(title), template: template, content: document.createTextNode('dummy')
+    const options = {
+        trigger: 'manual',
+        delay: 0,
+        dismissible: false,
+        title: (title !== '' ? elCreateText('span', {}, title) : ''),
+        template: template, content: document.createTextNode('dummy')
     };
 
     let popoverType = el.getAttribute('data-popover');
@@ -192,7 +196,7 @@ function createPopoverClickHandler(el) {
  * @returns {object} BSN popover object
  */
 function createPopoverColumns(el) {
-    const popoverInit = createPopoverInit(el, tn('Columns'), "simple");
+    const popoverInit = createPopoverInit(el, tn('Columns'));
     //update content on each show event
     el.addEventListener('show.bs.popover', function() {
         const menu = elCreateEmpty('form', {});
