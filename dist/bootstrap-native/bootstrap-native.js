@@ -2329,11 +2329,13 @@
     }
 
     //check if dropdown overflows window bottom
-    const bottomPos = window.innerHeight - targetTop - targetHeight - menuHeight - offset;
-    if (bottomPos < 0) {
-      menu.style.overflowY = 'auto';
-      menu.style.overflowX = 'hidden';
-      menu.style.maxHeight = menuHeight + bottomPos - offset + 'px';
+    if (positionClass !== 'dropup') {
+      const bottomPos = window.innerHeight - targetTop - targetHeight - menuHeight - offset;
+      if (bottomPos < 0) {
+        menu.style.overflowY = 'auto';
+        menu.style.overflowX = 'hidden';
+        menu.style.maxHeight = menuHeight + bottomPos - offset + 'px';
+      }
     }
 
     dropdownMargin = dropdownMargin[positionClass];
