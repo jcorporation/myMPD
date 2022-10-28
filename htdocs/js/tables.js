@@ -329,21 +329,23 @@ function saveCols(tableName, tableEl) {
         tableEl = document.getElementById(tableName + 'List');
     }
     const header = tableEl.querySelector('tr');
-    //apply the columns select list to the playback card
-    const colInputs = colsDropdown.firstChild.querySelectorAll('button');
-    for (let i = 0, j = colInputs.length; i < j; i++) {
-        if (colInputs[i].getAttribute('name') === null) {
-            continue;
-        }
-        let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
-        if (colInputs[i].classList.contains('active') === false) {
-            if (th) {
-                th.remove();
+    if (colsDropdown !== null) {
+        //apply the columns select list to the table header
+        const colInputs = colsDropdown.firstChild.querySelectorAll('button');
+        for (let i = 0, j = colInputs.length; i < j; i++) {
+            if (colInputs[i].getAttribute('name') === null) {
+                continue;
             }
-        }
-        else if (!th) {
-            th = elCreateTextTn('th', {"data-col": colInputs[i].name}, colInputs[i].name);
-            header.insertBefore(th, header.lastChild);
+            let th = header.querySelector('[data-col=' + colInputs[i].name + ']');
+            if (colInputs[i].classList.contains('active') === false) {
+                if (th) {
+                    th.remove();
+                }
+            }
+            else if (!th) {
+                th = elCreateTextTn('th', {"data-col": colInputs[i].name}, colInputs[i].name);
+                header.insertBefore(th, header.lastChild);
+            }
         }
     }
     //construct columns to save from actual table header
