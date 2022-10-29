@@ -5,22 +5,36 @@
 #
 [Unit]
 Description=myMPD server daemon
+Documentation=man:mympd(1)
 Requires=network.target local-fs.target
 After=mpd.service
 
 [Service]
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+DynamicUser=yes
 ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/mympd
-Type=simple
-
-# disallow writing to /usr, /bin, /sbin, ...
-ProtectSystem=yes
-
-# more paranoid security settings
-ProtectKernelTunables=yes
+Group=mympd
+LockPersonality=yes
+MemoryDenyWriteExecute=yes
+PrivateDevices=yes
+ProtectClock=yes
 ProtectControlGroups=yes
+ProtectHome=yes
+ProtectHostname=yes
+ProtectKernelLogs=yes
 ProtectKernelModules=yes
-RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX AF_NETLINK
+ProtectKernelTunables=yes
+ProtectProc=invisible
+ProtectSystem=full
+RestrictRealtime=yes
+StateDirectory=mympd
+CacheDirectory=mympd
+RestrictAddressFamilies=AF_INET AF_INET6 AF_NETLINK AF_UNIX
 RestrictNamespaces=yes
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+User=mympd
 
 [Install]
 WantedBy=multi-user.target
