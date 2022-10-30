@@ -23,6 +23,7 @@ This minor release adds support of new MPD 0.24 features. The javascript fronten
 - Feat: cache coverimages for webradios
 - Feat: add STRIP_BINARY option to build
 - Feat: create debug packages for Alpine, Arch, Debian and RPM
+- Upd: improve packaging, thanks @dzrv
 - Upd: improve popover and dropdown positioning for small screens
 - Upd: libmympdclient 1.0.15
 - Upd: refactor translation framework
