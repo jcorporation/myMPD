@@ -90,11 +90,11 @@ endif()
 message("Document root: ${DOC_ROOT}")
 
 #set debug define for source
-if(CMAKE_BUILD_TYPE MATCHES RELEASE)
+if(CMAKE_BUILD_TYPE MATCHES "(DEBUG|Debug)")
+  set(DEBUG "ON")
+else()
   set(DEBUG "OFF")
   set(NDEBUG "true")
-else()
-  set(DEBUG "ON")
 endif()
 
 #required dependencies
@@ -271,9 +271,9 @@ foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection" 
 endforeach()
 
 #set debug/release flags
-if(CMAKE_BUILD_TYPE MATCHES "RELEASE")
+if(CMAKE_BUILD_TYPE MATCHES "(RELEASE|Release)")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -fPIE")
-  set(CMAKE_EXE_LINKER_FLAGS "-Wl,-z,relro,-z,now,--gc-sections -pie")
+  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,relro,-z,now,--gc-sections -pie")
   if(STRIP_BINARY MATCHES "ON")
     message("Generating stripped binary")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")
@@ -281,9 +281,10 @@ if(CMAKE_BUILD_TYPE MATCHES "RELEASE")
     message("Generating binary with debug symbols")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
   endif()
-else()
+elseif(CMAKE_BUILD_TYPE MATCHES "(DEBUG|Debug)")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb -Og")
-  set(CMAKE_EXE_LINKER_FLAGS "")
+else()
+  # if CMAKE_BUILD_TYPE is neither Release nor Debug, do not alter CFLAGS/ LDFLAGS
 endif()
 
 #set source files
