@@ -233,6 +233,7 @@ minify() {
 
 createassets() {
   check_cmd jq
+  chekc_cmd perl
 
   [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="release"
 
