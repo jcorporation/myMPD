@@ -25,6 +25,7 @@ option(ENABLE_LUA "Enables lua usage, default ON" "ON")
 option(ENABLE_LIBASAN "Enables build with libasan, default OFF" "OFF")
 option(ENABLE_LIBID3TAG "Enables libid3tag usage, default ON" "ON")
 option(ENABLE_SSL "Enables OpenSSL usage, default ON" "ON")
+option(MANPAGES "Creates and installs manpages" "ON")
 option(STRIP_BINARY "Enables stripping of the release binary, default ON" "ON")
 
 #cmake modules
