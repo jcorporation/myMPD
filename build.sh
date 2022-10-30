@@ -233,7 +233,7 @@ minify() {
 
 createassets() {
   check_cmd jq
-  chekc_cmd perl
+  check_cmd perl
 
   [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="release"
 
@@ -1047,6 +1047,7 @@ purge() {
 
 createi18n() {
   MYMPD_BUILD_DIR="$1"
+  check_cmd perl
   install -d "$MYMPD_BUILD_DIR/htdocs/js"
   echo "Creating i18n json"
   if ! perl ./src/i18n/translate.pl
