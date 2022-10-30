@@ -430,6 +430,7 @@ builddebug() {
   check_includes
 
   echo "Compiling myMPD"
+  install -d debug
   cd debug || exit 1
   #set CMAKE_INSTALL_PREFIX and build myMPD
   export CMAKE_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX:-/usr}"
