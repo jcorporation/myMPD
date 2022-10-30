@@ -346,10 +346,10 @@ buildrelease() {
   #force rebuild of objects with embedded assets
   rm -vf CMakeFiles/mympd.dir/src/web_server/utility.c.o
   rm -vf CMakeFiles/mympd.dir/src/mympd_api/scripts.c.o
-  #set INSTALL_PREFIX and build myMPD
-  export INSTALL_PREFIX="${MYMPD_INSTALL_PREFIX:-/usr}"
+  #set CMAKE_INSTALL_PREFIX and build myMPD
+  export CMAKE_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX:-/usr}"
   #shellcheck disable=SC2086
-  cmake -DCMAKE_INSTALL_PREFIX:PATH="$INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
+  cmake -DCMAKE_INSTALL_PREFIX:PATH="$CMAKE_INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
   	-DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
     -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
@@ -433,8 +433,10 @@ builddebug() {
 
   echo "Compiling myMPD"
   cd debug || exit 1
+  #set CMAKE_INSTALL_PREFIX and build myMPD
+  export CMAKE_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX:-/usr}"
   #shellcheck disable=SC2086
-  cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=DEBUG \
+  cmake -DCMAKE_INSTALL_PREFIX:PATH="${CMAKE_INSTALL_PREFIX}" -DCMAKE_BUILD_TYPE=DEBUG \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
   	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
     -DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
@@ -519,19 +521,12 @@ check_includes() {
     INCLUDES=$(grep "#include \"" "$FILE" | grep -v "mympd_config_defs.h" | cut -d\" -f2)
     for INCLUDE in $INCLUDES
     do
-      if ! realpath "$SRCDIR/$INCLUDE" > /dev/null 2>&1
+      if ! realpath "$INCLUDE" > /dev/null 2>&1
       then
         echo_error "Wrong include path in $FILE for $INCLUDE"
         rc=1
       fi
     done
-    INCLUDES=$(grep -r "#include \"src" src/* || true)
-    if [ -n "$INCLUDES" ]
-    then
-      echo_error "Wrong includes:"
-      echo "$INCLUDES"
-      rc=1
-    fi
     return "$rc"
   done
 }
@@ -987,19 +982,19 @@ uninstall() {
     xargs rm < release/install_manifest.txt
   fi
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
-  #MYMPD_INSTALL_PREFIX="/usr"
+  #CMAKE_INSTALL_PREFIX="/usr"
   rm -f "$DESTDIR/usr/bin/mympd"
   rm -f "$DESTDIR/usr/bin/mympd-script"
   rm -rf "$DESTDIR/usr/share/doc/mympd"
   rm -f "$DESTDIR/usr/share/man/man1/mympd.1.gz"
   rm -f "$DESTDIR/usr/share/man/man1/mympd-script.1.gz"
-  #MYMPD_INSTALL_PREFIX="/usr/local"
+  #CMAKE_INSTALL_PREFIX="/usr/local"
   rm -f "$DESTDIR/usr/local/bin/mympd"
   rm -f "$DESTDIR/usr/local/bin/mympd-script"
   rm -rf "$DESTDIR/usr/local/share/doc/mympd"
   rm -f "$DESTDIR/usr/local/share/man/man1/mympd.1.gz"
   rm -f "$DESTDIR/usr/local/share/man/man1/mympd-script.1.gz"
-  #MYMPD_INSTALL_PREFIX="/opt/mympd/"
+  #CMAKE_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/opt/mympd"
   #systemd
   rm -f "$DESTDIR/usr/lib/systemd/system/mympd.service"
@@ -1015,11 +1010,11 @@ uninstall() {
 
 purge() {
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
-  #MYMPD_INSTALL_PREFIX="/usr"
+  #CMAKE_INSTALL_PREFIX="/usr"
   rm -rf "$DESTDIR/var/lib/mympd"
   rm -rf "$DESTDIR/var/cache/mympd"
   rm -f "$DESTDIR/etc/init.d/mympd"
-  #MYMPD_INSTALL_PREFIX="/opt/mympd/"
+  #CMAKE_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/var/opt/mympd"
   #remove user
   if getent passwd mympd > /dev/null
@@ -1601,7 +1596,7 @@ case "$ACTION" in
     echo "  - ENABLE_SSL=\"ON\""
     echo "  - EXTRA_CMAKE_OPTIONS=\"\""
     echo "  - MANPAGES=\"ON\""
-    echo "  - MYMPD_INSTALL_PREFIX=\"/usr\""
+    echo "  - CMAKE_INSTALL_PREFIX=\"/usr\""
     echo "  - STRIP_BINARY=\"ON\""
     echo ""
     exit 1
