@@ -403,13 +403,16 @@ installrelease() {
 
 copyassets() {
   echo "Copy dist assets"
+  [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="debug"
+
   cp -v "$STARTPATH/dist/bootstrap/compiled/custom.css" "$STARTPATH/htdocs/css/bootstrap.css"
   cp -v "$STARTPATH/dist/bootstrap-native/bootstrap-native.js" "$STARTPATH/htdocs/js/bootstrap-native.js"
   cp -v "$STARTPATH/dist/long-press-event/long-press-event.js" "$STARTPATH/htdocs/js/long-press-event.js"
   cp -v "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2" "$STARTPATH/htdocs/assets/MaterialIcons-Regular.woff2"
   cp -v "$STARTPATH/dist/material-icons/ligatures.json" "$STARTPATH/htdocs/assets/ligatures.json"
   #translation files
-  cp -v "$STARTPATH/debug/htdocs/js/i18n.js" "$STARTPATH/htdocs/js/i18n.js"
+  createi18n "$MYMPD_BUILDDIR"
+  cp -v "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$STARTPATH/htdocs/js/i18n.js"
   rm -fr "$STARTPATH/htdocs/assets/i18n/"
   install -d "$STARTPATH/htdocs/assets/i18n"
   jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default" | \
@@ -421,9 +424,6 @@ copyassets() {
 
 builddebug() {
   check_cmd jq
-
-  MYMPD_BUILDDIR="debug"
-  createi18n "$MYMPD_BUILDDIR"
 
   check_docs
   check_includes

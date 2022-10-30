@@ -13,11 +13,21 @@ set(CPACK_PACKAGE_VERSION_MINOR "1")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 
 #minimal cmake version needed for correct GNUInstallDirs
-cmake_minimum_required(VERSION 3.4)
+cmake_minimum_required(VERSION 3.13)
 
 message("Cmake version: ${CMAKE_VERSION}")
 message("Cmake src dir: ${PROJECT_SOURCE_DIR}")
 message("Cmake build dir: ${CMAKE_CURRENT_BINARY_DIR}")
+
+#default is to deliver the assets from htdocs for debug
+#and embedded assets for all other targets
+if ("${EMBEDDED_ASSETS}" STREQUAL "")
+  if(CMAKE_BUILD_TYPE MATCHES "(DEBUG|Debug)")
+    set(EMBEDDED_ASSETS "OFF")
+  else()
+    set(EMBEDDED_ASSETS "ON")
+  endif()
+endif()
 
 #available options
 option(EMBEDDED_ASSETS "Embeds assets in binary, default ON" "ON")
@@ -73,22 +83,6 @@ else()
 endif()
 message("Cachedir: ${CACHE_DIR}")
 
-#default is to deliver embedded assets for release
-#and assets in htdocs for debug
-if("${EMBEDDED_ASSETS}" MATCHES "ON")
-  set(DOC_ROOT "${WORK_DIR}/empty")
-  set(LUALIBS_PATH "")
-  message("Embedding assets in binary")
-  set(ENV{MYMPD_BUILDDIR} "${CMAKE_CURRENT_BINARY_DIR}")
-  EXECUTE_PROCESS(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" createassets)
-else()
-  set(DOC_ROOT "${PROJECT_SOURCE_DIR}/htdocs")
-  set(LUALIBS_PATH "${PROJECT_SOURCE_DIR}/contrib/lualibs")
-  message("Serving assets from filesystem")
-  EXECUTE_PROCESS(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" copyassets)
-endif()
-message("Document root: ${DOC_ROOT}")
-
 #set debug define for source
 if(CMAKE_BUILD_TYPE MATCHES "(DEBUG|Debug)")
   set(DEBUG "ON")
@@ -96,6 +90,21 @@ else()
   set(DEBUG "OFF")
   set(NDEBUG "true")
 endif()
+
+if("${EMBEDDED_ASSETS}" MATCHES "ON")
+  message("Embedding assets in binary")
+  set(DOC_ROOT "${WORK_DIR}/empty")
+  set(LUALIBS_PATH "")
+  set(ENV{MYMPD_BUILDDIR} "${CMAKE_CURRENT_BINARY_DIR}")
+  EXECUTE_PROCESS(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" createassets)
+else()
+  message("Serving assets from filesystem")
+  set(DOC_ROOT "${PROJECT_SOURCE_DIR}/htdocs")
+  set(LUALIBS_PATH "${PROJECT_SOURCE_DIR}/contrib/lualibs")
+  set(ENV{MYMPD_BUILDDIR} "${CMAKE_CURRENT_BINARY_DIR}")
+  EXECUTE_PROCESS(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" copyassets)
+endif()
+message("Document root: ${DOC_ROOT}")
 
 #required dependencies
 find_package(Threads REQUIRED)
@@ -272,7 +281,7 @@ endforeach()
 
 #set debug/release flags
 if(CMAKE_BUILD_TYPE MATCHES "(RELEASE|Release)")
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O3 -fPIE")
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fPIE")
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,relro,-z,now,--gc-sections -pie")
   if(STRIP_BINARY MATCHES "ON")
     message("Generating stripped binary")
