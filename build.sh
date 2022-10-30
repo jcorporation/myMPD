@@ -337,7 +337,7 @@ createassets() {
 buildrelease() {
   check_docs
   check_includes
-  createassets
+  #build release always with embedded assets
   EMBEDDED_ASSETS="ON"
 
   echo "Compiling myMPD"
@@ -401,6 +401,24 @@ installrelease() {
   echo "myMPD installed"
 }
 
+copyassets() {
+  echo "Copy dist assets"
+  cp -v "$STARTPATH/dist/bootstrap/compiled/custom.css" "$STARTPATH/htdocs/css/bootstrap.css"
+  cp -v "$STARTPATH/dist/bootstrap-native/bootstrap-native.js" "$STARTPATH/htdocs/js/bootstrap-native.js"
+  cp -v "$STARTPATH/dist/long-press-event/long-press-event.js" "$STARTPATH/htdocs/js/long-press-event.js"
+  cp -v "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2" "$STARTPATH/htdocs/assets/MaterialIcons-Regular.woff2"
+  cp -v "$STARTPATH/dist/material-icons/ligatures.json" "$STARTPATH/htdocs/assets/ligatures.json"
+  #translation files
+  cp -v "$STARTPATH/debug/htdocs/js/i18n.js" "$STARTPATH/htdocs/js/i18n.js"
+  rm -fr "$STARTPATH/htdocs/assets/i18n/"
+  install -d "$STARTPATH/htdocs/assets/i18n"
+  jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default" | \
+    while read -r CODE
+    do
+      minify json "$STARTPATH/src/i18n/json/${CODE}.json" "$STARTPATH/htdocs/assets/i18n/${CODE}.json"
+    done
+}
+
 builddebug() {
   check_cmd jq
 
@@ -409,27 +427,6 @@ builddebug() {
 
   check_docs
   check_includes
-
-  if [ "$EMBEDDED_ASSETS" = "OFF" ]
-  then
-    echo "Copy dist assets"
-    cp -v "$STARTPATH/dist/bootstrap/compiled/custom.css" "$STARTPATH/htdocs/css/bootstrap.css"
-    cp -v "$STARTPATH/dist/bootstrap-native/bootstrap-native.js" "$STARTPATH/htdocs/js/bootstrap-native.js"
-    cp -v "$STARTPATH/dist/long-press-event/long-press-event.js" "$STARTPATH/htdocs/js/long-press-event.js"
-    cp -v "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2" "$STARTPATH/htdocs/assets/MaterialIcons-Regular.woff2"
-    cp -v "$STARTPATH/dist/material-icons/ligatures.json" "$STARTPATH/htdocs/assets/ligatures.json"
-    #translation files
-    cp -v "$STARTPATH/debug/htdocs/js/i18n.js" "$STARTPATH/htdocs/js/i18n.js"
-    rm -fr "$STARTPATH/htdocs/assets/i18n/"
-    install -d "$STARTPATH/htdocs/assets/i18n"
-    jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default" | \
-      while read -r CODE
-      do
-        minify json "$STARTPATH/src/i18n/json/${CODE}.json" "$STARTPATH/htdocs/assets/i18n/${CODE}.json"
-      done
-  else
-    createassets
-  fi
 
   echo "Compiling myMPD"
   cd debug || exit 1
@@ -1431,6 +1428,9 @@ case "$ACTION" in
 	createassets)
 	  createassets
 	;;
+  copyassets)
+	  copyassets
+	;;
 	sbuild_chroots)
 	  sbuild_chroots
 	;;
@@ -1506,6 +1506,8 @@ case "$ACTION" in
     echo "  createassets:     creates the minfied and compressed dist files"
     echo "                    following environment variables are respected"
     echo "                      - MYMPD_BUILDDIR=\"release\""
+    echo "  copyassets:       copies the assets from dist to the source tree"
+    echo "                    for debug builds without embedded assets"
     echo ""
     echo "Translation options:"
     echo "  translate:        builds the translation file for debug builds"

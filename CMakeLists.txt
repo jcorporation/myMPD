@@ -16,6 +16,8 @@ set(CPACK_PACKAGE_VERSION_PATCH "0")
 cmake_minimum_required(VERSION 3.4)
 
 message("Cmake version: ${CMAKE_VERSION}")
+message("Cmake src dir: ${PROJECT_SOURCE_DIR}")
+message("Cmake build dir: ${CMAKE_CURRENT_BINARY_DIR}")
 
 #available options
 option(EMBEDDED_ASSETS "Embeds assets in binary, default ON" "ON")
@@ -77,10 +79,13 @@ if("${EMBEDDED_ASSETS}" MATCHES "ON")
   set(DOC_ROOT "${WORK_DIR}/empty")
   set(LUALIBS_PATH "")
   message("Embedding assets in binary")
+  set(ENV{MYMPD_BUILDDIR} "${CMAKE_CURRENT_BINARY_DIR}")
+  EXECUTE_PROCESS(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" createassets)
 else()
   set(DOC_ROOT "${PROJECT_SOURCE_DIR}/htdocs")
   set(LUALIBS_PATH "${PROJECT_SOURCE_DIR}/contrib/lualibs")
   message("Serving assets from filesystem")
+  EXECUTE_PROCESS(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" copyassets)
 endif()
 message("Document root: ${DOC_ROOT}")
 

@@ -76,11 +76,6 @@ CMAKE_OPTIONS += \
 	-DENABLE_LUA=$(if $(CONFIG_MYMPD_LUA),ON,OFF) \
 	-DENABLE_SSL=$(if $(CONFIG_MYMPD_SSL),ON,OFF)
 
-define Build/Prepare
-	$(call Build/Prepare/Default)
-	(cd $(PKG_BUILD_DIR); ./build.sh createassets)
-endef
-
 define Package/mympd/install
 	$(INSTALL_DIR) $(1)/usr/bin
 	$(INSTALL_BIN) $(PKG_INSTALL_DIR)/usr/bin/mympd $(1)/usr/bin/

@@ -24,7 +24,7 @@ options=(debug strip)
 
 build() {
   cd "${srcdir}" || exit 1
-  ./build.sh createassets
+  install -d release
   cd release || exit 1
   cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE -DSTRIP_BINARY=OFF ..
   make

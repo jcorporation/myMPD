@@ -23,7 +23,7 @@ options="!check"
 
 build() {
 	cd "$builddir" || exit 1
-	./build.sh createassets
+	install -d release
 	cd release || exit 1
 	export MANPAGES="OFF"
 	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE -DSTRIP_BINARY=OFF ..
