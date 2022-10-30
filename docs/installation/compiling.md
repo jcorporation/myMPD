@@ -63,7 +63,7 @@ You can self create packages for your distribution:
 
 ### Compile time options
 
-Compile time options are set through environment variables.
+Compile time options are set through environment variables. This variables are valid for the `build.sh` script and for calling cmake directly.
 
 | ENVIRONMENT | DEFAULT | DESCRIPTION |
 | ----------- | ------- | ----------- |
@@ -106,6 +106,16 @@ You can use `./build.sh releaseinstall` to compile and install in one step.
   - Plain assets in htdocs directory
   - Binary is statically linked with libasan
 
+### Custom
+
+You can also call cmake directly, this option is mostly for package maintainers.
+
+myMPD provides three cmake targets:
+
+1. Release: Uses default CFLAGS and LDFLAGS for a release build
+2. Debug: Uses default CFLAGS and LDFLAGS for a debug build
+3. None: Use this option to set your own CFLAGS and LDFLAGS
+
 ### Test
 
 To run the unit tests:
@@ -131,12 +141,3 @@ The build script can use sbuild and qemu to cross compile debian packages, thank
 4. `sudo -E ./build.sh sbuild_build` to build the packages
 
 The successfully build packages can be found in the `packager/builds` directory.
-
-***
-
-**Note:** Since v6.12.0 the source does not include prebuild assets. If you do not use the provided build scripts, you must build the assets before, e. g.:
-
-```
-export MYMPD_BUILDIR="build"
-./build.sh createassets
-```
