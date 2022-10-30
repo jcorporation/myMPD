@@ -36,6 +36,8 @@
 #include <mpd/tag.h>
 #include <mpd/audio_format.h>
 
+#include <stdbool.h>
+
 struct mpd_tag_value {
 	struct mpd_tag_value *next;
 
