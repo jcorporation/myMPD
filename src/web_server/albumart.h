@@ -7,9 +7,9 @@
 #ifndef MYMPD_WEB_SERVER_ALBUMART_H
 #define MYMPD_WEB_SERVER_ALBUMART_H
 
-#include "../../dist/mongoose/mongoose.h"
-#include "../../dist/sds/sds.h"
-#include "utility.h"
+#include "dist/mongoose/mongoose.h"
+#include "dist/sds/sds.h"
+#include "src/web_server/utility.h"
 
 /**
  * Albumart types

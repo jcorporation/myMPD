@@ -5,12 +5,12 @@
 */
 
 #include "compile_time.h"
-#include "http_client.h"
+#include "src/lib/http_client.h"
 
-#include "../../dist/mongoose/mongoose.h"
-#include "filehandler.h"
-#include "log.h"
-#include "sds_extras.h"
+#include "dist/mongoose/mongoose.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
 
 #include <errno.h>
 #include <inttypes.h>

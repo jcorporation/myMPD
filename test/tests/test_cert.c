@@ -5,11 +5,11 @@
 */
 
 #include "compile_time.h"
-#include "../utility.h"
+#include "test/utility.h"
 
-#include "../../dist/sds/sds.h"
-#include "../../dist/utest/utest.h"
-#include "../../src/lib/cert.h"
+#include "dist/sds/sds.h"
+#include "dist/utest/utest.h"
+#include "src/lib/cert.h"
 
 #include <sys/stat.h>
 #include <unistd.h>

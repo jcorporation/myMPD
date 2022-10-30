@@ -7,8 +7,8 @@
 #ifndef MYMPD_API_TIMER_H
 #define MYMPD_API_TIMER_H
 
-#include "../../dist/sds/sds.h"
-#include "../lib/mympd_state.h"
+#include "dist/sds/sds.h"
+#include "src/lib/mympd_state.h"
 
 enum timer_intervals {
     TIMER_ONE_SHOT_REMOVE = -1,

@@ -5,10 +5,10 @@
 */
 
 #include "compile_time.h"
-#include "outputs.h"
+#include "src/mympd_api/outputs.h"
 
-#include "../lib/jsonrpc.h"
-#include "../mpd_client/errorhandler.h"
+#include "src/lib/jsonrpc.h"
+#include "src/mpd_client/errorhandler.h"
 
 /**
  * Lists output details

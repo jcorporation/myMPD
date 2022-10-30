@@ -7,8 +7,8 @@
 #ifndef MYMPD_STATE_FILES_H
 #define MYMPD_STATE_FILES_H
 
-#include "../../dist/sds/sds.h"
-#include "validate.h"
+#include "dist/sds/sds.h"
+#include "src/lib/validate.h"
 
 #include <stdbool.h>
 

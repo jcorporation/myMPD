@@ -5,10 +5,10 @@
 */
 
 #include "compile_time.h"
-#include "sds_extras.h"
+#include "src/lib/sds_extras.h"
 
-#include "../../dist/mongoose/mongoose.h"
-#include "../../dist/utf8/utf8.h"
+#include "dist/mongoose/mongoose.h"
+#include "dist/utf8/utf8.h"
 
 #define HEXTOI(x) ((x) >= '0' && (x) <= '9' ? (x) - '0' : (x) - 'W')
 

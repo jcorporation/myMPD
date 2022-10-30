@@ -5,16 +5,16 @@
 */
 
 #include "compile_time.h"
-#include "dist/mongoose/mongoose.h"
-#include "proxy.h"
 
-#include "../lib/config_def.h"
-#include "../lib/covercache.h"
-#include "../lib/log.h"
-#include "../lib/mem.h"
-#include "../lib/mimetype.h"
-#include "../lib/sds_extras.h"
-#include "utility.h"
+#include "src/web_server/proxy.h"
+
+#include "src/lib/config_def.h"
+#include "src/lib/covercache.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/mimetype.h"
+#include "src/lib/sds_extras.h"
+#include "src/web_server/utility.h"
 
 /**
  * Private definitions

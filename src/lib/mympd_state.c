@@ -5,18 +5,18 @@
 */
 
 #include "compile_time.h"
-#include "mympd_state.h"
+#include "src/lib/mympd_state.h"
 
-#include "../mpd_client/jukebox.h"
-#include "../mympd_api/home.h"
-#include "../mympd_api/last_played.h"
-#include "../mympd_api/timer.h"
-#include "../mympd_api/trigger.h"
-#include "album_cache.h"
-#include "mem.h"
-#include "sds_extras.h"
-#include "sticker_cache.h"
-#include "utility.h"
+#include "src/lib/album_cache.h"
+#include "src/lib/mem.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/sticker_cache.h"
+#include "src/lib/utility.h"
+#include "src/mpd_client/jukebox.h"
+#include "src/mympd_api/home.h"
+#include "src/mympd_api/last_played.h"
+#include "src/mympd_api/timer.h"
+#include "src/mympd_api/trigger.h"
 
 #include <string.h>
 

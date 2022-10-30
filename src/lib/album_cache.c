@@ -5,12 +5,12 @@
 */
 
 #include "compile_time.h"
-#include "album_cache.h"
+#include "src/lib/album_cache.h"
 
-#include "../../dist/libmpdclient/src/isong.h"
-#include "../lib/sds_extras.h"
-#include "../mpd_client/tags.h"
-#include "log.h"
+#include "dist/libmpdclient/src/isong.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
+#include "src/mpd_client/tags.h"
 
 #include <inttypes.h>
 

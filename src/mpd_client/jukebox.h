@@ -7,8 +7,8 @@
 #ifndef MYMPD_JUKEBOX_H
 #define MYMPD_JUKEBOX_H
 
-#include "../lib/api.h"
-#include "../lib/mympd_state.h"
+#include "src/lib/api.h"
+#include "src/lib/mympd_state.h"
 
 enum jukebox_modes jukebox_mode_parse(const char *str);
 const char *jukebox_mode_lookup(enum jukebox_modes mode);

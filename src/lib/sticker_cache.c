@@ -5,13 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "sticker_cache.h"
+#include "src/lib/sticker_cache.h"
 
-#include "../mpd_client/errorhandler.h"
-#include "log.h"
-#include "mem.h"
-#include "sds_extras.h"
-#include "utility.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
+#include "src/mpd_client/errorhandler.h"
 
 #include <string.h>
 

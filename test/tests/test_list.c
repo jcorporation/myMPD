@@ -5,10 +5,10 @@
 */
 
 #include "compile_time.h"
-#include "../utility.h"
+#include "test/utility.h"
 
-#include "../../dist/utest/utest.h"
-#include "../../src/lib/list.h"
+#include "dist/utest/utest.h"
+#include "src/lib/list.h"
 
 static void populate_list(struct t_list *l) {
     list_init(l);

@@ -5,14 +5,14 @@
 */
 
 #include "compile_time.h"
-#include "search.h"
+#include "src/mpd_client/search.h"
 
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/sds_extras.h"
-#include "../mympd_api/sticker.h"
-#include "errorhandler.h"
-#include "tags.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/tags.h"
+#include "src/mympd_api/sticker.h"
 
 #include <string.h>
 

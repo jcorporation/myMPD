@@ -5,13 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "extra_media.h"
+#include "src/mympd_api/extra_media.h"
 
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/mimetype.h"
-#include "../lib/sds_extras.h"
-#include "../lib/utility.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/mimetype.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
 
 #include <dirent.h>
 #include <errno.h>

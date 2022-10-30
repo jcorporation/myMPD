@@ -5,15 +5,15 @@
 */
 
 #include "compile_time.h"
-#include "sessions.h"
+#include "src/web_server/sessions.h"
 
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/mem.h"
-#include "../lib/pin.h"
-#include "../lib/sds_extras.h"
-#include "../lib/validate.h"
-#include "utility.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/pin.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/validate.h"
+#include "src/web_server/utility.h"
 
 #include <string.h>
 #include <time.h>

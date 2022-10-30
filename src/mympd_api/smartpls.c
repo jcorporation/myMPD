@@ -5,13 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "smartpls.h"
+#include "src/mympd_api/smartpls.h"
 
-#include "../lib/api.h"
-#include "../lib/filehandler.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/sds_extras.h"
+#include "src/lib/api.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
 
 #include <string.h>
 

@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_STATUS_H
 #define MYMPD_API_STATUS_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 unsigned mympd_api_get_elapsed_seconds(struct mpd_status *status);
 sds mympd_api_status_print(struct t_partition_state *partition_state, sds buffer, struct mpd_status *status);

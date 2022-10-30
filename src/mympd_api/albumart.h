@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_COVER_H
 #define MYMPD_API_COVER_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 sds mympd_api_albumart_getcover(struct t_partition_state *partition_state, sds buffer, long request_id,
         const char *uri, sds *binary);

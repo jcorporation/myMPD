@@ -5,9 +5,9 @@
 */
 
 #include "compile_time.h"
-#include "volume.h"
+#include "src/mpd_client/volume.h"
 
-#include "errorhandler.h"
+#include "src/mpd_client/errorhandler.h"
 
 /**
  * Requests the volume from MPD.

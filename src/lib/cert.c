@@ -5,12 +5,12 @@
 */
 
 #include "compile_time.h"
-#include "cert.h"
+#include "src/lib/cert.h"
 
-#include "filehandler.h"
-#include "list.h"
-#include "log.h"
-#include "sds_extras.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/list.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
 
 #include <arpa/inet.h>
 #include <errno.h>

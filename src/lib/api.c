@@ -5,14 +5,15 @@
 */
 
 #include "compile_time.h"
-#include "api.h"
+#include "src/lib/api.h"
 
-#include "log.h"
-#include "mem.h"
-#include "msg_queue.h"
-#include "sds_extras.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/msg_queue.h"
+#include "src/lib/sds_extras.h"
 
 #include <mpd/client.h>
+
 #include <string.h>
 
 static const char *mympd_cmd_strs[] = { MYMPD_CMDS(GEN_STR) };

@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_WEBRADIOS_H
 #define MYMPD_API_WEBRADIOS_H
 
-#include "../../dist/sds/sds.h"
+#include "dist/sds/sds.h"
 
 #include <stdbool.h>
 

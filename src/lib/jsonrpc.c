@@ -5,12 +5,12 @@
 */
 
 #include "compile_time.h"
-#include "jsonrpc.h"
+#include "src/lib/jsonrpc.h"
 
-#include "../../dist/mjson/mjson.h"
-#include "api.h"
-#include "log.h"
-#include "sds_extras.h"
+#include "dist/mjson/mjson.h"
+#include "src/lib/api.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
 
 /**
  * This unit provides functions for jsonrpc and json parsing and printing

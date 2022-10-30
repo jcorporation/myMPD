@@ -7,10 +7,10 @@
 #ifndef MYMPD_FILEHANDLER_H
 #define MYMPD_FILEHANDLER_H
 
+#include "dist/sds/sds.h"
+
 #include <stdbool.h>
 #include <stdio.h>
-
-#include "../../dist/sds/sds.h"
 
 enum testdir_status {
     DIR_EXISTS = 0,

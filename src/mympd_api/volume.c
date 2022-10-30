@@ -5,13 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "volume.h"
+#include "src/mympd_api/volume.h"
 
-#include "../lib/api.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../mpd_client/errorhandler.h"
-#include "../mpd_client/volume.h"
+#include "src/lib/api.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/volume.h"
 
 #include <mpd/client.h>
 

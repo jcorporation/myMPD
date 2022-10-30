@@ -5,13 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "../utility.h"
+#include "test/utility.h"
 
-#include "../../dist/utest/utest.h"
-#include "../../dist/sds/sds.h"
-#include "../../src/lib/jsonrpc.h"
-#include "../../src/lib/m3u.h"
-#include "../../src/mympd_api/webradios.h"
+#include "dist/utest/utest.h"
+#include "dist/sds/sds.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/m3u.h"
+#include "src/mympd_api/webradios.h"
 
 #include <sys/stat.h>
 

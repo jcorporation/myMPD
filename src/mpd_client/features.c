@@ -5,16 +5,16 @@
 */
 
 #include "compile_time.h"
-#include "features.h"
+#include "src/mpd_client/features.h"
 
-#include "../lib/filehandler.h"
-#include "../lib/log.h"
-#include "../lib/sds_extras.h"
-#include "../lib/utility.h"
-#include "../mpd_client/tags.h"
-#include "../mympd_api/settings.h"
-#include "../mympd_api/status.h"
-#include "errorhandler.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/tags.h"
+#include "src/mympd_api/settings.h"
+#include "src/mympd_api/status.h"
 
 #include <mpd/client.h>
 

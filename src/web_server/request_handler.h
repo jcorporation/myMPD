@@ -7,8 +7,8 @@
 #ifndef MYMPD_WEB_SERVER_REQUEST_HANDLER_H
 #define MYMPD_WEB_SERVER_REQUEST_HANDLER_H
 
-#include "../../dist/mongoose/mongoose.h"
-#include "utility.h"
+#include "dist/mongoose/mongoose.h"
+#include "src/web_server/utility.h"
 
 bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth_header,
         struct t_mg_user_data *mg_user_data, struct mg_connection *backend_nc);

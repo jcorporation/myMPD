@@ -7,9 +7,9 @@
 #ifndef MYMPD_COVERCACHE_H
 #define MYMPD_COVERCACHE_H
 
-#include <stdbool.h>
+#include "dist/sds/sds.h"
 
-#include "../../dist/sds/sds.h"
+#include <stdbool.h>
 
 bool covercache_write_file(sds cachedir, const char *uri, const char *mime_type, sds binary, int offset);
 int covercache_clear(sds cachedir, int keepdays);

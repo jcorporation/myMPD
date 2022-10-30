@@ -5,11 +5,11 @@
 */
 
 #include "compile_time.h"
-#include "../utility.h"
+#include "test/utility.h"
 
-#include "../../dist/utest/utest.h"
-#include "../../src/mympd_api/timer.h"
-#include "../../src/mympd_api/timer_handlers.h"
+#include "dist/utest/utest.h"
+#include "src/mympd_api/timer.h"
+#include "src/mympd_api/timer_handlers.h"
 
 #include <sys/stat.h>
 

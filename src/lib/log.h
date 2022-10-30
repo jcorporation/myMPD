@@ -7,10 +7,10 @@
 #ifndef MYMPD_LOG_H
 #define MYMPD_LOG_H
 
+#include "dist/sds/sds.h"
+
 #include <stdbool.h>
 #include <syslog.h>
-
-#include "../../dist/sds/sds.h"
 
 /**
  * Macros for logging

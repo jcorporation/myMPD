@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "random.h"
+#include "src/lib/random.h"
 
 #include <limits.h>
 

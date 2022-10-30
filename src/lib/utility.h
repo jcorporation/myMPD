@@ -7,11 +7,11 @@
 #ifndef MYMPD_UTILITY_H
 #define MYMPD_UTILITY_H
 
+#include "dist/sds/sds.h"
+
 #include <stdbool.h>
 #include <stdio.h>
 #include <time.h>
-
-#include "../../dist/sds/sds.h"
 
 bool is_streamuri(const char *uri);
 bool is_virtual_cuedir(sds music_directory, sds filename);

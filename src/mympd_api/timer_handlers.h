@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_TIMER_HANDLERS_H
 #define MYMPD_API_TIMER_HANDLERS_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 //internal timer ids
 enum timer_ids {

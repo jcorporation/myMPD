@@ -7,8 +7,8 @@
 #ifndef MYMPD_MPD_WORKER_UTILITY_H
 #define MYMPD_MPD_WORKER_UTILITY_H
 
-#include "../lib/api.h"
-#include "../lib/mympd_state.h"
+#include "src/lib/api.h"
+#include "src/lib/mympd_state.h"
 
 /**
  * State struct for the mpd_worker thread

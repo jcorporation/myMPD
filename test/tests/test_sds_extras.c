@@ -5,10 +5,10 @@
 */
 
 #include "compile_time.h"
+#include "test/utility.h"
 
-#include "../../dist/utest/utest.h"
-#include "../../src/lib/sds_extras.h"
-#include "../utility.h"
+#include "dist/utest/utest.h"
+#include "src/lib/sds_extras.h"
 
 UTEST(utility, test_sds_split_comma_trim) {
     sds names = sdsnew("cover, folder");

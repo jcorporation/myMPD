@@ -7,7 +7,7 @@
 #ifndef MYMPD_HTTP_CLIENT_H
 #define MYMPD_HTTP_CLIENT_H
 
-#include "../../dist/sds/sds.h"
+#include "dist/sds/sds.h"
 
 /**
  * Defines a http request

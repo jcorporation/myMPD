@@ -5,17 +5,17 @@
 */
 
 #include "compile_time.h"
-#include "queue.h"
+#include "src/mympd_api/queue.h"
 
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/sds_extras.h"
-#include "../lib/utility.h"
-#include "../mpd_client/errorhandler.h"
-#include "../mpd_client/tags.h"
-#include "status.h"
-#include "sticker.h"
-#include "webradios.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/tags.h"
+#include "src/mympd_api/status.h"
+#include "src/mympd_api/sticker.h"
+#include "src/mympd_api/webradios.h"
 
 #include <string.h>
 

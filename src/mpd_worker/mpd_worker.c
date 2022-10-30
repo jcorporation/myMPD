@@ -7,13 +7,13 @@
 #include "compile_time.h"
 #include "mpd_worker.h"
 
-#include "../../dist/sds/sds.h"
-#include "../lib/log.h"
-#include "../lib/mem.h"
-#include "../lib/mympd_state.h"
-#include "../lib/sds_extras.h"
-#include "../mpd_client/connection.h"
-#include "api.h"
+#include "dist/sds/sds.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/mympd_state.h"
+#include "src/lib/sds_extras.h"
+#include "src/mpd_client/connection.h"
+#include "src/mpd_worker/api.h"
 
 #include <pthread.h>
 #include <sys/prctl.h>

@@ -5,14 +5,14 @@
 */
 
 #include "compile_time.h"
-#include "webradiodb.h"
+#include "src/web_server/webradiodb.h"
 
-#include "../lib/filehandler.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/sds_extras.h"
-#include "proxy.h"
-#include "utility.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
+#include "src/web_server/proxy.h"
+#include "src/web_server/utility.h"
 
 /**
  * Private definitions

@@ -7,7 +7,7 @@
 #ifndef MYMPD_HANDLE_OPTIONS_H
 #define MYMPD_HANDLE_OPTIONS_H
 
-#include "config_def.h"
+#include "src/lib/config_def.h"
 
 #include <stdbool.h>
 

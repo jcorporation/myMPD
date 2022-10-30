@@ -7,9 +7,9 @@
 #ifndef MYMPD_WEB_SERVER_UTILITY_H
 #define MYMPD_WEB_SERVER_UTILITY_H
 
-#include "../../dist/mongoose/mongoose.h"
-#include "../../dist/sds/sds.h"
-#include "../lib/list.h"
+#include "dist/mongoose/mongoose.h"
+#include "dist/sds/sds.h"
+#include "src/lib/list.h"
 
 #include <stdbool.h>
 

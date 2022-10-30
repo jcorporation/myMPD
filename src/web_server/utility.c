@@ -5,15 +5,15 @@
 */
 
 #include "compile_time.h"
-#include "utility.h"
+#include "src/web_server/utility.h"
 
-#include "../lib/config_def.h"
-#include "../lib/filehandler.h"
-#include "../lib/log.h"
-#include "../lib/mem.h"
-#include "../lib/mimetype.h"
-#include "../lib/sds_extras.h"
-#include "../lib/utility.h"
+#include "src/lib/config_def.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/mimetype.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
 
 #ifdef EMBEDDED_ASSETS
     //embedded files for release build

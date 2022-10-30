@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_MOUNTS_H
 #define MYMPD_API_MOUNTS_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 sds mympd_api_mounts_list(struct t_partition_state *partition_state, sds buffer, long request_id);
 sds mympd_api_mounts_neighbor_list(struct t_partition_state *partition_state, sds buffer, long request_id);

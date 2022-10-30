@@ -9,7 +9,7 @@
 
 #include "compile_time.h"
 
-#include "../dist/sds/sds.h"
+#include "dist/sds/sds.h"
 
 #include <stdbool.h>
 

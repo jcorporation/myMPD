@@ -5,11 +5,11 @@
 */
 
 #include "compile_time.h"
-#include "errorhandler.h"
+#include "src/mpd_client/errorhandler.h"
 
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "tags.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/mpd_client/tags.h"
 
 #include <mpd/client.h>
 

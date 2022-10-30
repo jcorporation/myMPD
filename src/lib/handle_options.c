@@ -5,11 +5,11 @@
 */
 
 #include "compile_time.h"
-#include "handle_options.h"
+#include "src/lib/handle_options.h"
 
-#include "config_def.h"
-#include "pin.h"
-#include "sds_extras.h"
+#include "src/lib/config_def.h"
+#include "src/lib/pin.h"
+#include "src/lib/sds_extras.h"
 
 #include <getopt.h>
 

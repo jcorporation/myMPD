@@ -5,12 +5,12 @@
 */
 
 #include "compile_time.h"
-#include "../utility.h"
+#include "test/utility.h"
 
-#include "../../dist/utest/utest.h"
-#include "../../src/lib/jsonrpc.h"
-#include "../../src/lib/mympd_state.h"
-#include "../../src/mympd_api/lyrics.h"
+#include "dist/utest/utest.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/mympd_state.h"
+#include "src/mympd_api/lyrics.h"
 
 UTEST(lyrics, test_mympd_api_lyrics_get) {
     sds music_directory = sdsnew("../testfiles");

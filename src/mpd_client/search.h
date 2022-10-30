@@ -7,7 +7,7 @@
 #ifndef MYMPD_MPD_CLIENT_SEARCH_H
 #define MYMPD_MPD_CLIENT_SEARCH_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 sds mpd_client_search_response(struct t_partition_state *partition_state, sds buffer, long request_id,
         const char *expression, const char *sort, bool sortdesc, unsigned offset, unsigned limit,

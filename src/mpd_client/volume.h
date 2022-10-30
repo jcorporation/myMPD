@@ -7,7 +7,7 @@
 #ifndef MYMPD_MPD_CLIENT_VOLUME_H
 #define MYMPD_MPD_CLIENT_VOLUME_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 int mpd_client_get_volume(struct t_partition_state *partition_state);
 #endif

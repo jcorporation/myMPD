@@ -5,14 +5,14 @@
 */
 
 #include "compile_time.h"
-#include "playlists.h"
+#include "src/mpd_client/playlists.h"
 
-#include "../lib/log.h"
-#include "../lib/random.h"
-#include "../lib/rax_extras.h"
-#include "../lib/sds_extras.h"
-#include "errorhandler.h"
-#include "tags.h"
+#include "src/lib/log.h"
+#include "src/lib/random.h"
+#include "src/lib/rax_extras.h"
+#include "src/lib/sds_extras.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/tags.h"
 
 #include <string.h>
 

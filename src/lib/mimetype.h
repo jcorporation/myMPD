@@ -7,7 +7,7 @@
 #ifndef MYMPD_MIMETYPE_H
 #define MYMPD_MIMETYPE_H
 
-#include "../../dist/sds/sds.h"
+#include "dist/sds/sds.h"
 
 #include <stdbool.h>
 

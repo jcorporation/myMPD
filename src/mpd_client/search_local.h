@@ -7,7 +7,7 @@
 #ifndef MYMPD_MPD_CLIENT_SEARCH_LOCAL_H
 #define MYMPD_MPD_CLIENT_SEARCH_LOCAL_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 bool search_mpd_song(const struct mpd_song *song, sds searchstr, const struct t_tags *tags);
 struct t_list *parse_search_expression_to_list(sds expression);

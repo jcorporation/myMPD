@@ -6,9 +6,9 @@
 
 #include "compile_time.h"
 
-#include "../../dist/utest/utest.h"
-#include "../../dist/tinymt/tinymt32.h"
-#include "../../src/lib/random.h"
+#include "dist/utest/utest.h"
+#include "dist/tinymt/tinymt32.h"
+#include "src/lib/random.h"
 
 UTEST(random, test_random) {
     //initialize random number generator

@@ -7,9 +7,9 @@
 #ifndef MYMPD_CERT_H
 #define MYMPD_CERT_H
 
-#include <stdbool.h>
+#include "dist/sds/sds.h"
 
-#include "../dist/sds/sds.h"
+#include <stdbool.h>
 
 bool certificates_check(sds workdir, sds ssl_san);
 #endif

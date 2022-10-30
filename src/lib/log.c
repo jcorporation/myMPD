@@ -5,9 +5,9 @@
 */
 
 #include "compile_time.h"
-#include "log.h"
+#include "src/lib/log.h"
 
-#include "sds_extras.h"
+#include "src/lib/sds_extras.h"
 
 #include <pthread.h>
 #include <string.h>

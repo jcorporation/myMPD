@@ -7,8 +7,8 @@
 #ifndef MYMPD_API_PLAYLISTS_H
 #define MYMPD_API_PLAYLISTS_H
 
-#include "../lib/mympd_state.h"
-#include "../mpd_client/playlists.h"
+#include "src/lib/mympd_state.h"
+#include "src/mpd_client/playlists.h"
 
 enum plist_delete_criterias {
     PLAYLIST_DELETE_UNKNOWN = -1,

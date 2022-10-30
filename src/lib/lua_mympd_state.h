@@ -7,9 +7,9 @@
 #ifndef MYMPD_LUA_MYMPD_STATE_H
 #define MYMPD_LUA_MYMPD_STATE_H
 
-#include <stdbool.h>
+#include "src/lib/list.h"
 
-#include "list.h"
+#include <stdbool.h>
 
 /**
  * Lua variable types

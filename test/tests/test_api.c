@@ -6,8 +6,8 @@
 
 #include "compile_time.h"
 
-#include "../../dist/utest/utest.h"
-#include "../../src/lib/api.h"
+#include "dist/utest/utest.h"
+#include "src/lib/api.h"
 
 UTEST(api, test_get_cmd_id) {
     enum mympd_cmd_ids cmd_id = get_cmd_id("MYMPD_API_COLS_SAVE");

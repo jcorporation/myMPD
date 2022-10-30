@@ -5,18 +5,18 @@
 */
 
 #include "compile_time.h"
-#include "request_handler.h"
+#include "src/web_server/request_handler.h"
 
-#include "../lib/api.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/msg_queue.h"
-#include "../lib/sds_extras.h"
-#include "proxy.h"
-#include "radiobrowser.h"
-#include "sessions.h"
-#include "utility.h"
-#include "webradiodb.h"
+#include "src/lib/api.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/msg_queue.h"
+#include "src/lib/sds_extras.h"
+#include "src/web_server/proxy.h"
+#include "src/web_server/radiobrowser.h"
+#include "src/web_server/sessions.h"
+#include "src/web_server/utility.h"
+#include "src/web_server/webradiodb.h"
 
 /**
  * Request handler for api requests /api

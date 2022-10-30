@@ -5,10 +5,10 @@
 */
 
 #include "compile_time.h"
-#include "sticker.h"
+#include "src/mympd_api/sticker.h"
 
-#include "../lib/jsonrpc.h"
-#include "../lib/sticker_cache.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/sticker_cache.h"
 
 /**
  * Gets the stickers from sticker cache and returns a json list

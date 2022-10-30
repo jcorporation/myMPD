@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_LYRICS_H
 #define MYMPD_API_LYRICS_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffer, long request_id, sds uri);
 #endif

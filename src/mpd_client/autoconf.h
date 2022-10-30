@@ -7,7 +7,7 @@
 #ifndef MYMPD_AUTOCONF_H
 #define MYMPD_AUTOCONF_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 void mpd_client_autoconf(struct t_mympd_state *mympd_state);
 #endif

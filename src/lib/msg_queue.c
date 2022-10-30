@@ -5,12 +5,12 @@
 */
 
 #include "compile_time.h"
-#include "msg_queue.h"
+#include "src/lib/msg_queue.h"
 
-#include "api.h"
-#include "log.h"
-#include "lua_mympd_state.h"
-#include "mem.h"
+#include "src/lib/api.h"
+#include "src/lib/log.h"
+#include "src/lib/lua_mympd_state.h"
+#include "src/lib/mem.h"
 
 #include <errno.h>
 

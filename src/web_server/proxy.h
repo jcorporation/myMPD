@@ -7,9 +7,9 @@
 #ifndef MYMPD_WEB_SERVER_PROXY_H
 #define MYMPD_WEB_SERVER_PROXY_H
 
-#include "../../dist/mongoose/mongoose.h"
-#include "../../dist/sds/sds.h"
-#include "../lib/api.h"
+#include "dist/mongoose/mongoose.h"
+#include "dist/sds/sds.h"
+#include "src/lib/api.h"
 
 #include <stdbool.h>
 

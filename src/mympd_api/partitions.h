@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_PARTITIONS_H
 #define MYMPD_API_PARTITIONS_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long request_id);
 sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer, long request_id, sds partition);

@@ -6,8 +6,8 @@
 
 #include "compile_time.h"
 
-#include "../../dist/utest/utest.h"
-#include "../../src/lib/mimetype.h"
+#include "dist/utest/utest.h"
+#include "src/lib/mimetype.h"
 
 #include <stdio.h>
 

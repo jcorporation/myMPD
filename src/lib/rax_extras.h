@@ -7,7 +7,7 @@
 #ifndef MYMPD_RAX_EXTRAS_H
 #define MYMPD_RAX_EXTRAS_H
 
-#include "../../dist/rax/rax.h"
+#include "dist/rax/rax.h"
 
 typedef void (*rax_free_data_callback) (void *data);
 

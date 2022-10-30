@@ -7,8 +7,8 @@
 #ifndef MYMPD_WEB_SERVER_TAGART_H
 #define MYMPD_WEB_SERVER_TAGART_H
 
-#include "../../dist/mongoose/mongoose.h"
-#include "utility.h"
+#include "dist/mongoose/mongoose.h"
+#include "src/web_server/utility.h"
 
 #include <stdbool.h>
 

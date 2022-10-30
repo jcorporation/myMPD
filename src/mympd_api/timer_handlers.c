@@ -5,15 +5,15 @@
 */
 
 #include "compile_time.h"
-#include "timer_handlers.h"
+#include "src/mympd_api/timer_handlers.h"
 
-#include "../lib/api.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/msg_queue.h"
-#include "../mpd_client/errorhandler.h"
-#include "../mpd_client/jukebox.h"
-#include "../mpd_client/volume.h"
+#include "src/lib/api.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/msg_queue.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/jukebox.h"
+#include "src/mpd_client/volume.h"
 
 #include <string.h>
 

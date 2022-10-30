@@ -7,8 +7,8 @@
 #ifndef MYMPD_MPD_CLIENT_TAGS_H
 #define MYMPD_MPD_CLIENT_TAGS_H
 
-#include "../../dist/sds/sds.h"
-#include "../lib/mympd_state.h"
+#include "dist/sds/sds.h"
+#include "src/lib/mympd_state.h"
 
 bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 		enum mpd_tag_type type, const char *value);

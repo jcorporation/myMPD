@@ -5,11 +5,11 @@
 */
 
 #include "compile_time.h"
-#include "mounts.h"
+#include "src/mympd_api/mounts.h"
 
-#include "../lib/jsonrpc.h"
-#include "../lib/sds_extras.h"
-#include "../mpd_client/errorhandler.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/sds_extras.h"
+#include "src/mpd_client/errorhandler.h"
 
 #include <string.h>
 

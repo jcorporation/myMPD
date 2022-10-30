@@ -7,7 +7,7 @@
 #ifndef MYMPD_SDS_EXTRAS_H
 #define MYMPD_SDS_EXTRAS_H
 
-#include "../../dist/sds/sds.h"
+#include "dist/sds/sds.h"
 
 #include <stdbool.h>
 #include <stdio.h>

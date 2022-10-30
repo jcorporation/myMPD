@@ -7,9 +7,9 @@
 #ifndef MYMPD_API_SETTINGS_H
 #define MYMPD_API_SETTINGS_H
 
-#include "../../dist/sds/sds.h"
-#include "../lib/mympd_state.h"
-#include "../lib/validate.h"
+#include "dist/sds/sds.h"
+#include "src/lib/mympd_state.h"
+#include "src/lib/validate.h"
 
 bool settings_to_webserver(struct t_mympd_state *mympd_state);
 void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state);

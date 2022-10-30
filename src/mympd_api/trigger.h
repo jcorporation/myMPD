@@ -7,8 +7,8 @@
 #ifndef MYMPD_API_TRIGGER_H
 #define MYMPD_API_TRIGGER_H
 
-#include "../../dist/sds/sds.h"
-#include "../lib/list.h"
+#include "dist/sds/sds.h"
+#include "src/lib/list.h"
 
 /**
  * myMPD trigger events. The list is composed of MPD idle events and

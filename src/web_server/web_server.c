@@ -5,19 +5,19 @@
 */
 
 #include "compile_time.h"
-#include "web_server.h"
+#include "src/web_server/web_server.h"
 
-#include "../lib/api.h"
-#include "../lib/http_client.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/mem.h"
-#include "../lib/msg_queue.h"
-#include "../lib/sds_extras.h"
-#include "albumart.h"
-#include "proxy.h"
-#include "request_handler.h"
-#include "tagart.h"
+#include "src/lib/api.h"
+#include "src/lib/http_client.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/msg_queue.h"
+#include "src/lib/sds_extras.h"
+#include "src/web_server/albumart.h"
+#include "src/web_server/proxy.h"
+#include "src/web_server/request_handler.h"
+#include "src/web_server/tagart.h"
 
 #include <sys/prctl.h>
 

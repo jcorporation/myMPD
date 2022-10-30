@@ -5,19 +5,19 @@
 */
 
 #include "compile_time.h"
-#include "mympd_api.h"
+#include "src/mympd_api/mympd_api.h"
 
-#include "../lib/log.h"
-#include "../lib/mem.h"
-#include "../lib/sds_extras.h"
-#include "../mpd_client/autoconf.h"
-#include "../mpd_client/connection.h"
-#include "../mpd_client/idle.h"
-#include "home.h"
-#include "settings.h"
-#include "timer.h"
-#include "timer_handlers.h"
-#include "trigger.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/sds_extras.h"
+#include "src/mpd_client/autoconf.h"
+#include "src/mpd_client/connection.h"
+#include "src/mpd_client/idle.h"
+#include "src/mympd_api/home.h"
+#include "src/mympd_api/settings.h"
+#include "src/mympd_api/timer.h"
+#include "src/mympd_api/timer_handlers.h"
+#include "src/mympd_api/trigger.h"
 
 #include <sys/prctl.h>
 

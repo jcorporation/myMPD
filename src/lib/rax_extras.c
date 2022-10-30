@@ -5,9 +5,9 @@
 */
 
 #include "compile_time.h"
-#include "rax_extras.h"
+#include "src/lib/rax_extras.h"
 
-#include "sds_extras.h"
+#include "src/lib/sds_extras.h"
 
 #include <stdlib.h>
 

@@ -7,7 +7,7 @@
 #ifndef MYMPD_MPD_CLIENT_FEATURES_H
 #define MYMPD_MPD_CLIENT_FEATURES_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 void mpd_client_mpd_features(struct t_partition_state *partition_state);
 #endif

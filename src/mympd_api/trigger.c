@@ -5,16 +5,16 @@
 */
 
 #include "compile_time.h"
-#include "trigger.h"
+#include "src/mympd_api/trigger.h"
 
-#include "../lib/api.h"
-#include "../lib/filehandler.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/mem.h"
-#include "../lib/msg_queue.h"
-#include "../lib/sds_extras.h"
-#include "../lib/state_files.h"
+#include "src/lib/api.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/msg_queue.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/state_files.h"
 
 #include <errno.h>
 #include <string.h>

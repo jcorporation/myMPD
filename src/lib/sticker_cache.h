@@ -7,7 +7,7 @@
 #ifndef MYMPD_STICKER_CACHE_H
 #define MYMPD_STICKER_CACHE_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 #include <stdbool.h>
 

@@ -7,7 +7,7 @@
 #ifndef MYMPD_MPD_CLIENT_PLAYLISTS_H
 #define MYMPD_MPD_CLIENT_PLAYLISTS_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 enum playlist_types {
     PLTYPE_ALL = 0,

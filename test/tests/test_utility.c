@@ -5,11 +5,11 @@
 */
 
 #include "compile_time.h"
+#include "test/utility.h"
 
-#include "../../dist/utest/utest.h"
-#include "../../src/lib/sds_extras.h"
-#include "../../src/lib/utility.h"
-#include "../utility.h"
+#include "dist/utest/utest.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
 
 UTEST(utility, test_getenv_check) {
     setenv("TESTVAR", "testvalue", 0);

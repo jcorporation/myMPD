@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_UTILITY_H
 #define MYMPD_API_UTILITY_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 sds mympd_api_get_extra_media(struct t_mpd_state *mpd_state, sds buffer, const char *uri, bool is_dirname);
 #endif

@@ -7,8 +7,8 @@
 #ifndef MYMPD_API_HOME_H
 #define MYMPD_API_HOME_H
 
-#include "../../dist/sds/sds.h"
-#include "../lib/list.h"
+#include "dist/sds/sds.h"
+#include "src/lib/list.h"
 
 #include <stdbool.h>
 

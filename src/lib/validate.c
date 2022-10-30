@@ -5,10 +5,10 @@
 */
 
 #include "compile_time.h"
-#include "validate.h"
+#include "src/lib/validate.h"
 
-#include "../../dist/utf8/utf8.h"
-#include "log.h"
+#include "dist/utf8/utf8.h"
+#include "src/lib/log.h"
 
 #include <ctype.h>
 #include <limits.h>

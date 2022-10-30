@@ -5,10 +5,10 @@
 */
 
 #include "compile_time.h"
-#include "lua_mympd_state.h"
+#include "src/lib/lua_mympd_state.h"
 
-#include "mem.h"
-#include "sds_extras.h"
+#include "src/lib/mem.h"
+#include "src/lib/sds_extras.h"
 
 /**
  * Private definitions

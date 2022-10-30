@@ -7,9 +7,9 @@
 #ifndef MYMPD_MPD_CLIENT_ERRORHANDLER_H
 #define MYMPD_MPD_CLIENT_ERRORHANDLER_H
 
-#include "../dist/sds/sds.h"
-#include "../lib/api.h"
-#include "../lib/mympd_state.h"
+#include "dist/sds/sds.h"
+#include "src/lib/api.h"
+#include "src/lib/mympd_state.h"
 
 bool mympd_check_error_and_recover(struct t_partition_state *partition_state);
 bool mympd_check_rc_error_and_recover(struct t_partition_state *partition_state, bool rc, const char *command);

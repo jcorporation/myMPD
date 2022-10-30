@@ -7,12 +7,13 @@
 #ifndef MYMPD_STATE_H
 #define MYMPD_STATE_H
 
-#include "../dist/rax/rax.h"
-#include "../dist/sds/sds.h"
-#include "config_def.h"
-#include "list.h"
+#include "dist/rax/rax.h"
+#include "dist/sds/sds.h"
+#include "src/lib/config_def.h"
+#include "src/lib/list.h"
 
 #include <mpd/client.h>
+
 #include <poll.h>
 #include <time.h>
 

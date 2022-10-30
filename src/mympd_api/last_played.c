@@ -5,19 +5,19 @@
 */
 
 #include "compile_time.h"
-#include "last_played.h"
+#include "src/mympd_api/last_played.h"
 
-#include "../../dist/sds/sds.h"
-#include "../lib/filehandler.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/sds_extras.h"
-#include "../lib/utility.h"
-#include "../lib/validate.h"
-#include "../mpd_client/errorhandler.h"
-#include "../mpd_client/search_local.h"
-#include "../mpd_client/tags.h"
-#include "sticker.h"
+#include "dist/sds/sds.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
+#include "src/lib/validate.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/search_local.h"
+#include "src/mpd_client/tags.h"
+#include "src/mympd_api/sticker.h"
 
 #include <errno.h>
 #include <string.h>

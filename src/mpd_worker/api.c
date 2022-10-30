@@ -7,12 +7,12 @@
 #include "compile_time.h"
 #include "api.h"
 
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/msg_queue.h"
-#include "../lib/sds_extras.h"
-#include "cache.h"
-#include "smartpls.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/msg_queue.h"
+#include "src/lib/sds_extras.h"
+#include "src/mpd_worker/cache.h"
+#include "src/mpd_worker/smartpls.h"
 
 /**
  * Handler for mpd worker api requests

@@ -6,12 +6,14 @@
 
 #include "compile_time.h"
 
-#include "../../dist/utest/utest.h"
+#include "dist/utest/utest.h"
+
+#include "dist/libmpdclient/src/isong.h"
+#include "src/lib/album_cache.h"
+#include "src/mpd_client/search_local.h"
+#include "src/mpd_client/tags.h"
+
 #include <mpd/client.h>
-#include "../../dist/libmpdclient/src/isong.h"
-#include "../../src/lib/album_cache.h"
-#include "../../src/mpd_client/search_local.h"
-#include "../../src/mpd_client/tags.h"
 
 struct mpd_song *new_song(void) {
 	struct mpd_song *song = malloc(sizeof(struct mpd_song));

@@ -5,23 +5,24 @@
 */
 
 #include "compile_time.h"
-#include "jukebox.h"
+#include "src/mpd_client/jukebox.h"
 
-#include "../../dist/utf8/utf8.h"
-#include "../lib/filehandler.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/mem.h"
-#include "../lib/mympd_state.h"
-#include "../lib/random.h"
-#include "../lib/sds_extras.h"
-#include "../lib/sticker_cache.h"
-#include "../mympd_api/queue.h"
-#include "../mympd_api/sticker.h"
-#include "errorhandler.h"
-#include "search.h"
-#include "search_local.h"
-#include "tags.h"
+#include "dist/utf8/utf8.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/mympd_state.h"
+#include "src/lib/random.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/sticker_cache.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/search.h"
+#include "src/mpd_client/search_local.h"
+#include "src/mpd_client/tags.h"
+#include "src/mympd_api/queue.h"
+#include "src/mympd_api/sticker.h"
+
 
 #include <errno.h>
 #include <string.h>

@@ -6,8 +6,8 @@
 
 #include "compile_time.h"
 
-#include "../../dist/utest/utest.h"
-#include "../../src/lib/validate.h"
+#include "dist/utest/utest.h"
+#include "src/lib/validate.h"
 
 UTEST(validate, test_validate_json) {
     //valid

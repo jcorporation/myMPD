@@ -6,10 +6,10 @@
 
 #include "compile_time.h"
 
-#include "../../dist/utest/utest.h"
-#include "../../src/lib/api.h"
-#include "../../src/lib/msg_queue.h"
-#include "../../src/lib/sds_extras.h"
+#include "dist/utest/utest.h"
+#include "src/lib/api.h"
+#include "src/lib/msg_queue.h"
+#include "src/lib/sds_extras.h"
 
 UTEST(mympd_queue, push_shift) {
     struct t_mympd_queue *test_queue = mympd_queue_create("test", QUEUE_TYPE_REQUEST);

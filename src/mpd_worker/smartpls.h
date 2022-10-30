@@ -7,7 +7,7 @@
 #ifndef MYMPD_MPD_WORKER_SMARTPLS_H
 #define MYMPD_MPD_WORKER_SMARTPLS_H
 
-#include "state.h"
+#include "src/mpd_worker/state.h"
 
 #include <stdbool.h>
 

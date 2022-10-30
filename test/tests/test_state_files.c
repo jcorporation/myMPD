@@ -5,12 +5,12 @@
 */
 
 #include "compile_time.h"
-#include "../utility.h"
+#include "test/utility.h"
 
-#include "../../dist/utest/utest.h"
-#include "../../src/lib/filehandler.h"
-#include "../../src/lib/sds_extras.h"
-#include "../../src/lib/state_files.h"
+#include "dist/utest/utest.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/state_files.h"
 
 #include <sys/stat.h>
 

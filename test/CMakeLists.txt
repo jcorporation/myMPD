@@ -194,7 +194,7 @@ set(ENABLE_FLAC "ON")
 set(ENABLE_LIBID3TAG "ON")
 configure_file(../src/compile_time.h.in ${PROJECT_BINARY_DIR}/compile_time.h)
 
-include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ../dist/libmpdclient/include)
+include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/.. ../dist/libmpdclient/include)
 
 include(CheckCSourceCompiles)
 

@@ -8,7 +8,7 @@
 #define INCBIN_STYLE INCBIN_STYLE_SNAKE
 
 #include "compile_time.h"
-#include "../../dist/incbin/incbin.h"
+#include "dist/incbin/incbin.h"
 
 //compressed assets
 INCBIN(sw_js, "htdocs/sw.js.gz");
@@ -57,5 +57,5 @@ INCBIN(ligatures_json, "htdocs/assets/ligatures.json.gz");
     INCBIN(i18n_zh_CN_json, "htdocs/assets/i18n/zh-CN.json.gz");
 #endif
 //uncompressed assets
-INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");
-INCBIN(appicon_512_png, "../htdocs/assets/appicon-512.png");
+INCBIN(appicon_192_png, "htdocs/assets/appicon-192.png");
+INCBIN(appicon_512_png, "htdocs/assets/appicon-512.png");

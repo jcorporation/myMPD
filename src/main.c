@@ -6,24 +6,24 @@
 
 #include "compile_time.h"
 
-#include "../dist/mongoose/mongoose.h"
-#include "../dist/sds/sds.h"
-#include "lib/api.h"
-#include "lib/config.h"
-#include "lib/config_def.h"
-#include "lib/filehandler.h"
-#include "lib/handle_options.h"
-#include "lib/log.h"
-#include "lib/mem.h"
-#include "lib/msg_queue.h"
-#include "lib/random.h"
-#include "lib/sds_extras.h"
-#include "lib/smartpls.h"
-#include "mympd_api/mympd_api.h"
-#include "web_server/web_server.h"
+#include "dist/mongoose/mongoose.h"
+#include "dist/sds/sds.h"
+#include "src/lib/api.h"
+#include "src/lib/config.h"
+#include "src/lib/config_def.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/handle_options.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/msg_queue.h"
+#include "src/lib/random.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/smartpls.h"
+#include "src/mympd_api/mympd_api.h"
+#include "src/web_server/web_server.h"
 
 #ifdef ENABLE_SSL
-    #include "lib/cert.h"
+    #include "src/lib/cert.h"
     #include <openssl/opensslv.h>
 #endif
 

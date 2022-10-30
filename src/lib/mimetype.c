@@ -5,11 +5,11 @@
 */
 
 #include "compile_time.h"
-#include "mimetype.h"
+#include "src/lib/mimetype.h"
 
-#include "log.h"
-#include "sds_extras.h"
-#include "utility.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
 
 #include <string.h>
 

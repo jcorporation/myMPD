@@ -7,7 +7,7 @@
 #ifndef MYMPD_MPD_CLIENT_PARTITIONS_H
 #define MYMPD_MPD_CLIENT_PARTITIONS_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 struct t_partition_state *partitions_get_by_name(struct t_mympd_state *mympd_state, const char *name);
 void partitions_list_clear(struct t_mympd_state *mympd_state);

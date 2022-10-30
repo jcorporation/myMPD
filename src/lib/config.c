@@ -5,14 +5,14 @@
 */
 
 #include "compile_time.h"
-#include "config.h"
+#include "src/lib/config.h"
 
-#include "log.h"
-#include "mem.h"
-#include "sds_extras.h"
-#include "state_files.h"
-#include "utility.h"
-#include "validate.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/state_files.h"
+#include "src/lib/utility.h"
+#include "src/lib/validate.h"
 
 #include <inttypes.h>
 #include <string.h>

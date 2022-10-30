@@ -5,19 +5,19 @@
 */
 
 #include "compile_time.h"
-#include "status.h"
+#include "src/mympd_api/status.h"
 
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/lua_mympd_state.h"
-#include "../lib/sds_extras.h"
-#include "../lib/utility.h"
-#include "../mpd_client/errorhandler.h"
-#include "../mpd_client/tags.h"
-#include "../mpd_client/volume.h"
-#include "extra_media.h"
-#include "sticker.h"
-#include "webradios.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/lua_mympd_state.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/tags.h"
+#include "src/mpd_client/volume.h"
+#include "src/mympd_api/extra_media.h"
+#include "src/mympd_api/sticker.h"
+#include "src/mympd_api/webradios.h"
 
 /**
  * Private definitions

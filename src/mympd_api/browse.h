@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_BROWSE_H
 #define MYMPD_API_BROWSE_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds buffer,
         long request_id, sds album, struct t_list *albumartists, const struct t_tags *tagcols);

@@ -5,17 +5,17 @@
 */
 
 #include "compile_time.h"
-#include "webradios.h"
+#include "src/mympd_api/webradios.h"
 
-#include "../../dist/utf8/utf8.h"
-#include "../lib/api.h"
-#include "../lib/filehandler.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/m3u.h"
-#include "../lib/mem.h"
-#include "../lib/sds_extras.h"
-#include "../lib/utility.h"
+#include "dist/utf8/utf8.h"
+#include "src/lib/api.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/m3u.h"
+#include "src/lib/mem.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
 
 #include <dirent.h>
 #include <errno.h>

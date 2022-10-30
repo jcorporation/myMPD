@@ -5,13 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "albumart.h"
+#include "src/mympd_api/albumart.h"
 
-#include "../lib/covercache.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/mem.h"
-#include "../lib/mimetype.h"
+#include "src/lib/covercache.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/mimetype.h"
 
 /**
  * Reads the albumart from mpd

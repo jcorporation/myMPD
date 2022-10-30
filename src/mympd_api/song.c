@@ -5,13 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "song.h"
+#include "src/mympd_api/song.h"
 
-#include "../lib/jsonrpc.h"
-#include "../mpd_client/errorhandler.h"
-#include "../mpd_client/tags.h"
-#include "extra_media.h"
-#include "sticker.h"
+#include "src/lib/jsonrpc.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/tags.h"
+#include "src/mympd_api/extra_media.h"
+#include "src/mympd_api/sticker.h"
 
 /**
  * Gets the chromaprint fingerprint for the song

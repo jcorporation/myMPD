@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_LAST_PLAYED_H
 #define MYMPD_API_LAST_PLAYED_H
 
-#include "../lib/mympd_state.h"
+#include "src/lib/mympd_state.h"
 
 bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, int song_id);
 bool mympd_api_last_played_file_save(struct t_partition_state *partition_state);

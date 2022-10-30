@@ -7,7 +7,7 @@
 #ifndef MYMPD_VALIDATE_H
 #define MYMPD_VALIDATE_H
 
-#include "../../dist/sds/sds.h"
+#include "dist/sds/sds.h"
 
 #include <stdbool.h>
 

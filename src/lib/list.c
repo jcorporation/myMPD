@@ -5,13 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "list.h"
+#include "src/lib/list.h"
 
-#include "filehandler.h"
-#include "log.h"
-#include "mem.h"
-#include "random.h"
-#include "sds_extras.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/random.h"
+#include "src/lib/sds_extras.h"
 
 #include <string.h>
 

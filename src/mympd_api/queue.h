@@ -7,8 +7,8 @@
 #ifndef MYMPD_API_QUEUE_H
 #define MYMPD_API_QUEUE_H
 
-#include "../lib/api.h"
-#include "../lib/mympd_state.h"
+#include "src/lib/api.h"
+#include "src/lib/mympd_state.h"
 
 bool mympd_api_queue_play_newly_inserted(struct t_partition_state *partition_state);
 sds mympd_api_queue_status(struct t_partition_state *partition_state, sds buffer);

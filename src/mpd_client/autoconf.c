@@ -5,14 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "autoconf.h"
+#include "src/mpd_client/autoconf.h"
 
-#include "../lib/filehandler.h"
-#include "../lib/log.h"
-#include "../lib/sds_extras.h"
-#include "../lib/utility.h"
-#include "../lib/validate.h"
-#include "mpd/connection.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
+#include "src/lib/validate.h"
 
 #include <mpd/client.h>
 
@@ -128,10 +127,10 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
         mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/var/run/mpd/socket");
         return;
     }
-    if (test_mpd_conn("/var/lib/mpd/socket") == true) {
+    if (test_mpd_conn("/vsrc/lib/mpd/socket") == true) {
         //gentoo default 
-        MYMPD_LOG_NOTICE("Setting mpd host to \"/var/lib/mpd/socket\"");
-        mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/var/lib/mpd/socket");
+        MYMPD_LOG_NOTICE("Setting mpd host to \"/vsrc/lib/mpd/socket\"");
+        mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/vsrc/lib/mpd/socket");
         return;
     }
     //fallback to localhost:6600

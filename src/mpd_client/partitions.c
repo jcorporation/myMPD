@@ -5,12 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "partitions.h"
+#include "src/mpd_client/partitions.h"
 
-#include "../lib/log.h"
-#include "../lib/mem.h"
-#include "../mympd_api/settings.h"
-#include "errorhandler.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mympd_api/settings.h"
+
 
 #include <string.h>
 

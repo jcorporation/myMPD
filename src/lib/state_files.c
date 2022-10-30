@@ -5,13 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "state_files.h"
+#include "src/lib/state_files.h"
 
-#include "filehandler.h"
-#include "log.h"
-#include "sds_extras.h"
-#include "utility.h"
-#include "validate.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
+#include "src/lib/validate.h"
 
 #include <ctype.h>
 #include <dirent.h>

@@ -5,16 +5,16 @@
 */
 
 #include "compile_time.h"
-#include "timer.h"
+#include "src/mympd_api/timer.h"
 
-#include "../lib/filehandler.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/mem.h"
-#include "../lib/sds_extras.h"
-#include "../lib/state_files.h"
-#include "../mpd_client/jukebox.h"
-#include "timer_handlers.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/state_files.h"
+#include "src/mpd_client/jukebox.h"
+#include "src/mympd_api/timer_handlers.h"
 
 #include <errno.h>
 #include <poll.h>

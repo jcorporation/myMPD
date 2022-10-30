@@ -7,7 +7,7 @@
 #ifndef MYMPD_API_PICTURES_H
 #define MYMPD_API_PICTURES_H
 
-#include "../../dist/sds/sds.h"
+#include "dist/sds/sds.h"
 
 sds mympd_api_settings_picture_list(sds workdir, sds buffer, long request_id, sds subdir);
 

@@ -5,10 +5,10 @@
 */
 
 #include "compile_time.h"
-#include "utility.h"
+#include "src/lib/utility.h"
 
-#include "log.h"
-#include "sds_extras.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
 
 #include <errno.h>
 #include <ifaddrs.h>

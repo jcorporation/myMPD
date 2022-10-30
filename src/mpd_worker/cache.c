@@ -5,17 +5,17 @@
 */
 
 #include "compile_time.h"
-#include "cache.h"
+#include "src/mpd_worker/cache.h"
 
-#include "../lib/album_cache.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/mem.h"
-#include "../lib/msg_queue.h"
-#include "../lib/sds_extras.h"
-#include "../lib/sticker_cache.h"
-#include "../mpd_client/errorhandler.h"
-#include "../mpd_client/tags.h"
+#include "src/lib/album_cache.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/mem.h"
+#include "src/lib/msg_queue.h"
+#include "src/lib/sds_extras.h"
+#include "src/lib/sticker_cache.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/tags.h"
 
 #include <inttypes.h>
 #include <string.h>

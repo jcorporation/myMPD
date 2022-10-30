@@ -5,16 +5,16 @@
 */
 
 #include "compile_time.h"
-#include "connection.h"
+#include "src/mpd_client/connection.h"
 
-#include "../lib/api.h"
-#include "../lib/jsonrpc.h"
-#include "../lib/log.h"
-#include "../lib/sds_extras.h"
-#include "../mympd_api/trigger.h"
-#include "errorhandler.h"
-#include "features.h"
-#include "tags.h"
+#include "src/lib/api.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
+#include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/features.h"
+#include "src/mpd_client/tags.h"
+#include "src/mympd_api/trigger.h"
 
 #include <mpd/client.h>
 

@@ -7,8 +7,8 @@
 #ifndef MYMPD_API_STICKER_H
 #define MYMPD_API_STICKER_H
 
-#include "../lib/mympd_state.h"
-#include "../lib/sticker_cache.h"
+#include "src/lib/mympd_state.h"
+#include "src/lib/sticker_cache.h"
 
 sds mympd_api_sticker_list(sds buffer, struct t_cache *sticker_cache, const char *uri);
 sds mympd_api_print_sticker(sds buffer, struct t_sticker *sticker);

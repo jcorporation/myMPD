@@ -5,12 +5,12 @@
 */
 
 #include "compile_time.h"
-#include "covercache.h"
+#include "src/lib/covercache.h"
 
-#include "filehandler.h"
-#include "log.h"
-#include "mimetype.h"
-#include "sds_extras.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/log.h"
+#include "src/lib/mimetype.h"
+#include "src/lib/sds_extras.h"
 
 #include <dirent.h>
 #include <errno.h>

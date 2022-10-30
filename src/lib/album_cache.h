@@ -7,8 +7,8 @@
 #ifndef MYMPD_ALBUM_CACHE_H
 #define MYMPD_ALBUM_CACHE_H
 
-#include "../../dist/sds/sds.h"
-#include "../lib/mympd_state.h"
+#include "dist/sds/sds.h"
+#include "src/lib/mympd_state.h"
 
 #include <stdbool.h>
 
