@@ -12,7 +12,7 @@ set(CPACK_PACKAGE_VERSION_MAJOR "10")
 set(CPACK_PACKAGE_VERSION_MINOR "1")
 set(CPACK_PACKAGE_VERSION_PATCH "0")
 
-#minimal cmake version needed for correct GNUInstallDirs
+#minimal cmake version needed for new option handling
 cmake_minimum_required(VERSION 3.13)
 
 message("Cmake version: ${CMAKE_VERSION}")
