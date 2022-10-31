@@ -517,7 +517,7 @@ check_includes() {
     fi
 
     SRCDIR=$(dirname "$FILE")
-    INCLUDES=$(grep "#include \"" "$FILE" | grep -v "mympd_config_defs.h" | cut -d\" -f2)
+    INCLUDES=$(grep "#include \"" "$FILE" | grep -v "compile_time.h" | cut -d\" -f2)
     for INCLUDE in $INCLUDES
     do
       if ! realpath "$INCLUDE" > /dev/null 2>&1
