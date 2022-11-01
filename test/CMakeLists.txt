@@ -6,7 +6,7 @@
 
 cmake_minimum_required(VERSION 3.4)
 
-project (test C)
+project(test C)
 
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/../cmake/")
 
@@ -148,7 +148,7 @@ set(LIBASAN_FLAGS "-fsanitize=address \
 
 #set mongoose feature flags
 set(MONGOOSE_FLAGS "-DMG_ENABLE_OPENSSL=1 -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=0")
-if("${ENABLE_IPV6}" MATCHES "ON")
+if(ENABLE_IPV6)
   message("IPv6 is enabled")
   set(MONGOOSE_FLAGS "${MONGOOSE_FLAGS} -DMG_ENABLE_IPV6=1")
 else()

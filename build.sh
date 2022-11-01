@@ -237,7 +237,7 @@ createassets() {
   echo "Minifying stylesheets"
   for F in htdocs/css/*.css
   do
-    [ "$F" = "htdocs/css/bootstrap.css" ] && continue;
+    [ "$F" = "htdocs/css/bootstrap.css" ] && continue
     DST=$(basename "$F" .css)
     minify css "$F" "$MYMPD_BUILDDIR/htdocs/css/${DST}.min.css"
   done
