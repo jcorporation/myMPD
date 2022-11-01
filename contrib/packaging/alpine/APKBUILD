@@ -22,14 +22,11 @@ options="!check"
 #no test suite
 
 build() {
-	cd "$builddir" || exit 1
-	install -d release
-	cd release || exit 1
-	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_MANPAGES=OFF -DMYMPD_STRIP_BINARY=OFF ..
-	make
+	cd  || exit 1
+	cmake -B "$builddir/release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_MANPAGES=OFF -DMYMPD_STRIP_BINARY=OFF "$builddir"
+	make -C "$builddir/release"
 }
 
 package() {
-	cd "$builddir/release" || exit 1
-	make DESTDIR="$pkgdir" install
+	make -C "$builddir/release" DESTDIR="$pkgdir" install
 }

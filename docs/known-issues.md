@@ -12,7 +12,7 @@ title: Known issues
 
 #### Cause
 
-Parsing this header and inflating the embedded compressed assets are not implemented.
+Parsing this header and inflating the embedded compressed assets is not implemented.
 
 #### Workaround
 

@@ -8,8 +8,7 @@ build-arch: build
 build-indep: build
 
 build:
-	install -d $(BUILDDIR)
-	cd $(BUILDDIR); cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_STRIP_BINARY=OFF ..
+	cmake -B $(BUILDDIR) -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_STRIP_BINARY=OFF .
 	make -C $(BUILDDIR)
 
 binary: binary-indep binary-arch
@@ -17,7 +16,7 @@ binary: binary-indep binary-arch
 binary-indep:
 
 binary-arch:
-	cd $(BUILDDIR); make install DESTDIR=../debian/mympd
+	make -C $(BUILDDIR) install DESTDIR=../debian/mympd
 	mkdir -p debian/mympd/DEBIAN
 	cp debian/postinst debian/mympd/DEBIAN
 	cp debian/postrm debian/mympd/DEBIAN

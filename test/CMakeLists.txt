@@ -15,7 +15,7 @@ find_library(MATH_LIB m REQUIRED)
 find_package(OpenSSL REQUIRED)
 find_package(PCRE2 REQUIRED)
 find_package(LIBID3TAG REQUIRED)
-find_package(FLAC)
+find_package(FLAC REQUIRED)
 
 set(TEST_SOURCES
   ../dist/mjson/mjson.c
@@ -190,8 +190,8 @@ set_property(SOURCE ../dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonlit
 #compiler flags for libmpdclient
 set_property(SOURCE ${LIBMPDCLIENT_SOURCES} PROPERTY COMPILE_FLAGS "-Wno-conversion")
 
-set(ENABLE_FLAC "ON")
-set(ENABLE_LIBID3TAG "ON")
+set(MYMPD_ENABLE_FLAC "ON")
+set(MYMPD_ENABLE_LIBID3TAG "ON")
 configure_file(../src/compile_time.h.in ${PROJECT_BINARY_DIR}/compile_time.h)
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR} ${PROJECT_SOURCE_DIR}/.. ../dist/libmpdclient/include)

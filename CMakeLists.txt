@@ -21,7 +21,7 @@ message("Cmake build dir: ${CMAKE_CURRENT_BINARY_DIR}")
 
 # default is to deliver the assets from htdocs for debug
 # and embedded assets for all other targets
-if("${MYMPD_EMBEDDED_ASSETS}" STREQUAL "")
+if(MYMPD_EMBEDDED_ASSETS STREQUAL "")
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(MYMPD_EMBEDDED_ASSETS "OFF")
   else()
@@ -39,6 +39,15 @@ option(MYMPD_ENABLE_LIBID3TAG "Enables libid3tag usage, default ON" "ON")
 option(MYMPD_ENABLE_SSL "Enables OpenSSL usage, default ON" "ON")
 option(MYMPD_MANPAGES "Creates and installs manpages" "ON")
 option(MYMPD_STRIP_BINARY "Enables stripping the binaries for release build, default ON" "ON")
+option(MYMPD_MINIMAL "Enables minimal myMPD build" "OFF")
+
+if(MYMPD_MINIMAL STREQUAL "ON")
+  set(MYMPD_ENABLE_FLAC "OFF")
+  set(MYMPD_ENABLE_IPV6 "OFF")
+  set(MYMPD_ENABLE_LUA "OFF")
+  set(MYMPD_ENABLE_LIBID3TAG "OFF")
+  set(MYMPD_ENABLE_SSL "OFF")
+endif()
 
 # cmake modules
 include(GNUInstallDirs)
@@ -97,6 +106,9 @@ if(MYMPD_EMBEDDED_ASSETS STREQUAL "ON")
   set(MYMPD_LUALIBS_PATH "")
   set(ENV{MYMPD_BUILDDIR} "${CMAKE_CURRENT_BINARY_DIR}")
   execute_process(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" createassets)
+  # remove object files with embedded assets
+  file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/mympd.dir/src/web_server/utility.c.o")
+  file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/mympd.dir/src/mympd_api/scripts.c.o")
 else()
   message("Serving assets from filesystem")
   set(MYMPD_DOC_ROOT "${PROJECT_SOURCE_DIR}/htdocs")

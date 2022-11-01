@@ -37,7 +37,7 @@ UTEST(mimetype, test_get_ext_by_mime_type) {
 }
 
 UTEST(mimetype, test_get_mime_type_by_magic) {
-    FILE *fp = fopen("../../htdocs/assets/appicon-192.png", "rb");
+    FILE *fp = fopen("htdocs/assets/appicon-192.png", "rb");
     ASSERT_FALSE(fp == NULL);
 
     unsigned char binary_buffer[12];

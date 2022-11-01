@@ -39,7 +39,7 @@ UTEST(utility, test_my_msleep) {
 
 UTEST(utility, test_is_virtual_cuedir) {
     sds dir = sdsnew(".");
-    sds file = sdsnew("test");
+    sds file = sdsnew("test/build/test");
     bool rc = is_virtual_cuedir(dir, file);
     ASSERT_TRUE(rc);
     sdsfree(dir);

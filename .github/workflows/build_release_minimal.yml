@@ -11,12 +11,8 @@ jobs:
     - name: installdeps
       run: sudo ./build.sh installdeps
     - name: build
-      env:
-        ENABLE_SSL: OFF
-        ENABLE_LIBID3TAG: OFF
-        ENABLE_FLAC: OFF
-        ENABLE_LUA: OFF
-        ENABLE_IPV6: OFF
-      run: ./build.sh release
+      run: |
+        cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_MINIMAL=ON .
+        make -C release
     - name: install
-      run: sudo ./build.sh install
+      run: make -C release install

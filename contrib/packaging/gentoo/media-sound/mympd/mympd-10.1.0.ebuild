@@ -39,11 +39,14 @@ S="${WORKDIR}/${MY_PN}-${PV}"
 
 src_compile() {
 	default
-	export MYMPD_ENABLE_SSL=$(usex ssl "ON" "OFF")
-	export MYMPD_ENABLE_LIBID3TAG=$(usex id3tag "ON" "OFF")
-	export MYMPD_ENABLE_FLAC=$(usex flac "ON" "OFF")
-	export MYMPD_ENABLE_LUA=$(usex lua "ON" "OFF")
-	./build.sh release || die
+	MYMPD_ENABLE_SSL=$(usex ssl "ON" "OFF")
+	MYMPD_ENABLE_LIBID3TAG=$(usex id3tag "ON" "OFF")
+	MYMPD_ENABLE_FLAC=$(usex flac "ON" "OFF")
+	MYMPD_ENABLE_LUA=$(usex lua "ON" "OFF")
+	cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release \
+		-DMYMPD_ENABLE_SSL=$MYMPD_ENABLE_SSL -DMYMPD_ENABLE_LIBID3TAG=$MYMPD_ENABLE_LIBID3TAG \
+		-DMYMPD_ENABLE_FLAC=$MYMPD_ENABLE_FLAC -DMYMPD_ENABLE_LUA=$MYMPD_ENABLE_LUA .
+	make -C release || die
 }
 
 src_install() {

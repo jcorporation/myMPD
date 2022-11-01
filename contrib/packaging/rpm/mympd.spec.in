@@ -37,10 +37,8 @@ Therefore myMPD is ideal for raspberry pis and similar devices.
 %setup -q -n %{name}-%{version}
 
 %build
-install -d release
-cd release || exit 1
-cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_STRIP_BINARY=OFF ..
-make
+cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_STRIP_BINARY=OFF .
+make -C release
 
 %install
 cd release || exit 1

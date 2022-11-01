@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /installation/termux
+permalink: /installation/compiling/termux
 title: Termux
 ---
 
@@ -22,9 +22,9 @@ git clone https://github.com/jcorporation/myMPD.git --depth=1
 4. Change directory to the git repo and run build
 ```
 cd myMPD
-export MYMPD_INSTALL_PREFIX=$PREFIX
-export EXTRA_CMAKE_OPTIONS="-DLUA_MATH_LIBRARY=/system/lib64/libm.so" # substitute 'lib64' for 'lib' if you are on 32bit arch
-./build.sh release
+cmake -B release -DCMAKE_BUILD_TYPE=Release -DLUA_MATH_LIBRARY=/system/lib64/libm.so .
+# substitute 'lib64' with 'lib' if you are on 32bit arch
+make -C release
 ```
 
 ## Initial config

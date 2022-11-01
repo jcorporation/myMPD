@@ -21,67 +21,6 @@ else
   ACTION="$1"
 fi
 
-#default compile settings
-if [ -z "${MYMPD_ENABLE_SSL+x}" ]
-then
-  export MYMPD_ENABLE_SSL="ON"
-fi
-
-if [ -z "${MYMPD_ENABLE_LIBID3TAG+x}" ]
-then
-  export MYMPD_ENABLE_LIBID3TAG="ON"
-fi
-
-if [ -z "${MYMPD_ENABLE_FLAC+x}" ]
-then
-  export MYMPD_ENABLE_FLAC="ON"
-fi
-
-if [ -z "${MYMPD_ENABLE_LUA+x}" ]
-then
-  export MYMPD_ENABLE_LUA="ON"
-fi
-
-if [ -z "${MYMPD_EMBEDDED_ASSETS+x}" ]
-then
-  if [ "$ACTION" = "release" ]
-  then
-    export MYMPD_EMBEDDED_ASSETS="ON"
-  else
-    export MYMPD_EMBEDDED_ASSETS="OFF"
-  fi
-fi
-
-if [ -z "${MYMPD_ENABLE_LIBASAN+x}" ]
-then
-  if [ "$ACTION" = "memcheck" ]
-  then
-    export MYMPD_ENABLE_LIBASAN="ON"
-  else
-    export MYMPD_ENABLE_LIBASAN="OFF"
-  fi
-fi
-
-if [ -z "${MYMPD_ENABLE_IPV6+x}" ]
-then
-  export MYMPD_ENABLE_IPV6="ON"
-fi
-
-if [ -z "${MYMPD_STRIP_BINARY+x}" ]
-then
-  export MYMPD_STRIP_BINARY="ON"
-fi
-
-if [ -z "${MYMPD_EXTRA_CMAKE_OPTIONS+x}" ]
-then
-  export MYMPD_EXTRA_CMAKE_OPTIONS=""
-fi
-
-if [ -z "${MYMPD_MANPAGES+x}" ]
-then
-  export MYMPD_MANPAGES="ON"
-fi
-
 #colorful warnings and errors
 echo_error() {
   printf "\e[0;31mERROR: "
@@ -166,18 +105,18 @@ setversion() {
   echo "Setting version to ${VERSION} and date to ${DATE_F2}"
 
   for F in contrib/packaging/alpine/APKBUILD contrib/packaging/arch/PKGBUILD \
-  		contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog \
-  		contrib/packaging/openwrt/Makefile contrib/man/mympd.1 contrib/man/mympd-script.1
+      contrib/packaging/rpm/mympd.spec contrib/packaging/debian/changelog \
+      contrib/packaging/openwrt/Makefile contrib/man/mympd.1 contrib/man/mympd-script.1
   do
-  	echo "$F"
-  	sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE_F1__/$DATE_F1/g" -e "s/__DATE_F2__/$DATE_F2/g" \
-  	  	-e "s/__DATE_F3__/$DATE_F3/g" "$F.in" > "$F"
+    echo "$F"
+    sed -e "s/__VERSION__/${VERSION}/g" -e "s/__DATE_F1__/$DATE_F1/g" -e "s/__DATE_F2__/$DATE_F2/g" \
+        -e "s/__DATE_F3__/$DATE_F3/g" "$F.in" > "$F"
   done
 
   #gentoo ebuild must be moved only
   if [ ! -f "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild" ]
   then
-  	mv -f contrib/packaging/gentoo/media-sound/mympd/mympd-*.ebuild \
+    mv -f contrib/packaging/gentoo/media-sound/mympd/mympd-*.ebuild \
       "contrib/packaging/gentoo/media-sound/mympd/mympd-${VERSION}.ebuild"
   fi
 
@@ -238,7 +177,6 @@ minify() {
 
 createassets() {
   check_cmd jq
-  check_cmd perl
 
   [ -z "${MYMPD_BUILDDIR+x}" ] && MYMPD_BUILDDIR="release"
 
@@ -299,7 +237,7 @@ createassets() {
   echo "Minifying stylesheets"
   for F in htdocs/css/*.css
   do
-	  [ "$F" = "htdocs/css/bootstrap.css" ] && continue;
+    [ "$F" = "htdocs/css/bootstrap.css" ] && continue;
     DST=$(basename "$F" .css)
     minify css "$F" "$MYMPD_BUILDDIR/htdocs/css/${DST}.min.css"
   done
@@ -341,27 +279,9 @@ createassets() {
 }
 
 buildrelease() {
-  check_docs
-  check_includes
-  #build release always with embedded assets
-  MYMPD_EMBEDDED_ASSETS="ON"
-
-  echo "Compiling myMPD"
-  install -d release
-  cd release || exit 1
-  #force rebuild of objects with embedded assets
-  rm -vf CMakeFiles/mympd.dir/src/web_server/utility.c.o
-  rm -vf CMakeFiles/mympd.dir/src/mympd_api/scripts.c.o
-  #set CMAKE_INSTALL_PREFIX and build myMPD
-  export CMAKE_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX:-/usr}"
-  #shellcheck disable=SC2086
-  cmake -DCMAKE_INSTALL_PREFIX:PATH="$CMAKE_INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=Release \
-    -DMYMPD_ENABLE_SSL="$MYMPD_ENABLE_SSL" -DMYMPD_ENABLE_LIBID3TAG="$MYMPD_ENABLE_LIBID3TAG" \
-    -DMYMPD_ENABLE_FLAC="$MYMPD_ENABLE_FLAC" -DMYMPD_ENABLE_LUA="$MYMPD_ENABLE_LUA" \
-    -DMYMPD_EMBEDDED_ASSETS="$MYMPD_EMBEDDED_ASSETS" -DMYMPD_ENABLE_LIBASAN="$MYMPD_ENABLE_LIBASAN" \
-    -DMYMPD_ENABLE_IPV6="$MYMPD_ENABLE_IPV6" -DMYMPD_STRIP_BINARY="$MYMPD_STRIP_BINARY" \
-    -DMYMPD_MANPAGES="$MYMPD_MANPAGES" $MYMPD_EXTRA_CMAKE_OPTIONS ..
-  make
+  echo "Compiling myMPD" 
+  cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release .
+  make -C release
 }
 
 addmympduser() {
@@ -429,37 +349,27 @@ copyassets() {
 }
 
 builddebug() {
-  check_cmd jq
-
-  check_docs
-  check_includes
-
   echo "Compiling myMPD"
-  install -d debug
-  cd debug || exit 1
-  #set CMAKE_INSTALL_PREFIX and build myMPD
-  export CMAKE_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX:-/usr}"
-  #shellcheck disable=SC2086
-  cmake -DCMAKE_INSTALL_PREFIX:PATH="${CMAKE_INSTALL_PREFIX}" -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-    -DMYMPD_ENABLE_SSL="$MYMPD_ENABLE_SSL" -DMYMPD_ENABLE_LIBID3TAG="$MYMPD_ENABLE_LIBID3TAG" \
-    -DMYMPD_ENABLE_FLAC="$MYMPD_ENABLE_FLAC" -DMYMPD_ENABLE_LUA="$MYMPD_ENABLE_LUA" \
-    -DMYMPD_EMBEDDED_ASSETS="$MYMPD_EMBEDDED_ASSETS" -DMYMPD_ENABLE_LIBASAN="$MYMPD_ENABLE_LIBASAN" \
-    -DMYMPD_ENABLE_IPV6="$MYMPD_ENABLE_IPV6" -DMYMPD_MANPAGES="$MYMPD_MANPAGES" $MYMPD_EXTRA_CMAKE_OPTIONS ..
-  make VERBOSE=1
+  if [ "$ACTION" = "memcheck" ]
+  then
+    MYMPD_ENABLE_LIBASAN=ON
+  else
+    MYMPD_ENABLE_LIBASAN=OFF
+  fi
+  cmake -B debug -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DMYMPD_ENABLE_LIBASAN="$MYMPD_ENABLE_LIBASAN" .
+  make -C debug VERBOSE=1
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
     -e 's/-static-libasan//g' -e 's/-Wno-stringop-overread//g' -e 's/-fstack-clash-protection//g' \
-    compile_commands.json > ../src/compile_commands.json
+    debug/compile_commands.json > src/compile_commands.json
 }
 
 buildtest() {
-  install -d test/build
-  cd test/build || exit 1
-  #shellcheck disable=SC2086
-  cmake -DCMAKE_BUILD_TYPE=Debug $MYMPD_EXTRA_CMAKE_OPTIONS ..
-  make VERBOSE=1
-  ./test
+  echo "Compiling and running unit tests"
+  cmake -B test/build -S test -DCMAKE_BUILD_TYPE=Debug
+  make -C test/build VERBOSE=1
+  ./test/build/test
 }
 
 cleanup() {
@@ -498,8 +408,8 @@ cleanuposc() {
 
 check_docs() {
   rc=0
-  grep -v '//' src/lib/api.h | grep 'X(MYMPD' | cut -d\( -f2 | cut -d\) -f1 | \
-  while IFS= read -r METHOD
+  METHODS=$(grep -v '//' src/lib/api.h | grep 'X(MYMPD' | cut -d\( -f2 | cut -d\) -f1)
+  for METHOD in $METHODS
   do
     if ! grep -q "$METHOD" htdocs/js/apidoc.js
     then
@@ -521,7 +431,6 @@ check_includes() {
       rc=1
     fi
 
-    SRCDIR=$(dirname "$FILE")
     INCLUDES=$(grep "#include \"" "$FILE" | grep -v "compile_time.h" | cut -d\" -f2)
     for INCLUDE in $INCLUDES
     do
@@ -569,7 +478,7 @@ check_file() {
     echo "Running clang-tidy"
     rm -f clang-tidy.out
     clang-tidy --checks="$CLANG_TIDY_CHECKS" \
-    	"$FILE" > ../clang-tidy.out 2>/dev/null
+      "$FILE" > ../clang-tidy.out 2>/dev/null
     grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out
   else
     echo_warn "clang-tidy not found"
@@ -577,6 +486,16 @@ check_file() {
 }
 
 check() {
+  if ! check_docs
+  then
+    return 1
+  fi
+
+  if ! check_includes
+  then
+    return 1
+  fi
+
   if check_cmd cppcheck
   then
     echo "Running cppcheck"
@@ -636,7 +555,7 @@ check() {
     rm -f clang-tidy.out
     cd src || exit 1
     find ./ -name '*.c' -exec clang-tidy \
-    	--checks="$CLANG_TIDY_CHECKS" {} \; >> ../clang-tidy.out 2>/dev/null
+      --checks="$CLANG_TIDY_CHECKS" {} \; >> ../clang-tidy.out 2>/dev/null
     ERRORS=$(grep -v -E "(/usr/include/|memset|memcpy|\^)" ../clang-tidy.out)
     if [ -n "$ERRORS" ]
     then
@@ -649,14 +568,6 @@ check() {
     return 1
   fi
 
-  if ! check_docs
-  then
-    return 1
-  fi
-  if ! check_includes
-  then
-    return 1
-  fi
   return 0
 }
 
@@ -683,7 +594,7 @@ pkgdebian() {
   SIGNOPT="--no-sign"
   if [ -n "${SIGN+x}" ] && [ "$SIGN" = "TRUE" ]
   then
-	SIGNOPT="--sign-key=$GPGKEYID"
+    SIGNOPT="--sign-key=$GPGKEYID"
   else
     echo_warn "Package would not be signed"
   fi
@@ -818,10 +729,10 @@ pkgosc() {
   then
     if [ -f .git/HEAD ] && grep -q "master" .git/HEAD
     then
-  	  OSC_REPO="home:jcorporation/myMPD"
-  	else
-  	  OSC_REPO="home:jcorporation/myMPD-devel"
-  	fi
+      OSC_REPO="home:jcorporation/myMPD"
+    else
+      OSC_REPO="home:jcorporation/myMPD-devel"
+    fi
   fi
 
   mkdir osc
@@ -872,8 +783,8 @@ installdeps() {
       apt-get install -y --no-install-recommends liblua5.3-dev
     fi
     apt-get install -y --no-install-recommends \
-	    gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
-	    build-essential pkg-config libpcre2-dev gzip jq
+      gcc cmake perl libssl-dev libid3tag0-dev libflac-dev \
+      build-essential pkg-config libpcre2-dev gzip jq
   elif [ -f /etc/arch-release ]
   then
     #arch
@@ -882,17 +793,17 @@ installdeps() {
   then
     #alpine
     apk add cmake perl openssl-dev libid3tag-dev flac-dev lua5.4-dev \
-    	alpine-sdk linux-headers pkgconf pcre2-dev gzip jq
+      alpine-sdk linux-headers pkgconf pcre2-dev gzip jq
   elif [ -f /etc/SuSE-release ]
   then
     #suse
     zypper install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	    lua-devel unzip pcre2-devel gzip jq
+      lua-devel unzip pcre2-devel gzip jq
   elif [ -f /etc/redhat-release ]
   then
     #fedora
     yum install gcc cmake pkgconfig perl openssl-devel libid3tag-devel flac-devel \
-	    lua-devel unzip pcre2-devel gzip jq
+      lua-devel unzip pcre2-devel gzip jq
   else
     echo_warn "Unsupported distribution detected."
     echo "You should manually install:"
@@ -958,7 +869,7 @@ updatebootstrapnative() {
 
   if [ -d debug ]
   then
-  	cp dist/bootstrap-native/bootstrap-native.js htdocs/js/
+    cp dist/bootstrap-native/bootstrap-native.js htdocs/js/
   fi
 }
 
@@ -972,7 +883,7 @@ updatebootstrap() {
   rm compiled/custom.css.map
   if [ -d ../../debug ]
   then
-  	cp -v compiled/custom.css ../../htdocs/css/bootstrap.css
+    cp -v compiled/custom.css ../../htdocs/css/bootstrap.css
   fi
 }
 
@@ -1122,7 +1033,7 @@ sbuild_chroots() {
   then
     echo "Must be run as root:"
     echo "  sudo -E ./build.sh sbuild_chroots"
-  	exit 1
+    exit 1
   fi
   [ -z "${WORKDIR+x}" ] && WORKDIR="$STARTPATH/builder"
   [ -z "${DISTROS+x}" ] && DISTROS="bullseye buster"
@@ -1165,7 +1076,7 @@ sbuild_build() {
   then
     echo "Must be run as root:"
     echo "  sudo -E ./build.sh sbuild_build"
-  	exit 1
+    exit 1
   fi
   [ -z "${WORKDIR+x}" ] && WORKDIR="$STARTPATH/builder"
   [ -z "${DISTROS+x}" ] && DISTROS="bullseye buster"
@@ -1198,7 +1109,7 @@ sbuild_cleanup() {
   then
     echo "Must be run as root:"
     echo "  sudo -E ./build.sh sbuild_cleanup"
-  	exit 1
+    exit 1
   fi
   [ -z "${WORKDIR+x}" ] && WORKDIR="$STARTPATH/builder"
   rm -rf "${WORKDIR}"
@@ -1254,11 +1165,11 @@ run_eslint() {
   FORBIDDEN_CMDS="innerHTML outerHTML insertAdjacentHTML innerText getElements"
   for F in $FORBIDDEN_CMDS
   do
-  	if grep -q "$F" release/htdocs/js/mympd.min.js
-  	then
-  		echo_error "Found $F usage"
+    if grep -q "$F" release/htdocs/js/mympd.min.js
+    then
+      echo_error "Found $F usage"
       rc=1
-  	fi
+    fi
   done
   echo "Check for subdir usage"
   if grep -q -P "subdir\s*\+\s*\'[^/]" htdocs/js/*.js
@@ -1334,39 +1245,39 @@ run_jsdoc() {
 }
 
 case "$ACTION" in
-	release)
-	  buildrelease
-	;;
-	install)
-	  installrelease
-	;;
-	releaseinstall)
-	  buildrelease
-	  cd .. || exit 1
-	  installrelease
-	;;
-	debug)
-	  builddebug
-	;;
-	memcheck)
-	  builddebug
-	;;
-	test)
-	  buildtest
-	;;
-	installdeps)
-	  installdeps
-	;;
-	cleanup)
-	  cleanup
-	  cleanuposc
-	;;
-	check)
-	  if ! check
+  release)
+    buildrelease
+  ;;
+  install)
+    installrelease
+  ;;
+  releaseinstall)
+    buildrelease
+    cd .. || exit 1
+    installrelease
+  ;;
+  debug)
+    builddebug
+  ;;
+  memcheck)
+    builddebug
+  ;;
+  test)
+    buildtest
+  ;;
+  installdeps)
+    installdeps
+  ;;
+  cleanup)
+    cleanup
+    cleanuposc
+  ;;
+  check)
+    if ! check
     then
       exit 1
     fi
-	;;
+  ;;
   check_file)
     if [ -z "${2+x}" ]
     then
@@ -1374,80 +1285,80 @@ case "$ACTION" in
       exit 1
     fi
     check_file "$2"
-	;;
-	check_docs)
-	  check_docs
-	;;
-	check_includes)
-	  check_includes
-	;;
-	pkgdebian)
-	  pkgdebian
-	;;
-	pkgdocker)
-	  pkgdocker
-	;;
-	pkgbuildx)
-	  pkgbuildx
-	;;
-	pkgalpine)
-	  pkgalpine
-	;;
-	pkgrpm)
-	  pkgrpm
-	;;
-	pkgarch)
-	  pkgarch
-	;;
-	setversion)
-	  setversion
-	;;
-	pkgosc)
-	  pkgosc
-	;;
-	addmympduser)
-	  addmympduser
-	;;
-	libmympdclient)
-	  updatelibmympdclient
-	;;
+  ;;
+  check_docs)
+    check_docs
+  ;;
+  check_includes)
+    check_includes
+  ;;
+  pkgdebian)
+    pkgdebian
+  ;;
+  pkgdocker)
+    pkgdocker
+  ;;
+  pkgbuildx)
+    pkgbuildx
+  ;;
+  pkgalpine)
+    pkgalpine
+  ;;
+  pkgrpm)
+    pkgrpm
+  ;;
+  pkgarch)
+    pkgarch
+  ;;
+  setversion)
+    setversion
+  ;;
+  pkgosc)
+    pkgosc
+  ;;
+  addmympduser)
+    addmympduser
+  ;;
+  libmympdclient)
+    updatelibmympdclient
+  ;;
   bootstrapnative)
     updatebootstrapnative
   ;;
   bootstrap)
     updatebootstrap
   ;;
-	uninstall)
-	  uninstall
-	;;
-	purge)
-	  uninstall
-	  purge
-	;;
-	translate)
-	  src/i18n/translate.pl verbose
-	;;
-	transstatus)
-	  src/i18n/translate.pl
-	;;
-	materialicons)
-		materialicons
-	;;
-	createassets)
-	  createassets
-	;;
+  uninstall)
+    uninstall
+  ;;
+  purge)
+    uninstall
+    purge
+  ;;
+  translate)
+    src/i18n/translate.pl verbose
+  ;;
+  transstatus)
+    src/i18n/translate.pl
+  ;;
+  materialicons)
+    materialicons
+  ;;
+  createassets)
+    createassets
+  ;;
   copyassets)
-	  copyassets
-	;;
-	sbuild_chroots)
-	  sbuild_chroots
-	;;
-	sbuild_build)
-	  sbuild_build
-	;;
-	sbuild_cleanup)
-	  sbuild_cleanup
-	;;
+    copyassets
+  ;;
+  sbuild_chroots)
+    sbuild_chroots
+  ;;
+  sbuild_build)
+    sbuild_build
+  ;;
+  sbuild_cleanup)
+    sbuild_cleanup
+  ;;
   lint)
     if ! run_htmlhint
     then
@@ -1470,15 +1381,15 @@ case "$ACTION" in
       exit 1
     fi
   ;;
-	eslint)
+  eslint)
     run_eslint
-	;;
-	stylelint)
-	  run_stylelint
-	;;
-	htmlhint)
-	  run_htmlhint
-	;;
+  ;;
+  stylelint)
+    run_stylelint
+  ;;
+  htmlhint)
+    run_htmlhint
+  ;;
   luascript_index)
     luascript_index
   ;;
@@ -1508,14 +1419,16 @@ case "$ACTION" in
     echo "  debug:            builds debug files in directory debug,"
     echo "                    serves assets from htdocs"
     echo "  memcheck:         builds debug files in directory debug"
-    echo "                    linked with libasan3 and not embedding assets"
-    echo "  test:             builds the unit testing files in test/build"
+    echo "                    linked with libasan3 and serves assets from htdocs"
+    echo "  test:             builds and runs the unit tests in test/build"
     echo "  installdeps:      installs build and runtime dependencies"
     echo "  createassets:     creates the minfied and compressed dist files"
     echo "                    following environment variables are respected"
     echo "                      - MYMPD_BUILDDIR=\"release\""
     echo "  copyassets:       copies the assets from dist to the source tree"
     echo "                    for debug builds without embedded assets"
+    echo "                    following environment variables are respected"
+    echo "                      - MYMPD_BUILDDIR=\"release\""
     echo ""
     echo "Translation options:"
     echo "  translate:        builds the translation file for debug builds"
@@ -1595,19 +1508,6 @@ case "$ACTION" in
     echo "  libmympdclient:   updates libmympdclient (fork of libmpdclient)"
     echo "  materialicons:    updates the materialicons json"
     echo "  setversion:       sets version and date in packaging files from CMakeLists.txt"
-    echo ""
-    echo "Environment variables (with defaults) for building"
-    echo "  - CMAKE_INSTALL_PREFIX=\"/usr\""
-    echo "  - MYMPD_EMBEDDED_ASSETS=\"ON\""
-    echo "  - MYMPD_ENABLE_FLAC=\"ON\""
-    echo "  - MYMPD_ENABLE_IPV6=\"ON\""
-    echo "  - MYMPD_ENABLE_LIBASAN=\"OFF\""
-    echo "  - MYMPD_ENABLE_LIBID3TAG=\"ON\""
-    echo "  - MYMPD_ENABLE_LUA=\"ON\""
-    echo "  - MYMPD_ENABLE_SSL=\"ON\""
-    echo "  - MYMPD_EXTRA_CMAKE_OPTIONS=\"\""
-    echo "  - MYMPD_MANPAGES=\"ON\""
-    echo "  - MYMPD_STRIP_BINARY=\"ON\""
     echo ""
     exit 1
   ;;
