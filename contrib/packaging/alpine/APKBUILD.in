@@ -25,8 +25,7 @@ build() {
 	cd "$builddir" || exit 1
 	install -d release
 	cd release || exit 1
-	export MANPAGES="OFF"
-	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE -DSTRIP_BINARY=OFF ..
+	cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_MANPAGES=OFF -DMYMPD_STRIP_BINARY=OFF ..
 	make
 }
 

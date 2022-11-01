@@ -743,7 +743,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_uint(buffer, "mpdTimeout", partition_state->mpd_state->mpd_timeout, true);
     buffer = tojson_bool(buffer, "mpdKeepalive", partition_state->mpd_state->mpd_keepalive, true);
     buffer = tojson_uint(buffer, "mpdBinarylimit", partition_state->mpd_state->mpd_binarylimit, true);
-#ifdef ENABLE_SSL
+#ifdef MYMPD_ENABLE_SSL
     buffer = tojson_bool(buffer, "pin", (sdslen(mympd_state->config->pin_hash) == 0 ? false : true), true);
 #else
     buffer = tojson_bool(buffer, "pin", false, true);
@@ -849,12 +849,12 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_bool(buffer, "featStartsWith", partition_state->mpd_state->feat_starts_with, true);
         buffer = tojson_bool(buffer, "featPcre", partition_state->mpd_state->feat_pcre, true);
     }
-#ifdef ENABLE_SSL
+#ifdef MYMPD_ENABLE_SSL
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
 #else
     buffer = tojson_bool(buffer, "featCacert", false, true);
 #endif
-#ifdef ENABLE_LUA
+#ifdef MYMPD_ENABLE_LUA
     buffer = tojson_bool(buffer, "featScripting", true, false);
 #else
     buffer = tojson_bool(buffer, "featScripting", false, false);

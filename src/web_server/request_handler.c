@@ -70,7 +70,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
     }
 
     sds session = sdsempty();
-    #ifdef ENABLE_SSL
+    #ifdef MYMPD_ENABLE_SSL
     if (sdslen(mg_user_data->config->pin_hash) > 0 &&
         is_protected_api_method(cmd_id) == true)
     {
@@ -327,7 +327,7 @@ void request_handler_serverinfo(struct mg_connection *nc) {
     }
 }
 
-#ifdef ENABLE_SSL
+#ifdef MYMPD_ENABLE_SSL
 /**
  * Request handler for /ca.crt
  * @param nc mongoose connection

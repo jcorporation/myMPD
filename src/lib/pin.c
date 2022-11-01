@@ -14,7 +14,7 @@
 #include <string.h>
 #include <termios.h>
 
-#ifdef ENABLE_SSL
+#ifdef MYMPD_ENABLE_SSL
     #include <openssl/evp.h>
 #endif
 
@@ -122,7 +122,7 @@ bool pin_validate(const char *pin, const char *hash) {
  */
 static sds pin_hash(const char *pin) {
     sds hex_hash = sdsempty();
-#ifdef ENABLE_SSL
+#ifdef MYMPD_ENABLE_SSL
     EVP_MD_CTX* context = EVP_MD_CTX_new();
     if (context == NULL) {
         return hex_hash;

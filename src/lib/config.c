@@ -23,7 +23,7 @@ static const char *mympd_getenv(const char *env_var, bool first_startup);
 static sds mympd_getenv_string(const char *env_var, const char *default_value, validate_callback vcb, bool first_startup);
 static int mympd_getenv_int(const char *env_var, int default_value, int min, int max, bool first_startup);
 
-#ifdef ENABLE_SSL
+#ifdef MYMPD_ENABLE_SSL
     static bool mympd_getenv_bool(const char *env_var, bool default_value, bool first_startup);
 #endif
 
@@ -36,7 +36,7 @@ static int mympd_getenv_int(const char *env_var, int default_value, int min, int
 void *mympd_free_config(struct t_config *config) {
     FREE_SDS(config->http_host);
     FREE_SDS(config->http_port);
-    #ifdef ENABLE_SSL
+    #ifdef MYMPD_ENABLE_SSL
         FREE_SDS(config->ssl_port);
         FREE_SDS(config->ssl_cert);
         FREE_SDS(config->ssl_key);
@@ -44,7 +44,7 @@ void *mympd_free_config(struct t_config *config) {
     #endif
     FREE_SDS(config->acl);
     FREE_SDS(config->scriptacl);
-    #ifdef ENABLE_LUA
+    #ifdef MYMPD_ENABLE_LUA
         FREE_SDS(config->lualibs);
     #endif
     FREE_SDS(config->pin_hash);
@@ -63,8 +63,8 @@ void *mympd_free_config(struct t_config *config) {
 void mympd_config_defaults_initial(struct t_config *config) {
     //command line options
     config->user = sdsnew(CFG_MYMPD_USER);
-    config->workdir = sdsnew(WORK_DIR);
-    config->cachedir = sdsnew(CACHE_DIR);
+    config->workdir = sdsnew(MYMPD_WORK_DIR);
+    config->cachedir = sdsnew(MYMPD_CACHE_DIR);
     config->log_to_syslog = CFG_LOG_TO_SYSLOG;
     //not configureable
     config->startup_time = time(NULL);
@@ -73,7 +73,7 @@ void mympd_config_defaults_initial(struct t_config *config) {
     //set all other sds strings to NULL
     config->http_host = NULL;
     config->http_port = NULL;
-    #ifdef ENABLE_SSL
+    #ifdef MYMPD_ENABLE_SSL
         config->ssl_port = NULL;
         config->ssl_san = NULL;
         config->ssl_cert = NULL;
@@ -81,7 +81,7 @@ void mympd_config_defaults_initial(struct t_config *config) {
     #endif
     config->acl = NULL;
     config->scriptacl = NULL;
-    #ifdef ENABLE_LUA
+    #ifdef MYMPD_ENABLE_LUA
         config->lualibs = NULL;
     #endif
     config->pin_hash = NULL;
@@ -101,7 +101,7 @@ void mympd_config_defaults(struct t_config *config) {
     //configureable with environment variables at first startup
     config->http_host = mympd_getenv_string("MYMPD_HTTP_HOST", CFG_MYMPD_HTTP_HOST, vcb_isname, config->first_startup);
     config->http_port = mympd_getenv_string("MYMPD_HTTP_PORT", CFG_MYMPD_HTTP_PORT, vcb_isdigit, config->first_startup);
-    #ifdef ENABLE_SSL
+    #ifdef MYMPD_ENABLE_SSL
         config->ssl = mympd_getenv_bool("MYMPD_SSL", CFG_MYMPD_SSL, config->first_startup);
         config->ssl_port = mympd_getenv_string("MYMPD_SSL_PORT", CFG_MYMPD_SSL_PORT, vcb_isdigit, config->first_startup);
         config->ssl_san = mympd_getenv_string("MYMPD_SSL_SAN", CFG_MYMPD_SSL_SAN, vcb_isname, config->first_startup);
@@ -121,7 +121,7 @@ void mympd_config_defaults(struct t_config *config) {
     #endif
     config->acl = mympd_getenv_string("MYMPD_ACL", CFG_MYMPD_ACL, vcb_isname, config->first_startup);
     config->scriptacl = mympd_getenv_string("MYMPD_SCRIPTACL", CFG_MYMPD_SCRIPTACL, vcb_isname, config->first_startup);
-    #ifdef ENABLE_LUA
+    #ifdef MYMPD_ENABLE_LUA
         config->lualibs = mympd_getenv_string("MYMPD_LUALIBS", CFG_MYMPD_LUALIBS, vcb_isalnum, config->first_startup);
     #endif
     config->loglevel = CFG_MYMPD_LOGLEVEL;
@@ -142,7 +142,7 @@ bool mympd_read_config(struct t_config *config) {
         MYMPD_LOG_WARN("Invalid http port, using default %s", CFG_MYMPD_HTTP_PORT);
         config->http_port = sds_replace(config->http_port, CFG_MYMPD_HTTP_PORT);
     }
-    #ifdef ENABLE_SSL
+    #ifdef MYMPD_ENABLE_SSL
         config->ssl = state_file_rw_bool(config->workdir, "config", "ssl", config->ssl, false);
         config->ssl_port = state_file_rw_string_sds(config->workdir, "config", "ssl_port", config->ssl_port, vcb_isdigit, false);
         config->ssl_san = state_file_rw_string_sds(config->workdir, "config", "ssl_san", config->ssl_san, vcb_isname, false);
@@ -163,7 +163,7 @@ bool mympd_read_config(struct t_config *config) {
     #endif
     config->acl = state_file_rw_string_sds(config->workdir, "config", "acl", config->acl, vcb_isname, false);
     config->scriptacl = state_file_rw_string_sds(config->workdir, "config", "scriptacl", config->scriptacl, vcb_isname, false);
-    #ifdef ENABLE_LUA
+    #ifdef MYMPD_ENABLE_LUA
         config->lualibs = state_file_rw_string_sds(config->workdir, "config", "lualibs", config->lualibs, vcb_isname, false);
     #endif
     config->covercache_keep_days = state_file_rw_int(config->workdir, "config", "covercache_keep_days", config->covercache_keep_days, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, false);
@@ -237,7 +237,7 @@ static int mympd_getenv_int(const char *env_var, int default_value, int min, int
     return default_value;
 }
 
-#ifdef ENABLE_SSL
+#ifdef MYMPD_ENABLE_SSL
 /**
  * Gets an environment variable as bool
  * @param env_var variable name to read

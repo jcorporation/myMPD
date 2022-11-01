@@ -19,11 +19,11 @@
 #include <string.h>
 
 //optional includes
-#ifdef ENABLE_LIBID3TAG
+#ifdef MYMPD_ENABLE_LIBID3TAG
     #include <id3tag.h>
 #endif
 
-#ifdef ENABLE_FLAC
+#ifdef MYMPD_ENABLE_FLAC
     #include <FLAC/metadata.h>
 #endif
 
@@ -37,7 +37,7 @@ static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file)
 static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file);
 static void lyricsextract_flac(struct t_list *extracted, sds media_file, bool is_ogg, const char *comment_name, bool synced);
 
-#ifdef ENABLE_LIBID3TAG
+#ifdef MYMPD_ENABLE_LIBID3TAG
 static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length, enum id3_field_textencoding encoding);
 static const char *mympd_id3_field_getlanguage(union id3_field const *field);
 #endif
@@ -189,7 +189,7 @@ static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char 
  * @return number of retrieved lyrics
  */
 static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file) {
-    #ifdef ENABLE_LIBID3TAG
+    #ifdef MYMPD_ENABLE_LIBID3TAG
     MYMPD_LOG_DEBUG("Exctracting unsynced lyrics from %s", media_file);
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
     if (file_struct == NULL) {
@@ -269,7 +269,7 @@ static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file)
  * @return number of retrieved lyrics
  */
 static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file) {
-    #ifdef ENABLE_LIBID3TAG
+    #ifdef MYMPD_ENABLE_LIBID3TAG
     MYMPD_LOG_DEBUG("Exctracting synced lyrics from \"%s\"", media_file);
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
     if (file_struct == NULL) {
@@ -353,7 +353,7 @@ static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file) {
     #endif
 }
 
-#ifdef ENABLE_LIBID3TAG
+#ifdef MYMPD_ENABLE_LIBID3TAG
 
 /**
  * Custom function to get the id3 language field
@@ -521,7 +521,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
  * @return number of retrieved lyrics
  */
 static void lyricsextract_flac(struct t_list *extracted, sds media_file, bool is_ogg, const char *comment_name, bool synced) {
-    #ifdef ENABLE_FLAC
+    #ifdef MYMPD_ENABLE_FLAC
     MYMPD_LOG_DEBUG("Exctracting lyrics from \"%s\"", media_file);
     FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
 

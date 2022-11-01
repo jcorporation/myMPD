@@ -22,11 +22,11 @@
 #include <libgen.h>
 
 //optional includes
-#ifdef ENABLE_LIBID3TAG
+#ifdef MYMPD_ENABLE_LIBID3TAG
     #include <id3tag.h>
 #endif
 
-#ifdef ENABLE_FLAC
+#ifdef MYMPD_ENABLE_FLAC
     #include <FLAC/metadata.h>
 #endif
 
@@ -346,7 +346,7 @@ static bool handle_coverextract_id3(sds cachedir, const char *uri, const char *m
         sds *binary, bool covercache, int offset)
 {
     bool rc = false;
-    #ifdef ENABLE_LIBID3TAG
+    #ifdef MYMPD_ENABLE_LIBID3TAG
     MYMPD_LOG_DEBUG("Exctracting coverimage from %s", media_file);
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
     if (file_struct == NULL) {
@@ -414,7 +414,7 @@ static bool handle_coverextract_flac(sds cachedir, const char *uri, const char *
         sds *binary, bool is_ogg, bool covercache, int offset)
 {
     bool rc = false;
-    #ifdef ENABLE_FLAC
+    #ifdef MYMPD_ENABLE_FLAC
     MYMPD_LOG_DEBUG("Exctracting coverimage from %s", media_file);
     FLAC__StreamMetadata *metadata = NULL;
 

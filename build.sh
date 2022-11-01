@@ -22,59 +22,64 @@ else
 fi
 
 #default compile settings
-if [ -z "${ENABLE_SSL+x}" ]
+if [ -z "${MYMPD_ENABLE_SSL+x}" ]
 then
-  export ENABLE_SSL="ON"
+  export MYMPD_ENABLE_SSL="ON"
 fi
 
-if [ -z "${ENABLE_LIBID3TAG+x}" ]
+if [ -z "${MYMPD_ENABLE_LIBID3TAG+x}" ]
 then
-  export ENABLE_LIBID3TAG="ON"
+  export MYMPD_ENABLE_LIBID3TAG="ON"
 fi
 
-if [ -z "${ENABLE_FLAC+x}" ]
+if [ -z "${MYMPD_ENABLE_FLAC+x}" ]
 then
-  export ENABLE_FLAC="ON"
+  export MYMPD_ENABLE_FLAC="ON"
 fi
 
-if [ -z "${ENABLE_LUA+x}" ]
+if [ -z "${MYMPD_ENABLE_LUA+x}" ]
 then
-  export ENABLE_LUA="ON"
+  export MYMPD_ENABLE_LUA="ON"
 fi
 
-if [ -z "${EMBEDDED_ASSETS+x}" ]
+if [ -z "${MYMPD_EMBEDDED_ASSETS+x}" ]
 then
   if [ "$ACTION" = "release" ]
   then
-    export EMBEDDED_ASSETS="ON"
+    export MYMPD_EMBEDDED_ASSETS="ON"
   else
-    export EMBEDDED_ASSETS="OFF"
+    export MYMPD_EMBEDDED_ASSETS="OFF"
   fi
 fi
 
-if [ -z "${ENABLE_LIBASAN+x}" ]
+if [ -z "${MYMPD_ENABLE_LIBASAN+x}" ]
 then
   if [ "$ACTION" = "memcheck" ]
   then
-    export ENABLE_LIBASAN="ON"
+    export MYMPD_ENABLE_LIBASAN="ON"
   else
-    export ENABLE_LIBASAN="OFF"
+    export MYMPD_ENABLE_LIBASAN="OFF"
   fi
 fi
 
-if [ -z "${ENABLE_IPV6+x}" ]
+if [ -z "${MYMPD_ENABLE_IPV6+x}" ]
 then
-  export ENABLE_IPV6="ON"
+  export MYMPD_ENABLE_IPV6="ON"
 fi
 
-if [ -z "${STRIP_BINARY+x}" ]
+if [ -z "${MYMPD_STRIP_BINARY+x}" ]
 then
-  export STRIP_BINARY="ON"
+  export MYMPD_STRIP_BINARY="ON"
 fi
 
-if [ -z "${EXTRA_CMAKE_OPTIONS+x}" ]
+if [ -z "${MYMPD_EXTRA_CMAKE_OPTIONS+x}" ]
 then
-  export EXTRA_CMAKE_OPTIONS=""
+  export MYMPD_EXTRA_CMAKE_OPTIONS=""
+fi
+
+if [ -z "${MYMPD_MANPAGES+x}" ]
+then
+  export MYMPD_MANPAGES="ON"
 fi
 
 #colorful warnings and errors
@@ -339,7 +344,7 @@ buildrelease() {
   check_docs
   check_includes
   #build release always with embedded assets
-  EMBEDDED_ASSETS="ON"
+  MYMPD_EMBEDDED_ASSETS="ON"
 
   echo "Compiling myMPD"
   install -d release
@@ -350,12 +355,12 @@ buildrelease() {
   #set CMAKE_INSTALL_PREFIX and build myMPD
   export CMAKE_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX:-/usr}"
   #shellcheck disable=SC2086
-  cmake -DCMAKE_INSTALL_PREFIX:PATH="$CMAKE_INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=RELEASE \
-  	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
-  	-DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
-    -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
-    -DENABLE_IPV6="$ENABLE_IPV6" -DSTRIP_BINARY="$STRIP_BINARY" \
-    $EXTRA_CMAKE_OPTIONS ..
+  cmake -DCMAKE_INSTALL_PREFIX:PATH="$CMAKE_INSTALL_PREFIX" -DCMAKE_BUILD_TYPE=Release \
+    -DMYMPD_ENABLE_SSL="$MYMPD_ENABLE_SSL" -DMYMPD_ENABLE_LIBID3TAG="$MYMPD_ENABLE_LIBID3TAG" \
+    -DMYMPD_ENABLE_FLAC="$MYMPD_ENABLE_FLAC" -DMYMPD_ENABLE_LUA="$MYMPD_ENABLE_LUA" \
+    -DMYMPD_EMBEDDED_ASSETS="$MYMPD_EMBEDDED_ASSETS" -DMYMPD_ENABLE_LIBASAN="$MYMPD_ENABLE_LIBASAN" \
+    -DMYMPD_ENABLE_IPV6="$MYMPD_ENABLE_IPV6" -DMYMPD_STRIP_BINARY="$MYMPD_STRIP_BINARY" \
+    -DMYMPD_MANPAGES="$MYMPD_MANPAGES" $MYMPD_EXTRA_CMAKE_OPTIONS ..
   make
 }
 
@@ -435,12 +440,12 @@ builddebug() {
   #set CMAKE_INSTALL_PREFIX and build myMPD
   export CMAKE_INSTALL_PREFIX="${CMAKE_INSTALL_PREFIX:-/usr}"
   #shellcheck disable=SC2086
-  cmake -DCMAKE_INSTALL_PREFIX:PATH="${CMAKE_INSTALL_PREFIX}" -DCMAKE_BUILD_TYPE=DEBUG \
+  cmake -DCMAKE_INSTALL_PREFIX:PATH="${CMAKE_INSTALL_PREFIX}" -DCMAKE_BUILD_TYPE=Debug \
     -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
-  	-DENABLE_SSL="$ENABLE_SSL" -DENABLE_LIBID3TAG="$ENABLE_LIBID3TAG" \
-    -DENABLE_FLAC="$ENABLE_FLAC" -DENABLE_LUA="$ENABLE_LUA" \
-    -DEMBEDDED_ASSETS="$EMBEDDED_ASSETS" -DENABLE_LIBASAN="$ENABLE_LIBASAN" \
-    -DENABLE_IPV6="$ENABLE_IPV6" $EXTRA_CMAKE_OPTIONS ..
+    -DMYMPD_ENABLE_SSL="$MYMPD_ENABLE_SSL" -DMYMPD_ENABLE_LIBID3TAG="$MYMPD_ENABLE_LIBID3TAG" \
+    -DMYMPD_ENABLE_FLAC="$MYMPD_ENABLE_FLAC" -DMYMPD_ENABLE_LUA="$MYMPD_ENABLE_LUA" \
+    -DMYMPD_EMBEDDED_ASSETS="$MYMPD_EMBEDDED_ASSETS" -DMYMPD_ENABLE_LIBASAN="$MYMPD_ENABLE_LIBASAN" \
+    -DMYMPD_ENABLE_IPV6="$MYMPD_ENABLE_IPV6" -DMYMPD_MANPAGES="$MYMPD_MANPAGES" $MYMPD_EXTRA_CMAKE_OPTIONS ..
   make VERBOSE=1
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
@@ -452,7 +457,7 @@ buildtest() {
   install -d test/build
   cd test/build || exit 1
   #shellcheck disable=SC2086
-  cmake -DCMAKE_BUILD_TYPE=DEBUG $EXTRA_CMAKE_OPTIONS ..
+  cmake -DCMAKE_BUILD_TYPE=Debug $MYMPD_EXTRA_CMAKE_OPTIONS ..
   make VERBOSE=1
   ./test
 }
@@ -1490,7 +1495,7 @@ case "$ACTION" in
     fi
     cp -v htdocs/js/apidoc.js docs/assets/apidoc.js
   ;;
-	*)
+  *)
     echo "Usage: $0 <option>"
     echo "Version: ${VERSION}"
     echo ""
@@ -1505,7 +1510,7 @@ case "$ACTION" in
     echo "  memcheck:         builds debug files in directory debug"
     echo "                    linked with libasan3 and not embedding assets"
     echo "  test:             builds the unit testing files in test/build"
-    echo "  installdeps:      installs build and run dependencies"
+    echo "  installdeps:      installs build and runtime dependencies"
     echo "  createassets:     creates the minfied and compressed dist files"
     echo "                    following environment variables are respected"
     echo "                      - MYMPD_BUILDDIR=\"release\""
@@ -1592,20 +1597,20 @@ case "$ACTION" in
     echo "  setversion:       sets version and date in packaging files from CMakeLists.txt"
     echo ""
     echo "Environment variables (with defaults) for building"
-    echo "  - EMBEDDED_ASSETS=\"ON\""
-    echo "  - ENABLE_FLAC=\"ON\""
-    echo "  - ENABLE_IPV6=\"ON\""
-    echo "  - ENABLE_LIBASAN=\"OFF\""
-    echo "  - ENABLE_LIBID3TAG=\"ON\""
-    echo "  - ENABLE_LUA=\"ON\""
-    echo "  - ENABLE_SSL=\"ON\""
-    echo "  - EXTRA_CMAKE_OPTIONS=\"\""
-    echo "  - MANPAGES=\"ON\""
     echo "  - CMAKE_INSTALL_PREFIX=\"/usr\""
-    echo "  - STRIP_BINARY=\"ON\""
+    echo "  - MYMPD_EMBEDDED_ASSETS=\"ON\""
+    echo "  - MYMPD_ENABLE_FLAC=\"ON\""
+    echo "  - MYMPD_ENABLE_IPV6=\"ON\""
+    echo "  - MYMPD_ENABLE_LIBASAN=\"OFF\""
+    echo "  - MYMPD_ENABLE_LIBID3TAG=\"ON\""
+    echo "  - MYMPD_ENABLE_LUA=\"ON\""
+    echo "  - MYMPD_ENABLE_SSL=\"ON\""
+    echo "  - MYMPD_EXTRA_CMAKE_OPTIONS=\"\""
+    echo "  - MYMPD_MANPAGES=\"ON\""
+    echo "  - MYMPD_STRIP_BINARY=\"ON\""
     echo ""
     exit 1
-	;;
+  ;;
 esac
 
 exit 0

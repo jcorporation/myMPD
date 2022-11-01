@@ -4,12 +4,12 @@
 # https://github.com/jcorporation/mympd
 #
 
-project (cli_tools C)
+project(cli_tools C)
 
 include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
 
 #mympd-script utility
-if (LUA_FOUND)
+if(LUA_FOUND)
   set(MYMPD_SCRIPT_SOURCES
     mympd-script.c
     log.c
@@ -31,7 +31,7 @@ if (LUA_FOUND)
 
   add_executable(mympd-script ${MYMPD_SCRIPT_SOURCES})
   target_link_libraries(mympd-script)
-  if (OPENSSL_FOUND)
+  if(OPENSSL_FOUND)
     target_link_libraries(mympd-script ${OPENSSL_LIBRARIES})
   endif()
 

@@ -214,7 +214,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_HOME_ICON_LIST:
             response->data = mympd_api_home_icon_list(&mympd_state->home_list, response->data, request->id);
             break;
-        #ifdef ENABLE_LUA
+        #ifdef MYMPD_ENABLE_LUA
         case MYMPD_API_SCRIPT_SAVE: {
             struct t_list arguments;
             list_init(&arguments);

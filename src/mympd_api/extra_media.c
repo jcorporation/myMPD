@@ -19,11 +19,11 @@
 #include <string.h>
 
 //optional includes
-#ifdef ENABLE_LIBID3TAG
+#ifdef MYMPD_ENABLE_LIBID3TAG
     #include <id3tag.h>
 #endif
 
-#ifdef ENABLE_FLAC
+#ifdef MYMPD_ENABLE_FLAC
     #include <FLAC/metadata.h>
 #endif
 
@@ -170,7 +170,7 @@ static int get_embedded_covers_count(const char *media_file) {
  */
 static int get_embedded_covers_count_id3(const char *media_file) {
     int count = 0;
-    #ifdef ENABLE_LIBID3TAG
+    #ifdef MYMPD_ENABLE_LIBID3TAG
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
     if (file_struct == NULL) {
         MYMPD_LOG_ERROR("Can't parse id3_file: %s", media_file);
@@ -203,7 +203,7 @@ static int get_embedded_covers_count_id3(const char *media_file) {
  */
 static int get_embedded_covers_count_flac(const char *media_file, bool is_ogg) {
     int count = 0;
-    #ifdef ENABLE_FLAC
+    #ifdef MYMPD_ENABLE_FLAC
     FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
 
     if(! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {

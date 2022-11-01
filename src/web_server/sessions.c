@@ -18,7 +18,7 @@
 #include <string.h>
 #include <time.h>
 
-#ifdef ENABLE_SSL
+#ifdef MYMPD_ENABLE_SSL
     #include <openssl/rand.h>
 #endif
 
@@ -99,7 +99,7 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
  */
 sds webserver_session_new(struct t_list *session_list) {
     sds session = sdsempty();
-    #ifdef ENABLE_SSL
+    #ifdef MYMPD_ENABLE_SSL
     unsigned char *buf = malloc_assert(10 * sizeof(unsigned char));
     RAND_bytes(buf, 10);
     for (int i = 0; i < 10; i++) {

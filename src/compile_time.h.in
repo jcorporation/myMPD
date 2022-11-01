@@ -17,15 +17,15 @@
 
 //build options
 #cmakedefine DEBUG
-#cmakedefine ENABLE_LIBASAN
-#cmakedefine EMBEDDED_ASSETS
+#cmakedefine MYMPD_ENABLE_LIBASAN
+#cmakedefine MYMPD_EMBEDDED_ASSETS
 
 //features
-#cmakedefine ENABLE_LIBID3TAG
-#cmakedefine ENABLE_FLAC
-#cmakedefine ENABLE_SSL
-#cmakedefine ENABLE_LUA
-#cmakedefine ENABLE_IPV6
+#cmakedefine MYMPD_ENABLE_LIBID3TAG
+#cmakedefine MYMPD_ENABLE_FLAC
+#cmakedefine MYMPD_ENABLE_SSL
+#cmakedefine MYMPD_ENABLE_LUA
+#cmakedefine MYMPD_ENABLE_IPV6
 
 //translation files
 #cmakedefine I18N_de_DE
@@ -46,10 +46,10 @@
 #define MYMPD_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"
 
 //default paths from cmake
-#define DOC_ROOT "${DOC_ROOT}"
-#define WORK_DIR "${WORK_DIR}"
-#define CACHE_DIR "${CACHE_DIR}"
-#define LUALIBS_PATH "${LUALIBS_PATH}"
+#define MYMPD_DOC_ROOT "${MYMPD_DOC_ROOT}"
+#define MYMPD_WORK_DIR "${MYMPD_WORK_DIR}"
+#define MYMPD_CACHE_DIR "${MYMPD_CACHE_DIR}"
+#define MYMPD_LUALIBS_PATH "${MYMPD_LUALIBS_PATH}"
 
 //global variables
 extern _Atomic int worker_threads;

@@ -30,7 +30,7 @@ The `build.sh` script is the one stop shop for building and packaging myMPD.
 
 myMPD has only a few dependencies beside the standard c libraries. Not installing the optional dependencies leads only to a smaller subset of myMPD functions.
 
-- cmake >= 3.4
+- cmake >= 3.13
 - libasan3 - for memcheck builds only
 - Perl - to create translation files
 - gzip - to precompress assets
@@ -63,21 +63,22 @@ You can self create packages for your distribution:
 
 ### Compile time options
 
-Compile time options are set through environment variables. This variables are valid for the `build.sh` script and for calling cmake directly.
+Compile time options for the `build.sh` script are set through environment variables.
+The same variables are valid for calling cmake with the `-D` options directly.
 
 | ENVIRONMENT | DEFAULT | DESCRIPTION |
 | ----------- | ------- | ----------- |
-| EMBEDDED_ASSETS | - | ON = Embeds assets in binary, default ON for release, else OFF |
-| ENABLE_FLAC | ON | ON = Enables flac usage for extracting coverimages |
-| ENABLE_IPV6 | ON | ON = Enables IPv6 |
-| ENABLE_LIBASAN | - | ON = compile with libasan, default ON for memcheck, else OFF |
-| ENABLE_LIBID3TAG | ON | ON = Enables libid3tag usage for extracting coverimages |
-| ENABLE_LUA | ON | ON = Enables scripting support with lua |
-| ENABLE_SSL | ON | ON = Enables SSL, requires OpenSSL >= 1.1.0 |
-| EXTRA_CMAKE_OPTIONS | | Extra options for cmake |
-| MANPAGES | ON | ON = build manpages |
 | CMAKE_INSTALL_PREFIX | /usr | Installation prefix for myMPD |
-| STRIP_BINARY | ON | release = ON, debug = OFF |
+| MYMPD_EMBEDDED_ASSETS | - | ON = Embeds assets in binary, default ON for release, else OFF |
+| MYMPD_ENABLE_FLAC | ON | ON = Enables flac usage for extracting coverimages |
+| MYMPD_ENABLE_IPV6 | ON | ON = Enables IPv6 |
+| MYMPD_ENABLE_LIBASAN | - | ON = compile with libasan, default ON for memcheck, else OFF |
+| MYMPD_ENABLE_LIBID3TAG | ON | ON = Enables libid3tag usage for extracting coverimages |
+| MYMPD_ENABLE_LUA | ON | ON = Enables scripting support with lua |
+| MYMPD_ENABLE_SSL | ON | ON = Enables SSL, requires OpenSSL >= 1.1.0 |
+| MYMPD_EXTRA_CMAKE_OPTIONS | | Extra options for cmake |
+| MYMPD_MANPAGES | ON | ON = build manpages |
+| MYMPD_STRIP_BINARY | ON | for release ON, else OFF |
 {: .table .table-sm}
 
 There are three compile targets for myMPD.

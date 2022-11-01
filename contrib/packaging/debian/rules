@@ -9,7 +9,7 @@ build-indep: build
 
 build:
 	install -d $(BUILDDIR)
-	cd $(BUILDDIR); cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=RELEASE -DSTRIP_BINARY=OFF ..
+	cd $(BUILDDIR); cmake -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_STRIP_BINARY=OFF ..
 	make -C $(BUILDDIR)
 
 binary: binary-indep binary-arch

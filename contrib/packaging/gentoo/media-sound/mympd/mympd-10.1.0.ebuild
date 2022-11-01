@@ -17,7 +17,7 @@ KEYWORDS="~amd64 ~x86 ~arm ~arm64"
 IUSE="+flac +id3tag +ssl +lua systemd"
 
 BDEPEND="
-	>=dev-util/cmake-3.4
+	>=dev-util/cmake-3.13
 	dev-lang/perl
 	app-misc/jq"
 
@@ -39,10 +39,10 @@ S="${WORKDIR}/${MY_PN}-${PV}"
 
 src_compile() {
 	default
-	export ENABLE_SSL=$(usex ssl "ON" "OFF")
-	export ENABLE_LIBID3TAG=$(usex id3tag "ON" "OFF")
-	export ENABLE_FLAC=$(usex flac "ON" "OFF")
-	export ENABLE_LUA=$(usex lua "ON" "OFF")
+	export MYMPD_ENABLE_SSL=$(usex ssl "ON" "OFF")
+	export MYMPD_ENABLE_LIBID3TAG=$(usex id3tag "ON" "OFF")
+	export MYMPD_ENABLE_FLAC=$(usex flac "ON" "OFF")
+	export MYMPD_ENABLE_LUA=$(usex lua "ON" "OFF")
 	./build.sh release || die
 }
 

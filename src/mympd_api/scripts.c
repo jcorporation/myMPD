@@ -26,12 +26,12 @@
 #include <sys/syscall.h>
 #include <unistd.h>
 
-#ifdef ENABLE_LUA
+#ifdef MYMPD_ENABLE_LUA
 
 #include <lauxlib.h>
 #include <lua.h>
 #include <lualib.h>
-#ifdef EMBEDDED_ASSETS
+#ifdef MYMPD_EMBEDDED_ASSETS
     //embedded files for release build
     #include "scripts_lualibs.c"
 #endif
@@ -502,7 +502,7 @@ static sds lua_err_to_str(sds buffer, int rc, bool phrase, const char *script) {
  */
 static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
     MYMPD_LOG_DEBUG("Loading embedded lua library %s", lualib);
-    #ifdef EMBEDDED_ASSETS
+    #ifdef MYMPD_EMBEDDED_ASSETS
         sds lib_string;
         if (strcmp(lualib, "json") == 0) {
             lib_string = sdscatlen(sdsempty(), json_lua_data, json_lua_size);
@@ -516,7 +516,7 @@ static bool mympd_luaopen(lua_State *lua_vm, const char *lualib) {
         int rc = luaL_dostring(lua_vm, lib_string);
         FREE_SDS(lib_string);
     #else
-        sds filename = sdscatfmt(sdsempty(), "%s/%s.lua", LUALIBS_PATH, lualib);
+        sds filename = sdscatfmt(sdsempty(), "%s/%s.lua", MYMPD_LUALIBS_PATH, lualib);
         int rc = luaL_dofile(lua_vm, filename);
         FREE_SDS(filename);
     #endif

@@ -17,7 +17,7 @@ static struct option long_options[] = {
     {"cachedir",  required_argument, 0, 'a'},
     {"config",    no_argument,       0, 'c'},
     {"help",      no_argument,       0, 'h'},
-    #ifdef ENABLE_SSL
+    #ifdef MYMPD_ENABLE_SSL
     {"pin",       no_argument,       0, 'p'},
     #endif
     {"syslog",    no_argument,       0, 's'},
@@ -45,7 +45,7 @@ static void print_usage(struct t_config *config, const char *cmd) {
                     "  -w, --workdir <path>   working directory (default: %s)\n"
                     "  -a, --cachedir <path>  cache directory (default: %s)\n",
         cmd, MYMPD_VERSION, config->workdir, config->cachedir);
-    #ifdef ENABLE_SSL
+    #ifdef MYMPD_ENABLE_SSL
     fprintf(stderr, "  -p, --pin              sets a pin for myMPD settings\n");
     #endif
     fprintf(stderr, "\n");
@@ -80,7 +80,7 @@ int handle_options(struct t_config *config, int argc, char **argv) {
             case 'c':
                 config->bootstrap = true;
                 break;
-            #ifdef ENABLE_SSL
+            #ifdef MYMPD_ENABLE_SSL
             case 'p': {
                 bool rc = pin_set(config->workdir);
                 return rc == true ? OPTIONS_RC_EXIT : OPTIONS_RC_INVALID;

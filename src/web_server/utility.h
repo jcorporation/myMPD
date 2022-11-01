@@ -40,7 +40,7 @@ struct t_frontend_nc_data {
     sds partition;                     //!< partition (for websocket connections only)
 };
 
-#ifdef EMBEDDED_ASSETS
+#ifdef MYMPD_EMBEDDED_ASSETS
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri);
 #endif
 bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct t_frontend_nc_data *frontend_nc_data);

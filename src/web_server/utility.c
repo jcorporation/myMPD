@@ -15,7 +15,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 
-#ifdef EMBEDDED_ASSETS
+#ifdef MYMPD_EMBEDDED_ASSETS
     //embedded files for release build
     #include "embedded_files.c"
 #endif
@@ -233,7 +233,7 @@ void webserver_serve_stream_image(struct mg_connection *nc) {
     webserver_send_header_found(nc, "assets/coverimage-stream.svg");
 }
 
-#ifdef EMBEDDED_ASSETS
+#ifdef MYMPD_EMBEDDED_ASSETS
 /**
  * Struct holding embedded file information
  */
