@@ -41,8 +41,7 @@ cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DM
 make -C release
 
 %install
-cd release || exit 1
-make install DESTDIR=%{buildroot}
+make -C release install DESTDIR=%{buildroot}
 
 %post
 echo "Checking status of mympd system user and group"

@@ -196,9 +196,9 @@ createassets() {
   #shellcheck disable=SC2013
   for F in $(grep -E '<!--debug-->\s+<script' htdocs/index.html | cut -d\" -f2)
   do
-    [ "$F" = "js/bootstrap-native.js" ] && continue;
-    [ "$F" = "js/i18n.js" ] && continue;
-    [ "$F" = "js/long-press-event.js" ] && continue;
+    [ "$F" = "js/bootstrap-native.js" ] && continue
+    [ "$F" = "js/i18n.js" ] && continue
+    [ "$F" = "js/long-press-event.js" ] && continue
     JSSRCFILES="$JSSRCFILES htdocs/$F"
     if tail -1 "htdocs/$F" | perl -npe 'exit 1 if m/\n/; exit 0'
     then
@@ -275,6 +275,13 @@ createassets() {
   do
     $ZIPCAT "$ASSET" > "$MYMPD_BUILDDIR/${ASSET}.gz"
   done
+
+  echo "Copy images"
+  cp -v htdocs/assets/*.png "$MYMPD_BUILDDIR/htdocs/assets/"
+
+  echo "Copy integrated lua libraries"
+  mkdir -p "$MYMPD_BUILDDIR/contrib/lualibs"
+  cp -v contrib/lualibs/*.lua "$MYMPD_BUILDDIR/contrib/lualibs/"
   return 0
 }
 
@@ -987,8 +994,7 @@ createi18n() {
 }
 
 materialicons() {
-  check_cmd jq
-  check_cmd wget
+  check_cmd jq wget
 
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
@@ -1485,7 +1491,7 @@ case "$ACTION" in
     echo "                      - DISTROS=\"buster stretch\""
     echo "                      - TARGETS=\"armhf armel\""
     echo "                      - DEBIAN_MIRROR=\"http://ftp.de.debian.org/debian\""
-    echo "                      - DEBOOTSTRAP=\"debootstrap"
+    echo "                      - DEBOOTSTRAP=\"debootstrap\""
     echo "  sbuild_build:     builds the packages for targets and distros"
     echo "                    must be run as root"
     echo "                    following environment variables are respected"

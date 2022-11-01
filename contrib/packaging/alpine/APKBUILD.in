@@ -22,7 +22,6 @@ options="!check"
 #no test suite
 
 build() {
-	cd  || exit 1
 	cmake -B "$builddir/release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_MANPAGES=OFF -DMYMPD_STRIP_BINARY=OFF "$builddir"
 	make -C "$builddir/release"
 }
