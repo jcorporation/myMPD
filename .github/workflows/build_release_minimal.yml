@@ -15,4 +15,4 @@ jobs:
         cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_MINIMAL=ON .
         make -C release
     - name: install
-      run: make -C release install
+      run: sudo make -C release install

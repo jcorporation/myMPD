@@ -1253,7 +1253,6 @@ case "$ACTION" in
   ;;
   releaseinstall)
     buildrelease
-    cd .. || exit 1
     installrelease
   ;;
   debug)
