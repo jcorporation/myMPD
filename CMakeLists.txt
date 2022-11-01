@@ -103,7 +103,7 @@ endif()
 
 if(MYMPD_EMBEDDED_ASSETS)
   message("Embedding assets in binary")
-  set(MYMPD_DOC_ROOT "${WORK_DIR}/empty")
+  set(MYMPD_DOC_ROOT "${MYMPD_WORK_DIR}/empty")
   set(MYMPD_LUALIBS_PATH "")
   set(ENV{MYMPD_BUILDDIR} "${CMAKE_CURRENT_BINARY_DIR}")
   execute_process(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" createassets)
