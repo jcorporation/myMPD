@@ -336,11 +336,9 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         FREE_SDS(uri_decoded);
         return true;
     }
-    else {
-        sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%S\" not found", uri_decoded);
-        webserver_send_error(nc, 404, errormsg);
-        FREE_SDS(errormsg);
-    }
+    sds errormsg = sdscatfmt(sdsempty(), "Embedded asset \"%S\" not found", uri_decoded);
+    webserver_send_error(nc, 404, errormsg);
+    FREE_SDS(errormsg);
     FREE_SDS(uri_decoded);
     return false;
 }
