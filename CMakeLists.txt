@@ -272,6 +272,7 @@ if((CMAKE_C_COMPILER_ID STREQUAL "GNU") AND (CMAKE_C_COMPILER_VERSION VERSION_GR
   # gcc 12 compatibility for mongoose
   # https://github.com/cesanta/mongoose/issues/1828
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-stringop-overread")
+  message("Enabling workaround for mongoose and gcc 12")
 endif()
 
 # libasan memory checker
