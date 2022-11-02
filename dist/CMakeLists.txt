@@ -1,0 +1,6 @@
+add_subdirectory(libmpdclient)
+add_subdirectory(mjson)
+add_subdirectory(mongoose)
+add_subdirectory(rax)
+add_subdirectory(sds)
+add_subdirectory(tinymt)

@@ -5,6 +5,7 @@
 # myMPD is written in C
 # supported compilers: gcc, clang
 project(mympd C)
+add_executable(mympd "")
 
 # update myMPD version here and run ./build.sh setversion to update
 # the source files
@@ -57,11 +58,6 @@ include(CheckCCompilerFlag)
 
 # custom cmake modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
-
-# clang compatibility
-if(CMAKE_C_COMPILER_ID STREQUAL "Clang")
-  add_compile_options("-Wno-unknown-warning-option")
-endif()
 
 message("Compiler: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
 
@@ -130,8 +126,10 @@ if(MYMPD_ENABLE_SSL)
   find_package(OpenSSL)
   if(OPENSSL_FOUND)
     if(OPENSSL_VERSION VERSION_GREATER_EQUAL "1.1.0")
-      set(MYMPD_MONGOOSE_SSL "-DMG_ENABLE_OPENSSL=1")
-      include_directories(SYSTEM ${OPENSSL_INCLUDE_DIR})
+      target_include_directories(mympd SYSTEM PRIVATE ${OPENSSL_INCLUDE_DIR})
+      target_sources(mympd
+          PRIVATE src/lib/cert.c
+      )
     else()
       message("OpenSSL is disabled because a version lower than 1.1.0 was found")
       set(MYMPD_ENABLE_SSL "OFF")
@@ -148,7 +146,7 @@ if(MYMPD_ENABLE_LIBID3TAG)
   message("Searching for libid3tag")
   find_package(LIBID3TAG)
   if(LIBID3TAG_FOUND)
-    include_directories(SYSTEM ${LIBID3TAG_INCLUDE_DIRS})
+    target_include_directories(mympd SYSTEM PRIVATE ${LIBID3TAG_INCLUDE_DIRS})
   else()
     message("Libid3tag is disabled because it was not found")
     set(MYMPD_ENABLE_LIBID3TAG "OFF")
@@ -161,7 +159,7 @@ if(MYMPD_ENABLE_FLAC)
   message("Searching for flac")
   find_package(FLAC)
   if(FLAC_FOUND)
-    include_directories(SYSTEM ${FLAC_INCLUDE_DIRS})
+    target_include_directories(mympd SYSTEM PRIVATE ${FLAC_INCLUDE_DIRS})
   else()
     message("Flac is disabled because it was not found")
     set(MYMPD_ENABLE_FLAC "OFF")
@@ -178,7 +176,7 @@ if(MYMPD_ENABLE_LUA)
   find_package(Lua)
   if(LUA_FOUND)
     if(LUA_VERSION_STRING VERSION_GREATER_EQUAL "5.3.0")
-      include_directories(SYSTEM ${LUA_INCLUDE_DIR})
+      target_include_directories(mympd SYSTEM PRIVATE ${LUA_INCLUDE_DIR})
     else()
       message("Lua is disabled because a version lower than 5.3.0 was found")
       set(MYMPD_ENABLE_LUA "OFF")
@@ -233,73 +231,75 @@ configure_file(contrib/initscripts/mympd.sysVinit.in contrib/initscripts/mympd.s
 configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.openrc @ONLY)
 
 # set include dirs
-include_directories(${PROJECT_BINARY_DIR} ${PROJECT_SOURCE_DIR})
-include_directories(SYSTEM ${PCRE2_INCLUDE_DIRS})
+target_include_directories(mympd
+  PRIVATE 
+    ${PROJECT_BINARY_DIR}
+    ${PROJECT_SOURCE_DIR}
+)
+target_include_directories(mympd SYSTEM
+  PRIVATE
+    ${PCRE2_INCLUDE_DIRS}
+)
 
-# Use the integrated libmympdclient for mpd communication
-# myMPD is incompatible with the original libmpdclient
-include_directories("dist/libmpdclient/include")
+if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
+  # set strict global compile flags
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-strong \
+    -ffunction-sections -fdata-sections -Wall -Werror -Wvla -Winit-self -Wuninitialized \
+    -Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
+    -Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
+    -Wmissing-include-dirs -Wundef -Wformat-nonliteral -Wsign-compare -Wconversion")
 
-# check for enabling libasan
+  # check for supported compiler flags
+  foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection" "-fno-plt")
+    message("Checking for compiler flag ${FLAG}")
+    unset(COMPILER_SUPPORTS_FLAG CACHE)
+    unset(COMPILER_SUPPORTS_FLAG)
+    check_c_compiler_flag("${FLAG}" COMPILER_SUPPORTS_FLAG)
+    if(COMPILER_SUPPORTS_FLAG)
+      set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLAG}")
+    endif()
+  endforeach()
+
+  if(NOT MYMPD_ENABLE_LIBASAN)
+    #incompatible with libasan
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2")
+  endif()
+else()
+  # if CMAKE_BUILD_TYPE is neither Release nor Debug, do not alter CFLAGS/LDFLAGS
+endif()
+
+if((CMAKE_C_COMPILER_ID STREQUAL "GNU") AND (CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0.0"))
+  # gcc 12 compatibility for mongoose
+  # https://github.com/cesanta/mongoose/issues/1828
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-stringop-overread")
+endif()
+
+# libasan memory checker
 # https://github.com/google/sanitizers/wiki/AddressSanitizer#faq
 if(MYMPD_ENABLE_LIBASAN)
   message("Compiling with libasan")
-  set(LIBASAN_FLAGS "-fsanitize=address \
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fsanitize=address \
     -fsanitize=undefined -fsanitize=shift -fsanitize=integer-divide-by-zero -fsanitize=unreachable -fsanitize=vla-bound \
     -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
     -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
     -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr \
     -static-libasan -fno-omit-frame-pointer")
-else()
-  set(LIBASAN_FLAGS "")
 endif()
-
-# set mongoose feature flags
-set(MONGOOSE_FLAGS "${MYMPD_MONGOOSE_SSL} -DMG_ENABLE_DIRECTORY_LISTING=1 -DMG_ENABLE_SSI=0")
-if(MYMPD_ENABLE_IPV6)
-  message("IPv6 is enabled")
-  set(MONGOOSE_FLAGS "${MONGOOSE_FLAGS} -DMG_ENABLE_IPV6=1")
-else()
-  message("IPv6 is disabled")
-endif()
-
-# set mjson feature flags
-set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABLE_RPC=0 \
-  -D MJSON_ENABLE_PRETTY=0 -D MJSON_ENABLE_MERGE=0")
-
-# set strict global compile flags
-# -Wno-stringop-overread: gcc 12 error
-# -Wno-array-bounds: gcc 12 error on armv7l
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-strong \
-  -ffunction-sections -fdata-sections -Wall -Werror -Wvla -Winit-self -Wuninitialized \
-  -Werror=array-bounds -Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
-  -Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
-  -Wmissing-include-dirs -Wundef -Wformat-nonliteral -Wsign-compare -Wconversion \
-  -Wno-stringop-overread -Wno-array-bounds \
-  ${LIBASAN_FLAGS} ${MONGOOSE_FLAGS} ${MJSON_FLAGS}")
-
-if(NOT MYMPD_ENABLE_LIBASAN)
-  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2")
-endif()
-
-# check for supported compiler flags
-foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection" "-fno-plt")
-  message("Checking for compiler flag ${FLAG}")
-  unset(COMPILER_SUPPORTS_FLAG CACHE)
-  unset(COMPILER_SUPPORTS_FLAG)
-  check_c_compiler_flag("${FLAG}" COMPILER_SUPPORTS_FLAG)
-  if(COMPILER_SUPPORTS_FLAG)
-    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${FLAG}")
-  endif()
-endforeach()
 
 # set debug/release flags
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -O2 -fPIE")
-  set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -Wl,-z,relro,-z,now,--gc-sections -pie")
+  target_link_options(mympd
+    PUBLIC
+      "-Wl,-z,relro,-z,now,--gc-sections"
+      "-pie"
+  )
   if(MYMPD_STRIP_BINARY)
     message("Generating stripped binary")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -s")
+    target_link_options(mympd
+      PUBLIC
+        "-s"
+    )
   else()
     message("Generating binary with debug symbols")
     set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -g")
@@ -307,16 +307,11 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -ggdb -Og")
 else()
-  # if CMAKE_BUILD_TYPE is neither Release nor Debug, do not alter CFLAGS/ LDFLAGS
+  # if CMAKE_BUILD_TYPE is neither Release nor Debug, do not alter CFLAGS/LDFLAGS
 endif()
 
-# set source files
-set(MYMPD_SOURCES
-  dist/mjson/mjson.c
-  dist/mongoose/mongoose.c
-  dist/rax/rax.c
-  dist/sds/sds.c
-  dist/tinymt/tinymt32.c
+# executeable target sources
+target_sources(mympd PRIVATE
   src/lib/album_cache.c
   src/lib/api.c
   src/lib/config.c
@@ -397,96 +392,16 @@ set(MYMPD_SOURCES
   src/web_server/webradiodb.c
 )
 
-if(MYMPD_ENABLE_SSL)
-  set(CERT_SOURCES
-      src/lib/cert.c
-  )
-endif()
-
-set(LIBMPDCLIENT_SOURCES
-  dist/libmpdclient/src/albumart.c
-  dist/libmpdclient/src/async.c
-  dist/libmpdclient/src/audio_format.c
-  dist/libmpdclient/src/binary.c
-  dist/libmpdclient/src/capabilities.c
-  dist/libmpdclient/src/cmessage.c
-  dist/libmpdclient/src/cmount.c
-  dist/libmpdclient/src/cneighbor.c
-  dist/libmpdclient/src/connection.c
-  dist/libmpdclient/src/coutput.c
-  dist/libmpdclient/src/cpartition.c
-  dist/libmpdclient/src/cplaylist.c
-  dist/libmpdclient/src/cstats.c
-  dist/libmpdclient/src/cstatus.c
-  dist/libmpdclient/src/database.c
-  dist/libmpdclient/src/directory.c
-  dist/libmpdclient/src/entity.c
-  dist/libmpdclient/src/error.c
-  dist/libmpdclient/src/fd_util.c
-  dist/libmpdclient/src/fingerprint.c
-  dist/libmpdclient/src/idle.c
-  dist/libmpdclient/src/ierror.c
-  dist/libmpdclient/src/iso8601.c
-  dist/libmpdclient/src/kvlist.c
-  dist/libmpdclient/src/list.c
-  dist/libmpdclient/src/message.c
-  dist/libmpdclient/src/mixer.c
-  dist/libmpdclient/src/mount.c
-  dist/libmpdclient/src/neighbor.c
-  dist/libmpdclient/src/output.c
-  dist/libmpdclient/src/parser.c
-  dist/libmpdclient/src/partition.c
-  dist/libmpdclient/src/password.c
-  dist/libmpdclient/src/player.c
-  dist/libmpdclient/src/playlist.c
-  dist/libmpdclient/src/position.c
-  dist/libmpdclient/src/queue.c
-  dist/libmpdclient/src/quote.c
-  dist/libmpdclient/src/replay_gain.c
-  dist/libmpdclient/src/rdirectory.c
-  dist/libmpdclient/src/readpicture.c
-  dist/libmpdclient/src/recv.c
-  dist/libmpdclient/src/replay_gain.c
-  dist/libmpdclient/src/resolver.c
-  dist/libmpdclient/src/response.c
-  dist/libmpdclient/src/rplaylist.c
-  dist/libmpdclient/src/run.c
-  dist/libmpdclient/src/search.c
-  dist/libmpdclient/src/send.c
-  dist/libmpdclient/src/settings.c
-  dist/libmpdclient/src/socket.c
-  dist/libmpdclient/src/song.c
-  dist/libmpdclient/src/stats.c
-  dist/libmpdclient/src/status.c
-  dist/libmpdclient/src/sticker.c
-  dist/libmpdclient/src/sync.c
-  dist/libmpdclient/src/tag.c
-)
-
-# relax some compiler settings for dist sources
-
-# compiler flags for mongoose
-set_property(SOURCE dist/mongoose/mongoose.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion")
-
-# compiler flags for mjson
-# clang15 warning
-set_property(SOURCE dist/mjson/mjson.c PROPERTY COMPILE_FLAGS "-Wno-unused-but-set-variable")
-
-# compiler flags for rax
-# -Wno-use-after-free: gcc 12.0.1 error
-set_property(SOURCE dist/rax/rax.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion \
-  -Wno-shadow -Wno-discarded-qualifiers -Wno-incompatible-pointer-types-discards-qualifiers -Wno-use-after-free")
-
-# compiler flags for sds
-set_property(SOURCE dist/sds/sds.c PROPERTY COMPILE_FLAGS "-Wno-format-nonliteral -Wno-conversion")
-
-# compiler flags for libmpdclient
-set_property(SOURCE ${LIBMPDCLIENT_SOURCES} PROPERTY COMPILE_FLAGS "-Wno-conversion")
-
-# compile the executeable
-add_executable(mympd ${MYMPD_SOURCES} ${LIBMPDCLIENT_SOURCES} ${CERT_SOURCES})
+# library targets
+add_subdirectory(dist)
 
 # link required dependencies
+target_link_libraries(mympd libmpdclient)
+target_link_libraries(mympd mjson)
+target_link_libraries(mympd mongoose)
+target_link_libraries(mympd rax)
+target_link_libraries(mympd sds)
+target_link_libraries(mympd tinymt)
 target_link_libraries(mympd ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(mympd ${MATH_LIB})
 target_link_libraries(mympd ${PCRE2_LIBRARIES})
@@ -509,5 +424,5 @@ endif()
 install(TARGETS mympd DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
 install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/cmake/CopyConfig.cmake)
 
-# sub projects
+# command line tools
 add_subdirectory("cli_tools")

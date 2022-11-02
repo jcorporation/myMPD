@@ -6,10 +6,10 @@
 
 #include "compile_time.h"
 
-#include "../dist/sds/sds.h"
-#include "../src/lib/http_client.h"
-#include "../src/lib/sds_extras.h"
-#include "log.h"
+#include "dist/sds/sds.h"
+#include "src/lib/http_client.h"
+#include "src/lib/sds_extras.h"
+#include "cli_tools/log.h"
 
 #include <stdlib.h>
 #include <string.h>
