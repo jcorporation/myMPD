@@ -241,6 +241,7 @@ include_directories(${PCRE2_INCLUDE_DIRS})
 include_directories("dist/libmpdclient/include")
 
 # check for enabling libasan
+# https://github.com/google/sanitizers/wiki/AddressSanitizer#faq
 if(MYMPD_ENABLE_LIBASAN)
   message("Compiling with libasan")
   set(LIBASAN_FLAGS "-fsanitize=address \
@@ -248,7 +249,7 @@ if(MYMPD_ENABLE_LIBASAN)
     -fsanitize=null -fsanitize=return -fsanitize=signed-integer-overflow -fsanitize=bounds -fsanitize=bounds-strict \
     -fsanitize=alignment -fsanitize=object-size -fsanitize=float-divide-by-zero -fsanitize=float-cast-overflow \
     -fsanitize=nonnull-attribute -fsanitize=returns-nonnull-attribute -fsanitize=bool -fsanitize=enum -fsanitize=vptr \
-    -static-libasan")
+    -static-libasan -fno-omit-frame-pointer")
 else()
   set(LIBASAN_FLAGS "")
 endif()
@@ -269,13 +270,17 @@ set(MJSON_FLAGS "-D MJSON_ENABLE_PRINT=0 -D MJSON_ENABLE_BASE64=0 -D MJSON_ENABL
 # set strict global compile flags
 # -Wno-stringop-overread: gcc 12 error
 # -Wno-array-bounds: gcc 12 error on armv7l
-set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-strong -D_FORTIFY_SOURCE=2 \
+set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fstack-protector-strong \
   -ffunction-sections -fdata-sections -Wall -Werror -Wvla -Winit-self -Wuninitialized \
   -Werror=array-bounds -Wextra -pedantic -Wunused-parameter -Wshadow -Wwrite-strings \
   -Wformat=2 -Wstrict-prototypes -Wold-style-definition -Wredundant-decls -Wnested-externs \
   -Wmissing-include-dirs -Wundef -Wformat-nonliteral -Wsign-compare -Wconversion \
   -Wno-stringop-overread -Wno-array-bounds \
   ${LIBASAN_FLAGS} ${MONGOOSE_FLAGS} ${MJSON_FLAGS}")
+
+if(NOT MYMPD_ENABLE_LIBASAN)
+  set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -D_FORTIFY_SOURCE=2")
+endif()
 
 # check for supported compiler flags
 foreach(FLAG IN ITEMS "-std=gnu17" "-fstack-clash-protection" "-fcf-protection" "-fno-plt")
