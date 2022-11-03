@@ -22,10 +22,10 @@ options="!check"
 #no test suite
 
 build() {
-	cmake -B "$builddir/build" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=None -DMYMPD_MANPAGES=OFF "$builddir"
-	make -C "$builddir/build"
+	cmake -B "$builddir/release" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_MANPAGES=OFF -DMYMPD_STRIP_BINARY=OFF "$builddir"
+	make -C "$builddir/release"
 }
 
 package() {
-	make -C "$builddir/build" DESTDIR="$pkgdir" install
+	make -C "$builddir/release" DESTDIR="$pkgdir" install
 }

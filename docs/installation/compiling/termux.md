@@ -22,9 +22,9 @@ git clone https://github.com/jcorporation/myMPD.git --depth=1
 4. Change directory to the git repo and run build
 ```
 cd myMPD
-cmake -B build -DCMAKE_BUILD_TYPE=None -DLUA_MATH_LIBRARY=/system/lib64/libm.so .
+cmake -B release -DCMAKE_BUILD_TYPE=Release -DLUA_MATH_LIBRARY=/system/lib64/libm.so .
 # substitute 'lib64' with 'lib' if you are on 32bit arch
-make -C build
+make -C release
 ```
 
 ## Initial config
@@ -40,14 +40,14 @@ export MPD_PORT=35000 # choose whatever mpd you use in /etc/mpd.conf
 export MYMPD_SSL=false # 'true' if using root
 export MYMPD_SSL_PORT=443
 
-$HOME/myMPD/build/bin/mympd -w $HOME/.config/mympd # run it
+$HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd # run it
 ```
 
 ## Running it
 
 After this run myMPD with just this, the rest is necessary for the first start only
 ```
-$HOME/myMPD/build/bin/mympd -w $HOME/.config/mympd
+$HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd
 ```
 
 ## Running with root (if you want to use lower ports, or use SSL)
@@ -55,12 +55,11 @@ $HOME/myMPD/build/bin/mympd -w $HOME/.config/mympd
 I made this little script which should run mympd as root with little trouble **(run it as the user!)**
 ```
 #!/bin/bash
-su root -c "$HOME/myMPD/build/bin/mympd -w $HOME/.config/mympd -u $(whoami)"
+su root -c "$HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd -u $(whoami)"
 ```
 You can also prepend `nohup` before `su` to make it start in background and not stop even after closing the terminal
 
 ***
-
 Thanks goes to [sandorex](https://github.com/sandorex) for the Termux support.
 
 [GitHub Disussion](https://github.com/jcorporation/myMPD/discussions/612)

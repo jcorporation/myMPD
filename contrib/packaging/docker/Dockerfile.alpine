@@ -9,9 +9,7 @@ ENV DESTDIR=/myMPD-dist
 RUN mkdir -p $DESTDIR
 WORKDIR /myMPD
 RUN ./build.sh installdeps
-RUN cmake -B "build" -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=None -DMYMPD_MANPAGES=OFF "$builddir"
-RUN make -C "build"
-RUN make -C build install
+RUN ./build.sh releaseinstall
 WORKDIR /
 RUN tar -czvf /mympd.tar.gz -C /myMPD-dist .
 

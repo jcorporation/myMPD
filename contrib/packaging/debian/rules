@@ -1,14 +1,14 @@
 #!/usr/bin/make -f
 export DH_VERBOSE = 1
 
-BUILDDIR = build
+BUILDDIR = release
 
 build-arch: build
 
 build-indep: build
 
 build:
-	cmake -B $(BUILDDIR) -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=None .
+	cmake -B $(BUILDDIR) -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_STRIP_BINARY=OFF .
 	make -C $(BUILDDIR)
 
 binary: binary-indep binary-arch
