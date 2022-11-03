@@ -11,17 +11,18 @@ target_sources(rax
   PUBLIC
     rax.h
 )
-
-target_compile_options(rax
-  PRIVATE
-    "-Wno-shadow"
-    "-Wno-incompatible-pointer-types-discards-qualifiers"
-)
-
-if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
   target_compile_options(rax
     PRIVATE
-      "-Wno-discarded-qualifiers"
-      "-Wno-use-after-free"
+      "-Wno-shadow"
+      "-Wno-incompatible-pointer-types-discards-qualifiers"
   )
+
+  if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
+    target_compile_options(rax
+      PRIVATE
+        "-Wno-discarded-qualifiers"
+        "-Wno-use-after-free"
+    )
+  endif()
 endif()
