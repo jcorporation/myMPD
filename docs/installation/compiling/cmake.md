@@ -21,21 +21,27 @@ sudo make -C build install
 
 | OPTION | DEFAULT | DESCRIPTION |
 | ------ | ------- | ----------- |
-| MYMPD_DEBUG | OFF | Enables myMPD debug mode |
-| MYMPD_EMBEDDED_ASSETS | - | ON = Embeds assets in binary, default ON for release, else OFF |
-| MYMPD_ENABLE_FLAC | ON | ON = Enables flac usage for extracting coverimages |
-| MYMPD_ENABLE_IPV6 | ON | ON = Enables IPv6 |
-| MYMPD_ENABLE_LIBASAN | - | ON = compile with libasan, default ON for memcheck, else OFF |
-| MYMPD_ENABLE_LIBID3TAG | ON | ON = Enables libid3tag usage for extracting coverimages |
-| MYMPD_ENABLE_LUA | ON | ON = Enables scripting support with lua |
-| MYMPD_ENABLE_SSL | ON | ON = Enables SSL, requires OpenSSL >= 1.1.0 |
-| MYMPD_MANPAGES | ON | ON = build manpages |
-| MYMPD_MINIMAL | OFF | ON = disables all MYMPD_ENABLE_* flags |
-| MYMPD_STRIP_BINARY | ON | for release ON, else OFF |
+| MYMPD_DEBUG | OFF | Enables myMPD debug mode, default OFF, ON for Debug |
+| MYMPD_EMBEDDED_ASSETS | ON | Embed assets in binary, default ON, OFF for Debug |
+| MYMPD_ENABLE_FLAC | ON | Enables flac support |
+| MYMPD_ENABLE_IPV6 | ON | Enables IPv6 |
+| MYMPD_ENABLE_LIBASAN | OFF | Enables build with libasan |
+| MYMPD_ENABLE_LIBID3TAG | ON | Enables libid3tag support |
+| MYMPD_ENABLE_LUA | ON | Enables lua support |
+| MYMPD_ENABLE_SSL | ON | Enables OpenSSL support |
+| MYMPD_MANPAGES | ON | Creates and installs manpages |
+| MYMPD_MINIMAL | OFF | Enables minimal myMPD build, disables all MYMPD_ENABLE_* flags |
+| MYMPD_STRIP_BINARY | ON | Enables stripping the binaries for Release |
 {: .table .table-sm}
 
-## cmake targets
+## cmake build types
 
-1. Release: Uses predefined compile and link options for a release build
-2. Debug: Uses predefined compile and link options for a debug build
-3. None: Use this option to set your own compile and link options
+1. Release
+  - Uses predefined compile and link options for a release build
+  - Embed assets in binary
+  - Strips binary
+2. Debug
+  - Uses predefined compile and link options for a debug build
+  - Assets are served from the `htdocs` folder in the source directory
+3. None:
+  - Use this option to set your own compile and link options
