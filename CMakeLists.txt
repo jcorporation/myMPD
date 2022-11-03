@@ -237,7 +237,7 @@ if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
     "-Wunused-parameter"
     "-Wshadow"
     "-Wwrite-strings"
-    "-Wformat=1"
+    "-Wformat"
     "-Wformat-security"
     "-Wstrict-prototypes"
     "-Wold-style-definition"
@@ -266,13 +266,6 @@ if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
 else()
   # if CMAKE_BUILD_TYPE is neither Release nor Debug,
   # do not alter compile options
-endif()
-
-if((CMAKE_C_COMPILER_ID STREQUAL "GNU") AND (CMAKE_C_COMPILER_VERSION VERSION_GREATER_EQUAL "12.0.0"))
-  # gcc 12 compatibility for mongoose
-  # https://github.com/cesanta/mongoose/issues/1828
-  add_compile_option("-Wno-stringop-overread")
-  message("Enabling workaround for mongoose and gcc 12")
 endif()
 
 # libasan memory checker
