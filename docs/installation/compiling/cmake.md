@@ -35,6 +35,6 @@ sudo make -C build install
 
 ## cmake targets
 
-1. Release: Uses default CFLAGS and LDFLAGS for a release build
-2. Debug: Uses default CFLAGS and LDFLAGS for a debug build
-3. None: Use this option to set your own CFLAGS and LDFLAGS
+1. Release: Uses predefined compile and link options for a release build
+2. Debug: Uses predefined compile and link options for a debug build
+3. None: Use this option to set your own compile and link options

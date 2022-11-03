@@ -24,8 +24,14 @@ message("Cmake src dir: ${PROJECT_SOURCE_DIR}")
 message("Cmake build dir: ${CMAKE_CURRENT_BINARY_DIR}")
 message("Cmake build type: ${CMAKE_BUILD_TYPE}")
 message("Compiler: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
-message("CFLAGS: ${CMAKE_C_FLAGS}")
-message("LDFLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
+message("CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
+message("CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+  message("CMAKE_C_FLAGS_RELEASE: ${CMAKE_C_FLAGS_RELEASE}")
+endif()
+if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+  message("CMAKE_C_FLAGS_DEBUG: ${CMAKE_C_FLAGS_DEBUG}")
+endif()
 
 # default is to deliver the assets from htdocs for Debug
 # and embedded assets for all other targets
