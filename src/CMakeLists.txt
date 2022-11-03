@@ -12,12 +12,10 @@ if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
   )
 endif()
 
-# set include dirs
 target_include_directories(mympd
   PRIVATE 
     ${PROJECT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}
-    "../dist/libmpdclient/include"
 )
 
 target_include_directories(mympd SYSTEM PRIVATE ${PCRE2_INCLUDE_DIRS})

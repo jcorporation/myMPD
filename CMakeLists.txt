@@ -339,11 +339,11 @@ else()
   # do not alter link options
 endif()
 
-# the main mympd target
-add_subdirectory("src")
-
 # distributed libraries
 add_subdirectory("dist")
+
+# the main mympd target
+add_subdirectory("src")
 
 # command line utilities
 add_subdirectory("cli_tools")
