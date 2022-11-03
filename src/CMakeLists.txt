@@ -4,11 +4,13 @@
 
 add_executable(mympd "")
 
-target_compile_options(mympd
-  PRIVATE
-    "-Wconversion"
-    "-Wformat=2"
-)
+if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
+  target_compile_options(mympd
+    PRIVATE
+      "-Wconversion"
+      "-Wformat=2"
+  )
+endif()
 
 # set include dirs
 target_include_directories(mympd
