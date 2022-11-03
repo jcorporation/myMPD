@@ -322,10 +322,10 @@ int main(int argc, char **argv) {
     thread_logname = sdsnew("mympd");
     log_on_tty = isatty(fileno(stdout)) ? true : false;
     log_to_syslog = false;
-    #ifdef DEBUG
-    set_loglevel(LOG_DEBUG);
+    #ifdef MYMPD_DEBUG
+        set_loglevel(LOG_DEBUG);
     #else
-    set_loglevel(LOG_NOTICE);
+        set_loglevel(LOG_NOTICE);
     #endif
 
     //set initital states
@@ -412,7 +412,7 @@ int main(int argc, char **argv) {
     }
 
     //set loglevel
-    #ifdef DEBUG
+    #ifdef MYMPD_DEBUG
         MYMPD_LOG_NOTICE("Debug build is running");
         set_loglevel(LOG_DEBUG);
     #else

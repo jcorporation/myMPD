@@ -748,7 +748,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
 #else
     buffer = tojson_bool(buffer, "pin", false, true);
 #endif
-#ifdef DEBUG
+#ifdef MYMPD_DEBUG
     buffer = tojson_bool(buffer, "debugMode", true, true);
 #else
     buffer = tojson_bool(buffer, "debugMode", false, true);

@@ -20,7 +20,8 @@ sudo make -C build install
 ## myMPD specific cmake options
 
 | OPTION | DEFAULT | DESCRIPTION |
-| ----------- | ------- | ----------- |
+| ------ | ------- | ----------- |
+| MYMPD_DEBUG | OFF | Enables myMPD debug mode |
 | MYMPD_EMBEDDED_ASSETS | - | ON = Embeds assets in binary, default ON for release, else OFF |
 | MYMPD_ENABLE_FLAC | ON | ON = Enables flac usage for extracting coverimages |
 | MYMPD_ENABLE_IPV6 | ON | ON = Enables IPv6 |

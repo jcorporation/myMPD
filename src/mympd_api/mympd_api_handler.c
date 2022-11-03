@@ -94,7 +94,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     sds error = sdsempty();
     bool async = false;
 
-    #ifdef DEBUG
+    #ifdef MYMPD_DEBUG
     MEASURE_INIT
     MEASURE_START
     #endif
@@ -1592,7 +1592,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     FREE_SDS(sds_buf9);
     FREE_SDS(sds_buf0);
 
-    #ifdef DEBUG
+    #ifdef MYMPD_DEBUG
     MEASURE_END
     MEASURE_PRINT(method)
     #endif

@@ -16,7 +16,7 @@
 #include <signal.h>
 
 //build options
-#cmakedefine DEBUG
+#cmakedefine MYMPD_DEBUG
 #cmakedefine MYMPD_ENABLE_LIBASAN
 #cmakedefine MYMPD_EMBEDDED_ASSETS
 

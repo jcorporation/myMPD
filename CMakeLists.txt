@@ -26,12 +26,10 @@ message("Cmake build type: ${CMAKE_BUILD_TYPE}")
 message("Compiler: ${CMAKE_C_COMPILER_ID} ${CMAKE_C_COMPILER_VERSION}")
 message("CMAKE_C_FLAGS: ${CMAKE_C_FLAGS}")
 message("CMAKE_EXE_LINKER_FLAGS: ${CMAKE_EXE_LINKER_FLAGS}")
-if(CMAKE_BUILD_TYPE STREQUAL "Release")
-  message("CMAKE_C_FLAGS_RELEASE: ${CMAKE_C_FLAGS_RELEASE}")
-endif()
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  message("CMAKE_C_FLAGS_DEBUG: ${CMAKE_C_FLAGS_DEBUG}")
-endif()
+
+# reset cmake default Release and Debug flags
+set(CMAKE_C_FLAGS_RELEASE "")
+set(CMAKE_C_FLAGS_DEBUG "")
 
 # default is to deliver the assets from htdocs for Debug
 # and embedded assets for all other targets
@@ -43,7 +41,17 @@ if(NOT DEFINED MYMPD_EMBEDDED_ASSETS)
   endif()
 endif()
 
+# set debug define for source
+if(NOT DEFINED MYMPD_DEBUG)
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    set(MYMPD_DEBUG "ON")
+  else()
+    set(MYMPD_DEBUG "OFF")
+  endif()
+endif()
+
 # available options
+option(MYMPD_DEBUG "Enables myMPD debug mode, default OFF" "OFF")
 option(MYMPD_EMBEDDED_ASSETS "Embeds assets in binary, default ON" "ON")
 option(MYMPD_ENABLE_FLAC "Enables flac usage, default ON" "ON")
 option(MYMPD_ENABLE_IPV6 "Enables IPv6, default ON" "ON")
@@ -98,14 +106,6 @@ else()
   set(MYMPD_CACHE_DIR "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}${SUBDIRCACHE}${SUBDIR}")
 endif()
 message("Cachedir: ${MYMPD_CACHE_DIR}")
-
-# set debug define for source
-if(CMAKE_BUILD_TYPE STREQUAL "Debug")
-  set(DEBUG "ON")
-else()
-  set(DEBUG "OFF")
-  set(NDEBUG "true")
-endif()
 
 if(MYMPD_EMBEDDED_ASSETS)
   message("Embedding assets in binary")
@@ -282,26 +282,25 @@ if(MYMPD_ENABLE_LIBASAN)
   message("Compiling with libasan")
   set(LIBASAN_FLAGS
     "-fsanitize=address"
-    "-fsanitize=undefined"
-    "-fsanitize=shift"
-    "-fsanitize=integer-divide-by-zero"
-    "-fsanitize=unreachable"
-    "-fsanitize=vla-bound"
-    "-fsanitize=null"
-    "-fsanitize=return"
-    "-fsanitize=signed-integer-overflow"
+    "-fsanitize=alignment"
+    "-fsanitize=bool"
     "-fsanitize=bounds"
     "-fsanitize=bounds-strict"
-    "-fsanitize=alignment"
-    "-fsanitize=object-size"
-    "-fsanitize=float-divide-by-zero"
-    "-fsanitize=float-cast-overflow"
-    "-fsanitize=nonnull-attribute"
-    "-fsanitize=returns-nonnull-attribute"
-    "-fsanitize=bool"
     "-fsanitize=enum"
+    "-fsanitize=float-cast-overflow"
+    "-fsanitize=float-divide-by-zero"
+    "-fsanitize=nonnull-attribute"
+    "-fsanitize=null"
+    "-fsanitize=object-size"
+    "-fsanitize=return"
+    "-fsanitize=returns-nonnull-attribute"
+    "-fsanitize=shift"
+    "-fsanitize=signed-integer-overflow"
+    "-fsanitize=integer-divide-by-zero"
+    "-fsanitize=undefined"
+    "-fsanitize=unreachable"
+    "-fsanitize=vla-bound"
     "-fsanitize=vptr"
-    "-fno-omit-frame-pointer"
   )
   add_compile_options(
     ${LIBASAN_FLAGS}
@@ -311,8 +310,9 @@ endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   add_compile_options(
-    "-O2"
     "-fPIE"
+    "-O2"
+    "-DNDEBUG"
   )
   if(NOT MYMPD_STRIP_BINARY)
     message("Generating binary with debug symbols")
@@ -335,8 +335,8 @@ endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   add_link_options(
-    "-Wl,-z,relro,-z,now,--gc-sections"
     "-pie"
+    "-Wl,-z,relro,-z,now,--gc-sections"
   )
   if(MYMPD_STRIP_BINARY)
     message("Generating stripped binary")
