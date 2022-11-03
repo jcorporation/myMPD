@@ -43,17 +43,17 @@ src_compile() {
 	MYMPD_ENABLE_LIBID3TAG=$(usex id3tag "ON" "OFF")
 	MYMPD_ENABLE_FLAC=$(usex flac "ON" "OFF")
 	MYMPD_ENABLE_LUA=$(usex lua "ON" "OFF")
-	cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release \
+	cmake -B build -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=None \
 		-DMYMPD_ENABLE_SSL=$MYMPD_ENABLE_SSL -DMYMPD_ENABLE_LIBID3TAG=$MYMPD_ENABLE_LIBID3TAG \
 		-DMYMPD_ENABLE_FLAC=$MYMPD_ENABLE_FLAC -DMYMPD_ENABLE_LUA=$MYMPD_ENABLE_LUA .
-	make -C release || die
+	make -C build || die
 }
 
 src_install() {
-	cd release
-	dobin mympd
+	cd build
+	dobin bin/mympd
 	if use lua; then
-		dobin cli_tools/mympd-script
+		dobin bin/mympd-script
 	fi
 	newinitd "contrib/initscripts/mympd.openrc" "${PN}"
 	if use systemd; then

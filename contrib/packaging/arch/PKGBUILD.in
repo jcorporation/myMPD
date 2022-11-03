@@ -23,10 +23,10 @@ sha256sums=('SKIP')
 options=(debug strip)
 
 build() {
-  cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_STRIP_BINARY=OFF "${srcdir}"
-  make -C release
+  cmake -B build -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=None "${srcdir}"
+  make -C build
 }
 
 package() {
-  make -C release DESTDIR="$pkgdir/" install
+  make -C build DESTDIR="$pkgdir/" install
 }
