@@ -14,7 +14,8 @@ _If compilation fails and you are building on top of an old version, try to run 
 
 ### Release 
 
-- `./build.sh release` builds the release binaries
+- `./build.sh release`
+  - Builds release binaries
   - Directory: release
   - Assets embedded in binary
   - Binary is stripped
@@ -25,17 +26,19 @@ You can use `./build.sh releaseinstall` to compile and install in one step.
 
 ### Debug
 
-- `./build.sh debug` builds the debug binaries
+- `./build.sh debug`
+  - Builds debug binaries
   - Directory: debug
   - Plain assets in htdocs directory
   - Use this to debug mympd with valgrind or gdb
 
 ### Memcheck
 
-- `./build.sh memcheck` builds the debug binaries
+- `./build.sh memcheck`
+  - Builds debug binaries linked with libasan
   - Directory: debug
   - Plain assets in htdocs directory
-  - Binary is statically linked with libasan
+  - You must preload libasan, e.g. `LD_PRELOAD=libasan.so.6 debug/bin/mympd`
 
 ## Removing
 

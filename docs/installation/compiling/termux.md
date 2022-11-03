@@ -40,14 +40,14 @@ export MPD_PORT=35000 # choose whatever mpd you use in /etc/mpd.conf
 export MYMPD_SSL=false # 'true' if using root
 export MYMPD_SSL_PORT=443
 
-$HOME/myMPD/release/mympd -w $HOME/.config/mympd # run it
+$HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd # run it
 ```
 
 ## Running it
 
 After this run myMPD with just this, the rest is necessary for the first start only
 ```
-$HOME/myMPD/release/mympd -w $HOME/.config/mympd
+$HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd
 ```
 
 ## Running with root (if you want to use lower ports, or use SSL)
@@ -55,7 +55,7 @@ $HOME/myMPD/release/mympd -w $HOME/.config/mympd
 I made this little script which should run mympd as root with little trouble **(run it as the user!)**
 ```
 #!/bin/bash
-su root -c "$HOME/myMPD/release/mympd -w $HOME/.config/mympd -u $(whoami)"
+su root -c "$HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd -u $(whoami)"
 ```
 You can also prepend `nohup` before `su` to make it start in background and not stop even after closing the terminal
 

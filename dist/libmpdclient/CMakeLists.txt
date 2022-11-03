@@ -66,8 +66,3 @@ target_sources(libmpdclient
     src/sync.c
     src/tag.c
 )
-
-target_compile_options(libmpdclient
-  PRIVATE
-    "-Wno-conversion"
-)

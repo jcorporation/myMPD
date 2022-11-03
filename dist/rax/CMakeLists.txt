@@ -14,8 +14,6 @@ target_sources(rax
 
 target_compile_options(rax
   PRIVATE
-    "-Wno-format-nonliteral"
-    "-Wno-conversion"
     "-Wno-shadow"
     "-Wno-incompatible-pointer-types-discards-qualifiers"
 )

@@ -13,8 +13,6 @@ target_sources(mongoose
 
 target_compile_options(mongoose
   PRIVATE
-    "-Wno-format-nonliteral"
-    "-Wno-conversion"
     "-DMG_ENABLE_DIRECTORY_LISTING=1"
     "-DMG_ENABLE_SSI=0"
 )

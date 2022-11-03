@@ -32,8 +32,8 @@ Tips to debug problems with myMPD. Try these steps and reproduce the error.
 
 ### If myMPD aborts with a segmentation fault
 
-- Run: `catchsegv debug/mympd`
+- Run: `catchsegv debug/bin/mympd`
 
 ### Other errors - get a calltrace
 
-- Run: `valgrind --tool=callgrind debug/mympd`
+- Run: `valgrind --tool=callgrind debug/bin/mympd`

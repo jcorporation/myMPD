@@ -11,9 +11,3 @@ target_sources(sds
   PUBLIC
     sds.h
 )
-
-target_compile_options(sds
-  PRIVATE
-    "-Wno-format-nonliteral"
-    "-Wno-conversion"
-)
