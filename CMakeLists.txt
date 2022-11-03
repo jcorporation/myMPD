@@ -32,7 +32,7 @@ set(CMAKE_C_FLAGS_RELEASE "")
 set(CMAKE_C_FLAGS_DEBUG "")
 
 # default is to deliver the assets from htdocs for Debug
-# and embedded assets for all other targets
+# and embedded assets for all other build types
 if(NOT DEFINED MYMPD_EMBEDDED_ASSETS)
   if(CMAKE_BUILD_TYPE STREQUAL "Debug")
     set(MYMPD_EMBEDDED_ASSETS "OFF")

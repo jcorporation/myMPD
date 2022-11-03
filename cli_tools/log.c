@@ -48,7 +48,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         logline = sdscat(logline, loglevel_colors[level]);
     }
 
-    #ifdef DEBUG
+    #ifdef MYMPD_DEBUG
         logline = sdscatprintf(logline, "%s:%d: ", file, line);
     #else
         (void)file;

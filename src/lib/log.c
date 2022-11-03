@@ -112,7 +112,7 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         }
     }
     logline = sdscatprintf(logline, "%-8s %-10s", loglevel_names[level], thread_logname);
-    #ifdef DEBUG
+    #ifdef MYMPD_DEBUG
         logline = sdscatfmt(logline, "%s:%i: ", file, line);
     #else
         (void)file;
