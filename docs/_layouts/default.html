@@ -1,31 +1,41 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="author" content="mail@jcgames.de">
-  <title>{% if page.title %}{{ page.title }} – {% endif %}{{ site.name }}</title>
-  <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/style.css" />
-  <link href="{{ site.baseurl }}/assets/favicon.ico" rel="shortcut icon" type="image/vnd.microsoft.icon"/>
-</head>
-<body>
-  <header>
-    <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
-      <a class="navbar-brand" href="{{ site.baseurl }}/">
-        myMPD Documentation
-      </a>
-    </nav>
-  </header>
-  <main role="main" class="container-fluid text-break">
-    <div class="card">
-      <div class="card-header">{% include breadcrumbs %}</div>
-      <div class="card-body">
+<html lang="de">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% if page.title %}{{ page.title }} – {% endif %}{{ site.title }}</title>
+    <link rel="stylesheet" type="text/css" href="{{ site.baseurl }}/assets/css/style.css" />
+    <link rel="icon" href="{{ site.baseurl }}/assets/favicon.ico" type="image/x-icon">
+  </head>
+  <body>
+    <header class="navbar navbar-expand-sm navbar-dark bg-dark">
+      <nav class="container-xxl flex-wrap flex-md-nowrap py-3">
+        <a class="navbar-brand p-0 me-4" href="{{ site.baseurl }}/" id="mainMenu">
+          <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
+            <ellipse cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
+            <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
+            <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
+            <path d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
+            <path d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
+          </svg>
+          myMPD documentation
+        </a>
+      </nav>
+    </header>
+    <header class="navbar navbar-expand-md bg-green text-light py-2 mb-2">
+      <nav class="container-xxl flex-wrap px-3 mb-0 justify-content-start">
+        {% include breadcrumbs.md %}
+      </nav>
+    </header>
+    <div class="container-xxl py-2 flex-grow-1">
+      <main>
         {{ content }}
-      </div>
-      <div class="card-footer">
-      &copy; 2018-2022 Juergen Mang &lt;mail@jcgames.de&gt;
-      </div>
+      </main>
     </div>
-  </main>
-</body>
+    <footer class="footer-bottom bg-light">
+      <nav class="container-xxl py-3">
+        &copy; 2018-2022 Juergen Mang
+      </nav>
+    </footer>
+  </body>
 </html>

@@ -4,11 +4,9 @@ permalink: /
 title: Index
 ---
 
-<img src="{{ site.baseurl }}/assets/mympd-logo-schriftzug.svg"/>
-
 myMPD is a standalone and mobile friendly web-based MPD client with a tiny footprint and advanced features.
 
-- [GitHub Repository](https://github.com/jcorporation/myMPD)
+- [GitHub repository](https://github.com/jcorporation/myMPD)
 - [Help to improve myMPD](https://github.com/jcorporation/myMPD/issues/167)
 - [Q&A](https://github.com/jcorporation/myMPD/discussions/categories/q-a)
 
@@ -20,7 +18,7 @@ This documentation is for myMPD version {% include version %}.
 
 - [Installation]({{ site.baseurl }}/installation/)
   - [Distributions with myMPD]({{ site.baseurl }}/installation/distributions)
-  - [Prebuild Packages]({{ site.baseurl }}/installation/prebuild-packages)
+  - [Prebuild packages]({{ site.baseurl }}/installation/prebuild-packages)
   - [Docker]({{ site.baseurl }}/installation/docker)
   - [Compiling]({{ site.baseurl }}/installation/compiling/)
     - [Easy build with the build.sh script]({{ site.baseurl }}/installation/compiling/build-sh)

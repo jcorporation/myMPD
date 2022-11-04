@@ -4,16 +4,15 @@ permalink: /installation/compiling/termux
 title: Termux
 ---
 
-1. Update the packages
+This page describes how to compile and run myMPD with Termux.
+
+## Compile myMPD
+
+1. Update the packages and install dependencies
 ```
 pkg upgrade
-```
-2. Install dependencies
-```
 pkg install build-essential cmake perl pcre2 openssl libid3tag libflac lua54 git
 ```
-
-## Now to compile it
 
 3. Clone the git repo (depth makes it download only the last commit making it much smaller and faster to download)
 ```
@@ -29,7 +28,8 @@ make -C release
 
 ## Initial config
 
-5. Create the config directory for myMPD and run it to create the config files from the environment variables
+Create the config directory for myMPD and run it to create the config files from the environment variables
+
 ```
 mkdir -p $HOME/.config/mympd
 
@@ -46,6 +46,7 @@ $HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd # run it
 ## Running it
 
 After this run myMPD with just this, the rest is necessary for the first start only
+
 ```
 $HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd
 ```
@@ -53,6 +54,7 @@ $HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd
 ## Running with root (if you want to use lower ports, or use SSL)
 
 I made this little script which should run mympd as root with little trouble **(run it as the user!)**
+
 ```
 #!/bin/bash
 su root -c "$HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd -u $(whoami)"
@@ -60,6 +62,7 @@ su root -c "$HOME/myMPD/release/bin/mympd -w $HOME/.config/mympd -u $(whoami)"
 You can also prepend `nohup` before `su` to make it start in background and not stop even after closing the terminal
 
 ***
+
 Thanks goes to [sandorex](https://github.com/sandorex) for the Termux support.
 
-[GitHub Disussion](https://github.com/jcorporation/myMPD/discussions/612)
+[GitHub Discussion](https://github.com/jcorporation/myMPD/discussions/612)

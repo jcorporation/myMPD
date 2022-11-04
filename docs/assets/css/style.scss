@@ -1,0 +1,75 @@
+---
+---
+
+@import "bootstrap.min.css";
+
+body {
+  background-color: #ececec;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.bg-green {
+  background-color: #28a745;
+}
+
+.bg-dark {
+  background-color: #343a40 !important
+}
+
+div.highlight {
+  background-color: #f8f9fa;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+main a, 
+main a:active, 
+main a:hover, 
+main a:visited,
+aside a, 
+aside a:active, 
+aside a:hover, 
+aside a:visited {
+  color: #28a745;
+}
+
+main ul,
+aside ul {
+  list-style-type: square;
+}
+
+.breadcrumb > span {
+  margin-top: -0.2rem;
+}
+
+#mainMenu svg {
+  width: 2.5rem;
+  height: 2.5rem;
+  margin-right: 0.4rem;
+}
+
+#mainMenu {
+  font-size: 1.4rem;
+}
+
+h1 {
+  font-size: 2rem;
+}
+
+h2 {
+  font-size: 1.8rem;
+}
+
+h3 {
+  font-size: 1.4rem;
+}
+
+h4 {
+  font-size: 1.2rem;
+}
+
+pre {
+  margin-bottom: 0;
+}
