@@ -450,15 +450,6 @@ function toggleCollapseArrow(el) {
 }
 
 /**
- * Uppercases the first letter
- * @param {string} str string to change
- * @returns {string} changed string
- */
-function ucFirst(str) {
-    return str[0].toUpperCase() + str.slice(1);
-}
-
-/**
  * Go's into fullscreen mode
  */
 //eslint-disable-next-line no-unused-vars
