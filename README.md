@@ -18,28 +18,22 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 ## Features
 
 - Concurrent MPD partition support
-- Control mpd functions (play, pause, etc.)
-- Set mpd options (repeat, random, etc.)
-- MPD mount and neighbors support
-- MPD output attributes
-- Browse mpd database by tags (gridview)
-- Browse filesystem
+- Control mpd functions and options
+- Queue and playlist management
+- Browse mpd database by tags or filesystem
 - Webradios: [Webradiodb](https://jcorporation.github.io/webradiodb/) and [RadioBrowser](https://www.radio-browser.info/)
-- Queue management
-- Playlist management
 - Advanced search
 - Jukebox mode
+- MPD mount and neighbors support
 - Customizable home screen and navigation bar
 - [Smart playlists and saved searches](https://jcorporation.github.io/myMPD/references/smart-playlists)
 - Playback statistics and song voting
 - [Albumart: embedded and image per folder](https://jcorporation.github.io/myMPD/references/pictures)
 - [Unsynchronized and synchronized Lyrics](https://jcorporation.github.io/myMPD/references/lyrics)
 - Local booklet support (per album folder)
-- HTTP stream support
 - [Local playback of mpd http stream](https://jcorporation.github.io/myMPD/references/local-playback)
 - Timers and Triggers
 - [Lua scripting](https://jcorporation.github.io/myMPD/scripting/)
-- Embedded Webserver ([mongoose](https://github.com/cesanta/mongoose))
 - [Localized user interface](https://jcorporation.github.io/myMPD/references/translating)
 - Dark and Light theme
 - [Publishing of mpd and myMPD directories via http](https://jcorporation.github.io/myMPD/references/published-directories)
@@ -49,40 +43,25 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 
 To use all myMPD functions you should use the latest stable MPD version.
 
+## Documentation
+
+For further information on installation and configuration, see the [myMPD documentation](https://jcorporation.github.io/myMPD/)
+
+- [Installation](https://jcorporation.github.io/myMPD/installation/)
+- [Configuration](https://jcorporation.github.io/myMPD/configuration/)
+- [Running](https://jcorporation.github.io/myMPD/running)
+
+## Support
+
+Please read the [documentation](https://jcorporation.github.io/myMPD/) before asking for help. Bugs should be reported through [issues](https://github.com/jcorporation/myMPD/issues). For all other question and general feedback use the [discussions](https://github.com/jcorporation/myMPD/discussions).
+
 ## Contribution
 
 myMPD is in active development. If you like myMPD, you can help to improve it (no programming skills are required).
 
 - Star this repository to make it more popular.
 - [Help to improve myMPD](https://github.com/jcorporation/myMPD/issues/167).
-- Use [issues](https://github.com/jcorporation/myMPD/issues) for bug reports only.
-- Use [discussion](https://github.com/jcorporation/myMPD/discussions) for feature requests, questions and general feedback.
-- If I accept a feature request, I will open an issue and assign a [milestone](https://github.com/jcorporation/myMPD/milestones) to it.
 - Consider [donating](https://jcorporation.github.io/donate) a coffee to this project.
-
-## Installation
-
-myMPD should run on all current linux distributions. There are four ways to install myMPD:
-
-1. Use a linux distribution that delivers a myMPD package - the easiest way: [Distributions with myMPD](https://jcorporation.github.io/myMPD/installation/distributions)
-2. Use a prebuild package: [Prebuild-Packages](https://jcorporation.github.io/myMPD/installation/prebuild-packages)
-3. Use the docker image: [Docker](https://jcorporation.github.io/myMPD/installation/docker)
-4. Use the ``build.sh`` script to compile myMPD: [Building myMPD](https://jcorporation.github.io/myMPD/installation/compiling)
-
-## Run
-
-On the first startup myMPD reads some environments variables and tries to autodetect the MPD connection configuration.
-
-- [Configuration](https://jcorporation.github.io/myMPD/configuration/)
-- [Running](https://jcorporation.github.io/myMPD/running)
-
-``
-Usage: mympd -h
-``
-
-## Documentation
-
-For further information on installation and configuration, see the [myMPD documentation](https://jcorporation.github.io/myMPD/)
 
 ## Copyright
 
