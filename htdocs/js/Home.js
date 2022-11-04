@@ -149,14 +149,11 @@ function populateHomeIconLigatures() {
     elClear(listHomeIconLigature);
     elClear(searchHomeIconCat);
     searchHomeIconCat.appendChild(
-        elCreateTextTn('option', {"value": "all"}, 'All')
+        elCreateTextTn('option', {"value": "all"}, 'icon-all')
     );
     for (const cat in materialIcons) {
-        listHomeIconLigature.appendChild(
-            elCreateTextTn('h5', {"class": ["ml-1", "mt-2"]}, ucFirst(cat))
-        );
         searchHomeIconCat.appendChild(
-            elCreateTextTn('option', {"value": cat}, ucFirst(cat))
+            elCreateTextTn('option', {"value": cat}, 'icon-' + cat)
         );
         for (const icon of materialIcons[cat]) {
             listHomeIconLigature.appendChild(
@@ -200,17 +197,6 @@ function filterHomeIconLigatures() {
         else {
             elHide(els[i]);
             els[i].classList.remove('active' );
-        }
-    }
-    const catTitles = document.querySelectorAll('#listHomeIconLigature h5');
-    if (cat === '') {
-        for (let i = 0, j = catTitles.length; i < j; i++) {
-            elShow(catTitles[i]);
-        }
-    }
-    else {
-        for (let i = 0, j = catTitles.length; i < j; i++) {
-            elHide(catTitles[i]);
         }
     }
 }

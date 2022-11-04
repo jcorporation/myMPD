@@ -208,3 +208,22 @@ Volume step
 votes
 Web notifications
 Work
+icon-all
+icon-action
+icon-alert
+icon-av
+icon-communication
+icon-content
+icon-device
+icon-editor
+icon-file
+icon-hardware
+icon-home
+icon-image
+icon-maps
+icon-navigation
+icon-notification
+icon-places
+icon-search
+icon-social
+icon-toggle
