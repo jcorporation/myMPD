@@ -4,10 +4,11 @@
 @import "bootstrap.min.css";
 
 body {
-  background-color: #ececec;
+  background-color: #e9ecef;
   display: flex;
   flex-direction: column;
   min-height: 100vh;
+  padding-top: 8rem;
 }
 
 .bg-green {
@@ -27,11 +28,22 @@ div.highlight {
 main a, 
 main a:active, 
 main a:hover, 
-main a:visited,
+main a:visited {
+  color: #28a745;
+}
+
+main a:hover {
+  text-decoration: none;
+}
+
 aside a, 
 aside a:active, 
-aside a:hover, 
 aside a:visited {
+  color: #495057;
+  text-decoration: none;
+}
+
+aside a:hover {
   color: #28a745;
 }
 
@@ -40,17 +52,38 @@ aside ul {
   list-style-type: square;
 }
 
+aside {
+  width: 24rem;
+  max-height: calc(100vh - 8rem);
+  overflow-y: scroll;
+  position: fixed;
+}
+
+aside ul {
+  padding-left: 1rem;
+  list-style: none;
+}
+
+aside > ul {
+  padding-left: 0;
+}
+
+main {
+  max-width: 72rem !important;
+  margin-left: 24rem;
+}
+
 .breadcrumb > span {
   margin-top: -0.2rem;
 }
 
-#mainMenu svg {
+.navbar-brand svg {
   width: 2.5rem;
   height: 2.5rem;
   margin-right: 0.4rem;
 }
 
-#mainMenu {
+.navbar-brand  {
   font-size: 1.4rem;
 }
 
@@ -59,7 +92,7 @@ h1 {
 }
 
 h2 {
-  font-size: 1.8rem;
+  font-size: 1.6rem;
 }
 
 h3 {
@@ -72,4 +105,43 @@ h4 {
 
 pre {
   margin-bottom: 0;
+}
+
+@media screen and (max-width: 96rem) {
+  aside {
+    width: 16rem;
+  }
+  main {
+    margin-left: 16rem;
+  }
+}
+
+@media screen and (max-width: 48rem) {
+  aside {
+    display: none;
+  }
+  main {
+    margin-left: 0;
+  }
+  div#toc {
+    display: block !important;
+  }
+  header {
+    position: unset !important;
+  }
+  body {
+    padding-top: 0 !important;
+  }
+}
+
+code {
+  color: #28a745;
+}
+
+table {
+  background-color: #f8f9fa;
+}
+
+td, th {
+  color: #495057;
 }

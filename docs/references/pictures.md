@@ -4,13 +4,11 @@ permalink: /references/pictures
 title: Pictures
 ---
 
-# Albumart
-
 myMPD supports local coverart for albums and streams.
 
 ## Albums
 
-myMPD needs access to the MPD music_directory or a uptodate MPD.
+myMPD needs access to the MPD music_directory or a up to date MPD.
 
 You can download albumart with the script from [https://github.com/jcorporation/musicdb-scripts](https://github.com/jcorporation/musicdb-scripts)
 
@@ -52,32 +50,37 @@ You can disable the covercache by setting the `Covercache expiration` value to `
 
 ***
 
-# Streams
+## Streams
 
 1. Images must be named as the uri of the stream, replace the characters `<>/.:?&$!#\|;=` with `_`, e.g. `http___stream_laut_fm_nonpop.png` for uri `http://stream.laut.fm/nonpop`.
 2. Put these images in the `/var/lib/mympd/pics/thumbs` folder.
 
-# Pictures for other tags
+***
+
+## Pictures for other tags
 
 The "Browse Database" grid view can display pictures for other tags than album also. To enable this simply create a directory with the tagname in the `/var/lib/mympd/pics` directory and put pictures with filename equal the tag value in this directory.
 
 You can download artistart with the script from [https://github.com/jcorporation/musicdb-scripts](https://github.com/jcorporation/musicdb-scripts)
 
-## Example
+### Example
 
 Create a directory named `AlbumArtist` under `/var/lib/mympd/pics`. Add pictures with the AlbumArtist name as filename in this directory.
 
 ***
 
-# Home icon pictures
+## Other pictures
+### Home icon pictures
 
 Pictures for the home icons must be placed in the directory `/var/lib/mympd/pics/thumbs`.
 
-# Background images
+### Background images
 
 Background images must be saved in the `/var/lib/mympd/pics/backgrounds` folder.
 
-# Supported file extensions
+***
+
+## Supported file extensions
 
 myMPD recognizes following file extensions:
 

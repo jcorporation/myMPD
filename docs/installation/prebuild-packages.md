@@ -4,7 +4,7 @@ permalink: /installation/prebuild-packages
 title: Prebuild packages
 ---
 
-## Prebuild packages from openSUSE Build Service
+myMPD uses the openSUSE Build Service to build packages for releases.
 
 - [Project homepage](https://build.opensuse.org/package/show/home:jcorporation/myMPD)
 - [Repositories](https://download.opensuse.org/repositories/home:/jcorporation/)

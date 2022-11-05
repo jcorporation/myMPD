@@ -4,8 +4,6 @@ permalink: /known-issues
 title: Known issues
 ---
 
-## Known issues
-
 ### Accept-Encoding not honored
 
 - myMPD issue: [#738](https://github.com/jcorporation/myMPD/issues/738)

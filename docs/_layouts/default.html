@@ -8,9 +8,9 @@
     <link rel="icon" href="{{ site.baseurl }}/assets/favicon.ico" type="image/x-icon">
   </head>
   <body>
-    <header class="navbar navbar-expand-sm navbar-dark bg-dark">
-      <nav class="container-xxl flex-wrap flex-md-nowrap py-3">
-        <a class="navbar-brand p-0 me-4" href="{{ site.baseurl }}/" id="mainMenu">
+    <header class="navbar navbar-dark bg-dark p-0 fixed-top">
+      <nav class="px-3 py-4 w-100">
+        <a class="navbar-brand p-0 me-4" href="{{ site.baseurl }}/">
           <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
             <ellipse cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
             <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
@@ -21,21 +21,18 @@
           myMPD documentation
         </a>
       </nav>
-    </header>
-    <header class="navbar navbar-expand-md bg-green text-light py-2 mb-2">
-      <nav class="container-xxl flex-wrap px-3 mb-0 justify-content-start">
+      <nav class="px-3 py-2 bg-green text-light mb-0 w-100">
         {% include breadcrumbs.md %}
       </nav>
     </header>
-    <div class="container-xxl py-2 flex-grow-1">
-      <main>
+    <div>
+      <aside class="p-3 border-end border-bottom bg-light">
+        {% include nav.html %}
+      </aside>
+      <main class="p-3">
+        <h1>{{ page.title }}</h1>
         {{ content }}
       </main>
     </div>
-    <footer class="footer-bottom bg-light">
-      <nav class="container-xxl py-3">
-        &copy; 2018-2022 Juergen Mang
-      </nav>
-    </footer>
   </body>
 </html>

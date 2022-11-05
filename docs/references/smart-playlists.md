@@ -23,7 +23,7 @@ myMPD creates per default three smart playlists. Smart playlists are defined in 
 | KEY | DESCRIPTION |
 | --- | ----------- |
 | type | Type of smart playlist: `sticker`, `newest` or `search` |
-| sticker | stickername, see [[Sticker]] |
+| sticker | stickername, see [Sticker]({{ site.baseurl }}/references/sticker) |
 | maxentries | Maximum entries for this playlist |
 | minvalue | Minimum sticker value |
 | timerange | timerange in seconds |
