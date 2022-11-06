@@ -10,6 +10,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Fix: remove song progress indicator in queue view after switching to new song #881
+
 ***
 
 ## myMPD v10.1.0 (2022-11-06)
