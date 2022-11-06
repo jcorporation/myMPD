@@ -14,7 +14,7 @@ project(mympd C)
 # the source files
 set(CPACK_PACKAGE_VERSION_MAJOR "10")
 set(CPACK_PACKAGE_VERSION_MINOR "1")
-set(CPACK_PACKAGE_VERSION_PATCH "0")
+set(CPACK_PACKAGE_VERSION_PATCH "1")
 
 # output binaries in bin directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
