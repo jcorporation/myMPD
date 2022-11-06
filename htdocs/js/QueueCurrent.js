@@ -349,6 +349,7 @@ function queueSetCurrentSong() {
             posTd.textContent = getData(old, 'songpos') + 1;
         }
         old.classList.remove('queue-playing');
+        old.style.removeProperty('background');
     }
     //set playing row
     setPlayingRow();
