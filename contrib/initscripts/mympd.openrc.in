@@ -13,6 +13,6 @@ start_stop_daemon_args=""
 pidfile="/run/$name.pid"
 
 depend() {
-	need net
-	after firewall
+    need net
+    after firewall
 }
