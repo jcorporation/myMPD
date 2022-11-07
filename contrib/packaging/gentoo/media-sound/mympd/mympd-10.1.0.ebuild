@@ -51,7 +51,7 @@ src_compile() {
 
 src_install() {
 	cd release
-	dobin mympd
+	dobin bin/mympd
 	if use lua; then
 		dobin cli_tools/mympd-script
 	fi
