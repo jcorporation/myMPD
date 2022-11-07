@@ -51,9 +51,9 @@ src_compile() {
 
 src_install() {
 	cd release
-	dobin mympd
+	dobin bin/mympd
 	if use lua; then
-		dobin cli_tools/mympd-script
+		dobin bin/mympd-script
 	fi
 	newinitd "contrib/initscripts/mympd.openrc" "${PN}"
 	if use systemd; then
