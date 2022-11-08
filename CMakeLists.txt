@@ -232,28 +232,28 @@ configure_file(contrib/initscripts/mympd.openrc.in contrib/initscripts/mympd.ope
 if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
   # set strict global compile flags
   add_compile_options(
-    "-fstack-protector-strong"
-    "-ffunction-sections"
     "-fdata-sections"
+    "-ffunction-sections"
+    "-fstack-protector-strong"
+    "-pedantic"
     "-Wall"
     "-Werror"
-    "-Wvla"
-    "-Winit-self"
-    "-Wuninitialized"
     "-Wextra"
-    "-pedantic"
-    "-Wunused-parameter"
-    "-Wshadow"
-    "-Wwrite-strings"
     "-Wformat"
     "-Wformat-security"
-    "-Wstrict-prototypes"
+    "-Winit-self"
+    "-Wmissing-include-dirs"
+    "-Wnested-externs"
     "-Wold-style-definition"
     "-Wredundant-decls"
-    "-Wnested-externs"
-    "-Wmissing-include-dirs"
-    "-Wundef"
+    "-Wshadow"
     "-Wsign-compare"
+    "-Wstrict-prototypes"
+    "-Wundef"
+    "-Wuninitialized"
+    "-Wunused-parameter"
+    "-Wvla"
+    "-Wwrite-strings"
   )
 
   # check for supported compiler flags
@@ -289,6 +289,7 @@ if(MYMPD_ENABLE_LIBASAN)
     "-fsanitize=enum"
     "-fsanitize=float-cast-overflow"
     "-fsanitize=float-divide-by-zero"
+    "-fsanitize=integer-divide-by-zero"
     "-fsanitize=nonnull-attribute"
     "-fsanitize=null"
     "-fsanitize=object-size"
@@ -296,7 +297,6 @@ if(MYMPD_ENABLE_LIBASAN)
     "-fsanitize=returns-nonnull-attribute"
     "-fsanitize=shift"
     "-fsanitize=signed-integer-overflow"
-    "-fsanitize=integer-divide-by-zero"
     "-fsanitize=undefined"
     "-fsanitize=unreachable"
     "-fsanitize=vla-bound"
@@ -336,7 +336,7 @@ endif()
 if(CMAKE_BUILD_TYPE STREQUAL "Release")
   add_link_options(
     "-pie"
-    "-Wl,-z,relro,-z,now,--gc-sections"
+    "-Wl,-z,relro,-z,now,--gc-sections,--as-needed"
   )
   if(MYMPD_STRIP_BINARY)
     message("Generating stripped binary")
