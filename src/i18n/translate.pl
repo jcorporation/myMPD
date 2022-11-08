@@ -1,5 +1,6 @@
 #!/usr/bin/perl -w
 #
+# Translation phrases maintenance script
 # Extracts the phrases from source, compares it to already translated phrases
 # writes the i18n.json and reports the differences
 
@@ -8,6 +9,7 @@ use strict;
 my $verbose = defined($ARGV[0]) ? 1 : 0;
 
 my $phrases;
+my $ignore;
 my $i18n;
 my $desc;
 my @langs = ();
@@ -27,6 +29,14 @@ while (my $line = <$file>) {
 }
 close $file;
 
+#ignore phrases
+open $file, "src/i18n/ignore_phrases.txt" or die "Can't open file \"src/i18n/ignore_phrases.txt\": $!";
+while (my $line = <$file>) {
+    chomp($line);
+    $ignore->{$line} = 1;
+}
+close $file;
+
 #phrases from src
 my @dirs = ("src/", "src/mpd_client/", "src/mpd_worker/", "src/mympd_api/", "src/web_server/", "htdocs/js/");
 my @files = ("htdocs/index.html");
@@ -42,34 +52,43 @@ for my $dirname (@dirs) {
     closedir $dir;
 }
 
+#add a phrase
+sub add_phrase {
+    my $p = $_[0];
+    if (not defined($ignore->{$p})) {
+        $phrases->{$p} = 1;
+    }
+}
+
+#Parse file for phrases
 for my $filename (@files) {
     open my $file, $filename or die "Can't open file \"$filename\": $!";
     while (my $line = <$file>) {
         if ($filename =~ /\.c$/) {
             while ($line =~ /JSONRPC_SEVERITY_\w+,\s+"([^"]+)"(\)|,)/g) {
-                $phrases->{$1} = 1;
+                add_phrase($1);
             }
             while ($line =~ /JSONRPC_SEVERITY_\w+,\s+\S+,\s+"([^"]+)"(\)|,)/g) {
-                $phrases->{$1} = 1;
+                add_phrase($1);
             }
         }
         elsif ($filename =~ /\.js$/) {
             while ($line =~ /\"data-(\w+-)?phrase\":\s*"([^"]+)"/g) {
-                $phrases->{$2} = 1;
+                add_phrase($2);
             }
             while ($line =~ /(\s+|\(|\+)tn?\('([^']+)'/g) {
-                $phrases->{$2} = 1;
+                add_phrase($2);
             }
             while ($line =~ /"desc":\s*"([^"]+)"/g) {
-                $phrases->{$1} = 1;
+                add_phrase($1);
             }
             while ($line =~ /(elCreateTextTnNr|elCreateTextTn)\('\w+', \{[^}]*\}, '([^']+)'/g) {
-                $phrases->{$2} = 1;
+                add_phrase($2);
             }
         }
         elsif ($filename =~ /\.html$/) {
             while ($line =~ /data-(\w+-)?phrase="([^"]+)"/g) {
-                $phrases->{$2} = 1;
+                add_phrase($2);
             }
         }
     }
