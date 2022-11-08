@@ -1,32 +1,37 @@
-# Maintainer: Juergen Mang <mail [at] jcgames [dot] de>
-# Website: https://github.com/jcorporation/myMPD
-# PKGBUILD Based on https://github.com/CultofRobots/archphile-custom/tree/master/mympd
+# Maintainer: Juergen Mang <mail@jcgames.de>
 
 pkgname=mympd
-_pkgname=myMPD
 pkgver=10.1.1
 pkgrel=1
 pkgdesc="A standalone and mobile friendly web-based MPD client."
 arch=('i686' 'x86_64' 'armv6h' 'armv7h' 'aarch64')
 url="https://jcorporation.github.io/myMPD/"
-license=('GPL3')
-depends=('pcre2' 'openssl' 'libid3tag' 'flac' 'lua')
-makedepends=('cmake' 'perl' 'gzip' 'jq')
-optdepends=()
-provides=()
-conflicts=()
-replaces=()
-backup=()
+license=(GPL3)
+depends=('flac' 'libid3tag' 'lua' 'openssl' 'pcre2')
+makedepends=('cmake' 'gzip' 'jq' 'perl')
 install=archlinux.install
-source=("mympd_${pkgver}.orig.tar.gz")
+source=("${pkgname}_${pkgver}.orig.tar.gz")
 sha256sums=('SKIP')
 options=(debug strip)
 
 build() {
-  cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release -DMYMPD_STRIP_BINARY=OFF "${srcdir}"
-  make -C release
+  local cmake_options=(
+    -B build
+    -S "${srcdir}"
+    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_INSTALL_PREFIX=/usr
+    -Wno-dev
+  )
+
+  cmake "${cmake_options[@]}"
+  cmake --build build
+}
+
+check() {
+  ctest --test-dir build --output-on-failure
 }
 
 package() {
-  make -C release DESTDIR="$pkgdir/" install
+  DESTDIR="$pkgdir" cmake --install build
+  install -vDm 644 "${srcdir}"/{CHANGELOG,README}.md -t "$pkgdir/usr/share/doc/$pkgname/"
 }

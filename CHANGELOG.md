@@ -12,7 +12,7 @@ This is a small bugfix release.
 
 - Upd: translations
 - Fix: remove song progress indicator in queue view after switching to new song #881
-- Fix: rpm and gentoo packaging #886 #887
+- Fix: arch, gentoo and rpm packaging #886 #887
 
 ***
 

@@ -723,7 +723,7 @@ pkgarch() {
   then
     echo "Checking package with namcap"
     namcap PKGBUILD
-    namcap mympd-*.pkg.tar.xz
+    namcap "mympd-${VERSION}"*.pkg.tar.*
   else
     echo_warn "namcap not found, can't check package"
   fi
@@ -796,7 +796,7 @@ installdeps() {
   elif [ -f /etc/arch-release ]
   then
     #arch
-    pacman -S gcc cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip jq
+    pacman -Sy gcc base-devel cmake perl openssl libid3tag flac lua pkgconf pcre2 gzip jq
   elif [ -f /etc/alpine-release ]
   then
     #alpine
