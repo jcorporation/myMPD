@@ -62,7 +62,7 @@ cd "$STARTPATH" || exit 1
 umask 0022
 
 #get myMPD version
-VERSION=$(grep CPACK_PACKAGE_VERSION_ CMakeLists.txt | cut -d\" -f2 | tr '\n' '.' | sed 's/\.$//')
+VERSION=$(grep "  VERSION" CMakeLists.txt | sed 's/  VERSION //')
 COPYRIGHT="myMPD ${VERSION} | (c) 2018-2022 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
 
 #check for command
@@ -286,7 +286,7 @@ createassets() {
 }
 
 buildrelease() {
-  echo "Compiling myMPD" 
+  echo "Compiling myMPD v${VERSION}" 
   cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release .
   make -C release
 }
@@ -356,7 +356,7 @@ copyassets() {
 }
 
 builddebug() {
-  echo "Compiling myMPD"
+  echo "Compiling myMPD v${VERSION}"
   if [ "$ACTION" = "memcheck" ]
   then
     MYMPD_ENABLE_LIBASAN=ON
@@ -987,9 +987,9 @@ createi18n() {
   #Update serviceworker
   TO_CACHE=""
   for CODE in $(jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default")
-    do
-      TO_CACHE="${TO_CACHE}\nsubdir + '/assets/i18n/${CODE}.json',"
-    done
+  do
+    TO_CACHE="${TO_CACHE}\nsubdir + '/assets/i18n/${CODE}.json',"
+  done
   sed -e "s|__VERSION__|${VERSION}|g" -e "s|__I18NASSETS__|${TO_CACHE}|g" htdocs/sw.js.in > htdocs/sw.js
 }
 

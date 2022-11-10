@@ -8,13 +8,10 @@ cmake_policy(SET CMP0003 NEW)
 
 # myMPD is written in C
 # supported compilers: gcc, clang
-project(mympd C)
-
-# update myMPD version here and run ./build.sh setversion to update
-# the source files
-set(CPACK_PACKAGE_VERSION_MAJOR "10")
-set(CPACK_PACKAGE_VERSION_MINOR "1")
-set(CPACK_PACKAGE_VERSION_PATCH "1")
+project(mympd
+  VERSION 10.1.1
+  LANGUAGES C
+)
 
 # output binaries in bin directory
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
