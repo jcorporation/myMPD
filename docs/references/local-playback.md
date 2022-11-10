@@ -17,13 +17,13 @@ MPD configuration:
 
 ```
 audio_output {
-	type		"httpd"
-	name		"HTTP Stream"
-	encoder		"lame" #to support safari on ios
-	port		"8000"
-	bitrate		"128"
-	format		"44100:16:1"
-	always_on   "yes"
-	tags        "yes"
+    type        "httpd"
+    name        "HTTP Stream"
+    encoder     "lame" #to support safari on ios
+    port        "8000"
+    bitrate     "128"
+    format      "44100:16:1"
+    always_on   "yes"
+    tags        "yes"
 }
 ```

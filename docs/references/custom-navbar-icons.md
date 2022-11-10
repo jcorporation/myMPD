@@ -14,6 +14,7 @@ The navbar icons can be customized. You must edit the file `/var/lib/mympd/state
 {: .table .table-sm }
 
 Default navbar definition:
+
 ```
 [
   {

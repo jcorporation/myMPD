@@ -21,6 +21,7 @@ Use ``docker pull ghcr.io/jcorporation/mympd/mympd:latest`` to use the latest im
 ## Usage
 
 Docker Compose: 
+
 ```
 ---
 version: "3.x"
@@ -42,6 +43,7 @@ services:
 ```
 
 Docker CLI:
+
 ```
 docker run -d \
   --name=mympd \
