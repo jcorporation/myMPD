@@ -338,8 +338,10 @@ static sds get_san(sds buffer) {
     list_init(&san);
     MYMPD_LOG_DEBUG("Adding DNS:localhost to SAN");
     list_push(&san, "DNS:localhost", 0, NULL, NULL);
-    list_push(&san, "DNS:ip6-localhost", 0, NULL, NULL);
-    list_push(&san, "DNS:ip6-loopback", 0, NULL, NULL);
+    #ifdef MYMPD_ENABLE_IPV6
+        list_push(&san, "DNS:ip6-localhost", 0, NULL, NULL);
+        list_push(&san, "DNS:ip6-loopback", 0, NULL, NULL);
+    #endif
 
     //Retrieve short hostname
     char hostbuffer[256]; /* Flawfinder: ignore */
