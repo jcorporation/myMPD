@@ -11,3 +11,8 @@ target_sources(sds
   PUBLIC
     sds.h
 )
+
+target_include_directories(sds
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}
+)

@@ -37,7 +37,7 @@
  * the include of your alternate allocator if needed (not needed in order
  * to use the default libc allocator). */
 
-#include "../../src/lib/mem.h"
+#include "src/lib/mem.h"
 
 #define s_malloc malloc_assert
 #define s_realloc realloc_assert
