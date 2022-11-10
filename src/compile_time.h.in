@@ -30,6 +30,7 @@
 //translation files
 #cmakedefine I18N_de_DE
 #cmakedefine I18N_en_US
+#cmakedefine I18N_es_ES
 #cmakedefine I18N_es_VE
 #cmakedefine I18N_fi_FI
 #cmakedefine I18N_fr_FR
