@@ -397,7 +397,7 @@ function showListTimer() {
  * @returns {void}
  */
 function parseListTimer(obj) {
-    const tbody = document.querySelector('#listTimer > tbody');
+    const tbody = document.getElementById('listTimerList');
     if (checkResult(obj, tbody) === false) {
         return;
     }
@@ -427,7 +427,7 @@ function parseListTimer(obj) {
             default:
                 for (const unit of [604800, 86400, 3600, 60, 1]) {
                     if (obj.result.data[i].interval >= unit && obj.result.data[i].interval % unit === 0) {
-                        interval = tn('Each ' + unit, obj.result.data[i].interval / unit);
+                        interval = tn('Each ' + unit, {"smartCount": obj.result.data[i].interval / unit});
                         break;
                     }
                 }
