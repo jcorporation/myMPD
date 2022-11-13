@@ -19,7 +19,6 @@ binary-arch:
 	make -C $(BUILDDIR) install DESTDIR=../debian/mympd
 	mkdir -p debian/mympd/DEBIAN
 	cp debian/postinst debian/mympd/DEBIAN
-	cp debian/postrm debian/mympd/DEBIAN
 	echo 10 > debian/compat
 	dh_makeshlibs
 	dh_shlibdeps

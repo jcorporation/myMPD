@@ -1,9 +1,12 @@
 #!/bin/sh
 set -e
 
-echo "Checking status of mympd system user and group"
-getent group mympd > /dev/null ||  groupadd -r mympd
-getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
+if ! command -v systemctl > /dev/null
+then
+    # Add mympd user only for none-systemd installations
+    echo "Checking status of mympd system user and group"
+    getent group mympd > /dev/null ||  groupadd -r mympd
+    getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
+fi
 
-echo "myMPD installed"
 exit 0
