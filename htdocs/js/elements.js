@@ -584,9 +584,27 @@ function toggleBtn(btn, state) {
 }
 
 /**
+ * Gets the enabled state of a check button
+ * @param {string} id check button id
+ * @returns {boolean} enabled = true, disabled = false
+ */
+function getBtnChkValueId(id) {
+    return getBtnChkValue(document.getElementById(id));
+}
+
+/**
+ * Gets the enabled state of a check button
+ * @param {HTMLElement | EventTarget} btn check button id
+ * @returns {boolean} enabled = true, disabled = false
+ */
+function getBtnChkValue(btn) {
+    return btn.classList.contains('active') ? true : false
+}
+
+/**
  * Toggles a check button
  * @param {string} id id of the button to toggle
- * @param {boolean} state true = active, false = inactive 
+ * @param {boolean} state true = active, false = inactive
  */
 function toggleBtnChkId(id, state) {
     toggleBtnChk(document.getElementById(id), state);

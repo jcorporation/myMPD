@@ -834,8 +834,8 @@ function saveSettings(closeModal) {
 
     if (formOK === true) {
         //browser specific settings
-        localSettings.localPlaybackAutoplay = (document.getElementById('btnEnableLocalPlaybackAutoplay').classList.contains('active') ? true : false);
-        localSettings.enforceMobile = (document.getElementById('btnEnforceMobile').classList.contains('active') ? true : false);
+        localSettings.localPlaybackAutoplay = getBtnChkValueId('btnEnableLocalPlaybackAutoplay');
+        localSettings.enforceMobile = getBtnChkValueId('btnEnforceMobile');
         setUserAgentData();
 
         //use scaleRatio only for mobile browsers
@@ -867,7 +867,7 @@ function saveSettings(closeModal) {
                     webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getData(el, 'value')) : getData(el, 'value');
                 }
                 else if (webuiSettingsDefault[key].inputType === 'checkbox') {
-                    webuiSettings[key] = el.classList.contains('active') ? true : false;
+                    webuiSettings[key] = getBtnChkValue(el);
                 }
                 else {
                     webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(el.value) : el.value;
@@ -875,14 +875,14 @@ function saveSettings(closeModal) {
             }
         }
 
-        webuiSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
-        webuiSettings.enableLocalPlayback = (document.getElementById('btnEnableLocalPlayback').classList.contains('active') ? true : false);
+        webuiSettings.enableLyrics = getBtnChkValueId('btnEnableLyrics');
+        webuiSettings.enableLocalPlayback = getBtnChkValueId('btnEnableLocalPlayback');
 
         const params = {
             "coverimageNames": inputCoverimageNames.value,
             "thumbnailNames": inputThumbnailNames.value,
             "lastPlayedCount": Number(document.getElementById('inputSettinglastPlayedCount').value),
-            "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
+            "smartpls": getBtnChkValueId('btnSmartpls'),
             "smartplsPrefix": document.getElementById('inputSmartplsPrefix').value,
             "smartplsInterval": smartplsInterval,
             "smartplsSort": document.getElementById('selectSmartplsSort').value,
@@ -1097,7 +1097,7 @@ function filterCols(tableName) {
 //eslint-disable-next-line no-unused-vars
 function toggleBtnNotifyWeb(event) {
     const btnNotifyWeb = event.target;
-    const notifyWebState = btnNotifyWeb.classList.contains('active') ? true : false;
+    const notifyWebState = getBtnChkValue(btnNotifyWeb);
     if (notificationsSupported() === false) {
         toggleBtnChk(btnNotifyWeb, false);
         settings.webuiSettings.notifyWeb = false;

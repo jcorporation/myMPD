@@ -123,7 +123,7 @@ function saveConnection() {
             "playlistDirectory": playlistDirectory,
             "mpdBinarylimit": Number(mpdBinarylimitEl.value) * 1024,
             "mpdTimeout": Number(mpdTimeoutEl.value) * 1000,
-            "mpdKeepalive": (document.getElementById('btnMpdKeepalive').classList.contains('active') ? true : false)
+            "mpdKeepalive": getBtnChkValueId('btnMpdKeepalive')
         }, saveConnectionClose, true);
     }
 }
