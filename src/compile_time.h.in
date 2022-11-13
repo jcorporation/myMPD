@@ -102,6 +102,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_JUKEBOX_LAST_PLAYED 24 //hours
 #define MYMPD_JUKEBOX_QUEUE_LENGTH 1
 #define MYMPD_JUKEBOX_ENFORCE_UNIQUE true
+#define MYMPD_JUKEBOX_IGNORE_HATED false
 #define MYMPD_COVERIMAGE_NAMES "cover,folder"
 #define MYMPD_THUMBNAIL_NAMES "cover-sm,folder-sm"
 #define MYMPD_TAG_LIST_SEARCH "Album,AlbumArtist,Artist,Genre,Title"

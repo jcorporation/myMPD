@@ -148,6 +148,7 @@ struct t_partition_state {
     bool jukebox_enforce_unique;           //!< flag indicating if unique constraint is enabled
     struct t_list jukebox_queue;           //!< the jukebox queue itself
     struct t_list jukebox_queue_tmp;       //!< temporary jukebox queue for the add random to queue function
+    bool jukebox_ignore_hated;             //!< ignores hated songs for the jukebox mode
     //partition
     sds name;                              //!< partition name
     sds highlight_color;                   //!< highlight color

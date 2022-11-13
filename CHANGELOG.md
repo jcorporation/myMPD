@@ -4,6 +4,15 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v0.2.0 (not yet released)
+
+
+### Changelog
+
+- Feat: add option to ignore hated songs in jukebox mode #882
+
+***
+
 ## myMPD v10.1.1 (2022-11-13)
 
 This is a small bugfix release.

@@ -559,6 +559,17 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             jukebox_changed = true;
         }
     }
+    else if (strcmp(key, "jukeboxIgnoreHated") == 0) {
+        if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
+            *error = set_invalid_value(*error, key, value);
+            return false;
+        }
+        bool bool_buf = vtype == MJSON_TOK_TRUE ? true : false;
+        if (bool_buf != partition_state->jukebox_ignore_hated) {
+            partition_state->jukebox_ignore_hated = bool_buf;
+            jukebox_changed = true;
+        }
+    }
     else if (partition_state->conn_state == MPD_CONNECTED) {
         if (strcmp(key, "random") == 0) {
             if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
@@ -718,6 +729,7 @@ void mympd_api_settings_statefiles_partition_read(struct t_partition_state *part
     partition_state->jukebox_queue_length = state_file_rw_long(workdir, partition_state->state_dir, "jukebox_queue_length", partition_state->jukebox_queue_length, JUKEBOX_QUEUE_MIN, JUKEBOX_QUEUE_MAX, false);
     partition_state->jukebox_last_played = state_file_rw_long(workdir, partition_state->state_dir, "jukebox_last_played", partition_state->jukebox_last_played, JUKEBOX_LAST_PLAYED_MIN, JUKEBOX_LAST_PLAYED_MAX, false);
     partition_state->jukebox_unique_tag.tags[0] = state_file_rw_int(workdir, partition_state->state_dir, "jukebox_unique_tag", partition_state->jukebox_unique_tag.tags[0], 0, MPD_TAG_COUNT, false);
+    partition_state->jukebox_ignore_hated = state_file_rw_bool(workdir, partition_state->state_dir, "jukebox_ignore_hated", MYMPD_JUKEBOX_IGNORE_HATED, false);
     partition_state->highlight_color = state_file_rw_string_sds(workdir, partition_state->state_dir, "highlight_color", partition_state->highlight_color, vcb_ishexcolor, false);
     partition_state->mpd_stream_port = state_file_rw_uint(workdir, "state", "mpd_stream_port", partition_state->mpd_stream_port, MPD_PORT_MIN, MPD_PORT_MAX, false);
     partition_state->stream_uri = state_file_rw_string_sds(workdir, partition_state->state_dir, "stream_uri", partition_state->stream_uri, vcb_isuri, false);
@@ -793,6 +805,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_long(buffer, "jukeboxQueueLength", partition_state->jukebox_queue_length, true);
     buffer = tojson_char(buffer, "jukeboxUniqueTag", mpd_tag_name(partition_state->jukebox_unique_tag.tags[0]), true);
     buffer = tojson_long(buffer, "jukeboxLastPlayed", partition_state->jukebox_last_played, true);
+    buffer = tojson_bool(buffer, "jukeboxIgnoreHated", partition_state->jukebox_ignore_hated, true);
     buffer = tojson_bool(buffer, "autoPlay", partition_state->auto_play, true);
     buffer = tojson_char(buffer, "highlightColor", partition_state->highlight_color, true);
     buffer = tojson_uint(buffer, "mpdStreamPort", partition_state->mpd_stream_port, true);

@@ -272,6 +272,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->jukebox_last_played = MYMPD_JUKEBOX_LAST_PLAYED;
     partition_state->jukebox_queue_length = MYMPD_JUKEBOX_QUEUE_LENGTH;
     partition_state->jukebox_enforce_unique = MYMPD_JUKEBOX_ENFORCE_UNIQUE;
+    partition_state->jukebox_ignore_hated = MYMPD_JUKEBOX_IGNORE_HATED;
     //add pointer to other states
     partition_state->mympd_state = mympd_state;
     partition_state->mpd_state = mympd_state->mpd_state;

@@ -11,6 +11,12 @@
 
 #include <stdbool.h>
 
+enum sticker_like {
+    STICKER_LIKE_HATE = 0,
+    STICKER_LIKE_NEUTRAL = 1,
+    STICKER_LIKE_LOVE = 2
+};
+
 /**
  * MPD sticker values
  */

@@ -827,7 +827,13 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
 
             const char *uri = mpd_song_get_uri(song);
             struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_state->sticker_cache, uri);
-            time_t last_played = sticker != NULL ? sticker->last_played : 0;
+            time_t last_played = sticker != NULL
+                ? sticker->last_played
+                : 0;
+            bool is_hated = sticker != NULL &&
+                sticker->like == STICKER_LIKE_HATE
+                    ? partition_state->jukebox_ignore_hated == true
+                    : false;
 
             long is_uniq = JUKEBOX_UNIQ_IS_UNIQ;
             if (last_played > since) {
@@ -838,7 +844,9 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
                 is_uniq = jukebox_unique_tag(partition_state, uri, tag_value, manual, queue_list);
             }
 
-            if (is_uniq == JUKEBOX_UNIQ_IS_UNIQ) {
+            if (is_uniq == JUKEBOX_UNIQ_IS_UNIQ &&
+                is_hated == false)
+            {
                 if (randrange(0, lineno) < add_songs) {
                     if (nkeep < add_songs) {
                         if (list_push(add_list, uri, lineno, tag_value, NULL) == true) {

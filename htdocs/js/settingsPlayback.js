@@ -18,27 +18,7 @@ function initSettingsPlayback() {
 
     document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
         setTimeout(function() {
-            const value = getBtnGroupValueId('btnJukeboxModeGroup');
-            if (value === 'off') {
-                elDisableId('inputJukeboxQueueLength');
-                elDisableId('selectJukeboxPlaylist');
-            }
-            else if (value === 'album') {
-                elDisableId('inputJukeboxQueueLength');
-                elDisableId('selectJukeboxPlaylist');
-                elDisable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
-                document.getElementById('selectJukeboxPlaylist').value = 'Database';
-                setDataId('selectJukeboxPlaylist', 'value', 'Database');
-            }
-            else if (value === 'song') {
-                elEnableId('inputJukeboxQueueLength');
-                elEnableId('selectJukeboxPlaylist');
-                elEnable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
-            }
-            if (value !== 'off') {
-                toggleBtnGroupValueId('btnConsumeGroup', '1');
-                toggleBtnGroupValueId('btnSingleGroup', '0');
-            }
+            toggleJukeboxSettings();
             checkConsume();
         }, 100);
     });
@@ -125,6 +105,36 @@ function checkConsume() {
 }
 
 /**
+ * Toggle jukebox setting elements
+ */
+function toggleJukeboxSettings() {
+    const value = getBtnGroupValueId('btnJukeboxModeGroup');
+    if (value === 'off') {
+        elDisableId('inputJukeboxQueueLength');
+        elDisableId('selectJukeboxPlaylist');
+        elDisableId('btnJukeboxIgnoreHated');
+    }
+    else if (value === 'album') {
+        elDisableId('inputJukeboxQueueLength');
+        elDisableId('selectJukeboxPlaylist');
+        elDisableId('btnJukeboxIgnoreHated');
+        elDisable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
+        document.getElementById('selectJukeboxPlaylist').value = 'Database';
+        setDataId('selectJukeboxPlaylist', 'value', 'Database');
+    }
+    else if (value === 'song') {
+        elEnableId('inputJukeboxQueueLength');
+        elEnableId('selectJukeboxPlaylist');
+        elEnableId('btnJukeboxIgnoreHated');
+        elEnable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
+    }
+    if (value !== 'off') {
+        toggleBtnGroupValueId('btnConsumeGroup', '1');
+        toggleBtnGroupValueId('btnSingleGroup', '0');
+    }
+}
+
+/**
  * Populates the playback settings modal
  */
 function populateQueueSettingsFrm() {
@@ -134,23 +144,9 @@ function populateQueueSettingsFrm() {
     document.getElementById('selectJukeboxUniqueTag').value = settings.partition.jukeboxUniqueTag;
     document.getElementById('inputJukeboxQueueLength').value = settings.partition.jukeboxQueueLength;
     document.getElementById('inputJukeboxLastPlayed').value = settings.partition.jukeboxLastPlayed;
-    if (settings.partition.jukeboxMode === 'off') {
-        elDisableId('inputJukeboxQueueLength');
-        elDisableId('selectJukeboxPlaylist');
-    }
-    else if (settings.partition.jukeboxMode === 'album') {
-        elDisableId('inputJukeboxQueueLength');
-        elDisableId('selectJukeboxPlaylist');
-        elDisable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
-        document.getElementById('selectJukeboxPlaylist').value = 'Database';
-    }
-    else if (settings.partition.jukeboxMode === 'song') {
-        elEnableId('inputJukeboxQueueLength');
-        elEnableId('selectJukeboxPlaylist');
-        elEnable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
-    }
-
+    toggleJukeboxSettings();
     document.getElementById('selectJukeboxPlaylist').filterInput.value = '';
+    toggleBtnChkId('btnJukeboxIgnoreHated', settings.partition.jukeboxIgnoreHated);
 
     if (settings.partition.mpdConnected === true) {
         if (features.featPlaylists === true) {
@@ -164,9 +160,9 @@ function populateQueueSettingsFrm() {
         toggleBtnChkId('btnRandom', settings.partition.random);
         toggleBtnChkId('btnRepeat', settings.partition.repeat);
         toggleBtnChkId('btnAutoPlay', settings.partition.autoPlay);
-        toggleBtnGroupValue(document.getElementById('btnConsumeGroup'), settings.partition.consume);
-        toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.partition.single);
-        toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.partition.replaygain);
+        toggleBtnGroupValueId('btnConsumeGroup', settings.partition.consume);
+        toggleBtnGroupValueId('btnSingleGroup', settings.partition.single);
+        toggleBtnGroupValueId('btnReplaygainGroup', settings.partition.replaygain);
         document.getElementById('inputCrossfade').value = settings.partition.crossfade;
         document.getElementById('inputMixrampDb').value = settings.partition.mixrampDb;
         document.getElementById('inputMixrampDelay').value = settings.partition.mixrampDelay;
@@ -206,34 +202,29 @@ function saveQueueSettings() {
         formOK = false;
     }
 
-    const singleState = getBtnGroupValueId('btnSingleGroup');
-    const consumeState = getBtnGroupValueId('btnConsumeGroup');
     const jukeboxMode = getBtnGroupValueId('btnJukeboxModeGroup');
-    const replaygain = getBtnGroupValueId('btnReplaygainGroup');
-    let jukeboxUniqueTag = getSelectValueId('selectJukeboxUniqueTag');
-    const jukeboxPlaylist = getDataId('selectJukeboxPlaylist', 'value');
-
-    if (jukeboxMode === 'album') {
-        jukeboxUniqueTag = 'Album';
-    }
+    let jukeboxUniqueTag = jukeboxMode === 'album'
+        ? 'Album'
+        : getSelectValueId('selectJukeboxUniqueTag');
 
     if (formOK === true) {
         btnWaitingId('btnSaveQueueSettings', true);
         sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
-            "random": (document.getElementById('btnRandom').classList.contains('active') ? true : false),
-            "single": singleState,
-            "consume": consumeState,
-            "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? true : false),
-            "replaygain": replaygain,
+            "random": getBtnChkValueId('btnRandom'),
+            "single": getBtnGroupValueId('btnSingleGroup'),
+            "consume": getBtnGroupValueId('btnConsumeGroup'),
+            "repeat": getBtnChkValueId('btnRepeat'),
+            "replaygain": getBtnGroupValueId('btnReplaygainGroup'),
             "crossfade": Number(document.getElementById('inputCrossfade').value),
             "mixrampDb": Number(mixrampDbEl.value),
             "mixrampDelay": Number(mixrampDelayEl.value),
             "jukeboxMode": jukeboxMode,
-            "jukeboxPlaylist": jukeboxPlaylist,
+            "jukeboxPlaylist": getDataId('selectJukeboxPlaylist', 'value'),
             "jukeboxQueueLength": Number(document.getElementById('inputJukeboxQueueLength').value),
             "jukeboxLastPlayed": Number(document.getElementById('inputJukeboxLastPlayed').value),
             "jukeboxUniqueTag": jukeboxUniqueTag,
-            "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false)
+            "jukeboxIgnoreHated": getBtnChkValueId('btnJukeboxIgnoreHated'),
+            "autoPlay": getBtnChkValueId('btnAutoPlay')
         }, saveQueueSettingsClose, true);
     }
 }
