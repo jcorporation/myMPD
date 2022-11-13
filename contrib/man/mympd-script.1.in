@@ -3,7 +3,7 @@
 .TH man 1 "__DATE_F3__" "__VERSION__" "mympd-script man page"
 
 .SH NAME
-mympd-script
+mympd-script \- mympd command line tool to execute scripts
 
 .SH SYNOPSIS
 mympd-script <uri> <partition> <scriptname> [arguments]
