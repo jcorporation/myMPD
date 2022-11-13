@@ -60,6 +60,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 
 //state file names
 #define FILENAME_LAST_PLAYED "last_played_list"
+#define FILENAME_PRESETS "preset_list"
 
 //mpd partitions
 #define MPD_PARTITION_DEFAULT "default"

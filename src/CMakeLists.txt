@@ -71,6 +71,7 @@ target_sources(mympd PRIVATE
   mpd_client/jukebox.c
   mpd_client/partitions.c
   mpd_client/playlists.c
+  mpd_client/presets.c
   mpd_client/search.c
   mpd_client/search_local.c
   mpd_client/tags.c

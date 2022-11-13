@@ -20,6 +20,7 @@
 #include "src/lib/validate.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
+#include "src/mpd_client/presets.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
@@ -570,6 +571,10 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             jukebox_changed = true;
         }
     }
+    else if (strcmp(key, "name") == 0) {
+        //ignore
+        rc = true;
+    }
     else if (partition_state->conn_state == MPD_CONNECTED) {
         if (strcmp(key, "random") == 0) {
             if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
@@ -810,6 +815,9 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_char(buffer, "highlightColor", partition_state->highlight_color, true);
     buffer = tojson_uint(buffer, "mpdStreamPort", partition_state->mpd_stream_port, true);
     buffer = tojson_char(buffer, "streamUri", partition_state->stream_uri, true);
+    buffer = sdscat(buffer, "\"presets\": [");
+    buffer = presets_list(&partition_state->presets, buffer);
+    buffer = sdscatlen(buffer, "],", 2);
     if (partition_state->conn_state == MPD_CONNECTED) {
         //mpd options
         buffer = tojson_bool(buffer, "mpdConnected", true, true);

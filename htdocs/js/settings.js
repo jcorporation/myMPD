@@ -197,6 +197,9 @@ function parseSettings(obj) {
         document.getElementById('btnNext').removeAttribute('disabled');
     }
 
+    //presets
+    populatePresetDropdowns();
+
     //parse mpd settings if connected
     if (settings.partition.mpdConnected === true) {
         parseMPDSettings();

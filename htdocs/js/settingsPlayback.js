@@ -31,6 +31,117 @@ function initSettingsPlayback() {
 
     setDataId('selectJukeboxPlaylist', 'cb-filter', 'filterPlaylistsSelect');
     setDataId('selectJukeboxPlaylist', 'cb-filter-options', [0, 'selectJukeboxPlaylist']);
+
+    document.getElementById('listPresetsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            if (!event.target.parentNode.classList.contains('not-clickable')) {
+                loadPreset(getData(event.target.parentNode, 'name'));
+            }
+        }
+        else if (event.target.nodeName === 'A') {
+            deletePreset(event.target, getData(event.target.parentNode.parentNode, 'name'));
+        }
+    }, false);
+
+    for (let i = 1; i < 3; i++) {
+        document.getElementById('selectPresetDropdown' + i).addEventListener('click', function(event) {
+            event.preventDefault();
+            if (event.target.nodeName === 'BUTTON') {
+                loadPreset(event.target.textContent);
+                const d = event.target.parentNode.parentNode.previousElementSibling;
+                BSN.Dropdown.getInstance(d).hide();
+            }
+        }, false)
+    }
+}
+
+/**
+ * Loads a preset
+ * @param {string} name preset name to load
+ */
+function loadPreset(name) {
+    sendAPI("MYMPD_API_PRESET_LOAD", {
+        "name": name
+    }, loadPresetCheckError, true);
+}
+
+/**
+ * Handler for the MYMPD_API_PRESET_LOAD jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
+ function loadPresetCheckError(obj) {
+    if (obj.error) {
+        if (getOpenModal() !== null) {
+            showModalAlert(obj);
+        }
+    }
+    else {
+        getSettings();
+    }
+}
+
+/**
+ * Deletes a preset
+ * @param {EventTarget} el triggering element
+ * @param {string} name the preset name
+ */
+//eslint-disable-next-line no-unused-vars
+function deletePreset(el, name) {
+    showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the preset?'), tn('Yes, delete it'), function() {
+        sendAPI("MYMPD_API_PRESET_RM", {
+            "name": name
+        }, deletePresetCheckError, true);
+    });
+}
+
+/**
+ * Handler for the MYMPD_API_PRESET_RM jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
+ function deletePresetCheckError(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        getSettings();
+    }
+}
+
+/**
+ * Populates the presets lists
+ */
+function populateListPresets() {
+    const presetsEl = document.getElementById('inputPresetName');
+    presetsEl.value = '';
+    setData(presetsEl, 'value', '');
+    elClear(presetsEl.filterResult);
+    const presetsList = document.getElementById('listPresetsList');
+    elClear(presetsList);
+    for (const preset of settings.partition.presets) {
+        presetsEl.addFilterResultPlain(preset);
+        presetsList.appendChild(createPresetsListRow(preset));
+    }
+    if (settings.partition.presets.length === 0) {
+        presetsList.appendChild(emptyRow(2));
+    }
+    populatePresetDropdowns();
+}
+
+/**
+ * Populates the preset dropdowns
+ */
+function populatePresetDropdowns() {
+    const presetDropdown1 = document.getElementById('selectPresetDropdown1').lastElementChild;
+    const presetDropdown2 = document.getElementById('selectPresetDropdown2').lastElementChild;
+    elClear(presetDropdown1);
+    elClear(presetDropdown2);
+    for (const preset of settings.partition.presets) {
+        const a = elCreateText('button', {"type":"button", "class": ["btn", "btn-secondary", "btn-sm"]}, preset);
+        presetDropdown1.appendChild(a.cloneNode(true));
+        presetDropdown2.appendChild(a.cloneNode(true));
+    }
 }
 
 /**
@@ -135,6 +246,22 @@ function toggleJukeboxSettings() {
 }
 
 /**
+ * Creates a row for the presets tables
+ * @param {string} preset preset name
+ * @returns {HTMLElement} the row
+ */
+function createPresetsListRow(preset) {
+    const row = elCreateNodes('tr', {"data-title-phrase": "Load preset", "phrase": tn('Load preset')}, [
+        elCreateText('td', {}, preset),
+        elCreateNode('td', {"data-col": "Action"},
+            elCreateText('a', {"class": ["mi", "color-darkgrey"], "href": "#", "data-title-phrase": "Delete", "phrase": tn('Delete')}, 'delete')
+        )
+    ]);
+    setData(row, 'name', preset);
+    return row;
+}
+
+/**
  * Populates the playback settings modal
  */
 function populateQueueSettingsFrm() {
@@ -147,6 +274,8 @@ function populateQueueSettingsFrm() {
     toggleJukeboxSettings();
     document.getElementById('selectJukeboxPlaylist').filterInput.value = '';
     toggleBtnChkId('btnJukeboxIgnoreHated', settings.partition.jukeboxIgnoreHated);
+
+    populateListPresets();
 
     if (settings.partition.mpdConnected === true) {
         if (features.featPlaylists === true) {
@@ -203,13 +332,13 @@ function saveQueueSettings() {
     }
 
     const jukeboxMode = getBtnGroupValueId('btnJukeboxModeGroup');
-    let jukeboxUniqueTag = jukeboxMode === 'album'
+    const jukeboxUniqueTag = jukeboxMode === 'album'
         ? 'Album'
         : getSelectValueId('selectJukeboxUniqueTag');
 
     if (formOK === true) {
-        btnWaitingId('btnSaveQueueSettings', true);
-        sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
+        const params = {
+            "name": getDataId('inputPresetName', 'value'),
             "random": getBtnChkValueId('btnRandom'),
             "single": getBtnGroupValueId('btnSingleGroup'),
             "consume": getBtnGroupValueId('btnConsumeGroup'),
@@ -225,7 +354,9 @@ function saveQueueSettings() {
             "jukeboxUniqueTag": jukeboxUniqueTag,
             "jukeboxIgnoreHated": getBtnChkValueId('btnJukeboxIgnoreHated'),
             "autoPlay": getBtnChkValueId('btnAutoPlay')
-        }, saveQueueSettingsClose, true);
+        };
+        btnWaitingId('btnSaveQueueSettings', true);
+        sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", params, saveQueueSettingsClose, true);
     }
 }
 

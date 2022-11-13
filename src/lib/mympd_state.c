@@ -13,6 +13,7 @@
 #include "src/lib/sticker_cache.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/jukebox.h"
+#include "src/mpd_client/presets.h"
 #include "src/mympd_api/home.h"
 #include "src/mympd_api/last_played.h"
 #include "src/mympd_api/timer.h"
@@ -32,6 +33,7 @@ void mympd_state_save(struct t_mympd_state *mympd_state) {
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
         mympd_api_last_played_file_save(partition_state);
+        presets_save(partition_state);
         partition_state = partition_state->next;
     }
 }
@@ -292,8 +294,10 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     //local playback
     partition_state->mpd_stream_port = PARTITION_MPD_STREAM_PORT;
     partition_state->stream_uri = sdsempty();
-    //init last played songs list
+    //lists
     list_init(&partition_state->last_played);
+    list_init(&partition_state->presets);
+    presets_load(partition_state);
 }
 
 /**
@@ -312,6 +316,7 @@ void partition_state_free(struct t_partition_state *partition_state) {
     FREE_SDS(partition_state->jukebox_playlist);
     //lists
     list_clear(&partition_state->last_played);
+    list_clear(&partition_state->presets);
     //local playback
     FREE_SDS(partition_state->stream_uri);
     //struct itself

@@ -55,6 +55,9 @@ function initElement(el, elType) {
         case 'mympd-select-search':
             setSelectSearch(el);
             break;
+        case 'mympd-select-new':
+            setSelectNew(el);
+            break;
     }
     el.removeAttribute('data-is');
 }
@@ -161,7 +164,7 @@ function setInputPassword(el) {
 }
 
 /**
- * Creates an combined select + input element from an input element
+ * Creates a searchable combined select + input element from an input element
  * @param {Element} el element
  */
 function setSelectSearch(el) {
@@ -221,6 +224,65 @@ function setSelectSearch(el) {
             BSN.Dropdown.getInstance(event.target.nextElementSibling).toggle();
         }, false);
     }
+    if (userAgentData.isMobile === true) {
+        //scrolling optimization for mobile browsers
+        el.parentNode.addEventListener('shown.bs.dropdown', function() {
+            domCache.body.style.overflow = 'hidden';
+        }, false);
+        el.parentNode.addEventListener('hidden.bs.dropdown', function() {
+            domCache.body.style.overflow = 'initial';
+        }, false);
+    }
+    el.dropdownButton.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }, false);
+}
+
+/**
+ * Creates a combined select + input element from an input element
+ * @param {Element} el element
+ */
+ function setSelectNew(el) {
+    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll", "border", "border-secondary"]});
+    const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "dropdown-menu-dark", "p-2", "w-100"]}, [
+        filterResult
+    ]);
+    el.parentNode.insertBefore(dropdown, el.nextElementSibling);
+
+    const button = elCreateEmpty('button', {"class": ["input-inner-button", "select-inner-button"], "data-bs-toggle": "dropdown"});
+    if (el.parentNode.classList.contains('col-sm-8')) {
+        button.style.right = '1rem';
+    }
+    button.style.cursor = 'default';
+    el.parentNode.insertBefore(button, el.nextElementSibling);
+    el.dropdownButton = button;
+    el.filterResult = filterResult;
+    el.classList.add('innerButton');
+    setData(el, 'value', el.value);
+    el.addEventListener('keyup', function(event) {
+        setData(el, 'value', event.target.value);
+    }, false);
+    el.filterResult.addEventListener('click', function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+        el.value = event.target.textContent;
+        setData(el, 'value', getData(event.target, 'value'));
+        BSN.Dropdown.getInstance(el.nextElementSibling).hide();
+        const changeEvent = new Event('change');
+        el.dispatchEvent(changeEvent);
+    }, false);
+    el.addFilterResult = function(text, value) {
+        const item = elCreateTextTn('li', {"class": ["list-group-item", "list-group-item-action", "clickable"]}, text);
+        setData(item, 'value', value);
+        el.filterResult.appendChild(item);
+    };
+    el.addFilterResultPlain = function(value) {
+        const item = elCreateText('li', {"class": ["list-group-item", "list-group-item-action", "clickable"]}, value);
+        setData(item, 'value', value);
+        el.filterResult.appendChild(item);
+    };
+    new BSN.Dropdown(el.dropdownButton);
     if (userAgentData.isMobile === true) {
         //scrolling optimization for mobile browsers
         el.parentNode.addEventListener('shown.bs.dropdown', function() {

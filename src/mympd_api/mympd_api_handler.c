@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/list.h"
 #include "src/mympd_api/mympd_api_handler.h"
 
 #include "src/lib/album_cache.h"
@@ -26,6 +27,7 @@
 #include "src/mpd_client/jukebox.h"
 #include "src/mpd_client/partitions.h"
 #include "src/mpd_client/playlists.h"
+#include "src/mpd_client/presets.h"
 #include "src/mpd_client/search.h"
 #include "src/mpd_worker/mpd_worker.h"
 #include "src/mympd_api/albumart.h"
@@ -357,6 +359,24 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     //start jukebox
                     jukebox_run(partition_state);
                 }
+                //save options as preset
+                if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
+                    sds params = json_get_key_as_sds(request->data, "$.params");
+                    if (params != NULL) {
+                        int idx = list_get_node_idx(&partition_state->presets, sds_buf1);
+                        if (idx > -1) {
+                            list_replace(&partition_state->presets, idx, sds_buf1, 0, params, NULL);
+                        }
+                        else {
+                            list_push(&partition_state->presets, sds_buf1, 0, params, NULL);
+                        }
+                        FREE_SDS(params);
+                    }
+                    else {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Can't save playback preset");
+                    }
+                }
                 //respond with ok
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD);
             }
@@ -366,6 +386,41 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         }
+        case MYMPD_API_PRESET_RM:
+            if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
+                rc = presets_delete(&partition_state->presets, sds_buf1);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_SCRIPT);
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Could not delete preset");
+                }
+            }
+            break;
+        case MYMPD_API_PRESET_LOAD:
+            if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
+                struct t_list_node *preset = list_get_node(&partition_state->presets, sds_buf1);
+                if (preset != NULL) {
+                    if (json_iterate_object(preset->value_p, "$", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &error) == true) {
+                        if (partition_state->jukebox_mode != JUKEBOX_OFF) {
+                            //start jukebox
+                            jukebox_run(partition_state);
+                        }
+                        //respond with ok
+                        response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD);
+                    }
+                    else {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Can't set playback options");
+                    }
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Could not load preset");
+                }
+            }
+            break;
         case MYMPD_API_SETTINGS_GET:
             response->data = mympd_api_settings_get(partition_state, response->data, request->id);
             break;

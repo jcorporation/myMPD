@@ -983,6 +983,20 @@ bool json_find_key(sds s, const char *path) {
 }
 
 /**
+ * Searches for a key in json object and returns it as sds string
+ * @param s json object to search
+ * @param path mjson path expression
+ */
+sds json_get_key_as_sds(sds s, const char *path) {
+    const char *p;
+    int n;
+    if (mjson_find(s, (int)sdslen(s), path, &p, &n) == MJSON_TOK_INVALID) {
+        return false;
+    }
+    return sdsnewlen(p, (size_t)n);
+}
+
+/**
  * Returns the name of a mjson token type
  * @param vtype token type
  * @return token type as string

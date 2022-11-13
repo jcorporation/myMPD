@@ -1170,6 +1170,11 @@ const APImethods = {
     "MYMPD_API_PLAYER_OPTIONS_SET": {
         "desc": "Sets MPD and jukebox options.",
         "params":{
+            "name": {
+                "type": "text",
+                "example": "default",
+                "desc": "Name of the preset, leave empty to save no preset"
+            },
             "consume": {
                 "type": "text",
                 "example": "1",
@@ -1239,6 +1244,26 @@ const APImethods = {
                 "type": "bool",
                 "example": false,
                 "desc": "Start playing if a song is adder to queue."
+            }
+        }
+    },
+    "MYMPD_API_PRESET_RM": {
+        "desc": "Deletes a preset.",
+        "params": {
+            "name": {
+                "type": "text",
+                "example": "default",
+                "desc": "Name of the preset."
+            }
+        }
+    },
+    "MYMPD_API_PRESET_LOAD": {
+        "desc": "Loads a preset.",
+        "params": {
+            "name": {
+                "type": "text",
+                "example": "default",
+                "desc": "Name of the preset."
             }
         }
     },

@@ -61,6 +61,7 @@ bool list_shuffle(struct t_list *l);
 bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2);
 bool list_move_item_pos(struct t_list *l, long from, long to);
 
+int list_get_node_idx(const struct t_list *l, const char *key);
 struct t_list_node *list_get_node(const struct t_list *l, const char *key);
 struct t_list_node *list_node_at(const struct t_list *l, long idx);
 struct t_list_node *list_node_prev_at(const struct t_list *l, long idx, struct t_list_node **previous);

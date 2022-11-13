@@ -11,6 +11,7 @@ This release adds small enhancements.
 ### Changelog
 
 - Feat: add option to ignore hated songs in jukebox mode #882
+- Feat: add option to save and load mpd and jukebox presets #888
 
 ***
 
