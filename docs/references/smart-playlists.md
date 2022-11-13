@@ -6,9 +6,9 @@ title: Smart playlists
 
 In the default configuration there are three smart playlists:
 
- 1. Best Rated
- 2. Most Played
- 3. Newest Songs
+1. Best Rated
+2. Most Played
+3. Newest Songs
 
 Additionally there is a smart playlist generation rule that creates one smart playlist per genre.
 
@@ -33,13 +33,13 @@ myMPD creates per default three smart playlists. Smart playlists are defined in 
 
 ### Sticker based
 
- - myMPDsmart-bestRated: `{"type": "sticker", "sticker": "like", "maxentries": 200, "minvalue": 2, "sort": ""}`
- - myMPDsmart-mostPlayed: `{"type": "sticker", "sticker": "playCount", "maxentries": 200, "minvalue": 10,"sort": ""}`
+- myMPDsmart-bestRated: `{"type": "sticker", "sticker": "like", "maxentries": 200, "minvalue": 2, "sort": ""}`
+- myMPDsmart-mostPlayed: `{"type": "sticker", "sticker": "playCount", "maxentries": 200, "minvalue": 10,"sort": ""}`
 
 ### Newest songs
 
- - myMPDsmart-newestSongs: `{"type": "newest", "timerange": 604800, "sort":""}`
+- myMPDsmart-newestSongs: `{"type": "newest", "timerange": 604800, "sort":""}`
 
 ### Saved search
 
- - savedSearch: `{"type":"search", "expression":"((Artist contains 'test'))", "sort":"Album"}`
+- savedSearch: `{"type":"search", "expression":"((Artist contains 'test'))", "sort":"Album"}`

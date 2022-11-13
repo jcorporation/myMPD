@@ -11,6 +11,12 @@ target_sources(rax
   PUBLIC
     rax.h
 )
+
+target_include_directories(rax
+  PRIVATE
+    ${PROJECT_SOURCE_DIR}
+)
+
 if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
   target_compile_options(rax
     PRIVATE

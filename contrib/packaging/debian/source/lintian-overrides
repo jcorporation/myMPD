@@ -1,9 +1,0 @@
-# Long lines in minified javascript files
-mympd source: source-is-missing dist/htdocs/sw.min.js
-mympd source: source-is-missing dist/htdocs/js/i18n.min.js
-mympd source: source-is-missing dist/htdocs/js/keymap.min.js
-mympd source: source-is-missing dist/htdocs/js/long-press-event.min.js
-
-mympd source: source-is-missing htdocs/js/ligatures.js line length is *
-mympd source: source-is-missing htdocs/test/api.js line length is *
-mympd source: source-is-missing htdocs/test/blns.js line length is *

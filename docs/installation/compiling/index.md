@@ -17,6 +17,7 @@ title: Compiling
 Get the appropriated tarball or clone the git repository and checkout the wanted branch.
 
 **Example: Clone and use devel branch:**
+
 ```
 git clone https://github.com/jcorporation/myMPD.git
 git checkout devel

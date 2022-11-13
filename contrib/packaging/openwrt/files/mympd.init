@@ -4,46 +4,46 @@ USE_PROCD=1
 START=94
 
 start_service() {
-	config_load /etc/config/mympd
+    config_load /etc/config/mympd
 
-	local tempdir=$(mktemp -d)
-	local configdir=${tempdir}/config
-	local statedir=${tempdir}/state
+    local tempdir=$(mktemp -d)
+    local configdir=${tempdir}/config
+    local statedir=${tempdir}/state
 
-	mkdir -p -m 755 ${configdir} ${statedir}
+    mkdir -p -m 755 ${configdir} ${statedir}
 
-	[ -z "${mpd_host}" ] && mpd_host='localhost'
-	config_get main mpd_host > ${statedir}/mpd_host
-	[ -z "${mpd_port}" ] && mpd_port='6600'
-	config_get main mpd_port > ${statedir}/mpd_port
+    [ -z "${mpd_host}" ] && mpd_host='localhost'
+    config_get main mpd_host > ${statedir}/mpd_host
+    [ -z "${mpd_port}" ] && mpd_port='6600'
+    config_get main mpd_port > ${statedir}/mpd_port
 
-	config_get main acl > ${configdir}/acl
-	config_get main http_host > ${configdir}/http_host
-	config_get main http_port > ${configdir}/http_port
-	config_get main loglevel > ${configdir}/loglevel
+    config_get main acl > ${configdir}/acl
+    config_get main http_host > ${configdir}/http_host
+    config_get main http_port > ${configdir}/http_port
+    config_get main loglevel > ${configdir}/loglevel
 
-	config_get main lualibs > ${configdir}/lualibs
-	config_get main scriptacl > ${configdir}/scriptacl
+    config_get main lualibs > ${configdir}/lualibs
+    config_get main scriptacl > ${configdir}/scriptacl
 
-	config_get main ssl > ${configdir}/ssl
-	config_get main ssl_port > ${configdir}/ssl_port
-	config_get main ssl_san > ${configdir}/ssl_san
-	config_get main custom_cert > ${configdir}/custom_cert
-	config_get main ssl_cert > ${configdir}/ssl_cert
-	config_get main ssl_key > ${configdir}/ssl_key
+    config_get main ssl > ${configdir}/ssl
+    config_get main ssl_port > ${configdir}/ssl_port
+    config_get main ssl_san > ${configdir}/ssl_san
+    config_get main custom_cert > ${configdir}/custom_cert
+    config_get main ssl_cert > ${configdir}/ssl_cert
+    config_get main ssl_key > ${configdir}/ssl_key
 
-	local workdir
-	config_get workdir main workdir
-	[ -z "${workdir}" ] && workdir='/var/lib/mympd'
-	mkdir -p -m 755 ${workdir}
-	cp -f -R ${tempdir}/* ${workdir}/
-	rm -f -R ${tempdir}
-	chown -R mympd:mympd ${workdir}
+    local workdir
+    config_get workdir main workdir
+    [ -z "${workdir}" ] && workdir='/var/lib/mympd'
+    mkdir -p -m 755 ${workdir}
+    cp -f -R ${tempdir}/* ${workdir}/
+    rm -f -R ${tempdir}
+    chown -R mympd:mympd ${workdir}
 
-	procd_open_instance mympd
-	procd_set_param file /etc/config/mympd
-	procd_set_param command /usr/bin/mympd -w ${workdir}
-	procd_set_param stdout 1
-	procd_set_param stderr 1
-	procd_close_instance mympd
+    procd_open_instance mympd
+    procd_set_param file /etc/config/mympd
+    procd_set_param command /usr/bin/mympd -w ${workdir}
+    procd_set_param stdout 1
+    procd_set_param stderr 1
+    procd_close_instance mympd
 }

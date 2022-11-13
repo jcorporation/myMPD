@@ -38,7 +38,7 @@
 #ifndef RAX_ALLOC_H
 #define RAX_ALLOC_H
 
-#include "../../src/lib/mem.h"
+#include "src/lib/mem.h"
 
 #define rax_malloc malloc_assert
 #define rax_realloc realloc_assert

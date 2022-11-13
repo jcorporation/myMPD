@@ -32,6 +32,7 @@ MPD loads this playlist with the curl plugin, myMPD calculates the correct http 
 ```
 
 ### Example
+
 ```
 #EXTM3U
 #EXTINF:-1,SWR 1 BW

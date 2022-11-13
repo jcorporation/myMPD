@@ -1,20 +1,35 @@
 .\" Manpage for mympd-script.
 .\" Contact <mail@jcgames.de> to correct errors or typos.
 .TH man 1 "__DATE_F3__" "__VERSION__" "mympd-script man page"
-.SH NAME
-mympd-script \- execute lua scripts through myMPD
-.SH SYNOPSIS
-mympd [/path/to/mympd.conf]
-.SH DESCRIPTION
-myMPD is a standalone and lightweight web-based MPD client.
 
-mympd-script is a small commandline tool to submit scripts to myMPD. It reads the script from STDIN and submits it to myMPD for execution. Key=Value parameters can be used to fill the arguments table in the Lua script.
+.SH NAME
+mympd-script
+
+.SH SYNOPSIS
+mympd-script <uri> <partition> <scriptname> [arguments]
+
+.SH DESCRIPTION
+mympd-script is a small commandline tool to execute myMPD scripts.
 
 .SH OPTIONS
-Look at https://github.com/jcorporation/myMPD/wiki/Scripting
-.SH BUGS
-Look at https://github.com/jcorporation/myMPD/issues
+.TP
+\fBuri\fR
+myMPD listening uri, e.g. "https://localhost"
+.TP
+\fBpartition\fR
+MPD partition, e.g. "default"
+.TP
+\fBscriptname\fR
+script to execute, use "-" to read the script from stdin.
+.TP
+\fBarguments\fR
+optional space separated key=value pairs to fill the arguments table in the Lua script.
+
 .SH AUTHOR
 Juergen Mang (mail@jcgames.de)
 
+.SH BUGS
+If you find a bug, please report it at https://github.com/jcorporation/myMPD/issues
+
+.SH SEE ALSO
 https://github.com/jcorporation/myMPD

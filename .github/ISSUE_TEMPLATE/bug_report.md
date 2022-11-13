@@ -14,8 +14,8 @@ A clear and concise description of what the bug is.
 
 Steps to reproduce the behavior:
 1. Go to '...'
-2. Click on '....'
-3. Scroll down to '....'
+2. Click on '...'
+3. Scroll down to '...'
 4. See error
 
 **Expected behavior**
@@ -38,7 +38,7 @@ If applicable, add screenshots to help explain your problem.
  - Browser [e.g. chrome, safari]
  - Browser version [e.g. 22]
 
-**Debug logs (please attach if it can be usefull)**
+**Debug logs (please attach if it can be useful)**
 
 Look at https://jcorporation.github.io/myMPD/debug
 
@@ -47,7 +47,7 @@ Look at https://jcorporation.github.io/myMPD/debug
  - Browser error console
  - Browser network console
  
-**Configuration (please attach if it can be usefull)**
+**Configuration (please attach if it can be useful)**
 
  - tarball of /var/lib/mympd/state (``tar -cf mympd_state.tar /var/lib/mympd/state``)
  - tarball of /var/lib/mympd/config (``tar -cf mympd_config.tar /var/lib/mympd/config``)

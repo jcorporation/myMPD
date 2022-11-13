@@ -79,6 +79,7 @@ mympd_api("MYMPD_API_PLAYER_PLAY")
 ### With arguments
 
 Script should be called with an argument named playlist.
+
 ```
 -- load a playlist
 mympd_api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", "plist", arguments["playlist"])

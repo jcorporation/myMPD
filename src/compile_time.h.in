@@ -30,6 +30,7 @@
 //translation files
 #cmakedefine I18N_de_DE
 #cmakedefine I18N_en_US
+#cmakedefine I18N_es_ES
 #cmakedefine I18N_es_VE
 #cmakedefine I18N_fi_FI
 #cmakedefine I18N_fr_FR
@@ -40,10 +41,7 @@
 #cmakedefine I18N_zh_CN
 
 //myMPD version from cmake
-#define MYMPD_VERSION_MAJOR ${CPACK_PACKAGE_VERSION_MAJOR}
-#define MYMPD_VERSION_MINOR ${CPACK_PACKAGE_VERSION_MINOR}
-#define MYMPD_VERSION_PATCH ${CPACK_PACKAGE_VERSION_PATCH}
-#define MYMPD_VERSION "${CPACK_PACKAGE_VERSION_MAJOR}.${CPACK_PACKAGE_VERSION_MINOR}.${CPACK_PACKAGE_VERSION_PATCH}"
+#define MYMPD_VERSION "${PROJECT_VERSION}"
 
 //default paths from cmake
 #define MYMPD_DOC_ROOT "${MYMPD_DOC_ROOT}"

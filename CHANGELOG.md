@@ -4,6 +4,20 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v10.1.1 (2022-11-13)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Feat: add es-ES translation
+- Upd: translations
+- Upd: man pages
+- Fix: remove song progress indicator in queue view after switching to new song #881
+- Fix: arch, gentoo and rpm packaging #886 #887
+
+***
+
 ## myMPD v10.1.0 (2022-11-06)
 
 This minor release adds support of new MPD 0.24 features. The javascript frontend is now documented with jsDoc and linted with the typescript compiler.
