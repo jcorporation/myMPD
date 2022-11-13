@@ -9,7 +9,6 @@ url="https://jcorporation.github.io/myMPD/"
 license=(GPL3)
 depends=('flac' 'libid3tag' 'lua' 'openssl' 'pcre2')
 makedepends=('cmake' 'gzip' 'jq' 'perl')
-install=archlinux.install
 source=("${pkgname}_${pkgver}.orig.tar.gz")
 sha256sums=('SKIP')
 options=(debug strip)
@@ -25,10 +24,6 @@ build() {
 
   cmake "${cmake_options[@]}"
   cmake --build build
-}
-
-check() {
-  ctest --test-dir build --output-on-failure
 }
 
 package() {
