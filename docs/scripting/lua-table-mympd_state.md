@@ -20,15 +20,22 @@ This is the description of the lua table mympd_state. This table must be initial
 | queue_version | Integer | Version of the queue |
 | repeat | Boolean | MPD repeat option |
 | random | Boolean | MPD random option |
-| single_state | Integer | MPD single option: 0 = off, 1 = on, 2 = oneshot, 3 = unknown |
-| consume | Boolean | MPD consume option |
+| single_state | Integer | MPD single state: 0 = off, 1 = on, 2 = oneshot, 3 = unknown |
+| consume_state | Integer | MPD consume state: 0 = off, 1 = on, 2 = oneshot, 3 = unknown |
 | crossfade | Integer | MPD crossfade option |
-| music_directory | String | path to the music directory |
-| varlibdir | String | path to the myMPD localstatedir (default: /var/lib/mympd) |
-| jukebox_mode | Integer | Jukebox mode: 0 = off, 1 = on |
+| mixrampdelay | Float | Mixramp delay |
+| mixrampdb | Float | Mixramp DB |
+| replaygain | Integer | 0 = off, 1 = track, 2 = album, 3 = auto, 4 = unknown |
+| music_directory | String | path to the mpd music directory |
+| playlist_directory | String | path to the mpd playlist directory |
+| workdir | String | path to the myMPD working directory (default: /var/lib/mympd) |
+| cachedir | String | path to the myMPD cache directory (default: /var/cache/mympd) |
+| auto_play | Boolean | true = enabled, false = disabled |
+| jukebox_mode | Integer | Jukebox mode: 0 = off, 1 = song, 2 = album |
 | jukebox_playlist | String | Jukebox playlist: Database or MPD playlist name |
 | jukebox_queue_length | Integer | Length of the queue length to maintain |
 | jukebox_last_played | Integer | Don't add songs that are played in the last x hours |
 | jukebox_unique_tag | String | Build the jukebox queue with this tag as unique constraint: Song, Album, Artist |
+| jukebox_ignore_hated | Boolean | Ignore hated songs for jukebox |
 | listenbrainz_token | ListenBrainz Token |
 {: .table .table-sm }
