@@ -884,9 +884,9 @@ uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance(document.getEleme
 uiElements.collapseJukeboxMode = BSN.Collapse.getInstance(document.getElementById('collapseJukeboxMode'));
 
 const LUAfunctions = {
-    "mympd_api_http_client": {
+    "mympd.http_client": {
         "desc": "HTTP client",
-        "func": "rc, code, header, body = mympd_api_http_client(method, uri, headers, payload)"
+        "func": "rc, code, header, body = mympd.http_client(method, uri, headers, payload)"
     },
     "mympd.init": {
         "desc": "Initializes the mympd_state lua table",

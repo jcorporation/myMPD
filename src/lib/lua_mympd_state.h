@@ -36,7 +36,7 @@ void lua_mympd_state_set_p(struct t_list *lua_mympd_state, const char *k, const 
 void lua_mympd_state_set_i(struct t_list *lua_mympd_state, const char *k, long long v);
 void lua_mympd_state_set_u(struct t_list *lua_mympd_state, const char *k, unsigned v);
 void lua_mympd_state_set_b(struct t_list *lua_mympd_state, const char *k, bool v);
-void lua_mympd_state_set_f(struct t_list *lua_mympd_staet, const char *k, double v);
+void lua_mympd_state_set_f(struct t_list *lua_mympd_state, const char *k, double v);
 void *lua_mympd_state_free(struct t_list *lua_mympd_state);
 
 #endif

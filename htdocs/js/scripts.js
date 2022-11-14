@@ -111,11 +111,11 @@ function initScripts() {
         }
         const el = document.getElementById('textareaScriptContent');
         const [start, end] = [el.selectionStart, el.selectionEnd];
-        const newText = 'rc, raw_result = mympd_api_raw("' + method + '", json.encode(' +
+        const newText = 'rc, result = mympd.api("' + method + '", ' +
             apiParamsToArgs(APImethods[method].params) +
-            '))\n' +
+            ')\n' +
             'if rc == 0 then\n' +
-            '    result = json.decode(raw_result)\n' +
+            '\n' +
             'end\n';
         el.setRangeText(newText, start, end, 'preserve');
         BSN.Dropdown.getInstance(document.getElementById('btnDropdownAddAPIcall')).hide();

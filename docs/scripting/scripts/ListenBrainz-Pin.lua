@@ -8,10 +8,9 @@ payload = ""
 uri = ""
 
 if arguments["uri"] ~= "" then
-  rc, raw_song = mympd_api("MYMPD_API_SONG_DETAILS", "uri", arguments["uri"])
+  rc, song = mympd.api("MYMPD_API_SONG_DETAILS", {uri = arguments["uri"]})
   if rc == 0 then
-    song = json.decode(raw_song)
-    mbid = song["result"]["MUSICBRAINZ_TRACKID"]
+    mbid = song["MUSICBRAINZ_TRACKID"]
     if mbid ~= nil then
       payload = json.encode({
         recording_mbid = mbid,
@@ -26,7 +25,7 @@ else
 end
 
 if uri ~= "" then
-  rc, code, header, body = mympd_api_http_client("POST", uri, headers, payload)
+  rc, code, header, body = mympd.http_client("POST", uri, headers, payload)
   if rc > 0 then
     return body
   end

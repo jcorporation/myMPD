@@ -6,12 +6,17 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v10.2.0 (not yet released)
 
-This release adds small enhancements.
+This release reworks the scripting api and improves the scripting documentation. The new presets feature lets you switch mpd and jukebox options with one click.
+
+### Warning
+
+Existing lua scripts must be adapted to the new simplified API.
 
 ### Changelog
 
-- Feat: add option to ignore hated songs in jukebox mode #882
 - Feat: add option to save and load mpd and jukebox presets #888
+- Feat: rework and simplify scripting api
+- Feat: add option to ignore hated songs in jukebox mode #882
 
 ***
 
