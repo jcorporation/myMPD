@@ -565,8 +565,8 @@ This release upgrades Bootstrap to the new major release, brings many ui enhance
 
 - Feat: reworked main menu
 - Feat: reworked popover menu
-- Feat: reworked pagination #
-- Feat: priority handling for songs in queue
+- Feat: reworked pagination #474
+- Feat: priority handling for songs in queue #474
 - Feat: harmonize popover menus #534
 - Feat: songs, directories, albums and streams can be added to home screen #604
 - Feat: add playlist, directory, search after current playing song (requires mpd 0.23.5) #579
