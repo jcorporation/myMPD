@@ -13,7 +13,6 @@
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/state_files.h"
-#include "src/mpd_client/jukebox.h"
 #include "src/mympd_api/timer_handlers.h"
 
 #include <errno.h>
@@ -282,6 +281,7 @@ void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
     FREE_SDS(timer_def->action);
     FREE_SDS(timer_def->subaction);
     FREE_SDS(timer_def->playlist);
+    FREE_SDS(timer_def->preset);
     list_clear(&timer_def->arguments);
     FREE_PTR(timer_def);
     return NULL;
@@ -302,8 +302,8 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
     timer_def->action = NULL;
     timer_def->subaction = NULL;
     timer_def->playlist = NULL;
+    timer_def->preset = NULL;
     list_init(&timer_def->arguments);
-    sds jukebox_mode_str = NULL;
 
     if (json_get_string_max(str, "$.params.name", &timer_def->name, vcb_isname, error) == true &&
         json_get_bool(str, "$.params.enabled", &timer_def->enabled, error) == true &&
@@ -320,10 +320,12 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         json_get_bool(str, "$.params.weekdays[3]", &timer_def->weekdays[3], error) == true &&
         json_get_bool(str, "$.params.weekdays[4]", &timer_def->weekdays[4], error) == true &&
         json_get_bool(str, "$.params.weekdays[5]", &timer_def->weekdays[5], error) == true &&
-        json_get_bool(str, "$.params.weekdays[6]", &timer_def->weekdays[6], error) == true &&
-        json_get_string_max(str, "$.params.jukeboxMode", &jukebox_mode_str, vcb_isalnum, error) == true)
+        json_get_bool(str, "$.params.weekdays[6]", &timer_def->weekdays[6], error) == true)
     {
-        timer_def->jukebox_mode = jukebox_mode_parse(jukebox_mode_str);
+        if (json_get_string_max(str, "$.params.preset", &timer_def->preset, vcb_isname, error) == false) {
+            //Migration from 10.1 to 10.2
+            timer_def->preset = sdsempty();
+        }
         timer_def->partition = sdsnew(partition);
         MYMPD_LOG_DEBUG("Successfully parsed timer definition");
     }
@@ -331,7 +333,6 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         timer_def = mympd_api_timer_free_definition(timer_def);
         MYMPD_LOG_ERROR("Error parsing timer definition");
     }
-    FREE_SDS(jukebox_mode_str);
     return timer_def;
 }
 
@@ -595,9 +596,9 @@ static sds print_timer_node(sds buffer, struct t_timer_node *current) {
     buffer = tojson_int(buffer, "startMinute", current->definition->start_minute, true);
     buffer = tojson_sds(buffer, "action", current->definition->action, true);
     buffer = tojson_sds(buffer, "subaction", current->definition->subaction, true);
-    buffer = tojson_sds(buffer, "playlist", current->definition->playlist, true);
     buffer = tojson_uint(buffer, "volume", current->definition->volume, true);
-    buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_lookup(current->definition->jukebox_mode), true);
+    buffer = tojson_sds(buffer, "playlist", current->definition->playlist, true);
+    buffer = tojson_char(buffer, "preset", current->definition->preset, true);
     buffer = sdscat(buffer, "\"weekdays\":[");
     for (int i = 0; i < 7; i++) {
         if (i > 0) {

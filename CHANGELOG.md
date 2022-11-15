@@ -15,6 +15,7 @@ Existing lua scripts must be adapted to the new simplified API.
 ### Changelog
 
 - Feat: add option to save and load mpd and jukebox presets #888
+- Feat: play timer uses presets #888
 - Feat: rework and simplify scripting api
 - Feat: add option to ignore hated songs in jukebox mode #882
 

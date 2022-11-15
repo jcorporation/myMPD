@@ -135,12 +135,20 @@ function populateListPresets() {
 function populatePresetDropdowns() {
     const presetDropdown1 = document.getElementById('selectPresetDropdown1').lastElementChild;
     const presetDropdown2 = document.getElementById('selectPresetDropdown2').lastElementChild;
+    const selectTimerPreset = document.getElementById('selectTimerPreset');
     elClear(presetDropdown1);
     elClear(presetDropdown2);
+    elClear(selectTimerPreset);
+    selectTimerPreset.appendChild(
+        elCreateTextTn('option', {"value": ""}, 'No preset')
+    );
     for (const preset of settings.partition.presets) {
         const a = elCreateText('button', {"type":"button", "class": ["btn", "btn-secondary", "btn-sm"]}, preset);
         presetDropdown1.appendChild(a.cloneNode(true));
         presetDropdown2.appendChild(a.cloneNode(true));
+        selectTimerPreset.appendChild(
+            elCreateText('option', {"value": preset}, preset)
+        );
     }
 }
 

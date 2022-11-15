@@ -177,8 +177,8 @@ struct t_timer_definition {
     sds action;                       //!< timer action, e.g. script, play
     sds subaction;                    //!< timer subaction, e.g. script to execute
     unsigned volume;                  //!< volume to set
-    sds playlist;                     //!< playlist to use
-    enum jukebox_modes jukebox_mode;  //!< jukebox mode
+    sds playlist;                     //!< playlist to load for play timer
+    sds preset;                       //!< preset to load for play timer
     bool weekdays[7];                 //!< array of weekdays for timer execution
     struct t_list arguments;          //!< argumentlist for script timers
 };

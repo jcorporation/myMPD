@@ -1485,10 +1485,10 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         }
         case INTERNAL_API_TIMER_STARTPLAY:
             if (json_get_uint(request->data, "$.params.volume", 0, 100, &uint_buf1, &error) == true &&
-                json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_uint(request->data, "$.params.jukeboxMode", 0, 2, &uint_buf2, &error) == true)
+                json_get_string(request->data, "$.params.plist", 0, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string_max(request->data, "$.params.preset", &sds_buf2, vcb_isname, &error) == true)
             {
-                rc = mympd_api_timer_startplay(partition_state, uint_buf1, sds_buf1, uint_buf2);
+                rc = mympd_api_timer_startplay(partition_state, uint_buf1, sds_buf1, sds_buf2);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_TIMER);
                 }

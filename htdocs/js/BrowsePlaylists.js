@@ -434,9 +434,9 @@ function addSmartpls(type) {
  *                      0 = all playlists,
  *                      1 = static playlists,
  *                      2 = smart playlists
- * @param {*} elId select element id
- * @param {*} searchstr search string
- * @param {*} selectedPlaylist current selected playlist
+ * @param {string} elId select element id
+ * @param {string} searchstr search string
+ * @param {string} selectedPlaylist current selected playlist
  */
 function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
     sendAPI("MYMPD_API_PLAYLIST_LIST", {
@@ -452,22 +452,30 @@ function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
 /**
  * Populates the custom input element mympd-select-search
  * @param {object} obj jsonrpc response
- * @param {*} playlistSelectId select element id
- * @param {*} selectedPlaylist current selected playlist
+ * @param {string} playlistSelectId select element id
+ * @param {string} selectedPlaylist current selected playlist
  */
 function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
     const selectEl = document.getElementById(playlistSelectId);
     if (selectedPlaylist !== undefined) {
         //set input element values
-        selectEl.value = selectedPlaylist === 'Database' ? tn('Database'): selectedPlaylist;
+        selectEl.value = selectedPlaylist === 'Database'
+            ? tn('Database')
+            : selectedPlaylist === '' 
+                ? tn('No playlist')
+                : selectedPlaylist;
         setData(selectEl, 'value', selectedPlaylist);
     }
+
     elClear(selectEl.filterResult);
-    if (playlistSelectId === 'selectJukeboxPlaylist' ||
-        playlistSelectId === 'selectAddToQueuePlaylist' ||
-        playlistSelectId === 'selectTimerPlaylist')
-    {
-        selectEl.addFilterResult('Database', 'Database');
+    switch(playlistSelectId) {
+        case 'selectTimerPlaylist':
+            selectEl.addFilterResult('No playlist', '');
+            break;
+        case 'selectJukeboxPlaylist':
+        case 'selectAddToQueuePlaylist':
+            selectEl.addFilterResult('Database', 'Database');
+            break;
     }
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
@@ -505,7 +513,7 @@ function showAddToPlaylist(uri, searchstr) {
     }
     uiElements.modalAddToPlaylist.show();
     if (features.featPlaylists) {
-        filterPlaylistsSelect(1, 'addToPlaylistPlaylist', '');
+        filterPlaylistsSelect(1, 'addToPlaylistPlaylist', '', '');
     }
 }
 

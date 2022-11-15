@@ -1909,18 +1909,16 @@
                   <div class="col-sm-1 mt-2 ps-0 text-right" id="textTimerVolume"></div>
                 </div>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" data-phrase="Jukebox mode"></label>
+                  <label class="col-sm-4 col-form-label" for="selectTimerPreset" data-phrase="Load preset"></label>
                   <div class="col-sm-8">
-                    <div class="btn-group" id="btnTimerJukeboxModeGroup">
-                      <button data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
-                      <button data-value="song" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
-                      <button data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
-                    </div>
-                    <div class="invalid-feedback" data-phrase="Enable jukebox if playlist is database"></div>
+                    <select id="selectTimerPreset" class="form-select"></select>
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="selectTimerPlaylist" data-phrase="Playlist"></label>
+                  <label class="col-sm-4 col-form-label" for="selectTimerPlaylist">
+                    <span data-phrase="Load playlist"></span>
+                    <small class="mi mi-small ms-1" data-title-phrase="Playlist is ignored if preset enables the jukebox">help</small>
+                  </label>
                   <div class="col-sm-8">
                     <div class="btn-group position-relative d-flex">
                       <input data-is="mympd-select-search" readonly="readonly" id="selectTimerPlaylist" class="form-control"/>
