@@ -61,7 +61,7 @@ function initTimer() {
             const selectTimerPlaylistEl = document.getElementById('selectTimerPlaylist');
             if (value === 'album') {
                 elDisable(selectTimerPlaylistEl);
-                selectTimerPlaylistEl.value = 'Database';
+                selectTimerPlaylistEl.value = tn('Database');
                 setData(selectTimerPlaylistEl, 'value', 'Database');
             }
             else if (value === 'song') {
