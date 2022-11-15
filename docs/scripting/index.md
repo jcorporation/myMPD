@@ -36,6 +36,7 @@ rc, result = mympd.api("method", params)
 | --------- | ---- | ----------- |
 | method | string | myMPD API method |
 | params | lua table | the jsonrpc parameters | 
+{: .table .table-sm }
 
 **Returns:**
 
@@ -43,6 +44,7 @@ rc, result = mympd.api("method", params)
 | ----- | ---- | ----------- |
 | rc | integer | response code: 0 = OK, 1 = ERROR |
 | result | lua table | json result or error |
+{: .table .table-sm }
 
 ### HTTP client
 
@@ -60,6 +62,7 @@ rc, code, header, body = mympd.http_client(method, uri, headers, payload)
 | uri | string | full uri to call, e. g. `https://api.listenbrainz.org/1/submit-listens` |
 | headers | string | must be terminated by `\r\n` |
 | payload | string | body of a post request |
+{: .table .table-sm }
 
 **Returns:**
 
@@ -89,6 +92,7 @@ No parameters needed.
 | ----- | ---- | ----------- |
 | rc | integer | response code: 0 = success, 1 = error |
 | result | lua table | jsonrpc result or error as lua table |
+{: .table .table-sm }
 
 - [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state)
 
@@ -105,12 +109,14 @@ output = mympd.os_capture(command)
 | PARAMETER | TYPE | DESCRIPTION |
 | --------- | ---- | ----------- |
 | command | string | system command to execute |
+{: .table .table-sm }
 
 **Returns:**
 
 | FIELD | TYPE | DESCRIPTION |
 | ----- | ---- | ----------- |
 | output | string | system command output as lua string |
+{: .table .table-sm }
 
 ## Lua manual
 
