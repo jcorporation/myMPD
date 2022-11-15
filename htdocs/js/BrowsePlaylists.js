@@ -457,15 +457,13 @@ function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
  */
 function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
     const selectEl = document.getElementById(playlistSelectId);
-    if (selectedPlaylist !== undefined) {
-        //set input element values
-        selectEl.value = selectedPlaylist === 'Database'
-            ? tn('Database')
-            : selectedPlaylist === '' 
-                ? tn('No playlist')
-                : selectedPlaylist;
-        setData(selectEl, 'value', selectedPlaylist);
-    }
+    //set input element values
+    selectEl.value = selectedPlaylist === 'Database'
+        ? tn('Database')
+        : selectedPlaylist === ''
+            ? tn('No playlist')
+            : selectedPlaylist;
+    setData(selectEl, 'value', selectedPlaylist);
 
     elClear(selectEl.filterResult);
     switch(playlistSelectId) {

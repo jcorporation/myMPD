@@ -128,7 +128,7 @@ function initQueueCurrent() {
         setDataId('selectAddToQueuePlaylist', 'value', 'Database');
         document.getElementById('selectAddToQueuePlaylist').filterInput.value = '';
         if (features.featPlaylists === true) {
-            filterPlaylistsSelect(0, 'selectAddToQueuePlaylist', '');
+            filterPlaylistsSelect(0, 'selectAddToQueuePlaylist', '', '');
         }
     });
 
@@ -143,7 +143,7 @@ function initQueueCurrent() {
         toggleSaveQueueMode(document.getElementById('btnQueueSaveMode').firstElementChild);
         document.getElementById('saveQueueNameSelect').value = '';
         document.getElementById('saveQueueNameSelect').filterInput.value = '';
-        filterPlaylistsSelect(1, 'saveQueueNameSelect', '');
+        filterPlaylistsSelect(1, 'saveQueueNameSelect', '', '');
         cleanupModalId('modalSaveQueue');
     });
 

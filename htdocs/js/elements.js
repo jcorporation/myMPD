@@ -355,6 +355,7 @@ function getRadioBoxValue(el) {
             return button.value;
         }
     }
+    return null;
 }
 
 /**
