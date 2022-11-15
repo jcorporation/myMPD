@@ -267,7 +267,7 @@ function parseEditTimer(obj) {
     else {
         elEnable(selectTimerPlaylistEl);
     }
-    filterPlaylistsSelect(1, 'selectTimerPlaylist', '', playlistValue);
+    filterPlaylistsSelect(0, 'selectTimerPlaylist', '', playlistValue);
 
     document.getElementById('inputTimerId').value = obj.result.timerid;
     document.getElementById('inputTimerName').value = obj.result.name;

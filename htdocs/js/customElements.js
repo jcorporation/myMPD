@@ -91,6 +91,7 @@ function setInputClear(el) {
 
     el.button.addEventListener('click', function(event) {
         event.preventDefault();
+        event.stopPropagation();
     }, false);
 
     el.button.addEventListener('mouseup', function(event) {
