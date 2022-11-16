@@ -728,7 +728,10 @@ function gotoPlayingSong() {
         currentState.songPos < app.current.offset + app.current.limit)
     {
         //playing song is in this page
-        document.querySelector('queue-playing').scrollIntoView(true);
+        const playingRow = document.querySelector('.queue-playing');
+        if (playingRow !== null) {
+            playingRow.scrollIntoView(true);
+        }
     }
     else {
         gotoPage(Math.floor(currentState.songPos / app.current.limit) * app.current.limit, undefined);
