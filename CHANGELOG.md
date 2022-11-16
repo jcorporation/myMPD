@@ -28,6 +28,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Fix: parsing timer list
+- Fix: some small ui issues
 
 ***
 
