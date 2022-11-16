@@ -12,6 +12,7 @@ This is a small bugfix release.
 
 - Fix: parsing timer list
 - Fix: some small ui issues
+- Fix: 'Goto playing song' button #892
 
 ***
 
