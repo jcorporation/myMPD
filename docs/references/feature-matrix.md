@@ -12,7 +12,7 @@ myMPD support only MPD 0.21.0 and above.
 
 | MYMPD FEATURE | MPD VERSION | DESCRIPTION |
 | ------------- | ----------- | ----------- |
-| starts_with filter expression | 0.24.0 | myMPD uses a reges for older MPD versions |
+| starts_with filter expression | 0.24.0 | myMPD uses a regex for older MPD versions |
 | Autodetection of pcre support | 0.24.0 | myMPD assumes pcre support for older MPD versions |
 | Autoconfiguration of playlist directory | 0.24.0 | Works only for socket connections |
 | Consume OneShot | 0.24.0 | OneShot mode for consume |
