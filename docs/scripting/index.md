@@ -162,11 +162,12 @@ end
 
 ## Lua standard libraries
 
-myMPD loads in the default config all lua standard libraries. The config option lualibs controls which libraries myMPD opens before script execution.
+myMPD loads in the default config all lua standard libraries and the myMPD custom libraries. The configuration file lualibs controls which libraries myMPD opens before script execution.
 
-- Loaded by default: all
-- Available (standard lua libraries): base, coroutine, debug, io, math, os, package, string, table, utf8  
-- Available (myMPD custom libraries):
+**Valid values are:**
+- Use `all` to load all standard lua libraries and the myMPD custom libraries
+- Available standard lua libraries: base, coroutine, debug, io, math, os, package, string, table, utf8
+- Available myMPD custom libraries:
   - [mympd](https://github.com/jcorporation/myMPD/blob/master/contrib/lualibs/mympd.lua)
   - [json](https://github.com/rxi/json.lua)
 

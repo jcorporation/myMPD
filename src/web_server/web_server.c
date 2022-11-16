@@ -139,8 +139,10 @@ void *web_server_loop(void *arg_mgr) {
     mg_log_set_fn(mongoose_log, NULL);
 
     #ifdef MYMPD_ENABLE_SSL
-    MYMPD_LOG_DEBUG("Using certificate: %s", mg_user_data->config->ssl_cert);
-    MYMPD_LOG_DEBUG("Using private key: %s", mg_user_data->config->ssl_key);
+    if (mg_user_data->config->ssl == true) {
+        MYMPD_LOG_DEBUG("Using certificate: %s", mg_user_data->config->ssl_cert);
+        MYMPD_LOG_DEBUG("Using private key: %s", mg_user_data->config->ssl_key);
+    }
     #endif
 
     sds last_notify = sdsempty();
