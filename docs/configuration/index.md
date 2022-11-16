@@ -44,7 +44,7 @@ To change these settings afterwards, you must edit the files in the folder `/var
 | http_host | string | MYMPD_HTTP_HOST | 0.0.0.0 | IP address to listen on, use [::] to listen on IPv6 |
 | http_port | number | MYMPD_HTTP_PORT | 80 | Port to listen on. Redirects to `ssl_port` if `ssl` is set to `true` |
 | loglevel | number | MYMPD_LOGLEVEL | 5 | [Logging]({{ site.baseurl }}/configuration/logging) - this environment variable is always used |
-| lualibs | string | MYMPD_LUALIBS | all | [Scripting]({{ site.baseurl }}/scripting) |
+| lualibs | string | MYMPD_LUALIBS | all | Comma separated list of lua libraries to load, look at [Scripting - LUA standard libraries]({{ site.baseurl }}/scripting#lua-standard-libraries) |
 | scriptacl | string | MYMPD_SCRIPTACL | +127.0.0.1 | ACL to access the myMPD script backend: [ACL]({{ site.baseurl }}/configuration/acl), allows only local connections in the default configuration. The acl above must also grant access. |
 | ssl | boolean | MYMPD_SSL | true | `true` = enables https, `false` = disables https |
 | ssl_port | number | MYMPD_SSL_PORT | 443 | Port to listen to https traffic |
