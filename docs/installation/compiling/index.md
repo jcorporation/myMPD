@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /installation/compiling
+permalink: /installation/compiling/
 title: Compiling
 ---
 
