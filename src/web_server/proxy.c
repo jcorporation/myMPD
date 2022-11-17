@@ -200,12 +200,14 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
             if (backend_nc_data->frontend_nc != NULL) {
                 if (mg_vcmp(&hm->uri, "200") == 0) {
-                    //cache the image
                     sds binary = sdsnewlen(hm->body.ptr, hm->body.len);
                     const char *mime_type = get_mime_type_by_magic_stream(binary);
                     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
                     struct t_config *config = mg_user_data->config;
-                    covercache_write_file(config->cachedir, backend_nc_data->uri, mime_type, binary, 0);
+                    //cache the image
+                    if (config->covercache_keep_days > 0) {
+                        covercache_write_file(config->cachedir, backend_nc_data->uri, mime_type, binary, 0);
+                    }
                     FREE_SDS(binary);
                     //send to frontend
                     sds headers = sdscatfmt(sdsempty(), "%s"
