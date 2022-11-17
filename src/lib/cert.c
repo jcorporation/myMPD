@@ -29,6 +29,7 @@
 
 //private definitions
 static bool certificates_create(sds dir, sds custom_san);
+static void push_san(struct t_list *san_list, const char *san);
 static sds get_san(sds buffer);
 static bool generate_set_random_serial(X509 *cert);
 static X509_REQ *generate_request(EVP_PKEY *pkey);
@@ -328,6 +329,18 @@ static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 *
 }
 
 /**
+ * Adds a uniq string to the san list
+ * @param san_list pointer to the san list
+ * @param san string to add
+ */
+static void push_san(struct t_list *san_list, const char *san) {
+    if (list_get_node(san_list, san) == NULL) {
+        MYMPD_LOG_DEBUG("Adding %s to SAN", san);
+        list_push(san_list, san, 0, NULL, NULL);
+    }
+}
+
+/**
  * Gets local hostnames and ips for subject alternative names
  * @param buffer sds string to populate
  * @return pointer to buffer
@@ -336,33 +349,27 @@ static sds get_san(sds buffer) {
     sds key = sdsempty();
     struct t_list san;
     list_init(&san);
-    MYMPD_LOG_DEBUG("Adding DNS:localhost to SAN");
-    list_push(&san, "DNS:localhost", 0, NULL, NULL);
+    push_san(&san, "DNS:localhost");
     #ifdef MYMPD_ENABLE_IPV6
-        list_push(&san, "DNS:ip6-localhost", 0, NULL, NULL);
-        list_push(&san, "DNS:ip6-loopback", 0, NULL, NULL);
+        push_san(&san, "DNS:ip6-localhost");
+        push_san(&san, "DNS:ip6-loopback");
     #endif
 
     //Retrieve short hostname
     char hostbuffer[256]; /* Flawfinder: ignore */
     int hostname = gethostname(hostbuffer, sizeof(hostbuffer));
     if (hostname == 0) {
-        MYMPD_LOG_DEBUG("Adding DNS:%s to SAN", hostbuffer);
         key = sdscatfmt(key, "DNS:%s", hostbuffer);
-        list_push(&san, key, 0, NULL, NULL);
+        push_san(&san, key);
         //Retrieve fqdn
         struct addrinfo hints = {0};
         hints.ai_family = AF_UNSPEC;
         hints.ai_flags = AI_CANONNAME;
         struct addrinfo *res;
         if (getaddrinfo(hostbuffer, 0, &hints, &res) == 0) {
-            // The hostname was successfully resolved.
-            if (strcmp(hostbuffer, res->ai_canonname) != 0) {
-                MYMPD_LOG_DEBUG("Adding DNS:%s to SAN", res->ai_canonname);
-                sdsclear(key);
-                key = sdscatfmt(key, "DNS:%s", res->ai_canonname);
-                list_push(&san, key, 0, NULL, NULL);
-            }
+            sdsclear(key);
+            key = sdscatfmt(key, "DNS:%s", res->ai_canonname);
+            push_san(&san, key);
             freeaddrinfo(res);
         }
     }
@@ -393,11 +400,10 @@ static sds get_san(sds buffer) {
                 }
                 sdsclear(key);
                 char *crap;
-                // remove zone info from ipv6
+                //remove zone info from ipv6
                 char *ip = strtok_r(host, "%", &crap);
-                MYMPD_LOG_DEBUG("Adding IP:%s to SAN", ip);
                 key = sdscatfmt(key, "IP:%s", ip);
-                list_push(&san, key, 0, NULL, NULL);
+                push_san(&san, key);
             }
         }
         freeifaddrs(ifaddr);

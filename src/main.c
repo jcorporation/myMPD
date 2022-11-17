@@ -561,6 +561,9 @@ int main(int argc, char **argv) {
     if (rc == EXIT_SUCCESS) {
         printf("Exiting gracefully, thank you for using myMPD\n");
     }
+    else {
+        printf("Exiting erroneous, thank you for using myMPD\n");
+    }
 
     FREE_SDS(thread_logname);
     return rc;
