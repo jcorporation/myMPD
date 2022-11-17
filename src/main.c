@@ -186,7 +186,22 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
  * @return true on success else false
  */
 static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
-    int testdir_rc = testdir("Work dir", config->workdir, true, false);
+    //create the cache directory
+    int testdir_rc = testdir("Cache dir", config->cachedir, true, false);
+    if (testdir_rc == DIR_CREATE_FAILED) {
+        return false;
+    }
+    if (testdir_rc == DIR_CREATED) {
+        //directory was created; set user and group, if uid = 0
+        if (startup_uid == 0 &&
+            do_chown(config->cachedir, config->user) == false)
+        {
+            return false;
+        }
+    }
+
+    //create the working directory
+    testdir_rc = testdir("Work dir", config->workdir, true, false);
     if (testdir_rc == DIR_CREATE_FAILED) {
         //workdir is not accessible
         return false;
@@ -198,7 +213,8 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
             return false;
         }
     }
-    //config directory
+
+    //create the config directory
     sds testdirname = sdscatfmt(sdsempty(), "%S/config", config->workdir);
     testdir_rc = testdir("Config dir", testdirname, true, false);
     if (testdir_rc == DIR_CREATE_FAILED) {
@@ -210,20 +226,6 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         config->first_startup = true;
     }
     FREE_SDS(testdirname);
-
-    testdir_rc = testdir("Cache dir", config->cachedir, true, false);
-    if (testdir_rc == DIR_CREATE_FAILED) {
-        //cachedir is not accessible
-        return false;
-    }
-    if (testdir_rc == DIR_CREATED) {
-        //directory exists or was created; set user and group, if uid = 0
-        if (startup_uid == 0 &&
-            do_chown(config->cachedir, config->user) == false)
-        {
-            return false;
-        }
-    }
 
     return true;
 }
