@@ -7,7 +7,8 @@
 
 /**
  * Checks if event should be executed
- * @param {EventTarget} triggering event target
+ * @param {EventTarget} target triggering event target
+ * @returns {boolean} true if target is clickable else false
  */
 function checkTargetClick(target) {
     return target === null || target.classList.contains('not-clickable') ? false : true;
