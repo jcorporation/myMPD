@@ -27,13 +27,7 @@ function initScripts() {
     document.getElementById('listScriptsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (event.target.nodeName === 'TD') {
-            if (getData(event.target.parentNode, 'script') === '') {
-                return false;
-            }
-            showEditScript(getData(event.target.parentNode, 'script'));
-        }
-        else if (event.target.nodeName === 'A') {
+        if (event.target.nodeName === 'A') {
             const action = getData(event.target, 'action');
             const script = getData(event.target.parentNode.parentNode, 'script');
             switch(action) {
@@ -47,6 +41,12 @@ function initScripts() {
                     addScriptToHome(script, getData(event.target.parentNode.parentNode, 'href'));
                     break;
             }
+            return;
+        }
+
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            showEditScript(getData(target, 'script'));
         }
     }, false);
 

@@ -122,18 +122,14 @@ function initBrowseDatabase() {
     }, false);
 
     document.getElementById('BrowseDatabaseDetailList').addEventListener('click', function(event) {
-        if (event.target.parentNode.parentNode.nodeName === 'TFOOT') {
-            return;
-        }
-        if (event.target.nodeName === 'TD') {
-            if (event.target.parentNode.classList.contains('not-clickable')) {
-                return;
-            }
-            clickSong(getData(event.target.parentNode, 'uri'));
-        }
-        else if (event.target.nodeName === 'A') {
+        if (event.target.nodeName === 'A') {
             //action td
             handleActionTdClick(event);
+            return;
+        }
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            clickSong(getData(target, 'uri'));
         }
     }, false);
 
@@ -425,7 +421,7 @@ function parseAlbumDetails(obj) {
     });
 
     elReplaceChild(tfoot,
-        elCreateNode('tr', {},
+        elCreateNode('tr', {"class": ["not-clickable"]},
             elCreateNode('td', {"colspan": colspan + 1},
                 elCreateNodes('small', {}, [
                     elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),

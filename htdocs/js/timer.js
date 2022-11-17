@@ -12,16 +12,17 @@ function initTimer() {
     document.getElementById('listTimerList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (event.target.nodeName === 'TD') {
-            if (!event.target.parentNode.classList.contains('not-clickable')) {
-                showEditTimer(getData(event.target.parentNode, 'id'));
-            }
-        }
-        else if (event.target.nodeName === 'A') {
+        if (event.target.nodeName === 'A') {
             deleteTimer(event.target, getData(event.target.parentNode.parentNode, 'id'));
+            return;
         }
-        else if (event.target.nodeName === 'BUTTON') {
+        if (event.target.nodeName === 'BUTTON') {
             toggleTimer(event.target, getData(event.target.parentNode.parentNode, 'id'));
+            return;
+        }
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            showEditTimer(getData(target, 'id'));
         }
     }, false);
 

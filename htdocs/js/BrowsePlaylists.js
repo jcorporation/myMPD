@@ -96,31 +96,34 @@ function initPlaylists() {
         }
     }, false);
 
-   document.getElementById('BrowsePlaylistsListList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            if (getData(event.target.parentNode, 'smartpls-only') === false) {
-                clickPlaylist(getData(event.target.parentNode, 'uri'));
+    document.getElementById('BrowsePlaylistsListList').addEventListener('click', function(event) {
+        //action td
+        if (event.target.nodeName === 'A') {
+            handleActionTdClick(event);
+            return;
+        }
+
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            if (getData(target, 'smartpls-only') === false) {
+                clickPlaylist(getData(target, 'uri'));
             }
             else {
                 showNotification(tn('Playlist is empty'), '', 'playlist', 'warn')
             }
         }
-        else if (event.target.nodeName === 'A') {
-            //action td
-            handleActionTdClick(event);
-        }
     }, false);
 
     document.getElementById('BrowsePlaylistsDetailList').addEventListener('click', function(event) {
-        if (event.target.parentNode.parentNode.nodeName === 'TFOOT') {
+        //action td
+        if (event.target.nodeName === 'A') {
+            handleActionTdClick(event);
             return;
         }
-        if (event.target.nodeName === 'TD') {
-            clickSong(getData(event.target.parentNode, 'uri'));
-        }
-        else if (event.target.nodeName === 'A') {
-            //action td
-            handleActionTdClick(event);
+
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            clickSong(getData(target, 'uri'));
         }
     }, false);
 }
@@ -193,7 +196,7 @@ function parsePlaylistsDetail(obj) {
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
 
     elReplaceChild(tfoot,
-        elCreateNode('tr', {},
+        elCreateNode('tr', {"class": ["not-clickable"]},
             elCreateNode('td', {"colspan": colspan},
                 elCreateNodes('small', {}, [
                     elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities), 

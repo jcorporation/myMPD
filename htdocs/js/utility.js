@@ -6,6 +6,15 @@
 /** @module utility_js */
 
 /**
+ * Checks if event should be executed
+ * @param {EventTarget} triggering event target
+ */
+function checkTargetClick(target) {
+    return target === null || target.classList.contains('not-clickable') ? false : true;
+}
+
+
+/**
  * Helper function to hide dropdowns
  * Workaround for BSN bug that does not hide dropdown split buttons
  * @param {event} event triggering event

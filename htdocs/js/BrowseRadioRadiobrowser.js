@@ -56,23 +56,25 @@ function initBrowseRadioRadiobrowser() {
     }, false);
 
     document.getElementById('BrowseRadioRadiobrowserList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            const uri = getData(event.target.parentNode, 'uri');
+        if (event.target.nodeName === 'A') {
+            //action td
+            handleActionTdClick(event);
+            return;
+        }
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            const uri = getData(target, 'uri');
             if (settings.webuiSettings.clickRadiobrowser === 'add') {
                 showEditRadioFavorite({
-                    "Name": getData(event.target.parentNode, 'name'),
-                    "Genre": getData(event.target.parentNode, 'genre'),
-                    "Image": getData(event.target.parentNode, 'image'),
+                    "Name": getData(target, 'name'),
+                    "Genre": getData(target, 'genre'),
+                    "Image": getData(target, 'image'),
                     "StreamUri": uri
                 });
             }
             else {
-                clickRadiobrowser(uri, getData(event.target.parentNode, 'RADIOBROWSERUUID'));
+                clickRadiobrowser(uri, getData(target, 'RADIOBROWSERUUID'));
             }
-        }
-        else if (event.target.nodeName === 'A') {
-            //action td
-            handleActionTdClick(event);
         }
     }, false);
 }
