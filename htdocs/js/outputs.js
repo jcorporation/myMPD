@@ -186,7 +186,7 @@ function parseVolume(obj) {
     else {
         elShowId('volumeControl');
         document.getElementById('volumePrct').textContent = obj.result.volume + ' %';
-        document.getElementById('volumeMenu').firstChild.textContent =
+        document.getElementById('volumeMenu').textContent =
             obj.result.volume === 0 ? 'volume_off' :
                 obj.result.volume < 50 ? 'volume_down' : 'volume_up';
     }
