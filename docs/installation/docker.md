@@ -59,7 +59,7 @@ docker run -d \
   ghcr.io/jcorporation/mympd/mympd
 ```
 
-### myMPD configuration
+## myMPD configuration
 
 You can configure some basic options of myMPD via startup options or environment variables.
 

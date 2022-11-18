@@ -36,3 +36,9 @@ Description of [Commandline-Options]({{ site.baseurl }}/configuration/).
 ## Docker
 
 Goto [Docker]({{ site.baseurl }}/installation/docker)
+
+## myMPD configuration
+
+You can configure some basic options of myMPD via startup options or environment variables.
+
+- [Configuration]({{ site.baseurl }}/configuration/)
