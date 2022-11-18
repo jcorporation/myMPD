@@ -2419,7 +2419,7 @@
 
     if (currentParent && currentParent.length) {
       return [...currentParent[0].children]
-        .find((x) => hasAttribute(x, dataBsToggle));
+        .find((x) => x.getAttribute(dataBsToggle) === dropdownString);
     }
     return null;
   }

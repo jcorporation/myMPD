@@ -14,25 +14,6 @@ function checkTargetClick(target) {
     return target === null || target.classList.contains('not-clickable') ? false : true;
 }
 
-
-/**
- * Helper function to hide dropdowns
- * Workaround for BSN bug that does not hide dropdown split buttons
- * @param {event} event triggering event
- */
-function hideDropdown(event) {
-    const dropdownEls = document.querySelectorAll('.dropdown-menu.show');
-    for (const el of dropdownEls) {
-        const triggerEl = el.previousElementSibling;
-        if (event.target === triggerEl) {
-            return;
-        }
-        if (triggerEl.getAttribute('aria-expanded') === 'true') {
-            BSN.Dropdown.getInstance(triggerEl).hide();
-        }
-    }
-}
-
 /**
  * Sets the updating indicator(s) for a view with the given id
  * @param {string} id element id

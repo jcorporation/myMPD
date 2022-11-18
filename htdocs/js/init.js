@@ -246,7 +246,6 @@ function appInit() {
     //hide popover
     domCache.body.addEventListener('click', function() {
         hidePopover();
-        hideDropdown(event);
     }, false);
     //init modules
     initGlobalModals();
