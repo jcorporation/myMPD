@@ -58,23 +58,3 @@ To change these settings afterwards, you must edit the files in the folder `/var
 - More details on [SSL]({{ site.baseurl }}/configuration/ssl)
 
 You can use `mympd -c` to create the initial configuration in the `/var/lib/mympd/config/` directory.
-
-### MPD autodetection
-
-myMPD tries to autodetect the mpd connection only at first start. Afterwards you should change the mpd connection settings through the web-ui.
-
-1. Uses the default MPD environment variables
-2. Searches for a mpd socket
-  - `$XDG_RUNTIME_DIR/mpd/socket`
-  - `/run/mpd/socket`
-  - `/var/run/mpd/socket`
-  - `/var/lib/mpd/socket`
-
-| ENVIRONMENT | DEFAULT | DESCRIPTION |
-| ----------- | ------- | ----------- |
-| MPD_HOST | `/run/mpd/socket` | MPD host or path to mpd socket |
-| MPD_PORT | 6600 | MPD port |
-| MPD_TIMEOUT | 30 | MPD timeout |
-{: .table .table-sm}
-
-This is done after dropping privileges to the mympd user.
