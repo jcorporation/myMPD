@@ -771,7 +771,6 @@ pkgosc() {
   fi
   cp ../contrib/packaging/rpm/mympd.spec "$OSC_REPO/"
   cp ../contrib/packaging/arch/PKGBUILD "$OSC_REPO/"
-  cp ../contrib/packaging/arch/archlinux.install "$OSC_REPO/"
 
   cd "$OSC_REPO" || exit 1
   osc addremove

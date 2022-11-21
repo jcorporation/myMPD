@@ -6,4 +6,4 @@
 - ja-JP: 13 missing phrases
 - ko-KR: 149 missing phrases
 - nl-NL: 32 missing phrases
-- zh-CN: 83 missing phrases
+- zh-CN: 14 missing phrases
