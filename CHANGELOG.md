@@ -8,9 +8,10 @@ https://github.com/jcorporation/myMPD/
 
 This release reworks the scripting api and improves the scripting documentation. The new presets feature lets you switch mpd and jukebox options with one click.
 
-### Warning
+### Notes
 
-Existing lua scripts must be adapted to the new simplified API.
+- Existing lua scripts must be adapted to the new simplified API
+- Existing play timers must be changed to use presets
 
 ### Changelog
 
@@ -781,7 +782,7 @@ This is a small bug fix release.
 
 This major release improves the backend in many ways. The rework streamlines the backend, removes deprecated features, makes the configuration of myMPD easier and harmonizes the API.
 
-### Note
+### Notes
 
 This release changes the startup options of myMPD. Further the mympd.conf is no longer used. myMPD now saves all configuration values in state files. You can set some environment variables for initial startup settings like port, ssl, etc., afterwards you must edit the state files.
 
@@ -899,7 +900,7 @@ You can now view sticker values in all song lists, not only in the song details 
 
 Also the support of lyrics is enhanced. myMPD now parses SYLT tags in id3v2 tagged files correctly and shows all synced and unsynced of a song.
 
-### Note
+### Notes
 
 Since this version the source does not include prebuild assets. If you do not use the provided build scripts, you must build the assets before with `./build.sh createassets`.
 
