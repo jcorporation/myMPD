@@ -297,7 +297,9 @@ function selectTimerIntervalChange(value) {
         value = Number(getSelectValueId('selectTimerInterval'));
     }
     else {
-        if (value !== -1 && value !== 0) {
+        if (value !== -1 &&
+            value !== 0)
+        {
             //repeat
             document.getElementById('selectTimerInterval').value = '-2';
         }
@@ -306,7 +308,9 @@ function selectTimerIntervalChange(value) {
             document.getElementById('selectTimerInterval').value = value;
         }
     }
-    if (value !== -1 && value !== 0) {
+    if (value !== -1 &&
+        value !== 0)
+    {
         //repeat
         elShowId('groupTimerInterval');
         if (value === -2) {
@@ -322,7 +326,9 @@ function selectTimerIntervalChange(value) {
     const inputTimerInterval = document.getElementById('inputTimerInterval');
     const selectTimerIntervalUnit = document.getElementById('selectTimerIntervalUnit');
     for (const unit of [604800, 86400, 3600, 60, 1]) {
-        if (value >= unit && value % unit === 0) {
+        if (value >= unit &&
+            value % unit === 0)
+        {
             inputTimerInterval.value = value / unit;
             selectTimerIntervalUnit.value = unit;
             break;
@@ -341,7 +347,9 @@ function selectTimerActionChange(values) {
         elShowId('timerActionPlay');
         elHideId('timerActionScript');
     }
-    else if (el.selectedIndex > -1 && getData(el.options[el.selectedIndex].parentNode, 'value') === 'script') {
+    else if (el.selectedIndex > -1 &&
+             getData(el.options[el.selectedIndex].parentNode, 'value') === 'script')
+    {
         elShowId('timerActionScript');
         elHideId('timerActionPlay');
         showTimerScriptArgs(el.options[el.selectedIndex], values);
@@ -368,7 +376,7 @@ function showTimerScriptArgs(optionEl, values) {
         const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "timerActionScriptArguments" + i,
             "value": (values[args.arguments[i]] ? values[args.arguments[i]] : '')});
         setData(input, 'name', args.arguments[i]);
-        const fg = elCreateNodes('div', {"class": ["form-group", "row"]}, [
+        const fg = elCreateNodes('div', {"class": ["form-group", "row", "mb-3"]}, [
             elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "timerActionScriptArguments" + i}, args.arguments[i]),
             elCreateNode('div', {"class": ["col-sm-8"]}, input)
         ]);
