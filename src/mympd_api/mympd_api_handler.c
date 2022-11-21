@@ -374,7 +374,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     }
                     else {
                         response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                            JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Can't save playback preset");
+                            JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Can't save preset");
                     }
                 }
                 //respond with ok

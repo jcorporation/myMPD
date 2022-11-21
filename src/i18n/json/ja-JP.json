@@ -215,7 +215,6 @@
     "Empty response from webradiodb backend": "WebradioDBバックエンドからのレスポンスが空です",
     "Empty uri": "空のURI",
     "Enable": "有効化",
-    "Enable jukebox if playlist is database": "プレイリストがデータベースの時はジュークボックスを有効化",
     "Enable random": "ランダム再生を有効化",
     "Enable repeat": "リピート再生を有効化",
     "Enabled": "有効化済み",

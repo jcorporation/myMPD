@@ -1,6 +1,6 @@
 {
     "default": {"desc":"Browser default", "missingPhrases": 0},
-    "de-DE": {"desc":"Deutsch (de-DE)", "missingPhrases": 12},
+    "de-DE": {"desc":"Deutsch (de-DE)", "missingPhrases": 0},
     "en-US": {"desc":"English (en-US)", "missingPhrases": 0},
     "fr-FR": {"desc":"Français (fr-FR)", "missingPhrases": 32},
     "it-IT": {"desc":"Italiano (it-IT)", "missingPhrases": 32},

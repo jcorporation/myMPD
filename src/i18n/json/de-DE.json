@@ -215,7 +215,6 @@
     "Empty response from webradiodb backend": "Leere Antwort vom WebradioDB Backend",
     "Empty uri": "Leere Url",
     "Enable": "Aktivieren",
-    "Enable jukebox if playlist is database": "Jukebox muss aktiviert sein, wenn als Wiedergabeliste die Datenbank ausgewählt ist.",
     "Enable random": "Aktiviere Zufallswiedergabe",
     "Enable repeat": "Aktiviere Wiederholen",
     "Enabled": "Aktiv",
@@ -837,5 +836,17 @@
     "icon-places": "Orte",
     "icon-search": "Suche",
     "icon-social": "Sozial",
-    "icon-toggle": "Toggle"
+    "icon-toggle": "Toggle",
+    "Can't save preset": "Voreinstellungen konnte nicht gespeichert werden",
+    "Could not delete preset": "Voreinstellung konnte nicht gelöscht werden",
+    "Could not load preset": "Voreinstellung konnte nicht geladen werden",
+    "Do you really want to delete the preset?": "Willst die Voreinstellung wirklich löschen?",
+    "Load playlist": "Wiedergabeliste laden",
+    "Load preset": "Voreinstellung laden",
+    "No playlist": "Keine Wiedergabeliste",
+    "No preset": "Keine Voreinstellung",
+    "Optional preset name": "Optionaler Voreinstellungsname",
+    "Playlist is ignored if preset enables the jukebox": "Wiedergabeliste wird ignoriert wenn die Voreinstellung die Jukebox aktiviert",
+    "Preset": "Voreinstellung",
+    "Presets": "Voreinstellungen"
 }
