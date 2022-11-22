@@ -216,7 +216,7 @@ struct t_mympd_state {
     struct t_mpd_state *mpd_state;                //!< mpd state shared across partitions
     struct t_partition_state *partition_state;    //!< list of partition states
     struct pollfd fds[MPD_CONNECTION_MAX];        //!< mpd connection fds
-    nfds_t nfds;                                     //!< number of mpd connection fds
+    nfds_t nfds;                                  //!< number of mpd connection fds
     struct t_timer_list timer_list;               //!< list of timers
     struct t_list home_list;                      //!< list of home icons
     struct t_list trigger_list;                   //!< list of triggers
@@ -230,7 +230,8 @@ struct t_mympd_state {
     sds smartpls_generate_tag_list;               //!< generate smart playlists for each value for this tag (string representation)
     sds cols_queue_current;                       //!< columns for the queue view
     sds cols_search;                              //!< columns for the search view
-    sds cols_browse_database_detail;              //!< columns for the album detail view
+    sds cols_browse_database_album_detail;        //!< columns for the album detail view
+    sds cols_browse_database_album_list;          //!< columns for the album list view
     sds cols_browse_playlists_detail;             //!< columns for the listing of playlists
     sds cols_browse_filesystem;                   //!< columns for filesystem listing
     sds cols_playback;                            //!< columns for playback view

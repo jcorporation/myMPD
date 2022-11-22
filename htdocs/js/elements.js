@@ -585,6 +585,29 @@ function toggleBtn(btn, state) {
 }
 
 /**
+ * Mirrors the button horizontal
+ * @param {string} id button id to mirror
+ * @param {boolean} mirror true = mirror, false = not
+ */
+function mirrorBtnId(id, mirror) {
+    mirrorBtn(document.getElementById(id), mirror);
+}
+
+/**
+ * Mirrors the button horizontal
+ * @param {HTMLElement | EventTarget} btn button to mirror
+ * @param {boolean} mirror true = mirror, false = not
+ */
+function mirrorBtn(btn, mirror) {
+    if (mirror === true) {
+        btn.classList.add('mirror');
+    }
+    else {
+        btn.classList.remove('mirror');
+    }
+}
+
+/**
  * Gets the enabled state of a check button
  * @param {string} id check button id
  * @returns {boolean} enabled = true, disabled = false

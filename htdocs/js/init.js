@@ -288,7 +288,7 @@ function appInit() {
         'Search',
         'BrowseFilesystem',
         'BrowsePlaylistsDetail',
-        'BrowseDatabaseDetail',
+        'BrowseDatabaseAlbumDetail',
         'BrowseRadioWebradiodb',
         'BrowseRadioRadiobrowser'
     ];
@@ -324,7 +324,7 @@ function appInit() {
         }
     }, false);
     //contextmenu for tables
-    const tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList',
+    const tables = ['BrowseFilesystemList', 'BrowseDatabaseAlbumDetailList', 'QueueCurrentList', 'QueueLastPlayedList',
         'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList',
         'BrowseRadioRadiobrowserList', 'BrowseRadioWebradiodbList'];
     for (const tableId of tables) {

@@ -1185,3 +1185,7 @@ button.weekday {
   text-overflow: ellipsis;
   overflow: hidden;
 }
+
+.mirror {
+  transform: scale(1, -1);
+}

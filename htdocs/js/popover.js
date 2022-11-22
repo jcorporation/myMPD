@@ -421,7 +421,7 @@ function addMenuItemsAlbumActions(tabContent, dataNode, albumArtist, album) {
         addMenuItem(tabContent, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album, undefined]}, 'Add to playlist');
     }
     addDivider(tabContent);
-    if (app.id !== 'BrowseDatabaseDetail') {
+    if (app.id !== 'BrowseDatabaseAlbumDetail') {
         addMenuItem(tabContent, {"cmd": "gotoAlbum", "options": [albumArtist, album]}, 'Album details');
     }
     for (const tag of settings.tagListBrowse) {
@@ -800,7 +800,7 @@ function createMenuListsSecondary(el, tabHeader, tabContent) {
         case 'QueueLastPlayed':
         case 'QueueJukebox':
         case 'BrowseFilesystem':
-        case 'BrowseDatabaseDetail':
+        case 'BrowseDatabaseAlbumDetail':
         case 'BrowsePlaylistsDetail': {
             const dataNode = el.parentNode.parentNode;
             const type = getData(dataNode, 'type');

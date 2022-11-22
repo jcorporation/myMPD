@@ -166,16 +166,14 @@ function webSocketConnect() {
                     }
                     break;
                 case 'update_album_cache':
-                    if (app.id === 'BrowseDatabaseList' &&
-                        app.current.tag === 'Album')
-                    {
+                    if (app.id === 'BrowseDatabaseAlbumList') {
                         sendAPI("MYMPD_API_DATABASE_ALBUMS_GET", {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
                             "expression": app.current.search,
                             "sort": app.current.sort.tag,
                             "sortdesc": app.current.sort.desc
-                        }, parseDatabase, true);
+                        }, parseDatabaseAlbumList, true);
                     }
                     break;
                 case 'notify':

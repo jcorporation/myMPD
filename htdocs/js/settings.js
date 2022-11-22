@@ -225,8 +225,9 @@ function parseSettings(obj) {
     app.cards.Browse.tabs.Filesystem.limit = limit;
     app.cards.Browse.tabs.Playlists.views.List.limit = limit;
     app.cards.Browse.tabs.Playlists.views.Detail.limit = limit;
-    app.cards.Browse.tabs.Database.views.List.limit = limit;
-    app.cards.Browse.tabs.Database.views.Detail.limit = limit;
+    app.cards.Browse.tabs.Database.views.TagList.limit = limit;
+    app.cards.Browse.tabs.Database.views.AlbumList.limit = limit;
+    app.cards.Browse.tabs.Database.views.AlbumDetail.limit = limit;
     app.cards.Search.limit = limit;
 
     //scripts
@@ -694,7 +695,7 @@ function parseMPDSettings() {
     filterCols('Playback');
 
     for (const table of ['Search', 'QueueCurrent', 'QueueLastPlayed', 'QueueJukebox',
-            'BrowsePlaylistsDetail', 'BrowseFilesystem', 'BrowseDatabaseDetail'])
+            'BrowsePlaylistsDetail', 'BrowseFilesystem', 'BrowseDatabaseAlbumDetail'])
     {
         filterCols(table);
         setCols(table);
@@ -710,11 +711,21 @@ function parseMPDSettings() {
     setCols('BrowseRadioWebradiodb');
     setCols('BrowseRadioRadiobrowser');
 
+    //enforce album and albumartist for album list view
+    /*
+    if (settings.colsBrowseDatabaseAlbumListFetch.includes('Album') === false) {
+        settings.colsBrowseDatabaseAlbumListFetch.push('Album');
+    }
+    if (settings.colsBrowseDatabaseAlbumListFetch.includes('AlbumArtist') === false) {
+        settings.colsBrowseDatabaseAlbumListFetch.push('AlbumArtist');
+    }
+    */
+
     //enforce disc for album details view
-    if (settings.colsBrowseDatabaseDetailFetch.includes('Disc') === false &&
+    if (settings.colsBrowseDatabaseAlbumDetailFetch.includes('Disc') === false &&
         settings.tagList.includes('Disc'))
     {
-        settings.colsBrowseDatabaseDetailFetch.push('Disc');
+        settings.colsBrowseDatabaseAlbumDetailFetch.push('Disc');
     }
 
     if (features.featTags === false) {
@@ -727,7 +738,7 @@ function parseMPDSettings() {
         settings.colsQueueJukebox = ["Pos", "Title"];
         settings.colsSearch = ["Title", "Duration"];
         settings.colsBrowseFilesystem = ["Type", "Title", "Duration"];
-        settings.colsBrowseDatabase = ["Track", "Title", "Duration"];
+        settings.colsBrowseDatabaseAlbumDetail = ["Track", "Title", "Duration"];
         settings.colsPlayback = [];
     }
     else {
@@ -778,7 +789,8 @@ function parseMPDSettings() {
         }
     }
 
-    addTagList('BrowseDatabaseByTagDropdown', 'tagListBrowse');
+    addTagList('BrowseDatabaseAlbumListTagDropdown', 'tagListBrowse');
+    addTagList('BrowseDatabaseTagListTagDropdown', 'tagListBrowse');
     addTagList('BrowseNavPlaylistsDropdown', 'tagListBrowse');
     addTagList('BrowseNavFilesystemDropdown', 'tagListBrowse');
     addTagList('BrowseNavRadioFavoritesDropdown', 'tagListBrowse');
@@ -787,8 +799,8 @@ function parseMPDSettings() {
 
     addTagList('searchQueueTags', 'tagListSearch');
     addTagList('searchTags', 'tagListSearch');
-    addTagList('searchDatabaseTags', 'tagListBrowse');
-    addTagList('databaseSortTagsList', 'tagListBrowse');
+    addTagList('searchDatabaseAlbumListTags', 'tagListBrowse');
+    addTagList('databaseAlbumListSortTagsList', 'tagListBrowse');
     addTagList('dropdownSortPlaylistTags', 'tagList');
 
     addTagListSelect('saveSmartPlaylistSort', 'tagList');

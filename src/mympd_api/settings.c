@@ -199,8 +199,11 @@ bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, 
     else if (strcmp(table, "colsSearch") == 0) {
         mympd_state->cols_search = sds_replace(mympd_state->cols_search, cols);
     }
-    else if (strcmp(table, "colsBrowseDatabaseDetail") == 0) {
-        mympd_state->cols_browse_database_detail = sds_replace(mympd_state->cols_browse_database_detail, cols);
+    else if (strcmp(table, "colsBrowseDatabaseAlbumDetail") == 0) {
+        mympd_state->cols_browse_database_album_detail = sds_replace(mympd_state->cols_browse_database_album_detail, cols);
+    }
+    else if (strcmp(table, "colsBrowseDatabaseAlbumList") == 0) {
+        mympd_state->cols_browse_database_album_list = sds_replace(mympd_state->cols_browse_database_album_list, cols);
     }
     else if (strcmp(table, "colsBrowsePlaylistsDetail") == 0) {
         mympd_state->cols_browse_playlists_detail = sds_replace(mympd_state->cols_browse_playlists_detail, cols);
@@ -692,7 +695,8 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->mpd_state->last_played_count = state_file_rw_long(workdir, "state", "last_played_count", mympd_state->mpd_state->last_played_count, 0, MPD_PLAYLIST_LENGTH_MAX, false);
     mympd_state->cols_queue_current = state_file_rw_string_sds(workdir, "state", "cols_queue_current", mympd_state->cols_queue_current, vcb_isname, false);
     mympd_state->cols_search = state_file_rw_string_sds(workdir, "state", "cols_search", mympd_state->cols_search, vcb_isname, false);
-    mympd_state->cols_browse_database_detail = state_file_rw_string_sds(workdir, "state", "cols_browse_database_detail", mympd_state->cols_browse_database_detail, vcb_isname, false);
+    mympd_state->cols_browse_database_album_detail = state_file_rw_string_sds(workdir, "state", "cols_browse_database_album_detail", mympd_state->cols_browse_database_album_detail, vcb_isname, false);
+    mympd_state->cols_browse_database_album_list = state_file_rw_string_sds(workdir, "state", "cols_browse_database_album_list", mympd_state->cols_browse_database_album_list, vcb_isname, false);
     mympd_state->cols_browse_playlists_detail = state_file_rw_string_sds(workdir, "state", "cols_browse_playlists_detail", mympd_state->cols_browse_playlists_detail, vcb_isname, false);
     mympd_state->cols_browse_filesystem = state_file_rw_string_sds(workdir, "state", "cols_browse_filesystem", mympd_state->cols_browse_filesystem, vcb_isname, false);
     mympd_state->cols_playback = state_file_rw_string_sds(workdir, "state", "cols_playback", mympd_state->cols_playback, vcb_isname, false);
@@ -791,7 +795,8 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_sds(buffer, "lyricsVorbisSylt", mympd_state->lyrics.vorbis_sylt, true);
     buffer = tojson_raw(buffer, "colsQueueCurrent", mympd_state->cols_queue_current, true);
     buffer = tojson_raw(buffer, "colsSearch", mympd_state->cols_search, true);
-    buffer = tojson_raw(buffer, "colsBrowseDatabaseDetail", mympd_state->cols_browse_database_detail, true);
+    buffer = tojson_raw(buffer, "colsBrowseDatabaseAlbumDetail", mympd_state->cols_browse_database_album_detail, true);
+    buffer = tojson_raw(buffer, "colsBrowseDatabaseAlbumList", mympd_state->cols_browse_database_album_list, true);
     buffer = tojson_raw(buffer, "colsBrowsePlaylistsDetail", mympd_state->cols_browse_playlists_detail, true);
     buffer = tojson_raw(buffer, "colsBrowseFilesystem", mympd_state->cols_browse_filesystem, true);
     buffer = tojson_raw(buffer, "colsPlayback", mympd_state->cols_playback, true);

@@ -47,7 +47,7 @@ function addTagList(elId, list) {
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename"}, 'Filename')
         );
     }
-    if (elId === 'searchDatabaseTags') {
+    if (elId === 'searchDatabaseAlbumListTags') {
         stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag')
         );
@@ -70,14 +70,17 @@ function addTagList(elId, list) {
             );
         }
     }
-    if (elId === 'BrowseDatabaseByTagDropdown' ||
+    if (elId === 'BrowseDatabaseAlbumListTagDropdown' ||
+        elId === 'BrowseDatabaseTagListTagDropdown' ||
         elId === 'BrowseNavFilesystemDropdown' ||
         elId === 'BrowseNavPlaylistsDropdown' ||
         elId === 'BrowseNavRadioFavoritesDropdown' ||
         elId === 'BrowseNavWebradiodbDropdown' ||
         elId === 'BrowseNavRadiobrowserDropdown')
     {
-        if (elId === 'BrowseDatabaseByTagDropdown') {
+        if (elId === 'BrowseDatabaseAlbumListTagDropdown' ||
+            elId === 'BrowseDatabaseTagListTagDropdown')
+        {
             stack.appendChild(
                 elCreateEmpty('div', {"class": ["dropdown-divider"]})
             );
@@ -104,7 +107,7 @@ function addTagList(elId, list) {
             stack.lastChild.classList.add('active');
         }
     }
-    else if (elId === 'databaseSortTagsList') {
+    else if (elId === 'databaseAlbumListSortTagsList') {
         if (settings.tagList.includes('Date') === true &&
             settings[list].includes('Date') === false)
         {

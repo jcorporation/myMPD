@@ -282,9 +282,21 @@ app.cards = {
                 }
             },
             "Database": {
-                "active": "List",
+                "active": "AlbumList",
                 "views": {
-                    "List": {
+                    "TagList": {
+                        "offset": 0,
+                        "limit": 100,
+                        "filter": "any",
+                        "sort": {
+                            "tag": "-",
+                            "desc": false
+                        },
+                        "tag": "Album",
+                        "search": "",
+                        "scrollPos": 0
+                    },
+                    "AlbumList": {
                         "offset": 0,
                         "limit": 100,
                         "filter": "any",
@@ -296,7 +308,7 @@ app.cards = {
                         "search": "",
                         "scrollPos": 0
                     },
-                    "Detail": {
+                    "AlbumDetail": {
                         "offset": 0,
                         "limit": 100,
                         "filter": "-",
