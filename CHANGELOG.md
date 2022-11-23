@@ -19,6 +19,7 @@ This release reworks the scripting api and improves the scripting documentation.
 - Feat: play timer uses presets #888
 - Feat: rework and simplify scripting api
 - Feat: add option to ignore hated songs in jukebox mode #882
+- Upd: Bootstrap 5.2.3
 
 ***
 
