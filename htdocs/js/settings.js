@@ -711,15 +711,22 @@ function parseMPDSettings() {
     setCols('BrowseRadioWebradiodb');
     setCols('BrowseRadioRadiobrowser');
 
+    //tagselect dropdowns
+    for (const table of ['BrowseDatabaseAlbumList']) {
+        filterCols(table);
+        const menu = document.querySelector('#' + table + 'ColsDropdown > form');
+        elClear(menu);
+        setColsChecklist(table, menu);
+    }
+
     //enforce album and albumartist for album list view
-    /*
+    settings['colsBrowseDatabaseAlbumListFetch'] = settings['colsBrowseDatabaseAlbumList'].slice();
     if (settings.colsBrowseDatabaseAlbumListFetch.includes('Album') === false) {
         settings.colsBrowseDatabaseAlbumListFetch.push('Album');
     }
     if (settings.colsBrowseDatabaseAlbumListFetch.includes('AlbumArtist') === false) {
         settings.colsBrowseDatabaseAlbumListFetch.push('AlbumArtist');
     }
-    */
 
     //enforce disc for album details view
     if (settings.colsBrowseDatabaseAlbumDetailFetch.includes('Disc') === false &&

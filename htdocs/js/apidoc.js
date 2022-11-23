@@ -182,14 +182,15 @@ const APImethods = {
             "cols": APIparams.cols
         }
     },
-    "MYMPD_API_DATABASE_ALBUMS_GET": {
+    "MYMPD_API_DATABASE_ALBUM_LIST": {
         "desc": "Lists unique albums.",
         "params": {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
             "expression": APIparams.expression,
             "sort": APIparams.sort,
-            "sortdesc": APIparams.sortdesc
+            "sortdesc": APIparams.sortdesc,
+            "cols": APIparams.cols
         }
     },
     "MYMPD_API_DATABASE_TAG_LIST": {

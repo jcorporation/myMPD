@@ -1447,17 +1447,21 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = mympd_api_albumart_getcover(partition_state, response->data, request->id, sds_buf1, &response->binary);
             }
             break;
-        case MYMPD_API_DATABASE_ALBUMS_GET:
+        case MYMPD_API_DATABASE_ALBUM_LIST: {
+            struct t_tags tagcols;
+            reset_t_tags(&tagcols);
             if (json_get_long(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &long_buf1, &error) == true &&
                 json_get_long(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &long_buf2, &error) == true &&
                 json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.sort", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdsort, &error) == true &&
-                json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true)
+                json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true &&
+                json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
                 response->data = mympd_api_browse_album_list(partition_state, response->data, request->id,
-                    sds_buf1, sds_buf2, bool_buf1, long_buf1, long_buf2);
+                    sds_buf1, sds_buf2, bool_buf1, long_buf1, long_buf2, &tagcols);
             }
             break;
+        }
         case MYMPD_API_DATABASE_TAG_LIST:
             if (json_get_long(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &long_buf1, &error) == true &&
                 json_get_long(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &long_buf2, &error) == true &&

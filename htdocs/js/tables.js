@@ -184,11 +184,13 @@ function dragAndDropTableHeader(tableName) {
  * @returns {object} array of available columns
  */
 function setColTags(tableName) {
-    if (tableName === 'BrowseRadioWebradiodb') {
-        return ["Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate"];
-    }
-    else if (tableName === 'BrowseRadioRadiobrowser') {
-        return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
+    switch(tableName) {
+        case 'BrowseRadioWebradiodb':
+            return ["Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate"];
+        case 'BrowseRadioRadiobrowser':
+            return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
+        case 'BrowseDatabaseAlbumList':
+            return ["Album", "AlbumArtist", "Genre", "Date", "Discs", "SongCount", "LastModified"];
     }
 
     const tags = settings.tagList.slice();
@@ -362,37 +364,15 @@ function saveCols(tableName, tableEl) {
 
 /**
  * Saves the fields for the playback card
+ * @param {string} tableName table name
+ * @param {string} dropdownId id fo the column select dropdown
  */
 //eslint-disable-next-line no-unused-vars
-function saveColsPlayback() {
-    const colInputs = document.querySelectorAll('#PlaybackColsDropdown button');
-    const header = document.getElementById('cardPlaybackTags');
-
-    //apply the columns select list to the playback card
-    for (let i = 0, j = colInputs.length - 1; i < j; i++) {
-        let th = document.getElementById('current' + colInputs[i].name);
-        if (colInputs[i].classList.contains('active') === false) {
-            //remove disabled tags
-            if (th) {
-                th.remove();
-            }
-        }
-        else if (!th) {
-            //add enabled tags if not already shown
-            th = elCreateNodes('div', {"id": "current" + colInputs[i].name}, [
-                elCreateTextTn('small', {}, colInputs[i].name),
-                elCreateEmpty('p', {})
-            ]);
-            setData(th, 'tag', colInputs[i].name);
-            header.appendChild(th);
-        }
-    }
-
-    //construct columns to save from actual playback card
-    const params = {"table": "colsPlayback", "cols": []};
-    const ths = header.querySelectorAll('div');
-    for (let i = 0, j = ths.length; i < j; i++) {
-        const name = getData(ths[i], 'tag');
+function saveColsDropdown(tableName, dropdownId) {
+    const params = {"table": tableName, "cols": []};
+    const colInputs = document.querySelectorAll('#' + dropdownId + ' button.active');
+    for (let i = 0, j = colInputs.length; i < j; i++) {
+        const name = colInputs[i].getAttribute('name');
         if (name) {
             params.cols.push(name);
         }

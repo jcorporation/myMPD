@@ -28,6 +28,7 @@ static const char *mympd_cols[]={"Pos", "Duration", "Type", "Priority", "LastPla
     "Lyrics", "stickerPlayCount", "stickerSkipCount", "stickerLastPlayed", "stickerLastSkipped", "stickerLike", "stickerElapsed",
     "Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate", //Columns for webradiodb
     "clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes", //Columns for radiobrowser
+    "Discs", "SongCount", //Columns for albums
     0};
 
 static bool check_for_invalid_chars(sds data, const char *invalid_chars);

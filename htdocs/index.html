@@ -144,9 +144,9 @@
           <div class="btn-group me-2 featTags">
             <button data-title-phrase="Display tags" id="PlaybackColsBtn" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
             <div class="dropdown-menu dropdown-menu-dark px-2" id="PlaybackColsDropdown">
-              <h2 class="dropdown-header" data-phrase="Columns"></h2>
+              <h2 class="dropdown-header" data-phrase="Tags"></h2>
               <form></form>
-              <button data-phrase="Apply" data-href='{"cmd": "saveColsPlayback", "options": []}' class="btn btn-success w-100 btn-sm mt-2"></button>
+              <button data-phrase="Apply" data-href='{"cmd": "saveColsDropdown", "options": ["colsPlayback", "PlaybackColsDropdown"]}' class="btn btn-success w-100 btn-sm mt-2"></button>
             </div>
           </div>
         </div>
@@ -482,6 +482,14 @@
                   <button class="btn btn-secondary btn-xs mi mi-small" id="databaseAlbumListSortDesc">radio_button_unchecked</button>&nbsp;
                   <label class="form-check-label" for="databaseSortDesc" data-phrase="Descending"></label>
                 </div>
+              </div>
+            </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="Display tags" id="DatabaseAlbumListColsBtn" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
+              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseDatabaseAlbumListColsDropdown">
+                <h2 class="dropdown-header" data-phrase="Tags"></h2>
+                <form></form>
+                <button data-phrase="Apply" data-href='{"cmd": "saveColsDatabaseAlbumList", "options": []}' class="btn btn-success w-100 btn-sm mt-2"></button>
               </div>
             </div>
             <div class="btn-group me-2 featHome">

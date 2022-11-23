@@ -312,6 +312,10 @@ function printValue(key, value) {
             );
         case 'Bitrate':
             return document.createTextNode(value + ' ' + tn('kbit'));
+        case 'SongCount':
+            return document.createTextNode(tn('Num songs', {"smartCount": value}));
+        case 'Discs':
+            return document.createTextNode(tn('Num discs', {"smartCount": value}));
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
                 return getMBtagLink(key, value);

@@ -170,15 +170,15 @@ sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds 
  * @return pointer to buffer
  */
 sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds expression, sds sort, bool sortdesc, long offset, long limit)
+        sds expression, sds sort, bool sortdesc, long offset, long limit, const struct t_tags *tagcols)
 {
     if (partition_state->mpd_state->album_cache.cache == NULL) {
-        buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUMS_GET, request_id,
+        buffer = jsonrpc_respond_message(buffer, MYMPD_API_DATABASE_ALBUM_LIST, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_WARN, "Albumcache not ready");
         return buffer;
     }
 
-    buffer = jsonrpc_respond_start(buffer, MYMPD_API_DATABASE_ALBUMS_GET, request_id);
+    buffer = jsonrpc_respond_start(buffer, MYMPD_API_DATABASE_ALBUM_LIST, request_id);
     buffer = sdscat(buffer, "\"data\":[");
 
     //parse sort tag
@@ -257,10 +257,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
             struct mpd_song *album = (struct mpd_song *)iter.data;
             buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_char(buffer, "Type", "album", true);
-            buffer = sdscat(buffer, "\"Album\":");
-            buffer = mpd_client_get_tag_values(album, MPD_TAG_ALBUM, buffer);
-            buffer = sdscat(buffer, ",\"AlbumArtist\":");
-            buffer = mpd_client_get_tag_values(album, partition_state->mpd_state->tag_albumartist, buffer);
+            buffer = get_song_tags(buffer, partition_state, tagcols, album);
             buffer = sdscatlen(buffer, ",", 1);
             buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
             buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), true);

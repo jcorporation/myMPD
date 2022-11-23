@@ -18,12 +18,13 @@ function handleBrowseDatabaseAlbumList() {
     if (app.current.search === '') {
         document.getElementById('searchDatabaseAlbumListStr').value = '';
     }
-    sendAPI("MYMPD_API_DATABASE_ALBUMS_GET", {
+    sendAPI("MYMPD_API_DATABASE_ALBUM_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
         "expression": app.current.search,
         "sort": app.current.sort.tag,
-        "sortdesc": app.current.sort.desc
+        "sortdesc": app.current.sort.desc,
+        "cols": settings.colsBrowseDatabaseAlbumListFetch
     }, parseDatabaseAlbumList, true);
 }
 
@@ -135,6 +136,16 @@ function initBrowseDatabase() {
         }
     }, false);
 
+    document.getElementById('BrowseDatabaseAlbumListColsDropdown').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON' &&
+            event.target.classList.contains('mi'))
+        {
+            event.stopPropagation();
+            event.preventDefault();
+            toggleBtnChk(event.target, undefined);
+        }
+    }, false);
+
     document.getElementById('searchDatabaseAlbumListTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = getData(event.target, 'tag');
@@ -217,7 +228,7 @@ function initBrowseDatabase() {
 }
 
 /**
- * Parsed the MYMPD_API_DATABASE_ALBUMS_GET response
+ * Parsed the MYMPD_API_DATABASE_ALBUM_LIST response
  * @param {object} obj jsonrpc response object
  */
 function parseDatabaseAlbumList(obj) {
@@ -261,13 +272,17 @@ function parseDatabaseAlbumList(obj) {
         card.appendChild(
             elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
         );
+        const taglist = [];
+        for (const tag of settings.colsBrowseDatabaseAlbumList) {
+            taglist.push(
+                elCreateNode((tag === 'Album' ? 'div' : 'small'), {"class": ["d-block"]},
+                    printValue(tag, obj.result.data[i][tag])
+                )
+            );
+        }
         card.appendChild(
             elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "p-2"],
-                "title": obj.result.data[i][tagAlbumArtist] + ': ' + obj.result.data[i].Album}, [
-                    printValue('Album', obj.result.data[i].Album),
-                    elCreateEmpty('br', {}),
-                    elCreateNode('small', {}, printValue("AlbumArtist", obj.result.data[i].AlbumArtist))
-            ])
+                "title": obj.result.data[i][tagAlbumArtist] + ': ' + obj.result.data[i].Album}, taglist)
         );
         setData(card, 'image', image);
         setData(card, 'uri', obj.result.data[i].FirstSongUri.replace(/\/[^/]+$/, ''));
@@ -300,6 +315,20 @@ function parseDatabaseAlbumList(obj) {
     setPagination(obj.result.totalEntities, obj.result.returnedEntities);
     setScrollViewHeight(cardContainer);
     scrollToPosY(cardContainer.parentNode, app.current.scrollPos);
+}
+
+/**
+ * Saves the fields for the database album list
+ */
+//eslint-disable-next-line no-unused-vars
+function saveColsDatabaseAlbumList() {
+    //remove ids to force card refresh
+    const cols = document.getElementById('BrowseDatabaseAlbumListList').querySelectorAll('.col');
+    for (const col of cols) {
+        col.firstChild.firstChild.removeAttribute('id');
+    }
+
+    saveColsDropdown('colsBrowseDatabaseAlbumList', 'BrowseDatabaseAlbumListColsDropdown');
 }
 
 /**

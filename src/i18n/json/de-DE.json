@@ -443,6 +443,7 @@
     "Notifications are blocked": "Benachrichtigungen sind nicht erlaubt",
     "Num entries": "%{smart_count} Eintrag |||| %{smart_count} Einträge",
     "Num songs": "%{smart_count} Lied |||| %{smart_count} Lieder",
+    "Num discs": "%{smart_count} CD |||| %{smart_count} CD's",
     "Off": "Deaktiviert",
     "Offset": "Start",
     "Ogg Vorbis": "Ogg Vorbis",

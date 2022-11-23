@@ -232,7 +232,7 @@ struct t_mympd_state {
     sds cols_search;                              //!< columns for the search view
     sds cols_browse_database_album_detail_info;   //!< columns for the album detail view
     sds cols_browse_database_album_detail;        //!< columns for the album detail title list
-    sds cols_browse_database_album;               //!< columns for the album list view
+    sds cols_browse_database_album_list;          //!< columns for the album list view
     sds cols_browse_playlist_detail;              //!< columns for the listing of playlists
     sds cols_browse_filesystem;                   //!< columns for filesystem listing
     sds cols_playback;                            //!< columns for playback view
