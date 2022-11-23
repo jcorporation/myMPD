@@ -10,7 +10,7 @@
  */
 function initBrowse() {
     for (const nav of ['BrowseDatabaseTagListTagDropdown', 'BrowseDatabaseAlbumListTagDropdown',
-        'BrowseNavPlaylistsDropdown', 'BrowseNavFilesystemDropdown',
+        'BrowseNavPlaylistDropdown', 'BrowseNavFilesystemDropdown',
         'BrowseNavWebradiodbDropdown','BrowseNavRadiobrowserDropdown',
         'BrowseNavRadioFavoritesDropdown'])
     {
@@ -27,7 +27,7 @@ function initBrowse() {
 function navBrowseHandler(event) {
     if (event.target.nodeName === 'BUTTON') {
         const tag = getData(event.target, 'tag');
-        if (tag === 'Playlists' ||
+        if (tag === 'Playlist' ||
             tag === 'Filesystem' ||
             tag === 'Radio')
         {

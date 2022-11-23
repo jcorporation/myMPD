@@ -278,7 +278,7 @@ function appInit() {
     initUpdateDB();
     initSession();
     //init drag and drop
-    for (const table of ['QueueCurrentList', 'BrowsePlaylistsDetailList']) {
+    for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
         dragAndDropTable(table);
     }
     const dndTableHeader = [
@@ -287,7 +287,7 @@ function appInit() {
         'QueueJukebox',
         'Search',
         'BrowseFilesystem',
-        'BrowsePlaylistsDetail',
+        'BrowsePlaylistDetail',
         'BrowseDatabaseAlbumDetail',
         'BrowseRadioWebradiodb',
         'BrowseRadioRadiobrowser'
@@ -325,7 +325,7 @@ function appInit() {
     }, false);
     //contextmenu for tables
     const tables = ['BrowseFilesystemList', 'BrowseDatabaseAlbumDetailList', 'QueueCurrentList', 'QueueLastPlayedList',
-        'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList',
+        'QueueJukeboxList', 'SearchList', 'BrowsePlaylistListList', 'BrowsePlaylistDetailList',
         'BrowseRadioRadiobrowserList', 'BrowseRadioWebradiodbList'];
     for (const tableId of tables) {
         const tbody = document.querySelector('#' + tableId + ' > tbody');

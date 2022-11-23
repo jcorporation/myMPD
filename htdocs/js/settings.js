@@ -223,8 +223,8 @@ function parseSettings(obj) {
     app.cards.Queue.tabs.LastPlayed.limit = limit;
     app.cards.Queue.tabs.Jukebox.limit = limit;
     app.cards.Browse.tabs.Filesystem.limit = limit;
-    app.cards.Browse.tabs.Playlists.views.List.limit = limit;
-    app.cards.Browse.tabs.Playlists.views.Detail.limit = limit;
+    app.cards.Browse.tabs.Playlist.views.List.limit = limit;
+    app.cards.Browse.tabs.Playlist.views.Detail.limit = limit;
     app.cards.Browse.tabs.Database.views.TagList.limit = limit;
     app.cards.Browse.tabs.Database.views.AlbumList.limit = limit;
     app.cards.Browse.tabs.Database.views.AlbumDetail.limit = limit;
@@ -695,7 +695,7 @@ function parseMPDSettings() {
     filterCols('Playback');
 
     for (const table of ['Search', 'QueueCurrent', 'QueueLastPlayed', 'QueueJukebox',
-            'BrowsePlaylistsDetail', 'BrowseFilesystem', 'BrowseDatabaseAlbumDetail'])
+            'BrowsePlaylistDetail', 'BrowseFilesystem', 'BrowseDatabaseAlbumDetail'])
     {
         filterCols(table);
         setCols(table);
@@ -791,7 +791,7 @@ function parseMPDSettings() {
 
     addTagList('BrowseDatabaseAlbumListTagDropdown', 'tagListBrowse');
     addTagList('BrowseDatabaseTagListTagDropdown', 'tagListBrowse');
-    addTagList('BrowseNavPlaylistsDropdown', 'tagListBrowse');
+    addTagList('BrowseNavPlaylistDropdown', 'tagListBrowse');
     addTagList('BrowseNavFilesystemDropdown', 'tagListBrowse');
     addTagList('BrowseNavRadioFavoritesDropdown', 'tagListBrowse');
     addTagList('BrowseNavWebradiodbDropdown', 'tagListBrowse');

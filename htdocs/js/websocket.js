@@ -122,13 +122,13 @@ function webSocketConnect() {
                     parseVolume(obj);
                     break;
                 case 'update_stored_playlist':
-                    if (app.id === 'BrowsePlaylistsList') {
+                    if (app.id === 'BrowsePlaylistList') {
                         sendAPI('MYMPD_API_PLAYLIST_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
                             "searchstr": app.current.search,
                             "type": 0
-                        }, parsePlaylistsList, false);
+                        }, parsePlaylistList, false);
                     }
                     else if (app.id === 'BrowsePlaylistsDetail') {
                         sendAPI('MYMPD_API_PLAYLIST_CONTENT_LIST', {

@@ -321,17 +321,17 @@
     </div>
 
     <div class="card d-none" id="cardBrowse">
-      <div class="card-body d-none" id="tabBrowsePlaylists">
-        <div id="viewBrowsePlaylistsList">
-          <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsAllButtons">
+      <div class="card-body d-none" id="tabBrowsePlaylist">
+        <div id="viewBrowsePlaylistList">
+          <div class="btn-toolbar card-toolbar" id="BrowsePlaylistAllButtons">
             <div class="btn-group me-2">
               <button data-title-phrase="Select view" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavPlaylistsDropdown"></div>
+              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavPlaylistDropdown"></div>
             </div>
           <form id="searchPlaylistsAll" class="flex-grow-1">
             <div class="input-group me-2">
               <span class="input-group-text border-secondary bg-secondary mi">search</span>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="searchPlaylistsListStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="searchPlaylistListStr"/>
             </div>
           </form>
           <div class="btn-group me-2 featSmartpls">
@@ -348,10 +348,10 @@
           <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
           </div>
-          <div id="BrowsePlaylistsListPaginationTop" class="btn-group me-2 pagination"></div>
+          <div id="BrowsePlaylistListPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
           <div class="table-responsive-md scrollContainer">
-            <table id="BrowsePlaylistsListList" class="table table-hover table-sm">
+            <table id="BrowsePlaylistListList" class="table table-hover table-sm">
               <thead>
                 <tr>
                   <th></th>
@@ -363,12 +363,12 @@
               <tbody class="clickable"></tbody>
             </table>
           </div>
-          <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistsListButtonsBottom"></div>
+          <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistListButtonsBottom"></div>
         </div>
-        <div id="viewBrowsePlaylistsDetail">
-          <div class="btn-toolbar card-toolbar" id="BrowsePlaylistsDetailButtons">
+        <div id="viewBrowsePlaylistDetail">
+          <div class="btn-toolbar card-toolbar" id="BrowsePlaylistDetailButtons">
             <div class="btn-group me-2">
-              <button data-title-phrase="Playlists" data-href='{"cmd": "appGoto", "options": ["Browse", "Playlists", "List"]}' id="btnBrowsePlaylistsAll" type="button" class="btn btn-secondary mi">apps</button>
+              <button data-title-phrase="Playlists" data-href='{"cmd": "appGoto", "options": ["Browse", "Playlist", "List"]}' id="btnBrowsePlaylistAll" type="button" class="btn btn-secondary mi">apps</button>
             </div>
             <form id="searchPlaylistsDetail" class="flex-grow-1">
               <div class="input-group me-2">
@@ -405,10 +405,10 @@
                 </div>
               </div>
             </div>
-            <div id="BrowsePlaylistsDetailPaginationTop" class="btn-group me-2 pagination"></div>
+            <div id="BrowsePlaylistDetailPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="table-responsive-md scrollContainer">
-            <table id="BrowsePlaylistsDetailList" class="table table-hover table-sm">
+            <table id="BrowsePlaylistDetailList" class="table table-hover table-sm">
               <caption></caption>
               <thead>
                 <tr></tr>
@@ -417,7 +417,7 @@
               <tfoot></tfoot>
             </table>
           </div>
-          <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistsDetailButtonsBottom"></div>
+          <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistDetailButtonsBottom"></div>
         </div>
       </div>
 
@@ -429,7 +429,10 @@
               <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseDatabaseTagListTagDropdown"></div>
             </div>
             <div class="input-group me-2 flex-grow-1">
-              <span class="input-group-text bg-secondary" id="btnBrowseDatabaseTagListTagDesc"></span>
+              <span class="input-group-text bg-secondary">
+                <span class="mi me-2">search</span>
+                <span id="btnBrowseDatabaseTagListTagDesc"></span>
+              </span>
               <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="searchDatabaseTagListStr"/>
             </div>
             <div class="btn-group me-2">

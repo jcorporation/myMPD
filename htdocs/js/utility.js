@@ -221,8 +221,8 @@ function focusSearch() {
         case 'BrowseFilesystem':
             document.getElementById('searchFilesystemStr').focus();
             break;
-        case 'BrowsePlaylistsList':
-            document.getElementById('searchPlaylistsListStr').focus();
+        case 'BrowsePlaylistList':
+            document.getElementById('searchPlaylistListStr').focus();
             break;
         case 'BrowsePlaylistsDetail':
             document.getElementById('searchPlaylistsDetailStr').focus();

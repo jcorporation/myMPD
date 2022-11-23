@@ -21,7 +21,7 @@ function appPrepare() {
             'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed', 'tabQueueJukebox',
             'cardBrowse', 'tabBrowseFilesystem',
             'tabBrowseRadio', 'viewBrowseRadioFavorites', 'viewBrowseRadioWebradiodb', 'viewBrowseRadioRadiobrowser',
-            'tabBrowsePlaylists', 'viewBrowsePlaylistsDetail', 'viewBrowsePlaylistsList',
+            'tabBrowsePlaylist', 'viewBrowsePlaylistDetail', 'viewBrowsePlaylistList',
             'tabBrowseDatabase', 'viewBrowseDatabaseTagList', 'viewBrowseDatabaseAlbumDetail', 'viewBrowseDatabaseAlbumList'];
         for (const card of cards) {
             elHideId(card);
@@ -246,8 +246,8 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         case 'QueueCurrent':              handleQueueCurrent(); break;
         case 'QueueLastPlayed':           handleQueueLastPlayed(); break;
         case 'QueueJukebox':              handleQueueJukebox(); break;
-        case 'BrowsePlaylistsList':       handleBrowsePlaylistsList(); break;
-        case 'BrowsePlaylistsDetail':     handleBrowsePlaylistsDetail(); break;
+        case 'BrowsePlaylistList':        handleBrowsePlaylistList(); break;
+        case 'BrowsePlaylistDetail':      handleBrowsePlaylistDetail(); break;
         case 'BrowseFilesystem':          handleBrowseFilesystem(); break;
         case 'BrowseDatabaseTagList':     handleBrowseDatabaseTagList(); break;
         case 'BrowseDatabaseAlbumList':   handleBrowseDatabaseAlbumList(); break;

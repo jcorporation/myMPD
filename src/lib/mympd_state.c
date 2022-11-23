@@ -63,9 +63,10 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->smartpls_interval = MYMPD_SMARTPLS_INTERVAL;
     mympd_state->cols_queue_current = sdsnew(MYMPD_COLS_QUEUE_CURRENT);
     mympd_state->cols_search = sdsnew(MYMPD_COLS_SEARCH);
+    mympd_state->cols_browse_database_album_detail_info = sdsnew(MYMPD_COLS_BROWSE_DATABASE_ALBUM_DETAIL_INFO);
     mympd_state->cols_browse_database_album_detail = sdsnew(MYMPD_COLS_BROWSE_DATABASE_ALBUM_DETAIL);
-    mympd_state->cols_browse_database_album_list = sdsnew(MYMPD_COLS_BROWSE_DATABASE_ALBUM_LIST);
-    mympd_state->cols_browse_playlists_detail = sdsnew(MYMPD_COLS_BROWSE_PLAYLISTS_DETAIL);
+    mympd_state->cols_browse_database_album = sdsnew(MYMPD_COLS_BROWSE_DATABASE_ALBUM);
+    mympd_state->cols_browse_playlist_detail = sdsnew(MYMPD_COLS_BROWSE_PLAYLIST_DETAIL);
     mympd_state->cols_browse_filesystem = sdsnew(MYMPD_COLS_BROWSE_FILESYSTEM);
     mympd_state->cols_playback = sdsnew(MYMPD_COLS_PLAYBACK);
     mympd_state->cols_queue_last_played = sdsnew(MYMPD_COLS_QUEUE_LAST_PLAYED);
@@ -123,9 +124,10 @@ void mympd_state_free(struct t_mympd_state *mympd_state) {
     FREE_SDS(mympd_state->smartpls_generate_tag_list);
     FREE_SDS(mympd_state->cols_queue_current);
     FREE_SDS(mympd_state->cols_search);
+    FREE_SDS(mympd_state->cols_browse_database_album_detail_info);
     FREE_SDS(mympd_state->cols_browse_database_album_detail);
-    FREE_SDS(mympd_state->cols_browse_database_album_list);
-    FREE_SDS(mympd_state->cols_browse_playlists_detail);
+    FREE_SDS(mympd_state->cols_browse_database_album);
+    FREE_SDS(mympd_state->cols_browse_playlist_detail);
     FREE_SDS(mympd_state->cols_browse_filesystem);
     FREE_SDS(mympd_state->cols_playback);
     FREE_SDS(mympd_state->cols_queue_last_played);

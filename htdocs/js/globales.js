@@ -252,7 +252,7 @@ app.cards = {
                 "search": "/",
                 "scrollPos": 0
             },
-            "Playlists": {
+            "Playlist": {
                 "active": "List",
                 "views": {
                     "List": {

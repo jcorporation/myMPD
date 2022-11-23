@@ -58,7 +58,7 @@ function addTagList(elId, list) {
         );
     }
     if (elId === 'BrowseNavFilesystemDropdown' ||
-        elId === 'BrowseNavPlaylistsDropdown' ||
+        elId === 'BrowseNavPlaylistDropdown' ||
         elId === 'BrowseNavRadioFavoritesDropdown' ||
         elId === 'BrowseNavWebradiodbDropdown' ||
         elId === 'BrowseNavRadiobrowserDropdown')
@@ -73,7 +73,7 @@ function addTagList(elId, list) {
     if (elId === 'BrowseDatabaseAlbumListTagDropdown' ||
         elId === 'BrowseDatabaseTagListTagDropdown' ||
         elId === 'BrowseNavFilesystemDropdown' ||
-        elId === 'BrowseNavPlaylistsDropdown' ||
+        elId === 'BrowseNavPlaylistDropdown' ||
         elId === 'BrowseNavRadioFavoritesDropdown' ||
         elId === 'BrowseNavWebradiodbDropdown' ||
         elId === 'BrowseNavRadiobrowserDropdown')
@@ -86,9 +86,9 @@ function addTagList(elId, list) {
             );
         }
         stack.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlists"}, 'Playlists')
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlist"}, 'Playlists')
         );
-        if (elId === 'BrowseNavPlaylistsDropdown') {
+        if (elId === 'BrowseNavPlaylistDropdown') {
             stack.lastChild.classList.add('active');
         }
         stack.appendChild(

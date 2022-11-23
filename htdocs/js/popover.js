@@ -339,7 +339,7 @@ function addMenuItemsNavbarActions(popoverBody, el) {
             addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, false, true]}, 'Rescan database');
             addDivider(popoverBody);
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Database", undefined]}, 'Show browse database');
-            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Playlists", undefined]}, 'Show browse playlists');
+            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Playlist", undefined]}, 'Show browse playlists');
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Filesystem", undefined]}, 'Show browse filesystem');
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Radio", undefined]}, 'Show browse webradio');
             break;
@@ -644,7 +644,7 @@ function addMenuItemsPlaylistActions(tabContent, dataNode, type, uri, name) {
             }
         }
     }
-    if (app.id !== 'BrowsePlaylistsList') {
+    if (app.id !== 'BrowsePlaylistList') {
         if (type === 'plist' ||
             type === 'smartpls')
         {
@@ -697,7 +697,7 @@ function createMenuLists(el, tabHeader, tabContent) {
             }
             return true;
         }
-        case 'BrowsePlaylistsList': {
+        case 'BrowsePlaylistList': {
             const smartplsOnly = getData(dataNode, 'smartpls-only');
             if (smartplsOnly === false ||
                 type !== 'smartpls')
@@ -722,8 +722,8 @@ function createMenuLists(el, tabHeader, tabContent) {
             }
             return true;
         }
-        case 'BrowsePlaylistsDetail': {
-            const table = document.getElementById('BrowsePlaylistsDetailList');
+        case 'BrowsePlaylistDetail': {
+            const table = document.getElementById('BrowsePlaylistDetailList');
             addMenuItemsSongActions(tabContent, dataNode, uri, type, name);
             if (getData(table, 'ro') === 'false') {
                 addDivider(tabContent);
@@ -801,7 +801,7 @@ function createMenuListsSecondary(el, tabHeader, tabContent) {
         case 'QueueJukebox':
         case 'BrowseFilesystem':
         case 'BrowseDatabaseAlbumDetail':
-        case 'BrowsePlaylistsDetail': {
+        case 'BrowsePlaylistDetail': {
             const dataNode = el.parentNode.parentNode;
             const type = getData(dataNode, 'type');
             const uri = getData(dataNode, 'uri');
