@@ -12,6 +12,7 @@ This release reworks the scripting api and improves the scripting documentation.
 
 - Existing lua scripts must be adapted to the new simplified API
 - Existing play timers must be changed to use presets
+- Some views are renamed
 
 ### Changelog
 
@@ -19,6 +20,7 @@ This release reworks the scripting api and improves the scripting documentation.
 - Feat: play timer uses presets #888
 - Feat: rework and simplify scripting api
 - Feat: add option to ignore hated songs in jukebox mode #882
+- Feat: configurable tags for album views #901 
 - Upd: Bootstrap 5.2.3
 
 ***
