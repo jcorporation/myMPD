@@ -95,12 +95,14 @@ function initBrowseDatabase() {
         }
         const target = getParent(event.target, 'DIV');
         if (target.classList.contains('card-body')) {
-            appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', 'AlbumArtist',
+            appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, 'Album', 'AlbumArtist',
                 getData(target.parentNode, 'Album'),
                 getData(target.parentNode, 'AlbumArtist')
             );
         }
-        showPopover(event);
+        else if (target.classList.contains('card-footer')){
+            showPopover(event);
+        }
     }, false);
 
     document.getElementById('BrowseDatabaseAlbumListList').addEventListener('contextmenu', function(event) {

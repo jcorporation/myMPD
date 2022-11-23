@@ -679,7 +679,7 @@ function createMenuLists(el, tabHeader, tabContent) {
         case 'Search':
         case 'BrowseRadioRadiobrowser':
         case 'BrowseRadioWebradiodb':
-        case 'BrowseDatabaseDetail': {
+        case 'BrowseDatabaseAlbumDetail': {
             switch(type) {
                 case 'song':
                 case 'stream':
