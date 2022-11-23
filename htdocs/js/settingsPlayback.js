@@ -75,8 +75,14 @@ function togglePlaymode(option) {
             break;
         case 'consume':
             if (settings.partition.consume === '0') {
-                value = 'oneshot';
-                title = 'Enable consume oneshot';
+                if (features.featConsumeOneshot === true) {
+                    value = 'oneshot';
+                    title = 'Enable consume oneshot';
+                }
+                else {
+                    value = '1';
+                    title = 'Enable consume mode';
+                }
             }
             else if (settings.partition.consume === 'oneshot') {
                 value = '1';
