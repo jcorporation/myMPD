@@ -11,7 +11,8 @@ This is a small bugfix release.
 ### Changelog
 
 - Fix: Remove "-" from musicbrainz_artistid and musicbrainz_albumartistid #903
-- Fix: When switching through consume mode skip oneshot for mpd < 0.24 #905 
+- Fix: scrobble repeated songs #904
+- Fix: When switching through consume mode skip oneshot for mpd < 0.24 #905
 
 ***
 
