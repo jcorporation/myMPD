@@ -112,7 +112,7 @@ struct t_mpd_state {
  */
 struct t_partition_state {
     struct t_mympd_state *mympd_state;     //!< pointer to myMPD state
-    struct t_mpd_state *mpd_state;        //!< pointer to shared mpd state
+    struct t_mpd_state *mpd_state;         //!< pointer to shared mpd state
     //mpd connection
     struct mpd_connection *conn;           //!< mpd connection object from libmpdclient
     enum mpd_conn_states conn_state;       //!< mpd connection state
