@@ -133,19 +133,24 @@ function populateListPresets() {
  * Populates the preset dropdowns
  */
 function populatePresetDropdowns() {
-    const presetDropdown1 = document.getElementById('selectPresetDropdown1').lastElementChild;
-    const presetDropdown2 = document.getElementById('selectPresetDropdown2').lastElementChild;
+    const presetDropdowns = [
+        document.getElementById('selectPresetDropdown1').lastElementChild,
+        document.getElementById('selectPresetDropdown2').lastElementChild,
+        document.getElementById('selectPresetDropdown3').lastElementChild
+    ];
     const selectTimerPreset = document.getElementById('selectTimerPreset');
-    elClear(presetDropdown1);
-    elClear(presetDropdown2);
+    for (const d of presetDropdowns) {
+        elClear(d);
+    }
     elClear(selectTimerPreset);
     selectTimerPreset.appendChild(
         elCreateTextTn('option', {"value": ""}, 'No preset')
     );
     for (const preset of settings.partition.presets) {
         const a = elCreateText('button', {"type":"button", "class": ["btn", "btn-secondary", "btn-sm"]}, preset);
-        presetDropdown1.appendChild(a.cloneNode(true));
-        presetDropdown2.appendChild(a.cloneNode(true));
+        for (const d of presetDropdowns) {
+            d.appendChild(a.cloneNode(true));
+        }
         selectTimerPreset.appendChild(
             elCreateText('option', {"value": preset}, preset)
         );
