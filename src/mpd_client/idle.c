@@ -224,7 +224,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                 //check if we should set the played state of current song
                 if (now > partition_state->song_scrobble_time &&
                     partition_state->song_scrobble_time > 0 &&
-                    partition_state->last_scrobbled_id != partition_state->song_id)
+                    partition_state->last_song_scrobble_time != partition_state->song_scrobble_time)
                 {
                     MYMPD_LOG_DEBUG("\"%s\": Song scrobble time reached: %lld", partition_state->name, (long long)partition_state->song_scrobble_time);
                     set_played = true;
@@ -274,6 +274,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                 //set song played state
                 if (set_played == true) {
                     partition_state->last_scrobbled_id = partition_state->song_id;
+                    partition_state->last_song_scrobble_time = partition_state->song_scrobble_time;
 
                     if (partition_state->mpd_state->last_played_count > 0) {
                         //add song to the last_played list
