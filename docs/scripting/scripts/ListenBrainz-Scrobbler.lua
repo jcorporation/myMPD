@@ -17,12 +17,16 @@ end
 artist_mbids = {}
 if result["MUSICBRAINZ_ARTISTID"] ~= nil then
   for k, v in pairs(result["MUSICBRAINZ_ARTISTID"]) do
-    artist_mbids[#artist_mbids + 1] = v
+    if v ~= "-" then
+      artist_mbids[#artist_mbids + 1] = v
+    end
   end
 end
 if result["MUSICBRAINZ_ALBUMARTISTID"] ~= nil then
   for k, v in pairs(result["MUSICBRAINZ_ALBUMARTISTID"]) do
-    artist_mbids[#artist_mbids + 1] = v
+    if v ~= "-" then
+      artist_mbids[#artist_mbids + 1] = v
+    end
   end
 end
 payload = json.encode({
