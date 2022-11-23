@@ -15,12 +15,16 @@ if rc == 0 then
   artist_mbids = {}
   if current_song["result"]["MUSICBRAINZ_ARTISTID"] ~= nil then
     for k, v in pairs(current_song["result"]["MUSICBRAINZ_ARTISTID"]) do
-      artist_mbids[#artist_mbids + 1] = v
+      if v ~= "-" then
+        artist_mbids[#artist_mbids + 1] = v
+      end
     end
   end
   if current_song["result"]["MUSICBRAINZ_ALBUMARTISTID"] ~= nil then
     for k, v in pairs(current_song["result"]["MUSICBRAINZ_ALBUMARTISTID"]) do
-      artist_mbids[#artist_mbids + 1] = v
+      if v ~= "-" then
+        artist_mbids[#artist_mbids + 1] = v
+      end
     end
   end
   payload = json.encode({
