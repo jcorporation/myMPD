@@ -106,16 +106,17 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         struct t_search_expression *expr = malloc_assert(sizeof(struct t_search_expression));
         expr->value = sdsempty();
         expr->re_compiled = NULL;
-        size_t i = 0;
         char *p = tokens[j];
+        char *end = p + sdslen(tokens[j]) - 1;
         //tag
-        for (i = 0; i < sdslen(tokens[j]); i++, p++) {
-            if (tokens[j][i] == ' ') {
+        while (p < end) {
+            if (*p == ' ') {
                 break;
             }
             tag = sds_catchar(tag, *p);
+            p++;
         }
-        if (i + 1 >= sdslen(tokens[j])) {
+        if (p + 1 >= end) {
             MYMPD_LOG_ERROR("Can not parse search expression");
             free_search_expression(expr);
             break;
@@ -126,16 +127,16 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         {
             expr->tag = -2;
         }
-        i++;
         p++;
         //operator
-        for (; i < sdslen(tokens[j]); i++, p++) {
-            if (tokens[j][i] == ' ') {
+        while (p < end) {
+            if (*p == ' ') {
                 break;
             }
             op = sds_catchar(op, *p);
+            p++;
         }
-        if (i + 2 >= sdslen(tokens[j])) {
+        if (p + 2 >= end) {
             MYMPD_LOG_ERROR("Can not parse search expression");
             free_search_expression(expr);
             break;
@@ -151,11 +152,20 @@ struct t_list *parse_search_expression_to_list(sds expression) {
             free_search_expression(expr);
             break;
         }
-        i = i + 2;
         p = p + 2;
         //value
-        for (; i < sdslen(tokens[j]) - 1; i++, p++) {
+        while (p < end) {
+            if (*p == '\\') {
+                if (p + 1 >= end) {
+                    //escape char should not be the last
+                    free_search_expression(expr);
+                    break;
+                }
+                //skip escaping backslash
+                p++;
+            }
             expr->value = sds_catchar(expr->value, *p);
+            p++;
         }
         //push to list
         if (expr->op == SEARCH_OP_REGEX ||
