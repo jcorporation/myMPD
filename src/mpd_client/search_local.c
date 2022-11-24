@@ -107,7 +107,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         expr->value = sdsempty();
         expr->re_compiled = NULL;
         char *p = tokens[j];
-        char *end = p + sdslen(tokens[j]) - 1;
+        char *end = p + sdslen(tokens[j]) - 1; //ignore concluding apostrophe
         //tag
         while (p < end) {
             if (*p == ' ') {
@@ -127,6 +127,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         {
             expr->tag = -2;
         }
+        //skip space
         p++;
         //operator
         while (p < end) {
@@ -152,13 +153,13 @@ struct t_list *parse_search_expression_to_list(sds expression) {
             free_search_expression(expr);
             break;
         }
+        //skip space and apostrophe
         p = p + 2;
         //value
         while (p < end) {
             if (*p == '\\') {
                 if (p + 1 >= end) {
                     //escape char should not be the last
-                    free_search_expression(expr);
                     break;
                 }
                 //skip escaping backslash
