@@ -284,4 +284,5 @@ UTEST(mpd_client_search_local, test_search_mpd_song_expression) {
     ASSERT_FALSE(search_by_expression("((Artist !~ 'Blixa.*'))"));       //regex mismatch
 
     ASSERT_TRUE(search_by_expression("((Artist contains 'MG\\'s'))"));   //escaping
+    ASSERT_FALSE(search_by_expression("((Artist contains 'MGs\\))"));   //escaping
 }
