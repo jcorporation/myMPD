@@ -25,7 +25,7 @@ This release reworks the scripting api and improves the scripting documentation.
 
 ***
 
-## myMPD v10.1.3 (not yet released)
+## myMPD v10.1.3 (2022-11-26)
 
 This is a small bugfix release.
 
@@ -34,6 +34,8 @@ This is a small bugfix release.
 - Fix: Remove "-" from musicbrainz_artistid and musicbrainz_albumartistid #903
 - Fix: scrobble repeated songs #904
 - Fix: When switching through consume mode skip oneshot for mpd < 0.24 #905
+- Fix: unescape mpd filter expression value #906
+- Upd: improve mpd filter expression parsing
 
 ***
 
