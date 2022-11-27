@@ -745,7 +745,6 @@ function parseMPDSettings() {
         settings.colsQueueJukebox = ["Pos", "Title"];
         settings.colsSearch = ["Title", "Duration"];
         settings.colsBrowseFilesystem = ["Type", "Title", "Duration"];
-        settings.colsBrowseDatabaseAlbumDetail = ["Track", "Title", "Duration"];
         settings.colsPlayback = [];
     }
     else {
@@ -768,6 +767,10 @@ function parseMPDSettings() {
             setData(div, 'tag', settings.colsPlayback[i]);
             pbtl.appendChild(div);
         }
+        //musicbrainz
+        pbtl.appendChild(
+            elCreateEmpty('div', {"id": "currentMusicbrainz", "class": ["col-xl-6"]})
+        );
         //fill blank card with currentSongObj
         if (currentSongObj !== null) {
             setPlaybackCardTags(currentSongObj);

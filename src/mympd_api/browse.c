@@ -144,9 +144,9 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     buffer = tojson_uint(buffer, "SongCount", album_get_song_count(mpd_album), true);
     buffer = tojson_uint(buffer, "Duration", album_get_total_time(mpd_album), true);
     buffer = tojson_llong(buffer, "LastModified", (long long)mpd_song_get_last_modified(mpd_album), true);
-    buffer = sdscat(buffer, "\"MusicBrainzAlbumId\":");
+    buffer = sdscat(buffer, "\"MUSICBRAINZ_ALBUMID\":");
     buffer = mpd_client_get_tag_values(mpd_album, MPD_TAG_MUSICBRAINZ_ALBUMID, buffer);
-    buffer = sdscat(buffer, ",\"MusicBrainzAlbumArtistId\":");
+    buffer = sdscat(buffer, ",\"MUSICBRAINZ_ALBUMARTISTID\":");
     buffer = mpd_client_get_tag_values(mpd_album, MPD_TAG_MUSICBRAINZ_ALBUMARTISTID, buffer);
     buffer = sdscat(buffer, ",\"lastPlayedSong\":{");
     buffer = tojson_llong(buffer, "time", (long long)last_played_max, true);

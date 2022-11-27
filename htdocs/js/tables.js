@@ -246,7 +246,9 @@ function setColTags(tableName) {
 function setColsChecklist(tableName, menu) {
     const tags = setColTags(tableName);
     for (let i = 0, j = tags.length; i < j; i++) {
-        if (tableName === 'Playback' && tags[i] === 'Title') {
+        if (tableName === 'Playback' &&
+            (tags[i] === 'Title' || tags[i].indexOf('MUSICBRAINZ_') === 0))
+        {
             continue;
         }
         if (tags[i] === 'dropdownTitleSticker') {

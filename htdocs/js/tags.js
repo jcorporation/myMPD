@@ -305,7 +305,7 @@ function printValue(key, value) {
  * @param {string} value value to check
  * @returns {boolean} true if tag matches value, else false
  */
- function checkTagValue(tag, value) {
+function checkTagValue(tag, value) {
     if (typeof tag === 'string') {
         return tag === value;
     }
@@ -318,7 +318,7 @@ function printValue(key, value) {
  * @param {string} value tag value
  * @returns {HTMLElement} a link or the value as text
  */
- function getMBtagLink(tag, value) {
+function getMBtagLink(tag, value) {
     let MBentity = '';
     switch (tag) {
         case 'MUSICBRAINZ_ALBUMARTISTID':
@@ -345,4 +345,42 @@ function printValue(key, value) {
             "class": ["text-success", "external"], "target": "_musicbrainz",
             "href": "https://musicbrainz.org/" + MBentity + "/" + myEncodeURI(value)}, value);
     }
+}
+
+/**
+ * 
+ * @param {object} songObj mpd song object
+ * @param {boolean} showArtists true=show artists, false=show albumartists
+ * @returns {HTMLElement} dom node with musicbrainz links
+ */
+function addMusicbrainzFields(songObj, showArtists) {
+    const artist = showArtists === false ? 'MUSICBRAINZ_ALBUMARTISTID' : 'MUSICBRAINZ_ARTISTID';
+
+    if (songObj.MUSICBRAINZ_ALBUMID !== '-' ||
+        (songObj[artist] !== undefined && checkTagValue(songObj[artist], '-') === false))
+    {
+        const mbField = elCreateNode('div', {"class": ["col-xl-6"]},
+            elCreateTextTn('small', {}, 'MusicBrainz')
+        );
+        if (songObj.MUSICBRAINZ_ALBUMID !== '-') {
+            const albumLink = getMBtagLink('MUSICBRAINZ_ALBUMID', songObj.MUSICBRAINZ_ALBUMID);
+            albumLink.textContent = tn('Goto album');
+            mbField.appendChild(
+                elCreateNode('p', {"class": ["mb-1"]}, albumLink)
+            );
+        }
+        if (songObj[artist] !== undefined &&
+            checkTagValue(songObj[artist], '-') === false)
+        {
+            for (let i = 0, j = songObj[artist].length; i < j; i++) {
+                const artistLink = getMBtagLink(artist, songObj[artist][i]);
+                artistLink.textContent = songObj.AlbumArtist[i];
+                mbField.appendChild(
+                    elCreateNode('p', {"class": ["mb-1"]}, artistLink)
+                );
+            }
+        }
+        return mbField;
+    }
+    return null;
 }

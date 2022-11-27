@@ -484,28 +484,8 @@ function parseAlbumDetails(obj) {
         );
     }
 
-    if (obj.result.MusicBrainzAlbumId !== '-' ||
-        checkTagValue(obj.result.MusicBrainzAlbumArtistId, '-') === false)
-    {
-        const mbField = elCreateNode('div', {"class": ["col-xl-6"]},
-            elCreateTextTn('small', {}, 'MusicBrainz')
-        );
-        if (obj.result.MusicBrainzAlbumId !== '-') {
-            const albumLink = getMBtagLink('MUSICBRAINZ_ALBUMID', obj.result.MusicBrainzAlbumId);
-            albumLink.textContent = tn('Goto album');
-            mbField.appendChild(
-                elCreateNode('p', {"class": ["mb-1"]}, albumLink)
-            );
-        }
-        if (checkTagValue(obj.result.MusicBrainzAlbumArtistId, '-') === false) {
-            for (let i = 0, j = obj.result.MusicBrainzAlbumArtistId.length; i < j; i++) {
-                const artistLink = getMBtagLink('MUSICBRAINZ_ALBUMARTISTID', obj.result.MusicBrainzAlbumArtistId[i]);
-                artistLink.textContent = tn('Goto artist') + ': ' + obj.result.AlbumArtist[i];
-                mbField.appendChild(
-                    elCreateNode('p', {"class": ["mb-1"]}, artistLink)
-                );
-            }
-        }
+    const mbField = addMusicbrainzFields(obj.result, false);
+    if (mbField !== null) {
         infoEl.appendChild(mbField);
     }
 
