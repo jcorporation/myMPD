@@ -524,13 +524,23 @@
                 </div>
               </div>
             </div>
+            <div class="btn-group me-2 featTags">
+              <button data-title-phrase="Display tags" id="DatabaseAlbumDetailInfoColsBtn" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
+              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseDatabaseAlbumDetailInfoColsDropdown">
+                <h2 class="dropdown-header" data-phrase="Tags"></h2>
+                <form></form>
+                <button data-phrase="Apply" data-href='{"cmd": "saveColsDropdown", "options": ["colsBrowseDatabaseAlbumDetailInfo", "BrowseDatabaseAlbumDetailInfoColsDropdown"]}' class="btn btn-success w-100 btn-sm mt-2"></button>
+              </div>
+            </div>
           </div>
           <div class="table-responsive-md scrollContainer">
             <div class="row me-0">
-              <div class="col-12 col-sm-4 col-xl-3">
+              <div class="col-12 col-sm-6 col-xl-4 ps-0 mb-3">
                 <div id="viewDatabaseAlbumDetailCover" class="mb-3 album-cover album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
               </div>
-              <div id="viewDatabaseAlbumDetailInfo" class="col-12 col-sm-8 col-xl-9 mb-3"></div>
+              <div id="viewDatabaseAlbumDetailInfo" class="text-break col-12 col-sm-6 col-xl-8 mb-3">
+                <div id="viewDatabaseAlbumDetailInfoTags" class="row"></div>
+              </div>
             </div>
             <table id="BrowseDatabaseAlbumDetailList" class="table table-hover table-sm">
               <thead>

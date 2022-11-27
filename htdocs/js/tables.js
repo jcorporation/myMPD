@@ -191,6 +191,8 @@ function setColTags(tableName) {
             return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
         case 'BrowseDatabaseAlbumList':
             return ["Album", "AlbumArtist", "Genre", "Date", "Discs", "SongCount", "Duration", "LastModified"];
+        case 'BrowseDatabaseAlbumDetailInfo':
+            return ["AlbumArtist", "Genre", "Date", "Discs", "SongCount", "Duration", "LastModified"];
     }
 
     const tags = settings.tagList.slice();

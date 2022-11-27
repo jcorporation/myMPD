@@ -172,6 +172,7 @@ Show all albums from artist
 Show attributes
 Show playback settings in footer
 Song change
+SongCount
 Sort
 Startup
 Startup view

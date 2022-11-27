@@ -182,6 +182,22 @@ const APImethods = {
             "cols": APIparams.cols
         }
     },
+    "MYMPD_API_DATABASE_ALBUM_DETAIL": {
+        "desc": "Displays songs of an album.",
+        "params": {
+            "album": {
+                "type": "text",
+                "example": "Tabula Rasa",
+                "desc": "Album to display"
+            },
+            "albumartist": {
+                "type": "array",
+                "example": "[\"Einstürzende Neubauten\"]",
+                "desc": "Albumartist"
+            },
+            "cols": APIparams.cols
+        }
+    },
     "MYMPD_API_DATABASE_ALBUM_LIST": {
         "desc": "Lists unique albums.",
         "params": {
@@ -205,22 +221,6 @@ const APImethods = {
                 "desc": "Tag to display"
             },
             "sortdesc": APIparams.sortdesc
-        }
-    },
-    "MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST": {
-        "desc": "Displays songs of an album.",
-        "params": {
-            "album": {
-                "type": "text",
-                "example": "Tabula Rasa",
-                "desc": "Album to display"
-            },
-            "albumartist": {
-                "type": "array",
-                "example": "[\"Einstürzende Neubauten\"]",
-                "desc": "Albumartist"
-            },
-            "cols": APIparams.cols
         }
     },
     "MYMPD_API_DATABASE_STATS": {

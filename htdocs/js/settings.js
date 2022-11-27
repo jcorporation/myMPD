@@ -712,7 +712,7 @@ function parseMPDSettings() {
     setCols('BrowseRadioRadiobrowser');
 
     //tagselect dropdowns
-    for (const table of ['BrowseDatabaseAlbumList']) {
+    for (const table of ['BrowseDatabaseAlbumList', 'BrowseDatabaseAlbumDetailInfo']) {
         filterCols(table);
         const menu = document.querySelector('#' + table + 'ColsDropdown > form');
         elClear(menu);
@@ -728,7 +728,7 @@ function parseMPDSettings() {
         settings.colsBrowseDatabaseAlbumListFetch.push('AlbumArtist');
     }
 
-    //enforce disc for album details view
+    //enforce disc for album detail list view
     if (settings.colsBrowseDatabaseAlbumDetailFetch.includes('Disc') === false &&
         settings.tagList.includes('Disc'))
     {

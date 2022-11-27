@@ -9,7 +9,7 @@
 
 #include "src/lib/mympd_state.h"
 
-sds mympd_api_browse_album_songs(struct t_partition_state *partition_state, sds buffer,
+sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds buffer,
         long request_id, sds album, struct t_list *albumartists, const struct t_tags *tagcols);
 sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds buffer,
         long request_id, sds expression, sds sort, bool sortdesc, long offset, long limit,

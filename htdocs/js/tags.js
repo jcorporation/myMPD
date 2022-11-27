@@ -175,33 +175,6 @@ function addTagListSelect(elId, list) {
 }
 
 /**
- * Appends a link to the browse views to the element
- * @param {HTMLElement} el element to append the link
- * @param {string} tag mpd tag
- * @param {object} values tag values
- */
- function printBrowseLink(el, tag, values) {
-    if (settings.tagListBrowse.includes(tag)) {
-        for (const value of values) {
-            const link = elCreateText('a', {"href": "#"}, value);
-            setData(link, 'tag', tag);
-            setData(link, 'name', value);
-            link.addEventListener('click', function(event) {
-                event.preventDefault();
-                gotoBrowse(event);
-            }, false);
-            el.appendChild(link);
-            el.appendChild(
-                elCreateEmpty('br', {})
-            );
-        }
-    }
-    else {
-        el.appendChild(printValue(tag, values));
-    }
-}
-
-/**
  * Parses the bits to the bitrate
  * @param {number} bits bits to parse
  * @returns {string} bitrate as string
@@ -337,4 +310,39 @@ function printValue(key, value) {
         return tag === value;
     }
     return tag[0] === value;
+}
+
+/**
+ * Returns a link to MusicBrainz
+ * @param {string} tag tag name
+ * @param {string} value tag value
+ * @returns {HTMLElement} a link or the value as text
+ */
+ function getMBtagLink(tag, value) {
+    let MBentity = '';
+    switch (tag) {
+        case 'MUSICBRAINZ_ALBUMARTISTID':
+        case 'MUSICBRAINZ_ARTISTID':
+            MBentity = 'artist';
+            break;
+        case 'MUSICBRAINZ_ALBUMID':
+            MBentity = 'release';
+            break;
+        case 'MUSICBRAINZ_RELEASETRACKID':
+            MBentity = 'track';
+            break;
+        case 'MUSICBRAINZ_TRACKID':
+            MBentity = 'recording';
+            break;
+    }
+    if (MBentity === '' ||
+        value === '-')
+    {
+        return elCreateText('span', {}, value);
+    }
+    else {
+        return elCreateText('a', {"data-title-phrase": "Lookup at musicbrainz",
+            "class": ["text-success", "external"], "target": "_musicbrainz",
+            "href": "https://musicbrainz.org/" + MBentity + "/" + myEncodeURI(value)}, value);
+    }
 }

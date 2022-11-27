@@ -49,7 +49,7 @@ function handleBrowseDatabaseTagList() {
  * Handles BrowseDatabaseAlbumDetail
  */
 function handleBrowseDatabaseAlbumDetail() {
-    sendAPI("MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST", {
+    sendAPI("MYMPD_API_DATABASE_ALBUM_DETAIL", {
         "album": app.current.tag,
         "albumartist": app.current.search,
         "cols": settings.colsBrowseDatabaseAlbumDetailFetch
@@ -137,6 +137,16 @@ function initBrowseDatabase() {
     }, false);
 
     document.getElementById('BrowseDatabaseAlbumListColsDropdown').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON' &&
+            event.target.classList.contains('mi'))
+        {
+            event.stopPropagation();
+            event.preventDefault();
+            toggleBtnChk(event.target, undefined);
+        }
+    }, false);
+
+    document.getElementById('BrowseDatabaseAlbumDetailInfoColsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON' &&
             event.target.classList.contains('mi'))
         {
@@ -426,14 +436,14 @@ function addAlbumPlayButton(parentEl) {
 }
 
 /**
- * Parses the MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST response
+ * Parses the MYMPD_API_DATABASE_ALBUM_DETAIL response
  * @param {object} obj jsonrpc response object
  */
 function parseAlbumDetails(obj) {
     const table = document.getElementById('BrowseDatabaseAlbumDetailList');
     const tfoot = table.querySelector('tfoot');
     const colspan = settings.colsBrowseDatabaseAlbumDetail.length;
-    const infoEl = document.getElementById('viewDatabaseAlbumDetailInfo');
+    const infoEl = document.getElementById('viewDatabaseAlbumDetailInfoTags');
 
     if (checkResultId(obj, 'BrowseDatabaseAlbumDetailList') === false) {
         elClear(infoEl);
@@ -452,22 +462,22 @@ function parseAlbumDetails(obj) {
     infoEl.appendChild(
         elCreateText('h1', {}, obj.result.Album)
     );
-    for (const tag of [tagAlbumArtist, 'Genre']) {
-        if (settings.tagList.includes(tag)) {
-            const p = elCreateEmpty('p', {});
-            infoEl.appendChild(
-                elCreateTextTn('small', {}, tag)
-            );
-            printBrowseLink(p, tag, obj.result[tag]);
-            infoEl.appendChild(p);
-        }
+    for (const col of settings.colsBrowseDatabaseAlbumDetailInfo) {
+        infoEl.appendChild(
+            elCreateNodes('div', {"class": ["col-xl-6"]}, [
+                elCreateTextTn('small', {}, col),
+                elCreateNode('p', {},
+                    printValue(col, obj.result[col])
+                )
+            ])
+        );
     }
 
     if (obj.result.bookletPath !== '' &&
         features.featLibrary === true)
     {
         infoEl.appendChild(
-            elCreateNodes('p', {}, [
+            elCreateNodes('div', {"class": ["col-xl-6"]}, [
                 elCreateText('span', {"class": ["mi", "me-2"]}, 'description'),
                 elCreateTextTn('a', {"target": "_blank", "href": subdir + myEncodeURI(obj.result.bookletPath)}, 'Download booklet')
             ])
@@ -477,13 +487,13 @@ function parseAlbumDetails(obj) {
     if (obj.result.MusicBrainzAlbumId !== '-' ||
         checkTagValue(obj.result.MusicBrainzAlbumArtistId, '-') === false)
     {
-        infoEl.appendChild(
+        const mbField = elCreateNode('div', {"class": ["col-xl-6"]},
             elCreateTextTn('small', {}, 'MusicBrainz')
         );
         if (obj.result.MusicBrainzAlbumId !== '-') {
             const albumLink = getMBtagLink('MUSICBRAINZ_ALBUMID', obj.result.MusicBrainzAlbumId);
             albumLink.textContent = tn('Goto album');
-            infoEl.appendChild(
+            mbField.appendChild(
                 elCreateNode('p', {"class": ["mb-1"]}, albumLink)
             );
         }
@@ -491,11 +501,12 @@ function parseAlbumDetails(obj) {
             for (let i = 0, j = obj.result.MusicBrainzAlbumArtistId.length; i < j; i++) {
                 const artistLink = getMBtagLink('MUSICBRAINZ_ALBUMARTISTID', obj.result.MusicBrainzAlbumArtistId[i]);
                 artistLink.textContent = tn('Goto artist') + ': ' + obj.result.AlbumArtist[i];
-                infoEl.appendChild(
+                mbField.appendChild(
                     elCreateNode('p', {"class": ["mb-1"]}, artistLink)
                 );
             }
         }
+        infoEl.appendChild(mbField);
     }
 
     const rowTitle = tn(webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong]);
@@ -510,8 +521,8 @@ function parseAlbumDetails(obj) {
         elCreateNode('tr', {"class": ["not-clickable"]},
             elCreateNode('td', {"colspan": colspan + 1},
                 elCreateNodes('small', {}, [
-                    elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),
-                    elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime))
+                    elCreateTextTnNr('span', {}, 'Num songs', obj.result.SongCount),
+                    elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.Duration))
                 ])
             )
         )

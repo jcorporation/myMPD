@@ -83,41 +83,6 @@ function parseFingerprint(obj) {
 }
 
 /**
- * Returns a link to MusicBrainz
- * @param {string} tag tag name
- * @param {string} value tag value
- * @returns {HTMLElement} a link or the value as text
- */
-function getMBtagLink(tag, value) {
-    let MBentity = '';
-    switch (tag) {
-        case 'MUSICBRAINZ_ALBUMARTISTID':
-        case 'MUSICBRAINZ_ARTISTID':
-            MBentity = 'artist';
-            break;
-        case 'MUSICBRAINZ_ALBUMID':
-            MBentity = 'release';
-            break;
-        case 'MUSICBRAINZ_RELEASETRACKID':
-            MBentity = 'track';
-            break;
-        case 'MUSICBRAINZ_TRACKID':
-            MBentity = 'recording';
-            break;
-    }
-    if (MBentity === '' ||
-        value === '-')
-    {
-        return elCreateText('span', {}, value);
-    }
-    else {
-        return elCreateText('a', {"data-title-phrase": "Lookup at musicbrainz",
-            "class": ["text-success", "external"], "target": "_musicbrainz",
-            "href": "https://musicbrainz.org/" + MBentity + "/" + myEncodeURI(value)}, value);
-    }
-}
-
-/**
  * Adds a row to the song details modal
  * @param {string} thContent text for th
  * @param {HTMLElement | Node | string} tdContent content element fot td

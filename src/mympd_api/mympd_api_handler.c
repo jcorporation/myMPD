@@ -1473,7 +1473,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     sds_buf1, sds_buf2, long_buf1, long_buf2, bool_buf1);
             }
             break;
-        case MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST: {
+        case MYMPD_API_DATABASE_ALBUM_DETAIL: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);
             struct t_list albumartists;
@@ -1482,7 +1482,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_array_string(request->data, "$.params.albumartist", &albumartists, vcb_isname, 10, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
-                response->data = mympd_api_browse_album_songs(partition_state, response->data, request->id, sds_buf1, &albumartists, &tagcols);
+                response->data = mympd_api_browse_album_detail(partition_state, response->data, request->id, sds_buf1, &albumartists, &tagcols);
             }
             list_clear(&albumartists);
             break;
