@@ -2419,7 +2419,7 @@
 
     if (currentParent && currentParent.length) {
       return [...currentParent[0].children]
-        .find((x) => hasAttribute(x, dataBsToggle));
+        .find((x) => x.getAttribute(dataBsToggle) === dropdownString);
     }
     return null;
   }
@@ -4111,16 +4111,15 @@
 
     //check if tooltip/popover overflows window bottom
     const bottomPos = window.innerHeight - topPosition - tipHeight;
-    if (bottomPos < 0) {
+    const scrollHeight = window.scrollHeight;
+    if (bottomPos < scrollHeight) {
       topPosition = topPosition + bottomPos;
-      arrowTop = 0 - bottomPos;
-
+      arrowTop = scrollHeight - bottomPos;
     }
     //check if tooltip/popover overflows window top
-    if (topPosition < 0) {
+    if (topPosition < scrollHeight) {
       arrowTop = elemRectTop;
-      topPosition = 0;
-
+      topPosition = scrollHeight + 'px';
     }
     //check if tooltip/popover is higher as the window
     if (tipHeight > window.innerHeight) {
