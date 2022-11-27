@@ -25,6 +25,16 @@ This release reworks the scripting api and improves the scripting documentation.
 
 ***
 
+## myMPD v10.1.4 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: Fix: improve styleTip positioning for scrolling window #907
+
+***
+
 ## myMPD v10.1.3 (2022-11-26)
 
 This is a small bugfix release.
