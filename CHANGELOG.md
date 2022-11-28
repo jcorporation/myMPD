@@ -32,6 +32,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Fix: Fix: improve styleTip positioning for scrolling window #907
+- Fix: carousel indicator border override #909
 
 ***
 

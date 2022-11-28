@@ -775,6 +775,10 @@ textarea.small {
   padding-top: 100%;
 }
 
+.carousel-indicators [data-bs-target] {
+  border-color: transparent !important;
+}
+
 #logOverview > div {
   font-size: 0.8rem;
 }
