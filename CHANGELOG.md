@@ -21,6 +21,7 @@ This release reworks the scripting api and improves the scripting documentation.
 - Feat: rework and simplify scripting api
 - Feat: add option to ignore hated songs in jukebox mode #882
 - Feat: configurable tags for album views #901 
+- Upd: some UI cleanups and improvements #909
 - Upd: Bootstrap 5.2.3
 
 ***
