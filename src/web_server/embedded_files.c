@@ -56,8 +56,11 @@ INCBIN(ligatures_json, "../htdocs/assets/ligatures.json.gz");
 #ifdef I18N_nl_NL
     INCBIN(i18n_nl_NL_json, "../htdocs/assets/i18n/nl-NL.json.gz");
 #endif
-#ifdef I18N_zh_CN
-    INCBIN(i18n_zh_CN_json, "../htdocs/assets/i18n/zh-CN.json.gz");
+#ifdef I18N_zh_Hans
+    INCBIN(i18n_zh_Hans_json, "../htdocs/assets/i18n/zh-Hans.json.gz");
+#endif
+#ifdef I18N_zh_Hant
+    INCBIN(i18n_zh_Hant_json, "../htdocs/assets/i18n/zh-Hant.json.gz");
 #endif
 //uncompressed assets
 INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");
