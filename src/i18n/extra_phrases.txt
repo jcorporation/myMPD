@@ -79,6 +79,7 @@ Filetype
 Filter
 Fingerprint
 Genre
+Goto artist
 Grouping
 Highlight color
 Home
