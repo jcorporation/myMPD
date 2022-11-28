@@ -808,6 +808,12 @@ const webuiSettingsDefault = {
         "title": "Startup view",
         "form": "startupFrm",
         "onChange": "eventChangeTheme"
+    },
+    "cloudMusicbrainz": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Show MusicBrainz links",
+        "form": "cloudSettingsFrm"
     }
 };
 

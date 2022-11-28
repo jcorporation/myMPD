@@ -354,8 +354,11 @@ function getMBtagLink(tag, value) {
  * @returns {HTMLElement} dom node with musicbrainz links
  */
 function addMusicbrainzFields(songObj, showArtists) {
-    const artist = showArtists === false ? 'MUSICBRAINZ_ALBUMARTISTID' : 'MUSICBRAINZ_ARTISTID';
+    if (settings.webuiSettings.cloudMusicbrainz === false) {
+        return null;
+    }
 
+    const artist = showArtists === false ? 'MUSICBRAINZ_ALBUMARTISTID' : 'MUSICBRAINZ_ARTISTID';
     if (songObj.MUSICBRAINZ_ALBUMID !== '-' ||
         (songObj[artist] !== undefined && checkTagValue(songObj[artist], '-') === false))
     {

@@ -171,6 +171,7 @@ Set priority
 Show
 Show all albums from artist
 Show attributes
+Show MusicBrainz links
 Show playback settings in footer
 Song change
 SongCount
