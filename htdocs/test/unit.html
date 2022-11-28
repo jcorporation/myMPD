@@ -10,7 +10,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="myMPD - fast and lightweight MPD webclient">
   <meta name="author" content="mail@jcgames.de">
-  <title>myMPD: Testsuite</title>
+  <title>myMPD: Manual API Test</title>
   <link href="../css/bootstrap.css" rel="stylesheet">
   <link href="../css/mympd.css" rel="stylesheet">
   <link href="test.css" rel="stylesheet">
@@ -32,16 +32,14 @@
   </header>
   <main role="main" class="container-fluid text-break">
     <div class="card">
-      <div class="card-header">myMPD test framework</div>
-      <div class="card-body">
-        <ul>
-          <li><a href="apitest.html">API Test</a></li>
-          <li><a href="fuzzer.html"> Fuzzer</a></li>
-          <li><a href="manual.html">Manual API Test</a></li>
-          <li><a href="unit.html">Unit Tests</a></li>
-        </ul>
-      </div>
+      <div class="card-header">myMPD unit tests</div>
+      <div class="card-body" id="results"></div>
     </div>
   </main>
+  <script src="../js/elements.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/locale.js"></script>
+  <script src="../js/utility.js"></script>
+  <script src="unit.js"></script>
 </body>
 </html>
