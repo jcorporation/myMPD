@@ -659,6 +659,12 @@ const webuiSettingsDefault = {
         "title": "Playback controls",
         "form": "footerFrm"
     },
+    "uiFooterVolumeLevel": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Show volume level in footer",
+        "form": "footerFrm"
+    },
     "uiMaxElementsPerPage": {
         "defaultValue": 100,
         "validValues": {

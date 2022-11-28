@@ -617,6 +617,7 @@ function setFeatures() {
     //web ui features
     features.featCacert = settings.features.featCacert;
     features.featHome = settings.webuiSettings.enableHome;
+    features.featVolumeLevel = settings.webuiSettings.uiFooterVolumeLevel;
     features.featLocalPlayback = settings.webuiSettings.enableLocalPlayback === true ?
         (settings.partition.mpdStreamPort > 0 || settings.partition.streamUri.length > 0 ? true : false) : false;
     features.featScripting = settings.webuiSettings.enableScripting === true ?

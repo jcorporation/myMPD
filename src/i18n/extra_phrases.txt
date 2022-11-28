@@ -173,6 +173,7 @@ Show all albums from artist
 Show attributes
 Show MusicBrainz links
 Show playback settings in footer
+Show volume level in footer
 Song change
 SongCount
 Sort
