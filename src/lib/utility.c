@@ -250,7 +250,7 @@ static sds get_local_ip(void) {
 
     errno = 0;
     if (getifaddrs(&ifaddr) == -1) {
-        MYMPD_LOG_ERROR("Can not get list of inteface ip addresses");
+        MYMPD_LOG_ERROR("Can not get list of interface ip addresses");
         MYMPD_LOG_ERRNO(errno);
         return sdsempty();
     }
