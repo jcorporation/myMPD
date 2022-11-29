@@ -69,7 +69,9 @@ You can check the translation files manually. The build process shows all missin
 Debug builds should use the new translation after a successful build.
 
 **To include it in a release build**
-- add it to `src/web_server/embedded_files.c`
-- add it to the struct `embedded_files` in `src/web_server/utility.c`
-- add it to `CMakeLists.txt`
-- add it to `src/compile_time.h.in`
+
+Add it to:
+- `src/web_server/embedded_files.c`
+- the struct `embedded_files` in `src/web_server/utility.c`
+- `CMakeLists.txt`
+- `src/compile_time.h.in`

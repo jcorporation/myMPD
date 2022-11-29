@@ -10,7 +10,9 @@ The ACL is a comma separated list of IPv4 subnets: x.x.x.x/x Each subnet is prep
 
 If the acl is empty, all connections are allowed else all connections are denied if not explicitly allowed.
 
+<div class="alert alert-warning">
 ACLs for IPv6 are currently not supported.
+</div>
 
 ## Example ACLs
 

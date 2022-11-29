@@ -23,6 +23,7 @@ This release reworks the scripting api and improves the scripting documentation.
 - Feat: configurable tags for album views #901 
 - Upd: some UI cleanups and improvements #909
 - Upd: Bootstrap 5.2.3
+- Upd: Documentation improvements
 
 ***
 

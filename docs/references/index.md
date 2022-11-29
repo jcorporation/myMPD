@@ -7,7 +7,7 @@ title: References
 
 ***
 
-## API Documentation
+## Source documentation
 
 If you want to hack on myMPD:
 

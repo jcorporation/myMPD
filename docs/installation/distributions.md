@@ -14,10 +14,10 @@ myMPD is available in the following distributions:
 - [Snakeoil OS](https://www.snakeoil-os.net/)
 - [Termux](https://termux.com/)
 
-### myMPDos
+## myMPDos
 
 [myMPDos](https://github.com/jcorporation/myMPDos) is my Raspberry Pi image (aarch64) based on Alpine Linux. It is running entirely in RAM and provides the latest MPD and myMPD packages and some goodies.
 
 ---
 
-If you would distribute myMPD for any other distribution don't hesitate to contact me.
+If you would distribute myMPD for any other distribution don't hesitate to [contact me](https://github.com/jcorporation).
