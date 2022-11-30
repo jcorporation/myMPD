@@ -124,6 +124,11 @@ const APIparams = {
         "type": "string",
         "example": "d8f01eea-26be-4e3d-871d-7596e3ab8fb1",
         "desc": "Station UUID from radio-browser.info"
+    },
+    "preset": {
+        "type": "text",
+        "example": "default",
+        "desc": "Name of the preset."
     }
 };
 
@@ -1170,12 +1175,8 @@ const APImethods = {
     },
     "MYMPD_API_PLAYER_OPTIONS_SET": {
         "desc": "Sets MPD and jukebox options.",
-        "params":{
-            "name": {
-                "type": "text",
-                "example": "default",
-                "desc": "Name of the preset, leave empty to save no preset"
-            },
+        "params": {
+            "name": APIparams.preset,
             "consume": {
                 "type": "text",
                 "example": "1",
@@ -1241,6 +1242,11 @@ const APImethods = {
                 "example": "Album",
                 "desc": "Tag to maintain unique values in internal jukebox queue."
             },
+            "jukeboxIgnoreHated": {
+                "type": "bool",
+                "example": true,
+                "desc": "Ignores hated songs."
+            },
             "autoPlay": {
                 "type": "bool",
                 "example": false,
@@ -1251,21 +1257,13 @@ const APImethods = {
     "MYMPD_API_PRESET_RM": {
         "desc": "Deletes a preset.",
         "params": {
-            "name": {
-                "type": "text",
-                "example": "default",
-                "desc": "Name of the preset."
-            }
+            "name": APIparams.preset
         }
     },
     "MYMPD_API_PRESET_LOAD": {
         "desc": "Loads a preset.",
         "params": {
-            "name": {
-                "type": "text",
-                "example": "default",
-                "desc": "Name of the preset."
-            }
+            "name": APIparams.preset
         }
     },
     "MYMPD_API_COLS_SAVE": {
@@ -1338,11 +1336,7 @@ const APImethods = {
                 "example": "Database",
                 "desc": "Playlist to use, valid values: \"Database\" or MPD playlist name"
             },
-            "preset": {
-                "type": "text",
-                "example": "default",
-                "desc": "Name of the preset."
-            },
+            "preset": APIparams.preset,
             "arguments": {
                 "type": "object",
                 "example": "{\"arg1\": \"value1\"}",
@@ -1355,7 +1349,7 @@ const APImethods = {
     },
     "MYMPD_API_TIMER_GET": {
         "desc": "Gets options from a timer",
-        "params":{
+        "params": {
             "timerid": APIparams.timerid
         }
     },
