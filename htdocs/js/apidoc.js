@@ -1288,15 +1288,15 @@ const APImethods = {
                 "example": 0,
                 "desc": "Timer id, 0 to create a new timer."
             },
-            "interval": {
-                "type": "int",
-                "example": 86400,
-                "desc": "Timer interval in seconds, 0 = one shote and deactivate, -1 = one shot and remove"
-            },
             "name": {
                 "type": "text",
                 "example": "example timer",
                 "desc": "Name of the timer"
+            },
+            "interval": {
+                "type": "int",
+                "example": 86400,
+                "desc": "Timer interval in seconds, 0 = one shote and deactivate, -1 = one shot and remove"
             },
             "enabled": {
                 "type": "bool",
@@ -1312,6 +1312,11 @@ const APImethods = {
                 "type": "uint",
                 "example": 0,
                 "desc": "Start minute of the timer, valid values are 0-59"
+            },
+            "weekdays": {
+                "type": "array",
+                "example": "[false,false,false,false,false,true,true]",
+                "desc": "Boolean array for weekdays, starting at monday"
             },
             "action": {
                 "type": "text",
@@ -1333,15 +1338,10 @@ const APImethods = {
                 "example": "Database",
                 "desc": "Playlist to use, valid values: \"Database\" or MPD playlist name"
             },
-            "jukeboxMode": {
+            "preset": {
                 "type": "text",
-                "example": "off",
-                "desc": "off, song, album"
-            },
-            "weekdays": {
-                "type": "array",
-                "example": "[false,false,false,false,false,true,true]",
-                "desc": "Boolean array for weekdays, starting at monday"
+                "example": "default",
+                "desc": "Name of the preset."
             },
             "arguments": {
                 "type": "object",
