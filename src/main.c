@@ -189,13 +189,15 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
  */
 static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     //check user
+    bool chown_dirs = false;
     if (startup_uid == 0) {
         errno = 0;
         struct passwd *pw = getpwnam(config->user);
         if (pw == NULL) {
-            MYMPD_LOG_ERROR("User \"%s\" does not exist", config->user);
-            MYMPD_LOG_ERRNO(errno);
-            return false;
+            MYMPD_LOG_WARN("User \"%s\" does not exist", config->user);
+        }
+        else {
+            chown_dirs = true;
         }
     }
 
@@ -204,11 +206,10 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     if (testdir_rc == DIR_CREATE_FAILED) {
         return false;
     }
-    if (testdir_rc == DIR_CREATED) {
-        //directory was created; set user and group, if uid = 0
-        if (startup_uid == 0 &&
-            do_chown(config->cachedir, config->user) == false)
-        {
+    //directory exists or was created; set user and group
+    if (chown_dirs == true) {
+        MYMPD_LOG_DEBUG("Checking ownership of \"%s\"", config->cachedir);
+        if (do_chown(config->cachedir, config->user) == false) {
             return false;
         }
     }
@@ -219,8 +220,8 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         //workdir is not accessible
         return false;
     }
-    //directory exists or was created; set user and group, if uid = 0
-    if (startup_uid == 0) {
+    //directory exists or was created; set user and group
+    if (chown_dirs == true) {
         MYMPD_LOG_DEBUG("Checking ownership of \"%s\"", config->workdir);
         if (do_chown(config->workdir, config->user) == false) {
             return false;
