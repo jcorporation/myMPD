@@ -103,9 +103,11 @@ static void mympd_signal_handler(int sig_num) {
  * @return true on success else false
  */
 static bool do_chown(const char *file_path, const char *username) {
+    errno = 0;
     struct passwd *pwd = getpwnam(username);
     if (pwd == NULL) {
-        MYMPD_LOG_ERROR("Can't get passwd entry for user \"%s\"", username);
+        MYMPD_LOG_ERROR("User \"%s\" does not exist", username);
+        MYMPD_LOG_ERRNO(errno);
         return false;
     }
 
@@ -133,10 +135,10 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
     {
         MYMPD_LOG_NOTICE("Droping privileges to user \"%s\"", username);
         //get user
-        struct passwd *pw;
         errno = 0;
-        if ((pw = getpwnam(username)) == NULL) {
-            MYMPD_LOG_ERROR("getpwnam() failed, unknown user \"%s\"", username);
+        struct passwd *pw = getpwnam(username);
+        if (pw  == NULL) {
+            MYMPD_LOG_ERROR("User \"%s\" does not exist", username);
             MYMPD_LOG_ERRNO(errno);
             return false;
         }
@@ -180,12 +182,23 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
 /**
  * Creates the working, cache and config directories.
  * Sets first_startup to true if the config directory is created.
- * This function is run before droping privileges.
+ * This function is run before dropping privileges.
  * @param config pointer to config struct
  * @param startup_uid initial uid of myMPD process
  * @return true on success else false
  */
 static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
+    //check user
+    if (startup_uid == 0) {
+        errno = 0;
+        struct passwd *pw = getpwnam(config->user);
+        if (pw == NULL) {
+            MYMPD_LOG_ERROR("User \"%s\" does not exist", config->user);
+            MYMPD_LOG_ERRNO(errno);
+            return false;
+        }
+    }
+
     //create the cache directory
     int testdir_rc = testdir("Cache dir", config->cachedir, true, false);
     if (testdir_rc == DIR_CREATE_FAILED) {
