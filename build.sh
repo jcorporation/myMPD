@@ -940,7 +940,9 @@ purge() {
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
   #CMAKE_INSTALL_PREFIX="/usr"
   rm -rf "$DESTDIR/var/lib/mympd"
+  rm -rf "$DESTDIR/var/lib/private/mympd"
   rm -rf "$DESTDIR/var/cache/mympd"
+  rm -rf "$DESTDIR/var/cache/private/mympd"
   rm -f "$DESTDIR/etc/init.d/mympd"
   #CMAKE_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/var/opt/mympd"
@@ -962,14 +964,15 @@ purge() {
   #remove group
   if getent group mympd > /dev/null
   then
-    if check_cmd_silent userdel
+    if check_cmd_silent groupdel
     then
-      userdel mympd
-    elif check_cmd_silent deluser
+      groupdel mympd
+    elif check_cmd_silent delgroup
     then
-      deluser mympd
+      #alpine
+      delgroup mympd
     else
-      echo_error "Can not remove user mympd"
+      echo_error "Can not remove group mympd"
       return 1
     fi
   fi
