@@ -7,6 +7,13 @@ then
     echo "Checking status of mympd system user and group"
     getent group mympd > /dev/null ||  groupadd -r mympd
     getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
+else
+    # Config must be owned by mympd for systemd DynamicUser
+    # Upgrade from versions < 10.1.0
+    if [ -d /var/lib/mympd/config ]
+    then
+        chown -R mympd.mympd /var/lib/mympd/config
+    fi
 fi
 
 exit 0
