@@ -21,6 +21,22 @@ You must enable and start the service manually. Use `systemctl enable mympd` to 
 
 myMPD logs to STDERR, you can see the live logs with `journalctl -fu mympd`.
 
+The default myMPD service unit uses the `DynamicUser=` directive, therefor no static mympd user is created. If you want to change the group membership of this dynamic user, you must edit the systemd service unit (SupplementaryGroups=).
+
+**Example: add the mympd user to the mpd group**
+
+```
+--snip--
+[Service]
+AmbientCapabilities=CAP_NET_BIND_SERVICE
+CapabilityBoundingSet=CAP_NET_BIND_SERVICE
+DynamicUser=yes
+ExecStart=/usr/bin/mympd
+Group=mympd
+SupplementaryGroups=mpd
+--snip--
+```
+
 ### Openrc usage
 
 You must enable and start the service manually. Use `rc-update add mympd` to enable myMPD at startup and `rc-service mympd start` to start myMPD now.
