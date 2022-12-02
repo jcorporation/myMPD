@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "mpd/tag.h"
 #include "src/mpd_worker/cache.h"
 
 #include "src/lib/album_cache.h"
@@ -14,6 +15,7 @@
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/sticker_cache.h"
+#include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/tags.h"
 
@@ -111,7 +113,33 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
     long album_count = 0;
     long song_count = 0;
     long skipped = 0;
-    //get first song from each album
+
+    //used tags for albums
+    struct t_tags album_tags;
+    album_tags.tags[0] = MPD_TAG_ALBUM;
+    album_tags.tags[1] = MPD_TAG_ALBUM_ARTIST;
+    album_tags.tags[2] = MPD_TAG_ARTIST;
+    album_tags.tags[3] = MPD_TAG_DISC;
+    album_tags.tags[4] = MPD_TAG_GENRE;
+    album_tags.tags[5] = MPD_TAG_MUSICBRAINZ_ALBUMARTISTID;
+    album_tags.tags[6] = MPD_TAG_MUSICBRAINZ_ALBUMID;
+    album_tags.len = 7;
+    //check for enabled tags
+    struct t_tags enable_tags;
+    enable_tags.len = 0;
+    for (size_t j = 0; j < album_tags.len; j++) {
+        if (mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, album_tags.tags[j]) == true) {
+            enable_tags.tags[enable_tags.len++] = album_tags.tags[j];
+        }
+    }
+    //set tags
+    enable_mpd_tags(mpd_worker_state->partition_state, &enable_tags);
+
+    //get all songs and set albums
+    #ifdef MYMPD_DEBUG
+    MEASURE_INIT
+    MEASURE_START
+    #endif
     do {
         bool rc = mpd_search_db_songs(mpd_worker_state->partition_state->conn, false);
         if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, rc, "mpd_search_db_songs") == false) {
@@ -204,6 +232,12 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
         start = end;
         end = end + MPD_RESULTS_MAX;
     } while (i >= start);
+    #ifdef MYMPD_DEBUG
+    MEASURE_END
+    MEASURE_PRINT("Populate album cache")
+    MEASURE_START
+    #endif
+
     //get sticker values
     if (mpd_worker_state->partition_state->mpd_state->feat_stickers == true) {
         raxIterator iter;
@@ -217,6 +251,12 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
         FREE_SDS(uri);
         raxStop(&iter);
     }
+    #ifdef MYMPD_DEBUG
+    MEASURE_END
+    MEASURE_PRINT("Populate sticker cache")
+    #endif
+
+    //finished - print statistics
     MYMPD_LOG_INFO("Added %ld albums to album cache", album_count);
     if (skipped > 0) {
         MYMPD_LOG_WARN("Skipped %ld songs for album cache", skipped);
