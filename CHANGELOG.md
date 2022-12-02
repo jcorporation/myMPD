@@ -12,6 +12,8 @@ This is a small bugfix release.
 
 - Fix: Fix: improve styleTip positioning for scrolling window #907
 - Fix: carousel indicator border override #909
+- Fix: myMPD preconfiguration with systemd #912
+- Fix: `build.sh purge` removes the group and systemd private directories
 
 ***
 
