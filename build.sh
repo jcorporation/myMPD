@@ -330,7 +330,13 @@ installrelease() {
   cd release || exit 1
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
   make install DESTDIR="$DESTDIR"
-  addmympduser
+  if [ ! -f /usr/lib/systemd/system/mympd.service ] &&
+     [ ! -f /usr/systemd/system/mympd.service ]
+  then
+    addmympduser
+  else
+    echo "Systemd found skipping mympd user creation"
+  fi
   echo "myMPD installed"
 }
 
