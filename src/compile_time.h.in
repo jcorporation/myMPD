@@ -70,9 +70,9 @@ extern struct t_mympd_queue *mympd_script_queue;
 //default configuration
 #define CFG_MYMPD_USER "mympd"
 #define CFG_MYMPD_HTTP_HOST "0.0.0.0"
-#define CFG_MYMPD_HTTP_PORT "80"
+#define CFG_MYMPD_HTTP_PORT 80
 #define CFG_MYMPD_SSL true
-#define CFG_MYMPD_SSL_PORT "443"
+#define CFG_MYMPD_SSL_PORT 443
 #define CFG_MYMPD_SSL_SAN ""
 #define CFG_MYMPD_CUSTOM_CERT false
 #define CFG_MYMPD_ACL ""

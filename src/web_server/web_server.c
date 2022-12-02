@@ -74,36 +74,45 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     MYMPD_LOG_DEBUG("Setting dns server to %s", mgr->dns4.url);
 
     //bind to http_port
-    struct mg_connection *nc_http = NULL;
-    sds http_url = sdscatfmt(sdsempty(), "http://%S:%S", config->http_host, config->http_port);
-    #ifdef MYMPD_ENABLE_SSL
-    if (config->ssl == true) {
-        nc_http = mg_http_listen(mgr, http_url, ev_handler_redirect, NULL);
+    if (config->http_port > 0) {
+        struct mg_connection *nc_http = NULL;
+        sds http_url = sdscatfmt(sdsempty(), "http://%S:%i", config->http_host, config->http_port);
+        #ifdef MYMPD_ENABLE_SSL
+        if (config->ssl == true) {
+            nc_http = mg_http_listen(mgr, http_url, ev_handler_redirect, NULL);
+        }
+        else {
+        #endif
+            nc_http = mg_http_listen(mgr, http_url, ev_handler, NULL);
+        #ifdef MYMPD_ENABLE_SSL
+        }
+        #endif
+        FREE_SDS(http_url);
+        if (nc_http == NULL) {
+            MYMPD_LOG_EMERG("Can't bind to http://%s:%d", config->http_host, config->http_port);
+            return false;
+        }
+        MYMPD_LOG_NOTICE("Listening on http://%s:%d", config->http_host, config->http_port);
     }
-    else {
+    #ifndef MYMPD_ENABLE_SSL
+        if (config->http_port == 0) {
+            MYMPD_LOG_ERROR("Not listening on any port.");
+        }
     #endif
-        nc_http = mg_http_listen(mgr, http_url, ev_handler, NULL);
-    #ifdef MYMPD_ENABLE_SSL
-    }
-    #endif
-    FREE_SDS(http_url);
-    if (nc_http == NULL) {
-        MYMPD_LOG_EMERG("Can't bind to http://%s:%s", config->http_host, config->http_port);
-        return false;
-    }
-    MYMPD_LOG_NOTICE("Listening on http://%s:%s", config->http_host, config->http_port);
-
     //bind to ssl_port
     #ifdef MYMPD_ENABLE_SSL
     if (config->ssl == true) {
-        sds https_url = sdscatfmt(sdsempty(), "https://%S:%S", config->http_host, config->ssl_port);
+        sds https_url = sdscatfmt(sdsempty(), "https://%S:%i", config->http_host, config->ssl_port);
         struct mg_connection *nc_https = mg_http_listen(mgr, https_url, ev_handler, NULL);
         FREE_SDS(https_url);
         if (nc_https == NULL) {
-            MYMPD_LOG_ERROR("Can't bind to https://%s:%s", config->http_host, config->ssl_port);
+            MYMPD_LOG_ERROR("Can't bind to https://%s:%d", config->http_host, config->ssl_port);
             return false;
         }
-        MYMPD_LOG_NOTICE("Listening on https://%s:%s", config->http_host, config->ssl_port);
+        MYMPD_LOG_NOTICE("Listening on https://%s:%d", config->http_host, config->ssl_port);
+    }
+    else if (config->http_port == 0) {
+        MYMPD_LOG_ERROR("Not listening on any port.");
     }
     #endif
     MYMPD_LOG_NOTICE("Serving files from \"%s\"", MYMPD_DOC_ROOT);
@@ -693,7 +702,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
             int count = 0;
             sds *tokens = sdssplitlen(host_header, (ssize_t)sdslen(host_header), ":", 1, &count);
             sds s_redirect = sdscatfmt(sdsempty(), "https://%S", tokens[0]);
-            if (strcmp(config->ssl_port, "443") != 0) {
+            if (config->ssl_port != 443) {
                 s_redirect = sdscatfmt(s_redirect, ":%S", config->ssl_port);
             }
             MYMPD_LOG_INFO("Redirecting to %s", s_redirect);

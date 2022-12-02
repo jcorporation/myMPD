@@ -45,11 +45,11 @@ struct t_webradio_entry {
  * @param http_port myMPD webserver port
  * @return resolved uri
  */
-sds resolv_mympd_uri(sds uri, sds mpd_host, sds http_host, sds http_port) {
+sds resolv_mympd_uri(sds uri, sds mpd_host, sds http_host, int http_port) {
     if (strncmp(uri, "mympd://webradio/", 17) == 0) {
         sdsrange(uri, 17, -1);
         sds host = get_mympd_host(mpd_host, http_host);
-        sds new_uri = sdscatfmt(sdsempty(), "http://%S:%S/browse/webradios/%S", host, http_port, uri);
+        sds new_uri = sdscatfmt(sdsempty(), "http://%S:%i/browse/webradios/%S", host, http_port, uri);
         FREE_SDS(uri);
         FREE_SDS(host);
         return new_uri;

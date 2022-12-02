@@ -21,10 +21,10 @@ struct t_config {
     sds workdir;              //!< working directory
     sds cachedir;             //!< cache directory
     sds http_host;            //!< ip to bind the webserver
-    sds http_port;            //!< http port to listen
+    int http_port;            //!< http port to listen
     #ifdef MYMPD_ENABLE_SSL
         bool ssl;             //!< enables ssl
-        sds ssl_port;         //!< https port to listen
+        int ssl_port;         //!< https port to listen
         sds ssl_cert;         //!< filename of the certificate
         sds ssl_key;          //!< filename of the private key
         bool custom_cert;     //!< false if myMPD uses the self generated certificates
