@@ -14,6 +14,7 @@ This is a small bugfix release.
 - Fix: carousel indicator border override #909
 - Fix: myMPD preconfiguration with systemd #912
 - Fix: `build.sh purge` removes the group and systemd private directories
+- Upd: improve album cache creation performance #913
 
 ***
 
