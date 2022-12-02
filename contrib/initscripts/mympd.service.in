@@ -15,6 +15,7 @@ CapabilityBoundingSet=CAP_NET_BIND_SERVICE
 DynamicUser=yes
 ExecStart=@CMAKE_INSTALL_FULL_BINDIR@/mympd
 Group=mympd
+#SupplementaryGroups=
 LockPersonality=yes
 MemoryDenyWriteExecute=yes
 PrivateDevices=yes
