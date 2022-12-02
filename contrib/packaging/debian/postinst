@@ -5,16 +5,12 @@ if ! command -v systemctl > /dev/null
 then
     # Add mympd user only for none-systemd installations
     echo "Checking status of mympd system user and group"
-    getent group mympd > /dev/null ||  groupadd -r mympd
+    getent group mympd > /dev/null || groupadd -r mympd
     getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
 else
-    # Config must be owned by mympd for systemd DynamicUser
-    # Upgrade from versions < 10.1.0
-    if [ -d /var/lib/mympd/config ] &&
-       getent passwd mympd > /dev/null
-    then
-        chown -R mympd.mympd /var/lib/mympd/config
-    fi
+    echo "Removing obsolet mympd user and group"
+    getent group mympd > /dev/null && groupdel mympd
+    getent passwd mympd > /dev/null && userdel mympd
 fi
 
 exit 0
