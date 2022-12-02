@@ -226,8 +226,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MPD_TIMEOUT_MIN 10000 //ms
 #define MPD_TIMEOUT_MAX 1000000 //ms
 #define MPD_RESULTS_MIN 1
-#define MPD_RESULTS_MAX 2000
-#define MPD_COMMANDS_MAX 2000 //max number of commands for mpd command lists
+#define MPD_RESULTS_MAX 4000
+#define MPD_COMMANDS_MAX 4000 //max number of commands for mpd command lists
 #define MPD_PLAYLIST_LENGTH_MAX INT_MAX //max mpd queue or playlist length
 #define MPD_BINARY_SIZE_MIN 4096 //4 kb mpd default
 #define MPD_BINARY_SIZE_MAX 5242880 //5 MB
