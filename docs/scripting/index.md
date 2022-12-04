@@ -118,6 +118,13 @@ output = mympd.os_capture(command)
 | output | string | system command output as lua string |
 {: .table .table-sm }
 
+If you want to run commands that changes the effective userid (e.g. with `sudo` or `doas`) and you run myMPD with the default systemd service unit, you must add an override.
+
+```
+mkdir /etc/systemd/system/mympd.service.d
+echo -e '[Service]\nNoNewPrivileges=no' > /etc/systemd/system/mympd.service.d/no-new-privileges.conf
+```
+
 ## Lua manual
 
 - [Lua manual](https://www.lua.org/manual/5.4/)
