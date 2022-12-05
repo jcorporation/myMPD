@@ -200,7 +200,6 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, sds filepath, bool write_rc) {
     {
         MYMPD_LOG_ERROR("Error writing data to file \"%s\"", tmp_file);
         rm_file(tmp_file);
-        FREE_SDS(tmp_file);
         return false;
     }
     errno = 0;
