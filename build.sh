@@ -944,6 +944,9 @@ purge() {
   rm -rf "$DESTDIR/var/cache/mympd"
   rm -rf "$DESTDIR/var/cache/private/mympd"
   rm -f "$DESTDIR/etc/init.d/mympd"
+  rm -rf "$DESTDIR/usr/share/doc/mympd"
+  rm -f "$DESTDIR/usr/share/man/man1/mympd.1.gz"
+  rm -f "$DESTDIR/usr/share/man/man1/mympd-script.1.gz"
   #CMAKE_INSTALL_PREFIX="/opt/mympd/"
   rm -rf "$DESTDIR/var/opt/mympd"
   #remove user
