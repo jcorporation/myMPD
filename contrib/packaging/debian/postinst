@@ -9,8 +9,8 @@ then
     getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
 else
     echo "Removing obsolet mympd user and group"
-    ! getent group mympd > /dev/null || groupdel mympd
     ! getent passwd mympd > /dev/null || userdel mympd
+    ! getent group mympd > /dev/null || groupdel mympd
 fi
 
 exit 0
