@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/album_cache.h"
 #include "src/mympd_api/mympd_api.h"
 
 #include "src/lib/log.h"
@@ -71,11 +72,9 @@ void *mympd_api_loop(void *arg_config) {
     //disconnect from mpd
     mpd_client_disconnect_all(mympd_state, MPD_DISCONNECT_INSTANT);
 
-    //save states
-    mympd_state_save(mympd_state);
+    //save and free states
+    mympd_state_save(mympd_state, true);
 
-    //free anything
-    mympd_state_free(mympd_state);
     FREE_SDS(thread_logname);
     return NULL;
 }

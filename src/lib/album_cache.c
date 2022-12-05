@@ -8,7 +8,10 @@
 #include "src/lib/album_cache.h"
 
 #include "dist/libmpdclient/src/isong.h"
+#include "src/lib/filehandler.h"
+#include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
+#include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/tags.h"
 
@@ -24,6 +27,77 @@
  *   pos: number of discs
  *   prio: number of songs
  */
+
+/**
+ * Private definitions
+ */
+
+static sds album_to_json(sds buffer, struct mpd_song *album, const struct t_tags *tagcols);
+
+/**
+ * Public functions
+ */
+
+/**
+ * Saves the album cache to disc as a njson file
+ * @param album_cache pointer to t_cache struct
+ * @param cachedir myMPD cache directory
+ * @param free true=free the album cache, else not
+ * @return bool true on success, else false
+ */
+bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free) {
+    if (album_cache->cache == NULL) {
+        MYMPD_LOG_DEBUG("Album cache is NULL not saving anything");
+        return true;
+    }
+    MYMPD_LOG_INFO("Saving album cache");
+    raxIterator iter;
+    raxStart(&iter, album_cache->cache);
+    raxSeek(&iter, "^", NULL, 0);
+    sds tmp_file = sdscatfmt(sdsempty(), "%S/album_cache.json.XXXXXX", cachedir);
+    FILE *fp = open_tmp_file(tmp_file);
+    if (fp == NULL) {
+        FREE_SDS(tmp_file);
+        return false;
+    }
+    bool write_rc = true;
+    sds line = sdsempty();
+    const struct t_tags album_tags = {
+        .tags = {
+            MPD_TAG_ALBUM,
+            MPD_TAG_ALBUM_ARTIST,
+            MPD_TAG_ARTIST,
+            MPD_TAG_DATE,
+            MPD_TAG_DISC,
+            MPD_TAG_GENRE,
+            MPD_TAG_MUSICBRAINZ_ALBUMARTISTID,
+            MPD_TAG_MUSICBRAINZ_ALBUMID
+        },
+        .len = 8
+    };
+    while (raxNext(&iter)) {
+        sdsclear(line);
+        line = album_to_json(line, (struct mpd_song *)iter.data, &album_tags);
+        line = sdscatlen(line, "\n", 1);
+        if (fputs(line, fp) == EOF) {
+            write_rc = false;
+        }
+        if (free == true) {
+            mpd_song_free((struct mpd_song *)iter.data);
+        }
+    }
+    FREE_SDS(line);
+    raxStop(&iter);
+    if (free == true) {
+        raxFree(album_cache->cache);
+        album_cache->cache = NULL;
+    }
+    sds filepath = sdscatfmt(sdsempty(), "%S/album_cache.json", cachedir);
+    bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
+    FREE_SDS(tmp_file);
+    FREE_SDS(filepath);
+    return rc;
+}
 
 /**
  * Constructs the albumkey from song info
@@ -222,4 +296,23 @@ bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mp
         value_nr++;
     }
     return true;
+}
+
+/**
+ * Private functions
+ */
+
+/**
+ * Prints a song struct as an json object string
+ * @param buffer already allocated sds string to append
+ * @param song mpd song
+ * @return sds pointer to buffer
+ */
+static sds album_to_json(sds buffer, struct mpd_song *album, const struct t_tags *tagcols) {
+    buffer = sdscatlen(buffer, "{", 1);
+    buffer = tojson_uint(buffer, "discs", mpd_song_get_pos(album), true);
+    buffer = tojson_uint(buffer, "songs", mpd_song_get_prio(album), true);
+    buffer = get_song_tags(buffer, true, tagcols, album);
+    buffer = sdscatlen(buffer, "}", 1);
+    return buffer;
 }

@@ -544,7 +544,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         case INTERNAL_API_STATE_SAVE:
-            mympd_state_save(mympd_state);
+            mympd_state_save(mympd_state, false);
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
             break;
         case MYMPD_API_JUKEBOX_RM:
