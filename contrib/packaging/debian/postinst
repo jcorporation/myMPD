@@ -8,10 +8,7 @@ then
     getent group mympd > /dev/null || groupadd -r mympd
     getent passwd mympd > /dev/null || useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
 else
-    if systemctl status mympd 2> /dev/null
-    then
-    	systemctl stop mympd
-    fi
+    ! systemctl -q is-active mympd || systemctl stop mympd
     echo "Removing obsolet mympd user and group"
     ! getent passwd mympd > /dev/null || userdel mympd
     ! getent group mympd > /dev/null || groupdel mympd
