@@ -98,7 +98,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
             albumkey = album_cache_get_key(song, albumkey);
         }
         buffer = sdscat(buffer, "{\"Type\": \"song\",");
-        buffer = get_song_tags(buffer, partition_state, tagcols, song);
+        buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
         if (partition_state->mpd_state->feat_stickers) {
             buffer = sdscatlen(buffer, ",", 1);
             struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
@@ -259,7 +259,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
             struct mpd_song *album = (struct mpd_song *)iter.data;
             buffer = sdscatlen(buffer, "{", 1);
             buffer = tojson_char(buffer, "Type", "album", true);
-            buffer = get_song_tags(buffer, partition_state, tagcols, album);
+            buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, album);
             buffer = sdscatlen(buffer, ",", 1);
             buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
             buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), true);

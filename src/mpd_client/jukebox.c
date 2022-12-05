@@ -164,7 +164,7 @@ sds jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mym
                             }
                             buffer = sdscatlen(buffer, "{", 1);
                             buffer = tojson_long(buffer, "Pos", entity_count, true);
-                            buffer = get_song_tags(buffer, partition_state, tagcols, song);
+                            buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
                             if (partition_state->mpd_state->feat_stickers == true &&
                                 partition_state->mpd_state->sticker_cache.cache != NULL)
                             {

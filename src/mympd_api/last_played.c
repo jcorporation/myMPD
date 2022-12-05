@@ -271,7 +271,7 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, sds bu
     struct mpd_song *song;
     if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
         if ((rc = search_mpd_song(song, searchstr, tagcols)) == true) {
-            buffer = get_song_tags(buffer, partition_state, tagcols, song);
+            buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
             buffer = sdscatlen(buffer, ",", 1);
             buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
         }

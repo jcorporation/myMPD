@@ -251,15 +251,15 @@ sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag
 /**
  * Gets the tag values for a mpd song as json string
  * @param buffer already allocated sds string to append the values
- * @param partition_state pointer to partition specific states
+ * @param tags_enabled true=mpd tags are enabled, else false
  * @param tagcols pointer to t_tags struct (tags to retrieve)
  * @param song pointer to a mpd_song struct to retrieve tags from
  * @return new sds pointer to buffer
  */
-sds get_song_tags(sds buffer, struct t_partition_state *partition_state, const struct t_tags *tagcols,
-                  const struct mpd_song *song)
+sds get_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
+        const struct mpd_song *song)
 {
-    if (partition_state->mpd_state->feat_tags == true) {
+    if (tags_enabled == true) {
         for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
             buffer = mpd_client_get_tag_values(song, tagcols->tags[tagnr], buffer);
@@ -275,48 +275,6 @@ sds get_song_tags(sds buffer, struct t_partition_state *partition_state, const s
     buffer = tojson_uint(buffer, "Duration", mpd_song_get_duration(song), true);
     buffer = tojson_llong(buffer, "LastModified", (long long)mpd_song_get_last_modified(song), true);
     buffer = tojson_char(buffer, "uri", mpd_song_get_uri(song), false);
-    return buffer;
-}
-
-/**
- * Gets the same json string as get_song_tags but with empty values, title is set to the basefilename
- * @param buffer alread allocated sds string to append the values
- * @param partition_state pointer to partition specific states
- * @param tagcols pointer to t_tags struct (tags to retrieve)
- * @param uri uri for printing empty tags
- * @return new sds pointer to buffer
- */
-sds get_empty_song_tags(sds buffer, struct t_partition_state *partition_state, const struct t_tags *tagcols,
-                        const char *uri)
-{
-    sds filename = sdsnew(uri);
-    basename_uri(filename);
-    if (partition_state->mpd_state->feat_tags == true) {
-        for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
-            const bool multi = is_multivalue_tag(tagcols->tags[tagnr]);
-            buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
-            if (multi == true) {
-                buffer = sdscatlen(buffer, "[", 1);
-            }
-            if (tagcols->tags[tagnr] == MPD_TAG_TITLE) {
-                buffer = sds_catjson(buffer, filename, sdslen(filename));
-            }
-            else {
-                buffer = sdscatlen(buffer, "\"-\"", 3);
-            }
-            if (multi == true) {
-                buffer = sdscatlen(buffer, "]", 1);
-            }
-            buffer = sdscatlen(buffer, ",", 1);
-        }
-    }
-    else {
-        buffer = tojson_sds(buffer, "Title", filename, true);
-    }
-    buffer = tojson_long(buffer, "Duration", 0, true);
-    buffer = tojson_long(buffer, "LastModified", 0, true);
-    buffer = tojson_char(buffer, "uri", uri, false);
-    FREE_SDS(filename);
     return buffer;
 }
 
