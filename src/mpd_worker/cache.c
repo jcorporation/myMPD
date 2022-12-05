@@ -113,17 +113,20 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
     long album_count = 0;
     long song_count = 0;
     long skipped = 0;
-
     //used tags for albums
-    struct t_tags album_tags;
-    album_tags.tags[0] = MPD_TAG_ALBUM;
-    album_tags.tags[1] = MPD_TAG_ALBUM_ARTIST;
-    album_tags.tags[2] = MPD_TAG_ARTIST;
-    album_tags.tags[3] = MPD_TAG_DISC;
-    album_tags.tags[4] = MPD_TAG_GENRE;
-    album_tags.tags[5] = MPD_TAG_MUSICBRAINZ_ALBUMARTISTID;
-    album_tags.tags[6] = MPD_TAG_MUSICBRAINZ_ALBUMID;
-    album_tags.len = 7;
+    const struct t_tags album_tags = {
+        .tags = {
+            MPD_TAG_ALBUM,
+            MPD_TAG_ALBUM_ARTIST,
+            MPD_TAG_ARTIST,
+            MPD_TAG_DATE,
+            MPD_TAG_DISC,
+            MPD_TAG_GENRE,
+            MPD_TAG_MUSICBRAINZ_ALBUMARTISTID,
+            MPD_TAG_MUSICBRAINZ_ALBUMID
+        },
+        .len = 8
+    };
     //check for enabled tags
     struct t_tags enable_tags;
     enable_tags.len = 0;
