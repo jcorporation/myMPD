@@ -189,6 +189,7 @@ void *web_server_loop(void *arg_mgr) {
         //webserver polling
         mg_mgr_poll(mgr, 50);
     }
+    MYMPD_LOG_DEBUG("Stopping web_server thread");
     FREE_SDS(thread_logname);
     FREE_SDS(last_notify);
     return NULL;

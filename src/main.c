@@ -353,7 +353,7 @@ int main(int argc, char **argv) {
     int rc = EXIT_FAILURE;
     pthread_t web_server_thread = 0;
     pthread_t mympd_api_thread = 0;
-    int t_rc = 0;
+    int thread_rc = 0;
 
     //goto root directory
     errno = 0;
@@ -521,16 +521,16 @@ int main(int argc, char **argv) {
     //Create working threads
     //mympd api
     MYMPD_LOG_NOTICE("Starting mympd api thread");
-    if ((t_rc = pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config)) != 0) {
-        MYMPD_LOG_ERROR("Can't create mympd api thread: %s", strerror(t_rc));
+    if ((thread_rc = pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config)) != 0) {
+        MYMPD_LOG_ERROR("Can't create mympd api thread: %s", strerror(thread_rc));
         mympd_api_thread = 0;
         s_signal_received = SIGTERM;
     }
 
     //webserver
     MYMPD_LOG_NOTICE("Starting webserver thread");
-    if ((t_rc = pthread_create(&web_server_thread, NULL, web_server_loop, mgr)) != 0) {
-        MYMPD_LOG_ERROR("Can't create webserver thread: %s", strerror(t_rc));
+    if ((thread_rc = pthread_create(&web_server_thread, NULL, web_server_loop, mgr)) != 0) {
+        MYMPD_LOG_ERROR("Can't create webserver thread: %s", strerror(thread_rc));
         web_server_thread = 0;
         s_signal_received = SIGTERM;
     }
@@ -544,16 +544,16 @@ int main(int argc, char **argv) {
 
     //wait for threads
     if (web_server_thread > (pthread_t)0) {
-        if ((t_rc = pthread_join(web_server_thread, (void **)&t_rc)) != 0) {
-            MYMPD_LOG_ERROR("Error stopping webserver thread: %s", strerror(t_rc));
+        if ((thread_rc = pthread_join(web_server_thread, NULL)) != 0) {
+            MYMPD_LOG_ERROR("Error stopping webserver thread: %s", strerror(thread_rc));
         }
         else {
             MYMPD_LOG_NOTICE("Finished web server thread");
         }
     }
     if (mympd_api_thread > (pthread_t)0) {
-        if ((t_rc = pthread_join(mympd_api_thread, (void **)&t_rc)) != 0) {
-            MYMPD_LOG_ERROR("Error stopping mympd api thread: %s", strerror(t_rc));
+        if ((thread_rc = pthread_join(mympd_api_thread, NULL)) != 0) {
+            MYMPD_LOG_ERROR("Error stopping mympd api thread: %s", strerror(thread_rc));
         }
         else {
             MYMPD_LOG_NOTICE("Finished mympd api thread");
