@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v10.1.6 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: pthread join bug #918
+
+***
+
 ## myMPD v10.1.5 (2022-12-06)
 
 This is a small bugfix release.
