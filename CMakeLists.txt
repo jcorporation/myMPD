@@ -313,6 +313,8 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     "-fPIE"
     "-O2"
     "-DNDEBUG"
+    "-flto=auto"
+    "-ffat-lto-objects"
   )
   if(NOT MYMPD_STRIP_BINARY)
     message("Generating binary with debug symbols")

@@ -64,6 +64,7 @@ void *mympd_api_loop(void *arg_config) {
         mpd_client_idle(mympd_state);
         mympd_api_timer_check(&mympd_state->timer_list);
     }
+    MYMPD_LOG_DEBUG("Stopping mympd_api thread");
 
     //stop trigger
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP, MPD_PARTITION_ALL);
