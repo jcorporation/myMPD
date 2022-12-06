@@ -5,16 +5,20 @@
 */
 
 #include "compile_time.h"
+#include "dist/rax/rax.h"
 #include "src/lib/album_cache.h"
 
-#include "dist/libmpdclient/src/isong.h"
+#include "dist/libmympdclient/src/isong.h"
+#include "dist/mjson/mjson.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/validate.h"
 #include "src/mpd_client/tags.h"
 
+#include <errno.h>
 #include <inttypes.h>
 
 /**
@@ -33,10 +37,74 @@
  */
 
 static sds album_to_json(sds buffer, struct mpd_song *album, const struct t_tags *tagcols);
+static struct mpd_song *album_from_json(sds line, const struct t_tags *tagcols);
 
 /**
  * Public functions
  */
+
+/**
+ * Reads the album cache from disc
+ * @param album_cache 
+ * @param cachedir 
+ * @return bool 
+ */
+bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
+    album_cache->building = true;
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE);
+    errno = 0;
+    FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
+    if (fp == NULL) {
+        MYMPD_LOG_DEBUG("Can not open file \"%s\"", filepath);
+        if (errno != ENOENT) {
+            //ignore missing last_played file
+            MYMPD_LOG_ERRNO(errno);
+        }
+        FREE_SDS(filepath);
+        album_cache->building = false;
+        return false;
+    }
+    const struct t_tags album_tags = {
+        .tags = {
+            MPD_TAG_ALBUM,
+            MPD_TAG_ALBUM_ARTIST,
+            MPD_TAG_ARTIST,
+            MPD_TAG_DATE,
+            MPD_TAG_GENRE,
+            MPD_TAG_MUSICBRAINZ_ALBUMARTISTID,
+            MPD_TAG_MUSICBRAINZ_ALBUMID
+        },
+        .len = 7
+    };
+    sds line = sdsempty();
+    sds key = sdsempty();
+    if (album_cache->cache == NULL) {
+        album_cache->cache = raxNew();
+    }
+    while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
+        if (validate_json_object(line) == true) {
+            struct mpd_song *album = album_from_json(line, &album_tags);
+            if (album != NULL) {
+                key = album_cache_get_key(album, key);
+                raxInsert(album_cache->cache, (unsigned char *)key, sdslen(key), album, NULL);
+            }
+            else {
+                MYMPD_LOG_ERROR("Can not allocate memory for albumcache");
+            }
+        }
+        else {
+            MYMPD_LOG_ERROR("Reading album_cache line failed");
+            MYMPD_LOG_DEBUG("Erroneous line: %s", line);
+        }
+    }
+    FREE_SDS(line);
+    FREE_SDS(key);
+    (void) fclose(fp);
+    FREE_SDS(filepath);
+    album_cache->building = false;
+    MYMPD_LOG_INFO("Read %lld album(s) from disc", (long long)album_cache->cache->numele);
+    return true;
+}
 
 /**
  * Saves the album cache to disc as a njson file
@@ -54,7 +122,7 @@ bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free) {
     raxIterator iter;
     raxStart(&iter, album_cache->cache);
     raxSeek(&iter, "^", NULL, 0);
-    sds tmp_file = sdscatfmt(sdsempty(), "%S/album_cache.json.XXXXXX", cachedir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%S/%s.XXXXXX", cachedir, FILENAME_ALBUMCACHE);
     FILE *fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);
@@ -68,12 +136,11 @@ bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free) {
             MPD_TAG_ALBUM_ARTIST,
             MPD_TAG_ARTIST,
             MPD_TAG_DATE,
-            MPD_TAG_DISC,
             MPD_TAG_GENRE,
             MPD_TAG_MUSICBRAINZ_ALBUMARTISTID,
             MPD_TAG_MUSICBRAINZ_ALBUMID
         },
-        .len = 8
+        .len = 7
     };
     while (raxNext(&iter)) {
         sdsclear(line);
@@ -310,9 +377,71 @@ bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mp
  */
 static sds album_to_json(sds buffer, struct mpd_song *album, const struct t_tags *tagcols) {
     buffer = sdscatlen(buffer, "{", 1);
-    buffer = tojson_uint(buffer, "discs", mpd_song_get_pos(album), true);
-    buffer = tojson_uint(buffer, "songs", mpd_song_get_prio(album), true);
+    buffer = tojson_uint(buffer, "Discs", mpd_song_get_pos(album), true);
+    buffer = tojson_uint(buffer, "Songs", mpd_song_get_prio(album), true);
     buffer = get_song_tags(buffer, true, tagcols, album);
     buffer = sdscatlen(buffer, "}", 1);
     return buffer;
+}
+
+static struct mpd_song *album_from_json(sds line, const struct t_tags *tagcols) {
+    sds uri = NULL;
+    sds error = sdsempty();
+    struct mpd_song *album = NULL;
+    if (json_get_string(line, "$.uri", 1, FILEPATH_LEN_MAX, &uri, vcb_isfilepath, &error) == true) {
+        album = mpd_song_new(uri);
+        json_get_uint_max(line, "$.Discs", &album->pos, &error);
+        sdsclear(error);
+        json_get_uint_max(line, "$.Songs", &album->prio, &error);
+        sdsclear(error);
+        json_get_uint_max(line, "$.Duration", &album->duration, &error);
+        album->duration_ms = album->duration * 1000;
+        long long last_modified;
+        json_get_llong_max(line, "$.LastModified", &last_modified, &error);
+        album->last_modified = (time_t)last_modified;
+        sds path = sdsempty();
+        sds value = sdsempty();
+        for (size_t i = 0; i < tagcols->len; i++) {
+            sdsclear(path);
+            path = sdscatfmt(path, "$.%s", mpd_tag_name((enum mpd_tag_type)i));
+            const char *p;
+            int n;
+            int otype = mjson_find(line, (int)sdslen(line), path, &p, &n);
+            switch(otype) {
+                case MJSON_TOK_STRING: {
+                    if (n > 2) {
+                        sdsclear(value);
+                        if (sds_json_unescape(p + 1, (size_t)(n - 2), &value) == true) {
+                            mympd_mpd_song_add_tag_dedup(album, (enum mpd_tag_type)i, value);
+                        }
+                    }
+                    break;
+                }
+                case MJSON_TOK_ARRAY: {
+                    int koff = 0;
+                    int klen = 0;
+                    int voff = 0;
+                    int vlen = 0;
+                    int vtype = 0;
+                    int off = 0;
+                    for (off = 0; (off = mjson_next(p, n, off, &koff, &klen, &voff, &vlen, &vtype)) != 0;) {
+                        sdsclear(value);
+                        if (vtype == MJSON_TOK_STRING &&
+                            vlen > 2)
+                        {
+                            if (sds_json_unescape(p + voff + 1, (size_t)(vlen - 2), &value) == true) {
+                                mympd_mpd_song_add_tag_dedup(album, (enum mpd_tag_type)i, value);
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+        FREE_SDS(path);
+        FREE_SDS(value);
+    }
+    FREE_SDS(uri);
+    FREE_SDS(error);
+    return album;
 }

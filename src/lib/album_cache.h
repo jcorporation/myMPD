@@ -12,6 +12,7 @@
 
 #include <stdbool.h>
 
+bool album_cache_read(struct t_cache *album_cache, sds cachedir);
 bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free);
 sds album_cache_get_key(struct mpd_song *song, sds albumkey);
 struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key);

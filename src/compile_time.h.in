@@ -59,9 +59,10 @@ extern struct t_mympd_queue *web_server_queue;
 extern struct t_mympd_queue *mympd_api_queue;
 extern struct t_mympd_queue *mympd_script_queue;
 
-//state file names
+//standard file names
 #define FILENAME_LAST_PLAYED "last_played_list"
 #define FILENAME_PRESETS "preset_list"
+#define FILENAME_ALBUMCACHE "album_cache.json"
 
 //mpd partitions
 #define MPD_PARTITION_DEFAULT "default"
