@@ -6,7 +6,7 @@
 # Maintainer: Juergen Mang <mail@jcgames.de>
 #
 pkgname=mympd
-pkgver=10.1.5
+pkgver=10.1.6
 pkgrel=0
 pkgdesc="myMPD is a standalone and mobile friendly web-based MPD client."
 url="https://jcorporation.github.io/myMPD/"
