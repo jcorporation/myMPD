@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/mpd_client/connection.h"
 
+#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/api.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
@@ -15,8 +16,6 @@
 #include "src/mpd_client/features.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/trigger.h"
-
-#include <mpd/client.h>
 
 /**
  * Connects to mpd and sets initial connection settings

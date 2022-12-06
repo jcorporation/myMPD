@@ -836,26 +836,26 @@ installdeps() {
 updatelibmympdclient() {
   check_cmd git meson
 
-  cd dist/libmpdclient || exit 1
+  cd dist/libmympdclient || exit 1
 
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
-  git clone --depth=1 -b libmympdclient https://github.com/jcorporation/libmpdclient.git
-  cd libmpdclient || exit 1
+  git clone --depth=1 -b libmympdclient https://github.com/jcorporation/libmympdclient.git
+  cd libmympdclient || exit 1
   meson . output -Dbuffer_size=8192
 
-  cd "$STARTPATH/dist/libmpdclient" || exit 1
+  cd "$STARTPATH/dist/libmympdclient" || exit 1
   install -d src
   install -d include/mpd/
 
-  rsync -av --delete "$TMPDIR/libmpdclient/src/" ./src/
-  rsync -av --delete "$TMPDIR/libmpdclient/include/mpd/" ./include/mpd/
+  rsync -av --delete "$TMPDIR/libmympdclient/src/" ./src/
+  rsync -av --delete "$TMPDIR/libmympdclient/include/mpd/" ./include/mpd/
 
-  rsync -av "$TMPDIR/libmpdclient/output/version.h" include/mpd/version.h
-  rsync -av "$TMPDIR/libmpdclient/output/config.h" include/config.h
+  rsync -av "$TMPDIR/libmympdclient/output/version.h" include/mpd/version.h
+  rsync -av "$TMPDIR/libmympdclient/output/config.h" include/config.h
 
-  rsync -av "$TMPDIR/libmpdclient/COPYING" COPYING
-  rsync -av "$TMPDIR/libmpdclient/AUTHORS" AUTHORS
+  rsync -av "$TMPDIR/libmympdclient/COPYING" COPYING
+  rsync -av "$TMPDIR/libmympdclient/AUTHORS" AUTHORS
 
   rm -rf "$TMPDIR"
 }

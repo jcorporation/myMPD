@@ -7,7 +7,7 @@
 #include "compile_time.h"
 #include "tags.h"
 
-#include "dist/libmpdclient/src/isong.h"
+#include "dist/libmympdclient/src/isong.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"

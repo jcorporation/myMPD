@@ -7,12 +7,12 @@
 #include "compile_time.h"
 #include "src/lib/validate.h"
 
+#include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/utf8/utf8.h"
 #include "src/lib/log.h"
 
 #include <ctype.h>
 #include <limits.h>
-#include <mpd/client.h>
 #include <string.h>
 
 /**

@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/mpd_client/features.h"
 
+#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
@@ -15,8 +16,6 @@
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/settings.h"
 #include "src/mympd_api/status.h"
-
-#include <mpd/client.h>
 
 #include <string.h>
 

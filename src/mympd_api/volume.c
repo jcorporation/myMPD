@@ -7,13 +7,12 @@
 #include "compile_time.h"
 #include "src/mympd_api/volume.h"
 
+#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/api.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/volume.h"
-
-#include <mpd/client.h>
 
 /**
  * Sets an absolute volume level

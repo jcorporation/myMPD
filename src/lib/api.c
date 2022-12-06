@@ -7,12 +7,11 @@
 #include "compile_time.h"
 #include "src/lib/api.h"
 
+#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
-
-#include <mpd/client.h>
 
 #include <string.h>
 

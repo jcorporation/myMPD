@@ -6,6 +6,7 @@
 
 #include "compile_time.h"
 
+#include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
 #include "src/lib/api.h"
@@ -40,7 +41,6 @@
 #endif
 
 #include <grp.h>
-#include <mpd/client.h>
 #include <pthread.h>
 #include <pwd.h>
 #include <signal.h>

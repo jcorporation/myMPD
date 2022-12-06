@@ -45,7 +45,7 @@
 #include <string.h>
 #include <errno.h>
 
-static struct mpd_song *
+struct mpd_song *
 mpd_song_new(const char *uri)
 {
 	struct mpd_song *song;

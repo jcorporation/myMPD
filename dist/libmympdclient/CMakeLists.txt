@@ -2,11 +2,11 @@
 # myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 
-add_library(libmpdclient "")
+add_library(libmympdclient "")
 
-target_include_directories(libmpdclient PUBLIC include)
+target_include_directories(libmympdclient PUBLIC include)
 
-target_sources(libmpdclient
+target_sources(libmympdclient
   PRIVATE
     src/albumart.c
     src/async.c
