@@ -26,7 +26,6 @@ ProtectKernelLogs=yes
 ProtectKernelModules=yes
 ProtectKernelTunables=yes
 ProtectProc=invisible
-ProtectSystem=full
 RestrictRealtime=yes
 StateDirectory=mympd
 CacheDirectory=mympd

@@ -29,6 +29,17 @@ This release reworks the scripting api and improves the scripting documentation.
 
 ***
 
+## myMPD v10.1.5 (2022-12-06)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: Debian postinst script #917
+- Fix: `build.sh purge` - do not fail if not all install_manifest files can be removed
+
+***
+
 ## myMPD v10.1.4 (2022-12-04)
 
 This is a small bugfix release.
