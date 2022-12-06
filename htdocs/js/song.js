@@ -109,8 +109,7 @@ function songDetailsRow(thContent, tdContent) {
  */
 function parseSongDetails(obj) {
     const modal = document.getElementById('modalSongDetails');
-    modal.querySelector('.album-cover').style.backgroundImage = 'url("' +
-        subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.uri) + '"), url("' + subdir + '/assets/coverimage-loading.svg")';
+    modal.querySelector('.album-cover').style.backgroundImage = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.uri));
 
     const elH1s = modal.querySelectorAll('h1');
     for (let i = 0, j = elH1s.length; i < j; i++) {

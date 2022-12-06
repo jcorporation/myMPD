@@ -16,7 +16,6 @@ INCBIN(mympd_webmanifest, "../htdocs/mympd.webmanifest.gz");
 INCBIN(index_html, "../htdocs/index.html.gz");
 INCBIN(coverimage_notavailable_svg, "../htdocs/assets/coverimage-notavailable.svg.gz");
 INCBIN(coverimage_stream_svg, "../htdocs/assets/coverimage-stream.svg.gz");
-INCBIN(coverimage_loading_svg, "../htdocs/assets/coverimage-loading.svg.gz");
 INCBIN(coverimage_booklet_svg, "../htdocs/assets/coverimage-booklet.svg.gz");
 INCBIN(coverimage_mympd_svg, "../htdocs/assets/coverimage-mympd.svg.gz");
 INCBIN(mympd_background_dark_svg, "../htdocs/assets/mympd-background-dark.svg.gz");

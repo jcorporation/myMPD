@@ -15,8 +15,7 @@ function getCssImageUri(uri) {
             ? 'url("' + subdir + '/proxy-covercache?uri=' + myEncodeURIComponent(uri) +'")'
             : uri.charAt(0) === '/'
                 ? 'url("' + subdir + uri + '")'
-                : 'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(uri) + '")') +
-        ',url("' + subdir + '/assets/coverimage-loading.svg")'
+                : 'url("' + subdir + '/browse/pics/thumbs/' + myEncodeURI(uri) + '")');
 }
 
 /**

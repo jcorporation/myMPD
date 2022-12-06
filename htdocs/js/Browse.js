@@ -154,7 +154,7 @@ function gotoFilesystem(uri, type) {
  * @param {object} changes IntersectionObserverEntry objects
  * @param {object} observer IntersectionObserver
  */
- function setGridImage(changes, observer) {
+function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);

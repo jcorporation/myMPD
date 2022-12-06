@@ -152,8 +152,7 @@ function initBrowseFilesystem() {
                 continue;
             }
             const img = elCreateEmpty('div', {});
-            img.style.backgroundImage = 'url("' + subdir + myEncodeURI(obj.result.images[i]) + '"),' +
-                'url("assets/coverimage-loading.svg")';
+            img.style.backgroundImage = getCssImageUri(myEncodeURI(obj.result.images[i]));
             imageList.appendChild(img);
         }
     }

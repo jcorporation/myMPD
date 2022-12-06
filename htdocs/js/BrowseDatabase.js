@@ -315,7 +315,7 @@ function parseDatabaseAlbumList(obj) {
             observer.observe(col);
         }
         else {
-            col.firstChild.firstChild.style.backgroundImage = subdir + myEncodeURI(image);
+            col.firstChild.firstChild.style.backgroundImage = getCssImageUri(image);
         }
     }
     for (let i = cols.length - 1; i >= nrItems; i--) {
@@ -409,7 +409,7 @@ function saveColsDatabaseAlbumList() {
             observer.observe(col);
         }
         else {
-            col.firstChild.firstChild.style.backgroundImage = subdir + myEncodeURI(image);
+            col.firstChild.firstChild.style.backgroundImage = getCssImageUri(image);
         }
     }
     for (let i = cols.length - 1; i >= nrItems; i--) {
@@ -452,8 +452,7 @@ function parseAlbumDetails(obj) {
     }
 
     const coverEl = document.getElementById('viewDatabaseAlbumDetailCover');
-    coverEl.style.backgroundImage = 'url("' + subdir + '/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[0].uri) + '"),' +
-        'url("' + subdir + '/assets/coverimage-loading.svg")';
+    coverEl.style.backgroundImage = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[0].uri));
     setData(coverEl, 'images', obj.result.images);
     setData(coverEl, 'embeddedImageCount', obj.result.embeddedImageCount);
     setData(coverEl, 'uri', obj.result.data[0].uri);
