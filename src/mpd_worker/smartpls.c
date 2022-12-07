@@ -19,6 +19,7 @@
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/playlists.h"
 #include "src/mpd_client/search.h"
+#include "src/mpd_client/tags.h"
 
 #include <dirent.h>
 #include <errno.h>

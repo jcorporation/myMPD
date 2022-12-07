@@ -5,7 +5,8 @@
 */
 
 #include "compile_time.h"
-#include "mpd/tag.h"
+#include "dist/sds/sds.h"
+#include "src/lib/filehandler.h"
 #include "src/mpd_worker/cache.h"
 
 #include "src/lib/album_cache.h"
@@ -38,6 +39,24 @@ static bool get_sticker_from_mpd(struct t_partition_state *partition_state, cons
  * @return true on success else false
  */
 bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
+    time_t db_mtime = mpd_client_get_db_mtime(mpd_worker_state->partition_state);
+    MYMPD_LOG_DEBUG("Database mtime: %lld", (long long)db_mtime);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s", mpd_worker_state->config->cachedir, FILENAME_ALBUMCACHE);
+    time_t album_cache_mtime = get_mtime(filepath);
+    MYMPD_LOG_DEBUG("Album cache mtime: %lld", (long long)album_cache_mtime);
+    sdsclear(filepath);
+    filepath = sdscatfmt(filepath, "%S/%s", mpd_worker_state->config->cachedir, FILENAME_STICKERCACHE);
+    time_t sticker_cache_mtime = get_mtime(filepath);
+    MYMPD_LOG_DEBUG("Sticker cache mtime: %lld", (long long)sticker_cache_mtime);
+    FREE_SDS(filepath);
+
+    if (db_mtime < album_cache_mtime &&
+        db_mtime < sticker_cache_mtime)
+    {
+        MYMPD_LOG_INFO("Caches are up-to-date");
+        return true;
+    }
+
     struct t_cache album_cache;
     album_cache.cache = NULL;
     if (mpd_worker_state->partition_state->mpd_state->feat_tags == true) {

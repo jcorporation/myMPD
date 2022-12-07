@@ -31,6 +31,7 @@ void mympd_state_save(struct t_mympd_state *mympd_state, bool free) {
     mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
     mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
     album_cache_write(&mympd_state->mpd_state->album_cache, mympd_state->config->cachedir, free);
+    sticker_cache_write(&mympd_state->mpd_state->sticker_cache, mympd_state->config->cachedir, free);
 
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {

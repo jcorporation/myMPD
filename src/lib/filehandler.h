@@ -31,6 +31,8 @@ enum getline_rc {
     GETLINE_OK = 0
 };
 
+time_t get_mtime(const char *filepath);
+
 int sds_getline(sds *s, FILE *fp, size_t max);
 int sds_getline_n(sds *s, FILE *fp, size_t max);
 int sds_getfile(sds *s, FILE *fp, size_t max, bool remove_newline);

@@ -5,12 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/album_cache.h"
 #include "src/mympd_api/mympd_api.h"
 
+#include "src/lib/album_cache.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/sticker_cache.h"
 #include "src/mpd_client/autoconf.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/idle.h"
@@ -49,9 +50,10 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_timer_file_read(&mympd_state->timer_list, mympd_state->config->workdir);
     //trigger
     mympd_api_trigger_file_read(&mympd_state->trigger_list, mympd_state->config->workdir);
-    //albumcache
+    //album cache
     album_cache_read(&mympd_state->mpd_state->album_cache, mympd_state->config->cachedir);
-
+    //sticker cache
+    sticker_cache_read(&mympd_state->mpd_state->sticker_cache, mympd_state->config->cachedir);
     //set timers
     if (mympd_state->config->covercache_keep_days > 0) {
         MYMPD_LOG_DEBUG("Adding timer for \"crop covercache\" to execute periodic each day");

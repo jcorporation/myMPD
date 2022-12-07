@@ -10,11 +10,33 @@
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 
+#include <asm-generic/errno-base.h>
 #include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+/**
+ * Returns the modification time of a file
+ * @param filepath filepath
+ * @return time_t modification time
+ */
+time_t get_mtime(const char *filepath) {
+    struct stat status;
+    errno = 0;
+    if (stat(filepath, &status) != 0) {
+        if (errno != ENOENT) {
+            MYMPD_LOG_ERROR("Error getting mtime for \"%s\"", filepath);
+            MYMPD_LOG_ERRNO(errno);
+        }
+        else {
+            MYMPD_LOG_DEBUG("File \"%s\" does not exist", filepath);
+        }
+        return 0;
+    }
+    return status.st_mtime;
+}
 
 /**
  * Getline function that trims whitespace characters

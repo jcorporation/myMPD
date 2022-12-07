@@ -47,7 +47,7 @@ static struct mpd_song *album_from_json(sds line, const struct t_tags *tagcols);
  * Reads the album cache from disc
  * @param album_cache 
  * @param cachedir 
- * @return bool 
+ * @return bool true on success, else false
  */
 bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
     album_cache->building = true;
@@ -89,11 +89,11 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
                 raxInsert(album_cache->cache, (unsigned char *)key, sdslen(key), album, NULL);
             }
             else {
-                MYMPD_LOG_ERROR("Can not allocate memory for albumcache");
+                MYMPD_LOG_ERROR("Can not allocate memory for album cache");
             }
         }
         else {
-            MYMPD_LOG_ERROR("Reading album_cache line failed");
+            MYMPD_LOG_ERROR("Reading album cache line failed");
             MYMPD_LOG_DEBUG("Erroneous line: %s", line);
         }
     }
@@ -113,7 +113,7 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
  * @param free true=free the album cache, else not
  * @return bool true on success, else false
  */
-bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free) {
+bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free_data) {
     if (album_cache->cache == NULL) {
         MYMPD_LOG_DEBUG("Album cache is NULL not saving anything");
         return true;
@@ -149,17 +149,17 @@ bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free) {
         if (fputs(line, fp) == EOF) {
             write_rc = false;
         }
-        if (free == true) {
+        if (free_data == true) {
             mpd_song_free((struct mpd_song *)iter.data);
         }
     }
     FREE_SDS(line);
     raxStop(&iter);
-    if (free == true) {
+    if (free_data == true) {
         raxFree(album_cache->cache);
         album_cache->cache = NULL;
     }
-    sds filepath = sdscatfmt(sdsempty(), "%S/album_cache.json", cachedir);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE);
     bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
     FREE_SDS(tmp_file);
     FREE_SDS(filepath);

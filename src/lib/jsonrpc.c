@@ -607,6 +607,30 @@ bool json_get_int(sds s, const char *path, int min, int max, int *result, sds *e
 }
 
 /**
+ * Gets a time_t value by json path
+ * @param s json object to parse
+ * @param path mjson path expression
+ * @param result pointer to long with the result
+ * @param error pointer for error string
+ * @return true on success else false
+ */
+bool json_get_time_max(sds s, const char *path, time_t *result, sds *error) {
+    double value;
+    if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
+        if (value >= 0 && value <= (double)JSONRPC_LLONG_MAX) {
+            time_t value_time = (time_t)value;
+            *result = value_time;
+            return true;
+        }
+        set_parse_error(error, "Number out of range for JSON path \"%s\"", path);
+    }
+    else {
+        set_parse_error(error, "JSON path \"%s\" not found", path);
+    }
+    return false;
+}
+
+/**
  * Gets a long value by json path
  * @param s json object to parse
  * @param path mjson path expression

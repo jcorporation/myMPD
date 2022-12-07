@@ -63,6 +63,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define FILENAME_LAST_PLAYED "last_played_list"
 #define FILENAME_PRESETS "preset_list"
 #define FILENAME_ALBUMCACHE "album_cache.json"
+#define FILENAME_STICKERCACHE "sticker_cache.json"
 
 //mpd partitions
 #define MPD_PARTITION_DEFAULT "default"

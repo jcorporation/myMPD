@@ -79,12 +79,9 @@ int covercache_clear(sds cachedir, int keepdays) {
         }
         sdsclear(filepath);
         filepath = sdscatfmt(filepath, "%S/%s", covercache, next_file->d_name);
-        struct stat status;
-        if (stat(filepath, &status) != 0) {
-            continue;
-        }
-        if (status.st_mtime < expire_time) {
-            MYMPD_LOG_DEBUG("Deleting \"%s\": %lld", filepath, (long long)status.st_mtime);
+        time_t mtime = get_mtime(filepath);
+        if (mtime < expire_time) {
+            MYMPD_LOG_DEBUG("Deleting \"%s\": %lld", filepath, (long long)mtime);
             rc = rm_file(filepath);
             if (rc == true) {
                 num_deleted++;

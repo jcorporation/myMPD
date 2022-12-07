@@ -9,7 +9,6 @@
 
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
-#include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/state_files.h"
@@ -90,15 +89,9 @@ bool is_smartpls(sds workdir, const char *playlist) {
  */
 time_t smartpls_get_mtime(sds workdir, const char *playlist) {
     sds plpath = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
-    struct stat attr;
-    errno = 0;
-    if (stat(plpath, &attr) != 0) {
-        MYMPD_LOG_ERROR("Error getting mtime for \"%s\"", plpath);
-        MYMPD_LOG_ERRNO(errno);
-        attr.st_mtime = 0;
-    }
+    time_t mtime = get_mtime(plpath);
     FREE_SDS(plpath);
-    return attr.st_mtime;
+    return mtime;
 }
 
 /**

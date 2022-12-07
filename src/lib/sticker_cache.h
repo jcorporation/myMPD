@@ -29,6 +29,9 @@ struct t_sticker {
     long like;            //!< hate/neutral/love value
 };
 
+bool sticker_cache_write(struct t_cache *sticker_cache, sds cachedir, bool free_data);
+bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir);
+
 struct t_sticker *get_sticker_from_cache(struct t_cache *sticker_cache, const char *uri);
 void sticker_cache_free(struct t_cache *sticker_cache);
 
@@ -40,5 +43,9 @@ bool sticker_set_last_played(struct t_list *sticker_queue, const char *uri, time
 bool sticker_set_last_skipped(struct t_list *sticker_queue, const char *uri);
 
 bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache, struct t_partition_state *partition_state);
+
+sds sticker_cache_print_sticker(sds buffer, struct t_sticker *sticker);
+
+
 
 #endif

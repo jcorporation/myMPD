@@ -10,6 +10,7 @@
 #include "dist/sds/sds.h"
 #include "src/lib/mympd_state.h"
 
+time_t mpd_client_get_db_mtime(struct t_partition_state *partition_state);
 bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 		enum mpd_tag_type type, const char *value);
 bool is_multivalue_tag(enum mpd_tag_type tag);

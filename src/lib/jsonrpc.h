@@ -94,6 +94,7 @@ sds tojson_double(sds buffer, const char *key, double value, bool comma);
 bool json_get_bool(sds s, const char *path, bool *result, sds *error);
 bool json_get_int_max(sds s, const char *path, int *result, sds *error);
 bool json_get_int(sds s, const char *path, int min, int max, int *result, sds *error);
+bool json_get_time_max(sds s, const char *path, time_t *result, sds *error);
 bool json_get_long_max(sds s, const char *path, long *result, sds *error);
 bool json_get_long(sds s, const char *path, long min, long max, long *result, sds *error);
 bool json_get_llong_max(sds s, const char *path, long long *result, sds *error);
