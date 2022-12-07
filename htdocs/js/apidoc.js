@@ -137,6 +137,16 @@ const APIparams = {
  * @type {object}
  */
 const APImethods = {
+    "MYMPD_API_CACHES_CREATE": {
+        "desc": "Recreates the myMPD caches for albums and stickers.",
+        "params": {
+            "force": {
+                "type": "bool",
+                "example": false,
+                "desc": "true = forces an update"
+            }
+        }
+    },
     "MYMPD_API_DATABASE_SEARCH": {
         "desc": "Searches for songs in the database.",
         "params": {

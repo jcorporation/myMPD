@@ -2598,6 +2598,13 @@
               </div>
             </div>
             <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="btnUpdateCaches" data-phrase="Update caches"></label>
+              <div class="col-sm-8">
+                <button type="button" id="btnUpdateCaches" class="me-2 btn btn-secondary btnCleanup" data-href='{"cmd": "updateCaches", "options": [false]}' data-phrase="Update"></button>
+                <button type="button" id="btnUpdateCaches" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateCaches", "options": [true]}' data-phrase="Force update"></button>
+              </div>
+            </div>
+            <div class="mb-3 row">
               <label class="col-sm-4 col-form-label" for="btnDatbaseRescan" data-phrase="Database"></label>
               <div class="col-sm-8">
                 <button type="button" id="btnDatbaseRescan" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateDB", "options": ["", true, false, true]}' data-phrase="Rescan database"></button>

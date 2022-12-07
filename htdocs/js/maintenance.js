@@ -53,3 +53,13 @@ function deletePlaylists() {
         "type": getSelectValueId('selectDeletePlaylists')
     }, null, false);
 }
+
+/**
+ * Updates the myMPD caches
+ * @param {boolean} force true=forces an update
+ */
+function updateCaches(force) {
+    sendAPI("MYMPD_API_CACHES_CREATE", {
+        "force": force
+    }, null, false);
+}

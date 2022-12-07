@@ -853,5 +853,8 @@
     "Playlist is ignored if preset enables the jukebox": "Wiedergabeliste wird ignoriert wenn die Voreinstellung die Jukebox aktiviert",
     "Preset": "Voreinstellung",
     "Presets": "Voreinstellungen",
-    "Select preset": "Voreinstellung auswählen"
+    "Select preset": "Voreinstellung auswählen",
+    "Caches are up-to-date": "Caches sind aktuell",
+    "Update caches": "Caches aktualisieren",
+    "Updating caches": "Caches werden aktualisiert"
 }

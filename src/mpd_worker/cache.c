@@ -36,9 +36,10 @@ static bool get_sticker_from_mpd(struct t_partition_state *partition_state, cons
 /**
  * Creates the caches and returns it to mympd_api thread
  * @param mpd_worker_state pointer to mpd_worker_state struct
+ * @param force true=force update, false=update only if mpd database is newer then the caches
  * @return true on success else false
  */
-bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
+bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool force) {
     time_t db_mtime = mpd_client_get_db_mtime(mpd_worker_state->partition_state);
     MYMPD_LOG_DEBUG("Database mtime: %lld", (long long)db_mtime);
     sds filepath = sdscatfmt(sdsempty(), "%S/%s", mpd_worker_state->config->cachedir, FILENAME_ALBUMCACHE);
@@ -50,12 +51,25 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
     MYMPD_LOG_DEBUG("Sticker cache mtime: %lld", (long long)sticker_cache_mtime);
     FREE_SDS(filepath);
 
-    if (db_mtime < album_cache_mtime &&
+    if (force == false &&
+        db_mtime < album_cache_mtime &&
         db_mtime < sticker_cache_mtime)
     {
         MYMPD_LOG_INFO("Caches are up-to-date");
+        send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Caches are up-to-date");
+        if (mpd_worker_state->partition_state->mpd_state->feat_tags == true) {
+            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
+            request->data = jsonrpc_end(request->data);
+            mympd_queue_push(mympd_api_queue, request, 0);
+        }
+        if (mpd_worker_state->partition_state->mpd_state->feat_stickers == true) {
+            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STICKERCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
+            request->data = jsonrpc_end(request->data);
+            mympd_queue_push(mympd_api_queue, request, 0);
+        }
         return true;
     }
+    send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updating caches");
 
     struct t_cache album_cache;
     album_cache.cache = NULL;
@@ -82,11 +96,11 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
             request->data = jsonrpc_end(request->data);
             request->extra = (void *) album_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);
-            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, mpd_worker_state->partition_state->name, "Updated album cache");
+            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated album cache");
         }
         else {
             album_cache_free(&album_cache);
-            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, mpd_worker_state->partition_state->name, "Update of album cache failed");
+            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "Update of album cache failed");
         }
     }
     else {
@@ -100,11 +114,11 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
             request->data = jsonrpc_end(request->data);
             request->extra = (void *) sticker_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);
-            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, mpd_worker_state->partition_state->name, "Updated sticker cache");
+            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated sticker cache");
         }
         else {
             sticker_cache_free(&sticker_cache);
-            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, mpd_worker_state->partition_state->name, "Update of sticker cache failed");
+            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "Update of sticker cache failed");
         }
     }
     else {

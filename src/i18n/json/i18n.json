@@ -2,9 +2,9 @@
     "default": {"desc":"Browser default", "missingPhrases": 0},
     "de-DE": {"desc":"Deutsch (de-DE)", "missingPhrases": 0},
     "en-US": {"desc":"English (en-US)", "missingPhrases": 0},
-    "fr-FR": {"desc":"Français (fr-FR)", "missingPhrases": 37},
-    "it-IT": {"desc":"Italiano (it-IT)", "missingPhrases": 37},
-    "ja-JP": {"desc":"日本語 (ja-JP)", "missingPhrases": 18},
-    "nl-NL": {"desc":"Nederlands (nl-NL)", "missingPhrases": 37},
-    "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 19}
+    "fr-FR": {"desc":"Français (fr-FR)", "missingPhrases": 40},
+    "it-IT": {"desc":"Italiano (it-IT)", "missingPhrases": 40},
+    "ja-JP": {"desc":"日本語 (ja-JP)", "missingPhrases": 21},
+    "nl-NL": {"desc":"Nederlands (nl-NL)", "missingPhrases": 40},
+    "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 22}
 }

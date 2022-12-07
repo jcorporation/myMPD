@@ -122,14 +122,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
         case MYMPD_API_SMARTPLS_UPDATE:
-        case INTERNAL_API_CACHES_CREATE:
+        case MYMPD_API_CACHES_CREATE:
             if (worker_threads > 5) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Too many worker threads are already running");
                 MYMPD_LOG_ERROR("Too many worker threads are already running");
                 break;
             }
-            if (request->cmd_id == INTERNAL_API_CACHES_CREATE) {
+            if (request->cmd_id == MYMPD_API_CACHES_CREATE) {
                 if (mympd_state->mpd_state->album_cache.building == true ||
                     mympd_state->mpd_state->sticker_cache.building == true)
                 {
@@ -661,6 +661,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             list_clear(&attributes);
             break;
         }
+        case INTERNAL_API_ALBUMCACHE_SKIPPED:
+            mympd_state->mpd_state->album_cache.building = false;
+            response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
+            break;
+        case INTERNAL_API_STICKERCACHE_SKIPPED:
+            mympd_state->mpd_state->sticker_cache.building = false;
+            response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
+            break;
         case INTERNAL_API_STICKERCACHE_CREATED:
             if (request->extra != NULL) {
                 sticker_cache_free(&mympd_state->mpd_state->sticker_cache);
