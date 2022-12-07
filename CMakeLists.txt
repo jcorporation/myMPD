@@ -69,9 +69,10 @@ if(MYMPD_MINIMAL)
 endif()
 
 # cmake modules
-include(GNUInstallDirs)
-include(CheckCSourceCompiles)
 include(CheckCCompilerFlag)
+include(CheckCSourceCompiles)
+include(CheckIPOSupported)
+include(GNUInstallDirs)
 
 # custom cmake modules
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/")
@@ -313,18 +314,20 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
     "-fPIE"
     "-O2"
     "-DNDEBUG"
-    "-flto=auto"
-    "-ffat-lto-objects"
   )
   if(NOT MYMPD_STRIP_BINARY)
     message("Generating binary with debug symbols")
     add_compile_options("-g")
   endif()
+  # IPO/LTO support
+  check_ipo_supported()
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION TRUE)
 elseif(CMAKE_BUILD_TYPE STREQUAL "Debug")
   add_compile_options(
     "-ggdb"
     "-Og"
   )
+  set(CMAKE_INTERPROCEDURAL_OPTIMIZATION FALSE)
 else()
   # if CMAKE_BUILD_TYPE is neither Release nor Debug,
   # do not alter compile options
