@@ -907,7 +907,7 @@ uninstall() {
   #the binaries
   if [ -f release/install_manifest.txt ]
   then
-    xargs rm < release/install_manifest.txt || true
+    xargs rm -f < release/install_manifest.txt || true
   fi
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
   #CMAKE_INSTALL_PREFIX="/usr"
