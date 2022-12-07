@@ -58,6 +58,7 @@ function deletePlaylists() {
  * Updates the myMPD caches
  * @param {boolean} force true=forces an update
  */
+//eslint-disable-next-line no-unused-vars
 function updateCaches(force) {
     sendAPI("MYMPD_API_CACHES_CREATE", {
         "force": force
