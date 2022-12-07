@@ -22,6 +22,8 @@ This release reworks the scripting api and improves the scripting documentation.
 - Feat: add option to ignore hated songs in jukebox mode #882
 - Feat: configurable tags for album views #901
 - Feat: ability to disable listening on plain HTTP #914
+- Feat: save album and sticker cache between restarts #913
+- Feat: Manual refresh of album and sticker cache
 - Upd: some UI cleanups and improvements #909
 - Upd: Bootstrap 5.2.3
 - Upd: documentation improvements
@@ -56,7 +58,7 @@ This is a small bugfix release.
 
 ### Changelog
 
-- Fix: Fix: improve styleTip positioning for scrolling window #907
+- Fix: improve styleTip positioning for scrolling window #907
 - Fix: carousel indicator border override #909
 - Fix: myMPD preconfiguration with systemd #912
 - Fix: `build.sh purge` removes the group and systemd private directories
