@@ -159,7 +159,7 @@ function initBrowseDatabase() {
     document.getElementById('searchDatabaseAlbumListTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = getData(event.target, 'tag');
-            searchDatabaseAlbumList(document.getElementById('searchDatabaseStr').value);
+            searchDatabaseAlbumList(document.getElementById('searchDatabaseAlbumListStr').value);
         }
     }, false);
 
