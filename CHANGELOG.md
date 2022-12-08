@@ -11,6 +11,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Fix: pthread join bug #918
+- Fix: workdir/cachedir for install to /usr/local #926 #927
 
 ***
 
