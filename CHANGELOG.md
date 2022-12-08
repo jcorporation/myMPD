@@ -23,7 +23,7 @@ This release reworks the scripting api and improves the scripting documentation.
 - Feat: configurable tags for album views #901
 - Feat: ability to disable listening on plain HTTP #914
 - Feat: save album and sticker cache between restarts #913
-- Feat: Manual refresh of album and sticker cache
+- Feat: manual refresh of album and sticker cache
 - Upd: some UI cleanups and improvements #909
 - Upd: Bootstrap 5.2.3
 - Upd: documentation improvements
@@ -38,6 +38,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Fix: pthread join bug #918
+- Fix: workdir/cachedir for install to /usr/local #926 #927
 
 ***
 
