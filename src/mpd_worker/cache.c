@@ -97,6 +97,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
             request->extra = (void *) album_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated album cache");
+            album_cache_write(&album_cache, mpd_worker_state->config->cachedir, false);
         }
         else {
             album_cache_free(&album_cache);
@@ -115,6 +116,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
             request->extra = (void *) sticker_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated sticker cache");
+            sticker_cache_write(&sticker_cache, mpd_worker_state->config->cachedir, false);
         }
         else {
             sticker_cache_free(&sticker_cache);
