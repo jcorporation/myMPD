@@ -30,6 +30,21 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     struct t_work_response *response = create_response(request);
 
     switch(request->cmd_id) {
+        case MYMPD_API_CACHES_CREATE:
+            if (json_get_bool(request->data, "$.params.force", &bool_buf1, NULL) == true) {
+                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
+                if (request->conn_id > -1) {
+                    MYMPD_LOG_DEBUG("Push response to queue for connection %lld: %s", request->conn_id, response->data);
+                    mympd_queue_push(web_server_queue, response, 0);
+                }
+                else {
+                    free_response(response);
+                }
+                free_request(request);
+                mpd_worker_cache_init(mpd_worker_state, bool_buf1);
+                async = true;
+            }
+            break;
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
             if (mpd_worker_state->smartpls == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -76,21 +91,6 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Updating smart playlist %{playlist} failed", 2, "playlist", sds_buf1);
                 }
-            }
-            break;
-        case MYMPD_API_CACHES_CREATE:
-            if (json_get_bool(request->data, "$.params.force", &bool_buf1, NULL) == true) {
-                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
-                if (request->conn_id > -1) {
-                    MYMPD_LOG_DEBUG("Push response to queue for connection %lld: %s", request->conn_id, response->data);
-                    mympd_queue_push(web_server_queue, response, 0);
-                }
-                else {
-                    free_response(response);
-                }
-                free_request(request);
-                mpd_worker_cache_init(mpd_worker_state, bool_buf1);
-                async = true;
             }
             break;
         default:
