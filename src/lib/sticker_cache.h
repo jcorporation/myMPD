@@ -29,6 +29,7 @@ struct t_sticker {
     long like;            //!< hate/neutral/love value
 };
 
+bool sticker_cache_remove(sds cachedir);
 bool sticker_cache_write(struct t_cache *sticker_cache, sds cachedir, bool free_data);
 bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir);
 

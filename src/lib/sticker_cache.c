@@ -34,10 +34,22 @@ static struct t_sticker *sticker_from_json(sds line, sds *uri);
  */
 
 /**
+ * Removes the sticker cache file
+ * @param cachedir myMPD cache directory
+ * @return bool true on success, else false
+ */
+bool sticker_cache_remove(sds cachedir) {
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE);
+    int rc = try_rm_file(filepath);
+    FREE_SDS(filepath);
+    return rc == RM_FILE_ERROR ? false : true;
+}
+
+/**
  * Reads the sticker cache from disc
- * @param sticker_cache 
- * @param cachedir 
- * @return bool 
+ * @param sticker_cache pointer to t_cache struct
+ * @param cachedir myMPD cache directory
+ * @return bool bool true on success, else false
  */
 bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir) {
     sticker_cache->building = true;

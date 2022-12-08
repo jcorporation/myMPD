@@ -44,9 +44,21 @@ static struct mpd_song *album_from_json(sds line, const struct t_tags *tagcols);
  */
 
 /**
+ * Removes the album cache file
+ * @param cachedir myMPD cache directory
+ * @return bool true on success, else false
+ */
+bool album_cache_remove(sds cachedir) {
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE);
+    int rc = try_rm_file(filepath);
+    FREE_SDS(filepath);
+    return rc == RM_FILE_ERROR ? false : true;
+}
+
+/**
  * Reads the album cache from disc
- * @param album_cache 
- * @param cachedir 
+ * @param album_cache pointer to t_cache struct
+ * @param cachedir myMPD cache directory
  * @return bool true on success, else false
  */
 bool album_cache_read(struct t_cache *album_cache, sds cachedir) {

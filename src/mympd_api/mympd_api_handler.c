@@ -435,6 +435,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     mpd_client_disconnect_all(mympd_state, MPD_DISCONNECTED);
                     //remove all but default partition
                     partitions_list_clear(mympd_state);
+                    //remove caches
+                    album_cache_remove(config->cachedir);
+                    sticker_cache_remove(config->cachedir);
                 }
                 else if (partition_state->conn_state == MPD_CONNECTED) {
                     //feature detection
