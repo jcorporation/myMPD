@@ -190,9 +190,20 @@ function setColTags(tableName) {
         case 'BrowseRadioRadiobrowser':
             return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
         case 'BrowseDatabaseAlbumList':
-            return ["Album", "AlbumArtist", "Genre", "Date", "Discs", "SongCount", "Duration", "LastModified"];
-        case 'BrowseDatabaseAlbumDetailInfo':
-            return ["AlbumArtist", "Genre", "Date", "Discs", "SongCount", "Duration", "LastModified"];
+        case 'BrowseDatabaseAlbumDetailInfo': {
+            const tags = [];
+            if (tableName === 'BrowseDatabaseAlbumList') {
+                tags.push('Album');
+            }
+            tags.push('AlbumArtist');
+            for (const t of ['Genre', 'Date']) {
+                if (settings.tagList.includes(t)) {
+                    tags.push(t);
+                }
+            }
+            tags.push('Discs', 'SongCount', 'Duration', 'LastModified');
+            return tags;
+        }
     }
 
     const tags = settings.tagList.slice();

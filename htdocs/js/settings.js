@@ -1099,7 +1099,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 }
 
 /**
- * Filters the columns by available mpd tags
+ * Filters the selected columns by available columns
  * @param {string} tableName the table name
  */
 function filterCols(tableName) {
