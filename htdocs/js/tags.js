@@ -359,7 +359,7 @@ function addMusicbrainzFields(songObj, showArtists) {
     }
 
     const artist = showArtists === false ? 'MUSICBRAINZ_ALBUMARTISTID' : 'MUSICBRAINZ_ARTISTID';
-    if (songObj.MUSICBRAINZ_ALBUMID !== '-' ||
+    if ((songObj.MUSICBRAINZ_ALBUMID !== '-' && songObj.MUSICBRAINZ_ALBUMID !== undefined) ||
         (songObj[artist] !== undefined && checkTagValue(songObj[artist], '-') === false))
     {
         const mbField = elCreateNode('div', {"class": ["col-xl-6"]},
