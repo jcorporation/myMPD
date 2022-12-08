@@ -168,6 +168,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
  * @param sortdesc true to sort descending, false to sort ascending
  * @param offset offset of results to print
  * @param limit max number of results to print
+ * @param tagcols tags to print
  * @return pointer to buffer
  */
 sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds buffer, long request_id,

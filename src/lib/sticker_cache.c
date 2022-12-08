@@ -99,7 +99,7 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir) {
  * Saves the sticker cache to disc as a njson file
  * @param sticker_cache pointer to t_cache struct
  * @param cachedir myMPD cache directory
- * @param free true=free the album cache, else not
+ * @param free_data true=free the album cache, else not
  * @return bool true on success, else false
  */
 bool sticker_cache_write(struct t_cache *sticker_cache, sds cachedir, bool free_data) {
@@ -430,7 +430,9 @@ static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state 
 /**
  * Prints a sticker struct as an json object string
  * @param buffer already allocated sds string to append
- * @param song mpd song
+ * @param uri mpd song uri
+ * @param uri_len mpd song uri length
+ * @param sticker pointer to sticker struct
  * @return sds pointer to buffer
  */
 static sds sticker_to_json(sds buffer, const char *uri, size_t uri_len, struct t_sticker *sticker) {
@@ -441,6 +443,12 @@ static sds sticker_to_json(sds buffer, const char *uri, size_t uri_len, struct t
     return buffer;
 }
 
+/**
+ * Creates a sticker struct from json
+ * @param line json line to parse
+ * @param uri mpd song uri for the sticker
+ * @return struct t_sticker* allocated t_sticker struct
+ */
 static struct t_sticker *sticker_from_json(sds line, sds *uri) {
     struct t_sticker *sticker = malloc_assert(sizeof(struct t_sticker));
     sds error = sdsempty();

@@ -122,7 +122,7 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
  * Saves the album cache to disc as a njson file
  * @param album_cache pointer to t_cache struct
  * @param cachedir myMPD cache directory
- * @param free true=free the album cache, else not
+ * @param free_data true=free the album cache, else not
  * @return bool true on success, else false
  */
 bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free_data) {
@@ -384,7 +384,8 @@ bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mp
 /**
  * Prints a song struct as an json object string
  * @param buffer already allocated sds string to append
- * @param song mpd song
+ * @param album mpd song struct
+ * @param tagcols tags to print
  * @return sds pointer to buffer
  */
 static sds album_to_json(sds buffer, struct mpd_song *album, const struct t_tags *tagcols) {
@@ -396,6 +397,12 @@ static sds album_to_json(sds buffer, struct mpd_song *album, const struct t_tags
     return buffer;
 }
 
+/**
+ * Creates a mpd_song struct from json
+ * @param line json line to parse
+ * @param tagcols tags to read
+ * @return struct mpd_song* allocated mpd_song struct
+ */
 static struct mpd_song *album_from_json(sds line, const struct t_tags *tagcols) {
     sds uri = NULL;
     sds error = sdsempty();
