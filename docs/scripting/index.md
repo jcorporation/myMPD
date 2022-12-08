@@ -123,7 +123,11 @@ If you want to run commands that changes the effective userid (e.g. with `sudo`)
 ```
 groupadd -r mympd
 useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
-curl https://raw.githubusercontent.com/jcorporation/myMPD/v10.0.0/contrib/initscripts/mympd.service.in > /etc/systemd/system/mympd.service
+
+curl -s https://raw.githubusercontent.com/jcorporation/myMPD/v10.0.0/contrib/initscripts/mympd.service.in | sed 's|@CMAKE_INSTALL_FULL_BINDIR@|/usr/bin|' /etc/systemd/system/mympd.service
+
+systemctl daemon-reload
+systemctl restart mympd
 ```
 
 ## Lua manual
