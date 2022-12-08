@@ -64,3 +64,34 @@ function updateCaches(force) {
         "force": force
     }, null, false);
 }
+
+/**
+ * Updates or rescans the database
+ * @param {string} uri baseuri
+ * @param {boolean} rescan true = rescan, false = update
+ */
+//eslint-disable-next-line no-unused-vars
+function updateDB(uri, rescan) {
+    const method = rescan === true ? "MYMPD_API_DATABASE_RESCAN" : "MYMPD_API_DATABASE_UPDATE";
+    sendAPI(method, {"uri": uri}, null, false);
+}
+
+/**
+ * Update database finished handler
+ * @param {string} idleEvent mpd idle event
+ */
+function updateDBfinished(idleEvent) {
+    //spinner in mounts modal
+    const el = document.getElementById('spinnerUpdateProgress');
+    if (el) {
+        const parent = el.parentNode;
+        el.remove();
+        for (let i = 0, j = parent.children.length; i < j; i++) {
+            elShow(parent.children[i]);
+        }
+    }
+
+    const text = idleEvent === 'update_database' ?
+        tn('Database successfully updated') : tn('Database update finished');
+    showNotification(text, '', 'database', 'info');
+}

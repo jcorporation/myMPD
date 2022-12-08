@@ -109,7 +109,7 @@ function webSocketConnect() {
                     sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs, false);
                     break;
                 case 'update_started':
-                    updateDBstarted(false, true);
+                    showNotification(tn('Database update started'), '', 'database', 'info');
                     break;
                 case 'update_database':
                 case 'update_finished':

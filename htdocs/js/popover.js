@@ -335,8 +335,8 @@ function addMenuItemsNavbarActions(popoverBody, el) {
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Queue", "Jukebox", undefined]}, 'Show jukebox queue');
             break;
         case 'NavbarBrowse':
-            addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, false, false]}, 'Update database');
-            addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true, false, true]}, 'Rescan database');
+            addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", false]}, 'Update database');
+            addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true]}, 'Rescan database');
             addDivider(popoverBody);
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Database", undefined]}, 'Show browse database');
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Playlist", undefined]}, 'Show browse playlists');
@@ -573,8 +573,8 @@ function addMenuItemsDirectoryActions(tabContent, baseuri) {
     }
     if (app.id === 'BrowseFilesystem') {
         addDivider(tabContent);
-        addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, false, false, false]}, 'Update directory');
-        addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, false, false, true]}, 'Rescan directory');
+        addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, false]}, 'Update directory');
+        addMenuItem(tabContent, {"cmd": "updateDB", "options": [baseuri, true]}, 'Rescan directory');
     }
     addDivider(tabContent);
     addMenuItem(tabContent, {"cmd": "gotoFilesystem", "options": [baseuri, "dir"]}, 'Open directory');

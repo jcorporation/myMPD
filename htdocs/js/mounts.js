@@ -120,7 +120,7 @@ function updateMount(el, uri) {
     const spinner = elCreateEmpty('div', {"id": "spinnerUpdateProgress", "class": ["spinner-border", "spinner-border-sm"]});
     el.parentNode.insertBefore(spinner, el);
     //update
-    updateDB(uri, false, false, false);
+    updateDB(uri, false);
 }
 
 /**

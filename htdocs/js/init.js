@@ -275,7 +275,6 @@ function appInit() {
     initPlaylists();
     initOutputs();
     initLocalPlayback();
-    initUpdateDB();
     initSession();
     //init drag and drop
     for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
