@@ -101,6 +101,14 @@ void list_free_cb_sds_user_data(struct t_list_node *current) {
 }
 
 /**
+ * Callback function to free user_data of generic pointer.
+ * @param current list node
+ */
+void list_free_cb_ptr_user_data(struct t_list_node *current) {
+    FREE_PTR(current->user_data);
+}
+
+/**
  * Gets a list node index by key.
  * @param l list
  * @param key key to get
