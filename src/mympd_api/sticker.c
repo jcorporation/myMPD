@@ -7,7 +7,6 @@
 #include "compile_time.h"
 #include "src/mympd_api/sticker.h"
 
-#include "src/lib/jsonrpc.h"
 #include "src/lib/sticker_cache.h"
 
 /**
