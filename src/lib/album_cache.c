@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/tag.h"
 #include "src/lib/album_cache.h"
 
 #include "dist/libmympdclient/include/mpd/client.h"
@@ -38,6 +37,22 @@
 /**
  * Private definitions
  */
+
+/**
+ * Tags that are written to/read from the album cache file
+ */
+static const struct t_tags album_tags = {
+    .tags = {
+        MPD_TAG_ALBUM,
+        MPD_TAG_ALBUM_ARTIST,
+        MPD_TAG_ARTIST,
+        MPD_TAG_DATE,
+        MPD_TAG_GENRE,
+        MPD_TAG_MUSICBRAINZ_ALBUMARTISTID,
+        MPD_TAG_MUSICBRAINZ_ALBUMID
+    },
+    .len = 7
+};
 
 static sds album_to_cache_line(sds buffer, struct mpd_song *album, const struct t_tags *tagcols);
 static struct mpd_song *album_from_cache_line(sds line, const struct t_tags *tagcols);
@@ -83,18 +98,6 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
         album_cache->building = false;
         return false;
     }
-    const struct t_tags album_tags = {
-        .tags = {
-            MPD_TAG_ALBUM,
-            MPD_TAG_ALBUM_ARTIST,
-            MPD_TAG_ARTIST,
-            MPD_TAG_DATE,
-            MPD_TAG_GENRE,
-            MPD_TAG_MUSICBRAINZ_ALBUMARTISTID,
-            MPD_TAG_MUSICBRAINZ_ALBUMID
-        },
-        .len = 7
-    };
     sds line = sdsempty();
     sds key = sdsempty();
     if (album_cache->cache == NULL) {
@@ -157,18 +160,6 @@ bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free_data
     }
     bool write_rc = true;
     sds line = sdsempty();
-    const struct t_tags album_tags = {
-        .tags = {
-            MPD_TAG_ALBUM,
-            MPD_TAG_ALBUM_ARTIST,
-            MPD_TAG_ARTIST,
-            MPD_TAG_DATE,
-            MPD_TAG_GENRE,
-            MPD_TAG_MUSICBRAINZ_ALBUMARTISTID,
-            MPD_TAG_MUSICBRAINZ_ALBUMID
-        },
-        .len = 7
-    };
     while (raxNext(&iter)) {
         sdsclear(line);
         line = album_to_cache_line(line, (struct mpd_song *)iter.data, &album_tags);
