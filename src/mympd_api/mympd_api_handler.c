@@ -97,8 +97,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     bool async = false;
 
     #ifdef MYMPD_DEBUG
-    MEASURE_INIT
-    MEASURE_START
+        MEASURE_INIT
+        MEASURE_START
     #endif
 
     const char *method = get_cmd_id_method_name(request->cmd_id);
@@ -1663,8 +1663,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     FREE_SDS(sds_buf0);
 
     #ifdef MYMPD_DEBUG
-    MEASURE_END
-    MEASURE_PRINT(method)
+        MEASURE_END
+        MEASURE_PRINT(method)
     #endif
 
     //errorhandling

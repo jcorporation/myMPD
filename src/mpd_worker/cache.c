@@ -175,8 +175,8 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
 
     //get all songs and set albums
     #ifdef MYMPD_DEBUG
-    MEASURE_INIT
-    MEASURE_START
+        MEASURE_INIT
+        MEASURE_START
     #endif
     do {
         bool rc = mpd_search_db_songs(mpd_worker_state->partition_state->conn, false);
@@ -271,9 +271,9 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
         end = end + MPD_RESULTS_MAX;
     } while (i >= start);
     #ifdef MYMPD_DEBUG
-    MEASURE_END
-    MEASURE_PRINT("Populate album cache")
-    MEASURE_START
+        MEASURE_END
+        MEASURE_PRINT("Populate album cache")
+        MEASURE_START
     #endif
 
     //get sticker values
@@ -290,8 +290,8 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
         raxStop(&iter);
     }
     #ifdef MYMPD_DEBUG
-    MEASURE_END
-    MEASURE_PRINT("Populate sticker cache")
+        MEASURE_END
+        MEASURE_PRINT("Populate sticker cache")
     #endif
 
     //finished - print statistics

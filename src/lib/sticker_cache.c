@@ -67,8 +67,10 @@ bool sticker_cache_remove(sds cachedir) {
  * @return bool bool true on success, else false
  */
 bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir) {
-    MEASURE_INIT
-    MEASURE_START
+    #ifdef MYMPD_DEBUG
+        MEASURE_INIT
+        MEASURE_START
+    #endif
     sticker_cache->building = true;
     sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_STICKERCACHE);
     errno = 0;
@@ -113,8 +115,10 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir) {
         sticker_cache_remove(cachedir);
         sticker_cache_free(sticker_cache);
     }
-    MEASURE_END
-    MEASURE_PRINT("Sticker cache read");
+    #ifdef MYMPD_DEBUG
+        MEASURE_END
+        MEASURE_PRINT("Sticker cache read");
+    #endif
     return true;
 }
 
