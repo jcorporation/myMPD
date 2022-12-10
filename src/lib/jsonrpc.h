@@ -108,6 +108,7 @@ bool json_get_array_string(sds s, const char *path, struct t_list *l, validate_c
 bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_callback vcb, int max_elements, sds *error);
 bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata, validate_callback vcb, int max_elements, sds *error);
 bool json_get_tags(sds s, const char *path, struct t_tags *tags, int max_elements, sds *error);
+bool json_get_tag_values(sds s, const char *path, struct mpd_song *song, validate_callback vcb, int max_elements, sds *error);
 bool json_find_key(sds s, const char *path);
 sds json_get_key_as_sds(sds s, const char *path);
 
