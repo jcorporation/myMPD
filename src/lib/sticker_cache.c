@@ -339,11 +339,11 @@ bool sticker_set_elapsed(struct t_list *sticker_queue, const char *uri, time_t e
  * @return true on success else false
  */
 bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache, struct t_partition_state *partition_state) {
-    if (sticker_cache->cache == NULL ||
-        sticker_cache->building == true)
-    {
-        //sticker cache is currently (re-)building in the mpd_worker thread
-        //cache sticker write calls
+    if (sticker_cache->cache == NULL) {
+        MYMPD_LOG_INFO("Delay setting stickers, sticker_cache is not available");
+        return false;
+    }
+    if (sticker_cache->building == true) {
         MYMPD_LOG_INFO("Delay setting stickers, sticker_cache is building");
         return false;
     }
@@ -417,7 +417,7 @@ static bool sticker_inc(struct t_cache *sticker_cache, struct t_partition_state 
             new_value = sticker->skip_count;
             break;
         default:
-           MYMPD_LOG_ERROR("Invalid sticker name \"%s\" (%d)", sticker_str, sticker_type);
+           MYMPD_LOG_ERROR("Invalid sticker type \"%s\" (%d)", sticker_str, sticker_type);
            return false;
     }
 
