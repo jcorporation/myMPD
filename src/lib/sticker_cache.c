@@ -5,21 +5,21 @@
 */
 
 #include "compile_time.h"
-#include "dist/sds/sds.h"
-#include "src/lib/jsonrpc.h"
-#include "src/lib/list.h"
 #include "src/lib/sticker_cache.h"
 
+#include "dist/sds/sds.h"
 #include "src/lib/filehandler.h"
+#include "src/lib/jsonrpc.h"
+#include "src/lib/list.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
 #include "src/mpd_client/errorhandler.h"
-#include "sticker_cache.h"
 
 #include <errno.h>
+#include <inttypes.h>
 #include <string.h>
 
 /**
@@ -94,10 +94,14 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir) {
             sds uri = NULL;
             struct t_sticker *sticker = sticker_from_cache_line(line, &uri);
             if (sticker != NULL) {
-                raxInsert(sticker_cache->cache, (unsigned char *)uri, sdslen(uri), sticker, NULL);
+                if (raxTryInsert(sticker_cache->cache, (unsigned char *)uri, sdslen(uri), sticker, NULL) == 0) {
+                    MYMPD_LOG_ERROR("Duplicate uri in sticker cache file found");
+                    FREE_PTR(sticker);
+                }
             }
             else {
-                MYMPD_LOG_ERROR("Can not allocate memory for sticker cache");
+                MYMPD_LOG_ERROR("Reading sticker cache line failed");
+                MYMPD_LOG_DEBUG("Erroneous line: %s", line);
             }
             FREE_SDS(uri);
         }
