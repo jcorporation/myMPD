@@ -19,7 +19,7 @@ myMPD uses stickers to save statistics and votes of songs.
 **playCount is updated:**
 
 - The song must be longer than 10 seconds
-- And the song has been played for at least half its duration, or for 4 minutes (whichever occurs earlier.)
+- And the song has been played for at least half its duration, or for 4 minutes (whichever occurs earlier)
 
 **skipCount is updated:**
 
