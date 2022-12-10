@@ -31,7 +31,7 @@ This release reworks the scripting api and improves the scripting documentation.
 
 ***
 
-## myMPD v10.1.6 (not yet released)
+## myMPD v10.1.6 (2022-12-10)
 
 This is a small bugfix release.
 
