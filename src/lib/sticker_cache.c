@@ -5,7 +5,9 @@
 */
 
 #include "compile_time.h"
+#include "dist/sds/sds.h"
 #include "src/lib/jsonrpc.h"
+#include "src/lib/list.h"
 #include "src/lib/sticker_cache.h"
 
 #include "src/lib/filehandler.h"
@@ -24,15 +26,15 @@
  * Private definitions
  */
 
+static struct t_sticker_type *sticker_type_new(enum mympd_sticker_types sticker_type);
 static bool sticker_inc(struct t_cache *sticker_cache, struct t_partition_state *partition_state, 
-        const char *uri, enum mympd_stickers sticker_type, long value);
+        const char *uri, enum mympd_sticker_types sticker_type, long value);
 static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
-        const char *uri, enum mympd_stickers sticker_type, long long value);
-static sds sticker_to_json(sds buffer, const char *uri, size_t uri_len, struct t_sticker *sticker);
-static struct t_sticker *sticker_from_json(sds line, sds *uri);
+        const char *uri, enum mympd_sticker_types sticker_type, long long value);
+static sds sticker_to_cache_line(sds buffer, const char *uri, size_t uri_len, struct t_sticker *sticker);
+static struct t_sticker *sticker_from_cache_line(sds line, sds *uri);
 
-static const char *const mympd_sticker_names[STICKER_COUNT] =
-{
+static const char *const mympd_sticker_names[STICKER_COUNT] = {
     [STICKER_PLAY_COUNT] = "playCount",
     [STICKER_SKIP_COUNT] = "skipCount",
     [STICKER_LIKE] = "like",
@@ -65,6 +67,8 @@ bool sticker_cache_remove(sds cachedir) {
  * @return bool bool true on success, else false
  */
 bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir) {
+    MEASURE_INIT
+    MEASURE_START
     sticker_cache->building = true;
     sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_STICKERCACHE);
     errno = 0;
@@ -86,7 +90,7 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir) {
     while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
         if (validate_json_object(line) == true) {
             sds uri = NULL;
-            struct t_sticker *sticker = sticker_from_json(line, &uri);
+            struct t_sticker *sticker = sticker_from_cache_line(line, &uri);
             if (sticker != NULL) {
                 raxInsert(sticker_cache->cache, (unsigned char *)uri, sdslen(uri), sticker, NULL);
             }
@@ -105,15 +109,21 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir) {
     FREE_SDS(filepath);
     sticker_cache->building = false;
     MYMPD_LOG_INFO("Read %lld sticker struct(s) from disc", (long long)sticker_cache->cache->numele);
+    if (sticker_cache->cache->numele == 0) {
+        sticker_cache_remove(cachedir);
+        sticker_cache_free(sticker_cache);
+    }
+    MEASURE_END
+    MEASURE_PRINT("Sticker cache read");
     return true;
 }
 
 /**
  * Returns the sticker name as string
- * @param sticker enum mympd_stickers
+ * @param sticker enum mympd_sticker_types
  * @return const char* the sticker name
  */
-const char *sticker_name_lookup(enum mympd_stickers sticker) {
+const char *sticker_name_lookup(enum mympd_sticker_types sticker) {
     if ((unsigned)sticker >= STICKER_COUNT) {
         return NULL;
     }
@@ -125,13 +135,13 @@ const char *sticker_name_lookup(enum mympd_stickers sticker) {
  * @param name sticker name
  * @return enum mpd_tag_type the sticker enum
  */
-enum mympd_stickers sticker_name_parse(const char *name) {
+enum mympd_sticker_types sticker_name_parse(const char *name) {
     if (name == NULL) {
         return STICKER_UNKNOWN;
     }
     for (unsigned i = 0; i < STICKER_COUNT; ++i) {
         if (strcmp(name, mympd_sticker_names[i]) == 0) {
-            return (enum mympd_stickers)i;
+            return (enum mympd_sticker_types)i;
         }
     }
     return STICKER_UNKNOWN;
@@ -164,8 +174,7 @@ bool sticker_cache_write(struct t_cache *sticker_cache, sds cachedir, bool free_
 
     while (raxNext(&iter)) {
         sdsclear(line);
-        line = sticker_to_json(line, (char *)iter.key, iter.key_len, (struct t_sticker *)iter.data);
-        line = sdscatlen(line, "\n", 1);
+        line = sticker_to_cache_line(line, (char *)iter.key, iter.key_len, (struct t_sticker *)iter.data);
         if (fputs(line, fp) == EOF) {
             write_rc = false;
         }
@@ -240,7 +249,8 @@ bool sticker_inc_play_count(struct t_list *sticker_queue, const char *uri) {
     if (is_streamuri(uri) == true) {
         return true;
     }
-    return list_push(sticker_queue, uri, 1, NULL, (int *)STICKER_PLAY_COUNT);
+    struct t_sticker_type *sticker_type = sticker_type_new(STICKER_PLAY_COUNT);
+    return list_push(sticker_queue, uri, 1, NULL, sticker_type);
 }
 
 /**
@@ -253,7 +263,8 @@ bool sticker_inc_skip_count(struct t_list *sticker_queue, const char *uri) {
     if (is_streamuri(uri) == true) {
         return true;
     }
-    return list_push(sticker_queue, uri, 1, NULL, (int *)STICKER_SKIP_COUNT);
+    struct t_sticker_type *sticker_type = sticker_type_new(STICKER_SKIP_COUNT);
+    return list_push(sticker_queue, uri, 1, NULL, sticker_type);
 }
 
 /**
@@ -267,7 +278,8 @@ bool sticker_set_like(struct t_list *sticker_queue, const char *uri, int value) 
     if (is_streamuri(uri) == true) {
         return true;
     }
-    return list_push(sticker_queue, uri, value, NULL, (int *)STICKER_LIKE);
+    struct t_sticker_type *sticker_type = sticker_type_new(STICKER_LIKE);
+    return list_push(sticker_queue, uri, value, NULL, sticker_type);
 }
 
 /**
@@ -281,7 +293,8 @@ bool sticker_set_last_played(struct t_list *sticker_queue, const char *uri, time
     if (is_streamuri(uri) == true) {
         return true;
     }
-    return list_push(sticker_queue, uri, (long long)song_start_time, NULL, (int *)STICKER_LAST_PLAYED);
+    struct t_sticker_type *sticker_type = sticker_type_new(STICKER_LAST_PLAYED);
+    return list_push(sticker_queue, uri, (long long)song_start_time, NULL, sticker_type);
 }
 
 /**
@@ -295,7 +308,8 @@ bool sticker_set_last_skipped(struct t_list *sticker_queue, const char *uri) {
         return true;
     }
     time_t now = time(NULL);
-    return list_push(sticker_queue, uri, (long long)now, NULL, (int *)STICKER_LAST_SKIPPED);
+    struct t_sticker_type *sticker_type = sticker_type_new(STICKER_LAST_SKIPPED);
+    return list_push(sticker_queue, uri, (long long)now, NULL, sticker_type);
 }
 
 /**
@@ -309,7 +323,8 @@ bool sticker_set_elapsed(struct t_list *sticker_queue, const char *uri, time_t e
     if (is_streamuri(uri) == true) {
         return true;
     }
-    return list_push(sticker_queue, uri, (long long)elapsed, NULL, (int *)STICKER_ELAPSED);
+    struct t_sticker_type *sticker_type = sticker_type_new(STICKER_ELAPSED);
+    return list_push(sticker_queue, uri, (long long)elapsed, NULL, sticker_type);
 }
 
 /**
@@ -331,17 +346,17 @@ bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache
 
     struct t_list_node *current;
     while ((current = list_shift_first(sticker_queue)) != NULL) {
-        MYMPD_LOG_DEBUG("Setting %s = %lld for \"%s\"", current->value_p, current->value_i, current->key);
-        enum mympd_stickers sticker_type = (enum mympd_stickers)current->user_data;
-        switch(sticker_type) {
+        struct t_sticker_type *st = (struct t_sticker_type *)current->user_data;
+        MYMPD_LOG_DEBUG("Setting %s = %lld for \"%s\"", sticker_name_lookup(st->sticker_type), current->value_i, current->key);
+        switch(st->sticker_type) {
             case STICKER_PLAY_COUNT:
             case STICKER_SKIP_COUNT:
-                sticker_inc(sticker_cache, partition_state, current->key, sticker_type, (long)current->value_i);
+                sticker_inc(sticker_cache, partition_state, current->key, st->sticker_type, (long)current->value_i);
                 break;
             default:
-                sticker_set(sticker_cache, partition_state, current->key, sticker_type, current->value_i);
+                sticker_set(sticker_cache, partition_state, current->key, st->sticker_type, current->value_i);
         }
-        list_node_free(current);
+        list_node_free_user_data(current, list_free_cb_ptr_user_data);
     }
     return true;
 }
@@ -375,16 +390,27 @@ sds sticker_cache_print_sticker(sds buffer, struct t_sticker *sticker) {
 //private functions
 
 /**
+ * Creates a new t_sticker_type struct
+ * @param sticker_type the sticker type
+ * @return struct t_sticker_type* pointer to malloced struct
+ */
+static struct t_sticker_type *sticker_type_new(enum mympd_sticker_types sticker_type) {
+    struct t_sticker_type *st = malloc_assert(sizeof(struct t_sticker_type));
+    st->sticker_type = sticker_type;
+    return st;
+}
+
+/**
  * Increments a sticker by one in the cache and the mpd sticker database
  * @param sticker_cache pointer to sticker cache struct
  * @param partition_state pointer to partition specific states
  * @param uri song uri
- * @param sticker_type mympd_stickers enum
+ * @param sticker_type mympd_sticker_types enum
  * @param value value to increment by
  * @return true on success else false
  */
 static bool sticker_inc(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
-        const char *uri, enum mympd_stickers sticker_type, long value)
+        const char *uri, enum mympd_sticker_types sticker_type, long value)
 {
     struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
     if (sticker == NULL) {
@@ -430,12 +456,12 @@ static bool sticker_inc(struct t_cache *sticker_cache, struct t_partition_state 
  * @param sticker_cache pointer to sticker cache struct
  * @param partition_state pointer to partition specific states
  * @param uri song uri
- * @param sticker_type mympd_stickers enum
+ * @param sticker_type mympd_sticker_types enum
  * @param value value to set
  * @return true on success else false
  */
 static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
-        const char *uri, enum mympd_stickers sticker_type, long long value)
+        const char *uri, enum mympd_sticker_types sticker_type, long long value)
 {
     //update sticker cache
     struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
@@ -471,51 +497,43 @@ static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state 
 }
 
 /**
- * Prints a sticker struct as an json object string
+ * Prints a sticker struct for the cache
  * @param buffer already allocated sds string to append
  * @param uri mpd song uri
  * @param uri_len mpd song uri length
  * @param sticker pointer to sticker struct
  * @return sds pointer to buffer
  */
-static sds sticker_to_json(sds buffer, const char *uri, size_t uri_len, struct t_sticker *sticker) {
+static sds sticker_to_cache_line(sds buffer, const char *uri, size_t uri_len, struct t_sticker *sticker) {
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_char_len(buffer, "uri", (char *)uri, uri_len, true);
-    buffer = sticker_cache_print_sticker(buffer, sticker);
-    buffer = sdscatlen(buffer, "}", 1);
+    buffer = tojson_long(buffer, "pc", sticker->play_count, true);
+    buffer = tojson_long(buffer, "sc", sticker->skip_count, true);
+    buffer = tojson_long(buffer, "li", sticker->like, true);
+    buffer = tojson_llong(buffer, "lp", (long long)sticker->last_played, true);
+    buffer = tojson_llong(buffer, "ls", (long long)sticker->last_skipped, true);
+    buffer = tojson_llong(buffer, "el", (long long)sticker->elapsed, false);
+    buffer = sdscatlen(buffer, "}\n", 2);
     return buffer;
 }
 
 /**
- * Creates a sticker struct from json
+ * Creates a sticker struct from cache
  * @param line json line to parse
  * @param uri mpd song uri for the sticker
  * @return struct t_sticker* allocated t_sticker struct
  */
-static struct t_sticker *sticker_from_json(sds line, sds *uri) {
+static struct t_sticker *sticker_from_cache_line(sds line, sds *uri) {
     struct t_sticker *sticker = malloc_assert(sizeof(struct t_sticker));
     sds error = sdsempty();
-    if (json_get_string(line, "$.uri", 1, FILEPATH_LEN_MAX, uri, vcb_isfilepath, &error) == true) {
-        if (json_get_long_max(line, "$.stickerPlayCount", &sticker->play_count, &error) == false) {
-            sticker->play_count = 0;
-        }
-        if (json_get_long_max(line, "$.stickerSkipCount", &sticker->skip_count, &error) == false) {
-            sticker->skip_count = 0;
-        }
-        if (json_get_time_max(line, "$.stickerLastPlayed", &sticker->last_played, &error) == false) {
-            sticker->last_played = 0;
-        }
-        if (json_get_time_max(line, "$.stickerLastSkipped", &sticker->last_skipped, &error) == false) {
-            sticker->last_skipped = 0;
-        }
-        if (json_get_time_max(line, "$.stickerElapsed", &sticker->elapsed, &error) == false) {
-            sticker->elapsed = 0;
-        }
-        if (json_get_long_max(line, "$.stickerLike", &sticker->like, &error) == false) {
-            sticker->like = STICKER_LIKE_NEUTRAL;
-        }
-    }
-    else {
+    if (json_get_string(line, "$.uri", 1, FILEPATH_LEN_MAX, uri, vcb_isfilepath, &error) == false ||
+        json_get_long_max(line, "$.pc", &sticker->play_count, &error) == false ||
+        json_get_long_max(line, "$.sc", &sticker->skip_count, &error) == false ||
+        json_get_time_max(line, "$.lp", &sticker->last_played, &error) == false ||
+        json_get_time_max(line, "$.ls", &sticker->last_skipped, &error) == false ||
+        json_get_time_max(line, "$.el", &sticker->elapsed, &error) == false ||
+        json_get_long_max(line, "$.li", &sticker->like, &error) == false)
+    {
         FREE_PTR(sticker);
         sticker = NULL;
     }

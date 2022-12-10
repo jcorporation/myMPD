@@ -12,7 +12,7 @@
 #include <stdbool.h>
 #include <time.h>
 
-enum mympd_stickers {
+enum mympd_sticker_types {
     STICKER_PLAY_COUNT = 0,
     STICKER_SKIP_COUNT,
     STICKER_LIKE,
@@ -27,6 +27,10 @@ enum sticker_like {
     STICKER_LIKE_HATE = 0,
     STICKER_LIKE_NEUTRAL = 1,
     STICKER_LIKE_LOVE = 2
+};
+
+struct t_sticker_type {
+    enum mympd_sticker_types sticker_type;
 };
 
 /**
@@ -45,8 +49,8 @@ bool sticker_cache_remove(sds cachedir);
 bool sticker_cache_write(struct t_cache *sticker_cache, sds cachedir, bool free_data);
 bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir);
 
-const char *sticker_name_lookup(enum mympd_stickers sticker);
-enum mympd_stickers sticker_name_parse(const char *name);
+const char *sticker_name_lookup(enum mympd_sticker_types sticker);
+enum mympd_sticker_types sticker_name_parse(const char *name);
 
 struct t_sticker *get_sticker_from_cache(struct t_cache *sticker_cache, const char *uri);
 void sticker_cache_free(struct t_cache *sticker_cache);
