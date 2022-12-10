@@ -365,32 +365,6 @@ bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache
     return true;
 }
 
-/**
- * Print the sticker struct as json list
- * @param buffer already allocated sds string to append the list
- * @param sticker pointer to sticker struct to print
- * @return pointer to the modified buffer
- */
-sds sticker_cache_print_sticker(sds buffer, struct t_sticker *sticker) {
-    if (sticker != NULL) {
-        buffer = tojson_long(buffer, "stickerPlayCount", sticker->play_count, true);
-        buffer = tojson_long(buffer, "stickerSkipCount", sticker->skip_count, true);
-        buffer = tojson_long(buffer, "stickerLike", sticker->like, true);
-        buffer = tojson_llong(buffer, "stickerLastPlayed", (long long)sticker->last_played, true);
-        buffer = tojson_llong(buffer, "stickerLastSkipped", (long long)sticker->last_skipped, true);
-        buffer = tojson_llong(buffer, "stickerElapsed", (long long)sticker->elapsed, false);
-    }
-    else {
-        buffer = tojson_long(buffer, "stickerPlayCount", 0, true);
-        buffer = tojson_long(buffer, "stickerSkipCount", 0, true);
-        buffer = tojson_long(buffer, "stickerLike", 1, true);
-        buffer = tojson_long(buffer, "stickerLastPlayed", 0, true);
-        buffer = tojson_long(buffer, "stickerLastSkipped", 0, true);
-        buffer = tojson_llong(buffer, "stickerElapsed", 0, false);
-    }
-    return buffer;
-}
-
 //private functions
 
 /**
@@ -533,10 +507,10 @@ static struct t_sticker *sticker_from_cache_line(sds line, sds *uri) {
     if (json_get_string(line, "$.uri", 1, FILEPATH_LEN_MAX, uri, vcb_isfilepath, &error) == false ||
         json_get_long_max(line, "$.pc", &sticker->play_count, &error) == false ||
         json_get_long_max(line, "$.sc", &sticker->skip_count, &error) == false ||
+        json_get_long_max(line, "$.li", &sticker->like, &error) == false ||
         json_get_time_max(line, "$.lp", &sticker->last_played, &error) == false ||
         json_get_time_max(line, "$.ls", &sticker->last_skipped, &error) == false ||
-        json_get_time_max(line, "$.el", &sticker->elapsed, &error) == false ||
-        json_get_long_max(line, "$.li", &sticker->like, &error) == false)
+        json_get_time_max(line, "$.el", &sticker->elapsed, &error) == false)
     {
         FREE_PTR(sticker);
         sticker = NULL;

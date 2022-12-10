@@ -531,7 +531,7 @@ sds print_queue_entry(struct t_partition_state *partition_state, sds buffer, con
     }
     if (partition_state->mpd_state->feat_stickers == true) {
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_state->sticker_cache, uri);
+        buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, uri);
     }
     buffer = sdscatlen(buffer, "}", 1);
     return buffer;

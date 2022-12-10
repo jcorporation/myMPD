@@ -73,6 +73,4 @@ bool sticker_set_last_skipped(struct t_list *sticker_queue, const char *uri);
 
 bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache, struct t_partition_state *partition_state);
 
-sds sticker_cache_print_sticker(sds buffer, struct t_sticker *sticker);
-
 #endif

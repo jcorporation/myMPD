@@ -312,7 +312,7 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
     buffer = tojson_long(buffer, "currentSongId", partition_state->song_id, true);
     buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, &partition_state->mpd_state->tags_mympd, song);
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
+    buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
     buffer = sdscatlen(buffer, ",", 1);
     buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, uri, false);
     if (is_streamuri(uri) == true) {

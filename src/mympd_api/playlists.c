@@ -22,6 +22,7 @@
 #include "src/mpd_client/playlists.h"
 #include "src/mpd_client/search_local.h"
 #include "src/mpd_client/tags.h"
+#include "src/mympd_api/sticker.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -226,7 +227,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
                 if (partition_state->mpd_state->feat_stickers) {
                     buffer = sdscatlen(buffer, ",", 1);
                     struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
-                    buffer = sticker_cache_print_sticker(buffer, sticker);
+                    buffer = mympd_api_sticker_print(buffer, sticker);
                     if (sticker != NULL &&
                         sticker->last_played > last_played_max)
                     {

@@ -169,7 +169,7 @@ sds jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mym
                                 partition_state->mpd_state->sticker_cache.cache != NULL)
                             {
                                 buffer = sdscatlen(buffer, ",", 1);
-                                buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
+                                buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
                             }
                             buffer = sdscatlen(buffer, "}", 1);
                         }

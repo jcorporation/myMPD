@@ -266,7 +266,7 @@ static sds search_songs(struct t_partition_state *partition_state, sds buffer, e
             buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
             if (sticker_cache != NULL) {
                 buffer = sdscatlen(buffer, ",", 1);
-                buffer = mympd_api_sticker_list(buffer, sticker_cache, mpd_song_get_uri(song));
+                buffer = mympd_api_sticker_get_print(buffer, sticker_cache, mpd_song_get_uri(song));
             }
             buffer = sdscatlen(buffer, "}", 1);
             mpd_song_free(song);
