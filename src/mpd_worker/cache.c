@@ -327,20 +327,28 @@ static bool get_sticker_from_mpd(struct t_partition_state *partition_state, cons
     }
 
     while ((pair = mpd_recv_sticker(partition_state->conn)) != NULL) {
-        if (strcmp(pair->name, "playCount") == 0) {
-            sticker->play_count = (long)strtoimax(pair->value, &crap, 10);
-        }
-        else if (strcmp(pair->name, "skipCount") == 0) {
-            sticker->skip_count = (long)strtoimax(pair->value, &crap, 10);
-        }
-        else if (strcmp(pair->name, "lastPlayed") == 0) {
-            sticker->last_played = (time_t)strtoimax(pair->value, &crap, 10);
-        }
-        else if (strcmp(pair->name, "lastSkipped") == 0) {
-            sticker->last_skipped = (time_t)strtoimax(pair->value, &crap, 10);
-        }
-        else if (strcmp(pair->name, "like") == 0) {
-            sticker->like = (int)strtoimax(pair->value, &crap, 10);
+        enum mympd_sticker_types sticker_type = sticker_name_parse(pair->name);
+        switch(sticker_type) {
+            case STICKER_PLAY_COUNT:
+                sticker->play_count = (long)strtoimax(pair->value, &crap, 10);
+                break;
+            case STICKER_SKIP_COUNT:
+                sticker->skip_count = (long)strtoimax(pair->value, &crap, 10);
+                break;
+            case STICKER_LAST_PLAYED:
+                sticker->last_played = (time_t)strtoimax(pair->value, &crap, 10);
+                break;
+            case STICKER_LAST_SKIPPED:
+                sticker->last_skipped = (time_t)strtoimax(pair->value, &crap, 10);
+                break;
+            case STICKER_LIKE:
+                sticker->like = (int)strtoimax(pair->value, &crap, 10);
+                break;
+            case STICKER_ELAPSED:
+                sticker->elapsed = (time_t)strtoimax(pair->value, &crap, 10);
+                break;
+            default:
+                MYMPD_LOG_DEBUG("Ignoring sticker \"%s\"", pair->name);
         }
         mpd_return_sticker(partition_state->conn, pair);
     }
