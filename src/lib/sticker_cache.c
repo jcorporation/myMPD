@@ -34,14 +34,16 @@ static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state 
 static sds sticker_to_cache_line(sds buffer, const char *uri, size_t uri_len, struct t_sticker *sticker);
 static struct t_sticker *sticker_from_cache_line(sds line, sds *uri);
 
+/**
+ * myMPD sticker names
+ */
 static const char *const mympd_sticker_names[STICKER_COUNT] = {
     [STICKER_PLAY_COUNT] = "playCount",
     [STICKER_SKIP_COUNT] = "skipCount",
     [STICKER_LIKE] = "like",
     [STICKER_LAST_PLAYED] = "lastPlayed",
     [STICKER_LAST_SKIPPED] = "lastSkipped",
-    [STICKER_ELAPSED] = "elapsed",
-    [STICKER_UNKNOWN] = NULL
+    [STICKER_ELAPSED] = "elapsed"
 };
 
 /**

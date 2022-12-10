@@ -16,13 +16,13 @@
  * myMPD sticker types
  */
 enum mympd_sticker_types {
-    STICKER_PLAY_COUNT = 0,
+    STICKER_UNKNOWN = -1,
+    STICKER_PLAY_COUNT,
     STICKER_SKIP_COUNT,
     STICKER_LIKE,
     STICKER_LAST_PLAYED,
     STICKER_LAST_SKIPPED,
     STICKER_ELAPSED,
-    STICKER_UNKNOWN,
     STICKER_COUNT
 };
 
