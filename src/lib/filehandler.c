@@ -43,9 +43,7 @@ time_t get_mtime(const char *filepath) {
  * @param s an already allocated sds string
  * @param fp a file descriptor to read from
  * @param max max line length to read
- * @return GETLINE_OK on success,
- *         GETLINE_EMPTY for empty line,
- *         GETLINE_TOO_LONG for too long line
+ * @return Number of bytes read or -1 on eof / -2 too long line
  */
 int sds_getline(sds *s, FILE *fp, size_t max) {
     sdsclear(*s);
@@ -55,30 +53,12 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
             c == '\n')
         {
             sdstrim(*s, "\r \t");
-            if (sdslen(*s) > 0) {
-                return GETLINE_OK;
-            }
-            return GETLINE_EMPTY;
+            return c == EOF ? -1 : (int)sdslen(*s);
         }
         *s = sds_catchar(*s, (char)c);
     }
     MYMPD_LOG_ERROR("Line is too long, max length is %lu", (unsigned long)max);
-    return GETLINE_TOO_LONG;
-}
-
-/**
- * Getline function that first trims whitespace characters and adds a newline afterwards
- * @param s an already allocated sds string
- * @param fp a file descriptor to read from
- * @param max max line length to read
- * @return GETLINE_OK on success,
- *         GETLINE_EMPTY for empty line,
- *         GETLINE_TOO_LONG for too long line
- */
-int sds_getline_n(sds *s, FILE *fp, size_t max) {
-    int rc = sds_getline(s, fp, max);
-    *s = sdscat(*s, "\n");
-    return rc;
+    return -2;
 }
 
 /**
@@ -88,9 +68,7 @@ int sds_getline_n(sds *s, FILE *fp, size_t max) {
  * @param fp FILE pointer to read
  * @param max maximum bytes to read
  * @param remove_newline removes CR/LF if true
- * @return GETLINE_OK on success,
- *         GETLINE_EMPTY for empty file,
- *         GETLINE_TOO_LONG for too long file
+ * @return Number of bytes read, -2 if file was too big
  */
 int sds_getfile(sds *s, FILE *fp, size_t max, bool remove_newline) {
     sdsclear(*s);
@@ -99,10 +77,7 @@ int sds_getfile(sds *s, FILE *fp, size_t max, bool remove_newline) {
         if (c == EOF) {
             sdstrim(*s, "\r \t\n");
             MYMPD_LOG_DEBUG("Read %lu bytes from file", (unsigned long)sdslen(*s));
-            if (sdslen(*s) > 0) {
-                return GETLINE_OK;
-            }
-            return GETLINE_EMPTY;
+            return (int)sdslen(*s);
         }
         if (remove_newline == true &&
             (c == '\n' || c == '\r'))
@@ -111,8 +86,8 @@ int sds_getfile(sds *s, FILE *fp, size_t max, bool remove_newline) {
         }
         *s = sds_catchar(*s, (char)c);
     }
-    MYMPD_LOG_ERROR("File is too long, max length is %lu", (unsigned long)max);
-    return GETLINE_TOO_LONG;
+    MYMPD_LOG_ERROR("File is too big, max size is %lu", (unsigned long)max);
+    return -2;
 }
 
 /**

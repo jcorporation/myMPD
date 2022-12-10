@@ -75,9 +75,10 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
         errno = 0;
         FILE *fi = fopen(filepath, OPEN_FLAGS_READ);
         if (fi != NULL) {
-            while (sds_getline_n(&line, fi, LINE_LENGTH_MAX) == 0 &&
+            while (sds_getline(&line, fi, LINE_LENGTH_MAX) >= 0 &&
                 i < partition_state->mpd_state->last_played_count)
             {
+                line = sdscatlen(line, "\n", 1);
                 if (fputs(line, fp) == EOF) {
                     MYMPD_LOG_ERROR("\"%s\": Could not write last played songs to disc", partition_state->name);
                     write_rc = false;
@@ -192,7 +193,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
         FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
         if (fp != NULL) {
             sds line = sdsempty();
-            while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
+            while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
                 sds uri = NULL;
                 long long last_played = 0;
                 if (json_get_string_max(line, "$.uri", &uri, vcb_isfilepath, NULL) == true &&

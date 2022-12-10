@@ -74,7 +74,7 @@ bool presets_load(struct t_partition_state *partition_state) {
     FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
     if (fp != NULL) {
         sds line = sdsempty();
-        while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
+        while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
             sds name = NULL;
             if (json_get_string_max(line, "$.name", &name, vcb_isname, NULL) == true) {
                 list_push(&partition_state->presets, name, 0, line, NULL);

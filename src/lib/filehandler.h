@@ -25,16 +25,9 @@ enum try_rm_file_status {
     RM_FILE_ERROR = 2
 };
 
-enum getline_rc {
-    GETLINE_TOO_LONG = -2,
-    GETLINE_EMPTY = -1,
-    GETLINE_OK = 0
-};
-
 time_t get_mtime(const char *filepath);
 
 int sds_getline(sds *s, FILE *fp, size_t max);
-int sds_getline_n(sds *s, FILE *fp, size_t max);
 int sds_getfile(sds *s, FILE *fp, size_t max, bool remove_newline);
 
 FILE *open_tmp_file(sds filepath);

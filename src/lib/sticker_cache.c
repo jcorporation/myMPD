@@ -91,7 +91,7 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir) {
     if (sticker_cache->cache == NULL) {
         sticker_cache->cache = raxNew();
     }
-    while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
+    while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
         if (validate_json_object(line) == true) {
             sds uri = NULL;
             struct t_sticker *sticker = sticker_from_cache_line(line, &uri);

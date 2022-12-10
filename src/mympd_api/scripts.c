@@ -198,7 +198,7 @@ sds mympd_api_script_get(sds workdir, sds buffer, long request_id, sds script) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = tojson_sds(buffer, "script", script, true);
         sds line = sdsempty();
-        if (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0 &&
+        if (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0 &&
             strncmp(line, "-- ", 3) == 0)
         {
             sdsrange(line, 3, -1);
@@ -305,7 +305,7 @@ static sds parse_script_metadata(sds buffer, const char *scriptfilename, int *or
     }
 
     sds line = sdsempty();
-    if (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0 &&
+    if (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0 &&
         strncmp(line, "-- ", 3) == 0)
     {
         sdsrange(line, 3, -1);

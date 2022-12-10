@@ -103,7 +103,7 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
     if (album_cache->cache == NULL) {
         album_cache->cache = raxNew();
     }
-    while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
+    while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
         if (validate_json_object(line) == true) {
             struct mpd_song *album = album_from_cache_line(line, &album_tags);
             if (album != NULL) {

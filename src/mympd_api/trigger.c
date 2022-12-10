@@ -305,7 +305,7 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
     }
     int i = 0;
     sds line = sdsempty();
-    while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
+    while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
         if (i > LIST_TRIGGER_MAX) {
             MYMPD_LOG_WARN("Too many triggers defined");
             break;

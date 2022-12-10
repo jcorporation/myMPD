@@ -519,7 +519,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
     FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
     if (fp != NULL) {
         sds line = sdsempty();
-        while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0 &&
+        while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0 &&
                 queue_list->length < 50)
         {
             sds uri = NULL;
