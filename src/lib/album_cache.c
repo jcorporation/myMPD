@@ -36,8 +36,8 @@
  * Private definitions
  */
 
-static sds album_to_json(sds buffer, struct mpd_song *album, const struct t_tags *tagcols);
-static struct mpd_song *album_from_json(sds line, const struct t_tags *tagcols);
+static sds album_to_cache_line(sds buffer, struct mpd_song *album, const struct t_tags *tagcols);
+static struct mpd_song *album_from_cache_line(sds line, const struct t_tags *tagcols);
 
 /**
  * Public functions
@@ -95,7 +95,7 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
     }
     while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
         if (validate_json_object(line) == true) {
-            struct mpd_song *album = album_from_json(line, &album_tags);
+            struct mpd_song *album = album_from_cache_line(line, &album_tags);
             if (album != NULL) {
                 key = album_cache_get_key(album, key);
                 raxInsert(album_cache->cache, (unsigned char *)key, sdslen(key), album, NULL);
@@ -156,8 +156,7 @@ bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free_data
     };
     while (raxNext(&iter)) {
         sdsclear(line);
-        line = album_to_json(line, (struct mpd_song *)iter.data, &album_tags);
-        line = sdscatlen(line, "\n", 1);
+        line = album_to_cache_line(line, (struct mpd_song *)iter.data, &album_tags);
         if (fputs(line, fp) == EOF) {
             write_rc = false;
         }
@@ -382,28 +381,28 @@ bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mp
  */
 
 /**
- * Prints a song struct as an json object string
+ * Prints a song struct for the album cache
  * @param buffer already allocated sds string to append
  * @param album mpd song struct
  * @param tagcols tags to print
  * @return sds pointer to buffer
  */
-static sds album_to_json(sds buffer, struct mpd_song *album, const struct t_tags *tagcols) {
+static sds album_to_cache_line(sds buffer, struct mpd_song *album, const struct t_tags *tagcols) {
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_uint(buffer, "Discs", mpd_song_get_pos(album), true);
     buffer = tojson_uint(buffer, "Songs", mpd_song_get_prio(album), true);
     buffer = get_song_tags(buffer, true, tagcols, album);
-    buffer = sdscatlen(buffer, "}", 1);
+    buffer = sdscatlen(buffer, "}\n", 2);
     return buffer;
 }
 
 /**
- * Creates a mpd_song struct from json
+ * Creates a mpd_song struct from cache
  * @param line json line to parse
  * @param tagcols tags to read
  * @return struct mpd_song* allocated mpd_song struct
  */
-static struct mpd_song *album_from_json(sds line, const struct t_tags *tagcols) {
+static struct mpd_song *album_from_cache_line(sds line, const struct t_tags *tagcols) {
     sds uri = NULL;
     sds error = sdsempty();
     struct mpd_song *album = NULL;
