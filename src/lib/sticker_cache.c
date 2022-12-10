@@ -15,6 +15,7 @@
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
 #include "src/mpd_client/errorhandler.h"
+#include "sticker_cache.h"
 
 #include <errno.h>
 #include <string.h>
@@ -24,11 +25,23 @@
  */
 
 static bool sticker_inc(struct t_cache *sticker_cache, struct t_partition_state *partition_state, 
-        const char *uri, const char *name, long value);
+        const char *uri, enum mympd_stickers sticker_type, long value);
 static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
-        const char *uri, const char *name, long long value);
+        const char *uri, enum mympd_stickers sticker_type, long long value);
 static sds sticker_to_json(sds buffer, const char *uri, size_t uri_len, struct t_sticker *sticker);
 static struct t_sticker *sticker_from_json(sds line, sds *uri);
+
+static const char *const mympd_sticker_names[STICKER_COUNT] =
+{
+    [STICKER_PLAY_COUNT] = "playCount",
+    [STICKER_SKIP_COUNT] = "skipCount",
+    [STICKER_LIKE] = "like",
+    [STICKER_LAST_PLAYED] = "lastPlayed",
+    [STICKER_LAST_SKIPPED] = "lastSkipped",
+    [STICKER_ELAPSED] = "elapsed",
+    [STICKER_UNKNOWN] = NULL
+};
+
 /**
  * Public functions
  */
@@ -93,6 +106,35 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir) {
     sticker_cache->building = false;
     MYMPD_LOG_INFO("Read %lld sticker struct(s) from disc", (long long)sticker_cache->cache->numele);
     return true;
+}
+
+/**
+ * Returns the sticker name as string
+ * @param sticker enum mympd_stickers
+ * @return const char* the sticker name
+ */
+const char *sticker_name_lookup(enum mympd_stickers sticker) {
+    if ((unsigned)sticker >= STICKER_COUNT) {
+        return NULL;
+    }
+    return mympd_sticker_names[sticker];
+}
+
+/**
+ * Parses the sticker name
+ * @param name sticker name
+ * @return enum mpd_tag_type the sticker enum
+ */
+enum mympd_stickers sticker_name_parse(const char *name) {
+    if (name == NULL) {
+        return STICKER_UNKNOWN;
+    }
+    for (unsigned i = 0; i < STICKER_COUNT; ++i) {
+        if (strcmp(name, mympd_sticker_names[i]) == 0) {
+            return (enum mympd_stickers)i;
+        }
+    }
+    return STICKER_UNKNOWN;
 }
 
 /**
@@ -198,7 +240,7 @@ bool sticker_inc_play_count(struct t_list *sticker_queue, const char *uri) {
     if (is_streamuri(uri) == true) {
         return true;
     }
-    return list_push(sticker_queue, uri, 1, "playCount", NULL);
+    return list_push(sticker_queue, uri, 1, NULL, (int *)STICKER_PLAY_COUNT);
 }
 
 /**
@@ -211,7 +253,7 @@ bool sticker_inc_skip_count(struct t_list *sticker_queue, const char *uri) {
     if (is_streamuri(uri) == true) {
         return true;
     }
-    return list_push(sticker_queue, uri, 1, "skipCount", NULL);
+    return list_push(sticker_queue, uri, 1, NULL, (int *)STICKER_SKIP_COUNT);
 }
 
 /**
@@ -225,7 +267,7 @@ bool sticker_set_like(struct t_list *sticker_queue, const char *uri, int value) 
     if (is_streamuri(uri) == true) {
         return true;
     }
-    return list_push(sticker_queue, uri, value, "like", NULL);
+    return list_push(sticker_queue, uri, value, NULL, (int *)STICKER_LIKE);
 }
 
 /**
@@ -239,7 +281,7 @@ bool sticker_set_last_played(struct t_list *sticker_queue, const char *uri, time
     if (is_streamuri(uri) == true) {
         return true;
     }
-    return list_push(sticker_queue, uri, (long long)song_start_time, "lastPlayed", NULL);
+    return list_push(sticker_queue, uri, (long long)song_start_time, NULL, (int *)STICKER_LAST_PLAYED);
 }
 
 /**
@@ -253,7 +295,7 @@ bool sticker_set_last_skipped(struct t_list *sticker_queue, const char *uri) {
         return true;
     }
     time_t now = time(NULL);
-    return list_push(sticker_queue, uri, (long long)now, "lastSkipped", NULL);
+    return list_push(sticker_queue, uri, (long long)now, NULL, (int *)STICKER_LAST_SKIPPED);
 }
 
 /**
@@ -267,7 +309,7 @@ bool sticker_set_elapsed(struct t_list *sticker_queue, const char *uri, time_t e
     if (is_streamuri(uri) == true) {
         return true;
     }
-    return list_push(sticker_queue, uri, (long long)elapsed, "elapsed", NULL);
+    return list_push(sticker_queue, uri, (long long)elapsed, NULL, (int *)STICKER_ELAPSED);
 }
 
 /**
@@ -290,17 +332,14 @@ bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache
     struct t_list_node *current;
     while ((current = list_shift_first(sticker_queue)) != NULL) {
         MYMPD_LOG_DEBUG("Setting %s = %lld for \"%s\"", current->value_p, current->value_i, current->key);
-        if (strcmp(current->value_p, "playCount") == 0 ||
-            strcmp(current->value_p, "skipCount") == 0)
-        {
-            sticker_inc(sticker_cache, partition_state, current->key, current->value_p, (long)current->value_i);
-        }
-        else if (strcmp(current->value_p, "like") == 0 ||
-                 strcmp(current->value_p, "lastPlayed") == 0 ||
-                 strcmp(current->value_p, "lastSkipped") == 0 ||
-                 strcmp(current->value_p, "elapsed") == 0)
-        {
-            sticker_set(sticker_cache, partition_state, current->key, current->value_p, current->value_i);
+        enum mympd_stickers sticker_type = (enum mympd_stickers)current->user_data;
+        switch(sticker_type) {
+            case STICKER_PLAY_COUNT:
+            case STICKER_SKIP_COUNT:
+                sticker_inc(sticker_cache, partition_state, current->key, sticker_type, (long)current->value_i);
+                break;
+            default:
+                sticker_set(sticker_cache, partition_state, current->key, sticker_type, current->value_i);
         }
         list_node_free(current);
     }
@@ -340,12 +379,12 @@ sds sticker_cache_print_sticker(sds buffer, struct t_sticker *sticker) {
  * @param sticker_cache pointer to sticker cache struct
  * @param partition_state pointer to partition specific states
  * @param uri song uri
- * @param name sticker name
+ * @param sticker_type mympd_stickers enum
  * @param value value to increment by
  * @return true on success else false
  */
 static bool sticker_inc(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
-        const char *uri, const char *name, long value)
+        const char *uri, enum mympd_stickers sticker_type, long value)
 {
     struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
     if (sticker == NULL) {
@@ -353,33 +392,35 @@ static bool sticker_inc(struct t_cache *sticker_cache, struct t_partition_state 
     }
     //update sticker cache
     long new_value = 0;
-    if (strcmp(name, "playCount") == 0) {
-        if (sticker->play_count + value > STICKER_PLAY_COUNT_MAX) {
-            sticker->play_count = STICKER_PLAY_COUNT_MAX;
-        }
-        else {
-            sticker->play_count += value;
-        }
-        new_value = sticker->play_count;
-    }
-    else if (strcmp(name, "skipCount") == 0) {
-        if (sticker->skip_count + value > STICKER_SKIP_COUNT_MAX) {
-            sticker->skip_count = STICKER_SKIP_COUNT_MAX;
-        }
-        else {
-            sticker->skip_count += value;
-        }
-        new_value = sticker->skip_count;
-    }
-    else {
-        MYMPD_LOG_ERROR("Invalid sticker name \"%s\"", name);
-        return false;
+    const char *sticker_str = sticker_name_lookup(sticker_type);
+    switch(sticker_type) {
+        case STICKER_PLAY_COUNT:
+            if (sticker->play_count + value > STICKER_PLAY_COUNT_MAX) {
+                sticker->play_count = STICKER_PLAY_COUNT_MAX;
+            }
+            else {
+                sticker->play_count += value;
+            }
+            new_value = sticker->play_count;
+            break;
+        case STICKER_SKIP_COUNT:
+            if (sticker->skip_count + value > STICKER_SKIP_COUNT_MAX) {
+                sticker->skip_count = STICKER_SKIP_COUNT_MAX;
+            }
+            else {
+                sticker->skip_count += value;
+            }
+            new_value = sticker->skip_count;
+            break;
+        default:
+           MYMPD_LOG_ERROR("Invalid sticker name \"%s\" (%d)", sticker_str, sticker_type);
+           return false;
     }
 
     //update mpd sticker
     sds value_str = sdsfromlonglong((long long)new_value);
-    MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
-    bool rc = mpd_run_sticker_set(partition_state->conn, "song", uri, name, value_str);
+    MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, sticker_str, value_str);
+    bool rc = mpd_run_sticker_set(partition_state->conn, "song", uri, sticker_str, value_str);
     FREE_SDS(value_str);
     return mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_sticker_set");
 }
@@ -389,12 +430,12 @@ static bool sticker_inc(struct t_cache *sticker_cache, struct t_partition_state 
  * @param sticker_cache pointer to sticker cache struct
  * @param partition_state pointer to partition specific states
  * @param uri song uri
- * @param name sticker name
+ * @param sticker_type mympd_stickers enum
  * @param value value to set
  * @return true on success else false
  */
 static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
-        const char *uri, const char *name, long long value)
+        const char *uri, enum mympd_stickers sticker_type, long long value)
 {
     //update sticker cache
     struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
@@ -402,27 +443,29 @@ static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state 
         MYMPD_LOG_ERROR("Sticker for \"%s\" not found in cache", uri);
         return false;
     }
-    if (strcmp(name, "like") == 0) {
-        sticker->like = (long)value;
-    }
-    else if (strcmp(name, "lastPlayed") == 0) {
-        sticker->last_played = (time_t)value;
-    }
-    else if (strcmp(name, "lastSkipped") == 0) {
-        sticker->last_skipped = (time_t)value;
-    }
-    else if (strcmp(name, "elapsed") == 0) {
-        sticker->elapsed = (time_t)value;
-    }
-    else {
-        MYMPD_LOG_ERROR("Invalid sticker name \"%s\"", name);
-        return false;
+    const char *sticker_str = sticker_name_lookup(sticker_type);
+    switch(sticker_type) {
+        case STICKER_LIKE:
+            sticker->like = (long)value;
+            break;
+        case STICKER_LAST_PLAYED:
+            sticker->last_played = (time_t)value;
+            break;
+        case STICKER_LAST_SKIPPED:
+            sticker->last_skipped = (time_t)value;
+            break;
+        case STICKER_ELAPSED:
+            sticker->elapsed = (time_t)value;
+            break;
+        default:
+            MYMPD_LOG_ERROR("Invalid sticker name \"%s\" (%d)", sticker_str, sticker_type);
+            return false;
     }
 
     //update mpd sticker
     sds value_str = sdsfromlonglong(value);
-    MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, name, value_str);
-    bool rc = mpd_run_sticker_set(partition_state->conn, "song", uri, name, value_str);
+    MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, sticker_str, value_str);
+    bool rc = mpd_run_sticker_set(partition_state->conn, "song", uri, sticker_str, value_str);
     FREE_SDS(value_str);
     return mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_sticker_set");
 }
