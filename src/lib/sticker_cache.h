@@ -12,6 +12,9 @@
 #include <stdbool.h>
 #include <time.h>
 
+/**
+ * myMPD sticker types
+ */
 enum mympd_sticker_types {
     STICKER_PLAY_COUNT = 0,
     STICKER_SKIP_COUNT,
@@ -23,12 +26,18 @@ enum mympd_sticker_types {
     STICKER_COUNT
 };
 
+/**
+ * Valid values for like sticker
+ */
 enum sticker_like {
     STICKER_LIKE_HATE = 0,
     STICKER_LIKE_NEUTRAL = 1,
     STICKER_LIKE_LOVE = 2
 };
 
+/**
+ * Wrapper struct for sticker types
+ */
 struct t_sticker_type {
     enum mympd_sticker_types sticker_type;
 };
@@ -65,7 +74,5 @@ bool sticker_set_last_skipped(struct t_list *sticker_queue, const char *uri);
 bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache, struct t_partition_state *partition_state);
 
 sds sticker_cache_print_sticker(sds buffer, struct t_sticker *sticker);
-
-
 
 #endif
