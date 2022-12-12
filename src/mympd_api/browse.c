@@ -132,23 +132,27 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, mpd_song_get_uri(mpd_album), false);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "returnedEntities", album_get_song_count(mpd_album), true);
-    buffer = tojson_sds(buffer, "Album", album, true);
-    buffer = sdscat(buffer, "\"AlbumArtist\":");
-    buffer = mpd_client_get_tag_values(mpd_album, partition_state->mpd_state->tag_albumartist, buffer);
-    buffer = sdscat(buffer, ",\"Genre\":");
-    buffer = mpd_client_get_tag_values(mpd_album, MPD_TAG_GENRE, buffer);
-    buffer = sdscat(buffer, ",\"Date\":");
-    buffer = mpd_client_get_tag_values(mpd_album, MPD_TAG_DATE, buffer);
+
+    const struct t_tags album_tags = {
+        .tags = {
+            MPD_TAG_ALBUM,
+            MPD_TAG_ALBUM_ARTIST,
+            MPD_TAG_DATE,
+            MPD_TAG_ORIGINAL_DATE,
+            MPD_TAG_GENRE,
+            MPD_TAG_MUSICBRAINZ_ALBUMARTISTID,
+            MPD_TAG_MUSICBRAINZ_ALBUMID
+        },
+        .len = 7
+    };
+    buffer = get_song_tags(buffer, true, &album_tags, mpd_album);
+
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "Discs", album_get_discs(mpd_album), true);
     buffer = tojson_uint(buffer, "SongCount", album_get_song_count(mpd_album), true);
     buffer = tojson_uint(buffer, "Duration", album_get_total_time(mpd_album), true);
     buffer = tojson_llong(buffer, "LastModified", (long long)mpd_song_get_last_modified(mpd_album), true);
-    buffer = sdscat(buffer, "\"MUSICBRAINZ_ALBUMID\":");
-    buffer = mpd_client_get_tag_values(mpd_album, MPD_TAG_MUSICBRAINZ_ALBUMID, buffer);
-    buffer = sdscat(buffer, ",\"MUSICBRAINZ_ALBUMARTISTID\":");
-    buffer = mpd_client_get_tag_values(mpd_album, MPD_TAG_MUSICBRAINZ_ALBUMARTISTID, buffer);
-    buffer = sdscat(buffer, ",\"lastPlayedSong\":{");
+    buffer = sdscat(buffer, "\"lastPlayedSong\":{");
     buffer = tojson_llong(buffer, "time", (long long)last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
     buffer = sdscatlen(buffer, "}", 1);
