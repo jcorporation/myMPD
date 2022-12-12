@@ -9,7 +9,6 @@
 
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/libmympdclient/src/isong.h"
-#include "dist/mjson/mjson.h"
 #include "dist/rax/rax.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
@@ -47,11 +46,12 @@ static const struct t_tags album_tags = {
         MPD_TAG_ALBUM_ARTIST,
         MPD_TAG_ARTIST,
         MPD_TAG_DATE,
+        MPD_TAG_ORIGINAL_DATE,
         MPD_TAG_GENRE,
         MPD_TAG_MUSICBRAINZ_ALBUMARTISTID,
         MPD_TAG_MUSICBRAINZ_ALBUMID
     },
-    .len = 7
+    .len = 8
 };
 
 static sds album_to_cache_line(sds buffer, struct mpd_song *album, const struct t_tags *tagcols);
@@ -129,6 +129,10 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
     FREE_SDS(filepath);
     album_cache->building = false;
     MYMPD_LOG_INFO("Read %lld album(s) from disc", (long long)album_cache->cache->numele);
+    if (album_cache->cache->numele == 0) {
+        album_cache_remove(cachedir);
+        album_cache_free(album_cache);
+    }
     #ifdef MYMPD_DEBUG
         MEASURE_END
         MEASURE_PRINT("Album cache read");

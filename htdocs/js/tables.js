@@ -196,7 +196,7 @@ function setColTags(tableName) {
                 tags.push('Album');
             }
             tags.push('AlbumArtist');
-            for (const t of ['Genre', 'Date']) {
+            for (const t of ['Genre', 'Date', 'OriginalDate']) {
                 if (settings.tagList.includes(t)) {
                     tags.push(t);
                 }

@@ -5,11 +5,10 @@
 */
 
 #include "compile_time.h"
-#include "dist/sds/sds.h"
-#include "src/lib/filehandler.h"
 #include "src/mpd_worker/cache.h"
 
 #include "src/lib/album_cache.h"
+#include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -155,12 +154,13 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
             MPD_TAG_ALBUM_ARTIST,
             MPD_TAG_ARTIST,
             MPD_TAG_DATE,
+            MPD_TAG_ORIGINAL_DATE,
             MPD_TAG_DISC,
             MPD_TAG_GENRE,
             MPD_TAG_MUSICBRAINZ_ALBUMARTISTID,
             MPD_TAG_MUSICBRAINZ_ALBUMID
         },
-        .len = 8
+        .len = 9
     };
     //check for enabled tags
     struct t_tags enable_tags;
