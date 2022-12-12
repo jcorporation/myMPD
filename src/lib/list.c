@@ -561,7 +561,7 @@ bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callba
         current = current->next;
     }
     FREE_SDS(buffer);
-    bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
+    bool rc = rename_tmp_file(fp, tmp_file, write_rc);
     FREE_SDS(tmp_file);
     return rc;
 }

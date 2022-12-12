@@ -536,10 +536,8 @@ bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir) {
         current = current->next;
     }
     FREE_SDS(buffer);
-    sds filepath = sdscatfmt(sdsempty(), "%S/state/timer_list", workdir);
-    bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
+    bool rc = rename_tmp_file(fp, tmp_file, write_rc);
     FREE_SDS(tmp_file);
-    FREE_SDS(filepath);
     return rc;
 }
 

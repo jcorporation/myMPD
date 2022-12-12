@@ -198,10 +198,8 @@ bool sticker_cache_write(struct t_cache *sticker_cache, sds cachedir, bool free_
         raxFree(sticker_cache->cache);
         sticker_cache->cache = NULL;
     }
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_STICKERCACHE);
-    bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
+    bool rc = rename_tmp_file(fp, tmp_file, write_rc);
     FREE_SDS(tmp_file);
-    FREE_SDS(filepath);
     return rc;
 }
 

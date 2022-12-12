@@ -171,13 +171,14 @@ FILE *open_tmp_file(sds filepath) {
 
 /**
  * Closes the tmp file and moves it to its destination name
+ * This is done by removing the last 7 characters from the tmp_file.
+ * See open_tmp_file for corresponding open function.
  * @param fp FILE pointer
  * @param tmp_file tmp file to close and move
- * @param filepath destination path
  * @param write_rc if false tmp file will be removed
  * @return true on success else false
  */
-bool rename_tmp_file(FILE *fp, sds tmp_file, sds filepath, bool write_rc) {
+bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
     if (fclose(fp) != 0 ||
         write_rc == false)
     {
@@ -186,12 +187,16 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, sds filepath, bool write_rc) {
         return false;
     }
     errno = 0;
+    //filepath is tmp_file without .XXXXXX suffix
+    sds filepath = sdscatlen(sdsempty(), tmp_file, sdslen(tmp_file) - 7);
     if (rename(tmp_file, filepath) == -1) {
         MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, filepath);
         MYMPD_LOG_ERRNO(errno);
         rm_file(tmp_file);
+        FREE_SDS(filepath);
         return false;
     }
+    FREE_SDS(filepath);
     return true;
 }
 
@@ -247,7 +252,7 @@ bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
     }
     size_t written = fwrite(data, 1, data_len, fp);
     bool write_rc = written == data_len ? true : false;
-    bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
+    bool rc = rename_tmp_file(fp, tmp_file, write_rc);
     FREE_SDS(tmp_file);
     return rc;
 }

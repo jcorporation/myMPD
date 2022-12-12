@@ -661,7 +661,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
         return false;
     }
     bool write_rc = PEM_write_PrivateKey(fp, pkey, NULL, NULL, 0, NULL, NULL) == 0 ? false : true;
-    bool rc = rename_tmp_file(fp, tmp_file, key_file, write_rc);
+    bool rc = rename_tmp_file(fp, tmp_file, write_rc);
     if (rc == false) {
         FREE_SDS(tmp_file);
         return rc;
@@ -676,7 +676,7 @@ static bool write_to_disk(sds key_file, EVP_PKEY *pkey, sds cert_file, X509 *cer
         return false;
     }
     write_rc = PEM_write_X509(fp, cert) == 0 ? false : true;
-    rc = rename_tmp_file(fp, tmp_file, cert_file, write_rc);
+    rc = rename_tmp_file(fp, tmp_file, write_rc);
     FREE_SDS(tmp_file);
     return rc;
 }

@@ -176,10 +176,8 @@ bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free_data
         raxFree(album_cache->cache);
         album_cache->cache = NULL;
     }
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE);
-    bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
+    bool rc = rename_tmp_file(fp, tmp_file, write_rc);
     FREE_SDS(tmp_file);
-    FREE_SDS(filepath);
     return rc;
 }
 

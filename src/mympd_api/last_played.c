@@ -97,9 +97,9 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
         }
     }
     FREE_SDS(line);
-    bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
-    FREE_SDS(tmp_file);
     FREE_SDS(filepath);
+    bool rc = rename_tmp_file(fp, tmp_file, write_rc);
+    FREE_SDS(tmp_file);
     return rc;
 }
 
