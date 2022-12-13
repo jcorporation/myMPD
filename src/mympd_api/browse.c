@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/tag.h"
 #include "src/mympd_api/browse.h"
 
 #include "dist/utf8/utf8.h"
