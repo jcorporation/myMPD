@@ -5,13 +5,13 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/list.h"
 #include "src/mympd_api/mympd_api_handler.h"
 
 #include "src/lib/album_cache.h"
 #include "src/lib/api.h"
 #include "src/lib/covercache.h"
 #include "src/lib/jsonrpc.h"
+#include "src/lib/list.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
