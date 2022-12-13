@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "mpd/tag.h"
 #include "src/mpd_client/features.h"
 
 #include "dist/libmympdclient/include/mpd/client.h"
@@ -26,6 +27,7 @@
 static void features_commands(struct t_partition_state *partition_state);
 static void features_mpd_tags(struct t_partition_state *partition_state);
 static void features_tags(struct t_partition_state *partition_state);
+static void set_album_tags(struct t_partition_state *partition_state);
 static void features_config(struct t_partition_state *partition_state);
 static sds set_directory(const char *desc, sds directory, sds value);
 
@@ -164,13 +166,18 @@ static void features_commands(struct t_partition_state *partition_state) {
  * @param partition_state pointer to partition state
  */
 static void features_tags(struct t_partition_state *partition_state) {
+    //reset all tags
+    reset_t_tags(&partition_state->mpd_state->tags_mpd);
+    reset_t_tags(&partition_state->mpd_state->tags_mympd);
     reset_t_tags(&partition_state->mpd_state->tags_search);
     reset_t_tags(&partition_state->mpd_state->tags_browse);
+    reset_t_tags(&partition_state->mpd_state->tags_album);
     reset_t_tags(&partition_state->mympd_state->smartpls_generate_tag_types);
-
+    //check for enabled mpd tags
     features_mpd_tags(partition_state);
-
+    //parse the webui taglists and set the tag structs
     if (partition_state->mpd_state->feat_tags == true) {
+        set_album_tags(partition_state);
         check_tags(partition_state->mympd_state->tag_list_search, "tag_list_search",
             &partition_state->mpd_state->tags_search, &partition_state->mpd_state->tags_mympd);
         check_tags(partition_state->mympd_state->tag_list_browse, "tag_list_browse",
@@ -181,13 +188,36 @@ static void features_tags(struct t_partition_state *partition_state) {
 }
 
 /**
- * Checks enabled tags from MPD
+ * Sets the tags for albums
+ * @param partition_state pointer to partition state
+ */
+static void set_album_tags(struct t_partition_state *partition_state) {
+    sds logline = sdscatfmt(sdsempty(), "Enabled tag_list_album: ");
+    for (size_t i = 0; i < partition_state->mpd_state->tags_mympd.len; i++) {
+        switch(partition_state->mpd_state->tags_mympd.tags[i]) {
+            case MPD_TAG_MUSICBRAINZ_RELEASETRACKID:
+            case MPD_TAG_MUSICBRAINZ_TRACKID:
+            case MPD_TAG_NAME:
+            case MPD_TAG_TITLE:
+            case MPD_TAG_TITLE_SORT:
+            case MPD_TAG_TRACK:
+                //ignore this tags for albums
+                break;
+            default:
+                partition_state->mpd_state->tags_album.tags[partition_state->mpd_state->tags_album.len++] = partition_state->mpd_state->tags_mympd.tags[i];
+                logline = sdscatfmt(logline, "%s ", mpd_tag_name(partition_state->mpd_state->tags_mympd.tags[i]));
+        }
+    }
+    MYMPD_LOG_NOTICE("%s", logline);
+    FREE_SDS(logline);
+}
+
+/**
+ * Checks enabled tags from MPD and
+ * populates tags_mpd and tags_mympd
  * @param partition_state pointer to partition state
  */
 static void features_mpd_tags(struct t_partition_state *partition_state) {
-    reset_t_tags(&partition_state->mpd_state->tags_mpd);
-    reset_t_tags(&partition_state->mpd_state->tags_mympd);
-
     enable_all_mpd_tags(partition_state);
 
     sds logline = sdsnew("MPD supported tags: ");
@@ -220,6 +250,7 @@ static void features_mpd_tags(struct t_partition_state *partition_state) {
     else {
         partition_state->mpd_state->feat_tags = true;
         MYMPD_LOG_NOTICE("%s", logline);
+        //populate tags_mympd tags struct
         check_tags(partition_state->mpd_state->tag_list, "tag_list",
             &partition_state->mpd_state->tags_mympd, &partition_state->mpd_state->tags_mpd);
     }

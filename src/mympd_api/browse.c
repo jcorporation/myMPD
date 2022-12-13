@@ -133,19 +133,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "returnedEntities", album_get_song_count(mpd_album), true);
 
-    const struct t_tags album_tags = {
-        .tags = {
-            MPD_TAG_ALBUM,
-            MPD_TAG_ALBUM_ARTIST,
-            MPD_TAG_DATE,
-            MPD_TAG_ORIGINAL_DATE,
-            MPD_TAG_GENRE,
-            MPD_TAG_MUSICBRAINZ_ALBUMARTISTID,
-            MPD_TAG_MUSICBRAINZ_ALBUMID
-        },
-        .len = 7
-    };
-    buffer = get_song_tags(buffer, true, &album_tags, mpd_album);
+    buffer = get_song_tags(buffer, true, &partition_state->mpd_state->tags_album, mpd_album);
 
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "Discs", album_get_discs(mpd_album), true);

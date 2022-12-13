@@ -96,7 +96,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
             request->extra = (void *) album_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated album cache");
-            album_cache_write(&album_cache, mpd_worker_state->config->cachedir, false);
+            album_cache_write(&album_cache, mpd_worker_state->config->cachedir, &mpd_worker_state->mpd_state->tags_album, false);
         }
         else {
             album_cache_free(&album_cache);
@@ -147,31 +147,9 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
     long album_count = 0;
     long song_count = 0;
     long skipped = 0;
-    //used tags for albums
-    const struct t_tags album_tags = {
-        .tags = {
-            MPD_TAG_ALBUM,
-            MPD_TAG_ALBUM_ARTIST,
-            MPD_TAG_ARTIST,
-            MPD_TAG_DATE,
-            MPD_TAG_ORIGINAL_DATE,
-            MPD_TAG_DISC,
-            MPD_TAG_GENRE,
-            MPD_TAG_MUSICBRAINZ_ALBUMARTISTID,
-            MPD_TAG_MUSICBRAINZ_ALBUMID
-        },
-        .len = 9
-    };
-    //check for enabled tags
-    struct t_tags enable_tags;
-    enable_tags.len = 0;
-    for (size_t j = 0; j < album_tags.len; j++) {
-        if (mpd_client_tag_exists(&mpd_worker_state->mpd_state->tags_mympd, album_tags.tags[j]) == true) {
-            enable_tags.tags[enable_tags.len++] = album_tags.tags[j];
-        }
-    }
+
     //set tags
-    enable_mpd_tags(mpd_worker_state->partition_state, &enable_tags);
+    enable_mpd_tags(mpd_worker_state->partition_state, &mpd_worker_state->mpd_state->tags_album);
 
     //get all songs and set albums
     #ifdef MYMPD_DEBUG

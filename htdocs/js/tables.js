@@ -189,20 +189,20 @@ function setColTags(tableName) {
             return ["Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate"];
         case 'BrowseRadioRadiobrowser':
             return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
-        case 'BrowseDatabaseAlbumList':
-        case 'BrowseDatabaseAlbumDetailInfo': {
-            const tags = [];
-            if (tableName === 'BrowseDatabaseAlbumList') {
-                tags.push('Album');
-            }
-            tags.push('AlbumArtist');
-            for (const t of ['Genre', 'Date', 'OriginalDate']) {
-                if (settings.tagList.includes(t)) {
-                    tags.push(t);
-                }
-            }
+        case 'BrowseDatabaseAlbumList': {
+            const tags = settings.tagListAlbum.slice();
             tags.push('Discs', 'SongCount', 'Duration', 'LastModified');
-            return tags;
+            return tags.filter(function(value) {
+                return value !== 'Disc';
+            });
+        }
+        case 'BrowseDatabaseAlbumDetailInfo': {
+            const tags = settings.tagListAlbum.slice();
+            tags.push('Discs', 'SongCount', 'Duration', 'LastModified');
+            return tags.filter(function(value) {
+                return value !== 'Disc' &&
+                       value !== 'Album';
+            });
         }
     }
 
@@ -210,32 +210,27 @@ function setColTags(tableName) {
     if (features.featTags === false) {
         tags.push('Title');
     }
-    tags.push('Duration');
-    tags.push('LastModified');
+    tags.push('Duration', 'LastModified');
 
     switch(tableName) {
         case 'QueueCurrent':
-            tags.push('AudioFormat');
-            tags.push('Priority');
+            tags.push('AudioFormat', 'Priority');
             //fall through
         case 'BrowsePlaylistsDetail':
         case 'QueueJukebox':
             tags.push('Pos');
             break;
         case 'BrowseFilesystem':
-            tags.push('Type');
-            tags.push('Filename');
+            tags.push('Type', 'Filename');
             break;
         case 'Playback':
-            tags.push('AudioFormat');
-            tags.push('Filetype');
+            tags.push('AudioFormat', 'Filetype');
             if (features.featLyrics === true) {
                 tags.push('Lyrics');
             }
             break;
         case 'QueueLastPlayed':
-            tags.push('Pos');
-            tags.push('LastPlayed');
+            tags.push('Pos', 'LastPlayed');
             break;
     }
     //sort tags and append stickers

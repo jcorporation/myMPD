@@ -80,7 +80,7 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir) {
     if (fp == NULL) {
         MYMPD_LOG_DEBUG("Can not open file \"%s\"", filepath);
         if (errno != ENOENT) {
-            //ignore missing last_played file
+            //ignore missing sticker cache file
             MYMPD_LOG_ERRNO(errno);
         }
         FREE_SDS(filepath);

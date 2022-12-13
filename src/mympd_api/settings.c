@@ -21,6 +21,7 @@
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
 #include "src/mpd_client/presets.h"
+#include "src/mpd_client/tags.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
@@ -33,7 +34,6 @@
  * Private declarations
  */
 
-static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags);
 static sds set_invalid_value(sds buffer, sds key, sds value);
 static void enable_set_conn_options(struct t_mympd_state *mympd_state);
 
@@ -895,15 +895,17 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_sds(buffer, "musicDirectoryValue", partition_state->mpd_state->music_directory_value, true);
         buffer = tojson_sds(buffer, "playlistDirectoryValue", partition_state->mpd_state->playlist_directory_value, true);
         //taglists
-        buffer = print_tags_array(buffer, "tagList", partition_state->mpd_state->tags_mympd);
+        buffer = print_tags_array(buffer, "tagList", &partition_state->mpd_state->tags_mympd);
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = print_tags_array(buffer, "tagListSearch", partition_state->mpd_state->tags_search);
+        buffer = print_tags_array(buffer, "tagListSearch", &partition_state->mpd_state->tags_search);
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = print_tags_array(buffer, "tagListBrowse", partition_state->mpd_state->tags_browse);
+        buffer = print_tags_array(buffer, "tagListBrowse", &partition_state->mpd_state->tags_browse);
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = print_tags_array(buffer, "tagListMpd", partition_state->mpd_state->tags_mpd);
+        buffer = print_tags_array(buffer, "tagListMpd", &partition_state->mpd_state->tags_mpd);
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = print_tags_array(buffer, "smartplsGenerateTagList", mympd_state->smartpls_generate_tag_types);
+        buffer = print_tags_array(buffer, "tagListAlbum", &partition_state->mpd_state->tags_album);
+        buffer = sdscatlen(buffer, ",", 1);
+        buffer = print_tags_array(buffer, "smartplsGenerateTagList", &mympd_state->smartpls_generate_tag_types);
         //trigger events
         buffer = sdscat(buffer, ",\"triggerEvents\":{");
         buffer = mympd_api_trigger_print_event_list(buffer);
@@ -916,26 +918,6 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
 /**
  * Privat functions
  */
-
-/**
- * Helper function to print a t_tags struct as json array
- * @param buffer already allocated sds string to append the response
- * @param tagsname key for the json array
- * @param tags tags to print
- * @return pointer to buffer
- */
-static sds print_tags_array(sds buffer, const char *tagsname, struct t_tags tags) {
-    buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);
-    for (unsigned i = 0; i < tags.len; i++) {
-        if (i > 0) {
-            buffer = sdscatlen(buffer, ",", 1);
-        }
-        const char *tagname = mpd_tag_name(tags.tags[i]);
-        buffer = sds_catjson(buffer, tagname, strlen(tagname));
-    }
-    buffer = sdscatlen(buffer, "]", 1);
-    return buffer;
-}
 
 /**
  * Helper function to set an error message

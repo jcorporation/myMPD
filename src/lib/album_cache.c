@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "dist/sds/sds.h"
 #include "src/lib/album_cache.h"
 
 #include "dist/libmympdclient/include/mpd/client.h"
@@ -13,6 +14,7 @@
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
+#include "src/lib/mem.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
@@ -37,23 +39,7 @@
  * Private definitions
  */
 
-/**
- * Tags that are written to/read from the album cache file
- */
-static const struct t_tags album_tags = {
-    .tags = {
-        MPD_TAG_ALBUM,
-        MPD_TAG_ALBUM_ARTIST,
-        MPD_TAG_ARTIST,
-        MPD_TAG_DATE,
-        MPD_TAG_ORIGINAL_DATE,
-        MPD_TAG_GENRE,
-        MPD_TAG_MUSICBRAINZ_ALBUMARTISTID,
-        MPD_TAG_MUSICBRAINZ_ALBUMID
-    },
-    .len = 8
-};
-
+static struct t_tags *album_cache_read_tags(sds cachedir);
 static sds album_to_cache_line(sds buffer, struct mpd_song *album, const struct t_tags *tagcols);
 static struct mpd_song *album_from_cache_line(sds line, const struct t_tags *tagcols);
 
@@ -68,9 +54,12 @@ static struct mpd_song *album_from_cache_line(sds line, const struct t_tags *tag
  */
 bool album_cache_remove(sds cachedir) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE);
-    int rc = try_rm_file(filepath);
+    int rc1 = try_rm_file(filepath);
+    sdsclear(filepath);
+    filepath = sdscatfmt(filepath, "%S/%s", cachedir, FILENAME_ALBUMCACHE_TAGS);
+    int rc2 = try_rm_file(filepath);
     FREE_SDS(filepath);
-    return rc == RM_FILE_ERROR ? false : true;
+    return rc1 == RM_FILE_ERROR || rc2 == RM_FILE_ERROR ? false : true;
 }
 
 /**
@@ -84,6 +73,11 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
         MEASURE_INIT
         MEASURE_START
     #endif
+    struct t_tags *album_tags = album_cache_read_tags(cachedir);
+    if (album_tags == NULL) {
+        album_cache_remove(cachedir);
+        return false;
+    }
     album_cache->building = true;
     sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE);
     errno = 0;
@@ -91,7 +85,7 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
     if (fp == NULL) {
         MYMPD_LOG_DEBUG("Can not open file \"%s\"", filepath);
         if (errno != ENOENT) {
-            //ignore missing last_played file
+            //ignore missing album cache file
             MYMPD_LOG_ERRNO(errno);
         }
         FREE_SDS(filepath);
@@ -105,7 +99,7 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
     }
     while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
         if (validate_json_object(line) == true) {
-            struct mpd_song *album = album_from_cache_line(line, &album_tags);
+            struct mpd_song *album = album_from_cache_line(line, album_tags);
             if (album != NULL) {
                 key = album_cache_get_key(album, key);
                 if (raxTryInsert(album_cache->cache, (unsigned char *)key, sdslen(key), album, NULL) == 0) {
@@ -126,6 +120,7 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
     FREE_SDS(line);
     FREE_SDS(key);
     (void) fclose(fp);
+    FREE_PTR(album_tags);
     FREE_SDS(filepath);
     album_cache->building = false;
     MYMPD_LOG_INFO("Read %lld album(s) from disc", (long long)album_cache->cache->numele);
@@ -144,15 +139,28 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
  * Saves the album cache to disc as a njson file
  * @param album_cache pointer to t_cache struct
  * @param cachedir myMPD cache directory
+ * @param album_tags album tags to write
  * @param free_data true=free the album cache, else not
  * @return bool true on success, else false
  */
-bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free_data) {
+bool album_cache_write(struct t_cache *album_cache, sds cachedir, struct t_tags *album_tags, bool free_data) {
     if (album_cache->cache == NULL) {
         MYMPD_LOG_DEBUG("Album cache is NULL not saving anything");
         return true;
     }
     MYMPD_LOG_INFO("Saving album cache");
+    //first write the tagtypes
+    sds line = sdsnewlen("{", 1);
+    line = print_tags_array(line, "tagListAlbum", album_tags);
+    line = sdscatlen(line, "}", 1);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE_TAGS);
+    bool write_rc = write_data_to_file(filepath, line, sdslen(line));
+    FREE_SDS(filepath);
+    if (write_rc == false) {
+        FREE_SDS(line);
+        return false;
+    }
+    //write the cache itself
     raxIterator iter;
     raxStart(&iter, album_cache->cache);
     raxSeek(&iter, "^", NULL, 0);
@@ -162,11 +170,10 @@ bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free_data
         FREE_SDS(tmp_file);
         return false;
     }
-    bool write_rc = true;
-    sds line = sdsempty();
+    sdsclear(line);
     while (raxNext(&iter)) {
         sdsclear(line);
-        line = album_to_cache_line(line, (struct mpd_song *)iter.data, &album_tags);
+        line = album_to_cache_line(line, (struct mpd_song *)iter.data, album_tags);
         if (fputs(line, fp) == EOF) {
             write_rc = false;
         }
@@ -181,6 +188,7 @@ bool album_cache_write(struct t_cache *album_cache, sds cachedir, bool free_data
         album_cache->cache = NULL;
     }
     bool rc = rename_tmp_file(fp, tmp_file, write_rc);
+    sdsclear(tmp_file);
     FREE_SDS(tmp_file);
     return rc;
 }
@@ -385,6 +393,40 @@ bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mp
 /**
  * Private functions
  */
+
+/**
+ * Reads and parses the album cache tags file
+ * @param cachedir myMPD cache dir
+ * @return struct t_tags* newly allocated t_tags struct or NULL on error
+ */
+static struct t_tags *album_cache_read_tags(sds cachedir) {
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE_TAGS);
+    errno = 0;
+    FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
+    if (fp == NULL) {
+        MYMPD_LOG_DEBUG("Can not open file \"%s\"", filepath);
+        if (errno != ENOENT) {
+            //ignore missing album cache file
+            MYMPD_LOG_ERRNO(errno);
+        }
+        FREE_SDS(filepath);
+        return NULL;
+    }
+    sds line = sdsempty();
+    sds_getfile(&line, fp, LINE_LENGTH_MAX, true);
+    (void) fclose(fp);
+
+    sds error = sdsempty();
+    struct t_tags *tags = malloc_assert(sizeof(struct t_tags));
+    reset_t_tags(tags);
+    if (json_get_tags(line, "$.tagListAlbum", tags, 64, &error) == false) {
+        FREE_PTR(tags);
+    }
+    FREE_SDS(error);
+    FREE_SDS(line);
+    FREE_SDS(filepath);
+    return tags;
+}
 
 /**
  * Prints a song struct for the album cache

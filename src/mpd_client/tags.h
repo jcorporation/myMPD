@@ -26,4 +26,5 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
 bool mpd_client_tag_exists(const struct t_tags *tagtypes, enum mpd_tag_type tag);
 sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag, sds tag_values);
 sds mpd_client_get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type tag, sds tag_values);
+sds print_tags_array(sds buffer, const char *tagsname, struct t_tags *tags);
 #endif

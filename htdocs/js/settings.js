@@ -1099,20 +1099,18 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 }
 
 /**
- * Filters the selected columns by available columns
+ * Filters the selected column by available tags
  * @param {string} tableName the table name
  */
 function filterCols(tableName) {
+    //set available tags
     const tags = setColTags(tableName);
+    //column name
     const set = "cols" + tableName;
-    const cols = [];
-    for (let i = 0, j = settings[set].length; i < j; i++) {
-        if (tags.includes(settings[set][i])) {
-            cols.push(settings[set][i]);
-        }
-    }
-    settings[set] = cols;
-    logDebug('Columns for ' + set + ': ' + cols);
+    settings[set] = settings[set].filter(function(value) {
+        return tags.includes(value);
+    });
+    logDebug('Columns for ' + set + ': ' + settings[set]);
 }
 
 /**

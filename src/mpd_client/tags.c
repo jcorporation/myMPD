@@ -176,6 +176,26 @@ bool enable_all_mpd_tags(struct t_partition_state *partition_state) {
 }
 
 /**
+ * Helper function to print a t_tags struct as json array
+ * @param buffer already allocated sds string to append the response
+ * @param tagsname key for the json array
+ * @param tags tags to print
+ * @return pointer to buffer
+ */
+sds print_tags_array(sds buffer, const char *tagsname, struct t_tags *tags) {
+    buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);
+    for (unsigned i = 0; i < tags->len; i++) {
+        if (i > 0) {
+            buffer = sdscatlen(buffer, ",", 1);
+        }
+        const char *tagname = mpd_tag_name(tags->tags[i]);
+        buffer = sds_catjson(buffer, tagname, strlen(tagname));
+    }
+    buffer = sdscatlen(buffer, "]", 1);
+    return buffer;
+}
+
+/**
  * Enables specific mpd tags
  * @param partition_state pointer to partition specific states
  * @param enable_tags pointer to t_tags struct
@@ -188,13 +208,16 @@ bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_t
     if (mpd_command_list_begin(partition_state->conn, false)) {
         bool rc = mpd_send_clear_tag_types(partition_state->conn);
         if (rc == false) {
-            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear_tag_types");
+            MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_clear_tag_types", partition_state->name);
         }
         if (enable_tags->len > 0) {
             rc = mpd_send_enable_tag_types(partition_state->conn, enable_tags->tags, (unsigned)enable_tags->len);
             if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_enable_tag_types");
+                MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_enable_tag_types", partition_state->name);
             }
+        }
+        else {
+            MYMPD_LOG_WARN("\"%s\": No mpd tags are enabled", partition_state->name);
         }
         if (mpd_command_list_end(partition_state->conn)) {
             mpd_response_finish(partition_state->conn);
