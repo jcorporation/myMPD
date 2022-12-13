@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "api.h"
+#include "src/mpd_worker/api.h"
 
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
