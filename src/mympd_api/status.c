@@ -332,7 +332,7 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
     }
     buffer = sdscatlen(buffer, ",", 1);
     time_t start_time = get_current_song_start_time(partition_state);
-    buffer = tojson_llong(buffer, "startTime", (long long)start_time, false);
+    buffer = tojson_time(buffer, "startTime", start_time, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }

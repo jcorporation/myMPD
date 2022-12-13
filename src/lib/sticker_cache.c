@@ -492,9 +492,9 @@ static sds sticker_to_cache_line(sds buffer, const char *uri, size_t uri_len, st
     buffer = tojson_long(buffer, "pc", sticker->play_count, true);
     buffer = tojson_long(buffer, "sc", sticker->skip_count, true);
     buffer = tojson_long(buffer, "li", sticker->like, true);
-    buffer = tojson_llong(buffer, "lp", (long long)sticker->last_played, true);
-    buffer = tojson_llong(buffer, "ls", (long long)sticker->last_skipped, true);
-    buffer = tojson_llong(buffer, "el", (long long)sticker->elapsed, false);
+    buffer = tojson_time(buffer, "lp", sticker->last_played, true);
+    buffer = tojson_time(buffer, "ls", sticker->last_skipped, true);
+    buffer = tojson_time(buffer, "el", sticker->elapsed, false);
     buffer = sdscatlen(buffer, "}\n", 2);
     return buffer;
 }

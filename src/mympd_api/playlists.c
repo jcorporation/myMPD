@@ -261,7 +261,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
     buffer = tojson_sds(buffer, "plist", plist, true);
     buffer = tojson_bool(buffer, "smartpls", smartpls, true);
     buffer = sdscat(buffer, "\"lastPlayedSong\":{");
-    buffer = tojson_llong(buffer, "time", (long long)last_played_max, true);
+    buffer = tojson_time(buffer, "time", last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
     buffer = sdscatlen(buffer, "}", 1);
     buffer = jsonrpc_end(buffer);

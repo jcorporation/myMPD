@@ -151,7 +151,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     buffer = tojson_uint(buffer, "Discs", album_get_discs(mpd_album), true);
     buffer = tojson_uint(buffer, "SongCount", album_get_song_count(mpd_album), true);
     buffer = sdscat(buffer, "\"lastPlayedSong\":{");
-    buffer = tojson_llong(buffer, "time", (long long)last_played_max, true);
+    buffer = tojson_time(buffer, "time", last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
     buffer = sdscatlen(buffer, "}", 1);
     buffer = jsonrpc_end(buffer);

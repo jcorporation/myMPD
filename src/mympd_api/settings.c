@@ -784,7 +784,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_bool(buffer, "smartpls", mympd_state->smartpls, true);
     buffer = tojson_sds(buffer, "smartplsSort", mympd_state->smartpls_sort, true);
     buffer = tojson_sds(buffer, "smartplsPrefix", mympd_state->smartpls_prefix, true);
-    buffer = tojson_llong(buffer, "smartplsInterval", (long long)mympd_state->smartpls_interval, true);
+    buffer = tojson_time(buffer, "smartplsInterval", mympd_state->smartpls_interval, true);
     buffer = tojson_long(buffer, "lastPlayedCount", mympd_state->mpd_state->last_played_count, true);
     buffer = tojson_sds(buffer, "musicDirectory", mympd_state->music_directory, true);
     buffer = tojson_sds(buffer, "playlistDirectory", mympd_state->playlist_directory, true);

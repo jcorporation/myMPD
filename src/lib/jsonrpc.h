@@ -86,6 +86,7 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma);
 sds tojson_int(sds buffer, const char *key, int value, bool comma);
 sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma);
 sds tojson_long(sds buffer, const char *key, long value, bool comma);
+sds tojson_time(sds buffer, const char *key, time_t value, bool comma);
 sds tojson_llong(sds buffer, const char *key, long long value, bool comma);
 sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma);
 sds tojson_ullong(sds buffer, const char *key, unsigned long long value, bool comma);

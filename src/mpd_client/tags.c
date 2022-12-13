@@ -289,7 +289,7 @@ sds get_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
     }
 
     buffer = tojson_uint(buffer, "Duration", mpd_song_get_duration(song), true);
-    buffer = tojson_llong(buffer, "LastModified", (long long)mpd_song_get_last_modified(song), true);
+    buffer = tojson_time(buffer, "LastModified", mpd_song_get_last_modified(song), true);
     buffer = tojson_char(buffer, "uri", mpd_song_get_uri(song), false);
     return buffer;
 }

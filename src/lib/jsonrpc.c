@@ -375,8 +375,7 @@ sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, 
 }
 
 /**
- * Prints a json key/value pair for bool value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for a bool value
  * @param buffer sds string to append
  * @param key json key
  * @param value bool value
@@ -392,8 +391,7 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for int value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for an int value
  * @param buffer sds string to append
  * @param key json key
  * @param value integer value
@@ -409,8 +407,7 @@ sds tojson_int(sds buffer, const char *key, int value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for unsigned
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for an unsigned
  * @param buffer sds string to append
  * @param key json key
  * @param value unsigned integer value
@@ -426,8 +423,7 @@ sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for long value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for a long value
  * @param buffer sds string to append
  * @param key json key
  * @param value long value
@@ -443,8 +439,19 @@ sds tojson_long(sds buffer, const char *key, long value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for long long value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for a time_t value
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value long long value
+ * @param comma true to append a comma
+ * @return pointer to buffer
+ */
+sds tojson_time(sds buffer, const char *key, time_t value, bool comma) {
+    return tojson_llong(buffer, key, (long long)value, comma);
+}
+
+/**
+ * Prints a json key/value pair for a long long value
  * @param buffer sds string to append
  * @param key json key
  * @param value long long value
@@ -460,8 +467,7 @@ sds tojson_llong(sds buffer, const char *key, long long value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for unsigned long value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for an unsigned long value
  * @param buffer sds string to append
  * @param key json key
  * @param value unsigned long value
@@ -477,8 +483,7 @@ sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for unsigned long long value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for an unsigned long long value
  * @param buffer sds string to append
  * @param key json key
  * @param value unsigned long long value
@@ -494,8 +499,7 @@ sds tojson_ullong(sds buffer, const char *key, unsigned long long value, bool co
 }
 
 /**
- * Prints a json key/value pair for unsigned long long value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for a double value
  * @param buffer sds string to append
  * @param key json key
  * @param value unsigned long long value
