@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-
 #include "src/web_server/proxy.h"
 
 #include "src/lib/config_def.h"
