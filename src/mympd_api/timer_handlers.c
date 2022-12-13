@@ -6,6 +6,7 @@
 
 #include "compile_time.h"
 #include "src/mympd_api/timer_handlers.h"
+
 #include "src/lib/api.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/list.h"
