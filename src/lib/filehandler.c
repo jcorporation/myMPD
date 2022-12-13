@@ -10,7 +10,6 @@
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 
-#include <asm-generic/errno-base.h>
 #include <dirent.h>
 #include <errno.h>
 #include <stdlib.h>

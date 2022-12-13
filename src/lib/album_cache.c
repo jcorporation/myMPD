@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "dist/sds/sds.h"
 #include "src/lib/album_cache.h"
 
 #include "dist/libmympdclient/include/mpd/client.h"

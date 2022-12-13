@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "smartpls.h"
+#include "src/mpd_worker/smartpls.h"
 
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"

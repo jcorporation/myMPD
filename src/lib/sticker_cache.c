@@ -7,7 +7,6 @@
 #include "compile_time.h"
 #include "src/lib/sticker_cache.h"
 
-#include "dist/sds/sds.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/list.h"

@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "mpd_worker.h"
+#include "src/mpd_worker/mpd_worker.h"
 
 #include "dist/sds/sds.h"
 #include "src/lib/log.h"

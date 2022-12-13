@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/tag.h"
 #include "src/mpd_client/features.h"
 
 #include "dist/libmympdclient/include/mpd/client.h"
