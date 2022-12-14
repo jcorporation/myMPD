@@ -276,6 +276,7 @@ static const struct t_subdirs_entry workdir_subdirs[] = {
 static const struct t_subdirs_entry cachedir_subdirs[] = {
     {"covercache", "Covercache dir"},
     {"webradiodb", "Webradiodb cache dir"},
+    {"tags", "Tags cache dir"},
     {NULL, NULL}
 };
 

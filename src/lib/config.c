@@ -84,6 +84,7 @@ void mympd_config_defaults_initial(struct t_config *config) {
     #endif
     config->pin_hash = NULL;
     config->covercache_keep_days = CFG_COVERCACHE_KEEP_DAYS;
+    config->save_caches = true;
 }
 
 /**
@@ -125,6 +126,7 @@ void mympd_config_defaults(struct t_config *config) {
     config->loglevel = CFG_MYMPD_LOGLEVEL;
     config->pin_hash = sdsnew(CFG_MYMPD_PIN_HASH);
     config->covercache_keep_days = mympd_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", CFG_COVERCACHE_KEEP_DAYS, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, config->first_startup);
+    config->save_caches = mympd_getenv_bool("MYMPD_SAVE_CACHES", CFG_MYMPD_SSL, config->save_caches);
 }
 
 /**
@@ -155,6 +157,7 @@ bool mympd_read_config(struct t_config *config) {
     #endif
     config->covercache_keep_days = state_file_rw_int(config->workdir, "config", "covercache_keep_days", config->covercache_keep_days, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, false);
     config->loglevel = state_file_rw_int(config->workdir, "config", "loglevel", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX, false);
+    config->save_caches = state_file_rw_bool(config->workdir, "config", "save_caches", config->save_caches, false);
     //overwrite configured loglevel
     config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX, true);
     return true;
@@ -224,7 +227,6 @@ static int mympd_getenv_int(const char *env_var, int default_value, int min, int
     return default_value;
 }
 
-#ifdef MYMPD_ENABLE_SSL
 /**
  * Gets an environment variable as bool
  * @param env_var variable name to read
@@ -238,4 +240,3 @@ static bool mympd_getenv_bool(const char *env_var, bool default_value, bool firs
     return env_value != NULL ? strcmp(env_value, "true") == 0 ? true : false
                              : default_value;
 }
-#endif

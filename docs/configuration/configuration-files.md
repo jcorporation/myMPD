@@ -21,6 +21,8 @@ To change these settings afterwards, you must edit the files in the folder `/var
 | http_port | number | MYMPD_HTTP_PORT | 80 | Port to listen for plain http requests. Redirects to `ssl_port` if `ssl` is set to `true`. Set to `0` to disable it. |
 | loglevel | number | MYMPD_LOGLEVEL | 5 | [Logging]({{ site.baseurl }}/configuration/logging) - this environment variable is always used |
 | lualibs | string | MYMPD_LUALIBS | all | Comma separated list of lua libraries to load, look at [Scripting - LUA standard libraries]({{ site.baseurl }}/scripting#lua-standard-libraries) |
+| pin_hash | string | N/A | | SHA256 hash of pin, create it with `mympd -p` |
+| save_caches | boolean | MYMPD_SAVE_CACHES | true | `true` = saves caches between restart, `false` = create caches on startup |
 | scriptacl | string | MYMPD_SCRIPTACL | +127.0.0.1 | ACL to access the myMPD script backend: [ACL]({{ site.baseurl }}/configuration/acl), allows only local connections in the default configuration. The acl above must also grant access. |
 | ssl | boolean | MYMPD_SSL | true | `true` = enables https, `false` = disables https |
 | ssl_port | number | MYMPD_SSL_PORT | 443 | Port to listen for https requests |
@@ -28,7 +30,6 @@ To change these settings afterwards, you must edit the files in the folder `/var
 | custom_cert | boolean | MYMPD_CUSTOM_CERT | false | `true` = use custom ssl key and certificate |
 | ssl_cert | string | MYMPD_SSL_CERT | | Path to custom ssl certificate file |
 | ssl_key | string | MYMPD_SSL_KEY | | Path to custom ssl key file |
-| pin_hash | string | N/A | | SHA256 hash of pin, create it with `mympd -p` |
 {: .table .table-sm }
 
 - More details on [SSL]({{ site.baseurl }}/configuration/ssl)

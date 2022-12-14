@@ -52,10 +52,10 @@ static struct mpd_song *album_from_cache_line(sds line, const struct t_tags *tag
  * @return bool true on success, else false
  */
 bool album_cache_remove(sds cachedir) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE);
+    sds filepath = sdscatfmt(sdsempty(), "%S/tags/%s", cachedir, FILENAME_ALBUMCACHE);
     int rc1 = try_rm_file(filepath);
     sdsclear(filepath);
-    filepath = sdscatfmt(filepath, "%S/%s", cachedir, FILENAME_ALBUMCACHE_TAGS);
+    filepath = sdscatfmt(filepath, "%S/tags/%s", cachedir, FILENAME_ALBUMCACHE_TAGS);
     int rc2 = try_rm_file(filepath);
     FREE_SDS(filepath);
     return rc1 == RM_FILE_ERROR || rc2 == RM_FILE_ERROR ? false : true;
@@ -78,7 +78,7 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
         return false;
     }
     album_cache->building = true;
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE);
+    sds filepath = sdscatfmt(sdsempty(), "%S/tags/%s", cachedir, FILENAME_ALBUMCACHE);
     errno = 0;
     FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -152,7 +152,7 @@ bool album_cache_write(struct t_cache *album_cache, sds cachedir, struct t_tags 
     sds line = sdsnewlen("{", 1);
     line = print_tags_array(line, "tagListAlbum", album_tags);
     line = sdscatlen(line, "}", 1);
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE_TAGS);
+    sds filepath = sdscatfmt(sdsempty(), "%S/tags/%s", cachedir, FILENAME_ALBUMCACHE_TAGS);
     bool write_rc = write_data_to_file(filepath, line, sdslen(line));
     FREE_SDS(filepath);
     if (write_rc == false) {
@@ -163,7 +163,7 @@ bool album_cache_write(struct t_cache *album_cache, sds cachedir, struct t_tags 
     raxIterator iter;
     raxStart(&iter, album_cache->cache);
     raxSeek(&iter, "^", NULL, 0);
-    sds tmp_file = sdscatfmt(sdsempty(), "%S/%s.XXXXXX", cachedir, FILENAME_ALBUMCACHE);
+    sds tmp_file = sdscatfmt(sdsempty(), "%S/tags/%s.XXXXXX", cachedir, FILENAME_ALBUMCACHE);
     FILE *fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);
@@ -399,7 +399,7 @@ bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mp
  * @return struct t_tags* newly allocated t_tags struct or NULL on error
  */
 static struct t_tags *album_cache_read_tags(sds cachedir) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE_TAGS);
+    sds filepath = sdscatfmt(sdsempty(), "%S/tags/%s", cachedir, FILENAME_ALBUMCACHE_TAGS);
     errno = 0;
     FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
     if (fp == NULL) {

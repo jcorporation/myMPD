@@ -42,6 +42,7 @@ struct t_config {
     bool bootstrap;           //!< true if bootstrap command line option is set
     sds pin_hash;             //!< hash of the pin
     int covercache_keep_days; //!< expiration time for covercache files
+    bool save_caches;         //!< true = save caches between restart
 };
 
 #endif
