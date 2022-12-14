@@ -22,10 +22,7 @@
 static const char *mympd_getenv(const char *env_var, bool first_startup);
 static sds mympd_getenv_string(const char *env_var, const char *default_value, validate_callback vcb, bool first_startup);
 static int mympd_getenv_int(const char *env_var, int default_value, int min, int max, bool first_startup);
-
-#ifdef MYMPD_ENABLE_SSL
-    static bool mympd_getenv_bool(const char *env_var, bool default_value, bool first_startup);
-#endif
+static bool mympd_getenv_bool(const char *env_var, bool default_value, bool first_startup);
 
 //public functions
 
