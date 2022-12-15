@@ -59,12 +59,16 @@ extern struct t_mympd_queue *web_server_queue;
 extern struct t_mympd_queue *mympd_api_queue;
 extern struct t_mympd_queue *mympd_script_queue;
 
-//standard file names
-#define FILENAME_LAST_PLAYED "last_played_list"
-#define FILENAME_PRESETS "preset_list"
+//standard file names and folders
 #define FILENAME_ALBUMCACHE "album_cache.json"
 #define FILENAME_ALBUMCACHE_TAGS "album_cache_tags.json"
+#define FILENAME_LAST_PLAYED "last_played_list"
+#define FILENAME_PRESETS "preset_list"
 #define FILENAME_STICKERCACHE "sticker_cache.json"
+
+#define DIR_COVERCACHE "covercache"
+#define DIR_TAG_CACHE "tags"
+#define DIR_WEBRADIOS "webradios"
 
 //mpd partitions
 #define MPD_PARTITION_DEFAULT "default"
@@ -225,10 +229,10 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define NAME_LEN_MAX 200
 #define CONTENT_LEN_MAX 3000
 #define EXPRESSION_LEN_MAX 1000
-#define MPD_OUTPUT_ID_MAX 40
 #define COLS_MAX 20
 
 //mpd limits
+#define MPD_OUTPUT_ID_MAX 40
 #define MPD_PORT_MIN 1024
 #define MPD_PORT_MAX 65535
 #define MPD_TIMEOUT_MIN 10000 //ms
@@ -253,6 +257,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define JSONRPC_UINT_MAX INT_MAX
 #define JSONRPC_STR_MAX 3000
 #define JSONRPC_KEY_MAX 50
+#define JSONRPC_ARRAY_MAX 100
 
 //some other limits
 #define TIMER_INTERVAL_MIN 5 //seconds
@@ -269,7 +274,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define JUKEBOX_MODE_MAX 2
 #define SCROBBLE_TIME_MIN 10 //minimum song length in seconds for the scrobble event
 #define SCROBBLE_TIME_MAX 240 //maximum elapsed seconds before scrobble event occurs
-#define SCROBBLE_TIME_TOTAL 480
+#define SCROBBLE_TIME_TOTAL 480 //if the song is longer then this value, scrobble at SCROBBLE_TIME_MAX
 
 //limits for lists
 #define LIST_HOME_ICONS_MAX 99
