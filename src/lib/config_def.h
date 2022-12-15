@@ -22,19 +22,15 @@ struct t_config {
     sds cachedir;             //!< cache directory
     sds http_host;            //!< ip to bind the webserver
     int http_port;            //!< http port to listen
-    #ifdef MYMPD_ENABLE_SSL
-        bool ssl;             //!< enables ssl
-        int ssl_port;         //!< https port to listen
-        sds ssl_cert;         //!< filename of the certificate
-        sds ssl_key;          //!< filename of the private key
-        bool custom_cert;     //!< false if myMPD uses the self generated certificates
-        sds ssl_san;          //!< additional names for SAN of the self generated certificate
-    #endif
+    bool ssl;             //!< enables ssl
+    int ssl_port;         //!< https port to listen
+    sds ssl_cert;         //!< filename of the certificate
+    sds ssl_key;          //!< filename of the private key
+    bool custom_cert;     //!< false if myMPD uses the self generated certificates
+    sds ssl_san;          //!< additional names for SAN of the self generated certificate
     sds acl;                  //!< IPv4 ACL string
     sds scriptacl;            //!< IPv4 ACL string for the /api/script endpoint
-    #ifdef MYMPD_ENABLE_LUA
-        sds lualibs;          //!< enabled lua libraries
-    #endif
+    sds lualibs;          //!< enabled lua libraries
     bool log_to_syslog;       //!< enable syslog logging
     int loglevel;             //!< loglevel
     time_t startup_time;      //!< unix timestamp of startup (not configurable)
