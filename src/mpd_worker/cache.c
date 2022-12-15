@@ -41,11 +41,11 @@ static bool get_sticker_from_mpd(struct t_partition_state *partition_state, cons
 bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool force) {
     time_t db_mtime = mpd_client_get_db_mtime(mpd_worker_state->partition_state);
     MYMPD_LOG_DEBUG("Database mtime: %lld", (long long)db_mtime);
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s", mpd_worker_state->config->cachedir, FILENAME_ALBUMCACHE);
+    sds filepath = sdscatfmt(sdsempty(), "%S/tags/%s", mpd_worker_state->config->cachedir, FILENAME_ALBUMCACHE);
     time_t album_cache_mtime = get_mtime(filepath);
     MYMPD_LOG_DEBUG("Album cache mtime: %lld", (long long)album_cache_mtime);
     sdsclear(filepath);
-    filepath = sdscatfmt(filepath, "%S/%s", mpd_worker_state->config->cachedir, FILENAME_STICKERCACHE);
+    filepath = sdscatfmt(filepath, "%S/tags/%s", mpd_worker_state->config->cachedir, FILENAME_STICKERCACHE);
     time_t sticker_cache_mtime = get_mtime(filepath);
     MYMPD_LOG_DEBUG("Sticker cache mtime: %lld", (long long)sticker_cache_mtime);
     FREE_SDS(filepath);
