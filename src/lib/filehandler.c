@@ -42,7 +42,7 @@ time_t get_mtime(const char *filepath) {
  * @param s an already allocated sds string
  * @param fp a file descriptor to read from
  * @param max max line length to read
- * @return Number of bytes read or -1 on eof / -2 too long line
+ * @return Number of bytes read or -1 on eof
  */
 int sds_getline(sds *s, FILE *fp, size_t max) {
     sdsclear(*s);
@@ -57,7 +57,8 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
         *s = sds_catchar(*s, (char)c);
     }
     MYMPD_LOG_ERROR("Line is too long, max length is %lu", (unsigned long)max);
-    return -2;
+    sdstrim(*s, "\r \t");
+    return (int)sdslen(*s);
 }
 
 /**
