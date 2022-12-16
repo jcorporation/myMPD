@@ -43,6 +43,7 @@ target_sources(mympd PRIVATE
   lib/api.c
   lib/config.c
   lib/covercache.c
+  lib/env.c
   lib/filehandler.c
   lib/handle_options.c
   lib/http_client.c
