@@ -63,13 +63,14 @@ set(TEST_SOURCES
   main.c
   tests/test_api.c
   tests/test_cert.c
+  tests/test_filehandler.c
   tests/test_http_client.c
   tests/test_jsonrpc.c
   tests/test_list.c
   tests/test_lyrics.c
   tests/test_m3u.c
-  tests/test_mpd_client_tags.c
   tests/test_mimetype.c
+  tests/test_mpd_client_tags.c
   tests/test_mympd_queue.c
   tests/test_radix_sort.c
   tests/test_random.c

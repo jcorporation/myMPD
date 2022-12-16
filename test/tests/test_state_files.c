@@ -31,6 +31,7 @@ UTEST(state_files, test_camel_to_snake) {
 }
 
 UTEST(state_files, test_state_file_rw_string_sds) {
+    unlink("/tmp/mympd-test/state/test");
     sds value = sdsnew("blub");
     value = state_file_rw_string_sds(workdir, "state", "test", value, vcb_isalnum, false);
     ASSERT_STREQ("blub", value);
