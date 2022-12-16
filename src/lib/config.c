@@ -137,7 +137,7 @@ void mympd_config_defaults(struct t_config *config) {
  * Reads or writes the config from the /var/lib/mympd/config directory
  * @param config pointer to config struct
  */
-bool mympd_read_config(struct t_config *config) {
+bool mympd_rw_config(struct t_config *config) {
     config->http_host = state_file_rw_string_sds(config->workdir, "config", "http_host", config->http_host, vcb_isname, false);
     config->http_port = state_file_rw_int(config->workdir, "config", "http_port", config->http_port, 0, MPD_PORT_MAX, false);
 
