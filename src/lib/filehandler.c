@@ -34,7 +34,7 @@ bool do_chown(const char *file_path, const char *username) {
     }
 
     errno = 0;
-    int fd = open(file_path, O_RDONLY);
+    int fd = open(file_path, O_RDONLY | O_CLOEXEC);
     if (fd == -1) {
         MYMPD_LOG_ERROR("Can't open \"%s\"", file_path);
         MYMPD_LOG_ERRNO(errno);
