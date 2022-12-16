@@ -330,7 +330,7 @@ int main(int argc, char **argv) {
         set_loglevel(LOG_NOTICE);
     #endif
 
-    //set initital states
+    //set initial states
     worker_threads = 0;
     s_signal_received = 0;
     struct t_config *config = NULL;
@@ -386,9 +386,6 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //read configuration from environment or set default values
-    mympd_config_defaults(config);
-
     //go into workdir
     errno = 0;
     if (chdir(config->workdir) != 0) {
@@ -397,9 +394,26 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //reads the config from /var/lib/mympd/config folder or writes defaults
+    //read the configuration from environment or set default values
+    //environment values are only respected at first startup
+    mympd_config_defaults(config);
+
+    //bootstrap - write config files and exit
+    if (config->bootstrap == true) {
+        if (drop_privileges(config->user, startup_uid) == false) {
+            goto cleanup;
+        }
+        mympd_config_rw(config, true);
+        printf("Created myMPD config and exit\n");
+        rc = EXIT_SUCCESS;
+        goto cleanup;
+    }
+
+    //tries to read the config from /var/lib/mympd/config folder
+    //if this is not the first startup of myMPD
+    //initial files are written later, after dropping privileges
     if (config->first_startup == false) {
-        mympd_rw_config(config);
+        mympd_config_rw(config, false);
     }
 
     #ifdef MYMPD_ENABLE_IPV6
@@ -407,17 +421,6 @@ int main(int argc, char **argv) {
             MYMPD_LOG_WARN("No acl support for IPv6");
         }
     #endif
-
-    //bootstrap
-    if (config->bootstrap == true) {
-        if (drop_privileges(config->user, startup_uid) == false) {
-            goto cleanup;
-        }
-        mympd_rw_config(config);
-        printf("Created myMPD config and exit\n");
-        rc = EXIT_SUCCESS;
-        goto cleanup;
-    }
 
     //set loglevel
     #ifdef MYMPD_DEBUG
@@ -490,6 +493,12 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
+    //saves the config to /var/lib/mympd/config folder
+    //at first startup of myMPD
+    if (config->first_startup == true) {
+        mympd_config_rw(config, true);
+    }
+
     //check for ssl certificates
     #ifdef MYMPD_ENABLE_SSL
         if (config->ssl == true &&
@@ -558,7 +567,7 @@ int main(int argc, char **argv) {
     mympd_queue_free(mympd_script_queue);
 
     //free config
-    mympd_free_config(config);
+    mympd_config_free(config);
 
     if (mgr != NULL) {
         web_server_free(mgr);

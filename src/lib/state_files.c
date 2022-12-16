@@ -67,11 +67,11 @@ sds camel_to_snake(sds text) {
  * @param name filename to read/write
  * @param def_value default value as sds string (is freed by this function)
  * @param vcb validation callback from validate.h
- * @param warn if true a warning is logged if file does not exists
+ * @param write if true create the file if not exists
  * @return newly allocated sds string
  */
-sds state_file_rw_string_sds(sds workdir, const char *dir, const char *name, sds def_value, validate_callback vcb, bool warn) {
-    sds value = state_file_rw_string(workdir, dir, name, def_value, vcb, warn);
+sds state_file_rw_string_sds(sds workdir, const char *dir, const char *name, sds def_value, validate_callback vcb, bool write) {
+    sds value = state_file_rw_string(workdir, dir, name, def_value, vcb, write);
     FREE_SDS(def_value);
     return value;
 }
@@ -83,25 +83,25 @@ sds state_file_rw_string_sds(sds workdir, const char *dir, const char *name, sds
  * @param name filename to read/write
  * @param def_value default value as c string
  * @param vcb validation callback from validate.h
- * @param warn if true a warning is logged if file does not exists
+ * @param write if true create the file if not exists
  * @return newly allocated sds string
  */
-sds state_file_rw_string(sds workdir, const char *dir, const char *name, const char *def_value, validate_callback vcb, bool warn) {
+sds state_file_rw_string(sds workdir, const char *dir, const char *name, const char *def_value,
+        validate_callback vcb, bool write)
+{
     sds result = sdsempty();
     sds cfg_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, dir, name);
     errno = 0;
     FILE *fp = fopen(cfg_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
-        if (warn == true) {
-            MYMPD_LOG_WARN("Can not open file \"%s\"", cfg_file);
-            MYMPD_LOG_ERRNO(errno);
-        }
-        else if (errno != ENOENT) {
+        if (errno != ENOENT) {
             MYMPD_LOG_ERROR("Can not open file \"%s\"", cfg_file);
             MYMPD_LOG_ERRNO(errno);
         }
-        //file does not exist, create it with default value and return
-        state_file_write(workdir, dir, name, def_value);
+        if (write == true) {
+            //file does not exist, create it with default value and return
+            state_file_write(workdir, dir, name, def_value);
+        }
         result = sdscat(result, def_value);
         FREE_SDS(cfg_file);
         return result;
@@ -134,12 +134,12 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
  * @param dir subdir 
  * @param name filename to read/write
  * @param def_value default value
- * @param warn if true a warning is logged if file does not exists
+ * @param write if true create the file if not exists
  * @return newly allocated sds string
  */
-bool state_file_rw_bool(sds workdir, const char *dir, const char *name, bool def_value, bool warn) {
+bool state_file_rw_bool(sds workdir, const char *dir, const char *name, bool def_value, bool write) {
     bool value = def_value;
-    sds line = state_file_rw_string(workdir, dir, name, def_value == true ? "true" : "false", NULL, warn);
+    sds line = state_file_rw_string(workdir, dir, name, def_value == true ? "true" : "false", NULL, write);
     if (sdslen(line) > 0) {
         value = line[0] == 't' ? true : false;
     }
@@ -155,11 +155,11 @@ bool state_file_rw_bool(sds workdir, const char *dir, const char *name, bool def
  * @param def_value default value as sds string (is freed by this function)
  * @param min minimum value
  * @param max maximum value
- * @param warn if true a warning is logged if file does not exists
+ * @param write if true create the file if not exists
  * @return newly allocated sds string
  */
-int state_file_rw_int(sds workdir, const char *dir, const char *name, int def_value, int min, int max, bool warn) {
-    return (int)state_file_rw_long(workdir, dir, name, def_value, min, max, warn);
+int state_file_rw_int(sds workdir, const char *dir, const char *name, int def_value, int min, int max, bool write) {
+    return (int)state_file_rw_long(workdir, dir, name, def_value, min, max, write);
 }
 
 /**
@@ -170,13 +170,13 @@ int state_file_rw_int(sds workdir, const char *dir, const char *name, int def_va
  * @param def_value default value as sds string (is freed by this function)
  * @param min minimum value
  * @param max maximum value
- * @param warn if true a warning is logged if file does not exists
+ * @param write if true create the file if not exists
  * @return newly allocated sds string
  */
-long state_file_rw_long(sds workdir, const char *dir, const char *name, long def_value, long min, long max, bool warn) {
+long state_file_rw_long(sds workdir, const char *dir, const char *name, long def_value, long min, long max, bool write) {
     char *crap = NULL;
     sds def_value_str = sdsfromlonglong((long long)def_value);
-    sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
+    sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, write);
     FREE_SDS(def_value_str);
     long value = (long)strtoimax(line, &crap, 10);
     FREE_SDS(line);
@@ -194,13 +194,13 @@ long state_file_rw_long(sds workdir, const char *dir, const char *name, long def
  * @param def_value default value as sds string (is freed by this function)
  * @param min minimum value
  * @param max maximum value
- * @param warn if true a warning is logged if file does not exists
+ * @param write if true create the file if not exists
  * @return newly allocated sds string
  */
-unsigned state_file_rw_uint(sds workdir, const char *dir, const char *name, unsigned def_value, unsigned min, unsigned max, bool warn) {
+unsigned state_file_rw_uint(sds workdir, const char *dir, const char *name, unsigned def_value, unsigned min, unsigned max, bool write) {
     char *crap = NULL;
     sds def_value_str = sdsfromlonglong((long long)def_value);
-    sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, warn);
+    sds line = state_file_rw_string(workdir, dir, name, def_value_str, NULL, write);
     FREE_SDS(def_value_str);
     unsigned value = (unsigned)strtoumax(line, &crap, 10);
     FREE_SDS(line);
@@ -214,16 +214,16 @@ unsigned state_file_rw_uint(sds workdir, const char *dir, const char *name, unsi
  * Writes the statefile
  * @param workdir mympd working directory
  * @param subdir subdir
- * @param name filename to read/write
- * @param value default value as sds string (is freed by this function)
+ * @param filename filename to write
+ * @param value value to write fo file
  * @return true on success else false
  */
-bool state_file_write(sds workdir, const char *subdir, const char *name, const char *value) {
+bool state_file_write(sds workdir, const char *subdir, const char *filename, const char *value) {
     sds state_dir = sdscatfmt(sdsempty(), "%S/%s", workdir, subdir);
     bool rc = false;
     if (testdir(subdir, state_dir, true, true) < 2) {
         //dir exists or was created, write state file
-        sds filepath = sdscatfmt(sdsempty(), "%S/%s", state_dir, name);
+        sds filepath = sdscatfmt(sdsempty(), "%S/%s", state_dir, filename);
         rc = write_data_to_file(filepath, value, strlen(value));
         FREE_SDS(filepath);
     }

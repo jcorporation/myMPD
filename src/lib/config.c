@@ -35,7 +35,7 @@ static bool mympd_getenv_bool(const char *env_var, bool default_value, bool firs
  * Frees the config struct
  * @param config pointer to config struct
  */
-void *mympd_free_config(struct t_config *config) {
+void *mympd_config_free(struct t_config *config) {
     FREE_SDS(config->http_host);
     FREE_SDS(config->ssl_cert);
     FREE_SDS(config->ssl_key);
@@ -136,36 +136,37 @@ void mympd_config_defaults(struct t_config *config) {
 /**
  * Reads or writes the config from the /var/lib/mympd/config directory
  * @param config pointer to config struct
+ * @param write if true create the file if not exists
  */
-bool mympd_rw_config(struct t_config *config) {
-    config->http_host = state_file_rw_string_sds(config->workdir, "config", "http_host", config->http_host, vcb_isname, false);
-    config->http_port = state_file_rw_int(config->workdir, "config", "http_port", config->http_port, 0, MPD_PORT_MAX, false);
+bool mympd_config_rw(struct t_config *config, bool write) {
+    config->http_host = state_file_rw_string_sds(config->workdir, "config", "http_host", config->http_host, vcb_isname, write);
+    config->http_port = state_file_rw_int(config->workdir, "config", "http_port", config->http_port, 0, MPD_PORT_MAX, write);
 
     #ifdef MYMPD_ENABLE_SSL
-        config->ssl = state_file_rw_bool(config->workdir, "config", "ssl", config->ssl, false);
-        config->ssl_port = state_file_rw_int(config->workdir, "config", "ssl_port", config->ssl_port, 0, MPD_PORT_MAX, false);
-        config->ssl_san = state_file_rw_string_sds(config->workdir, "config", "ssl_san", config->ssl_san, vcb_isname, false);
-        config->custom_cert = state_file_rw_bool(config->workdir, "config", "custom_cert", config->custom_cert, false);
+        config->ssl = state_file_rw_bool(config->workdir, "config", "ssl", config->ssl, write);
+        config->ssl_port = state_file_rw_int(config->workdir, "config", "ssl_port", config->ssl_port, 0, MPD_PORT_MAX, write);
+        config->ssl_san = state_file_rw_string_sds(config->workdir, "config", "ssl_san", config->ssl_san, vcb_isname, write);
+        config->custom_cert = state_file_rw_bool(config->workdir, "config", "custom_cert", config->custom_cert, write);
         if (config->custom_cert == true) {
-            config->ssl_cert = state_file_rw_string_sds(config->workdir, "config", "ssl_cert", config->ssl_cert, vcb_isname, false);
-            config->ssl_key = state_file_rw_string_sds(config->workdir, "config", "ssl_key", config->ssl_key, vcb_isname, false);
+            config->ssl_cert = state_file_rw_string_sds(config->workdir, "config", "ssl_cert", config->ssl_cert, vcb_isname, write);
+            config->ssl_key = state_file_rw_string_sds(config->workdir, "config", "ssl_key", config->ssl_key, vcb_isname, write);
         }
-        config->pin_hash = state_file_rw_string_sds(config->workdir, "config", "pin_hash", config->pin_hash, vcb_isname, false);
+        config->pin_hash = state_file_rw_string_sds(config->workdir, "config", "pin_hash", config->pin_hash, vcb_isname, write);
     #else
         MYMPD_LOG_NOTICE("OpenSSL is disabled, ignoring ssl and pin settings");
     #endif
-    config->acl = state_file_rw_string_sds(config->workdir, "config", "acl", config->acl, vcb_isname, false);
-    config->scriptacl = state_file_rw_string_sds(config->workdir, "config", "scriptacl", config->scriptacl, vcb_isname, false);
+    config->acl = state_file_rw_string_sds(config->workdir, "config", "acl", config->acl, vcb_isname, write);
+    config->scriptacl = state_file_rw_string_sds(config->workdir, "config", "scriptacl", config->scriptacl, vcb_isname, write);
     #ifdef MYMPD_ENABLE_LUA
-        config->lualibs = state_file_rw_string_sds(config->workdir, "config", "lualibs", config->lualibs, vcb_isname, false);
+        config->lualibs = state_file_rw_string_sds(config->workdir, "config", "lualibs", config->lualibs, vcb_isname, write);
     #else
         MYMPD_LOG_NOTICE("Lua is disabled, ignoring lua settings");
     #endif
-    config->covercache_keep_days = state_file_rw_int(config->workdir, "config", "covercache_keep_days", config->covercache_keep_days, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, false);
-    config->loglevel = state_file_rw_int(config->workdir, "config", "loglevel", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX, false);
-    config->save_caches = state_file_rw_bool(config->workdir, "config", "save_caches", config->save_caches, false);
+    config->covercache_keep_days = state_file_rw_int(config->workdir, "config", "covercache_keep_days", config->covercache_keep_days, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, write);
+    config->loglevel = state_file_rw_int(config->workdir, "config", "loglevel", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX, write);
+    config->save_caches = state_file_rw_bool(config->workdir, "config", "save_caches", config->save_caches, write);
     //overwrite configured loglevel
-    config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX, true);
+    config->loglevel = mympd_getenv_int("MYMPD_LOGLEVEL", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX, write);
     return true;
 }
 
