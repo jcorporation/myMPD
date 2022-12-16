@@ -130,10 +130,10 @@ int sds_getfile(sds *s, const char *file_path, size_t max, bool remove_newline, 
     errno = 0;
     FILE *fp = fopen(file_path, OPEN_FLAGS_READ);
     if (fp == NULL) {
-        if (warn == true &&
+        if (warn == false &&
             errno == ENOENT)
         {
-            MYMPD_LOG_DEBUG("File \"%s\" not found", file_path);
+            MYMPD_LOG_DEBUG("File \"%s\" does not exist", file_path);
         }
         else {
             MYMPD_LOG_ERROR("Error opening file \"%s\"", file_path);
