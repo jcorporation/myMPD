@@ -97,32 +97,6 @@ static void mympd_signal_handler(int sig_num) {
 }
 
 /**
- * Sets the owner of a file and group to the primary group of the user
- * @param file_path file to change ownership
- * @param username new owner username
- * @return true on success else false
- */
-static bool do_chown(const char *file_path, const char *username) {
-    errno = 0;
-    struct passwd *pwd = getpwnam(username);
-    if (pwd == NULL) {
-        MYMPD_LOG_ERROR("User \"%s\" does not exist", username);
-        MYMPD_LOG_ERRNO(errno);
-        return false;
-    }
-
-    errno = 0;
-    int rc = chown(file_path, pwd->pw_uid, pwd->pw_gid); /* Flawfinder: ignore */
-    if (rc == -1) {
-        MYMPD_LOG_ERROR("Can't chown \"%s\" to \"%s\"", file_path, username);
-        MYMPD_LOG_ERRNO(errno);
-        return false;
-    }
-    MYMPD_LOG_INFO("Changed ownership of \"%s\" to \"%s\"", file_path, username);
-    return true;
-}
-
-/**
  * Drops the privileges and sets the new groups.
  * Ensures that myMPD does not run as root.
  * @param username drop privileges to this username
@@ -207,7 +181,9 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         return false;
     }
     //directory exists or was created; set user and group
-    if (chown_dirs == true) {
+    if (chown_dirs == true &&
+        is_dir(config->cachedir) == true)
+    {
         MYMPD_LOG_DEBUG("Checking ownership of \"%s\"", config->cachedir);
         if (do_chown(config->cachedir, config->user) == false) {
             return false;
@@ -221,7 +197,9 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         return false;
     }
     //directory exists or was created; set user and group
-    if (chown_dirs == true) {
+    if (chown_dirs == true &&
+        is_dir(config->workdir) == true)
+    {
         MYMPD_LOG_DEBUG("Checking ownership of \"%s\"", config->workdir);
         if (do_chown(config->workdir, config->user) == false) {
             return false;
@@ -234,6 +212,13 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     if (testdir_rc == DIR_CREATE_FAILED) {
         FREE_SDS(testdirname);
         return false;
+    }
+    //directory exists or was created; set user and group
+    if (chown_dirs == true) {
+        MYMPD_LOG_DEBUG("Checking ownership of \"%s\"", testdirname);
+        if (do_chown(testdirname, config->user) == false) {
+            return false;
+        }
     }
     if (testdir_rc == DIR_CREATED) {
         MYMPD_LOG_INFO("First startup of myMPD");
@@ -364,8 +349,8 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //only user and group have rw access
-    umask(0007); /* Flawfinder: ignore */
+    //only owner should have rw access
+    umask(0077);
 
     mympd_api_queue = mympd_queue_create("mympd_api_queue", QUEUE_TYPE_REQUEST);
     web_server_queue = mympd_queue_create("web_server_queue", QUEUE_TYPE_RESPONSE);
@@ -413,7 +398,9 @@ int main(int argc, char **argv) {
     }
 
     //reads the config from /var/lib/mympd/config folder or writes defaults
-    mympd_read_config(config);
+    if (config->first_startup == false) {
+        mympd_rw_config(config);
+    }
 
     #ifdef MYMPD_ENABLE_IPV6
         if (sdslen(config->acl) > 0) {
@@ -423,6 +410,10 @@ int main(int argc, char **argv) {
 
     //bootstrap
     if (config->bootstrap == true) {
+        if (drop_privileges(config->user, startup_uid) == false) {
+            goto cleanup;
+        }
+        mympd_rw_config(config);
         printf("Created myMPD config and exit\n");
         rc = EXIT_SUCCESS;
         goto cleanup;
