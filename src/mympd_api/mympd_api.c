@@ -52,6 +52,7 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_trigger_file_read(&mympd_state->trigger_list, mympd_state->config->workdir);
     //caches
     if (mympd_state->config->save_caches == true) {
+        MYMPD_LOG_INFO("Reading caches from disc");
         //album cache
         album_cache_read(&mympd_state->mpd_state->album_cache, mympd_state->config->cachedir);
         //sticker cache

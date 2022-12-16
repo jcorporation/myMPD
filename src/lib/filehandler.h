@@ -25,10 +25,13 @@ enum try_rm_file_status {
     RM_FILE_ERROR = 2
 };
 
+
+bool do_chown(const char *file_path, const char *username);
 time_t get_mtime(const char *filepath);
 
 int sds_getline(sds *s, FILE *fp, size_t max);
-int sds_getfile(sds *s, FILE *fp, size_t max, bool remove_newline);
+int sds_getfile(sds *s, const char *file_path, size_t max, bool remove_newline, bool warn);
+int sds_getfile_from_fp(sds *s, FILE *fp, size_t max, bool remove_newline);
 
 FILE *open_tmp_file(sds filepath);
 bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc);
@@ -38,6 +41,7 @@ int try_rm_file(sds filepath);
 
 bool testfile_read(const char *filename);
 int testdir(const char *desc, const char *dir_name, bool create, bool silent);
+bool is_dir(const char *dir_name);
 bool clean_directory(const char *dir_name);
 bool rm_directory(const char *dir_name);
 bool clean_rm_directory(const char *dir_name);

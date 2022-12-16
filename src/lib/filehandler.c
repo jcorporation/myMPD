@@ -12,9 +12,62 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <pwd.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+/**
+ * Sets the owner of a file and group to the primary group of the user
+ * @param file_path file to change ownership
+ * @param username new owner username
+ * @return true on success else false
+ */
+bool do_chown(const char *file_path, const char *username) {
+    errno = 0;
+    struct passwd *pwd = getpwnam(username);
+    if (pwd == NULL) {
+        MYMPD_LOG_ERROR("User \"%s\" does not exist", username);
+        MYMPD_LOG_ERRNO(errno);
+        return false;
+    }
+
+    errno = 0;
+    int fd = open(file_path, O_RDONLY);
+    if (fd == -1) {
+        MYMPD_LOG_ERROR("Can't open \"%s\"", file_path);
+        MYMPD_LOG_ERRNO(errno);
+        return false;
+    }
+
+    errno = 0;
+    struct stat status;
+    if (lstat(file_path, &status) != 0) {
+        MYMPD_LOG_ERROR("Can't get status for \"%s\"", file_path);
+        MYMPD_LOG_ERRNO(errno);
+        return false;
+    }
+
+    if (status.st_uid == pwd->pw_uid &&
+        status.st_gid == pwd->pw_gid)
+    {
+        //owner and group already set
+        close(fd);
+        return true;
+    }
+
+    errno = 0;
+    int rc = fchown(fd, pwd->pw_uid, pwd->pw_gid); /* Flawfinder: ignore */
+    close(fd);
+    if (rc == -1) {
+        MYMPD_LOG_ERROR("Can't chown \"%s\" to \"%s\"", file_path, username);
+        MYMPD_LOG_ERRNO(errno);
+        return false;
+    }
+    MYMPD_LOG_INFO("Changed ownership of \"%s\" to \"%s\"", file_path, username);
+    return true;
+}
 
 /**
  * Returns the modification time of a file
@@ -65,12 +118,44 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
  * Reads a whole file in the sds string s from *fp
  * Removes whitespace characters from start and end
  * @param s an already allocated sds string that should hold the file content
+ * @param file_path filename to read
+ * @param max maximum bytes to read
+ * @param remove_newline removes CR/LF if true
+ * @param warn log an error if file does not exist
+ * @return Number of bytes read,
+ *         -1 error reading file,
+ *         -2 file is too big
+ */
+int sds_getfile(sds *s, const char *file_path, size_t max, bool remove_newline, bool warn) {
+    errno = 0;
+    FILE *fp = fopen(file_path, OPEN_FLAGS_READ);
+    if (fp == NULL) {
+        if (warn == true &&
+            errno == ENOENT)
+        {
+            MYMPD_LOG_DEBUG("File \"%s\" not found", file_path);
+        }
+        else {
+            MYMPD_LOG_ERROR("Error opening file \"%s\"", file_path);
+            MYMPD_LOG_ERRNO(errno);
+        }
+        return -1;
+    }
+    int rc = sds_getfile_from_fp(s, fp, max, remove_newline);
+    (void) fclose(fp);
+    return rc;
+}
+
+/**
+ * Reads a whole file in the sds string s from *fp
+ * Removes whitespace characters from start and end
+ * @param s an already allocated sds string that should hold the file content
  * @param fp FILE pointer to read
  * @param max maximum bytes to read
  * @param remove_newline removes CR/LF if true
  * @return Number of bytes read, -2 if file was too big
  */
-int sds_getfile(sds *s, FILE *fp, size_t max, bool remove_newline) {
+int sds_getfile_from_fp(sds *s, FILE *fp, size_t max, bool remove_newline) {
     sdsclear(*s);
     for (size_t i = 0; i <= max; i++) {
         int c = fgetc(fp);
@@ -144,6 +229,22 @@ int testdir(const char *desc, const char *dir_name, bool create, bool silent) {
     MYMPD_LOG_ERROR("%s: \"%s\" does not exist", desc, dir_name);
     //directory does not exist
     return DIR_NOT_EXISTS;
+}
+
+/**
+ * Checks if dir_name is realy a directory entry
+ * @param dir_name directory path to check
+ * @return true if it is a directory, else false
+ */
+bool is_dir(const char *dir_name) {
+    struct stat status;
+    errno = 0;
+    if (lstat(dir_name, &status) != 0) {
+        MYMPD_LOG_ERROR("Error getting status for \"%s\"", dir_name);
+        MYMPD_LOG_ERRNO(errno);
+        return false;
+    }
+    return S_ISDIR(status.st_mode);
 }
 
 /**

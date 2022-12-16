@@ -107,7 +107,8 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
         return result;
     }
     FREE_SDS(cfg_file);
-    int n = sds_getfile(&result, fp, LINE_LENGTH_MAX, true);
+    //file exists - read the value
+    int n = sds_getfile_from_fp(&result, fp, LINE_LENGTH_MAX, true);
     (void) fclose(fp);
     if (n > 0 &&              //successfully read the value
         vcb != NULL &&        //has validation callback

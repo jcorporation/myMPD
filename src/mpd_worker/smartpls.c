@@ -107,22 +107,20 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         return true;
     }
 
+    sds filename = sdscatfmt(sdsempty(), "%S/smartpls/%s", mpd_worker_state->config->workdir, playlist);
+    sds content = sdsempty();
+    int rc_get = sds_getfile(&content, filename, SMARTPLS_SIZE_MAX, true, true);
+    if (rc_get <= 0) {
+        FREE_SDS(filename);
+        FREE_SDS(content);
+        return false;
+    }
+
     sds smartpltype = NULL;
     bool rc = true;
     sds sds_buf1 = NULL;
     int int_buf1;
     int int_buf2;
-
-    sds filename = sdscatfmt(sdsempty(), "%S/smartpls/%s", mpd_worker_state->config->workdir, playlist);
-    FILE *fp = fopen(filename, OPEN_FLAGS_READ);
-    if (fp == NULL) {
-        MYMPD_LOG_ERROR("Cant open smart playlist file \"%s\"", playlist);
-        FREE_SDS(filename);
-        return false;
-    }
-    sds content = sdsempty();
-    sds_getfile(&content, fp, SMARTPLS_SIZE_MAX, true);
-    (void) fclose(fp);
 
     if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) != true) {
         MYMPD_LOG_ERROR("Cant read smart playlist type from \"%s\"", filename);

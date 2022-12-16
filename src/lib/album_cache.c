@@ -400,21 +400,13 @@ bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mp
  */
 static struct t_tags *album_cache_read_tags(sds cachedir) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", cachedir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE_TAGS);
-    errno = 0;
-    FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
-    if (fp == NULL) {
-        MYMPD_LOG_DEBUG("Can not open file \"%s\"", filepath);
-        if (errno != ENOENT) {
-            //ignore missing album cache file
-            MYMPD_LOG_ERRNO(errno);
-        }
+    sds line = sdsempty();
+    int rc = sds_getfile(&line, filepath, LINE_LENGTH_MAX, true, false);
+    if (rc <= 0) {
+        FREE_SDS(line);
         FREE_SDS(filepath);
         return NULL;
     }
-    sds line = sdsempty();
-    sds_getfile(&line, fp, LINE_LENGTH_MAX, true);
-    (void) fclose(fp);
-
     sds error = sdsempty();
     struct t_tags *tags = malloc_assert(sizeof(struct t_tags));
     reset_t_tags(tags);
