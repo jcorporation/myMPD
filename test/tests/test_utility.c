@@ -11,17 +11,6 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 
-UTEST(utility, test_getenv_check) {
-    setenv("TESTVAR", "testvalue", 0);
-    const char *testvar = getenv_check("TESTVAR", 20);
-    ASSERT_STREQ(testvar, "testvalue");
-
-    const char *tolong = getenv_check("TESTVAR", 5);
-    bool rc = tolong == NULL ? true : false;
-    ASSERT_TRUE(rc);
-    unsetenv("TESTVAR");
-}
-
 UTEST(utility, test_my_msleep) {
     struct timespec begin, end;
     clock_gettime(CLOCK_MONOTONIC_RAW, &begin);

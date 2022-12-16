@@ -26,6 +26,7 @@ set(TEST_SOURCES
   ../src/lib/album_cache.c
   ../src/lib/api.c
   ../src/lib/cert.c
+  ../src/lib/env.c
   ../src/lib/filehandler.c
   ../src/lib/http_client.c
   ../src/lib/jsonrpc.c
@@ -63,6 +64,7 @@ set(TEST_SOURCES
   main.c
   tests/test_api.c
   tests/test_cert.c
+  tests/test_env.c
   tests/test_filehandler.c
   tests/test_http_client.c
   tests/test_jsonrpc.c
