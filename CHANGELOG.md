@@ -10,6 +10,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Fix: relax validation of webradio codecs #933
+
 ***
 
 ## myMPD v10.1.6 (2022-12-10)
