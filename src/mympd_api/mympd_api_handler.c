@@ -1547,7 +1547,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_string(request->data, "$.params.homepage", 0, FILEPATH_LEN_MAX, &sds_buf6, vcb_isuri, &error) == true &&
                 json_get_string(request->data, "$.params.country", 0, FILEPATH_LEN_MAX, &sds_buf7, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.language", 0, FILEPATH_LEN_MAX, &sds_buf8, vcb_isname, &error) == true &&
-                json_get_string(request->data, "$.params.codec", 0, FILEPATH_LEN_MAX, &sds_buf9, vcb_isalnum, &error) == true &&
+                json_get_string(request->data, "$.params.codec", 0, FILEPATH_LEN_MAX, &sds_buf9, vcb_isprint, &error) == true &&
                 json_get_int(request->data, "$.params.bitrate", 0, 2048, &int_buf1, &error) == true &&
                 json_get_string(request->data, "$.params.description", 0, CONTENT_LEN_MAX, &sds_buf0, vcb_isname, &error) == true
             ) {
