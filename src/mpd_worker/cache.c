@@ -68,7 +68,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
         }
         return true;
     }
-    send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updating caches");
+    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_CACHE_STARTED, MPD_PARTITION_ALL);
 
     struct t_cache album_cache;
     album_cache.cache = NULL;
@@ -129,6 +129,8 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
     else {
         MYMPD_LOG_INFO("Skipped sticker cache creation, stickers are disabled");
     }
+
+    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_CACHE_FINISHED, MPD_PARTITION_ALL);
     return rc;
 }
 

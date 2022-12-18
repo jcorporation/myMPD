@@ -31,22 +31,55 @@ function setStateIcon() {
  * @param {string} msg already translated message
  */
 function toggleAlert(alertBoxId, state, msg) {
-    const alertBoxEl = document.querySelector('#' + alertBoxId);
+    //get existing alert
+    const topAlert = document.querySelector('#top-alerts');
+    let alertBoxEl = topAlert.querySelector('#' + alertBoxId);
     if (state === false) {
-        elHide(alertBoxEl);
-        elClear(alertBoxEl);
-        return;
+        //remove alert
+        if (alertBoxEl !== null) {
+            alertBoxEl.remove();
+        }
+    }
+    else if (alertBoxEl === null) {
+        //create new alert
+        alertBoxEl = elCreateText('div', {"id": alertBoxId, "class": ["alert", "top-alert", "d-flex", "flex-row"]}, msg);
+        switch(alertBoxId) {
+            case 'alertMpdStatusError': {
+                alertBoxEl.classList.add('alert-danger', 'top-alert-dismissible');
+                const clBtn = elCreateEmpty('button', {"class": ["btn-close", "btn-close-alert"]});
+                alertBoxEl.appendChild(clBtn);
+                clBtn.addEventListener('click', function() {
+                    clearMPDerror();
+                }, false);
+                break;
+            }
+            case 'alertUpdateState': {
+                alertBoxEl.classList.add('alert-success');
+                break;
+            }
+            default:
+                alertBoxEl.classList.add('alert-danger');
+        }
+        topAlert.appendChild(alertBoxEl);
+    }
+    else {
+        //replace the message
+        alertBoxEl.textContent = msg;
     }
 
-    alertBoxEl.textContent = msg;
-    if (alertBoxId === 'alertMpdStatusError') {
-        const clBtn = elCreateEmpty('button', {"class": ["btn-close", "btn-close-alert"]});
-        alertBoxEl.appendChild(clBtn);
-        clBtn.addEventListener('click', function() {
-            clearMPDerror();
-        }, false);
+    //check if we should show the alert container
+    if (topAlert.childElementCount > 0) {
+        elShow(topAlert);
+        const topPadding = window.innerWidth < window.innerHeight
+            ? document.getElementById('header').offsetHeight
+            : 0;
+        const mt = topAlert.offsetHeight - topPadding;
+        domCache.main.style.marginTop = mt + 'px';
     }
-    elShow(alertBoxEl);
+    else {
+        domCache.main.style.marginTop = '0';
+        elHide(topAlert);
+    }
 }
 
 /**
@@ -312,27 +345,7 @@ function toggleUI() {
         logMessage(tn('Websocket is disconnected'), '', 'general', 'error');
     }
 
-    toggleTopAlert();
     setStateIcon();
-}
-
-/**
- * Toggle the visibility of the topAlert container
- */
-function toggleTopAlert() {
-    const topAlert = document.querySelector('#top-alerts');
-    if (uiEnabled === false ||
-        (currentState !== undefined && currentState.lastError !== ''))
-    {
-        elShow(topAlert);
-        const topPadding = window.innerWidth < window.innerHeight ? document.getElementById('header').offsetHeight : 0;
-        const mt = topAlert.offsetHeight - topPadding;
-        domCache.main.style.marginTop = mt + 'px';
-    }
-    else {
-        domCache.main.style.marginTop = '0';
-        elHide(topAlert);
-    }
 }
 
 /**

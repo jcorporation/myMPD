@@ -696,10 +696,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 mympd_state->mpd_state->album_cache.cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
                 MYMPD_LOG_INFO("Album cache was replaced");
-                //send notification
-                sds buffer = jsonrpc_event(sdsempty(), JSONRPC_EVENT_UPDATE_ALBUM_CACHE);
-                ws_notify(buffer, MPD_PARTITION_ALL);
-                FREE_SDS(buffer);
             }
             else {
                 MYMPD_LOG_ERROR("Album cache is NULL");

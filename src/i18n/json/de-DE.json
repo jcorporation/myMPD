@@ -853,5 +853,7 @@
     "Select preset": "Voreinstellung auswählen",
     "Caches are up-to-date": "Caches sind aktuell",
     "Update caches": "Caches aktualisieren",
-    "Updating caches": "Caches werden aktualisiert"
+    "Updating caches": "Caches werden aktualisiert",
+    "Updating MPD database": "MPD Datenbank wird aktualisiert",
+    "Cache update started": "Cache-Aktualisierung gestartet"
 }

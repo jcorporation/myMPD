@@ -232,13 +232,10 @@ function parseState(obj) {
     }
 
     //handle error from mpd status response
-    if (obj.result.lastError === '') {
-        toggleAlert('alertMpdStatusError', false, '');
-    }
-    else {
-        toggleAlert('alertMpdStatusError', true, obj.result.lastError);
-    }
-    toggleTopAlert();
+    toggleAlert('alertMpdStatusError', (obj.result.lastError === '' ? false : true), obj.result.lastError);
+
+    //handle mpd update status
+    toggleAlert('alertUpdateState', (obj.result.updateState === 0 ? false : true), tn('Updating MPD database'));
 
     //check if we need to get settings
     let getNewSettings = false;

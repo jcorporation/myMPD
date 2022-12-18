@@ -1123,6 +1123,23 @@ div.alert-secondary::before {
   margin-right: 0.5rem;
 }
 
+div.alert-success::before {
+  content: "info";
+  float: left;
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  vertical-align: top;
+  text-rendering: optimizelegibility;
+  font-feature-settings: "liga";
+  margin-right: 0.5rem;
+}
+
 div.alert-secondary {
   background-color: transparent;
   border-color: transparent;

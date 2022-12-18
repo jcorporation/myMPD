@@ -65,7 +65,6 @@ static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
     [JSONRPC_EVENT_MPD_CONNECTED] = "mpd_connected",
     [JSONRPC_EVENT_MPD_DISCONNECTED] = "mpd_disconnected",
     [JSONRPC_EVENT_NOTIFY] = "notify",
-    [JSONRPC_EVENT_UPDATE_ALBUM_CACHE] = "update_album_cache",
     [JSONRPC_EVENT_UPDATE_DATABASE] = "update_database",
     [JSONRPC_EVENT_UPDATE_FINISHED] = "update_finished",
     [JSONRPC_EVENT_UPDATE_HOME] = "update_home",
@@ -78,7 +77,9 @@ static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
     [JSONRPC_EVENT_UPDATE_STATE] = "update_state",
     [JSONRPC_EVENT_UPDATE_STORED_PLAYLIST] = "update_stored_playlist",
     [JSONRPC_EVENT_UPDATE_VOLUME] = "update_volume",
-    [JSONRPC_EVENT_WELCOME] = "welcome"
+    [JSONRPC_EVENT_WELCOME] = "welcome",
+    [JSONRPC_EVENT_UPDATE_CACHE_STARTED] = "update_album_cache_started",
+    [JSONRPC_EVENT_UPDATE_CACHE_FINISHED] = "update_album_cache_finished"
 };
 
 /**
