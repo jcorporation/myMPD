@@ -228,7 +228,6 @@ bool sds_json_unescape(const char *src, size_t slen, sds *dst) {
  * @param c char to check
  * @return true if string is url safe else false
  */
-
 static bool is_url_safe(char c) {
     if (isalnum(c) ||
         c == '/' || c == '-' || c == '.' ||
