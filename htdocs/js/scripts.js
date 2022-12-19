@@ -87,7 +87,7 @@ function initScripts() {
     selectAPIcallEl.appendChild(
         elCreateTextTn('option', {"value": ""}, 'Select method')
     );
-    for (const m in APImethods) {
+    for (const m of Object.keys(APImethods).sort()) {
         selectAPIcallEl.appendChild(
             elCreateText('option', {"value": m}, m)
         );
@@ -111,9 +111,10 @@ function initScripts() {
         }
         const el = document.getElementById('textareaScriptContent');
         const [start, end] = [el.selectionStart, el.selectionEnd];
-        const newText = 'rc, result = mympd.api("' + method + '", ' +
+        const newText =
+            'options = {}\n' +
             apiParamsToArgs(APImethods[method].params) +
-            ')\n' +
+            'rc, result = mympd.api("' + method + '", options)\n' +
             'if rc == 0 then\n' +
             '\n' +
             'end\n';
@@ -205,32 +206,30 @@ function getImportScript(script) {
 }
 
 /**
- * Adds the documented api params to a lua string for the add api call function
+ * Adds the documented api params to the options lua table for the add api call function
  * @param {object} p parameters object
- * @returns {string} lua string
+ * @returns {string} lua code
  */
 function apiParamsToArgs(p) {
-    let args = '{';
-    let i = 0;
+    let args = '';
     for (const param in p) {
-        if (i > 0) {
-            args += ', ';
-        }
-        i++;
-        args += param + ' = ';
-        if (p[param].params !== undefined) {
-            args += apiParamsToArgs(p[param].params);
-        }
-        else {
-            if (p[param].type === 'text') {
+        args += 'options["' + param + '"] = ';
+        switch(p[param].type) {
+            case 'text':
                 args += '"' + p[param].example + '"';
+                break;
+            case 'array':
+                args += '{' + p[param].example.slice(1, -1) + '}';
+                break;
+            case 'object': {
+                args += '{}';
+                break;
             }
-            else {
+            default:
                 args += p[param].example;
-            }
         }
+        args += '\n';
     }
-    args += '}';
     return args;
 }
 
