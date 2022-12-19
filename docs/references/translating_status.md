@@ -1,4 +1,4 @@
-- es-ES: 775 missing phrases
+- es-ES: 773 missing phrases
 - es-VE: 539 missing phrases
 - fi-FI: 535 missing phrases
 - fr-FR: 44 missing phrases
@@ -7,4 +7,4 @@
 - ko-KR: 161 missing phrases
 - nl-NL: 44 missing phrases
 - zh-Hans: 26 missing phrases
-- zh-Hant: 856 missing phrases
+- zh-Hant: 854 missing phrases
