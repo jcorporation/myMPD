@@ -360,7 +360,10 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     jukebox_run(partition_state);
                 }
                 //save options as preset
-                if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
+                if (json_find_key(request->data, "$.params.name") == true &&
+                    json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
+                    sdslen(sds_buf1) > 0)
+                {
                     sds params = json_get_key_as_sds(request->data, "$.params");
                     if (params != NULL) {
                         int idx = list_get_node_idx(&partition_state->presets, sds_buf1);
