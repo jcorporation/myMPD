@@ -102,7 +102,6 @@
     "Choose a playlist or enter a new playlist name": "Wiedergabeliste wählen oder neuen Namen eingeben",
     "Clear": "Leeren",
     "Clear app cache and reload": "Browser Cache löschen und neu laden",
-    "Clear covercache": "Covercache löschen",
     "Clear jukebox queue": "Leere Jukebox Warteschlange",
     "Clear playlist": "Playlist leeren",
     "Clear queue": "Warteschlange leeren",
@@ -262,7 +261,6 @@
     "First page": "Erste Seite",
     "Focus search": "Gehe zur Suche",
     "Footer": "Fußzeile",
-    "Force smart playlist update": "Aktualisierung der intelligenten Wiedergabelisten erzwingen",
     "Force update": "Erzwinge Aktualisierung",
     "Format": "Format",
     "Free Lossless Audio Codec": "Free Lossless Audio Codec",
@@ -522,7 +520,6 @@
     "Replaced the playlist %{playlist}": "Wiedergabeliste %{playlist} wurde ersetzt",
     "Replaced the queue": "Warteschlange wurde ersetzt",
     "Replaygain": "Lautstärkeanpassung",
-    "Rescan database": "Datenbank neu einlesen",
     "Rescan directory": "Verzeichnis neu einlesen",
     "Reset to default": "Zurücksetzen",
     "Resize": "Größe ändern",
@@ -852,8 +849,10 @@
     "Presets": "Voreinstellungen",
     "Select preset": "Voreinstellung auswählen",
     "Caches are up-to-date": "Caches sind aktuell",
-    "Update caches": "Caches aktualisieren",
     "Updating caches": "Caches werden aktualisiert",
     "Updating MPD database": "MPD Datenbank wird aktualisiert",
-    "Cache update started": "Cache-Aktualisierung gestartet"
+    "Cache update started": "Cache-Aktualisierung gestartet",
+    "Caches": "Cache",
+    "Covercache": "Covercache",
+    "Rescan": "Neu einlesen"
 }
