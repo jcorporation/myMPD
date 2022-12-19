@@ -64,22 +64,17 @@
     </div>
     <div class="offcanvas-body">
       <a data-phrase="Add stream" class="dropdown-item" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["STREAM"]}'></a>
-      <a id="navDBupdate" class="subMenu dropdown-item" data-bs-toggle="collapse" href="#menu-dbupdate"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Update"></span></a>
-      <div class="collapse ps-3" id="menu-dbupdate">
-        <a data-phrase="Database" class="dropdown-item" href="#" data-href='{"cmd": "updateDB", "options": ["", true, false, false]}'></a>
-        <a data-phrase="Smart playlists" class="dropdown-item featSmartpls" href="#" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}'></a>
-      </div>
       <a id="navSettings" class="subMenu dropdown-item alwaysEnabled" data-bs-toggle="collapse" href="#menu-settings"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Settings"></span></a>
       <div id="menu-settings" class="collapse ps-3">
         <a data-phrase="MPD connection" class="dropdown-item alwaysEnabled" href="#modalConnection" data-bs-toggle="modal"></a>
         <a data-phrase="Settings" class="dropdown-item" data-bs-toggle="modal" href="#modalSettings"></a>
-        <a data-phrase="Maintenance" class="dropdown-item" data-bs-toggle="modal" href="#modalMaintenance"></a>
         <a data-phrase="Scripts" class="dropdown-item featScripting" data-bs-toggle="modal" href="#modalScripts"></a>
         <a data-phrase="Timer" class="dropdown-item featTimer" data-bs-toggle="modal" href="#modalTimer"></a>
         <a data-phrase="Trigger" class="dropdown-item featTrigger" data-bs-toggle="modal" href="#modalTrigger"></a>
         <a data-phrase="Mounts" class="dropdown-item featMounts" data-bs-toggle="modal" href="#modalMounts"></a>
         <a data-phrase="Partitions" class="dropdown-item featPartitions" data-bs-toggle="modal" href="#modalPartitions"></a>
       </div>
+      <a data-phrase="Maintenance" class="dropdown-item" data-bs-toggle="modal" href="#modalMaintenance"></a>
       <a data-phrase="Fullscreen" class="dropdown-item" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
       <a data-phrase="Browse directories" class="dropdown-item featLibrary" href="browse/" target="_blank"></a>
       <a data-phrase="About" class="dropdown-item" data-bs-toggle="modal" href="#modalAbout"></a>
@@ -2540,15 +2535,31 @@
         <div class="modal-body">
           <form id="MaintenanceFrm">
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="btnClearAndReload" data-phrase="Clear app cache and reload"></label>
+              <label class="col-sm-4 col-form-label" for="btnDatbaseRescan" data-phrase="Database"></label>
               <div class="col-sm-8">
-                <button type="button" id="btnClearAndReload" class="btn btn-secondary btnCleanup" data-href='{"cmd": "clearAndReload", "options": []}' data-phrase="Reload"></button>
+                <button type="button" id="btnDatbaseRescan" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateDB", "options": ["", false]}' data-phrase="Update"></button>
+                <button type="button" id="btnDatbaseRescan" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateDB", "options": ["", true]}' data-phrase="Rescan"></button>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="btnClearCovercache" data-phrase="Clear covercache"></label>
+              <label class="col-sm-4 col-form-label" for="btnUpdateCaches" data-phrase="Caches"></label>
               <div class="col-sm-8">
-                <button type="button" id="btnClearCovercache" class="me-2 btn btn-secondary btnCleanup protected" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
+                <button type="button" id="btnUpdateCaches" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateCaches", "options": [false]}' data-phrase="Update"></button>
+                <button type="button" id="btnUpdateCachesForce" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateCaches", "options": [true]}' data-phrase="Force update"></button>
+              </div>
+            </div>
+            <div class="mb-3 row featPlaylists">
+              <label class="col-sm-4 col-form-label" for="btnForceSmartplsUpdate" data-phrase="Smart playlists"></label>
+              <div class="col-sm-8">
+                <button type="button" id="btnForceSmartplsUpdate" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}' data-phrase="Update"></button>
+                <button type="button" id="btnForceSmartplsUpdate" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateSmartPlaylists", "options": [true]}' data-phrase="Force update"></button>
+              </div>
+            </div>
+            <hr/>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="btnClearCovercache" data-phrase="Covercache"></label>
+              <div class="col-sm-8">
+                <button type="button" id="btnClearCovercache" class="btn btn-secondary btnCleanup me-2 protected" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
                 <button type="button" id="btnCropCovercache" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
               </div>
             </div>
@@ -2565,26 +2576,7 @@
                 </div>
               </div>
             </div>
-            <div class="mb-3 row featPlaylists">
-              <label class="col-sm-4 col-form-label" for="btnForceSmartplsUpdate" data-phrase="Force smart playlist update"></label>
-              <div class="col-sm-8">
-                <button type="button" id="btnForceSmartplsUpdate" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateSmartPlaylists", "options": [true]}' data-phrase="Force update"></button>
-              </div>
-            </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="btnUpdateCaches" data-phrase="Update caches"></label>
-              <div class="col-sm-8">
-                <button type="button" id="btnUpdateCaches" class="me-2 btn btn-secondary btnCleanup" data-href='{"cmd": "updateCaches", "options": [false]}' data-phrase="Update"></button>
-                <button type="button" id="btnUpdateCachesForce" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateCaches", "options": [true]}' data-phrase="Force update"></button>
-              </div>
-            </div>
-            <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="btnDatbaseRescan" data-phrase="Database"></label>
-              <div class="col-sm-8">
-                <button type="button" id="btnDatbaseRescan" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateDB", "options": ["", true, false, true]}' data-phrase="Rescan database"></button>
-              </div>
-            </div>
-            <div class="mb-3 row featPlaylists">
               <label class="col-sm-4 col-form-label" for="btnSetLoglevel"><span data-phrase="Loglevel"></span><small class="mi mi-small ms-1" data-title-phrase="Temporary setting">help</small></label>
               <div class="col-sm-8">
                 <div class="input-group">
@@ -2600,6 +2592,12 @@
                   </select>
                   <button id="btnSetLoglevel" data-href='{"cmd": "setLoglevel", "options": []}' type="button" class="btn btn-secondary protected" data-phrase="Set"></button>
                 </div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="btnClearAndReload" data-phrase="Clear app cache and reload"></label>
+              <div class="col-sm-8">
+                <button type="button" id="btnClearAndReload" class="btn btn-secondary btnCleanup" data-href='{"cmd": "clearAndReload", "options": []}' data-phrase="Reload"></button>
               </div>
             </div>
           </form>
