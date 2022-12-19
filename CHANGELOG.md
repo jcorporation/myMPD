@@ -27,7 +27,8 @@ This release reworks the scripting api and improves the scripting documentation.
 - Upd: some UI cleanups and improvements #909
 - Upd: Bootstrap 5.2.3
 - Upd: documentation improvements
-- Upd: remove update database modal
+- Upd: some backend improvements
+- Upd: do not create files with root permissions
 
 ***
 
