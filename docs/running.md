@@ -30,6 +30,8 @@ mkdir /etc/systemd/system/mympd.service.d
 echo -e '[Service]\nSupplementaryGroups=music' > /etc/systemd/system/mympd.service.d/music-group.conf
 ```
 
+- **Note:** The default systemd service unit supports only systemd v235 and above.
+
 ### Openrc usage
 
 You must enable and start the service manually. Use `rc-update add mympd` to enable myMPD at startup and `rc-service mympd start` to start myMPD now.
