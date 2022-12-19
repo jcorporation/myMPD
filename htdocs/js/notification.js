@@ -53,7 +53,8 @@ function toggleAlert(alertBoxId, state, msg) {
                 }, false);
                 break;
             }
-            case 'alertUpdateState': {
+            case 'alertUpdateDBState':
+            case 'alertUpdateCacheState': {
                 alertBoxEl.classList.add('alert-success');
                 break;
             }

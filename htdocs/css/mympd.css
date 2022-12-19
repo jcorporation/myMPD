@@ -1151,6 +1151,11 @@ div.alert-danger {
   background-color: #f8d7da !important;
 }
 
+div#alertUpdateDBState::before,
+div#alertUpdateCacheState::before {
+  content: "autorenew";
+}
+
 input.innerButton {
   padding-right: calc(1.5em + 0.75rem);
 }

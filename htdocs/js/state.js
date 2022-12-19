@@ -235,7 +235,10 @@ function parseState(obj) {
     toggleAlert('alertMpdStatusError', (obj.result.lastError === '' ? false : true), obj.result.lastError);
 
     //handle mpd update status
-    toggleAlert('alertUpdateState', (obj.result.updateState === 0 ? false : true), tn('Updating MPD database'));
+    toggleAlert('alertUpdateDBState', (obj.result.updateState === 0 ? false : true), tn('Updating MPD database'));
+    
+    //hanlde myMPD cache update status
+    toggleAlert('alertUpdateCacheState', obj.result.updateCacheState, tn('Updating caches'));
 
     //check if we need to get settings
     let getNewSettings = false;
