@@ -63,29 +63,27 @@
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body">
-      <a data-phrase="Add stream" class="dropdown-item" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["STREAM"]}'></a>
-      <a id="navSettings" class="subMenu dropdown-item alwaysEnabled" data-bs-toggle="collapse" href="#menu-settings"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Settings"></span></a>
-      <div id="menu-settings" class="collapse ps-3">
-        <a data-phrase="MPD connection" class="dropdown-item alwaysEnabled" href="#modalConnection" data-bs-toggle="modal"></a>
-        <a data-phrase="Settings" class="dropdown-item" data-bs-toggle="modal" href="#modalSettings"></a>
-        <a data-phrase="Scripts" class="dropdown-item featScripting" data-bs-toggle="modal" href="#modalScripts"></a>
-        <a data-phrase="Timer" class="dropdown-item featTimer" data-bs-toggle="modal" href="#modalTimer"></a>
-        <a data-phrase="Trigger" class="dropdown-item featTrigger" data-bs-toggle="modal" href="#modalTrigger"></a>
-        <a data-phrase="Mounts" class="dropdown-item featMounts" data-bs-toggle="modal" href="#modalMounts"></a>
-        <a data-phrase="Partitions" class="dropdown-item featPartitions" data-bs-toggle="modal" href="#modalPartitions"></a>
-      </div>
-      <a data-phrase="Maintenance" class="dropdown-item" data-bs-toggle="modal" href="#modalMaintenance"></a>
-      <a data-phrase="Fullscreen" class="dropdown-item" href="#" data-href='{"cmd": "openFullscreen", "options": []}'></a>
-      <a data-phrase="Browse directories" class="dropdown-item featLibrary" href="browse/" target="_blank"></a>
-      <a data-phrase="About" class="dropdown-item" data-bs-toggle="modal" href="#modalAbout"></a>
-      <a data-phrase="Add to homescreen" id="nav-add2homescreen" class="dropdown-item d-none" href="#"></a>
-      <a data-phrase="Login" id="mmLogin" data-href='{"cmd": "enterPin", "options": []}' class="dropdown-item" href="#"></a>
-      <a data-phrase="Logout" id="mmLogout" data-href='{"cmd": "removeSession", "options": []}' class="dropdown-item d-none" href="#"></a>
+      <a class="dropdown-item py-2" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["STREAM"]}'><span class="mi me-2">playlist_add</span><span data-phrase="Add stream"></span></a>
       <div class="dropdown-divider"></div>
-      <a id="navScripting" class="subMenu featScripting dropdown-item alwaysEnabled" data-bs-toggle="collapse" href="#scripts"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
+      <a class="dropdown-item py-2 alwaysEnabled" href="#modalConnection" data-bs-toggle="modal"><span class="mi me-2">settings_ethernet</span><span data-phrase="MPD connection"></span></a>
+      <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalSettings"><span class="mi me-2">settings</span><span data-phrase="Settings"></span></a>
+      <a class="dropdown-item py-2 featScripting" data-bs-toggle="modal" href="#modalScripts"><span class="mi me-2">code</span><span data-phrase="Scripts"></span></a>
+      <a class="dropdown-item py-2 featTimer" data-bs-toggle="modal" href="#modalTimer"><span class="mi me-2">timer</span><span data-phrase="Timer"></span></a>
+      <a class="dropdown-item py-2 featTrigger" data-bs-toggle="modal" href="#modalTrigger"><span class="mi me-2">bolt</span><span data-phrase="Trigger"></span></a>
+      <a class="dropdown-item py-2 featMounts" data-bs-toggle="modal" href="#modalMounts"><span class="mi me-2">dns</span><span data-phrase="Mounts"></span></a>
+      <a class="dropdown-item py-2 featPartitions" data-bs-toggle="modal" href="#modalPartitions"><span class="mi me-2">dashboard</span><span data-phrase="Partitions"></span></a>
+      <div class="dropdown-divider"></div>
+      <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalMaintenance"><span class="mi me-2">build</span><span data-phrase="Maintenance"></span></a>
+      <a class="dropdown-item py-2 featLibrary" href="browse/" target="_blank"><span class="mi me-2">source</span><span data-phrase="Browse directories"></span></a>
+      <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalAbout"><span class="mi me-2">help_outline</span><span data-phrase="About"></span></a>
+      <div class="dropdown-divider" id="mmLoginLogoutDivider"></div>
+      <a class="dropdown-item py-2" id="mmLogin" data-href='{"cmd": "enterPin", "options": []}' href="#"><span class="mi me-2">login</span><span data-phrase="Login"></span></a>
+      <a class="dropdown-item py-2" id="mmLogout" data-href='{"cmd": "removeSession", "options": []}' href="#"><span class="mi me-2">logout</span><span data-phrase="Logout"></span></a>
+      <div class="dropdown-divider"></div>
+      <a id="navScripting" class="subMenu featScripting dropdown-item alwaysEnabled py-2" data-bs-toggle="collapse" href="#scripts"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
       <div id="scripts" class="featScripting noInitChilds collapse"></div>
       <div class="dropdown-divider"></div>
-      <a id="navNotifications" class="subMenu dropdown-item alwaysEnabled" data-bs-toggle="collapse" href="#menu-notifications"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span> <span class="badge bg-secondary" id="notificationCount">0</span></a>
+      <a id="navNotifications" class="subMenu dropdown-item alwaysEnabled py-2" data-bs-toggle="collapse" href="#menu-notifications"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span> <span class="badge bg-secondary" id="notificationCount">0</span></a>
       <div id="menu-notifications" class="collapse ps-3">
         <div id="logOverview" class="ps-4 pe-2"></div>
       </div>

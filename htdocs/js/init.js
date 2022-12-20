@@ -58,36 +58,6 @@ function clearAndReload() {
 }
 
 /**
- * Initializes the add to homescreen function
- */
-function a2hsInit() {
-    window.addEventListener('beforeinstallprompt', function(event) {
-        logDebug('Event: beforeinstallprompt');
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
-        event.preventDefault();
-        // Stash the event so it can be triggered later
-        deferredA2HSprompt = event;
-        // Update UI notify the user they can add to home screen
-        elShowId('nav-add2homescreen');
-    });
-
-    document.getElementById('nav-add2homescreen').addEventListener('click', function(event) {
-        // Hide our user interface that shows our A2HS button
-        elHide(event.target);
-        // Show the prompt
-        deferredA2HSprompt.prompt();
-        // Wait for the user to respond to the prompt
-        deferredA2HSprompt.userChoice.then(() => {
-            deferredA2HSprompt = null;
-        });
-    });
-
-    window.addEventListener('appinstalled', function() {
-        showNotification(tn('myMPD installed as app'), '', 'general', 'info');
-    });
-}
-
-/**
  * Starts the app
  */
 function appInitStart() {
@@ -181,9 +151,6 @@ function appInitStart() {
     elShowId('splashScreen');
     domCache.body.classList.add('overflow-hidden');
     document.getElementById('splashScreenAlert').textContent = tn('Fetch myMPD settings');
-
-    //init add to home screen feature
-    a2hsInit();
 
     //initialize app
     appInited = false;

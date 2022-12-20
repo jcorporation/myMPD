@@ -459,29 +459,6 @@ function toggleCollapseArrow(el) {
 }
 
 /**
- * Go's into fullscreen mode
- */
-//eslint-disable-next-line no-unused-vars
-function openFullscreen() {
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-    }
-    else if (elem.mozRequestFullScreen) {
-        //Firefox
-        elem.mozRequestFullScreen();
-    }
-    else if (elem.webkitRequestFullscreen) {
-        //Chrome, Safari and Opera
-        elem.webkitRequestFullscreen();
-    }
-    else if (elem.msRequestFullscreen) {
-        //IE and Edge
-        elem.msRequestFullscreen();
-    }
-}
-
-/**
  * Checks for support of the media session api
  * @returns {boolean} true if media session api is supported, else false
  */
