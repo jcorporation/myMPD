@@ -155,7 +155,7 @@ function parseCurrentSong(obj) {
     const playingTr = document.getElementById('queueSongId' + obj.result.currentSongId);
     if (playingTr !== null) {
         const titleCol = playingTr.querySelector('[data-col=Title');
-        if (titleCol) {
+        if (titleCol !== null) {
             titleCol.textContent = obj.result.Title;
         }
     }

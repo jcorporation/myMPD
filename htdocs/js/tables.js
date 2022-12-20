@@ -691,7 +691,7 @@ function checkResultId(obj, id) {
  */
 function checkResult(obj, tbody) {
     const thead = tbody.parentNode.querySelector('tr');
-    const colspan = thead !== undefined ? thead.querySelectorAll('th').length : 0;
+    const colspan = thead !== null ? thead.querySelectorAll('th').length : 0;
     const tfoot = tbody.parentNode.querySelector('tfoot');
     if (obj.error) {
         elClear(tbody);
