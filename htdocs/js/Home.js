@@ -126,7 +126,7 @@ function initHome() {
     searchHomeIconLigature.addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
             const sel = document.querySelector('#listHomeIconLigature .active');
-            if (sel !== undefined) {
+            if (sel !== null) {
                 selectHomeIconLigature(sel);
                 uiElements.dropdownHomeIconLigature.hide();
             }
