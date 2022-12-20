@@ -231,3 +231,5 @@ icon-places
 icon-search
 icon-social
 icon-toggle
+Rescan database
+Update database

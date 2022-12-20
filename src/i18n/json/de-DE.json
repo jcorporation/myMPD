@@ -668,7 +668,6 @@
     "Update of album cache failed": "Album Cache konnte nicht aktualisiert werden",
     "Update of sticker cache failed": "Sticker Cache konnte nicht aktualisiert werden",
     "Update smart playlist": "Intelligente Wiedergabeliste aktualisieren",
-    "Update smart playlists": "Intelligente Wiedergabelisten aktualisieren",
     "Updated album cache": "Album Cache wurde aktualisiert",
     "Updated sticker cache": "Sticker Cache wurde aktualisiert",
     "Updated the playlist %{playlist}": "Wiedergabeliste %{playlist} wurde aktualisiert",
@@ -854,5 +853,7 @@
     "Cache update started": "Cache-Aktualisierung gestartet",
     "Caches": "Cache",
     "Covercache": "Covercache",
-    "Rescan": "Neu einlesen"
+    "Rescan": "Neu einlesen",
+    "Rescan database": "Datenbank neu einlesen",
+    "Edit": "Bearbeiten"
 }
