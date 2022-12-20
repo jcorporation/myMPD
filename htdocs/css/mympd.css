@@ -779,10 +779,6 @@ textarea.small {
   border-color: transparent !important;
 }
 
-#logOverview > div {
-  font-size: 0.8rem;
-}
-
 #top-alerts {
   position: fixed;
   width: 100%;
