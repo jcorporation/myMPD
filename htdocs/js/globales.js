@@ -28,7 +28,6 @@ let settings = {
 let settingsParsed = 'no';
 
 let progressTimer = null;
-let deferredA2HSprompt;
 let dragSrc;
 let dragEl;
 
@@ -887,7 +886,6 @@ domCache.body = document.querySelector('body');
 domCache.counter = document.getElementById('counter');
 domCache.footer = document.querySelector('footer');
 domCache.main = document.querySelector('main');
-domCache.notificationCount = document.getElementById('notificationCount');
 domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');
 domCache.progressPos = document.getElementById('footerProgressPos');

@@ -75,18 +75,13 @@
       <div class="dropdown-divider"></div>
       <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalMaintenance"><span class="mi me-2">build</span><span data-phrase="Maintenance"></span></a>
       <a class="dropdown-item py-2 featLibrary" href="browse/" target="_blank"><span class="mi me-2">source</span><span data-phrase="Browse directories"></span></a>
+      <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalNotifications"><span class="mi me-2">sms</span><span data-phrase="Notifications"></span></a>
       <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalAbout"><span class="mi me-2">help_outline</span><span data-phrase="About"></span></a>
       <div class="dropdown-divider" id="mmLoginLogoutDivider"></div>
       <a class="dropdown-item py-2" id="mmLogin" data-href='{"cmd": "enterPin", "options": []}' href="#"><span class="mi me-2">login</span><span data-phrase="Login"></span></a>
       <a class="dropdown-item py-2" id="mmLogout" data-href='{"cmd": "removeSession", "options": []}' href="#"><span class="mi me-2">logout</span><span data-phrase="Logout"></span></a>
-      <div class="dropdown-divider"></div>
-      <a id="navScripting" class="subMenu featScripting dropdown-item alwaysEnabled py-2" data-bs-toggle="collapse" href="#scripts"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Scripts"></span></a>
-      <div id="scripts" class="featScripting noInitChilds collapse"></div>
-      <div class="dropdown-divider"></div>
-      <a id="navNotifications" class="subMenu dropdown-item alwaysEnabled py-2" data-bs-toggle="collapse" href="#menu-notifications"><span class="mi mi-left">keyboard_arrow_right</span><span data-phrase="Notifications"></span> <span class="badge bg-secondary" id="notificationCount">0</span></a>
-      <div id="menu-notifications" class="collapse ps-3">
-        <div id="logOverview" class="ps-4 pe-2"></div>
-      </div>
+      <div class="dropdown-divider featScripting"></div>
+      <div id="scripts" class="featScripting noInitChilds"></div>
     </div>
     <div class="offcanvas-footer px-3 py-2">
       <a class="external" rel="noreferrer" target="_blank" href="https://github.com/jcorporation/myMPD/discussions/167" data-phrase="Help to improve myMPD"></a>
@@ -2722,6 +2717,27 @@
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button id="addToWebradioFavorites" type="button" class="btn btn-success" data-phrase="Add to favorites"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalNotifications" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-scrollable">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="mi title-icon">sms</span> <span data-phrase="Notifications"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="table-responsive-md">
+            <table class="table table-sm">
+              <tbody id="logOverview"></tbody>
+            </table>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
         </div>
       </div>
     </div>

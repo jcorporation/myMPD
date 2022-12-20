@@ -243,6 +243,7 @@ function appInit() {
     initOutputs();
     initLocalPlayback();
     initSession();
+    initNotifications();
     //init drag and drop
     for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
         dragAndDropTable(table);
@@ -433,14 +434,6 @@ function initNavs() {
         if (event.target.nodeName === 'A') {
             execScript(getData(event.target, 'href'));
         }
-    }, false);
-
-    //update list of notifications
-    document.getElementById('menu-notifications').addEventListener('show.bs.collapse', function() {
-        showMessages();
-    }, false);
-    document.getElementById('offcanvasMenu').addEventListener('show.bs.offcanvas', function() {
-        showMessages();
     }, false);
 }
 

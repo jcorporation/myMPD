@@ -6,6 +6,15 @@
 /** @module notifications_js */
 
 /**
+ * Initializes the notification html elements
+ */
+function initNotifications() {
+    document.getElementById('modalNotifications').addEventListener('show.bs.modal', function () {
+        showMessages();
+    });
+}
+
+/**
  * Sets the background color of the myMPD logo according to the websocket state
  */
 function setStateIcon() {
@@ -224,11 +233,10 @@ function logMessage(title, text, facility, severity) {
         });
         messagesLen++;
     }
-    if (messagesLen > 10) {
+    if (messagesLen > 25) {
         messages.shift();
-        messagesLen = 10;
+        messagesLen = 25;
     }
-    domCache.notificationCount.textContent = messagesLen.toString();
 }
 
 /**
@@ -238,32 +246,21 @@ function showMessages() {
     const overview = document.getElementById('logOverview');
     elClear(overview);
     for (const message of messages) {
-        const entry = elCreateEmpty('div', {"class": ["row", "align-items-center", "mb-2", "me-0"]});
-        entry.appendChild(
-            elCreateNode('div', {"class": ["col", "col-1", "ps-0"]},
-                createSeverityIcon(message.severity)
-            )
-        );
-        const col = elCreateEmpty('div', {"class": ["col", "col-11"]});
-        col.appendChild(
-            elCreateText('small', {"class": ["me-2"]}, fmtDate(message.timestamp) +
-                smallSpace + nDash + smallSpace + tn(facilities[message.facility]))
-        );
-        if (message.occurrence > 1) {
-            col.appendChild(
-                elCreateText('div', {"class": ["badge", "bg-secondary"]}, message.occurrence)
-            );
-        }
-        col.appendChild(
-            elCreateText('p', {"class": ["mb-0"]}, message.title)
-        );
-        if (message.text !== '') {
-            col.appendChild(
-                elCreateText('p', {"class": ["mb-0"]}, message.text)
-            );
-        }
-        entry.appendChild(col);
-        overview.insertBefore(entry, overview.firstElementChild);
+        overview.insertBefore(
+            elCreateNodes('tr', {}, [
+                elCreateNodes('td', {}, [
+                    createSeverityIcon(message.severity),
+                    elCreateText('span', {"class": ["me-2"]}, fmtDate(message.timestamp) +
+                        smallSpace + nDash + smallSpace + tn(facilities[message.facility])),
+                        elCreateText('div', {"class": ["badge", "bg-secondary"]}, message.occurrence)
+                    ]
+                ),
+                elCreateNodes('td', {}, [
+                    elCreateText('p', {"class": ["mb-0"]}, message.title),
+                    elCreateText('p', {"class": ["mb-0"]}, message.text)
+                ])
+            ]),
+        overview.firstElementChild);
     }
 }
 
