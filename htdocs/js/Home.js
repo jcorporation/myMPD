@@ -256,7 +256,7 @@ function parseHomeIcons(obj) {
         const actionType = friendlyActions[obj.result.data[i].cmd];
 
         const card = elCreateEmpty('div', {"data-popover": "home", "class": ["card", "home-icons"], "draggable": "true",
-            "title": tn(homeType) + ':' + smallSpace + obj.result.data[i].name +
+            "title": tn(homeType) + ':' + smallSpace + tn(obj.result.data[i].name) +
             '\n' + tn(actionType)});
         //decode json options
         for (let j = 0, k = obj.result.data[i].options.length; j < k; j++) {
