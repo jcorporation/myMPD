@@ -25,6 +25,7 @@ This release reworks the scripting api and improves the scripting documentation.
 - Feat: save album and sticker cache between restarts #913
 - Feat: manual refresh of album and sticker cache
 - Feat: rework main menu
+- Feat: add shortcuts for more modals
 - Upd: some UI cleanups and improvements #909
 - Upd: Bootstrap 5.2.3
 - Upd: documentation improvements
@@ -85,7 +86,7 @@ This is a small bugfix release.
 
 ### Changelog
 
-- Fix: Remove "-" from musicbrainz_artistid and musicbrainz_albumartistid #903
+- Fix: remove "-" from musicbrainz_artistid and musicbrainz_albumartistid #903
 - Fix: scrobble repeated songs #904
 - Fix: When switching through consume mode skip oneshot for mpd < 0.24 #905
 - Fix: unescape mpd filter expression value #906

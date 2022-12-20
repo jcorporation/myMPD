@@ -855,5 +855,9 @@
     "Rescan database": "Datenbank neu einlesen",
     "Edit": "Bearbeiten",
     "Show notification icon": "Hinweis-Icon anzeigen",
-    "Open notifications": "Öffne Hinweise"
+    "Open notifications": "Öffne Hinweise",
+    "Open trigger": "Öffne Trigger",
+    "Open mounts": "Öffne Einhängepunkte",
+    "Open timer": "Öffner Timer",
+    "Open scripts": "Öffne Skripte"
 }
