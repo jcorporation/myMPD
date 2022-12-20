@@ -24,6 +24,7 @@ This release reworks the scripting api and improves the scripting documentation.
 - Feat: ability to disable listening on plain HTTP #914
 - Feat: save album and sticker cache between restarts #913
 - Feat: manual refresh of album and sticker cache
+- Feat: rework main menu
 - Upd: some UI cleanups and improvements #909
 - Upd: Bootstrap 5.2.3
 - Upd: documentation improvements
