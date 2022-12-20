@@ -71,7 +71,7 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
         sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": input.value}, function(obj) {
             input.value = '';
             const alert = footers[0].querySelector('.alert');
-            if (alert !== undefined) {
+            if (alert !== null) {
                 alert.remove();
             }
             if (obj.error) {

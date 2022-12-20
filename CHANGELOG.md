@@ -40,7 +40,9 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Upd: FR and NL translations
 - Fix: relax validation of webradio codecs #933
+- Fix: javascript error on login
 
 ***
 
