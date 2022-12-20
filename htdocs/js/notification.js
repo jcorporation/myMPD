@@ -248,13 +248,12 @@ function showMessages() {
     for (const message of messages) {
         overview.insertBefore(
             elCreateNodes('tr', {}, [
+                elCreateText('td', {}, fmtDate(message.timestamp)),
                 elCreateNodes('td', {}, [
                     createSeverityIcon(message.severity),
-                    elCreateText('span', {"class": ["me-2"]}, fmtDate(message.timestamp) +
-                        smallSpace + nDash + smallSpace + tn(facilities[message.facility])),
-                        elCreateText('div', {"class": ["badge", "bg-secondary"]}, message.occurrence)
-                    ]
-                ),
+                    document.createTextNode(tn(facilities[message.facility]))
+                ]),
+                elCreateText('td', {}, message.occurrence),
                 elCreateNodes('td', {}, [
                     elCreateText('p', {"class": ["mb-0"]}, message.title),
                     elCreateText('p', {"class": ["mb-0"]}, message.text)

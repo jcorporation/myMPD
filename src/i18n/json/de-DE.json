@@ -859,5 +859,8 @@
     "Open trigger": "Öffne Trigger",
     "Open mounts": "Öffne Einhängepunkte",
     "Open timer": "Öffner Timer",
-    "Open scripts": "Öffne Skripte"
+    "Open scripts": "Öffne Skripte",
+    "Facility": "Kategorie",
+    "Timestamp": "Zeitstempel",
+    "Message": "Nachricht"
 }
