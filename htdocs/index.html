@@ -75,7 +75,7 @@
       <div class="dropdown-divider"></div>
       <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalMaintenance"><span class="mi me-2">build</span><span data-phrase="Maintenance"></span></a>
       <a class="dropdown-item py-2 featLibrary" href="browse/" target="_blank"><span class="mi me-2">source</span><span data-phrase="Browse directories"></span></a>
-      <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalNotifications"><span class="mi me-2">sms</span><span data-phrase="Notifications"></span></a>
+      <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalNotifications"><span class="mi me-2">chat_bubble_outline</span><span data-phrase="Notifications"></span></a>
       <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalAbout"><span class="mi me-2">help_outline</span><span data-phrase="About"></span></a>
       <div class="dropdown-divider" id="mmLoginLogoutDivider"></div>
       <a class="dropdown-item py-2" id="mmLogin" data-href='{"cmd": "enterPin", "options": []}' href="#"><span class="mi me-2">login</span><span data-phrase="Login"></span></a>
@@ -814,8 +814,8 @@
             </form>
           </div>
         </div>
-        <div class="btn-group dropup featLocalPlayback ms-2">
-          <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn btn-dark dropdown-toggle px-2 mi" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">airplay</button>
+        <div class="btn-group dropup featLocalPlayback">
+          <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn btn-dark dropdown-toggle px-2 mi" data-bs-toggle="dropdown" data-bs-auto-close="outside">airplay</button>
           <div class="dropdown-menu dropdown-menu-dark dropdownWide">
             <h5 class="dropdown-header"><span class="mi mi-small me-2">airplay</span><span data-phrase="Local playback"></span></h5>
             <hr class="mt-0"/>
@@ -838,6 +838,9 @@
               </form>
             </div>
           </div>
+        </div>
+        <div class="btn-group featFooterNotifications" id="footerNotifications">
+          <button data-title-phrase="Notifications" class="btn btn-dark mi" data-bs-toggle="modal" data-bs-target="#modalNotifications">chat_bubble_outline</button>
         </div>
       </div>
     </nav>
@@ -2726,7 +2729,7 @@
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title"><span class="mi title-icon">sms</span> <span data-phrase="Notifications"></span></h5>
+          <h5 class="modal-title"><span class="mi title-icon">chat_bubble_outline</span> <span data-phrase="Notifications"></span></h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
@@ -2738,6 +2741,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
+          <button type="button" class="btn btn-secondary" data-href='{"cmd": "clearMessages", "options": []}' data-phrase="Clear"></button>
         </div>
       </div>
     </div>

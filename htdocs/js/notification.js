@@ -262,6 +262,20 @@ function showMessages() {
             ]),
         overview.firstElementChild);
     }
+    if (overview.querySelector('tr') === null) {
+        overview.appendChild(emptyRow(2));
+    }
+}
+
+/**
+ * Clears the logbuffer
+ */
+//eslint-disable-next-line no-unused-vars
+function clearMessages() {
+    const overview = document.getElementById('logOverview');
+    elClear(overview);
+    overview.appendChild(emptyRow(2));
+    messages.length = 0;
 }
 
 /**

@@ -664,6 +664,12 @@ const webuiSettingsDefault = {
         "title": "Show volume level in footer",
         "form": "footerFrm"
     },
+    "uiFooterNotifications": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Show notification icon",
+        "form": "footerFrm"
+    },
     "uiMaxElementsPerPage": {
         "defaultValue": 100,
         "validValues": {
@@ -865,7 +871,8 @@ const keymap = {
         "Q": {"order": 203, "cmd": "openModal", "options": ["modalQueueSettings"], "desc": "Open queue settings"},
         "T": {"order": 204, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
         "M": {"order": 205, "cmd": "openModal", "options": ["modalMaintenance"], "desc": "Open maintenance"},
-        "?": {"order": 206, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
+        "N": {"order": 206, "cmd": "openModal", "options": ["modalNotifications"], "desc": "Open notifications"},
+        "?": {"order": 207, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
     "navigation": {"order": 300, "desc": "Navigation"},
         "0": {"order": 301, "cmd": "appGoto", "options": ["Home"], "desc": "Show home"},
         "1": {"order": 302, "cmd": "appGoto", "options": ["Playback"], "desc": "Show playback"},

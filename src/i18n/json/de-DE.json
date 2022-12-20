@@ -853,5 +853,7 @@
     "Covercache": "Covercache",
     "Rescan": "Neu einlesen",
     "Rescan database": "Datenbank neu einlesen",
-    "Edit": "Bearbeiten"
+    "Edit": "Bearbeiten",
+    "Show notification icon": "Hinweis-Icon anzeigen",
+    "Open notifications": "Öffne Hinweise"
 }
