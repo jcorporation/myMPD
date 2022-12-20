@@ -183,15 +183,6 @@ function appInitStart() {
  */
 function appInit() {
     getAssets();
-    //collapse arrows for submenus
-    const collapseArrows = document.querySelectorAll('.subMenu');
-    for (const collapseArrow of collapseArrows) {
-        collapseArrow.addEventListener('click', function(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            toggleCollapseArrow(this);
-        }, false);
-    }
     //init links
     const hrefs = document.querySelectorAll('[data-href]');
     for (const href of hrefs) {

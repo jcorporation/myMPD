@@ -450,15 +450,6 @@ function getTimestamp() {
 }
 
 /**
- * Toggles the collapse indicator
- * @param {HTMLElement} el arrow element to toggle
- */
-function toggleCollapseArrow(el) {
-    const icon = el.querySelector('span');
-    icon.textContent = icon.textContent === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
-}
-
-/**
  * Checks for support of the media session api
  * @returns {boolean} true if media session api is supported, else false
  */
