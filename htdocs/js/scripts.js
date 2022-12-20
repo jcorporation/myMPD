@@ -418,9 +418,7 @@ function parseScriptList(obj) {
 
     const timerActions = elCreateEmpty('optgroup', {"id": "timerActionsScriptsOptGroup", "label": tn('Script')});
     setData(timerActions, 'value', 'script');
-    const scriptMaxListLen = 4;
     const scriptListLen = obj.result.data.length;
-    let showScriptListLen = 0;
     if (scriptListLen > 0) {
         obj.result.data.sort(function(a, b) {
             return a.metadata.order - b.metadata.order;
@@ -428,8 +426,10 @@ function parseScriptList(obj) {
         for (let i = 0; i < scriptListLen; i++) {
             //scriptlist in main menu
             if (obj.result.data[i].metadata.order > 0) {
-                showScriptListLen++;
-                const a = elCreateText('a', {"class": ["dropdown-item", "alwaysEnabled"], "href": "#"}, obj.result.data[i].name);
+                const a = elCreateNodes('a', {"class": ["dropdown-item", "alwaysEnabled", "py-2"], "href": "#"}, [
+                    elCreateText('span', {"class": ["mi", "me-2"]}, "code"),
+                    elCreateText('span', {}, obj.result.data[i].name)
+                ]);
                 setData(a, 'href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
                 mainmenuScripts.appendChild(a);
             }
@@ -457,21 +457,11 @@ function parseScriptList(obj) {
         }
     }
 
-    const navScripting = document.getElementById('navScripting');
-    if (showScriptListLen > scriptMaxListLen) {
-        elShow(navScripting);
-        elShow(navScripting.previousElementSibling);
-        document.getElementById('scripts').classList.add('collapse', 'menu-indent');
+    if (scriptListLen === 0) {
+        elHide(mainmenuScripts.previousElementSibling);
     }
     else {
-        elHide(navScripting);
-        if (showScriptListLen === 0) {
-            elHide(navScripting.previousElementSibling);
-        }
-        else {
-            elShow(navScripting.previousElementSibling);
-        }
-        document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
+        elShow(mainmenuScripts.previousElementSibling);
     }
     //update timer actions select
     const old = document.getElementById('timerActionsScriptsOptGroup');
