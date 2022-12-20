@@ -434,7 +434,7 @@ function parseScriptList(obj) {
                 mainmenuScripts.appendChild(a);
             }
             //scriptlist in scripts modal
-            const tr = elCreateNodes('tr', {}, [
+            const tr = elCreateNodes('tr', {"title": tn('Edit')}, [
                 elCreateText('td', {}, obj.result.data[i].name),
                 elCreateNodes('td', {"data-col": "Action"}, [
                     elCreateText('a', {"href": "#", "data-title-phrase": "Delete", "data-action": "delete", "class": ["me-2", "mi", "color-darkgrey"]}, 'delete'),
@@ -460,7 +460,7 @@ function parseScriptList(obj) {
     const navScripting = document.getElementById('navScripting');
     if (showScriptListLen > scriptMaxListLen) {
         elShow(navScripting);
-        elHide(navScripting.previousElementSibling);
+        elShow(navScripting.previousElementSibling);
         document.getElementById('scripts').classList.add('collapse', 'menu-indent');
     }
     else {

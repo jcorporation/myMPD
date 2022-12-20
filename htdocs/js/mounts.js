@@ -192,7 +192,7 @@ function parseListMounts(obj) {
                 elCreateText('a', {"href": "#", "data-title-phrase": "Update", "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh')
             );
         }
-        const row = elCreateNodes('tr', {}, [
+        const row = elCreateNodes('tr', {"title": tn('Edit')}, [
             td1,
             elCreateText('td', {}, obj.result.data[i].mountUrl),
             mountActionTd

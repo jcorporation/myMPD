@@ -194,7 +194,7 @@ function parseTriggerList(obj) {
     }
     elClear(tbody);
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const row = elCreateNodes('tr', {}, [
+        const row = elCreateNodes('tr', {"title": tn('Edit')}, [
             elCreateText('td', {}, obj.result.data[i].name + 
                 (obj.result.data[i].partition === '!all!' ? ' (' + tn('All partitions') + ')' : '')
             ),

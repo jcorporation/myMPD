@@ -399,7 +399,7 @@ function parseListTimer(obj) {
                 }
         }
 
-        const row = elCreateNodes('tr', {}, [
+        const row = elCreateNodes('tr', {"title": tn('Edit')}, [
             elCreateText('td', {}, obj.result.data[i].name),
             elCreateNode('td', {}, btn),
             elCreateText('td', {}, zeroPad(obj.result.data[i].startHour, 2) + ':' + zeroPad(obj.result.data[i].startMinute, 2) +
