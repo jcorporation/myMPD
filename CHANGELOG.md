@@ -10,8 +10,9 @@ This is a small bugfix release.
 
 ### Changelog
 
-- Fix: relax validation of webradio codecs #933
 - Upd: FR and NL translations
+- Fix: relax validation of webradio codecs #933
+- Fix: javascript error on login
 
 ***
 
