@@ -91,7 +91,6 @@ unsigned getenv_uint(const char *env_var, unsigned default_value, unsigned min, 
  * Gets an environment variable as bool
  * @param env_var variable name to read
  * @param default_value default value if variable is not set
- * @param vcb validation callback
  * @return environment variable as bool
  */
 bool getenv_bool(const char *env_var, bool default_value) {

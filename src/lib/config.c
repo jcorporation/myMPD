@@ -207,7 +207,6 @@ static int startup_getenv_int(const char *env_var, int default_value, int min, i
  * Gets an environment variable as bool
  * @param env_var variable name to read
  * @param default_value default value if variable is not set
- * @param vcb validation callback
  * @param first_startup true for first startup else false
  * @return environment variable as bool
  */
