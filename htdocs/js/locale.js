@@ -82,7 +82,7 @@ function fmtDate(secs) {
  * @returns {string} formatted date
  */
 function fmtTime(secs) {
-    return new Date(secs * 1000).toTimeString(locale).substring(0, 8);
+    return new Date(secs * 1000).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
 }
 
 /**
