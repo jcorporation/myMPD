@@ -862,5 +862,8 @@
     "Open scripts": "Öffne Skripte",
     "Facility": "Kategorie",
     "Timestamp": "Zeitstempel",
-    "Message": "Nachricht"
+    "Message": "Nachricht",
+    "MPD": "MPD",
+    "Player": "Wiedergabe",
+    "Session": "Sitzung"
 }
