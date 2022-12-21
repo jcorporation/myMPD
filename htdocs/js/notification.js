@@ -238,6 +238,10 @@ function logMessage(title, text, facility, severity) {
             messagesLen++;
         }
     }
+    //update log overview if shown
+    if (document.getElementById('modalNotifications').classList.contains('show')) {
+        showMessages();
+    }
 }
 
 /**
