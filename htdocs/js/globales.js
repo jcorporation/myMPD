@@ -83,7 +83,7 @@ let sessionTimer = null;
 /** log message buffer */
 const messages = [];
 /** @type {number} */
-let messagesMax = 100;
+const messagesMax = 100;
 
 /** @type {boolean} */
 const debugMode = document.querySelector("script").src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
