@@ -932,7 +932,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         case MYMPD_API_PLAYER_VOLUME_SET:
             if (json_get_uint(request->data, "$.params.volume", 0, 100, &uint_buf1, &error) == true) {
-                response->data = mympd_api_volume_set(partition_state, response->data, request->id, uint_buf1);
+                response->data = mympd_api_volume_set(partition_state, response->data, MYMPD_API_PLAYER_VOLUME_SET, request->id, uint_buf1);
             }
             break;
         case MYMPD_API_PLAYER_VOLUME_CHANGE:
