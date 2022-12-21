@@ -216,7 +216,7 @@ function showNotification(title, text, facility, severity) {
 function logMessage(title, text, facility, severity) {
     let messagesLen = messages.length;
     const lastMessage = messagesLen > 0 ? messages[messagesLen - 1] : null;
-    if (lastMessage &&
+    if (lastMessage !== null &&
         lastMessage.title === title)
     {
         lastMessage.occurrence++;
@@ -231,11 +231,12 @@ function logMessage(title, text, facility, severity) {
             "occurrence": 1,
             "timestamp": getTimestamp()
         });
-        messagesLen++;
-    }
-    if (messagesLen > 25) {
-        messages.shift();
-        messagesLen = 25;
+        if (messagesLen >= messagesMax) {
+            messages.shift();
+        }
+        else {
+            messagesLen++;
+        }
     }
 }
 
@@ -248,7 +249,7 @@ function showMessages() {
     for (const message of messages) {
         overview.insertBefore(
             elCreateNodes('tr', {}, [
-                elCreateText('td', {}, fmtDate(message.timestamp)),
+                elCreateText('td', {}, fmtTime(message.timestamp)),
                 elCreateNodes('td', {}, [
                     createSeverityIcon(message.severity),
                     document.createTextNode(tn(facilities[message.facility]))

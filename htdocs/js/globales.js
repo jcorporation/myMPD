@@ -61,6 +61,7 @@ const smallSpace = '\u2009';
 /** @type {string} */
 const nDash = '\u2013';
 
+/** @type {string} */
 let tagAlbumArtist = 'AlbumArtist';
 
 /** @type {object} */
@@ -76,8 +77,13 @@ const sessionLifetime = 1780;
 
 /** @type {number} */
 const sessionRenewInterval = sessionLifetime * 500;
+
 let sessionTimer = null;
+
+/** log message buffer */
 const messages = [];
+/** @type {number} */
+let messagesMax = 100;
 
 /** @type {boolean} */
 const debugMode = document.querySelector("script").src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
@@ -95,7 +101,9 @@ let materialIcons = {};
 let phrasesDefault = {};
 let phrases = {};
 
-//this settings are saved in the browsers localStorage
+/**
+ * This settings are saved in the browsers localStorage
+ */
 const localSettings = {
     "enforceMobile": false,
     "localPlaybackAutoplay": false,

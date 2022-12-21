@@ -31,6 +31,7 @@ Conductor
 country
 CSS filter
 Dark
+Database
 Date
 Default
 Default image
@@ -78,15 +79,36 @@ Fileformat
 Filetype
 Filter
 Fingerprint
+General
 Genre
 Goto artist
 Grouping
 Highlight color
 Home
 homepage
+icon-action
+icon-alert
+icon-all
+icon-av
+icon-communication
+icon-content
+icon-device
+icon-editor
+icon-file
+icon-hardware
+icon-home
+icon-image
+icon-maps
+icon-navigation
+icon-notification
+icon-places
+icon-search
+icon-social
+icon-toggle
 Image
 Info
 Invalid response
+Jukebox
 Jukebox Queue
 Label
 language
@@ -98,21 +120,23 @@ Last played list count
 Light
 Location
 Lua is not compiled in
+Lyrics
 Media session
 Modal
+modalAbout
+modalConnection
+modalMaintenance
+modalMounts
+modalScripts
+modalSettings
+modalTimer
+modalTrigger
 Movement
 MovementNumber
+MPD
 mpd_database
 MPD does not support mounts
 MPD does not support partitions
-modalConnection
-modalSettings
-modalMaintenance
-modalScripts
-modalTimer
-modalTrigger
-modalMounts
-modalAbout
 mpd_message
 mpd_mixer
 mpd_mount
@@ -152,9 +176,12 @@ Performer
 Play
 Play after current playing song
 Playback controls
+Player
+Playlist
 plugin
 Pos
 Priority
+Queue
 Quick play button
 Quick remove button
 Remove
@@ -163,18 +190,21 @@ Remove all upwards
 Repeat current song
 Repeat current song once
 Replace queue with playlist
+Rescan database
 Rescan directory
 Reset to default
+Script
 Scripting
 search
+Session
 Set priority
 Show
 Show all albums from artist
 Show attributes
 Show MusicBrainz links
+Show notification icon
 Show playback settings in footer
 Show volume level in footer
-Show notification icon
 Song change
 SongCount
 Sort
@@ -182,6 +212,7 @@ Startup
 Startup view
 state
 sticker
+Sticker
 stickerElapsed
 stickerLastPlayed
 stickerLastSkipped
@@ -196,12 +227,15 @@ Synced lyrics vorbis comment
 Tab
 tags
 Thumbnail size
+Timer
 Title
 Too many results, list is cropped
 Track
+Trigger
 Type
 Unsynced lyrics extension
 Unsynced lyrics vorbis comment
+Update database
 Update directory
 url_resolved
 Use ligature
@@ -213,24 +247,3 @@ Volume step
 votes
 Web notifications
 Work
-icon-all
-icon-action
-icon-alert
-icon-av
-icon-communication
-icon-content
-icon-device
-icon-editor
-icon-file
-icon-hardware
-icon-home
-icon-image
-icon-maps
-icon-navigation
-icon-notification
-icon-places
-icon-search
-icon-social
-icon-toggle
-Rescan database
-Update database
