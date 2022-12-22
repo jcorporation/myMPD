@@ -241,17 +241,18 @@ struct t_subdirs_entry {
  * Subdirs in the working directory to check
  */
 static const struct t_subdirs_entry workdir_subdirs[] = {
-    {"empty",            "Empty dir"},
-    {"pics",             "Pics dir"},
-    {"pics/backgrounds", "Backgrounds dir"},
-    {"pics/thumbs",      "Thumbnails dir"},
+    {DIR_WORK_EMPTY,            "Empty dir"},
+    {DIR_WORK_PICS,             "Pics dir"},
+    {DIR_WORK_PICS_BACKGROUNDS, "Backgrounds dir"},
+    {DIR_WORK_PICS_THUMBS,      "Thumbnails dir"},
     #ifdef MYMPD_ENABLE_LUA
-    {"scripts",          "Scripts dir"},
+    {DIR_WORK_SCRIPTS,          "Scripts dir"},
     #endif
-    {"smartpls",         "Smartpls dir"},
-    {"state",            "State dir"},
-    {"state/default",    "Default partition dir"},
-    {"webradios",        "Webradio dir"},
+    {DIR_WORK_SMARTPLS,         "Smartpls dir"},
+    {DIR_WORK_STATE,            "State dir"},
+    {DIR_WORK_STATE_DEFAULT,    "Default partition dir"},
+    {DIR_WORK_TAGS,             "Tags cache dir"},
+    {DIR_WORK_WEBRADIOS,        "Webradio dir"},
     {NULL, NULL}
 };
 
@@ -259,9 +260,8 @@ static const struct t_subdirs_entry workdir_subdirs[] = {
  * Subdirs in the cache directory to check
  */
 static const struct t_subdirs_entry cachedir_subdirs[] = {
-    {"covercache", "Covercache dir"},
-    {"webradiodb", "Webradiodb cache dir"},
-    {"tags", "Tags cache dir"},
+    {DIR_CACHE_COVER,          "Covercache dir"},
+    {DIR_CHACHE_WEBRADIODB,    "Webradiodb cache dir"},
     {NULL, NULL}
 };
 

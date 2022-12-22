@@ -66,9 +66,19 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define FILENAME_PRESETS "preset_list"
 #define FILENAME_STICKERCACHE "sticker_cache.json"
 
-#define DIR_COVERCACHE "covercache"
-#define DIR_TAG_CACHE "tags"
-#define DIR_WEBRADIOS "webradios"
+#define DIR_CACHE_COVER "covercache"
+#define DIR_CHACHE_WEBRADIODB "webradiodb"
+
+#define DIR_WORK_EMPTY "empty"
+#define DIR_WORK_PICS "pics"
+#define DIR_WORK_PICS_BACKGROUNDS DIR_WORK_PICS"/backgrounds"
+#define DIR_WORK_PICS_THUMBS DIR_WORK_PICS"/thumbs"
+#define DIR_WORK_SCRIPTS "scripts"
+#define DIR_WORK_SMARTPLS "smartpls"
+#define DIR_WORK_STATE "state"
+#define DIR_WORK_STATE_DEFAULT DIR_WORK_STATE"/default"
+#define DIR_WORK_TAGS "tags"
+#define DIR_WORK_WEBRADIOS "webradios"
 
 //mpd partitions
 #define MPD_PARTITION_DEFAULT "default"

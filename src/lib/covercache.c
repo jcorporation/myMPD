@@ -40,7 +40,7 @@ bool covercache_write_file(sds cachedir, const char *uri, const char *mime_type,
     }
     MYMPD_LOG_DEBUG("Writing covercache for \"%s\"", uri);
     sds filename = sds_hash(uri);
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S-%i.%s", cachedir, DIR_COVERCACHE, filename, offset, ext);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S-%i.%s", cachedir, DIR_CACHE_COVER, filename, offset, ext);
     MYMPD_LOG_DEBUG("Writing covercache file \"%s\"", filepath);
     bool rc = write_data_to_file(filepath, binary, sdslen(binary));
     FREE_SDS(filename);
@@ -59,7 +59,7 @@ int covercache_clear(sds cachedir, int keepdays) {
     bool rc = true;
     time_t expire_time = time(NULL) - (time_t)(keepdays * 24 * 60 * 60);
 
-    sds covercache = sdscatfmt(sdsempty(), "%S/%s", cachedir, DIR_COVERCACHE);
+    sds covercache = sdscatfmt(sdsempty(), "%S/%s", cachedir, DIR_CACHE_COVER);
     MYMPD_LOG_NOTICE("Cleaning covercache \"%s\"", covercache);
     MYMPD_LOG_DEBUG("Remove files older than %lld sec", (long long)expire_time);
     errno = 0;

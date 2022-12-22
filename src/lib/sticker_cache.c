@@ -73,7 +73,7 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds workdir) {
         MEASURE_START
     #endif
     sticker_cache->building = true;
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_TAG_CACHE, FILENAME_STICKERCACHE);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_TAGS, FILENAME_STICKERCACHE);
     errno = 0;
     FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -172,7 +172,7 @@ bool sticker_cache_write(struct t_cache *sticker_cache, sds workdir, bool free_d
     raxIterator iter;
     raxStart(&iter, sticker_cache->cache);
     raxSeek(&iter, "^", NULL, 0);
-    sds tmp_file = sdscatfmt(sdsempty(), "%S/%s/%s.XXXXXX", workdir, DIR_TAG_CACHE, FILENAME_STICKERCACHE);
+    sds tmp_file = sdscatfmt(sdsempty(), "%S/%s/%s.XXXXXX", workdir, DIR_WORK_TAGS, FILENAME_STICKERCACHE);
     FILE *fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);
