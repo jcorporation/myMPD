@@ -51,11 +51,11 @@ static const char *const mympd_sticker_names[STICKER_COUNT] = {
 
 /**
  * Removes the sticker cache file
- * @param cachedir myMPD cache directory
+ * @param workdir myMPD working directory
  * @return bool true on success, else false
  */
-bool sticker_cache_remove(sds cachedir) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s", cachedir, FILENAME_ALBUMCACHE);
+bool sticker_cache_remove(sds workdir) {
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s", workdir, FILENAME_ALBUMCACHE);
     int rc = try_rm_file(filepath);
     FREE_SDS(filepath);
     return rc == RM_FILE_ERROR ? false : true;
@@ -64,16 +64,16 @@ bool sticker_cache_remove(sds cachedir) {
 /**
  * Reads the sticker cache from disc
  * @param sticker_cache pointer to t_cache struct
- * @param cachedir myMPD cache directory
+ * @param workdir myMPD working directory
  * @return bool bool true on success, else false
  */
-bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir) {
+bool sticker_cache_read(struct t_cache *sticker_cache, sds workdir) {
     #ifdef MYMPD_DEBUG
         MEASURE_INIT
         MEASURE_START
     #endif
     sticker_cache->building = true;
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", cachedir, DIR_TAG_CACHE, FILENAME_STICKERCACHE);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_TAG_CACHE, FILENAME_STICKERCACHE);
     errno = 0;
     FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -117,7 +117,7 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir) {
     sticker_cache->building = false;
     MYMPD_LOG_INFO("Read %lld sticker struct(s) from disc", (long long)sticker_cache->cache->numele);
     if (sticker_cache->cache->numele == 0) {
-        sticker_cache_remove(cachedir);
+        sticker_cache_remove(workdir);
         sticker_cache_free(sticker_cache);
     }
     #ifdef MYMPD_DEBUG
@@ -159,11 +159,11 @@ enum mympd_sticker_types sticker_name_parse(const char *name) {
 /**
  * Saves the sticker cache to disc as a njson file
  * @param sticker_cache pointer to t_cache struct
- * @param cachedir myMPD cache directory
+ * @param workdir myMPD working directory
  * @param free_data true=free the album cache, else not
  * @return bool true on success, else false
  */
-bool sticker_cache_write(struct t_cache *sticker_cache, sds cachedir, bool free_data) {
+bool sticker_cache_write(struct t_cache *sticker_cache, sds workdir, bool free_data) {
     if (sticker_cache->cache == NULL) {
         MYMPD_LOG_DEBUG("Sticker cache is NULL not saving anything");
         return true;
@@ -172,7 +172,7 @@ bool sticker_cache_write(struct t_cache *sticker_cache, sds cachedir, bool free_
     raxIterator iter;
     raxStart(&iter, sticker_cache->cache);
     raxSeek(&iter, "^", NULL, 0);
-    sds tmp_file = sdscatfmt(sdsempty(), "%S/%s/%s.XXXXXX", cachedir, DIR_TAG_CACHE, FILENAME_STICKERCACHE);
+    sds tmp_file = sdscatfmt(sdsempty(), "%S/%s/%s.XXXXXX", workdir, DIR_TAG_CACHE, FILENAME_STICKERCACHE);
     FILE *fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);

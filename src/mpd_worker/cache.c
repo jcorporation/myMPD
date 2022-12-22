@@ -41,11 +41,11 @@ static bool get_sticker_from_mpd(struct t_partition_state *partition_state, cons
 bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool force) {
     time_t db_mtime = mpd_client_get_db_mtime(mpd_worker_state->partition_state);
     MYMPD_LOG_DEBUG("Database mtime: %lld", (long long)db_mtime);
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", mpd_worker_state->config->cachedir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", mpd_worker_state->config->workdir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE);
     time_t album_cache_mtime = get_mtime(filepath);
     MYMPD_LOG_DEBUG("Album cache mtime: %lld", (long long)album_cache_mtime);
     sdsclear(filepath);
-    filepath = sdscatfmt(filepath, "%S/%s/%s", mpd_worker_state->config->cachedir, DIR_TAG_CACHE, FILENAME_STICKERCACHE);
+    filepath = sdscatfmt(filepath, "%S/%s/%s", mpd_worker_state->config->workdir, DIR_TAG_CACHE, FILENAME_STICKERCACHE);
     time_t sticker_cache_mtime = get_mtime(filepath);
     MYMPD_LOG_DEBUG("Sticker cache mtime: %lld", (long long)sticker_cache_mtime);
     FREE_SDS(filepath);
@@ -97,7 +97,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
             mympd_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated album cache");
             if (mpd_worker_state->config->save_caches == true) {
-                album_cache_write(&album_cache, mpd_worker_state->config->cachedir, &mpd_worker_state->mpd_state->tags_album, false);
+                album_cache_write(&album_cache, mpd_worker_state->config->workdir, &mpd_worker_state->mpd_state->tags_album, false);
             }
         }
         else {
@@ -118,7 +118,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
             mympd_queue_push(mympd_api_queue, request, 0);
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated sticker cache");
             if (mpd_worker_state->config->save_caches == true) {
-                sticker_cache_write(&sticker_cache, mpd_worker_state->config->cachedir, false);
+                sticker_cache_write(&sticker_cache, mpd_worker_state->config->workdir, false);
             }
         }
         else {

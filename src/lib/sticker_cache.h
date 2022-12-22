@@ -54,9 +54,9 @@ struct t_sticker {
     long like;            //!< hate/neutral/love value
 };
 
-bool sticker_cache_remove(sds cachedir);
-bool sticker_cache_write(struct t_cache *sticker_cache, sds cachedir, bool free_data);
-bool sticker_cache_read(struct t_cache *sticker_cache, sds cachedir);
+bool sticker_cache_remove(sds workdir);
+bool sticker_cache_write(struct t_cache *sticker_cache, sds workdir, bool free_data);
+bool sticker_cache_read(struct t_cache *sticker_cache, sds workdir);
 
 const char *sticker_name_lookup(enum mympd_sticker_types sticker);
 enum mympd_sticker_types sticker_name_parse(const char *name);

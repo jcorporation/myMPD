@@ -38,7 +38,7 @@
  * Private definitions
  */
 
-static struct t_tags *album_cache_read_tags(sds cachedir);
+static struct t_tags *album_cache_read_tags(sds workdir);
 static sds album_to_cache_line(sds buffer, struct mpd_song *album, const struct t_tags *tagcols);
 static struct mpd_song *album_from_cache_line(sds line, const struct t_tags *tagcols);
 
@@ -48,14 +48,14 @@ static struct mpd_song *album_from_cache_line(sds line, const struct t_tags *tag
 
 /**
  * Removes the album cache file
- * @param cachedir myMPD cache directory
+ * @param workdir myMPD working directory
  * @return bool true on success, else false
  */
-bool album_cache_remove(sds cachedir) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", cachedir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE);
+bool album_cache_remove(sds workdir) {
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE);
     int rc1 = try_rm_file(filepath);
     sdsclear(filepath);
-    filepath = sdscatfmt(filepath, "%S/%s/%s", cachedir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE_TAGS);
+    filepath = sdscatfmt(filepath, "%S/%s/%s", workdir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE_TAGS);
     int rc2 = try_rm_file(filepath);
     FREE_SDS(filepath);
     return rc1 == RM_FILE_ERROR || rc2 == RM_FILE_ERROR ? false : true;
@@ -64,21 +64,21 @@ bool album_cache_remove(sds cachedir) {
 /**
  * Reads the album cache from disc
  * @param album_cache pointer to t_cache struct
- * @param cachedir myMPD cache directory
+ * @param workdir myMPD working directory
  * @return bool true on success, else false
  */
-bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
+bool album_cache_read(struct t_cache *album_cache, sds workdir) {
     #ifdef MYMPD_DEBUG
         MEASURE_INIT
         MEASURE_START
     #endif
-    struct t_tags *album_tags = album_cache_read_tags(cachedir);
+    struct t_tags *album_tags = album_cache_read_tags(workdir);
     if (album_tags == NULL) {
-        album_cache_remove(cachedir);
+        album_cache_remove(workdir);
         return false;
     }
     album_cache->building = true;
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", cachedir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE);
     errno = 0;
     FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -124,7 +124,7 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
     album_cache->building = false;
     MYMPD_LOG_INFO("Read %lld album(s) from disc", (long long)album_cache->cache->numele);
     if (album_cache->cache->numele == 0) {
-        album_cache_remove(cachedir);
+        album_cache_remove(workdir);
         album_cache_free(album_cache);
     }
     #ifdef MYMPD_DEBUG
@@ -137,12 +137,12 @@ bool album_cache_read(struct t_cache *album_cache, sds cachedir) {
 /**
  * Saves the album cache to disc as a njson file
  * @param album_cache pointer to t_cache struct
- * @param cachedir myMPD cache directory
+ * @param workdir myMPD working directory
  * @param album_tags album tags to write
  * @param free_data true=free the album cache, else not
  * @return bool true on success, else false
  */
-bool album_cache_write(struct t_cache *album_cache, sds cachedir, struct t_tags *album_tags, bool free_data) {
+bool album_cache_write(struct t_cache *album_cache, sds workdir, struct t_tags *album_tags, bool free_data) {
     if (album_cache->cache == NULL) {
         MYMPD_LOG_DEBUG("Album cache is NULL not saving anything");
         return true;
@@ -152,7 +152,7 @@ bool album_cache_write(struct t_cache *album_cache, sds cachedir, struct t_tags 
     sds line = sdsnewlen("{", 1);
     line = print_tags_array(line, "tagListAlbum", album_tags);
     line = sdscatlen(line, "}", 1);
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", cachedir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE_TAGS);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE_TAGS);
     bool write_rc = write_data_to_file(filepath, line, sdslen(line));
     FREE_SDS(filepath);
     if (write_rc == false) {
@@ -163,7 +163,7 @@ bool album_cache_write(struct t_cache *album_cache, sds cachedir, struct t_tags 
     raxIterator iter;
     raxStart(&iter, album_cache->cache);
     raxSeek(&iter, "^", NULL, 0);
-    sds tmp_file = sdscatfmt(sdsempty(), "%S/%s/%s.XXXXXX", cachedir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE);
+    sds tmp_file = sdscatfmt(sdsempty(), "%S/%s/%s.XXXXXX", workdir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE);
     FILE *fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);
@@ -395,11 +395,11 @@ bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mp
 
 /**
  * Reads and parses the album cache tags file
- * @param cachedir myMPD cache dir
+ * @param workdir myMPD working dir
  * @return struct t_tags* newly allocated t_tags struct or NULL on error
  */
-static struct t_tags *album_cache_read_tags(sds cachedir) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", cachedir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE_TAGS);
+static struct t_tags *album_cache_read_tags(sds workdir) {
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_TAG_CACHE, FILENAME_ALBUMCACHE_TAGS);
     sds line = sdsempty();
     int rc = sds_getfile(&line, filepath, LINE_LENGTH_MAX, true, false);
     if (rc <= 0) {
