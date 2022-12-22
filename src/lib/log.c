@@ -69,6 +69,10 @@ void set_loglevel(int level) {
  * @param errnum errno
  */
 void mympd_log_errno(const char *file, int line, int errnum) {
+    if (errnum == 0) {
+        //do not log success
+        return;
+    }
     char err_text[256];
     int rc = strerror_r(errnum, err_text, 256);
     const char *err_str = rc == 0 ? err_text : "Unknown error";

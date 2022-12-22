@@ -42,6 +42,12 @@ myMPD logs to syslog to facility `daemon`, you can see the live logs with `tail 
 
 To start myMPD in the actual console session: `mympd` (myMPD keeps in foreground and logs to the console, press CTRL+C to stop myMPD)
 
+If you use a distribution with systemd (without a static mympd user):
+
+```
+systemd-run -p DynamicUser=yes -p User=mympd -p Group=mympd -p StateDirectory=mympd -p CacheDirectory=mympd /usr/bin/mympd
+```
+
 Description of [Commandline-Options]({{ site.baseurl }}/configuration/).
 
 ## Docker
