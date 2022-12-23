@@ -127,7 +127,7 @@ void mympd_config_defaults(struct t_config *config) {
     #else
         config->lualibs = sdsempty();
     #endif
-    config->loglevel = CFG_MYMPD_LOGLEVEL;
+    config->loglevel = getenv_int("MYMPD_LOGLEVEL", CFG_MYMPD_LOGLEVEL, LOGLEVEL_MIN, LOGLEVEL_MAX);
     config->pin_hash = sdsnew(CFG_MYMPD_PIN_HASH);
     config->covercache_keep_days = startup_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", CFG_COVERCACHE_KEEP_DAYS, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, config->first_startup);
     config->save_caches = startup_getenv_bool("MYMPD_SAVE_CACHES", CFG_MYMPD_SSL, config->save_caches);
