@@ -10,7 +10,7 @@ The `workdir` and `cachedir` options are useful if you want to run more then one
 
 | OPTION | DESCRIPTION |
 | ------ | ----------- |
-| `-c`, `--config` | creates config and exits (default directory: `/var/lib/mympd/config/`) |
+| `-c`, `--config` | creates config and ssl certificates and exits (default directory: `/var/lib/mympd/config/`) |
 | `-h`, `--help` | displays this help |
 | `-v`, `--version` | displays this help |
 | `-u`, `--user <username>`| username to drop privileges to (default: `mympd`) |

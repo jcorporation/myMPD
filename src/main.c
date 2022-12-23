@@ -282,7 +282,7 @@ static bool check_dir(const char *parent, const char *subdir, const char *descri
 /**
  * Creates all the subdirs in the working and cache directories
  * @param config pointer to config struct
- * @return true on success else error
+ * @return true on success, else error
  */
 static bool check_dirs(struct t_config *config) {
     int testdir_rc;
@@ -309,6 +309,23 @@ static bool check_dirs(struct t_config *config) {
             return false;
         }
     }
+    return true;
+}
+
+/**
+ * Creates SSL certificates if enabled and required
+ * @param config pointer to config struct
+ * @return true on success, else false
+ */
+static bool create_certificates(struct t_config *config) {
+    #ifdef MYMPD_ENABLE_SSL
+        if (config->ssl == true &&
+            config->custom_cert == false &&
+            certificates_check(config->workdir, config->ssl_san) == false)
+        {
+            return false;
+        }
+    #endif
     return true;
 }
 
@@ -400,12 +417,13 @@ int main(int argc, char **argv) {
 
     //bootstrap - write config files and exit
     if (config->bootstrap == true) {
-        if (drop_privileges(config->user, startup_uid) == false) {
-            goto cleanup;
+        if (drop_privileges(config->user, startup_uid) == true &&
+            mympd_config_rw(config, true) == true &&
+            create_certificates(config) == true)
+        {
+            printf("Created myMPD config\n");
+            rc = EXIT_SUCCESS;
         }
-        mympd_config_rw(config, true);
-        printf("Created myMPD config and exit\n");
-        rc = EXIT_SUCCESS;
         goto cleanup;
     }
 
@@ -499,17 +517,12 @@ int main(int argc, char **argv) {
         mympd_config_rw(config, true);
     }
 
-    //check for ssl certificates
-    #ifdef MYMPD_ENABLE_SSL
-        if (config->ssl == true &&
-            config->custom_cert == false &&
-            certificates_check(config->workdir, config->ssl_san) == false)
-        {
-            goto cleanup;
-        }
-    #endif
+    //check ssl certificates
+    if (create_certificates(config) == false) {
+        goto cleanup;
+    }
 
-    //check for needed directories
+    //check for required directories
     if (check_dirs(config) == false) {
         goto cleanup;
     }
