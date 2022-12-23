@@ -14,6 +14,12 @@ To change these settings afterwards, you must edit the files in the folder `/var
 
 You can use `mympd -c` to create the initial configuration in the `/var/lib/mympd/config/` directory.
 
+If you use a distribution with systemd (without a static mympd user):
+
+```
+systemd-run -t -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd debug/bin/mympd -c
+```
+
 ## General options
 
 | FILE | TYPE | ENVIRONMENT | DEFAULT | DESCRIPTION |
@@ -29,7 +35,7 @@ You can use `mympd -c` to create the initial configuration in the `/var/lib/mymp
 | scriptacl | string | MYMPD_SCRIPTACL | +127.0.0.1 | ACL to access the myMPD script backend: [ACL]({{ site.baseurl }}/configuration/acl), allows only local connections in the default configuration. The acl above must also grant access. |
 
 1. If http_port is disabled: The MPD curl plugin must trust the myMPD CA or certificate checking must be disabled. MPD fetches webradio playlist with http(s) from myMPD webserver.
-2. Only supporte if myMPD is compiled with SSL support.
+2. Only supported if myMPD is compiled with SSL support.
 
 ## SSL options
 
