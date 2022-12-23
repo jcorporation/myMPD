@@ -341,7 +341,7 @@ static bool create_certificates(struct t_config *config) {
 int main(int argc, char **argv) {
     //set logging states
     thread_logname = sdsnew("mympd");
-    log_on_tty = isatty(fileno(stdout)) ? true : false;
+    log_on_tty = isatty(fileno(stdout));
     log_to_syslog = false;
     #ifdef MYMPD_DEBUG
         set_loglevel(LOG_DEBUG);
