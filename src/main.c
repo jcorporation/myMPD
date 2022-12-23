@@ -12,6 +12,7 @@
 #include "src/lib/api.h"
 #include "src/lib/config.h"
 #include "src/lib/config_def.h"
+#include "src/lib/env.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/handle_options.h"
 #include "src/lib/log.h"
@@ -345,7 +346,9 @@ int main(int argc, char **argv) {
     #ifdef MYMPD_DEBUG
         set_loglevel(LOG_DEBUG);
     #else
-        set_loglevel(LOG_NOTICE);
+        set_loglevel(
+            getenv_int("MYMPD_LOGLEVEL", CFG_MYMPD_LOGLEVEL, LOGLEVEL_MIN, LOGLEVEL_MAX)
+        );
     #endif
 
     //set initial states
