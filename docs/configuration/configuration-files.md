@@ -14,11 +14,7 @@ To change these settings afterwards, you must edit the files in the folder `/var
 
 You can use `mympd -c` to create the initial configuration in the `/var/lib/mympd/config/` directory.
 
-If you use a distribution with systemd (without a static mympd user):
-
-```
-systemd-run -t -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd debug/bin/mympd -c
-```
+- **Note:** Use [systemd-run]({{ site.baseurl }}/running#manual-startup), if you use a distribution with systemd
 
 ## General options
 

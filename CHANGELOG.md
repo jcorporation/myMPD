@@ -13,6 +13,7 @@ This release reworks the scripting api and improves the scripting documentation.
 - Existing lua scripts must be adapted to the new simplified API
 - Existing play timers must be changed to use presets
 - Some views are renamed
+- Use [systemd-run]({{ site.baseurl }}/running#manual-startup), if you use a distribution with systemd
 
 ### Changelog
 

@@ -269,7 +269,7 @@ static const struct t_subdirs_entry cachedir_subdirs[] = {
 
 /**
  * Small helper function to concatenate the dirname and call testdir
- * @param parent parent direcotory
+ * @param parent parent directory
  * @param subdir directory to check
  * @param description descriptive name for logging
  * @return enum testdir_status

@@ -17,6 +17,8 @@ Tips to debug problems with myMPD. Try these steps and reproduce the error.
 - Press Ctrl + C to abort
 - Reset loglevel: `unset MYMPD_LOGLEVEL`
 
+- **Note:** Use [systemd-run]({{ site.baseurl }}/running#manual-startup), if you use a distribution with systemd
+
 ### Get logs from running myMPD
 
 You can set the log level in Settings->Maintenance to debug and get the output from your logging service, for systemd it is: `journalctl -fu mympd`.
