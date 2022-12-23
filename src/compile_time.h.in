@@ -67,8 +67,9 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define FILENAME_STICKERCACHE "sticker_cache.json"
 
 #define DIR_CACHE_COVER "covercache"
-#define DIR_CHACHE_WEBRADIODB "webradiodb"
+#define DIR_CACHE_WEBRADIODB "webradiodb"
 
+#define DIR_WORK_CONFIG "config"
 #define DIR_WORK_EMPTY "empty"
 #define DIR_WORK_PICS "pics"
 #define DIR_WORK_PICS_BACKGROUNDS DIR_WORK_PICS"/backgrounds"

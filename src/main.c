@@ -207,7 +207,7 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     }
 
     //create the config directory
-    sds testdirname = sdscatfmt(sdsempty(), "%S/config", config->workdir);
+    sds testdirname = sdscatfmt(sdsempty(), "%S/%s", config->workdir, DIR_WORK_CONFIG);
     testdir_rc = testdir("Config dir", testdirname, true, false);
     if (testdir_rc == DIR_CREATE_FAILED) {
         FREE_SDS(testdirname);
@@ -261,7 +261,7 @@ static const struct t_subdirs_entry workdir_subdirs[] = {
  */
 static const struct t_subdirs_entry cachedir_subdirs[] = {
     {DIR_CACHE_COVER,          "Covercache dir"},
-    {DIR_CHACHE_WEBRADIODB,    "Webradiodb cache dir"},
+    {DIR_CACHE_WEBRADIODB,    "Webradiodb cache dir"},
     {NULL, NULL}
 };
 

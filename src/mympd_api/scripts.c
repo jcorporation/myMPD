@@ -83,7 +83,7 @@ sds mympd_api_script_list(sds workdir, sds buffer, long request_id, bool all) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_LIST;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    sds scriptdirname = sdscatfmt(sdsempty(), "%S/scripts", workdir);
+    sds scriptdirname = sdscatfmt(sdsempty(), "%S/%s", workdir, DIR_WORK_SCRIPTS);
     errno = 0;
     DIR *script_dir = opendir(scriptdirname);
     if (script_dir == NULL) {
@@ -145,7 +145,7 @@ sds mympd_api_script_list(sds workdir, sds buffer, long request_id, bool all) {
  * @return true on success, else false
  */
 bool mympd_api_script_delete(sds workdir, sds script) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
     bool rc = rm_file(filepath);
     FREE_SDS(filepath);
     return rc;
@@ -162,7 +162,7 @@ bool mympd_api_script_delete(sds workdir, sds script) {
  * @return true on success, else false
  */
 bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sds content, struct t_list *arguments) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
     sds argstr = list_to_json_array(sdsempty(), arguments);
     sds script_content = sdscatfmt(sdsempty(), "-- {\"order\":%i,\"arguments\":%S}\n%S", order, argstr, content);
     bool rc = write_data_to_file(filepath, script_content, sdslen(script_content));
@@ -171,7 +171,7 @@ bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sd
         sdslen(oldscript) > 0 &&
         strcmp(script, oldscript) != 0)
     {
-        sds old_filepath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, oldscript);
+        sds old_filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, oldscript);
         rc = rm_file(old_filepath);
         FREE_SDS(old_filepath);
     }
@@ -191,7 +191,7 @@ bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sd
  */
 sds mympd_api_script_get(sds workdir, sds buffer, long request_id, sds script) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_GET;
-    sds scriptfilename = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
+    sds scriptfilename = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
     errno = 0;
     FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
     if (fp != NULL) {
@@ -266,7 +266,7 @@ bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list 
     script_thread_arg->partition = sdsnew(partition);
     if (localscript == true) {
         script_thread_arg->script_name = sdsnew(script);
-        script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
+        script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
         script_thread_arg->script_content = sdsempty();
     }
     else {

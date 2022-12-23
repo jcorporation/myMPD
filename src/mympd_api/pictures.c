@@ -27,7 +27,7 @@
  */
 sds mympd_api_settings_picture_list(sds workdir, sds buffer, long request_id, sds subdir) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PICTURE_LIST;
-    sds pic_dirname = sdscatfmt(sdsempty(), "%S/pics/%S", workdir, subdir);
+    sds pic_dirname = sdscatfmt(sdsempty(), "%S/%s/%S", workdir, DIR_WORK_PICS, subdir);
     errno = 0;
     DIR *pic_dir = opendir(pic_dirname);
     if (pic_dir == NULL) {

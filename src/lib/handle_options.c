@@ -40,11 +40,11 @@ static void print_usage(struct t_config *config, const char *cmd) {
                     "  -c, --config           creates config and exits\n"
                     "  -h, --help             displays this help\n"
                     "  -v, --version          displays this help\n"
-                    "  -u, --user <username>  username to drop privileges to (default: mympd)\n"
+                    "  -u, --user <username>  username to drop privileges to (default: %s)\n"
                     "  -s, --syslog           enable syslog logging (facility: daemon)\n"
                     "  -w, --workdir <path>   working directory (default: %s)\n"
                     "  -a, --cachedir <path>  cache directory (default: %s)\n",
-        cmd, MYMPD_VERSION, config->workdir, config->cachedir);
+        cmd, MYMPD_VERSION, CFG_MYMPD_USER, config->workdir, config->cachedir);
     #ifdef MYMPD_ENABLE_SSL
     fprintf(stderr, "  -p, --pin              sets a pin for myMPD settings\n");
     #endif

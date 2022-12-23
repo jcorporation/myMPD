@@ -25,7 +25,7 @@
  */
 sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char *playlist) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SMARTPLS_GET;
-    sds pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
+    sds pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_SMARTPLS, playlist);
     sds content = sdsempty();
     int rc_get = sds_getfile(&content, pl_file, SMARTPLS_SIZE_MAX, true, true);
     if (rc_get <= 0) {
