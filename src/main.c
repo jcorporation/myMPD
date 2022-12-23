@@ -326,6 +326,7 @@ static bool create_certificates(struct t_config *config) {
             return false;
         }
     #endif
+    (void) config;
     return true;
 }
 
