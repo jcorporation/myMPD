@@ -107,7 +107,7 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
     if (startup_uid == 0 &&
         sdslen(username) > 0)
     {
-        MYMPD_LOG_NOTICE("Droping privileges to user \"%s\"", username);
+        MYMPD_LOG_NOTICE("Dropping privileges to user \"%s\"", username);
         //get user
         errno = 0;
         struct passwd *pw = getpwnam(username);
@@ -162,9 +162,9 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
  * @return true on success else false
  */
 static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
-    //check user
     bool chown_dirs = false;
     if (startup_uid == 0) {
+        //check for user
         errno = 0;
         struct passwd *pw = getpwnam(config->user);
         if (pw == NULL) {
