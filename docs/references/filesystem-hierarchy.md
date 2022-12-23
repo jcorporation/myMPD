@@ -15,7 +15,6 @@ myMPD uses GNU standard installation directories.
 | /usr/lib/systemd/system/mympd.service | Systemd unit |
 | /var/cache/mympd/ | myMPD cache directory |
 | /var/cache/mympd/covercache/ | Directory for caching embedded coverart |
-| /var/cache/mympd/tags/ | Directory for album and sticker cache |
 | /var/cache/mympd/webradiodb/ | Directory for caching the webradiodb json file |
 | /var/lib/mympd/ | myMPD state directory |
 | /var/lib/mympd/config/ | Configuration files owned by root |
@@ -29,4 +28,5 @@ myMPD uses GNU standard installation directories.
 | /var/lib/mympd/ssl/ | myMPD ssl ca and certificates, created on startup |
 | /var/lib/mympd/state/ | Global state files |
 | /var/lib/mympd/state/`<partition>` | Partition specific state files |
+| /var/lib/mympd/tags/ | Directory for album and sticker cache |
 {: .table .table-sm }
