@@ -169,7 +169,8 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         errno = 0;
         struct passwd *pw = getpwnam(config->user);
         if (pw == NULL) {
-            MYMPD_LOG_WARN("User \"%s\" does not exist", config->user);
+            MYMPD_LOG_ERROR("User \"%s\" does not exist", config->user);
+            return false;
         }
         else {
             chown_dirs = true;
