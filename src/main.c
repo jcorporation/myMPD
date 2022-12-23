@@ -172,9 +172,7 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
             MYMPD_LOG_ERROR("User \"%s\" does not exist", config->user);
             return false;
         }
-        else {
-            chown_dirs = true;
-        }
+        chown_dirs = true;
     }
 
     //create the cache directory
