@@ -345,6 +345,7 @@ int main(int argc, char **argv) {
     log_to_syslog = false;
     #ifdef MYMPD_DEBUG
         set_loglevel(LOG_DEBUG);
+        MYMPD_LOG_NOTICE("Debug build is running");
     #else
         set_loglevel(
             getenv_int("MYMPD_LOGLEVEL", CFG_MYMPD_LOGLEVEL, LOGLEVEL_MIN, LOGLEVEL_MAX)
@@ -446,7 +447,6 @@ int main(int argc, char **argv) {
 
     //set loglevel
     #ifdef MYMPD_DEBUG
-        MYMPD_LOG_NOTICE("Debug build is running");
         set_loglevel(LOG_DEBUG);
     #else
         set_loglevel(config->loglevel);
