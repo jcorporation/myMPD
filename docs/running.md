@@ -45,7 +45,7 @@ To start myMPD in the actual console session: `mympd` (myMPD keeps in foreground
 If you use a distribution with systemd (without a static mympd user):
 
 ```
-systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd /usr/bin/mympd
+systemd-run -t -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd /usr/bin/mympd
 ```
 
 Description of [Commandline-Options]({{ site.baseurl }}/configuration/).
