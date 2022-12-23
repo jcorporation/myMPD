@@ -261,7 +261,7 @@ static const struct t_subdirs_entry workdir_subdirs[] = {
  * Subdirs in the cache directory to check
  */
 static const struct t_subdirs_entry cachedir_subdirs[] = {
-    {DIR_CACHE_COVER,          "Covercache dir"},
+    {DIR_CACHE_COVER,         "Covercache dir"},
     {DIR_CACHE_WEBRADIODB,    "Webradiodb cache dir"},
     {NULL, NULL}
 };
