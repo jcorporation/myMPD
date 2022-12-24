@@ -4,6 +4,19 @@ permalink: /running
 title: Running
 ---
 
+## Generel 
+
+On startup myMPD does the following:
+
+- Check and create `cachedir` and `workdir` directories.
+  - `cachedir` and `workdir` must exist, if started not as root.
+- Reads environment at first startup.
+- Binds to the configured http and ssl port.
+- Dropping privileges, if started as root.
+- Check and create the directories inside `cachedir` and `workdir`.
+
+**Note:** It is not supported to run myMPD as root.
+
 ## Startup script
 
 The installation process installs a LSB compatible startup script / systemd unit for myMPD.
