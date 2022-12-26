@@ -28,10 +28,10 @@ sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char 
     sds pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_SMARTPLS, playlist);
     sds content = sdsempty();
     int rc_get = sds_getfile(&content, pl_file, SMARTPLS_SIZE_MAX, true, true);
+    FREE_SDS(pl_file);
     if (rc_get <= 0) {
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id, 
             JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Can not read smart playlist file");
-        FREE_SDS(pl_file);
         FREE_SDS(content);
         return buffer;
     }
