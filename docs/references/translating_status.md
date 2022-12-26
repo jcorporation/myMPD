@@ -1,4 +1,4 @@
-- es-ES: 786 missing phrases
+- es-ES: 645 missing phrases
 - es-VE: 552 missing phrases
 - fi-FI: 548 missing phrases
 - fr-FR: 39 missing phrases
