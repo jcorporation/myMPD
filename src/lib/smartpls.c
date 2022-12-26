@@ -9,7 +9,6 @@
 
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
-#include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/state_files.h"
@@ -75,7 +74,7 @@ bool is_smartpls(sds workdir, const char *playlist) {
     bool smartpls = false;
     if (strchr(playlist, '/') == NULL) {
         //filename only
-        sds smartpls_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
+        sds smartpls_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_SMARTPLS, playlist);
         smartpls = testfile_read(smartpls_file);
         FREE_SDS(smartpls_file);
     }
@@ -89,16 +88,10 @@ bool is_smartpls(sds workdir, const char *playlist) {
  * @return last modification time
  */
 time_t smartpls_get_mtime(sds workdir, const char *playlist) {
-    sds plpath = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
-    struct stat attr;
-    errno = 0;
-    if (stat(plpath, &attr) != 0) {
-        MYMPD_LOG_ERROR("Error getting mtime for \"%s\"", plpath);
-        MYMPD_LOG_ERRNO(errno);
-        attr.st_mtime = 0;
-    }
+    sds plpath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_SMARTPLS, playlist);
+    time_t mtime = get_mtime(plpath);
     FREE_SDS(plpath);
-    return attr.st_mtime;
+    return mtime;
 }
 
 /**
@@ -108,7 +101,7 @@ time_t smartpls_get_mtime(sds workdir, const char *playlist) {
  */
 bool smartpls_default(sds workdir) {
     //try to get prefix from state file, fallback to default value
-    sds prefix = state_file_rw_string(workdir, "state", "smartpls_prefix", MYMPD_SMARTPLS_PREFIX, vcb_isname, false);
+    sds prefix = state_file_rw_string(workdir, DIR_WORK_STATE, "smartpls_prefix", MYMPD_SMARTPLS_PREFIX, vcb_isname, false);
 
     bool rc = true;
     sds playlist = sdscatfmt(sdsempty(), "%S-bestRated", prefix);

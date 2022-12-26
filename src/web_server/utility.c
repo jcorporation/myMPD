@@ -76,7 +76,7 @@ bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
 {
     if (mg_user_data->config->covercache_keep_days > 0) {
         sds filename = sds_hash(uri_decoded);
-        sds covercachefile = sdscatfmt(sdsempty(), "%S/covercache/%S-%i", mg_user_data->config->cachedir, filename, offset);
+        sds covercachefile = sdscatfmt(sdsempty(), "%S/%s/%S-%i", mg_user_data->config->cachedir, DIR_CACHE_COVER, filename, offset);
         FREE_SDS(filename);
         covercachefile = webserver_find_image_file(covercachefile);
         if (sdslen(covercachefile) > 0) {
@@ -262,7 +262,6 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/coverimage-notavailable.svg", "image/svg+xml", true, true, coverimage_notavailable_svg_data, coverimage_notavailable_svg_size},
         {"/assets/MaterialIcons-Regular.woff2", "font/woff2", true, true, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},
         {"/assets/coverimage-stream.svg", "image/svg+xml", true, true, coverimage_stream_svg_data, coverimage_stream_svg_size},
-        {"/assets/coverimage-loading.svg", "image/svg+xml", true, true, coverimage_loading_svg_data, coverimage_loading_svg_size},
         {"/assets/coverimage-booklet.svg", "image/svg+xml", true, true, coverimage_booklet_svg_data, coverimage_booklet_svg_size},
         {"/assets/coverimage-mympd.svg", "image/svg+xml", true, true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},
         {"/assets/mympd-background-dark.svg", "image/svg+xml", true, true, mympd_background_dark_svg_data, mympd_background_dark_svg_size},
@@ -300,8 +299,11 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         #ifdef I18N_nl_NL
         {"/assets/i18n/nl-NL.json", "application/json", true, true, i18n_nl_NL_json_data, i18n_nl_NL_json_size},
         #endif
-        #ifdef I18N_zh_CN
-        {"/assets/i18n/zh-CN.json", "application/json", true, true, i18n_zh_CN_json_data, i18n_zh_CN_json_size},
+        #ifdef I18N_zh_Hans
+        {"/assets/i18n/zh-Hans.json", "application/json", true, true, i18n_zh_Hans_json_data, i18n_zh_Hans_json_size},
+        #endif
+        #ifdef I18N_zh_Hant
+        {"/assets/i18n/zh-Hant.json", "application/json", true, true, i18n_zh_Hant_json_data, i18n_zh_Hant_json_size},
         #endif
         {NULL, NULL, false, false, NULL, 0}
     };

@@ -3,60 +3,38 @@
 # https://github.com/jcorporation/mympd
 
 # Install startup script
-if((EXISTS "/etc/debian_version") AND (EXISTS "/usr/lib/systemd/system"))
-  #Install systemd unit
-  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service"
-       DESTINATION "/lib/systemd/system"
-       FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
-elseif(EXISTS "/usr/lib/systemd/system")
+if(EXISTS "/usr/lib/systemd/system")
   #Install systemd unit
   file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service"
        DESTINATION "/usr/lib/systemd/system"
        FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
-elseif(EXISTS "/lib/systemd/system")
-  #Install systemd unit
-  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service"
-       DESTINATION "/lib/systemd/system"
-       FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
 elseif(EXISTS "/sbin/openrc-run")
   #Install openrc script
-  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.openrc"
+  file(RENAME "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.openrc"
+              "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd")
+  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
        DESTINATION "/etc/init.d"
        FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-  file(RENAME "$ENV{DESTDIR}/etc/init.d/mympd.openrc"
-              "$ENV{DESTDIR}/etc/init.d/mympd")
 elseif(EXISTS "/etc/init.d")
   #Install sysVinit script
-  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.sysVinit"
+  file(RENAME "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.sysVinit"
+              "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd")
+  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
        DESTINATION "/etc/init.d"
        FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-  file(RENAME "$ENV{DESTDIR}/etc/init.d/mympd.sysVinit"
-              "$ENV{DESTDIR}/etc/init.d/mympd")
-endif()
-
-# Install debian specific files
-if(EXISTS "/etc/debian_version")
-  file(INSTALL "@CMAKE_SOURCE_DIR@/contrib/packaging/debian/copyright"
-       DESTINATION "@CMAKE_INSTALL_FULL_DATAROOTDIR@/doc/mympd"
-       FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
-  
-  file(INSTALL "@CMAKE_SOURCE_DIR@/contrib/packaging/debian/changelog"
-       DESTINATION "@CMAKE_INSTALL_FULL_DATAROOTDIR@/doc/mympd"
-       FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
-  file(RENAME "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_DATAROOTDIR@/doc/mympd/changelog"
-              "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_DATAROOTDIR@/doc/mympd/changelog.Debian")
-  execute_process(COMMAND gzip -n -f -v -9 "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_DATAROOTDIR@/doc/mympd/changelog.Debian")
+else()
+  message("No supported init system found, no startup script was installed")
 endif()
 
 # Install and compress manpages
 if("@MYMPD_MANPAGES@" STREQUAL "ON")
-  file(INSTALL "@CMAKE_SOURCE_DIR@/contrib/man/mympd.1"
+  execute_process(COMMAND gzip -n -c -9 "@CMAKE_SOURCE_DIR@/contrib/man/mympd.1" OUTPUT_FILE "@CMAKE_CURRENT_BINARY_DIR@/contrib/mympd.1.gz")
+  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/mympd.1.gz"
        DESTINATION "@CMAKE_INSTALL_FULL_MANDIR@/man1"
        FILE_PERMISSIONS PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
-  execute_process(COMMAND gzip -n -f -v -9 "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_MANDIR@/man1/mympd.1")
 
-  file(INSTALL "@CMAKE_SOURCE_DIR@/contrib/man/mympd-script.1"
+  execute_process(COMMAND gzip -n -c -9 "@CMAKE_SOURCE_DIR@/contrib/man/mympd-script.1" OUTPUT_FILE "@CMAKE_CURRENT_BINARY_DIR@/contrib/mympd-script.1.gz")
+  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/mympd-script.1.gz"
        DESTINATION "@CMAKE_INSTALL_FULL_MANDIR@/man1"
        FILE_PERMISSIONS PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
-  execute_process(COMMAND gzip -n -f -v -9 "$ENV{DESTDIR}@CMAKE_INSTALL_FULL_MANDIR@/man1/mympd-script.1")
 endif()

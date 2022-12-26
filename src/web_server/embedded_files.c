@@ -16,7 +16,6 @@ INCBIN(mympd_webmanifest, "../htdocs/mympd.webmanifest.gz");
 INCBIN(index_html, "../htdocs/index.html.gz");
 INCBIN(coverimage_notavailable_svg, "../htdocs/assets/coverimage-notavailable.svg.gz");
 INCBIN(coverimage_stream_svg, "../htdocs/assets/coverimage-stream.svg.gz");
-INCBIN(coverimage_loading_svg, "../htdocs/assets/coverimage-loading.svg.gz");
 INCBIN(coverimage_booklet_svg, "../htdocs/assets/coverimage-booklet.svg.gz");
 INCBIN(coverimage_mympd_svg, "../htdocs/assets/coverimage-mympd.svg.gz");
 INCBIN(mympd_background_dark_svg, "../htdocs/assets/mympd-background-dark.svg.gz");
@@ -56,8 +55,11 @@ INCBIN(ligatures_json, "../htdocs/assets/ligatures.json.gz");
 #ifdef I18N_nl_NL
     INCBIN(i18n_nl_NL_json, "../htdocs/assets/i18n/nl-NL.json.gz");
 #endif
-#ifdef I18N_zh_CN
-    INCBIN(i18n_zh_CN_json, "../htdocs/assets/i18n/zh-CN.json.gz");
+#ifdef I18N_zh_Hans
+    INCBIN(i18n_zh_Hans_json, "../htdocs/assets/i18n/zh-Hans.json.gz");
+#endif
+#ifdef I18N_zh_Hant
+    INCBIN(i18n_zh_Hant_json, "../htdocs/assets/i18n/zh-Hant.json.gz");
 #endif
 //uncompressed assets
 INCBIN(appicon_192_png, "../htdocs/assets/appicon-192.png");

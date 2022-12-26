@@ -182,13 +182,18 @@ function parseVolume(obj) {
     if (obj.result.volume === -1) {
         document.getElementById('volumePrct').textContent = tn('Volumecontrol disabled');
         elHideId('volumeControl');
+        elClear(
+            document.getElementById('volumeMenu').lastElementChild
+        );
     }
     else {
         elShowId('volumeControl');
         document.getElementById('volumePrct').textContent = obj.result.volume + ' %';
-        document.getElementById('volumeMenu').firstChild.textContent =
+        const volumeMenu = document.getElementById('volumeMenu');
+        volumeMenu.firstElementChild.textContent =
             obj.result.volume === 0 ? 'volume_off' :
                 obj.result.volume < 50 ? 'volume_down' : 'volume_up';
+        volumeMenu.lastElementChild.textContent = obj.result.volume + smallSpace + '%';
     }
     domCache.volumeBar.value = obj.result.volume;
 }

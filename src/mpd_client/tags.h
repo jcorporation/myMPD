@@ -10,6 +10,7 @@
 #include "dist/sds/sds.h"
 #include "src/lib/mympd_state.h"
 
+time_t mpd_client_get_db_mtime(struct t_partition_state *partition_state);
 bool mympd_mpd_song_add_tag_dedup(struct mpd_song *song,
 		enum mpd_tag_type type, const char *value);
 bool is_multivalue_tag(enum mpd_tag_type tag);
@@ -18,13 +19,12 @@ bool disable_all_mpd_tags(struct t_partition_state *partition_state);
 bool enable_all_mpd_tags(struct t_partition_state *partition_state);
 bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_tags *enable_tags);
 enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag, const struct t_tags *available_tags);
-sds get_song_tags(sds buffer, struct t_partition_state *partition_state, const struct t_tags *tagcols,
+sds get_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
         const struct mpd_song *song);
-sds get_empty_song_tags(sds buffer, struct t_partition_state *partition_state, const struct t_tags *tagcols,
-        const char *uri);
 void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
         const struct t_tags *allowed_tag_types);
 bool mpd_client_tag_exists(const struct t_tags *tagtypes, enum mpd_tag_type tag);
 sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag, sds tag_values);
 sds mpd_client_get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type tag, sds tag_values);
+sds print_tags_array(sds buffer, const char *tagsname, struct t_tags *tags);
 #endif

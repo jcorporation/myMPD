@@ -1,0 +1,43 @@
+<!--
+ SPDX-License-Identifier: GPL-3.0-or-later
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+-->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>myMPD: Unit Tests</title>
+  <link href="../css/bootstrap.css" rel="stylesheet">
+  <link href="../css/mympd.css" rel="stylesheet">
+  <link href="test.css" rel="stylesheet">
+  <link href="../assets/appicon-192.png" rel="icon">
+</head>
+<body>
+  <header>
+    <nav class="navbar navbar-expand navbar-dark fixed-top bg-dark">
+      <a class="navbar-brand" href="index.html">
+        <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
+          <ellipse id="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
+          <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
+          <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
+          <path d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
+          <path d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
+        </svg>
+      </a>
+    </nav>
+  </header>
+  <main role="main" class="container-fluid text-break">
+    <div class="card">
+      <div class="card-header">myMPD unit tests</div>
+      <div class="card-body" id="results"></div>
+    </div>
+  </main>
+  <script src="../js/elements.js"></script>
+  <script src="../js/i18n.js"></script>
+  <script src="../js/locale.js"></script>
+  <script src="../js/utility.js"></script>
+  <script src="unit.js"></script>
+</body>
+</html>

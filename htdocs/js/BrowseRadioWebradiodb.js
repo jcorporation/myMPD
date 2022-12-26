@@ -71,23 +71,26 @@ function initBrowseRadioWebradiodb() {
     }, false);
 
     document.getElementById('BrowseRadioWebradiodbList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            const uri = getData(event.target.parentNode, 'uri');
+        if (event.target.nodeName === 'A') {
+            //action td
+            handleActionTdClick(event);
+            return;
+        }
+
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            const uri = getData(target, 'uri');
             if (settings.webuiSettings.clickRadiobrowser === 'add') {
                 showEditRadioFavorite({
-                    "Name": getData(event.target.parentNode, 'name'),
-                    "Genre": getData(event.target.parentNode, 'genre'),
-                    "Image": getData(event.target.parentNode, 'image'),
+                    "Name": getData(target, 'name'),
+                    "Genre": getData(target, 'genre'),
+                    "Image": getData(target, 'image'),
                     "StreamUri": uri
                 });
             }
             else {
                 clickWebradiodb(uri);
             }
-        }
-        else if (event.target.nodeName === 'A') {
-            //action td
-            handleActionTdClick(event);
         }
     }, false);
 }
@@ -295,7 +298,7 @@ function parseSearchWebradiodb(obj) {
     if (obj.result.totalEntities > 0) {
         const colspan = settings.colsBrowseRadioWebradiodb.length + 1;
         tfoot.appendChild(
-            elCreateNode('tr', {},
+            elCreateNode('tr', {"class": ["not-clickable"]},
                 elCreateTextTnNr('td', {"colspan": colspan}, 'Num entries', obj.result.totalEntities)
             )
         );

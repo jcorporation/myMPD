@@ -42,7 +42,7 @@ sds m3u_get_field(sds buffer, const char *field, const char *filename) {
     size_t field_len = strlen(field);
     size_t min_line_len = field_len + 2;
     sds line = sdsempty();
-    while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
+    while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
         if (sdslen(line) > min_line_len &&
             strncmp(line, field, field_len) == 0)
         {
@@ -84,7 +84,7 @@ sds m3u_to_json(sds buffer, const char *filename, sds *m3ufields) {
     }
     int line_count = 0;
     sds field = sdsempty();
-    while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
+    while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
         if (line[0] == '\0') {
             //skip blank lines
             continue;

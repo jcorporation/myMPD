@@ -8,12 +8,14 @@
 #include "src/mpd_worker/cache.h"
 
 #include "src/lib/album_cache.h"
+#include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/sticker_cache.h"
+#include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/tags.h"
 
@@ -33,9 +35,41 @@ static bool get_sticker_from_mpd(struct t_partition_state *partition_state, cons
 /**
  * Creates the caches and returns it to mympd_api thread
  * @param mpd_worker_state pointer to mpd_worker_state struct
+ * @param force true=force update, false=update only if mpd database is newer then the caches
  * @return true on success else false
  */
-bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
+bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool force) {
+    time_t db_mtime = mpd_client_get_db_mtime(mpd_worker_state->partition_state);
+    MYMPD_LOG_DEBUG("Database mtime: %lld", (long long)db_mtime);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", mpd_worker_state->config->workdir, DIR_WORK_TAGS, FILENAME_ALBUMCACHE);
+    time_t album_cache_mtime = get_mtime(filepath);
+    MYMPD_LOG_DEBUG("Album cache mtime: %lld", (long long)album_cache_mtime);
+    sdsclear(filepath);
+    filepath = sdscatfmt(filepath, "%S/%s/%s", mpd_worker_state->config->workdir, DIR_WORK_TAGS, FILENAME_STICKERCACHE);
+    time_t sticker_cache_mtime = get_mtime(filepath);
+    MYMPD_LOG_DEBUG("Sticker cache mtime: %lld", (long long)sticker_cache_mtime);
+    FREE_SDS(filepath);
+
+    if (force == false &&
+        db_mtime < album_cache_mtime &&
+        db_mtime < sticker_cache_mtime)
+    {
+        MYMPD_LOG_INFO("Caches are up-to-date");
+        send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Caches are up-to-date");
+        if (mpd_worker_state->partition_state->mpd_state->feat_tags == true) {
+            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
+            request->data = jsonrpc_end(request->data);
+            mympd_queue_push(mympd_api_queue, request, 0);
+        }
+        if (mpd_worker_state->partition_state->mpd_state->feat_stickers == true) {
+            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STICKERCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
+            request->data = jsonrpc_end(request->data);
+            mympd_queue_push(mympd_api_queue, request, 0);
+        }
+        return true;
+    }
+    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_CACHE_STARTED, MPD_PARTITION_ALL);
+
     struct t_cache album_cache;
     album_cache.cache = NULL;
     if (mpd_worker_state->partition_state->mpd_state->feat_tags == true) {
@@ -61,11 +95,14 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
             request->data = jsonrpc_end(request->data);
             request->extra = (void *) album_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);
-            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, mpd_worker_state->partition_state->name, "Updated album cache");
+            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated album cache");
+            if (mpd_worker_state->config->save_caches == true) {
+                album_cache_write(&album_cache, mpd_worker_state->config->workdir, &mpd_worker_state->mpd_state->tags_album, false);
+            }
         }
         else {
             album_cache_free(&album_cache);
-            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, mpd_worker_state->partition_state->name, "Update of album cache failed");
+            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "Update of album cache failed");
         }
     }
     else {
@@ -79,16 +116,21 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state) {
             request->data = jsonrpc_end(request->data);
             request->extra = (void *) sticker_cache.cache;
             mympd_queue_push(mympd_api_queue, request, 0);
-            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, mpd_worker_state->partition_state->name, "Updated sticker cache");
+            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Updated sticker cache");
+            if (mpd_worker_state->config->save_caches == true) {
+                sticker_cache_write(&sticker_cache, mpd_worker_state->config->workdir, false);
+            }
         }
         else {
             sticker_cache_free(&sticker_cache);
-            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, mpd_worker_state->partition_state->name, "Update of sticker cache failed");
+            send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "Update of sticker cache failed");
         }
     }
     else {
         MYMPD_LOG_INFO("Skipped sticker cache creation, stickers are disabled");
     }
+
+    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_CACHE_FINISHED, MPD_PARTITION_ALL);
     return rc;
 }
 
@@ -111,7 +153,15 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
     long album_count = 0;
     long song_count = 0;
     long skipped = 0;
-    //get first song from each album
+
+    //set tags
+    enable_mpd_tags(mpd_worker_state->partition_state, &mpd_worker_state->mpd_state->tags_album);
+
+    //get all songs and set albums
+    #ifdef MYMPD_DEBUG
+        MEASURE_INIT
+        MEASURE_START
+    #endif
     do {
         bool rc = mpd_search_db_songs(mpd_worker_state->partition_state->conn, false);
         if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, rc, "mpd_search_db_songs") == false) {
@@ -204,6 +254,12 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
         start = end;
         end = end + MPD_RESULTS_MAX;
     } while (i >= start);
+    #ifdef MYMPD_DEBUG
+        MEASURE_END
+        MEASURE_PRINT("Populate album cache")
+        MEASURE_START
+    #endif
+
     //get sticker values
     if (mpd_worker_state->partition_state->mpd_state->feat_stickers == true) {
         raxIterator iter;
@@ -217,6 +273,12 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
         FREE_SDS(uri);
         raxStop(&iter);
     }
+    #ifdef MYMPD_DEBUG
+        MEASURE_END
+        MEASURE_PRINT("Populate sticker cache")
+    #endif
+
+    //finished - print statistics
     MYMPD_LOG_INFO("Added %ld albums to album cache", album_count);
     if (skipped > 0) {
         MYMPD_LOG_WARN("Skipped %ld songs for album cache", skipped);
@@ -249,20 +311,28 @@ static bool get_sticker_from_mpd(struct t_partition_state *partition_state, cons
     }
 
     while ((pair = mpd_recv_sticker(partition_state->conn)) != NULL) {
-        if (strcmp(pair->name, "playCount") == 0) {
-            sticker->play_count = (long)strtoimax(pair->value, &crap, 10);
-        }
-        else if (strcmp(pair->name, "skipCount") == 0) {
-            sticker->skip_count = (long)strtoimax(pair->value, &crap, 10);
-        }
-        else if (strcmp(pair->name, "lastPlayed") == 0) {
-            sticker->last_played = (time_t)strtoimax(pair->value, &crap, 10);
-        }
-        else if (strcmp(pair->name, "lastSkipped") == 0) {
-            sticker->last_skipped = (time_t)strtoimax(pair->value, &crap, 10);
-        }
-        else if (strcmp(pair->name, "like") == 0) {
-            sticker->like = (int)strtoimax(pair->value, &crap, 10);
+        enum mympd_sticker_types sticker_type = sticker_name_parse(pair->name);
+        switch(sticker_type) {
+            case STICKER_PLAY_COUNT:
+                sticker->play_count = (long)strtoimax(pair->value, &crap, 10);
+                break;
+            case STICKER_SKIP_COUNT:
+                sticker->skip_count = (long)strtoimax(pair->value, &crap, 10);
+                break;
+            case STICKER_LAST_PLAYED:
+                sticker->last_played = (time_t)strtoimax(pair->value, &crap, 10);
+                break;
+            case STICKER_LAST_SKIPPED:
+                sticker->last_skipped = (time_t)strtoimax(pair->value, &crap, 10);
+                break;
+            case STICKER_LIKE:
+                sticker->like = (int)strtoimax(pair->value, &crap, 10);
+                break;
+            case STICKER_ELAPSED:
+                sticker->elapsed = (time_t)strtoimax(pair->value, &crap, 10);
+                break;
+            default:
+                MYMPD_LOG_DEBUG("Ignoring sticker \"%s\"", pair->name);
         }
         mpd_return_sticker(partition_state->conn, pair);
     }

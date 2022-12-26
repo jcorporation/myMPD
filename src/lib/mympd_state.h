@@ -7,12 +7,11 @@
 #ifndef MYMPD_STATE_H
 #define MYMPD_STATE_H
 
+#include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/rax/rax.h"
 #include "dist/sds/sds.h"
 #include "src/lib/config_def.h"
 #include "src/lib/list.h"
-
-#include <mpd/client.h>
 
 #include <poll.h>
 #include <time.h>
@@ -77,6 +76,7 @@ struct t_mpd_state {
     struct t_tags tags_mpd;             //!< all available mpd tags
     struct t_tags tags_search;          //!< tags enabled for search
     struct t_tags tags_browse;          //!< tags enabled for browse
+    struct t_tags tags_album;           //!< tags enabled for albums
     enum mpd_tag_type tag_albumartist;  //!< tag to use for AlbumArtist
     //Feature flags
     const unsigned *protocol;           //!< mpd protocol version
@@ -148,6 +148,7 @@ struct t_partition_state {
     bool jukebox_enforce_unique;           //!< flag indicating if unique constraint is enabled
     struct t_list jukebox_queue;           //!< the jukebox queue itself
     struct t_list jukebox_queue_tmp;       //!< temporary jukebox queue for the add random to queue function
+    bool jukebox_ignore_hated;             //!< ignores hated songs for the jukebox mode
     //partition
     sds name;                              //!< partition name
     sds highlight_color;                   //!< highlight color
@@ -161,6 +162,7 @@ struct t_partition_state {
     sds stream_uri;                        //!< custom url for local playback
     //lists
     struct t_list last_played;             //!< last_played list
+    struct t_list presets;                 //!< Playback presets
 };
 
 /**
@@ -175,8 +177,8 @@ struct t_timer_definition {
     sds action;                       //!< timer action, e.g. script, play
     sds subaction;                    //!< timer subaction, e.g. script to execute
     unsigned volume;                  //!< volume to set
-    sds playlist;                     //!< playlist to use
-    enum jukebox_modes jukebox_mode;  //!< jukebox mode
+    sds playlist;                     //!< playlist to load for play timer
+    sds preset;                       //!< preset to load for play timer
     bool weekdays[7];                 //!< array of weekdays for timer execution
     struct t_list arguments;          //!< argumentlist for script timers
 };
@@ -214,7 +216,7 @@ struct t_mympd_state {
     struct t_mpd_state *mpd_state;                //!< mpd state shared across partitions
     struct t_partition_state *partition_state;    //!< list of partition states
     struct pollfd fds[MPD_CONNECTION_MAX];        //!< mpd connection fds
-    nfds_t nfds;                                     //!< number of mpd connection fds
+    nfds_t nfds;                                  //!< number of mpd connection fds
     struct t_timer_list timer_list;               //!< list of timers
     struct t_list home_list;                      //!< list of home icons
     struct t_list trigger_list;                   //!< list of triggers
@@ -228,8 +230,10 @@ struct t_mympd_state {
     sds smartpls_generate_tag_list;               //!< generate smart playlists for each value for this tag (string representation)
     sds cols_queue_current;                       //!< columns for the queue view
     sds cols_search;                              //!< columns for the search view
-    sds cols_browse_database_detail;              //!< columns for the album detail view
-    sds cols_browse_playlists_detail;             //!< columns for the listing of playlists
+    sds cols_browse_database_album_detail_info;   //!< columns for the album detail view
+    sds cols_browse_database_album_detail;        //!< columns for the album detail title list
+    sds cols_browse_database_album_list;          //!< columns for the album list view
+    sds cols_browse_playlist_detail;              //!< columns for the listing of playlists
     sds cols_browse_filesystem;                   //!< columns for filesystem listing
     sds cols_playback;                            //!< columns for playback view
     sds cols_queue_last_played;                   //!< columns for last played view
@@ -252,7 +256,7 @@ struct t_mympd_state {
 /**
  * Public functions
  */
-void mympd_state_save(struct t_mympd_state *mympd_state);
+void mympd_state_save(struct t_mympd_state *mympd_state, bool free);
 
 void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *config);
 void mympd_state_free(struct t_mympd_state *mympd_state);

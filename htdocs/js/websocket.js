@@ -109,11 +109,13 @@ function webSocketConnect() {
                     sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs, false);
                     break;
                 case 'update_started':
-                    updateDBstarted(false, true);
+                    showNotification(tn('Database update started'), '', 'database', 'info');
+                    toggleAlert('alertUpdateDBState', true, tn('Updating MPD database'));
                     break;
                 case 'update_database':
                 case 'update_finished':
                     updateDBfinished(obj.method);
+                    toggleAlert('alertUpdateDBState', false, '');
                     break;
                 case 'update_volume':
                     //rename param to result
@@ -122,13 +124,13 @@ function webSocketConnect() {
                     parseVolume(obj);
                     break;
                 case 'update_stored_playlist':
-                    if (app.id === 'BrowsePlaylistsList') {
+                    if (app.id === 'BrowsePlaylistList') {
                         sendAPI('MYMPD_API_PLAYLIST_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
                             "searchstr": app.current.search,
                             "type": 0
-                        }, parsePlaylistsList, false);
+                        }, parsePlaylistList, false);
                     }
                     else if (app.id === 'BrowsePlaylistsDetail') {
                         sendAPI('MYMPD_API_PLAYLIST_CONTENT_LIST', {
@@ -165,18 +167,22 @@ function webSocketConnect() {
                         }, parseJukeboxList, false);
                     }
                     break;
-                case 'update_album_cache':
-                    if (app.id === 'BrowseDatabaseList' &&
-                        app.current.tag === 'Album')
-                    {
-                        sendAPI("MYMPD_API_DATABASE_ALBUMS_GET", {
+                case 'update_album_cache_started':
+                    showNotification(tn('Cache update started'), '', 'database', 'info');
+                    toggleAlert('alertUpdateCacheState', true, tn('Updating caches'));
+                    break;
+                case 'update_album_cache_finished':
+                    if (app.id === 'BrowseDatabaseAlbumList') {
+                        sendAPI("MYMPD_API_DATABASE_ALBUM_LIST", {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
                             "expression": app.current.search,
                             "sort": app.current.sort.tag,
-                            "sortdesc": app.current.sort.desc
-                        }, parseDatabase, true);
+                            "sortdesc": app.current.sort.desc,
+                            "cols": settings.colsBrowseDatabaseAlbumListFetch
+                        }, parseDatabaseAlbumList, true);
                     }
+                    toggleAlert('alertUpdateCacheState', false, '');
                     break;
                 case 'notify':
                     showNotification(tn(obj.params.message, obj.params.data), '', obj.params.facility, obj.params.severity);

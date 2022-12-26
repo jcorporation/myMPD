@@ -7,11 +7,10 @@
 #include "compile_time.h"
 #include "src/mpd_client/errorhandler.h"
 
+#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/mpd_client/tags.h"
-
-#include <mpd/client.h>
 
 /**
  * Private definitions

@@ -20,6 +20,9 @@ binary-arch:
 	mkdir -p debian/mympd/DEBIAN
 	cp debian/postinst debian/mympd/DEBIAN
 	echo 10 > debian/compat
+	dh_installdocs
+	dh_installchangelogs
+	dh_compress
 	dh_makeshlibs
 	dh_shlibdeps
 	dh_strip

@@ -4,6 +4,19 @@ permalink: /running
 title: Running
 ---
 
+## Generel 
+
+On startup myMPD does the following:
+
+- Check and create `cachedir` and `workdir` directories.
+  - `cachedir` and `workdir` must exist, if started not as root.
+- Reads environment at first startup.
+- Binds to the configured http and ssl port.
+- Dropping privileges, if started as root.
+- Check and create the directories inside `cachedir` and `workdir`.
+
+**Note:** It is not supported to run myMPD as root.
+
 ## Startup script
 
 The installation process installs a LSB compatible startup script / systemd unit for myMPD.
@@ -45,7 +58,7 @@ To start myMPD in the actual console session: `mympd` (myMPD keeps in foreground
 If you use a distribution with systemd (without a static mympd user):
 
 ```
-systemd-run -p DynamicUser=yes -p User=mympd -p Group=mympd -p StateDirectory=mympd -p CacheDirectory=mympd /usr/bin/mympd
+systemd-run -t -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd /usr/bin/mympd
 ```
 
 Description of [Commandline-Options]({{ site.baseurl }}/configuration/).
@@ -53,3 +66,9 @@ Description of [Commandline-Options]({{ site.baseurl }}/configuration/).
 ## Docker
 
 Goto [Docker]({{ site.baseurl }}/installation/docker)
+
+## myMPD configuration
+
+You can configure some basic options of myMPD via startup options or environment variables.
+
+- [Configuration]({{ site.baseurl }}/configuration/)

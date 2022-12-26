@@ -12,15 +12,18 @@ function initTrigger() {
     document.getElementById('listTriggerList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (event.target.nodeName === 'TD') {
-            showEditTrigger(getData(event.target.parentNode, 'trigger-id'));
-        }
-        else if (event.target.nodeName === 'A') {
+        if (event.target.nodeName === 'A') {
             const action = getData(event.target, 'action');
             const id = getData(event.target.parentNode.parentNode, 'trigger-id');
             if (action === 'delete') {
                 deleteTrigger(event.target, id);
             }
+            return;
+        }
+
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            showEditTrigger(getData(target, 'trigger-id'));
         }
     }, false);
 
@@ -191,7 +194,7 @@ function parseTriggerList(obj) {
     }
     elClear(tbody);
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const row = elCreateNodes('tr', {}, [
+        const row = elCreateNodes('tr', {"title": tn('Edit')}, [
             elCreateText('td', {}, obj.result.data[i].name + 
                 (obj.result.data[i].partition === '!all!' ? ' (' + tn('All partitions') + ')' : '')
             ),

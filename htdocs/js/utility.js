@@ -6,6 +6,15 @@
 /** @module utility_js */
 
 /**
+ * Checks if event should be executed
+ * @param {EventTarget} target triggering event target
+ * @returns {boolean} true if target is clickable else false
+ */
+function checkTargetClick(target) {
+    return target === null || target.classList.contains('not-clickable') ? false : true;
+}
+
+/**
  * Sets the updating indicator(s) for a view with the given id
  * @param {string} id element id
  */
@@ -212,8 +221,8 @@ function focusSearch() {
         case 'BrowseFilesystem':
             document.getElementById('searchFilesystemStr').focus();
             break;
-        case 'BrowsePlaylistsList':
-            document.getElementById('searchPlaylistsListStr').focus();
+        case 'BrowsePlaylistList':
+            document.getElementById('searchPlaylistListStr').focus();
             break;
         case 'BrowsePlaylistsDetail':
             document.getElementById('searchPlaylistsDetailStr').focus();
@@ -438,38 +447,6 @@ function createSearchExpression(crumbsEl, tag, op, value) {
  */
 function getTimestamp() {
     return Math.floor(Date.now() / 1000);
-}
-
-/**
- * Toggles the collapse indicator
- * @param {HTMLElement} el arrow element to toggle
- */
-function toggleCollapseArrow(el) {
-    const icon = el.querySelector('span');
-    icon.textContent = icon.textContent === 'keyboard_arrow_right' ? 'keyboard_arrow_down' : 'keyboard_arrow_right';
-}
-
-/**
- * Go's into fullscreen mode
- */
-//eslint-disable-next-line no-unused-vars
-function openFullscreen() {
-    const elem = document.documentElement;
-    if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-    }
-    else if (elem.mozRequestFullScreen) {
-        //Firefox
-        elem.mozRequestFullScreen();
-    }
-    else if (elem.webkitRequestFullscreen) {
-        //Chrome, Safari and Opera
-        elem.webkitRequestFullscreen();
-    }
-    else if (elem.msRequestFullscreen) {
-        //IE and Edge
-        elem.msRequestFullscreen();
-    }
 }
 
 /**

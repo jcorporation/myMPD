@@ -10,7 +10,6 @@
 #include "dist/sds/sds.h"
 
 #include <stdbool.h>
-#include <stdio.h>
 #include <time.h>
 
 bool is_streamuri(const char *uri);
@@ -22,7 +21,6 @@ sds replace_file_extension(sds filename, const char *ext);
 void strip_slash(sds dirname);
 void sanitize_filename(sds filename);
 
-const char *getenv_check(const char *env_var, size_t max_len);
 void my_msleep(long msec);
 
 sds get_mympd_host(sds mpd_host, sds http_host);

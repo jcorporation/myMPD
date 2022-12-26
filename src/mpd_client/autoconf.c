@@ -7,13 +7,12 @@
 #include "compile_time.h"
 #include "src/mpd_client/autoconf.h"
 
+#include "dist/libmympdclient/include/mpd/client.h"
+#include "src/lib/env.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/utility.h"
 #include "src/lib/validate.h"
-
-#include <mpd/client.h>
 
 #include <inttypes.h>
 #include <string.h>
@@ -46,93 +45,76 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     MYMPD_LOG_NOTICE("Starting myMPD autoconfiguration");
     MYMPD_LOG_NOTICE("Reading environment");
     bool mpd_configured = false;
-    const char *mpd_host_env = getenv_check("MPD_HOST", 100);
-    if (mpd_host_env != NULL) {
-        sds mpd_host = sdsnew(mpd_host_env);
-        if (vcb_isname(mpd_host) == true) {
-            if (mpd_host[0] != '@' && strstr(mpd_host, "@") != NULL) {
-                int count = 0;
-                sds *tokens = sdssplitlen(mpd_host, (ssize_t)sdslen(mpd_host), "@", 1, &count);
-                mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, tokens[1]);
-                mympd_state->mpd_state->mpd_pass = sds_replace(mympd_state->mpd_state->mpd_pass, tokens[0]);
-                sdsfreesplitres(tokens,count);
-            }
-            else {
-                //no password
-                mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, mpd_host);
-            }
-            MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", mympd_state->mpd_state->mpd_host);
-            mpd_configured = true;
+
+    sds mpd_host = getenv_string("MPD_HOST", MYMPD_MPD_HOST, vcb_isname);
+    if (strcmp(mpd_host, mympd_state->mpd_state->mpd_host) != 0) {
+        if (mpd_host[0] != '@' &&
+            strstr(mpd_host, "@") != NULL)
+        {
+            int count = 0;
+            sds *tokens = sdssplitlen(mpd_host, (ssize_t)sdslen(mpd_host), "@", 1, &count);
+            mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, tokens[1]);
+            mympd_state->mpd_state->mpd_pass = sds_replace(mympd_state->mpd_state->mpd_pass, tokens[0]);
+            sdsfreesplitres(tokens,count);
         }
-        FREE_SDS(mpd_host);
-    }
-    const char *mpd_port_env = getenv_check("MPD_PORT", 5);
-    if (mpd_port_env != NULL) {
-        sds mpd_port = sdsnew(mpd_port_env);
-        if (vcb_isdigit(mpd_port) == true) {
-            unsigned port = (unsigned)strtoumax(mpd_port, NULL, 10);
-            if (port == 0) {
-                mympd_state->mpd_state->mpd_port = 6600;
-                MYMPD_LOG_NOTICE("Setting mpd port to \"%d\"", mympd_state->mpd_state->mpd_port);
-            }
-            else if (port > MPD_PORT_MIN && port <= MPD_PORT_MAX) {
-                mympd_state->mpd_state->mpd_port = port;
-                MYMPD_LOG_NOTICE("Setting mpd port to \"%d\"", mympd_state->mpd_state->mpd_port);
-            }
-            else {
-                MYMPD_LOG_WARN("MPD port must be between 1024 and 65534, default is 6600");
-            }
+        else {
+            //no password
+            mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, mpd_host);
         }
-        FREE_SDS(mpd_port);
+        MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", mympd_state->mpd_state->mpd_host);
+        mpd_configured = true;
     }
-    const char *mpd_timeout_env = getenv_check("MPD_TIMEOUT", 5);
-    if (mpd_timeout_env != NULL) {
-        sds mpd_timeout = sdsnew(mpd_timeout_env);
-        if (vcb_isdigit(mpd_timeout) == true) {
-            unsigned timeout = (unsigned)strtoumax(mpd_timeout, NULL, 10);
-            timeout = timeout * 1000; //convert to ms
-            if (timeout >= MPD_TIMEOUT_MIN && timeout < MPD_TIMEOUT_MAX) {
-                mympd_state->mpd_state->mpd_timeout = timeout;
-                MYMPD_LOG_NOTICE("Setting mpd timeout to \"%d\"", mympd_state->mpd_state->mpd_timeout);
-            }
-            else {
-                MYMPD_LOG_WARN("MPD timeout must be between %d and %d", MPD_TIMEOUT_MIN, MPD_TIMEOUT_MAX);
-            }
-        }
-        FREE_SDS(mpd_timeout);
+    FREE_SDS(mpd_host);
+
+    unsigned mpd_port = getenv_uint("MPD_PORT", MYMPD_MPD_PORT, MPD_PORT_MIN, MPD_PORT_MAX);
+    if (mpd_port != mympd_state->mpd_state->mpd_port) {
+        mympd_state->mpd_state->mpd_port = mpd_port;
+        MYMPD_LOG_NOTICE("Setting mpd port to \"%d\"", mympd_state->mpd_state->mpd_port);
     }
+
+    unsigned timeout = getenv_uint("MPD_TIMEOUT", MYMPD_MPD_TIMEOUT_SEC, MPD_TIMEOUT_MIN, MPD_TIMEOUT_MAX);
+    timeout = timeout * 1000; //convert to ms
+    if (timeout != mympd_state->mpd_state->mpd_timeout) {
+        mympd_state->mpd_state->mpd_timeout = timeout;
+        MYMPD_LOG_NOTICE("Setting mpd timeout to \"%d\"", mympd_state->mpd_state->mpd_timeout);
+    }
+
     if (mpd_configured == true) {
         return;
     }
 
     //check for socket
-    const char *xdg_runtime_dir = getenv_check("XDG_RUNTIME_DIR", 100);
-    if (xdg_runtime_dir != NULL) {
+    sds xdg_runtime_dir = getenv_string("XDG_RUNTIME_DIR", "", vcb_isfilepath);
+    if (sdslen(xdg_runtime_dir) > 0) {
         sds socket = sdscatfmt(sdsempty(), "%s/mpd/socket", xdg_runtime_dir);
         if (test_mpd_conn(socket) == true) {
             MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", socket);
             mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, socket);
             FREE_SDS(socket);
+            FREE_SDS(xdg_runtime_dir);
             return;
         }
         FREE_SDS(socket);
     }
-    if (test_mpd_conn("/run/mpd/socket") == true) {
-        MYMPD_LOG_NOTICE("Setting mpd host to \"/run/mpd/socket\"");
-        mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/run/mpd/socket");
-        return;
+    FREE_SDS(xdg_runtime_dir);
+
+    const char *test_sockets[] = {
+        "/run/mpd/socket",
+        "/var/run/mpd/socket",
+        "/var/lib/mpd/socket", //Gentoo default
+        NULL
+    };
+
+    const char **p = test_sockets;
+    while (*p != NULL) {
+        if (test_mpd_conn(*p) == true) {
+            MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", *p);
+            mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, *p);
+            return;
+        }
+        p++;
     }
-    if (test_mpd_conn("/var/run/mpd/socket") == true) {
-        MYMPD_LOG_NOTICE("Setting mpd host to \"/var/run/mpd/socket\"");
-        mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/var/run/mpd/socket");
-        return;
-    }
-    if (test_mpd_conn("/vsrc/lib/mpd/socket") == true) {
-        //gentoo default 
-        MYMPD_LOG_NOTICE("Setting mpd host to \"/vsrc/lib/mpd/socket\"");
-        mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, "/vsrc/lib/mpd/socket");
-        return;
-    }
+
     //fallback to localhost:6600
     MYMPD_LOG_WARN("MPD autoconfiguration failed");
     MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", MYMPD_MPD_HOST);
@@ -156,7 +138,7 @@ static bool test_mpd_conn(const char *socket_path) {
         return false;
     }
     if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS) {
-        MYMPD_LOG_DEBUG("MPD connection: %s", mpd_connection_get_error_message(conn));
+        MYMPD_LOG_DEBUG("MPD connection \"%s\": %s", socket_path, mpd_connection_get_error_message(conn));
         mpd_connection_free(conn);
         return false;
     }

@@ -3,28 +3,11 @@ layout: page
 permalink: /references/
 title: References
 ---
-
-- [Components]({{ site.baseurl }}/references/components)
-- [Custom navbar icons]({{ site.baseurl }}/references/custom-navbar-icons)
-- [Feature matrix]({{ site.baseurl }}/references/feature-matrix)
-- [Filesystem Hierarchy]({{ site.baseurl }}/references/filesystem-hierarchy)
-- [JSON-RPC 2 API Documentation]({{ site.baseurl }}/references/api/)
-- [Local playback]({{ site.baseurl }}/references/local-playback)
-- [Lyrics]({{ site.baseurl }}/references/lyrics)
-- [Partitions]({{ site.baseurl }}/references/partitions)
-- [Pictures]({{ site.baseurl }}/references/pictures)
-- [Published directories]({{ site.baseurl }}/references/published-directories)
-- [Smart playlists]({{ site.baseurl }}/references/smart-playlists)
-- [Sticker]({{ site.baseurl }}/references/sticker)
-- [Tags]({{ site.baseurl }}/references/tags)
-- [Translating]({{ site.baseurl }}/references/translating)
-- [Trigger]({{ site.baseurl }}/references/trigger)
-- [Webradios]({{ site.baseurl }}/references/webradios)
-- [Webserver uris]({{ site.baseurl }}/references/webserver-uris)
+{% include nav-references.html %}
 
 ***
 
-## API Documentation
+## Source documentation
 
 If you want to hack on myMPD:
 

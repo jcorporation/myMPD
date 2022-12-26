@@ -17,34 +17,14 @@
 #include <string.h>
 #include <sys/stat.h>
 
-//private definitions
+/**
+ * Private definitions
+ */
 static sds get_local_ip(void);
 
-//public functions
-
 /**
- * Gets an environment variable and checks its length
- * @param env_var environment variable name
- * @param max_len maximum length
- * @return environment variable value or NULL if it is not set or to long
+ * Public functions
  */
-const char *getenv_check(const char *env_var, size_t max_len) {
-    const char *env_value = getenv(env_var); /* Flawfinder: ignore */
-    if (env_value == NULL) {
-        MYMPD_LOG_DEBUG("Environment variable \"%s\" not set", env_var);
-        return NULL;
-    }
-    if (env_value[0] == '\0') {
-        MYMPD_LOG_DEBUG("Environment variable \"%s\" is empty", env_var);
-        return NULL;
-    }
-    if (strlen(env_value) > max_len) {
-        MYMPD_LOG_WARN("Environment variable \"%s\" is too long", env_var);
-        return NULL;
-    }
-    MYMPD_LOG_INFO("Got environment variable \"%s\" with value \"%s\"", env_var, env_value);
-    return env_value;
-}
 
 /**
  * Sleep function
@@ -237,7 +217,9 @@ sds get_mympd_host(sds mpd_host, sds http_host) {
     return get_local_ip();
 }
 
-//private functions
+/**
+ * Private functions
+ */
 
 /**
  * Gets the ip address of the first interface
@@ -250,7 +232,7 @@ static sds get_local_ip(void) {
 
     errno = 0;
     if (getifaddrs(&ifaddr) == -1) {
-        MYMPD_LOG_ERROR("Can not get list of inteface ip addresses");
+        MYMPD_LOG_ERROR("Can not get list of interface ip addresses");
         MYMPD_LOG_ERRNO(errno);
         return sdsempty();
     }

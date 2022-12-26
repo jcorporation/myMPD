@@ -25,19 +25,16 @@
  */
 sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char *playlist) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SMARTPLS_GET;
-    sds pl_file = sdscatfmt(sdsempty(), "%S/smartpls/%s", workdir, playlist);
-    FILE *fp = fopen(pl_file, OPEN_FLAGS_READ);
-    if (fp == NULL) {
-        MYMPD_LOG_ERROR("Cant read smart playlist \"%s\"", playlist);
+    sds pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_SMARTPLS, playlist);
+    sds content = sdsempty();
+    int rc_get = sds_getfile(&content, pl_file, SMARTPLS_SIZE_MAX, true, true);
+    FREE_SDS(pl_file);
+    if (rc_get <= 0) {
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id, 
             JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Can not read smart playlist file");
-        FREE_SDS(pl_file);
+        FREE_SDS(content);
         return buffer;
     }
-    sds content = sdsempty();
-    sds_getfile(&content, fp, SMARTPLS_SIZE_MAX, true);
-    FREE_SDS(pl_file);
-    (void) fclose(fp);
 
     sds smartpltype = NULL;
     sds sds_buf1 = NULL;

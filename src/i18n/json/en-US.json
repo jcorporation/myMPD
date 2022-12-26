@@ -17,6 +17,7 @@
     "Missing translations": "Selected locale is missing %{smart_count} translation |||| Selected locale is missing %{smart_count} translations",
     "Num entries": "%{smart_count} Entry |||| %{smart_count} Entries",
     "Num songs": "%{smart_count} Song |||| %{smart_count} Songs",
+    "Num discs": "%{smart_count} Disc |||| %{smart_count} Discs",
     "OverridesStreamPort": "Setting a stream uri overrides the automatic calculation of the stream uri (MPD host + Stream port).",
     "stickerLastPlayed": "Last played",
     "stickerLastSkipped": "Last skipped",

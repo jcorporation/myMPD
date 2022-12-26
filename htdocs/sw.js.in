@@ -12,7 +12,6 @@ const urlsToCache = [
     subdir + '/assets/appicon-512.png',
     subdir + '/assets/coverimage-stream.svg',
     subdir + '/assets/coverimage-notavailable.svg',
-    subdir + '/assets/coverimage-loading.svg',
     subdir + '/assets/coverimage-mympd.svg',
     __I18NASSETS__
     subdir + '/assets/ligatures.json',

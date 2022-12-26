@@ -38,7 +38,8 @@
 #cmakedefine I18N_ja_JP
 #cmakedefine I18N_ko_KR
 #cmakedefine I18N_nl_NL
-#cmakedefine I18N_zh_CN
+#cmakedefine I18N_zh_Hans
+#cmakedefine I18N_zh_Hant
 
 //myMPD version from cmake
 #define MYMPD_VERSION "${PROJECT_VERSION}"
@@ -58,8 +59,27 @@ extern struct t_mympd_queue *web_server_queue;
 extern struct t_mympd_queue *mympd_api_queue;
 extern struct t_mympd_queue *mympd_script_queue;
 
-//state file names
+//standard file names and folders
+#define FILENAME_ALBUMCACHE "album_cache.json"
+#define FILENAME_ALBUMCACHE_TAGS "album_cache_tags.json"
 #define FILENAME_LAST_PLAYED "last_played_list"
+#define FILENAME_PRESETS "preset_list"
+#define FILENAME_STICKERCACHE "sticker_cache.json"
+
+#define DIR_CACHE_COVER "covercache"
+#define DIR_CACHE_WEBRADIODB "webradiodb"
+
+#define DIR_WORK_CONFIG "config"
+#define DIR_WORK_EMPTY "empty"
+#define DIR_WORK_PICS "pics"
+#define DIR_WORK_PICS_BACKGROUNDS DIR_WORK_PICS"/backgrounds"
+#define DIR_WORK_PICS_THUMBS DIR_WORK_PICS"/thumbs"
+#define DIR_WORK_SCRIPTS "scripts"
+#define DIR_WORK_SMARTPLS "smartpls"
+#define DIR_WORK_STATE "state"
+#define DIR_WORK_STATE_DEFAULT DIR_WORK_STATE"/default"
+#define DIR_WORK_TAGS "tags"
+#define DIR_WORK_WEBRADIOS "webradios"
 
 //mpd partitions
 #define MPD_PARTITION_DEFAULT "default"
@@ -68,9 +88,9 @@ extern struct t_mympd_queue *mympd_script_queue;
 //default configuration
 #define CFG_MYMPD_USER "mympd"
 #define CFG_MYMPD_HTTP_HOST "0.0.0.0"
-#define CFG_MYMPD_HTTP_PORT "80"
+#define CFG_MYMPD_HTTP_PORT 80
 #define CFG_MYMPD_SSL true
-#define CFG_MYMPD_SSL_PORT "443"
+#define CFG_MYMPD_SSL_PORT 443
 #define CFG_MYMPD_SSL_SAN ""
 #define CFG_MYMPD_CUSTOM_CERT false
 #define CFG_MYMPD_ACL ""
@@ -88,7 +108,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 //default mpd state settings
 #define MYMPD_MPD_TAG_LIST "Album,AlbumArtist,Artist,Disc,Genre,Name,Title,Track"
 #define MYMPD_MPD_KEEPALIVE true
-#define MYMPD_MPD_TIMEOUT 30000 //milliseconds
+#define MYMPD_MPD_TIMEOUT_SEC 30 //seconds
+#define MYMPD_MPD_TIMEOUT MYMPD_MPD_TIMEOUT_SEC * 1000 //milliseconds
 #define MYMPD_MPD_HOST "localhost"
 #define MYMPD_MPD_PORT 6600
 #define MYMPD_MPD_PASS ""
@@ -102,6 +123,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_JUKEBOX_LAST_PLAYED 24 //hours
 #define MYMPD_JUKEBOX_QUEUE_LENGTH 1
 #define MYMPD_JUKEBOX_ENFORCE_UNIQUE true
+#define MYMPD_JUKEBOX_IGNORE_HATED false
 #define MYMPD_COVERIMAGE_NAMES "cover,folder"
 #define MYMPD_THUMBNAIL_NAMES "cover-sm,folder-sm"
 #define MYMPD_TAG_LIST_SEARCH "Album,AlbumArtist,Artist,Genre,Title"
@@ -116,8 +138,10 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_AUTO_PLAY false
 #define MYMPD_COLS_QUEUE_CURRENT "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]"
 #define MYMPD_COLS_SEARCH "[\"Title\",\"Artist\",\"Album\",\"Duration\"]"
-#define MYMPD_COLS_BROWSE_DATABASE_DETAIL "[\"Track\",\"Title\",\"Duration\"]"
-#define MYMPD_COLS_BROWSE_PLAYLISTS_DETAIL "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]"
+#define MYMPD_COLS_BROWSE_DATABASE_ALBUM_DETAIL_INFO "[\"Album\",\"AlbumArtist\",\"Genre\"]"
+#define MYMPD_COLS_BROWSE_DATABASE_ALBUM_DETAIL "[\"Track\",\"Title\",\"Duration\"]"
+#define MYMPD_COLS_BROWSE_DATABASE_ALBUM_LIST "[\"Album\",\"AlbumArtist\"]"
+#define MYMPD_COLS_BROWSE_PLAYLIST_DETAIL "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]"
 #define MYMPD_COLS_BROWSE_FILESYSTEM "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]"
 #define MYMPD_COLS_PLAYBACK "[\"Artist\",\"Album\"]"
 #define MYMPD_COLS_QUEUE_LAST_PLAYED "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]"
@@ -217,17 +241,17 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define NAME_LEN_MAX 200
 #define CONTENT_LEN_MAX 3000
 #define EXPRESSION_LEN_MAX 1000
-#define MPD_OUTPUT_ID_MAX 40
 #define COLS_MAX 20
 
 //mpd limits
+#define MPD_OUTPUT_ID_MAX 40
 #define MPD_PORT_MIN 1024
 #define MPD_PORT_MAX 65535
 #define MPD_TIMEOUT_MIN 10000 //ms
 #define MPD_TIMEOUT_MAX 1000000 //ms
 #define MPD_RESULTS_MIN 1
-#define MPD_RESULTS_MAX 4000
-#define MPD_COMMANDS_MAX 4000 //max number of commands for mpd command lists
+#define MPD_RESULTS_MAX 5000
+#define MPD_COMMANDS_MAX 5000 //max number of commands for mpd command lists
 #define MPD_PLAYLIST_LENGTH_MAX INT_MAX //max mpd queue or playlist length
 #define MPD_BINARY_SIZE_MIN 4096 //4 kb mpd default
 #define MPD_BINARY_SIZE_MAX 5242880 //5 MB
@@ -245,6 +269,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define JSONRPC_UINT_MAX INT_MAX
 #define JSONRPC_STR_MAX 3000
 #define JSONRPC_KEY_MAX 50
+#define JSONRPC_ARRAY_MAX 100
 
 //some other limits
 #define TIMER_INTERVAL_MIN 5 //seconds
@@ -261,7 +286,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define JUKEBOX_MODE_MAX 2
 #define SCROBBLE_TIME_MIN 10 //minimum song length in seconds for the scrobble event
 #define SCROBBLE_TIME_MAX 240 //maximum elapsed seconds before scrobble event occurs
-#define SCROBBLE_TIME_TOTAL 480
+#define SCROBBLE_TIME_TOTAL 480 //if the song is longer then this value, scrobble at SCROBBLE_TIME_MAX
+#define MAX_ENV_LENGTH 100 //maximum length of environment variables
 
 //limits for lists
 #define LIST_HOME_ICONS_MAX 99
@@ -281,7 +307,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define FILEPATH_LEN_MAX 1000
 
 //file size limits
-#define LINE_LENGTH_MAX 2000
+#define LINE_LENGTH_MAX 4000
 #define LYRICS_SIZE_MAX 10000 //bytes
 #define SCRIPTS_SIZE_MAX 10000 //bytes
 #define SMARTPLS_SIZE_MAX 2000 //bytes

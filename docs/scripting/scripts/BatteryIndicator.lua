@@ -10,4 +10,14 @@ for i = 6, 0, -1 do
 end
 
 battery = battery .. "%"
-rc, raw_result = mympd_api_raw("MYMPD_API_HOME_ICON_SAVE", json.encode({replace = true, oldpos = 0, name = battery, ligature = icon, bgcolor = "#ffffff", color = "#000000", image = "", cmd = "execScriptFromOptions", options = {"BatteryIndicator"}}))
+rc, raw_result = mympd.api("MYMPD_API_HOME_ICON_SAVE", {
+    replace = true,
+    oldpos = 0,
+    name = battery,
+    ligature = icon,
+    bgcolor = "#ffffff",
+    color = "#000000",
+    image = "",
+    cmd = "execScriptFromOptions",
+    options = {"BatteryIndicator"}
+})

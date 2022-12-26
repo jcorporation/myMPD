@@ -101,6 +101,33 @@ void list_free_cb_sds_user_data(struct t_list_node *current) {
 }
 
 /**
+ * Callback function to free user_data of generic pointer.
+ * @param current list node
+ */
+void list_free_cb_ptr_user_data(struct t_list_node *current) {
+    FREE_PTR(current->user_data);
+}
+
+/**
+ * Gets a list node index by key.
+ * @param l list
+ * @param key key to get
+ * @return int index of the key, -1 if not found
+ */
+int list_get_node_idx(const struct t_list *l, const char *key) {
+    struct t_list_node *current = l->head;
+    int i = 0;
+    while (current != NULL) {
+        if (strcmp(current->key, key) == 0) {
+            return i;
+        }
+        current = current->next;
+        i++;
+    }
+    return -1;
+}
+
+/**
  * Gets a list node by key.
  * @param l list
  * @param key key to get
@@ -534,7 +561,7 @@ bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callba
         current = current->next;
     }
     FREE_SDS(buffer);
-    bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
+    bool rc = rename_tmp_file(fp, tmp_file, write_rc);
     FREE_SDS(tmp_file);
     return rc;
 }

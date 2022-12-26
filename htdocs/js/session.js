@@ -172,11 +172,13 @@ function setSessionState() {
             elHideId('mmLogin');
             resetSessionTimer();
         }
+        elShowId('mmLoginLogoutDivider');
     }
     else {
         domCache.body.classList.remove('locked');
         elHideId('mmLogin');
         elHideId('mmLogout');
+        elHideId('mmLoginLogoutDivider');
     }
 }
 

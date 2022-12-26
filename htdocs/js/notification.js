@@ -6,6 +6,15 @@
 /** @module notifications_js */
 
 /**
+ * Initializes the notification html elements
+ */
+function initNotifications() {
+    document.getElementById('modalNotifications').addEventListener('show.bs.modal', function () {
+        showMessages();
+    });
+}
+
+/**
  * Sets the background color of the myMPD logo according to the websocket state
  */
 function setStateIcon() {
@@ -31,22 +40,56 @@ function setStateIcon() {
  * @param {string} msg already translated message
  */
 function toggleAlert(alertBoxId, state, msg) {
-    const alertBoxEl = document.querySelector('#' + alertBoxId);
+    //get existing alert
+    const topAlert = document.querySelector('#top-alerts');
+    let alertBoxEl = topAlert.querySelector('#' + alertBoxId);
     if (state === false) {
-        elHide(alertBoxEl);
-        elClear(alertBoxEl);
-        return;
+        //remove alert
+        if (alertBoxEl !== null) {
+            alertBoxEl.remove();
+        }
+    }
+    else if (alertBoxEl === null) {
+        //create new alert
+        alertBoxEl = elCreateText('div', {"id": alertBoxId, "class": ["alert", "top-alert", "d-flex", "flex-row"]}, msg);
+        switch(alertBoxId) {
+            case 'alertMpdStatusError': {
+                alertBoxEl.classList.add('alert-danger', 'top-alert-dismissible');
+                const clBtn = elCreateEmpty('button', {"class": ["btn-close", "btn-close-alert"]});
+                alertBoxEl.appendChild(clBtn);
+                clBtn.addEventListener('click', function() {
+                    clearMPDerror();
+                }, false);
+                break;
+            }
+            case 'alertUpdateDBState':
+            case 'alertUpdateCacheState': {
+                alertBoxEl.classList.add('alert-success');
+                break;
+            }
+            default:
+                alertBoxEl.classList.add('alert-danger');
+        }
+        topAlert.appendChild(alertBoxEl);
+    }
+    else {
+        //replace the message
+        alertBoxEl.textContent = msg;
     }
 
-    alertBoxEl.textContent = msg;
-    if (alertBoxId === 'alertMpdStatusError') {
-        const clBtn = elCreateEmpty('button', {"class": ["btn-close", "btn-close-alert"]});
-        alertBoxEl.appendChild(clBtn);
-        clBtn.addEventListener('click', function() {
-            clearMPDerror();
-        }, false);
+    //check if we should show the alert container
+    if (topAlert.childElementCount > 0) {
+        elShow(topAlert);
+        const topPadding = window.innerWidth < window.innerHeight
+            ? document.getElementById('header').offsetHeight
+            : 0;
+        const mt = topAlert.offsetHeight - topPadding;
+        domCache.main.style.marginTop = mt + 'px';
     }
-    elShow(alertBoxEl);
+    else {
+        domCache.main.style.marginTop = '0';
+        elHide(topAlert);
+    }
 }
 
 /**
@@ -173,7 +216,7 @@ function showNotification(title, text, facility, severity) {
 function logMessage(title, text, facility, severity) {
     let messagesLen = messages.length;
     const lastMessage = messagesLen > 0 ? messages[messagesLen - 1] : null;
-    if (lastMessage &&
+    if (lastMessage !== null &&
         lastMessage.title === title)
     {
         lastMessage.occurrence++;
@@ -188,13 +231,17 @@ function logMessage(title, text, facility, severity) {
             "occurrence": 1,
             "timestamp": getTimestamp()
         });
-        messagesLen++;
+        if (messagesLen >= messagesMax) {
+            messages.shift();
+        }
+        else {
+            messagesLen++;
+        }
     }
-    if (messagesLen > 10) {
-        messages.shift();
-        messagesLen = 10;
+    //update log overview if shown
+    if (document.getElementById('modalNotifications').classList.contains('show')) {
+        showMessages();
     }
-    domCache.notificationCount.textContent = messagesLen.toString();
 }
 
 /**
@@ -204,33 +251,35 @@ function showMessages() {
     const overview = document.getElementById('logOverview');
     elClear(overview);
     for (const message of messages) {
-        const entry = elCreateEmpty('div', {"class": ["row", "align-items-center", "mb-2", "me-0"]});
-        entry.appendChild(
-            elCreateNode('div', {"class": ["col", "col-1", "ps-0"]},
-                createSeverityIcon(message.severity)
-            )
-        );
-        const col = elCreateEmpty('div', {"class": ["col", "col-11"]});
-        col.appendChild(
-            elCreateText('small', {"class": ["me-2"]}, fmtDate(message.timestamp) +
-                smallSpace + nDash + smallSpace + tn(facilities[message.facility]))
-        );
-        if (message.occurrence > 1) {
-            col.appendChild(
-                elCreateText('div', {"class": ["badge", "bg-secondary"]}, message.occurrence)
-            );
-        }
-        col.appendChild(
-            elCreateText('p', {"class": ["mb-0"]}, message.title)
-        );
-        if (message.text !== '') {
-            col.appendChild(
-                elCreateText('p', {"class": ["mb-0"]}, message.text)
-            );
-        }
-        entry.appendChild(col);
-        overview.insertBefore(entry, overview.firstElementChild);
+        overview.insertBefore(
+            elCreateNodes('tr', {}, [
+                elCreateText('td', {}, fmtTime(message.timestamp)),
+                elCreateNodes('td', {}, [
+                    createSeverityIcon(message.severity),
+                    document.createTextNode(tn(facilities[message.facility]))
+                ]),
+                elCreateText('td', {}, message.occurrence),
+                elCreateNodes('td', {}, [
+                    elCreateText('p', {"class": ["mb-0"]}, message.title),
+                    elCreateText('p', {"class": ["mb-0"]}, message.text)
+                ])
+            ]),
+        overview.firstElementChild);
     }
+    if (overview.querySelector('tr') === null) {
+        overview.appendChild(emptyRow(2));
+    }
+}
+
+/**
+ * Clears the logbuffer
+ */
+//eslint-disable-next-line no-unused-vars
+function clearMessages() {
+    const overview = document.getElementById('logOverview');
+    elClear(overview);
+    overview.appendChild(emptyRow(2));
+    messages.length = 0;
 }
 
 /**
@@ -312,27 +361,7 @@ function toggleUI() {
         logMessage(tn('Websocket is disconnected'), '', 'general', 'error');
     }
 
-    toggleTopAlert();
     setStateIcon();
-}
-
-/**
- * Toggle the visibility of the topAlert container
- */
-function toggleTopAlert() {
-    const topAlert = document.querySelector('#top-alerts');
-    if (uiEnabled === false ||
-        (currentState !== undefined && currentState.lastError !== ''))
-    {
-        elShow(topAlert);
-        const topPadding = window.innerWidth < window.innerHeight ? document.getElementById('header').offsetHeight : 0;
-        const mt = topAlert.offsetHeight - topPadding;
-        domCache.main.style.marginTop = mt + 'px';
-    }
-    else {
-        domCache.main.style.marginTop = '0';
-        elHide(topAlert);
-    }
 }
 
 /**

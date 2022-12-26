@@ -72,9 +72,8 @@ function handleQueueCurrent() {
  */
 function initQueueCurrent() {
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
-        //popover
+        //action td
         if (event.target.nodeName === 'A') {
-            //action td
             handleActionTdClick(event);
             return;
         }
@@ -98,10 +97,7 @@ function initQueueCurrent() {
         }
         //table body
         const target = getParent(event.target, 'TR');
-        if (target !== null) {
-            if (target.classList.contains('not-clickable')) {
-                return;
-            }
+        if (checkTargetClick(target) === true) {
             clickQueueSong(getData(target, 'songid'), getData(target, 'uri'));
         }
     }, false);
@@ -128,7 +124,7 @@ function initQueueCurrent() {
         setDataId('selectAddToQueuePlaylist', 'value', 'Database');
         document.getElementById('selectAddToQueuePlaylist').filterInput.value = '';
         if (features.featPlaylists === true) {
-            filterPlaylistsSelect(0, 'selectAddToQueuePlaylist', '');
+            filterPlaylistsSelect(0, 'selectAddToQueuePlaylist', '', '');
         }
     });
 
@@ -143,7 +139,7 @@ function initQueueCurrent() {
         toggleSaveQueueMode(document.getElementById('btnQueueSaveMode').firstElementChild);
         document.getElementById('saveQueueNameSelect').value = '';
         document.getElementById('saveQueueNameSelect').filterInput.value = '';
-        filterPlaylistsSelect(1, 'saveQueueNameSelect', '');
+        filterPlaylistsSelect(1, 'saveQueueNameSelect', '', '');
         cleanupModalId('modalSaveQueue');
     });
 
@@ -309,7 +305,7 @@ function parseQueue(obj) {
         obj.result.totalEntities <= app.current.limit)
     {
         elReplaceChild(tfoot,
-            elCreateNode('tr', {},
+            elCreateNode('tr', {"class": ["not-clickable"]},
                 elCreateNode('td', {"colspan": (colspan + 1)},
                     elCreateNodes('small', {}, [
                         elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),
@@ -321,7 +317,7 @@ function parseQueue(obj) {
     }
     else if (obj.result.totalEntities > 0) {
         elReplaceChild(tfoot,
-            elCreateNode('tr', {},
+            elCreateNode('tr', {"class": ["not-clickable"]},
                 elCreateNode('td', {"colspan": (colspan + 1)},
                     elCreateTextTnNr('small', {}, 'Num songs', obj.result.totalEntities)
                 )

@@ -29,16 +29,18 @@ function handleQueueJukebox() {
  */
 function initQueueJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
+        if (event.target.nodeName === 'A') {
+            showPopover(event);
+            return;
+        }
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
             if (settings.partition.jukeboxMode === 'song') {
-                clickSong(getData(event.target.parentNode, 'uri'));
+                clickSong(getData(target, 'uri'));
             }
             else if (settings.partition.jukeboxMode === 'album') {
-                clickAlbumPlay(getData(event.target.parentNode, 'AlbumArtist'), getData(event.target.parentNode, 'Album'));
+                clickAlbumPlay(getData(target, 'AlbumArtist'), getData(target, 'Album'));
             }
-        }
-        else if (event.target.nodeName === 'A') {
-            showPopover(event);
         }
     }, false);
     document.getElementById('searchQueueJukeboxStr').addEventListener('keyup', function(event) {

@@ -9,8 +9,11 @@
 
 #include "src/lib/api.h"
 #include "src/lib/jsonrpc.h"
+#include "src/lib/list.h"
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
+#include "src/lib/mympd_state.h"
+#include "src/lib/sds_extras.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
 #include "src/mpd_client/volume.h"
@@ -67,7 +70,7 @@ void timer_handler_select(int timer_id, struct t_timer_definition *definition) {
         struct t_work_request *request = create_request(-1, 0, INTERNAL_API_TIMER_STARTPLAY, NULL, definition->partition);
         request->data = tojson_uint(request->data, "volume", definition->volume, true);
         request->data = tojson_sds(request->data, "plist", definition->playlist, true);
-        request->data = tojson_long(request->data, "jukeboxMode", definition->jukebox_mode, false);
+        request->data = tojson_sds(request->data, "preset", definition->preset, false);
         request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);
     }
@@ -96,18 +99,33 @@ void timer_handler_select(int timer_id, struct t_timer_definition *definition) {
  * This function is used by INTERNAL_API_TIMER_STARTPLAY and is called from the mympd_api_handler
  * @param partition_state pointer to the partition_state
  * @param volume mpd volume to set
- * @param playlist the mpd playlist to use
- * @param jukebox_mode the jukebox mode to set
+ * @param playlist the mpd playlist to load
+ * @param preset the preset to load
  * @return true on success else false
  */
 bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
-        unsigned volume, sds playlist, enum jukebox_modes jukebox_mode)
+        unsigned volume, sds playlist, sds preset)
 {
     //disable jukebox to prevent adding songs to queue from old jukebox queue list
     enum jukebox_modes old_jukebox_mode = partition_state->jukebox_mode;
     partition_state->jukebox_mode = JUKEBOX_OFF;
 
     int old_volume = mpd_client_get_volume(partition_state);
+
+    enum jukebox_modes jukebox_mode = JUKEBOX_OFF;
+    if (sdslen(preset) > 0) {
+        //get the jukebox mode from the preset
+        struct t_list_node *preset_value = list_get_node(&partition_state->presets, preset);
+        if (preset_value != NULL) {
+            sds error = sdsempty();
+            sds jukebox_mode_str = NULL;
+            if (json_get_string_max(preset_value->value_p, "$.jukeboxMode", &jukebox_mode_str, vcb_isname, &error) == true) {
+                jukebox_mode = jukebox_mode_parse(jukebox_mode_str);
+            }
+            FREE_SDS(jukebox_mode_str);
+            FREE_SDS(error);
+        }
+    }
 
     bool rc = false;
     if (mpd_command_list_begin(partition_state->conn, false)) {
@@ -121,49 +139,47 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_set_volume");
             }
         }
-        rc = mpd_send_clear(partition_state->conn);
-        if (rc == false) {
-            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
-        }
-        if (jukebox_mode == JUKEBOX_OFF) {
+
+        if (sdslen(playlist) > 0 &&
+            jukebox_mode == JUKEBOX_OFF)
+        {
+            //load selected playlist if in preset jukebox is disabled
+            rc = mpd_send_clear(partition_state->conn);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
+            }
             rc = mpd_send_load(partition_state->conn, playlist);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_load");
             }
-        }
-        else {
-            rc = mpd_send_consume(partition_state->conn, true);
-            if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_consume");
-            }
-        }
-        rc = mpd_send_single_state(partition_state->conn, MPD_SINGLE_OFF);
-        if (rc == false) {
-            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_single");
-        }
-        if (jukebox_mode == JUKEBOX_OFF) {
             rc = mpd_send_play(partition_state->conn);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_play");
             }
         }
+
+        if (jukebox_mode != JUKEBOX_OFF) {
+            //clear the queue if jukebox is enabled through preset
+            rc = mpd_send_clear(partition_state->conn);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
+            }
+        }
+
         if (mpd_command_list_end(partition_state->conn) == true) {
             rc = mpd_response_finish(partition_state->conn);
         }
     }
 
-    if (jukebox_mode != JUKEBOX_OFF) {
-        //enable jukebox
-        //use the api to persist the setting
-        struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_OPTIONS_SET, NULL, partition_state->name);
-        request->data = tojson_char(request->data, "jukeboxMode", jukebox_mode_lookup(jukebox_mode), true);
-        request->data = tojson_sds(request->data, "jukeboxPlaylist", playlist, false);
+    //restore old jukebox mode
+    partition_state->jukebox_mode = old_jukebox_mode;
+
+    if (sdslen(preset) > 0) {
+        //load the preset
+        struct t_work_request *request = create_request(-1, 0, MYMPD_API_PRESET_LOAD, NULL, partition_state->name);
+        request->data = tojson_sds(request->data, "name", preset, false);
         request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);
-    }
-    else {
-        //restore old jukebox mode
-        partition_state->jukebox_mode = old_jukebox_mode;
     }
 
     return mympd_check_rc_error_and_recover(partition_state, rc, "command_list");
@@ -198,7 +214,7 @@ static void timer_handler_smartpls_update(void) {
  */
 static void timer_handler_caches_create(void) {
     MYMPD_LOG_INFO("Start timer_handler_caches_create");
-    struct t_work_request *request = create_request(-1, 0, INTERNAL_API_CACHES_CREATE, NULL, MPD_PARTITION_DEFAULT);
-    request->data = jsonrpc_end(request->data);
+    struct t_work_request *request = create_request(-1, 0, MYMPD_API_CACHES_CREATE, NULL, MPD_PARTITION_DEFAULT);
+    request->data = sdscat(request->data, "\"force\":false}}"); //only update if database has changed
     mympd_queue_push(mympd_api_queue, request, 0);
 }

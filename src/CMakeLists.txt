@@ -43,6 +43,7 @@ target_sources(mympd PRIVATE
   lib/api.c
   lib/config.c
   lib/covercache.c
+  lib/env.c
   lib/filehandler.c
   lib/handle_options.c
   lib/http_client.c
@@ -71,6 +72,7 @@ target_sources(mympd PRIVATE
   mpd_client/jukebox.c
   mpd_client/partitions.c
   mpd_client/playlists.c
+  mpd_client/presets.c
   mpd_client/search.c
   mpd_client/search_local.c
   mpd_client/tags.c

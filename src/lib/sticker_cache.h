@@ -10,6 +10,37 @@
 #include "src/lib/mympd_state.h"
 
 #include <stdbool.h>
+#include <time.h>
+
+/**
+ * myMPD sticker types
+ */
+enum mympd_sticker_types {
+    STICKER_UNKNOWN = -1,
+    STICKER_PLAY_COUNT,
+    STICKER_SKIP_COUNT,
+    STICKER_LIKE,
+    STICKER_LAST_PLAYED,
+    STICKER_LAST_SKIPPED,
+    STICKER_ELAPSED,
+    STICKER_COUNT
+};
+
+/**
+ * Valid values for like sticker
+ */
+enum sticker_like {
+    STICKER_LIKE_HATE = 0,
+    STICKER_LIKE_NEUTRAL = 1,
+    STICKER_LIKE_LOVE = 2
+};
+
+/**
+ * Wrapper struct for sticker types
+ */
+struct t_sticker_type {
+    enum mympd_sticker_types sticker_type;
+};
 
 /**
  * MPD sticker values
@@ -22,6 +53,13 @@ struct t_sticker {
     time_t elapsed;       //!< recent song position
     long like;            //!< hate/neutral/love value
 };
+
+bool sticker_cache_remove(sds workdir);
+bool sticker_cache_write(struct t_cache *sticker_cache, sds workdir, bool free_data);
+bool sticker_cache_read(struct t_cache *sticker_cache, sds workdir);
+
+const char *sticker_name_lookup(enum mympd_sticker_types sticker);
+enum mympd_sticker_types sticker_name_parse(const char *name);
 
 struct t_sticker *get_sticker_from_cache(struct t_cache *sticker_cache, const char *uri);
 void sticker_cache_free(struct t_cache *sticker_cache);

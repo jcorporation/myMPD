@@ -197,6 +197,9 @@ function parseSettings(obj) {
         document.getElementById('btnNext').removeAttribute('disabled');
     }
 
+    //presets
+    populatePresetDropdowns();
+
     //parse mpd settings if connected
     if (settings.partition.mpdConnected === true) {
         parseMPDSettings();
@@ -220,10 +223,11 @@ function parseSettings(obj) {
     app.cards.Queue.tabs.LastPlayed.limit = limit;
     app.cards.Queue.tabs.Jukebox.limit = limit;
     app.cards.Browse.tabs.Filesystem.limit = limit;
-    app.cards.Browse.tabs.Playlists.views.List.limit = limit;
-    app.cards.Browse.tabs.Playlists.views.Detail.limit = limit;
-    app.cards.Browse.tabs.Database.views.List.limit = limit;
-    app.cards.Browse.tabs.Database.views.Detail.limit = limit;
+    app.cards.Browse.tabs.Playlist.views.List.limit = limit;
+    app.cards.Browse.tabs.Playlist.views.Detail.limit = limit;
+    app.cards.Browse.tabs.Database.views.TagList.limit = limit;
+    app.cards.Browse.tabs.Database.views.AlbumList.limit = limit;
+    app.cards.Browse.tabs.Database.views.AlbumDetail.limit = limit;
     app.cards.Search.limit = limit;
 
     //scripts
@@ -613,6 +617,7 @@ function setFeatures() {
     //web ui features
     features.featCacert = settings.features.featCacert;
     features.featHome = settings.webuiSettings.enableHome;
+    features.featVolumeLevel = settings.webuiSettings.uiFooterVolumeLevel;
     features.featLocalPlayback = settings.webuiSettings.enableLocalPlayback === true ?
         (settings.partition.mpdStreamPort > 0 || settings.partition.streamUri.length > 0 ? true : false) : false;
     features.featScripting = settings.webuiSettings.enableScripting === true ?
@@ -620,6 +625,7 @@ function setFeatures() {
     features.featTimer = settings.webuiSettings.enableTimer;
     features.featTrigger = settings.webuiSettings.enableTrigger;
     features.featMediaSession = checkMediaSessionSupport();
+    features.featFooterNotifications = settings.webuiSettings.uiFooterNotifications;
 
     //mpd features
     if (settings.partition.mpdConnected === true) {
@@ -691,7 +697,7 @@ function parseMPDSettings() {
     filterCols('Playback');
 
     for (const table of ['Search', 'QueueCurrent', 'QueueLastPlayed', 'QueueJukebox',
-            'BrowsePlaylistsDetail', 'BrowseFilesystem', 'BrowseDatabaseDetail'])
+            'BrowsePlaylistDetail', 'BrowseFilesystem', 'BrowseDatabaseAlbumDetail'])
     {
         filterCols(table);
         setCols(table);
@@ -707,11 +713,28 @@ function parseMPDSettings() {
     setCols('BrowseRadioWebradiodb');
     setCols('BrowseRadioRadiobrowser');
 
-    //enforce disc for album details view
-    if (settings.colsBrowseDatabaseDetailFetch.includes('Disc') === false &&
+    //tagselect dropdowns
+    for (const table of ['BrowseDatabaseAlbumList', 'BrowseDatabaseAlbumDetailInfo']) {
+        filterCols(table);
+        const menu = document.querySelector('#' + table + 'ColsDropdown > form');
+        elClear(menu);
+        setColsChecklist(table, menu);
+    }
+
+    //enforce album and albumartist for album list view
+    settings['colsBrowseDatabaseAlbumListFetch'] = settings['colsBrowseDatabaseAlbumList'].slice();
+    if (settings.colsBrowseDatabaseAlbumListFetch.includes('Album') === false) {
+        settings.colsBrowseDatabaseAlbumListFetch.push('Album');
+    }
+    if (settings.colsBrowseDatabaseAlbumListFetch.includes('AlbumArtist') === false) {
+        settings.colsBrowseDatabaseAlbumListFetch.push('AlbumArtist');
+    }
+
+    //enforce disc for album detail list view
+    if (settings.colsBrowseDatabaseAlbumDetailFetch.includes('Disc') === false &&
         settings.tagList.includes('Disc'))
     {
-        settings.colsBrowseDatabaseDetailFetch.push('Disc');
+        settings.colsBrowseDatabaseAlbumDetailFetch.push('Disc');
     }
 
     if (features.featTags === false) {
@@ -724,7 +747,6 @@ function parseMPDSettings() {
         settings.colsQueueJukebox = ["Pos", "Title"];
         settings.colsSearch = ["Title", "Duration"];
         settings.colsBrowseFilesystem = ["Type", "Title", "Duration"];
-        settings.colsBrowseDatabase = ["Track", "Title", "Duration"];
         settings.colsPlayback = [];
     }
     else {
@@ -747,6 +769,10 @@ function parseMPDSettings() {
             setData(div, 'tag', settings.colsPlayback[i]);
             pbtl.appendChild(div);
         }
+        //musicbrainz
+        pbtl.appendChild(
+            elCreateEmpty('div', {"id": "currentMusicbrainz", "class": ["col-xl-6"]})
+        );
         //fill blank card with currentSongObj
         if (currentSongObj !== null) {
             setPlaybackCardTags(currentSongObj);
@@ -775,8 +801,9 @@ function parseMPDSettings() {
         }
     }
 
-    addTagList('BrowseDatabaseByTagDropdown', 'tagListBrowse');
-    addTagList('BrowseNavPlaylistsDropdown', 'tagListBrowse');
+    addTagList('BrowseDatabaseAlbumListTagDropdown', 'tagListBrowse');
+    addTagList('BrowseDatabaseTagListTagDropdown', 'tagListBrowse');
+    addTagList('BrowseNavPlaylistDropdown', 'tagListBrowse');
     addTagList('BrowseNavFilesystemDropdown', 'tagListBrowse');
     addTagList('BrowseNavRadioFavoritesDropdown', 'tagListBrowse');
     addTagList('BrowseNavWebradiodbDropdown', 'tagListBrowse');
@@ -784,8 +811,8 @@ function parseMPDSettings() {
 
     addTagList('searchQueueTags', 'tagListSearch');
     addTagList('searchTags', 'tagListSearch');
-    addTagList('searchDatabaseTags', 'tagListBrowse');
-    addTagList('databaseSortTagsList', 'tagListBrowse');
+    addTagList('searchDatabaseAlbumListTags', 'tagListBrowse');
+    addTagList('databaseAlbumListSortTagsList', 'tagListBrowse');
     addTagList('dropdownSortPlaylistTags', 'tagList');
 
     addTagListSelect('saveSmartPlaylistSort', 'tagList');
@@ -834,8 +861,8 @@ function saveSettings(closeModal) {
 
     if (formOK === true) {
         //browser specific settings
-        localSettings.localPlaybackAutoplay = (document.getElementById('btnEnableLocalPlaybackAutoplay').classList.contains('active') ? true : false);
-        localSettings.enforceMobile = (document.getElementById('btnEnforceMobile').classList.contains('active') ? true : false);
+        localSettings.localPlaybackAutoplay = getBtnChkValueId('btnEnableLocalPlaybackAutoplay');
+        localSettings.enforceMobile = getBtnChkValueId('btnEnforceMobile');
         setUserAgentData();
 
         //use scaleRatio only for mobile browsers
@@ -867,7 +894,7 @@ function saveSettings(closeModal) {
                     webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getData(el, 'value')) : getData(el, 'value');
                 }
                 else if (webuiSettingsDefault[key].inputType === 'checkbox') {
-                    webuiSettings[key] = el.classList.contains('active') ? true : false;
+                    webuiSettings[key] = getBtnChkValue(el);
                 }
                 else {
                     webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(el.value) : el.value;
@@ -875,14 +902,14 @@ function saveSettings(closeModal) {
             }
         }
 
-        webuiSettings.enableLyrics = (document.getElementById('btnEnableLyrics').classList.contains('active') ? true : false);
-        webuiSettings.enableLocalPlayback = (document.getElementById('btnEnableLocalPlayback').classList.contains('active') ? true : false);
+        webuiSettings.enableLyrics = getBtnChkValueId('btnEnableLyrics');
+        webuiSettings.enableLocalPlayback = getBtnChkValueId('btnEnableLocalPlayback');
 
         const params = {
             "coverimageNames": inputCoverimageNames.value,
             "thumbnailNames": inputThumbnailNames.value,
             "lastPlayedCount": Number(document.getElementById('inputSettinglastPlayedCount').value),
-            "smartpls": (document.getElementById('btnSmartpls').classList.contains('active') ? true : false),
+            "smartpls": getBtnChkValueId('btnSmartpls'),
             "smartplsPrefix": document.getElementById('inputSmartplsPrefix').value,
             "smartplsInterval": smartplsInterval,
             "smartplsSort": document.getElementById('selectSmartplsSort').value,
@@ -1073,20 +1100,18 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 }
 
 /**
- * Filters the columns by available mpd tags
+ * Filters the selected column by available tags
  * @param {string} tableName the table name
  */
 function filterCols(tableName) {
+    //set available tags
     const tags = setColTags(tableName);
+    //column name
     const set = "cols" + tableName;
-    const cols = [];
-    for (let i = 0, j = settings[set].length; i < j; i++) {
-        if (tags.includes(settings[set][i])) {
-            cols.push(settings[set][i]);
-        }
-    }
-    settings[set] = cols;
-    logDebug('Columns for ' + set + ': ' + cols);
+    settings[set] = settings[set].filter(function(value) {
+        return tags.includes(value);
+    });
+    logDebug('Columns for ' + set + ': ' + settings[set]);
 }
 
 /**
@@ -1097,7 +1122,7 @@ function filterCols(tableName) {
 //eslint-disable-next-line no-unused-vars
 function toggleBtnNotifyWeb(event) {
     const btnNotifyWeb = event.target;
-    const notifyWebState = btnNotifyWeb.classList.contains('active') ? true : false;
+    const notifyWebState = getBtnChkValue(btnNotifyWeb);
     if (notificationsSupported() === false) {
         toggleBtnChk(btnNotifyWeb, false);
         settings.webuiSettings.notifyWeb = false;

@@ -62,8 +62,6 @@ static void populate_lua_table_field_f(lua_State *lua_vm, const char *key, doubl
 static void populate_lua_table_field_b(lua_State *lua_vm, const char *key, bool value);
 static void register_lua_functions(lua_State *lua_vm);
 static int mympd_api(lua_State *lua_vm);
-static int mympd_api_raw(lua_State *lua_vm);
-static int mympd_api_push(lua_State *lua_vm, bool raw);
 static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_arg);
 static bool mympd_luaopen(lua_State *lua_vm, const char *lualib);
 static sds parse_script_metadata(sds buffer, const char *scriptfilename, int *order);
@@ -85,7 +83,7 @@ sds mympd_api_script_list(sds workdir, sds buffer, long request_id, bool all) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_LIST;
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
-    sds scriptdirname = sdscatfmt(sdsempty(), "%S/scripts", workdir);
+    sds scriptdirname = sdscatfmt(sdsempty(), "%S/%s", workdir, DIR_WORK_SCRIPTS);
     errno = 0;
     DIR *script_dir = opendir(scriptdirname);
     if (script_dir == NULL) {
@@ -147,7 +145,7 @@ sds mympd_api_script_list(sds workdir, sds buffer, long request_id, bool all) {
  * @return true on success, else false
  */
 bool mympd_api_script_delete(sds workdir, sds script) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
     bool rc = rm_file(filepath);
     FREE_SDS(filepath);
     return rc;
@@ -164,7 +162,7 @@ bool mympd_api_script_delete(sds workdir, sds script) {
  * @return true on success, else false
  */
 bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sds content, struct t_list *arguments) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
     sds argstr = list_to_json_array(sdsempty(), arguments);
     sds script_content = sdscatfmt(sdsempty(), "-- {\"order\":%i,\"arguments\":%S}\n%S", order, argstr, content);
     bool rc = write_data_to_file(filepath, script_content, sdslen(script_content));
@@ -173,7 +171,7 @@ bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sd
         sdslen(oldscript) > 0 &&
         strcmp(script, oldscript) != 0)
     {
-        sds old_filepath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, oldscript);
+        sds old_filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, oldscript);
         rc = rm_file(old_filepath);
         FREE_SDS(old_filepath);
     }
@@ -193,14 +191,14 @@ bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sd
  */
 sds mympd_api_script_get(sds workdir, sds buffer, long request_id, sds script) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_SCRIPT_GET;
-    sds scriptfilename = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
+    sds scriptfilename = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
     errno = 0;
     FILE *fp = fopen(scriptfilename, OPEN_FLAGS_READ);
     if (fp != NULL) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = tojson_sds(buffer, "script", script, true);
         sds line = sdsempty();
-        if (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0 &&
+        if (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0 &&
             strncmp(line, "-- ", 3) == 0)
         {
             sdsrange(line, 3, -1);
@@ -222,7 +220,7 @@ sds mympd_api_script_get(sds workdir, sds buffer, long request_id, sds script) {
         FREE_SDS(line);
         buffer = sdscat(buffer, ",\"content\":");
         sds content = sdsempty();
-        sds_getfile(&content, fp, SCRIPTS_SIZE_MAX, false);
+        sds_getfile_from_fp(&content, fp, SCRIPTS_SIZE_MAX, false);
         (void) fclose(fp);
         buffer = sds_catjson(buffer, content, sdslen(content));
         FREE_SDS(content);
@@ -268,7 +266,7 @@ bool mympd_api_script_start(sds workdir, sds script, sds lualibs, struct t_list 
     script_thread_arg->partition = sdsnew(partition);
     if (localscript == true) {
         script_thread_arg->script_name = sdsnew(script);
-        script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/scripts/%S.lua", workdir, script);
+        script_thread_arg->script_fullpath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
         script_thread_arg->script_content = sdsempty();
     }
     else {
@@ -307,7 +305,7 @@ static sds parse_script_metadata(sds buffer, const char *scriptfilename, int *or
     }
 
     sds line = sdsempty();
-    if (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0 &&
+    if (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0 &&
         strncmp(line, "-- ", 3) == 0)
     {
         sdsrange(line, 3, -1);
@@ -616,31 +614,18 @@ static void populate_lua_table(lua_State *lua_vm, struct t_list *lua_mympd_state
  */
 static void register_lua_functions(lua_State *lua_vm) {
     lua_register(lua_vm, "mympd_api", mympd_api);
-    lua_register(lua_vm, "mympd_api_raw", mympd_api_raw);
     lua_register(lua_vm, "mympd_api_http_client", lua_http_client);
 }
 
-static int mympd_api(lua_State *lua_vm) {
-    return mympd_api_push(lua_vm, false);
-}
-
-static int mympd_api_raw(lua_State *lua_vm) {
-    return mympd_api_push(lua_vm, true);
-}
-
 /**
- * Function that implements mympd_api and mympd_api_raw lua function
+ * Function that implements mympd_api lua function
  * @param lua_vm lua instance
- * @param raw true = options are valid json, false = options are key/value pairs
  * @return return code
  */
-static int mympd_api_push(lua_State *lua_vm, bool raw) {
+static int mympd_api(lua_State *lua_vm) {
     //check arguments
     int n = lua_gettop(lua_vm);
-    if (raw == false &&
-        n % 2 == 0)
-    {
-        //arguments must be key/value pairs
+    if (n != 2) {
         MYMPD_LOG_ERROR("Lua - mympd_api: invalid number of arguments");
         return luaL_error(lua_vm, "Invalid number of arguments");
     }
@@ -660,33 +645,18 @@ static int mympd_api_push(lua_State *lua_vm, bool raw) {
     }
     //get the thread id
     long tid = syscall(__NR_gettid);
+    //create the request
     struct t_work_request *request = create_request(-2, tid, method_id, NULL, partition);
-    if (raw == false) {
-        //arguments are in key/value format
-        for (int i = 2; i < n; i = i + 2) {
-            bool comma = i + 1 < n ? true : false;
-            if (lua_isboolean(lua_vm, i + 1)) {
-                request->data = tojson_bool(request->data, lua_tostring(lua_vm, i), lua_toboolean(lua_vm, i + 1), comma);
-            }
-            else if (lua_isinteger(lua_vm, i + 1)) {
-                request->data = tojson_llong(request->data, lua_tostring(lua_vm, i), lua_tointeger(lua_vm, i + 1), comma);
-            }
-            else if (lua_isnumber(lua_vm, i + 1)) {
-                request->data = tojson_double(request->data, lua_tostring(lua_vm, i), lua_tonumber(lua_vm, i + 1), comma);
-            }
-            else {
-                request->data = tojson_char(request->data, lua_tostring(lua_vm, i), lua_tostring(lua_vm, i + 1), comma);
-            }
-        }
+    const char *params = lua_tostring(lua_vm, 2);
+    if (params[0] != '{') {
+        //param is invalid json, ignore it
         request->data = sdscatlen(request->data, "}", 1);
     }
-    else if (n == 2) {
-        //argument must be a valid json string
-        sdsrange(request->data, 0, -2); //trim }
-        request->data = sdscat(request->data, lua_tostring(lua_vm, 2));
+    else {
+        sdsrange(request->data, 0, -2); //trim opening curly bracket
+        request->data = sdscat(request->data, params);
     }
     request->data = sdscatlen(request->data, "}", 1);
-
     mympd_queue_push(mympd_api_queue, request, tid);
 
     int i = 0;
@@ -696,28 +666,22 @@ static int mympd_api_push(lua_State *lua_vm, bool raw) {
         if (response != NULL) {
             MYMPD_LOG_DEBUG("Got response: %s", response->data);
             if (response->cmd_id == INTERNAL_API_SCRIPT_INIT) {
-                //this populates a lua table with some myMPD states
+                //this populates a lua table with some MPD and myMPD states
                 MYMPD_LOG_DEBUG("Populating lua global state table mympd");
-                struct t_list *lua_mympd_state = (struct t_list *)response->extra;
-                lua_newtable(lua_vm);
-                populate_lua_table(lua_vm, lua_mympd_state);
-                lua_setglobal(lua_vm, "mympd_state");
-                lua_mympd_state_free(lua_mympd_state);
-                lua_pushinteger(lua_vm, 0);
-                lua_pushstring(lua_vm, "mympd_state is now populated");
-            }
-            else {
-                //return code
-                if (json_find_key(response->data, "$.error.message") == true) {
-                    lua_pushinteger(lua_vm, 1);
+                if (response->extra != NULL) {
+                    struct t_list *lua_mympd_state = (struct t_list *)response->extra;
+                    lua_newtable(lua_vm);
+                    populate_lua_table(lua_vm, lua_mympd_state);
+                    lua_setglobal(lua_vm, "mympd_state");
+                    lua_mympd_state_free(lua_mympd_state);
                 }
-                else {
-                    lua_pushinteger(lua_vm, 0);
-                }
-                //jsonrpc response
-                lua_pushlstring(lua_vm, response->data, sdslen(response->data));
             }
+            //push return code and jsonrpc response
+            int rc = json_find_key(response->data, "$.error.message") == true ? 1 : 0;
+            lua_pushinteger(lua_vm, rc);
+            lua_pushlstring(lua_vm, response->data, sdslen(response->data));
             free_response(response);
+            //return response count
             return 2;
         }
     }
@@ -771,6 +735,7 @@ static int lua_http_client(lua_State *lua_vm) {
     lua_pushlstring(lua_vm, mg_client_response.body, sdslen(mg_client_response.body));
     FREE_SDS(mg_client_response.header);
     FREE_SDS(mg_client_response.body);
+    //return response count
     return 4;
 }
 

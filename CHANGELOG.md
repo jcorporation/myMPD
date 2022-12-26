@@ -4,6 +4,38 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v10.2.0 (not yet released)
+
+This release reworks the scripting api and improves the scripting documentation. The new presets feature lets you switch mpd and jukebox options with one click.
+
+### Notes
+
+- Existing lua scripts must be adapted to the new simplified API
+- Existing play timers must be changed to use presets
+- Some views are renamed
+- Use [systemd-run]({{ site.baseurl }}/running#manual-startup), if you use a distribution with systemd
+
+### Changelog
+
+- Feat: add option to save and load mpd and jukebox presets #888
+- Feat: play timer uses presets #888
+- Feat: rework and simplify scripting api
+- Feat: add option to ignore hated songs in jukebox mode #882
+- Feat: configurable tags for album views #901
+- Feat: ability to disable listening on plain HTTP #914
+- Feat: save album and sticker cache between restarts #913
+- Feat: manual refresh of album and sticker cache
+- Feat: rework main menu
+- Feat: add shortcuts for more modals
+- Upd: some UI cleanups and improvements #909
+- Upd: Bootstrap 5.2.3
+- Upd: documentation improvements
+- Upd: some backend improvements
+- Upd: do not create files with root permissions
+- Upd: start mpd autoconfiguration if `state/mpd_host` doest not exist
+
+***
+
 ## myMPD v10.1.7 (2022-12-22)
 
 This is a small bugfix release.
@@ -44,7 +76,7 @@ This is a small bugfix release.
 
 ### Changelog
 
-- Fix: Fix: improve styleTip positioning for scrolling window #907
+- Fix: improve styleTip positioning for scrolling window #907
 - Fix: carousel indicator border override #909
 - Fix: myMPD preconfiguration with systemd #912
 - Fix: `build.sh purge` removes the group and systemd private directories
@@ -58,7 +90,7 @@ This is a small bugfix release.
 
 ### Changelog
 
-- Fix: Remove "-" from musicbrainz_artistid and musicbrainz_albumartistid #903
+- Fix: remove "-" from musicbrainz_artistid and musicbrainz_albumartistid #903
 - Fix: scrobble repeated songs #904
 - Fix: When switching through consume mode skip oneshot for mpd < 0.24 #905
 - Fix: unescape mpd filter expression value #906
@@ -614,8 +646,8 @@ This release upgrades Bootstrap to the new major release, brings many ui enhance
 
 - Feat: reworked main menu
 - Feat: reworked popover menu
-- Feat: reworked pagination #
-- Feat: priority handling for songs in queue
+- Feat: reworked pagination #474
+- Feat: priority handling for songs in queue #474
 - Feat: harmonize popover menus #534
 - Feat: songs, directories, albums and streams can be added to home screen #604
 - Feat: add playlist, directory, search after current playing song (requires mpd 0.23.5) #579
@@ -826,7 +858,7 @@ This is a small bug fix release.
 
 This major release improves the backend in many ways. The rework streamlines the backend, removes deprecated features, makes the configuration of myMPD easier and harmonizes the API.
 
-### Note
+### Notes
 
 This release changes the startup options of myMPD. Further the mympd.conf is no longer used. myMPD now saves all configuration values in state files. You can set some environment variables for initial startup settings like port, ssl, etc., afterwards you must edit the state files.
 
@@ -944,7 +976,7 @@ You can now view sticker values in all song lists, not only in the song details 
 
 Also the support of lyrics is enhanced. myMPD now parses SYLT tags in id3v2 tagged files correctly and shows all synced and unsynced of a song.
 
-### Note
+### Notes
 
 Since this version the source does not include prebuild assets. If you do not use the provided build scripts, you must build the assets before with `./build.sh createassets`.
 

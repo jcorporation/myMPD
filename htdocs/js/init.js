@@ -58,36 +58,6 @@ function clearAndReload() {
 }
 
 /**
- * Initializes the add to homescreen function
- */
-function a2hsInit() {
-    window.addEventListener('beforeinstallprompt', function(event) {
-        logDebug('Event: beforeinstallprompt');
-        // Prevent Chrome 67 and earlier from automatically showing the prompt
-        event.preventDefault();
-        // Stash the event so it can be triggered later
-        deferredA2HSprompt = event;
-        // Update UI notify the user they can add to home screen
-        elShowId('nav-add2homescreen');
-    });
-
-    document.getElementById('nav-add2homescreen').addEventListener('click', function(event) {
-        // Hide our user interface that shows our A2HS button
-        elHide(event.target);
-        // Show the prompt
-        deferredA2HSprompt.prompt();
-        // Wait for the user to respond to the prompt
-        deferredA2HSprompt.userChoice.then(() => {
-            deferredA2HSprompt = null;
-        });
-    });
-
-    window.addEventListener('appinstalled', function() {
-        showNotification(tn('myMPD installed as app'), '', 'general', 'info');
-    });
-}
-
-/**
  * Starts the app
  */
 function appInitStart() {
@@ -182,9 +152,6 @@ function appInitStart() {
     domCache.body.classList.add('overflow-hidden');
     document.getElementById('splashScreenAlert').textContent = tn('Fetch myMPD settings');
 
-    //init add to home screen feature
-    a2hsInit();
-
     //initialize app
     appInited = false;
     settingsParsed = 'no';
@@ -216,15 +183,6 @@ function appInitStart() {
  */
 function appInit() {
     getAssets();
-    //collapse arrows for submenus
-    const collapseArrows = document.querySelectorAll('.subMenu');
-    for (const collapseArrow of collapseArrows) {
-        collapseArrow.addEventListener('click', function(event) {
-            event.stopPropagation();
-            event.preventDefault();
-            toggleCollapseArrow(this);
-        }, false);
-    }
     //init links
     const hrefs = document.querySelectorAll('[data-href]');
     for (const href of hrefs) {
@@ -275,10 +233,10 @@ function appInit() {
     initPlaylists();
     initOutputs();
     initLocalPlayback();
-    initUpdateDB();
     initSession();
+    initNotifications();
     //init drag and drop
-    for (const table of ['QueueCurrentList', 'BrowsePlaylistsDetailList']) {
+    for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
         dragAndDropTable(table);
     }
     const dndTableHeader = [
@@ -287,8 +245,8 @@ function appInit() {
         'QueueJukebox',
         'Search',
         'BrowseFilesystem',
-        'BrowsePlaylistsDetail',
-        'BrowseDatabaseDetail',
+        'BrowsePlaylistDetail',
+        'BrowseDatabaseAlbumDetail',
         'BrowseRadioWebradiodb',
         'BrowseRadioRadiobrowser'
     ];
@@ -324,8 +282,8 @@ function appInit() {
         }
     }, false);
     //contextmenu for tables
-    const tables = ['BrowseFilesystemList', 'BrowseDatabaseDetailList', 'QueueCurrentList', 'QueueLastPlayedList',
-        'QueueJukeboxList', 'SearchList', 'BrowsePlaylistsListList', 'BrowsePlaylistsDetailList',
+    const tables = ['BrowseFilesystemList', 'BrowseDatabaseAlbumDetailList', 'QueueCurrentList', 'QueueLastPlayedList',
+        'QueueJukeboxList', 'SearchList', 'BrowsePlaylistListList', 'BrowsePlaylistDetailList',
         'BrowseRadioRadiobrowserList', 'BrowseRadioWebradiodbList'];
     for (const tableId of tables) {
         const tbody = document.querySelector('#' + tableId + ' > tbody');
@@ -467,14 +425,6 @@ function initNavs() {
         if (event.target.nodeName === 'A') {
             execScript(getData(event.target, 'href'));
         }
-    }, false);
-
-    //update list of notifications
-    document.getElementById('menu-notifications').addEventListener('show.bs.collapse', function() {
-        showMessages();
-    }, false);
-    document.getElementById('offcanvasMenu').addEventListener('show.bs.offcanvas', function() {
-        showMessages();
     }, false);
 }
 

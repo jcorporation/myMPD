@@ -15,4 +15,4 @@ An example script is in the `docs/scripting/scripts` directory named `ListenBrai
   - Event: `mympd_scrobble`
   - Action: above script
 
-You should enable the MusicBrainz related tags in mpd and myMPD to scrobble MBIDs.
+You should enable the MusicBrainz related [tags]({{site.baseurl}}/references/tags) in mpd and myMPD to scrobble MBIDs.

@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/mpd_client/idle.h"
 
+#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/msg_queue.h"
@@ -24,8 +25,6 @@
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
-
-#include <mpd/client.h>
 
 #include <poll.h>
 #include <string.h>

@@ -24,7 +24,7 @@ If you want to access myMPD from the internet, you should add a reverse proxy wi
 
 Nevertheless myMPD is designed with security in mind.
 
-- All input data is validated and size limited
+- All input data is validated and size limited (tested with a fuzzer)
 - The webserver limits the number of connections and request sizes
 - The C backend is compiled with hardening flags and is regularly checked with static code analyzers
 - The debug and development builds are linked with libasan to detect memory errors

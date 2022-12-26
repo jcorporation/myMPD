@@ -20,13 +20,11 @@ function initPartitions() {
                     deletePartition(event.target, partition);
                     break;
             }
+            return;
         }
-        else if (event.target.nodeName === 'TD') {
-            const partition = getData(event.target.parentNode, 'partition');
-            if (partition === localSettings.partition) {
-                return;
-            }
-            switchPartition(partition);
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            switchPartition(getData(target, 'partition'));
         }
     }, false);
 

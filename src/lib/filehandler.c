@@ -12,58 +12,137 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <fcntl.h>
+#include <pwd.h>
 #include <stdlib.h>
 #include <sys/stat.h>
 #include <unistd.h>
+
+/**
+ * Sets the owner of a file and group to the primary group of the user
+ * @param file_path file to change ownership
+ * @param username new owner username
+ * @return true on success else false
+ */
+bool do_chown(const char *file_path, const char *username) {
+    errno = 0;
+    struct passwd *pwd = getpwnam(username);
+    if (pwd == NULL) {
+        MYMPD_LOG_ERROR("User \"%s\" does not exist", username);
+        MYMPD_LOG_ERRNO(errno);
+        return false;
+    }
+
+    errno = 0;
+    int fd = open(file_path, O_RDONLY | O_CLOEXEC);
+    if (fd == -1) {
+        MYMPD_LOG_ERROR("Can't open \"%s\"", file_path);
+        MYMPD_LOG_ERRNO(errno);
+        return false;
+    }
+
+    errno = 0;
+    struct stat status;
+    if (lstat(file_path, &status) != 0) {
+        MYMPD_LOG_ERROR("Can't get status for \"%s\"", file_path);
+        MYMPD_LOG_ERRNO(errno);
+        return false;
+    }
+
+    if (status.st_uid == pwd->pw_uid &&
+        status.st_gid == pwd->pw_gid)
+    {
+        //owner and group already set
+        close(fd);
+        return true;
+    }
+
+    errno = 0;
+    int rc = fchown(fd, pwd->pw_uid, pwd->pw_gid); /* Flawfinder: ignore */
+    close(fd);
+    if (rc == -1) {
+        MYMPD_LOG_ERROR("Can't chown \"%s\" to \"%s\"", file_path, username);
+        MYMPD_LOG_ERRNO(errno);
+        return false;
+    }
+    MYMPD_LOG_INFO("Changed ownership of \"%s\" to \"%s\"", file_path, username);
+    return true;
+}
+
+/**
+ * Returns the modification time of a file
+ * @param filepath filepath
+ * @return time_t modification time
+ */
+time_t get_mtime(const char *filepath) {
+    struct stat status;
+    errno = 0;
+    if (stat(filepath, &status) != 0) {
+        if (errno != ENOENT) {
+            MYMPD_LOG_ERROR("Error getting mtime for \"%s\"", filepath);
+            MYMPD_LOG_ERRNO(errno);
+        }
+        else {
+            MYMPD_LOG_DEBUG("File \"%s\" does not exist", filepath);
+        }
+        return 0;
+    }
+    return status.st_mtime;
+}
 
 /**
  * Getline function that trims whitespace characters
  * @param s an already allocated sds string
  * @param fp a file descriptor to read from
  * @param max max line length to read
- * @return GETLINE_OK on success,
- *         GETLINE_EMPTY for empty line,
- *         GETLINE_TOO_LONG for too long line
+ * @return Number of bytes read or -1 on eof
  */
 int sds_getline(sds *s, FILE *fp, size_t max) {
     sdsclear(*s);
-    size_t i = 0;
-    for (;;) {
+    for (size_t i = 0; i < max; i++) {
         int c = fgetc(fp);
-        if (c == EOF) {
+        if (c == EOF ||
+            c == '\n')
+        {
             sdstrim(*s, "\r \t");
-            if (sdslen(*s) > 0) {
-                return GETLINE_OK;
-            }
-            return GETLINE_EMPTY;
+            return c == EOF ? -1 : (int)sdslen(*s);
         }
-        if (c == '\n') {
-            sdstrim(*s, "\r \t");
-            return GETLINE_OK;
-        }
-        if (i < max) {
-            *s = sds_catchar(*s, (char)c);
-            i++;
-        }
-        else {
-            MYMPD_LOG_ERROR("Line is too long, max length is %lu", (unsigned long)max);
-            return GETLINE_TOO_LONG;
-        }
+        *s = sds_catchar(*s, (char)c);
     }
+    MYMPD_LOG_ERROR("Line is too long, max length is %lu", (unsigned long)max);
+    sdstrim(*s, "\r \t");
+    return (int)sdslen(*s);
 }
 
 /**
- * Getline function that first trims whitespace characters and adds a newline afterwards
- * @param s an already allocated sds string
- * @param fp a file descriptor to read from
- * @param max max line length to read
- * @return GETLINE_OK on success,
- *         GETLINE_EMPTY for empty line,
- *         GETLINE_TOO_LONG for too long line
+ * Reads a whole file in the sds string s from *fp
+ * Removes whitespace characters from start and end
+ * @param s an already allocated sds string that should hold the file content
+ * @param file_path filename to read
+ * @param max maximum bytes to read
+ * @param remove_newline removes CR/LF if true
+ * @param warn log an error if file does not exist
+ * @return Number of bytes read,
+ *         -1 error reading file,
+ *         -2 file is too big
  */
-int sds_getline_n(sds *s, FILE *fp, size_t max) {
-    int rc = sds_getline(s, fp, max);
-    *s = sdscat(*s, "\n");
+int sds_getfile(sds *s, const char *file_path, size_t max, bool remove_newline, bool warn) {
+    errno = 0;
+    FILE *fp = fopen(file_path, OPEN_FLAGS_READ);
+    if (fp == NULL) {
+        if (warn == false &&
+            errno == ENOENT)
+        {
+            MYMPD_LOG_DEBUG("File \"%s\" does not exist", file_path);
+        }
+        else {
+            MYMPD_LOG_ERROR("Error opening file \"%s\"", file_path);
+            MYMPD_LOG_ERRNO(errno);
+        }
+        return -1;
+    }
+    int rc = sds_getfile_from_fp(s, fp, max, remove_newline);
+    (void) fclose(fp);
     return rc;
 }
 
@@ -74,37 +153,26 @@ int sds_getline_n(sds *s, FILE *fp, size_t max) {
  * @param fp FILE pointer to read
  * @param max maximum bytes to read
  * @param remove_newline removes CR/LF if true
- * @return GETLINE_OK on success,
- *         GETLINE_EMPTY for empty file,
- *         GETLINE_TOO_LONG for too long file
+ * @return Number of bytes read, -2 if file was too big
  */
-int sds_getfile(sds *s, FILE *fp, size_t max, bool remove_newline) {
+int sds_getfile_from_fp(sds *s, FILE *fp, size_t max, bool remove_newline) {
     sdsclear(*s);
-    size_t i = 0;
-    for (;;) {
+    for (size_t i = 0; i <= max; i++) {
         int c = fgetc(fp);
         if (c == EOF) {
             sdstrim(*s, "\r \t\n");
             MYMPD_LOG_DEBUG("Read %lu bytes from file", (unsigned long)sdslen(*s));
-            if (sdslen(*s) > 0) {
-                return GETLINE_OK;
-            }
-            return GETLINE_EMPTY;
+            return (int)sdslen(*s);
         }
         if (remove_newline == true &&
             (c == '\n' || c == '\r'))
         {
             continue;
         }
-        if (i < max) {
-            *s = sds_catchar(*s, (char)c);
-            i++;
-        }
-        else {
-            MYMPD_LOG_ERROR("File is too long, max length is %lu", (unsigned long)max);
-            return GETLINE_TOO_LONG;
-        }
+        *s = sds_catchar(*s, (char)c);
     }
+    MYMPD_LOG_ERROR("File is too big, max size is %lu", (unsigned long)max);
+    return -2;
 }
 
 /**
@@ -164,6 +232,22 @@ int testdir(const char *desc, const char *dir_name, bool create, bool silent) {
 }
 
 /**
+ * Checks if dir_name is realy a directory entry
+ * @param dir_name directory path to check
+ * @return true if it is a directory, else false
+ */
+bool is_dir(const char *dir_name) {
+    struct stat status;
+    errno = 0;
+    if (lstat(dir_name, &status) != 0) {
+        MYMPD_LOG_ERROR("Error getting status for \"%s\"", dir_name);
+        MYMPD_LOG_ERRNO(errno);
+        return false;
+    }
+    return S_ISDIR(status.st_mode);
+}
+
+/**
  * Opens a temporary file for write using mkstemp
  * @param filepath filepath to open, e.g. /tmp/test.XXXXXX
  *                 XXXXXX is replaced with a random string
@@ -188,28 +272,32 @@ FILE *open_tmp_file(sds filepath) {
 
 /**
  * Closes the tmp file and moves it to its destination name
+ * This is done by removing the last 7 characters from the tmp_file.
+ * See open_tmp_file for corresponding open function.
  * @param fp FILE pointer
  * @param tmp_file tmp file to close and move
- * @param filepath destination path
  * @param write_rc if false tmp file will be removed
  * @return true on success else false
  */
-bool rename_tmp_file(FILE *fp, sds tmp_file, sds filepath, bool write_rc) {
+bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
     if (fclose(fp) != 0 ||
         write_rc == false)
     {
         MYMPD_LOG_ERROR("Error writing data to file \"%s\"", tmp_file);
         rm_file(tmp_file);
-        FREE_SDS(tmp_file);
         return false;
     }
     errno = 0;
+    //filepath is tmp_file without .XXXXXX suffix
+    sds filepath = sdscatlen(sdsempty(), tmp_file, sdslen(tmp_file) - 7);
     if (rename(tmp_file, filepath) == -1) {
         MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, filepath);
         MYMPD_LOG_ERRNO(errno);
         rm_file(tmp_file);
+        FREE_SDS(filepath);
         return false;
     }
+    FREE_SDS(filepath);
     return true;
 }
 
@@ -265,7 +353,7 @@ bool write_data_to_file(sds filepath, const char *data, size_t data_len) {
     }
     size_t written = fwrite(data, 1, data_len, fp);
     bool write_rc = written == data_len ? true : false;
-    bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
+    bool rc = rename_tmp_file(fp, tmp_file, write_rc);
     FREE_SDS(tmp_file);
     return rc;
 }

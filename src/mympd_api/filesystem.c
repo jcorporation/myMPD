@@ -148,7 +148,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
                 case MPD_ENTITY_TYPE_SONG: {
                     const struct mpd_song *song = mpd_entity_get_song(entry_data->entity);
                     buffer = sdscat(buffer, "{\"Type\":\"song\",");
-                    buffer = get_song_tags(buffer, partition_state, tagcols, song);
+                    buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
                     buffer = sdscatlen(buffer, ",", 1);
                     sds filename = sdsnew(mpd_song_get_uri(song));
                     basename_uri(filename);
@@ -156,7 +156,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
                     FREE_SDS(filename);
                     if (partition_state->mpd_state->feat_stickers) {
                         buffer = sdscatlen(buffer, ",", 1);
-                        buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
+                        buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
                     }
                     buffer = sdscatlen(buffer, "}", 1);
                     break;

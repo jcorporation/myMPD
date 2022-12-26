@@ -28,4 +28,5 @@ myMPD uses GNU standard installation directories.
 | /var/lib/mympd/ssl/ | myMPD ssl ca and certificates, created on startup |
 | /var/lib/mympd/state/ | Global state files |
 | /var/lib/mympd/state/`<partition>` | Partition specific state files |
+| /var/lib/mympd/tags/ | Directory for album and sticker cache |
 {: .table .table-sm }

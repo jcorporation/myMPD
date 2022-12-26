@@ -184,43 +184,53 @@ function dragAndDropTableHeader(tableName) {
  * @returns {object} array of available columns
  */
 function setColTags(tableName) {
-    if (tableName === 'BrowseRadioWebradiodb') {
-        return ["Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate"];
-    }
-    else if (tableName === 'BrowseRadioRadiobrowser') {
-        return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
+    switch(tableName) {
+        case 'BrowseRadioWebradiodb':
+            return ["Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate"];
+        case 'BrowseRadioRadiobrowser':
+            return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
+        case 'BrowseDatabaseAlbumList': {
+            const tags = settings.tagListAlbum.slice();
+            tags.push('Discs', 'SongCount', 'Duration', 'LastModified');
+            return tags.filter(function(value) {
+                return value !== 'Disc';
+            });
+        }
+        case 'BrowseDatabaseAlbumDetailInfo': {
+            const tags = settings.tagListAlbum.slice();
+            tags.push('Discs', 'SongCount', 'Duration', 'LastModified');
+            return tags.filter(function(value) {
+                return value !== 'Disc' &&
+                       value !== 'Album';
+            });
+        }
     }
 
     const tags = settings.tagList.slice();
     if (features.featTags === false) {
         tags.push('Title');
     }
-    tags.push('Duration');
-    tags.push('LastModified');
+    tags.push('Duration', 'LastModified');
 
     switch(tableName) {
         case 'QueueCurrent':
-            tags.push('AudioFormat');
-            tags.push('Priority');
+            tags.push('AudioFormat', 'Priority');
             //fall through
         case 'BrowsePlaylistsDetail':
         case 'QueueJukebox':
             tags.push('Pos');
             break;
         case 'BrowseFilesystem':
-            tags.push('Type');
-            tags.push('Filename');
+            tags.push('Type', 'Filename');
             break;
         case 'Playback':
-            tags.push('AudioFormat');
-            tags.push('Filetype');
+            tags.push('AudioFormat', 'Filetype');
             if (features.featLyrics === true) {
                 tags.push('Lyrics');
             }
             break;
         case 'QueueLastPlayed':
-            tags.push('Pos');
-            tags.push('LastPlayed');
+            tags.push('Pos', 'LastPlayed');
             break;
     }
     //sort tags and append stickers
@@ -242,7 +252,9 @@ function setColTags(tableName) {
 function setColsChecklist(tableName, menu) {
     const tags = setColTags(tableName);
     for (let i = 0, j = tags.length; i < j; i++) {
-        if (tableName === 'Playback' && tags[i] === 'Title') {
+        if (tableName === 'Playback' &&
+            (tags[i] === 'Title' || tags[i].indexOf('MUSICBRAINZ_') === 0))
+        {
             continue;
         }
         if (tags[i] === 'dropdownTitleSticker') {
@@ -362,37 +374,15 @@ function saveCols(tableName, tableEl) {
 
 /**
  * Saves the fields for the playback card
+ * @param {string} tableName table name
+ * @param {string} dropdownId id fo the column select dropdown
  */
 //eslint-disable-next-line no-unused-vars
-function saveColsPlayback() {
-    const colInputs = document.querySelectorAll('#PlaybackColsDropdown button');
-    const header = document.getElementById('cardPlaybackTags');
-
-    //apply the columns select list to the playback card
-    for (let i = 0, j = colInputs.length - 1; i < j; i++) {
-        let th = document.getElementById('current' + colInputs[i].name);
-        if (colInputs[i].classList.contains('active') === false) {
-            //remove disabled tags
-            if (th) {
-                th.remove();
-            }
-        }
-        else if (!th) {
-            //add enabled tags if not already shown
-            th = elCreateNodes('div', {"id": "current" + colInputs[i].name}, [
-                elCreateTextTn('small', {}, colInputs[i].name),
-                elCreateEmpty('p', {})
-            ]);
-            setData(th, 'tag', colInputs[i].name);
-            header.appendChild(th);
-        }
-    }
-
-    //construct columns to save from actual playback card
-    const params = {"table": "colsPlayback", "cols": []};
-    const ths = header.querySelectorAll('div');
-    for (let i = 0, j = ths.length; i < j; i++) {
-        const name = getData(ths[i], 'tag');
+function saveColsDropdown(tableName, dropdownId) {
+    const params = {"table": tableName, "cols": []};
+    const colInputs = document.querySelectorAll('#' + dropdownId + ' button.active');
+    for (let i = 0, j = colInputs.length; i < j; i++) {
+        const name = colInputs[i].getAttribute('name');
         if (name) {
             params.cols.push(name);
         }

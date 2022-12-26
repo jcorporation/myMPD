@@ -197,8 +197,7 @@ function setPlaybackCardTags(songObj) {
                         value = '-';
                     }
                     elReplaceChild(c.querySelector('p'), printValue(col, value));
-                    if ((typeof value === 'string' && value === '-') ||
-                        (typeof value === 'object' && value[0] === '-') ||
+                    if (checkTagValue(value, '-') === true ||
                         settings.tagListBrowse.includes(col) === false)
                     {
                         c.querySelector('p').classList.remove('clickable');
@@ -214,6 +213,13 @@ function setPlaybackCardTags(songObj) {
                     }
                 }
             }
+        }
+        const mbField = addMusicbrainzFields(songObj, true);
+        if (mbField !== null) {
+            elReplaceChildId('currentMusicbrainz', mbField);
+        }
+        else {
+            elClearId('currentMusicbrainz');
         }
     }
     else {

@@ -42,6 +42,7 @@ void list_clear_user_data(struct t_list *l, user_data_callback free_cb);
 void *list_free_user_data(struct t_list *l, user_data_callback free_cb);
 void list_free_cb_ignore_user_data(struct t_list_node *current);
 void list_free_cb_sds_user_data(struct t_list_node *current);
+void list_free_cb_ptr_user_data(struct t_list_node *current);
 void *list_node_free_user_data(struct t_list_node *n, user_data_callback free_cb);
 void *list_node_free(struct t_list_node *n);
 
@@ -61,6 +62,7 @@ bool list_shuffle(struct t_list *l);
 bool list_swap_item(struct t_list_node *n1, struct t_list_node *n2);
 bool list_move_item_pos(struct t_list *l, long from, long to);
 
+int list_get_node_idx(const struct t_list *l, const char *key);
 struct t_list_node *list_get_node(const struct t_list *l, const char *key);
 struct t_list_node *list_node_at(const struct t_list *l, long idx);
 struct t_list_node *list_node_prev_at(const struct t_list *l, long idx, struct t_list_node **previous);

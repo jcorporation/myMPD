@@ -9,7 +9,7 @@ cmake_policy(SET CMP0003 NEW)
 # myMPD is written in C
 # supported compilers: gcc, clang
 project(mympd
-  VERSION 10.1.7
+  VERSION 10.2.0
   LANGUAGES C
 )
 
@@ -109,8 +109,8 @@ if(MYMPD_EMBEDDED_ASSETS)
   set(ENV{MYMPD_BUILDDIR} "${CMAKE_CURRENT_BINARY_DIR}")
   execute_process(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" createassets)
   # remove object files with embedded assets
-  file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/mympd.dir/src/web_server/utility.c.o")
-  file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/CMakeFiles/mympd.dir/src/mympd_api/scripts.c.o")
+  file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/web_server/utility.c.o")
+  file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/mympd_api/scripts.c.o")
 else()
   message("Serving assets from filesystem")
   set(MYMPD_DOC_ROOT "${PROJECT_SOURCE_DIR}/htdocs")
@@ -215,8 +215,11 @@ if(MYMPD_EMBEDDED_ASSETS)
   if(EXISTS "${PROJECT_BINARY_DIR}/htdocs/assets/i18n/nl-NL.json.gz")
     set(I18N_nl_NL "ON")
   endif()
-  if(EXISTS "${PROJECT_BINARY_DIR}/htdocs/assets/i18n/zh-CN.json.gz")
-    set(I18N_zh_CN "ON")
+  if(EXISTS "${PROJECT_BINARY_DIR}/htdocs/assets/i18n/zh-Hans.json.gz")
+    set(I18N_zh_Hans "ON")
+  endif()
+  if(EXISTS "${PROJECT_BINARY_DIR}/htdocs/assets/i18n/zh-Hant.json.gz")
+    set(I18N_zh_Hant "ON")
   endif()
 endif()
 
@@ -360,7 +363,7 @@ add_subdirectory("cli_tools")
 
 # link all together
 target_link_libraries(mympd
-  libmpdclient
+  libmympdclient
   mjson
   mongoose
   rax

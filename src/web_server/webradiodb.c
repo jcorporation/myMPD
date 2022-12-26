@@ -95,24 +95,22 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
  */
 static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
     sds filepath = sdscatfmt(sdsempty(), "%S/webradiodb/%s", cachedir, cache_file);
-    struct stat status;
-    if (stat(filepath, &status) == 0) {
+    time_t mtime = get_mtime(filepath);
+    if (mtime > 0) {
         //cache it one day
         time_t expire_time = time(NULL) - (long)(24 * 60 * 60);
-        if (status.st_mtime < expire_time) {
-            MYMPD_LOG_DEBUG("Expiring cache file \"%s\": %lld", filepath, (long long)status.st_mtime);
+        if (mtime < expire_time) {
+            MYMPD_LOG_DEBUG("Expiring cache file \"%s\": %lld", filepath, (long long)mtime);
             rm_file(filepath);
         }
         else {
-            FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
-            if (fp == NULL) {
-                MYMPD_LOG_ERROR("Cant open cache file \"%s\"", filepath);
+            sds data = sdsempty();
+            int rc = sds_getfile(&data, filepath, WEBRADIODB_SIZE_MAX, true, true);
+            if (rc <= 0) {
+                FREE_SDS(data);
                 FREE_SDS(filepath);
                 return NULL;
             }
-            sds data = sdsempty();
-            sds_getfile(&data, fp, WEBRADIODB_SIZE_MAX, true);
-            (void) fclose(fp);
             MYMPD_LOG_DEBUG("Found cached file \"%s\"", filepath);
             FREE_SDS(filepath);
             return data;

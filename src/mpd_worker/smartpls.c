@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "smartpls.h"
+#include "src/mpd_worker/smartpls.h"
 
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
@@ -19,6 +19,7 @@
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/playlists.h"
 #include "src/mpd_client/search.h"
+#include "src/mpd_client/tags.h"
 
 #include <dirent.h>
 #include <errno.h>
@@ -60,7 +61,7 @@ bool mpd_worker_smartpls_update_all(struct t_mpd_worker_state *mpd_worker_state,
     time_t db_mtime = mpd_client_get_db_mtime(mpd_worker_state->partition_state);
     MYMPD_LOG_DEBUG("Database mtime: %lld", (long long)db_mtime);
 
-    sds dirname = sdscatfmt(sdsempty(), "%S/smartpls", mpd_worker_state->config->workdir);
+    sds dirname = sdscatfmt(sdsempty(), "%S/%s", mpd_worker_state->config->workdir, DIR_WORK_SMARTPLS);
     errno = 0;
     DIR *dir = opendir (dirname);
     if (dir == NULL) {
@@ -106,22 +107,20 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         return true;
     }
 
+    sds filename = sdscatfmt(sdsempty(), "%S/%s/%s", mpd_worker_state->config->workdir, DIR_WORK_SMARTPLS, playlist);
+    sds content = sdsempty();
+    int rc_get = sds_getfile(&content, filename, SMARTPLS_SIZE_MAX, true, true);
+    if (rc_get <= 0) {
+        FREE_SDS(filename);
+        FREE_SDS(content);
+        return false;
+    }
+
     sds smartpltype = NULL;
     bool rc = true;
     sds sds_buf1 = NULL;
     int int_buf1;
     int int_buf2;
-
-    sds filename = sdscatfmt(sdsempty(), "%S/smartpls/%s", mpd_worker_state->config->workdir, playlist);
-    FILE *fp = fopen(filename, OPEN_FLAGS_READ);
-    if (fp == NULL) {
-        MYMPD_LOG_ERROR("Cant open smart playlist file \"%s\"", playlist);
-        FREE_SDS(filename);
-        return false;
-    }
-    sds content = sdsempty();
-    sds_getfile(&content, fp, SMARTPLS_SIZE_MAX, true);
-    (void) fclose(fp);
 
     if (json_get_string(content, "$.type", 1, 200, &smartpltype, vcb_isalnum, NULL) != true) {
         MYMPD_LOG_ERROR("Cant read smart playlist type from \"%s\"", filename);
@@ -231,7 +230,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
             sds filename = sdsdup(current->key);
             sanitize_filename(filename);
             sds playlist = sdscatfmt(sdsempty(), "%S%s%s-%s", mpd_worker_state->smartpls_prefix, (sdslen(mpd_worker_state->smartpls_prefix) > 0 ? "-" : ""), tagstr, filename);
-            sds plpath = sdscatfmt(sdsempty(), "%S/smartpls/%s", mpd_worker_state->config->workdir, playlist);
+            sds plpath = sdscatfmt(sdsempty(), "%S/%s/%s", mpd_worker_state->config->workdir, DIR_WORK_SMARTPLS, playlist);
             if (testfile_read(plpath) == false) {
                 //file does not exist, create it
                 sds expression = sdsnewlen("(", 1);

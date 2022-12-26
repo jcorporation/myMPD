@@ -78,6 +78,10 @@ sds mympd_api_status_print(struct t_partition_state *partition_state, sds buffer
     const struct mpd_audio_format *audioformat = mpd_status_get_audio_format(status);
     buffer = printAudioFormat(buffer, audioformat);
     buffer = sdscatlen(buffer, ",", 1);
+    buffer = tojson_uint(buffer, "updateState", mpd_status_get_update_id(status), true);
+    const bool updateCacheState = partition_state->mpd_state->album_cache.building ||
+        partition_state->mpd_state->sticker_cache.building;
+    buffer = tojson_bool(buffer, "updateCacheState", updateCacheState, true);
     buffer = tojson_char(buffer, "lastError", mpd_status_get_error(status), false);
     return buffer;
 }
@@ -212,11 +216,19 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
  * @return true on success, else false
  */
 bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_partition_state *partition_state) {
+    enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(partition_state->conn);
+    if (replay_gain_mode == MPD_REPLAY_UNKNOWN) {
+        if (mympd_check_error_and_recover(partition_state) == false) {
+            return false;
+        }
+    }
+
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status == NULL) {
         mympd_check_error_and_recover(partition_state);
         return false;
     }
+
     lua_mympd_state_set_i(lua_partition_state, "play_state", mpd_status_get_state(status));
     lua_mympd_state_set_i(lua_partition_state, "volume", mpd_status_get_volume(status));
     lua_mympd_state_set_i(lua_partition_state, "song_pos", mpd_status_get_song_pos(status));
@@ -230,22 +242,30 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
     lua_mympd_state_set_b(lua_partition_state, "repeat", mpd_status_get_repeat(status));
     lua_mympd_state_set_b(lua_partition_state, "random", mpd_status_get_random(status));
     lua_mympd_state_set_i(lua_partition_state, "single_state", mpd_status_get_single_state(status));
-    lua_mympd_state_set_b(lua_partition_state, "consume", mpd_status_get_consume(status));
+    lua_mympd_state_set_i(lua_partition_state, "consume_state", mpd_status_get_consume_state(status));
     lua_mympd_state_set_u(lua_partition_state, "crossfade", mpd_status_get_crossfade(status));
+    lua_mympd_state_set_f(lua_partition_state, "mixrampdelay", mpd_status_get_mixrampdelay(status));
+    lua_mympd_state_set_f(lua_partition_state, "mixrampdb", mpd_status_get_mixrampdb(status));
+
+    lua_mympd_state_set_i(lua_partition_state, "replaygain", replay_gain_mode);
+
     lua_mympd_state_set_p(lua_partition_state, "music_directory", partition_state->mpd_state->music_directory_value);
+    lua_mympd_state_set_p(lua_partition_state, "playlist_directory", partition_state->mpd_state->playlist_directory_value);
     lua_mympd_state_set_p(lua_partition_state, "workdir", partition_state->mympd_state->config->workdir);
+    lua_mympd_state_set_p(lua_partition_state, "cachedir", partition_state->mympd_state->config->cachedir);
+    lua_mympd_state_set_b(lua_partition_state, "auto_play", partition_state->auto_play);
     lua_mympd_state_set_i(lua_partition_state, "jukebox_mode", partition_state->jukebox_mode);
     lua_mympd_state_set_p(lua_partition_state, "jukebox_playlist", partition_state->jukebox_playlist);
     lua_mympd_state_set_i(lua_partition_state, "jukebox_queue_length", partition_state->jukebox_queue_length);
     lua_mympd_state_set_i(lua_partition_state, "jukebox_last_played", partition_state->jukebox_last_played);
+    lua_mympd_state_set_b(lua_partition_state, "jukebox_ignore_hated", partition_state->jukebox_ignore_hated);
+    lua_mympd_state_set_p(lua_partition_state, "jukebox_unique_tag", mpd_tag_name(partition_state->jukebox_unique_tag.tags[0]));
+    lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", partition_state->mympd_state->listenbrainz_token);
     if (partition_state->mpd_state->feat_partitions == true) {
         lua_mympd_state_set_p(lua_partition_state, "partition", mpd_status_get_partition(status));
     }
+
     mpd_status_free(status);
-    mpd_response_finish(partition_state->conn);
-    mympd_check_error_and_recover(partition_state);
-    lua_mympd_state_set_p(lua_partition_state, "jukebox_unique_tag", mpd_tag_name(partition_state->jukebox_unique_tag.tags[0]));
-    lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", partition_state->mympd_state->listenbrainz_token);
     return true;
 }
 
@@ -294,9 +314,9 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = tojson_uint(buffer, "pos", mpd_song_get_pos(song), true);
     buffer = tojson_long(buffer, "currentSongId", partition_state->song_id, true);
-    buffer = get_song_tags(buffer, partition_state, &partition_state->mpd_state->tags_mympd, song);
+    buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, &partition_state->mpd_state->tags_mympd, song);
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
+    buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
     buffer = sdscatlen(buffer, ",", 1);
     buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, uri, false);
     if (is_streamuri(uri) == true) {
@@ -316,7 +336,7 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
     }
     buffer = sdscatlen(buffer, ",", 1);
     time_t start_time = get_current_song_start_time(partition_state);
-    buffer = tojson_llong(buffer, "startTime", (long long)start_time, false);
+    buffer = tojson_time(buffer, "startTime", start_time, false);
     buffer = jsonrpc_end(buffer);
     return buffer;
 }

@@ -47,7 +47,7 @@ function addTagList(elId, list) {
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename"}, 'Filename')
         );
     }
-    if (elId === 'searchDatabaseTags') {
+    if (elId === 'searchDatabaseAlbumListTags') {
         stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag')
         );
@@ -58,7 +58,7 @@ function addTagList(elId, list) {
         );
     }
     if (elId === 'BrowseNavFilesystemDropdown' ||
-        elId === 'BrowseNavPlaylistsDropdown' ||
+        elId === 'BrowseNavPlaylistDropdown' ||
         elId === 'BrowseNavRadioFavoritesDropdown' ||
         elId === 'BrowseNavWebradiodbDropdown' ||
         elId === 'BrowseNavRadiobrowserDropdown')
@@ -70,22 +70,25 @@ function addTagList(elId, list) {
             );
         }
     }
-    if (elId === 'BrowseDatabaseByTagDropdown' ||
+    if (elId === 'BrowseDatabaseAlbumListTagDropdown' ||
+        elId === 'BrowseDatabaseTagListTagDropdown' ||
         elId === 'BrowseNavFilesystemDropdown' ||
-        elId === 'BrowseNavPlaylistsDropdown' ||
+        elId === 'BrowseNavPlaylistDropdown' ||
         elId === 'BrowseNavRadioFavoritesDropdown' ||
         elId === 'BrowseNavWebradiodbDropdown' ||
         elId === 'BrowseNavRadiobrowserDropdown')
     {
-        if (elId === 'BrowseDatabaseByTagDropdown') {
+        if (elId === 'BrowseDatabaseAlbumListTagDropdown' ||
+            elId === 'BrowseDatabaseTagListTagDropdown')
+        {
             stack.appendChild(
                 elCreateEmpty('div', {"class": ["dropdown-divider"]})
             );
         }
         stack.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlists"}, 'Playlists')
+            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlist"}, 'Playlists')
         );
-        if (elId === 'BrowseNavPlaylistsDropdown') {
+        if (elId === 'BrowseNavPlaylistDropdown') {
             stack.lastChild.classList.add('active');
         }
         stack.appendChild(
@@ -104,7 +107,7 @@ function addTagList(elId, list) {
             stack.lastChild.classList.add('active');
         }
     }
-    else if (elId === 'databaseSortTagsList') {
+    else if (elId === 'databaseAlbumListSortTagsList') {
         if (settings.tagList.includes('Date') === true &&
             settings[list].includes('Date') === false)
         {
@@ -168,33 +171,6 @@ function addTagListSelect(elId, list) {
                 elCreateTextTn('option', {"value": settings[list][i]}, settings[list][i])
             );
         }
-    }
-}
-
-/**
- * Appends a link to the browse views to the element
- * @param {HTMLElement} el element to append the link
- * @param {string} tag mpd tag
- * @param {object} values tag values
- */
- function printBrowseLink(el, tag, values) {
-    if (settings.tagListBrowse.includes(tag)) {
-        for (const value of values) {
-            const link = elCreateText('a', {"href": "#"}, value);
-            setData(link, 'tag', tag);
-            setData(link, 'name', value);
-            link.addEventListener('click', function(event) {
-                event.preventDefault();
-                gotoBrowse(event);
-            }, false);
-            el.appendChild(link);
-            el.appendChild(
-                elCreateEmpty('br', {})
-            );
-        }
-    }
-    else {
-        el.appendChild(printValue(tag, values));
     }
 }
 
@@ -309,6 +285,10 @@ function printValue(key, value) {
             );
         case 'Bitrate':
             return document.createTextNode(value + ' ' + tn('kbit'));
+        case 'SongCount':
+            return document.createTextNode(tn('Num songs', {"smartCount": value}));
+        case 'Discs':
+            return document.createTextNode(tn('Num discs', {"smartCount": value}));
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {
                 return getMBtagLink(key, value);
@@ -325,9 +305,85 @@ function printValue(key, value) {
  * @param {string} value value to check
  * @returns {boolean} true if tag matches value, else false
  */
- function checkTagValue(tag, value) {
+function checkTagValue(tag, value) {
     if (typeof tag === 'string') {
         return tag === value;
     }
     return tag[0] === value;
+}
+
+/**
+ * Returns a link to MusicBrainz
+ * @param {string} tag tag name
+ * @param {string} value tag value
+ * @returns {HTMLElement} a link or the value as text
+ */
+function getMBtagLink(tag, value) {
+    let MBentity = '';
+    switch (tag) {
+        case 'MUSICBRAINZ_ALBUMARTISTID':
+        case 'MUSICBRAINZ_ARTISTID':
+            MBentity = 'artist';
+            break;
+        case 'MUSICBRAINZ_ALBUMID':
+            MBentity = 'release';
+            break;
+        case 'MUSICBRAINZ_RELEASETRACKID':
+            MBentity = 'track';
+            break;
+        case 'MUSICBRAINZ_TRACKID':
+            MBentity = 'recording';
+            break;
+    }
+    if (MBentity === '' ||
+        value === '-')
+    {
+        return elCreateText('span', {}, value);
+    }
+    else {
+        return elCreateText('a', {"data-title-phrase": "Lookup at musicbrainz",
+            "class": ["text-success", "external"], "target": "_musicbrainz",
+            "href": "https://musicbrainz.org/" + MBentity + "/" + myEncodeURI(value)}, value);
+    }
+}
+
+/**
+ * 
+ * @param {object} songObj mpd song object
+ * @param {boolean} showArtists true=show artists, false=show albumartists
+ * @returns {HTMLElement} dom node with musicbrainz links
+ */
+function addMusicbrainzFields(songObj, showArtists) {
+    if (settings.webuiSettings.cloudMusicbrainz === false) {
+        return null;
+    }
+
+    const artist = showArtists === false ? 'MUSICBRAINZ_ALBUMARTISTID' : 'MUSICBRAINZ_ARTISTID';
+    if ((songObj.MUSICBRAINZ_ALBUMID !== '-' && songObj.MUSICBRAINZ_ALBUMID !== undefined) ||
+        (songObj[artist] !== undefined && checkTagValue(songObj[artist], '-') === false))
+    {
+        const mbField = elCreateNode('div', {"class": ["col-xl-6"]},
+            elCreateTextTn('small', {}, 'MusicBrainz')
+        );
+        if (songObj.MUSICBRAINZ_ALBUMID !== '-') {
+            const albumLink = getMBtagLink('MUSICBRAINZ_ALBUMID', songObj.MUSICBRAINZ_ALBUMID);
+            albumLink.textContent = tn('Goto album');
+            mbField.appendChild(
+                elCreateNode('p', {"class": ["mb-1"]}, albumLink)
+            );
+        }
+        if (songObj[artist] !== undefined &&
+            checkTagValue(songObj[artist], '-') === false)
+        {
+            for (let i = 0, j = songObj[artist].length; i < j; i++) {
+                const artistLink = getMBtagLink(artist, songObj[artist][i]);
+                artistLink.textContent = songObj.AlbumArtist[i];
+                mbField.appendChild(
+                    elCreateNode('p', {"class": ["mb-1"]}, artistLink)
+                );
+            }
+        }
+        return mbField;
+    }
+    return null;
 }

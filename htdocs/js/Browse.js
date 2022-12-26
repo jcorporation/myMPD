@@ -9,8 +9,10 @@
  * Initialization function for the browse view
  */
 function initBrowse() {
-    for (const nav of ['BrowseDatabaseByTagDropdown', 'BrowseNavPlaylistsDropdown', 'BrowseNavFilesystemDropdown',
-        'BrowseNavWebradiodbDropdown','BrowseNavRadiobrowserDropdown', 'BrowseNavRadioFavoritesDropdown'])
+    for (const nav of ['BrowseDatabaseTagListTagDropdown', 'BrowseDatabaseAlbumListTagDropdown',
+        'BrowseNavPlaylistDropdown', 'BrowseNavFilesystemDropdown',
+        'BrowseNavWebradiodbDropdown','BrowseNavRadiobrowserDropdown',
+        'BrowseNavRadioFavoritesDropdown'])
     {
         document.getElementById(nav).addEventListener('click', function(event) {
             navBrowseHandler(event);
@@ -25,7 +27,7 @@ function initBrowse() {
 function navBrowseHandler(event) {
     if (event.target.nodeName === 'BUTTON') {
         const tag = getData(event.target, 'tag');
-        if (tag === 'Playlists' ||
+        if (tag === 'Playlist' ||
             tag === 'Filesystem' ||
             tag === 'Radio')
         {
@@ -43,15 +45,17 @@ function navBrowseHandler(event) {
             app.current.filter = tag;
             app.current.sort.tag = tag;
             app.current.sort.desc = false;
+            app.current.view = 'TagList';
         }
         else {
             app.current.sort = {
                 "tag": tagAlbumArtist,
                 "desc": false
             };
+            app.current.view = 'AlbumList';
         }
         app.current.search = '';
-        document.getElementById('searchDatabaseMatch').value = 'contains';
+        document.getElementById('searchDatabaseAlbumListMatch').value = 'contains';
         appGoto(app.current.card, app.current.tab, app.current.view,
             0, app.current.limit, app.current.filter, app.current.sort, tag, app.current.search);
     }
@@ -87,7 +91,7 @@ function gotoBrowse(event) {
             }
             if (artist !== null) {
                 //Show album details
-                appGoto('Browse', 'Database', 'Detail', 0, undefined, tag, tagAlbumArtist, name, artist);
+                appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, tag, tagAlbumArtist, name, artist);
             }
             else {
                 //show filtered album list
@@ -108,7 +112,7 @@ function gotoBrowse(event) {
  */
 //eslint-disable-next-line no-unused-vars
 function gotoAlbum(artist, album) {
-    appGoto('Browse', 'Database', 'Detail', 0, undefined, 'Album', tagAlbumArtist, album, artist);
+    appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, 'Album', tagAlbumArtist, album, artist);
 }
 
 /**
@@ -122,7 +126,7 @@ function gotoAlbumList(tag, value) {
         //convert string to array
         value = [value];
     }
-    document.getElementById('searchDatabaseStr').value = '';
+    document.getElementById('searchDatabaseAlbumListStr').value = '';
     let expression = '(';
     for (let i = 0, j = value.length; i < j; i++) {
         if (i > 0) {
@@ -131,7 +135,7 @@ function gotoAlbumList(tag, value) {
         expression += '(' + tag + ' == \'' + escapeMPD(value[i]) + '\')';
     }
     expression += ')';
-    appGoto('Browse', 'Database', 'List', 0, undefined, tag, {"tag": tagAlbumArtist, "desc": false}, 'Album', expression);
+    appGoto('Browse', 'Database', 'AlbumList', 0, undefined, tag, {"tag": tagAlbumArtist, "desc": false}, 'Album', expression);
 }
 
 /**
@@ -150,7 +154,7 @@ function gotoFilesystem(uri, type) {
  * @param {object} changes IntersectionObserverEntry objects
  * @param {object} observer IntersectionObserver
  */
- function setGridImage(changes, observer) {
+function setGridImage(changes, observer) {
     changes.forEach(change => {
         if (change.intersectionRatio > 0) {
             observer.unobserve(change.target);

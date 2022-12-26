@@ -8,7 +8,7 @@
 
 #include "dist/utest/utest.h"
 
-#include "dist/libmpdclient/src/isong.h"
+#include "dist/libmympdclient/src/isong.h"
 #include "src/lib/album_cache.h"
 #include "src/mpd_client/search_local.h"
 #include "src/mpd_client/tags.h"

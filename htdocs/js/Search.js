@@ -71,7 +71,7 @@ function initSearch() {
         }
         //table body
         const target = getParent(event.target, 'TR');
-        if (target !== null) {
+        if (checkTargetClick(target) === true) {
             clickSong(getData(target, 'uri'));
         }
     }, false);
@@ -184,7 +184,7 @@ function parseSearch(obj) {
     if (obj.result.totalEntities > 0) {
         const colspan = settings.colsSearch.length + 1;
         tfoot.appendChild(
-            elCreateNode('tr', {},
+            elCreateNode('tr', {"class": ["not-clickable"]},
                 elCreateTextTnNr('td', {"colspan": colspan}, 'Num songs', obj.result.totalEntities)
             )
         );

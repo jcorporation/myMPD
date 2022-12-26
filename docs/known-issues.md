@@ -16,6 +16,8 @@ Parsing this header and inflating the embedded compressed assets is not implemen
 
 None
 
+***
+
 ### Response line too large
 
 - myMPD issue: [#524](https://github.com/jcorporation/myMPD/issues/524)
@@ -34,6 +36,8 @@ libmympdclient uses a fixed buffer size of 8192 bytes.
 
 - Disable the tag in mpd.conf or in myMPD if you do not use it
 - Crop the tag value
+
+***
 
 ### Output buffer is full
 

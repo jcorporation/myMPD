@@ -27,4 +27,4 @@ cat /etc/apt/sources.list.d/jcorporation.list
 # Install MyMPD
 apt update
 apt install mympd
- ```
+```

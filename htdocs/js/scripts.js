@@ -27,13 +27,7 @@ function initScripts() {
     document.getElementById('listScriptsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (event.target.nodeName === 'TD') {
-            if (getData(event.target.parentNode, 'script') === '') {
-                return false;
-            }
-            showEditScript(getData(event.target.parentNode, 'script'));
-        }
-        else if (event.target.nodeName === 'A') {
+        if (event.target.nodeName === 'A') {
             const action = getData(event.target, 'action');
             const script = getData(event.target.parentNode.parentNode, 'script');
             switch(action) {
@@ -47,6 +41,12 @@ function initScripts() {
                     addScriptToHome(script, getData(event.target.parentNode.parentNode, 'href'));
                     break;
             }
+            return;
+        }
+
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            showEditScript(getData(target, 'script'));
         }
     }, false);
 
@@ -87,7 +87,7 @@ function initScripts() {
     selectAPIcallEl.appendChild(
         elCreateTextTn('option', {"value": ""}, 'Select method')
     );
-    for (const m in APImethods) {
+    for (const m of Object.keys(APImethods).sort()) {
         selectAPIcallEl.appendChild(
             elCreateText('option', {"value": m}, m)
         );
@@ -111,11 +111,12 @@ function initScripts() {
         }
         const el = document.getElementById('textareaScriptContent');
         const [start, end] = [el.selectionStart, el.selectionEnd];
-        const newText = 'rc, raw_result = mympd_api_raw("' + method + '", json.encode(' +
+        const newText =
+            'options = {}\n' +
             apiParamsToArgs(APImethods[method].params) +
-            '))\n' +
+            'rc, result = mympd.api("' + method + '", options)\n' +
             'if rc == 0 then\n' +
-            '    result = json.decode(raw_result)\n' +
+            '\n' +
             'end\n';
         el.setRangeText(newText, start, end, 'preserve');
         BSN.Dropdown.getInstance(document.getElementById('btnDropdownAddAPIcall')).hide();
@@ -205,32 +206,30 @@ function getImportScript(script) {
 }
 
 /**
- * Adds the documented api params to a lua string for the add api call function
+ * Adds the documented api params to the options lua table for the add api call function
  * @param {object} p parameters object
- * @returns {string} lua string
+ * @returns {string} lua code
  */
 function apiParamsToArgs(p) {
-    let args = '{';
-    let i = 0;
+    let args = '';
     for (const param in p) {
-        if (i > 0) {
-            args += ', ';
-        }
-        i++;
-        args += param + ' = ';
-        if (p[param].params !== undefined) {
-            args += apiParamsToArgs(p[param].params);
-        }
-        else {
-            if (p[param].type === 'text') {
+        args += 'options["' + param + '"] = ';
+        switch(p[param].type) {
+            case 'text':
                 args += '"' + p[param].example + '"';
+                break;
+            case 'array':
+                args += '{' + p[param].example.slice(1, -1) + '}';
+                break;
+            case 'object': {
+                args += '{}';
+                break;
             }
-            else {
+            default:
                 args += p[param].example;
-            }
         }
+        args += '\n';
     }
-    args += '}';
     return args;
 }
 
@@ -419,9 +418,7 @@ function parseScriptList(obj) {
 
     const timerActions = elCreateEmpty('optgroup', {"id": "timerActionsScriptsOptGroup", "label": tn('Script')});
     setData(timerActions, 'value', 'script');
-    const scriptMaxListLen = 4;
     const scriptListLen = obj.result.data.length;
-    let showScriptListLen = 0;
     if (scriptListLen > 0) {
         obj.result.data.sort(function(a, b) {
             return a.metadata.order - b.metadata.order;
@@ -429,13 +426,15 @@ function parseScriptList(obj) {
         for (let i = 0; i < scriptListLen; i++) {
             //scriptlist in main menu
             if (obj.result.data[i].metadata.order > 0) {
-                showScriptListLen++;
-                const a = elCreateText('a', {"class": ["dropdown-item", "alwaysEnabled"], "href": "#"}, obj.result.data[i].name);
+                const a = elCreateNodes('a', {"class": ["dropdown-item", "alwaysEnabled", "py-2"], "href": "#"}, [
+                    elCreateText('span', {"class": ["mi", "me-2"]}, "code"),
+                    elCreateText('span', {}, obj.result.data[i].name)
+                ]);
                 setData(a, 'href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
                 mainmenuScripts.appendChild(a);
             }
             //scriptlist in scripts modal
-            const tr = elCreateNodes('tr', {}, [
+            const tr = elCreateNodes('tr', {"title": tn('Edit')}, [
                 elCreateText('td', {}, obj.result.data[i].name),
                 elCreateNodes('td', {"data-col": "Action"}, [
                     elCreateText('a', {"href": "#", "data-title-phrase": "Delete", "data-action": "delete", "class": ["me-2", "mi", "color-darkgrey"]}, 'delete'),
@@ -458,21 +457,11 @@ function parseScriptList(obj) {
         }
     }
 
-    const navScripting = document.getElementById('navScripting');
-    if (showScriptListLen > scriptMaxListLen) {
-        elShow(navScripting);
-        elHide(navScripting.previousElementSibling);
-        document.getElementById('scripts').classList.add('collapse', 'menu-indent');
+    if (scriptListLen === 0) {
+        elHide(mainmenuScripts.previousElementSibling);
     }
     else {
-        elHide(navScripting);
-        if (showScriptListLen === 0) {
-            elHide(navScripting.previousElementSibling);
-        }
-        else {
-            elShow(navScripting.previousElementSibling);
-        }
-        document.getElementById('scripts').classList.remove('collapse', 'menu-indent');
+        elShow(mainmenuScripts.previousElementSibling);
     }
     //update timer actions select
     const old = document.getElementById('timerActionsScriptsOptGroup');

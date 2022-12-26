@@ -124,6 +124,11 @@ const APIparams = {
         "type": "string",
         "example": "d8f01eea-26be-4e3d-871d-7596e3ab8fb1",
         "desc": "Station UUID from radio-browser.info"
+    },
+    "preset": {
+        "type": "text",
+        "example": "default",
+        "desc": "Name of the preset."
     }
 };
 
@@ -132,6 +137,16 @@ const APIparams = {
  * @type {object}
  */
 const APImethods = {
+    "MYMPD_API_CACHES_CREATE": {
+        "desc": "Recreates the myMPD caches for albums and stickers.",
+        "params": {
+            "force": {
+                "type": "bool",
+                "example": false,
+                "desc": "true = forces an update"
+            }
+        }
+    },
     "MYMPD_API_DATABASE_SEARCH": {
         "desc": "Searches for songs in the database.",
         "params": {
@@ -182,14 +197,31 @@ const APImethods = {
             "cols": APIparams.cols
         }
     },
-    "MYMPD_API_DATABASE_ALBUMS_GET": {
+    "MYMPD_API_DATABASE_ALBUM_DETAIL": {
+        "desc": "Displays songs of an album.",
+        "params": {
+            "album": {
+                "type": "text",
+                "example": "Tabula Rasa",
+                "desc": "Album to display"
+            },
+            "albumartist": {
+                "type": "array",
+                "example": "[\"Einstürzende Neubauten\"]",
+                "desc": "Albumartist"
+            },
+            "cols": APIparams.cols
+        }
+    },
+    "MYMPD_API_DATABASE_ALBUM_LIST": {
         "desc": "Lists unique albums.",
         "params": {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
             "expression": APIparams.expression,
             "sort": APIparams.sort,
-            "sortdesc": APIparams.sortdesc
+            "sortdesc": APIparams.sortdesc,
+            "cols": APIparams.cols
         }
     },
     "MYMPD_API_DATABASE_TAG_LIST": {
@@ -204,22 +236,6 @@ const APImethods = {
                 "desc": "Tag to display"
             },
             "sortdesc": APIparams.sortdesc
-        }
-    },
-    "MYMPD_API_DATABASE_TAG_ALBUM_TITLE_LIST": {
-        "desc": "Displays songs of an album.",
-        "params": {
-            "album": {
-                "type": "text",
-                "example": "Tabula Rasa",
-                "desc": "Album to display"
-            },
-            "albumartist": {
-                "type": "array",
-                "example": "[\"Einstürzende Neubauten\"]",
-                "desc": "Albumartist"
-            },
-            "cols": APIparams.cols
         }
     },
     "MYMPD_API_DATABASE_STATS": {
@@ -1169,7 +1185,8 @@ const APImethods = {
     },
     "MYMPD_API_PLAYER_OPTIONS_SET": {
         "desc": "Sets MPD and jukebox options.",
-        "params":{
+        "params": {
+            "name": APIparams.preset,
             "consume": {
                 "type": "text",
                 "example": "1",
@@ -1235,11 +1252,28 @@ const APImethods = {
                 "example": "Album",
                 "desc": "Tag to maintain unique values in internal jukebox queue."
             },
+            "jukeboxIgnoreHated": {
+                "type": "bool",
+                "example": true,
+                "desc": "Ignores hated songs."
+            },
             "autoPlay": {
                 "type": "bool",
                 "example": false,
                 "desc": "Start playing if a song is adder to queue."
             }
+        }
+    },
+    "MYMPD_API_PRESET_RM": {
+        "desc": "Deletes a preset.",
+        "params": {
+            "name": APIparams.preset
+        }
+    },
+    "MYMPD_API_PRESET_LOAD": {
+        "desc": "Loads a preset.",
+        "params": {
+            "name": APIparams.preset
         }
     },
     "MYMPD_API_COLS_SAVE": {
@@ -1248,7 +1282,7 @@ const APImethods = {
             "table": {
                 "type": "text",
                 "example": "colsQueueJukebox",
-                "desc": "Valid values: colsQueueCurrent, colsQueueLastPlayed, colsSearch, colsBrowseDatabaseDetail, colsBrowsePlaylistsDetail, colsBrowseFilesystem, colsPlayback, colsQueueJukebox"
+                "desc": "Valid values: colsQueueCurrent, colsQueueLastPlayed, colsSearch, colsBrowseDatabaseAlbumDetail, colsBrowseDatabaseAlbumList, colsBrowsePlaylistsDetail, colsBrowseFilesystem, colsPlayback, colsQueueJukebox"
             },
             "cols": APIparams.cols
         }
@@ -1262,15 +1296,15 @@ const APImethods = {
                 "example": 0,
                 "desc": "Timer id, 0 to create a new timer."
             },
-            "interval": {
-                "type": "int",
-                "example": 86400,
-                "desc": "Timer interval in seconds, 0 = one shote and deactivate, -1 = one shot and remove"
-            },
             "name": {
                 "type": "text",
                 "example": "example timer",
                 "desc": "Name of the timer"
+            },
+            "interval": {
+                "type": "int",
+                "example": 86400,
+                "desc": "Timer interval in seconds, 0 = one shote and deactivate, -1 = one shot and remove"
             },
             "enabled": {
                 "type": "bool",
@@ -1286,6 +1320,11 @@ const APImethods = {
                 "type": "uint",
                 "example": 0,
                 "desc": "Start minute of the timer, valid values are 0-59"
+            },
+            "weekdays": {
+                "type": "array",
+                "example": "[false,false,false,false,false,true,true]",
+                "desc": "Boolean array for weekdays, starting at monday"
             },
             "action": {
                 "type": "text",
@@ -1307,16 +1346,7 @@ const APImethods = {
                 "example": "Database",
                 "desc": "Playlist to use, valid values: \"Database\" or MPD playlist name"
             },
-            "jukeboxMode": {
-                "type": "text",
-                "example": "off",
-                "desc": "off, song, album"
-            },
-            "weekdays": {
-                "type": "array",
-                "example": "[false,false,false,false,false,true,true]",
-                "desc": "Boolean array for weekdays, starting at monday"
-            },
+            "preset": APIparams.preset,
             "arguments": {
                 "type": "object",
                 "example": "{\"arg1\": \"value1\"}",
@@ -1329,7 +1359,7 @@ const APImethods = {
     },
     "MYMPD_API_TIMER_GET": {
         "desc": "Gets options from a timer",
-        "params":{
+        "params": {
             "timerid": APIparams.timerid
         }
     },

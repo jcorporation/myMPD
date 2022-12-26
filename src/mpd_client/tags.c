@@ -5,9 +5,9 @@
 */
 
 #include "compile_time.h"
-#include "tags.h"
+#include "src/mpd_client/tags.h"
 
-#include "dist/libmpdclient/src/isong.h"
+#include "dist/libmympdclient/src/isong.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -29,6 +29,22 @@ static sds get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag,
 /**
  * Public functions
  */
+
+/**
+ * Returns the mpd database last modification time
+ * @param partition_state pointer to partition specific states
+ * @return last modification time
+ */
+time_t mpd_client_get_db_mtime(struct t_partition_state *partition_state) {
+    struct mpd_stats *stats = mpd_run_stats(partition_state->conn);
+    if (stats == NULL) {
+        mympd_check_error_and_recover(partition_state);
+        return 0;
+    }
+    time_t mtime = (time_t)mpd_stats_get_db_update_time(stats);
+    mpd_stats_free(stats);
+    return mtime;
+}
 
 /**
  * Adds a tag value to the album if value does not already exists
@@ -160,6 +176,26 @@ bool enable_all_mpd_tags(struct t_partition_state *partition_state) {
 }
 
 /**
+ * Helper function to print a t_tags struct as json array
+ * @param buffer already allocated sds string to append the response
+ * @param tagsname key for the json array
+ * @param tags tags to print
+ * @return pointer to buffer
+ */
+sds print_tags_array(sds buffer, const char *tagsname, struct t_tags *tags) {
+    buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);
+    for (unsigned i = 0; i < tags->len; i++) {
+        if (i > 0) {
+            buffer = sdscatlen(buffer, ",", 1);
+        }
+        const char *tagname = mpd_tag_name(tags->tags[i]);
+        buffer = sds_catjson(buffer, tagname, strlen(tagname));
+    }
+    buffer = sdscatlen(buffer, "]", 1);
+    return buffer;
+}
+
+/**
  * Enables specific mpd tags
  * @param partition_state pointer to partition specific states
  * @param enable_tags pointer to t_tags struct
@@ -172,13 +208,16 @@ bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_t
     if (mpd_command_list_begin(partition_state->conn, false)) {
         bool rc = mpd_send_clear_tag_types(partition_state->conn);
         if (rc == false) {
-            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear_tag_types");
+            MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_clear_tag_types", partition_state->name);
         }
         if (enable_tags->len > 0) {
             rc = mpd_send_enable_tag_types(partition_state->conn, enable_tags->tags, (unsigned)enable_tags->len);
             if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_enable_tag_types");
+                MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_enable_tag_types", partition_state->name);
             }
+        }
+        else {
+            MYMPD_LOG_WARN("\"%s\": No mpd tags are enabled", partition_state->name);
         }
         if (mpd_command_list_end(partition_state->conn)) {
             mpd_response_finish(partition_state->conn);
@@ -251,15 +290,15 @@ sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag
 /**
  * Gets the tag values for a mpd song as json string
  * @param buffer already allocated sds string to append the values
- * @param partition_state pointer to partition specific states
+ * @param tags_enabled true=mpd tags are enabled, else false
  * @param tagcols pointer to t_tags struct (tags to retrieve)
  * @param song pointer to a mpd_song struct to retrieve tags from
  * @return new sds pointer to buffer
  */
-sds get_song_tags(sds buffer, struct t_partition_state *partition_state, const struct t_tags *tagcols,
-                  const struct mpd_song *song)
+sds get_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
+        const struct mpd_song *song)
 {
-    if (partition_state->mpd_state->feat_tags == true) {
+    if (tags_enabled == true) {
         for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
             buffer = mpd_client_get_tag_values(song, tagcols->tags[tagnr], buffer);
@@ -273,50 +312,8 @@ sds get_song_tags(sds buffer, struct t_partition_state *partition_state, const s
     }
 
     buffer = tojson_uint(buffer, "Duration", mpd_song_get_duration(song), true);
-    buffer = tojson_llong(buffer, "LastModified", (long long)mpd_song_get_last_modified(song), true);
+    buffer = tojson_time(buffer, "LastModified", mpd_song_get_last_modified(song), true);
     buffer = tojson_char(buffer, "uri", mpd_song_get_uri(song), false);
-    return buffer;
-}
-
-/**
- * Gets the same json string as get_song_tags but with empty values, title is set to the basefilename
- * @param buffer alread allocated sds string to append the values
- * @param partition_state pointer to partition specific states
- * @param tagcols pointer to t_tags struct (tags to retrieve)
- * @param uri uri for printing empty tags
- * @return new sds pointer to buffer
- */
-sds get_empty_song_tags(sds buffer, struct t_partition_state *partition_state, const struct t_tags *tagcols,
-                        const char *uri)
-{
-    sds filename = sdsnew(uri);
-    basename_uri(filename);
-    if (partition_state->mpd_state->feat_tags == true) {
-        for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
-            const bool multi = is_multivalue_tag(tagcols->tags[tagnr]);
-            buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
-            if (multi == true) {
-                buffer = sdscatlen(buffer, "[", 1);
-            }
-            if (tagcols->tags[tagnr] == MPD_TAG_TITLE) {
-                buffer = sds_catjson(buffer, filename, sdslen(filename));
-            }
-            else {
-                buffer = sdscatlen(buffer, "\"-\"", 3);
-            }
-            if (multi == true) {
-                buffer = sdscatlen(buffer, "]", 1);
-            }
-            buffer = sdscatlen(buffer, ",", 1);
-        }
-    }
-    else {
-        buffer = tojson_sds(buffer, "Title", filename, true);
-    }
-    buffer = tojson_long(buffer, "Duration", 0, true);
-    buffer = tojson_long(buffer, "LastModified", 0, true);
-    buffer = tojson_char(buffer, "uri", uri, false);
-    FREE_SDS(filename);
     return buffer;
 }
 

@@ -3,19 +3,19 @@
 // myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @module BrowsePlaylists_js */
+/** @module BrowsePlaylist_js */
 
 /**
- * Handles BrowsePlaylistsDetail
+ * Handles BrowsePlaylistDetail
  */
-function handleBrowsePlaylistsDetail() {
+function handleBrowsePlaylistDetail() {
     setFocusId('searchPlaylistsDetailStr');
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
         "searchstr": app.current.search,
         "plist": app.current.filter,
-        "cols": settings.colsBrowsePlaylistsDetailFetch
+        "cols": settings.colsBrowsePlaylistDetailFetch
     }, parsePlaylistsDetail, true);
     const searchPlaylistsStrEl = document.getElementById('searchPlaylistsDetailStr');
     if (searchPlaylistsStrEl.value === '' &&
@@ -26,17 +26,17 @@ function handleBrowsePlaylistsDetail() {
 }
 
 /**
- * Handles BrowsePlaylistsList
+ * Handles BrowsePlaylistList
  */
-function handleBrowsePlaylistsList() {
-    setFocusId('searchPlaylistsListStr');
+function handleBrowsePlaylistList() {
+    setFocusId('searchPlaylistListStr');
     sendAPI("MYMPD_API_PLAYLIST_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
         "searchstr": app.current.search,
         "type": 0
-    }, parsePlaylistsList, true);
-    const searchPlaylistsStrEl = document.getElementById('searchPlaylistsListStr');
+    }, parsePlaylistList, true);
+    const searchPlaylistsStrEl = document.getElementById('searchPlaylistListStr');
     if (searchPlaylistsStrEl.value === '' &&
         app.current.search !== '')
     {
@@ -82,7 +82,7 @@ function initPlaylists() {
         }
     }, false);
 
-    document.getElementById('searchPlaylistsListStr').addEventListener('keyup', function(event) {
+    document.getElementById('searchPlaylistListStr').addEventListener('keyup', function(event) {
         clearSearchTimer();
         if (event.key === 'Escape') {
             this.blur();
@@ -96,31 +96,34 @@ function initPlaylists() {
         }
     }, false);
 
-   document.getElementById('BrowsePlaylistsListList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            if (getData(event.target.parentNode, 'smartpls-only') === false) {
-                clickPlaylist(getData(event.target.parentNode, 'uri'));
+    document.getElementById('BrowsePlaylistListList').addEventListener('click', function(event) {
+        //action td
+        if (event.target.nodeName === 'A') {
+            handleActionTdClick(event);
+            return;
+        }
+
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            if (getData(target, 'smartpls-only') === false) {
+                clickPlaylist(getData(target, 'uri'));
             }
             else {
                 showNotification(tn('Playlist is empty'), '', 'playlist', 'warn')
             }
         }
-        else if (event.target.nodeName === 'A') {
-            //action td
-            handleActionTdClick(event);
-        }
     }, false);
 
-    document.getElementById('BrowsePlaylistsDetailList').addEventListener('click', function(event) {
-        if (event.target.parentNode.parentNode.nodeName === 'TFOOT') {
+    document.getElementById('BrowsePlaylistDetailList').addEventListener('click', function(event) {
+        //action td
+        if (event.target.nodeName === 'A') {
+            handleActionTdClick(event);
             return;
         }
-        if (event.target.nodeName === 'TD') {
-            clickSong(getData(event.target.parentNode, 'uri'));
-        }
-        else if (event.target.nodeName === 'A') {
-            //action td
-            handleActionTdClick(event);
+
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            clickSong(getData(target, 'uri'));
         }
     }, false);
 }
@@ -129,13 +132,13 @@ function initPlaylists() {
  * Parses the MYMPD_API_PLAYLIST_LIST jsonrpc response
  * @param {object} obj jsonrpc response
  */
-function parsePlaylistsList(obj) {
-    if (checkResultId(obj, 'BrowsePlaylistsListList') === false) {
+function parsePlaylistList(obj) {
+    if (checkResultId(obj, 'BrowsePlaylistListList') === false) {
         return;
     }
 
     const rowTitle = webuiSettingsDefault.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
-    updateTable(obj, 'BrowsePlaylistsList', function(row, data) {
+    updateTable(obj, 'BrowsePlaylistList', function(row, data) {
         setData(row, 'uri', data.uri);
         setData(row, 'type', data.Type);
         setData(row, 'name', data.name);
@@ -164,23 +167,23 @@ function parsePlaylistsList(obj) {
  * @param {object} obj jsonrpc response
  */
 function parsePlaylistsDetail(obj) {
-    const table = document.getElementById('BrowsePlaylistsDetailList');
+    const table = document.getElementById('BrowsePlaylistDetailList');
     const tfoot = table.querySelector('tfoot');
-    const colspan = settings.colsBrowsePlaylistsDetail.length + 1;
+    const colspan = settings.colsBrowsePlaylistDetail.length + 1;
 
-    if (checkResultId(obj, 'BrowsePlaylistsDetailList') === false) {
+    if (checkResultId(obj, 'BrowsePlaylistDetailList') === false) {
         return;
     }
 
     if (isMPDplaylist(obj.result.plist) === false ||
         obj.result.smartpls === true)
     {
-        setDataId('BrowsePlaylistsDetailList', 'ro', 'true');
+        setDataId('BrowsePlaylistDetailList', 'ro', 'true');
         elHideId('playlistContentBtns');
         elShowId('smartPlaylistContentBtns');
     }
     else {
-        setDataId('BrowsePlaylistsDetailList', 'ro', 'false');
+        setDataId('BrowsePlaylistDetailList', 'ro', 'false');
         elShowId('playlistContentBtns');
         elHideId('smartPlaylistContentBtns');
     }
@@ -193,7 +196,7 @@ function parsePlaylistsDetail(obj) {
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
 
     elReplaceChild(tfoot,
-        elCreateNode('tr', {},
+        elCreateNode('tr', {"class": ["not-clickable"]},
             elCreateNode('td', {"colspan": colspan},
                 elCreateNodes('small', {}, [
                     elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities), 
@@ -203,7 +206,7 @@ function parsePlaylistsDetail(obj) {
         )
     );
 
-    updateTable(obj, 'BrowsePlaylistsDetail', function(row, data) {
+    updateTable(obj, 'BrowsePlaylistDetail', function(row, data) {
         row.setAttribute('id', 'playlistSongId' + data.Pos);
         row.setAttribute('draggable', 'true');
         row.setAttribute('tabindex', 0);
@@ -221,8 +224,8 @@ function parsePlaylistsDetail(obj) {
  */
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
-    setUpdateViewId('BrowsePlaylistsListList');
-    appGoto('Browse', 'Playlists', 'Detail', 0, undefined, uri, '-', '-', '');
+    setUpdateViewId('BrowsePlaylistListList');
+    appGoto('Browse', 'Playlist', 'Detail', 0, undefined, uri, '-', '-', '');
 }
 
 /**
@@ -230,9 +233,9 @@ function playlistDetails(uri) {
  */
 //eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
-    setUpdateViewId('BrowsePlaylistsDetailList');
+    setUpdateViewId('BrowsePlaylistDetailList');
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_SHUFFLE", {
-        "plist": getDataId('BrowsePlaylistsDetailList', 'uri')
+        "plist": getDataId('BrowsePlaylistDetailList', 'uri')
     }, null, false);
 }
 
@@ -242,9 +245,9 @@ function playlistShuffle() {
  */
 //eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
-    setUpdateViewId('BrowsePlaylistsDetailList');
+    setUpdateViewId('BrowsePlaylistDetailList');
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_SORT", {
-        "plist": getDataId('BrowsePlaylistsDetailList', 'uri'),
+        "plist": getDataId('BrowsePlaylistDetailList', 'uri'),
         "tag": tag
     }, null, false);
 }
@@ -288,7 +291,7 @@ function removeFromPlaylist(mode, plist, start, end) {
         default:
             return;
     }
-    setUpdateViewId('BrowsePlaylistsDetailList');
+    setUpdateViewId('BrowsePlaylistDetailList');
 }
 
 /**
@@ -434,9 +437,9 @@ function addSmartpls(type) {
  *                      0 = all playlists,
  *                      1 = static playlists,
  *                      2 = smart playlists
- * @param {*} elId select element id
- * @param {*} searchstr search string
- * @param {*} selectedPlaylist current selected playlist
+ * @param {string} elId select element id
+ * @param {string} searchstr search string
+ * @param {string} selectedPlaylist current selected playlist
  */
 function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
     sendAPI("MYMPD_API_PLAYLIST_LIST", {
@@ -452,22 +455,28 @@ function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
 /**
  * Populates the custom input element mympd-select-search
  * @param {object} obj jsonrpc response
- * @param {*} playlistSelectId select element id
- * @param {*} selectedPlaylist current selected playlist
+ * @param {string} playlistSelectId select element id
+ * @param {string} selectedPlaylist current selected playlist
  */
 function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
     const selectEl = document.getElementById(playlistSelectId);
-    if (selectedPlaylist !== undefined) {
-        //set input element values
-        selectEl.value = selectedPlaylist === 'Database' ? tn('Database'): selectedPlaylist;
-        setData(selectEl, 'value', selectedPlaylist);
-    }
+    //set input element values
+    selectEl.value = selectedPlaylist === 'Database'
+        ? tn('Database')
+        : selectedPlaylist === ''
+            ? tn('No playlist')
+            : selectedPlaylist;
+    setData(selectEl, 'value', selectedPlaylist);
+
     elClear(selectEl.filterResult);
-    if (playlistSelectId === 'selectJukeboxPlaylist' ||
-        playlistSelectId === 'selectAddToQueuePlaylist' ||
-        playlistSelectId === 'selectTimerPlaylist')
-    {
-        selectEl.addFilterResult('Database', 'Database');
+    switch(playlistSelectId) {
+        case 'selectTimerPlaylist':
+            selectEl.addFilterResult('No playlist', '');
+            break;
+        case 'selectJukeboxPlaylist':
+        case 'selectAddToQueuePlaylist':
+            selectEl.addFilterResult('Database', 'Database');
+            break;
     }
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
@@ -505,7 +514,7 @@ function showAddToPlaylist(uri, searchstr) {
     }
     uiElements.modalAddToPlaylist.show();
     if (features.featPlaylists) {
-        filterPlaylistsSelect(1, 'addToPlaylistPlaylist', '');
+        filterPlaylistsSelect(1, 'addToPlaylistPlaylist', '', '');
     }
 }
 
@@ -772,8 +781,8 @@ function updateSmartPlaylist(plist) {
  */
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
-    setUpdateViewId('BrowsePlaylistsDetailList');
-    updateSmartPlaylist(getDataId('BrowsePlaylistsDetailList', 'uri'));
+    setUpdateViewId('BrowsePlaylistDetailList');
+    updateSmartPlaylist(getDataId('BrowsePlaylistDetailList', 'uri'));
 }
 
 /**
@@ -781,7 +790,7 @@ function updateSmartPlaylistClick() {
  */
 //eslint-disable-next-line no-unused-vars
 function editSmartPlaylistClick() {
-    showSmartPlaylist(getDataId('BrowsePlaylistsDetailList', 'uri'));
+    showSmartPlaylist(getDataId('BrowsePlaylistDetailList', 'uri'));
 }
 
 /**
@@ -804,12 +813,12 @@ function showDelPlaylist(plist, smartplsOnly) {
  */
 //eslint-disable-next-line no-unused-vars
 function showClearPlaylist() {
-    const plist = getDataId('BrowsePlaylistsDetailList', 'uri');
+    const plist = getDataId('BrowsePlaylistDetailList', 'uri');
     showConfirm(tn('Do you really want to clear the playlist?', {"playlist": plist}), tn('Yes, clear it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_CONTENT_CLEAR", {
             "plist": plist
         }, null, false);
-        setUpdateViewId('BrowsePlaylistsDetailList');
+        setUpdateViewId('BrowsePlaylistDetailList');
     });
 }
 
@@ -848,8 +857,8 @@ function isMPDplaylist(uri) {
  */
 //eslint-disable-next-line no-unused-vars
 function currentPlaylistAddTo(action) {
-    const uri = getDataId('BrowsePlaylistsDetailList', 'uri');
-    const type = getDataId('BrowsePlaylistsDetailList', 'type');
+    const uri = getDataId('BrowsePlaylistDetailList', 'uri');
+    const type = getDataId('BrowsePlaylistDetailList', 'type');
     switch(action) {
         case 'appendQueue':
             appendQueue(type, uri);

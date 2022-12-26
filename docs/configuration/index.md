@@ -4,57 +4,20 @@ permalink: /configuration/
 title: Configuration
 ---
 
-myMPD has no single configuration file. Most of the options are configurable through the settings dialog in the web ui.
+myMPD has no single configuration file. Most of the options are configurable through the settings dialog in the web-ui.
 
-## Command line options
+There are some command line options to define basic settings, for example the working directory.
 
-You can set some basic options with command line options. All these options have sane default values and should not be changed for default usage.
+- <a href="{{site.baseurl}}/configuration/command-line-options">Command line options</a>
 
-The `workdir` and `cachedir` options are useful if you want to run more then one instance of myMPD on the same host.
+myMPD populates at first startup some default configuration files, that are configurable by setting environment variables.
 
-| OPTION | DESCRIPTION |
-| ------ | ----------- |
-| `-c`, `--config` | creates config and exits (default directory: `/var/lib/mympd/config/`) |
-| `-h`, `--help` | displays this help |
-| `-v`, `--version` | displays this help |
-| `-u`, `--user <username>`| username to drop privileges to (default: `mympd`) |
-| `-s`, `--syslog` | enable syslog logging (facility: daemon) |
-| `-w`, `--workdir <path>` | working directory (default: `/var/lib/mympd`) |
-| `-a`, `--cachedir <path>` | cache directory (default: `/var/cache/mympd`) |
-| `-p`, `--pin` | sets a pin for myMPD settings |
-{: .table .table-sm }
+- <a href="{{site.baseurl}}/configuration/configuration-files">Configuration files</a>
+- <a href="{{site.baseurl}}/configuration/mpd-connection">MPD connection</a>
 
-- Setting a pin is only supported with compiled in ssl support
+Other setting thar are not configurable in the web-ui.
 
-## Configuration files
-
-At the first start (if there is no config folder in the working folder) myMPD tries to autodetect the MPD connection and reads some environment variables.
-
-<div class="alert alert-warning">
-After the first start all environment variables are ignored, except loglevel.
-</div>
-
-To change these settings afterwards, you must edit the files in the folder `/var/lib/mympd/config/` and restart myMPD.
-
-
-| FILE | TYPE | ENVIRONMENT | DEFAULT | DESCRIPTION |
-| ---- | ---- | ----------- | ------- | ----------- |
-| acl | string | MYMPD_ACL | | ACL to access the myMPD webserver: [ACL]({{ site.baseurl }}/configuration/acl), allows all hosts in the default configuration |
-| covercache_keep_days | number | MYMPD_COVERCACHE_KEEP_DAYS | 31 | How long to keep images in the covercache, 0 to disable the cache |
-| http_host | string | MYMPD_HTTP_HOST | 0.0.0.0 | IP address to listen on, use [::] to listen on IPv6 |
-| http_port | number | MYMPD_HTTP_PORT | 80 | Port to listen on. Redirects to `ssl_port` if `ssl` is set to `true` |
-| loglevel | number | MYMPD_LOGLEVEL | 5 | [Logging]({{ site.baseurl }}/configuration/logging) - this environment variable is always used |
-| lualibs | string | MYMPD_LUALIBS | all | Comma separated list of lua libraries to load, look at [Scripting - LUA standard libraries]({{ site.baseurl }}/scripting#lua-standard-libraries) |
-| scriptacl | string | MYMPD_SCRIPTACL | +127.0.0.1 | ACL to access the myMPD script backend: [ACL]({{ site.baseurl }}/configuration/acl), allows only local connections in the default configuration. The acl above must also grant access. |
-| ssl | boolean | MYMPD_SSL | true | `true` = enables https, `false` = disables https |
-| ssl_port | number | MYMPD_SSL_PORT | 443 | Port to listen to https traffic |
-| ssl_san | string | MYMPD_SSL_SAN | | Additional SAN for certificate creation |
-| custom_cert | boolean | MYMPD_CUSTOM_CERT | false | `true` = use custom ssl key and certificate |
-| ssl_cert | string | MYMPD_SSL_CERT | | Path to custom ssl certificate file |
-| ssl_key | string | MYMPD_SSL_KEY | | Path to custom ssl key file |
-| pin_hash | string | N/A | | SHA256 hash of pin, create it with `mympd -p` |
-{: .table .table-sm }
-
-- More details on [SSL]({{ site.baseurl }}/configuration/ssl)
-
-You can use `mympd -c` to create the initial configuration in the `/var/lib/mympd/config/` directory.
+- <a href="{{site.baseurl}}/configuration/acl">ACL</a>
+- <a href="{{site.baseurl}}/configuration/logging">Logging</a>
+- <a href="{{site.baseurl}}/configuration/ssl">SSL</a>
+- <a href="{{site.baseurl}}/configuration/pin-protection">Pin protection</a>

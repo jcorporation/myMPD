@@ -12,16 +12,17 @@ function initTimer() {
     document.getElementById('listTimerList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (event.target.nodeName === 'TD') {
-            if (!event.target.parentNode.classList.contains('not-clickable')) {
-                showEditTimer(getData(event.target.parentNode, 'id'));
-            }
-        }
-        else if (event.target.nodeName === 'A') {
+        if (event.target.nodeName === 'A') {
             deleteTimer(event.target, getData(event.target.parentNode.parentNode, 'id'));
+            return;
         }
-        else if (event.target.nodeName === 'BUTTON') {
+        if (event.target.nodeName === 'BUTTON') {
             toggleTimer(event.target, getData(event.target.parentNode.parentNode, 'id'));
+            return;
+        }
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            showEditTimer(getData(target, 'id'));
         }
     }, false);
 
@@ -53,21 +54,6 @@ function initTimer() {
 
     document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
         showListTimer();
-    });
-
-    document.getElementById('btnTimerJukeboxModeGroup').addEventListener('mouseup', function () {
-        setTimeout(function() {
-            const value = getBtnGroupValueId('btnTimerJukeboxModeGroup');
-            const selectTimerPlaylistEl = document.getElementById('selectTimerPlaylist');
-            if (value === 'album') {
-                elDisable(selectTimerPlaylistEl);
-                selectTimerPlaylistEl.value = tn('Database');
-                setData(selectTimerPlaylistEl, 'value', 'Database');
-            }
-            else if (value === 'song') {
-                elEnable(selectTimerPlaylistEl);
-            }
-        }, 100);
     });
 
     setDataId('selectTimerPlaylist', 'cb-filter', 'filterPlaylistsSelect');
@@ -136,28 +122,11 @@ function saveTimer() {
         formOK = false;
         setIsInvalidId('btnTimerSun');
     }
-    const selectTimerAction = document.getElementById('selectTimerAction');
-    const jukeboxMode = getBtnGroupValueId('btnTimerJukeboxModeGroup');
-    const selectTimerPlaylist = getDataId('selectTimerPlaylist', 'value');
 
+    const selectTimerAction = document.getElementById('selectTimerAction');
     if (selectTimerAction.selectedIndex === -1) {
         formOK = false;
         setIsInvalid(selectTimerAction);
-    }
-
-    if (jukeboxMode === 'album' &&
-        selectTimerPlaylist !== 'Database')
-    {
-        formOK = false;
-        setIsInvalidId('btnTimerJukeboxModeGroup');
-    }
-
-    if (jukeboxMode === 'off' &&
-        selectTimerPlaylist === 'Database' &&
-        getSelectValue(selectTimerAction) === 'startplay')
-    {
-        formOK = false;
-        setIsInvalidId('btnTimerJukeboxModeGroup');
     }
 
     const inputTimerIntervalEl = document.getElementById('inputTimerInterval');
@@ -190,8 +159,8 @@ function saveTimer() {
             "action": getData(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'value'),
             "subaction": getSelectValue(selectTimerAction),
             "volume": Number(document.getElementById('inputTimerVolume').value),
-            "playlist": selectTimerPlaylist,
-            "jukeboxMode": jukeboxMode,
+            "playlist": getDataId('selectTimerPlaylist', 'value'),
+            "preset": getSelectValueId('selectTimerPreset'),
             "arguments": args
         }, saveTimerCheckError, true);
     }
@@ -231,7 +200,7 @@ function showEditTimer(timerid) {
         }, parseEditTimer, false);
     }
     else {
-        filterPlaylistsSelect(0, 'selectTimerPlaylist', '', 'Database');
+        filterPlaylistsSelect(0, 'selectTimerPlaylist', '', '');
         document.getElementById('inputTimerId').value = '0';
         document.getElementById('inputTimerName').value = '';
         toggleBtnChkId('btnTimerEnabled', true);
@@ -242,7 +211,6 @@ function showEditTimer(timerid) {
         document.getElementById('textTimerVolume').textContent = '50 %';
         selectTimerIntervalChange(86400);
         selectTimerActionChange();
-        toggleBtnGroupValue(document.getElementById('btnTimerJukeboxModeGroup'), 'song');
         const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
         for (let i = 0, j = weekdayBtns.length; i < j; i++) {
             toggleBtnId(weekdayBtns[i], false);
@@ -257,17 +225,7 @@ function showEditTimer(timerid) {
  * @param {object} obj jsonrpc response
  */
 function parseEditTimer(obj) {
-    let playlistValue = obj.result.playlist;
-    const selectTimerPlaylistEl = document.getElementById('selectTimerPlaylist');
-    //force album mode to use database as playlist
-    if (obj.result.jukeboxMode === 'album') {
-        elDisable(selectTimerPlaylistEl);
-        playlistValue = 'Database';
-    }
-    else {
-        elEnable(selectTimerPlaylistEl);
-    }
-    filterPlaylistsSelect(0, 'selectTimerPlaylist', '', playlistValue);
+    filterPlaylistsSelect(0, 'selectTimerPlaylist', '', obj.result.playlist);
 
     document.getElementById('inputTimerId').value = obj.result.timerid;
     document.getElementById('inputTimerName').value = obj.result.name;
@@ -279,7 +237,7 @@ function parseEditTimer(obj) {
     selectTimerIntervalChange(obj.result.interval);
     document.getElementById('inputTimerVolume').value = obj.result.volume;
     document.getElementById('textTimerVolume').textContent = obj.result.volume + ' %';
-    toggleBtnGroupValueId('btnTimerJukeboxModeGroup', obj.result.jukeboxMode);
+    document.getElementById('selectTimerPreset').value = obj.result.preset;
 
     const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     for (let i = 0, j = weekdayBtns.length; i < j; i++) {
@@ -441,7 +399,7 @@ function parseListTimer(obj) {
                 }
         }
 
-        const row = elCreateNodes('tr', {}, [
+        const row = elCreateNodes('tr', {"title": tn('Edit')}, [
             elCreateText('td', {}, obj.result.data[i].name),
             elCreateNode('td', {}, btn),
             elCreateText('td', {}, zeroPad(obj.result.data[i].startHour, 2) + ':' + zeroPad(obj.result.data[i].startMinute, 2) +

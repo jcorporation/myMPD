@@ -43,12 +43,14 @@ function initQueueLastPlayed() {
     }, false);
 
     document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'TD') {
-            clickSong(getData(event.target.parentNode, 'uri'));
-        }
-        else if (event.target.nodeName === 'A') {
+        if (event.target.nodeName === 'A') {
             //action td
             handleActionTdClick(event);
+            return;
+        }
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            clickSong(getData(target, 'uri'));
         }
     }, false);
 }

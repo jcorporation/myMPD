@@ -19,6 +19,5 @@ enum playlist_types {
 bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, const char *uri);
 bool mpd_client_playlist_sort(struct t_partition_state *partition_state, const char *uri, const char *tagstr);
 time_t mpd_client_get_playlist_mtime(struct t_partition_state *partition_state, const char *playlist);
-time_t mpd_client_get_db_mtime(struct t_partition_state *partition_state);
 int mpd_client_enum_playlist(struct t_partition_state *partition_state, const char *playlist, bool empty_check);
 #endif

@@ -4,60 +4,131 @@ permalink: /scripting/
 title: Scripting
 ---
 
-myMPD integrates [Lua](http://www.lua.org) for scripting purposes. Script execution can be triggered in the main menu, with timers or triggers. Scripts are executed asynchronously, therefore scripts can not block the main threads of myMPD. The script output is printed to STDOUT and the return value is broadcasted to all connected clients.
+myMPD integrates [Lua](http://www.lua.org) for scripting purposes. Script execution can be triggered in the main menu, with home icons, timers or triggers. Scripts are executed asynchronously, therefore scripts can not block the main threads of myMPD. The script output is printed to STDOUT and the return value is broadcasted to all connected clients in the current partition.
 
 ## Arguments
 
 Script arguments are populated in the lua table `arguments`. myMPD populates automatically the global `partition` variable.
 
-## Accessing myMPD and MPD status informations
+## Custom myMPD lua functions
 
-Accessing myMPD requires the mympd lua library to be loaded.
-
-The lua command `mympd.init()` populates the lua table `mympd_state` with configuration values and up-to-date status information's of myMPD and MPD. `mympd.init()` is only a shorthand command for `mympd_api("INTERNAL_API_SCRIPT_INIT")`
-
-- [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state)
-
-## myMPD API functions
+myMPD provides custom lua functions through the `mympd` lua library.
 
 | FUNCTION | DESCRIPTION |
 | -------- | ----------- |
-| `mympd.init()` | Initializes the [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state) |
-| `mympd.os_capture(<command>)` | Executes a system command and capture its output. |
+| `mympd.api` | Access to the myMPD API |
+| `mympd.http_client` | Simple HTTP client |
+| `mympd.init` | Initializes the [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state) |
+| `mympd.os_capture` | Executes a system command and capture its output. |
 {: .table .table-sm }
 
-### mympd_api
+### Accessing the myMPD API
 
-The lua command `mympd_api("method", "key1", "value1", ...)` executes myMPD API functions, look at [API]({{ site.baseurl }}/references/api/) for detailed API description. The first argument must be the API method, followed by key / value pairs.
-
-The first return value is an error code (0 = OK, 1 = ERROR). If the return value of the API function is only a message or a error message the second return value is a simple string else the original json string is returned.
-
-### mympd_api_raw
-
-The lua command `mympd_api_raw("method", "params")` executes myMPD API functions, look at [API]({{ site.baseurl }}/references/api/) for detailed API description. The first argument must be the API method, followed by a json string describing the params, e.g. `json.encode({key1 = "value1", key2 = {"val2", "val3"}})`
-
-The first return value is an error code (0 = OK, 1 = ERROR). The second return value is the unparsed json string.
-
-### mympd_api_http_client
-
-This lua command executes an http request.
-
-- method: HTTP method, `GET` or `POST`
-- uri: full uri to call, e. g. `https://api.listenbrainz.org/1/submit-listens`
-- headers: must be terminated by `\r\n`.
-- payload: body of a post request
+Calls the myMPD API, look at [API]({{ site.baseurl }}/references/api/) for detailed API description.
 
 ```
-rc, code, header, body = mympd_api_http_client(method, uri, headers, payload)
+rc, result = mympd.api("method", params)
 ```
 
-| FIELD | DESCRIPTION |
-| ----- | ----------- |
-| rc | 0 = success, 1 = error|
-| code | http response code, e.g. 200 |
-| header | http headers |
-| body | http body |
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| method | string | myMPD API method |
+| params | lua table | the jsonrpc parameters | 
 {: .table .table-sm }
+
+**Returns:**
+
+| FIELD | TYPE | DESCRIPTION |
+| ----- | ---- | ----------- |
+| rc | integer | response code: 0 = OK, 1 = ERROR |
+| result | lua table | json result or error |
+{: .table .table-sm }
+
+### HTTP client
+
+A simple http client.
+
+```
+rc, code, header, body = mympd.http_client(method, uri, headers, payload)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| method | string | HTTP method, `GET` or `POST` |
+| uri | string | full uri to call, e. g. `https://api.listenbrainz.org/1/submit-listens` |
+| headers | string | must be terminated by `\r\n` |
+| payload | string | body of a post request |
+{: .table .table-sm }
+
+**Returns:**
+
+| FIELD | TYPE | DESCRIPTION |
+| ----- | ---- | ----------- |
+| rc | integer | response code: 0 = success, 1 = error |
+| code | integer | http response code, e.g. 200 |
+| header | string | http headers |
+| body | string | http body |
+{: .table .table-sm }
+
+### Accessing myMPD and MPD status information
+
+Populates the lua table `mympd_state` with configuration values and current status of myMPD and MPD.
+
+```
+mympd.init()
+```
+
+**Parameters:**
+
+No parameters needed.
+
+**Returns:**
+
+| FIELD | TYPE | DESCRIPTION |
+| ----- | ---- | ----------- |
+| rc | integer | response code: 0 = success, 1 = error |
+| result | lua table | jsonrpc result or error as lua table |
+{: .table .table-sm }
+
+- [Lua table mympd_state]({{ site.baseurl }}/scripting/lua-table-mympd_state)
+
+### Execute a system command
+
+Executes a system command and captures its output.
+
+```
+output = mympd.os_capture(command)
+```
+
+**Parameters:**
+
+| PARAMETER | TYPE | DESCRIPTION |
+| --------- | ---- | ----------- |
+| command | string | system command to execute |
+{: .table .table-sm }
+
+**Returns:**
+
+| FIELD | TYPE | DESCRIPTION |
+| ----- | ---- | ----------- |
+| output | string | system command output as lua string |
+{: .table .table-sm }
+
+If you want to run commands that changes the effective userid (e.g. with `sudo`) and you run myMPD with the default systemd service unit, you must create the mympd user manually and add an override.
+
+```
+groupadd -r mympd
+useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
+
+curl -s https://raw.githubusercontent.com/jcorporation/myMPD/v10.0.0/contrib/initscripts/mympd.service.in | sed 's|@CMAKE_INSTALL_FULL_BINDIR@|/usr/bin|' /etc/systemd/system/mympd.service
+
+systemctl daemon-reload
+systemctl restart mympd
+```
 
 ## Lua manual
 
@@ -71,9 +142,9 @@ Further examples can be found in the [repository](https://github.com/jcorporatio
 
 ```
 -- load a playlist
-mympd_api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", "plist", "NonPop")
+mympd.api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {plist = "NonPop"})
 -- start playing
-mympd_api("MYMPD_API_PLAYER_PLAY")
+mympd.api("MYMPD_API_PLAYER_PLAY")
 ```
 
 ### With arguments
@@ -82,59 +153,26 @@ Script should be called with an argument named playlist.
 
 ```
 -- load a playlist
-mympd_api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", "plist", arguments["playlist"])
+mympd.api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {plist = arguments["playlist"]})
 -- start playing
-mympd_api("MYMPD_API_PLAYER_PLAY")
+mympd.api("MYMPD_API_PLAYER_PLAY")
 -- broadcast message to all connected myMPD clients
 return("Loaded playlist: " .. arguments["playlist"])
 ```
 
-### JSON parsing
+### Error handling
 
 ```
-rc, raw_result = mympd_api("MYMPD_API_PLAYER_CURRENT_SONG")
-if rc == 0 then
-  current_song = json.decode(raw_result)
-  return current_song["result"]["Artist"]
+-- get current playing song
+rc, result = mympd.api("MYMPD_API_PLAYER_CURRENT_SONG", {})
+if rc == 0
+  return "Current song title: " .. result["Title"]
 else
-  return "No current song"
+  return "Error message: " .. result["message"]
 end
 ```
 
-### Executing a system command
-
-```
-output = mympd.os_capture("echo test")
-return output
-```
-
-## mympd-script
-
-`mympd-script` is a small commandline tool to execute myMPD scripts.
-
-`Key=Value` parameters can be used to fill the arguments table in the Lua script.
-
-**Script from STDIN:**
-
-It reads the script from STDIN and submits it to myMPD for execution.
-
-```
-mympd-script https://localhost default - key1=value1 <<< 'print arguments["key1"]'
-```
-
-For security reasons this function is restricted to localhost. This can be configured with the `scriptacl` option in the config folder.
-
-The API endpoint for this function is: `/script-api/<partition>`
-
-**Call available script (test.lua):**
-
-mympd-script can also call existing scripts. This API call is not restricted by the `scriptacl` option and uses the standard `/api/<partition>` API endpoint.
-
-```
-mympd-script https://localhost default test key1=value1 
-```
-
-## LUA standard libraries
+## Lua standard libraries
 
 myMPD loads in the default config all lua standard libraries and the myMPD custom libraries. The configuration file lualibs controls which libraries myMPD opens before script execution.
 

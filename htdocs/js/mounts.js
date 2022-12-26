@@ -12,13 +12,7 @@ function initMounts() {
     document.getElementById('listMountsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (event.target.nodeName === 'TD') {
-            if (getData(event.target.parentNode, 'point') === '') {
-                return false;
-            }
-            showEditMount(getData(event.target.parentNode, 'url'), getData(event.target.parentNode, 'point'));
-        }
-        else if (event.target.nodeName === 'A') {
+        if (event.target.nodeName === 'A') {
             const action = event.target.getAttribute('data-action');
             const mountPoint = getData(event.target.parentNode.parentNode, 'point');
             if (action === 'unmount') {
@@ -27,6 +21,11 @@ function initMounts() {
             else if (action === 'update') {
                 updateMount(event.target, mountPoint);
             }
+            return;
+        }
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
+            showEditMount(getData(target, 'url'), getData(target, 'point'));
         }
     }, false);
 
@@ -121,7 +120,7 @@ function updateMount(el, uri) {
     const spinner = elCreateEmpty('div', {"id": "spinnerUpdateProgress", "class": ["spinner-border", "spinner-border-sm"]});
     el.parentNode.insertBefore(spinner, el);
     //update
-    updateDB(uri, false, false, false);
+    updateDB(uri, false);
 }
 
 /**
@@ -193,7 +192,7 @@ function parseListMounts(obj) {
                 elCreateText('a', {"href": "#", "data-title-phrase": "Update", "data-action": "update", "class": ["mi", "color-darkgrey"]}, 'refresh')
             );
         }
-        const row = elCreateNodes('tr', {}, [
+        const row = elCreateNodes('tr', {"title": tn('Edit')}, [
             td1,
             elCreateText('td', {}, obj.result.data[i].mountUrl),
             mountActionTd

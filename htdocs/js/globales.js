@@ -28,7 +28,6 @@ let settings = {
 let settingsParsed = 'no';
 
 let progressTimer = null;
-let deferredA2HSprompt;
 let dragSrc;
 let dragEl;
 
@@ -62,6 +61,7 @@ const smallSpace = '\u2009';
 /** @type {string} */
 const nDash = '\u2013';
 
+/** @type {string} */
 let tagAlbumArtist = 'AlbumArtist';
 
 /** @type {object} */
@@ -77,8 +77,13 @@ const sessionLifetime = 1780;
 
 /** @type {number} */
 const sessionRenewInterval = sessionLifetime * 500;
+
 let sessionTimer = null;
+
+/** log message buffer */
 const messages = [];
+/** @type {number} */
+const messagesMax = 100;
 
 /** @type {boolean} */
 const debugMode = document.querySelector("script").src.replace(/^.*[/]/, '') === 'combined.js' ? false : true;
@@ -96,7 +101,9 @@ let materialIcons = {};
 let phrasesDefault = {};
 let phrases = {};
 
-//this settings are saved in the browsers localStorage
+/**
+ * This settings are saved in the browsers localStorage
+ */
 const localSettings = {
     "enforceMobile": false,
     "localPlaybackAutoplay": false,
@@ -252,7 +259,7 @@ app.cards = {
                 "search": "/",
                 "scrollPos": 0
             },
-            "Playlists": {
+            "Playlist": {
                 "active": "List",
                 "views": {
                     "List": {
@@ -282,9 +289,21 @@ app.cards = {
                 }
             },
             "Database": {
-                "active": "List",
+                "active": "AlbumList",
                 "views": {
-                    "List": {
+                    "TagList": {
+                        "offset": 0,
+                        "limit": 100,
+                        "filter": "any",
+                        "sort": {
+                            "tag": "-",
+                            "desc": false
+                        },
+                        "tag": "Album",
+                        "search": "",
+                        "scrollPos": 0
+                    },
+                    "AlbumList": {
                         "offset": 0,
                         "limit": 100,
                         "filter": "any",
@@ -296,7 +315,7 @@ app.cards = {
                         "search": "",
                         "scrollPos": 0
                     },
-                    "Detail": {
+                    "AlbumDetail": {
                         "offset": 0,
                         "limit": 100,
                         "filter": "-",
@@ -647,6 +666,18 @@ const webuiSettingsDefault = {
         "title": "Playback controls",
         "form": "footerFrm"
     },
+    "uiFooterVolumeLevel": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Show volume level in footer",
+        "form": "footerFrm"
+    },
+    "uiFooterNotifications": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Show notification icon",
+        "form": "footerFrm"
+    },
     "uiMaxElementsPerPage": {
         "defaultValue": 100,
         "validValues": {
@@ -796,6 +827,12 @@ const webuiSettingsDefault = {
         "title": "Startup view",
         "form": "startupFrm",
         "onChange": "eventChangeTheme"
+    },
+    "cloudMusicbrainz": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Show MusicBrainz links",
+        "form": "cloudSettingsFrm"
     }
 };
 
@@ -836,17 +873,18 @@ const keymap = {
         "c": {"order": 8, "cmd": "togglePlaymode", "options": ["consume"], "desc": "Toggle consume"},
         "p": {"order": 9, "cmd": "togglePlaymode", "options": ["repeat"], "desc": "Toggle repeat"},
         "i": {"order": 9, "cmd": "togglePlaymode", "options": ["single"], "desc": "Switch single mode"},
-    "update": {"order": 100, "desc": "Update"},
-        "U": {"order": 101, "cmd": "updateDB", "options": ["", true, false, false], "desc": "Update database"},
-        "R": {"order": 102, "cmd": "updateDB", "options": ["", true, false, true], "desc": "Rescan database"},
-        "P": {"order": 103, "cmd": "updateSmartPlaylists", "options": [false], "desc": "Update smart playlists", "req": "featSmartpls"},
     "modals": {"order": 200, "desc": "Dialogs"},
         "A": {"order": 201, "cmd": "showAddToPlaylist", "options": ["STREAM"], "desc": "Add stream"},
         "C": {"order": 202, "cmd": "openModal", "options": ["modalConnection"], "desc": "Open MPD connection"},
-        "Q": {"order": 203, "cmd": "openModal", "options": ["modalQueueSettings"], "desc": "Open queue settings"},
-        "T": {"order": 204, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
+        "G": {"order": 207, "cmd": "openModal", "options": ["modalTrigger"], "desc": "Open trigger"},
+        "I": {"order": 207, "cmd": "openModal", "options": ["modalTimer"], "desc": "Open timer"},
         "M": {"order": 205, "cmd": "openModal", "options": ["modalMaintenance"], "desc": "Open maintenance"},
-        "?": {"order": 206, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
+        "N": {"order": 206, "cmd": "openModal", "options": ["modalNotifications"], "desc": "Open notifications"},
+        "O": {"order": 207, "cmd": "openModal", "options": ["modalMounts"], "desc": "Open mounts"},
+        "Q": {"order": 203, "cmd": "openModal", "options": ["modalQueueSettings"], "desc": "Open queue settings"},
+        "S": {"order": 207, "cmd": "openModal", "options": ["modalScripts"], "desc": "Open scripts"},
+        "T": {"order": 204, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
+        "?": {"order": 207, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
     "navigation": {"order": 300, "desc": "Navigation"},
         "0": {"order": 301, "cmd": "appGoto", "options": ["Home"], "desc": "Show home"},
         "1": {"order": 302, "cmd": "appGoto", "options": ["Playback"], "desc": "Show playback"},
@@ -867,7 +905,6 @@ domCache.body = document.querySelector('body');
 domCache.counter = document.getElementById('counter');
 domCache.footer = document.querySelector('footer');
 domCache.main = document.querySelector('main');
-domCache.notificationCount = document.getElementById('notificationCount');
 domCache.progress = document.getElementById('footerProgress');
 domCache.progressBar = document.getElementById('footerProgressBar');
 domCache.progressPos = document.getElementById('footerProgressPos');
@@ -884,9 +921,9 @@ uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance(document.getEleme
 uiElements.collapseJukeboxMode = BSN.Collapse.getInstance(document.getElementById('collapseJukeboxMode'));
 
 const LUAfunctions = {
-    "mympd_api_http_client": {
+    "mympd.http_client": {
         "desc": "HTTP client",
-        "func": "rc, code, header, body = mympd_api_http_client(method, uri, headers, payload)"
+        "func": "rc, code, header, body = mympd.http_client(method, uri, headers, payload)"
     },
     "mympd.init": {
         "desc": "Initializes the mympd_state lua table",

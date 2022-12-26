@@ -77,6 +77,15 @@ function fmtDate(secs) {
 }
 
 /**
+ * Returns timestamp as formatted time string
+ * @param {number} secs unix timestamp
+ * @returns {string} formatted date
+ */
+function fmtTime(secs) {
+    return new Date(secs * 1000).toLocaleTimeString(locale, { hour: "2-digit", minute: "2-digit", second: "2-digit" });
+}
+
+/**
  * Returns seconds as formatted duration string
  * @param {number} secs duration to format
  * @returns {string} formatted duration

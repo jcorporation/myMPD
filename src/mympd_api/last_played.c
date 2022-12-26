@@ -75,9 +75,10 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
         errno = 0;
         FILE *fi = fopen(filepath, OPEN_FLAGS_READ);
         if (fi != NULL) {
-            while (sds_getline_n(&line, fi, LINE_LENGTH_MAX) == 0 &&
+            while (sds_getline(&line, fi, LINE_LENGTH_MAX) >= 0 &&
                 i < partition_state->mpd_state->last_played_count)
             {
+                line = sdscatlen(line, "\n", 1);
                 if (fputs(line, fp) == EOF) {
                     MYMPD_LOG_ERROR("\"%s\": Could not write last played songs to disc", partition_state->name);
                     write_rc = false;
@@ -96,9 +97,9 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
         }
     }
     FREE_SDS(line);
-    bool rc = rename_tmp_file(fp, tmp_file, filepath, write_rc);
-    FREE_SDS(tmp_file);
     FREE_SDS(filepath);
+    bool rc = rename_tmp_file(fp, tmp_file, write_rc);
+    FREE_SDS(tmp_file);
     return rc;
 }
 
@@ -192,7 +193,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
         FILE *fp = fopen(lp_file, OPEN_FLAGS_READ);
         if (fp != NULL) {
             sds line = sdsempty();
-            while (sds_getline(&line, fp, LINE_LENGTH_MAX) == 0) {
+            while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
                 sds uri = NULL;
                 long long last_played = 0;
                 if (json_get_string_max(line, "$.uri", &uri, vcb_isfilepath, NULL) == true &&
@@ -271,9 +272,9 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, sds bu
     struct mpd_song *song;
     if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
         if ((rc = search_mpd_song(song, searchstr, tagcols)) == true) {
-            buffer = get_song_tags(buffer, partition_state, tagcols, song);
+            buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
             buffer = sdscatlen(buffer, ",", 1);
-            buffer = mympd_api_sticker_list(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
+            buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
         }
         mpd_song_free(song);
     }

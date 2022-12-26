@@ -18,27 +18,7 @@ function initSettingsPlayback() {
 
     document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
         setTimeout(function() {
-            const value = getBtnGroupValueId('btnJukeboxModeGroup');
-            if (value === 'off') {
-                elDisableId('inputJukeboxQueueLength');
-                elDisableId('selectJukeboxPlaylist');
-            }
-            else if (value === 'album') {
-                elDisableId('inputJukeboxQueueLength');
-                elDisableId('selectJukeboxPlaylist');
-                elDisable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
-                document.getElementById('selectJukeboxPlaylist').value = 'Database';
-                setDataId('selectJukeboxPlaylist', 'value', 'Database');
-            }
-            else if (value === 'song') {
-                elEnableId('inputJukeboxQueueLength');
-                elEnableId('selectJukeboxPlaylist');
-                elEnable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
-            }
-            if (value !== 'off') {
-                toggleBtnGroupValueId('btnConsumeGroup', '1');
-                toggleBtnGroupValueId('btnSingleGroup', '0');
-            }
+            toggleJukeboxSettings();
             checkConsume();
         }, 100);
     });
@@ -51,6 +31,130 @@ function initSettingsPlayback() {
 
     setDataId('selectJukeboxPlaylist', 'cb-filter', 'filterPlaylistsSelect');
     setDataId('selectJukeboxPlaylist', 'cb-filter-options', [0, 'selectJukeboxPlaylist']);
+
+    document.getElementById('listPresetsList').addEventListener('click', function(event) {
+        event.stopPropagation();
+        event.preventDefault();
+        if (event.target.nodeName === 'TD') {
+            if (!event.target.parentNode.classList.contains('not-clickable')) {
+                loadPreset(getData(event.target.parentNode, 'name'));
+            }
+        }
+        else if (event.target.nodeName === 'A') {
+            deletePreset(event.target, getData(event.target.parentNode.parentNode, 'name'));
+        }
+    }, false);
+
+    for (let i = 1; i < 3; i++) {
+        document.getElementById('selectPresetDropdown' + i).addEventListener('click', function(event) {
+            event.preventDefault();
+            if (event.target.nodeName === 'BUTTON') {
+                loadPreset(event.target.textContent);
+                const d = event.target.parentNode.parentNode.previousElementSibling;
+                BSN.Dropdown.getInstance(d).hide();
+            }
+        }, false)
+    }
+}
+
+/**
+ * Loads a preset
+ * @param {string} name preset name to load
+ */
+function loadPreset(name) {
+    sendAPI("MYMPD_API_PRESET_LOAD", {
+        "name": name
+    }, loadPresetCheckError, true);
+}
+
+/**
+ * Handler for the MYMPD_API_PRESET_LOAD jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
+ function loadPresetCheckError(obj) {
+    if (obj.error) {
+        if (getOpenModal() !== null) {
+            showModalAlert(obj);
+        }
+    }
+    else {
+        getSettings();
+    }
+}
+
+/**
+ * Deletes a preset
+ * @param {EventTarget} el triggering element
+ * @param {string} name the preset name
+ */
+//eslint-disable-next-line no-unused-vars
+function deletePreset(el, name) {
+    showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the preset?'), tn('Yes, delete it'), function() {
+        sendAPI("MYMPD_API_PRESET_RM", {
+            "name": name
+        }, deletePresetCheckError, true);
+    });
+}
+
+/**
+ * Handler for the MYMPD_API_PRESET_RM jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
+ function deletePresetCheckError(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        getSettings();
+    }
+}
+
+/**
+ * Populates the presets lists
+ */
+function populateListPresets() {
+    const presetsEl = document.getElementById('inputPresetName');
+    presetsEl.value = '';
+    setData(presetsEl, 'value', '');
+    elClear(presetsEl.filterResult);
+    const presetsList = document.getElementById('listPresetsList');
+    elClear(presetsList);
+    for (const preset of settings.partition.presets) {
+        presetsEl.addFilterResultPlain(preset);
+        presetsList.appendChild(createPresetsListRow(preset));
+    }
+    if (settings.partition.presets.length === 0) {
+        presetsList.appendChild(emptyRow(2));
+    }
+    populatePresetDropdowns();
+}
+
+/**
+ * Populates the preset dropdowns
+ */
+function populatePresetDropdowns() {
+    const presetDropdowns = [
+        document.getElementById('selectPresetDropdown1').lastElementChild,
+        document.getElementById('selectPresetDropdown2').lastElementChild,
+        document.getElementById('selectPresetDropdown3').lastElementChild
+    ];
+    const selectTimerPreset = document.getElementById('selectTimerPreset');
+    for (const d of presetDropdowns) {
+        elClear(d);
+    }
+    elClear(selectTimerPreset);
+    selectTimerPreset.appendChild(
+        elCreateTextTn('option', {"value": ""}, 'No preset')
+    );
+    for (const preset of settings.partition.presets) {
+        const a = elCreateText('button', {"type":"button", "class": ["btn", "btn-secondary", "btn-sm"]}, preset);
+        for (const d of presetDropdowns) {
+            d.appendChild(a.cloneNode(true));
+        }
+        selectTimerPreset.appendChild(
+            elCreateText('option', {"value": preset}, preset)
+        );
+    }
 }
 
 /**
@@ -131,6 +235,52 @@ function checkConsume() {
 }
 
 /**
+ * Toggle jukebox setting elements
+ */
+function toggleJukeboxSettings() {
+    const value = getBtnGroupValueId('btnJukeboxModeGroup');
+    if (value === 'off') {
+        elDisableId('inputJukeboxQueueLength');
+        elDisableId('selectJukeboxPlaylist');
+        elDisableId('btnJukeboxIgnoreHated');
+    }
+    else if (value === 'album') {
+        elDisableId('inputJukeboxQueueLength');
+        elDisableId('selectJukeboxPlaylist');
+        elDisableId('btnJukeboxIgnoreHated');
+        elDisable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
+        document.getElementById('selectJukeboxPlaylist').value = 'Database';
+        setDataId('selectJukeboxPlaylist', 'value', 'Database');
+    }
+    else if (value === 'song') {
+        elEnableId('inputJukeboxQueueLength');
+        elEnableId('selectJukeboxPlaylist');
+        elEnableId('btnJukeboxIgnoreHated');
+        elEnable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
+    }
+    if (value !== 'off') {
+        toggleBtnGroupValueId('btnConsumeGroup', '1');
+        toggleBtnGroupValueId('btnSingleGroup', '0');
+    }
+}
+
+/**
+ * Creates a row for the presets tables
+ * @param {string} preset preset name
+ * @returns {HTMLElement} the row
+ */
+function createPresetsListRow(preset) {
+    const row = elCreateNodes('tr', {"data-title-phrase": "Load preset", "phrase": tn('Load preset')}, [
+        elCreateText('td', {}, preset),
+        elCreateNode('td', {"data-col": "Action"},
+            elCreateText('a', {"class": ["mi", "color-darkgrey"], "href": "#", "data-title-phrase": "Delete", "phrase": tn('Delete')}, 'delete')
+        )
+    ]);
+    setData(row, 'name', preset);
+    return row;
+}
+
+/**
  * Populates the playback settings modal
  */
 function populateQueueSettingsFrm() {
@@ -140,23 +290,11 @@ function populateQueueSettingsFrm() {
     document.getElementById('selectJukeboxUniqueTag').value = settings.partition.jukeboxUniqueTag;
     document.getElementById('inputJukeboxQueueLength').value = settings.partition.jukeboxQueueLength;
     document.getElementById('inputJukeboxLastPlayed').value = settings.partition.jukeboxLastPlayed;
-    if (settings.partition.jukeboxMode === 'off') {
-        elDisableId('inputJukeboxQueueLength');
-        elDisableId('selectJukeboxPlaylist');
-    }
-    else if (settings.partition.jukeboxMode === 'album') {
-        elDisableId('inputJukeboxQueueLength');
-        elDisableId('selectJukeboxPlaylist');
-        elDisable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
-        document.getElementById('selectJukeboxPlaylist').value = 'Database';
-    }
-    else if (settings.partition.jukeboxMode === 'song') {
-        elEnableId('inputJukeboxQueueLength');
-        elEnableId('selectJukeboxPlaylist');
-        elEnable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
-    }
-
+    toggleJukeboxSettings();
     document.getElementById('selectJukeboxPlaylist').filterInput.value = '';
+    toggleBtnChkId('btnJukeboxIgnoreHated', settings.partition.jukeboxIgnoreHated);
+
+    populateListPresets();
 
     if (settings.partition.mpdConnected === true) {
         if (features.featPlaylists === true) {
@@ -170,9 +308,9 @@ function populateQueueSettingsFrm() {
         toggleBtnChkId('btnRandom', settings.partition.random);
         toggleBtnChkId('btnRepeat', settings.partition.repeat);
         toggleBtnChkId('btnAutoPlay', settings.partition.autoPlay);
-        toggleBtnGroupValue(document.getElementById('btnConsumeGroup'), settings.partition.consume);
-        toggleBtnGroupValue(document.getElementById('btnSingleGroup'), settings.partition.single);
-        toggleBtnGroupValue(document.getElementById('btnReplaygainGroup'), settings.partition.replaygain);
+        toggleBtnGroupValueId('btnConsumeGroup', settings.partition.consume);
+        toggleBtnGroupValueId('btnSingleGroup', settings.partition.single);
+        toggleBtnGroupValueId('btnReplaygainGroup', settings.partition.replaygain);
         document.getElementById('inputCrossfade').value = settings.partition.crossfade;
         document.getElementById('inputMixrampDb').value = settings.partition.mixrampDb;
         document.getElementById('inputMixrampDelay').value = settings.partition.mixrampDelay;
@@ -212,35 +350,32 @@ function saveQueueSettings() {
         formOK = false;
     }
 
-    const singleState = getBtnGroupValueId('btnSingleGroup');
-    const consumeState = getBtnGroupValueId('btnConsumeGroup');
     const jukeboxMode = getBtnGroupValueId('btnJukeboxModeGroup');
-    const replaygain = getBtnGroupValueId('btnReplaygainGroup');
-    let jukeboxUniqueTag = getSelectValueId('selectJukeboxUniqueTag');
-    const jukeboxPlaylist = getDataId('selectJukeboxPlaylist', 'value');
-
-    if (jukeboxMode === 'album') {
-        jukeboxUniqueTag = 'Album';
-    }
+    const jukeboxUniqueTag = jukeboxMode === 'album'
+        ? 'Album'
+        : getSelectValueId('selectJukeboxUniqueTag');
 
     if (formOK === true) {
-        btnWaitingId('btnSaveQueueSettings', true);
-        sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
-            "random": (document.getElementById('btnRandom').classList.contains('active') ? true : false),
-            "single": singleState,
-            "consume": consumeState,
-            "repeat": (document.getElementById('btnRepeat').classList.contains('active') ? true : false),
-            "replaygain": replaygain,
+        const params = {
+            "name": getDataId('inputPresetName', 'value'),
+            "random": getBtnChkValueId('btnRandom'),
+            "single": getBtnGroupValueId('btnSingleGroup'),
+            "consume": getBtnGroupValueId('btnConsumeGroup'),
+            "repeat": getBtnChkValueId('btnRepeat'),
+            "replaygain": getBtnGroupValueId('btnReplaygainGroup'),
             "crossfade": Number(document.getElementById('inputCrossfade').value),
             "mixrampDb": Number(mixrampDbEl.value),
             "mixrampDelay": Number(mixrampDelayEl.value),
             "jukeboxMode": jukeboxMode,
-            "jukeboxPlaylist": jukeboxPlaylist,
+            "jukeboxPlaylist": getDataId('selectJukeboxPlaylist', 'value'),
             "jukeboxQueueLength": Number(document.getElementById('inputJukeboxQueueLength').value),
             "jukeboxLastPlayed": Number(document.getElementById('inputJukeboxLastPlayed').value),
             "jukeboxUniqueTag": jukeboxUniqueTag,
-            "autoPlay": (document.getElementById('btnAutoPlay').classList.contains('active') ? true : false)
-        }, saveQueueSettingsClose, true);
+            "jukeboxIgnoreHated": getBtnChkValueId('btnJukeboxIgnoreHated'),
+            "autoPlay": getBtnChkValueId('btnAutoPlay')
+        };
+        btnWaitingId('btnSaveQueueSettings', true);
+        sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", params, saveQueueSettingsClose, true);
     }
 }
 

@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "mpd_worker.h"
+#include "src/mpd_worker/mpd_worker.h"
 
 #include "dist/sds/sds.h"
 #include "src/lib/log.h"
@@ -71,6 +71,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     mpd_worker_state->mpd_state->feat_whence = mympd_state->mpd_state->feat_whence;
     mpd_worker_state->mpd_state->tag_albumartist = mympd_state->partition_state->mpd_state->tag_albumartist;
     copy_tag_types(&mympd_state->mpd_state->tags_mympd, &mpd_worker_state->mpd_state->tags_mympd);
+    copy_tag_types(&mympd_state->mpd_state->tags_album, &mpd_worker_state->mpd_state->tags_album);
 
     if (pthread_create(&mpd_worker_thread, &attr, mpd_worker_run, mpd_worker_state) != 0) {
         MYMPD_LOG_ERROR("Can not create mpd_worker thread");

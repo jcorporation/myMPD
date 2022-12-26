@@ -11,6 +11,8 @@
 #include "src/lib/api.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
+#include "src/mpd_client/tags.h"
+#include <string.h>
 
 /**
  * This unit provides functions for jsonrpc and json parsing and printing
@@ -63,7 +65,6 @@ static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
     [JSONRPC_EVENT_MPD_CONNECTED] = "mpd_connected",
     [JSONRPC_EVENT_MPD_DISCONNECTED] = "mpd_disconnected",
     [JSONRPC_EVENT_NOTIFY] = "notify",
-    [JSONRPC_EVENT_UPDATE_ALBUM_CACHE] = "update_album_cache",
     [JSONRPC_EVENT_UPDATE_DATABASE] = "update_database",
     [JSONRPC_EVENT_UPDATE_FINISHED] = "update_finished",
     [JSONRPC_EVENT_UPDATE_HOME] = "update_home",
@@ -76,7 +77,9 @@ static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
     [JSONRPC_EVENT_UPDATE_STATE] = "update_state",
     [JSONRPC_EVENT_UPDATE_STORED_PLAYLIST] = "update_stored_playlist",
     [JSONRPC_EVENT_UPDATE_VOLUME] = "update_volume",
-    [JSONRPC_EVENT_WELCOME] = "welcome"
+    [JSONRPC_EVENT_WELCOME] = "welcome",
+    [JSONRPC_EVENT_UPDATE_CACHE_STARTED] = "update_album_cache_started",
+    [JSONRPC_EVENT_UPDATE_CACHE_FINISHED] = "update_album_cache_finished"
 };
 
 /**
@@ -373,8 +376,7 @@ sds tojson_char_len(sds buffer, const char *key, const char *value, size_t len, 
 }
 
 /**
- * Prints a json key/value pair for bool value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for a bool value
  * @param buffer sds string to append
  * @param key json key
  * @param value bool value
@@ -390,8 +392,7 @@ sds tojson_bool(sds buffer, const char *key, bool value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for int value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for an int value
  * @param buffer sds string to append
  * @param key json key
  * @param value integer value
@@ -407,8 +408,7 @@ sds tojson_int(sds buffer, const char *key, int value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for unsigned
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for an unsigned
  * @param buffer sds string to append
  * @param key json key
  * @param value unsigned integer value
@@ -424,8 +424,7 @@ sds tojson_uint(sds buffer, const char *key, unsigned value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for long value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for a long value
  * @param buffer sds string to append
  * @param key json key
  * @param value long value
@@ -441,8 +440,19 @@ sds tojson_long(sds buffer, const char *key, long value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for long long value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for a time_t value
+ * @param buffer sds string to append
+ * @param key json key
+ * @param value long long value
+ * @param comma true to append a comma
+ * @return pointer to buffer
+ */
+sds tojson_time(sds buffer, const char *key, time_t value, bool comma) {
+    return tojson_llong(buffer, key, (long long)value, comma);
+}
+
+/**
+ * Prints a json key/value pair for a long long value
  * @param buffer sds string to append
  * @param key json key
  * @param value long long value
@@ -458,8 +468,7 @@ sds tojson_llong(sds buffer, const char *key, long long value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for unsigned long value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for an unsigned long value
  * @param buffer sds string to append
  * @param key json key
  * @param value unsigned long value
@@ -475,8 +484,7 @@ sds tojson_ulong(sds buffer, const char *key, unsigned long value, bool comma) {
 }
 
 /**
- * Prints a json key/value pair for unsigned long long value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for an unsigned long long value
  * @param buffer sds string to append
  * @param key json key
  * @param value unsigned long long value
@@ -492,8 +500,7 @@ sds tojson_ullong(sds buffer, const char *key, unsigned long long value, bool co
 }
 
 /**
- * Prints a json key/value pair for unsigned long long value
- * value can be without null-termination and is encoded as json
+ * Prints a json key/value pair for a double value
  * @param buffer sds string to append
  * @param key json key
  * @param value unsigned long long value
@@ -604,6 +611,30 @@ bool json_get_int(sds s, const char *path, int min, int max, int *result, sds *e
         *result = (int)result_long;
     }
     return rc;
+}
+
+/**
+ * Gets a time_t value by json path
+ * @param s json object to parse
+ * @param path mjson path expression
+ * @param result pointer to long with the result
+ * @param error pointer for error string
+ * @return true on success else false
+ */
+bool json_get_time_max(sds s, const char *path, time_t *result, sds *error) {
+    double value;
+    if (mjson_get_number(s, (int)sdslen(s), path, &value) != 0) {
+        if (value >= 0 && value <= (double)JSONRPC_LLONG_MAX) {
+            time_t value_time = (time_t)value;
+            *result = value_time;
+            return true;
+        }
+        set_parse_error(error, "Number out of range for JSON path \"%s\"", path);
+    }
+    else {
+        set_parse_error(error, "JSON path \"%s\" not found", path);
+    }
+    return false;
 }
 
 /**
@@ -797,15 +828,45 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
     const char *p;
     int n;
     int otype = mjson_find(s, (int)sdslen(s), path, &p, &n);
-    if (otype != MJSON_TOK_OBJECT && otype != MJSON_TOK_ARRAY) {
-        set_parse_error(error, "Invalid json object type for JSON path \"%s\": %d", path, otype);
-        return false;
-    }
-    if (n == 2) {
+    if (otype == MJSON_TOK_INVALID ||
+        n <= 2)
+    {
         //empty object
         return true;
     }
-
+    switch(otype) {
+        case MJSON_TOK_OBJECT:
+        case MJSON_TOK_ARRAY:
+            break;
+        case MJSON_TOK_STRING: {
+            //string handling
+            sds value = sdsempty();
+            if (sds_json_unescape(p + 1, (size_t)(n - 2), &value) == false) {
+                set_parse_error(error, "JSON unescape error for value in JSON path \"%s\" has failed", path);
+                FREE_SDS(value);
+                return false;
+            }
+            const char *key_ptr = strrchr(path, '.');
+            sds key = sdsempty();
+            if (key_ptr != NULL) {
+                key = sdscat(key, key_ptr + 1);
+            }
+            if (icb(key, value, otype, vcb, icb_userdata, error) == false) {
+                MYMPD_LOG_WARN("Iteration callback for path \"%s\" has failed", path);
+                FREE_SDS(value);
+                FREE_SDS(key);
+                return false;
+            }
+            FREE_SDS(value);
+            FREE_SDS(key);
+            return true;
+        }
+        default:
+            //all other types not handled
+            set_parse_error(error, "Invalid json object type for JSON path \"%s\": %d", path, otype);
+            return false;
+    }
+    //iterable object
     sds value = sdsempty();
     sds key = sdsempty();
     int i = 0;
@@ -859,7 +920,13 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                 value = sdscatlen(value, p + voff, (size_t)vlen);
                 break;
         }
-
+        if (sdslen(key) == 0) {
+            //array - fallback to parent key
+            const char *key_ptr = strrchr(path, '.');
+            if (key_ptr != NULL) {
+                key = sdscat(key, key_ptr + 1);
+            }
+        }
         if (icb(key, value, vtype, vcb, icb_userdata, error) == false) {
             MYMPD_LOG_WARN("Iteration callback for path \"%s\" has failed", path);
             FREE_SDS(value);
@@ -878,6 +945,76 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
     FREE_SDS(value);
     FREE_SDS(key);
     return true;
+}
+
+/**
+ * Iteration callback to populate mpd_song tag values
+ * @param key json key
+ * @param value json value
+ * @param vtype mjson value type
+ * @param vcb validation callback
+ * @param userdata pointer to a t_list struct to populate
+ * @param error pointer for error string
+ * @return true on success else false
+ */
+static bool icb_json_get_tag_values(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
+    enum mpd_tag_type tag = mpd_tag_name_parse(key);
+    if (tag == MPD_TAG_UNKNOWN) {
+        set_parse_error(error, "Unknown mpd tag type \"%s\"", key);
+        return false;
+    }
+    switch(vtype) {
+        case MJSON_TOK_STRING: {
+            if (vcb(value) == false) {
+                set_parse_error(error, "Validation of value \"%s\" has failed", value);
+            }
+            mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, value);
+            break;
+        }
+        case MJSON_TOK_ARRAY: {
+            int koff = 0;
+            int klen = 0;
+            int voff = 0;
+            int vlen = 0;
+            int vtype2 = 0;
+            int off = 0;
+            sds tag_value = sdsempty();
+            for (off = 0; (off = mjson_next(value, (int)sdslen(value), off, &koff, &klen, &voff, &vlen, &vtype2)) != 0;) {
+                sdsclear(tag_value);
+                if (vtype2 == MJSON_TOK_STRING &&
+                    vlen > 2)
+                {
+                    if (sds_json_unescape(value + voff + 1, (size_t)(vlen - 2), &tag_value) == true) {
+                        if (vcb(tag_value) == false) {
+                            set_parse_error(error, "Validation of value \"%s\" has failed", tag_value);
+                        }
+                        mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, tag_value);
+                    }
+                    else {
+                        set_parse_error(error, "Validation of value \"%s\" has failed", value);
+                    }
+                }
+            }
+            FREE_SDS(tag_value);
+            break;
+        }
+    }
+    return true;
+}
+
+/**
+ * Converts a json string/array to a mpd song tag value(s)
+ * Shortcut for json_iterate_object with icb_json_get_tag_values
+ * @param s json object to parse
+ * @param path mjson path expression
+ * @param song mpd_song struct
+ * @param vcb validation callback
+ * @param max_elements maximum of elements
+ * @param error pointer for error string
+ * @return true on success else false
+ */
+bool json_get_tag_values(sds s, const char *path, struct mpd_song *song, validate_callback vcb, int max_elements, sds *error) {
+    return json_iterate_object(s, path, icb_json_get_tag_values, song, vcb, max_elements, error);
 }
 
 /**
@@ -957,7 +1094,7 @@ bool json_get_object_string(sds s, const char *path, struct t_list *l, validate_
 }
 
 /**
- * Converts a json object key/values to a t_list struct
+ * Converts a json array to a struct t_tags
  * Shortcut for json_iterate_object with icb_json_get_tag
  * @param s json object to parse
  * @param path mjson path expression
@@ -980,6 +1117,20 @@ bool json_find_key(sds s, const char *path) {
     int n;
     int vtype = mjson_find(s, (int)sdslen(s), path, &p, &n);
     return vtype == MJSON_TOK_INVALID ? false : true;
+}
+
+/**
+ * Searches for a key in json object and returns it as sds string
+ * @param s json object to search
+ * @param path mjson path expression
+ */
+sds json_get_key_as_sds(sds s, const char *path) {
+    const char *p;
+    int n;
+    if (mjson_find(s, (int)sdslen(s), path, &p, &n) == MJSON_TOK_INVALID) {
+        return false;
+    }
+    return sdsnewlen(p, (size_t)n);
 }
 
 /**

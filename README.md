@@ -19,6 +19,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 
 - Concurrent MPD partition support
 - Control mpd functions and options
+- MPD option presets
 - Queue and playlist management
 - Browse mpd database by tags or filesystem
 - Webradios: [Webradiodb](https://jcorporation.github.io/webradiodb/) and [RadioBrowser](https://www.radio-browser.info/)
@@ -45,7 +46,7 @@ To use all myMPD functions you should use the latest stable MPD version.
 
 ## Documentation
 
-For further information on installation and configuration, see the [myMPD documentation](https://jcorporation.github.io/myMPD/)
+For information on installation and configuration, see the [myMPD documentation](https://jcorporation.github.io/myMPD/)
 
 - [Installation](https://jcorporation.github.io/myMPD/installation/)
 - [Configuration](https://jcorporation.github.io/myMPD/configuration/)

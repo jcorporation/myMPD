@@ -108,4 +108,7 @@ struct mpd_song {
 	struct mpd_audio_format audio_format;
 };
 
+struct mpd_song *
+mpd_song_new(const char *uri);
+
 #endif

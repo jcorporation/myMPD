@@ -29,22 +29,6 @@ static bool replace_playlist(struct t_partition_state *partition_state, const ch
  */
 
 /**
- * Returns the mpd database last modification time
- * @param partition_state pointer to partition specific states
- * @return last modification time
- */
-time_t mpd_client_get_db_mtime(struct t_partition_state *partition_state) {
-    struct mpd_stats *stats = mpd_run_stats(partition_state->conn);
-    if (stats == NULL) {
-        mympd_check_error_and_recover(partition_state);
-        return 0;
-    }
-    time_t mtime = (time_t)mpd_stats_get_db_update_time(stats);
-    mpd_stats_free(stats);
-    return mtime;
-}
-
-/**
  * Returns the playlists last modification time
  * @param partition_state pointer to partition specific states
  * @param playlist name of the playlist to check

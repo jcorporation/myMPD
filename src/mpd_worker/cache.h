@@ -9,5 +9,5 @@
 
 #include "src/mpd_worker/state.h"
 
-bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state);
+bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool force);
 #endif

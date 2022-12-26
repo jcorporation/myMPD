@@ -6,11 +6,13 @@
 
 #include "compile_time.h"
 
+#include "dist/libmympdclient/include/mpd/client.h"
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
 #include "src/lib/api.h"
 #include "src/lib/config.h"
 #include "src/lib/config_def.h"
+#include "src/lib/env.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/handle_options.h"
 #include "src/lib/log.h"
@@ -40,7 +42,6 @@
 #endif
 
 #include <grp.h>
-#include <mpd/client.h>
 #include <pthread.h>
 #include <pwd.h>
 #include <signal.h>
@@ -97,32 +98,6 @@ static void mympd_signal_handler(int sig_num) {
 }
 
 /**
- * Sets the owner of a file and group to the primary group of the user
- * @param file_path file to change ownership
- * @param username new owner username
- * @return true on success else false
- */
-static bool do_chown(const char *file_path, const char *username) {
-    errno = 0;
-    struct passwd *pwd = getpwnam(username);
-    if (pwd == NULL) {
-        MYMPD_LOG_ERROR("User \"%s\" does not exist", username);
-        MYMPD_LOG_ERRNO(errno);
-        return false;
-    }
-
-    errno = 0;
-    int rc = chown(file_path, pwd->pw_uid, pwd->pw_gid); /* Flawfinder: ignore */
-    if (rc == -1) {
-        MYMPD_LOG_ERROR("Can't chown \"%s\" to \"%s\"", file_path, username);
-        MYMPD_LOG_ERRNO(errno);
-        return false;
-    }
-    MYMPD_LOG_INFO("Changed ownership of \"%s\" to \"%s\"", file_path, username);
-    return true;
-}
-
-/**
  * Drops the privileges and sets the new groups.
  * Ensures that myMPD does not run as root.
  * @param username drop privileges to this username
@@ -133,7 +108,7 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
     if (startup_uid == 0 &&
         sdslen(username) > 0)
     {
-        MYMPD_LOG_NOTICE("Droping privileges to user \"%s\"", username);
+        MYMPD_LOG_NOTICE("Dropping privileges to user \"%s\"", username);
         //get user
         errno = 0;
         struct passwd *pw = getpwnam(username);
@@ -188,17 +163,16 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
  * @return true on success else false
  */
 static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
-    //check user
     bool chown_dirs = false;
     if (startup_uid == 0) {
+        //check for user
         errno = 0;
         struct passwd *pw = getpwnam(config->user);
         if (pw == NULL) {
-            MYMPD_LOG_WARN("User \"%s\" does not exist", config->user);
+            MYMPD_LOG_ERROR("User \"%s\" does not exist", config->user);
+            return false;
         }
-        else {
-            chown_dirs = true;
-        }
+        chown_dirs = true;
     }
 
     //create the cache directory
@@ -207,7 +181,9 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         return false;
     }
     //directory exists or was created; set user and group
-    if (chown_dirs == true) {
+    if (chown_dirs == true &&
+        is_dir(config->cachedir) == true)
+    {
         MYMPD_LOG_DEBUG("Checking ownership of \"%s\"", config->cachedir);
         if (do_chown(config->cachedir, config->user) == false) {
             return false;
@@ -221,7 +197,9 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         return false;
     }
     //directory exists or was created; set user and group
-    if (chown_dirs == true) {
+    if (chown_dirs == true &&
+        is_dir(config->workdir) == true)
+    {
         MYMPD_LOG_DEBUG("Checking ownership of \"%s\"", config->workdir);
         if (do_chown(config->workdir, config->user) == false) {
             return false;
@@ -229,11 +207,18 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     }
 
     //create the config directory
-    sds testdirname = sdscatfmt(sdsempty(), "%S/config", config->workdir);
+    sds testdirname = sdscatfmt(sdsempty(), "%S/%s", config->workdir, DIR_WORK_CONFIG);
     testdir_rc = testdir("Config dir", testdirname, true, false);
     if (testdir_rc == DIR_CREATE_FAILED) {
         FREE_SDS(testdirname);
         return false;
+    }
+    //directory exists or was created; set user and group
+    if (chown_dirs == true) {
+        MYMPD_LOG_DEBUG("Checking ownership of \"%s\"", testdirname);
+        if (do_chown(testdirname, config->user) == false) {
+            return false;
+        }
     }
     if (testdir_rc == DIR_CREATED) {
         MYMPD_LOG_INFO("First startup of myMPD");
@@ -256,17 +241,18 @@ struct t_subdirs_entry {
  * Subdirs in the working directory to check
  */
 static const struct t_subdirs_entry workdir_subdirs[] = {
-    {"empty",            "Empty dir"},
-    {"pics",             "Pics dir"},
-    {"pics/backgrounds", "Backgrounds dir"},
-    {"pics/thumbs",      "Thumbnails dir"},
+    {DIR_WORK_EMPTY,            "Empty dir"},
+    {DIR_WORK_PICS,             "Pics dir"},
+    {DIR_WORK_PICS_BACKGROUNDS, "Backgrounds dir"},
+    {DIR_WORK_PICS_THUMBS,      "Thumbnails dir"},
     #ifdef MYMPD_ENABLE_LUA
-    {"scripts",          "Scripts dir"},
+    {DIR_WORK_SCRIPTS,          "Scripts dir"},
     #endif
-    {"smartpls",         "Smartpls dir"},
-    {"state",            "State dir"},
-    {"state/default",    "Default partition dir"},
-    {"webradios",        "Webradio dir"},
+    {DIR_WORK_SMARTPLS,         "Smartpls dir"},
+    {DIR_WORK_STATE,            "State dir"},
+    {DIR_WORK_STATE_DEFAULT,    "Default partition dir"},
+    {DIR_WORK_TAGS,             "Tags cache dir"},
+    {DIR_WORK_WEBRADIOS,        "Webradio dir"},
     {NULL, NULL}
 };
 
@@ -274,14 +260,14 @@ static const struct t_subdirs_entry workdir_subdirs[] = {
  * Subdirs in the cache directory to check
  */
 static const struct t_subdirs_entry cachedir_subdirs[] = {
-    {"covercache", "Covercache dir"},
-    {"webradiodb", "Webradiodb cache dir"},
+    {DIR_CACHE_COVER,         "Covercache dir"},
+    {DIR_CACHE_WEBRADIODB,    "Webradiodb cache dir"},
     {NULL, NULL}
 };
 
 /**
  * Small helper function to concatenate the dirname and call testdir
- * @param parent parent direcotory
+ * @param parent parent directory
  * @param subdir directory to check
  * @param description descriptive name for logging
  * @return enum testdir_status
@@ -296,7 +282,7 @@ static bool check_dir(const char *parent, const char *subdir, const char *descri
 /**
  * Creates all the subdirs in the working and cache directories
  * @param config pointer to config struct
- * @return true on success else error
+ * @return true on success, else error
  */
 static bool check_dirs(struct t_config *config) {
     int testdir_rc;
@@ -327,6 +313,24 @@ static bool check_dirs(struct t_config *config) {
 }
 
 /**
+ * Creates SSL certificates if enabled and required
+ * @param config pointer to config struct
+ * @return true on success, else false
+ */
+static bool create_certificates(struct t_config *config) {
+    #ifdef MYMPD_ENABLE_SSL
+        if (config->ssl == true &&
+            config->custom_cert == false &&
+            certificates_check(config->workdir, config->ssl_san) == false)
+        {
+            return false;
+        }
+    #endif
+    (void) config;
+    return true;
+}
+
+/**
  * The main function of myMPD. It handles startup, starts the threads
  * and cleans up on exit. It stays in foreground.
  * @param argc number of command line arguments
@@ -336,15 +340,18 @@ static bool check_dirs(struct t_config *config) {
 int main(int argc, char **argv) {
     //set logging states
     thread_logname = sdsnew("mympd");
-    log_on_tty = isatty(fileno(stdout)) ? true : false;
+    log_on_tty = isatty(fileno(stdout));
     log_to_syslog = false;
     #ifdef MYMPD_DEBUG
         set_loglevel(LOG_DEBUG);
+        MYMPD_LOG_NOTICE("Debug build is running");
     #else
-        set_loglevel(LOG_NOTICE);
+        set_loglevel(
+            getenv_int("MYMPD_LOGLEVEL", CFG_MYMPD_LOGLEVEL, LOGLEVEL_MIN, LOGLEVEL_MAX)
+        );
     #endif
 
-    //set initital states
+    //set initial states
     worker_threads = 0;
     s_signal_received = 0;
     struct t_config *config = NULL;
@@ -363,8 +370,8 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //only user and group have rw access
-    umask(0007); /* Flawfinder: ignore */
+    //only owner should have rw access
+    umask(0077);
 
     mympd_api_queue = mympd_queue_create("mympd_api_queue", QUEUE_TYPE_REQUEST);
     web_server_queue = mympd_queue_create("web_server_queue", QUEUE_TYPE_RESPONSE);
@@ -400,9 +407,6 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //read configuration from environment or set default values
-    mympd_config_defaults(config);
-
     //go into workdir
     errno = 0;
     if (chdir(config->workdir) != 0) {
@@ -411,8 +415,28 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //reads the config from /var/lib/mympd/config folder or writes defaults
-    mympd_read_config(config);
+    //read the configuration from environment or set default values
+    //environment values are only respected at first startup
+    mympd_config_defaults(config);
+
+    //bootstrap - write config files and exit
+    if (config->bootstrap == true) {
+        if (drop_privileges(config->user, startup_uid) == true &&
+            mympd_config_rw(config, true) == true &&
+            create_certificates(config) == true)
+        {
+            printf("Created myMPD config\n");
+            rc = EXIT_SUCCESS;
+        }
+        goto cleanup;
+    }
+
+    //tries to read the config from /var/lib/mympd/config folder
+    //if this is not the first startup of myMPD
+    //initial files are written later, after dropping privileges
+    if (config->first_startup == false) {
+        mympd_config_rw(config, false);
+    }
 
     #ifdef MYMPD_ENABLE_IPV6
         if (sdslen(config->acl) > 0) {
@@ -420,16 +444,8 @@ int main(int argc, char **argv) {
         }
     #endif
 
-    //bootstrap
-    if (config->bootstrap == true) {
-        printf("Created myMPD config and exit\n");
-        rc = EXIT_SUCCESS;
-        goto cleanup;
-    }
-
     //set loglevel
     #ifdef MYMPD_DEBUG
-        MYMPD_LOG_NOTICE("Debug build is running");
         set_loglevel(LOG_DEBUG);
     #else
         set_loglevel(config->loglevel);
@@ -498,17 +514,18 @@ int main(int argc, char **argv) {
         goto cleanup;
     }
 
-    //check for ssl certificates
-    #ifdef MYMPD_ENABLE_SSL
-        if (config->ssl == true &&
-            config->custom_cert == false &&
-            certificates_check(config->workdir, config->ssl_san) == false)
-        {
-            goto cleanup;
-        }
-    #endif
+    //saves the config to /var/lib/mympd/config folder
+    //at first startup of myMPD
+    if (config->first_startup == true) {
+        mympd_config_rw(config, true);
+    }
 
-    //check for needed directories
+    //check ssl certificates
+    if (create_certificates(config) == false) {
+        goto cleanup;
+    }
+
+    //check for required directories
     if (check_dirs(config) == false) {
         goto cleanup;
     }
@@ -566,7 +583,7 @@ int main(int argc, char **argv) {
     mympd_queue_free(mympd_script_queue);
 
     //free config
-    mympd_free_config(config);
+    mympd_config_free(config);
 
     if (mgr != NULL) {
         web_server_free(mgr);

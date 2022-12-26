@@ -44,6 +44,18 @@ void lua_mympd_state_set_i(struct t_list *lua_mympd_state, const char *k, long l
 }
 
 /**
+ * Pushes a double to the lua_mympd_state list
+ * @param lua_mympd_state pointer to a t_list struct
+ * @param k variable name
+ * @param v variable value
+ */
+void lua_mympd_state_set_f(struct t_list *lua_mympd_state, const char *k, double v) {
+    struct t_lua_mympd_state_value *value = malloc_assert(sizeof(struct t_lua_mympd_state_value));
+    value->f = v;
+    list_push(lua_mympd_state, k, LUA_TYPE_INTEGER, NULL, value);
+}
+
+/**
  * Pushes a unsigned int to the lua_mympd_state list
  * @param lua_mympd_state pointer to a t_list struct
  * @param k variable name

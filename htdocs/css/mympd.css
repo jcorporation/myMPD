@@ -573,7 +573,7 @@ div.card-toolbar > form {
 }
 
 .mi-lg {
-  font-size: 2.4rem;
+  font-size: 3rem;
 }
 
 .mi-xs {
@@ -724,7 +724,7 @@ div.key {
 }
 
 .offcanvas-body .dropdown-item {
-  padding: 0.2rem 2rem;
+  padding: 0.2rem 1.5rem;
 }
 
 textarea.small {
@@ -777,10 +777,6 @@ textarea.small {
 
 .carousel-indicators [data-bs-target] {
   border-color: transparent !important;
-}
-
-#logOverview > div {
-  font-size: 0.8rem;
 }
 
 #top-alerts {
@@ -1045,7 +1041,11 @@ button.select-inner-button {
   flex-grow: 1;
 }
 
-.modal-footer button {
+.modal-footer > button {
+  min-width: 6rem;
+}
+
+.modal-footer > div > button {
   min-width: 6rem;
 }
 
@@ -1119,6 +1119,23 @@ div.alert-secondary::before {
   margin-right: 0.5rem;
 }
 
+div.alert-success::before {
+  content: "info";
+  float: left;
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  vertical-align: top;
+  text-rendering: optimizelegibility;
+  font-feature-settings: "liga";
+  margin-right: 0.5rem;
+}
+
 div.alert-secondary {
   background-color: transparent;
   border-color: transparent;
@@ -1128,6 +1145,11 @@ div.alert-secondary {
 
 div.alert-danger {
   background-color: #f8d7da !important;
+}
+
+div#alertUpdateDBState::before,
+div#alertUpdateCacheState::before {
+  content: "autorenew";
 }
 
 input.innerButton {
@@ -1184,4 +1206,8 @@ button.weekday {
 .dropdown-item {
   text-overflow: ellipsis;
   overflow: hidden;
+}
+
+.mirror {
+  transform: scale(1, -1);
 }

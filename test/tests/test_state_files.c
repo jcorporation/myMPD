@@ -15,10 +15,8 @@
 #include <sys/stat.h>
 
 sds get_file_content(void) {
-    FILE *fp = fopen("/tmp/mympd-test/state/test", "r");
     sds line = sdsempty();
-    sds_getline(&line, fp, 1000);
-    fclose(fp);
+    sds_getfile(&line, "/tmp/mympd-test/state/test", 1000, true, true);
     return line;
 }
 
@@ -31,8 +29,9 @@ UTEST(state_files, test_camel_to_snake) {
 }
 
 UTEST(state_files, test_state_file_rw_string_sds) {
+    unlink("/tmp/mympd-test/state/test");
     sds value = sdsnew("blub");
-    value = state_file_rw_string_sds(workdir, "state", "test", value, vcb_isalnum, false);
+    value = state_file_rw_string_sds(workdir, "state", "test", value, vcb_isalnum, true);
     ASSERT_STREQ("blub", value);
     sds content = get_file_content();
     ASSERT_STREQ(content, value);
@@ -42,7 +41,7 @@ UTEST(state_files, test_state_file_rw_string_sds) {
 }
 
 UTEST(state_files, test_state_file_rw_string) {
-    sds value = state_file_rw_string(workdir, "state", "test", "blub", vcb_isalnum, false);
+    sds value = state_file_rw_string(workdir, "state", "test", "blub", vcb_isalnum, true);
     ASSERT_STREQ("blub", value);
     sds content = get_file_content();
     ASSERT_STREQ(value, content);
@@ -52,7 +51,7 @@ UTEST(state_files, test_state_file_rw_string) {
 }
 
 UTEST(state_files, test_state_file_rw_bool) {
-    bool value = state_file_rw_bool(workdir, "state", "test", true, false);
+    bool value = state_file_rw_bool(workdir, "state", "test", true, true);
     ASSERT_TRUE(value);
     sds content = get_file_content();
     ASSERT_STREQ("true", content);
@@ -61,7 +60,7 @@ UTEST(state_files, test_state_file_rw_bool) {
 }
 
 UTEST(state_files, test_state_file_rw_int) {
-    int value = state_file_rw_int(workdir, "state", "test", 10, 1, 20, false);
+    int value = state_file_rw_int(workdir, "state", "test", 10, 1, 20, true);
     ASSERT_EQ(10, value);
     sds content = get_file_content();
     ASSERT_STREQ("10", content);
@@ -70,7 +69,7 @@ UTEST(state_files, test_state_file_rw_int) {
 }
 
 UTEST(state_files, test_state_file_rw_long) {
-    long value = state_file_rw_long(workdir, "state", "test", 10, 1, 20, false);
+    long value = state_file_rw_long(workdir, "state", "test", 10, 1, 20, true);
     ASSERT_EQ(10, value);
     sds content = get_file_content();
     ASSERT_STREQ("10", content);
@@ -79,7 +78,7 @@ UTEST(state_files, test_state_file_rw_long) {
 }
 
 UTEST(state_files, test_state_file_rw_uint) {
-    unsigned value = state_file_rw_uint(workdir, "state", "test", 10, 1, 20, false);
+    unsigned value = state_file_rw_uint(workdir, "state", "test", 10, 1, 20, true);
     ASSERT_EQ((unsigned)10, value);
     sds content = get_file_content();
     ASSERT_STREQ("10", content);

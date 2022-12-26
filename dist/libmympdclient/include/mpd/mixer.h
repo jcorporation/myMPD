@@ -68,6 +68,9 @@ mpd_run_set_volume(struct mpd_connection *connection, unsigned volume);
 /**
  * Changes the volume of all output devices.
  *
+ * This function uses a deprecated feature of MPD, call
+ * mpd_send_set_volume() instead.
+ *
  * @param connection the connection to MPD
  * @param relative_volume the relative volume, an integer between -100 and 100
  * @return true on success, false on error
@@ -79,6 +82,9 @@ mpd_send_change_volume(struct mpd_connection *connection, int relative_volume);
 
 /**
  * Shortcut for mpd_send_change_volume() and mpd_response_finish().
+ *
+ * This function uses a deprecated feature of MPD, call
+ * mpd_run_set_volume() instead.
  *
  * @param connection the connection to MPD
  * @param relative_volume the relative volume, an integer between -100 and 100

@@ -73,15 +73,13 @@ function initBrowseFilesystem() {
     }, false);
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
-        let target;
-        switch(event.target.nodeName) {
-             case 'TD':    target = event.target.parentNode; break;
-             case 'DIV':   target = event.target.parentNode; break;
-             case 'SPAN':
-             case 'SMALL': target = event.target.parentNode.parentNode.parentNode; break;
-             default:      target = event.target;
+        //action td
+        if (event.target.nodeName === 'A') {
+            handleActionTdClick(event);
+            return;
         }
-        if (target.nodeName === 'TR') {
+        const target = getParent(event.target, 'TR');
+        if (checkTargetClick(target) === true) {
             const uri = getData(target, 'uri');
             const dataType = getData(target, 'type');
             switch(dataType) {
@@ -102,10 +100,6 @@ function initBrowseFilesystem() {
                     clickFilesystemPlaylist(uri);
                     break;
             }
-        }
-        else if (target.nodeName === 'A') {
-            //action td
-            handleActionTdClick(event);
         }
     }, false);
 
@@ -158,8 +152,7 @@ function initBrowseFilesystem() {
                 continue;
             }
             const img = elCreateEmpty('div', {});
-            img.style.backgroundImage = 'url("' + subdir + myEncodeURI(obj.result.images[i]) + '"),' +
-                'url("assets/coverimage-loading.svg")';
+            img.style.backgroundImage = getCssImageUri(myEncodeURI(obj.result.images[i]));
             imageList.appendChild(img);
         }
     }
@@ -187,7 +180,7 @@ function initBrowseFilesystem() {
 
     const colspan = settings.colsBrowseFilesystem.length + 1;
     tfoot.appendChild(
-        elCreateNode('tr', {},
+        elCreateNode('tr', {"class": ["not-clickable"]},
             elCreateTextTnNr('td', {"colspan": colspan}, 'Num entries', obj.result.totalEntities)
         )
     );

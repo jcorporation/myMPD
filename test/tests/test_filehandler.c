@@ -12,24 +12,24 @@
 #include "src/lib/sds_extras.h"
 
 UTEST(filehandler, test_cleanup_rm_directory) {
-    int rc = testdir("/tmp/mympd-test/tmp2", "/tmp/mympd-test/tmp2", true);
+    int rc = testdir("/tmp/mympd-test/tmp2", "/tmp/mympd-test/tmp2", true, false);
     ASSERT_EQ(rc, DIR_CREATED);
     bool rc2 = clean_rm_directory("/tmp/mympd-test/tmp2");
     ASSERT_TRUE(rc2);
 }
 
 UTEST(filehandler, test_testdir) {
-    int rc = testdir("workdir", workdir, false);
+    int rc = testdir("workdir", workdir, false, false);
     ASSERT_EQ(rc, DIR_EXISTS);
 
-    rc = testdir("/tmp/mympd-test/tmp2", "/tmp/mympd-test/tmp2", false);
+    rc = testdir("/tmp/mympd-test/tmp2", "/tmp/mympd-test/tmp2", false, false);
     ASSERT_EQ(rc, DIR_NOT_EXISTS);
 
-    rc = testdir("/tmp/mympd-test/tmp2", "/tmp/mympd-test/tmp2", true);
+    rc = testdir("/tmp/mympd-test/tmp2", "/tmp/mympd-test/tmp2", true, false);
     ASSERT_EQ(rc, DIR_CREATED);
     rmdir("/tmp/mympd-test/tmp2");
 
-    rc = testdir("/tmp/mympd-test/tmp2/tmp2", "/tmp/mympd-test/tmp2/tmp2", true);
+    rc = testdir("/tmp/mympd-test/tmp2/tmp2", "/tmp/mympd-test/tmp2/tmp2", true, false);
     ASSERT_EQ(rc, DIR_CREATE_FAILED);
 }
 
@@ -53,18 +53,29 @@ UTEST(filehandler, test_testfile_read) {
     sdsfree(file);
 }
 
-UTEST(sds_extras, test_sds_getfile) {
+UTEST(sds_extras, test_sds_getfile_from_fp) {
     sds line = sdsempty();
     FILE *fp = fopen("/tmp/mympd-test/state/test", "r");
-    int rc = sds_getfile(&line, fp, 1000);
+    int rc = sds_getfile_from_fp(&line, fp, 1000, false);
     fclose(fp);
-    ASSERT_EQ(rc, 0);
+    ASSERT_LT(0, rc);
     ASSERT_STREQ(line, "asdfjlkasdfjklsafd\nasfdsdfawaerwer");
 
     fp = fopen("/tmp/mympd-test/state/test", "r");
-    rc = sds_getfile(&line, fp, 5);
+    rc = sds_getfile_from_fp(&line, fp, 5, true);
     fclose(fp);
-    ASSERT_EQ(rc, -2);
+    ASSERT_EQ(-2, rc);
+    sdsfree(line);
+}
+
+UTEST(sds_extras, test_sds_getfile) {
+    sds line = sdsempty();
+    int rc = sds_getfile(&line, "/tmp/mympd-test/state/test", 1000, false, true);
+    ASSERT_GE(rc, 0);
+    ASSERT_STREQ(line, "asdfjlkasdfjklsafd\nasfdsdfawaerwer");
+
+    rc = sds_getfile(&line, "/tmp/mympd-test/state/test", 5, true, true);
+    ASSERT_EQ(-2, rc);
     sdsfree(line);
 }
 
@@ -73,24 +84,12 @@ UTEST(sds_extras, test_sds_getline) {
     FILE *fp = fopen("/tmp/mympd-test/state/test", "r");
     int rc = sds_getline(&line, fp, 1000);
     fclose(fp);
-    ASSERT_EQ(rc, 0);
+    ASSERT_LT(0, rc);
     ASSERT_STREQ(line, "asdfjlkasdfjklsafd");
 
     fp = fopen("/tmp/mympd-test/state/test", "r");
     rc = sds_getline(&line, fp, 5);
     fclose(fp);
-    ASSERT_EQ(rc, -2);
-    sdsfree(line);
-}
-
-UTEST(sds_extras, test_sds_getline_n) {
-    sds line = sdsempty();
-    FILE *fp = fopen("/tmp/mympd-test/state/test", "r");
-    int rc = sds_getline_n(&line, fp, 1000);
-    fclose(fp);
-    ASSERT_EQ(rc, 0);
-    ASSERT_STREQ(line, "asdfjlkasdfjklsafd\n");
-
-    unlink("/tmp/mympd-test/state/test");
+    ASSERT_EQ(5, rc);
     sdsfree(line);
 }
