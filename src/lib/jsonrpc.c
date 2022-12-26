@@ -828,7 +828,9 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
     const char *p;
     int n;
     int otype = mjson_find(s, (int)sdslen(s), path, &p, &n);
-    if (n == 2) {
+    if (otype == MJSON_TOK_INVALID ||
+        n <= 2)
+    {
         //empty object
         return true;
     }
