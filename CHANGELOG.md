@@ -32,6 +32,7 @@ This release reworks the scripting api and improves the scripting documentation.
 - Upd: documentation improvements
 - Upd: some backend improvements
 - Upd: do not create files with root permissions
+- Upd: start mpd autoconfiguration if `state/mpd_host` doest not exist
 
 ***
 

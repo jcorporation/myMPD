@@ -8,6 +8,7 @@
 #include "src/mympd_api/mympd_api.h"
 
 #include "src/lib/album_cache.h"
+#include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
 #include "src/lib/sds_extras.h"
@@ -35,10 +36,12 @@ void *mympd_api_loop(void *arg_config) {
     struct t_mympd_state *mympd_state = malloc_assert(sizeof(struct t_mympd_state));
     mympd_state_default(mympd_state, (struct t_config *)arg_config);
 
-    //start autoconfiguration for first startup
-    if (mympd_state->config->first_startup == true) {
+    //start autoconfiguration, if mpd_host does not exist
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/mpd_host", mympd_state->config->workdir, DIR_WORK_STATE);
+    if (testfile_read(filepath) == false) {
         mpd_client_autoconf(mympd_state);
     }
+    FREE_SDS(filepath);
 
     //read global states
     mympd_api_settings_statefiles_global_read(mympd_state);
