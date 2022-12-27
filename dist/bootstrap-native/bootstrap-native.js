@@ -4111,7 +4111,7 @@
 
     //check if tooltip/popover overflows window bottom
     const bottomPos = window.innerHeight - topPosition - tipHeight;
-    const scrollHeight = window.scrollHeight;
+    const scrollHeight = 0 - window.scrollY;
     if (bottomPos < scrollHeight) {
       topPosition = topPosition + bottomPos;
       arrowTop = scrollHeight - bottomPos;
