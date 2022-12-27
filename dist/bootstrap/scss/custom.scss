@@ -71,7 +71,6 @@ $toast-header-color: $gray-100;
 $toast-header-background-color: rgba($gray-700, .85);
 $modal-content-bg: $gray-800;
 $modal-header-border-color: $gray-900;
-$btn-close-color: $gray-100;
 $nav-tabs-border-color: $gray-900;
 
 //dark forms
@@ -94,6 +93,8 @@ $form-feedback-icon-invalid: "";
 
 // 3. Include remainder of required Bootstrap stylesheets
 @import "../node_modules/bootstrap/scss/variables";
+@import "../node_modules/bootstrap/scss/variables-dark";
+
 
 $colors: (
   "red":        $red,
