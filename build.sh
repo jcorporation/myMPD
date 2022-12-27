@@ -866,16 +866,18 @@ updatebootstrapnative() {
 
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
-  git clone --depth=1 -b master https://github.com/jcorporation/bootstrap.native.git
+  git clone --depth=1 -b bsn5 git@github.com:jcorporation/bootstrap.native.git
   cd bootstrap.native
-  npm install @rollup/plugin-buble
-  cp "$STARTPATH/dist/bootstrap-native/mympd-config.js" src/
-  cp "$STARTPATH/dist/bootstrap-native/mympd-init.js" src/util/
-  npm run custom INPUTFILE:src/mympd-config.js,OUTPUTFILE:dist/bootstrap-mympd.js,MIN:false,FORMAT:umd
-  npm run custom INPUTFILE:src/mympd-config.js,OUTPUTFILE:dist/bootstrap-mympd.min.js,MIN:true,FORMAT:umd
+  npm install vite
+  cp "$STARTPATH/dist/bootstrap-native/mympd-config.ts" src/index.ts
+  cp "$STARTPATH/dist/bootstrap-native/mympd-init.ts" src/util/
 
-  cp dist/bootstrap-mympd.js "$STARTPATH/dist/bootstrap-native/bootstrap-native.js"
-  cp dist/bootstrap-mympd.min.js "$STARTPATH/dist/bootstrap-native/bootstrap-native.min.js"
+  npm run build-vite
+  cp dist/bootstrap-native.js "$STARTPATH/dist/bootstrap-native/bootstrap-native.min.js"
+
+  sed -i 's/minify: true/minify: false/' vite.config.ts
+  npm run build-vite
+  cp dist/bootstrap-native.js "$STARTPATH/dist/bootstrap-native/bootstrap-native.js"
 
   cd "$STARTPATH" || exit 1
   rm -rf "$TMPDIR"
