@@ -862,26 +862,26 @@ updatelibmympdclient() {
 
 updatebootstrapnative() {
   check_cmd git npm
-  cd dist/bootstrap-native || exit 1
-
+  #clone repository
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
   git clone --depth=1 -b bsn5 git@github.com:jcorporation/bootstrap.native.git
   cd bootstrap.native
   npm install vite
+  #copy custom config
   cp "$STARTPATH/dist/bootstrap-native/mympd-config.ts" src/index.ts
   cp "$STARTPATH/dist/bootstrap-native/mympd-init.ts" src/util/
-
+  #minified build
   npm run build-vite
   grep -v "^//" dist/bootstrap-native.js > "$STARTPATH/dist/bootstrap-native/bootstrap-native.min.js"
-
+  #normal build
   sed -i 's/minify: true/minify: false/' vite.config.ts
   npm run build-vite
   grep -v "^//" dist/bootstrap-native.js > "$STARTPATH/dist/bootstrap-native/bootstrap-native.js"
-
+  #cleanup
   cd "$STARTPATH" || exit 1
   rm -rf "$TMPDIR"
-
+  #update debug build
   if [ -d debug ]
   then
     cp dist/bootstrap-native/bootstrap-native.js htdocs/js/
