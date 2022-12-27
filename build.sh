@@ -873,11 +873,11 @@ updatebootstrapnative() {
   cp "$STARTPATH/dist/bootstrap-native/mympd-init.ts" src/util/
 
   npm run build-vite
-  cp dist/bootstrap-native.js "$STARTPATH/dist/bootstrap-native/bootstrap-native.min.js"
+  grep -v "^//" dist/bootstrap-native.js > "$STARTPATH/dist/bootstrap-native/bootstrap-native.min.js"
 
   sed -i 's/minify: true/minify: false/' vite.config.ts
   npm run build-vite
-  cp dist/bootstrap-native.js "$STARTPATH/dist/bootstrap-native/bootstrap-native.js"
+  grep -v "^//" dist/bootstrap-native.js > "$STARTPATH/dist/bootstrap-native/bootstrap-native.js"
 
   cd "$STARTPATH" || exit 1
   rm -rf "$TMPDIR"
