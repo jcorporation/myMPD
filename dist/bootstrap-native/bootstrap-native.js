@@ -928,7 +928,8 @@ var BSN = function(exports) {
       if (bottomPos < 0) {
         menu.style.overflowY = "auto";
         menu.style.overflowX = "hidden";
-        menu.style.maxHeight = menuHeight + bottomPos - offset + "px";
+        const maxHeight = menuHeight + bottomPos - offset;
+        menu.style.maxHeight = `${maxHeight}px`;
       }
     }
     const margins = dropdownMargin[positionClass];
