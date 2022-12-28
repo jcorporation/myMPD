@@ -36,7 +36,7 @@ function eventChangeTheme(event) {
     const value = getSelectValue(event.target);
     const bgImageEl = document.getElementById('inputWebUIsettinguiBgImage');
     const bgImageValue = getData(bgImageEl, 'value');
-    if (value === 'theme-light') {
+    if (value === 'light') {
         document.getElementById('inputWebUIsettinguiBgColor').value = '#ffffff';
         if (bgImageValue.indexOf('/assets/') === 0) {
             bgImageEl.value = getBgImageText('/assets/mympd-background-light.svg');
@@ -44,7 +44,7 @@ function eventChangeTheme(event) {
         }
     }
     else {
-        //theme-dark is the default
+        //dark is the default
         document.getElementById('inputWebUIsettinguiBgColor').value = '#060708';
         if (bgImageValue.indexOf('/assets/') === 0) {
             bgImageEl.value = getBgImageText('/assets/mympd-background-dark.svg');
@@ -59,7 +59,7 @@ function eventChangeTheme(event) {
  * @param {string} theme theme name
  */
 function toggleThemeInputs(theme) {
-    if (theme === 'theme-autodetect') {
+    if (theme === 'auto') {
         document.getElementById('inputWebUIsettinguiBgColor').parentNode.parentNode.classList.add('d-none');
         document.getElementById('inputWebUIsettinguiBgImage').parentNode.parentNode.classList.add('d-none');
     }
@@ -129,22 +129,23 @@ function parseSettings(obj) {
 
     //theme
     let setTheme = settings.webuiSettings.uiTheme;
-    if (setTheme === 'theme-default') {
-        setTheme = 'theme-dark';
+    switch(setTheme) {
+        case 'theme-autodetect': setTheme = 'auto'; break;
+        case 'theme-light': setTheme = 'light'; break;
+        case 'theme-dark': setTheme = 'dark'; break;
     }
-    else if (setTheme === 'theme-autodetect') {
+    if (setTheme === 'auto') {
         setTheme = window.matchMedia &&
-            window.matchMedia('(prefers-color-scheme: light)').matches ? 'theme-light' : 'theme-dark';
+            window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
     }
-
-    setCssVars(setTheme);
+    document.querySelector('html').setAttribute('data-bs-theme', setTheme);
 
     //background
-    if (settings.webuiSettings.uiTheme === 'theme-autodetect') {
+    if (settings.webuiSettings.uiTheme === 'auto') {
         //in auto mode we set default background
         domCache.body.style.backgroundImage = '';
         document.documentElement.style.setProperty('--mympd-backgroundcolor',
-            (setTheme === 'theme-dark' ? '#060708' : '#ffffff')
+            (setTheme === 'dark' ? '#060708' : '#ffffff')
         );
     }
     else {
@@ -289,30 +290,6 @@ function parseSettings(obj) {
     btnWaiting(document.getElementById('btnApplySettings'), false);
     applyFeatures();
     settingsParsed = 'parsed';
-}
-
-/**
- * Sets theme specific css variables
- * @param {string} theme theme name
- */
-function setCssVars(theme) {
-    switch(theme) {
-        case 'theme-light':
-            document.documentElement.style.setProperty('--bs-body-color', '#343a40');
-            document.documentElement.style.setProperty('--bs-body-color-rgb', '52, 58, 64');
-            document.documentElement.style.setProperty('--bs-body-bg', 'white');
-            document.documentElement.style.setProperty('--bs-dark-rgb', '206, 212, 218');
-            document.documentElement.style.setProperty('--mympd-black-light', '#f8f9fa');
-            document.getElementsByTagName('html')[0].setAttribute('data-bs-theme', 'light');
-            break;
-        default:
-            document.documentElement.style.setProperty('--bs-body-color', '#f8f9fa');
-            document.documentElement.style.setProperty('--bs-body-color-rgb', '248, 249, 250');
-            document.documentElement.style.setProperty('--bs-body-bg', 'black');
-            document.documentElement.style.setProperty('--bs-dark-rgb', '52, 58, 64');
-            document.documentElement.style.setProperty('--mympd-black-light', '#1d2124');
-            document.getElementsByTagName('html')[0].setAttribute('data-bs-theme', 'dark');
-    }
 }
 
 /**

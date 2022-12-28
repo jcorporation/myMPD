@@ -14,82 +14,43 @@ $form-range-thumb-box-shadow: none;
 $form-range-thumb-focus-box-shadow: none;
 $btn-focus-width: 0;
 
-//colors
-$green: #28a745;
-$gray-100: #f8f9fa;
-$gray-200: #e9ecef;
-$gray-600: #6c757d;
-$gray-700: #495057;
-$gray-800: #343a40;
-$gray-900: #212529;
-$primary: $green;
-$dark: $gray-800;
-$body-bg: #000000;
-$body-color: $gray-100;
-$link-color: $body-color;
-
-//table
-$table-caption-color: $gray-100;
-$table-hover-bg: $gray-800;
-
-//breadcrumb
-$breadcrumb-bg: $gray-600;
-$breadcrumb-divider-color: $gray-100;
-$breadcrumb-active-color: $gray-100;
-
 //no hover for buttons
 $btn-hover-bg-shade-amount:       0% !default;
 $btn-hover-bg-tint-amount:        0% !default;
 $btn-hover-border-shade-amount:   0% !default;
 $btn-hover-border-tint-amount:    0% !default;
 
-//links
-$link-decoration: none;
+//disable form feedback icons
+$form-feedback-icon-valid: "";
+$form-feedback-icon-invalid: "";
+
+//colors
+$green: #28a745;
+$gray-100: #f8f9fa;
+$gray-800: #343a40;
+$gray-900: #212529;
+$primary: $green;
+$dark: $gray-800;
+
+//body
+$body-bg: $gray-100;
+$body-color: $gray-900;
 
 //transparent cards
 $card-bg: transparent;
 $card-border-width: 0;
 $card-border-color: transparent;
 
-//dark popover / dropdown / offcanvas / toast / modal
-$offcanvas-bg-color: $gray-800;
+//table
+$table-caption-color: $body-color;
+
+//links
+$link-decoration: none;
+$link-color: $body-color;
+
+//other adjustments
 $offcanvas-padding-x: 0;
-$popover-bg: $gray-800;
 $popover-max-width: none;
-$dropdown-link-color: $gray-100;
-$dropdown-divider-bg: $gray-100;
-$dropdown-dark-bg: $gray-700;
-$dropdown-dark-divider-bg: $gray-100;
-$nav-link-color: $gray-100;
-$nav-link-hover-color: $gray-100;
-$nav-tabs-link-hover-border-color: $gray-900;
-$nav-tabs-link-active-color: $gray-100;
-$nav-tabs-link-active-bg: $gray-900;
-$nav-tabs-link-active-border-color: $gray-900;
-$toast-background-color: rgba($gray-700, .85);
-$toast-header-color: $gray-100;
-$toast-header-background-color: rgba($gray-700, .85);
-$modal-content-bg: $gray-800;
-$modal-header-border-color: $gray-900;
-$nav-tabs-border-color: $gray-900;
-
-//dark forms
-$input-bg: $gray-800;
-$input-disabled-bg: $gray-600; 
-$input-border-color: $gray-600;
-$input-disabled-border-color: $gray-600;
-$list-group-color: $gray-100;
-$list-group-bg: transparent;
-$list-group-hover-bg: $gray-800;
-$list-group-action-color: $gray-100;
-$list-group-action-hover-color: $gray-100;
-$form-select-indicator-color: white;
-$form-select-disabled-bg: $gray-600;
-$form-check-input-border: 1px solid $gray-600;
-$form-check-input-bg: $gray-200;
-
-$form-feedback-icon-valid: "";
-$form-feedback-icon-invalid: "";
 
 // 3. Include remainder of required Bootstrap stylesheets
 @import "../node_modules/bootstrap/scss/variables";

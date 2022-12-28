@@ -758,9 +758,9 @@ const webuiSettingsDefault = {
     "uiTheme": {
         "defaultValue": "theme-dark",
         "validValues": {
-            "theme-autodetect": "Autodetect",
-            "theme-dark": "Dark",
-            "theme-light": "Light"
+            "auto": "Autodetect",
+            "dark": "Dark",
+            "light": "Light"
         },
         "inputType": "select",
         "title": "Theme",

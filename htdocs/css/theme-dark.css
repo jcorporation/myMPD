@@ -1,0 +1,43 @@
+/*
+ SPDX-License-Identifier: GPL-3.0-or-later
+ myMPD (c) 2018-2022 Juergen Mang <mail@jcgames.de>
+ https://github.com/jcorporation/mympd
+*/
+
+html[data-bs-theme="dark"] .navbar {
+  background-color: var(--bs-gray-800);
+}
+
+html[data-bs-theme="dark"] .navbar .btn {
+  color: var(--bs-gray-100);
+}
+
+html[data-bs-theme="dark"] a,
+html[data-bs-theme="dark"] .dropdown-item,
+html[data-bs-theme="dark"] table {
+  color: var(--bs-gray-100);
+}
+
+html[data-bs-theme="dark"] .toast-header {
+  color: var(--bs-gray-100);
+}
+
+html[data-bs-theme="dark"] .nav-tabs .nav-link:hover {
+  color: var(--bs-gray-400);
+}
+
+html[data-bs-theme="dark"] caption {
+  color: var(--bs-body-color);
+}
+
+html[data-bs-theme="dark"] #navbar-main div.active {
+  background-color: var(--mympd-black-light);
+}
+
+html[data-bs-theme="dark"] .breadcrumb {
+  background-color: var(--bs-gray-800);
+}
+
+html[data-bs-theme="dark"] .table-hover > tbody > tr:hover > * {
+  --bs-table-accent-bg: var(--bs-gray-800);
+}

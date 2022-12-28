@@ -72,7 +72,10 @@ body.mobile > footer > nav {
 
 #navbar-main div.active {
   border-radius: 0.25rem;
-  background-color: var(--mympd-black-light);
+}
+
+.navbar .btn:disabled {
+  border-color: transparent;
 }
 
 button.active,

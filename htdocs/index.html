@@ -14,6 +14,7 @@
   <link href="assets/MaterialIcons-Regular.woff2" rel="preload" as="font" type="font/woff2" crossorigin="anonymous"/>
 <!--debug-->  <link href="css/mympd.css" rel="stylesheet"/>
 <!--debug-->  <link href="css/theme-light.css" rel="stylesheet"/>
+<!--debug-->  <link href="css/theme-dark.css" rel="stylesheet"/>
 <!--release   <link href="css/combined.css" rel="stylesheet">-->
   <link href="mympd.webmanifest" rel="manifest" crossorigin="use-credentials"/>
   <link href="assets/appicon-192.png" rel="apple-touch-icon"/>
@@ -34,7 +35,7 @@
   </div>
   <!-- Header -->
   <header>
-    <nav id="header" class="navbar navbar-expand navbar-dark fixed-top bg-dark d-flex justify-content-between">
+    <nav id="header" class="navbar navbar-expand fixed-top d-flex justify-content-between">
       <div id="headerLeft">
         <a class="alwaysEnabled" href="#offcanvasMenu" id="mainMenu" data-bs-toggle="offcanvas" data-title-phrase="myMPD menu">
           <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
@@ -95,7 +96,7 @@
       <div class="card-body">
         <div id="homeActions" class="btn-group">
           <button data-title-phrase="Homescreen" class="btn btn-xs btn-transparent dropdown-toggle mi mi-small" type="button" data-bs-toggle="dropdown">add_to_home_screen</button>
-          <div class="dropdown-menu dropdown-menu-dark px-2" id="homeActionsDropdown">
+          <div class="dropdown-menu px-2" id="homeActionsDropdown">
             <h2 class="dropdown-header" data-phrase="Add to homescreen"></h2>
             <button data-phrase="External link" data-href='{"cmd": "addExternalLinkToHome", "options": []}' class="btn btn-secondary w-100 btn-sm mb-2"></button>
             <button data-phrase="Modal shortcut" data-href='{"cmd": "addOpenModalToHome", "options": []}' class="btn btn-secondary w-100 btn-sm"></button>
@@ -119,14 +120,14 @@
           <div class="btn-group me-2">
             <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalQueueSettings">tune</button>
             <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" data-title-phrase="Select preset"></button>
-            <div class="dropdown-menu dropdown-menu-dark px-2" id="selectPresetDropdown2">
+            <div class="dropdown-menu px-2" id="selectPresetDropdown2">
               <h2 class="dropdown-header" data-phrase="Presets"></h2>
               <div class="d-grid gap-2"></div>
             </div>
           </div>
           <div class="btn-group me-2 featTags">
             <button data-title-phrase="Display tags" id="PlaybackColsBtn" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
-            <div class="dropdown-menu dropdown-menu-dark px-2" id="PlaybackColsDropdown">
+            <div class="dropdown-menu px-2" id="PlaybackColsDropdown">
               <h2 class="dropdown-header" data-phrase="Tags"></h2>
               <form></form>
               <button data-phrase="Apply" data-href='{"cmd": "saveColsDropdown", "options": ["colsPlayback", "PlaybackColsDropdown"]}' class="btn btn-success w-100 btn-sm mt-2"></button>
@@ -154,7 +155,7 @@
         <div class="btn-toolbar card-toolbar" id="QueueCurrentButtonsTop">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
-            <div class="dropdown-menu dropdown-menu-dark px-2">
+            <div class="dropdown-menu px-2">
               <div class="d-grid gap-2">
                 <button data-phrase="Queue" class="btn btn-sm btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
                 <button data-phrase="LastPlayed" class="btn btn-sm btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -168,7 +169,7 @@
                 <span class="mi">search</span>
                 <span data-phrase="Any Tag" id="searchQueueTagsDesc"></span>
               </button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="searchQueueTags"></div>
+              <div class="dropdown-menu px-2" id="searchQueueTags"></div>
             </div>
             <select class="featAdvqueue form-select rounded-0 no-flex" id="searchQueueMatch">
               <option data-phrase="contains" value="contains"></option>
@@ -184,7 +185,7 @@
           <div class="btn-group me-2">
             <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalQueueSettings">tune</button>
             <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" data-title-phrase="Select preset"></button>
-            <div class="dropdown-menu dropdown-menu-dark px-2" id="selectPresetDropdown1">
+            <div class="dropdown-menu px-2" id="selectPresetDropdown1">
               <h2 class="dropdown-header" data-phrase="Presets"></h2>
               <div class="d-grid gap-2"></div>
             </div>
@@ -201,7 +202,7 @@
           <div class="btn-group me-2">
             <button data-title-phrase="Crop queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "clearQueue", "options": []}'>clear_all</button>
             <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown"></button>
-            <div class="dropdown-menu dropdown-menu-dark px-2" id="clearQueueDropdown">
+            <div class="dropdown-menu px-2" id="clearQueueDropdown">
               <div class="d-grid gap-2">
                 <button data-phrase="Clear queue" type="button" class="btn btn-secondary btn-sm" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CLEAR"}]}' ></button>
                 <button data-phrase="Crop queue" type="button" class="btn btn-secondary btn-sm" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_CROP"}]}' ></button>
@@ -233,7 +234,7 @@
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
-            <div class="dropdown-menu dropdown-menu-dark px-2">
+            <div class="dropdown-menu px-2">
               <div class="d-grid gap-2">
                 <button data-phrase="Queue" class="btn btn-sm btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
                 <button data-phrase="LastPlayed" class="btn btn-sm btn-secondary active" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -268,7 +269,7 @@
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
-            <div class="dropdown-menu dropdown-menu-dark px-2">
+            <div class="dropdown-menu px-2">
               <div class="d-grid gap-2">
                 <button data-phrase="Queue" class="btn btn-sm btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "Current"]}'></button>
                 <button data-phrase="LastPlayed" class="btn btn-sm btn-secondary" data-href='{"cmd": "appGoto", "options": ["Queue", "LastPlayed"]}'></button>
@@ -309,7 +310,7 @@
           <div class="btn-toolbar card-toolbar" id="BrowsePlaylistAllButtons">
             <div class="btn-group me-2">
               <button data-title-phrase="Select view" id="BrowseNavPlaylists" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavPlaylistDropdown"></div>
+              <div class="dropdown-menu px-2" id="BrowseNavPlaylistDropdown"></div>
             </div>
           <form id="searchPlaylistsAll" class="flex-grow-1">
             <div class="input-group me-2">
@@ -319,7 +320,7 @@
           </form>
           <div class="btn-group me-2 featSmartpls">
             <button data-title-phrase="Add smart playlist" id="btnAddSmartpls" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">playlist_add</button>
-            <div class="dropdown-menu dropdown-menu-dark px-2" id="dropdownAddSmartpls">
+            <div class="dropdown-menu px-2" id="dropdownAddSmartpls">
               <h2 class="dropdown-header" data-phrase="Add smart playlist"></h2>
               <div class="d-grid gap-2">
                 <button data-phrase="Best rated" data-href='{"cmd": "addSmartpls", "options": ["bestRated"]}' type="button" class="btn btn-secondary"></button>
@@ -364,7 +365,7 @@
               <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary mi rounded me-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
               <div class="btn-group me-2">
                 <button data-title-phrase="Sort playlist" id="btnSortPlaylist" class="btn btn-secondary dropdown-toggle rounded-start mi" type="button" data-bs-toggle="dropdown">sort</button>
-                <div class="dropdown-menu dropdown-menu-dark px-2" id="dropdownSortPlaylist">
+                <div class="dropdown-menu px-2" id="dropdownSortPlaylist">
                   <h2 class="dropdown-header" data-phrase="Sort playlist"></h2>
                   <div id="dropdownSortPlaylistTags"></div>
                 </div>
@@ -377,7 +378,7 @@
             <div class="btn-group me-2">
               <button data-title-phrase="Append to queue" class="btn btn-secondary mi" data-href='{"cmd": "currentPlaylistAddTo", "options": ["appendQueue"]}'>library_add</button>
               <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
-              <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide">
+              <div class="dropdown-menu px-2 dropdownWide">
                 <div class="d-grid gap-2">
                   <button data-phrase="Append to queue" data-href='{"cmd": "currentPlaylistAddTo", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
                   <button data-phrase="Append to queue and play" data-href='{"cmd": "currentPlaylistAddTo", "options": ["appendPlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
@@ -409,7 +410,7 @@
           <div class="btn-toolbar card-toolbar" id="BrowseDatabaseTagListButtons">
             <div class="btn-group me-2">
               <button data-title-phrase="Select view" id="btnBrowseDatabaseTagListTag" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseDatabaseTagListTagDropdown"></div>
+              <div class="dropdown-menu px-2" id="BrowseDatabaseTagListTagDropdown"></div>
             </div>
             <div class="input-group me-2 flex-grow-1">
               <span class="input-group-text bg-secondary">
@@ -436,7 +437,7 @@
           <div class="btn-toolbar card-toolbar" id="BrowseDatabaseAlbumListButtons">
             <div class="btn-group me-2">
               <button data-title-phrase="Select view" id="btnBrowseDatabaseAlbumListTag" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseDatabaseAlbumListTagDropdown"></div>
+              <div class="dropdown-menu px-2" id="BrowseDatabaseAlbumListTagDropdown"></div>
             </div>
             <div class="input-group me-2 flex-grow-1">
               <div class="btn-group">
@@ -444,7 +445,7 @@
                   <span class="mi">search</span>
                   <span data-phrase="AlbumArtist" id="searchDatabaseAlbumListTagsDesc"></span>
                 </button>
-                <div class="dropdown-menu dropdown-menu-dark px-2" id="searchDatabaseAlbumListTags"></div>
+                <div class="dropdown-menu px-2" id="searchDatabaseAlbumListTags"></div>
               </div>
               <select class="form-select rounded-0 no-flex" id="searchDatabaseAlbumListMatch">
                 <option data-phrase="contains" value="contains"></option>
@@ -458,7 +459,7 @@
             </div>
             <div class="btn-group me-2">
               <button id="btnDatabaseAlbumListSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">sort</button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="databaseAlbumListSortTags">
+              <div class="dropdown-menu px-2" id="databaseAlbumListSortTags">
                 <div id="databaseAlbumListSortTagsList"></div>
                 <div class="dropdown-divider"></div>
                 <div class="form-check">
@@ -469,7 +470,7 @@
             </div>
             <div class="btn-group me-2 featTags">
               <button data-title-phrase="Display tags" id="DatabaseAlbumListColsBtn" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseDatabaseAlbumListColsDropdown">
+              <div class="dropdown-menu px-2" id="BrowseDatabaseAlbumListColsDropdown">
                 <h2 class="dropdown-header" data-phrase="Tags"></h2>
                 <form></form>
                 <button data-phrase="Apply" data-href='{"cmd": "saveColsDatabaseAlbumList", "options": []}' class="btn btn-success w-100 btn-sm mt-2"></button>
@@ -495,7 +496,7 @@
             <div class="btn-group me-2">
               <button data-title-phrase="Append to queue" class="btn btn-secondary mi" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}'>library_add</button>
               <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
-              <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide">
+              <div class="dropdown-menu px-2 dropdownWide">
                 <div class="d-grid gap-2">
                   <button data-phrase="Append to queue" data-href='{"cmd": "addAlbum", "options": ["appendQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
                   <button data-phrase="Append to queue and play" data-href='{"cmd": "addAlbum", "options": ["appendPlayQueue"]}' type="button" class="btn btn-secondary btn-sm"></button>
@@ -509,7 +510,7 @@
             </div>
             <div class="btn-group me-2 featTags">
               <button data-title-phrase="Display tags" id="DatabaseAlbumDetailInfoColsBtn" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">settings</button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseDatabaseAlbumDetailInfoColsDropdown">
+              <div class="dropdown-menu px-2" id="BrowseDatabaseAlbumDetailInfoColsDropdown">
                 <h2 class="dropdown-header" data-phrase="Tags"></h2>
                 <form></form>
                 <button data-phrase="Apply" data-href='{"cmd": "saveColsDropdown", "options": ["colsBrowseDatabaseAlbumDetailInfo", "BrowseDatabaseAlbumDetailInfoColsDropdown"]}' class="btn btn-success w-100 btn-sm mt-2"></button>
@@ -540,7 +541,7 @@
         <div class="btn-toolbar card-toolbar" id="BrowseFilesystemButtons">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" id="BrowseNavFilesystem" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
-            <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavFilesystemDropdown"></div>
+            <div class="dropdown-menu px-2" id="BrowseNavFilesystemDropdown"></div>
           </div>
           <form class="flex-grow-1">
             <div class="input-group me-2">
@@ -551,7 +552,7 @@
           <div class="btn-group me-2" id="BrowseFilesystemAddAllSongsGrp">
             <button data-title-phrase="Append to queue" data-href='{"cmd": "addAllFromSearch", "options": ["append", "dir"]}' id="BrowseFilesystemAddAllSongs" class="btn btn-secondary mi">library_add</button>
             <button id="BrowseFilesystemAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
-            <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide" id="BrowseFilesystemAddAllSongsDropdown">
+            <div class="dropdown-menu px-2 dropdownWide" id="BrowseFilesystemAddAllSongsDropdown">
               <div class="d-grid gap-2">
                 <button data-href='{"cmd": "addAllFromSearch", "options": ["append", "dir"]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm"></button>
                 <button data-href='{"cmd": "addAllFromSearch", "options": ["appendPlay", "dir"]}' data-phrase="Append to queue and play" type="button" class="btn btn-secondary btn-sm"></button>
@@ -584,12 +585,12 @@
           <div class="btn-toolbar card-toolbar" id="BrowseRadioFavoritesButtons">
             <div class="btn-group me-2">
               <button data-title-phrase="Select view" id="BrowseNavRadioFavorites" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavRadioFavoritesDropdown"></div>
+              <div class="dropdown-menu px-2" id="BrowseNavRadioFavoritesDropdown"></div>
             </div>
             <div class="btn-group me-2">
               <button data-title-phrase="Browse WebradioDB" class="btn btn-secondary mi" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Webradiodb"]}'>radio</button>
               <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown"></button>
-              <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide">
+              <div class="dropdown-menu px-2 dropdownWide">
                 <div class="d-grid gap-2">
                   <button data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Webradiodb"]}' data-phrase="Browse WebradioDB" type="button" class="btn btn-secondary btn-sm"></button>
                   <button data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Radiobrowser"]}' data-phrase="Browse radio-browser.info" type="button" class="btn btn-secondary btn-sm"></button>
@@ -617,7 +618,7 @@
           <div class="btn-toolbar card-toolbar" id="BrowseRadioWebradiodbButtons">
             <div class="btn-group me-2">
               <button data-title-phrase="Select view" id="BrowseNavWebradiodb" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavWebradiodbDropdown"></div>
+              <div class="dropdown-menu px-2" id="BrowseNavWebradiodbDropdown"></div>
             </div>
             <div class="btn-group me-2">
               <button data-title-phrase="Webradio favorites" data-href='{"cmd": "appGoto", "options": ["Browse", "Radio", "Favorites"]}' type="button" class="btn btn-secondary mi">favorite</button>
@@ -666,7 +667,7 @@
           <div class="btn-toolbar card-toolbar" id="BrowseRadioRadiobrowserButtons">
             <div class="btn-group me-2">
               <button data-title-phrase="Select view" id="BrowseNavRadiobrowser" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="BrowseNavRadiobrowserDropdown">
+              <div class="dropdown-menu px-2" id="BrowseNavRadiobrowserDropdown">
               </div>
             </div>
             <div class="btn-group me-2">
@@ -713,7 +714,7 @@
                 <span class="mi">search</span>
                 <span data-phrase="Any Tag" id="searchTagsDesc"></span>
               </button>
-              <div class="dropdown-menu dropdown-menu-dark px-2" id="searchTags"></div>
+              <div class="dropdown-menu px-2" id="searchTags"></div>
             </div>
             <select class="form-select rounded-0 no-flex" id="searchMatch">
               <option data-phrase="contains" value="contains"></option>
@@ -728,7 +729,7 @@
           <div class="btn-group me-2">
             <button data-title-phrase="Append to queue" id="searchAddAllSongs" class="btn btn-secondary mi" data-href='{"cmd": "addAllFromSearch", "options": ["append", "search"]}'>library_add</button>
             <button id="searchAddAllSongsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" type="button" data-bs-toggle="dropdown"></button>
-            <div class="dropdown-menu dropdown-menu-dark px-2 dropdownWide" id="searchAddAllSongsDropdown">
+            <div class="dropdown-menu px-2 dropdownWide" id="searchAddAllSongsDropdown">
               <div class="d-grid gap-2">
                 <button data-href='{"cmd": "addAllFromSearch", "options": ["append", "search"]}' data-phrase="Append to queue" type="button" class="btn btn-secondary btn-sm"></button>
                 <button data-href='{"cmd": "addAllFromSearch", "options": ["appendPlay", "search"]}' data-phrase="Append to queue and play" type="button" class="btn btn-secondary btn-sm"></button>
@@ -760,17 +761,17 @@
   </main>
   <!-- Footer -->
   <footer class="fixed-bottom">
-    <div id="footerProgressPos" class="bg-secondary px-2 py-1 rounded-sm"></div>
+    <div id="footerProgressPos" class="px-2 py-1 rounded-sm"></div>
     <div id="footerProgress" class="progress clickable align-items-center">
       <div id="footerProgressBar" class="progress-bar highlight-bg"></div>
     </div>
-    <nav class="navbar navbar-expand navbar-dark bg-dark">
+    <nav class="navbar navbar-expand">
       <div class="btn-toolbar nav-item flex-nowrap">
         <div class="btn-group me-2" id="playControlBtns">
-          <button data-title-phrase="Previous" data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn btn-dark px-2 mi rounded-2">skip_previous</button>
-          <button data-title-phrase="Stop" data-href='{"cmd": "clickStop", "options": []}' id="btnStop" type="button" class="btn btn-dark px-2 mi rounded-2 d-none">stop</button>
-          <button data-title-phrase="Toggle play" data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg btn-dark px-1 mi mi-lg rounded-2">pause</button>
-          <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn btn-dark px-2 mi rounded-2">skip_next</button>
+          <button data-title-phrase="Previous" data-href='{"cmd": "clickPrev", "options": []}' id="btnPrev" type="button" class="btn px-2 mi rounded-2">skip_previous</button>
+          <button data-title-phrase="Stop" data-href='{"cmd": "clickStop", "options": []}' id="btnStop" type="button" class="btn px-2 mi rounded-2 d-none">stop</button>
+          <button data-title-phrase="Toggle play" data-href='{"cmd": "clickPlay", "options": []}' id="btnPlay" type="button" class="btnPlay btn btn-lg px-1 mi mi-lg rounded-2">pause</button>
+          <button data-title-phrase="Next" data-href='{"cmd": "clickNext", "options": []}' id="btnNext" type="button" class="btn px-2 mi rounded-2">skip_next</button>
         </div>
         <div class="align-self-center footerCounter">
           <small id="counter"></small>
@@ -785,18 +786,18 @@
       </div>
       <div class="btn-toolbar nav-item flex-nowrap ms-3">
         <div class="btn-group ms-2 d-none dropup" id="footerQueueSettings">
-          <button data-title-phrase="Playback settings" type="button" class="btn btn-dark mi pe-0 rounded-end" data-bs-toggle="modal" data-bs-target="#modalQueueSettings">tune</button>
-          <button type="button" class="btn btn-dark dropdown-toggle dropdown-toggle-split rounded-start" data-bs-toggle="dropdown" data-title-phrase="Select preset"></button>
-          <div class="dropdown-menu dropdown-menu-dark px-2" id="selectPresetDropdown3">
+          <button data-title-phrase="Playback settings" type="button" class="btn mi pe-0 rounded-end" data-bs-toggle="modal" data-bs-target="#modalQueueSettings">tune</button>
+          <button type="button" class="btn dropdown-toggle dropdown-toggle-split rounded-start" data-bs-toggle="dropdown" data-title-phrase="Select preset"></button>
+          <div class="dropdown-menu px-2" id="selectPresetDropdown3">
             <h2 class="dropdown-header" data-phrase="Presets"></h2>
             <div class="d-grid gap-2"></div>
           </div>
         </div>
         <div class="btn-group dropup">
-          <button data-title-phrase="Outputs" id="volumeMenu" class="btn btn-dark dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
+          <button data-title-phrase="Outputs" id="volumeMenu" class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside">
             <span class="mi">volume_up</span><span class="featVolumeLevel ms-1"></span>
           </button>
-          <div id="outputsDropdown" class="dropdown-menu dropdown-menu-dark">
+          <div id="outputsDropdown" class="dropdown-menu">
             <form id="outputs" class="px-3 py-2 d-grid gap-2"></form>
             <div class="dropdown-divider featPartitions"></div>
               <a class="dropdown-item featPartitions" data-title-phrase="Manage partitions" data-bs-toggle="modal" href="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
@@ -815,8 +816,8 @@
           </div>
         </div>
         <div class="btn-group dropup featLocalPlayback">
-          <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn btn-dark dropdown-toggle px-2 mi" data-bs-toggle="dropdown" data-bs-auto-close="outside">airplay</button>
-          <div class="dropdown-menu dropdown-menu-dark dropdownWide">
+          <button data-title-phrase="Local playback" id="localPlaybackMenu" class="btn dropdown-toggle px-2 mi" data-bs-toggle="dropdown" data-bs-auto-close="outside">airplay</button>
+          <div class="dropdown-menu dropdownWide">
             <h5 class="dropdown-header"><span class="mi mi-small me-2">airplay</span><span data-phrase="Local playback"></span></h5>
             <hr class="mt-0"/>
             <div id="errorLocalPlayback" class="alert alert-danger mx-3 p-2 d-none" data-phrase="Error loading stream"></div>
@@ -840,7 +841,7 @@
           </div>
         </div>
         <div class="btn-group featFooterNotifications" id="footerNotifications">
-          <button data-title-phrase="Notifications" class="btn btn-dark mi" data-bs-toggle="modal" data-bs-target="#modalNotifications">chat_bubble_outline</button>
+          <button data-title-phrase="Notifications" class="btn mi" data-bs-toggle="modal" data-bs-target="#modalNotifications">chat_bubble_outline</button>
         </div>
       </div>
     </nav>
@@ -1163,7 +1164,7 @@
                         <input class="form-control" id="inputEnabledTags" readonly="readonly"/>
                         <div class="btn-group">
                           <button id="btnEnabledTags" type="button" data-bs-toggle="dropdown" class="square-start text-left btn btn-secondary dropdown-toggle"></button>
-                          <div id="listEnabledTags" class="dropdown-menu dropdown-menu-dark px-2"></div>
+                          <div id="listEnabledTags" class="dropdown-menu px-2"></div>
                         </div>
                       </div>
                     </div>
@@ -1175,7 +1176,7 @@
                         <input class="form-control" id="inputSearchTags" readonly="readonly"/>
                         <div class="btn-group">
                           <button id="btnSearchTags" type="button" data-bs-toggle="dropdown" class="square-start text-left btn btn-secondary dropdown-toggle"></button>
-                          <div id="listSearchTags" class="dropdown-menu dropdown-menu-dark px-2"></div>
+                          <div id="listSearchTags" class="dropdown-menu px-2"></div>
                         </div>
                       </div>
                     </div>
@@ -1187,7 +1188,7 @@
                         <input class="form-control" id="inputBrowseTags" readonly="readonly"/>
                         <div class="btn-group">
                           <button id="btnBrowseTags" type="button" data-bs-toggle="dropdown" class="square-start text-left btn btn-secondary dropdown-toggle"></button>
-                          <div id="listBrowseTags" class="dropdown-menu dropdown-menu-dark px-2"></div>
+                          <div id="listBrowseTags" class="dropdown-menu px-2"></div>
                         </div>
                       </div>
                     </div>
@@ -1213,7 +1214,7 @@
                         <input class="form-control" id="inputGeneratePlsTags" readonly="readonly"/>
                         <div class="btn-group">
                           <button id="btnGeneratePlsTags" type="button" data-bs-toggle="dropdown" class="square-start text-left btn btn-secondary dropdown-toggle"></button>
-                          <div id="listGeneratePlsTags" class="dropdown-menu dropdown-menu-dark px-2"></div>
+                          <div id="listGeneratePlsTags" class="dropdown-menu px-2"></div>
                         </div>
                       </div>
                     </div>
@@ -2005,7 +2006,7 @@
                     <input id="inputMountUrl" class="form-control"/>
                     <div class="btn-group">
                       <button id="btnDropdownNeighbors" class="btn btn-secondary dropdown-toggle dropdown-toggle-split square-start rounded-end" type="button" data-bs-toggle="dropdown"></button>
-                      <div id="dropdownNeighbors" class="dropdown-menu dropdown-menu-dark dropdown-menu-right border-0 p-0 ">
+                      <div id="dropdownNeighbors" class="dropdown-menu dropdown-menu-right border-0 p-0 ">
                         <div class="list-group list-group-scroll"></div>
                       </div>
                     </div>
@@ -2114,7 +2115,7 @@
                 <textarea class="form-control text-monospace border-secondary" id="textareaScriptContent" rows="10"></textarea>
                 <div class="btn-group mt-2 me-2">
                   <button id="btnDropdownAddAPIcall" data-title-phrase="Insert API call" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">api</button>
-                  <div class="dropdown-menu dropdown-menu-dark px-2" id="dropdownAddAPIcall">
+                  <div class="dropdown-menu px-2" id="dropdownAddAPIcall">
                     <div class="input-group">
                       <select class="form-select" id="selectAPIcall"></select>
                       <button class="btn btn-success mi" id="btnAddAPIcall" data-title-phrase="Add">add</button>
@@ -2127,7 +2128,7 @@
                 </div>
                 <div class="btn-group mt-2 me-2">
                   <button id="btnDropdownAddFunction" data-title-phrase="Insert function" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">functions</button>
-                  <div class="dropdown-menu dropdown-menu-dark px-2" id="dropdownAddFunction">
+                  <div class="dropdown-menu px-2" id="dropdownAddFunction">
                     <div class="input-group">
                       <select class="form-select" id="selectFunction"></select>
                       <button class="btn btn-success mi" id="btnAddFunction" data-title-phrase="Add">add</button>
@@ -2137,7 +2138,7 @@
                 </div>
                 <div class="btn-group mt-2 me-2">
                   <button id="btnDropdownImportScript" data-title-phrase="Import script" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">cloud_download</button>
-                  <div class="dropdown-menu dropdown-menu-dark px-2" id="dropdownImportScript">
+                  <div class="dropdown-menu px-2" id="dropdownImportScript">
                     <div class="input-group">
                       <select class="form-select" id="selectImportScript"></select>
                       <button class="btn btn-success mi" id="btnImportScript" data-title-phrase="Add">add</button>
@@ -2397,7 +2398,7 @@
                     <input class="form-control" id="inputHomeIconLigature" readonly="readonly"/>
                     <div class="btn-group">
                       <button id="btnHomeIconLigature" type="button" data-bs-toggle="dropdown" class="square-start text-left btn btn-secondary dropdown-toggle"></button>
-                      <div id="dropdownHomeIconLigature" class="dropdown-menu dropdown-menu-dark px-2">
+                      <div id="dropdownHomeIconLigature" class="dropdown-menu px-2">
                         <div class="row">
                           <div class="col position-relative">
                             <input data-is="mympd-input-clear" data-clear-event="keyup" id="searchHomeIconLigature" class="form-control" data-placeholder-phrase="Filter"/>

@@ -4,155 +4,41 @@
  https://github.com/jcorporation/mympd
 */
 
-html[data-bs-theme="light"] .btn-dark,
-html[data-bs-theme="light"] .btn-dark:hover {
-  color: var(--bs-gray-800);
-  background-color: var(--bs-gray-400);
-  border-color: var(--bs-gray-400);
-}
-
-html[data-bs-theme="light"] .list-group-item,
-html[data-bs-theme="light"] .nav-link {
-  color: var(--bs-gray-800);
-}
-
-html[data-bs-theme="light"] .list-group-item-action:hover,
-html[data-bs-theme="light"] .list-group-item-action:focus {
+html[data-bs-theme="light"] .navbar {
   background-color: var(--bs-gray-400);
 }
 
-html[data-bs-theme="light"] .btn-secondary,
-html[data-bs-theme="light"] .bg-secondary {
-  color: var(--bs-gray-800) !important;
-  background-color: var(--bs-gray-400) !important;
-  border-color: var(--bs-gray-400) !important;
+html[data-bs-theme="light"] .form-control::placeholder {
+  color: var(--bs-gray-500);
 }
 
-html[data-bs-theme="light"] .border-secondary {
-  border-color: var(--bs-gray-400);
+html[data-bs-theme="light"] #navbar-main div.active {
+  background-color: var(--bs-gray-200);
 }
 
-html[data-bs-theme="light"] .modal-content,
-html[data-bs-theme="light"] .offcanvas,
-html[data-bs-theme="light"] .dropdown-menu,
-html[data-bs-theme="light"] .popover,
-html[data-bs-theme="light"] .popover-header {
-  background-color: #fff;
-  color: var(--bs-gray-800);
+html[data-bs-theme="light"] #footerProgressPos {
+  background-color: var(--bs-gray-100);
+  border: 1px solid var(--bs-gray-400);
 }
 
-html[data-bs-theme="light"] .bs-popover-top > .popover-arrow::after,
-html[data-bs-theme="light"] .bs-popover-auto[data-popper-placement^="top"] > .popover-arrow::after {
-  border-top-color: var(--bs-gray-400);
-}
-
-html[data-bs-theme="light"] .popover-body {
-  color: var(--bs-gray-800);
-}
-
-html[data-bs-theme="light"] .dropdown-menu-dark .dropdown-header {
-  color: var(--bs-gray-800);
-}
-
-html[data-bs-theme="light"] a,
-html[data-bs-theme="light"] .dropdown-item,
-html[data-bs-theme="light"] table {
-  color: var(--bs-gray-800);
-}
-
-html[data-bs-theme="light"] .nav-tabs .nav-link.active,
 html[data-bs-theme="light"] .dropdown-item:hover {
   background-color: var(--bs-gray-400);
   color: var(--bs-gray-800);
 }
 
-html[data-bs-theme="light"] .nav-tabs .nav-link:hover,
-html[data-bs-theme="light"] .nav-tabs .nav-link.active {
-  border-color: var(--bs-gray-400);
-}
-
-html[data-bs-theme="light"] .nav-tabs {
-  border-bottom-color: var(--bs-gray-400);
-}
-
-html[data-bs-theme="light"] .modal-header {
-  border-bottom-color: var(--bs-gray-400);
-}
-
-html[data-bs-theme="light"] .modal-footer {
-  border-top-color: var(--bs-gray-400);
-}
-
-html[data-bs-theme="light"] .form-control,
-html[data-bs-theme="light"] .form-control:focus,
-html[data-bs-theme="light"] .form-select {
-  background-color: var(--bs-gray-200);
-  color: var(--bs-gray-800);
-  border-color: var(--bs-gray-400);
-}
-
-html[data-bs-theme="light"] .form-select {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-}
-
-html[data-bs-theme="light"] .btn-close {
-  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23343a40'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
-}
-
-html[data-bs-theme="light"] button.select-inner-button {
-  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
-}
-
-html[data-bs-theme="light"] .table-hover > tbody > tr:hover > * {
-  color: var(--bs-gray-800);
-
-  --bs-table-accent-bg: var(--bs-gray-400);
-}
-
-html[data-bs-theme="light"] .toast-header,
-html[data-bs-theme="light"] .toast {
-  background-color: rgba(206, 212, 218, 85%);
-  color: var(--bs-gray-800);
-}
-
-html[data-bs-theme="light"] .dropdown-divider {
-  border-top-color: var(--bs-gray-400);
+html[data-bs-theme="light"] .btn-secondary,
+html[data-bs-theme="light"] .bg-secondary {
+  color: var(--bs-gray-800) !important;
+  background-color: var(--bs-gray-500) !important;
+  border-color: var(--bs-gray-500) !important;
 }
 
 html[data-bs-theme="light"] .breadcrumb {
   background-color: var(--bs-gray-200);
 }
 
-html[data-bs-theme="light"] .breadcrumb-item + .breadcrumb-item::before,
-html[data-bs-theme="light"] .breadcrumb-item.active {
-  color: inherit;
-}
+html[data-bs-theme="light"] .table-hover > tbody > tr:hover > * {
+  color: var(--bs-gray-800);
 
-html[data-bs-theme="light"] .border-secondary {
-  border-color: var(--bs-gray-400) !important;
-}
-
-html[data-bs-theme="light"] div.key {
-  background-color: var(--bs-gray-400);
-}
-
-html[data-bs-theme="light"] #badgeQueueItems {
-  background-color: var(--bs-gray-500) !important;
-}
-
-html[data-bs-theme="light"] caption {
-  color: var(--bs-body-color);
-}
-
-html[data-bs-theme="light"] .btn {
-  color: var(--bs-body-color);
-}
-
-html[data-bs-theme="light"] .btn-danger,
-html[data-bs-theme="light"] .btn-success {
-  color: var(--mympd-highlightcolor-contrast);
-}
-
-html[data-bs-theme="light"] .album-cover {
-  border-color: var(--bs-gray-400);
+  --bs-table-accent-bg: var(--bs-gray-400);
 }

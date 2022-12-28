@@ -1206,7 +1206,7 @@ run_stylelint() {
     return 1
   fi
   rc=0
-  for F in mympd.css theme-light.css
+  for F in mympd.css theme-light.css theme-dark.css
   do
     echo "Linting $F"
     if ! npx stylelint "htdocs/css/$F"
