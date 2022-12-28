@@ -930,6 +930,10 @@ var BSN = function(exports) {
         menu.style.overflowX = "hidden";
         const maxHeight = menuHeight + bottomPos - offset;
         menu.style.maxHeight = `${maxHeight}px`;
+      } else {
+        menu.style.removeProperty("overflow-y");
+        menu.style.removeProperty("overflow-x");
+        menu.style.removeProperty("max-height");
       }
     }
     const margins = dropdownMargin[positionClass];
@@ -1810,6 +1814,10 @@ var BSN = function(exports) {
       tooltip.style.overflowY = "auto";
       tooltip.style.overflowX = "hidden";
       tooltip.style.maxHeight = "100vh";
+    } else {
+      tooltip.style.removeProperty("overflow-y");
+      tooltip.style.removeProperty("overflow-x");
+      tooltip.style.removeProperty("max-height");
     }
     qn(tooltip, {
       top: `${topPosition}px`,
