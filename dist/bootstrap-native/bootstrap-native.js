@@ -26,7 +26,7 @@ var BSN = function(exports) {
     registry: e,
     removeListener: r
   }, Symbol.toStringTag, { value: "Module" }));
-  const ge = "aria-describedby", Ee = "aria-expanded", be = "aria-hidden", we = "aria-modal", Ae = "aria-pressed", Se = "aria-selected", H = "DOMContentLoaded", _ = "focus", tt = "focusin", et = "focusout", ct = "keydown", it = "keyup", ut = "click", dt = "mousedown", ft = "hover", mt = "mouseenter", gt = "mouseleave", ht = "mousemove", Mt = "pointerdown", kt = "pointermove", Tt = "pointerup", Lt = "resize", xt = "scroll", Bt = "touchstart", He = "ArrowDown", Pe = "ArrowUp", Ue = "ArrowLeft", Fe = "ArrowRight", je = "Escape", Qt = "transitionDuration", qt = "transitionDelay", D = "transitionend", U = "transitionProperty", Gt = navigator.userAgentData, S = Gt, { userAgent: jt } = navigator, M = jt, I = /iPhone|iPad|iPod|Android/i;
+  const ge = "aria-describedby", Ee = "aria-expanded", be = "aria-hidden", we = "aria-modal", Ae = "aria-pressed", Se = "aria-selected", H = "DOMContentLoaded", _ = "focus", tt = "focusin", et = "focusout", ct = "keydown", it = "keyup", ut = "click", dt = "mousedown", ft = "hover", mt = "mouseenter", gt = "mouseleave", Mt = "pointerdown", kt = "pointermove", Tt = "pointerup", Lt = "resize", xt = "scroll", Bt = "touchstart", He = "ArrowDown", Pe = "ArrowUp", Ue = "ArrowLeft", Fe = "ArrowRight", je = "Escape", Qt = "transitionDuration", qt = "transitionDelay", D = "transitionend", U = "transitionProperty", Gt = navigator.userAgentData, S = Gt, { userAgent: jt } = navigator, M = jt, I = /iPhone|iPad|iPod|Android/i;
   S ? S.brands.some((t) => I.test(t.brand)) : I.test(M);
   const z = /(iPhone|iPod|iPad)/, ln = S ? S.brands.some((t) => z.test(t.brand)) : z.test(M);
   M ? M.includes("Firefox") : false;
@@ -191,7 +191,7 @@ var BSN = function(exports) {
       return false;
     const { top: e2, bottom: n } = w(t), { clientHeight: o } = k(t);
     return e2 <= o && n >= 0;
-  }, so = (t) => typeof t == "function" || false, uo = (t) => a(t) && ["SVG", "Image", "Video", "Canvas"].some((e2) => t.constructor.name.includes(e2)) || false, lo = (t) => v(t) && t.constructor.name === "NodeList" || false, po = (t) => k(t).dir === "rtl", mo = (t) => a(t) && ["TABLE", "TD", "TH"].includes(t.nodeName) || false, de = (t, e2) => t ? t.closest(e2) || de(t.getRootNode().host, e2) : null, go = (t, e2) => u(t) ? t : (a(e2) ? e2 : d()).querySelector(t), pe = (t, e2) => (a(e2) ? e2 : d()).getElementsByTagName(t), bo = (t, e2) => (a(e2) ? e2 : d()).querySelectorAll(t), ho = (t, e2) => (e2 && a(e2) ? e2 : d()).getElementsByClassName(
+  }, so = (t) => typeof t == "function" || false, lo = (t) => v(t) && t.constructor.name === "NodeList" || false, po = (t) => k(t).dir === "rtl", mo = (t) => a(t) && ["TABLE", "TD", "TH"].includes(t.nodeName) || false, de = (t, e2) => t ? t.closest(e2) || de(t.getRootNode().host, e2) : null, go = (t, e2) => u(t) ? t : (a(e2) ? e2 : d()).querySelector(t), pe = (t, e2) => (a(e2) ? e2 : d()).getElementsByTagName(t), bo = (t, e2) => (a(e2) ? e2 : d()).querySelectorAll(t), ho = (t, e2) => (e2 && a(e2) ? e2 : d()).getElementsByClassName(
     t
   ), yo = (t, e2) => t.matches(e2);
   const fadeClass = "fade";
@@ -199,7 +199,7 @@ var BSN = function(exports) {
   const dataBsDismiss = "data-bs-dismiss";
   const alertString = "alert";
   const alertComponent = "Alert";
-  const version = "5.0.0-alpha1";
+  const version = "5.0.0-alpha2";
   const Version = version;
   class BaseComponent {
     element;
@@ -1687,7 +1687,7 @@ var BSN = function(exports) {
     left: "start",
     right: "end"
   };
-  const styleTip = (self, e2) => {
+  const styleTip = (self) => {
     const tipClasses = /\b(top|bottom|start|end)+/;
     const { element, tooltip, container, options, arrow } = self;
     if (!tooltip)
@@ -1728,6 +1728,7 @@ var BSN = function(exports) {
       bottom: ""
     });
     let topPosition = 0;
+    let bottomPosition = "";
     let leftPosition = 0;
     let rightPosition = "";
     let arrowTop = "";
@@ -1760,55 +1761,38 @@ var BSN = function(exports) {
       } else {
         leftPosition = x2 + elemWidth + (isPopover ? arrowWidth : 0);
       }
-      if (topExceed) {
+      if (topExceed && bottomExceed) {
+        topPosition = 0;
+        bottomPosition = 0;
+        arrowTop = elemRectTop + elemHeight / 2 - arrowHeight / 2;
+      } else if (topExceed) {
         topPosition = y2;
+        bottomPosition = "";
         arrowTop = elemHeight / 2 - arrowWidth;
       } else if (bottomExceed) {
         topPosition = y2 - tipHeight + elemHeight;
+        bottomPosition = "";
         arrowTop = tipHeight - elemHeight / 2 - arrowWidth;
       } else {
         topPosition = y2 - tipHeight / 2 + elemHeight / 2;
         arrowTop = tipHeight / 2 - arrowHeight / 2;
       }
     } else if (verticals.includes(placement)) {
-      if (e2 && uo(element)) {
-        const eX = e2.clientX;
-        const eY = e2.clientY;
-        if (placement === "top") {
-          topPosition = eY - tipHeight - arrowWidth;
-        } else {
-          topPosition = eY + arrowWidth;
-        }
-        if (e2.clientX - tipWidth / 2 < leftBoundry) {
-          leftPosition = RTL ? scrollbarWidth : 0;
-          arrowLeft = eX - arrowAdjust;
-          arrowLeft -= fixedParent ? RTL ? scrollbarWidth : 0 : 0;
-        } else if (e2.clientX + tipWidth / 2 > rightBoundry) {
-          leftPosition = "auto";
-          rightPosition = !RTL ? scrollbarWidth : 0;
-          arrowRight = rightBoundry - eX - arrowAdjust;
-          arrowRight += fixedParent ? RTL ? scrollbarWidth : 0 : 0;
-        } else {
-          leftPosition = eX - tipWidth / 2;
-          arrowLeft = tipWidth / 2 - arrowAdjust;
-        }
+      if (placement === "top") {
+        topPosition = y2 - tipHeight - (isPopover ? arrowHeight : 0);
       } else {
-        if (placement === "top") {
-          topPosition = y2 - tipHeight - (isPopover ? arrowHeight : 0);
-        } else {
-          topPosition = y2 + elemHeight + (isPopover ? arrowHeight : 0);
-        }
-        if (leftExceed) {
-          leftPosition = 0;
-          arrowLeft = x2 + elemWidth / 2 - arrowAdjust;
-        } else if (rightExceed) {
-          leftPosition = "auto";
-          rightPosition = 0;
-          arrowRight = elemWidth / 2 + rightBoundry - elemRectRight - arrowAdjust;
-        } else {
-          leftPosition = x2 - tipWidth / 2 + elemWidth / 2;
-          arrowLeft = tipWidth / 2 - arrowAdjust;
-        }
+        topPosition = y2 + elemHeight + (isPopover ? arrowHeight : 0);
+      }
+      if (leftExceed) {
+        leftPosition = 0;
+        arrowLeft = x2 + elemWidth / 2 - arrowAdjust;
+      } else if (rightExceed) {
+        leftPosition = "auto";
+        rightPosition = 0;
+        arrowRight = elemWidth / 2 + rightBoundry - elemRectRight - arrowAdjust;
+      } else {
+        leftPosition = x2 - tipWidth / 2 + elemWidth / 2;
+        arrowLeft = tipWidth / 2 - arrowAdjust;
       }
     }
     const bottomPos = window.innerHeight - topPosition - tipHeight;
@@ -1828,6 +1812,7 @@ var BSN = function(exports) {
     }
     qn(tooltip, {
       top: `${topPosition}px`,
+      bottom: bottomPosition === "" ? "" : `${bottomPosition}px`,
       left: leftPosition === "auto" ? leftPosition : `${leftPosition}px`,
       right: rightPosition !== "" ? `${rightPosition}px` : ""
     });
@@ -2000,11 +1985,9 @@ var BSN = function(exports) {
     const action = add ? E$1 : r;
     const { element } = self;
     action(d(element), Bt, self.handleTouch, Rn);
-    if (!uo(element)) {
-      [xt, Lt].forEach((ev) => {
-        action($n(element), ev, self.update, Rn);
-      });
-    }
+    [xt, Lt].forEach((ev) => {
+      action($n(element), ev, self.update, Rn);
+    });
   };
   const tooltipShownAction = (self) => {
     const { element } = self;
@@ -2013,14 +1996,16 @@ var BSN = function(exports) {
     Q(element, shownTooltipEvent);
     Gn.clear(element, "in");
   };
-  const tooltipHiddenAction = (self, callback) => {
-    const { element } = self;
+  const tooltipHiddenAction = (self) => {
+    const { element, onHideComplete } = self;
     const hiddenTooltipEvent = Wn(`hidden.bs.${se(self.name)}`);
     toggleTooltipAction(self);
     removeTooltip(self);
     Q(element, hiddenTooltipEvent);
-    if (so(callback))
-      callback();
+    if (so(onHideComplete)) {
+      onHideComplete();
+      self.onHideComplete = void 0;
+    }
     Gn.clear(element, "out");
   };
   const toggleTooltipHandlers = (self, add) => {
@@ -2033,12 +2018,8 @@ var BSN = function(exports) {
       return;
     self.enabled = !!add;
     const triggerOptions = trigger?.split(" ");
-    const elemIsMedia = uo(element);
-    if (elemIsMedia) {
-      action(element, ht, self.update, Rn);
-    }
     triggerOptions?.forEach((tr) => {
-      if (elemIsMedia || tr === ft) {
+      if (tr === ft) {
         action(element, dt, self.show);
         action(element, mt, self.show);
         if (dismissible && btn) {
@@ -2065,13 +2046,11 @@ var BSN = function(exports) {
     const { offsetHeight, scrollHeight } = container;
     const parentModal = de(element, `.${modalString}`);
     const parentOffcanvas = de(element, `.${offcanvasString}`);
-    if (!uo(element)) {
-      const win = $n(element);
-      const overflow = offsetHeight !== scrollHeight;
-      const scrollTarget = overflow && container === offsetParent ? container : win;
-      action(scrollTarget, Lt, self.update, Rn);
-      action(scrollTarget, xt, self.update, Rn);
-    }
+    const win = $n(element);
+    const overflow = offsetHeight !== scrollHeight;
+    const scrollTarget = overflow && container === offsetParent ? container : win;
+    action(scrollTarget, Lt, self.update, Rn);
+    action(scrollTarget, xt, self.update, Rn);
     if (parentModal)
       action(parentModal, `hide.bs.${modalString}`, self.hide);
     if (parentOffcanvas)
@@ -2123,7 +2102,7 @@ var BSN = function(exports) {
     get defaults() {
       return tooltipDefaults;
     }
-    show(e2) {
+    show() {
       const { options, tooltip, element, container, offsetParent, id } = this;
       const { animation } = options;
       const outTimer = Gn.get(element, "out");
@@ -2138,7 +2117,7 @@ var BSN = function(exports) {
               return;
             appendPopup(tooltip, container === offsetParent ? container : void 0);
             F(element, ge, `#${id}`);
-            this.update(e2);
+            this.update();
             toggleTooltipOpenHandlers(this, true);
             if (!kn(tooltip, showClass))
               Mn(tooltip, showClass);
@@ -2152,7 +2131,7 @@ var BSN = function(exports) {
         );
       }
     }
-    hide(e2, callback) {
+    hide() {
       const { options, tooltip, element, container, offsetParent } = this;
       const { animation, delay } = options;
       Gn.clear(element, "in");
@@ -2164,26 +2143,26 @@ var BSN = function(exports) {
             Q(element, hideTooltipEvent);
             if (hideTooltipEvent.defaultPrevented)
               return;
-            this.update(e2);
+            this.update();
             Nn(tooltip, showClass);
             toggleTooltipOpenHandlers(this);
             if (animation)
-              zn(tooltip, () => tooltipHiddenAction(this, callback));
+              zn(tooltip, () => tooltipHiddenAction(this));
             else
-              tooltipHiddenAction(this, callback);
+              tooltipHiddenAction(this);
           },
           delay + 17,
           "out"
         );
       }
     }
-    update(e2) {
-      styleTip(this, e2);
+    update() {
+      styleTip(this);
     }
-    toggle(e2) {
+    toggle() {
       const { tooltip, container, offsetParent } = this;
       if (tooltip && !hasPopup(tooltip, container === offsetParent ? container : void 0))
-        this.show(e2);
+        this.show();
       else
         this.hide();
     }
@@ -2199,7 +2178,8 @@ var BSN = function(exports) {
       const { animation } = options;
       if (enabled) {
         if (tooltip && hasPopup(tooltip, container === offsetParent ? container : void 0) && animation) {
-          this.hide(void 0, () => toggleTooltipHandlers(this));
+          this.onHideComplete = () => toggleTooltipHandlers(this);
+          this.hide();
         } else {
           toggleTooltipHandlers(this);
         }
@@ -2225,7 +2205,8 @@ var BSN = function(exports) {
       const callback = () => disposeTooltipComplete(this, () => super.dispose());
       if (options.animation && tooltip && hasPopup(tooltip, container === offsetParent ? container : void 0)) {
         this.options.delay = 0;
-        this.hide(void 0, callback);
+        this.onHideComplete = callback;
+        this.hide();
       } else {
         callback();
       }
