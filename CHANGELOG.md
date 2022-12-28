@@ -28,7 +28,8 @@ This release reworks the scripting api and improves the scripting documentation.
 - Feat: rework main menu
 - Feat: add shortcuts for more modals
 - Upd: some UI cleanups and improvements #909
-- Upd: Bootstrap 5.2.3
+- Upd: Bootstrap 5.3.0-alpha1
+- Upd: bootstrap.native 5.0.0-alpha2
 - Upd: documentation improvements
 - Upd: some backend improvements
 - Upd: do not create files with root permissions
