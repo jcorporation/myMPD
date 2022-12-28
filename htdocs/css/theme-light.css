@@ -13,7 +13,7 @@ html[data-bs-theme="light"] .form-control::placeholder {
 }
 
 html[data-bs-theme="light"] #navbar-main div.active {
-  background-color: var(--bs-gray-200);
+  background-color: var(--bs-gray-100);
 }
 
 html[data-bs-theme="light"] #footerProgressPos {
@@ -29,8 +29,8 @@ html[data-bs-theme="light"] .dropdown-item:hover {
 html[data-bs-theme="light"] .btn-secondary,
 html[data-bs-theme="light"] .bg-secondary {
   color: var(--bs-gray-800) !important;
-  background-color: var(--bs-gray-500) !important;
-  border-color: var(--bs-gray-500) !important;
+  background-color: var(--bs-gray-400) !important;
+  border-color: var(--bs-gray-400) !important;
 }
 
 html[data-bs-theme="light"] .breadcrumb {
@@ -41,4 +41,12 @@ html[data-bs-theme="light"] .table-hover > tbody > tr:hover > * {
   color: var(--bs-gray-800);
 
   --bs-table-accent-bg: var(--bs-gray-400);
+}
+
+html[data-bs-theme="light"] #badgeQueueItems {
+  background-color: var(--bs-gray-500) !important;
+}
+
+html[data-bs-theme="light"] .dropdown-divider {
+  border-top-color: var(--bs-gray-400);
 }

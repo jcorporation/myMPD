@@ -41,3 +41,7 @@ html[data-bs-theme="dark"] .breadcrumb {
 html[data-bs-theme="dark"] .table-hover > tbody > tr:hover > * {
   --bs-table-accent-bg: var(--bs-gray-800);
 }
+
+.form-range::-moz-range-track {
+  background-color: #dee2e6;
+}
