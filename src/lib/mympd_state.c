@@ -26,10 +26,11 @@
  * @param mympd_state pointer to central myMPD state
  * @param free true=free the struct, else not
  */
-void mympd_state_save(struct t_mympd_state *mympd_state, bool free) {
+void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data) {
     mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
     mympd_api_timer_file_save(&mympd_state->timer_list, mympd_state->config->workdir);
     mympd_api_trigger_file_save(&mympd_state->trigger_list, mympd_state->config->workdir);
+    sticker_cache_write(&mympd_state->mpd_state->sticker_cache, mympd_state->config->workdir, free_data);
 
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
@@ -37,7 +38,7 @@ void mympd_state_save(struct t_mympd_state *mympd_state, bool free) {
         presets_save(partition_state);
         partition_state = partition_state->next;
     }
-    if (free == true) {
+    if (free_data == true) {
         mympd_state_free(mympd_state);
     }
 }
