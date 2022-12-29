@@ -24,7 +24,7 @@
 /**
  * Saves in-memory states to disc. This is done on shutdown and on SIGHUP.
  * @param mympd_state pointer to central myMPD state
- * @param free true=free the struct, else not
+ * @param free_data true=free the struct, else not
  */
 void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data) {
     mympd_api_home_file_save(&mympd_state->home_list, mympd_state->config->workdir);
