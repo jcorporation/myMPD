@@ -35,7 +35,7 @@ html[data-bs-theme="dark"] caption {
 }
 
 html[data-bs-theme="dark"] #navbar-main div.active {
-  background-color: #1d2124;
+  background-color: var(--bs-gray-900);
 }
 
 html[data-bs-theme="dark"] .breadcrumb {
@@ -47,7 +47,7 @@ html[data-bs-theme="dark"] .table-hover > tbody > tr:hover > * {
 }
 
 .form-range::-moz-range-track {
-  background-color: #dee2e6;
+  background-color: var(--bs-gray-300);
 }
 
 html[data-bs-theme="dark"] .top-alert-dismissible .btn-close-alert {
