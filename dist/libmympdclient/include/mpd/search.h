@@ -146,6 +146,19 @@ mpd_search_db_tags(struct mpd_connection *connection, enum mpd_tag_type type);
 bool mpd_count_db_songs(struct mpd_connection *connection);
 
 /**
+ * Gathers statistics on a set of songs in the database.
+ * This is the case insensitive variant of mpd_count_db_songs().
+ * Constraints may be specified with mpd_search_add_tag_constraint().
+ * Send the command with mpd_search_commit(), and read the response
+ * with mpd_recv_stats().
+ *
+ * @param connection the connection to MPD
+ * @return true on success, false on error
+ */
+bool
+mpd_searchcount_db_songs(struct mpd_connection *connection);
+
+/**
  * Limit the search to a certain directory.
  *
  * @param connection a #mpd_connection
