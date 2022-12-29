@@ -51,7 +51,9 @@ function toggleAlert(alertBoxId, state, msg) {
     }
     else if (alertBoxEl === null) {
         //create new alert
-        alertBoxEl = elCreateText('div', {"id": alertBoxId, "class": ["alert", "top-alert", "d-flex", "flex-row"]}, msg);
+        alertBoxEl = elCreateNode('div', {"id": alertBoxId, "class": ["alert", "top-alert", "d-flex", "flex-row"]},
+            elCreateText('span', {}, msg)
+        );
         switch(alertBoxId) {
             case 'alertMpdStatusError': {
                 alertBoxEl.classList.add('alert-danger', 'top-alert-dismissible');
@@ -74,17 +76,13 @@ function toggleAlert(alertBoxId, state, msg) {
     }
     else {
         //replace the message
-        alertBoxEl.textContent = msg;
+        alertBoxEl.firstElementChild.textContent = msg;
     }
 
     //check if we should show the alert container
     if (topAlert.childElementCount > 0) {
         elShow(topAlert);
-        const topPadding = window.innerWidth < window.innerHeight
-            ? document.getElementById('header').offsetHeight
-            : 0;
-        const mt = topAlert.offsetHeight - topPadding;
-        domCache.main.style.marginTop = mt + 'px';
+        domCache.main.style.marginTop = topAlert.offsetHeight + 'px';
     }
     else {
         domCache.main.style.marginTop = '0';
