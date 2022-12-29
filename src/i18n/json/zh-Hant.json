@@ -221,7 +221,7 @@
     "Enter": "",
     "Enter pin": "",
     "Error clearing the covercache": "",
-    "Error connection to radio-browser.info": "",
+    "Error connecting to radio-browser.info": "",
     "Error cropping the covercache": "",
     "Error executing script %{script}": "",
     "Error executing script %{script}: Can not open or read script file": "",

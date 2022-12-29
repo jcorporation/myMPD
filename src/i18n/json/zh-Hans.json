@@ -221,7 +221,7 @@
     "Enter": "输入",
     "Enter pin": "输入 Pin",
     "Error clearing the covercache": "清除封面缓存错误",
-    "Error connection to radio-browser.info": "radio-browser.info 连接错误",
+    "Error connecting to radio-browser.info": "radio-browser.info 连接错误",
     "Error cropping the covercache": "裁剪封面缓存错误",
     "Error executing script %{script}": "执行脚本出错 %{script}",
     "Error executing script %{script}: Can not open or read script file": "执行脚本出错 %{script}: 不能打开或读取脚本文件",

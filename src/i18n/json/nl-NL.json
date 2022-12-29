@@ -221,7 +221,7 @@
     "Enter": "Invoeren",
     "Enter pin": "Voer pin in",
     "Error clearing the covercache": "Fout bij opschonen covercache",
-    "Error connection to radio-browser.info": "Geen verbinding met radio-browser.info",
+    "Error connecting to radio-browser.info": "Geen verbinding met radio-browser.info",
     "Error cropping the covercache": "Fout bij inkorten covercache",
     "Error executing script %{script}": "Fout bij uitvoeren script %{script}",
     "Error executing script %{script}: Can not open or read script file": "Fout bij uitvoeren script %{script}: Kan script niet openen of lezen",

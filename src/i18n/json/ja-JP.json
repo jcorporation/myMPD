@@ -221,7 +221,7 @@
     "Enter": "入力",
     "Enter pin": "PINを入力",
     "Error clearing the covercache": "カバーキャッシュの消去中にエラーが発生しました",
-    "Error connection to radio-browser.info": "radio-browser.infoへの接続中にエラーが発生しました",
+    "Error connecting to radio-browser.info": "radio-browser.infoへの接続中にエラーが発生しました",
     "Error cropping the covercache": "カバーキャッシュのクロップ中にエラーが発生しました",
     "Error executing script %{script}": "スクリプト %{script} の実行中にエラーが発生しました",
     "Error executing script %{script}: Can not open or read script file": "スクリプト %{script} の実行中にエラーが発生しました: スクリプトファイルが開けない、または読み込めない",

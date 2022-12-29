@@ -221,7 +221,7 @@
     "Enter": "Entrez",
     "Enter pin": "Entrez un PIN",
     "Error clearing the covercache": "Erreur à l'effacement du cache des jaquettes",
-    "Error connection to radio-browser.info": "Erreur à la connexion sur radio-browser.info",
+    "Error connecting to radio-browser.info": "Erreur à la connexion sur radio-browser.info",
     "Error cropping the covercache": "Erreur au troncage du cache des couvertures d'album",
     "Error executing script %{script}": "Erreur à l'éxecution du sript %{script}",
     "Error executing script %{script}: Can not open or read script file": "Erreur à l'éxecution du sript %{script}: Ouverture ou lecture du fichier de script impossible",

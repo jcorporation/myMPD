@@ -221,7 +221,7 @@
     "Enter": "입력",
     "Enter pin": "Pin 입력",
     "Error clearing the covercache": "음반 표지 지우기 오류",
-    "Error connection to radio-browser.info": "radio-browser.info 연결 오류",
+    "Error connecting to radio-browser.info": "radio-browser.info 연결 오류",
     "Error cropping the covercache": "음반 표지 잘라내기 오류",
     "Error executing script %{script}": "스크립트 %{script} 실행 오류",
     "Error executing script %{script}: Can not open or read script file": "스크립트 %{script} 실행 오류: 스크립트 파일을 열거나 읽을 수 없음",

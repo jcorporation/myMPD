@@ -221,7 +221,7 @@
     "Enter": "Entrar",
     "Enter pin": "Introducir PIN",
     "Error clearing the covercache": "Error limpiando la cache de carátulas",
-    "Error connection to radio-browser.info": "Error de conexión con radio-browser.info",
+    "Error connecting to radio-browser.info": "Error de conexión con radio-browser.info",
     "Error cropping the covercache": "Error recortando la caché de caratulas",
     "Error executing script %{script}": "Error ejecutando el script %{script}",
     "Error executing script %{script}: Can not open or read script file": "Error ejecutando el script %{script}: No se puede abrir o leer el archivo de script\n",

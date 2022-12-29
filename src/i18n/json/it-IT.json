@@ -221,7 +221,7 @@
     "Enter": "Inserisci",
     "Enter pin": "Inserisci pin",
     "Error clearing the covercache": "Errore svuotando la covercache",
-    "Error connection to radio-browser.info": "Errore di connessione a radio-browser.info",
+    "Error connecting to radio-browser.info": "Errore di connessione a radio-browser.info",
     "Error cropping the covercache": "Errore troncando la covercache",
     "Error executing script %{script}": "Errore esecuzione script %{script}",
     "Error executing script %{script}: Can not open or read script file": "Errore esecuzione script %{script}: impossibile aprire o leggere il file di script",
