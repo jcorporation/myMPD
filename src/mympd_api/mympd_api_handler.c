@@ -144,6 +144,56 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             async = true;
             mpd_worker_start(mympd_state, request);
             break;
+        case INTERNAL_API_ALBUMCACHE_SKIPPED:
+            mympd_state->mpd_state->album_cache.building = false;
+            response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
+            break;
+        case INTERNAL_API_STICKERCACHE_SKIPPED:
+            mympd_state->mpd_state->sticker_cache.building = false;
+            response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
+            break;
+        case INTERNAL_API_ALBUMCACHE_ERROR:
+            mympd_state->mpd_state->album_cache.building = false;
+            response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating album cache");
+            break;
+        case INTERNAL_API_STICKERCACHE_ERROR:
+            mympd_state->mpd_state->sticker_cache.building = false;
+            response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "Error creating sticker cache");
+            break;
+        case INTERNAL_API_STICKERCACHE_CREATED:
+            if (request->extra != NULL) {
+                sticker_cache_free(&mympd_state->mpd_state->sticker_cache);
+                mympd_state->mpd_state->sticker_cache.cache = (rax *) request->extra;
+                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
+                MYMPD_LOG_INFO("Sticker cache was replaced");
+            }
+            else {
+                MYMPD_LOG_ERROR("Sticker cache is NULL");
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "Sticker cache is NULL");
+            }
+            mympd_state->mpd_state->sticker_cache.building = false;
+            break;
+        case INTERNAL_API_ALBUMCACHE_CREATED:
+            if (request->extra != NULL) {
+                //first clear the jukebox queues - it has references to the album cache
+                MYMPD_LOG_INFO("Clearing jukebox queues");
+                jukebox_clear_all(mympd_state);
+                //free the old album cache and replace it with the freshly generated one
+                album_cache_free(&mympd_state->mpd_state->album_cache);
+                mympd_state->mpd_state->album_cache.cache = (rax *) request->extra;
+                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
+                MYMPD_LOG_INFO("Album cache was replaced");
+            }
+            else {
+                MYMPD_LOG_ERROR("Album cache is NULL");
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album cache is NULL");
+            }
+            mympd_state->mpd_state->album_cache.building = false;
+            break;
         case MYMPD_API_PICTURE_LIST:
             if (json_get_string(request->data, "$.params.type", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
                 response->data = mympd_api_settings_picture_list(mympd_state->config->workdir, response->data, request->id, sds_buf1);
@@ -667,46 +717,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             list_clear(&attributes);
             break;
         }
-        case INTERNAL_API_ALBUMCACHE_SKIPPED:
-            mympd_state->mpd_state->album_cache.building = false;
-            response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
-            break;
-        case INTERNAL_API_STICKERCACHE_SKIPPED:
-            mympd_state->mpd_state->sticker_cache.building = false;
-            response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
-            break;
-        case INTERNAL_API_STICKERCACHE_CREATED:
-            if (request->extra != NULL) {
-                sticker_cache_free(&mympd_state->mpd_state->sticker_cache);
-                mympd_state->mpd_state->sticker_cache.cache = (rax *) request->extra;
-                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
-                MYMPD_LOG_INFO("Sticker cache was replaced");
-            }
-            else {
-                MYMPD_LOG_ERROR("Sticker cache is NULL");
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "Sticker cache is NULL");
-            }
-            mympd_state->mpd_state->sticker_cache.building = false;
-            break;
-        case INTERNAL_API_ALBUMCACHE_CREATED:
-            if (request->extra != NULL) {
-                //first clear the jukebox queues - it has references to the album cache
-                MYMPD_LOG_INFO("Clearing jukebox queues");
-                jukebox_clear_all(mympd_state);
-                //free the old album cache and replace it with the freshly generated one
-                album_cache_free(&mympd_state->mpd_state->album_cache);
-                mympd_state->mpd_state->album_cache.cache = (rax *) request->extra;
-                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
-                MYMPD_LOG_INFO("Album cache was replaced");
-            }
-            else {
-                MYMPD_LOG_ERROR("Album cache is NULL");
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album cache is NULL");
-            }
-            mympd_state->mpd_state->album_cache.building = false;
-            break;
         case MYMPD_API_MESSAGE_SEND:
             if (json_get_string(request->data, "$.params.channel", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.message", 1, CONTENT_LEN_MAX, &sds_buf2, vcb_isname, &error) == true)

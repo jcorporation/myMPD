@@ -85,7 +85,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
     if (mpd_worker_state->partition_state->mpd_state->feat_tags == true ||
         mpd_worker_state->partition_state->mpd_state->feat_stickers == true)
     {
-        rc =cache_init(mpd_worker_state, album_cache.cache, sticker_cache.cache);
+        rc = cache_init(mpd_worker_state, album_cache.cache, sticker_cache.cache);
     }
 
     //push album cache building response to mpd_client thread
@@ -103,10 +103,16 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
         else {
             album_cache_free(&album_cache);
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "Update of album cache failed");
+            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_ERROR, NULL, mpd_worker_state->partition_state->name);
+            request->data = jsonrpc_end(request->data);
+            mympd_queue_push(mympd_api_queue, request, 0);
         }
     }
     else {
         MYMPD_LOG_INFO("Skipped album cache creation, tags are disabled");
+        struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
+        request->data = jsonrpc_end(request->data);
+        mympd_queue_push(mympd_api_queue, request, 0);
     }
 
     //push sticker cache building response to mpd_client thread
@@ -124,10 +130,16 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
         else {
             sticker_cache_free(&sticker_cache);
             send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, MPD_PARTITION_ALL, "Update of sticker cache failed");
+            struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STICKERCACHE_ERROR, NULL, mpd_worker_state->partition_state->name);
+            request->data = jsonrpc_end(request->data);
+            mympd_queue_push(mympd_api_queue, request, 0);
         }
     }
     else {
         MYMPD_LOG_INFO("Skipped sticker cache creation, stickers are disabled");
+        struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STICKERCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
+        request->data = jsonrpc_end(request->data);
+        mympd_queue_push(mympd_api_queue, request, 0);
     }
 
     send_jsonrpc_event(JSONRPC_EVENT_UPDATE_CACHE_FINISHED, MPD_PARTITION_ALL);
