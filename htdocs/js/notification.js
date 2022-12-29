@@ -9,7 +9,7 @@
  * Initializes the notification html elements
  */
 function initNotifications() {
-    document.getElementById('modalNotifications').addEventListener('show.bs.modal', function () {
+    document.getElementById('modalNotifications').addEventListener('show.bs.modal', function() {
         showMessages();
     });
 }
