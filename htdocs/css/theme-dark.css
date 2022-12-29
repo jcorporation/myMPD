@@ -39,7 +39,7 @@ html[data-bs-theme="dark"] #navbar-main div.active {
 }
 
 html[data-bs-theme="dark"] .breadcrumb {
-  background-color: var(--bs-gray-800);
+  background-color: var(--bs-gray-600);
 }
 
 html[data-bs-theme="dark"] .table-hover > tbody > tr:hover > * {

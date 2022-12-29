@@ -50,3 +50,9 @@ html[data-bs-theme="light"] .table-hover > tbody > tr:hover > * {
 html[data-bs-theme="light"] #badgeQueueItems {
   background-color: var(--bs-gray-500) !important;
 }
+
+html[data-bs-theme="light"] .btn-dark {
+  background-color: var(--bs-gray-500) !important;
+  border-color: var(--bs-gray-500) !important;
+  color: var(--bs-gray-800);
+}
