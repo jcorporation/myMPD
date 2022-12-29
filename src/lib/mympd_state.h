@@ -256,7 +256,7 @@ struct t_mympd_state {
 /**
  * Public functions
  */
-void mympd_state_save(struct t_mympd_state *mympd_state, bool free);
+void mympd_state_save(struct t_mympd_state *mympd_state, bool free_data);
 
 void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *config);
 void mympd_state_free(struct t_mympd_state *mympd_state);

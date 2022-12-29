@@ -24,3 +24,9 @@ myMPD uses stickers to save statistics and votes of songs.
 **skipCount is updated:**
 
 - The song has been played for at least 10 seconds
+
+## Sticker cache
+
+myMPD uses an internal sticker cache to speed up the access. Sticker writes are always delegated to MPD, but reads are always from the cache.
+
+<div class="alert alert-warning">Stickers should only modified by myMPD.</div>
