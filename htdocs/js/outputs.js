@@ -63,8 +63,7 @@ function parseOutputs(obj) {
         const btn = elCreateNodes('button', {"class": ["btn", "btn-secondary", "d-flex", "justify-content-between"], "id": "btnOutput" + obj.result.data[i].id}, [
             elCreateText('span', {"class": ["mi", "align-self-center"]}, (obj.result.data[i].plugin === 'httpd' ? 'cast' : 'volume_up')),
             elCreateText('span', {"class": ["mx-2", "align-self-center"]}, obj.result.data[i].name),
-            elCreateText('a', {"class": ["mi", "text-light", "align-self-center"],
-                "data-title-phrase": titlePhrase}, 'settings')
+            elCreateText('a', {"class": ["mi", "align-self-center"], "data-title-phrase": titlePhrase}, 'settings')
         ]);
         setData(btn, 'output-name', obj.result.data[i].name);
         setData(btn, 'output-id', obj.result.data[i].id);

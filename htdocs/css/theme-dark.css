@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+html[data-bs-theme="dark"] {
+  --bs-dropdown-divider-bg: var(--bs-gray-100);
+}
+
 html[data-bs-theme="dark"] .navbar {
   background-color: var(--bs-gray-800);
 }

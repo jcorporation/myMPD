@@ -42,7 +42,6 @@ body.mobile > footer > nav {
   --mympd-highlightcolor: #28a745;
   --mympd-highlightcolor-contrast: white;
   --mympd-backgroundcolor: black;
-  --bs-dropdown-divider-bg: var(--bs-gray-100);
   --bs-dropdown-divider-margin-y: 0.5rem;
   --bs-nav-link-padding-y: 0.5rem;
   --bs-nav-link-padding-x: 1rem;
@@ -50,7 +49,6 @@ body.mobile > footer > nav {
   --bs-dropdown-item-padding-x: 0.5rem;
   --bs-dropdown-header-padding-y: 0.5rem;
   --bs-dropdown-header-padding-x: 1rem;
-  --bs-dropdown-header-color: var(--bs-gray-600);
 }
 
 .color-darkgrey {
