@@ -96,7 +96,7 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
         bool rc = radiobrowser_send(nc, backend_nc, cmd_id, uri);
         if (rc == false) {
             sds response = jsonrpc_respond_message(sdsempty(), cmd_id, request_id,
-                JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error connection to radio-browser.info");
+                JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error connecting to radio-browser.info");
             webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
             FREE_SDS(response);
         }
