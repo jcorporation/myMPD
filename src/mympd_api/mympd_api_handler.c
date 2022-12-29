@@ -129,6 +129,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 MYMPD_LOG_ERROR("Too many worker threads are already running");
                 break;
             }
+            if (request->cmd_id == MYMPD_API_CACHES_CREATE ||
+                request->cmd_id == MYMPD_API_SMARTPLS_UPDATE_ALL)
+            {
+                if (json_get_bool(request->data, "$.params.force", &bool_buf1, NULL) == false) {
+                    //enforce parameter
+                    break;
+                }
+            }
             if (request->cmd_id == MYMPD_API_CACHES_CREATE) {
                 if (mympd_state->mpd_state->album_cache.building == true ||
                     mympd_state->mpd_state->sticker_cache.building == true)
