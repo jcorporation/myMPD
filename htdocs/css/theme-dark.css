@@ -50,7 +50,7 @@ html[data-bs-theme="dark"] .table-hover > tbody > tr:hover > * {
   background-color: var(--bs-gray-300);
 }
 
-html[data-bs-theme="dark"] .top-alert-dismissible .btn-close-alert {
+html[data-bs-theme="dark"] .top-alert-dismissible .btn-close {
   filter: unset;
 }
 

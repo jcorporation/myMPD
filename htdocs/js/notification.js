@@ -57,7 +57,7 @@ function toggleAlert(alertBoxId, state, msg) {
         switch(alertBoxId) {
             case 'alertMpdStatusError': {
                 alertBoxEl.classList.add('alert-danger', 'top-alert-dismissible');
-                const clBtn = elCreateEmpty('button', {"class": ["btn-close", "btn-close-alert"]});
+                const clBtn = elCreateEmpty('button', {"class": ["btn-close"]});
                 alertBoxEl.appendChild(clBtn);
                 clBtn.addEventListener('click', function() {
                     clearMPDerror();
