@@ -131,6 +131,14 @@ mpd_count_db_songs(struct mpd_connection *connection)
 	return mpd_search_init(connection, "count");
 }
 
+bool
+mpd_searchcount_db_songs(struct mpd_connection *connection)
+{
+	assert(connection != NULL);
+
+	return mpd_search_init(connection, "searchcount");
+}
+
 static char *
 mpd_search_prepare_append(struct mpd_connection *connection,
 			  size_t add_length)

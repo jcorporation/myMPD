@@ -267,7 +267,7 @@ function showMessages() {
         overview.firstElementChild);
     }
     if (overview.querySelector('tr') === null) {
-        overview.appendChild(emptyRow(2));
+        overview.appendChild(emptyRow(4));
     }
 }
 
@@ -278,7 +278,7 @@ function showMessages() {
 function clearMessages() {
     const overview = document.getElementById('logOverview');
     elClear(overview);
-    overview.appendChild(emptyRow(2));
+    overview.appendChild(emptyRow(4));
     messages.length = 0;
 }
 
