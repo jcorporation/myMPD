@@ -84,7 +84,9 @@ function formToParams(p, k) {
         }
         else {
             let value = document.getElementById('input-' + k + param).value;
-            if (value.charAt(0) === '{' || value.charAt(0) === '[') {
+            if (value.charAt(0) === '{' ||
+                value.charAt(0) === '[')
+            {
                 request[param] = JSON.parse(value);
             }
             else {

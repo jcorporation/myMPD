@@ -26,9 +26,9 @@ function defineCmds() {
 function getRandomByType(t) {
     if (getRandomBool() === true) {
         //return value of valid type
-        if (t === 'bool') { return getRandomBool(); }
-        if (t === 'int') { return getRandomInt(); }
-        if (t === 'uint') { return getRandomUint(); }
+        if (t === APItypes.bool) { return getRandomBool(); }
+        if (t === APItypes.int) { return getRandomInt(); }
+        if (t === APItypes.uint) { return getRandomUint(); }
         return blns[getRandomUint(blns_len)];
     }
     else {

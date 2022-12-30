@@ -215,13 +215,13 @@ function apiParamsToArgs(p) {
     for (const param in p) {
         args += 'options["' + param + '"] = ';
         switch(p[param].type) {
-            case 'text':
+            case APItypes.text:
                 args += '"' + p[param].example + '"';
                 break;
-            case 'array':
+            case APItypes.array:
                 args += '{' + p[param].example.slice(1, -1) + '}';
                 break;
-            case 'object': {
+            case APItypes.object: {
                 args += '{}';
                 break;
             }
