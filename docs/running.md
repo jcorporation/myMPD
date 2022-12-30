@@ -4,7 +4,7 @@ permalink: /running
 title: Running
 ---
 
-## Generel 
+## Overview
 
 On startup myMPD does the following:
 

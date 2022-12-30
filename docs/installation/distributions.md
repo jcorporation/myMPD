@@ -21,4 +21,4 @@ myMPD is available in the following distributions:
 
 ---
 
-If you would distribute myMPD for any other distribution don't hesitate to [contact me](https://github.com/jcorporation).
+If you want to package myMPD for any other distribution don't hesitate to [contact me](https://github.com/jcorporation).

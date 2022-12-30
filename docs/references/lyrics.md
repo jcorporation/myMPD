@@ -4,16 +4,23 @@ permalink: /references/lyrics
 title: Lyrics
 ---
 
-myMPD supports synced and unsynced lyrics.
+myMPD supports synced and unsynced lyrics. Lyrics are displayed in the song details modal and you can add them to the playback card.
 
-Lyrics can be embedded as USLT or SYLT tags in mp3 files (id3v2 tags) or in configurable vorbis comments in flac and ogg files.
+**Requirements:**
 
-Embedded lyrics only works if you enable flac/libid3tag at compile time (default in prebuild packages) and myMPD has access to the music directory.
+- myMPD must be compiled with flac/libid3tag support (default in prebuild packages)
+- myMPD has access to the music directory
 
-myMPD can parse the binary SYLT id3v2 tags and converts it to the lrc format. In vorbis comments myMPD expects an embedded lrc file.
+## Embedded lyrics
 
-As alternative myMPD tries to get the lyrics from a file in the same directory as the song with a configurable extension.
+Lyrics can be embedded as USLT (unsynced) or SYLT (synced) tags in mp3 files (id3v2 tags) or in configurable vorbis comments in flac and ogg files. 
 
-Lyrics are displayed in the song details modal and you can add them to the playback card.
+myMPD can parse the binary SYLT id3v2 tags and converts it to the lrc format. In vorbis comments myMPD expects an embedded lrc file for synced lyrics.
 
-You can download lyrics with lyrics download script from [https://github.com/jcorporation/musicdb-scripts](https://github.com/jcorporation/musicdb-scripts)
+## Lyrics in extra files
+
+As alternative myMPD tries to get the lyrics from a file in the same directory as the song with a configurable extension (default: `lrc` for synced lyrics and `.txt` for unsynced lyrics).
+
+***
+
+You can download lyrics with the lyrics download script from [https://github.com/jcorporation/musicdb-scripts](https://github.com/jcorporation/musicdb-scripts)
