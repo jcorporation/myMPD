@@ -20,8 +20,6 @@ The reverse proxy should be configured to:
 
 In this examples myMPD is proxied behind the path `/mympd`.
 
-***
-
 ## Nginx
 
 ```
@@ -29,8 +27,6 @@ location /mympd/ {
   proxy_pass http://127.0.0.1:8080/;
 }
 ```
-
-***
 
 ## Apache
 

@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /additional-topics/listenbrainz-feedback
+permalink: /scripting/usage/listenbrainz-feedback
 title: ListenBrainz Feedback
 ---
 

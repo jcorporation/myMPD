@@ -36,4 +36,4 @@ I personally use [Picard](https://picard.musicbrainz.org/) to tag my music files
 - `Genre` is in the default configuration used to build default smart playlists.
 - If no tags are enabled, myMPD uses the basename of the filename as title.
 - ID3 tags with multiple values works only for IDv2.4, older versions uses a separator for values in one tag and that is not supported by MPD.
-- MPD does not support multi-value MusicBrainz ID tags (https://github.com/MusicPlayerDaemon/MPD/issues/687). myMPD implements a workaround and splits the MUSICBRAINZ_ARTISTID and MUSICBRAINZ_ALBUMARTISTID tags by semicolon.
+- MPD does not support multi-value MusicBrainz ID tags: [MPD issue](https://github.com/MusicPlayerDaemon/MPD/issues/687). myMPD implements a workaround and splits the MUSICBRAINZ_ARTISTID and MUSICBRAINZ_ALBUMARTISTID tags by semicolon.

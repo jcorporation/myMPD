@@ -5,8 +5,6 @@ title: References
 ---
 {% include nav-references.html %}
 
-***
-
 ## Source documentation
 
 If you want to hack on myMPD:

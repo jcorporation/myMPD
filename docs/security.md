@@ -4,6 +4,8 @@ permalink: /security
 title: Security
 ---
 
+Some notes on myMPD security.
+
 ## General
 
 - Update myMPD and the systems it runs on regularly

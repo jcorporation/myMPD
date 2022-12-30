@@ -29,6 +29,7 @@ You can use `mympd -c` to create the initial configuration in the `/var/lib/mymp
 | pin_hash | string | N/A | | SHA256 hash of pin, create it with `mympd -p` *2 |
 | save_caches | boolean | MYMPD_SAVE_CACHES | true | `true` = saves caches between restart, `false` = create caches on startup |
 | scriptacl | string | MYMPD_SCRIPTACL | +127.0.0.1 | ACL to access the myMPD script backend: [ACL]({{ site.baseurl }}/configuration/acl), allows only local connections in the default configuration. The acl above must also grant access. |
+{: .table .table-sm }
 
 1. If http_port is disabled: The MPD curl plugin must trust the myMPD CA or certificate checking must be disabled. MPD fetches webradio playlist with http(s) from myMPD webserver.
 2. Only supported if myMPD is compiled with SSL support.

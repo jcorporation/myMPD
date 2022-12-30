@@ -15,7 +15,7 @@ myMPD populates at first startup some default configuration files, that are conf
 - <a href="{{site.baseurl}}/configuration/configuration-files">Configuration files</a>
 - <a href="{{site.baseurl}}/configuration/mpd-connection">MPD connection</a>
 
-Other setting thar are not configurable in the web-ui.
+Other setting thar are not configurable in the web-ui:
 
 - <a href="{{site.baseurl}}/configuration/acl">ACL</a>
 - <a href="{{site.baseurl}}/configuration/logging">Logging</a>

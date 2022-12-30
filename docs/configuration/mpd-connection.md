@@ -17,7 +17,7 @@ The mpd connection settings can be configured in the web-ui (Main menu -> Settin
 
 ### MPD autodetection
 
-myMPD tries to autodetect the mpd connection only at first start.
+myMPD tries to autodetect the mpd connection only at first start (if no mpd_host file is found in the `state` directory).
 
 1. Uses the default MPD environment variables
 2. Searches for a mpd socket
@@ -31,7 +31,7 @@ myMPD tries to autodetect the mpd connection only at first start.
 | ----------- | ----------- |
 | MPD_HOST | MPD host or path to mpd socket |
 | MPD_PORT | MPD port |
-| MPD_TIMEOUT MPD timeout |
+| MPD_TIMEOUT | MPD timeout in seconds |
 {: .table .table-sm}
 
 This is done after dropping privileges to the mympd user.

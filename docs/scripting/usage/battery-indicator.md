@@ -1,6 +1,6 @@
 ---
 layout: page
-permalink: /additional-topics/battery-indicator
+permalink: /scripting/usage/battery-indicator
 title: Battery level indicator
 ---
 

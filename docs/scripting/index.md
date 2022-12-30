@@ -136,7 +136,7 @@ systemctl restart mympd
 
 ## Examples
 
-Further examples can be found in the [repository](https://github.com/jcorporation/myMPD/tree/master/docs/scripting/scripts).
+Complete scripts can be found in the [repository](https://github.com/jcorporation/myMPD/tree/master/docs/scripting/scripts).
 
 ### Simple
 

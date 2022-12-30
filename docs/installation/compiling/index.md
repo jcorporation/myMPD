@@ -47,3 +47,4 @@ You can type `./build.sh installdeps` as root to install the dependencies (works
 - [Easy build with the build.sh script]({{ site.baseurl }}/installation/compiling/build-sh)
 - [Advanced build with cmake]({{ site.baseurl }}/installation/compiling/cmake)
 - [Build it in Termux]({{ site.baseurl }}/installation/compiling/termux)
+- [Build it for OpenWrt]({{ site.baseurl }}/installation/compiling/openwrt)

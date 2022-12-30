@@ -64,7 +64,3 @@ docker run -d \
 You can configure some basic options of myMPD via startup options or environment variables.
 
 - [Configuration]({{ site.baseurl }}/configuration/)
-
-***
-
-Since version 3.13 Alpine Linux image changes the definition of time_t on 32-bit systems. Read [Release Notes for Alpine 3.13.0](https://wiki.alpinelinux.org/wiki/Release_Notes_for_Alpine_3.13.0#time64_requirements) for further information's and a workaround.

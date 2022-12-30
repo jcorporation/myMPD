@@ -21,7 +21,7 @@ Tips to debug problems with myMPD. Try these steps and reproduce the error.
 
 ### Get logs from running myMPD
 
-You can set the log level in Settings->Maintenance to debug and get the output from your logging service, for systemd it is: `journalctl -fu mympd`.
+You can set the log level in the Maintenance dialog to `debug` and get the output from your logging service, for systemd it is: `journalctl -fu mympd`.
 
 ## Webbrowser logging
 

@@ -48,14 +48,10 @@ myMPD caches extracted covers under `/var/cache/mympd/covercache`. Files in this
 
 You can disable the covercache by setting the `Covercache expiration` value to `0` days.
 
-***
-
 ## Streams
 
 1. Images must be named as the uri of the stream, replace the characters `<>/.:?&$!#\|;=` with `_`, e.g. `http___stream_laut_fm_nonpop.png` for uri `http://stream.laut.fm/nonpop`.
 2. Put these images in the `/var/lib/mympd/pics/thumbs` folder.
-
-***
 
 ## Pictures for other tags
 
@@ -67,8 +63,6 @@ You can download artistart with the script from [https://github.com/jcorporation
 
 Create a directory named `AlbumArtist` under `/var/lib/mympd/pics`. Add pictures with the AlbumArtist name as filename in this directory.
 
-***
-
 ## Other pictures
 ### Home icon pictures
 
@@ -77,8 +71,6 @@ Pictures for the home icons must be placed in the directory `/var/lib/mympd/pics
 ### Background images
 
 Background images must be saved in the `/var/lib/mympd/pics/backgrounds` folder.
-
-***
 
 ## Supported file extensions
 

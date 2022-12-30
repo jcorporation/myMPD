@@ -9,13 +9,13 @@ title: Running
 On startup myMPD does the following:
 
 - Check and create `cachedir` and `workdir` directories.
-  - `cachedir` and `workdir` must exist, if started not as root.
+  - `cachedir` and `workdir` must exist, if not started as root.
 - Reads environment at first startup.
 - Binds to the configured http and ssl port.
 - Dropping privileges, if started as root.
 - Check and create the directories inside `cachedir` and `workdir`.
 
-**Note:** It is not supported to run myMPD as root.
+- **Note:** It is not supported to run myMPD as root. If started as root, myMPD drops privileges to the configured user (default mympd).
 
 ## Startup script
 
