@@ -650,7 +650,7 @@ const webuiSettingsDefault = {
         "warn": "Browser has no MediaSession support"
     },
     "uiFooterQueueSettings": {
-        "defaultValue": false,
+        "defaultValue": true,
         "inputType": "checkbox",
         "title": "Show playback settings in footer",
         "form": "footerFrm"
@@ -756,7 +756,7 @@ const webuiSettingsDefault = {
         "defaultValue": true
     },
     "uiTheme": {
-        "defaultValue": "theme-dark",
+        "defaultValue": "dark",
         "validValues": {
             "auto": "Autodetect",
             "dark": "Dark",
