@@ -49,12 +49,14 @@ function initBrowseRadioWebradiodb() {
         }
     }, false);
 
-    document.getElementById('BrowseRadioWebradiodbFilter').addEventListener('show.bs.collapse', function() {
+    document.getElementById('BrowseRadioWebradiodbFilter').addEventListener('shown.bs.collapse', function() {
         document.getElementById('BrowseRadioWebradiodbFilterBtn').classList.add('active');
+        setScrollViewHeight(document.getElementById('BrowseRadioWebradiodbList'));
     }, false);
 
-    document.getElementById('BrowseRadioWebradiodbFilter').addEventListener('hide.bs.collapse', function() {
+    document.getElementById('BrowseRadioWebradiodbFilter').addEventListener('hidden.bs.collapse', function() {
         document.getElementById('BrowseRadioWebradiodbFilterBtn').classList.remove('active');
+        setScrollViewHeight(document.getElementById('BrowseRadioWebradiodbList'));
     }, false);
 
     initWebradiodbFilter('filterWebradiodbGenre', 'webradioGenres', 'Genre');
