@@ -78,8 +78,8 @@ static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
     [JSONRPC_EVENT_UPDATE_STORED_PLAYLIST] = "update_stored_playlist",
     [JSONRPC_EVENT_UPDATE_VOLUME] = "update_volume",
     [JSONRPC_EVENT_WELCOME] = "welcome",
-    [JSONRPC_EVENT_UPDATE_CACHE_STARTED] = "update_album_cache_started",
-    [JSONRPC_EVENT_UPDATE_CACHE_FINISHED] = "update_album_cache_finished"
+    [JSONRPC_EVENT_UPDATE_CACHE_STARTED] = "update_cache_started",
+    [JSONRPC_EVENT_UPDATE_CACHE_FINISHED] = "update_cache_finished"
 };
 
 /**

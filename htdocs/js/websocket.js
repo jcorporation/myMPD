@@ -167,11 +167,11 @@ function webSocketConnect() {
                         }, parseJukeboxList, false);
                     }
                     break;
-                case 'update_album_cache_started':
+                case 'update_cache_started':
                     showNotification(tn('Cache update started'), '', 'database', 'info');
                     toggleAlert('alertUpdateCacheState', true, tn('Updating caches'));
                     break;
-                case 'update_album_cache_finished':
+                case 'update_cache_finished':
                     if (app.id === 'BrowseDatabaseAlbumList') {
                         sendAPI("MYMPD_API_DATABASE_ALBUM_LIST", {
                             "offset": app.current.offset,
