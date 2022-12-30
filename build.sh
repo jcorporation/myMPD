@@ -406,6 +406,8 @@ cleanup() {
   rm -rf htdocs/assets/i18n
 
   #generated documentation
+  rm -rf docs/_site
+  rm -rf docs/.jekyll-cache
   rm -rf docs/doxygen
   rm -rf docs/jsdoc
 
