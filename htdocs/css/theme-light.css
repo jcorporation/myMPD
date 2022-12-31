@@ -56,3 +56,7 @@ html[data-bs-theme="light"] .btn-dark {
   border-color: var(--bs-gray-500) !important;
   color: var(--bs-gray-800);
 }
+
+html[data-bs-theme="light"] .album-cover {
+  border-color: var(--bs-gray-500) !important;
+}

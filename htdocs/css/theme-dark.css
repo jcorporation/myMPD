@@ -6,6 +6,7 @@
 
 html[data-bs-theme="dark"] {
   --bs-dropdown-divider-bg: var(--bs-gray-100);
+  --bs-body-color: var(--bs-light);
 }
 
 html[data-bs-theme="dark"] .navbar {
