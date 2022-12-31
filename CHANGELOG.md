@@ -27,13 +27,14 @@ This release reworks the scripting api and improves the scripting documentation.
 - Feat: manual refresh of album and sticker cache
 - Feat: rework main menu
 - Feat: add shortcuts for more modals
+- Upd: libmympdclient 1.0.17
 - Upd: some UI cleanups and improvements #909
 - Upd: Bootstrap 5.3.0-alpha1
 - Upd: bootstrap.native 5.0.0-alpha2
 - Upd: documentation improvements
 - Upd: some backend improvements
 - Upd: do not create files with root permissions
-- Upd: start mpd autoconfiguration if `state/mpd_host` doest not exist
+- Upd: start mpd autoconfiguration if `state/mpd_host` does not exist
 
 ***
 
