@@ -14,6 +14,9 @@ curl http://download.opensuse.org/repositories/home:/jcorporation/Debian_11/Rele
 # ⚠️ VERIFY the fingerprint of the downloaded key (A37A ADC4 0A1C C6BE FB75  372F AA09 B8CC E895 BD7D - home:jcorporation OBS Project <home:jcorporation@build.opensuse.org>) 
 gpg --no-default-keyring --keyring /usr/share/keyrings/jcorporation.github.io.gpg --fingerprint
 
+# Make the imported keyring world-readable
+chmod 644 /usr/share/keyrings/jcorporation.github.io.gpg
+
 # Get Debian VERSION_ID from os-release file
 source /etc/os-release
 echo $VERSION_ID
