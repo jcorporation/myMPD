@@ -17,6 +17,11 @@ html[data-bs-theme="dark"] .navbar .btn {
   color: var(--bs-gray-100);
 }
 
+html[data-bs-theme="dark"] .navbar .btn:active {
+ border-color: var(--bs-gray-900);
+ background-color: var(--bs-gray-900);
+}
+
 html[data-bs-theme="dark"] a,
 html[data-bs-theme="dark"] .dropdown-item,
 html[data-bs-theme="dark"] table {

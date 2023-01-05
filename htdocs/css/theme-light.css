@@ -12,6 +12,11 @@ html[data-bs-theme="light"] .navbar {
   background-color: var(--bs-gray-400);
 }
 
+html[data-bs-theme="light"] .navbar .btn:active {
+ border-color: var(--bs-gray-200);
+ background-color: var(--bs-gray-200);
+}
+
 html[data-bs-theme="light"] .form-control::placeholder {
   color: var(--bs-gray-500);
 }
