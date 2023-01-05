@@ -28,10 +28,6 @@ html[data-bs-theme="dark"] table {
   color: var(--bs-gray-100);
 }
 
-html[data-bs-theme="dark"] .toast-header {
-  color: var(--bs-gray-100);
-}
-
 html[data-bs-theme="dark"] .nav-tabs .nav-link:hover {
   color: var(--bs-gray-400);
 }
@@ -54,10 +50,6 @@ html[data-bs-theme="dark"] .table-hover > tbody > tr:hover > * {
 
 .form-range::-moz-range-track {
   background-color: var(--bs-gray-300);
-}
-
-html[data-bs-theme="dark"] .top-alert-dismissible .btn-close {
-  filter: unset;
 }
 
 html[data-bs-theme="dark"] div#homeActions > button {
