@@ -13,8 +13,8 @@ html[data-bs-theme="light"] .navbar {
 }
 
 html[data-bs-theme="light"] .navbar .btn:active {
- border-color: var(--bs-gray-200);
- background-color: var(--bs-gray-200);
+  border-color: var(--bs-gray-200);
+  background-color: var(--bs-gray-200);
 }
 
 html[data-bs-theme="light"] .form-control::placeholder {

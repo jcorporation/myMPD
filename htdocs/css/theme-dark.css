@@ -18,8 +18,8 @@ html[data-bs-theme="dark"] .navbar .btn {
 }
 
 html[data-bs-theme="dark"] .navbar .btn:active {
- border-color: var(--bs-gray-900);
- background-color: var(--bs-gray-900);
+  border-color: var(--bs-gray-900);
+  background-color: var(--bs-gray-900);
 }
 
 html[data-bs-theme="dark"] a,
