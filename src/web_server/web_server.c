@@ -704,7 +704,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
             sds *tokens = sdssplitlen(host_header, (ssize_t)sdslen(host_header), ":", 1, &count);
             sds s_redirect = sdscatfmt(sdsempty(), "https://%S", tokens[0]);
             if (config->ssl_port != 443) {
-                s_redirect = sdscatfmt(s_redirect, ":%S", config->ssl_port);
+                s_redirect = sdscatfmt(s_redirect, ":%i", config->ssl_port);
             }
             MYMPD_LOG_INFO("Redirecting to %s", s_redirect);
             webserver_send_header_redirect(nc, s_redirect);
