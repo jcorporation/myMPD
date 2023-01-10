@@ -764,11 +764,11 @@ function parseMPDSettings() {
     }
     else if (settings.tagList.includes('Artist')) {
         tagAlbumArtist = 'Artist';
-        if (app.cards.Browse.tabs.Database.views.List.filter === 'AlbumArtist') {
-            app.cards.Browse.tabs.Database.views.List.filter = tagAlbumArtist;
+        if (app.cards.Browse.tabs.Database.views.AlbumList.filter === 'AlbumArtist') {
+            app.cards.Browse.tabs.Database.views.AlbumList.filter = tagAlbumArtist;
         }
-        if (app.cards.Browse.tabs.Database.views.List.sort.tag === 'AlbumArtist') {
-            app.cards.Browse.tabs.Database.views.List.sort.tag = tagAlbumArtist;
+        if (app.cards.Browse.tabs.Database.views.AlbumList.sort.tag === 'AlbumArtist') {
+            app.cards.Browse.tabs.Database.views.AlbumList.sort.tag = tagAlbumArtist;
         }
     }
 
