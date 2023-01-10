@@ -26,6 +26,7 @@ You can use `mympd -c` to create the initial configuration in the `/var/lib/mymp
 | http_port | number | MYMPD_HTTP_PORT | 80 | Port to listen for plain http requests. Redirects to `ssl_port` if `ssl` is set to `true`. Set to `0` to disable it. *1 |
 | loglevel | number | MYMPD_LOGLEVEL | 5 | [Logging]({{ site.baseurl }}/configuration/logging) - this environment variable is always used |
 | lualibs | string | MYMPD_LUALIBS | all | Comma separated list of lua libraries to load, look at [Scripting - LUA standard libraries]({{ site.baseurl }}/scripting#lua-standard-libraries) |
+| mympd_uri | string | MYMPD_URI | auto | `auto` or uri to myMPD listening port, e.g. `https://192.168.1.1/mympd` |
 | pin_hash | string | N/A | | SHA256 hash of pin, create it with `mympd -p` *2 |
 | save_caches | boolean | MYMPD_SAVE_CACHES | true | `true` = saves caches between restart, `false` = create caches on startup |
 | scriptacl | string | MYMPD_SCRIPTACL | +127.0.0.1 | ACL to access the myMPD script backend: [ACL]({{ site.baseurl }}/configuration/acl), allows only local connections in the default configuration. The acl above must also grant access. |

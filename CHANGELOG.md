@@ -27,6 +27,7 @@ This release reworks the scripting api and improves the scripting documentation.
 - Feat: manual refresh of album and sticker cache
 - Feat: rework main menu
 - Feat: add shortcuts for more modals
+- Feat: add `mympd_uri` config option #950
 - Upd: libmympdclient 1.0.17
 - Upd: some UI cleanups and improvements #909
 - Upd: Bootstrap 5.3.0-alpha1

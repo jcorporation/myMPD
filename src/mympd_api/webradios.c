@@ -46,17 +46,24 @@ struct t_webradio_entry {
  * @param ssl_port myMPD webserver ssl port
  * @return resolved uri
  */
-sds resolv_mympd_uri(sds uri, sds mpd_host, sds http_host, int http_port, int ssl_port) {
+sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config) {
     if (strncmp(uri, "mympd://webradio/", 17) == 0) {
         sdsrange(uri, 17, -1);
-        sds host = get_mympd_host(mpd_host, http_host);
         sds new_uri = sdsempty();
-        if (http_port == 0) {
+        if (strcmp(config->mympd_uri, "auto") != 0) {
+            //use defined uri
+            new_uri = sdscatfmt(new_uri, "%S/browse/webradios/%S", config->mympd_uri, uri);
+            FREE_SDS(uri);
+            return new_uri;
+        }
+        //calculate uri
+        sds host = get_mympd_host(mpd_host, config->http_host);
+        if (config->http_port == 0) {
             //use ssl port
-            new_uri = sdscatfmt(new_uri, "https://%S:%i/browse/webradios/%S", host, ssl_port, uri);
+            new_uri = sdscatfmt(new_uri, "https://%S:%i/browse/webradios/%S", host, config->ssl_port, uri);
         }
         else {
-            new_uri = sdscatfmt(new_uri, "http://%S:%i/browse/webradios/%S", host, http_port, uri);
+            new_uri = sdscatfmt(new_uri, "http://%S:%i/browse/webradios/%S", host, config->http_port, uri);
         }
         FREE_SDS(uri);
         FREE_SDS(host);

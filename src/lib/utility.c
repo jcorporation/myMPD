@@ -200,6 +200,7 @@ void sanitize_filename(sds filename) {
 
 /**
  * Gets the listening address of the embedded webserver
+ * @param mympd_uri config setting
  * @param mpd_host mpd_host config setting
  * @param http_host http_host config setting
  * @return address of the embedded webserver as sds string

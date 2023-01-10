@@ -35,17 +35,18 @@ static bool startup_getenv_bool(const char *env_var, bool default_value, bool fi
  * @param config pointer to config struct
  */
 void *mympd_config_free(struct t_config *config) {
+    FREE_SDS(config->acl);
+    FREE_SDS(config->cachedir);
     FREE_SDS(config->http_host);
+    FREE_SDS(config->lualibs);
+    FREE_SDS(config->mympd_uri);
+    FREE_SDS(config->pin_hash);
+    FREE_SDS(config->scriptacl);
     FREE_SDS(config->ssl_cert);
     FREE_SDS(config->ssl_key);
     FREE_SDS(config->ssl_san);
-    FREE_SDS(config->acl);
-    FREE_SDS(config->scriptacl);
-    FREE_SDS(config->lualibs);
-    FREE_SDS(config->pin_hash);
     FREE_SDS(config->user);
     FREE_SDS(config->workdir);
-    FREE_SDS(config->cachedir);
     FREE_PTR(config);
     return NULL;
 }
@@ -57,28 +58,24 @@ void *mympd_config_free(struct t_config *config) {
  */
 void mympd_config_defaults_initial(struct t_config *config) {
     //command line options
+    config->log_to_syslog = CFG_MYMPD_LOG_TO_SYSLOG;
+    config->cachedir = sdsnew(MYMPD_CACHE_DIR);
     config->user = sdsnew(CFG_MYMPD_USER);
     config->workdir = sdsnew(MYMPD_WORK_DIR);
-    config->cachedir = sdsnew(MYMPD_CACHE_DIR);
-    config->log_to_syslog = CFG_LOG_TO_SYSLOG;
     //not configurable
-    config->startup_time = time(NULL);
-    config->first_startup = false;
     config->bootstrap = false;
+    config->first_startup = false;
+    config->startup_time = time(NULL);
     //set all other sds strings to NULL
+    config->acl = NULL;
     config->http_host = NULL;
-    config->http_port = CFG_MYMPD_HTTP_PORT;
-    config->ssl = CFG_MYMPD_SSL;
-    config->ssl_port = CFG_MYMPD_SSL_PORT;
-    config->ssl_san = NULL;
+    config->lualibs = NULL;
+    config->mympd_uri = NULL;
+    config->pin_hash = NULL;
+    config->scriptacl = NULL;
     config->ssl_cert = NULL;
     config->ssl_key = NULL;
-    config->acl = NULL;
-    config->scriptacl = NULL;
-    config->lualibs = NULL;
-    config->pin_hash = NULL;
-    config->covercache_keep_days = CFG_COVERCACHE_KEEP_DAYS;
-    config->save_caches = true;
+    config->ssl_san = NULL;
 }
 
 /**
@@ -129,8 +126,9 @@ void mympd_config_defaults(struct t_config *config) {
     #endif
     config->loglevel = getenv_int("MYMPD_LOGLEVEL", CFG_MYMPD_LOGLEVEL, LOGLEVEL_MIN, LOGLEVEL_MAX);
     config->pin_hash = sdsnew(CFG_MYMPD_PIN_HASH);
-    config->covercache_keep_days = startup_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", CFG_COVERCACHE_KEEP_DAYS, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, config->first_startup);
-    config->save_caches = startup_getenv_bool("MYMPD_SAVE_CACHES", CFG_MYMPD_SSL, config->save_caches);
+    config->covercache_keep_days = startup_getenv_int("MYMPD_COVERCACHE_KEEP_DAYS", CFG_MYMPD_COVERCACHE_KEEP_DAYS, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, config->first_startup);
+    config->save_caches = startup_getenv_bool("MYMPD_SAVE_CACHES", CFG_MYMPD_SAVE_CACHES, config->first_startup);
+    config->mympd_uri = startup_getenv_string("MYMPD_URI", CFG_MYMPD_URI, vcb_isname, config->first_startup);
 }
 
 /**
@@ -165,6 +163,7 @@ bool mympd_config_rw(struct t_config *config, bool write) {
     config->covercache_keep_days = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "covercache_keep_days", config->covercache_keep_days, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, write);
     config->loglevel = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "loglevel", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX, write);
     config->save_caches = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "save_caches", config->save_caches, write);
+    config->mympd_uri = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "mympd_uri", config->mympd_uri, vcb_isname, write);
     //overwrite configured loglevel
     config->loglevel = getenv_int("MYMPD_LOGLEVEL", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX);
     return true;
