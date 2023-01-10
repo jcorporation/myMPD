@@ -1,7 +1,7 @@
 #
 # spec file for package myMPD
 #
-# (c) 2018-2022 Juergen Mang <mail@jcgames.de>
+# (c) 2018-2023 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
 Version:        __VERSION__

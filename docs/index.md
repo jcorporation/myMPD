@@ -20,4 +20,4 @@ This documentation is for myMPD version {% include version %}.
 
 ***
 
-<a href="https://github.com/jcorporation">&copy; 2018-2022 Jürgen Mang</a>
+<a href="https://github.com/jcorporation">&copy; 2018-2023 Jürgen Mang</a>
