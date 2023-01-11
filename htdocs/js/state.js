@@ -113,7 +113,7 @@ function setCounter() {
             if (scrollSyncedLyrics === true) {
                 toHighlight.scrollIntoView({behavior: "smooth"});
             }
-            if (highlighted !== undefined) {
+            if (highlighted !== null) {
                 highlighted.classList.remove('highlight');
             }
         }
