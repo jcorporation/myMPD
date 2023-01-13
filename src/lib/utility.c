@@ -199,6 +199,57 @@ void sanitize_filename(sds filename) {
 }
 
 /**
+ * List of special mympd uris to resolv
+ */
+struct t_mympd_uris {
+    const char *uri;       //!< mympd uri to resolv
+    const char *resolved;  //!< resolved path
+};
+
+const struct t_mympd_uris mympd_uris[] = {
+    {"mympd://webradio/", "/browse/webradios/"},
+    {NULL,                NULL}
+};
+
+/**
+ * Resolves mympd:// uris to the real myMPD host address and respects the mympd_uri config option
+ * @param uri uri to resolv
+ * @param mpd_host mpd host
+ * @param config pointer to config struct
+ * @return resolved uri
+ */
+sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config) {
+    const struct t_mympd_uris *p = NULL;
+    for (p = mympd_uris; p->uri != NULL; p++) {
+        size_t len = strlen(p->uri);
+        if (strncmp(uri, p->uri, len) == 0) {
+            sdsrange(uri, (ssize_t)len, -1);
+            sds new_uri = sdsempty();
+            if (strcmp(config->mympd_uri, "auto") != 0) {
+                //use defined uri
+                new_uri = sdscatfmt(new_uri, "%S%s%S", config->mympd_uri, p->resolved, uri);
+                FREE_SDS(uri);
+                return new_uri;
+            }
+            //calculate uri
+            sds host = get_mympd_host(mpd_host, config->http_host);
+            if (config->http_port == 0) {
+                //use ssl port
+                new_uri = sdscatfmt(new_uri, "https://%S:%i%s%S", host, config->ssl_port, p->resolved, uri);
+            }
+            else {
+                new_uri = sdscatfmt(new_uri, "http://%S:%i%s%S", host, config->http_port, p->resolved, uri);
+            }
+            FREE_SDS(uri);
+            FREE_SDS(host);
+            return new_uri;
+        }
+    }
+    //uri could not be resolved
+    return uri;
+}
+
+/**
  * Gets the listening address of the embedded webserver
  * @param mpd_host mpd_host config setting
  * @param http_host http_host config setting

@@ -38,39 +38,6 @@ struct t_webradio_entry {
  */
 
 /**
- * Resolves mympd://webradio uris to real myMPD host address
- * @param uri uri to resolv
- * @param mpd_host mpd host
- * @param config pointer to config struct
- * @return resolved uri
- */
-sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config) {
-    if (strncmp(uri, "mympd://webradio/", 17) == 0) {
-        sdsrange(uri, 17, -1);
-        sds new_uri = sdsempty();
-        if (strcmp(config->mympd_uri, "auto") != 0) {
-            //use defined uri
-            new_uri = sdscatfmt(new_uri, "%S/browse/webradios/%S", config->mympd_uri, uri);
-            FREE_SDS(uri);
-            return new_uri;
-        }
-        //calculate uri
-        sds host = get_mympd_host(mpd_host, config->http_host);
-        if (config->http_port == 0) {
-            //use ssl port
-            new_uri = sdscatfmt(new_uri, "https://%S:%i/browse/webradios/%S", host, config->ssl_port, uri);
-        }
-        else {
-            new_uri = sdscatfmt(new_uri, "http://%S:%i/browse/webradios/%S", host, config->http_port, uri);
-        }
-        FREE_SDS(uri);
-        FREE_SDS(host);
-        return new_uri;
-    }
-    return uri;
-}
-
-/**
  * Gets the webradio m3u as json object string.
  * This function calculates the real filename for the m3u from the uri
  * @param workdir working directory

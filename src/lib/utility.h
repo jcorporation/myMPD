@@ -8,9 +8,11 @@
 #define MYMPD_UTILITY_H
 
 #include "dist/sds/sds.h"
+#include "src/lib/config_def.h"
 
 #include <stdbool.h>
 #include <time.h>
+
 
 bool is_streamuri(const char *uri);
 bool is_virtual_cuedir(sds music_directory, sds filename);
@@ -23,6 +25,7 @@ void sanitize_filename(sds filename);
 
 void my_msleep(long msec);
 
+sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config);
 sds get_mympd_host(sds mpd_host, sds http_host);
 
 //measure time
