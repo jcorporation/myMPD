@@ -41,9 +41,7 @@ struct t_webradio_entry {
  * Resolves mympd://webradio uris to real myMPD host address
  * @param uri uri to resolv
  * @param mpd_host mpd host
- * @param http_host myMPD webserver host
- * @param http_port myMPD webserver http port
- * @param ssl_port myMPD webserver ssl port
+ * @param config pointer to config struct
  * @return resolved uri
  */
 sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config) {
