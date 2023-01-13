@@ -26,7 +26,6 @@ void sanitize_filename(sds filename);
 void my_msleep(long msec);
 
 sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config);
-sds get_mympd_host(sds mpd_host, sds http_host);
 
 //measure time
 #define MEASURE_INIT struct timespec tic;\

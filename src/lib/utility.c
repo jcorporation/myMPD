@@ -20,6 +20,7 @@
 /**
  * Private definitions
  */
+static sds get_mympd_host(sds mpd_host, sds http_host);
 static sds get_local_ip(void);
 
 /**
@@ -250,12 +251,16 @@ sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config) {
 }
 
 /**
+ * Private functions
+ */
+
+/**
  * Gets the listening address of the embedded webserver
  * @param mpd_host mpd_host config setting
  * @param http_host http_host config setting
  * @return address of the embedded webserver as sds string
  */
-sds get_mympd_host(sds mpd_host, sds http_host) {
+static sds get_mympd_host(sds mpd_host, sds http_host) {
     if (strcmp(http_host, "0.0.0.0") != 0) {
         //host defined in configuration
         return sdsdup(http_host);
@@ -267,10 +272,6 @@ sds get_mympd_host(sds mpd_host, sds http_host) {
     //get local ip
     return get_local_ip();
 }
-
-/**
- * Private functions
- */
 
 /**
  * Gets the ip address of the first interface
