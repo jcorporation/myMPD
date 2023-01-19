@@ -57,5 +57,5 @@ make -C release install DESTDIR=%{buildroot}
 %license LICENSE.md
 
 %changelog
-* Thu Dec 22 2022 Juergen Mang <mail@jcgames.de> 10.2.0-0
+* Thu Jan 19 2023 Juergen Mang <mail@jcgames.de> 10.2.0-0
 - Version from master
