@@ -4,7 +4,7 @@ permalink: /configuration/configuration-files
 title: Configuration files
 ---
 
-At the first start (if there is no config folder in the working folder) myMPD tries to [autodetect the MPD connection]({{site.baseurl}}/configuration/mpd-connection) and reads some environment variables.
+At the first start (if there is no config folder in the working folder) myMPD reads some environment variables and writes the configuration files.
 
 <div class="alert alert-warning">
 After the first start all environment variables are ignored, except loglevel.
@@ -14,7 +14,13 @@ To change these settings afterwards, you must edit the files in the folder `/var
 
 You can use `mympd -c` to create the initial configuration in the `/var/lib/mympd/config/` directory.
 
-- **Note:** Use [systemd-run]({{ site.baseurl }}/running#manual-startup), if you use a distribution with systemd
+**Note:**
+
+Use [systemd-run]({{ site.baseurl }}/running#manual-startup), if you use a distribution with systemd, e.g.:
+
+```
+systemd-run -p DynamicUser=yes -p StateDirectory=mympd -p CacheDirectory=mympd -E MYMPD_LOGLEVEL=4 -E MYMPD_HTTP_PORT=0 -E MYMPD_SSL_PORT=1333 mympd -c
+```
 
 ## General options
 
