@@ -10,6 +10,8 @@ This is a small bugfix relese.
 
 ### Changelog
 
+- Feat: show myMPD uri in About dialog #953
+
 ***
 
 ## myMPD v10.2.0 (2023-01-19)
