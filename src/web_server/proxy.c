@@ -136,9 +136,9 @@ struct mg_connection *create_backend_connection(struct mg_connection *nc, struct
     }
     if (backend_nc != NULL) {
         //set labels
-        backend_nc->label[0] = 'B';
-        backend_nc->label[1] = nc->label[1];
-        backend_nc->label[2] = nc->label[2];
+        backend_nc->data[0] = 'B';
+        backend_nc->data[1] = nc->data[1];
+        backend_nc->data[2] = nc->data[2];
         MYMPD_LOG_INFO("Forwarding client connection \"%lu\" to http backend connection \"%lu\"", nc->id, backend_nc->id);
     }
     return backend_nc;

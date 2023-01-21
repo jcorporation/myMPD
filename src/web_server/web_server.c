@@ -357,11 +357,11 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
         return false;
     }
 
-    char buf[INET6_ADDRSTRLEN];
-    mg_straddr(&nc->rem, buf, INET6_ADDRSTRLEN);
-    MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL", buf);
+    sds ip = print_ip(sdsempty(), &nc->rem);
+    MYMPD_LOG_ERROR("Connection from \"%s\" blocked by ACL", ip);
     webserver_send_error(nc, 403, "Request blocked by ACL");
     nc->is_draining = 1;
+    FREE_SDS(ip);
     return false;
 }
 
@@ -409,16 +409,16 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             frontend_nc_data->backend_nc = NULL;
             nc->fn_data = frontend_nc_data;
             //set labels
-            nc->label[0] = 'F';
-            nc->label[1] = '-';
-            nc->label[2] = 'C';
+            nc->data[0] = 'F';
+            nc->data[1] = '-';
+            nc->data[2] = 'C';
             break;
         }
         case MG_EV_ACCEPT:
             if (loglevel == LOG_DEBUG) {
-                char buf[INET6_ADDRSTRLEN];
-                mg_straddr(&nc->rem, buf, INET6_ADDRSTRLEN);
-                MYMPD_LOG_DEBUG("New connection id \"%lu\" from %s, connections: %d", nc->id, buf, mg_user_data->connection_count);
+                sds ip = print_ip(sdsempty(), &nc->rem);
+                MYMPD_LOG_DEBUG("New connection id \"%lu\" from %s, connections: %d", nc->id, ip, mg_user_data->connection_count);
+                FREE_SDS(ip);
             }
             //ssl support
             #ifdef MYMPD_ENABLE_SSL
@@ -464,13 +464,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             }
             //limit allowed http methods
             if (mg_vcmp(&hm->method, "GET") == 0) {
-                nc->label[1] = 'G';
+                nc->data[1] = 'G';
             }
             else if (mg_vcmp(&hm->method, "HEAD") == 0) {
-                nc->label[1] = 'H';
+                nc->data[1] = 'H';
             }
             else if (mg_vcmp(&hm->method, "POST") == 0) {
-                nc->label[1] = 'P';
+                nc->data[1] = 'P';
             }
             else {
                 MYMPD_LOG_ERROR("Invalid http method \"%.*s\" (%lu)", (int)hm->method.len, hm->method.ptr, nc->id);
@@ -486,7 +486,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 return;
             }
             //check post requests length
-            if (nc->label[1] == 'P' && (hm->body.len == 0 || hm->body.len > BODY_SIZE_MAX)) {
+            if (nc->data[1] == 'P' && (hm->body.len == 0 || hm->body.len > BODY_SIZE_MAX)) {
                 MYMPD_LOG_ERROR("POST request with body of size %lu is out of bounds (%lu)", (unsigned long)hm->body.len, nc->id);
                 webserver_send_error(nc, 413, "Post request is too large");
                 nc->is_draining = 1;
@@ -496,10 +496,10 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             struct mg_str *connection_hdr = mg_http_get_header(hm, "Connection");
             if (connection_hdr != NULL) {
                 if (mg_vcasecmp(connection_hdr, "close") == 0) {
-                    nc->label[2] = 'C';
+                    nc->data[2] = 'C';
                 }
                 else {
-                    nc->label[2] = 'K';
+                    nc->data[2] = 'K';
                 }
             }
             //handle uris

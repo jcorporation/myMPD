@@ -25,6 +25,27 @@
  */
 
 /**
+ * Prints the ip address from a mg_addr struct
+ * @param s already allocated sds string to append the ip
+ * @param addr pointer to struct mg_addr
+ * @return sds pointer to s
+ */
+sds print_ip(sds s, struct mg_addr *addr) {
+    if (addr->is_ip6 == false) {
+        uint8_t p[4];
+        memcpy(p, &addr->ip, sizeof(p));
+        s = sdscatprintf(s, "%d.%d.%d.%d", (int) p[0], (int) p[1], (int) p[2], (int) p[3]);
+    }
+    else {
+        uint16_t *p = (uint16_t *) addr->ip6;
+        s = sdscatprintf(s, "[%x:%x:%x:%x:%x:%x:%x:%x]", mg_htons(p[0]),
+                 mg_htons(p[1]), mg_htons(p[2]), mg_htons(p[3]), mg_htons(p[4]),
+                 mg_htons(p[5]), mg_htons(p[6]), mg_htons(p[7]));
+    }
+    return s;
+}
+
+/**
  * Sets the partition from uri and handles errors
  * @param nc mongoose connection
  * @param hm http message
@@ -210,7 +231,7 @@ void webserver_send_header_found(struct mg_connection *nc, const char *location)
  * @param nc mongoose connection
  */
 void webserver_handle_connection_close(struct mg_connection *nc) {
-    if (nc->label[2] == 'C') {
+    if (nc->data[2] == 'C') {
         MYMPD_LOG_DEBUG("Set connection %lu to is_draining", nc->id);
         nc->is_draining = 1;
     }

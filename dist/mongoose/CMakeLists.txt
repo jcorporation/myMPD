@@ -15,6 +15,7 @@ target_compile_options(mongoose
   PRIVATE
     "-DMG_ENABLE_DIRECTORY_LISTING=1"
     "-DMG_ENABLE_SSI=0"
+    "-Wno-unused-parameter"
 )
 
 if(MYMPD_ENABLE_IPV6)
