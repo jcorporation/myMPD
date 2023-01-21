@@ -252,7 +252,7 @@ const APImethods = {
             "sortdesc": APIparams.sortdesc
         }
     },
-    "MYMPD_API_DATABASE_STATS": {
+    "MYMPD_API_STATS": {
         "desc": "Shows MPD database statistics.",
         "params": {}
     },

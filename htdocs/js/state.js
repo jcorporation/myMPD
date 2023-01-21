@@ -17,7 +17,7 @@ function clearMPDerror() {
 }
 
 /**
- * Parses the MYMPD_API_DATABASE_STATS jsonrpc response
+ * Parses the MYMPD_API_STATS jsonrpc response
  * @param {object} obj jsonrpc response
  */
 function parseStats(obj) {
@@ -30,6 +30,7 @@ function parseStats(obj) {
     document.getElementById('mpdstatsMympd_uptime').textContent = fmtDuration(obj.result.myMPDuptime);
     document.getElementById('mpdstatsDbUpdated').textContent = fmtDate(obj.result.dbUpdated);
     document.getElementById('mympdVersion').textContent = obj.result.mympdVersion;
+    document.getElementById('myMPDuri').textContent = obj.result.myMPDuri
 
     const mpdInfoVersionEl = document.getElementById('mpdInfoVersion');
     elClear(mpdInfoVersionEl);

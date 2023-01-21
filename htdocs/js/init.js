@@ -353,7 +353,7 @@ function initGlobalModals() {
     }
 
     document.getElementById('modalAbout').addEventListener('show.bs.modal', function () {
-        sendAPI("MYMPD_API_DATABASE_STATS", {}, parseStats, false);
+        sendAPI("MYMPD_API_STATS", {}, parseStats, false);
         getServerinfo();
     }, false);
 }

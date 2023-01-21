@@ -868,5 +868,6 @@
     "Message": "Nachricht",
     "MPD": "MPD",
     "Player": "Wiedergabe",
-    "Session": "Sitzung"
+    "Session": "Sitzung",
+    "myMPD uri": "myMPD URL"
 }

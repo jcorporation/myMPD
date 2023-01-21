@@ -209,6 +209,7 @@ struct t_mympd_uris {
 
 const struct t_mympd_uris mympd_uris[] = {
     {"mympd://webradio/", "/browse/webradios/"},
+    {"mympd://", "/"},
     {NULL,                NULL}
 };
 

@@ -1467,7 +1467,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             rc = mpd_run_shuffle(partition_state->conn);
             response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_shuffle", &result);
             break;
-        case MYMPD_API_DATABASE_STATS:
+        case MYMPD_API_STATS:
             response->data = mympd_api_stats_get(partition_state, response->data, request->id);
             break;
         case INTERNAL_API_ALBUMART:
