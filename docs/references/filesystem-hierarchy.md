@@ -12,7 +12,6 @@ myMPD uses GNU standard installation directories.
 | /lib/systemd/system/mympd.service | Systemd unit |
 | /usr/bin/mympd | myMPD executable |
 | /usr/bin/mympd-script | Executable to trigger and post myMPD scripts |
-| /usr/lib/systemd/system/mympd.service | Systemd unit |
 | /var/cache/mympd/ | myMPD cache directory |
 | /var/cache/mympd/covercache/ | Directory for caching embedded coverart |
 | /var/cache/mympd/webradiodb/ | Directory for caching the webradiodb json file |

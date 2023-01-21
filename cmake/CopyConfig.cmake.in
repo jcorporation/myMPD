@@ -3,10 +3,10 @@
 # https://github.com/jcorporation/mympd
 
 # Install startup script
-if(EXISTS "/usr/lib/systemd/system" OR EXISTS "/lib/systemd/system")
+if(EXISTS "/lib/systemd/system")
   #Install systemd unit
   file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service"
-       DESTINATION "/usr/lib/systemd/system"
+       DESTINATION "/lib/systemd/system"
        FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
 elseif(EXISTS "/sbin/openrc-run")
   #Install openrc script
