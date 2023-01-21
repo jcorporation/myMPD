@@ -3,7 +3,7 @@
 # https://github.com/jcorporation/mympd
 
 # Install startup script
-if(EXISTS "/usr/lib/systemd/system")
+if(EXISTS "/usr/lib/systemd/system" OR EXISTS "/lib/systemd/system")
   #Install systemd unit
   file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service"
        DESTINATION "/usr/lib/systemd/system"
