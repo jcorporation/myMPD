@@ -13,7 +13,7 @@ myMPD also integrates extended features like an advanced jukebox mode, timers, t
 
 ## Screenshots
 
-![image](https://jcorporation.github.io/myMPD/assets/myMDPv9.3.0.gif)
+![image](https://jcorporation.github.io/myMPD/assets/myMPDv10.2.0.gif)
 
 ## Features
 
