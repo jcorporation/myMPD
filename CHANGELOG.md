@@ -11,6 +11,7 @@ This is a small bugfix relese.
 ### Changelog
 
 - Feat: show myMPD uri in About dialog #953
+- Upd: traditional chinese translation #957
 
 ***
 
