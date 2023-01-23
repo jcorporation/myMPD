@@ -13,6 +13,8 @@ This is a small bugfix release.
 - Feat: show myMPD uri in About dialog #953
 - Upd: traditional chinese translation #957
 - Upd: Mongoose 7.9 #952
+- Fix: some packaging issues #955 #958
+- Fix: script execution from main menu
 
 ***
 
@@ -184,7 +186,7 @@ This is a small bug fix release.
 - Feat: add japanese translation
 - Fix: segmentation fault when clicking on last played list #850
 - Fix: scrobble script - artist_mbids MBID format invalid #853
-- Fix: do not show streamUri input on showAddToPlaylistCurrentSong 
+- Fix: do not show streamUri input on showAddToPlaylistCurrentSong
 
 ***
 
