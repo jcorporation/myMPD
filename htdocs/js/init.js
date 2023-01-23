@@ -425,7 +425,7 @@ function initNavs() {
 
     document.getElementById('scripts').addEventListener('click', function(event) {
         event.preventDefault();
-        let target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
+        const target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
         if (target.nodeName === 'A') {
             // @ts-ignore:
             target.firstElementChild.textContent = 'start';
