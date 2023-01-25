@@ -20,9 +20,10 @@ struct t_config {
     bool bootstrap;           //!< true if bootstrap command line option is set
     bool custom_cert;         //!< false if myMPD uses the self generated certificates
     bool first_startup;       //!< true if it is the first myMPD startup (not configurable)
+    bool http;                //!< enable listening on plain http_port
     bool log_to_syslog;       //!< enable syslog logging
     bool save_caches;         //!< true = save caches between restart
-    bool ssl;                 //!< enables ssl
+    bool ssl;                 //!< enable listening on ssl_port
     int covercache_keep_days; //!< expiration time for covercache files
     int http_port;            //!< http port to listen
     int loglevel;             //!< loglevel

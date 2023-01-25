@@ -235,7 +235,7 @@ sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config) {
             }
             //calculate uri
             sds host = get_mympd_host(mpd_host, config->http_host);
-            if (config->http_port == 0) {
+            if (config->http == false) {
                 //use ssl port
                 new_uri = sdscatfmt(new_uri, "https://%S:%i%s%S", host, config->ssl_port, p->resolved, uri);
             }

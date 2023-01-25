@@ -74,7 +74,7 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     MYMPD_LOG_DEBUG("Setting dns server to %s", mgr->dns4.url);
 
     //bind to http_port
-    if (config->http_port > 0) {
+    if (config->http == true) {
         struct mg_connection *nc_http = NULL;
         sds http_url = sdscatfmt(sdsempty(), "http://%S:%i", config->http_host, config->http_port);
         #ifdef MYMPD_ENABLE_SSL
@@ -95,7 +95,7 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
         MYMPD_LOG_NOTICE("Listening on http://%s:%d", config->http_host, config->http_port);
     }
     #ifndef MYMPD_ENABLE_SSL
-        if (config->http_port == 0) {
+        if (config->http == false) {
             MYMPD_LOG_ERROR("Not listening on any port.");
         }
     #endif
@@ -111,7 +111,7 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
         }
         MYMPD_LOG_NOTICE("Listening on https://%s:%d", config->http_host, config->ssl_port);
     }
-    else if (config->http_port == 0) {
+    else if (config->http == false) {
         MYMPD_LOG_ERROR("Not listening on any port.");
     }
     #endif

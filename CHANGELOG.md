@@ -13,6 +13,7 @@ This is a small bugfix release.
 - Feat: show myMPD uri in About dialog #953
 - Upd: traditional chinese translation #957
 - Upd: Mongoose 7.9 #952
+- Upd: add config key to disable http listener #914
 - Fix: some packaging issues #955 #958
 - Fix: script execution from main menu
 

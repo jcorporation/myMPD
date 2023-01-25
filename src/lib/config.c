@@ -90,6 +90,7 @@ void mympd_config_defaults(struct t_config *config) {
         MYMPD_LOG_INFO("Reading environment variables");
     }
     //configurable with environment variables at first startup
+    config->http = startup_getenv_bool("MYMPD_HTTP", CFG_MYMPD_HTTP, config->first_startup);
     config->http_host = startup_getenv_string("MYMPD_HTTP_HOST", CFG_MYMPD_HTTP_HOST, vcb_isname, config->first_startup);
     config->http_port = startup_getenv_int("MYMPD_HTTP_PORT", CFG_MYMPD_HTTP_PORT, 0, MPD_PORT_MAX, config->first_startup);
     #ifdef MYMPD_ENABLE_SSL
@@ -137,8 +138,14 @@ void mympd_config_defaults(struct t_config *config) {
  * @param write if true create the file if not exists
  */
 bool mympd_config_rw(struct t_config *config, bool write) {
+    config->http = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "http", config->http, write);
     config->http_host = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "http_host", config->http_host, vcb_isname, write);
     config->http_port = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "http_port", config->http_port, 0, MPD_PORT_MAX, write);
+    
+    // for compatibility with v10.2.0
+    if (config->http_port == 0) {
+        config->http = false;
+    }
 
     #ifdef MYMPD_ENABLE_SSL
         config->ssl = state_file_rw_bool(config->workdir, DIR_WORK_CONFIG, "ssl", config->ssl, write);
