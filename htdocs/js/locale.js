@@ -127,6 +127,11 @@ function setLocale(newLocale) {
         if (locale.length === 2) {
             locale += '-';
         }
+        switch(locale) {
+            case 'zh-CN': locale = 'zh-Hans'; break;
+            case 'zh-TW': locale = 'zh-Hant'; break;
+            case 'zh-':   locale = 'zh-Hans'; break;
+        }
     }
     else {
         locale = newLocale;

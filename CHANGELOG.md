@@ -11,6 +11,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Feat: show myMPD uri in About dialog #953
+- Feat: map zh-* locale #961
 - Upd: traditional chinese translation #957
 - Upd: Mongoose 7.9 #952
 - Upd: add config key to disable http listener #914
