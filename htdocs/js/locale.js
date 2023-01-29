@@ -124,7 +124,12 @@ function setLocale(newLocale) {
     if (newLocale === 'default') {
         //auto detection
         locale = navigator.language || navigator.userLanguage;
-        locale = localeMap[locale] !== undefined ? localeMap[locale] : locale;
+        const shortLocale = locale.substring(0, 2);
+        locale = localeMap[locale] === undefined
+            ? localeMap[shortLocale] === undefined
+                ? locale
+                : localeMap[shortLocale]
+            : localeMap[locale];
     }
     else {
         locale = newLocale;
