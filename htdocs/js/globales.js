@@ -108,8 +108,8 @@ const localeMap = {
     'nl': 'nl-NL',
     'zh': 'zh-Hans',
     'zh-CN': 'zh-Hans',
-    'zh-TW':  'zh-Hant'
-}
+    'zh-TW': 'zh-Hant'
+};
 
 let materialIcons = {};
 let phrasesDefault = {};
