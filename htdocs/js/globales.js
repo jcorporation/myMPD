@@ -97,6 +97,20 @@ const imageExtensions = ['webp', 'png', 'jpg', 'jpeg', 'svg', 'avif'];
 /** @type {string} */
 let locale = navigator.language || navigator.userLanguage;
 
+const localeMap = {
+    'de': 'de-DE',
+    'es': 'es-ES',
+    'fi': 'fi-FI',
+    'fr': 'fr-FR',
+    'it': 'it-IT',
+    'ja': 'ja-JP',
+    'ko': 'ko-KR',
+    'nl': 'nl-NL',
+    'zh': 'zh-Hans',
+    'zh-CN': 'zh-Hans',
+    'zh-TW':  'zh-Hant'
+}
+
 let materialIcons = {};
 let phrasesDefault = {};
 let phrases = {};
