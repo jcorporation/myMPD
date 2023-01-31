@@ -1,5 +1,6 @@
 de-DE:Deutsch
 en-US:English
+es-AR:Español
 es-ES:Español
 es-VE:Español
 fi-FI:Finnish

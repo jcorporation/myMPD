@@ -10,6 +10,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Feat: add es-AR translation
+
 ***
 
 ## myMPD v10.2.1 (2023-01-31)
