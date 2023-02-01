@@ -3,10 +3,16 @@
 # https://github.com/jcorporation/mympd
 
 # Install startup script
-if(EXISTS "/lib/systemd/system")
+if(EXISTS "/lib/systemd/system" OR EXISTS "/lib/systemd/system")
+  execute_process(COMMAND pkg-config --variable systemd_system_unit_dir systemd OUTPUT_VARIABLE SYSTEMD_UNIT_DIR)
+  string(STRIP ${SYSTEMD_UNIT_DIR} SYSTEMD_UNIT_DIR)
+  if(${SYSTEMD_UNIT_DIR} STREQUAL "")
+    # Fallback
+    set(SYSTEMD_UNIT_DIR "/lib/systemd/system")
+  endif()
   #Install systemd unit
   file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service"
-       DESTINATION "/lib/systemd/system"
+       DESTINATION ${SYSTEMD_UNIT_DIR}
        FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
 elseif(EXISTS "/sbin/openrc-run")
   #Install openrc script
