@@ -11,6 +11,8 @@ This is a small bugfix release.
 ### Changelog
 
 - Feat: add es-AR translation
+- Feat: add documentation for multiroom audio, thanks @tsunulukai
+- Fix: use pkg-config to find the correct location for the systemd unit #964
 
 ***
 
