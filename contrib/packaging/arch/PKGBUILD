@@ -18,6 +18,7 @@ build() {
     -B build
     -S "${srcdir}"
     -DCMAKE_BUILD_TYPE=Release
+    -DMYGPIOD_STRIP_BINARY=OFF
     -DCMAKE_INSTALL_PREFIX=/usr
     -Wno-dev
   )

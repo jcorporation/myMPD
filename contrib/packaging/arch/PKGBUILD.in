@@ -19,6 +19,7 @@ build() {
     -S "${srcdir}"
     -DCMAKE_BUILD_TYPE=Release
     -DCMAKE_INSTALL_PREFIX=/usr
+    -DMYMPD_STRIP_BINARY=OFF
     -Wno-dev
   )
 
