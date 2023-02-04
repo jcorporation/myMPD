@@ -285,7 +285,7 @@ function parseDatabaseAlbumList(obj) {
         const taglist = [];
         for (const tag of settings.colsBrowseDatabaseAlbumList) {
             taglist.push(
-                elCreateNode((tag === 'Album' ? 'div' : 'small'), {"class": ["d-block"]},
+                elCreateNode((tag === 'Album' ? 'span' : 'small'), {"class": ["d-block"]},
                     printValue(tag, obj.result.data[i][tag])
                 )
             );
