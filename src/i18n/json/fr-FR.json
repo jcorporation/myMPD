@@ -221,7 +221,6 @@
     "Enter": "Entrez",
     "Enter pin": "Entrez un PIN",
     "Error clearing the covercache": "Erreur à l'effacement du cache des jaquettes",
-    "Error connecting to radio-browser.info": "Erreur à la connexion sur radio-browser.info",
     "Error cropping the covercache": "Erreur au troncage du cache des couvertures d'album",
     "Error executing script %{script}": "Erreur à l'éxecution du sript %{script}",
     "Error executing script %{script}: Can not open or read script file": "Erreur à l'éxecution du sript %{script}: Ouverture ou lecture du fichier de script impossible",
@@ -607,7 +606,6 @@
     "Successfully croped covercache": "Le cache des jaquettes a été tronqué",
     "Successfully renamed playlist": "Liste de lexture renommée",
     "Sun": "Dim",
-    "Toggle single mode": "Basculer mode unique",
     "Switch to": "Passer à",
     "Synced lyrics": "Paroles synchronisées",
     "Synced lyrics extension": "Extension de fichier - paroles synchronisées",
@@ -865,5 +863,11 @@
     "Message": "Message",
     "MPD": "MPD",
     "Player": "Lecteur",
-    "Session": "Session"
+    "Session": "Session",
+    "Error connecting to radio-browser.info": "Erreur à la connexion sur radio-browser.info",
+    "Error creating album cache": "Erreur à la création du cache d'albums",
+    "Error creating sticker cache": "Erreur à la création du cache de stickers",
+    "Open partitions": "Ouvrir partition",
+    "Toggle single mode": "Basculer mode unique",
+    "myMPD uri": "URL de myMPD"
 }
