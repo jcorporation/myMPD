@@ -221,7 +221,6 @@
     "Enter": "Invoeren",
     "Enter pin": "Voer pin in",
     "Error clearing the covercache": "Fout bij opschonen covercache",
-    "Error connecting to radio-browser.info": "Geen verbinding met radio-browser.info",
     "Error cropping the covercache": "Fout bij inkorten covercache",
     "Error executing script %{script}": "Fout bij uitvoeren script %{script}",
     "Error executing script %{script}: Can not open or read script file": "Fout bij uitvoeren script %{script}: Kan script niet openen of lezen",
@@ -607,7 +606,6 @@
     "Successfully croped covercache": "Covercache opgeschoond",
     "Successfully renamed playlist": "Afspeellijst hernoemd",
     "Sun": "Zo",
-    "Toggle single mode": "Single modus wijzigen",
     "Switch to": "Schakel over naar",
     "Synced lyrics": "Gesynchte songteksten",
     "Synced lyrics extension": "Gesyncte songteksten extensies",
@@ -865,5 +863,11 @@
     "Message": "Bericht",
     "MPD": "MPD",
     "Player": "Speler",
-    "Session": "Sessie"
+    "Session": "Sessie",
+    "Error connecting to radio-browser.info": "Geen verbinding met radio-browser.info",
+    "Error creating album cache": "Four bij het opmaken van de albumcache",
+    "Error creating sticker cache": "Fout bij het opmaken van de stickercache",
+    "Open partitions": "Partitie openen",
+    "Toggle single mode": "Single modus wijzigen",
+    "myMPD uri": "myMPD URL"
 }
