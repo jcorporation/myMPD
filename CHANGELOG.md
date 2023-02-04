@@ -12,7 +12,8 @@ This is a small bugfix release.
 
 - Feat: add es-AR translation
 - Feat: add documentation for multiroom audio, thanks @tsunulukai
-- Fix: use pkg-config to find the correct location for the systemd unit #964
+- Upd: FR and NL translations
+- Fix: correct location for the systemd unit #964
 - Fix: popover event in album list
 
 ***
