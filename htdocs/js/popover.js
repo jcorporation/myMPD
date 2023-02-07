@@ -99,6 +99,36 @@ function showPopover(event) {
                 popoverInit = createPopoverTabs(target, createMenuLists, createMenuListsSecondary);
         }
     }
+    event.target.parentNode.addEventListener('updated.bs.popover', function(ev) {
+        const tipId = ev.target.getAttribute('aria-describedby');
+        const tip = document.querySelector(tipId);
+        tip.style.removeProperty('overflow-y');
+        tip.style.removeProperty('overflow-x');
+        tip.style.removeProperty('max-height');
+        const tipHeight = tip.offsetHeight;
+        let offset = getYpos(tip);
+        const bottomPos = window.innerHeight - tipHeight - offset;
+        const scrollHeight = 0 - window.scrollY;
+        if (bottomPos < scrollHeight) {
+            const newTop = offset + bottomPos;
+            tip.style.top = `${newTop}px`;
+            const arrowTop = getYpos(ev.target) - newTop;
+            tip.querySelector('.popover-arrow').style.top = `${arrowTop}px`;
+        }
+        offset = getYpos(tip);
+        // check if tooltip/popover overflows window top
+        if (offset < scrollHeight) {
+            const arrowTop = getYpos(ev.target) - scrollHeight;
+            tip.querySelector('.popover-arrow').style.top = `${arrowTop}px`;
+            tip.style.top = `${scrollHeight}px`;
+        }
+        // check if tooltip/popover is higher as the window
+        if (tipHeight > window.innerHeight) {
+            tip.style.overflowY = 'auto';
+            tip.style.overflowX = 'hidden';
+            tip.style.maxHeight = '100vh';
+        }
+    });
     //show the popover
     popoverInit.show();
 }
