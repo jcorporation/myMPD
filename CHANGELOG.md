@@ -12,9 +12,10 @@ This is a small bugfix release.
 
 - Feat: add es-AR translation
 - Feat: add documentation for multiroom audio, thanks @tsunulukai
-- Upd: FR and NL translations
+- Upd: FR and NL translations, thanks @tsunulukai
 - Fix: correct location for the systemd unit #964
 - Fix: popover event in album list
+- Fix: ignore special keys for input key handlers #969
 
 ***
 
