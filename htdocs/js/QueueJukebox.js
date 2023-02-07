@@ -44,17 +44,15 @@ function initQueueJukebox() {
         }
     }, false);
     document.getElementById('searchQueueJukeboxStr').addEventListener('keyup', function(event) {
+        if (ignoreKeys(event) === true) {
+            return;
+        }
         clearSearchTimer();
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else {
-            const value = this.value;
-            searchTimer = setTimeout(function() {
-                appGoto(app.current.card, app.current.tab, app.current.view,
-                    0, app.current.limit, app.current.filter, app.current.sort, '-', value);
-            }, searchTimerTimeout);
-        }
+        const value = this.value;
+        searchTimer = setTimeout(function() {
+            appGoto(app.current.card, app.current.tab, app.current.view,
+                0, app.current.limit, app.current.filter, app.current.sort, '-', value);
+        }, searchTimerTimeout);
     }, false);
 }
 

@@ -36,15 +36,13 @@ function handleBrowseRadioRadiobrowser() {
  */
 function initBrowseRadioRadiobrowser() {
     document.getElementById('BrowseRadioRadiobrowserSearchStr').addEventListener('keyup', function(event) {
+        if (ignoreKeys(event) === true) {
+            return;
+        }
         clearSearchTimer();
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else {
-            searchTimer = setTimeout(function() {
-                searchRadiobrowser();
-            }, searchTimerTimeout);
-        }
+        searchTimer = setTimeout(function() {
+            searchRadiobrowser();
+        }, searchTimerTimeout);
     }, false);
 
     document.getElementById('BrowseRadioRadiobrowserFilter').addEventListener('show.bs.collapse', function() {

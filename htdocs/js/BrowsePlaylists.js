@@ -69,31 +69,27 @@ function initPlaylists() {
     }, false);
 
     document.getElementById('searchPlaylistsDetailStr').addEventListener('keyup', function(event) {
+        if (ignoreKeys(event) === true) {
+            return;
+        }
         clearSearchTimer();
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else {
-            const value = this.value;
-            searchTimer = setTimeout(function() {
-                appGoto(app.current.card, app.current.tab, app.current.view,
-                    0, app.current.limit, app.current.filter, app.current.sort, '-', value);
-            }, searchTimerTimeout);
-        }
+        const value = this.value;
+        searchTimer = setTimeout(function() {
+            appGoto(app.current.card, app.current.tab, app.current.view,
+                0, app.current.limit, app.current.filter, app.current.sort, '-', value);
+        }, searchTimerTimeout);
     }, false);
 
     document.getElementById('searchPlaylistListStr').addEventListener('keyup', function(event) {
+        if (ignoreKeys(event) === true) {
+            return;
+        }
         clearSearchTimer();
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else {
-            const value = this.value;
-            searchTimer = setTimeout(function() {
-                appGoto(app.current.card, app.current.tab, app.current.view,
-                    0, app.current.limit, app.current.filter, app.current.sort, '-', value);
-            }, searchTimerTimeout);
-        }
+        const value = this.value;
+        searchTimer = setTimeout(function() {
+            appGoto(app.current.card, app.current.tab, app.current.view,
+                0, app.current.limit, app.current.filter, app.current.sort, '-', value);
+        }, searchTimerTimeout);
     }, false);
 
     document.getElementById('BrowsePlaylistListList').addEventListener('click', function(event) {

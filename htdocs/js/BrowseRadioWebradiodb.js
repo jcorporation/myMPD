@@ -38,15 +38,13 @@ function handleBrowseRadioWebradiodb() {
  */
 function initBrowseRadioWebradiodb() {
     document.getElementById('BrowseRadioWebradiodbSearchStr').addEventListener('keyup', function(event) {
+        if (ignoreKeys(event) === true) {
+            return;
+        }
         clearSearchTimer();
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else {
-            searchTimer = setTimeout(function() {
-                doSearchWebradiodb();
-            }, searchTimerTimeout);
-        }
+        searchTimer = setTimeout(function() {
+            doSearchWebradiodb();
+        }, searchTimerTimeout);
     }, false);
 
     document.getElementById('BrowseRadioWebradiodbFilter').addEventListener('shown.bs.collapse', function() {

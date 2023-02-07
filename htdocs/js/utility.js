@@ -6,6 +6,33 @@
 /** @module utility_js */
 
 /**
+ * Ignore keys for inputs
+ * @param {KeyboardEvent} event triggering key event
+ * @returns {boolean} true if key event should be ignored, else false
+ */
+function ignoreKeys(event) {
+    if (event === undefined) {
+        return true;
+    }
+    switch (event.key) {
+        case 'Escape':
+            // @ts-ignore
+            event.target.blur();
+            return true;
+        case 'Enter':
+        case 'Backspace':
+        case 'Delete':
+            // do not ignore some special keys
+            return false;
+    }
+    if (event.key.length > 1) {
+        // ignore all special keys
+        return true;
+    }
+    return false;
+}
+
+/**
  * Checks if event should be executed
  * @param {EventTarget} target triggering event target
  * @returns {boolean} true if target is clickable else false

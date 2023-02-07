@@ -161,12 +161,12 @@ function initQueueCurrent() {
     }, false);
 
     document.getElementById('searchQueueStr').addEventListener('keyup', function(event) {
+        if (ignoreKeys(event) === true) {
+            return;
+        }
         clearSearchTimer();
         const value = this.value;
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else if (event.key === 'Enter' &&
+        if (event.key === 'Enter' &&
             features.featAdvqueue === true)
         {
             if (value !== '') {

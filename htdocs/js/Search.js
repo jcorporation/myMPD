@@ -84,13 +84,12 @@ function initSearch() {
     }, false);
 
     document.getElementById('searchStr').addEventListener('keyup', function(event) {
+        if (ignoreKeys(event) === true) {
+            return;
+        }
         clearSearchTimer();
         const value = this.value;
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else if (event.key === 'Enter')
-        {
+        if (event.key === 'Enter') {
             if (value !== '') {
                 const op = getSelectValueId('searchMatch');
                 document.getElementById('searchCrumb').appendChild(createSearchCrumb(app.current.filter, op, value));

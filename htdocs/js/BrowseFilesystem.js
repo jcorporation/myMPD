@@ -59,17 +59,15 @@ function handleBrowseFilesystem() {
  */
 function initBrowseFilesystem() {
     document.getElementById('searchFilesystemStr').addEventListener('keyup', function(event) {
+        if (ignoreKeys(event) === true) {
+            return;
+        }
         clearSearchTimer();
-        if (event.key === 'Escape') {
-            this.blur();
-        }
-        else {
-            const value = this.value;
-            searchTimer = setTimeout(function() {
-                appGoto(app.current.card, app.current.tab, app.current.view,
-                    0, app.current.limit, (value !== '' ? value : '-'), app.current.sort, '-', app.current.search);
-            }, searchTimerTimeout);
-        }
+        const value = this.value;
+        searchTimer = setTimeout(function() {
+            appGoto(app.current.card, app.current.tab, app.current.view,
+                0, app.current.limit, (value !== '' ? value : '-'), app.current.sort, '-', app.current.search);
+        }, searchTimerTimeout);
     }, false);
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {

@@ -71,12 +71,11 @@ function initBrowseDatabase() {
     }, false);
 
     document.getElementById('searchDatabaseTagListStr').addEventListener('keyup', function(event) {
+        if (ignoreKeys(event) === true) {
+            return;
+        }
         clearSearchTimer();
         const value = this.value;
-        if (event.key === 'Escape') {
-            clearSearchTimer();
-            this.blur();
-        }
         searchTimer = setTimeout(function() {
             appGoto(app.current.card, app.current.tab, app.current.view,
                 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, value);
@@ -181,13 +180,12 @@ function initBrowseDatabase() {
     }, false);
 
     document.getElementById('searchDatabaseAlbumListStr').addEventListener('keyup', function(event) {
+        if (ignoreKeys(event) === true) {
+            return;
+        }
         clearSearchTimer();
         const value = this.value;
-        if (event.key === 'Escape') {
-            clearSearchTimer();
-            this.blur();
-        }
-        else if (event.key === 'Enter') {
+        if (event.key === 'Enter') {
             if (value !== '') {
                 const op = getSelectValueId('searchDatabaseAlbumListMatch');
                 const crumbEl = document.getElementById('searchDatabaseAlbumListCrumb');
