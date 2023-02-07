@@ -75,6 +75,11 @@ body.mobile > footer > nav {
   border-color: transparent;
 }
 
+.navbar .btn:active {
+  border-color: var(--mympd-highlightcolor) !important;
+  background-color: var(--mympd-highlightcolor) !important;
+}
+
 button.active,
 .btn-success,
 .btn-success:focus,
