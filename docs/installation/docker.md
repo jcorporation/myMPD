@@ -7,10 +7,12 @@ title: Docker
 The Docker images are based on [Alpine Linux](https://alpinelinux.org). They are published through the GitHub docker registry [ghcr.io](https://github.com/jcorporation?tab=packages).
 
 There are two images:
+
 - mympd/mympd: the latest stable release
 - mympd/mympd-devel: development version
 
 Available architectures:
+
 - x86-64 (amd64)
 - arm64 (aarch64)
 - armv7
@@ -20,7 +22,7 @@ Use ``docker pull ghcr.io/jcorporation/mympd/mympd:latest`` to use the latest im
 
 ## Usage
 
-Docker Compose: 
+Docker Compose:
 
 ```
 ---
@@ -34,6 +36,8 @@ services:
       - TZ=Europe/London
       - UMASK_SET=022 #optional
       - MYMPD_SSL=false
+      - PUID=1000
+      - PGID=1000
     volumes:
       - /path/to/mpd/socket:/run/mpd/socket #optional, use if you connect to mpd using sockets
       - /path/to/mympd/docker/dir:/var/lib/mympd/
@@ -51,6 +55,8 @@ docker run -d \
   -e TZ=Europe/London \
   -e UMASK_SET=022 \
   -e MYMPD_SSL=false \
+  -e PUID=1000 \
+  -e PGID=1000 \
   -v /path/to/mpd/socket:/run/mpd/socket \
   -v /path/to/mympd/docker/dir:/var/lib/mympd/ \
   -v /path/to/music/dir/:/music/:ro \
