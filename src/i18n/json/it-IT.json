@@ -35,7 +35,7 @@
     "AlbumArtistSort": "AlbumArtistSort",
     "AlbumSort": "AlbumSort",
     "Albumart": "Copertina",
-    "Albumcache not ready": "Albumcache non pronta",
+    "Albumcache not ready": "Cache album non pronta",
     "Albums": "Album",
     "Alternative stream uri": "Uri alternativo del flusso",
     "Alternative streams": "Flussi alternativi",
@@ -221,7 +221,6 @@
     "Enter": "Inserisci",
     "Enter pin": "Inserisci pin",
     "Error clearing the covercache": "Errore svuotando la covercache",
-    "Error connecting to radio-browser.info": "Errore di connessione a radio-browser.info",
     "Error cropping the covercache": "Errore troncando la covercache",
     "Error executing script %{script}": "Errore esecuzione script %{script}",
     "Error executing script %{script}: Can not open or read script file": "Errore esecuzione script %{script}: impossibile aprire o leggere il file di script",
@@ -607,7 +606,6 @@
     "Successfully croped covercache": "Cache copertine troncata con successo",
     "Successfully renamed playlist": "Playlist rinominata con successo",
     "Sun": "Dom",
-    "Toggle single mode": "Passa a modo singolo",
     "Switch to": "Passa a",
     "Synced lyrics": "Testi sincronizzati",
     "Synced lyrics extension": "Estensione testi sincronizzata",
@@ -865,5 +863,11 @@
     "Message": "Messaggio",
     "MPD": "MPD",
     "Player": "Riproduttore",
-    "Session": "Sessione"
+    "Session": "Sessione",
+    "Error connecting to radio-browser.info": "Errore di connessione a radio-browser.info",
+    "Error creating album cache": "Errore nella creazione della cache degli album",
+    "Error creating sticker cache": "Errore nella creazione della cache degli sticker",
+    "Open partitions": "Apri partizioni",
+    "Toggle single mode": "Commuta modo singolo",
+    "myMPD uri": "Uri di myMPD"
 }
