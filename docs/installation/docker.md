@@ -22,6 +22,12 @@ Use ``docker pull ghcr.io/jcorporation/mympd/mympd:latest`` to use the latest im
 
 ## Usage
 
+Starts the myMPD docker container:
+
+- Runs the docker container with uid/gid 1000
+- Disables SSL
+- Listen on port 8080
+
 Docker Compose:
 
 ```
@@ -36,6 +42,7 @@ services:
     environment:
       - UMASK_SET=022
       - MYMPD_SSL=false
+      - MYMPD_HTTP_PORT=8080
     volumes:
       - /path/to/mpd/socket:/run/mpd/socket
       - /path/to/mympd/docker/workdir:/var/lib/mympd/
@@ -54,6 +61,7 @@ docker run -d \
   -u 1000:1000 \
   -e UMASK_SET=022 \
   -e MYMPD_SSL=false \
+  -e MYMPD_HTTP_PORT=8080 \
   -v /path/to/mpd/socket:/run/mpd/socket \
   -v /path/to/mympd/docker/workdir:/var/lib/mympd/ \
   -v /path/to/mympd/docker/cachedir:/var/lib/mympd/ \
