@@ -14,6 +14,7 @@ This is a small bugfix release.
 - Feat: add documentation for multiroom audio, thanks @tsunulukai
 - Upd: FR, NL, IT and JP translations, thanks @ all translators
 - Upd: remove bootstrap.native patches, use new updated events
+- Upd: improved docker image creation and documentation #968
 - Fix: correct location for the systemd unit #964
 - Fix: popover event in album list
 - Fix: ignore special keys for input key handlers #969
