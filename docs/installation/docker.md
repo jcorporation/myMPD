@@ -32,15 +32,14 @@ services:
     image: ghcr.io/jcorporation/mympd/mympd
     container_name: mympd
     network_mode: "host"
+    user: 1000:1000
     environment:
-      - TZ=Europe/London
-      - UMASK_SET=022 #optional
+      - UMASK_SET=022
       - MYMPD_SSL=false
-      - PUID=1000
-      - PGID=1000
     volumes:
-      - /path/to/mpd/socket:/run/mpd/socket #optional, use if you connect to mpd using sockets
-      - /path/to/mympd/docker/dir:/var/lib/mympd/
+      - /path/to/mpd/socket:/run/mpd/socket
+      - /path/to/mympd/docker/workdir:/var/lib/mympd/
+      - /path/to/mympd/docker/cachedir:/var/lib/mympd/
       - /path/to/music/dir/:/music/:ro
       - /path/to/playlists/dir/:/playlists/:ro
     restart: unless-stopped
@@ -52,13 +51,12 @@ Docker CLI:
 docker run -d \
   --name=mympd \
   --net="host" \
-  -e TZ=Europe/London \
+  -u 1000:1000 \
   -e UMASK_SET=022 \
   -e MYMPD_SSL=false \
-  -e PUID=1000 \
-  -e PGID=1000 \
   -v /path/to/mpd/socket:/run/mpd/socket \
-  -v /path/to/mympd/docker/dir:/var/lib/mympd/ \
+  -v /path/to/mympd/docker/workdir:/var/lib/mympd/ \
+  -v /path/to/mympd/docker/cachedir:/var/lib/mympd/ \
   -v /path/to/music/dir/:/music/:ro \
   -v /path/to/playlists/dir/:/playlists/:ro \
   --restart unless-stopped \
