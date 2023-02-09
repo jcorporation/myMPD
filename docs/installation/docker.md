@@ -18,7 +18,7 @@ Available architectures:
 - armv7
 - armv6
 
-Use ``docker pull ghcr.io/jcorporation/mympd/mympd:latest`` to use the latest image.
+Use `docker pull ghcr.io/jcorporation/mympd/mympd:latest` to use the latest image.
 
 ## Usage
 
