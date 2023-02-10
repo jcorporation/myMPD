@@ -266,7 +266,7 @@ function appInit() {
                 menu.style.removeProperty('overflow-x');
                 menu.style.removeProperty('max-height');
                 const menuHeight = menu.offsetHeight;
-                const offset = getYpos(menu)
+                const offset = getYpos(menu);
                 const bottomPos = window.innerHeight - menuHeight - offset;
                 if (bottomPos < 0) {
                     menu.style.overflowY = 'auto';
