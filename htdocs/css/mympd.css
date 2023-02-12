@@ -829,6 +829,11 @@ div#footerProgressPos {
   bottom: 6rem;
   left: 0;
   border-radius: 0.25rem;
+  background-color: var(--bs-secondary-bg);
+}
+
+body.mobile div#footerProgressPos {
+  bottom: 7rem;
 }
 
 div.active #badgeQueueItems {

@@ -11,6 +11,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Fix: remove progressbar transition causing high cpu usage #975
+- Fix: Position hover for progressbar
 
 ***
 
