@@ -53,9 +53,6 @@ let allOutputs = null;
 const ligatureMore = 'menu';
 
 /** @type {string} */
-const progressBarTransition = 'width 1s linear';
-
-/** @type {string} */
 const smallSpace = '\u2009';
 
 /** @type {string} */

@@ -412,8 +412,6 @@ function initNavs() {
         domCache.progressPos.style.display = 'none';
     }, false);
 
-    domCache.progressBar.style.transition = progressBarTransition;
-
     const navbarMain = document.getElementById('navbar-main');
     navbarMain.addEventListener('click', function(event) {
         event.preventDefault();
