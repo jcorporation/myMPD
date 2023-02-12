@@ -686,17 +686,6 @@ tfoot td {
   -webkit-user-drag: element;
 }
 
-@keyframes changewidth {
-  from { margin-left: -20px; }
-  to { margin-left: 100%; }
-}
-
-.updateDBprogressAnimate {
-  animation-duration: 2s;
-  animation-name: changewidth;
-  animation-iteration-count: infinite;
-}
-
 div.key {
   border: 1px solid var(--bs-gray-200);
   background-color: var(--bs-gray-600);
