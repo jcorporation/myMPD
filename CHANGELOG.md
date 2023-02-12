@@ -10,6 +10,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Fix: remove progressbar transition causing high cpu usage #975
+
 ***
 
 ## myMPD v10.2.2 (2023-02-10)
