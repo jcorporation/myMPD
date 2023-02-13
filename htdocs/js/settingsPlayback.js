@@ -45,7 +45,7 @@ function initSettingsPlayback() {
         }
     }, false);
 
-    for (let i = 1; i < 3; i++) {
+    for (let i = 1; i <= 3; i++) {
         document.getElementById('selectPresetDropdown' + i).addEventListener('click', function(event) {
             event.preventDefault();
             if (event.target.nodeName === 'BUTTON') {

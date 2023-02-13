@@ -12,6 +12,8 @@ This is a small bugfix release.
 
 - Fix: remove progressbar transition causing high cpu usage #975
 - Fix: Position hover for progressbar
+- Fix: add missing translation phrase
+- Fix: Preset selection in footer does not work #976
 
 ***
 
