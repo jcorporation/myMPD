@@ -46,7 +46,7 @@ services:
     volumes:
       - /path/to/mpd/socket:/run/mpd/socket
       - /path/to/mympd/docker/workdir:/var/lib/mympd/
-      - /path/to/mympd/docker/cachedir:/var/lib/mympd/
+      - /path/to/mympd/docker/cachedir:/var/cache/mympd/
       - /path/to/music/dir/:/music/:ro
       - /path/to/playlists/dir/:/playlists/:ro
     restart: unless-stopped
@@ -64,7 +64,7 @@ docker run -d \
   -e MYMPD_HTTP_PORT=8080 \
   -v /path/to/mpd/socket:/run/mpd/socket \
   -v /path/to/mympd/docker/workdir:/var/lib/mympd/ \
-  -v /path/to/mympd/docker/cachedir:/var/lib/mympd/ \
+  -v /path/to/mympd/docker/cachedir:/var/cache/mympd/ \
   -v /path/to/music/dir/:/music/:ro \
   -v /path/to/playlists/dir/:/playlists/:ro \
   --restart unless-stopped \
