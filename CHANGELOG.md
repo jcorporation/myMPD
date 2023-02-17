@@ -10,6 +10,9 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Feat: add pl-PL translation
+- Upd: remove zh-Hant translation
+
 ***
 
 ## myMPD v10.2.3 (2023-02-17)
