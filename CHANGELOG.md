@@ -9,6 +9,7 @@ https://github.com/jcorporation/myMPD/
 ### Changelog
 
 - Feat: custom placeholder images #980
+- Upd: bootstrap.native 5.0.0-stable
 
 ***
 
