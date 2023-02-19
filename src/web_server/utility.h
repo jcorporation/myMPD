@@ -26,7 +26,7 @@ struct t_mg_user_data {
     int thumbnail_names_len;     //!< length of thumbnail_names array
     bool feat_albumart;          //!< feature flag for md albumart command
     bool publish_playlists;      //!< true if mpd playlist directory is configured
-    bool publish_music;          //!< true if mpd music directory is accessable
+    bool publish_music;          //!< true if mpd music directory is accessible
     int connection_count;        //!< number of http connections
     struct t_list stream_uris;   //!< uri for the mpd stream reverse proxy
     struct t_list session_list;  //!< list of myMPD sessions (pin protection mode)
