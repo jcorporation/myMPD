@@ -81,8 +81,10 @@ myMPD recognizes following file extensions:
 
 ## Custom placeholder images
 
-You can add custom placeholder images for streams and not available albumart.
+You can add custom placeholder images for albumart.
 
+- `/var/lib/mympd/pics/thumbs/coverimage-booklet.webp`
+- `/var/lib/mympd/pics/thumbs/coverimage-mympd.webp`
 - `/var/lib/mympd/pics/thumbs/coverimage-notavailable.webp`
 - `/var/lib/mympd/pics/thumbs/coverimage-stream.webp`
 

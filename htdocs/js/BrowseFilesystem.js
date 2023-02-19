@@ -141,7 +141,7 @@ function initBrowseFilesystem() {
         }
         if (obj.result.bookletPath !== '') {
             const img = elCreateEmpty('div', {"class": ["booklet"], "title": tn('Booklet')});
-            img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
+            img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet")';
             setData(img, 'href', subdir + myEncodeURI(obj.result.bookletPath));
             imageList.appendChild(img);
         }

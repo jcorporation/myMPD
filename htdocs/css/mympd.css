@@ -533,7 +533,7 @@ div#homeActions {
 }
 
 .album-cover-loading {
-  background-image: url("../assets/coverimage-mympd.svg");
+  background-image: url("../assets/coverimage-mympd");
 }
 
 div.card-toolbar {

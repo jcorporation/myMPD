@@ -78,6 +78,8 @@ void *mg_user_data_free(struct t_mg_user_data *mg_user_data) {
     sdsfreesplitres(mg_user_data->thumbnail_names, mg_user_data->thumbnail_names_len);
     list_clear(&mg_user_data->stream_uris);
     list_clear(&mg_user_data->session_list);
+    FREE_SDS(mg_user_data->custom_booklet_image);
+    FREE_SDS(mg_user_data->custom_mympd_image);
     FREE_SDS(mg_user_data->custom_na_image);
     FREE_SDS(mg_user_data->custom_stream_image);
     FREE_PTR(mg_user_data);
@@ -247,10 +249,10 @@ void webserver_handle_connection_close(struct mg_connection *nc) {
 void webserver_serve_na_image(struct mg_connection *nc) {
     struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
     if (sdslen(mg_user_data->custom_na_image) == 0) {
-        webserver_send_header_found(nc, "assets/coverimage-notavailable.svg");
+        webserver_send_header_found(nc, "/assets/coverimage-notavailable.svg");
     }
     else {
-        sds uri = sdscatfmt(sdsempty(), "browse/pics/thumbs/%S", mg_user_data->custom_na_image);
+        sds uri = sdscatfmt(sdsempty(), "/browse/pics/thumbs/%S", mg_user_data->custom_na_image);
         webserver_send_header_found(nc, uri);
         FREE_SDS(uri);
     }
@@ -263,10 +265,42 @@ void webserver_serve_na_image(struct mg_connection *nc) {
 void webserver_serve_stream_image(struct mg_connection *nc) {
     struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
     if (sdslen(mg_user_data->custom_stream_image) == 0) {
-        webserver_send_header_found(nc, "assets/coverimage-stream.svg");
+        webserver_send_header_found(nc, "/assets/coverimage-stream.svg");
     }
     else {
-        sds uri = sdscatfmt(sdsempty(), "browse/pics/thumbs/%S", mg_user_data->custom_stream_image);
+        sds uri = sdscatfmt(sdsempty(), "/browse/pics/thumbs/%S", mg_user_data->custom_stream_image);
+        webserver_send_header_found(nc, uri);
+        FREE_SDS(uri);
+    }
+}
+
+/**
+ * Redirects to the mympd image
+ * @param nc mongoose connection
+ */
+void webserver_serve_mympd_image(struct mg_connection *nc) {
+    struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
+    if (sdslen(mg_user_data->custom_mympd_image) == 0) {
+        webserver_send_header_found(nc, "/assets/coverimage-mympd.svg");
+    }
+    else {
+        sds uri = sdscatfmt(sdsempty(), "/browse/pics/thumbs/%S", mg_user_data->custom_mympd_image);
+        webserver_send_header_found(nc, uri);
+        FREE_SDS(uri);
+    }
+}
+
+/**
+ * Redirects to the booklet image
+ * @param nc mongoose connection
+ */
+void webserver_serve_booklet_image(struct mg_connection *nc) {
+    struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
+    if (sdslen(mg_user_data->custom_booklet_image) == 0) {
+        webserver_send_header_found(nc, "/assets/coverimage-booklet.svg");
+    }
+    else {
+        sds uri = sdscatfmt(sdsempty(), "/browse/pics/thumbs/%S", mg_user_data->custom_booklet_image);
         webserver_send_header_found(nc, uri);
         FREE_SDS(uri);
     }

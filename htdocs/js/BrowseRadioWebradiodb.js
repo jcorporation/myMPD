@@ -330,7 +330,7 @@ function showWebradiodbDetails(uri) {
     }
     else {
         document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
-            'url("' + subdir + '/assets/coverimage-notavailable.svg")';
+            'url("' + subdir + '/assets/coverimage-notavailable")';
     }
     document.getElementById('RadiobrowserDetailsTitle').textContent = result.Name;
     setDataId('RadiobrowserDetailsTitle', 'webradio', result);

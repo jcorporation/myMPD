@@ -405,7 +405,7 @@ function parseRadioFavoritesList(obj) {
             ])
         ]);
         const image = obj.result.data[i].Image === ''
-            ? '/assets/coverimage-stream.svg'
+            ? '/assets/coverimage-stream'
             : obj.result.data[i].Image;
         setData(card, 'image', image);
         setData(card, 'uri', obj.result.data[i].filename);

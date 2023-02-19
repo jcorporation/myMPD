@@ -30,6 +30,8 @@ struct t_mg_user_data {
     int connection_count;        //!< number of http connections
     struct t_list stream_uris;   //!< uri for the mpd stream reverse proxy
     struct t_list session_list;  //!< list of myMPD sessions (pin protection mode)
+    sds custom_booklet_image;    //!< name of custom booklet image
+    sds custom_mympd_image;      //!< name of custom mympd image
     sds custom_na_image;         //!< name of custom not available image
     sds custom_stream_image;     //!< name of custom stream image
 };
@@ -53,6 +55,8 @@ sds webserver_find_image_file(sds basefilename);
 void webserver_send_error(struct mg_connection *nc, int code, const char *msg);
 void webserver_serve_na_image(struct mg_connection *nc);
 void webserver_serve_stream_image(struct mg_connection *nc);
+void webserver_serve_mympd_image(struct mg_connection *nc);
+void webserver_serve_booklet_image(struct mg_connection *nc);
 void webserver_send_header_ok(struct mg_connection *nc, size_t len, const char *headers);
 void webserver_send_header_redirect(struct mg_connection *nc, const char *location);
 void webserver_send_header_found(struct mg_connection *nc, const char *location);

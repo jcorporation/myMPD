@@ -135,7 +135,7 @@ function parseRadiobrowserDetails(obj) {
     }
     else {
         document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
-            'url("' + subdir + '/assets/coverimage-notavailable.svg")';
+            'url("' + subdir + '/assets/coverimage-notavailable")';
     }
     document.getElementById('RadiobrowserDetailsTitle').textContent = result.name;
     //map fields to webradiodb fields
