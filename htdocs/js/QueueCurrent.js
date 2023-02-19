@@ -161,31 +161,36 @@ function initQueueCurrent() {
     }, false);
 
     document.getElementById('searchQueueStr').addEventListener('keyup', function(event) {
-        if (ignoreKeys(event) === true) {
+        //handle Enter key on keydown for IME composing compatibility
+        if (event.key !== 'Enter' ||
+            features.featAdvqueue === false)
+        {
             return;
         }
         clearSearchTimer();
         const value = this.value;
-        if (event.key === 'Enter' &&
-            features.featAdvqueue === true)
-        {
-            if (value !== '') {
-                const op = getSelectValueId('searchQueueMatch');
-                document.getElementById('searchQueueCrumb').appendChild(createSearchCrumb(app.current.filter, op, value));
-                elShowId('searchQueueCrumb');
-                this.value = '';
-            }
-            else {
-                searchTimer = setTimeout(function() {
-                    getQueue(value);
-                }, searchTimerTimeout);
-            }
+        if (value !== '') {
+            const op = getSelectValueId('searchQueueMatch');
+            document.getElementById('searchQueueCrumb').appendChild(createSearchCrumb(app.current.filter, op, value));
+            elShowId('searchQueueCrumb');
+            this.value = '';
         }
         else {
             searchTimer = setTimeout(function() {
                 getQueue(value);
             }, searchTimerTimeout);
         }
+    }, false);
+
+    document.getElementById('searchQueueStr').addEventListener('keyup', function(event) {
+        if (ignoreKeys(event) === true) {
+            return;
+        }
+        clearSearchTimer();
+        const value = this.value;
+        searchTimer = setTimeout(function() {
+            getQueue(value);
+        }, searchTimerTimeout);
     }, false);
 
     document.getElementById('searchQueueCrumb').addEventListener('click', function(event) {
@@ -195,20 +200,23 @@ function initQueueCurrent() {
             event.stopPropagation();
             event.target.parentNode.remove();
             getQueue('');
+            document.getElementById('searchQueueStr').updateBtn();
         }
         else if (event.target.nodeName === 'BUTTON') {
             //edit search expression
             event.preventDefault();
             event.stopPropagation();
-            document.getElementById('searchQueueStr').value = unescapeMPD(getData(event.target, 'filter-value'));
+            const searchQueueStrEl = document.getElementById('searchQueueStr');
+            searchQueueStrEl.value = unescapeMPD(getData(event.target, 'filter-value'));
             selectTag('searchQueueTags', 'searchQueueTagsDesc', getData(event.target, 'filter-tag'));
             document.getElementById('searchQueueMatch').value = getData(event.target, 'filter-op');
             event.target.remove();
             app.current.filter = getData(event.target,'filter-tag');
-            getQueue(document.getElementById('searchQueueStr').value);
+            getQueue(searchQueueStrEl.value);
             if (document.getElementById('searchQueueCrumb').childElementCount === 0) {
                 elHideId('searchQueueCrumb');
             }
+            searchQueueStrEl.updateBtn();
         }
     }, false);
 
