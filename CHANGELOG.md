@@ -12,6 +12,7 @@ This is a small bugfix release.
 
 - Feat: add pl-PL translation
 - Upd: remove zh-Hant translation
+- Fix: JS error when clearing the search box #982
 
 ***
 
