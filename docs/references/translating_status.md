@@ -8,4 +8,4 @@
 - ko-KR: 178 missing phrases
 - nl-NL: 1 missing phrases
 - pl-PL: 743 missing phrases
-- zh-Hans: 2 missing phrases
+- zh-Hans: fully translated
