@@ -870,5 +870,6 @@
     "MPD": "MPD",
     "Player": "Wiedergabe",
     "Session": "Sitzung",
-    "myMPD uri": "myMPD URL"
+    "myMPD uri": "myMPD URL",
+    "Context menu": "Kontext Menü"
 }
