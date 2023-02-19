@@ -245,7 +245,7 @@ void webserver_handle_connection_close(struct mg_connection *nc) {
  * @param nc mongoose connection
  */
 void webserver_serve_na_image(struct mg_connection *nc) {
-    struct t_mg_user_data * mg_user_data = nc->mgr->userdata;
+    struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
     if (sdslen(mg_user_data->custom_na_image) == 0) {
         webserver_send_header_found(nc, "assets/coverimage-notavailable.svg");
     }
@@ -261,7 +261,7 @@ void webserver_serve_na_image(struct mg_connection *nc) {
  * @param nc mongoose connection
  */
 void webserver_serve_stream_image(struct mg_connection *nc) {
-    struct t_mg_user_data * mg_user_data = nc->mgr->userdata;
+    struct t_mg_user_data *mg_user_data = nc->mgr->userdata;
     if (sdslen(mg_user_data->custom_stream_image) == 0) {
         webserver_send_header_found(nc, "assets/coverimage-stream.svg");
     }
