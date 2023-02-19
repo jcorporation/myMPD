@@ -513,7 +513,8 @@ const webuiSettingsDefault = {
             "insertAfterCurrent": "Insert after current playing song",
             "replace": "Replace queue",
             "replacePlay": "Replace queue and play",
-            "view": "Song details"
+            "view": "Song details",
+            "context": "Context menu"
         },
         "inputType": "select",
         "title": "Click song",
@@ -528,7 +529,8 @@ const webuiSettingsDefault = {
             "replace": "Replace queue",
             "replacePlay": "Replace queue and play",
             "add": "Add to favorites",
-            "view": "Webradio details"
+            "view": "Webradio details",
+            "context": "Context menu"
         },
         "inputType": "select",
         "title": "Click webradio",
@@ -542,7 +544,8 @@ const webuiSettingsDefault = {
             "insertAfterCurrent": "Insert after current playing song",
             "replace": "Replace queue",
             "replacePlay": "Replace queue and play",
-            "edit": "Edit webradio favorite"
+            "edit": "Edit webradio favorite",
+            "context": "Context menu"
         },
         "inputType": "select",
         "title": "Click webradio favorite",
@@ -553,6 +556,7 @@ const webuiSettingsDefault = {
         "validValues": {
             "play": "Play",
             "view": "Song details",
+            "context": "Context menu"
         },
         "inputType": "select",
         "title": "Click song in queue",
@@ -566,7 +570,8 @@ const webuiSettingsDefault = {
             "insertAfterCurrent": "Insert after current playing song",
             "replace": "Replace queue",
             "replacePlay": "Replace queue and play",
-            "view": "View playlist"
+            "view": "View playlist",
+            "context": "Context menu"
         },
         "inputType": "select",
         "title": "Click playlist",
@@ -580,7 +585,8 @@ const webuiSettingsDefault = {
             "insertAfterCurrent": "Insert after current playing song",
             "replace": "Replace queue",
             "replacePlay": "Replace queue and play",
-            "view": "View playlist"
+            "view": "View playlist",
+            "context": "Context menu"
         },
         "inputType": "select",
         "title": "Click filesystem playlist",

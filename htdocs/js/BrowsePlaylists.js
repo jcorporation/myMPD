@@ -102,7 +102,7 @@ function initPlaylists() {
         const target = getParent(event.target, 'TR');
         if (checkTargetClick(target) === true) {
             if (getData(target, 'smartpls-only') === false) {
-                clickPlaylist(getData(target, 'uri'));
+                clickPlaylist(getData(target, 'uri'), event);
             }
             else {
                 showNotification(tn('Playlist is empty'), '', 'playlist', 'warn')
@@ -119,7 +119,7 @@ function initPlaylists() {
 
         const target = getParent(event.target, 'TR');
         if (checkTargetClick(target) === true) {
-            clickSong(getData(target, 'uri'));
+            clickSong(getData(target, 'uri'), event);
         }
     }, false);
 }

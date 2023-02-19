@@ -36,7 +36,7 @@ function initQueueJukebox() {
         const target = getParent(event.target, 'TR');
         if (checkTargetClick(target) === true) {
             if (settings.partition.jukeboxMode === 'song') {
-                clickSong(getData(target, 'uri'));
+                clickSong(getData(target, 'uri'), event);
             }
             else if (settings.partition.jukeboxMode === 'album') {
                 clickAlbumPlay(getData(target, 'AlbumArtist'), getData(target, 'Album'));

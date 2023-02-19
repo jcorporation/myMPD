@@ -131,7 +131,7 @@ function initBrowseDatabase() {
         }
         const target = getParent(event.target, 'TR');
         if (checkTargetClick(target) === true) {
-            clickSong(getData(target, 'uri'));
+            clickSong(getData(target, 'uri'), event);
         }
     }, false);
 

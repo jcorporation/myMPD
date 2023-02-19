@@ -89,7 +89,7 @@ function initBrowseRadioWebradiodb() {
                 });
             }
             else {
-                clickWebradiodb(uri);
+                clickWebradiodb(uri, event);
             }
         }
     }, false);

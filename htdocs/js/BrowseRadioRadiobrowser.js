@@ -71,7 +71,7 @@ function initBrowseRadioRadiobrowser() {
                 });
             }
             else {
-                clickRadiobrowser(uri, getData(target, 'RADIOBROWSERUUID'));
+                clickRadiobrowser(uri, getData(target, 'RADIOBROWSERUUID'), event);
             }
         }
     }, false);

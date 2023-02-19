@@ -92,10 +92,10 @@ function initBrowseFilesystem() {
                     clickFolder(uri);
                     break;
                 case 'song':
-                    clickSong(uri);
+                    clickSong(uri, event);
                     break;
                 case 'plist':
-                    clickFilesystemPlaylist(uri);
+                    clickFilesystemPlaylist(uri, event);
                     break;
             }
         }

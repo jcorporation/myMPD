@@ -33,7 +33,7 @@ function initBrowseRadioFavorites() {
         }
         if (target.classList.contains('card-body')) {
             const uri = getData(event.target.parentNode, 'uri');
-            clickRadioFavorites(uri);
+            clickRadioFavorites(uri, event);
         }
         else if (target.classList.contains('card-footer')) {
             showPopover(event);
