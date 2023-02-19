@@ -3,9 +3,9 @@
 - es-VE: 556 missing phrases
 - fi-FI: 552 missing phrases
 - fr-FR: 2 missing phrases
-- it-IT: 2 missing phrases
+- it-IT: 1 missing phrases
 - ja-JP: 2 missing phrases
 - ko-KR: 179 missing phrases
 - nl-NL: 2 missing phrases
 - pl-PL: 744 missing phrases
-- zh-Hans: 3 missing phrases
+- zh-Hans: 1 missing phrases

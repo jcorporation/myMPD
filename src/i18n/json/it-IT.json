@@ -869,5 +869,6 @@
     "Error creating sticker cache": "Errore nella creazione della cache degli sticker",
     "Open partitions": "Apri partizioni",
     "Toggle single mode": "Commuta modo singolo",
-    "myMPD uri": "Uri di myMPD"
+    "myMPD uri": "Uri di myMPD",
+    "OriginalDate": "Data originale"
 }
