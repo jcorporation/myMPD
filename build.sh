@@ -883,7 +883,7 @@ updatebootstrapnative() {
   #clone repository
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
-  git clone --depth=1 -b bsn5 git@github.com:jcorporation/bootstrap.native.git
+  git clone --depth=1 git@github.com:thednp/bootstrap.native.git
   cd bootstrap.native
   npm install vite
   #copy custom config
