@@ -84,6 +84,7 @@ function initSearch() {
     }, false);
 
     document.getElementById('searchStr').addEventListener('keydown', function(event) {
+        //handle Enter key on keydown for IME composing compatibility
         if (event.key !== 'Enter') {
             return;
         }

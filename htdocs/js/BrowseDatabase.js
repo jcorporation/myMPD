@@ -180,6 +180,7 @@ function initBrowseDatabase() {
     }, false);
 
     document.getElementById('searchDatabaseAlbumListStr').addEventListener('keydown', function(event) {
+        //handle Enter key on keydown for IME composing compatibility
         if (event.key !== 'Enter') {
             return;
         }

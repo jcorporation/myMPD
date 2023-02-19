@@ -21,8 +21,6 @@ function ignoreKeys(event) {
             // @ts-ignore
             event.target.blur();
             return true;
-        case 'Enter':
-            return true;
         case 'Backspace':
         case 'Delete':
             // do not ignore some special keys
