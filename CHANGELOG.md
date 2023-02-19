@@ -14,6 +14,7 @@ This is a small bugfix release.
 - Upd: remove zh-Hant translation
 - Fix: JS error when clearing the search box #982
 - Fix: update clear button for inputs on breadcrumb select
+- Fix: Finishing IME composition with Enter key also clears the search box #977
 
 ***
 
