@@ -83,30 +83,35 @@ function initSearch() {
         }
     }, false);
 
+    document.getElementById('searchStr').addEventListener('keydown', function(event) {
+        if (event.key !== 'Enter') {
+            return;
+        }
+        clearSearchTimer();
+        const value = this.value;
+        if (value !== '') {
+            const op = getSelectValueId('searchMatch');
+            const crumbEl = document.getElementById('searchCrumb');
+            crumbEl.appendChild(createSearchCrumb(app.current.filter, op, value));
+            elShow(crumbEl);
+            this.value = '';
+        }
+        else {
+            searchTimer = setTimeout(function() {
+                doSearch(value);
+            }, searchTimerTimeout);
+        }
+    }, false);
+
     document.getElementById('searchStr').addEventListener('keyup', function(event) {
         if (ignoreKeys(event) === true) {
             return;
         }
         clearSearchTimer();
         const value = this.value;
-        if (event.key === 'Enter') {
-            if (value !== '') {
-                const op = getSelectValueId('searchMatch');
-                document.getElementById('searchCrumb').appendChild(createSearchCrumb(app.current.filter, op, value));
-                elShowId('searchCrumb');
-                this.value = '';
-            }
-            else {
-                searchTimer = setTimeout(function() {
-                    doSearch(value);
-                }, searchTimerTimeout);
-            }
-        }
-        else {
-             searchTimer = setTimeout(function() {
-                 doSearch(value);
-             }, searchTimerTimeout);
-         }
+        searchTimer = setTimeout(function() {
+            doSearch(value);
+        }, searchTimerTimeout);
     }, false);
 
     document.getElementById('searchCrumb').addEventListener('click', function(event) {
