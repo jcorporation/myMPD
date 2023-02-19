@@ -74,19 +74,18 @@ function setInputClear(el) {
         el.button.style.right = '1rem';
     }
     el.parentNode.insertBefore(el.button, el.nextElementSibling);
-    if (el.value === '') {
-        elHide(el.button);
-    }
-    else {
-        elShow(el.button);
-    }
-    el.addEventListener('keyup', function(event) {
-        if (event.target.value === '') {
-            elHide(event.target.button);
+    el.updateBtn = function() {
+        if (el.value === '') {
+            elHide(el.button);
         }
         else {
-            elShow(event.target.button);
+            elShow(el.button);
         }
+    };
+    el.updateBtn();
+    
+    el.addEventListener('keyup', function() {
+        el.updateBtn();
     }, false);
 
     el.button.addEventListener('click', function(event) {

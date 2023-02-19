@@ -217,20 +217,23 @@ function initBrowseDatabase() {
             event.stopPropagation();
             event.target.parentNode.remove();
             searchDatabaseAlbumList('');
+            document.getElementById('searchDatabaseAlbumListStr').updateBtn();
         }
         else if (event.target.nodeName === 'BUTTON') {
             //edit search expression
             event.preventDefault();
             event.stopPropagation();
             selectTag('searchDatabaseAlbumListTags', 'searchDatabaseAlbumListTagsDesc', getData(event.target,'filter-tag'));
-            document.getElementById('searchDatabaseAlbumListStr').value = unescapeMPD(getData(event.target, 'filter-value'));
+            const searchDatabaseAlbumListStrEl = document.getElementById('searchDatabaseAlbumListStr');
+            searchDatabaseAlbumListStrEl.value = unescapeMPD(getData(event.target, 'filter-value'));
             document.getElementById('searchDatabaseAlbumListMatch').value = getData(event.target, 'filter-op');
             event.target.remove();
             app.current.filter = getData(event.target,'filter-tag');
-            searchDatabaseAlbumList(document.getElementById('searchDatabaseAlbumListStr').value);
+            searchDatabaseAlbumList(searchDatabaseAlbumListStrEl.value);
             if (document.getElementById('searchDatabaseAlbumListCrumb').childElementCount === 0) {
                 elHideId('searchDatabaseAlbumListCrumb');
             }
+            searchDatabaseAlbumListStrEl.updateBtn();
         }
     }, false);
 }

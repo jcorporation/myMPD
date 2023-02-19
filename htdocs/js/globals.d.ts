@@ -17,6 +17,7 @@ interface Element {
     dropdownButton: any; //custom elements
     filterInput: any; //custom elements
     filterResult: any; //custom elements
+    updateBtn: any; //custom elements
     name: any;
     offsetHeight: any;
     offsetParent: any;
