@@ -8,6 +8,8 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
+- Feat: custom placeholder images #980
+
 ***
 
 ## myMPD v10.2.4 (not yet released)

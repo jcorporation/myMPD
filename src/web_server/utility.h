@@ -30,6 +30,8 @@ struct t_mg_user_data {
     int connection_count;        //!< number of http connections
     struct t_list stream_uris;   //!< uri for the mpd stream reverse proxy
     struct t_list session_list;  //!< list of myMPD sessions (pin protection mode)
+    sds custom_na_image;         //!< name of custom not available image
+    sds custom_stream_image;     //!< name of custom stream image
 };
 
 /**

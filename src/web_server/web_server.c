@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "dist/sds/sds.h"
 #include "src/web_server/web_server.h"
 
 #include "src/lib/api.h"
@@ -19,6 +20,7 @@
 #include "src/web_server/request_handler.h"
 #include "src/web_server/tagart.h"
 
+#include <libgen.h>
 #include <sys/prctl.h>
 
 /**
@@ -51,6 +53,8 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     mg_user_data->config = config;
     mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/empty", config->workdir);
     mg_user_data->music_directory = sdsempty();
+    mg_user_data->custom_na_image = sdsempty();
+    mg_user_data->custom_stream_image = sdsempty();
     sds default_coverimage_names = sdsnew(MYMPD_COVERIMAGE_NAMES);
     mg_user_data->coverimage_names= sds_split_comma_trim(default_coverimage_names, &mg_user_data->coverimage_names_len);
     FREE_SDS(default_coverimage_names);
@@ -248,6 +252,7 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
 
         mg_user_data->feat_albumart = new_mg_user_data->feat_albumart;
 
+        //set per partition stream uris
         list_clear(&mg_user_data->stream_uris);
         struct t_list_node *current = new_mg_user_data->partitions.head;
         sds uri = sdsempty();
@@ -263,9 +268,34 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
             current = current->next;
         }
         FREE_SDS(uri);
+
+        //custom placeholder images
+        sds file = sdscatfmt(sdsempty(), "%S/pics/thumbs/coverimage-notavailable", config->workdir);
+        MYMPD_LOG_DEBUG("Check for custom placeholder image \"%s\"", file);
+        file = webserver_find_image_file(file);
+        sdsclear(mg_user_data->custom_na_image);
+        if (sdslen(file) > 0) {
+            const char *filename = basename(file);
+            MYMPD_LOG_INFO("Setting custom placeholder image for na to \"%s\"", filename);
+            mg_user_data->custom_na_image = sdscat(mg_user_data->custom_na_image, filename);
+        }
+
+        sdsclear(file);
+        file = sdscatfmt(file, "%S/pics/thumbs/coverimage-stream", config->workdir);
+        MYMPD_LOG_DEBUG("Check for custom placeholder image \"%s\"", file);
+        file = webserver_find_image_file(file);
+        sdsclear(mg_user_data->custom_stream_image);
+        if (sdslen(file) > 0) {
+            const char *filename = basename(file);
+            MYMPD_LOG_INFO("Setting custom placeholder image for stream to \"%s\"", filename);
+            mg_user_data->custom_stream_image = sdscat(mg_user_data->custom_stream_image, filename);
+        }
+        FREE_SDS(file);
+
+        //cleanup
         FREE_SDS(new_mg_user_data->mpd_host);
         list_clear(&new_mg_user_data->partitions);
-	    FREE_PTR(response->extra);
+        FREE_PTR(response->extra);
         rc = true;
     }
     else {
