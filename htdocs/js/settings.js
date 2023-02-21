@@ -638,6 +638,7 @@ function applyFeatures() {
             el.style.display = displayValue;
         }
     }
+    setQueueCurrentHeaderClickable();
 }
 
 /**
