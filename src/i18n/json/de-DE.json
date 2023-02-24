@@ -871,5 +871,8 @@
     "Player": "Wiedergabe",
     "Session": "Sitzung",
     "myMPD uri": "myMPD URL",
-    "Context menu": "Kontext Menü"
+    "Context menu": "Kontext Menü",
+    "API error": "API Fehler",
+    "Response": "Antwort",
+    "Response code": "Antwort Code"
 }
