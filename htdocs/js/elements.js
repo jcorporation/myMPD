@@ -19,7 +19,7 @@ function elCreateTextTnNr(tagName, attributes, text, smartCount) {
 }
 
 /**
- * Creates and translates a html element
+ * Creates a html element and translates the text
  * @param {string} tagName name of the tag to create
  * @param {object} attributes tag attributes
  * @param {string} text text phrase to translate
@@ -45,7 +45,7 @@ function elCreateTextTn(tagName, attributes, text, data) {
  * Creates a html element with text content
  * @param {string} tagName name of the tag
  * @param {object} attributes tag attributes
- * @param {string} text text phrase to translate
+ * @param {string} text text for the elements, respects \n for newlines
  * @returns {HTMLElement} created dom node
  */
 function elCreateText(tagName, attributes, text) {
@@ -53,7 +53,15 @@ function elCreateText(tagName, attributes, text) {
         attributes["title"] = tn(attributes["data-title-phrase"]);
     }
     const tag = elCreateEmpty(tagName, attributes);
-    tag.textContent = text;
+    if (text.length > 0) {
+        const lines = text.split(/\n/);
+        for (let i = 0, j = lines.length; i < j; i++) {
+            if (i > 0) {
+                tag.appendChild(document.createElement('br'));
+            }
+            tag.appendChild(document.createTextNode(lines[i]));
+        }
+    }
     return tag;
 }
 
