@@ -77,8 +77,8 @@ function dragAndDropTable(tableId) {
         if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        const oldSongpos = getDataId(event.dataTransfer.getData('Text'), 'songpos');
-        const newSongpos = getData(target, 'songpos');
+        const oldSongPos = getDataId(event.dataTransfer.getData('Text'), 'songpos');
+        const newSongPos = getData(target, 'songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
         // @ts-ignore
@@ -90,12 +90,12 @@ function dragAndDropTable(tableId) {
         document.getElementById(tableId).classList.add('opacity05');
         if (app.id === 'QueueCurrent') {
             sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
-                "from": oldSongpos,
-                "to": newSongpos
+                "from": oldSongPos,
+                "to": newSongPos
             }, null, false);
         }
         else if (app.id === 'BrowsePlaylistsDetail') {
-            playlistMoveSong(oldSongpos, newSongpos);
+            playlistMoveSong(oldSongPos, newSongPos);
         }
     }, false);
 }

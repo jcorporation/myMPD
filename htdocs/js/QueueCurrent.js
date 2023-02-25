@@ -269,7 +269,6 @@ function parseQueue(obj) {
 
     const rowTitle = webuiSettingsDefault.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
     updateTable(obj, 'QueueCurrent', function(row, data) {
-        console.log(app.current.sort.tag);
         if (features.featAdvqueue === false ||
             app.current.sort.tag === 'Priority')
         {
@@ -679,6 +678,49 @@ function saveQueueCheckError(obj) {
     }
     else {
         uiElements.modalSaveQueue.hide();
+    }
+}
+
+/**
+ * Shows the set song position modal
+ * @param {number} oldSongPos song pos in queue to move
+ */
+//eslint-disable-next-line no-unused-vars
+function showSetSongPos(oldSongPos) {
+    cleanupModalId('modalSetSongPos');
+    document.getElementById('inputSongPosOld').value = oldSongPos;
+    uiElements.modalSetSongPos.show();
+}
+
+/**
+ * Sets song position
+ */
+//eslint-disable-next-line no-unused-vars
+function setSongPos() {
+    cleanupModalId('modalSetSongPos');
+
+    const oldSongPos = Number(document.getElementById('inputSongPosOld').value);
+    const newSongPosEl = document.getElementById('inputSongPosNew');
+    if (validateIntRangeEl(newSongPosEl, 1, 10000) === true) {
+        //zero based index
+        const newSongPos = Number(newSongPosEl.value) - 1;
+        sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
+            "from": oldSongPos,
+            "to": Number(newSongPosEl.value)
+        }, setSongPosCheckError, true);
+    }
+}
+
+/**
+ * Handles the MYMPD_API_QUEUE_PRIO_SET jsonrpc response
+ * @param {object} obj jsonrpc response
+ */
+function setSongPosCheckError(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        uiElements.modalSetSongPos.hide();
     }
 }
 

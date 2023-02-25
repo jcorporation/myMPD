@@ -2498,6 +2498,31 @@
     </div>
   </div>
 
+  <div class="modal fade" id="modalSetSongPos" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="mi title-icon">trending_flat</span> <span data-phrase="Move song"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="inputSongPosOld"/>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="inputSongPosNew" data-phrase="Position"></label>
+            <div class="col-sm-8">
+              <input id="inputSongPosNew" class="form-control"/>
+              <div class="invalid-feedback" data-phrase="Position must be in range 1 - 10000"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
+          <button data-href='{"cmd":"setSongPos","options":[]}' type="button" class="btn btn-success" data-phrase="Move"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal fade" id="modalSetSongPriority" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">

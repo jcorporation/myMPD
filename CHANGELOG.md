@@ -10,6 +10,7 @@ https://github.com/jcorporation/myMPD/
 
 - Feat: custom placeholder images #980
 - Feat: Fail gracefully if API request fails or is redirected #984
+- Feat: improve queue sort handling #983
 - Upd: bootstrap.native 5.0.0-stable
 
 ***

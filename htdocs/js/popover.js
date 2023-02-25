@@ -782,7 +782,12 @@ function createMenuLists(el, tabHeader, tabContent) {
             {
                 addMenuItem(tabContent, {"cmd": "playAfterCurrent", "options": [songid, songpos]}, 'Play after current playing song');
             }
-            addMenuItem(tabContent, {"cmd": "showSetSongPriority", "options": [songid]}, 'Set priority');
+            if (settings.partition.random === true) {
+                addMenuItem(tabContent, {"cmd": "showSetSongPriority", "options": [songid]}, 'Set priority');
+            }
+            else {
+                addMenuItem(tabContent, {"cmd": "showSetSongPos", "options": [songpos]}, 'Move to position');
+            }
             if (songid === currentState.currentSongId) {
                 addMenuItemsSingleActions(tabContent);
             }
