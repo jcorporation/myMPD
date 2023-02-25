@@ -269,7 +269,12 @@ function parseQueue(obj) {
 
     const rowTitle = webuiSettingsDefault.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
     updateTable(obj, 'QueueCurrent', function(row, data) {
-        row.setAttribute('draggable', 'true');
+        console.log(app.current.sort.tag);
+        if (features.featAdvqueue === false ||
+            app.current.sort.tag === 'Priority')
+        {
+            row.setAttribute('draggable', 'true');
+        }
         row.setAttribute('id', 'queueSongId' + data.id);
         row.setAttribute('title', tn(rowTitle));
         setData(row, 'songid', data.id);
@@ -297,7 +302,6 @@ function parseQueue(obj) {
                 setData(row, tag, data[tag]);
             }
         }
-
     }, function(row, data) {
         tableRow(row, data, app.id, colspan, smallWidth);
         if (currentState.currentSongId === data.id) {
