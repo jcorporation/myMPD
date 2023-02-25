@@ -706,7 +706,7 @@ function setSongPos() {
         const newSongPos = Number(newSongPosEl.value) - 1;
         sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
             "from": oldSongPos,
-            "to": Number(newSongPosEl.value)
+            "to": newSongPos
         }, setSongPosCheckError, true);
     }
 }
