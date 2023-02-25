@@ -874,5 +874,8 @@
     "Context menu": "Kontext Menü",
     "API error": "API Fehler",
     "Response": "Antwort",
-    "Response code": "Antwort Code"
+    "Response code": "Antwort Code",
+    "Move song": "Lied verschieben",
+    "Position": "Position",
+    "Position must be in range 1 - 10000": "Position muss zwischen 0 und 10.000 sein",
 }
