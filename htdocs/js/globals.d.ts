@@ -81,6 +81,7 @@ interface Object {
     Collapse: any; //BSN
     Dropdown: any; //BSN
     Modal: any; //BSN
+    Offcanvas: any; //BSN
     Popover: any; //BSN
     Toast: any; //BSN
 }

@@ -1201,3 +1201,7 @@ button.weekday {
 .mirror {
   transform: scale(1, -1);
 }
+
+#offcanvasContext .offcanvas-header ul {
+  margin-bottom: -1px;
+}

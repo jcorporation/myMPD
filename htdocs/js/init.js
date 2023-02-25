@@ -235,6 +235,7 @@ function appInit() {
     initLocalPlayback();
     initSession();
     initNotifications();
+    initContextMenu();
     //init drag and drop
     for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
         dragAndDropTable(table);

@@ -70,13 +70,13 @@ function showPopover(event) {
         logDebug('Create new popover of type ' + popoverType);
         switch (popoverType) {
             case 'columns':
-                //column select in table header
-                popoverInit = createPopoverColumns(target);
-                break;
+                return showContextMenu(event);
+                //popoverInit = createPopoverColumns(target);
+                //break;
             case 'disc':
-                //disc actions in album details view
-                popoverInit = createPopoverSimple(target, 'Disc', addMenuItemsDiscActions);
-                break;
+                return showContextMenu(event);
+                //popoverInit = createPopoverSimple(target, 'Disc', addMenuItemsDiscActions);
+                //break;
             case 'NavbarPlayback':
             case 'NavbarQueue':
             case 'NavbarBrowse':
@@ -85,18 +85,21 @@ function showPopover(event) {
                 break;
             case 'home':
                 //home card actions
-                popoverInit = createPopoverTabs(target, createMenuHome, createMenuHomeSecondary);
-                break;
+                return showContextMenu(event);
+                //popoverInit = createPopoverTabs(target, createMenuHome, createMenuHomeSecondary);
+                //break;
             case 'webradio':
-                //webradio favorite actions
-                popoverInit = createPopoverSimple(target, 'Webradio', addMenuItemsWebradioFavoritesActions);
-                break;
+                return showContextMenu(event);
+                //popoverInit = createPopoverSimple(target, 'Webradio', addMenuItemsWebradioFavoritesActions);
+                //break;
             case 'album':
                 //album action in album list
-                popoverInit = createPopoverSimple(target, 'Album', addMenuItemsAlbumActions);
-                break;
+                return showContextMenu(event);
+                //popoverInit = createPopoverSimple(target, 'Album', addMenuItemsAlbumActions);
+                //break;
             default:
-                popoverInit = createPopoverTabs(target, createMenuLists, createMenuListsSecondary);
+                return showContextMenu(event);
+                //popoverInit = createPopoverTabs(target, createMenuLists, createMenuListsSecondary);
         }
     }
     event.target.parentNode.addEventListener('updated.bs.popover', function(ev) {
@@ -225,6 +228,7 @@ function createPopoverClickHandler(el) {
  * @param {EventTarget} el triggering element
  * @returns {object} BSN popover object
  */
+//eslint-disable-next-line no-unused-vars
 function createPopoverColumns(el) {
     const popoverInit = createPopoverInit(el, tn('Columns'));
     //update content on each show event
@@ -279,6 +283,7 @@ function createPopoverSimple(el, title, contentCallback) {
  * @param {Function} tab2Callback callback to create the popover content for the second tab
  * @returns {object} BSN popover object
  */
+//eslint-disable-next-line no-unused-vars
 function createPopoverTabs(el, tab1Callback, tab2Callback) {
     const popoverInit = createPopoverInit(el, '', 'tabs');
     //update content on each show event
