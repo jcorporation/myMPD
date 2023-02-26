@@ -35,7 +35,7 @@ This is a small bugfix release.
 - Upd: IT, zh-Hans translation
 - Fix: JS error when clearing the search box #982
 - Fix: update clear button for inputs on breadcrumb select
-- Fix: Finishing IME composition with Enter key also clears the search box #977
+- Fix: Finishing IME composition with Enter key also clears the search box, thanks @soya-daizu #977
 - Fix: Album view does not work with disabled Albumartist tag #988
 
 ***
