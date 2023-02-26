@@ -698,8 +698,8 @@ function parseMPDSettings() {
     if (settings.colsBrowseDatabaseAlbumListFetch.includes('Album') === false) {
         settings.colsBrowseDatabaseAlbumListFetch.push('Album');
     }
-    if (settings.colsBrowseDatabaseAlbumListFetch.includes('AlbumArtist') === false) {
-        settings.colsBrowseDatabaseAlbumListFetch.push('AlbumArtist');
+    if (settings.colsBrowseDatabaseAlbumListFetch.includes(tagAlbumArtist) === false) {
+        settings.colsBrowseDatabaseAlbumListFetch.push(tagAlbumArtist);
     }
 
     //enforce disc for album detail list view
