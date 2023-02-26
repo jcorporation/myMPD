@@ -36,7 +36,7 @@ function initBrowseRadioFavorites() {
             clickRadioFavorites(uri, event);
         }
         else if (target.classList.contains('card-footer')) {
-            showPopover(event);
+            showContextMenu(event);
         }
     }, false);
 
@@ -46,7 +46,7 @@ function initBrowseRadioFavorites() {
         {
             return;
         }
-        showPopover(event);
+        showContextMenu(event);
     }, false);
 
     document.getElementById('BrowseRadioFavoritesList').addEventListener('long-press', function(event) {
@@ -55,7 +55,7 @@ function initBrowseRadioFavorites() {
         {
             return;
         }
-        showPopover(event);
+        showContextMenu(event);
     }, false);
 
     document.getElementById('BrowseRadioFavoritesSearchStr').addEventListener('keyup', function(event) {

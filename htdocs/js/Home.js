@@ -25,7 +25,7 @@ function initHome() {
             }
         }
         else if (event.target.classList.contains('card-footer')){
-            showPopover(event);
+            showContextMenu(event);
         }
     }, false);
 
@@ -33,7 +33,7 @@ function initHome() {
         if (event.target.classList.contains('card-body') ||
             event.target.classList.contains('card-footer'))
         {
-            showPopover(event);
+            showContextMenu(event);
         }
     }, false);
 
@@ -41,7 +41,7 @@ function initHome() {
         if (event.target.classList.contains('card-body') ||
             event.target.classList.contains('card-footer'))
         {
-            showPopover(event);
+            showContextMenu(event);
         }
     }, false);
 

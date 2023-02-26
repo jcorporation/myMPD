@@ -735,7 +735,7 @@ function handleActionTdClick(event) {
     event.preventDefault();
     switch(event.target.getAttribute('data-action')) {
         case 'popover':
-            showPopover(event);
+            showContextMenu(event);
             break;
         case 'quickPlay':
             clickQuickPlay(event.target);

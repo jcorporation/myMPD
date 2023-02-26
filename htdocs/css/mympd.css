@@ -1202,6 +1202,6 @@ button.weekday {
   transform: scale(1, -1);
 }
 
-#offcanvasContext .offcanvas-header ul {
-  margin-bottom: -1px;
+#offcanvasContext .dropdown-item {
+  padding-left: 1rem;
 }

@@ -78,7 +78,7 @@ function clickSong(uri, event) {
         case 'replace': return replaceQueue('song', uri);
         case 'replacePlay': return replacePlayQueue('song', uri);
         case 'view': return songDetails(uri);
-        case 'context': return showPopover(event);
+        case 'context': return showContextMenu(event);
     }
 }
 
@@ -98,7 +98,7 @@ function clickRadiobrowser(uri, uuid, event) {
         case 'replace': return replaceQueue('song', uri);
         case 'replacePlay': return replacePlayQueue('song', uri);
         case 'view': return showRadiobrowserDetails(uuid);
-        case 'context': return showPopover(event);
+        case 'context': return showContextMenu(event);
     }
     countClickRadiobrowser(uuid);
 }
@@ -118,7 +118,7 @@ function clickWebradiodb(uri, event) {
         case 'replace': return replaceQueue('song', uri);
         case 'replacePlay': return replacePlayQueue('song', uri);
         case 'view': return showWebradiodbDetails(uri);
-        case 'context': return showPopover(event);
+        case 'context': return showContextMenu(event);
     }
 }
 
@@ -138,7 +138,7 @@ function clickRadioFavorites(uri, event) {
         case 'replace': return replaceQueue('plist', fullUri);
         case 'replacePlay': return replacePlayQueue('plist', fullUri);
         case 'edit': return editRadioFavorite(uri);
-        case 'context': return showPopover(event);
+        case 'context': return showContextMenu(event);
     }
 }
 
@@ -165,7 +165,7 @@ function clickQueueSong(songid, uri, event) {
             }
             return songDetails(uri);
         case 'context':
-            return showPopover(event);
+            return showContextMenu(event);
     }
 }
 
@@ -184,7 +184,7 @@ function clickPlaylist(uri, event) {
         case 'replace': return replaceQueue('plist', uri);
         case 'replacePlay': return replacePlayQueue('plist', uri);
         case 'view': return playlistDetails(uri);
-        case 'context': return showPopover(event);
+        case 'context': return showContextMenu(event);
     }
 }
 
@@ -212,7 +212,7 @@ function clickFilesystemPlaylist(uri, event) {
             app.current.filter = '-';
             appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, 'plist', uri);
             break;
-        case 'context': return showPopover(event);
+        case 'context': return showContextMenu(event);
     }
 }
 

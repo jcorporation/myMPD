@@ -30,7 +30,7 @@ function handleQueueJukebox() {
 function initQueueJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
-            showPopover(event);
+            showContextMenu(event);
             return;
         }
         const target = getParent(event.target, 'TR');
