@@ -66,7 +66,7 @@ function initBrowseDatabase() {
         }
         app.current.search = '';
         document.getElementById('searchDatabaseTagListStr').value = '';
-        appGoto(app.current.card, app.current.tab, 'AlbumList', 0, undefined, 'Album', 'AlbumArtist', 'Album',
+        appGoto(app.current.card, app.current.tab, 'AlbumList', 0, undefined, 'Album', tagAlbumArtist, 'Album',
             '((' + app.current.tag + ' == \'' + escapeMPD(getData(event.target.parentNode, 'tag')) + '\'))');
     }, false);
 
@@ -95,9 +95,9 @@ function initBrowseDatabase() {
         }
         const target = getParent(event.target, 'DIV');
         if (target.classList.contains('card-body')) {
-            appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, 'Album', 'AlbumArtist',
+            appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, 'Album', tagAlbumArtist,
                 getData(target.parentNode, 'Album'),
-                getData(target.parentNode, 'AlbumArtist')
+                getData(target.parentNode, tagAlbumArtist)
             );
         }
         else if (target.classList.contains('card-footer')){
@@ -274,7 +274,7 @@ function parseDatabaseAlbumList(obj) {
     const cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
         //id is used only to check if card should be refreshed
-        const id = genId('database' + obj.result.data[i].Album + obj.result.data[i].AlbumArtist);
+        const id = genId('database' + obj.result.data[i].Album + obj.result.data[i][tagAlbumArtist]);
 
         if (cols[i] !== undefined &&
             cols[i].firstChild.firstChild.getAttribute('id') === id) {
@@ -305,7 +305,7 @@ function parseDatabaseAlbumList(obj) {
         setData(card, 'type', 'album');
         setData(card, 'name', obj.result.data[i].Album);
         setData(card, 'Album', obj.result.data[i].Album);
-        setData(card, 'AlbumArtist', obj.result.data[i].AlbumArtist);
+        setData(card, tagAlbumArtist, obj.result.data[i][tagAlbumArtist]);
         addAlbumPlayButton(card.firstChild);
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
 
@@ -437,7 +437,7 @@ function addAlbumPlayButton(parentEl) {
     div.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        clickAlbumPlay(getData(event.target.parentNode.parentNode, 'AlbumArtist'), getData(event.target.parentNode.parentNode, 'Album'));
+        clickAlbumPlay(getData(event.target.parentNode.parentNode, tagAlbumArtist), getData(event.target.parentNode.parentNode, 'Album'));
     }, false);
 }
 
