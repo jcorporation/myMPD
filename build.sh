@@ -908,15 +908,15 @@ updatebootstrapnative() {
 
 updatebootstrap() {
   check_cmd npm
-  cd dist/bootstrap || exit 1
+  cd "$STARTPATH/dist/bootstrap" || exit 1
   [ -z "${BOOTSTRAP_VERSION+x}" ] && BOOTSTRAP_VERSION=""
   npm install "$BOOTSTRAP_VERSION"
   npm run build
   sed -i '$ d' compiled/custom.css
   rm compiled/custom.css.map
-  if [ -d ../../debug ]
+  if [ -d "$STARTPATH/debug" ]
   then
-    cp -v compiled/custom.css ../../htdocs/css/bootstrap.css
+    cp -v compiled/custom.css "$STARTPATH/htdocs/css/bootstrap.css"
   fi
 }
 
@@ -925,9 +925,9 @@ updatebootstrap() {
 uninstall() {
   #cmake does not provide an uninstall target, instead its manifest is of use at least for
   #the binaries
-  if [ -f release/install_manifest.txt ]
+  if [ -f "$STARTPATH/release/install_manifest.txt" ]
   then
-    xargs rm -f < release/install_manifest.txt || true
+    xargs rm -f < "$STARTPATH/release/install_manifest.txt"
   fi
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
   #CMAKE_INSTALL_PREFIX="/usr"
