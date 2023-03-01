@@ -1,5 +1,11 @@
 var BSN = function(exports) {
-  "use strict";
+  "use strict";var __defProp = Object.defineProperty;
+var __defNormalProp = (obj, key, value) => key in obj ? __defProp(obj, key, { enumerable: true, configurable: true, writable: true, value }) : obj[key] = value;
+var __publicField = (obj, key, value) => {
+  __defNormalProp(obj, typeof key !== "symbol" ? key + "" : key, value);
+  return value;
+};
+
   function _mergeNamespaces(n, m) {
     for (var i = 0; i < m.length; i++) {
       const e = m[i];
@@ -220,7 +226,10 @@ var BSN = function(exports) {
         f.has(o) ? n = f.get(o) : (f.set(o, n), j += 1);
       }
       return n;
-    }, so = (e) => e ? P(e) ? e.defaultView : c(e) ? e?.ownerDocument?.defaultView : e : window, rt = (e) => Array.isArray(e) || false, ro = (e) => c(e) && e.nodeName === "CANVAS" || false, at = (e) => u(e) && !!e.shadowRoot || false, ao = (e) => c(e) && [1, 2, 3, 4, 5, 6, 7, 8].some((t) => e.nodeType === t) || false, co = (e) => {
+    }, so = (e) => {
+      var _a;
+      return e ? P(e) ? e.defaultView : c(e) ? (_a = e == null ? void 0 : e.ownerDocument) == null ? void 0 : _a.defaultView : e : window;
+    }, rt = (e) => Array.isArray(e) || false, ro = (e) => c(e) && e.nodeName === "CANVAS" || false, at = (e) => u(e) && !!e.shadowRoot || false, ao = (e) => c(e) && [1, 2, 3, 4, 5, 6, 7, 8].some((t) => e.nodeType === t) || false, co = (e) => {
       if (!c(e))
         return false;
       const { top: t, bottom: n } = b(e), { clientHeight: o } = M(e);
@@ -465,16 +474,16 @@ var BSN = function(exports) {
   const dataBsDismiss = "data-bs-dismiss";
   const alertString = "alert";
   const alertComponent = "Alert";
-  const version = "5.0.2";
+  const version = "5.0.4";
   const Version = version;
   class BaseComponent {
-    element;
-    options;
     /**
      * @param target `HTMLElement` or selector string
      * @param config component instance options
      */
     constructor(target, config) {
+      __publicField(this, "element");
+      __publicField(this, "options");
       const element = shorty.querySelector(target);
       if (!element) {
         if (shorty.isString(target)) {
@@ -529,17 +538,34 @@ var BSN = function(exports) {
   };
   const toggleAlertHandler = (that, add) => {
     const action = add ? eventListener$1.addListener : eventListener$1.removeListener;
-    const { dismiss } = that;
+    const { dismiss, close } = that;
     if (dismiss)
-      action(dismiss, shorty.mouseclickEvent, that.close);
+      action(dismiss, shorty.mouseclickEvent, close);
   };
   class Alert extends BaseComponent {
-    static selector = alertSelector;
-    static init = alertInitCallback;
-    static getInstance = getAlertInstance;
-    dismiss;
     constructor(target) {
       super(target);
+      __publicField(this, "dismiss");
+      // ALERT PUBLIC METHODS
+      // ====================
+      /**
+       * Public method that hides the `.alert` element from the user,
+       * disposes the instance once animation is complete, then
+       * removes the element from the DOM.
+       */
+      __publicField(this, "close", () => {
+        const { element } = this;
+        if (element && shorty.hasClass(element, showClass)) {
+          shorty.dispatchEvent(element, closeAlertEvent);
+          if (closeAlertEvent.defaultPrevented)
+            return;
+          shorty.removeClass(element, showClass);
+          if (shorty.hasClass(element, fadeClass)) {
+            shorty.emulateTransitionEnd(element, () => alertTransitionEnd(this));
+          } else
+            alertTransitionEnd(this);
+        }
+      });
       this.dismiss = shorty.querySelector(alertDismissSelector, this.element);
       toggleAlertHandler(this, true);
     }
@@ -547,35 +573,15 @@ var BSN = function(exports) {
     get name() {
       return alertComponent;
     }
-    // ALERT PUBLIC METHODS
-    // ====================
-    /**
-     * Public method that hides the `.alert` element from the user,
-     * disposes the instance once animation is complete, then
-     * removes the element from the DOM.
-     *
-     * @param e the `click` event
-     */
-    close(e) {
-      const self = e ? getAlertInstance(shorty.closest(e.target, alertSelector)) : this;
-      const { element } = self;
-      if (element && shorty.hasClass(element, showClass)) {
-        shorty.dispatchEvent(element, closeAlertEvent);
-        if (closeAlertEvent.defaultPrevented)
-          return;
-        shorty.removeClass(element, showClass);
-        if (shorty.hasClass(element, fadeClass)) {
-          shorty.emulateTransitionEnd(element, () => alertTransitionEnd(self));
-        } else
-          alertTransitionEnd(self);
-      }
-    }
     /** Remove the component from target element. */
     dispose() {
       toggleAlertHandler(this);
       super.dispose();
     }
   }
+  __publicField(Alert, "selector", alertSelector);
+  __publicField(Alert, "init", alertInitCallback);
+  __publicField(Alert, "getInstance", getAlertInstance);
   const activeClass = "active";
   const dataBsToggle = "data-bs-toggle";
   const buttonString = "button";
@@ -588,15 +594,30 @@ var BSN = function(exports) {
     action(self.element, shorty.mouseclickEvent, self.toggle);
   };
   class Button extends BaseComponent {
-    static selector = buttonSelector;
-    static init = buttonInitCallback;
-    static getInstance = getButtonInstance;
-    isActive = false;
     /**
      * @param target usually a `.btn` element
      */
     constructor(target) {
       super(target);
+      __publicField(this, "isActive", false);
+      // BUTTON PUBLIC METHODS
+      // =====================
+      /**
+       * Toggles the state of the target button.
+       *
+       * @param e usually `click` Event object
+       */
+      __publicField(this, "toggle", (e) => {
+        if (e)
+          e.preventDefault();
+        const { element, isActive } = this;
+        if (shorty.hasClass(element, "disabled"))
+          return;
+        const action = isActive ? shorty.removeClass : shorty.addClass;
+        action(element, activeClass);
+        shorty.setAttribute(element, shorty.ariaPressed, isActive ? "false" : "true");
+        this.isActive = shorty.hasClass(element, activeClass);
+      });
       const { element } = this;
       this.isActive = shorty.hasClass(element, activeClass);
       shorty.setAttribute(element, shorty.ariaPressed, String(!!this.isActive));
@@ -608,33 +629,15 @@ var BSN = function(exports) {
     get name() {
       return buttonComponent;
     }
-    // BUTTON PUBLIC METHODS
-    // =====================
-    /**
-     * Toggles the state of the target button.
-     *
-     * @param e usually `click` Event object
-     */
-    toggle(e) {
-      if (e)
-        e.preventDefault();
-      const self = e ? getButtonInstance(e.target) : this;
-      if (!self.element)
-        return;
-      const { element, isActive } = self;
-      if (shorty.hasClass(element, "disabled"))
-        return;
-      const action = isActive ? shorty.removeClass : shorty.addClass;
-      action(element, activeClass);
-      shorty.setAttribute(element, shorty.ariaPressed, isActive ? "false" : "true");
-      self.isActive = shorty.hasClass(element, activeClass);
-    }
     /** Removes the `Button` component from the target element. */
     dispose() {
       toggleButtonHandler(this);
       super.dispose();
     }
   }
+  __publicField(Button, "selector", buttonSelector);
+  __publicField(Button, "init", buttonInitCallback);
+  __publicField(Button, "getInstance", getButtonInstance);
   const dataBsTarget = "data-bs-target";
   const carouselString = "carousel";
   const carouselComponent = "Carousel";
@@ -768,6 +771,7 @@ var BSN = function(exports) {
     currentX = e.pageX;
   };
   const carouselPointerUpHandler = (e) => {
+    var _a;
     const { target } = e;
     const doc = shorty.getDocument(target);
     const self = [...shorty.querySelectorAll(carouselSelector, doc)].map((c) => getCarouselInstance(c)).find((i) => i.isTouch);
@@ -778,7 +782,7 @@ var BSN = function(exports) {
     const RTL = shorty.isRTL(element);
     self.isTouch = false;
     toggleCarouselTouchHandlers(self);
-    if (doc.getSelection()?.toString().length) {
+    if ((_a = doc.getSelection()) == null ? void 0 : _a.toString().length) {
       startX = 0;
       currentX = 0;
       endX = 0;
@@ -845,9 +849,6 @@ var BSN = function(exports) {
     return shorty.isHTMLElement(activeItem) ? [...slides].indexOf(activeItem) : -1;
   };
   class Carousel extends BaseComponent {
-    static selector = carouselSelector;
-    static init = carouselInitCallback;
-    static getInstance = getCarouselInstance;
     /**
      * @param target mostly a `.carousel` element
      * @param config instance options
@@ -1036,6 +1037,9 @@ var BSN = function(exports) {
       super.dispose();
     }
   }
+  __publicField(Carousel, "selector", carouselSelector);
+  __publicField(Carousel, "init", carouselInitCallback);
+  __publicField(Carousel, "getInstance", getCarouselInstance);
   const collapsingClass = "collapsing";
   const collapseString = "collapse";
   const collapseComponent = "Collapse";
@@ -1114,9 +1118,6 @@ var BSN = function(exports) {
       e.preventDefault();
   };
   class Collapse extends BaseComponent {
-    static selector = collapseSelector;
-    static init = collapseInitCallback;
-    static getInstance = getCollapseInstance;
     /**
      * @param target and `Element` that matches the selector
      * @param config instance options
@@ -1190,6 +1191,9 @@ var BSN = function(exports) {
       super.dispose();
     }
   }
+  __publicField(Collapse, "selector", collapseSelector);
+  __publicField(Collapse, "init", collapseInitCallback);
+  __publicField(Collapse, "getInstance", getCollapseInstance);
   const dropdownMenuClasses = ["dropdown", "dropup", "dropstart", "dropend"];
   const dropdownComponent = "Dropdown";
   const dropdownMenuClass = "dropdown-menu";
@@ -1412,9 +1416,6 @@ var BSN = function(exports) {
       styleDropdown(self);
   }
   class Dropdown extends BaseComponent {
-    static selector = dropdownSelector;
-    static init = dropdownInitCallback;
-    static getInstance = getDropdownInstance;
     /**
      * @param target Element or string selector
      * @param config the instance options
@@ -1500,6 +1501,9 @@ var BSN = function(exports) {
       super.dispose();
     }
   }
+  __publicField(Dropdown, "selector", dropdownSelector);
+  __publicField(Dropdown, "init", dropdownInitCallback);
+  __publicField(Dropdown, "getInstance", getDropdownInstance);
   const modalString = "modal";
   const modalComponent = "Modal";
   const offcanvasComponent = "Offcanvas";
@@ -1659,9 +1663,9 @@ var BSN = function(exports) {
   };
   const toggleModalDismiss = (self, add) => {
     const action = add ? eventListener$1.addListener : eventListener$1.removeListener;
-    const { element } = self;
+    const { element, update } = self;
     action(element, shorty.mouseclickEvent, modalDismissHandler);
-    action(shorty.getWindow(element), shorty.resizeEvent, self.update, shorty.passiveHandler);
+    action(shorty.getWindow(element), shorty.resizeEvent, update, shorty.passiveHandler);
     action(shorty.getDocument(element), shorty.keydownEvent, modalKeyHandler);
   };
   const toggleModalHandler = (self, add) => {
@@ -1740,14 +1744,15 @@ var BSN = function(exports) {
     }
   };
   function modalDismissHandler(e) {
+    var _a, _b;
     const self = getModalInstance(this);
     if (!self || shorty.Timer.get(this))
       return;
     const { options, isStatic, modalDialog } = self;
     const { backdrop } = options;
     const { target } = e;
-    const selectedText = shorty.getDocument(this)?.getSelection()?.toString().length;
-    const targetInsideDialog = modalDialog?.contains(target);
+    const selectedText = (_b = (_a = shorty.getDocument(this)) == null ? void 0 : _a.getSelection()) == null ? void 0 : _b.toString().length;
+    const targetInsideDialog = modalDialog == null ? void 0 : modalDialog.contains(target);
     const dismiss = target && shorty.closest(target, modalDismissSelector);
     if (isStatic && !targetInsideDialog) {
       shorty.Timer.set(
@@ -1774,15 +1779,19 @@ var BSN = function(exports) {
     shorty.Timer.set(element, () => shorty.Timer.clear(element), duration);
   };
   class Modal extends BaseComponent {
-    static selector = modalSelector;
-    static init = modalInitCallback;
-    static getInstance = getModalInstance;
     /**
      * @param target usually the `.modal` element
      * @param config instance options
      */
     constructor(target, config) {
       super(target, config);
+      /**
+       * Updates the modal layout.
+       */
+      __publicField(this, "update", () => {
+        if (shorty.hasClass(this.element, showClass))
+          setModalScrollbar(this);
+      });
       const { element } = this;
       this.modalDialog = shorty.querySelector(`.${modalString}-dialog`, element);
       this.triggers = [...shorty.querySelectorAll(modalToggleSelector, shorty.getDocument(element))].filter(
@@ -1792,7 +1801,6 @@ var BSN = function(exports) {
       this.hasFade = shorty.hasClass(element, fadeClass);
       this.relatedTarget = null;
       toggleModalHandler(this, true);
-      this.update = this.update.bind(this);
     }
     /**
      * Returns component name string.
@@ -1871,19 +1879,15 @@ var BSN = function(exports) {
         beforeModalHide(this, callback);
       }
     }
-    /**
-     * Updates the modal layout.
-     */
-    update() {
-      if (shorty.hasClass(this.element, showClass))
-        setModalScrollbar(this);
-    }
     /** Removes the `Modal` component from target element. */
     dispose() {
       toggleModalHandler(this);
       this.hide(() => super.dispose());
     }
   }
+  __publicField(Modal, "selector", modalSelector);
+  __publicField(Modal, "init", modalInitCallback);
+  __publicField(Modal, "getInstance", getModalInstance);
   const offcanvasSelector = `.${offcanvasString}`;
   const offcanvasToggleSelector = `[${dataBsToggle}="${offcanvasString}"]`;
   const offcanvasDismissSelector = `[${dataBsDismiss}="${offcanvasString}"]`;
@@ -2010,9 +2014,6 @@ var BSN = function(exports) {
       callback();
   };
   class Offcanvas extends BaseComponent {
-    static selector = offcanvasSelector;
-    static init = offcanvasInitCallback;
-    static getInstance = getOffcanvasInstance;
     /**
      * @param target usually an `.offcanvas` element
      * @param config instance options
@@ -2108,6 +2109,9 @@ var BSN = function(exports) {
       this.hide(() => super.dispose());
     }
   }
+  __publicField(Offcanvas, "selector", offcanvasSelector);
+  __publicField(Offcanvas, "init", offcanvasInitCallback);
+  __publicField(Offcanvas, "getInstance", getOffcanvasInstance);
   const popoverString = "popover";
   const popoverComponent = "Popover";
   const tooltipString = "tooltip";
@@ -2501,16 +2505,68 @@ var BSN = function(exports) {
     shorty.removeAttribute(element, titleAtt[content ? 1 : 0]);
   };
   class Tooltip extends BaseComponent {
-    static selector = tooltipSelector;
-    static init = tooltipInitCallback;
-    static getInstance = getTooltipInstance;
-    static styleTip = styleTip;
     /**
      * @param target the target element
      * @param config the instance options
      */
     constructor(target, config) {
       super(target, config);
+      // TOOLTIP PUBLIC METHODS
+      // ======================
+      /** Shows the tooltip. */
+      __publicField(this, "show", () => this._show());
+      /** Hides the tooltip. */
+      __publicField(this, "hide", () => {
+        const { options, tooltip, element, container, offsetParent } = this;
+        const { animation, delay } = options;
+        shorty.Timer.clear(element, "in");
+        if (tooltip && hasPopup(tooltip, container === offsetParent ? container : offsetParent)) {
+          shorty.Timer.set(
+            element,
+            () => {
+              const hideTooltipEvent = shorty.createCustomEvent(`hide.bs.${shorty.toLowerCase(this.name)}`);
+              shorty.dispatchEvent(element, hideTooltipEvent);
+              if (hideTooltipEvent.defaultPrevented)
+                return;
+              this.update();
+              shorty.removeClass(tooltip, showClass);
+              toggleTooltipOpenHandlers(this);
+              if (animation)
+                shorty.emulateTransitionEnd(tooltip, () => tooltipHiddenAction(this));
+              else
+                tooltipHiddenAction(this);
+            },
+            delay + 17,
+            "out"
+          );
+        }
+      });
+      /** Updates the tooltip position. */
+      __publicField(this, "update", () => {
+        styleTip(this);
+      });
+      /** Toggles the tooltip visibility. */
+      __publicField(this, "toggle", () => {
+        const { tooltip, container, offsetParent } = this;
+        if (tooltip && !hasPopup(tooltip, container === offsetParent ? container : offsetParent))
+          this.show();
+        else
+          this.hide();
+      });
+      /**
+       * Handles the `touchstart` event listener for `Tooltip`
+       *
+       * @this {Tooltip}
+       * @param {TouchEvent} e the `Event` object
+       */
+      __publicField(this, "handleTouch", ({ target }) => {
+        const { tooltip, element } = this;
+        if (tooltip && tooltip.contains(target) || target === element || target && element.contains(target))
+          ;
+        else {
+          this.hide();
+        }
+      });
       const { element } = this;
       const isTooltip = this.name === tooltipComponent;
       const tipString = isTooltip ? tooltipString : popoverString;
@@ -2523,11 +2579,6 @@ var BSN = function(exports) {
         return;
       }
       shorty.ObjectAssign(tooltipDefaults, { titleAttr: "" });
-      this.handleTouch = this.handleTouch.bind(this);
-      this.update = this.update.bind(this);
-      this.show = this.show.bind(this);
-      this.hide = this.hide.bind(this);
-      this.toggle = this.toggle.bind(this);
       if (shorty.hasAttribute(element, titleAttr) && isTooltip && typeof options.title === "string") {
         toggleTooltipTitle(this, options.title);
       }
@@ -2550,10 +2601,7 @@ var BSN = function(exports) {
     get defaults() {
       return tooltipDefaults;
     }
-    // TOOLTIP PUBLIC METHODS
-    // ======================
-    /** Shows the tooltip. */
-    show() {
+    _show() {
       const { options, tooltip, element, container, offsetParent, id } = this;
       const { animation } = options;
       const outTimer = shorty.Timer.get(element, "out");
@@ -2582,44 +2630,6 @@ var BSN = function(exports) {
           "in"
         );
       }
-    }
-    /** Hides the tooltip. */
-    hide() {
-      const { options, tooltip, element, container, offsetParent } = this;
-      const { animation, delay } = options;
-      shorty.Timer.clear(element, "in");
-      if (tooltip && hasPopup(tooltip, container === offsetParent ? container : offsetParent)) {
-        shorty.Timer.set(
-          element,
-          () => {
-            const hideTooltipEvent = shorty.createCustomEvent(`hide.bs.${shorty.toLowerCase(this.name)}`);
-            shorty.dispatchEvent(element, hideTooltipEvent);
-            if (hideTooltipEvent.defaultPrevented)
-              return;
-            this.update();
-            shorty.removeClass(tooltip, showClass);
-            toggleTooltipOpenHandlers(this);
-            if (animation)
-              shorty.emulateTransitionEnd(tooltip, () => tooltipHiddenAction(this));
-            else
-              tooltipHiddenAction(this);
-          },
-          delay + 17,
-          "out"
-        );
-      }
-    }
-    /** Updates the tooltip position. */
-    update() {
-      styleTip(this);
-    }
-    /** Toggles the tooltip visibility. */
-    toggle() {
-      const { tooltip, container, offsetParent } = this;
-      if (tooltip && !hasPopup(tooltip, container === offsetParent ? container : offsetParent))
-        this.show();
-      else
-        this.hide();
     }
     /** Enables the tooltip. */
     enable() {
@@ -2650,20 +2660,6 @@ var BSN = function(exports) {
       else
         this.disable();
     }
-    /**
-     * Handles the `touchstart` event listener for `Tooltip`
-     *
-     * @this {Tooltip}
-     * @param {TouchEvent} e the `Event` object
-     */
-    handleTouch({ target }) {
-      const { tooltip, element } = this;
-      if (tooltip && tooltip.contains(target) || target === element || target && element.contains(target))
-        ;
-      else {
-        this.hide();
-      }
-    }
     /** Removes the `Tooltip` from the target element. */
     dispose() {
       const { tooltip, container, offsetParent, options } = this;
@@ -2677,6 +2673,10 @@ var BSN = function(exports) {
       }
     }
   }
+  __publicField(Tooltip, "selector", tooltipSelector);
+  __publicField(Tooltip, "init", tooltipInitCallback);
+  __publicField(Tooltip, "getInstance", getTooltipInstance);
+  __publicField(Tooltip, "styleTip", styleTip);
   const popoverSelector = `[${dataBsToggle}="${popoverString}"],[data-tip="${popoverString}"]`;
   const popoverDefaults = shorty.ObjectAssign({}, tooltipDefaults, {
     template: getTipTemplate(popoverString),
@@ -2687,16 +2687,19 @@ var BSN = function(exports) {
   const getPopoverInstance = (element) => shorty.getInstance(element, popoverComponent);
   const popoverInitCallback = (element) => new Popover(element);
   class Popover extends Tooltip {
-    static selector = popoverSelector;
-    static init = popoverInitCallback;
-    static getInstance = getPopoverInstance;
-    static styleTip = styleTip;
     /**
      * @param target the target element
      * @param config the instance options
      */
     constructor(target, config) {
       super(target, config);
+      /* extend original `show()` */
+      __publicField(this, "show", () => {
+        super._show();
+        const { options, btn } = this;
+        if (options.dismissible && btn)
+          setTimeout(() => shorty.focus(btn), 17);
+      });
     }
     /**
      * Returns component name string.
@@ -2710,14 +2713,11 @@ var BSN = function(exports) {
     get defaults() {
       return popoverDefaults;
     }
-    /* extend original `show()` */
-    show() {
-      super.show();
-      const { options, btn } = this;
-      if (options.dismissible && btn)
-        setTimeout(() => shorty.focus(btn), 17);
-    }
   }
+  __publicField(Popover, "selector", popoverSelector);
+  __publicField(Popover, "init", popoverInitCallback);
+  __publicField(Popover, "getInstance", getPopoverInstance);
+  __publicField(Popover, "styleTip", styleTip);
   const tabString = "tab";
   const tabComponent = "Tab";
   const tabSelector = `[${dataBsToggle}="${tabString}"]`;
@@ -2843,9 +2843,6 @@ var BSN = function(exports) {
     self.show();
   };
   class Tab extends BaseComponent {
-    static selector = tabSelector;
-    static init = tabInitCallback;
-    static getInstance = getTabInstance;
     /** @param target the target element */
     constructor(target) {
       super(target);
@@ -2928,6 +2925,9 @@ var BSN = function(exports) {
       super.dispose();
     }
   }
+  __publicField(Tab, "selector", tabSelector);
+  __publicField(Tab, "init", tabInitCallback);
+  __publicField(Tab, "getInstance", getTabInstance);
   const toastString = "toast";
   const toastComponent = "Toast";
   const toastSelector = `.${toastString}`;
@@ -2994,9 +2994,9 @@ var BSN = function(exports) {
   };
   const toggleToastHandlers = (self, add) => {
     const action = add ? eventListener$1.addListener : eventListener$1.removeListener;
-    const { element, triggers, dismiss, options } = self;
+    const { element, triggers, dismiss, options, hide } = self;
     if (dismiss) {
-      action(dismiss, shorty.mouseclickEvent, self.hide);
+      action(dismiss, shorty.mouseclickEvent, hide);
     }
     if (options.autohide) {
       [shorty.focusinEvent, shorty.focusoutEvent, shorty.mouseenterEvent, shorty.mouseleaveEvent].forEach(
@@ -3036,15 +3036,34 @@ var BSN = function(exports) {
     }
   };
   class Toast extends BaseComponent {
-    static selector = toastSelector;
-    static init = toastInitCallback;
-    static getInstance = getToastInstance;
     /**
      * @param target the target `.toast` element
      * @param config the instance options
      */
     constructor(target, config) {
       super(target, config);
+      // TOAST PUBLIC METHODS
+      // ====================
+      /** Shows the toast. */
+      __publicField(this, "show", () => {
+        const { element, isShown } = this;
+        if (element && !isShown) {
+          shorty.dispatchEvent(element, showToastEvent);
+          if (showToastEvent.defaultPrevented)
+            return;
+          showToast(this);
+        }
+      });
+      /** Hides the toast. */
+      __publicField(this, "hide", () => {
+        const { element, isShown } = this;
+        if (element && isShown) {
+          shorty.dispatchEvent(element, hideToastEvent);
+          if (hideToastEvent.defaultPrevented)
+            return;
+          hideToast(this);
+        }
+      });
       const { element, options } = this;
       if (options.animation && !shorty.hasClass(element, fadeClass))
         shorty.addClass(element, fadeClass);
@@ -3054,8 +3073,6 @@ var BSN = function(exports) {
       this.triggers = [...shorty.querySelectorAll(toastToggleSelector, shorty.getDocument(element))].filter(
         (btn) => getTargetElement(btn) === element
       );
-      this.show = this.show.bind(this);
-      this.hide = this.hide.bind(this);
       toggleToastHandlers(this, true);
     }
     /**
@@ -3076,28 +3093,6 @@ var BSN = function(exports) {
     get isShown() {
       return shorty.hasClass(this.element, showClass);
     }
-    // TOAST PUBLIC METHODS
-    // ====================
-    /** Shows the toast. */
-    show() {
-      const { element, isShown } = this;
-      if (element && !isShown) {
-        shorty.dispatchEvent(element, showToastEvent);
-        if (showToastEvent.defaultPrevented)
-          return;
-        showToast(this);
-      }
-    }
-    /** Hides the toast. */
-    hide() {
-      const { element, isShown } = this;
-      if (element && isShown) {
-        shorty.dispatchEvent(element, hideToastEvent);
-        if (hideToastEvent.defaultPrevented)
-          return;
-        hideToast(this);
-      }
-    }
     /** Removes the `Toast` component from the target element. */
     dispose() {
       const { element, isShown } = this;
@@ -3108,6 +3103,9 @@ var BSN = function(exports) {
       super.dispose();
     }
   }
+  __publicField(Toast, "selector", toastSelector);
+  __publicField(Toast, "init", toastInitCallback);
+  __publicField(Toast, "getInstance", getToastInstance);
   const componentsList = {
     Alert,
     Button,
