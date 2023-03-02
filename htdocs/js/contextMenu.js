@@ -143,23 +143,24 @@ function addMenuItemsNavbarActions(target, popoverBody) {
 /**
  * Callback function to create the disc context menu body
  * @param {EventTarget} target triggering element
- * @param {HTMLElement} popoverBody element to append the menu items
+ * @param {HTMLElement} contextMenuTitle element to set the menu header
+ * @param {HTMLElement} contextMenuBody element to append the menu items
  */
-function addMenuItemsDiscActions(target, popoverBody) {
+function addMenuItemsDiscActions(target, contextMenuTitle, contextMenuBody) {
     const dataNode = target.parentNode.parentNode;
     const disc = getData(dataNode, 'Disc');
     const album = getData(dataNode, 'Album');
     const albumArtist = getData(dataNode, 'AlbumArtist');
 
-    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album, disc]}, 'Append to queue');
-    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["appendPlayQueue", albumArtist, album, disc]}, 'Append to queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "_addAlbum", "options": ["appendQueue", albumArtist, album, disc]}, 'Append to queue');
+    addMenuItem(contextMenuBody, {"cmd": "_addAlbum", "options": ["appendPlayQueue", albumArtist, album, disc]}, 'Append to queue and play');
     if (features.featWhence === true) {
-        addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["insertAfterCurrentQueue", albumArtist, album, disc]}, 'Insert after current playing song');
+        addMenuItem(contextMenuBody, {"cmd": "_addAlbum", "options": ["insertAfterCurrentQueue", albumArtist, album, disc]}, 'Insert after current playing song');
     }
-    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album, disc]}, 'Replace queue');
-    addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["replacePlayQueue", albumArtist, album, disc]}, 'Replace queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "_addAlbum", "options": ["replaceQueue", albumArtist, album, disc]}, 'Replace queue');
+    addMenuItem(contextMenuBody, {"cmd": "_addAlbum", "options": ["replacePlayQueue", albumArtist, album, disc]}, 'Replace queue and play');
     if (features.featPlaylists === true) {
-        addMenuItem(popoverBody, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album, disc]}, 'Add to playlist');
+        addMenuItem(contextMenuBody, {"cmd": "_addAlbum", "options": ["addPlaylist", albumArtist, album, disc]}, 'Add to playlist');
     }
 }
 
@@ -699,10 +700,14 @@ function createMenuHome(target, contextMenuTitle, contextMenuBody) {
             addMenuItemsAlbumActions(contextMenuBody, null, href.options[1], href.options[2]);
             break;
         case 'view':
-        case 'script':
         case 'externalLink':
         case 'modal':
             addMenuItem(contextMenuBody, {"cmd": "executeHomeIcon", "options": [pos]}, actionDesc);
+            break;
+        case 'script':
+            addMenuItem(contextMenuBody, {"cmd": "executeHomeIcon", "options": [pos]}, actionDesc);
+            addMenuItem(contextMenuBody, {"cmd": "showEditScriptModal", "options": [href.options[0]]}, 'Edit script');
+            break;
     }
     return true;
 }
