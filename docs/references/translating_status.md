@@ -1,4 +1,4 @@
-- es-AR: 1 missing phrases
+- es-AR: fully translated
 - es-ES: 650 missing phrases
 - es-VE: 555 missing phrases
 - fi-FI: 551 missing phrases
