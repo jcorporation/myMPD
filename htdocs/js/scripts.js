@@ -305,6 +305,7 @@ function removeScriptArgument(ev) {
  * Opens the scripts modal and shows the edit tab
  * @param {string} script name to edit
  */
+//eslint-disable-next-line no-unused-vars
 function showEditScriptModal(script) {
     uiElements.modalScripts.show();
     showEditScript(script);
@@ -313,6 +314,7 @@ function showEditScriptModal(script) {
 /**
  * Opens the scripts modal and shows the list tab
  */
+//eslint-disable-next-line no-unused-vars
 function showListScriptModal() {
     uiElements.modalScripts.show();
     showListScripts();
