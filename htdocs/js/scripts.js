@@ -50,10 +50,6 @@ function initScripts() {
         }
     }, false);
 
-    document.getElementById('modalScripts').addEventListener('shown.bs.modal', function () {
-        showListScripts();
-    }, false);
-
     document.getElementById('btnDropdownAddAPIcall').parentNode.addEventListener('show.bs.dropdown', function() {
         const dw = document.getElementById('textareaScriptContent').offsetWidth - document.getElementById('btnDropdownAddAPIcall').parentNode.offsetLeft;
         document.getElementById('dropdownAddAPIcall').style.width = dw + 'px';
@@ -303,6 +299,23 @@ function removeScriptArgument(ev) {
     el.value = ev.target.text;
     ev.target.remove();
     setFocus(el);
+}
+
+/**
+ * Opens the scripts modal and shows the edit tab
+ * @param {string} script name to edit
+ */
+function showEditScriptModal(script) {
+    uiElements.modalScripts.show();
+    showEditScript(script);
+}
+
+/**
+ * Opens the scripts modal and shows the list tab
+ */
+function showListScriptModal() {
+    uiElements.modalScripts.show();
+    showListScripts();
 }
 
 /**

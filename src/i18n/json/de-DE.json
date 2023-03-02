@@ -877,5 +877,6 @@
     "Response code": "Antwort Code",
     "Move song": "Lied verschieben",
     "Position": "Position",
-    "Position must be in range 1 - 10000": "Position muss zwischen 0 und 10.000 sein"
+    "Position must be in range 1 - 10000": "Position muss zwischen 0 und 10.000 sein",
+    "Edit script": "Skript bearbeiten"
 }

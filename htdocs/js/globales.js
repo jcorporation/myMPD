@@ -900,7 +900,7 @@ const keymap = {
         "O": {"order": 207, "cmd": "openModal", "options": ["modalMounts"], "desc": "Open mounts", "feature": "featMounts"},
         "P": {"order": 207, "cmd": "openModal", "options": ["modalPartitions"], "desc": "Open partitions", "feature": "featPartitions"},
         "Q": {"order": 203, "cmd": "openModal", "options": ["modalQueueSettings"], "desc": "Open queue settings"},
-        "S": {"order": 207, "cmd": "openModal", "options": ["modalScripts"], "desc": "Open scripts", "feature": "featScripting"},
+        "S": {"order": 207, "cmd": "showListScriptModal", "options": [], "desc": "Open scripts", "feature": "featScripting"},
         "T": {"order": 204, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
         "?": {"order": 207, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
     "navigation": {"order": 300, "desc": "Navigation"},
