@@ -333,7 +333,7 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/sw.js", "application/javascript; charset=utf-8", true, false, sw_js_data, sw_js_size},
         {"/mympd.webmanifest", "application/manifest+json", true, false, mympd_webmanifest_data, mympd_webmanifest_size},
         {"/assets/coverimage-notavailable.svg", "image/svg+xml", true, true, coverimage_notavailable_svg_data, coverimage_notavailable_svg_size},
-        {"/assets/MaterialIcons-Regular.woff2", "font/woff2", true, true, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},
+        {"/assets/MaterialIcons-Regular.woff2", "font/woff2", false, true, MaterialIcons_Regular_woff2_data, MaterialIcons_Regular_woff2_size},
         {"/assets/coverimage-stream.svg", "image/svg+xml", true, true, coverimage_stream_svg_data, coverimage_stream_svg_size},
         {"/assets/coverimage-booklet.svg", "image/svg+xml", true, true, coverimage_booklet_svg_data, coverimage_booklet_svg_size},
         {"/assets/coverimage-mympd.svg", "image/svg+xml", true, true, coverimage_mympd_svg_data, coverimage_mympd_svg_size},

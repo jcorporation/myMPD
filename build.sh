@@ -265,14 +265,6 @@ createassets() {
   cat $CSSFILES > "$MYMPD_BUILDDIR/htdocs/css/combined.css"
   $ZIP "$MYMPD_BUILDDIR/htdocs/css/combined.css"
 
-  echo "Compressing fonts"
-  FONTFILES="dist/material-icons/MaterialIcons-Regular.woff2 dist/material-icons/ligatures.json"
-  for FONT in $FONTFILES
-  do
-    DST=$(basename "${FONT}")
-    $ZIPCAT "$FONT" > "$MYMPD_BUILDDIR/htdocs/assets/${DST}.gz"
-  done
-
   echo "Compressing i18n json"
   jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default" | \
     while read -r CODE
@@ -294,6 +286,10 @@ createassets() {
 
   echo "Copy images"
   cp -v htdocs/assets/*.png "$MYMPD_BUILDDIR/htdocs/assets/"
+
+  echo "Copy webfont"
+  cp -v dist/material-icons/MaterialIcons-Regular.woff2 "$MYMPD_BUILDDIR/htdocs/assets/"
+  $ZIPCAT dist/material-icons/ligatures.json > "$MYMPD_BUILDDIR/htdocs/assets/ligatures.json.gz"
 
   echo "Copy integrated lua libraries"
   mkdir -p "$MYMPD_BUILDDIR/contrib/lualibs"
@@ -1025,7 +1021,7 @@ createi18n() {
 }
 
 materialicons() {
-  check_cmd jq wget
+  check_cmd jq wget woff2_compress
 
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
@@ -1034,6 +1030,11 @@ materialicons() {
   if ! wget -q "$FONT_URI" -O MaterialIcons-Regular.woff2
   then
     echo_error "Error downloading font file"
+    exit 1
+  fi
+  if ! woff2_compress MaterialIcons-Regular.woff2
+  then
+    echo_error "Compression failed"
     exit 1
   fi
   METADATA_URI="https://fonts.google.com/metadata/icons"

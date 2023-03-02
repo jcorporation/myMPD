@@ -22,7 +22,7 @@ INCBIN(mympd_background_dark_svg, "../htdocs/assets/mympd-background-dark.svg.gz
 INCBIN(mympd_background_light_svg, "../htdocs/assets/mympd-background-light.svg.gz");
 INCBIN(combined_css, "../htdocs/css/combined.css.gz");
 INCBIN(combined_js, "../htdocs/js/combined.js.gz");
-INCBIN(MaterialIcons_Regular_woff2, "../htdocs/assets/MaterialIcons-Regular.woff2.gz");
+INCBIN(MaterialIcons_Regular_woff2, "../htdocs/assets/MaterialIcons-Regular.woff2");
 INCBIN(ligatures_json, "../htdocs/assets/ligatures.json.gz");
 //translation files
 #ifdef I18N_de_DE
