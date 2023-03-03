@@ -7,5 +7,6 @@
     "it-IT": {"desc":"Italiano (it-IT)", "missingPhrases": 8},
     "ja-JP": {"desc":"日本語 (ja-JP)", "missingPhrases": 9},
     "nl-NL": {"desc":"Nederlands (nl-NL)", "missingPhrases": 9},
+    "ru-RU": {"desc":"Russian (ru-RU)", "missingPhrases": 8},
     "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 8}
 }

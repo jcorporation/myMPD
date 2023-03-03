@@ -24,6 +24,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Upd: es-AR translation
+- Upd: add ru-RU translation
 
 ***
 
