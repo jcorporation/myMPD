@@ -12,6 +12,7 @@ This is a small bugfix release.
 
 - Feat: add ru-RU translation
 - Upd: es-AR, fr-FR translation
+- Fix: Update of cards/tables #992
 
 ***
 

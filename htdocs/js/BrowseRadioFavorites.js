@@ -367,8 +367,6 @@ function saveRadioFavoriteClose(obj) {
  */
 function parseRadioFavoritesList(obj) {
     const cardContainer = document.getElementById('BrowseRadioFavoritesList');
-
-    const cols = cardContainer.querySelectorAll('.col');
     unsetUpdateView(cardContainer);
 
     if (obj.error !== undefined) {
@@ -391,6 +389,7 @@ function parseRadioFavoritesList(obj) {
     if (cardContainer.querySelector('.not-clickable') !== null) {
         elClear(cardContainer);
     }
+    let cols = cardContainer.querySelectorAll('.col');
     const rowTitle = tn(webuiSettingsDefault.clickRadioFavorites.validValues[settings.webuiSettings.clickRadioFavorites]);
     for (let i = 0; i < nrItems; i++) {
         const card = elCreateNodes('div', {"data-popover": "webradio", "class": ["card", "card-grid", "clickable"], "tabindex": 0}, [
@@ -434,6 +433,8 @@ function parseRadioFavoritesList(obj) {
             col.firstChild.firstChild.style.backgroundImage = subdir + image;
         }
     }
+    //remove obsolete cards
+    cols = cardContainer.querySelectorAll('.col');
     for (let i = cols.length - 1; i >= nrItems; i--) {
         cols[i].remove();
     }

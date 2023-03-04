@@ -474,7 +474,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
 
     const nrItems = obj.result.returnedEntities;
-    const tr = tbody.querySelectorAll('tr');
+    let tr = tbody.querySelectorAll('tr');
     const smallWidth = uiSmallWidthTagRows();
 
     if (smallWidth === true) {
@@ -551,9 +551,9 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             tbody.append(row);
         }
     }
-
-    const trLen = tr.length - 1;
-    for (let i = trLen; i >= nrItems + z; i --) {
+    //remove obsolete lines
+    tr = tbody.querySelectorAll('tr');
+    for (let i = tr.length - 1; i >= nrItems + z; i --) {
         tr[i].remove();
     }
 
