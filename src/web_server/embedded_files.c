@@ -61,6 +61,9 @@ INCBIN(ligatures_json, "../htdocs/assets/ligatures.json.gz");
 #ifdef I18N_pl_PL
     INCBIN(i18n_pl_PL_json, "../htdocs/assets/i18n/pl-PL.json.gz");
 #endif
+#ifdef I18N_ru_RU
+    INCBIN(i18n_ru_RU_json, "../htdocs/assets/i18n/ru-RU.json.gz");
+#endif
 #ifdef I18N_zh_Hans
     INCBIN(i18n_zh_Hans_json, "../htdocs/assets/i18n/zh-Hans.json.gz");
 #endif

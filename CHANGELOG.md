@@ -23,7 +23,8 @@ This is a small bugfix release.
 
 ### Changelog
 
-- Upd: es-AR translation
+- Feat: add ru-RU translation
+- Upd: es-AR, fr-FR translation
 
 ***
 

@@ -65,13 +65,6 @@ function sendAPIpartition(partition, method, params, callback, onerror) {
             enterPin(method, params, callback, onerror);
             return;
         }
-        if (ajaxRequest.status >= 300 &&
-            ajaxRequest.status <= 399)
-        {
-            //handle redirects
-            location.reload();
-            return;
-        }
         if (ajaxRequest.status !== 200 ||
             ajaxRequest.responseText === '' ||
             ajaxRequest.responseText.length > 1000000)

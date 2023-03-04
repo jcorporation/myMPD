@@ -10,4 +10,5 @@ ja-JP:日本語
 ko-KR:한국어
 nl-NL:Nederlands
 pl-PL:Polish
+ru-RU:Russian
 zh-Hans:简体中文
