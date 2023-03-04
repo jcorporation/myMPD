@@ -97,7 +97,7 @@ function setInputClear(el) {
         event.target.previousElementSibling.value = '';
         const dataClearEvent = event.target.previousElementSibling.getAttribute('data-clear-event');
         if (dataClearEvent !== null) {
-            const clearEvent = new Event(dataClearEvent);
+            const clearEvent = new KeyboardEvent(dataClearEvent, {key: 'Backspace'});
             event.target.previousElementSibling.dispatchEvent(clearEvent);
         }
     }, false);

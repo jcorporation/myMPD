@@ -271,7 +271,7 @@ function parseDatabaseAlbumList(obj) {
     if (cardContainer.querySelector('.not-clickable') !== null) {
         elClear(cardContainer);
     }
-    const cols = cardContainer.querySelectorAll('.col');
+    let cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
         //id is used only to check if card should be refreshed
         const id = genId('database' + obj.result.data[i].Album + obj.result.data[i][tagAlbumArtist]);
@@ -324,6 +324,8 @@ function parseDatabaseAlbumList(obj) {
             col.firstChild.firstChild.style.backgroundImage = getCssImageUri(image);
         }
     }
+    //remove obsolete cards
+    cols = cardContainer.querySelectorAll('.col');
     for (let i = cols.length - 1; i >= nrItems; i--) {
         cols[i].remove();
     }
@@ -375,7 +377,7 @@ function saveColsDatabaseAlbumList() {
     if (cardContainer.querySelector('.not-clickable') !== null) {
         elClear(cardContainer);
     }
-    const cols = cardContainer.querySelectorAll('.col');
+    let cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
         //id is used only to check if card should be refreshed
         const id = genId('database' + obj.result.data[i].value);
@@ -418,6 +420,8 @@ function saveColsDatabaseAlbumList() {
             col.firstChild.firstChild.style.backgroundImage = getCssImageUri(image);
         }
     }
+    //remove obsolete cards
+    cols = cardContainer.querySelectorAll('.col');
     for (let i = cols.length - 1; i >= nrItems; i--) {
         cols[i].remove();
     }
