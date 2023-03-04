@@ -35,7 +35,7 @@ function showContextMenuOffcanvas(target, contextMenuType) {
     switch (contextMenuType) {
         case 'columns':
             //column select in table header
-            createContextMenuOffcanvas(target, contextMenuEl, 'Columns', contextMenuColumns, undefined);
+            createContextMenuOffcanvas(target, contextMenuEl, 'Columns', createMenuColumns, undefined);
             break;
         case 'disc':
             //disc actions in album details view
@@ -102,6 +102,7 @@ function createContextMenuOffcanvas(target, contextMenuEl, title, contentCallbac
     if (contentCallback2 !== undefined &&
         typeof contentCallback2 === 'function')
     {
+        addDivider(contextMenuBody);
         const contextMenuSubtitle = elCreateEmpty('h4', {"class": ["offcanvas-title", "ms-3", "mt-4", "mb-2"]});
         contextMenuBody.appendChild(contextMenuSubtitle);
         contentCallback2(target, contextMenuSubtitle, contextMenuBody);

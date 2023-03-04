@@ -58,7 +58,7 @@ function showContextMenu(event) {
  * @param {HTMLElement} contextMenuTitle title element
  * @param {HTMLElement} contextMenuBody element to append the menu item
  */
-function contextMenuColumns(target, contextMenuTitle, contextMenuBody) {
+function createMenuColumns(target, contextMenuTitle, contextMenuBody) {
     const menu = elCreateEmpty('form', {});
     setColsChecklist(app.id, menu);
     menu.addEventListener('click', function(eventClick) {
