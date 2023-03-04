@@ -388,15 +388,16 @@ function addMenuItemsDirectoryActions(contextMenuBody, baseuri) {
 
 /**
  * Appends actions for webradio favorites to the context menu
+ * @param {HTMLElement} target element with the data
+ * @param {HTMLElement} contextMenuTitle element for the menu title
  * @param {HTMLElement} contextMenuBody element to append the menu items
- * @param {HTMLElement} dataNode element with the data
  */
-function addMenuItemsWebradioFavoritesActions(contextMenuBody, dataNode) {
-    const type = getData(dataNode, 'type');
-    const uri = getData(dataNode, 'uri');
+function addMenuItemsWebradioFavoritesActions(target, contextMenuTitle, contextMenuBody) {
+    const type = getData(target, 'type');
+    const uri = getData(target, 'uri');
     const plistUri = getRadioFavoriteUri(uri);
-    const name = getData(dataNode, 'name');
-    addMenuItemsPlaylistActions(dataNode, contextMenuBody, type, plistUri, name);
+    const name = getData(target, 'name');
+    addMenuItemsPlaylistActions(target, contextMenuBody, type, plistUri, name);
     addDivider(contextMenuBody);
     addMenuItem(contextMenuBody, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
     addMenuItem(contextMenuBody, {"cmd": "deleteRadioFavorite", "options": [uri]}, 'Delete webradio favorite');
