@@ -12,7 +12,8 @@ This is a small bugfix release.
 
 - Feat: add ru-RU translation
 - Upd: es-AR, fr-FR translation
-- Fix: Update of cards/tables #992
+- Fix: update of cards/tables #992
+- Fix: clear button in search inputs #993
 
 ***
 
@@ -27,8 +28,8 @@ This is a small bugfix release.
 - Upd: IT, zh-Hans translation
 - Fix: JS error when clearing the search box #982
 - Fix: update clear button for inputs on breadcrumb select
-- Fix: Finishing IME composition with Enter key also clears the search box, thanks @soya-daizu #977
-- Fix: Album view does not work with disabled Albumartist tag #988
+- Fix: finishing IME composition with Enter key also clears the search box, thanks @soya-daizu #977
+- Fix: album view does not work with disabled Albumartist tag #988
 
 ***
 
@@ -39,9 +40,9 @@ This is a small bugfix release.
 ### Changelog
 
 - Fix: remove progressbar transition causing high cpu usage #975
-- Fix: Position hover for progressbar
+- Fix: position hover for progressbar
 - Fix: add missing translation phrase
-- Fix: Preset selection in footer does not work #976
+- Fix: preset selection in footer does not work #976
 
 ***
 
