@@ -6,12 +6,14 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v10.3.0 (not yet released)
 
+This release reworks the context menus. myMPD now uses the offcanvas component for context menus. This is better accessible on mobile devices with small screens and removes some workarounds for the popovers.
+
 ### Changelog
 
 - Feat: custom placeholder images #980
 - Feat: Fail gracefully if API request fails or is redirected #984
 - Feat: improve queue sort handling #983
-- Feat: use offcanvas instead of popover for contextmenus #974
+- Feat: use offcanvas instead of popover for context menus #974
 - Feat: better compression of webfont #991
 - Upd: bootstrap.native 5.0.4
 
@@ -42,7 +44,7 @@ This is a small bugfix release.
 - Fix: JS error when clearing the search box #982
 - Fix: update clear button for inputs on breadcrumb select
 - Fix: finishing IME composition with Enter key also clears the search box, thanks @soya-daizu #977
-- Fix: album view does not work with disabled Albumartist tag #988
+- Fix: album view does not work with disabled AlbumArtist tag #988
 
 ***
 
