@@ -14,6 +14,7 @@ This is a small bugfix release.
 - Upd: es-AR, fr-FR translation
 - Fix: update of cards/tables #992
 - Fix: clear button in search inputs #993
+- Fix: webradio category filter #994
 
 ***
 
