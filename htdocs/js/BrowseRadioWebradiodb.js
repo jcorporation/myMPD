@@ -266,7 +266,9 @@ function parseSearchWebradiodb(obj) {
 
     if (app.current.filter['genre'] === '' &&
         app.current.filter['country'] === '' &&
-        app.current.filter['language'] === '')
+        app.current.filter['language'] === '' &&
+        app.current.filter['codec'] === '' &&
+        app.current.filter['bitrate'] === '')
     {
         document.getElementById('BrowseRadioWebradiodbFilterBtn').textContent = 'filter_list_off';
     }
