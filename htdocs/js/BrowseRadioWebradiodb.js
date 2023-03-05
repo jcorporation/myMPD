@@ -105,7 +105,7 @@ function initWebradiodbFilter(id, dbField, name) {
     document.getElementById(id).addEventListener('change', function() {
         doSearchWebradiodb();
     }, false);
-    setDataId(id, 'cb-filter', [id]);
+    setDataId(id, 'cb-filter', 'filterWebradiodbFilter');
     setDataId(id, 'cb-filter-options', [id, dbField, name]);
 }
 
