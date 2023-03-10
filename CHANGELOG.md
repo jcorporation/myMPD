@@ -19,7 +19,7 @@ This release reworks the context menus. myMPD now uses the offcanvas component f
 
 ***
 
-## myMPD v10.2.5 (not yet released)
+## myMPD v10.2.5 (2023-03-10)
 
 This is a small bugfix release.
 
@@ -30,6 +30,7 @@ This is a small bugfix release.
 - Fix: update of cards/tables #992
 - Fix: clear button in search inputs #993
 - Fix: webradio category filter #994
+- Fix: check sort tag against enabled myMPD tags #995
 
 ***
 
