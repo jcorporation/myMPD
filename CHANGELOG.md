@@ -15,6 +15,7 @@ This is a small bugfix release.
 - Fix: update of cards/tables #992
 - Fix: clear button in search inputs #993
 - Fix: webradio category filter #994
+- Fix: check sort tag against enabled mympd tags #995
 
 ***
 

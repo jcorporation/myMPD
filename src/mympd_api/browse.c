@@ -180,7 +180,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
     if (sdslen(sort) > 0) {
         sort_tag = mpd_tag_name_parse(sort);
         if (sort_tag != MPD_TAG_UNKNOWN) {
-            sort_tag = get_sort_tag(sort_tag, &partition_state->mpd_state->tags_mpd);
+            sort_tag = get_sort_tag(sort_tag, &partition_state->mpd_state->tags_mympd);
         }
         else if (strcmp(sort, "LastModified") == 0) {
             sort_by_last_modified = true;
