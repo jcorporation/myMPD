@@ -119,6 +119,11 @@ mpd_send_s_range_to_command(struct mpd_connection *connection,
 			 unsigned start, unsigned end, char *to);
 
 bool
+mpd_send_s_range_to_u_command(struct mpd_connection *connection,
+			 const char *command, const char *arg1,
+			 unsigned start, unsigned end, unsigned to);
+
+bool
 mpd_send_u_range_command(struct mpd_connection *connection,
 			 const char *command, unsigned arg1,
 			 unsigned start, unsigned end);

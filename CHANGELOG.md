@@ -16,6 +16,7 @@ This release reworks the context menus. myMPD now uses the offcanvas component f
 - Feat: use offcanvas instead of popover for context menus #974
 - Feat: better compression of webfont #991
 - Upd: bootstrap.native 5.0.4
+- Upd: libmympdclient 1.0.18
 
 ***
 
