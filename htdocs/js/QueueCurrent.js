@@ -123,7 +123,7 @@ function initQueueCurrent() {
         setDataId('selectAddToQueuePlaylist', 'value', 'Database');
         document.getElementById('selectAddToQueuePlaylist').filterInput.value = '';
         if (features.featPlaylists === true) {
-            filterPlaylistsSelect(0, 'selectAddToQueuePlaylist', '', '');
+            filterPlaylistsSelect(0, 'selectAddToQueuePlaylist', '', 'Database');
         }
     });
 

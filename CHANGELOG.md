@@ -20,6 +20,16 @@ This release reworks the context menus. myMPD now uses the offcanvas component f
 
 ***
 
+## myMPD v10.2.6 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: preselect database in "Add to queue modal"
+
+***
+
 ## myMPD v10.2.5 (2023-03-10)
 
 This is a small bugfix release.
