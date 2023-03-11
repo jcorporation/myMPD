@@ -11,7 +11,7 @@ This release reworks the context menus. myMPD now uses the offcanvas component f
 ### Changelog
 
 - Feat: custom placeholder images #980
-- Feat: Fail gracefully if API request fails or is redirected #984
+- Feat: fail gracefully if API request fails or is redirected #984
 - Feat: improve queue sort handling #983
 - Feat: use offcanvas instead of popover for context menus #974
 - Feat: better compression of webfont #991
