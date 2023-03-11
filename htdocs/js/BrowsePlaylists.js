@@ -463,7 +463,6 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
             ? tn('No playlist')
             : selectedPlaylist;
     setData(selectEl, 'value', selectedPlaylist);
-
     elClear(selectEl.filterResult);
     switch(playlistSelectId) {
         case 'selectTimerPlaylist':

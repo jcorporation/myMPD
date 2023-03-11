@@ -10,6 +10,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Fix: preselect database in "Add to queue modal"
+
 ***
 
 ## myMPD v10.2.5 (2023-03-10)
