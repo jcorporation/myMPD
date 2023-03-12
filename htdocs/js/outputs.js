@@ -60,16 +60,9 @@ function parseOutputs(obj) {
             continue;
         }
         const titlePhrase = Object.keys(obj.result.data[i].attributes).length > 0 ? 'Edit attributes' : 'Show attributes';
-        let icon = 'speaker';
-        switch(obj.result.data[i].plugin) {
-            case 'fifo':     icon = 'read_more'; break;
-            case 'httpd':    icon = 'stream'; break;
-            case 'null':     icon = 'check_box_outline_blank'; break;
-            case 'pipe':     icon = 'terminal'; break;
-            case 'recorder': icon = 'voicemail'; break;
-            case 'shout':    icon = 'cast'; break;
-            case 'snapcast': icon = 'hub'; break;
-        }
+        const icon = settings.webuiSettings.outputLigatures[obj.result.data[i].plugin] !== undefined 
+            ? settings.webuiSettings.outputLigatures[obj.result.data[i].plugin]
+            : settings.webuiSettings.outputLigatures.default;
         const buttonTitle = tn('Plugin') + ': ' + tn(obj.result.data[i].plugin);
         const btn = elCreateNodes('button', {"class": ["btn", "btn-secondary", "d-flex", "justify-content-between"], "title": buttonTitle, "id": "btnOutput" + obj.result.data[i].id}, [
             elCreateText('span', {"class": ["mi", "align-self-center"]}, icon),

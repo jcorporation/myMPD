@@ -850,6 +850,18 @@ const webuiSettingsDefault = {
         "inputType": "checkbox",
         "title": "Show MusicBrainz links",
         "form": "cloudSettingsFrm"
+    },
+    "outputLigatures": {
+        "defaultValue": {
+            "default": "speaker",
+            "fifo": "read_more",
+            "httpd": "stream",
+            "null": "check_box_outline_blank",
+            "pipe": "terminal",
+            "recorder": "voicemail",
+            "shout": "cast",
+            "snapcast": "hub"
+        }
     }
 };
 

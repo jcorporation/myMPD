@@ -100,7 +100,9 @@ function parseSettings(obj) {
 
     //set webuiSettings defaults
     for (const key in webuiSettingsDefault) {
-        if (settings.webuiSettings[key] === undefined) {
+        if (settings.webuiSettings[key] === undefined &&
+            webuiSettingsDefault[key].defaultValue !== undefined)
+        {
             settings.webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
         }
     }
@@ -871,6 +873,9 @@ function saveSettings(closeModal) {
                 else {
                     webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(el.value) : el.value;
                 }
+            }
+            else if (webuiSettingsDefault[key].defaultValue !== undefined) {
+                webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
             }
         }
 
