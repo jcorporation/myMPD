@@ -250,3 +250,22 @@ votes
 Web notifications
 Work
 Edit script
+alsa
+ao
+sndio
+fifo
+jack
+httpd
+null
+oss
+openal
+osx
+pipe
+pipewire
+pulse
+recorder
+shout
+sles
+snapcast
+solaris
+wasapi
