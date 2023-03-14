@@ -108,6 +108,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 
 //default partiton state settings
 #define PARTITION_HIGHLIGHT_COLOR "#28a745"
+#define PARTITION_HIGHLIGHT_COLOR_CONTRAST "#f8f9fa"
 #define PARTITION_MPD_STREAM_PORT 8000
 
 //default mpd state settings

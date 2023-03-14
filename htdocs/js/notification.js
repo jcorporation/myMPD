@@ -19,16 +19,23 @@ function initNotifications() {
  */
 function setStateIcon() {
     const logoBgs = document.querySelectorAll('.logoBg');
+    const logoFgs = document.querySelectorAll('.logoFg');
     if (getWebsocketState() === false ||
         settings.partition.mpdConnected === false)
     {
         for (const logoBg of logoBgs) {
             logoBg.setAttribute('fill', '#6c757d');
         }
+        for (const logoFg of logoFgs) {
+            logoFg.setAttribute('fill', '#f8f9fa;');
+        }
     }
     else {
         for (const logoBg of logoBgs) {
             logoBg.setAttribute('fill', settings.partition.highlightColor);
+        }
+        for (const logoFg of logoFgs) {
+            logoFg.setAttribute('fill', settings.partition.highlightColorContrast);
         }
     }
 }

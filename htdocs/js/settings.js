@@ -206,6 +206,7 @@ function parseSettings(obj) {
 
     document.documentElement.style.setProperty('--mympd-thumbnail-size', settings.webuiSettings.uiThumbnailSize + "px");
     document.documentElement.style.setProperty('--mympd-highlightcolor', settings.partition.highlightColor);
+    document.documentElement.style.setProperty('--mympd-highlightcolor-contrast', settings.partition.highlightColorContrast);
 
     //default limit for all cards
     let limit = settings.webuiSettings.uiMaxElementsPerPage;
@@ -324,6 +325,7 @@ function populateSettingsFrm() {
 
     //partition specific settings
     document.getElementById('inputHighlightColor').value = settings.partition.highlightColor;
+    document.getElementById('inputHighlightColorContrast').value = settings.partition.highlightColorContrast;
     document.getElementById('inputMpdStreamPort').value = settings.partition.mpdStreamPort;
     document.getElementById('inputStreamUri').value = settings.partition.streamUri;
 
@@ -962,6 +964,7 @@ function savePartitionSettings(closeModal) {
     if (formOK === true) {
         const params = {
             "highlightColor": document.getElementById('inputHighlightColor').value,
+            "highlightColorContrast": document.getElementById('inputHighlightColorContrast').value,
             "mpdStreamPort": Number(mpdStreamPortEl.value),
             "streamUri": streamUriEl.value
         };

@@ -451,6 +451,13 @@ bool mympd_api_settings_partition_set(sds key, sds value, int vtype, validate_ca
         }
         partition_state->highlight_color = sds_replace(partition_state->highlight_color, value);
     }
+    else if (strcmp(key, "highlightColorContrast") == 0 && vtype == MJSON_TOK_STRING) {
+        if (vcb_ishexcolor(value) == false) {
+            *error = set_invalid_value(*error, key, value);
+            return false;
+        }
+        partition_state->highlight_color_contrast = sds_replace(partition_state->highlight_color_contrast, value);
+    }
     else if (strcmp(key, "mpdStreamPort") == 0 && vtype == MJSON_TOK_NUMBER) {
         unsigned mpd_stream_port = (unsigned)strtoumax(value, NULL, 10);
         if (mpd_stream_port > MPD_PORT_MAX) {
@@ -743,6 +750,7 @@ void mympd_api_settings_statefiles_partition_read(struct t_partition_state *part
     partition_state->jukebox_unique_tag.tags[0] = state_file_rw_int(workdir, partition_state->state_dir, "jukebox_unique_tag", partition_state->jukebox_unique_tag.tags[0], 0, MPD_TAG_COUNT, true);
     partition_state->jukebox_ignore_hated = state_file_rw_bool(workdir, partition_state->state_dir, "jukebox_ignore_hated", MYMPD_JUKEBOX_IGNORE_HATED, true);
     partition_state->highlight_color = state_file_rw_string_sds(workdir, partition_state->state_dir, "highlight_color", partition_state->highlight_color, vcb_ishexcolor, true);
+    partition_state->highlight_color_contrast = state_file_rw_string_sds(workdir, partition_state->state_dir, "highlight_color_contrast", partition_state->highlight_color_contrast, vcb_ishexcolor, true);
     partition_state->mpd_stream_port = state_file_rw_uint(workdir, partition_state->state_dir, "mpd_stream_port", partition_state->mpd_stream_port, MPD_PORT_MIN, MPD_PORT_MAX, true);
     partition_state->stream_uri = state_file_rw_string_sds(workdir, partition_state->state_dir, "stream_uri", partition_state->stream_uri, vcb_isuri, true);
 }
@@ -822,6 +830,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_bool(buffer, "jukeboxIgnoreHated", partition_state->jukebox_ignore_hated, true);
     buffer = tojson_bool(buffer, "autoPlay", partition_state->auto_play, true);
     buffer = tojson_char(buffer, "highlightColor", partition_state->highlight_color, true);
+    buffer = tojson_char(buffer, "highlightColorContrast", partition_state->highlight_color_contrast, true);
     buffer = tojson_uint(buffer, "mpdStreamPort", partition_state->mpd_stream_port, true);
     buffer = tojson_char(buffer, "streamUri", partition_state->stream_uri, true);
     buffer = sdscat(buffer, "\"presets\": [");

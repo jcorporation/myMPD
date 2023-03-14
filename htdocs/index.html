@@ -40,10 +40,10 @@
         <a class="alwaysEnabled" href="#offcanvasMenu" id="mainMenu" data-bs-toggle="offcanvas" data-title-phrase="myMPD menu">
           <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
             <ellipse class="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#6c757d"/>
-            <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
-            <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
-            <path d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
-            <path d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
+            <path class="logoFg" d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
+            <path class="logoFg" d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
+            <path class="logoFg" d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
+            <path class="logoFg" d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
           </svg>
         </a>
       </div>
@@ -56,10 +56,10 @@
       <h4 class="offcanvas-title">
         <svg class="me-2" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
           <ellipse class="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
-          <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
-          <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
-          <path d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
-          <path d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
+          <path class="logoFg" d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
+          <path class="logoFg" d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
+          <path class="logoFg" d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
+          <path class="logoFg" d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
         </svg>myMPD</h4>
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
@@ -1085,6 +1085,15 @@
                     <input class="form-control" type="color" id="inputHighlightColor"/>
                   </div>
                 </div>
+                <div class="row mb-3">
+                  <label class="col-sm-4 col-form-label" for="inputHighlightColorContrast">
+                    <span data-phrase="Highlight contrast color"></span>
+                    <small class="mi mi-small ms-1" data-title-phrase="Partition specific setting">dashboard</small>
+                  </label>
+                  <div class="col-sm-8">
+                    <input class="form-control" type="color" id="inputHighlightColorContrast"/>
+                  </div>
+                </div>
                 <div id="themeFrm"></div>
                 <div class="mb-3 row featMobile">
                   <label class="col-sm-4 col-form-label" for="inputScaleRatio">
@@ -1546,11 +1555,11 @@
             <div class="tab-pane active" id="tabAbout">
               <h4 class="mb-3">
               <svg class="me-2" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
-                <ellipse cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
-                <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
-                <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
-                <path d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
-                <path d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
+                <ellipse class="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
+                <path class="logoFg" d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
+                <path class="logoFg" d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
+                <path class="logoFg" d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
+                <path class="logoFg" d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
               </svg>myMPD</h4>
               <ul>
                 <li><span data-phrase="Version"></span>: <span id="mympdVersion"></span></li>
