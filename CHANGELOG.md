@@ -29,6 +29,7 @@ This is a small bugfix release.
 ### Changelog
 
 - Fix: preselect database in "Add to queue modal"
+- Fix: refresh of current displayed playlist
 
 ***
 
