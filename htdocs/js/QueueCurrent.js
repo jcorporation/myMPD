@@ -686,33 +686,46 @@ function saveQueueCheckError(obj) {
  * @param {number} oldSongPos song pos in queue to move
  */
 //eslint-disable-next-line no-unused-vars
-function showSetSongPos(oldSongPos) {
+function showSetSongPos(plist, oldSongPos) {
     cleanupModalId('modalSetSongPos');
+    document.getElementById('inputSongPosNew').value = '';
     document.getElementById('inputSongPosOld').value = oldSongPos;
+    document.getElementById('inputSongPosPlist').value = plist;
     uiElements.modalSetSongPos.show();
 }
 
 /**
- * Sets song position
+ * Sets song position in queue or playlist
  */
 //eslint-disable-next-line no-unused-vars
 function setSongPos() {
     cleanupModalId('modalSetSongPos');
-
+    const plist = document.getElementById('inputSongPosPlist').value;
     const oldSongPos = Number(document.getElementById('inputSongPosOld').value);
     const newSongPosEl = document.getElementById('inputSongPosNew');
-    if (validateIntRangeEl(newSongPosEl, 1, 10000) === true) {
-        //zero based index
-        const newSongPos = Number(newSongPosEl.value) - 1;
-        sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
-            "from": oldSongPos,
-            "to": newSongPos
-        }, setSongPosCheckError, true);
+    if (validateIntRangeEl(newSongPosEl, 1, 99999) === true) {
+        let newSongPos = Number(newSongPosEl.value);
+        if (newSongPos < oldSongPos) {
+            newSongPos--;
+        }
+        if (plist === 'queue') {
+            sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
+                "from": oldSongPos,
+                "to": newSongPos
+            }, setSongPosCheckError, true);
+        }
+        else {
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG", {
+                "plist": plist,
+                "from": oldSongPos,
+                "to": newSongPos
+            }, setSongPosCheckError, true);
+        }
     }
 }
 
 /**
- * Handles the MYMPD_API_QUEUE_PRIO_SET jsonrpc response
+ * Handles the MYMPD_API_QUEUE_MOVE_SONG and  jsonrpc response
  * @param {object} obj jsonrpc response
  */
 function setSongPosCheckError(obj) {

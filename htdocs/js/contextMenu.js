@@ -531,6 +531,7 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                 const plist = getData(table, 'uri');
                 const songpos = getData(dataNode, 'songpos');
                 const playlistLength = getData(table, 'playlistlength');
+                addMenuItem(contextMenuBody, {"cmd": "showSetSongPos", "options": [plist, songpos]}, 'Move song');
                 addMenuItem(contextMenuBody, {"cmd": "removeFromPlaylist", "options": ["single", plist, songpos]}, 'Remove');
                 if (features.featPlaylistRmRange === true) {
                     if (songpos > 0) {
@@ -557,7 +558,7 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                 addMenuItem(contextMenuBody, {"cmd": "showSetSongPriority", "options": [songid]}, 'Set priority');
             }
             else {
-                addMenuItem(contextMenuBody, {"cmd": "showSetSongPos", "options": [songpos]}, 'Move song');
+                addMenuItem(contextMenuBody, {"cmd": "showSetSongPos", "options": ["queue", songpos]}, 'Move song');
             }
             if (songid === currentState.currentSongId) {
                 addMenuItemsSingleActions(contextMenuBody);

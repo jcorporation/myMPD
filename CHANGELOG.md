@@ -15,6 +15,8 @@ This release reworks the context menus. myMPD now uses the offcanvas component f
 - Feat: improve queue sort handling #983
 - Feat: use offcanvas instead of popover for context menus #974
 - Feat: better compression of webfont #991
+- Feat: add option to change song position in queue/playlist without drag and drop support
+- Feat: configurable highlight contrast color
 - Upd: bootstrap.native 5.0.4
 - Upd: libmympdclient 1.0.18
 
