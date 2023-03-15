@@ -63,7 +63,7 @@ umask 0022
 
 #get myMPD version
 VERSION=$(grep "  VERSION" CMakeLists.txt | sed 's/  VERSION //')
-COPYRIGHT="myMPD ${VERSION} | (c) 2018-2022 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
+COPYRIGHT="myMPD ${VERSION} | (c) 2018-2023 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
 
 MYMPD_MINIFY_JS="1"
 if [ -f .git/HEAD ] && ! grep -q "master" .git/HEAD
