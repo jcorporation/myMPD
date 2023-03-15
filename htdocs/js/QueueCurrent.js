@@ -683,6 +683,7 @@ function saveQueueCheckError(obj) {
 
 /**
  * Shows the set song position modal
+ * @param {string} plist the playlist name or the special value "queue" to move the song
  * @param {number} oldSongPos song pos in queue to move
  */
 //eslint-disable-next-line no-unused-vars
