@@ -31,6 +31,7 @@ This is a small bugfix release.
 
 - Fix: preselect database in "Add to queue modal"
 - Fix: refresh of current displayed playlist
+- Fix: do not refresh settings, if a settings modal is shown #1002
 
 ***
 
