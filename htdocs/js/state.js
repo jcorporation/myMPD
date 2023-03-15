@@ -221,25 +221,22 @@ function parseState(obj) {
     //handle mpd update status
     toggleAlert('alertUpdateDBState', (obj.result.updateState === 0 ? false : true), tn('Updating MPD database'));
     
-    //hanlde myMPD cache update status
+    //handle myMPD cache update status
     toggleAlert('alertUpdateCacheState', obj.result.updateCacheState, tn('Updating caches'));
 
-    //check if we need to get settings
-    let getNewSettings = false;
-    if (localSettings.partition !== obj.result.partition) {
-        //partition has changed, fetch new settings
-        getNewSettings = true;
-    }
-    //refresh settings if mpd is not connected or ui is disabled
-    //ui is disabled at startup
-    if (settings.partition.mpdConnected === false ||
-        uiEnabled === false)
+    //check if we need to refresh the settings
+    if (localSettings.partition !== obj.result.partition || /* partition has changed */
+        settings.partition.mpdConnected === false ||        /* mpd is not connected */
+        uiEnabled === false)                                /* ui is disabled at startup */
     {
-        logDebug((settings.partition.mpdConnected === false ? 'MPD disconnected' : 'UI disabled') + ' - refreshing settings');
-        getNewSettings = true;
-    }
-
-    if (getNewSettings === true) {
+        if (document.getElementById('modalSettings').classList.contains('show') ||
+            document.getElementById('modalConnection').classList.contains('show') ||
+            document.getElementById('modalQueueSettings').classList.contains('show'))
+        {
+            //do not refresh settings, if a settings modal is open
+            return;
+        }
+        logDebug('Refreshing settings');
         getSettings();
     }
 }
