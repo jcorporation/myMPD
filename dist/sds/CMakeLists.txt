@@ -16,10 +16,3 @@ target_include_directories(sds
   PRIVATE
     ${PROJECT_SOURCE_DIR}
 )
-
-if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
-  target_compile_options(sds
-    PRIVATE
-      "-Wno-unused-but-set-variable"
-  )
-endif()

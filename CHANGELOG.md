@@ -20,6 +20,7 @@ This release reworks the context menus. myMPD now uses the offcanvas component f
 - Upd: bootstrap.native 5.0.4
 - Upd: libmympdclient 1.0.18
 - Upd: sds
+- Upd: use asserts in release build
 
 ***
 
