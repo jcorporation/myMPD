@@ -23,7 +23,7 @@ This release reworks the context menus. myMPD now uses the offcanvas component f
 
 ***
 
-## myMPD v10.2.6 (not yet released)
+## myMPD v10.2.6 (2023-03-20)
 
 This is a small bugfix release.
 
