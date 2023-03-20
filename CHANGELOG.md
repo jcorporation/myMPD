@@ -4,6 +4,18 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v10.2.6 (2023-03-20)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: preselect database in "Add to queue modal"
+- Fix: refresh of current displayed playlist
+- Fix: do not refresh settings, if a settings modal is shown #1002
+
+***
+
 ## myMPD v10.2.5 (2023-03-10)
 
 This is a small bugfix release.
