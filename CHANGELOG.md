@@ -24,6 +24,16 @@ This release reworks the context menus. myMPD now uses the offcanvas component f
 
 ***
 
+## myMPD v10.2.7 (not yet released)
+
+This is a small bugfix release.
+
+- Fix: add btn-secondary class in ligature select modal #1007
+
+### Changelog
+
+***
+
 ## myMPD v10.2.6 (2023-03-20)
 
 This is a small bugfix release.
