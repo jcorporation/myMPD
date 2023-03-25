@@ -8,6 +8,8 @@ https://github.com/jcorporation/myMPD/
 
 This is a small bugfix release.
 
+- Fix: add btn-secondary class in ligature select modal #1007
+
 ### Changelog
 
 ***

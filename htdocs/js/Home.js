@@ -157,7 +157,7 @@ function populateHomeIconLigatures() {
         );
         for (const icon of materialIcons[cat]) {
             listHomeIconLigature.appendChild(
-                elCreateText('button', {"class": ["btn", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon)
+                elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon)
             );
         }
     }
