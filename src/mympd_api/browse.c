@@ -184,6 +184,8 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
         }
         else if (strcmp(sort, "LastModified") == 0) {
             sort_by_last_modified = true;
+            //swap order
+            sortdesc = sortdesc == false ? true : false;
         }
         else {
             MYMPD_LOG_WARN("Unknown sort tag: %s", sort);
