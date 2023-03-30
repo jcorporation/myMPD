@@ -23,15 +23,6 @@ This release reworks the context menus. myMPD now uses the offcanvas component f
 - Upd: sds
 - Upd: long-press-event 2.4.6 #1009
 - Upd: use asserts in release build
-
-***
-
-## myMPD v10.2.7 (not yet released)
-
-This is a small bugfix release.
-
-### Changelog
-
 - Fix: add btn-secondary class in ligature select modal #1007
 
 ***
