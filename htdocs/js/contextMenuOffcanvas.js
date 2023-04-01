@@ -102,7 +102,9 @@ function createContextMenuOffcanvas(target, contextMenuEl, title, contentCallbac
     if (contentCallback2 !== undefined &&
         typeof contentCallback2 === 'function')
     {
-        addDivider(contextMenuBody);
+        contextMenuBody.appendChild(
+            elCreateEmpty('div', {"class": ["dropdown-divider2"]})
+        );
         const contextMenuSubtitle = elCreateEmpty('h4', {"class": ["offcanvas-title", "ms-3", "mt-4", "mb-2"]});
         contextMenuBody.appendChild(contextMenuSubtitle);
         contentCallback2(target, contextMenuSubtitle, contextMenuBody);

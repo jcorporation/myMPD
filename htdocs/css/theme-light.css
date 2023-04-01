@@ -65,3 +65,7 @@ html[data-bs-theme="light"] .btn-dark {
 html[data-bs-theme="light"] .album-cover {
   border-color: var(--bs-gray-500) !important;
 }
+
+html[data-bs-theme="light"] .dropdown-divider2 {
+  border-top: 1px solid var(--bs-dark);
+}

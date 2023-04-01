@@ -5,7 +5,7 @@
 */
 
 html[data-bs-theme="dark"] {
-  --bs-dropdown-divider-bg: var(--bs-gray-100);
+  --bs-dropdown-divider-bg: var(--bs-gray-600);
   --bs-body-color: var(--bs-light);
 }
 
@@ -54,4 +54,8 @@ html[data-bs-theme="dark"] .table-hover > tbody > tr:hover > * {
 
 html[data-bs-theme="dark"] div#homeActions > button {
   color: var(--bs-light);
+}
+
+html[data-bs-theme="dark"] .dropdown-divider2 {
+  border-top: 1px solid var(--bs-light);
 }
