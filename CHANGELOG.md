@@ -19,6 +19,7 @@ This release reworks the context menus. myMPD now uses the offcanvas component f
 - Feat: configurable highlight contrast color
 - Feat: reverse order for last-modified #1008
 - Upd: bootstrap.native 5.0.4
+- Upd: Bootstrap 5.3.0-alpha2
 - Upd: libmympdclient 1.0.18
 - Upd: sds
 - Upd: long-press-event 2.4.6 #1009
