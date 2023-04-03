@@ -108,5 +108,11 @@ function createContextMenuOffcanvas(target, contextMenuEl, title, contentCallbac
         const contextMenuSubtitle = elCreateEmpty('h4', {"class": ["offcanvas-title", "ms-3", "mt-4", "mb-2"]});
         contextMenuBody.appendChild(contextMenuSubtitle);
         contentCallback2(target, contextMenuSubtitle, contextMenuBody);
+        //remove empty secondary menu
+        let lastChild = contextMenuBody.lastElementChild;
+        while (lastChild.nodeName !== 'A') {
+            lastChild.remove();
+            lastChild = contextMenuBody.lastElementChild;
+        }
     }
 }
