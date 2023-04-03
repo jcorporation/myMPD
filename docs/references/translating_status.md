@@ -3,7 +3,7 @@
 - es-VE: 584 missing phrases
 - fi-FI: 580 missing phrases
 - fr-FR: fully translated
-- it-IT: 29 missing phrases
+- it-IT: fully translated
 - ja-JP: fully translated
 - ko-KR: 207 missing phrases
 - nl-NL: fully translated
