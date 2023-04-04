@@ -901,5 +901,6 @@
     "solaris": "Solaris",
     "wasapi": "Windows Audio Session API",
     "Warning": "Warnung",
-    "Error": "Fehler"
+    "Error": "Fehler",
+    "Discs": "Discs"
 }

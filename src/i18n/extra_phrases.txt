@@ -48,6 +48,7 @@ Disable repeat
 Disable single mode
 Disable single oneshot
 Disc
+Discs
 Display tags in rows for small displays
 Duplicate home icon
 Duration
