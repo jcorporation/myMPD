@@ -66,6 +66,7 @@ Enable repeat
 Enable single mode
 Enable single oneshot
 Ensemble
+Error
 Error executing script %{script}
 Error executing script %{script}: Can not open or read script file
 Error executing script %{script}: Error in garbage collector
@@ -247,6 +248,7 @@ Volume max.
 Volume min.
 Volume step
 votes
+Warning
 Web notifications
 Work
 Edit script
