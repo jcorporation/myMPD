@@ -899,5 +899,8 @@
     "sles": "OpenSL ES",
     "snapcast": "SnapCast",
     "solaris": "Solaris",
-    "wasapi": "Windows Audio Session API"
+    "wasapi": "Windows Audio Session API",
+    "Warning": "Waarschuwing",
+    "Error": "Fout",
+    "Discs": "Discs"
 }
