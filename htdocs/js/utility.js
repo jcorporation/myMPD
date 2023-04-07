@@ -294,12 +294,6 @@ function parseCmdFromJSON(event, str) {
  * @param {object} cmd string to parse
  */
 function parseCmd(event, cmd) {
-    if (typeof cmd === 'string') {
-        //TODO: remove
-        logError('Invalid type of cmd');
-        parseCmdFromJSON(event, cmd);
-        return;
-    }
     if (event !== null &&
         event !== undefined)
     {
