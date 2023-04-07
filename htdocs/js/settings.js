@@ -1159,7 +1159,7 @@ function setNavbarIcons() {
              icon.options[0] === 'Queue' ||
              icon.options[0] === 'Playback'))
         {
-            a.setAttribute('data-popover', 'Navbar' + icon.options.join(''));
+            a.setAttribute('data-contextmenu', 'Navbar' + icon.options.join(''));
         }
         if (icon.options[0] === 'Queue' &&
             icon.options.length === 1)

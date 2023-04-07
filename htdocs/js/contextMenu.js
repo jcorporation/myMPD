@@ -33,7 +33,7 @@ function showContextMenu(event) {
         target = target.parentNode;
     }
     
-    const contextMenuType = target.getAttribute('data-popover');
+    const contextMenuType = target.getAttribute('data-contextmenu');
     logDebug('Create new context menu of type ' + contextMenuType);
     switch (contextMenuType) {
         case 'NavbarPlayback':
@@ -111,7 +111,7 @@ function addMenuItem(contextMenuBody, cmd, text) {
  * @param {HTMLElement} popoverBody element to append the menu items
  */
 function addMenuItemsNavbarActions(target, popoverBody) {
-    const type = target.getAttribute('data-popover');
+    const type = target.getAttribute('data-contextmenu');
     switch(type) {
         case 'NavbarPlayback':
             addMenuItem(popoverBody, {"cmd": "openModal", "options": ["modalQueueSettings"]}, 'Playback settings');

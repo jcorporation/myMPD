@@ -392,7 +392,7 @@ function parseRadioFavoritesList(obj) {
     let cols = cardContainer.querySelectorAll('.col');
     const rowTitle = tn(webuiSettingsDefault.clickRadioFavorites.validValues[settings.webuiSettings.clickRadioFavorites]);
     for (let i = 0; i < nrItems; i++) {
-        const card = elCreateNodes('div', {"data-popover": "webradio", "class": ["card", "card-grid", "clickable"], "tabindex": 0}, [
+        const card = elCreateNodes('div', {"data-contextmenu": "webradio", "class": ["card", "card-grid", "clickable"], "tabindex": 0}, [
             elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "title": rowTitle}),
             elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "p-2"]}, [
                 document.createTextNode(obj.result.data[i].Name),

@@ -428,16 +428,16 @@ function initNavs() {
     }, false);
 
     navbarMain.addEventListener('contextmenu', function(event) {
-        if (event.target.getAttribute('data-popover') === null &&
-            event.target.parentNode.getAttribute('data-popover') === null)
+        if (event.target.getAttribute('data-contextmenu') === null &&
+            event.target.parentNode.getAttribute('data-contextmenu') === null)
         {
             return;
         }
         showContextMenu(event);
     }, false);
     navbarMain.addEventListener('long-press', function(event) {
-        if (event.target.getAttribute('data-popover') === null &&
-            event.target.parentNode.getAttribute('data-popover') === null)
+        if (event.target.getAttribute('data-contextmenu') === null &&
+            event.target.parentNode.getAttribute('data-contextmenu') === null)
         {
             return;
         }

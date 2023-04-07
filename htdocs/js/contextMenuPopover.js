@@ -141,7 +141,7 @@ function createPopoverInit(target, title, bodyTemplate) {
         template: template, content: document.createTextNode('dummy')
     };
 
-    let popoverType = target.getAttribute('data-popover');
+    let popoverType = target.getAttribute('data-contextmenu');
     if (popoverType === null) {
         popoverType = target.getAttribute('data-col');
     }

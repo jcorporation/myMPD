@@ -282,7 +282,7 @@ function parseDatabaseAlbumList(obj) {
         }
 
         let image = '';
-        const card = elCreateEmpty('div', {"data-popover": "album", "class": ["card", "card-grid", "clickable"]});
+        const card = elCreateEmpty('div', {"data-contextmenu": "album", "class": ["card", "card-grid", "clickable"]});
 
         image = '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri);
         card.appendChild(
@@ -388,7 +388,7 @@ function saveColsDatabaseAlbumList() {
         }
 
         let image = '';
-        const card = elCreateEmpty('div', {"data-popover": "album", "class": ["card", "card-grid", "clickable"]});
+        const card = elCreateEmpty('div', {"data-contextmenu": "album", "class": ["card", "card-grid", "clickable"]});
 
         image = '/tagart?uri=' + myEncodeURIComponent(obj.result.tag + '/' + obj.result.data[i].value);
         if (obj.result.pics === true) {

@@ -322,7 +322,7 @@ function setCols(tableName) {
     const th = elCreateEmpty('th', {"data-col": "Action"});
     if (features.featTags === true) {
         th.appendChild(
-            elCreateText('a', {"href": "#", "data-action": "popover", "data-popover": "columns",
+            elCreateText('a', {"href": "#", "data-action": "popover", "data-contextmenu": "columns",
                 "class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": "Columns"}, 'settings')
         );
     }
@@ -429,7 +429,7 @@ function toggleSort(th, colName) {
  * @param {HTMLElement} el replacement row
  */
 function replaceTblRow(row, el) {
-    const menuEl = row.querySelector('[data-popover]');
+    const menuEl = row.querySelector('[data-contextmenu]');
     if (menuEl) {
         hidePopover();
     }
@@ -451,7 +451,7 @@ function addDiscRow(disc, album, albumartist, colspan) {
         ),
         elCreateTextTnNr('td', {"colspan": (colspan - 1)}, 'Discnum', disc),
         elCreateNode('td', {"data-col": "Action"},
-            elCreateText('a', {"data-action": "popover", "data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"],
+            elCreateText('a', {"data-action": "popover", "data-contextmenu": "disc", "href": "#", "class": ["mi", "color-darkgrey"],
                 "data-title-phrase":"Actions"}, ligatureMore)
         )
     ]);
