@@ -899,5 +899,8 @@
     "sles": "sles",
     "snapcast": "snapcast",
     "solaris": "solaris",
-    "wasapi": "wasapi"
+    "wasapi": "wasapi",
+    "Warning": "Предупреждение",
+    "Error": "Ошибка",
+    "Discs": "Диски"
 }
