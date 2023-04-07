@@ -227,8 +227,7 @@ function clickFolder(uri) {
         "scrollPos": getScrollPosY()
     };
     //reset filter and open folder
-    app.current.filter = '-';
-    appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, 'dir', uri);
+    appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, '-', app.current.sort, 'dir', uri);
 }
 
 /**
