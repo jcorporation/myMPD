@@ -434,8 +434,7 @@ function addMenuItemsPlaylistActions(dataNode, contextMenuBody, type, uri, name)
             addDivider(contextMenuBody);
             if (app.id === 'BrowseRadioFavorites') {
                 let image = getData(dataNode, 'image');
-                if (isHttpUri(image) === false)
-                {
+                if (isHttpUri(image) === false) {
                     image = basename(image, false);
                 }
                 addMenuItem(contextMenuBody, {"cmd": "addRadioFavoriteToHome", "options": [uri, type, name, image]}, 'Add to homescreen');
