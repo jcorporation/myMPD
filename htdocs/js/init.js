@@ -295,7 +295,9 @@ function appInit() {
             return;
         }
         const cmd = keymap[event.key];
-        if (cmd && typeof window[cmd.cmd] === 'function') {
+        if (cmd &&
+            typeof window[cmd.cmd] === 'function')
+        {
             if (keymap[event.key].feature === undefined ||
                 features[keymap[event.key].feature] === true)
             {
