@@ -78,11 +78,11 @@ function unsetUpdateView(el) {
 
 /**
  * Replaces special characters with underscore
- * @param {string} x string to replace
+ * @param {string} str string to replace
  * @returns {string} result string
  */
-function r(x) {
-    return x.replace(/[^\w-]/g, '_');
+function r(str) {
+    return str.replace(/[^\w-]/g, '_');
 }
 
 /**
@@ -121,14 +121,14 @@ function joinArray(a) {
 
 /**
  * Escape a MPD filter value
- * @param {string} x value to escape
+ * @param {string} str value to escape
  * @returns {string} escaped value
  */
-function escapeMPD(x) {
-    if (typeof x === 'number') {
-        return x;
+function escapeMPD(str) {
+    if (typeof str === 'number') {
+        return str;
     }
-    return x.replace(/(["'])/g, function(m0, m1) {
+    return str.replace(/(["'])/g, function(m0, m1) {
         switch(m1) {
             case '"':  return '\\"';
             case '\'': return '\\\'';
@@ -139,14 +139,14 @@ function escapeMPD(x) {
 
 /**
  * Unescape a MPD filter value
- * @param {string} x value to unescape
+ * @param {string} str value to unescape
  * @returns {string} unescaped value
  */
-function unescapeMPD(x) {
-    if (typeof x === 'number') {
-        return x;
+function unescapeMPD(str) {
+    if (typeof str === 'number') {
+        return str;
     }
-    return x.replace(/(\\'|\\"|\\\\)/g, function(m0, m1) {
+    return str.replace(/(\\'|\\"|\\\\)/g, function(m0, m1) {
         switch(m1) {
             case '\\"':  return '"';
             case '\\\'': return '\'';
@@ -281,7 +281,7 @@ function genId(str) {
 /**
  * Parses a string to a javascript command object
  * @param {Event} event triggering event
- * @param {object} str string to parse
+ * @param {string} str string to parse
  */
 function parseCmdFromJSON(event, str) {
     const cmd = JSON.parse(str);
