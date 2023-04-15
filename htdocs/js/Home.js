@@ -636,7 +636,7 @@ function addSongToHome(uri, type, name) {
  */
 //eslint-disable-next-line no-unused-vars
 function addSearchToHome() {
-    _addHomeIcon('replaceQueue', tn('Current search'), '', 'saved_search', ['search', app.current.search]);
+    _addHomeIcon('replaceQueue', tn('Current search'), 'saved_search', '', ['search', app.current.search]);
 }
 
 /**
