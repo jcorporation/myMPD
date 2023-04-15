@@ -191,7 +191,7 @@ function addMenuItemsSingleActions(contextMenuBody) {
 
 /**
  * Appends album actions to the context menu
- * @param {HTMLElement} dataNode element with the album data
+ * @param {HTMLElement | EventTarget} dataNode element with the album data
  * @param {HTMLElement} contextMenuTitle element to set the menu header
  * @param {HTMLElement} contextMenuBody element to append the menu items
  * @param {object} [albumArtist] array of album artist names
@@ -692,13 +692,13 @@ function createMenuHome(target, contextMenuTitle, contextMenuBody) {
             break;
         case 'song':
         case 'stream':
-            addMenuItemsSongActions(contextMenuBody, null, href.options[1], type, href.options[1]);
+            addMenuItemsSongActions(null, contextMenuBody, href.options[1], type, href.options[1]);
             break;
         case 'search':
             addMenuItemsSearchActions(contextMenuBody, href.options[1]);
             break;
         case 'album':
-            addMenuItemsAlbumActions(contextMenuBody, null, href.options[1], href.options[2]);
+            addMenuItemsAlbumActions(null, null, contextMenuBody, href.options[1], href.options[2]);
             break;
         case 'view':
         case 'externalLink':
