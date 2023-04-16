@@ -286,7 +286,7 @@ var __publicField = (obj, key, value) => {
   const dataBsDismiss = "data-bs-dismiss";
   const alertString = "alert";
   const alertComponent = "Alert";
-  const version = "5.0.5";
+  const version = "5.0.6";
   const Version = version;
   class BaseComponent {
     /**
@@ -1178,6 +1178,7 @@ var __publicField = (obj, key, value) => {
     const element = target && le(target, dropdownSelector);
     const self = element && getDropdownInstance(element);
     if (self) {
+      e2.stopPropagation();
       self.toggle();
       if (element && isEmptyAnchor(element))
         e2.preventDefault();
