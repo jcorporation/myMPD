@@ -228,7 +228,9 @@ function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, a
         if (tag === tagAlbumArtist) {
             addMenuItem(contextMenuBody, {"cmd": "gotoAlbumList", "options": [tagAlbumArtist, albumArtist]}, 'Show all albums from artist');
         }
-        else if (dataNode !== null && albumFilters.includes(tag)) {
+        else if (dataNode !== null &&
+                 albumFilters.includes(tag))
+        {
             const value = getData(dataNode, tag);
             if (value !== undefined) {
                 addMenuItem(contextMenuBody, {"cmd": "gotoAlbumList", "options": [tag, value]}, 'Show all albums from ' + tag);
@@ -283,9 +285,7 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
             addMenuItem(contextMenuBody, {"cmd": "addSongToHome", "options": [uri, type, name]}, 'Add to homescreen');
         }
     }
-    if (app.id === 'BrowseRadioRadiobrowser' &&
-        dataNode !== null)
-    {
+    if (app.id === 'BrowseRadioRadiobrowser') {
         const uuid = getData(dataNode, 'RADIOBROWSERUUID');
         addDivider(contextMenuBody);
         addMenuItem(contextMenuBody, {"cmd": "showRadiobrowserDetails", "options": [uuid]}, 'Webradio details');
@@ -301,9 +301,7 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
             "Bitrate": getData(dataNode, 'bitrate'),
         }]}, 'Add to favorites');
     }
-    if (app.id === 'BrowseRadioWebradiodb' &&
-        dataNode !== null)
-    {
+    else if (app.id === 'BrowseRadioWebradiodb') {
         addDivider(contextMenuBody);
         addMenuItem(contextMenuBody, {"cmd": "showWebradiodbDetails", "options": [uri]}, 'Webradio details');
         addMenuItem(contextMenuBody, {"cmd": "showEditRadioFavorite", "options": [{
@@ -319,7 +317,7 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
             "Description": getData(dataNode, 'description')
         }]}, 'Add to favorites');
     }
-    if (app.id === 'QueueCurrent' &&
+    else if (app.id === 'QueueCurrent' &&
         type === 'webradio')
     {
         addDivider(contextMenuBody);
