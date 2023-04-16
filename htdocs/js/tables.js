@@ -684,7 +684,7 @@ function checkResultId(obj, id) {
 }
 
 /**
- * 
+ * Checks the json response for an error object and displays the error in the table body
  * @param {object} obj jsonrpc object to check
  * @param {HTMLElement} tbody body of the table
  * @returns {boolean} true = result is not an error, else false

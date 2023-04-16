@@ -348,7 +348,7 @@ function getMBtagLink(tag, value) {
 }
 
 /**
- * 
+ * Returns MusicBrainz tags as links
  * @param {object} songObj mpd song object
  * @param {boolean} showArtists true=show artists, false=show albumartists
  * @returns {HTMLElement} dom node with musicbrainz links
