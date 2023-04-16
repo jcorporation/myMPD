@@ -14,7 +14,7 @@ function initOutputs() {
         setVolume();
     }, false);
 
-    document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function () {
+    document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function() {
         sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs, true);
     });
 
