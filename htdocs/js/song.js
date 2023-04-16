@@ -7,6 +7,7 @@
 
 /**
  * Initialization function for song elements
+ * @returns {void}
  */
 function initSong() {
     document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
@@ -57,6 +58,7 @@ function initSong() {
 /**
  * Shows the song details modal
  * @param {string} uri song uri
+ * @returns {void}
  */
 function songDetails(uri) {
     sendAPI("MYMPD_API_SONG_DETAILS", {
@@ -106,6 +108,7 @@ function songDetailsRow(thContent, tdContent) {
 /**
  * Parses the MYMPD_API_SONG_DETAILS jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function parseSongDetails(obj) {
     const modal = document.getElementById('modalSongDetails');
@@ -260,6 +263,7 @@ function parseSongDetails(obj) {
  * Gets the song comments
  * @param {string} uri song uri
  * @param {HTMLElement} el container to add the comments
+ * @returns {void}
  */
 function getComments(uri, el) {
     setUpdateView(el);
@@ -319,8 +323,9 @@ function getLyrics(uri, el) {
 
 /**
  * Parses the MYMPD_API_LYRICS_GET jsonrpc response
- * @param {*} el container element to show the lyrics
- * @param {*} obj jsonrpc response
+ * @param {HTMLElement} el container element to show the lyrics
+ * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function createLyricsTabs(el, obj) {
     const lyricsTabs = elCreateEmpty('div', {"class": [ "lyricsTabs"]});
@@ -447,6 +452,7 @@ function createLyricsTabs(el, obj) {
  * Parses unsynced lyrics
  * @param {HTMLElement} parent element to append the lyrics
  * @param {string} text the lyrics
+ * @returns {void}
  */
 function parseUnsyncedLyrics(parent, text) {
     for (const line of text.replace(/\r/g, '').split('\n')) {
@@ -464,6 +470,7 @@ function parseUnsyncedLyrics(parent, text) {
  * @param {HTMLElement} parent element to append the lyrics
  * @param {string} lyrics the lyrics
  * @param {boolean} currentLyrics true = lyrics in playback view, false lyrics in song details modal
+ * @returns {void}
  */
 function parseSyncedLyrics(parent, lyrics, currentLyrics) {
     for (const line of lyrics.replace(/\r/g, '').split('\n')) {
@@ -547,6 +554,7 @@ function voteSong(el) {
  * Sets the state of the song vote button group
  * @param {number} vote the vote 0 = hate, 1 = neutral, 2 = love
  * @param {string} uri song uri
+ * @returns {void}
  */
 function setVoteSongBtns(vote, uri) {
     if (uri === undefined) {

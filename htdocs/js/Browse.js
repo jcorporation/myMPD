@@ -7,6 +7,7 @@
 
 /**
  * Initialization function for the browse view
+ * @returns {void}
  */
 function initBrowse() {
     for (const nav of ['BrowseDatabaseTagListTagDropdown', 'BrowseDatabaseAlbumListTagDropdown',
@@ -23,6 +24,7 @@ function initBrowse() {
 /**
  * Event handler for the navigation dropdown in the browse views
  * @param {event} event triggering event
+ * @returns {void}
  */
 function navBrowseHandler(event) {
     if (event.target.nodeName === 'BUTTON') {
@@ -64,6 +66,7 @@ function navBrowseHandler(event) {
 /**
  * Event handler for links to browse views
  * @param {event} event triggering event
+ * @returns {void}
  */
 function gotoBrowse(event) {
     let target = event.target;
@@ -109,6 +112,7 @@ function gotoBrowse(event) {
  * Go's to the album detail view
  * @param {Array} artist albumartist names
  * @param {string} album album name
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function gotoAlbum(artist, album) {
@@ -119,6 +123,7 @@ function gotoAlbum(artist, album) {
  * Go's to a filtered album list
  * @param {string} tag tag to search
  * @param {Array} value array of values to match
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function gotoAlbumList(tag, value) {
@@ -142,6 +147,7 @@ function gotoAlbumList(tag, value) {
  * Go's to the filesystem view
  * @param {string} uri uri to list
  * @param {*} type "dir" or "plist"
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function gotoFilesystem(uri, type) {
@@ -153,6 +159,7 @@ function gotoFilesystem(uri, type) {
  * Callback function for intersection observer to lazy load cover images
  * @param {object} changes IntersectionObserverEntry objects
  * @param {object} observer IntersectionObserver
+ * @returns {void}
  */
 function setGridImage(changes, observer) {
     changes.forEach(change => {

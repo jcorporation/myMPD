@@ -7,6 +7,7 @@
 
 /**
  * Handles BrowseFilesystem
+ * @returns {void}
  */
 function handleBrowseFilesystem() {
     setFocusId('searchFilesystemStr');
@@ -56,6 +57,7 @@ function handleBrowseFilesystem() {
 
 /**
  * Initialization function for the browse filesystem view
+ * @returns {void}
  */
 function initBrowseFilesystem() {
     document.getElementById('searchFilesystemStr').addEventListener('keyup', function(event) {
@@ -115,6 +117,7 @@ function initBrowseFilesystem() {
 /**
  * Parses the MYMPD_API_DATABASE_FILESYSTEM_LIST response
  * @param {object} obj jsonrpc response object
+ * @returns {void}
  */
  function parseFilesystem(obj) {
     //show images in folder
@@ -186,6 +189,7 @@ function initBrowseFilesystem() {
 
 /**
  * Adds the current directory to a playlist
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistFromFilesystem() {

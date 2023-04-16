@@ -8,6 +8,7 @@
 /**
  * Handler for quick remove button
  * @param {EventTarget} target event target
+ * @returns {void}
  */
 function clickQuickRemove(target) {
     switch(app.id) {
@@ -219,6 +220,7 @@ function clickFilesystemPlaylist(uri, event) {
 /**
  * Handler for click on folder in filesystem view
  * @param {string} uri folder uri
+ * @returns {void}
  */
 function clickFolder(uri) {
     //remember offset for current browse uri
@@ -232,6 +234,7 @@ function clickFolder(uri) {
 
 /**
  * Seeks the current song forward by 5s
+ * @returns {void}
  */
 function seekRelativeForward() {
     seekRelative(5);
@@ -239,6 +242,7 @@ function seekRelativeForward() {
 
 /**
  * Seeks the current song backward by 5s
+ * @returns {void}
  */
 function seekRelativeBackward() {
     seekRelative(-5);
@@ -247,6 +251,7 @@ function seekRelativeBackward() {
 /**
  * Seeks the current song by offset seconds
  * @param {number} offset relative seek offset
+ * @returns {void}
  */
 function seekRelative(offset) {
     sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
@@ -257,6 +262,7 @@ function seekRelative(offset) {
 
 /**
  * Handler for click on play button
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clickPlay() {
@@ -283,6 +289,7 @@ function clickPlay() {
 
 /**
  * Handler for click on stop button
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clickStop() {
@@ -291,6 +298,7 @@ function clickStop() {
 
 /**
  * Handler for click on prev song button
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clickPrev() {
@@ -299,6 +307,7 @@ function clickPrev() {
 
 /**
  * Handler for click on next song button
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clickNext() {
@@ -308,6 +317,7 @@ function clickNext() {
 /**
  * Handler for click on single button
  * @param {string} mode single mode: "0" = off, "1" = single, "oneshot" = single one shot
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clickSingle(mode) {

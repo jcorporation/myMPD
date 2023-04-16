@@ -7,6 +7,7 @@
 
 /**
  * Initializes the maintenance elements
+ * @returns {void}
  */
 function initMaintenance() {
     document.getElementById('modalMaintenance').addEventListener('shown.bs.modal', function () {
@@ -17,6 +18,7 @@ function initMaintenance() {
 
 /**
  * Sets the myMPD loglevel
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function setLoglevel() {
@@ -30,6 +32,7 @@ function setLoglevel() {
 
 /**
  * Clears the covercache
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clearCovercache() {
@@ -38,6 +41,7 @@ function clearCovercache() {
 
 /**
  * Crops the covercache
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function cropCovercache() {
@@ -46,6 +50,7 @@ function cropCovercache() {
 
 /**
  * Removes all playlists by condition
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function deletePlaylists() {
@@ -57,6 +62,7 @@ function deletePlaylists() {
 /**
  * Updates the myMPD caches
  * @param {boolean} force true=forces an update
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function updateCaches(force) {
@@ -69,6 +75,7 @@ function updateCaches(force) {
  * Updates or rescans the database
  * @param {string} uri baseuri
  * @param {boolean} rescan true = rescan, false = update
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function updateDB(uri, rescan) {
@@ -79,6 +86,7 @@ function updateDB(uri, rescan) {
 /**
  * Update database finished handler
  * @param {string} idleEvent mpd idle event
+ * @returns {void}
  */
 function updateDBfinished(idleEvent) {
     //spinner in mounts modal

@@ -7,6 +7,7 @@
 
 /**
  * Browse RadioFavorites handler
+ * @returns {void}
  */
 function handleBrowseRadioFavorites() {
     setFocusId('BrowseRadioFavoritesSearchStr');
@@ -19,6 +20,7 @@ function handleBrowseRadioFavorites() {
 
 /**
  * Initialization function for radio favorites elements
+ * @returns {void}
  */
 function initBrowseRadioFavorites() {
     document.getElementById('addToWebradioFavorites').addEventListener('click', function(event) {
@@ -86,6 +88,7 @@ function getRadioFavoriteUri(filename) {
 
 /**
  * Gets the list of webradio favorites
+ * @returns {void}
  */
 function getRadioFavoriteList() {
     sendAPI("MYMPD_API_WEBRADIO_FAVORITE_LIST", {
@@ -98,6 +101,7 @@ function getRadioFavoriteList() {
 /**
  * Deletes a webradio favorite
  * @param {string} filename filename to delete
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function deleteRadioFavorite(filename) {
@@ -111,6 +115,7 @@ function deleteRadioFavorite(filename) {
 /**
  * Gets the webradio favorite and opens the edit modal
  * @param {string} filename filename to delete
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function editRadioFavorite(filename) {
@@ -123,6 +128,7 @@ function editRadioFavorite(filename) {
 
 /**
  * Shows the add webradio favorite modal
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function manualAddRadioFavorite() {
@@ -142,6 +148,7 @@ function manualAddRadioFavorite() {
 /**
  * Opens the edit modal and populates the values from obj
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function showEditRadioFavorite(obj) {
     cleanupModalId('modalSaveRadioFavorite');
@@ -172,6 +179,7 @@ function showEditRadioFavorite(obj) {
 
 /**
  * Saves a webradio favorite
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveRadioFavorite() {
@@ -193,6 +201,7 @@ function saveRadioFavorite() {
 
 /**
  * Wrapper for _checkWebradioDb that fetches the webradioDB if needed
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function checkWebradioDb() {
@@ -212,6 +221,7 @@ function checkWebradioDb() {
 
 /**
  * Checks the local webradio favorite against the webradioDB entry
+ * @returns {void}
  */
 function _checkWebradioDb() {
     const streamUri = document.getElementById('editRadioFavoriteStreamUri').value;
@@ -288,6 +298,7 @@ function compareWebradioDb() {
 
 /**
  * Updates the local webradio favorite from webradioDB
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function updateFromWebradioDb() {
@@ -305,6 +316,7 @@ function updateFromWebradioDb() {
 
 /**
  * Adds the local webradio favorite to the webradioDB
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addToWebradioDb() {
@@ -325,6 +337,7 @@ function addToWebradioDb() {
 
 /**
  * Updates the webradioDB entry from the local webradio favorite
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function updateWebradioDb() {
@@ -347,6 +360,7 @@ function updateWebradioDb() {
 /**
  * Handler for the MYMPD_API_WEBRADIO_FAVORITE_SAVE jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function saveRadioFavoriteClose(obj) {
     if (obj.error) {
@@ -447,6 +461,7 @@ function parseRadioFavoritesList(obj) {
 /**
  * Adds the quick play button to the webradio favorite icon
  * @param {ChildNode} parentEl the containing element
+ * @returns {void}
  */
 function addRadioFavoritesPlayButton(parentEl) {
     const div = pEl.coverPlayBtn.cloneNode(true);

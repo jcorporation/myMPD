@@ -122,6 +122,7 @@ function elCreateEmpty(tagName, attributes) {
  * Clears the element with given id and appends the new child
  * @param {string} id id of the parent element
  * @param {Element | Node} child element to add
+ * @returns {void}
  */
 function elReplaceChildId(id, child) {
     elReplaceChild(document.getElementById(id), child);
@@ -131,6 +132,7 @@ function elReplaceChildId(id, child) {
  * Clears the given element and appends the new child
  * @param {Element} el id of the parent element
  * @param {Element | Node} child element to add
+ * @returns {void}
  */
 function elReplaceChild(el, child) {
     elClear(el);
@@ -140,6 +142,7 @@ function elReplaceChild(el, child) {
 /**
  * Hides the element with the given id
  * @param {string} id element id
+ * @returns {void}
  */
 function elHideId(id) {
     document.getElementById(id).classList.add('d-none');
@@ -148,6 +151,7 @@ function elHideId(id) {
 /**
  * Shows the element with the given id
  * @param {string} id element id
+ * @returns {void}
  */
 function elShowId(id) {
     document.getElementById(id).classList.remove('d-none');
@@ -156,6 +160,7 @@ function elShowId(id) {
 /**
  * Clears the element with the given id
  * @param {string} id element id to clear
+ * @returns {void}
  */
 function elClearId(id) {
     document.getElementById(id).textContent = '';
@@ -164,6 +169,7 @@ function elClearId(id) {
 /**
  * Hides the element
  * @param {Element | EventTarget} el element to hide
+ * @returns {void}
  */
 function elHide(el) {
     el.classList.add('d-none');
@@ -172,6 +178,7 @@ function elHide(el) {
 /**
  * Shows the element
  * @param {Element} el element to show
+ * @returns {void}
  */
 function elShow(el) {
     el.classList.remove('d-none');
@@ -180,6 +187,7 @@ function elShow(el) {
 /**
  * Clears the element
  * @param {Element} el element to clear
+ * @returns {void}
  */
 function elClear(el) {
     el.textContent = '';
@@ -188,6 +196,7 @@ function elClear(el) {
 /**
  * Disables the element with the given id
  * @param {string} id element id
+ * @returns {void}
  */
 function elDisableId(id) {
     document.getElementById(id).setAttribute('disabled', 'disabled');
@@ -196,6 +205,7 @@ function elDisableId(id) {
 /**
  * Disables the element
  * @param {Node} el element to disable
+ * @returns {void}
  */
 function elDisable(el) {
     el.setAttribute('disabled', 'disabled');
@@ -207,6 +217,7 @@ function elDisable(el) {
 /**
  * Enables the element with the given id
  * @param {string} id element id
+ * @returns {void}
  */
 function elEnableId(id) {
     document.getElementById(id).removeAttribute('disabled');
@@ -215,6 +226,7 @@ function elEnableId(id) {
 /**
  * Enables the element
  * @param {Element | Node} el element to enable
+ * @returns {void}
  */
 function elEnable(el) {
     el.removeAttribute('disabled');
@@ -233,6 +245,7 @@ function elReflow(el) {
 /**
  * Sets the focus on the element with given id
  * @param {string} id element id
+ * @returns {void}
  */
  function setFocusId(id) {
     setFocus(document.getElementById(id));
@@ -241,6 +254,7 @@ function elReflow(el) {
 /**
  * Set the focus on the given element.
  * @param {HTMLElement} el element to focus
+ * @returns {void}
  */
 function setFocus(el) {
     if (userAgentData.isMobile === false) {
@@ -252,7 +266,8 @@ function setFocus(el) {
  * Sets an attribute on the element given by id.
  * @param {string} id element id
  * @param {string} attribute attribute name
- * @param {*} value could be any type
+ * @param {object} value could be any type
+ * @returns {void}
  */
 function setDataId(id, attribute, value) {
     document.getElementById(id)['myMPD-' + attribute] = value;
@@ -262,7 +277,8 @@ function setDataId(id, attribute, value) {
  * Sets an attribute on the given element.
  * @param {Element | Node} el element
  * @param {string} attribute attribute name
- * @param {*} value could be any type
+ * @param {object} value could be any type
+ * @returns {void}
  */
 function setData(el, attribute, value) {
     el['myMPD-' + attribute] = value;
@@ -272,7 +288,7 @@ function setData(el, attribute, value) {
  * Gets the attributes value from the element given by id.
  * @param {string} id element id
  * @param {string} attribute attribute name
- * @returns {*} attribute value
+ * @returns {object} attribute value
  */
 function getDataId(id, attribute) {
     return getData(document.getElementById(id), attribute);
@@ -282,7 +298,7 @@ function getDataId(id, attribute) {
  * Gets the attributes value from the element
  * @param {Element | EventTarget} el element
  * @param {string} attribute attribute name
- * @returns {*} attribute value
+ * @returns {object} attribute value
  */
 function getData(el, attribute) {
     let value = el['myMPD-' + attribute];
@@ -323,7 +339,7 @@ function getSelectValue(el) {
  * Gets the attribute value of the selected option of a select element
  * @param {string} id element id
  * @param {string} attribute attribute name
- * @returns {*} selected option data value
+ * @returns {object} selected option data value
  */
 function getSelectedOptionDataId(id, attribute) {
     return getSelectedOptionData(document.getElementById(id), attribute)
@@ -333,7 +349,7 @@ function getSelectedOptionDataId(id, attribute) {
  * Gets the attribute value of the selected option of a select element
  * @param {Element} el element
  * @param {string} attribute attribute name
- * @returns {*} selected option data value
+ * @returns {object} selected option data value
  */
 function getSelectedOptionData(el, attribute) {
     if (el && el.selectedIndex >= 0) {
@@ -418,6 +434,7 @@ function getYpos(el) {
  * Adds a waiting animation to a button
  * @param {string} id id of the button
  * @param {boolean} waiting true = add animation, false = remove animation
+ * @returns {void}
  */
  function btnWaitingId(id, waiting) {
     btnWaiting(document.getElementById(id), waiting);
@@ -427,6 +444,7 @@ function getYpos(el) {
  * Adds a waiting animation to a button
  * @param {HTMLElement} btn id of the button
  * @param {boolean} waiting true = add animation, false = remove animation
+ * @returns {void}
  */
 function btnWaiting(btn, waiting) {
     if (waiting === true) {
@@ -490,6 +508,7 @@ function toggleBtnGroupValue(btngrp, value) {
  * @param {Element} btngrp button group to toggle
  * @param {string} collapseId id of element to collapse
  * @param {string | number} value value to select
+ * @returns {void}
  */
 function toggleBtnGroupValueCollapse(btngrp, collapseId, value) {
     const activeBtn = toggleBtnGroupValue(btngrp, value);
@@ -533,6 +552,7 @@ function toggleBtnGroup(btn) {
  * Toggles a button group by triggering element and toggle a collapse
  * @param {HTMLElement} el triggering button 
  * @param {string} collapseId id of element to collapse
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function toggleBtnGroupCollapse(el, collapseId) {
@@ -564,7 +584,8 @@ function getBtnGroupValueId(id) {
 /**
  * Toggles the active state of a button
  * @param {string} id id of button to toggle
- * @param {*} state true = active, false = inactive 
+ * @param {boolean | number} state true, 1 = active, false, 0 = inactive
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function toggleBtnId(id, state) {
@@ -574,7 +595,8 @@ function toggleBtnId(id, state) {
 /**
  * Toggles the active state of a button
  * @param {HTMLElement | EventTarget} btn button to toggle
- * @param {boolean | number} state true = active, false = inactive 
+ * @param {boolean | number} state true, 1 = active, false, 0 = inactive
+ * @returns {void}
  */
 function toggleBtn(btn, state) {
     if (state === undefined) {
@@ -596,6 +618,7 @@ function toggleBtn(btn, state) {
  * Mirrors the button horizontal
  * @param {string} id button id to mirror
  * @param {boolean} mirror true = mirror, false = not
+ * @returns {void}
  */
 function mirrorBtnId(id, mirror) {
     mirrorBtn(document.getElementById(id), mirror);
@@ -605,6 +628,7 @@ function mirrorBtnId(id, mirror) {
  * Mirrors the button horizontal
  * @param {HTMLElement | EventTarget} btn button to mirror
  * @param {boolean} mirror true = mirror, false = not
+ * @returns {void}
  */
 function mirrorBtn(btn, mirror) {
     if (mirror === true) {
@@ -637,6 +661,7 @@ function getBtnChkValue(btn) {
  * Toggles a check button
  * @param {string} id id of the button to toggle
  * @param {boolean} state true = active, false = inactive
+ * @returns {void}
  */
 function toggleBtnChkId(id, state) {
     toggleBtnChk(document.getElementById(id), state);
@@ -672,7 +697,8 @@ function toggleBtnChk(btn, state) {
  * Toggles a check button and an assigned collapse
  * @param {string} id the id of the triggering button
  * @param {string} collapseId id of element to collapse
- * @param {boolean | number} state true = active, false = inactive 
+ * @param {boolean | number} state true = active, false = inactive
+ * @returns {void}
  */
 function toggleBtnChkCollapseId(id, collapseId, state) {
     toggleBtnChkCollapse(document.getElementById(id), collapseId, state);
@@ -682,7 +708,8 @@ function toggleBtnChkCollapseId(id, collapseId, state) {
  * Toggles a check button and an assigned collapse
  * @param {HTMLElement} btn triggering button
  * @param {string} collapseId id of element to collapse
- * @param {boolean | number} state true = active, false = inactive 
+ * @param {boolean | number} state true = active, false = inactive
+ * @returns {void}
  */
 function toggleBtnChkCollapse(btn, collapseId, state) {
     const checked = toggleBtnChk(btn, state);
@@ -717,6 +744,7 @@ function toggleBtnChkCollapse(btn, collapseId, state) {
  * Scrolls the container or the window to the y-position
  * @param {Element | ParentNode} container or null
  * @param {number} pos position to scroll to
+ * @returns {void}
  */
 function scrollToPosY(container, pos) {
     if (userAgentData.isMobile === true ||

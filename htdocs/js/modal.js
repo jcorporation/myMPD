@@ -8,6 +8,7 @@
 /**
  * Opens a modal
  * @param {string} modal name of the modal
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function openModal(modal) {
@@ -31,6 +32,7 @@ function openModal(modal) {
 /**
  * Removes all invalid indicators and warning messages from a modal with the given id.
  * @param {string} id id of the modal
+ * @returns {void}
  */
  function cleanupModalId(id) {
     cleanupModal(document.getElementById(id));
@@ -39,6 +41,7 @@ function openModal(modal) {
 /**
  * Removes all invalid indicators and warning messages from a modal pointed by el.
  * @param {Element} el the modal element
+ * @returns {void}
  */
 function cleanupModal(el) {
     //remove validation warnings
@@ -62,6 +65,7 @@ function cleanupModal(el) {
  * @param {string} text text to show (already translated)
  * @param {string} btnText text for the yes button (already translated)
  * @param {Function} callback callback function on confirmation
+ * @returns {void}
  */
  function showConfirm(text, btnText, callback) {
     document.getElementById('modalConfirmText').textContent = text;
@@ -84,6 +88,7 @@ function cleanupModal(el) {
  * @param {string} text text to show (already translated)
  * @param {string} btnText text for the yes button (already translated)
  * @param {Function} callback callback function on confirmation
+ * @returns {void}
  */
 function showConfirmInline(el, text, btnText, callback) {
     const confirm = elCreateNode('div', {"class": ["alert", "alert-danger", "mt-2"]},

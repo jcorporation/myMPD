@@ -57,6 +57,7 @@ function showContextMenu(event) {
  * @param {EventTarget} target event target
  * @param {HTMLElement} contextMenuTitle title element
  * @param {HTMLElement} contextMenuBody element to append the menu item
+ * @returns {void}
  */
 function createMenuColumns(target, contextMenuTitle, contextMenuBody) {
     const menu = elCreateEmpty('form', {});
@@ -82,6 +83,7 @@ function createMenuColumns(target, contextMenuTitle, contextMenuBody) {
 /**
  * Adds a divider to the context menu
  * @param {HTMLElement} contextMenuBody element to append the divider
+ * @returns {void}
  */
 function addDivider(contextMenuBody) {
     if (contextMenuBody.lastChild &&
@@ -98,6 +100,7 @@ function addDivider(contextMenuBody) {
  * @param {HTMLElement} contextMenuBody element to append the menu item
  * @param {object} cmd the command
  * @param {string} text menu text, will be translated
+ * @returns {void}
  */
 function addMenuItem(contextMenuBody, cmd, text) {
     const a = elCreateTextTn('a', {"class": ["dropdown-item"], "href": "#"}, text);
@@ -109,6 +112,7 @@ function addMenuItem(contextMenuBody, cmd, text) {
  * Callback function to create the navbar context menu body
  * @param {EventTarget} target triggering element
  * @param {HTMLElement} popoverBody element to append the menu items
+ * @returns {void}
  */
 function addMenuItemsNavbarActions(target, popoverBody) {
     const type = target.getAttribute('data-contextmenu');
@@ -145,6 +149,7 @@ function addMenuItemsNavbarActions(target, popoverBody) {
  * @param {EventTarget} target triggering element
  * @param {HTMLElement} contextMenuTitle element to set the menu header
  * @param {HTMLElement} contextMenuBody element to append the menu items
+ * @returns {void}
  */
 function addMenuItemsDiscActions(target, contextMenuTitle, contextMenuBody) {
     const dataNode = target.parentNode.parentNode;
@@ -167,6 +172,7 @@ function addMenuItemsDiscActions(target, contextMenuTitle, contextMenuBody) {
 /**
  * Appends single actions for the queue actions context menu
  * @param {HTMLElement} contextMenuBody element to append the menu items
+ * @returns {void}
  */
 function addMenuItemsSingleActions(contextMenuBody) {
     if (settings.partition.single === '0') {
@@ -196,6 +202,7 @@ function addMenuItemsSingleActions(contextMenuBody) {
  * @param {HTMLElement} contextMenuBody element to append the menu items
  * @param {object} [albumArtist] array of album artist names
  * @param {string} [album] album name
+ * @returns {void}
  */
 function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, albumArtist, album) {
     if (dataNode !== null) {
@@ -252,6 +259,7 @@ function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, a
  * @param {string} uri song or stream uri
  * @param {string} type type of the element: song, stream, ...
  * @param {string} name name of the element
+ * @returns {void}
  */
 function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
     if (app.id !== 'QueueCurrent') {
@@ -330,6 +338,7 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
  * Appends search actions to the context menu
  * @param {HTMLElement} contextMenuBody element to append the menu items
  * @param {string} expression search expression
+ * @returns {void}
  */
 function addMenuItemsSearchActions(contextMenuBody, expression) {
     addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": ["search", expression]}, 'Append to queue');
@@ -353,6 +362,7 @@ function addMenuItemsSearchActions(contextMenuBody, expression) {
  * Appends directory actions to the context menu
  * @param {HTMLElement} contextMenuBody element to append the menu items
  * @param {string} baseuri directory
+ * @returns {void}
  */
 function addMenuItemsDirectoryActions(contextMenuBody, baseuri) {
     //songs must be arranged in one album per folder
@@ -389,6 +399,7 @@ function addMenuItemsDirectoryActions(contextMenuBody, baseuri) {
  * @param {HTMLElement} target element with the data
  * @param {HTMLElement} contextMenuTitle element for the menu title
  * @param {HTMLElement} contextMenuBody element to append the menu items
+ * @returns {void}
  */
 function addMenuItemsWebradioFavoritesActions(target, contextMenuTitle, contextMenuBody) {
     const type = getData(target, 'type');
@@ -405,6 +416,7 @@ function addMenuItemsWebradioFavoritesActions(target, contextMenuTitle, contextM
  * Appends actions for webradio favorites home icon to the context menu
  * @param {HTMLElement} contextMenuBody element to append the menu items
  * @param {string} uri webradio favorite uri
+ * @returns {void}
  */
 function addMenuItemsWebradioFavoritesHomeActions(contextMenuBody, uri) {
     addDivider(contextMenuBody);
@@ -418,6 +430,7 @@ function addMenuItemsWebradioFavoritesHomeActions(contextMenuBody, uri) {
  * @param {string} type playlist type: plist, smartpls
  * @param {string} uri playlist uri
  * @param {string} name playlist name
+ * @returns {void}
  */
 function addMenuItemsPlaylistActions(dataNode, contextMenuBody, type, uri, name) {
     addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');

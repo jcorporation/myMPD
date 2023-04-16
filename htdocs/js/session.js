@@ -7,6 +7,7 @@
 
 /**
  * Initialization function for the session elements
+ * @returns {void}
  */
 function initSession() {
     document.getElementById('modalEnterPin').addEventListener('shown.bs.modal', function() {
@@ -23,6 +24,7 @@ function initSession() {
 /**
  * Removes the enter pin dialog from a modal footer.
  * @param {HTMLElement} footer parent element of the enter pin dialog
+ * @returns {void}
  */
  function removeEnterPinFooter(footer) {
     if (footer !== undefined) {
@@ -47,6 +49,7 @@ function initSession() {
  * @param {object} params json object of the original api request
  * @param {Function} callback callback function of the original api request
  * @param {boolean} onerror true = execute callback also on error
+ * @returns {void}
  */
 function createEnterPinFooter(footers, method, params, callback, onerror) {
     const input = elCreateEmpty('input', {"type": "password", "autocomplete": "off", "class": ["form-control", "border-secondary"]});
@@ -105,6 +108,7 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
  * @param {object} params json object of the original api request
  * @param {Function} callback callback function of the original api request
  * @param {boolean} onerror true = execute callback also on error
+ * @returns {void}
  */
 function enterPin(method, params, callback, onerror) {
     session.timeout = 0;
@@ -153,6 +157,7 @@ function enterPin(method, params, callback, onerror) {
 /**
  * Sets the session state.
  * Shows/hides the lock indicator and the login/logout menu entry.
+ * @returns {void}
  */
 function setSessionState() {
     if (session.timeout < getTimestamp()) {
@@ -184,6 +189,7 @@ function setSessionState() {
 
 /**
  * Resets the session timer.
+ * @returns {void}
  */
 function resetSessionTimer() {
     if (sessionTimer !== null) {
@@ -198,6 +204,7 @@ function resetSessionTimer() {
 /**
  * Validates a session by calling the MYMPD_API_SESSION_VALIDATE endpoint
  * and calls setSessionState to update the DOM.
+ * @returns {void}
  */
 function validateSession() {
     sendAPI('MYMPD_API_SESSION_VALIDATE', {}, function(obj) {
@@ -216,6 +223,7 @@ function validateSession() {
 /**
  * Removes a session by calling the MYMPD_API_SESSION_LOGOUT endpoint
  * and calls setSessionState to update the DOM.
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function removeSession() {

@@ -7,6 +7,7 @@
 
 /**
  * Initialization function for the playback settings elements
+ * @returns {void}
  */
 function initSettingsPlayback() {
     initElements(document.getElementById('modalQueueSettings'));
@@ -60,6 +61,7 @@ function initSettingsPlayback() {
 /**
  * Loads a preset
  * @param {string} name preset name to load
+ * @returns {void}
  */
 function loadPreset(name) {
     sendAPI("MYMPD_API_PRESET_LOAD", {
@@ -70,6 +72,7 @@ function loadPreset(name) {
 /**
  * Handler for the MYMPD_API_PRESET_LOAD jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
  function loadPresetCheckError(obj) {
     if (obj.error) {
@@ -86,6 +89,7 @@ function loadPreset(name) {
  * Deletes a preset
  * @param {EventTarget} el triggering element
  * @param {string} name the preset name
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function deletePreset(el, name) {
@@ -99,6 +103,7 @@ function deletePreset(el, name) {
 /**
  * Handler for the MYMPD_API_PRESET_RM jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
  function deletePresetCheckError(obj) {
     if (obj.error) {
@@ -111,6 +116,7 @@ function deletePreset(el, name) {
 
 /**
  * Populates the presets lists
+ * @returns {void}
  */
 function populateListPresets() {
     const presetsEl = document.getElementById('inputPresetName');
@@ -131,6 +137,7 @@ function populateListPresets() {
 
 /**
  * Populates the preset dropdowns
+ * @returns {void}
  */
 function populatePresetDropdowns() {
     const presetDropdowns = [
@@ -160,6 +167,7 @@ function populatePresetDropdowns() {
 /**
  * Toggles the mpd playback mode
  * @param {string} option playback option to toggle
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function togglePlaymode(option) {
@@ -220,6 +228,7 @@ function togglePlaymode(option) {
 
 /**
  * Checks the state of the consume mode
+ * @returns {void}
  */
 function checkConsume() {
     const stateConsume = getBtnGroupValueId('btnConsumeGroup');
@@ -236,6 +245,7 @@ function checkConsume() {
 
 /**
  * Toggle jukebox setting elements
+ * @returns {void}
  */
 function toggleJukeboxSettings() {
     const value = getBtnGroupValueId('btnJukeboxModeGroup');
@@ -282,6 +292,7 @@ function createPresetsListRow(preset) {
 
 /**
  * Populates the playback settings modal
+ * @returns {void}
  */
 function populateQueueSettingsFrm() {
     toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.partition.jukeboxMode);
@@ -328,6 +339,7 @@ function populateQueueSettingsFrm() {
 
 /**
  * Saves the playback settings
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveQueueSettings() {
@@ -382,6 +394,7 @@ function saveQueueSettings() {
 /**
  * Handler for the MYMPD_API_PLAYER_OPTIONS_SET jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function saveQueueSettingsClose(obj) {
     btnWaitingId('btnSaveQueueSettings', false);

@@ -151,6 +151,7 @@ userAgentData.hasIO = 'IntersectionObserver' in window ? true : false;
 
 /**
  * Sets the useragentData object
+ * @returns {void}
  */
 function setUserAgentData() {
     //get interesting browser agent data

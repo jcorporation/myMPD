@@ -7,6 +7,7 @@
 
 /**
  * Initializes the outputs html elements
+ * @returns {void}
  */
 function initOutputs() {
     domCache.volumeBar.addEventListener('change', function() {
@@ -38,6 +39,7 @@ function initOutputs() {
 /**
  * Parses the response of MYMPD_API_PLAYER_OUTPUT_LIST
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function parseOutputs(obj) {
     const outputList = document.getElementById('outputs');
@@ -90,6 +92,7 @@ function parseOutputs(obj) {
 /**
  * Shows the output attributes modal 
  * @param {string} outputName the output name
+ * @returns {void}
  */
 function showListOutputAttributes(outputName) {
     cleanupModalId('modalOutputAttributes');
@@ -112,6 +115,7 @@ function showListOutputAttributes(outputName) {
 /**
  * Creates the output attributes table content
  * @param {object} output output object
+ * @returns {void}
  */
 function parseOutputAttributes(output) {
     document.getElementById('modalOutputAttributesId').value = output.id;
@@ -150,6 +154,7 @@ function parseOutputAttributes(output) {
 
 /**
  * Saves the output attributes
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveOutputAttributes() {
@@ -167,6 +172,7 @@ function saveOutputAttributes() {
 /**
  * Handler for MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function saveOutputAttributesClose(obj) {
     if (obj.error) {
@@ -180,6 +186,7 @@ function saveOutputAttributesClose(obj) {
 /**
  * Parses the response of MYMPD_API_PLAYER_VOLUME_GET
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function parseVolume(obj) {
     if (obj.result.volume === -1) {
@@ -204,6 +211,7 @@ function parseVolume(obj) {
 /**
  * Changes the relative volume 
  * @param {string} dir direction: on of up, down
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function volumeStep(dir) {
@@ -215,6 +223,7 @@ function volumeStep(dir) {
 
 /**
  * Sets the volume to an absolute value
+ * @returns {void}
  */
 function setVolume() {
     sendAPI("MYMPD_API_PLAYER_VOLUME_SET", {

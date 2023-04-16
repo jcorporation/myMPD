@@ -7,6 +7,7 @@
 
 /**
  * Initializes the mounts related elements
+ * @returns {void}
  */
 function initMounts() {
     document.getElementById('listMountsList').addEventListener('click', function(event) {
@@ -60,6 +61,7 @@ function initMounts() {
 /**
  * Unmounts a mount point
  * @param {string} mountPoint mount point
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function unmountMount(mountPoint) {
@@ -70,6 +72,7 @@ function unmountMount(mountPoint) {
 
 /**
  * Mounts a mount
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function mountMount() {
@@ -94,6 +97,7 @@ function mountMount() {
 /**
  * Response handler for MYMPD_API_MOUNT_MOUNT
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function mountMountCheckError(obj) {
     if (obj.error) {
@@ -108,6 +112,7 @@ function mountMountCheckError(obj) {
  * Updates a mount point
  * @param {HTMLElement | EventTarget} el event target
  * @param {string} uri mount point
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function updateMount(el, uri) {
@@ -127,6 +132,7 @@ function updateMount(el, uri) {
  * Shows the edit mount tab from the mount modal
  * @param {string} uri mounted uri
  * @param {string} storage mount point
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showEditMount(uri, storage) {
@@ -151,6 +157,7 @@ function showEditMount(uri, storage) {
 
 /**
  * Shows the list mount tab from the mount modal
+ * @returns {void}
  */
 function showListMounts() {
     cleanupModalId('modalMounts');
@@ -164,6 +171,7 @@ function showListMounts() {
 /**
  * Parses the MYMPD_API_MOUNT_LIST response
  * @param {object} obj jsonrpc response object
+ * @returns {void}
  */
 function parseListMounts(obj) {
     const tbody = document.querySelector('#listMountsList');
@@ -210,6 +218,7 @@ function parseListMounts(obj) {
 /**
  * Parses the MYMPD_API_MOUNT_NEIGHBOR_LIST response
  * @param {object} obj jsonrpc response object
+ * @returns {void}
  */
 function parseNeighbors(obj) {
     const dropdownNeighbors = document.getElementById('dropdownNeighbors').children[0];
@@ -241,6 +250,7 @@ function parseNeighbors(obj) {
 
 /**
  * Populates the urlhandler select in the mount modal
+ * @returns {void}
  */
 function getUrlhandlers() {
     sendAPI("MYMPD_API_MOUNT_URLHANDLER_LIST", {}, function(obj) {

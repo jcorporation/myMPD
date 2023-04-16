@@ -50,6 +50,7 @@ function isHttpUri(uri) {
 /**
  * Removes all is-invalid classes
  * @param {Element} parentEl root element
+ * @returns {void}
  */
 function removeIsInvalid(parentEl) {
     const els = parentEl.querySelectorAll('.is-invalid');
@@ -61,6 +62,7 @@ function removeIsInvalid(parentEl) {
 /**
  * Marks an element as invalid
  * @param {string} id element id
+ * @returns {void}
  */
 function setIsInvalidId(id) {
     setIsInvalid(document.getElementById(id));
@@ -69,6 +71,7 @@ function setIsInvalidId(id) {
 /**
  * Marks an element as invalid
  * @param {Element} el element
+ * @returns {void}
  */
 function setIsInvalid(el) {
     //set is-invalid on parent node

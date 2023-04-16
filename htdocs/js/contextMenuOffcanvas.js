@@ -7,6 +7,7 @@
 
 /**
  * Initializes the offcanvas contextmenu
+ * @returns {void}
  */
 function initContextMenuOffcanvas() {
     document.querySelector('#offcanvasContext > .offcanvas-body').addEventListener('click', function(event) {

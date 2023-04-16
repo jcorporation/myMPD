@@ -7,6 +7,7 @@
 
 /**
  * QueueJukebox handler
+ * @returns {void}
  */
 function handleQueueJukebox() {
     setFocusId('searchQueueJukeboxStr');
@@ -26,6 +27,7 @@ function handleQueueJukebox() {
 
 /**
  * Initializes the jukebox related elements
+ * @returns {void}
  */
 function initQueueJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
@@ -58,6 +60,7 @@ function initQueueJukebox() {
 
 /**
  * Clears the jukebox queue
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clearJukeboxQueue() {
@@ -74,6 +77,7 @@ function clearJukeboxQueue() {
 /**
  * Removes a song / album from the jukebox queue
  * @param {number} pos position
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function delQueueJukeboxSong(pos) {
@@ -92,6 +96,7 @@ function delQueueJukeboxSong(pos) {
 /**
  * Parses the response from MYMPD_API_JUKEBOX_LIST
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function parseJukeboxList(obj) {
     if (checkResultId(obj, 'QueueJukeboxList') === false) {

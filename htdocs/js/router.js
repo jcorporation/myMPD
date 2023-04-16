@@ -7,6 +7,7 @@
 
 /**
  * Shows the current view and highlights the navbar icon
+ * @returns {void}
  */
 function appPrepare() {
     if (app.current.card !== app.last.card ||
@@ -70,6 +71,7 @@ function appPrepare() {
  * @param {string} [tag] tag name
  * @param {string | object} [search] search object or string
  * @param {number} [newScrollPos] new scrolling position
+ * @returns {void}
  */
 function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newScrollPos) {
     //old app
@@ -161,6 +163,7 @@ function isArrayOrString(obj) {
  * @param {object} [sort] sort object
  * @param {string} [tag] tag name
  * @param {string | object} [search] search object or string
+ * @returns {void}
  */
 function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
     if (settingsParsed === 'false') {

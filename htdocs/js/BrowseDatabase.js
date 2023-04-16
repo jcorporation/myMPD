@@ -7,6 +7,7 @@
 
 /**
  * BrowseDatabaseAlbumList handler
+ * @returns {void}
  */
 function handleBrowseDatabaseAlbumList() {
     setFocusId('searchDatabaseAlbumListStr');
@@ -30,6 +31,7 @@ function handleBrowseDatabaseAlbumList() {
 
 /**
  * BrowseDatabaseTagList handler
+ * @returns {void}
  */
 function handleBrowseDatabaseTagList() {
     setFocusId('searchDatabaseTagListStr');
@@ -47,6 +49,7 @@ function handleBrowseDatabaseTagList() {
 
 /**
  * Handles BrowseDatabaseAlbumDetail
+ * @returns {void}
  */
 function handleBrowseDatabaseAlbumDetail() {
     sendAPI("MYMPD_API_DATABASE_ALBUM_DETAIL", {
@@ -58,6 +61,7 @@ function handleBrowseDatabaseAlbumDetail() {
 
 /**
  * Initializes the browse database elements
+ * @returns {void}
  */
 function initBrowseDatabase() {
     document.getElementById('BrowseDatabaseTagListList').addEventListener('click', function(event) {
@@ -246,6 +250,7 @@ function initBrowseDatabase() {
 /**
  * Parsed the MYMPD_API_DATABASE_ALBUM_LIST response
  * @param {object} obj jsonrpc response object
+ * @returns {void}
  */
 function parseDatabaseAlbumList(obj) {
     const cardContainer = document.getElementById('BrowseDatabaseAlbumListList');
@@ -337,6 +342,7 @@ function parseDatabaseAlbumList(obj) {
 
 /**
  * Saves the fields for the database album list
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveColsDatabaseAlbumList() {
@@ -352,6 +358,7 @@ function saveColsDatabaseAlbumList() {
 /**
  * Parsed the MYMPD_API_DATABASE_TAG_LIST response
  * @param {object} obj jsonrpc response object
+ * @returns {void}
  */
  function parseDatabaseTagList(obj) {
     const cardContainer = document.getElementById('BrowseDatabaseTagListList');
@@ -434,6 +441,7 @@ function saveColsDatabaseAlbumList() {
 /**
  * Adds the album play button
  * @param {ChildNode | HTMLElement} parentEl parent element for the button
+ * @returns {void}
  */
 function addAlbumPlayButton(parentEl) {
     const div = pEl.coverPlayBtn.cloneNode(true);
@@ -448,6 +456,7 @@ function addAlbumPlayButton(parentEl) {
 /**
  * Parses the MYMPD_API_DATABASE_ALBUM_DETAIL response
  * @param {object} obj jsonrpc response object
+ * @returns {void}
  */
 function parseAlbumDetails(obj) {
     const table = document.getElementById('BrowseDatabaseAlbumDetailList');
@@ -520,6 +529,7 @@ function parseAlbumDetails(obj) {
 
 /**
  * Go's to the last browse database grid view
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function backToAlbumGrid() {
@@ -529,6 +539,7 @@ function backToAlbumGrid() {
 /**
  * Wrapper for _addAlbum for add buttons in the album detail view
  * @param {string} action action to perform
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addAlbum(action) {
@@ -539,9 +550,10 @@ function addAlbum(action) {
 /**
  * Appends an album to the queue.
  * Wrapper for _addAlbum for home icon action.
- * @param {*} type not used
+ * @param {void} type not used
  * @param {Array} albumArtist array of albumartists
  * @param {string} album album name
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function appendQueueAlbum(type, albumArtist, album) {
@@ -552,9 +564,10 @@ function appendQueueAlbum(type, albumArtist, album) {
 /**
  * Appends an album to the queue and plays it.
  * Wrapper for _addAlbum for home icon action.
- * @param {*} type not used
+ * @param {void} type not used
  * @param {Array} albumArtist array of albumartists
  * @param {string} album album name
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function appendPlayQueueAlbum(type, albumArtist, album) {
@@ -565,9 +578,10 @@ function appendPlayQueueAlbum(type, albumArtist, album) {
 /**
  * Replaces the queue with an album.
  * Wrapper for _addAlbum for home icon action.
- * @param {*} type not used
+ * @param {void} type not used
  * @param {Array} albumArtist array of albumartists
  * @param {string} album album name
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function replaceQueueAlbum(type, albumArtist, album) {
@@ -578,9 +592,10 @@ function replaceQueueAlbum(type, albumArtist, album) {
 /**
  * Replaces the queue with an album and plays it.
  * Wrapper for _addAlbum for home icon action.
- * @param {*} type not used
+ * @param {void} type not used
  * @param {Array} albumArtist array of albumartists
  * @param {string} album album name
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function replacePlayQueueAlbum(type, albumArtist, album) {
@@ -591,9 +606,10 @@ function replacePlayQueueAlbum(type, albumArtist, album) {
 /**
  * Inserts the an album after the current playing song.
  * Wrapper for _addAlbum for home icon action.
- * @param {*} type not used
+ * @param {void} type not used
  * @param {Array} albumArtist array of albumartists
  * @param {string} album album name
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function insertAfterCurrentQueueAlbum(type, albumArtist, album) {
@@ -604,9 +620,10 @@ function insertAfterCurrentQueueAlbum(type, albumArtist, album) {
 /**
  * Inserts the an album after the current playing song and plays it.
  * Wrapper for _addAlbum for home icon action.
- * @param {*} type not used
+ * @param {void} type not used
  * @param {Array} albumArtist array of albumartists
  * @param {string} album album name
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function insertPlayAfterCurrentQueueAlbum(type, albumArtist, album) {
@@ -620,6 +637,7 @@ function insertPlayAfterCurrentQueueAlbum(type, albumArtist, album) {
  * @param {Array} albumArtist array of albumartists
  * @param {string} album album name
  * @param {string} disc optional disc number, "undefined" to add the whole album
+ * @returns {void}
  */
 function _addAlbum(action, albumArtist, album, disc) {
     let expression = '((Album == \'' + escapeMPD(album) + '\')';
@@ -659,7 +677,8 @@ function _addAlbum(action, albumArtist, album, disc) {
 /**
  * Creates and executes the mpd filter expression from the search crumbs and current search values
  * for the album grid search.
- * @param {*} searchStr string to search
+ * @param {string} searchStr string to search
+ * @returns {void}
  */
 function searchDatabaseAlbumList(searchStr) {
     const expression = createSearchExpression(document.getElementById('searchDatabaseAlbumListCrumb'), app.current.filter, getSelectValueId('searchDatabaseAlbumListMatch'), searchStr);

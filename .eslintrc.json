@@ -24,7 +24,9 @@
         "block-scoped-var": "error",
         "camelcase": "error",
         "default-case-last": "error",
-        "eqeqeq": ["error", "always", {"null": "ignore"}],
+        "eqeqeq": ["error", "always", {
+            "null": "ignore"
+        }],
         "no-alert": "error",
         "no-caller": "error",
         "no-console": "off",
@@ -50,6 +52,9 @@
                 "ChildNode",
                 "ParentNode"
             ]
+        }],
+        "jsdoc/require-returns": ["error", {
+            "forceRequireReturn": true
         }]
     }
 }

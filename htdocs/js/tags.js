@@ -10,6 +10,7 @@
  * @param {string} containerId container id (dropdown)
  * @param {string} descId id of the descriptive element
  * @param {string} setTo tag to select
+ * @returns {void}
  */
  function selectTag(containerId, descId, setTo) {
     const btns = document.getElementById(containerId);
@@ -34,6 +35,7 @@
  * Populates a container with buttons for tags
  * @param {string} elId id of the element to populate
  * @param {string} list name of the taglist
+ * @returns {void}
  */
 function addTagList(elId, list) {
     const stack = elCreateEmpty('div', {"class": ["d-grid", "gap-2"]});
@@ -135,6 +137,7 @@ function addTagList(elId, list) {
  * Populates a select element with options for tags
  * @param {string} elId id of the select to populate
  * @param {string} list name of the taglist
+ * @returns {void}
  */
 function addTagListSelect(elId, list) {
     const select = document.getElementById(elId);
@@ -189,8 +192,8 @@ function parseBits(bits) {
 
 /**
  * Returns a tag value as dom element
- * @param {string | object} key the tag type
- * @param {*} value the tag value
+ * @param {string} key the tag type
+ * @param {string | number | object} value the tag value
  * @returns {Node} the created node
  */
 function printValue(key, value) {

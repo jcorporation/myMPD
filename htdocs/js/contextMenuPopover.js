@@ -9,6 +9,7 @@
  * Shows the context menu popover
  * @param {HTMLElement} target calculated target
  * @param {string} contextMenuType type of the context menu
+ * @returns {void}
  */
 function showPopover(target, contextMenuType) {
     hidePopover(target);
@@ -37,6 +38,7 @@ function showPopover(target, contextMenuType) {
 /**
  * Hides all popovers
  * @param {EventTarget} [thisEl] triggering element
+ * @returns {void}
  */
 function hidePopover(thisEl) {
     const popoverEls = document.querySelectorAll('[aria-describedby]');
@@ -125,6 +127,7 @@ function createPopoverInit(target, title, bodyTemplate) {
 /**
  * Creates the click handler for the popover menu
  * @param {HTMLElement} el container of the menu items
+ * @returns {void}
  */
 function createPopoverClickHandler(el) {
     el.addEventListener('click', function(eventClick) {

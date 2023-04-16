@@ -8,6 +8,7 @@
 /**
  * Initializes a table body for drag and drop of rows
  * @param {string} tableId table id
+ * @returns {void}
  */
 function dragAndDropTable(tableId) {
     const tableBody = document.querySelector('#' + tableId + ' > tbody');
@@ -103,6 +104,7 @@ function dragAndDropTable(tableId) {
 /**
  * Initializes a table header for drag and drop of columns
  * @param {string} tableName table name
+ * @returns {void}
  */
 function dragAndDropTableHeader(tableName) {
     const tableHeader = document.querySelector('#' + tableName + 'List > thead > tr');
@@ -248,6 +250,7 @@ function setColTags(tableName) {
  * Creates the select columns checkbox list
  * @param {string} tableName table name
  * @param {HTMLElement} menu element to populate
+ * @returns {void}
  */
 function setColsChecklist(tableName, menu) {
     const tags = setColTags(tableName);
@@ -281,6 +284,7 @@ function setColsChecklist(tableName, menu) {
 /**
  * Sets the table header columns
  * @param {string} tableName table name
+ * @returns {void}
  */
 function setCols(tableName) {
     if (tableName === 'Search' &&
@@ -333,6 +337,7 @@ function setCols(tableName) {
  * Saves the selected columns for the table
  * @param {string} tableName table name
  * @param {HTMLElement} [tableEl] table element or undefined
+ * @returns {void}
  */
 function saveCols(tableName, tableEl) {
     const colsDropdown = document.getElementById(tableName + 'ColsDropdown');
@@ -376,6 +381,7 @@ function saveCols(tableName, tableEl) {
  * Saves the fields for the playback card
  * @param {string} tableName table name
  * @param {string} dropdownId id fo the column select dropdown
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveColsDropdown(tableName, dropdownId) {
@@ -427,6 +433,7 @@ function toggleSort(th, colName) {
  * Replaces a table row
  * @param {HTMLElement} row row to replace
  * @param {HTMLElement} el replacement row
+ * @returns {void}
  */
 function replaceTblRow(row, el) {
     const menuEl = row.querySelector('[data-contextmenu]');
@@ -467,6 +474,7 @@ function addDiscRow(disc, album, albumartist, colspan) {
  * @param {string} list table name to populate
  * @param {Function} [perRowCallback] callback per row
  * @param {Function} [createRowCellsCallback] callback to create the row
+ * @returns {void}
  */
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const table = document.getElementById(list + 'List');
@@ -574,6 +582,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
  * @param {string} list table name
  * @param {number} colspan number of columns
  * @param {boolean} smallWidth true = print data in rows, false = print data in columns
+ * @returns {void}
  */
 function tableRow(row, data, list, colspan, smallWidth) {
     if (data.Type === 'parentDir') {
@@ -730,6 +739,7 @@ function uiSmallWidthTagRows() {
 /**
  * Handles the click on the actions column
  * @param {MouseEvent} event click event
+ * @returns {void}
  */
 function handleActionTdClick(event) {
     event.preventDefault();

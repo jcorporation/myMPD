@@ -7,6 +7,7 @@
 
 /**
  * Initialization function for the timer elements
+ * @returns {void}
  */
 function initTimer() {
     document.getElementById('listTimerList').addEventListener('click', function(event) {
@@ -64,6 +65,7 @@ function initTimer() {
  * Deletes a timer
  * @param {EventTarget} el triggering element
  * @param {number} timerid the timer id
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function deleteTimer(el, timerid) {
@@ -78,6 +80,7 @@ function deleteTimer(el, timerid) {
  * Toggles the timer enabled state
  * @param {EventTarget} target triggering element
  * @param {number} timerid the timer id
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function toggleTimer(target, timerid) {
@@ -99,6 +102,7 @@ function toggleTimer(target, timerid) {
 
 /**
  * Saves the timer
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveTimer() {
@@ -169,6 +173,7 @@ function saveTimer() {
 /**
  * Handler for the MYMPD_API_TIMER_SAVE jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function saveTimerCheckError(obj) {
     if (obj.error) {
@@ -182,6 +187,7 @@ function saveTimerCheckError(obj) {
 /**
  * Shows the edit timer tab
  * @param {number} timerid the timer id
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showEditTimer(timerid) {
@@ -223,6 +229,7 @@ function showEditTimer(timerid) {
 /**
  * Parses the MYMPD_API_TIMER_GET response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function parseEditTimer(obj) {
     filterPlaylistsSelect(0, 'selectTimerPlaylist', '', obj.result.playlist);
@@ -248,6 +255,7 @@ function parseEditTimer(obj) {
 /**
  * Handler for the timer interval select change event
  * @param {number} [value] the timer interval
+ * @returns {void}
  */
 function selectTimerIntervalChange(value) {
     if (value === undefined) {
@@ -296,7 +304,8 @@ function selectTimerIntervalChange(value) {
 
 /**
  * Handler for the timer action change event
- * @param {object} [values] argument values object 
+ * @param {object} [values] argument values object
+ * @returns {void}
  */
 function selectTimerActionChange(values) {
     const el = document.getElementById('selectTimerAction');
@@ -322,6 +331,7 @@ function selectTimerActionChange(values) {
  * Shows the arguments for a timer script
  * @param {HTMLElement} optionEl the selected timer script option element
  * @param {object} values argument values object
+ * @returns {void}
  */
 function showTimerScriptArgs(optionEl, values) {
     if (values === undefined) {
@@ -347,6 +357,7 @@ function showTimerScriptArgs(optionEl, values) {
 
 /**
  * Shows the list timer tab
+ * @returns {void}
  */
 function showListTimer() {
     cleanupModalId('modalTimer');
