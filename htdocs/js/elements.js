@@ -570,7 +570,7 @@ function toggleBtnGroupCollapse(el, collapseId) {
 /**
  * Gets the value from the active button in a button group
  * @param {string} id id of the button group
- * @returns {*} value the value of the active button
+ * @returns {object} value the value of the active button
  */
 function getBtnGroupValueId(id) {
     let activeBtn = document.querySelector('#' + id + ' > .active');

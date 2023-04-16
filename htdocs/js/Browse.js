@@ -146,7 +146,7 @@ function gotoAlbumList(tag, value) {
 /**
  * Go's to the filesystem view
  * @param {string} uri uri to list
- * @param {*} type "dir" or "plist"
+ * @param {string} type "dir" or "plist"
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
