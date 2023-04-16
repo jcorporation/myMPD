@@ -22,7 +22,7 @@ The sort order for the Last-Modified tag is reversed. Newer songs are now displa
 - Feat: add option to change song position in queue/playlist without drag and drop support
 - Feat: configurable highlight contrast color
 - Feat: reverse order for last-modified #1008
-- Upd: bootstrap.native 5.0.5
+- Upd: bootstrap.native 5.0.6
 - Upd: Bootstrap 5.3.0-alpha3
 - Upd: libmympdclient 1.0.18
 - Upd: sds
