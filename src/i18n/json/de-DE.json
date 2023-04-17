@@ -902,5 +902,6 @@
     "wasapi": "Windows Audio Session API",
     "Warning": "Warnung",
     "Error": "Fehler",
-    "Discs": "Discs"
+    "Discs": "Discs",
+    "any": "Alle Tags"
 }
