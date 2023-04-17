@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v10.3.0 (not yet released)
+## myMPD v10.3.0 (2023-04-17)
 
 This release reworks the context menus. myMPD now uses the offcanvas component for context menus. This is better accessible on mobile devices with small screens and removes some workarounds for the popovers.
 
