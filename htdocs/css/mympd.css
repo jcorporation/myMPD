@@ -261,7 +261,7 @@ div > .albumartbg {
   }
 }
 
-@media only screen and (max-width: 800px) {
+@media only screen and (width <= 800px) {
   .navText {
     display: none;
   }
@@ -275,7 +275,7 @@ div > .albumartbg {
   }
 }
 
-@media only screen and (max-height: 380px) and (orientation: landscape) {
+@media only screen and (height <= 380px) and (orientation: landscape) {
   #navbar-main > div {
     margin-bottom: 0;
   }
@@ -357,7 +357,7 @@ button {
   white-space: nowrap;
 }
 
-@media only screen and (max-width: 440px) {
+@media only screen and (width <= 440px) {
   #btnPrev,
   #btnPlay {
     padding-right: 4px !important;
@@ -376,7 +376,7 @@ button {
   }
 }
 
-@media only screen and (min-width: 576px) and (max-width: 992px) {
+@media only screen and (576px <= width <= 992px) {
   .modal-lg {
     max-width: calc(100vw - 5rem) !important;
   }
@@ -521,7 +521,7 @@ div#homeActions {
   padding: 0.5rem;
 }
 
-@media only screen and (max-width: 400px) and (min-width: 300px) {
+@media only screen and (300px <= width <= 400px) {
   .card-grid {
     width: calc((100vw - 4rem) / 2);
   }
@@ -533,7 +533,7 @@ div#homeActions {
 }
 
 .album-cover-loading {
-  background-image: url("../assets/coverimage-mympd.svg");
+  background-image: url("../assets/coverimage-mympd");
 }
 
 div.card-toolbar {
@@ -698,7 +698,7 @@ div.key {
   flex-shrink: 0;
 }
 
-@media only screen and (max-width: 576px) {
+@media only screen and (width <= 576px) {
   div#shortcutList > div.col-6 {
     width: 100%;
   }
@@ -736,7 +736,7 @@ textarea.small {
 
 .btn:not(:disabled):not(.disabled).active,
 .show > .btn.dropdown-toggle {
-  color: var(--bs-white) !important;
+  color: var(--mympd-highlightcolor-contrast) !important;
   background-color: var(--mympd-highlightcolor) !important;
   border-color: var(--mympd-highlightcolor) !important;
 }
@@ -1200,4 +1200,15 @@ button.weekday {
 
 .mirror {
   transform: scale(1, -1);
+}
+
+#offcanvasContext .dropdown-item {
+  padding-left: 1rem;
+}
+
+.dropdown-divider2 {
+  height: 0;
+  margin-top: 1.5rem;
+  overflow: hidden;
+  opacity: 1;
 }

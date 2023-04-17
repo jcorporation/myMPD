@@ -63,7 +63,7 @@ umask 0022
 
 #get myMPD version
 VERSION=$(grep "  VERSION" CMakeLists.txt | sed 's/  VERSION //')
-COPYRIGHT="myMPD ${VERSION} | (c) 2018-2022 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
+COPYRIGHT="myMPD ${VERSION} | (c) 2018-2023 Juergen Mang <mail@jcgames.de> | SPDX-License-Identifier: GPL-3.0-or-later | https://github.com/jcorporation/mympd"
 
 MYMPD_MINIFY_JS="1"
 if [ -f .git/HEAD ] && ! grep -q "master" .git/HEAD
@@ -265,14 +265,6 @@ createassets() {
   cat $CSSFILES > "$MYMPD_BUILDDIR/htdocs/css/combined.css"
   $ZIP "$MYMPD_BUILDDIR/htdocs/css/combined.css"
 
-  echo "Compressing fonts"
-  FONTFILES="dist/material-icons/MaterialIcons-Regular.woff2 dist/material-icons/ligatures.json"
-  for FONT in $FONTFILES
-  do
-    DST=$(basename "${FONT}")
-    $ZIPCAT "$FONT" > "$MYMPD_BUILDDIR/htdocs/assets/${DST}.gz"
-  done
-
   echo "Compressing i18n json"
   jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default" | \
     while read -r CODE
@@ -294,6 +286,10 @@ createassets() {
 
   echo "Copy images"
   cp -v htdocs/assets/*.png "$MYMPD_BUILDDIR/htdocs/assets/"
+
+  echo "Copy webfont"
+  cp -v dist/material-icons/MaterialIcons-Regular.woff2 "$MYMPD_BUILDDIR/htdocs/assets/"
+  $ZIPCAT dist/material-icons/ligatures.json > "$MYMPD_BUILDDIR/htdocs/assets/ligatures.json.gz"
 
   echo "Copy integrated lua libraries"
   mkdir -p "$MYMPD_BUILDDIR/contrib/lualibs"
@@ -883,7 +879,7 @@ updatebootstrapnative() {
   #clone repository
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
-  git clone --depth=1 -b bsn5 git@github.com:jcorporation/bootstrap.native.git
+  git clone --depth=1 git@github.com:thednp/bootstrap.native.git
   cd bootstrap.native
   npm install vite
   #copy custom config
@@ -893,7 +889,7 @@ updatebootstrapnative() {
   npm run build-vite
   grep -v "^//" dist/bootstrap-native.js > "$STARTPATH/dist/bootstrap-native/bootstrap-native.min.js"
   #normal build
-  sed -i 's/minify: true/minify: false/' vite.config.ts
+  sed -i 's/sourcemap: true,/sourcemap: true,\nminify: false/' vite.config.ts
   npm run build-vite
   grep -v "^//" dist/bootstrap-native.js > "$STARTPATH/dist/bootstrap-native/bootstrap-native.js"
   #cleanup
@@ -908,15 +904,15 @@ updatebootstrapnative() {
 
 updatebootstrap() {
   check_cmd npm
-  cd dist/bootstrap || exit 1
+  cd "$STARTPATH/dist/bootstrap" || exit 1
   [ -z "${BOOTSTRAP_VERSION+x}" ] && BOOTSTRAP_VERSION=""
   npm install "$BOOTSTRAP_VERSION"
   npm run build
   sed -i '$ d' compiled/custom.css
   rm compiled/custom.css.map
-  if [ -d ../../debug ]
+  if [ -d "$STARTPATH/debug" ]
   then
-    cp -v compiled/custom.css ../../htdocs/css/bootstrap.css
+    cp -v compiled/custom.css "$STARTPATH/htdocs/css/bootstrap.css"
   fi
 }
 
@@ -925,9 +921,9 @@ updatebootstrap() {
 uninstall() {
   #cmake does not provide an uninstall target, instead its manifest is of use at least for
   #the binaries
-  if [ -f release/install_manifest.txt ]
+  if [ -f "$STARTPATH/release/install_manifest.txt" ]
   then
-    xargs rm -f < release/install_manifest.txt || true
+    xargs rm -f < "$STARTPATH/release/install_manifest.txt"
   fi
   [ -z "${DESTDIR+x}" ] && DESTDIR=""
   #CMAKE_INSTALL_PREFIX="/usr"
@@ -1025,7 +1021,7 @@ createi18n() {
 }
 
 materialicons() {
-  check_cmd jq wget
+  check_cmd jq wget woff2_compress
 
   TMPDIR=$(mktemp -d)
   cd "$TMPDIR" || exit 1
@@ -1034,6 +1030,11 @@ materialicons() {
   if ! wget -q "$FONT_URI" -O MaterialIcons-Regular.woff2
   then
     echo_error "Error downloading font file"
+    exit 1
+  fi
+  if ! woff2_compress MaterialIcons-Regular.woff2
+  then
+    echo_error "Compression failed"
     exit 1
   fi
   METADATA_URI="https://fonts.google.com/metadata/icons"

@@ -8,6 +8,7 @@
 /**
  * Handler for quick remove button
  * @param {EventTarget} target event target
+ * @returns {void}
  */
 function clickQuickRemove(target) {
     switch(app.id) {
@@ -66,9 +67,10 @@ function clickAlbumPlay(albumArtist, album) {
 /**
  * Click song handler
  * @param {string} uri song uri
+ * @param {event} event the event
  * @returns {void}
  */
-function clickSong(uri) {
+function clickSong(uri, event) {
     switch (settings.webuiSettings.clickSong) {
         case 'append': return appendQueue('song', uri);
         case 'appendPlay': return appendPlayQueue('song', uri);
@@ -77,6 +79,7 @@ function clickSong(uri) {
         case 'replace': return replaceQueue('song', uri);
         case 'replacePlay': return replacePlayQueue('song', uri);
         case 'view': return songDetails(uri);
+        case 'context': return showContextMenu(event);
     }
 }
 
@@ -84,9 +87,10 @@ function clickSong(uri) {
  * Handler for radiobrowser links
  * @param {string} uri stream uri
  * @param {string} uuid radiobrowser station uuid
+ * @param {event} event the event
  * @returns {void}
  */
-function clickRadiobrowser(uri, uuid) {
+function clickRadiobrowser(uri, uuid, event) {
     switch (settings.webuiSettings.clickRadiobrowser) {
         case 'append': return appendQueue('song', uri);
         case 'appendPlay': return appendPlayQueue('song', uri);
@@ -95,6 +99,7 @@ function clickRadiobrowser(uri, uuid) {
         case 'replace': return replaceQueue('song', uri);
         case 'replacePlay': return replacePlayQueue('song', uri);
         case 'view': return showRadiobrowserDetails(uuid);
+        case 'context': return showContextMenu(event);
     }
     countClickRadiobrowser(uuid);
 }
@@ -102,9 +107,10 @@ function clickRadiobrowser(uri, uuid) {
 /**
  * Handler for webradioDB links
  * @param {string} uri stream uri
+ * @param {event} event the event
  * @returns {void}
  */
-function clickWebradiodb(uri) {
+function clickWebradiodb(uri, event) {
     switch (settings.webuiSettings.clickRadiobrowser) {
         case 'append': return appendQueue('song', uri);
         case 'appendPlay': return appendPlayQueue('song', uri);
@@ -113,15 +119,17 @@ function clickWebradiodb(uri) {
         case 'replace': return replaceQueue('song', uri);
         case 'replacePlay': return replacePlayQueue('song', uri);
         case 'view': return showWebradiodbDetails(uri);
+        case 'context': return showContextMenu(event);
     }
 }
 
 /**
  * Handler for webradio favorites links
  * @param {string} uri webradio favorite uri, starting with mympd://webradio/
+ * @param {event} event the event
  * @returns {void}
  */
-function clickRadioFavorites(uri) {
+function clickRadioFavorites(uri, event) {
     const fullUri = getRadioFavoriteUri(uri);
     switch(settings.webuiSettings.clickRadioFavorites) {
         case 'append': return appendQueue('plist', fullUri);
@@ -131,6 +139,7 @@ function clickRadioFavorites(uri) {
         case 'replace': return replaceQueue('plist', fullUri);
         case 'replacePlay': return replacePlayQueue('plist', fullUri);
         case 'edit': return editRadioFavorite(uri);
+        case 'context': return showContextMenu(event);
     }
 }
 
@@ -138,9 +147,10 @@ function clickRadioFavorites(uri) {
  * Handler for song links in queue
  * @param {string} songid the song id
  * @param {string} uri the song uri
+ * @param {event} event the event
  * @returns {void}
  */
-function clickQueueSong(songid, uri) {
+function clickQueueSong(songid, uri, event) {
     switch(settings.webuiSettings.clickQueueSong) {
         case 'play':
             if (songid === null) {
@@ -155,15 +165,18 @@ function clickQueueSong(songid, uri) {
                 return;
             }
             return songDetails(uri);
+        case 'context':
+            return showContextMenu(event);
     }
 }
 
 /**
  * Handler for playlist links
  * @param {string} uri playlist uri
+ * @param {event} event the event
  * @returns {void}
  */
-function clickPlaylist(uri) {
+function clickPlaylist(uri, event) {
     switch(settings.webuiSettings.clickPlaylist) {
         case 'append': return appendQueue('plist', uri);
         case 'appendPlay': return appendPlayQueue('plist', uri);
@@ -172,15 +185,17 @@ function clickPlaylist(uri) {
         case 'replace': return replaceQueue('plist', uri);
         case 'replacePlay': return replacePlayQueue('plist', uri);
         case 'view': return playlistDetails(uri);
+        case 'context': return showContextMenu(event);
     }
 }
 
 /**
  * Handler for click on playlists in filesystem view
  * @param {string} uri playlist uri
+ * @param {event} event the event
  * @returns {void}
  */
-function clickFilesystemPlaylist(uri) {
+function clickFilesystemPlaylist(uri, event) {
     switch(settings.webuiSettings.clickFilesystemPlaylist) {
         case 'append': return appendQueue('plist', uri);
         case 'appendPlay': return appendPlayQueue('plist', uri);
@@ -197,12 +212,15 @@ function clickFilesystemPlaylist(uri) {
             //reset filter and show playlist
             app.current.filter = '-';
             appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, 'plist', uri);
+            break;
+        case 'context': return showContextMenu(event);
     }
 }
 
 /**
  * Handler for click on folder in filesystem view
  * @param {string} uri folder uri
+ * @returns {void}
  */
 function clickFolder(uri) {
     //remember offset for current browse uri
@@ -211,12 +229,12 @@ function clickFolder(uri) {
         "scrollPos": getScrollPosY()
     };
     //reset filter and open folder
-    app.current.filter = '-';
-    appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, app.current.filter, app.current.sort, 'dir', uri);
+    appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, '-', app.current.sort, 'dir', uri);
 }
 
 /**
  * Seeks the current song forward by 5s
+ * @returns {void}
  */
 function seekRelativeForward() {
     seekRelative(5);
@@ -224,6 +242,7 @@ function seekRelativeForward() {
 
 /**
  * Seeks the current song backward by 5s
+ * @returns {void}
  */
 function seekRelativeBackward() {
     seekRelative(-5);
@@ -232,6 +251,7 @@ function seekRelativeBackward() {
 /**
  * Seeks the current song by offset seconds
  * @param {number} offset relative seek offset
+ * @returns {void}
  */
 function seekRelative(offset) {
     sendAPI("MYMPD_API_PLAYER_SEEK_CURRENT", {
@@ -242,6 +262,7 @@ function seekRelative(offset) {
 
 /**
  * Handler for click on play button
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clickPlay() {
@@ -268,6 +289,7 @@ function clickPlay() {
 
 /**
  * Handler for click on stop button
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clickStop() {
@@ -276,6 +298,7 @@ function clickStop() {
 
 /**
  * Handler for click on prev song button
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clickPrev() {
@@ -284,6 +307,7 @@ function clickPrev() {
 
 /**
  * Handler for click on next song button
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clickNext() {
@@ -293,6 +317,7 @@ function clickNext() {
 /**
  * Handler for click on single button
  * @param {string} mode single mode: "0" = off, "1" = single, "oneshot" = single one shot
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clickSingle(mode) {

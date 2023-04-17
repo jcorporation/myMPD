@@ -20,6 +20,7 @@ function getCssImageUri(uri) {
 
 /**
  * Gets the background images list and populates the select element
+ * @returns {void}
  */
 function getBgImageList() {
     const list = document.getElementById('inputWebUIsettinguiBgImage');
@@ -31,6 +32,7 @@ function getBgImageList() {
  * @param {string} selectId id of select to populate
  * @param {object} addOptions additional options to add
  * @param {string} type one of thumbs, backgrounds
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function getImageListId(selectId, addOptions, type) {
@@ -42,6 +44,7 @@ function getImageListId(selectId, addOptions, type) {
  * @param {HTMLElement} sel select element to populate
  * @param {object} addOptions additional options to add
  * @param {string} type one of thumbs, backgrounds
+ * @returns {void}
  */
 function getImageList(sel, addOptions, type) {
     sendAPI("MYMPD_API_PICTURE_LIST", {
@@ -61,6 +64,7 @@ function getImageList(sel, addOptions, type) {
  * Filters the image select
  * @param {string} elId element id
  * @param {string} searchstr search string
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function filterImageSelect(elId, searchstr) {
@@ -129,6 +133,7 @@ function isThumbnailfile(uri) {
 /**
  * Opens the picture modal
  * @param {HTMLElement} el image element
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function zoomPicture(el) {
@@ -174,6 +179,7 @@ function zoomPicture(el) {
 
 /**
  * Opens the picture in a new window
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function openPictureWindow() {
@@ -187,6 +193,7 @@ function openPictureWindow() {
  * @param {string} uri uri of the image
  * @param {object} images array of additional images
  * @param {number} embeddedImageCount number of embedded images
+ * @returns {void}
  */
 function createImgCarousel(imgEl, name, uri, images, embeddedImageCount) {
     //embedded albumart
@@ -212,6 +219,7 @@ function createImgCarousel(imgEl, name, uri, images, embeddedImageCount) {
  * @param {HTMLElement} imgEl element to populate with the carousel
  * @param {string} name name to construct the image carousel id from
  * @param {object} images array of all images to display
+ * @returns {void}
  */
 function _createImgCarousel(imgEl, name, images) {
     const nrImages = images.length;

@@ -129,6 +129,23 @@ mpd_run_playlist_move(struct mpd_connection *connection, const char *name,
 }
 
 bool
+mpd_send_playlist_move_range(struct mpd_connection *connection, const char *name,
+		       unsigned start, unsigned end, unsigned to)
+{
+	return mpd_send_s_range_to_u_command(connection, "playlistmove", name,
+				start, end, to);
+}
+
+bool
+mpd_run_playlist_move_range(struct mpd_connection *connection, const char *name,
+		       unsigned start, unsigned end, unsigned to)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_playlist_move_range(connection, name, start, end, to) &&
+		mpd_response_finish(connection);
+}
+
+bool
 mpd_send_playlist_delete(struct mpd_connection *connection, const char *name,
 			 unsigned pos)
 {

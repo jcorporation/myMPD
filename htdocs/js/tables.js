@@ -8,6 +8,7 @@
 /**
  * Initializes a table body for drag and drop of rows
  * @param {string} tableId table id
+ * @returns {void}
  */
 function dragAndDropTable(tableId) {
     const tableBody = document.querySelector('#' + tableId + ' > tbody');
@@ -77,8 +78,8 @@ function dragAndDropTable(tableId) {
         if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        const oldSongpos = getDataId(event.dataTransfer.getData('Text'), 'songpos');
-        const newSongpos = getData(target, 'songpos');
+        const oldSongPos = getDataId(event.dataTransfer.getData('Text'), 'songpos');
+        const newSongPos = getData(target, 'songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
         // @ts-ignore
@@ -90,12 +91,12 @@ function dragAndDropTable(tableId) {
         document.getElementById(tableId).classList.add('opacity05');
         if (app.id === 'QueueCurrent') {
             sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
-                "from": oldSongpos,
-                "to": newSongpos
+                "from": oldSongPos,
+                "to": newSongPos
             }, null, false);
         }
         else if (app.id === 'BrowsePlaylistsDetail') {
-            playlistMoveSong(oldSongpos, newSongpos);
+            playlistMoveSong(oldSongPos, newSongPos);
         }
     }, false);
 }
@@ -103,6 +104,7 @@ function dragAndDropTable(tableId) {
 /**
  * Initializes a table header for drag and drop of columns
  * @param {string} tableName table name
+ * @returns {void}
  */
 function dragAndDropTableHeader(tableName) {
     const tableHeader = document.querySelector('#' + tableName + 'List > thead > tr');
@@ -248,6 +250,7 @@ function setColTags(tableName) {
  * Creates the select columns checkbox list
  * @param {string} tableName table name
  * @param {HTMLElement} menu element to populate
+ * @returns {void}
  */
 function setColsChecklist(tableName, menu) {
     const tags = setColTags(tableName);
@@ -281,6 +284,7 @@ function setColsChecklist(tableName, menu) {
 /**
  * Sets the table header columns
  * @param {string} tableName table name
+ * @returns {void}
  */
 function setCols(tableName) {
     if (tableName === 'Search' &&
@@ -322,7 +326,7 @@ function setCols(tableName) {
     const th = elCreateEmpty('th', {"data-col": "Action"});
     if (features.featTags === true) {
         th.appendChild(
-            elCreateText('a', {"href": "#", "data-action": "popover", "data-popover": "columns",
+            elCreateText('a', {"href": "#", "data-action": "popover", "data-contextmenu": "columns",
                 "class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": "Columns"}, 'settings')
         );
     }
@@ -333,6 +337,7 @@ function setCols(tableName) {
  * Saves the selected columns for the table
  * @param {string} tableName table name
  * @param {HTMLElement} [tableEl] table element or undefined
+ * @returns {void}
  */
 function saveCols(tableName, tableEl) {
     const colsDropdown = document.getElementById(tableName + 'ColsDropdown');
@@ -376,6 +381,7 @@ function saveCols(tableName, tableEl) {
  * Saves the fields for the playback card
  * @param {string} tableName table name
  * @param {string} dropdownId id fo the column select dropdown
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveColsDropdown(tableName, dropdownId) {
@@ -427,9 +433,10 @@ function toggleSort(th, colName) {
  * Replaces a table row
  * @param {HTMLElement} row row to replace
  * @param {HTMLElement} el replacement row
+ * @returns {void}
  */
 function replaceTblRow(row, el) {
-    const menuEl = row.querySelector('[data-popover]');
+    const menuEl = row.querySelector('[data-contextmenu]');
     if (menuEl) {
         hidePopover();
     }
@@ -451,7 +458,7 @@ function addDiscRow(disc, album, albumartist, colspan) {
         ),
         elCreateTextTnNr('td', {"colspan": (colspan - 1)}, 'Discnum', disc),
         elCreateNode('td', {"data-col": "Action"},
-            elCreateText('a', {"data-action": "popover", "data-popover": "disc", "href": "#", "class": ["mi", "color-darkgrey"],
+            elCreateText('a', {"data-action": "popover", "data-contextmenu": "disc", "href": "#", "class": ["mi", "color-darkgrey"],
                 "data-title-phrase":"Actions"}, ligatureMore)
         )
     ]);
@@ -467,6 +474,7 @@ function addDiscRow(disc, album, albumartist, colspan) {
  * @param {string} list table name to populate
  * @param {Function} [perRowCallback] callback per row
  * @param {Function} [createRowCellsCallback] callback to create the row
+ * @returns {void}
  */
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const table = document.getElementById(list + 'List');
@@ -574,6 +582,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
  * @param {string} list table name
  * @param {number} colspan number of columns
  * @param {boolean} smallWidth true = print data in rows, false = print data in columns
+ * @returns {void}
  */
 function tableRow(row, data, list, colspan, smallWidth) {
     if (data.Type === 'parentDir') {
@@ -684,7 +693,7 @@ function checkResultId(obj, id) {
 }
 
 /**
- * 
+ * Checks the json response for an error object and displays the error in the table body
  * @param {object} obj jsonrpc object to check
  * @param {HTMLElement} tbody body of the table
  * @returns {boolean} true = result is not an error, else false
@@ -730,12 +739,13 @@ function uiSmallWidthTagRows() {
 /**
  * Handles the click on the actions column
  * @param {MouseEvent} event click event
+ * @returns {void}
  */
 function handleActionTdClick(event) {
     event.preventDefault();
     switch(event.target.getAttribute('data-action')) {
         case 'popover':
-            showPopover(event);
+            showContextMenu(event);
             break;
         case 'quickPlay':
             clickQuickPlay(event.target);

@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "dist/sds/sds.h"
 #include "src/web_server/web_server.h"
 
 #include "src/lib/api.h"
@@ -19,12 +20,14 @@
 #include "src/web_server/request_handler.h"
 #include "src/web_server/tagart.h"
 
+#include <libgen.h>
 #include <sys/prctl.h>
 
 /**
  * Private definitions
  */
 
+static void get_placeholder_image(sds workdir, const char *name, sds *result);
 static bool parse_internal_message(struct t_work_response *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 #ifdef MYMPD_ENABLE_SSL
@@ -51,6 +54,10 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     mg_user_data->config = config;
     mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/empty", config->workdir);
     mg_user_data->music_directory = sdsempty();
+    mg_user_data->custom_booklet_image = sdsempty();
+    mg_user_data->custom_mympd_image = sdsempty();
+    mg_user_data->custom_na_image = sdsempty();
+    mg_user_data->custom_stream_image = sdsempty();
     sds default_coverimage_names = sdsnew(MYMPD_COVERIMAGE_NAMES);
     mg_user_data->coverimage_names= sds_split_comma_trim(default_coverimage_names, &mg_user_data->coverimage_names_len);
     FREE_SDS(default_coverimage_names);
@@ -248,6 +255,7 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
 
         mg_user_data->feat_albumart = new_mg_user_data->feat_albumart;
 
+        //set per partition stream uris
         list_clear(&mg_user_data->stream_uris);
         struct t_list_node *current = new_mg_user_data->partitions.head;
         sds uri = sdsempty();
@@ -263,9 +271,17 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
             current = current->next;
         }
         FREE_SDS(uri);
+
+        //custom placeholder images
+        get_placeholder_image(config->workdir, "coverimage-booklet", &mg_user_data->custom_booklet_image);
+        get_placeholder_image(config->workdir, "coverimage-mympd", &mg_user_data->custom_mympd_image);
+        get_placeholder_image(config->workdir, "coverimage-notavailable", &mg_user_data->custom_na_image);
+        get_placeholder_image(config->workdir, "coverimage-stream", &mg_user_data->custom_stream_image);
+
+        //cleanup
         FREE_SDS(new_mg_user_data->mpd_host);
         list_clear(&new_mg_user_data->partitions);
-	    FREE_PTR(response->extra);
+        FREE_PTR(response->extra);
         rc = true;
     }
     else {
@@ -273,6 +289,25 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
     }
     free_response(response);
     return rc;
+}
+
+/**
+ * Finds and sets the placeholder images
+ * @param workdir myMPD working directory
+ * @param name basename to search for
+ * @param result pointer to sds result
+ */
+static void get_placeholder_image(sds workdir, const char *name, sds *result) {
+    sds file = sdscatfmt(sdsempty(), "%S/pics/thumbs/%s", workdir, name);
+    MYMPD_LOG_DEBUG("Check for custom placeholder image \"%s\"", file);
+    file = webserver_find_image_file(file);
+    sdsclear(*result);
+    if (sdslen(file) > 0) {
+        const char *filename = basename(file);
+        MYMPD_LOG_INFO("Setting custom placeholder image for na to \"%s\"", filename);
+        *result = sdscat(*result, filename);
+    }
+    FREE_SDS(file);
 }
 
 /**
@@ -592,6 +627,18 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
                     FREE_SDS(response);
                 }
+            }
+            else if (mg_http_match_uri(hm, "/assets/coverimage-booklet") == true) {
+                webserver_serve_booklet_image(nc);
+            }
+            else if (mg_http_match_uri(hm, "/assets/coverimage-mympd") == true) {
+                webserver_serve_mympd_image(nc);
+            }
+            else if (mg_http_match_uri(hm, "/assets/coverimage-notavailable") == true) {
+                webserver_serve_na_image(nc);
+            }
+            else if (mg_http_match_uri(hm, "/assets/coverimage-stream") == true) {
+                webserver_serve_stream_image(nc);
             }
             else if (mg_http_match_uri(hm, "/index.html") == true) {
                 webserver_send_header_redirect(nc, "/");

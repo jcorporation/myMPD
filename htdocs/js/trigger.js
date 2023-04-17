@@ -7,6 +7,7 @@
 
 /**
  * Initialization function for trigger elements
+ * @returns {void}
  */
 function initTrigger() {
     document.getElementById('listTriggerList').addEventListener('click', function(event) {
@@ -38,6 +39,7 @@ function initTrigger() {
 
 /**
  * Saves a trigger
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveTrigger() {
@@ -78,6 +80,7 @@ function saveTrigger() {
 /**
  * Handler for the MYMPD_API_TRIGGER_SAVE jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function saveTriggerCheckError(obj) {
     if (obj.error) {
@@ -91,6 +94,7 @@ function saveTriggerCheckError(obj) {
 /**
  * Shows the edit trigger tab
  * @param {number} id trigger id
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showEditTrigger(id) {
@@ -121,6 +125,7 @@ function showEditTrigger(id) {
 /**
  * Parses the MYMPD_API_TRIGGER_GET jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function parseTriggerEdit(obj) {
     document.getElementById('inputTriggerId').value = obj.result.id;
@@ -135,6 +140,7 @@ function parseTriggerEdit(obj) {
 /**
  * Calls showTriggerScriptArgs for the selected script
  * @param {object} [values] array of values for the script arguments
+ * @returns {void}
  */
 function selectTriggerActionChange(values) {
     const el = document.getElementById('selectTriggerScript');
@@ -147,6 +153,7 @@ function selectTriggerActionChange(values) {
  * Shows the list of arguments and values for the selected script
  * @param {HTMLElement} option selected option from script select
  * @param {object} values array of values for the script arguments
+ * @returns {void}
  */
 function showTriggerScriptArgs(option, values) {
     if (values === undefined) {
@@ -172,6 +179,7 @@ function showTriggerScriptArgs(option, values) {
 
 /**
  * Shows the trigger list tab
+ * @returns {void}
  */
 function showListTrigger() {
     cleanupModalId('modalTrigger');
@@ -213,6 +221,7 @@ function parseTriggerList(obj) {
  * Deletes a trigger after confirmation
  * @param {EventTarget} el triggering element
  * @param {number} id trigger id
+ * @returns {void}
  */
 function deleteTrigger(el, id) {
     showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the trigger?'), tn('Yes, delete it'), function() {

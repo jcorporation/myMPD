@@ -7,6 +7,7 @@
 
 /**
  * Browse Radiobrowser handler
+ * @returns {void}
  */
 function handleBrowseRadioRadiobrowser() {
     setFocusId('BrowseRadioRadiobrowserSearchStr');
@@ -33,6 +34,7 @@ function handleBrowseRadioRadiobrowser() {
 
 /**
  * Initializes the radiobrowser elements
+ * @returns {void}
  */
 function initBrowseRadioRadiobrowser() {
     document.getElementById('BrowseRadioRadiobrowserSearchStr').addEventListener('keyup', function(event) {
@@ -71,7 +73,7 @@ function initBrowseRadioRadiobrowser() {
                 });
             }
             else {
-                clickRadiobrowser(uri, getData(target, 'RADIOBROWSERUUID'));
+                clickRadiobrowser(uri, getData(target, 'RADIOBROWSERUUID'), event);
             }
         }
     }, false);
@@ -80,6 +82,7 @@ function initBrowseRadioRadiobrowser() {
 /**
  * Sends a click count message to the radiobrowser api
  * @param {string} uuid station uuid
+ * @returns {void}
  */
 function countClickRadiobrowser(uuid) {
     if (uuid !== '') {
@@ -91,6 +94,7 @@ function countClickRadiobrowser(uuid) {
 
 /**
  * Searches the radiobrowser
+ * @returns {void}
  */
 function searchRadiobrowser() {
     app.current.filter['tags'] = document.getElementById('inputRadiobrowserTags').value;
@@ -103,6 +107,7 @@ function searchRadiobrowser() {
 /**
  * Shows the details of a radiobrowser station
  * @param {string} uuid station uuid
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showRadiobrowserDetails(uuid) {
@@ -135,7 +140,7 @@ function parseRadiobrowserDetails(obj) {
     }
     else {
         document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
-            'url("' + subdir + '/assets/coverimage-notavailable.svg")';
+            'url("' + subdir + '/assets/coverimage-notavailable")';
     }
     document.getElementById('RadiobrowserDetailsTitle').textContent = result.name;
     //map fields to webradiodb fields

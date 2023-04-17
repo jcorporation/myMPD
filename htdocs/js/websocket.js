@@ -15,6 +15,7 @@
 
 /**
  * Connects to the websocket and registers the event handlers.
+ * @returns {void}
  */
 function webSocketConnect() {
     if (getWebsocketState() === true)
@@ -233,6 +234,7 @@ function webSocketConnect() {
 
 /**
  * Closes the websocket and terminates the keepalive and reconnect timer
+ * @returns {void}
  */
 function webSocketClose() {
     if (websocketTimer !== null) {
@@ -253,6 +255,7 @@ function webSocketClose() {
 
 /**
  * Sends a ping keepalive message to the websocket endpoint.
+ * @returns {void}
  */
 function websocketKeepAlive() {
     if (getWebsocketState() === true) {

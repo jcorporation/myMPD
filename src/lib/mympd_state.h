@@ -152,6 +152,7 @@ struct t_partition_state {
     //partition
     sds name;                              //!< partition name
     sds highlight_color;                   //!< highlight color
+    sds highlight_color_contrast;          //!< highlight contrast color
     sds state_dir;                         //!< partition state folder
     struct t_partition_state *next;        //!< pointer to next partition;
     bool is_default;                       //!< flag for the mpd default partition

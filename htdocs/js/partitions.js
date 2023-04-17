@@ -7,6 +7,7 @@
 
 /**
  * Initialization function for the partition elements
+ * @returns {void}
  */
 function initPartitions() {
     document.getElementById('listPartitionsList').addEventListener('click', function(event) {
@@ -80,6 +81,7 @@ function moveOutputs() {
 /**
  * Handler for the MYMPD_API_PARTITION_OUTPUT_MOVE jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function moveOutputsCheckError(obj) {
     if (obj.error) {
@@ -134,6 +136,7 @@ function parsePartitionOutputsList(obj) {
 
 /**
  * Creates a new partition
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function savePartition() {
@@ -155,6 +158,7 @@ function savePartition() {
 /**
  * Handler for the MYMPD_API_PARTITION_NEW jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function savePartitionCheckError(obj) {
     if (obj.error) {
@@ -167,6 +171,7 @@ function savePartitionCheckError(obj) {
 
 /**
  * Shows the new partition tab
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showNewPartition() {
@@ -182,6 +187,7 @@ function showNewPartition() {
 
 /**
  * Shows the list partition tab
+ * @returns {void}
  */
 function showListPartitions() {
     cleanupModalId('modalPartitions');
@@ -196,6 +202,7 @@ function showListPartitions() {
  * Deletes a partition
  * @param {EventTarget} el triggering element
  * @param {string} partition partition name to delete
+ * @returns {void}
  */
 function deletePartition(el, partition) {
     showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the partition?', {"partition": partition}), tn('Yes, delete it'), function() {

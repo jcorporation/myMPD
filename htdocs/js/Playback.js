@@ -7,6 +7,7 @@
 
 /**
  * Handles Playback
+ * @returns {void}
  */
 function handlePlayback() {
     sendAPI("MYMPD_API_PLAYER_CURRENT_SONG", {}, parseCurrentSong, false);
@@ -14,6 +15,7 @@ function handlePlayback() {
 
 /**
  * Initializes the playback html elements
+ * @returns {void}
  */
  function initPlayback() {
     document.getElementById('PlaybackColsDropdown').addEventListener('click', function(event) {
@@ -38,6 +40,7 @@ function handlePlayback() {
 /**
  * Parses the MYMPD_API_PLAYER_CURRENT_SONG jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function parseCurrentSong(obj) {
     const list = document.getElementById('PlaybackList');
@@ -173,6 +176,7 @@ function parseCurrentSong(obj) {
 /**
  * Sets the values of the tags displayed in the playback view
  * @param {object} songObj song object (result object of MYMPD_API_PLAYER_CURRENT_SONG jsonrpc response)
+ * @returns {void}
  */
 function setPlaybackCardTags(songObj) {
     if (songObj.webradio === undefined) {
@@ -289,6 +293,7 @@ function setPlaybackCardTags(songObj) {
 
 /**
  * Handler for the currentTitle element click event
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
@@ -302,6 +307,7 @@ function clickTitle() {
 
 /**
  * Adds the current playing song to a playlist
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSong() {

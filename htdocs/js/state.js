@@ -7,6 +7,7 @@
 
 /**
  * Clears the mpd error
+ * @returns {void}
  */
 function clearMPDerror() {
     sendAPI('MYMPD_API_PLAYER_CLEARERROR',{}, function() {
@@ -19,6 +20,7 @@ function clearMPDerror() {
 /**
  * Parses the MYMPD_API_STATS jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function parseStats(obj) {
     document.getElementById('mpdstatsArtists').textContent = obj.result.artists;
@@ -50,6 +52,7 @@ function parseStats(obj) {
 
 /**
  * Gets the serverinfo (ip address)
+ * @returns {void}
  */
 function getServerinfo() {
     httpGet(subdir + '/serverinfo', function(obj) {
@@ -68,6 +71,7 @@ function getCounterText() {
 
 /**
  * Sets the song counters
+ * @returns {void}
  */
 function setCounter() {
     //progressbar in footer
@@ -302,6 +306,7 @@ function setBackgroundImage(el, url) {
 /**
  * Clears the background image
  * @param {HTMLElement} el element for the background image
+ * @returns {void}
  */
 function clearBackgroundImage(el) {
     const old = el.parentNode.querySelectorAll(el.tagName + '> div.albumartbg');
@@ -319,6 +324,7 @@ function clearBackgroundImage(el) {
 /**
  * Sets the current cover in playback view and footer
  * @param {string} url song uri
+ * @returns {void}
  */
 function setCurrentCover(url) {
     setBackgroundImage(document.getElementById('currentCover'), url);
@@ -330,6 +336,7 @@ function setCurrentCover(url) {
 
 /**
  * Clears the current cover in playback view and footer
+ * @returns {void}
  */
 function clearCurrentCover() {
     clearBackgroundImage(document.getElementById('currentCover'));

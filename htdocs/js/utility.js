@@ -45,6 +45,7 @@ function checkTargetClick(target) {
 /**
  * Sets the updating indicator(s) for a view with the given id
  * @param {string} id element id
+ * @returns {void}
  */
 function setUpdateViewId(id) {
     setUpdateView(document.getElementById(id));
@@ -53,6 +54,7 @@ function setUpdateViewId(id) {
 /**
  * Sets the updating indicator(s) for the element
  * @param {Element} el element
+ * @returns {void}
  */
 function setUpdateView(el) {
     el.classList.add('opacity05');
@@ -62,6 +64,7 @@ function setUpdateView(el) {
 /**
  * Removes the updating indicator(s) for a view with the given id
  * @param {string} id element id
+ * @returns {void}
  */
 function unsetUpdateViewId(id) {
     unsetUpdateView(document.getElementById(id));
@@ -70,6 +73,7 @@ function unsetUpdateViewId(id) {
 /**
  * Removes the updating indicator(s) for the element
  * @param {Element | ParentNode} el element
+ * @returns {void}
  */
 function unsetUpdateView(el) {
     el.classList.remove('opacity05');
@@ -78,11 +82,11 @@ function unsetUpdateView(el) {
 
 /**
  * Replaces special characters with underscore
- * @param {string} x string to replace
+ * @param {string} str string to replace
  * @returns {string} result string
  */
-function r(x) {
-    return x.replace(/[^\w-]/g, '_');
+function r(str) {
+    return str.replace(/[^\w-]/g, '_');
 }
 
 /**
@@ -121,14 +125,14 @@ function joinArray(a) {
 
 /**
  * Escape a MPD filter value
- * @param {string} x value to escape
+ * @param {string} str value to escape
  * @returns {string} escaped value
  */
-function escapeMPD(x) {
-    if (typeof x === 'number') {
-        return x;
+function escapeMPD(str) {
+    if (typeof str === 'number') {
+        return str;
     }
-    return x.replace(/(["'])/g, function(m0, m1) {
+    return str.replace(/(["'])/g, function(m0, m1) {
         switch(m1) {
             case '"':  return '\\"';
             case '\'': return '\\\'';
@@ -139,14 +143,14 @@ function escapeMPD(x) {
 
 /**
  * Unescape a MPD filter value
- * @param {string} x value to unescape
+ * @param {string} str value to unescape
  * @returns {string} unescaped value
  */
-function unescapeMPD(x) {
-    if (typeof x === 'number') {
-        return x;
+function unescapeMPD(str) {
+    if (typeof str === 'number') {
+        return str;
     }
-    return x.replace(/(\\'|\\"|\\\\)/g, function(m0, m1) {
+    return str.replace(/(\\'|\\"|\\\\)/g, function(m0, m1) {
         switch(m1) {
             case '\\"':  return '"';
             case '\\\'': return '\'';
@@ -229,7 +233,8 @@ function filetype(uri) {
 }
 
 /**
- * View specific focus of the search input 
+ * View specific focus of the search input
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function focusSearch() {
@@ -281,7 +286,8 @@ function genId(str) {
 /**
  * Parses a string to a javascript command object
  * @param {Event} event triggering event
- * @param {object} str string to parse
+ * @param {string} str string to parse
+ * @returns {void}
  */
 function parseCmdFromJSON(event, str) {
     const cmd = JSON.parse(str);
@@ -292,14 +298,9 @@ function parseCmdFromJSON(event, str) {
  * Executes a javascript command object
  * @param {Event} event triggering event
  * @param {object} cmd string to parse
+ * @returns {void}
  */
 function parseCmd(event, cmd) {
-    if (typeof cmd === 'string') {
-        //TODO: remove
-        logError('Invalid type of cmd');
-        parseCmdFromJSON(event, cmd);
-        return;
-    }
     if (event !== null &&
         event !== undefined)
     {
@@ -366,6 +367,7 @@ function parseCmd(event, cmd) {
  * @param {string} searchStr the search expression
  * @param {HTMLElement} searchEl search input element
  * @param {HTMLElement} crumbEl element to add the crumbs
+ * @returns {void}
  */
 function createSearchCrumbs(searchStr, searchEl, crumbEl) {
     elClear(crumbEl);
@@ -398,7 +400,7 @@ function createSearchCrumbs(searchStr, searchEl, crumbEl) {
  */
 function createSearchCrumb(filter, op, value) {
     const btn = elCreateNodes('button', {"class": ["btn", "btn-dark", "me-2"]}, [
-        document.createTextNode(filter + ' ' + op + ' \'' + value + '\''),
+        document.createTextNode(tn(filter) + ' ' + tn(op) + ' \'' + value + '\''),
         elCreateText('span', {"class": ["ml-2", "badge", "bg-secondary"]}, '×')
     ]);
     setData(btn, 'filter-tag', filter);
@@ -501,6 +503,7 @@ function strToBool(str) {
 
 /**
  * Removes the search timer
+ * @returns {void}
  */
 function clearSearchTimer() {
     if (searchTimer !== null) {
@@ -537,6 +540,7 @@ function cuesheetTrack(uri) {
 
 /**
  * Sets the viewport tag scaling option
+ * @returns {void}
  */
 function setViewport() {
     document.querySelector("meta[name=viewport]").setAttribute('content', 'width=device-width, initial-scale=' +
@@ -546,6 +550,7 @@ function setViewport() {
 /**
  * Sets the height of the container for scrolling
  * @param {HTMLElement} container scrolling container element
+ * @returns {void}
  */
 function setScrollViewHeight(container) {
     if (userAgentData.isMobile === true) {
@@ -561,6 +566,7 @@ function setScrollViewHeight(container) {
 
 /**
  * Enables the mobile view for specific user agents
+ * @returns {void}
  */
 function setMobileView() {
     if (userAgentData.isMobile === true) {
@@ -579,6 +585,7 @@ function setMobileView() {
  * @param {string} uri uri for the request
  * @param {Function} callback callback function
  * @param {boolean} json true = parses the response as json, else pass the plain text response
+ * @returns {void}
  */
 function httpGet(uri, callback, json) {
     const ajaxRequest = new XMLHttpRequest();

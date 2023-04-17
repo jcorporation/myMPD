@@ -9,6 +9,7 @@
  * Go's to the previous or next page
  * @param {string} direction on of next, prev
  * @param {number} limit maximum entries to display
+ * @returns {void}
  */
 function gotoPageDir(direction, limit) {
     let offset = app.current.offset;
@@ -29,6 +30,7 @@ function gotoPageDir(direction, limit) {
  * Go's to the page defined by offset
  * @param {number} offset page offset
  * @param {number} limit maximum entries to display
+ * @returns {void}
  */
  function gotoPage(offset, limit) {
     app.current.offset = offset;
@@ -49,6 +51,7 @@ function gotoPageDir(direction, limit) {
  * Pagination function
  * @param {number} total number of total entries
  * @param {number} returned number of returned entries
+ * @returns {void}
  */
 function setPagination(total, returned) {
     const curPaginationTop = document.getElementById(app.id + 'PaginationTop');

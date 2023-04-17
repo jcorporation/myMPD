@@ -7,6 +7,7 @@
 
 /**
  * Handles BrowsePlaylistDetail
+ * @returns {void}
  */
 function handleBrowsePlaylistDetail() {
     setFocusId('searchPlaylistsDetailStr');
@@ -27,6 +28,7 @@ function handleBrowsePlaylistDetail() {
 
 /**
  * Handles BrowsePlaylistList
+ * @returns {void}
  */
 function handleBrowsePlaylistList() {
     setFocusId('searchPlaylistListStr');
@@ -46,6 +48,7 @@ function handleBrowsePlaylistList() {
 
 /**
  * Initializes the playlist elements
+ * @returns {void}
  */
 function initPlaylists() {
     document.getElementById('modalAddToPlaylist').addEventListener('shown.bs.modal', function () {
@@ -102,7 +105,7 @@ function initPlaylists() {
         const target = getParent(event.target, 'TR');
         if (checkTargetClick(target) === true) {
             if (getData(target, 'smartpls-only') === false) {
-                clickPlaylist(getData(target, 'uri'));
+                clickPlaylist(getData(target, 'uri'), event);
             }
             else {
                 showNotification(tn('Playlist is empty'), '', 'playlist', 'warn')
@@ -119,7 +122,7 @@ function initPlaylists() {
 
         const target = getParent(event.target, 'TR');
         if (checkTargetClick(target) === true) {
-            clickSong(getData(target, 'uri'));
+            clickSong(getData(target, 'uri'), event);
         }
     }, false);
 }
@@ -127,6 +130,7 @@ function initPlaylists() {
 /**
  * Parses the MYMPD_API_PLAYLIST_LIST jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function parsePlaylistList(obj) {
     if (checkResultId(obj, 'BrowsePlaylistListList') === false) {
@@ -161,6 +165,7 @@ function parsePlaylistList(obj) {
 /**
  * Parses the MYMPD_API_PLAYLIST_CONTENT_LIST jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function parsePlaylistsDetail(obj) {
     const table = document.getElementById('BrowsePlaylistDetailList');
@@ -217,6 +222,7 @@ function parsePlaylistsDetail(obj) {
 /**
  * Opens the playlist detail view
  * @param {string} uri shows the playlist detail view
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
@@ -226,6 +232,7 @@ function playlistDetails(uri) {
 
 /**
  * Shuffles the playlist
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function playlistShuffle() {
@@ -238,6 +245,7 @@ function playlistShuffle() {
 /**
  * Sorts the playlist by tag
  * @param {string} tag sort tag
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function playlistSort(tag) {
@@ -252,6 +260,7 @@ function playlistSort(tag) {
  * Updates all smart playlists
  * @param {boolean} force true = forces update of all smart playlists,
  *                        false = updates only outdated smart playlists
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylists(force) {
@@ -267,6 +276,7 @@ function updateSmartPlaylists(force) {
  * @param {string} plist the playlist
  * @param {number} start Start of the range (including) / song pos
  * @param {number} [end] End playlist position (excluding), use -1 for open end
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function removeFromPlaylist(mode, plist, start, end) {
@@ -293,6 +303,7 @@ function removeFromPlaylist(mode, plist, start, end) {
 /**
  * Parses the MYMPD_API_SMARTPLS_GET jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function parseSmartPlaylist(obj) {
     document.getElementById('saveSmartPlaylistName').value = obj.result.plist;
@@ -325,6 +336,7 @@ function parseSmartPlaylist(obj) {
 
 /**
  * Saves a smart playlist
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveSmartPlaylist() {
@@ -384,6 +396,7 @@ function saveSmartPlaylist() {
 /**
  * Handles the MYMPD_API_SMARTPLS_*_SAVE responses
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function saveSmartPlaylistClose(obj) {
     if (obj.error) {
@@ -398,6 +411,7 @@ function saveSmartPlaylistClose(obj) {
 /**
  * Adds a default smart playlist
  * @param {string} type one of mostPlayed, newest, bestRated
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addSmartpls(type) {
@@ -436,6 +450,7 @@ function addSmartpls(type) {
  * @param {string} elId select element id
  * @param {string} searchstr search string
  * @param {string} selectedPlaylist current selected playlist
+ * @returns {void}
  */
 function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
     sendAPI("MYMPD_API_PLAYLIST_LIST", {
@@ -453,6 +468,7 @@ function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
  * @param {object} obj jsonrpc response
  * @param {string} playlistSelectId select element id
  * @param {string} selectedPlaylist current selected playlist
+ * @returns {void}
  */
 function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
     const selectEl = document.getElementById(playlistSelectId);
@@ -486,6 +502,7 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
  * Shows the add to playlist modal
  * @param {string} uri the uri or "STREAM" to add a stream
  * @param {string} searchstr searchstring for uri = ALBUM, SEARCH
+ * @returns {void}
  */
 function showAddToPlaylist(uri, searchstr) {
     cleanupModalId('modalAddToPlaylist');
@@ -516,6 +533,7 @@ function showAddToPlaylist(uri, searchstr) {
 /**
  * Toggles the view in the add to playlist modal
  * @param {EventTarget} target event target
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function toggleAddToPlaylistFrm(target) {
@@ -540,6 +558,7 @@ function toggleAddToPlaylistFrm(target) {
 
 /**
  * Adds the selected elemens from the "add to playlist" modal to the playlist or queue
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addToPlaylist() {
@@ -613,6 +632,7 @@ function addToPlaylist() {
 /**
  * Handles the response of "add to playlist" modal
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function addToPlaylistClose(obj) {
     if (obj.error) {
@@ -629,6 +649,7 @@ function addToPlaylistClose(obj) {
  * @param {string} uri uri to add
  * @param {string} plist playlist to append the uri
  * @param {Function} callback response handling callback
+ * @returns {void}
  */
 function appendPlaylist(type, uri, plist, callback) {
     switch(type) {
@@ -656,6 +677,7 @@ function appendPlaylist(type, uri, plist, callback) {
  * @param {string} plist playlist to insert the uri
  * @param {number} to position to insert
  * @param {Function} callback response handling callback
+ * @returns {void}
  */
 function insertPlaylist(type, uri, plist, to, callback) {
     switch(type) {
@@ -684,6 +706,7 @@ function insertPlaylist(type, uri, plist, to, callback) {
  * @param {string} uri uri to add
  * @param {string} plist playlist to replace
  * @param {Function} callback response handling callback
+ * @returns {void}
  */
 function replacePlaylist(type, uri, plist, callback) {
     switch(type) {
@@ -707,6 +730,7 @@ function replacePlaylist(type, uri, plist, callback) {
 /**
  * Shows the rename playlist modal
  * @param {string} from original playlist name
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showRenamePlaylist(from) {
@@ -718,6 +742,7 @@ function showRenamePlaylist(from) {
 
 /**
  * Renames the playlist
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function renamePlaylist() {
@@ -739,6 +764,7 @@ function renamePlaylist() {
 /**
  * Handles the MYMPD_API_PLAYLIST_RENAME jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function renamePlaylistClose(obj) {
     if (obj.error) {
@@ -752,6 +778,7 @@ function renamePlaylistClose(obj) {
 /**
  * Shows the settings of the smart playlist
  * @param {string} plist smart playlist name
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showSmartPlaylist(plist) {
@@ -763,6 +790,7 @@ function showSmartPlaylist(plist) {
 /**
  * Updates a smart playlist
  * @param {string} plist smart playlist name
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylist(plist) {
@@ -773,6 +801,7 @@ function updateSmartPlaylist(plist) {
 
 /**
  * Click handler for update smart playlist
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function updateSmartPlaylistClick() {
@@ -782,6 +811,7 @@ function updateSmartPlaylistClick() {
 
 /**
  * Click handler for edit smart playlist
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function editSmartPlaylistClick() {
@@ -792,6 +822,7 @@ function editSmartPlaylistClick() {
  * Deletes a playlist and shows a confirmation modal
  * @param {string} plist playlist to delete
  * @param {boolean} smartplsOnly delete only the smart playlist definition
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showDelPlaylist(plist, smartplsOnly) {
@@ -805,6 +836,7 @@ function showDelPlaylist(plist, smartplsOnly) {
 
 /**
  * Clears a playlist and shows a confirmation modal
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showClearPlaylist() {
@@ -821,6 +853,7 @@ function showClearPlaylist() {
  * Moves a song in the current displayed playlist
  * @param {number} from from position
  * @param {number} to to position
+ * @returns {void}
  */
 function playlistMoveSong(from, to) {
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG", {
@@ -849,6 +882,7 @@ function isMPDplaylist(uri) {
  * @param {string} action one of appendQueue, appendPlayQueue,
  *                               insertAfterCurrentQueue, replaceQueue,
  *                               replacePlayQueue, addToHome
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function currentPlaylistAddTo(action) {

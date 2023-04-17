@@ -7,6 +7,7 @@
 
 /**
  * Initialization function for the connection settings elements
+ * @returns {void}
  */
 function initSettingsConnection() {
     initElements(document.getElementById('modalConnection'));
@@ -51,6 +52,7 @@ function initSettingsConnection() {
 
 /**
  * Saves the mpd connection settings
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveConnection() {
@@ -131,6 +133,7 @@ function saveConnection() {
 /**
  * Handler for the MYMPD_API_CONNECTION_SAVE jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function saveConnectionClose(obj) {
     if (obj.error) {
@@ -144,6 +147,7 @@ function saveConnectionClose(obj) {
 
 /**
  * Populates the connection modal
+ * @returns {void}
  */
 function populateConnectionFrm() {
     document.getElementById('inputMpdHost').value = settings.mpdHost;

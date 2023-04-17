@@ -40,10 +40,10 @@
         <a class="alwaysEnabled" href="#offcanvasMenu" id="mainMenu" data-bs-toggle="offcanvas" data-title-phrase="myMPD menu">
           <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
             <ellipse class="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#6c757d"/>
-            <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
-            <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
-            <path d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
-            <path d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
+            <path class="logoFg" d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
+            <path class="logoFg" d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
+            <path class="logoFg" d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
+            <path class="logoFg" d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
           </svg>
         </a>
       </div>
@@ -56,10 +56,10 @@
       <h4 class="offcanvas-title">
         <svg class="me-2" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
           <ellipse class="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
-          <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
-          <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
-          <path d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
-          <path d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
+          <path class="logoFg" d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
+          <path class="logoFg" d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
+          <path class="logoFg" d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
+          <path class="logoFg" d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
         </svg>myMPD</h4>
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
@@ -68,7 +68,7 @@
       <div class="dropdown-divider"></div>
       <a class="dropdown-item py-2 alwaysEnabled" href="#modalConnection" data-bs-toggle="modal"><span class="mi me-2">settings_ethernet</span><span data-phrase="MPD connection"></span></a>
       <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalSettings"><span class="mi me-2">settings</span><span data-phrase="Settings"></span></a>
-      <a class="dropdown-item py-2 featScripting" data-bs-toggle="modal" href="#modalScripts"><span class="mi me-2">code</span><span data-phrase="Scripts"></span></a>
+      <a class="dropdown-item py-2 featScripting" href="#" data-href='{"cmd": "showListScriptModal", "options": []}'><span class="mi me-2">code</span><span data-phrase="Scripts"></span></a>
       <a class="dropdown-item py-2 featTimer" data-bs-toggle="modal" href="#modalTimer"><span class="mi me-2">timer</span><span data-phrase="Timer"></span></a>
       <a class="dropdown-item py-2 featTrigger" data-bs-toggle="modal" href="#modalTrigger"><span class="mi me-2">bolt</span><span data-phrase="Trigger"></span></a>
       <a class="dropdown-item py-2 featMounts" data-bs-toggle="modal" href="#modalMounts"><span class="mi me-2">dns</span><span data-phrase="Mounts"></span></a>
@@ -87,6 +87,11 @@
     <div class="offcanvas-footer px-3 py-2">
       <a class="external" rel="noreferrer" target="_blank" href="https://github.com/jcorporation/myMPD/discussions/167" data-phrase="Help to improve myMPD"></a>
     </div>
+  </div>
+  <!-- Context menu -->
+  <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasContext">
+    <div class="offcanvas-header px-0 pb-0"></div>
+    <div class="offcanvas-body px-0"></div>
   </div>
   <!-- Alerts -->
   <div id="top-alerts" class="d-none"></div>
@@ -1080,6 +1085,15 @@
                     <input class="form-control" type="color" id="inputHighlightColor"/>
                   </div>
                 </div>
+                <div class="row mb-3">
+                  <label class="col-sm-4 col-form-label" for="inputHighlightColorContrast">
+                    <span data-phrase="Highlight contrast color"></span>
+                    <small class="mi mi-small ms-1" data-title-phrase="Partition specific setting">dashboard</small>
+                  </label>
+                  <div class="col-sm-8">
+                    <input class="form-control" type="color" id="inputHighlightColorContrast"/>
+                  </div>
+                </div>
                 <div id="themeFrm"></div>
                 <div class="mb-3 row featMobile">
                   <label class="col-sm-4 col-form-label" for="inputScaleRatio">
@@ -1309,7 +1323,6 @@
               <hr/>
               <h4 data-phrase="Volume control"></h4>
               <form id="volumeSettingsFrm"></form>
-              <hr/>
             </div>
             <div class="tab-pane" id="tabCloudSettings">
               <h4 data-phrase="Cloud"></h4>
@@ -1541,11 +1554,11 @@
             <div class="tab-pane active" id="tabAbout">
               <h4 class="mb-3">
               <svg class="me-2" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
-                <ellipse cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
-                <path d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
-                <path d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
-                <path d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
-                <path d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
+                <ellipse class="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
+                <path class="logoFg" d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
+                <path class="logoFg" d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
+                <path class="logoFg" d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
+                <path class="logoFg" d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
               </svg>myMPD</h4>
               <ul>
                 <li><span data-phrase="Version"></span>: <span id="mympdVersion"></span></li>
@@ -2498,6 +2511,32 @@
     </div>
   </div>
 
+  <div class="modal fade" id="modalSetSongPos" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="mi title-icon">trending_flat</span> <span data-phrase="Move song"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="inputSongPosOld"/>
+          <input type="hidden" id="inputSongPosPlist"/>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="inputSongPosNew" data-phrase="Position"></label>
+            <div class="col-sm-8">
+              <input id="inputSongPosNew" class="form-control"/>
+              <div class="invalid-feedback" data-phrase="Position must be in range 1 - 10000"></div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
+          <button data-href='{"cmd":"setSongPos","options":[]}' type="button" class="btn btn-success" data-phrase="Move"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div class="modal fade" id="modalSetSongPriority" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2803,7 +2842,9 @@
 <!--debug-->  <script src="js/song.js"></script>
 <!--debug-->  <script src="js/scripts.js"></script>
 <!--debug-->  <script src="js/trigger.js"></script>
-<!--debug-->  <script src="js/popover.js"></script>
+<!--debug-->  <script src="js/contextMenuOffcanvas.js"></script>
+<!--debug-->  <script src="js/contextMenuPopover.js"></script>
+<!--debug-->  <script src="js/contextMenu.js"></script>
 <!--debug-->  <script src="js/localplayback.js"></script>
 <!--debug-->  <script src="js/maintenance.js"></script>
 <!--debug-->  <script src="js/router.js"></script>

@@ -7,6 +7,7 @@
 
 /**
  * Initialization function for the settings elements
+ * @returns {void}
  */
 function initSettings() {
     document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
@@ -20,6 +21,7 @@ function initSettings() {
 /**
  * Change eventhandler for the locale select
  * @param {Event} event change event
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function eventChangeLocale(event) {
@@ -30,6 +32,7 @@ function eventChangeLocale(event) {
 /**
  * Change eventhandler for the theme select
  * @param {Event} event change event
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function eventChangeTheme(event) {
@@ -57,6 +60,7 @@ function eventChangeTheme(event) {
 /**
  * Shows or hides the background color and image inputs
  * @param {string} theme theme name
+ * @returns {void}
  */
 function toggleThemeInputs(theme) {
     if (theme === 'auto') {
@@ -71,6 +75,7 @@ function toggleThemeInputs(theme) {
 
 /**
  * Fetches all myMPD and MPD settings
+ * @returns {void}
  */
 function getSettings() {
     settingsParsed = 'no';
@@ -100,7 +105,9 @@ function parseSettings(obj) {
 
     //set webuiSettings defaults
     for (const key in webuiSettingsDefault) {
-        if (settings.webuiSettings[key] === undefined) {
+        if (settings.webuiSettings[key] === undefined &&
+            webuiSettingsDefault[key].defaultValue !== undefined)
+        {
             settings.webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
         }
     }
@@ -204,6 +211,7 @@ function parseSettings(obj) {
 
     document.documentElement.style.setProperty('--mympd-thumbnail-size', settings.webuiSettings.uiThumbnailSize + "px");
     document.documentElement.style.setProperty('--mympd-highlightcolor', settings.partition.highlightColor);
+    document.documentElement.style.setProperty('--mympd-highlightcolor-contrast', settings.partition.highlightColorContrast);
 
     //default limit for all cards
     let limit = settings.webuiSettings.uiMaxElementsPerPage;
@@ -311,6 +319,7 @@ function getBgImageText(value) {
 
 /**
  * Populates the settings modal
+ * @returns {void}
  */
 function populateSettingsFrm() {
     getBgImageList();
@@ -322,6 +331,7 @@ function populateSettingsFrm() {
 
     //partition specific settings
     document.getElementById('inputHighlightColor').value = settings.partition.highlightColor;
+    document.getElementById('inputHighlightColorContrast').value = settings.partition.highlightColorContrast;
     document.getElementById('inputMpdStreamPort').value = settings.partition.mpdStreamPort;
     document.getElementById('inputStreamUri').value = settings.partition.streamUri;
 
@@ -426,6 +436,7 @@ function populateSettingsFrm() {
  * @param {string} id button id
  * @param {boolean} value true = enable button and hide warning
  *                        false = disable button and show warning
+ * @returns {void}
  */
 function setFeatureBtnId(id, value) {
     if (value === true) {
@@ -441,6 +452,7 @@ function setFeatureBtnId(id, value) {
 
 /**
  * Creates the settings modal and initializes the elements
+ * @returns {void}
  */
 function createSettingsFrm() {
     _createSettingsFrm(settings.webuiSettings, webuiSettingsDefault, 'inputWebUIsetting');
@@ -453,6 +465,7 @@ function createSettingsFrm() {
  * @param {object} fields elements to create
  * @param {object} defaults default values for the elements
  * @param {string} prefix prefix for element ids
+ * @returns {void}
  */
 function _createSettingsFrm(fields, defaults, prefix) {
     //build form for web ui settings
@@ -583,6 +596,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
 
 /**
  * Sets the features object accordingly to the backend features and settings
+ * @returns {void}
  */
 function setFeatures() {
     //web ui features
@@ -623,6 +637,7 @@ function setFeatures() {
 
 /**
  * Shows or hides feature related elements
+ * @returns {void}
  */
 function applyFeatures() {
     //show or hide elements
@@ -638,10 +653,12 @@ function applyFeatures() {
             el.style.display = displayValue;
         }
     }
+    setQueueCurrentHeaderClickable();
 }
 
 /**
  * Parses the MPD options
+ * @returns {void}
  */
 function parseMPDSettings() {
     document.getElementById('partitionName').textContent = localSettings.partition;
@@ -792,6 +809,7 @@ function parseMPDSettings() {
 /**
  * Saves the settings
  * @param {boolean} closeModal true = close modal, else not
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveSettings(closeModal) {
@@ -871,6 +889,9 @@ function saveSettings(closeModal) {
                     webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(el.value) : el.value;
                 }
             }
+            else if (webuiSettingsDefault[key].defaultValue !== undefined) {
+                webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
+            }
         }
 
         webuiSettings.enableLyrics = getBtnChkValueId('btnEnableLyrics');
@@ -912,6 +933,7 @@ function saveSettings(closeModal) {
 /**
  * Response handler for MYMPD_API_SETTINGS_SET that closes the modal
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function saveSettingsClose(obj) {
     if (obj.error) {
@@ -925,6 +947,7 @@ function saveSettingsClose(obj) {
 /**
  * Response handler for MYMPD_API_SETTINGS_SET
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function saveSettingsApply(obj) {
     if (obj.error) {
@@ -938,6 +961,7 @@ function saveSettingsApply(obj) {
 /**
  * Saves the partition specific settings
  * @param {boolean} closeModal true = close modal, else not
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function savePartitionSettings(closeModal) {
@@ -956,6 +980,7 @@ function savePartitionSettings(closeModal) {
     if (formOK === true) {
         const params = {
             "highlightColor": document.getElementById('inputHighlightColor').value,
+            "highlightColorContrast": document.getElementById('inputHighlightColorContrast').value,
             "mpdStreamPort": Number(mpdStreamPortEl.value),
             "streamUri": streamUriEl.value
         };
@@ -971,6 +996,7 @@ function savePartitionSettings(closeModal) {
 /**
  * Response handler for MYMPD_API_PARTITION_SAVE that closes the modal
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function savePartitionSettingsApply(obj) {
     if (obj.error) {
@@ -985,6 +1011,7 @@ function savePartitionSettingsApply(obj) {
 /**
  * Response handler for MYMPD_API_PARTITION_SAVE
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function savePartitionSettingsClose(obj) {
     if (obj.error) {
@@ -1073,6 +1100,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
 /**
  * Filters the selected column by available tags
  * @param {string} tableName the table name
+ * @returns {void}
  */
 function filterCols(tableName) {
     //set available tags
@@ -1121,6 +1149,7 @@ function toggleBtnNotifyWeb(event) {
 
 /**
  * Populates the navbar with the icons
+ * @returns {void}
  */
 function setNavbarIcons() {
     const oldBadgeQueueItems = document.getElementById('badgeQueueItems');
@@ -1150,7 +1179,7 @@ function setNavbarIcons() {
              icon.options[0] === 'Queue' ||
              icon.options[0] === 'Playback'))
         {
-            a.setAttribute('data-popover', 'Navbar' + icon.options.join(''));
+            a.setAttribute('data-contextmenu', 'Navbar' + icon.options.join(''));
         }
         if (icon.options[0] === 'Queue' &&
             icon.options.length === 1)
@@ -1172,6 +1201,7 @@ function setNavbarIcons() {
 /**
  * Shows the missing translations warning
  * @param {string} value locale name
+ * @returns {void}
  */
 function warnLocale(value) {
     const warnEl = document.getElementById('warnMissingPhrases');
@@ -1193,6 +1223,7 @@ function warnLocale(value) {
 
 /**
  * Removes all settings from localStorage
+ * @returns {void}
  */
 function resetLocalSettings() {
     for (const key in localSettings) {

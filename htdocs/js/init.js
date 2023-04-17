@@ -6,12 +6,14 @@
 /** @module init_js */
 
 /**
- * Initializes / stars the myMPD app
+ * Initializes / starts the myMPD app
+ * @returns {void}
  */
 
 /**
  * Shows an error message on the splashscreen
  * @param {string} text message to display (untranslated)
+ * @returns {void}
  */
  function showAppInitAlert(text) {
     const spa = document.getElementById('splashScreenAlert');
@@ -38,6 +40,7 @@
 
 /**
  * Clears the service worker caches
+ * @returns {void}
  */
 function clearCache() {
     if ('serviceWorker' in navigator) {
@@ -51,6 +54,7 @@ function clearCache() {
 
 /**
  * Clears the service worker caches and reloads the app
+ * @returns {void}
  */
 function clearAndReload() {
     clearCache();
@@ -59,6 +63,7 @@ function clearAndReload() {
 
 /**
  * Starts the app
+ * @returns {void}
  */
 function appInitStart() {
     //add app routing event handler
@@ -180,6 +185,7 @@ function appInitStart() {
 
 /**
  * Initializes the html elements
+ * @returns {void}
  */
 function appInit() {
     getAssets();
@@ -235,6 +241,7 @@ function appInit() {
     initLocalPlayback();
     initSession();
     initNotifications();
+    initContextMenuOffcanvas();
     //init drag and drop
     for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
         dragAndDropTable(table);
@@ -294,7 +301,9 @@ function appInit() {
             return;
         }
         const cmd = keymap[event.key];
-        if (cmd && typeof window[cmd.cmd] === 'function') {
+        if (cmd &&
+            typeof window[cmd.cmd] === 'function')
+        {
             if (keymap[event.key].feature === undefined ||
                 features[keymap[event.key].feature] === true)
             {
@@ -316,7 +325,7 @@ function appInit() {
             {
                 return;
             }
-            showPopover(event);
+            showContextMenu(event);
         }, false);
 
         tbody.addEventListener('contextmenu', function(event) {
@@ -326,7 +335,7 @@ function appInit() {
             {
                 return;
             }
-            showPopover(event);
+            showContextMenu(event);
         }, false);
     }
 
@@ -338,6 +347,7 @@ function appInit() {
 
 /**
  * Initializes the html elements
+ * @returns {void}
  */
 function initGlobalModals() {
     const tab = document.getElementById('tabShortcuts');
@@ -382,6 +392,7 @@ function initGlobalModals() {
 
 /**
  * Initializes the navigation html elements
+ * @returns {void}
  */
 function initNavs() {
     domCache.progress.addEventListener('click', function(event) {
@@ -427,20 +438,20 @@ function initNavs() {
     }, false);
 
     navbarMain.addEventListener('contextmenu', function(event) {
-        if (event.target.getAttribute('data-popover') === null &&
-            event.target.parentNode.getAttribute('data-popover') === null)
+        if (event.target.getAttribute('data-contextmenu') === null &&
+            event.target.parentNode.getAttribute('data-contextmenu') === null)
         {
             return;
         }
-        showPopover(event);
+        showContextMenu(event);
     }, false);
     navbarMain.addEventListener('long-press', function(event) {
-        if (event.target.getAttribute('data-popover') === null &&
-            event.target.parentNode.getAttribute('data-popover') === null)
+        if (event.target.getAttribute('data-contextmenu') === null &&
+            event.target.parentNode.getAttribute('data-contextmenu') === null)
         {
             return;
         }
-        showPopover(event);
+        showContextMenu(event);
     }, false);
 
     document.getElementById('scripts').addEventListener('click', function(event) {
@@ -460,6 +471,7 @@ function initNavs() {
 
 /**
  * Gets the initial assets
+ * @returns {void}
  */
 function getAssets() {
     httpGet(subdir + '/assets/i18n/en-US.json', function(obj) {
@@ -473,6 +485,7 @@ function getAssets() {
 
 /**
  * Handle javascript errors
+ * @returns {void}
  */
 if (debugMode === false) {
     window.onerror = function(msg, url, line) {

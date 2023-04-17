@@ -7,6 +7,7 @@
 
 /**
  * QueueLastPlayed handler
+ * @returns {void}
  */
 function handleQueueLastPlayed() {
     setFocusId('searchQueueLastPlayedStr');
@@ -26,6 +27,7 @@ function handleQueueLastPlayed() {
 
 /**
  * Initialization function for last played elements
+ * @returns {void}
  */
 function initQueueLastPlayed() {
     document.getElementById('searchQueueLastPlayedStr').addEventListener('keyup', function(event) {
@@ -48,7 +50,7 @@ function initQueueLastPlayed() {
         }
         const target = getParent(event.target, 'TR');
         if (checkTargetClick(target) === true) {
-            clickSong(getData(target, 'uri'));
+            clickSong(getData(target, 'uri'), event);
         }
     }, false);
 }

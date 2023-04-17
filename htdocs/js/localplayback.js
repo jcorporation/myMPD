@@ -7,6 +7,7 @@
 
 /**
  * Initializes the local playback related elements
+ * @returns {void}
  */
 function initLocalPlayback() {
     document.getElementById('localPlaybackVolumeBar').addEventListener('change', function(event) {
@@ -17,6 +18,7 @@ function initLocalPlayback() {
 /**
  * Changes the local volume by +/-10%
  * @param {string} dir direction, up or down
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function localPlaybackVolumeStep(dir) {
@@ -36,6 +38,7 @@ function localPlaybackVolumeStep(dir) {
 /**
  * Sets local playback volume
  * @param {number} volume volume to set
+ * @returns {void}
  */
 function setLocalPlaybackVolume(volume) {
     // @ts-ignore
@@ -45,6 +48,7 @@ function setLocalPlaybackVolume(volume) {
 /**
  * Sets the local playback state
  * @param {string} newState one of play, stop, pause
+ * @returns {void}
  */
 function controlLocalPlayback(newState) {
     if (features.featLocalPlayback === false ||
@@ -72,6 +76,7 @@ function controlLocalPlayback(newState) {
 /**
  * Creates the local playback element
  * @param {Event} createEvent triggering event
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function createLocalPlaybackEl(createEvent) {

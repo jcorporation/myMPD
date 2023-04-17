@@ -7,6 +7,7 @@
 
 /**
  * Handles home
+ * @returns {void}
  */
 function handleHome() {
     sendAPI("MYMPD_API_HOME_ICON_LIST", {}, parseHomeIcons, false);
@@ -14,6 +15,7 @@ function handleHome() {
 
 /**
  * Initializes the home feature elements
+ * @returns {void}
  */
 function initHome() {
     //home screen
@@ -25,7 +27,7 @@ function initHome() {
             }
         }
         else if (event.target.classList.contains('card-footer')){
-            showPopover(event);
+            showContextMenu(event);
         }
     }, false);
 
@@ -33,7 +35,7 @@ function initHome() {
         if (event.target.classList.contains('card-body') ||
             event.target.classList.contains('card-footer'))
         {
-            showPopover(event);
+            showContextMenu(event);
         }
     }, false);
 
@@ -41,7 +43,7 @@ function initHome() {
         if (event.target.classList.contains('card-body') ||
             event.target.classList.contains('card-footer'))
         {
-            showPopover(event);
+            showContextMenu(event);
         }
     }, false);
 
@@ -50,7 +52,7 @@ function initHome() {
     //modals
     const selectHomeIconCmd = document.getElementById('selectHomeIconCmd');
     selectHomeIconCmd.addEventListener('change', function() {
-        showHomeIconCmdOptions();
+        showHomeIconCmdOptions(undefined);
     }, false);
 
     document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
@@ -139,6 +141,7 @@ function initHome() {
 
 /**
  * Populates the ligatures dropdown
+ * @returns {void}
  */
 function populateHomeIconLigatures() {
     const listHomeIconLigature = document.getElementById('listHomeIconLigature');
@@ -157,7 +160,7 @@ function populateHomeIconLigatures() {
         );
         for (const icon of materialIcons[cat]) {
             listHomeIconLigature.appendChild(
-                elCreateText('button', {"class": ["btn", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon)
+                elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon)
             );
         }
     }
@@ -166,6 +169,7 @@ function populateHomeIconLigatures() {
 /**
  * Event handler for selecting a ligature
  * @param {EventTarget} el selected element
+ * @returns {void}
  */
 function selectHomeIconLigature(el) {
     document.getElementById('inputHomeIconLigature').value = el.getAttribute('title');
@@ -177,6 +181,7 @@ function selectHomeIconLigature(el) {
 
 /**
  * Event handler for ligature search
+ * @returns {void}
  */
 function filterHomeIconLigatures() {
     const str = document.getElementById('searchHomeIconLigature').value.toLowerCase();
@@ -204,6 +209,7 @@ function filterHomeIconLigatures() {
 /**
  * Parses the MYMPD_API_HOME_ICON_LIST response
  * @param {object} obj jsonrpc response object
+ * @returns {void}
  */
 function parseHomeIcons(obj) {
     const cardContainer = document.getElementById('HomeList');
@@ -255,8 +261,8 @@ function parseHomeIcons(obj) {
         }
         const actionType = friendlyActions[obj.result.data[i].cmd];
 
-        const card = elCreateEmpty('div', {"data-popover": "home", "class": ["card", "home-icons"], "draggable": "true",
-            "title": tn(homeType) + ':' + smallSpace + tn(obj.result.data[i].name) +
+        const card = elCreateEmpty('div', {"data-contextmenu": "home", "class": ["card", "home-icons"], "draggable": "true",
+            "title": tn(homeType) + ':' + smallSpace + obj.result.data[i].name +
             '\n' + tn(actionType)});
         //decode json options
         for (let j = 0, k = obj.result.data[i].options.length; j < k; j++) {
@@ -303,6 +309,7 @@ function parseHomeIcons(obj) {
  * Shows the dragover tip
  * @param {EventTarget} from from element
  * @param {EventTarget} to to element
+ * @returns {void}
  */
 function showDropoverIcon(from, to) {
     const fromPos = getData(from, 'pos');
@@ -319,6 +326,7 @@ function showDropoverIcon(from, to) {
 /**
  * Hides the dragover tip
  * @param {EventTarget} el element
+ * @returns {void}
  */
 function hideDropoverIcon(el) {
     el.classList.remove('dragover-icon-left', 'dragover-icon-right');
@@ -326,6 +334,7 @@ function hideDropoverIcon(el) {
 
 /**
  * Drag and drop event handler
+ * @returns {void}
  */
 function dragAndDropHome() {
     const HomeList = document.getElementById('HomeList');
@@ -421,6 +430,7 @@ function dragAndDropHome() {
  * Populates the cmd select box in the add to homescreen dialog
  * @param {string} cmd command
  * @param {string} type one of album, song, dir, search, plist, smartpls
+ * @returns {void}
  */
 function populateHomeIconCmdSelect(cmd, type) {
     const selectHomeIconCmd = document.getElementById('selectHomeIconCmd');
@@ -527,6 +537,7 @@ function populateHomeIconCmdSelect(cmd, type) {
 /**
  * Executes the home icon action
  * @param {number} pos home icon position
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function executeHomeIcon(pos) {
@@ -536,6 +547,7 @@ function executeHomeIcon(pos) {
 
 /**
  * Adds a link to a view to the homescreen
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addViewToHome() {
@@ -545,6 +557,7 @@ function addViewToHome() {
 
 /**
  * Adds a modal shortcut to the homescreen
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addOpenModalToHome() {
@@ -553,6 +566,7 @@ function addOpenModalToHome() {
 
 /**
  * Adds a external link to the homescreen
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addExternalLinkToHome() {
@@ -563,6 +577,7 @@ function addExternalLinkToHome() {
  * Adds a script to the homescreen
  * @param {string} name name for the home icon
  * @param {object} script script object
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addScriptToHome(name, script) {
@@ -575,6 +590,7 @@ function addScriptToHome(name, script) {
  * @param {string} uri uri of the playlist
  * @param {string} type one of plist, smartpls
  * @param {string} name name for the home icon
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addPlistToHome(uri, type, name) {
@@ -587,6 +603,7 @@ function addPlistToHome(uri, type, name) {
  * @param {string} type must be webradio
  * @param {string} name name for the home icon
  * @param {string} image image for the home icon
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addRadioFavoriteToHome(uri, type, name, image) {
@@ -599,6 +616,7 @@ function addRadioFavoriteToHome(uri, type, name, image) {
  * @param {string} type must be stream
  * @param {string} name name for the home icon
  * @param {string} image image for the home icon
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addWebRadiodbToHome(uri, type, name, image) {
@@ -609,6 +627,7 @@ function addWebRadiodbToHome(uri, type, name, image) {
  * Adds a directory to the homescreen
  * @param {string} uri directory uri
  * @param {string} name name for the home icon
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addDirToHome(uri, name) {
@@ -624,6 +643,7 @@ function addDirToHome(uri, name) {
  * @param {string} uri song or stream uri
  * @param {string} type one of song, stream
  * @param {string} name name for the home icon
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addSongToHome(uri, type, name) {
@@ -633,16 +653,18 @@ function addSongToHome(uri, type, name) {
 
 /**
  * Adds the current search to the homescreen
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addSearchToHome() {
-    _addHomeIcon('replaceQueue', tn('Current search'), '', 'saved_search', ['search', app.current.search]);
+    _addHomeIcon('replaceQueue', tn('Current search'), 'saved_search', '', ['search', app.current.search]);
 }
 
 /**
  * Adds an album to the homescreen
  * @param {object} albumArtist array of albumartists
  * @param {string} album albumname
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addAlbumToHome(albumArtist, album) {
@@ -655,6 +677,7 @@ function addAlbumToHome(albumArtist, album) {
 
 /**
  * Adds a new stream to the homescreen
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addStreamToHome() {
@@ -679,6 +702,7 @@ function addStreamToHome() {
  * @param {string} ligature ligature for the home icon
  * @param {string} image picture for the home icon
  * @param {object} options options array
+ * @returns {void}
  */
 function _addHomeIcon(cmd, name, ligature, image, options) {
     document.getElementById('modalEditHomeIconTitle').textContent = tn('Add to homescreen');
@@ -721,6 +745,7 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
 /**
  * Duplicates a home icon
  * @param {number} pos home icon position
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function duplicateHomeIcon(pos) {
@@ -730,6 +755,7 @@ function duplicateHomeIcon(pos) {
 /**
  * Opens the edit home icon dialog
  * @param {number} pos home icon position
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function editHomeIcon(pos) {
@@ -741,6 +767,7 @@ function editHomeIcon(pos) {
  * @param {number} pos home icon position
  * @param {boolean} replace true = replace existing home icon, false = duplicate home icon
  * @param {string} title title for the modal
+ * @returns {void}
  */
 function _editHomeIcon(pos, replace, title) {
     document.getElementById('modalEditHomeIconTitle').textContent = tn(title);
@@ -783,6 +810,7 @@ function _editHomeIcon(pos, replace, title) {
 
 /**
  * Saves the home icon
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveHomeIcon() {
@@ -822,6 +850,7 @@ function saveHomeIcon() {
 /**
  * Response handler for save home icon
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function saveHomeIconClose(obj) {
     if (obj.error) {
@@ -835,6 +864,7 @@ function saveHomeIconClose(obj) {
 /**
  * Deletes a home icon
  * @param {number} pos home icon position
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function deleteHomeIcon(pos) {
@@ -843,7 +873,8 @@ function deleteHomeIcon(pos) {
 
 /**
  * Changes the options in the home icon edit modal for the selected cmd.
- * @param {*} values values to set for the options
+ * @param {Array} values values to set for the options
+ * @returns {void}
  */
 function showHomeIconCmdOptions(values) {
     const oldOptions = [];
@@ -901,6 +932,7 @@ function createHomeIconCmdOptionEl(name, value) {
 
 /**
  * Populates the picture list in the home icon edit modal
+ * @returns {void}
  */
 function getHomeIconPictureList() {
     const selectHomeIconImage = document.getElementById('inputHomeIconImage');
@@ -910,6 +942,7 @@ function getHomeIconPictureList() {
 /**
  * Opens the link in a new window
  * @param {string} link uri to open
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function openExternalLink(link) {
@@ -923,6 +956,7 @@ function openExternalLink(link) {
  *                type = album: AlbumArtist
  *                else uri of directory or playlist
  * @param {string} [album] albumname (only valid for type = album)
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function homeIconGoto(type, uri, album) {

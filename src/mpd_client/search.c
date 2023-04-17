@@ -217,6 +217,8 @@ static sds search_songs(struct t_partition_state *partition_state, sds buffer, e
                 }
             }
             else if (strcmp(sort, "LastModified") == 0) {
+                //swap order
+                sortdesc = sortdesc == false ? true : false;
                 rc = mpd_search_add_sort_name(partition_state->conn, "Last-Modified", sortdesc);
                 if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_sort_name") == false) {
                     mpd_search_cancel(partition_state->conn);

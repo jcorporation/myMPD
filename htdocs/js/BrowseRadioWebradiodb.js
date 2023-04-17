@@ -35,6 +35,7 @@ function handleBrowseRadioWebradiodb() {
 
 /**
  * Initialization function for webradioDB elements
+ * @returns {void}
  */
 function initBrowseRadioWebradiodb() {
     document.getElementById('BrowseRadioWebradiodbSearchStr').addEventListener('keyup', function(event) {
@@ -89,7 +90,7 @@ function initBrowseRadioWebradiodb() {
                 });
             }
             else {
-                clickWebradiodb(uri);
+                clickWebradiodb(uri, event);
             }
         }
     }, false);
@@ -100,6 +101,7 @@ function initBrowseRadioWebradiodb() {
  * @param {string} id input id to initialize
  * @param {string} dbField database fields
  * @param {string} name name of the field
+ * @returns {void}
  */
 function initWebradiodbFilter(id, dbField, name) {
     document.getElementById(id).addEventListener('change', function() {
@@ -111,6 +113,7 @@ function initWebradiodbFilter(id, dbField, name) {
 
 /**
  * Fetches the webradioDB
+ * @returns {void}
  */
 function getWebradiodb() {
     const list = document.querySelector('#BrowseRadioWebradiodbList > tbody');
@@ -137,6 +140,7 @@ function getWebradiodb() {
  * @param {string} dbField name of the array to filter
  * @param {string} placeholder placeholder value
  * @param {string} searchStr search string
+ * @returns {void}
  */
 function filterWebradiodbFilter(id, dbField, placeholder, searchStr) {
     searchStr = searchStr.toLowerCase();
@@ -159,6 +163,7 @@ function filterWebradiodbFilter(id, dbField, placeholder, searchStr) {
 
 /**
  * Starts the webradioDB search
+ * @returns {void}
  */
 function doSearchWebradiodb() {
     const searchstr = document.getElementById('BrowseRadioWebradiodbSearchStr').value;
@@ -319,6 +324,7 @@ function streamUriToName(uri) {
 /**
  * Shows the details of a webradioDB entry
  * @param {string} uri webradio uri
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showWebradiodbDetails(uri) {
@@ -332,7 +338,7 @@ function showWebradiodbDetails(uri) {
     }
     else {
         document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
-            'url("' + subdir + '/assets/coverimage-notavailable.svg")';
+            'url("' + subdir + '/assets/coverimage-notavailable")';
     }
     document.getElementById('RadiobrowserDetailsTitle').textContent = result.Name;
     setDataId('RadiobrowserDetailsTitle', 'webradio', result);

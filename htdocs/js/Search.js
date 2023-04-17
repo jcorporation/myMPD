@@ -7,6 +7,7 @@
 
 /**
  * Handler for song search
+ * @returns {void}
  */
 function handleSearch() {
     const searchStrEl = document.getElementById('searchStr');
@@ -46,6 +47,7 @@ function handleSearch() {
 
 /**
  * Initialization function for the search elements
+ * @returns {void}
  */
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
@@ -72,7 +74,7 @@ function initSearch() {
         //table body
         const target = getParent(event.target, 'TR');
         if (checkTargetClick(target) === true) {
-            clickSong(getData(target, 'uri'));
+            clickSong(getData(target, 'uri'), event);
         }
     }, false);
 
@@ -150,6 +152,7 @@ function initSearch() {
 /**
  * Searches for songs
  * @param {string} value current search input value
+ * @returns {void}
  */
 function doSearch(value) {
     const expression = createSearchExpression(document.getElementById('searchCrumb'), app.current.filter, getSelectValueId('searchMatch'), value);
@@ -201,6 +204,7 @@ function parseSearch(obj) {
 
 /**
  * Saves the current search as a smart playlist
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveSearchAsSmartPlaylist() {
@@ -216,6 +220,7 @@ function saveSearchAsSmartPlaylist() {
  * Appends the current search to the queue
  * @param {string} mode one of: append, appendPlay, insertAfterCurrent, insertPlayAfterCurrent, replace, replacePlay
  * @param {string} type one of: search, dir
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addAllFromSearch(mode, type) {
@@ -243,6 +248,7 @@ function addAllFromSearch(mode, type) {
 
 /**
  * Adds the current search to a playlist
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSearch() {

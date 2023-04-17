@@ -7,6 +7,7 @@
 
 /**
  * Handles BrowseFilesystem
+ * @returns {void}
  */
 function handleBrowseFilesystem() {
     setFocusId('searchFilesystemStr');
@@ -56,6 +57,7 @@ function handleBrowseFilesystem() {
 
 /**
  * Initialization function for the browse filesystem view
+ * @returns {void}
  */
 function initBrowseFilesystem() {
     document.getElementById('searchFilesystemStr').addEventListener('keyup', function(event) {
@@ -92,10 +94,10 @@ function initBrowseFilesystem() {
                     clickFolder(uri);
                     break;
                 case 'song':
-                    clickSong(uri);
+                    clickSong(uri, event);
                     break;
                 case 'plist':
-                    clickFilesystemPlaylist(uri);
+                    clickFilesystemPlaylist(uri, event);
                     break;
             }
         }
@@ -115,6 +117,7 @@ function initBrowseFilesystem() {
 /**
  * Parses the MYMPD_API_DATABASE_FILESYSTEM_LIST response
  * @param {object} obj jsonrpc response object
+ * @returns {void}
  */
  function parseFilesystem(obj) {
     //show images in folder
@@ -141,7 +144,7 @@ function initBrowseFilesystem() {
         }
         if (obj.result.bookletPath !== '') {
             const img = elCreateEmpty('div', {"class": ["booklet"], "title": tn('Booklet')});
-            img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet.svg")';
+            img.style.backgroundImage = 'url("' + subdir + '/assets/coverimage-booklet")';
             setData(img, 'href', subdir + myEncodeURI(obj.result.bookletPath));
             imageList.appendChild(img);
         }
@@ -186,6 +189,7 @@ function initBrowseFilesystem() {
 
 /**
  * Adds the current directory to a playlist
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistFromFilesystem() {

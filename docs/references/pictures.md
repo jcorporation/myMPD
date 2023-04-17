@@ -79,6 +79,17 @@ myMPD recognizes following file extensions:
 
 - webp, png, jpg, jpeg, svg, avif
 
+## Custom placeholder images
+
+You can add custom placeholder images for albumart.
+
+- `/var/lib/mympd/pics/thumbs/coverimage-booklet.webp`
+- `/var/lib/mympd/pics/thumbs/coverimage-mympd.webp`
+- `/var/lib/mympd/pics/thumbs/coverimage-notavailable.webp`
+- `/var/lib/mympd/pics/thumbs/coverimage-stream.webp`
+
+You can use every supported file extension.
+
 ## Covercache
 
 myMPD caches covers in the folder `/var/cache/mympd/covercache`. Files in this folder can be safely deleted. myMPD housekeeps the covercache on startup and each day.

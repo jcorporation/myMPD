@@ -28,6 +28,7 @@ Comment
 Composer
 ComposerSort
 Conductor
+Context menu
 country
 CSS filter
 Dark
@@ -47,6 +48,7 @@ Disable repeat
 Disable single mode
 Disable single oneshot
 Disc
+Discs
 Display tags in rows for small displays
 Duplicate home icon
 Duration
@@ -65,6 +67,7 @@ Enable repeat
 Enable single mode
 Enable single oneshot
 Ensemble
+Error
 Error executing script %{script}
 Error executing script %{script}: Can not open or read script file
 Error executing script %{script}: Error in garbage collector
@@ -246,5 +249,27 @@ Volume max.
 Volume min.
 Volume step
 votes
+Warning
 Web notifications
 Work
+Edit script
+alsa
+ao
+sndio
+fifo
+jack
+httpd
+null
+oss
+openal
+osx
+pipe
+pipewire
+pulse
+recorder
+shout
+sles
+snapcast
+solaris
+wasapi
+any

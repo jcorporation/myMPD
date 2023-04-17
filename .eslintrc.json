@@ -24,7 +24,9 @@
         "block-scoped-var": "error",
         "camelcase": "error",
         "default-case-last": "error",
-        "eqeqeq": ["error", "always", {"null": "ignore"}],
+        "eqeqeq": ["error", "always", {
+            "null": "ignore"
+        }],
         "no-alert": "error",
         "no-caller": "error",
         "no-console": "off",
@@ -41,12 +43,18 @@
         "no-useless-concat": "error",
         "no-var": "error",
         "prefer-const": "error",
+        "jsdoc/check-syntax": 1,
         "jsdoc/newline-after-description": "off",
+        "jsdoc/no-blank-block-descriptions": 1,
+        "jsdoc/no-defaults": 1,
         "jsdoc/no-undefined-types": ["warn", {
             "definedTypes": [
                 "ChildNode",
                 "ParentNode"
             ]
+        }],
+        "jsdoc/require-returns": ["error", {
+            "forceRequireReturn": true
         }]
     }
 }

@@ -285,6 +285,40 @@ mpd_run_playlist_move(struct mpd_connection *connection, const char *name,
 		      unsigned from, unsigned to);
 
 /**
+ * Moves a range of songs within the same playlist.
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist
+ * @param start the start position of the range (including)
+ * @param end the end position of the range (excluding); the special
+ * value "UINT_MAX" makes the end of the range open
+ * @param to the new position of the song range
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.21, MPD 0.24
+ */
+bool
+mpd_send_playlist_move_range(struct mpd_connection *connection, const char *name,
+		       unsigned start, unsigned end, unsigned to);
+
+/**
+ * Shortcut for mpd_send_playlist_move_range() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param name the name of the playlist
+ * @param start the start position of the range (including)
+ * @param end the end position of the range (excluding); the special
+ * value "UINT_MAX" makes the end of the range open
+ * @param to the new position of the song range
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.21, MPD 0.24
+ */
+bool
+mpd_run_playlist_move_range(struct mpd_connection *connection, const char *name,
+		       unsigned start, unsigned end, unsigned to);
+
+/**
  * Delete a position from a playlist.
  *
  * @param connection the connection to MPD

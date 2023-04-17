@@ -45,7 +45,7 @@ function sendAPIpartition(partition, method, params, callback, onerror) {
         enterPin(method, params, callback, onerror);
         return false;
     }
-    //we do not use the jsonrpc id field because we get the response directly.
+    //we do not use the jsonrpc id field, because we get the response directly.
     const request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
     const ajaxRequest = new XMLHttpRequest();
     ajaxRequest.open('POST', subdir + '/api/' + partition, true);
@@ -60,6 +60,7 @@ function sendAPIpartition(partition, method, params, callback, onerror) {
         if (ajaxRequest.status === 403 &&
             method !== 'MYMPD_API_SESSION_VALIDATE')
         {
+            //myMPD session authentication
             logDebug('Authorization required for ' + method);
             enterPin(method, params, callback, onerror);
             return;
@@ -68,18 +69,25 @@ function sendAPIpartition(partition, method, params, callback, onerror) {
             ajaxRequest.responseText === '' ||
             ajaxRequest.responseText.length > 1000000)
         {
+            //handle http errors, empty or too long responses
             logError('Invalid response for request: ' + JSON.stringify(request));
             logError('Response code: ' + ajaxRequest.status);
             logError('Response length: ' + ajaxRequest.responseText.length);
-            if (onerror === true) {
-                if (callback !== undefined && typeof(callback) === 'function') {
-                    logDebug('Got empty API response calling ' + callback.name);
-                    callback({"error": {"message": "Invalid response"}});
-                }
+            if (onerror === true &&
+                callback !== undefined &&
+                typeof(callback) === 'function')
+            {
+                logDebug('Calling ' + callback.name);
+                callback({"error": {"message": "Invalid response"}});
             }
+            //always notify user about the error
+            const text = tn('Response code') + ': ' + ajaxRequest.status + '\n' +
+                tn('Response') + ': ' + ajaxRequest.responseText.substring(0, 200);
+            showNotification(tn('API error'), text, 'general', 'error');
             return;
         }
 
+        //successful http response
         if (settings.pin === true &&
             session.token !== '' &&
             APImethods[method].protected === true)
@@ -93,7 +101,8 @@ function sendAPIpartition(partition, method, params, callback, onerror) {
             obj = JSON.parse(ajaxRequest.responseText);
         }
         catch(error) {
-            showNotification(tn('Can not parse response from %{uri} to json object', {"uri": subdir + '/api/' + partition}), '', 'general', 'error');
+            const text = tn('Can not parse response from %{uri} to json object', {"uri": subdir + '/api/' + partition});
+            showNotification('API error', text, 'general', 'error');
             logError('Can not parse response to json object:' + ajaxRequest.responseText);
         }
         if (obj.error &&
@@ -141,7 +150,7 @@ function sendAPIpartition(partition, method, params, callback, onerror) {
                 callback(obj);
             }
             else {
-                logDebug('Undefined resultset, skip calling ' + callback.name);
+                logDebug('Result is undefined, skip calling ' + callback.name);
             }
         }
     };

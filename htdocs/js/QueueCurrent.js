@@ -7,6 +7,7 @@
 
 /**
  * Current queue handler
+ * @returns {void}
  */
 function handleQueueCurrent() {
     setFocusId('searchQueueStr');
@@ -69,6 +70,7 @@ function handleQueueCurrent() {
 
 /**
  * Initializes the current queue elements
+ * @returns {void}
  */
 function initQueueCurrent() {
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
@@ -85,8 +87,7 @@ function initQueueCurrent() {
             const colName = event.target.getAttribute('data-col');
             if (colName === null ||
                 colName === 'Duration' ||
-                colName.indexOf('sticker') === 0 ||
-                features.featAdvqueue === false)
+                colName.indexOf('sticker') === 0)
             {
                 return;
             }
@@ -98,7 +99,7 @@ function initQueueCurrent() {
         //table body
         const target = getParent(event.target, 'TR');
         if (checkTargetClick(target) === true) {
-            clickQueueSong(getData(target, 'songid'), getData(target, 'uri'));
+            clickQueueSong(getData(target, 'songid'), getData(target, 'uri'), event);
         }
     }, false);
 
@@ -228,6 +229,7 @@ function initQueueCurrent() {
 /**
  * Wrapper for queue search that respects featAdvqueue
  * @param {string} value search value
+ * @returns {void}
  */
 function getQueue(value) {
     if (features.featAdvqueue) {
@@ -270,7 +272,11 @@ function parseQueue(obj) {
 
     const rowTitle = webuiSettingsDefault.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
     updateTable(obj, 'QueueCurrent', function(row, data) {
-        row.setAttribute('draggable', 'true');
+        if (features.featAdvqueue === false ||
+            app.current.sort.tag === 'Priority')
+        {
+            row.setAttribute('draggable', 'true');
+        }
         row.setAttribute('id', 'queueSongId' + data.id);
         row.setAttribute('title', tn(rowTitle));
         setData(row, 'songid', data.id);
@@ -298,7 +304,6 @@ function parseQueue(obj) {
                 setData(row, tag, data[tag]);
             }
         }
-
     }, function(row, data) {
         tableRow(row, data, app.id, colspan, smallWidth);
         if (currentState.currentSongId === data.id) {
@@ -336,6 +341,7 @@ function parseQueue(obj) {
 
 /**
  * Removes the old playing row and sets the new playing row in the queue view
+ * @returns {void}
  */
 function queueSetCurrentSong() {
     //remove old playing row
@@ -363,6 +369,7 @@ function queueSetCurrentSong() {
  * Sets the playing progress in the queue view
  * @param {HTMLElement} playingRow the playing row element
  * @param {string} counterText text to set for the duration
+ * @returns {void}
  */
 function setQueueCounter(playingRow, counterText) {
     if (userAgentData.isSafari === false) {
@@ -383,6 +390,7 @@ function setQueueCounter(playingRow, counterText) {
 /**
  * Sets the playing song in the current queue view
  * @param {HTMLElement} [playingRow] playing row element
+ * @returns {void}
  */
 function setPlayingRow(playingRow) {
     if (playingRow === undefined) {
@@ -400,10 +408,35 @@ function setPlayingRow(playingRow) {
 }
 
 /**
+ * Sets the clickable class for current queue table header,
+ * if mpd supports queue sorting (since MPD 0.24)
+ * @returns {void}
+ */
+function setQueueCurrentHeaderClickable() {
+    const ths = document.querySelectorAll('#QueueCurrentList > thead > tr > th');
+    for (const th of ths) {
+        const colName = th.getAttribute('data-col');
+        if (colName === null ||
+            colName === 'Duration' ||
+            colName.indexOf('sticker') === 0)
+        {
+            continue;
+        }
+        if (features.featAdvqueue === true) {
+            th.classList.add('clickable');
+        }
+        else {
+            th.classList.remove('clickable');
+        }
+    }
+}
+
+/**
  * Appends an element to the queue
  * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
  * @param {string} uri element uri
  * @param {Function} [callback] callback function
+ * @returns {void}
  */
 function appendQueue(type, uri, callback) {
     _appendQueue(type, uri, false, callback);
@@ -414,6 +447,7 @@ function appendQueue(type, uri, callback) {
  * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
  * @param {string} uri element uri
  * @param {Function} [callback] callback function
+ * @returns {void}
  */
 function appendPlayQueue(type, uri, callback) {
     _appendQueue(type, uri, true, callback);
@@ -425,6 +459,7 @@ function appendPlayQueue(type, uri, callback) {
  * @param {string} uri element uri
  * @param {boolean} play true = play added entry, false = append only
  * @param {Function} callback callback function
+ * @returns {void}
  */
 function _appendQueue(type, uri, play, callback) {
     switch(type) {
@@ -458,6 +493,7 @@ function _appendQueue(type, uri, play, callback) {
  * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
  * @param {string} uri element uri
  * @param {Function} [callback] callback function
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function insertAfterCurrentQueue(type, uri, callback) {
@@ -469,6 +505,7 @@ function insertAfterCurrentQueue(type, uri, callback) {
  * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
  * @param {string} uri element uri
  * @param {Function} [callback] callback function
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function insertPlayAfterCurrentQueue(type, uri, callback) {
@@ -483,6 +520,7 @@ function insertPlayAfterCurrentQueue(type, uri, callback) {
  * @param {number} whence how t interpret the to parameter: 0 = absolute, 1 = after, 2 = before current song
  * @param {boolean} play true = play added entry, false = insert only
  * @param {Function} callback callback function
+ * @returns {void}
  */
 function insertQueue(type, uri, to, whence, play, callback) {
     switch(type) {
@@ -522,6 +560,7 @@ function insertQueue(type, uri, to, whence, play, callback) {
  * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
  * @param {string} uri element uri
  * @param {Function} [callback] callback function
+ * @returns {void}
  */
 function replaceQueue(type, uri, callback) {
     _replaceQueue(type, uri, false, callback)
@@ -532,6 +571,7 @@ function replaceQueue(type, uri, callback) {
  * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
  * @param {string} uri element uri
  * @param {Function} [callback] callback function
+ * @returns {void}
  */
 function replacePlayQueue(type, uri, callback) {
     _replaceQueue(type, uri, true, callback)
@@ -543,6 +583,7 @@ function replacePlayQueue(type, uri, callback) {
  * @param {string} uri element uri
  * @param {boolean} play true = play added entry, false = insert only
  * @param {Function} callback callback function
+ * @returns {void}
  */
 function _replaceQueue(type, uri, play, callback) {
     switch(type) {
@@ -573,6 +614,7 @@ function _replaceQueue(type, uri, play, callback) {
 
 /**
  * Adds random songs/albums to the queue, one-shot jukebox mode.
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addRandomToQueue() {
@@ -596,6 +638,7 @@ function addRandomToQueue() {
 /**
  * Toggles the queue save mode options
  * @param {EventTarget} target triggering element
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function toggleSaveQueueMode(target) {
@@ -613,6 +656,7 @@ function toggleSaveQueueMode(target) {
 
 /**
  * Saves the queue as a playlist
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveQueue() {
@@ -646,6 +690,7 @@ function saveQueue() {
 /**
  * Handler for the MYMPD_API_QUEUE_SAVE jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function saveQueueCheckError(obj) {
     if (obj.error) {
@@ -657,8 +702,69 @@ function saveQueueCheckError(obj) {
 }
 
 /**
+ * Shows the set song position modal
+ * @param {string} plist the playlist name or the special value "queue" to move the song
+ * @param {number} oldSongPos song pos in queue to move
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showSetSongPos(plist, oldSongPos) {
+    cleanupModalId('modalSetSongPos');
+    document.getElementById('inputSongPosNew').value = '';
+    document.getElementById('inputSongPosOld').value = oldSongPos;
+    document.getElementById('inputSongPosPlist').value = plist;
+    uiElements.modalSetSongPos.show();
+}
+
+/**
+ * Sets song position in queue or playlist
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function setSongPos() {
+    cleanupModalId('modalSetSongPos');
+    const plist = document.getElementById('inputSongPosPlist').value;
+    const oldSongPos = Number(document.getElementById('inputSongPosOld').value);
+    const newSongPosEl = document.getElementById('inputSongPosNew');
+    if (validateIntRangeEl(newSongPosEl, 1, 99999) === true) {
+        let newSongPos = Number(newSongPosEl.value);
+        if (newSongPos < oldSongPos) {
+            newSongPos--;
+        }
+        if (plist === 'queue') {
+            sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
+                "from": oldSongPos,
+                "to": newSongPos
+            }, setSongPosCheckError, true);
+        }
+        else {
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG", {
+                "plist": plist,
+                "from": oldSongPos,
+                "to": newSongPos
+            }, setSongPosCheckError, true);
+        }
+    }
+}
+
+/**
+ * Handles the MYMPD_API_QUEUE_MOVE_SONG and  jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function setSongPosCheckError(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        uiElements.modalSetSongPos.hide();
+    }
+}
+
+/**
  * Shows the set song priority modal
  * @param {number} songId the mpd song id
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showSetSongPriority(songId) {
@@ -669,6 +775,7 @@ function showSetSongPriority(songId) {
 
 /**
  * Sets song priority
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function setSongPriority() {
@@ -687,6 +794,7 @@ function setSongPriority() {
 /**
  * Handles the MYMPD_API_QUEUE_PRIO_SET jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function setSongPriorityCheckError(obj) {
     if (obj.error) {
@@ -702,6 +810,7 @@ function setSongPriorityCheckError(obj) {
  * @param {string} mode range or single
  * @param {number} start start of the range (including) or song id to remove
  * @param {number} [end] end of the range (excluding), -1 for open end
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function removeFromQueue(mode, start, end) {
@@ -747,6 +856,7 @@ function gotoPlayingSong() {
  * Uses the priority if in random mode else moves the song after current playing song.
  * @param {number} songId current playing song id (for priority mode)
  * @param {number} songPos current playing song position (for move mode)
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function playAfterCurrent(songId, songPos) {
@@ -767,6 +877,7 @@ function playAfterCurrent(songId, songPos) {
 
 /**
  * Clears or crops the queue after confirmation
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clearQueue() {

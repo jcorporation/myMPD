@@ -7,6 +7,7 @@
 
 /**
  * Initializes the notification html elements
+ * @returns {void}
  */
 function initNotifications() {
     document.getElementById('modalNotifications').addEventListener('show.bs.modal', function() {
@@ -16,19 +17,27 @@ function initNotifications() {
 
 /**
  * Sets the background color of the myMPD logo according to the websocket state
+ * @returns {void}
  */
 function setStateIcon() {
     const logoBgs = document.querySelectorAll('.logoBg');
+    const logoFgs = document.querySelectorAll('.logoFg');
     if (getWebsocketState() === false ||
         settings.partition.mpdConnected === false)
     {
         for (const logoBg of logoBgs) {
             logoBg.setAttribute('fill', '#6c757d');
         }
+        for (const logoFg of logoFgs) {
+            logoFg.setAttribute('fill', '#f8f9fa;');
+        }
     }
     else {
         for (const logoBg of logoBgs) {
             logoBg.setAttribute('fill', settings.partition.highlightColor);
+        }
+        for (const logoFg of logoFgs) {
+            logoFg.setAttribute('fill', settings.partition.highlightColorContrast);
         }
     }
 }
@@ -38,6 +47,7 @@ function setStateIcon() {
  * @param {string} alertBoxId the id of alertBox to toggle
  * @param {boolean} state false = hides the alertBox, true = shows the alertBox
  * @param {string} msg already translated message
+ * @returns {void}
  */
 function toggleAlert(alertBoxId, state, msg) {
     //get existing alert
@@ -149,6 +159,7 @@ function createSeverityIcon(severity) {
  * @param {string} text notification text
  * @param {string} facility facility
  * @param {string} severity one off info, warn, error
+ * @returns {void}
  */
 function showNotification(title, text, facility, severity) {
     if (appInited === false) {
@@ -210,6 +221,7 @@ function showNotification(title, text, facility, severity) {
  * @param {string} text message
  * @param {string} facility facility
  * @param {string} severity one off info, warn, error
+ * @returns {void}
  */
 function logMessage(title, text, facility, severity) {
     let messagesLen = messages.length;
@@ -244,6 +256,7 @@ function logMessage(title, text, facility, severity) {
 
 /**
  * Lists the logbuffer in the logOverview element
+ * @returns {void}
  */
 function showMessages() {
     const overview = document.getElementById('logOverview');
@@ -271,6 +284,7 @@ function showMessages() {
 
 /**
  * Clears the logbuffer
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clearMessages() {
@@ -292,6 +306,7 @@ function notificationsSupported() {
  * Toggles the disabled state of elements
  * @param {string} selector query selector
  * @param {string} state disabled or enabled
+ * @returns {void}
  */
 function setElsState(selector, state) {
     const els = document.querySelectorAll(selector);
@@ -318,6 +333,7 @@ function setElsState(selector, state) {
 
 /**
  * Toggles the ui state
+ * @returns {void}
  */
 function toggleUI() {
     let state = 'disabled';
@@ -365,6 +381,7 @@ function toggleUI() {
 /**
  * Shows an alert in a modal
  * @param {object} obj jsonrpc error response
+ * @returns {void}
  */
 function showModalAlert(obj) {
     const aModal = getOpenModal();
@@ -381,6 +398,7 @@ function showModalAlert(obj) {
 /**
  * Removes all alerts in a modal
  * @param {HTMLElement | Element} el the modal element
+ * @returns {void}
  */
 function hideModalAlert(el) {
     const activeAlerts = el.querySelectorAll('.modalAlert');

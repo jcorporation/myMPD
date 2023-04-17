@@ -119,6 +119,7 @@ function fmtSongDuration(secs) {
 /**
  * Sets and fetches the locale and translates the dom
  * @param {string} newLocale locale to set
+ * @returns {void}
  */
 function setLocale(newLocale) {
     if (newLocale === 'default') {
@@ -152,6 +153,7 @@ function setLocale(newLocale) {
 /**
  * Translates all phrases in the dom
  * @param {HTMLElement} root root element to translate
+ * @returns {void}
  */
 function i18nHtml(root) {
     const attributes = [

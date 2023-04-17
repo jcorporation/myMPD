@@ -7,6 +7,7 @@
 
 /**
  * Initialization functions for the script elements
+ * @returns {void}
  */
 function initScripts() {
     document.getElementById('inputScriptArgument').addEventListener('keyup', function(event) {
@@ -48,10 +49,6 @@ function initScripts() {
         if (checkTargetClick(target) === true) {
             showEditScript(getData(target, 'script'));
         }
-    }, false);
-
-    document.getElementById('modalScripts').addEventListener('shown.bs.modal', function () {
-        showListScripts();
     }, false);
 
     document.getElementById('btnDropdownAddAPIcall').parentNode.addEventListener('show.bs.dropdown', function() {
@@ -160,6 +157,7 @@ function initScripts() {
 
 /**
  * Fetches the list of available scripts to import
+ * @returns {void}
  */
 function getImportScriptList() {
     const sel = document.getElementById('selectImportScript');
@@ -178,6 +176,7 @@ function getImportScriptList() {
 /**
  * Imports a script
  * @param {string} script script to import
+ * @returns {void}
  */
 function getImportScript(script) {
     document.getElementById('textareaScriptContent').setAttribute('disabled', 'disabled');
@@ -235,6 +234,7 @@ function apiParamsToArgs(p) {
 
 /**
  * Saves a script
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function saveScript() {
@@ -270,6 +270,7 @@ function saveScript() {
 /**
  * Handler for the MYMPD_API_SCRIPT_SAVE jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function saveScriptCheckError(obj) {
     if (obj.error) {
@@ -282,6 +283,7 @@ function saveScriptCheckError(obj) {
 
 /**
  * Appends an argument to the list of script arguments
+ * @returns {void}
  */
 function addScriptArgument() {
     const el = document.getElementById('inputScriptArgument');
@@ -296,6 +298,7 @@ function addScriptArgument() {
 /**
  * Removes an argument from the list of script arguments
  * @param {Event} ev triggering element
+ * @returns {void}
  */
 function removeScriptArgument(ev) {
     const el = document.getElementById('inputScriptArgument');
@@ -306,8 +309,30 @@ function removeScriptArgument(ev) {
 }
 
 /**
+ * Opens the scripts modal and shows the edit tab
+ * @param {string} script name to edit
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showEditScriptModal(script) {
+    uiElements.modalScripts.show();
+    showEditScript(script);
+}
+
+/**
+ * Opens the scripts modal and shows the list tab
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showListScriptModal() {
+    uiElements.modalScripts.show();
+    showListScripts();
+}
+
+/**
  * Shows the edit script tab
  * @param {string} script script name
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function showEditScript(script) {
@@ -335,6 +360,7 @@ function showEditScript(script) {
 /**
  * Parses the MYMPD_API_SCRIPT_GET jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function parseEditScript(obj) {
     document.getElementById('inputOldScriptName').value = obj.result.script;
@@ -353,6 +379,7 @@ function parseEditScript(obj) {
 
 /**
  * Shows the list scripts tab
+ * @returns {void}
  */
 function showListScripts() {
     cleanupModalId('modalScripts');
@@ -367,6 +394,7 @@ function showListScripts() {
  * Deletes a script after confirmation
  * @param {EventTarget} el triggering element
  * @param {string} script script to delete
+ * @returns {void}
  */
 function deleteScript(el, script) {
     showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the script?', {"script": script}), tn('Yes, delete it'), function() {
@@ -379,6 +407,7 @@ function deleteScript(el, script) {
 /**
  * Handler for the MYMPD_API_SCRIPT_RM jsonrpc response
  * @param {object} obj jsonrpc response
+ * @returns {void}
  */
 function deleteScriptCheckError(obj) {
     if (obj.error) {
@@ -392,6 +421,7 @@ function deleteScriptCheckError(obj) {
 /**
  * Gets the list of scripts
  * @param {boolean} all true = get all scripts, false = get all scripts with pos > 0
+ * @returns {void}
  */
 function getScriptList(all) {
     sendAPI("MYMPD_API_SCRIPT_LIST", {
@@ -477,6 +507,7 @@ function parseScriptList(obj) {
  * Executes a script and uses a comma separated list of options as arguments
  * @param {string} cmd script to execute
  * @param {string} options options parsed as comma separated list of arguments
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function execScriptFromOptions(cmd, options) {
@@ -487,6 +518,7 @@ function execScriptFromOptions(cmd, options) {
 /**
  * Executes a script and asks for argument values
  * @param {object} cmd script and arguments object to execute
+ * @returns {void}
  */
 function execScript(cmd) {
     if (cmd.arguments.length === 0) {
@@ -515,6 +547,7 @@ function execScript(cmd) {
 
 /**
  * Executes a script after asking for argument values
+ * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function execScriptArgs() {
