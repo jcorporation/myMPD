@@ -32,7 +32,7 @@ Second myMPD instance:
 - myMPD will listen on port 4432 for ssl traffic
 
 ```
-export MPD_HOST=/run/mpd1/socket
+export MPD_HOST=/run/mpd2/socket
 export MYMPD_HTTP_PORT=8002
 export MYMPD_SSL_PORT=4432
 export MYMPD_SSL=true
