@@ -10,6 +10,7 @@
 #include "src/lib/config_def.h"
 #include "src/lib/pin.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/utility.h"
 
 #include <getopt.h>
 
@@ -67,6 +68,7 @@ int handle_options(struct t_config *config, int argc, char **argv) {
         switch(n) {
             case 'a':
                 config->cachedir = sds_replace(config->cachedir, optarg);
+                strip_slash(config->cachedir);
                 break;
             case 'c':
                 config->bootstrap = true;
@@ -90,6 +92,7 @@ int handle_options(struct t_config *config, int argc, char **argv) {
                 return OPTIONS_RC_EXIT;
             case 'w':
                 config->workdir = sds_replace(config->workdir, optarg);
+                strip_slash(config->workdir);
                 break;
             default:
                 print_usage(config, argv[0]);
