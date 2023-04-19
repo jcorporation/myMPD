@@ -7,6 +7,7 @@
 #ifndef MYMPD_MEM_H
 #define MYMPD_MEM_H
 
+#undef NDEBUG
 #include <assert.h>
 #include <stdlib.h>
 

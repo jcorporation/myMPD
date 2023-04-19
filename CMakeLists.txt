@@ -319,8 +319,6 @@ if(CMAKE_BUILD_TYPE STREQUAL "Release")
   add_compile_options(
     "-fPIE"
     "-O2"
-    # leave asserts in place
-    #"-DNDEBUG"
   )
   if(NOT MYMPD_STRIP_BINARY)
     message("Generating binary with debug symbols")

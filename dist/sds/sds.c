@@ -30,14 +30,17 @@
  * POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "sds.h"
+#include "sdsalloc.h"
+
+#undef NDEBUG
+#include <assert.h>
+
+#include <ctype.h>
+#include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <ctype.h>
-#include <assert.h>
-#include <limits.h>
-#include "sds.h"
-#include "sdsalloc.h"
 
 const char *SDS_NOINIT = "SDS_NOINIT";
 
@@ -336,7 +339,7 @@ void sdsclear(sds s) {
 sds sdsMakeRoomFor(sds s, size_t addlen) {
     void *sh, *newsh;
     size_t avail = sdsavail(s);
-    size_t len, newlen;
+    size_t len, newlen, reqlen;
     char type, oldtype = s[-1] & SDS_TYPE_MASK;
     int hdrlen;
 
@@ -345,9 +348,7 @@ sds sdsMakeRoomFor(sds s, size_t addlen) {
 
     len = sdslen(s);
     sh = (char*)s-sdsHdrSize(oldtype);
-    #ifndef NDEBUG
-        size_t reqlen = newlen = (len+addlen);
-    #endif
+    reqlen = newlen = (len+addlen);
     if (newlen < SDS_MAX_PREALLOC)
         newlen *= 2;
     else
