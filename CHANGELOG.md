@@ -6,13 +6,13 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v10.3.1 (not yet released)
 
-This is a small bugfix release.
+This is a small bugfix release. It fixes a memory corruption error, if myMPD was compiled with NDEBUG defined.
 
 ### Changelog
 
 - Upd: zh-Hans translation
 - Fix: handling of NDEBUG #1018
-- Fix: remove obsolete data attributes
+- Fix: remove obsolete data attributes #1019
 
 ***
 
