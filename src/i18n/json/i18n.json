@@ -8,5 +8,5 @@
     "ja-JP": {"desc":"日本語 (ja-JP)", "missingPhrases": 1},
     "nl-NL": {"desc":"Nederlands (nl-NL)", "missingPhrases": 1},
     "ru-RU": {"desc":"Russian (ru-RU)", "missingPhrases": 1},
-    "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 33}
+    "zh-Hans": {"desc":"简体中文 (zh-Hans)", "missingPhrases": 0}
 }
