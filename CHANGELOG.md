@@ -10,6 +10,10 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Upd: zh-Hans translation
+- Fix: handling of NDEBUG #1018
+- Fix: remove obsolete data attributes
+
 ***
 
 ## myMPD v10.3.0 (2023-04-17)
