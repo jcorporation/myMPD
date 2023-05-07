@@ -113,7 +113,6 @@ bool jukebox_rm_entry(struct t_list *list, long pos, sds partition_name) {
 /**
  * Clears the jukebox queue of all partitions.
  * @param mympd_state pointer to central myMPD state.
- * @param partition_name name of the partition
  */
 void jukebox_clear_all(struct t_mympd_state *mympd_state) {
     struct t_partition_state *partition_state = mympd_state->partition_state;
@@ -129,6 +128,7 @@ void jukebox_clear_all(struct t_mympd_state *mympd_state) {
 /**
  * Clears the jukebox queue.
  * This is a simple wrapper around list_clear.
+ * @param partition_name name of the partition
  * @param list the jukebox queue
  */
 void jukebox_clear(struct t_list *list, sds partition_name) {

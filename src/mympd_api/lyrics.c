@@ -174,7 +174,6 @@ static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char 
  * Extracts unsynced lyrics from a id3 tagged mp3 file
  * @param extracted t_list struct to append found lyrics
  * @param media_file absolute filename to read lyrics from
- * @return number of retrieved lyrics
  */
 static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file) {
     #ifdef MYMPD_ENABLE_LIBID3TAG
@@ -254,7 +253,6 @@ static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file)
  * Extracts synced lyrics from a id3 tagged mp3 file
  * @param extracted t_list struct to append found lyrics
  * @param media_file absolute filename to read lyrics from
- * @return number of retrieved lyrics
  */
 static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file) {
     #ifdef MYMPD_ENABLE_LIBID3TAG
@@ -506,7 +504,6 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
  * @param is_ogg true if is a ogg file else false (flac)
  * @param comment_name name of vorbis comment with the lyrics
  * @param synced true for synced lyrics else false
- * @return number of retrieved lyrics
  */
 static void lyricsextract_flac(struct t_list *extracted, sds media_file, bool is_ogg, const char *comment_name, bool synced) {
     #ifdef MYMPD_ENABLE_FLAC
