@@ -10,6 +10,8 @@ This is a small bugfix release.
 
 ### Changelog
 
+- Upd: ko-KR, es-AR translation
+
 ***
 
 ## myMPD v10.3.1 (2023-04-24)
