@@ -95,25 +95,33 @@ const char *jukebox_mode_lookup(enum jukebox_modes mode) {
  * Removes an entry from the jukebox queue.
  * @param list the jukebox queue
  * @param pos position to remove
+ * @param partition_name name of the partition
  * @return true on success, else false
  */
-bool jukebox_rm_entry(struct t_list *list, long pos) {
+bool jukebox_rm_entry(struct t_list *list, long pos, sds partition_name) {
     struct t_list_node *node = list_node_at(list, pos);
     if (node == NULL) {
         return false;
     }
     node->user_data = NULL;
-    return list_remove_node(list, pos);
+    bool rc = list_remove_node(list, pos);
+    //notify clients
+    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_JUKEBOX, partition_name);
+    return rc;
 }
 
 /**
  * Clears the jukebox queue of all partitions.
  * @param mympd_state pointer to central myMPD state.
+ * @param partition_name name of the partition
  */
 void jukebox_clear_all(struct t_mympd_state *mympd_state) {
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
         list_clear(&partition_state->jukebox_queue);
+        //notify clients
+        send_jsonrpc_event(JSONRPC_EVENT_UPDATE_JUKEBOX, partition_state->name);
+        //next entry
         partition_state = partition_state->next;
     }
 }
@@ -123,8 +131,10 @@ void jukebox_clear_all(struct t_mympd_state *mympd_state) {
  * This is a simple wrapper around list_clear.
  * @param list the jukebox queue
  */
-void jukebox_clear(struct t_list *list) {
+void jukebox_clear(struct t_list *list, sds partition_name) {
     list_clear(list);
+    //notify clients
+    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_JUKEBOX, partition_name);
 }
 
 /**
@@ -374,12 +384,12 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state, long add_so
         }
         if (manual == false) {
             partition_state->jukebox_queue.head->user_data = NULL;
-            jukebox_rm_entry(&partition_state->jukebox_queue, 0);
+            jukebox_rm_entry(&partition_state->jukebox_queue, 0, partition_state->name);
             current = partition_state->jukebox_queue.head;
         }
         else {
             partition_state->jukebox_queue_tmp.head->user_data = NULL;
-            jukebox_rm_entry(&partition_state->jukebox_queue_tmp, 0);
+            jukebox_rm_entry(&partition_state->jukebox_queue_tmp, 0, partition_state->name);
             current = partition_state->jukebox_queue_tmp.head;
         }
     }
@@ -627,7 +637,8 @@ static bool jukebox_fill_jukebox_queue(struct t_partition_state *partition_state
     long added = 0;
 
     if (manual == true) {
-        jukebox_clear(&partition_state->jukebox_queue_tmp);
+        //do not use jukebox_clear wrapper to prevent obsolet notification
+        list_clear(&partition_state->jukebox_queue_tmp);
     }
 
     //get last_played and current queue

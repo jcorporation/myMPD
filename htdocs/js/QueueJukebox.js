@@ -31,8 +31,9 @@ function handleQueueJukebox() {
  */
 function initQueueJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
+        //action td
         if (event.target.nodeName === 'A') {
-            showContextMenu(event);
+            handleActionTdClick(event);
             return;
         }
         const target = getParent(event.target, 'TR');
@@ -64,14 +65,7 @@ function initQueueJukebox() {
  */
 //eslint-disable-next-line no-unused-vars
 function clearJukeboxQueue() {
-    sendAPI("MYMPD_API_JUKEBOX_CLEAR", {}, function() {
-        sendAPI("MYMPD_API_JUKEBOX_LIST", {
-            "offset": app.current.offset,
-            "limit": app.current.limit,
-            "cols": settings.colsQueueJukeboxFetch,
-            "searchstr": app.current.search
-        }, parseJukeboxList, false);
-    }, false);
+    sendAPI("MYMPD_API_JUKEBOX_CLEAR", {}, null, false);
 }
 
 /**
@@ -83,14 +77,7 @@ function clearJukeboxQueue() {
 function delQueueJukeboxSong(pos) {
     sendAPI("MYMPD_API_JUKEBOX_RM", {
         "pos": pos
-    }, function() {
-        sendAPI("MYMPD_API_JUKEBOX_LIST", {
-            "offset": app.current.offset,
-            "limit": app.current.limit,
-            "cols": settings.colsQueueJukeboxFetch,
-            "searchstr": app.current.search
-        }, parseJukeboxList, false);
-    }, false);
+    }, null, false);
 }
 
 /**

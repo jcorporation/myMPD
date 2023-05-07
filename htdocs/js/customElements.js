@@ -20,8 +20,14 @@ pEl.actionTdMenuRemove = elCreateNodes('td', {"data-col": "Action"}, [
     elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Remove"}, 'clear'),
     elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
 ]);
+pEl.actionTdMenuPlayRemove = elCreateNodes('td', {"data-col": "Action"}, [
+    elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Quick play"}, 'play_arrow'),
+    elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Remove"}, 'clear'),
+    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
+]);
 pEl.actionTd = pEl.actionTdMenu;
 pEl.actionQueueTd = pEl.actionTdMenu;
+pEl.actionJukeboxTd = pEl.actionTdMenu;
 pEl.coverPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
     "data-title-phrase": "Quick play"}, 'play_arrow');
 

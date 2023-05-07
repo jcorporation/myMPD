@@ -370,7 +370,9 @@ function saveCols(tableName, tableEl) {
     const ths = header.querySelectorAll('th');
     for (let i = 0, j = ths.length; i < j; i++) {
         const name = ths[i].getAttribute('data-col');
-        if (name !== 'Action' && name !== null) {
+        if (name !== 'Action' &&
+            name !== null)
+        {
             params.cols.push(name);
         }
     }
@@ -615,11 +617,19 @@ function tableRow(row, data, list, colspan, smallWidth) {
         switch(app.id) {
             case 'QueueCurrent':
             case 'BrowsePlaylistsDetail':
+                // add quick remove action
                 row.appendChild(
                     pEl.actionQueueTd.cloneNode(true)
                 );
                 break;
+            case 'QueueJukebox':
+                // add quick play and remove action
+                row.appendChild(
+                    pEl.actionJukeboxTd.cloneNode(true)
+                );
+                break;
             default:
+                // add quick play action
                 row.appendChild(
                     pEl.actionTd.cloneNode(true)
                 );

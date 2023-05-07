@@ -613,7 +613,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         case MYMPD_API_JUKEBOX_RM:
             if (json_get_long(request->data, "$.params.pos", 0, MPD_PLAYLIST_LENGTH_MAX, &long_buf1, &error) == true) {
-                rc = jukebox_rm_entry(&partition_state->jukebox_queue, long_buf1);
+                rc = jukebox_rm_entry(&partition_state->jukebox_queue, long_buf1, partition_state->name);
                 if (rc == true) {
                     response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
                 }
@@ -624,7 +624,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         case MYMPD_API_JUKEBOX_CLEAR:
-            jukebox_clear(&partition_state->jukebox_queue);
+            jukebox_clear(&partition_state->jukebox_queue, partition_state->name);
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
             break;
         case MYMPD_API_JUKEBOX_LIST: {

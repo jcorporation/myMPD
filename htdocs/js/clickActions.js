@@ -23,6 +23,11 @@ function clickQuickRemove(target) {
             removeFromPlaylist('single', plist, pos);
             break;
         }
+        case 'QueueJukebox': {
+            const pos = getData(target.parentNode.parentNode, 'pos');
+            delQueueJukeboxSong(pos);
+            break;
+        }
     }
 }
 

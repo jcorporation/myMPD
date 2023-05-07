@@ -264,8 +264,24 @@ function parseSettings(obj) {
     pEl.actionTdMenuRemove.firstChild.title = tn('Remove');
     pEl.actionTdMenuRemove.lastChild.title = tn('Actions');
 
-    pEl.actionTd = settings.webuiSettings.uiQuickPlayButton === false ? pEl.actionTdMenu : pEl.actionTdMenuPlay;
-    pEl.actionQueueTd = settings.webuiSettings.uiQuickRemoveButton === false ? pEl.actionTdMenu : pEl.actionTdMenuRemove;
+    pEl.actionTdMenuPlayRemove.childNodes[0].title = tn(webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
+    pEl.actionTdMenuPlayRemove.childNodes[1].title = tn('Remove');
+    pEl.actionTdMenuPlayRemove.childNodes[2].title = tn('Actions');
+
+    //update actions for table rows
+    pEl.actionTd = settings.webuiSettings.uiQuickPlayButton === true
+        ? pEl.actionTdMenuPlay
+        : pEl.actionTdMenu;
+    pEl.actionQueueTd = settings.webuiSettings.uiQuickRemoveButton === true
+        ? pEl.actionTdMenuRemove
+        : pEl.actionTdMenu;
+    pEl.actionJukeboxTd = settings.webuiSettings.uiQuickPlayButton === true && settings.webuiSettings.uiQuickRemoveButton === true
+        ? pEl.actionTdMenuPlayRemove
+        : settings.webuiSettings.uiQuickPlayButton === true 
+            ? pEl.actionTdMenuPlay
+            : settings.webuiSettings.uiQuickRemoveButton === true 
+                ? pEl.actionTdMenuRemove
+                : pEl.actionTdMenu;
     pEl.coverPlayBtn.title = tn(webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
 
     //goto view

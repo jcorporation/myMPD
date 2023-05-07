@@ -11,6 +11,8 @@ This is a small bugfix release.
 ### Changelog
 
 - Upd: ko-KR, es-AR translation
+- Upd: use update_jukebox events
+- Fix: Jukebox actions
 
 ***
 
