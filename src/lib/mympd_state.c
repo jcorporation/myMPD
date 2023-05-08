@@ -323,9 +323,10 @@ void partition_state_free(struct t_partition_state *partition_state) {
     FREE_SDS(partition_state->song_uri);
     FREE_SDS(partition_state->last_song_uri);
     //jukebox
-    jukebox_clear(&partition_state->jukebox_queue, partition_state->name);
-    jukebox_clear(&partition_state->jukebox_queue_tmp, partition_state->name);
     FREE_SDS(partition_state->jukebox_playlist);
+    //do not use jukebox_clear wrapper to prevent obsolet notification
+    list_clear(&partition_state->jukebox_queue);
+    list_clear(&partition_state->jukebox_queue_tmp);
     //lists
     list_clear(&partition_state->last_played);
     list_clear(&partition_state->presets);
