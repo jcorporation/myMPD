@@ -7,7 +7,9 @@
 #ifndef TEST_UTILITY_H
 #define TEST_UTILITY_H
 
-#include "../src/lib/sds_extras.h"
+#include "src/lib/sds_extras.h"
+
+#define MYMPD_BUILD_DIR "${PROJECT_BINARY_DIR}"
 
 extern sds workdir;
 

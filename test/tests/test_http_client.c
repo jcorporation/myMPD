@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "utility.h"
 
 #include "dist/utest/utest.h"
 #include "dist/sds/sds.h"

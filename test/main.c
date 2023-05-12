@@ -6,9 +6,9 @@
 
 #include "compile_time.h"
 
-#include "../dist/utest/utest.h"
-#include "../src/lib/log.h"
-#include "../src/lib/sds_extras.h"
+#include "dist/utest/utest.h"
+#include "src/lib/log.h"
+#include "src/lib/sds_extras.h"
 
 #include <sys/stat.h>
 #include <unistd.h>

@@ -12,7 +12,7 @@ The `build.sh` script provides three compile targets for myMPD.
 
 _If compilation fails and you are building on top of an old version, try to run `./build.sh cleanup` before._
 
-### Release 
+### Release
 
 - `./build.sh release`
   - Builds release binaries

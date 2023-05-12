@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "test/utility.h"
+#include "utility.h"
 
 #include "dist/utest/utest.h"
 #include "src/lib/sds_extras.h"
@@ -27,15 +27,15 @@ UTEST(utility, test_my_msleep) {
 }
 
 UTEST(utility, test_is_virtual_cuedir) {
-    sds dir = sdsnew(".");
-    sds file = sdsnew("test/build/test");
+    sds dir = sdsnew(MYMPD_BUILD_DIR);
+    sds file = sdsnew("bin/unit_test");
     bool rc = is_virtual_cuedir(dir, file);
     ASSERT_TRUE(rc);
     sdsfree(dir);
     sdsfree(file);
 
-    dir = sdsnew("..");
-    file = sdsnew("build");
+    dir = sdsnew(MYMPD_BUILD_DIR);
+    file = sdsnew("bin");
     rc = is_virtual_cuedir(dir, file);
     ASSERT_FALSE(rc);
     sdsfree(dir);

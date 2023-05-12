@@ -5,7 +5,7 @@
 */
 
 #include "compile_time.h"
-#include "test/utility.h"
+#include "utility.h"
 
 #include "dist/utest/utest.h"
 #include "src/lib/filehandler.h"

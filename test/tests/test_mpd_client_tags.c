@@ -5,9 +5,9 @@
 */
 
 #include "compile_time.h"
+#include "utility.h"
 
 #include "dist/utest/utest.h"
-
 #include "dist/libmympdclient/src/isong.h"
 #include "src/lib/album_cache.h"
 #include "src/mpd_client/search_local.h"

@@ -4,6 +4,14 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v10.4.0
+
+### Changelog
+
+- Feat: add test target to cmake #1023
+
+***
+
 ## myMPD v10.3.2 (2023-05-08)
 
 This is a small bugfix release.

@@ -48,6 +48,7 @@ if(NOT DEFINED MYMPD_DEBUG)
 endif()
 
 # available options
+option(MYMPD_BUILD_TESTING "Enables building of unit tests" "OFF")
 option(MYMPD_DEBUG "Enables myMPD debug mode, default OFF, ON for Debug" "OFF")
 option(MYMPD_EMBEDDED_ASSETS "Embed assets in binary, default ON, OFF for Debug" "ON")
 option(MYMPD_ENABLE_FLAC "Enables flac support, default ON" "ON")
@@ -396,3 +397,9 @@ endif()
 # install
 install(TARGETS mympd DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
 install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/cmake/CopyConfig.cmake)
+
+# test
+include(CTest)
+if(MYMPD_BUILD_TESTING)
+  add_subdirectory(test)
+endif()

@@ -21,6 +21,7 @@ sudo make -C build install
 
 | OPTION | DEFAULT | DESCRIPTION |
 | ------ | ------- | ----------- |
+| MYMPD_BUILD_TESTING | OFF | Enables building of unit tests |
 | MYMPD_DEBUG | OFF | Enables myMPD debug mode, default OFF, ON for Debug |
 | MYMPD_EMBEDDED_ASSETS | ON | Embed assets in binary, default ON, OFF for Debug |
 | MYMPD_ENABLE_FLAC | ON | Enables flac support |
@@ -45,3 +46,9 @@ sudo make -C build install
   - Assets are served from the `htdocs` folder in the source directory
 3. None:
   - Use this option to set your own compile and link options
+
+## Unit tests
+
+- Set `MYMPD_BUILD_TESTING=ON`
+- Build as normal
+- Run `make test`

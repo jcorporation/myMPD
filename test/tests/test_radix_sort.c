@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "utility.h"
 
 #include "dist/rax/rax.h"
 #include "dist/sds/sds.h"
