@@ -581,33 +581,44 @@ function setMobileView() {
 }
 
 /**
- * Generic http get request
+ * Generic http get request (async function)
  * @param {string} uri uri for the request
  * @param {Function} callback callback function
  * @param {boolean} json true = parses the response as json, else pass the plain text response
- * @returns {void}
+ * @returns {Promise<void>}
  */
-function httpGet(uri, callback, json) {
-    const ajaxRequest = new XMLHttpRequest();
-    ajaxRequest.open('GET', uri, true);
-    ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.readyState === 4) {
-            if (json === true) {
-                let obj = {};
-                try {
-                    obj = JSON.parse(ajaxRequest.responseText);
-                }
-                catch(error) {
-                    showNotification(tn('Can not parse response from %{uri} to json object', {"uri": uri}), '', 'general', 'error');
-                    logError('Can not parse response from ' + uri + ' to json object.');
-                    logError(error);
-                }
-                callback(obj);
-            }
-            else {
-                callback(ajaxRequest.responseText);
-            }
-        }
-    };
-    ajaxRequest.send();
+async function httpGet(uri, callback, json) {
+    const response = await fetch(uri, {
+        method: 'GET',
+        mode: 'same-origin',
+        credentials: 'same-origin',
+        cache: 'no-store',
+        redirect: 'follow'
+    });
+    if (response.redirected === true) {
+        window.location.reload();
+        logError('Request was redirect, reloading application');
+        return;
+    }
+    if (response.ok === false) {
+        showNotification(tn('Error fetching %{uri}', {"uri": uri}),
+            tn('Response code: %{code}', {"code": response.status + ' - ' + response.statusText}),
+            'general', 'error');
+        logError('Error fetching ' + uri + ', code ' + response.status + ' - ' + response.statusText);
+        callback(null);
+        return;
+    }
+
+    try {
+        const data = json === true
+            ? await response.json()
+            : await response.text();
+        callback(data);
+    }
+    catch(error) {
+        showNotification(tn('Can not parse response from %{uri}', {"uri": uri}), '', 'general', 'error');
+        logError('Can not parse response from ' + uri);
+        logError(error);
+        callback(null);
+    }
 }
