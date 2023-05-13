@@ -399,7 +399,7 @@ install(TARGETS mympd DESTINATION ${CMAKE_INSTALL_FULL_BINDIR})
 install(SCRIPT ${CMAKE_CURRENT_BINARY_DIR}/cmake/CopyConfig.cmake)
 
 # test
-include(CTest)
 if(MYMPD_BUILD_TESTING)
+  include(CTest)
   add_subdirectory(test)
 endif()
