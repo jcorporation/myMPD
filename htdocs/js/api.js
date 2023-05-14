@@ -119,7 +119,7 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
 
 /**
  * Validates the JSON-RPC API response and calls the callback function
- * @param {object} obj parsed json rpc response objecz
+ * @param {object} obj parsed json rpc response object
  * @param {Function} callback callback function
  * @param {boolean} onerror true = execute callback also on error
  * @returns {void}
