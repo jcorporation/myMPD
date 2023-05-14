@@ -601,10 +601,10 @@ async function httpGet(uri, callback, json) {
         return;
     }
     if (response.ok === false) {
-        showNotification(tn('Error fetching %{uri}', {"uri": uri}),
-            tn('Response code: %{code}', {"code": response.status + ' - ' + response.statusText}),
+        showNotification(tn('API error'),
+            tn('Error accessing %{uri}, Response code: %{code}', {"uri": uri, "code": response.status + ' - ' + response.statusText}),
             'general', 'error');
-        logError('Error fetching ' + uri + ', code ' + response.status + ' - ' + response.statusText);
+        logError('Error accessing ' + uri + ', code ' + response.status + ' - ' + response.statusText);
         callback(null);
         return;
     }
@@ -616,7 +616,7 @@ async function httpGet(uri, callback, json) {
         callback(data);
     }
     catch(error) {
-        showNotification(tn('Can not parse response from %{uri}', {"uri": uri}), '', 'general', 'error');
+        showNotification(tn('API error'), tn('Can not parse response from %{uri}', {"uri": uri}), 'general', 'error');
         logError('Can not parse response from ' + uri);
         logError(error);
         callback(null);

@@ -9,7 +9,11 @@
  * This messages are hidden from notifications.
  */
 /** @type {object} */
-const ignoreMessages = ['No current song', 'No lyrics found'];
+const ignoreMessages = [
+    'ok',
+    'No current song',
+    'No lyrics found'
+];
 
 /**
  * Sends a JSON-RPC API request to the selected partition and handles the response.
@@ -17,11 +21,11 @@ const ignoreMessages = ['No current song', 'No lyrics found'];
  * @param {object} params jsonrpc parameters
  * @param {Function} callback callback function
  * @param {boolean} onerror true = execute callback also on error
- * @returns {boolean} true on success, else false
+ * @returns {void}
  */
- function sendAPI(method, params, callback, onerror) {
-    return sendAPIpartition(localSettings.partition, method, params, callback, onerror);
- }
+function sendAPI(method, params, callback, onerror) {
+    sendAPIpartition(localSettings.partition, method, params, callback, onerror);
+}
 
 /**
  * Sends a JSON-RPC API request and handles the response.
@@ -30,9 +34,9 @@ const ignoreMessages = ['No current song', 'No lyrics found'];
  * @param {object} params jsonrpc parameters
  * @param {Function} callback callback function
  * @param {boolean} onerror true = execute callback also on error
- * @returns {boolean} true on success, else false
+ * @returns {Promise<void>}
  */
-function sendAPIpartition(partition, method, params, callback, onerror) {
+async function sendAPIpartition(partition, method, params, callback, onerror) {
     if (APImethods[method] === undefined) {
         logError('Method "' + method + '" is not defined');
     }
@@ -43,118 +47,121 @@ function sendAPIpartition(partition, method, params, callback, onerror) {
     {
         logDebug('Request must be authorized but we have no session');
         enterPin(method, params, callback, onerror);
-        return false;
+        return;
     }
-    //we do not use the jsonrpc id field, because we get the response directly.
-    const request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": params};
-    const ajaxRequest = new XMLHttpRequest();
-    ajaxRequest.open('POST', subdir + '/api/' + partition, true);
-    ajaxRequest.setRequestHeader('Content-type', 'application/json');
-    if (session.token !== '') {
-        ajaxRequest.setRequestHeader('X-myMPD-Session', session.token);
-    }
-    ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.readyState !== 4) {
-            return;
-        }
-        if (ajaxRequest.status === 403 &&
-            method !== 'MYMPD_API_SESSION_VALIDATE')
-        {
-            //myMPD session authentication
-            logDebug('Authorization required for ' + method);
-            enterPin(method, params, callback, onerror);
-            return;
-        }
-        if (ajaxRequest.status !== 200 ||
-            ajaxRequest.responseText === '' ||
-            ajaxRequest.responseText.length > 1000000)
-        {
-            //handle http errors, empty or too long responses
-            logError('Invalid response for request: ' + JSON.stringify(request));
-            logError('Response code: ' + ajaxRequest.status);
-            logError('Response length: ' + ajaxRequest.responseText.length);
-            if (onerror === true &&
-                callback !== undefined &&
-                typeof(callback) === 'function')
-            {
-                logDebug('Calling ' + callback.name);
-                callback({"error": {"message": "Invalid response"}});
-            }
-            //always notify user about the error
-            const text = tn('Response code') + ': ' + ajaxRequest.status + '\n' +
-                tn('Response') + ': ' + ajaxRequest.responseText.substring(0, 200);
-            showNotification(tn('API error'), text, 'general', 'error');
-            return;
-        }
 
-        //successful http response
-        if (settings.pin === true &&
-            session.token !== '' &&
-            APImethods[method].protected === true)
+    logDebug('Send API request: ' + method);
+    const uri = subdir + '/api/' + partition;
+    const response = await fetch(uri, {
+        method: 'POST',
+        mode: 'same-origin',
+        credentials: 'same-origin',
+        cache: 'no-store',
+        redirect: 'follow',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-myMPD-Session': session.token
+        },
+        body: JSON.stringify(
+            {"jsonrpc": "2.0", "id": 0, "method": method, "params": params}
+        )
+    });
+
+    if (response.redirected === true) {
+        window.location.reload();
+        logError('Request was redirect, reloading application');
+        return;
+    }
+    if (response.status === 403 &&
+        method !== 'MYMPD_API_SESSION_VALIDATE')
+    {
+        //myMPD session authentication
+        logDebug('Authorization required for ' + method);
+        enterPin(method, params, callback, onerror);
+        return;
+    }
+    if (response.ok === false) {
+        showNotification(tn('API error'),
+            tn('Error accessing %{uri}, Response code: %{code}', {"uri": uri, "code": response.status + ' - ' + response.statusText}),
+            'general', 'error');
+        logError('Error posting to ' + uri + ', code ' + response.status + ' - ' + response.statusText);
+        if (onerror === true) {
+            callback(null);
+        }
+        return;
+    }
+    
+    //successful http response - extend session
+    if (settings.pin === true &&
+        session.token !== '' &&
+        APImethods[method].protected === true)
+    {
+        //session was extended through request
+        session.timeout = getTimestamp() + sessionLifetime;
+        resetSessionTimer();
+    }
+
+    //parse response
+    try {
+        const obj = await response.json();
+        checkAPIresponse(obj, callback, onerror);
+    }
+    catch(error) {
+        showNotification(tn('API error'), tn('Can not parse response from %{uri}', {"uri": uri}), 'general', 'error');
+        logError('Can not parse response from ' + uri);
+        logError(error);
+        if (onerror === true) {
+            callback(null);
+        }
+        return;
+    }
+}
+
+/**
+ * Validates the JSON-RPC API response and calls the callback function
+ * @param {object} obj parsed json rpc response objecz
+ * @param {Function} callback callback function
+ * @param {boolean} onerror true = execute callback also on error
+ * @returns {void}
+ */
+function checkAPIresponse(obj, callback, onerror) {
+    logDebug('Got API response: ' + JSON.stringify(obj));
+
+    if (obj.error &&
+        typeof obj.error.message === 'string')
+    {
+        //show and log message
+        showNotification(tn(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
+        logSeverity(obj.error.severity, JSON.stringify(obj));
+    }
+    else if (obj.result &&
+             typeof obj.result.message === 'string')
+    {
+        //show message
+        if (ignoreMessages.includes(obj.result.message) === false) {
+            showNotification(tn(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
+        }
+    }
+    else if (obj.result &&
+             typeof obj.result.method === 'string')
+    {
+        //result is used in callback
+    }
+    else {
+        //remaining results are invalid
+        logError('Got invalid API response: ' + JSON.stringify(obj));
+    }
+    if (callback !== undefined &&
+        typeof(callback) === 'function')
+    {
+        if (obj.result !== undefined ||
+            onerror === true)
         {
-            //session was extended through request
-            session.timeout = getTimestamp() + sessionLifetime;
-            resetSessionTimer();
-        }
-        let obj;
-        try {
-            obj = JSON.parse(ajaxRequest.responseText);
-        }
-        catch(error) {
-            const text = tn('Can not parse response from %{uri} to json object', {"uri": subdir + '/api/' + partition});
-            showNotification('API error', text, 'general', 'error');
-            logError('Can not parse response to json object:' + ajaxRequest.responseText);
-        }
-        if (obj.error &&
-            typeof obj.error.message === 'string')
-        {
-            //show and log message
-            showNotification(tn(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
-            logSeverity(obj.error.severity, ajaxRequest.responseText);
-        }
-        else if (obj.result &&
-                 obj.result.message === 'ok')
-        {
-            //show no message
-            logDebug('Got API response: ' + ajaxRequest.responseText);
-        }
-        else if (obj.result &&
-                 typeof obj.result.message === 'string')
-        {
-            //show message
-            logDebug('Got API response: ' + ajaxRequest.responseText);
-            if (ignoreMessages.includes(obj.result.message) === false) {
-                showNotification(tn(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
-            }
-        }
-        else if (obj.result &&
-                 typeof obj.result.method === 'string')
-        {
-            //result is used in callback
-            logDebug('Got API response of type: ' + obj.result.method);
+            logDebug('Calling ' + callback.name);
+            callback(obj);
         }
         else {
-            //remaining results are invalid
-            logError('Got invalid API response: ' + ajaxRequest.responseText);
-            if (onerror !== true) {
-                return;
-            }
+            logDebug('Result is undefined, skip calling ' + callback.name);
         }
-        if (callback !== undefined &&
-            typeof(callback) === 'function')
-        {
-            if (obj.result !== undefined ||
-                onerror === true)
-            {
-                logDebug('Calling ' + callback.name);
-                callback(obj);
-            }
-            else {
-                logDebug('Result is undefined, skip calling ' + callback.name);
-            }
-        }
-    };
-    ajaxRequest.send(JSON.stringify(request));
-    logDebug('Send API request: ' + method);
-    return true;
+    }
 }

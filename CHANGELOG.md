@@ -8,6 +8,7 @@ https://github.com/jcorporation/myMPD/
 
 ### Changelog
 
+- Feat: migrate to JavaScript fetch() API #1006
 - Feat: add test target to cmake #1023
 
 ***
