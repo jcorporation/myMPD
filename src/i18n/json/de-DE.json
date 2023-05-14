@@ -763,7 +763,6 @@
     "Enable single oneshot": "Aktiviere Single Modus Oneshot",
     "32 bit floating": "32 bit floating",
     "Browser has no MediaSession support": "Browser unterstützt keine MediaSession",
-    "Can not parse response from %{uri} to json object": "Antwort von %{uri} konnte nicht zu einem JSON Objekt geparsed werden",
     "Choose a playlist": "Wiedergabeliste wählen",
     "Create new": "Neu erstellen",
     "Disable consume mode": "Deaktiviere Konsumieren",
@@ -874,8 +873,6 @@
     "myMPD uri": "myMPD URL",
     "Context menu": "Kontext Menü",
     "API error": "API Fehler",
-    "Response": "Antwort",
-    "Response code": "Antwort Code",
     "Move song": "Lied verschieben",
     "Position": "Position",
     "Position must be in range 1 - 10000": "Position muss zwischen 0 und 10.000 sein",
@@ -903,5 +900,7 @@
     "Warning": "Warnung",
     "Error": "Fehler",
     "Discs": "Discs",
-    "any": "Alle Tags"
+    "any": "Alle Tags",
+    "Can not parse response from %{uri}": "Antwort von %{uri} konnte nicht geparsed werden",
+    "Error accessing %{uri}, Response code: %{code}": "Fehler beim Zugriff auf %{uri}, Fehlercode: %{code}"
 }
