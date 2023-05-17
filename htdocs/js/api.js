@@ -52,20 +52,32 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
 
     logDebug('Send API request: ' + method);
     const uri = subdir + '/api/' + partition;
-    const response = await fetch(uri, {
-        method: 'POST',
-        mode: 'same-origin',
-        credentials: 'same-origin',
-        cache: 'no-store',
-        redirect: 'follow',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-myMPD-Session': session.token
-        },
-        body: JSON.stringify(
-            {"jsonrpc": "2.0", "id": 0, "method": method, "params": params}
-        )
-    });
+    let response = null;
+    try {
+        response = await fetch(uri, {
+            method: 'POST',
+            mode: 'same-origin',
+            credentials: 'same-origin',
+            cache: 'no-store',
+            redirect: 'follow',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-myMPD-Session': session.token
+            },
+            body: JSON.stringify(
+                {"jsonrpc": "2.0", "id": 0, "method": method, "params": params}
+            )
+        });
+    }
+    catch(error) {
+        showNotification(tn('API error'), tn('Error accessing %{uri}', {"uri": uri}), 'general', 'error');
+        logError('Error posting to ' + uri);
+        logError(error);
+        if (onerror === true) {
+            callback(null);
+        }
+        return;
+    }
 
     if (response.redirected === true) {
         window.location.reload();
@@ -82,7 +94,8 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
     }
     if (response.ok === false) {
         showNotification(tn('API error'),
-            tn('Error accessing %{uri}, Response code: %{code}', {"uri": uri, "code": response.status + ' - ' + response.statusText}),
+            tn('Error accessing %{uri}', {"uri": uri}) + ', ' +
+            tn('Response code: %{code}', {"code": response.status + ' - ' + response.statusText}),
             'general', 'error');
         logError('Error posting to ' + uri + ', code ' + response.status + ' - ' + response.statusText);
         if (onerror === true) {

@@ -588,13 +588,26 @@ function setMobileView() {
  * @returns {Promise<void>}
  */
 async function httpGet(uri, callback, json) {
-    const response = await fetch(uri, {
-        method: 'GET',
-        mode: 'same-origin',
-        credentials: 'same-origin',
-        cache: 'no-store',
-        redirect: 'follow'
-    });
+    let response = null;
+    try {
+        response = await fetch(uri, {
+            method: 'GET',
+            mode: 'same-origin',
+            credentials: 'same-origin',
+            cache: 'no-store',
+            redirect: 'follow'
+        });
+    }
+    catch(error) {
+        showNotification(tn('API error'), tn('Error accessing %{uri}', {"uri": uri}), 'general', 'error');
+        logError('Error posting to ' + uri);
+        logError(error);
+        if (onerror === true) {
+            callback(null);
+        }
+        return;
+    }
+
     if (response.redirected === true) {
         window.location.reload();
         logError('Request was redirect, reloading application');
@@ -602,7 +615,8 @@ async function httpGet(uri, callback, json) {
     }
     if (response.ok === false) {
         showNotification(tn('API error'),
-            tn('Error accessing %{uri}, Response code: %{code}', {"uri": uri, "code": response.status + ' - ' + response.statusText}),
+            tn('Error accessing %{uri}', {"uri": uri}) + ', ' +
+            tn('Response code: %{code}', {"code": response.status + ' - ' + response.statusText}),
             'general', 'error');
         logError('Error accessing ' + uri + ', code ' + response.status + ' - ' + response.statusText);
         callback(null);
