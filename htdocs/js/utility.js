@@ -602,9 +602,7 @@ async function httpGet(uri, callback, json) {
         showNotification(tn('API error'), tn('Error accessing %{uri}', {"uri": uri}), 'general', 'error');
         logError('Error posting to ' + uri);
         logError(error);
-        if (onerror === true) {
-            callback(null);
-        }
+        callback(null);
         return;
     }
 
