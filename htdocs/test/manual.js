@@ -151,11 +151,12 @@ async function sendAPI() {
         }
         else {
             document.getElementById('resultState').textContent = 'ERROR';
+            document.getElementById('resultText').textContent = JSON.stringify(obj);
         }
     }
     catch(error) {
         document.getElementById('resultState').textContent = 'JSON parse error: ' + error;
-        document.getElementById('resultText').textContent = await response.text();
+        document.getElementById('resultText').textContent = '';
     }
 }
 
