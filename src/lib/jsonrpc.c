@@ -12,6 +12,8 @@
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/tags.h"
+
+#include <errno.h>
 #include <string.h>
 
 /**
@@ -1072,7 +1074,11 @@ static bool icb_json_get_array_llong(sds key, sds value, int vtype, validate_cal
         set_parse_error(error, "Validation of value \"%s\" has failed", value);
         return false;
     }
+    errno = 0;
     long long value_llong = strtoll(value, NULL, 10);
+    if (errno != 0) {
+        return false;
+    }
     struct t_list *l = (struct t_list *)userdata;
     list_push(l, "", value_llong, NULL, NULL);
     return true;
