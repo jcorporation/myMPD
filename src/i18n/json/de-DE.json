@@ -902,5 +902,6 @@
     "Discs": "Discs",
     "any": "Alle Tags",
     "Can not parse response from %{uri}": "Antwort von %{uri} konnte nicht geparsed werden",
-    "Error accessing %{uri}, Response code: %{code}": "Fehler beim Zugriff auf %{uri}, Fehlercode: %{code}"
+    "Error accessing %{uri}": "Fehler beim Zugriff auf %{uri}",
+    "Response code: %{code}": "Fehlercode: %{code}"
 }
