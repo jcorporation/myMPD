@@ -14,7 +14,7 @@ function clickQuickRemove(target) {
     switch(app.id) {
         case 'QueueCurrent': {
             const songId = getData(target.parentNode.parentNode, 'songid');
-            removeFromQueue('single', songId);
+            removeFromQueueIDs([songId]);
             break;
         }
         case 'BrowsePlaylistsDetail': {

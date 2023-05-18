@@ -574,12 +574,12 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                 addMenuItemsSingleActions(contextMenuBody);
             }
             addDivider(contextMenuBody);
-            addMenuItem(contextMenuBody, {"cmd": "removeFromQueue", "options": ["single", songid]}, 'Remove');
+            addMenuItem(contextMenuBody, {"cmd": "removeFromQueueIDs", "options": [[songid]]}, 'Remove');
             if (songpos > 0) {
-                addMenuItem(contextMenuBody, {"cmd": "removeFromQueue", "options": ["range", 0, songpos]}, 'Remove all upwards');
+                addMenuItem(contextMenuBody, {"cmd": "removeFromQueueRange", "options": [0, songpos]}, 'Remove all upwards');
             }
             if (songpos + 1 < currentState.queueLength) {
-                addMenuItem(contextMenuBody, {"cmd": "removeFromQueue", "options": ["range", songpos + 1, -1]}, 'Remove all downwards');
+                addMenuItem(contextMenuBody, {"cmd": "removeFromQueueRange", "options": [songpos + 1, -1]}, 'Remove all downwards');
             }
             return true;
         }

@@ -26,4 +26,5 @@ bool mympd_api_queue_replace_with_song(struct t_partition_state *partition_state
 bool mympd_api_queue_replace_with_playlist(struct t_partition_state *partition_state, const char *plist);
 bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, unsigned song_id, unsigned priority);
 bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, unsigned song_id);
+bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, struct t_list *song_ids);
 #endif

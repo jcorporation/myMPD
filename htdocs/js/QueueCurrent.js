@@ -806,25 +806,29 @@ function setSongPriorityCheckError(obj) {
 }
 
 /**
- * Removes song(s) from the queue
- * @param {string} mode range or single
- * @param {number} start start of the range (including) or song id to remove
+ * Removes a song range from the queue
+ * @param {number} start start of the range (including)
  * @param {number} [end] end of the range (excluding), -1 for open end
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function removeFromQueue(mode, start, end) {
-    if (mode === 'range') {
-        sendAPI("MYMPD_API_QUEUE_RM_RANGE", {
-            "start": start,
-            "end": end
-        }, null, false);
-    }
-    else if (mode === 'single') {
-        sendAPI("MYMPD_API_QUEUE_RM_SONG", {
-            "songId": start
-        }, null, false);
-    }
+function removeFromQueueRange(start, end) {
+    sendAPI("MYMPD_API_QUEUE_RM_RANGE", {
+        "start": start,
+        "end": end
+    }, null, false);
+}
+
+/**
+ * Removes song ids from the queue
+ * @param {Array} ids MPD queue song ids
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function removeFromQueueIDs(ids) {
+    sendAPI("MYMPD_API_QUEUE_RM_SONG_IDS", {
+        "songIds": ids
+    }, null, false);
 }
 
 /**

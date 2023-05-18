@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "mpd/queue.h"
 #include "src/mympd_api/queue.h"
 
 #include "src/lib/jsonrpc.h"
@@ -27,6 +28,30 @@ sds print_queue_entry(struct t_partition_state *partition_state, sds buffer, con
 /**
  * Public functions
  */
+
+
+/**
+ * Removes songs defined by id from the queue
+ * @param partition_state pointer to partition state
+ * @param song_ids list of song_ids to remove
+ * @return true on success, else false
+ */
+bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, struct t_list *song_ids) {
+    if (mpd_command_list_begin(partition_state->conn, false) == true) {
+        struct t_list_node *current = song_ids->head;
+        while (current != NULL) {
+            bool rc = mpd_send_delete_id(partition_state->conn, (unsigned)current->value_i);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_delete_id");
+                break;
+            }
+            current = current->next;
+        }
+        return mpd_command_list_end(partition_state->conn) &&
+            mpd_response_finish(partition_state->conn);
+    }
+    return false;
+}
 
 /**
  * Plays the newest inserted song in the queue
@@ -210,14 +235,14 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
             if (pos_after < length) {
                 bool rc = mpd_send_delete_range(partition_state->conn, pos_after, UINT_MAX);
                 if (rc == false) {
-                    MYMPD_LOG_ERROR("Error adding command to command list mpd_run_delete_range");
+                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_delete_range");
                 }
             }
             //remove all songs before current song
             if (playing_song_pos > 0) {
                 bool rc = mpd_send_delete_range(partition_state->conn, 0, (unsigned)playing_song_pos);
                 if (rc == false) {
-                    MYMPD_LOG_ERROR("Error adding command to command list mpd_run_delete_range");
+                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_delete_range");
                 }
             }
             if (mpd_command_list_end(partition_state->conn) == true) {

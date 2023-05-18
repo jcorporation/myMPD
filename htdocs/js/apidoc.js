@@ -99,6 +99,11 @@ const APIparams = {
         "example": 1,
         "desc": "MPD queue song id"
     },
+    "songIds": {
+        "type": APItypes.array,
+        "example": "[1,2]",
+        "desc": "Array of MPD queue song ids"
+    },
     "timerid": {
         "type": APItypes.uint,
         "example": 101,
@@ -350,10 +355,10 @@ const APImethods = {
             "cols": APIparams.cols
         }
     },
-    "MYMPD_API_QUEUE_RM_SONG": {
-        "desc": "Removes the song from the queue.",
+    "MYMPD_API_QUEUE_RM_SONG_IDS": {
+        "desc": "Removes songs from the queue.",
         "params": {
-            "songId": APIparams.songId
+            "songIds": APIparams.songIds
         }
     },
     "MYMPD_API_QUEUE_RM_RANGE": {

@@ -872,12 +872,16 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_QUEUE_CROP_OR_CLEAR:
             response->data = mympd_api_queue_crop(partition_state, response->data, request->cmd_id, request->id, true);
             break;
-        case MYMPD_API_QUEUE_RM_SONG:
-            if (json_get_uint_max(request->data, "$.params.songId", &uint_buf1, &error) == true) {
-                rc = mpd_run_delete_id(partition_state->conn, uint_buf1);
+        case MYMPD_API_QUEUE_RM_SONG_IDS: {
+            struct t_list song_ids;
+            list_init(&song_ids);
+            if (json_get_array_llong(request->data, "$.params.songIds", &song_ids, MPD_PLAYLIST_LENGTH_MAX, &error) == true) {
+                rc = mympd_api_queue_rm_song_ids(partition_state, &song_ids);
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_delete_id", &result);
             }
+            list_clear(&song_ids);
             break;
+        }
         case MYMPD_API_QUEUE_RM_RANGE:
             if (json_get_uint(request->data, "$.params.start", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_int(request->data, "$.params.end", -1, MPD_PLAYLIST_LENGTH_MAX, &int_buf1, &error) == true)
