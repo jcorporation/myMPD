@@ -876,8 +876,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             struct t_list song_ids;
             list_init(&song_ids);
             if (json_get_array_llong(request->data, "$.params.songIds", &song_ids, MPD_PLAYLIST_LENGTH_MAX, &error) == true) {
-                rc = mympd_api_queue_rm_song_ids(partition_state, &song_ids);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_delete_id", &result);
+                if (song_ids.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No MPD queue song ids provided");
+                }
+                else {
+                    rc = mympd_api_queue_rm_song_ids(partition_state, &song_ids);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_delete_id", &result);
+                }
             }
             list_clear(&song_ids);
             break;
