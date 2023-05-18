@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v10.4.0
+## myMPD v10.4.0 (not yet released)
 
 ### Changelog
 
