@@ -1018,7 +1018,7 @@ bool json_get_tag_values(sds s, const char *path, struct mpd_song *song, validat
 }
 
 /**
- * Iteration callback to populate a list with json array values
+ * Iteration callback to populate a list with json array of strings
  * @param key json key
  * @param value json value
  * @param vtype mjson value type
@@ -1041,7 +1041,7 @@ static bool icb_json_get_array_string(sds key, sds value, int vtype, validate_ca
 }
 
 /**
- * Converts a json array to a t_list struct
+ * Converts a json array of strings to a t_list struct
  * Shortcut for json_iterate_object with icb_json_get_array_string
  * @param s json object to parse
  * @param path mjson path expression
@@ -1053,6 +1053,44 @@ static bool icb_json_get_array_string(sds key, sds value, int vtype, validate_ca
  */
 bool json_get_array_string(sds s, const char *path, struct t_list *l, validate_callback vcb, int max_elements, sds *error) {
     return json_iterate_object(s, path, icb_json_get_array_string, l, vcb, max_elements, error);
+}
+
+/**
+ * Iteration callback to populate a list with json array of llong
+ * @param key json key
+ * @param value json value
+ * @param vtype mjson value type
+ * @param vcb validation callback - not used
+ * @param userdata pointer to a t_list struct to populate
+ * @param error pointer for error string
+ * @return true on success else false
+ */
+static bool icb_json_get_array_llong(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
+    (void)key;
+    (void)vcb;
+    if (vtype != MJSON_TOK_NUMBER) {
+        set_parse_error(error, "Validation of value \"%s\" has failed", value);
+        return false;
+    }
+    long long value_llong = strtoll(value, NULL, 10);
+    struct t_list *l = (struct t_list *)userdata;
+    list_push(l, "", value_llong, NULL, NULL);
+    return true;
+}
+
+/**
+ * Converts a json array of uint to a t_list struct
+ * Shortcut for json_iterate_object with icb_json_get_array_llong
+ * @param s json object to parse
+ * @param path mjson path expression
+ * @param l t_list struct to populate
+ * @param vcb validation callback
+ * @param max_elements maximum of elements
+ * @param error pointer for error string
+ * @return true on success else false
+ */
+bool json_get_array_llong(sds s, const char *path, struct t_list *l, int max_elements, sds *error) {
+    return json_iterate_object(s, path, icb_json_get_array_llong, l, NULL, max_elements, error);
 }
 
 /**
