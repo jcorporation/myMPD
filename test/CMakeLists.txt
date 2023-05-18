@@ -124,4 +124,38 @@ add_custom_command(TARGET unit_test PRE_BUILD
   COMMAND ${CMAKE_COMMAND} -E create_symlink
   ${CMAKE_SOURCE_DIR}/test/testfiles ${PROJECT_BINARY_DIR}/testfiles)
 
-add_test(NAME UnitTest COMMAND unit_test)
+# define tests
+list(APPEND test_categories
+  "api"
+  "env"
+  "filehandler"
+  "http_client"
+  "jsonrpc"
+  "list"
+  "m3u"
+  "mimetype"
+  "mpd_client_tags"
+  "mympd_queue"
+  "mympd_state"
+  "radix_sort"
+  "random"
+  "sds_extras"
+  "state_files"
+  "timer"
+  "utility"
+  "validate"
+)
+
+if(OPENSSL_FOUND)
+  list(APPEND test_categories "cert")
+endif()
+if(LIBID3TAG_FOUND)
+  list(APPEND test_categories "lyrics_id3")
+endif()
+if(FLAC_FOUND)
+  list(APPEND test_categories "lyrics_flac")
+endif()
+
+foreach(CAT IN LISTS test_categories)
+  add_test(NAME "test_${CAT}" COMMAND "unit_test" "--filter=test_${CAT}.*")
+endforeach()
