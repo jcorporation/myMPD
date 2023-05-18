@@ -1090,7 +1090,6 @@ static bool icb_json_get_array_llong(sds key, sds value, int vtype, validate_cal
  * @param s json object to parse
  * @param path mjson path expression
  * @param l t_list struct to populate
- * @param vcb validation callback
  * @param max_elements maximum of elements
  * @param error pointer for error string
  * @return true on success else false
