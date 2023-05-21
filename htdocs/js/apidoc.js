@@ -64,6 +64,11 @@ const APIparams = {
         "example": "Testfiles/Piratenlied.flac",
         "desc": "Relativ song uri"
     },
+    "uris": {
+        "type": APItypes.array,
+        "example": "[\"Testfiles/Piratenlied.flac\"]",
+        "desc": "Relativ song uris"
+    },
     "filter": {
         "type": APItypes.string,
         "example": "Title",
@@ -389,7 +394,7 @@ const APImethods = {
         }
     },
     "MYMPD_API_QUEUE_INSERT_PLAYLIST": {
-        "desc": "Adds the playlist to distinct position in queue.",
+        "desc": "Adds the playlist to distinct position in the queue.",
         "params": {
             "plist": APIparams.plist,
             "to": APIparams.to,
@@ -397,17 +402,17 @@ const APImethods = {
             "play": APIparams.play
         }
     },
-    "MYMPD_API_QUEUE_INSERT_URI": {
-        "desc": "Adds songs or directory to distinct position in queue.",
+    "MYMPD_API_QUEUE_INSERT_URIS": {
+        "desc": "Adds uris to distinct position in the queue.",
         "params": {
-            "uri": APIparams.uri,
+            "uris": APIparams.uris,
             "to": APIparams.to,
             "whence": APIparams.whence,
             "play": APIparams.play
         }
     },
     "MYMPD_API_QUEUE_INSERT_SEARCH": {
-        "desc": "Adds the search result to distinct position in queue.",
+        "desc": "Adds the search result to distinct position in the queue.",
         "params": {
             "expression": APIparams.expression,
             "to": APIparams.to,
@@ -422,10 +427,10 @@ const APImethods = {
             "play": APIparams.play
         }
     },
-    "MYMPD_API_QUEUE_APPEND_URI": {
-        "desc": "Appends song(s) to the queue.",
+    "MYMPD_API_QUEUE_APPEND_URIS": {
+        "desc": "Appends uris to the queue.",
         "params": {
-            "uri": APIparams.uri,
+            "uris": APIparams.uris,
             "play": APIparams.play
         }
     },
@@ -443,10 +448,10 @@ const APImethods = {
             "play": APIparams.play
         }
     },
-    "MYMPD_API_QUEUE_REPLACE_URI": {
-        "desc": "Replaces the queue with song(s).",
+    "MYMPD_API_QUEUE_REPLACE_URIS": {
+        "desc": "Replaces the queue with uris.",
         "params": {
-            "uri": APIparams.uri,
+            "uris": APIparams.uris,
             "play": APIparams.play
         }
     },
@@ -527,19 +532,26 @@ const APImethods = {
             "to": APIparams.to
         }
     },
-    "MYMPD_API_PLAYLIST_CONTENT_APPEND_URI": {
-        "desc": "Appends an uri to the playlist.",
+    "MYMPD_API_PLAYLIST_CONTENT_APPEND_URIS": {
+        "desc": "Appends uris to the playlist.",
         "params": {
             "plist": APIparams.plist,
-            "uri": APIparams.uri
+            "uris": APIparams.uris
         }
     },
-    "MYMPD_API_PLAYLIST_CONTENT_INSERT_URI": {
-        "desc": "Inserts an uri to the playlist.",
+    "MYMPD_API_PLAYLIST_CONTENT_INSERT_URIS": {
+        "desc": "Inserts uris to the playlist.",
         "params": {
             "plist": APIparams.plist,
-            "uri": APIparams.uri,
+            "uris": APIparams.uris,
             "to": APIparams.to
+        }
+    },
+    "MYMPD_API_PLAYLIST_CONTENT_REPLACE_URIS": {
+        "desc": "Replaces the playlist content with uris.",
+        "params": {
+            "plist": APIparams.plist,
+            "uris": APIparams.uris
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH": {
@@ -548,13 +560,6 @@ const APImethods = {
             "plist": APIparams.plist,
             "expression": APIparams.expression,
             "to": APIparams.to
-        }
-    },
-    "MYMPD_API_PLAYLIST_CONTENT_REPLACE_URI": {
-        "desc": "Replaces the playlist content with uri.",
-        "params": {
-            "plist": APIparams.plist,
-            "uri": APIparams.uri
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_APPEND_SEARCH": {

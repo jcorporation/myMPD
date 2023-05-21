@@ -49,6 +49,86 @@ static void free_t_pl_data(void *data) {
 }
 
 /**
+ * Appends uris to the stored playlist
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param uris list of positions to remove
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_append(struct t_partition_state *partition_state, sds plist, struct t_list *uris) {
+    if (mpd_command_list_begin(partition_state->conn, false) == true) {
+        struct t_list_node *current = uris->head;
+        while (current != NULL) {
+            bool rc = mpd_send_playlist_add(partition_state->conn, plist, current->key);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                break;
+            }
+            current = current->next;
+        }
+        return mpd_command_list_end(partition_state->conn) &&
+            mpd_response_finish(partition_state->conn);
+    }
+    return false;
+}
+
+/**
+ * Inserts uris at defined position to the stored playlist
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param to position to insert after
+ * @param uris list of positions to remove
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state, sds plist, struct t_list *uris, unsigned to) {
+    if (mpd_command_list_begin(partition_state->conn, false) == true) {
+        struct t_list_node *current = uris->head;
+        while (current != NULL) {
+            bool rc = mpd_send_playlist_add_to(partition_state->conn, plist, current->key, to);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                break;
+            }
+            to++;
+            current = current->next;
+        }
+        return mpd_command_list_end(partition_state->conn) &&
+            mpd_response_finish(partition_state->conn);
+    }
+    return false;
+}
+
+/**
+ * Replaces the stored playlist with uris
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param uris list of positions to remove
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_replace(struct t_partition_state *partition_state, sds plist, struct t_list *uris) {
+    if (mpd_command_list_begin(partition_state->conn, false) == true) {
+        bool rc = mpd_send_playlist_clear(partition_state->conn, plist);
+        if (rc == false) {
+            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_clear");
+        }
+        else {
+            struct t_list_node *current = uris->head;
+            while (current != NULL) {
+                rc = mpd_send_playlist_add(partition_state->conn, plist, current->key);
+                if (rc == false) {
+                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                    break;
+                }
+                current = current->next;
+            }
+        }
+        return mpd_command_list_end(partition_state->conn) &&
+            mpd_response_finish(partition_state->conn);
+    }
+    return false;
+}
+
+/**
  * Removes entries defined by positions from the stored playlist
  * Positions must be sorted descending.
  * @param partition_state pointer to partition state

@@ -558,7 +558,7 @@ function toggleAddToPlaylistFrm(target) {
 }
 
 /**
- * Adds the selected elemens from the "add to playlist" modal to the playlist or queue
+ * Adds the selected elements from the "add to playlist" modal to the playlist or queue
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
@@ -645,7 +645,7 @@ function addToPlaylistClose(obj) {
 }
 
 /**
- * Appends an element to a playlist
+ * Appends entries to a playlist
  * @param {string} type one of song, stream, dir, search
  * @param {string} uri uri to add
  * @param {string} plist playlist to append the uri
@@ -657,8 +657,8 @@ function appendPlaylist(type, uri, plist, callback) {
         case 'song':
         case 'stream':
         case 'dir':
-            sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_URI", {
-                "uri": uri,
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_URIS", {
+                "uris": [uri],
                 "plist": plist
             }, callback, true);
             break;
@@ -672,7 +672,7 @@ function appendPlaylist(type, uri, plist, callback) {
 }
 
 /**
- * Inserts an element to a playlist
+ * Inserts entries into a playlist
  * @param {string} type one of song, stream, dir, search
  * @param {string} uri uri to add
  * @param {string} plist playlist to insert the uri
@@ -685,8 +685,8 @@ function insertPlaylist(type, uri, plist, to, callback) {
         case 'song':
         case 'stream':
         case 'dir':
-            sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_URI", {
-                "uri": uri,
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_URIS", {
+                "uris": [uri],
                 "plist": plist,
                 "to": to
             }, callback, true);
@@ -714,8 +714,8 @@ function replacePlaylist(type, uri, plist, callback) {
         case 'song':
         case 'stream':
         case 'dir':
-            sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_URI", {
-                "uri": uri,
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_URIS", {
+                "uris": [uri],
                 "plist": plist
             }, callback, true);
             break;

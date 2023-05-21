@@ -454,7 +454,7 @@ function appendPlayQueue(type, uri, callback) {
 }
 
 /**
- * Appends an element to the queue
+ * Appends elements to the queue
  * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
  * @param {string} uri element uri
  * @param {boolean} play true = play added entry, false = append only
@@ -466,8 +466,8 @@ function _appendQueue(type, uri, play, callback) {
         case 'song':
         case 'dir':
         case 'stream':
-            sendAPI("MYMPD_API_QUEUE_APPEND_URI", {
-                "uri": uri,
+            sendAPI("MYMPD_API_QUEUE_APPEND_URIS", {
+                "uris": [uri],
                 "play": play
             }, callback, true);
             break;
@@ -513,7 +513,7 @@ function insertPlayAfterCurrentQueue(type, uri, callback) {
 }
 
 /**
- * Inserts the element in the queue
+ * Inserts elements into the queue
  * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
  * @param {string} uri element uri
  * @param {number} to position to insert
@@ -527,8 +527,8 @@ function insertQueue(type, uri, to, whence, play, callback) {
         case 'song':
         case 'dir':
         case 'stream':
-            sendAPI("MYMPD_API_QUEUE_INSERT_URI", {
-                "uri": uri,
+            sendAPI("MYMPD_API_QUEUE_INSERT_URIS", {
+                "uris": [uri],
                 "to": to,
                 "whence": whence,
                 "play": play
@@ -578,7 +578,7 @@ function replacePlayQueue(type, uri, callback) {
 }
 
 /**
- * Replaces the queue with the element
+ * Replaces the queue with the elements
  * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search
  * @param {string} uri element uri
  * @param {boolean} play true = play added entry, false = insert only
@@ -590,8 +590,8 @@ function _replaceQueue(type, uri, play, callback) {
         case 'song':
         case 'stream':
         case 'dir':
-            sendAPI("MYMPD_API_QUEUE_REPLACE_URI", {
-                "uri": uri,
+            sendAPI("MYMPD_API_QUEUE_REPLACE_URIS", {
+                "uris": [uri],
                 "play": play
             }, callback, true);
             break;
