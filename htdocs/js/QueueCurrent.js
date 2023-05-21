@@ -474,8 +474,8 @@ function _appendQueue(type, uri, play, callback) {
         case 'plist':
         case 'smartpls':
         case 'webradio':
-            sendAPI("MYMPD_API_QUEUE_APPEND_PLAYLIST", {
-                "plist": uri,
+            sendAPI("MYMPD_API_QUEUE_APPEND_PLAYLISTS", {
+                "plists": [uri],
                 "play": play
             }, callback, true);
             break;
@@ -537,8 +537,8 @@ function insertQueue(type, uri, to, whence, play, callback) {
         case 'plist':
         case 'smartpls':
         case 'webradio':
-            sendAPI("MYMPD_API_QUEUE_INSERT_PLAYLIST", {
-                "plist": uri,
+            sendAPI("MYMPD_API_QUEUE_INSERT_PLAYLISTS", {
+                "plists": [uri],
                 "to": to,
                 "whence": whence,
                 "play": play
@@ -598,8 +598,8 @@ function _replaceQueue(type, uri, play, callback) {
         case 'plist':
         case 'smartpls':
         case 'webradio':
-            sendAPI("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {
-                "plist": uri,
+            sendAPI("MYMPD_API_QUEUE_REPLACE_PLAYLISTS", {
+                "plists": [uri],
                 "play": play
             }, callback, true);
             break;

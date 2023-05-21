@@ -206,21 +206,78 @@ bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state,
 }
 
 /**
- * Adds a playlist to the queue after clearing it
+ * Appends playlists to the queue
  * @param partition_state pointer to partition state
- * @param plist playlist to add
+ * @param plists playlists to append
  * @return true on success, else false
  */
-bool mympd_api_queue_replace_with_playlist(struct t_partition_state *partition_state, const char *plist) {
-    if (mpd_command_list_begin(partition_state->conn, false)) {
+bool mympd_api_queue_append_plist(struct t_partition_state *partition_state, struct t_list *plists) {
+    if (mpd_command_list_begin(partition_state->conn, false) == true) {
+        struct t_list_node *current = plists->head;
+        while (current != NULL) {
+            current->key = resolv_mympd_uri(current->key, partition_state->mpd_state->mpd_host, partition_state->mympd_state->config);
+            bool rc = mpd_send_load(partition_state->conn, current->key);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_load");
+                break;
+            }
+            current = current->next;
+        }
+        return mpd_command_list_end(partition_state->conn) &&
+            mpd_response_finish(partition_state->conn);
+    }
+    return false;
+}
+
+/**
+ * Insert playlists into the queue
+ * @param partition_state pointer to partition state
+ * @param plists playlists to insert
+ * @param to position to insert
+ * @param whence how to interpret the to parameter
+ * @return true on success, else false
+ */
+bool mympd_api_queue_insert_plist(struct t_partition_state *partition_state, struct t_list *plists, unsigned to, unsigned whence) {
+    if (mpd_command_list_begin(partition_state->conn, false) == true) {
+        struct t_list_node *current = plists->head;
+        while (current != NULL) {
+            current->key = resolv_mympd_uri(current->key, partition_state->mpd_state->mpd_host, partition_state->mympd_state->config);
+            bool rc = mpd_send_load_range_to(partition_state->conn, current->key, 0, UINT_MAX, to, whence);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_load_range_to");
+                break;
+            }
+            current = current->next;
+            to++;
+        }
+        return mpd_command_list_end(partition_state->conn) &&
+            mpd_response_finish(partition_state->conn);
+    }
+    return false;
+}
+
+/**
+ * Replaces the queue with playlists
+ * @param partition_state pointer to partition state
+ * @param uris uris to add
+ * @return true on success, else false
+ */
+bool mympd_api_queue_replace_plist(struct t_partition_state *partition_state, struct t_list *plists) {
+    if (mpd_command_list_begin(partition_state->conn, false) == true) {
         bool rc = mpd_send_clear(partition_state->conn);
         if (rc == false) {
             MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
         }
         else {
-            rc = mpd_send_load(partition_state->conn, plist);
-            if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_load");
+            struct t_list_node *current = plists->head;
+            while (current != NULL) {
+                current->key = resolv_mympd_uri(current->key, partition_state->mpd_state->mpd_host, partition_state->mympd_state->config);
+                rc = mpd_send_load(partition_state->conn, current->key);
+                if (rc == false) {
+                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_load");
+                    break;
+                }
+                current = current->next;
             }
         }
         return mpd_command_list_end(partition_state->conn) &&

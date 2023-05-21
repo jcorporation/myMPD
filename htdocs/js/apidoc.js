@@ -398,10 +398,10 @@ const APImethods = {
             "to": APIparams.to
         }
     },
-    "MYMPD_API_QUEUE_INSERT_PLAYLIST": {
+    "MYMPD_API_QUEUE_INSERT_PLAYLISTS": {
         "desc": "Adds the playlist to distinct position in the queue.",
         "params": {
-            "plist": APIparams.plist,
+            "plists": APIparams.plists,
             "to": APIparams.to,
             "whence": APIparams.whence,
             "play": APIparams.play
@@ -425,10 +425,10 @@ const APImethods = {
             "play": APIparams.play
         }
     },
-    "MYMPD_API_QUEUE_APPEND_PLAYLIST": {
-        "desc": "Appends the playlist to the queue.",
+    "MYMPD_API_QUEUE_APPEND_PLAYLISTS": {
+        "desc": "Appends the playlists to the queue.",
         "params": {
-            "plist": APIparams.plist,
+            "plists": APIparams.plist,
             "play": APIparams.play
         }
     },
@@ -446,10 +446,10 @@ const APImethods = {
             "play": APIparams.play
         }
     },
-    "MYMPD_API_QUEUE_REPLACE_PLAYLIST": {
-        "desc": "Replaces the queue with the playlist.",
+    "MYMPD_API_QUEUE_REPLACE_PLAYLISTS": {
+        "desc": "Replaces the queue with the playlists.",
         "params": {
-            "plist": APIparams.plist,
+            "plists": APIparams.plists,
             "play": APIparams.play
         }
     },
