@@ -7,6 +7,7 @@
 #ifndef MYMPD_API_PLAYLISTS_H
 #define MYMPD_API_PLAYLISTS_H
 
+#include "src/lib/list.h"
 #include "src/lib/mympd_state.h"
 #include "src/mpd_client/playlists.h"
 
@@ -25,7 +26,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
         long request_id, sds plist, long offset, long limit, sds searchstr,
         const struct t_tags *tagcols);
 sds mympd_api_playlist_delete(struct t_partition_state *partition_state, sds buffer,
-        long request_id, const char *playlist, bool smartpls_only);
+        long request_id, struct t_list *playlists, bool smartpls_only);
 sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buffer,
         long request_id, const char *old_playlist, const char *new_playlist);
 sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds buffer,

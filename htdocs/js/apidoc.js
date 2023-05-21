@@ -94,6 +94,11 @@ const APIparams = {
         "example": "test_plist",
         "desc": "MPD playlist name"
     },
+    "plists": {
+        "type": APItypes.array,
+        "example": "[\"test_plist\"]",
+        "desc": "MPD playlist names"
+    },
     "sortShuffle": {
         "type": APItypes.string,
         "example": "shuffle",
@@ -495,7 +500,7 @@ const APImethods = {
     "MYMPD_API_PLAYLIST_RM": {
         "desc": "Removes the MPD playlist.",
         "params": {
-            "plist": APIparams.plist,
+            "plists": APIparams.plists,
             "smartplsOnly": {
                 "type": APItypes.bool,
                 "example": false,

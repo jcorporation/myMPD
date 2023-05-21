@@ -1033,13 +1033,17 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = mympd_api_playlist_rename(partition_state, response->data, request->id, sds_buf1, sds_buf2);
             }
             break;
-        case MYMPD_API_PLAYLIST_RM:
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
+        case MYMPD_API_PLAYLIST_RM: {
+            struct t_list plists;
+            list_init(&plists);
+            if (json_get_string(request->data, "$.params.plists", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_bool(request->data, "$.params.smartplsOnly", &bool_buf1, &error) == true)
             {
-                response->data = mympd_api_playlist_delete(partition_state, response->data, request->id, sds_buf1, bool_buf1);
+                response->data = mympd_api_playlist_delete(partition_state, response->data, request->id, &plists, bool_buf1);
             }
+            list_clear(&plists);
             break;
+        }
         case MYMPD_API_PLAYLIST_RM_ALL:
             if (json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &error) == true) {
                 enum plist_delete_criterias criteria = parse_plist_delete_criteria(sds_buf1);

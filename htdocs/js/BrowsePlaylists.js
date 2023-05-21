@@ -829,7 +829,7 @@ function editSmartPlaylistClick() {
 function showDelPlaylist(plist, smartplsOnly) {
     showConfirm(tn('Do you really want to delete the playlist?', {"playlist": plist}), tn('Yes, delete it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_RM", {
-            "plist": plist,
+            "plists": [plist],
             "smartplsOnly": smartplsOnly
         }, null, false);
     });
