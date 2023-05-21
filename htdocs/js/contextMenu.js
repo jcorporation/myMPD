@@ -542,13 +542,13 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                 const songpos = getData(dataNode, 'songpos');
                 const playlistLength = getData(table, 'playlistlength');
                 addMenuItem(contextMenuBody, {"cmd": "showSetSongPos", "options": [plist, songpos]}, 'Move song');
-                addMenuItem(contextMenuBody, {"cmd": "removeFromPlaylist", "options": ["single", plist, songpos]}, 'Remove');
+                addMenuItem(contextMenuBody, {"cmd": "removeFromPlaylistPositions", "options": [plist, [songpos]]}, 'Remove');
                 if (features.featPlaylistRmRange === true) {
                     if (songpos > 0) {
-                        addMenuItem(contextMenuBody, {"cmd": "removeFromPlaylist", "options": ["range", plist, 0, songpos]}, 'Remove all upwards');
+                        addMenuItem(contextMenuBody, {"cmd": "removeFromPlaylistRange", "options": [plist, 0, songpos]}, 'Remove all upwards');
                     }
                     if (songpos + 1 < playlistLength) {
-                        addMenuItem(contextMenuBody, {"cmd": "removeFromPlaylist", "options": ["range", plist, songpos + 1, -1]}, 'Remove all downwards');
+                        addMenuItem(contextMenuBody, {"cmd": "removeFromPlaylistRange", "options": [plist, songpos + 1, -1]}, 'Remove all downwards');
                     }
                 }
             }

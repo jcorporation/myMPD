@@ -89,14 +89,13 @@ function dragAndDropTable(tableId) {
             tr[i].classList.remove('dragover');
         }
         document.getElementById(tableId).classList.add('opacity05');
-        if (app.id === 'QueueCurrent') {
-            sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
-                "from": oldSongPos,
-                "to": newSongPos
-            }, null, false);
-        }
-        else if (app.id === 'BrowsePlaylistsDetail') {
-            playlistMoveSong(oldSongPos, newSongPos);
+        switch(app.id) {
+            case 'QueueCurrent':
+                queueMovePosition(oldSongPos, newSongPos);
+                break;
+            case 'BrowsePlaylistsDetail':
+                playlistMoveSong(oldSongPos, newSongPos);
+                break;
         }
     }, false);
 }

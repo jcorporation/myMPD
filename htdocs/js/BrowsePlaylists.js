@@ -270,33 +270,34 @@ function updateSmartPlaylists(force) {
 }
 
 /**
- * Removes a song from a playlist
- * @param {string} mode range = remove a range of songs,
- *                      single = remove one song
+ * Removes positions from a playlist
+ * @param {string} plist the playlist
+ * @param {Array} positions Positions to remove
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function removeFromPlaylistPositions(plist, positions) {
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_RM_POSITIONS", {
+        "plist": plist,
+        "positions": positions
+    }, null, false);
+    setUpdateViewId('BrowsePlaylistDetailList');
+}
+
+/**
+ * Removes a range from a playlist
  * @param {string} plist the playlist
  * @param {number} start Start of the range (including) / song pos
  * @param {number} [end] End playlist position (excluding), use -1 for open end
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function removeFromPlaylist(mode, plist, start, end) {
-    switch(mode) {
-        case 'range':
-            sendAPI("MYMPD_API_PLAYLIST_CONTENT_RM_RANGE", {
-                "plist": plist,
-                "start": start,
-                "end": end
-            }, null, false);
-            break;
-        case 'single':
-            sendAPI("MYMPD_API_PLAYLIST_CONTENT_RM_SONG", {
-                "plist": plist,
-                "pos": start
-            }, null, false);
-            break;
-        default:
-            return;
-    }
+function removeFromPlaylistRange(plist, start, end) {
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_RM_RANGE", {
+        "plist": plist,
+        "start": start,
+        "end": end
+    }, null, false);
     setUpdateViewId('BrowsePlaylistDetailList');
 }
 
@@ -856,7 +857,7 @@ function showClearPlaylist() {
  * @returns {void}
  */
 function playlistMoveSong(from, to) {
-    sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG", {
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_POSITION", {
         "plist": app.current.filter,
         "from": from,
         "to": to

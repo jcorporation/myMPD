@@ -49,6 +49,31 @@ static void free_t_pl_data(void *data) {
 }
 
 /**
+ * Removes entries defined by positions from the stored playlist
+ * Positions must be sorted descending.
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param positions list of positions to remove
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition_state, sds plist, struct t_list *positions) {
+    if (mpd_command_list_begin(partition_state->conn, false) == true) {
+        struct t_list_node *current = positions->head;
+        while (current != NULL) {
+            bool rc = mpd_send_playlist_delete(partition_state->conn, plist, (unsigned)current->value_i);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_delete");
+                break;
+            }
+            current = current->next;
+        }
+        return mpd_command_list_end(partition_state->conn) &&
+            mpd_response_finish(partition_state->conn);
+    }
+    return false;
+}
+
+/**
  * Lists mpd playlists and myMPD smart playlists
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response

@@ -732,13 +732,13 @@ function setSongPos() {
             newSongPos--;
         }
         if (plist === 'queue') {
-            sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
+            sendAPI("MYMPD_API_QUEUE_MOVE_POSITION", {
                 "from": oldSongPos,
                 "to": newSongPos
             }, setSongPosCheckError, true);
         }
         else {
-            sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG", {
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_POSITION", {
                 "plist": plist,
                 "from": oldSongPos,
                 "to": newSongPos
@@ -748,7 +748,7 @@ function setSongPos() {
 }
 
 /**
- * Handles the MYMPD_API_QUEUE_MOVE_SONG and  jsonrpc response
+ * Handles the MYMPD_API_QUEUE_MOVE_POSITION and  jsonrpc response
  * @param {object} obj jsonrpc response
  * @returns {void}
  */
@@ -826,7 +826,7 @@ function removeFromQueueRange(start, end) {
  */
 //eslint-disable-next-line no-unused-vars
 function removeFromQueueIDs(ids) {
-    sendAPI("MYMPD_API_QUEUE_RM_SONG_IDS", {
+    sendAPI("MYMPD_API_QUEUE_RM_IDS", {
         "songIds": ids
     }, null, false);
 }
@@ -856,8 +856,21 @@ function gotoPlayingSong() {
 }
 
 /**
+ * Moves a entry in the queue
+ * @param {number} from from position
+ * @param {number} to to position
+ * @returns {void}
+ */
+function queueMovePosition(from, to) {
+    sendAPI("MYMPD_API_QUEUE_MOVE_POSITION", {
+        "from": from,
+        "to": to
+    }, null, false);
+}
+
+/**
  * Plays the selected song after the current song.
- * Uses the priority if in random mode else moves the song after current playing song.
+ * Uses the priority if MPS is in random mode, else moves the song after current playing song.
  * @param {number} songId current playing song id (for priority mode)
  * @param {number} songPos current playing song position (for move mode)
  * @returns {void}
@@ -865,11 +878,9 @@ function gotoPlayingSong() {
 //eslint-disable-next-line no-unused-vars
 function playAfterCurrent(songId, songPos) {
     if (settings.partition.random === false) {
-        //not in random mode - move song after current playling song
-        sendAPI("MYMPD_API_QUEUE_MOVE_SONG", {
-            "from": songPos,
-            "to": currentState.songPos !== undefined ? currentState.songPos + 1 : 0
-        }, null, false);
+        //not in random mode - move song after current playing song
+        const newSongPos = currentState.songPos !== undefined ? currentState.songPos + 1 : 0;
+        queueMovePosition(songPos, newSongPos);
     }
     else {
         //in random mode - set song priority

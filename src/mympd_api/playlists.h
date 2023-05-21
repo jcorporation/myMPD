@@ -30,4 +30,5 @@ sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buf
         long request_id, const char *old_playlist, const char *new_playlist);
 sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds buffer,
         long request_id, enum plist_delete_criterias criteria);
+bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition_state, sds plist, struct t_list *positions);
 #endif

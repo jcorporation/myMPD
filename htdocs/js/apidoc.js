@@ -134,6 +134,11 @@ const APIparams = {
         "example": 2,
         "desc": "Position"
     },
+    "positions": {
+        "type": APItypes.array,
+        "example": "[2,3]",
+        "desc": "Positions"
+    },
     "play": {
         "type": APItypes.bool,
         "example": true,
@@ -355,8 +360,8 @@ const APImethods = {
             "cols": APIparams.cols
         }
     },
-    "MYMPD_API_QUEUE_RM_SONG_IDS": {
-        "desc": "Removes songs from the queue.",
+    "MYMPD_API_QUEUE_RM_IDS": {
+        "desc": "Removes defined entries from the queue.",
         "params": {
             "songIds": APIparams.songIds
         }
@@ -376,7 +381,7 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_QUEUE_MOVE_SONG": {
+    "MYMPD_API_QUEUE_MOVE_POSITION": {
         "desc": "Moves a song in the queue.",
         "params": {
             "from": APIparams.from,
@@ -514,7 +519,7 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG": {
+    "MYMPD_API_PLAYLIST_CONTENT_MOVE_POSITION": {
         "desc": "Moves a song in the playlist.",
         "params": {
             "plist": APIparams.plist,
@@ -566,11 +571,11 @@ const APImethods = {
             "expression": APIparams.expression
         }
     },
-    "MYMPD_API_PLAYLIST_CONTENT_RM_SONG": {
-        "desc": "Removes a song from the playlist.",
+    "MYMPD_API_PLAYLIST_CONTENT_RM_POSITIONS": {
+        "desc": "Removes entries from the playlist. Positions must be sorted descending.",
         "params": {
             "plist": APIparams.plist,
-            "pos": APIparams.pos
+            "positions": APIparams.positions
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_RM_RANGE": {
