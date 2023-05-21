@@ -246,7 +246,6 @@
     "External link": "Externer Link",
     "Facilities": "Kategorie",
     "Failed to set like, unknown error": "Like konnte nicht gesetzt werden - unbekannter Fehler",
-    "Failed to set song priority": "Priorität des Liedes konnte nicht gesetzt werden",
     "Favorite and WebradioDb entry are different": "Favorit und WebradioDB Eintrag unterscheiden sich",
     "Favorite is uptodate": "Favorit ist aktuell",
     "Features": "Features",
@@ -904,5 +903,8 @@
     "Can not parse response from %{uri}": "Antwort von %{uri} konnte nicht geparsed werden",
     "Error accessing %{uri}": "Fehler beim Zugriff auf %{uri}",
     "Response code: %{code}": "Fehlercode: %{code}",
-    "No MPD queue song ids provided": "Keine MPD Warteschlangen Song IDs übergeben"
+    "No MPD queue song ids provided": "Keine MPD Warteschlangen Song IDs übergeben",
+    "No playlists provided": "Keine Wiedergabelisten übergeben",
+    "No song positions provided": "Keine Song Positionen übergeben",
+    "No uris provided": "Keine URIs übergeben"
 }
