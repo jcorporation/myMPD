@@ -909,32 +909,28 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_move", &result);
             }
             break;
-        case MYMPD_API_QUEUE_PRIO_SET:
-            if (json_get_uint_max(request->data, "$.params.songId", &uint_buf1, &error) == true &&
+        case MYMPD_API_QUEUE_PRIO_SET: {
+            struct t_list song_ids;
+            list_init(&song_ids);
+            if (json_get_array_llong(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &error) == true &&
                 json_get_uint(request->data, "$.params.priority", 0, MPD_QUEUE_PRIO_MAX, &uint_buf2, &error) == true)
             {
-                rc = mympd_api_queue_prio_set(partition_state, uint_buf1, uint_buf2);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_QUEUE);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Failed to set song priority");
-                }
+                rc = mympd_api_queue_prio_set(partition_state, &song_ids, uint_buf2);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_send_prio_id", &result);
             }
+            list_clear(&song_ids);
             break;
-        case MYMPD_API_QUEUE_PRIO_SET_HIGHEST:
-            if (json_get_uint_max(request->data, "$.params.songId", &uint_buf1, &error) == true) {
-                rc = mympd_api_queue_prio_set_highest(partition_state, uint_buf1);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_QUEUE);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Failed to set song priority");
-                }
+        }
+        case MYMPD_API_QUEUE_PRIO_SET_HIGHEST: {
+            struct t_list song_ids;
+            list_init(&song_ids);
+            if (json_get_array_llong(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &error) == true) {
+                rc = mympd_api_queue_prio_set_highest(partition_state, &song_ids);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_send_prio_id", &result);
             }
+            list_clear(&song_ids);
             break;
+        }
         case MYMPD_API_PLAYER_PLAY_SONG:
             if (json_get_uint_max(request->data, "$.params.songId", &uint_buf1, &error) == true) {
                 rc = mpd_run_play_id(partition_state->conn, uint_buf1);

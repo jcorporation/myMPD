@@ -785,7 +785,7 @@ function setSongPriority() {
     const priorityEl = document.getElementById('inputSongPriority');
     if (validateIntRangeEl(priorityEl, 0, 255) === true) {
         sendAPI("MYMPD_API_QUEUE_PRIO_SET", {
-            "songId": songId,
+            "songIds": [songId],
             "priority": Number(priorityEl.value)
         }, setSongPriorityCheckError, true);
     }
@@ -885,7 +885,7 @@ function playAfterCurrent(songId, songPos) {
     else {
         //in random mode - set song priority
         sendAPI("MYMPD_API_QUEUE_PRIO_SET_HIGHEST", {
-            "songId": songId
+            "songIds": [songId]
         }, null, false);
     }
 }

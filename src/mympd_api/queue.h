@@ -22,8 +22,8 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer
 sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds buffer, long request_id,
         sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
         const struct t_tags *tagcols);
-bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, unsigned song_id, unsigned priority);
-bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, unsigned song_id);
+bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, struct t_list *song_ids, unsigned priority);
+bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, struct t_list *song_ids);
 bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, struct t_list *song_ids);
 bool mympd_api_queue_append(struct t_partition_state *partition_state, struct t_list *uris);
 bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_list *uris, unsigned to, unsigned whence);

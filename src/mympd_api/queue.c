@@ -155,23 +155,35 @@ bool mympd_api_queue_play_newly_inserted(struct t_partition_state *partition_sta
  * Sets the priority of a song in the queue.
  * The priority has only an effect in random mode.
  * @param partition_state pointer to partition state
- * @param song_id song id of the song in the queue
+ * @param song_ids song ids in the queue
  * @param priority priority to set, max 255
  * @return true on success, else false
  */
-bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, unsigned song_id, unsigned priority) {
-    bool rc = mpd_run_prio_id(partition_state->conn, priority, song_id);
-    return mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_prio_id");
+bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, struct t_list *song_ids, unsigned priority) {
+    if (mpd_command_list_begin(partition_state->conn, false) == true) {
+        struct t_list_node *current = song_ids->head;
+        while (current != NULL) {
+            bool rc = mpd_send_prio_id(partition_state->conn, (unsigned)current->value_i, priority);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_prio_id");
+                break;
+            }
+            current = current->next;
+        }
+        return mpd_command_list_end(partition_state->conn) &&
+            mpd_response_finish(partition_state->conn);
+    }
+    return false;
 }
 
 /**
  * Sets the priority to the highest value of a song in the queue.
  * The priority has only an effect in random mode.
  * @param partition_state pointer to partition state
- * @param song_id song id of the song in the queue
+ * @param song_ids song ids in the queue
  * @return true on success, else false
  */
-bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, unsigned song_id) {
+bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, struct t_list *song_ids) {
     //default prio is 0
     unsigned priority = 1;
 
@@ -202,7 +214,7 @@ bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state,
         MYMPD_LOG_WARN("MPD queue priority limit reached, setting it to max %d", MPD_QUEUE_PRIO_MAX);
         priority = MPD_QUEUE_PRIO_MAX;
     }
-    return mympd_api_queue_prio_set(partition_state, song_id, priority);
+    return mympd_api_queue_prio_set(partition_state, song_ids, priority);
 }
 
 /**

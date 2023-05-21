@@ -472,9 +472,9 @@ const APImethods = {
         "params": {}
     },
     "MYMPD_API_QUEUE_PRIO_SET": {
-        "desc": "Set highest prio for specified song in queue.",
+        "desc": "Set highest prio for specified song ids in the queue.",
         "params": {
-            "songId": APIparams.songId,
+            "songIds": APIparams.songIds,
             "priority": {
                 "type": APItypes.uint,
                 "example": 10,
@@ -483,9 +483,9 @@ const APImethods = {
         }
     },
     "MYMPD_API_QUEUE_PRIO_SET_HIGHEST": {
-        "desc": "Set highest priority for specified song in queue.",
+        "desc": "Set highest priority for specified song ids in the queue.",
         "params": {
-            "songId": APIparams.songId
+            "songIds": APIparams.songIds
         }
     },
     "MYMPD_API_LAST_PLAYED_LIST": {
