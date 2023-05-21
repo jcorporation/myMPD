@@ -904,8 +904,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_array_llong(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true)
             {
-                rc = mympd_api_queue_move_ids(partition_state, &song_ids, uint_buf1);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_move", &result);
+                if (song_ids.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No MPD queue song ids provided");
+                }
+                else {
+                    rc = mympd_api_queue_move_ids(partition_state, &song_ids, uint_buf1);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_move", &result);
+                }
             }
             list_clear(&song_ids);
             break;
@@ -916,8 +922,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_array_llong(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &error) == true &&
                 json_get_uint(request->data, "$.params.priority", 0, MPD_QUEUE_PRIO_MAX, &uint_buf2, &error) == true)
             {
-                rc = mympd_api_queue_prio_set(partition_state, &song_ids, uint_buf2);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_send_prio_id", &result);
+                if (song_ids.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No MPD queue song ids provided");
+                }
+                else {
+                    rc = mympd_api_queue_prio_set(partition_state, &song_ids, uint_buf2);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_send_prio_id", &result);
+                }
             }
             list_clear(&song_ids);
             break;
@@ -926,8 +938,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             struct t_list song_ids;
             list_init(&song_ids);
             if (json_get_array_llong(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &error) == true) {
-                rc = mympd_api_queue_prio_set_highest(partition_state, &song_ids);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_send_prio_id", &result);
+                if (song_ids.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No MPD queue song ids provided");
+                }
+                else {
+                    rc = mympd_api_queue_prio_set_highest(partition_state, &song_ids);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_send_prio_id", &result);
+                }
             }
             list_clear(&song_ids);
             break;
@@ -1033,10 +1051,16 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_PLAYLIST_RM: {
             struct t_list plists;
             list_init(&plists);
-            if (json_get_string(request->data, "$.params.plists", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
+            if (json_get_array_string(request->data, "$.params.plists", &plists, vcb_isfilename, MPD_COMMANDS_MAX, &error) == true &&
                 json_get_bool(request->data, "$.params.smartplsOnly", &bool_buf1, &error) == true)
             {
-                response->data = mympd_api_playlist_delete(partition_state, response->data, request->id, &plists, bool_buf1);
+                if (plists.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No playlists provided");
+                }
+                else {
+                    response->data = mympd_api_playlist_delete(partition_state, response->data, request->id, &plists, bool_buf1);
+                }
             }
             list_clear(&plists);
             break;
@@ -1081,11 +1105,17 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_array_string(request->data, "$.params.uris", &uris, vcb_isuri, MPD_PLAYLIST_LENGTH_MAX, &error) == true)
             {
-                rc = mympd_api_playlist_content_append(partition_state, sds_buf1, &uris);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_playlist_add", &result);
-                if (result == true) {
-                    response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
+                if (uris.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No uris provided");
+                }
+                else {
+                    rc = mympd_api_playlist_content_append(partition_state, sds_buf1, &uris);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_playlist_add", &result);
+                    if (result == true) {
+                        response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
+                    }
                 }
             }
             list_clear(&uris);
@@ -1103,11 +1133,17 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_array_string(request->data, "$.params.uris", &uris, vcb_isuri, MPD_PLAYLIST_LENGTH_MAX, &error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true)
             {
-                rc = mympd_api_playlist_content_insert(partition_state, sds_buf1, &uris, uint_buf1);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_playlist_add_to", &result);
-                if (result == true) {
-                    response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
+                if (uris.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No uris provided");
+                }
+                else {
+                    rc = mympd_api_playlist_content_insert(partition_state, sds_buf1, &uris, uint_buf1);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_playlist_add_to", &result);
+                    if (result == true) {
+                        response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
+                    }
                 }
             }
             list_clear(&uris);
@@ -1119,11 +1155,17 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_array_string(request->data, "$.params.uris", &uris, vcb_isuri, MPD_PLAYLIST_LENGTH_MAX, &error) == true)
             {
-                rc = mympd_api_playlist_content_replace(partition_state, sds_buf1, &uris);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_playlist_add", &result);
-                if (result == true) {
-                    response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Replaced the playlist %{playlist}", 2, "playlist", sds_buf1);
+                if (uris.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No uris provided");
+                }
+                else {
+                    rc = mympd_api_playlist_content_replace(partition_state, sds_buf1, &uris);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_playlist_add", &result);
+                    if (result == true) {
+                        response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Replaced the playlist %{playlist}", 2, "playlist", sds_buf1);
+                    }
                 }
             }
             list_clear(&uris);
@@ -1193,8 +1235,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_array_llong(request->data, "$.params.positions", &positions, MPD_PLAYLIST_LENGTH_MAX, &error) == true)
             {
-                rc = mympd_api_playlist_content_rm_positions(partition_state, sds_buf1, &positions);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_playlist_delete", &result);
+                if (positions.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No song positions provided");
+                }
+                else {
+                    rc = mympd_api_playlist_content_rm_positions(partition_state, sds_buf1, &positions);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_playlist_delete", &result);
+                }
             }
             list_clear(&positions);
             break;
@@ -1268,13 +1316,19 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_array_string(request->data, "$.params.uris", &uris, vcb_isuri, MPD_PLAYLIST_LENGTH_MAX, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                rc = mympd_api_queue_append(partition_state, &uris);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_append_uris", &result);
-                if (result == true &&
-                    check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
-                {
+                if (uris.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No uris provided");
+                }
+                else {
+                    rc = mympd_api_queue_append(partition_state, &uris);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_append_uris", &result);
+                    if (result == true &&
+                        check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
+                    {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
+                    }
                 }
             }
             list_clear(&uris);
@@ -1293,13 +1347,19 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                rc = mympd_api_queue_insert(partition_state, &uris, uint_buf1, uint_buf2);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_insert_uris", &result);
-                if (result == true &&
-                    check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
-                {
+                if (uris.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No uris provided");
+                }
+                else {
+                    rc = mympd_api_queue_insert(partition_state, &uris, uint_buf1, uint_buf2);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_insert_uris", &result);
+                    if (result == true &&
+                        check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
+                    {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
+                    }
                 }
             }
             list_clear(&uris);
@@ -1311,13 +1371,19 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_array_string(request->data, "$.params.uris", &uris, vcb_isuri, MPD_PLAYLIST_LENGTH_MAX, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                rc = mympd_api_queue_replace(partition_state, &uris);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_replace_uris", &result);
-                if (result == true &&
-                    check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
-                {
+                if (uris.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Replaced the queue");
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No uris provided");
+                }
+                else {
+                    rc = mympd_api_queue_replace(partition_state, &uris);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_replace_uris", &result);
+                    if (result == true &&
+                        check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
+                    {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Replaced the queue");
+                    }
                 }
             }
             list_clear(&uris);
@@ -1329,13 +1395,19 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_array_string(request->data, "$.params.plists", &plists, vcb_isuri, MPD_COMMANDS_MAX, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                rc = mympd_api_queue_append_plist(partition_state, &plists);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_append_plist", &result);
-                if (result == true &&
-                    check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
-                {
+                if (plists.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No playlists provided");
+                }
+                else {
+                    rc = mympd_api_queue_append_plist(partition_state, &plists);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_append_plist", &result);
+                    if (result == true &&
+                        check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
+                    {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
+                    }
                 }
             }
             list_clear(&plists);
@@ -1354,13 +1426,19 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                rc = mympd_api_queue_insert_plist(partition_state, &plists, uint_buf1, uint_buf2);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_insert_plist", &result);
-                if (result == true &&
-                    check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
-                {
+                if (plists.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No playlists provided");
+                }
+                else {
+                    rc = mympd_api_queue_insert_plist(partition_state, &plists, uint_buf1, uint_buf2);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_insert_plist", &result);
+                    if (result == true &&
+                        check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
+                    {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
+                    }
                 }
             }
             list_clear(&plists);
@@ -1372,13 +1450,19 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_array_string(request->data, "$.params.plists", &plists, vcb_isuri, MPD_COMMANDS_MAX, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
-                rc = mympd_api_queue_replace_plist(partition_state, &plists);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_replace_plist", &result);
-                if (result == true &&
-                    check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
-                {
+                if (plists.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Replaced the queue");
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No playlists provided");
+                }
+                else {
+                    rc = mympd_api_queue_replace_plist(partition_state, &plists);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_replace_plist", &result);
+                    if (result == true &&
+                        check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
+                    {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Replaced the queue");
+                    }
                 }
             }
             list_clear(&plists);
