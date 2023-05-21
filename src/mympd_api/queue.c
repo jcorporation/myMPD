@@ -296,7 +296,7 @@ bool mympd_api_queue_insert_plist(struct t_partition_state *partition_state, str
 /**
  * Replaces the queue with playlists
  * @param partition_state pointer to partition state
- * @param uris uris to add
+ * @param plists playlists to add
  * @return true on success, else false
  */
 bool mympd_api_queue_replace_plist(struct t_partition_state *partition_state, struct t_list *plists) {
