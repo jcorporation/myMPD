@@ -152,6 +152,31 @@ bool mympd_api_queue_play_newly_inserted(struct t_partition_state *partition_sta
 }
 
 /**
+ * Moves the song ids to pos in queue.
+ * @param partition_state pointer to partition state
+ * @param song_ids song ids in the queue
+ * @param to position to move
+ * @return true on success, else false
+ */
+bool mympd_api_queue_move_ids(struct t_partition_state *partition_state, struct t_list *song_ids, unsigned to) {
+    if (mpd_command_list_begin(partition_state->conn, false) == true) {
+        struct t_list_node *current = song_ids->head;
+        while (current != NULL) {
+            bool rc = mpd_send_move_id(partition_state->conn, (unsigned)current->value_i, to);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_move_id");
+                break;
+            }
+            current = current->next;
+            to++;
+        }
+        return mpd_command_list_end(partition_state->conn) &&
+            mpd_response_finish(partition_state->conn);
+    }
+    return false;
+}
+
+/**
  * Sets the priority of a song in the queue.
  * The priority has only an effect in random mode.
  * @param partition_state pointer to partition state

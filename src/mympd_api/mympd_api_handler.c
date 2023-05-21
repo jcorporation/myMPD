@@ -898,17 +898,18 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_delete_range", &result);
             }
             break;
-        case MYMPD_API_QUEUE_MOVE_POSITION:
-            if (json_get_uint(request->data, "$.params.from", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
-                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf2, &error) == true)
+        case MYMPD_API_QUEUE_MOVE_IDS: {
+            struct t_list song_ids;
+            list_init(&song_ids);
+            if (json_get_array_llong(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &error) == true &&
+                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true)
             {
-                if (uint_buf1 < uint_buf2) {
-                    uint_buf2--;
-                }
-                rc = mpd_run_move(partition_state->conn, uint_buf1, uint_buf2);
+                rc = mympd_api_queue_move_ids(partition_state, &song_ids, uint_buf1);
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_move", &result);
             }
+            list_clear(&song_ids);
             break;
+        }
         case MYMPD_API_QUEUE_PRIO_SET: {
             struct t_list song_ids;
             list_init(&song_ids);

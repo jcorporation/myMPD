@@ -78,7 +78,6 @@ function dragAndDropTable(tableId) {
         if (event.target.nodeName === 'TD') {
             target = event.target.parentNode;
         }
-        const oldSongPos = getDataId(event.dataTransfer.getData('Text'), 'songpos');
         const newSongPos = getData(target, 'songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
@@ -90,12 +89,16 @@ function dragAndDropTable(tableId) {
         }
         document.getElementById(tableId).classList.add('opacity05');
         switch(app.id) {
-            case 'QueueCurrent':
-                queueMovePosition(oldSongPos, newSongPos);
+            case 'QueueCurrent': {
+                const songId = getDataId(event.dataTransfer.getData('Text'), 'songid');
+                queueMoveId(songId, newSongPos);
                 break;
-            case 'BrowsePlaylistsDetail':
+            }
+            case 'BrowsePlaylistsDetail': {
+                const oldSongPos = getDataId(event.dataTransfer.getData('Text'), 'songpos');
                 playlistMoveSong(oldSongPos, newSongPos);
                 break;
+            }
         }
     }, false);
 }

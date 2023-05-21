@@ -704,14 +704,16 @@ function saveQueueCheckError(obj) {
 /**
  * Shows the set song position modal
  * @param {string} plist the playlist name or the special value "queue" to move the song
- * @param {number} oldSongPos song pos in queue to move
+ * @param {number} oldSongPos song pos in the queue to move
+ * @param {number} songId song id in the queue to move
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function showSetSongPos(plist, oldSongPos) {
+function showSetSongPos(plist, oldSongPos, songId) {
     cleanupModalId('modalSetSongPos');
     document.getElementById('inputSongPosNew').value = '';
     document.getElementById('inputSongPosOld').value = oldSongPos;
+    document.getElementById('inputSongId').value = songId;
     document.getElementById('inputSongPosPlist').value = plist;
     uiElements.modalSetSongPos.show();
 }
@@ -725,6 +727,7 @@ function setSongPos() {
     cleanupModalId('modalSetSongPos');
     const plist = document.getElementById('inputSongPosPlist').value;
     const oldSongPos = Number(document.getElementById('inputSongPosOld').value);
+    const songId = Number(document.getElementById('inputSongId').value);
     const newSongPosEl = document.getElementById('inputSongPosNew');
     if (validateIntRangeEl(newSongPosEl, 1, 99999) === true) {
         let newSongPos = Number(newSongPosEl.value);
@@ -732,8 +735,8 @@ function setSongPos() {
             newSongPos--;
         }
         if (plist === 'queue') {
-            sendAPI("MYMPD_API_QUEUE_MOVE_POSITION", {
-                "from": oldSongPos,
+            sendAPI("MYMPD_API_QUEUE_MOVE_ID", {
+                "songIds": [songId],
                 "to": newSongPos
             }, setSongPosCheckError, true);
         }
@@ -748,7 +751,7 @@ function setSongPos() {
 }
 
 /**
- * Handles the MYMPD_API_QUEUE_MOVE_POSITION and  jsonrpc response
+ * Handles the MYMPD_API_QUEUE_MOVE_ID and MYMPD_API_PLAYLIST_CONTENT_MOVE_POSITION jsonrpc response
  * @param {object} obj jsonrpc response
  * @returns {void}
  */
@@ -857,13 +860,13 @@ function gotoPlayingSong() {
 
 /**
  * Moves a entry in the queue
- * @param {number} from from position
+ * @param {number} id song id
  * @param {number} to to position
  * @returns {void}
  */
-function queueMovePosition(from, to) {
-    sendAPI("MYMPD_API_QUEUE_MOVE_POSITION", {
-        "from": from,
+function queueMoveId(id, to) {
+    sendAPI("MYMPD_API_QUEUE_MOVE_IDS", {
+        "songIds": [id],
         "to": to
     }, null, false);
 }
@@ -880,7 +883,7 @@ function playAfterCurrent(songId, songPos) {
     if (settings.partition.random === false) {
         //not in random mode - move song after current playing song
         const newSongPos = currentState.songPos !== undefined ? currentState.songPos + 1 : 0;
-        queueMovePosition(songPos, newSongPos);
+        queueMoveId(songId, newSongPos);
     }
     else {
         //in random mode - set song priority

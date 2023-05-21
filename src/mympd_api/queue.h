@@ -31,4 +31,5 @@ bool mympd_api_queue_replace(struct t_partition_state *partition_state, struct t
 bool mympd_api_queue_append_plist(struct t_partition_state *partition_state, struct t_list *plists);
 bool mympd_api_queue_insert_plist(struct t_partition_state *partition_state, struct t_list *plists, unsigned to, unsigned whence);
 bool mympd_api_queue_replace_plist(struct t_partition_state *partition_state, struct t_list *plists);
+bool mympd_api_queue_move_ids(struct t_partition_state *partition_state, struct t_list *song_ids, unsigned to);
 #endif
