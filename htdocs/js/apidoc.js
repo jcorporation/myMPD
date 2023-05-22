@@ -401,7 +401,7 @@ const APImethods = {
     "MYMPD_API_QUEUE_MOVE_RELATIVE": {
         "desc": "Moves entries in the queue.",
         "params": {
-            "from": APIparams.songIds,
+            "songIds": APIparams.songIds,
             "to": APIparams.to,
             "whence": APIparams.whence
         }
