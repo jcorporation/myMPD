@@ -860,30 +860,32 @@ function gotoPlayingSong() {
 
 /**
  * Moves a entry in the queue
- * @param {number} id song id
+ * @param {number} from from position
  * @param {number} to to position
  * @returns {void}
  */
-function queueMoveId(id, to) {
-    sendAPI("MYMPD_API_QUEUE_MOVE_IDS", {
-        "songIds": [id],
+function queueMoveSong(from, to) {
+    sendAPI("MYMPD_API_QUEUE_MOVE_POSITION", {
+        "from": from,
         "to": to
     }, null, false);
 }
 
 /**
  * Plays the selected song after the current song.
- * Uses the priority if MPS is in random mode, else moves the song after current playing song.
+ * Sets the priority if MPD is in random mode, else moves the song after current playing song.
  * @param {number} songId current playing song id (for priority mode)
- * @param {number} songPos current playing song position (for move mode)
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function playAfterCurrent(songId, songPos) {
+function playAfterCurrent(songId) {
     if (settings.partition.random === false) {
         //not in random mode - move song after current playing song
-        const newSongPos = currentState.songPos !== undefined ? currentState.songPos + 1 : 0;
-        queueMoveId(songId, newSongPos);
+        sendAPI("MYMPD_API_QUEUE_MOVE_RELATIVE", {
+            "songIds": [songId],
+            "to": 0,
+            "whence": 1
+        }, null, false);
     }
     else {
         //in random mode - set song priority

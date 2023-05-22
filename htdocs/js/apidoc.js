@@ -391,11 +391,19 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_QUEUE_MOVE_IDS": {
-        "desc": "Moves song ids in the queue.",
+    "MYMPD_API_QUEUE_MOVE_POSITION": {
+        "desc": "Moves entries in the queue.",
         "params": {
-            "songIds": APIparams.songIds,
+            "from": APIparams.from,
             "to": APIparams.to
+        }
+    },
+    "MYMPD_API_QUEUE_MOVE_RELATIVE": {
+        "desc": "Moves entries in the queue.",
+        "params": {
+            "from": APIparams.songIds,
+            "to": APIparams.to,
+            "whence": APIparams.whence
         }
     },
     "MYMPD_API_QUEUE_INSERT_PLAYLISTS": {

@@ -560,9 +560,10 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
             addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name);
             addDivider(contextMenuBody);
             if (currentState.currentSongId !== -1 &&
-                songid !== currentState.currentSongId)
+                songid !== currentState.currentSongId &&
+                features.featWhence === true)
             {
-                addMenuItem(contextMenuBody, {"cmd": "playAfterCurrent", "options": [songid, songpos]}, 'Play after current playing song');
+                addMenuItem(contextMenuBody, {"cmd": "playAfterCurrent", "options": [songid]}, 'Play after current playing song');
             }
             if (settings.partition.random === true) {
                 addMenuItem(contextMenuBody, {"cmd": "showSetSongPriority", "options": [songid]}, 'Set priority');

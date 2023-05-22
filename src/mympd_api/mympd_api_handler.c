@@ -898,19 +898,37 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_delete_range", &result);
             }
             break;
-        case MYMPD_API_QUEUE_MOVE_IDS: {
+        case MYMPD_API_QUEUE_MOVE_POSITION:
+            if (json_get_uint(request->data, "$.params.from", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
+                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf2, &error) == true)
+            {
+                if (uint_buf1 < uint_buf2) {
+                    // decrease to position
+                    uint_buf2--;
+                }
+                rc = mpd_run_move(partition_state->conn, uint_buf1, uint_buf2);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_move", &result);
+            }
+            break;
+        case MYMPD_API_QUEUE_MOVE_RELATIVE: {
+            if (mympd_state->mpd_state->feat_whence == false) {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Method not supported");
+                break;
+            }
             struct t_list song_ids;
             list_init(&song_ids);
             if (json_get_array_llong(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &error) == true &&
-                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true)
+                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
+                json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &error) == true)
             {
                 if (song_ids.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No MPD queue song ids provided");
                 }
                 else {
-                    rc = mympd_api_queue_move_ids(partition_state, &song_ids, uint_buf1);
-                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_move", &result);
+                    rc = mympd_api_queue_move_relative(partition_state, &song_ids, uint_buf1, uint_buf2);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_queue_move_relative", &result);
                 }
             }
             list_clear(&song_ids);
@@ -920,14 +938,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             struct t_list song_ids;
             list_init(&song_ids);
             if (json_get_array_llong(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &error) == true &&
-                json_get_uint(request->data, "$.params.priority", 0, MPD_QUEUE_PRIO_MAX, &uint_buf2, &error) == true)
+                json_get_uint(request->data, "$.params.priority", 0, MPD_QUEUE_PRIO_MAX, &uint_buf1, &error) == true)
             {
                 if (song_ids.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No MPD queue song ids provided");
                 }
                 else {
-                    rc = mympd_api_queue_prio_set(partition_state, &song_ids, uint_buf2);
+                    rc = mympd_api_queue_prio_set(partition_state, &song_ids, uint_buf1);
                     response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_send_prio_id", &result);
                 }
             }
@@ -1223,6 +1241,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf2, &error) == true)
             {
                 if (uint_buf1 < uint_buf2) {
+                    // decrease to position
                     uint_buf2--;
                 }
                 rc = mpd_run_playlist_move(partition_state->conn, sds_buf1, uint_buf1, uint_buf2);

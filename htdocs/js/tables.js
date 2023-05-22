@@ -25,7 +25,9 @@ function dragAndDropTable(tableId) {
     }, false);
     tableBody.addEventListener('dragleave', function(event) {
         event.preventDefault();
-        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined ||
+            dragEl.nodeName !== 'TR')
+        {
             return;
         }
         let target = event.target;
@@ -38,7 +40,9 @@ function dragAndDropTable(tableId) {
     }, false);
     tableBody.addEventListener('dragover', function(event) {
         event.preventDefault();
-        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined ||
+            dragEl.nodeName !== 'TR')
+        {
             return;
         }
         const tr = tableBody.querySelectorAll('.dragover');
@@ -56,7 +60,9 @@ function dragAndDropTable(tableId) {
     }, false);
     tableBody.addEventListener('dragend', function(event) {
         event.preventDefault();
-        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined ||
+            dragEl.nodeName !== 'TR')
+        {
             return;
         }
         const tr = tableBody.querySelectorAll('.dragover');
@@ -71,7 +77,9 @@ function dragAndDropTable(tableId) {
     tableBody.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (dragEl === undefined || dragEl.nodeName !== 'TR') {
+        if (dragEl === undefined ||
+            dragEl.nodeName !== 'TR')
+        {
             return;
         }
         let target = event.target;
@@ -79,6 +87,7 @@ function dragAndDropTable(tableId) {
             target = event.target.parentNode;
         }
         const newSongPos = getData(target, 'songpos');
+        const oldSongPos = getDataId(event.dataTransfer.getData('Text'), 'songpos');
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
         // @ts-ignore
@@ -90,12 +99,10 @@ function dragAndDropTable(tableId) {
         document.getElementById(tableId).classList.add('opacity05');
         switch(app.id) {
             case 'QueueCurrent': {
-                const songId = getDataId(event.dataTransfer.getData('Text'), 'songid');
-                queueMoveId(songId, newSongPos);
+                queueMoveSong(oldSongPos, newSongPos);
                 break;
             }
             case 'BrowsePlaylistsDetail': {
-                const oldSongPos = getDataId(event.dataTransfer.getData('Text'), 'songpos');
                 playlistMoveSong(oldSongPos, newSongPos);
                 break;
             }
@@ -123,7 +130,9 @@ function dragAndDropTableHeader(tableName) {
     }, false);
     tableHeader.addEventListener('dragleave', function(event) {
         event.preventDefault();
-        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined ||
+            dragEl.nodeName !== 'TH')
+        {
             return;
         }
         if (event.target.nodeName === 'TH') {
@@ -132,7 +141,9 @@ function dragAndDropTableHeader(tableName) {
     }, false);
     tableHeader.addEventListener('dragover', function(event) {
         event.preventDefault();
-        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined ||
+            dragEl.nodeName !== 'TH')
+        {
             return;
         }
         const th = tableHeader.querySelectorAll('.dragover-th');
@@ -146,7 +157,9 @@ function dragAndDropTableHeader(tableName) {
     }, false);
     tableHeader.addEventListener('dragend', function(event) {
         event.preventDefault();
-        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined ||
+            dragEl.nodeName !== 'TH')
+        {
             return;
         }
         const th = tableHeader.querySelectorAll('.dragover-th');
@@ -161,7 +174,9 @@ function dragAndDropTableHeader(tableName) {
     tableHeader.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
-        if (dragEl === undefined || dragEl.nodeName !== 'TH') {
+        if (dragEl === undefined ||
+            dragEl.nodeName !== 'TH')
+        {
             return;
         }
         this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').remove();
