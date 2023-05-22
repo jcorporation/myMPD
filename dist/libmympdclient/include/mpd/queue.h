@@ -512,6 +512,36 @@ mpd_run_move(struct mpd_connection *connection, unsigned from, unsigned to);
  * Moves a song within the queue.
  *
  * @param connection the connection to MPD
+ * @param from the source song position
+ * @param to the new position of the song
+ * @param whence how to interpret the to parameter
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.21, MPD 0.23
+ */
+bool
+mpd_send_move_whence(struct mpd_connection *connection, unsigned from,
+			 unsigned to, enum mpd_position_whence whence);
+
+/**
+ * Shortcut for mpd_send_move_whence() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param from the source song position
+ * @param to the new position of the song
+ * @param whence how to interpret the to parameter
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.21, MPD 0.23
+ */
+bool
+mpd_run_move_whence(struct mpd_connection *connection, unsigned from,
+			 unsigned to, enum mpd_position_whence whence);
+
+/**
+ * Moves a song within the queue.
+ *
+ * @param connection the connection to MPD
  * @param from the source song id
  * @param to the new position of the song (not an id!)
  * @return true on success, false on error
@@ -529,6 +559,36 @@ mpd_send_move_id(struct mpd_connection *connection, unsigned from, unsigned to);
  */
 bool
 mpd_run_move_id(struct mpd_connection *connection, unsigned from, unsigned to);
+
+/**
+ * Moves a song within the queue.
+ *
+ * @param connection the connection to MPD
+ * @param from the source song id
+ * @param to the new position of the song (not an id!)
+ * @param whence how to interpret the to parameter
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.21, MPD 0.23
+ */
+bool
+mpd_send_move_id_whence(struct mpd_connection *connection, unsigned from,
+			 unsigned to, enum mpd_position_whence whence);
+
+/**
+ * Shortcut for mpd_send_move_id_whence() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param from the source song id
+ * @param to the new position of the song (not an id!)
+ * @param whence how to interpret the to parameter
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.21, MPD 0.23
+ */
+bool
+mpd_run_move_id_whence(struct mpd_connection *connection, unsigned from,
+			 unsigned to, enum mpd_position_whence whence);
 
 /**
  * Moves a range of songs within the queue.
@@ -561,6 +621,40 @@ mpd_send_move_range(struct mpd_connection *connection,
 bool
 mpd_run_move_range(struct mpd_connection *connection,
 		    unsigned start, unsigned end, unsigned to);
+
+/**
+ * Moves a range of songs within the queue.
+ *
+ * @param connection the connection to MPD
+ * @param start the start position of the range (including)
+ * @param end the end position of the range (excluding); the special
+ * value "UINT_MAX" makes the end of the range open
+ * @param to the new position of the song range
+ * @param whence how to interpret the to parameter
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.21, MPD 0.23
+ */
+bool
+mpd_send_move_range_whence(struct mpd_connection *connection, unsigned start,
+			 unsigned end, unsigned to, enum mpd_position_whence whence);
+
+/**
+ * Shortcut for mpd_send_move_range_whence() and mpd_response_finish().
+ *
+ * @param connection the connection to MPD
+ * @param start the start position of the range (including)
+ * @param end the end position of the range (excluding); the special
+ * value "UINT_MAX" makes the end of the range open
+ * @param to the new position of the song range
+ * @param whence how to interpret the to parameter
+ * @return true on success, false on error
+ *
+ * @since libmpdclient 2.21, MPD 0.23
+ */
+bool
+mpd_run_move_range_whence(struct mpd_connection *connection, unsigned start,
+			 unsigned end, unsigned to, enum mpd_position_whence whence);
 
 /**
  * Swap the position of two songs in the queue.

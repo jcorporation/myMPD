@@ -398,6 +398,27 @@ mpd_run_move(struct mpd_connection *connection, unsigned from, unsigned to)
 }
 
 bool
+mpd_send_move_whence(struct mpd_connection *connection, unsigned from,
+			 unsigned to, enum mpd_position_whence whence)
+{
+	const char *whence_s = mpd_position_whence_char(whence);
+
+	char to_str[64] = "";
+	snprintf(to_str, 64, "%s%u", whence_s, to);
+
+	return mpd_send_u_s_command(connection, "move", from, to_str);
+}
+
+bool
+mpd_run_move_whence(struct mpd_connection *connection, unsigned from,
+			 unsigned to, enum mpd_position_whence whence)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_move_whence(connection, from, to, whence) &&
+		mpd_response_finish(connection);
+}
+
+bool
 mpd_send_move_id(struct mpd_connection *connection, unsigned from, unsigned to)
 {
 	return mpd_send_u2_command(connection, "moveid", from, to);
@@ -408,6 +429,27 @@ mpd_run_move_id(struct mpd_connection *connection, unsigned from, unsigned to)
 {
 	return mpd_run_check(connection) &&
 		mpd_send_move_id(connection, from, to) &&
+		mpd_response_finish(connection);
+}
+
+bool
+mpd_send_move_id_whence(struct mpd_connection *connection, unsigned from,
+			 unsigned to, enum mpd_position_whence whence)
+{
+	const char *whence_s = mpd_position_whence_char(whence);
+
+	char to_str[64] = "";
+	snprintf(to_str, 64, "%s%u", whence_s, to);
+
+	return mpd_send_u_s_command(connection, "moveid", from, to_str);
+}
+
+bool
+mpd_run_move_id_whence(struct mpd_connection *connection, unsigned from,
+			 unsigned to, enum mpd_position_whence whence)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_move_id_whence(connection, from, to, whence) &&
 		mpd_response_finish(connection);
 }
 
@@ -424,6 +466,27 @@ mpd_run_move_range(struct mpd_connection *connection,
 {
 	return mpd_run_check(connection) &&
 		mpd_send_move_range(connection, start, end, to) &&
+		mpd_response_finish(connection);
+}
+
+bool
+mpd_send_move_range_whence(struct mpd_connection *connection, unsigned start,
+			 unsigned end, unsigned to, enum mpd_position_whence whence)
+{
+	const char *whence_s = mpd_position_whence_char(whence);
+
+	char to_str[64] = "";
+	snprintf(to_str, 64, "%s%u", whence_s, to);
+
+	return mpd_send_range_to_command(connection, "move", start, end, to_str);
+}
+
+bool
+mpd_run_move_range_whence(struct mpd_connection *connection, unsigned start,
+			 unsigned end, unsigned to, enum mpd_position_whence whence)
+{
+	return mpd_run_check(connection) &&
+		mpd_send_move_range_whence(connection, start, end, to, whence) &&
 		mpd_response_finish(connection);
 }
 

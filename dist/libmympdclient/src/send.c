@@ -359,6 +359,18 @@ mpd_send_range_u_command(struct mpd_connection *connection,
 }
 
 bool
+mpd_send_range_to_command(struct mpd_connection *connection,
+			 const char *command,
+			 unsigned start, unsigned end, const char *to)
+{
+	char arg1_string[INTLEN*2+1];
+
+	format_range(arg1_string, sizeof(arg1_string), start, end);
+	return mpd_send_command(connection, command,
+				arg1_string, to, NULL);
+}
+
+bool
 mpd_send_u_frange_command(struct mpd_connection *connection,
 			 const char *command, unsigned arg1,
 			 float start, float end)
