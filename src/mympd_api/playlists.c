@@ -52,46 +52,53 @@ static void free_t_pl_data(void *data) {
 }
 
 /**
- * Copies or moves a playlist to a new playlist or insert/append/replace to an existing playlist.
+ * Copies or moves source playlists to a destination playlist.
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
- * @param src_plist playlist to copy
+ * @param src_plists playlists to copy
  * @param dst_plist destination playlist
- * @return true on success, else false
+ * @param mode copy mode enum
+ * @return jsonrpc response
  */
 sds mympd_api_playlist_copy(struct t_partition_state *partition_state, sds buffer,
-        long request_id, sds src_plist, sds dst_plist, enum plist_copy_modes mode)
+        long request_id, struct t_list *src_plists, sds dst_plist, enum plist_copy_modes mode)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_COPY;
-    bool rc = mpd_send_list_playlist(partition_state->conn, src_plist);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_playlist") == false) {
-        return buffer;
-    }
-    struct mpd_song *song;
+    //copy sources in temporary list
     struct t_list src;
     list_init(&src);
-    while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-        list_push(&src, mpd_song_get_uri(song), 0, NULL, NULL);
+    struct t_list_node *current = src_plists->head;
+    while (current != NULL) {
+        bool rc = mpd_send_list_playlist(partition_state->conn, current->key);
+        if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_playlist") == false) {
+            return buffer;
+        }
+        struct mpd_song *song;
+        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+            list_push(&src, mpd_song_get_uri(song), 0, NULL, NULL);
+        }
+        mpd_response_finish(partition_state->conn);
+        if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
+            list_clear(&src);
+            return buffer;
+        }
+        current = current->next;
     }
-    mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
-        list_clear(&src);
-        return buffer;
-    }
+
     if (mode == PLAYLIST_COPY_REPLACE) {
         //clear dst playlist
-        rc = mpd_run_playlist_clear(partition_state->conn, dst_plist);
+        bool rc = mpd_run_playlist_clear(partition_state->conn, dst_plist);
         if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_run_playlist_clear") == false) {
             list_clear(&src);
             return buffer;
         }
     }
-    struct t_list_node *current;
+
+    //insert or append to dst playlist
     unsigned i = 0;
     unsigned j = 0;
     while ((current = list_shift_first(&src)) != NULL) {
-        //insert or append to dst playlist
         if (i == 0 &&
             mpd_command_list_begin(partition_state->conn, false) == false)
         {
@@ -110,7 +117,7 @@ sds mympd_api_playlist_copy(struct t_partition_state *partition_state, sds buffe
         if (i == MPD_COMMANDS_MAX ||
             src.head == NULL)
         {
-            rc = mpd_command_list_end(partition_state->conn) && mpd_response_finish(partition_state->conn);
+            bool rc = mpd_command_list_end(partition_state->conn) && mpd_response_finish(partition_state->conn);
             if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_run_playlist_clear") == false) {
                 list_clear(&src);
                 return buffer;
@@ -130,13 +137,9 @@ sds mympd_api_playlist_copy(struct t_partition_state *partition_state, sds buffe
                 JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlist successfully replaced");
         case PLAYLIST_MOVE_APPEND:
         case PLAYLIST_MOVE_INSERT: {
-            //delete src playlist
-            struct t_list plist;
-            list_init(&plist);
-            list_push(&plist, src_plist, 0, NULL, NULL);
+            //delete src playlists
             bool result;
-            buffer = mympd_api_playlist_delete(partition_state, buffer, request_id, &plist, false, &result);
-            list_clear(&plist);
+            buffer = mympd_api_playlist_delete(partition_state, buffer, request_id, src_plists, false, &result);
             if (result == false) {
                 return buffer;
             }

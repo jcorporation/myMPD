@@ -1310,14 +1310,18 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 }
             }
             break;
-        case MYMPD_API_PLAYLIST_COPY:
-            if (json_get_string(request->data, "$.params.srcPlist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_string(request->data, "$.params.dstPlist", 1, FILENAME_LEN_MAX, &sds_buf2, vcb_isfilename, &error) == true &&
+        case MYMPD_API_PLAYLIST_COPY: {
+            struct t_list src_plists;
+            list_init(&src_plists);
+            if (json_get_array_string(request->data, "$.params.srcPlists", &src_plists, vcb_isfilename, JSONRPC_ARRAY_MAX, &error) == true &&
+                json_get_string(request->data, "$.params.dstPlist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.mode", 0, 4, &uint_buf1, &error))
             {
-                response->data = mympd_api_playlist_copy(partition_state, response->data, request->id, sds_buf1, sds_buf2, uint_buf1);
+                response->data = mympd_api_playlist_copy(partition_state, response->data, request->id, &src_plists, sds_buf1, uint_buf1);
             }
+            list_clear(&src_plists);
             break;
+        }
         case MYMPD_API_DATABASE_FILESYSTEM_LIST: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);

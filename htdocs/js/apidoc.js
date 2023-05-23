@@ -538,12 +538,12 @@ const APImethods = {
         }
     },
     "MYMPD_API_PLAYLIST_COPY": {
-        "desc": "Copies or moves a source playlist to a destination playlist.",
+        "desc": "Copies or moves source playlists to a destination playlist.",
         "params": {
-            "srcPlist": {
-                "type": APItypes.string,
-                "example": "test_plist",
-                "desc": "Source MPD playlist to rename"
+            "srcPlists": {
+                "type": APItypes.array,
+                "example": "[\"test_plist\"]",
+                "desc": "Source MPD playlists to copy"
             },
             "dstPlist": {
                 "type": APItypes.string,
