@@ -38,14 +38,13 @@ sds print_queue_entry(struct t_partition_state *partition_state, sds buffer, con
  */
 bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, struct t_list *song_ids) {
     if (mpd_command_list_begin(partition_state->conn, false) == true) {
-        struct t_list_node *current = song_ids->head;
-        while (current != NULL) {
+        struct t_list_node *current;
+        while ((current = list_shift_first(song_ids)) != NULL) {
             bool rc = mpd_send_delete_id(partition_state->conn, (unsigned)current->value_i);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_delete_id");
                 break;
             }
-            current = current->next;
         }
         return mpd_command_list_end(partition_state->conn) &&
             mpd_response_finish(partition_state->conn);
@@ -61,14 +60,13 @@ bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, stru
  */
 bool mympd_api_queue_append(struct t_partition_state *partition_state, struct t_list *uris) {
     if (mpd_command_list_begin(partition_state->conn, false) == true) {
-        struct t_list_node *current = uris->head;
-        while (current != NULL) {
+        struct t_list_node *current;
+        while ((current = list_shift_first(uris)) != NULL) {
             bool rc = mpd_send_add(partition_state->conn, current->key);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_add");
                 break;
             }
-            current = current->next;
         }
         return mpd_command_list_end(partition_state->conn) &&
             mpd_response_finish(partition_state->conn);
@@ -86,14 +84,13 @@ bool mympd_api_queue_append(struct t_partition_state *partition_state, struct t_
  */
 bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_list *uris, unsigned to, unsigned whence) {
     if (mpd_command_list_begin(partition_state->conn, false) == true) {
-        struct t_list_node *current = uris->head;
-        while (current != NULL) {
+        struct t_list_node *current;
+        while ((current = list_shift_first(uris)) != NULL) {
             bool rc = mpd_send_add_whence(partition_state->conn, current->key, to, whence);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_add");
                 break;
             }
-            current = current->next;
             to++;
         }
         return mpd_command_list_end(partition_state->conn) &&
@@ -115,14 +112,13 @@ bool mympd_api_queue_replace(struct t_partition_state *partition_state, struct t
             MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
         }
         else {
-            struct t_list_node *current = uris->head;
-            while (current != NULL) {
+            struct t_list_node *current;
+            while ((current = list_shift_first(uris)) != NULL) {
                 rc = mpd_send_add(partition_state->conn, current->key);
                 if (rc == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_add");
                     break;
                 }
-                current = current->next;
             }
         }
         return mpd_command_list_end(partition_state->conn) &&
@@ -161,14 +157,13 @@ bool mympd_api_queue_play_newly_inserted(struct t_partition_state *partition_sta
  */
 bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, struct t_list *song_ids, unsigned priority) {
     if (mpd_command_list_begin(partition_state->conn, false) == true) {
-        struct t_list_node *current = song_ids->head;
-        while (current != NULL) {
+        struct t_list_node *current;
+        while ((current = list_shift_first(song_ids)) != NULL) {
             bool rc = mpd_send_prio_id(partition_state->conn, (unsigned)current->value_i, priority);
             if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_prio_id");
                 break;
             }
-            current = current->next;
         }
         return mpd_command_list_end(partition_state->conn) &&
             mpd_response_finish(partition_state->conn);

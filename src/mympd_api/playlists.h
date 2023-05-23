@@ -18,6 +18,14 @@ enum plist_delete_criterias {
     PLAYLIST_DELETE_ALL
 };
 
+enum plist_copy_modes {
+    PLAYLIST_COPY_APPEND = 0,
+    PLAYLIST_COPY_INSERT,
+    PLAYLIST_COPY_REPLACE,
+    PLAYLIST_MOVE_APPEND,
+    PLAYLIST_MOVE_INSERT
+};
+
 enum plist_delete_criterias parse_plist_delete_criteria(const char *str);
 
 sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffer, long request_id,
@@ -26,7 +34,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
         long request_id, sds plist, long offset, long limit, sds searchstr,
         const struct t_tags *tagcols);
 sds mympd_api_playlist_delete(struct t_partition_state *partition_state, sds buffer,
-        long request_id, struct t_list *playlists, bool smartpls_only);
+        long request_id, struct t_list *playlists, bool smartpls_only, bool *result);
 sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buffer,
         long request_id, const char *old_playlist, const char *new_playlist);
 sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds buffer,
@@ -35,4 +43,6 @@ bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition
 bool mympd_api_playlist_content_append(struct t_partition_state *partition_state, sds plist, struct t_list *uris);
 bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state, sds plist, struct t_list *uris, unsigned to);
 bool mympd_api_playlist_content_replace(struct t_partition_state *partition_state, sds plist, struct t_list *uris);
+sds mympd_api_playlist_copy(struct t_partition_state *partition_state, sds buffer,
+        long request_id, sds src_plist, sds dst_plist, enum plist_copy_modes mode);
 #endif

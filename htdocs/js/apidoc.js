@@ -537,6 +537,26 @@ const APImethods = {
             }
         }
     },
+    "MYMPD_API_PLAYLIST_COPY": {
+        "desc": "Copies or moves a source playlist to a destination playlist.",
+        "params": {
+            "srcPlist": {
+                "type": APItypes.string,
+                "example": "test_plist",
+                "desc": "Source MPD playlist to rename"
+            },
+            "dstPlist": {
+                "type": APItypes.string,
+                "example": "test_plist_to_copy",
+                "desc": "Destination MPD playlist name"
+            },
+            "mode": {
+                "type": APItypes.uint,
+                "example": 0,
+                "desc": "0=copy-append, 1=copy-insert, 2=copy-replace, 3=move-append, 4=move-insert"
+            }
+        }
+    },
     "MYMPD_API_PLAYLIST_CONTENT_MOVE_POSITION": {
         "desc": "Moves a song in the playlist.",
         "params": {

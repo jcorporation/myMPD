@@ -1077,7 +1077,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                         JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No playlists provided");
                 }
                 else {
-                    response->data = mympd_api_playlist_delete(partition_state, response->data, request->id, &plists, bool_buf1);
+                    response->data = mympd_api_playlist_delete(partition_state, response->data, request->id, &plists, bool_buf1, &result);
                 }
             }
             list_clear(&plists);
@@ -1308,6 +1308,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Sorting playlist failed");
                 }
+            }
+            break;
+        case MYMPD_API_PLAYLIST_COPY:
+            if (json_get_string(request->data, "$.params.srcPlist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.dstPlist", 1, FILENAME_LEN_MAX, &sds_buf2, vcb_isfilename, &error) == true &&
+                json_get_uint(request->data, "$.params.mode", 0, 4, &uint_buf1, &error))
+            {
+                response->data = mympd_api_playlist_copy(partition_state, response->data, request->id, sds_buf1, sds_buf2, uint_buf1);
             }
             break;
         case MYMPD_API_DATABASE_FILESYSTEM_LIST: {

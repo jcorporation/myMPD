@@ -906,5 +906,8 @@
     "No MPD queue song ids provided": "Keine MPD Warteschlangen Song IDs übergeben",
     "No playlists provided": "Keine Wiedergabelisten übergeben",
     "No song positions provided": "Keine Song Positionen übergeben",
-    "No uris provided": "Keine URIs übergeben"
+    "No uris provided": "Keine URIs übergeben",
+    "Playlist successfully copied": "Wiedergabeliste erfolgreich kopiert",
+    "Playlist successfully moved": "Wiedergabeliste erfolgreich verschoben",
+    "Playlist successfully replaced": "Wiedergabeliste erfolgreich ersetzt."
 }
