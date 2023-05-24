@@ -114,6 +114,9 @@ function initPlaylists() {
     }, false);
 
     document.getElementById('BrowsePlaylistDetailList').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'CAPTION') {
+            return;
+        }
         //action td
         if (event.target.nodeName === 'A') {
             handleActionTdClick(event);

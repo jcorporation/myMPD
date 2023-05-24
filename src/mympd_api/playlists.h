@@ -45,4 +45,6 @@ bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state
 bool mympd_api_playlist_content_replace(struct t_partition_state *partition_state, sds plist, struct t_list *uris);
 sds mympd_api_playlist_copy(struct t_partition_state *partition_state, sds buffer,
         long request_id, struct t_list *src_plists, sds dst_plist, enum plist_copy_modes mode);
+bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *partition_state, sds src_plist, sds dst_plist,
+        struct t_list *positions, unsigned mode);
 #endif

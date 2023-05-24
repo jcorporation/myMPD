@@ -146,8 +146,8 @@ const APIparams = {
     },
     "positions": {
         "type": APItypes.array,
-        "example": "[2,3]",
-        "desc": "Positions"
+        "example": "[5,2]",
+        "desc": "Positions, must be ordered descending"
     },
     "play": {
         "type": APItypes.bool,
@@ -554,6 +554,27 @@ const APImethods = {
                 "type": APItypes.uint,
                 "example": 0,
                 "desc": "0=copy-append, 1=copy-insert, 2=copy-replace, 3=move-append, 4=move-insert"
+            }
+        }
+    },
+    "MYMPD_API_PLAYLIST_CONTENT_MOVE_TO_PLAYLIST": {
+        "desc": "Moves entries from one playlist to another.",
+        "params": {
+            "srcPlist": {
+                "type": APItypes.string,
+                "example": "test_plist",
+                "desc": "Source MPD playlists to copy songs positions from"
+            },
+            "dstPlist": {
+                "type": APItypes.string,
+                "example": "test_plist_to_move",
+                "desc": "Destination MPD playlist name"
+            },
+            "positions": APIparams.positions,
+            "mode": {
+                "type": APItypes.uint,
+                "example": 0,
+                "desc": "0=append, 1=insert"
             }
         }
     },

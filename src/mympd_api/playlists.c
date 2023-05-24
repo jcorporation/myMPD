@@ -5,9 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/playlist.h"
-#include "src/lib/list.h"
-#include "src/lib/mympd_state.h"
 #include "src/mympd_api/playlists.h"
 
 #include "dist/utf8/utf8.h"
@@ -52,6 +49,63 @@ static void free_t_pl_data(void *data) {
 }
 
 /**
+ * Moves entries from one playlist to another.
+ * @param partition_state pointer to partition state
+ * @param src_plist source playlist
+ * @param dst_plist destination playlist
+ * @param positions source playlist positions to move, must be sorted descending
+ * @param mode 0=append, 1=insert to destination playlist
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *partition_state, sds src_plist, sds dst_plist,
+        struct t_list *positions, unsigned mode)
+{
+    //get source playlist
+    bool rc = mpd_send_list_playlist(partition_state->conn, src_plist);
+    if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_send_list_playlist") == false) {
+        return false;
+    }
+    struct mpd_song *song;
+    struct t_list src;
+    list_init(&src);
+    while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+        list_push(&src, mpd_song_get_uri(song), 0, NULL, NULL);
+        mpd_song_free(song);
+    }
+    rc = mpd_response_finish(partition_state->conn);
+    if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_send_list_playlist") == false) {
+        list_clear(&src);
+        return false;
+    }
+
+    if (mpd_command_list_begin(partition_state->conn, false) == true) {
+        struct t_list_node *current;
+        unsigned i = 0;
+        while ((current = list_shift_first(positions)) != NULL) {
+            struct t_list_node *n = list_node_at(&src, (long)current->value_i);
+            rc = mode == 0 
+                ? mpd_send_playlist_add(partition_state->conn, dst_plist, n->key)
+                : mpd_send_playlist_add_to(partition_state->conn, dst_plist, n->key, i);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                break;
+            }
+            rc = mpd_send_playlist_delete(partition_state->conn, src_plist, (unsigned)current->value_i);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_delete");
+                break;
+            }
+            i++;
+        }
+        list_clear(&src);
+        return mpd_command_list_end(partition_state->conn) &&
+            mpd_response_finish(partition_state->conn);
+    }
+    list_clear(&src);
+    return false;
+}
+
+/**
  * Copies or moves source playlists to a destination playlist.
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
@@ -77,6 +131,7 @@ sds mympd_api_playlist_copy(struct t_partition_state *partition_state, sds buffe
         struct mpd_song *song;
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             list_push(&src, mpd_song_get_uri(song), 0, NULL, NULL);
+            mpd_song_free(song);
         }
         mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {

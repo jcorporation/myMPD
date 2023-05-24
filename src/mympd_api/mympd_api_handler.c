@@ -1248,6 +1248,26 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_playlist_move", &result);
             }
             break;
+        case MYMPD_API_PLAYLIST_CONTENT_MOVE_TO_PLAYLIST: {
+            struct t_list positions;
+            list_init(&positions);
+            if (json_get_string(request->data, "$.params.srcPlist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.dstPlist", 1, FILENAME_LEN_MAX, &sds_buf2, vcb_isfilename, &error) == true &&
+                json_get_array_llong(request->data, "$.params.positions", &positions, MPD_PLAYLIST_LENGTH_MAX, &error) == true &&
+                json_get_uint(request->data, "$.params.mode", 0, 1, &uint_buf1, &error) == true)
+            {
+                if (positions.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No song positions provided");
+                }
+                else {
+                    rc = mympd_api_playlist_content_move_to_playlist(partition_state, sds_buf1, sds_buf2, &positions, uint_buf1);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mympd_api_playlist_content_move_to_playlist", &result);
+                }
+            }
+            list_clear(&positions);
+            break;
+        }
         case MYMPD_API_PLAYLIST_CONTENT_RM_POSITIONS: {
             struct t_list positions;
             list_init(&positions);
