@@ -27,10 +27,12 @@ This release improves the queue and playlist management in many ways.
 - MYMPD_API_PLAYLIST_CONTENT_INSERT_URI -> MYMPD_API_PLAYLIST_CONTENT_INSERT_URIS
 - MYMPD_API_PLAYLIST_CONTENT_REPLACE_URI -> MYMPD_API_PLAYLIST_CONTENT_REPLACE_URIS
 - MYMPD_API_PLAYLIST_RM: parameters changed
+- MYMPD_API_PLAYLIST_COPY: new
 
 ### Changelog
 
-- Feat: Add multiple selections and actions #1001
+- Feat: add multiple selections and actions #1001
+- Feat: Improve queue and playlist management #1001
 - Feat: migrate to JavaScript fetch() API #1006
 - Feat: add test target to cmake #1023
 - Upd: Mongoose 7.10 #1024
