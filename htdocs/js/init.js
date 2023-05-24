@@ -485,17 +485,19 @@ function getAssets() {
 
 /**
  * Handle javascript errors
- * @returns {void}
+ * @param {string} msg error message
+ * @param {string} url url of the error
+ * @param {number} line line of the error
+ * @param {number} col column of the error
+ * @returns {boolean} false
  */
-if (debugMode === false) {
-    window.onerror = function(msg, url, line) {
-        logError('JavaScript error: ' + msg + ' (' + url + ': ' + line + ')');
-        if (settings.loglevel >= 4) {
-            showNotification(tn('JavaScript error'), msg + ' (' + url + ': ' + line + ')', 'general', 'error');
-        }
-        return true;
-    };
-}
+window.onerror = function(msg, url, line, col) {
+    if (settings.loglevel >= 4) {
+        showNotification(tn('JavaScript error'), msg + ' (' + url + ': ' + line + ':' + col + ')', 'general', 'error');
+    }
+    //show error also in the console
+    return false;
+};
 
 /**
  * Configure trusted types to allow service worker registration

@@ -37,6 +37,17 @@ This release improves the queue and playlist management in many ways.
 
 ***
 
+## myMPD v10.3.3 (not yet released)
+
+This is a small bugfix release.
+
+### Changelog
+
+- Fix: improve javascript error logging
+- Fix: drag&drop on same element #1026
+
+***
+
 ## myMPD v10.3.2 (2023-05-08)
 
 This is a small bugfix release.
