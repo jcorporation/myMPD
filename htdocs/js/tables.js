@@ -80,6 +80,9 @@ function dragAndDropTable(tableId) {
         }
         const oldSongPos = getDataId(event.dataTransfer.getData('Text'), 'songpos');
         const newSongPos = getData(target, 'songpos');
+        if (oldSongPos === newSongPos) {
+            return;
+        }
         document.getElementById(event.dataTransfer.getData('Text')).remove();
         dragEl.classList.remove('opacity05');
         // @ts-ignore
@@ -160,6 +163,9 @@ function dragAndDropTableHeader(tableName) {
         event.stopPropagation();
         event.preventDefault();
         if (dragEl === undefined || dragEl.nodeName !== 'TH') {
+            return;
+        }
+        if (event.dataTransfer.getData('Text') === event.target.getAttribute('data-col')) {
             return;
         }
         this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').remove();
