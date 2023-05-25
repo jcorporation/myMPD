@@ -176,90 +176,88 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
     #endif
     do {
         bool rc = mpd_search_db_songs(mpd_worker_state->partition_state->conn, false);
-        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, rc, "mpd_search_db_songs") == false) {
+        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_search_db_songs") == false) {
             MYMPD_LOG_ERROR("Cache update failed");
             mpd_search_cancel(mpd_worker_state->partition_state->conn);
             return false;
         }
         rc = mpd_search_add_uri_constraint(mpd_worker_state->partition_state->conn, MPD_OPERATOR_DEFAULT, "");
-        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, rc, "mpd_search_add_uri_constraint") == false) {
+        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_search_add_uri_constraint") == false) {
             MYMPD_LOG_ERROR("Cache update failed");
             mpd_search_cancel(mpd_worker_state->partition_state->conn);
             return false;
         }
         rc = mpd_search_add_window(mpd_worker_state->partition_state->conn, start, end);
-        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, rc, "mpd_search_add_window") == false) {
+        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_search_add_window") == false) {
             MYMPD_LOG_ERROR("Cache update failed");
             mpd_search_cancel(mpd_worker_state->partition_state->conn);
             return false;
         }
         rc = mpd_search_commit(mpd_worker_state->partition_state->conn);
-        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, rc, "mpd_search_commit") == false) {
-            MYMPD_LOG_ERROR("Cache update failed");
-            return false;
-        }
-        struct mpd_song *song;
-        sds key = sdsempty();
-        const bool create_album_cache = mpd_worker_state->partition_state->mpd_state->feat_tags &&
-            mpd_client_tag_exists(&mpd_worker_state->partition_state->mpd_state->tags_mympd, MPD_TAG_ALBUM) &&
-            mpd_client_tag_exists(&mpd_worker_state->partition_state->mpd_state->tags_mympd, mpd_worker_state->partition_state->mpd_state->tag_albumartist);
-        if (create_album_cache == false) {
-            MYMPD_LOG_NOTICE("Skipping album cache creation, (Album)Artist and Album tags must be enabled");
-        }
-        while ((song = mpd_recv_song(mpd_worker_state->partition_state->conn)) != NULL) {
-            //sticker cache
-            if (mpd_worker_state->partition_state->mpd_state->feat_stickers == true) {
-                const char *uri = mpd_song_get_uri(song);
-                struct t_sticker *sticker = malloc_assert(sizeof(struct t_sticker));
-                if (raxTryInsert(sticker_cache, (unsigned char *)uri, strlen(uri), (void *)sticker, NULL) == 0) {
-                    MYMPD_LOG_ERROR("Error adding \"%s\" to sticker cache", uri);
-                    FREE_PTR(sticker);
-                }
-                else {
-                    song_count++;
-                }
+        if (rc == true) {
+            struct mpd_song *song;
+            sds key = sdsempty();
+            const bool create_album_cache = mpd_worker_state->partition_state->mpd_state->feat_tags &&
+                mpd_client_tag_exists(&mpd_worker_state->partition_state->mpd_state->tags_mympd, MPD_TAG_ALBUM) &&
+                mpd_client_tag_exists(&mpd_worker_state->partition_state->mpd_state->tags_mympd, mpd_worker_state->partition_state->mpd_state->tag_albumartist);
+            if (create_album_cache == false) {
+                MYMPD_LOG_NOTICE("Skipping album cache creation, (Album)Artist and Album tags must be enabled");
             }
-            //album cache
-            if (create_album_cache == true) {
-                //set initial song count to 1
-                album_cache_set_song_count(song, 1);
-                //construct the key
-                key = album_cache_get_key(song, key);
-                if (sdslen(key) > 0) {
-                    if (mpd_worker_state->partition_state->mpd_state->tag_albumartist == MPD_TAG_ALBUM_ARTIST &&
-                        mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0) == NULL)
-                    {
-                        //Copy Artist tag to AlbumArtist tag
-                        //for filters mpd falls back from AlbumArtist to Artist if AlbumArtist does not exist
-                        album_cache_copy_tags(song, MPD_TAG_ARTIST, MPD_TAG_ALBUM_ARTIST);
-                    }
-                    void *old_data;
-                    if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, &old_data) == 0) {
-                        struct mpd_song *album = (struct mpd_song *) old_data;
-                        //append song data if key exists
-                        album_cache_append_tags(album, song, &mpd_worker_state->partition_state->mpd_state->tags_mympd);
-                        //set album data
-                        album_cache_set_last_modified(album, song); //use latest last_modified
-                        album_cache_inc_total_time(album, song);    //sum duration
-                        album_cache_set_discs(album, song);         //use max disc value
-                        album_cache_inc_song_count(album);          //inc song count by one
-                        //free song data
-                        mpd_song_free(song);
+            while ((song = mpd_recv_song(mpd_worker_state->partition_state->conn)) != NULL) {
+                //sticker cache
+                if (mpd_worker_state->partition_state->mpd_state->feat_stickers == true) {
+                    const char *uri = mpd_song_get_uri(song);
+                    struct t_sticker *sticker = malloc_assert(sizeof(struct t_sticker));
+                    if (raxTryInsert(sticker_cache, (unsigned char *)uri, strlen(uri), (void *)sticker, NULL) == 0) {
+                        MYMPD_LOG_ERROR("Error adding \"%s\" to sticker cache", uri);
+                        FREE_PTR(sticker);
                     }
                     else {
-                        album_count++;
+                        song_count++;
                     }
                 }
-                else {
-                    skipped++;
-                    mpd_song_free(song);
+                //album cache
+                if (create_album_cache == true) {
+                    //set initial song count to 1
+                    album_cache_set_song_count(song, 1);
+                    //construct the key
+                    key = album_cache_get_key(song, key);
+                    if (sdslen(key) > 0) {
+                        if (mpd_worker_state->partition_state->mpd_state->tag_albumartist == MPD_TAG_ALBUM_ARTIST &&
+                            mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0) == NULL)
+                        {
+                            //Copy Artist tag to AlbumArtist tag
+                            //for filters mpd falls back from AlbumArtist to Artist if AlbumArtist does not exist
+                            album_cache_copy_tags(song, MPD_TAG_ARTIST, MPD_TAG_ALBUM_ARTIST);
+                        }
+                        void *old_data;
+                        if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, &old_data) == 0) {
+                            struct mpd_song *album = (struct mpd_song *) old_data;
+                            //append song data if key exists
+                            album_cache_append_tags(album, song, &mpd_worker_state->partition_state->mpd_state->tags_mympd);
+                            //set album data
+                            album_cache_set_last_modified(album, song); //use latest last_modified
+                            album_cache_inc_total_time(album, song);    //sum duration
+                            album_cache_set_discs(album, song);         //use max disc value
+                            album_cache_inc_song_count(album);          //inc song count by one
+                            //free song data
+                            mpd_song_free(song);
+                        }
+                        else {
+                            album_count++;
+                        }
+                    }
+                    else {
+                        skipped++;
+                        mpd_song_free(song);
+                    }
                 }
+                i++;
             }
-            i++;
+            FREE_SDS(key);
         }
-        FREE_SDS(key);
         mpd_response_finish(mpd_worker_state->partition_state->conn);
-        if (mympd_check_error_and_recover(mpd_worker_state->partition_state) == false) {
+        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_search_commit") == false) {
             MYMPD_LOG_ERROR("Cache update failed");
             return false;
         }
@@ -318,38 +316,36 @@ static bool get_sticker_from_mpd(struct t_partition_state *partition_state, cons
     sticker->elapsed = 0;
 
     bool rc = mpd_send_sticker_list(partition_state->conn, "song", uri);
-    if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_send_sticker_list") == false) {
-        return false;
-    }
-
-    while ((pair = mpd_recv_sticker(partition_state->conn)) != NULL) {
-        enum mympd_sticker_types sticker_type = sticker_name_parse(pair->name);
-        switch(sticker_type) {
-            case STICKER_PLAY_COUNT:
-                sticker->play_count = (long)strtoimax(pair->value, &crap, 10);
-                break;
-            case STICKER_SKIP_COUNT:
-                sticker->skip_count = (long)strtoimax(pair->value, &crap, 10);
-                break;
-            case STICKER_LAST_PLAYED:
-                sticker->last_played = (time_t)strtoimax(pair->value, &crap, 10);
-                break;
-            case STICKER_LAST_SKIPPED:
-                sticker->last_skipped = (time_t)strtoimax(pair->value, &crap, 10);
-                break;
-            case STICKER_LIKE:
-                sticker->like = (int)strtoimax(pair->value, &crap, 10);
-                break;
-            case STICKER_ELAPSED:
-                sticker->elapsed = (time_t)strtoimax(pair->value, &crap, 10);
-                break;
-            default:
-                MYMPD_LOG_DEBUG("Ignoring sticker \"%s\"", pair->name);
+    if (rc == true) {
+        while ((pair = mpd_recv_sticker(partition_state->conn)) != NULL) {
+            enum mympd_sticker_types sticker_type = sticker_name_parse(pair->name);
+            switch(sticker_type) {
+                case STICKER_PLAY_COUNT:
+                    sticker->play_count = (long)strtoimax(pair->value, &crap, 10);
+                    break;
+                case STICKER_SKIP_COUNT:
+                    sticker->skip_count = (long)strtoimax(pair->value, &crap, 10);
+                    break;
+                case STICKER_LAST_PLAYED:
+                    sticker->last_played = (time_t)strtoimax(pair->value, &crap, 10);
+                    break;
+                case STICKER_LAST_SKIPPED:
+                    sticker->last_skipped = (time_t)strtoimax(pair->value, &crap, 10);
+                    break;
+                case STICKER_LIKE:
+                    sticker->like = (int)strtoimax(pair->value, &crap, 10);
+                    break;
+                case STICKER_ELAPSED:
+                    sticker->elapsed = (time_t)strtoimax(pair->value, &crap, 10);
+                    break;
+                default:
+                    MYMPD_LOG_DEBUG("Ignoring sticker \"%s\"", pair->name);
+            }
+            mpd_return_sticker(partition_state->conn, pair);
         }
-        mpd_return_sticker(partition_state->conn, pair);
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover(partition_state) == false) {
+    if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_sticker_list") == false) {
         return false;
     }
 

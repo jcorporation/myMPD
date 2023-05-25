@@ -33,18 +33,17 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
 sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, sds buffer,
         long request_id, sds plist, long offset, long limit, sds searchstr,
         const struct t_tags *tagcols);
-sds mympd_api_playlist_delete(struct t_partition_state *partition_state, sds buffer,
-        long request_id, struct t_list *playlists, bool smartpls_only, bool *result);
 sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buffer,
         long request_id, const char *old_playlist, const char *new_playlist);
 sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds buffer,
         long request_id, enum plist_delete_criterias criteria);
-bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition_state, sds plist, struct t_list *positions);
-bool mympd_api_playlist_content_append(struct t_partition_state *partition_state, sds plist, struct t_list *uris);
-bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state, sds plist, struct t_list *uris, unsigned to);
-bool mympd_api_playlist_content_replace(struct t_partition_state *partition_state, sds plist, struct t_list *uris);
-sds mympd_api_playlist_copy(struct t_partition_state *partition_state, sds buffer,
-        long request_id, struct t_list *src_plists, sds dst_plist, enum plist_copy_modes mode);
+bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition_state, sds plist, struct t_list *positions, sds *error);
+bool mympd_api_playlist_content_append(struct t_partition_state *partition_state, sds plist, struct t_list *uris, sds *error);
+bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state, sds plist, struct t_list *uris, unsigned to, sds *error);
+bool mympd_api_playlist_content_replace(struct t_partition_state *partition_state, sds plist, struct t_list *uris, sds *error);
+bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
+        struct t_list *src_plists, sds dst_plist, enum plist_copy_modes mode, sds *error);
 bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *partition_state, sds src_plist, sds dst_plist,
-        struct t_list *positions, unsigned mode);
+        struct t_list *positions, unsigned mode, sds *error);
+bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct t_list *playlists, bool smartpls_only, sds *error);
 #endif

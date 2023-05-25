@@ -113,7 +113,7 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
         mpd_song_free(song);
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_commit") == false) {
         FREE_SDS(albumkey);
         FREE_SDS(last_played_song_uri);
         return buffer;
@@ -334,7 +334,7 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
         mpd_return_pair(partition_state->conn, pair);
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_commit") == false) {
         rax_free_sds_data(taglist);
         return buffer;
     }

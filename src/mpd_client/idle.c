@@ -161,7 +161,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                 //change partition
                 MYMPD_LOG_INFO("Switching to partition \"%s\"", partition_state->name);
                 bool rc = mpd_run_switch_partition(partition_state->conn, partition_state->name);
-                if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_run_switch_partition") == false) {
+                if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_run_switch_partition") == false) {
                     MYMPD_LOG_ERROR("Could not switch to partition \"%s\"", partition_state->name);
                     mpd_client_disconnect(partition_state, MPD_FAILURE);
                     break;
@@ -251,7 +251,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
             {
                 MYMPD_LOG_DEBUG("\"%s\": Leaving mpd idle mode", partition_state->name);
                 if (mpd_send_noidle(partition_state->conn) == false) {
-                    mympd_check_error_and_recover(partition_state);
+                    mympd_check_rc_error_and_recover(partition_state, NULL, false, "mpd_send_noidle");
                     partition_state->conn_state = MPD_FAILURE;
                     break;
                 }
@@ -313,7 +313,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                 if (partition_state->conn_state == MPD_CONNECTED) {
                     MYMPD_LOG_DEBUG("\"%s\": Entering mpd idle mode", partition_state->name);
                     if (mpd_send_idle_mask(partition_state->conn, partition_state->idle_mask) == false) {
-                        mympd_check_error_and_recover(partition_state);
+                        mympd_check_rc_error_and_recover(partition_state, NULL, false, "mpd_send_idle_mask");
                         partition_state->conn_state = MPD_FAILURE;
                     }
                 }
@@ -382,7 +382,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                         if (partition_state->play_state != MPD_STATE_PLAY) {
                             MYMPD_LOG_INFO("\"%s\": AutoPlay enabled, start playing", partition_state->name);
                             if (mpd_run_play(partition_state->conn) == false) {
-                                mympd_check_error_and_recover(partition_state);
+                                mympd_check_rc_error_and_recover(partition_state, NULL, false, "mpd_run_play");
                             }
                         }
                         else {

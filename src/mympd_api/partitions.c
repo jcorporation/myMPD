@@ -77,16 +77,15 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
         return buffer;
     }
     rc = mpd_send_outputs(partition_to_remove->conn);
-    if (mympd_check_rc_error_and_recover_respond(partition_to_remove, &buffer, cmd_id, request_id, rc, "mpd_send_outputs") == false) {
-        return buffer;
-    }
-    struct mpd_output *output;
-    while ((output = mpd_recv_output(partition_to_remove->conn)) != NULL) {
-        list_push(&outputs, mpd_output_get_name(output), 0, NULL, NULL);
-        mpd_output_free(output);
+    if (rc == true) {
+        struct mpd_output *output;
+        while ((output = mpd_recv_output(partition_to_remove->conn)) != NULL) {
+            list_push(&outputs, mpd_output_get_name(output), 0, NULL, NULL);
+            mpd_output_free(output);
+        }
     }
     mpd_response_finish(partition_to_remove->conn);
-    if (mympd_check_error_and_recover_respond(partition_to_remove, &buffer, cmd_id, request_id) == false) {
+    if (mympd_check_rc_error_and_recover_respond(partition_to_remove, &buffer, cmd_id, request_id, rc, "mpd_send_outputs") == false) {
         return buffer;
     }
     //disconnect partition

@@ -21,14 +21,11 @@ int mpd_client_get_volume(struct t_partition_state *partition_state) {
     }
     else {
         struct mpd_status *status = mpd_run_status(partition_state->conn);
-        if (status == NULL) {
-            mympd_check_error_and_recover(partition_state);
-            return -1;
+        if (status != NULL) {
+            volume = mpd_status_get_volume(status);
+            mpd_status_free(status);
         }
-        volume = mpd_status_get_volume(status);
-        mpd_status_free(status);
     }
-    mpd_response_finish(partition_state->conn);
-    mympd_check_error_and_recover(partition_state);
+    mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
     return volume;
 }

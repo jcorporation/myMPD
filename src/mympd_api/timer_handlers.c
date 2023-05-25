@@ -166,9 +166,8 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
             }
         }
 
-        if (mpd_command_list_end(partition_state->conn) == true) {
-            rc = mpd_response_finish(partition_state->conn);
-        }
+        rc = mpd_command_list_end(partition_state->conn) &&
+            mpd_response_finish(partition_state->conn);
     }
 
     //restore old jukebox mode
@@ -182,7 +181,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         mympd_queue_push(mympd_api_queue, request, 0);
     }
 
-    return mympd_check_rc_error_and_recover(partition_state, rc, "command_list");
+    return mympd_check_rc_error_and_recover(partition_state, NULL, rc, "command_list");
 }
 
 /**

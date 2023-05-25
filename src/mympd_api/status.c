@@ -116,14 +116,12 @@ sds mympd_api_status_updatedb_state(struct t_partition_state *partition_state, s
 long mympd_api_status_updatedb_id(struct t_partition_state *partition_state) {
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status == NULL) {
-        mympd_check_error_and_recover(partition_state);
+        mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
         return -1;
     }
     long update_id = (long)mpd_status_get_update_id(status);
     MYMPD_LOG_NOTICE("Update database ID: %ld", update_id);
     mpd_status_free(status);
-    mpd_response_finish(partition_state->conn);
-    mympd_check_error_and_recover(partition_state);
     return update_id;
 }
 
@@ -139,10 +137,10 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status == NULL) {
         if (request_id == REQUEST_ID_NOTIFY) {
-            mympd_check_error_and_recover_notify(partition_state, &buffer);
+            mympd_check_error_and_recover_notify(partition_state, &buffer, "mpd_run_status");
         }
         else {
-            mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id);
+            mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status");
         }
         return buffer;
     }
@@ -163,8 +161,6 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
         else {
             sdsclear(partition_state->song_uri);
         }
-        mpd_response_finish(partition_state->conn);
-        mympd_check_error_and_recover(partition_state);
     }
 
     partition_state->play_state = mpd_status_get_state(status);
@@ -218,14 +214,14 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
 bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_partition_state *partition_state) {
     enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(partition_state->conn);
     if (replay_gain_mode == MPD_REPLAY_UNKNOWN) {
-        if (mympd_check_error_and_recover(partition_state) == false) {
+        if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_replay_gain_status") == false) {
             return false;
         }
     }
 
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status == NULL) {
-        mympd_check_error_and_recover(partition_state);
+        mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
         return false;
     }
 
@@ -301,7 +297,7 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_CURRENT_SONG;
     struct mpd_song *song = mpd_run_current_song(partition_state->conn);
     if (song == NULL) {
-        if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
+        if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_current_song") == false) {
             return buffer;
         }
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
@@ -330,10 +326,6 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
     }
     mpd_song_free(song);
 
-    mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
-        return buffer;
-    }
     buffer = sdscatlen(buffer, ",", 1);
     time_t start_time = get_current_song_start_time(partition_state);
     buffer = tojson_time(buffer, "startTime", start_time, false);
@@ -356,14 +348,11 @@ static time_t get_current_song_start_time(struct t_partition_state *partition_st
     }
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status == NULL) {
-        mpd_response_finish(partition_state->conn);
-        mympd_check_error_and_recover(partition_state);
+        mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
         return 0;
     }
     const time_t start_time = time(NULL) - (time_t)mympd_api_get_elapsed_seconds(status);
     mpd_status_free(status);
-    mpd_response_finish(partition_state->conn);
-    mympd_check_error_and_recover(partition_state);
     return start_time;
 }
 

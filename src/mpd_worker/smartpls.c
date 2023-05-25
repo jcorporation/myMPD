@@ -202,25 +202,24 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
         enum mpd_tag_type tag = mpd_worker_state->smartpls_generate_tag_types.tags[i];
         bool rc = mpd_search_db_tags(mpd_worker_state->partition_state->conn, tag);
 
-        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, rc, "mpd_search_db_tags") == false) {
+        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_search_db_tags") == false) {
             mpd_search_cancel(mpd_worker_state->partition_state->conn);
             return false;
         }
-        rc = mpd_search_commit(mpd_worker_state->partition_state->conn);
-        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, rc, "mpd_search_commit") == false) {
-            return false;
-        }
-        struct mpd_pair *pair;
         struct t_list tag_list;
         list_init(&tag_list);
-        while ((pair = mpd_recv_pair_tag(mpd_worker_state->partition_state->conn, tag)) != NULL) {
-            if (strlen(pair->value) > 0) {
-                list_push(&tag_list, pair->value, 0, NULL, NULL);
+        rc = mpd_search_commit(mpd_worker_state->partition_state->conn);
+        if (rc == true) {
+            struct mpd_pair *pair;
+            while ((pair = mpd_recv_pair_tag(mpd_worker_state->partition_state->conn, tag)) != NULL) {
+                if (strlen(pair->value) > 0) {
+                    list_push(&tag_list, pair->value, 0, NULL, NULL);
+                }
+                mpd_return_pair(mpd_worker_state->partition_state->conn, pair);
             }
-            mpd_return_pair(mpd_worker_state->partition_state->conn, pair);
         }
         mpd_response_finish(mpd_worker_state->partition_state->conn);
-        if (mympd_check_error_and_recover(mpd_worker_state->partition_state) == false) {
+        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_search_commit") == false) {
             list_clear(&tag_list);
             return false;
         }
@@ -266,28 +265,27 @@ static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_sta
 
     //first check if playlist exists
     bool rc = mpd_send_list_playlists(mpd_worker_state->partition_state->conn);
-    if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, rc, "mpd_send_list_playlists") == false) {
-        return false;
-    }
-    while ((pl = mpd_recv_playlist(mpd_worker_state->partition_state->conn)) != NULL) {
-        const char *plpath = mpd_playlist_get_path(pl);
-        if (strcmp(playlist, plpath) == 0) {
-            exists = true;
-        }
-        mpd_playlist_free(pl);
-        if (exists == true) {
-            break;
+    if (rc == true) {
+        while ((pl = mpd_recv_playlist(mpd_worker_state->partition_state->conn)) != NULL) {
+            const char *plpath = mpd_playlist_get_path(pl);
+            if (strcmp(playlist, plpath) == 0) {
+                exists = true;
+            }
+            mpd_playlist_free(pl);
+            if (exists == true) {
+                break;
+            }
         }
     }
     mpd_response_finish(mpd_worker_state->partition_state->conn);
-    if (mympd_check_error_and_recover(mpd_worker_state->partition_state) == false) {
+    if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_send_list_playlists") == false) {
         return false;
     }
 
     //delete playlist if exists
     if (exists == true) {
         rc = mpd_run_rm(mpd_worker_state->partition_state->conn, playlist);
-        return mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, rc, "mpd_run_rm");
+        return mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_run_rm");
     }
     return true;
 }
@@ -344,51 +342,49 @@ static void free_t_sticker_value(void *data) {
 static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd_worker_state,
         const char *playlist, const char *sticker, int maxentries, int minvalue)
 {
-    bool rc = mpd_send_sticker_find(mpd_worker_state->partition_state->conn, "song", "", sticker);
-    if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, rc, "mpd_send_sticker_find") == false) {
-        return false;
-    }
-
     rax *add_list = raxNew();
-    struct mpd_pair *pair;
-    sds uri = sdsempty();
-    sds key = sdsempty();
     int value_max = 0;
+    bool rc = mpd_send_sticker_find(mpd_worker_state->partition_state->conn, "song", "", sticker);
+    if (rc == true) {
+        struct mpd_pair *pair;
+        sds uri = sdsempty();
+        sds key = sdsempty();
 
-    while ((pair = mpd_recv_pair(mpd_worker_state->partition_state->conn)) != NULL) {
-        if (strcmp(pair->name, "file") == 0) {
-            sdsclear(uri);
-            uri = sdscat(uri, pair->value);
-        }
-        else if (strcmp(pair->name, "sticker") == 0) {
-            size_t j;
-            const char *p_value = mpd_parse_sticker(pair->value, &j);
-            if (p_value != NULL) {
-                char *crap;
-                int value = (int)strtoimax(p_value, &crap, 10);
-                if (value >= minvalue) {
-                    sdsclear(key);
-                    //create uniq key
-                    key = sdscatprintf(key, "%09d:%s", value, uri);
-                    struct t_sticker_value *data = malloc_assert(sizeof(struct t_sticker_value));
-                    data->uri = sdsdup(uri);
-                    data->value = value;
-                    while (raxTryInsert(add_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
-                        //duplicate - add chars until it is uniq
-                        key = sdscatlen(key, ":", 1);
-                    }
-                    if (value > value_max) {
-                        value_max = value;
+        while ((pair = mpd_recv_pair(mpd_worker_state->partition_state->conn)) != NULL) {
+            if (strcmp(pair->name, "file") == 0) {
+                sdsclear(uri);
+                uri = sdscat(uri, pair->value);
+            }
+            else if (strcmp(pair->name, "sticker") == 0) {
+                size_t j;
+                const char *p_value = mpd_parse_sticker(pair->value, &j);
+                if (p_value != NULL) {
+                    char *crap;
+                    int value = (int)strtoimax(p_value, &crap, 10);
+                    if (value >= minvalue) {
+                        sdsclear(key);
+                        //create uniq key
+                        key = sdscatprintf(key, "%09d:%s", value, uri);
+                        struct t_sticker_value *data = malloc_assert(sizeof(struct t_sticker_value));
+                        data->uri = sdsdup(uri);
+                        data->value = value;
+                        while (raxTryInsert(add_list, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
+                            //duplicate - add chars until it is uniq
+                            key = sdscatlen(key, ":", 1);
+                        }
+                        if (value > value_max) {
+                            value_max = value;
+                        }
                     }
                 }
             }
+            mpd_return_pair(mpd_worker_state->partition_state->conn, pair);
         }
-        mpd_return_pair(mpd_worker_state->partition_state->conn, pair);
+        FREE_SDS(uri);
+        FREE_SDS(key);
     }
     mpd_response_finish(mpd_worker_state->partition_state->conn);
-    FREE_SDS(uri);
-    FREE_SDS(key);
-    if (mympd_check_error_and_recover(mpd_worker_state->partition_state) == false) {
+    if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_send_sticker_find") == false) {
         rax_free_data(add_list, free_t_sticker_value);
         return false;
     }
@@ -417,10 +413,9 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
                 i++;
             }
         }
-        if (mpd_command_list_end(mpd_worker_state->partition_state->conn)) {
+        rc = mpd_command_list_end(mpd_worker_state->partition_state->conn) &&
             mpd_response_finish(mpd_worker_state->partition_state->conn);
-        }
-        if (mympd_check_error_and_recover(mpd_worker_state->partition_state) == false) {
+        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_send_playlist_add") == false) {
             rc = false;
         }
         raxStop(&iter);
@@ -448,7 +443,7 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
         mpd_stats_free(stats);
     }
     else {
-        mympd_check_error_and_recover(mpd_worker_state->partition_state);
+        mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_run_stats");
         return false;
     }
 

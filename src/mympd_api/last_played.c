@@ -104,7 +104,7 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
 }
 
 /**
- * Adds a song from with queue id to the last played list in memory
+ * Adds a song from queue with song_id to the last played list in memory
  * @param partition_state pointer to partition state
  * @param song_id the song id to add
  * @return true on success, else false
@@ -116,7 +116,7 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, i
     struct mpd_song *song = mpd_run_get_queue_song_id(partition_state->conn, (unsigned)song_id);
     if (song == NULL) {
         MYMPD_LOG_ERROR("\"%s\": Can't get song from id %d", partition_state->name, song_id);
-        return mympd_check_error_and_recover(partition_state);
+        return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_get_queue_song_id");
     }
     const char *uri = mpd_song_get_uri(song);
     if (is_streamuri(uri) == true) {
@@ -262,7 +262,7 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, sds bu
         long long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols)
 {
     bool rc = mpd_send_list_meta(partition_state->conn, uri);
-    if (mympd_check_rc_error_and_recover(partition_state, rc, "mpd_send_list_meta") == false) {
+    if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_list_meta") == false) {
         return buffer;
     }
 
@@ -282,7 +282,7 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, sds bu
         rc = false;
     }
     mpd_response_finish(partition_state->conn);
-    mympd_check_error_and_recover(partition_state);
+    mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_meta");
     buffer = sdscatlen(buffer, "}", 1);
     if (rc == false) {
         sdsclear(buffer);

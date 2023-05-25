@@ -23,7 +23,7 @@ sds mympd_api_stats_get(struct t_partition_state *partition_state, sds buffer, l
     enum mympd_cmd_ids cmd_id = MYMPD_API_STATS;
     struct mpd_stats *stats = mpd_run_stats(partition_state->conn);
     if (stats == NULL) {
-        mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id);
+        mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_stats");
         return buffer;
     }
 

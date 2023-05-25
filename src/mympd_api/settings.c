@@ -79,7 +79,6 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
 bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
     (void) vcb;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
-    bool check_for_mpd_error = false;
 
     MYMPD_LOG_DEBUG("Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
 
@@ -168,16 +167,10 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
         return true;
     }
 
-    bool rc = true;
-    if (check_for_mpd_error == true) {
-        rc = mympd_check_error_and_recover_plain(mympd_state->partition_state, error);
-    }
+    sds state_filename = camel_to_snake(key);
+    bool rc = state_file_write(mympd_state->config->workdir, DIR_WORK_STATE, state_filename, value);
+    FREE_SDS(state_filename);
 
-    if (rc == true) {
-        sds state_filename = camel_to_snake(key);
-        rc = state_file_write(mympd_state->config->workdir, DIR_WORK_STATE, state_filename, value);
-        FREE_SDS(state_filename);
-    }
     return rc;
 }
 
@@ -841,7 +834,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_bool(buffer, "mpdConnected", true, true);
         struct mpd_status *status = mpd_run_status(partition_state->conn);
         if (status == NULL) {
-            mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id);
+            mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status");
             return buffer;
         }
         enum mpd_single_state single_state = mpd_status_get_single_state(status);
@@ -857,7 +850,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
 
         enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(partition_state->conn);
         if (replay_gain_mode == MPD_REPLAY_UNKNOWN) {
-            if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
+            if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_replay_gain_status") == false) {
                 return buffer;
             }
         }

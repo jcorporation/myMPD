@@ -54,25 +54,25 @@ void partitions_list_clear(struct t_mympd_state *mympd_state) {
  * @return true on success, else false
  */
 bool partitions_populate(struct t_mympd_state *mympd_state) {
-    //first add all missing partitions to the list
-    bool rc = mpd_send_listpartitions(mympd_state->partition_state->conn);
-    if (mympd_check_rc_error_and_recover(mympd_state->partition_state, rc, "mpd_send_listpartitions") == false) {
-        return false;
-    }
-    struct mpd_pair *partition;
     struct t_list mpd_partitions;
     list_init(&mpd_partitions);
-    while ((partition = mpd_recv_partition_pair(mympd_state->partition_state->conn)) != NULL) {
-        const char *name = partition->value;
-        if (partitions_check(mympd_state, name) == false) {
-            MYMPD_LOG_INFO("Adding partition \"%s\" to the partition list", name);
-            partitions_add(mympd_state, name);
+    //first add all missing partitions to the list
+    bool rc = mpd_send_listpartitions(mympd_state->partition_state->conn);
+    if (rc == true) {
+        struct mpd_pair *partition;
+        
+        while ((partition = mpd_recv_partition_pair(mympd_state->partition_state->conn)) != NULL) {
+            const char *name = partition->value;
+            if (partitions_check(mympd_state, name) == false) {
+                MYMPD_LOG_INFO("Adding partition \"%s\" to the partition list", name);
+                partitions_add(mympd_state, name);
+            }
+            list_push(&mpd_partitions, name, 0, NULL, NULL);
+            mpd_return_pair(mympd_state->partition_state->conn, partition);
         }
-        list_push(&mpd_partitions, name, 0, NULL, NULL);
-        mpd_return_pair(mympd_state->partition_state->conn, partition);
     }
     mpd_response_finish(mympd_state->partition_state->conn);
-    if (mympd_check_error_and_recover(mympd_state->partition_state) == false) {
+    if (mympd_check_error_and_recover(mympd_state->partition_state, NULL, "mpd_send_listpartitions") == false) {
         list_clear(&mpd_partitions);
         return false;
     }

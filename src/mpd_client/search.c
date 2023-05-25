@@ -250,11 +250,9 @@ static sds search_songs(struct t_partition_state *partition_state, sds buffer, e
     }
 
     rc = mpd_search_commit(partition_state->conn);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_commit") == false) {
-        return buffer;
-    }
-
-    if (plist == NULL) {
+    if (plist == NULL &&
+        rc == 0)
+    {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
         struct mpd_song *song;
@@ -291,7 +289,7 @@ static sds search_songs(struct t_partition_state *partition_state, sds buffer, e
     }
 
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
+    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_commit") == false) {
        return buffer;
     }
     *result = true;

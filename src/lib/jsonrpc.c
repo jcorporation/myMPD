@@ -240,6 +240,25 @@ sds jsonrpc_respond_ok(sds buffer, enum mympd_cmd_ids cmd_id, long request_id, e
 }
 
 /**
+ * Checks rc and responses with ok or the message
+ * @param buffer already allocated sds string for the jsonrpc response
+ * @param cmd_id enum mympd_cmd_ids
+ * @param request_id jsonrpc request id to respond
+ * @param rc return code to check
+ * @param facility one of enum jsonrpc_facilities
+ * @param severity one of enum jsonrpc_severities
+ * @param message the response message, if rc == false
+ * @return pointer to buffer
+ */
+sds jsonrpc_respond_with_message_or_ok(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
+        bool rc, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, sds message)
+{
+    return rc == true
+        ? jsonrpc_respond_ok(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD)
+        : jsonrpc_respond_message(buffer, cmd_id, request_id, facility, severity, message);
+}
+
+/**
  * Creates a simple jsonrpc response with a custom message
  * @param buffer pointer to already allocated sds string
  * @param cmd_id enum mympd_cmd_ids
