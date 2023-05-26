@@ -258,13 +258,16 @@ bool jukebox_run(struct t_partition_state *partition_state) {
  * @return true on success, else false
  */
 static bool jukebox(struct t_partition_state *partition_state) {
+    long queue_length = 0;
     struct mpd_status *status = mpd_run_status(partition_state->conn);
-    if (status == NULL) {
-        mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
+    if (status != NULL) {
+        queue_length = (long)mpd_status_get_queue_length(status);
+        mpd_status_free(status);
+    }
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status") == false) {
         return false;
     }
-    long queue_length = (long)mpd_status_get_queue_length(status);
-    mpd_status_free(status);
 
     time_t now = time(NULL);
     time_t add_time = partition_state->song_end_time - (partition_state->crossfade + 10);
@@ -363,8 +366,8 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state, long add_so
         added < add_songs)
     {
         if (jukebox_mode == JUKEBOX_ADD_SONG) {
-	        bool rc = mpd_run_add(partition_state->conn, current->key);
-            if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_run_add") == true) {
+	        mpd_run_add(partition_state->conn, current->key);
+            if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_add") == true) {
 	            MYMPD_LOG_NOTICE("\"%s\": Jukebox adding song: %s", partition_state->name, current->key);
                 added++;
             }
@@ -423,12 +426,6 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state, long add_so
  * @return true on success, else false
  */
 static bool add_album_to_queue(struct t_partition_state *partition_state, struct mpd_song *album) {
-    bool rc = mpd_search_add_db_songs(partition_state->conn, true);
-    if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_search_add_db_songs") == false) {
-        mpd_search_cancel(partition_state->conn);
-        return false;
-    }
-
     const char *value = NULL;
     unsigned i = 0;
     sds expression = sdsnewlen("(", 1);
@@ -440,15 +437,17 @@ static bool add_album_to_queue(struct t_partition_state *partition_state, struct
     expression = escape_mpd_search_expression(expression, "Album", "==", mpd_song_get_tag(album, MPD_TAG_ALBUM, 0));
     expression = sdscatlen(expression, ")", 1);
 
-    rc = mpd_search_add_expression(partition_state->conn, expression);
-    FREE_SDS(expression);
-    if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_search_add_expression") == false) {
-        mpd_search_cancel(partition_state->conn);
-        return false;
+    if (mpd_search_add_db_songs(partition_state->conn, true) &&
+        mpd_search_add_expression(partition_state->conn, expression))
+    {
+        mpd_search_commit(partition_state->conn);
     }
-    rc = mpd_search_commit(partition_state->conn) &&
-        mpd_response_finish(partition_state->conn);
-    return mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_search_commit");
+    else {
+        mpd_search_cancel(partition_state->conn);
+    }
+    FREE_SDS(expression);
+    mpd_response_finish(partition_state->conn);
+    return mympd_check_error_and_recover(partition_state, NULL, "mpd_search_commit");
 }
 
 /**

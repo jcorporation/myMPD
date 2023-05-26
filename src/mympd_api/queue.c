@@ -141,18 +141,17 @@ bool mympd_api_queue_replace(struct t_partition_state *partition_state, struct t
  * @return true on success, else false
  */
 bool mympd_api_queue_play_newly_inserted(struct t_partition_state *partition_state) {
-    bool rc = mpd_send_queue_changes_brief(partition_state->conn, partition_state->queue_version);
-    if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_queue_changes_brief") == false) {
+    unsigned song_pos = 0;
+    unsigned song_id = 0;
+    if (mpd_send_queue_changes_brief(partition_state->conn, partition_state->queue_version)) {
+        mpd_recv_queue_change_brief(partition_state->conn, &song_pos, &song_id);
+    }
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_queue_changes_brief") == false) {
         return false;
     }
-    unsigned song_pos;
-    unsigned song_id;
-    rc = mpd_recv_queue_change_brief(partition_state->conn, &song_pos, &song_id);
-    mpd_response_finish(partition_state->conn);
-    if (rc == true) {
-        rc = mpd_run_play_id(partition_state->conn, song_id);
-    }
-    return mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_run_play_id");
+    mpd_run_play_id(partition_state->conn, song_id);
+    return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_play_id");
 }
 
 /**
@@ -192,15 +191,18 @@ bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, struct 
 bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, struct t_list *song_ids, sds *error) {
     //default prio is 0
     unsigned priority = 1;
-
+    int next_song_id = -1;
     //try to get prio of next song
     struct mpd_status *status = mpd_run_status(partition_state->conn);
-    if (status == NULL) {
-        mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
+    if (status != NULL) {
+        next_song_id = mpd_status_get_next_song_id(status);
+        mpd_status_free(status);
+    }
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status") == false) {
         return false;
     }
-    int next_song_id = mpd_status_get_next_song_id(status);
-    mpd_status_free(status);
+    
     if (next_song_id > -1 ) {
         bool rc = mpd_send_get_queue_song_id(partition_state->conn, (unsigned)next_song_id);
         if (rc == true) {
@@ -212,7 +214,7 @@ bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state,
             }
         }
         mpd_response_finish(partition_state->conn);
-        if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_get_queue_song_id") == false) {
+        if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_get_queue_song_id") == false) {
             return false;
         }
     }
@@ -346,22 +348,21 @@ bool mympd_api_queue_replace_plist(struct t_partition_state *partition_state, st
  */
 sds mympd_api_queue_status(struct t_partition_state *partition_state, sds buffer) {
     struct mpd_status *status = mpd_run_status(partition_state->conn);
-    if (status == NULL) {
-        mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
-        return buffer;
-    }
+    if (status != NULL) {
+        partition_state->queue_version = mpd_status_get_queue_version(status);
+        partition_state->queue_length = (long long)mpd_status_get_queue_length(status);
+        partition_state->crossfade = (time_t)mpd_status_get_crossfade(status);
+        partition_state->play_state = mpd_status_get_state(status);
 
-    partition_state->queue_version = mpd_status_get_queue_version(status);
-    partition_state->queue_length = (long long)mpd_status_get_queue_length(status);
-    partition_state->crossfade = (time_t)mpd_status_get_crossfade(status);
-    partition_state->play_state = mpd_status_get_state(status);
-
-    if (buffer != NULL) {
-        buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_QUEUE);
-        buffer = mympd_api_status_print(partition_state, buffer, status);
-        buffer = jsonrpc_end(buffer);
+        if (buffer != NULL) {
+            buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_QUEUE);
+            buffer = mympd_api_status_print(partition_state, buffer, status);
+            buffer = jsonrpc_end(buffer);
+        }
+        mpd_status_free(status);
     }
-    mpd_status_free(status);
+    mpd_response_finish(partition_state->conn);
+    mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
     return buffer;
 }
 
@@ -376,48 +377,48 @@ sds mympd_api_queue_status(struct t_partition_state *partition_state, sds buffer
  */
 sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id, bool or_clear) {
     struct mpd_status *status = mpd_run_status(partition_state->conn);
-    if (status == NULL) {
-        mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status");
+    unsigned length = 0;
+    int playing_song_pos = 0;
+    if (status != NULL) {
+        length = mpd_status_get_queue_length(status) - 1;
+        playing_song_pos = mpd_status_get_song_pos(status);
+        mpd_status_free(status);
+    }
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status") == false) {
         return buffer;
     }
-    const unsigned length = mpd_status_get_queue_length(status) - 1;
-    const int playing_song_pos = mpd_status_get_song_pos(status);
-    mpd_status_free(status);
 
     if (playing_song_pos > -1 &&
         length > 1)
     {
         //there is a current song, crop the queue
-        bool rc = mpd_command_list_begin(partition_state->conn, false);
-        if (rc == true) {
+        if (mpd_command_list_begin(partition_state->conn, false)) {
             //remove all songs behind current song
             unsigned pos_after = (unsigned)playing_song_pos + 1;
             if (pos_after < length) {
-                rc = mpd_send_delete_range(partition_state->conn, pos_after, UINT_MAX);
-                if (rc == false) {
+                if (mpd_send_delete_range(partition_state->conn, pos_after, UINT_MAX) == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_delete_range");
                 }
             }
             //remove all songs before current song
             if (playing_song_pos > 0) {
-                rc = mpd_send_delete_range(partition_state->conn, 0, (unsigned)playing_song_pos);
-                if (rc == false) {
+                if (mpd_send_delete_range(partition_state->conn, 0, (unsigned)playing_song_pos) == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_delete_range");
                 }
             }
-            if (mpd_command_list_end(partition_state->conn) == true) {
-                mpd_response_finish(partition_state->conn);
-            }
+            mpd_command_list_end(partition_state->conn);
         }
-        if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_delete_range") == false) {
+        mpd_response_finish(partition_state->conn);
+        if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_delete_range") == false) {
             return buffer;
         }
         buffer = jsonrpc_respond_ok(buffer, cmd_id, request_id, JSONRPC_FACILITY_QUEUE);
     }
     else if (or_clear == true) {
         //no current song
-        bool rc = mpd_run_clear(partition_state->conn);
-        if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_run_clear") == true) {
+        mpd_run_clear(partition_state->conn);
+        if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_clear") == true) {
             buffer = jsonrpc_respond_ok(buffer, cmd_id, request_id, JSONRPC_FACILITY_QUEUE);
         }
     }
@@ -444,16 +445,18 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
 sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, long request_id,
         long offset, long limit, const struct t_tags *tagcols)
 {
+    //TODO: use command list
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_LIST;
     struct mpd_status *status = mpd_run_status(partition_state->conn);
-    if (status == NULL) {
-        mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status");
+    if (status != NULL) {
+        partition_state->queue_version = mpd_status_get_queue_version(status);
+        partition_state->queue_length = (long long)mpd_status_get_queue_length(status);
+        mpd_status_free(status);
+    }
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status") == false) {
         return buffer;
     }
-
-    partition_state->queue_version = mpd_status_get_queue_version(status);
-    partition_state->queue_length = (long long)mpd_status_get_queue_length(status);
-    mpd_status_free(status);
 
     if (offset >= partition_state->queue_length) {
         offset = 0;

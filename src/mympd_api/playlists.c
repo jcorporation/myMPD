@@ -283,20 +283,18 @@ bool mympd_api_playlist_content_replace(struct t_partition_state *partition_stat
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition_state, sds plist, struct t_list *positions, sds *error) {
-    bool rc = mpd_command_list_begin(partition_state->conn, false);
-    if (rc == true) {
+    if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(positions)) != NULL) {
-            rc = mpd_send_playlist_delete(partition_state->conn, plist, (unsigned)current->value_i);
-            if (rc == false) {
+            if (mpd_send_playlist_delete(partition_state->conn, plist, (unsigned)current->value_i) == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_delete");
                 break;
             }
         }
-        rc = mpd_command_list_end(partition_state->conn) &&
-            mpd_response_finish(partition_state->conn);
+        mpd_command_list_end(partition_state->conn);
     }
-    return mympd_check_rc_error_and_recover(partition_state, error, rc, "mpd_send_playlist_delete");
+    mpd_response_finish(partition_state->conn);
+    return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_delete");
 }
 
 /**
@@ -319,8 +317,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
     long real_limit = offset + limit;
     sds key = sdsempty();
 
-    bool rc = mpd_send_list_playlists(partition_state->conn);
-    if (rc == true) {
+    if (mpd_send_list_playlists(partition_state->conn)) {
         struct mpd_playlist *pl;
         while ((pl = mpd_recv_playlist(partition_state->conn)) != NULL) {
             const char *plpath = mpd_playlist_get_path(pl);
@@ -344,7 +341,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
         }
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_playlists") == false) {
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlists") == false) {
         //free result
         rax_free_data(entity_list, free_t_pl_data);
         FREE_SDS(key);
@@ -446,8 +443,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
     unsigned total_time = 0;
     time_t last_played_max = 0;
     sds last_played_song_uri = sdsempty();
-    bool rc = mpd_send_list_playlist_meta(partition_state->conn, plist);
-    if (rc == true) {
+    if (mpd_send_list_playlist_meta(partition_state->conn, plist)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer,"\"data\":[");
 
@@ -493,7 +489,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
         }
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_playlist_meta") == false) {
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlist_meta") == false) {
         FREE_SDS(last_played_song_uri);
         return buffer;
     }
@@ -571,8 +567,8 @@ sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buf
     FREE_SDS(old_pl_file);
     FREE_SDS(new_pl_file);
     //rename mpd playlist
-    bool rc = mpd_run_rename(partition_state->conn, old_playlist, new_playlist);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_run_rename") == true) {
+    mpd_run_rename(partition_state->conn, old_playlist, new_playlist);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_rename") == true) {
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Successfully renamed playlist");
     }
@@ -605,8 +601,9 @@ bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct
         sdsclear(pl_file);
         if (smartpls_only == false) {
             //remove mpd playlist
-            rc = mpd_run_rm(partition_state->conn, current->key);
-            if (mympd_check_rc_error_and_recover(partition_state, error, rc, "mpd_run_rm") == false) {
+            mpd_run_rm(partition_state->conn, current->key);
+            rc = mympd_check_error_and_recover(partition_state, error, "mpd_run_rm"); 
+            if (rc == false) {
                 break;
             }
         }
@@ -652,8 +649,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
     //get all mpd playlists
     struct t_list playlists;
     list_init(&playlists);
-    bool rc = mpd_send_list_playlists(partition_state->conn);
-    if (rc == true) {
+    if (mpd_send_list_playlists(partition_state->conn)) {
         struct mpd_playlist *pl;
         while ((pl = mpd_recv_playlist(partition_state->conn)) != NULL) {
             const char *plpath = mpd_playlist_get_path(pl);
@@ -662,7 +658,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         }
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_playlists") == false) {
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlists") == false) {
         list_clear(&playlists);
         return buffer;
     }
@@ -701,8 +697,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         }
     }
 
-    rc = mpd_command_list_begin(partition_state->conn, false);
-    if (rc == true) {
+    if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(&playlists)) != NULL) {
             bool smartpls = false;
@@ -718,8 +713,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
                 (criteria == PLAYLIST_DELETE_SMARTPLS && smartpls == true) ||
                 (criteria == PLAYLIST_DELETE_EMPTY && current->value_i == 0))
             {
-                rc = mpd_send_rm(partition_state->conn, current->key);
-                if (rc == false) {
+                if (mpd_send_rm(partition_state->conn, current->key) == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_rm");
                     break;
                 }
@@ -727,11 +721,11 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
             }
             list_node_free(current);
         }
-        rc = mpd_command_list_end(partition_state->conn) &&
-            mpd_response_finish(partition_state->conn);
+        mpd_command_list_end(partition_state->conn);    
     }
     list_clear(&playlists);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_command_list_begin") == false) {
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_command_list_begin") == false) {
         return buffer;
     }
     buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,

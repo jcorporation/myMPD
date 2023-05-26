@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "mpd/response.h"
 #include "src/mympd_api/settings.h"
 
 #include "dist/mjson/mjson.h"
@@ -649,7 +650,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
             rc = mpd_run_mixrampdelay(partition_state->conn, delay);
         }
         sds message = sdsempty();
-        rc = mympd_check_rc_error_and_recover_notify(partition_state, &message, rc, key);
+        rc = mympd_check_error_and_recover_notify(partition_state, &message, key);
         if (rc == false) {
             ws_notify(message, partition_state->name);
         }
@@ -830,29 +831,30 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = presets_list(&partition_state->presets, buffer);
     buffer = sdscatlen(buffer, "],", 2);
     if (partition_state->conn_state == MPD_CONNECTED) {
+        //TODO: use command list
         //mpd options
         buffer = tojson_bool(buffer, "mpdConnected", true, true);
         struct mpd_status *status = mpd_run_status(partition_state->conn);
-        if (status == NULL) {
-            mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status");
+        if (status != NULL) {
+            enum mpd_single_state single_state = mpd_status_get_single_state(status);
+            buffer = tojson_char(buffer, "single", mpd_lookup_single_state(single_state), true);
+            buffer = tojson_uint(buffer, "crossfade", mpd_status_get_crossfade(status), true);
+            buffer = tojson_double(buffer, "mixrampDb", mpd_status_get_mixrampdb(status), true);
+            buffer = tojson_double(buffer, "mixrampDelay", mpd_status_get_mixrampdelay(status), true);
+            buffer = tojson_bool(buffer, "repeat", mpd_status_get_repeat(status), true);
+            buffer = tojson_bool(buffer, "random", mpd_status_get_random(status), true);
+            enum mpd_consume_state consume_state = mpd_status_get_consume_state(status);
+            buffer = tojson_char(buffer, "consume", mpd_lookup_consume_state(consume_state), true);
+            mpd_status_free(status);
+        }
+        mpd_response_finish(partition_state->conn);
+        if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status") == false) {
             return buffer;
         }
-        enum mpd_single_state single_state = mpd_status_get_single_state(status);
-        buffer = tojson_char(buffer, "single", mpd_lookup_single_state(single_state), true);
-        buffer = tojson_uint(buffer, "crossfade", mpd_status_get_crossfade(status), true);
-        buffer = tojson_double(buffer, "mixrampDb", mpd_status_get_mixrampdb(status), true);
-        buffer = tojson_double(buffer, "mixrampDelay", mpd_status_get_mixrampdelay(status), true);
-        buffer = tojson_bool(buffer, "repeat", mpd_status_get_repeat(status), true);
-        buffer = tojson_bool(buffer, "random", mpd_status_get_random(status), true);
-        enum mpd_consume_state consume_state = mpd_status_get_consume_state(status);
-        buffer = tojson_char(buffer, "consume", mpd_lookup_consume_state(consume_state), true);
-        mpd_status_free(status);
 
         enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(partition_state->conn);
-        if (replay_gain_mode == MPD_REPLAY_UNKNOWN) {
-            if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_replay_gain_status") == false) {
-                return buffer;
-            }
+        if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_replay_gain_status") == false) {
+            return buffer;
         }
         const char *replaygain = mpd_lookup_replay_gain_mode(replay_gain_mode);
         buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, false);
