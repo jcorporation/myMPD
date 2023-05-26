@@ -61,17 +61,16 @@ static void free_t_pl_data(void *data) {
 bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *partition_state, sds src_plist, sds dst_plist,
         struct t_list *positions, unsigned mode, sds *error)
 {
-    //get source playlist
-    bool rc = mpd_send_list_playlist(partition_state->conn, src_plist);
-    if (mympd_check_rc_error_and_recover(partition_state, error, rc, "mpd_send_list_playlist") == false) {
-        return false;
-    }
-    struct mpd_song *song;
     struct t_list src;
     list_init(&src);
-    while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-        list_push(&src, mpd_song_get_uri(song), 0, NULL, NULL);
-        mpd_song_free(song);
+    //get source playlist
+    bool rc = mpd_send_list_playlist(partition_state->conn, src_plist);
+    if (rc == true) {
+        struct mpd_song *song;
+        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+            list_push(&src, mpd_song_get_uri(song), 0, NULL, NULL);
+            mpd_song_free(song);
+        }
     }
     rc = mpd_response_finish(partition_state->conn);
     if (mympd_check_rc_error_and_recover(partition_state, error, rc, "mpd_send_list_playlist") == false) {
