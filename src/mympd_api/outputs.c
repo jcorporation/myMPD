@@ -19,45 +19,38 @@
  */
 sds mympd_api_output_list(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_OUTPUT_LIST;
-    bool rc = mpd_send_outputs(partition_state->conn);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_outputs") == false) {
-        return buffer;
-    }
-
-    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-    buffer = sdscat(buffer, "\"data\":[");
-    int output_count = 0;
-    struct mpd_output *output;
-    while ((output = mpd_recv_output(partition_state->conn)) != NULL) {
-        if (output_count++) {
-            buffer = sdscatlen(buffer, ",", 1);
-        }
-        buffer = sdscatlen(buffer, "{", 1);
-        buffer = tojson_uint(buffer, "id", mpd_output_get_id(output), true);
-        buffer = tojson_char(buffer, "name", mpd_output_get_name(output), true);
-        buffer = tojson_long(buffer, "state", mpd_output_get_enabled(output), true);
-        buffer = tojson_char(buffer, "plugin", mpd_output_get_plugin(output), true);
-        buffer = sdscat(buffer, "\"attributes\":{");
-        const struct mpd_pair *attributes = mpd_output_first_attribute(output);
-        if (attributes != NULL) {
-            buffer = tojson_char(buffer, attributes->name, attributes->value, false);
-            while ((attributes = mpd_output_next_attribute(output)) != NULL) {
+    if (mpd_send_outputs(partition_state->conn)) {
+        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+        buffer = sdscat(buffer, "\"data\":[");
+        int output_count = 0;
+        struct mpd_output *output;
+        while ((output = mpd_recv_output(partition_state->conn)) != NULL) {
+            if (output_count++) {
                 buffer = sdscatlen(buffer, ",", 1);
-                buffer = tojson_char(buffer, attributes->name, attributes->value, false);
             }
+            buffer = sdscatlen(buffer, "{", 1);
+            buffer = tojson_uint(buffer, "id", mpd_output_get_id(output), true);
+            buffer = tojson_char(buffer, "name", mpd_output_get_name(output), true);
+            buffer = tojson_long(buffer, "state", mpd_output_get_enabled(output), true);
+            buffer = tojson_char(buffer, "plugin", mpd_output_get_plugin(output), true);
+            buffer = sdscat(buffer, "\"attributes\":{");
+            const struct mpd_pair *attributes = mpd_output_first_attribute(output);
+            if (attributes != NULL) {
+                buffer = tojson_char(buffer, attributes->name, attributes->value, false);
+                while ((attributes = mpd_output_next_attribute(output)) != NULL) {
+                    buffer = sdscatlen(buffer, ",", 1);
+                    buffer = tojson_char(buffer, attributes->name, attributes->value, false);
+                }
+            }
+            buffer = sdscatlen(buffer, "}}", 2);
+            mpd_output_free(output);
         }
-        buffer = sdscatlen(buffer, "}}", 2);
-        mpd_output_free(output);
+        buffer = sdscatlen(buffer, "],", 2);
+        buffer = tojson_char(buffer, "partition", partition_state->name, true);
+        buffer = tojson_long(buffer, "numOutputs", output_count, false);
+        buffer = jsonrpc_end(buffer);
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_outputs") == false) {
-        return buffer;
-    }
-
-    buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_char(buffer, "partition", partition_state->name, true);
-    buffer = tojson_long(buffer, "numOutputs", output_count, false);
-    buffer = jsonrpc_end(buffer);
-
+    mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_outputs");
     return buffer;
 }
