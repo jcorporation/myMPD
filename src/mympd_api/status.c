@@ -137,27 +137,17 @@ long mympd_api_status_updatedb_id(struct t_partition_state *partition_state) {
  */
 sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_STATE;
-    //TODO: use command list
     struct mpd_status *status = mpd_run_status(partition_state->conn);
+    int song_id = -1;
     if (status != NULL) {
         time_t now = time(NULL);
-        int song_id = mpd_status_get_song_id(status);
+        song_id = mpd_status_get_song_id(status);
         if (partition_state->song_id != song_id) {
             //song has changed, save old state
             partition_state->last_song_id = partition_state->song_id;
             partition_state->last_song_end_time = partition_state->song_end_time;
             partition_state->last_song_start_time = partition_state->song_start_time;
             partition_state->last_song_scrobble_time = partition_state->song_scrobble_time;
-            //TODO: first mpd command was here not finished!
-            struct mpd_song *song = mpd_run_current_song(partition_state->conn);
-            if (song != NULL) {
-                partition_state->last_song_uri = sds_replace(partition_state->last_song_uri, partition_state->song_uri);
-                partition_state->song_uri = sds_replace(partition_state->song_uri, mpd_song_get_uri(song));
-                mpd_song_free(song);
-            }
-            else {
-                sdsclear(partition_state->song_uri);
-            }
         }
 
         partition_state->play_state = mpd_status_get_state(status);
@@ -202,6 +192,25 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
         mpd_status_free(status);
     }
     mpd_response_finish(partition_state->conn);
+    if (request_id == REQUEST_ID_NOTIFY) {
+        mympd_check_error_and_recover_notify(partition_state, &buffer, "mpd_run_status");
+    }
+    else {
+        mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status");
+    }
+    //update song uri if song has changed
+    if (partition_state->song_id != song_id) {
+        struct mpd_song *song = mpd_run_current_song(partition_state->conn);
+        if (song != NULL) {
+            partition_state->last_song_uri = sds_replace(partition_state->last_song_uri, partition_state->song_uri);
+            partition_state->song_uri = sds_replace(partition_state->song_uri, mpd_song_get_uri(song));
+            mpd_song_free(song);
+        }
+        else {
+            sdsclear(partition_state->song_uri);
+        }
+        mpd_response_finish(partition_state->conn);
+    }
     if (request_id == REQUEST_ID_NOTIFY) {
         mympd_check_error_and_recover_notify(partition_state, &buffer, "mpd_run_status");
     }
