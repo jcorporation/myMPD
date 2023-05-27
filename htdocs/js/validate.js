@@ -27,6 +27,9 @@ function isValidUri(uri) {
  * @returns {boolean} true = stream uri, else false
  */
 function isStreamUri(uri) {
+    if (uri === undefined) {
+        return false;
+    }
     if (uri.indexOf('://') > -1) {
         return true;
     }

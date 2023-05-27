@@ -339,7 +339,8 @@ function getMBtagLink(tag, value) {
             break;
     }
     if (MBentity === '' ||
-        value === '-')
+        value === '-' ||
+        value === 'undefined')
     {
         return elCreateText('span', {}, value);
     }
