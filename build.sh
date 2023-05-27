@@ -53,6 +53,7 @@ CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-identifier-length"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity,-google-readability-function-size,-readability-function-size"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-non-const-parameter"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-google-readability-todo"
 
 #save script path and change to it
 STARTPATH=$(dirname "$(realpath "$0")")
