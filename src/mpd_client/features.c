@@ -153,9 +153,6 @@ static void features_commands(struct t_partition_state *partition_state) {
             mpd_return_pair(partition_state->conn, pair);
         }
     }
-    else {
-        MYMPD_LOG_ERROR("Error in response to command: mpd_send_allowed_commands");
-    }
     mpd_response_finish(partition_state->conn);
     mympd_check_error_and_recover(partition_state, NULL, "mpd_send_allowed_commands");
 }
@@ -220,8 +217,7 @@ static void features_mpd_tags(struct t_partition_state *partition_state) {
     enable_all_mpd_tags(partition_state);
 
     sds logline = sdsnew("MPD supported tags: ");
-    bool rc = mpd_send_list_tag_types(partition_state->conn);
-    if (rc == true) {
+    if (mpd_send_list_tag_types(partition_state->conn)) {
         struct mpd_pair *pair;
         while ((pair = mpd_recv_tag_type_pair(partition_state->conn)) != NULL) {
             enum mpd_tag_type tag = mpd_tag_name_parse(pair->value);
@@ -236,7 +232,7 @@ static void features_mpd_tags(struct t_partition_state *partition_state) {
         }
     }
     mpd_response_finish(partition_state->conn);
-    mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_list_tag_types");
+    mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_tag_types");
 
     if (partition_state->mpd_state->tags_mpd.len == 0) {
         logline = sdscatlen(logline, "none", 4);
@@ -280,8 +276,7 @@ static void features_config(struct t_partition_state *partition_state) {
             MYMPD_LOG_NOTICE("Enabling pcre feature");
         }
         //get directories from mpd
-        bool rc = mpd_send_command(partition_state->conn, "config", NULL);
-        if (rc == true) {
+        if (mpd_send_command(partition_state->conn, "config", NULL)) {
             struct mpd_pair *pair;
             while ((pair = mpd_recv_pair(partition_state->conn)) != NULL) {
                 if (strcmp(pair->name, "music_directory") == 0 &&
@@ -311,7 +306,7 @@ static void features_config(struct t_partition_state *partition_state) {
             }
         }
         mpd_response_finish(partition_state->conn);
-        mympd_check_rc_error_and_recover(partition_state, NULL, rc, "config");
+        mympd_check_error_and_recover(partition_state, NULL, "config");
     }
 
     partition_state->mpd_state->music_directory_value = set_directory("music", partition_state->mympd_state->music_directory,

@@ -161,8 +161,7 @@ sds jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mym
     if (partition_state->jukebox_mode == JUKEBOX_ADD_SONG) {
         struct t_list_node *current = partition_state->jukebox_queue.head;
         while (current != NULL) {
-            bool rc = mpd_send_list_meta(partition_state->conn, current->key);
-            if (rc == true) {
+            if (mpd_send_list_meta(partition_state->conn, current->key)) {
                 struct mpd_song *song;
                 if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
                     if (search_mpd_song(song, searchstr, tagcols) == true) {
@@ -189,7 +188,7 @@ sds jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mym
                 }
             }
             mpd_response_finish(partition_state->conn);
-            mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_list_meta");
+            mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_meta");
             current = current->next;
         }
     }
@@ -314,8 +313,8 @@ static bool jukebox(struct t_partition_state *partition_state) {
     mympd_api_queue_status(partition_state, NULL);
     if (partition_state->play_state != MPD_STATE_PLAY) {
         MYMPD_LOG_DEBUG("\"%s\": Jukebox: start playback", partition_state->name);
-        rc = mpd_run_play(partition_state->conn);
-        mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_run_play");
+        mpd_run_play(partition_state->conn);
+        mympd_check_error_and_recover(partition_state, NULL, "mpd_run_play");
     }
 
     if (rc == true) {
@@ -366,9 +365,9 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state, long add_so
         added < add_songs)
     {
         if (jukebox_mode == JUKEBOX_ADD_SONG) {
-	        mpd_run_add(partition_state->conn, current->key);
+            mpd_run_add(partition_state->conn, current->key);
             if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_add") == true) {
-	            MYMPD_LOG_NOTICE("\"%s\": Jukebox adding song: %s", partition_state->name, current->key);
+                MYMPD_LOG_NOTICE("\"%s\": Jukebox adding song: %s", partition_state->name, current->key);
                 added++;
             }
             else {
@@ -464,8 +463,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
     sds album = sdsempty();
     sds albumartist = sdsempty();
 
-    bool rc = mpd_send_list_queue_meta(partition_state->conn);
-    if (rc == true) {
+    if (mpd_send_list_queue_meta(partition_state->conn)) {
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (jukebox_mode == JUKEBOX_ADD_SONG) {
                 if (partition_state->jukebox_unique_tag.tags[0] != MPD_TAG_TITLE) {
@@ -497,8 +495,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
     //append last_played to queue list
     struct t_list_node *current = partition_state->last_played.head;
     while (current != NULL) {
-        rc = mpd_send_list_meta(partition_state->conn, current->key);
-        if (rc== true) {
+        if (mpd_send_list_meta(partition_state->conn, current->key)) {
             song = mpd_recv_song(partition_state->conn);
             if (song != NULL) {
                 if (jukebox_mode == JUKEBOX_ADD_SONG) {
@@ -519,7 +516,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
             }
         }
         mpd_response_finish(partition_state->conn);
-        mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_list_meta");
+        mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_meta");
         current = current->next;
     }
 
@@ -535,8 +532,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
         {
             sds uri = NULL;
             if (json_get_string_max(line, "$.uri", &uri, vcb_isfilepath, NULL) == true) {
-                rc = mpd_send_list_meta(partition_state->conn, uri);
-                if (rc == true) {
+                if (mpd_send_list_meta(partition_state->conn, uri)) {
                     song = mpd_recv_song(partition_state->conn);
                     if (song != NULL) {
                         if (jukebox_mode == JUKEBOX_ADD_SONG) {
@@ -557,7 +553,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
                     }
                 }
                 mpd_response_finish(partition_state->conn);
-                mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_list_meta");
+                mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_meta");
             }
             else {
                 MYMPD_LOG_ERROR("\"%s\": Reading last_played line failed", partition_state->name);
@@ -806,19 +802,11 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
         MYMPD_LOG_DEBUG("\"%s\": Jukebox: iterating through source, start: %u", partition_state->name, start);
 
         if (from_database == true) {
-            if (mpd_search_db_songs(partition_state->conn, false) == false) {
-                MYMPD_LOG_ERROR("\"%s\": Error in response to command: mpd_search_db_songs", partition_state->name);
-            }
-            else if (mpd_search_add_uri_constraint(partition_state->conn, MPD_OPERATOR_DEFAULT, "") == false) {
-                MYMPD_LOG_ERROR("\"%s\": Error in response to command: mpd_search_add_uri", partition_state->name);
-                mpd_search_cancel(partition_state->conn);
-            }
-            else if (mpd_search_add_window(partition_state->conn, start, end) == false) {
-                MYMPD_LOG_ERROR("\"%s\": Error in response to command: mpd_search_add_window", partition_state->name);
-                mpd_search_cancel(partition_state->conn);
-            }
-            else if (mpd_search_commit(partition_state->conn) == false) {
-                MYMPD_LOG_ERROR("\"%s\": Error in response to command: mpd_search_commit", partition_state->name);
+            if (mpd_search_db_songs(partition_state->conn, false) == false ||
+                mpd_search_add_uri_constraint(partition_state->conn, MPD_OPERATOR_DEFAULT, "") == false ||
+                mpd_search_add_window(partition_state->conn, start, end) == false)
+            {
+                MYMPD_LOG_ERROR("\"%s\": Error creating MPD search command", partition_state->name);
                 mpd_search_cancel(partition_state->conn);
             }
         }

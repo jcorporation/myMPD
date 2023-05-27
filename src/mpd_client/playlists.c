@@ -36,8 +36,7 @@ static bool replace_playlist(struct t_partition_state *partition_state, const ch
  */
 time_t mpd_client_get_playlist_mtime(struct t_partition_state *partition_state, const char *playlist) {
     time_t mtime = 0;
-    bool rc = mpd_send_list_playlists(partition_state->conn);
-    if (rc == true) {
+    if (mpd_send_list_playlists(partition_state->conn)) {
         struct mpd_playlist *pl;
         while ((pl = mpd_recv_playlist(partition_state->conn)) != NULL) {
             const char *plpath = mpd_playlist_get_path(pl);
@@ -50,7 +49,7 @@ time_t mpd_client_get_playlist_mtime(struct t_partition_state *partition_state, 
         }
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_list_playlists") == false) {
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_playlists") == false) {
         return 0;
     }
 
@@ -68,15 +67,14 @@ bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, cons
     struct t_list plist;
     list_init(&plist);
     struct mpd_song *song;
-    bool rc = mpd_send_list_playlist(partition_state->conn, playlist);
-    if (rc == true) {
+    if (mpd_send_list_playlist(partition_state->conn, playlist)) {
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             list_push(&plist, mpd_song_get_uri(song), 0, NULL, NULL);
             mpd_song_free(song);
         }
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_list_playlist") == false ||
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_playlist") == false ||
         list_shuffle(&plist) == false)
     {
         list_clear(&plist);
@@ -89,6 +87,7 @@ bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, cons
     //add shuffled songs to tmp playlist
     //uses command list to add MPD_COMMANDS_MAX songs at once
     long i = 0;
+    bool rc = true;
     while (i < plist.length) {
         if (mpd_command_list_begin(partition_state->conn, false) == true) {
             long j = 0;
@@ -106,13 +105,13 @@ bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, cons
                     break;
                 }
             }
-            rc = mpd_command_list_end(partition_state->conn) &&
-                mpd_response_finish(partition_state->conn);
+            mpd_command_list_end(partition_state->conn);
         }
-        if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_playlist_add") == false) {
+        mpd_response_finish(partition_state->conn);
+        if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_playlist_add") == false) {
             //error adding songs to tmp playlist - delete it
-            rc = mpd_run_rm(partition_state->conn, playlist_tmp);
-            mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_run_rm");
+            mpd_run_rm(partition_state->conn, playlist_tmp);
+            mympd_check_error_and_recover(partition_state, NULL, "mpd_run_rm");
             rc = false;
             break;
         }
@@ -216,14 +215,12 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
     raxSeek(&iter, "^", NULL, 0);
     rc = true;
     while (i < plist->numele) {
-        rc = mpd_command_list_begin(partition_state->conn, false);
-        if (rc == true) {
+        if (mpd_command_list_begin(partition_state->conn, false)) {
             long j = 0;
             while (raxNext(&iter)) {
                 i++;
                 j++;
-                rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, iter.data);
-                if (rc == false) {
+                if (mpd_send_playlist_add(partition_state->conn, playlist_tmp, iter.data) == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
@@ -231,13 +228,13 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
                     break;
                 }
             }
-            rc = mpd_command_list_end(partition_state->conn) &&
-                mpd_response_finish(partition_state->conn);
+            rc = mpd_command_list_end(partition_state->conn);
         }
-        if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_playlist_add") == false) {
+        mpd_response_finish(partition_state->conn);
+        if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_playlist_add") == false) {
             //error adding songs to tmp playlist - delete it
-            rc = mpd_run_rm(partition_state->conn, playlist_tmp);
-            mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_run_rm");
+            mpd_run_rm(partition_state->conn, playlist_tmp);
+            mympd_check_error_and_recover(partition_state, NULL, "mpd_run_rm");
             rc = false;
             break;
         }
@@ -264,24 +261,24 @@ static bool replace_playlist(struct t_partition_state *partition_state, const ch
 {
     sds backup_pl = sdscatfmt(sdsempty(), "%s.bak", new_pl);
     //rename original playlist to old playlist
-    bool rc = mpd_run_rename(partition_state->conn, to_replace_pl, backup_pl);
-    if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_run_rename") == false) {
+    mpd_run_rename(partition_state->conn, to_replace_pl, backup_pl);
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_rename") == false) {
         FREE_SDS(backup_pl);
         return false;
     }
     //rename new playlist to orginal playlist
-    rc = mpd_run_rename(partition_state->conn, new_pl, to_replace_pl);
-    if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_run_rename") == false) {
+    mpd_run_rename(partition_state->conn, new_pl, to_replace_pl);
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_rename") == false) {
         //restore original playlist
-        rc = mpd_run_rename(partition_state->conn, backup_pl, to_replace_pl);
-        mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_run_rename");
+        mpd_run_rename(partition_state->conn, backup_pl, to_replace_pl);
+        mympd_check_error_and_recover(partition_state, NULL, "mpd_run_rename");
         FREE_SDS(backup_pl);
         return false;
     }
     //delete old playlist
-    rc = mpd_run_rm(partition_state->conn, backup_pl);
+    mpd_run_rm(partition_state->conn, backup_pl);
     FREE_SDS(backup_pl);
-    return mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_run_rename");
+    return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_rename");
 }
 
 /**
@@ -293,22 +290,20 @@ static bool replace_playlist(struct t_partition_state *partition_state, const ch
  * @return number of songs or -1 on error
  */
 int mpd_client_enum_playlist(struct t_partition_state *partition_state, const char *playlist, bool empty_check) {
-    bool rc = mpd_send_list_playlist(partition_state->conn, playlist);
-    if (rc == false) {
-        return -1;
-    }
-
-    struct mpd_song *song;
     int entity_count = 0;
-    while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-        entity_count++;
-        mpd_song_free(song);
-        if (empty_check == true) {
-            break;
+    if (mpd_send_list_playlist(partition_state->conn, playlist)) {
+        struct mpd_song *song;
+        
+        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+            entity_count++;
+            mpd_song_free(song);
+            if (empty_check == true) {
+                break;
+            }
         }
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_list_playlist") == false) {
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_playlist") == false) {
         return -1;
     }
     return entity_count;

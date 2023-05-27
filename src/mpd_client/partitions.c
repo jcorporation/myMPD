@@ -57,8 +57,7 @@ bool partitions_populate(struct t_mympd_state *mympd_state) {
     struct t_list mpd_partitions;
     list_init(&mpd_partitions);
     //first add all missing partitions to the list
-    bool rc = mpd_send_listpartitions(mympd_state->partition_state->conn);
-    if (rc == true) {
+    if (mpd_send_listpartitions(mympd_state->partition_state->conn)) {
         struct mpd_pair *partition;
         
         while ((partition = mpd_recv_partition_pair(mympd_state->partition_state->conn)) != NULL) {

@@ -251,7 +251,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
             {
                 MYMPD_LOG_DEBUG("\"%s\": Leaving mpd idle mode", partition_state->name);
                 if (mpd_send_noidle(partition_state->conn) == false) {
-                    mympd_check_rc_error_and_recover(partition_state, NULL, false, "mpd_send_noidle");
+                    mympd_check_error_and_recover(partition_state, NULL, "mpd_send_noidle");
                     partition_state->conn_state = MPD_FAILURE;
                     break;
                 }
@@ -313,7 +313,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                 if (partition_state->conn_state == MPD_CONNECTED) {
                     MYMPD_LOG_DEBUG("\"%s\": Entering mpd idle mode", partition_state->name);
                     if (mpd_send_idle_mask(partition_state->conn, partition_state->idle_mask) == false) {
-                        mympd_check_rc_error_and_recover(partition_state, NULL, false, "mpd_send_idle_mask");
+                        mympd_check_error_and_recover(partition_state, NULL, "mpd_send_idle_mask");
                         partition_state->conn_state = MPD_FAILURE;
                     }
                 }
