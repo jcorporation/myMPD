@@ -103,7 +103,7 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     }
     #ifndef MYMPD_ENABLE_SSL
         if (config->http == false) {
-            MYMPD_LOG_ERROR("Not listening on any port.");
+            MYMPD_LOG_ERROR(NULL, "Not listening on any port.");
         }
     #endif
     //bind to ssl_port
