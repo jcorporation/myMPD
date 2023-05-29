@@ -27,18 +27,18 @@ void set_loglevel(int level) {
     else if (level < 0) {
         level = 0;
     }
-    MYMPD_LOG_NOTICE("Setting loglevel to %d", level);
+    MYMPD_LOG_NOTICE(NULL, "Setting loglevel to %d", level);
     loglevel = level;
 }
 
-void mympd_log_errno(const char *file, int line, int errnum) {
+void mympd_log_errno(const char *file, int line, const char *partition, int errnum) {
     char err_text[256];
     int rc = strerror_r(errnum, err_text, 256);
     const char *err_str = rc == 0 ? err_text : "Unknown error";
-    mympd_log(LOG_ERR, file, line, "%s", err_str);
+    mympd_log(LOG_ERR, file, line, partition, "%s", err_str);
 }
 
-void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
+void mympd_log(int level, const char *file, int line, const char *partition, const char *fmt, ...) {
     if (level > loglevel) {
         return;
     }
@@ -54,6 +54,9 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         (void)file;
         (void)line;
     #endif
+    if (partition != NULL) {
+        logline = sdscatfmt(logline, "\"%s\": ", partition);
+    }
 
     va_list args;
     va_start(args, fmt);

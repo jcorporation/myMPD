@@ -19,7 +19,7 @@
     #define MYMPD_LOG_NOTICE(...) mympd_log(LOG_NOTICE, __FILE__, __LINE__, __VA_ARGS__)
     #define MYMPD_LOG_INFO(...) mympd_log(LOG_INFO, __FILE__, __LINE__, __VA_ARGS__)
     #define MYMPD_LOG_DEBUG(...) mympd_log(LOG_DEBUG, __FILE__, __LINE__, __VA_ARGS__)
-    #define MYMPD_LOG_ERRNO(ERRNUM) mympd_log_errno(__FILE__, __LINE__, ERRNUM)
+    #define MYMPD_LOG_ERRNO(PART, ERRNUM) mympd_log_errno(__FILE__, __LINE__, PART, ERRNUM)
 #else
     //release build should have no references to build dir
     #define MYMPD_LOG_EMERG(...) mympd_log(LOG_EMERG, "", __LINE__, __VA_ARGS__)
@@ -30,15 +30,15 @@
     #define MYMPD_LOG_NOTICE(...) mympd_log(LOG_NOTICE, "", __LINE__, __VA_ARGS__)
     #define MYMPD_LOG_INFO(...) mympd_log(LOG_INFO, "", __LINE__, __VA_ARGS__)
     #define MYMPD_LOG_DEBUG(...) mympd_log(LOG_DEBUG, "", __LINE__, __VA_ARGS__)
-    #define MYMPD_LOG_ERRNO(ERRNUM) mympd_log_errno("", __LINE__, ERRNUM)
+    #define MYMPD_LOG_ERRNO(PART, ERRNUM) mympd_log_errno("", __LINE__, PART, ERRNUM)
 #endif
 
 extern int loglevel;
 extern bool log_on_tty;
 
-void mympd_log_errno(const char *file, int line, int errnum);
-void mympd_log(int level, const char *file, int line, const char *fmt, ...)
-    __attribute__ ((format (printf, 4, 5))); /* Flawfinder: ignore */
+void mympd_log_errno(const char *file, int line, const char *partition, int errnum);
+void mympd_log(int level, const char *file, int line, const char *partition, const char *fmt, ...)
+    __attribute__ ((format (printf, 5, 6))); /* Flawfinder: ignore */
 
 void set_loglevel(int level);
 
