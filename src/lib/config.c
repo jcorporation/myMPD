@@ -158,14 +158,14 @@ bool mympd_config_rw(struct t_config *config, bool write) {
         }
         config->pin_hash = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "pin_hash", config->pin_hash, vcb_isname, write);
     #else
-        MYMPD_LOG_NOTICE("OpenSSL is disabled, ignoring ssl and pin settings");
+        MYMPD_LOG_NOTICE(NULL,"OpenSSL is disabled, ignoring ssl and pin settings");
     #endif
     config->acl = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "acl", config->acl, vcb_isname, write);
     config->scriptacl = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "scriptacl", config->scriptacl, vcb_isname, write);
     #ifdef MYMPD_ENABLE_LUA
         config->lualibs = state_file_rw_string_sds(config->workdir, DIR_WORK_CONFIG, "lualibs", config->lualibs, vcb_isname, write);
     #else
-        MYMPD_LOG_NOTICE("Lua is disabled, ignoring lua settings");
+        MYMPD_LOG_NOTICE(NULL, "Lua is disabled, ignoring lua settings");
     #endif
     config->covercache_keep_days = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "covercache_keep_days", config->covercache_keep_days, COVERCACHE_AGE_MIN, COVERCACHE_AGE_MAX, write);
     config->loglevel = state_file_rw_int(config->workdir, DIR_WORK_CONFIG, "loglevel", config->loglevel, LOGLEVEL_MIN, LOGLEVEL_MAX, write);
