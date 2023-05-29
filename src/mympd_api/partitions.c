@@ -112,9 +112,9 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
     //wait
     my_msleep(100);
     //delete the partition
-    bool rc = mpd_run_delete_partition(partition_state->conn, partition);
+    mpd_run_delete_partition(partition_state->conn, partition);
     bool result = false;
-    buffer = mympd_respond_with_error_or_ok(partition_state, buffer, cmd_id, request_id, rc, "mpd_run_delete_partition", &result);
+    buffer = mympd_respond_with_error_or_ok(partition_state, buffer, cmd_id, request_id, "mpd_run_delete_partition", &result);
     if (result == true) {
         //partition was removed
         partition_to_remove->conn_state = MPD_REMOVED;

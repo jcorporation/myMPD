@@ -200,16 +200,15 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
 static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_state) {
     for (unsigned i = 0; i < mpd_worker_state->smartpls_generate_tag_types.len; i++) {
         enum mpd_tag_type tag = mpd_worker_state->smartpls_generate_tag_types.tags[i];
-        bool rc = mpd_search_db_tags(mpd_worker_state->partition_state->conn, tag);
 
-        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_search_db_tags") == false) {
+        if (mpd_search_db_tags(mpd_worker_state->partition_state->conn, tag) == false) {
             mpd_search_cancel(mpd_worker_state->partition_state->conn);
+            MYMPD_LOG_ERROR("Error creating MPD search command");
             return false;
         }
         struct t_list tag_list;
         list_init(&tag_list);
-        rc = mpd_search_commit(mpd_worker_state->partition_state->conn);
-        if (rc == true) {
+        if (mpd_search_commit(mpd_worker_state->partition_state->conn)) {
             struct mpd_pair *pair;
             while ((pair = mpd_recv_pair_tag(mpd_worker_state->partition_state->conn, tag)) != NULL) {
                 if (strlen(pair->value) > 0) {
@@ -219,7 +218,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
             }
         }
         mpd_response_finish(mpd_worker_state->partition_state->conn);
-        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_search_commit") == false) {
+        if (mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_search_commit") == false) {
             list_clear(&tag_list);
             return false;
         }
@@ -235,7 +234,7 @@ static bool mpd_worker_smartpls_per_tag(struct t_mpd_worker_state *mpd_worker_st
                 sds expression = sdsnewlen("(", 1);
                 expression = escape_mpd_search_expression(expression, tagstr, "==", current->key);
                 expression = sdscatlen(expression, ")", 1);
-                rc = smartpls_save_search(mpd_worker_state->config->workdir, playlist, expression, mpd_worker_state->smartpls_sort);
+                bool rc = smartpls_save_search(mpd_worker_state->config->workdir, playlist, expression, mpd_worker_state->smartpls_sort);
                 FREE_SDS(expression);
                 if (rc == true) {
                     MYMPD_LOG_INFO("Created smart playlist \"%s\"", playlist);
@@ -264,8 +263,7 @@ static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_sta
     bool exists = false;
 
     //first check if playlist exists
-    bool rc = mpd_send_list_playlists(mpd_worker_state->partition_state->conn);
-    if (rc == true) {
+    if (mpd_send_list_playlists(mpd_worker_state->partition_state->conn)) {
         while ((pl = mpd_recv_playlist(mpd_worker_state->partition_state->conn)) != NULL) {
             const char *plpath = mpd_playlist_get_path(pl);
             if (strcmp(playlist, plpath) == 0) {
@@ -278,14 +276,14 @@ static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_sta
         }
     }
     mpd_response_finish(mpd_worker_state->partition_state->conn);
-    if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_send_list_playlists") == false) {
+    if (mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_send_list_playlists") == false) {
         return false;
     }
 
     //delete playlist if exists
     if (exists == true) {
-        rc = mpd_run_rm(mpd_worker_state->partition_state->conn, playlist);
-        return mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_run_rm");
+        mpd_run_rm(mpd_worker_state->partition_state->conn, playlist);
+        return mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_run_rm");
     }
     return true;
 }
@@ -344,8 +342,7 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
 {
     rax *add_list = raxNew();
     int value_max = 0;
-    bool rc = mpd_send_sticker_find(mpd_worker_state->partition_state->conn, "song", "", sticker);
-    if (rc == true) {
+    if (mpd_send_sticker_find(mpd_worker_state->partition_state->conn, "song", "", sticker)) {
         struct mpd_pair *pair;
         sds uri = sdsempty();
         sds key = sdsempty();
@@ -384,7 +381,7 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
         FREE_SDS(key);
     }
     mpd_response_finish(mpd_worker_state->partition_state->conn);
-    if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_send_sticker_find") == false) {
+    if (mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_send_sticker_find") == false) {
         rax_free_data(add_list, free_t_sticker_value);
         return false;
     }
@@ -405,25 +402,24 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
             if (data->value >= value_min &&
                 i < maxentries)
             {
-                rc = mpd_send_playlist_add(mpd_worker_state->partition_state->conn, playlist, data->uri);
-                if (rc == false) {
+                if (mpd_send_playlist_add(mpd_worker_state->partition_state->conn, playlist, data->uri)) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
                 i++;
             }
         }
-        rc = mpd_command_list_end(mpd_worker_state->partition_state->conn) &&
-            mpd_response_finish(mpd_worker_state->partition_state->conn);
-        if (mympd_check_rc_error_and_recover(mpd_worker_state->partition_state, NULL, rc, "mpd_send_playlist_add") == false) {
-            rc = false;
-        }
+        mpd_command_list_end(mpd_worker_state->partition_state->conn);
         raxStop(&iter);
     }
     rax_free_data(add_list, free_t_sticker_value);
-    MYMPD_LOG_INFO("Updated smart playlist \"%s\" with %d songs, minimum value: %d",
-        playlist, i, value_min);
-    return rc;
+    mpd_response_finish(mpd_worker_state->partition_state->conn);
+    if (mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_send_playlist_add") == true) {
+        MYMPD_LOG_INFO("Updated smart playlist \"%s\" with %d songs, minimum value: %d",
+            playlist, i, value_min);
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -442,8 +438,8 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
         value_max = mpd_stats_get_db_update_time(stats);
         mpd_stats_free(stats);
     }
-    else {
-        mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_run_stats");
+    mpd_response_finish(mpd_worker_state->partition_state->conn);
+    if (mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_run_stats") == false) {
         return false;
     }
 

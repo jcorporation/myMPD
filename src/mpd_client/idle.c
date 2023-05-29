@@ -160,8 +160,8 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
             if (partition_state->is_default == false) {
                 //change partition
                 MYMPD_LOG_INFO("Switching to partition \"%s\"", partition_state->name);
-                bool rc = mpd_run_switch_partition(partition_state->conn, partition_state->name);
-                if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_run_switch_partition") == false) {
+                mpd_run_switch_partition(partition_state->conn, partition_state->name);
+                if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_switch_partition") == false) {
                     MYMPD_LOG_ERROR("Could not switch to partition \"%s\"", partition_state->name);
                     mpd_client_disconnect(partition_state, MPD_FAILURE);
                     break;
@@ -382,7 +382,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                         if (partition_state->play_state != MPD_STATE_PLAY) {
                             MYMPD_LOG_INFO("\"%s\": AutoPlay enabled, start playing", partition_state->name);
                             if (mpd_run_play(partition_state->conn) == false) {
-                                mympd_check_rc_error_and_recover(partition_state, NULL, false, "mpd_run_play");
+                                mympd_check_error_and_recover(partition_state, NULL, "mpd_run_play");
                             }
                         }
                         else {

@@ -127,15 +127,12 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         }
     }
 
-    bool rc = false;
     if (mpd_command_list_begin(partition_state->conn, false)) {
-        rc = mpd_send_stop(partition_state->conn);
-        if (rc == false) {
+        if (mpd_send_stop(partition_state->conn)) {
             MYMPD_LOG_ERROR("Error adding command to command list mpd_send_stop");
         }
         if (old_volume != -1) {
-            rc = mpd_send_set_volume(partition_state->conn, volume);
-            if (rc == false) {
+            if (mpd_send_set_volume(partition_state->conn, volume) == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_set_volume");
             }
         }
@@ -144,32 +141,23 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
             jukebox_mode == JUKEBOX_OFF)
         {
             //load selected playlist if in preset jukebox is disabled
-            rc = mpd_send_clear(partition_state->conn);
-            if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
-            }
-            rc = mpd_send_load(partition_state->conn, playlist);
-            if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_load");
-            }
-            rc = mpd_send_play(partition_state->conn);
-            if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_play");
+            if (mpd_send_clear(partition_state->conn) == false ||
+                mpd_send_load(partition_state->conn, playlist) ||
+                mpd_send_play(partition_state->conn))
+            {
+                MYMPD_LOG_ERROR("Error adding command to command list");
             }
         }
 
         if (jukebox_mode != JUKEBOX_OFF) {
             //clear the queue if jukebox is enabled through preset
-            rc = mpd_send_clear(partition_state->conn);
-            if (rc == false) {
+            if (mpd_send_clear(partition_state->conn) == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
             }
         }
-
-        rc = mpd_command_list_end(partition_state->conn) &&
-            mpd_response_finish(partition_state->conn);
+        mpd_command_list_end(partition_state->conn);
     }
-
+    mpd_response_finish(partition_state->conn);
     //restore old jukebox mode
     partition_state->jukebox_mode = old_jukebox_mode;
 
@@ -181,7 +169,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         mympd_queue_push(mympd_api_queue, request, 0);
     }
 
-    return mympd_check_rc_error_and_recover(partition_state, NULL, rc, "command_list");
+    return mympd_check_error_and_recover(partition_state, NULL, "command_list");
 }
 
 /**

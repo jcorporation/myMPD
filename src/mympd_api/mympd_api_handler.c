@@ -714,8 +714,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             {
                 struct t_list_node *current = attributes.head;
                 while (current != NULL) {
-                    rc = mpd_run_output_set(partition_state->conn, uint_buf1, current->key, current->value_p);
-                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_output_set", &result);
+                    mpd_run_output_set(partition_state->conn, uint_buf1, current->key, current->value_p);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_output_set", &result);
                     if (result == false) {
                         break;
                     }
@@ -729,8 +729,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_string(request->data, "$.params.channel", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.message", 1, CONTENT_LEN_MAX, &sds_buf2, vcb_isname, &error) == true)
             {
-                bool_buf1 = mpd_run_send_message(partition_state->conn, sds_buf1, sds_buf2);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, bool_buf1, "mpd_run_send_message", &result);
+                mpd_run_send_message(partition_state->conn, sds_buf1, sds_buf2);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_send_message", &result);
             }
             break;
         case MYMPD_API_LIKE:
@@ -759,8 +759,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             response->data = mympd_api_status_get(partition_state, response->data, request->id);
             break;
         case MYMPD_API_PLAYER_CLEARERROR:
-            rc = mpd_run_clearerror(partition_state->conn);
-            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_clearerror", &result);
+            mpd_run_clearerror(partition_state->conn);
+            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_clearerror", &result);
             break;
         case MYMPD_API_DATABASE_UPDATE:
         case MYMPD_API_DATABASE_RESCAN: {
@@ -782,12 +782,12 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     sds_buf1 = NULL;
                 }
                 if (request->cmd_id == MYMPD_API_DATABASE_UPDATE) {
-                    uint_buf1 = mpd_run_update(partition_state->conn, sds_buf1);
-                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, (uint_buf1 == 0 ? false : true), "mpd_run_update", &result);
+                    mpd_run_update(partition_state->conn, sds_buf1);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_update", &result);
                 }
                 else {
-                    uint_buf1 = mpd_run_rescan(partition_state->conn, sds_buf1);
-                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, (uint_buf1 == 0 ? false : true), "mpd_run_rescan", &result);
+                    mpd_run_rescan(partition_state->conn, sds_buf1);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_rescan", &result);
                 }
             }
             break;
@@ -839,32 +839,32 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         case MYMPD_API_PLAYER_PAUSE:
-            rc = mpd_run_pause(partition_state->conn, true);
-            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_pause", &result);
+            mpd_run_pause(partition_state->conn, true);
+            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_pause", &result);
             break;
         case MYMPD_API_PLAYER_RESUME:
-            rc = mpd_run_pause(partition_state->conn, false);
-            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_pause", &result);
+            mpd_run_pause(partition_state->conn, false);
+            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_pause", &result);
             break;
         case MYMPD_API_PLAYER_PREV:
-            rc = mpd_run_previous(partition_state->conn);
-            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_previous", &result);
+            mpd_run_previous(partition_state->conn);
+            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_previous", &result);
             break;
         case MYMPD_API_PLAYER_NEXT:
-            rc = mpd_run_next(partition_state->conn);
-            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_next", &result);
+            mpd_run_next(partition_state->conn);
+            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_next", &result);
             break;
         case MYMPD_API_PLAYER_PLAY:
-            rc = mpd_run_play(partition_state->conn);
-            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_play", &result);
+            mpd_run_play(partition_state->conn);
+            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_play", &result);
             break;
         case MYMPD_API_PLAYER_STOP:
-            rc = mpd_run_stop(partition_state->conn);
-            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_stop", &result);
+            mpd_run_stop(partition_state->conn);
+            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_stop", &result);
             break;
         case MYMPD_API_QUEUE_CLEAR:
-            rc = mpd_run_clear(partition_state->conn);
-            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_clear", &result);
+            mpd_run_clear(partition_state->conn);
+            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_clear", &result);
             break;
         case MYMPD_API_QUEUE_CROP:
             response->data = mympd_api_queue_crop(partition_state, response->data, request->cmd_id, request->id, false);
@@ -895,8 +895,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             {
                 //map -1 to UINT_MAX for open ended range
                 uint_buf2 = int_buf1 < 0 ? UINT_MAX : (unsigned)int_buf1;
-                rc = mpd_run_delete_range(partition_state->conn, uint_buf1, uint_buf2);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_delete_range", &result);
+                mpd_run_delete_range(partition_state->conn, uint_buf1, uint_buf2);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_delete_range", &result);
             }
             break;
         case MYMPD_API_QUEUE_MOVE_POSITION:
@@ -907,8 +907,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     // decrease to position
                     uint_buf2--;
                 }
-                rc = mpd_run_move(partition_state->conn, uint_buf1, uint_buf2);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_move", &result);
+                mpd_run_move(partition_state->conn, uint_buf1, uint_buf2);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_move", &result);
             }
             break;
         case MYMPD_API_QUEUE_MOVE_RELATIVE: {
@@ -974,8 +974,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         }
         case MYMPD_API_PLAYER_PLAY_SONG:
             if (json_get_uint_max(request->data, "$.params.songId", &uint_buf1, &error) == true) {
-                rc = mpd_run_play_id(partition_state->conn, uint_buf1);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_play_id", &result);
+                mpd_run_play_id(partition_state->conn, uint_buf1);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_play_id", &result);
             }
             break;
         case MYMPD_API_PLAYER_OUTPUT_LIST:
@@ -986,12 +986,12 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_uint(request->data, "$.params.state", 0, 1, &uint_buf2, &error) == true)
             {
                 if (uint_buf2 == 1) {
-                    rc = mpd_run_enable_output(partition_state->conn, uint_buf1);
-                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_enable_output", &result);
+                    mpd_run_enable_output(partition_state->conn, uint_buf1);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_enable_output", &result);
                 }
                 else {
-                    rc = mpd_run_disable_output(partition_state->conn, uint_buf1);
-                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_disable_output", &result);
+                    mpd_run_disable_output(partition_state->conn, uint_buf1);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_disable_output", &result);
                 }
             }
             break;
@@ -1012,8 +1012,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_int_max(request->data, "$.params.seek", &int_buf1, &error) == true &&
                 json_get_bool(request->data, "$.params.relative", &bool_buf1, &error) == true)
             {
-                rc = mpd_run_seek_current(partition_state->conn, (float)int_buf1, bool_buf1);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_seek_current", &result);
+                mpd_run_seek_current(partition_state->conn, (float)int_buf1, bool_buf1);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_seek_current", &result);
             }
             break;
         case MYMPD_API_QUEUE_LIST: {
@@ -1221,14 +1221,12 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf2, vcb_isname, &error) == true)
             {
                 if (request->cmd_id == MYMPD_API_PLAYLIST_CONTENT_REPLACE_SEARCH) {
-                    rc = mpd_run_playlist_clear(partition_state->conn, sds_buf1);
-                    if (rc == false) {
-                        response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_playlist_clear", &result);
+                    if (mpd_run_playlist_clear(partition_state->conn, sds_buf1) == false) {
+                        response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_playlist_clear", &result);
                         break;
                     }
                 }
-                result = mpd_client_search_add_to_plist(partition_state, sds_buf2, sds_buf1, UINT_MAX, &response->data);
-                if (result == true) {
+                if (mpd_client_search_add_to_plist(partition_state, sds_buf2, sds_buf1, UINT_MAX, &response->data)) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Updated the playlist %{playlist}", 2, "playlist", sds_buf1);
                 }
@@ -1236,8 +1234,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         case MYMPD_API_PLAYLIST_CONTENT_CLEAR:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                rc = mpd_run_playlist_clear(partition_state->conn, sds_buf1);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_playlist_clear", &result);
+                mpd_run_playlist_clear(partition_state->conn, sds_buf1);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_playlist_clear", &result);
                 if (result == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Cleared the playlist %{playlist}", 2, "playlist", sds_buf1);
@@ -1253,8 +1251,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     // decrease to position
                     uint_buf2--;
                 }
-                rc = mpd_run_playlist_move(partition_state->conn, sds_buf1, uint_buf1, uint_buf2);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_playlist_move", &result);
+                mpd_run_playlist_move(partition_state->conn, sds_buf1, uint_buf1, uint_buf2);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_playlist_move", &result);
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_MOVE_TO_PLAYLIST: {
@@ -1309,14 +1307,13 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             {
                 //map -1 to UINT_MAX for open ended range
                 uint_buf2 = int_buf1 < 0 ? UINT_MAX : (unsigned)int_buf1;
-                rc = mpd_run_playlist_delete_range(partition_state->conn, sds_buf1, uint_buf1, uint_buf2);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_playlist_delete_range", &result);
+                mpd_run_playlist_delete_range(partition_state->conn, sds_buf1, uint_buf1, uint_buf2);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_playlist_delete_range", &result);
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                rc = mpd_client_playlist_shuffle(partition_state, sds_buf1);
-                if (rc == true) {
+                if (mpd_client_playlist_shuffle(partition_state, sds_buf1)) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Shuffled playlist successfully");
                 }
@@ -1584,9 +1581,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
                 if (request->cmd_id == MYMPD_API_QUEUE_REPLACE_SEARCH) {
-                    rc = mpd_run_clear(partition_state->conn);
-                    if (rc == false) {
-                        response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_clear", &result);
+                    if (mpd_run_clear(partition_state->conn) == false) {
+                        response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_clear", &result);
                         break;
                     }
                 }
@@ -1622,8 +1618,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 if (mympd_state->mpd_state->feat_advqueue == true) {
                     enum mpd_queue_save_mode save_mode = mpd_parse_queue_save_mode(sds_buf2);
                     if (save_mode != MPD_QUEUE_SAVE_MODE_UNKNOWN) {
-                        rc = mpd_run_save_queue(partition_state->conn, sds_buf1, save_mode);
-                        response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_save_queue", &result);
+                        mpd_run_save_queue(partition_state->conn, sds_buf1, save_mode);
+                        response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_save_queue", &result);
                     }
                     else {
                         response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -1631,8 +1627,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     }
                 }
                 else {
-                    rc = mpd_run_save(partition_state->conn, sds_buf1);
-                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_save", &result);
+                    mpd_run_save(partition_state->conn, sds_buf1);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_save", &result);
                 }
             }
             break;
@@ -1681,8 +1677,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         }
         case MYMPD_API_QUEUE_SHUFFLE:
-            rc = mpd_run_shuffle(partition_state->conn);
-            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_shuffle", &result);
+            mpd_run_shuffle(partition_state->conn);
+            response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_shuffle", &result);
             break;
         case MYMPD_API_STATS:
             response->data = mympd_api_stats_get(partition_state, response->data, request->id);
@@ -1762,8 +1758,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                         JSONRPC_SEVERITY_ERROR, "Partition name invalid");
                     break;
                 }
-                rc = mpd_run_newpartition(partition_state->conn, sds_buf1);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_newpartition", &result);
+                mpd_run_newpartition(partition_state->conn, sds_buf1);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_newpartition", &result);
             }
             break;
         case MYMPD_API_PARTITION_SAVE:
@@ -1798,9 +1794,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_array_string(request->data, "$.params.outputs", &outputs, vcb_isname, 10, &error) == true) {
                 struct t_list_node *current;
                 while ((current = list_shift_first(&outputs)) != NULL) {
-                    rc = mpd_run_move_output(partition_state->conn, current->key);
+                    mpd_run_move_output(partition_state->conn, current->key);
                     list_node_free(current);
-                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_move_output", &result);
+                    response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_move_output", &result);
                     if (result == false) {
                         break;
                     }
@@ -1819,14 +1815,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_string(request->data, "$.params.mountUrl", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isuri, &error) == true &&
                 json_get_string(request->data, "$.params.mountPoint", 1, FILEPATH_LEN_MAX, &sds_buf2, vcb_isfilepath, &error) == true)
             {
-                rc = mpd_run_mount(partition_state->conn, sds_buf2, sds_buf1);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_mount", &result);
+                mpd_run_mount(partition_state->conn, sds_buf2, sds_buf1);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_mount", &result);
             }
             break;
         case MYMPD_API_MOUNT_UNMOUNT:
             if (json_get_string(request->data, "$.params.mountPoint", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
-                rc = mpd_run_unmount(partition_state->conn, sds_buf1);
-                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, rc, "mpd_run_unmount", &result);
+                mpd_run_unmount(partition_state->conn, sds_buf1);
+                response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_unmount", &result);
             }
             break;
         case MYMPD_API_WEBRADIO_FAVORITE_LIST:

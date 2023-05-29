@@ -443,6 +443,9 @@ static bool add_album_to_queue(struct t_partition_state *partition_state, struct
     }
     else {
         mpd_search_cancel(partition_state->conn);
+        MYMPD_LOG_ERROR("\"%s\": Error creating MPD search command", partition_state->name);
+        FREE_SDS(expression);
+        return false;
     }
     FREE_SDS(expression);
     mpd_response_finish(partition_state->conn);

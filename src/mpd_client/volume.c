@@ -27,6 +27,8 @@ int mpd_client_get_volume(struct t_partition_state *partition_state) {
         }
         mpd_response_finish(partition_state->conn);
     }
-    mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status") == false) {
+        volume = -1;
+    }
     return volume;
 }

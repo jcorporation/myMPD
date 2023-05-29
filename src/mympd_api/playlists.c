@@ -170,7 +170,7 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
             mpd_command_list_end(partition_state->conn);
         }
         mpd_response_finish(partition_state->conn);
-        rc = mympd_check_rc_error_and_recover(partition_state, error, rc, "mpd_send_playlist_add");
+        rc = mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add");
         if (rc == false) {
             break;
         }

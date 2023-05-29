@@ -118,9 +118,9 @@ bool mpd_client_set_binarylimit(struct t_partition_state *partition_state) {
     bool rc = true;
     if (partition_state->mpd_state->feat_binarylimit == true) {
         MYMPD_LOG_INFO("\"%s\": Setting binarylimit to %u kB", partition_state->name, partition_state->mpd_state->mpd_binarylimit);
-        rc = mpd_run_binarylimit(partition_state->conn, partition_state->mpd_state->mpd_binarylimit);
+        mpd_run_binarylimit(partition_state->conn, partition_state->mpd_state->mpd_binarylimit);
         sds message = sdsempty();
-        if (mympd_check_rc_error_and_recover_notify(partition_state, &message, rc, "mpd_run_binarylimit") == false) {
+        if (mympd_check_error_and_recover_notify(partition_state, &message, "mpd_run_binarylimit") == false) {
             ws_notify(message, partition_state->name);
             rc = false;
         }

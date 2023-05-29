@@ -427,9 +427,9 @@ static bool sticker_inc(struct t_cache *sticker_cache, struct t_partition_state 
     //update mpd sticker
     sds value_str = sdsfromlonglong((long long)new_value);
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, sticker_str, value_str);
-    bool rc = mpd_run_sticker_set(partition_state->conn, "song", uri, sticker_str, value_str);
+    mpd_run_sticker_set(partition_state->conn, "song", uri, sticker_str, value_str);
     FREE_SDS(value_str);
-    return mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_run_sticker_set");
+    return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_sticker_set");
 }
 
 /**
@@ -472,9 +472,9 @@ static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state 
     //update mpd sticker
     sds value_str = sdsfromlonglong(value);
     MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, sticker_str, value_str);
-    bool rc = mpd_run_sticker_set(partition_state->conn, "song", uri, sticker_str, value_str);
+    mpd_run_sticker_set(partition_state->conn, "song", uri, sticker_str, value_str);
     FREE_SDS(value_str);
-    return mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_run_sticker_set");
+    return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_sticker_set");
 }
 
 /**

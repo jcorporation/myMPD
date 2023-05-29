@@ -283,9 +283,8 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
 
     if (mpd_search_db_tags(partition_state->conn, mpd_tag_name_parse(tag)) == false) {
         mpd_search_cancel(partition_state->conn);
-        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
+        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
             JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
-        return buffer;
     }
 
     long real_limit = offset + limit;

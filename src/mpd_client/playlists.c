@@ -169,36 +169,35 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
     else {
         return false;
     }
-    if (rc == false) {
-        return false;
-    }
 
     rax *plist = raxNew();
-    sds key = sdsempty();
-    struct mpd_song *song;
-    while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-        const char *song_uri = mpd_song_get_uri(song);
-        sdsclear(key);
-        if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
-            //sort by tag
-            key = mpd_client_get_tag_value_string(song, sort_tags.tags[0], key);
-            key = sdscatfmt(key, "::%s", song_uri);
+    if (rc == true) {
+        sds key = sdsempty();
+        struct mpd_song *song;
+        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+            const char *song_uri = mpd_song_get_uri(song);
+            sdsclear(key);
+            if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
+                //sort by tag
+                key = mpd_client_get_tag_value_string(song, sort_tags.tags[0], key);
+                key = sdscatfmt(key, "::%s", song_uri);
+            }
+            else {
+                //sort by filename
+                key = sdscat(key, song_uri);
+            }
+            sds_utf8_tolower(key);
+            sds data = sdsnew(song_uri);
+            while (raxTryInsert(plist, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
+                //duplicate - add chars until it is uniq
+                key = sdscatlen(key, ":", 1);
+            }
+            mpd_song_free(song);
         }
-        else {
-            //sort by filename
-            key = sdscat(key, song_uri);
-        }
-        sds_utf8_tolower(key);
-        sds data = sdsnew(song_uri);
-        while (raxTryInsert(plist, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
-            //duplicate - add chars until it is uniq
-            key = sdscatlen(key, ":", 1);
-        }
-        mpd_song_free(song);
+        FREE_SDS(key);
     }
-    FREE_SDS(key);
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_rc_error_and_recover(partition_state, NULL, rc, "mpd_send_list_playlist") == false) {
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_playlist") == false) {
         //free data
         rax_free_sds_data(plist);
         return false;
@@ -228,7 +227,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
                     break;
                 }
             }
-            rc = mpd_command_list_end(partition_state->conn);
+            mpd_command_list_end(partition_state->conn);
         }
         mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_playlist_add") == false) {
@@ -293,7 +292,6 @@ int mpd_client_enum_playlist(struct t_partition_state *partition_state, const ch
     int entity_count = 0;
     if (mpd_send_list_playlist(partition_state->conn, playlist)) {
         struct mpd_song *song;
-        
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             entity_count++;
             mpd_song_free(song);

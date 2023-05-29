@@ -1,5 +1,5 @@
 - es-AR: 14 missing phrases
-- es-ES: 693 missing phrases
+- es-ES: 692 missing phrases
 - es-VE: 598 missing phrases
 - fi-FI: 594 missing phrases
 - fr-FR: 15 missing phrases
@@ -7,6 +7,6 @@
 - ja-JP: 15 missing phrases
 - ko-KR: 14 missing phrases
 - nl-NL: 15 missing phrases
-- pl-PL: 785 missing phrases
+- pl-PL: 784 missing phrases
 - ru-RU: 15 missing phrases
 - zh-Hans: 14 missing phrases
