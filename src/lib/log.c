@@ -66,6 +66,7 @@ void set_loglevel(int level) {
  * This function should be called by the suitable macro
  * @param file filename for debug logging
  * @param line linenumber for debug logging
+ * @param partition mpd partition
  * @param errnum errno
  */
 void mympd_log_errno(const char *file, int line, const char *partition, int errnum) {

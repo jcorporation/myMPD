@@ -54,6 +54,7 @@ bool mympd_check_error_and_recover(struct t_partition_state *partition_state, sd
  * @param buffer pointer to an already allocated sds string for the jsonrpc response
  * @param cmd_id enum mympd_cmd_ids
  * @param request_id jsonrpc request id to respond
+ * @param command last mpd command
  * @return true on success else false
  */
 bool mympd_check_error_and_recover_respond(struct t_partition_state *partition_state, sds *buffer,
@@ -94,7 +95,6 @@ bool mympd_check_error_and_recover_plain(struct t_partition_state *partition_sta
  * @param buffer already allocated sds string for the jsonrpc response
  * @param cmd_id enum mympd_cmd_ids
  * @param request_id jsonrpc request id to respond
- * @param rc return code of last mpd command to check
  * @param command last mpd command
  * @param result pointer to bool for result code
  * @return pointer to buffer

@@ -108,7 +108,6 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
 /**
  * Copies or moves source playlists to a destination playlist.
  * @param partition_state pointer to partition state
- * @param buffer already allocated sds string to append the response
  * @param src_plists playlists to copy
  * @param dst_plist destination playlist
  * @param mode copy mode enum
