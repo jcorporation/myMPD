@@ -12,6 +12,9 @@
 #include "src/lib/log.h"
 #include "src/mpd_client/tags.h"
 
+#include <errno.h>
+#include <string.h>
+
 /**
  * Private definitions
  */
@@ -126,7 +129,17 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
 {
     enum mpd_error error = mpd_connection_get_error(partition_state->conn);
     if (error != MPD_ERROR_SUCCESS) {
-        const char *error_msg = mpd_connection_get_error_message(partition_state->conn);
+        const char *error_msg;
+        if (error == MPD_ERROR_SYSTEM) {
+            char err_text[256];
+            error_msg = strerror_r(errno, err_text, 256) == 0
+                ? err_text
+                : "Unknown system error";
+        }
+        else {
+            error_msg = mpd_connection_get_error_message(partition_state->conn);
+        }
+
         MYMPD_LOG_ERROR("\"%s\": MPD error for command %s: %s (%d)", partition_state->name, command, error_msg , error);
         if (buffer != NULL &&
             *buffer != NULL)
@@ -145,13 +158,12 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
             }
         }
         //try to recover from error
-        bool recovered = mpd_connection_clear_error(partition_state->conn);
-        if (recovered == false) {
+        if (mpd_connection_clear_error(partition_state->conn) == false) {
             partition_state->conn_state = MPD_FAILURE;
         }
         else {
             mpd_response_finish(partition_state->conn);
-            //enable default mpd tags after cleaning error
+            //enable default mpd tags after recovering from error
             enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
         }
         return false;
