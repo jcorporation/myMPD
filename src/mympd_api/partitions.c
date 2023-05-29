@@ -5,8 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/list.h"
-#include "src/lib/list.h"
 #include "src/mympd_api/partitions.h"
 
 #include "src/lib/api.h"
@@ -93,12 +91,13 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
     //disconnect partition
     mpd_client_disconnect(partition_to_remove, MPD_DISCONNECTED);
     //move outputs
-    //TODO: use command list
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(&outputs)) != NULL) {
-            if (mpd_send_move_output(partition_state->conn, current->key) == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_move_output");
+            bool rc = mpd_send_move_output(partition_state->conn, current->key);
+            list_node_free(current);
+            if (rc == false) {
+                MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_move_output", partition_state->name);
                 break;
             }
         }

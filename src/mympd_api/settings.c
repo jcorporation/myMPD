@@ -6,6 +6,7 @@
 
 #include "compile_time.h"
 #include "mpd/response.h"
+#include "mpd/status.h"
 #include "src/mympd_api/settings.h"
 
 #include "dist/mjson/mjson.h"
@@ -831,10 +832,22 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = presets_list(&partition_state->presets, buffer);
     buffer = sdscatlen(buffer, "],", 2);
     if (partition_state->conn_state == MPD_CONNECTED) {
-        //TODO: use command list
         //mpd options
         buffer = tojson_bool(buffer, "mpdConnected", true, true);
-        struct mpd_status *status = mpd_run_status(partition_state->conn);
+        if (mpd_command_list_begin(partition_state->conn, true)) {
+            if (mpd_send_status(partition_state->conn) == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_status");
+            }
+            if (mpd_send_replay_gain_status(partition_state->conn) == false) {
+                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_replay_gain_status");
+            }
+            mpd_command_list_end(partition_state->conn);
+        }
+        struct mpd_status *status = mpd_recv_status(partition_state->conn);
+        enum mpd_replay_gain_mode replay_gain_mode = MPD_REPLAY_UNKNOWN;
+        if (mpd_response_next(partition_state->conn)) {
+            replay_gain_mode = mpd_recv_replay_gain_status(partition_state->conn);
+        }
         if (status != NULL) {
             enum mpd_single_state single_state = mpd_status_get_single_state(status);
             buffer = tojson_char(buffer, "single", mpd_lookup_single_state(single_state), true);
@@ -845,19 +858,13 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
             buffer = tojson_bool(buffer, "random", mpd_status_get_random(status), true);
             enum mpd_consume_state consume_state = mpd_status_get_consume_state(status);
             buffer = tojson_char(buffer, "consume", mpd_lookup_consume_state(consume_state), true);
+            buffer = tojson_char(buffer, "replaygain", mpd_lookup_replay_gain_mode(replay_gain_mode), false);
             mpd_status_free(status);
         }
         mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status") == false) {
             return buffer;
         }
-
-        enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(partition_state->conn);
-        if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_replay_gain_status") == false) {
-            return buffer;
-        }
-        const char *replaygain = mpd_lookup_replay_gain_mode(replay_gain_mode);
-        buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, false);
     }
     else {
         //not connected to mpd

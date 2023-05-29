@@ -40,7 +40,9 @@ bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, stru
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(song_ids)) != NULL) {
-            if (mpd_send_delete_id(partition_state->conn, (unsigned)current->value_i) == false) {
+            bool rc = mpd_send_delete_id(partition_state->conn, (unsigned)current->value_i);
+            list_node_free(current);
+            if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_delete_id");
                 break;
             }
@@ -62,7 +64,9 @@ bool mympd_api_queue_append(struct t_partition_state *partition_state, struct t_
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(uris)) != NULL) {
-            if (mpd_send_add(partition_state->conn, current->key) == false) {
+            bool rc = mpd_send_add(partition_state->conn, current->key);
+            list_node_free(current);
+            if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_add");
                 break;
             }
@@ -86,7 +90,9 @@ bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(uris)) != NULL) {
-            if (mpd_send_add_whence(partition_state->conn, current->key, to, whence) == false) {
+            bool rc = mpd_send_add_whence(partition_state->conn, current->key, to, whence);
+            list_node_free(current);
+            if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_add");
                 break;
             }
@@ -113,7 +119,9 @@ bool mympd_api_queue_replace(struct t_partition_state *partition_state, struct t
         else {
             struct t_list_node *current;
             while ((current = list_shift_first(uris)) != NULL) {
-                if (mpd_send_add(partition_state->conn, current->key) == false) {
+                bool rc = mpd_send_add(partition_state->conn, current->key);
+                list_node_free(current);
+                if (rc == false) {
                     MYMPD_LOG_ERROR("Error adding command to command list mpd_send_add");
                     break;
                 }
@@ -157,7 +165,9 @@ bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, struct 
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(song_ids)) != NULL) {
-            if (mpd_send_prio_id(partition_state->conn, (unsigned)current->value_i, priority) == false) {
+            bool rc = mpd_send_prio_id(partition_state->conn, (unsigned)current->value_i, priority);
+            list_node_free(current);
+            if (rc == false) {
                 MYMPD_LOG_ERROR("Error adding command to command list mpd_send_prio_id");
                 break;
             }
@@ -424,8 +434,8 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
 sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, long request_id,
         long offset, long limit, const struct t_tags *tagcols)
 {
-    //TODO: use command list
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_LIST;
+    //we need first the queue status
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status != NULL) {
         partition_state->queue_version = mpd_status_get_queue_version(status);
@@ -437,10 +447,11 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
         return buffer;
     }
 
+    //Check offset
     if (offset >= partition_state->queue_length) {
         offset = 0;
     }
-
+    //list the queue
     long real_limit = offset + limit;
     if (mpd_send_list_queue_range_meta(partition_state->conn, (unsigned)offset, (unsigned)real_limit) == true) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
