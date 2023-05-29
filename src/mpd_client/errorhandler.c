@@ -140,7 +140,7 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
             error_msg = mpd_connection_get_error_message(partition_state->conn);
         }
 
-        MYMPD_LOG_ERROR("\"%s\": MPD error for command %s: %s (%d)", partition_state->name, command, error_msg , error);
+        MYMPD_LOG_ERROR(partition_state->name, "MPD error for command %s: %s (%d)", command, error_msg , error);
         if (buffer != NULL &&
             *buffer != NULL)
         {

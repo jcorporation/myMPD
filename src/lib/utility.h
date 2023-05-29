@@ -32,6 +32,6 @@ sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config);
     struct timespec toc;
 #define MEASURE_START clock_gettime(CLOCK_MONOTONIC, &tic);
 #define MEASURE_END clock_gettime(CLOCK_MONOTONIC, &toc);
-#define MEASURE_PRINT(X) MYMPD_LOG_DEBUG("Execution time for %s: %lld ms", X, ((long long)(toc.tv_sec) * 1000 + toc.tv_nsec / 1000000) - ((long long)(tic.tv_sec) * 1000 + tic.tv_nsec / 1000000));
+#define MEASURE_PRINT(PART, X) MYMPD_LOG_DEBUG(PART, "Execution time for %s: %lld ms", X, ((long long)(toc.tv_sec) * 1000 + toc.tv_nsec / 1000000) - ((long long)(tic.tv_sec) * 1000 + tic.tv_nsec / 1000000));
 
 #endif

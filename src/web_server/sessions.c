@@ -113,11 +113,11 @@ sds webserver_session_new(struct t_list *session_list) {
     webserver_session_validate(session_list, NULL);
     //add new session with 30 min timeout
     list_push(session_list, session, (time(NULL) + HTTP_SESSION_TIMEOUT), NULL, NULL);
-    MYMPD_LOG_DEBUG("Created session %s", session);
+    MYMPD_LOG_DEBUG(NULL, "Created session %s", session);
     //limit sessions to 10
     if (session_list->length > HTTP_SESSIONS_MAX) {
         list_remove_node(session_list, 0);
-        MYMPD_LOG_WARN("To many sessions, discarding oldest session");
+        MYMPD_LOG_WARN(NULL, "To many sessions, discarding oldest session");
     }
     return session;
 }
@@ -134,7 +134,7 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
     int i = 0;
     while (current != NULL) {
         if (current->value_i < now) {
-            MYMPD_LOG_DEBUG("Session %s timed out", current->key);
+            MYMPD_LOG_DEBUG(NULL, "Session %s timed out", current->key);
             struct t_list_node *next = current->next;
             list_remove_node(session_list, i);
             current = next;
@@ -144,7 +144,7 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
             if (session != NULL &&
                 strcmp(current->key, session) == 0)
             {
-                MYMPD_LOG_DEBUG("Extending session \"%s\"", session);
+                MYMPD_LOG_DEBUG(NULL, "Extending session \"%s\"", session);
                 current->value_i = time(NULL) + 1800;
                 return true;
             }
@@ -154,7 +154,7 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
         }
     }
     if (session != NULL) {
-        MYMPD_LOG_WARN("Session \"%s\" not found", session);
+        MYMPD_LOG_WARN(NULL, "Session \"%s\" not found", session);
     }
     return false;
 }
@@ -170,13 +170,13 @@ bool webserver_session_remove(struct t_list *session_list, const char *session) 
     int i = 0;
     while (current != NULL) {
         if (strcmp(current->key, session) == 0) {
-            MYMPD_LOG_DEBUG("Session %s removed", current->key);
+            MYMPD_LOG_DEBUG(NULL, "Session %s removed", current->key);
             list_remove_node(session_list, i);
             return true;
         }
         current = current->next;
         i++;
     }
-    MYMPD_LOG_DEBUG("Session %s not found", session);
+    MYMPD_LOG_DEBUG(NULL, "Session %s not found", session);
     return false;
 }

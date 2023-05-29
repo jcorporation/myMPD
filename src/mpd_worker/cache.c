@@ -40,21 +40,21 @@ static bool get_sticker_from_mpd(struct t_partition_state *partition_state, cons
  */
 bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool force) {
     time_t db_mtime = mpd_client_get_db_mtime(mpd_worker_state->partition_state);
-    MYMPD_LOG_DEBUG("Database mtime: %lld", (long long)db_mtime);
+    MYMPD_LOG_DEBUG(NULL, "Database mtime: %lld", (long long)db_mtime);
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", mpd_worker_state->config->workdir, DIR_WORK_TAGS, FILENAME_ALBUMCACHE);
     time_t album_cache_mtime = get_mtime(filepath);
-    MYMPD_LOG_DEBUG("Album cache mtime: %lld", (long long)album_cache_mtime);
+    MYMPD_LOG_DEBUG(NULL, "Album cache mtime: %lld", (long long)album_cache_mtime);
     sdsclear(filepath);
     filepath = sdscatfmt(filepath, "%S/%s/%s", mpd_worker_state->config->workdir, DIR_WORK_TAGS, FILENAME_STICKERCACHE);
     time_t sticker_cache_mtime = get_mtime(filepath);
-    MYMPD_LOG_DEBUG("Sticker cache mtime: %lld", (long long)sticker_cache_mtime);
+    MYMPD_LOG_DEBUG(NULL, "Sticker cache mtime: %lld", (long long)sticker_cache_mtime);
     FREE_SDS(filepath);
 
     if (force == false &&
         db_mtime < album_cache_mtime &&
         db_mtime < sticker_cache_mtime)
     {
-        MYMPD_LOG_INFO("Caches are up-to-date");
+        MYMPD_LOG_INFO(NULL, "Caches are up-to-date");
         send_jsonrpc_notify(JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Caches are up-to-date");
         if (mpd_worker_state->partition_state->mpd_state->feat_tags == true) {
             struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
@@ -109,7 +109,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
         }
     }
     else {
-        MYMPD_LOG_INFO("Skipped album cache creation, tags are disabled");
+        MYMPD_LOG_INFO(NULL, "Skipped album cache creation, tags are disabled");
         struct t_work_request *request = create_request(-1, 0, INTERNAL_API_ALBUMCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
         request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);
@@ -136,7 +136,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
         }
     }
     else {
-        MYMPD_LOG_INFO("Skipped sticker cache creation, stickers are disabled");
+        MYMPD_LOG_INFO(NULL, "Skipped sticker cache creation, stickers are disabled");
         struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STICKERCACHE_SKIPPED, NULL, mpd_worker_state->partition_state->name);
         request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);
@@ -158,7 +158,7 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
  * @return true on success else false
  */
 static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
-    MYMPD_LOG_INFO("Creating caches");
+    MYMPD_LOG_INFO(NULL, "Creating caches");
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;
     unsigned i = 0;
@@ -179,7 +179,7 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
             mpd_search_add_uri_constraint(mpd_worker_state->partition_state->conn, MPD_OPERATOR_DEFAULT, "") == false ||
             mpd_search_add_window(mpd_worker_state->partition_state->conn, start, end) == false)
         {
-            MYMPD_LOG_ERROR("Cache update failed");
+            MYMPD_LOG_ERROR(NULL, "Cache update failed");
             mpd_search_cancel(mpd_worker_state->partition_state->conn);
             return false;
         }
@@ -190,7 +190,7 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
                 mpd_client_tag_exists(&mpd_worker_state->partition_state->mpd_state->tags_mympd, MPD_TAG_ALBUM) &&
                 mpd_client_tag_exists(&mpd_worker_state->partition_state->mpd_state->tags_mympd, mpd_worker_state->partition_state->mpd_state->tag_albumartist);
             if (create_album_cache == false) {
-                MYMPD_LOG_NOTICE("Skipping album cache creation, (Album)Artist and Album tags must be enabled");
+                MYMPD_LOG_NOTICE(NULL, "Skipping album cache creation, (Album)Artist and Album tags must be enabled");
             }
             while ((song = mpd_recv_song(mpd_worker_state->partition_state->conn)) != NULL) {
                 //sticker cache
@@ -198,7 +198,7 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
                     const char *uri = mpd_song_get_uri(song);
                     struct t_sticker *sticker = malloc_assert(sizeof(struct t_sticker));
                     if (raxTryInsert(sticker_cache, (unsigned char *)uri, strlen(uri), (void *)sticker, NULL) == 0) {
-                        MYMPD_LOG_ERROR("Error adding \"%s\" to sticker cache", uri);
+                        MYMPD_LOG_ERROR(NULL, "Error adding \"%s\" to sticker cache", uri);
                         FREE_PTR(sticker);
                     }
                     else {
@@ -247,7 +247,7 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
         }
         mpd_response_finish(mpd_worker_state->partition_state->conn);
         if (mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_search_commit") == false) {
-            MYMPD_LOG_ERROR("Cache update failed");
+            MYMPD_LOG_ERROR(NULL, "Cache update failed");
             return false;
         }
         start = end;
@@ -255,7 +255,7 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
     } while (i >= start);
     #ifdef MYMPD_DEBUG
         MEASURE_END
-        MEASURE_PRINT("Populate album cache")
+        MEASURE_PRINT(NULL, "Populate album cache")
         MEASURE_START
     #endif
 
@@ -274,16 +274,16 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
     }
     #ifdef MYMPD_DEBUG
         MEASURE_END
-        MEASURE_PRINT("Populate sticker cache")
+        MEASURE_PRINT(NULL, "Populate sticker cache")
     #endif
 
     //finished - print statistics
-    MYMPD_LOG_INFO("Added %ld albums to album cache", album_count);
+    MYMPD_LOG_INFO(NULL, "Added %ld albums to album cache", album_count);
     if (skipped > 0) {
-        MYMPD_LOG_WARN("Skipped %ld songs for album cache", skipped);
+        MYMPD_LOG_WARN(NULL, "Skipped %ld songs for album cache", skipped);
     }
-    MYMPD_LOG_INFO("Added %ld songs to sticker cache", song_count);
-    MYMPD_LOG_INFO("Cache updated successfully");
+    MYMPD_LOG_INFO(NULL, "Added %ld songs to sticker cache", song_count);
+    MYMPD_LOG_INFO(NULL, "Cache updated successfully");
     return true;
 }
 
@@ -327,7 +327,7 @@ static bool get_sticker_from_mpd(struct t_partition_state *partition_state, cons
                     sticker->elapsed = (time_t)strtoimax(pair->value, &crap, 10);
                     break;
                 default:
-                    MYMPD_LOG_DEBUG("Ignoring sticker \"%s\"", pair->name);
+                    MYMPD_LOG_DEBUG(NULL, "Ignoring sticker \"%s\"", pair->name);
             }
             mpd_return_sticker(partition_state->conn, pair);
         }

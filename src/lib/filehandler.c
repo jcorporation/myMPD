@@ -28,24 +28,24 @@ bool do_chown(const char *file_path, const char *username) {
     errno = 0;
     struct passwd *pwd = getpwnam(username);
     if (pwd == NULL) {
-        MYMPD_LOG_ERROR("User \"%s\" does not exist", username);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist", username);
+        MYMPD_LOG_ERRNO(NULL, errno);
         return false;
     }
 
     errno = 0;
     int fd = open(file_path, O_RDONLY | O_CLOEXEC);
     if (fd == -1) {
-        MYMPD_LOG_ERROR("Can't open \"%s\"", file_path);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can't open \"%s\"", file_path);
+        MYMPD_LOG_ERRNO(NULL, errno);
         return false;
     }
 
     errno = 0;
     struct stat status;
     if (lstat(file_path, &status) != 0) {
-        MYMPD_LOG_ERROR("Can't get status for \"%s\"", file_path);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can't get status for \"%s\"", file_path);
+        MYMPD_LOG_ERRNO(NULL, errno);
         return false;
     }
 
@@ -61,11 +61,11 @@ bool do_chown(const char *file_path, const char *username) {
     int rc = fchown(fd, pwd->pw_uid, pwd->pw_gid); /* Flawfinder: ignore */
     close(fd);
     if (rc == -1) {
-        MYMPD_LOG_ERROR("Can't chown \"%s\" to \"%s\"", file_path, username);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can't chown \"%s\" to \"%s\"", file_path, username);
+        MYMPD_LOG_ERRNO(NULL, errno);
         return false;
     }
-    MYMPD_LOG_INFO("Changed ownership of \"%s\" to \"%s\"", file_path, username);
+    MYMPD_LOG_INFO(NULL, "Changed ownership of \"%s\" to \"%s\"", file_path, username);
     return true;
 }
 
@@ -79,11 +79,11 @@ time_t get_mtime(const char *filepath) {
     errno = 0;
     if (stat(filepath, &status) != 0) {
         if (errno != ENOENT) {
-            MYMPD_LOG_ERROR("Error getting mtime for \"%s\"", filepath);
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERROR(NULL, "Error getting mtime for \"%s\"", filepath);
+            MYMPD_LOG_ERRNO(NULL, errno);
         }
         else {
-            MYMPD_LOG_DEBUG("File \"%s\" does not exist", filepath);
+            MYMPD_LOG_DEBUG(NULL, "File \"%s\" does not exist", filepath);
         }
         return 0;
     }
@@ -109,7 +109,7 @@ int sds_getline(sds *s, FILE *fp, size_t max) {
         }
         *s = sds_catchar(*s, (char)c);
     }
-    MYMPD_LOG_ERROR("Line is too long, max length is %lu", (unsigned long)max);
+    MYMPD_LOG_ERROR(NULL, "Line is too long, max length is %lu", (unsigned long)max);
     sdstrim(*s, "\r \t");
     return (int)sdslen(*s);
 }
@@ -133,11 +133,11 @@ int sds_getfile(sds *s, const char *file_path, size_t max, bool remove_newline, 
         if (warn == false &&
             errno == ENOENT)
         {
-            MYMPD_LOG_DEBUG("File \"%s\" does not exist", file_path);
+            MYMPD_LOG_DEBUG(NULL, "File \"%s\" does not exist", file_path);
         }
         else {
-            MYMPD_LOG_ERROR("Error opening file \"%s\"", file_path);
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERROR(NULL, "Error opening file \"%s\"", file_path);
+            MYMPD_LOG_ERRNO(NULL, errno);
         }
         return -1;
     }
@@ -161,7 +161,7 @@ int sds_getfile_from_fp(sds *s, FILE *fp, size_t max, bool remove_newline) {
         int c = fgetc(fp);
         if (c == EOF) {
             sdstrim(*s, "\r \t\n");
-            MYMPD_LOG_DEBUG("Read %lu bytes from file", (unsigned long)sdslen(*s));
+            MYMPD_LOG_DEBUG(NULL, "Read %lu bytes from file", (unsigned long)sdslen(*s));
             return (int)sdslen(*s);
         }
         if (remove_newline == true &&
@@ -171,7 +171,7 @@ int sds_getfile_from_fp(sds *s, FILE *fp, size_t max, bool remove_newline) {
         }
         *s = sds_catchar(*s, (char)c);
     }
-    MYMPD_LOG_ERROR("File is too big, max size is %lu", (unsigned long)max);
+    MYMPD_LOG_ERROR(NULL, "File is too big, max size is %lu", (unsigned long)max);
     return -2;
 }
 
@@ -185,8 +185,8 @@ bool testfile_read(const char *filename) {
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
     if (fp == NULL) {
         if (errno != ENOENT) {
-            MYMPD_LOG_ERROR("Error opening file ro \"%s\"", filename);
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERROR(NULL, "Error opening file ro \"%s\"", filename);
+            MYMPD_LOG_ERRNO(NULL, errno);
         }
         return false;
     }
@@ -207,7 +207,7 @@ int testdir(const char *desc, const char *dir_name, bool create, bool silent) {
     if (dir != NULL) {
         closedir(dir);
         if (silent == false) {
-            MYMPD_LOG_NOTICE("%s: \"%s\"", desc, dir_name);
+            MYMPD_LOG_NOTICE(NULL, "%s: \"%s\"", desc, dir_name);
         }
         //directory exists
         return DIR_EXISTS;
@@ -216,17 +216,17 @@ int testdir(const char *desc, const char *dir_name, bool create, bool silent) {
     if (create == true) {
         errno = 0;
         if (mkdir(dir_name, 0770) != 0) {
-            MYMPD_LOG_ERROR("%s: creating \"%s\" failed", desc, dir_name);
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERROR(NULL, "%s: creating \"%s\" failed", desc, dir_name);
+            MYMPD_LOG_ERRNO(NULL, errno);
             //directory does not exist and creating it failed
             return DIR_CREATE_FAILED;
         }
-        MYMPD_LOG_NOTICE("%s: \"%s\" created", desc, dir_name);
+        MYMPD_LOG_NOTICE(NULL, "%s: \"%s\" created", desc, dir_name);
         //directory successfully created
         return DIR_CREATED;
     }
 
-    MYMPD_LOG_ERROR("%s: \"%s\" does not exist", desc, dir_name);
+    MYMPD_LOG_ERROR(NULL, "%s: \"%s\" does not exist", desc, dir_name);
     //directory does not exist
     return DIR_NOT_EXISTS;
 }
@@ -240,8 +240,8 @@ bool is_dir(const char *dir_name) {
     struct stat status;
     errno = 0;
     if (lstat(dir_name, &status) != 0) {
-        MYMPD_LOG_ERROR("Error getting status for \"%s\"", dir_name);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Error getting status for \"%s\"", dir_name);
+        MYMPD_LOG_ERRNO(NULL, errno);
         return false;
     }
     return S_ISDIR(status.st_mode);
@@ -257,15 +257,15 @@ FILE *open_tmp_file(sds filepath) {
     errno = 0;
     int fd = mkstemp(filepath);
     if (fd < 0) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", filepath);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can not open file \"%s\" for write", filepath);
+        MYMPD_LOG_ERRNO(NULL, errno);
         return NULL;
     }
     errno = 0;
     FILE *fp = fdopen(fd, "w");
     if (fp == NULL) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\" for write", filepath);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can not open file \"%s\" for write", filepath);
+        MYMPD_LOG_ERRNO(NULL, errno);
     }
     return fp;
 }
@@ -283,7 +283,7 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
     if (fclose(fp) != 0 ||
         write_rc == false)
     {
-        MYMPD_LOG_ERROR("Error writing data to file \"%s\"", tmp_file);
+        MYMPD_LOG_ERROR(NULL, "Error writing data to file \"%s\"", tmp_file);
         rm_file(tmp_file);
         return false;
     }
@@ -291,8 +291,8 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
     //filepath is tmp_file without .XXXXXX suffix
     sds filepath = sdscatlen(sdsempty(), tmp_file, sdslen(tmp_file) - 7);
     if (rename(tmp_file, filepath) == -1) {
-        MYMPD_LOG_ERROR("Rename file from \"%s\" to \"%s\" failed", tmp_file, filepath);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Rename file from \"%s\" to \"%s\" failed", tmp_file, filepath);
+        MYMPD_LOG_ERRNO(NULL, errno);
         rm_file(tmp_file);
         FREE_SDS(filepath);
         return false;
@@ -309,8 +309,8 @@ bool rename_tmp_file(FILE *fp, sds tmp_file, bool write_rc) {
 bool rm_file(sds filepath) {
     errno = 0;
     if (unlink(filepath) != 0) {
-        MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Error removing file \"%s\"", filepath);
+        MYMPD_LOG_ERRNO(NULL, errno);
         return false;
     }
     return true;
@@ -327,11 +327,11 @@ int try_rm_file(sds filepath) {
     errno = 0;
     if (unlink(filepath) != 0) {
         if (errno == ENOENT) {
-            MYMPD_LOG_DEBUG("File \"%s\" does not exist", filepath);
+            MYMPD_LOG_DEBUG(NULL, "File \"%s\" does not exist", filepath);
             return RM_FILE_ENOENT;
         }
-        MYMPD_LOG_ERROR("Error removing file \"%s\"", filepath);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Error removing file \"%s\"", filepath);
+        MYMPD_LOG_ERRNO(NULL, errno);
         return RM_FILE_ERROR;
     }
     return RM_FILE_OK;
@@ -367,8 +367,8 @@ bool clean_directory(const char *dir_name) {
     errno = 0;
     DIR *directory = opendir(dir_name);
     if (directory == NULL) {
-        MYMPD_LOG_ERROR("Error opening directory \"%s\"", dir_name);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Error opening directory \"%s\"", dir_name);
+        MYMPD_LOG_ERRNO(NULL, errno);
         return false;
     }
 
@@ -400,8 +400,8 @@ bool clean_directory(const char *dir_name) {
 bool rm_directory(const char *dir_name) {
     errno = 0;
     if (rmdir(dir_name) != 0) {
-        MYMPD_LOG_ERROR("Error removing directory \"%s\"", dir_name);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Error removing directory \"%s\"", dir_name);
+        MYMPD_LOG_ERRNO(NULL, errno);
         return false;
     }
     return true;

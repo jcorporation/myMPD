@@ -95,17 +95,17 @@ bool pin_set(sds workdir) {
  */
 bool pin_validate(const char *pin, const char *hash) {
     if (hash[0] == '\0') {
-        MYMPD_LOG_ERROR("No pin is set");
+        MYMPD_LOG_ERROR(NULL, "No pin is set");
         return false;
     }
     sds test_hash = pin_hash(pin);
     bool rc = false;
     if (strcmp(test_hash, hash) == 0) {
-        MYMPD_LOG_INFO("Valid pin entered");
+        MYMPD_LOG_INFO(NULL, "Valid pin entered");
         rc = true;
     }
     else {
-        MYMPD_LOG_ERROR("Invalid pin entered");
+        MYMPD_LOG_ERROR(NULL, "Invalid pin entered");
     }
     FREE_SDS(test_hash);
     return rc;

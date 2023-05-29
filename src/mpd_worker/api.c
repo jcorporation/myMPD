@@ -25,7 +25,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     bool async = false;
     sds sds_buf1 = NULL;
 
-    MYMPD_LOG_INFO("MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, get_cmd_id_method_name(request->cmd_id), request->data);
+    MYMPD_LOG_INFO(NULL, "MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, get_cmd_id_method_name(request->cmd_id), request->data);
     //create response struct
     struct t_work_response *response = create_response(request);
 
@@ -34,7 +34,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             if (json_get_bool(request->data, "$.params.force", &bool_buf1, NULL) == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
                 if (request->conn_id > -1) {
-                    MYMPD_LOG_DEBUG("Push response to queue for connection %lld: %s", request->conn_id, response->data);
+                    MYMPD_LOG_DEBUG(NULL, "Push response to queue for connection %lld: %s", request->conn_id, response->data);
                     mympd_queue_push(web_server_queue, response, 0);
                 }
                 else {
@@ -55,7 +55,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Smart playlists update started");
                 if (request->conn_id > -1) {
-                    MYMPD_LOG_DEBUG("Push response to queue for connection %lld: %s", request->conn_id, response->data);
+                    MYMPD_LOG_DEBUG(NULL, "Push response to queue for connection %lld: %s", request->conn_id, response->data);
                     mympd_queue_push(web_server_queue, response, 0);
                 }
                 else {
@@ -96,7 +96,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
         default:
             response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                 JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Unknown request");
-            MYMPD_LOG_ERROR("Unknown API request: %.*s", (int)sdslen(request->data), request->data);
+            MYMPD_LOG_ERROR(NULL, "Unknown API request: %.*s", (int)sdslen(request->data), request->data);
     }
     FREE_SDS(sds_buf1);
 
@@ -108,14 +108,14 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
         const char *method = get_cmd_id_method_name(request->cmd_id);
         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", method);
-        MYMPD_LOG_ERROR("No response for method \"%s\"", method);
+        MYMPD_LOG_ERROR(NULL, "No response for method \"%s\"", method);
     }
     if (request->conn_id == -2) {
-        MYMPD_LOG_DEBUG("Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
+        MYMPD_LOG_DEBUG(NULL, "Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
         mympd_queue_push(mympd_script_queue, response, request->id);
     }
     else if (request->conn_id > -1) {
-        MYMPD_LOG_DEBUG("Push response to queue for connection %lld: %s", request->conn_id, response->data);
+        MYMPD_LOG_DEBUG(NULL, "Push response to queue for connection %lld: %s", request->conn_id, response->data);
         mympd_queue_push(web_server_queue, response, 0);
     }
     else {

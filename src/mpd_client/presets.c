@@ -80,8 +80,8 @@ bool presets_load(struct t_partition_state *partition_state) {
                 list_push(&partition_state->presets, name, 0, line, NULL);
             }
             else {
-                MYMPD_LOG_ERROR("\"%s\": Reading presets line failed", partition_state->name);
-                MYMPD_LOG_DEBUG("Erroneous line: %s", line);
+                MYMPD_LOG_ERROR(partition_state->name, "Reading presets line failed");
+                MYMPD_LOG_DEBUG(partition_state->name, "Erroneous line: %s", line);
             }
             FREE_SDS(name);
         }
@@ -89,10 +89,10 @@ bool presets_load(struct t_partition_state *partition_state) {
         FREE_SDS(line);
     }
     else {
-        MYMPD_LOG_DEBUG("Can not open file \"%s\"", filepath);
+        MYMPD_LOG_DEBUG(partition_state->name, "Can not open file \"%s\"", filepath);
         if (errno != ENOENT) {
             //ignore missing presets file
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERRNO(partition_state->name, errno);
         }
     }
     FREE_SDS(filepath);

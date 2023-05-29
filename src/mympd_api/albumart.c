@@ -29,12 +29,12 @@ sds mympd_api_albumart_getcover(struct t_partition_state *partition_state, sds b
     void *binary_buffer = malloc_assert(partition_state->mpd_state->mpd_binarylimit);
     int recv_len = 0;
     if (partition_state->mpd_state->feat_albumart == true) {
-        MYMPD_LOG_DEBUG("Try mpd command albumart for \"%s\"", uri);
+        MYMPD_LOG_DEBUG(partition_state->name, "Try mpd command albumart for \"%s\"", uri);
         while ((recv_len = mpd_run_albumart(partition_state->conn, uri, offset, binary_buffer, partition_state->mpd_state->mpd_binarylimit)) > 0) {
-            MYMPD_LOG_DEBUG("Received %d bytes from mpd albumart command", recv_len);
+            MYMPD_LOG_DEBUG(partition_state->name, "Received %d bytes from mpd albumart command", recv_len);
             *binary = sdscatlen(*binary, binary_buffer, (size_t)recv_len);
             if (sdslen(*binary) > MPD_BINARY_SIZE_MAX) {
-                MYMPD_LOG_WARN("Retrieved binary data is too large, discarding");
+                MYMPD_LOG_WARN(partition_state->name, "Retrieved binary data is too large, discarding");
                 sdsclear(*binary);
                 offset = 0;
                 break;
@@ -42,7 +42,7 @@ sds mympd_api_albumart_getcover(struct t_partition_state *partition_state, sds b
             offset += (unsigned)recv_len;
         }
         if (recv_len < 0) {
-            MYMPD_LOG_DEBUG("MPD returned -1 for albumart command for uri \"%s\"", uri);
+            MYMPD_LOG_DEBUG(partition_state->name, "MPD returned -1 for albumart command for uri \"%s\"", uri);
         }
     }
     if (offset == 0 &&
@@ -51,12 +51,12 @@ sds mympd_api_albumart_getcover(struct t_partition_state *partition_state, sds b
         //silently clear the error if no albumart is found
         mpd_connection_clear_error(partition_state->conn);
         mpd_response_finish(partition_state->conn);
-        MYMPD_LOG_DEBUG("Try mpd command readpicture for \"%s\"", uri);
+        MYMPD_LOG_DEBUG(partition_state->name, "Try mpd command readpicture for \"%s\"", uri);
         while ((recv_len = mpd_run_readpicture(partition_state->conn, uri, offset, binary_buffer, partition_state->mpd_state->mpd_binarylimit)) > 0) {
-            MYMPD_LOG_DEBUG("Received %d bytes from mpd readpicture command", recv_len);
+            MYMPD_LOG_DEBUG(partition_state->name, "Received %d bytes from mpd readpicture command", recv_len);
             *binary = sdscatlen(*binary, binary_buffer, (size_t)recv_len);
             if (sdslen(*binary) > MPD_BINARY_SIZE_MAX) {
-                MYMPD_LOG_WARN("Retrieved binary data is too large, discarding");
+                MYMPD_LOG_WARN(partition_state->name, "Retrieved binary data is too large, discarding");
                 sdsclear(*binary);
                 offset = 0;
                 break;
@@ -64,7 +64,7 @@ sds mympd_api_albumart_getcover(struct t_partition_state *partition_state, sds b
             offset += (unsigned)recv_len;
         }
         if (recv_len < 0) {
-            MYMPD_LOG_DEBUG("MPD returned -1 for readpicture command for uri \"%s\"", uri);
+            MYMPD_LOG_DEBUG(partition_state->name, "MPD returned -1 for readpicture command for uri \"%s\"", uri);
         }
     }
     if (offset == 0) {
@@ -74,7 +74,7 @@ sds mympd_api_albumart_getcover(struct t_partition_state *partition_state, sds b
     }
     FREE_PTR(binary_buffer);
     if (offset > 0) {
-        MYMPD_LOG_DEBUG("Albumart found by mpd for uri \"%s\" (%lu bytes)", uri, (unsigned long)sdslen(*binary));
+        MYMPD_LOG_DEBUG(partition_state->name, "Albumart found by mpd for uri \"%s\" (%lu bytes)", uri, (unsigned long)sdslen(*binary));
         const char *mime_type = get_mime_type_by_magic_stream(*binary);
         buffer = jsonrpc_respond_start(buffer, INTERNAL_API_ALBUMART, request_id);
         buffer = tojson_char(buffer, "mime_type", mime_type, false);
@@ -83,11 +83,11 @@ sds mympd_api_albumart_getcover(struct t_partition_state *partition_state, sds b
             covercache_write_file(partition_state->mympd_state->config->cachedir, uri, mime_type, *binary, 0);
         }
         else {
-            MYMPD_LOG_DEBUG("Covercache is disabled");
+            MYMPD_LOG_DEBUG(partition_state->name, "Covercache is disabled");
         }
     }
     else {
-        MYMPD_LOG_INFO("No albumart found by mpd for uri \"%s\"", uri);
+        MYMPD_LOG_INFO(partition_state->name, "No albumart found by mpd for uri \"%s\"", uri);
         buffer = jsonrpc_respond_message(buffer, INTERNAL_API_ALBUMART, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_WARN, "No albumart found by mpd");
     }
     return buffer;

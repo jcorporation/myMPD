@@ -873,7 +873,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                 key = sdscat(key, key_ptr + 1);
             }
             if (icb(key, value, otype, vcb, icb_userdata, error) == false) {
-                MYMPD_LOG_WARN("Iteration callback for path \"%s\" has failed", path);
+                MYMPD_LOG_WARN(NULL, "Iteration callback for path \"%s\" has failed", path);
                 FREE_SDS(value);
                 FREE_SDS(key);
                 return false;
@@ -949,7 +949,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
             }
         }
         if (icb(key, value, vtype, vcb, icb_userdata, error) == false) {
-            MYMPD_LOG_WARN("Iteration callback for path \"%s\" has failed", path);
+            MYMPD_LOG_WARN(NULL, "Iteration callback for path \"%s\" has failed", path);
             FREE_SDS(value);
             FREE_SDS(key);
             return false;
@@ -1293,11 +1293,11 @@ static void set_parse_error(sds *error, const char *fmt, ...) {
         *error != NULL)
     {
         *error = sdscatvprintf(*error, fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
-        MYMPD_LOG_WARN("%s", *error);
+        MYMPD_LOG_WARN(NULL, "%s", *error);
     }
     else {
         sds e = sdscatvprintf(sdsempty(), fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
-        MYMPD_LOG_WARN("%s", e);
+        MYMPD_LOG_WARN(NULL, "%s", e);
         FREE_SDS(e);
     }
     va_end(args);
@@ -1316,7 +1316,7 @@ static void set_parse_error(sds *error, const char *fmt, ...) {
  */
 static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error) {
     if (*result != NULL) {
-        MYMPD_LOG_ERROR("Result parameter must be NULL, path: \"%s\"", path);
+        MYMPD_LOG_ERROR(NULL, "Result parameter must be NULL, path: \"%s\"", path);
         return false;
     }
     const char *p;

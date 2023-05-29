@@ -77,10 +77,10 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds workdir) {
     errno = 0;
     FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
     if (fp == NULL) {
-        MYMPD_LOG_DEBUG("Can not open file \"%s\"", filepath);
+        MYMPD_LOG_DEBUG(NULL, "Can not open file \"%s\"", filepath);
         if (errno != ENOENT) {
             //ignore missing sticker cache file
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERRNO(NULL, errno);
         }
         FREE_SDS(filepath);
         sticker_cache->building = false;
@@ -96,33 +96,33 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds workdir) {
             struct t_sticker *sticker = sticker_from_cache_line(line, &uri);
             if (sticker != NULL) {
                 if (raxTryInsert(sticker_cache->cache, (unsigned char *)uri, sdslen(uri), sticker, NULL) == 0) {
-                    MYMPD_LOG_ERROR("Duplicate uri in sticker cache file found");
+                    MYMPD_LOG_ERROR(NULL, "Duplicate uri in sticker cache file found");
                     FREE_PTR(sticker);
                 }
             }
             else {
-                MYMPD_LOG_ERROR("Reading sticker cache line failed");
-                MYMPD_LOG_DEBUG("Erroneous line: %s", line);
+                MYMPD_LOG_ERROR(NULL, "Reading sticker cache line failed");
+                MYMPD_LOG_DEBUG(NULL, "Erroneous line: %s", line);
             }
             FREE_SDS(uri);
         }
         else {
-            MYMPD_LOG_ERROR("Reading sticker cache line failed");
-            MYMPD_LOG_DEBUG("Erroneous line: %s", line);
+            MYMPD_LOG_ERROR(NULL, "Reading sticker cache line failed");
+            MYMPD_LOG_DEBUG(NULL, "Erroneous line: %s", line);
         }
     }
     FREE_SDS(line);
     (void) fclose(fp);
     FREE_SDS(filepath);
     sticker_cache->building = false;
-    MYMPD_LOG_INFO("Read %lld sticker struct(s) from disc", (long long)sticker_cache->cache->numele);
+    MYMPD_LOG_INFO(NULL, "Read %lld sticker struct(s) from disc", (long long)sticker_cache->cache->numele);
     if (sticker_cache->cache->numele == 0) {
         sticker_cache_remove(workdir);
         sticker_cache_free(sticker_cache);
     }
     #ifdef MYMPD_DEBUG
         MEASURE_END
-        MEASURE_PRINT("Sticker cache read");
+        MEASURE_PRINT(NULL, "Sticker cache read");
     #endif
     return true;
 }
@@ -165,10 +165,10 @@ enum mympd_sticker_types sticker_name_parse(const char *name) {
  */
 bool sticker_cache_write(struct t_cache *sticker_cache, sds workdir, bool free_data) {
     if (sticker_cache->cache == NULL) {
-        MYMPD_LOG_DEBUG("Sticker cache is NULL not saving anything");
+        MYMPD_LOG_DEBUG(NULL, "Sticker cache is NULL not saving anything");
         return true;
     }
-    MYMPD_LOG_INFO("Saving sticker cache");
+    MYMPD_LOG_INFO(NULL, "Saving sticker cache");
     raxIterator iter;
     raxStart(&iter, sticker_cache->cache);
     raxSeek(&iter, "^", NULL, 0);
@@ -219,7 +219,7 @@ struct t_sticker *get_sticker_from_cache(struct t_cache *sticker_cache, const ch
     //try to get sticker
     void *data = raxFind(sticker_cache->cache, (unsigned char*)uri, strlen(uri));
     if (data == raxNotFound) {
-        MYMPD_LOG_ERROR("Sticker for uri \"%s\" not found in cache", uri);
+        MYMPD_LOG_ERROR(NULL, "Sticker for uri \"%s\" not found in cache", uri);
         return NULL;
     }
     return (struct t_sticker *) data;
@@ -231,10 +231,10 @@ struct t_sticker *get_sticker_from_cache(struct t_cache *sticker_cache, const ch
  */
 void sticker_cache_free(struct t_cache *sticker_cache) {
     if (sticker_cache->cache == NULL) {
-        MYMPD_LOG_DEBUG("Sticker cache is NULL not freeing anything");
+        MYMPD_LOG_DEBUG(NULL, "Sticker cache is NULL not freeing anything");
         return;
     }
-    MYMPD_LOG_DEBUG("Freeing sticker cache");
+    MYMPD_LOG_DEBUG(NULL, "Freeing sticker cache");
     raxIterator iter;
     raxStart(&iter, sticker_cache->cache);
     raxSeek(&iter, "^", NULL, 0);
@@ -343,18 +343,18 @@ bool sticker_set_elapsed(struct t_list *sticker_queue, const char *uri, time_t e
  */
 bool sticker_dequeue(struct t_list *sticker_queue, struct t_cache *sticker_cache, struct t_partition_state *partition_state) {
     if (sticker_cache->cache == NULL) {
-        MYMPD_LOG_INFO("Delay setting stickers, sticker_cache is not available");
+        MYMPD_LOG_INFO(partition_state->name, "Delay setting stickers, sticker_cache is not available");
         return false;
     }
     if (sticker_cache->building == true) {
-        MYMPD_LOG_INFO("Delay setting stickers, sticker_cache is building");
+        MYMPD_LOG_INFO(partition_state->name, "Delay setting stickers, sticker_cache is building");
         return false;
     }
 
     struct t_list_node *current;
     while ((current = list_shift_first(sticker_queue)) != NULL) {
         struct t_sticker_type *st = (struct t_sticker_type *)current->user_data;
-        MYMPD_LOG_DEBUG("Setting %s = %lld for \"%s\"", sticker_name_lookup(st->sticker_type), current->value_i, current->key);
+        MYMPD_LOG_DEBUG(partition_state->name, "Setting %s = %lld for \"%s\"", sticker_name_lookup(st->sticker_type), current->value_i, current->key);
         switch(st->sticker_type) {
             case STICKER_PLAY_COUNT:
             case STICKER_SKIP_COUNT:
@@ -420,13 +420,13 @@ static bool sticker_inc(struct t_cache *sticker_cache, struct t_partition_state 
             new_value = sticker->skip_count;
             break;
         default:
-           MYMPD_LOG_ERROR("Invalid sticker type \"%s\" (%d)", sticker_str, sticker_type);
+           MYMPD_LOG_ERROR(partition_state->name, "Invalid sticker type \"%s\" (%d)", sticker_str, sticker_type);
            return false;
     }
 
     //update mpd sticker
     sds value_str = sdsfromlonglong((long long)new_value);
-    MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, sticker_str, value_str);
+    MYMPD_LOG_INFO(partition_state->name, "Setting sticker: \"%s\" -> %s: %s", uri, sticker_str, value_str);
     mpd_run_sticker_set(partition_state->conn, "song", uri, sticker_str, value_str);
     FREE_SDS(value_str);
     return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_sticker_set");
@@ -447,7 +447,7 @@ static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state 
     //update sticker cache
     struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
     if (sticker == NULL) {
-        MYMPD_LOG_ERROR("Sticker for \"%s\" not found in cache", uri);
+        MYMPD_LOG_ERROR(partition_state->name, "Sticker for \"%s\" not found in cache", uri);
         return false;
     }
     const char *sticker_str = sticker_name_lookup(sticker_type);
@@ -465,13 +465,13 @@ static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state 
             sticker->elapsed = (time_t)value;
             break;
         default:
-            MYMPD_LOG_ERROR("Invalid sticker name \"%s\" (%d)", sticker_str, sticker_type);
+            MYMPD_LOG_ERROR(partition_state->name, "Invalid sticker name \"%s\" (%d)", sticker_str, sticker_type);
             return false;
     }
 
     //update mpd sticker
     sds value_str = sdsfromlonglong(value);
-    MYMPD_LOG_INFO("Setting sticker: \"%s\" -> %s: %s", uri, sticker_str, value_str);
+    MYMPD_LOG_INFO(partition_state->name, "Setting sticker: \"%s\" -> %s: %s", uri, sticker_str, value_str);
     mpd_run_sticker_set(partition_state->conn, "song", uri, sticker_str, value_str);
     FREE_SDS(value_str);
     return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_sticker_set");

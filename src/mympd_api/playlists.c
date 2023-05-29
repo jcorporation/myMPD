@@ -86,12 +86,12 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
                 ? mpd_send_playlist_add(partition_state->conn, dst_plist, n->key)
                 : mpd_send_playlist_add_to(partition_state->conn, dst_plist, n->key, i);
             if (rc == false) {
-                MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_playlist_add", partition_state->name);
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
                 list_node_free(current);
                 break;
             }
             if (mpd_send_playlist_delete(partition_state->conn, src_plist, (unsigned)current->value_i)) {
-                MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_playlist_delete", partition_state->name);
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_delete");
                 list_node_free(current);
                 break;
             }
@@ -164,7 +164,7 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
                 }
                 list_node_free(current);
                 if (rc == false) {
-                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
                 if (j == MPD_COMMANDS_MAX) {
@@ -204,7 +204,7 @@ bool mympd_api_playlist_content_append(struct t_partition_state *partition_state
             bool rc = mpd_send_playlist_add(partition_state->conn, plist, current->key);
             list_node_free(current);
             if(rc == false) {
-                MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_playlist_add", partition_state->name);
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
                 break;
             }
         }
@@ -230,7 +230,7 @@ bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state
             bool rc = mpd_send_playlist_add_to(partition_state->conn, plist, current->key, to);
             list_node_free(current);
             if (rc == false) {
-                MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_playlist_add", partition_state->name);
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
                 break;
             }
             to++;
@@ -252,7 +252,7 @@ bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state
 bool mympd_api_playlist_content_replace(struct t_partition_state *partition_state, sds plist, struct t_list *uris, sds *error) {
     if (mpd_command_list_begin(partition_state->conn, false)) {
         if (mpd_send_playlist_clear(partition_state->conn, plist) == false) {
-            MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_playlist_clear", partition_state->name);
+            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_clear");
         }
         else {
             struct t_list_node *current;
@@ -260,7 +260,7 @@ bool mympd_api_playlist_content_replace(struct t_partition_state *partition_stat
                 bool rc = mpd_send_playlist_add(partition_state->conn, plist, current->key);
                 list_node_free(current);
                 if (rc == false) {
-                    MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_playlist_add", partition_state->name);
+                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
             }
@@ -287,7 +287,7 @@ bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition
             bool rc = mpd_send_playlist_delete(partition_state->conn, plist, (unsigned)current->value_i);
             list_node_free(current);
             if (rc == false) {
-                MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_playlist_delete", partition_state->name);
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_delete");
                 break;
             }
         }
@@ -377,8 +377,8 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
             closedir(smartpls_dir);
         }
         else {
-            MYMPD_LOG_ERROR("\"%s\": Can not open smartpls dir \"%s\"", partition_state->name, smartpls_path);
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERROR(partition_state->name, "Can not open smartpls dir \"%s\"", smartpls_path);
+            MYMPD_LOG_ERRNO(partition_state->name, errno);
         }
         FREE_SDS(smartpls_path);
     }
@@ -537,7 +537,7 @@ sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buf
         if (link(old_pl_file, new_pl_file) == -1) {
             //handle new smart playlist name exists already
             if (errno == EEXIST) {
-                MYMPD_LOG_ERROR("\"%s\": A playlist with name \"%s\" already exists", partition_state->name, new_pl_file);
+                MYMPD_LOG_ERROR(partition_state->name, "A playlist with name \"%s\" already exists", new_pl_file);
                 buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "A smart playlist with this name already exists");
                 FREE_SDS(old_pl_file);
@@ -545,8 +545,8 @@ sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buf
                 return buffer;
             }
             //other errors
-            MYMPD_LOG_ERROR("\"%s\": Renaming smart playlist from \"%s\" to \"%s\" failed", partition_state->name, old_pl_file, new_pl_file);
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERROR(partition_state->name, "Renaming smart playlist from \"%s\" to \"%s\" failed", old_pl_file, new_pl_file);
+            MYMPD_LOG_ERRNO(partition_state->name, errno);
             buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
                 JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Renaming playlist failed");
             FREE_SDS(old_pl_file);
@@ -594,8 +594,8 @@ bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct
             pl_file = sdscatfmt(pl_file, "%S/%s/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS, current->key);
             if (try_rm_file(pl_file) == RM_FILE_ERROR) {
                 *error = sdscat(*error, "Deleting smart playlist failed");
-                MYMPD_LOG_ERROR("\"%s\": Deleting smart playlist \"%s\" failed", partition_state->name, current->key);
-                MYMPD_LOG_ERRNO(errno);
+                MYMPD_LOG_ERROR(partition_state->name, "Deleting smart playlist \"%s\" failed", current->key);
+                MYMPD_LOG_ERRNO(partition_state->name, errno);
                 rc = false;
                 break;
             }
@@ -603,7 +603,7 @@ bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct
             if (smartpls_only == false) {
                 //remove mpd playlist
                 if (mpd_send_rm(partition_state->conn, current->key) == false) {
-                    MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_rm", partition_state->name);
+                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_rm");
                     break;
                 }
             }
@@ -677,7 +677,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
                 if (list_get_node(&playlists, next_file->d_name) == NULL) {
                     smartpls_file = sdscatfmt(smartpls_file, "%S/%s/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS, next_file->d_name);
                     if (rm_file(smartpls_file) == true) {
-                        MYMPD_LOG_INFO("\"%s\": Removed orphaned smartpls file \"%s\"", partition_state->name, smartpls_file);
+                        MYMPD_LOG_INFO(partition_state->name, "Removed orphaned smartpls file \"%s\"", smartpls_file);
                     }
                     sdsclear(smartpls_file);
                 }
@@ -687,8 +687,8 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         closedir(smartpls_dir);
     }
     else {
-        MYMPD_LOG_ERROR("\"%s\": Can not open smartpls dir \"%s\"", partition_state->name, smartpls_path);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(partition_state->name, "Can not open smartpls dir \"%s\"", smartpls_path);
+        MYMPD_LOG_ERRNO(partition_state->name, errno);
     }
     FREE_SDS(smartpls_path);
 
@@ -707,7 +707,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
             if (criteria == PLAYLIST_DELETE_SMARTPLS) {
                 sds smartpls_file = sdscatfmt(sdsempty(), "%S/%s/%S", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS, current->key);
                 if (try_rm_file(smartpls_file) == RM_FILE_OK) {
-                    MYMPD_LOG_INFO("\"%s\": Smartpls file %s removed", partition_state->name, smartpls_file);
+                    MYMPD_LOG_INFO(partition_state->name, "Smartpls file %s removed", smartpls_file);
                     smartpls = true;
                 }
                 FREE_SDS(smartpls_file);
@@ -717,11 +717,11 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
                 (criteria == PLAYLIST_DELETE_EMPTY && current->value_i == 0))
             {
                 if (mpd_send_rm(partition_state->conn, current->key) == false) {
-                    MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_rm", partition_state->name);
+                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_rm");
                     list_node_free(current);
                     break;
                 }
-                MYMPD_LOG_INFO("Deleting mpd playlist %s", current->key);
+                MYMPD_LOG_INFO(partition_state->name, "Deleting mpd playlist %s", current->key);
             }
             list_node_free(current);
         }

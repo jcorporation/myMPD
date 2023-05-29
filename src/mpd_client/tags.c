@@ -164,7 +164,7 @@ enum mpd_tag_type get_sort_tag(enum mpd_tag_type tag, const struct t_tags *avail
  * @param partition_state pointer to partition specific states
  */
 bool disable_all_mpd_tags(struct t_partition_state *partition_state) {
-    MYMPD_LOG_DEBUG("\"%s\": Disabling all mpd tag types", partition_state->name);
+    MYMPD_LOG_DEBUG(partition_state->name, "Disabling all mpd tag types");
     mpd_run_clear_tag_types(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_clear_tag_types");
 }
@@ -174,7 +174,7 @@ bool disable_all_mpd_tags(struct t_partition_state *partition_state) {
  * @param partition_state pointer to partition specific states
  */
 bool enable_all_mpd_tags(struct t_partition_state *partition_state) {
-    MYMPD_LOG_DEBUG("\"%s\": Enabling all mpd tag types", partition_state->name);
+    MYMPD_LOG_DEBUG(partition_state->name, "Enabling all mpd tag types");
     mpd_run_all_tag_types(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_all_tag_types");
 }
@@ -208,18 +208,18 @@ bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_t
     if (partition_state->mpd_state->feat_tags == false) {
         return true;
     }
-    MYMPD_LOG_INFO("\"%s\": Setting interesting mpd tag types", partition_state->name);
+    MYMPD_LOG_INFO(partition_state->name, "Setting interesting mpd tag types");
     if (mpd_command_list_begin(partition_state->conn, false)) {
         if (mpd_send_clear_tag_types(partition_state->conn) == false) {
-            MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_clear_tag_types", partition_state->name);
+            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_clear_tag_types");
         }
         if (enable_tags->len > 0) {
             if (mpd_send_enable_tag_types(partition_state->conn, enable_tags->tags, (unsigned)enable_tags->len) == false) {
-                MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_enable_tag_types", partition_state->name);
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_enable_tag_types");
             }
         }
         else {
-            MYMPD_LOG_WARN("\"%s\": No mpd tags are enabled", partition_state->name);
+            MYMPD_LOG_WARN(partition_state->name, "No mpd tags are enabled");
         }
         mpd_command_list_end(partition_state->conn);
     }
@@ -350,7 +350,7 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
         sdstrim(tokens[i], " ");
         enum mpd_tag_type tag = mpd_tag_name_iparse(tokens[i]);
         if (tag == MPD_TAG_UNKNOWN) {
-            MYMPD_LOG_WARN("Unknown tag %s", tokens[i]);
+            MYMPD_LOG_WARN(NULL, "Unknown tag %s", tokens[i]);
         }
         else {
             if (mpd_client_tag_exists(allowed_tag_types, tag) == true) {
@@ -358,12 +358,12 @@ void check_tags(sds taglist, const char *taglistname, struct t_tags *tagtypes,
                 tagtypes->tags[tagtypes->len++] = tag;
             }
             else {
-                MYMPD_LOG_DEBUG("Disabling tag %s", mpd_tag_name(tag));
+                MYMPD_LOG_DEBUG(NULL, "Disabling tag %s", mpd_tag_name(tag));
             }
         }
     }
     sdsfreesplitres(tokens, tokens_count);
-    MYMPD_LOG_NOTICE("%s", logline);
+    MYMPD_LOG_NOTICE(NULL, "%s", logline);
     FREE_SDS(logline);
 }
 

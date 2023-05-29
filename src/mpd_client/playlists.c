@@ -63,7 +63,7 @@ time_t mpd_client_get_playlist_mtime(struct t_partition_state *partition_state, 
  * @return true on success else false
  */
 bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, const char *playlist) {
-    MYMPD_LOG_INFO("Shuffling playlist %s", playlist);
+    MYMPD_LOG_INFO(partition_state->name, "Shuffling playlist %s", playlist);
     struct t_list plist;
     list_init(&plist);
     struct mpd_song *song;
@@ -98,7 +98,7 @@ bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, cons
                 rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, current->key);
                 list_node_free(current);
                 if (rc == false) {
-                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
                 if (j == MPD_COMMANDS_MAX) {
@@ -158,11 +158,11 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
     bool rc = false;
 
     if (strcmp(tagstr, "filename") == 0) {
-        MYMPD_LOG_INFO("Sorting playlist \"%s\" by filename", playlist);
+        MYMPD_LOG_INFO(partition_state->name, "Sorting playlist \"%s\" by filename", playlist);
         rc = mpd_send_list_playlist(partition_state->conn, playlist);
     }
     else if (sort_tags.tags[0] != MPD_TAG_UNKNOWN) {
-        MYMPD_LOG_INFO("Sorting playlist \"%s\" by tag \"%s\"", playlist, tagstr);
+        MYMPD_LOG_INFO(partition_state->name, "Sorting playlist \"%s\" by tag \"%s\"", playlist, tagstr);
         enable_mpd_tags(partition_state, &sort_tags);
         rc = mpd_send_list_playlist_meta(partition_state->conn, playlist);
     }
@@ -220,7 +220,7 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
                 i++;
                 j++;
                 if (mpd_send_playlist_add(partition_state->conn, playlist_tmp, iter.data) == false) {
-                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_playlist_add");
+                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
                 if (j == MPD_COMMANDS_MAX) {

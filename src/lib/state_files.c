@@ -95,8 +95,8 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
     FILE *fp = fopen(cfg_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
         if (errno != ENOENT) {
-            MYMPD_LOG_ERROR("Can not open file \"%s\"", cfg_file);
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERROR(NULL, "Can not open file \"%s\"", cfg_file);
+            MYMPD_LOG_ERRNO(NULL, errno);
         }
         if (write == true) {
             //file does not exist, create it with default value and return
@@ -116,7 +116,7 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
     {
         sdsclear(result);
         result = sdscat(result, def_value);
-        MYMPD_LOG_ERROR("Validation failed for state \"%s\"", name);
+        MYMPD_LOG_ERROR(NULL, "Validation failed for state \"%s\"", name);
         return result;
     }
     if (n <= 0) {
@@ -124,7 +124,7 @@ sds state_file_rw_string(sds workdir, const char *dir, const char *name, const c
         sdsclear(result);
         result = sdscat(result, def_value);
     }
-    MYMPD_LOG_DEBUG("State %s: %s", name, result);
+    MYMPD_LOG_DEBUG(NULL, "State %s: %s", name, result);
     return result;
 }
 

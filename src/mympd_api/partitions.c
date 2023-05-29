@@ -97,7 +97,7 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
             bool rc = mpd_send_move_output(partition_state->conn, current->key);
             list_node_free(current);
             if (rc == false) {
-                MYMPD_LOG_ERROR("\"%s\": Error adding command to command list mpd_send_move_output", partition_state->name);
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_move_output");
                 break;
             }
         }

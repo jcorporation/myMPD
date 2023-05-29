@@ -116,7 +116,7 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
  * @param partition mpd partition
  */
 void ws_notify(sds message, const char *partition) {
-    MYMPD_LOG_DEBUG("Push websocket notify to queue: \"%s\"", message);
+    MYMPD_LOG_DEBUG(partition, "Push websocket notify to queue: \"%s\"", message);
     struct t_work_response *response = create_response_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY, partition);
     response->data = sds_replace(response->data, message);
     mympd_queue_push(web_server_queue, response, 0);

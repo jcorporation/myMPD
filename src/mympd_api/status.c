@@ -117,7 +117,7 @@ long mympd_api_status_updatedb_id(struct t_partition_state *partition_state) {
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     if (status != NULL) {
         update_id = (long)mpd_status_get_update_id(status);
-        MYMPD_LOG_NOTICE("Update database ID: %ld", update_id);
+        MYMPD_LOG_NOTICE(partition_state->name, "Update database ID: %ld", update_id);
         mpd_status_free(status);
     }
     mpd_response_finish(partition_state->conn);
@@ -175,7 +175,7 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
         else {
             partition_state->song_scrobble_time = now - elapsed_time + scrobble_time;
         }
-        MYMPD_LOG_DEBUG("Now %lld, start time %lld, scrobble time %lld, end time %lld",
+        MYMPD_LOG_DEBUG(partition_state->name, "Now %lld, start time %lld, scrobble time %lld, end time %lld",
             (long long)now, (long long)partition_state->song_start_time, 
             (long long)partition_state->song_scrobble_time, (long long)partition_state->song_end_time);
 
@@ -228,10 +228,10 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
 bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_partition_state *partition_state) {
     if (mpd_command_list_begin(partition_state->conn, true)) {
         if (mpd_send_status(partition_state->conn) == false) {
-            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_status");
+            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_status");
         }
         if (mpd_send_replay_gain_status(partition_state->conn) == false) {
-            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_replay_gain_status");
+            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_replay_gain_status");
         }
         mpd_command_list_end(partition_state->conn);
     }
@@ -312,10 +312,10 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_CURRENT_SONG;
     if (mpd_command_list_begin(partition_state->conn, true)) {
         if (mpd_send_status(partition_state->conn) == false) {
-            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_status");
+            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_status");
         }
         if (mpd_send_current_song(partition_state->conn) == false) {
-            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_current_song");
+            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_current_song");
         }
         mpd_command_list_end(partition_state->conn);
     }

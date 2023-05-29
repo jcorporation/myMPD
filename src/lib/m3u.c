@@ -35,8 +35,8 @@ sds m3u_get_field(sds buffer, const char *field, const char *filename) {
     errno = 0;
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
     if (fp == NULL) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\"", filename);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can not open file \"%s\"", filename);
+        MYMPD_LOG_ERRNO(NULL, errno);
         return buffer;
     }
     size_t field_len = strlen(field);
@@ -67,8 +67,8 @@ sds m3u_to_json(sds buffer, const char *filename, sds *m3ufields) {
     errno = 0;
     FILE *fp = fopen(filename, OPEN_FLAGS_READ);
     if (fp == NULL) {
-        MYMPD_LOG_ERROR("Can not open file \"%s\"", filename);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can not open file \"%s\"", filename);
+        MYMPD_LOG_ERRNO(NULL, errno);
         sdsclear(buffer);
         return buffer;
     }
@@ -76,7 +76,7 @@ sds m3u_to_json(sds buffer, const char *filename, sds *m3ufields) {
     //check ext m3u header
     sds_getline(&line, fp, LINE_LENGTH_MAX);
     if (strcmp(line, "#EXTM3U") != 0) {
-        MYMPD_LOG_WARN("Invalid ext m3u file");
+        MYMPD_LOG_WARN(NULL, "Invalid ext m3u file");
         FREE_SDS(line);
         (void) fclose(fp);
         sdsclear(buffer);

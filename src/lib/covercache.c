@@ -30,18 +30,18 @@
  */
 bool covercache_write_file(sds cachedir, const char *uri, const char *mime_type, sds binary, int offset) {
     if (mime_type[0] == '\0') {
-        MYMPD_LOG_WARN("Covercache file for \"%s\" not written, mime_type is empty", uri);
+        MYMPD_LOG_WARN(NULL, "Covercache file for \"%s\" not written, mime_type is empty", uri);
         return false;
     }
     const char *ext = get_ext_by_mime_type(mime_type);
     if (ext == NULL) {
-        MYMPD_LOG_WARN("Covercache file for \"%s\" not written, could not determine file extension", uri);
+        MYMPD_LOG_WARN(NULL, "Covercache file for \"%s\" not written, could not determine file extension", uri);
         return false;
     }
-    MYMPD_LOG_DEBUG("Writing covercache for \"%s\"", uri);
+    MYMPD_LOG_DEBUG(NULL, "Writing covercache for \"%s\"", uri);
     sds filename = sds_hash(uri);
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S-%i.%s", cachedir, DIR_CACHE_COVER, filename, offset, ext);
-    MYMPD_LOG_DEBUG("Writing covercache file \"%s\"", filepath);
+    MYMPD_LOG_DEBUG(NULL, "Writing covercache file \"%s\"", filepath);
     bool rc = write_data_to_file(filepath, binary, sdslen(binary));
     FREE_SDS(filename);
     FREE_SDS(filepath);
@@ -60,13 +60,13 @@ int covercache_clear(sds cachedir, int keepdays) {
     time_t expire_time = time(NULL) - (time_t)(keepdays * 24 * 60 * 60);
 
     sds covercache = sdscatfmt(sdsempty(), "%S/%s", cachedir, DIR_CACHE_COVER);
-    MYMPD_LOG_NOTICE("Cleaning covercache \"%s\"", covercache);
-    MYMPD_LOG_DEBUG("Remove files older than %lld sec", (long long)expire_time);
+    MYMPD_LOG_NOTICE(NULL, "Cleaning covercache \"%s\"", covercache);
+    MYMPD_LOG_DEBUG(NULL, "Remove files older than %lld sec", (long long)expire_time);
     errno = 0;
     DIR *covercache_dir = opendir(covercache);
     if (covercache_dir == NULL) {
-        MYMPD_LOG_ERROR("Error opening directory \"%s\"", covercache);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Error opening directory \"%s\"", covercache);
+        MYMPD_LOG_ERRNO(NULL, errno);
         FREE_SDS(covercache);
         return -1;
     }
@@ -81,7 +81,7 @@ int covercache_clear(sds cachedir, int keepdays) {
         filepath = sdscatfmt(filepath, "%S/%s", covercache, next_file->d_name);
         time_t mtime = get_mtime(filepath);
         if (mtime < expire_time) {
-            MYMPD_LOG_DEBUG("Deleting \"%s\": %lld", filepath, (long long)mtime);
+            MYMPD_LOG_DEBUG(NULL, "Deleting \"%s\": %lld", filepath, (long long)mtime);
             rc = rm_file(filepath);
             if (rc == true) {
                 num_deleted++;
@@ -91,7 +91,7 @@ int covercache_clear(sds cachedir, int keepdays) {
     closedir(covercache_dir);
     FREE_SDS(filepath);
 
-    MYMPD_LOG_NOTICE("Deleted %d files from covercache", num_deleted);
+    MYMPD_LOG_NOTICE(NULL, "Deleted %d files from covercache", num_deleted);
     FREE_SDS(covercache);
     return rc == true ? num_deleted : -1;
 }

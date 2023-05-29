@@ -69,7 +69,7 @@ struct t_mympd_queue *mympd_script_queue;
 static void mympd_signal_handler(int sig_num) {
     // Reinstantiate signal handler
     if (signal(sig_num, mympd_signal_handler) == SIG_ERR) {
-        MYMPD_LOG_ERROR("Could not set signal handler for %d", sig_num);
+        MYMPD_LOG_ERROR(NULL, "Could not set signal handler for %d", sig_num);
     }
 
     switch(sig_num) {
@@ -81,11 +81,11 @@ static void mympd_signal_handler(int sig_num) {
             pthread_cond_signal(&mympd_api_queue->wakeup);
             pthread_cond_signal(&mympd_script_queue->wakeup);
             pthread_cond_signal(&web_server_queue->wakeup);
-            MYMPD_LOG_NOTICE("Signal \"%s\" received, exiting", (sig_num == SIGTERM ? "SIGTERM" : "SIGINT"));
+            MYMPD_LOG_NOTICE(NULL, "Signal \"%s\" received, exiting", (sig_num == SIGTERM ? "SIGTERM" : "SIGINT"));
             break;
         }
         case SIGHUP: {
-            MYMPD_LOG_NOTICE("Signal SIGHUP received, saving states");
+            MYMPD_LOG_NOTICE(NULL, "Signal SIGHUP received, saving states");
             struct t_work_request *request = create_request(-1, 0, INTERNAL_API_STATE_SAVE, NULL, MPD_PARTITION_DEFAULT);
             request->data = sdscatlen(request->data, "}}", 2);
             mympd_queue_push(mympd_api_queue, request, 0);
@@ -108,47 +108,47 @@ static bool drop_privileges(sds username, uid_t startup_uid) {
     if (startup_uid == 0 &&
         sdslen(username) > 0)
     {
-        MYMPD_LOG_NOTICE("Dropping privileges to user \"%s\"", username);
+        MYMPD_LOG_NOTICE(NULL, "Dropping privileges to user \"%s\"", username);
         //get user
         errno = 0;
         struct passwd *pw = getpwnam(username);
         if (pw  == NULL) {
-            MYMPD_LOG_ERROR("User \"%s\" does not exist", username);
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist", username);
+            MYMPD_LOG_ERRNO(NULL, errno);
             return false;
         }
         //purge supplementary groups
         errno = 0;
         if (setgroups(0, NULL) == -1) {
-            MYMPD_LOG_ERROR("setgroups() failed");
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERROR(NULL, "setgroups() failed");
+            MYMPD_LOG_ERRNO(NULL, errno);
             return false;
         }
         //set new supplementary groups from target user
         errno = 0;
         if (initgroups(username, pw->pw_gid) == -1) {
-            MYMPD_LOG_ERROR("initgroups() failed");
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERROR(NULL, "initgroups() failed");
+            MYMPD_LOG_ERRNO(NULL, errno);
             return false;
         }
         //change primary group to group of target user
         errno = 0;
         if (setgid(pw->pw_gid) == -1 ) {
-            MYMPD_LOG_ERROR("setgid() failed");
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERROR(NULL, "setgid() failed");
+            MYMPD_LOG_ERRNO(NULL, errno);
             return false;
         }
         //change user
         errno = 0;
         if (setuid(pw->pw_uid) == -1) {
-            MYMPD_LOG_ERROR("setuid() failed");
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERROR(NULL, "setuid() failed");
+            MYMPD_LOG_ERRNO(NULL, errno);
             return false;
         }
     }
     //check if not root
     if (getuid() == 0) {
-        MYMPD_LOG_ERROR("myMPD should not be run with root privileges");
+        MYMPD_LOG_ERROR(NULL, "myMPD should not be run with root privileges");
         return false;
     }
     return true;
@@ -169,7 +169,7 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
         errno = 0;
         struct passwd *pw = getpwnam(config->user);
         if (pw == NULL) {
-            MYMPD_LOG_ERROR("User \"%s\" does not exist", config->user);
+            MYMPD_LOG_ERROR(NULL, "User \"%s\" does not exist", config->user);
             return false;
         }
         chown_dirs = true;
@@ -184,7 +184,7 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     if (chown_dirs == true &&
         is_dir(config->cachedir) == true)
     {
-        MYMPD_LOG_DEBUG("Checking ownership of \"%s\"", config->cachedir);
+        MYMPD_LOG_DEBUG(NULL, "Checking ownership of \"%s\"", config->cachedir);
         if (do_chown(config->cachedir, config->user) == false) {
             return false;
         }
@@ -200,7 +200,7 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     if (chown_dirs == true &&
         is_dir(config->workdir) == true)
     {
-        MYMPD_LOG_DEBUG("Checking ownership of \"%s\"", config->workdir);
+        MYMPD_LOG_DEBUG(NULL, "Checking ownership of \"%s\"", config->workdir);
         if (do_chown(config->workdir, config->user) == false) {
             return false;
         }
@@ -215,13 +215,13 @@ static bool check_dirs_initial(struct t_config *config, uid_t startup_uid) {
     }
     //directory exists or was created; set user and group
     if (chown_dirs == true) {
-        MYMPD_LOG_DEBUG("Checking ownership of \"%s\"", testdirname);
+        MYMPD_LOG_DEBUG(NULL, "Checking ownership of \"%s\"", testdirname);
         if (do_chown(testdirname, config->user) == false) {
             return false;
         }
     }
     if (testdir_rc == DIR_CREATED) {
-        MYMPD_LOG_INFO("First startup of myMPD");
+        MYMPD_LOG_INFO(NULL, "First startup of myMPD");
         config->first_startup = true;
     }
     FREE_SDS(testdirname);
@@ -344,7 +344,7 @@ int main(int argc, char **argv) {
     log_to_syslog = false;
     #ifdef MYMPD_DEBUG
         set_loglevel(LOG_DEBUG);
-        MYMPD_LOG_NOTICE("Debug build is running");
+        MYMPD_LOG_NOTICE(NULL, "Debug build is running");
     #else
         set_loglevel(
             getenv_int("MYMPD_LOGLEVEL", CFG_MYMPD_LOGLEVEL, LOGLEVEL_MIN, LOGLEVEL_MAX)
@@ -365,8 +365,8 @@ int main(int argc, char **argv) {
     //goto root directory
     errno = 0;
     if (chdir("/") != 0) {
-        MYMPD_LOG_ERROR("Can not change directory to /");
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can not change directory to /");
+        MYMPD_LOG_ERRNO(NULL, errno);
         goto cleanup;
     }
 
@@ -400,7 +400,7 @@ int main(int argc, char **argv) {
 
     //get startup uid
     uid_t startup_uid = getuid();
-    MYMPD_LOG_DEBUG("myMPD started as user id %u", startup_uid);
+    MYMPD_LOG_DEBUG(NULL, "myMPD started as user id %u", startup_uid);
 
     //check initial directories
     if (check_dirs_initial(config, startup_uid) == false) {
@@ -410,8 +410,8 @@ int main(int argc, char **argv) {
     //go into workdir
     errno = 0;
     if (chdir(config->workdir) != 0) {
-        MYMPD_LOG_ERROR("Can not change directory to \"%s\"", config->workdir);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can not change directory to \"%s\"", config->workdir);
+        MYMPD_LOG_ERRNO(NULL, errno);
         goto cleanup;
     }
 
@@ -440,7 +440,7 @@ int main(int argc, char **argv) {
 
     #ifdef MYMPD_ENABLE_IPV6
         if (sdslen(config->acl) > 0) {
-            MYMPD_LOG_WARN("No acl support for IPv6");
+            MYMPD_LOG_WARN(NULL, "No acl support for IPv6");
         }
     #endif
 
@@ -457,48 +457,48 @@ int main(int argc, char **argv) {
     }
 
     #ifdef MYMPD_ENABLE_LIBASAN
-        MYMPD_LOG_NOTICE("Running with libasan memory checker");
+        MYMPD_LOG_NOTICE(NULL, "Running with libasan memory checker");
     #endif
 
-    MYMPD_LOG_NOTICE("Starting myMPD %s", MYMPD_VERSION);
-    MYMPD_LOG_INFO("Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i",
+    MYMPD_LOG_NOTICE(NULL, "Starting myMPD %s", MYMPD_VERSION);
+    MYMPD_LOG_INFO(NULL, "Libmympdclient %i.%i.%i based on libmpdclient %i.%i.%i",
             LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
             LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
-    MYMPD_LOG_INFO("Mongoose %s", MG_VERSION);
+    MYMPD_LOG_INFO(NULL, "Mongoose %s", MG_VERSION);
     #ifdef MYMPD_ENABLE_LUA
-        MYMPD_LOG_INFO("%s", LUA_RELEASE);
+        MYMPD_LOG_INFO(NULL, "%s", LUA_RELEASE);
     #endif
     #ifdef MYMPD_ENABLE_LIBID3TAG
-        MYMPD_LOG_INFO("Libid3tag %s", ID3_VERSION);
+        MYMPD_LOG_INFO(NULL, "Libid3tag %s", ID3_VERSION);
     #endif
     #ifdef MYMPD_ENABLE_FLAC
-        MYMPD_LOG_INFO("FLAC %d.%d.%d", FLAC_API_VERSION_CURRENT, FLAC_API_VERSION_REVISION, FLAC_API_VERSION_AGE);
+        MYMPD_LOG_INFO(NULL, "FLAC %d.%d.%d", FLAC_API_VERSION_CURRENT, FLAC_API_VERSION_REVISION, FLAC_API_VERSION_AGE);
     #endif
     #ifdef MYMPD_ENABLE_SSL
-        MYMPD_LOG_INFO("%s", OPENSSL_VERSION_TEXT);
+        MYMPD_LOG_INFO(NULL, "%s", OPENSSL_VERSION_TEXT);
     #endif
 
     //set signal handler
     if (signal(SIGTERM, mympd_signal_handler) == SIG_ERR) {
-        MYMPD_LOG_EMERG("Could not set signal handler for SIGTERM");
+        MYMPD_LOG_EMERG(NULL, "Could not set signal handler for SIGTERM");
         goto cleanup;
     }
     if (signal(SIGINT, mympd_signal_handler) == SIG_ERR) {
-        MYMPD_LOG_EMERG("Could not set signal handler for SIGINT");
+        MYMPD_LOG_EMERG(NULL, "Could not set signal handler for SIGINT");
         goto cleanup;
     }
     if (signal(SIGHUP, mympd_signal_handler) == SIG_ERR) {
-        MYMPD_LOG_EMERG("Could not set signal handler for SIGHUP");
+        MYMPD_LOG_EMERG(NULL, "Could not set signal handler for SIGHUP");
         goto cleanup;
     }
 
     //set output buffers
     if (setvbuf(stdout, NULL, _IOLBF, 0) != 0) {
-        MYMPD_LOG_EMERG("Could not set stdout buffer");
+        MYMPD_LOG_EMERG(NULL, "Could not set stdout buffer");
         goto cleanup;
     }
     if (setvbuf(stderr, NULL, _IOLBF, 0) != 0) {
-        MYMPD_LOG_EMERG("Could not set stderr buffer");
+        MYMPD_LOG_EMERG(NULL, "Could not set stderr buffer");
         goto cleanup;
     }
 
@@ -537,23 +537,23 @@ int main(int argc, char **argv) {
 
     //Create working threads
     //mympd api
-    MYMPD_LOG_NOTICE("Starting mympd api thread");
+    MYMPD_LOG_NOTICE(NULL, "Starting mympd api thread");
     if ((thread_rc = pthread_create(&mympd_api_thread, NULL, mympd_api_loop, config)) != 0) {
-        MYMPD_LOG_ERROR("Can't create mympd api thread: %s", strerror(thread_rc));
+        MYMPD_LOG_ERROR(NULL, "Can't create mympd api thread: %s", strerror(thread_rc));
         mympd_api_thread = 0;
         s_signal_received = SIGTERM;
     }
 
     //webserver
-    MYMPD_LOG_NOTICE("Starting webserver thread");
+    MYMPD_LOG_NOTICE(NULL, "Starting webserver thread");
     if ((thread_rc = pthread_create(&web_server_thread, NULL, web_server_loop, mgr)) != 0) {
-        MYMPD_LOG_ERROR("Can't create webserver thread: %s", strerror(thread_rc));
+        MYMPD_LOG_ERROR(NULL, "Can't create webserver thread: %s", strerror(thread_rc));
         web_server_thread = 0;
         s_signal_received = SIGTERM;
     }
 
     //Outsourced all work to separate threads, do nothing...
-    MYMPD_LOG_NOTICE("myMPD is ready");
+    MYMPD_LOG_NOTICE(NULL, "myMPD is ready");
     rc = EXIT_SUCCESS;
 
     //Try to cleanup all
@@ -562,18 +562,18 @@ int main(int argc, char **argv) {
     //wait for threads
     if (web_server_thread > (pthread_t)0) {
         if ((thread_rc = pthread_join(web_server_thread, NULL)) != 0) {
-            MYMPD_LOG_ERROR("Error stopping webserver thread: %s", strerror(thread_rc));
+            MYMPD_LOG_ERROR(NULL, "Error stopping webserver thread: %s", strerror(thread_rc));
         }
         else {
-            MYMPD_LOG_NOTICE("Finished web server thread");
+            MYMPD_LOG_NOTICE(NULL, "Finished web server thread");
         }
     }
     if (mympd_api_thread > (pthread_t)0) {
         if ((thread_rc = pthread_join(mympd_api_thread, NULL)) != 0) {
-            MYMPD_LOG_ERROR("Error stopping mympd api thread: %s", strerror(thread_rc));
+            MYMPD_LOG_ERROR(NULL, "Error stopping mympd api thread: %s", strerror(thread_rc));
         }
         else {
-            MYMPD_LOG_NOTICE("Finished mympd api thread");
+            MYMPD_LOG_NOTICE(NULL, "Finished mympd api thread");
         }
     }
 

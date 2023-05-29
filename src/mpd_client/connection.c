@@ -25,14 +25,14 @@
  */
 bool mpd_client_connect(struct t_partition_state *partition_state, bool detect_feat) {
     if (partition_state->mpd_state->mpd_host[0] == '/') {
-        MYMPD_LOG_NOTICE("\"%s\": Connecting to socket \"%s\"", partition_state->name, partition_state->mpd_state->mpd_host);
+        MYMPD_LOG_NOTICE(partition_state->name, "Connecting to socket \"%s\"", partition_state->mpd_state->mpd_host);
     }
     else {
-        MYMPD_LOG_NOTICE("\"%s\": Connecting to \"%s:%d\"", partition_state->name, partition_state->mpd_state->mpd_host, partition_state->mpd_state->mpd_port);
+        MYMPD_LOG_NOTICE(partition_state->name, "Connecting to \"%s:%d\"", partition_state->mpd_state->mpd_host, partition_state->mpd_state->mpd_port);
     }
     partition_state->conn = mpd_connection_new(partition_state->mpd_state->mpd_host, partition_state->mpd_state->mpd_port, partition_state->mpd_state->mpd_timeout);
     if (partition_state->conn == NULL) {
-        MYMPD_LOG_ERROR("\"%s\": Connection failed: out-of-memory", partition_state->name);
+        MYMPD_LOG_ERROR(partition_state->name, "Connection failed: out-of-memory");
         partition_state->conn_state = MPD_FAILURE;
         sds buffer = jsonrpc_event(sdsempty(), JSONRPC_EVENT_MPD_DISCONNECTED);
         ws_notify(buffer, partition_state->name);
@@ -40,7 +40,7 @@ bool mpd_client_connect(struct t_partition_state *partition_state, bool detect_f
         return false;
     }
     if (mpd_connection_get_error(partition_state->conn) != MPD_ERROR_SUCCESS) {
-        MYMPD_LOG_ERROR("\"%s\": Connection: %s", partition_state->name, mpd_connection_get_error_message(partition_state->conn));
+        MYMPD_LOG_ERROR(partition_state->name, "Connection: %s", mpd_connection_get_error_message(partition_state->conn));
         sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_MPD,
             JSONRPC_SEVERITY_ERROR, "MPD connection error: %{error}", 2,
             "error", mpd_connection_get_error_message(partition_state->conn));
@@ -52,9 +52,9 @@ bool mpd_client_connect(struct t_partition_state *partition_state, bool detect_f
         return false;
     }
     if (sdslen(partition_state->mpd_state->mpd_pass) > 0) {
-        MYMPD_LOG_DEBUG("\"%s\": Password set, authenticating to MPD", partition_state->name);
+        MYMPD_LOG_DEBUG(partition_state->name, "Password set, authenticating to MPD");
         if (mpd_run_password(partition_state->conn, partition_state->mpd_state->mpd_pass) == false) {
-            MYMPD_LOG_ERROR("\"%s\": MPD connection: %s", partition_state->name, mpd_connection_get_error_message(partition_state->conn));
+            MYMPD_LOG_ERROR(partition_state->name, "MPD connection: %s", mpd_connection_get_error_message(partition_state->conn));
             partition_state->conn_state = MPD_FAILURE;
             sds buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_MPD,
                 JSONRPC_SEVERITY_ERROR, "MPD connection error: %{error}", 2,
@@ -63,13 +63,13 @@ bool mpd_client_connect(struct t_partition_state *partition_state, bool detect_f
             FREE_SDS(buffer);
             return false;
         }
-        MYMPD_LOG_INFO("\"%s\": Successfully authenticated to MPD", partition_state->name);
+        MYMPD_LOG_INFO(partition_state->name, "Successfully authenticated to MPD");
     }
     else {
-        MYMPD_LOG_DEBUG("\"%s\": No password set", partition_state->name);
+        MYMPD_LOG_DEBUG(partition_state->name, "No password set");
     }
 
-    MYMPD_LOG_NOTICE("\"%s\": Connected to MPD", partition_state->name);
+    MYMPD_LOG_NOTICE(partition_state->name, "Connected to MPD");
     partition_state->conn_state = MPD_CONNECTED;
     //get mpd features
     if (detect_feat == true) {
@@ -90,10 +90,10 @@ bool mpd_client_connect(struct t_partition_state *partition_state, bool detect_f
  */
 bool mpd_client_set_keepalive(struct t_partition_state *partition_state) {
     if (partition_state->mpd_state->mpd_keepalive == true) {
-        MYMPD_LOG_INFO("\"%s\": Enabling keepalive", partition_state->name);
+        MYMPD_LOG_INFO(partition_state->name, "Enabling keepalive");
     }
     else {
-        MYMPD_LOG_INFO("\"%s\": Disabling keepalive", partition_state->name);
+        MYMPD_LOG_INFO(partition_state->name, "Disabling keepalive");
     }
     return mpd_connection_set_keepalive(partition_state->conn, partition_state->mpd_state->mpd_keepalive);
 }
@@ -104,7 +104,7 @@ bool mpd_client_set_keepalive(struct t_partition_state *partition_state) {
  * @return true on success, else false
  */
 bool mpd_client_set_timeout(struct t_partition_state *partition_state) {
-    MYMPD_LOG_INFO("\"%s\": Setting timeout to %u ms", partition_state->name, partition_state->mpd_state->mpd_timeout);
+    MYMPD_LOG_INFO(partition_state->name, "Setting timeout to %u ms", partition_state->mpd_state->mpd_timeout);
     mpd_connection_set_timeout(partition_state->conn, partition_state->mpd_state->mpd_timeout);
     return true;
 }
@@ -117,7 +117,7 @@ bool mpd_client_set_timeout(struct t_partition_state *partition_state) {
 bool mpd_client_set_binarylimit(struct t_partition_state *partition_state) {
     bool rc = true;
     if (partition_state->mpd_state->feat_binarylimit == true) {
-        MYMPD_LOG_INFO("\"%s\": Setting binarylimit to %u kB", partition_state->name, partition_state->mpd_state->mpd_binarylimit);
+        MYMPD_LOG_INFO(partition_state->name, "Setting binarylimit to %u kB", partition_state->mpd_state->mpd_binarylimit);
         mpd_run_binarylimit(partition_state->conn, partition_state->mpd_state->mpd_binarylimit);
         sds message = sdsempty();
         if (mympd_check_error_and_recover_notify(partition_state, &message, "mpd_run_binarylimit") == false) {
@@ -159,7 +159,7 @@ void mpd_client_disconnect(struct t_partition_state *partition_state, enum mpd_c
  */
 void mpd_client_disconnect_silent(struct t_partition_state *partition_state, enum mpd_conn_states new_conn_state) {
     if (partition_state->conn != NULL) {
-        MYMPD_LOG_INFO("\"%s\": Disconnecting from mpd", partition_state->name);
+        MYMPD_LOG_INFO(partition_state->name, "Disconnecting from mpd");
         mpd_connection_free(partition_state->conn);
     }
     partition_state->conn = NULL;

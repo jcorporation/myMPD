@@ -40,7 +40,7 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, sds bu
  * @return true on success, else false
  */
 bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) {
-    MYMPD_LOG_INFO("\"%s\": Saving last_played list to disc", partition_state->name);
+    MYMPD_LOG_INFO(partition_state->name, "Saving last_played list to disc");
     sds tmp_file = sdscatfmt(sdsempty(), "%S/%S/%s.XXXXXX",
         partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
     FILE *fp = open_tmp_file(tmp_file);
@@ -60,7 +60,7 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
         line = sdscatlen(line, "}\n", 2);
 
         if (fputs(line, fp) == EOF) {
-            MYMPD_LOG_ERROR("\"%s\": Could not write last played songs to disc", partition_state->name);
+            MYMPD_LOG_ERROR(partition_state->name, "Could not write last played songs to disc");
             write_rc = false;
             list_node_free(current);
             break;
@@ -81,7 +81,7 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
             {
                 line = sdscatlen(line, "\n", 1);
                 if (fputs(line, fp) == EOF) {
-                    MYMPD_LOG_ERROR("\"%s\": Could not write last played songs to disc", partition_state->name);
+                    MYMPD_LOG_ERROR(partition_state->name, "Could not write last played songs to disc");
                     write_rc = false;
                     break;
                 }
@@ -91,9 +91,9 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
         }
         else {
             //ignore error
-            MYMPD_LOG_DEBUG("Can not open file \"%s\"", filepath);
+            MYMPD_LOG_DEBUG(partition_state->name, "Can not open file \"%s\"", filepath);
             if (errno != ENOENT) {
-                MYMPD_LOG_ERRNO(errno);
+                MYMPD_LOG_ERRNO(partition_state->name, errno);
             }
         }
     }
@@ -220,8 +220,8 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
                     }
                 }
                 else {
-                    MYMPD_LOG_ERROR("\"%s\": Reading last_played line failed", partition_state->name);
-                    MYMPD_LOG_DEBUG("Erroneous line: %s", line);
+                    MYMPD_LOG_ERROR(partition_state->name, "Reading last_played line failed");
+                    MYMPD_LOG_DEBUG(partition_state->name, "Erroneous line: %s", line);
                     FREE_SDS(uri);
                 }
             }
@@ -229,10 +229,10 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
             FREE_SDS(line);
         }
         else {
-            MYMPD_LOG_DEBUG("Can not open file \"%s\"", lp_file);
+            MYMPD_LOG_DEBUG(partition_state->name, "Can not open file \"%s\"", lp_file);
             if (errno != ENOENT) {
                 //ignore missing last_played file
-                MYMPD_LOG_ERRNO(errno);
+                MYMPD_LOG_ERRNO(partition_state->name, errno);
             }
         }
         FREE_SDS(lp_file);

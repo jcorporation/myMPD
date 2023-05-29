@@ -82,10 +82,10 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
     errno = 0;
     FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
     if (fp == NULL) {
-        MYMPD_LOG_DEBUG("Can not open file \"%s\"", filepath);
+        MYMPD_LOG_DEBUG(NULL, "Can not open file \"%s\"", filepath);
         if (errno != ENOENT) {
             //ignore missing album cache file
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERRNO(NULL, errno);
         }
         FREE_SDS(filepath);
         album_cache->building = false;
@@ -102,18 +102,18 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
             if (album != NULL) {
                 key = album_cache_get_key(album, key);
                 if (raxTryInsert(album_cache->cache, (unsigned char *)key, sdslen(key), album, NULL) == 0) {
-                    MYMPD_LOG_ERROR("Duplicate key in album cache file found");
+                    MYMPD_LOG_ERROR(NULL, "Duplicate key in album cache file found");
                     mpd_song_free(album);
                 }
             }
             else {
-                MYMPD_LOG_ERROR("Reading album cache line failed");
-                MYMPD_LOG_DEBUG("Erroneous line: %s", line);
+                MYMPD_LOG_ERROR(NULL, "Reading album cache line failed");
+                MYMPD_LOG_DEBUG(NULL, "Erroneous line: %s", line);
             }
         }
         else {
-            MYMPD_LOG_ERROR("Reading album cache line failed");
-            MYMPD_LOG_DEBUG("Erroneous line: %s", line);
+            MYMPD_LOG_ERROR(NULL, "Reading album cache line failed");
+            MYMPD_LOG_DEBUG(NULL, "Erroneous line: %s", line);
         }
     }
     FREE_SDS(line);
@@ -122,14 +122,14 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
     FREE_PTR(album_tags);
     FREE_SDS(filepath);
     album_cache->building = false;
-    MYMPD_LOG_INFO("Read %lld album(s) from disc", (long long)album_cache->cache->numele);
+    MYMPD_LOG_INFO(NULL, "Read %lld album(s) from disc", (long long)album_cache->cache->numele);
     if (album_cache->cache->numele == 0) {
         album_cache_remove(workdir);
         album_cache_free(album_cache);
     }
     #ifdef MYMPD_DEBUG
         MEASURE_END
-        MEASURE_PRINT("Album cache read");
+        MEASURE_PRINT(NULL, "Album cache read");
     #endif
     return true;
 }
@@ -144,10 +144,10 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
  */
 bool album_cache_write(struct t_cache *album_cache, sds workdir, struct t_tags *album_tags, bool free_data) {
     if (album_cache->cache == NULL) {
-        MYMPD_LOG_DEBUG("Album cache is NULL not saving anything");
+        MYMPD_LOG_DEBUG(NULL, "Album cache is NULL not saving anything");
         return true;
     }
-    MYMPD_LOG_INFO("Saving album cache");
+    MYMPD_LOG_INFO(NULL, "Saving album cache");
     //first write the tagtypes
     sds line = sdsnewlen("{", 1);
     line = print_tags_array(line, "tagListAlbum", album_tags);
@@ -203,7 +203,7 @@ sds album_cache_get_key(struct mpd_song *song, sds albumkey) {
     albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, albumkey);
     if (sdslen(albumkey) == 0) {
         //album tag is empty
-        MYMPD_LOG_WARN("Can not create albumkey for uri \"%s\", tag Album is empty", mpd_song_get_uri(song));
+        MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tag Album is empty", mpd_song_get_uri(song));
         return albumkey;
     }
     albumkey = sdscatlen(albumkey, "::", 2);
@@ -212,11 +212,11 @@ sds album_cache_get_key(struct mpd_song *song, sds albumkey) {
     albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM_ARTIST, albumkey);
     if (old_len == sdslen(albumkey)) {
         //AlbumArtist tag is empty, fallback to Artist tag
-        MYMPD_LOG_DEBUG("AlbumArtist for uri \"%s\" is empty, falling back to Artist", mpd_song_get_uri(song));
+        MYMPD_LOG_DEBUG(NULL, "AlbumArtist for uri \"%s\" is empty, falling back to Artist", mpd_song_get_uri(song));
         albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ARTIST, albumkey);
     }
     if (old_len == sdslen(albumkey)) {
-        MYMPD_LOG_WARN("Can not create albumkey for uri \"%s\", tags AlbumArtist and Artist are empty", mpd_song_get_uri(song));
+        MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tags AlbumArtist and Artist are empty", mpd_song_get_uri(song));
         sdsclear(albumkey);
     }
     sds_utf8_tolower(albumkey);
@@ -236,7 +236,7 @@ struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key) {
     //try to get album
     void *data = raxFind(album_cache->cache, (unsigned char*)key, sdslen(key));
     if (data == raxNotFound) {
-        MYMPD_LOG_ERROR("Album for key \"%s\" not found in cache", key);
+        MYMPD_LOG_ERROR(NULL, "Album for key \"%s\" not found in cache", key);
         return NULL;
     }
     return (struct mpd_song *) data;
@@ -248,10 +248,10 @@ struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key) {
  */
 void album_cache_free(struct t_cache *album_cache) {
     if (album_cache->cache == NULL) {
-        MYMPD_LOG_DEBUG("Album cache is NULL not freeing anything");
+        MYMPD_LOG_DEBUG(NULL, "Album cache is NULL not freeing anything");
         return;
     }
-    MYMPD_LOG_DEBUG("Freeing album cache");
+    MYMPD_LOG_DEBUG(NULL, "Freeing album cache");
     raxIterator iter;
     raxStart(&iter, album_cache->cache);
     raxSeek(&iter, "^", NULL, 0);

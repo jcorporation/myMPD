@@ -56,7 +56,7 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
     if (sdslen(error) > 0) {
         sds response = jsonrpc_respond_message(sdsempty(), cmd_id, request_id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
-        MYMPD_LOG_ERROR("Error processing method \"%s\"", get_cmd_id_method_name(cmd_id));
+        MYMPD_LOG_ERROR(NULL, "Error processing method \"%s\"", get_cmd_id_method_name(cmd_id));
         webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
         FREE_SDS(response);
     }
@@ -100,7 +100,7 @@ static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
         //cache it one day
         time_t expire_time = time(NULL) - (long)(24 * 60 * 60);
         if (mtime < expire_time) {
-            MYMPD_LOG_DEBUG("Expiring cache file \"%s\": %lld", filepath, (long long)mtime);
+            MYMPD_LOG_DEBUG(NULL, "Expiring cache file \"%s\": %lld", filepath, (long long)mtime);
             rm_file(filepath);
         }
         else {
@@ -111,7 +111,7 @@ static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
                 FREE_SDS(filepath);
                 return NULL;
             }
-            MYMPD_LOG_DEBUG("Found cached file \"%s\"", filepath);
+            MYMPD_LOG_DEBUG(NULL, "Found cached file \"%s\"", filepath);
             FREE_SDS(filepath);
             return data;
         }
@@ -174,11 +174,11 @@ static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, 
             break;
         }
         case MG_EV_ERROR:
-            MYMPD_LOG_ERROR("HTTP connection \"%lu\" failed", nc->id);
+            MYMPD_LOG_ERROR(NULL, "HTTP connection \"%lu\" failed", nc->id);
             break;
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-            MYMPD_LOG_DEBUG("Got response from connection \"%lu\": %lu bytes", nc->id, (unsigned long)hm->body.len);
+            MYMPD_LOG_DEBUG(NULL, "Got response from connection \"%lu\": %lu bytes", nc->id, (unsigned long)hm->body.len);
             sds response = sdsempty();
             if (hm->body.len > 0) {
                 response = jsonrpc_respond_start(response, backend_nc_data->cmd_id, 0);

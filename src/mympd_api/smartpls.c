@@ -91,13 +91,13 @@ sds mympd_api_smartpls_get(sds workdir, sds buffer, long request_id, const char 
         else {
             buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
                 JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Can not parse smart playlist file");
-            MYMPD_LOG_ERROR("Can't parse smart playlist file: %s", playlist);
+            MYMPD_LOG_ERROR(NULL, "Can't parse smart playlist file: %s", playlist);
         }
     }
     else {
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Unknown smart playlist type");
-        MYMPD_LOG_ERROR("Unknown type for smart playlist \"%s\"", playlist);
+        MYMPD_LOG_ERROR(NULL, "Unknown type for smart playlist \"%s\"", playlist);
     }
     FREE_SDS(smartpltype);
     FREE_SDS(content);

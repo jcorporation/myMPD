@@ -102,8 +102,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     #endif
 
     const char *method = get_cmd_id_method_name(request->cmd_id);
-    MYMPD_LOG_DEBUG("\"%s\": MYMPD API request (%lld)(%ld) %s: %s",
-        partition_state->name, request->conn_id, request->id, method, request->data);
+    MYMPD_LOG_DEBUG(partition_state->name, "MYMPD API request (%lld)(%ld) %s: %s",
+        request->conn_id, request->id, method, request->data);
 
     //shortcuts
     struct t_mympd_state *mympd_state = partition_state->mympd_state;
@@ -115,7 +115,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     switch(request->cmd_id) {
         case MYMPD_API_LOGLEVEL:
             if (json_get_int(request->data, "$.params.loglevel", 0, 7, &int_buf1, &error) == true) {
-                MYMPD_LOG_INFO("Setting loglevel to %d", int_buf1);
+                MYMPD_LOG_INFO(partition_state->name, "Setting loglevel to %d", int_buf1);
                 loglevel = int_buf1;
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
             }
@@ -126,7 +126,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (worker_threads > 5) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Too many worker threads are already running");
-                MYMPD_LOG_ERROR("Too many worker threads are already running");
+                MYMPD_LOG_ERROR(partition_state->name, "Too many worker threads are already running");
                 break;
             }
             if (request->cmd_id == MYMPD_API_CACHES_CREATE ||
@@ -143,7 +143,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Cache update is already running");
-                    MYMPD_LOG_WARN("Cache update is already running");
+                    MYMPD_LOG_WARN(partition_state->name, "Cache update is already running");
                     break;
                 }
                 mympd_state->mpd_state->album_cache.building = mympd_state->mpd_state->feat_tags;
@@ -175,10 +175,10 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 sticker_cache_free(&mympd_state->mpd_state->sticker_cache);
                 mympd_state->mpd_state->sticker_cache.cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
-                MYMPD_LOG_INFO("Sticker cache was replaced");
+                MYMPD_LOG_INFO(partition_state->name, "Sticker cache was replaced");
             }
             else {
-                MYMPD_LOG_ERROR("Sticker cache is NULL");
+                MYMPD_LOG_ERROR(partition_state->name, "Sticker cache is NULL");
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "Sticker cache is NULL");
             }
@@ -187,16 +187,16 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case INTERNAL_API_ALBUMCACHE_CREATED:
             if (request->extra != NULL) {
                 //first clear the jukebox queues - it has references to the album cache
-                MYMPD_LOG_INFO("Clearing jukebox queues");
+                MYMPD_LOG_INFO(partition_state->name, "Clearing jukebox queues");
                 jukebox_clear_all(mympd_state);
                 //free the old album cache and replace it with the freshly generated one
                 album_cache_free(&mympd_state->mpd_state->album_cache);
                 mympd_state->mpd_state->album_cache.cache = (rax *) request->extra;
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
-                MYMPD_LOG_INFO("Album cache was replaced");
+                MYMPD_LOG_INFO(partition_state->name, "Album cache was replaced");
             }
             else {
-                MYMPD_LOG_ERROR("Album cache is NULL");
+                MYMPD_LOG_ERROR(partition_state->name, "Album cache is NULL");
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Album cache is NULL");
             }
@@ -377,7 +377,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     else {
                         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Unknown table %{table}", 2, "table", sds_buf1);
-                        MYMPD_LOG_ERROR("MYMPD_API_COLS_SAVE: Unknown table %s", sds_buf1);
+                        MYMPD_LOG_ERROR(partition_state->name, "MYMPD_API_COLS_SAVE: Unknown table %s", sds_buf1);
                     }
                 }
                 else {
@@ -492,7 +492,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 sds new_mpd_settings = sdscatfmt(sdsempty(), "%S%i%S", mympd_state->mpd_state->mpd_host, mympd_state->mpd_state->mpd_port, mympd_state->mpd_state->mpd_pass);
                 if (strcmp(old_mpd_settings, new_mpd_settings) != 0) {
                     //disconnect all partitions
-                    MYMPD_LOG_DEBUG("MPD host has changed, disconnecting");
+                    MYMPD_LOG_DEBUG(partition_state->name, "MPD host has changed, disconnecting");
                     mpd_client_disconnect_all(mympd_state, MPD_DISCONNECTED);
                     //remove all but default partition
                     partitions_list_clear(mympd_state);
@@ -554,13 +554,13 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 }
                 else if (int_buf1 < USER_TIMER_ID_MIN) {
                     //user defined timers must be gt 100
-                    MYMPD_LOG_ERROR("Timer id must be greater or equal %d, but id is: \"%d\"", USER_TIMER_ID_MAX, int_buf1);
+                    MYMPD_LOG_ERROR(partition_state->name, "Timer id must be greater or equal %d, but id is: \"%d\"", USER_TIMER_ID_MAX, int_buf1);
                     error = sdscat(error, "Invalid timer id");
                     break;
                 }
                 if (int_buf2 > 0 && int_buf2 < TIMER_INTERVAL_MIN) {
                     //interval must be gt 5 seconds
-                    MYMPD_LOG_ERROR("Timer interval must be greater or equal %d, but id is: \"%d\"", TIMER_INTERVAL_MIN, int_buf2);
+                    MYMPD_LOG_ERROR(partition_state->name, "Timer interval must be greater or equal %d, but id is: \"%d\"", TIMER_INTERVAL_MIN, int_buf2);
                     error = sdscat(error, "Invalid timer id");
                     break;
                 }
@@ -577,7 +577,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 }
             }
             else if (timer_def != NULL) {
-                MYMPD_LOG_ERROR("No timer id or interval, discarding timer definition");
+                MYMPD_LOG_ERROR(partition_state->name, "No timer id or interval, discarding timer definition");
                 mympd_api_timer_free_definition(timer_def);
             }
             break;
@@ -701,7 +701,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             else {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Error getting mympd state for script execution");
-                MYMPD_LOG_ERROR("Error getting mympd state for script execution");
+                MYMPD_LOG_ERROR(partition_state->name, "Error getting mympd state for script execution");
                 FREE_PTR(lua_mympd_state);
             }
             break;
@@ -737,7 +737,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (mympd_state->mpd_state->feat_stickers == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "MPD stickers are disabled");
-                MYMPD_LOG_ERROR("MPD stickers are disabled");
+                MYMPD_LOG_ERROR(partition_state->name, "MPD stickers are disabled");
                 break;
             }
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true &&
@@ -1878,7 +1878,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         default:
             response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                 JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Unknown request");
-            MYMPD_LOG_ERROR("Unknown API request: %.*s", (int)sdslen(request->data), request->data);
+            MYMPD_LOG_ERROR(partition_state->name, "Unknown API request: %.*s", (int)sdslen(request->data), request->data);
     }
 
     FREE_SDS(sds_buf1);
@@ -1894,14 +1894,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
 
     #ifdef MYMPD_DEBUG
         MEASURE_END
-        MEASURE_PRINT(method)
+        MEASURE_PRINT(partition_state->name, method)
     #endif
 
     //errorhandling
     if (sdslen(error) > 0) {
         response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
-        MYMPD_LOG_ERROR("\"%s\": Error processing method \"%s\"", partition_state->name, method);
+        MYMPD_LOG_ERROR(partition_state->name, "Error processing method \"%s\"", method);
     }
     FREE_SDS(error);
 
@@ -1916,14 +1916,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     if (sdslen(response->data) == 0) {
         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", method);
-        MYMPD_LOG_ERROR("\"%s\": No response for method \"%s\"", partition_state->name, method);
+        MYMPD_LOG_ERROR(partition_state->name, "No response for method \"%s\"", method);
     }
     if (request->conn_id == -2) {
-        MYMPD_LOG_DEBUG("\"%s\": Push response to mympd_script_queue for thread %ld: %s", partition_state->name, request->id, response->data);
+        MYMPD_LOG_DEBUG(partition_state->name, "Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
         mympd_queue_push(mympd_script_queue, response, request->id);
     }
     else if (request->conn_id > -1) {
-        MYMPD_LOG_DEBUG("\"%s\": Push response to web_server_queue for connection %lld: %s", partition_state->name, request->conn_id, response->data);
+        MYMPD_LOG_DEBUG(partition_state->name, "Push response to web_server_queue for connection %lld: %s", request->conn_id, response->data);
         mympd_queue_push(web_server_queue, response, 0);
     }
     else {
@@ -1949,7 +1949,7 @@ static bool check_start_play(struct t_partition_state *partition_state, bool pla
         enum mympd_cmd_ids cmd_id, long request_id)
 {
     if (play == true) {
-        MYMPD_LOG_DEBUG("Start playing newly added songs");
+        MYMPD_LOG_DEBUG(partition_state->name, "Start playing newly added songs");
         bool rc = mympd_api_queue_play_newly_inserted(partition_state);
         if (rc == false) {
             *buffer = jsonrpc_respond_message(*buffer, cmd_id, request_id,

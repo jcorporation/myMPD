@@ -161,7 +161,7 @@ static sds search_songs(struct t_partition_state *partition_state, sds buffer, e
 {
     *result = false;
     if (expression[0] == '\0') {
-        MYMPD_LOG_ERROR("No search expression defined");
+        MYMPD_LOG_ERROR(partition_state->name, "No search expression defined");
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD,
             JSONRPC_SEVERITY_ERROR, "No search expression defined");
     }
@@ -225,7 +225,7 @@ static sds search_songs(struct t_partition_state *partition_state, sds buffer, e
                 }
             }
             else {
-                MYMPD_LOG_WARN("Unknown sort tag: %s", sort);
+                MYMPD_LOG_WARN(partition_state->name, "Unknown sort tag: %s", sort);
             }
         }
 

@@ -70,7 +70,7 @@ const char *get_ext_by_mime_type(const char *mime_type) {
         }
     }
     if (p->extension == NULL) {
-        MYMPD_LOG_WARN("No extension found for mime_type \"%s\"", mime_type);
+        MYMPD_LOG_WARN(NULL, "No extension found for mime_type \"%s\"", mime_type);
     }
     return p->extension;
 }
@@ -96,12 +96,12 @@ const char *get_mime_type_by_magic_stream(sds stream) {
         if (strlen(tmp_buffer) >= magic_bytes_len &&
             strncmp(tmp_buffer, p->magic_bytes, magic_bytes_len) == 0)
         {
-            MYMPD_LOG_DEBUG("Matched magic bytes for mime_type: %s", p->mime_type);
+            MYMPD_LOG_DEBUG(NULL, "Matched magic bytes for mime_type: %s", p->mime_type);
             break;
         }
     }
     if (p->magic_bytes == NULL) {
-        MYMPD_LOG_WARN("Could not determine mime type from bytes \"%s\"", hex_buffer);
+        MYMPD_LOG_WARN(NULL, "Could not determine mime type from bytes \"%s\"", hex_buffer);
     }
     FREE_SDS(hex_buffer);
     return p->mime_type;

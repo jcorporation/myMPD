@@ -87,7 +87,7 @@ void mympd_config_defaults_initial(struct t_config *config) {
  */
 void mympd_config_defaults(struct t_config *config) {
     if (config->first_startup == true) {
-        MYMPD_LOG_INFO("Reading environment variables");
+        MYMPD_LOG_INFO(NULL, "Reading environment variables");
     }
     //configurable with environment variables at first startup
     config->http = startup_getenv_bool("MYMPD_HTTP", CFG_MYMPD_HTTP, config->first_startup);

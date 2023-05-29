@@ -64,7 +64,7 @@ void *mympd_queue_free(struct t_mympd_queue *queue) {
 bool mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
-        MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
+        MYMPD_LOG_ERROR(NULL, "Error in pthread_mutex_lock: %d", rc);
         return false;
     }
     struct t_mympd_msg* new_node = malloc_assert(sizeof(struct t_mympd_msg));
@@ -87,7 +87,7 @@ bool mympd_queue_push(struct t_mympd_queue *queue, void *data, long id) {
     }
     rc = pthread_cond_signal(&queue->wakeup);
     if (rc != 0) {
-        MYMPD_LOG_ERROR("Error in pthread_cond_signal: %d", rc);
+        MYMPD_LOG_ERROR(NULL, "Error in pthread_cond_signal: %d", rc);
         return 0;
     }
     return true;
@@ -104,7 +104,7 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
     //lock the queue
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
-        MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
+        MYMPD_LOG_ERROR(NULL, "Error in pthread_mutex_lock: %d", rc);
         assert(NULL);
     }
     //check and wait for entries
@@ -123,8 +123,8 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
 
         if (rc != 0) {
             if (rc != ETIMEDOUT) {
-                MYMPD_LOG_ERROR("Error in pthread_cond_timedwait: %d", rc);
-                MYMPD_LOG_ERRNO(errno);
+                MYMPD_LOG_ERROR(NULL, "Error in pthread_cond_timedwait: %d", rc);
+                MYMPD_LOG_ERRNO(NULL, errno);
             }
             unlock_mutex(&queue->mutex);
             return NULL;
@@ -159,7 +159,7 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
                 unlock_mutex(&queue->mutex);
                 return data;
             }
-            MYMPD_LOG_DEBUG("Skipping queue entry with id %ld", current->id);
+            MYMPD_LOG_DEBUG(NULL, "Skipping queue entry with id %ld", current->id);
         }
     }
 
@@ -176,7 +176,7 @@ void *mympd_queue_shift(struct t_mympd_queue *queue, int timeout, long id) {
 int mympd_queue_expire(struct t_mympd_queue *queue, time_t max_age) {
     int rc = pthread_mutex_lock(&queue->mutex);
     if (rc != 0) {
-        MYMPD_LOG_ERROR("Error in pthread_mutex_lock: %d", rc);
+        MYMPD_LOG_ERROR(NULL, "Error in pthread_mutex_lock: %d", rc);
         return 0;
     }
     int expired_count = 0;
@@ -273,7 +273,7 @@ static void free_queue_node_extra(void *extra, enum mympd_cmd_ids cmd_id) {
 static int unlock_mutex(pthread_mutex_t *mutex) {
     int rc = pthread_mutex_unlock(mutex);
     if (rc != 0) {
-        MYMPD_LOG_ERROR("Error in pthread_mutex_unlock: %d", rc);
+        MYMPD_LOG_ERROR(NULL, "Error in pthread_mutex_unlock: %d", rc);
     }
     return rc;
 }
@@ -287,8 +287,8 @@ static void set_wait_time(int timeout, struct timespec *max_wait) {
     timeout = timeout * 1000;
     errno = 0;
     if (clock_gettime(CLOCK_REALTIME, max_wait) == -1) {
-        MYMPD_LOG_ERROR("Error getting realtime");
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Error getting realtime");
+        MYMPD_LOG_ERRNO(NULL, errno);
         assert(NULL);
     }
     //timeout in ms

@@ -108,8 +108,8 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds search
     errno = 0;
     DIR *webradios_dir = opendir(webradios_dirname);
     if (webradios_dir == NULL) {
-        MYMPD_LOG_ERROR("Can not open directory \"%s\"", webradios_dirname);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can not open directory \"%s\"", webradios_dirname);
+        MYMPD_LOG_ERRNO(NULL, errno);
         FREE_SDS(webradios_dirname);
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Can not open webradios directory");

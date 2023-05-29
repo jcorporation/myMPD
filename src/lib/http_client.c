@@ -35,8 +35,8 @@ sds get_dnsserver(void) {
     errno = 0;
     FILE *fp = fopen("/etc/resolv.conf", OPEN_FLAGS_READ);
     if (fp == NULL) {
-        MYMPD_LOG_WARN("Can not open /etc/resolv.conf");
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_WARN(NULL, "Can not open /etc/resolv.conf");
+        MYMPD_LOG_ERRNO(NULL, errno);
         return buffer;
     }
     sds line = sdsempty();
@@ -59,7 +59,7 @@ sds get_dnsserver(void) {
                 //valid ipv4 address
                 break;
             }
-            MYMPD_LOG_DEBUG("Skipping invalid nameserver entry in resolv.conf");
+            MYMPD_LOG_DEBUG(NULL, "Skipping invalid nameserver entry in resolv.conf");
             sdsclear(nameserver);
         }
     }
@@ -69,7 +69,7 @@ sds get_dnsserver(void) {
         buffer = sdscatfmt(buffer, "udp://%S:53", nameserver);
     }
     else {
-        MYMPD_LOG_WARN("No valid nameserver found");
+        MYMPD_LOG_WARN(NULL, "No valid nameserver found");
         buffer = sdscat(buffer, "udp://8.8.8.8:53");
     }
     FREE_SDS(nameserver);
@@ -89,11 +89,11 @@ void http_client_request(struct mg_client_request_t *mg_client_request,
     mg_log_set(1);
     //set dns server
     sds dns_uri = get_dnsserver();
-    MYMPD_LOG_DEBUG("Setting dns server to %s", dns_uri);
+    MYMPD_LOG_DEBUG(NULL, "Setting dns server to %s", dns_uri);
     mgr_client.dns4.url = dns_uri;
 
     mgr_client.userdata = mg_client_request;
-    MYMPD_LOG_DEBUG("HTTP client connecting to \"%s\"", mg_client_request->uri);
+    MYMPD_LOG_DEBUG(NULL, "HTTP client connecting to \"%s\"", mg_client_request->uri);
     mg_http_connect(&mgr_client, mg_client_request->uri, http_client_ev_handler, mg_client_response);
     while (mg_client_response->rc == -1) {
         mg_mgr_poll(&mgr_client, 1000);
@@ -130,7 +130,7 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         }
 
         //Send request
-        MYMPD_LOG_DEBUG("Sending data: \"%s\"", mg_client_request->post_data);
+        MYMPD_LOG_DEBUG(NULL, "Sending data: \"%s\"", mg_client_request->post_data);
         if (strcmp(mg_client_request->method, "POST") == 0) {
             mg_printf(nc,
                 "POST %s HTTP/1.0\r\n"
@@ -176,8 +176,8 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         //set response code
         mg_client_response->rc =  mg_client_response->response_code == 200 ? 0: 1;
 
-        MYMPD_LOG_DEBUG("HTTP client response code \"%d\"", mg_client_response->response_code);
-        MYMPD_LOG_DEBUG("HTTP client received body \"%s\"", mg_client_response->body);
+        MYMPD_LOG_DEBUG(NULL, "HTTP client response code \"%d\"", mg_client_response->response_code);
+        MYMPD_LOG_DEBUG(NULL, "HTTP client received body \"%s\"", mg_client_response->body);
         //Tell mongoose to close this connection
         nc->is_closing = 1;
     }
@@ -185,6 +185,6 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
         struct mg_client_response_t *mg_client_response = (struct mg_client_response_t *) fn_data;
         mg_client_response->body = sdscat(mg_client_response->body, "HTTP connection failed");
         mg_client_response->rc = 2;
-        MYMPD_LOG_ERROR("HTTP connection to \"%s\" failed", mg_client_request->uri);
+        MYMPD_LOG_ERROR(NULL, "HTTP connection to \"%s\" failed", mg_client_request->uri);
     }
 }

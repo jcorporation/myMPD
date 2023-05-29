@@ -173,7 +173,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
             sortdesc = sortdesc == false ? true : false;
         }
         else {
-            MYMPD_LOG_WARN("Unknown sort tag: %s", sort);
+            MYMPD_LOG_WARN(partition_state->name, "Unknown sort tag: %s", sort);
             sort_tag = MPD_TAG_ALBUM;
         }
     }
@@ -202,7 +202,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
                 }
                 else {
                     //sort tag not present, append to end of the list
-                    MYMPD_LOG_WARN("Sort tag \"%s\" not set for \"%.*s\"", mpd_tag_name(sort_tag), (int)iter.key_len, (char *)iter.key);
+                    MYMPD_LOG_WARN(partition_state->name, "Sort tag \"%s\" not set for \"%.*s\"", mpd_tag_name(sort_tag), (int)iter.key_len, (char *)iter.key);
                     key = sdscatfmt(key, "zzzzzzzzzz::%s", mpd_song_get_uri(album));
                 }
             }
@@ -297,7 +297,7 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
         //filter and sort
         while ((pair = mpd_recv_pair_tag(partition_state->conn, mpdtag)) != NULL) {
             if (pair->value[0] == '\0') {
-                MYMPD_LOG_DEBUG("Value is empty, skipping");
+                MYMPD_LOG_DEBUG(partition_state->name, "Value is empty, skipping");
             }
             else if (searchstr_len == 0 ||
                 (searchstr_len <= 2 && utf8ncasecmp(searchstr, pair->value, searchstr_len) == 0) ||
@@ -362,9 +362,9 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
         pic = true;
     }
     else {
-        MYMPD_LOG_DEBUG("Can not open directory \"%s\"", pic_path);
+        MYMPD_LOG_DEBUG(partition_state->name, "Can not open directory \"%s\"", pic_path);
         if (errno != ENOENT) {
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERRNO(partition_state->name, errno);
         }
         //ignore error
     }

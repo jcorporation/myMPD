@@ -35,15 +35,15 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     //skip autoconfiguration if mpd_host state file is configured
     sds state_file = sdscatfmt(sdsempty(), "%S/state/mpd_host", mympd_state->config->workdir);
     if (testfile_read(state_file) == true) {
-        MYMPD_LOG_NOTICE("Skipping myMPD autoconfiguration");
+        MYMPD_LOG_NOTICE(NULL, "Skipping myMPD autoconfiguration");
         FREE_SDS(state_file);
         return;
     }
     FREE_SDS(state_file);
 
     //autoconfigure mpd connection
-    MYMPD_LOG_NOTICE("Starting myMPD autoconfiguration");
-    MYMPD_LOG_NOTICE("Reading environment");
+    MYMPD_LOG_NOTICE(NULL, "Starting myMPD autoconfiguration");
+    MYMPD_LOG_NOTICE(NULL, "Reading environment");
     bool mpd_configured = false;
 
     sds mpd_host = getenv_string("MPD_HOST", MYMPD_MPD_HOST, vcb_isname);
@@ -61,7 +61,7 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
             //no password
             mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, mpd_host);
         }
-        MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", mympd_state->mpd_state->mpd_host);
+        MYMPD_LOG_NOTICE(NULL, "Setting mpd host to \"%s\"", mympd_state->mpd_state->mpd_host);
         mpd_configured = true;
     }
     FREE_SDS(mpd_host);
@@ -69,14 +69,14 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     unsigned mpd_port = getenv_uint("MPD_PORT", MYMPD_MPD_PORT, MPD_PORT_MIN, MPD_PORT_MAX);
     if (mpd_port != mympd_state->mpd_state->mpd_port) {
         mympd_state->mpd_state->mpd_port = mpd_port;
-        MYMPD_LOG_NOTICE("Setting mpd port to \"%d\"", mympd_state->mpd_state->mpd_port);
+        MYMPD_LOG_NOTICE(NULL, "Setting mpd port to \"%d\"", mympd_state->mpd_state->mpd_port);
     }
 
     unsigned timeout = getenv_uint("MPD_TIMEOUT", MYMPD_MPD_TIMEOUT_SEC, MPD_TIMEOUT_MIN, MPD_TIMEOUT_MAX);
     timeout = timeout * 1000; //convert to ms
     if (timeout != mympd_state->mpd_state->mpd_timeout) {
         mympd_state->mpd_state->mpd_timeout = timeout;
-        MYMPD_LOG_NOTICE("Setting mpd timeout to \"%d\"", mympd_state->mpd_state->mpd_timeout);
+        MYMPD_LOG_NOTICE(NULL, "Setting mpd timeout to \"%d\"", mympd_state->mpd_state->mpd_timeout);
     }
 
     if (mpd_configured == true) {
@@ -88,7 +88,7 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     if (sdslen(xdg_runtime_dir) > 0) {
         sds socket = sdscatfmt(sdsempty(), "%s/mpd/socket", xdg_runtime_dir);
         if (test_mpd_conn(socket) == true) {
-            MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", socket);
+            MYMPD_LOG_NOTICE(NULL, "Setting mpd host to \"%s\"", socket);
             mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, socket);
             FREE_SDS(socket);
             FREE_SDS(xdg_runtime_dir);
@@ -108,7 +108,7 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     const char **p = test_sockets;
     while (*p != NULL) {
         if (test_mpd_conn(*p) == true) {
-            MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", *p);
+            MYMPD_LOG_NOTICE(NULL, "Setting mpd host to \"%s\"", *p);
             mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, *p);
             return;
         }
@@ -116,9 +116,9 @@ void mpd_client_autoconf(struct t_mympd_state *mympd_state) {
     }
 
     //fallback to localhost:6600
-    MYMPD_LOG_WARN("MPD autoconfiguration failed");
-    MYMPD_LOG_NOTICE("Setting mpd host to \"%s\"", MYMPD_MPD_HOST);
-    MYMPD_LOG_NOTICE("Setting mpd port to \"%d\"", MYMPD_MPD_PORT);
+    MYMPD_LOG_WARN(NULL, "MPD autoconfiguration failed");
+    MYMPD_LOG_NOTICE(NULL, "Setting mpd host to \"%s\"", MYMPD_MPD_HOST);
+    MYMPD_LOG_NOTICE(NULL, "Setting mpd port to \"%d\"", MYMPD_MPD_PORT);
     mympd_state->mpd_state->mpd_host = sds_replace(mympd_state->mpd_state->mpd_host, MYMPD_MPD_HOST);
     mympd_state->mpd_state->mpd_port = MYMPD_MPD_PORT;
 }
@@ -138,7 +138,7 @@ static bool test_mpd_conn(const char *socket_path) {
         return false;
     }
     if (mpd_connection_get_error(conn) != MPD_ERROR_SUCCESS) {
-        MYMPD_LOG_DEBUG("MPD connection \"%s\": %s", socket_path, mpd_connection_get_error_message(conn));
+        MYMPD_LOG_DEBUG(NULL, "MPD connection \"%s\": %s", socket_path, mpd_connection_get_error_message(conn));
         mpd_connection_free(conn);
         return false;
     }

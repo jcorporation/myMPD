@@ -43,7 +43,7 @@ bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, stru
             bool rc = mpd_send_delete_id(partition_state->conn, (unsigned)current->value_i);
             list_node_free(current);
             if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_delete_id");
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_delete_id");
                 break;
             }
         }
@@ -67,7 +67,7 @@ bool mympd_api_queue_append(struct t_partition_state *partition_state, struct t_
             bool rc = mpd_send_add(partition_state->conn, current->key);
             list_node_free(current);
             if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_add");
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_add");
                 break;
             }
         }
@@ -93,7 +93,7 @@ bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_
             bool rc = mpd_send_add_whence(partition_state->conn, current->key, to, whence);
             list_node_free(current);
             if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_add");
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_add");
                 break;
             }
             to++;
@@ -114,7 +114,7 @@ bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_
 bool mympd_api_queue_replace(struct t_partition_state *partition_state, struct t_list *uris, sds *error) {
     if (mpd_command_list_begin(partition_state->conn, false)) {
         if (mpd_send_clear(partition_state->conn) == false) {
-            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
+            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_clear");
         }
         else {
             struct t_list_node *current;
@@ -122,7 +122,7 @@ bool mympd_api_queue_replace(struct t_partition_state *partition_state, struct t
                 bool rc = mpd_send_add(partition_state->conn, current->key);
                 list_node_free(current);
                 if (rc == false) {
-                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_add");
+                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_add");
                     break;
                 }
             }
@@ -168,7 +168,7 @@ bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, struct 
             bool rc = mpd_send_prio_id(partition_state->conn, (unsigned)current->value_i, priority);
             list_node_free(current);
             if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_prio_id");
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_prio_id");
                 break;
             }
         }
@@ -217,7 +217,7 @@ bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state,
         }
     }
     if (priority > MPD_QUEUE_PRIO_MAX) {
-        MYMPD_LOG_WARN("MPD queue priority limit reached, setting it to max %d", MPD_QUEUE_PRIO_MAX);
+        MYMPD_LOG_WARN(partition_state->name, "MPD queue priority limit reached, setting it to max %d", MPD_QUEUE_PRIO_MAX);
         priority = MPD_QUEUE_PRIO_MAX;
     }
     return mympd_api_queue_prio_set(partition_state, song_ids, priority, error);
@@ -236,7 +236,7 @@ bool mympd_api_queue_append_plist(struct t_partition_state *partition_state, str
         while (current != NULL) {
             current->key = resolv_mympd_uri(current->key, partition_state->mpd_state->mpd_host, partition_state->mympd_state->config);
             if (mpd_send_load(partition_state->conn, current->key) == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_load");
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_load");
                 break;
             }
             current = current->next;
@@ -261,7 +261,7 @@ bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, st
         struct t_list_node *current = song_ids->head;
         while (current != NULL) {
             if (mpd_send_move_id_whence(partition_state->conn, (unsigned)current->value_i, to, whence) == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_move_id_whence");
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_move_id_whence");
                 break;
             }
             current = current->next;
@@ -288,7 +288,7 @@ bool mympd_api_queue_insert_plist(struct t_partition_state *partition_state, str
         while (current != NULL) {
             current->key = resolv_mympd_uri(current->key, partition_state->mpd_state->mpd_host, partition_state->mympd_state->config);
             if (mpd_send_load_range_to(partition_state->conn, current->key, 0, UINT_MAX, to, whence) == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_load_range_to");
+                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_load_range_to");
                 break;
             }
             current = current->next;
@@ -310,14 +310,14 @@ bool mympd_api_queue_insert_plist(struct t_partition_state *partition_state, str
 bool mympd_api_queue_replace_plist(struct t_partition_state *partition_state, struct t_list *plists, sds *error) {
     if (mpd_command_list_begin(partition_state->conn, false)) {
         if (mpd_send_clear(partition_state->conn) == false) {
-            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
+            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_clear");
         }
         else {
             struct t_list_node *current = plists->head;
             while (current != NULL) {
                 current->key = resolv_mympd_uri(current->key, partition_state->mpd_state->mpd_host, partition_state->mympd_state->config);
                 if (mpd_send_load(partition_state->conn, current->key) == false) {
-                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_load");
+                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_load");
                     break;
                 }
                 current = current->next;
@@ -387,13 +387,13 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
             unsigned pos_after = (unsigned)playing_song_pos + 1;
             if (pos_after < length) {
                 if (mpd_send_delete_range(partition_state->conn, pos_after, UINT_MAX) == false) {
-                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_delete_range");
+                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_delete_range");
                 }
             }
             //remove all songs before current song
             if (playing_song_pos > 0) {
                 if (mpd_send_delete_range(partition_state->conn, 0, (unsigned)playing_song_pos) == false) {
-                    MYMPD_LOG_ERROR("Error adding command to command list mpd_send_delete_range");
+                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_delete_range");
                 }
             }
             mpd_command_list_end(partition_state->conn);
@@ -415,7 +415,7 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
         //queue can not be cropped
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Can not crop the queue");
-        MYMPD_LOG_ERROR("Can not crop the queue");
+        MYMPD_LOG_ERROR(partition_state->name, "Can not crop the queue");
     }
 
     return buffer;
@@ -616,7 +616,7 @@ sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds bu
         }
     }
     else {
-        MYMPD_LOG_WARN("Unknown sort tag: %s", sort);
+        MYMPD_LOG_WARN(partition_state->name, "Unknown sort tag: %s", sort);
     }
 
     unsigned real_limit = limit == 0 ? offset + MPD_PLAYLIST_LENGTH_MAX : offset + limit;

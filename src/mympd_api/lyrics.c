@@ -58,13 +58,13 @@ static const char *mympd_id3_field_getlanguage(union id3_field const *field);
 sds mympd_api_lyrics_get(struct t_lyrics *lyrics, sds music_directory, sds buffer, long request_id, sds uri) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_LYRICS_GET;
     if (is_streamuri(uri) == true) {
-        MYMPD_LOG_ERROR("Can not get lyrics for stream uri");
+        MYMPD_LOG_ERROR(NULL, "Can not get lyrics for stream uri");
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_LYRICS, JSONRPC_SEVERITY_ERROR, "Can not get lyrics for stream uri");
         return buffer;
     }
     if (sdslen(music_directory) == 0) {
-        MYMPD_LOG_DEBUG("Can not get lyrics, no access to music directory");
+        MYMPD_LOG_DEBUG(NULL, "Can not get lyrics, no access to music directory");
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_LYRICS, JSONRPC_SEVERITY_INFO, "No lyrics found");
         return buffer;
@@ -152,7 +152,7 @@ static void lyrics_get(struct t_lyrics *lyrics, struct t_list *extracted,
 static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char *ext, bool synced) {
     //try file in folder in the music directory
     sds lyricsfile = replace_file_extension(mediafile, ext);
-    MYMPD_LOG_DEBUG("Trying to open lyrics file: %s", lyricsfile);
+    MYMPD_LOG_DEBUG(NULL, "Trying to open lyrics file: %s", lyricsfile);
     sds text = sdsempty();
     int rc = sds_getfile(&text, lyricsfile, LYRICS_SIZE_MAX, false, false);
     if (rc > 0) {
@@ -177,15 +177,15 @@ static void lyrics_fromfile(struct t_list *extracted, sds mediafile, const char 
  */
 static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file) {
     #ifdef MYMPD_ENABLE_LIBID3TAG
-    MYMPD_LOG_DEBUG("Exctracting unsynced lyrics from %s", media_file);
+    MYMPD_LOG_DEBUG(NULL, "Exctracting unsynced lyrics from %s", media_file);
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
     if (file_struct == NULL) {
-        MYMPD_LOG_ERROR("Can't parse id3_file: %s", media_file);
+        MYMPD_LOG_ERROR(NULL, "Can't parse id3_file: %s", media_file);
         return;
     }
     struct id3_tag *tags = id3_file_tag(file_struct);
     if (tags == NULL) {
-        MYMPD_LOG_ERROR("Can't read id3 tags from file: %s", media_file);
+        MYMPD_LOG_ERROR(NULL, "Can't read id3 tags from file: %s", media_file);
         id3_file_close(file_struct);
         return;
     }
@@ -229,10 +229,10 @@ static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file)
             list_push(extracted, buffer, 0 , NULL, NULL);
             sdsclear(buffer);
             found_lyrics++;
-            MYMPD_LOG_DEBUG("Unsynced lyrics successfully extracted");
+            MYMPD_LOG_DEBUG(NULL, "Unsynced lyrics successfully extracted");
         }
         else {
-            MYMPD_LOG_DEBUG("Can not read embedded unsynced lyrics");
+            MYMPD_LOG_DEBUG(NULL, "Can not read embedded unsynced lyrics");
             break;
         }
         i++;
@@ -241,7 +241,7 @@ static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file)
     FREE_SDS(buffer);
 
     if (found_lyrics == 0) {
-        MYMPD_LOG_DEBUG("No embedded unsynced lyrics found");
+        MYMPD_LOG_DEBUG(NULL, "No embedded unsynced lyrics found");
     }
     #else
     (void) media_file;
@@ -256,15 +256,15 @@ static void lyricsextract_unsynced_id3(struct t_list *extracted, sds media_file)
  */
 static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file) {
     #ifdef MYMPD_ENABLE_LIBID3TAG
-    MYMPD_LOG_DEBUG("Exctracting synced lyrics from \"%s\"", media_file);
+    MYMPD_LOG_DEBUG(NULL, "Exctracting synced lyrics from \"%s\"", media_file);
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
     if (file_struct == NULL) {
-        MYMPD_LOG_ERROR("Can't parse id3_file: %s", media_file);
+        MYMPD_LOG_ERROR(NULL, "Can't parse id3_file: %s", media_file);
         return;
     }
     struct id3_tag *tags = id3_file_tag(file_struct);
     if (tags == NULL) {
-        MYMPD_LOG_ERROR("Can't read id3 tags from file \"%s\"", media_file);
+        MYMPD_LOG_ERROR(NULL, "Can't read id3 tags from file \"%s\"", media_file);
         id3_file_close(file_struct);
         return;
     }
@@ -320,10 +320,10 @@ static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file) {
             list_push(extracted, buffer, 0 , NULL, NULL);
             sdsclear(buffer);
             found_lyrics++;
-            MYMPD_LOG_DEBUG("Synced lyrics successfully extracted");
+            MYMPD_LOG_DEBUG(NULL, "Synced lyrics successfully extracted");
         }
         else {
-            MYMPD_LOG_DEBUG("Can not read embedded synced lyrics");
+            MYMPD_LOG_DEBUG(NULL, "Can not read embedded synced lyrics");
             break;
         }
         i++;
@@ -331,7 +331,7 @@ static void lyricsextract_synced_id3(struct t_list *extracted, sds media_file) {
     id3_file_close(file_struct);
     FREE_SDS(buffer);
     if (found_lyrics == 0) {
-        MYMPD_LOG_DEBUG("No embedded synced lyrics found");
+        MYMPD_LOG_DEBUG(NULL, "No embedded synced lyrics found");
     }
     #else
     (void) media_file;
@@ -369,7 +369,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
     id3_length_t sep_len = encoding == 0 || encoding == 3 ? 1 : 2;
     id3_length_t i = 0;
 
-    MYMPD_LOG_DEBUG("Sylt encoding: %u", encoding);
+    MYMPD_LOG_DEBUG(NULL, "Sylt encoding: %u", encoding);
 
     while (i + sep_len + 4 < binary_length) {
         //look for bom and skip it
@@ -444,7 +444,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
                         }
                     }
                     else {
-                        MYMPD_LOG_ERROR("Premature end of data");
+                        MYMPD_LOG_ERROR(NULL, "Premature end of data");
                         break;
                     }
                 }
@@ -465,7 +465,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
             }
         }
         else {
-            MYMPD_LOG_ERROR("Unknown text encoding");
+            MYMPD_LOG_ERROR(NULL, "Unknown text encoding");
             break;
         }
         //skip separator
@@ -473,7 +473,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
             i = i + sep_len;
         }
         else {
-            MYMPD_LOG_ERROR("Premature end of data");
+            MYMPD_LOG_ERROR(NULL, "Premature end of data");
             break;
         }
         //read timestamp - 4 bytes
@@ -488,7 +488,7 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
             i = i + 4;
         }
         else {
-            MYMPD_LOG_ERROR("No timestamp found");
+            MYMPD_LOG_ERROR(NULL, "No timestamp found");
             break;
         }
     }
@@ -507,11 +507,11 @@ static sds decode_sylt(const id3_byte_t *binary_data, id3_length_t binary_length
  */
 static void lyricsextract_flac(struct t_list *extracted, sds media_file, bool is_ogg, const char *comment_name, bool synced) {
     #ifdef MYMPD_ENABLE_FLAC
-    MYMPD_LOG_DEBUG("Exctracting lyrics from \"%s\"", media_file);
+    MYMPD_LOG_DEBUG(NULL, "Exctracting lyrics from \"%s\"", media_file);
     FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
 
     if (! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
-        MYMPD_LOG_ERROR("Can't read metadata from file \"%s\"", media_file);
+        MYMPD_LOG_ERROR(NULL, "Can't read metadata from file \"%s\"", media_file);
         FLAC__metadata_chain_delete(chain);
         return;
     }
@@ -542,18 +542,18 @@ static void lyricsextract_flac(struct t_list *extracted, sds media_file, bool is
                     list_push(extracted, buffer, 0 , NULL, NULL);
                     sdsclear(buffer);
                     found_lyrics++;
-                    MYMPD_LOG_DEBUG("Found embedded lyrics");
+                    MYMPD_LOG_DEBUG(NULL, "Found embedded lyrics");
                     field_value++;
                 }
                 else {
-                    MYMPD_LOG_DEBUG("Invalid vorbis comment");
+                    MYMPD_LOG_DEBUG(NULL, "Invalid vorbis comment");
                 }
             }
         }
     } while (FLAC__metadata_iterator_next(iterator));
 
     if (found_lyrics == 0) {
-        MYMPD_LOG_DEBUG("No embedded lyrics found");
+        MYMPD_LOG_DEBUG(NULL, "No embedded lyrics found");
     }
     FLAC__metadata_iterator_delete(iterator);
     FLAC__metadata_chain_delete(chain);

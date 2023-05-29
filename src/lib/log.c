@@ -57,7 +57,7 @@ void set_loglevel(int level) {
     else if (level < LOGLEVEL_MIN) {
         level = 0;
     }
-    MYMPD_LOG_NOTICE("Setting loglevel to %s", loglevel_names[level]);
+    MYMPD_LOG_NOTICE(NULL, "Setting loglevel to %s", loglevel_names[level]);
     loglevel = level;
 }
 
@@ -68,7 +68,7 @@ void set_loglevel(int level) {
  * @param line linenumber for debug logging
  * @param errnum errno
  */
-void mympd_log_errno(const char *file, int line, int errnum) {
+void mympd_log_errno(const char *file, int line, const char *partition, int errnum) {
     if (errnum == 0) {
         //do not log success
         return;
@@ -76,7 +76,7 @@ void mympd_log_errno(const char *file, int line, int errnum) {
     char err_text[256];
     int rc = strerror_r(errnum, err_text, 256);
     const char *err_str = rc == 0 ? err_text : "Unknown error";
-    mympd_log(LOG_ERR, file, line, "%s", err_str);
+    mympd_log(LOG_ERR, file, line, partition, "%s", err_str);
 }
 
 /**
@@ -85,10 +85,11 @@ void mympd_log_errno(const char *file, int line, int errnum) {
  * @param level loglevel of the message
  * @param file filename for debug logging
  * @param line linenumber for debug logging
+ * @param partition mpd partition
  * @param fmt format string to print
  * @param ... arguments for the format string
  */
-void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
+void mympd_log(int level, const char *file, int line, const char *partition, const char *fmt, ...) {
     if (level > loglevel) {
         return;
     }
@@ -122,6 +123,9 @@ void mympd_log(int level, const char *file, int line, const char *fmt, ...) {
         (void)file;
         (void)line;
     #endif
+    if (partition != NULL) {
+        logline = sdscatfmt(logline, "\"%s\": ", partition);
+    }
 
     va_list args;
     va_start(args, fmt);

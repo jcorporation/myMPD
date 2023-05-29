@@ -35,15 +35,15 @@ static void *mpd_worker_run(void *arg);
  * @return true on success, else false
  */
 bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *request) {
-    MYMPD_LOG_NOTICE("Starting mpd_worker thread for %s", get_cmd_id_method_name(request->cmd_id));
+    MYMPD_LOG_NOTICE(NULL, "Starting mpd_worker thread for %s", get_cmd_id_method_name(request->cmd_id));
     pthread_t mpd_worker_thread;
     pthread_attr_t attr;
     if (pthread_attr_init(&attr) != 0) {
-        MYMPD_LOG_ERROR("Can not init mpd_worker thread attribute");
+        MYMPD_LOG_ERROR(NULL, "Can not init mpd_worker thread attribute");
         return false;
     }
     if (pthread_attr_setdetachstate(&attr, PTHREAD_CREATE_DETACHED) != 0) {
-        MYMPD_LOG_ERROR("Can not set mpd_worker thread to detached");
+        MYMPD_LOG_ERROR(NULL, "Can not set mpd_worker thread to detached");
         return false;
     }
     //create mpd worker state from mympd_state
@@ -74,7 +74,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     copy_tag_types(&mympd_state->mpd_state->tags_album, &mpd_worker_state->mpd_state->tags_album);
 
     if (pthread_create(&mpd_worker_thread, &attr, mpd_worker_run, mpd_worker_state) != 0) {
-        MYMPD_LOG_ERROR("Can not create mpd_worker thread");
+        MYMPD_LOG_ERROR(NULL, "Can not create mpd_worker thread");
         mpd_worker_state_free(mpd_worker_state);
         return false;
     }
@@ -101,7 +101,7 @@ static void *mpd_worker_run(void *arg) {
         //disconnect
         mpd_client_disconnect_silent(mpd_worker_state->partition_state, MPD_REMOVED);
     }
-    MYMPD_LOG_NOTICE("Stopping mpd_worker thread");
+    MYMPD_LOG_NOTICE(NULL, "Stopping mpd_worker thread");
     mpd_worker_state_free(mpd_worker_state);
     worker_threads--;
     FREE_SDS(thread_logname);
