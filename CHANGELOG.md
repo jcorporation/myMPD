@@ -48,6 +48,7 @@ This is a small bugfix release.
 
 - Fix: improve javascript error logging
 - Fix: drag&drop on same element #1026
+- Fix: js error on disabled MUSICBRAINZ_ALBUMID tag #1025
 
 ***
 

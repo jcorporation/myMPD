@@ -338,9 +338,13 @@ function getMBtagLink(tag, value) {
             MBentity = 'recording';
             break;
     }
-    if (MBentity === '' ||
+    if (value === undefined ||
+        value === '' ||
         value === '-')
     {
+        return elCreateText('span', {}, '');
+    }
+    else if (MBentity === '') {
         return elCreateText('span', {}, value);
     }
     else {
@@ -362,13 +366,16 @@ function addMusicbrainzFields(songObj, showArtists) {
     }
 
     const artist = showArtists === false ? 'MUSICBRAINZ_ALBUMARTISTID' : 'MUSICBRAINZ_ARTISTID';
+
     if ((songObj.MUSICBRAINZ_ALBUMID !== '-' && songObj.MUSICBRAINZ_ALBUMID !== undefined) ||
         (songObj[artist] !== undefined && checkTagValue(songObj[artist], '-') === false))
     {
         const mbField = elCreateNode('div', {"class": ["col-xl-6"]},
             elCreateTextTn('small', {}, 'MusicBrainz')
         );
-        if (songObj.MUSICBRAINZ_ALBUMID !== '-') {
+        if (songObj.MUSICBRAINZ_ALBUMID !== undefined &&
+            songObj.MUSICBRAINZ_ALBUMID !== '-')
+        {
             const albumLink = getMBtagLink('MUSICBRAINZ_ALBUMID', songObj.MUSICBRAINZ_ALBUMID);
             albumLink.textContent = tn('Goto album');
             mbField.appendChild(
