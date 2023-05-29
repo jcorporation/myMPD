@@ -95,9 +95,8 @@ mpd_lookup_replay_gain_mode(enum mpd_replay_gain_mode mode);
 /**
  * Queries the current state of replay gain mode on MPD.
  *
- * Sends the "replay_gain_status" command to MPD. Call mpd_recv_pair() to
- * read response lines. The pair's name should be "replay_gain_mode". Use
- * mpd_parse_replay_gain_name() to check each pair's value.
+ * Sends the "replay_gain_status" command to MPD.
+ * Call mpd_recv_replay_gain_status() to read the response.
  *
  * @param connection the connection to MPD
  * @return true on success, false on error
@@ -108,7 +107,21 @@ bool
 mpd_send_replay_gain_status(struct mpd_connection *connection);
 
 /**
- * Shortcut for mpd_send_replay_gain_status(), mpd_recv_pair_named() and
+ * Receives the current state of replay gain mode on MPD.
+ * Shortcut for mpd_recv_pair_named() and mpd_parse_replay_gain_name() ad
+ * mpd_return_pair().
+ *
+ * @param connection the connection to MPD
+ * @return #mpd_replay_gain_mode object: #MPD_REPLAY_UNKNOWN on error (or
+ * unknown ReplayGain mode); other modes on success.
+ *
+ * @since MPD 0.16, libmpdclient 2.21.
+ */
+enum mpd_replay_gain_mode
+mpd_recv_replay_gain_status(struct mpd_connection *connection);
+
+/**
+ * Shortcut for mpd_send_replay_gain_status(), mpd_recv_replay_gain_status() and
  * mpd_response_finish().
  *
  * @param connection the connection to MPD
