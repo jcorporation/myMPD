@@ -638,8 +638,13 @@ function tableRow(row, data, list, colspan, smallWidth) {
             }
         }
         switch(app.id) {
-            case 'QueueCurrent':
             case 'BrowsePlaylistDetail':
+                // add quick play and remove action
+                row.appendChild(
+                    pEl.actionPlaylistDetailTd.cloneNode(true)
+                );
+                break;
+            case 'QueueCurrent':
                 // add quick remove action
                 row.appendChild(
                     pEl.actionQueueTd.cloneNode(true)

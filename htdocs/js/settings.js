@@ -277,9 +277,16 @@ function parseSettings(obj) {
         : pEl.actionTdMenu;
     pEl.actionJukeboxTd = settings.webuiSettings.uiQuickPlayButton === true && settings.webuiSettings.uiQuickRemoveButton === true
         ? pEl.actionTdMenuPlayRemove
-        : settings.webuiSettings.uiQuickPlayButton === true 
+        : settings.webuiSettings.uiQuickPlayButton === true
             ? pEl.actionTdMenuPlay
-            : settings.webuiSettings.uiQuickRemoveButton === true 
+            : settings.webuiSettings.uiQuickRemoveButton === true
+                ? pEl.actionTdMenuRemove
+                : pEl.actionTdMenu;
+    pEl.actionPlaylistDetailTd = settings.webuiSettings.uiQuickPlayButton === true && settings.webuiSettings.uiQuickRemoveButton === true
+        ? pEl.actionTdMenuPlayRemove
+        : settings.webuiSettings.uiQuickPlayButton === true
+            ? pEl.actionTdMenuPlay
+            : settings.webuiSettings.uiQuickRemoveButton === true
                 ? pEl.actionTdMenuRemove
                 : pEl.actionTdMenu;
     pEl.coverPlayBtn.title = tn(webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
