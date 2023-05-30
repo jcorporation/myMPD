@@ -98,7 +98,7 @@ function dragAndDropTable(tableId) {
                 "to": newSongPos
             }, null, false);
         }
-        else if (app.id === 'BrowsePlaylistsDetail') {
+        else if (app.id === 'BrowsePlaylistDetail') {
             playlistMoveSong(oldSongPos, newSongPos);
         }
     }, false);
@@ -224,7 +224,7 @@ function setColTags(tableName) {
         case 'QueueCurrent':
             tags.push('AudioFormat', 'Priority');
             //fall through
-        case 'BrowsePlaylistsDetail':
+        case 'BrowsePlaylistDetail':
         case 'QueueJukebox':
             tags.push('Pos');
             break;
@@ -622,7 +622,7 @@ function tableRow(row, data, list, colspan, smallWidth) {
         }
         switch(app.id) {
             case 'QueueCurrent':
-            case 'BrowsePlaylistsDetail':
+            case 'BrowsePlaylistDetail':
                 // add quick remove action
                 row.appendChild(
                     pEl.actionQueueTd.cloneNode(true)
