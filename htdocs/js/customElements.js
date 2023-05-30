@@ -29,6 +29,7 @@ pEl.actionTd = pEl.actionTdMenu;
 pEl.actionQueueTd = pEl.actionTdMenu;
 pEl.actionJukeboxTd = pEl.actionTdMenu;
 pEl.actionPlaylistDetailTd = pEl.actionTdMenu;
+pEl.actionPlaylistTd = pEl.actionTdMenu;
 pEl.coverPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
     "data-title-phrase": "Quick play"}, 'play_arrow');
 

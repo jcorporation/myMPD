@@ -160,7 +160,7 @@ function parsePlaylistList(obj) {
             elCreateText('td', {}, fmtDate(data.lastModified))
         );
         row.appendChild(
-            pEl.actionTd.cloneNode(true)
+            pEl.actionPlaylistTd.cloneNode(true)
         );
     });
 }

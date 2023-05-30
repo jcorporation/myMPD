@@ -17,6 +17,12 @@ function clickQuickRemove(target) {
             removeFromQueueIDs([songId]);
             break;
         }
+        case 'BrowsePlaylistList': {
+            const plist = getData(target.parentNode.parentNode, 'uri');
+            const smartplsonly = getData(target.parentNode.parentNode, 'smartpls-only');
+            showDelPlaylist(plist, smartplsonly);
+            break;
+        }
         case 'BrowsePlaylistDetail': {
             const pos = getData(target.parentNode.parentNode, 'songpos');
             const plist = getDataId('BrowsePlaylistDetailList', 'uri');
