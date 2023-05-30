@@ -129,18 +129,15 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
 {
     enum mpd_error error = mpd_connection_get_error(partition_state->conn);
     if (error != MPD_ERROR_SUCCESS) {
-        const char *error_msg;
-        if (error == MPD_ERROR_SYSTEM) {
-            char err_text[256];
-            error_msg = strerror_r(errno, err_text, 256) == 0
-                ? err_text
-                : "Unknown system error";
+        const char *error_msg = mpd_connection_get_error_message(partition_state->conn);
+            
+        if (error == MPD_ERROR_SERVER) {
+            enum mpd_server_error server_error = mpd_connection_get_server_error(partition_state->conn);
+            MYMPD_LOG_ERROR(partition_state->name, "MPD error for command %s: %s (%d, %d)", command, error_msg , error, server_error);
         }
         else {
-            error_msg = mpd_connection_get_error_message(partition_state->conn);
+            MYMPD_LOG_ERROR(partition_state->name, "MPD error for command %s: %s (%d)", command, error_msg , error);
         }
-
-        MYMPD_LOG_ERROR(partition_state->name, "MPD error for command %s: %s (%d)", command, error_msg , error);
         if (buffer != NULL &&
             *buffer != NULL)
         {
