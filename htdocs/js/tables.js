@@ -645,6 +645,10 @@ function tableRow(row, data, list, colspan, smallWidth) {
                 );
                 break;
             case 'QueueCurrent':
+<<<<<<< HEAD
+=======
+            case 'BrowsePlaylistDetail':
+>>>>>>> devel
                 // add quick remove action
                 row.appendChild(
                     pEl.actionQueueTd.cloneNode(true)
