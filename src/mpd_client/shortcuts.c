@@ -17,7 +17,7 @@
  */
 bool mpd_client_command_list_end_check(struct t_partition_state *partition_state) {
     if (partition_state->conn_state == MPD_CONNECTED) {
-        return mpd_client_command_list_end_check(partition_state);
+        return mpd_command_list_end(partition_state->conn);
     }
     return false;
 }
