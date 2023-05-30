@@ -505,7 +505,6 @@ div#homeActions {
 }
 
 .card-footer-grid {
-  white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   font-size: 0.9rem;
