@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v10.4.0 (not yet released)
 
-This release improves the queue and playlist management in many ways.
+This release improves the queue and playlist management in many ways. You can now select multiple songs or playlists and take actions on this selection. Further the mpd error handling and the mpd communication was improved by using command lists.
 
 ### API changes
 
@@ -36,6 +36,8 @@ This release improves the queue and playlist management in many ways.
 - Feat: Improve queue and playlist management #1001
 - Feat: migrate to JavaScript fetch() API #1006
 - Feat: add test target to cmake #1023
+- Feat: improve mpd error handling #1028
+- Feat: improve mpd communication
 - Upd: Mongoose 7.10 #1024
 
 ***
