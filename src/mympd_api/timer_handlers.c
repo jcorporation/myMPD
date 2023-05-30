@@ -16,6 +16,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
+#include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/volume.h"
 
 #include <string.h>
@@ -129,11 +130,11 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
 
     if (mpd_command_list_begin(partition_state->conn, false)) {
         if (mpd_send_stop(partition_state->conn)) {
-            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_stop");
+            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_stop");
         }
         if (old_volume != -1) {
             if (mpd_send_set_volume(partition_state->conn, volume) == false) {
-                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_set_volume");
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_set_volume");
             }
         }
 
@@ -145,17 +146,17 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
                 mpd_send_load(partition_state->conn, playlist) ||
                 mpd_send_play(partition_state->conn))
             {
-                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list");
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list");
             }
         }
 
         if (jukebox_mode != JUKEBOX_OFF) {
             //clear the queue if jukebox is enabled through preset
             if (mpd_send_clear(partition_state->conn) == false) {
-                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_clear");
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_clear");
             }
         }
-        mpd_command_list_end(partition_state->conn);
+        mpd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);
     //restore old jukebox mode

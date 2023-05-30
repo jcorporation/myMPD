@@ -37,6 +37,15 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
  */
 
 /**
+ * Sets the MPD_FAILURE state for the partition.
+ * myMPD disconnects and tries a reconnect.
+ */
+void mympd_set_mpd_failure(struct t_partition_state *partition_state, const char *errormessage) {
+    MYMPD_LOG_ERROR(partition_state->name, "%s", errormessage);
+    partition_state->conn_state = MPD_FAILURE;
+}
+
+/**
  * Checks for mpd protocol error and tries to recover it
  * @param partition_state pointer to partition specific states
  * @param buffer pointer to an already allocated sds string for the error message
@@ -156,7 +165,7 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
         }
         //try to recover from error
         if (mpd_connection_clear_error(partition_state->conn) == false) {
-            partition_state->conn_state = MPD_FAILURE;
+            mympd_set_mpd_failure(partition_state, "Unrecoverable MPD error");
         }
         else {
             mpd_response_finish(partition_state->conn);

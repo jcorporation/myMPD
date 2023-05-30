@@ -11,6 +11,7 @@
 #include "src/lib/api.h"
 #include "src/lib/mympd_state.h"
 
+void mympd_set_mpd_failure(struct t_partition_state *partition_state, const char *errormessage);
 bool mympd_check_error_and_recover(struct t_partition_state *partition_state, sds *buffer, const char *command);
 bool mympd_check_error_and_recover_respond(struct t_partition_state *partition_state, sds *buffer,
         enum mympd_cmd_ids cmd_id, long request_id, const char *command);

@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/response.h"
 #include "src/mpd_client/tags.h"
 
 #include "dist/libmympdclient/src/isong.h"
@@ -15,6 +14,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/shortcuts.h"
 
 #include <string.h>
 
@@ -211,17 +211,17 @@ bool enable_mpd_tags(struct t_partition_state *partition_state, const struct t_t
     MYMPD_LOG_INFO(partition_state->name, "Setting interesting mpd tag types");
     if (mpd_command_list_begin(partition_state->conn, false)) {
         if (mpd_send_clear_tag_types(partition_state->conn) == false) {
-            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_clear_tag_types");
+            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_clear_tag_types");
         }
         if (enable_tags->len > 0) {
             if (mpd_send_enable_tag_types(partition_state->conn, enable_tags->tags, (unsigned)enable_tags->len) == false) {
-                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_enable_tag_types");
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_enable_tag_types");
             }
         }
         else {
             MYMPD_LOG_WARN(partition_state->name, "No mpd tags are enabled");
         }
-        mpd_command_list_end(partition_state->conn);
+        mpd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, NULL, "mpd_send_enable_tag_types");

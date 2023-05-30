@@ -12,6 +12,7 @@
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
 
 #include <string.h>
@@ -98,14 +99,14 @@ bool mpd_client_playlist_shuffle(struct t_partition_state *partition_state, cons
                 rc = mpd_send_playlist_add(partition_state->conn, playlist_tmp, current->key);
                 list_node_free(current);
                 if (rc == false) {
-                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
+                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
                 if (j == MPD_COMMANDS_MAX) {
                     break;
                 }
             }
-            mpd_command_list_end(partition_state->conn);
+            mpd_client_command_list_end_check(partition_state);
         }
         mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_playlist_add") == false) {
@@ -220,14 +221,14 @@ static bool playlist_sort(struct t_partition_state *partition_state, const char 
                 i++;
                 j++;
                 if (mpd_send_playlist_add(partition_state->conn, playlist_tmp, iter.data) == false) {
-                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
+                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
                 if (j == MPD_COMMANDS_MAX) {
                     break;
                 }
             }
-            mpd_command_list_end(partition_state->conn);
+            mpd_client_command_list_end_check(partition_state);
         }
         mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_playlist_add") == false) {

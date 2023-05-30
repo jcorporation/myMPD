@@ -21,6 +21,7 @@
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/playlists.h"
 #include "src/mpd_client/search_local.h"
+#include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/sticker.h"
 
@@ -80,25 +81,26 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         unsigned i = 0;
+        bool rc = true;
         while ((current = list_shift_first(positions)) != NULL) {
             struct t_list_node *n = list_node_at(&src, (long)current->value_i);
-            bool rc = mode == 0 
+            rc = mode == 0 
                 ? mpd_send_playlist_add(partition_state->conn, dst_plist, n->key)
                 : mpd_send_playlist_add_to(partition_state->conn, dst_plist, n->key, i);
             if (rc == false) {
-                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
                 list_node_free(current);
                 break;
             }
             if (mpd_send_playlist_delete(partition_state->conn, src_plist, (unsigned)current->value_i)) {
-                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_delete");
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_delete");
                 list_node_free(current);
                 break;
             }
             i++;
             list_node_free(current);
         }
-        mpd_command_list_end(partition_state->conn);
+        mpd_client_command_list_end_check(partition_state);
     }
     list_clear(&src);
     mpd_response_finish(partition_state->conn);
@@ -163,14 +165,14 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
                 }
                 list_node_free(current);
                 if (rc == false) {
-                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
+                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
                 if (j == MPD_COMMANDS_MAX) {
                     break;
                 }
             }
-            mpd_command_list_end(partition_state->conn);
+            mpd_client_command_list_end_check(partition_state);
         }
         mpd_response_finish(partition_state->conn);
         rc = mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add");
@@ -202,12 +204,12 @@ bool mympd_api_playlist_content_append(struct t_partition_state *partition_state
         while ((current = list_shift_first(uris)) != NULL) {
             bool rc = mpd_send_playlist_add(partition_state->conn, plist, current->key);
             list_node_free(current);
-            if(rc == false) {
-                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
+            if (rc == false) {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
                 break;
             }
         }
-        mpd_command_list_end(partition_state->conn);
+        mpd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_move_id_whence");
@@ -229,12 +231,12 @@ bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state
             bool rc = mpd_send_playlist_add_to(partition_state->conn, plist, current->key, to);
             list_node_free(current);
             if (rc == false) {
-                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
                 break;
             }
             to++;
         }
-        mpd_command_list_end(partition_state->conn);
+        mpd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add_to");
@@ -251,7 +253,7 @@ bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state
 bool mympd_api_playlist_content_replace(struct t_partition_state *partition_state, sds plist, struct t_list *uris, sds *error) {
     if (mpd_command_list_begin(partition_state->conn, false)) {
         if (mpd_send_playlist_clear(partition_state->conn, plist) == false) {
-            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_clear");
+            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_clear");
         }
         else {
             struct t_list_node *current;
@@ -259,12 +261,12 @@ bool mympd_api_playlist_content_replace(struct t_partition_state *partition_stat
                 bool rc = mpd_send_playlist_add(partition_state->conn, plist, current->key);
                 list_node_free(current);
                 if (rc == false) {
-                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_add");
+                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
                     break;
                 }
             }
         }
-        mpd_command_list_end(partition_state->conn);
+        mpd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add");
@@ -286,11 +288,11 @@ bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition
             bool rc = mpd_send_playlist_delete(partition_state->conn, plist, (unsigned)current->value_i);
             list_node_free(current);
             if (rc == false) {
-                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_playlist_delete");
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_delete");
                 break;
             }
         }
-        mpd_command_list_end(partition_state->conn);
+        mpd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_delete");
@@ -602,13 +604,13 @@ bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct
             if (smartpls_only == false) {
                 //remove mpd playlist
                 if (mpd_send_rm(partition_state->conn, current->key) == false) {
-                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_rm");
+                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_rm");
                     break;
                 }
             }
             current = current->next;
         }
-        mpd_command_list_end(partition_state->conn);
+        mpd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_state->conn);
     FREE_SDS(pl_file);
@@ -716,7 +718,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
                 (criteria == PLAYLIST_DELETE_EMPTY && current->value_i == 0))
             {
                 if (mpd_send_rm(partition_state->conn, current->key) == false) {
-                    MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_rm");
+                    mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_rm");
                     list_node_free(current);
                     break;
                 }
@@ -724,7 +726,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
             }
             list_node_free(current);
         }
-        mpd_command_list_end(partition_state->conn);
+        mpd_client_command_list_end_check(partition_state);
     }
     list_clear(&playlists);
     mpd_response_finish(partition_state->conn);

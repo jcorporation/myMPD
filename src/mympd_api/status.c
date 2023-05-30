@@ -13,6 +13,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
 #include "src/mpd_client/volume.h"
 #include "src/mympd_api/extra_media.h"
@@ -228,12 +229,12 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
 bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_partition_state *partition_state) {
     if (mpd_command_list_begin(partition_state->conn, true)) {
         if (mpd_send_status(partition_state->conn) == false) {
-            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_status");
+            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_status");
         }
         if (mpd_send_replay_gain_status(partition_state->conn) == false) {
-            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_replay_gain_status");
+            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_replay_gain_status");
         }
-        mpd_command_list_end(partition_state->conn);
+        mpd_client_command_list_end_check(partition_state);
     }
     struct mpd_status *status = mpd_recv_status(partition_state->conn);
     enum mpd_replay_gain_mode replay_gain_mode = MPD_REPLAY_UNKNOWN;
@@ -312,12 +313,12 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_CURRENT_SONG;
     if (mpd_command_list_begin(partition_state->conn, true)) {
         if (mpd_send_status(partition_state->conn) == false) {
-            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_status");
+            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_status");
         }
         if (mpd_send_current_song(partition_state->conn) == false) {
-            MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_current_song");
+            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_current_song");
         }
-        mpd_command_list_end(partition_state->conn);
+        mpd_client_command_list_end_check(partition_state);
     }
 
     struct mpd_status *status = mpd_recv_status(partition_state->conn);

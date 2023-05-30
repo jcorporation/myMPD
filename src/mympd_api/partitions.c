@@ -10,12 +10,12 @@
 #include "src/lib/api.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
-#include "src/lib/log.h"
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/partitions.h"
 
 /**
@@ -97,11 +97,11 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
             bool rc = mpd_send_move_output(partition_state->conn, current->key);
             list_node_free(current);
             if (rc == false) {
-                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_move_output");
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_move_output");
                 break;
             }
         }
-        mpd_command_list_end(partition_state->conn);
+        mpd_client_command_list_end_check(partition_state);
     }
     mpd_response_finish(partition_to_remove->conn);
     list_clear(&outputs);

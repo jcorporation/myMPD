@@ -23,6 +23,7 @@
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
 #include "src/mpd_client/presets.h"
+#include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
@@ -836,12 +837,12 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_bool(buffer, "mpdConnected", true, true);
         if (mpd_command_list_begin(partition_state->conn, true)) {
             if (mpd_send_status(partition_state->conn) == false) {
-                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_status");
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_status");
             }
             if (mpd_send_replay_gain_status(partition_state->conn) == false) {
-                MYMPD_LOG_ERROR(partition_state->name, "Error adding command to command list mpd_send_replay_gain_status");
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_replay_gain_status");
             }
-            mpd_command_list_end(partition_state->conn);
+            mpd_client_command_list_end_check(partition_state);
         }
         struct mpd_status *status = mpd_recv_status(partition_state->conn);
         enum mpd_replay_gain_mode replay_gain_mode = MPD_REPLAY_UNKNOWN;
