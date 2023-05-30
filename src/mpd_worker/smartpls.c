@@ -402,7 +402,7 @@ static bool mpd_worker_smartpls_update_sticker_ge(struct t_mpd_worker_state *mpd
             if (data->value >= value_min &&
                 i < maxentries)
             {
-                if (mpd_send_playlist_add(mpd_worker_state->partition_state->conn, playlist, data->uri)) {
+                if (mpd_send_playlist_add(mpd_worker_state->partition_state->conn, playlist, data->uri) == false) {
                     mympd_set_mpd_failure(mpd_worker_state->partition_state, "Error adding command to command list mpd_send_playlist_add");
                     break;
                 }

@@ -92,7 +92,7 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
                 list_node_free(current);
                 break;
             }
-            if (mpd_send_playlist_delete(partition_state->conn, src_plist, (unsigned)current->value_i)) {
+            if (mpd_send_playlist_delete(partition_state->conn, src_plist, (unsigned)current->value_i) == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_delete");
                 list_node_free(current);
                 break;
