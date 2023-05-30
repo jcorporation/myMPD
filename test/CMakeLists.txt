@@ -31,6 +31,7 @@ set(TEST_SOURCES
   ../src/mpd_client/presets.c
   ../src/mpd_client/search.c
   ../src/mpd_client/search_local.c
+  ../src/mpd_client/shortcuts.c
   ../src/mpd_client/tags.c
   ../src/mpd_client/jukebox.c
   ../src/mpd_client/volume.c
