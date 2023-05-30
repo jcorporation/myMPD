@@ -17,9 +17,9 @@ function clickQuickRemove(target) {
             removeFromQueueIDs([songId]);
             break;
         }
-        case 'BrowsePlaylistsDetail': {
+        case 'BrowsePlaylistDetail': {
             const pos = getData(target.parentNode.parentNode, 'songpos');
-            const plist = getDataId('BrowsePlaylistsDetailList', 'uri');
+            const plist = getDataId('BrowsePlaylistDetailList', 'uri');
             removeFromPlaylistPositions(plist, [pos]);
             break;
         }

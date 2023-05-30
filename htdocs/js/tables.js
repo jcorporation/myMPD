@@ -105,7 +105,7 @@ function dragAndDropTable(tableId) {
                 queueMoveSong(oldSongPos, newSongPos);
                 break;
             }
-            case 'BrowsePlaylistsDetail': {
+            case 'BrowsePlaylistDetail': {
                 playlistMoveSong(oldSongPos, newSongPos);
                 break;
             }
@@ -241,7 +241,7 @@ function setColTags(tableName) {
         case 'QueueCurrent':
             tags.push('AudioFormat', 'Priority');
             //fall through
-        case 'BrowsePlaylistsDetail':
+        case 'BrowsePlaylistDetail':
         case 'QueueJukebox':
             tags.push('Pos');
             break;
@@ -639,7 +639,7 @@ function tableRow(row, data, list, colspan, smallWidth) {
         }
         switch(app.id) {
             case 'QueueCurrent':
-            case 'BrowsePlaylistsDetail':
+            case 'BrowsePlaylistDetail':
                 // add quick remove action
                 row.appendChild(
                     pEl.actionQueueTd.cloneNode(true)

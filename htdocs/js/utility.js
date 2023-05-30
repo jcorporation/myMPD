@@ -257,7 +257,7 @@ function focusSearch() {
         case 'BrowsePlaylistList':
             document.getElementById('searchPlaylistListStr').focus();
             break;
-        case 'BrowsePlaylistsDetail':
+        case 'BrowsePlaylistDetail':
             document.getElementById('searchPlaylistsDetailStr').focus();
             break;
         case 'BrowseRadioWebradiodb':
