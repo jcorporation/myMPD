@@ -38,6 +38,7 @@ This release improves the queue and playlist management in many ways. You can no
 - Feat: add test target to cmake #1023
 - Feat: improve mpd error handling #1028
 - Feat: improve mpd communication
+- Feat: add quick remove and quick play buttons to more views
 - Upd: Mongoose 7.10 #1024
 
 ***
