@@ -11,7 +11,8 @@
 
 /**
  * Sends mpd_command_list_end if MPD is connected.
- * Usage: Set MPD_FAILURE if a command returns false in a command list.
+ * Usage: Set MPD_FAILURE if a send command returns false in a command list.
+ * Workaround for not cancelable command lists
  * @param partition_state pointer to partition state
  * @return true on success, else false
  */
