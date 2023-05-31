@@ -1567,7 +1567,7 @@ const APImethods = {
                 "example": 8000,
                 "desc": "Port of MPD http stream for local playback"
             },
-            "streamuri": {
+            "streamUri": {
                 "type": APItypes.string,
                 "example": "http://custom/stream/uri",
                 "desc": "Custom stream uri, overrides automatic stream uri calculation (MPD host + mpdStreamPort)"
