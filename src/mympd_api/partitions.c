@@ -15,8 +15,8 @@
 #include "src/lib/utility.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/errorhandler.h"
-#include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/partitions.h"
+#include "src/mpd_client/shortcuts.h"
 
 /**
  * Lists partitions
