@@ -611,18 +611,26 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             mympd_state_save(mympd_state, false);
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
             break;
-        case MYMPD_API_JUKEBOX_RM:
-            if (json_get_long(request->data, "$.params.pos", 0, MPD_PLAYLIST_LENGTH_MAX, &long_buf1, &error) == true) {
-                rc = jukebox_rm_entry(&partition_state->jukebox_queue, long_buf1, partition_state->name);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
+        case MYMPD_API_JUKEBOX_RM: {
+            struct t_list positions;
+            list_init(&positions);
+            if (json_get_array_llong(request->data, "$.params.positions", &positions, MPD_COMMANDS_MAX, &error) == true)
+            {
+                if (positions.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No song positions provided");
+                }
+                else if (jukebox_rm_entries(&partition_state->jukebox_queue, &positions, partition_state->name) == true) {
+                        response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, "Could not remove song from jukebox queue");
                 }
             }
+            list_clear(&positions);
             break;
+        }
         case MYMPD_API_JUKEBOX_CLEAR:
             jukebox_clear(&partition_state->jukebox_queue, partition_state->name);
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);

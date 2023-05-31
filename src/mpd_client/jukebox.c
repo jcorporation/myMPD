@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/list.h"
 #include "src/mpd_client/jukebox.h"
 
 #include "dist/utf8/utf8.h"
@@ -92,19 +93,22 @@ const char *jukebox_mode_lookup(enum jukebox_modes mode) {
 }
 
 /**
- * Removes an entry from the jukebox queue.
+ * Removes entries from the jukebox queue.
  * @param list the jukebox queue
- * @param pos position to remove
+ * @param posistions positions to remove, must be ordered descending
  * @param partition_name name of the partition
  * @return true on success, else false
  */
-bool jukebox_rm_entry(struct t_list *list, long pos, sds partition_name) {
-    struct t_list_node *node = list_node_at(list, pos);
-    if (node == NULL) {
-        return false;
+bool jukebox_rm_entries(struct t_list *list, struct t_list *positions, sds partition_name) {
+    struct t_list_node *current;
+    bool rc = true;
+    while ((current = list_shift_first(positions)) != NULL) {
+        rc = list_remove_node(list, (long)current->value_i);
+        list_node_free(current);
+        if (rc == false) {
+            break;
+        }
     }
-    node->user_data = NULL;
-    bool rc = list_remove_node(list, pos);
     //notify clients
     send_jsonrpc_event(JSONRPC_EVENT_UPDATE_JUKEBOX, partition_name);
     return rc;
@@ -385,13 +389,15 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state, long add_so
             }
         }
         if (manual == false) {
-            partition_state->jukebox_queue.head->user_data = NULL;
-            jukebox_rm_entry(&partition_state->jukebox_queue, 0, partition_state->name);
+            if (list_remove_node(&partition_state->jukebox_queue, 0) == false) {
+                MYMPD_LOG_ERROR(partition_state->name, "Error removing first entry from jukebox queue");
+            }
             current = partition_state->jukebox_queue.head;
         }
         else {
-            partition_state->jukebox_queue_tmp.head->user_data = NULL;
-            jukebox_rm_entry(&partition_state->jukebox_queue_tmp, 0, partition_state->name);
+            if (list_remove_node(&partition_state->jukebox_queue_tmp, 0) == false) {
+                MYMPD_LOG_ERROR(partition_state->name, "Error removing first entry from manual jukebox queue");
+            }
             current = partition_state->jukebox_queue_tmp.head;
         }
     }

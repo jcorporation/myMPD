@@ -10,6 +10,7 @@ This release improves the queue and playlist management in many ways. You can no
 
 ### API changes
 
+- MYMPD_API_JUKEBOX_RM: parameters changed
 - MYMPD_API_QUEUE_RM_SONG -> MYMPD_API_QUEUE_RM_IDS
 - MYMPD_API_QUEUE_MOVE_SONG -> MYMPD_API_QUEUE_MOVE_POSITION
 - MYMPD_API_QUEUE_MOVE_RELATIVE: new

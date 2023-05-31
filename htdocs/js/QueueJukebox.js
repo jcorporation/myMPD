@@ -76,7 +76,7 @@ function clearJukeboxQueue() {
 //eslint-disable-next-line no-unused-vars
 function delQueueJukeboxSong(pos) {
     sendAPI("MYMPD_API_JUKEBOX_RM", {
-        "pos": pos
+        "positions": [pos]
     }, null, false);
 }
 

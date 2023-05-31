@@ -1754,7 +1754,7 @@ const APImethods = {
     "MYMPD_API_JUKEBOX_RM": {
         "desc": "Removes a song or album from the jukebox queue.",
         "params": {
-            "pos": APIparams.pos
+            "posistions": APIparams.positions
         }
     },
     "MYMPD_API_JUKEBOX_CLEAR": {
