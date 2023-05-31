@@ -494,7 +494,7 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
         FREE_PTR(queue_list);
         FREE_SDS(album);
         FREE_SDS(albumartist);
-        FREE_SDS(tag_value);   
+        FREE_SDS(tag_value);
         return NULL;
     }
 
