@@ -450,8 +450,6 @@ static bool add_album_to_queue(struct t_partition_state *partition_state, struct
     else {
         mpd_search_cancel(partition_state->conn);
         MYMPD_LOG_ERROR(partition_state->name, "Error creating MPD search command");
-        FREE_SDS(expression);
-        return false;
     }
     FREE_SDS(expression);
     mpd_response_finish(partition_state->conn);
@@ -491,7 +489,6 @@ static struct t_list *jukebox_get_last_played(struct t_partition_state *partitio
             mpd_song_free(song);
         }
     }
-
     mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_queue_meta") == false) {
         FREE_PTR(queue_list);
@@ -653,7 +650,9 @@ static bool jukebox_fill_jukebox_queue(struct t_partition_state *partition_state
         return false;
     }
 
-    struct t_list *add_list = manual == false ? &partition_state->jukebox_queue : &partition_state->jukebox_queue_tmp;
+    struct t_list *add_list = manual == false ?
+        &partition_state->jukebox_queue :
+        &partition_state->jukebox_queue_tmp;
 
     if (jukebox_mode == JUKEBOX_ADD_SONG) {
         added = fill_jukebox_queue_songs(partition_state, add_songs, playlist, manual, queue_list, add_list);
@@ -817,6 +816,9 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
             {
                 MYMPD_LOG_ERROR(partition_state->name, "Error creating MPD search command");
                 mpd_search_cancel(partition_state->conn);
+            }
+            else {
+                mpd_search_commit(partition_state->conn);
             }
         }
         else {
