@@ -5,9 +5,11 @@
 */
 
 #include "compile_time.h"
+
 #include "src/mpd_client/shortcuts.h"
 
 #include "dist/libmympdclient/include/mpd/client.h"
+#include "src/lib/log.h"
 
 /**
  * Sends mpd_command_list_end if MPD is connected.
@@ -20,5 +22,6 @@ bool mpd_client_command_list_end_check(struct t_partition_state *partition_state
     if (partition_state->conn_state == MPD_CONNECTED) {
         return mpd_command_list_end(partition_state->conn);
     }
+    MYMPD_LOG_ERROR(partition_state->name, "Skipping mpd_command_list_end");
     return false;
 }
