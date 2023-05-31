@@ -875,7 +875,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_QUEUE_RM_IDS: {
             struct t_list song_ids;
             list_init(&song_ids);
-            if (json_get_array_llong(request->data, "$.params.songIds", &song_ids, MPD_PLAYLIST_LENGTH_MAX, &error) == true) {
+            if (json_get_array_llong(request->data, "$.params.songIds", &song_ids, MPD_COMMANDS_MAX, &error) == true) {
                 if (song_ids.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No MPD queue song ids provided");
@@ -1127,7 +1127,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             struct t_list uris;
             list_init(&uris);
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_array_string(request->data, "$.params.uris", &uris, vcb_isuri, MPD_PLAYLIST_LENGTH_MAX, &error) == true)
+                json_get_array_string(request->data, "$.params.uris", &uris, vcb_isuri, MPD_COMMANDS_MAX, &error) == true)
             {
                 if (uris.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -1155,7 +1155,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             struct t_list uris;
             list_init(&uris);
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_array_string(request->data, "$.params.uris", &uris, vcb_isuri, MPD_PLAYLIST_LENGTH_MAX, &error) == true &&
+                json_get_array_string(request->data, "$.params.uris", &uris, vcb_isuri, MPD_COMMANDS_MAX, &error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true)
             {
                 if (uris.length == 0) {
@@ -1179,7 +1179,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             struct t_list uris;
             list_init(&uris);
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_array_string(request->data, "$.params.uris", &uris, vcb_isuri, MPD_PLAYLIST_LENGTH_MAX, &error) == true)
+                json_get_array_string(request->data, "$.params.uris", &uris, vcb_isuri, MPD_COMMANDS_MAX, &error) == true)
             {
                 if (uris.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -1260,7 +1260,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             list_init(&positions);
             if (json_get_string(request->data, "$.params.srcPlist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_string(request->data, "$.params.dstPlist", 1, FILENAME_LEN_MAX, &sds_buf2, vcb_isfilename, &error) == true &&
-                json_get_array_llong(request->data, "$.params.positions", &positions, MPD_PLAYLIST_LENGTH_MAX, &error) == true &&
+                json_get_array_llong(request->data, "$.params.positions", &positions, MPD_COMMANDS_MAX, &error) == true &&
                 json_get_uint(request->data, "$.params.mode", 0, 1, &uint_buf1, &error) == true)
             {
                 if (positions.length == 0) {
@@ -1280,7 +1280,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             struct t_list positions;
             list_init(&positions);
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_array_llong(request->data, "$.params.positions", &positions, MPD_PLAYLIST_LENGTH_MAX, &error) == true)
+                json_get_array_llong(request->data, "$.params.positions", &positions, MPD_COMMANDS_MAX, &error) == true)
             {
                 if (positions.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
