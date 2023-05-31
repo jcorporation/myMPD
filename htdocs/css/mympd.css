@@ -423,6 +423,10 @@ button {
   word-break: keep-all;
 }
 
+table[data-rw="false"] [data-col="Action"] a[data-action="quickRemove"] {
+  display: none;
+}
+
 table.smallWidth [data-col="Action"] {
   word-break: break-all;
 }

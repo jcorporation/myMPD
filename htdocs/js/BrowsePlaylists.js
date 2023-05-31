@@ -122,7 +122,6 @@ function initPlaylists() {
             handleActionTdClick(event);
             return;
         }
-
         const target = getParent(event.target, 'TR');
         if (checkTargetClick(target) === true) {
             clickSong(getData(target, 'uri'), event);
@@ -182,14 +181,16 @@ function parsePlaylistsDetail(obj) {
     if (isMPDplaylist(obj.result.plist) === false ||
         obj.result.smartpls === true)
     {
-        setDataId('BrowsePlaylistDetailList', 'ro', 'true');
+        setData(table, 'ro', 'true');
         elHideId('playlistContentBtns');
         elShowId('smartPlaylistContentBtns');
+        table.setAttribute('data-rw', 'false');
     }
     else {
-        setDataId('BrowsePlaylistDetailList', 'ro', 'false');
+        setData(table, 'ro', 'false');
         elShowId('playlistContentBtns');
         elHideId('smartPlaylistContentBtns');
+        table.setAttribute('data-rw', 'true');
     }
 
     setData(table, 'playlistlength', obj.result.totalEntities);
@@ -212,7 +213,7 @@ function parsePlaylistsDetail(obj) {
 
     updateTable(obj, 'BrowsePlaylistDetail', function(row, data) {
         row.setAttribute('id', 'playlistSongId' + data.Pos);
-        row.setAttribute('draggable', 'true');
+        row.setAttribute('draggable', (obj.result.smartpls === true ? 'false' : 'true'));
         row.setAttribute('tabindex', 0);
         setData(row, 'type', data.Type);
         setData(row, 'uri', data.uri);

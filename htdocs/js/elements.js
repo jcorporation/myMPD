@@ -425,6 +425,9 @@ function getYpos(el) {
             return null;
         }
         target = target.parentNode;
+        if (target === null) {
+            return null;
+        }
     }
     // @ts-ignore
     return target;
