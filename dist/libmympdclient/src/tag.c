@@ -75,6 +75,7 @@ static const char *const mpd_tag_type_names[MPD_TAG_COUNT] =
 	[MPD_TAG_LOCATION] = "Location",
 	[MPD_TAG_MOOD] = "Mood",
 	[MPD_TAG_TITLE_SORT] = "TitleSort",
+	[MPD_TAG_MUSICBRAINZ_RELEASEGROUPID] = "MUSICBRAINZ_RELEASEGROUPID",
 };
 
 const char *
