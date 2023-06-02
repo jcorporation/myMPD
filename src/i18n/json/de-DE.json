@@ -383,6 +383,7 @@
     "MUSICBRAINZ_RELEASETRACKID": "MusicBrainz Release Track ID",
     "MUSICBRAINZ_TRACKID": "MusicBrainz Track ID",
     "MUSICBRAINZ_WORKID": "MusicBrainz Werk ID",
+    "MUSICBRAINZ_RELEASEGROUPID": "MusicBrainz Release Group ID",
     "MaintainEnableTagsText": "Folgende Tags sollten gepflegt und aktiviert sein: AlbumArtist, Album, Artist, Disc, Genre, Name, Title, Track",
     "Maintenance": "Wartung",
     "Manage partitions": "Partitionen verwalten",

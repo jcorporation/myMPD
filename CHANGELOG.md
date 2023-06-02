@@ -40,7 +40,9 @@ This release improves the queue and playlist management in many ways. You can no
 - Feat: improve mpd error handling #1028
 - Feat: improve mpd communication
 - Feat: add quick remove and quick play buttons to more views
+- Feat: support MUSICBRAINZ_RELEASEGROUPID tag (MPD 0.24)
 - Upd: Mongoose 7.10 #1024
+- Upd: libmympdclient 1.0.21
 
 ***
 
