@@ -223,7 +223,7 @@
           <div id="QueueCurrentPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
         <ol class="featAdvqueue breadcrumb p-2 rounded-2 d-none" id="searchQueueCrumb"></ol>
-        <div class="table-responsive-md scrollContainer">
+        <div class="table-responsive scrollContainer">
           <table id="QueueCurrentList" class="table table-hover table-sm">
             <thead>
               <tr></tr>
@@ -259,7 +259,7 @@
           <div id="QueueLastPlayedPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
 
-        <div class="table-responsive-md scrollContainer">
+        <div class="table-responsive scrollContainer">
           <table id="QueueLastPlayedList" class="table table-hover table-sm">
             <thead>
               <tr></tr>
@@ -296,7 +296,7 @@
           </div>
           <div id="QueueJukeboxPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
-        <div class="table-responsive-md scrollContainer">
+        <div class="table-responsive scrollContainer">
           <div id="QueueJukeboxDisabled" class="alert alert-warning" data-phrase="Jukebox is disabled"></div>
           <table id="QueueJukeboxList" class="table table-hover table-sm">
             <thead>
@@ -339,7 +339,7 @@
           </div>
           <div id="BrowsePlaylistListPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
-          <div class="table-responsive-md scrollContainer">
+          <div class="table-responsive scrollContainer">
             <table id="BrowsePlaylistListList" class="table table-hover table-sm">
               <thead>
                 <tr>
@@ -396,7 +396,7 @@
             </div>
             <div id="BrowsePlaylistDetailPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div class="table-responsive-md scrollContainer">
+          <div class="table-responsive scrollContainer">
             <table id="BrowsePlaylistDetailList" class="table table-hover table-sm">
               <caption></caption>
               <thead>
@@ -522,7 +522,7 @@
               </div>
             </div>
           </div>
-          <div class="table-responsive-md scrollContainer">
+          <div class="table-responsive scrollContainer">
             <div class="row me-0">
               <div class="col-12 col-sm-6 col-xl-4 mb-3">
                 <div id="viewDatabaseAlbumDetailCover" class="mb-3 album-cover album-cover-loading clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
@@ -573,7 +573,7 @@
         </div>
         <ol id="BrowseBreadcrumb" class="breadcrumb p-2 rounded-2"></ol>
         <div id="BrowseFilesystemImages" class="featLibrary not-clickable" data-href='{"cmd": "zoomPicture", "options": []}'></div>
-        <div class="table-responsive-md scrollContainer">
+        <div class="table-responsive scrollContainer">
           <table id="BrowseFilesystemList" class="table table-hover table-sm">
             <thead>
               <tr></tr>
@@ -657,7 +657,7 @@
             </div>
             <div id="BrowseRadioWebradiodbPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div class="table-responsive-md scrollContainer">
+          <div class="table-responsive scrollContainer">
             <table id="BrowseRadioWebradiodbList" class="table table-hover table-sm">
               <thead>
                 <tr></tr>
@@ -696,7 +696,7 @@
             </div>
             <div id="BrowseRadioRadiobrowserPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <div class="table-responsive-md scrollContainer">
+          <div class="table-responsive scrollContainer">
             <table id="BrowseRadioRadiobrowserList" class="table table-hover table-sm">
               <thead>
                 <tr></tr>
@@ -750,7 +750,7 @@
           <div id="SearchPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
         <ol class="breadcrumb p-2 rounded-2 d-none" id="searchCrumb"></ol>
-        <div class="table-responsive-md scrollContainer">
+        <div class="table-responsive scrollContainer">
           <table id="SearchList" class="table table-hover table-sm">
             <thead>
               <tr></tr>
@@ -1508,7 +1508,7 @@
               </form>
             </div>
             <div class="tab-pane" id="tabPresets">
-              <div class="table-responsive-md overflow-auto">
+              <div class="table-responsive overflow-auto">
                 <table class="table table-hover table-sm">
                   <thead>
                     <tr>
@@ -1568,7 +1568,7 @@
                 <li><a target="_blank" rel="noreferrer" href="https://jcorporation.github.io/myMPD/" class="text-success external" data-phrase="Documentation"></a></li>
               </ul>
 <!--debug-->  <div class="alert alert-secondary">Running in debug mode</div>
-              <div class="table-responsive-md">
+              <div class="table-responsive">
                 <table class="table table-sm">
                   <tbody>
                     <tr><td colspan="2" class="pt-3"><h5 data-phrase="Database statistics"></h5></td></tr>
@@ -1826,10 +1826,12 @@
                 <div class="col-12 col-md-4 mb-3">
                   <div class="album-cover album-cover-loading"></div>
                 </div>
-                <div class="col-12 col-md-8 table-responsive-md">
-                  <table class="table table-sm">
-                    <tbody id="tbodySongDetails"></tbody>
-                  </table>
+                <div class="col-12 col-md-8">
+                  <div class="table-responsive">
+                    <table class="table table-sm">
+                      <tbody id="tbodySongDetails"></tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1839,7 +1841,7 @@
               <div id="lyricsText"></div>
             </div>
             <div class="tab-pane" id="tabSongComments">
-              <div class="col table-responsive-md">
+              <div class="col table-responsive">
                 <table class="table table-sm">
                   <tbody id="tbodySongComments"></tbody>
                 </table>
@@ -1964,7 +1966,7 @@
             </form>
           </div>
           <div class="tab-pane active" id="listTimer">
-            <div class="table-responsive-md overflow-auto">
+            <div class="table-responsive overflow-auto">
               <table class="table table-hover table-sm">
                 <thead>
                   <tr>
@@ -2031,7 +2033,7 @@
             </form>
           </div>
           <div class="tab-pane active" id="listMounts">
-            <div class="table-responsive-md overflow-auto">
+            <div class="table-responsive overflow-auto">
               <table class="table table-hover table-sm">
                 <thead>
                   <tr>
@@ -2163,7 +2165,7 @@
             </form>
           </div>
           <div class="tab-pane active" id="listScripts">
-            <div class="table-responsive-md overflow-auto">
+            <div class="table-responsive overflow-auto">
               <table class="table table-hover table-sm">
                 <thead>
                   <tr>
@@ -2210,7 +2212,7 @@
               </form>
             </div>
             <div class="tab-pane active" id="listPartitions">
-              <div class="table-responsive-md overflow-auto">
+              <div class="table-responsive overflow-auto">
                 <table class="table table-hover table-sm">
                   <thead>
                     <tr>
@@ -2244,7 +2246,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div class="table-responsive-md overflow-auto">
+          <div class="table-responsive overflow-auto">
             <table class="table table-hover table-sm">
               <thead>
                 <tr>
@@ -2273,7 +2275,7 @@
         <div class="modal-body">
           <form>
             <input type="hidden" id="modalOutputAttributesId"/>
-            <div class="table-responsive-md overflow-auto">
+            <div class="table-responsive overflow-auto">
               <table class="table table-sm">
                 <thead>
                   <tr><th data-phrase="Attribute"></th><th data-phrase="Value"></th></tr>
@@ -2351,7 +2353,7 @@
               </form>
             </div>
             <div class="tab-pane active" id="listTrigger">
-              <div class="table-responsive-md overflow-auto">
+              <div class="table-responsive overflow-auto">
                 <table class="table table-hover table-sm">
                   <thead>
                     <tr>
@@ -2752,7 +2754,7 @@
             <div class="col-12 col-md-4 mb-3">
               <div class="album-cover album-cover-loading" id="RadiobrowserDetailsImage"></div>
             </div>
-            <div class="col-12 col-md-8 table-responsive-md">
+            <div class="col-12 col-md-8 table-responsive">
               <table class="table table-sm">
                 <tbody id="modalRadiobrowserDetailsList"></tbody>
               </table>
@@ -2775,7 +2777,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div class="table-responsive-md">
+          <div class="table-responsive">
             <table class="table table-sm">
               <thead>
                 <tr>
