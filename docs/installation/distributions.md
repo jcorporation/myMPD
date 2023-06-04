@@ -7,7 +7,6 @@ title: Distributions
 myMPD is available in the following distributions:
 
 - [Arch Linux](https://archlinux.org/packages/?q=mympd)
-- [Collybia OS](https://collybia.com/collybia-os/)
 - [DietPi](https://dietpi.com/)
 - [GentooPlayer](http://gentooplayer.com/)
 - [MusicLounge Audiophile Distro](https://linuxaudiofoundation.org)
