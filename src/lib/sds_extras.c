@@ -7,8 +7,12 @@
 #include "compile_time.h"
 #include "src/lib/sds_extras.h"
 
-#include "dist/mongoose/mongoose.h"
 #include "dist/utf8/utf8.h"
+
+#include <ctype.h>
+#include <openssl/evp.h>
+#include <openssl/sha.h>
+#include <string.h>
 
 #define HEXTOI(x) ((x) >= '0' && (x) <= '9' ? (x) - '0' : (x) - 'W')
 
@@ -33,13 +37,10 @@ sds *sds_split_comma_trim(sds s, int *count) {
  * @return the hash as a newly allocated sds string
  */
 sds sds_hash(const char *p) {
-    mg_sha1_ctx ctx;
-    mg_sha1_init(&ctx);
-    mg_sha1_update(&ctx, (unsigned char *)p, strlen(p));
-    unsigned char hash[20];
-    mg_sha1_final(hash, &ctx);
+    unsigned char hash[SHA_DIGEST_LENGTH];
+    SHA1((unsigned char *)p, strlen(p), hash);
     sds hex_hash = sdsempty();
-    for (unsigned i = 0; i < 20; i++) {
+    for (unsigned i = 0; i < SHA_DIGEST_LENGTH; i++) {
         hex_hash = sdscatprintf(hex_hash, "%02x", hash[i]);
     }
     return hex_hash;
