@@ -264,7 +264,7 @@ if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
   endforeach()
 
   if(NOT MYMPD_ENABLE_LIBASAN)
-    #incompatible with libasan
+    # incompatible with libasan
     add_compile_options("-D_FORTIFY_SOURCE=2")
   endif()
 else()
