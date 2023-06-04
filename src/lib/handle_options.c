@@ -68,13 +68,11 @@ int handle_options(struct t_config *config, int argc, char **argv) {
             case 'c':
                 config->bootstrap = true;
                 break;
-        #ifdef MYMPD_ENABLE_SSL
             case 'p': {
                 bool rc = pin_set(config->workdir);
                 return rc == true ? OPTIONS_RC_EXIT : OPTIONS_RC_INVALID;
                 break;
             }
-        #endif
             case 's':
                 config->log_to_syslog = true;
                 break;

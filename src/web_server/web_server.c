@@ -95,11 +95,6 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
         }
         MYMPD_LOG_NOTICE(NULL, "Listening on http://%s:%d", config->http_host, config->http_port);
     }
-    #ifndef MYMPD_ENABLE_SSL
-        if (config->http == false) {
-            MYMPD_LOG_ERROR(NULL, "Not listening on any port.");
-        }
-    #endif
     //bind to ssl_port
     if (config->ssl == true) {
         sds https_url = sdscatfmt(sdsempty(), "https://%S:%i", config->http_host, config->ssl_port);
