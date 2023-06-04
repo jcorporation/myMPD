@@ -10,7 +10,7 @@ The mpd connection settings can be configured in the web-ui (Main menu -> Settin
 
 | SETTING | DEFAULT |
 | ------- | ------- |
-| MPD host | `localhost` |
+| MPD host | `/run/mpd/socket` |
 | MPD port | 6600 |
 | MPD timeout | 30 |
 {: .table .table-sm}

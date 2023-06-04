@@ -4,12 +4,14 @@ permalink: /configuration/pin-protection
 title: Pin protection
 ---
 
-The myMPD settings can be protected with a pin. Setting a pin is only supported if myMPD is compiled with enabled ssl.
+The myMPD settings can be protected with a pin.
 
-To set a pin run `mympd -p` and restart myMPD.
+To set a pin stop mympd, run `mympd -p` and start myMPD again.
 
-After restart all settings are protected with the entered pin.
+After restart all settings are protected with the entered pin. A lock symbol is displayed for all buttons whose action requires authentication if no valid session is established.
 
-A lock symbol is displayed for all buttons whose action requires authentication if no valid session is established.
+You can goto the main menu and login to create a session, press `L` or simply take an action that is protected (e.g. saving the settings).
 
-You can goto the main menu and login to create a session. The session is valid until restart of myMPD, closing the browser, refreshing the site or you logout.
+The session is valid until restart of myMPD, closing the browser, refreshing the site or you logout.
+
+The <a href="{{site.baseurl}}/references/api/methods">API documentation</a> shows whether a method is protected or not.

@@ -8,7 +8,13 @@ https://github.com/jcorporation/myMPD/
 
 This release improves the queue and playlist management in many ways. You can now select multiple songs or playlists and take actions on this selection. Further the mpd error handling and the mpd communication was improved by using command lists.
 
+### Note
+
+This is the first release that enforces the OpenSSL dependency.
+
 ### API changes
+
+This release changes definitions of many API methods.
 
 - MYMPD_API_JUKEBOX_RM: parameters changed
 - MYMPD_API_QUEUE_RM_SONG -> MYMPD_API_QUEUE_RM_IDS
@@ -46,6 +52,7 @@ This release improves the queue and playlist management in many ways. You can no
 - Upd: libmympdclient 1.0.21
 - Upd: OpenSSL is now required #1033
 - Upd: Replace tinymt with OpenSSL prng #1034
+- Upd: documentation improvements
 - Fix: improve Mongoose logging #1032
 
 ***
