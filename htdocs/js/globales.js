@@ -949,6 +949,7 @@ for (const m of document.querySelectorAll('.modal')) {
 }
 //other directly accessed BSN objects
 uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance(document.getElementById('btnHomeIconLigature'));
+uiElements.dropdownNeighbors = BSN.Dropdown.getInstance(document.getElementById('btnDropdownNeighbors'));
 uiElements.collapseJukeboxMode = BSN.Collapse.getInstance(document.getElementById('collapseJukeboxMode'));
 
 const LUAfunctions = {

@@ -1062,7 +1062,7 @@ button.select-inner-button {
 }
 
 .dropdownWide {
-  min-width: 15rem;
+  min-width: 20rem;
 }
 
 div.alert-warning::before {

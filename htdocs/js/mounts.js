@@ -44,17 +44,17 @@ function initMounts() {
 
     document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
         event.preventDefault();
-        if (event.target.nodeName === 'A') {
-            const ec = getData(event.target, 'value');
-            const c = ec.match(/^(\w+:\/\/)(.+)$/);
-            document.getElementById('selectMountUrlhandler').value = c[1];
-            document.getElementById('inputMountUrl').value = c[2];
+        const target = event.target.nodeName === 'A'
+            ? event.target
+            : event.target.parentNode;
+        if (target.nodeName === 'A') {
+            document.getElementById('inputMountUrl').value = getData(target, 'value');
+            uiElements.dropdownNeighbors.hide();
         }
     }, false);
 
     document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
         showListMounts();
-        getUrlhandlers();
     });
 }
 
@@ -88,7 +88,7 @@ function mountMount() {
     }
     if (formOK === true) {
         sendAPI("MYMPD_API_MOUNT_MOUNT", {
-            "mountUrl": getSelectValueId('selectMountUrlhandler') + inputMountUrl.value,
+            "mountUrl": inputMountUrl.value,
             "mountPoint": inputMountPoint.value,
         }, mountMountCheckError, true);
     }
@@ -141,17 +141,8 @@ function showEditMount(uri, storage) {
     document.getElementById('editMount').classList.add('active');
     elHideId('listMountsFooter');
     elShowId('editMountFooter');
-
-    const c = uri.match(/^(\w+:\/\/)(.+)$/);
-    if (c !== null && c.length > 2) {
-        document.getElementById('selectMountUrlhandler').value = c[1];
-        document.getElementById('inputMountUrl').value = c[2];
-        document.getElementById('inputMountPoint').value = storage;
-    }
-    else {
-        document.getElementById('inputMountUrl').value = '';
-        document.getElementById('inputMountPoint').value = '';
-    }
+    document.getElementById('inputMountUrl').value = uri;
+    document.getElementById('inputMountPoint').value = storage;
     setFocusId('inputMountPoint');
 }
 
@@ -246,27 +237,4 @@ function parseNeighbors(obj) {
         setData(a, 'value', obj.result.data[i].uri);
         dropdownNeighbors.appendChild(a);
     }
-}
-
-/**
- * Populates the urlhandler select in the mount modal
- * @returns {void}
- */
-function getUrlhandlers() {
-    sendAPI("MYMPD_API_MOUNT_URLHANDLER_LIST", {}, function(obj) {
-        const selectMountUrlhandler = document.getElementById('selectMountUrlhandler');
-        elClear(selectMountUrlhandler);
-        for (let i = 0; i < obj.result.returnedEntities; i++) {
-            //smb is disabled because it is default disabled in mpd because of libmpdclient bug
-            switch(obj.result.data[i]) {
-                case 'http://':
-                case 'https://':
-                case 'nfs://':
-                    selectMountUrlhandler.appendChild(
-                        elCreateText('option', {"value": obj.result.data[i]}, obj.result.data[i])
-                    );
-                    break;
-            }
-        }
-    }, false);
 }
