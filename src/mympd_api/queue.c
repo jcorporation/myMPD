@@ -574,20 +574,20 @@ sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds bu
     if (mpd_search_queue_songs(partition_state->conn, false) == false) {
         mpd_search_cancel(partition_state->conn);
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-            JSONRPC_SEVERITY_ERROR, "Error creating MPD queue search command");
+            JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
     }
 
     if (sdslen(expression) == 0) {
         //search requires an expression
         if (mpd_search_add_expression(partition_state->conn, "(base '')") == false) {
             return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD queue search command");
+                JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
         }
     }
     else {
         if (mpd_search_add_expression(partition_state->conn, expression) == false) {
             return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD queue search command");
+                JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
         }
     }
 
@@ -597,7 +597,7 @@ sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds bu
         if (mpd_search_add_sort_tag(partition_state->conn, sort_tag, sortdesc) == false) {
             mpd_search_cancel(partition_state->conn);
             return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD queue search command");
+                JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
         }
     }
     else if (strcmp(sort, "LastModified") == 0) {
@@ -606,14 +606,14 @@ sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds bu
         if (mpd_search_add_sort_name(partition_state->conn, "Last-Modified", sortdesc) == false) {
             mpd_search_cancel(partition_state->conn);
             return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD queue search command");
+                JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
         }
     }
     else if (strcmp(sort, "Priority") == 0) {
         if (mpd_search_add_sort_name(partition_state->conn, "prio", sortdesc) == false) {
             mpd_search_cancel(partition_state->conn);
             return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD queue search command");
+                JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
         }
     }
     else {
@@ -624,7 +624,7 @@ sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds bu
     if (mpd_search_add_window(partition_state->conn, offset, real_limit) == false) {
         mpd_search_cancel(partition_state->conn);
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-            JSONRPC_SEVERITY_ERROR, "Error creating MPD queue search command");
+            JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
     }
 
     if (mpd_search_commit(partition_state->conn)) {
