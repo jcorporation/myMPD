@@ -371,9 +371,6 @@ int main(int argc, char **argv) {
     web_server_queue = mympd_queue_create("web_server_queue", QUEUE_TYPE_RESPONSE);
     mympd_script_queue = mympd_queue_create("mympd_script_queue", QUEUE_TYPE_RESPONSE);
 
-    //initialize random number generator
-    tinymt32_init(&tinymt, (uint32_t)time(NULL));
-
     //mympd config defaults
     config = malloc_assert(sizeof(struct t_config));
     mympd_config_defaults_initial(config);

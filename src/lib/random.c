@@ -7,21 +7,25 @@
 #include "compile_time.h"
 #include "src/lib/random.h"
 
-#include <limits.h>
+#include "src/lib/log.h"
 
-tinymt32_t tinymt;
+#include <assert.h>
+#include <limits.h>
+#include <openssl/rand.h>
 
 /**
  * Generates random number in range (inclusive lower and upper bounds)
- * This functions uses Mersenne Twister to generate random numbers
  * @param lower lower boundary
  * @param upper upper boundary
  * @return random number
  */
 long randrange(long lower, long upper) {
-    uint32_t lower_u = (uint32_t)lower;
-    uint32_t upper_u = (uint32_t)upper;
-    uint32_t r = tinymt32_generate_uint32(&tinymt);
-    uint32_t rand = lower_u + r / (UINT32_MAX / (upper_u - lower_u + 1) + 1);
-    return (long)rand;
+    long buf;
+    if (RAND_bytes((unsigned char *)&buf, sizeof(buf)) == 1) {
+        return lower + buf / (LONG_MAX / (upper - lower + 1) + 1);
+    }
+
+    MYMPD_LOG_ERROR(NULL, "Error generating random number in range %ld - %ld", lower, upper);
+    assert(NULL);
+    return 0;
 }

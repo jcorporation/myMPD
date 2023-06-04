@@ -92,16 +92,17 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
 /**
  * Creates a new session
  * @param session_list the session list
- * @return newly allocated sds string with the session hash
+ * @return newly allocated sds string with the session hash or NULL on error
  */
 sds webserver_session_new(struct t_list *session_list) {
     sds session = sdsempty();
-    unsigned char *buf = malloc_assert(10 * sizeof(unsigned char));
-    RAND_bytes(buf, 10);
+    unsigned char buf[10];
+    if (RAND_bytes((unsigned char *)&buf, sizeof(buf)) != 1) {
+        return session;
+    }
     for (int i = 0; i < 10; i++) {
         session = sdscatprintf(session, "%02x", buf[i]);
     }
-    FREE_PTR(buf);
     //timeout old sessions
     webserver_session_validate(session_list, NULL);
     //add new session with 30 min timeout

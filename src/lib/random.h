@@ -7,9 +7,5 @@
 #ifndef MYMPD_RANDOM_H
 #define MYMPD_RANDOM_H
 
-#include "dist/tinymt/tinymt32.h"
-
-extern tinymt32_t tinymt;
-
 long randrange(long lower, long upper);
 #endif

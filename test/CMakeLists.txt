@@ -101,7 +101,6 @@ target_link_libraries(unit_test
   mongoose
   rax
   sds
-  tinymt
   ${CMAKE_THREAD_LIBS_INIT}
   ${MATH_LIB}
   ${PCRE2_LIBRARIES}

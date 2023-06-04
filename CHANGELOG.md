@@ -44,6 +44,7 @@ This release improves the queue and playlist management in many ways. You can no
 - Upd: Mongoose 7.10 #1024
 - Upd: libmympdclient 1.0.21
 - Upd: OpenSSL is now required #1033
+- Upd: Replace tinymt with OpenSSL prng #1034 
 - Fix: improve Mongoose logging #1032
 
 ***

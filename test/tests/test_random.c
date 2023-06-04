@@ -8,12 +8,10 @@
 #include "utility.h"
 
 #include "dist/utest/utest.h"
-#include "dist/tinymt/tinymt32.h"
 #include "src/lib/random.h"
 
 UTEST(random, test_random) {
     //initialize random number generator
-    tinymt32_init(&tinymt, (unsigned)time(NULL));
     printf("Random number: ");
     for (int i = 0; i < 100; i++) {
         long r = randrange(0, 100);
