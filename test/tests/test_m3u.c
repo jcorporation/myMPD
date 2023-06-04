@@ -15,7 +15,7 @@
 
 #include <sys/stat.h>
 
-UTEST(mympd_api_webradios, test_mympd_api_webradio_save) {
+UTEST(m3u, test_m3u_webradio_save) {
     sds name = sdsnew("Yumi Co. Radio");
     sds uri = sdsnew("http://yumicoradio.net:8000/stream");
     sds uri_old = sdsnew("");
@@ -58,13 +58,13 @@ UTEST(m3u, test_m3u_to_json) {
     sdsfree(m3ufields);
 }
 
-UTEST(mympd_api_webradios, test_get_webradio_from_uri) {
+UTEST(m3u, test_get_webradio_from_uri) {
     sds m3u = get_webradio_from_uri(workdir, "http://yumicoradio.net:8000/stream");
     ASSERT_GT(sdslen(m3u), (size_t)0);
     sdsfree(m3u);
 }
 
-UTEST(mympd_api_webradios, test_mympd_api_webradio_list) {
+UTEST(m3u, test_mympd_api_webradio_list) {
     sds searchstr = sdsempty();
     sds buffer = mympd_api_webradio_list(workdir, sdsempty(), 0, searchstr, 0, 10);
     sds error = sdsempty();
@@ -77,7 +77,7 @@ UTEST(mympd_api_webradios, test_mympd_api_webradio_list) {
     sdsfree(buffer);
 }
 
-UTEST(mympd_api_webradios, test_mympd_api_webradio_delete) {
+UTEST(m3u, test_mympd_api_webradio_delete) {
     sds filename = sdsnew("http___yumicoradio_net_8000_stream.m3u");
     bool rc = mympd_api_webradio_delete(workdir, filename);
     sdsfree(filename);

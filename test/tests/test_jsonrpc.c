@@ -226,8 +226,8 @@ UTEST(jsonrpc, test_json_get_array_llong) {
     ASSERT_FALSE(json_get_array_llong(data, "$.key1", &l, 10, NULL));
     list_clear(&l);
     //invalid - too many array elements
-    ASSERT_TRUE(json_get_array_llong(data, "$.key1", &l, 1, NULL));
-    ASSERT_EQ(1, l.length);
+    ASSERT_FALSE(json_get_array_llong(data, "$.key1", &l, 1, NULL));
+    ASSERT_EQ(0, l.length);
     FREE_SDS(data);
     list_clear(&l);
 }
