@@ -20,12 +20,22 @@
  * @return random number
  */
 long randrange(long lower, long upper) {
-    uint32_t buf;
+    return (long)randrange64((uint64_t)lower, (uint64_t)upper);
+}
+
+/**
+ * Generates a 64bit positive random number in range (inclusive lower and upper bounds)
+ * @param lower lower boundary
+ * @param upper upper boundary
+ * @return random number
+ */
+uint64_t randrange64(uint64_t lower, uint64_t upper) {
+    uint64_t buf;
     if (RAND_bytes((unsigned char *)&buf, sizeof(buf)) == 1) {
-        return lower + buf / (UINT32_MAX / (upper - lower + 1) + 1);
+        return lower + buf / (UINT64_MAX / (upper - lower + 1) + 1);
     }
 
-    MYMPD_LOG_ERROR(NULL, "Error generating random number in range %ld - %ld", lower, upper);
+    MYMPD_LOG_ERROR(NULL, "Error generating random number in range");
     assert(NULL);
     return 0;
 }
