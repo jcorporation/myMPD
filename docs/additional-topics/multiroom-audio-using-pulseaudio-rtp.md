@@ -4,9 +4,10 @@ permalink: /additional-topics/multiroom-audio-using-pulseaudio-rtp
 title: Multiroom audio system using MPD/myMPD and pulseaudio
 ---
 
-# Introduction
+## Introduction
 
 Let's say you have the following setup:
+
 - A central NAS with your own music collection running mympd/mpd
 - A few low-powered embedded devices connected to audio systems in different rooms throughout your house.
 
@@ -34,10 +35,7 @@ Move the outputs you want to link to that partition:
 
 Now, the partition "Jane" has its own player, its own playlist and its own output(s).
 
-
-
-# Configuration
-
+## Configuration
 
 Let's use the following table as configuration reference in this example:
 
@@ -50,20 +48,22 @@ Let's use the following table as configuration reference in this example:
 | Bathroom   | rtpb     | 192.198.0.14                  |
 
 PulseAudio needs to run as system service on all devices:
+
 - the emitter (NAS)
 - and the receivers (Raspberry pis or orther low powered receiver device).
 
 MPD and myMPD will only run on the NAS.
 
+### On all systems (NAS and receivers)
 
-## On all systems (NAS and receivers):
+#### Install PulseAudio (if not already installed)
 
-### Install PulseAudio (if not already installed)
 ```
 apt install pulseaudio,pulseaudio-utils,pulsemixer
 ```
 
-### Have Pulse audio start as system service with the following pulseaudio systemd unit file:
+#### Have Pulse audio start as system service with the following pulseaudio systemd unit file
+
 ```
 # cat <<EOF > /lib/systemd/system/pulseaudio.service
 [Unit]
@@ -84,8 +84,8 @@ systemctl enable pulseaudio
 
 ```
 
+#### Configure Pulseaudio Group Permissions correctly
 
-### Configure Pulseaudio Group Permissions correctly
 ```
 ## Allow Pulseaudio to access audio devices
 # usermod -a -G audio pulse
@@ -98,11 +98,10 @@ pulse:x:110:
 pulse-access:x:111:root
 ```
 
+### On the Central System:
 
+#### Allow MPD to output to PulseAudio
 
-## On the Central System:
-
-### Allow MPD to output to PulseAudio
 ```
 # usermod -a -G pulse-access mpd
 
@@ -113,8 +112,8 @@ pulse:x:110:
 pulse-access:x:111:root,mpd
 ```
 
+#### Configure PulseAudio to Stream audio over the Network by RTP (RealTime Transport Protocol)
 
-### Configure PulseAudio to Stream audio over the Network by RTP (RealTime Transport Protocol)
 Notice that a distinct sink is configured for each destination device, plus another one for synchronised multiroom audio.
 
 ```
@@ -143,8 +142,8 @@ load-module module-rtp-send source=rtpb.monitor destination_ip=192.168.0.14
 EOF
 ```
 
+#### Configure MPD to send audio output to the different possible RTP sinks
 
-### Configure MPD to send audio output to the different possible RTP sinks
 ```
 # cat /etc/mpd.conf
 
@@ -196,22 +195,20 @@ audio_output {
 
 ```
 
+### On the satellite systems
 
-
-
-## On the satellite systems:
 No need to install mpd/mympd; only pulseaudio is required.
 
+#### Configure PulseAudio to receive audio over the Network by RTP (RealTime Transport Protocol)
 
-### Configure PulseAudio to receive audio over the Network by RTP (RealTime Transport Protocol)
 ```
 # cat <<EOF >> /etc/pulse/system.pa
 .include /etc/pulse/rtp.pa
 EOF
 ```
 
+##### Specific config file in Multimedia Room Embedded device
 
-#### Specific config file in Multimedia Room Embedded device
 ```
 # cat << EOF > /etc/pulse/rtp.pa
 ### Load the RTP receiver module
@@ -219,8 +216,8 @@ load-module module-rtp-recv sap_address=239.0.0.100
 load-module module-rtp-recv sap_address=192.168.0.11
 ```
 
+##### Specific config file in Saloon Embedded device
 
-#### Specific config file in Saloon Embedded device
 ```
 # cat << EOF > /etc/pulse/rtp.pa
 ### Load the RTP receiver module
@@ -228,8 +225,8 @@ load-module module-rtp-recv sap_address=239.0.0.100
 load-module module-rtp-recv sap_address=192.168.0.12
 ```
 
+##### Specific config file in Attic Embedded device
 
-#### Specific config file in Attic Embedded device
 ```
 # cat << EOF > /etc/pulse/rtp.pa
 ### Load the RTP receiver module
@@ -237,8 +234,8 @@ load-module module-rtp-recv sap_address=239.0.0.100
 load-module module-rtp-recv sap_address=192.168.0.13
 ```
 
+##### Specific config file in Bathroom Embedded device
 
-#### Specific config file in Bathroom Embedded device
 ```
 # cat << EOF > /etc/pulse/rtp.pa
 ### Load the RTP receiver module
@@ -246,7 +243,7 @@ load-module module-rtp-recv sap_address=239.0.0.100
 load-module module-rtp-recv sap_address=192.168.0.14
 ```
 
-### Reload PulseAudio and verify it's running fine: 
+#### Reload PulseAudio and verify it's running fine
 
 The service must be started.
 
@@ -306,8 +303,8 @@ F1 Output  F2 Input  F3 Cards                                             ? - he
 
 ```
 
+#### CPU consumption on satellite devices
 
-### CPU consumption on satellite devices
 is very low due to the heavy lifting being done on the central node:
 ![image](../assets/multiroomaudio/satellite-dev-cpu-usage.png)
 Example here with a Seagate Dockstar (a low powered ARM plug computer) being used as audio receiver.
