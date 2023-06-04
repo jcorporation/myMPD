@@ -14,7 +14,7 @@
 #include <openssl/rand.h>
 
 /**
- * Generates a positive random number in range (inclusive lower and upper bounds)
+ * Generates a 32bit positive random number in range (inclusive lower and upper bounds)
  * @param lower lower boundary
  * @param upper upper boundary
  * @return random number

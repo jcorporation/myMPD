@@ -95,7 +95,7 @@ const char *jukebox_mode_lookup(enum jukebox_modes mode) {
 /**
  * Removes entries from the jukebox queue.
  * @param list the jukebox queue
- * @param posistions positions to remove, must be ordered descending
+ * @param positions positions to remove, must be ordered descending
  * @param partition_name name of the partition
  * @return true on success, else false
  */
