@@ -292,7 +292,7 @@ bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx) {
  * @return true on success, else false
  */
 bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
-    sds trigger_file = sdscatfmt(sdsempty(), "%S/state/trigger_list", workdir);
+    sds trigger_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_STATE, FILENAME_TRIGGER);
     errno = 0;
     FILE *fp = fopen(trigger_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -358,7 +358,7 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
  */
 bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir) {
     MYMPD_LOG_INFO(NULL, "Saving triggers to disc");
-    sds filepath = sdscatfmt(sdsempty(), "%S/state/trigger_list", workdir);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_STATE, FILENAME_TRIGGER);
     bool rc = list_write_to_disk(filepath, trigger_list, trigger_to_line_cb);
     FREE_SDS(filepath);
     return rc;

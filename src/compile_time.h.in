@@ -63,9 +63,12 @@ extern struct t_mympd_queue *mympd_script_queue;
 //standard file names and folders
 #define FILENAME_ALBUMCACHE "album_cache.json"
 #define FILENAME_ALBUMCACHE_TAGS "album_cache_tags.json"
+#define FILENAME_HOME "home_list"
 #define FILENAME_LAST_PLAYED "last_played_list"
 #define FILENAME_PRESETS "preset_list"
 #define FILENAME_STICKERCACHE "sticker_cache.json"
+#define FILENAME_TIMER "timer_list"
+#define FILENAME_TRIGGER "trigger_list"
 
 #define DIR_CACHE_COVER "covercache"
 #define DIR_CACHE_WEBRADIODB "webradiodb"
@@ -77,6 +80,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define DIR_WORK_PICS_THUMBS DIR_WORK_PICS"/thumbs"
 #define DIR_WORK_SCRIPTS "scripts"
 #define DIR_WORK_SMARTPLS "smartpls"
+#define DIR_WORK_SSL "ssl"
 #define DIR_WORK_STATE "state"
 #define DIR_WORK_STATE_DEFAULT DIR_WORK_STATE"/default"
 #define DIR_WORK_TAGS "tags"

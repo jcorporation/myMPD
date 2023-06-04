@@ -352,8 +352,8 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
         FREE_SDS(iter.data);
     }
     raxStop(&iter);
-    //checks if this tag has a directory with pictures in /vsrc/lib/mympd/pics
-    sds pic_path = sdscatfmt(sdsempty(), "%S/pics/%s", partition_state->mympd_state->config->workdir, tag);
+    //checks if this tag has a directory with pictures in /src/lib/mympd/pics
+    sds pic_path = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->mympd_state->config->workdir, DIR_WORK_PICS, tag);
     bool pic = false;
     errno = 0;
     DIR* dir = opendir(pic_path);

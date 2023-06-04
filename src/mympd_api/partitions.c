@@ -117,7 +117,7 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
     if (result == true) {
         //partition was removed
         partition_to_remove->conn_state = MPD_REMOVED;
-        sds dirpath = sdscatfmt(sdsempty(),"%S/state/%S",partition_state->mympd_state->config->workdir, partition);
+        sds dirpath = sdscatfmt(sdsempty(),"%S/%s/%S",partition_state->mympd_state->config->workdir, DIR_WORK_STATE, partition);
         clean_rm_directory(dirpath);
         FREE_SDS(dirpath);
     }

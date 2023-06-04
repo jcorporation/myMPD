@@ -252,7 +252,7 @@ void webserver_serve_na_image(struct mg_connection *nc) {
         webserver_send_header_found(nc, "/assets/coverimage-notavailable.svg");
     }
     else {
-        sds uri = sdscatfmt(sdsempty(), "/browse/pics/thumbs/%S", mg_user_data->custom_na_image);
+        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_na_image);
         webserver_send_header_found(nc, uri);
         FREE_SDS(uri);
     }
@@ -268,7 +268,7 @@ void webserver_serve_stream_image(struct mg_connection *nc) {
         webserver_send_header_found(nc, "/assets/coverimage-stream.svg");
     }
     else {
-        sds uri = sdscatfmt(sdsempty(), "/browse/pics/thumbs/%S", mg_user_data->custom_stream_image);
+        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_stream_image);
         webserver_send_header_found(nc, uri);
         FREE_SDS(uri);
     }
@@ -284,7 +284,7 @@ void webserver_serve_mympd_image(struct mg_connection *nc) {
         webserver_send_header_found(nc, "/assets/coverimage-mympd.svg");
     }
     else {
-        sds uri = sdscatfmt(sdsempty(), "/browse/pics/thumbs/%S", mg_user_data->custom_mympd_image);
+        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_mympd_image);
         webserver_send_header_found(nc, uri);
         FREE_SDS(uri);
     }
@@ -300,7 +300,7 @@ void webserver_serve_booklet_image(struct mg_connection *nc) {
         webserver_send_header_found(nc, "/assets/coverimage-booklet.svg");
     }
     else {
-        sds uri = sdscatfmt(sdsempty(), "/browse/pics/thumbs/%S", mg_user_data->custom_booklet_image);
+        sds uri = sdscatfmt(sdsempty(), "/browse/%s/%S", DIR_WORK_PICS_THUMBS, mg_user_data->custom_booklet_image);
         webserver_send_header_found(nc, uri);
         FREE_SDS(uri);
     }

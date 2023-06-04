@@ -50,7 +50,7 @@ static void mongoose_log(char ch, void *param);
 bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_user_data *mg_user_data) {
     //initialize mgr user_data, malloced in main.c
     mg_user_data->config = config;
-    mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/empty", config->workdir);
+    mg_user_data->browse_directory = sdscatfmt(sdsempty(), "%S/%s", config->workdir, DIR_WORK_EMPTY);
     mg_user_data->music_directory = sdsempty();
     mg_user_data->custom_booklet_image = sdsempty();
     mg_user_data->custom_mympd_image = sdsempty();
@@ -205,10 +205,10 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         struct t_config *config = mg_user_data->config;
 
         sdsclear(mg_user_data->browse_directory);
-        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, "%S/empty", config->workdir);
-        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/pics=%S/pics", config->workdir);
-        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/smartplaylists=%S/smartpls", config->workdir);
-        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/webradios=%S/webradios", config->workdir);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, "%S/%s", config->workdir, DIR_WORK_EMPTY);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/pics=%S/%s", config->workdir, DIR_WORK_PICS);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/smartplaylists=%S/%s", config->workdir, DIR_WORK_SMARTPLS);
+        mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/webradios=%S/%s", config->workdir, DIR_WORK_WEBRADIOS);
         if (sdslen(new_mg_user_data->playlist_directory) > 0) {
             mg_user_data->browse_directory = sdscatfmt(mg_user_data->browse_directory, ",/browse/playlists=%S", new_mg_user_data->playlist_directory);
             mg_user_data->publish_playlists = true;
@@ -283,7 +283,7 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
  * @param result pointer to sds result
  */
 static void get_placeholder_image(sds workdir, const char *name, sds *result) {
-    sds file = sdscatfmt(sdsempty(), "%S/pics/thumbs/%s", workdir, name);
+    sds file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_PICS_THUMBS, name);
     MYMPD_LOG_DEBUG(NULL, "Check for custom placeholder image \"%s\"", file);
     file = webserver_find_image_file(file);
     sdsclear(*result);

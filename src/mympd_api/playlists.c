@@ -352,7 +352,7 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
 
     //add empty smart playlists
     if (type != PLTYPE_STATIC) {
-        sds smartpls_path = sdscatfmt(sdsempty(), "%S/smartpls", partition_state->mympd_state->config->workdir);
+        sds smartpls_path = sdscatfmt(sdsempty(), "%S/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS);
         errno = 0;
         DIR *smartpls_dir = opendir(smartpls_path);
         if (smartpls_dir != NULL) {

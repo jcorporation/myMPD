@@ -438,7 +438,7 @@ sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, long reques
  * @return true on success, else false
  */
 bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
-    sds timer_file = sdscatfmt(sdsempty(), "%S/state/timer_list", workdir);
+    sds timer_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_STATE, FILENAME_TIMER);
     errno = 0;
     FILE *fp = fopen(timer_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
@@ -510,7 +510,7 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
  */
 bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir) {
     MYMPD_LOG_INFO(NULL, "Saving timers to disc");
-    sds tmp_file = sdscatfmt(sdsempty(), "%S/state/timer_list.XXXXXX", workdir);
+    sds tmp_file = sdscatfmt(sdsempty(), "%S/%s/%s.XXXXXX", workdir, DIR_WORK_STATE, FILENAME_TIMER);
     FILE *fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);

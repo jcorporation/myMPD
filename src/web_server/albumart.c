@@ -127,13 +127,13 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
         }
         sanitize_filename(uri_decoded);
 
-        sds coverfile = sdscatfmt(sdsempty(), "%S/pics/thumbs/%S", config->workdir, uri_decoded);
+        sds coverfile = sdscatfmt(sdsempty(), "%S/%s/%S", config->workdir, DIR_WORK_PICS_THUMBS, uri_decoded);
         MYMPD_LOG_DEBUG(NULL, "Check for stream cover \"%s\"", coverfile);
         coverfile = webserver_find_image_file(coverfile);
 
         if (sdslen(coverfile) == 0) {
             //no coverfile found, next try to find a webradio m3u
-            sds webradio_file = sdscatfmt(sdsempty(), "%S/webradios/%S.m3u", config->workdir, uri_decoded);
+            sds webradio_file = sdscatfmt(sdsempty(), "%S/%s/%S.m3u", config->workdir, DIR_WORK_WEBRADIOS, uri_decoded);
             MYMPD_LOG_DEBUG(NULL, "Check for webradio playlist \"%s\"", webradio_file);
             if (testfile_read(webradio_file) == true) {
                 sds extimg = m3u_get_field(sdsempty(), "#EXTIMG", webradio_file);
@@ -152,7 +152,7 @@ bool request_handler_albumart(struct mg_connection *nc, struct mg_http_message *
                 }
                 if (sdslen(extimg) > 0) {
                     //local coverfile
-                    coverfile = sdscatfmt(sdsempty(), "%S/pics/thumbs/%S", config->workdir, extimg);
+                    coverfile = sdscatfmt(sdsempty(), "%S/%s/%S", config->workdir, DIR_WORK_PICS_THUMBS, extimg);
                 }
                 FREE_SDS(extimg);
             }
