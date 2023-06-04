@@ -300,6 +300,10 @@ bool sticker_set_last_played(struct t_list *sticker_queue, const char *uri, time
     if (is_streamuri(uri) == true) {
         return true;
     }
+    if (song_start_time == 0) {
+        MYMPD_LOG_WARN(NULL, "Skip setting lastPlayed sticker");
+        return true;
+    }
     struct t_sticker_type *sticker_type = sticker_type_new(STICKER_LAST_PLAYED);
     return list_push(sticker_queue, uri, (long long)song_start_time, NULL, sticker_type);
 }
