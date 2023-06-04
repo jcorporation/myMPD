@@ -139,11 +139,13 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_STATE;
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     int song_id = -1;
+    bool song_changed = false;
     if (status != NULL) {
         time_t now = time(NULL);
         song_id = mpd_status_get_song_id(status);
         if (partition_state->song_id != song_id) {
             //song has changed, save old state
+            song_changed = true;
             partition_state->last_song_id = partition_state->song_id;
             partition_state->last_song_end_time = partition_state->song_end_time;
             partition_state->last_song_start_time = partition_state->song_start_time;
@@ -199,7 +201,7 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
         mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status");
     }
     //update song uri if song has changed
-    if (partition_state->song_id != song_id) {
+    if (song_changed == true) {
         struct mpd_song *song = mpd_run_current_song(partition_state->conn);
         if (song != NULL) {
             partition_state->last_song_uri = sds_replace(partition_state->last_song_uri, partition_state->song_uri);
