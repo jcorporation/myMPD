@@ -39,7 +39,7 @@ bool covercache_write_file(sds cachedir, const char *uri, const char *mime_type,
         return false;
     }
     MYMPD_LOG_DEBUG(NULL, "Writing covercache for \"%s\"", uri);
-    sds filename = sds_hash(uri);
+    sds filename = sds_hash_sha1(uri);
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S-%i.%s", cachedir, DIR_CACHE_COVER, filename, offset, ext);
     MYMPD_LOG_DEBUG(NULL, "Writing covercache file \"%s\"", filepath);
     bool rc = write_data_to_file(filepath, binary, sdslen(binary));

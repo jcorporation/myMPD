@@ -16,16 +16,6 @@
 #include <termios.h>
 
 /**
- * Private definitions
- */
-
-static sds pin_hash(const char *pin);
-
-/**
- * Public functions
- */
-
-/**
  * Reads the pin from stdin and sets it
  * @param workdir working directory
  * @return true on success else false
@@ -63,7 +53,7 @@ bool pin_set(sds workdir) {
         return false;
     }
 
-    sds hex_hash = sdslen(pin) == 0 ? sdsempty() : pin_hash(pin);
+    sds hex_hash = sdslen(pin) == 0 ? sdsempty() : sds_hash_sha256(pin);
     bool rc = state_file_write(workdir, "config", "pin_hash", hex_hash);
     FREE_SDS(hex_hash);
 
@@ -95,7 +85,7 @@ bool pin_validate(const char *pin, const char *hash) {
         MYMPD_LOG_ERROR(NULL, "No pin is set");
         return false;
     }
-    sds test_hash = pin_hash(pin);
+    sds test_hash = sds_hash_sha256(pin);
     bool rc = false;
     if (strcmp(test_hash, hash) == 0) {
         MYMPD_LOG_INFO(NULL, "Valid pin entered");
@@ -106,41 +96,4 @@ bool pin_validate(const char *pin, const char *hash) {
     }
     FREE_SDS(test_hash);
     return rc;
-}
-
-/**
- * Private functions
- */
-
-/**
- * Hashes the pin
- * @param pin pin to hash
- * @return hash as newly allocated sds string
- */
-static sds pin_hash(const char *pin) {
-    sds hex_hash = sdsempty();
-    EVP_MD_CTX* context = EVP_MD_CTX_new();
-    if (context == NULL) {
-        return hex_hash;
-    }
-    if (EVP_DigestInit_ex(context, EVP_sha256(), NULL) == 0) {
-        EVP_MD_CTX_free(context);
-        return hex_hash;
-    }
-    if (EVP_DigestUpdate(context, pin, strlen(pin)) == 0) {
-        EVP_MD_CTX_free(context);
-        return hex_hash;
-    }
-    unsigned char hash[EVP_MAX_MD_SIZE];
-    unsigned hash_len = 0;
-    if(EVP_DigestFinal_ex(context, hash, &hash_len) == 0) {
-        EVP_MD_CTX_free(context);
-        return hex_hash;
-    }
-
-    for (unsigned i = 0; i < hash_len; i++) {
-        hex_hash = sdscatprintf(hex_hash, "%02x", hash[i]);
-    }
-    EVP_MD_CTX_free(context);
-    return hex_hash;
 }

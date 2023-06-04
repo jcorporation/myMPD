@@ -100,7 +100,7 @@ bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,
         struct t_mg_user_data *mg_user_data, sds uri_decoded, int offset)
 {
     if (mg_user_data->config->covercache_keep_days > 0) {
-        sds filename = sds_hash(uri_decoded);
+        sds filename = sds_hash_sha1(uri_decoded);
         sds covercachefile = sdscatfmt(sdsempty(), "%S/%s/%S-%i", mg_user_data->config->cachedir, DIR_CACHE_COVER, filename, offset);
         FREE_SDS(filename);
         covercachefile = webserver_find_image_file(covercachefile);

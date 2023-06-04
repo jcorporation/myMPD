@@ -36,11 +36,26 @@ sds *sds_split_comma_trim(sds s, int *count) {
  * @param p string to hash
  * @return the hash as a newly allocated sds string
  */
-sds sds_hash(const char *p) {
+sds sds_hash_sha1(const char *p) {
     unsigned char hash[SHA_DIGEST_LENGTH];
     SHA1((unsigned char *)p, strlen(p), hash);
     sds hex_hash = sdsempty();
     for (unsigned i = 0; i < SHA_DIGEST_LENGTH; i++) {
+        hex_hash = sdscatprintf(hex_hash, "%02x", hash[i]);
+    }
+    return hex_hash;
+}
+
+/**
+ * Hashes a string with sha256
+ * @param p string to hash
+ * @return the hash as a newly allocated sds string
+ */
+sds sds_hash_sha256(const char *p) {
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256((unsigned char *)p, strlen(p), hash);
+    sds hex_hash = sdsempty();
+    for (unsigned i = 0; i < SHA256_DIGEST_LENGTH; i++) {
         hex_hash = sdscatprintf(hex_hash, "%02x", hash[i]);
     }
     return hex_hash;

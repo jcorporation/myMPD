@@ -69,6 +69,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define FILENAME_STICKERCACHE "sticker_cache.json"
 #define FILENAME_TIMER "timer_list"
 #define FILENAME_TRIGGER "trigger_list"
+#define FILENAME_WEBRADIODB "webradiodb-combined.min.json"
 
 #define DIR_CACHE_COVER "covercache"
 #define DIR_CACHE_WEBRADIODB "webradiodb"

@@ -46,8 +46,8 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
 
     switch(cmd_id) {
         case MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET:
-            data = webradiodb_cache_check(config->cachedir, "webradiodb-combined.min.json");
-            uri = sdscat(uri, "/webradiodb/db/index/webradiodb-combined.min.json");
+            data = webradiodb_cache_check(config->cachedir, FILENAME_WEBRADIODB);
+            uri = sdscatfmt(uri, "/webradiodb/db/index/%s", FILENAME_WEBRADIODB);
             break;
         default:
             error = sdscat(error, "Invalid API request");
@@ -94,7 +94,7 @@ void webradiodb_api(struct mg_connection *nc, struct mg_connection *backend_nc,
  * @return file content on success, else NULL
  */
 static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/webradiodb/%s", cachedir, cache_file);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", cachedir, DIR_CACHE_WEBRADIODB, cache_file);
     time_t mtime = get_mtime(filepath);
     if (mtime > 0) {
         //cache it one day
@@ -129,7 +129,7 @@ static sds webradiodb_cache_check(sds cachedir, const char *cache_file) {
  * @return true on success, else false
  */
 static bool webradiodb_cache_write(sds cachedir, const char *cache_file, const char *data, size_t data_len) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/webradiodb/%s", cachedir, cache_file);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", cachedir, DIR_CACHE_WEBRADIODB, cache_file);
     bool rc = write_data_to_file(filepath, data, data_len);
     FREE_SDS(filepath);
     return rc;
@@ -201,7 +201,7 @@ static void webradiodb_handler(struct mg_connection *nc, int ev, void *ev_data, 
             }
             FREE_SDS(response);
             if (backend_nc_data->cmd_id == MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET) {
-                webradiodb_cache_write(config->cachedir, "webradiodb-combined.min.json", hm->body.ptr, hm->body.len);
+                webradiodb_cache_write(config->cachedir, FILENAME_WEBRADIODB, hm->body.ptr, hm->body.len);
             }
             break;
         }
