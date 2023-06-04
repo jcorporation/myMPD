@@ -14,15 +14,15 @@
 #include <openssl/rand.h>
 
 /**
- * Generates random number in range (inclusive lower and upper bounds)
+ * Generates a positive random number in range (inclusive lower and upper bounds)
  * @param lower lower boundary
  * @param upper upper boundary
  * @return random number
  */
 long randrange(long lower, long upper) {
-    long buf;
+    uint32_t buf;
     if (RAND_bytes((unsigned char *)&buf, sizeof(buf)) == 1) {
-        return lower + buf / (LONG_MAX / (upper - lower + 1) + 1);
+        return lower + buf / (UINT32_MAX / (upper - lower + 1) + 1);
     }
 
     MYMPD_LOG_ERROR(NULL, "Error generating random number in range %ld - %ld", lower, upper);
