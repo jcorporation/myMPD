@@ -42,9 +42,10 @@ This release improves the queue and playlist management in many ways. You can no
 - Feat: add quick remove and quick play buttons to more views
 - Feat: support MUSICBRAINZ_RELEASEGROUPID tag (MPD 0.24)
 - Upd: Mongoose 7.10 #1024
+- Upd: Bootstrap 5.3.0 final
 - Upd: libmympdclient 1.0.21
 - Upd: OpenSSL is now required #1033
-- Upd: Replace tinymt with OpenSSL prng #1034 
+- Upd: Replace tinymt with OpenSSL prng #1034
 - Fix: improve Mongoose logging #1032
 
 ***
