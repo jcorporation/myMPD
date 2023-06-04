@@ -4,9 +4,9 @@ permalink: /references/tags
 title: Tags
 ---
 
-myMPD supports all tags provided by MPD out of the box.
+myMPD supports all tags provided by MPD out of the box. The tags must be enabled in MPD and afterwards in the myMPD settings.
 
-Following tags should be enabled for the best user experience (in MPD and in myMPD):
+Following tags should be enabled for the best user experience:
 
 - Album
 - AlbumArtist (for support of multiartist albums)
