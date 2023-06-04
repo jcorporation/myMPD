@@ -42,10 +42,16 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
             sds response = sdsempty();
             if (is_valid == true) {
                 sds new_session = webserver_session_new(&mg_user_data->session_list);
-                response = jsonrpc_respond_start(response, cmd_id, request_id);
-                response = tojson_sds(response, "session", new_session, false);
-                response = jsonrpc_end(response);
-                FREE_SDS(new_session);
+                if (new_session != NULL) {
+                    response = jsonrpc_respond_start(response, cmd_id, request_id);
+                    response = tojson_sds(response, "session", new_session, false);
+                    response = jsonrpc_end(response);
+                    FREE_SDS(new_session);
+                }
+                else {
+                    response = jsonrpc_respond_message(response, cmd_id, request_id,
+                        JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Could not create session");
+                }
             }
             else {
                 response = jsonrpc_respond_message(response, cmd_id, request_id,
@@ -95,11 +101,11 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
  * @return newly allocated sds string with the session hash or NULL on error
  */
 sds webserver_session_new(struct t_list *session_list) {
-    sds session = sdsempty();
     unsigned char buf[10];
     if (RAND_bytes((unsigned char *)&buf, sizeof(buf)) != 1) {
-        return session;
+        return NULL;
     }
+    sds session = sdsempty();
     for (int i = 0; i < 10; i++) {
         session = sdscatprintf(session, "%02x", buf[i]);
     }

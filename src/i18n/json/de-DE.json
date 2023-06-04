@@ -547,6 +547,7 @@
     "Select view": "Anzeige auswählen",
     "Session removed": "Session wurde gelöscht",
     "Session successfully created": "Session wurde erfolgreich erstellt",
+    "Could not create session": "Session konnte nicht erstellt werden",
     "Set": "Setzen",
     "Set priority": "Setze Priorität",
     "Set song priority": "Setze Liedpriorität",
