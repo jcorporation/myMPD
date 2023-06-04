@@ -152,7 +152,13 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
             break;
         }
         case MG_EV_ERROR:
-            MYMPD_LOG_ERROR(NULL, "HTTP connection \"%lu\" failed", nc->id);
+            MYMPD_LOG_ERROR(NULL, "HTTP connection to \"%s\", connection %lu failed", backend_nc_data->uri, nc->id);
+            if (backend_nc_data->frontend_nc != NULL) {
+                sds response = jsonrpc_respond_message_phrase(sdsempty(), backend_nc_data->cmd_id, 0,
+                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Could not connect to %{host}", 2, "host", RADIOBROWSER_HOST);
+                webserver_send_data(backend_nc_data->frontend_nc, response, sdslen(response), "Content-Type: application/json\r\n");
+                FREE_SDS(response);
+            }
             break;
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;

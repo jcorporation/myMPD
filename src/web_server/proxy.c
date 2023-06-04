@@ -161,7 +161,7 @@ void forward_backend_to_frontend_stream(struct mg_connection *nc, int ev, void *
             break;
         }
         case MG_EV_ERROR:
-            MYMPD_LOG_ERROR(NULL, "HTTP connection \"%lu\" failed", nc->id);
+            MYMPD_LOG_ERROR(NULL, "HTTP connection to \"%s\", connection %lu failed", backend_nc_data->uri, nc->id);
             break;
         case MG_EV_READ:
             if (backend_nc_data->frontend_nc != NULL) {
@@ -191,7 +191,7 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
             break;
         }
         case MG_EV_ERROR: {
-            MYMPD_LOG_ERROR(NULL, "HTTP connection \"%lu\" failed", nc->id);
+            MYMPD_LOG_ERROR(NULL, "HTTP connection to \"%s\", connection %lu failed", backend_nc_data->uri, nc->id);
             webserver_serve_na_image(backend_nc_data->frontend_nc);
             break;
         }

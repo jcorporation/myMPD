@@ -150,7 +150,7 @@ void *web_server_loop(void *arg_mgr) {
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
 
-    //set mongoose loglevel
+    //set mongoose loglevel to error
     mg_log_set(1);
     mg_log_set_fn(mongoose_log, NULL);
 
@@ -781,7 +781,12 @@ static void mongoose_log(char ch, void *param) {
     if (ch == '\n' ||
         len >= sizeof(buf))
     {
-        MYMPD_LOG_DEBUG(NULL, "%.*s", (int) len, buf); //Send logs
+        if (ch == '\n') {
+            //Remove newline
+            len--;
+        }
+        //we log only mongoose errors
+        MYMPD_LOG_ERROR(NULL, "%.*s", (int) len, buf); //Send logs
         len = 0;
     }
     (void)param;
