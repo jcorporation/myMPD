@@ -645,6 +645,7 @@ function setFeatures() {
     features.featTrigger = settings.webuiSettings.enableTrigger;
     features.featMediaSession = checkMediaSessionSupport();
     features.featFooterNotifications = settings.webuiSettings.uiFooterNotifications;
+    features.featSession = settings.pin;
 
     //mpd features
     if (settings.partition.mpdConnected === true) {

@@ -64,23 +64,23 @@
       <button type="button" class="btn-close" data-bs-dismiss="offcanvas"></button>
     </div>
     <div class="offcanvas-body">
-      <a class="dropdown-item py-2" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["STREAM"]}'><span class="mi me-2">playlist_add</span><span data-phrase="Add stream"></span></a>
+      <a class="dropdown-item py-2" data-title-phrase="Shortcut: A" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["STREAM"]}'><span class="mi me-2">playlist_add</span><span data-phrase="Add stream"></span></a>
       <div class="dropdown-divider"></div>
-      <a class="dropdown-item py-2 alwaysEnabled" href="#modalConnection" data-bs-toggle="modal"><span class="mi me-2">settings_ethernet</span><span data-phrase="MPD connection"></span></a>
-      <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalSettings"><span class="mi me-2">settings</span><span data-phrase="Settings"></span></a>
-      <a class="dropdown-item py-2 featScripting" href="#" data-href='{"cmd": "showListScriptModal", "options": []}'><span class="mi me-2">code</span><span data-phrase="Scripts"></span></a>
-      <a class="dropdown-item py-2 featTimer" data-bs-toggle="modal" href="#modalTimer"><span class="mi me-2">timer</span><span data-phrase="Timer"></span></a>
-      <a class="dropdown-item py-2 featTrigger" data-bs-toggle="modal" href="#modalTrigger"><span class="mi me-2">bolt</span><span data-phrase="Trigger"></span></a>
-      <a class="dropdown-item py-2 featMounts" data-bs-toggle="modal" href="#modalMounts"><span class="mi me-2">dns</span><span data-phrase="Mounts"></span></a>
-      <a class="dropdown-item py-2 featPartitions" data-bs-toggle="modal" href="#modalPartitions"><span class="mi me-2">dashboard</span><span data-phrase="Partitions"></span></a>
+      <a class="dropdown-item py-2 alwaysEnabled" data-title-phrase="Shortcut: C" href="#modalConnection" data-bs-toggle="modal"><span class="mi me-2">settings_ethernet</span><span data-phrase="MPD connection"></span></a>
+      <a class="dropdown-item py-2" data-title-phrase="Shortcut: T" data-bs-toggle="modal" href="#modalSettings"><span class="mi me-2">settings</span><span data-phrase="Settings"></span></a>
+      <a class="dropdown-item py-2 featScripting" data-title-phrase="Shortcut: S" href="#" data-href='{"cmd": "showListScriptModal", "options": []}'><span class="mi me-2">code</span><span data-phrase="Scripts"></span></a>
+      <a class="dropdown-item py-2 featTimer" data-title-phrase="Shortcut: I" data-bs-toggle="modal" href="#modalTimer"><span class="mi me-2">timer</span><span data-phrase="Timer"></span></a>
+      <a class="dropdown-item py-2 featTrigger" data-title-phrase="Shortcut: G" data-bs-toggle="modal" href="#modalTrigger"><span class="mi me-2">bolt</span><span data-phrase="Trigger"></span></a>
+      <a class="dropdown-item py-2 featMounts" data-title-phrase="Shortcut: O" data-bs-toggle="modal" href="#modalMounts"><span class="mi me-2">dns</span><span data-phrase="Mounts"></span></a>
+      <a class="dropdown-item py-2 featPartitions" data-title-phrase="Shortcut: P" data-bs-toggle="modal" href="#modalPartitions"><span class="mi me-2">dashboard</span><span data-phrase="Partitions"></span></a>
       <div class="dropdown-divider"></div>
-      <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalMaintenance"><span class="mi me-2">build</span><span data-phrase="Maintenance"></span></a>
+      <a class="dropdown-item py-2" data-title-phrase="Shortcut: M" data-bs-toggle="modal" href="#modalMaintenance"><span class="mi me-2">build</span><span data-phrase="Maintenance"></span></a>
       <a class="dropdown-item py-2 featLibrary" href="browse/" target="_blank"><span class="mi me-2">folder_open</span><span data-phrase="Browse directories"></span></a>
-      <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalNotifications"><span class="mi me-2">chat_bubble_outline</span><span data-phrase="Notifications"></span></a>
-      <a class="dropdown-item py-2" data-bs-toggle="modal" href="#modalAbout"><span class="mi me-2">help_outline</span><span data-phrase="About"></span></a>
+      <a class="dropdown-item py-2" data-title-phrase="Shortcut: N" data-bs-toggle="modal" href="#modalNotifications"><span class="mi me-2">chat_bubble_outline</span><span data-phrase="Notifications"></span></a>
+      <a class="dropdown-item py-2" data-title-phrase="Shortcut: ?" data-bs-toggle="modal" href="#modalAbout"><span class="mi me-2">help_outline</span><span data-phrase="About"></span></a>
       <div class="dropdown-divider" id="mmLoginLogoutDivider"></div>
-      <a class="dropdown-item py-2" id="mmLogin" data-href='{"cmd": "enterPin", "options": []}' href="#"><span class="mi me-2">login</span><span data-phrase="Login"></span></a>
-      <a class="dropdown-item py-2" id="mmLogout" data-href='{"cmd": "removeSession", "options": []}' href="#"><span class="mi me-2">logout</span><span data-phrase="Logout"></span></a>
+      <a class="dropdown-item py-2" data-title-phrase="Shortcut: L" id="mmLogin" data-href='{"cmd": "enterPin", "options": []}' href="#"><span class="mi me-2">login</span><span data-phrase="Login"></span></a>
+      <a class="dropdown-item py-2" data-title-phrase="Shortcut: L" id="mmLogout" data-href='{"cmd": "removeSession", "options": []}' href="#"><span class="mi me-2">logout</span><span data-phrase="Logout"></span></a>
       <div class="dropdown-divider featScripting"></div>
       <div id="scripts" class="featScripting noInitChilds"></div>
     </div>

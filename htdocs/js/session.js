@@ -22,6 +22,20 @@ function initSession() {
 }
 
 /**
+ * Shows the login modal or logs out
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function loginOrLogout() {
+    if (session.token === '') {
+        enterPin(undefined, undefined, undefined, false);
+    }
+    else {
+        removeSession();
+    }
+}
+
+/**
  * Removes the enter pin dialog from a modal footer.
  * @param {HTMLElement} footer parent element of the enter pin dialog
  * @returns {void}
