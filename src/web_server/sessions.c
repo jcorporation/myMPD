@@ -9,7 +9,6 @@
 
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/mem.h"
 #include "src/lib/pin.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/validate.h"

@@ -12,7 +12,6 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/sticker_cache.h"
 #include "src/lib/utility.h"
-#include "src/mpd_client/jukebox.h"
 #include "src/mpd_client/presets.h"
 #include "src/mympd_api/home.h"
 #include "src/mympd_api/last_played.h"
