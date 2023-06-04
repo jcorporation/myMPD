@@ -721,7 +721,7 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
             //redirect to https
             struct mg_str *host_hdr = mg_http_get_header(hm, "Host");
             if (host_hdr == NULL) {
-                MYMPD_LOG_ERROR(NULL, "No hoster header found, closing connection");
+                MYMPD_LOG_ERROR(NULL, "No host header found, closing connection");
                 nc->is_closing = 1;
                 break;
             }
