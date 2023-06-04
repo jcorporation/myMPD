@@ -43,6 +43,7 @@ This release improves the queue and playlist management in many ways. You can no
 - Feat: support MUSICBRAINZ_RELEASEGROUPID tag (MPD 0.24)
 - Upd: Mongoose 7.10 #1024
 - Upd: libmympdclient 1.0.21
+- Upd: OpenSSL is now required #1033
 - Fix: improve Mongoose logging #1032
 
 ***

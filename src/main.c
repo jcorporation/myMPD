@@ -10,6 +10,7 @@
 #include "dist/mongoose/mongoose.h"
 #include "dist/sds/sds.h"
 #include "src/lib/api.h"
+#include "src/lib/cert.h"
 #include "src/lib/config.h"
 #include "src/lib/config_def.h"
 #include "src/lib/env.h"
@@ -24,11 +25,6 @@
 #include "src/mympd_api/mympd_api.h"
 #include "src/web_server/web_server.h"
 
-#ifdef MYMPD_ENABLE_SSL
-    #include "src/lib/cert.h"
-    #include <openssl/opensslv.h>
-#endif
-
 #ifdef MYMPD_ENABLE_LUA
     #include <lua.h>
 #endif
@@ -42,6 +38,7 @@
 #endif
 
 #include <grp.h>
+#include <openssl/opensslv.h>
 #include <pthread.h>
 #include <pwd.h>
 #include <signal.h>
@@ -318,15 +315,12 @@ static bool check_dirs(struct t_config *config) {
  * @return true on success, else false
  */
 static bool create_certificates(struct t_config *config) {
-    #ifdef MYMPD_ENABLE_SSL
-        if (config->ssl == true &&
-            config->custom_cert == false &&
-            certificates_check(config->workdir, config->ssl_san) == false)
-        {
-            return false;
-        }
-    #endif
-    (void) config;
+    if (config->ssl == true &&
+        config->custom_cert == false &&
+        certificates_check(config->workdir, config->ssl_san) == false)
+    {
+        return false;
+    }
     return true;
 }
 
@@ -465,6 +459,7 @@ int main(int argc, char **argv) {
             LIBMYMPDCLIENT_MAJOR_VERSION, LIBMYMPDCLIENT_MINOR_VERSION, LIBMYMPDCLIENT_PATCH_VERSION,
             LIBMPDCLIENT_MAJOR_VERSION, LIBMPDCLIENT_MINOR_VERSION, LIBMPDCLIENT_PATCH_VERSION);
     MYMPD_LOG_INFO(NULL, "Mongoose %s", MG_VERSION);
+    MYMPD_LOG_INFO(NULL, "%s", OPENSSL_VERSION_TEXT);
     #ifdef MYMPD_ENABLE_LUA
         MYMPD_LOG_INFO(NULL, "%s", LUA_RELEASE);
     #endif
@@ -473,9 +468,6 @@ int main(int argc, char **argv) {
     #endif
     #ifdef MYMPD_ENABLE_FLAC
         MYMPD_LOG_INFO(NULL, "FLAC %d.%d.%d", FLAC_API_VERSION_CURRENT, FLAC_API_VERSION_REVISION, FLAC_API_VERSION_AGE);
-    #endif
-    #ifdef MYMPD_ENABLE_SSL
-        MYMPD_LOG_INFO(NULL, "%s", OPENSSL_VERSION_TEXT);
     #endif
 
     //set signal handler

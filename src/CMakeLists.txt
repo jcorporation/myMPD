@@ -16,6 +16,7 @@ target_include_directories(mympd
   PRIVATE 
     ${PROJECT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}
+    ${OPENSSL_INCLUDE_DIR}
 )
 
 target_include_directories(mympd SYSTEM PRIVATE ${PCRE2_INCLUDE_DIRS})
@@ -32,15 +33,11 @@ if(MYMPD_ENABLE_LIBID3TAG)
   target_include_directories(mympd SYSTEM PRIVATE ${LIBID3TAG_INCLUDE_DIRS})
 endif()
 
-if(MYMPD_ENABLE_SSL)
-  target_include_directories(mympd SYSTEM PRIVATE ${OPENSSL_INCLUDE_DIR})
-  target_sources(mympd PRIVATE lib/cert.c)
-endif()
-
 target_sources(mympd PRIVATE
   main.c
   lib/album_cache.c
   lib/api.c
+  lib/cert.c
   lib/config.c
   lib/covercache.c
   lib/env.c

@@ -30,9 +30,7 @@
 static void get_placeholder_image(sds workdir, const char *name, sds *result);
 static bool parse_internal_message(struct t_work_response *response, struct t_mg_user_data *mg_user_data);
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
-#ifdef MYMPD_ENABLE_SSL
-    static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data, void *fn_data);
-#endif
+static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data, void *fn_data);
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response);
 static bool check_acl(struct mg_connection *nc, sds acl);
@@ -84,16 +82,12 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     if (config->http == true) {
         struct mg_connection *nc_http = NULL;
         sds http_url = sdscatfmt(sdsempty(), "http://%S:%i", config->http_host, config->http_port);
-        #ifdef MYMPD_ENABLE_SSL
         if (config->ssl == true) {
             nc_http = mg_http_listen(mgr, http_url, ev_handler_redirect, NULL);
         }
         else {
-        #endif
             nc_http = mg_http_listen(mgr, http_url, ev_handler, NULL);
-        #ifdef MYMPD_ENABLE_SSL
         }
-        #endif
         FREE_SDS(http_url);
         if (nc_http == NULL) {
             MYMPD_LOG_EMERG(NULL, "Can't bind to http://%s:%d", config->http_host, config->http_port);
@@ -107,7 +101,6 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
         }
     #endif
     //bind to ssl_port
-    #ifdef MYMPD_ENABLE_SSL
     if (config->ssl == true) {
         sds https_url = sdscatfmt(sdsempty(), "https://%S:%i", config->http_host, config->ssl_port);
         struct mg_connection *nc_https = mg_http_listen(mgr, https_url, ev_handler, NULL);
@@ -121,7 +114,6 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     else if (config->http == false) {
         MYMPD_LOG_ERROR(NULL, "Not listening on any port.");
     }
-    #endif
     MYMPD_LOG_NOTICE("Serving files from \"%s\"", MYMPD_DOC_ROOT);
     return mgr;
 }
@@ -154,12 +146,10 @@ void *web_server_loop(void *arg_mgr) {
     mg_log_set(1);
     mg_log_set_fn(mongoose_log, NULL);
 
-    #ifdef MYMPD_ENABLE_SSL
     if (mg_user_data->config->ssl == true) {
         MYMPD_LOG_DEBUG(NULL, "Using certificate: %s", mg_user_data->config->ssl_cert);
         MYMPD_LOG_DEBUG(NULL, "Using private key: %s", mg_user_data->config->ssl_key);
     }
-    #endif
 
     sds last_notify = sdsempty();
     time_t last_time = 0;
@@ -456,7 +446,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 FREE_SDS(ip);
             }
             //ssl support
-            #ifdef MYMPD_ENABLE_SSL
             if (config->ssl == true) {
                 MYMPD_LOG_DEBUG(NULL, "Init tls with cert \"%s\" and key \"%s\" for connection \"%lu\"", config->ssl_cert, config->ssl_key, nc->id);
                 struct mg_tls_opts tls_opts = {
@@ -465,7 +454,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 };
                 mg_tls_init(nc, &tls_opts);
             }
-            #endif
             //check connection count
             if (check_conn_limit(nc, mg_user_data->connection_count) == false) {
                 break;
@@ -646,11 +634,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_http_match_uri(hm, "/favicon.ico") == true) {
                 webserver_send_header_redirect(nc, "/assets/appicon-192.png");
             }
-            #ifdef MYMPD_ENABLE_SSL
             else if (mg_http_match_uri(hm, "/ca.crt") == true) {
                 request_handler_ca(nc, hm, mg_user_data);
             }
-            #endif
             else {
                 //all other uris
                 #ifndef MYMPD_EMBEDDED_ASSETS
@@ -698,7 +684,6 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
     }
 }
 
-#ifdef MYMPD_ENABLE_SSL
 /**
  * Redirects the client to https if ssl is enabled.
  * Only requests to /browse/webradios are not redirected.
@@ -767,7 +752,6 @@ static void ev_handler_redirect(struct mg_connection *nc, int ev, void *ev_data,
             break;
     }
 }
-#endif
 
 /**
  * Mongoose logging function

@@ -29,7 +29,6 @@ sudo make -C build install
 | MYMPD_ENABLE_LIBASAN | OFF | Enables build with libasan |
 | MYMPD_ENABLE_LIBID3TAG | ON | Enables libid3tag support |
 | MYMPD_ENABLE_LUA | ON | Enables lua support |
-| MYMPD_ENABLE_SSL | ON | Enables OpenSSL support |
 | MYMPD_MANPAGES | ON | Creates and installs manpages |
 | MYMPD_MINIMAL | OFF | Enables minimal myMPD build, disables all MYMPD_ENABLE_* flags |
 | MYMPD_STRIP_BINARY | ON | Enables stripping the binaries for Release |

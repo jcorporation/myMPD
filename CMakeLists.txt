@@ -56,7 +56,6 @@ option(MYMPD_ENABLE_IPV6 "Enables IPv6, default ON" "ON")
 option(MYMPD_ENABLE_LIBASAN "Enables build with libasan, default OFF" "OFF")
 option(MYMPD_ENABLE_LIBID3TAG "Enables libid3tag support, default ON" "ON")
 option(MYMPD_ENABLE_LUA "Enables lua support, default ON" "ON")
-option(MYMPD_ENABLE_SSL "Enables OpenSSL support, default ON" "ON")
 option(MYMPD_MANPAGES "Creates and installs manpages" "ON")
 option(MYMPD_MINIMAL "Enables minimal myMPD build, disables all MYMPD_ENABLE_* flags" "OFF")
 option(MYMPD_STRIP_BINARY "Enables stripping the binaries for Release, default ON" "ON")
@@ -66,7 +65,6 @@ if(MYMPD_MINIMAL)
   set(MYMPD_ENABLE_IPV6 "OFF")
   set(MYMPD_ENABLE_LUA "OFF")
   set(MYMPD_ENABLE_LIBID3TAG "OFF")
-  set(MYMPD_ENABLE_SSL "OFF")
 endif()
 
 # cmake modules
@@ -125,24 +123,14 @@ message("Document root: ${MYMPD_DOC_ROOT}")
 find_package(Threads REQUIRED)
 find_package(PCRE2 REQUIRED)
 find_library(MATH_LIB m REQUIRED)
+find_package(OpenSSL REQUIRED)
 
-# optional dependencies
-if(MYMPD_ENABLE_SSL)
-  message("Searching for openssl")
-  find_package(OpenSSL)
-  if(OPENSSL_FOUND)
-    if(NOT OPENSSL_VERSION VERSION_GREATER_EQUAL "1.1.0")
-      message("OpenSSL is disabled because a version lower than 1.1.0 was found")
-      set(MYMPD_ENABLE_SSL "OFF")
-    endif()
-  else()
-    message("OpenSSL is disabled because it was not found")
-    set(MYMPD_ENABLE_SSL "OFF")
-  endif()
-else()
-  message("OpenSSL is disabled by user")
+# check dependencies versions
+if(OPENSSL_VERSION VERSION_LESS "1.1.0")
+  message(FATAL_ERROR "myMPD requires an OpenSSL version greater or equal 1.1.0")
 endif()
 
+# optional dependencies
 if(MYMPD_ENABLE_LIBID3TAG)
   message("Searching for libid3tag")
   find_package(LIBID3TAG)
@@ -378,12 +366,10 @@ target_link_libraries(mympd
   ${CMAKE_THREAD_LIBS_INIT}
   ${MATH_LIB}
   ${PCRE2_LIBRARIES}
+  ${OPENSSL_LIBRARIES}
 )
 
 # link optional dependencies
-if(OPENSSL_FOUND)
-  target_link_libraries(mympd ${OPENSSL_LIBRARIES})
-endif()
 if(LIBID3TAG_FOUND)
   target_link_libraries(mympd ${LIBID3TAG_LIBRARIES})
 endif()

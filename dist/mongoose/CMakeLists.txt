@@ -15,6 +15,7 @@ target_compile_options(mongoose
   PRIVATE
     "-DMG_ENABLE_DIRECTORY_LISTING=1"
     "-DMG_ENABLE_SSI=0"
+    "-DMG_ENABLE_OPENSSL=1"
     "-Wno-unused-parameter"
 )
 
@@ -28,16 +29,7 @@ else()
   message("Mongoose: IPv6 is disabled")
 endif()
 
-if(MYMPD_ENABLE_SSL)
-  message("Mongoose: SSL is enabled")
-  target_compile_options(mongoose
-    PUBLIC
-      "-DMG_ENABLE_OPENSSL=1"
-  )
-  target_include_directories(mongoose SYSTEM
-    PRIVATE
-      ${OPENSSL_INCLUDE_DIR}
-  )
-else()
-  message("Mongoose: SSL is disabled")
-endif()
+target_include_directories(mongoose SYSTEM
+  PRIVATE
+    ${OPENSSL_INCLUDE_DIR}
+)

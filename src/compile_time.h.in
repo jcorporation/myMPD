@@ -23,7 +23,6 @@
 //features
 #cmakedefine MYMPD_ENABLE_LIBID3TAG
 #cmakedefine MYMPD_ENABLE_FLAC
-#cmakedefine MYMPD_ENABLE_SSL
 #cmakedefine MYMPD_ENABLE_LUA
 #cmakedefine MYMPD_ENABLE_IPV6
 

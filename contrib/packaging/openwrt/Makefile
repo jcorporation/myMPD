@@ -26,8 +26,7 @@ PKG_FORTIFY_SOURCE := 0
 PKG_CONFIG_DEPENDS := \
     CONFIG_MYMPD_FLAC \
     CONFIG_MYMPD_ID3TAG \
-    CONFIG_MYMPD_LUA \
-    CONFIG_MYMPD_SSL
+    CONFIG_MYMPD_LUA
 
 CMAKE_BINARY_SUBDIR := release
 
@@ -39,7 +38,7 @@ define Package/mympd
   CATEGORY := Sound
   TITLE := myMPD - web MPD client and more
   URL := https://jcorporation.github.io
-  DEPENDS := +libpcre2 +MYMPD_FLAC:libflac +MYMPD_ID3TAG:libid3tag +MYMPD_LUA:liblua5.3 +MYMPD_SSL:libopenssl
+  DEPENDS := +libpcre2 +MYMPD_FLAC:libflac +MYMPD_ID3TAG:libid3tag +MYMPD_LUA:liblua5.3 +libopenssl
   USERID := mympd:mympd
 endef
 
@@ -62,10 +61,6 @@ define Package/mympd/config
             bool "LUA scripts support"
             default n
 
-        config MYMPD_SSL
-            bool "HTTPS support (with OpenSSL)"
-            default n
-
     endif
 endef
 
@@ -73,8 +68,7 @@ CMAKE_OPTIONS += \
     -DCMAKE_BUILD_TYPE=Release \
     -DMYMPD_ENABLE_FLAC=$(if $(CONFIG_MYMPD_FLAC),ON,OFF) \
     -DMYMPD_ENABLE_LIBID3TAG=$(if $(CONFIG_MYMPD_ID3TAG),ON,OFF) \
-    -DMYMPD_ENABLE_LUA=$(if $(CONFIG_MYMPD_LUA),ON,OFF) \
-    -DMYMPD_ENABLE_SSL=$(if $(CONFIG_MYMPD_SSL),ON,OFF)
+    -DMYMPD_ENABLE_LUA=$(if $(CONFIG_MYMPD_LUA),ON,OFF)
 
 define Package/mympd/install
     $(INSTALL_DIR) $(1)/usr/bin

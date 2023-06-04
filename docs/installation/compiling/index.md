@@ -34,8 +34,8 @@ myMPD has only a few dependencies beside the standard c libraries. Not installin
 - jq - json parsing
 - Devel packages:
   - pcre2 - for pcre support
-  - Optional: 
-    - OpenSSL >= 1.1.0 - for https support
+  - OpenSSL >= 1.1.0 - for https support
+  - Optional:
     - libid3tag - to extract embedded coverimages
     - flac - to extract embedded coverimages
     - liblua >= 5.3.0 - for myMPD scripting

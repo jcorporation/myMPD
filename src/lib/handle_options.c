@@ -18,9 +18,7 @@ static struct option long_options[] = {
     {"cachedir",  required_argument, 0, 'a'},
     {"config",    no_argument,       0, 'c'},
     {"help",      no_argument,       0, 'h'},
-    #ifdef MYMPD_ENABLE_SSL
     {"pin",       no_argument,       0, 'p'},
-    #endif
     {"syslog",    no_argument,       0, 's'},
     {"user",      required_argument, 0, 'u'},
     {"version",   no_argument,       0, 'v'},
@@ -44,12 +42,9 @@ static void print_usage(struct t_config *config, const char *cmd) {
                     "  -w, --workdir <path>   working directory (default: %s)\n"
                     "  -a, --cachedir <path>  cache directory (default: %s)\n"
                     "  -h, --help             displays this help\n"
-                    "  -v, --version          displays this help\n",
+                    "  -v, --version          displays this help\n"
+                    "  -p, --pin              sets a pin for myMPD settings\n\n",
         cmd, MYMPD_VERSION, CFG_MYMPD_USER, config->workdir, config->cachedir);
-    #ifdef MYMPD_ENABLE_SSL
-    fprintf(stderr, "  -p, --pin              sets a pin for myMPD settings\n");
-    #endif
-    fprintf(stderr, "\n");
 }
 
 /**

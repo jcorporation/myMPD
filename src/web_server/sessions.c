@@ -15,12 +15,9 @@
 #include "src/lib/validate.h"
 #include "src/web_server/utility.h"
 
+#include <openssl/rand.h>
 #include <string.h>
 #include <time.h>
-
-#ifdef MYMPD_ENABLE_SSL
-    #include <openssl/rand.h>
-#endif
 
 /**
  * Request handler for the session api
@@ -99,16 +96,12 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
  */
 sds webserver_session_new(struct t_list *session_list) {
     sds session = sdsempty();
-    #ifdef MYMPD_ENABLE_SSL
     unsigned char *buf = malloc_assert(10 * sizeof(unsigned char));
     RAND_bytes(buf, 10);
     for (int i = 0; i < 10; i++) {
         session = sdscatprintf(session, "%02x", buf[i]);
     }
     FREE_PTR(buf);
-    #else
-    return session;
-    #endif
     //timeout old sessions
     webserver_session_validate(session_list, NULL);
     //add new session with 30 min timeout

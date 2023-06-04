@@ -70,7 +70,6 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
     }
 
     sds session = sdsempty();
-    #ifdef MYMPD_ENABLE_SSL
     if (sdslen(mg_user_data->config->pin_hash) > 0 &&
         is_protected_api_method(cmd_id) == true)
     {
@@ -102,9 +101,6 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
         }
         MYMPD_LOG_INFO(frontend_nc_data->partition, "API request is authorized");
     }
-    #else
-    (void) auth_header;
-    #endif
     switch(cmd_id) {
         case MYMPD_API_SESSION_LOGIN:
         case MYMPD_API_SESSION_LOGOUT:
@@ -327,7 +323,6 @@ void request_handler_serverinfo(struct mg_connection *nc) {
     }
 }
 
-#ifdef MYMPD_ENABLE_SSL
 /**
  * Request handler for /ca.crt
  * @param nc mongoose connection
@@ -352,4 +347,3 @@ void request_handler_ca(struct mg_connection *nc, struct mg_http_message *hm,
         webserver_send_error(nc, 404, "Custom cert enabled, don't deliver myMPD ca");
     }
 }
-#endif
