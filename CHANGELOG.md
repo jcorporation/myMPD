@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v11.0.0 (not yet released)
 
-This release improves the queue and playlist management in many ways. You can now select multiple songs or playlists and take actions on this selection. Further the mpd error handling and the mpd communication was improved by using command lists.
+This release improves the queue and playlist management in many ways. You can now select multiple songs or playlists and take actions on this selection. There are new methods to copy, merge, validate and deduplicate playlists. Further the mpd error handling and the mpd communication was improved by using command lists.
 
 ### Note
 
@@ -42,7 +42,8 @@ This release changes definitions of many API methods.
 ### Changelog
 
 - Feat: add multiple selections and actions #1001
-- Feat: Improve queue and playlist management #1001
+- Feat: improve queue and playlist management #1001
+- Feat: copy, merge, validate and deduplicate playlists #1038
 - Feat: migrate to JavaScript fetch() API #1006
 - Feat: add test target to cmake #1023
 - Feat: improve mpd error handling #1028
