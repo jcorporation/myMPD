@@ -103,7 +103,7 @@
     "Clear": "Leeren",
     "Clear app cache and reload": "Browser Cache löschen und neu laden",
     "Clear jukebox queue": "Leere Jukebox Warteschlange",
-    "Clear playlist": "Playlist leeren",
+    "Clear playlist": "Wiedergabeliste leeren",
     "Clear queue": "Warteschlange leeren",
     "Cleared the playlist %{playlist}": "Wiedergabeliste %{playlist} wurde geleert",
     "Click album play button": "Klick auf Album abspielen",
@@ -926,5 +926,14 @@
     "Shortcut: O": "Tastaturkürzel: O",
     "Shortcut: P": "Tastaturkürzel: P",
     "Shortcut: S": "Tastaturkürzel: S",
-    "Shortcut: T": "Tastaturkürzel: T"
+    "Shortcut: T": "Tastaturkürzel: T",
+    "%{count} duplicate entries in playlist %{plist}": "%{count} Duplikate in der Wiedergabeliste %{plist}",
+    "%{count} invalid entries in playlist %{plist}": "%{count} ungültige Einträge in der Wiedergabeliste %{plist}",
+    "Deduplication of playlist %{plist} failed": "Deduplikation der Wiedergabeliste fehlgeschlagen",
+    "Content of playlist %{plist} is uniq": "Inhalt der Wiedergabeliste %{plist} ist eindeutig",
+    "Content of playlist %{plist} is valid": "Inhalt der Wiedergabeliste %{plist} ist gültig",
+    "Playlist deduplication started": "Deduplikation der Wiedergabeliste gestartet",
+    "Playlist validation started": "Überprüfung der Wiedergabeliste gestartet",
+    "Removed %{count} entries from playlist %{plist}": "%{count} Einträge von der Wiedergabeliste %{plist} entfernt",
+    "Validation of playlist %{plist} failed": "Überprüfung der Wiedergabeliste %{plist} fehlgeschlagen"
 }
