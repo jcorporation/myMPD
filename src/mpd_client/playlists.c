@@ -98,9 +98,8 @@ long mpd_client_playlist_dedup(struct t_partition_state *partition_state, const 
     if (remove == true) {
         struct t_list_node *current = duplicates.head;
         while (current != NULL) {
-            if (mpd_run_playlist_delete(partition_state->conn, playlist, (unsigned)current->value_i) == false ||
-                mympd_check_error_and_recover(partition_state, NULL, "mpd_run_playlist_delete") == false)
-            {
+            mpd_run_playlist_delete(partition_state->conn, playlist, (unsigned)current->value_i);
+            if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_playlist_delete") == false) {
                 rc = -1;
                 break;
             }
@@ -156,10 +155,8 @@ long mpd_client_playlist_validate(struct t_partition_state *partition_state, con
                     break;
                 }
                 if (remove == true) {
-
-                    if (mpd_run_playlist_delete(partition_state->conn, playlist, (unsigned)current->value_i) == false ||
-                        mympd_check_error_and_recover(partition_state, NULL, "mpd_run_playlist_delete") == false)
-                    {
+                    mpd_run_playlist_delete(partition_state->conn, playlist, (unsigned)current->value_i);
+                    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_playlist_delete") == false) {
                         rc = -1;
                         break;
                     }
