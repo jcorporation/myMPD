@@ -9,8 +9,8 @@
 
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
+#include "src/mpd_client/playlists.h"
 #include "src/mpd_worker/cache.h"
 #include "src/mpd_worker/smartpls.h"
 
@@ -24,25 +24,48 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     bool bool_buf1;
     bool async = false;
     sds sds_buf1 = NULL;
+    sds sds_buf2 = NULL;
+    sds error = sdsempty();
 
-    MYMPD_LOG_INFO(NULL, "MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, get_cmd_id_method_name(request->cmd_id), request->data);
+    const char *method = get_cmd_id_method_name(request->cmd_id);
+    MYMPD_LOG_INFO(NULL, "MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, method, request->data);
     //create response struct
     struct t_work_response *response = create_response(request);
 
     switch(request->cmd_id) {
         case MYMPD_API_CACHES_CREATE:
-            if (json_get_bool(request->data, "$.params.force", &bool_buf1, NULL) == true) {
+            if (json_get_bool(request->data, "$.params.force", &bool_buf1, &error) == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
-                if (request->conn_id > -1) {
-                    MYMPD_LOG_DEBUG(NULL, "Push response to queue for connection %lld: %s", request->conn_id, response->data);
-                    mympd_queue_push(web_server_queue, response, 0);
-                }
-                else {
-                    free_response(response);
-                }
-                free_request(request);
+                push_response(response, request->id, request->conn_id);
                 mpd_worker_cache_init(mpd_worker_state, bool_buf1);
                 async = true;
+            }
+            break;
+        case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
+                if (mpd_client_playlist_shuffle(mpd_worker_state->partition_state, sds_buf1)) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Shuffled playlist successfully");
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Shuffling playlist failed");
+                }
+            }
+            break;
+        case MYMPD_API_PLAYLIST_CONTENT_SORT:
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag, &error) == true)
+            {
+                rc = mpd_client_playlist_sort(mpd_worker_state->partition_state, sds_buf1, sds_buf2);
+                if (rc == true) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Sorted playlist successfully");
+                }
+                else {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Sorting playlist failed");
+                }
             }
             break;
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
@@ -51,17 +74,10 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Smart playlists are disabled");
                 break;
             }
-            if (json_get_bool(request->data, "$.params.force", &bool_buf1, NULL) == true) {
+            if (json_get_bool(request->data, "$.params.force", &bool_buf1, &error) == true) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Smart playlists update started");
-                if (request->conn_id > -1) {
-                    MYMPD_LOG_DEBUG(NULL, "Push response to queue for connection %lld: %s", request->conn_id, response->data);
-                    mympd_queue_push(web_server_queue, response, 0);
-                }
-                else {
-                    free_response(response);
-                }
-                free_request(request);
+                push_response(response, request->id, request->conn_id);
                 rc = mpd_worker_smartpls_update_all(mpd_worker_state, bool_buf1);
                 if (rc == true) {
                     send_jsonrpc_notify(JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, MPD_PARTITION_ALL, "Smart playlists updated");
@@ -78,7 +94,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Smart playlists are disabled");
                 break;
             }
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, NULL) == true) {
+            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true) {
                 rc = mpd_worker_smartpls_update(mpd_worker_state, sds_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
@@ -96,30 +112,30 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
         default:
             response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                 JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Unknown request");
-            MYMPD_LOG_ERROR(NULL, "Unknown API request: %.*s", (int)sdslen(request->data), request->data);
+            MYMPD_LOG_ERROR(MPD_PARTITION_DEFAULT, "Unknown API request: %.*s", (int)sdslen(request->data), request->data);
     }
     FREE_SDS(sds_buf1);
+    FREE_SDS(sds_buf2);
+
+    //errorhandling
+    if (sdslen(error) > 0) {
+        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
+        MYMPD_LOG_ERROR(MPD_PARTITION_DEFAULT, "Error processing method \"%s\"", method);
+    }
+    FREE_SDS(error);
 
     if (async == true) {
+        //already responded
+        free_request(request);
         return;
     }
 
     if (sdslen(response->data) == 0) {
-        const char *method = get_cmd_id_method_name(request->cmd_id);
         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", method);
-        MYMPD_LOG_ERROR(NULL, "No response for method \"%s\"", method);
+        MYMPD_LOG_ERROR(MPD_PARTITION_DEFAULT, "No response for method \"%s\"", method);
     }
-    if (request->conn_id == -2) {
-        MYMPD_LOG_DEBUG(NULL, "Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
-        mympd_queue_push(mympd_script_queue, response, request->id);
-    }
-    else if (request->conn_id > -1) {
-        MYMPD_LOG_DEBUG(NULL, "Push response to queue for connection %lld: %s", request->conn_id, response->data);
-        mympd_queue_push(web_server_queue, response, 0);
-    }
-    else {
-        free_response(response);
-    }
+    push_response(response, request->id, request->conn_id);
     free_request(request);
 }

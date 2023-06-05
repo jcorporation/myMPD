@@ -201,3 +201,23 @@ void free_response(struct t_work_response *response) {
         FREE_PTR(response);
     }
 }
+
+/**
+ * Pushes the response to a queue or frees it
+ * @param response pointer to response struct to push
+ * @param request_id request id
+ * @param conn_id connection id
+ * @return true on success, else false
+ */
+bool push_response(struct t_work_response *response, long request_id, long long conn_id) {
+    if (conn_id == -2) {
+        MYMPD_LOG_DEBUG(NULL, "Push response to mympd_script_queue for thread %ld: %s", request_id, response->data);
+        return mympd_queue_push(mympd_script_queue, response, request_id);
+    }
+    if (conn_id > -1) {
+        MYMPD_LOG_DEBUG(NULL, "Push response to queue for connection %lld: %s", conn_id, response->data);
+        return mympd_queue_push(web_server_queue, response, 0);
+    }
+    free_response(response);
+    return true;
+}

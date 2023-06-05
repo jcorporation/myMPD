@@ -120,6 +120,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
             }
             break;
+        case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:
+        case MYMPD_API_PLAYLIST_CONTENT_SORT:
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
         case MYMPD_API_SMARTPLS_UPDATE:
         case MYMPD_API_CACHES_CREATE:
@@ -1319,33 +1321,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_playlist_delete_range", &result);
             }
             break;
-        case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                if (mpd_client_playlist_shuffle(partition_state, sds_buf1)) {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Shuffled playlist successfully");
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Shuffling playlist failed");
-                }
-            }
-            break;
-        case MYMPD_API_PLAYLIST_CONTENT_SORT:
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag, &error) == true)
-            {
-                rc = mpd_client_playlist_sort(partition_state, sds_buf1, sds_buf2);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Sorted playlist successfully");
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Sorting playlist failed");
-                }
-            }
-            break;
         case MYMPD_API_PLAYLIST_COPY: {
             struct t_list src_plists;
             list_init(&src_plists);
@@ -1926,17 +1901,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", method);
         MYMPD_LOG_ERROR(partition_state->name, "No response for method \"%s\"", method);
     }
-    if (request->conn_id == -2) {
-        MYMPD_LOG_DEBUG(partition_state->name, "Push response to mympd_script_queue for thread %ld: %s", request->id, response->data);
-        mympd_queue_push(mympd_script_queue, response, request->id);
-    }
-    else if (request->conn_id > -1) {
-        MYMPD_LOG_DEBUG(partition_state->name, "Push response to web_server_queue for connection %lld: %s", request->conn_id, response->data);
-        mympd_queue_push(web_server_queue, response, 0);
-    }
-    else {
-        free_response(response);
-    }
+    push_response(response, request->id, request->conn_id);
     free_request(request);
 }
 

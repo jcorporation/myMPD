@@ -246,5 +246,6 @@ struct t_work_response *create_response_new(long long conn_id, long request_id, 
 struct t_work_request *create_request(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *data, const char *partition);
 void free_request(struct t_work_request *request);
 void free_response(struct t_work_response *response);
+bool push_response(struct t_work_response *response, long request_id, long long conn_id);
 
 #endif
