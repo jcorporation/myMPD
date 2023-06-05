@@ -36,6 +36,8 @@ This release changes definitions of many API methods.
 - MYMPD_API_PLAYLIST_CONTENT_MOVE_TO_PLAYLIST: new
 - MYMPD_API_PLAYLIST_RM: parameters changed
 - MYMPD_API_PLAYLIST_COPY: new
+- MYMPD_API_PLAYLIST_CONTENT_VALIDATE: new
+- MYMPD_API_PLAYLIST_CONTENT_DEDUP: new
 
 ### Changelog
 

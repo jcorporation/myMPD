@@ -120,11 +120,13 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
             }
             break;
+        case MYMPD_API_CACHES_CREATE:
+        case MYMPD_API_PLAYLIST_CONTENT_DEDUP:
         case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:
         case MYMPD_API_PLAYLIST_CONTENT_SORT:
-        case MYMPD_API_SMARTPLS_UPDATE_ALL:
+        case MYMPD_API_PLAYLIST_CONTENT_VALIDATE:
         case MYMPD_API_SMARTPLS_UPDATE:
-        case MYMPD_API_CACHES_CREATE:
+        case MYMPD_API_SMARTPLS_UPDATE_ALL:
             if (worker_threads > 5) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Too many worker threads are already running");

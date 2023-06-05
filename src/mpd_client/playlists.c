@@ -5,6 +5,12 @@
 */
 
 #include "compile_time.h"
+#include "dist/rax/rax.h"
+#include "mpd/playlist.h"
+#include "mpd/queue.h"
+#include "mpd/response.h"
+#include "src/lib/list.h"
+#include "src/lib/utility.h"
 #include "src/mpd_client/playlists.h"
 
 #include "src/lib/log.h"
@@ -55,6 +61,121 @@ time_t mpd_client_get_playlist_mtime(struct t_partition_state *partition_state, 
     }
 
     return mtime;
+}
+
+/**
+ * Deduplicates the playlist content
+ * @param partition_state pointer to partition state
+ * @param playlist playlist to check
+ * @return -1 on error, else number of duplicate songs
+ */
+long mpd_client_playlist_dedup(struct t_partition_state *partition_state, const char *playlist, bool remove) {
+    //get the whole playlist
+    struct t_list duplicates;
+    list_init(&duplicates);
+    struct mpd_song *song;
+    long pos = 0;
+    rax *plist = raxNew();
+    if (mpd_send_list_playlist(partition_state->conn, playlist)) {
+        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+            const char *uri = mpd_song_get_uri(song);
+            if (raxTryInsert(plist, (unsigned char *)uri, strlen(uri), NULL, NULL) == 0) {
+                //duplicate
+                list_insert(&duplicates, uri, pos, NULL, NULL);
+            }
+            mpd_song_free(song);
+            pos++;
+        }
+    }
+    raxFree(plist);
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_playlist") == false) {
+        list_clear(&duplicates);
+        return -1;
+    }
+
+    long rc = duplicates.length;
+    if (remove == true) {
+        struct t_list_node *current = duplicates.head;
+        while (current != NULL) {
+            if (mpd_run_playlist_delete(partition_state->conn, playlist, (unsigned)current->value_i) == false ||
+                mympd_check_error_and_recover(partition_state, NULL, "mpd_run_playlist_delete") == false)
+            {
+                rc = -1;
+                break;
+            }
+            MYMPD_LOG_WARN(MPD_PARTITION_DEFAULT, "Playlist \"%s\": duplicate entry \"%s\" removed", playlist, current->key);
+            current = current -> next;
+        }
+    }
+    list_clear(&duplicates);
+    return rc;
+}
+
+/**
+ * Validates the playlist entries
+ * @param partition_state pointer to partition state
+ * @param playlist playlist to check
+ * @return -1 on error, else number of removed songs
+ */
+long mpd_client_playlist_validate(struct t_partition_state *partition_state, const char *playlist, bool remove) {
+    //get the whole playlist
+    struct t_list plist;
+    list_init(&plist);
+    struct mpd_song *song;
+    long pos = 0;
+    if (mpd_send_list_playlist(partition_state->conn, playlist)) {
+        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+            //reverse the playlist
+            list_insert(&plist, mpd_song_get_uri(song), pos, NULL, NULL);
+            mpd_song_free(song);
+            pos++;
+        }
+    }
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_playlist") == false) {
+        list_clear(&plist);
+        return -1;
+    }
+
+    disable_all_mpd_tags(partition_state);
+    //check each entry
+    struct t_list_node *current = plist.head;
+    long rc = 0;
+    while (current != NULL) {
+        if (is_streamuri(current->key) == false) {
+            if (mpd_send_list_meta(partition_state->conn, current->key) == false ||
+                mpd_response_finish(partition_state->conn) == false)
+            {
+                //entry not found
+                //silently clear the error if song is not found
+                if (mpd_connection_clear_error(partition_state->conn) == false ||
+                    mpd_response_finish(partition_state->conn) == false)
+                {
+                    rc = -1;
+                    break;
+                }
+                if (remove == true) {
+
+                    if (mpd_run_playlist_delete(partition_state->conn, playlist, (unsigned)current->value_i) == false ||
+                        mympd_check_error_and_recover(partition_state, NULL, "mpd_run_playlist_delete") == false)
+                    {
+                        rc = -1;
+                        break;
+                    }
+                    MYMPD_LOG_WARN(MPD_PARTITION_DEFAULT, "Playlist \"%s\": %s removed", playlist, current->key);
+                }
+                else {
+                    MYMPD_LOG_WARN(MPD_PARTITION_DEFAULT, "Playlist \"%s\": %s not found", playlist, current->key);
+                }
+                rc++;
+            }
+        }
+        current = current -> next;
+    }
+    list_clear(&plist);
+    enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
+    return rc;
 }
 
 /**
@@ -137,6 +258,33 @@ bool mpd_client_playlist_sort(struct t_partition_state *partition_state, const c
     bool rc = playlist_sort(partition_state, playlist, tagstr);
     enable_mpd_tags(partition_state, &partition_state->mpd_state->tags_mympd);
     return rc;
+}
+
+/**
+ * Counts the number of songs in the playlist
+ * @param partition_state pointer to partition specific states
+ * @param playlist playlist to enumerate
+ * @param empty_check true: checks only if playlist is not empty
+ *                    false: enumerates the complete playlist
+ * @return number of songs or -1 on error
+ */
+long mpd_client_enum_playlist(struct t_partition_state *partition_state, const char *playlist, bool empty_check) {
+    int entity_count = 0;
+    if (mpd_send_list_playlist(partition_state->conn, playlist)) {
+        struct mpd_song *song;
+        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+            entity_count++;
+            mpd_song_free(song);
+            if (empty_check == true) {
+                break;
+            }
+        }
+    }
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_playlist") == false) {
+        return -1;
+    }
+    return entity_count;
 }
 
 /**
@@ -279,31 +427,4 @@ static bool replace_playlist(struct t_partition_state *partition_state, const ch
     mpd_run_rm(partition_state->conn, backup_pl);
     FREE_SDS(backup_pl);
     return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_rename");
-}
-
-/**
- * Counts the number of songs in the playlist
- * @param partition_state pointer to partition specific states
- * @param playlist playlist to enumerate
- * @param empty_check true: checks only if playlist is not empty
- *                    false: enumerates the complete playlist
- * @return number of songs or -1 on error
- */
-int mpd_client_enum_playlist(struct t_partition_state *partition_state, const char *playlist, bool empty_check) {
-    int entity_count = 0;
-    if (mpd_send_list_playlist(partition_state->conn, playlist)) {
-        struct mpd_song *song;
-        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-            entity_count++;
-            mpd_song_free(song);
-            if (empty_check == true) {
-                break;
-            }
-        }
-    }
-    mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_playlist") == false) {
-        return -1;
-    }
-    return entity_count;
 }
