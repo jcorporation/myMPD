@@ -47,6 +47,7 @@ set(TEST_SOURCES
   ../src/mympd_api/queue.c
   ../src/mympd_api/webradios.c
   tests/test_api.c
+  tests/test_cert.c
   tests/test_env.c
   tests/test_filehandler.c
   tests/test_http_client.c
@@ -65,9 +66,6 @@ set(TEST_SOURCES
   tests/test_validate.c
 )
 
-if(OPENSSL_FOUND)
-  set(TEST_SOURCES_OPENSSL "tests/test_cert.c")
-endif()
 if(LIBID3TAG_FOUND)
   set(TEST_SOURCES_LIBID3TAG "tests/test_lyrics_id3.c")
 endif()
@@ -77,7 +75,6 @@ endif()
 
 add_executable(unit_test
   ${TEST_SOURCES}
-  ${TEST_SOURCES_OPENSSL}
   ${TEST_SOURCES_LIBID3TAG}
   ${TEST_SOURCES_FLAC}
 )
@@ -103,13 +100,11 @@ target_link_libraries(unit_test
   sds
   ${CMAKE_THREAD_LIBS_INIT}
   ${MATH_LIB}
+  ${OPENSSL_LIBRARIES}
   ${PCRE2_LIBRARIES}
 )
 
 # link optional dependencies
-if(OPENSSL_FOUND)
-  target_link_libraries(unit_test ${OPENSSL_LIBRARIES})
-endif()
 if(LIBID3TAG_FOUND)
   target_link_libraries(unit_test ${LIBID3TAG_LIBRARIES})
 endif()
@@ -127,6 +122,7 @@ add_custom_command(TARGET unit_test PRE_BUILD
 # define tests
 list(APPEND test_categories
   "api"
+  "cert"
   "env"
   "filehandler"
   "http_client"
@@ -146,9 +142,6 @@ list(APPEND test_categories
   "validate"
 )
 
-if(OPENSSL_FOUND)
-  list(APPEND test_categories "cert")
-endif()
 if(LIBID3TAG_FOUND)
   list(APPEND test_categories "lyrics_id3")
 endif()
