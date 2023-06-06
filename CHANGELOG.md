@@ -55,6 +55,7 @@ This release changes definitions of many API methods.
 - Upd: libmympdclient 1.0.21
 - Upd: OpenSSL is now required #1033
 - Upd: Replace tinymt with OpenSSL prng #1034
+- Upd: use OpenSSL hash functions
 - Upd: documentation improvements
 - Fix: improve Mongoose logging #1032
 
