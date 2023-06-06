@@ -396,6 +396,23 @@ function showModalAlert(obj) {
 }
 
 /**
+ * Shows an info in a modal
+ * @param {string} message message to display
+ * @returns {void}
+ */
+function showModalInfo(message) {
+    const aModal = getOpenModal();
+    const activeAlert = aModal.querySelector('.modalAlert');
+    const div = elCreateTextTn('div', {"class": ["alert", "alert-success", "modalAlert"]}, message);
+    if (activeAlert === null) {
+        aModal.querySelector('.modal-body').appendChild(div);
+    }
+    else {
+        aModal.querySelector('.modal-body').replaceChild(div, activeAlert);
+    }
+}
+
+/**
  * Removes all alerts in a modal
  * @param {HTMLElement | Element} el the modal element
  * @returns {void}

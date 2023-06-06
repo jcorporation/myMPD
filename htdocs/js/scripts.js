@@ -282,6 +282,47 @@ function saveScriptCheckError(obj) {
 }
 
 /**
+ * Validates a script
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function validateScript() {
+    cleanupModalId('modalScripts');
+    let formOK = true;
+
+    const nameEl = document.getElementById('inputScriptName');
+    if (!validatePlistEl(nameEl)) {
+        formOK = false;
+    }
+
+    const orderEl = document.getElementById('inputScriptOrder');
+    if (!validateIntEl(orderEl)) {
+        formOK = false;
+    }
+
+    if (formOK === true) {
+        sendAPI("MYMPD_API_SCRIPT_VALIDATE", {
+            "script": nameEl.value,
+            "content": document.getElementById('textareaScriptContent').value,
+        }, validateScriptCheckError, true);
+    }
+}
+
+/**
+ * Handler for the MYMPD_API_SCRIPT_VALIDATE jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function validateScriptCheckError(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        showModalInfo('Script syntax is valid');
+    }
+}
+
+/**
  * Appends an argument to the list of script arguments
  * @returns {void}
  */

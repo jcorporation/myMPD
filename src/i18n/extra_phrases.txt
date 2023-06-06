@@ -274,3 +274,4 @@ snapcast
 solaris
 wasapi
 any
+Script syntax is valid

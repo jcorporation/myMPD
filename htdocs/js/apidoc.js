@@ -1507,6 +1507,17 @@ const APImethods = {
             }
         }
     },
+    "MYMPD_API_SCRIPT_VALIDATE": {
+        "desc": "Validates (precompiles) a script",
+        "params": {
+            "script": APIparams.script,
+            "content": {
+                "type": APItypes.string,
+                "example": "return \"test\"",
+                "desc": "The lua script itself"
+            }
+        }
+    },
     "MYMPD_API_SCRIPT_SAVE": {
         "desc": "Saves a script",
         "protected": true,

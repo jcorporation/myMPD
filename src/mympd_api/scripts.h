@@ -14,6 +14,7 @@
 
 #ifdef MYMPD_ENABLE_LUA
     bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sds content, struct t_list *arguments);
+    bool mympd_api_script_validate(sds name, sds content, sds lualibs, sds *error);
     bool mympd_api_script_delete(sds workdir, sds script);
     sds mympd_api_script_get(sds workdir, sds buffer, long request_id, sds script);
     sds mympd_api_script_list(sds workdir, sds buffer, long request_id, bool all);
