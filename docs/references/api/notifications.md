@@ -34,5 +34,5 @@ The websocket endpoint accepts following messages:
 | MESSAGE | RESPONSE | DESCRIPTION |
 | ------- | -------- | ----------- |
 | ping | pong | Keepalive |
-| id:`<number>` | none | Used to send the jsonrpc id generated for this session |
+| id:`<number>` | ok | Used to send the jsonrpc id generated for this session |
 {: .table .table-sm }

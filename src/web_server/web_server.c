@@ -359,7 +359,7 @@ static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *re
         nc = nc->next;
     }
     if (send_count == 0) {
-        MYMPD_LOG_DEBUG(NULL, "No websocket client connected, discarding message: %s", response->data);
+        MYMPD_LOG_DEBUG(NULL, "No websocket client not connected, discarding message: %s", response->data);
     }
     free_response(response);
 }
@@ -497,24 +497,28 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
         case MG_EV_WS_MSG: {
             struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
             struct mg_str matches[1];
+            size_t sent = 0;
             if (wm->data.len > 13) {
                 MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket message too long: %lu", wm->data.len);
+                sent = mg_ws_send(nc, "too long", 8, WEBSOCKET_OP_TEXT);
                 break;
             }
             MYMPD_LOG_DEBUG(frontend_nc_data->partition, "Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
             if (mg_vcmp(&wm->data, "ping") == 0) {
-                size_t sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
-                if (sent != 6) {
-                    MYMPD_LOG_WARN(frontend_nc_data->partition, "Websocket: Could not reply with pong, closing connection");
-                    nc->is_closing = 1;
-                }
+                sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
             }
             else if (mg_match(wm->data, mg_str("id:*"), matches)) {
                 frontend_nc_data->id = (long)mg_to64(matches[0]);
-                MYMPD_LOG_DEBUG(frontend_nc_data->partition, "Setting websocket id to %ld", frontend_nc_data->id);
+                MYMPD_LOG_INFO(frontend_nc_data->partition, "Setting websocket id to %ld", frontend_nc_data->id);
+                sent = mg_ws_send(nc, "ok", 2, WEBSOCKET_OP_TEXT);
             }
             else {
                 MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid Websocket message");
+                sent = mg_ws_send(nc, "invalid", 7, WEBSOCKET_OP_TEXT);
+            }
+            if (sent == 0) {
+                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket: Could not reply, closing connection");
+                nc->is_closing = 1;
             }
             break;
         }
