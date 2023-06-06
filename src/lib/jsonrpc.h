@@ -15,6 +15,11 @@
 
 #include <stdbool.h>
 
+enum jsonrpc_response_types {
+    RESPONSE_TYPE_RESPONSE = 0,
+    RESPONSE_TYPE_NOTIFY = 1
+};
+
 enum jsonrpc_severities {
     JSONRPC_SEVERITY_INFO = 0,
     JSONRPC_SEVERITY_WARN,

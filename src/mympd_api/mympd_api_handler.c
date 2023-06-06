@@ -791,7 +791,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         case MYMPD_API_PLAYER_STATE:
-            response->data = mympd_api_status_get(partition_state, response->data, request->id);
+            response->data = mympd_api_status_get(partition_state, response->data, request->id, RESPONSE_TYPE_RESPONSE);
             break;
         case MYMPD_API_PLAYER_CLEARERROR:
             mpd_run_clearerror(partition_state->conn);
@@ -1041,7 +1041,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         case MYMPD_API_PLAYER_VOLUME_GET:
-            response->data = mympd_api_status_volume_get(partition_state, response->data, request->id);
+            response->data = mympd_api_status_volume_get(partition_state, response->data, request->id, RESPONSE_TYPE_RESPONSE);
             break;
         case MYMPD_API_PLAYER_SEEK_CURRENT:
             if (json_get_int_max(request->data, "$.params.seek", &int_buf1, &error) == true &&

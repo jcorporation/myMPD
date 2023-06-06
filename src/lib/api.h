@@ -190,14 +190,6 @@ enum mympd_cmd_ids {
 };
 
 /**
- * Jsonrpc request ids
- */
-enum request_ids {
-    REQUEST_ID_NOTIFY = -1,
-    REQUEST_ID_RESPONSE = 0
-};
-
-/**
  * Struct for work request in the queue
  */
 struct t_work_request {
