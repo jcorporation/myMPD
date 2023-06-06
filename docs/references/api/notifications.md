@@ -4,7 +4,7 @@ permalink: /references/api/notifications
 title: Websocket Notifications
 ---
 
-myMPD uses the idle protocol from mpd to detect state changes. These status changes are broadcasted to all open websocket connections, respecting the partition specificity.
+myMPD uses the idle protocol from mpd to detect state changes. These status changes and myMPD changes are broadcasted to all open websocket connections, respecting the partition specificity.
 
 **Websocket endpoint:** `/ws/<partition>`
 
@@ -27,4 +27,12 @@ myMPD uses the idle protocol from mpd to detect state changes. These status chan
 | n/a | update_lastplayed | Last played list was changed |
 | n/a | update_cache_started | myMPD cache update is started |
 | n/a | update_cache_finished | myMPD cache updates has finished |
+{: .table .table-sm }
+
+The websocket endpoint accepts following messages:
+
+| MESSAGE | RESPONSE | DESCRIPTION |
+| ------- | -------- | ----------- |
+| ping | pong | Keepalive |
+| id:`<number>` | none | Used to send the jsonrpc id generated for this session |
 {: .table .table-sm }

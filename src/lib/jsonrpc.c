@@ -93,7 +93,7 @@ static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
  */
 
 /**
- * Creates and sends a jsonrpc notify to all connected websockets
+ * Creates and sends a jsonrpc notify to all connected websockets for a partition
  * @param facility one of enum jsonrpc_facilities
  * @param severity one of enum jsonrpc_severities
  * @param partition mpd partition
@@ -102,6 +102,19 @@ static const char *jsonrpc_event_names[JSONRPC_EVENT_MAX] = {
 void send_jsonrpc_notify(enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *partition, const char *message) {
     sds buffer = jsonrpc_notify(sdsempty(), facility, severity, message);
     ws_notify(buffer, partition);
+    FREE_SDS(buffer);
+}
+
+/**
+ * Creates and sends a jsonrpc notify to a client
+ * @param facility one of enum jsonrpc_facilities
+ * @param severity one of enum jsonrpc_severities
+ * @param request_id the jsonrpc id of the client
+ * @param message the message to send
+ */
+void send_jsonrpc_notify_client(enum jsonrpc_facilities facility, enum jsonrpc_severities severity, long request_id, const char *message) {
+    sds buffer = jsonrpc_notify(sdsempty(), facility, severity, message);
+    ws_notify_client(buffer, request_id);
     FREE_SDS(buffer);
 }
 

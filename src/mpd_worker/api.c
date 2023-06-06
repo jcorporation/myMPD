@@ -97,7 +97,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     }
                     FREE_SDS(result_str);
                 }
-                ws_notify(buffer, MPD_PARTITION_ALL);
+                ws_notify_client(buffer, request->id);
                 FREE_SDS(buffer);
                 async = true;
             }
@@ -131,7 +131,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     }
                     FREE_SDS(result_str);
                 }
-                ws_notify(buffer, MPD_PARTITION_ALL);
+                ws_notify_client(buffer, request->id);
                 FREE_SDS(buffer);
                 async = true;
             }
@@ -185,7 +185,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     FREE_SDS(sds_buf1);
     FREE_SDS(sds_buf2);
 
-    //errorhandling
+    //error handling
     if (sdslen(error) > 0) {
         response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);

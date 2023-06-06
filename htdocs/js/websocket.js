@@ -40,6 +40,7 @@ function webSocketConnect() {
     try {
         socket.onopen = function() {
             logDebug('Websocket is connected');
+            socket.send('id:' + jsonrpcId);
             if (websocketTimer !== null) {
                 clearTimeout(websocketTimer);
                 websocketTimer = null;

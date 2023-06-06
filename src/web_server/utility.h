@@ -41,7 +41,9 @@ struct t_mg_user_data {
  */
 struct t_frontend_nc_data {
     struct mg_connection *backend_nc;  //!< pointer to backend connection
-    sds partition;                     //!< partition (for websocket connections only)
+    //for websocket connections only
+    sds partition;                     //!< partition
+    long id;                           //!< jsonrpc id (client id)
 };
 
 #ifdef MYMPD_EMBEDDED_ASSETS

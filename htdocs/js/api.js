@@ -65,7 +65,7 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
                 'X-myMPD-Session': session.token
             },
             body: JSON.stringify(
-                {"jsonrpc": "2.0", "id": 0, "method": method, "params": params}
+                {"jsonrpc": "2.0", "id": jsonrpcId, "method": method, "params": params}
             )
         });
     }

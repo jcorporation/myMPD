@@ -20,6 +20,7 @@
 #include "src/web_server/request_handler.h"
 #include "src/web_server/tagart.h"
 
+#include <inttypes.h>
 #include <libgen.h>
 #include <sys/prctl.h>
 
@@ -32,6 +33,7 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
 static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn_data);
 static void ev_handler_redirect(struct mg_connection *nc_http, int ev, void *ev_data, void *fn_data);
 static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response);
+static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response);
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response);
 static bool check_acl(struct mg_connection *nc, sds acl);
 static void mongoose_log(char ch, void *param);
@@ -151,31 +153,37 @@ void *web_server_loop(void *arg_mgr) {
     while (s_signal_received == 0) {
         struct t_work_response *response = mympd_queue_shift(web_server_queue, 50, 0);
         if (response != NULL) {
-            if (response->conn_id == -1) {
-                //internal message
-                MYMPD_LOG_DEBUG(NULL, "Got internal message");
-                parse_internal_message(response, mg_user_data);
-            }
-            else if (response->conn_id == 0) {
-                MYMPD_LOG_DEBUG(NULL, "Got websocket notify");
-                //websocket notify from mpd idle
-                time_t now = time(NULL);
-                if (strcmp(response->data, last_notify) != 0 ||
-                    last_time < now - 1)
-                {
-                    last_notify = sds_replace(last_notify, response->data);
-                    last_time = now;
-                    send_ws_notify(mgr, response);
+            switch(response->conn_id) {
+                case -2:
+                    //websocket notify for specific clients
+                    send_ws_notify_client(mgr, response);
+                    break;
+                case -1:
+                    //internal message
+                    MYMPD_LOG_DEBUG(NULL, "Got internal message");
+                    parse_internal_message(response, mg_user_data);
+                    break;
+                case 0: {
+                    MYMPD_LOG_DEBUG(NULL, "Got websocket notify");
+                    //websocket notify for all clients
+                    time_t now = time(NULL);
+                    if (strcmp(response->data, last_notify) != 0 ||
+                        last_time < now - 1)
+                    {
+                        last_notify = sds_replace(last_notify, response->data);
+                        last_time = now;
+                        send_ws_notify(mgr, response);
+                    }
+                    else {
+                        MYMPD_LOG_DEBUG(NULL, "Discarding repeated notify");
+                        free_response(response);
+                    }
+                    break;
                 }
-                else {
-                    MYMPD_LOG_DEBUG(NULL, "Discarding repeated notify");
-                    free_response(response);
-                }
-            }
-            else {
-                MYMPD_LOG_DEBUG(response->partition, "Got API response for id \"%lld\"", response->conn_id);
-                //api response
-                send_api_response(mgr, response);
+                default:
+                    MYMPD_LOG_DEBUG(response->partition, "Got API response for id \"%lld\"", response->conn_id);
+                    //api response
+                    send_api_response(mgr, response);
             }
         }
         //webserver polling
@@ -296,7 +304,7 @@ static void get_placeholder_image(sds workdir, const char *name, sds *result) {
 }
 
 /**
- * Broadcasts a websocket connections to all clients
+ * Broadcasts a message through all websocket connections for a specific or all partitions
  * @param mgr mongoose mgr
  * @param response jsonrpc notification
  */
@@ -327,6 +335,33 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
         MYMPD_LOG_DEBUG(NULL, "Correcting connection count from %d to %d", mg_user_data->connection_count, conn_count);
         mg_user_data->connection_count = conn_count;
     }
+}
+
+/**
+ * Sends a message through the websocket to a specific client
+ * We use the jsonprc id to identify the websocket connection
+ * @param mgr mongoose mgr
+ * @param response jsonrpc notification
+ */
+static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response) {
+    struct mg_connection *nc = mgr->conns;
+    int send_count = 0;
+    while (nc != NULL) {
+        if ((int)nc->is_websocket == 1) {
+            struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
+            if (response->id == frontend_nc_data->id) {
+                MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id %lu: %s", nc->id, response->data);
+                mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
+                send_count++;
+                break;
+            }
+        }
+        nc = nc->next;
+    }
+    if (send_count == 0) {
+        MYMPD_LOG_DEBUG(NULL, "No websocket client connected, discarding message: %s", response->data);
+    }
+    free_response(response);
 }
 
 /**
@@ -425,8 +460,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             mg_user_data->connection_count++;
             //initialize fn_data
             frontend_nc_data = malloc_assert(sizeof(struct t_frontend_nc_data));
-            frontend_nc_data->partition = NULL;
-            frontend_nc_data->backend_nc = NULL;
+            frontend_nc_data->partition = NULL;  // populated on websocket handshake
+            frontend_nc_data->id = 0;            // populated through websocket message
+            frontend_nc_data->backend_nc = NULL; // used for reverse proxy function
             nc->fn_data = frontend_nc_data;
             //set labels
             nc->data[0] = 'F';
@@ -460,6 +496,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             break;
         case MG_EV_WS_MSG: {
             struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
+            struct mg_str matches[1];
+            if (wm->data.len > 13) {
+                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket message too long: %lu", wm->data.len);
+                break;
+            }
             MYMPD_LOG_DEBUG(frontend_nc_data->partition, "Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
             if (mg_vcmp(&wm->data, "ping") == 0) {
                 size_t sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
@@ -467,6 +508,13 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_WARN(frontend_nc_data->partition, "Websocket: Could not reply with pong, closing connection");
                     nc->is_closing = 1;
                 }
+            }
+            else if (mg_match(wm->data, mg_str("id:*"), matches)) {
+                frontend_nc_data->id = (long)mg_to64(matches[0]);
+                MYMPD_LOG_DEBUG(frontend_nc_data->partition, "Setting websocket id to %ld", frontend_nc_data->id);
+            }
+            else {
+                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid Websocket message");
             }
             break;
         }

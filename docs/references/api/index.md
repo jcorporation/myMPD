@@ -6,6 +6,12 @@ title: API Documentation
 
 myMPD uses a JSON-RPC 2 for the communication between frontend and backend.
 
+## JSON-RPC Id
+
+The webclient creates a random id on startup. This id is used for each API call and the websocket connection is bound to this id. myMPD uses this to send async responses to a specific client.
+
+## Endpoints
+
 **API endpoint:** `/api/<partition>`
 
 - [API reference]({{ site.baseurl }}/references/api/methods)

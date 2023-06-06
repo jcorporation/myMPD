@@ -8,6 +8,10 @@
 /** @type {number} */
 const startTime = Date.now();
 
+// generate uniq id for this browser session
+/** @type {number} */
+const jsonrpcId = Math.floor(Math.random() * 1000000000);
+
 let socket = null;
 let websocketTimer = null;
 let websocketKeepAliveTimer = null;

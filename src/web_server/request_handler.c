@@ -44,7 +44,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
 
     if (json_get_string_cmp(body, "$.jsonrpc", 3, 3, "2.0", &jsonrpc, NULL) == false ||
         json_get_string_max(body, "$.method", &cmd, vcb_isalnum, NULL) == false ||
-        json_get_int(body, "$.id", 0, 0, &request_id, NULL) == false)
+        json_get_int_max(body, "$.id", &request_id, NULL) == false)
     {
         MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid jsonrpc2 request");
         FREE_SDS(cmd);
@@ -151,7 +151,7 @@ bool request_handler_script_api(struct mg_connection *nc, sds body) {
 
     if (json_get_string_cmp(body, "$.jsonrpc", 3, 3, "2.0", &jsonrpc, NULL) == false ||
         json_get_string_max(body, "$.method", &cmd, vcb_isalnum, NULL) == false ||
-        json_get_int(body, "$.id", 0, 0, &id, NULL) == false)
+        json_get_int_max(body, "$.id", &id, NULL) == false)
     {
         MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid jsonrpc2 request");
         FREE_SDS(cmd);
