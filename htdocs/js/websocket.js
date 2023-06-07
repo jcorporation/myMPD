@@ -56,6 +56,10 @@ function webSocketConnect() {
                 logDebug('Got websocket pong');
                 return;
             }
+            if (msg.data === 'ok') {
+                logDebug('Jsonrpc id registered successfuly');
+                return;
+            }
             if (msg.data.length > 100000) {
                 logError("Websocket message is too large, discarding");
                 return;
