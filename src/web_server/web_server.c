@@ -498,13 +498,12 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             struct mg_ws_message *wm = (struct mg_ws_message *) ev_data;
             struct mg_str matches[1];
             size_t sent = 0;
-            if (wm->data.len > 13) {
-                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket message too long: %lu", wm->data.len);
-                sent = mg_ws_send(nc, "too long", 8, WEBSOCKET_OP_TEXT);
-                break;
-            }
             MYMPD_LOG_DEBUG(frontend_nc_data->partition, "Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
-            if (mg_vcmp(&wm->data, "ping") == 0) {
+            if (wm->data.len > 13) {
+                MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket message too long: %lu", (long unsigned)wm->data.len);
+                sent = mg_ws_send(nc, "too long", 8, WEBSOCKET_OP_TEXT);
+            }
+            else if (mg_vcmp(&wm->data, "ping") == 0) {
                 sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
             }
             else if (mg_match(wm->data, mg_str("id:*"), matches)) {
