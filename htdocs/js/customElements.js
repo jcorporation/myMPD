@@ -183,8 +183,8 @@ function setInputPassword(el) {
  */
 function setSelectSearch(el) {
     const filterInput = elCreateEmpty('input', {"class": ["form-control", "form-control-sm", "mb-1"], "data-placeholder-phrase": "Filter", "placeholder": tn('Filter')});
-    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll", "border", "border-secondary"]});
-    const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "dropdown-menu-dark", "p-2", "w-100"]}, [
+    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll", "border"]});
+    const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "p-2", "w-100"]}, [
         filterInput,
         filterResult
     ]);
@@ -259,8 +259,8 @@ function setSelectSearch(el) {
  * @returns {void}
  */
  function setSelectNew(el) {
-    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll", "border", "border-secondary"]});
-    const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "dropdown-menu-dark", "p-2", "w-100"]}, [
+    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll", "border"]});
+    const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "p-2", "w-100"]}, [
         filterResult
     ]);
     el.parentNode.insertBefore(dropdown, el.nextElementSibling);
