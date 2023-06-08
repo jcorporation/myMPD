@@ -161,21 +161,20 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Content of playlist %{plist} is valid and uniq", 2, "plist", sds_buf1);
                 }
                 else {
+                    sds result_str1 = sdsfromlonglong((long long)result1);
+                    sds result_str2 = sdsfromlonglong((long long)result2);
                     if (bool_buf1 == true) {
-                        sds result_str1 = sdsfromlonglong((long long)(result1 + result2));
                         buffer = jsonrpc_respond_message_phrase(sdsempty(), request->cmd_id, request->id,
-                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "Removed %{count} entries from playlist %{plist}", 4, "count", result_str1, "plist", sds_buf1);
-                        FREE_SDS(result_str1);
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "Removed %{count1} invalid and %{count2} duplicate entries from playlist %{plist}",
+                            6, "count1", result_str1, "count2", result_str2, "plist", sds_buf1);
                     }
                     else {
-                        sds result_str1 = sdsfromlonglong((long long)result1);
-                        sds result_str2 = sdsfromlonglong((long long)result2);
                         buffer = jsonrpc_respond_message_phrase(sdsempty(), request->cmd_id, request->id,
                             JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}",
-                                6, "count1", result_str1, "count2", result_str2, "plist", sds_buf1);
-                        FREE_SDS(result_str1);
-                        FREE_SDS(result_str2);
+                            6, "count1", result_str1, "count2", result_str2, "plist", sds_buf1);
                     }
+                    FREE_SDS(result_str1);
+                    FREE_SDS(result_str2);
                 }
                 ws_notify_client(buffer, request->id);
                 FREE_SDS(buffer);

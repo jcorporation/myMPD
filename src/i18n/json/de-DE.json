@@ -935,6 +935,7 @@
     "Playlist deduplication started": "Deduplikation der Wiedergabeliste gestartet",
     "Playlist validation started": "Überprüfung der Wiedergabeliste gestartet",
     "Removed %{count} entries from playlist %{plist}": "%{count} Einträge von der Wiedergabeliste %{plist} entfernt",
+    "Removed %{count1} invalid and %{count2} duplicate entries from playlist %{plist}": "%{count1} ungültige Einträge und %{count2} Duplikate von der Wiedergabeliste %{plist} entfernt",
     "Validation of playlist %{plist} failed": "Überprüfung der Wiedergabeliste %{plist} fehlgeschlagen",
     "Script syntax is valid": "Syntax des Scripts ist gültig",
     "Error executing script %{script}: %{msg}": "Fehler beim Ausführen des Skripts %{script}: %{msg}",
