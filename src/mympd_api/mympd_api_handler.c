@@ -125,6 +125,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:
         case MYMPD_API_PLAYLIST_CONTENT_SORT:
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE:
+        case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP:
         case MYMPD_API_SMARTPLS_UPDATE:
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
             if (worker_threads > 5) {

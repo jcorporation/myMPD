@@ -247,6 +247,112 @@ function playlistShuffle() {
 }
 
 /**
+ * Validates the currently displayed playlist
+ * @param {boolean} remove true = remove invalid entries, false = count number of invalid entries
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function currentPlaylistValidate(remove) {
+    const plist = getDataId('BrowsePlaylistDetailList', 'uri');
+    setUpdateViewId('BrowsePlaylistDetailList');
+    playlistValidate(plist, remove);
+}
+
+/**
+ * Validates the playlist
+ * @param plist playlist to validate
+ * @param {boolean} remove true = remove invalid entries, false = count number of invalid entries
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function playlistValidate(plist, remove) {
+    setUpdateViewId('BrowsePlaylistDetailList');
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_VALIDATE", {
+        "plist": plist,
+        "remove": remove
+    }, playlistValidateCheckError, false);
+}
+
+/**
+ * Handler for the MYMPD_API_PLAYLIST_CONTENT_VALIDATE jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function playlistValidateCheckError(obj) {
+    unsetUpdateViewId('BrowsePlaylistDetailList');
+}
+
+/**
+ * Deduplicates the currently displayed playlist
+ * @param {boolean} remove true = remove invalid entries, false = count number of invalid entries
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function currentPlaylistDedup(remove) {
+    setUpdateViewId('BrowsePlaylistDetailList');
+    const plist = getDataId('BrowsePlaylistDetailList', 'uri'); 
+    playlistDedup(plist, remove);
+}
+
+/**
+ * Deduplicates the playlist
+ * @param plist playlist to deduplicate
+ * @param {boolean} remove true = remove invalid entries, false = count number of invalid entries
+ * @returns {void}
+ */
+function playlistDedup(plist, remove) {
+    setUpdateViewId('BrowsePlaylistDetailList');
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_DEDUP", {
+        "plist": getDataId('BrowsePlaylistDetailList', 'uri'),
+        "remove": remove
+    }, playlistDedupCheckError, false);
+}
+
+/**
+ * Handler for the MYMPD_API_PLAYLIST_CONTENT_DEDUP jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function playlistDedupCheckError(obj) {
+    unsetUpdateViewId('BrowsePlaylistDetailList');
+}
+
+/**
+ * Deduplicates the currently displayed playlist
+ * @param {boolean} remove true = remove invalid entries, false = count number of invalid entries
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function currentPlaylistValidateDedup(remove) {
+    setUpdateViewId('BrowsePlaylistDetailList');
+    const plist = getDataId('BrowsePlaylistDetailList', 'uri'); 
+    playlistValidateDedup(plist, remove);
+}
+
+/**
+ * Deduplicates the playlist
+ * @param plist playlist to deduplicate
+ * @param {boolean} remove true = remove invalid entries, false = count number of invalid entries
+ * @returns {void}
+ */
+function playlistValidateDedup(plist, remove) {
+    setUpdateViewId('BrowsePlaylistDetailList');
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP", {
+        "plist": getDataId('BrowsePlaylistDetailList', 'uri'),
+        "remove": remove
+    }, playlistValidateDedupCheckError, false);
+}
+
+/**
+ * Handler for the MYMPD_API_PLAYLIST_CONTENT_DEDUP jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function playlistValidateDedupCheckError(obj) {
+    unsetUpdateViewId('BrowsePlaylistDetailList');
+}
+
+/**
  * Sorts the playlist by tag
  * @param {string} tag sort tag
  * @returns {void}

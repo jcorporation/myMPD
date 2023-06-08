@@ -726,6 +726,17 @@ const APImethods = {
             }
         }
     },
+    "MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP": {
+        "desc": "Validates and deduplicates the playlist and removes invalid entries.",
+        "params": {
+            "plist": APIparams.plist,
+            "remove": {
+                "type": APItypes.bool,
+                "example": true,
+                "desc": "true = remove invalid entries, false = count number of invalid entries"
+            }
+        }
+    },
     "MYMPD_API_SMARTPLS_UPDATE_ALL": {
         "desc": "Updates all smart playlists.",
         "async": true,

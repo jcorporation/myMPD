@@ -938,5 +938,10 @@
     "Validation of playlist %{plist} failed": "Überprüfung der Wiedergabeliste %{plist} fehlgeschlagen",
     "Script syntax is valid": "Syntax des Scripts ist gültig",
     "Error executing script %{script}: %{msg}": "Fehler beim Ausführen des Skripts %{script}: %{msg}",
-    "Validate": "Überprüfen"
+    "Validate": "Überprüfen",
+    "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}": "%{count1} ungültige Einträge und %{count2} Duplikate in der Wiedergabeliste %{plist}",
+    "Content of playlist %{plist} is valid and uniq": "Inhalt der Wiedergabeliste %{plist} ist gültig und eindeutig",
+    "Deduplicate": "Deduplizieren",
+    "Playlist validation and deduplication started": "Überprüfung und deduplikation der Wiedergabeliste gestartet",
+    "Validate and deduplicate playlist": "Wiedergabeliste prüfen und deduplizieren"
 }

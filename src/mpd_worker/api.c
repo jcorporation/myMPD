@@ -136,6 +136,52 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 async = true;
             }
             break;
+        case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP:
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_bool(request->data, "$.params.remove", &bool_buf1, &error) == true)
+            {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlist validation and deduplication started");
+                push_response(response, request->id, request->conn_id);
+                long result1 = mpd_client_playlist_dedup(mpd_worker_state->partition_state, sds_buf1, bool_buf1);
+                long result2 = mpd_client_playlist_validate(mpd_worker_state->partition_state, sds_buf1, bool_buf1);
+                sds buffer;
+                if (result1 == -1) {
+                    buffer = jsonrpc_notify_phrase(sdsempty(),
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Validation of playlist %{plist} failed", 2, "plist", sds_buf1);
+                }
+                else if (result2 == -1) {
+                    buffer = jsonrpc_notify_phrase(sdsempty(),
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of playlist %{plist} failed", 2, "plist", sds_buf1);
+                }
+                else if (result1 == 0 &&
+                         result2 == 0)
+                {
+                    buffer = jsonrpc_notify_phrase(sdsempty(),
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Content of playlist %{plist} is valid and uniq", 2, "plist", sds_buf1);
+                }
+                else {
+                    if (bool_buf1 == true) {
+                        sds result_str1 = sdsfromlonglong((long long)(result1 + result2));
+                        buffer = jsonrpc_notify_phrase(sdsempty(),
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "Removed %{count} entries from playlist %{plist}", 4, "count", result_str1, "plist", sds_buf1);
+                        FREE_SDS(result_str1);
+                    }
+                    else {
+                        sds result_str1 = sdsfromlonglong((long long)result1);
+                        sds result_str2 = sdsfromlonglong((long long)result2);
+                        buffer = jsonrpc_notify_phrase(sdsempty(),
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}",
+                                6, "count1", result_str1, "count2", result_str2, "plist", sds_buf1);
+                        FREE_SDS(result_str1);
+                        FREE_SDS(result_str2);
+                    }
+                }
+                ws_notify_client(buffer, request->id);
+                FREE_SDS(buffer);
+                async = true;
+            }
+            break;
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
             if (mpd_worker_state->smartpls == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,

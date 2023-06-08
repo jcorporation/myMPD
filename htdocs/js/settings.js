@@ -1241,7 +1241,7 @@ function setNavbarIcons() {
 function warnLocale(value) {
     const warnEl = document.getElementById('warnMissingPhrases');
     elClear(warnEl);
-    if (i18n[value].missingPhrases > 0) {
+    if (i18n[value].missingPhrases > -1) {
         warnEl.appendChild(
             elCreateTextTnNr('p', {}, 'Missing translations', i18n[value].missingPhrases)
         );

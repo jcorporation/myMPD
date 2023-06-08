@@ -522,6 +522,7 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                     addMenuItem(contextMenuBody, {"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist');
                 }
                 addMenuItem(contextMenuBody, {"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist');
+                addMenuItem(contextMenuBody, {"cmd": "playlistValidateDedup", "options": [uri, true]}, 'Validate and deduplicate playlist');
             }
             addMenuItem(contextMenuBody, {"cmd": "showDelPlaylist", "options": [uri, smartplsOnly]}, 'Delete playlist');
             if (settings.smartpls === true &&

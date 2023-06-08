@@ -366,6 +366,16 @@
               </div>
             </form>
             <div class="btn-group" id="playlistContentBtns">
+              <div class="btn-group me-2">
+                <button data-title-phrase="Validate and deduplicate playlist" class="btn btn-secondary mi" data-href='{"cmd": "currentPlaylistValidateDedup", "options": [true]}'>fact_check</button>
+                <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
+                <div class="dropdown-menu px-2 dropdownWide">
+                  <div class="d-grid gap-2">
+                    <button data-phrase="Validate" data-href='{"cmd": "currentPlaylistValidate", "options": [true]}' type="button" class="btn btn-secondary btn-sm"></button>
+                    <button data-phrase="Deduplicate" data-href='{"cmd": "currentPlaylistDedup", "options": [true]}' type="button" class="btn btn-secondary btn-sm"></button>
+                  </div>
+                </div>
+              </div>
               <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary mi rounded-end me-2" data-href='{"cmd": "showClearPlaylist", "options": []}'>clear_all</button>
               <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary mi rounded me-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
               <div class="btn-group me-2">
