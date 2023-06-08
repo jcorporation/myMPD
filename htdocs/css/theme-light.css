@@ -4,6 +4,10 @@
  https://github.com/jcorporation/mympd
 */
 
+html[data-bs-theme="light"] .dropdown-divider2 {
+  border-top: 1px solid var(--bs-dark);
+}
+
 html[data-bs-theme="light"] {
   --bs-dropdown-divider-bg: var(--bs-gray-400);
 }
@@ -42,16 +46,6 @@ html[data-bs-theme="light"] .bg-secondary {
   border-color: var(--bs-gray-400) !important;
 }
 
-html[data-bs-theme="light"] .breadcrumb {
-  background-color: var(--bs-gray-200);
-}
-
-html[data-bs-theme="light"] .table-hover > tbody > tr:hover > * {
-  color: var(--bs-gray-800);
-
-  --bs-table-accent-bg: var(--bs-gray-400);
-}
-
 html[data-bs-theme="light"] #badgeQueueItems {
   background-color: var(--bs-gray-500) !important;
 }
@@ -64,8 +58,4 @@ html[data-bs-theme="light"] .btn-dark {
 
 html[data-bs-theme="light"] .album-cover {
   border-color: var(--bs-gray-500) !important;
-}
-
-html[data-bs-theme="light"] .dropdown-divider2 {
-  border-top: 1px solid var(--bs-dark);
 }

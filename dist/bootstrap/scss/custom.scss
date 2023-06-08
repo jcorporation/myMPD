@@ -27,6 +27,9 @@ $form-feedback-icon-invalid: "";
 //colors
 $green: #28a745;
 $gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-400: #ced4da;
+$gray-600: #6c757d;
 $gray-800: #343a40;
 $gray-900: #212529;
 $primary: $green;
@@ -34,7 +37,9 @@ $dark: $gray-800;
 
 //body
 $body-bg: $gray-100;
+$body-bg-dark: $gray-800;
 $body-color: $gray-900;
+$body-color-dark: $gray-100;
 
 //transparent cards
 $card-bg: transparent;
@@ -44,10 +49,14 @@ $card-border-color: transparent;
 //table
 $table-caption-color: $body-color;
 $table-bg: transparent;
+$table-hover-bg: $gray-400;
 
 //links
 $link-decoration: none;
 $link-color: $body-color;
+$link-color-dark: $body-color-dark;
+
+$breadcrumb-bg: $gray-200;
 
 //other adjustments
 $offcanvas-padding-x: 0;
