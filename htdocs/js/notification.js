@@ -423,3 +423,13 @@ function hideModalAlert(el) {
         activeAlerts[i].remove();
     }
 }
+
+/**
+ * Hides a dismissible alert
+ * @param {EventTarget} target close button of the alert
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function hideAlert(target) {
+    elHide(target.parentNode);
+}

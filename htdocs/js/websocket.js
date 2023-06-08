@@ -74,6 +74,18 @@ function webSocketConnect() {
                 return;
             }
 
+            // async response
+            if (obj.result ||
+                obj.error)
+            {
+                const callback = obj.result
+                    ? getResponseCallback(obj.result.method)
+                    : getResponseCallback(obj.error.method);
+                checkAPIresponse(obj, callback, true);
+                return;
+            }
+
+            // notification
             switch (obj.method) {
                 case 'welcome':
                     showNotification(tn('Connected to myMPD'),
@@ -194,6 +206,7 @@ function webSocketConnect() {
                     showNotification(tn(obj.params.message, obj.params.data), '', obj.params.facility, obj.params.severity);
                     break;
                 default:
+                    logDebug('Unknown websocket notification: ' + obj.method);
                     break;
             }
         };

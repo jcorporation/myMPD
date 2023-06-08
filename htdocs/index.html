@@ -369,15 +369,19 @@
               <div class="btn-group me-2">
                 <button data-title-phrase="Validate and deduplicate playlist" class="btn btn-secondary mi" data-href='{"cmd": "currentPlaylistValidateDedup", "options": [true]}'>fact_check</button>
                 <button class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-end" type="button" data-bs-toggle="dropdown"></button>
-                <div class="dropdown-menu px-2 dropdownWide">
+                <div class="dropdown-menu px-2">
                   <div class="d-grid gap-2">
                     <button data-phrase="Validate" data-href='{"cmd": "currentPlaylistValidate", "options": [true]}' type="button" class="btn btn-secondary btn-sm"></button>
                     <button data-phrase="Deduplicate" data-href='{"cmd": "currentPlaylistDedup", "options": [true]}' type="button" class="btn btn-secondary btn-sm"></button>
                   </div>
                 </div>
               </div>
-              <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary mi rounded-end me-2" data-href='{"cmd": "showClearPlaylist", "options": []}'>clear_all</button>
-              <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary mi rounded me-2" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
+              <div class="btn-group me-2">
+                <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary rounded mi" data-href='{"cmd": "showClearPlaylist", "options": []}'>clear_all</button>
+              </div>
+              <div class="btn-group me-2">
+                <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary rounded mi" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
+              </div>
               <div class="btn-group me-2">
                 <button data-title-phrase="Sort playlist" id="btnSortPlaylist" class="btn btn-secondary dropdown-toggle rounded-start mi" type="button" data-bs-toggle="dropdown">sort</button>
                 <div class="dropdown-menu px-2" id="dropdownSortPlaylist">
@@ -386,9 +390,13 @@
                 </div>
               </div>
             </div>
-            <div class="d-none btn-group" id="smartPlaylistContentBtns">
-              <button data-title-phrase="Edit smart playlist" type="button" class="btn btn-secondary mi rounded-end me-2" data-href='{"cmd": "editSmartPlaylistClick", "options": []}'>edit</button>
-              <button data-title-phrase="Update smart playlist" type="button" class="btn btn-secondary mi rounded-end me-2" data-href='{"cmd": "updateSmartPlaylistClick", "options": []}'>refresh</button>
+            <div class="d-none" id="smartPlaylistContentBtns">
+              <div class="btn-group me-2">
+                <button data-title-phrase="Edit smart playlist" type="button" class="btn btn-secondary rounded mi" data-href='{"cmd": "editSmartPlaylistClick", "options": []}'>edit</button>
+              </div>
+              <div class="btn-group me-2">
+                <button data-title-phrase="Update smart playlist" type="button" class="btn btn-secondary rounded mi" data-href='{"cmd": "updateSmartPlaylistClick", "options": []}'>refresh</button>
+              </div>
             </div>
             <div class="btn-group me-2">
               <button data-title-phrase="Append to queue" class="btn btn-secondary mi" data-href='{"cmd": "currentPlaylistAddTo", "options": ["appendQueue"]}'>library_add</button>
@@ -407,6 +415,10 @@
             <div id="BrowsePlaylistDetailPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="table-responsive scrollContainer">
+            <div id="playlistDetailAlert" class="alert alert-warning alert-dismissible d-none">
+              <span></span>
+              <button class="btn-close" data-href='{"cmd": "hideAlert", "options": []}'></button>
+            </div>
             <table id="BrowsePlaylistDetailList" class="table table-hover table-sm">
               <caption></caption>
               <thead>

@@ -330,6 +330,7 @@ function parseCmd(event, cmd) {
             case 'voteSong':
             case 'toggleAddToPlaylistFrm':
             case 'toggleSaveQueueMode':
+            case 'hideAlert':
                 // @ts-ignore
                 func(event.target, ... cmd.options);
                 break;
