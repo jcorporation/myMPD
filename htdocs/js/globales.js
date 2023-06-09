@@ -10,7 +10,10 @@ const startTime = Date.now();
 
 // generate uniq id for this browser session
 /** @type {number} */
-const jsonrpcId = Math.floor(Math.random() * 1000000000);
+const jsonrpcClientIdMin = 100000;
+const jsonrpcClientIdMax = 999999;
+const jsonrpcClientId = Math.floor(Math.random() * (jsonrpcClientIdMax - jsonrpcClientIdMin + 1) + jsonrpcClientIdMin);
+let jsonrpcRequestId = 0;
 
 let socket = null;
 let websocketTimer = null;

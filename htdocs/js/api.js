@@ -65,7 +65,7 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
                 'X-myMPD-Session': session.token
             },
             body: JSON.stringify(
-                {"jsonrpc": "2.0", "id": jsonrpcId, "method": method, "params": params}
+                {"jsonrpc": "2.0", "id": generateJsonrpcId(), "method": method, "params": params}
             )
         });
     }
@@ -193,4 +193,16 @@ function getResponseCallback(method) {
         default:
             return null;
     }
+}
+
+/**
+ * Generates a uniq jsonrpcid, keeping the clientId the same.
+ * Wraps around the requestId.
+ * @returns {number} the jsonrpcid
+ */
+function generateJsonrpcId() {
+    jsonrpcRequestId = jsonrpcRequestId === 999
+        ? 0
+        : ++jsonrpcRequestId;
+    return jsonrpcClientId * 1000 + jsonrpcRequestId;
 }

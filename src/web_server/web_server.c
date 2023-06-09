@@ -346,11 +346,13 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
 static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     int send_count = 0;
+    long clientId = response->id / 1000;
+    //long requestId = response->id % 1000;
     while (nc != NULL) {
         if ((int)nc->is_websocket == 1) {
             struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
-            if (response->id == frontend_nc_data->id) {
-                MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id %lu: %s", nc->id, response->data);
+            if (clientId == frontend_nc_data->id) {
+                MYMPD_LOG_DEBUG(response->partition, "Sending notify to conn_id %lu, jsonrpc client id %ld: %s", nc->id, clientId, response->data);
                 mg_ws_send(nc, response->data, sdslen(response->data), WEBSOCKET_OP_TEXT);
                 send_count++;
                 break;
@@ -359,20 +361,22 @@ static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *re
         nc = nc->next;
     }
     if (send_count == 0) {
-        MYMPD_LOG_DEBUG(NULL, "No websocket client not connected, discarding message: %s", response->data);
+        MYMPD_LOG_DEBUG(NULL, "No websocket client connected, discarding message: %s", response->data);
     }
     free_response(response);
 }
 
 /**
- * Sends a api response
+ * Sends an api response
  * @param mgr mongoose mgr
  * @param response jsonrpc response
  */
 static void send_api_response(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     while (nc != NULL) {
-        if ((int)nc->is_websocket == 0 && nc->id == (long unsigned)response->conn_id) {
+        if ((int)nc->is_websocket == 0 &&
+            nc->id == (long unsigned)response->conn_id)
+        {
             if (response->cmd_id == INTERNAL_API_ALBUMART) {
                 webserver_send_albumart(nc, response->data, response->binary);
             }
@@ -499,7 +503,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             struct mg_str matches[1];
             size_t sent = 0;
             MYMPD_LOG_DEBUG(frontend_nc_data->partition, "Websocket message (%lu): %.*s", nc->id, (int)wm->data.len, wm->data.ptr);
-            if (wm->data.len > 13) {
+            if (wm->data.len > 9) {
                 MYMPD_LOG_ERROR(frontend_nc_data->partition, "Websocket message too long: %lu", (long unsigned)wm->data.len);
                 sent = mg_ws_send(nc, "too long", 8, WEBSOCKET_OP_TEXT);
             }
