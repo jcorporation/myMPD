@@ -44,7 +44,9 @@ function handleBrowsePlaylistList() {
     {
         searchPlaylistsStrEl.value = app.current.search;
     }
-    elHideId('playlistDetailAlert');
+    const alertEl = document.getElementById('playlistDetailAlert');
+    elHide(alertEl);
+    rmData(alertEl, 'jsonrpcid');
 }
 
 /**
@@ -327,19 +329,31 @@ function playlistValidateDedup(plist, remove) {
 }
 
 /**
- * Handler for the MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP jsonrpc response
+ * Handler for jsonrpc responses:
+ *  - MYMPD_API_PLAYLIST_CONTENT_DEDUP
+ *  - MYMPD_API_PLAYLIST_CONTENT_VALIDATE
+ *  - MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP
  * @param {object} obj jsonrpc response
  * @returns {void}
  */
 function playlistValidateDedupCheckError(obj) {
-    unsetUpdateViewId('BrowsePlaylistDetailList');
     const alertEl = document.getElementById('playlistDetailAlert');
-    if (obj.error) {
-        alertEl.firstElementChild.textContent = tn(obj.error.message, obj.error.data);
-        elShow(alertEl);
+    const jsonrpcid = getData(alertEl, 'jsonrpcid');
+    if (jsonrpcid === undefined) {
+        //started response, set response id on the alert div
+        setData(alertEl, 'jsonrpcid', obj.id);
     }
-    else {
-        elHide(alertEl);
+    else if (jsonrpcid === obj.id) {
+        //async response, process it only if view is still valid
+        unsetUpdateViewId('BrowsePlaylistDetailList');
+        if (obj.error) {
+            alertEl.firstElementChild.textContent = tn(obj.error.message, obj.error.data);
+            elShow(alertEl);
+        }
+        else {
+            elHide(alertEl);
+        }
+        rmData(alertEl, 'jsonrpcid');
     }
 }
 

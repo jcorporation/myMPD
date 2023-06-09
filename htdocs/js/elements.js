@@ -285,6 +285,27 @@ function setData(el, attribute, value) {
 }
 
 /**
+ * Removes an attribute on the element given by id.
+ * @param {string} id element id
+ * @param {string} attribute attribute name
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function rmDataId(id, attribute) {
+    document.getElementById(id)['myMPD-' + attribute] = undefined;
+}
+
+/**
+ * Removes an attribute on the given element.
+ * @param {Element | Node} el element
+ * @param {string} attribute attribute name
+ * @returns {void}
+ */
+function rmData(el, attribute) {
+    el['myMPD-' + attribute] = undefined;
+}
+
+/**
  * Gets the attributes value from the element given by id.
  * @param {string} id element id
  * @param {string} attribute attribute name

@@ -346,8 +346,8 @@ static void send_ws_notify(struct mg_mgr *mgr, struct t_work_response *response)
 static void send_ws_notify_client(struct mg_mgr *mgr, struct t_work_response *response) {
     struct mg_connection *nc = mgr->conns;
     int send_count = 0;
-    long clientId = response->id / 1000;
-    //long requestId = response->id % 1000;
+    const long clientId = response->id / 1000;
+    //const long requestId = response->id % 1000;
     while (nc != NULL) {
         if ((int)nc->is_websocket == 1) {
             struct t_frontend_nc_data *frontend_nc_data = (struct t_frontend_nc_data *)nc->fn_data;
