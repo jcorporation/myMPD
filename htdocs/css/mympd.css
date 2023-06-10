@@ -210,8 +210,15 @@ div > .albumartbg {
 
 .badge {
   font-size: 65%;
-  vertical-align: top;
-  margin-left: 0 !important;
+}
+
+@media only screen and (orientation: portrait) {
+  #navQueue > a {
+    padding-bottom: 0;
+  }
+  #badgeQueueItems {
+    margin-top: 0.6rem;
+  }
 }
 
 @media only screen and (orientation: landscape) {
@@ -248,6 +255,13 @@ div > .albumartbg {
   #top-alerts {
     padding-right: 4rem !important;
     margin-top: 0 !important;
+  }
+
+  #badgeQueueItems {
+    position: absolute;
+    display: block;
+    margin-top: -1.9rem !important;
+    margin-left: 2rem !important;
   }
 }
 
@@ -318,11 +332,6 @@ div.footerCounter {
 
 .navTextQueue {
   margin-right: 0.5rem;
-}
-
-#badgeQueueItems {
-  margin-left: -2px !important;
-  margin-top: -4px !important;
 }
 
 button {
