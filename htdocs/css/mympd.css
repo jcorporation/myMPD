@@ -186,16 +186,6 @@ main {
   margin-right: 2rem;
 }
 
-.square-end {
-  border-bottom-right-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-}
-
-.square-start {
-  border-bottom-left-radius: 0 !important;
-  border-top-left-radius: 0 !important;
-}
-
 .breakAll {
   word-break: break-all;
 }
@@ -392,12 +382,6 @@ button {
 
 .queue-playing [data-col="Action"] {
   color: inherit;
-}
-
-.queue-playing:hover > * {
-  background-color: unset;
-
-  --bs-table-accent-bg: unset !important;
 }
 
 [data-col="Pos"],
@@ -724,10 +708,6 @@ div.key {
   padding: 0.2rem 1.5rem;
 }
 
-textarea.small {
-  font-size: 80%;
-}
-
 .form-control:focus {
   border-color: var(--mympd-highlightcolor) !important;
 }
@@ -742,11 +722,6 @@ textarea.small {
   color: var(--mympd-highlightcolor-contrast) !important;
   background-color: var(--mympd-highlightcolor) !important;
   border-color: var(--mympd-highlightcolor) !important;
-}
-
-.was-validated .form-control:invalid:focus,
-.form-control.is-invalid:focus {
-  box-shadow: none;
 }
 
 #dropdownHomeIconLigature .row {
@@ -931,7 +906,7 @@ div.album-grid-mouseover:hover {
   text-overflow: ellipsis;
 }
 
-.text-monospace {
+.font-monospace {
   font-size: 90%;
 }
 
@@ -1043,14 +1018,7 @@ button.select-inner-button {
   flex: unset !important;
 }
 
-.flex-grow {
-  flex-grow: 1;
-}
-
-.modal-footer > button {
-  min-width: 6rem;
-}
-
+.modal-footer > button,
 .modal-footer > div > button {
   min-width: 6rem;
 }

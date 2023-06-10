@@ -3,6 +3,7 @@
 
 //remove shadows
 $box-shadow: none;
+$focus-box-shadow: none;
 $box-shadow-sm: none;
 $box-shadow-lg: none;
 $box-shadow-inset: none;
@@ -79,6 +80,25 @@ $success-text-emphasis-dark: #208637;
 // 3. Include remainder of required Bootstrap stylesheets
 @import "../node_modules/bootstrap/scss/variables";
 @import "../node_modules/bootstrap/scss/variables-dark";
+
+$form-validation-states: (
+  "valid": (
+    "color": var(--#{$prefix}form-valid-color),
+    "icon": none,
+    "tooltip-color": #fff,
+    "tooltip-bg-color": var(--#{$prefix}success),
+    "focus-box-shadow": $focus-box-shadow,
+    "border-color": var(--#{$prefix}form-valid-border-color),
+  ),
+  "invalid": (
+    "color": var(--#{$prefix}form-invalid-color),
+    "icon": none,
+    "tooltip-color": #fff,
+    "tooltip-bg-color": var(--#{$prefix}danger),
+    "focus-box-shadow": $focus-box-shadow,
+    "border-color": var(--#{$prefix}form-invalid-border-color),
+  )
+);
 
 $colors: (
   "red":        $red,

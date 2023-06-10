@@ -79,7 +79,7 @@ function parseFingerprint(obj) {
         );
         return;
     }
-    const textarea = elCreateEmpty('textarea', {"class": ["form-control", "text-monospace", "small", "breakAll"], "rows": 5});
+    const textarea = elCreateEmpty('textarea', {"class": ["form-control", "font-monospace", "breakAll"], "rows": 5});
     textarea.value = obj.result.fingerprint;
     elReplaceChildId('fingerprint', textarea);
 }
