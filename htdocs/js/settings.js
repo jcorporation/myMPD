@@ -667,6 +667,7 @@ function setFeatures() {
         features.featPlaylistDirAuto = settings.features.featPlaylistDirAuto;
         features.featStartsWith = settings.features.featStartsWith;
         features.featPcre = settings.features.featPcre;
+        features.featPcreOrStartsWith = settings.features.featPcre || settings.features.featStartsWith;
     }
 }
 
