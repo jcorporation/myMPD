@@ -49,7 +49,9 @@ let appInited = false;
 
 /** @type {boolean} */
 let scriptsInited = false;
-let subdir = '';
+
+/** @type {string} */
+const subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
 
 /** @type {boolean} */
 let uiEnabled = true;
@@ -69,8 +71,14 @@ const nDash = '\u2013';
 let tagAlbumArtist = 'AlbumArtist';
 
 /** @type {object} */
-const albumFilters = ["Composer", "Performer", "Conductor", "Ensemble"];
+const albumFilters = [
+    'Composer',
+    'Performer',
+    'Conductor',
+    'Ensemble'
+];
 
+/** @type {object} */
 const session = {
     "token": "",
     "timeout": 0
@@ -192,8 +200,14 @@ const mpdVersion = {
 const browseFilesystemHistory = {};
 
 //list of stickers
-const stickerList = ['stickerPlayCount', 'stickerSkipCount', 'stickerLastPlayed',
-    'stickerLastSkipped', 'stickerLike', 'stickerElapsed'];
+const stickerList = [
+    'stickerPlayCount',
+    'stickerSkipCount',
+    'stickerLastPlayed',
+    'stickerLastSkipped',
+    'stickerLike',
+    'stickerElapsed'
+];
 
 //application state
 const app = {};

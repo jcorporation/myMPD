@@ -7,7 +7,6 @@
 
 /**
  * Initializes / starts the myMPD app
- * @returns {void}
  */
 
 /**
@@ -107,7 +106,6 @@ function appInitStart() {
 
     setMobileView();
 
-    subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
     i18nHtml(document.getElementById('splashScreenAlert'));
 
     //set loglevel
