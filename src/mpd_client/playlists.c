@@ -65,9 +65,9 @@ time_t mpd_client_get_playlist_mtime(struct t_partition_state *partition_state, 
 }
 
 /**
- * Deduplicates all playlists
+ * Deduplicates all static playlists
  * @param partition_state pointer to partition state
- * @param remove true = remove invalid songs, else count
+ * @param remove true = remove duplicate songs, else count duplicate songs
  * @return -1 on error, else number of removed songs
  */
 long mpd_client_playlist_dedup_all(struct t_partition_state *partition_state, bool remove) {
@@ -95,7 +95,7 @@ long mpd_client_playlist_dedup_all(struct t_partition_state *partition_state, bo
  * Deduplicates the playlist content
  * @param partition_state pointer to partition state
  * @param playlist playlist to check
- * @param remove true = remove duplicate songs, else count 
+ * @param remove true = remove duplicate songs, else count duplicate songs
  * @return -1 on error, else number of duplicate songs
  */
 long mpd_client_playlist_dedup(struct t_partition_state *partition_state, const char *playlist, bool remove) {
@@ -141,9 +141,9 @@ long mpd_client_playlist_dedup(struct t_partition_state *partition_state, const 
 }
 
 /**
- * Validates all playlists
+ * Validates all entries from all static playlists
  * @param partition_state pointer to partition state
- * @param remove true = remove invalid songs, else count
+ * @param remove true = remove invalid songs, else count invladi songs
  * @return -1 on error, else number of removed songs
  */
 long mpd_client_playlist_validate_all(struct t_partition_state *partition_state, bool remove) {
@@ -171,7 +171,7 @@ long mpd_client_playlist_validate_all(struct t_partition_state *partition_state,
  * Validates the playlist entries
  * @param partition_state pointer to partition state
  * @param playlist playlist to check
- * @param remove true = remove invalid songs, else count
+ * @param remove true = remove invalid songs, else count invalid songs
  * @return -1 on error, else number of removed songs
  */
 long mpd_client_playlist_validate(struct t_partition_state *partition_state, const char *playlist, bool remove) {
