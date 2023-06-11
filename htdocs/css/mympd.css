@@ -588,7 +588,6 @@ button.mi {
 
 button.mi::after {
   font-size: 1rem;
-  vertical-align: 0.5rem !important;
 }
 
 .pagination button {
@@ -610,19 +609,10 @@ button.mi::after {
   min-width: 10rem;
 }
 
-.form-range::-webkit-slider-thumb {
-  background-color: var(--mympd-highlightcolor);
-}
-
-.form-range::-webkit-slider-thumb:active {
-  background-color: var(--mympd-highlightcolor);
-}
-
-.form-range::-moz-range-thumb {
-  background-color: var(--mympd-highlightcolor);
-}
-
-.form-range::-moz-range-thumb:active {
+.form-range::-webkit-slider-thumb,
+.form-range::-webkit-slider-thumb:active,
+.form-range::-moz-range-thumb,
+.form-range::-moz-range-thumb:active{
   background-color: var(--mympd-highlightcolor);
 }
 
@@ -703,10 +693,6 @@ div.key {
   background-color: inherit;
 }
 
-.dropdown-item:hover {
-  background-color: var(--bs-gray-700);
-}
-
 .offcanvas-body .dropdown-item {
   padding: 0.2rem 1.5rem;
 }
@@ -725,6 +711,10 @@ div.key {
   color: var(--mympd-highlightcolor-contrast) !important;
   background-color: var(--mympd-highlightcolor) !important;
   border-color: var(--mympd-highlightcolor) !important;
+}
+
+button.active > a {
+  color: var(--mympd-highlightcolor-contrast);
 }
 
 #dropdownHomeIconLigature .row {

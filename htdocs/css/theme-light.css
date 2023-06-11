@@ -4,39 +4,31 @@
  https://github.com/jcorporation/mympd
 */
 
-html[data-bs-theme="light"] .dropdown-divider2 {
-  border-top: 1px solid var(--bs-dark);
-}
-
 html[data-bs-theme="light"] {
   --bs-dropdown-divider-bg: var(--bs-gray-400);
+  --bs-dropdown-link-hover-bg: var(--bs-gray-400);
+  --bs-tertiary-bg: var(--bs-gray-200);
+}
+
+html[data-bs-theme="light"] .dropdown-divider2 {
+  border-top: 1px solid var(--bs-dark);
 }
 
 html[data-bs-theme="light"] .navbar {
   background-color: var(--bs-gray-400);
 }
 
-html[data-bs-theme="light"] .navbar .btn:active {
-  border-color: var(--bs-gray-200);
-  background-color: var(--bs-gray-200);
+html[data-bs-theme="light"] #navbar-main div.active {
+  background-color: var(--bs-gray-100);
 }
 
 html[data-bs-theme="light"] .form-control::placeholder {
   color: var(--bs-gray-500);
 }
 
-html[data-bs-theme="light"] #navbar-main div.active {
-  background-color: var(--bs-gray-100);
-}
-
 html[data-bs-theme="light"] #footerProgressPos {
   background-color: var(--bs-gray-100);
   border: 1px solid var(--bs-gray-400);
-}
-
-html[data-bs-theme="light"] .dropdown-item:hover {
-  background-color: var(--bs-gray-400);
-  color: var(--bs-gray-800);
 }
 
 html[data-bs-theme="light"] .btn-secondary,
@@ -65,7 +57,6 @@ html[data-bs-theme="light"] button.select-inner-button {
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='m2 5 6 6 6-6'/%3e%3c/svg%3e");
 }
 
-html[data-bs-theme="light"] .list-group-item-action:hover,
-html[data-bs-theme="light"] .list-group-item-action:focus {
-  background-color: var(--bs-gray-200);
+html[data-bs-theme="light"] .form-range::-moz-range-track {
+  background-color: var(--bs-gray-100);
 }

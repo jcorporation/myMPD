@@ -62,6 +62,7 @@ This release changes definitions of many API methods.
 - Upd: Replace tinymt with OpenSSL prng #1034
 - Upd: use OpenSSL hash functions
 - Upd: documentation improvements
+- Fix: various small css fixes
 - Fix: improve Mongoose logging #1032
 
 ***

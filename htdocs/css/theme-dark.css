@@ -6,6 +6,11 @@
 
 html[data-bs-theme="dark"] {
   --bs-dropdown-divider-bg: var(--bs-gray-600);
+  --bs-dropdown-link-hover-bg: var(--bs-gray-700);
+}
+
+html[data-bs-theme="dark"] .dropdown-divider2 {
+  border-top: 1px solid var(--bs-light);
 }
 
 html[data-bs-theme="dark"] .navbar {
@@ -28,10 +33,6 @@ html[data-bs-theme="dark"] table {
   --bs-table-hover-bg: var(--bs-gray-800);
 }
 
-.form-range::-moz-range-track {
+html[data-bs-theme="dark"] .form-range::-moz-range-track {
   background-color: var(--bs-gray-300);
-}
-
-html[data-bs-theme="dark"] .dropdown-divider2 {
-  border-top: 1px solid var(--bs-light);
 }

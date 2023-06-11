@@ -183,7 +183,7 @@ function setInputPassword(el) {
  */
 function setSelectSearch(el) {
     const filterInput = elCreateEmpty('input', {"class": ["form-control", "form-control-sm", "mb-1"], "data-placeholder-phrase": "Filter", "placeholder": tn('Filter')});
-    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll", "border"]});
+    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll"]});
     const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "p-2", "w-100"]}, [
         filterInput,
         filterResult
