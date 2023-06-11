@@ -134,7 +134,6 @@ void ws_notify_client(sds message, long request_id) {
     mympd_queue_push(web_server_queue, response, 0);
 }
 
-
 /**
  * Mallocs and initializes a t_work_response struct, copies the ids from the request struct
  * @param request the request the ids are copied
