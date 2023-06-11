@@ -148,6 +148,7 @@ void *web_server_loop(void *arg_mgr) {
         MYMPD_LOG_DEBUG(NULL, "Using private key: %s", mg_user_data->config->ssl_key);
     }
     while (s_signal_received == 0) {
+        //poll webserver response queue
         struct t_work_response *response = mympd_queue_shift(web_server_queue, 50, 0);
         if (response != NULL) {
             switch(response->conn_id) {
@@ -183,7 +184,7 @@ void *web_server_loop(void *arg_mgr) {
 
 /**
  * Sets the mg_user_data values from set_mg_user_data_request.
- * Message is sent by the feature detection function in the mympd_api thread.
+ * Message is sent from the mympd_api thread.
  * @param response 
  * @param mg_user_data t_mg_user_data to configure
  * @return true on success, else false
