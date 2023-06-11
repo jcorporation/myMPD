@@ -147,42 +147,25 @@ void *web_server_loop(void *arg_mgr) {
         MYMPD_LOG_DEBUG(NULL, "Using certificate: %s", mg_user_data->config->ssl_cert);
         MYMPD_LOG_DEBUG(NULL, "Using private key: %s", mg_user_data->config->ssl_key);
     }
-
-    sds last_notify = sdsempty();
-    time_t last_time = 0;
     while (s_signal_received == 0) {
         struct t_work_response *response = mympd_queue_shift(web_server_queue, 50, 0);
         if (response != NULL) {
             switch(response->conn_id) {
-                case -2:
+                case CONN_ID_NOTIFY_CLIENT:
                     //websocket notify for specific clients
                     send_ws_notify_client(mgr, response);
                     break;
-                case -1:
+                case CONN_ID_INTERNAL:
                     //internal message
-                    MYMPD_LOG_DEBUG(NULL, "Got internal message");
                     parse_internal_message(response, mg_user_data);
                     break;
-                case 0: {
-                    MYMPD_LOG_DEBUG(NULL, "Got websocket notify");
+                case CONN_ID_NOTIFY_ALL:
                     //websocket notify for all clients
-                    time_t now = time(NULL);
-                    if (strcmp(response->data, last_notify) != 0 ||
-                        last_time < now - 1)
-                    {
-                        last_notify = sds_replace(last_notify, response->data);
-                        last_time = now;
-                        send_ws_notify(mgr, response);
-                    }
-                    else {
-                        MYMPD_LOG_DEBUG(NULL, "Discarding repeated notify");
-                        free_response(response);
-                    }
+                    send_ws_notify(mgr, response);
                     break;
-                }
                 default:
-                    MYMPD_LOG_DEBUG(response->partition, "Got API response for id \"%lld\"", response->conn_id);
                     //api response
+                    MYMPD_LOG_DEBUG(response->partition, "Got API response for id \"%lld\"", response->conn_id);
                     send_api_response(mgr, response);
             }
         }
@@ -191,7 +174,6 @@ void *web_server_loop(void *arg_mgr) {
     }
     MYMPD_LOG_DEBUG(NULL, "Stopping web_server thread");
     FREE_SDS(thread_logname);
-    FREE_SDS(last_notify);
     return NULL;
 }
 

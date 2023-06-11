@@ -117,7 +117,7 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
  */
 void ws_notify(sds message, const char *partition) {
     MYMPD_LOG_DEBUG(partition, "Push websocket notify to queue: \"%s\"", message);
-    struct t_work_response *response = create_response_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY, partition);
+    struct t_work_response *response = create_response_new(CONN_ID_NOTIFY_ALL, 0, INTERNAL_API_WEBSERVER_NOTIFY, partition);
     response->data = sds_replace(response->data, message);
     mympd_queue_push(web_server_queue, response, 0);
 }
@@ -129,7 +129,7 @@ void ws_notify(sds message, const char *partition) {
  */
 void ws_notify_client(sds message, long request_id) {
     MYMPD_LOG_DEBUG(NULL, "Push websocket notify to queue: \"%s\"", message);
-    struct t_work_response *response = create_response_new(-2, request_id, INTERNAL_API_WEBSERVER_NOTIFY, MPD_PARTITION_ALL);
+    struct t_work_response *response = create_response_new(CONN_ID_NOTIFY_CLIENT, request_id, INTERNAL_API_WEBSERVER_NOTIFY, MPD_PARTITION_ALL);
     response->data = sds_replace(response->data, message);
     mympd_queue_push(web_server_queue, response, 0);
 }

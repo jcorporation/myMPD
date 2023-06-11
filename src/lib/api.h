@@ -232,6 +232,16 @@ struct set_mg_user_data_request {
 };
 
 /**
+ * Special myMPD connection ids.
+ * All other connection ids are from mongoose and identifies client connections.
+ */
+enum conn_ids {
+    CONN_ID_NOTIFY_CLIENT = -2, //!< Send message to client identified by jsonrpc id
+    CONN_ID_INTERNAL = -1,      //!< Internal message from myMPD API thread to webserver thread
+    CONN_ID_NOTIFY_ALL = 0      //!< Send message to all clients in a specific partition
+};
+
+/**
  * Public functions
  */
 enum mympd_cmd_ids get_cmd_id(const char *cmd);

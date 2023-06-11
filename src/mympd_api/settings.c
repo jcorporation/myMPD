@@ -64,7 +64,7 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
         partition_state = partition_state->next;
     }
 
-    struct t_work_response *web_server_response = create_response_new(-1, 0, INTERNAL_API_WEBSERVER_SETTINGS, MPD_PARTITION_DEFAULT);
+    struct t_work_response *web_server_response = create_response_new(CONN_ID_INTERNAL, 0, INTERNAL_API_WEBSERVER_SETTINGS, MPD_PARTITION_DEFAULT);
     web_server_response->extra = extra;
     return mympd_queue_push(web_server_queue, web_server_response, 0);
 }
