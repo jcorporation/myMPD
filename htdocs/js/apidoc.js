@@ -715,6 +715,16 @@ const APImethods = {
             }
         }
     },
+    "MYMPD_API_PLAYLIST_CONTENT_DEDUP_ALL": {
+        "desc": "Deduplicates all playlists.",
+        "params": {
+            "remove": {
+                "type": APItypes.bool,
+                "example": true,
+                "desc": "true = remove duplicate entries, false = count number of duplicate entries"
+            }
+        }
+    },
     "MYMPD_API_PLAYLIST_CONTENT_VALIDATE": {
         "desc": "Validates the playlist and removes invalid entries.",
         "params": {
@@ -726,10 +736,30 @@ const APImethods = {
             }
         }
     },
+    "MYMPD_API_PLAYLIST_CONTENT_VALIDATE_ALL": {
+        "desc": "Validates all playlist and removes invalid entries.",
+        "params": {
+            "remove": {
+                "type": APItypes.bool,
+                "example": true,
+                "desc": "true = remove invalid entries, false = count number of invalid entries"
+            }
+        }
+    },
     "MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP": {
         "desc": "Validates and deduplicates the playlist and removes invalid entries.",
         "params": {
             "plist": APIparams.plist,
+            "remove": {
+                "type": APItypes.bool,
+                "example": true,
+                "desc": "true = remove invalid entries, false = count number of invalid entries"
+            }
+        }
+    },
+    "MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP_ALL": {
+        "desc": "Validates and deduplicates all playlists and removes invalid entries.",
+        "params": {
             "remove": {
                 "type": APItypes.bool,
                 "example": true,

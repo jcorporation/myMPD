@@ -60,6 +60,28 @@ function deletePlaylists() {
 }
 
 /**
+ * Validates all playlists
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function validatePlaylists() {
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_VALIDATE_ALL", {
+        "remove": true
+    }, null, false);
+}
+
+/**
+ * Deduplicates all playlists
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function dedupPlaylists() {
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_DEDUP_ALL", {
+        "remove": true
+    }, null, false);
+}
+
+/**
  * Updates the myMPD caches
  * @param {boolean} force true=forces an update
  * @returns {void}

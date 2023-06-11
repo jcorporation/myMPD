@@ -44,9 +44,7 @@ function handleBrowsePlaylistList() {
     {
         searchPlaylistsStrEl.value = app.current.search;
     }
-    const alertEl = document.getElementById('playlistDetailAlert');
-    elHide(alertEl);
-    rmData(alertEl, 'jsonrpcid');
+    elHideId('playlistDetailAlert');
 }
 
 /**
@@ -338,22 +336,13 @@ function playlistValidateDedup(plist, remove) {
  */
 function playlistValidateDedupCheckError(obj) {
     const alertEl = document.getElementById('playlistDetailAlert');
-    const jsonrpcid = getData(alertEl, 'jsonrpcid');
-    if (jsonrpcid === undefined) {
-        //started response, set response id on the alert div
-        setData(alertEl, 'jsonrpcid', obj.id);
+    unsetUpdateViewId('BrowsePlaylistDetailList');
+    if (obj.error) {
+        alertEl.firstElementChild.textContent = tn(obj.error.message, obj.error.data);
+        elShow(alertEl);
     }
-    else if (jsonrpcid === obj.id) {
-        //async response, process it only if view is still valid
-        unsetUpdateViewId('BrowsePlaylistDetailList');
-        if (obj.error) {
-            alertEl.firstElementChild.textContent = tn(obj.error.message, obj.error.data);
-            elShow(alertEl);
-        }
-        else {
-            elHide(alertEl);
-        }
-        rmData(alertEl, 'jsonrpcid');
+    else {
+        elHide(alertEl);
     }
 }
 

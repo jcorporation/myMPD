@@ -657,6 +657,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         struct mpd_playlist *pl;
         while ((pl = mpd_recv_playlist(partition_state->conn)) != NULL) {
             const char *plpath = mpd_playlist_get_path(pl);
+            //value_i is the empty marker
             list_push(&playlists, plpath, 1, NULL, NULL);
             mpd_playlist_free(pl);
         }

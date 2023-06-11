@@ -17,6 +17,7 @@
 #include "src/lib/random.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
+#include "src/lib/smartpls.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
@@ -61,6 +62,33 @@ time_t mpd_client_get_playlist_mtime(struct t_partition_state *partition_state, 
     }
 
     return mtime;
+}
+
+/**
+ * Deduplicates all playlists
+ * @param partition_state pointer to partition state
+ * @param remove true = remove invalid songs, else count
+ * @return -1 on error, else number of removed songs
+ */
+long mpd_client_playlist_dedup_all(struct t_partition_state *partition_state, bool remove) {
+    //get all playlists excluding smartplaylists
+    struct t_list plists;
+    list_init(&plists);
+    if (mpd_client_get_all_playlists(partition_state, &plists, false) == false) {
+        list_clear(&plists);
+        return -1;
+    }
+    long result = 0;
+    struct t_list_node *current;
+    while ((current = list_shift_first(&plists)) != NULL) {
+        long rc = mpd_client_playlist_dedup(partition_state, current->key, remove);
+        if (rc > -1) {
+            result += rc;
+        }
+        list_node_free(current);
+    }
+    list_clear(&plists);
+    return result;
 }
 
 /**
@@ -110,6 +138,33 @@ long mpd_client_playlist_dedup(struct t_partition_state *partition_state, const 
     }
     list_clear(&duplicates);
     return rc;
+}
+
+/**
+ * Validates all playlists
+ * @param partition_state pointer to partition state
+ * @param remove true = remove invalid songs, else count
+ * @return -1 on error, else number of removed songs
+ */
+long mpd_client_playlist_validate_all(struct t_partition_state *partition_state, bool remove) {
+    //get all playlists excluding smartplaylists
+    struct t_list plists;
+    list_init(&plists);
+    if (mpd_client_get_all_playlists(partition_state, &plists, false) == false) {
+        list_clear(&plists);
+        return -1;
+    }
+    long result = 0;
+    struct t_list_node *current;
+    while ((current = list_shift_first(&plists)) != NULL) {
+        long rc = mpd_client_playlist_validate(partition_state, current->key, remove);
+        if (rc > -1) {
+            result += rc;
+        }
+        list_node_free(current);
+    }
+    list_clear(&plists);
+    return result;
 }
 
 /**
@@ -426,4 +481,30 @@ static bool replace_playlist(struct t_partition_state *partition_state, const ch
     mpd_run_rm(partition_state->conn, backup_pl);
     FREE_SDS(backup_pl);
     return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_rename");
+}
+
+/**
+ * Gets all playlists.
+ * @param partition_state pointer to partition state
+ * @param l pointer to list to populate
+ * @param smartpls true = integrate smart playlists, false = ignore smart playlists
+ * @return true on success, else false
+ */
+bool mpd_client_get_all_playlists(struct t_partition_state *partition_state, struct t_list *l, bool smartpls) {
+    if (mpd_send_list_playlists(partition_state->conn)) {
+        struct mpd_playlist *pl;
+        while ((pl = mpd_recv_playlist(partition_state->conn)) != NULL) {
+            const char *plpath = mpd_playlist_get_path(pl);
+            bool sp = is_smartpls(partition_state->mympd_state->config->workdir, plpath);
+            if (!(smartpls == false && sp == true)) {
+                list_push(l, plpath, sp, NULL, NULL);
+            }
+            mpd_playlist_free(pl);
+        }
+    }
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_list_playlists") == false) {
+        return false;
+    }
+    return true;
 }

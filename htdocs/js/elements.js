@@ -301,6 +301,7 @@ function rmDataId(id, attribute) {
  * @param {string} attribute attribute name
  * @returns {void}
  */
+//eslint-disable-next-line no-unused-vars
 function rmData(el, attribute) {
     el['myMPD-' + attribute] = undefined;
 }

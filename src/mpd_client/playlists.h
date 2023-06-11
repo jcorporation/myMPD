@@ -21,5 +21,8 @@ bool mpd_client_playlist_sort(struct t_partition_state *partition_state, const c
 time_t mpd_client_get_playlist_mtime(struct t_partition_state *partition_state, const char *playlist);
 long mpd_client_enum_playlist(struct t_partition_state *partition_state, const char *playlist, bool empty_check);
 long mpd_client_playlist_validate(struct t_partition_state *partition_state, const char *playlist, bool remove);
+long mpd_client_playlist_validate_all(struct t_partition_state *partition_state, bool remove);
 long mpd_client_playlist_dedup(struct t_partition_state *partition_state, const char *playlist, bool remove);
+long mpd_client_playlist_dedup_all(struct t_partition_state *partition_state, bool remove);
+bool mpd_client_get_all_playlists(struct t_partition_state *partition_state, struct t_list *l, bool smartpls);
 #endif

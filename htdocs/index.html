@@ -2612,14 +2612,6 @@
                 <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateCaches", "options": [true]}' data-phrase="Force update"></button>
               </div>
             </div>
-            <div class="mb-3 row featPlaylists">
-              <label class="col-sm-4 col-form-label" data-phrase="Smart playlists"></label>
-              <div class="col-sm-8">
-                <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}' data-phrase="Update"></button>
-                <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateSmartPlaylists", "options": [true]}' data-phrase="Force update"></button>
-              </div>
-            </div>
-            <hr/>
             <div class="mb-3 row">
               <label class="col-sm-4 col-form-label" data-phrase="Covercache"></label>
               <div class="col-sm-8">
@@ -2627,19 +2619,37 @@
                 <button type="button" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
               </div>
             </div>
-            <div class="mb-3 row featPlaylists">
-              <label class="col-sm-4 col-form-label" for="btnDeletePlaylists" data-phrase="Delete playlists"></label>
-              <div class="col-sm-8">
-                <div class="input-group">
-                  <select id="selectDeletePlaylists" class="form-select">
-                    <option value="deleteEmptyPlaylists" data-phrase="Delete empty playlists"></option>
-                    <option value="deleteSmartPlaylists" data-phrase="Delete all smart playlists"></option>
-                    <option value="deleteAllPlaylists" data-phrase="Delete all playlists"></option>
-                  </select>
-                  <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-secondary protected" data-phrase="Delete"></button>
+            <hr/>
+            <div class="featPlaylists">
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" data-phrase="Smart playlists"></label>
+                <div class="col-sm-8">
+                  <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}' data-phrase="Update"></button>
+                  <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateSmartPlaylists", "options": [true]}' data-phrase="Force update"></button>
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" data-phrase="Validate playlists"></label>
+                <div class="col-sm-8">
+                  <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "validatePlaylists", "options": [false]}' data-phrase="Validate"></button>
+                  <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "dedupPlaylists", "options": [true]}' data-phrase="Deduplicate"></button>
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="btnDeletePlaylists" data-phrase="Delete playlists"></label>
+                <div class="col-sm-8">
+                  <div class="input-group">
+                    <select id="selectDeletePlaylists" class="form-select">
+                      <option value="deleteEmptyPlaylists" data-phrase="Delete empty playlists"></option>
+                      <option value="deleteSmartPlaylists" data-phrase="Delete all smart playlists"></option>
+                      <option value="deleteAllPlaylists" data-phrase="Delete all playlists"></option>
+                    </select>
+                    <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-secondary protected" data-phrase="Delete"></button>
+                  </div>
                 </div>
               </div>
             </div>
+            <hr/>
             <div class="mb-3 row">
               <label class="col-sm-4 col-form-label"><span data-phrase="Loglevel"></span><small class="mi mi-small ms-1" data-title-phrase="Temporary setting">help</small></label>
               <div class="col-sm-8">

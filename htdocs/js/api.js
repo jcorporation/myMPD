@@ -180,16 +180,13 @@ function checkAPIresponse(obj, callback, onerror) {
 }
 
 /**
- * Gets the callback for an jsonrpc method
+ * Gets the callback for an jsonrpc method.
+ * Used for async jsonrpc responses.
  * @param {string} method jsonrpc method
  * @returns {Function} the function that can parse the response, or null
  */
 function getResponseCallback(method) {
     switch(method) {
-        case 'MYMPD_API_PLAYLIST_CONTENT_DEDUP':
-        case 'MYMPD_API_PLAYLIST_CONTENT_VALIDATE_':
-        case 'MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP':
-            return playlistValidateDedupCheckError;
         default:
             return null;
     }
