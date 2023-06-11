@@ -132,6 +132,7 @@ long mympd_api_status_updatedb_id(struct t_partition_state *partition_state) {
  * Gets the mpd status, updates internal myMPD states and returns a jsonrpc notify or response
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
+ * @param request_id jsonrpc request id
  * @param response_type jsonrpc response type: RESPONSE_TYPE_RESPONSE or RESPONSE_TYPE_NOTIFY
  * @return pointer to buffer
  */
@@ -288,6 +289,7 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
+ * @param response_type jsonrpc response type: RESPONSE_TYPE_RESPONSE or RESPONSE_TYPE_NOTIFY
  * @return pointer to buffer
  */
 sds mympd_api_status_volume_get(struct t_partition_state *partition_state, sds buffer, long request_id, enum jsonrpc_response_types response_type) {
