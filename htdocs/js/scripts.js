@@ -214,7 +214,7 @@ function apiParamsToArgs(p) {
     for (const param in p) {
         args += 'options["' + param + '"] = ';
         switch(p[param].type) {
-            case APItypes.text:
+            case APItypes.string:
                 args += '"' + p[param].example + '"';
                 break;
             case APItypes.array:
