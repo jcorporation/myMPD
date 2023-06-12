@@ -75,9 +75,13 @@ body.mobile > footer > nav {
   border-color: transparent;
 }
 
-.navbar .btn:active {
+.btn-check:checked + .btn,
+:not(.btn-check) + .btn:active,
+.btn:first-child:active,
+.btn.active, .btn.show {
   border-color: var(--mympd-highlightcolor) !important;
   background-color: var(--mympd-highlightcolor) !important;
+  color: var(--mympd-highlightcolor-contrast) !important;
 }
 
 button.active,
