@@ -171,7 +171,13 @@ function parseCurrentSong(obj) {
     }
 
     if (currentState.state === 'play') {
-        showNotification(textNotification.join('\n'), 'player', 'info');
+        //check if song has really changed
+        if (currentSongObj === null ||
+            currentSongObj.Title !== obj.result.Title ||
+            currentSongObj.uri !== obj.result.uri)
+        {
+            showNotification(textNotification.join('\n'), 'player', 'info');
+        }
     }
 
     setScrollViewHeight(list);
