@@ -140,8 +140,7 @@ sds jsonrpc_event(sds buffer, enum jsonrpc_events event) {
     sdsclear(buffer);
     buffer = sdscat(buffer, "{\"jsonrpc\":\"2.0\",");
     buffer = tojson_char(buffer, "method", event_name, true);
-    buffer = sdscat(buffer, "\"params\":{");
-    buffer = sdscatlen(buffer, "}}", 2);
+    buffer = sdscat(buffer, "\"params\":{}}");
     return buffer;
 }
 
