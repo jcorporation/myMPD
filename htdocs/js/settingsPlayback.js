@@ -223,7 +223,7 @@ function togglePlaymode(option) {
     const params = {};
     params[option] = value;
     sendAPI('MYMPD_API_PLAYER_OPTIONS_SET', params, null, false);
-    showNotification(tn(title), '', 'queue', 'info');
+    showNotification(tn(title), 'queue', 'info');
 }
 
 /**

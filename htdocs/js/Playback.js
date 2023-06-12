@@ -46,8 +46,14 @@ function parseCurrentSong(obj) {
     const list = document.getElementById('PlaybackList');
     unsetUpdateView(list);
 
-    let textNotification = '';
-    let pageTitle = '';
+    const textNotification = [];
+    const pageTitle = [];
+
+    if (obj.result.Title !== undefined &&
+        obj.result.Title !== '-')
+    {
+        textNotification.push(obj.result.Title);
+    }
 
     mediaSessionSetMetadata(obj.result.Title, obj.result.Artist, obj.result.Album, obj.result.uri);
 
@@ -61,9 +67,10 @@ function parseCurrentSong(obj) {
     if (obj.result.Artist !== undefined &&
         obj.result.Artist[0] !== '-')
     {
-        textNotification += joinArray(obj.result.Artist);
-        pageTitle += obj.result.Artist.join(', ') + smallSpace + nDash + smallSpace;
-        footerArtistEl.textContent = obj.result.Artist;
+        const artists = joinArray(obj.result.Artist);
+        textNotification.push(artists);
+        pageTitle.push(artists)
+        footerArtistEl.textContent = artists;
         setData(footerArtistEl, 'name', obj.result.Artist);
         footerArtistEl.classList.add('clickable');
     }
@@ -76,7 +83,7 @@ function parseCurrentSong(obj) {
     if (obj.result.Album !== undefined &&
         obj.result.Album !== '-')
     {
-        textNotification += ' - ' + obj.result.Album;
+        textNotification.push(obj.result.Album)
         footerAlbumEl.textContent = obj.result.Album;
         setData(footerAlbumEl, 'name', obj.result.Album);
         setData(footerAlbumEl, 'AlbumArtist', obj.result[tagAlbumArtist]);
@@ -94,7 +101,7 @@ function parseCurrentSong(obj) {
     if (obj.result.Title !== undefined &&
         obj.result.Title !== '-')
     {
-        pageTitle += obj.result.Title;
+        pageTitle.push(obj.result.Title);
         currentTitleEl.textContent = obj.result.Title;
         setData(currentTitleEl, 'uri', obj.result.uri);
         footerTitleEl.textContent = obj.result.Title;
@@ -108,8 +115,8 @@ function parseCurrentSong(obj) {
         footerTitleEl.classList.remove('clickable');
         footerCoverEl.classList.remove('clickable');
     }
-    document.title = 'myMPD: ' + pageTitle;
-    footerCoverEl.title = pageTitle;
+    document.title = 'myMPD: ' + pageTitle.join(smallSpace + nDash + smallSpace);
+    footerCoverEl.title = pageTitle.join(smallSpace + nDash + smallSpace);
 
     if (isValidUri(obj.result.uri) === true &&
         isStreamUri(obj.result.uri) === false)
@@ -164,7 +171,7 @@ function parseCurrentSong(obj) {
     }
 
     if (currentState.state === 'play') {
-        showNotification(obj.result.Title, textNotification, 'player', 'info');
+        showNotification(textNotification.join(smallSpace + nDash + smallSpace), 'player', 'info');
     }
 
     setScrollViewHeight(list);

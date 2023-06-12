@@ -89,7 +89,7 @@ function moveOutputsCheckError(obj) {
     }
     else {
         uiElements.modalPartitionOutputs.hide();
-        showNotification(tn('Outputs moved to current partition'), '', 'general', 'info');
+        showNotification(tn('Outputs moved to current partition'), 'general', 'info');
     }
 }
 
@@ -242,7 +242,7 @@ function switchPartition(partition) {
     }, 0);
     getSettings();
     BSN.Modal.getInstance(document.getElementById('modalPartitions')).hide();
-    showNotification(tn('Partition switched'), '', 'general', 'info');
+    showNotification(tn('Partition switched'), 'general', 'info');
 }
 
 /**

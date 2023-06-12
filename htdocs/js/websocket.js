@@ -88,8 +88,8 @@ function webSocketConnect() {
             // notification
             switch (obj.method) {
                 case 'welcome':
-                    showNotification(tn('Connected to myMPD'),
-                        tn('Partition') + ': ' + localSettings.partition, 'general', 'info');
+                    showNotification(tn('Connected to myMPD') + ': ' +
+                        tn('Partition') + ' ' + localSettings.partition, 'general', 'info');
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
                     if (session.token !== '') {
                         validateSession();
@@ -116,7 +116,7 @@ function webSocketConnect() {
                     break;
                 case 'mpd_connected':
                     //MPD connection established get state and settings
-                    showNotification(tn('Connected to MPD'), '', 'general', 'info');
+                    showNotification(tn('Connected to MPD'), 'general', 'info');
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, false);
                     getSettings();
                     break;
@@ -127,7 +127,7 @@ function webSocketConnect() {
                     sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs, false);
                     break;
                 case 'update_started':
-                    showNotification(tn('Database update started'), '', 'database', 'info');
+                    showNotification(tn('Database update started'), 'database', 'info');
                     toggleAlert('alertUpdateDBState', true, tn('Updating MPD database'));
                     break;
                 case 'update_database':
@@ -186,7 +186,7 @@ function webSocketConnect() {
                     }
                     break;
                 case 'update_cache_started':
-                    showNotification(tn('Cache update started'), '', 'database', 'info');
+                    showNotification(tn('Cache update started'), 'database', 'info');
                     toggleAlert('alertUpdateCacheState', true, tn('Updating caches'));
                     break;
                 case 'update_cache_finished':
@@ -203,7 +203,7 @@ function webSocketConnect() {
                     toggleAlert('alertUpdateCacheState', false, '');
                     break;
                 case 'notify':
-                    showNotification(tn(obj.params.message, obj.params.data), '', obj.params.facility, obj.params.severity);
+                    showNotification(tn(obj.params.message, obj.params.data), obj.params.facility, obj.params.severity);
                     break;
                 default:
                     logDebug('Unknown websocket notification: ' + obj.method);

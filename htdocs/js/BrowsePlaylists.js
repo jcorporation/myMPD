@@ -109,7 +109,7 @@ function initPlaylists() {
                 clickPlaylist(getData(target, 'uri'), event);
             }
             else {
-                showNotification(tn('Playlist is empty'), '', 'playlist', 'warn')
+                showNotification(tn('Playlist is empty'), 'playlist', 'warn')
             }
         }
     }, false);
@@ -509,7 +509,7 @@ function saveSmartPlaylistClose(obj) {
     }
     else {
         uiElements.modalSaveSmartPlaylist.hide();
-        showNotification(tn('Saved smart playlist'), '', 'playlist', 'info');
+        showNotification(tn('Saved smart playlist'), 'playlist', 'info');
     }
 }
 

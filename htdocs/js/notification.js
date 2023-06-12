@@ -155,21 +155,18 @@ function createSeverityIcon(severity) {
 
 /**
  * Shows a toast notification or an appinit alert
- * @param {string} title title of the notification 
- * @param {string} text notification text
+ * @param {string} message message
  * @param {string} facility facility
  * @param {string} severity one off info, warn, error
  * @returns {void}
  */
-function showNotification(title, text, facility, severity) {
+function showNotification(message, facility, severity) {
     if (appInited === false) {
-        showAppInitAlert(
-            title + (text === '' ? '' : ': ' + text)
-        );
+        showAppInitAlert(message);
         return;
     }
     setStateIcon();
-    logMessage(title, text, facility, severity);
+    logMessage(message, facility, severity);
     if (severity === 'info') {
         //notifications with severity info can be hidden
         if (settings.webuiSettings.notifyPage === false &&
@@ -190,22 +187,17 @@ function showNotification(title, text, facility, severity) {
     }
 
     if (settings.webuiSettings.notifyWeb === true) {
-        const notification = new Notification(title, {icon: 'assets/favicon.ico', body: text});
+        const notification = new Notification(message, {icon: 'assets/favicon.ico'});
         setTimeout(notification.close.bind(notification), 3000);
     }
     if (settings.webuiSettings.notifyPage === true) {
-        const toast = elCreateNode('div', {"class": ["toast"]},
+        const toast = elCreateNodes('div', {"class": ["toast", "mt-2"]}, [
             elCreateNodes('div', {"class": ["toast-header"]}, [
                 createSeverityIcon(severity),
-                elCreateText('strong', {"class": ["me-auto"]}, title),
-                elCreateEmpty('button', {"type": "button", "class": ["btn-close"], "data-bs-dismiss": "toast"})
+                elCreateText('span', {"class": ["me-auto"]}, message),
+                elCreateEmpty('button', {"type": "button", "class": ["btn-close"], "data-bs-dismiss": "toast"}),
             ])
-        );
-        if (text !== '') {
-            toast.appendChild(
-                elCreateText('div', {"class": ["toast-body"]}, text)
-            );
-        }
+        ]);
         document.getElementById('alertBox').prepend(toast);
         const toastInit = new BSN.Toast(toast, {delay: 2500});
         toast.addEventListener('hidden.bs.toast', function() {
@@ -217,25 +209,23 @@ function showNotification(title, text, facility, severity) {
 
 /**
  * Appends a log message to the log buffer
- * @param {string} title title
- * @param {string} text message
+ * @param {string} message message
  * @param {string} facility facility
  * @param {string} severity one off info, warn, error
  * @returns {void}
  */
-function logMessage(title, text, facility, severity) {
+function logMessage(message, facility, severity) {
     let messagesLen = messages.length;
     const lastMessage = messagesLen > 0 ? messages[messagesLen - 1] : null;
     if (lastMessage !== null &&
-        lastMessage.title === title)
+        lastMessage.message === message)
     {
         lastMessage.occurrence++;
         lastMessage.timestamp = getTimestamp();
     }
     else {
         messages.push({
-            "title": title,
-            "text": text,
+            "message": message,
             "facility": facility,
             "severity": severity,
             "occurrence": 1,
@@ -271,8 +261,7 @@ function showMessages() {
                 ]),
                 elCreateText('td', {}, message.occurrence),
                 elCreateNodes('td', {}, [
-                    elCreateText('p', {"class": ["mb-0"]}, message.title),
-                    elCreateText('p', {"class": ["mb-0"]}, message.text)
+                    elCreateText('p', {"class": ["mb-0"]}, message.message)
                 ])
             ]),
         overview.firstElementChild);
@@ -364,7 +353,7 @@ function toggleUI() {
     }
     else {
         toggleAlert('alertMpdState', true, tn('MPD disconnected'));
-        logMessage(tn('MPD disconnected'), '', 'mpd', 'error');
+        logMessage(tn('MPD disconnected'), 'mpd', 'error');
     }
 
     if (getWebsocketState() === true) {
@@ -372,7 +361,7 @@ function toggleUI() {
     }
     else if (appInited === true) {
         toggleAlert('alertMympdState', true, tn('Websocket is disconnected'));
-        logMessage(tn('Websocket is disconnected'), '', 'general', 'error');
+        logMessage(tn('Websocket is disconnected'), 'general', 'error');
     }
 
     setStateIcon();

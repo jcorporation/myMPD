@@ -600,7 +600,7 @@ async function httpGet(uri, callback, json) {
         });
     }
     catch(error) {
-        showNotification(tn('API error'), tn('Error accessing %{uri}', {"uri": uri}), 'general', 'error');
+        showNotification(tn('API error') + ':\n' + tn('Error accessing %{uri}', {"uri": uri}), 'general', 'error');
         logError('Error posting to ' + uri);
         logError(error);
         callback(null);
@@ -613,8 +613,8 @@ async function httpGet(uri, callback, json) {
         return;
     }
     if (response.ok === false) {
-        showNotification(tn('API error'),
-            tn('Error accessing %{uri}', {"uri": uri}) + ', ' +
+        showNotification(tn('API error') + '\n' +
+            tn('Error accessing %{uri}', {"uri": uri}) + ',\n' +
             tn('Response code: %{code}', {"code": response.status + ' - ' + response.statusText}),
             'general', 'error');
         logError('Error accessing ' + uri + ', code ' + response.status + ' - ' + response.statusText);
@@ -629,7 +629,7 @@ async function httpGet(uri, callback, json) {
         callback(data);
     }
     catch(error) {
-        showNotification(tn('API error'), tn('Can not parse response from %{uri}', {"uri": uri}), 'general', 'error');
+        showNotification(tn('API error') + '\n' + tn('Can not parse response from %{uri}', {"uri": uri}), 'general', 'error');
         logError('Can not parse response from ' + uri);
         logError(error);
         callback(null);

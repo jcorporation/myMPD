@@ -491,7 +491,7 @@ function getAssets() {
  */
 window.onerror = function(msg, url, line, col) {
     if (settings.loglevel >= 4) {
-        showNotification(tn('JavaScript error'), msg + ' (' + url + ': ' + line + ':' + col + ')', 'general', 'error');
+        showNotification(tn('JavaScript error') + ': ' + msg + ' (' + url + ': ' + line + ':' + col + ')', 'general', 'error');
     }
     //show error also in the console
     return false;

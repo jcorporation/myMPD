@@ -1180,3 +1180,7 @@ button.weekday {
   overflow: hidden;
   opacity: 1;
 }
+
+.toast {
+  --bs-toast-header-bg: unset;
+}

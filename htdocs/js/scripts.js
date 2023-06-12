@@ -188,7 +188,7 @@ function getImportScript(script) {
             obj = JSON.parse(firstLine.substring(firstLine.indexOf('{')));
         }
         catch(error) {
-            showNotification(tn('Can not parse script arguments'), '', 'general', 'error');
+            showNotification(tn('Can not parse script arguments'), 'general', 'error');
             logError('Can not parse script arguments:' + firstLine);
             return;
         }

@@ -123,5 +123,5 @@ function updateDBfinished(idleEvent) {
 
     const text = idleEvent === 'update_database' ?
         tn('Database successfully updated') : tn('Database update finished');
-    showNotification(text, '', 'database', 'info');
+    showNotification(text, 'database', 'info');
 }

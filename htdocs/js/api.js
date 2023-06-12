@@ -70,7 +70,7 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
         });
     }
     catch(error) {
-        showNotification(tn('API error'), tn('Error accessing %{uri}', {"uri": uri}), 'general', 'error');
+        showNotification(tn('API error') + '\n' + tn('Error accessing %{uri}', {"uri": uri}), 'general', 'error');
         logError('Error posting to ' + uri);
         logError(error);
         if (onerror === true) {
@@ -93,8 +93,8 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
         return;
     }
     if (response.ok === false) {
-        showNotification(tn('API error'),
-            tn('Error accessing %{uri}', {"uri": uri}) + ', ' +
+        showNotification(tn('API error') + '\n' +
+            tn('Error accessing %{uri}', {"uri": uri}) + '\n' +
             tn('Response code: %{code}', {"code": response.status + ' - ' + response.statusText}),
             'general', 'error');
         logError('Error posting to ' + uri + ', code ' + response.status + ' - ' + response.statusText);
@@ -120,7 +120,7 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
         checkAPIresponse(obj, callback, onerror);
     }
     catch(error) {
-        showNotification(tn('API error'), tn('Can not parse response from %{uri}', {"uri": uri}), 'general', 'error');
+        showNotification(tn('API error') + '\n' + tn('Can not parse response from %{uri}', {"uri": uri}), 'general', 'error');
         logError('Can not parse response from ' + uri);
         logError(error);
         if (onerror === true) {
@@ -144,7 +144,7 @@ function checkAPIresponse(obj, callback, onerror) {
         typeof obj.error.message === 'string')
     {
         //show and log message
-        showNotification(tn(obj.error.message, obj.error.data), '', obj.error.facility, obj.error.severity);
+        showNotification(tn(obj.error.message, obj.error.data), obj.error.facility, obj.error.severity);
         logSeverity(obj.error.severity, JSON.stringify(obj));
     }
     else if (obj.result &&
@@ -152,7 +152,7 @@ function checkAPIresponse(obj, callback, onerror) {
     {
         //show message
         if (ignoreMessages.includes(obj.result.message) === false) {
-            showNotification(tn(obj.result.message, obj.result.data), '', obj.result.facility, obj.result.severity);
+            showNotification(tn(obj.result.message, obj.result.data), obj.result.facility, obj.result.severity);
         }
     }
     else if (obj.result &&

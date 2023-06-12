@@ -59,11 +59,13 @@ $link-decoration: none;
 $link-color: $body-color;
 $link-color-dark: $body-color-dark;
 
-$breadcrumb-bg: $gray-200;
-
 //other adjustments
 $offcanvas-padding-x: 0;
 $popover-max-width: none;
+$breadcrumb-bg: $gray-200;
+
+//toasts
+$toast-header-border-color: none;
 
 //alerts for dark theme
 $danger-bg-subtle-dark: #f8d7da;

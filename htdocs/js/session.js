@@ -101,7 +101,7 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
                 session.timeout = getTimestamp() + sessionLifetime;
                 setSessionState();
                 removeEnterPinFooter(newFooter);
-                showNotification(tn('Session successfully created'), '', 'session', 'info');
+                showNotification(tn('Session successfully created'), 'session', 'info');
                 if (method !== undefined) {
                     //call original API
                     sendAPI(method, params, callback, onerror);
@@ -153,7 +153,7 @@ function enterPin(method, params, callback, onerror) {
                         session.timeout = getTimestamp() + sessionLifetime;
                         setSessionState();
                         uiElements.modalEnterPin.hide();
-                        showNotification(tn('Session successfully created'), '', 'session', 'info');
+                        showNotification(tn('Session successfully created'), 'session', 'info');
                         if (method !== undefined) {
                             //call original API
                             sendAPI(method, params, callback, onerror);
