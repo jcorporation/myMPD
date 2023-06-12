@@ -114,23 +114,24 @@ async function sendAPI(id) {
     });
 
     if (response.ok === false) {
-        setTest(request, 'error', ajaxRequest.responseText);
+        const text = await response.text();
+        setTest(request, 'error', text);
     }
     else {
         try {
             const obj = await response.json();
-            if (obj.error && obj.error.message === 'MPD disconnected') {
+            if (obj.error &&
+                obj.error.message === 'MPD disconnected')
+            {
                 sleep = 3000;
                 document.getElementsByTagName('h5')[0].textContent = 'Sleeping...';
             }
             setTest(request, JSON.stringify(obj));
         }
         catch(error) {
-            const text = await response.text();
             setTest(request, 'JSON parse error: ' + error);
             console.error('Request: ' + JSON.stringify(request));
             console.error('JSON parse error: ' + error);
-            console.error('Response: ' + text);
         }
     }
 
