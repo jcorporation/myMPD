@@ -115,8 +115,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
     switch(request->cmd_id) {
         case MYMPD_API_LOGLEVEL:
             if (json_get_int(request->data, "$.params.loglevel", 0, 7, &int_buf1, &error) == true) {
-                MYMPD_LOG_INFO(partition_state->name, "Setting loglevel to %d", int_buf1);
-                loglevel = int_buf1;
+                set_loglevel(int_buf1);
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
             }
             break;
@@ -870,6 +869,10 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_PLAYLIST);
                 //update currently saved smart playlist
                 smartpls_update(sds_buf1);
+            }
+            else {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Failed saving smart playlist");
             }
             break;
         case MYMPD_API_SMARTPLS_GET:

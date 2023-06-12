@@ -24,7 +24,6 @@
 #include "src/mympd_api/queue.h"
 #include "src/mympd_api/sticker.h"
 
-
 #include <errno.h>
 #include <string.h>
 
