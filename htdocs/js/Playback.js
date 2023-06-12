@@ -171,7 +171,7 @@ function parseCurrentSong(obj) {
     }
 
     if (currentState.state === 'play') {
-        showNotification(textNotification.join(smallSpace + nDash + smallSpace), 'player', 'info');
+        showNotification(textNotification.join('\n'), 'player', 'info');
     }
 
     setScrollViewHeight(list);
