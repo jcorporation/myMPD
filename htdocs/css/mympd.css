@@ -1183,4 +1183,5 @@ button.weekday {
 
 .toast {
   --bs-toast-header-bg: unset;
+  --bs-toast-bg: var(--bs-body-bg);
 }
