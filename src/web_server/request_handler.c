@@ -89,7 +89,7 @@ bool request_handler_api(struct mg_connection *nc, sds body, struct mg_str *auth
                 JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR,
                 (cmd_id == MYMPD_API_SESSION_VALIDATE ? "Invalid session" : "Authentication required"));
             mg_printf(nc, "HTTP/1.1 403 Forbidden\r\n"
-                "Content-Type: application/json\r\n"
+                EXTRA_HEADERS_JSON_CONTENT
                 "Content-Length: %d\r\n\r\n",
                 (int)sdslen(response));
             mg_send(nc, response, sdslen(response));
@@ -312,13 +312,13 @@ void request_handler_serverinfo(struct mg_connection *nc) {
             response = tojson_char_len(response, "ip", "", 0, false);
         }
         response = jsonrpc_end(response);
-        webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+        webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
         FREE_SDS(response);
     }
     else {
         sds response = jsonrpc_respond_message(sdsempty(), GENERAL_API_UNKNOWN, 0,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Could not get local ip");
-        webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+        webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
         FREE_SDS(response);
     }
 }

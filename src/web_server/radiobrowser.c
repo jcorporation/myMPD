@@ -89,7 +89,7 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
         sds response = jsonrpc_respond_message(sdsempty(), cmd_id, request_id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
         MYMPD_LOG_ERROR(NULL, "Error processing method \"%s\"", cmd);
-        webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+        webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
         FREE_SDS(response);
     }
     else {
@@ -97,7 +97,7 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
         if (rc == false) {
             sds response = jsonrpc_respond_message(sdsempty(), cmd_id, request_id,
                 JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error connecting to radio-browser.info");
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
             FREE_SDS(response);
         }
     }
@@ -156,7 +156,7 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
             if (backend_nc_data->frontend_nc != NULL) {
                 sds response = jsonrpc_respond_message_phrase(sdsempty(), backend_nc_data->cmd_id, 0,
                         JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Could not connect to %{host}", 2, "host", RADIOBROWSER_HOST);
-                webserver_send_data(backend_nc_data->frontend_nc, response, sdslen(response), "Content-Type: application/json\r\n");
+                webserver_send_data(backend_nc_data->frontend_nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
                 FREE_SDS(response);
             }
             break;
@@ -175,7 +175,7 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Empty response from radio-browser.info");
             }
             if (backend_nc_data->frontend_nc != NULL) {
-                webserver_send_data(backend_nc_data->frontend_nc, response, sdslen(response), "Content-Type: application/json\r\n");
+                webserver_send_data(backend_nc_data->frontend_nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
             }
             FREE_SDS(response);
             break;

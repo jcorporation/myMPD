@@ -56,7 +56,7 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
                 response = jsonrpc_respond_message(response, cmd_id, request_id,
                     JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid pin");
             }
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
             FREE_SDS(response);
             break;
         }
@@ -74,21 +74,21 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
                 response = jsonrpc_respond_message(response, cmd_id, request_id,
                     JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid session");
             }
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
             FREE_SDS(response);
             break;
         }
         case MYMPD_API_SESSION_VALIDATE: {
             //session is already validated
             sds response = jsonrpc_respond_ok(sdsempty(), cmd_id, request_id, JSONRPC_FACILITY_SESSION);
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
             FREE_SDS(response);
             break;
         }
         default: {
             sds response = jsonrpc_respond_message(sdsempty(), cmd_id, request_id,
                 JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid API request");
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
             FREE_SDS(response);
         }
     }

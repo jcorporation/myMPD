@@ -175,7 +175,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 //http headers
 #define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800\r\n"
 
-#define EXTRA_HEADERS_MISC "X-Content-Type-Options: nosniff\r\n"
+#define EXTRA_HEADERS_MISC "X-Content-Type-Options: nosniff\r\n"\
+    "Access-Control-Allow-Origin: *\r\n"
 
 #define EXTRA_HEADERS_PERMISSIONS_POLICY "Permissions-Policy: accelerometer=(), ambient-light-sensor=(), autoplay=(self), "\
     "battery=(), camera=(), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), "\
@@ -206,6 +207,8 @@ extern struct t_mympd_queue *mympd_script_queue;
     EXTRA_HEADERS_CACHE
 
 #define EXTRA_HEADER_CONTENT_ENCODING "Content-Encoding: gzip\r\n"
+#define EXTRA_HEADERS_JSON_CONTENT "Content-Type: application/json\r\n"\
+    EXTRA_HEADERS_SAFE
 
 #define DIRECTORY_LISTING_CSS "h1{top:0;font-size:inherit;font-weight:inherit}address{bottom:0;font-style:normal}"\
     "h1,address{background-color:#343a40;color:#f8f9fa;padding:1rem;position:fixed;"\
