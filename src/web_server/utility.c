@@ -231,6 +231,23 @@ void webserver_send_header_found(struct mg_connection *nc, const char *location)
 }
 
 /**
+ * Replies to preflighted requests in CORS
+ * @param nc mongoose connection
+ */
+void webserver_send_cors_reply(struct mg_connection *nc) {
+    MYMPD_LOG_DEBUG(NULL, "Sending 204 No Content to %lu", nc->id);
+    mg_printf(nc, "HTTP/1.1 204 No Content\r\n"
+        "Access-Control-Allow-Origin: *\r\n"
+        "Access-Control-Allow-Methods: POST, GET, HEAD, OPTIONS\r\n"
+        "Access-Control-Allow-Credentials: true\r\n"
+        "Access-Control-Allow-Headers: *\r\n"
+        "Access-Control-Expose-Headers: *\r\n"
+        EXTRA_HEADERS_CACHE
+        "\r\n");
+    webserver_handle_connection_close(nc);
+}
+
+/**
  * Drains the connection if connection is set to close
  * @param nc mongoose connection
  */

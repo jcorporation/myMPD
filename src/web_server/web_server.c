@@ -365,7 +365,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
             }
             else {
                 MYMPD_LOG_DEBUG(response->partition, "Sending response to conn_id %lu (length: %lu): %s", nc->id, (unsigned long)sdslen(response->data), response->data);
-                webserver_send_data(nc, response->data, sdslen(response->data), "Content-Type: application/json\r\n");
+                webserver_send_data(nc, response->data, sdslen(response->data), EXTRA_HEADERS_JSON_CONTENT);
             }
             break;
         }
@@ -528,6 +528,11 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             else if (mg_vcmp(&hm->method, "POST") == 0) {
                 nc->data[1] = 'P';
             }
+            else if (mg_vcmp(&hm->method, "OPTIONS") == 0) {
+                nc->data[1] = 'O';
+                webserver_send_cors_reply(nc);
+                return;
+            }
             else {
                 MYMPD_LOG_ERROR(NULL, "Invalid http method \"%.*s\" (%lu)", (int)hm->method.len, hm->method.ptr, nc->id);
                 webserver_send_error(nc, 405, "Invalid http method");
@@ -578,7 +583,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid API request");
                     sds response = jsonrpc_respond_message(sdsempty(), GENERAL_API_UNKNOWN, 0,
                         JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Invalid API request");
-                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+                    webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
                     FREE_SDS(response);
                 }
             }
@@ -645,7 +650,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                     MYMPD_LOG_ERROR(frontend_nc_data->partition, "Invalid script API request");
                     sds response = jsonrpc_respond_message(sdsempty(), GENERAL_API_UNKNOWN, 0,
                         JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Invalid script API request");
-                    webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+                    webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
                     FREE_SDS(response);
                 }
             }
