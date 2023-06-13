@@ -153,6 +153,10 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
             partition_state->last_song_scrobble_time = partition_state->song_scrobble_time;
         }
 
+        const char *player_error = mpd_status_get_error(status);
+        partition_state->player_error = player_error == NULL || player_error[0] == '\0'
+            ? false
+            : true;
         partition_state->play_state = mpd_status_get_state(status);
         partition_state->song_id = song_id;
         partition_state->song_pos = mpd_status_get_song_pos(status);
@@ -169,7 +173,9 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
             : total_time / 2;
 
         partition_state->song_start_time = now - elapsed_time;
-        partition_state->song_end_time = total_time == 0 ? 0 : now + total_time - elapsed_time;
+        partition_state->song_end_time = total_time == 0
+            ? 0
+            : now + total_time - elapsed_time;
 
         if (total_time <= SCROBBLE_TIME_MIN ||  //don't track songs with length < SCROBBLE_TIME_MIN (10s)
             elapsed_time > scrobble_time)       //don't track songs that exceeded scrobble time

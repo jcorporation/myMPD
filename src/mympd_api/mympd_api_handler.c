@@ -62,6 +62,8 @@
  */
 static bool check_start_play(struct t_partition_state *partition_state, bool play, sds *buffer,
         enum mympd_cmd_ids cmd_id, long request_id);
+static bool clear_player_error(struct t_partition_state *partition_state, sds *buffer,
+        enum mympd_cmd_ids cmd_id, long request_id);
 
 /**
  * Public functions
@@ -885,6 +887,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_pause", &result);
             break;
         case MYMPD_API_PLAYER_RESUME:
+            if (clear_player_error(partition_state, &response->data, request->cmd_id, request->id) == false) {
+                break;
+            }
             mpd_run_pause(partition_state->conn, false);
             response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_pause", &result);
             break;
@@ -897,6 +902,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_next", &result);
             break;
         case MYMPD_API_PLAYER_PLAY:
+            if (clear_player_error(partition_state, &response->data, request->cmd_id, request->id) == false) {
+                break;
+            }
             mpd_run_play(partition_state->conn);
             response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_play", &result);
             break;
@@ -1963,4 +1971,26 @@ static bool check_start_play(struct t_partition_state *partition_state, bool pla
         return rc;
     }
     return true;
+}
+
+/**
+ * Clears the mpd player error returned by the status command.
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the error response
+ * @param cmd_id jsonrpc method
+ * @param request_id jsonrpc request id
+ * @return true on success, else false
+ */
+static bool clear_player_error(struct t_partition_state *partition_state, sds *buffer,
+        enum mympd_cmd_ids cmd_id, long request_id)
+{
+    bool rc = true;
+    if (partition_state->player_error == true) {
+        mpd_run_clearerror(partition_state->conn);
+        rc = mympd_check_error_and_recover_respond(partition_state, buffer, cmd_id, request_id, "mpd_run_clearerror");
+        if (rc == true) {
+            partition_state->player_error = false;
+        }
+    }
+    return rc;
 }

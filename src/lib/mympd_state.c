@@ -274,6 +274,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->crossfade = 0;
     partition_state->auto_play = MYMPD_AUTO_PLAY;
     partition_state->next = NULL;
+    partition_state->player_error = false;
     //jukebox
     list_init(&partition_state->jukebox_queue);
     list_init(&partition_state->jukebox_queue_tmp);
