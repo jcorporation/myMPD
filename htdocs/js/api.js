@@ -52,6 +52,10 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
 
     logDebug('Send API request: ' + method);
     const uri = subdir + '/api/' + partition;
+    const headers = {'Content-Type': 'application/json'};
+    if (session.token !== '') {
+        headers['X-myMPD-Session'] = session.token;
+    }
     let response = null;
     try {
         response = await fetch(uri, {
@@ -60,10 +64,7 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
             credentials: 'same-origin',
             cache: 'no-store',
             redirect: 'follow',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-myMPD-Session': session.token
-            },
+            headers: headers,
             body: JSON.stringify(
                 {"jsonrpc": "2.0", "id": generateJsonrpcId(), "method": method, "params": params}
             )
