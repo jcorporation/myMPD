@@ -955,5 +955,6 @@
     "Removed %{count1} invalid and %{count2} duplicate entries from playlists": "%{count1} ungültige Einträge und %{count2} Duplikate von Wiedergabelisten entfernt",
     "Removed %{count} entries from playlists": "%{count} Einträge von Wiedergabelisten entfernt",
     "Validate playlists": "Wiedergabelisten überprüfen",
-    "Validation of all playlists failed": "Überprüfung aller Wiedergabeliste fehlgeschlagen"
+    "Validation of all playlists failed": "Überprüfung aller Wiedergabeliste fehlgeschlagen",
+    "Failed saving smart playlist": "Intelligente Wiedergabeliste konnte nicht gespeichert werden"
 }
