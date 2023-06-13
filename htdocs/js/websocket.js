@@ -9,12 +9,12 @@
  * Checks if the websocket is connected
  * @returns {boolean} true if websocket is connected, else false
  */
- function getWebsocketState() {
+function getWebsocketState() {
     return socket !== null && socket.readyState === WebSocket.OPEN;
 }
 
 /**
- * Connects to the websocket and registers the event handlers.
+ * Connects to the websocket, registers the event handlers and enables the keepalive timer
  * @returns {void}
  */
 function webSocketConnect() {
@@ -41,10 +41,6 @@ function webSocketConnect() {
         socket.onopen = function() {
             logDebug('Websocket is connected');
             socket.send('id:' + jsonrpcClientId);
-            if (websocketTimer !== null) {
-                clearTimeout(websocketTimer);
-                websocketTimer = null;
-            }
             if (websocketKeepAliveTimer === null) {
                 websocketKeepAliveTimer = setInterval(websocketKeepAlive, 25000);
             }
@@ -94,6 +90,7 @@ function webSocketConnect() {
                     if (session.token !== '') {
                         validateSession();
                     }
+                    toggleAlert('alertMympdState', false, '');
                     break;
                 case 'update_queue':
                 case 'update_state':
@@ -222,19 +219,6 @@ function webSocketConnect() {
             else {
                 showAppInitAlert(tn('Websocket connection closed'));
             }
-            if (websocketTimer !== null) {
-                clearTimeout(websocketTimer);
-                websocketTimer = null;
-            }
-            if (websocketKeepAliveTimer !== null) {
-                clearInterval(websocketKeepAliveTimer);
-                websocketKeepAliveTimer = null;
-            }
-            websocketTimer = setTimeout(function() {
-                logDebug('Reconnecting websocket');
-                toggleAlert('alertMympdState', true, tn('Websocket connection failed, trying to reconnect'));
-                webSocketConnect();
-            }, 3000);
             socket = null;
         };
 
@@ -251,15 +235,11 @@ function webSocketConnect() {
 }
 
 /**
- * Closes the websocket and terminates the keepalive and reconnect timer
+ * Closes the websocket and terminates the keepalive timer
  * @returns {void}
  */
 function webSocketClose() {
-    if (websocketTimer !== null) {
-        clearTimeout(websocketTimer);
-        websocketTimer = null;
-    }
-    if (websocketKeepAliveTimer) {
+    if (websocketKeepAliveTimer !== null) {
         clearInterval(websocketKeepAliveTimer);
         websocketKeepAliveTimer = null;
     }
@@ -272,11 +252,17 @@ function webSocketClose() {
 }
 
 /**
- * Sends a ping keepalive message to the websocket endpoint.
+ * Sends a ping keepalive message to the websocket endpoint
+ * or reconnects the socket.
  * @returns {void}
  */
 function websocketKeepAlive() {
     if (getWebsocketState() === true) {
         socket.send('ping');
+    }
+    else {
+        logDebug('Reconnecting websocket');
+        toggleAlert('alertMympdState', true, tn('Websocket connection failed, trying to reconnect'));
+        webSocketConnect();
     }
 }

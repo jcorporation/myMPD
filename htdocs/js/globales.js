@@ -16,7 +16,6 @@ const jsonrpcClientId = Math.floor(Math.random() * (jsonrpcClientIdMax - jsonrpc
 let jsonrpcRequestId = 0;
 
 let socket = null;
-let websocketTimer = null;
 let websocketKeepAliveTimer = null;
 let searchTimer = null;
 let resizeTimer = null;
