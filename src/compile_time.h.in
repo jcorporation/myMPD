@@ -178,11 +178,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define EXTRA_HEADERS_MISC "X-Content-Type-Options: nosniff\r\n"\
     "Access-Control-Allow-Origin: *\r\n"
 
-#define EXTRA_HEADERS_PERMISSIONS_POLICY "Permissions-Policy: accelerometer=(), ambient-light-sensor=(), autoplay=(self), "\
-    "battery=(), camera=(), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), "\
-    "execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(self), geolocation=(), gyroscope=(), "\
-    "keyboard-map=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), "\
-    "publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()\r\n"
+#define EXTRA_HEADERS_PERMISSIONS_POLICY "Permissions-Policy: autoplay=(self), fullscreen=(self)\r\n"
 
 #define EXTRA_HEADERS_UNSAFE "Content-Security-Policy: default-src 'none'; "\
     "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src * data:; "\
