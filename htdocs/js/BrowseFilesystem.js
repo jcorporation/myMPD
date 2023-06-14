@@ -193,5 +193,5 @@ function initBrowseFilesystem() {
  */
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistFromFilesystem() {
-    showAddToPlaylist(app.current.search, '');
+    showAddToPlaylist([app.current.search], '');
 }

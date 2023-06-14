@@ -263,19 +263,19 @@ function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, a
  */
 function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
     if (app.id !== 'QueueCurrent') {
-        addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');
-        addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": [type, uri]}, 'Append to queue and play');
+        addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": [type, [uri]]}, 'Append to queue');
+        addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": [type, [uri]]}, 'Append to queue and play');
         if (features.featWhence === true) {
-            addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": [type, uri, 0, 1, false]}, 'Insert after current playing song');
+            addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": [type, [uri], 0, 1, false]}, 'Insert after current playing song');
         }
-        addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": [type, uri]}, 'Replace queue');
-        addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": [type, uri]}, 'Replace queue and play');
+        addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": [type, [uri]]}, 'Replace queue');
+        addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": [type, [uri]]}, 'Replace queue and play');
     }
     if (features.featPlaylists === true &&
         app.id !== 'Home')
     {
         addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [uri, ""]}, 'Add to playlist');
+        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [[uri], ""]}, 'Add to playlist');
     }
     if (type === 'song') {
         addDivider(contextMenuBody);
@@ -352,7 +352,7 @@ function addMenuItemsSearchActions(contextMenuBody, expression) {
         app.id !== 'Home')
     {
         addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": ["SEARCH", expression]}, 'Add to playlist');
+        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [["SEARCH"], expression]}, 'Add to playlist');
     }
     addDivider(contextMenuBody);
     addMenuItem(contextMenuBody, {"cmd": "appGoto", "options": ["Search", undefined, undefined, 0, undefined, "any", "Title", "-", expression]}, 'Show search');
@@ -366,18 +366,18 @@ function addMenuItemsSearchActions(contextMenuBody, expression) {
  */
 function addMenuItemsDirectoryActions(contextMenuBody, baseuri) {
     //songs must be arranged in one album per folder
-    addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": ["dir", baseuri]}, 'Append to queue');
-    addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": ["dir", baseuri]}, 'Append to queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": ["dir", [baseuri]]}, 'Append to queue');
+    addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": ["dir", [baseuri]]}, 'Append to queue and play');
     if (features.featWhence === true) {
-        addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": ["dir", baseuri, 0, 1, false]}, 'Insert after current playing song');
+        addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": ["dir", [baseuri], 0, 1, false]}, 'Insert after current playing song');
     }
-    addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": ["dir", baseuri]}, 'Replace queue');
-    addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": ["dir", baseuri]}, 'Replace queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": ["dir", [baseuri]]}, 'Replace queue');
+    addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": ["dir", [baseuri]]}, 'Replace queue and play');
     if (features.featPlaylists === true &&
         app.id !== 'Home')
     {
         addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [baseuri, ""]}, 'Add to playlist');
+        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [[baseuri], ""]}, 'Add to playlist');
     }
     if (app.id === 'BrowseFilesystem') {
         addDivider(contextMenuBody);
@@ -433,13 +433,13 @@ function addMenuItemsWebradioFavoritesHomeActions(contextMenuBody, uri) {
  * @returns {void}
  */
 function addMenuItemsPlaylistActions(dataNode, contextMenuBody, type, uri, name) {
-    addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": [type, uri]}, 'Append to queue');
-    addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": [type, uri]}, 'Append to queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": [type, [uri]]}, 'Append to queue');
+    addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": [type, [uri]]}, 'Append to queue and play');
     if (features.featWhence === true) {
-        addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": [type, uri, 0, 1, false]}, 'Add after current playing song');
+        addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": [type, [uri], 0, 1, false]}, 'Add after current playing song');
     }
-    addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": [type, uri]}, 'Replace queue');
-    addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": [type, uri]}, 'Replace queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": [type, [uri]]}, 'Replace queue');
+    addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": [type, [uri]]}, 'Replace queue and play');
     if (features.featHome === true) {
         if (app.id !== 'Home') {
             addDivider(contextMenuBody);
@@ -564,7 +564,7 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                 songid !== currentState.currentSongId &&
                 features.featWhence === true)
             {
-                addMenuItem(contextMenuBody, {"cmd": "playAfterCurrent", "options": [songid]}, 'Play after current playing song');
+                addMenuItem(contextMenuBody, {"cmd": "playAfterCurrent", "options": [[songid]]}, 'Play after current playing song');
             }
             if (settings.partition.random === true) {
                 addMenuItem(contextMenuBody, {"cmd": "showSetSongPriority", "options": [songid]}, 'Set priority');

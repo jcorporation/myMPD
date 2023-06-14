@@ -430,7 +430,7 @@ table.smallWidth [data-col="Action"] {
 }
 
 th[data-col="Action"] {
-  padding-right: 0.4rem !important;
+  padding: 0.25rem !important;
 }
 
 th {
@@ -1188,4 +1188,29 @@ button.weekday {
 .toast {
   --bs-toast-header-bg: unset;
   --bs-toast-bg: var(--bs-body-bg);
+}
+
+table[data-mode="select"] > tbody > tr > td[data-col="Action"] > a {
+  display: none;
+}
+
+table[data-mode="select"] > thead > tr > th[data-col="Action"] > a {
+  display: none;
+}
+
+:not(table[data-mode="select"]) > tbody > tr > td[data-col="Action"] > button {
+  display: none;
+}
+
+:not(table[data-mode="select"]) > thead > tr > th[data-col="Action"] > button {
+  display: none;
+}
+
+tr.active td {
+  background-color: var(--mympd-highlightcolor);
+}
+
+tr.active td,
+tr.active td button {
+  color: var(--mympd-highlightcolor-contrast);
 }

@@ -9,21 +9,31 @@
  * Some pre-generated elements.
  */
 const pEl = {};
-pEl.actionTdMenu = elCreateNode('td', {"data-col": "Action"},
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
-);
+pEl.selectBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0"], "data-title-phrase": "Select"}, 'radio_button_unchecked');
+pEl.selectAllBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0"], "data-title-phrase": "Select all"}, 'radio_button_unchecked');
+pEl.actionsBtn = elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore);
+pEl.removeBtn = elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Remove"}, 'clear');
+pEl.playBtn = elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Quick play"}, 'play_arrow');
+
+pEl.actionTdMenu = elCreateNodes('td', {"data-col": "Action"}, [
+    pEl.actionsBtn.cloneNode(true),
+    pEl.selectBtn.cloneNode(true)
+]);
 pEl.actionTdMenuPlay = elCreateNodes('td', {"data-col": "Action"}, [
-    elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Quick play"}, 'play_arrow'),
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
+    pEl.playBtn.cloneNode(true),
+    pEl.actionsBtn.cloneNode(true),
+    pEl.selectBtn.cloneNode(true)
 ]);
 pEl.actionTdMenuRemove = elCreateNodes('td', {"data-col": "Action"}, [
-    elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Remove"}, 'clear'),
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
+    pEl.removeBtn.cloneNode(true),
+    pEl.actionsBtn.cloneNode(true),
+    pEl.selectBtn.cloneNode(true)
 ]);
 pEl.actionTdMenuPlayRemove = elCreateNodes('td', {"data-col": "Action"}, [
-    elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Quick play"}, 'play_arrow'),
-    elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Remove"}, 'clear'),
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
+    pEl.playBtn.cloneNode(true),
+    pEl.removeBtn.cloneNode(true),
+    pEl.actionsBtn.cloneNode(true),
+    pEl.selectBtn.cloneNode(true)
 ]);
 pEl.actionTd = pEl.actionTdMenu;
 pEl.actionQueueTd = pEl.actionTdMenu;

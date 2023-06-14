@@ -956,5 +956,8 @@
     "Removed %{count} entries from playlists": "%{count} Einträge von Wiedergabelisten entfernt",
     "Validate playlists": "Wiedergabelisten überprüfen",
     "Validation of all playlists failed": "Überprüfung aller Wiedergabeliste fehlgeschlagen",
-    "Failed saving smart playlist": "Intelligente Wiedergabeliste konnte nicht gespeichert werden"
+    "Failed saving smart playlist": "Intelligente Wiedergabeliste konnte nicht gespeichert werden",
+    "Action for selection": "Aktion für die Auswahl",
+    "Select": "Auswählen",
+    "Select all": "Alles auswählen"
 }

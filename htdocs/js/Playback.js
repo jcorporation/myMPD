@@ -326,6 +326,6 @@ function clickTitle() {
 function showAddToPlaylistCurrentSong() {
     const uri = getDataId('currentTitle', 'uri');
     if (uri !== '') {
-        showAddToPlaylist(uri, '');
+        showAddToPlaylist([uri], '');
     }
 }

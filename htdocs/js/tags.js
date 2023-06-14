@@ -225,7 +225,12 @@ function printValue(key, value) {
             return document.createTextNode(value === 0 ? tn('never') : fmtDate(value));
         case 'stickerLike':
             return elCreateText('span', {"class": ["mi"]},
-                value === 0 ? 'thumb_down' : value === 1 ? 'radio_button_unchecked' : 'thumb_up');
+                value === 0
+                    ? 'thumb_down'
+                    : value === 1 
+                        ? 'horizontal_rule'
+                        : 'thumb_up'
+            );
         case 'stickerElapsed':
             return document.createTextNode(fmtSongDuration(value));
         case 'Artist':

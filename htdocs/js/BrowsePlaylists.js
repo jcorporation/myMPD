@@ -605,19 +605,19 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
 
 /**
  * Shows the add to playlist modal
- * @param {string} uri the uri or "STREAM" to add a stream
+ * @param {Array} uris the uris or "STREAM" to add a stream
  * @param {string} searchstr searchstring for uri = ALBUM, SEARCH
  * @returns {void}
  */
-function showAddToPlaylist(uri, searchstr) {
+function showAddToPlaylist(uris, searchstr) {
     cleanupModalId('modalAddToPlaylist');
-    document.getElementById('addToPlaylistUri').value = uri;
+    setDataId('addToPlaylistUri', 'uris', uris);
     document.getElementById('addToPlaylistSearch').value = searchstr;
     document.getElementById('addToPlaylistPlaylist').value = '';
     document.getElementById('addToPlaylistPlaylist').filterInput.value = '';
     document.getElementById('addToPlaylistPosAppend').checked = 'checked';
     document.getElementById('streamUrl').value = '';
-    if (uri === 'STREAM') {
+    if (uris[0] === 'STREAM') {
         //add stream
         toggleAddToPlaylistFrm(document.getElementById('toggleAddToPlaylistQueue'));
         elShowId('addStreamFrm');
@@ -668,13 +668,13 @@ function toggleAddToPlaylistFrm(target) {
 //eslint-disable-next-line no-unused-vars
 function addToPlaylist() {
     cleanupModalId('modalAddToPlaylist');
-    let uri = document.getElementById('addToPlaylistUri').value;
+    const uris = getDataId('addToPlaylistUri', 'uris');
     const mode = getRadioBoxValueId('addToPlaylistPos');
     let type;
-    switch(uri) {
+    switch(uris[0]) {
         case 'SEARCH':
         case 'ALBUM':
-            uri = document.getElementById('addToPlaylistSearch').value;
+            uris[0] = document.getElementById('addToPlaylistSearch').value;
             type = 'search';
             break;
         case 'STREAM': {
@@ -682,7 +682,7 @@ function addToPlaylist() {
             if (validateStreamEl(streamUrlEl) === false) {
                 return;
             }
-            uri = streamUrlEl.value;
+            uris[0] = streamUrlEl.value;
             type = 'stream';
             break;
         }
@@ -699,13 +699,13 @@ function addToPlaylist() {
         }
         switch(mode) {
             case 'append':
-                appendPlaylist(type, uri, plistEl.value, addToPlaylistClose);
+                appendPlaylist(type, uris, plistEl.value, addToPlaylistClose);
                 break;
             case 'insertFirst':
-                insertPlaylist(type, uri, plistEl.value, 0, addToPlaylistClose);
+                insertPlaylist(type, uris, plistEl.value, 0, addToPlaylistClose);
                 break;
             case 'replace':
-                replacePlaylist(type, uri, plistEl.value, addToPlaylistClose);
+                replacePlaylist(type, uris, plistEl.value, addToPlaylistClose);
                 break;
         }
     }
@@ -713,22 +713,22 @@ function addToPlaylist() {
         //add to queue
         switch(mode) {
             case 'append':
-                appendQueue(type, uri, addToPlaylistClose);
+                appendQueue(type, uris, addToPlaylistClose);
                 break;
             case 'appendPlay':
-                appendPlayQueue(type, uri, addToPlaylistClose);
+                appendPlayQueue(type, uris, addToPlaylistClose);
                 break;
             case 'insertAfterCurrent':
-                insertAfterCurrentQueue(type, uri, addToPlaylistClose);
+                insertAfterCurrentQueue(type, uris, addToPlaylistClose);
                 break;
             case 'insertPlayAfterCurrent':
-                insertPlayAfterCurrentQueue(type, uri, addToPlaylistClose);
+                insertPlayAfterCurrentQueue(type, uris, addToPlaylistClose);
                 break;
             case 'replace':
-                replaceQueue(type, uri, addToPlaylistClose);
+                replaceQueue(type, uris, addToPlaylistClose);
                 break;
             case 'replacePlay':
-                replacePlayQueue(type, uri, addToPlaylistClose);
+                replacePlayQueue(type, uris, addToPlaylistClose);
                 break;
         }
     }
@@ -751,24 +751,24 @@ function addToPlaylistClose(obj) {
 /**
  * Appends entries to a playlist
  * @param {string} type one of song, stream, dir, search
- * @param {string} uri uri to add
+ * @param {Array} uris uris to add
  * @param {string} plist playlist to append the uri
  * @param {Function} callback response handling callback
  * @returns {void}
  */
-function appendPlaylist(type, uri, plist, callback) {
+function appendPlaylist(type, uris, plist, callback) {
     switch(type) {
         case 'song':
         case 'stream':
         case 'dir':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_URIS", {
-                "uris": [uri],
+                "uris": uris,
                 "plist": plist
             }, callback, true);
             break;
         case 'search':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_SEARCH", {
-                "expression": uri,
+                "expression": uris[0],
                 "plist": plist
             }, callback, true);
             break;
@@ -778,26 +778,26 @@ function appendPlaylist(type, uri, plist, callback) {
 /**
  * Inserts entries into a playlist
  * @param {string} type one of song, stream, dir, search
- * @param {string} uri uri to add
+ * @param {Array} uris uris to add
  * @param {string} plist playlist to insert the uri
  * @param {number} to position to insert
  * @param {Function} callback response handling callback
  * @returns {void}
  */
-function insertPlaylist(type, uri, plist, to, callback) {
+function insertPlaylist(type, uris, plist, to, callback) {
     switch(type) {
         case 'song':
         case 'stream':
         case 'dir':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_URIS", {
-                "uris": [uri],
+                "uris": uris,
                 "plist": plist,
                 "to": to
             }, callback, true);
             break;
         case 'search':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH", {
-                "expression": uri,
+                "expression": uris[0],
                 "plist": plist,
                 "to": to
             }, callback, true);
@@ -808,24 +808,24 @@ function insertPlaylist(type, uri, plist, to, callback) {
 /**
  * Replaces a playlist
  * @param {string} type one of song, stream, dir, search
- * @param {string} uri uri to add
+ * @param {Array} uris uris to add
  * @param {string} plist playlist to replace
  * @param {Function} callback response handling callback
  * @returns {void}
  */
-function replacePlaylist(type, uri, plist, callback) {
+function replacePlaylist(type, uris, plist, callback) {
     switch(type) {
         case 'song':
         case 'stream':
         case 'dir':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_URIS", {
-                "uris": [uri],
+                "uris": uris,
                 "plist": plist
             }, callback, true);
             break;
         case 'search':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_SEARCH", {
-                "expression": uri,
+                "expression": uris[0],
                 "plist": plist
             }, callback, true);
             break;

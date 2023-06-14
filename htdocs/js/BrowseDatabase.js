@@ -651,25 +651,25 @@ function _addAlbum(action, albumArtist, album, disc) {
 
     switch(action) {
         case 'appendQueue':
-            appendQueue('search', expression);
+            appendQueue('search', [expression]);
             break;
         case 'appendPlayQueue':
-            appendPlayQueue('search', expression);
+            appendPlayQueue('search', [expression]);
             break;
         case 'replaceQueue':
-            replaceQueue('search', expression);
+            replaceQueue('search', [expression]);
             break;
         case 'replacePlayQueue':
-            replacePlayQueue('search', expression);
+            replacePlayQueue('search', [expression]);
             break;
         case 'insertAfterCurrentQueue':
-            insertAfterCurrentQueue('search', expression);
+            insertAfterCurrentQueue('search', [expression]);
             break;
         case 'insertPlayAfterCurrentQueue':
-            insertPlayAfterCurrentQueue('search', expression);
+            insertPlayAfterCurrentQueue('search', [expression]);
             break;
         case 'addPlaylist':
-            showAddToPlaylist('ALBUM', expression);
+            showAddToPlaylist(['ALBUM'], expression);
             break;
     }
 }

@@ -6,6 +6,103 @@
 /** @module tables_js */
 
 /**
+ * Switches the select mode of current displayed table
+ * @param {EventTarget} target triggering button
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function switchTableMode(target) {
+    const table = document.getElementById(app.id + 'List');
+    const mode = table.getAttribute('data-mode');
+
+    if (mode === null) {
+        table.setAttribute('data-mode', 'select');
+        target.classList.add('active');
+        target.classList.remove('rounded-end');
+        target.nextElementSibling.classList.remove('d-none');
+    }
+    else {
+        table.removeAttribute('data-mode');
+        target.classList.remove('active');
+        target.classList.add('rounded-end');
+        target.nextElementSibling.classList.add('d-none');
+        selectAllRows(table, false);
+    }
+}
+
+/**
+ * Selects all rows in table body
+ * @param {HTMLElement} table table element
+ * @param {boolean} select true = select all rows, false = clear selection
+ * @returns {void}
+ */
+function selectAllRows(table, select) {
+    const rows = table.querySelectorAll('tbody > tr');
+    for (const row of rows) {
+        const check = row.lastElementChild.lastElementChild;
+        if (select === true) {
+            row.classList.add('active');
+            check.textContent = 'task_alt';
+        }
+        else {
+            row.classList.remove('active');
+            check.textContent = 'radio_button_unchecked';
+        }
+    }
+}
+
+/**
+ * Checks if table is in select mode and selects the row(s)
+ * @param {Event} event triggering event
+ * @returns {boolean} true if table in select mode, else false
+ */
+function selectRow(event) {
+    const table = getParent(event.target, 'TABLE');
+    if (table.getAttribute('data-mode') === null) {
+        return false;
+    }
+    //in row select mode
+    if (event.target.parentNode.nodeName === 'TH') {
+        const select = event.target.textContent === 'radio_button_unchecked'
+            ? true
+            : false;
+        event.target.textContent = select === true
+            ? 'task_alt'
+            : 'radio_button_unchecked';
+        selectAllRows(table, select);
+    }
+    else {
+        const row = getParent(event.target, 'TR');
+        row.classList.toggle('active');
+        const check = row.lastElementChild.lastElementChild;
+        if (row.classList.contains('active')) {
+            check.textContent = 'task_alt';
+        }
+        else {
+            check.textContent = 'radio_button_unchecked';
+        }
+    }
+    event.preventDefault();
+    event.stopPropagation();
+    return true;
+}
+
+/**
+ * Returns an array of all selected rows attribute
+ * @param {HTMLElement} table table element
+ * @param {string} attribute attribute name
+ * @returns {Array} list of attribute values of selected rows
+ */
+function getSelectedRowData(table, attribute) {
+    const data = [];
+    const rows = table.querySelectorAll('tbody > tr.active');
+    for (const row of rows) {
+        data.push(getData(row, attribute));
+    }
+    return data;
+}
+
+/**
  * Initializes a table body for drag and drop of rows
  * @param {string} tableId table id
  * @returns {void}
@@ -350,9 +447,12 @@ function setCols(tableName) {
     if (features.featTags === true) {
         th.appendChild(
             elCreateText('a', {"href": "#", "data-action": "popover", "data-contextmenu": "columns",
-                "class": ["align-middle", "mi", "mi-small", "clickable"], "data-title-phrase": "Columns"}, 'settings')
+                "class": ["align-middle", "mi", "mi-small", "me-1"], "data-title-phrase": "Columns"}, 'settings')
         );
     }
+    th.appendChild(
+        pEl.selectAllBtn.cloneNode(true)
+    );
     thead.appendChild(th);
 }
 

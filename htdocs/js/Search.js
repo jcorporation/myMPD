@@ -226,22 +226,22 @@ function saveSearchAsSmartPlaylist() {
 function addAllFromSearch(mode, type) {
     switch(mode) {
         case 'append':
-            appendQueue(type, app.current.search);
+            appendQueue(type, [app.current.search]);
             break;
         case 'appendPlay':
-            appendPlayQueue(type, app.current.search);
+            appendPlayQueue(type, [app.current.search]);
             break;
         case 'insertAfterCurrent':
-            insertAfterCurrentQueue(type, app.current.search);
+            insertAfterCurrentQueue(type, [app.current.search]);
             break;
         case 'insertPlayAfterCurrent':
-            insertPlayAfterCurrentQueue(type, app.current.search);
+            insertPlayAfterCurrentQueue(type, [app.current.search]);
             break;
         case 'replace':
-            replaceQueue(type, app.current.search);
+            replaceQueue(type, [app.current.search]);
             break;
         case 'replacePlay':
-            replacePlayQueue(type, app.current.search);
+            replacePlayQueue(type, [app.current.search]);
             break;
     }
 }
@@ -252,5 +252,5 @@ function addAllFromSearch(mode, type) {
  */
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSearch() {
-    showAddToPlaylist('SEARCH', app.current.search);
+    showAddToPlaylist(['SEARCH'], app.current.search);
 }
