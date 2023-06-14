@@ -200,6 +200,7 @@ createassets() {
   install -d "$MYMPD_BUILDDIR/htdocs/assets/i18n"
 
   #Create translation phrases file
+  check_phrases
   createi18n "$MYMPD_BUILDDIR" 2>/dev/null
   minify js "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$MYMPD_BUILDDIR/htdocs/js/i18n.min.js"
 
@@ -363,6 +364,7 @@ copyassets() {
   cp -v "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2" "$STARTPATH/htdocs/assets/MaterialIcons-Regular.woff2"
   cp -v "$STARTPATH/dist/material-icons/ligatures.json" "$STARTPATH/htdocs/assets/ligatures.json"
   #translation files
+  check_phrases
   createi18n "$MYMPD_BUILDDIR"
   cp -v "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$STARTPATH/htdocs/js/i18n.js"
   rm -fr "$STARTPATH/htdocs/assets/i18n/"
@@ -517,6 +519,7 @@ check_file() {
 }
 
 check() {
+  check_phrases
   if ! check_docs
   then
     return 1
@@ -998,6 +1001,19 @@ purge() {
       return 1
     fi
   fi
+}
+
+check_phrases() {
+  check_cmd jq
+  echo "Validating translation phrases"
+  for F in "src/i18n/json/"*.json
+  do
+    if ! jq "." "$F" > /dev/null
+    then
+      echo "Invalid json: $F"
+      exit 1
+    fi
+  done
 }
 
 createi18n() {
