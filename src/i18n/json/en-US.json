@@ -72,5 +72,14 @@
     "mympd_feedback": "Feedback",
     "mympd_scrobble": "Scrobble",
     "mympd_start": "Start",
-    "mympd_stop": "Stop"
+    "mympd_stop": "Stop",
+    "MUSICBRAINZ_ALBUMARTISTID": "MusicBrainz AlbumArtist ID",
+    "MUSICBRAINZ_ALBUMID": "MusicBrainz Album ID",
+    "MUSICBRAINZ_ARTISTID": "MusicBrainz Artist ID",
+    "MUSICBRAINZ_RELEASETRACKID": "MusicBrainz Release Track ID",
+    "MUSICBRAINZ_TRACKID": "MusicBrainz Track ID",
+    "MUSICBRAINZ_WORKID": "MusicBrainz Work ID",
+    "MUSICBRAINZ_RELEASEGROUPID": "MusicBrainz ReleaseGroup ID",
+    "AudioFormat": "Audio dormat",
+    "OriginalDate": "Original date"
 }
