@@ -62,6 +62,9 @@ function elCreateText(tagName, attributes, text) {
             tag.appendChild(document.createTextNode(lines[i]));
         }
     }
+    else {
+        tag.textContent = text;
+    }
     return tag;
 }
 
