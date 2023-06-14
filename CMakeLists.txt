@@ -101,12 +101,14 @@ endif()
 message("Workdir: ${MYMPD_WORK_DIR}")
 message("Cachedir: ${MYMPD_CACHE_DIR}")
 
+# create assets and set doc root
+set(ENV{MYMPD_BUILDDIR} "${CMAKE_CURRENT_BINARY_DIR}")
+
 if(MYMPD_EMBEDDED_ASSETS)
   message("Embedding assets in binary")
   set(MYMPD_DOC_ROOT "${MYMPD_WORK_DIR}/empty")
   set(MYMPD_LUALIBS_PATH "")
-  set(ENV{MYMPD_BUILDDIR} "${CMAKE_CURRENT_BINARY_DIR}")
-  execute_process(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" createassets)
+  execute_process(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" createassets RESULT_VARIABLE RC_CREATE_ASSETS)
   # remove object files with embedded assets
   file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/web_server/utility.c.o")
   file(REMOVE "${CMAKE_CURRENT_BINARY_DIR}/src/CMakeFiles/mympd.dir/mympd_api/scripts.c.o")
@@ -114,9 +116,13 @@ else()
   message("Serving assets from filesystem")
   set(MYMPD_DOC_ROOT "${PROJECT_SOURCE_DIR}/htdocs")
   set(MYMPD_LUALIBS_PATH "${PROJECT_SOURCE_DIR}/contrib/lualibs")
-  set(ENV{MYMPD_BUILDDIR} "${CMAKE_CURRENT_BINARY_DIR}")
-  execute_process(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" copyassets)
+  execute_process(COMMAND "${PROJECT_SOURCE_DIR}/build.sh" copyassets RESULT_VARIABLE RC_CREATE_ASSETS)
 endif()
+
+if(RC_CREATE_ASSETS GREATER 0)
+  message(FATAL_ERROR "Creating assets failed")
+endif()
+
 message("Document root: ${MYMPD_DOC_ROOT}")
 
 # required dependencies
