@@ -383,9 +383,7 @@ function queueSelectionAction(action) {
 function queueSetCurrentSong() {
     //remove old playing row
     const old = document.getElementById('queueSongId' + currentState.lastSongId);
-    if (old !== null &&
-        old.classList.contains('queue-playing'))
-    {
+    if (old !== null) {
         resetDuration(old);
         resetSongPos(old);
     }
