@@ -14,6 +14,8 @@ pEl.selectAllBtn = elCreateText('button', {"type": "button", "href": "#", "class
 pEl.actionsBtn = elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore);
 pEl.removeBtn = elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Remove"}, 'clear');
 pEl.playBtn = elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Quick play"}, 'play_arrow');
+pEl.columnsBtn = elCreateText('a', {"href": "#", "data-action": "popover", "data-contextmenu": "columns",
+    "class": ["align-middle", "mi", "mi-small", "me-1"], "data-title-phrase": "Columns"}, 'settings');
 
 pEl.actionTdMenu = elCreateNodes('td', {"data-col": "Action"}, [
     pEl.actionsBtn.cloneNode(true),

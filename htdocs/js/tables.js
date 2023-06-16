@@ -468,8 +468,7 @@ function setCols(tableName) {
     const th = elCreateEmpty('th', {"data-col": "Action"});
     if (features.featTags === true) {
         th.appendChild(
-            elCreateText('a', {"href": "#", "data-action": "popover", "data-contextmenu": "columns",
-                "class": ["align-middle", "mi", "mi-small", "me-1"], "data-title-phrase": "Columns"}, 'settings')
+            pEl.columnsBtn.cloneNode(true)
         );
     }
     th.appendChild(
