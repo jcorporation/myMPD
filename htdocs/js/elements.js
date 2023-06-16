@@ -278,7 +278,7 @@ function setDataId(id, attribute, value) {
 
 /**
  * Sets an attribute on the given element.
- * @param {Element | Node} el element
+ * @param {Element | Node | EventTarget} el element
  * @param {string} attribute attribute name
  * @param {object} value could be any type
  * @returns {void}

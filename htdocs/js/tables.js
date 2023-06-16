@@ -133,66 +133,41 @@ function dragAndDropTable(tableId) {
     const tableBody = document.querySelector('#' + tableId + ' > tbody');
     tableBody.addEventListener('dragstart', function(event) {
         if (event.target.nodeName === 'TR') {
-            hidePopover();
             event.target.classList.add('opacity05');
             // @ts-ignore
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
-            event.dataTransfer.setData('Text', event.target.getAttribute('id'));
-            dragEl = event.target.cloneNode(true);
+            dragEl = event.target;
         }
     }, false);
-    tableBody.addEventListener('dragleave', function(event) {
-        event.preventDefault();
-        if (dragEl === undefined ||
-            dragEl.nodeName !== 'TR')
+
+    tableBody.addEventListener('dragenter', function(event) {
+        const target = event.target.nodeName === 'TD'
+            ? event.target.parentNode
+            : event.target;
+        if (dragEl !== undefined &&
+            dragEl.nodeName === target.nodeName)
         {
-            return;
+            target.classList.add('dragover');
         }
-        let target = event.target;
-        if (event.target.nodeName === 'TD') {
-            target = event.target.parentNode;
-        }
-        if (target.nodeName === 'TR') {
+    }, false);
+
+    tableBody.addEventListener('dragleave', function(event) {
+        const target = event.target.nodeName === 'TD'
+            ? event.target.parentNode
+            : event.target;
+        if (dragEl !== undefined &&
+            dragEl.nodeName === target.nodeName)
+        {
             target.classList.remove('dragover');
         }
     }, false);
+
     tableBody.addEventListener('dragover', function(event) {
         event.preventDefault();
-        if (dragEl === undefined ||
-            dragEl.nodeName !== 'TR')
-        {
-            return;
-        }
-        const tr = tableBody.querySelectorAll('.dragover');
-        for (let i = 0, j = tr.length; i < j; i++) {
-            tr[i].classList.remove('dragover');
-        }
-        let target = event.target;
-        if (event.target.nodeName === 'TD') {
-            target = event.target.parentNode;
-        }
-        if (target.nodeName === 'TR') {
-            target.classList.add('dragover');
-        }
         event.dataTransfer.dropEffect = 'move';
     }, false);
-    tableBody.addEventListener('dragend', function(event) {
-        event.preventDefault();
-        if (dragEl === undefined ||
-            dragEl.nodeName !== 'TR')
-        {
-            return;
-        }
-        const tr = tableBody.querySelectorAll('.dragover');
-        for (let i = 0, j = tr.length; i < j; i++) {
-            tr[i].classList.remove('dragover');
-        }
-        if (document.getElementById(event.dataTransfer.getData('Text'))) {
-            document.getElementById(event.dataTransfer.getData('Text')).classList.remove('opacity05');
-        }
-        dragEl = undefined;
-    }, false);
+
     tableBody.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
@@ -201,24 +176,18 @@ function dragAndDropTable(tableId) {
         {
             return;
         }
-        let target = event.target;
-        if (event.target.nodeName === 'TD') {
-            target = event.target.parentNode;
-        }
+        const target = getParent(event.target, 'TR');
+        target.classList.remove('dragover');
         const newSongPos = getData(target, 'songpos');
-        const oldSongPos = getDataId(event.dataTransfer.getData('Text'), 'songpos');
+        const oldSongPos = getData(dragEl, 'songpos');
         if (oldSongPos === newSongPos) {
             return;
         }
-        document.getElementById(event.dataTransfer.getData('Text')).remove();
-        dragEl.classList.remove('opacity05');
-        // @ts-ignore
-        tableBody.insertBefore(dragEl, target);
-        const tr = tableBody.querySelectorAll('.dragover');
-        for (let i = 0, j = tr.length; i < j; i++) {
-            tr[i].classList.remove('dragover');
-        }
-        document.getElementById(tableId).classList.add('opacity05');
+        // set dragged element uri to undefined to force table row replacement
+        setData(dragEl, 'uri', undefined);
+        elHide(dragEl);
+        // apply new order
+        setUpdateViewId(tableId);
         switch(app.id) {
             case 'QueueCurrent': {
                 queueMoveSong(oldSongPos, newSongPos);
@@ -229,6 +198,11 @@ function dragAndDropTable(tableId) {
                 break;
             }
         }
+    }, false);
+
+    tableBody.addEventListener('dragend', function() {
+        dragEl.classList.remove('opacity05');
+        dragEl = undefined;
     }, false);
 }
 
@@ -247,52 +221,32 @@ function dragAndDropTableHeader(tableName) {
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
             event.dataTransfer.setData('Text', event.target.getAttribute('data-col'));
-            dragEl = event.target.cloneNode(true);
+            dragEl = event.target;           
         }
     }, false);
-    tableHeader.addEventListener('dragleave', function(event) {
-        event.preventDefault();
-        if (dragEl === undefined ||
-            dragEl.nodeName !== 'TH')
+
+    tableHeader.addEventListener('dragenter', function(event) {
+        if (dragEl !== undefined &&
+            dragEl.nodeName === event.target.nodeName)
         {
-            return;
+            event.target.classList.add('dragover-th');
         }
-        if (event.target.nodeName === 'TH') {
+    }, false);
+
+    tableHeader.addEventListener('dragleave', function(event) {
+        if (dragEl !== undefined &&
+            dragEl.nodeName === event.target.nodeName)
+        {
             event.target.classList.remove('dragover-th');
         }
     }, false);
+
     tableHeader.addEventListener('dragover', function(event) {
+        // prevent default to allow drop
         event.preventDefault();
-        if (dragEl === undefined ||
-            dragEl.nodeName !== 'TH')
-        {
-            return;
-        }
-        const th = tableHeader.querySelectorAll('.dragover-th');
-        for (let i = 0, j = th.length; i < j; i++) {
-            th[i].classList.remove('dragover-th');
-        }
-        if (event.target.nodeName === 'TH') {
-            event.target.classList.add('dragover-th');
-        }
         event.dataTransfer.dropEffect = 'move';
     }, false);
-    tableHeader.addEventListener('dragend', function(event) {
-        event.preventDefault();
-        if (dragEl === undefined ||
-            dragEl.nodeName !== 'TH')
-        {
-            return;
-        }
-        const th = tableHeader.querySelectorAll('.dragover-th');
-        for (let i = 0, j = th.length; i < j; i++) {
-            th[i].classList.remove('dragover-th');
-        }
-        if (this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']')) {
-            this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').classList.remove('opacity05');
-        }
-        dragEl = undefined;
-    }, false);
+
     tableHeader.addEventListener('drop', function(event) {
         event.stopPropagation();
         event.preventDefault();
@@ -301,24 +255,21 @@ function dragAndDropTableHeader(tableName) {
         {
             return;
         }
+        event.target.classList.remove('dragover-th');
         if (event.dataTransfer.getData('Text') === event.target.getAttribute('data-col')) {
             return;
         }
-        this.querySelector('[data-col=' + event.dataTransfer.getData('Text') + ']').remove();
-        dragEl.classList.remove('opacity05');
+        // move element
         // @ts-ignore
         tableHeader.insertBefore(dragEl, event.target);
-        const th = tableHeader.querySelectorAll('.dragover-th');
-        for (let i = 0, j = th.length; i < j; i++) {
-            th[i].classList.remove('dragover-th');
-        }
-        if (document.getElementById(tableName + 'List')) {
-            document.getElementById(tableName + 'List').classList.add('opacity05');
-            saveCols(tableName);
-        }
-        else {
-            saveCols(tableName, this.parentNode.parentNode);
-        }
+        // save this state
+        setUpdateViewId(tableName + 'List');
+        saveCols(tableName);
+    }, false);
+
+    tableHeader.addEventListener('dragend', function() {
+        dragEl.classList.remove('opacity05');
+        dragEl = undefined;
     }, false);
 }
 

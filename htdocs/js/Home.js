@@ -345,17 +345,20 @@ function dragAndDropHome() {
             // @ts-ignore
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
-            dragSrc = event.target;
-            dragEl = event.target.cloneNode(true);
+            dragEl = event.target;
+        }
+    }, false);
+
+    HomeList.addEventListener('dragenter', function(event) {
+        if (dragEl !== undefined &&
+            event.target.classList.contains('home-icons'))
+        {
+            showDropoverIcon(dragEl, event.target);
         }
     }, false);
 
     HomeList.addEventListener('dragleave', function(event) {
-        event.preventDefault();
-        if (dragEl.classList.contains('home-icons') === false) {
-            return;
-        }
-        if (event.target.nodeName === 'DIV' &&
+        if (dragEl !== undefined &&
             event.target.classList.contains('home-icons'))
         {
             hideDropoverIcon(event.target);
@@ -363,66 +366,34 @@ function dragAndDropHome() {
     }, false);
 
     HomeList.addEventListener('dragover', function(event) {
+        // prevent default to allow drop
         event.preventDefault();
-        if (dragEl.classList.contains('home-icons') === false) {
-            return;
-        }
-        const ths = HomeList.querySelectorAll('.dragover-icon');
-        for (const th of ths) {
-            th.classList.remove('dragover-icon');
-        }
-        if (event.target.nodeName === 'DIV' &&
-            event.target.classList.contains('home-icons'))
-        {
-            showDropoverIcon(dragSrc, event.target);
-        }
-        else if (event.target.nodeName === 'DIV' &&
-                 event.target.parentNode.classList.contains('home-icons'))
-        {
-            showDropoverIcon(dragSrc, event.target.parentNode);
-        }
         event.dataTransfer.dropEffect = 'move';
-    }, false);
-
-    HomeList.addEventListener('dragend', function(event) {
-        event.preventDefault();
-        if (dragEl.classList.contains('home-icons') === false) {
-            return;
-        }
-        const ths = HomeList.querySelectorAll('.dragover-icon');
-        for (const th of ths) {
-            hideDropoverIcon(th);
-        }
-        dragSrc.classList.remove('opacity05');
     }, false);
 
     HomeList.addEventListener('drop', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        if (dragEl.classList.contains('home-icons') === false) {
-            return;
-        }
-        let dst = event.target;
-        if (dst.nodeName === 'DIV') {
-            if (dst.classList.contains('card-body')) {
-                dst = dst.parentNode;
-            }
-            if (dst.classList.contains('home-icons')) {
-                dragEl.classList.remove('opacity05');
-                const to = getData(dst, 'pos');
-                const from = getData(dragSrc, 'pos');
-                if (isNaN(to) === false &&
-                    isNaN(from) === false &&
-                    from !== to)
-                {
-                    sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, null, false);
-                }
+        
+        const target = event.target.classList.contains('card-body')
+            ? event.target.parentNode
+            : event.target;
+        if (target.classList.contains('home-icons')) {
+            hideDropoverIcon(target);
+            const to = getData(target, 'pos');
+            const from = getData(dragEl, 'pos');
+            if (isNaN(to) === false &&
+                isNaN(from) === false &&
+                from !== to)
+            {
+                sendAPI("MYMPD_API_HOME_ICON_MOVE", {"from": from, "to": to}, null, false);
             }
         }
-        const ths = HomeList.querySelectorAll('.dragover-icon');
-        for (const th of ths) {
-            hideDropoverIcon(th);
-        }
+    }, false);
+
+    HomeList.addEventListener('dragend', function() {
+        dragEl.classList.remove('opacity05');
+        dragEl = undefined;
     }, false);
 }
 

@@ -34,8 +34,10 @@ let settings = {
 let settingsParsed = 'no';
 
 let progressTimer = null;
-let dragSrc;
-let dragEl;
+
+// Reference to dom node for drag & drop
+/** @type {EventTarget} */
+let dragEl = undefined;
 
 /** @type {boolean} */
 let showSyncedLyrics = false;
