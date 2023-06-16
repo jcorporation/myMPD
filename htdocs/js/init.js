@@ -373,7 +373,7 @@ function initGlobalModals() {
         }
         const k = elCreateText('div', {"class": ["key", "float-start"]}, (keymap[key].key !== undefined ? keymap[key].key : key));
         if (keymap[key].key && keymap[key].key.length > 1) {
-            k.classList.add('mi', 'mi-small');
+            k.classList.add('mi', 'mi-sm');
         }
         col.appendChild(k);
         col.appendChild(

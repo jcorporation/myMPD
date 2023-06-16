@@ -570,20 +570,12 @@ div.card-toolbar > form {
   font-feature-settings: "liga";
 }
 
-.mi-left {
-  margin-left: -1em;
-}
-
-.mi-small {
+.mi-sm {
   font-size: 1rem;
 }
 
 .mi-lg {
   font-size: 3rem;
-}
-
-.mi-xs {
-  font-size: 0.8rem;
 }
 
 button.mi {

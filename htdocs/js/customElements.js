@@ -15,7 +15,7 @@ pEl.actionsBtn = elCreateText('a', {"data-action": "popover", "href": "#", "clas
 pEl.removeBtn = elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Remove"}, 'clear');
 pEl.playBtn = elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Quick play"}, 'play_arrow');
 pEl.columnsBtn = elCreateText('a', {"href": "#", "data-action": "popover", "data-contextmenu": "columns",
-    "class": ["align-middle", "mi", "mi-small", "me-1"], "data-title-phrase": "Columns"}, 'settings');
+    "class": ["align-middle", "mi", "mi-sm", "me-1"], "data-title-phrase": "Columns"}, 'settings');
 
 pEl.actionTdMenu = elCreateNodes('td', {"data-col": "Action"}, [
     pEl.actionsBtn.cloneNode(true),
@@ -90,7 +90,7 @@ function initElement(el, elType) {
  * @returns {void}
  */
 function setInputClear(el) {
-    const button = elCreateText('button', {"data-title-phrase": "Clear", "class": ["mi", "mi-small", "input-inner-button"]}, 'clear');
+    const button = elCreateText('button', {"data-title-phrase": "Clear", "class": ["mi", "mi-sm", "input-inner-button"]}, 'clear');
     el.button = button;
     el.classList.add('innerButton');
     if (el.parentNode.classList.contains('col')) {
@@ -132,7 +132,7 @@ function setInputClear(el) {
  * @returns {void}
  */
 function setInputReset(el) {
-    const button = elCreateText('button', {"data-title-phrase": "Reset to default", "class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
+    const button = elCreateText('button', {"data-title-phrase": "Reset to default", "class": ["mi", "mi-sm", "input-inner-button"]}, 'settings_backup_restore');
     el.button = button;
     el.classList.add('innerButton');
     if (el.parentNode.firstElementChild.getAttribute('type') === 'color' ||
@@ -161,7 +161,7 @@ function setInputReset(el) {
  * @returns {void}
  */
 function setInputPassword(el) {
-    const button = elCreateText('button', {"data-title-phrase": "Show or hide", "class": ["mi", "mi-small", "input-inner-button"]}, 'visibility');
+    const button = elCreateText('button', {"data-title-phrase": "Show or hide", "class": ["mi", "mi-sm", "input-inner-button"]}, 'visibility');
     el.button = button;
     el.classList.add('innerButton');
     if (el.parentNode.classList.contains('col-sm-8')) {

@@ -1100,7 +1100,7 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
         if (enabledTags.includes(allTags[i])) {
             values.push(tn(allTags[i]));
         }
-        const btn = elCreateEmpty('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-small", "me-2"], "name": allTags[i]});
+        const btn = elCreateEmpty('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-sm", "me-2"], "name": allTags[i]});
         if (enabledTags.includes(allTags[i])) {
             btn.classList.add('active');
             btn.textContent = 'check';

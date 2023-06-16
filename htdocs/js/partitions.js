@@ -113,7 +113,7 @@ function parsePartitionOutputsList(obj) {
         }
     }
 
-    const selBtn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-small", "me-3"]}, 'radio_button_unchecked');
+    const selBtn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-sm", "me-3"]}, 'radio_button_unchecked');
 
     let nr = 0;
     for (let i = 0, j = allOutputs.length; i < j; i++) {

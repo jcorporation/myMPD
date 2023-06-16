@@ -367,7 +367,7 @@ function showWebradiodbDetails(uri) {
         for (const name of alternateStreams) {
             const p = elCreateTextTn('p', {"class": ["pb-0"]}, 'Webradioformat',
                 {"codec": result.alternativeStreams[name].Codec, "bitrate": result.alternativeStreams[name].Bitrate});
-            const btn = elCreateText('button', {"class": ["btn", "btn-sm", "btn-secondary", "mi", "mi-small", "ms-2"]}, 'favorite');
+            const btn = elCreateText('button', {"class": ["btn", "btn-sm", "btn-secondary", "mi", "mi-sm", "ms-2"]}, 'favorite');
             p.appendChild(btn);
             td.appendChild(p);
             btn.addEventListener('click', function(event) {
