@@ -447,24 +447,11 @@ function elGetIndex(el) {
 /**
  * Returns the nearest parent of type nodeName
  * @param {HTMLElement | EventTarget} el start element for search
- * @param {string} nodeName nodeName to search
+ * @param {string} selector selector to search
  * @returns {HTMLElement} the nearest parent node with the given nodeName
  */
- function getParent(el, nodeName) {
-    let target = el;
-    let i = 0;
-    while (target.nodeName !== nodeName) {
-        i++;
-        if (i > 10) {
-            return null;
-        }
-        target = target.parentNode;
-        if (target === null) {
-            return null;
-        }
-    }
-    // @ts-ignore
-    return target;
+ function getParent(el, selector) {
+    return el.closest(selector);
 }
 
 /**

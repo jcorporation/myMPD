@@ -49,6 +49,7 @@ interface EventTarget {
     tagName: any;
     textContent: any;
     value: any;
+    closest: any;
 }
 
 interface HTMLElement {
@@ -66,6 +67,7 @@ interface HTMLElement {
     selectionStart: any;
     setRangeText: any;
     value: any;
+    closest: any;
 }
 
 interface Navigator {
