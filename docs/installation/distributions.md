@@ -11,6 +11,7 @@ myMPD is available in the following distributions:
 - [GentooPlayer](http://gentooplayer.com/)
 - [MusicLounge Audiophile Distro](https://linuxaudiofoundation.org)
 - [MX Linux](https://mxlinux.org/)
+- [NixOS](https://nixos.org/)
 - [Snakeoil OS](https://www.snakeoil-os.net/)
 - [Termux](https://termux.com/)
 
