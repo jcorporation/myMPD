@@ -576,15 +576,16 @@ function toggleSort(th, colName) {
 }
 
 /**
- * Replaces a table row
+ * Conditionally replaces a table row, if uri or cols are changed.
  * @param {HTMLElement} row row to replace
  * @param {HTMLElement} el replacement row
  * @returns {void}
  */
 function replaceTblRow(row, el) {
-    const menuEl = row.querySelector('[data-contextmenu]');
-    if (menuEl) {
-        hidePopover();
+    if (getData(row, 'uri') === getData(el, 'uri') &&
+        getData(row, 'cols') === getData(el, 'cols'))
+    {
+        return;
     }
     row.replaceWith(el);
 }
@@ -758,6 +759,7 @@ function tableRow(row, data, list, colspan, smallWidth) {
                 );
             }
         }
+        setData(row, 'cols', settings['cols' + list].join(':'));
         switch(app.id) {
             case 'BrowsePlaylistDetail':
                 // add quick play and remove action
