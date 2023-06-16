@@ -90,6 +90,9 @@ function setCounter() {
     if (playingRow !== null) {
         //progressbar and counter in queue card
         setQueueCounter(playingRow, counterText);
+        if (currentState.state === 'stop') {
+            resetDuration(playingRow);
+        }
     }
 
     //synced lyrics

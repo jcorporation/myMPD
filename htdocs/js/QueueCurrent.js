@@ -316,7 +316,9 @@ function parseQueue(obj) {
         tableRow(row, data, app.id, colspan, smallWidth);
         if (currentState.currentSongId === data.id) {
             setPlayingRow(row);
-            setQueueCounter(row, getCounterText());
+            if (currentState.state === 'play') {
+                setQueueCounter(row, getCounterText());
+            }
         }
     });
 
@@ -384,20 +386,48 @@ function queueSetCurrentSong() {
     if (old !== null &&
         old.classList.contains('queue-playing'))
     {
-        const durationTd = old.querySelector('[data-col=Duration]');
-        if (durationTd) {
-            durationTd.textContent = fmtSongDuration(getData(old, 'duration'));
-        }
-        const posTd = old.querySelector('[data-col=Pos]');
-        if (posTd) {
-            posTd.classList.remove('mi');
-            posTd.textContent = getData(old, 'songpos') + 1;
-        }
-        old.classList.remove('queue-playing');
-        old.style.removeProperty('background');
+        resetDuration(old);
+        resetSongPos(old);
     }
     //set playing row
     setPlayingRow();
+}
+
+/**
+ * Resets the duration in playing row and footer
+ * @param {HTMLElement} [playingRow] current playing row in queue card
+ * @returns {void}
+ */
+function resetDuration(playingRow) {
+    //counter in footer
+    elClear(domCache.counter);
+    //counter in queue
+    if (playingRow === undefined) {
+        playingRow = document.getElementById('queueSongId' + currentState.currentSongId);
+    }
+    const durationTd = playingRow.querySelector('[data-col=Duration]');
+    if (durationTd) {
+        durationTd.textContent = fmtSongDuration(getData(playingRow, 'duration'));
+    }
+    
+    playingRow.classList.remove('queue-playing');
+    playingRow.style.removeProperty('background');
+}
+
+/**
+ * Resets the position in playing row
+ * @param {HTMLElement} [playingRow] current playing row in queue card
+ * @returns {void}
+ */
+function resetSongPos(playingRow) {
+    if (playingRow === undefined) {
+        playingRow = document.getElementById('queueSongId' + currentState.currentSongId);
+    }
+    const posTd = playingRow.querySelector('[data-col=Pos]');
+    if (posTd) {
+        posTd.classList.remove('mi');
+        posTd.textContent = getData(playingRow, 'songpos') + 1;
+    }
 }
 
 /**
