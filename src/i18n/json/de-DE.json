@@ -959,5 +959,6 @@
     "Failed saving smart playlist": "Intelligente Wiedergabeliste konnte nicht gespeichert werden",
     "Action for selection": "Aktion für die Auswahl",
     "Select": "Auswählen",
-    "Select all": "Alles auswählen"
+    "Select all": "Alles auswählen",
+    "selected": "ausgewählt"
 }

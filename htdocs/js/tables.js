@@ -49,6 +49,7 @@ function selectAllRows(table, select) {
             check.textContent = 'radio_button_unchecked';
         }
     }
+    showSelectionCount();
 }
 
 /**
@@ -82,6 +83,7 @@ function selectRow(event) {
             check.textContent = 'radio_button_unchecked';
         }
     }
+    showSelectionCount();
     event.preventDefault();
     event.stopPropagation();
     return true;
@@ -100,6 +102,26 @@ function getSelectedRowData(table, attribute) {
         data.push(getData(row, attribute));
     }
     return data;
+}
+
+/**
+ * Shows the number of selections in the dropdown
+ * @returns {void}
+ */
+function showSelectionCount() {
+    const table = document.getElementById(app.id + 'List');
+    const dropdown = document.querySelector('#dropdown' + app.id + 'Selection');
+    const count = table.querySelectorAll('tbody > tr.active').length;
+    dropdown.querySelector('small').textContent = count + ' ' + tn('selected');
+    const btns = dropdown.querySelectorAll('button');
+    for (const btn of btns) {
+        if (count === 0) {
+            btn.setAttribute('disabled', 'disabled');
+        }
+        else {
+            btn.removeAttribute('disabled');
+        }
+    }
 }
 
 /**

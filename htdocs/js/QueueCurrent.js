@@ -107,6 +107,10 @@ function initQueueCurrent() {
         }
     }, false);
 
+    document.getElementById('dropdownQueueCurrentSelection').parentNode.addEventListener('show.bs.dropdown', function() {
+        showSelectionCount();
+    }, false);
+
     document.getElementById('selectAddToQueueMode').addEventListener('change', function() {
         const value = Number(getSelectValue(this));
         if (value === 2) {
