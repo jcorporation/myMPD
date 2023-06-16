@@ -323,7 +323,7 @@ function getDataId(id, attribute) {
  * Gets the attributes value from the element
  * @param {Element | EventTarget} el element
  * @param {string} attribute attribute name
- * @returns {object} attribute value
+ * @returns {object} attribute value or undefined
  */
 function getData(el, attribute) {
     let value = el['myMPD-' + attribute];
@@ -433,6 +433,15 @@ function getYpos(el) {
         el = el.offsetParent;
     }
     return yPos;
+}
+
+/**
+ * Gets the index of the element in the parent html collection
+ * @param {HTMLElement} el element to get the index
+ * @returns {number} the index
+ */
+function elGetIndex(el) {
+    return [...el.parentNode.children].indexOf(el);
 }
 
 /**

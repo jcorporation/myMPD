@@ -28,6 +28,10 @@ interface Element {
     value: any;
 }
 
+interface Event {
+    shiftKey: any;
+}
+
 interface EventTarget {
     button: any; //custom elements
     classList: any;

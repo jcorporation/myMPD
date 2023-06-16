@@ -72,21 +72,58 @@ function selectRow(event) {
             : 'radio_button_unchecked';
         selectAllRows(table, select);
     }
-    else {
+    else if (event.shiftKey) {
+        let lastPos = getData(table, 'last-selected');
+        if (lastPos === undefined) {
+            lastPos = 0;
+        }
         const row = getParent(event.target, 'TR');
-        row.classList.toggle('active');
-        const check = row.lastElementChild.lastElementChild;
-        if (row.classList.contains('active')) {
-            check.textContent = 'task_alt';
+        const pos = elGetIndex(row);
+        setData(table, 'last-selected', pos);
+        let first;
+        let last;
+        if (lastPos < pos) {
+            first = lastPos;
+            last = pos;
         }
         else {
-            check.textContent = 'radio_button_unchecked';
+            first = pos;
+            last = lastPos;
         }
+        const rows = table.querySelector('tbody').querySelectorAll('tr');
+        for (let i = first; i <= last; i++) {
+            selectSingleRow(rows[i], true);
+        }
+    }
+    else {
+        const row = getParent(event.target, 'TR');
+        selectSingleRow(row, null);
+        setData(table, 'last-selected', elGetIndex(row));
     }
     showSelectionCount();
     event.preventDefault();
     event.stopPropagation();
     return true;
+}
+
+/**
+ * Selects / unselects a single row
+ * @param {HTMLElement} row row to select or unselect
+ * @param {boolean} [select] true = select, false = unselect, null = toggle
+ * @returns {void}
+ */
+function selectSingleRow(row, select) {
+    const check = row.lastElementChild.lastElementChild;
+    if ((select === null && row.classList.contains('active')) ||
+        select === false)
+    {
+        check.textContent = 'radio_button_unchecked';
+        row.classList.remove('active');
+    }
+    else {
+        check.textContent = 'task_alt';
+        row.classList.add('active');
+    }
 }
 
 /**
