@@ -216,18 +216,18 @@ function filetype(uri) {
     }
     const ext = uri.split('.').pop().toUpperCase();
     switch(ext) {
-        case 'MP3':  return ext + ' - ' + tn('MPEG-1 Audio Layer III');
-        case 'FLAC': return ext + ' - ' + tn('Free Lossless Audio Codec');
-        case 'OGG':  return ext + ' - ' + tn('Ogg Vorbis');
-        case 'OPUS': return ext + ' - ' + tn('Opus Audio');
-        case 'WAV':  return ext + ' - ' + tn('WAVE Audio File');
-        case 'WV':   return ext + ' - ' + tn('WavPack');
-        case 'AAC':  return ext + ' - ' + tn('Advanced Audio Coding');
-        case 'MPC':  return ext + ' - ' + tn('Musepack');
-        case 'MP4':  return ext + ' - ' + tn('MPEG-4');
-        case 'APE':  return ext + ' - ' + tn('Monkey Audio');
-        case 'WMA':  return ext + ' - ' + tn('Windows Media Audio');
-        case 'CUE':  return ext + ' - ' + tn('Cuesheet');
+        case 'MP3':  return ext + smallSpace + nDash + smallSpace + tn('MPEG-1 Audio Layer III');
+        case 'FLAC': return ext + smallSpace + nDash + smallSpace + tn('Free Lossless Audio Codec');
+        case 'OGG':  return ext + smallSpace + nDash + smallSpace + tn('Ogg Vorbis');
+        case 'OPUS': return ext + smallSpace + nDash + smallSpace + tn('Opus Audio');
+        case 'WAV':  return ext + smallSpace + nDash + smallSpace + tn('WAVE Audio File');
+        case 'WV':   return ext + smallSpace + nDash + smallSpace + tn('WavPack');
+        case 'AAC':  return ext + smallSpace + nDash + smallSpace + tn('Advanced Audio Coding');
+        case 'MPC':  return ext + smallSpace + nDash + smallSpace + tn('Musepack');
+        case 'MP4':  return ext + smallSpace + nDash + smallSpace + tn('MPEG-4');
+        case 'APE':  return ext + smallSpace + nDash + smallSpace + tn('Monkey Audio');
+        case 'WMA':  return ext + smallSpace + nDash + smallSpace + tn('Windows Media Audio');
+        case 'CUE':  return ext + smallSpace + nDash + smallSpace + tn('Cuesheet');
         default:     return ext;
     }
 }
