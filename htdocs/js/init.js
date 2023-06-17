@@ -193,11 +193,9 @@ function appInit() {
         if (href.classList.contains('not-clickable') === false) {
             href.classList.add('clickable');
         }
-        let parentInit = href.parentNode.classList.contains('noInitChilds') ? true : false;
-        if (parentInit === false) {
-            parentInit = href.parentNode.parentNode.classList.contains('noInitChilds') ? true : false;
-        }
-        if (parentInit === true) {
+        if (href.parentNode.classList.contains('noInitChilds') ||
+            href.parentNode.parentNode.classList.contains('noInitChilds'))
+        {
             //handler on parentnode
             continue;
         }
@@ -456,10 +454,8 @@ function initNavs() {
         event.preventDefault();
         const target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
         if (target.nodeName === 'A') {
-            // @ts-ignore:
             target.firstElementChild.textContent = 'start';
             setTimeout(function() {
-                // @ts-ignore:
                 target.firstElementChild.textContent = 'code';
             }, 400);
             execScript(getData(target, 'href'));
