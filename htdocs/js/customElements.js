@@ -11,7 +11,7 @@
 const pEl = {};
 pEl.selectBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0", "color-darkgrey"], "data-title-phrase": "Select"}, 'radio_button_unchecked');
 pEl.selectAllBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0"], "data-title-phrase": "Select all"}, 'radio_button_unchecked');
-pEl.actionsBtn = elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore);
+pEl.actionsBtn = elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatures['more']);
 pEl.removeBtn = elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Remove"}, 'clear');
 pEl.playBtn = elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Quick play"}, 'play_arrow');
 pEl.columnsBtn = elCreateText('a', {"href": "#", "data-action": "popover", "data-contextmenu": "columns",

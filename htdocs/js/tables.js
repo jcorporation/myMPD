@@ -42,11 +42,11 @@ function selectAllRows(table, select) {
         const check = row.lastElementChild.lastElementChild;
         if (select === true) {
             row.classList.add('active');
-            check.textContent = 'task_alt';
+            check.textContent = ligatures['checked'];
         }
         else {
             row.classList.remove('active');
-            check.textContent = 'radio_button_unchecked';
+            check.textContent = ligatures['unchecked'];
         }
     }
     showSelectionCount();
@@ -64,12 +64,12 @@ function selectRow(event) {
     }
     //in row select mode
     if (event.target.parentNode.nodeName === 'TH') {
-        const select = event.target.textContent === 'radio_button_unchecked'
+        const select = event.target.textContent === ligatures['unchecked']
             ? true
             : false;
         event.target.textContent = select === true
-            ? 'task_alt'
-            : 'radio_button_unchecked';
+            ? ligatures['checked']
+            : ligatures['unchecked'];
         selectAllRows(table, select);
     }
     else if (event.shiftKey) {
@@ -117,11 +117,11 @@ function selectSingleRow(row, select) {
     if ((select === null && row.classList.contains('active')) ||
         select === false)
     {
-        check.textContent = 'radio_button_unchecked';
+        check.textContent = ligatures['unchecked'];
         row.classList.remove('active');
     }
     else {
-        check.textContent = 'task_alt';
+        check.textContent = ligatures['checked'];
         row.classList.add('active');
     }
 }
@@ -258,7 +258,7 @@ function dragAndDropTableHeader(tableName) {
             event.dataTransfer.setDragImage(event.target, 0, 0);
             event.dataTransfer.effectAllowed = 'move';
             event.dataTransfer.setData('Text', event.target.getAttribute('data-col'));
-            dragEl = event.target;           
+            dragEl = event.target;
         }
     }, false);
 
@@ -447,7 +447,7 @@ function setCols(tableName) {
            )
         {
             th.appendChild(
-                elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (app.cards.Search.sort.desc === true ? 'arrow_drop_up' : 'arrow_drop_down'))
+                elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (app.cards.Search.sort.desc === true ? ligatures['sortUp'] : ligatures['sortDown']))
             );
         }
         thead.appendChild(th);
@@ -559,7 +559,7 @@ function toggleSort(th, colName) {
     //set new sort indicator
     // @ts-ignore
     th.appendChild(
-        elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (app.current.sort.desc === true ? 'arrow_drop_up' : 'arrow_drop_down'))
+        elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (app.current.sort.desc === true ? ligatures['sortUp'] : ligatures['sortDown']))
     );
 }
 
@@ -594,7 +594,7 @@ function addDiscRow(disc, album, albumartist, colspan) {
         elCreateTextTnNr('td', {"colspan": (colspan - 1)}, 'Discnum', disc),
         elCreateNode('td', {"data-col": "Action"},
             elCreateText('a', {"data-action": "popover", "data-contextmenu": "disc", "href": "#", "class": ["mi", "color-darkgrey"],
-                "data-title-phrase":"Actions"}, ligatureMore)
+                "data-title-phrase":"Actions"}, ligatures['more'])
         )
     ]);
     setData(row, 'Disc', disc);

@@ -59,8 +59,14 @@ let uiEnabled = true;
 
 let allOutputs = null;
 
-/** @type {string} */
-const ligatureMore = 'menu';
+/** @type {object} */
+const ligatures = {
+    'sortUp': 'arrow_drop_up',
+    'sortDown': 'arrow_drop_down',
+    'checked': 'task_alt',
+    'more': 'menu',
+    'unchecked': 'radio_button_unchecked'
+};
 
 /** @type {string} */
 const smallSpace = '\u2009';
