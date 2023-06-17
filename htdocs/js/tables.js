@@ -848,25 +848,24 @@ function checkResultId(obj, id) {
  * @returns {boolean} true = result is not an error, else false
  */
 function checkResult(obj, tbody) {
-    const thead = tbody.parentNode.querySelector('tr');
-    const colspan = thead !== null ? thead.querySelectorAll('th').length : 0;
-    const tfoot = tbody.parentNode.querySelector('tfoot');
-    if (obj.error) {
+    if (obj.error ||
+        obj.result.returnedEntities === 0)
+    {
+        const thead = tbody.parentNode.querySelector('tr');
+        const colspan = thead !== null
+            ? thead.querySelectorAll('th').length
+            : 0;
         elClear(tbody);
+        const tfoot = tbody.parentNode.querySelector('tfoot');
         if (tfoot !== null) {
             elClear(tfoot);
         }
-        tbody.appendChild(errorRow(obj, colspan));
-        unsetUpdateView(tbody.parentNode);
-        setPagination(0, 0);
-        return false;
-    }
-    if (obj.result.returnedEntities === 0) {
-        elClear(tbody);
-        if (tfoot !== null) {
-            elClear(tfoot);
+        if (obj.error) {
+            tbody.appendChild(errorRow(obj, colspan));
         }
-        tbody.appendChild(emptyRow(colspan));
+        else {
+            tbody.appendChild(emptyRow(colspan));
+        }
         unsetUpdateView(tbody.parentNode);
         setPagination(0, 0);
         return false;
