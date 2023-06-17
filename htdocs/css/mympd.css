@@ -1182,19 +1182,13 @@ button.weekday {
   --bs-toast-bg: var(--bs-body-bg);
 }
 
+table[data-mode="select"] > thead > tr > th[data-col="Action"] > a,
 table[data-mode="select"] > tbody > tr > td[data-col="Action"] > a {
   display: none;
 }
 
-table[data-mode="select"] > thead > tr > th[data-col="Action"] > a {
-  display: none;
-}
-
+:not(table[data-mode="select"]) > thead > tr > th[data-col="Action"] > button,
 :not(table[data-mode="select"]) > tbody > tr > td[data-col="Action"] > button {
-  display: none;
-}
-
-:not(table[data-mode="select"]) > thead > tr > th[data-col="Action"] > button {
   display: none;
 }
 
@@ -1205,4 +1199,8 @@ tr.active td {
 tr.active td,
 tr.active td button {
   color: var(--mympd-highlightcolor-contrast);
+}
+
+body.not-mobile .table-responsive {
+  padding-right: 0.5rem;
 }
