@@ -26,7 +26,7 @@ function handleBrowseFilesystem() {
     //Create breadcrumb
     const crumbEl = document.getElementById('BrowseBreadcrumb');
     elClear(crumbEl);
-    const home = elCreateText('a', {"class": ["mi"]}, 'home');
+    const home = elCreateText('a', {"class": ["mi"], "href": "#"}, 'home');
     setData(home, 'uri', '/');
     crumbEl.appendChild(
         elCreateNode('li', {"class": ["breadcrumb-item"]}, home)

@@ -353,10 +353,6 @@ button {
   white-space: nowrap;
 }
 
-#BrowseBreadcrumb > li > a {
-  cursor: pointer;
-}
-
 .nowrap {
   white-space: nowrap;
 }
