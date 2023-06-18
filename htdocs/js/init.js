@@ -238,6 +238,7 @@ function appInit() {
     initSession();
     initNotifications();
     initContextMenuOffcanvas();
+    initSelectActions();
     //init drag and drop
     for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
         dragAndDropTable(table);

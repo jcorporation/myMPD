@@ -1,0 +1,128 @@
+"use strict";
+// SPDX-License-Identifier: GPL-3.0-or-later
+// myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
+// https://github.com/jcorporation/mympd
+
+/** @module selectActions_js */
+
+/**
+ * Initializes the select action dropdowns
+ * @returns {void}
+ */
+function initSelectActions() {
+    for (const dropdownId of [
+        'dropdownQueueCurrentSelection',
+        'dropdownQueueLastPlayedSelection',
+        'dropdownQueueJukeboxSelection'
+    ]) {
+        const el = document.querySelector('#' + dropdownId + '> div');
+        document.getElementById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
+            addSelectActionButtons(el, dropdownId);
+            showSelectionCount();
+        }, false);
+        el.addEventListener('click', function(event) {
+            if (event.target.nodeName === 'BUTTON') {
+                parseCmd(event, getData(event.target, 'href'));
+            }
+        }, false);
+    }
+}
+
+/**
+ * Adds the select action buttons
+ * @param {HTMLElement} el element to append the buttons
+ * @param {string} dropdownId dropdown id to append the buttons
+ * @returns {void}
+ */
+function addSelectActionButtons(el, dropdownId) {
+    elClear(el);
+    if (dropdownId === 'dropdownQueueLastPlayedSelection' ||
+        dropdownId === 'dropdownQueueJukeboxSelection')
+    {
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "appendQueue"]}, 'Append to queue');
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "appendPlayQueue"]}, 'Append to queue and play');
+        if (features.featWhence === true) {
+            addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "insertAfterCurrentQueue"]}, 'Insert after current playing song');
+        }
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "replaceQueue"]}, 'Replace queue');
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "replacePlayQueue"]}, 'Replace queue and play');
+    }
+    if (dropdownId === 'dropdownQueueCurrentSelection') {
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "playAfterCurrent"]}, 'Play after current playing song');
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "removeFromQueueIDs"]}, 'Remove');
+    }
+    if (dropdownId === 'dropdownQueueJukeboxSelection') {
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "delQueueJukeboxSong"]}, 'Remove');
+    }
+    if (features.featPlaylists === true &&
+        dropdownId !== 'dropdownBrowsePlaylistListSelection')
+    {
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "showAddToPlaylist"]}, 'Add to playlist');
+    }
+}
+
+/**
+ * Adds a button to the select action dropdown
+ * @param {HTMLElement} el element to append the buttons
+ * @param {object} cmd button cmd
+ * @param {string} text button text
+ * @returns {void}
+ */
+function addSelectActionButton(el, cmd, text) {
+    const btn = elCreateTextTn('button', {"class": ["btn", "btn-sm", "btn-secondary"]}, text);
+    setData(btn, 'href', cmd);
+    el.appendChild(btn);
+}
+
+/**
+ * Handles the selection actions
+ * @param {string} type entity type
+ * @param {string} action action to handle
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function execSelectAction(type, action) {
+    const table = document.getElementById(app.id + 'List');
+    switch(action) {
+        case 'appendQueue': {
+            const uris = getSelectedRowData(table, 'uri');
+            appendQueue(type, uris);
+            break;
+        }
+        case 'appendPlayQueue': {
+            const uris = getSelectedRowData(table, 'uri');
+            appendPlayQueue(type, uris);
+            break;
+        }
+        case 'playAfterCurrent': {
+            const songIds = getSelectedRowData(table, 'songid');
+            playAfterCurrent(songIds);
+            break;
+        }
+        case 'insertAfterCurrentQueue': {
+            const uris = getSelectedRowData(table, 'uri');
+            insertAfterCurrentQueue(type, uris);
+            break;
+        }
+        case 'replaceQueue': {
+            const uris = getSelectedRowData(table, 'uri');
+            replaceQueue(type, uris);
+            break;
+        }
+        case 'replacePlayQueue': {
+            const uris = getSelectedRowData(table, 'uri');
+            replacePlayQueue(type, uris);
+            break;
+        }
+        case 'removeFromQueueIDs': {
+            const songIds = getSelectedRowData(table, 'songid');
+            removeFromQueueIDs(songIds);
+            break;
+        }
+        case 'showAddToPlaylist': {
+            const uris = getSelectedRowData(table, 'uri');
+            showAddToPlaylist(uris, '');
+            break;
+        }
+    }
+}

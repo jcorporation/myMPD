@@ -107,10 +107,6 @@ function initQueueCurrent() {
         }
     }, false);
 
-    document.getElementById('dropdownQueueCurrentSelection').parentNode.addEventListener('show.bs.dropdown', function() {
-        showSelectionCount();
-    }, false);
-
     document.getElementById('selectAddToQueueMode').addEventListener('change', function() {
         const value = Number(getSelectValue(this));
         if (value === 2) {
@@ -346,33 +342,6 @@ function parseQueue(obj) {
                 )
             )
         );
-    }
-}
-
-/**
- * Handles the selection actions
- * @param {string} action action to handle
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function queueSelectionAction(action) {
-    const table = document.getElementById(app.id + 'List');
-    switch(action) {
-        case 'playAfterCurrent': {
-            const songIds = getSelectedRowData(table, 'songid');
-            playAfterCurrent(songIds);
-            break;
-        }
-        case 'remove': {
-            const songIds = getSelectedRowData(table, 'songid');
-            removeFromQueueIDs(songIds);
-            break;
-        }
-        case 'addToPlaylist': {
-            const uris = getSelectedRowData(table, 'uri');
-            showAddToPlaylist(uris, '');
-            break;
-        }
     }
 }
 

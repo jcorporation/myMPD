@@ -39,6 +39,9 @@ function switchTableMode(target) {
 function selectAllRows(table, select) {
     const rows = table.querySelectorAll('tbody > tr');
     for (const row of rows) {
+        if (row.classList.contains('not-clickable')) {
+            continue;
+        }
         const check = row.lastElementChild.lastElementChild;
         if (select === true) {
             row.classList.add('active');
@@ -70,6 +73,10 @@ function selectRow(event) {
         return false;
     }
     //in row select mode
+    const row = event.target.closest('TR');
+    if (row.classList.contains('not-clickable')) {
+        return true;
+    }
     if (event.target.parentNode.nodeName === 'TH') {
         const select = event.target.textContent === ligatures['unchecked']
             ? true
@@ -84,7 +91,6 @@ function selectRow(event) {
         if (lastPos === undefined) {
             lastPos = 0;
         }
-        const row = event.target.closest('TR');
         const pos = elGetIndex(row);
         setData(table, 'last-selected', pos);
         let first;
@@ -103,7 +109,6 @@ function selectRow(event) {
         }
     }
     else {
-        const row = event.target.closest('TR');
         selectSingleRow(row, null);
         setData(table, 'last-selected', elGetIndex(row));
     }

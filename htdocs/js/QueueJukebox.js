@@ -31,6 +31,10 @@ function handleQueueJukebox() {
  */
 function initQueueJukebox() {
     document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
+        //select mode
+        if (selectRow(event) === true) {
+            return;
+        }
         //action td
         if (event.target.nodeName === 'A') {
             handleActionTdClick(event);
@@ -70,13 +74,13 @@ function clearJukeboxQueue() {
 
 /**
  * Removes a song / album from the jukebox queue
- * @param {number} pos position
+ * @param {Array} pos position
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function delQueueJukeboxSong(pos) {
+function delQueueJukeboxEntries(pos) {
     sendAPI("MYMPD_API_JUKEBOX_RM", {
-        "positions": [pos]
+        "positions": pos
     }, null, false);
 }
 

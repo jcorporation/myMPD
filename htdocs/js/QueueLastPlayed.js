@@ -43,8 +43,12 @@ function initQueueLastPlayed() {
     }, false);
 
     document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
+        //select mode
+        if (selectRow(event) === true) {
+            return;
+        }
+        //action td
         if (event.target.nodeName === 'A') {
-            //action td
             handleActionTdClick(event);
             return;
         }

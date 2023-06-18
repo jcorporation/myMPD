@@ -598,7 +598,7 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                 addMenuItemsAlbumActions(dataNode, null, contextMenuBody);
             }
             addDivider(contextMenuBody);
-            addMenuItem(contextMenuBody, {"cmd": "delQueueJukeboxSong", "options": [pos]}, 'Remove');
+            addMenuItem(contextMenuBody, {"cmd": "delQueueJukeboxEntries", "options": [[pos]]}, 'Remove');
             return true;
         }
     }
