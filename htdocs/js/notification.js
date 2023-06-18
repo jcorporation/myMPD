@@ -292,59 +292,20 @@ function notificationsSupported() {
 }
 
 /**
- * Toggles the disabled state of elements
- * @param {string} selector query selector
- * @param {string} state disabled or enabled
- * @returns {void}
- */
-function setElsState(selector, state) {
-    const els = document.querySelectorAll(selector);
-    for (const el of els) {
-        if (el.classList.contains('close')) {
-            continue;
-        }
-        if (state === 'disabled') {
-            if (el.classList.contains('alwaysEnabled') === false &&
-                el.getAttribute('disabled') !== 'disabled')
-            {
-                //disable only elements that are not already disabled
-                elDisable(el);
-                el.classList.add('disabled');
-            }
-        }
-        else if (el.classList.contains('disabled')) {
-            //enable only elements that are disabled through this function
-            elEnable(el);
-            el.classList.remove('disabled');
-        }
-    }
-}
-
-/**
  * Toggles the ui state
  * @returns {void}
  */
 function toggleUI() {
-    let state = 'disabled';
-    if (getWebsocketState() === true &&
-        settings.partition.mpdConnected === true)
-    {
-        state = 'enabled';
-    }
+    /** @type {string} */
+    const state = getWebsocketState() && settings.partition.mpdConnected
+        ? 'enabled'
+        : 'disabled';
+    /** @type {boolean} */
     const enabled = state === 'disabled' ? false : true;
     if (enabled !== uiEnabled) {
         logDebug('Setting ui state to ' + state);
-        setElsState('a', state);
-        setElsState('input', state);
-        setElsState('select', state);
-        setElsState('button', state);
-        setElsState('textarea', state);
-        if (enabled === false) {
-            setElsState('.clickable', state);
-        }
-        else {
-            setElsState('.not-clickable', state);
-        }
+        domCache.body.setAttribute('data-uiState', state);
+        //remember current state
         uiEnabled = enabled;
     }
 

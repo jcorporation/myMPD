@@ -1200,3 +1200,14 @@ tr.active td button {
 body.not-mobile .table-responsive {
   padding-right: 0.5rem;
 }
+
+body[data-uiState="disabled"] a:not(.alwaysEnabled),
+body[data-uiState="disabled"] button:not(.alwaysEnabled),
+body[data-uiState="disabled"] input:not(.alwaysEnabled),
+body[data-uiState="disabled"] select:not(.alwaysEnabled),
+body[data-uiState="disabled"] textarea:not(.alwaysEnabled),
+body[data-uiState="disabled"] .clickable {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.4 !important;
+}

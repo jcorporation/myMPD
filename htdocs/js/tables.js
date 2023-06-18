@@ -443,7 +443,7 @@ function setCols(tableName) {
 
     for (let i = 0, j = settings['cols' + tableName].length; i < j; i++) {
         const hname = settings['cols' + tableName][i];
-        const th = elCreateTextTn('th', {"draggable": "true", "data-col": settings['cols' + tableName][i]}, hname);
+        const th = elCreateTextTn('th', {"class": ["clickable"], "draggable": "true", "data-col": settings['cols' + tableName][i]}, hname);
         if (hname === 'Track' ||
             hname === 'Pos')
         {

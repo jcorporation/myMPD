@@ -202,7 +202,7 @@ function elClear(el) {
  * @returns {void}
  */
 function elDisableId(id) {
-    document.getElementById(id).setAttribute('disabled', 'disabled');
+    elDisable(document.getElementById(id));
 }
 
 /**
@@ -212,8 +212,6 @@ function elDisableId(id) {
  */
 function elDisable(el) {
     el.setAttribute('disabled', 'disabled');
-    //manually disabled, remove disabled class
-    el.classList.remove('disabled');
     el.classList.replace('clickable', 'not-clickable');
 }
 
@@ -223,7 +221,7 @@ function elDisable(el) {
  * @returns {void}
  */
 function elEnableId(id) {
-    document.getElementById(id).removeAttribute('disabled');
+    elEnable(document.getElementById(id));
 }
 
 /**
@@ -246,7 +244,7 @@ function elReflow(el) {
 }
 
 /**
- * Sets the focus on the element with given id
+ * Sets the focus on the element with given id for desktop view.
  * @param {string} id element id
  * @returns {void}
  */
@@ -255,7 +253,7 @@ function elReflow(el) {
 }
 
 /**
- * Set the focus on the given element.
+ * Set the focus on the given element for desktop view.
  * @param {HTMLElement} el element to focus
  * @returns {void}
  */

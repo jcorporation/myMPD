@@ -89,9 +89,11 @@ function setCounter() {
     const playingRow = document.getElementById('queueSongId' + currentState.currentSongId);
     if (playingRow !== null) {
         //progressbar and counter in queue card
-        setQueueCounter(playingRow, counterText);
         if (currentState.state === 'stop') {
             resetDuration(playingRow);
+        }
+        else {
+            setQueueCounter(playingRow, counterText);
         }
     }
 
