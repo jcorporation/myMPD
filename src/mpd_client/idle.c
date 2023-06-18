@@ -284,7 +284,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                         sticker_inc_play_count(&partition_state->mpd_state->sticker_queue,
                             partition_state->song_uri);
                         sticker_set_last_played(&partition_state->mpd_state->sticker_queue,
-                            partition_state->song_uri, partition_state->last_song_start_time);
+                            partition_state->song_uri, partition_state->song_start_time);
                     }
                     //scrobble event
                     mympd_api_trigger_execute(&partition_state->mympd_state->trigger_list, TRIGGER_MYMPD_SCROBBLE, partition_state->name);
@@ -400,8 +400,8 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                         time_t now = time(NULL);
                         time_t elapsed = now - partition_state->song_start_time;
                         time_t total_time = partition_state->song_end_time - partition_state->song_start_time - elapsed;
-                        if (elapsed < 10 ||
-                            total_time < 10)
+                        if (elapsed < SCROBBLE_TIME_MIN ||
+                            total_time < SCROBBLE_TIME_MIN)
                         {
                             //10 seconds inaccuracy
                             elapsed = 0;
@@ -421,7 +421,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                         {
                             //last song skipped
                             time_t elapsed = now - partition_state->last_song_start_time;
-                            if (elapsed > 10 &&
+                            if (elapsed > SCROBBLE_TIME_MIN &&
                                 partition_state->last_song_start_time > 0 &&
                                 sdslen(partition_state->last_song_uri) > 0)
                             {
