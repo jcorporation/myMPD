@@ -598,7 +598,7 @@ function getBtnGroupValueId(id) {
 /**
  * Toggles the active state of a button
  * @param {string} id id of button to toggle
- * @param {boolean | number} state true, 1 = active, false, 0 = inactive
+ * @param {boolean | number} state true, 1 = active; false, 0 = inactive
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
@@ -609,7 +609,7 @@ function toggleBtnId(id, state) {
 /**
  * Toggles the active state of a button
  * @param {HTMLElement | EventTarget} btn button to toggle
- * @param {boolean | number} state true, 1 = active, false, 0 = inactive
+ * @param {boolean | number} state true, 1 = active; false, 0 = inactive
  * @returns {void}
  */
 function toggleBtn(btn, state) {
@@ -618,9 +618,7 @@ function toggleBtn(btn, state) {
         state = btn.classList.contains('active') ? false : true;
     }
 
-    if (state === true ||
-        state === 1)
-    {
+    if (state === true) {
         btn.classList.add('active');
     }
     else {
@@ -674,7 +672,7 @@ function getBtnChkValue(btn) {
 /**
  * Toggles a check button
  * @param {string} id id of the button to toggle
- * @param {boolean} state true = active, false = inactive
+ * @param {boolean} state true, 1 = active; false, 0 = inactive
  * @returns {void}
  */
 function toggleBtnChkId(id, state) {
@@ -684,7 +682,7 @@ function toggleBtnChkId(id, state) {
 /**
  * Toggles a check button
  * @param {HTMLElement | EventTarget} btn the button to toggle
- * @param {boolean | number} state true = active, false = inactive 
+ * @param {boolean | number} state true, 1 = active; false, 0 = inactive
  * @returns {boolean} true if button is checked, else false
  */
 function toggleBtnChk(btn, state) {
@@ -693,9 +691,7 @@ function toggleBtnChk(btn, state) {
         state = btn.classList.contains('active') ? false : true;
     }
 
-    if (state === true ||
-        state === 1)
-    {
+    if (state === true) {
         btn.classList.add('active');
         btn.textContent = 'check';
         return true;
