@@ -785,11 +785,6 @@ button.active > a {
   max-height: none;
 }
 
-.disabled {
-  pointer-events: none;
-  cursor: not-allowed;
-}
-
 div#footerProgressPos {
   display: none;
   position: absolute;
@@ -1206,7 +1201,8 @@ body[data-uiState="disabled"] button:not(.alwaysEnabled),
 body[data-uiState="disabled"] input:not(.alwaysEnabled),
 body[data-uiState="disabled"] select:not(.alwaysEnabled),
 body[data-uiState="disabled"] textarea:not(.alwaysEnabled),
-body[data-uiState="disabled"] .clickable {
+body[data-uiState="disabled"] .clickable,
+.disabled {
   pointer-events: none !important;
   cursor: not-allowed !important;
   opacity: 0.4 !important;
