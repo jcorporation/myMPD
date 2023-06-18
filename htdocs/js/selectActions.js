@@ -13,7 +13,9 @@ function initSelectActions() {
     for (const dropdownId of [
         'dropdownQueueCurrentSelection',
         'dropdownQueueLastPlayedSelection',
-        'dropdownQueueJukeboxSelection'
+        'dropdownQueueJukeboxSelection',
+        'dropdownBrowsePlaylistDetailSelection',
+        'dropdownSearchSelection'
     ]) {
         const el = document.querySelector('#' + dropdownId + '> div');
         document.getElementById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
@@ -36,8 +38,11 @@ function initSelectActions() {
  */
 function addSelectActionButtons(el, dropdownId) {
     elClear(el);
+    const table = document.getElementById(app.id + 'List');
     if (dropdownId === 'dropdownQueueLastPlayedSelection' ||
-        dropdownId === 'dropdownQueueJukeboxSelection')
+        dropdownId === 'dropdownQueueJukeboxSelection' ||
+        dropdownId === 'dropdownBrowsePlaylistDetailSelection' ||
+        dropdownId === 'dropdownSearchSelection')
     {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "appendQueue"]}, 'Append to queue');
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "appendPlayQueue"]}, 'Append to queue and play');
@@ -53,6 +58,12 @@ function addSelectActionButtons(el, dropdownId) {
     }
     if (dropdownId === 'dropdownQueueJukeboxSelection') {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "delQueueJukeboxSong"]}, 'Remove');
+    }
+    if (dropdownId === 'dropdownBrowsePlaylistDetailSelection') {
+        const ro = getData(table, 'ro');
+        if (ro === false) {
+            addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "removeFromPlaylistPositions"]}, 'Remove');
+        }
     }
     if (features.featPlaylists === true &&
         dropdownId !== 'dropdownBrowsePlaylistListSelection')
@@ -122,6 +133,12 @@ function execSelectAction(type, action) {
         case 'showAddToPlaylist': {
             const uris = getSelectedRowData(table, 'uri');
             showAddToPlaylist(uris, '');
+            break;
+        }
+        case 'removeFromPlaylistPositions': {
+            const pos = getSelectedRowData(table, 'pos');
+            const plist = getData(table, 'uri');
+            removeFromPlaylistPositions(plist, pos);
             break;
         }
     }

@@ -51,6 +51,10 @@ function handleSearch() {
  */
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
+        //select mode
+        if (selectRow(event) === true) {
+            return;
+        }
         //action td
         if (event.target.nodeName === 'A') {
             handleActionTdClick(event);

@@ -537,7 +537,7 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
         case 'BrowsePlaylistDetail': {
             const table = document.getElementById('BrowsePlaylistDetailList');
             addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name);
-            if (getData(table, 'ro') === 'false') {
+            if (getData(table, 'ro') === false) {
                 addDivider(contextMenuBody);
                 const plist = getData(table, 'uri');
                 const songpos = getData(dataNode, 'songpos');

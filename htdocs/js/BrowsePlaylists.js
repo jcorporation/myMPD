@@ -118,6 +118,10 @@ function initPlaylists() {
         if (event.target.nodeName === 'CAPTION') {
             return;
         }
+        //select mode
+        if (selectRow(event) === true) {
+            return;
+        }
         //action td
         if (event.target.nodeName === 'A') {
             handleActionTdClick(event);
@@ -179,16 +183,24 @@ function parsePlaylistsDetail(obj) {
         return;
     }
 
-    if (isMPDplaylist(obj.result.plist) === false ||
-        obj.result.smartpls === true)
-    {
-        setData(table, 'ro', 'true');
+    // set toolbar
+    if (isMPDplaylist(obj.result.plist) === false) {
+        // playlist in music directory
+        setData(table, 'ro', true);
+        elHideId('playlistContentBtns');
+        elHideId('smartPlaylistContentBtns');
+        table.setAttribute('data-rw', 'false');
+    }
+    else if (obj.result.smartpls === true) {
+        // smart playlist
+        setData(table, 'ro', true);
         elHideId('playlistContentBtns');
         elShowId('smartPlaylistContentBtns');
         table.setAttribute('data-rw', 'false');
     }
     else {
-        setData(table, 'ro', 'false');
+        // mpd playlist
+        setData(table, 'ro', false);
         elShowId('playlistContentBtns');
         elHideId('smartPlaylistContentBtns');
         table.setAttribute('data-rw', 'true');
