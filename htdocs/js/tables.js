@@ -59,7 +59,15 @@ function selectAllRows(table, select) {
  */
 function selectRow(event) {
     const table = getParent(event.target, 'TABLE');
-    if (table.getAttribute('data-mode') === null) {
+    let mode = table.getAttribute('data-mode');
+    if (event.ctrlKey) {
+        //enable select mode
+        if (mode === null) {
+            switchTableMode(document.getElementById('btn' + app.id + 'SelectMode'));
+            mode = 'select';
+        }
+    }
+    else if (mode === null) {
         return false;
     }
     //in row select mode

@@ -30,6 +30,7 @@ interface Element {
 
 interface Event {
     shiftKey: any;
+    ctrlKey: any;
 }
 
 interface EventTarget {
