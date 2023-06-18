@@ -14,6 +14,7 @@ function initSelectActions() {
         'dropdownQueueCurrentSelection',
         'dropdownQueueLastPlayedSelection',
         'dropdownQueueJukeboxSelection',
+        'dropdownBrowseDatabaseAlbumDetailSelection',
         'dropdownBrowsePlaylistDetailSelection',
         'dropdownSearchSelection'
     ]) {
@@ -41,6 +42,7 @@ function addSelectActionButtons(el, dropdownId) {
     const table = document.getElementById(app.id + 'List');
     if (dropdownId === 'dropdownQueueLastPlayedSelection' ||
         dropdownId === 'dropdownQueueJukeboxSelection' ||
+        dropdownId === 'dropdownBrowseDatabaseAlbumDetailSelection' ||
         dropdownId === 'dropdownBrowsePlaylistDetailSelection' ||
         dropdownId === 'dropdownSearchSelection')
     {
