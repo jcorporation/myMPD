@@ -45,7 +45,7 @@ function initScripts() {
             return;
         }
 
-        const target = getParent(event.target, 'TR');
+        const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
             showEditScript(getData(target, 'script'));
         }

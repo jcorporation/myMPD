@@ -21,7 +21,7 @@ function initTimer() {
             toggleTimer(event.target, getData(event.target.parentNode.parentNode, 'id'));
             return;
         }
-        const target = getParent(event.target, 'TR');
+        const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
             showEditTimer(getData(target, 'id'));
         }

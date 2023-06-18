@@ -78,7 +78,7 @@ function initBrowseFilesystem() {
             handleActionTdClick(event);
             return;
         }
-        const target = getParent(event.target, 'TR');
+        const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
             const uri = getData(target, 'uri');
             const dataType = getData(target, 'type');

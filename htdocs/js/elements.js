@@ -445,16 +445,6 @@ function elGetIndex(el) {
 }
 
 /**
- * Returns the nearest parent of type nodeName
- * @param {HTMLElement | EventTarget} el start element for search
- * @param {string} selector selector to search
- * @returns {HTMLElement} the nearest parent node with the given nodeName
- */
- function getParent(el, selector) {
-    return el.closest(selector);
-}
-
-/**
  * Adds a waiting animation to a button
  * @param {string} id id of the button
  * @param {boolean} waiting true = add animation, false = remove animation

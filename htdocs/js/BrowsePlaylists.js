@@ -103,7 +103,7 @@ function initPlaylists() {
             return;
         }
 
-        const target = getParent(event.target, 'TR');
+        const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
             if (getData(target, 'smartpls-only') === false) {
                 clickPlaylist(getData(target, 'uri'), event);
@@ -123,7 +123,7 @@ function initPlaylists() {
             handleActionTdClick(event);
             return;
         }
-        const target = getParent(event.target, 'TR');
+        const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
             clickSong(getData(target, 'uri'), event);
         }

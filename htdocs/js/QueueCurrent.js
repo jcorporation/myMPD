@@ -101,7 +101,7 @@ function initQueueCurrent() {
             return;
         }
         //table body
-        const target = getParent(event.target, 'TR');
+        const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
             clickQueueSong(getData(target, 'songid'), getData(target, 'uri'), event);
         }

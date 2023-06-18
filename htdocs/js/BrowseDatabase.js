@@ -97,7 +97,7 @@ function initBrowseDatabase() {
         if (event.target.classList.contains('row')) {
             return;
         }
-        const target = getParent(event.target, 'DIV');
+        const target = event.target.closest('DIV');
         if (target.classList.contains('card-body')) {
             appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, 'Album', tagAlbumArtist,
                 getData(target.parentNode, 'Album'),
@@ -133,7 +133,7 @@ function initBrowseDatabase() {
             handleActionTdClick(event);
             return;
         }
-        const target = getParent(event.target, 'TR');
+        const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
             clickSong(getData(target, 'uri'), event);
         }

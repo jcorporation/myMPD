@@ -58,7 +58,7 @@ function selectAllRows(table, select) {
  * @returns {boolean} true if table in select mode, else false
  */
 function selectRow(event) {
-    const table = getParent(event.target, 'TABLE');
+    const table = event.target.closest('TABLE');
     const mode = table.getAttribute('data-mode');
     if (event.ctrlKey &&
         mode === null)
@@ -84,7 +84,7 @@ function selectRow(event) {
         if (lastPos === undefined) {
             lastPos = 0;
         }
-        const row = getParent(event.target, 'TR');
+        const row = event.target.closest('TR');
         const pos = elGetIndex(row);
         setData(table, 'last-selected', pos);
         let first;
@@ -103,7 +103,7 @@ function selectRow(event) {
         }
     }
     else {
-        const row = getParent(event.target, 'TR');
+        const row = event.target.closest('TR');
         selectSingleRow(row, null);
         setData(table, 'last-selected', elGetIndex(row));
     }
@@ -220,7 +220,7 @@ function dragAndDropTable(tableId) {
         {
             return;
         }
-        const target = getParent(event.target, 'TR');
+        const target = event.target.closest('TR');
         target.classList.remove('dragover');
         const newSongPos = getData(target, 'songpos');
         const oldSongPos = getData(dragEl, 'songpos');

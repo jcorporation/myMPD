@@ -61,7 +61,7 @@ function initBrowseRadioRadiobrowser() {
             handleActionTdClick(event);
             return;
         }
-        const target = getParent(event.target, 'TR');
+        const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
             const uri = getData(target, 'uri');
             if (settings.webuiSettings.clickRadiobrowser === 'add') {

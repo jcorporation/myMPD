@@ -72,7 +72,7 @@ function initSearch() {
             return;
         }
         //table body
-        const target = getParent(event.target, 'TR');
+        const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
             clickSong(getData(target, 'uri'), event);
         }
