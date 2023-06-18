@@ -72,6 +72,10 @@ function initBrowseRadioWebradiodb() {
     }, false);
 
     document.getElementById('BrowseRadioWebradiodbList').addEventListener('click', function(event) {
+        //select mode
+        if (selectRow(event) === true) {
+            return;
+        }
         if (event.target.nodeName === 'A') {
             //action td
             handleActionTdClick(event);

@@ -16,6 +16,8 @@ function initSelectActions() {
         'dropdownQueueJukeboxSelection',
         'dropdownBrowseDatabaseAlbumDetailSelection',
         'dropdownBrowsePlaylistDetailSelection',
+        'dropdownBrowseRadioWebradiodbSelection',
+        'dropdownBrowseRadioRadiobrowserSelection',
         'dropdownSearchSelection'
     ]) {
         const el = document.querySelector('#' + dropdownId + '> div');
@@ -40,37 +42,43 @@ function initSelectActions() {
 function addSelectActionButtons(el, dropdownId) {
     elClear(el);
     const table = document.getElementById(app.id + 'List');
+    const type = dropdownId === 'dropdownBrowseRadioWebradiodbSelection' || dropdownId === 'dropdownBrowseRadioRadiobrowserSelection'
+            ? 'stream'
+            : 'song';
+
     if (dropdownId === 'dropdownQueueLastPlayedSelection' ||
         dropdownId === 'dropdownQueueJukeboxSelection' ||
         dropdownId === 'dropdownBrowseDatabaseAlbumDetailSelection' ||
         dropdownId === 'dropdownBrowsePlaylistDetailSelection' ||
+        dropdownId === 'dropdownBrowseRadioWebradiodbSelection' ||
+        dropdownId === 'dropdownBrowseRadioRadiobrowserSelection' ||
         dropdownId === 'dropdownSearchSelection')
     {
-        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "appendQueue"]}, 'Append to queue');
-        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "appendPlayQueue"]}, 'Append to queue and play');
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "appendQueue"]}, 'Append to queue');
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "appendPlayQueue"]}, 'Append to queue and play');
         if (features.featWhence === true) {
-            addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "insertAfterCurrentQueue"]}, 'Insert after current playing song');
+            addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "insertAfterCurrentQueue"]}, 'Insert after current playing song');
         }
-        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "replaceQueue"]}, 'Replace queue');
-        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "replacePlayQueue"]}, 'Replace queue and play');
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "replaceQueue"]}, 'Replace queue');
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "replacePlayQueue"]}, 'Replace queue and play');
     }
     if (dropdownId === 'dropdownQueueCurrentSelection') {
-        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "playAfterCurrent"]}, 'Play after current playing song');
-        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "removeFromQueueIDs"]}, 'Remove');
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "playAfterCurrent"]}, 'Play after current playing song');
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "removeFromQueueIDs"]}, 'Remove');
     }
     if (dropdownId === 'dropdownQueueJukeboxSelection') {
-        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "delQueueJukeboxSong"]}, 'Remove');
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "delQueueJukeboxSong"]}, 'Remove');
     }
     if (dropdownId === 'dropdownBrowsePlaylistDetailSelection') {
         const ro = getData(table, 'ro');
         if (ro === false) {
-            addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "removeFromPlaylistPositions"]}, 'Remove');
+            addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "removeFromPlaylistPositions"]}, 'Remove');
         }
     }
     if (features.featPlaylists === true &&
         dropdownId !== 'dropdownBrowsePlaylistListSelection')
     {
-        addSelectActionButton(el, {"cmd": "execSelectAction", "options": ["song", "showAddToPlaylist"]}, 'Add to playlist');
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "showAddToPlaylist"]}, 'Add to playlist');
     }
 }
 
