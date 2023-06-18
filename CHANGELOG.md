@@ -64,7 +64,7 @@ This release changes definitions of many API methods.
 - Upd: use OpenSSL hash functions
 - Upd: documentation improvements
 - Upd: improve error handling in build system
-- Fix: various small css fixes
+- Fix: various small css and javascript fixes
 - Fix: improve Mongoose logging #1032
 - Fix: set correct song start time sticker #1044
 
