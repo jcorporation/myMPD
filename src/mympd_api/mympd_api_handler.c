@@ -1319,6 +1319,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     rc = mympd_api_playlist_content_move_to_playlist(partition_state, sds_buf1, sds_buf2, &positions, uint_buf1, &error);
                     response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, error);
+                    sdsclear(error);
                 }
             }
             list_clear(&positions);
@@ -1338,6 +1339,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     rc = mympd_api_playlist_content_rm_positions(partition_state, sds_buf1, &positions, &error);
                     response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                             JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, error);
+                    sdsclear(error);
                 }
             }
             list_clear(&positions);
@@ -1370,6 +1372,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 if (rc == false) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, error);
+                    sdsclear(error);
                 }
                 else {
                     switch(uint_buf1) {
