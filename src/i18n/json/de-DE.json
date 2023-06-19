@@ -962,5 +962,7 @@
     "Select all": "Alles auswählen",
     "selected": "ausgewählt",
     "Invalid selection": "Ungültige Auswahl",
-    "Move to playlist": "In Wiedergabeliste verschieben"
+    "Move to playlist": "In Wiedergabeliste verschieben",
+    "Copy": "Kopieren",
+    "Copy playlist": "Wiedergabeliste kopieren"
 }

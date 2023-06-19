@@ -275,3 +275,5 @@ solaris
 wasapi
 any
 Script syntax is valid
+Copy
+Copy playlist
