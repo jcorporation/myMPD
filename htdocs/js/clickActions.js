@@ -19,8 +19,7 @@ function clickQuickRemove(target) {
         }
         case 'BrowsePlaylistList': {
             const plist = getData(target.parentNode.parentNode, 'uri');
-            const smartplsonly = getData(target.parentNode.parentNode, 'smartpls-only');
-            showDelPlaylist(plist, smartplsonly);
+            showDelPlaylist([plist]);
             break;
         }
         case 'BrowsePlaylistDetail': {

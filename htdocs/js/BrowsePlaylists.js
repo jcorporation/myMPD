@@ -97,6 +97,10 @@ function initPlaylists() {
     }, false);
 
     document.getElementById('BrowsePlaylistListList').addEventListener('click', function(event) {
+        //select mode
+        if (selectRow(event) === true) {
+            return;
+        }
         //action td
         if (event.target.nodeName === 'A') {
             handleActionTdClick(event);
@@ -593,7 +597,9 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
     selectEl.value = selectedPlaylist === 'Database'
         ? tn('Database')
         : selectedPlaylist === ''
-            ? tn('No playlist')
+            ? playlistSelectId === 'selectTimerPlaylist'
+                ? tn('No playlist')
+                : ''
             : selectedPlaylist;
     setData(selectEl, 'value', selectedPlaylist);
     elClear(selectEl.filterResult);
@@ -612,6 +618,106 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
         if (obj.result.data[i].uri === selectedPlaylist) {
             selectEl.filterResult.lastChild.classList.add('active');
         }
+    }
+}
+
+/**
+ * Shows the copy playlist modal
+ * @param {string} srcPlists playlist to remove the entries
+ * @returns {void}
+ */
+function showCopyPlaylist(srcPlists) {
+    const modal = document.getElementById('modalCopyPlaylist');
+    cleanupModal(modal);
+    setData(modal, 'srcPlists', srcPlists);
+    filterPlaylistsSelect(1, 'copyPlaylistPlaylist', '', '');
+    uiElements.modalCopyPlaylist.show();
+}
+
+/**
+ * Copies the playlist to another playlist
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function copyPlaylist() {
+    const modal = document.getElementById('modalCopyPlaylist');
+    cleanupModal(modal);
+    const srcPlists = getData(modal, 'srcPlists');
+    const mode = getRadioBoxValueId('copyPlaylistMode');
+    const plistEl = document.getElementById('copyPlaylistPlaylist');
+    if (validatePlistEl(plistEl) === false) {
+        return;
+    }
+    sendAPI("MYMPD_API_PLAYLIST_COPY", {
+        "srcPlists": srcPlists,
+        "dstPlist": plistEl.value,
+        "mode": Number(mode)
+    }, copyPlaylistClose, true);
+}
+
+/**
+ * Handles the response of "copy playlist" modal
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function copyPlaylistClose(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        uiElements.modalCopyPlaylist.hide();
+    }
+}
+
+/**
+ * Shows the move to playlist modal
+ * @param {string} srcPlist playlist to remove the entries
+ * @param {Array} positions song positions in srcPlist to move
+ * @returns {void}
+ */
+function showMoveToPlaylist(srcPlist, positions) {
+    const modal = document.getElementById('modalMoveToPlaylist');
+    cleanupModal(modal);
+    setData(modal, 'srcPlist', srcPlist);
+    setData(modal, 'positions', positions);
+    filterPlaylistsSelect(1, 'moveToPlaylistPlaylist', '', '');
+    uiElements.modalMoveToPlaylist.show();
+}
+
+/**
+ * Adds the selected elements from the "move to playlist" modal to the playlist
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function moveToPlaylist() {
+    const modal = document.getElementById('modalMoveToPlaylist');
+    cleanupModal(modal);
+    const srcPlist = getData(modal, 'srcPlist');
+    const positions = getData(modal, 'positions');
+    const mode = getRadioBoxValueId('moveToPlaylistPos');
+    const plistEl = document.getElementById('moveToPlaylistPlaylist');
+    if (validatePlistEl(plistEl) === false) {
+        return;
+    }
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_TO_PLAYLIST", {
+        "srcPlist": srcPlist,
+        "dstPlist": plistEl.value,
+        "positions": positions,
+        "mode": Number(mode)
+    }, moveToPlaylistClose, true);
+}
+
+/**
+ * Handles the response of "move to playlist" modal
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function moveToPlaylistClose(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        uiElements.modalMoveToPlaylist.hide();
     }
 }
 
@@ -936,23 +1042,21 @@ function editSmartPlaylistClick() {
 }
 
 /**
- * Deletes a playlist and shows a confirmation modal
- * @param {string} plist playlist to delete
- * @param {boolean} smartplsOnly delete only the smart playlist definition
+ * Deletes playlists and shows a confirmation modal before
+ * @param {Array} plists playlists to delete
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function showDelPlaylist(plist, smartplsOnly) {
-    showConfirm(tn('Do you really want to delete the playlist?', {"playlist": plist}), tn('Yes, delete it'), function() {
+function showDelPlaylist(plists) {
+    showConfirm(tn('Do you really want to delete the playlist?', {"playlist": joinArray(plists)}), tn('Yes, delete it'), function() {
         sendAPI("MYMPD_API_PLAYLIST_RM", {
-            "plists": [plist],
-            "smartplsOnly": smartplsOnly
+            "plists": plists
         }, null, false);
     });
 }
 
 /**
- * Clears a playlist and shows a confirmation modal
+ * Clears a playlist and shows a confirmation modal before
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars

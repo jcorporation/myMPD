@@ -1368,27 +1368,33 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_string(request->data, "$.params.dstPlist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.mode", 0, 4, &uint_buf1, &error))
             {
-                rc = mympd_api_playlist_copy(partition_state, &src_plists, sds_buf1, uint_buf1, &error);
-                if (rc == false) {
+                if (src_plists.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, error);
-                    sdsclear(error);
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "No playlists provided");
                 }
                 else {
-                    switch(uint_buf1) {
-                        case PLAYLIST_COPY_APPEND:
-                        case PLAYLIST_COPY_INSERT:
-                            response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                                JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlist successfully copied");
-                            break;
-                        case PLAYLIST_COPY_REPLACE:
-                            response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                                JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlist successfully replaced");
-                            break;
-                        case PLAYLIST_MOVE_APPEND:
-                        case PLAYLIST_MOVE_INSERT: {
-                            response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                                JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlist successfully moved");
+                    rc = mympd_api_playlist_copy(partition_state, &src_plists, sds_buf1, uint_buf1, &error);
+                    if (rc == false) {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, error);
+                        sdsclear(error);
+                    }
+                    else {
+                        switch(uint_buf1) {
+                            case PLAYLIST_COPY_APPEND:
+                            case PLAYLIST_COPY_INSERT:
+                                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                                    JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlist successfully copied");
+                                break;
+                            case PLAYLIST_COPY_REPLACE:
+                                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                                    JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlist successfully replaced");
+                                break;
+                            case PLAYLIST_MOVE_APPEND:
+                            case PLAYLIST_MOVE_INSERT: {
+                                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                                    JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlist successfully moved");
+                            }
                         }
                     }
                 }

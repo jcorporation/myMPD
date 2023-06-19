@@ -276,6 +276,13 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
     {
         addDivider(contextMenuBody);
         addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [[uri], ""]}, 'Add to playlist');
+        if (app.id === 'BrowsePlaylistDetail' &&
+            getData(dataNode.parentNode.parentNode, 'type') === 'plist')
+        {
+            const plist = getData(dataNode.parentNode.parentNode, 'uri');
+            const pos = getData(dataNode, 'pos');
+            addMenuItem(contextMenuBody, {"cmd": "showMoveToPlaylist", "options": [plist, [pos]]}, 'Move to playlist');
+        }
     }
     if (type === 'song') {
         addDivider(contextMenuBody);
@@ -522,9 +529,10 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                     addMenuItem(contextMenuBody, {"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist');
                 }
                 addMenuItem(contextMenuBody, {"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist');
+                addMenuItem(contextMenuBody, {"cmd": "showCopyPlaylist", "options": [uri]}, 'Copy playlist');
                 addMenuItem(contextMenuBody, {"cmd": "playlistValidateDedup", "options": [uri, true]}, 'Validate and deduplicate playlist');
             }
-            addMenuItem(contextMenuBody, {"cmd": "showDelPlaylist", "options": [uri, smartplsOnly]}, 'Delete playlist');
+            addMenuItem(contextMenuBody, {"cmd": "showDelPlaylist", "options": [[uri]]}, 'Delete playlist');
             if (settings.smartpls === true &&
                 type === 'smartpls')
             {

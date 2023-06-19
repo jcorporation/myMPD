@@ -367,6 +367,16 @@
           <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
           </div>
+          <div class="btn-group me-2">
+            <button data-title-phrase="Select" id="btnBrowsePlaylistListSelectMode" data-href='{"cmd": "switchTableMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+            <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
+            <div class="dropdown-menu px-2 dropdownWide" id="dropdownBrowsePlaylistListSelection">
+              <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
+              <div class="d-grid gap-2"></div>
+              <div class="dropdown-divider"></div>
+              <small class="mb-0 px-2"></small>
+            </div>
+          </div>
           <div id="BrowsePlaylistListPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
           <div class="table-responsive scrollContainer">
@@ -1040,6 +1050,90 @@
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <button type="button" class="btn btn-success" data-href='{"cmd": "addToPlaylist", "options": []}' data-phrase="Add"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalCopyPlaylist" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="mi title-icon">playlist_add</span> <span data-phrase="Copy playlist"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="copyPlaylistPlaylist" data-phrase="Playlist"></label>
+            <div class="col-sm-8 position-relative">
+              <div class="btn-group d-flex">
+                <input data-is="mympd-select-search" id="copyPlaylistPlaylist" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
+              </div>
+              <div class="invalid-feedback" data-phrase="Choose a playlist or enter a new playlist name"></div>
+            </div>
+          </div>
+          <div class="row mb-3" id="copyPlaylistMode">
+            <label class="col-sm-4 col-form-label" data-phrase="Insert mode"></label>
+            <div class="col-sm-8">
+              <div class="form-check ms-4">
+                <input class="form-check-input" type="radio" name="copyPlaylistMode" value="0" id="copyPlaylistModeAppend" checked="checked"/>
+                <label class="form-check-label" for="copyPlaylistModeAppend" data-phrase="Append"></label>
+              </div>
+              <div class="form-check ms-4 featWhence">
+                <input class="form-check-input" type="radio" name="copyPlaylistMode" value="1" id="copyPlaylistModeInsertFirst"/>
+                <label class="form-check-label" for="copyPlaylistModeInsertFirst" data-phrase="Insert at start of playlist"></label>
+              </div>
+              <div class="form-check ms-4">
+                <input class="form-check-input" type="radio" name="copyPlaylistMode" value="2" id="copyPlaylistModeReplace"/>
+                <label class="form-check-label" for="copyPlaylistModeInsertFirst" data-phrase="Replace"></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "copyPlaylist", "options": []}' data-phrase="Copy"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="modalMoveToPlaylist" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><span class="mi title-icon">playlist_add</span> <span data-phrase="Move to playlist"></span></h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="moveToPlaylistFrm">
+            <div class="row mb-3">
+              <label class="col-sm-4 col-form-label" for="moveToPlaylistPlaylist" data-phrase="Playlist"></label>
+              <div class="col-sm-8 position-relative">
+                <div class="btn-group d-flex">
+                  <input data-is="mympd-select-search" id="moveToPlaylistPlaylist" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
+                </div>
+                <div class="invalid-feedback" data-phrase="Choose a playlist or enter a new playlist name"></div>
+              </div>
+            </div>
+          </form>
+          <div class="row mb-3" id="moveToPlaylistPos">
+            <label class="col-sm-4 col-form-label" data-phrase="Insert mode"></label>
+            <div class="col-sm-8">
+              <div class="form-check ms-4">
+                <input class="form-check-input" type="radio" name="moveToPlaylistPos" value="0" id="moveToPlaylistPosAppend" checked="checked"/>
+                <label class="form-check-label" for="moveToPlaylistPosAppend" data-phrase="Append"></label>
+              </div>
+              <div class="form-check ms-4 featWhence">
+                <input class="form-check-input" type="radio" name="moveToPlaylistPos" value="1" id="moveToPlaylistPosInsertFirst"/>
+                <label class="form-check-label" for="moveToPlaylistPosInsertFirst" data-phrase="Insert at start of playlist"></label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer justify-content-between">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "moveToPlaylist", "options": []}' data-phrase="Move"></button>
         </div>
       </div>
     </div>

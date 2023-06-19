@@ -16,6 +16,7 @@ function initSelectActions() {
         'dropdownQueueJukeboxSelection',
         'dropdownBrowseDatabaseAlbumDetailSelection',
         'dropdownBrowseFilesystemSelection',
+        'dropdownBrowsePlaylistListSelection',
         'dropdownBrowsePlaylistDetailSelection',
         'dropdownBrowseRadioWebradiodbSelection',
         'dropdownBrowseRadioRadiobrowserSelection',
@@ -48,15 +49,7 @@ function addSelectActionButtons(el, dropdownId) {
         ? getData(firstSelectedRow, 'type')
         : 'song';
 
-    if (dropdownId === 'dropdownQueueLastPlayedSelection' ||
-        dropdownId === 'dropdownQueueJukeboxSelection' ||
-        dropdownId === 'dropdownBrowseDatabaseAlbumDetailSelection' ||
-        dropdownId === 'dropdownBrowseFilesystemSelection' ||
-        dropdownId === 'dropdownBrowsePlaylistDetailSelection' ||
-        dropdownId === 'dropdownBrowseRadioWebradiodbSelection' ||
-        dropdownId === 'dropdownBrowseRadioRadiobrowserSelection' ||
-        dropdownId === 'dropdownSearchSelection')
-    {
+    if (dropdownId !== 'dropdownQueueCurrentSelection') {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "appendQueue"]}, 'Append to queue');
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "appendPlayQueue"]}, 'Append to queue and play');
         if (features.featWhence === true) {
@@ -65,7 +58,7 @@ function addSelectActionButtons(el, dropdownId) {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "replaceQueue"]}, 'Replace queue');
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "replacePlayQueue"]}, 'Replace queue and play');
     }
-    if (dropdownId === 'dropdownQueueCurrentSelection') {
+    else {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "playAfterCurrent"]}, 'Play after current playing song');
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "removeFromQueueIDs"]}, 'Remove');
     }
@@ -78,11 +71,22 @@ function addSelectActionButtons(el, dropdownId) {
             addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "removeFromPlaylistPositions"]}, 'Remove');
         }
     }
+    if (dropdownId === 'dropdownBrowsePlaylistListSelection') {
+        addDivider(el);
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "showDelPlaylist"]}, 'Delete');
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "showCopyPlaylist"]}, 'Copy');
+    }
     if (features.featPlaylists === true &&
         type !== 'plist' &&
-        type !== 'smartpls')
+        type !== 'smartpls' &&
+        dropdownId !== 'dropdownBrowsePlaylistListSelection')
     {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "showAddToPlaylist"]}, 'Add to playlist');
+    }
+    if (dropdownId === 'dropdownBrowsePlaylistDetailSelection' &&
+        getData(table, 'type') !== 'smartpls')
+    {
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "showMoveToPlaylist"]}, 'Move to playlist');
     }
 }
 
@@ -149,10 +153,26 @@ function execSelectAction(type, action) {
             showAddToPlaylist(uris, '');
             break;
         }
-        case 'removeFromPlaylistPositions': {
-            const pos = getSelectedRowData(table, 'pos');
+        case 'showMoveToPlaylist': {
+            const positions = getSelectedRowData(table, 'songpos');
             const plist = getData(table, 'uri');
-            removeFromPlaylistPositions(plist, pos);
+            showMoveToPlaylist(plist, positions);
+            break;
+        }
+        case 'removeFromPlaylistPositions': {
+            const positions = getSelectedRowData(table, 'songpos');
+            const plist = getData(table, 'uri');
+            removeFromPlaylistPositions(plist, positions);
+            break;
+        }
+        case 'showDelPlaylist': {
+            const uris = getSelectedRowData(table, 'uri');
+            showDelPlaylist(uris);
+            break;
+        }
+        case 'showCopyPlaylist': {
+            const plists = getData(table, 'uri');
+            showCopyPlaylist(plists);
             break;
         }
     }
