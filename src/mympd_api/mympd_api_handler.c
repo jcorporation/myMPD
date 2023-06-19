@@ -1123,15 +1123,13 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_PLAYLIST_RM: {
             struct t_list plists;
             list_init(&plists);
-            if (json_get_array_string(request->data, "$.params.plists", &plists, vcb_isfilename, MPD_COMMANDS_MAX, &error) == true &&
-                json_get_bool(request->data, "$.params.smartplsOnly", &bool_buf1, &error) == true)
-            {
+            if (json_get_array_string(request->data, "$.params.plists", &plists, vcb_isfilename, MPD_COMMANDS_MAX, &error) == true) {
                 if (plists.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No playlists provided");
                 }
                 else {
-                    rc = mympd_api_playlist_delete(partition_state, &plists, bool_buf1, &error);
+                    rc = mympd_api_playlist_delete(partition_state, &plists, &error);
                     response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, error);
                 }

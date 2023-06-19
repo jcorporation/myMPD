@@ -45,5 +45,5 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
         struct t_list *src_plists, sds dst_plist, enum plist_copy_modes mode, sds *error);
 bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *partition_state, sds src_plist, sds dst_plist,
         struct t_list *positions, unsigned mode, sds *error);
-bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct t_list *playlists, bool smartpls_only, sds *error);
+bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct t_list *playlists, sds *error);
 #endif

@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/list.h"
 #include "src/mympd_api/playlists.h"
 
 #include "dist/utf8/utf8.h"
@@ -185,7 +186,7 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
     if (rc == true &&
         (mode == PLAYLIST_MOVE_APPEND || mode == PLAYLIST_MOVE_INSERT))
     {
-        return mympd_api_playlist_delete(partition_state, src_plists, false, error);
+        return mympd_api_playlist_delete(partition_state, src_plists, error);
     }
     return rc;
 }
@@ -577,21 +578,28 @@ sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buf
 }
 
 /**
- * Deletes the mpd playlists and the myMPD smart playlist
+ * Deletes the mpd playlists and the myMPD smart playlists
  * @param partition_state pointer to partition state
  * @param playlists playlist to delete
- * @param smartpls_only true to delete only the smart playlist definition
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
-bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct t_list *playlists, bool smartpls_only, sds *error)
+bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct t_list *playlists, sds *error)
 {
-    bool rc = true;
+    struct t_list all_plists;
+    list_init(&all_plists);
+    bool rc = mpd_client_get_all_playlists(partition_state, &all_plists, true, error);
+    if (rc == false) {
+        list_clear(&all_plists);
+        return false;
+    }
+
     struct t_list_node *current = playlists->head;
     sds pl_file = sdsempty();
+    int mpd_plists = 0;
     if (mpd_command_list_begin(partition_state->conn, false)) {
         while (current != NULL) {
-            //try to remove smart playlist, ignores none existing
+            // try to remove smart playlist, ignores none existing error
             pl_file = sdscatfmt(pl_file, "%S/%s/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS, current->key);
             if (try_rm_file(pl_file) == RM_FILE_ERROR) {
                 *error = sdscat(*error, "Deleting smart playlist failed");
@@ -601,12 +609,13 @@ bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct
                 break;
             }
             sdsclear(pl_file);
-            if (smartpls_only == false) {
-                //remove mpd playlist
+            // try to remove mpd playlist
+            if (list_get_node(&all_plists, current->key) != NULL) {
                 if (mpd_send_rm(partition_state->conn, current->key) == false) {
                     mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_rm");
                     break;
                 }
+                mpd_plists++;
             }
             current = current->next;
         }
@@ -614,10 +623,12 @@ bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct
     }
     mpd_response_finish(partition_state->conn);
     FREE_SDS(pl_file);
-    if (smartpls_only == true) {
+    if (mpd_plists == 0) {
+        // send update event manually if only smart playlists definitions are deleted
         send_jsonrpc_event(JSONRPC_EVENT_UPDATE_STORED_PLAYLIST, partition_state->name);
     }
-    return mympd_check_error_and_recover(partition_state, NULL, "mpd_send_rm") && rc;
+    list_clear(&all_plists);
+    return mympd_check_error_and_recover(partition_state, error, "mpd_send_rm") && rc;
 }
 
 /**

@@ -173,10 +173,10 @@ bool mpd_worker_smartpls_update(struct t_mpd_worker_state *mpd_worker_state, con
         if (json_get_string(content, "$.sort", 0, 100, &sds_buf1, vcb_ismpdsort, NULL) == true) {
             if (sdslen(sds_buf1) > 0) {
                 if (strcmp(sds_buf1, "shuffle") == 0) {
-                    rc = mpd_client_playlist_shuffle(mpd_worker_state->partition_state, playlist);
+                    rc = mpd_client_playlist_shuffle(mpd_worker_state->partition_state, playlist, NULL);
                 }
                 else {
-                    rc = mpd_client_playlist_sort(mpd_worker_state->partition_state, playlist, sds_buf1);
+                    rc = mpd_client_playlist_sort(mpd_worker_state->partition_state, playlist, sds_buf1, NULL);
                 }
             }
         }

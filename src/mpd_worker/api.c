@@ -43,13 +43,14 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             break;
         case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                if (mpd_client_playlist_shuffle(mpd_worker_state->partition_state, sds_buf1)) {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Shuffled playlist successfully");
+                if (mpd_client_playlist_shuffle(mpd_worker_state->partition_state, sds_buf1, &error)) {
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Shuffled playlist %{plist} successfully", 2, "plist", sds_buf1);
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Shuffling playlist failed");
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Shuffling playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
+                    sdsclear(error);
                 }
             }
             break;
@@ -57,14 +58,15 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag, &error) == true)
             {
-                rc = mpd_client_playlist_sort(mpd_worker_state->partition_state, sds_buf1, sds_buf2);
+                rc = mpd_client_playlist_sort(mpd_worker_state->partition_state, sds_buf1, sds_buf2, &error);
                 if (rc == true) {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Sorted playlist successfully");
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Sorted playlist %{plist} successfully", 2, "plist", sds_buf1);
                 }
                 else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Sorting playlist failed");
+                    response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Sorting playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
+                    sdsclear(error);
                 }
             }
             break;
@@ -72,10 +74,11 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_bool(request->data, "$.params.remove", &bool_buf1, &error) == true)
             {
-                long result = mpd_client_playlist_validate(mpd_worker_state->partition_state, sds_buf1, bool_buf1);
+                long result = mpd_client_playlist_validate(mpd_worker_state->partition_state, sds_buf1, bool_buf1, &error);
                 if (result == -1) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_PLAYLIST,
-                        JSONRPC_SEVERITY_ERROR, "Validation of playlist %{plist} failed", 2, "plist", sds_buf1);
+                        JSONRPC_SEVERITY_ERROR, "Validation of playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
+                    sdsclear(error);
                 }
                 else if (result == 0) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_PLAYLIST,
@@ -100,11 +103,12 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlists validation started");
                 push_response(response, request->id, request->conn_id);
-                long result = mpd_client_playlist_validate_all(mpd_worker_state->partition_state, bool_buf1);
+                long result = mpd_client_playlist_validate_all(mpd_worker_state->partition_state, bool_buf1, &error);
                 sds buffer;
                 if (result == -1) {
-                    buffer = jsonrpc_notify(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
-                        JSONRPC_SEVERITY_ERROR, "Validation of all playlists failed");
+                    buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
+                        JSONRPC_SEVERITY_ERROR, "Validation of all playlists failed: %{error}", 2, "error", error);
+                    sdsclear(error);
                 }
                 else if (result == 0) {
                     buffer = jsonrpc_notify(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
@@ -131,10 +135,11 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_bool(request->data, "$.params.remove", &bool_buf1, &error) == true)
             {
-                long result = mpd_client_playlist_dedup(mpd_worker_state->partition_state, sds_buf1, bool_buf1);
+                long result = mpd_client_playlist_dedup(mpd_worker_state->partition_state, sds_buf1, bool_buf1, &error);
                 if (result == -1) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of playlist %{plist} failed", 2, "plist", sds_buf1);
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
+                    sdsclear(error);
                 }
                 else if (result == 0) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
@@ -159,11 +164,12 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlists deduplication started");
                 push_response(response, request->id, request->conn_id);
-                long result = mpd_client_playlist_dedup_all(mpd_worker_state->partition_state, bool_buf1);
                 sds buffer;
+                long result = mpd_client_playlist_dedup_all(mpd_worker_state->partition_state, bool_buf1, &error);
                 if (result == -1) {
-                    buffer = jsonrpc_notify(sdsempty(),
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of all playlists failed");
+                    buffer = jsonrpc_notify_phrase(sdsempty(),
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of all playlists failed: %{error}", 2, "error", error);
+                    sdsclear(error);
                 }
                 else if (result == 0) {
                     buffer = jsonrpc_notify(sdsempty(),
@@ -190,19 +196,22 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_bool(request->data, "$.params.remove", &bool_buf1, &error) == true)
             {
-                long result1 = mpd_client_playlist_validate(mpd_worker_state->partition_state, sds_buf1, bool_buf1);
-                long result2 = mpd_client_playlist_dedup(mpd_worker_state->partition_state, sds_buf1, bool_buf1);
+                long result1 = mpd_client_playlist_validate(mpd_worker_state->partition_state, sds_buf1, bool_buf1, &error);
                 if (result1 == -1) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Validation of playlist %{plist} failed", 2, "plist", sds_buf1);
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Validation of playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
+                    sdsclear(error);
+                    break;
                 }
-                else if (result2 == -1) {
+                long result2 = mpd_client_playlist_dedup(mpd_worker_state->partition_state, sds_buf1, bool_buf1, &error);
+                if (result2 == -1) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of playlist %{plist} failed", 2, "plist", sds_buf1);
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
+                    sdsclear(error);
+                    break;
                 }
-                else if (result1 == 0 &&
-                         result2 == 0)
-                {
+                
+                if (result1 + result2 == 0) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Content of playlist %{plist} is valid and uniq", 2, "plist", sds_buf1);
                 }
@@ -229,20 +238,23 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlists validation and deduplication started");
                 push_response(response, request->id, request->conn_id);
-                long result1 = mpd_client_playlist_validate_all(mpd_worker_state->partition_state, bool_buf1);
-                long result2 = mpd_client_playlist_dedup_all(mpd_worker_state->partition_state, bool_buf1);
                 sds buffer;
+                long result1 = mpd_client_playlist_validate_all(mpd_worker_state->partition_state, bool_buf1, &error);
                 if (result1 == -1) {
-                    buffer = jsonrpc_notify(sdsempty(),
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Validation of all playlists failed");
+                    buffer = jsonrpc_notify_phrase(sdsempty(),
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Validation of all playlists failed: %{error}", 2, "error", error);
+                    sdsclear(error);
+                    break;
                 }
-                else if (result2 == -1) {
-                    buffer = jsonrpc_notify(sdsempty(),
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of all playlists failed");
+                long result2 = mpd_client_playlist_dedup_all(mpd_worker_state->partition_state, bool_buf1, &error);
+                if (result2 == -1) {
+                    buffer = jsonrpc_notify_phrase(sdsempty(),
+                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of all playlists failed: %{error}", 2, "error", error);
+                    sdsclear(error);
+                    break;
                 }
-                else if (result1 == 0 &&
-                         result2 == 0)
-                {
+                
+                if (result1 + result2 == 0) {
                     buffer = jsonrpc_notify(sdsempty(),
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Content of all playlists are valid and uniq");
                 }
