@@ -960,5 +960,6 @@
     "Action for selection": "Aktion für die Auswahl",
     "Select": "Auswählen",
     "Select all": "Alles auswählen",
-    "selected": "ausgewählt"
+    "selected": "ausgewählt",
+    "Invalid selection": "Ungültige Auswahl"
 }

@@ -73,6 +73,10 @@ function initBrowseFilesystem() {
     }, false);
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
+        //select mode
+        if (selectRow(event) === true) {
+            return;
+        }
         //action td
         if (event.target.nodeName === 'A') {
             handleActionTdClick(event);

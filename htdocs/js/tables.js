@@ -38,11 +38,23 @@ function switchTableMode(target) {
  */
 function selectAllRows(table, select) {
     const rows = table.querySelectorAll('tbody > tr');
+    let firstType = undefined;
     for (const row of rows) {
-        if (row.classList.contains('not-clickable')) {
+        if (row.lastElementChild.lastElementChild !== null) {
+            firstType = getData(row, 'type');
+            break;
+        }
+    }
+    for (const row of rows) {
+        if (row.classList.contains('not-clickable') ||
+            getData(row, 'type') !== firstType)
+        {
             continue;
         }
         const check = row.lastElementChild.lastElementChild;
+        if (check === null) {
+            continue;
+        }
         if (select === true) {
             row.classList.add('active');
             check.textContent = ligatures['checked'];
@@ -104,7 +116,11 @@ function selectRow(event) {
             last = lastPos;
         }
         const rows = table.querySelector('tbody').querySelectorAll('tr');
+        const firstType = getData(rows[first], 'type');
         for (let i = first; i <= last; i++) {
+            if (getData(rows[i], 'type') !== firstType) {
+                continue;
+            }
             selectSingleRow(rows[i], true);
         }
     }
@@ -126,6 +142,9 @@ function selectRow(event) {
  */
 function selectSingleRow(row, select) {
     const check = row.lastElementChild.lastElementChild;
+    if (check === null) {
+        return;
+    }
     if ((select === null && row.classList.contains('active')) ||
         select === false)
     {
@@ -160,11 +179,29 @@ function getSelectedRowData(table, attribute) {
 function showSelectionCount() {
     const table = document.getElementById(app.id + 'List');
     const dropdown = document.querySelector('#dropdown' + app.id + 'Selection');
-    const count = table.querySelectorAll('tbody > tr.active').length;
-    dropdown.querySelector('small').textContent = count + ' ' + tn('selected');
+    const rows = table.querySelectorAll('tbody > tr.active');
+    const count = rows.length;
+    let validSelection = true;
+    if (count > 1) {
+        const firstType = getData(rows[0], 'type');
+        for (const row of rows) {
+            if (getData(row, 'type') !== firstType) {
+                validSelection = false;
+                break;
+            }
+        }
+    }
+    if (validSelection === true) {
+        dropdown.querySelector('small').textContent = count + ' ' + tn('selected');
+    }
+    else {
+        dropdown.querySelector('small').textContent = tn('Invalid selection');
+    }
     const btns = dropdown.querySelectorAll('button');
     for (const btn of btns) {
-        if (count === 0) {
+        if (count === 0 ||
+            validSelection === false)
+        {
             btn.setAttribute('disabled', 'disabled');
         }
         else {

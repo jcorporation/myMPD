@@ -15,6 +15,7 @@ function initSelectActions() {
         'dropdownQueueLastPlayedSelection',
         'dropdownQueueJukeboxSelection',
         'dropdownBrowseDatabaseAlbumDetailSelection',
+        'dropdownBrowseFilesystemSelection',
         'dropdownBrowsePlaylistDetailSelection',
         'dropdownBrowseRadioWebradiodbSelection',
         'dropdownBrowseRadioRadiobrowserSelection',
@@ -42,13 +43,15 @@ function initSelectActions() {
 function addSelectActionButtons(el, dropdownId) {
     elClear(el);
     const table = document.getElementById(app.id + 'List');
-    const type = dropdownId === 'dropdownBrowseRadioWebradiodbSelection' || dropdownId === 'dropdownBrowseRadioRadiobrowserSelection'
-            ? 'stream'
-            : 'song';
+    const firstSelectedRow = table.querySelector('tr.active');
+    const type = firstSelectedRow !== null
+        ? getData(firstSelectedRow, 'type')
+        : 'song';
 
     if (dropdownId === 'dropdownQueueLastPlayedSelection' ||
         dropdownId === 'dropdownQueueJukeboxSelection' ||
         dropdownId === 'dropdownBrowseDatabaseAlbumDetailSelection' ||
+        dropdownId === 'dropdownBrowseFilesystemSelection' ||
         dropdownId === 'dropdownBrowsePlaylistDetailSelection' ||
         dropdownId === 'dropdownBrowseRadioWebradiodbSelection' ||
         dropdownId === 'dropdownBrowseRadioRadiobrowserSelection' ||
@@ -76,7 +79,8 @@ function addSelectActionButtons(el, dropdownId) {
         }
     }
     if (features.featPlaylists === true &&
-        dropdownId !== 'dropdownBrowsePlaylistListSelection')
+        type !== 'plist' &&
+        type !== 'smartpls')
     {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "showAddToPlaylist"]}, 'Add to playlist');
     }
