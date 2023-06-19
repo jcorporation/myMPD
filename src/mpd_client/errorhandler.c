@@ -111,7 +111,6 @@ bool mympd_check_error_and_recover_plain(struct t_partition_state *partition_sta
 sds mympd_respond_with_error_or_ok(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id,
         long request_id, const char *command, bool *result)
 {
-    sdsclear(buffer);
     *result = check_error_and_recover(partition_state, &buffer, cmd_id, request_id, RESPONSE_TYPE_JSONRPC_RESPONSE, command);
     if (*result == false) {
         return buffer;
@@ -150,6 +149,7 @@ static bool check_error_and_recover(struct t_partition_state *partition_state, s
         if (buffer != NULL &&
             *buffer != NULL)
         {
+            sdsclear(*buffer);
             switch(response_type) {
                 case RESPONSE_TYPE_JSONRPC_RESPONSE:
                     *buffer = jsonrpc_respond_message_phrase(*buffer, cmd_id, request_id,
