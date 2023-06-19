@@ -50,7 +50,6 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 else {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Shuffling playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
-                    sdsclear(error);
                 }
             }
             break;
@@ -66,7 +65,6 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 else {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Sorting playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
-                    sdsclear(error);
                 }
             }
             break;
@@ -78,7 +76,6 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 if (result == -1) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_PLAYLIST,
                         JSONRPC_SEVERITY_ERROR, "Validation of playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
-                    sdsclear(error);
                 }
                 else if (result == 0) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_PLAYLIST,
@@ -108,7 +105,6 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 if (result == -1) {
                     buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
                         JSONRPC_SEVERITY_ERROR, "Validation of all playlists failed: %{error}", 2, "error", error);
-                    sdsclear(error);
                 }
                 else if (result == 0) {
                     buffer = jsonrpc_notify(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
@@ -139,7 +135,6 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 if (result == -1) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
-                    sdsclear(error);
                 }
                 else if (result == 0) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
@@ -169,7 +164,6 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 if (result == -1) {
                     buffer = jsonrpc_notify_phrase(sdsempty(),
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of all playlists failed: %{error}", 2, "error", error);
-                    sdsclear(error);
                 }
                 else if (result == 0) {
                     buffer = jsonrpc_notify(sdsempty(),
@@ -200,14 +194,12 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 if (result1 == -1) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Validation of playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
-                    sdsclear(error);
                     break;
                 }
                 long result2 = mpd_client_playlist_dedup(mpd_worker_state->partition_state, sds_buf1, bool_buf1, &error);
                 if (result2 == -1) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
-                    sdsclear(error);
                     break;
                 }
                 
@@ -274,7 +266,6 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 }
                 ws_notify(buffer, MPD_PARTITION_ALL);
                 FREE_SDS(buffer);
-                sdsclear(error);
                 async = true;
             }
             break;
@@ -327,25 +318,28 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     FREE_SDS(sds_buf1);
     FREE_SDS(sds_buf2);
 
-    //error handling
-    if (sdslen(error) > 0) {
-        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
-        MYMPD_LOG_ERROR(MPD_PARTITION_DEFAULT, "Error processing method \"%s\"", method);
-    }
-    FREE_SDS(error);
-
     if (async == true) {
         //already responded
         free_request(request);
+        FREE_SDS(error);
         return;
     }
 
+    //sync request handling
     if (sdslen(response->data) == 0) {
-        response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", method);
-        MYMPD_LOG_ERROR(MPD_PARTITION_DEFAULT, "No response for method \"%s\"", method);
+        //error handling
+        if (sdslen(error) > 0) {
+            response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
+            MYMPD_LOG_ERROR(MPD_PARTITION_DEFAULT, "Error processing method \"%s\"", method);
+        }
+        else {
+            response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", method);
+            MYMPD_LOG_ERROR(MPD_PARTITION_DEFAULT, "No response for method \"%s\"", method);
+        }
     }
     push_response(response, request->id, request->conn_id);
     free_request(request);
+    FREE_SDS(error);
 }

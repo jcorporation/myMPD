@@ -54,6 +54,7 @@
 #include "src/mympd_api/volume.h"
 #include "src/mympd_api/webradios.h"
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -235,13 +236,10 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_array_string(request->data, "$.params.options", &options, vcb_isname, 10, &error) == true)
             {
                 rc = mympd_api_home_icon_save(&mympd_state->home_list, bool_buf1, long_buf1, sds_buf1, sds_buf2, sds_buf3, sds_buf4, sds_buf5, sds_buf6, &options);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_HOME);
-                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME, MPD_PARTITION_ALL);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_HOME, JSONRPC_SEVERITY_ERROR, "Can not save home icon");
+                if (rc == true) {
+                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME, MPD_PARTITION_ALL);
                 }
             }
             list_clear(&options);
@@ -252,26 +250,20 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_long(request->data, "$.params.to", 0, LIST_HOME_ICONS_MAX, &long_buf2, &error) == true)
             {
                 rc = mympd_api_home_icon_move(&mympd_state->home_list, long_buf1, long_buf2);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_HOME);
-                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME, MPD_PARTITION_ALL);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_HOME, JSONRPC_SEVERITY_ERROR, "Can not move home icon");
+                if (rc == true) {
+                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME, MPD_PARTITION_ALL);
                 }
             }
             break;
         case MYMPD_API_HOME_ICON_RM:
             if (json_get_long(request->data, "$.params.pos", 0, LIST_HOME_ICONS_MAX, &long_buf1, &error) == true) {
                 rc = mympd_api_home_icon_delete(&mympd_state->home_list, long_buf1);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_HOME);
-                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME, MPD_PARTITION_ALL);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_HOME, JSONRPC_SEVERITY_ERROR, "Can not delete home icon");
+                if (rc == true) {
+                    send_jsonrpc_event(JSONRPC_EVENT_UPDATE_HOME, MPD_PARTITION_ALL);
                 }
             }
             break;
@@ -289,14 +281,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_string(request->data, "$.params.content", 0, CONTENT_LEN_MAX, &sds_buf2, vcb_istext, &error) == true)
             {
                 rc = mympd_api_script_validate(sds_buf1, sds_buf2, config->lualibs, &error);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_SCRIPT);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                            JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, error);
-                    sdsclear(error);
-                }
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, error);
             }
         break;
         case MYMPD_API_SCRIPT_SAVE: {
@@ -311,18 +297,12 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 rc = mympd_api_script_validate(sds_buf1, sds_buf3, config->lualibs, &error);
                 if (rc == true) {
                     rc = mympd_api_script_save(config->workdir, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments);
-                    if (rc == true) {
-                        response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_SCRIPT);
-                    }
-                    else {
-                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                             JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Could not save script");
-                    }
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                             JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, error);
-                    sdsclear(error);
                 }
             }
             list_clear(&arguments);
@@ -331,13 +311,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_SCRIPT_RM:
             if (json_get_string(request->data, "$.params.script", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
                 rc = mympd_api_script_delete(config->workdir, sds_buf1);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_SCRIPT);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Could not delete script");
-                }
             }
             break;
         case MYMPD_API_SCRIPT_GET:
@@ -358,18 +333,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
                 rc = mympd_api_script_start(config->workdir, sds_buf1, config->lualibs, arguments, partition_state->name, true);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_SCRIPT);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Can't create mympd_script thread");
-                }
             }
             else {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Invalid script name");
                 list_free(arguments);
+                FREE_PTR(arguments);
             }
             break;
         }
@@ -380,13 +351,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_object_string(request->data, "$.params.arguments", arguments, vcb_isname, 10, &error) == true)
             {
                 rc = mympd_api_script_start(config->workdir, sds_buf1, config->lualibs, arguments, partition_state->name, false);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_SCRIPT);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Can't create mympd_script thread");
-                }
             }
             else {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -403,14 +369,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 sds cols = sdsempty();
                 cols = json_get_cols_as_string(request->data, cols, &rc);
                 if (rc == true) {
-                    if (mympd_api_settings_cols_save(mympd_state, sds_buf1, cols) == true) {
-                        response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
-                    }
-                    else {
-                        response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Unknown table %{table}", 2, "table", sds_buf1);
-                        MYMPD_LOG_ERROR(partition_state->name, "MYMPD_API_COLS_SAVE: Unknown table %s", sds_buf1);
-                    }
+                    rc = mympd_api_settings_cols_save(mympd_state, sds_buf1, cols);
+                    response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Could not save columns");
                 }
                 else {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -482,13 +443,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_PRESET_RM:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
                 rc = presets_delete(&partition_state->presets, sds_buf1);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_SCRIPT);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Could not delete preset");
-                }
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Could not delete preset");
             }
             break;
         case MYMPD_API_PRESET_LOAD:
@@ -599,12 +555,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
 
                 time_t start = mympd_api_timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, int_buf2);
                 rc = mympd_api_timer_replace(&mympd_state->timer_list, start, int_buf2, timer_handler_select, int_buf1, timer_def);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_TIMER);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_TIMER, JSONRPC_SEVERITY_ERROR, "Adding timer failed");
+                if (rc == false) {
                     mympd_api_timer_free_definition(timer_def);
                 }
             }
@@ -652,13 +605,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No song positions provided");
                 }
-                else if (jukebox_rm_entries(&partition_state->jukebox_queue, &positions, partition_state->name) == true) {
-                        response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                rc = jukebox_rm_entries(&partition_state->jukebox_queue, &positions, partition_state->name);
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_JUKEBOX, JSONRPC_SEVERITY_ERROR, "Could not remove song from jukebox queue");
-                }
             }
             list_clear(&positions);
             break;
@@ -722,13 +671,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_TRIGGER_RM:
             if (json_get_long(request->data, "$.params.id", 0, LIST_TRIGGER_MAX, &long_buf1, &error) == true) {
                 rc = mympd_api_trigger_delete(&mympd_state->trigger_list, long_buf1);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_TRIGGER);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_TRIGGER, JSONRPC_SEVERITY_ERROR, "Could not delete trigger");
-                }
             }
             break;
         case INTERNAL_API_SCRIPT_INIT: {
@@ -784,13 +728,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_int(request->data, "$.params.like", 0, 2, &int_buf1, &error) == true)
             {
                 rc = sticker_set_like(&mympd_state->mpd_state->sticker_queue, sds_buf1, int_buf1);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "Failed to set like, unknown error");
-                }
                 //mympd_feedback trigger
                 mympd_api_trigger_execute_feedback(&mympd_state->trigger_list, sds_buf1, int_buf1, partition_state->name);
             }
@@ -1319,7 +1258,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     rc = mympd_api_playlist_content_move_to_playlist(partition_state, sds_buf1, sds_buf2, &positions, uint_buf1, &error);
                     response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, error);
-                    sdsclear(error);
                 }
             }
             list_clear(&positions);
@@ -1339,7 +1277,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     rc = mympd_api_playlist_content_rm_positions(partition_state, sds_buf1, &positions, &error);
                     response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                             JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, error);
-                    sdsclear(error);
                 }
             }
             list_clear(&positions);
@@ -1377,7 +1314,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     if (rc == false) {
                         response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                             JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, error);
-                        sdsclear(error);
                     }
                     else {
                         switch(uint_buf1) {
@@ -1764,13 +1700,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_string_max(request->data, "$.params.preset", &sds_buf2, vcb_isname, &error) == true)
             {
                 rc = mympd_api_timer_startplay(partition_state, uint_buf1, sds_buf1, sds_buf2);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_TIMER);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_TIMER, JSONRPC_SEVERITY_ERROR, "Error executing timer start play");
-                }
             }
             break;
         case MYMPD_API_MOUNT_URLHANDLER_LIST:
@@ -1793,15 +1724,12 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         case MYMPD_API_PARTITION_SAVE:
-            if (json_iterate_object(request->data, "$.params", mympd_api_settings_partition_set, partition_state, NULL, 1000, &error) == true) {
-                //respond with ok
-                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
+            rc = json_iterate_object(request->data, "$.params", mympd_api_settings_partition_set, partition_state, NULL, 1000, &error);
+            if (rc == true) {
+                settings_to_webserver(partition_state->mympd_state);
             }
-            else {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error saving partition settings");
-            }
-            settings_to_webserver(partition_state->mympd_state);
+            response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
             break;
         case MYMPD_API_PARTITION_RM:
             if (partition_state->is_default == false) {
@@ -1896,13 +1824,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_WEBRADIO_FAVORITE_RM:
             if (json_get_string(request->data, "$.params.filename", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
                 rc = mympd_api_webradio_delete(config->workdir, sds_buf1);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Could not delete webradio favorite");
-                }
             }
             break;
         default:
@@ -1927,29 +1850,31 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         MEASURE_PRINT(partition_state->name, method)
     #endif
 
-    //errorhandling
-    if (sdslen(error) > 0) {
-        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
-        MYMPD_LOG_ERROR(partition_state->name, "Error processing method \"%s\"", method);
-    }
-    FREE_SDS(error);
-
     //async request handling
     //request was forwarded to worker thread - do not free it
     if (async == true) {
         free_response(response);
+        FREE_SDS(error);
         return;
     }
 
     //sync request handling
     if (sdslen(response->data) == 0) {
-        response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", method);
-        MYMPD_LOG_ERROR(partition_state->name, "No response for method \"%s\"", method);
+        //errorhandling
+        if (sdslen(error) > 0) {
+            response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
+            MYMPD_LOG_ERROR(partition_state->name, "Error processing method \"%s\"", method);
+        }
+        else {
+            response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", method);
+            MYMPD_LOG_ERROR(partition_state->name, "No response for method \"%s\"", method);
+        }
     }
     push_response(response, request->id, request->conn_id);
     free_request(request);
+    FREE_SDS(error);
 }
 
 /**

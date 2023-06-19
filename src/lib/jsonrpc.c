@@ -263,7 +263,7 @@ sds jsonrpc_respond_ok(sds buffer, enum mympd_cmd_ids cmd_id, long request_id, e
  * @return pointer to buffer
  */
 sds jsonrpc_respond_with_message_or_ok(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
-        bool rc, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, sds message)
+        bool rc, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message)
 {
     return rc == true
         ? jsonrpc_respond_ok(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD)

@@ -81,7 +81,7 @@ sds jsonrpc_respond_start(sds buffer, enum mympd_cmd_ids cmd_id, long request_id
 sds jsonrpc_end(sds buffer);
 sds jsonrpc_respond_ok(sds buffer, enum mympd_cmd_ids cmd_id, long request_id, enum jsonrpc_facilities facility);
 sds jsonrpc_respond_with_message_or_ok(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
-        bool rc, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, sds message);
+        bool rc, enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message);
 sds jsonrpc_respond_message(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
         enum jsonrpc_facilities facility, enum jsonrpc_severities severity, const char *message);
 sds jsonrpc_respond_message_phrase(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,

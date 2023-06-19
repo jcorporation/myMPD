@@ -222,6 +222,7 @@ bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, 
         mympd_state->cols_browse_radio_radiobrowser = sds_replace(mympd_state->cols_browse_radio_radiobrowser, cols);
     }
     else {
+        MYMPD_LOG_ERROR(NULL, "MYMPD_API_COLS_SAVE: Unknown table %s", table);
         return false;
     }
     sds tablename = camel_to_snake(table);
