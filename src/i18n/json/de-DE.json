@@ -654,7 +654,6 @@
     "Type or select picture": "Bild wählen oder URL eingeben",
     "Unknown request": "Unbekannter Befehl",
     "Unknown smart playlist type": "Unbekannter intelligenter Wiedergabenlisten Typ",
-    "Unknown table %{table}": "Unbekannte Tabelle %{table}",
     "Unmount": "Aushängen",
     "Unsynced lyrics": "Liedtext",
     "Unsynced lyrics extension": "Liedtexte Dateiendung",
@@ -748,7 +747,6 @@
     "Invalid deletion criteria": "Ungültiges Löschkriterium",
     "All partitions": "Alle Partitionen",
     "Default partition can not be deleted": "Partition \"default\" kann nicht gelöscht werden",
-    "Error saving partition settings": "Fehler beim Speichern der Partitionseinstellungen",
     "OverridesStreamPort": "Die Stream URI überschreibt die automatische Streamproxy Konfiguration (MPD Host + Stream Port)",
     "Partitions can only be deleted from default partition": "Partitionen können nur von der Default-Partition aus gelöscht werden",
     "Partition must be connected": "Partition muss verbunden sein",
@@ -964,5 +962,6 @@
     "Invalid selection": "Ungültige Auswahl",
     "Move to playlist": "In Wiedergabeliste verschieben",
     "Copy": "Kopieren",
-    "Copy playlist": "Wiedergabeliste kopieren"
+    "Copy playlist": "Wiedergabeliste kopieren",
+    "Could not save columns": "Spalten konnten nicht gespeichert werden"
 }

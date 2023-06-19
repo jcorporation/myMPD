@@ -240,21 +240,19 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 push_response(response, request->id, request->conn_id);
                 sds buffer;
                 long result1 = mpd_client_playlist_validate_all(mpd_worker_state->partition_state, bool_buf1, &error);
+                long result2 = -1;
+                if (result1 > -1) {
+                    result2 = mpd_client_playlist_dedup_all(mpd_worker_state->partition_state, bool_buf1, &error);
+                }
                 if (result1 == -1) {
                     buffer = jsonrpc_notify_phrase(sdsempty(),
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Validation of all playlists failed: %{error}", 2, "error", error);
-                    sdsclear(error);
-                    break;
                 }
-                long result2 = mpd_client_playlist_dedup_all(mpd_worker_state->partition_state, bool_buf1, &error);
-                if (result2 == -1) {
+                else if (result2 == -1) {
                     buffer = jsonrpc_notify_phrase(sdsempty(),
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of all playlists failed: %{error}", 2, "error", error);
-                    sdsclear(error);
-                    break;
                 }
-                
-                if (result1 + result2 == 0) {
+                else if (result1 + result2 == 0) {
                     buffer = jsonrpc_notify(sdsempty(),
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Content of all playlists are valid and uniq");
                 }
@@ -276,6 +274,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 }
                 ws_notify(buffer, MPD_PARTITION_ALL);
                 FREE_SDS(buffer);
+                sdsclear(error);
                 async = true;
             }
             break;
