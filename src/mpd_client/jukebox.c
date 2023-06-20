@@ -430,17 +430,7 @@ bool jukebox_add_to_queue(struct t_partition_state *partition_state, long add_so
  * @return true on success, else false
  */
 static bool add_album_to_queue(struct t_partition_state *partition_state, struct mpd_song *album) {
-    const char *value = NULL;
-    unsigned i = 0;
-    sds expression = sdsnewlen("(", 1);
-    while ((value = mpd_song_get_tag(album, partition_state->mpd_state->tag_albumartist, i)) != NULL) {
-        expression = escape_mpd_search_expression(expression, mpd_tag_name(partition_state->mpd_state->tag_albumartist), "==", value);
-        expression = sdscat(expression, " AND ");
-        i++;
-    }
-    expression = escape_mpd_search_expression(expression, "Album", "==", mpd_song_get_tag(album, MPD_TAG_ALBUM, 0));
-    expression = sdscatlen(expression, ")", 1);
-
+    sds expression = get_album_search_expression(partition_state->mpd_state->tag_albumartist, album);
     if (mpd_search_add_db_songs(partition_state->conn, true) &&
         mpd_search_add_expression(partition_state->conn, expression))
     {

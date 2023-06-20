@@ -163,6 +163,11 @@ const APIparams = {
         "type": APItypes.string,
         "example": "default",
         "desc": "Name of the preset"
+    },
+    "albumids": {
+        "type": APItypes.array,
+        "example": "[\"artist::album\"]",
+        "desc": "myMPD album ids"
     }
 };
 
@@ -234,15 +239,10 @@ const APImethods = {
     "MYMPD_API_DATABASE_ALBUM_DETAIL": {
         "desc": "Displays songs of an album.",
         "params": {
-            "album": {
+            "albumid": {
                 "type": APItypes.string,
-                "example": "Tabula Rasa",
-                "desc": "Album to display"
-            },
-            "albumartist": {
-                "type": APItypes.array,
-                "example": "[\"Einstürzende Neubauten\"]",
-                "desc": "Albumartist"
+                "example": "artist::album",
+                "desc": "myMPD albumid to display"
             },
             "cols": APIparams.cols
         }
@@ -433,6 +433,15 @@ const APImethods = {
             "play": APIparams.play
         }
     },
+    "MYMPD_API_QUEUE_INSERT_ALBUMS": {
+        "desc": "Adds the albums to distinct position in the queue.",
+        "params": {
+            "albumids": APIparams.albumids,
+            "to": APIparams.to,
+            "whence": APIparams.whence,
+            "play": APIparams.play
+        }
+    },
     "MYMPD_API_QUEUE_APPEND_PLAYLISTS": {
         "desc": "Appends the playlists to the queue.",
         "params": {
@@ -454,6 +463,13 @@ const APImethods = {
             "play": APIparams.play
         }
     },
+    "MYMPD_API_QUEUE_APPEND_ALBUMS": {
+        "desc": "Appends the albums result to the queue.",
+        "params": {
+            "albumids": APIparams.albumids,
+            "play": APIparams.play
+        }
+    },
     "MYMPD_API_QUEUE_REPLACE_PLAYLISTS": {
         "desc": "Replaces the queue with the playlists.",
         "params": {
@@ -472,6 +488,13 @@ const APImethods = {
         "desc": "Replaces the queue with search result.",
         "params": {
             "expression": APIparams.expression,
+            "play": APIparams.play
+        }
+    },
+    "MYMPD_API_QUEUE_REPLACE_ALBUMS": {
+        "desc": "Replaces the queue with albums.",
+        "params": {
+            "albumids": APIparams.albumids,
             "play": APIparams.play
         }
     },
@@ -588,6 +611,13 @@ const APImethods = {
             "uris": APIparams.uris
         }
     },
+    "MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUMS": {
+        "desc": "Appends uris to the playlist.",
+        "params": {
+            "plist": APIparams.plist,
+            "albumids": APIparams.albumids
+        }
+    },
     "MYMPD_API_PLAYLIST_CONTENT_INSERT_URIS": {
         "desc": "Inserts uris to the playlist.",
         "params": {
@@ -596,11 +626,26 @@ const APImethods = {
             "to": APIparams.to
         }
     },
+    "MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUMS": {
+        "desc": "Inserts uris to the playlist.",
+        "params": {
+            "plist": APIparams.plist,
+            "albumids": APIparams.albumids,
+            "to": APIparams.to
+        }
+    },
     "MYMPD_API_PLAYLIST_CONTENT_REPLACE_URIS": {
         "desc": "Replaces the playlist content with uris.",
         "params": {
             "plist": APIparams.plist,
             "uris": APIparams.uris
+        }
+    },
+    "MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUMS": {
+        "desc": "Replaces the playlist content with albums.",
+        "params": {
+            "plist": APIparams.plist,
+            "albumids": APIparams.albumids
         }
     },
     "MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH": {

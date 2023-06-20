@@ -31,25 +31,22 @@
  * @param partition_state pointer to partition specific states
  * @param buffer sds string to append response
  * @param request_id jsonrpc request id
- * @param album name of the album
- * @param albumartists list of albumartists
+ * @param albumid id of the album (key in the album_cache)
  * @param tagcols t_tags struct of song tags to print
  * @return pointer to buffer
  */
 sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds album, struct t_list *albumartists, const struct t_tags *tagcols)
+        sds albumid, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_ALBUM_DETAIL;
 
-    sds expression = sdsnewlen("(", 1);
-    struct t_list_node *current = albumartists->head;
-    while (current != NULL) {
-        expression = escape_mpd_search_expression(expression, mpd_tag_name(partition_state->mpd_state->tag_albumartist), "==", current->key);
-        expression = sdscat(expression, " AND ");
-        current = current->next;
+    struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumid);
+    if (mpd_album == NULL) {
+        return jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Could not find album");
     }
-    expression = escape_mpd_search_expression(expression, "Album", "==", album);
-    expression = sdscatlen(expression, ")", 1);
+
+    sds expression = get_album_search_expression(partition_state->mpd_state->tag_albumartist, mpd_album);
 
     if (mpd_search_db_songs(partition_state->conn, true) == false ||
         mpd_search_add_expression(partition_state->conn, expression) == false ||
@@ -64,7 +61,6 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     FREE_SDS(expression);
     time_t last_played_max = 0;
     sds last_played_song_uri = sdsempty();
-    sds albumkey = sdsempty();
     if (mpd_search_commit(partition_state->conn)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
@@ -75,10 +71,6 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (entities_returned++) {
                 buffer = sdscatlen(buffer, ",", 1);
-            }
-            else {
-                //on first song
-                albumkey = album_cache_get_key(song, albumkey);
             }
             buffer = sdscat(buffer, "{\"Type\": \"song\",");
             buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
@@ -99,17 +91,8 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     }
     mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_commit") == false) {
-        FREE_SDS(albumkey);
         FREE_SDS(last_played_song_uri);
         return buffer;
-    }
-
-    struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumkey);
-    if (mpd_album == NULL) {
-        FREE_SDS(albumkey);
-        FREE_SDS(last_played_song_uri);
-        return jsonrpc_respond_message(buffer, cmd_id, request_id,
-            JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Could not find album");
     }
 
     buffer = sdscatlen(buffer, "],", 2);
@@ -122,13 +105,13 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "Discs", album_get_discs(mpd_album), true);
     buffer = tojson_uint(buffer, "SongCount", album_get_song_count(mpd_album), true);
+    buffer = tojson_char(buffer, "AlbumId", albumid, true);
     buffer = sdscat(buffer, "\"lastPlayedSong\":{");
     buffer = tojson_time(buffer, "time", last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
     buffer = sdscatlen(buffer, "}", 1);
     buffer = jsonrpc_end(buffer);
 
-    FREE_SDS(albumkey);
     FREE_SDS(last_played_song_uri);
     return buffer;
 }
@@ -216,7 +199,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
     }
     raxStop(&iter);
     free_search_expression_list(expr_list);
-    FREE_SDS(key);
+
     //print album list
     long entity_count = 0;
     long entities_returned = 0;
@@ -240,7 +223,9 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
             buffer = sdscatlen(buffer, ",", 1);
             buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
             buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), true);
-            buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(album), false);
+            buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(album), true);
+            key = album_cache_get_key(album, key);
+            buffer = tojson_char(buffer, "AlbumId", key, true);
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;
@@ -249,6 +234,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
         }
     }
     raxStop(&iter);
+    FREE_SDS(key);
 
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_llong(buffer, "totalEntities", (long long)albums->numele, true);

@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+
 #include "src/mpd_client/search.h"
 
 #include "src/lib/jsonrpc.h"
@@ -17,17 +18,15 @@
 #include <string.h>
 
 //private definitions
-
 static sds search_songs(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
-        const char *expression, const char *sort, bool sortdesc,
-        const char *plist, unsigned to, unsigned whence,
-        unsigned offset, unsigned limit, const struct t_tags *tagcols,
-        struct t_cache *sticker_cache, bool *result);
+        const char *expression, const char *sort, bool sortdesc, const char *plist, unsigned to, unsigned whence,
+        unsigned offset, unsigned limit, const struct t_tags *tagcols, struct t_cache *sticker_cache,
+        enum response_types response_type, bool *result);
 
 //public functions
 
 /**
- * Searches the mpd database for songs by expression and returns a jsonrpc result
+ * Searches the mpd database for songs by expression and returns an jsonrpc result
  * @param partition_state pointer to partition specific states
  * @param buffer already allocated sds string to append the result
  * @param request_id jsonrpc request id
@@ -47,7 +46,7 @@ sds mpd_client_search_response(struct t_partition_state *partition_state, sds bu
 {
     return search_songs(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, request_id,
             expression, sort, sortdesc, NULL, 0, MPD_POSITION_ABSOLUTE, offset, limit,
-            tagcols, sticker_cache, result);
+            tagcols, sticker_cache, RESPONSE_TYPE_JSONRPC_RESPONSE, result);
 }
 
 /**
@@ -56,22 +55,22 @@ sds mpd_client_search_response(struct t_partition_state *partition_state, sds bu
  * @param expression mpd search expression
  * @param plist playlist to create or to append the result
  * @param to position to insert the songs, UINT_MAX to append
- * @param response pointer to already allocated sds string to return the jsonrpc response
- *                 or NULL to return no response
+ * @param error pointer to already allocated sds string for the error message
+ *              or NULL to return no response
  * @return true on success else false
  */
 bool mpd_client_search_add_to_plist(struct t_partition_state *partition_state, const char *expression,
-        const char *plist, unsigned to, sds *response)
+        const char *plist, unsigned to, sds *error)
 {
     bool result = false;
     sds buffer = sdsempty();
     buffer = search_songs(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, 0,
             expression, NULL, false, plist, to, MPD_POSITION_ABSOLUTE, 0, 0,
-            NULL, NULL, &result);
-    if (response != NULL &&
-        *response != NULL)
+            NULL, NULL, RESPONSE_TYPE_PLAIN, &result);
+    if (error != NULL &&
+        *error != NULL)
     {
-        *response = sdscatsds(*response, buffer);
+        *error = sdscatsds(*error, buffer);
     }
     FREE_SDS(buffer);
     return result;
@@ -86,25 +85,45 @@ bool mpd_client_search_add_to_plist(struct t_partition_state *partition_state, c
  *               0 = MPD_POSITION_ABSOLUTE
  *               1 = MPD_POSITION_AFTER_CURRENT
  *               2 = MPD_POSITION_BEFORE_CURRENT
- * @param response pointer to already allocated sds string to return the jsonrpc response
-                   or NULL to return no response
+ * @param error pointer to already allocated sds string for the error message
+ *              or NULL to return no response
  * @return true on success else false
  */
 bool mpd_client_search_add_to_queue(struct t_partition_state *partition_state, const char *expression,
-        unsigned to, enum mpd_position_whence whence, sds *response)
+        unsigned to, enum mpd_position_whence whence, sds *error)
 {
     bool result = false;
     sds buffer = sdsempty();
     buffer = search_songs(partition_state, buffer, MYMPD_API_DATABASE_SEARCH, 0,
             expression, NULL, false, "queue", to, whence, 0, 0,
-            NULL, NULL, &result);
-    if (response != NULL &&
-        *response != NULL)
+            NULL, NULL, RESPONSE_TYPE_PLAIN, &result);
+    if (error != NULL &&
+        *error != NULL)
     {
-        *response = sdscatsds(*response, buffer);
+        *error = sdscatsds(*error, buffer);
     }
     FREE_SDS(buffer);
     return result;
+}
+
+/**
+ * Creates a mpd search expression to find all songs in an album
+ * @param tag_albumartist albumartist tag
+ * @param album mpd_song struct representing the album
+ * @return newly allocated sds string
+ */
+sds get_album_search_expression(enum mpd_tag_type tag_albumartist, struct mpd_song *album) {
+    sds expression = sdsnewlen("(", 1);
+    const char *value;
+    unsigned count = 0;
+    //return comma separated tag list
+    while ((value = mpd_song_get_tag(album, tag_albumartist, count)) != NULL) {
+        expression = escape_mpd_search_expression(expression, mpd_tag_name(tag_albumartist), "==", value);
+        expression = sdscat(expression, " AND ");
+    }
+    expression = escape_mpd_search_expression(expression, "Album", "==", mpd_song_get_tag(album, MPD_TAG_ALBUM, 0));
+    expression = sdscatlen(expression, ")", 1);
+    return expression;
 }
 
 /**
@@ -151,50 +170,55 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
  * @param limit max number of results to return
  * @param tagcols tags to return
  * @param sticker_cache pointer to sticker cache
- * @param result pointer to bool to set returncode
+ * @param response_type response type
+ * @param result pointer to bool for the returncode
  * @return pointer to buffer
  */
 static sds search_songs(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
-        const char *expression, const char *sort, bool sortdesc, const char *plist,
-        unsigned to, unsigned whence, unsigned offset, unsigned limit,
-        const struct t_tags *tagcols, struct t_cache *sticker_cache, bool *result)
+        const char *expression, const char *sort, bool sortdesc, const char *plist, unsigned to, unsigned whence,
+        unsigned offset, unsigned limit, const struct t_tags *tagcols, struct t_cache *sticker_cache,
+        enum response_types response_type, bool *result)
 {
     *result = false;
     if (expression[0] == '\0') {
-        MYMPD_LOG_ERROR(partition_state->name, "No search expression defined");
-        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD,
-            JSONRPC_SEVERITY_ERROR, "No search expression defined");
+        return response_type == RESPONSE_TYPE_PLAIN
+            ? sdscat(buffer, "No search expression defined")
+            : jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "No search expression defined");
     }
 
     if (plist == NULL) {
         //show search results
         if (mpd_search_db_songs(partition_state->conn, false) == false) {
             mpd_search_cancel(partition_state->conn);
-            return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
+            return  response_type == RESPONSE_TYPE_PLAIN
+                ? sdscat(buffer, "Error creating MPD search command")
+                : jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
         }
     }
     else if (strcmp(plist, "queue") == 0) {
         //add search to queue
         if (mpd_search_add_db_songs(partition_state->conn, false) == false) {
             mpd_search_cancel(partition_state->conn);
-            return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
+            return  response_type == RESPONSE_TYPE_PLAIN
+                ? sdscat(buffer, "Error creating MPD search command")
+                : jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
         }
     }
     else {
         //add search to playlist
         if (mpd_search_add_db_songs_to_playlist(partition_state->conn, plist) == false) {
             mpd_search_cancel(partition_state->conn);
-            return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
+            return  response_type == RESPONSE_TYPE_PLAIN
+                ? sdscat(buffer, "Error creating MPD search command")
+                : jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
         }
     }
 
     if (mpd_search_add_expression(partition_state->conn, expression) == false) {
         mpd_search_cancel(partition_state->conn);
-        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
+        return  response_type == RESPONSE_TYPE_PLAIN
+            ? sdscat(buffer, "Error creating MPD search command")
+            : jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
     }
 
     if (plist == NULL ||
@@ -211,8 +235,9 @@ static sds search_songs(struct t_partition_state *partition_state, sds buffer, e
                 sort_tag = get_sort_tag(sort_tag, &partition_state->mpd_state->tags_mpd);
                 if (mpd_search_add_sort_tag(partition_state->conn, sort_tag, sortdesc) == false) {
                     mpd_search_cancel(partition_state->conn);
-                    return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                        JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
+                    return  response_type == RESPONSE_TYPE_PLAIN
+                        ? sdscat(buffer, "Error creating MPD search command")
+                        : jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
                 }
             }
             else if (strcmp(sort, "LastModified") == 0) {
@@ -220,8 +245,9 @@ static sds search_songs(struct t_partition_state *partition_state, sds buffer, e
                 sortdesc = sortdesc == false ? true : false;
                 if (mpd_search_add_sort_name(partition_state->conn, "Last-Modified", sortdesc) == false) {
                     mpd_search_cancel(partition_state->conn);
-                    return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                        JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
+                    return  response_type == RESPONSE_TYPE_PLAIN
+                        ? sdscat(buffer, "Error creating MPD search command")
+                        : jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
                 }
             }
             else {
@@ -232,8 +258,9 @@ static sds search_songs(struct t_partition_state *partition_state, sds buffer, e
         unsigned real_limit = limit == 0 ? offset + MPD_PLAYLIST_LENGTH_MAX : offset + limit;
         if (mpd_search_add_window(partition_state->conn, offset, real_limit) == false) {
             mpd_search_cancel(partition_state->conn);
-            return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
+            return  response_type == RESPONSE_TYPE_PLAIN
+                ? sdscat(buffer, "Error creating MPD search command")
+                : jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
         }
     }
 
@@ -243,8 +270,9 @@ static sds search_songs(struct t_partition_state *partition_state, sds buffer, e
     {
         if (mpd_search_add_position(partition_state->conn, to, whence) == false) {
             mpd_search_cancel(partition_state->conn);
-            return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
+            return  response_type == RESPONSE_TYPE_PLAIN
+                ? sdscat(buffer, "Error creating MPD search command")
+                : jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
         }
     }
 
@@ -286,8 +314,15 @@ static sds search_songs(struct t_partition_state *partition_state, sds buffer, e
         buffer = jsonrpc_end(buffer);
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_db_songs") == false) {
-       return buffer;
+    if (response_type == RESPONSE_TYPE_PLAIN) {
+        if (mympd_check_error_and_recover(partition_state, &buffer, "mpd_search_db_songs") == false) {
+            return buffer;
+        }
+    }
+    else {
+        if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_db_songs") == false) {
+            return buffer;
+        }
     }
     *result = true;
     return buffer;

@@ -5,10 +5,12 @@
 */
 
 #include "compile_time.h"
+#include "mpd/playlist.h"
 #include "src/lib/list.h"
 #include "src/mympd_api/playlists.h"
 
 #include "dist/utf8/utf8.h"
+#include "src/lib/album_cache.h"
 #include "src/lib/api.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
@@ -21,6 +23,7 @@
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/playlists.h"
+#include "src/mpd_client/search.h"
 #include "src/mpd_client/search_local.h"
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
@@ -271,6 +274,84 @@ bool mympd_api_playlist_content_replace(struct t_partition_state *partition_stat
     }
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add");
+}
+
+/**
+ * Appends albums to a playlist
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param albumids playlists to append
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_append_albums(struct t_partition_state *partition_state, sds plist, struct t_list *albumids, sds *error) {
+    struct t_list_node *current = albumids->head;
+    bool rc = true;
+    while (current != NULL) {
+        struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, current->key);
+        sds expression = get_album_search_expression(partition_state->mpd_state->tag_albumartist, mpd_album);
+        rc = mpd_client_search_add_to_plist(partition_state, expression, plist, UINT_MAX, error);
+        FREE_SDS(expression);
+        if (rc == false) {
+            break;
+        }
+        current = current->next;
+    }
+    return rc;
+}
+
+/**
+ * Insert albums into a playlist
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param albumids playlists to insert
+ * @param to position to insert
+ * @param whence how to interpret the to parameter
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partition_state, sds plist, struct t_list *albumids, unsigned to, sds *error) {
+    struct t_list_node *current = albumids->head;
+    bool rc = true;
+    while (current != NULL) {
+        struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, current->key);
+        sds expression = get_album_search_expression(partition_state->mpd_state->tag_albumartist, mpd_album);
+        rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, error);
+        FREE_SDS(expression);
+        if (rc == false) {
+            break;
+        }
+        current = current->next;
+    }
+    return rc;
+}
+
+/**
+ * Replaces the playlist with albums
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param albumids playlists to insert
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partition_state, sds plist, struct t_list *albumids, sds *error) {
+    struct t_list_node *current = albumids->head;
+    mpd_run_playlist_clear(partition_state->conn, plist);
+    bool rc = mympd_check_error_and_recover(partition_state, error, "mpd_run_playlist_clear");
+    if (rc == false) {
+        return rc;
+    }
+    while (current != NULL) {
+        struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, current->key);
+        sds expression = get_album_search_expression(partition_state->mpd_state->tag_albumartist, mpd_album);
+        rc = mpd_client_search_add_to_plist(partition_state, expression, plist, UINT_MAX, error);
+        FREE_SDS(expression);
+        if (rc == false) {
+            break;
+        }
+        current = current->next;
+    }
+    return rc;
 }
 
 /**

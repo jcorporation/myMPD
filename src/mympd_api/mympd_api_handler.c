@@ -735,7 +735,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         case MYMPD_API_PLAYER_STATE:
-            response->data = mympd_api_status_get(partition_state, response->data, request->id, RESPONSE_TYPE_RESPONSE);
+            response->data = mympd_api_status_get(partition_state, response->data, request->id, RESPONSE_TYPE_JSONRPC_RESPONSE);
             break;
         case MYMPD_API_PLAYER_CLEARERROR:
             mpd_run_clearerror(partition_state->conn);
@@ -995,7 +995,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             break;
         case MYMPD_API_PLAYER_VOLUME_GET:
-            response->data = mympd_api_status_volume_get(partition_state, response->data, request->id, RESPONSE_TYPE_RESPONSE);
+            response->data = mympd_api_status_volume_get(partition_state, response->data, request->id, RESPONSE_TYPE_JSONRPC_RESPONSE);
             break;
         case MYMPD_API_PLAYER_SEEK_CURRENT:
             if (json_get_int_max(request->data, "$.params.seek", &int_buf1, &error) == true &&
@@ -1219,6 +1219,61 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 }
             }
             break;
+        case MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUMS:
+        case MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUMS: {
+            struct t_list albumids;
+            list_init(&albumids);
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isuri, MPD_COMMANDS_MAX, &error) == true)
+            {
+                if (albumids.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No album ids provided");
+                }
+                else {
+                    rc = request->cmd_id == MYMPD_API_QUEUE_APPEND_ALBUMS
+                        ? mympd_api_playlist_content_append_albums(partition_state, sds_buf1, &albumids, &error)
+                        : mympd_api_playlist_content_replace_albums(partition_state, sds_buf1, &albumids, &error);
+                    response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, error);
+                    if (rc == true) {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
+                    }
+                }
+            }
+            list_clear(&albumids);
+            break;
+        }
+        case MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUMS: {
+            if (mympd_state->mpd_state->feat_whence == false) {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Method not supported");
+                break;
+            }
+            struct t_list albumids;
+            list_init(&albumids);
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isuri, MPD_COMMANDS_MAX, &error) == true &&
+                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true)
+            {
+                if (albumids.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No album ids provided");
+                }
+                else {
+                    rc = mympd_api_playlist_content_insert_albums(partition_state, sds_buf1, &albumids, uint_buf1, &error);
+                    response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, error);
+                    if (rc == true) {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
+                    }
+                }
+            }
+            list_clear(&albumids);
+            break;
+        }
         case MYMPD_API_PLAYLIST_CONTENT_CLEAR:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
                 mpd_run_playlist_clear(partition_state->conn, sds_buf1);
@@ -1561,6 +1616,66 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 }
             }
             break;
+        case MYMPD_API_QUEUE_APPEND_ALBUMS:
+        case MYMPD_API_QUEUE_REPLACE_ALBUMS: {
+            struct t_list albumids;
+            list_init(&albumids);
+            if (json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isuri, MPD_COMMANDS_MAX, &error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
+            {
+                if (albumids.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No album ids provided");
+                }
+                else {
+                    rc = request->cmd_id == MYMPD_API_QUEUE_APPEND_ALBUMS
+                        ? mympd_api_queue_append_albums(partition_state, &albumids, &error)
+                        : mympd_api_queue_replace_albums(partition_state, &albumids, &error);
+                    response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, error);
+                    if (rc == true &&
+                        check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
+                    {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
+                    }
+                }
+            }
+            list_clear(&albumids);
+            break;
+        }
+        case MYMPD_API_QUEUE_INSERT_ALBUMS: {
+            if (mympd_state->mpd_state->feat_whence == false) {
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "Method not supported");
+                break;
+            }
+            struct t_list albumids;
+            list_init(&albumids);
+            if (json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isuri, MPD_COMMANDS_MAX, &error) == true &&
+                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
+                json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
+            {
+                if (albumids.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No album ids provided");
+                }
+                else {
+                    rc = mympd_api_queue_insert_albums(partition_state, &albumids, uint_buf1, uint_buf2, &error);
+                    response->data = jsonrpc_respond_with_message_or_ok(response->data, request->cmd_id, request->id, rc,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, error);
+                    if (rc == true &&
+                        check_start_play(partition_state, bool_buf1, &response->data, request->cmd_id, request->id) == true)
+                    {
+                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_INFO, "Updated the queue");
+                    }
+                }
+            }
+            list_clear(&albumids);
+            break;
+        }
         case MYMPD_API_QUEUE_ADD_RANDOM:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
                 json_get_uint(request->data, "$.params.mode", 0, 2, &uint_buf1, &error) == true &&
@@ -1685,11 +1800,10 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             reset_t_tags(&tagcols);
             struct t_list albumartists;
             list_init(&albumartists);
-            if (json_get_string(request->data, "$.params.album", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
-                json_get_array_string(request->data, "$.params.albumartist", &albumartists, vcb_isname, 10, &error) == true &&
+            if (json_get_string(request->data, "$.params.albumid", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
-                response->data = mympd_api_browse_album_detail(partition_state, response->data, request->id, sds_buf1, &albumartists, &tagcols);
+                response->data = mympd_api_browse_album_detail(partition_state, response->data, request->id, sds_buf1, &tagcols);
             }
             list_clear(&albumartists);
             break;

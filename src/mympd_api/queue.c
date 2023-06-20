@@ -8,11 +8,13 @@
 #include "mpd/queue.h"
 #include "src/mympd_api/queue.h"
 
+#include "src/lib/album_cache.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/search.h"
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/status.h"
@@ -222,6 +224,81 @@ bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state,
         priority = MPD_QUEUE_PRIO_MAX;
     }
     return mympd_api_queue_prio_set(partition_state, song_ids, priority, error);
+}
+
+/**
+ * Appends albums to the queue
+ * @param partition_state pointer to partition state
+ * @param albumids playlists to append
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_queue_append_albums(struct t_partition_state *partition_state, struct t_list *albumids, sds *error) {
+    struct t_list_node *current = albumids->head;
+    bool rc = true;
+    while (current != NULL) {
+        struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, current->key);
+        sds expression = get_album_search_expression(partition_state->mpd_state->tag_albumartist, mpd_album);
+        rc = mpd_client_search_add_to_queue(partition_state, expression, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
+        FREE_SDS(expression);
+        if (rc == false) {
+            break;
+        }
+        current = current->next;
+    }
+    return rc;
+}
+
+/**
+ * Insert albums into the queue
+ * @param partition_state pointer to partition state
+ * @param albumids playlists to insert
+ * @param to position to insert
+ * @param whence how to interpret the to parameter
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_queue_insert_albums(struct t_partition_state *partition_state, struct t_list *albumids, unsigned to, unsigned whence, sds *error) {
+    struct t_list_node *current = albumids->head;
+    bool rc = true;
+    while (current != NULL) {
+        struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, current->key);
+        sds expression = get_album_search_expression(partition_state->mpd_state->tag_albumartist, mpd_album);
+        rc = mpd_client_search_add_to_queue(partition_state, expression, to, whence, error);
+        FREE_SDS(expression);
+        if (rc == false) {
+            break;
+        }
+        current = current->next;
+    }
+    return rc;
+}
+
+/**
+ * Replaces the queue with albums
+ * @param partition_state pointer to partition state
+ * @param albumids playlists to insert
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_queue_replace_albums(struct t_partition_state *partition_state, struct t_list *albumids, sds *error) {
+    struct t_list_node *current = albumids->head;
+    mpd_run_clear(partition_state->conn);
+    bool rc = mympd_check_error_and_recover(partition_state, error, "mpd_run_clear");
+    if (rc == false) {
+        return rc;
+    }
+    while (current != NULL) {
+        struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, current->key);
+        sds expression = get_album_search_expression(partition_state->mpd_state->tag_albumartist, mpd_album);
+        rc = mpd_client_search_add_to_queue(partition_state, expression, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
+        FREE_SDS(expression);
+        if (rc == false) {
+            break;
+        }
+        current = current->next;
+    }
+    return rc;
 }
 
 /**
