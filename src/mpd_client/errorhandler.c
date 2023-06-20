@@ -19,16 +19,6 @@
  * Private definitions
  */
 
-/**
- * Response types for error messages
- */
-enum response_types {
-    RESPONSE_TYPE_JSONRPC_RESPONSE,
-    RESPONSE_TYPE_JSONRPC_NOTIFY,
-    RESPONSE_TYPE_PLAIN,
-    RESPONSE_TYPE_NONE
-};
-
 static bool check_error_and_recover(struct t_partition_state *partition_state, sds *buffer, enum mympd_cmd_ids cmd_id,
         long request_id, enum response_types response_type, const char *command);
 

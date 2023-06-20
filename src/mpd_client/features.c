@@ -56,7 +56,7 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
 
     //set state
     sds buffer = sdsempty();
-    buffer = mympd_api_status_get(partition_state, buffer, 0, RESPONSE_TYPE_RESPONSE);
+    buffer = mympd_api_status_get(partition_state, buffer, 0, RESPONSE_TYPE_JSONRPC_RESPONSE);
     FREE_SDS(buffer);
 
     if (mpd_connection_cmp_server_version(partition_state->conn, 0, 22, 0) >= 0) {

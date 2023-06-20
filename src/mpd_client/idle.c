@@ -409,7 +409,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                         sticker_set_elapsed(&partition_state->mpd_state->sticker_queue, partition_state->song_uri, elapsed);
                     }
                     //get and put mpd state
-                    buffer = mympd_api_status_get(partition_state, buffer, 0, RESPONSE_TYPE_NOTIFY);
+                    buffer = mympd_api_status_get(partition_state, buffer, 0, RESPONSE_TYPE_JSONRPC_NOTIFY);
                     //check if song has changed
                     if (partition_state->song_id != partition_state->last_song_id &&
                         partition_state->last_skipped_id != partition_state->last_song_id &&
@@ -437,7 +437,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                     break;
                 case MPD_IDLE_MIXER:
                     //volume has changed - partition specific event
-                    buffer = mympd_api_status_volume_get(partition_state, buffer, 0, RESPONSE_TYPE_NOTIFY);
+                    buffer = mympd_api_status_volume_get(partition_state, buffer, 0, RESPONSE_TYPE_JSONRPC_NOTIFY);
                     break;
                 case MPD_IDLE_OUTPUT:
                     //outputs are changed - partition specific event

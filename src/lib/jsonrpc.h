@@ -15,9 +15,14 @@
 
 #include <stdbool.h>
 
-enum jsonrpc_response_types {
-    RESPONSE_TYPE_RESPONSE = 0,
-    RESPONSE_TYPE_NOTIFY = 1
+/**
+ * Response types for error messages
+ */
+enum response_types {
+    RESPONSE_TYPE_JSONRPC_RESPONSE = 0,
+    RESPONSE_TYPE_JSONRPC_NOTIFY,
+    RESPONSE_TYPE_PLAIN,
+    RESPONSE_TYPE_NONE
 };
 
 enum jsonrpc_severities {

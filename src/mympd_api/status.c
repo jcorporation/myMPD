@@ -136,7 +136,7 @@ long mympd_api_status_updatedb_id(struct t_partition_state *partition_state) {
  * @param response_type jsonrpc response type: RESPONSE_TYPE_RESPONSE or RESPONSE_TYPE_NOTIFY
  * @return pointer to buffer
  */
-sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, long request_id, enum jsonrpc_response_types response_type) {
+sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, long request_id, enum response_types response_type) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_STATE;
     struct mpd_status *status = mpd_run_status(partition_state->conn);
     int song_id = -1;
@@ -189,7 +189,7 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
             (long long)now, (long long)partition_state->song_start_time, 
             (long long)partition_state->song_scrobble_time, (long long)partition_state->song_end_time);
 
-        if (response_type == RESPONSE_TYPE_NOTIFY) {
+        if (response_type == RESPONSE_TYPE_JSONRPC_NOTIFY) {
             buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_STATE);
         }
         else {
@@ -201,7 +201,7 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
         mpd_status_free(status);
     }
     mpd_response_finish(partition_state->conn);
-    if (response_type == RESPONSE_TYPE_NOTIFY) {
+    if (response_type == RESPONSE_TYPE_JSONRPC_NOTIFY) {
         mympd_check_error_and_recover_notify(partition_state, &buffer, "mpd_run_status");
     }
     else {
@@ -220,7 +220,7 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
         }
         mpd_response_finish(partition_state->conn);
     }
-    if (response_type == RESPONSE_TYPE_NOTIFY) {
+    if (response_type == RESPONSE_TYPE_JSONRPC_NOTIFY) {
         mympd_check_error_and_recover_notify(partition_state, &buffer, "mpd_run_status");
     }
     else {
@@ -298,10 +298,10 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
  * @param response_type jsonrpc response type: RESPONSE_TYPE_RESPONSE or RESPONSE_TYPE_NOTIFY
  * @return pointer to buffer
  */
-sds mympd_api_status_volume_get(struct t_partition_state *partition_state, sds buffer, long request_id, enum jsonrpc_response_types response_type) {
+sds mympd_api_status_volume_get(struct t_partition_state *partition_state, sds buffer, long request_id, enum response_types response_type) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_VOLUME_GET;
     int volume = mpd_client_get_volume(partition_state);
-    if (response_type == RESPONSE_TYPE_NOTIFY) {
+    if (response_type == RESPONSE_TYPE_JSONRPC_NOTIFY) {
         buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_VOLUME);
     }
     else {
