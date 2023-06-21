@@ -10,7 +10,6 @@
 #include "src/lib/api.h"
 #include "src/lib/mympd_state.h"
 
-bool mympd_api_queue_play_newly_inserted(struct t_partition_state *partition_state);
 sds mympd_api_queue_status(struct t_partition_state *partition_state, sds buffer);
 sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, long request_id,
         long offset, long limit, const struct t_tags *tagcols);

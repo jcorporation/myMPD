@@ -1,12 +1,12 @@
 - es-AR: 73 missing phrases
-- es-ES: 745 missing phrases
-- es-VE: 654 missing phrases
-- fi-FI: 650 missing phrases
+- es-ES: 737 missing phrases
+- es-VE: 637 missing phrases
+- fi-FI: 633 missing phrases
 - fr-FR: 74 missing phrases
 - it-IT: 74 missing phrases
 - ja-JP: 74 missing phrases
 - ko-KR: 73 missing phrases
 - nl-NL: 74 missing phrases
-- pl-PL: 837 missing phrases
+- pl-PL: 825 missing phrases
 - ru-RU: 74 missing phrases
 - zh-Hans: 73 missing phrases

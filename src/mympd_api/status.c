@@ -230,6 +230,28 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
 }
 
 /**
+ * Clears the mpd player error returned by the status command.
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the error response
+ * @param cmd_id jsonrpc method
+ * @param request_id jsonrpc request id
+ * @return true on success, else false
+ */
+bool mympd_api_status_clear_error(struct t_partition_state *partition_state, sds *buffer,
+        enum mympd_cmd_ids cmd_id, long request_id)
+{
+    bool rc = true;
+    if (partition_state->player_error == true) {
+        mpd_run_clearerror(partition_state->conn);
+        rc = mympd_check_error_and_recover_respond(partition_state, buffer, cmd_id, request_id, "mpd_run_clearerror");
+        if (rc == true) {
+            partition_state->player_error = false;
+        }
+    }
+    return rc;
+}
+
+/**
  * Copies mpd and myMPD states to the lua_mympd_state struct
  * @param lua_partition_state pointer to struct t_list
  * @param partition_state pointer to partition state

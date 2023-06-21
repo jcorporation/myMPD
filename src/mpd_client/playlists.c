@@ -6,9 +6,8 @@
 
 #include "compile_time.h"
 #include "dist/rax/rax.h"
-#include "mpd/playlist.h"
-#include "mpd/queue.h"
-#include "mpd/response.h"
+
+#include "mpd/client.h"
 #include "src/lib/list.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/playlists.h"
@@ -347,6 +346,17 @@ long mpd_client_enum_playlist(struct t_partition_state *partition_state, const c
     return entity_count;
 }
 
+/**
+ * Clears a playlist
+ * @param partition_state pointer to partition specific states
+ * @param plist playlist name
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mpd_client_playlist_clear(struct t_partition_state *partition_state, const char *plist, sds *error) {
+    mpd_run_playlist_clear(partition_state->conn, plist);
+    return mympd_check_error_and_recover(partition_state, error, "mpd_run_playlist_clear");
+}
 
 /**
  * Gets all playlists.
