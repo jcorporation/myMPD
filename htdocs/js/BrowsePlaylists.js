@@ -723,8 +723,11 @@ function moveToPlaylistClose(obj) {
 
 /**
  * Shows the add to playlist modal
- * @param {Array} uris the uris or "STREAM" to add a stream
- * @param {string} searchstr searchstring for uri = ALBUM, SEARCH
+ * @param {Array} uris the uris or 
+ *                     ["STREAM"] to add a stream
+ *                     ["SEARCH"] to add a search
+ *                     ["ALBUM",...albumIds] to add an album
+ * @param {string} searchstr searchstring for uri[0] = SEARCH
  * @returns {void}
  */
 function showAddToPlaylist(uris, searchstr) {
@@ -791,9 +794,12 @@ function addToPlaylist() {
     let type;
     switch(uris[0]) {
         case 'SEARCH':
-        case 'ALBUM':
             uris[0] = document.getElementById('addToPlaylistSearch').value;
             type = 'search';
+            break;
+        case 'ALBUM':
+            type = 'album';
+            uris.shift();
             break;
         case 'STREAM': {
             const streamUrlEl = document.getElementById('streamUrl');
@@ -890,6 +896,12 @@ function appendPlaylist(type, uris, plist, callback) {
                 "plist": plist
             }, callback, true);
             break;
+        case 'album':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUMS", {
+                "albumids": uris,
+                "plist": plist
+            }, callback, true);
+            break;
     }
 }
 
@@ -920,6 +932,12 @@ function insertPlaylist(type, uris, plist, to, callback) {
                 "to": to
             }, callback, true);
             break;
+        case 'album':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUMS", {
+                "albumids": uris,
+                "plist": plist
+            }, callback, true);
+            break;
     }
 }
 
@@ -944,6 +962,12 @@ function replacePlaylist(type, uris, plist, callback) {
         case 'search':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_SEARCH", {
                 "expression": uris[0],
+                "plist": plist
+            }, callback, true);
+            break;
+        case 'album':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUMS", {
+                "albumids": uris,
                 "plist": plist
             }, callback, true);
             break;

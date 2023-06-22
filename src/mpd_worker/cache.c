@@ -185,7 +185,6 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
         }
         if (mpd_search_commit(mpd_worker_state->partition_state->conn)) {
             struct mpd_song *song;
-            sds key = sdsempty();
             const bool create_album_cache = mpd_worker_state->partition_state->mpd_state->feat_tags &&
                 mpd_client_tag_exists(&mpd_worker_state->partition_state->mpd_state->tags_mympd, MPD_TAG_ALBUM) &&
                 mpd_client_tag_exists(&mpd_worker_state->partition_state->mpd_state->tags_mympd, mpd_worker_state->partition_state->mpd_state->tag_albumartist);
@@ -210,7 +209,7 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
                     //set initial song count to 1
                     album_cache_set_song_count(song, 1);
                     //construct the key
-                    key = album_cache_get_key(song, key);
+                    sds key = album_cache_get_key(song);
                     if (sdslen(key) > 0) {
                         if (mpd_worker_state->partition_state->mpd_state->tag_albumartist == MPD_TAG_ALBUM_ARTIST &&
                             mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0) == NULL)
@@ -240,10 +239,10 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
                         skipped++;
                         mpd_song_free(song);
                     }
+                    FREE_SDS(key);
                 }
                 i++;
             }
-            FREE_SDS(key);
         }
         mpd_response_finish(mpd_worker_state->partition_state->conn);
         if (mympd_check_error_and_recover(mpd_worker_state->partition_state, NULL, "mpd_search_commit") == false) {

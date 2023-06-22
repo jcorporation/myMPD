@@ -271,6 +271,10 @@ bool mympd_api_playlist_content_append_albums(struct t_partition_state *partitio
     bool rc = true;
     while (current != NULL) {
         struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, current->key);
+        if (mpd_album == NULL) {
+            rc = false;
+            break;
+        }
         sds expression = get_album_search_expression(partition_state->mpd_state->tag_albumartist, mpd_album);
         rc = mpd_client_search_add_to_plist(partition_state, expression, plist, UINT_MAX, error);
         FREE_SDS(expression);
@@ -297,6 +301,10 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
     bool rc = true;
     while (current != NULL) {
         struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, current->key);
+        if (mpd_album == NULL) {
+            rc = false;
+            break;
+        }
         sds expression = get_album_search_expression(partition_state->mpd_state->tag_albumartist, mpd_album);
         rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, error);
         FREE_SDS(expression);

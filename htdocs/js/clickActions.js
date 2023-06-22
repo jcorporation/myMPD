@@ -44,33 +44,21 @@ function clickQuickRemove(target) {
 function clickQuickPlay(target) {
     const type = getData(target.parentNode.parentNode, 'type');
     let uri = getData(target.parentNode.parentNode, 'uri');
-    if (type === 'webradio') {
-        uri = getRadioFavoriteUri(uri);
+    switch (type) {
+        case 'webradio':
+            uri = getRadioFavoriteUri(uri);
+            break;
+        case 'album':
+            uri = getData(target.parentNode.parentNode, 'AlbumId');
+            break;
     }
-    switch(settings.webuiSettings.clickQuickPlay) {
-        case 'append': return appendQueue(type, uri);
-        case 'appendPlay': return appendPlayQueue(type, uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue(type, uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue(type, uri);
-        case 'replace': return replaceQueue(type, uri);
-        case 'replacePlay': return replacePlayQueue(type, uri);
-    }
-}
-
-/**
- * Handler for album play button
- * @param {object} albumArtist album artists
- * @param {string} album album name
- * @returns {void}
- */
-function clickAlbumPlay(albumArtist, album) {
-    switch(settings.webuiSettings.clickQuickPlay) {
-        case 'append': return _addAlbum('appendQueue', albumArtist, album, undefined);
-        case 'appendPlay': return _addAlbum('appendPlayQueue', albumArtist, album, undefined);
-        case 'insertAfterCurrent': return _addAlbum('insertAfterCurrentQueue', albumArtist, album, undefined);
-        case 'insertPlayAfterCurrent': return _addAlbum('insertPlayAfterCurrentQueue', albumArtist, album, undefined);
-        case 'replace': return _addAlbum('replaceQueue', albumArtist, album, undefined);
-        case 'replacePlay': return _addAlbum('replacePlayQueue', albumArtist, album, undefined);
+    switch (settings.webuiSettings.clickQuickPlay) {
+        case 'append': return appendQueue(type, [uri]);
+        case 'appendPlay': return appendPlayQueue(type, [uri]);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue(type, [uri]);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue(type, [uri]);
+        case 'replace': return replaceQueue(type, [uri]);
+        case 'replacePlay': return replacePlayQueue(type, [uri]);
     }
 }
 

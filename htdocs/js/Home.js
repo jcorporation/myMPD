@@ -436,70 +436,44 @@ function populateHomeIconCmdSelect(cmd, type) {
             break;
         }
         default: {
-            if (type === 'album') {
+            const paramName = type === 'search'
+                ? 'Expression'
+                : type === 'album'
+                    ? 'AlbumId'
+                    : 'Uri';
+            selectHomeIconCmd.appendChild(
+                elCreateTextTn('option', {"value": "replaceQueue"}, 'Replace queue')
+            );
+            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+            selectHomeIconCmd.appendChild(
+                elCreateTextTn('option', {"value": "replacePlayQueue"}, 'Replace queue and play')
+            );
+            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+            if (features.featWhence === true) {
                 selectHomeIconCmd.appendChild(
-                    elCreateTextTn('option', {"value": "replaceQueueAlbum"}, 'Replace queue')
+                    elCreateTextTn('option', {"value": "insertAfterCurrentQueue"}, 'Insert after current playing song')
                 );
-                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-                selectHomeIconCmd.appendChild(
-                    elCreateTextTn('option', {"value": "replacePlayQueueAlbum"}, 'Replace queue and play')
-                );
-                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-                if (features.featWhence === true) {
-                    selectHomeIconCmd.appendChild(
-                        elCreateTextTn('option', {"value": "insertAfterCurrentQueueAlbum"}, 'Insert after current playing song')
-                    );
-                    setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-                }
-                selectHomeIconCmd.appendChild(
-                    elCreateTextTn('option', {"value": "appendQueueAlbum"}, 'Append to queue')
-                );
-                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-                selectHomeIconCmd.appendChild(
-                    elCreateTextTn('option', {"value": "appendPlayQueueAlbum"}, 'Append to queue and play')
-                );
-                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
-                selectHomeIconCmd.appendChild(
-                    elCreateTextTn('option', {"value": "homeIconGoto"}, 'Album details')
-                );
-                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", "Albumartist", "Album"]});
+                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
             }
-            else {
-                const paramName = type === 'search' ? 'Expression' : 'Uri';
+            selectHomeIconCmd.appendChild(
+                elCreateTextTn('option', {"value": "appendQueue"}, 'Append to queue')
+            );
+            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+            selectHomeIconCmd.appendChild(
+                elCreateTextTn('option', {"value": "appendPlayQueue"}, 'Append to queue and play')
+            );
+            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+            if (type === 'dir' ||
+                type === 'search' ||
+                type === 'plist' ||
+                type === 'smartpls')
+            {
+                const title = type === 'dir' ? 'Open directory' :
+                            type === 'search' ? 'Show search' : 'View playlist';
                 selectHomeIconCmd.appendChild(
-                    elCreateTextTn('option', {"value": "replaceQueue"}, 'Replace queue')
+                    elCreateTextTn('option', {"value": "homeIconGoto"}, title)
                 );
                 setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-                selectHomeIconCmd.appendChild(
-                    elCreateTextTn('option', {"value": "replacePlayQueue"}, 'Replace queue and play')
-                );
-                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-                if (features.featWhence === true) {
-                    selectHomeIconCmd.appendChild(
-                        elCreateTextTn('option', {"value": "insertAfterCurrentQueue"}, 'Insert after current playing song')
-                    );
-                    setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-                }
-                selectHomeIconCmd.appendChild(
-                    elCreateTextTn('option', {"value": "appendQueue"}, 'Append to queue')
-                );
-                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-                selectHomeIconCmd.appendChild(
-                    elCreateTextTn('option', {"value": "appendPlayQueue"}, 'Append to queue and play')
-                );
-                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-                if (type === 'dir' ||
-                    type === 'search' ||
-                    type === 'plist' ||
-                    type === 'smartpls')
-                {
-                    const title = type === 'dir' ? 'Open directory' :
-                                type === 'search' ? 'Show search' : 'View playlist';
-                    selectHomeIconCmd.appendChild(
-                        elCreateTextTn('option', {"value": "homeIconGoto"}, title)
-                    );
-                    setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-                }
             }
         }
     }
@@ -633,17 +607,13 @@ function addSearchToHome() {
 
 /**
  * Adds an album to the homescreen
- * @param {object} albumArtist array of albumartists
- * @param {string} album albumname
+ * @param {string} albumId the albumid
+ * @param {string} name name for the home icon
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function addAlbumToHome(albumArtist, album) {
-    if (albumArtist === undefined) {
-        album = app.current.tag;
-        albumArtist = app.current.search;
-    }
-    _addHomeIcon('replaceQueueAlbum', album, 'album', '', ['album', JSON.stringify(albumArtist), album]);
+function addAlbumToHome(albumId, name) {
+    _addHomeIcon('replaceQueue', name, 'album', '', ['album', albumId]);
 }
 
 /**
@@ -923,14 +893,13 @@ function openExternalLink(link) {
 /**
  * Goto handler for home icons
  * @param {string} type one of dir, search, album, plist, smartpls
- * @param {string | object} uri type = search: search expression
- *                type = album: AlbumArtist
- *                else uri of directory or playlist
- * @param {string} [album] albumname (only valid for type = album)
+ * @param {string} uri type = search: search expression,
+ *                     type = album: album id,
+ *                     else uri of directory or playlist
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function homeIconGoto(type, uri, album) {
+function homeIconGoto(type, uri) {
     switch(type) {
         case 'dir':
             gotoFilesystem(uri, type);
@@ -939,8 +908,8 @@ function homeIconGoto(type, uri, album) {
             appGoto('Search', undefined, undefined, 0, undefined, 'any', 'Title', '-', uri);
             break;
         case 'album':
-            //uri = AlbumArtist
-            gotoAlbum(uri, album);
+            //uri = AlbumId
+            gotoAlbum(uri);
             break;
         case 'plist':
         case 'smartpls':

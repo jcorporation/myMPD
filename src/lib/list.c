@@ -379,8 +379,28 @@ bool list_insert(struct t_list *l, const char *key, long long value_i,
 bool list_replace(struct t_list *l, long idx, const char *key, long long value_i,
         const char *value_p, void *user_data)
 {
-    return list_replace_user_data(l, idx, key, value_i, value_p,
-        user_data, list_free_cb_ignore_user_data);
+    return list_replace_len_user_data(l, idx, key, strlen(key), value_i,
+        value_p, strlen(value_p), user_data, list_free_cb_ignore_user_data);
+}
+
+/**
+ * Replaces a list nodes values at pos.
+ * Ignores the old user_data pointer.
+ * @param l list
+ * @param idx index of node to change
+ * @param key new key value
+ * @param key_len new key value length
+ * @param value_i new long long value
+ * @param value_p new sds value
+ * @param value_len new sds value len
+ * @param user_data new user_data pointer
+ * @return true on success, else false
+ */
+bool list_replace_len(struct t_list *l, long idx, const char *key, size_t key_len, long long value_i,
+        const char *value_p, size_t value_len, void *user_data)
+{
+    return list_replace_len_user_data(l, idx, key, key_len, value_i,
+        value_p, value_len, user_data, list_free_cb_ignore_user_data);
 }
 
 /**
@@ -398,15 +418,36 @@ bool list_replace(struct t_list *l, long idx, const char *key, long long value_i
 bool list_replace_user_data(struct t_list *l, long idx, const char *key, long long value_i,
         const char *value_p, void *user_data, user_data_callback free_cb)
 {
+    return list_replace_len_user_data(l, idx, key, strlen(key), value_i,
+        value_p, strlen(value_p), user_data, free_cb);
+}
+
+/**
+ * Replaces a list nodes values at pos.
+ * Frees the old user_data pointer.
+ * @param l list
+ * @param idx index of node to change
+ * @param key new key value
+ * @param key_len new key value length
+ * @param value_i new long long value
+ * @param value_p new sds value
+ * @param value_len new sds value len
+ * @param user_data new user_data pointer
+ * @param free_cb callback function to free old user_data pointer
+ * @return true on success, else false
+ */
+bool list_replace_len_user_data(struct t_list *l, long idx, const char *key, size_t key_len, long long value_i,
+        const char *value_p, size_t value_len, void *user_data, user_data_callback free_cb)
+{
     if (idx >= l->length) {
         return false;
     }
     struct t_list_node *current = list_node_at(l, idx);
 
-    current->key = sds_replace(current->key, key);
+    current->key = sds_replacelen(current->key, key, key_len);
     current->value_i = value_i;
     if (value_p != NULL) {
-        current->value_p = sds_replace(current->value_p, value_p);
+        current->value_p = sds_replacelen(current->value_p, value_p, value_len);
     }
     else if (current->value_p != NULL) {
         FREE_SDS(current->value_p);

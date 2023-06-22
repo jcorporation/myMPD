@@ -199,6 +199,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
     }
     raxStop(&iter);
     free_search_expression_list(expr_list);
+    FREE_SDS(key);
 
     //print album list
     long entity_count = 0;
@@ -224,8 +225,9 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
             buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
             buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), true);
             buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(album), true);
-            key = album_cache_get_key(album, key);
-            buffer = tojson_char(buffer, "AlbumId", key, true);
+            key = album_cache_get_key(album);
+            buffer = tojson_char(buffer, "AlbumId", key, false);
+            FREE_SDS(key);
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;
@@ -234,7 +236,6 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
         }
     }
     raxStop(&iter);
-    FREE_SDS(key);
 
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_llong(buffer, "totalEntities", (long long)albums->numele, true);

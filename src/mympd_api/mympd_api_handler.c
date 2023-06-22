@@ -1211,7 +1211,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                         JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No album ids provided");
                 }
                 else {
-                    rc = request->cmd_id == MYMPD_API_QUEUE_APPEND_ALBUMS
+                    rc = request->cmd_id == MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUMS
                         ? mympd_api_playlist_content_append_albums(partition_state, sds_buf1, &albumids, &error)
                         : mympd_api_playlist_content_replace_albums(partition_state, sds_buf1, &albumids, &error);
 
@@ -1499,7 +1499,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             {
                 rc = mpd_client_search_add_to_queue(partition_state, sds_buf1, uint_buf1, uint_buf2, &error) &&
                         mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
-                
+
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                                 JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
             }
@@ -1518,6 +1518,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 }
                 rc = mpd_client_search_add_to_queue(partition_state, sds_buf1, UINT_MAX, MPD_POSITION_ABSOLUTE, &error) &&
                         mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
+
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
+                                JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
             }
             break;
         case MYMPD_API_QUEUE_APPEND_ALBUMS:
@@ -1688,14 +1691,11 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_DATABASE_ALBUM_DETAIL: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);
-            struct t_list albumartists;
-            list_init(&albumartists);
             if (json_get_string(request->data, "$.params.albumid", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
                 response->data = mympd_api_browse_album_detail(partition_state, response->data, request->id, sds_buf1, &tagcols);
             }
-            list_clear(&albumartists);
             break;
         }
         case INTERNAL_API_TIMER_STARTPLAY:

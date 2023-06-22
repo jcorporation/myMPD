@@ -5,10 +5,10 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/list.h"
 #include "src/mpd_client/jukebox.h"
 
 #include "dist/utf8/utf8.h"
+#include "src/lib/album_cache.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
@@ -213,6 +213,9 @@ sds jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mym
                     buffer = tojson_char(buffer, "uri", "Album", true);
                     buffer = tojson_char(buffer, "Title", "", true);
                     buffer = tojson_char(buffer, "Album", current->key, true);
+                    sds albumkey = album_cache_get_key(album);
+                    buffer = tojson_char(buffer, "AlbumId", albumkey, true);
+                    FREE_SDS(albumkey);
                     buffer = sdscat(buffer, "\"AlbumArtist\":");
                     buffer = mpd_client_get_tag_values(album, MPD_TAG_ALBUM_ARTIST, buffer);
                     buffer = sdscat(buffer, ",\"Artist\":");

@@ -92,7 +92,6 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
         return false;
     }
     sds line = sdsempty();
-    sds key = sdsempty();
     if (album_cache->cache == NULL) {
         album_cache->cache = raxNew();
     }
@@ -100,11 +99,12 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
         if (validate_json_object(line) == true) {
             struct mpd_song *album = album_from_cache_line(line, album_tags);
             if (album != NULL) {
-                key = album_cache_get_key(album, key);
+                sds key = album_cache_get_key(album);
                 if (raxTryInsert(album_cache->cache, (unsigned char *)key, sdslen(key), album, NULL) == 0) {
                     MYMPD_LOG_ERROR(NULL, "Duplicate key in album cache file found");
                     mpd_song_free(album);
                 }
+                FREE_SDS(key);
             }
             else {
                 MYMPD_LOG_ERROR(NULL, "Reading album cache line failed");
@@ -117,7 +117,6 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
         }
     }
     FREE_SDS(line);
-    FREE_SDS(key);
     (void) fclose(fp);
     FREE_PTR(album_tags);
     FREE_SDS(filepath);
@@ -195,12 +194,10 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, struct t_tags *
 /**
  * Constructs the albumkey from song info
  * @param song mpd song struct
- * @param albumkey sds string replaced by the key
- * @return pointer to albumkey
+ * @return pointer to newly allocated albumkey (sds)
  */
-sds album_cache_get_key(struct mpd_song *song, sds albumkey) {
-    sdsclear(albumkey);
-    albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, albumkey);
+sds album_cache_get_key(struct mpd_song *song) {
+    sds albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, sdsempty());
     if (sdslen(albumkey) == 0) {
         //album tag is empty
         MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tag Album is empty", mpd_song_get_uri(song));
@@ -219,15 +216,15 @@ sds album_cache_get_key(struct mpd_song *song, sds albumkey) {
         MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tags AlbumArtist and Artist are empty", mpd_song_get_uri(song));
         sdsclear(albumkey);
     }
-    sds_utf8_tolower(albumkey);
-    return albumkey;
+    sds hash = sds_hash_sha1(albumkey);
+    return hash;
 }
 
 /**
  * Gets the album from the album cache
  * @param album_cache pointer to t_cache struct
  * @param key the album
- * @return mpd_song struct representing the album
+ * @return mpd_song struct representing the album or NULL on error
  */
 struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key) {
     if (album_cache->cache == NULL) {

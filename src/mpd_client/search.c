@@ -120,6 +120,7 @@ sds get_album_search_expression(enum mpd_tag_type tag_albumartist, struct mpd_so
     while ((value = mpd_song_get_tag(album, tag_albumartist, count)) != NULL) {
         expression = escape_mpd_search_expression(expression, mpd_tag_name(tag_albumartist), "==", value);
         expression = sdscat(expression, " AND ");
+        count++;
     }
     expression = escape_mpd_search_expression(expression, "Album", "==", mpd_song_get_tag(album, MPD_TAG_ALBUM, 0));
     expression = sdscatlen(expression, ")", 1);

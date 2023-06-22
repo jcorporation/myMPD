@@ -46,7 +46,7 @@ function initQueueJukebox() {
                 clickSong(getData(target, 'uri'), event);
             }
             else if (settings.partition.jukeboxMode === 'album') {
-                clickAlbumPlay(getData(target, 'AlbumArtist'), getData(target, 'Album'));
+                clickQuickPlay(target);
             }
         }
     }, false);
@@ -114,6 +114,7 @@ function parseJukeboxList(obj) {
         setData(row, 'name', data.Title);
         setData(row, 'type', data.uri === 'Album' ? 'album' : 'song');
         setData(row, 'pos', data.Pos);
+        setData(row, 'AlbumId', data.AlbumId);
         row.setAttribute('title', tn(rowTitle));
         row.setAttribute('tabindex', 0);
     });

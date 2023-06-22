@@ -88,13 +88,13 @@ function gotoBrowse(event) {
         settings.tagListBrowse.includes(tag))
     {
         if (tag === 'Album') {
-            let artist = getData(target, 'AlbumArtist');
-            if (artist === undefined) {
-                artist = getData(target.parentNode, 'AlbumArtist');
+            let albumId = getData(target, 'AlbumId');
+            if (albumId === undefined) {
+                albumId = getData(target.parentNode, 'AlbumId');
             }
-            if (artist !== null) {
+            if (albumId !== null) {
                 //Show album details
-                appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, tag, tagAlbumArtist, name, artist);
+                gotoAlbum(albumId);
             }
             else {
                 //show filtered album list
@@ -110,13 +110,12 @@ function gotoBrowse(event) {
 
 /**
  * Go's to the album detail view
- * @param {Array} artist albumartist names
- * @param {string} album album name
+ * @param {string} albumId the album id
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function gotoAlbum(artist, album) {
-    appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, 'Album', tagAlbumArtist, album, artist);
+function gotoAlbum(albumId) {
+    appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, albumId);
 }
 
 /**

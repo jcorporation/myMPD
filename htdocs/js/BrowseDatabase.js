@@ -53,8 +53,7 @@ function handleBrowseDatabaseTagList() {
  */
 function handleBrowseDatabaseAlbumDetail() {
     sendAPI("MYMPD_API_DATABASE_ALBUM_DETAIL", {
-        "album": app.current.tag,
-        "albumartist": app.current.search,
+        "albumid": app.current.filter,
         "cols": settings.colsBrowseDatabaseAlbumDetailFetch
     }, parseAlbumDetails, true);
 }
@@ -99,10 +98,7 @@ function initBrowseDatabase() {
         }
         const target = event.target.closest('DIV');
         if (target.classList.contains('card-body')) {
-            appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, 'Album', tagAlbumArtist,
-                getData(target.parentNode, 'Album'),
-                getData(target.parentNode, tagAlbumArtist)
-            );
+            appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, getData(target.parentNode, 'AlbumId'));
         }
         else if (target.classList.contains('card-footer')){
             showContextMenu(event);
@@ -111,6 +107,7 @@ function initBrowseDatabase() {
 
     document.getElementById('BrowseDatabaseAlbumListList').addEventListener('contextmenu', function(event) {
         if (event.target.classList.contains('row') ||
+            event.target.classList.contains('album-grid-mouseover') ||
             event.target.parentNode.classList.contains('not-clickable'))
         {
             return;
@@ -315,6 +312,7 @@ function parseDatabaseAlbumList(obj) {
         setData(card, 'name', obj.result.data[i].Album);
         setData(card, 'Album', obj.result.data[i].Album);
         setData(card, tagAlbumArtist, obj.result.data[i][tagAlbumArtist]);
+        setData(card, 'AlbumId', obj.result.data[i].AlbumId);
         addAlbumPlayButton(card.firstChild);
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
 
@@ -453,7 +451,7 @@ function addAlbumPlayButton(parentEl) {
     div.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        clickAlbumPlay(getData(event.target.parentNode.parentNode, tagAlbumArtist), getData(event.target.parentNode.parentNode, 'Album'));
+        clickQuickPlay(event.target);
     }, false);
 }
 
@@ -541,117 +539,50 @@ function backToAlbumGrid() {
 }
 
 /**
- * Wrapper for _addAlbum for add buttons in the album detail view
+ * Wrapper for add buttons in the album detail view
  * @param {string} action action to perform
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addAlbum(action) {
-    // @ts-ignore search in this view an array
-    _addAlbum(action, app.current.search, app.current.tag, undefined);
+    switch(action) {
+        case 'appendQueue':
+            appendQueue('album', [app.current.filter]);
+            break;
+        case 'appendPlayQueue':
+            appendPlayQueue('album', [app.current.filter]);
+            break;
+        case 'insertAfterCurrentQueue':
+            insertAfterCurrentQueue('album', [app.current.filter]);
+            break;
+        case 'replaceQueue':
+            replaceQueue('album', [app.current.filter]);
+            break;
+        case 'replacePlayQueue':
+            replacePlayQueue('album', [app.current.filter]);
+            break;
+        case 'addPlaylist':
+            showAddToPlaylist(['ALBUM', app.current.filter], '');
+            break;
+        case 'addAlbumToHome':
+            addAlbumToHome(app.current.filter, '');
+            break;
+    }
 }
 
 /**
- * Appends an album to the queue.
- * Wrapper for _addAlbum for home icon action.
- * @param {void} type not used
- * @param {Array} albumArtist array of albumartists
- * @param {string} album album name
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function appendQueueAlbum(type, albumArtist, album) {
-    //type not used but required for home icon cmd
-    _addAlbum('appendQueue', albumArtist, album, undefined);
-}
-
-/**
- * Appends an album to the queue and plays it.
- * Wrapper for _addAlbum for home icon action.
- * @param {void} type not used
- * @param {Array} albumArtist array of albumartists
- * @param {string} album album name
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function appendPlayQueueAlbum(type, albumArtist, album) {
-    //type not used but required for home icon cmd
-    _addAlbum('appendPlayQueue', albumArtist, album, undefined);
-}
-
-/**
- * Replaces the queue with an album.
- * Wrapper for _addAlbum for home icon action.
- * @param {void} type not used
- * @param {Array} albumArtist array of albumartists
- * @param {string} album album name
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function replaceQueueAlbum(type, albumArtist, album) {
-    //type not used but required for home icon cmd
-    _addAlbum('replaceQueue', albumArtist, album, undefined);
-}
-
-/**
- * Replaces the queue with an album and plays it.
- * Wrapper for _addAlbum for home icon action.
- * @param {void} type not used
- * @param {Array} albumArtist array of albumartists
- * @param {string} album album name
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function replacePlayQueueAlbum(type, albumArtist, album) {
-    //type not used but required for home icon cmd
-    _addAlbum('replacePlayQueue', albumArtist, album, undefined);
-}
-
-/**
- * Inserts the an album after the current playing song.
- * Wrapper for _addAlbum for home icon action.
- * @param {void} type not used
- * @param {Array} albumArtist array of albumartists
- * @param {string} album album name
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function insertAfterCurrentQueueAlbum(type, albumArtist, album) {
-    //type not used but required for home icon cmd
-    _addAlbum('insertQueue', albumArtist, album, undefined);
-}
-
-/**
- * Inserts the an album after the current playing song and plays it.
- * Wrapper for _addAlbum for home icon action.
- * @param {void} type not used
- * @param {Array} albumArtist array of albumartists
- * @param {string} album album name
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function insertPlayAfterCurrentQueueAlbum(type, albumArtist, album) {
-    //type not used but required for home icon cmd
-    _addAlbum('insertPlayQueue', albumArtist, album, undefined);
-}
-
-/**
- * Adds an album to the queue or a playlist
+ * Handles single disc actions
  * @param {string} action action to perform
- * @param {Array} albumArtist array of albumartists
+ * @param {Array} albumArtist the AlbumArtists
  * @param {string} album album name
- * @param {string} disc optional disc number, "undefined" to add the whole album
- * @returns {void}
+ * @param {string} disc disc number as string
  */
-function _addAlbum(action, albumArtist, album, disc) {
+function addAlbumDisc(action, albumArtist, album, disc) {
     let expression = '((Album == \'' + escapeMPD(album) + '\')';
     for (const artist of albumArtist) {
         expression += ' AND (' + tagAlbumArtist + ' == \'' + escapeMPD(artist) + '\')';
     }
-    if (disc !== undefined) {
-        expression += ' AND (Disc == \'' + escapeMPD(disc) + '\')';
-    }
-    expression += ')';
+    expression += ' AND (Disc == \'' + escapeMPD(disc) + '\'))';
 
     switch(action) {
         case 'appendQueue':
@@ -660,20 +591,17 @@ function _addAlbum(action, albumArtist, album, disc) {
         case 'appendPlayQueue':
             appendPlayQueue('search', [expression]);
             break;
+        case 'insertAfterCurrentQueue':
+            insertAfterCurrentQueue('search', [expression]);
+            break;
         case 'replaceQueue':
             replaceQueue('search', [expression]);
             break;
         case 'replacePlayQueue':
             replacePlayQueue('search', [expression]);
             break;
-        case 'insertAfterCurrentQueue':
-            insertAfterCurrentQueue('search', [expression]);
-            break;
-        case 'insertPlayAfterCurrentQueue':
-            insertPlayAfterCurrentQueue('search', [expression]);
-            break;
         case 'addPlaylist':
-            showAddToPlaylist(['ALBUM'], expression);
+            showAddToPlaylist(['SEARCH'], expression);
             break;
     }
 }

@@ -79,6 +79,7 @@ let tagAlbumArtist = 'AlbumArtist';
 
 /** @type {object} */
 const albumFilters = [
+    'AlbumArtist',
     'Composer',
     'Performer',
     'Conductor',
