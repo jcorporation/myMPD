@@ -29,6 +29,7 @@ set(TEST_SOURCES
   ../src/lib/validate.c
   ../src/mpd_client/errorhandler.c
   ../src/mpd_client/presets.c
+  ../src/mpd_client/queue.c
   ../src/mpd_client/search.c
   ../src/mpd_client/search_local.c
   ../src/mpd_client/shortcuts.c
@@ -57,6 +58,7 @@ set(TEST_SOURCES
   tests/test_mimetype.c
   tests/test_mpd_client_tags.c
   tests/test_mympd_queue.c
+  tests/test_mympd_state.c
   tests/test_radix_sort.c
   tests/test_random.c
   tests/test_sds_extras.c
@@ -70,7 +72,7 @@ if(LIBID3TAG_FOUND)
   set(TEST_SOURCES_LIBID3TAG "tests/test_lyrics_id3.c")
 endif()
 if(FLAC_FOUND)
-  set(TEST_SOURCES_LIBID3TAG "tests/test_lyrics_flac.c")
+  set(TEST_SOURCES_FLAC "tests/test_lyrics_flac.c")
 endif()
 
 add_executable(unit_test
@@ -121,6 +123,7 @@ add_custom_command(TARGET unit_test PRE_BUILD
 
 # define tests
 list(APPEND test_categories
+  "album_cache"
   "api"
   "cert"
   "env"
@@ -130,6 +133,7 @@ list(APPEND test_categories
   "list"
   "m3u"
   "mimetype"
+  "mpd_client_search_local"
   "mpd_client_tags"
   "mympd_queue"
   "mympd_state"

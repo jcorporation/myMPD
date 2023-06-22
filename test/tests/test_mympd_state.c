@@ -17,7 +17,7 @@ UTEST(mympd_state, test_copy_tag_types) {
     reset_t_tags(&dst_taglist);
 
     src_taglist.tags[0] = MPD_TAG_ALBUM;
-    src_taglist.tags[0] = MPD_TAG_ALBUM_ARTIST;
+    src_taglist.tags[1] = MPD_TAG_ALBUM_ARTIST;
     src_taglist.len = 2;
 
     copy_tag_types(&src_taglist, &dst_taglist);
