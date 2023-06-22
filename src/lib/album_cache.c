@@ -216,8 +216,12 @@ sds album_cache_get_key(struct mpd_song *song) {
         MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tags AlbumArtist and Artist are empty", mpd_song_get_uri(song));
         sdsclear(albumkey);
     }
-    sds hash = sds_hash_sha1(albumkey);
-    return hash;
+    if (sdslen(albumkey) > 0) {
+        sds hash = sds_hash_sha1(albumkey);
+        FREE_SDS(albumkey);
+        return hash;
+    }
+    return albumkey;
 }
 
 /**
