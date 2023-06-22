@@ -576,7 +576,9 @@ function addAlbum(action) {
  * @param {Array} albumArtist the AlbumArtists
  * @param {string} album album name
  * @param {string} disc disc number as string
+ * @returns {void}
  */
+//eslint-disable-next-line no-unused-vars
 function addAlbumDisc(action, albumArtist, album, disc) {
     let expression = '((Album == \'' + escapeMPD(album) + '\')';
     for (const artist of albumArtist) {
