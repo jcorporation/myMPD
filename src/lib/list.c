@@ -379,8 +379,11 @@ bool list_insert(struct t_list *l, const char *key, long long value_i,
 bool list_replace(struct t_list *l, long idx, const char *key, long long value_i,
         const char *value_p, void *user_data)
 {
+    size_t value_len = value_p == NULL
+        ? 0
+        : strlen(value_p);
     return list_replace_len_user_data(l, idx, key, strlen(key), value_i,
-        value_p, strlen(value_p), user_data, list_free_cb_ignore_user_data);
+        value_p, value_len, user_data, list_free_cb_ignore_user_data);
 }
 
 /**
