@@ -152,6 +152,11 @@ function saveTimer() {
             const unit = Number(getSelectValueId('selectTimerIntervalUnit'));
             interval = interval * unit;
         }
+        let preset = getSelectValueId('selectTimerPreset');
+        if (preset === undefined) {
+            //set to empty string, else the jsonrpc parameter is not set
+            preset = '';
+        }
         sendAPI("MYMPD_API_TIMER_SAVE", {
             "timerid": Number(document.getElementById('inputTimerId').value),
             "name": nameEl.value,
@@ -164,7 +169,7 @@ function saveTimer() {
             "subaction": getSelectValue(selectTimerAction),
             "volume": Number(document.getElementById('inputTimerVolume').value),
             "playlist": getDataId('selectTimerPlaylist', 'value'),
-            "preset": getSelectValueId('selectTimerPreset'),
+            "preset": preset,
             "arguments": args
         }, saveTimerCheckError, true);
     }
