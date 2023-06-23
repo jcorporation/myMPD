@@ -17,6 +17,7 @@ bool mpd_client_search_add_to_plist(struct t_partition_state *partition_state, c
 bool mpd_client_search_add_to_queue(struct t_partition_state *partition_state, const char *expression,
         unsigned to, enum mpd_position_whence whence, sds *error);
 
-sds get_album_search_expression(enum mpd_tag_type tag_albumartist, struct mpd_song *album);
+sds get_search_expression_album(enum mpd_tag_type tag_albumartist, struct mpd_song *album);
+sds get_search_expression_album_disc(enum mpd_tag_type tag_albumartist, struct mpd_song *album, const char *disc);
 sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operator, const char *value);
 #endif

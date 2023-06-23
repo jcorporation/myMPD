@@ -801,6 +801,10 @@ function addToPlaylist() {
             type = 'album';
             uris.shift();
             break;
+        case 'DISC':
+            type = 'disc';
+            uris.shift();
+            break;
         case 'STREAM': {
             const streamUrlEl = document.getElementById('streamUrl');
             if (validateStreamEl(streamUrlEl) === false) {
@@ -902,6 +906,13 @@ function appendPlaylist(type, uris, plist, callback) {
                 "plist": plist
             }, callback, true);
             break;
+        case 'disc':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_DISC", {
+                "albumid": uris[0],
+                "disc": uris[1],
+                "plist": plist
+            }, callback, true);
+            break;
     }
 }
 
@@ -935,7 +946,16 @@ function insertPlaylist(type, uris, plist, to, callback) {
         case 'album':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUMS", {
                 "albumids": uris,
-                "plist": plist
+                "plist": plist,
+                "to": to
+            }, callback, true);
+            break;
+        case 'disc':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_DISC", {
+                "albumid": uris[0],
+                "disc": uris[1],
+                "plist": plist,
+                "to": to
             }, callback, true);
             break;
     }
@@ -968,6 +988,13 @@ function replacePlaylist(type, uris, plist, callback) {
         case 'album':
             sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUMS", {
                 "albumids": uris,
+                "plist": plist
+            }, callback, true);
+            break;
+        case 'disc':
+            sendAPI("MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUM_DISC", {
+                "albumid": uris[0],
+                "disc": uris[1],
                 "plist": plist
             }, callback, true);
             break;

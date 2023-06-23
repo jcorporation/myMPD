@@ -30,6 +30,7 @@
 
 #include <dirent.h>
 #include <errno.h>
+#include <limits.h>
 #include <string.h>
 #include <unistd.h>
 
@@ -194,31 +195,6 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
 }
 
 /**
- * Appends uris to the stored playlist
- * @param partition_state pointer to partition state
- * @param plist stored playlist name
- * @param uris list of positions to remove
- * @param error pointer to an already allocated sds string for the error message
- * @return true on success, else false
- */
-bool mympd_api_playlist_content_append(struct t_partition_state *partition_state, sds plist, struct t_list *uris, sds *error) {
-    if (mpd_command_list_begin(partition_state->conn, false)) {
-        struct t_list_node *current;
-        while ((current = list_shift_first(uris)) != NULL) {
-            bool rc = mpd_send_playlist_add(partition_state->conn, plist, current->key);
-            list_node_free(current);
-            if (rc == false) {
-                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
-                break;
-            }
-        }
-        mpd_client_command_list_end_check(partition_state);
-    }
-    mpd_response_finish(partition_state->conn);
-    return mympd_check_error_and_recover(partition_state, error, "mpd_send_move_id_whence");
-}
-
-/**
  * Inserts uris at defined position to the stored playlist
  * @param partition_state pointer to partition state
  * @param plist stored playlist name
@@ -231,10 +207,12 @@ bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(uris)) != NULL) {
-            bool rc = mpd_send_playlist_add_to(partition_state->conn, plist, current->key, to);
+            bool rc = to == UINT_MAX
+                ? mpd_send_playlist_add(partition_state->conn, plist, current->key)
+                : mpd_send_playlist_add_to(partition_state->conn, plist, current->key, to);
             list_node_free(current);
             if (rc == false) {
-                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add");
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add_to");
                 break;
             }
             to++;
@@ -243,6 +221,18 @@ bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state
     }
     mpd_response_finish(partition_state->conn);
     return mympd_check_error_and_recover(partition_state, error, "mpd_send_playlist_add_to");
+}
+
+/**
+ * Appends uris to the stored playlist
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param uris list of positions to remove
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_append(struct t_partition_state *partition_state, sds plist, struct t_list *uris, sds *error) {
+    return mympd_api_playlist_content_insert(partition_state, plist, uris, UINT_MAX, error);
 }
 
 /**
@@ -259,40 +249,11 @@ bool mympd_api_playlist_content_replace(struct t_partition_state *partition_stat
 }
 
 /**
- * Appends albums to a playlist
- * @param partition_state pointer to partition state
- * @param plist stored playlist name
- * @param albumids playlists to append
- * @param error pointer to an already allocated sds string for the error message
- * @return true on success, else false
- */
-bool mympd_api_playlist_content_append_albums(struct t_partition_state *partition_state, sds plist, struct t_list *albumids, sds *error) {
-    struct t_list_node *current = albumids->head;
-    bool rc = true;
-    while (current != NULL) {
-        struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, current->key);
-        if (mpd_album == NULL) {
-            rc = false;
-            break;
-        }
-        sds expression = get_album_search_expression(partition_state->mpd_state->tag_albumartist, mpd_album);
-        rc = mpd_client_search_add_to_plist(partition_state, expression, plist, UINT_MAX, error);
-        FREE_SDS(expression);
-        if (rc == false) {
-            break;
-        }
-        current = current->next;
-    }
-    return rc;
-}
-
-/**
  * Insert albums into a playlist
  * @param partition_state pointer to partition state
  * @param plist stored playlist name
- * @param albumids playlists to insert
+ * @param albumids album ids to insert
  * @param to position to insert
- * @param whence how to interpret the to parameter
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
@@ -305,7 +266,7 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
             rc = false;
             break;
         }
-        sds expression = get_album_search_expression(partition_state->mpd_state->tag_albumartist, mpd_album);
+        sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist, mpd_album);
         rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, error);
         FREE_SDS(expression);
         if (rc == false) {
@@ -317,16 +278,76 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
 }
 
 /**
+ * Appends albums to a playlist
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param albumids album ids to append
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_append_albums(struct t_partition_state *partition_state, sds plist, struct t_list *albumids, sds *error) {
+    return mympd_api_playlist_content_insert_albums(partition_state, plist, albumids, UINT_MAX, error);
+}
+
+/**
  * Replaces the playlist with albums
  * @param partition_state pointer to partition state
  * @param plist stored playlist name
- * @param albumids playlists to insert
+ * @param albumids album ids to insert
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partition_state, sds plist, struct t_list *albumids, sds *error) {
     return mpd_client_playlist_clear(partition_state, plist, error) &&
         mympd_api_playlist_content_append_albums(partition_state, plist, albumids, error);
+}
+
+/**
+ * Insert one disc of an album into a playlist
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param albumid album id to insert
+ * @param disc disc to insert
+ * @param to position to insert
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *partition_state, sds plist, sds albumid, sds disc, unsigned to, sds *error) {
+    struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumid);
+    if (mpd_album == NULL) {
+        return false;
+    }
+    sds expression = get_search_expression_album_disc(partition_state->mpd_state->tag_albumartist, mpd_album, disc);
+    bool rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, error);
+    FREE_SDS(expression);
+    return rc;
+}
+
+/**
+ * Appends one disc of an album to a playlist
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param albumid album id to append
+ * @param disc disc to append
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_append_album_disc(struct t_partition_state *partition_state, sds plist, sds albumid, sds disc, sds *error) {
+    return mympd_api_playlist_content_insert_album_disc(partition_state, plist, albumid, disc, UINT_MAX, error);
+}
+
+/**
+ * Replaces the playlist with on disc of an album
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param albumid album id to insert
+ * @param disc disc to insert
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_replace_album_disc(struct t_partition_state *partition_state, sds plist, sds albumid, sds disc, sds *error) {
+    return mpd_client_playlist_clear(partition_state, plist, error) &&
+        mympd_api_playlist_content_append_album_disc(partition_state, plist, albumid, disc, error);
 }
 
 /**

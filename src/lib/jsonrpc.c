@@ -258,7 +258,7 @@ sds jsonrpc_respond_ok(sds buffer, enum mympd_cmd_ids cmd_id, long request_id, e
  * @param request_id jsonrpc request id to respond
  * @param rc return code to check
  * @param facility one of enum jsonrpc_facilities
-  * @param error the response message, if rc == false
+ * @param error the response message, if rc == false
  * @return pointer to buffer
  */
 sds jsonrpc_respond_with_ok_or_error(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
@@ -275,9 +275,8 @@ sds jsonrpc_respond_with_ok_or_error(sds buffer, enum mympd_cmd_ids cmd_id, long
  * @param request_id jsonrpc request id to respond
  * @param rc return code to check
  * @param facility one of enum jsonrpc_facilities
- * @param severity one of enum jsonrpc_severities
- * @param error the response message, if rc == false
  * @param message the response message, if rc == true
+ * @param error the response message, if rc == false
  * @return pointer to buffer
  */
 sds jsonrpc_respond_with_message_or_error(sds buffer, enum mympd_cmd_ids cmd_id, long request_id,

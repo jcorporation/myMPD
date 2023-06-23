@@ -18,6 +18,7 @@
 #include <string.h>
 
 //private definitions
+static sds append_search_expression_album(enum mpd_tag_type tag_albumartist, struct mpd_song *album, sds expression);
 static sds search_songs(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
         const char *expression, const char *sort, bool sortdesc, const char *plist, unsigned to, unsigned whence,
         unsigned offset, unsigned limit, const struct t_tags *tagcols, struct t_cache *sticker_cache,
@@ -112,17 +113,26 @@ bool mpd_client_search_add_to_queue(struct t_partition_state *partition_state, c
  * @param album mpd_song struct representing the album
  * @return newly allocated sds string
  */
-sds get_album_search_expression(enum mpd_tag_type tag_albumartist, struct mpd_song *album) {
+sds get_search_expression_album(enum mpd_tag_type tag_albumartist, struct mpd_song *album) {
     sds expression = sdsnewlen("(", 1);
-    const char *value;
-    unsigned count = 0;
-    //return comma separated tag list
-    while ((value = mpd_song_get_tag(album, tag_albumartist, count)) != NULL) {
-        expression = escape_mpd_search_expression(expression, mpd_tag_name(tag_albumartist), "==", value);
-        expression = sdscat(expression, " AND ");
-        count++;
-    }
-    expression = escape_mpd_search_expression(expression, "Album", "==", mpd_song_get_tag(album, MPD_TAG_ALBUM, 0));
+    expression = append_search_expression_album(tag_albumartist, album, expression);
+    expression = sdscatlen(expression, ")", 1);
+    return expression;
+}
+
+/**
+ * Creates a mpd search expression to find all songs in one cd of an album
+ * @param tag_albumartist albumartist tag
+ * @param album mpd_song struct representing the album
+ * @param disc disc number
+ * @return newly allocated sds string
+ */
+sds get_search_expression_album_disc(enum mpd_tag_type tag_albumartist, struct mpd_song *album, const char *disc) {
+    sds expression = sdsnewlen("(", 1);
+    expression = append_search_expression_album(tag_albumartist, album, expression);
+    //and for cd
+    expression = sdscat(expression, " AND ");
+    expression = escape_mpd_search_expression(expression, "Disc", "==", disc);
     expression = sdscatlen(expression, ")", 1);
     return expression;
 }
@@ -148,6 +158,27 @@ sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operat
 }
 
 //private functions
+
+/**
+ * Creates a mpd search expression to find all songs in one album
+ * @param tag_albumartist albumartist tag
+ * @param album mpd_song struct representing the album
+ * @param expression already allocated sds string to append the expression
+ * @return pointer to expression
+ */
+static sds append_search_expression_album(enum mpd_tag_type tag_albumartist, struct mpd_song *album, sds expression) {
+    unsigned count = 0;
+    const char *value;
+    //search for all artists
+    while ((value = mpd_song_get_tag(album, tag_albumartist, count)) != NULL) {
+        expression = escape_mpd_search_expression(expression, mpd_tag_name(tag_albumartist), "==", value);
+        expression = sdscat(expression, " AND ");
+        count++;
+    }
+    //and for album
+    expression = escape_mpd_search_expression(expression, "Album", "==", mpd_song_get_tag(album, MPD_TAG_ALBUM, 0));
+    return expression;
+}
 
 /**
  * Searches the mpd database for songs by expression and returns a jsonrpc result

@@ -1202,7 +1202,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             struct t_list albumids;
             list_init(&albumids);
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isuri, MPD_COMMANDS_MAX, &error) == true)
+                json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isalnum, MPD_COMMANDS_MAX, &error) == true)
             {
                 if (albumids.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
@@ -1229,7 +1229,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             struct t_list albumids;
             list_init(&albumids);
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isuri, MPD_COMMANDS_MAX, &error) == true &&
+                json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isalnum, MPD_COMMANDS_MAX, &error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true)
             {
                 if (albumids.length == 0) {
@@ -1245,6 +1245,32 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             list_clear(&albumids);
             break;
         }
+        case MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_DISC:
+        case MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUM_DISC:
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.albumid", 1, FILENAME_LEN_MAX, &sds_buf2, vcb_isalnum, &error) == true &&
+                json_get_string(request->data, "$.params.disc", 1, FILENAME_LEN_MAX, &sds_buf3, vcb_isdigit, &error) == true)
+            {
+                rc = request->cmd_id == MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_DISC
+                    ? mympd_api_playlist_content_append_album_disc(partition_state, sds_buf1, sds_buf2, sds_buf3, &error)
+                    : mympd_api_playlist_content_replace_album_disc(partition_state, sds_buf1, sds_buf2, sds_buf3, &error);
+
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_PLAYLIST, "Updated the playlist", error);
+            }
+            break;
+        case MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_DISC:
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
+                json_get_string(request->data, "$.params.albumid", 1, FILENAME_LEN_MAX, &sds_buf2, vcb_isalnum, &error) == true &&
+                json_get_string(request->data, "$.params.disc", 1, FILENAME_LEN_MAX, &sds_buf3, vcb_isdigit, &error) == true &&
+                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true)
+            {
+                rc = mympd_api_playlist_content_insert_album_disc(partition_state, sds_buf1, sds_buf2, sds_buf3, uint_buf1, &error);
+
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_PLAYLIST, "Updated the playlist", error);
+            }
+            break;
         case MYMPD_API_PLAYLIST_CONTENT_CLEAR:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
                 rc = mpd_client_playlist_clear(partition_state, sds_buf1, &error);
@@ -1525,7 +1551,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_QUEUE_REPLACE_ALBUMS: {
             struct t_list albumids;
             list_init(&albumids);
-            if (json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isuri, MPD_COMMANDS_MAX, &error) == true &&
+            if (json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isalnum, MPD_COMMANDS_MAX, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
             {
                 if (albumids.length == 0) {
@@ -1553,7 +1579,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             struct t_list albumids;
             list_init(&albumids);
-            if (json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isuri, MPD_COMMANDS_MAX, &error) == true &&
+            if (json_get_array_string(request->data, "$.params.albumids", &albumids, vcb_isalnum, MPD_COMMANDS_MAX, &error) == true &&
                 json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
                 json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &error) == true &&
                 json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
@@ -1571,6 +1597,37 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 }
             }
             list_clear(&albumids);
+            break;
+        }
+        case MYMPD_API_QUEUE_APPEND_ALBUM_DISC:
+        case MYMPD_API_QUEUE_REPLACE_ALBUM_DISC: {
+            if (json_get_string(request->data, "$.params.albumid", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &error) == true &&
+                json_get_string(request->data, "$.params.disc", 1, NAME_LEN_MAX, &sds_buf2, vcb_isdigit, &error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
+            {
+                rc = (request->cmd_id == MYMPD_API_QUEUE_APPEND_ALBUM_DISC
+                        ? mympd_api_queue_append_album_disc(partition_state, sds_buf1, sds_buf2, &error)
+                        : mympd_api_queue_replace_album_disc(partition_state, sds_buf1, sds_buf2, &error)) &&
+                    mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
+
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
+                    JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
+            }
+            break;
+        }
+        case MYMPD_API_QUEUE_INSERT_ALBUM_DISC: {
+            if (json_get_string(request->data, "$.params.albumid", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &error) == true &&
+                json_get_string(request->data, "$.params.disc", 1, NAME_LEN_MAX, &sds_buf2, vcb_isdigit, &error) == true &&
+                json_get_uint(request->data, "$.params.to", 0, MPD_PLAYLIST_LENGTH_MAX, &uint_buf1, &error) == true &&
+                json_get_uint(request->data, "$.params.whence", 0, 2, &uint_buf2, &error) == true &&
+                json_get_bool(request->data, "$.params.play", &bool_buf1, &error) == true)
+            {
+                rc = mympd_api_queue_insert_album_disc(partition_state, sds_buf1, sds_buf2, uint_buf1, uint_buf2, &error) &&
+                    mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
+
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
+                    JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
+            }
             break;
         }
         case MYMPD_API_QUEUE_ADD_RANDOM:
@@ -1689,7 +1746,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_DATABASE_ALBUM_DETAIL: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);
-            if (json_get_string(request->data, "$.params.albumid", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
+            if (json_get_string(request->data, "$.params.albumid", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
                 response->data = mympd_api_browse_album_detail(partition_state, response->data, request->id, sds_buf1, &tagcols);

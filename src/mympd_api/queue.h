@@ -34,4 +34,7 @@ bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, st
 bool mympd_api_queue_append_albums(struct t_partition_state *partition_state, struct t_list *albumids, sds *error);
 bool mympd_api_queue_insert_albums(struct t_partition_state *partition_state, struct t_list *albumids, unsigned to, unsigned whence, sds *error);
 bool mympd_api_queue_replace_albums(struct t_partition_state *partition_state, struct t_list *albumids, sds *error);
+bool mympd_api_queue_append_album_disc(struct t_partition_state *partition_state, sds albumid, sds disc, sds *error);
+bool mympd_api_queue_insert_album_disc(struct t_partition_state *partition_state, sds albumid, sds disc, unsigned to, unsigned whence, sds *error);
+bool mympd_api_queue_replace_album_disc(struct t_partition_state *partition_state, sds albumid, sds disc, sds *error);
 #endif

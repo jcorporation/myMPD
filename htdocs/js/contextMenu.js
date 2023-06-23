@@ -154,18 +154,17 @@ function addMenuItemsNavbarActions(target, popoverBody) {
 function addMenuItemsDiscActions(target, contextMenuTitle, contextMenuBody) {
     const dataNode = target.parentNode.parentNode;
     const disc = getData(dataNode, 'Disc');
-    const album = getData(dataNode, 'Album');
-    const albumArtist = getData(dataNode, 'AlbumArtist');
+    const albumId = getData(dataNode, 'AlbumId');
 
-    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["appendQueue", albumArtist, album, disc]}, 'Append to queue');
-    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["appendPlayQueue", albumArtist, album, disc]}, 'Append to queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["appendQueue", albumId, disc]}, 'Append to queue');
+    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["appendPlayQueue", albumId, disc]}, 'Append to queue and play');
     if (features.featWhence === true) {
-        addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["insertAfterCurrentQueue", albumArtist, album, disc]}, 'Insert after current playing song');
+        addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["insertAfterCurrentQueue", albumId, disc]}, 'Insert after current playing song');
     }
-    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["replaceQueue", albumArtist, album, disc]}, 'Replace queue');
-    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["replacePlayQueue", albumArtist, album, disc]}, 'Replace queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["replaceQueue", albumId, disc]}, 'Replace queue');
+    addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["replacePlayQueue", albumId, disc]}, 'Replace queue and play');
     if (features.featPlaylists === true) {
-        addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["addPlaylist", albumArtist, album, disc]}, 'Add to playlist');
+        addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["addPlaylist", albumId, disc]}, 'Add to playlist');
     }
 }
 

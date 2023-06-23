@@ -630,12 +630,11 @@ function replaceTblRow(row, el) {
 /**
  * Adds a row with discnumber to the table
  * @param {number} disc discnumber
- * @param {string} album album
- * @param {object} albumartist album artists 
+ * @param {string} albumId the albumid
  * @param {number} colspan column count
  * @returns {HTMLElement} the created row
  */
-function addDiscRow(disc, album, albumartist, colspan) {
+function addDiscRow(disc, albumId, colspan) {
     const row = elCreateNodes('tr', {"class": ["not-clickable"]}, [
         elCreateNode('td', {},
             elCreateText('span', {"class": ["mi"]}, 'album')
@@ -647,8 +646,7 @@ function addDiscRow(disc, album, albumartist, colspan) {
         )
     ]);
     setData(row, 'Disc', disc);
-    setData(row, 'Album', album);
-    setData(row, 'AlbumArtist', albumartist);
+    setData(row, 'AlbumId', albumId);
     return row;
 }
 
@@ -680,7 +678,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     let z = 0;
     let lastDisc = obj.result.data.length > 0 && obj.result.data[0].Disc !== undefined ? Number(obj.result.data[0].Disc) : 0;
     if (obj.result.Discs !== undefined && obj.result.Discs > 1) {
-        const row = addDiscRow(1, obj.result.data[0].Album, obj.result.data[0][tagAlbumArtist], colspan);
+        const row = addDiscRow(1, obj.result.AlbumId, colspan);
         if (z < tr.length) {
             replaceTblRow(tr[z], row);
         }
@@ -692,7 +690,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     for (let i = 0; i < nrItems; i++) {
         //disc handling for album view
         if (obj.result.data[0].Disc !== undefined && lastDisc < Number(obj.result.data[i].Disc)) {
-            const row = addDiscRow(obj.result.data[i].Disc, obj.result.data[i].Album, obj.result.data[i][tagAlbumArtist], colspan);
+            const row = addDiscRow(obj.result.data[i].Disc, obj.result.AlbumId, colspan);
             if (i + z < tr.length) {
                 replaceTblRow(tr[i + z], row);
             }

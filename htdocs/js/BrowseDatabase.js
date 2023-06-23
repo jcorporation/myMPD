@@ -572,37 +572,30 @@ function addAlbum(action) {
 /**
  * Handles single disc actions
  * @param {string} action action to perform
- * @param {Array} albumArtist the AlbumArtists
- * @param {string} album album name
+ * @param {string} albumId the album id
  * @param {string} disc disc number as string
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function addAlbumDisc(action, albumArtist, album, disc) {
-    let expression = '((Album == \'' + escapeMPD(album) + '\')';
-    for (const artist of albumArtist) {
-        expression += ' AND (' + tagAlbumArtist + ' == \'' + escapeMPD(artist) + '\')';
-    }
-    expression += ' AND (Disc == \'' + escapeMPD(disc) + '\'))';
-
+function addAlbumDisc(action, albumId, disc) {
     switch(action) {
         case 'appendQueue':
-            appendQueue('search', [expression]);
+            appendQueue('disc', [albumId, disc]);
             break;
         case 'appendPlayQueue':
-            appendPlayQueue('search', [expression]);
+            appendPlayQueue('disc', [albumId, disc]);
             break;
         case 'insertAfterCurrentQueue':
-            insertAfterCurrentQueue('search', [expression]);
+            insertAfterCurrentQueue('disc', [albumId, disc]);
             break;
         case 'replaceQueue':
-            replaceQueue('search', [expression]);
+            replaceQueue('disc', [albumId, disc]);
             break;
         case 'replacePlayQueue':
-            replacePlayQueue('search', [expression]);
+            replacePlayQueue('disc', [albumId, disc]);
             break;
         case 'addPlaylist':
-            showAddToPlaylist(['SEARCH'], expression);
+            showAddToPlaylist(['DISC', albumId, disc], '');
             break;
     }
 }
