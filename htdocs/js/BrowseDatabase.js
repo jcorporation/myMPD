@@ -468,7 +468,6 @@ function parseAlbumDetails(obj) {
 
     if (checkResultId(obj, 'BrowseDatabaseAlbumDetailList') === false) {
         elClear(infoEl);
-        elClear(tfoot);
         return;
     }
 

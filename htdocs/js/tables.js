@@ -894,9 +894,14 @@ function checkResultId(obj, id) {
  * Checks the json response for an error object and displays the error in the table body
  * @param {object} obj jsonrpc object to check
  * @param {HTMLElement} tbody body of the table
- * @returns {boolean} true = result is not an error, else false
+ * @returns {boolean} false = result is  empty or an error, else true
  */
 function checkResult(obj, tbody) {
+    //remove old alerts
+    const alert = tbody.querySelector('.alert');
+    if (alert) {
+        alert.parentNode.parentNode.remove();
+    }
     if (obj.error ||
         obj.result.returnedEntities === 0)
     {
