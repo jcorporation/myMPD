@@ -348,6 +348,7 @@ function getSelectValueId(id) {
 
 /**
  * Gets the value of the selected option of a select element
+ * or undefined if no option is selected
  * @param {Element | EventTarget} el element
  * @returns {string} selected option value
  */
