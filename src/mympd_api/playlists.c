@@ -738,6 +738,11 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         long request_id, enum plist_delete_criterias criteria)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_RM_ALL;
+
+    if (criteria == PLAYLIST_DELETE_UNKNOWN) {
+        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Invalid deletion criteria");
+    }
+
     //get all mpd playlists
     struct t_list playlists;
     list_init(&playlists);

@@ -10,5 +10,6 @@
 #include "src/lib/mympd_state.h"
 
 sds mympd_api_output_list(struct t_partition_state *partition_state, sds buffer, long request_id);
-
+bool mympd_api_output_attributes_set(struct t_partition_state *partition_state,
+        unsigned output_id, struct t_list *attributes, sds *error);
 #endif

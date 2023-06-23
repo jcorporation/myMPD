@@ -33,6 +33,7 @@ struct t_timer_node {
     struct t_timer_node *next;              //!< next timer in the timer list
 };
 
+bool mympd_api_timer_save(struct t_partition_state *partition_state, sds data, sds *error);
 void mympd_api_timer_timerlist_init(struct t_timer_list *l);
 void mympd_api_timer_timerlist_clear(struct t_timer_list *l);
 void mympd_api_timer_check(struct t_timer_list *l);
