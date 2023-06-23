@@ -375,6 +375,7 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         json_get_int(str, "$.params.startMinute", 0, 59, &timer_def->start_minute, error) == true &&
         json_get_string_max(str, "$.params.action", &timer_def->action, vcb_isalnum, error) == true &&
         json_get_string_max(str, "$.params.subaction", &timer_def->subaction, vcb_isname, error) == true &&
+        json_get_string_max(str, "$.params.preset", &timer_def->preset, vcb_isname, error) == true &&
         json_get_uint(str, "$.params.volume", VOLUME_MIN, VOLUME_MAX, &timer_def->volume, error) == true &&
         json_get_string_max(str, "$.params.playlist", &timer_def->playlist, vcb_isfilename, error) == true &&
         json_get_object_string(str, "$.params.arguments", &timer_def->arguments, vcb_isname, SCRIPT_ARGUMENTS_MAX, error) == true &&
@@ -386,10 +387,6 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         json_get_bool(str, "$.params.weekdays[5]", &timer_def->weekdays[5], error) == true &&
         json_get_bool(str, "$.params.weekdays[6]", &timer_def->weekdays[6], error) == true)
     {
-        if (json_get_string_max(str, "$.params.preset", &timer_def->preset, vcb_isname, error) == false) {
-            //Migration from 10.1 to 10.2
-            timer_def->preset = sdsempty();
-        }
         timer_def->partition = sdsnew(partition);
         MYMPD_LOG_DEBUG(NULL, "Successfully parsed timer definition");
     }
