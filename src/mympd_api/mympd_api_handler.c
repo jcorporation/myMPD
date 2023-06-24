@@ -1077,7 +1077,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 else {
                     rc = mympd_api_playlist_content_insert(partition_state, sds_buf1, &uris, uint_buf1, &error);
                     response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                            JSONRPC_FACILITY_PLAYLIST, "Updated the playlist", error);
+                            JSONRPC_FACILITY_PLAYLIST, "Playlist updated", error);
                 }
             }
             list_clear(&uris);
@@ -1096,7 +1096,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 else {
                     rc = mympd_api_playlist_content_replace(partition_state, sds_buf1, &uris, &error);
                     response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                            JSONRPC_FACILITY_PLAYLIST, "Updated the playlist", error);
+                            JSONRPC_FACILITY_PLAYLIST, "Playlist updated", error);
                 }
             }
             list_clear(&uris);
@@ -1114,7 +1114,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             {
                 rc = mpd_client_search_add_to_plist(partition_state, sds_buf2, sds_buf1, uint_buf1, &error);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                            JSONRPC_FACILITY_PLAYLIST, "Updated the playlist", error);
+                            JSONRPC_FACILITY_PLAYLIST, "Playlist updated", error);
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_REPLACE_SEARCH:
@@ -1132,7 +1132,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 }
                 rc = mpd_client_search_add_to_plist(partition_state, sds_buf2, sds_buf1, UINT_MAX, &error);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                            JSONRPC_FACILITY_PLAYLIST, "Updated the playlist", error);
+                            JSONRPC_FACILITY_PLAYLIST, "Playlist updated", error);
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUMS:
@@ -1152,7 +1152,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                         : mympd_api_playlist_content_replace_albums(partition_state, sds_buf1, &albumids, &error);
 
                     response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                            JSONRPC_FACILITY_PLAYLIST, "Updated the playlist", error);
+                            JSONRPC_FACILITY_PLAYLIST, "Playlist updated", error);
                 }
             }
             list_clear(&albumids);
@@ -1177,7 +1177,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 else {
                     rc = mympd_api_playlist_content_insert_albums(partition_state, sds_buf1, &albumids, uint_buf1, &error);
                     response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                            JSONRPC_FACILITY_PLAYLIST, "Updated the playlist", error);
+                            JSONRPC_FACILITY_PLAYLIST, "Playlist updated", error);
                 }
             }
             list_clear(&albumids);
@@ -1194,7 +1194,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     : mympd_api_playlist_content_replace_album_disc(partition_state, sds_buf1, sds_buf2, sds_buf3, &error);
 
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                        JSONRPC_FACILITY_PLAYLIST, "Updated the playlist", error);
+                        JSONRPC_FACILITY_PLAYLIST, "Playlist updated", error);
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_DISC:
@@ -1206,7 +1206,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 rc = mympd_api_playlist_content_insert_album_disc(partition_state, sds_buf1, sds_buf2, sds_buf3, uint_buf1, &error);
 
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                        JSONRPC_FACILITY_PLAYLIST, "Updated the playlist", error);
+                        JSONRPC_FACILITY_PLAYLIST, "Playlist updated", error);
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_CLEAR:
@@ -1405,7 +1405,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             {
                 if (plists.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No playlists provided");
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No playlists provided");
                 }
                 else {
                     rc = (request->cmd_id == MYMPD_API_QUEUE_APPEND_PLAYLISTS
@@ -1414,7 +1414,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                         mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
                     
                     response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                                JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
+                            JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
                 }
             }
             list_clear(&plists);
@@ -1435,14 +1435,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             {
                 if (plists.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No playlists provided");
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No playlists provided");
                 }
                 else {
                     rc = mympd_api_queue_insert_plist(partition_state, &plists, uint_buf1, uint_buf2, &error) &&
                         mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
 
                     response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                        JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
+                            JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
                 }
             }
             list_clear(&plists);
@@ -1463,7 +1463,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                         mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
 
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                                JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
+                        JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
             }
             break;
         case MYMPD_API_QUEUE_APPEND_SEARCH:
@@ -1474,7 +1474,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 if (request->cmd_id == MYMPD_API_QUEUE_REPLACE_SEARCH) {
                     if (mpd_client_queue_clear(partition_state, &error) == false) {
                         response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, error);
+                                JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, error);
                         break;
                     }
                 }
@@ -1482,7 +1482,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                         mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
 
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                                JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
+                        JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
             }
             break;
         case MYMPD_API_QUEUE_APPEND_ALBUMS:
@@ -1503,7 +1503,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                         mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
 
                     response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                        JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
+                            JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
                 }
             }
             list_clear(&albumids);
@@ -1524,14 +1524,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             {
                 if (albumids.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No album ids provided");
+                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No album ids provided");
                 }
                 else {
                     rc = mympd_api_queue_insert_albums(partition_state, &albumids, uint_buf1, uint_buf2, &error) &&
                         mpd_client_queue_check_start_play(partition_state, bool_buf1, &error);
 
                     response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                        JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
+                            JSONRPC_FACILITY_QUEUE, "Updated the queue", error);
                 }
             }
             list_clear(&albumids);
