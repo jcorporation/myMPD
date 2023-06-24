@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/position.h"
 #include "src/mympd_api/queue.h"
 
 #include "src/lib/album_cache.h"

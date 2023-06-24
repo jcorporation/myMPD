@@ -7,7 +7,7 @@
 #include "compile_time.h"
 #include "dist/rax/rax.h"
 
-#include "mpd/client.h"
+#include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/list.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/playlists.h"

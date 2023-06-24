@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/response.h"
 #include "src/mympd_api/last_played.h"
 
 #include "dist/sds/sds.h"

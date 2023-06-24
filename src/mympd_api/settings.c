@@ -5,8 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "mpd/response.h"
-#include "mpd/status.h"
 #include "src/mympd_api/settings.h"
 
 #include "dist/mjson/mjson.h"
