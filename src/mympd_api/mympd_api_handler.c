@@ -1821,7 +1821,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_WEBRADIO_FAVORITE_RM: {
             struct t_list filenames;
             list_init(&filenames);
-            if (json_get_array_string(request->data, "$.params.filename", &filenames, vcb_isfilename, MPD_COMMANDS_MAX, &error) == true) {
+            if (json_get_array_string(request->data, "$.params.filenames", &filenames, vcb_isfilename, MPD_COMMANDS_MAX, &error) == true) {
                 if (filenames.length == 0) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No webradios provided");

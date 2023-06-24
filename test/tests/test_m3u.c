@@ -9,6 +9,7 @@
 
 #include "dist/utest/utest.h"
 #include "dist/sds/sds.h"
+#include "src/lib/list.h"
 #include "src/lib/jsonrpc.h"
 #include "src/lib/m3u.h"
 #include "src/mympd_api/webradios.h"
@@ -78,8 +79,10 @@ UTEST(m3u, test_mympd_api_webradio_list) {
 }
 
 UTEST(m3u, test_mympd_api_webradio_delete) {
-    sds filename = sdsnew("http___yumicoradio_net_8000_stream.m3u");
-    bool rc = mympd_api_webradio_delete(workdir, filename);
-    sdsfree(filename);
+    struct t_list filenames;
+    list_init(&filenames);
+    list_push(&filenames, "http___yumicoradio_net_8000_stream.m3u", 0, NULL, NULL);
+    bool rc = mympd_api_webradio_delete(workdir, &filenames);
+    list_clear(&filenames);
     ASSERT_TRUE(rc);
 }

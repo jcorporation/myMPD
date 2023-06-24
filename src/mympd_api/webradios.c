@@ -264,12 +264,13 @@ bool mympd_api_webradio_delete(sds workdir, struct t_list *filenames) {
     bool rc = true;
     struct t_list_node *current = filenames->head;
     while (current != NULL) {
-        filepath = sdscatfmt(sdsempty(), "%S/%s/%S", workdir, DIR_WORK_WEBRADIOS, current->key);
+        filepath = sdscatfmt(filepath, "%S/%s/%S", workdir, DIR_WORK_WEBRADIOS, current->key);
         rc = rm_file(filepath);
         if (rc == false) {
             break;
         }
         sdsclear(filepath);
+        current = current->next;
     }
     FREE_SDS(filepath);
     return rc;
