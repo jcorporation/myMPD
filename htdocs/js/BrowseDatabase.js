@@ -134,8 +134,11 @@ function initBrowseDatabase() {
             handleActionTdClick(event);
             return;
         }
+        //table body
         const target = event.target.closest('TR');
-        if (checkTargetClick(target) === true) {
+        if (target.parentNode.nodeName === 'TBODY' &&
+            checkTargetClick(target) === true)
+        {
             clickSong(getData(target, 'uri'), event);
         }
     }, false);

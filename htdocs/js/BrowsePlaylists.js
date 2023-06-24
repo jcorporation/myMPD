@@ -106,9 +106,11 @@ function initPlaylists() {
             handleActionTdClick(event);
             return;
         }
-
+        //table body
         const target = event.target.closest('TR');
-        if (checkTargetClick(target) === true) {
+        if (target.parentNode.nodeName === 'TBODY' &&
+            checkTargetClick(target) === true)
+        {
             if (getData(target, 'smartpls-only') === false) {
                 clickPlaylist(getData(target, 'uri'), event);
             }
@@ -131,8 +133,11 @@ function initPlaylists() {
             handleActionTdClick(event);
             return;
         }
+        //table body
         const target = event.target.closest('TR');
-        if (checkTargetClick(target) === true) {
+        if (target.parentNode.nodeName === 'TBODY' &&
+            checkTargetClick(target) === true)
+        {
             clickSong(getData(target, 'uri'), event);
         }
     }, false);

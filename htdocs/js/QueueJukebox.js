@@ -40,8 +40,11 @@ function initQueueJukebox() {
             handleActionTdClick(event);
             return;
         }
+        //table body
         const target = event.target.closest('TR');
-        if (checkTargetClick(target) === true) {
+        if (target.parentNode.nodeName === 'TBODY' &&
+            checkTargetClick(target) === true)
+        {
             if (settings.partition.jukeboxMode === 'song') {
                 clickSong(getData(target, 'uri'), event);
             }

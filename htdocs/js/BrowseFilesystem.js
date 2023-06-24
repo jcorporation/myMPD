@@ -82,8 +82,11 @@ function initBrowseFilesystem() {
             handleActionTdClick(event);
             return;
         }
+        //table body
         const target = event.target.closest('TR');
-        if (checkTargetClick(target) === true) {
+        if (target.parentNode.nodeName === 'TBODY' &&
+            checkTargetClick(target) === true)
+        {
             const uri = getData(target, 'uri');
             const dataType = getData(target, 'type');
             switch(dataType) {

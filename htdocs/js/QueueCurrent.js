@@ -93,6 +93,7 @@ function initQueueCurrent() {
                 colName === 'Duration' ||
                 colName.indexOf('sticker') === 0)
             {
+                //by this fields can not be sorted
                 return;
             }
             toggleSort(event.target, colName);
@@ -102,7 +103,9 @@ function initQueueCurrent() {
         }
         //table body
         const target = event.target.closest('TR');
-        if (checkTargetClick(target) === true) {
+        if (target.parentNode.nodeName === 'TBODY' &&
+            checkTargetClick(target) === true)
+        {
             clickQueueSong(getData(target, 'songid'), getData(target, 'uri'), event);
         }
     }, false);

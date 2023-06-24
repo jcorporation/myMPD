@@ -483,9 +483,16 @@ function setCols(tableName) {
     const thead = document.querySelector('#' + tableName + 'List > thead > tr');
     elClear(thead);
 
+    const clickable = (tableName === 'QueueCurrent' && features.featAdvqueue) ||
+                      tableName === 'Search'
+        ? 'clickable'
+        : 'not-clickable';
+    if (clickable === 'not-clickable') {
+        thead.classList.add(clickable);
+    }
     for (let i = 0, j = settings['cols' + tableName].length; i < j; i++) {
         const hname = settings['cols' + tableName][i];
-        const th = elCreateTextTn('th', {"class": ["clickable"], "draggable": "true", "data-col": settings['cols' + tableName][i]}, hname);
+        const th = elCreateTextTn('th', {"class": [clickable], "draggable": "true", "data-col": settings['cols' + tableName][i]}, hname);
         if (hname === 'Track' ||
             hname === 'Pos')
         {

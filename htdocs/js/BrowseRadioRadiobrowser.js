@@ -65,8 +65,11 @@ function initBrowseRadioRadiobrowser() {
             handleActionTdClick(event);
             return;
         }
+        //table body
         const target = event.target.closest('TR');
-        if (checkTargetClick(target) === true) {
+        if (target.parentNode.nodeName === 'TBODY' &&
+            checkTargetClick(target) === true)
+        {
             const uri = getData(target, 'uri');
             if (settings.webuiSettings.clickRadiobrowser === 'add') {
                 showEditRadioFavorite({
