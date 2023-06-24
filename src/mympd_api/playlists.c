@@ -66,6 +66,10 @@ static void free_t_pl_data(void *data) {
 bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *partition_state, sds src_plist, sds dst_plist,
         struct t_list *positions, unsigned mode, sds *error)
 {
+    if (positions->length == 0) {
+        *error = sdscat(*error, "No song positions provided");
+        return false;
+    }
     struct t_list src;
     list_init(&src);
     //get source playlist
@@ -123,6 +127,10 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
 bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
         struct t_list *src_plists, sds dst_plist, enum plist_copy_modes mode, sds *error)
 {
+    if (src_plists->length == 0) {
+        *error = sdscat(*error, "No playlists provided");
+        return false;
+    }
     //copy sources in temporary list
     struct t_list src;
     list_init(&src);
@@ -204,6 +212,10 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state, sds plist, struct t_list *uris, unsigned to, sds *error) {
+    if (uris->length == 0) {
+        *error = sdscat(*error, "No uris provided");
+        return false;
+    }
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(uris)) != NULL) {
@@ -249,6 +261,44 @@ bool mympd_api_playlist_content_replace(struct t_partition_state *partition_stat
 }
 
 /**
+ * Inserts search results into a playlist
+ * @param partition_state pointer to partition state
+ * @param expression mpd search expression
+ * @param plist stored playlist name
+ * @param to position to insert
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_insert_search(struct t_partition_state *partition_state, sds expression, sds plist, unsigned to, sds *error) {
+    return mpd_client_search_add_to_plist(partition_state, expression, plist, to, error);
+}
+
+/**
+ * Appends the search results to the queue
+ * @param partition_state pointer to partition state
+ * @param expression mpd search expression
+ * @param plist stored playlist name
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_append_search(struct t_partition_state *partition_state, sds expression, sds plist, sds *error) {
+    return mympd_api_playlist_content_insert_search(partition_state, expression, plist, UINT_MAX, error);
+}
+
+/**
+ * Replaces the queue with the search result
+ * @param partition_state pointer to partition state
+ * @param expression mpd search expression
+ * @param plist stored playlist name
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_replace_search(struct t_partition_state *partition_state, sds expression, sds plist, sds *error) {
+    return mpd_client_playlist_clear(partition_state, plist, error) &&
+        mympd_api_playlist_content_append_search(partition_state, expression, plist, error);
+}
+
+/**
  * Insert albums into a playlist
  * @param partition_state pointer to partition state
  * @param plist stored playlist name
@@ -258,6 +308,10 @@ bool mympd_api_playlist_content_replace(struct t_partition_state *partition_stat
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partition_state, sds plist, struct t_list *albumids, unsigned to, sds *error) {
+    if (albumids->length == 0) {
+        *error = sdscat(*error, "No album ids provided");
+        return false;
+    }
     struct t_list_node *current = albumids->head;
     bool rc = true;
     while (current != NULL) {
@@ -360,6 +414,10 @@ bool mympd_api_playlist_content_replace_album_disc(struct t_partition_state *par
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition_state, sds plist, struct t_list *positions, sds *error) {
+    if (positions->length == 0) {
+        *error = sdscat(*error, "No song positions provided");
+        return false;
+    }
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(positions)) != NULL) {
@@ -663,6 +721,10 @@ sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buf
  */
 bool mympd_api_playlist_delete(struct t_partition_state *partition_state, struct t_list *playlists, sds *error)
 {
+    if (playlists->length == 0) {
+        *error = sdscat(*error, "No playlists provided");
+        return false;
+    }
     struct t_list all_plists;
     list_init(&all_plists);
     bool rc = mpd_client_get_all_playlists(partition_state, &all_plists, true, error);

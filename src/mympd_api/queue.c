@@ -34,6 +34,29 @@ sds print_queue_entry(struct t_partition_state *partition_state, sds buffer, con
  */
 
 /**
+ * Saves the queue as a playlist
+ * @param partition_state 
+ * @param name pointer to partition state
+ * @param mode mpd queue save mode
+ * @param error pointer to an already allocated sds string for the error message
+ * @return bool true on success, else false
+ */
+bool mympd_api_queue_save(struct t_partition_state *partition_state, sds name, sds mode, sds *error) {
+    if (partition_state->mpd_state->feat_advqueue == true) {
+        enum mpd_queue_save_mode save_mode = mpd_parse_queue_save_mode(mode);
+        if (save_mode == MPD_QUEUE_SAVE_MODE_UNKNOWN) {
+            *error = sdscat(*error, "Unknown queue save mode");
+            return false;
+        }
+        mpd_run_save_queue(partition_state->conn, name, save_mode);
+        return mympd_check_error_and_recover(partition_state, error, "mpd_run_save_queue");
+
+    }
+    mpd_run_save(partition_state->conn, name);
+    return mympd_check_error_and_recover(partition_state, error, "mpd_run_save");
+}
+
+/**
  * Removes songs defined by id from the queue
  * @param partition_state pointer to partition state
  * @param song_ids list of song_ids to remove
@@ -41,6 +64,10 @@ sds print_queue_entry(struct t_partition_state *partition_state, sds buffer, con
  * @return true on success, else false
  */
 bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, struct t_list *song_ids, sds *error) {
+    if (song_ids->length == 0) {
+        *error = sdscat(*error, "No MPD queue song ids provided");
+        return false;
+    }
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(song_ids)) != NULL) {
@@ -67,6 +94,10 @@ bool mympd_api_queue_rm_song_ids(struct t_partition_state *partition_state, stru
  * @return true on success, else false
  */
 bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, struct t_list *song_ids, unsigned priority, sds *error) {
+    if (song_ids->length == 0) {
+        *error = sdscat(*error, "No MPD queue song ids provided");
+        return false;
+    }
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(song_ids)) != NULL) {
@@ -92,6 +123,10 @@ bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, struct 
  * @return true on success, else false
  */
 bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state, struct t_list *song_ids, sds *error) {
+    if (song_ids->length == 0) {
+        *error = sdscat(*error, "No MPD queue song ids provided");
+        return false;
+    }
     //default prio is 0
     unsigned priority = 1;
     int next_song_id = -1;
@@ -138,6 +173,10 @@ bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state,
  * @return bool true on success, else false
  */
 bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, struct t_list *song_ids, unsigned to, unsigned whence, sds *error) {
+    if (song_ids->length == 0) {
+        *error = sdscat(*error, "No MPD queue song ids provided");
+        return false;
+    }
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current = song_ids->head;
         while (current != NULL) {
@@ -164,6 +203,10 @@ bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, st
  * @return true on success, else false
  */
 bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_list *uris, unsigned to, unsigned whence, sds *error) {
+    if (uris->length == 0) {
+        *error = sdscat(*error, "No uris provided");
+        return false;
+    }
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(uris)) != NULL) {
@@ -207,7 +250,43 @@ bool mympd_api_queue_replace(struct t_partition_state *partition_state, struct t
 }
 
 /**
- * Insert albums into the queue
+ * Inserts search results into the queue
+ * @param partition_state pointer to partition state
+ * @param expression mpd search expression
+ * @param to position to insert
+ * @param whence how to interpret the to parameter
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_queue_insert_search(struct t_partition_state *partition_state, sds expression, unsigned to, unsigned whence, sds *error) {
+    return mpd_client_search_add_to_queue(partition_state, expression, to, whence, error);
+}
+
+/**
+ * Appends the search results to the queue
+ * @param partition_state pointer to partition state
+ * @param expression mpd search expression
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_queue_append_search(struct t_partition_state *partition_state, sds expression, sds *error) {
+    return mympd_api_queue_insert_search(partition_state, expression, UINT_MAX, MPD_POSITION_ABSOLUTE, error);
+}
+
+/**
+ * Replaces the queue with the search result
+ * @param partition_state pointer to partition state
+ * @param expression mpd search expression
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_queue_replace_search(struct t_partition_state *partition_state, sds expression, sds *error) {
+    return mpd_client_queue_clear(partition_state, error) &&
+        mympd_api_queue_append_search(partition_state, expression, error);
+}
+
+/**
+ * Inserts albums into the queue
  * @param partition_state pointer to partition state
  * @param albumids album ids to insert
  * @param to position to insert
@@ -216,6 +295,10 @@ bool mympd_api_queue_replace(struct t_partition_state *partition_state, struct t
  * @return true on success, else false
  */
 bool mympd_api_queue_insert_albums(struct t_partition_state *partition_state, struct t_list *albumids, unsigned to, unsigned whence, sds *error) {
+    if (albumids->length == 0) {
+        *error = sdscat(*error, "No album ids provided");
+        return false;
+    }
     struct t_list_node *current = albumids->head;
     bool rc = true;
     while (current != NULL) {
@@ -313,6 +396,10 @@ bool mympd_api_queue_replace_album_disc(struct t_partition_state *partition_stat
  * @return true on success, else false
  */
 bool mympd_api_queue_insert_plist(struct t_partition_state *partition_state, struct t_list *plists, unsigned to, unsigned whence, sds *error) {
+    if (plists->length == 0) {
+        *error = sdscat(*error, "No playlists provided");
+        return false;
+    }
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current = plists->head;
         while (current != NULL) {

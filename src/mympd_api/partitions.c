@@ -18,6 +18,8 @@
 #include "src/mpd_client/partitions.h"
 #include "src/mpd_client/shortcuts.h"
 
+#include <string.h>
+
 /**
  * Lists partitions
  * @param mympd_state pointer to central myMPD state
@@ -50,6 +52,44 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long
 }
 
 /**
+ * Creates a new mpd partition
+ * @param partition_state pointer to partition state
+ * @param partition new partition name
+ * @param error pointer to already allocated sds string to append the error message
+ * @return true on success, else false
+ */
+bool mympd_api_partition_new(struct t_partition_state *partition_state, sds partition, sds *error) {
+    if (strcmp(partition, MPD_PARTITION_ALL) == 0 ||
+        strcmp(partition, MPD_PARTITION_DEFAULT) == 0)
+    {
+        *error = sdscat(*error, "Partition name is reserved");
+        return false;
+    }
+    mpd_run_newpartition(partition_state->conn, partition);
+    return mympd_check_error_and_recover(partition_state, error, "mpd_run_newpartition");
+}
+
+/**
+ * Moves outputs to the partition
+ * @param partition_state pointer to partition state
+ * @param outputs list of outputs to move
+ * @param error pointer to already allocated sds string to append the error message
+ * @return true on success, else false
+ */
+bool mympd_api_partition_outputs_move(struct t_partition_state *partition_state, struct t_list *outputs, sds *error) {
+    struct t_list_node *current;
+    while ((current = list_shift_first(outputs)) != NULL) {
+        mpd_run_move_output(partition_state->conn, current->key);
+        list_node_free(current);
+        bool rc = mympd_check_error_and_recover(partition_state, error, "mpd_run_move_output");
+        if (rc == false) {
+            return false;
+        }
+    }
+    return true;
+}
+
+/**
  * Disconnects and removes a partition.
  * Assigned outputs are moved to the default partition: https://github.com/MusicPlayerDaemon/MPD/discussions/1611
  * @param partition_state pointer to partition state for default partition
@@ -60,6 +100,14 @@ sds mympd_api_partition_list(struct t_mympd_state *mympd_state, sds buffer, long
  */
 sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer, long request_id, sds partition) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PARTITION_RM;
+    if (partition_state->is_default == false) {
+        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD,
+                JSONRPC_SEVERITY_ERROR, "Partitions can only be deleted from default partition");
+    }
+    if (strcmp(partition, MPD_PARTITION_DEFAULT) == 0) {
+        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD,
+                JSONRPC_SEVERITY_ERROR, "Default partition can not be deleted");
+    }
     struct t_partition_state *partition_to_remove = partitions_get_by_name(partition_state->mympd_state, partition);
     if (partition_to_remove == NULL) {
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Partition not found");
