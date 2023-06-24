@@ -332,6 +332,7 @@ function parseCmd(event, cmd) {
             case 'toggleSaveQueueMode':
             case 'hideAlert':
             case 'switchTableMode':
+            case 'switchGridMode':
                 // @ts-ignore
                 func(event.target, ... cmd.options);
                 break;

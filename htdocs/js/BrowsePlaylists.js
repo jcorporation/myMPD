@@ -628,7 +628,7 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
 
 /**
  * Shows the copy playlist modal
- * @param {string} srcPlists playlist to remove the entries
+ * @param {Array} srcPlists playlist to remove the entries
  * @returns {void}
  */
 function showCopyPlaylist(srcPlists) {

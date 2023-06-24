@@ -64,7 +64,7 @@ function selectAllRows(table, select) {
             check.textContent = ligatures['unchecked'];
         }
     }
-    showSelectionCount();
+    showTableSelectionCount();
 }
 
 /**
@@ -128,7 +128,7 @@ function selectRow(event) {
         selectSingleRow(row, null);
         setData(table, 'last-selected', elGetIndex(row));
     }
-    showSelectionCount();
+    showTableSelectionCount();
     event.preventDefault();
     event.stopPropagation();
     return true;
@@ -158,25 +158,10 @@ function selectSingleRow(row, select) {
 }
 
 /**
- * Returns an array of all selected rows attribute
- * @param {HTMLElement} table table element
- * @param {string} attribute attribute name
- * @returns {Array} list of attribute values of selected rows
- */
-function getSelectedRowData(table, attribute) {
-    const data = [];
-    const rows = table.querySelectorAll('tbody > tr.active');
-    for (const row of rows) {
-        data.push(getData(row, attribute));
-    }
-    return data;
-}
-
-/**
  * Shows the number of selections in the dropdown
  * @returns {void}
  */
-function showSelectionCount() {
+function showTableSelectionCount() {
     const table = document.getElementById(app.id + 'List');
     const dropdown = document.querySelector('#dropdown' + app.id + 'Selection');
     const rows = table.querySelectorAll('tbody > tr.active');

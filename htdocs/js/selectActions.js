@@ -20,13 +20,24 @@ function initSelectActions() {
         'dropdownBrowsePlaylistDetailSelection',
         'dropdownBrowseRadioWebradiodbSelection',
         'dropdownBrowseRadioRadiobrowserSelection',
-        'dropdownSearchSelection'
+        'dropdownSearchSelection',
+        'dropdownBrowseDatabaseAlbumListSelection'
     ]) {
         const el = document.querySelector('#' + dropdownId + '> div');
-        document.getElementById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
-            addSelectActionButtons(el, dropdownId);
-            showSelectionCount();
-        }, false);
+        if (dropdownId === 'dropdownBrowseDatabaseAlbumListSelection' ||
+            dropdownId === 'dropdownBrowseRadioFavoritesListSelection')
+        {
+            document.getElementById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
+                addSelectActionButtons(el, dropdownId);
+                showGridSelectionCount();
+            }, false);
+        }
+        else {
+            document.getElementById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
+                addSelectActionButtons(el, dropdownId);
+                showTableSelectionCount();
+            }, false);
+        }
         el.addEventListener('click', function(event) {
             if (event.target.nodeName === 'BUTTON') {
                 parseCmd(event, getData(event.target, 'href'));
@@ -44,9 +55,9 @@ function initSelectActions() {
 function addSelectActionButtons(el, dropdownId) {
     elClear(el);
     const table = document.getElementById(app.id + 'List');
-    const firstSelectedRow = table.querySelector('tr.active');
-    const type = firstSelectedRow !== null
-        ? getData(firstSelectedRow, 'type')
+    const firstSelection = table.querySelector('.active');
+    const type = firstSelection !== null
+        ? getData(firstSelection, 'type')
         : 'song';
 
     if (dropdownId !== 'dropdownQueueCurrentSelection') {
@@ -104,6 +115,21 @@ function addSelectActionButton(el, cmd, text) {
 }
 
 /**
+ * Returns an array of all selected rows/grids attribute
+ * @param {HTMLElement} parent table or grid element
+ * @param {string} attribute attribute name
+ * @returns {Array} list of attribute values of selected rows
+ */
+function getSelectionData(parent, attribute) {
+    const data = [];
+    const rows = parent.querySelectorAll('.active');
+    for (const row of rows) {
+        data.push(getData(row, attribute));
+    }
+    return data;
+}
+
+/**
  * Handles the selection actions
  * @param {string} type entity type
  * @param {string} action action to handle
@@ -112,66 +138,73 @@ function addSelectActionButton(el, cmd, text) {
 //eslint-disable-next-line no-unused-vars
 function execSelectAction(type, action) {
     const table = document.getElementById(app.id + 'List');
+    const attribute = type === 'album'
+        ? 'AlbumId'
+        : action === 'playAfterCurrent' || action === 'removeFromQueueIDs'
+            ? 'songid' 
+            : action === 'showMoveToPlaylist' || action === 'removeFromPlaylistPositions'
+                ? 'songpos'
+                : 'uri';
     switch(action) {
         case 'appendQueue': {
-            const uris = getSelectedRowData(table, 'uri');
+            const uris = getSelectionData(table, attribute);
             appendQueue(type, uris);
             break;
         }
         case 'appendPlayQueue': {
-            const uris = getSelectedRowData(table, 'uri');
+            const uris = getSelectionData(table, attribute);
             appendPlayQueue(type, uris);
             break;
         }
         case 'playAfterCurrent': {
-            const songIds = getSelectedRowData(table, 'songid');
+            const songIds = getSelectionData(table, attribute);
             playAfterCurrent(songIds);
             break;
         }
         case 'insertAfterCurrentQueue': {
-            const uris = getSelectedRowData(table, 'uri');
+            const uris = getSelectionData(table, attribute);
             insertAfterCurrentQueue(type, uris);
             break;
         }
         case 'replaceQueue': {
-            const uris = getSelectedRowData(table, 'uri');
+            const uris = getSelectionData(table, attribute);
             replaceQueue(type, uris);
             break;
         }
         case 'replacePlayQueue': {
-            const uris = getSelectedRowData(table, 'uri');
+            const uris = getSelectionData(table, attribute);
             replacePlayQueue(type, uris);
             break;
         }
         case 'removeFromQueueIDs': {
-            const songIds = getSelectedRowData(table, 'songid');
+            const songIds = getSelectionData(table, attribute);
             removeFromQueueIDs(songIds);
             break;
         }
         case 'showAddToPlaylist': {
-            const uris = getSelectedRowData(table, 'uri');
+            const uris = getSelectionData(table, attribute);
             showAddToPlaylist(uris, '');
             break;
         }
         case 'showMoveToPlaylist': {
-            const positions = getSelectedRowData(table, 'songpos');
+            const positions = getSelectionData(table, attribute);
             const plist = getData(table, 'uri');
             showMoveToPlaylist(plist, positions);
             break;
         }
         case 'removeFromPlaylistPositions': {
-            const positions = getSelectedRowData(table, 'songpos');
+            const positions = getSelectionData(table, attribute);
             const plist = getData(table, 'uri');
             removeFromPlaylistPositions(plist, positions);
             break;
         }
         case 'showDelPlaylist': {
-            const uris = getSelectedRowData(table, 'uri');
+            const uris = getSelectionData(table, attribute);
             showDelPlaylist(uris);
             break;
         }
         case 'showCopyPlaylist': {
-            const plists = getData(table, 'uri');
+            const plists = getSelectionData(table, attribute);
             showCopyPlaylist(plists);
             break;
         }

@@ -1183,8 +1183,23 @@ table[data-mode="select"] > tbody > tr > td[data-col="Action"] > a {
   display: none;
 }
 
-tr.active td {
+div[data-mode="select"] .card-footer > button {
+  display: block !important;
+}
+
+div[data-mode="select"] .card-body > div {
+  display: none !important;
+}
+
+tr.active td,
+div.active {
   background-color: var(--mympd-highlightcolor);
+}
+
+div.active .card-body{
+  border-top-right-radius: var(--bs-border-radius);
+  border: 4px solid var(--mympd-highlightcolor);
+  border-top-left-radius: var(--bs-border-radius);
 }
 
 tr.active td,

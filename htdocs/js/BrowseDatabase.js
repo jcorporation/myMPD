@@ -96,6 +96,10 @@ function initBrowseDatabase() {
         if (event.target.classList.contains('row')) {
             return;
         }
+        //select mode
+        if (selectCard(event) === true) {
+            return;
+        }
         const target = event.target.closest('DIV');
         if (target.classList.contains('card-body')) {
             appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, getData(target.parentNode, 'AlbumId'));
@@ -283,7 +287,7 @@ function parseDatabaseAlbumList(obj) {
     let cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
         //id is used only to check if card should be refreshed
-        const id = genId('database' + obj.result.data[i].Album + obj.result.data[i][tagAlbumArtist]);
+        const id = genId('database' + obj.result.data[i].AlbumId);
 
         if (cols[i] !== undefined &&
             cols[i].firstChild.firstChild.getAttribute('id') === id) {
@@ -297,7 +301,9 @@ function parseDatabaseAlbumList(obj) {
         card.appendChild(
             elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
         );
-        const taglist = [];
+        const taglist = [
+            pEl.albumSelectBtn.cloneNode(true)
+        ];
         for (const tag of settings.colsBrowseDatabaseAlbumList) {
             taglist.push(
                 elCreateNode((tag === 'Album' ? 'span' : 'small'), {"class": ["d-block"]},
@@ -449,9 +455,9 @@ function saveColsDatabaseAlbumList() {
  * @returns {void}
  */
 function addAlbumPlayButton(parentEl) {
-    const div = pEl.coverPlayBtn.cloneNode(true);
-    parentEl.appendChild(div);
-    div.addEventListener('click', function(event) {
+    const playBtn = pEl.coverPlayBtn.cloneNode(true);
+    parentEl.appendChild(playBtn);
+    playBtn.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
         clickQuickPlay(event.target);

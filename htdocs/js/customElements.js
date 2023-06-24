@@ -9,6 +9,7 @@
  * Some pre-generated elements.
  */
 const pEl = {};
+pEl.albumSelectBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0", "color-darkgrey", "float-end", "d-none"], "data-title-phrase": "Select"}, 'radio_button_unchecked');
 pEl.selectBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0", "color-darkgrey"], "data-title-phrase": "Select"}, 'radio_button_unchecked');
 pEl.selectAllBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0"], "data-title-phrase": "Select all"}, 'radio_button_unchecked');
 pEl.actionsBtn = elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatures['more']);
