@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/list.h"
 #include "src/mympd_api/webradios.h"
 
 #include "dist/utf8/utf8.h"
@@ -253,14 +254,23 @@ bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
 }
 
 /**
- * Deletes a webradio m3u
+ * Deletes webradio m3u's
  * @param workdir working directory
- * @param filename webradio m3u filename to delete
+ * @param filenames webradio m3u filenames to delete
  * @return true on success, else false
  */
-bool mympd_api_webradio_delete(sds workdir, const char *filename) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_WEBRADIOS, filename);
-    bool rc = rm_file(filepath);
+bool mympd_api_webradio_delete(sds workdir, struct t_list *filenames) {
+    sds filepath = sdsempty();
+    bool rc = true;
+    struct t_list_node *current = filenames->head;
+    while (current != NULL) {
+        filepath = sdscatfmt(sdsempty(), "%S/%s/%S", workdir, DIR_WORK_WEBRADIOS, current->key);
+        rc = rm_file(filepath);
+        if (rc == false) {
+            break;
+        }
+        sdsclear(filepath);
+    }
     FREE_SDS(filepath);
     return rc;
 }

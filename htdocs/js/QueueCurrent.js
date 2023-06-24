@@ -497,6 +497,9 @@ function appendPlayQueue(type, uris, callback) {
  * @returns {void}
  */
 function _appendQueue(type, uris, play, callback) {
+    if (type === 'webradio') {
+        uris = getRadioFavoriteUris(uris);
+    }
     switch(type) {
         case 'song':
         case 'dir':
@@ -572,6 +575,9 @@ function insertPlayAfterCurrentQueue(type, uris, callback) {
  * @returns {void}
  */
 function insertQueue(type, uris, to, whence, play, callback) {
+    if (type === 'webradio') {
+        uris = getRadioFavoriteUris(uris);
+    }
     switch(type) {
         case 'song':
         case 'dir':
@@ -653,6 +659,9 @@ function replacePlayQueue(type, uris, callback) {
  * @returns {void}
  */
 function _replaceQueue(type, uris, play, callback) {
+    if (type === 'webradio') {
+        uris = getRadioFavoriteUris(uris);
+    }
     switch(type) {
         case 'song':
         case 'stream':

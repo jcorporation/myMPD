@@ -1818,13 +1818,21 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 }
             }
             break;
-        case MYMPD_API_WEBRADIO_FAVORITE_RM:
-            if (json_get_string(request->data, "$.params.filename", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
-                rc = mympd_api_webradio_delete(config->workdir, sds_buf1);
+        case MYMPD_API_WEBRADIO_FAVORITE_RM: {
+            struct t_list filenames;
+            list_init(&filenames);
+            if (json_get_array_string(request->data, "$.params.filename", &filenames, vcb_isfilename, MPD_COMMANDS_MAX, &error) == true) {
+                if (filenames.length == 0) {
+                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No webradios provided");
+                }
+                rc = mympd_api_webradio_delete(config->workdir, &filenames);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_DATABASE, "Could not delete webradio favorite");
             }
+            list_clear(&filenames);
             break;
+        }
         default:
             response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                 JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Unknown request");

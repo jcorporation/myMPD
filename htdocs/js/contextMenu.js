@@ -405,12 +405,11 @@ function addMenuItemsDirectoryActions(contextMenuBody, baseuri) {
 function addMenuItemsWebradioFavoritesActions(target, contextMenuTitle, contextMenuBody) {
     const type = getData(target, 'type');
     const uri = getData(target, 'uri');
-    const plistUri = getRadioFavoriteUri(uri);
     const name = getData(target, 'name');
-    addMenuItemsPlaylistActions(target, contextMenuBody, type, plistUri, name);
+    addMenuItemsPlaylistActions(target, contextMenuBody, type, uri, name);
     addDivider(contextMenuBody);
     addMenuItem(contextMenuBody, {"cmd": "editRadioFavorite", "options": [uri]}, 'Edit webradio favorite');
-    addMenuItem(contextMenuBody, {"cmd": "deleteRadioFavorite", "options": [uri]}, 'Delete webradio favorite');
+    addMenuItem(contextMenuBody, {"cmd": "deleteRadioFavorites", "options": [[uri]]}, 'Delete webradio favorite');
 }
 
 /**

@@ -14,18 +14,19 @@ function initSelectActions() {
         'dropdownQueueCurrentSelection',
         'dropdownQueueLastPlayedSelection',
         'dropdownQueueJukeboxSelection',
+        'dropdownBrowseDatabaseAlbumListSelection',
         'dropdownBrowseDatabaseAlbumDetailSelection',
         'dropdownBrowseFilesystemSelection',
         'dropdownBrowsePlaylistListSelection',
         'dropdownBrowsePlaylistDetailSelection',
+        'dropdownBrowseRadioFavoritesSelection',
         'dropdownBrowseRadioWebradiodbSelection',
         'dropdownBrowseRadioRadiobrowserSelection',
-        'dropdownSearchSelection',
-        'dropdownBrowseDatabaseAlbumListSelection'
+        'dropdownSearchSelection'
     ]) {
         const el = document.querySelector('#' + dropdownId + '> div');
         if (dropdownId === 'dropdownBrowseDatabaseAlbumListSelection' ||
-            dropdownId === 'dropdownBrowseRadioFavoritesListSelection')
+            dropdownId === 'dropdownBrowseRadioFavoritesSelection')
         {
             document.getElementById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
                 addSelectActionButtons(el, dropdownId);
@@ -54,8 +55,8 @@ function initSelectActions() {
  */
 function addSelectActionButtons(el, dropdownId) {
     elClear(el);
-    const table = document.getElementById(app.id + 'List');
-    const firstSelection = table.querySelector('.active');
+    const parent = document.getElementById(app.id + 'List');
+    const firstSelection = parent.querySelector('.active');
     const type = firstSelection !== null
         ? getData(firstSelection, 'type')
         : 'song';
@@ -76,8 +77,11 @@ function addSelectActionButtons(el, dropdownId) {
     if (dropdownId === 'dropdownQueueJukeboxSelection') {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "delQueueJukeboxSong"]}, 'Remove');
     }
+    if (dropdownId === 'dropdownBrowseRadioFavoritesSelection') {
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "delRadioFavorites"]}, 'Delete');
+    }
     if (dropdownId === 'dropdownBrowsePlaylistDetailSelection') {
-        const ro = getData(table, 'ro');
+        const ro = getData(parent, 'ro');
         if (ro === false) {
             addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "removeFromPlaylistPositions"]}, 'Remove');
         }
@@ -95,7 +99,7 @@ function addSelectActionButtons(el, dropdownId) {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "showAddToPlaylist"]}, 'Add to playlist');
     }
     if (dropdownId === 'dropdownBrowsePlaylistDetailSelection' &&
-        getData(table, 'type') !== 'smartpls')
+        getData(parent, 'type') !== 'smartpls')
     {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "showMoveToPlaylist"]}, 'Move to playlist');
     }
@@ -137,7 +141,7 @@ function getSelectionData(parent, attribute) {
  */
 //eslint-disable-next-line no-unused-vars
 function execSelectAction(type, action) {
-    const table = document.getElementById(app.id + 'List');
+    const parent = document.getElementById(app.id + 'List');
     const attribute = type === 'album'
         ? 'AlbumId'
         : action === 'playAfterCurrent' || action === 'removeFromQueueIDs'
@@ -147,65 +151,70 @@ function execSelectAction(type, action) {
                 : 'uri';
     switch(action) {
         case 'appendQueue': {
-            const uris = getSelectionData(table, attribute);
+            const uris = getSelectionData(parent, attribute);
             appendQueue(type, uris);
             break;
         }
         case 'appendPlayQueue': {
-            const uris = getSelectionData(table, attribute);
+            const uris = getSelectionData(parent, attribute);
             appendPlayQueue(type, uris);
             break;
         }
         case 'playAfterCurrent': {
-            const songIds = getSelectionData(table, attribute);
+            const songIds = getSelectionData(parent, attribute);
             playAfterCurrent(songIds);
             break;
         }
         case 'insertAfterCurrentQueue': {
-            const uris = getSelectionData(table, attribute);
+            const uris = getSelectionData(parent, attribute);
             insertAfterCurrentQueue(type, uris);
             break;
         }
         case 'replaceQueue': {
-            const uris = getSelectionData(table, attribute);
+            const uris = getSelectionData(parent, attribute);
             replaceQueue(type, uris);
             break;
         }
         case 'replacePlayQueue': {
-            const uris = getSelectionData(table, attribute);
+            const uris = getSelectionData(parent, attribute);
             replacePlayQueue(type, uris);
             break;
         }
         case 'removeFromQueueIDs': {
-            const songIds = getSelectionData(table, attribute);
+            const songIds = getSelectionData(parent, attribute);
             removeFromQueueIDs(songIds);
             break;
         }
         case 'showAddToPlaylist': {
-            const uris = getSelectionData(table, attribute);
+            const uris = getSelectionData(parent, attribute);
             showAddToPlaylist(uris, '');
             break;
         }
         case 'showMoveToPlaylist': {
-            const positions = getSelectionData(table, attribute);
-            const plist = getData(table, 'uri');
+            const positions = getSelectionData(parent, attribute);
+            const plist = getData(parent, 'uri');
             showMoveToPlaylist(plist, positions);
             break;
         }
         case 'removeFromPlaylistPositions': {
-            const positions = getSelectionData(table, attribute);
-            const plist = getData(table, 'uri');
+            const positions = getSelectionData(parent, attribute);
+            const plist = getData(parent, 'uri');
             removeFromPlaylistPositions(plist, positions);
             break;
         }
         case 'showDelPlaylist': {
-            const uris = getSelectionData(table, attribute);
+            const uris = getSelectionData(parent, attribute);
             showDelPlaylist(uris);
             break;
         }
         case 'showCopyPlaylist': {
-            const plists = getSelectionData(table, attribute);
+            const plists = getSelectionData(parent, attribute);
             showCopyPlaylist(plists);
+            break;
+        }
+        case 'delRadioFavorites': {
+            const uris = getSelectionData(parent, attribute);
+            deleteRadioFavorites(uris);
             break;
         }
     }

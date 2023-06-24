@@ -302,7 +302,7 @@ function parseDatabaseAlbumList(obj) {
             elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
         );
         const taglist = [
-            pEl.albumSelectBtn.cloneNode(true)
+            pEl.gridSelectBtn.cloneNode(true)
         ];
         for (const tag of settings.colsBrowseDatabaseAlbumList) {
             taglist.push(

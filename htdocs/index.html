@@ -713,11 +713,20 @@
             </div>
             <div class="btn-group me-2 featHome">
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
+            </div><div class="btn-group me-2">
+              <button data-title-phrase="Select" id="btnBrowseRadioFavoritesListSelectMode" data-href='{"cmd": "switchGridMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
+              <div class="dropdown-menu px-2 dropdownWide" id="dropdownBrowseRadioFavoritesSelection">
+                <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
+                <div class="d-grid gap-2"></div>
+                <div class="dropdown-divider"></div>
+                <small class="mb-0 px-2"></small>
+              </div>
             </div>
             <div id="BrowseRadioFavoritesPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
           <div class="container-fluid scrollContainer cardsContainer">
-            <div id="BrowseRadioFavoritesList" class="row"></div>
+            <div id="BrowseRadioFavoritesList" class="row mympd-grid"></div>
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioFavoritesButtonsBottom"></div>
         </div>

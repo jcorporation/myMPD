@@ -552,7 +552,8 @@ function addPlistToHome(uri, type, name) {
  */
 //eslint-disable-next-line no-unused-vars
 function addRadioFavoriteToHome(uri, type, name, image) {
-    _addHomeIcon('replaceQueue', name, '', image, [type, uri]);
+    const plistUri = getRadioFavoriteUri(uri);
+    _addHomeIcon('replaceQueue', name, '', image, [type, plistUri]);
 }
 
 /**

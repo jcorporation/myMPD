@@ -43,15 +43,9 @@ function clickQuickRemove(target) {
  */
 function clickQuickPlay(target) {
     const type = getData(target.parentNode.parentNode, 'type');
-    let uri = getData(target.parentNode.parentNode, 'uri');
-    switch (type) {
-        case 'webradio':
-            uri = getRadioFavoriteUri(uri);
-            break;
-        case 'album':
-            uri = getData(target.parentNode.parentNode, 'AlbumId');
-            break;
-    }
+    const uri = type === 'album'
+        ? getData(target.parentNode.parentNode, 'AlbumId')
+        : getData(target.parentNode.parentNode, 'uri');
     switch (settings.webuiSettings.clickQuickPlay) {
         case 'append': return appendQueue(type, [uri]);
         case 'appendPlay': return appendPlayQueue(type, [uri]);
@@ -123,19 +117,18 @@ function clickWebradiodb(uri, event) {
 
 /**
  * Handler for webradio favorites links
- * @param {string} uri webradio favorite uri, starting with mympd://webradio/
+ * @param {string} uri webradio favorite uri (filename only)
  * @param {event} event the event
  * @returns {void}
  */
 function clickRadioFavorites(uri, event) {
-    const fullUri = getRadioFavoriteUri(uri);
     switch(settings.webuiSettings.clickRadioFavorites) {
-        case 'append': return appendQueue('plist', [fullUri]);
-        case 'appendPlay': return appendPlayQueue('plist', [fullUri]);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', [fullUri]);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', [fullUri]);
-        case 'replace': return replaceQueue('plist', [fullUri]);
-        case 'replacePlay': return replacePlayQueue('plist', [fullUri]);
+        case 'append': return appendQueue('webradio', [uri]);
+        case 'appendPlay': return appendPlayQueue('webradio', [uri]);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('webradio', [uri]);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('webradio', [uri]);
+        case 'replace': return replaceQueue('webradio', [uri]);
+        case 'replacePlay': return replacePlayQueue('webradio', [uri]);
         case 'edit': return editRadioFavorite(uri);
         case 'context': return showContextMenu(event);
     }

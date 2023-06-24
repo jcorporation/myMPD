@@ -2060,12 +2060,12 @@ const APImethods = {
         }
     },
     "MYMPD_API_WEBRADIO_FAVORITE_RM": {
-        "desc": "Deletes a webradio favorite.",
+        "desc": "Deletes webradio favorites.",
         "params": {
-            "filename": {
-                "type": APItypes.string,
-                "example": "https___liveradio_swr_de_sw282p3_swr1bw_play_mp3.m3u",
-                "desc": "Name of the webradio favorite to delete."
+            "filenames": {
+                "type": APItypes.array,
+                "example": "[\"https___liveradio_swr_de_sw282p3_swr1bw_play_mp3.m3u\"]",
+                "desc": "Filenames of the webradio favorites to delete."
             }
         }
     },
