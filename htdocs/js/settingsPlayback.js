@@ -367,9 +367,15 @@ function saveQueueSettings() {
         ? 'Album'
         : getSelectValueId('selectJukeboxUniqueTag');
 
+    let presetName = getDataId('inputPresetName', 'value');
+    if (presetName === undefined) {
+        //set preset name to blank string, else it is not send to the api
+        presetName = '';
+    }
+
     if (formOK === true) {
         const params = {
-            "name": getDataId('inputPresetName', 'value'),
+            "name": presetName,
             "random": getBtnChkValueId('btnRandom'),
             "single": getBtnGroupValueId('btnSingleGroup'),
             "consume": getBtnGroupValueId('btnConsumeGroup'),
