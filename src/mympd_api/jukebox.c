@@ -21,7 +21,6 @@
  * This is a simple wrapper around list_clear.
  * @param partition_name name of the partition
  * @param list the jukebox queue
- * @return true on success, else false
  */
 void mympd_api_jukebox_clear(struct t_list *list, sds partition_name) {
     list_clear(list);
