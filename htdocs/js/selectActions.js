@@ -56,7 +56,7 @@ function initSelectActions() {
 function addSelectActionButtons(el, dropdownId) {
     elClear(el);
     const parent = document.getElementById(app.id + 'List');
-    const firstSelection = parent.querySelector('.active');
+    const firstSelection = parent.querySelector('.selected');
     const type = firstSelection !== null
         ? getData(firstSelection, 'type')
         : 'song';
@@ -126,7 +126,7 @@ function addSelectActionButton(el, cmd, text) {
  */
 function getSelectionData(parent, attribute) {
     const data = [];
-    const rows = parent.querySelectorAll('.active');
+    const rows = parent.querySelectorAll('.selected');
     for (const row of rows) {
         data.push(getData(row, attribute));
     }

@@ -17,13 +17,13 @@ function switchGridMode(target) {
 
     if (mode === null) {
         grid.setAttribute('data-mode', 'select');
-        target.classList.add('active');
+        target.classList.add('selected');
         target.classList.remove('rounded-end');
         target.nextElementSibling.classList.remove('d-none');
     }
     else {
         grid.removeAttribute('data-mode');
-        target.classList.remove('active');
+        target.classList.remove('selected');
         target.classList.add('rounded-end');
         target.nextElementSibling.classList.add('d-none');
         selectAllCards(grid, false);
@@ -48,11 +48,11 @@ function selectAllCards(grid, select) {
             continue;
         }
         if (select === true) {
-            card.classList.add('active');
+            card.classList.add('selected');
             check.textContent = ligatures['checked'];
         }
         else {
-            card.classList.remove('active');
+            card.classList.remove('selected');
             check.textContent = ligatures['unchecked'];
         }
     }
@@ -124,15 +124,15 @@ function selectSingleCard(card, select) {
     if (check === null) {
         return;
     }
-    if ((select === null && card.classList.contains('active')) ||
+    if ((select === null && card.classList.contains('selected')) ||
         select === false)
     {
         check.textContent = ligatures['unchecked'];
-        card.classList.remove('active');
+        card.classList.remove('selected');
     }
     else {
         check.textContent = ligatures['checked'];
-        card.classList.add('active');
+        card.classList.add('selected');
     }
 }
 
@@ -143,7 +143,7 @@ function selectSingleCard(card, select) {
 function showGridSelectionCount() {
     const grid = document.getElementById(app.id + 'List');
     const dropdown = document.querySelector('#dropdown' + app.id + 'Selection');
-    const cards = grid.querySelectorAll('div > div.active');
+    const cards = grid.querySelectorAll('div > div.selected');
     const count = cards.length;
     dropdown.querySelector('small').textContent = count + ' ' + tn('selected');
     const btns = dropdown.querySelectorAll('button');

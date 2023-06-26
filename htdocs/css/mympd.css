@@ -1191,19 +1191,25 @@ div[data-mode="select"] .card-body > div {
   display: none !important;
 }
 
-tr.active td,
-.mympd-grid > div > .active {
+tr.selected > td,
+.mympd-grid > div > .selected {
   background-color: var(--mympd-highlightcolor);
 }
 
-div.active .card-body{
+tr.selected:hover > td {
+  opacity: 0.9;
+
+  --bs-table-bg-state: var(--mympd-highlightcolor);
+}
+
+div.selected .card-body{
   border-top-right-radius: var(--bs-border-radius);
   border: 4px solid var(--mympd-highlightcolor);
   border-top-left-radius: var(--bs-border-radius);
 }
 
-tr.active td,
-tr.active td button {
+tr.selected td,
+tr.selected td button {
   color: var(--mympd-highlightcolor-contrast);
 }
 
