@@ -1028,7 +1028,6 @@ div.alert-warning::before {
   text-transform: none;
   letter-spacing: normal;
   word-wrap: normal;
-  vertical-align: top;
   text-rendering: optimizelegibility;
   font-feature-settings: "liga";
   margin-right: 0.5rem;
@@ -1045,7 +1044,6 @@ div.alert-danger::before {
   text-transform: none;
   letter-spacing: normal;
   word-wrap: normal;
-  vertical-align: top;
   text-rendering: optimizelegibility;
   font-feature-settings: "liga";
   margin-right: 0.5rem;
@@ -1062,7 +1060,6 @@ div.alert-secondary::before {
   text-transform: none;
   letter-spacing: normal;
   word-wrap: normal;
-  vertical-align: top;
   text-rendering: optimizelegibility;
   font-feature-settings: "liga";
   margin-right: 0.5rem;
@@ -1079,7 +1076,6 @@ div.alert-success::before {
   text-transform: none;
   letter-spacing: normal;
   word-wrap: normal;
-  vertical-align: top;
   text-rendering: optimizelegibility;
   font-feature-settings: "liga";
   margin-right: 0.5rem;

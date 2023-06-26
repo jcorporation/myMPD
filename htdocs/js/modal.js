@@ -91,7 +91,7 @@ function cleanupModal(el) {
  * @returns {void}
  */
 function showConfirmInline(el, text, btnText, callback) {
-    const confirm = elCreateNode('div', {"class": ["alert", "alert-danger", "mt-2"]},
+    const confirm = elCreateNode('div', {"class": ["alert", "alert-danger", "mt-2", "not-clickable"]},
         elCreateText('p', {}, text)
     );
 
