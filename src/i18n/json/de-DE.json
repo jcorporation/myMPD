@@ -967,8 +967,8 @@
     "Queue updated": "Warteschlange wurde aktualisiert",
     "Saving timer failed": "Timer konnte nicht gespeichert werden",
     "Timer saved successfully": "Timer erfolgreich gespeichert",
-    "Error creating partition": "Partition konnte nicht erstellt werden",
     "Partition created successfully": "Partition erfolgreich erstellt",
     "Partition name is reserved": "Partitionsname ist reserviert",
-    "myMPD not yet ready": "myMPD ist noch nicht bereit"
+    "myMPD not yet ready": "myMPD ist noch nicht bereit",
+    "Failed to parse response from %{uri}": "Antwort konnte nicht geparsed werden: %{uri}"
 }
