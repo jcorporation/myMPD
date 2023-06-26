@@ -70,6 +70,7 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     mg_user_data->connection_count = 0;
     list_init(&mg_user_data->stream_uris);
     list_init(&mg_user_data->session_list);
+    mg_user_data->mympd_api_started = false;
 
     //init monogoose mgr
     mg_mgr_init(mgr);
@@ -221,6 +222,7 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         FREE_SDS(new_mg_user_data->music_directory);
         MYMPD_LOG_DEBUG(NULL, "Document root: \"%s\"", mg_user_data->browse_directory);
 
+        //coverimage names
         sdsfreesplitres(mg_user_data->coverimage_names, mg_user_data->coverimage_names_len);
         mg_user_data->coverimage_names = sds_split_comma_trim(new_mg_user_data->coverimage_names, &mg_user_data->coverimage_names_len);
         FREE_SDS(new_mg_user_data->coverimage_names);
@@ -230,6 +232,9 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         FREE_SDS(new_mg_user_data->thumbnail_names);
 
         mg_user_data->feat_albumart = new_mg_user_data->feat_albumart;
+
+        //mympd_api status
+        mg_user_data->mympd_api_started = new_mg_user_data->mympd_api_started;
 
         //set per partition stream uris
         list_clear(&mg_user_data->stream_uris);
@@ -566,6 +571,14 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
             //handle uris
             if (mg_http_match_uri(hm, "/api/*") == true) {
                 //api request
+                if (mg_user_data->mympd_api_started == false) {
+                    //mympd_api thread not yet ready
+                    MYMPD_LOG_WARN(frontend_nc_data->partition, "mympd_api thread not yet ready");
+                    sds response = jsonrpc_respond_message(sdsempty(), GENERAL_API_NOT_READY, 0,
+                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "myMPD not yet ready");
+                    webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
+                    FREE_SDS(response);
+                }
                 //check partition
                 if (get_partition_from_uri(nc, hm, frontend_nc_data) == false) {
                     break;

@@ -116,9 +116,9 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
     }
 
     //parse response
+    let obj;
     try {
-        const obj = await response.json();
-        checkAPIresponse(obj, callback, onerror);
+        obj = await response.json();
     }
     catch(error) {
         showNotification(tn('API error') + '\n' + tn('Can not parse response from %{uri}', {"uri": uri}), 'general', 'error');
@@ -129,6 +129,7 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
         }
         return;
     }
+    checkAPIresponse(obj, callback, onerror);
 }
 
 /**
@@ -140,13 +141,20 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
  */
 function checkAPIresponse(obj, callback, onerror) {
     logDebug('Got API response: ' + JSON.stringify(obj));
+    myMPDready = true;
 
     if (obj.error &&
         typeof obj.error.message === 'string')
     {
-        //show and log message
-        showNotification(tn(obj.error.message, obj.error.data), obj.error.facility, obj.error.severity);
-        logSeverity(obj.error.severity, JSON.stringify(obj));
+        if (obj.error.method === 'GENERAL_API_NOT_READY') {
+            myMPDready = false;
+            toggleUI();
+        }
+        else {
+            //show and log message
+            showNotification(tn(obj.error.message, obj.error.data), obj.error.facility, obj.error.severity);
+            logSeverity(obj.error.severity, JSON.stringify(obj));
+        }
     }
     else if (obj.result &&
              typeof obj.result.message === 'string')

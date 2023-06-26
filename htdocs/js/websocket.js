@@ -47,13 +47,10 @@ function webSocketConnect() {
         };
 
         socket.onmessage = function(msg) {
-            if (msg.data === 'pong') {
-                //websocket keepalive
-                logDebug('Got websocket pong');
-                return;
-            }
-            if (msg.data === 'ok') {
-                logDebug('Jsonrpc id registered successfuly');
+            logDebug('Websocket message: ' + msg.data);
+            if (msg.data === 'pong' ||
+                msg.data === 'ok') {
+                // websocket keepalive or jsonrpc id registration
                 return;
             }
             if (msg.data.length > 100000) {
@@ -63,7 +60,6 @@ function webSocketConnect() {
             let obj;
             try {
                 obj = JSON.parse(msg.data);
-                logDebug('Websocket notification: ' + JSON.stringify(obj));
             }
             catch(error) {
                 logError('Invalid websocket notification received: ' + msg.data);
@@ -90,7 +86,7 @@ function webSocketConnect() {
                     if (session.token !== '') {
                         validateSession();
                     }
-                    toggleAlert('alertMympdState', false, '');
+                    toggleUI();
                     break;
                 case 'update_queue':
                 case 'update_state':

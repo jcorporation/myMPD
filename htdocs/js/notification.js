@@ -20,25 +20,20 @@ function initNotifications() {
  * @returns {void}
  */
 function setStateIcon() {
-    const logoBgs = document.querySelectorAll('.logoBg');
+    const fgColor = uiEnabled === true
+        ? settings.partition.highlightColorContrast
+        : '#f8f9fa;';
+    const bgColor = uiEnabled === true
+        ? settings.partition.highlightColor
+        : '#6c757d';
+
     const logoFgs = document.querySelectorAll('.logoFg');
-    if (getWebsocketState() === false ||
-        settings.partition.mpdConnected === false)
-    {
-        for (const logoBg of logoBgs) {
-            logoBg.setAttribute('fill', '#6c757d');
-        }
-        for (const logoFg of logoFgs) {
-            logoFg.setAttribute('fill', '#f8f9fa;');
-        }
+    for (const logoFg of logoFgs) {
+        logoFg.setAttribute('fill', fgColor);
     }
-    else {
-        for (const logoBg of logoBgs) {
-            logoBg.setAttribute('fill', settings.partition.highlightColor);
-        }
-        for (const logoFg of logoFgs) {
-            logoFg.setAttribute('fill', settings.partition.highlightColorContrast);
-        }
+    const logoBgs = document.querySelectorAll('.logoBg');
+    for (const logoBg of logoBgs) {
+        logoBg.setAttribute('fill', bgColor);
     }
 }
 
@@ -165,7 +160,6 @@ function showNotification(message, facility, severity) {
         showAppInitAlert(message);
         return;
     }
-    setStateIcon();
     logMessage(message, facility, severity);
     if (severity === 'info') {
         //notifications with severity info can be hidden
@@ -297,9 +291,11 @@ function notificationsSupported() {
  */
 function toggleUI() {
     /** @type {string} */
-    const state = getWebsocketState() && settings.partition.mpdConnected
-        ? 'enabled'
-        : 'disabled';
+    const state = getWebsocketState() &&
+        settings.partition.mpdConnected &&
+        myMPDready
+            ? 'enabled'
+            : 'disabled';
     /** @type {boolean} */
     const enabled = state === 'disabled' ? false : true;
     if (enabled !== uiEnabled) {
@@ -307,6 +303,13 @@ function toggleUI() {
         domCache.body.setAttribute('data-uiState', state);
         //remember current state
         uiEnabled = enabled;
+    }
+
+    if (myMPDready === false) {
+        toggleAlert('alertMympdNotReady', true, tn('myMPD not yet ready'));
+    }
+    else {
+        toggleAlert('alertMympdNotReady', false, '');
     }
 
     if (settings.partition.mpdConnected === true) {

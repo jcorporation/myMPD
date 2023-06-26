@@ -34,6 +34,7 @@ struct t_mg_user_data {
     sds custom_mympd_image;      //!< name of custom mympd image
     sds custom_na_image;         //!< name of custom not available image
     sds custom_stream_image;     //!< name of custom stream image
+    bool mympd_api_started;      //!< true if the mympd_api thread is ready, else false
 };
 
 /**

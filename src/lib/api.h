@@ -19,6 +19,7 @@
  */
 #define MYMPD_CMDS(X) \
     X(GENERAL_API_UNKNOWN) \
+    X(GENERAL_API_NOT_READY) \
     X(INTERNAL_API_ALBUMART) \
     X(INTERNAL_API_ALBUMCACHE_CREATED) \
     X(INTERNAL_API_ALBUMCACHE_ERROR) \
@@ -240,6 +241,7 @@ struct set_mg_user_data_request {
     sds thumbnail_names;      //!< comma separated list of coverimage thumbnail names
     bool feat_albumart;       //!< true if mpd supports the albumart protocol command
     sds mpd_host;             //!< configured mpd host
+    bool mympd_api_started;   //!< true if the mympd_api thread is ready, else false
     struct t_list partitions; //!< partition specific settings
 };
 

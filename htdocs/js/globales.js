@@ -16,24 +16,41 @@ const jsonrpcClientId = Math.floor(Math.random() * (jsonrpcClientIdMax - jsonrpc
 let jsonrpcRequestId = 0;
 
 let socket = null;
+
 let websocketKeepAliveTimer = null;
 let searchTimer = null;
 let resizeTimer = null;
+let progressTimer = null;
 
 /** @type {number} */
 const searchTimerTimeout = 500;
 
+/** @type {object} */
 let currentSongObj = {};
+
+/** @type {object} */
 let currentState = {};
+
+/** @type {object} */
 let settings = {
     /** @type {number} */
     "loglevel": 2
 };
 
+/** @type {boolean} */
+let myMPDready = false;
+
+/** @type {boolean} */
+let appInited = false;
+
+/** @type {boolean} */
+let scriptsInited = false;
+
+/** @type {boolean} */
+let uiEnabled = true;
+
 /** @type {string} */
 let settingsParsed = 'no';
-
-let progressTimer = null;
 
 // Reference to dom node for drag & drop
 /** @type {EventTarget} */
@@ -45,18 +62,10 @@ let showSyncedLyrics = false;
 /** @type {boolean} */
 let scrollSyncedLyrics = true;
 
-/** @type {boolean} */
-let appInited = false;
-
-/** @type {boolean} */
-let scriptsInited = false;
-
 /** @type {string} */
 const subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
 
-/** @type {boolean} */
-let uiEnabled = true;
-
+/** @type {object} */
 let allOutputs = null;
 
 /** @type {object} */
