@@ -1192,7 +1192,7 @@ div[data-mode="select"] .card-body > div {
 }
 
 tr.active td,
-div.active {
+.mympd-grid > div > .active {
   background-color: var(--mympd-highlightcolor);
 }
 
