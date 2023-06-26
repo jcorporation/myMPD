@@ -146,7 +146,7 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, struct t_tags *
         MYMPD_LOG_DEBUG(NULL, "Album cache is NULL not saving anything");
         return true;
     }
-    MYMPD_LOG_INFO(NULL, "Saving album cache");
+    MYMPD_LOG_INFO(NULL, "Saving album cache to disc");
     //first write the tagtypes
     sds line = sdsnewlen("{", 1);
     line = print_tags_array(line, "tagListAlbum", album_tags);

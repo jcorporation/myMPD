@@ -168,7 +168,7 @@ bool sticker_cache_write(struct t_cache *sticker_cache, sds workdir, bool free_d
         MYMPD_LOG_DEBUG(NULL, "Sticker cache is NULL not saving anything");
         return true;
     }
-    MYMPD_LOG_INFO(NULL, "Saving sticker cache");
+    MYMPD_LOG_INFO(NULL, "Saving sticker cache to disc");
     raxIterator iter;
     raxStart(&iter, sticker_cache->cache);
     raxSeek(&iter, "^", NULL, 0);
