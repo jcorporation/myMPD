@@ -277,3 +277,6 @@ any
 Script syntax is valid
 Copy
 Copy playlist
+Playlist successfully copied
+Playlist successfully moved
+Playlist successfully replaced

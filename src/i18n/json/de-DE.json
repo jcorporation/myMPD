@@ -663,7 +663,6 @@
     "Update smart playlist": "Intelligente Wiedergabeliste aktualisieren",
     "Updated album cache": "Album Cache wurde aktualisiert",
     "Updated sticker cache": "Sticker Cache wurde aktualisiert",
-    "Updated the queue": "Warteschlange wurde aktualisiert",
     "Updating MPD database": "MPD Datenbank wird aktualisiert",
     "Updating smart playlist %{playlist} failed": "Intelligente Wiedergabeliste %{playlist} konnte nicht aktualisiert werden",
     "Uri": "Url",
@@ -743,7 +742,6 @@
     "OverridesStreamPort": "Die Stream URI überschreibt die automatische Streamproxy Konfiguration (MPD Host + Stream Port)",
     "Partitions can only be deleted from default partition": "Partitionen können nur von der Default-Partition aus gelöscht werden",
     "Partition must be connected": "Partition muss verbunden sein",
-    "Partition name invalid": "Ungültiger Partitionsname",
     "Partition not found": "Partition nicht vorhanden",
     "Partition specific setting": "Partitionsspezifische Einstellung",
     "Reset": "Zurücksetzen",
@@ -966,6 +964,11 @@
     "No album ids provided": "Keine Album-IDs übergeben",
     "No webradios provided": "Keine Webradios übergeben",
     "Playlist updated": "Wiedergabeliste wurde aktualisiert",
+    "Queue updated": "Warteschlange wurde aktualisiert",
     "Saving timer failed": "Timer konnte nicht gespeichert werden",
-    "Timer saved successfully": "Timer erfolgreich gespeichert"
+    "Timer saved successfully": "Timer erfolgreich gespeichert",
+    "Error creating partition": "Partition konnte nicht erstellt werden",
+    "Partition created successfully": "Partition erfolgreich erstellt",
+    "Partition name is reserved": "Partitionsname ist reserviert",
+    "myMPD not yet ready": "myMPD ist noch nicht bereit"
 }
