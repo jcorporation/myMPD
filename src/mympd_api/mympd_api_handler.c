@@ -596,7 +596,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                         JSONRPC_FACILITY_TRIGGER, "Could not save trigger");
                 if (rc == true) {
                     //trigger_data is onw referenced by the trigger list
-                    return;
+                    break;
                 }
             }
             mympd_api_trigger_data_free(trigger_data);
