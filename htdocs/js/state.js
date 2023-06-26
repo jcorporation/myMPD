@@ -134,9 +134,7 @@ function setCounter() {
  * @returns {void}
  */
 function parseState(obj) {
-    if (obj === null ||
-        obj.result === undefined)
-    {
+    if (obj.result === undefined) {
         logError('State is undefined');
         return;
     }

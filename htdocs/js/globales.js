@@ -15,6 +15,18 @@ const jsonrpcClientIdMax = 999999;
 const jsonrpcClientId = Math.floor(Math.random() * (jsonrpcClientIdMax - jsonrpcClientIdMin + 1) + jsonrpcClientIdMin);
 let jsonrpcRequestId = 0;
 
+const jsonRpcError = {
+    "jsonrpc": "2.0",
+    "id": 0,
+    "error": {
+        "method": "",
+        "facility": "general",
+        "severity": "error",
+        "message": "",
+        "data": {}
+    }
+};
+
 let socket = null;
 
 let websocketKeepAliveTimer = null;

@@ -28,6 +28,19 @@ function sendAPI(method, params, callback, onerror) {
 }
 
 /**
+ * Updates the jsonrpc error object
+ * @param {number} id jsonrpc id
+ * @param {string} method myMPD api method
+ * @param {string} error the error message
+ * @returns {void}
+ */
+function setJsonRpcError(id, method, error) {
+    jsonRpcError.id = id;
+    jsonRpcError.error.method = method;
+    jsonRpcError.error.message = error;
+}
+
+/**
  * Sends a JSON-RPC API request and handles the response.
  * @param {string} partition partition endpoint
  * @param {string} method jsonrpc api method
@@ -56,6 +69,9 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
     if (session.token !== '') {
         headers['X-myMPD-Session'] = session.token;
     }
+    // generate uniq id for this request
+    const id = generateJsonrpcId();
+    // fetch response
     let response = null;
     try {
         response = await fetch(uri, {
@@ -66,16 +82,20 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
             redirect: 'follow',
             headers: headers,
             body: JSON.stringify(
-                {"jsonrpc": "2.0", "id": generateJsonrpcId(), "method": method, "params": params}
+                {"jsonrpc": "2.0", "id": id, "method": method, "params": params}
             )
         });
     }
     catch(error) {
-        showNotification(tn('API error') + '\n' + tn('Error accessing %{uri}', {"uri": uri}), 'general', 'error');
+        showNotification(tn('API error') + '\n' +
+            tn('Error accessing %{uri}', {"uri": uri}),
+            'general', 'error'
+        );
         logError('Error posting to ' + uri);
         logError(error);
         if (onerror === true) {
-            callback(null);
+            setJsonRpcError(id, method, tn("Error posting to %{uri}", {"uri": uri}));
+            callback(jsonRpcError);
         }
         return;
     }
@@ -97,10 +117,12 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
         showNotification(tn('API error') + '\n' +
             tn('Error accessing %{uri}', {"uri": uri}) + '\n' +
             tn('Response code: %{code}', {"code": response.status + ' - ' + response.statusText}),
-            'general', 'error');
-        logError('Error posting to ' + uri + ', code ' + response.status + ' - ' + response.statusText);
+            'general', 'error'
+        );
+        logError('Error accessing ' + uri + ', code ' + response.status + ' - ' + response.statusText);
         if (onerror === true) {
-            callback(null);
+            setJsonRpcError(id, method, tn("Response error: %{status}", response.status + ' - ' + response.statusText));
+            callback(jsonRpcError);
         }
         return;
     }
@@ -121,11 +143,15 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
         obj = await response.json();
     }
     catch(error) {
-        showNotification(tn('API error') + '\n' + tn('Can not parse response from %{uri}', {"uri": uri}), 'general', 'error');
-        logError('Can not parse response from ' + uri);
+        showNotification(tn('API error') + '\n' +
+            tn('Failed to parse response from %{uri}', {"uri": uri}),
+            'general', 'error'
+        );
+        logError('Failed to parse response from ' + uri);
         logError(error);
         if (onerror === true) {
-            callback(null);
+            setJsonRpcError(id, method, tn("Failed to parse response from %{uri}", {"uri": uri}));
+            callback(jsonRpcError);
         }
         return;
     }
@@ -172,6 +198,9 @@ function checkAPIresponse(obj, callback, onerror) {
     else {
         //remaining results are invalid
         logError('Got invalid API response: ' + JSON.stringify(obj));
+        //set generic error
+        setJsonRpcError(0, "MYMPD_API_UNKNOWN", tn("Invalid response"));
+        obj = jsonRpcError;
     }
     if (callback !== undefined &&
         typeof(callback) === 'function')
