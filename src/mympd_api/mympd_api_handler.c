@@ -1514,7 +1514,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true) {
                 rc = mympd_api_partition_new(partition_state, sds_buf1, &error);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                        JSONRPC_FACILITY_MPD, "Partition created successfully", "Error creating partition");
+                        JSONRPC_FACILITY_MPD, "Partition created successfully", error);
             }
             break;
         case MYMPD_API_PARTITION_SAVE:
