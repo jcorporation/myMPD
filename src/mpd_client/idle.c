@@ -18,9 +18,9 @@
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
 #include "src/mpd_client/partitions.h"
+#include "src/mpd_client/queue.h"
 #include "src/mympd_api/last_played.h"
 #include "src/mympd_api/mympd_api_handler.h"
-#include "src/mympd_api/queue.h"
 #include "src/mympd_api/status.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
@@ -367,7 +367,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                 case MPD_IDLE_QUEUE: {
                     //MPD_IDLE_PLAYLIST is the same
                     //queue has changed - partition specific event
-                    buffer = mympd_api_queue_status(partition_state, buffer);
+                    buffer = mpd_client_queue_status(partition_state, buffer);
                     //jukebox enabled
                     if (partition_state->jukebox_mode != JUKEBOX_OFF &&
                         partition_state->queue_length < partition_state->jukebox_queue_length)
@@ -445,7 +445,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
                     break;
                 case MPD_IDLE_OPTIONS:
                     //mpd playback options are changed - partition specific event
-                    mympd_api_queue_status(partition_state, NULL);
+                    mpd_client_queue_status(partition_state, NULL);
                     buffer = jsonrpc_event(buffer, JSONRPC_EVENT_UPDATE_OPTIONS);
                     break;
                 default: {

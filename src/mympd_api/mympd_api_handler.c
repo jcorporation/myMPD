@@ -35,6 +35,7 @@
 #include "src/mympd_api/database.h"
 #include "src/mympd_api/filesystem.h"
 #include "src/mympd_api/home.h"
+#include "src/mympd_api/jukebox.h"
 #include "src/mympd_api/last_played.h"
 #include "src/mympd_api/lyrics.h"
 #include "src/mympd_api/mounts.h"
@@ -140,7 +141,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     mympd_state->mpd_state->sticker_cache.building == true)
                 {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_WARN, "Cache update is already running");
+                            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_WARN, "Cache update is already running");
                     MYMPD_LOG_WARN(partition_state->name, "Cache update is already running");
                     break;
                 }
@@ -285,16 +286,10 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_string(request->data, "$.params.content", 0, CONTENT_LEN_MAX, &sds_buf3, vcb_istext, &error) == true &&
                 json_get_array_string(request->data, "$.params.arguments", &arguments, vcb_isalnum, SCRIPT_ARGUMENTS_MAX, &error) == true)
             {
-                rc = mympd_api_script_validate(sds_buf1, sds_buf3, config->lualibs, &error);
-                if (rc == true) {
-                    rc = mympd_api_script_save(config->workdir, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments);
-                    response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
-                            JSONRPC_FACILITY_SCRIPT, "Could not save script");
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                            JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, error);
-                }
+                rc = mympd_api_script_validate(sds_buf1, sds_buf3, config->lualibs, &error) &&
+                    mympd_api_script_save(config->workdir, sds_buf1, sds_buf2, int_buf1, sds_buf3, &arguments, &error);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_SCRIPT, error);
             }
             list_clear(&arguments);
             break;
@@ -401,8 +396,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     jukebox_run(partition_state);
                 }
                 //save options as preset if name is not empty
-                if (json_find_key(request->data, "$.params.name") == true &&
-                    json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
+                if (json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                     sdslen(sds_buf1) > 0)
                 {
                     sds params = json_get_key_as_sds(request->data, "$.params");
@@ -493,22 +487,19 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         }
         case MYMPD_API_COVERCACHE_CROP:
             int_buf1 = covercache_clear(config->cachedir, mympd_state->config->covercache_keep_days);
-            response->data = int_buf1 >= 0
-                ? jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_INFO, "Successfully croped covercache")
-                : jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error cropping the covercache");
+            rc = int_buf1 >= 0
+                ? true
+                : false;
+            response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, 0,
+                    JSONRPC_FACILITY_GENERAL, "Successfully croped covercache", "Error cropping the covercache");
             break;
         case MYMPD_API_COVERCACHE_CLEAR:
             int_buf1 = covercache_clear(config->cachedir, 0);
-            if (int_buf1 >= 0) {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_INFO, "Successfully cleared covercache");
-            }
-            else {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error clearing the covercache");
-            }
+            rc = int_buf1 >= 0
+                ? true
+                : false;
+            response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, 0,
+                    JSONRPC_FACILITY_GENERAL, "Successfully cleared covercache", "Error clearing the covercache");
             break;
         case MYMPD_API_TIMER_SAVE: {
             rc = mympd_api_timer_save(partition_state, request->data, &error);
@@ -526,14 +517,16 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         case MYMPD_API_TIMER_RM:
             if (json_get_int(request->data, "$.params.timerid", USER_TIMER_ID_MIN, USER_TIMER_ID_MAX, &int_buf1, &error) == true) {
-                mympd_api_timer_remove(&mympd_state->timer_list, int_buf1);
-                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_TIMER);
+                rc = mympd_api_timer_remove(&mympd_state->timer_list, int_buf1);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_TIMER, "Timer with given id not found");
             }
             break;
         case MYMPD_API_TIMER_TOGGLE:
             if (json_get_int(request->data, "$.params.timerid", USER_TIMER_ID_MIN, USER_TIMER_ID_MAX, &int_buf1, &error) == true) {
-                mympd_api_timer_toggle(&mympd_state->timer_list, int_buf1);
-                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_TIMER);
+                rc = mympd_api_timer_toggle(&mympd_state->timer_list, int_buf1);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_TIMER, "Timer with given id not found");
             }
             break;
         case MYMPD_API_LYRICS_GET:
@@ -550,11 +543,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             list_init(&positions);
             if (json_get_array_llong(request->data, "$.params.positions", &positions, MPD_COMMANDS_MAX, &error) == true)
             {
-                if (positions.length == 0) {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                            JSONRPC_FACILITY_QUEUE, JSONRPC_SEVERITY_ERROR, "No song positions provided");
-                }
-                rc = jukebox_rm_entries(&partition_state->jukebox_queue, &positions, partition_state->name);
+                rc = mympd_api_jukebox_rm_entries(&partition_state->jukebox_queue, &positions, partition_state->name, &error);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_JUKEBOX, "Could not remove song from jukebox queue");
             }
@@ -562,7 +551,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         }
         case MYMPD_API_JUKEBOX_CLEAR:
-            jukebox_clear(&partition_state->jukebox_queue, partition_state->name);
+            mympd_api_jukebox_clear(&partition_state->jukebox_queue, partition_state->name);
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_JUKEBOX);
             break;
         case MYMPD_API_JUKEBOX_LIST: {
@@ -573,7 +562,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_string(request->data, "$.params.searchstr", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
-                response->data = jukebox_list(partition_state, response->data, request->cmd_id, request->id,
+                response->data = mympd_api_jukebox_list(partition_state, response->data, request->cmd_id, request->id,
                         long_buf1, long_buf2, sds_buf1, &tagcols);
             }
             break;
@@ -602,17 +591,13 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_int_max(request->data, "$.params.event", &int_buf2, &error) == true &&
                 json_get_object_string(request->data, "$.params.arguments", &trigger_data->arguments, vcb_isname, SCRIPT_ARGUMENTS_MAX, &error) == true)
             {
-                rc = list_push(&mympd_state->trigger_list, sds_buf1, int_buf2, sds_buf2, trigger_data);
+                rc = mympd_api_trigger_save(&mympd_state->trigger_list, sds_buf1, int_buf1, int_buf2, sds_buf2, trigger_data, &error);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_TRIGGER, "Could not save trigger");
                 if (rc == true) {
-                    if (int_buf1 >= 0) {
-                        //delete old entry
-                        mympd_api_trigger_delete(&mympd_state->trigger_list, int_buf1);
-                    }
-                    response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_TRIGGER);
-                    break;
+                    //trigger_data is onw referenced by the trigger list
+                    return;
                 }
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_TRIGGER, JSONRPC_SEVERITY_ERROR, "Could not save trigger");
             }
             mympd_api_trigger_data_free(trigger_data);
             break;

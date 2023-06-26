@@ -179,6 +179,32 @@ void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, in
 }
 
 /**
+ * Saves a trigger
+ * @param trigger_list trigger öist
+ * @param name trigger name
+ * @param trigger_id existing trigger id to replace or -1
+ * @param event trigger event
+ * @param partition mpd partition
+ * @param trigger_data the trigger data (script name and arguments)
+ * @param error already allocated sds string to append the error message
+ * @return true on success, else false
+ */
+bool mympd_api_trigger_save(struct t_list *trigger_list, sds name, int trigger_id, int event, sds partition,
+        struct t_trigger_data *trigger_data, sds *error)
+{
+    bool rc = list_push(trigger_list, name, event, partition, trigger_data);
+    if (rc == true) {
+        if (trigger_id >= 0) {
+            //delete old entry
+            mympd_api_trigger_delete(trigger_list, trigger_id);
+        }
+        return true;
+    }
+    *error = sdscat(*error, "Could not save trigger");
+    return false;
+}
+
+/**
  * Prints the trigger list as jsonrpc response
  * @param trigger_list trigger list
  * @param buffer already allocated sds string to append the response

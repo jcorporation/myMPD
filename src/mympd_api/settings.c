@@ -23,6 +23,7 @@
 #include "src/mpd_client/presets.h"
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
+#include "src/mympd_api/jukebox.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
@@ -665,7 +666,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
     }
     if (jukebox_changed == true && partition_state->jukebox_queue.length > 0) {
         MYMPD_LOG_INFO(partition_state->name, "Jukebox options changed, clearing jukebox queue");
-        jukebox_clear(&partition_state->jukebox_queue, partition_state->name);
+        mympd_api_jukebox_clear(&partition_state->jukebox_queue, partition_state->name);
     }
     if (write_state_file == true) {
         sds state_filename = camel_to_snake(key);

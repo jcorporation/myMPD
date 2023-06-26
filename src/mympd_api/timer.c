@@ -205,6 +205,7 @@ bool mympd_api_timer_save(struct t_partition_state *partition_state, sds data, s
 bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interval, timer_handler handler,
                    int timer_id, struct t_timer_definition *definition)
 {
+    //ignore return code for remove
     mympd_api_timer_remove(l, timer_id);
     return mympd_api_timer_add(l, timeout, interval, handler, timer_id, definition);
 }
@@ -271,8 +272,9 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, t
  * Removes a timer with given id
  * @param l timer list
  * @param timer_id timer id to remove
+ * @return true on success, else false
  */
-void mympd_api_timer_remove(struct t_timer_list *l, int timer_id) {
+bool mympd_api_timer_remove(struct t_timer_list *l, int timer_id) {
     struct t_timer_node *current = NULL;
     struct t_timer_node *previous = NULL;
 
@@ -295,26 +297,29 @@ void mympd_api_timer_remove(struct t_timer_list *l, int timer_id) {
             }
             mympd_api_timer_free_node(current);
             l->length--;
-            return;
+            return true;
         }
     }
+    return false;
 }
 
 /**
  * Toggles the enabled state of a timer
  * @param l timer list
  * @param timer_id timer id to toggle
+ * @return true on success, else false
  */
-void mympd_api_timer_toggle(struct t_timer_list *l, int timer_id) {
+bool mympd_api_timer_toggle(struct t_timer_list *l, int timer_id) {
     struct t_timer_node *current = NULL;
     for (current = l->list; current != NULL; current = current->next) {
         if (current->timer_id == timer_id) {
             if (current->definition != NULL) {
                 current->definition->enabled = current->definition->enabled == true ? false : true;
             }
-            return;
+            return true;
         }
     }
+    return false;
 }
 
 /**

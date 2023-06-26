@@ -88,6 +88,7 @@ target_sources(mympd PRIVATE
   mympd_api/extra_media.c
   mympd_api/filesystem.c
   mympd_api/home.c
+  mympd_api/jukebox.c
   mympd_api/last_played.c
   mympd_api/lyrics.c
   mympd_api/mounts.c

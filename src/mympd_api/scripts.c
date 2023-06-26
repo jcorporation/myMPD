@@ -161,9 +161,10 @@ bool mympd_api_script_delete(sds workdir, sds script) {
  * @param order script list is order by this value
  * @param content script content
  * @param arguments arguments for the script
+ * @param error already allocated sds string to hold the error message
  * @return true on success, else false
  */
-bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sds content, struct t_list *arguments) {
+bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sds content, struct t_list *arguments, sds *error) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%S.lua", workdir, DIR_WORK_SCRIPTS, script);
     sds argstr = list_to_json_array(sdsempty(), arguments);
     sds script_content = sdscatfmt(sdsempty(), "-- {\"order\":%i,\"arguments\":%S}\n%S", order, argstr, content);
@@ -180,6 +181,9 @@ bool mympd_api_script_save(sds workdir, sds script, sds oldscript, int order, sd
     FREE_SDS(argstr);
     FREE_SDS(script_content);
     FREE_SDS(filepath);
+    if (rc == false) {
+        *error = sdscat(*error, "Could not save script");
+    }
     return rc;
 }
 

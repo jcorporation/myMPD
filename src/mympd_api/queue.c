@@ -444,32 +444,6 @@ bool mympd_api_queue_replace_plist(struct t_partition_state *partition_state, st
 }
 
 /**
- * Prints the queue status and updates internal state
- * @param partition_state pointer to partition state
- * @param buffer already allocated sds string to append the response
- * @return pointer to buffer
- */
-sds mympd_api_queue_status(struct t_partition_state *partition_state, sds buffer) {
-    struct mpd_status *status = mpd_run_status(partition_state->conn);
-    if (status != NULL) {
-        partition_state->queue_version = mpd_status_get_queue_version(status);
-        partition_state->queue_length = (long long)mpd_status_get_queue_length(status);
-        partition_state->crossfade = (time_t)mpd_status_get_crossfade(status);
-        partition_state->play_state = mpd_status_get_state(status);
-
-        if (buffer != NULL) {
-            buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_QUEUE);
-            buffer = mympd_api_status_print(partition_state, buffer, status);
-            buffer = jsonrpc_end(buffer);
-        }
-        mpd_status_free(status);
-    }
-    mpd_response_finish(partition_state->conn);
-    mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
-    return buffer;
-}
-
-/**
  * Crops (removes all but playing song) or clears the queue if no song is playing
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response

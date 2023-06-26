@@ -42,6 +42,8 @@ struct t_trigger_data {
     struct t_list arguments;
 };
 
+bool mympd_api_trigger_save(struct t_list *trigger_list, sds name, int trigger_id, int event, sds partition,
+        struct t_trigger_data *trigger_data, sds *error);
 sds mympd_api_trigger_list(struct t_list *trigger_list, sds buffer, long request_id, const char *partition);
 sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_id, long id);
 bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir);
