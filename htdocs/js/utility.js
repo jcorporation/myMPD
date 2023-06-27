@@ -275,15 +275,6 @@ function focusSearch() {
 }
 
 /**
- * Generates a valid id from string
- * @param {string} str string to generate the id from
- * @returns {string} the generated id
- */
-function genId(str) {
-    return 'id' + str.replace(/[^\w-]/g, '');
-}
-
-/**
  * Parses a string to a javascript command object
  * @param {Event} event triggering event
  * @param {string} str string to parse
