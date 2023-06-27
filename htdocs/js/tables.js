@@ -698,14 +698,11 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             perRowCallback(row, obj.result.data[i]);
         }
         //data row
-        //set artist and album data
-        if (obj.result.data[i].Album !== undefined) {
-            setData(row, 'Album', obj.result.data[i].Album);
+        //set AlbumId
+        if (obj.result.data[i].AlbumId !== undefined) {
+            setData(row, 'AlbumId', obj.result.data[i].AlbumId);
         }
-        if (obj.result.data[i][tagAlbumArtist] !== undefined) {
-            setData(row, 'AlbumArtist', obj.result.data[i][tagAlbumArtist]);
-        }
-        //and other browse tags
+        //and browse tags
         for (const tag of settings.tagListBrowse) {
             if (albumFilters.includes(tag) &&
                 obj.result.data[i][tag] !== undefined &&

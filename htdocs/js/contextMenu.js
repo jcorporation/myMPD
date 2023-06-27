@@ -653,13 +653,8 @@ function createMenuListsSecondary(target, contextMenuTitle, contextMenuBody) {
             {
                 return false;
             }
-            const album = getData(dataNode, 'Album');
-            const albumArtist = getData(dataNode, 'AlbumArtist');
-            if (album !== undefined &&
-                albumArtist !== undefined &&
-                album !== '-' && 
-                checkTagValue(albumArtist, '-') === false)
-            {
+            const albumid = getData(dataNode, 'AlbumId');
+            if (albumid !== undefined) {
                 contextMenuTitle.textContent = tn('Album');
                 addMenuItemsAlbumActions(dataNode, null, contextMenuBody);
             }

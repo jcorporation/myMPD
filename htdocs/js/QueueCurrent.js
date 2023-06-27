@@ -295,14 +295,11 @@ function parseQueue(obj) {
         if (data.type === 'webradio') {
             setData(row, 'webradioUri', data.webradio.filename);
         }
-        //set artist and album data
-        if (data.Album !== undefined) {
-            setData(row, 'Album', data.Album);
+        //set AlbumId
+        if (data.AlbumId !== undefined) {
+            setData(row, 'AlbumId', data.AlbumId);
         }
-        if (data[tagAlbumArtist] !== undefined) {
-            setData(row, 'AlbumArtist', data[tagAlbumArtist]);
-        }
-        //and other browse tags
+        //and browse tags
         for (const tag of settings.tagListBrowse) {
             if (albumFilters.includes(tag) &&
                 data[tag] !== undefined &&
