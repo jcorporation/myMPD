@@ -37,13 +37,23 @@ sds *sds_split_comma_trim(sds s, int *count) {
  * @return the hash as a newly allocated sds string
  */
 sds sds_hash_sha1(const char *p) {
+    sds hex_hash = sdsnew(p);
+    return sds_hash_sha1_sds(hex_hash);
+}
+
+/**
+ * Hashes a sds string with sha1 inplace
+ * @param s string to hash
+ * @return pointer to s
+ */
+sds sds_hash_sha1_sds(sds s) {
     unsigned char hash[SHA_DIGEST_LENGTH];
-    SHA1((unsigned char *)p, strlen(p), hash);
-    sds hex_hash = sdsempty();
+    SHA1((unsigned char *)s, sdslen(s), hash);
+    sdsclear(s);
     for (unsigned i = 0; i < SHA_DIGEST_LENGTH; i++) {
-        hex_hash = sdscatprintf(hex_hash, "%02x", hash[i]);
+        s = sdscatprintf(s, "%02x", hash[i]);
     }
-    return hex_hash;
+    return s;
 }
 
 /**
@@ -52,13 +62,23 @@ sds sds_hash_sha1(const char *p) {
  * @return the hash as a newly allocated sds string
  */
 sds sds_hash_sha256(const char *p) {
+    sds hex_hash = sdsnew(p);
+    return sds_hash_sha256_sds(hex_hash);
+}
+
+/**
+ * Hashes a sds string with sha256 inplace
+ * @param s string to hash
+ * @return pointer to s
+ */
+sds sds_hash_sha256_sds(sds s) {
     unsigned char hash[SHA256_DIGEST_LENGTH];
-    SHA256((unsigned char *)p, strlen(p), hash);
-    sds hex_hash = sdsempty();
+    SHA256((unsigned char *)s, sdslen(s), hash);
+    sdsclear(s);
     for (unsigned i = 0; i < SHA256_DIGEST_LENGTH; i++) {
-        hex_hash = sdscatprintf(hex_hash, "%02x", hash[i]);
+        s = sdscatprintf(s, "%02x", hash[i]);
     }
-    return hex_hash;
+    return s;
 }
 
 /**

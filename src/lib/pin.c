@@ -53,9 +53,10 @@ bool pin_set(sds workdir) {
         return false;
     }
 
-    sds hex_hash = sdslen(pin) == 0 ? sdsempty() : sds_hash_sha256(pin);
-    bool rc = state_file_write(workdir, "config", "pin_hash", hex_hash);
-    FREE_SDS(hex_hash);
+    if (sdslen(pin) > 0) {
+        pin = sds_hash_sha256_sds(pin);
+    }
+    bool rc = state_file_write(workdir, "config", "pin_hash", pin);
 
     printf("\n");
     if (rc == true) {
