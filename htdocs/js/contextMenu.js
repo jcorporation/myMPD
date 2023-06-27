@@ -197,14 +197,14 @@ function addMenuItemsSingleActions(contextMenuBody) {
 }
 
 /**
- * Appends single actions for the queue actions context menu
+ * Appends consume actions for the queue actions context menu
  * @param {HTMLElement} contextMenuBody element to append the menu items
  * @returns {void}
  */
 function addMenuItemsConsumeActions(contextMenuBody) {
     if (settings.partition.consume === '0') {
         if (features.featConsumeOneshot === true) {
-            addMenuItem(contextMenuBody, {"cmd": "clickSingle", "options": ["oneshot"]}, 'Remove current song after playback');
+            addMenuItem(contextMenuBody, {"cmd": "clickConsume", "options": ["oneshot"]}, 'Remove current song after playback');
         }
     }
     else {

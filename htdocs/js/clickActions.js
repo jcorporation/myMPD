@@ -323,7 +323,7 @@ function clickSingle(mode) {
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function clickSingle(mode) {
+function clickConsume(mode) {
     sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
         "consume": mode
     }, null, false);
