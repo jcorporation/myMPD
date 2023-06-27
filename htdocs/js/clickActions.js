@@ -316,3 +316,15 @@ function clickSingle(mode) {
         "single": mode
     }, null, false);
 }
+
+/**
+ * Handler for click on consume button
+ * @param {string} mode single mode: "0" = off, "1" = consume, "oneshot" = consume one shot
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function clickSingle(mode) {
+    sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
+        "consume": mode
+    }, null, false);
+}

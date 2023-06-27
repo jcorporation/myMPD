@@ -119,7 +119,9 @@ function addMenuItemsNavbarActions(target, popoverBody) {
     switch(type) {
         case 'NavbarPlayback':
             addMenuItem(popoverBody, {"cmd": "openModal", "options": ["modalQueueSettings"]}, 'Playback settings');
+            addDivider(popoverBody);
             addMenuItemsSingleActions(popoverBody);
+            addMenuItemsConsumeActions(popoverBody);
             addDivider(popoverBody);
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Playback", undefined, undefined]}, 'Show playback');
             break;
@@ -191,6 +193,22 @@ function addMenuItemsSingleActions(contextMenuBody) {
     }
     else {
         addMenuItem(contextMenuBody, {"cmd": "clickSingle", "options": ["0"]}, 'Disable single mode');
+    }
+}
+
+/**
+ * Appends single actions for the queue actions context menu
+ * @param {HTMLElement} contextMenuBody element to append the menu items
+ * @returns {void}
+ */
+function addMenuItemsConsumeActions(contextMenuBody) {
+    if (settings.partition.consume === '0') {
+        if (features.featConsumeOneshot === true) {
+            addMenuItem(contextMenuBody, {"cmd": "clickSingle", "options": ["oneshot"]}, 'Remove current song after playback');
+        }
+    }
+    else {
+        addMenuItem(contextMenuBody, {"cmd": "clickConsume", "options": ["0"]}, 'Disable consume mode');
     }
 }
 
@@ -575,6 +593,7 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
             }
             if (songid === currentState.currentSongId) {
                 addMenuItemsSingleActions(contextMenuBody);
+                addMenuItemsConsumeActions(contextMenuBody);
             }
             addDivider(contextMenuBody);
             addMenuItem(contextMenuBody, {"cmd": "removeFromQueueIDs", "options": [[songid]]}, 'Remove');
