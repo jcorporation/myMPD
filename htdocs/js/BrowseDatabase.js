@@ -286,11 +286,9 @@ function parseDatabaseAlbumList(obj) {
     }
     let cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
-        //id is used only to check if card should be refreshed
-        const id = genId('database' + obj.result.data[i].AlbumId);
-
         if (cols[i] !== undefined &&
-            cols[i].firstChild.firstChild.getAttribute('id') === id) {
+            getData(cols[i].firstChild.firstChild, 'AlbumId') === obj.result.data[i].AlbumId)
+        {
             continue;
         }
 
@@ -299,7 +297,7 @@ function parseDatabaseAlbumList(obj) {
 
         image = '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri);
         card.appendChild(
-            elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
+            elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"]})
         );
         const taglist = [
             pEl.gridSelectBtn.cloneNode(true)
@@ -397,11 +395,9 @@ function saveColsDatabaseAlbumList() {
     }
     let cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
-        //id is used only to check if card should be refreshed
-        const id = genId('database' + obj.result.data[i].value);
-
         if (cols[i] !== undefined &&
-            cols[i].firstChild.firstChild.getAttribute('id') === id) {
+            getData(cols[i].firstChild.firstChild,'tag') === obj.result.data[i].value)
+        {
             continue;
         }
 
@@ -411,7 +407,7 @@ function saveColsDatabaseAlbumList() {
         image = '/tagart?uri=' + myEncodeURIComponent(obj.result.tag + '/' + obj.result.data[i].value);
         if (obj.result.pics === true) {
             card.appendChild(
-                elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
+                elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"]})
             );
         }
         card.appendChild(
