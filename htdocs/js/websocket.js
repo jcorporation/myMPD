@@ -10,7 +10,8 @@
  * @returns {boolean} true if websocket is connected, else false
  */
 function getWebsocketState() {
-    return socket !== null && socket.readyState === WebSocket.OPEN;
+    return socket !== null &&
+        socket.readyState === WebSocket.OPEN;
 }
 
 /**
@@ -213,7 +214,7 @@ function webSocketConnect() {
                 }
             }
             else {
-                showAppInitAlert(tn('Websocket connection closed'));
+                showAppInitAlert(tn('myMPD connection closed'));
             }
             socket = null;
         };
@@ -258,7 +259,7 @@ function websocketKeepAlive() {
     }
     else {
         logDebug('Reconnecting websocket');
-        toggleAlert('alertMympdState', true, tn('Websocket connection failed, trying to reconnect'));
+        toggleAlert('alertMympdState', true, tn('myMPD connection failed, trying to reconnect'));
         webSocketConnect();
     }
 }

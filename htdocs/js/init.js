@@ -20,11 +20,11 @@
     spa.appendChild(
         elCreateTextTn('p', {"class": ["text-light"]}, text)
     );
-    const reloadBtn = elCreateTextTn('button', {"class": ["btn", "btn-light", "me-2"]}, 'Reload');
+    const reloadBtn = elCreateTextTn('button', {"class": ["btn", "btn-light", "me-2", "alwaysEnabled"]}, 'Reload');
     reloadBtn.addEventListener('click', function() {
         clearAndReload();
     }, false);
-    const resetBtn = elCreateTextTn('button', {"class": ["btn", "btn-light"]}, 'Reset');
+    const resetBtn = elCreateTextTn('button', {"class": ["btn", "btn-light", "alwaysEnabled"]}, 'Reset');
     resetBtn.addEventListener('click', function() {
         resetLocalSettings();
         clearAndReload();

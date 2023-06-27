@@ -46,7 +46,8 @@ let currentState = {};
 /** @type {object} */
 let settings = {
     /** @type {number} */
-    "loglevel": 2
+    "loglevel": 2,
+    "partition": {}
 };
 
 /** @type {boolean} */

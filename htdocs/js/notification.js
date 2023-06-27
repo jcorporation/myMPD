@@ -324,7 +324,7 @@ function toggleUI() {
         toggleAlert('alertMympdState', false, '');
     }
     else if (appInited === true) {
-        toggleAlert('alertMympdState', true, tn('Websocket is disconnected'));
+        toggleAlert('alertMympdState', true, tn('Disconnected from myMPD'));
         logMessage(tn('Websocket is disconnected'), 'general', 'error');
     }
 
