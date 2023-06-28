@@ -271,7 +271,8 @@ function appInit() {
                 menu.style.removeProperty('max-height');
                 const menuHeight = menu.offsetHeight;
                 const offset = getYpos(menu);
-                const bottomPos = window.innerHeight - menuHeight - offset;
+                const scrollY = getScrollPosY(dropdown);
+                const bottomPos = window.innerHeight + scrollY - menuHeight - offset;
                 if (bottomPos < 0) {
                     menu.style.overflowY = 'auto';
                     menu.style.overflowX = 'hidden';
