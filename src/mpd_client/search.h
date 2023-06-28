@@ -9,14 +9,12 @@
 
 #include "src/lib/mympd_state.h"
 
-sds mpd_client_search_response(struct t_partition_state *partition_state, sds buffer, long request_id,
-        const char *expression, const char *sort, bool sortdesc, unsigned offset, unsigned limit,
-        const struct t_tags *tagcols, struct t_cache *sticker_cache, bool *result);
 bool mpd_client_search_add_to_plist(struct t_partition_state *partition_state, const char *expression,
-        const char *plist, unsigned to, sds *error);
+        const char *plist, unsigned to, const char *sort, bool sortdesc, sds *error);
 bool mpd_client_search_add_to_queue(struct t_partition_state *partition_state, const char *expression,
-        unsigned to, enum mpd_position_whence whence, sds *error);
+        unsigned to, enum mpd_position_whence whence, const char *sort, bool sortdesc, sds *error);
 
+bool mpd_client_add_search_sort_param(struct t_partition_state *partition_state, const char *sort, bool sortdesc, bool check_version);
 sds get_search_expression_album(enum mpd_tag_type tag_albumartist, struct mpd_song *album);
 sds get_search_expression_album_disc(enum mpd_tag_type tag_albumartist, struct mpd_song *album, const char *disc);
 sds escape_mpd_search_expression(sds buffer, const char *tag, const char *operator, const char *value);

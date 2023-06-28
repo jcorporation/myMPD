@@ -98,6 +98,7 @@ target_sources(mympd PRIVATE
   mympd_api/pictures.c
   mympd_api/playlists.c
   mympd_api/queue.c
+  mympd_api/search.c
   mympd_api/scripts.c
   mympd_api/settings.c
   mympd_api/smartpls.c

@@ -28,7 +28,6 @@
 #include "src/mpd_client/playlists.h"
 #include "src/mpd_client/presets.h"
 #include "src/mpd_client/queue.h"
-#include "src/mpd_client/search.h"
 #include "src/mpd_worker/mpd_worker.h"
 #include "src/mympd_api/albumart.h"
 #include "src/mympd_api/browse.h"
@@ -45,6 +44,7 @@
 #include "src/mympd_api/playlists.h"
 #include "src/mympd_api/queue.h"
 #include "src/mympd_api/scripts.h"
+#include "src/mympd_api/search.h"
 #include "src/mympd_api/settings.h"
 #include "src/mympd_api/smartpls.h"
 #include "src/mympd_api/song.h"
@@ -1441,8 +1441,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_uint(request->data, "$.params.limit", 0, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
-                response->data = mpd_client_search_response(partition_state, response->data, request->id,
-                        sds_buf1, sds_buf2, bool_buf1, uint_buf1, uint_buf2, &tagcols, &mympd_state->mpd_state->sticker_cache, &rc);
+                response->data = mympd_api_search_songs(partition_state, response->data, request->id,
+                        sds_buf1, sds_buf2, bool_buf1, uint_buf1, uint_buf2, &tagcols, &rc);
             }
             break;
         }

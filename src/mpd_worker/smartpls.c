@@ -298,15 +298,21 @@ static bool mpd_worker_smartpls_delete(struct t_mpd_worker_state *mpd_worker_sta
 static bool mpd_worker_smartpls_update_search(struct t_mpd_worker_state *mpd_worker_state,
         const char *playlist, const char *expression)
 {
-    mpd_worker_smartpls_delete(mpd_worker_state, playlist);
+    if (mpd_worker_smartpls_delete(mpd_worker_state, playlist) == false) {
+        return false;
+    }
+    sds error = sdsempty();
+    const char *sort = NULL;
+    bool sortdesc = false;
     bool rc = mpd_client_search_add_to_plist(mpd_worker_state->partition_state,
-        expression, playlist, UINT_MAX, NULL);
+        expression, playlist, UINT_MAX, sort, sortdesc, &error);
     if (rc == true) {
         MYMPD_LOG_INFO(NULL, "Updated smart playlist \"%s\"", playlist);
     }
     else {
-        MYMPD_LOG_ERROR(NULL, "Updating smart playlist \"%s\" failed", playlist);
+        MYMPD_LOG_ERROR(NULL, "Updating smart playlist \"%s\" failed: %s", playlist, error);
     }
+    FREE_SDS(error);
     return rc;
 }
 
@@ -443,24 +449,30 @@ static bool mpd_worker_smartpls_update_newest(struct t_mpd_worker_state *mpd_wor
         return false;
     }
 
+    if (mpd_worker_smartpls_delete(mpd_worker_state, playlist) == false) {
+        return false;
+    }
+
     //prevent overflow
     if (timerange < 0) {
         return false;
     }
     value_max = value_max - (unsigned long)timerange;
 
-    mpd_worker_smartpls_delete(mpd_worker_state, playlist);
-
+    sds error = sdsempty();
+    const char *sort = NULL;
+    bool sortdesc = false;
     sds expression = sdscatfmt(sdsempty(), "(modified-since '%U')", value_max);
     bool rc = mpd_client_search_add_to_plist(mpd_worker_state->partition_state, expression,
-        playlist, UINT_MAX, NULL);
+        playlist, UINT_MAX, sort, sortdesc, &error);
     FREE_SDS(expression);
     
     if (rc == true) {
         MYMPD_LOG_INFO(NULL, "Updated smart playlist \"%s\"", playlist);
     }
     else {
-        MYMPD_LOG_ERROR(NULL, "Updating smart playlist \"%s\" failed", playlist);
+        MYMPD_LOG_ERROR(NULL, "Updating smart playlist \"%s\" failed: %s", playlist, error);
     }
-    return true;
+    FREE_SDS(error);
+    return rc;
 }

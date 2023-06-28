@@ -270,7 +270,9 @@ bool mympd_api_playlist_content_replace(struct t_partition_state *partition_stat
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_insert_search(struct t_partition_state *partition_state, sds expression, sds plist, unsigned to, sds *error) {
-    return mpd_client_search_add_to_plist(partition_state, expression, plist, to, error);
+    const char *sort = NULL;
+    bool sortdesc = false;
+    return mpd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sortdesc, error);
 }
 
 /**
@@ -321,7 +323,9 @@ bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partitio
             break;
         }
         sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist, mpd_album);
-        rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, error);
+        const char *sort = NULL;
+        bool sortdesc = false;
+        rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sortdesc, error);
         FREE_SDS(expression);
         if (rc == false) {
             break;
@@ -372,7 +376,9 @@ bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *part
         return false;
     }
     sds expression = get_search_expression_album_disc(partition_state->mpd_state->tag_albumartist, mpd_album, disc);
-    bool rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, error);
+    const char *sort = NULL;
+    bool sortdesc = false;
+    bool rc = mpd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sortdesc, error);
     FREE_SDS(expression);
     return rc;
 }
