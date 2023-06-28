@@ -968,5 +968,9 @@
     "Partition created successfully": "Partition erfolgreich erstellt",
     "Partition name is reserved": "Partitionsname ist reserviert",
     "myMPD not yet ready": "myMPD ist noch nicht bereit",
-    "Failed to parse response from %{uri}": "Antwort konnte nicht geparsed werden: %{uri}"
+    "Failed to parse response from %{uri}": "Antwort konnte nicht geparsed werden: %{uri}",
+    "Back to album list": "Zurück zur Albumliste",
+    "Disconnected from myMPD": "Nicht mit myMPD verbunden",
+    "myMPD connection closed": "myMPD Verbindung geschlossen",
+    "myMPD connection failed, trying to reconnect": "myMPD Verbindung fehlgeschlagen, versuche neue Verbindung"
 }
