@@ -732,21 +732,29 @@ function toggleBtnChkCollapse(btn, collapseId, state) {
 
 /**
  * Gets the y-scrolling position
+ * @param {HTMLElement} [el] element
  * @returns {number} the vertical scrolling position
  */
- function getScrollPosY() {
+function getScrollPosY(el) {
+    // element in scrolling modal
+    if (el) {
+        const modal = el.closest('.modal');
+        if (modal) {
+            let scrollPos = window.scrollY;
+            scrollPos += modal.scrollTop;
+            return scrollPos;
+        }
+    }
     if (userAgentData.isMobile === true) {
+        // scrolling body
         return document.body.scrollTop ? document.body.scrollTop : document.documentElement.scrollTop;
     }
-    else {
-        const container = document.getElementById(app.id + 'List');
-        if (container) {
-            return container.parentNode.scrollTop;
-        }
-        else {
-            return 0;
-        }
+    // scrolling container
+    const container = document.getElementById(app.id + 'List');
+    if (container) {
+        return container.parentNode.scrollTop;
     }
+    return 0;
 }
 
 /**
