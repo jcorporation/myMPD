@@ -732,7 +732,7 @@ function toggleBtnChkCollapse(btn, collapseId, state) {
 
 /**
  * Gets the y-scrolling position
- * @param {HTMLElement} [el] element
+ * @param {HTMLElement | Element} [el] element
  * @returns {number} the vertical scrolling position
  */
 function getScrollPosY(el) {
