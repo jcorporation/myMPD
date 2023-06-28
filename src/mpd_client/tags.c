@@ -300,15 +300,18 @@ sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag
 sds get_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
         const struct mpd_song *song)
 {
+    const char *uri = mpd_song_get_uri(song);
     if (tags_enabled == true) {
         for (unsigned tagnr = 0; tagnr < tagcols->len; ++tagnr) {
             buffer = sdscatfmt(buffer, "\"%s\":", mpd_tag_name(tagcols->tags[tagnr]));
             buffer = mpd_client_get_tag_values(song, tagcols->tags[tagnr], buffer);
             buffer = sdscatlen(buffer, ",", 1);
         }
-        sds albumid = album_cache_get_key(song);
-        buffer = tojson_sds(buffer, "AlbumId", albumid, true);
-        FREE_SDS(albumid);
+        if (is_streamuri(uri) == false) {
+            sds albumid = album_cache_get_key(song);
+            buffer = tojson_sds(buffer, "AlbumId", albumid, true);
+            FREE_SDS(albumid);
+        }
     }
     else {
         buffer = sdscat(buffer, "\"Title\":");
@@ -317,7 +320,7 @@ sds get_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
     }
     buffer = tojson_uint(buffer, "Duration", mpd_song_get_duration(song), true);
     buffer = tojson_time(buffer, "LastModified", mpd_song_get_last_modified(song), true);
-    buffer = tojson_char(buffer, "uri", mpd_song_get_uri(song), false);
+    buffer = tojson_char(buffer, "uri", uri, false);
     return buffer;
 }
 
