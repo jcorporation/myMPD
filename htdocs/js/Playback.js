@@ -69,7 +69,7 @@ function parseCurrentSong(obj) {
     {
         const artists = joinArray(obj.result.Artist);
         textNotification.push(artists);
-        pageTitle.push(artists)
+        pageTitle.push(artists);
         footerArtistEl.textContent = artists;
         setData(footerArtistEl, 'name', obj.result.Artist);
         footerArtistEl.classList.add('clickable');
@@ -83,7 +83,7 @@ function parseCurrentSong(obj) {
     if (obj.result.Album !== undefined &&
         obj.result.Album !== '-')
     {
-        textNotification.push(obj.result.Album)
+        textNotification.push(obj.result.Album);
         footerAlbumEl.textContent = obj.result.Album;
         setData(footerAlbumEl, 'name', obj.result.Album);
         setData(footerAlbumEl, 'AlbumArtist', obj.result[tagAlbumArtist]);
