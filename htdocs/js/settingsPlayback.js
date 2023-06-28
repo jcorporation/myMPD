@@ -54,7 +54,7 @@ function initSettingsPlayback() {
                 const d = event.target.parentNode.parentNode.previousElementSibling;
                 BSN.Dropdown.getInstance(d).hide();
             }
-        }, false)
+        }, false);
     }
 }
 

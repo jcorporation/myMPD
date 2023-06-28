@@ -36,7 +36,7 @@ function getBgImageList() {
  */
 //eslint-disable-next-line no-unused-vars
 function getImageListId(selectId, addOptions, type) {
-    getImageList(document.getElementById(selectId), addOptions, type)
+    getImageList(document.getElementById(selectId), addOptions, type);
 }
 
 /**

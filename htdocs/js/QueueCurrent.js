@@ -633,7 +633,7 @@ function insertQueue(type, uris, to, whence, play, callback) {
  * @returns {void}
  */
 function replaceQueue(type, uris, callback) {
-    _replaceQueue(type, uris, false, callback)
+    _replaceQueue(type, uris, false, callback);
 }
 
 /**
@@ -644,7 +644,7 @@ function replaceQueue(type, uris, callback) {
  * @returns {void}
  */
 function replacePlayQueue(type, uris, callback) {
-    _replaceQueue(type, uris, true, callback)
+    _replaceQueue(type, uris, true, callback);
 }
 
 /**

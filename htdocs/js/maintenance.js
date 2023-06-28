@@ -26,7 +26,7 @@ function setLoglevel() {
     sendAPI("MYMPD_API_LOGLEVEL", {
         "loglevel": loglevel
     }, function() {
-        settings.loglevel = loglevel
+        settings.loglevel = loglevel;
     }, false);
 }
 

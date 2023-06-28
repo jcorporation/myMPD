@@ -134,7 +134,7 @@ function gotoAlbumList(tag, value) {
     let expression = '(';
     for (let i = 0, j = value.length; i < j; i++) {
         if (i > 0) {
-            expression += ' AND '
+            expression += ' AND ';
         }
         expression += '(' + tag + ' == \'' + escapeMPD(value[i]) + '\')';
     }

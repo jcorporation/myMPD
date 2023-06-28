@@ -351,7 +351,7 @@ function initGlobalModals() {
     const tab = document.getElementById('tabShortcuts');
     elClear(tab);
     const keys = Object.keys(keymap).sort((a, b) => {
-        return keymap[a].order - keymap[b].order
+        return keymap[a].order - keymap[b].order;
     });
     for (const key of keys) {
         if (keymap[key].cmd === undefined) {
@@ -504,7 +504,7 @@ if (window.trustedTypes &&
     window.trustedTypes.createPolicy('default', {
         createScriptURL(dirty) {
             if (dirty === 'sw.js') {
-                return 'sw.js'
+                return 'sw.js';
             }
             throw new Error('Script not allowed: ' + dirty);
        }

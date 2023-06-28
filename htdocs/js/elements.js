@@ -366,7 +366,7 @@ function getSelectValue(el) {
  * @returns {object} selected option data value
  */
 function getSelectedOptionDataId(id, attribute) {
-    return getSelectedOptionData(document.getElementById(id), attribute)
+    return getSelectedOptionData(document.getElementById(id), attribute);
 }
 
 /**
@@ -488,7 +488,7 @@ function btnWaiting(btn, waiting) {
  * @returns {HTMLElement} selected button
  */
 function toggleBtnGroupValueId(id, value) {
-    return toggleBtnGroupValue(document.getElementById(id), value)
+    return toggleBtnGroupValue(document.getElementById(id), value);
 }
 
 /**
@@ -665,7 +665,7 @@ function getBtnChkValueId(id) {
  * @returns {boolean} enabled = true, disabled = false
  */
 function getBtnChkValue(btn) {
-    return btn.classList.contains('active') ? true : false
+    return btn.classList.contains('active') ? true : false;
 }
 
 /**

@@ -115,7 +115,7 @@ function initPlaylists() {
                 clickPlaylist(getData(target, 'uri'), event);
             }
             else {
-                showNotification(tn('Playlist is empty'), 'playlist', 'warn')
+                showNotification(tn('Playlist is empty'), 'playlist', 'warn');
             }
         }
     }, false);

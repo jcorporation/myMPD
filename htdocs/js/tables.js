@@ -435,7 +435,7 @@ function setColsChecklist(tableName, menu) {
                 "name": tags[i]}, 'radio_button_unchecked');
             if (settings['cols' + tableName].includes(tags[i])) {
                 btn.classList.add('active');
-                btn.textContent = 'check'
+                btn.textContent = 'check';
             }
             const div = elCreateNodes('div', {"class": ["form-check"]}, [
                 btn,
