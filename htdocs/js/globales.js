@@ -83,8 +83,6 @@ let allOutputs = null;
 
 /** @type {object} */
 const ligatures = {
-    'sortUp': 'arrow_drop_up',
-    'sortDown': 'arrow_drop_down',
     'checked': 'task_alt',
     'more': 'menu',
     'unchecked': 'radio_button_unchecked'

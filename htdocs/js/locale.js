@@ -143,7 +143,13 @@ function setLocale(newLocale) {
         locale = 'en-US';
     }
 
+    if (getData(domCache.body, 'locale') === locale) {
+        //locale already set
+        return;
+    }
+
     //get phrases and translate dom
+    setData(domCache.body, 'locale', locale);
     httpGet(subdir + '/assets/i18n/' + locale + '.json', function(obj) {
         phrases = obj;
         i18nHtml(domCache.body);

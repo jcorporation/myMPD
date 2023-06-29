@@ -447,6 +447,32 @@ function setColsChecklist(tableName, menu) {
 }
 
 /**
+ * Checks if a table column is sortable
+ * @param {string} tableName name of the table
+ * @param {string} colName name of the column
+ * @returns {bool} true if clickable, else false
+ */
+function isColClickable(tableName, colName) {
+    if (tableName === 'QueueCurrent' &&
+        features.featAdvqueue == false)
+    {
+        return false;
+    }
+    if (tableName !== 'Search' &&
+        tableName !== 'QueueCurrent')
+    {
+        return false;
+    }
+    if (colName === 'Duration' ||
+        colName === 'AudioFormat' ||
+        colName.indexOf('sticker') == 0)
+    {
+        return false;
+    }
+    return true;
+}
+
+/**
  * Sets the table header columns
  * @param {string} tableName table name
  * @returns {void}
@@ -469,30 +495,28 @@ function setCols(tableName) {
     const thead = document.querySelector('#' + tableName + 'List > thead > tr');
     elClear(thead);
 
-    const clickable = (tableName === 'QueueCurrent' && features.featAdvqueue) ||
-                      tableName === 'Search'
-        ? 'clickable'
-        : 'not-clickable';
-    if (clickable === 'not-clickable') {
-        thead.classList.add(clickable);
-    }
     for (let i = 0, j = settings['cols' + tableName].length; i < j; i++) {
         const hname = settings['cols' + tableName][i];
+        const clickable = isColClickable(tableName, hname)
+            ? 'clickable'
+            : 'not-clickable';
         const th = elCreateTextTn('th', {"class": [clickable], "draggable": "true", "data-col": settings['cols' + tableName][i]}, hname);
-        if (hname === 'Track' ||
-            hname === 'Pos')
-        {
-            th.textContent = '#';
-        }
-        if ((tableName === 'Search' && hname === app.cards.Search.sort.tag) ||
-            (tableName === 'BrowseRadioWebradiodb' && hname === app.cards.Browse.tabs.Radio.views.Webradiodb.sort.tag)
+        thead.appendChild(th);
+
+        const sort = tableName === 'Search'
+            ? app.cards.Search.sort
+            : tableName === 'BrowseRadioWebradiodb'
+                ? app.cards.Browse.tabs.Radio.views.Webradiodb.sort
+                : tableName === 'QueueCurrent'
+                    ? app.cards.Queue.tabs.Current.sort
+                    : undefined;
+        if ((tableName === 'Search' && hname === sort.tag) ||
+            (tableName === 'BrowseRadioWebradiodb' && hname === sort.tag) ||
+            (tableName === 'QueueCurrent' && hname === sort.tag)
            )
         {
-            th.appendChild(
-                elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (app.cards.Search.sort.desc === true ? ligatures['sortUp'] : ligatures['sortDown']))
-            );
+            addSortIndicator(th, sort.desc);
         }
-        thead.appendChild(th);
     }
     //append action column
     const th = elCreateEmpty('th', {"data-col": "Action"});
@@ -587,22 +611,36 @@ function toggleSort(th, colName) {
     }
 
     if (app.current.sort.tag === colName) {
-        app.current.sort.desc = app.current.sort.desc === false ? true : false;
+        //toggle sort direction
+        app.current.sort.desc = app.current.sort.desc === false
+            ? true
+            : false;
     }
     else {
+        //sort by new colum ascending
         app.current.sort.desc = false;
         app.current.sort.tag = colName;
     }
-    //remove old sort indicator
-    const sdi = th.parentNode.querySelectorAll('.sort-dir');
-    for (const s of sdi) {
-        s.remove();
+    addSortIndicator(th, app.current.sort.desc);
+}
+
+/**
+ * Add the sort indicator and removes old ones.
+ * @param {HTMLElement | Element} th header element
+ * @param {bool} desc descending?
+ * @returns {void}
+ */
+function addSortIndicator(th, desc) {
+    // remove old sort indicator
+    const oldIndicators = th.parentNode.querySelectorAll('.sort-dir');
+    for (const i of oldIndicators) {
+        i.classList.remove('sort-dir', 'sort-desc', 'sort-asc');
     }
-    //set new sort indicator
-    // @ts-ignore
-    th.appendChild(
-        elCreateText('span', {"class": ["sort-dir", "mi", "float-end"]}, (app.current.sort.desc === true ? ligatures['sortUp'] : ligatures['sortDown']))
-    );
+    const order = desc === false
+        ? 'asc'
+        : 'desc';
+    // add new sort indicator
+    th.classList.add('sort-dir', 'sort-' + order);
 }
 
 /**

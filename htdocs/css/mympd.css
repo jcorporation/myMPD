@@ -1003,14 +1003,25 @@ button.select-inner-button {
   min-width: 6rem;
 }
 
-.sort-dir {
-  margin-right: -1.5rem;
+.sort-dir::before {
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.2rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  text-rendering: optimizelegibility;
+  font-feature-settings: "liga";
 }
 
-#SearchList > thead > tr > th,
-#BrowseRadioWebradiodbList > thead > tr > th,
-#QueueCurrentList > thead > tr > th {
-  padding-right: 1.5rem;
+.sort-asc::before {
+  content: 'arrow_drop_down';
+}
+
+.sort-desc::before {
+  content: 'arrow_drop_up';
 }
 
 .dropdownWide {

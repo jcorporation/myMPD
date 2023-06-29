@@ -63,10 +63,7 @@ function initSearch() {
         //table header
         if (event.target.nodeName === 'TH') {
             const colName = event.target.getAttribute('data-col');
-            if (colName === null ||
-                colName === 'Duration' ||
-                colName.indexOf('sticker') === 0)
-            {
+            if (isColClickable('Search', colName) === false) {
                 //by this fields can not be sorted
                 return;
             }
