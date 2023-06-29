@@ -80,6 +80,6 @@
     "MUSICBRAINZ_TRACKID": "MusicBrainz Track ID",
     "MUSICBRAINZ_WORKID": "MusicBrainz Work ID",
     "MUSICBRAINZ_RELEASEGROUPID": "MusicBrainz ReleaseGroup ID",
-    "AudioFormat": "Audio dormat",
+    "AudioFormat": "Audio format",
     "OriginalDate": "Original date"
 }
