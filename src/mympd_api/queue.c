@@ -217,7 +217,9 @@ bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_add");
                 break;
             }
-            to++;
+            if (to != UINT_MAX) {
+                to++;
+            }
         }
         mpd_client_command_list_end_check(partition_state);
     }
@@ -417,7 +419,6 @@ bool mympd_api_queue_insert_plist(struct t_partition_state *partition_state, str
                 break;
             }
             current = current->next;
-            to++;
         }
         mpd_client_command_list_end_check(partition_state);
     }

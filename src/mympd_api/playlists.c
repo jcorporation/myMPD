@@ -227,7 +227,9 @@ bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_playlist_add_to");
                 break;
             }
-            to++;
+            if (to != UINT_MAX) {
+                to++;
+            }
         }
         mpd_client_command_list_end_check(partition_state);
     }
