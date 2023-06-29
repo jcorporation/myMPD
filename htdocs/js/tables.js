@@ -450,11 +450,11 @@ function setColsChecklist(tableName, menu) {
  * Checks if a table column is sortable
  * @param {string} tableName name of the table
  * @param {string} colName name of the column
- * @returns {bool} true if clickable, else false
+ * @returns {boolean} true if clickable, else false
  */
 function isColClickable(tableName, colName) {
     if (tableName === 'QueueCurrent' &&
-        features.featAdvqueue == false)
+        features.featAdvqueue === false)
     {
         return false;
     }
@@ -465,7 +465,7 @@ function isColClickable(tableName, colName) {
     }
     if (colName === 'Duration' ||
         colName === 'AudioFormat' ||
-        colName.indexOf('sticker') == 0)
+        colName.indexOf('sticker') === 0)
     {
         return false;
     }
@@ -626,8 +626,8 @@ function toggleSort(th, colName) {
 
 /**
  * Add the sort indicator and removes old ones.
- * @param {HTMLElement | Element} th header element
- * @param {bool} desc descending?
+ * @param {HTMLElement | EventTarget} th header element
+ * @param {boolean} desc descending?
  * @returns {void}
  */
 function addSortIndicator(th, desc) {
