@@ -258,7 +258,7 @@ bool search_song_expression(struct mpd_song *song, struct t_list *expr_list, str
             }
         }
         if (rc == false) {
-            //exit on first expression missmatch
+            //exit on first expression mismatch
             return false;
         }
         current = current->next;
@@ -305,7 +305,7 @@ static pcre2_code *compile_regex(char *regex_str) {
         (PCRE2_SPTR)regex_str, /* the pattern */
         PCRE2_ZERO_TERMINATED, /* indicates pattern is zero-terminated */
         0,                     /* default options */
-        &rc,		       /* for error number */
+        &rc,		           /* for error number */
         &erroroffset,          /* for error offset */
         NULL                   /* use default compile context */
     );
