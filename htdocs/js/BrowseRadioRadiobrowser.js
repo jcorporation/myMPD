@@ -67,6 +67,9 @@ function initBrowseRadioRadiobrowser() {
         }
         //table body
         const target = event.target.closest('TR');
+        if (target === null) {
+            return;
+        }
         if (target.parentNode.nodeName === 'TBODY' &&
             checkTargetClick(target) === true)
         {

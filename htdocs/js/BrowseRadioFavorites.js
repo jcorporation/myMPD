@@ -29,12 +29,15 @@ function initBrowseRadioFavorites() {
     }, false);
 
     document.getElementById('BrowseRadioFavoritesList').addEventListener('click', function(event) {
-        const target = event.target.nodeName === 'SMALL' ? event.target.parentNode : event.target;
-        if (target.classList.contains('row')) {
+        if (event.target.classList.contains('row')) {
             return;
         }
         //select mode
         if (selectCard(event) === true) {
+            return;
+        }
+        const target = event.target.closest('DIV');
+        if (target === null) {
             return;
         }
         if (target.classList.contains('card-body')) {

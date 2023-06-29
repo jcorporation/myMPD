@@ -101,6 +101,9 @@ function initBrowseDatabase() {
             return;
         }
         const target = event.target.closest('DIV');
+        if (target === null) {
+            return;
+        }
         if (target.classList.contains('card-body')) {
             appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, getData(target.parentNode, 'AlbumId'));
         }
@@ -140,6 +143,9 @@ function initBrowseDatabase() {
         }
         //table body
         const target = event.target.closest('TR');
+        if (target === null) {
+            return;
+        }
         if (target.parentNode.nodeName === 'TBODY' &&
             checkTargetClick(target) === true)
         {
