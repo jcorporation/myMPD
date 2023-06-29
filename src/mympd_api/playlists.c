@@ -595,21 +595,18 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
         struct mpd_song *song;
         long real_limit = offset + limit;
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-            total_time += mpd_song_get_duration(song);
-            if (entity_count >= offset &&
-                entity_count < real_limit)
-            {
-                if (search_mpd_song(song, searchstr, tagcols) == true) {
+            if (search_mpd_song(song, searchstr, tagcols) == true) {
+                total_time += mpd_song_get_duration(song);
+                if (entity_count >= offset &&
+                    entity_count < real_limit)
+                {
                     if (entities_returned++) {
                         buffer= sdscatlen(buffer, ",", 1);
                     }
                     buffer = sdscatlen(buffer, "{", 1);
-                    if (is_streamuri(mpd_song_get_uri(song)) == true) {
-                        buffer = tojson_char(buffer, "Type", "stream", true);
-                    }
-                    else {
-                        buffer = tojson_char(buffer, "Type", "song", true);
-                    }
+                    buffer = is_streamuri(mpd_song_get_uri(song)) == true
+                        ? tojson_char(buffer, "Type", "stream", true)
+                        : tojson_char(buffer, "Type", "song", true);
                     buffer = tojson_long(buffer, "Pos", entity_count, true);
                     buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
                     if (partition_state->mpd_state->feat_stickers) {
@@ -625,12 +622,9 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
                     }
                     buffer = sdscatlen(buffer, "}", 1);
                 }
-                else {
-                    entity_count--;
-                }
+                entity_count++;
             }
             mpd_song_free(song);
-            entity_count++;
         }
     }
     mpd_response_finish(partition_state->conn);
