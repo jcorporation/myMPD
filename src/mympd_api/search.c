@@ -48,7 +48,7 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, sds buffer
                 JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
     }
 
-    int entities_returned = 0;
+    unsigned entities_returned = 0;
     if (mpd_search_commit(partition_state->conn) == true) {
         struct mpd_song *song;
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
@@ -73,12 +73,12 @@ sds mympd_api_search_songs(struct t_partition_state *partition_state, sds buffer
 
     buffer = sdscatlen(buffer, "],", 2);
 
-    buffer = offset == 0 && entities_returned < (int)limit
-        ? tojson_int(buffer, "totalEntities", *result, true)
+    buffer = offset == 0 && entities_returned < limit
+        ? tojson_uint(buffer, "totalEntities", entities_returned, true)
         : tojson_long(buffer, "totalEntities", -1, true);
 
     buffer = tojson_uint(buffer, "offset", offset, true);
-    buffer = tojson_int(buffer, "returnedEntities", entities_returned, true);
+    buffer = tojson_uint(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_char(buffer, "expression", expression, true);
     buffer = tojson_char(buffer, "sort", sort, true);
     buffer = tojson_bool(buffer, "sortdesc", sortdesc, false);
