@@ -392,11 +392,12 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             }
             if (json_iterate_object(request->data, "$.params", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &error) == true) {
                 if (partition_state->jukebox_mode != JUKEBOX_OFF) {
-                    //start jukebox
+                    // start jukebox
                     jukebox_run(partition_state);
                 }
-                //save options as preset if name is not empty
-                if (json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
+                // save options as preset if name is found and not empty
+                if (json_find_key(request->data, "$.params.name") == true && // prevent warning message
+                    json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                     sdslen(sds_buf1) > 0)
                 {
                     sds params = json_get_key_as_sds(request->data, "$.params");
