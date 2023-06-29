@@ -278,12 +278,9 @@ sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag
         }
         else {
             //replace empty tag value(s) with dash
-            if (multi == true) {
-                tag_values = sdscatlen(tag_values, "[\"-\"]", 5);
-            }
-            else {
-                tag_values = sdscatlen(tag_values, "\"-\"", 3);
-            }
+            tag_values = multi == true
+                ? sdscatlen(tag_values, "[\"-\"]", 5)
+                : sdscatlen(tag_values, "\"-\"", 3);
         }
     }
     return tag_values;
