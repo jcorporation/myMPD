@@ -272,7 +272,7 @@ app.cards = {
                 "limit": 100,
                 "filter": "any",
                 "sort": {
-                    "tag": "Priority",
+                    "tag": "Pos",
                     "desc": false
                 },
                 "tag": "-",
@@ -449,7 +449,7 @@ app.cards = {
         "limit": 100,
         "filter": "any",
         "sort": {
-            "tag": "-",
+            "tag": "Title",
             "desc": false
         },
         "tag": "-",
