@@ -115,7 +115,7 @@ function parseJukeboxList(obj) {
     updateTable(obj, 'QueueJukebox', function(row, data) {
         setData(row, 'uri', data.uri);
         setData(row, 'name', data.Title);
-        setData(row, 'type', data.uri === 'Album' ? 'album' : 'song');
+        setData(row, 'type', data.Type);
         setData(row, 'pos', data.Pos);
         setData(row, 'AlbumId', data.AlbumId);
         row.setAttribute('title', tn(rowTitle));

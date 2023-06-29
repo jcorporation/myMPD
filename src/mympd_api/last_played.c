@@ -268,12 +268,14 @@ static sds get_last_played_obj(struct t_partition_state *partition_state, sds bu
         struct mpd_song *song;
         if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (search_mpd_song(song, searchstr, tagcols)) {
-                buffer = sdscatlen(buffer, "{", 1);
+                buffer = sdscat(buffer, "{\"Type\": \"song\",");
                 buffer = tojson_long(buffer, "Pos", entity_count, true);
                 buffer = tojson_llong(buffer, "LastPlayed", last_played, true);
                 buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
-                buffer = sdscatlen(buffer, ",", 1);
-                buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
+                if (partition_state->mpd_state->feat_stickers) {
+                    buffer = sdscatlen(buffer, ",", 1);
+                    buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
+                }
                 buffer = sdscatlen(buffer, "}", 1);
             }
             mpd_song_free(song);

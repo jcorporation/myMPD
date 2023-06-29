@@ -89,12 +89,10 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
                             if (entities_returned++) {
                                 buffer = sdscatlen(buffer, ",", 1);
                             }
-                            buffer = sdscatlen(buffer, "{", 1);
+                            buffer = sdscat(buffer, "{\"Type\": \"song\",");
                             buffer = tojson_long(buffer, "Pos", entity_count, true);
                             buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
-                            if (partition_state->mpd_state->feat_stickers == true &&
-                                partition_state->mpd_state->sticker_cache.cache != NULL)
-                            {
+                            if (partition_state->mpd_state->feat_stickers) {
                                 buffer = sdscatlen(buffer, ",", 1);
                                 buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
                             }
@@ -123,7 +121,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
                         buffer = sdscatlen(buffer, ",", 1);
                     }
                     struct mpd_song *album = (struct mpd_song *)current->user_data;
-                    buffer = sdscatlen(buffer, "{", 1);
+                    buffer = sdscat(buffer, "{\"Type\": \"album\",");
                     buffer = tojson_long(buffer, "Pos", entity_count, true);
                     buffer = tojson_char(buffer, "uri", "Album", true);
                     buffer = tojson_char(buffer, "Title", "", true);

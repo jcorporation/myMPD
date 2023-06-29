@@ -782,15 +782,15 @@ sds print_queue_entry(struct t_partition_state *partition_state, sds buffer, con
             buffer = sdscat(buffer, "\"webradio\":{");
             buffer = sdscatsds(buffer, webradio);
             buffer = sdscatlen(buffer, "},", 2);
-            buffer = tojson_char(buffer, "type", "webradio", false);
+            buffer = tojson_char(buffer, "Type", "webradio", false);
         }
         else {
-            buffer = tojson_char(buffer, "type", "stream", false);
+            buffer = tojson_char(buffer, "Type", "stream", false);
         }
         FREE_SDS(webradio);
     }
     else {
-        buffer = tojson_char(buffer, "type", "song", false);
+        buffer = tojson_char(buffer, "Type", "song", false);
     }
     if (partition_state->mpd_state->feat_stickers == true) {
         buffer = sdscatlen(buffer, ",", 1);

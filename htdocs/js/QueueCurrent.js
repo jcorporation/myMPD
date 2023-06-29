@@ -287,7 +287,7 @@ function parseQueue(obj) {
         setData(row, 'songpos', data.Pos);
         setData(row, 'duration', data.Duration);
         setData(row, 'uri', data.uri);
-        setData(row, 'type', data.type);
+        setData(row, 'type', data.Type);
         setData(row, 'name', data.Title);
         if (data.type === 'webradio') {
             setData(row, 'webradioUri', data.webradio.filename);
