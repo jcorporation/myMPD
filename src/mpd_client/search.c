@@ -58,6 +58,8 @@ bool mpd_client_search_add_to_plist(struct t_partition_state *partition_state, c
  *               0 = MPD_POSITION_ABSOLUTE
  *               1 = MPD_POSITION_AFTER_CURRENT
  *               2 = MPD_POSITION_BEFORE_CURRENT
+ * @param sort tag to sort
+ * @param sortdesc false = ascending, true = descending
  * @param error pointer to already allocated sds string for the error message
  *              or NULL to return no response
  * @return true on success else false
