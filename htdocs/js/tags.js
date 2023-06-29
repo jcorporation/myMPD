@@ -405,7 +405,9 @@ function addMusicbrainzFields(songObj, showArtists) {
         //show albumartists or artists
         for (let i = 0, j = songObj[artist].length; i < j; i++) {
             const artistLink = getMBtagLink(artist, songObj[artist][i]);
-            artistLink.textContent = songObj.AlbumArtist[i];
+            artistLink.textContent = artist === 'MUSICBRAINZ_ALBUMARTISTID'
+                ? songObj.AlbumArtist[i]
+                : songObj.Artist[i];
             mbField.appendChild(
                 elCreateNode('p', {"class": ["mb-1"]}, artistLink)
             );
