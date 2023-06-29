@@ -408,7 +408,6 @@ function saveQueueSettingsClose(obj) {
         showModalAlert(obj);
     }
     else {
-        getSettings();
         uiElements.modalQueueSettings.hide();
     }
 }
