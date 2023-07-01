@@ -120,7 +120,6 @@ function parseJukeboxList(obj) {
         setData(row, 'name', data.Title);
         setData(row, 'type', data.Type);
         setData(row, 'pos', data.Pos);
-        setData(row, 'AlbumId', data.AlbumId);
         row.setAttribute('title', tn(rowTitle));
         row.setAttribute('tabindex', 0);
     });

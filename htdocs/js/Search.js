@@ -193,9 +193,9 @@ function parseSearch(obj) {
     updateTable(obj, 'Search', function(row, data) {
         setData(row, 'type', data.Type);
         setData(row, 'uri', data.uri);
+        setData(row, 'name', data.Title);
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', rowTitle);
-        setData(row, 'name', data.Title);
     });
 
     if (obj.result.totalEntities > 0) {

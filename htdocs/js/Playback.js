@@ -186,6 +186,7 @@ function parseCurrentSong(obj) {
                 ? obj.result.Name + ': ' + obj.result.Title
                 : obj.result.Title;
         }
+        setData(playingTr, 'name', obj.result.Title);
     }
 
     if (currentState.state === 'play') {

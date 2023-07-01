@@ -651,7 +651,8 @@ function addSortIndicator(th, desc) {
  */
 function replaceTblRow(row, el) {
     if (getData(row, 'uri') === getData(el, 'uri') &&
-        getData(row, 'cols') === getData(el, 'cols'))
+        getData(row, 'cols') === getData(el, 'cols') &&
+        getData(row, 'name') === getData(el, 'name'))
     {
         return;
     }
