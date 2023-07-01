@@ -65,8 +65,11 @@ function getServerinfo() {
  * @returns {string} song counter text
  */
 function getCounterText() {
-    return fmtSongDuration(currentState.elapsedTime) + smallSpace +
-        '/' + smallSpace + fmtSongDuration(currentState.totalTime);
+    return fmtSongDuration(currentState.elapsedTime) +
+        ( currentState.totalTime > 0
+            ? smallSpace + '/' + smallSpace + fmtSongDuration(currentState.totalTime)
+            : ''
+        );
 }
 
 /**
