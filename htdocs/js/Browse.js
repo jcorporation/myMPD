@@ -71,6 +71,10 @@ function navBrowseHandler(event) {
 function gotoBrowse(event) {
     let target = event.target;
     let tag = getData(target, 'tag');
+    if (tag === 'undefined') {
+        // string undefined means do not go further down the dom
+        return;
+    }
     let name = getData(target, 'name');
     let i = 0;
     while (tag === undefined) {
