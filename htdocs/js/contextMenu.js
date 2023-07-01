@@ -533,7 +533,7 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
             {
                 addMenuItemsPlaylistActions(dataNode, contextMenuBody, type, uri, name);
                 addDivider(contextMenuBody);
-                if (settings.smartpls === true && type === 'smartpls') {
+                if (type === 'smartpls') {
                     addMenuItem(contextMenuBody, {"cmd": "playlistDetails", "options": [uri]}, 'View playlist');
                 }
                 else {
@@ -541,7 +541,9 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                 }
                 addMenuItem(contextMenuBody, {"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist');
                 addMenuItem(contextMenuBody, {"cmd": "showCopyPlaylist", "options": [uri]}, 'Copy playlist');
-                addMenuItem(contextMenuBody, {"cmd": "playlistValidateDedup", "options": [uri, true]}, 'Validate and deduplicate playlist');
+                if (type === 'plist') {
+                    addMenuItem(contextMenuBody, {"cmd": "playlistValidateDedup", "options": [uri, true]}, 'Validate and deduplicate playlist');
+                }
             }
             addMenuItem(contextMenuBody, {"cmd": "showDelPlaylist", "options": [[uri]]}, 'Delete playlist');
             if (settings.smartpls === true &&
