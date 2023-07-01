@@ -292,8 +292,11 @@ function parseQueue(obj) {
         setData(row, 'uri', data.uri);
         setData(row, 'type', data.Type);
         setData(row, 'name', data.Title);
-        if (data.type === 'webradio') {
+        if (data.Type === 'webradio') {
             setData(row, 'webradioUri', data.webradio.filename);
+        }
+        if (data.Name && data.Name !== '-') {
+            data.Title = data.Name + ': ' + data.Title;
         }
         //set AlbumId
         if (data.AlbumId !== undefined) {

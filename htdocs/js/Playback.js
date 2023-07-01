@@ -77,8 +77,10 @@ function parseCurrentSong(obj) {
     else {
         elClear(footerArtistEl);
         setData(footerArtistEl, 'name', ['']);
+        footerArtistEl.classList.remove('clickable');
     }
 
+    const footerDividerEl = document.getElementById('footerDivider');
     const footerAlbumEl = document.getElementById('footerAlbum');
     if (obj.result.Album !== undefined &&
         obj.result.Album !== '-')
@@ -88,11 +90,25 @@ function parseCurrentSong(obj) {
         setData(footerAlbumEl, 'name', obj.result.Album);
         setData(footerAlbumEl, 'AlbumArtist', obj.result[tagAlbumArtist]);
         footerAlbumEl.classList.add('clickable');
+        footerAlbumEl.setAttribute('data-tag', 'Album');
+        footerDividerEl.classList.remove('d-none');
+    }
+    else if (obj.result.Album === '-' &&
+             obj.result.Name &&
+             obj.result.Name !== '-')
+    {
+        footerAlbumEl.textContent = obj.result.Name;
+        footerAlbumEl.classList.remove('clickable');
+        footerAlbumEl.setAttribute('data-tag', 'undefined');
+        footerDividerEl.classList.add('d-none');
     }
     else {
         elClear(footerAlbumEl);
         setData(footerAlbumEl, 'name', '');
         setData(footerAlbumEl, 'AlbumArtist', ['']);
+        footerAlbumEl.setAttribute('data-tag', 'undefined');
+        footerAlbumEl.classList.remove('clickable');
+        footerDividerEl.classList.add('d-none');
     }
 
     const footerTitleEl = document.getElementById('footerTitle');
@@ -161,12 +177,14 @@ function parseCurrentSong(obj) {
     //update queue card
     queueSetCurrentSong();
 
-    //update title in queue view for http streams
+    //update title in queue view for streams
     const playingTr = document.getElementById('queueSongId' + obj.result.currentSongId);
     if (playingTr !== null) {
         const titleCol = playingTr.querySelector('[data-col=Title');
         if (titleCol !== null) {
-            titleCol.textContent = obj.result.Title;
+            titleCol.textContent = obj.result.Name && obj.result.Name !== '-'
+                ? obj.result.Name + ': ' + obj.result.Title
+                : obj.result.Title;
         }
     }
 
