@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-
 #include "src/mpd_client/shortcuts.h"
 
 #include "dist/libmympdclient/include/mpd/client.h"

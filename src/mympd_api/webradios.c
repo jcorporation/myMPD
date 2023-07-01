@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/list.h"
 #include "src/mympd_api/webradios.h"
 
 #include "dist/utf8/utf8.h"

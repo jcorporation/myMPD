@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/mympd_state.h"
 #include "src/mympd_api/timer.h"
 
 #include "src/lib/filehandler.h"

@@ -5,18 +5,15 @@
 */
 
 #include "compile_time.h"
-#include "dist/rax/rax.h"
-
-#include "dist/libmympdclient/include/mpd/client.h"
-#include "src/lib/list.h"
-#include "src/lib/utility.h"
 #include "src/mpd_client/playlists.h"
 
+#include "dist/rax/rax.h"
 #include "src/lib/log.h"
 #include "src/lib/random.h"
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/smartpls.h"
+#include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
