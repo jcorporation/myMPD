@@ -251,7 +251,9 @@ function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, a
             albumFilters.includes(tag))
         {
             const value = getData(dataNode, tag);
-            if (value !== undefined) {
+            if (value !== undefined &&
+                value.length > 0)
+            {
                 addMenuItem(contextMenuBody, {"cmd": "gotoAlbumList", "options": [tag, value]}, 'Show all albums from ' + tag);
             }
         }

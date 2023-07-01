@@ -280,3 +280,8 @@ Copy playlist
 Playlist successfully copied
 Playlist successfully moved
 Playlist successfully replaced
+Show all albums from AlbumArtist
+Show all albums from Composer
+Show all albums from Performer
+Show all albums from Conductor
+Show all albums from Ensemble

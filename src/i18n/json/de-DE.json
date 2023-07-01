@@ -971,5 +971,10 @@
     "Back to album list": "Zurück zur Albumliste",
     "Disconnected from myMPD": "Nicht mit myMPD verbunden",
     "myMPD connection closed": "myMPD Verbindung geschlossen",
-    "myMPD connection failed, trying to reconnect": "myMPD Verbindung fehlgeschlagen, versuche neue Verbindung"
+    "myMPD connection failed, trying to reconnect": "myMPD Verbindung fehlgeschlagen, versuche neue Verbindung",
+    "Show all albums from AlbumArtist": "Zeige alle Alben des Album Interpreten",
+    "Show all albums from Composer": "Zeige alle Alben des Komponisten",
+    "Show all albums from Conductor": "Zeige alle Alben des Dirigenten",
+    "Show all albums from Ensemble": "Zeige alle Alben des Ensembles",
+    "Show all albums from Performer": "Zeige alle Alben des Aufführenden"
 }
