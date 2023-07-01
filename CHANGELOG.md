@@ -70,6 +70,7 @@ This release changes definitions of many API methods.
 - Feat: add quick remove and quick play buttons to more views
 - Feat: support MUSICBRAINZ_RELEASEGROUPID tag (MPD 0.24)
 - Feat: handle preflighted requests in CORS
+- Feat: add consume one shot to queue context menu
 - Upd: Mongoose 7.10 #1024
 - Upd: Bootstrap 5.3.0 final
 - Upd: libmympdclient 1.0.21
@@ -78,9 +79,11 @@ This release changes definitions of many API methods.
 - Upd: use OpenSSL hash functions
 - Upd: documentation improvements
 - Upd: improve error handling in build system
+- Upd: show stream name in title tag
 - Fix: various small css and javascript fixes
 - Fix: improve Mongoose logging #1032
 - Fix: set correct song start time sticker #1044
+- Fix: Fall back from AlbumArtist to Artist tag for MusicBrainz tags #1056
 
 ***
 
