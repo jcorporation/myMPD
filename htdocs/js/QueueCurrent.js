@@ -89,7 +89,7 @@ function initQueueCurrent() {
                 return;
             }
             const colName = event.target.getAttribute('data-col');
-            if (isColClickable('QueueCurrent', colName) === false) {
+            if (isColSortable('QueueCurrent', colName) === false) {
                 //by this fields can not be sorted
                 return;
             }
@@ -441,30 +441,6 @@ function setPlayingRow(playingRow) {
                 currentState.state === 'pause' ? 'pause' : 'stop';
         }
         playingRow.classList.add('queue-playing');
-    }
-}
-
-/**
- * Sets the clickable class for current queue table header,
- * if mpd supports queue sorting (since MPD 0.24)
- * @returns {void}
- */
-function setQueueCurrentHeaderClickable() {
-    const ths = document.querySelectorAll('#QueueCurrentList > thead > tr > th');
-    for (const th of ths) {
-        const colName = th.getAttribute('data-col');
-        if (colName === null ||
-            colName === 'Duration' ||
-            colName.indexOf('sticker') === 0)
-        {
-            continue;
-        }
-        if (features.featAdvqueue === true) {
-            th.classList.add('clickable');
-        }
-        else {
-            th.classList.remove('clickable');
-        }
     }
 }
 

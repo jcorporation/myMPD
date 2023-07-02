@@ -452,7 +452,7 @@ function setColsChecklist(tableName, menu) {
  * @param {string} colName name of the column
  * @returns {boolean} true if clickable, else false
  */
-function isColClickable(tableName, colName) {
+function isColSortable(tableName, colName) {
     if (tableName === 'QueueCurrent' &&
         features.featAdvqueue === false)
     {
@@ -497,7 +497,7 @@ function setCols(tableName) {
 
     for (let i = 0, j = settings['cols' + tableName].length; i < j; i++) {
         const hname = settings['cols' + tableName][i];
-        const clickable = isColClickable(tableName, hname)
+        const clickable = isColSortable(tableName, hname)
             ? 'clickable'
             : 'not-clickable';
         const th = elCreateTextTn('th', {"class": [clickable], "draggable": "true", "data-col": settings['cols' + tableName][i]}, hname);
