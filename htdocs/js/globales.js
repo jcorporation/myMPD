@@ -1029,7 +1029,9 @@ const typeFriendly = {
     'song': 'Song',
     'stream': 'Stream',
     'view': 'View',
-    'webradio': 'Webradio'
+    'webradio': 'Webradio',
+    'cols': 'Columns',
+    'disc': 'Disc'
 };
 
 const friendlyActions = {

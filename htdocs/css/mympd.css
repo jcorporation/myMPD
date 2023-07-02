@@ -1238,3 +1238,65 @@ body[data-uiState="disabled"] th,
   cursor: not-allowed !important;
   opacity: 0.4 !important;
 }
+
+h4.offcanvas-title::before {
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  text-rendering: optimizelegibility;
+  font-feature-settings: "liga";
+  margin-right: 0.5rem;
+}
+
+h4.offcanvas-title-webradio::before {
+  content: "radio";
+}
+
+h4.offcanvas-title-homeicon::before {
+  content: "home";
+}
+
+h4.offcanvas-title-search::before {
+  content: "saved_search";
+}
+
+h4.offcanvas-title-album::before {
+  content: "album";
+}
+
+h4.offcanvas-title-dir::before {
+  content: "folder_open";
+}
+
+h4.offcanvas-title-song::before {
+  content: "music_note";
+}
+
+h4.offcanvas-title-plist::before {
+  content: "list";
+}
+
+h4.offcanvas-title-smartpls::before {
+  content: "queue_music";
+}
+
+h4.offcanvas-title-script::before {
+  content: "code";
+}
+
+h4.offcanvas-title-modal::before {
+  content: "web_asset";
+}
+
+h4.offcanvas-title-externalLink::before {
+  content: "link";
+}
+
+h4.offcanvas-title-stream::before {
+  content: "stream";
+}
