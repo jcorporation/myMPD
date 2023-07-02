@@ -36,3 +36,7 @@ html[data-bs-theme="dark"] table {
 html[data-bs-theme="dark"] .form-range::-moz-range-track {
   background-color: var(--bs-gray-300);
 }
+
+html[data-bs-theme="dark"] .dropdown-menu {
+  --bs-dropdown-header-color: var(--bs-gray-200);
+}
