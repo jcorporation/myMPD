@@ -915,8 +915,9 @@ body.locked button.protected::before {
   margin-right: 0.5rem;
 }
 
-a.external::before {
-  content: "open_in_browser";
+a.external::before,
+a.download::before,
+a.launch::before {
   font-family: "Material Icons";
   font-weight: normal;
   font-style: normal;
@@ -929,38 +930,18 @@ a.external::before {
   text-rendering: optimizelegibility;
   font-feature-settings: "liga";
   margin-right: 0.5rem;
+}
+
+a.external::before {
+  content: "open_in_browser";
 }
 
 a.download::before {
   content: "download";
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
-  font-size: 1.4rem;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  vertical-align: top;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
-  margin-right: 0.5rem;
 }
 
 a.launch::before {
   content: "launch";
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
-  font-size: 1.4rem;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  vertical-align: top;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
-  margin-right: 0.5rem;
 }
 
 /* inner button for inputs */
