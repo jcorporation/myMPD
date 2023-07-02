@@ -291,26 +291,28 @@ function parseQueue(obj) {
         setData(row, 'duration', data.Duration);
         setData(row, 'uri', data.uri);
         setData(row, 'type', data.Type);
-        setData(row, 'name', data.Title);
         if (data.Type === 'webradio') {
             setData(row, 'webradioUri', data.webradio.filename);
+            setData(row, 'name', data.webradio.Name);
         }
-        if (data.Name && data.Name !== '-') {
-            data.Title = data.Name + ': ' + data.Title;
-        }
-        //set AlbumId
-        if (data.AlbumId !== undefined) {
-            setData(row, 'AlbumId', data.AlbumId);
-        }
-        //and browse tags
-        for (const tag of settings.tagListBrowse) {
-            if (albumFilters.includes(tag) &&
-                data[tag] !== undefined &&
-                checkTagValue(data[tag], '-') === false)
-            {
-                setData(row, tag, data[tag]);
+        else {
+            setData(row, 'name', data.Title);
+            //set AlbumId
+            if (data.AlbumId !== undefined) {
+                setData(row, 'AlbumId', data.AlbumId);
+            }
+            //and browse tags
+            for (const tag of settings.tagListBrowse) {
+                if (albumFilters.includes(tag) &&
+                    data[tag] !== undefined &&
+                    checkTagValue(data[tag], '-') === false)
+                {
+                    setData(row, tag, data[tag]);
+                }
             }
         }
+        //set Title to Name + Title for streams
+        data.Title = getDisplayTitle(data.Name, data.Title);
     }, function(row, data) {
         tableRow(row, data, app.id, colspan, smallWidth);
         if (currentState.currentSongId === data.id) {

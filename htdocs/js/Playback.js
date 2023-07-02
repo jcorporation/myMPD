@@ -182,9 +182,7 @@ function parseCurrentSong(obj) {
     if (playingTr !== null) {
         const titleCol = playingTr.querySelector('[data-col=Title');
         if (titleCol !== null) {
-            titleCol.textContent = obj.result.Name && obj.result.Name !== '-'
-                ? obj.result.Name + ': ' + obj.result.Title
-                : obj.result.Title;
+            titleCol.textContent = getDisplayTitle(obj.result.Name, obj.result.Title);
         }
         setData(playingTr, 'name', obj.result.Title);
     }
