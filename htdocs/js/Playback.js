@@ -88,7 +88,7 @@ function parseCurrentSong(obj) {
         textNotification.push(obj.result.Album);
         footerAlbumEl.textContent = obj.result.Album;
         setData(footerAlbumEl, 'name', obj.result.Album);
-        setData(footerAlbumEl, 'AlbumArtist', obj.result[tagAlbumArtist]);
+        setData(footerAlbumEl, 'AlbumId', obj.result.AlbumId);
         footerAlbumEl.classList.add('clickable');
         footerAlbumEl.setAttribute('data-tag', 'Album');
         footerDividerEl.classList.remove('d-none');
@@ -105,7 +105,7 @@ function parseCurrentSong(obj) {
     else {
         elClear(footerAlbumEl);
         setData(footerAlbumEl, 'name', '');
-        setData(footerAlbumEl, 'AlbumArtist', ['']);
+        setData(footerAlbumEl, 'AlbumId', '');
         footerAlbumEl.setAttribute('data-tag', 'undefined');
         footerAlbumEl.classList.remove('clickable');
         footerDividerEl.classList.add('d-none');
@@ -240,10 +240,8 @@ function setPlaybackCardTags(songObj) {
                         c.querySelector('p').classList.add('clickable');
                     }
                     setData(c, 'name', value);
-                    if (col === 'Album' &&
-                        songObj[tagAlbumArtist] !== undefined)
-                    {
-                        setData(c, 'AlbumArtist', songObj[tagAlbumArtist]);
+                    if (col === 'Album') {
+                        setData(c, 'AlbumId', songObj.AlbumId);
                     }
                 }
             }
