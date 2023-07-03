@@ -446,7 +446,7 @@ function setPlayingRow(playingRow) {
 
 /**
  * Appends an element to the queue
- * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album, disc
  * @param {Array} uris element uris
  * @param {Function} [callback] callback function
  * @returns {void}
@@ -457,7 +457,7 @@ function appendQueue(type, uris, callback) {
 
 /**
  * Appends an element to the queue and plays it
- * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album, disc
  * @param {Array} uris element uris
  * @param {Function} [callback] callback function
  * @returns {void}
@@ -468,7 +468,7 @@ function appendPlayQueue(type, uris, callback) {
 
 /**
  * Appends elements to the queue
- * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album, disc
  * @param {Array} uris element uris
  * @param {boolean} play true = play added entry, false = append only
  * @param {Function} callback callback function
@@ -520,7 +520,7 @@ function _appendQueue(type, uris, play, callback) {
 
 /**
  * Inserts the element after the current playing song
- * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album, disc
  * @param {Array} uris element uris
  * @param {Function} [callback] callback function
  * @returns {void}
@@ -532,7 +532,7 @@ function insertAfterCurrentQueue(type, uris, callback) {
 
 /**
  * Inserts the element after the current playing song
- * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album, disc
  * @param {Array} uris element uris
  * @param {Function} [callback] callback function
  * @returns {void}
@@ -544,7 +544,7 @@ function insertPlayAfterCurrentQueue(type, uris, callback) {
 
 /**
  * Inserts elements into the queue
- * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album, disc
  * @param {Array} uris element uris
  * @param {number} to position to insert
  * @param {number} whence how t interpret the to parameter: 0 = absolute, 1 = after, 2 = before current song
@@ -608,7 +608,7 @@ function insertQueue(type, uris, to, whence, play, callback) {
 
 /**
  * Replaces the queue with the element
- * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album, disc
  * @param {Array} uris element uris
  * @param {Function} [callback] callback function
  * @returns {void}
@@ -619,7 +619,7 @@ function replaceQueue(type, uris, callback) {
 
 /**
  * Replaces the queue with the element and plays it
- * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album, disc
  * @param {Array} uris element uris
  * @param {Function} [callback] callback function
  * @returns {void}
@@ -630,7 +630,7 @@ function replacePlayQueue(type, uris, callback) {
 
 /**
  * Replaces the queue with the elements
- * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album
+ * @param {string} type element type: song, dir, stream, plist, smartpls, webradio, search, album, disc
  * @param {Array} uris element uris
  * @param {boolean} play true = play added entry, false = insert only
  * @param {Function} callback callback function

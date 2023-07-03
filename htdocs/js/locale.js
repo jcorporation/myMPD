@@ -145,6 +145,7 @@ function setLocale(newLocale) {
 
     if (getData(domCache.body, 'locale') === locale) {
         //locale already set
+        logDebug('Locale already set');
         return;
     }
 
