@@ -255,8 +255,13 @@ function parseHomeIcons(obj) {
             case 'openModal':
                 homeType = typeFriendly['modal'];
                 break;
+            case 'homeIconGoto':
+                homeType = typeFriendly[obj.result.data[i].options[0]];
+                break;
             default:
                 homeType = typeFriendly[obj.result.data[i].options[0]];
+                //second options must be an array
+                obj.result.data[i].options[1] = [obj.result.data[i].options[1]];
                 break;
         }
         const actionType = friendlyActions[obj.result.data[i].cmd];
@@ -552,8 +557,7 @@ function addPlistToHome(uri, type, name) {
  */
 //eslint-disable-next-line no-unused-vars
 function addRadioFavoriteToHome(uri, type, name, image) {
-    const plistUri = getRadioFavoriteUri(uri);
-    _addHomeIcon('replaceQueue', name, '', image, [type, plistUri]);
+    _addHomeIcon('replaceQueue', name, '', image, [type, uri]);
 }
 
 /**
