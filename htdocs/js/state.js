@@ -138,7 +138,7 @@ function setCounter() {
  */
 function parseState(obj) {
     if (obj.result === undefined) {
-        logError('State is undefined');
+        logDebug('State is undefined');
         return;
     }
     //Get current song if songid or queueVersion has changed
@@ -205,11 +205,12 @@ function parseState(obj) {
     setCounter();
     //clear playback card if no current song
     if (obj.result.songPos === -1) {
-        document.getElementById('currentTitle').textContent = tn('Not playing');
         document.title = 'myMPD';
-        elClear(document.getElementById('footerTitle'));
-        document.getElementById('footerTitle').removeAttribute('title');
-        document.getElementById('footerTitle').classList.remove('clickable');
+        document.getElementById('currentTitle').textContent = tn('Not playing');
+        const footerTitleEl = document.getElementById('footerTitle');
+        footerTitleEl.textContent = tn('Not playing');
+        footerTitleEl.removeAttribute('title');
+        footerTitleEl.classList.remove('clickable');
         document.getElementById('footerCover').classList.remove('clickable');
         document.getElementById('currentTitle').classList.remove('clickable');
         clearCurrentCover();

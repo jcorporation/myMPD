@@ -124,9 +124,15 @@ function parseCurrentSong(obj) {
         footerCoverEl.classList.add('clickable');
     }
     else {
-        elClear(currentTitleEl);
+        if (currentState.songPos === -1) {
+            currentTitleEl.textContent = tn('Not playing');
+            footerTitleEl.textContent = tn('Not playing');
+        }
+        else {
+            elClear(currentTitleEl);
+            elClear(footerTitleEl);
+        }
         setData(currentTitleEl, 'uri', '');
-        elClear(footerTitleEl);
         currentTitleEl.classList.remove('clickable');
         footerTitleEl.classList.remove('clickable');
         footerCoverEl.classList.remove('clickable');
@@ -230,13 +236,14 @@ function setPlaybackCardTags(songObj) {
                     if (value === undefined) {
                         value = '-';
                     }
-                    elReplaceChild(c.querySelector('p'), printValue(col, value));
                     if (checkTagValue(value, '-') === true ||
                         settings.tagListBrowse.includes(col) === false)
                     {
+                        elClear(c.querySelector('p'));
                         c.querySelector('p').classList.remove('clickable');
                     }
                     else {
+                        elReplaceChild(c.querySelector('p'), printValue(col, value));
                         c.querySelector('p').classList.add('clickable');
                     }
                     setData(c, 'name', value);
