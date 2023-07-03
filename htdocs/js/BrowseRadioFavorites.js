@@ -135,7 +135,7 @@ function deleteRadioFavorites(filenames) {
 
 /**
  * Gets the webradio favorite and opens the edit modal
- * @param {string} filename filename to delete
+ * @param {string} filename filename to get
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
