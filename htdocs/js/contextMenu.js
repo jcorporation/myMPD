@@ -721,7 +721,7 @@ function createMenuHome(target, contextMenuTitle, contextMenuBody) {
             break;
         case 'webradio':
             addMenuItemsPlaylistActions(target, contextMenuBody, type, href.options[1], href.options[1]);
-            addMenuItemsWebradioFavoritesHomeActions(contextMenuBody, href.options[1].substr(17));
+            addMenuItemsWebradioFavoritesHomeActions(contextMenuBody, href.options[1]);
             break;
         case 'dir':
             addMenuItemsDirectoryActions(contextMenuBody, href.options[1]);
