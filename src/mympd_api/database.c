@@ -9,7 +9,6 @@
 
 #include "dist/libmympdclient/include/mpd/client.h"
 #include "src/lib/jsonrpc.h"
-#include "src/lib/sds_extras.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mympd_api/status.h"
 
@@ -34,15 +33,15 @@ sds mympd_api_database_update(struct t_partition_state *partition_state, sds buf
                 JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_INFO, "Database update already started");
     }
 
-    if (sdslen(path) == 0) {
-        //path should be NULL to scan root directory
-        FREE_SDS(path);
-    }
+    const char *real_path = sdslen(path) == 0
+        ? NULL
+        : path;
+
     bool rc;
     if (cmd_id == MYMPD_API_DATABASE_UPDATE) {
-        mpd_run_update(partition_state->conn, path);
+        mpd_run_update(partition_state->conn, real_path);
         return mympd_respond_with_error_or_ok(partition_state, buffer, cmd_id, request_id, "mpd_run_update", &rc);
     }
-    mpd_run_rescan(partition_state->conn, path);
+    mpd_run_rescan(partition_state->conn, real_path);
     return mympd_respond_with_error_or_ok(partition_state, buffer, cmd_id, request_id, "mpd_run_rescan", &rc);
 }
