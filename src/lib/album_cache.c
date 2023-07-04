@@ -22,6 +22,7 @@
 
 #include <errno.h>
 #include <inttypes.h>
+#include <string.h>
 
 /**
  * myMPD saves album information in the album cache as a mpd_song struct.
@@ -101,7 +102,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
             if (album != NULL) {
                 sds key = album_cache_get_key(album);
                 if (raxTryInsert(album_cache->cache, (unsigned char *)key, sdslen(key), album, NULL) == 0) {
-                    MYMPD_LOG_ERROR(NULL, "Duplicate key in album cache file found");
+                    MYMPD_LOG_ERROR(NULL, "Duplicate key in album cache file found: %s", key);
                     mpd_song_free(album);
                 }
                 FREE_SDS(key);
@@ -197,28 +198,38 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, struct t_tags *
  * @return pointer to newly allocated albumkey (sds)
  */
 sds album_cache_get_key(const struct mpd_song *song) {
-    sds albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM, sdsempty());
-    if (sdslen(albumkey) == 0) {
-        //album tag is empty
-        MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tag Album is empty", mpd_song_get_uri(song));
-        return albumkey;
+    sds albumkey = sdsempty();
+    // use MusicBrainz album id
+    const char *mb_album_id = mpd_song_get_tag(song, MPD_TAG_MUSICBRAINZ_ALBUMID, 0);
+    if (mb_album_id != NULL && strlen(mb_album_id) > 10) {
+        return sdscat(albumkey, mb_album_id);
     }
-    albumkey = sdscatlen(albumkey, "::", 2);
-    size_t old_len = sdslen(albumkey);
-    //first try AlbumArtist tag
+
+    // fallback to hashed AlbumArtist::Album tag
+    // first try AlbumArtist tag
     albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ALBUM_ARTIST, albumkey);
-    if (old_len == sdslen(albumkey)) {
-        //AlbumArtist tag is empty, fallback to Artist tag
+    if (sdslen(albumkey) == 0) {
+        // AlbumArtist tag is empty, fallback to Artist tag
         MYMPD_LOG_DEBUG(NULL, "AlbumArtist for uri \"%s\" is empty, falling back to Artist", mpd_song_get_uri(song));
         albumkey = mpd_client_get_tag_value_string(song, MPD_TAG_ARTIST, albumkey);
     }
-    if (old_len == sdslen(albumkey)) {
+    if (sdslen(albumkey) == 0) {
         MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tags AlbumArtist and Artist are empty", mpd_song_get_uri(song));
-        sdsclear(albumkey);
+        return albumkey;
     }
-    return sdslen(albumkey) > 0
-        ? sds_hash_sha1_sds(albumkey)
-        : albumkey;
+
+    const char *album_name = mpd_song_get_tag(song, MPD_TAG_ALBUM, 0);
+    if (album_name == NULL) {
+        // album tag is empty
+        MYMPD_LOG_WARN(NULL, "Can not create albumkey for uri \"%s\", tag Album is empty", mpd_song_get_uri(song));
+        sdsclear(albumkey);
+        return albumkey;
+    }
+    // append album
+    albumkey = sdscatfmt(albumkey, "::%s", album_name);
+
+    // return the hash
+    return sds_hash_sha1_sds(albumkey);
 }
 
 /**
