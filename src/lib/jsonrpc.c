@@ -1018,7 +1018,9 @@ static bool icb_json_get_tag_values(sds key, sds value, int vtype, validate_call
             if (vcb(value) == false) {
                 set_parse_error(error, "Validation of value \"%s\" has failed", value);
             }
-            mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, value);
+            else {
+                mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, value);
+            }
             break;
         }
         case MJSON_TOK_ARRAY: {
@@ -1038,7 +1040,9 @@ static bool icb_json_get_tag_values(sds key, sds value, int vtype, validate_call
                         if (vcb(tag_value) == false) {
                             set_parse_error(error, "Validation of value \"%s\" has failed", tag_value);
                         }
-                        mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, tag_value);
+                        else {
+                            mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, tag_value);
+                        }
                     }
                     else {
                         set_parse_error(error, "Validation of value \"%s\" has failed", value);
