@@ -271,10 +271,7 @@ div > .albumartbg {
 }
 
 @media only screen and (width <= 800px) {
-  .navText {
-    display: none;
-  }
-
+  .navText,
   .footerCounter {
     display: none;
   }

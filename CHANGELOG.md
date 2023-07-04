@@ -11,7 +11,7 @@ This release improves the queue and playlist management in many ways. You can no
 ### Notes
 
 - This is the first release that enforces the OpenSSL dependency.
-- Albums must be readded to the homescreen.
+- Albums and Webradios must be readded to the homescreen.
 
 ### API changes
 
