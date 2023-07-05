@@ -717,24 +717,24 @@ function createMenuHome(target, contextMenuTitle, contextMenuBody) {
     switch(type) {
         case 'plist':
         case 'smartpls':
-            addMenuItemsPlaylistActions(target, contextMenuBody, type, href.options[1], href.options[1]);
+            addMenuItemsPlaylistActions(target, contextMenuBody, type, href.options[1][0], href.options[1][0]);
             break;
         case 'webradio':
-            addMenuItemsPlaylistActions(target, contextMenuBody, type, href.options[1], href.options[1]);
-            addMenuItemsWebradioFavoritesHomeActions(contextMenuBody, href.options[1]);
+            addMenuItemsPlaylistActions(target, contextMenuBody, type, href.options[1][0], href.options[1][0]);
+            addMenuItemsWebradioFavoritesHomeActions(contextMenuBody, href.options[1][0]);
             break;
         case 'dir':
-            addMenuItemsDirectoryActions(contextMenuBody, href.options[1]);
+            addMenuItemsDirectoryActions(contextMenuBody, href.options[1][0]);
             break;
         case 'song':
         case 'stream':
-            addMenuItemsSongActions(null, contextMenuBody, href.options[1], type, href.options[1]);
+            addMenuItemsSongActions(null, contextMenuBody, href.options[1][0], type, href.options[1][0]);
             break;
         case 'search':
             addMenuItemsSearchActions(contextMenuBody, href.options[1]);
             break;
         case 'album':
-            addMenuItemsAlbumActions(null, null, contextMenuBody, href.options[1]);
+            addMenuItemsAlbumActions(null, null, contextMenuBody, href.options[1][0]);
             break;
         case 'view':
         case 'externalLink':
