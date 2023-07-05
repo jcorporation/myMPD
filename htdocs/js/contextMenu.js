@@ -160,7 +160,9 @@ function addMenuItemsDiscActions(target, contextMenuTitle, contextMenuBody) {
 
     addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["appendQueue", albumId, disc]}, 'Append to queue');
     addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["appendPlayQueue", albumId, disc]}, 'Append to queue and play');
-    if (features.featWhence === true) {
+    if (features.featWhence === true &&
+        currentState.currentSongId !== -1)
+    {
         addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["insertAfterCurrentQueue", albumId, disc]}, 'Insert after current playing song');
     }
     addMenuItem(contextMenuBody, {"cmd": "addAlbumDisc", "options": ["replaceQueue", albumId, disc]}, 'Replace queue');
@@ -230,7 +232,9 @@ function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, a
     if (app.id !== 'QueueCurrent') {
         addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": ["album", albumId]}, 'Append to queue');
         addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": ["album", albumId]}, 'Append to queue and play');
-        if (features.featWhence === true) {
+        if (features.featWhence === true &&
+            currentState.currentSongId !== -1)
+        {
             addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": ["album", albumId]}, 'Insert after current playing song');
         }
         addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": ["album", albumId]}, 'Replace queue');
@@ -279,7 +283,9 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
     if (app.id !== 'QueueCurrent') {
         addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": [type, [uri]]}, 'Append to queue');
         addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": [type, [uri]]}, 'Append to queue and play');
-        if (features.featWhence === true) {
+        if (features.featWhence === true &&
+            currentState.currentSongId !== -1)
+        {
             addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": [type, [uri], 0, 1, false]}, 'Insert after current playing song');
         }
         addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": [type, [uri]]}, 'Replace queue');
@@ -364,7 +370,9 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
 function addMenuItemsSearchActions(contextMenuBody, expression) {
     addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": ["search", expression]}, 'Append to queue');
     addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": ["search", expression]}, 'Append to queue and play');
-    if (features.featWhence === true) {
+    if (features.featWhence === true &&
+        currentState.currentSongId !== -1)
+    {
         addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": ["search", expression, 0, 1, false]}, 'Insert after current playing song');
     }
     addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": ["search", expression]}, 'Replace queue');
@@ -389,7 +397,9 @@ function addMenuItemsDirectoryActions(contextMenuBody, baseuri) {
     //songs must be arranged in one album per folder
     addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": ["dir", [baseuri]]}, 'Append to queue');
     addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": ["dir", [baseuri]]}, 'Append to queue and play');
-    if (features.featWhence === true) {
+    if (features.featWhence === true &&
+        currentState.currentSongId !== -1)
+    {
         addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": ["dir", [baseuri], 0, 1, false]}, 'Insert after current playing song');
     }
     addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": ["dir", [baseuri]]}, 'Replace queue');
