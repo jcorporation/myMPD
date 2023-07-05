@@ -976,5 +976,6 @@
     "Show all albums from Composer": "Zeige alle Alben des Komponisten",
     "Show all albums from Conductor": "Zeige alle Alben des Dirigenten",
     "Show all albums from Ensemble": "Zeige alle Alben des Ensembles",
-    "Show all albums from Performer": "Zeige alle Alben des Aufführenden"
+    "Show all albums from Performer": "Zeige alle Alben des Aufführenden",
+    "Album not found": "Album nicht gefunden"
 }
