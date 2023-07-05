@@ -51,22 +51,22 @@ const APIparams = {
     },
     "expression": {
         "type": APItypes.string,
-        "example": "((any contains 'piraten'))",
+        "example": "((any contains 'ende'))",
         "desc": "MPD search expression"
     },
     "searchstr": {
         "type": APItypes.string,
-        "example": "tabula",
+        "example": "ende",
         "desc": "String to search"
     },
     "uri": {
         "type": APItypes.string,
-        "example": "Testfiles/Piratenlied.flac",
+        "example": "Alben/Einstürzende_Neubauten/Ende_Neu/01.Was_ist_ist.mp3",
         "desc": "Relativ song uri"
     },
     "uris": {
         "type": APItypes.array,
-        "example": "[\"Testfiles/Piratenlied.flac\"]",
+        "example": "[\"Alben/Einstürzende_Neubauten/Ende_Neu/01.Was_ist_ist.mp3\"]",
         "desc": "Relativ song uris"
     },
     "filter": {
@@ -166,12 +166,12 @@ const APIparams = {
     },
     "albumids": {
         "type": APItypes.array,
-        "example": "[\"artist::album\"]",
+        "example": "[\"17515028-bd97-47f5-ba1c-38504141af82\"]",
         "desc": "myMPD album ids"
     },
     "albumid": {
         "type": APItypes.string,
-        "example": "asfd87sdf9",
+        "example": "17515028-bd97-47f5-ba1c-38504141af82",
         "desc": "myMPD album id"
     },
     "disc": {
@@ -249,11 +249,7 @@ const APImethods = {
     "MYMPD_API_DATABASE_ALBUM_DETAIL": {
         "desc": "Displays songs of an album.",
         "params": {
-            "albumid": {
-                "type": APItypes.string,
-                "example": "artist::album",
-                "desc": "myMPD albumid to display"
-            },
+            "albumid": APIparams.albumid,
             "cols": APIparams.cols
         }
     },
@@ -658,7 +654,7 @@ const APImethods = {
         "desc": "Appends one disc from an album to the playlist.",
         "params": {
             "plist": APIparams.plist,
-            "albumids": APIparams.albumid,
+            "albumid": APIparams.albumid,
             "disc": APIparams.disc
         }
     },
