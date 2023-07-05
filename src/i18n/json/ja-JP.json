@@ -610,7 +610,7 @@
     "Thumbnail size": "サムネイルサイズ",
     "Timeout": "タイムアウト",
     "Timer": "タイマー",
-    "Timer with given id not found": "与えられたIDのタイマーが見つかりませんでした",
+    "Timer with given id not found": "与えられたIDのタイマーが見つかりません",
     "Timerange (days)": "時間範囲 (日付)",
     "Title": "タイトル",
     "To": "変更後",
@@ -653,7 +653,7 @@
     "Updating MPD database": "MPDデータベースを更新中",
     "Updating smart playlist %{playlist} failed": "スマートプレイリスト %{playlist} の更新に失敗しました",
     "Uri": "URI",
-    "Uri not found in WebradioDB": "WebradioDBにURIが見つかりませんでした",
+    "Uri not found in WebradioDB": "WebradioDBにURIが見つかりません",
     "Use ligature": "リガチャーを使用",
     "Value": "値",
     "Version": "バージョン",
@@ -975,5 +975,6 @@
     "Show all albums from Composer": "作曲者からのアルバムをすべて表示",
     "Show all albums from Conductor": "指揮者からのアルバムをすべて表示",
     "Show all albums from Ensemble": "アンサンブルからのアルバムをすべて表示",
-    "Show all albums from Performer": "演奏者からのアルバムをすべて表示"
+    "Show all albums from Performer": "演奏者からのアルバムをすべて表示",
+    "Album not found": "アルバムが見つかりません"
 }
