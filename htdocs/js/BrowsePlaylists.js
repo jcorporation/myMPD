@@ -10,7 +10,7 @@
  * @returns {void}
  */
 function handleBrowsePlaylistDetail() {
-    setFocusId('searchPlaylistsDetailStr');
+    setFocusId('searchPlaylistDetailStr');
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
@@ -18,7 +18,7 @@ function handleBrowsePlaylistDetail() {
         "plist": app.current.filter,
         "cols": settings.colsBrowsePlaylistDetailFetch
     }, parsePlaylistsDetail, true);
-    const searchPlaylistsStrEl = document.getElementById('searchPlaylistsDetailStr');
+    const searchPlaylistsStrEl = document.getElementById('searchPlaylistDetailStr');
     if (searchPlaylistsStrEl.value === '' &&
         app.current.search !== '')
     {
@@ -72,7 +72,7 @@ function initPlaylists() {
         }
     }, false);
 
-    document.getElementById('searchPlaylistsDetailStr').addEventListener('keyup', function(event) {
+    document.getElementById('searchPlaylistDetailStr').addEventListener('keyup', function(event) {
         if (ignoreKeys(event) === true) {
             return;
         }
