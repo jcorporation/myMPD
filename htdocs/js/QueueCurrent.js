@@ -509,6 +509,7 @@ function _appendQueue(type, uris, play, callback) {
             }, callback, true);
             break;
         case 'disc':
+            //disc is limited to one at a time
             sendAPI("MYMPD_API_QUEUE_APPEND_ALBUM_DISC", {
                 "albumid": uris[0],
                 "disc": uris[1].toString(),
