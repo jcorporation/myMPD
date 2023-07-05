@@ -368,20 +368,18 @@ function addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name) {
  * @returns {void}
  */
 function addMenuItemsSearchActions(contextMenuBody, expression) {
-    addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": ["search", expression]}, 'Append to queue');
-    addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": ["search", expression]}, 'Append to queue and play');
+    addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": ["search", [expression]]}, 'Append to queue');
+    addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": ["search", [expression]]}, 'Append to queue and play');
     if (features.featWhence === true &&
         currentState.currentSongId !== -1)
     {
-        addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": ["search", expression, 0, 1, false]}, 'Insert after current playing song');
+        addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": ["search", [expression], 0, 1, false]}, 'Insert after current playing song');
     }
-    addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": ["search", expression]}, 'Replace queue');
-    addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": ["search", expression]}, 'Replace queue and play');
-    if (features.featPlaylists === true &&
-        app.id !== 'Home')
-    {
+    addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": ["search", [expression]]}, 'Replace queue');
+    addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": ["search", [expression]]}, 'Replace queue and play');
+    if (features.featPlaylists === true) {
         addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [["SEARCH"], expression]}, 'Add to playlist');
+        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [["SEARCH"], [expression]]}, 'Add to playlist');
     }
     addDivider(contextMenuBody);
     addMenuItem(contextMenuBody, {"cmd": "appGoto", "options": ["Search", undefined, undefined, 0, undefined, "any", "Title", "-", expression]}, 'Show search');
@@ -743,7 +741,7 @@ function createMenuHome(target, contextMenuTitle, contextMenuBody) {
             addMenuItemsSongActions(null, contextMenuBody, href.options[1][0], type, href.options[1][0]);
             break;
         case 'search':
-            addMenuItemsSearchActions(contextMenuBody, href.options[1]);
+            addMenuItemsSearchActions(contextMenuBody, href.options[1][0]);
             break;
         case 'album':
             addMenuItemsAlbumActions(null, null, contextMenuBody, href.options[1][0]);
