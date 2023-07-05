@@ -465,8 +465,10 @@ function addMenuItemsWebradioFavoritesHomeActions(contextMenuBody, uri) {
 function addMenuItemsPlaylistActions(dataNode, contextMenuBody, type, uri, name) {
     addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": [type, [uri]]}, 'Append to queue');
     addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": [type, [uri]]}, 'Append to queue and play');
-    if (features.featWhence === true) {
-        addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": [type, [uri], 0, 1, false]}, 'Add after current playing song');
+    if (features.featWhence === true &&
+        currentState.currentSongId !== -1)
+    {
+        addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": [type, [uri], 0, 1, false]}, 'Insert after current playing song');
     }
     addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": [type, [uri]]}, 'Replace queue');
     addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": [type, [uri]]}, 'Replace queue and play');
