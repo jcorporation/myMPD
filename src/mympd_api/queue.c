@@ -136,7 +136,7 @@ bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state,
         mpd_status_free(status);
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status") == false) {
+    if (mympd_check_error_and_recover(partition_state, error, "mpd_run_status") == false) {
         return false;
     }
     
@@ -151,7 +151,7 @@ bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state,
             }
         }
         mpd_response_finish(partition_state->conn);
-        if (mympd_check_error_and_recover(partition_state, NULL, "mpd_send_get_queue_song_id") == false) {
+        if (mympd_check_error_and_recover(partition_state, error, "mpd_send_get_queue_song_id") == false) {
             return false;
         }
     }
