@@ -202,7 +202,7 @@ sds album_cache_get_key(const struct mpd_song *song) {
     // use MusicBrainz album id
     const char *mb_album_id = mpd_song_get_tag(song, MPD_TAG_MUSICBRAINZ_ALBUMID, 0);
     if (mb_album_id != NULL &&
-        strlen(mb_album_id) > 10) //workaround for dash placeholder for tags in albumcache file
+        strlen(mb_album_id) == 36) //MBID must be 36 characters
     {
         return sdscat(albumkey, mb_album_id);
     }
