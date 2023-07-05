@@ -212,7 +212,7 @@ const APImethods = {
         "params": {
             "uri": {
                 "type": APItypes.string,
-                "example": "Albums",
+                "example": "Testfiles",
                 "desc": "Root directory for update"
             }
         }
@@ -222,7 +222,7 @@ const APImethods = {
         "params": {
             "uri": {
                 "type": APItypes.string,
-                "example": "Alben",
+                "example": "Testfiles",
                 "desc": "Root directory for rescan"
             }
         }
