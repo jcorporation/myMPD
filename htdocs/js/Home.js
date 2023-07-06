@@ -207,6 +207,24 @@ function filterHomeIconLigatures() {
 }
 
 /**
+ * Returns the friendly type of the home icon
+ * @param {string} cmd the command
+ * @param {string} action action of the command
+ * @returns {string} friendly type
+ */
+function getHomeIconType(cmd, action) {
+    switch(cmd) {
+        case 'appGoto':
+        case 'execScriptFromOptions':
+        case 'openExternalLink':
+        case 'openModal':
+            return typeFriendly[cmd];
+        default:
+            return typeFriendly[action];
+    }
+}
+
+/**
  * Parses the MYMPD_API_HOME_ICON_LIST response
  * @param {object} obj jsonrpc response object
  * @returns {void}
@@ -240,32 +258,15 @@ function parseHomeIcons(obj) {
         return;
     }
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
-        let homeType = '';
-        switch(obj.result.data[i].cmd) {
-            case 'appGoto':
-                homeType = typeFriendly['view'];
-                break;
-            case 'execScriptFromOptions':
-                homeType = typeFriendly['script'];
-                break;
-            case 'openExternalLink':
-                homeType = typeFriendly['externalLink'];
-                break;
-            case 'openModal':
-                homeType = typeFriendly['modal'];
-                break;
-            case 'homeIconGoto':
-                homeType = typeFriendly[obj.result.data[i].options[0]];
-                break;
-            default:
-                homeType = typeFriendly[obj.result.data[i].options[0]];
-                //second options must be an array
-                obj.result.data[i].options[1] = [obj.result.data[i].options[1]];
-                break;
-        }
+        const homeType = getHomeIconType(obj.result.data[i].cmd, obj.result.data[i].options[0]);
         const actionType = friendlyActions[obj.result.data[i].cmd];
 
+        // second option must be an array
+        if (obj.result.data[i].options[1] !== undefined) {
+            obj.result.data[i].options[1] = [obj.result.data[i].options[1]];
+        }
+
+        const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
         const card = elCreateEmpty('div', {"data-contextmenu": "home", "class": ["card", "home-icons"], "draggable": "true",
             "title": tn(homeType) + ':' + smallSpace + obj.result.data[i].name +
             '\n' + tn(actionType)});
@@ -471,10 +472,16 @@ function populateHomeIconCmdSelect(cmd, type) {
             if (type === 'dir' ||
                 type === 'search' ||
                 type === 'plist' ||
-                type === 'smartpls')
+                type === 'smartpls' ||
+                type === 'album')
             {
-                const title = type === 'dir' ? 'Open directory' :
-                            type === 'search' ? 'Show search' : 'View playlist';
+                const title = type === 'dir'
+                    ? 'Open directory'
+                    : type === 'search'
+                        ? 'Show search'
+                        : type === 'album'
+                            ? 'Album details'
+                            : 'View playlist';
                 selectHomeIconCmd.appendChild(
                     elCreateTextTn('option', {"value": "homeIconGoto"}, title)
                 );
@@ -833,7 +840,11 @@ function showHomeIconCmdOptions(values) {
     const options = getSelectedOptionDataId('selectHomeIconCmd', 'options');
     if (options !== undefined) {
         for (let i = 0, j = options.options.length; i < j; i++) {
-            let value = values !== undefined ? values[i] !== undefined ? values[i] : '' : '';
+            let value = values !== undefined
+                ? values[i] !== undefined
+                    ? values[i]
+                    : ''
+                : '';
             if (value === '' &&
                 oldOptions[i] !== undefined) {
                 value = oldOptions[i];
@@ -907,18 +918,18 @@ function openExternalLink(link) {
 function homeIconGoto(type, uri) {
     switch(type) {
         case 'dir':
-            gotoFilesystem(uri, type);
+            gotoFilesystem(uri[0], type);
             break;
         case 'search':
-            appGoto('Search', undefined, undefined, 0, undefined, 'any', 'Title', '-', uri);
+            appGoto('Search', undefined, undefined, 0, undefined, 'any', {'tag': 'Title', 'desc': false}, '-', uri[0]);
             break;
         case 'album':
             //uri = AlbumId
-            gotoAlbum(uri);
+            gotoAlbum(uri[0]);
             break;
         case 'plist':
         case 'smartpls':
-            playlistDetails(uri);
+            playlistDetails(uri[0]);
             break;
     }
 }

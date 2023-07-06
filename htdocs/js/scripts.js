@@ -552,7 +552,9 @@ function parseScriptList(obj) {
  */
 //eslint-disable-next-line no-unused-vars
 function execScriptFromOptions(cmd, options) {
-    const args = options !== undefined && options !== '' ? options.split(',') : [];
+    const args = options[0] !== ''
+        ? options[0].split(',')
+        : [];
     execScript({"script": cmd, "arguments": args});
 }
 
