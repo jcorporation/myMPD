@@ -382,7 +382,7 @@ function addMenuItemsSearchActions(contextMenuBody, expression) {
         addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [["SEARCH"], [expression]]}, 'Add to playlist');
     }
     addDivider(contextMenuBody);
-    addMenuItem(contextMenuBody, {"cmd": "appGoto", "options": ["Search", undefined, undefined, 0, undefined, "any", "Title", "-", expression]}, 'Show search');
+    addMenuItem(contextMenuBody, {"cmd": "appGoto", "options": ["Search", undefined, undefined, 0, undefined, "any", {"tag": "Title", "desc": false}, "-", expression]}, 'Show search');
 }
 
 /**
