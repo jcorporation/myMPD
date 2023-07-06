@@ -20,7 +20,7 @@
 #ifndef MONGOOSE_H
 #define MONGOOSE_H
 
-#define MG_VERSION "7.10"
+#define MG_VERSION "7.11"
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,6 +41,7 @@ extern "C" {
 #define MG_ARCH_RP2040 11      // Raspberry Pi RP2040
 #define MG_ARCH_ARMCC 12       // Keil MDK-Core with Configuration Wizard
 #define MG_ARCH_CMSIS_RTOS2 13 // CMSIS-RTOS API v2 (Keil RTX5, FreeRTOS)
+#define MG_ARCH_RTTHREAD 14    // RT-Thread RTOS
 
 #if !defined(MG_ARCH)
 #if defined(__unix__) || defined(__APPLE__)
@@ -62,6 +63,8 @@ extern "C" {
 #define MG_ARCH MG_ARCH_RP2040
 #elif defined(__ARMCC_VERSION)
 #define MG_ARCH MG_ARCH_ARMCC
+#elif defined(__RTTHREAD__)
+#define MG_ARCH MG_ARCH_RTTHREAD
 #endif
 #endif  // !defined(MG_ARCH)
 
@@ -253,6 +256,30 @@ static inline int mg_mkdir(const char *path, mode_t mode) {
 #include <pico/stdlib.h>
 int mkdir(const char *, mode_t);
 #endif
+
+
+#if MG_ARCH == MG_ARCH_RTTHREAD
+
+#include <rtthread.h>
+#include <ctype.h>
+#include <errno.h>
+#include <fcntl.h>
+#include <sys/socket.h>
+#include <sys/select.h>
+#include <stdarg.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <time.h>
+
+#ifndef MG_IO_SIZE
+#define MG_IO_SIZE 1460
+#endif
+
+#endif // MG_ARCH == MG_ARCH_RTTHREAD
 
 
 #if MG_ARCH == MG_ARCH_ARMCC || MG_ARCH == MG_ARCH_CMSIS_RTOS1 || \
@@ -468,7 +495,7 @@ typedef int socklen_t;
   (((errcode) < 0) && (WSAGetLastError() == WSAECONNRESET))
 
 #define realpath(a, b) _fullpath((b), (a), MG_PATH_MAX)
-#define sleep(x) Sleep(x)
+#define sleep(x) Sleep((x) *1000)
 #define mkdir(a, b) _mkdir(a)
 
 #ifndef S_ISDIR
@@ -477,6 +504,10 @@ typedef int socklen_t;
 
 #ifndef MG_ENABLE_DIRLIST
 #define MG_ENABLE_DIRLIST 1
+#endif
+
+#ifndef SIGPIPE
+#define SIGPIPE 0
 #endif
 
 #endif
@@ -625,7 +656,10 @@ struct timeval {
 #define MG_SOCK_RESET(errcode) \
   ((errcode) == BSD_ECONNABORTED || (errcode) == BSD_ECONNRESET)
 
-#define MG_SOCK_INTR(fd) 0
+// In blocking mode, which is enabled by default, accept() waits for a
+// connection request. In non blocking mode, you must call accept()
+// again if the error code BSD_EWOULDBLOCK is returned.
+#define MG_SOCK_INTR(fd) (fd == BSD_EWOULDBLOCK)
 
 #define socklen_t int
 #endif
@@ -824,10 +858,7 @@ bool mg_split(struct mg_str *s, struct mg_str *k, struct mg_str *v, char delim);
 char *mg_hex(const void *buf, size_t len, char *dst);
 void mg_unhex(const char *buf, size_t len, unsigned char *to);
 unsigned long mg_unhexn(const char *s, size_t len);
-int mg_check_ip_acl(struct mg_str acl, uint32_t remote_ip);
-int64_t mg_to64(struct mg_str str);
-uint64_t mg_tou64(struct mg_str str);
-char *mg_remove_double_dots(char *s);
+bool mg_path_is_sane(const char *path);
 
 
 
@@ -1011,6 +1042,9 @@ uint64_t mg_millis(void);
 #define MG_IPADDR_PARTS(ADDR) \
   MG_U8P(ADDR)[0], MG_U8P(ADDR)[1], MG_U8P(ADDR)[2], MG_U8P(ADDR)[3]
 
+struct mg_addr;
+int mg_check_ip_acl(struct mg_str acl, struct mg_addr *remote_ip);
+
 // Linked list management macros
 #define LIST_ADD_HEAD(type_, head_, elem_) \
   do {                                     \
@@ -1132,10 +1166,9 @@ struct mg_dns {
 };
 
 struct mg_addr {
-  uint16_t port;    // TCP or UDP port in network byte order
-  uint32_t ip;      // IP address in network byte order
-  uint8_t ip6[16];  // IPv6 address
-  bool is_ip6;      // True when address is IPv6 address
+  uint8_t ip[16];  // Holds IPv4 or IPv6 address, in network byte order
+  uint16_t port;   // TCP or UDP port in network byte order
+  bool is_ip6;     // True when address is IPv6 address
 };
 
 struct mg_mgr {
@@ -1147,6 +1180,7 @@ struct mg_mgr {
   unsigned long nextid;         // Next connection ID
   unsigned long timerid;        // Next timer ID
   void *userdata;               // Arbitrary user data pointer
+  void *tls_ctx;                // TLS context shared by all TLS sessions
   uint16_t mqtt_id;             // MQTT IDs for pub/sub
   void *active_dns_requests;    // DNS requests in progress
   struct mg_timer *timers;      // Active timers
@@ -1458,28 +1492,28 @@ struct mg_mqtt_opts {
   struct mg_str user;               // Username, can be empty
   struct mg_str pass;               // Password, can be empty
   struct mg_str client_id;          // Client ID
-  struct mg_str topic;              // topic
-  struct mg_str message;            // message
+  struct mg_str topic;              // message/subscription topic
+  struct mg_str message;            // message content
   uint8_t qos;                      // message quality of service
-  uint8_t version;                  // Can be 4 (3.1.1), or 5. If 0, assume 4.
+  uint8_t version;                  // Can be 4 (3.1.1), or 5. If 0, assume 4
   uint16_t keepalive;               // Keep-alive timer in seconds
-  bool retain;                      // Retain last will
-  bool clean;                       // Use clean session, 0 or 1
+  bool retain;                      // Retain flag
+  bool clean;                       // Clean session flag
   struct mg_mqtt_prop *props;       // MQTT5 props array
   size_t num_props;                 // number of props
-  struct mg_mqtt_prop *will_props;  // Valid only for CONNECT packet
+  struct mg_mqtt_prop *will_props;  // Valid only for CONNECT packet (MQTT5)
   size_t num_will_props;            // Number of will props
 };
 
 struct mg_mqtt_message {
-  struct mg_str topic;  // Parsed topic
-  struct mg_str data;   // Parsed message
-  struct mg_str dgram;  // Whole MQTT datagram, including headers
+  struct mg_str topic;  // Parsed topic for PUBLISH
+  struct mg_str data;   // Parsed message for PUBLISH
+  struct mg_str dgram;  // Whole MQTT packet, including headers
   uint16_t id;          // For PUBACK, PUBREC, PUBREL, PUBCOMP, SUBACK, PUBLISH
   uint8_t cmd;          // MQTT command, one of MQTT_CMD_*
   uint8_t qos;          // Quality of service
-  uint8_t ack;          // Connack return code. 0 - success
-  size_t props_start;   // Offset to the start of the properties
+  uint8_t ack;          // CONNACK return code, 0 = success
+  size_t props_start;   // Offset to the start of the properties (MQTT5)
   size_t props_size;    // Length of the properties
 };
 
@@ -1557,6 +1591,8 @@ char *mg_json_get_str(struct mg_str json, const char *path);
 char *mg_json_get_hex(struct mg_str json, const char *path, int *len);
 char *mg_json_get_b64(struct mg_str json, const char *path, int *len);
 
+bool mg_json_unescape(struct mg_str str, char *buf, size_t len);
+
 
 
 
@@ -1623,7 +1659,7 @@ struct mg_tcpip_if {
   uint8_t gwmac[6];             // Router's MAC
   uint64_t now;                 // Current time
   uint64_t timer_1000ms;        // 1000 ms timer: for DHCP and link state
-  uint64_t lease_expire;        // Lease expiration time
+  uint64_t lease_expire;        // Lease expiration time, in ms
   uint16_t eport;               // Next ephemeral port
   volatile uint32_t ndrop;      // Number of received, but dropped frames
   volatile uint32_t nrecv;      // Number of received frames
@@ -1632,7 +1668,8 @@ struct mg_tcpip_if {
   uint8_t state;                // Current state
 #define MG_TCPIP_STATE_DOWN 0   // Interface is down
 #define MG_TCPIP_STATE_UP 1     // Interface is up
-#define MG_TCPIP_STATE_READY 2  // Interface is up and has IP
+#define MG_TCPIP_STATE_REQ 2    // Interface is up and has requested an IP
+#define MG_TCPIP_STATE_READY 3  // Interface is up and has an IP assigned
 };
 
 void mg_tcpip_init(struct mg_mgr *, struct mg_tcpip_if *);

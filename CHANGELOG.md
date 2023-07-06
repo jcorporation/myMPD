@@ -71,7 +71,7 @@ This release changes definitions of many API methods.
 - Feat: support MUSICBRAINZ_RELEASEGROUPID tag (MPD 0.24)
 - Feat: handle preflighted requests in CORS
 - Feat: add consume one shot to queue context menu
-- Upd: Mongoose 7.10 #1024
+- Upd: Mongoose 7.11 #1060
 - Upd: Bootstrap 5.3.0 final
 - Upd: libmympdclient 1.0.21
 - Upd: OpenSSL is now required #1033

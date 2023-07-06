@@ -387,6 +387,7 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
  * @return true if acl matches, else false
  */
 static bool check_acl(struct mg_connection *nc, sds acl) {
+    (void) nc;
     if (sdslen(acl) == 0) {
         return true;
     }
@@ -394,7 +395,7 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
         //acls for ipv6 is not implemented in mongoose
         return true;
     }
-    int acl_result = mg_check_ip_acl(mg_str(acl), nc->rem.ip);
+    int acl_result = mg_check_ip_acl(mg_str(acl), &nc->rem);
     MYMPD_LOG_DEBUG(NULL, "Check against acl \"%s\": %d", acl, acl_result);
     if (acl_result == 1) {
         return true;
@@ -409,6 +410,7 @@ static bool check_acl(struct mg_connection *nc, sds acl) {
     webserver_send_error(nc, 403, "Request blocked by ACL");
     nc->is_draining = 1;
     FREE_SDS(ip);
+
     return false;
 }
 
@@ -499,7 +501,9 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
             }
             else if (mg_match(wm->data, mg_str("id:*"), matches)) {
-                frontend_nc_data->id = (long)mg_to64(matches[0]);
+                sds id = sdsnewlen(matches[0].ptr, matches[0].len);
+                frontend_nc_data->id = strtol(id, NULL, 10);
+                FREE_SDS(id);
                 MYMPD_LOG_INFO(frontend_nc_data->partition, "Setting websocket id to %ld", frontend_nc_data->id);
                 sent = mg_ws_send(nc, "ok", 2, WEBSOCKET_OP_TEXT);
             }

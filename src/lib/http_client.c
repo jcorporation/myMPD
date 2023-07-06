@@ -172,7 +172,9 @@ static void http_client_ev_handler(struct mg_connection *nc, int ev, void *ev_da
             mg_client_response->header = sdscatlen(mg_client_response->header, "\n", 1);
         }
         //http response code
-        mg_client_response->response_code = (int)mg_to64(hm->uri);
+        sds response_code = sdsnewlen(hm->uri.ptr, hm->uri.len);
+        mg_client_response->response_code = (int)strtoimax(response_code, NULL, 10);
+        FREE_SDS(response_code);
         //set response code
         mg_client_response->rc =  mg_client_response->response_code == 200 ? 0: 1;
 
