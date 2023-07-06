@@ -574,9 +574,12 @@ function addAlbum(action) {
         case 'addPlaylist':
             showAddToPlaylist(['ALBUM', app.current.filter], '');
             break;
-        case 'addAlbumToHome':
-            addAlbumToHome(app.current.filter, '');
+        case 'addAlbumToHome': {
+            const name = document.querySelector('#viewDatabaseAlbumDetailInfoTags > h1').textContent;
+            const images = getDataId('viewDatabaseAlbumDetailCover', 'images');
+            addAlbumToHome(app.current.filter, name, (images.length > 0 ? images[0]: ''));
             break;
+        }
     }
 }
 

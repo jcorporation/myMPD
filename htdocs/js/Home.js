@@ -621,11 +621,17 @@ function addSearchToHome() {
  * Adds an album to the homescreen
  * @param {string} albumId the albumid
  * @param {string} name name for the home icon
+ * @param {string} image image for the home icon
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function addAlbumToHome(albumId, name) {
-    _addHomeIcon('replaceQueue', name, 'album', '', ['album', albumId]);
+function addAlbumToHome(albumId, name, image) {
+    if (image === '') {
+        _addHomeIcon('replaceQueue', name, 'album', '', ['album', albumId]);
+    }
+    else {
+        _addHomeIcon('replaceQueue', name, '', image, ['album', albumId]);
+    }
 }
 
 /**
