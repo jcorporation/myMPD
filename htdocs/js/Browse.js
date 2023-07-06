@@ -143,7 +143,7 @@ function gotoAlbumList(tag, value) {
         expression += '(' + tag + ' == \'' + escapeMPD(value[i]) + '\')';
     }
     expression += ')';
-    appGoto('Browse', 'Database', 'AlbumList', 0, undefined, tag, {"tag": tagAlbumArtist, "desc": false}, 'Album', expression);
+    appGoto('Browse', 'Database', 'AlbumList', 0, undefined, tag, {'tag': tagAlbumArtist, 'desc': false}, 'Album', expression);
 }
 
 /**
@@ -155,7 +155,7 @@ function gotoAlbumList(tag, value) {
 //eslint-disable-next-line no-unused-vars
 function gotoFilesystem(uri, type) {
     document.getElementById('searchFilesystemStr').value = '';
-    appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-', '-', type, uri);
+    appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-', {'tag':'-', 'desc': false}, type, uri);
 }
 
 /**

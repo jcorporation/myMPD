@@ -259,7 +259,7 @@ function parsePlaylistsDetail(obj) {
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
     setUpdateViewId('BrowsePlaylistListList');
-    appGoto('Browse', 'Playlist', 'Detail', 0, undefined, uri, '-', '-', '');
+    appGoto('Browse', 'Playlist', 'Detail', 0, undefined, uri, {'tag': '-', 'desc': false}, '-', '');
 }
 
 /**

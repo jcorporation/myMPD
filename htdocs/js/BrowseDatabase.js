@@ -69,7 +69,7 @@ function initBrowseDatabase() {
         }
         app.current.search = '';
         document.getElementById('searchDatabaseTagListStr').value = '';
-        appGoto(app.current.card, app.current.tab, 'AlbumList', 0, undefined, 'Album', tagAlbumArtist, 'Album',
+        appGoto(app.current.card, app.current.tab, 'AlbumList', 0, undefined, 'Album', {'tag': tagAlbumArtist, 'desc': false}, 'Album',
             '((' + app.current.tag + ' == \'' + escapeMPD(getData(event.target.parentNode, 'tag')) + '\'))');
     }, false);
 
