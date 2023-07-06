@@ -387,7 +387,6 @@ static void send_api_response(struct mg_mgr *mgr, struct t_work_response *respon
  * @return true if acl matches, else false
  */
 static bool check_acl(struct mg_connection *nc, sds acl) {
-    (void) nc;
     if (sdslen(acl) == 0) {
         return true;
     }
