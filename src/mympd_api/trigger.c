@@ -180,7 +180,7 @@ void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, in
 
 /**
  * Saves a trigger
- * @param trigger_list trigger öist
+ * @param trigger_list trigger list
  * @param name trigger name
  * @param trigger_id existing trigger id to replace or -1
  * @param event trigger event
