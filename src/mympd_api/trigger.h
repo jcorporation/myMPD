@@ -51,7 +51,7 @@ bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir);
 void mympd_api_trigger_list_clear(struct t_list *trigger_list);
 void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event, const char *partition);
 void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, int vote, const char *partition);
-bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx);
+bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx, sds *error);
 const char *mympd_api_event_name(long event);
 sds mympd_api_trigger_print_event_list(sds buffer);
 struct t_trigger_data *trigger_data_new(void);

@@ -47,6 +47,7 @@ bool mympd_api_jukebox_rm_entries(struct t_list *list, struct t_list *positions,
         rc = list_remove_node(list, (long)current->value_i);
         list_node_free(current);
         if (rc == false) {
+            *error = sdscat(*error, "Could not remove song from jukebox queue");
             break;
         }
     }
