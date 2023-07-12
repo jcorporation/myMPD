@@ -84,6 +84,7 @@ This release changes definitions of many API methods.
 - Fix: improve Mongoose logging #1032
 - Fix: set correct song start time sticker #1044
 - Fix: Fall back from AlbumArtist to Artist tag for MusicBrainz tags #1056
+- Fix: correct position in last played list #1063
 
 ***
 

@@ -157,6 +157,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
     enum mympd_cmd_ids cmd_id = MYMPD_API_LAST_PLAYED_LIST;
     long entity_count = 0;
     long entities_returned = 0;
+    long entities_found = 0;
 
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
@@ -170,18 +171,19 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
             obj = get_last_played_obj(partition_state, obj, entity_count, current->value_i,
                 current->key, searchstr, tagcols);
             if (sdslen(obj) > 0) {
-                if (entity_count >= offset) {
+                if (entities_found >= offset) {
                     if (entities_returned++) {
                         buffer = sdscatlen(buffer, ",", 1);
                     }
                     buffer = sdscatsds(buffer, obj);
                 }
                 sdsclear(obj);
-                entity_count++;
-                if (entity_count == real_limit) {
+                entities_found++;
+                if (entities_returned == real_limit) {
                     break;
                 }
             }
+            entity_count++;
             current = current->next;
         }
     }
@@ -189,7 +191,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
         entity_count = partition_state->last_played.length;
     }
 
-    if (entity_count < real_limit) {
+    if (entities_returned < real_limit) {
         sds lp_file = sdscatfmt(sdsempty(), "%S/%S/%s",
             partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
         errno = 0;
@@ -205,15 +207,15 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
                     obj = get_last_played_obj(partition_state, obj, entity_count, last_played, uri, searchstr, tagcols);
                     FREE_SDS(uri);
                     if (sdslen(obj) > 0) {
-                        if (entity_count >= offset) {
+                        if (entities_found >= offset) {
                             if (entities_returned++) {
                                 buffer = sdscatlen(buffer, ",", 1);
                             }
                             buffer = sdscatsds(buffer, obj);
                         }
                         sdsclear(obj);
-                        entity_count++;
-                        if (entity_count == real_limit) {
+                        entities_found++;
+                        if (entities_returned == real_limit) {
                             break;
                         }
                     }
@@ -223,6 +225,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
                     MYMPD_LOG_DEBUG(partition_state->name, "Erroneous line: %s", line);
                     FREE_SDS(uri);
                 }
+                entity_count++;
             }
             (void) fclose(fp);
             FREE_SDS(line);
