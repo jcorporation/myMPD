@@ -25,6 +25,7 @@
  * private definitions
  */
 static bool icb_json_get_tag(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);
+static bool icb_json_get_tag_value(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error);
 static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, sds *error);
 static void set_parse_error(sds *error, const char *fmt, ...);
 static const char *jsonrpc_facility_name(enum jsonrpc_facilities facility);
@@ -860,7 +861,7 @@ bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *resul
 }
 
 /**
- * Iterates through all objects found by path
+ * Iterates through object/array found by path
  * @param s json object to parse
  * @param path mjson path expression
  * @param icb iteration callback
@@ -878,45 +879,18 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
     const char *p;
     int n;
     int otype = mjson_find(s, (int)sdslen(s), path, &p, &n);
-    if (otype == MJSON_TOK_INVALID ||
-        n <= 2)
+    if (otype != MJSON_TOK_OBJECT &&
+        otype != MJSON_TOK_ARRAY)
     {
-        //empty object
+        set_parse_error(error, "Invalid json object type for JSON path \"%s\": %s", path, get_mjson_toktype_name(otype));
+        return false;
+    }
+    if (n <= 2)
+    {
+        //empty object/array
         return true;
     }
-    switch(otype) {
-        case MJSON_TOK_OBJECT:
-        case MJSON_TOK_ARRAY:
-            break;
-        case MJSON_TOK_STRING: {
-            //string handling
-            sds value = sdsempty();
-            if (sds_json_unescape(p + 1, (size_t)(n - 2), &value) == false) {
-                set_parse_error(error, "JSON unescape error for value in JSON path \"%s\" has failed", path);
-                FREE_SDS(value);
-                return false;
-            }
-            const char *key_ptr = strrchr(path, '.');
-            sds key = sdsempty();
-            if (key_ptr != NULL) {
-                key = sdscat(key, key_ptr + 1);
-            }
-            if (icb(key, value, otype, vcb, icb_userdata, error) == false) {
-                MYMPD_LOG_WARN(NULL, "Iteration callback for path \"%s\" has failed", path);
-                FREE_SDS(value);
-                FREE_SDS(key);
-                return false;
-            }
-            FREE_SDS(value);
-            FREE_SDS(key);
-            return true;
-        }
-        default:
-            //all other types not handled
-            set_parse_error(error, "Invalid json object type for JSON path \"%s\": %d", path, otype);
-            return false;
-    }
-    //iterable object
+    //iterable object/array
     sds value = sdsempty();
     sds key = sdsempty();
     int i = 0;
@@ -1007,58 +981,29 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
  * @param error pointer for error string
  * @return true on success else false
  */
-static bool icb_json_get_tag_values(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
+static bool icb_json_get_tag_value(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
     enum mpd_tag_type tag = mpd_tag_name_parse(key);
     if (tag == MPD_TAG_UNKNOWN) {
         set_parse_error(error, "Unknown mpd tag type \"%s\"", key);
         return false;
     }
-    switch(vtype) {
-        case MJSON_TOK_STRING: {
-            if (vcb(value) == false) {
-                set_parse_error(error, "Validation of value \"%s\" has failed", value);
-            }
-            else {
-                mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, value);
-            }
-            break;
-        }
-        case MJSON_TOK_ARRAY: {
-            int koff = 0;
-            int klen = 0;
-            int voff = 0;
-            int vlen = 0;
-            int vtype2 = 0;
-            int off = 0;
-            sds tag_value = sdsempty();
-            for (off = 0; (off = mjson_next(value, (int)sdslen(value), off, &koff, &klen, &voff, &vlen, &vtype2)) != 0;) {
-                sdsclear(tag_value);
-                if (vtype2 == MJSON_TOK_STRING &&
-                    vlen > 2)
-                {
-                    if (sds_json_unescape(value + voff + 1, (size_t)(vlen - 2), &tag_value) == true) {
-                        if (vcb(tag_value) == false) {
-                            set_parse_error(error, "Validation of value \"%s\" has failed", tag_value);
-                        }
-                        else {
-                            mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, tag_value);
-                        }
-                    }
-                    else {
-                        set_parse_error(error, "Validation of value \"%s\" has failed", value);
-                    }
-                }
-            }
-            FREE_SDS(tag_value);
-            break;
-        }
+    if (vtype != MJSON_TOK_STRING) {
+        set_parse_error(error, "Invalid type for tag \"%s\": %s", key, get_mjson_toktype_name(vtype));
+        return false;
     }
+    if (vcb(value) == false) {
+        set_parse_error(error, "Validation of value \"%s\" has failed", value);
+    }
+    else {
+        mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, value);
+    }
+    
     return true;
 }
 
 /**
- * Converts a json string/array to a mpd song tag value(s)
- * Shortcut for json_iterate_object with icb_json_get_tag_values
+ * Converts a json array to a mpd song tag value(s)
+ * Shortcut for json_iterate_object with icb_json_get_tag_value
  * @param s json object to parse
  * @param path mjson path expression
  * @param song mpd_song struct
@@ -1068,7 +1013,7 @@ static bool icb_json_get_tag_values(sds key, sds value, int vtype, validate_call
  * @return true on success else false
  */
 bool json_get_tag_values(sds s, const char *path, struct mpd_song *song, validate_callback vcb, int max_elements, sds *error) {
-    return json_iterate_object(s, path, icb_json_get_tag_values, song, vcb, max_elements, error);
+    return json_iterate_object(s, path, icb_json_get_tag_value, song, vcb, max_elements, error);
 }
 
 /**
