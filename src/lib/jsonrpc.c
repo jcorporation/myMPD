@@ -936,7 +936,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                 break;
             case MJSON_TOK_INVALID:
             case MJSON_TOK_NULL:
-                set_parse_error(error, "Invalid json value type");
+                set_parse_error(error, "Invalid json value type: %s", get_mjson_toktype_name(vtype));
                 FREE_SDS(value);
                 FREE_SDS(key);
                 return false;
