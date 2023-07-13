@@ -177,7 +177,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     }
                     else {
                         buffer = jsonrpc_notify_phrase(sdsempty(),
-                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "%{count} duplicate entries in playlists", 4, "count", result_str);
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "%{count} duplicate entries in playlists", 2, "count", result_str);
                     }
                     FREE_SDS(result_str);
                 }
