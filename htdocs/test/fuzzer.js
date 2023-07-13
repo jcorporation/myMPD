@@ -131,7 +131,8 @@ async function sendAPI(id) {
         catch(error) {
             setTest(request, 'JSON parse error: ' + error);
             console.error('Request: ' + JSON.stringify(request));
-            console.error('JSON parse error: ' + error);
+            console.error(error);
+            return;
         }
     }
 
