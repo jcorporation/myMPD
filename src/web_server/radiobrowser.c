@@ -177,7 +177,7 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
             else {
                 response = jsonrpc_respond_message(response, backend_nc_data->cmd_id, 0,
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Invalid response from radio-browser.info");
-                MYMPD_LOG_DEBUG(NULL, "Invalid response from connection \"%lu\", response code %d", nc->id, response_code);
+                MYMPD_LOG_ERROR(NULL, "Invalid response from connection \"%lu\", response code %d", nc->id, response_code);
             }
             if (backend_nc_data->frontend_nc != NULL) {
                 webserver_send_data(backend_nc_data->frontend_nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);

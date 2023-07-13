@@ -223,7 +223,7 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
                 FREE_SDS(headers);
             }
             else {
-                MYMPD_LOG_DEBUG(NULL, "Invalid response from connection \"%lu\", response code %d", nc->id, response_code);
+                MYMPD_LOG_ERROR(NULL, "Invalid response from connection \"%lu\", response code %d", nc->id, response_code);
                 webserver_serve_na_image(backend_nc_data->frontend_nc);
             }
             break;
