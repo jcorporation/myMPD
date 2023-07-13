@@ -468,8 +468,20 @@ static struct mpd_song *album_from_cache_line(sds line, const struct t_tags *tag
             for (size_t i = 0; i < tagcols->len; i++) {
                 sdsclear(path);
                 sdsclear(error);
+                sds value = NULL;
                 path = sdscatfmt(path, "$.%s", mpd_tag_name(tagcols->tags[i]));
-                if (json_get_tag_values(line, path, album, vcb_isname, JSONRPC_ARRAY_MAX, &error) == false) {
+                if (is_multivalue_tag(tagcols->tags[i]) == true) {
+                    if (json_get_tag_values(line, path, album, vcb_isname, JSONRPC_ARRAY_MAX, &error) == false) {
+                        mpd_song_free(album);
+                        album = NULL;
+                        break;
+                    }
+                }
+                else if (json_get_string_max(line, path, &value, vcb_isname, &error) == true) {
+                    mympd_mpd_song_add_tag_dedup(album, tagcols->tags[i], value);
+                    FREE_SDS(value);
+                }
+                else {
                     mpd_song_free(album);
                     album = NULL;
                     break;
