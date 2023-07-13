@@ -500,9 +500,7 @@ static void ev_handler(struct mg_connection *nc, int ev, void *ev_data, void *fn
                 sent = mg_ws_send(nc, "pong", 4, WEBSOCKET_OP_TEXT);
             }
             else if (mg_match(wm->data, mg_str("id:*"), matches)) {
-                sds id = sdsnewlen(matches[0].ptr, matches[0].len);
-                frontend_nc_data->id = strtol(id, NULL, 10);
-                FREE_SDS(id);
+                frontend_nc_data->id = mg_str_to_long(&matches[0]);
                 MYMPD_LOG_INFO(frontend_nc_data->partition, "Setting websocket id to %ld", frontend_nc_data->id);
                 sent = mg_ws_send(nc, "ok", 2, WEBSOCKET_OP_TEXT);
             }

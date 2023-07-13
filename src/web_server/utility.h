@@ -50,6 +50,8 @@ struct t_frontend_nc_data {
 #ifdef MYMPD_EMBEDDED_ASSETS
 bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri);
 #endif
+int mg_str_to_int(struct mg_str *str);
+long mg_str_to_long(struct mg_str *str);
 sds print_ip(sds s, struct mg_addr *addr);
 bool get_partition_from_uri(struct mg_connection *nc, struct mg_http_message *hm, struct t_frontend_nc_data *frontend_nc_data);
 bool check_covercache(struct mg_connection *nc, struct mg_http_message *hm,

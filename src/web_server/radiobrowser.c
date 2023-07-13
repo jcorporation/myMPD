@@ -162,9 +162,13 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
             break;
         case MG_EV_HTTP_MSG: {
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-            MYMPD_LOG_DEBUG(NULL, "Got response from connection \"%lu\": %lu bytes", nc->id, (unsigned long)hm->body.len);
+            //http response code
+            int response_code = mg_str_to_int(&hm->uri);
+            MYMPD_LOG_DEBUG(NULL, "Got response from connection \"%lu\", response code %d: %lu bytes", nc->id, response_code, (unsigned long)hm->body.len);
             sds response = sdsempty();
-            if (hm->body.len > 0) {
+            if (hm->body.len > 0 &&
+                response_code == 200)
+            {
                 response = jsonrpc_respond_start(response, backend_nc_data->cmd_id, 0);
                 response = sdscat(response, "\"data\":");
                 response = sdscatlen(response, hm->body.ptr, hm->body.len);
@@ -172,7 +176,8 @@ static void radiobrowser_handler(struct mg_connection *nc, int ev, void *ev_data
             }
             else {
                 response = jsonrpc_respond_message(response, backend_nc_data->cmd_id, 0,
-                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Empty response from radio-browser.info");
+                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Invalid response from radio-browser.info");
+                MYMPD_LOG_DEBUG(NULL, "Invalid response from connection \"%lu\", response code %d", nc->id, response_code);
             }
             if (backend_nc_data->frontend_nc != NULL) {
                 webserver_send_data(backend_nc_data->frontend_nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);

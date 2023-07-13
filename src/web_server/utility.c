@@ -25,6 +25,30 @@
  */
 
 /**
+ * Converts a mg_str to int
+ * @param str pointer to struct mg_str
+ * @return parsed integer
+ */
+int mg_str_to_int(struct mg_str *str) {
+    sds s = sdsnewlen(str->ptr, str->len);
+    int i = (int)strtoimax(s, NULL, 10);
+    FREE_SDS(s);
+    return i;
+}
+
+/**
+ * Converts a mg_str to long
+ * @param str pointer to struct mg_str
+ * @return parsed integer
+ */
+long mg_str_to_long(struct mg_str *str) {
+    sds s = sdsnewlen(str->ptr, str->len);
+    long l = strtol(s, NULL, 10);
+    FREE_SDS(s);
+    return l;
+}
+
+/**
  * Prints the ip address from a mg_addr struct
  * @param s already allocated sds string to append the ip
  * @param addr pointer to struct mg_addr
