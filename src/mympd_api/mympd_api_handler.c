@@ -490,14 +490,14 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             rc = covercache_clear(config->cachedir, mympd_state->config->covercache_keep_days) >= 0
                 ? true
                 : false;
-            response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, 0,
+            response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                     JSONRPC_FACILITY_GENERAL, "Successfully croped covercache", "Error cropping the covercache");
             break;
         case MYMPD_API_COVERCACHE_CLEAR:
             rc = covercache_clear(config->cachedir, 0) >= 0
                 ? true
                 : false;
-            response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, 0,
+            response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
                     JSONRPC_FACILITY_GENERAL, "Successfully cleared covercache", "Error clearing the covercache");
             break;
         case MYMPD_API_TIMER_SAVE: {
