@@ -187,7 +187,7 @@ function execSelectAction(type, action) {
         }
         case 'showAddToPlaylist': {
             const uris = getSelectionData(parent, attribute);
-            showAddToPlaylist(uris, '');
+            showAddToPlaylist(type, uris);
             break;
         }
         case 'showMoveToPlaylist': {

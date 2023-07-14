@@ -258,5 +258,5 @@ function addAllFromSearch(mode, type) {
  */
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSearch() {
-    showAddToPlaylist(['SEARCH'], app.current.search);
+    showAddToPlaylist('search', [app.current.search]);
 }

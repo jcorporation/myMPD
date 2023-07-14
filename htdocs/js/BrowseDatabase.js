@@ -572,7 +572,7 @@ function addAlbum(action) {
             replacePlayQueue('album', [app.current.filter]);
             break;
         case 'addPlaylist':
-            showAddToPlaylist(['ALBUM', app.current.filter], '');
+            showAddToPlaylist('album', [app.current.filter]);
             break;
         case 'addAlbumToHome': {
             const name = document.querySelector('#viewDatabaseAlbumDetailInfoTags > h1').textContent;
@@ -609,7 +609,7 @@ function addAlbumDisc(action, albumId, disc) {
             replacePlayQueue('disc', [albumId, disc]);
             break;
         case 'addPlaylist':
-            showAddToPlaylist(['DISC', albumId, disc], '');
+            showAddToPlaylist('disc', [albumId, disc]);
             break;
     }
 }

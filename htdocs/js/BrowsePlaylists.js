@@ -734,22 +734,19 @@ function moveToPlaylistClose(obj) {
 
 /**
  * Shows the add to playlist modal
- * @param {Array} uris the uris or 
- *                     ["STREAM"] to add a stream
- *                     ["SEARCH"] to add a search
- *                     ["ALBUM",...albumIds] to add an album
- * @param {string} searchstr searchstring for uri[0] = SEARCH
+ * @param {string} type one off album, disc, search, song, stream
+ * @param {Array} entities entities to add
  * @returns {void}
  */
-function showAddToPlaylist(uris, searchstr) {
+function showAddToPlaylist(type, entities) {
     cleanupModalId('modalAddToPlaylist');
-    setDataId('addToPlaylistUri', 'uris', uris);
-    document.getElementById('addToPlaylistSearch').value = searchstr;
+    setDataId('addToPlaylistEntities', 'type', type);
+    setDataId('addToPlaylistEntities', 'entities', entities);
     document.getElementById('addToPlaylistPlaylist').value = '';
     document.getElementById('addToPlaylistPlaylist').filterInput.value = '';
     document.getElementById('addToPlaylistPosAppend').checked = 'checked';
     document.getElementById('streamUrl').value = '';
-    if (uris[0] === 'STREAM') {
+    if (type === 'stream') {
         //add stream
         toggleAddToPlaylistFrm(document.getElementById('toggleAddToPlaylistQueue'));
         elShowId('addStreamFrm');
@@ -800,34 +797,15 @@ function toggleAddToPlaylistFrm(target) {
 //eslint-disable-next-line no-unused-vars
 function addToPlaylist() {
     cleanupModalId('modalAddToPlaylist');
-    const uris = getDataId('addToPlaylistUri', 'uris');
+    const type = getDataId('addToPlaylistEntities', 'type');
+    const entities = getDataId('addToPlaylistEntities', 'entities');
     const mode = getRadioBoxValueId('addToPlaylistPos');
-    let type;
-    switch(uris[0]) {
-        case 'SEARCH':
-            uris[0] = document.getElementById('addToPlaylistSearch').value;
-            type = 'search';
-            break;
-        case 'ALBUM':
-            type = 'album';
-            uris.shift();
-            break;
-        case 'DISC':
-            type = 'disc';
-            uris.shift();
-            break;
-        case 'STREAM': {
-            const streamUrlEl = document.getElementById('streamUrl');
-            if (validateStreamEl(streamUrlEl) === false) {
-                return;
-            }
-            uris[0] = streamUrlEl.value;
-            type = 'stream';
-            break;
+    if (type === 'stream') {
+        const streamUrlEl = document.getElementById('streamUrl');
+        if (validateStreamEl(streamUrlEl) === false) {
+            return;
         }
-        default:
-            //files and dirs
-            type = 'song';
+        entities[0] = streamUrlEl.value;
     }
 
     if (document.getElementById('addToPlaylistFrm').classList.contains('d-none') === false) {
@@ -838,13 +816,13 @@ function addToPlaylist() {
         }
         switch(mode) {
             case 'append':
-                appendPlaylist(type, uris, plistEl.value, addToPlaylistClose);
+                appendPlaylist(type, entities, plistEl.value, addToPlaylistClose);
                 break;
             case 'insertFirst':
-                insertPlaylist(type, uris, plistEl.value, 0, addToPlaylistClose);
+                insertPlaylist(type, entities, plistEl.value, 0, addToPlaylistClose);
                 break;
             case 'replace':
-                replacePlaylist(type, uris, plistEl.value, addToPlaylistClose);
+                replacePlaylist(type, entities, plistEl.value, addToPlaylistClose);
                 break;
         }
     }
@@ -852,22 +830,22 @@ function addToPlaylist() {
         //add to queue
         switch(mode) {
             case 'append':
-                appendQueue(type, uris, addToPlaylistClose);
+                appendQueue(type, entities, addToPlaylistClose);
                 break;
             case 'appendPlay':
-                appendPlayQueue(type, uris, addToPlaylistClose);
+                appendPlayQueue(type, entities, addToPlaylistClose);
                 break;
             case 'insertAfterCurrent':
-                insertAfterCurrentQueue(type, uris, addToPlaylistClose);
+                insertAfterCurrentQueue(type, entities, addToPlaylistClose);
                 break;
             case 'insertPlayAfterCurrent':
-                insertPlayAfterCurrentQueue(type, uris, addToPlaylistClose);
+                insertPlayAfterCurrentQueue(type, entities, addToPlaylistClose);
                 break;
             case 'replace':
-                replaceQueue(type, uris, addToPlaylistClose);
+                replaceQueue(type, entities, addToPlaylistClose);
                 break;
             case 'replacePlay':
-                replacePlayQueue(type, uris, addToPlaylistClose);
+                replacePlayQueue(type, entities, addToPlaylistClose);
                 break;
         }
     }
