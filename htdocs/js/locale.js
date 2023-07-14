@@ -150,10 +150,10 @@ function setLocale(newLocale) {
     }
 
     //get phrases and translate dom
-    setData(domCache.body, 'locale', locale);
     httpGet(subdir + '/assets/i18n/' + locale + '.json', function(obj) {
         phrases = obj;
         i18nHtml(domCache.body);
+        setData(domCache.body, 'locale', locale);
     }, true);
 }
 
