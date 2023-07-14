@@ -976,5 +976,7 @@
     "Show all albums from Conductor": "Montrer tous les albums du conducteur",
     "Show all albums from Ensemble": "Montrer tous les albums de l'ensemble",
     "Show all albums from Performer": "Montrer tous les albums de l'interprète",
-    "Album not found": "Album non trouvé"
+    "Album not found": "Album non trouvé",
+    "Invalid response from radio-browser.info": "Réponse non valide de radio-browser.info",
+    "Invalid response from webradiodb backend": "Réponse non valide du backend webradiodb"
 }
