@@ -230,21 +230,19 @@ function addMenuItemsAlbumActions(dataNode, contextMenuTitle, contextMenuBody, a
         contextMenuTitle.textContent = tn('Album');
     }
     if (app.id !== 'QueueCurrent') {
-        addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": ["album", albumId]}, 'Append to queue');
-        addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": ["album", albumId]}, 'Append to queue and play');
+        addMenuItem(contextMenuBody, {"cmd": "appendQueue", "options": ["album", [albumId]]}, 'Append to queue');
+        addMenuItem(contextMenuBody, {"cmd": "appendPlayQueue", "options": ["album", [albumId]]}, 'Append to queue and play');
         if (features.featWhence === true &&
             currentState.currentSongId !== -1)
         {
-            addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": ["album", albumId]}, 'Insert after current playing song');
+            addMenuItem(contextMenuBody, {"cmd": "insertAfterCurrentQueue", "options": ["album", [albumId]]}, 'Insert after current playing song');
         }
-        addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": ["album", albumId]}, 'Replace queue');
-        addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": ["album", albumId]}, 'Replace queue and play');
+        addMenuItem(contextMenuBody, {"cmd": "replaceQueue", "options": ["album", [albumId]]}, 'Replace queue');
+        addMenuItem(contextMenuBody, {"cmd": "replacePlayQueue", "options": ["album", [albumId]]}, 'Replace queue and play');
     }
-    if (features.featPlaylists === true &&
-        app.id !== 'Home')
-    {
+    if (features.featPlaylists === true) {
         addDivider(contextMenuBody);
-        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [["addPlaylist", albumId], ""]}, 'Add to playlist');
+        addMenuItem(contextMenuBody, {"cmd": "showAddToPlaylist", "options": [["ALBUM", albumId], ""]}, 'Add to playlist');
     }
     addDivider(contextMenuBody);
     if (app.id !== 'BrowseDatabaseAlbumDetail') {
