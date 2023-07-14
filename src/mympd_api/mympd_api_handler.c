@@ -152,6 +152,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (async == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error starting worker thread");
+                mympd_state->mpd_state->album_cache.building = false;
+                mympd_state->mpd_state->sticker_cache.building = false;
             }
             break;
         case INTERNAL_API_ALBUMCACHE_SKIPPED:
@@ -326,7 +328,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Invalid script name");
                 list_free(arguments);
-                FREE_PTR(arguments);
             }
             break;
         }

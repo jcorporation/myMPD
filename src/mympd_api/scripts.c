@@ -757,7 +757,6 @@ static void free_t_script_thread_arg(struct t_script_thread_arg *script_thread_a
     FREE_SDS(script_thread_arg->script_content);
     FREE_SDS(script_thread_arg->partition);
     list_free(script_thread_arg->arguments);
-    FREE_PTR(script_thread_arg);
 }
 
 /**
