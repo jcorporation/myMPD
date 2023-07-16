@@ -973,5 +973,8 @@
     "Show all albums from Composer": "작곡가의 모든 음반 보기",
     "Show all albums from Conductor": "지휘자의 모든 음반 보기",
     "Show all albums from Ensemble": "앙상블의 모든 음반 보기",
-    "Show all albums from Performer": "연주자의 모든 음반 보기"
+    "Show all albums from Performer": "연주자의 모든 음반 보기",
+    "Album not found": "음반을 찾을 수 없음",
+    "Invalid response from radio-browser.info": "radio-browser.info의 잘못된 응답",
+    "Invalid response from webradiodb backend": "webradiodb 백엔드의 잘못된 응답"
 }
