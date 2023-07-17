@@ -19,4 +19,3 @@ The `workdir` and `cachedir` options are useful if you want to run more then one
 | `-a`, `--cachedir <path>` | cache directory (default: `/var/cache/mympd`). This folder must exist, if not started as root. |
 | `-p`, `--pin` | sets a pin for myMPD settings |
 {: .table .table-sm }
-

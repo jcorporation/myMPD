@@ -9,7 +9,7 @@ title: Compiling
 | NAME | STATE | DESCRIPTION |
 | ---- | ----- | ----------- |
 | [latest release](https://github.com/jcorporation/myMPD/releases/latest) | stable | The latest stable release, this is the preferred image for daily, hassle-free usage |
-| [master](https://github.com/jcorporation/myMPD/tree/master) | stable | the latest releases are created from the master branch |
+| [master](https://github.com/jcorporation/myMPD/tree/master) | stable | the latest releas is created from the master branch |
 | [devel](https://github.com/jcorporation/myMPD/tree/devel) | unstable | this branch is for the next bugfix release |
 | other branches | unstable | development branches for new major and minor releases |
 {: .table .table-sm }
