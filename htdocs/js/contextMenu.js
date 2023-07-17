@@ -556,7 +556,7 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
                     addMenuItem(contextMenuBody, {"cmd": "playlistDetails", "options": [uri]}, 'Edit playlist');
                 }
                 addMenuItem(contextMenuBody, {"cmd": "showRenamePlaylist", "options": [uri]}, 'Rename playlist');
-                addMenuItem(contextMenuBody, {"cmd": "showCopyPlaylist", "options": [uri]}, 'Copy playlist');
+                addMenuItem(contextMenuBody, {"cmd": "showCopyPlaylist", "options": [[uri]]}, 'Copy playlist');
                 if (type === 'plist') {
                     addMenuItem(contextMenuBody, {"cmd": "playlistValidateDedup", "options": [uri, true]}, 'Validate and deduplicate playlist');
                 }
