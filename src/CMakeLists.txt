@@ -16,6 +16,7 @@ target_include_directories(mympd
   PRIVATE 
     ${PROJECT_BINARY_DIR}
     ${PROJECT_SOURCE_DIR}
+    ${OPENSSL_INCLUDE_DIR}
 )
 
 target_include_directories(mympd SYSTEM PRIVATE ${PCRE2_INCLUDE_DIRS})
@@ -32,15 +33,11 @@ if(MYMPD_ENABLE_LIBID3TAG)
   target_include_directories(mympd SYSTEM PRIVATE ${LIBID3TAG_INCLUDE_DIRS})
 endif()
 
-if(MYMPD_ENABLE_SSL)
-  target_include_directories(mympd SYSTEM PRIVATE ${OPENSSL_INCLUDE_DIR})
-  target_sources(mympd PRIVATE lib/cert.c)
-endif()
-
 target_sources(mympd PRIVATE
   main.c
   lib/album_cache.c
   lib/api.c
+  lib/cert.c
   lib/config.c
   lib/covercache.c
   lib/env.c
@@ -72,9 +69,11 @@ target_sources(mympd PRIVATE
   mpd_client/jukebox.c
   mpd_client/partitions.c
   mpd_client/playlists.c
+  mpd_client/queue.c
   mpd_client/presets.c
   mpd_client/search.c
   mpd_client/search_local.c
+  mpd_client/shortcuts.c
   mpd_client/tags.c
   mpd_client/volume.c
   mpd_worker/mpd_worker.c
@@ -85,9 +84,11 @@ target_sources(mympd PRIVATE
   mympd_api/mympd_api.c
   mympd_api/albumart.c
   mympd_api/browse.c
+  mympd_api/database.c
   mympd_api/extra_media.c
   mympd_api/filesystem.c
   mympd_api/home.c
+  mympd_api/jukebox.c
   mympd_api/last_played.c
   mympd_api/lyrics.c
   mympd_api/mounts.c
@@ -97,6 +98,7 @@ target_sources(mympd PRIVATE
   mympd_api/pictures.c
   mympd_api/playlists.c
   mympd_api/queue.c
+  mympd_api/search.c
   mympd_api/scripts.c
   mympd_api/settings.c
   mympd_api/smartpls.c

@@ -11,23 +11,13 @@
 #include "src/lib/api.h"
 #include "src/lib/mympd_state.h"
 
-bool mympd_check_error_and_recover(struct t_partition_state *partition_state);
-bool mympd_check_rc_error_and_recover(struct t_partition_state *partition_state, bool rc, const char *command);
-
+void mympd_set_mpd_failure(struct t_partition_state *partition_state, const char *errormessage);
+bool mympd_check_error_and_recover(struct t_partition_state *partition_state, sds *buffer, const char *command);
 bool mympd_check_error_and_recover_respond(struct t_partition_state *partition_state, sds *buffer,
-        enum mympd_cmd_ids cmd_id, long request_id);
-bool mympd_check_rc_error_and_recover_respond(struct t_partition_state *partition_state, sds *buffer,
-        enum mympd_cmd_ids cmd_id, long request_id, bool rc, const char *command);
-
-bool mympd_check_error_and_recover_notify(struct t_partition_state *partition_state, sds *buffer);
-bool mympd_check_rc_error_and_recover_notify(struct t_partition_state *partition_state, sds *buffer, bool rc,
-        const char *command);
-
-bool mympd_check_error_and_recover_plain(struct t_partition_state *partition_state, sds *buffer);
-bool mympd_check_rc_error_and_recover_plain(struct t_partition_state *partition_state, sds *buffer, bool rc,
-        const char *command);
-
+        enum mympd_cmd_ids cmd_id, long request_id, const char *command);
+bool mympd_check_error_and_recover_notify(struct t_partition_state *partition_state, sds *buffer, const char *command);
+bool mympd_check_error_and_recover_plain(struct t_partition_state *partition_state, sds *buffer, const char *command);
 sds mympd_respond_with_error_or_ok(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id,
-        long request_id, bool rc, const char *command, bool *result);
+        long request_id, const char *command, bool *result);
 
 #endif

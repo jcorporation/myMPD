@@ -71,6 +71,10 @@ function navBrowseHandler(event) {
 function gotoBrowse(event) {
     let target = event.target;
     let tag = getData(target, 'tag');
+    if (tag === 'undefined') {
+        // string undefined means do not go further down the dom
+        return;
+    }
     let name = getData(target, 'name');
     let i = 0;
     while (tag === undefined) {
@@ -88,13 +92,13 @@ function gotoBrowse(event) {
         settings.tagListBrowse.includes(tag))
     {
         if (tag === 'Album') {
-            let artist = getData(target, 'AlbumArtist');
-            if (artist === undefined) {
-                artist = getData(target.parentNode, 'AlbumArtist');
+            let albumId = getData(target, 'AlbumId');
+            if (albumId === undefined) {
+                albumId = getData(target.parentNode, 'AlbumId');
             }
-            if (artist !== null) {
+            if (albumId !== null) {
                 //Show album details
-                appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, tag, tagAlbumArtist, name, artist);
+                gotoAlbum(albumId);
             }
             else {
                 //show filtered album list
@@ -110,13 +114,12 @@ function gotoBrowse(event) {
 
 /**
  * Go's to the album detail view
- * @param {Array} artist albumartist names
- * @param {string} album album name
+ * @param {string} albumId the album id
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function gotoAlbum(artist, album) {
-    appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, 'Album', tagAlbumArtist, album, artist);
+function gotoAlbum(albumId) {
+    appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, albumId);
 }
 
 /**
@@ -135,12 +138,12 @@ function gotoAlbumList(tag, value) {
     let expression = '(';
     for (let i = 0, j = value.length; i < j; i++) {
         if (i > 0) {
-            expression += ' AND '
+            expression += ' AND ';
         }
         expression += '(' + tag + ' == \'' + escapeMPD(value[i]) + '\')';
     }
     expression += ')';
-    appGoto('Browse', 'Database', 'AlbumList', 0, undefined, tag, {"tag": tagAlbumArtist, "desc": false}, 'Album', expression);
+    appGoto('Browse', 'Database', 'AlbumList', 0, undefined, tag, {'tag': tagAlbumArtist, 'desc': false}, 'Album', expression);
 }
 
 /**
@@ -152,7 +155,7 @@ function gotoAlbumList(tag, value) {
 //eslint-disable-next-line no-unused-vars
 function gotoFilesystem(uri, type) {
     document.getElementById('searchFilesystemStr').value = '';
-    appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-', '-', type, uri);
+    appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-', {'tag':'-', 'desc': false}, type, uri);
 }
 
 /**

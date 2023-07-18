@@ -216,18 +216,18 @@ function filetype(uri) {
     }
     const ext = uri.split('.').pop().toUpperCase();
     switch(ext) {
-        case 'MP3':  return ext + ' - ' + tn('MPEG-1 Audio Layer III');
-        case 'FLAC': return ext + ' - ' + tn('Free Lossless Audio Codec');
-        case 'OGG':  return ext + ' - ' + tn('Ogg Vorbis');
-        case 'OPUS': return ext + ' - ' + tn('Opus Audio');
-        case 'WAV':  return ext + ' - ' + tn('WAVE Audio File');
-        case 'WV':   return ext + ' - ' + tn('WavPack');
-        case 'AAC':  return ext + ' - ' + tn('Advanced Audio Coding');
-        case 'MPC':  return ext + ' - ' + tn('Musepack');
-        case 'MP4':  return ext + ' - ' + tn('MPEG-4');
-        case 'APE':  return ext + ' - ' + tn('Monkey Audio');
-        case 'WMA':  return ext + ' - ' + tn('Windows Media Audio');
-        case 'CUE':  return ext + ' - ' + tn('Cuesheet');
+        case 'MP3':  return ext + smallSpace + nDash + smallSpace + tn('MPEG-1 Audio Layer III');
+        case 'FLAC': return ext + smallSpace + nDash + smallSpace + tn('Free Lossless Audio Codec');
+        case 'OGG':  return ext + smallSpace + nDash + smallSpace + tn('Ogg Vorbis');
+        case 'OPUS': return ext + smallSpace + nDash + smallSpace + tn('Opus Audio');
+        case 'WAV':  return ext + smallSpace + nDash + smallSpace + tn('WAVE Audio File');
+        case 'WV':   return ext + smallSpace + nDash + smallSpace + tn('WavPack');
+        case 'AAC':  return ext + smallSpace + nDash + smallSpace + tn('Advanced Audio Coding');
+        case 'MPC':  return ext + smallSpace + nDash + smallSpace + tn('Musepack');
+        case 'MP4':  return ext + smallSpace + nDash + smallSpace + tn('MPEG-4');
+        case 'APE':  return ext + smallSpace + nDash + smallSpace + tn('Monkey Audio');
+        case 'WMA':  return ext + smallSpace + nDash + smallSpace + tn('Windows Media Audio');
+        case 'CUE':  return ext + smallSpace + nDash + smallSpace + tn('Cuesheet');
         default:     return ext;
     }
 }
@@ -258,7 +258,7 @@ function focusSearch() {
             document.getElementById('searchPlaylistListStr').focus();
             break;
         case 'BrowsePlaylistDetail':
-            document.getElementById('searchPlaylistsDetailStr').focus();
+            document.getElementById('searchPlaylistDetailStr').focus();
             break;
         case 'BrowseRadioWebradiodb':
             document.getElementById('BrowseRadioWebradiodbSearchStr').focus();
@@ -272,15 +272,6 @@ function focusSearch() {
         default:
             appGoto('Search');
     }
-}
-
-/**
- * Generates a valid id from string
- * @param {string} str string to generate the id from
- * @returns {string} the generated id
- */
-function genId(str) {
-    return 'id' + str.replace(/[^\w-]/g, '');
 }
 
 /**
@@ -330,6 +321,9 @@ function parseCmd(event, cmd) {
             case 'voteSong':
             case 'toggleAddToPlaylistFrm':
             case 'toggleSaveQueueMode':
+            case 'hideAlert':
+            case 'switchTableMode':
+            case 'switchGridMode':
                 // @ts-ignore
                 func(event.target, ... cmd.options);
                 break;
@@ -581,33 +575,56 @@ function setMobileView() {
 }
 
 /**
- * Generic http get request
+ * Generic http get request (async function)
  * @param {string} uri uri for the request
  * @param {Function} callback callback function
  * @param {boolean} json true = parses the response as json, else pass the plain text response
- * @returns {void}
+ * @returns {Promise<void>}
  */
-function httpGet(uri, callback, json) {
-    const ajaxRequest = new XMLHttpRequest();
-    ajaxRequest.open('GET', uri, true);
-    ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.readyState === 4) {
-            if (json === true) {
-                let obj = {};
-                try {
-                    obj = JSON.parse(ajaxRequest.responseText);
-                }
-                catch(error) {
-                    showNotification(tn('Can not parse response from %{uri} to json object', {"uri": uri}), '', 'general', 'error');
-                    logError('Can not parse response from ' + uri + ' to json object.');
-                    logError(error);
-                }
-                callback(obj);
-            }
-            else {
-                callback(ajaxRequest.responseText);
-            }
-        }
-    };
-    ajaxRequest.send();
+async function httpGet(uri, callback, json) {
+    let response = null;
+    try {
+        response = await fetch(uri, {
+            method: 'GET',
+            mode: 'same-origin',
+            credentials: 'same-origin',
+            cache: 'no-store',
+            redirect: 'follow'
+        });
+    }
+    catch(error) {
+        showNotification(tn('API error') + ':\n' + tn('Error accessing %{uri}', {"uri": uri}), 'general', 'error');
+        logError('Error posting to ' + uri);
+        logError(error);
+        callback(null);
+        return;
+    }
+
+    if (response.redirected === true) {
+        window.location.reload();
+        logError('Request was redirect, reloading application');
+        return;
+    }
+    if (response.ok === false) {
+        showNotification(tn('API error') + '\n' +
+            tn('Error accessing %{uri}', {"uri": uri}) + ',\n' +
+            tn('Response code: %{code}', {"code": response.status + ' - ' + response.statusText}),
+            'general', 'error');
+        logError('Error accessing ' + uri + ', code ' + response.status + ' - ' + response.statusText);
+        callback(null);
+        return;
+    }
+
+    try {
+        const data = json === true
+            ? await response.json()
+            : await response.text();
+        callback(data);
+    }
+    catch(error) {
+        showNotification(tn('API error') + '\n' + tn('Can not parse response from %{uri}', {"uri": uri}), 'general', 'error');
+        logError('Can not parse response from ' + uri);
+        logError(error);
+        callback(null);
+    }
 }

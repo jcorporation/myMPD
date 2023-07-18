@@ -53,6 +53,7 @@ CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-identifier-length"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-function-cognitive-complexity,-google-readability-function-size,-readability-function-size"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-magic-numbers"
 CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-readability-non-const-parameter"
+CLANG_TIDY_CHECKS="$CLANG_TIDY_CHECKS,-google-readability-todo"
 
 #save script path and change to it
 STARTPATH=$(dirname "$(realpath "$0")")
@@ -199,6 +200,7 @@ createassets() {
   install -d "$MYMPD_BUILDDIR/htdocs/assets/i18n"
 
   #Create translation phrases file
+  check_phrases
   createi18n "$MYMPD_BUILDDIR" 2>/dev/null
   minify js "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$MYMPD_BUILDDIR/htdocs/js/i18n.min.js"
 
@@ -362,6 +364,7 @@ copyassets() {
   cp -v "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2" "$STARTPATH/htdocs/assets/MaterialIcons-Regular.woff2"
   cp -v "$STARTPATH/dist/material-icons/ligatures.json" "$STARTPATH/htdocs/assets/ligatures.json"
   #translation files
+  check_phrases
   createi18n "$MYMPD_BUILDDIR"
   cp -v "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$STARTPATH/htdocs/js/i18n.js"
   rm -fr "$STARTPATH/htdocs/assets/i18n/"
@@ -393,9 +396,11 @@ builddebug() {
 
 buildtest() {
   echo "Compiling and running unit tests"
-  cmake -B test/build -S test -DCMAKE_BUILD_TYPE=Debug
-  make -C test/build VERBOSE=1
-  ./test/build/test
+  cmake -B debug -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Debug \
+    -DMYMPD_ENABLE_LIBASAN=ON -DMYMPD_BUILD_TESTING=ON \
+    .
+  make -C debug
+  make -C debug test
 }
 
 cleanup() {
@@ -514,6 +519,7 @@ check_file() {
 }
 
 check() {
+  check_phrases
   if ! check_docs
   then
     return 1
@@ -997,6 +1003,19 @@ purge() {
   fi
 }
 
+check_phrases() {
+  check_cmd jq
+  echo "Validating translation phrases"
+  for F in "src/i18n/json/"*.json
+  do
+    if ! jq "." "$F" > /dev/null
+    then
+      echo "Invalid json: $F"
+      exit 1
+    fi
+  done
+}
+
 createi18n() {
   MYMPD_BUILD_DIR="$1"
   check_cmd perl
@@ -1458,7 +1477,8 @@ case "$ACTION" in
     echo "                    serves assets from htdocs"
     echo "  memcheck:         builds debug files in directory debug"
     echo "                    linked with libasan3 and serves assets from htdocs"
-    echo "  test:             builds and runs the unit tests in test/build"
+    echo "  test:             builds and runs the unit tests in directory debug"
+    echo "                    linked with libasan3"
     echo "  installdeps:      installs build and runtime dependencies"
     echo "  createassets:     creates the minfied and compressed dist files"
     echo "                    following environment variables are respected"

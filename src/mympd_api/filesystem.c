@@ -58,59 +58,58 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
         sds path, long offset, long limit, sds searchstr, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_FILESYSTEM_LIST;
-    bool rc = mpd_send_list_meta(partition_state->conn, path);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_send_list_meta") == false) {
-        return buffer;
-    }
     sds key = sdsempty();
     rax *entity_list = raxNew();
     long real_limit = offset + limit;
-    struct mpd_entity *entity;
-    while ((entity = mpd_recv_entity(partition_state->conn)) != NULL) {
-        switch (mpd_entity_get_type(entity)) {
-            case MPD_ENTITY_TYPE_SONG: {
-                const struct mpd_song *song = mpd_entity_get_song(entity);
-                sds entity_name =  mpd_client_get_tag_value_string(song, MPD_TAG_TITLE, sdsempty());
-                key = sdscatfmt(key, "2%s", mpd_song_get_uri(song));
-                search_dir_entry(entity_list, key, entity_name, entity, searchstr);
-                break;
-            }
-            case MPD_ENTITY_TYPE_DIRECTORY: {
-                const struct mpd_directory *dir = mpd_entity_get_directory(entity);
-                sds entity_name = sdsnew(mpd_directory_get_path(dir));
-                basename_uri(entity_name);
-                key = sdscatfmt(key, "0%s", mpd_directory_get_path(dir));
-                search_dir_entry(entity_list, key, entity_name, entity, searchstr);
-                break;
-            }
-            case MPD_ENTITY_TYPE_PLAYLIST: {
-                const struct mpd_playlist *pl = mpd_entity_get_playlist(entity);
-                const char *pl_path = mpd_playlist_get_path(pl);
-                if (path[0] == '/') {
-                    //do not show mpd playlists in root directory
-                    const char *ext = get_extension_from_filename(pl_path);
-                    if (ext == NULL ||
-                        (strcasecmp(ext, "m3u") != 0 && strcasecmp(ext, "pls") != 0))
-                    {
-                        mpd_entity_free(entity);
-                        break;
-                    }
+
+    if (mpd_send_list_meta(partition_state->conn, path)) {
+        struct mpd_entity *entity;
+        while ((entity = mpd_recv_entity(partition_state->conn)) != NULL) {
+            switch (mpd_entity_get_type(entity)) {
+                case MPD_ENTITY_TYPE_SONG: {
+                    const struct mpd_song *song = mpd_entity_get_song(entity);
+                    sds entity_name =  mpd_client_get_tag_value_string(song, MPD_TAG_TITLE, sdsempty());
+                    key = sdscatfmt(key, "2%s", mpd_song_get_uri(song));
+                    search_dir_entry(entity_list, key, entity_name, entity, searchstr);
+                    break;
                 }
-                sds entity_name = sdsnew(pl_path);
-                basename_uri(entity_name);
-                key = sdscatfmt(key, "1%s", pl_path);
-                search_dir_entry(entity_list, key, entity_name, entity, searchstr);
-                break;
+                case MPD_ENTITY_TYPE_DIRECTORY: {
+                    const struct mpd_directory *dir = mpd_entity_get_directory(entity);
+                    sds entity_name = sdsnew(mpd_directory_get_path(dir));
+                    basename_uri(entity_name);
+                    key = sdscatfmt(key, "0%s", mpd_directory_get_path(dir));
+                    search_dir_entry(entity_list, key, entity_name, entity, searchstr);
+                    break;
+                }
+                case MPD_ENTITY_TYPE_PLAYLIST: {
+                    const struct mpd_playlist *pl = mpd_entity_get_playlist(entity);
+                    const char *pl_path = mpd_playlist_get_path(pl);
+                    if (path[0] == '/') {
+                        //do not show mpd playlists in root directory
+                        const char *ext = get_extension_from_filename(pl_path);
+                        if (ext == NULL ||
+                            (strcasecmp(ext, "m3u") != 0 && strcasecmp(ext, "pls") != 0))
+                        {
+                            mpd_entity_free(entity);
+                            break;
+                        }
+                    }
+                    sds entity_name = sdsnew(pl_path);
+                    basename_uri(entity_name);
+                    key = sdscatfmt(key, "1%s", pl_path);
+                    search_dir_entry(entity_list, key, entity_name, entity, searchstr);
+                    break;
+                }
+                default: {
+                    mpd_entity_free(entity);
+                }
             }
-            default: {
-                mpd_entity_free(entity);
-            }
+            sdsclear(key);
         }
-        sdsclear(key);
+        FREE_SDS(key);
     }
-    FREE_SDS(key);
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_meta") == false) {
         //free result
         rax_free_data(entity_list, free_t_dir_entry);
         //return error message

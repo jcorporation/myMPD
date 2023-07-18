@@ -33,6 +33,7 @@ struct t_timer_node {
     struct t_timer_node *next;              //!< next timer in the timer list
 };
 
+bool mympd_api_timer_save(struct t_partition_state *partition_state, sds data, sds *error);
 void mympd_api_timer_timerlist_init(struct t_timer_list *l);
 void mympd_api_timer_timerlist_clear(struct t_timer_list *l);
 void mympd_api_timer_check(struct t_timer_list *l);
@@ -40,8 +41,8 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval,
     timer_handler handler, int timer_id, struct t_timer_definition *definition);
 bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interval,
     timer_handler handler, int timer_id, struct t_timer_definition *definition);
-void mympd_api_timer_remove(struct t_timer_list *l, int timer_id);
-void mympd_api_timer_toggle(struct t_timer_list *l, int timer_id);
+bool mympd_api_timer_remove(struct t_timer_list *l, int timer_id);
+bool mympd_api_timer_toggle(struct t_timer_list *l, int timer_id);
 void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def);
 struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str,
     const char *partition, sds *error);

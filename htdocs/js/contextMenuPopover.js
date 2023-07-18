@@ -81,7 +81,7 @@ function createPopoverBody(template) {
                    ])
                ]);
     }
-    return elCreateEmpty('div', {"class": ["popover-body"]})
+    return elCreateEmpty('div', {"class": ["popover-body"]});
 }
 
 /**

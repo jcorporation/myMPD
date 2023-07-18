@@ -4,6 +4,90 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v11.0.0 (2023-07-18)
+
+This release improves the queue and playlist management in many ways. You can now select multiple songs or playlists and take actions on this selection. There are new methods to copy, merge, validate and deduplicate playlists. Further the mpd error handling and the mpd communication was improved by using command lists.
+
+### Notes
+
+- This is the first release that enforces the OpenSSL dependency.
+- Some home icons are invalid, you must re-add the icons, sorry for that.
+
+### API changes
+
+This release changes definitions of many API methods.
+
+- MYMPD_API_JUKEBOX_RM: parameters changed
+- MYMPD_API_QUEUE_RM_SONG -> MYMPD_API_QUEUE_RM_IDS: parameters changed
+- MYMPD_API_QUEUE_MOVE_SONG -> MYMPD_API_QUEUE_MOVE_POSITION: parameters changed
+- MYMPD_API_QUEUE_MOVE_RELATIVE: new
+- MYMPD_API_QUEUE_APPEND_URI -> MYMPD_API_QUEUE_APPEND_URIS: parameters changed
+- MYMPD_API_QUEUE_INSERT_URI -> MYMPD_API_QUEUE_INSERT_URIS: parameters changed
+- MYMPD_API_QUEUE_REPLACE_URI -> MYMPD_API_QUEUE_REPLACE_URIS: parameters changed
+- MYMPD_API_QUEUE_APPEND_PLAYLIST -> MYMPD_API_QUEUE_APPEND_PLAYLISTS: parameters changed
+- MYMPD_API_QUEUE_INSERT_PLAYLIST -> MYMPD_API_QUEUE_INSERT_PLAYLISTS: parameters changed
+- MYMPD_API_QUEUE_REPLACE_PLAYLIST -> MYMPD_API_QUEUE_REPLACE_PLAYLISTS: parameters changed
+- MYMPD_API_QUEUE_PRIO_SET: parameters changed
+- MYMPD_API_QUEUE_PRIO_SET_HIGHEST: parameters changed
+- MYMPD_API_QUEUE_APPEND_ALBUMS: new
+- MYMPD_API_QUEUE_INSERT_ALBUMS: new
+- MYMPD_API_QUEUE_REPLACE_ALBUMS: new
+- MYMPD_API_QUEUE_APPEND_ALBUM_DISC: new
+- MYMPD_API_QUEUE_INSERT_ALBUM_DISC: new
+- MYMPD_API_QUEUE_REPLACE_ALBUM_DISC: new
+- MYMPD_API_PLAYLIST_CONTENT_RM_SONG -> MYMPD_API_PLAYLIST_CONTENT_RM_POSITIONS: parameters changed
+- MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG -> MYMPD_API_PLAYLIST_CONTENT_MOVE_POSITION: parameters changed
+- MYMPD_API_PLAYLIST_CONTENT_APPEND_URI -> MYMPD_API_PLAYLIST_CONTENT_APPEND_URIS: parameters changed
+- MYMPD_API_PLAYLIST_CONTENT_INSERT_URI -> MYMPD_API_PLAYLIST_CONTENT_INSERT_URIS: parameters changed
+- MYMPD_API_PLAYLIST_CONTENT_REPLACE_URI -> MYMPD_API_PLAYLIST_CONTENT_REPLACE_URIS: parameters changed
+- MYMPD_API_PLAYLIST_CONTENT_MOVE_TO_PLAYLIST: new
+- MYMPD_API_PLAYLIST_RM: parameters changed
+- MYMPD_API_PLAYLIST_COPY: new
+- MYMPD_API_PLAYLIST_CONTENT_VALIDATE: new
+- MYMPD_API_PLAYLIST_CONTENT_DEDUP: new
+- MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP: new
+- MYMPD_API_PLAYLIST_CONTENT_VALIDATE_ALL: new
+- MYMPD_API_PLAYLIST_CONTENT_DEDUP_ALL: new
+- MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP_ALL: new
+- MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUMS: new
+- MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUMS: new
+- MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUMS: new
+- MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_DISC: new
+- MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_DISC: new
+- MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUM_DISC: new
+- MYMPD_API_WEBRADIO_FAVORITE_RM: parameters changed
+- MYMPD_API_SCRIPT_VALIDATE: new
+
+### Changelog
+
+- Feat: add multiple selections and actions #1001
+- Feat: improve queue and playlist management #1001
+- Feat: copy, merge, validate and deduplicate playlists #1038
+- Feat: migrate to JavaScript fetch() API #1006
+- Feat: add test target to cmake #1023
+- Feat: improve mpd error handling #1028
+- Feat: improve mpd communication
+- Feat: add quick remove and quick play buttons to more views
+- Feat: support MUSICBRAINZ_RELEASEGROUPID tag (MPD 0.24)
+- Feat: handle preflighted requests in CORS
+- Feat: add consume one shot to queue context menu
+- Upd: Mongoose 7.11 #1060
+- Upd: Bootstrap 5.3.0 final
+- Upd: libmympdclient 1.0.21
+- Upd: OpenSSL is now required #1033
+- Upd: Replace tinymt with OpenSSL prng #1034
+- Upd: use OpenSSL hash functions
+- Upd: documentation improvements
+- Upd: improve error handling in build system
+- Upd: show stream name in title tag
+- Fix: various small css and javascript fixes
+- Fix: improve Mongoose logging #1032
+- Fix: set correct song start time sticker #1044
+- Fix: Fall back from AlbumArtist to Artist tag for MusicBrainz tags #1056
+- Fix: correct position in last played list #1063
+
+***
+
 ## myMPD v10.3.3 (2023-06-02)
 
 This is a small bugfix release.

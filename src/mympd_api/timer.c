@@ -17,6 +17,7 @@
 
 #include <errno.h>
 #include <poll.h>
+#include <stdbool.h>
 #include <string.h>
 #include <sys/timerfd.h>
 #include <unistd.h>
@@ -66,8 +67,8 @@ void mympd_api_timer_check(struct t_timer_list *l) {
     errno = 0;
     int read_fds = poll(ufds, iMaxCount, 100);
     if (read_fds < 0) {
-        MYMPD_LOG_ERROR("Error polling timerfd");
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Error polling timerfd");
+        MYMPD_LOG_ERRNO(NULL, errno);
         return;
     }
     if (read_fds == 0) {
@@ -84,30 +85,30 @@ void mympd_api_timer_check(struct t_timer_list *l) {
             }
             current = get_timer_from_fd(l, ufds[i].fd);
             if (current == NULL) {
-                MYMPD_LOG_ERROR("Could not get timer from fd");
+                MYMPD_LOG_ERROR(NULL, "Could not get timer from fd");
                 continue;
             }
             if (current->definition != NULL) {
                 //user defined timers
                 if (current->definition->enabled == false) {
-                    MYMPD_LOG_DEBUG("Skipping timer with id %d, not enabled", current->timer_id);
+                    MYMPD_LOG_DEBUG(NULL, "Skipping timer with id %d, not enabled", current->timer_id);
                     continue;
                 }
                 time_t t = time(NULL);
                 struct tm now;
                 if (localtime_r(&t, &now) == NULL) {
-                    MYMPD_LOG_ERROR("Localtime is NULL");
+                    MYMPD_LOG_ERROR(NULL, "Localtime is NULL");
                     continue;
                 }
                 int wday = now.tm_wday;
                 wday = wday > 0 ? wday - 1 : 6;
                 if (current->definition->weekdays[wday] == false) {
-                    MYMPD_LOG_DEBUG("Skipping timer with id %d, not enabled on this weekday", current->timer_id);
+                    MYMPD_LOG_DEBUG(NULL, "Skipping timer with id %d, not enabled on this weekday", current->timer_id);
                     continue;
                 }
             }
             //execute callback function
-            MYMPD_LOG_DEBUG("Timer with id %d triggered", current->timer_id);
+            MYMPD_LOG_DEBUG(NULL, "Timer with id %d triggered", current->timer_id);
             if (current->callback) {
                 current->callback(current->timer_id, current->definition);
             }
@@ -116,16 +117,78 @@ void mympd_api_timer_check(struct t_timer_list *l) {
                 current->definition != NULL)
             {
                 //user defined "one shot and disable" timers
-                MYMPD_LOG_DEBUG("One shot timer disabled: %d", current->timer_id);
+                MYMPD_LOG_DEBUG(NULL, "One shot timer disabled: %d", current->timer_id);
                 current->definition->enabled = false;
             }
             else if (current->interval <= TIMER_ONE_SHOT_REMOVE) {
                 //"one shot and remove" timers
-                MYMPD_LOG_DEBUG("One shot timer removed: %d", current->timer_id);
+                MYMPD_LOG_DEBUG(NULL, "One shot timer removed: %d", current->timer_id);
                 mympd_api_timer_remove(l, current->timer_id);
             }
         }
     }
+}
+
+/**
+ * Saves a new or existing timer
+ * @param partition_state pointer to partition state
+ * @param data request data to parse
+ * @param error pointer to already allocated sds string to append an error message
+ * @return true on success, else false
+ */
+bool mympd_api_timer_save(struct t_partition_state *partition_state, sds data, sds *error) {
+    if (partition_state->mympd_state->timer_list.length > LIST_TIMER_MAX) {
+        *error = sdscat(*error, "Too many timers defined");
+        return false;
+    }
+    int interval = 0;
+    int timerid = 0;
+    if (json_get_int(data, "$.params.interval", -1, TIMER_INTERVAL_MAX, &interval, error) == true &&
+        json_get_int(data, "$.params.timerid", 0, USER_TIMER_ID_MAX, &timerid, error) == true)
+    {
+        bool new = timerid == 0
+            ? true
+            : false;
+        if (interval > 0 &&
+            interval < TIMER_INTERVAL_MIN)
+        {
+            //interval must be gt 5 seconds
+            MYMPD_LOG_ERROR(partition_state->name, "Timer interval must be greater or equal %d, but id is: \"%d\"", TIMER_INTERVAL_MIN, interval);
+            *error = sdscat(*error, "Invalid timer interval");
+            return false;
+        }
+        if (new == true) {
+            timerid = partition_state->mympd_state->timer_list.last_id + 1;
+        }
+        else if (timerid < USER_TIMER_ID_MIN) {
+            //existing timer
+            //user defined timers must be gt 100
+            MYMPD_LOG_ERROR(partition_state->name, "Timer id must be greater or equal %d, but id is: \"%d\"", USER_TIMER_ID_MAX, timerid);
+            *error = sdscat(*error, "Invalid timer id");
+            return false;
+        }
+        //parse timer definition
+        struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
+        timer_def = mympd_api_timer_parse(timer_def, data, partition_state->name, error);
+        if (timer_def == NULL) {
+            *error = sdscat(*error, "Error parsing timer definition");
+            //timer_def was freed by mympd_api_timer_parse
+            return false;
+        }
+        //calculate start time and add/replace timer
+        time_t start = mympd_api_timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, interval);
+        bool rc = mympd_api_timer_replace(&partition_state->mympd_state->timer_list, start, interval, timer_handler_select, timerid, timer_def);
+        if (rc == false) {
+            *error = sdscat(*error, "Saving timer failed");
+            mympd_api_timer_free_definition(timer_def);
+            return false;
+        }
+        if (new == true) {
+            partition_state->mympd_state->timer_list.last_id = timerid;
+        }
+        return true;
+    }
+    return false;
 }
 
 /**
@@ -141,6 +204,7 @@ void mympd_api_timer_check(struct t_timer_list *l) {
 bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interval, timer_handler handler,
                    int timer_id, struct t_timer_definition *definition)
 {
+    //ignore return code for remove
     mympd_api_timer_remove(l, timer_id);
     return mympd_api_timer_add(l, timeout, interval, handler, timer_id, definition);
 }
@@ -171,7 +235,7 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, t
         new_node->fd = timerfd_create(CLOCK_REALTIME, 0);
         if (new_node->fd == -1) {
             FREE_PTR(new_node);
-            MYMPD_LOG_ERROR("Can't create timerfd");
+            MYMPD_LOG_ERROR(NULL, "Can't create timerfd");
             return false;
         }
 
@@ -199,7 +263,7 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, t
     {
         l->active++;
     }
-    MYMPD_LOG_DEBUG("Added timer with id %d, start time in %llds", timer_id, (long long)timeout);
+    MYMPD_LOG_DEBUG(NULL, "Added timer with id %d, start time in %llds", timer_id, (long long)timeout);
     return true;
 }
 
@@ -207,14 +271,15 @@ bool mympd_api_timer_add(struct t_timer_list *l, time_t timeout, int interval, t
  * Removes a timer with given id
  * @param l timer list
  * @param timer_id timer id to remove
+ * @return true on success, else false
  */
-void mympd_api_timer_remove(struct t_timer_list *l, int timer_id) {
+bool mympd_api_timer_remove(struct t_timer_list *l, int timer_id) {
     struct t_timer_node *current = NULL;
     struct t_timer_node *previous = NULL;
 
     for (current = l->list; current != NULL; previous = current, current = current->next) {
         if (current->timer_id == timer_id) {
-            MYMPD_LOG_DEBUG("Removing timer with id %d", timer_id);
+            MYMPD_LOG_DEBUG(NULL, "Removing timer with id %d", timer_id);
             if (previous == NULL) {
                 //Fix beginning pointer
                 l->list = current->next;
@@ -231,26 +296,29 @@ void mympd_api_timer_remove(struct t_timer_list *l, int timer_id) {
             }
             mympd_api_timer_free_node(current);
             l->length--;
-            return;
+            return true;
         }
     }
+    return false;
 }
 
 /**
  * Toggles the enabled state of a timer
  * @param l timer list
  * @param timer_id timer id to toggle
+ * @return true on success, else false
  */
-void mympd_api_timer_toggle(struct t_timer_list *l, int timer_id) {
+bool mympd_api_timer_toggle(struct t_timer_list *l, int timer_id) {
     struct t_timer_node *current = NULL;
     for (current = l->list; current != NULL; current = current->next) {
         if (current->timer_id == timer_id) {
             if (current->definition != NULL) {
                 current->definition->enabled = current->definition->enabled == true ? false : true;
             }
-            return;
+            return true;
         }
     }
+    return false;
 }
 
 /**
@@ -262,7 +330,7 @@ void mympd_api_timer_timerlist_clear(struct t_timer_list *l) {
     struct t_timer_node *tmp = NULL;
 
     while (current != NULL) {
-        MYMPD_LOG_DEBUG("Removing timer with id %d", current->timer_id);
+        MYMPD_LOG_DEBUG(NULL, "Removing timer with id %d", current->timer_id);
         tmp = current;
         current = current->next;
         mympd_api_timer_free_node(tmp);
@@ -311,6 +379,7 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         json_get_int(str, "$.params.startMinute", 0, 59, &timer_def->start_minute, error) == true &&
         json_get_string_max(str, "$.params.action", &timer_def->action, vcb_isalnum, error) == true &&
         json_get_string_max(str, "$.params.subaction", &timer_def->subaction, vcb_isname, error) == true &&
+        json_get_string_max(str, "$.params.preset", &timer_def->preset, vcb_isname, error) == true &&
         json_get_uint(str, "$.params.volume", VOLUME_MIN, VOLUME_MAX, &timer_def->volume, error) == true &&
         json_get_string_max(str, "$.params.playlist", &timer_def->playlist, vcb_isfilename, error) == true &&
         json_get_object_string(str, "$.params.arguments", &timer_def->arguments, vcb_isname, SCRIPT_ARGUMENTS_MAX, error) == true &&
@@ -322,16 +391,12 @@ struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *time
         json_get_bool(str, "$.params.weekdays[5]", &timer_def->weekdays[5], error) == true &&
         json_get_bool(str, "$.params.weekdays[6]", &timer_def->weekdays[6], error) == true)
     {
-        if (json_get_string_max(str, "$.params.preset", &timer_def->preset, vcb_isname, error) == false) {
-            //Migration from 10.1 to 10.2
-            timer_def->preset = sdsempty();
-        }
         timer_def->partition = sdsnew(partition);
-        MYMPD_LOG_DEBUG("Successfully parsed timer definition");
+        MYMPD_LOG_DEBUG(NULL, "Successfully parsed timer definition");
     }
     else {
         timer_def = mympd_api_timer_free_definition(timer_def);
-        MYMPD_LOG_ERROR("Error parsing timer definition");
+        MYMPD_LOG_ERROR(NULL, "Error parsing timer definition");
     }
     return timer_def;
 }
@@ -438,14 +503,14 @@ sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, long reques
  * @return true on success, else false
  */
 bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
-    sds timer_file = sdscatfmt(sdsempty(), "%S/state/timer_list", workdir);
+    sds timer_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_STATE, FILENAME_TIMER);
     errno = 0;
     FILE *fp = fopen(timer_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
         //ignore error
-        MYMPD_LOG_DEBUG("Can not open file \"%s\"", timer_file);
+        MYMPD_LOG_DEBUG(NULL, "Can not open file \"%s\"", timer_file);
         if (errno != ENOENT) {
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERRNO(NULL, errno);
         }
         FREE_SDS(timer_file);
         return false;
@@ -455,7 +520,7 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
     sds param = sdsempty();
     while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
         if (i > LIST_TIMER_MAX) {
-            MYMPD_LOG_WARN("Too many timers defined");
+            MYMPD_LOG_WARN(NULL, "Too many timers defined");
             break;
         }
         sdsclear(param);
@@ -481,8 +546,8 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
                 mympd_api_timer_add(timer_list, start, interval, timer_handler_select, timerid, timer_def);
             }
             else {
-                MYMPD_LOG_ERROR("Invalid timer line");
-                MYMPD_LOG_DEBUG("Errorneous line: %s", line);
+                MYMPD_LOG_ERROR(NULL, "Invalid timer line");
+                MYMPD_LOG_DEBUG(NULL, "Errorneous line: %s", line);
                 if (timer_def != NULL) {
                     mympd_api_timer_free_definition(timer_def);
                 }
@@ -490,7 +555,7 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
             i++;
         }
         else {
-            MYMPD_LOG_WARN("Skipping timer definition for unknown partition \"%s\"", partition);
+            MYMPD_LOG_WARN(NULL, "Skipping timer definition for unknown partition \"%s\"", partition);
         }
         FREE_SDS(partition);
     }
@@ -498,7 +563,7 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
     FREE_SDS(line);
     (void) fclose(fp);
     FREE_SDS(timer_file);
-    MYMPD_LOG_INFO("Read %d timer(s) from disc", timer_list->length);
+    MYMPD_LOG_INFO(NULL, "Read %d timer(s) from disc", timer_list->length);
     return true;
 }
 
@@ -509,8 +574,8 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
  * @return true on success, else false
  */
 bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir) {
-    MYMPD_LOG_INFO("Saving timers to disc");
-    sds tmp_file = sdscatfmt(sdsempty(), "%S/state/timer_list.XXXXXX", workdir);
+    MYMPD_LOG_INFO(NULL, "Saving timers to disc");
+    sds tmp_file = sdscatfmt(sdsempty(), "%S/%s/%s.XXXXXX", workdir, DIR_WORK_STATE, FILENAME_TIMER);
     FILE *fp = open_tmp_file(tmp_file);
     if (fp == NULL) {
         FREE_SDS(tmp_file);
@@ -528,7 +593,7 @@ bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir) {
             buffer = print_timer_node(buffer, current);
             buffer = sdscatlen(buffer, "}\n", 2);
             if (fputs(buffer, fp) == EOF) {
-                MYMPD_LOG_ERROR("Could not write timers to disc");
+                MYMPD_LOG_ERROR(NULL, "Could not write timers to disc");
                 write_rc = false;
                 break;
             }

@@ -14,6 +14,19 @@ let time_start = 0;
 let time_end = 0;
 let time_all = 0;
 
+//escapes html characters to avoid xss
+function e(x) {
+    if (x!== undefined && isNaN(x)) {
+        return x.replace(/([<>"'])/g, function(m0, m1) {
+            if (m1 === '<') return '&lt;';
+            else if (m1 === '>') return '&gt;';
+            else if (m1 === '"') return '&quot;';
+            else if (m1 === '\'') return '&apos;';
+        });
+    }
+    return x;
+}
+
 function setTest(cmd, state, response) {
     if (state === 'ok') {
         ok++;
@@ -29,58 +42,66 @@ function setTest(cmd, state, response) {
     document.getElementById('testCount').textContent = 'Test ' + (i + 1) + '/' + cmds.length + ' - ' +
         ok + ' ok, ' + warn + ' warnings, ' + error + ' errors, duration: ' + time_all + ' ms';
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + JSON.stringify(cmd) + '</td><td>' + duration + ' ms</td><td>' + response + '</td>';
+    tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + e(JSON.stringify(cmd)) + '</td><td>' + duration + ' ms</td><td>' + e(response) + '</td>';
     tr.childNodes[2].style.backgroundColor = (state === 'ok' ? 'green' : (state === 'warn' ? 'yellow' : 'red'));
     document.getElementsByTagName('tbody')[0].appendChild(tr);
 }
 
-function sendAPI(method) {
-    let ajaxRequest = new XMLHttpRequest();
-    ajaxRequest.open('POST', '/api/default', true);
-    ajaxRequest.setRequestHeader('Content-type', 'application/json');
-    ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.readyState === 4) {
-            if (ajaxRequest.responseText !== '') {
-                let obj;
-                try {
-                    obj = JSON.parse(ajaxRequest.responseText);
-                    time_end = new Date().getTime();
-                    if (!obj.error && !obj.result && !obj.jsonrpc) {
-                        setTest(request, 'error', 'Invalid response: ' + ajaxRequest.responseText);
-                    }
-                    else if (obj.result) {
-                        setTest(request, 'ok', ajaxRequest.responseText);
-                    }
-                    else if (obj.error &&
-                        (obj.error.message === 'Invalid API request' ||
-                         obj.error.message === 'No response for method %{method}')
-                    ) {
-                        setTest(request, 'error', ajaxRequest.responseText);
-                    }
-                    else {
-                        setTest(request, 'warn', ajaxRequest.responseText);
-                    }
-                }
-                catch(e) {
-                    setTest(request, 'error', '<p>JSON parse error: ' + e + '</p><small>' + ajaxRequest.responseText + '</small>');
-                }
-            }
-            else {
-                setTest(request, 'error', ajaxRequest.responseText);
-            }
-            i++;
-            if (i < cmds.length) {
-                sendAPI(cmds[i]);
-            }
-            else {
-                document.getElementsByTagName('h5')[0].textContent = 'Finished';
-            }
-        }
-    };
-    let request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": apiParamsToObject(APImethods[method].params)};
+async function sendAPI(method) {
+    const request = {"jsonrpc": "2.0", "id": 0, "method": method, "params": apiParamsToObject(APImethods[method].params)};
     document.getElementsByTagName('h5')[0].textContent = 'Running ' + JSON.stringify(request);
     time_start = new Date().getTime();
-    ajaxRequest.send(JSON.stringify(request));
+    const uri = '/api/default';
+    const response = await fetch(uri, {
+        method: 'POST',
+        mode: 'same-origin',
+        credentials: 'same-origin',
+        cache: 'no-store',
+        redirect: 'follow',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-myMPD-Session': ''
+        },
+        body: JSON.stringify(request)
+    });
+    time_end = new Date().getTime();
+
+    if (response.ok === false) {
+        setTest(request, 'error', ajaxRequest.responseText);
+    }
+    else {
+        try {
+            const obj = await response.json();
+            if (!obj.error && !obj.result && !obj.jsonrpc) {
+                setTest(request, 'error', 'Invalid response: ' + JSON.stringify(obj));
+            }
+            else if (obj.result) {
+                setTest(request, 'ok', JSON.stringify(obj));
+            }
+            else if (obj.error &&
+                (obj.error.message === 'Invalid API request' ||
+                 obj.error.message === 'No response for method %{method}')
+            ) {
+                setTest(request, 'error', JSON.stringify(obj));
+            }
+            else {
+                setTest(request, 'warn', JSON.stringify(obj));
+            }
+        }
+        catch(error) {
+            const text = await response.text();
+            setTest(request, 'error', '<p>JSON parse error: ' + error + '</p><small>' + text + '</small>');
+        }
+    }
+
+    //call next test
+    i++;
+    if (i < cmds.length) {
+        sendAPI(cmds[i]);
+    }
+    else {
+        document.getElementsByTagName('h5')[0].textContent = 'Finished';
+    }
 }
 
 function apiParamsToObject(p) {

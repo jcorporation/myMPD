@@ -55,7 +55,7 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_trigger_file_read(&mympd_state->trigger_list, mympd_state->config->workdir);
     //caches
     if (mympd_state->config->save_caches == true) {
-        MYMPD_LOG_INFO("Reading caches from disc");
+        MYMPD_LOG_INFO(NULL, "Reading caches from disc");
         //album cache
         album_cache_read(&mympd_state->mpd_state->album_cache, mympd_state->config->workdir);
         //sticker cache
@@ -63,7 +63,7 @@ void *mympd_api_loop(void *arg_config) {
     }
     //set timers
     if (mympd_state->config->covercache_keep_days > 0) {
-        MYMPD_LOG_DEBUG("Adding timer for \"crop covercache\" to execute periodic each day");
+        MYMPD_LOG_DEBUG(NULL, "Adding timer for \"crop covercache\" to execute periodic each day");
         mympd_api_timer_add(&mympd_state->timer_list, COVERCACHE_CLEANUP_OFFSET, COVERCACHE_CLEANUP_INTERVAL,
             timer_handler_by_id, TIMER_ID_COVERCACHE_CROP, NULL);
     }
@@ -76,7 +76,7 @@ void *mympd_api_loop(void *arg_config) {
         mpd_client_idle(mympd_state);
         mympd_api_timer_check(&mympd_state->timer_list);
     }
-    MYMPD_LOG_DEBUG("Stopping mympd_api thread");
+    MYMPD_LOG_DEBUG(NULL, "Stopping mympd_api thread");
 
     //stop trigger
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_STOP, MPD_PARTITION_ALL);

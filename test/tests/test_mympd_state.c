@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "utility.h"
 
 #include "dist/utest/utest.h"
 #include "src/lib/mympd_state.h"
@@ -16,10 +17,10 @@ UTEST(mympd_state, test_copy_tag_types) {
     reset_t_tags(&dst_taglist);
 
     src_taglist.tags[0] = MPD_TAG_ALBUM;
-    src_taglist.tags[0] = MPD_TAG_ALBUM_ARTIST;
+    src_taglist.tags[1] = MPD_TAG_ALBUM_ARTIST;
     src_taglist.len = 2;
 
-    copy_tag_types(src_taglist, dst_taglist);
+    copy_tag_types(&src_taglist, &dst_taglist);
 
     ASSERT_EQ(MPD_TAG_ALBUM, dst_taglist.tags[0]);
     ASSERT_EQ(MPD_TAG_ALBUM_ARTIST, dst_taglist.tags[1]);

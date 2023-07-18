@@ -30,13 +30,13 @@ sds mympd_api_volume_set(struct t_partition_state *partition_state, sds buffer, 
         //enforce volume range limit
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_PLAYER, JSONRPC_SEVERITY_ERROR, "Invalid volume level");
-        MYMPD_LOG_WARN("New volume(%u) out of range: %u-%u",
+        MYMPD_LOG_WARN(partition_state->name, "New volume(%u) out of range: %u-%u",
             volume, partition_state->mympd_state->volume_min, partition_state->mympd_state->volume_max);
     }
     else {
-        bool rc = mpd_run_set_volume(partition_state->conn, volume);
+        mpd_run_set_volume(partition_state->conn, volume);
         bool result;
-        buffer = mympd_respond_with_error_or_ok(partition_state, buffer, cmd_id, request_id, rc, "mpd_run_set_volume", &result);
+        buffer = mympd_respond_with_error_or_ok(partition_state, buffer, cmd_id, request_id, "mpd_run_set_volume", &result);
     }
     return buffer;
 }

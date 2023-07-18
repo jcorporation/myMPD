@@ -8,28 +8,66 @@
 /** @type {number} */
 const startTime = Date.now();
 
+// generate uniq id for this browser session
+/** @type {number} */
+const jsonrpcClientIdMin = 100000;
+const jsonrpcClientIdMax = 999999;
+const jsonrpcClientId = Math.floor(Math.random() * (jsonrpcClientIdMax - jsonrpcClientIdMin + 1) + jsonrpcClientIdMin);
+let jsonrpcRequestId = 0;
+
+const jsonRpcError = {
+    "jsonrpc": "2.0",
+    "id": 0,
+    "error": {
+        "method": "",
+        "facility": "general",
+        "severity": "error",
+        "message": "",
+        "data": {}
+    }
+};
+
 let socket = null;
-let websocketTimer = null;
+
 let websocketKeepAliveTimer = null;
 let searchTimer = null;
 let resizeTimer = null;
+let progressTimer = null;
 
 /** @type {number} */
 const searchTimerTimeout = 500;
 
+/** @type {object} */
 let currentSongObj = {};
+
+/** @type {object} */
 let currentState = {};
+
+/** @type {object} */
 let settings = {
     /** @type {number} */
-    "loglevel": 2
+    "loglevel": 2,
+    "partition": {}
 };
+
+/** @type {boolean} */
+let myMPDready = false;
+
+/** @type {boolean} */
+let appInited = false;
+
+/** @type {boolean} */
+let scriptsInited = false;
+
+/** @type {boolean} */
+let uiEnabled = true;
 
 /** @type {string} */
 let settingsParsed = 'no';
 
-let progressTimer = null;
-let dragSrc;
-let dragEl;
+// Reference to dom node for drag & drop
+/** @type {EventTarget} */
+let dragEl = undefined;
 
 /** @type {boolean} */
 let showSyncedLyrics = false;
@@ -37,20 +75,18 @@ let showSyncedLyrics = false;
 /** @type {boolean} */
 let scrollSyncedLyrics = true;
 
-/** @type {boolean} */
-let appInited = false;
+/** @type {string} */
+const subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
 
-/** @type {boolean} */
-let scriptsInited = false;
-let subdir = '';
-
-/** @type {boolean} */
-let uiEnabled = true;
-
+/** @type {object} */
 let allOutputs = null;
 
-/** @type {string} */
-const ligatureMore = 'menu';
+/** @type {object} */
+const ligatures = {
+    'checked': 'task_alt',
+    'more': 'menu',
+    'unchecked': 'radio_button_unchecked'
+};
 
 /** @type {string} */
 const smallSpace = '\u2009';
@@ -62,8 +98,15 @@ const nDash = '\u2013';
 let tagAlbumArtist = 'AlbumArtist';
 
 /** @type {object} */
-const albumFilters = ["Composer", "Performer", "Conductor", "Ensemble"];
+const albumFilters = [
+    'AlbumArtist',
+    'Composer',
+    'Performer',
+    'Conductor',
+    'Ensemble'
+];
 
+/** @type {object} */
 const session = {
     "token": "",
     "timeout": 0
@@ -185,8 +228,14 @@ const mpdVersion = {
 const browseFilesystemHistory = {};
 
 //list of stickers
-const stickerList = ['stickerPlayCount', 'stickerSkipCount', 'stickerLastPlayed',
-    'stickerLastSkipped', 'stickerLike', 'stickerElapsed'];
+const stickerList = [
+    'stickerPlayCount',
+    'stickerSkipCount',
+    'stickerLastPlayed',
+    'stickerLastSkipped',
+    'stickerLike',
+    'stickerElapsed'
+];
 
 //application state
 const app = {};
@@ -223,7 +272,7 @@ app.cards = {
                 "limit": 100,
                 "filter": "any",
                 "sort": {
-                    "tag": "Priority",
+                    "tag": "Pos",
                     "desc": false
                 },
                 "tag": "-",
@@ -400,7 +449,7 @@ app.cards = {
         "limit": 100,
         "filter": "any",
         "sort": {
-            "tag": "-",
+            "tag": "Title",
             "desc": false
         },
         "tag": "-",
@@ -904,10 +953,11 @@ const keymap = {
         "p": {"order": 9, "cmd": "togglePlaymode", "options": ["repeat"], "desc": "Toggle repeat"},
         "i": {"order": 9, "cmd": "togglePlaymode", "options": ["single"], "desc": "Toggle single mode"},
     "modals": {"order": 200, "desc": "Dialogs"},
-        "A": {"order": 201, "cmd": "showAddToPlaylist", "options": ["STREAM"], "desc": "Add stream"},
+        "A": {"order": 201, "cmd": "showAddToPlaylist", "options": ["stream", []], "desc": "Add stream"},
         "C": {"order": 202, "cmd": "openModal", "options": ["modalConnection"], "desc": "Open MPD connection"},
         "G": {"order": 207, "cmd": "openModal", "options": ["modalTrigger"], "desc": "Open trigger", "feature": "featTrigger"},
         "I": {"order": 207, "cmd": "openModal", "options": ["modalTimer"], "desc": "Open timer", "feature": "featTimer"},
+        "L": {"order": 207, "cmd": "loginOrLogout", "options": [], "desc": "Login or logout", "feature": "featSession"},
         "M": {"order": 205, "cmd": "openModal", "options": ["modalMaintenance"], "desc": "Open maintenance"},
         "N": {"order": 206, "cmd": "openModal", "options": ["modalNotifications"], "desc": "Open notifications"},
         "O": {"order": 207, "cmd": "openModal", "options": ["modalMounts"], "desc": "Open mounts", "feature": "featMounts"},
@@ -949,6 +999,7 @@ for (const m of document.querySelectorAll('.modal')) {
 }
 //other directly accessed BSN objects
 uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance(document.getElementById('btnHomeIconLigature'));
+uiElements.dropdownNeighbors = BSN.Dropdown.getInstance(document.getElementById('btnDropdownNeighbors'));
 uiElements.collapseJukeboxMode = BSN.Collapse.getInstance(document.getElementById('collapseJukeboxMode'));
 
 const LUAfunctions = {
@@ -970,15 +1021,21 @@ const typeFriendly = {
     'album': 'Album',
     'dir': 'Directory',
     'externalLink': 'External link',
+    'openExternalLink': 'External link',
     'modal': 'Modal',
+    'openModal': 'Modal',
     'plist': 'Playlist',
     'script': 'Script',
+    'execScriptFromOptions': 'Script',
     'search': 'Search',
     'smartpls': 'Smart playlist',
     'song': 'Song',
     'stream': 'Stream',
     'view': 'View',
-    'webradio': 'Webradio'
+    'appGoto': 'View',
+    'webradio': 'Webradio',
+    'cols': 'Columns',
+    'disc': 'Disc'
 };
 
 const friendlyActions = {

@@ -13,6 +13,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
+#include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
 #include "src/mpd_client/volume.h"
 #include "src/mympd_api/extra_media.h"
@@ -23,7 +24,6 @@
  * Private definitions
  */
 
-static time_t get_current_song_start_time(struct t_partition_state *partition_state);
 static const char *get_playstate_name(enum mpd_state play_state);
 
 /**
@@ -114,16 +114,17 @@ sds mympd_api_status_updatedb_state(struct t_partition_state *partition_state, s
  * @return database update id
  */
 long mympd_api_status_updatedb_id(struct t_partition_state *partition_state) {
+    long update_id = -1;
     struct mpd_status *status = mpd_run_status(partition_state->conn);
-    if (status == NULL) {
-        mympd_check_error_and_recover(partition_state);
-        return -1;
+    if (status != NULL) {
+        update_id = (long)mpd_status_get_update_id(status);
+        MYMPD_LOG_NOTICE(partition_state->name, "Update database ID: %ld", update_id);
+        mpd_status_free(status);
     }
-    long update_id = (long)mpd_status_get_update_id(status);
-    MYMPD_LOG_NOTICE("Update database ID: %ld", update_id);
-    mpd_status_free(status);
     mpd_response_finish(partition_state->conn);
-    mympd_check_error_and_recover(partition_state);
+    if (mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status") == false) {
+        update_id = -1;
+    }
     return update_id;
 }
 
@@ -131,29 +132,83 @@ long mympd_api_status_updatedb_id(struct t_partition_state *partition_state) {
  * Gets the mpd status, updates internal myMPD states and returns a jsonrpc notify or response
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
- * @param request_id jsonrpc request id, REQUEST_ID_NOTIFY or REQUEST_ID_RESPONSE
+ * @param request_id jsonrpc request id
+ * @param response_type jsonrpc response type: RESPONSE_TYPE_RESPONSE or RESPONSE_TYPE_NOTIFY
  * @return pointer to buffer
  */
-sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, long request_id) {
+sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, long request_id, enum response_types response_type) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_STATE;
     struct mpd_status *status = mpd_run_status(partition_state->conn);
-    if (status == NULL) {
-        if (request_id == REQUEST_ID_NOTIFY) {
-            mympd_check_error_and_recover_notify(partition_state, &buffer);
+    int song_id = -1;
+    bool song_changed = false;
+    if (status != NULL) {
+        time_t now = time(NULL);
+        song_id = mpd_status_get_song_id(status);
+        if (partition_state->song_id != song_id) {
+            //song has changed, save old state
+            song_changed = true;
+            partition_state->last_song_id = partition_state->song_id;
+            partition_state->last_song_end_time = partition_state->song_end_time;
+            partition_state->last_song_start_time = partition_state->song_start_time;
+            partition_state->last_song_scrobble_time = partition_state->song_scrobble_time;
+        }
+
+        const char *player_error = mpd_status_get_error(status);
+        partition_state->player_error = player_error == NULL || player_error[0] == '\0'
+            ? false
+            : true;
+        partition_state->play_state = mpd_status_get_state(status);
+        partition_state->song_id = song_id;
+        partition_state->song_pos = mpd_status_get_song_pos(status);
+        partition_state->next_song_id = mpd_status_get_next_song_id(status);
+        partition_state->queue_version = mpd_status_get_queue_version(status);
+        partition_state->queue_length = (long long)mpd_status_get_queue_length(status);
+        partition_state->crossfade = (time_t)mpd_status_get_crossfade(status);
+
+        time_t total_time = (time_t)mpd_status_get_total_time(status);
+        time_t elapsed_time = (time_t)mympd_api_get_elapsed_seconds(status);
+        //scrobble time is half length of song or SCROBBLE_TIME_MAX (4 minutes) whatever is shorter
+        time_t scrobble_time = total_time > SCROBBLE_TIME_TOTAL
+            ? SCROBBLE_TIME_MAX
+            : total_time / 2;
+
+        partition_state->song_start_time = now - elapsed_time;
+        partition_state->song_end_time = total_time == 0
+            ? 0
+            : now + total_time - elapsed_time;
+
+        if (total_time <= SCROBBLE_TIME_MIN ||  //don't track songs with length < SCROBBLE_TIME_MIN (10s)
+            elapsed_time > scrobble_time)       //don't track songs that exceeded scrobble time
+        {
+            partition_state->song_scrobble_time = 0;
         }
         else {
-            mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id);
+            partition_state->song_scrobble_time = now - elapsed_time + scrobble_time;
         }
-        return buffer;
+        MYMPD_LOG_DEBUG(partition_state->name, "Now %lld, start time %lld, scrobble time %lld, end time %lld",
+            (long long)now, (long long)partition_state->song_start_time, 
+            (long long)partition_state->song_scrobble_time, (long long)partition_state->song_end_time);
+
+        if (response_type == RESPONSE_TYPE_JSONRPC_NOTIFY) {
+            buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_STATE);
+        }
+        else {
+            buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+        }
+        buffer = mympd_api_status_print(partition_state, buffer, status);
+        buffer = jsonrpc_end(buffer);
+
+        mpd_status_free(status);
     }
-    time_t now = time(NULL);
-    int song_id = mpd_status_get_song_id(status);
-    if (partition_state->song_id != song_id) {
-        //song has changed, save old state
-        partition_state->last_song_id = partition_state->song_id;
-        partition_state->last_song_end_time = partition_state->song_end_time;
-        partition_state->last_song_start_time = partition_state->song_start_time;
-        partition_state->last_song_scrobble_time = partition_state->song_scrobble_time;
+    mpd_response_finish(partition_state->conn);
+    if (response_type == RESPONSE_TYPE_JSONRPC_NOTIFY) {
+        mympd_check_error_and_recover_notify(partition_state, &buffer, "mpd_run_status");
+    }
+    else {
+        mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status");
+    }
+    //update song uri if song has changed
+    if (song_changed == true) {
         struct mpd_song *song = mpd_run_current_song(partition_state->conn);
         if (song != NULL) {
             partition_state->last_song_uri = sds_replace(partition_state->last_song_uri, partition_state->song_uri);
@@ -164,49 +219,36 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
             sdsclear(partition_state->song_uri);
         }
         mpd_response_finish(partition_state->conn);
-        mympd_check_error_and_recover(partition_state);
     }
-
-    partition_state->play_state = mpd_status_get_state(status);
-    partition_state->song_id = song_id;
-    partition_state->song_pos = mpd_status_get_song_pos(status);
-    partition_state->next_song_id = mpd_status_get_next_song_id(status);
-    partition_state->queue_version = mpd_status_get_queue_version(status);
-    partition_state->queue_length = (long long)mpd_status_get_queue_length(status);
-    partition_state->crossfade = (time_t)mpd_status_get_crossfade(status);
-
-    time_t total_time = (time_t)mpd_status_get_total_time(status);
-    time_t elapsed_time = (time_t)mympd_api_get_elapsed_seconds(status);
-    //scrobble time is half length of song or SCROBBLE_TIME_MAX (4 minutes) whatever is shorter
-    time_t scrobble_time = total_time > SCROBBLE_TIME_TOTAL ? SCROBBLE_TIME_MAX
-                                                            : total_time / 2;
-
-    partition_state->song_start_time = now - elapsed_time;
-    partition_state->song_end_time = total_time == 0 ? 0 : now + total_time - elapsed_time;
-
-    if (total_time <= SCROBBLE_TIME_MIN ||  //don't track songs with length < SCROBBLE_TIME_MIN (10s)
-        elapsed_time > scrobble_time)       //don't track songs that exceeded scrobble time
-    {
-        partition_state->song_scrobble_time = 0;
+    if (response_type == RESPONSE_TYPE_JSONRPC_NOTIFY) {
+        mympd_check_error_and_recover_notify(partition_state, &buffer, "mpd_run_status");
     }
     else {
-        partition_state->song_scrobble_time = now - elapsed_time + scrobble_time;
+        mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status");
     }
-    MYMPD_LOG_DEBUG("Now %lld, start time %lld, scrobble time %lld, end time %lld",
-        (long long)now, (long long)partition_state->song_start_time, 
-        (long long)partition_state->song_scrobble_time, (long long)partition_state->song_end_time);
-
-    if (request_id == REQUEST_ID_NOTIFY) {
-        buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_STATE);
-    }
-    else {
-        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-    }
-    buffer = mympd_api_status_print(partition_state, buffer, status);
-    buffer = jsonrpc_end(buffer);
-
-    mpd_status_free(status);
     return buffer;
+}
+
+/**
+ * Clears the mpd player error returned by the status command.
+ * @param partition_state pointer to partition state
+ * @param buffer already allocated sds string to append the error response
+ * @param cmd_id jsonrpc method
+ * @param request_id jsonrpc request id
+ * @return true on success, else false
+ */
+bool mympd_api_status_clear_error(struct t_partition_state *partition_state, sds *buffer,
+        enum mympd_cmd_ids cmd_id, long request_id)
+{
+    bool rc = true;
+    if (partition_state->player_error == true) {
+        mpd_run_clearerror(partition_state->conn);
+        rc = mympd_check_error_and_recover_respond(partition_state, buffer, cmd_id, request_id, "mpd_run_clearerror");
+        if (rc == true) {
+            partition_state->player_error = false;
+        }
+    }
+    return rc;
 }
 
 /**
@@ -216,57 +258,62 @@ sds mympd_api_status_get(struct t_partition_state *partition_state, sds buffer, 
  * @return true on success, else false
  */
 bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, struct t_partition_state *partition_state) {
-    enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(partition_state->conn);
-    if (replay_gain_mode == MPD_REPLAY_UNKNOWN) {
-        if (mympd_check_error_and_recover(partition_state) == false) {
-            return false;
+    if (mpd_command_list_begin(partition_state->conn, true)) {
+        if (mpd_send_status(partition_state->conn) == false) {
+            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_status");
         }
+        if (mpd_send_replay_gain_status(partition_state->conn) == false) {
+            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_replay_gain_status");
+        }
+        mpd_client_command_list_end_check(partition_state);
     }
-
-    struct mpd_status *status = mpd_run_status(partition_state->conn);
-    if (status == NULL) {
-        mympd_check_error_and_recover(partition_state);
-        return false;
+    struct mpd_status *status = mpd_recv_status(partition_state->conn);
+    enum mpd_replay_gain_mode replay_gain_mode = MPD_REPLAY_UNKNOWN;
+    if (mpd_response_next(partition_state->conn)) {
+        replay_gain_mode = mpd_recv_replay_gain_status(partition_state->conn);
     }
-
-    lua_mympd_state_set_i(lua_partition_state, "play_state", mpd_status_get_state(status));
-    lua_mympd_state_set_i(lua_partition_state, "volume", mpd_status_get_volume(status));
-    lua_mympd_state_set_i(lua_partition_state, "song_pos", mpd_status_get_song_pos(status));
-    lua_mympd_state_set_u(lua_partition_state, "elapsed_time", mympd_api_get_elapsed_seconds(status));
-    lua_mympd_state_set_u(lua_partition_state, "total_time", mpd_status_get_total_time(status));
-    lua_mympd_state_set_i(lua_partition_state, "song_id", mpd_status_get_song_id(status));
-    lua_mympd_state_set_i(lua_partition_state, "next_song_id", mpd_status_get_next_song_id(status));
-    lua_mympd_state_set_i(lua_partition_state, "next_song_pos", mpd_status_get_next_song_pos(status));
-    lua_mympd_state_set_u(lua_partition_state, "queue_length", mpd_status_get_queue_length(status));
-    lua_mympd_state_set_u(lua_partition_state, "queue_version", mpd_status_get_queue_version(status));
-    lua_mympd_state_set_b(lua_partition_state, "repeat", mpd_status_get_repeat(status));
-    lua_mympd_state_set_b(lua_partition_state, "random", mpd_status_get_random(status));
-    lua_mympd_state_set_i(lua_partition_state, "single_state", mpd_status_get_single_state(status));
-    lua_mympd_state_set_i(lua_partition_state, "consume_state", mpd_status_get_consume_state(status));
-    lua_mympd_state_set_u(lua_partition_state, "crossfade", mpd_status_get_crossfade(status));
-    lua_mympd_state_set_f(lua_partition_state, "mixrampdelay", mpd_status_get_mixrampdelay(status));
-    lua_mympd_state_set_f(lua_partition_state, "mixrampdb", mpd_status_get_mixrampdb(status));
-
-    lua_mympd_state_set_i(lua_partition_state, "replaygain", replay_gain_mode);
-
-    lua_mympd_state_set_p(lua_partition_state, "music_directory", partition_state->mpd_state->music_directory_value);
-    lua_mympd_state_set_p(lua_partition_state, "playlist_directory", partition_state->mpd_state->playlist_directory_value);
-    lua_mympd_state_set_p(lua_partition_state, "workdir", partition_state->mympd_state->config->workdir);
-    lua_mympd_state_set_p(lua_partition_state, "cachedir", partition_state->mympd_state->config->cachedir);
-    lua_mympd_state_set_b(lua_partition_state, "auto_play", partition_state->auto_play);
-    lua_mympd_state_set_i(lua_partition_state, "jukebox_mode", partition_state->jukebox_mode);
-    lua_mympd_state_set_p(lua_partition_state, "jukebox_playlist", partition_state->jukebox_playlist);
-    lua_mympd_state_set_i(lua_partition_state, "jukebox_queue_length", partition_state->jukebox_queue_length);
-    lua_mympd_state_set_i(lua_partition_state, "jukebox_last_played", partition_state->jukebox_last_played);
-    lua_mympd_state_set_b(lua_partition_state, "jukebox_ignore_hated", partition_state->jukebox_ignore_hated);
-    lua_mympd_state_set_p(lua_partition_state, "jukebox_unique_tag", mpd_tag_name(partition_state->jukebox_unique_tag.tags[0]));
-    lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", partition_state->mympd_state->listenbrainz_token);
-    if (partition_state->mpd_state->feat_partitions == true) {
-        lua_mympd_state_set_p(lua_partition_state, "partition", mpd_status_get_partition(status));
+    if (status != NULL) {
+        lua_mympd_state_set_i(lua_partition_state, "play_state", mpd_status_get_state(status));
+        lua_mympd_state_set_i(lua_partition_state, "volume", mpd_status_get_volume(status));
+        lua_mympd_state_set_i(lua_partition_state, "song_pos", mpd_status_get_song_pos(status));
+        lua_mympd_state_set_u(lua_partition_state, "elapsed_time", mympd_api_get_elapsed_seconds(status));
+        lua_mympd_state_set_u(lua_partition_state, "total_time", mpd_status_get_total_time(status));
+        lua_mympd_state_set_i(lua_partition_state, "song_id", mpd_status_get_song_id(status));
+        lua_mympd_state_set_i(lua_partition_state, "next_song_id", mpd_status_get_next_song_id(status));
+        lua_mympd_state_set_i(lua_partition_state, "next_song_pos", mpd_status_get_next_song_pos(status));
+        lua_mympd_state_set_u(lua_partition_state, "queue_length", mpd_status_get_queue_length(status));
+        lua_mympd_state_set_u(lua_partition_state, "queue_version", mpd_status_get_queue_version(status));
+        lua_mympd_state_set_b(lua_partition_state, "repeat", mpd_status_get_repeat(status));
+        lua_mympd_state_set_b(lua_partition_state, "random", mpd_status_get_random(status));
+        lua_mympd_state_set_i(lua_partition_state, "single_state", mpd_status_get_single_state(status));
+        lua_mympd_state_set_i(lua_partition_state, "consume_state", mpd_status_get_consume_state(status));
+        lua_mympd_state_set_u(lua_partition_state, "crossfade", mpd_status_get_crossfade(status));
+        lua_mympd_state_set_f(lua_partition_state, "mixrampdelay", mpd_status_get_mixrampdelay(status));
+        lua_mympd_state_set_f(lua_partition_state, "mixrampdb", mpd_status_get_mixrampdb(status));
+        lua_mympd_state_set_i(lua_partition_state, "replaygain", replay_gain_mode);
+        lua_mympd_state_set_p(lua_partition_state, "music_directory", partition_state->mpd_state->music_directory_value);
+        lua_mympd_state_set_p(lua_partition_state, "playlist_directory", partition_state->mpd_state->playlist_directory_value);
+        lua_mympd_state_set_p(lua_partition_state, "workdir", partition_state->mympd_state->config->workdir);
+        lua_mympd_state_set_p(lua_partition_state, "cachedir", partition_state->mympd_state->config->cachedir);
+        lua_mympd_state_set_b(lua_partition_state, "auto_play", partition_state->auto_play);
+        lua_mympd_state_set_i(lua_partition_state, "jukebox_mode", partition_state->jukebox_mode);
+        lua_mympd_state_set_p(lua_partition_state, "jukebox_playlist", partition_state->jukebox_playlist);
+        lua_mympd_state_set_i(lua_partition_state, "jukebox_queue_length", partition_state->jukebox_queue_length);
+        lua_mympd_state_set_i(lua_partition_state, "jukebox_last_played", partition_state->jukebox_last_played);
+        lua_mympd_state_set_b(lua_partition_state, "jukebox_ignore_hated", partition_state->jukebox_ignore_hated);
+        lua_mympd_state_set_p(lua_partition_state, "jukebox_unique_tag", mpd_tag_name(partition_state->jukebox_unique_tag.tags[0]));
+        lua_mympd_state_set_p(lua_partition_state, "listenbrainz_token", partition_state->mympd_state->listenbrainz_token);
+        if (partition_state->mpd_state->feat_partitions == true) {
+            lua_mympd_state_set_p(lua_partition_state, "partition", mpd_status_get_partition(status));
+        }
+        mpd_status_free(status);
     }
-
-    mpd_status_free(status);
-    return true;
+    mpd_response_finish(partition_state->conn);
+    bool rc = mympd_check_error_and_recover(partition_state, NULL, "mpd_run_status");
+    if (rc == false) {
+        MYMPD_LOG_ERROR(partition_state->name, "Error getting mympd state for script execution");
+    }
+    return rc;
 }
 
 /**
@@ -274,12 +321,13 @@ bool mympd_api_status_lua_mympd_state_set(struct t_list *lua_partition_state, st
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc request id
+ * @param response_type jsonrpc response type: RESPONSE_TYPE_RESPONSE or RESPONSE_TYPE_NOTIFY
  * @return pointer to buffer
  */
-sds mympd_api_status_volume_get(struct t_partition_state *partition_state, sds buffer, long request_id) {
+sds mympd_api_status_volume_get(struct t_partition_state *partition_state, sds buffer, long request_id, enum response_types response_type) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_VOLUME_GET;
     int volume = mpd_client_get_volume(partition_state);
-    if (request_id == REQUEST_ID_NOTIFY) {
+    if (response_type == RESPONSE_TYPE_JSONRPC_NOTIFY) {
         buffer = jsonrpc_notify_start(buffer, JSONRPC_EVENT_UPDATE_VOLUME);
     }
     else {
@@ -299,73 +347,66 @@ sds mympd_api_status_volume_get(struct t_partition_state *partition_state, sds b
  */
 sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds buffer, long request_id) {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYER_CURRENT_SONG;
-    struct mpd_song *song = mpd_run_current_song(partition_state->conn);
-    if (song == NULL) {
-        if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
-            return buffer;
+    if (mpd_command_list_begin(partition_state->conn, true)) {
+        if (mpd_send_status(partition_state->conn) == false) {
+            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_status");
         }
-        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
-            JSONRPC_FACILITY_PLAYER, JSONRPC_SEVERITY_INFO, "No current song");
-        return buffer;
+        if (mpd_send_current_song(partition_state->conn) == false) {
+            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_current_song");
+        }
+        mpd_client_command_list_end_check(partition_state);
     }
 
-    const char *uri = mpd_song_get_uri(song);
-
-    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-    buffer = tojson_uint(buffer, "pos", mpd_song_get_pos(song), true);
-    buffer = tojson_long(buffer, "currentSongId", partition_state->song_id, true);
-    buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, &partition_state->mpd_state->tags_mympd, song);
-    buffer = sdscatlen(buffer, ",", 1);
-    buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
-    buffer = sdscatlen(buffer, ",", 1);
-    buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, uri, false);
-    if (is_streamuri(uri) == true) {
-        sds webradio = get_webradio_from_uri(partition_state->mympd_state->config->workdir, uri);
-        if (sdslen(webradio) > 0) {
-            buffer = sdscat(buffer, ",\"webradio\":{");
-            buffer = sdscatsds(buffer, webradio);
-            buffer = sdscatlen(buffer, "}", 1);
-        }
-        FREE_SDS(webradio);
+    struct mpd_status *status = mpd_recv_status(partition_state->conn);
+    struct mpd_song *song = NULL;
+    if (mpd_response_next(partition_state->conn)) {
+        song = mpd_recv_song(partition_state->conn);
     }
-    mpd_song_free(song);
-
+    if (status != NULL &&
+        song != NULL)
+    {
+        const char *uri = mpd_song_get_uri(song);
+        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+        buffer = tojson_uint(buffer, "pos", mpd_song_get_pos(song), true);
+        buffer = tojson_long(buffer, "currentSongId", partition_state->song_id, true);
+        buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, &partition_state->mpd_state->tags_mympd, song);
+        buffer = sdscatlen(buffer, ",", 1);
+        buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, uri);
+        buffer = sdscatlen(buffer, ",", 1);
+        buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, uri, false);
+        if (is_streamuri(uri) == true) {
+            sds webradio = get_webradio_from_uri(partition_state->mympd_state->config->workdir, uri);
+            if (sdslen(webradio) > 0) {
+                buffer = sdscat(buffer, ",\"webradio\":{");
+                buffer = sdscatsds(buffer, webradio);
+                buffer = sdscatlen(buffer, "}", 1);
+            }
+            FREE_SDS(webradio);
+        }
+        time_t start_time = time(NULL) - (time_t)mympd_api_get_elapsed_seconds(status);
+        buffer = sdscatlen(buffer, ",", 1);
+        buffer = tojson_time(buffer, "startTime", start_time, false);
+        buffer = jsonrpc_end(buffer);
+    }
+    if (status != NULL) {
+        mpd_status_free(status);
+    }
+    if (song != NULL) {
+        mpd_song_free(song);
+    }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
-        return buffer;
+    if (song == NULL &&
+        mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_current_song") == true)
+    {
+        return jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_PLAYER, JSONRPC_SEVERITY_INFO, "No current song");
     }
-    buffer = sdscatlen(buffer, ",", 1);
-    time_t start_time = get_current_song_start_time(partition_state);
-    buffer = tojson_time(buffer, "startTime", start_time, false);
-    buffer = jsonrpc_end(buffer);
     return buffer;
 }
 
 /**
  * Private functions
  */
-
-/**
- * Gets the start time of current song as unix timestamp
- * @param partition_state pointer to partition state
- * @return start time of current song as unix timestamp
- */
-static time_t get_current_song_start_time(struct t_partition_state *partition_state) {
-    if (partition_state->song_start_time > 0) {
-        return partition_state->song_start_time;
-    }
-    struct mpd_status *status = mpd_run_status(partition_state->conn);
-    if (status == NULL) {
-        mpd_response_finish(partition_state->conn);
-        mympd_check_error_and_recover(partition_state);
-        return 0;
-    }
-    const time_t start_time = time(NULL) - (time_t)mympd_api_get_elapsed_seconds(status);
-    mpd_status_free(status);
-    mpd_response_finish(partition_state->conn);
-    mympd_check_error_and_recover(partition_state);
-    return start_time;
-}
 
 /**
  * Resolves the mpd_state enum to a string

@@ -16,6 +16,7 @@
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
+#include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/volume.h"
 
 #include <string.h>
@@ -50,7 +51,7 @@ void timer_handler_by_id(int timer_id, struct t_timer_definition *definition) {
             timer_handler_caches_create();
             break;
         default:
-            MYMPD_LOG_WARN("Unhandled timer_id");
+            MYMPD_LOG_WARN(NULL, "Unhandled timer_id");
     }
 }
 
@@ -60,7 +61,7 @@ void timer_handler_by_id(int timer_id, struct t_timer_definition *definition) {
  * @param definition the timer definition
  */
 void timer_handler_select(int timer_id, struct t_timer_definition *definition) {
-    MYMPD_LOG_INFO("Start timer_handler_select for timer \"%s\" (%d)", definition->name, timer_id);
+    MYMPD_LOG_INFO(definition->partition, "Start timer_handler_select for timer \"%s\" (%d)", definition->name, timer_id);
     if (strcmp(definition->action, "player") == 0 && strcmp(definition->subaction, "stopplay") == 0) {
         struct t_work_request *request = create_request(-1, 0, MYMPD_API_PLAYER_STOP, NULL, definition->partition);
         request->data = jsonrpc_end(request->data);
@@ -91,7 +92,7 @@ void timer_handler_select(int timer_id, struct t_timer_definition *definition) {
         mympd_queue_push(mympd_api_queue, request, 0);
     }
     else {
-        MYMPD_LOG_ERROR("Unknown timer action: %s - %s", definition->action, definition->subaction);
+        MYMPD_LOG_ERROR(definition->partition, "Unknown timer action: %s - %s", definition->action, definition->subaction);
     }
 }
 
@@ -127,16 +128,13 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         }
     }
 
-    bool rc = false;
     if (mpd_command_list_begin(partition_state->conn, false)) {
-        rc = mpd_send_stop(partition_state->conn);
-        if (rc == false) {
-            MYMPD_LOG_ERROR("Error adding command to command list mpd_send_stop");
+        if (mpd_send_stop(partition_state->conn) == false) {
+            mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_stop");
         }
         if (old_volume != -1) {
-            rc = mpd_send_set_volume(partition_state->conn, volume);
-            if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_set_volume");
+            if (mpd_send_set_volume(partition_state->conn, volume) == false) {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_set_volume");
             }
         }
 
@@ -144,33 +142,23 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
             jukebox_mode == JUKEBOX_OFF)
         {
             //load selected playlist if in preset jukebox is disabled
-            rc = mpd_send_clear(partition_state->conn);
-            if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
-            }
-            rc = mpd_send_load(partition_state->conn, playlist);
-            if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_load");
-            }
-            rc = mpd_send_play(partition_state->conn);
-            if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_play");
+            if (mpd_send_clear(partition_state->conn) == false ||
+                mpd_send_load(partition_state->conn, playlist) == false ||
+                mpd_send_play(partition_state->conn) == false)
+            {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list");
             }
         }
 
         if (jukebox_mode != JUKEBOX_OFF) {
             //clear the queue if jukebox is enabled through preset
-            rc = mpd_send_clear(partition_state->conn);
-            if (rc == false) {
-                MYMPD_LOG_ERROR("Error adding command to command list mpd_send_clear");
+            if (mpd_send_clear(partition_state->conn) == false) {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_clear");
             }
         }
-
-        if (mpd_command_list_end(partition_state->conn) == true) {
-            rc = mpd_response_finish(partition_state->conn);
-        }
+        mpd_client_command_list_end_check(partition_state);
     }
-
+    mpd_response_finish(partition_state->conn);
     //restore old jukebox mode
     partition_state->jukebox_mode = old_jukebox_mode;
 
@@ -182,7 +170,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         mympd_queue_push(mympd_api_queue, request, 0);
     }
 
-    return mympd_check_rc_error_and_recover(partition_state, rc, "command_list");
+    return mympd_check_error_and_recover(partition_state, NULL, "command_list");
 }
 
 /**
@@ -193,7 +181,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
  * Timer handler for timer_id TIMER_ID_COVERCACHE_CROP
  */
 static void timer_handler_covercache_crop(void) {
-    MYMPD_LOG_INFO("Start timer_handler_covercache_crop");
+    MYMPD_LOG_INFO(NULL, "Start timer_handler_covercache_crop");
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_COVERCACHE_CROP, NULL, MPD_PARTITION_DEFAULT);
     request->data = jsonrpc_end(request->data);
     mympd_queue_push(mympd_api_queue, request, 0);
@@ -203,7 +191,7 @@ static void timer_handler_covercache_crop(void) {
  * Timer handler for timer_id TIMER_ID_SMARTPLS_UPDATE
  */
 static void timer_handler_smartpls_update(void) {
-    MYMPD_LOG_INFO("Start timer_handler_smartpls_update");
+    MYMPD_LOG_INFO(NULL, "Start timer_handler_smartpls_update");
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_SMARTPLS_UPDATE_ALL, NULL, MPD_PARTITION_DEFAULT);
     request->data = sdscat(request->data, "\"force\":false}}"); //only update if database has changed
     mympd_queue_push(mympd_api_queue, request, 0);
@@ -213,7 +201,7 @@ static void timer_handler_smartpls_update(void) {
  * Timer handler for timer_id TIMER_ID_CACHES_CREATE
  */
 static void timer_handler_caches_create(void) {
-    MYMPD_LOG_INFO("Start timer_handler_caches_create");
+    MYMPD_LOG_INFO(NULL, "Start timer_handler_caches_create");
     struct t_work_request *request = create_request(-1, 0, MYMPD_API_CACHES_CREATE, NULL, MPD_PARTITION_DEFAULT);
     request->data = sdscat(request->data, "\"force\":false}}"); //only update if database has changed
     mympd_queue_push(mympd_api_queue, request, 0);

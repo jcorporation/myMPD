@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "utility.h"
 
 #include "dist/utest/utest.h"
 #include "src/lib/jsonrpc.h"
@@ -209,6 +210,24 @@ UTEST(jsonrpc, test_json_get_array_string) {
     //invalid - too many array elements
     ASSERT_TRUE(json_get_array_string(data, "$.key1", &l, vcb_isname, 1, NULL));
     ASSERT_EQ(1, l.length);
+    FREE_SDS(data);
+    list_clear(&l);
+}
+
+UTEST(jsonrpc, test_json_get_array_llong) {
+    struct t_list l;
+    list_init(&l);
+    sds data = sdsnew("{\"key1\": [123, 789]}");
+    //valid
+    ASSERT_TRUE(json_get_array_llong(data, "$.key1", &l, 10, NULL));
+    list_clear(&l);
+    //invalid - no numeric value
+    data = sds_replace(data, "{\"key1\": [\"asdf\", \"wer\"]}");
+    ASSERT_FALSE(json_get_array_llong(data, "$.key1", &l, 10, NULL));
+    list_clear(&l);
+    //invalid - too many array elements
+    ASSERT_FALSE(json_get_array_llong(data, "$.key1", &l, 1, NULL));
+    ASSERT_EQ(0, l.length);
     FREE_SDS(data);
     list_clear(&l);
 }

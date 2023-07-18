@@ -9,18 +9,14 @@
 
 #include "src/lib/jsonrpc.h"
 #include "src/lib/log.h"
-#include "src/lib/mem.h"
 #include "src/lib/pin.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/validate.h"
 #include "src/web_server/utility.h"
 
+#include <openssl/rand.h>
 #include <string.h>
 #include <time.h>
-
-#ifdef MYMPD_ENABLE_SSL
-    #include <openssl/rand.h>
-#endif
 
 /**
  * Request handler for the session api
@@ -45,16 +41,22 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
             sds response = sdsempty();
             if (is_valid == true) {
                 sds new_session = webserver_session_new(&mg_user_data->session_list);
-                response = jsonrpc_respond_start(response, cmd_id, request_id);
-                response = tojson_sds(response, "session", new_session, false);
-                response = jsonrpc_end(response);
-                FREE_SDS(new_session);
+                if (new_session != NULL) {
+                    response = jsonrpc_respond_start(response, cmd_id, request_id);
+                    response = tojson_sds(response, "session", new_session, false);
+                    response = jsonrpc_end(response);
+                    FREE_SDS(new_session);
+                }
+                else {
+                    response = jsonrpc_respond_message(response, cmd_id, request_id,
+                        JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Could not create session");
+                }
             }
             else {
                 response = jsonrpc_respond_message(response, cmd_id, request_id,
                     JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid pin");
             }
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
             FREE_SDS(response);
             break;
         }
@@ -72,21 +74,21 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
                 response = jsonrpc_respond_message(response, cmd_id, request_id,
                     JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid session");
             }
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
             FREE_SDS(response);
             break;
         }
         case MYMPD_API_SESSION_VALIDATE: {
             //session is already validated
             sds response = jsonrpc_respond_ok(sdsempty(), cmd_id, request_id, JSONRPC_FACILITY_SESSION);
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
             FREE_SDS(response);
             break;
         }
         default: {
             sds response = jsonrpc_respond_message(sdsempty(), cmd_id, request_id,
                 JSONRPC_FACILITY_SESSION, JSONRPC_SEVERITY_ERROR, "Invalid API request");
-            webserver_send_data(nc, response, sdslen(response), "Content-Type: application/json\r\n");
+            webserver_send_data(nc, response, sdslen(response), EXTRA_HEADERS_JSON_CONTENT);
             FREE_SDS(response);
         }
     }
@@ -95,29 +97,26 @@ void webserver_session_api(struct mg_connection *nc, enum mympd_cmd_ids cmd_id, 
 /**
  * Creates a new session
  * @param session_list the session list
- * @return newly allocated sds string with the session hash
+ * @return newly allocated sds string with the session hash or NULL on error
  */
 sds webserver_session_new(struct t_list *session_list) {
+    unsigned char buf[10];
+    if (RAND_bytes((unsigned char *)&buf, sizeof(buf)) != 1) {
+        return NULL;
+    }
     sds session = sdsempty();
-    #ifdef MYMPD_ENABLE_SSL
-    unsigned char *buf = malloc_assert(10 * sizeof(unsigned char));
-    RAND_bytes(buf, 10);
     for (int i = 0; i < 10; i++) {
         session = sdscatprintf(session, "%02x", buf[i]);
     }
-    FREE_PTR(buf);
-    #else
-    return session;
-    #endif
     //timeout old sessions
     webserver_session_validate(session_list, NULL);
     //add new session with 30 min timeout
     list_push(session_list, session, (time(NULL) + HTTP_SESSION_TIMEOUT), NULL, NULL);
-    MYMPD_LOG_DEBUG("Created session %s", session);
+    MYMPD_LOG_DEBUG(NULL, "Created session %s", session);
     //limit sessions to 10
     if (session_list->length > HTTP_SESSIONS_MAX) {
         list_remove_node(session_list, 0);
-        MYMPD_LOG_WARN("To many sessions, discarding oldest session");
+        MYMPD_LOG_WARN(NULL, "To many sessions, discarding oldest session");
     }
     return session;
 }
@@ -134,7 +133,7 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
     int i = 0;
     while (current != NULL) {
         if (current->value_i < now) {
-            MYMPD_LOG_DEBUG("Session %s timed out", current->key);
+            MYMPD_LOG_DEBUG(NULL, "Session %s timed out", current->key);
             struct t_list_node *next = current->next;
             list_remove_node(session_list, i);
             current = next;
@@ -144,7 +143,7 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
             if (session != NULL &&
                 strcmp(current->key, session) == 0)
             {
-                MYMPD_LOG_DEBUG("Extending session \"%s\"", session);
+                MYMPD_LOG_DEBUG(NULL, "Extending session \"%s\"", session);
                 current->value_i = time(NULL) + 1800;
                 return true;
             }
@@ -154,7 +153,7 @@ bool webserver_session_validate(struct t_list *session_list, const char *session
         }
     }
     if (session != NULL) {
-        MYMPD_LOG_WARN("Session \"%s\" not found", session);
+        MYMPD_LOG_WARN(NULL, "Session \"%s\" not found", session);
     }
     return false;
 }
@@ -170,13 +169,13 @@ bool webserver_session_remove(struct t_list *session_list, const char *session) 
     int i = 0;
     while (current != NULL) {
         if (strcmp(current->key, session) == 0) {
-            MYMPD_LOG_DEBUG("Session %s removed", current->key);
+            MYMPD_LOG_DEBUG(NULL, "Session %s removed", current->key);
             list_remove_node(session_list, i);
             return true;
         }
         current = current->next;
         i++;
     }
-    MYMPD_LOG_DEBUG("Session %s not found", session);
+    MYMPD_LOG_DEBUG(NULL, "Session %s not found", session);
     return false;
 }

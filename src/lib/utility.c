@@ -52,12 +52,12 @@ bool is_virtual_cuedir(sds music_directory, sds filename) {
     struct stat stat_buf;
     if (stat(full_path, &stat_buf) == 0) {
         if (S_ISREG(stat_buf.st_mode)) {
-            MYMPD_LOG_DEBUG("Path \"%s\" is a virtual cuesheet directory", filename);
+            MYMPD_LOG_DEBUG(NULL, "Path \"%s\" is a virtual cuesheet directory", filename);
             is_cue_file = true;
         }
     }
     else {
-        MYMPD_LOG_ERROR("Error accessing \"%s\"", full_path);
+        MYMPD_LOG_ERROR(NULL, "Error accessing \"%s\"", full_path);
     }
     FREE_SDS(full_path);
     return is_cue_file;
@@ -208,7 +208,7 @@ struct t_mympd_uris {
 };
 
 const struct t_mympd_uris mympd_uris[] = {
-    {"mympd://webradio/", "/browse/webradios/"},
+    {"mympd://webradio/", "/browse/"DIR_WORK_WEBRADIOS"/"},
     {"mympd://", "/"},
     {NULL,                NULL}
 };
@@ -285,8 +285,8 @@ static sds get_local_ip(void) {
 
     errno = 0;
     if (getifaddrs(&ifaddr) == -1) {
-        MYMPD_LOG_ERROR("Can not get list of interface ip addresses");
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can not get list of interface ip addresses");
+        MYMPD_LOG_ERRNO(NULL, errno);
         return sdsempty();
     }
 
@@ -306,7 +306,7 @@ static sds get_local_ip(void) {
                     host, NI_MAXHOST,
                     NULL, 0, NI_NUMERICHOST);
             if (s != 0) {
-                MYMPD_LOG_ERROR("getnameinfo() failed: %s\n", gai_strerror(s));
+                MYMPD_LOG_ERROR(NULL, "getnameinfo() failed: %s\n", gai_strerror(s));
                 continue;
             }
             char *crap;

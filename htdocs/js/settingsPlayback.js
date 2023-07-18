@@ -54,7 +54,7 @@ function initSettingsPlayback() {
                 const d = event.target.parentNode.parentNode.previousElementSibling;
                 BSN.Dropdown.getInstance(d).hide();
             }
-        }, false)
+        }, false);
     }
 }
 
@@ -223,7 +223,7 @@ function togglePlaymode(option) {
     const params = {};
     params[option] = value;
     sendAPI('MYMPD_API_PLAYER_OPTIONS_SET', params, null, false);
-    showNotification(tn(title), '', 'queue', 'info');
+    showNotification(tn(title), 'queue', 'info');
 }
 
 /**
@@ -367,9 +367,15 @@ function saveQueueSettings() {
         ? 'Album'
         : getSelectValueId('selectJukeboxUniqueTag');
 
+    let presetName = getDataId('inputPresetName', 'value');
+    if (presetName === undefined) {
+        //set preset name to blank string, else it is not send to the api
+        presetName = '';
+    }
+
     if (formOK === true) {
         const params = {
-            "name": getDataId('inputPresetName', 'value'),
+            "name": presetName,
             "random": getBtnChkValueId('btnRandom'),
             "single": getBtnGroupValueId('btnSingleGroup'),
             "consume": getBtnGroupValueId('btnConsumeGroup'),
@@ -402,7 +408,6 @@ function saveQueueSettingsClose(obj) {
         showModalAlert(obj);
     }
     else {
-        getSettings();
         uiElements.modalQueueSettings.hide();
     }
 }

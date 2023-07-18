@@ -53,8 +53,7 @@ function handleBrowseDatabaseTagList() {
  */
 function handleBrowseDatabaseAlbumDetail() {
     sendAPI("MYMPD_API_DATABASE_ALBUM_DETAIL", {
-        "album": app.current.tag,
-        "albumartist": app.current.search,
+        "albumid": app.current.filter,
         "cols": settings.colsBrowseDatabaseAlbumDetailFetch
     }, parseAlbumDetails, true);
 }
@@ -70,7 +69,7 @@ function initBrowseDatabase() {
         }
         app.current.search = '';
         document.getElementById('searchDatabaseTagListStr').value = '';
-        appGoto(app.current.card, app.current.tab, 'AlbumList', 0, undefined, 'Album', tagAlbumArtist, 'Album',
+        appGoto(app.current.card, app.current.tab, 'AlbumList', 0, undefined, 'Album', {'tag': tagAlbumArtist, 'desc': false}, 'Album',
             '((' + app.current.tag + ' == \'' + escapeMPD(getData(event.target.parentNode, 'tag')) + '\'))');
     }, false);
 
@@ -97,12 +96,16 @@ function initBrowseDatabase() {
         if (event.target.classList.contains('row')) {
             return;
         }
-        const target = getParent(event.target, 'DIV');
+        //select mode
+        if (selectCard(event) === true) {
+            return;
+        }
+        const target = event.target.closest('DIV');
+        if (target === null) {
+            return;
+        }
         if (target.classList.contains('card-body')) {
-            appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, 'Album', tagAlbumArtist,
-                getData(target.parentNode, 'Album'),
-                getData(target.parentNode, tagAlbumArtist)
-            );
+            appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, getData(target.parentNode, 'AlbumId'));
         }
         else if (target.classList.contains('card-footer')){
             showContextMenu(event);
@@ -111,6 +114,7 @@ function initBrowseDatabase() {
 
     document.getElementById('BrowseDatabaseAlbumListList').addEventListener('contextmenu', function(event) {
         if (event.target.classList.contains('row') ||
+            event.target.classList.contains('album-grid-mouseover') ||
             event.target.parentNode.classList.contains('not-clickable'))
         {
             return;
@@ -128,13 +132,23 @@ function initBrowseDatabase() {
     }, false);
 
     document.getElementById('BrowseDatabaseAlbumDetailList').addEventListener('click', function(event) {
+        //select mode
+        if (selectRow(event) === true) {
+            return;
+        }
         if (event.target.nodeName === 'A') {
             //action td
             handleActionTdClick(event);
             return;
         }
-        const target = getParent(event.target, 'TR');
-        if (checkTargetClick(target) === true) {
+        //table body
+        const target = event.target.closest('TR');
+        if (target === null) {
+            return;
+        }
+        if (target.parentNode.nodeName === 'TBODY' &&
+            checkTargetClick(target) === true)
+        {
             clickSong(getData(target, 'uri'), event);
         }
     }, false);
@@ -278,11 +292,9 @@ function parseDatabaseAlbumList(obj) {
     }
     let cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
-        //id is used only to check if card should be refreshed
-        const id = genId('database' + obj.result.data[i].Album + obj.result.data[i][tagAlbumArtist]);
-
         if (cols[i] !== undefined &&
-            cols[i].firstChild.firstChild.getAttribute('id') === id) {
+            getData(cols[i].firstChild.firstChild, 'AlbumId') === obj.result.data[i].AlbumId)
+        {
             continue;
         }
 
@@ -291,9 +303,11 @@ function parseDatabaseAlbumList(obj) {
 
         image = '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(obj.result.data[i].FirstSongUri);
         card.appendChild(
-            elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
+            elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"]})
         );
-        const taglist = [];
+        const taglist = [
+            pEl.gridSelectBtn.cloneNode(true)
+        ];
         for (const tag of settings.colsBrowseDatabaseAlbumList) {
             taglist.push(
                 elCreateNode((tag === 'Album' ? 'span' : 'small'), {"class": ["d-block"]},
@@ -311,6 +325,7 @@ function parseDatabaseAlbumList(obj) {
         setData(card, 'name', obj.result.data[i].Album);
         setData(card, 'Album', obj.result.data[i].Album);
         setData(card, tagAlbumArtist, obj.result.data[i][tagAlbumArtist]);
+        setData(card, 'AlbumId', obj.result.data[i].AlbumId);
         addAlbumPlayButton(card.firstChild);
         const col = elCreateNode('div', {"class": ["col", "px-0", "mb-2", "flex-grow-0"]}, card);
 
@@ -386,11 +401,9 @@ function saveColsDatabaseAlbumList() {
     }
     let cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
-        //id is used only to check if card should be refreshed
-        const id = genId('database' + obj.result.data[i].value);
-
         if (cols[i] !== undefined &&
-            cols[i].firstChild.firstChild.getAttribute('id') === id) {
+            getData(cols[i].firstChild.firstChild,'tag') === obj.result.data[i].value)
+        {
             continue;
         }
 
@@ -400,7 +413,7 @@ function saveColsDatabaseAlbumList() {
         image = '/tagart?uri=' + myEncodeURIComponent(obj.result.tag + '/' + obj.result.data[i].value);
         if (obj.result.pics === true) {
             card.appendChild(
-                elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "id": id})
+                elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"]})
             );
         }
         card.appendChild(
@@ -444,12 +457,12 @@ function saveColsDatabaseAlbumList() {
  * @returns {void}
  */
 function addAlbumPlayButton(parentEl) {
-    const div = pEl.coverPlayBtn.cloneNode(true);
-    parentEl.appendChild(div);
-    div.addEventListener('click', function(event) {
+    const playBtn = pEl.coverPlayBtn.cloneNode(true);
+    parentEl.appendChild(playBtn);
+    playBtn.addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
-        clickAlbumPlay(getData(event.target.parentNode.parentNode, tagAlbumArtist), getData(event.target.parentNode.parentNode, 'Album'));
+        clickQuickPlay(event.target);
     }, false);
 }
 
@@ -466,7 +479,6 @@ function parseAlbumDetails(obj) {
 
     if (checkResultId(obj, 'BrowseDatabaseAlbumDetailList') === false) {
         elClear(infoEl);
-        elClear(tfoot);
         return;
     }
 
@@ -537,139 +549,67 @@ function backToAlbumGrid() {
 }
 
 /**
- * Wrapper for _addAlbum for add buttons in the album detail view
+ * Wrapper for add buttons in the album detail view
  * @param {string} action action to perform
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function addAlbum(action) {
-    // @ts-ignore search in this view an array
-    _addAlbum(action, app.current.search, app.current.tag, undefined);
-}
-
-/**
- * Appends an album to the queue.
- * Wrapper for _addAlbum for home icon action.
- * @param {void} type not used
- * @param {Array} albumArtist array of albumartists
- * @param {string} album album name
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function appendQueueAlbum(type, albumArtist, album) {
-    //type not used but required for home icon cmd
-    _addAlbum('appendQueue', albumArtist, album, undefined);
-}
-
-/**
- * Appends an album to the queue and plays it.
- * Wrapper for _addAlbum for home icon action.
- * @param {void} type not used
- * @param {Array} albumArtist array of albumartists
- * @param {string} album album name
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function appendPlayQueueAlbum(type, albumArtist, album) {
-    //type not used but required for home icon cmd
-    _addAlbum('appendPlayQueue', albumArtist, album, undefined);
-}
-
-/**
- * Replaces the queue with an album.
- * Wrapper for _addAlbum for home icon action.
- * @param {void} type not used
- * @param {Array} albumArtist array of albumartists
- * @param {string} album album name
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function replaceQueueAlbum(type, albumArtist, album) {
-    //type not used but required for home icon cmd
-    _addAlbum('replaceQueue', albumArtist, album, undefined);
-}
-
-/**
- * Replaces the queue with an album and plays it.
- * Wrapper for _addAlbum for home icon action.
- * @param {void} type not used
- * @param {Array} albumArtist array of albumartists
- * @param {string} album album name
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function replacePlayQueueAlbum(type, albumArtist, album) {
-    //type not used but required for home icon cmd
-    _addAlbum('replacePlayQueue', albumArtist, album, undefined);
-}
-
-/**
- * Inserts the an album after the current playing song.
- * Wrapper for _addAlbum for home icon action.
- * @param {void} type not used
- * @param {Array} albumArtist array of albumartists
- * @param {string} album album name
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function insertAfterCurrentQueueAlbum(type, albumArtist, album) {
-    //type not used but required for home icon cmd
-    _addAlbum('insertQueue', albumArtist, album, undefined);
-}
-
-/**
- * Inserts the an album after the current playing song and plays it.
- * Wrapper for _addAlbum for home icon action.
- * @param {void} type not used
- * @param {Array} albumArtist array of albumartists
- * @param {string} album album name
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function insertPlayAfterCurrentQueueAlbum(type, albumArtist, album) {
-    //type not used but required for home icon cmd
-    _addAlbum('insertPlayQueue', albumArtist, album, undefined);
-}
-
-/**
- * Adds an album to the queue or a playlist
- * @param {string} action action to perform
- * @param {Array} albumArtist array of albumartists
- * @param {string} album album name
- * @param {string} disc optional disc number, "undefined" to add the whole album
- * @returns {void}
- */
-function _addAlbum(action, albumArtist, album, disc) {
-    let expression = '((Album == \'' + escapeMPD(album) + '\')';
-    for (const artist of albumArtist) {
-        expression += ' AND (' + tagAlbumArtist + ' == \'' + escapeMPD(artist) + '\')';
-    }
-    if (disc !== undefined) {
-        expression += ' AND (Disc == \'' + escapeMPD(disc) + '\')';
-    }
-    expression += ')';
-
     switch(action) {
         case 'appendQueue':
-            appendQueue('search', expression);
+            appendQueue('album', [app.current.filter]);
             break;
         case 'appendPlayQueue':
-            appendPlayQueue('search', expression);
-            break;
-        case 'replaceQueue':
-            replaceQueue('search', expression);
-            break;
-        case 'replacePlayQueue':
-            replacePlayQueue('search', expression);
+            appendPlayQueue('album', [app.current.filter]);
             break;
         case 'insertAfterCurrentQueue':
-            insertAfterCurrentQueue('search', expression);
+            insertAfterCurrentQueue('album', [app.current.filter]);
             break;
-        case 'insertPlayAfterCurrentQueue':
-            insertPlayAfterCurrentQueue('search', expression);
+        case 'replaceQueue':
+            replaceQueue('album', [app.current.filter]);
+            break;
+        case 'replacePlayQueue':
+            replacePlayQueue('album', [app.current.filter]);
             break;
         case 'addPlaylist':
-            showAddToPlaylist('ALBUM', expression);
+            showAddToPlaylist('album', [app.current.filter]);
+            break;
+        case 'addAlbumToHome': {
+            const name = document.querySelector('#viewDatabaseAlbumDetailInfoTags > h1').textContent;
+            const images = getDataId('viewDatabaseAlbumDetailCover', 'images');
+            addAlbumToHome(app.current.filter, name, (images.length > 0 ? images[0]: ''));
+            break;
+        }
+    }
+}
+
+/**
+ * Handles single disc actions
+ * @param {string} action action to perform
+ * @param {string} albumId the album id
+ * @param {string} disc disc number as string
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function addAlbumDisc(action, albumId, disc) {
+    switch(action) {
+        case 'appendQueue':
+            appendQueue('disc', [albumId, disc]);
+            break;
+        case 'appendPlayQueue':
+            appendPlayQueue('disc', [albumId, disc]);
+            break;
+        case 'insertAfterCurrentQueue':
+            insertAfterCurrentQueue('disc', [albumId, disc]);
+            break;
+        case 'replaceQueue':
+            replaceQueue('disc', [albumId, disc]);
+            break;
+        case 'replacePlayQueue':
+            replacePlayQueue('disc', [albumId, disc]);
+            break;
+        case 'addPlaylist':
+            showAddToPlaylist('disc', [albumId, disc]);
             break;
     }
 }

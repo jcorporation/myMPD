@@ -88,15 +88,15 @@ bool mympd_api_home_icon_save(struct t_list *home_list, bool replace, long oldpo
  * @return true on success, else false
  */
 bool mympd_api_home_file_read(struct t_list *home_list, sds workdir) {
-    sds home_file = sdscatfmt(sdsempty(), "%S/state/home_list", workdir);
+    sds home_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_STATE, FILENAME_HOME);
     errno = 0;
     FILE *fp = fopen(home_file, OPEN_FLAGS_READ);
     int i = 0;
     if (fp == NULL) {
         //ignore error
-        MYMPD_LOG_DEBUG("Can not open file \"%s\"", home_file);
+        MYMPD_LOG_DEBUG(NULL, "Can not open file \"%s\"", home_file);
         if (errno != ENOENT) {
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERRNO(NULL, errno);
         }
         FREE_SDS(home_file);
         return false;
@@ -105,20 +105,20 @@ bool mympd_api_home_file_read(struct t_list *home_list, sds workdir) {
     sds line = sdsempty();
     while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
         if (validate_json_object(line) == false) {
-            MYMPD_LOG_ERROR("Invalid line");
+            MYMPD_LOG_ERROR(NULL, "Invalid line");
             break;
         }
         list_push(home_list, line, 0, NULL, NULL);
         i++;
         if (i == LIST_HOME_ICONS_MAX) {
-            MYMPD_LOG_WARN("Too many lines in home_list");
+            MYMPD_LOG_WARN(NULL, "Too many lines in home_list");
             break;
         }
     }
     FREE_SDS(line);
     (void) fclose(fp);
     FREE_SDS(home_file);
-    MYMPD_LOG_INFO("Read %ld home icon(s) from disc", home_list->length);
+    MYMPD_LOG_INFO(NULL, "Read %ld home icon(s) from disc", home_list->length);
     return true;
 }
 
@@ -139,8 +139,8 @@ static sds homeicon_to_line_cb(sds buffer, struct t_list_node *current) {
  * @return true on success, else false
  */
 bool mympd_api_home_file_save(struct t_list *home_list, sds workdir) {
-    MYMPD_LOG_INFO("Saving home icons to disc");
-    sds filepath = sdscatfmt(sdsempty(), "%S/state/home_list", workdir);
+    MYMPD_LOG_INFO(NULL, "Saving home icons to disc");
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_STATE, FILENAME_HOME);
     bool rc = list_write_to_disk(filepath, home_list, homeicon_to_line_cb);
     FREE_SDS(filepath);
     return rc;
@@ -193,7 +193,7 @@ sds mympd_api_home_icon_get(struct t_list *home_list, sds buffer, long request_i
         return buffer;
     }
 
-    MYMPD_LOG_ERROR("Can not get home icon at pos %ld", pos);
+    MYMPD_LOG_ERROR(NULL, "Can not get home icon at pos %ld", pos);
     buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
         JSONRPC_FACILITY_HOME, JSONRPC_SEVERITY_ERROR, "Can not get home icon");
     return buffer;

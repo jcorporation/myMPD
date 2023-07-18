@@ -29,8 +29,15 @@ function initBrowseRadioFavorites() {
     }, false);
 
     document.getElementById('BrowseRadioFavoritesList').addEventListener('click', function(event) {
-        const target = event.target.nodeName === 'SMALL' ? event.target.parentNode : event.target;
-        if (target.classList.contains('row')) {
+        if (event.target.classList.contains('row')) {
+            return;
+        }
+        //select mode
+        if (selectCard(event) === true) {
+            return;
+        }
+        const target = event.target.closest('DIV');
+        if (target === null) {
             return;
         }
         if (target.classList.contains('card-body')) {
@@ -77,13 +84,27 @@ function initBrowseRadioFavorites() {
 }
 
 /**
- * Constructs a special webradio favorite uri
+ * Constructs a special webradio favorite uri.
+ * This uri is served by myMPD.
  * @param {string} filename base uri
  * @returns {string} constructed uri
  */
 function getRadioFavoriteUri(filename) {
     //construct special url, it will be resolved by the myMPD api handler
     return 'mympd://webradio/' + myEncodeURI(filename);
+}
+
+/**
+ * Constructs special webradio favorite uris.
+ * This uris are served by myMPD.
+ * @param {Array} uris array of base uris
+ * @returns {Array} modified array with uris
+ */
+function getRadioFavoriteUris(uris) {
+    for (let i = 0, j = uris.length; i < j; i++) {
+        uris[i] = getRadioFavoriteUri(uris[i]);
+    }
+    return uris;
 }
 
 /**
@@ -100,13 +121,13 @@ function getRadioFavoriteList() {
 
 /**
  * Deletes a webradio favorite
- * @param {string} filename filename to delete
+ * @param {Array} filenames filenames to delete
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function deleteRadioFavorite(filename) {
+function deleteRadioFavorites(filenames) {
     sendAPI("MYMPD_API_WEBRADIO_FAVORITE_RM", {
-        "filename": filename
+        "filenames": filenames
     }, function() {
         getRadioFavoriteList();
     }, false);
@@ -114,7 +135,7 @@ function deleteRadioFavorite(filename) {
 
 /**
  * Gets the webradio favorite and opens the edit modal
- * @param {string} filename filename to delete
+ * @param {string} filename filename to get
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
@@ -409,6 +430,7 @@ function parseRadioFavoritesList(obj) {
         const card = elCreateNodes('div', {"data-contextmenu": "webradio", "class": ["card", "card-grid", "clickable"], "tabindex": 0}, [
             elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "title": rowTitle}),
             elCreateNodes('div', {"class": ["card-footer", "card-footer-grid", "p-2"]}, [
+                pEl.gridSelectBtn.cloneNode(true),
                 document.createTextNode(obj.result.data[i].Name),
                 elCreateEmpty('br', {}),
                 elCreateText('small', {}, obj.result.data[i].Genre),

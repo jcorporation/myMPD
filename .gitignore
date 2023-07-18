@@ -15,7 +15,6 @@
 /osc/
 /package/
 /release/
-/test/build/
 
 #debug build files
 /htdocs/assets/ligatures.json

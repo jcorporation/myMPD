@@ -1,10 +1,9 @@
-Add after current playing song
-Add to favorites
-Album
-AlbumArtist
 AlbumArtistSort
 Album details
 AlbumSort
+alsa
+any
+ao
 App
 Artist
 ArtistSort
@@ -23,7 +22,6 @@ Click song
 Click song in queue
 Click webradio
 Click webradio favorite
-Color
 Comment
 Composer
 ComposerSort
@@ -32,8 +30,6 @@ Context menu
 country
 CSS filter
 Dark
-Database
-Date
 Default
 Default image
 Default image dark
@@ -41,7 +37,6 @@ Default image light
 Delete home icon
 Delete playlist
 Delete webradio favorite
-Description
 Disable consume mode
 Disable random
 Disable repeat
@@ -51,7 +46,6 @@ Disc
 Discs
 Display tags in rows for small displays
 Duplicate home icon
-Duration
 Each 1
 Each 3600
 Each 60
@@ -59,7 +53,7 @@ Each 604800
 Each 86400
 Edit attributes
 Edit playlist
-Edit smart playlist
+Edit script
 Enable consume mode
 Enable consume oneshot
 Enable random
@@ -75,23 +69,18 @@ Error executing script %{script}: Error while running the message handler
 Error executing script %{script}: Memory allocation error
 Error executing script %{script}: Runtime error
 Error executing script %{script}: Syntax error during precompilation
-Error getting mympd state for script execution
-External link
 Facilities
+fifo
 Fileformat
 Filetype
-Filter
 Fingerprint
-General
-Genre
 Goto artist
 Grouping
-Highlight color
 Home
 homepage
+httpd
 icon-action
 icon-alert
-icon-all
 icon-av
 icon-communication
 icon-content
@@ -111,19 +100,17 @@ icon-toggle
 Image
 Info
 Invalid response
-Jukebox
+jack
 Jukebox Queue
 Label
 language
 lastchangetime
 lastcheckok
 LastModified
-LastPlayed
 Last played list count
 Light
 Location
 Lua is not compiled in
-Lyrics
 Media session
 Modal
 modalAbout
@@ -155,6 +142,7 @@ mpd_subscription
 MUSICBRAINZ_ALBUMARTISTID
 MUSICBRAINZ_ALBUMID
 MUSICBRAINZ_ARTISTID
+MUSICBRAINZ_RELEASEGROUPID
 MUSICBRAINZ_RELEASETRACKID
 MUSICBRAINZ_TRACKID
 MUSICBRAINZ_WORKID
@@ -165,30 +153,33 @@ mympd_scrobble
 mympd_start
 mympd_stop
 name
-Name
 newest
-Num entries
+null
 Offset
 On page notifications
+openal
 Open directory
-Open folder
-Open parent folder
 OriginalDate
+oss
+osx
 pause and stop
 pause only
 Performer
+pipe
+pipewire
 Play
 Play after current playing song
 Playback controls
 Player
-Playlist
+Playlist successfully copied
+Playlist successfully moved
+Playlist successfully replaced
 plugin
 Pos
-Priority
-Queue
+pulse
 Quick play button
 Quick remove button
-Remove
+recorder
 Remove all downwards
 Remove all upwards
 Repeat current song
@@ -196,27 +187,33 @@ Repeat current song once
 Replace queue with playlist
 Rescan database
 Rescan directory
-Reset to default
-Script
 Scripting
+Script syntax is valid
 search
 Session
 Set priority
+shout
 Show
+Show all albums from AlbumArtist
 Show all albums from artist
+Show all albums from Composer
+Show all albums from Conductor
+Show all albums from Ensemble
+Show all albums from Performer
 Show attributes
 Show MusicBrainz links
 Show notification icon
 Show playback settings in footer
 Show volume level in footer
+sles
+snapcast
+sndio
+solaris
 Song change
 SongCount
-Sort
-Startup
 Startup view
 state
 sticker
-Sticker
 stickerElapsed
 stickerLastPlayed
 stickerLastSkipped
@@ -231,18 +228,14 @@ Synced lyrics vorbis comment
 Tab
 tags
 Thumbnail size
-Timer
 Title
 Too many results, list is cropped
 Track
-Trigger
-Type
 Unsynced lyrics extension
 Unsynced lyrics vorbis comment
 Update database
 Update directory
 url_resolved
-Use ligature
 View
 View playlist
 Volume max.
@@ -250,26 +243,6 @@ Volume min.
 Volume step
 votes
 Warning
+wasapi
 Web notifications
 Work
-Edit script
-alsa
-ao
-sndio
-fifo
-jack
-httpd
-null
-oss
-openal
-osx
-pipe
-pipewire
-pulse
-recorder
-shout
-sles
-snapcast
-solaris
-wasapi
-any

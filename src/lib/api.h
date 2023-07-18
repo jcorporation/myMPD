@@ -19,6 +19,7 @@
  */
 #define MYMPD_CMDS(X) \
     X(GENERAL_API_UNKNOWN) \
+    X(GENERAL_API_NOT_READY) \
     X(INTERNAL_API_ALBUMART) \
     X(INTERNAL_API_ALBUMCACHE_CREATED) \
     X(INTERNAL_API_ALBUMCACHE_ERROR) \
@@ -94,18 +95,32 @@
     X(MYMPD_API_PLAYER_VOLUME_SET) \
     X(MYMPD_API_PLAYER_VOLUME_CHANGE) \
     X(MYMPD_API_PLAYLIST_CONTENT_APPEND_SEARCH) \
-    X(MYMPD_API_PLAYLIST_CONTENT_APPEND_URI) \
+    X(MYMPD_API_PLAYLIST_CONTENT_APPEND_URIS) \
+    X(MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUMS) \
+    X(MYMPD_API_PLAYLIST_CONTENT_APPEND_ALBUM_DISC) \
     X(MYMPD_API_PLAYLIST_CONTENT_CLEAR) \
+    X(MYMPD_API_PLAYLIST_CONTENT_DEDUP) \
+    X(MYMPD_API_PLAYLIST_CONTENT_DEDUP_ALL) \
     X(MYMPD_API_PLAYLIST_CONTENT_INSERT_SEARCH) \
-    X(MYMPD_API_PLAYLIST_CONTENT_INSERT_URI) \
+    X(MYMPD_API_PLAYLIST_CONTENT_INSERT_URIS) \
+    X(MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUMS) \
+    X(MYMPD_API_PLAYLIST_CONTENT_INSERT_ALBUM_DISC) \
     X(MYMPD_API_PLAYLIST_CONTENT_LIST) \
-    X(MYMPD_API_PLAYLIST_CONTENT_MOVE_SONG) \
+    X(MYMPD_API_PLAYLIST_CONTENT_MOVE_POSITION) \
+    X(MYMPD_API_PLAYLIST_CONTENT_MOVE_TO_PLAYLIST) \
     X(MYMPD_API_PLAYLIST_CONTENT_REPLACE_SEARCH) \
-    X(MYMPD_API_PLAYLIST_CONTENT_REPLACE_URI) \
+    X(MYMPD_API_PLAYLIST_CONTENT_REPLACE_URIS) \
+    X(MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUMS) \
+    X(MYMPD_API_PLAYLIST_CONTENT_REPLACE_ALBUM_DISC) \
+    X(MYMPD_API_PLAYLIST_CONTENT_RM_POSITIONS) \
     X(MYMPD_API_PLAYLIST_CONTENT_RM_RANGE) \
     X(MYMPD_API_PLAYLIST_CONTENT_SHUFFLE) \
     X(MYMPD_API_PLAYLIST_CONTENT_SORT) \
-    X(MYMPD_API_PLAYLIST_CONTENT_RM_SONG) \
+    X(MYMPD_API_PLAYLIST_CONTENT_VALIDATE) \
+    X(MYMPD_API_PLAYLIST_CONTENT_VALIDATE_ALL) \
+    X(MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP) \
+    X(MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP_ALL) \
+    X(MYMPD_API_PLAYLIST_COPY) \
     X(MYMPD_API_PLAYLIST_LIST) \
     X(MYMPD_API_PLAYLIST_RENAME) \
     X(MYMPD_API_PLAYLIST_RM) \
@@ -113,24 +128,31 @@
     X(MYMPD_API_PRESET_RM) \
     X(MYMPD_API_PRESET_LOAD) \
     X(MYMPD_API_QUEUE_ADD_RANDOM) \
-    X(MYMPD_API_QUEUE_APPEND_PLAYLIST) \
+    X(MYMPD_API_QUEUE_APPEND_PLAYLISTS) \
     X(MYMPD_API_QUEUE_APPEND_SEARCH) \
-    X(MYMPD_API_QUEUE_APPEND_URI) \
+    X(MYMPD_API_QUEUE_APPEND_URIS) \
+    X(MYMPD_API_QUEUE_APPEND_ALBUMS) \
+    X(MYMPD_API_QUEUE_APPEND_ALBUM_DISC) \
     X(MYMPD_API_QUEUE_CLEAR) \
     X(MYMPD_API_QUEUE_CROP) \
     X(MYMPD_API_QUEUE_CROP_OR_CLEAR) \
-    X(MYMPD_API_QUEUE_INSERT_PLAYLIST) \
+    X(MYMPD_API_QUEUE_INSERT_PLAYLISTS) \
     X(MYMPD_API_QUEUE_INSERT_SEARCH) \
-    X(MYMPD_API_QUEUE_INSERT_URI) \
+    X(MYMPD_API_QUEUE_INSERT_URIS) \
+    X(MYMPD_API_QUEUE_INSERT_ALBUMS) \
+    X(MYMPD_API_QUEUE_INSERT_ALBUM_DISC) \
     X(MYMPD_API_QUEUE_LIST) \
-    X(MYMPD_API_QUEUE_MOVE_SONG) \
+    X(MYMPD_API_QUEUE_MOVE_POSITION) \
+    X(MYMPD_API_QUEUE_MOVE_RELATIVE) \
     X(MYMPD_API_QUEUE_PRIO_SET) \
     X(MYMPD_API_QUEUE_PRIO_SET_HIGHEST) \
-    X(MYMPD_API_QUEUE_REPLACE_PLAYLIST) \
+    X(MYMPD_API_QUEUE_REPLACE_PLAYLISTS) \
     X(MYMPD_API_QUEUE_REPLACE_SEARCH) \
-    X(MYMPD_API_QUEUE_REPLACE_URI) \
+    X(MYMPD_API_QUEUE_REPLACE_URIS) \
+    X(MYMPD_API_QUEUE_REPLACE_ALBUMS) \
+    X(MYMPD_API_QUEUE_REPLACE_ALBUM_DISC) \
     X(MYMPD_API_QUEUE_RM_RANGE) \
-    X(MYMPD_API_QUEUE_RM_SONG) \
+    X(MYMPD_API_QUEUE_RM_IDS) \
     X(MYMPD_API_QUEUE_SAVE) \
     X(MYMPD_API_QUEUE_SEARCH) \
     X(MYMPD_API_QUEUE_SEARCH_ADV) \
@@ -140,6 +162,7 @@
     X(MYMPD_API_SCRIPT_LIST) \
     X(MYMPD_API_SCRIPT_RM) \
     X(MYMPD_API_SCRIPT_SAVE) \
+    X(MYMPD_API_SCRIPT_VALIDATE) \
     X(MYMPD_API_SESSION_LOGIN) \
     X(MYMPD_API_SESSION_LOGOUT) \
     X(MYMPD_API_SESSION_VALIDATE) \
@@ -184,14 +207,6 @@ enum mympd_cmd_ids {
 };
 
 /**
- * Jsonrpc request ids
- */
-enum request_ids {
-    REQUEST_ID_NOTIFY = -1,
-    REQUEST_ID_RESPONSE = 0
-};
-
-/**
  * Struct for work request in the queue
  */
 struct t_work_request {
@@ -226,7 +241,18 @@ struct set_mg_user_data_request {
     sds thumbnail_names;      //!< comma separated list of coverimage thumbnail names
     bool feat_albumart;       //!< true if mpd supports the albumart protocol command
     sds mpd_host;             //!< configured mpd host
+    bool mympd_api_started;   //!< true if the mympd_api thread is ready, else false
     struct t_list partitions; //!< partition specific settings
+};
+
+/**
+ * Special myMPD connection ids.
+ * All other connection ids are from mongoose and identifies client connections.
+ */
+enum conn_ids {
+    CONN_ID_NOTIFY_CLIENT = -2, //!< Send message to client identified by jsonrpc id
+    CONN_ID_INTERNAL = -1,      //!< Internal message from myMPD API thread to webserver thread
+    CONN_ID_NOTIFY_ALL = 0      //!< Send message to all clients in a specific partition
 };
 
 /**
@@ -238,10 +264,12 @@ bool is_protected_api_method(enum mympd_cmd_ids cmd_id);
 bool is_public_api_method(enum mympd_cmd_ids cmd_id);
 bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id);
 void ws_notify(sds message, const char *partition);
+void ws_notify_client(sds message, long request_id);
 struct t_work_response *create_response(struct t_work_request *request);
 struct t_work_response *create_response_new(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *partition);
 struct t_work_request *create_request(long long conn_id, long request_id, enum mympd_cmd_ids cmd_id, const char *data, const char *partition);
 void free_request(struct t_work_request *request);
 void free_response(struct t_work_response *response);
+bool push_response(struct t_work_response *response, long request_id, long long conn_id);
 
 #endif

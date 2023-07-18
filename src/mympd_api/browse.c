@@ -31,100 +31,68 @@
  * @param partition_state pointer to partition specific states
  * @param buffer sds string to append response
  * @param request_id jsonrpc request id
- * @param album name of the album
- * @param albumartists list of albumartists
+ * @param albumid id of the album (key in the album_cache)
  * @param tagcols t_tags struct of song tags to print
  * @return pointer to buffer
  */
 sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds album, struct t_list *albumartists, const struct t_tags *tagcols)
+        sds albumid, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_ALBUM_DETAIL;
-    bool rc = mpd_search_db_songs(partition_state->conn, true);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_db_songs") == false) {
-        mpd_search_cancel(partition_state->conn);
-        return buffer;
-    }
 
-    sds expression = sdsnewlen("(", 1);
-    struct t_list_node *current = albumartists->head;
-    while (current != NULL) {
-        expression = escape_mpd_search_expression(expression, mpd_tag_name(partition_state->mpd_state->tag_albumartist), "==", current->key);
-        expression = sdscat(expression, " AND ");
-        current = current->next;
-    }
-    expression = escape_mpd_search_expression(expression, "Album", "==", album);
-    expression = sdscatlen(expression, ")", 1);
-
-    rc = mpd_search_add_expression(partition_state->conn, expression);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_expression") == false) {
-        mpd_search_cancel(partition_state->conn);
-        FREE_SDS(expression);
-        return buffer;
-    }
-    FREE_SDS(expression);
-    rc = mpd_search_add_sort_tag(partition_state->conn, MPD_TAG_DISC, false);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_sort_tag") == false) {
-        mpd_search_cancel(partition_state->conn);
-        return buffer;
-    }
-    rc = mpd_search_add_window(partition_state->conn, 0, MPD_RESULTS_MAX);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_add_window") == false) {
-        mpd_search_cancel(partition_state->conn);
-        return buffer;
-    }
-    rc = mpd_search_commit(partition_state->conn);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_commit") == false) {
-        return buffer;
-    }
-
-    buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-    buffer = sdscat(buffer, "\"data\":[");
-
-    struct mpd_song *song;
-    int entities_returned = 0;
-
-    time_t last_played_max = 0;
-    sds last_played_song_uri = sdsempty();
-    sds albumkey = sdsempty();
-
-    while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-        if (entities_returned++) {
-            buffer = sdscatlen(buffer, ",", 1);
-        }
-        else {
-            //on first song
-            albumkey = album_cache_get_key(song, albumkey);
-        }
-        buffer = sdscat(buffer, "{\"Type\": \"song\",");
-        buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
-        if (partition_state->mpd_state->feat_stickers) {
-            buffer = sdscatlen(buffer, ",", 1);
-            struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
-            buffer = mympd_api_sticker_print(buffer, sticker);
-            if (sticker != NULL &&
-                sticker->last_played > last_played_max)
-            {
-                last_played_max = sticker->last_played;
-                last_played_song_uri = sds_replace(last_played_song_uri, mpd_song_get_uri(song));
-            }
-        }
-        buffer = sdscatlen(buffer, "}", 1);
-        mpd_song_free(song);
-    }
-    mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
-        FREE_SDS(albumkey);
-        FREE_SDS(last_played_song_uri);
-        return buffer;
-    }
-
-    struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumkey);
+    struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumid);
     if (mpd_album == NULL) {
-        FREE_SDS(albumkey);
-        FREE_SDS(last_played_song_uri);
         return jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Could not find album");
+    }
+
+    sds expression = get_search_expression_album(partition_state->mpd_state->tag_albumartist, mpd_album);
+
+    if (mpd_search_db_songs(partition_state->conn, true) == false ||
+        mpd_search_add_expression(partition_state->conn, expression) == false ||
+        mpd_search_add_sort_tag(partition_state->conn, MPD_TAG_DISC, false) == false ||
+        mpd_search_add_window(partition_state->conn, 0, MPD_RESULTS_MAX) == false)
+    {
+        mpd_search_cancel(partition_state->conn);
+        FREE_SDS(expression);
+        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
+            JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
+    }
+    FREE_SDS(expression);
+    time_t last_played_max = 0;
+    sds last_played_song_uri = sdsempty();
+    if (mpd_search_commit(partition_state->conn)) {
+        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
+        buffer = sdscat(buffer, "\"data\":[");
+
+        struct mpd_song *song;
+        int entities_returned = 0;
+
+        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
+            if (entities_returned++) {
+                buffer = sdscatlen(buffer, ",", 1);
+            }
+            buffer = sdscat(buffer, "{\"Type\": \"song\",");
+            buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
+            if (partition_state->mpd_state->feat_stickers) {
+                buffer = sdscatlen(buffer, ",", 1);
+                struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
+                buffer = mympd_api_sticker_print(buffer, sticker);
+                if (sticker != NULL &&
+                    sticker->last_played > last_played_max)
+                {
+                    last_played_max = sticker->last_played;
+                    last_played_song_uri = sds_replace(last_played_song_uri, mpd_song_get_uri(song));
+                }
+            }
+            buffer = sdscatlen(buffer, "}", 1);
+            mpd_song_free(song);
+        }
+    }
+    mpd_response_finish(partition_state->conn);
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_commit") == false) {
+        FREE_SDS(last_played_song_uri);
+        return buffer;
     }
 
     buffer = sdscatlen(buffer, "],", 2);
@@ -137,13 +105,13 @@ sds mympd_api_browse_album_detail(struct t_partition_state *partition_state, sds
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "Discs", album_get_discs(mpd_album), true);
     buffer = tojson_uint(buffer, "SongCount", album_get_song_count(mpd_album), true);
+    buffer = tojson_char(buffer, "AlbumId", albumid, true);
     buffer = sdscat(buffer, "\"lastPlayedSong\":{");
     buffer = tojson_time(buffer, "time", last_played_max, true);
     buffer = tojson_sds(buffer, "uri", last_played_song_uri, false);
     buffer = sdscatlen(buffer, "}", 1);
     buffer = jsonrpc_end(buffer);
 
-    FREE_SDS(albumkey);
     FREE_SDS(last_played_song_uri);
     return buffer;
 }
@@ -188,7 +156,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
             sortdesc = sortdesc == false ? true : false;
         }
         else {
-            MYMPD_LOG_WARN("Unknown sort tag: %s", sort);
+            MYMPD_LOG_WARN(partition_state->name, "Unknown sort tag: %s", sort);
             sort_tag = MPD_TAG_ALBUM;
         }
     }
@@ -217,7 +185,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
                 }
                 else {
                     //sort tag not present, append to end of the list
-                    MYMPD_LOG_WARN("Sort tag \"%s\" not set for \"%.*s\"", mpd_tag_name(sort_tag), (int)iter.key_len, (char *)iter.key);
+                    MYMPD_LOG_WARN(partition_state->name, "Sort tag \"%s\" not set for \"%.*s\"", mpd_tag_name(sort_tag), (int)iter.key_len, (char *)iter.key);
                     key = sdscatfmt(key, "zzzzzzzzzz::%s", mpd_song_get_uri(album));
                 }
             }
@@ -232,6 +200,7 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
     raxStop(&iter);
     free_search_expression_list(expr_list);
     FREE_SDS(key);
+
     //print album list
     long entity_count = 0;
     long entities_returned = 0;
@@ -255,7 +224,10 @@ sds mympd_api_browse_album_list(struct t_partition_state *partition_state, sds b
             buffer = sdscatlen(buffer, ",", 1);
             buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
             buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), true);
-            buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(album), false);
+            buffer = tojson_char(buffer, "FirstSongUri", mpd_song_get_uri(album), true);
+            key = album_cache_get_key(album);
+            buffer = tojson_char(buffer, "AlbumId", key, false);
+            FREE_SDS(key);
             buffer = sdscatlen(buffer, "}", 1);
         }
         entity_count++;
@@ -296,45 +268,43 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
     size_t searchstr_len = sdslen(searchstr);
     enum mympd_cmd_ids cmd_id = MYMPD_API_DATABASE_TAG_LIST;
 
-    bool rc = mpd_search_db_tags(partition_state->conn, mpd_tag_name_parse(tag));
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_db_tags") == false) {
+    if (mpd_search_db_tags(partition_state->conn, mpd_tag_name_parse(tag)) == false) {
         mpd_search_cancel(partition_state->conn);
-        return buffer;
+        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
+            JSONRPC_SEVERITY_ERROR, "Error creating MPD search command");
     }
 
-    rc = mpd_search_commit(partition_state->conn);
-    if (mympd_check_rc_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, rc, "mpd_search_commit") == false) {
-        return buffer;
-    }
-
-    struct mpd_pair *pair;
-    enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
     long real_limit = offset + limit;
     rax *taglist = raxNew();
     sds key = sdsempty();
-    //filter and sort
-    while ((pair = mpd_recv_pair_tag(partition_state->conn, mpdtag)) != NULL) {
-        if (pair->value[0] == '\0') {
-            MYMPD_LOG_DEBUG("Value is empty, skipping");
-        }
-        else if (searchstr_len == 0 ||
-            (searchstr_len <= 2 && utf8ncasecmp(searchstr, pair->value, searchstr_len) == 0) ||
-            (searchstr_len > 2 && utf8casestr(pair->value, searchstr) != NULL))
-        {
-            key = sdscat(key, pair->value);
-            //handle tags case insensitive
-            sds_utf8_tolower(key);
-            sds data = sdsnew(pair->value);
-            while (raxTryInsert(taglist, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
-                //duplicate - add chars until it is uniq
-                key = sdscatlen(key, ":", 1);
+
+    if (mpd_search_commit(partition_state->conn)) {
+        struct mpd_pair *pair;
+        enum mpd_tag_type mpdtag = mpd_tag_name_parse(tag);
+        //filter and sort
+        while ((pair = mpd_recv_pair_tag(partition_state->conn, mpdtag)) != NULL) {
+            if (pair->value[0] == '\0') {
+                MYMPD_LOG_DEBUG(partition_state->name, "Value is empty, skipping");
             }
-            sdsclear(key);
+            else if (searchstr_len == 0 ||
+                (searchstr_len <= 2 && utf8ncasecmp(searchstr, pair->value, searchstr_len) == 0) ||
+                (searchstr_len > 2 && utf8casestr(pair->value, searchstr) != NULL))
+            {
+                key = sdscat(key, pair->value);
+                //handle tags case insensitive
+                sds_utf8_tolower(key);
+                sds data = sdsnew(pair->value);
+                while (raxTryInsert(taglist, (unsigned char *)key, sdslen(key), data, NULL) == 0) {
+                    //duplicate - add chars until it is uniq
+                    key = sdscatlen(key, ":", 1);
+                }
+                sdsclear(key);
+            }
+            mpd_return_pair(partition_state->conn, pair);
         }
-        mpd_return_pair(partition_state->conn, pair);
     }
     mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_commit") == false) {
         rax_free_sds_data(taglist);
         return buffer;
     }
@@ -369,8 +339,8 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
         FREE_SDS(iter.data);
     }
     raxStop(&iter);
-    //checks if this tag has a directory with pictures in /vsrc/lib/mympd/pics
-    sds pic_path = sdscatfmt(sdsempty(), "%S/pics/%s", partition_state->mympd_state->config->workdir, tag);
+    //checks if this tag has a directory with pictures in /src/lib/mympd/pics
+    sds pic_path = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->mympd_state->config->workdir, DIR_WORK_PICS, tag);
     bool pic = false;
     errno = 0;
     DIR* dir = opendir(pic_path);
@@ -379,9 +349,9 @@ sds mympd_api_browse_tag_list(struct t_partition_state *partition_state, sds buf
         pic = true;
     }
     else {
-        MYMPD_LOG_DEBUG("Can not open directory \"%s\"", pic_path);
+        MYMPD_LOG_DEBUG(partition_state->name, "Can not open directory \"%s\"", pic_path);
         if (errno != ENOENT) {
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERRNO(partition_state->name, errno);
         }
         //ignore error
     }

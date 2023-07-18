@@ -75,9 +75,13 @@ body.mobile > footer > nav {
   border-color: transparent;
 }
 
-.navbar .btn:active {
+.btn-check:checked + .btn,
+:not(.btn-check) + .btn:active,
+.btn:first-child:active,
+.btn.active, .btn.show {
   border-color: var(--mympd-highlightcolor) !important;
   background-color: var(--mympd-highlightcolor) !important;
+  color: var(--mympd-highlightcolor-contrast) !important;
 }
 
 button.active,
@@ -186,16 +190,6 @@ main {
   margin-right: 2rem;
 }
 
-.square-end {
-  border-bottom-right-radius: 0 !important;
-  border-top-right-radius: 0 !important;
-}
-
-.square-start {
-  border-bottom-left-radius: 0 !important;
-  border-top-left-radius: 0 !important;
-}
-
 .breakAll {
   word-break: break-all;
 }
@@ -220,8 +214,16 @@ div > .albumartbg {
 
 .badge {
   font-size: 65%;
-  vertical-align: top;
-  margin-left: 0 !important;
+}
+
+@media only screen and (orientation: portrait) {
+  #navQueue > a {
+    padding-bottom: 0;
+  }
+
+  #badgeQueueItems {
+    margin-top: 0.6rem;
+  }
 }
 
 @media only screen and (orientation: landscape) {
@@ -259,13 +261,17 @@ div > .albumartbg {
     padding-right: 4rem !important;
     margin-top: 0 !important;
   }
+
+  #badgeQueueItems {
+    position: absolute;
+    display: block;
+    margin-top: -1.9rem !important;
+    margin-left: 2rem !important;
+  }
 }
 
 @media only screen and (width <= 800px) {
-  .navText {
-    display: none;
-  }
-
+  .navText,
   .footerCounter {
     display: none;
   }
@@ -330,11 +336,6 @@ div.footerCounter {
   margin-right: 0.5rem;
 }
 
-#badgeQueueItems {
-  margin-left: -2px !important;
-  margin-top: -4px !important;
-}
-
 button {
   overflow: hidden;
 }
@@ -347,10 +348,6 @@ button {
 #BrowseBreadcrumb {
   overflow: auto;
   white-space: nowrap;
-}
-
-#BrowseBreadcrumb > li > a {
-  cursor: pointer;
 }
 
 .nowrap {
@@ -394,12 +391,6 @@ button {
   color: inherit;
 }
 
-.queue-playing:hover > * {
-  background-color: unset;
-
-  --bs-table-accent-bg: unset !important;
-}
-
 [data-col="Pos"],
 [data-col="Track"] {
   max-width: 5rem;
@@ -423,12 +414,16 @@ button {
   word-break: keep-all;
 }
 
+table[data-rw="false"] [data-col="Action"] a[data-action="quickRemove"] {
+  display: none;
+}
+
 table.smallWidth [data-col="Action"] {
   word-break: break-all;
 }
 
 th[data-col="Action"] {
-  padding-right: 0.4rem !important;
+  padding: 0.25rem !important;
 }
 
 th {
@@ -568,20 +563,12 @@ div.card-toolbar > form {
   font-feature-settings: "liga";
 }
 
-.mi-left {
-  margin-left: -1em;
-}
-
-.mi-small {
+.mi-sm {
   font-size: 1rem;
 }
 
 .mi-lg {
   font-size: 3rem;
-}
-
-.mi-xs {
-  font-size: 0.8rem;
 }
 
 button.mi {
@@ -590,7 +577,6 @@ button.mi {
 
 button.mi::after {
   font-size: 1rem;
-  vertical-align: 0.5rem !important;
 }
 
 .pagination button {
@@ -612,19 +598,10 @@ button.mi::after {
   min-width: 10rem;
 }
 
-.form-range::-webkit-slider-thumb {
-  background-color: var(--mympd-highlightcolor);
-}
-
-.form-range::-webkit-slider-thumb:active {
-  background-color: var(--mympd-highlightcolor);
-}
-
-.form-range::-moz-range-thumb {
-  background-color: var(--mympd-highlightcolor);
-}
-
-.form-range::-moz-range-thumb:active {
+.form-range::-webkit-slider-thumb,
+.form-range::-webkit-slider-thumb:active,
+.form-range::-moz-range-thumb,
+.form-range::-moz-range-thumb:active{
   background-color: var(--mympd-highlightcolor);
 }
 
@@ -675,14 +652,7 @@ tfoot td {
 }
 
 [draggable] {
-  -moz-user-select: none;
-  -khtml-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
   user-select: none;
-  /* Required to make elements draggable in old WebKit */
-  -khtml-user-drag: element;
-  -webkit-user-drag: element;
 }
 
 div.key {
@@ -712,16 +682,8 @@ div.key {
   background-color: inherit;
 }
 
-.dropdown-item:hover {
-  background-color: var(--bs-gray-700);
-}
-
 .offcanvas-body .dropdown-item {
   padding: 0.2rem 1.5rem;
-}
-
-textarea.small {
-  font-size: 80%;
 }
 
 .form-control:focus {
@@ -740,9 +702,8 @@ textarea.small {
   border-color: var(--mympd-highlightcolor) !important;
 }
 
-.was-validated .form-control:invalid:focus,
-.form-control.is-invalid:focus {
-  box-shadow: none;
+button.active > a {
+  color: var(--mympd-highlightcolor-contrast);
 }
 
 #dropdownHomeIconLigature .row {
@@ -798,6 +759,10 @@ textarea.small {
   background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFF'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
 }
 
+.alert-dismissible .btn-close {
+  background: transparent url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16' fill='%23FFF'%3e%3cpath d='M.293.293a1 1 0 011.414 0L8 6.586 14.293.293a1 1 0 111.414 1.414L9.414 8l6.293 6.293a1 1 0 01-1.414 1.414L8 9.414l-6.293 6.293a1 1 0 01-1.414-1.414L6.586 8 .293 1.707a1 1 0 010-1.414z'/%3e%3c/svg%3e") center/1em auto no-repeat;
+}
+
 .lyricsText {
   padding-bottom: 1rem;
   padding-left: 0.2rem;
@@ -815,11 +780,6 @@ textarea.small {
 
 #currentLyrics > p.expanded {
   max-height: none;
-}
-
-.disabled {
-  pointer-events: none;
-  cursor: not-allowed;
 }
 
 div#footerProgressPos {
@@ -923,7 +883,7 @@ div.album-grid-mouseover:hover {
   text-overflow: ellipsis;
 }
 
-.text-monospace {
+.font-monospace {
   font-size: 90%;
 }
 
@@ -952,8 +912,9 @@ body.locked button.protected::before {
   margin-right: 0.5rem;
 }
 
-a.external::before {
-  content: "open_in_browser";
+a.external::before,
+a.download::before,
+a.launch::before {
   font-family: "Material Icons";
   font-weight: normal;
   font-style: normal;
@@ -966,38 +927,18 @@ a.external::before {
   text-rendering: optimizelegibility;
   font-feature-settings: "liga";
   margin-right: 0.5rem;
+}
+
+a.external::before {
+  content: "open_in_browser";
 }
 
 a.download::before {
   content: "download";
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
-  font-size: 1.4rem;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  vertical-align: top;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
-  margin-right: 0.5rem;
 }
 
 a.launch::before {
   content: "launch";
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
-  font-size: 1.4rem;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  vertical-align: top;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
-  margin-right: 0.5rem;
 }
 
 /* inner button for inputs */
@@ -1035,98 +976,68 @@ button.select-inner-button {
   flex: unset !important;
 }
 
-.flex-grow {
-  flex-grow: 1;
-}
-
-.modal-footer > button {
-  min-width: 6rem;
-}
-
+.modal-footer > button,
 .modal-footer > div > button {
   min-width: 6rem;
 }
 
-.sort-dir {
-  margin-right: -1.5rem;
+.sort-dir::before {
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.2rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  text-rendering: optimizelegibility;
+  font-feature-settings: "liga";
 }
 
-#SearchList > thead > tr > th,
-#BrowseRadioWebradiodbList > thead > tr > th,
-#QueueCurrentList > thead > tr > th {
-  padding-right: 1.5rem;
+.sort-asc::before {
+  content: 'arrow_drop_down';
+}
+
+.sort-desc::before {
+  content: 'arrow_drop_up';
 }
 
 .dropdownWide {
-  min-width: 15rem;
+  min-width: 20rem;
+}
+
+div.alert-warning::before,
+div.alert-danger::before,
+div.alert-secondary::before,
+div.alert-success::before {
+  float: left;
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  text-rendering: optimizelegibility;
+  font-feature-settings: "liga";
+  margin-right: 0.5rem;
 }
 
 div.alert-warning::before {
   content: "warning";
-  float: left;
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
-  font-size: 1.4rem;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  vertical-align: top;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
-  margin-right: 0.5rem;
 }
 
 div.alert-danger::before {
   content: "error_outline";
-  float: left;
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
-  font-size: 1.4rem;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  vertical-align: top;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
-  margin-right: 0.5rem;
 }
 
 div.alert-secondary::before {
   content: "info";
-  float: left;
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
-  font-size: 1.4rem;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  vertical-align: top;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
-  margin-right: 0.5rem;
 }
 
 div.alert-success::before {
   content: "info";
-  float: left;
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
-  font-size: 1.4rem;
-  line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  vertical-align: top;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
-  margin-right: 0.5rem;
 }
 
 div.alert-secondary {
@@ -1210,4 +1121,130 @@ button.weekday {
   margin-top: 1.5rem;
   overflow: hidden;
   opacity: 1;
+}
+
+.toast {
+  --bs-toast-header-bg: unset;
+  --bs-toast-bg: var(--bs-body-bg);
+}
+
+table[data-mode="select"] > thead > tr > th[data-col="Action"] > a,
+table[data-mode="select"] > tbody > tr > td[data-col="Action"] > a {
+  display: none;
+}
+
+:not(table[data-mode="select"]) > thead > tr > th[data-col="Action"] > button,
+:not(table[data-mode="select"]) > tbody > tr > td[data-col="Action"] > button {
+  display: none;
+}
+
+div[data-mode="select"] .card-footer > button {
+  display: block !important;
+}
+
+div[data-mode="select"] .card-body > div {
+  display: none !important;
+}
+
+tr.selected > td,
+.mympd-grid > div > .selected {
+  background-color: var(--mympd-highlightcolor);
+}
+
+tr.selected:hover > td {
+  opacity: 0.9;
+
+  --bs-table-bg-state: var(--mympd-highlightcolor);
+}
+
+div.selected .card-body{
+  border-top-right-radius: var(--bs-border-radius);
+  border: 4px solid var(--mympd-highlightcolor);
+  border-top-left-radius: var(--bs-border-radius);
+}
+
+tr.selected td,
+tr.selected td button {
+  color: var(--mympd-highlightcolor-contrast);
+}
+
+body.not-mobile .table-responsive {
+  padding-right: 0.5rem;
+}
+
+body[data-uiState="disabled"] a:not(.alwaysEnabled),
+body[data-uiState="disabled"] button:not(.alwaysEnabled),
+body[data-uiState="disabled"] input:not(.alwaysEnabled),
+body[data-uiState="disabled"] select:not(.alwaysEnabled),
+body[data-uiState="disabled"] textarea:not(.alwaysEnabled),
+body[data-uiState="disabled"] .clickable,
+body[data-uiState="disabled"] .input-group-text,
+body[data-uiState="disabled"] small,
+body[data-uiState="disabled"] th,
+.disabled {
+  pointer-events: none !important;
+  cursor: not-allowed !important;
+  opacity: 0.4 !important;
+}
+
+h4.offcanvas-title::before {
+  font-family: "Material Icons";
+  font-weight: normal;
+  font-style: normal;
+  font-size: 1.4rem;
+  line-height: 1;
+  text-transform: none;
+  letter-spacing: normal;
+  word-wrap: normal;
+  text-rendering: optimizelegibility;
+  font-feature-settings: "liga";
+  margin-right: 0.5rem;
+}
+
+h4.offcanvas-title-webradio::before {
+  content: "radio";
+}
+
+h4.offcanvas-title-homeicon::before {
+  content: "home";
+}
+
+h4.offcanvas-title-search::before {
+  content: "saved_search";
+}
+
+h4.offcanvas-title-album::before {
+  content: "album";
+}
+
+h4.offcanvas-title-dir::before {
+  content: "folder_open";
+}
+
+h4.offcanvas-title-song::before {
+  content: "music_note";
+}
+
+h4.offcanvas-title-plist::before {
+  content: "list";
+}
+
+h4.offcanvas-title-smartpls::before {
+  content: "queue_music";
+}
+
+h4.offcanvas-title-script::before {
+  content: "code";
+}
+
+h4.offcanvas-title-modal::before {
+  content: "web_asset";
+}
+
+h4.offcanvas-title-externalLink::before {
+  content: "link";
+}
+
+h4.offcanvas-title-stream::before {
+  content: "stream";
 }

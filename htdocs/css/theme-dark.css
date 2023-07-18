@@ -6,34 +6,15 @@
 
 html[data-bs-theme="dark"] {
   --bs-dropdown-divider-bg: var(--bs-gray-600);
-  --bs-body-color: var(--bs-light);
+  --bs-dropdown-link-hover-bg: var(--bs-gray-700);
+}
+
+html[data-bs-theme="dark"] .dropdown-divider2 {
+  border-top: 1px solid var(--bs-light);
 }
 
 html[data-bs-theme="dark"] .navbar {
   background-color: var(--bs-gray-800);
-}
-
-html[data-bs-theme="dark"] .navbar .btn {
-  color: var(--bs-gray-100);
-}
-
-html[data-bs-theme="dark"] .navbar .btn:active {
-  border-color: var(--bs-gray-900);
-  background-color: var(--bs-gray-900);
-}
-
-html[data-bs-theme="dark"] a,
-html[data-bs-theme="dark"] .dropdown-item,
-html[data-bs-theme="dark"] table {
-  color: var(--bs-gray-100);
-}
-
-html[data-bs-theme="dark"] .nav-tabs .nav-link:hover {
-  color: var(--bs-gray-400);
-}
-
-html[data-bs-theme="dark"] caption {
-  color: var(--bs-body-color);
 }
 
 html[data-bs-theme="dark"] #navbar-main div.active {
@@ -44,18 +25,18 @@ html[data-bs-theme="dark"] .breadcrumb {
   background-color: var(--bs-gray-600);
 }
 
-html[data-bs-theme="dark"] .table-hover > tbody > tr:hover > * {
-  --bs-table-accent-bg: var(--bs-gray-800);
+html[data-bs-theme="dark"] caption {
+  color: var(--bs-body-color);
 }
 
-.form-range::-moz-range-track {
+html[data-bs-theme="dark"] table {
+  --bs-table-hover-bg: var(--bs-gray-800);
+}
+
+html[data-bs-theme="dark"] .form-range::-moz-range-track {
   background-color: var(--bs-gray-300);
 }
 
-html[data-bs-theme="dark"] div#homeActions > button {
-  color: var(--bs-light);
-}
-
-html[data-bs-theme="dark"] .dropdown-divider2 {
-  border-top: 1px solid var(--bs-light);
+html[data-bs-theme="dark"] .dropdown-menu {
+  --bs-dropdown-header-color: var(--bs-gray-200);
 }

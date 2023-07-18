@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "utility.h"
 
 #include "dist/utest/utest.h"
 #include "src/lib/mimetype.h"
@@ -37,7 +38,7 @@ UTEST(mimetype, test_get_ext_by_mime_type) {
 }
 
 UTEST(mimetype, test_get_mime_type_by_magic) {
-    FILE *fp = fopen("htdocs/assets/appicon-192.png", "rb");
+    FILE *fp = fopen(MYMPD_BUILD_DIR"/testfiles/back.jpg", "rb");
     ASSERT_FALSE(fp == NULL);
 
     unsigned char binary_buffer[12];
@@ -45,7 +46,7 @@ UTEST(mimetype, test_get_mime_type_by_magic) {
     fclose(fp);
     sds stream = sdsnewlen(binary_buffer, read);
     const char *mime_type = get_mime_type_by_magic_stream(stream);
-    ASSERT_STREQ("image/png", mime_type);
+    ASSERT_STREQ("image/jpeg", mime_type);
 
     //empty
     sdsclear(stream);

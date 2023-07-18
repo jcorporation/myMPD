@@ -28,6 +28,11 @@ interface Element {
     value: any;
 }
 
+interface Event {
+    shiftKey: any;
+    ctrlKey: any;
+}
+
 interface EventTarget {
     button: any; //custom elements
     classList: any;
@@ -45,6 +50,7 @@ interface EventTarget {
     tagName: any;
     textContent: any;
     value: any;
+    closest: any;
 }
 
 interface HTMLElement {
@@ -62,6 +68,7 @@ interface HTMLElement {
     selectionStart: any;
     setRangeText: any;
     value: any;
+    closest: any;
 }
 
 interface Navigator {

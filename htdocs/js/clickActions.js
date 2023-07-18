@@ -14,18 +14,23 @@ function clickQuickRemove(target) {
     switch(app.id) {
         case 'QueueCurrent': {
             const songId = getData(target.parentNode.parentNode, 'songid');
-            removeFromQueue('single', songId);
+            removeFromQueueIDs([songId]);
+            break;
+        }
+        case 'BrowsePlaylistList': {
+            const plist = getData(target.parentNode.parentNode, 'uri');
+            showDelPlaylist([plist]);
             break;
         }
         case 'BrowsePlaylistDetail': {
             const pos = getData(target.parentNode.parentNode, 'songpos');
             const plist = getDataId('BrowsePlaylistDetailList', 'uri');
-            removeFromPlaylist('single', plist, pos);
+            removeFromPlaylistPositions(plist, [pos]);
             break;
         }
         case 'QueueJukebox': {
             const pos = getData(target.parentNode.parentNode, 'pos');
-            delQueueJukeboxSong(pos);
+            delQueueJukeboxEntries([pos]);
             break;
         }
     }
@@ -38,34 +43,16 @@ function clickQuickRemove(target) {
  */
 function clickQuickPlay(target) {
     const type = getData(target.parentNode.parentNode, 'type');
-    let uri = getData(target.parentNode.parentNode, 'uri');
-    if (type === 'webradio') {
-        uri = getRadioFavoriteUri(uri);
-    }
-    switch(settings.webuiSettings.clickQuickPlay) {
-        case 'append': return appendQueue(type, uri);
-        case 'appendPlay': return appendPlayQueue(type, uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue(type, uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue(type, uri);
-        case 'replace': return replaceQueue(type, uri);
-        case 'replacePlay': return replacePlayQueue(type, uri);
-    }
-}
-
-/**
- * Handler for album play button
- * @param {object} albumArtist album artists
- * @param {string} album album name
- * @returns {void}
- */
-function clickAlbumPlay(albumArtist, album) {
-    switch(settings.webuiSettings.clickQuickPlay) {
-        case 'append': return _addAlbum('appendQueue', albumArtist, album, undefined);
-        case 'appendPlay': return _addAlbum('appendPlayQueue', albumArtist, album, undefined);
-        case 'insertAfterCurrent': return _addAlbum('insertAfterCurrentQueue', albumArtist, album, undefined);
-        case 'insertPlayAfterCurrent': return _addAlbum('insertPlayAfterCurrentQueue', albumArtist, album, undefined);
-        case 'replace': return _addAlbum('replaceQueue', albumArtist, album, undefined);
-        case 'replacePlay': return _addAlbum('replacePlayQueue', albumArtist, album, undefined);
+    const uri = type === 'album'
+        ? getData(target.parentNode.parentNode, 'AlbumId')
+        : getData(target.parentNode.parentNode, 'uri');
+    switch (settings.webuiSettings.clickQuickPlay) {
+        case 'append': return appendQueue(type, [uri]);
+        case 'appendPlay': return appendPlayQueue(type, [uri]);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue(type, [uri]);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue(type, [uri]);
+        case 'replace': return replaceQueue(type, [uri]);
+        case 'replacePlay': return replacePlayQueue(type, [uri]);
     }
 }
 
@@ -77,12 +64,12 @@ function clickAlbumPlay(albumArtist, album) {
  */
 function clickSong(uri, event) {
     switch (settings.webuiSettings.clickSong) {
-        case 'append': return appendQueue('song', uri);
-        case 'appendPlay': return appendPlayQueue('song', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
-        case 'replace': return replaceQueue('song', uri);
-        case 'replacePlay': return replacePlayQueue('song', uri);
+        case 'append': return appendQueue('song', [uri]);
+        case 'appendPlay': return appendPlayQueue('song', [uri]);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', [uri]);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', [uri]);
+        case 'replace': return replaceQueue('song', [uri]);
+        case 'replacePlay': return replacePlayQueue('song', [uri]);
         case 'view': return songDetails(uri);
         case 'context': return showContextMenu(event);
     }
@@ -97,12 +84,12 @@ function clickSong(uri, event) {
  */
 function clickRadiobrowser(uri, uuid, event) {
     switch (settings.webuiSettings.clickRadiobrowser) {
-        case 'append': return appendQueue('song', uri);
-        case 'appendPlay': return appendPlayQueue('song', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
-        case 'replace': return replaceQueue('song', uri);
-        case 'replacePlay': return replacePlayQueue('song', uri);
+        case 'append': return appendQueue('song', [uri]);
+        case 'appendPlay': return appendPlayQueue('song', [uri]);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', [uri]);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', [uri]);
+        case 'replace': return replaceQueue('song', [uri]);
+        case 'replacePlay': return replacePlayQueue('song', [uri]);
         case 'view': return showRadiobrowserDetails(uuid);
         case 'context': return showContextMenu(event);
     }
@@ -117,12 +104,12 @@ function clickRadiobrowser(uri, uuid, event) {
  */
 function clickWebradiodb(uri, event) {
     switch (settings.webuiSettings.clickRadiobrowser) {
-        case 'append': return appendQueue('song', uri);
-        case 'appendPlay': return appendPlayQueue('song', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', uri);
-        case 'replace': return replaceQueue('song', uri);
-        case 'replacePlay': return replacePlayQueue('song', uri);
+        case 'append': return appendQueue('song', [uri]);
+        case 'appendPlay': return appendPlayQueue('song', [uri]);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('song', [uri]);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('song', [uri]);
+        case 'replace': return replaceQueue('song', [uri]);
+        case 'replacePlay': return replacePlayQueue('song', [uri]);
         case 'view': return showWebradiodbDetails(uri);
         case 'context': return showContextMenu(event);
     }
@@ -130,19 +117,18 @@ function clickWebradiodb(uri, event) {
 
 /**
  * Handler for webradio favorites links
- * @param {string} uri webradio favorite uri, starting with mympd://webradio/
+ * @param {string} uri webradio favorite uri (filename only)
  * @param {event} event the event
  * @returns {void}
  */
 function clickRadioFavorites(uri, event) {
-    const fullUri = getRadioFavoriteUri(uri);
     switch(settings.webuiSettings.clickRadioFavorites) {
-        case 'append': return appendQueue('plist', fullUri);
-        case 'appendPlay': return appendPlayQueue('plist', fullUri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', fullUri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', fullUri);
-        case 'replace': return replaceQueue('plist', fullUri);
-        case 'replacePlay': return replacePlayQueue('plist', fullUri);
+        case 'append': return appendQueue('webradio', [uri]);
+        case 'appendPlay': return appendPlayQueue('webradio', [uri]);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('webradio', [uri]);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('webradio', [uri]);
+        case 'replace': return replaceQueue('webradio', [uri]);
+        case 'replacePlay': return replacePlayQueue('webradio', [uri]);
         case 'edit': return editRadioFavorite(uri);
         case 'context': return showContextMenu(event);
     }
@@ -183,12 +169,12 @@ function clickQueueSong(songid, uri, event) {
  */
 function clickPlaylist(uri, event) {
     switch(settings.webuiSettings.clickPlaylist) {
-        case 'append': return appendQueue('plist', uri);
-        case 'appendPlay': return appendPlayQueue('plist', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', uri);
-        case 'replace': return replaceQueue('plist', uri);
-        case 'replacePlay': return replacePlayQueue('plist', uri);
+        case 'append': return appendQueue('plist', [uri]);
+        case 'appendPlay': return appendPlayQueue('plist', [uri]);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', [uri]);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', [uri]);
+        case 'replace': return replaceQueue('plist', [uri]);
+        case 'replacePlay': return replacePlayQueue('plist', [uri]);
         case 'view': return playlistDetails(uri);
         case 'context': return showContextMenu(event);
     }
@@ -202,12 +188,12 @@ function clickPlaylist(uri, event) {
  */
 function clickFilesystemPlaylist(uri, event) {
     switch(settings.webuiSettings.clickFilesystemPlaylist) {
-        case 'append': return appendQueue('plist', uri);
-        case 'appendPlay': return appendPlayQueue('plist', uri);
-        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', uri);
-        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', uri);
-        case 'replace': return replaceQueue('plist', uri);
-        case 'replacePlay': return replacePlayQueue('plist', uri);
+        case 'append': return appendQueue('plist', [uri]);
+        case 'appendPlay': return appendPlayQueue('plist', [uri]);
+        case 'insertAfterCurrent': return insertAfterCurrentQueue('plist', [uri]);
+        case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue('plist', [uri]);
+        case 'replace': return replaceQueue('plist', [uri]);
+        case 'replacePlay': return replacePlayQueue('plist', [uri]);
         case 'view':
             //remember offset for current browse uri
             browseFilesystemHistory[app.current.search] = {
@@ -328,5 +314,17 @@ function clickNext() {
 function clickSingle(mode) {
     sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
         "single": mode
+    }, null, false);
+}
+
+/**
+ * Handler for click on consume button
+ * @param {string} mode single mode: "0" = off, "1" = consume, "oneshot" = consume one shot
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function clickConsume(mode) {
+    sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", {
+        "consume": mode
     }, null, false);
 }

@@ -39,11 +39,11 @@ bool is_allowed_proxy_uri(const char *uri) {
     const char **p = NULL;
     for (p = allowed_proxy_hosts; *p != NULL; p++) {
         if (mg_vcmp(&host, *p) == 0) {
-            MYMPD_LOG_DEBUG("Host \"%.*s\" is on whitelist", (int)host.len, host.ptr);
+            MYMPD_LOG_DEBUG(NULL, "Host \"%.*s\" is on whitelist", (int)host.len, host.ptr);
             return true;
         }
     }
-    MYMPD_LOG_WARN("Host \"%.*s\" is not on whitelist", (int)host.len, host.ptr);
+    MYMPD_LOG_WARN(NULL, "Host \"%.*s\" is not on whitelist", (int)host.len, host.ptr);
     return false;
 }
 
@@ -62,7 +62,7 @@ void free_backend_nc_data(struct t_backend_nc_data *data) {
  * @param backend_nc_data backend data
  */
 void handle_backend_close(struct mg_connection *nc, struct t_backend_nc_data *backend_nc_data) {
-    MYMPD_LOG_INFO("Backend tcp connection \"%lu\" closed", nc->id);
+    MYMPD_LOG_INFO(NULL, "Backend tcp connection \"%lu\" closed", nc->id);
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
     mg_user_data->connection_count--;
     if (backend_nc_data->frontend_nc != NULL) {
@@ -87,7 +87,7 @@ void send_backend_request(struct mg_connection *nc, void *fn_data) {
     struct t_backend_nc_data *backend_nc_data = (struct t_backend_nc_data *)fn_data;
     mg_user_data->connection_count++;
     struct mg_str host = mg_url_host(backend_nc_data->uri);
-    MYMPD_LOG_INFO("Backend connection \"%lu\" established, host \"%.*s\"", nc->id, (int)host.len, host.ptr);
+    MYMPD_LOG_INFO(NULL, "Backend connection \"%lu\" established, host \"%.*s\"", nc->id, (int)host.len, host.ptr);
     if (mg_url_is_ssl(backend_nc_data->uri)) {
         struct mg_tls_opts tls_opts = {
             .srvname = host
@@ -101,7 +101,7 @@ void send_backend_request(struct mg_connection *nc, void *fn_data) {
         "\r\n",
         mg_url_uri(backend_nc_data->uri),
         (int)host.len, host.ptr);
-    MYMPD_LOG_DEBUG("Sending GET %s HTTP/1.1 to backend connection \"%lu\"", mg_url_uri(backend_nc_data->uri), nc->id);
+    MYMPD_LOG_DEBUG(NULL, "Sending GET %s HTTP/1.1 to backend connection \"%lu\"", mg_url_uri(backend_nc_data->uri), nc->id);
 }
 
 /**
@@ -114,14 +114,14 @@ void send_backend_request(struct mg_connection *nc, void *fn_data) {
  */
 struct mg_connection *create_backend_connection(struct mg_connection *nc, struct mg_connection *backend_nc, sds uri, mg_event_handler_t fn) {
     if (backend_nc == NULL) {
-        MYMPD_LOG_INFO("Creating new http backend connection to \"%s\"", uri);
+        MYMPD_LOG_INFO(NULL, "Creating new http backend connection to \"%s\"", uri);
         struct t_backend_nc_data *backend_nc_data = malloc(sizeof(struct t_backend_nc_data));
         backend_nc_data->uri = sdsdup(uri);
         backend_nc_data->frontend_nc = nc;
         backend_nc = mg_http_connect(nc->mgr, uri, fn, backend_nc_data);
         if (backend_nc == NULL) {
             //no backend connection, close frontend connection
-            MYMPD_LOG_WARN("Can not create http backend connection");
+            MYMPD_LOG_WARN(NULL, "Can not create http backend connection");
             webserver_send_error(nc, 502, "Could not create backend connection");
             nc->is_draining = 1;
             //free backend_nc_data
@@ -139,7 +139,7 @@ struct mg_connection *create_backend_connection(struct mg_connection *nc, struct
         backend_nc->data[0] = 'B';
         backend_nc->data[1] = nc->data[1];
         backend_nc->data[2] = nc->data[2];
-        MYMPD_LOG_INFO("Forwarding client connection \"%lu\" to http backend connection \"%lu\"", nc->id, backend_nc->id);
+        MYMPD_LOG_INFO(NULL, "Forwarding client connection \"%lu\" to http backend connection \"%lu\"", nc->id, backend_nc->id);
     }
     return backend_nc;
 }
@@ -161,7 +161,7 @@ void forward_backend_to_frontend_stream(struct mg_connection *nc, int ev, void *
             break;
         }
         case MG_EV_ERROR:
-            MYMPD_LOG_ERROR("HTTP connection \"%lu\" failed", nc->id);
+            MYMPD_LOG_ERROR(NULL, "HTTP connection to \"%s\", connection %lu failed", backend_nc_data->uri, nc->id);
             break;
         case MG_EV_READ:
             if (backend_nc_data->frontend_nc != NULL) {
@@ -191,34 +191,40 @@ void forward_backend_to_frontend_covercache(struct mg_connection *nc, int ev, vo
             break;
         }
         case MG_EV_ERROR: {
-            MYMPD_LOG_ERROR("HTTP connection \"%lu\" failed", nc->id);
+            MYMPD_LOG_ERROR(NULL, "HTTP connection to \"%s\", connection %lu failed", backend_nc_data->uri, nc->id);
             webserver_serve_na_image(backend_nc_data->frontend_nc);
             break;
         }
         case MG_EV_HTTP_MSG: {
+            if (backend_nc_data->frontend_nc == NULL) {
+                MYMPD_LOG_DEBUG(NULL, "Discarding response, no frontend connection found");
+                break;
+            }
             struct mg_http_message *hm = (struct mg_http_message *) ev_data;
-            if (backend_nc_data->frontend_nc != NULL) {
-                if (mg_vcmp(&hm->uri, "200") == 0) {
-                    sds binary = sdsnewlen(hm->body.ptr, hm->body.len);
-                    const char *mime_type = get_mime_type_by_magic_stream(binary);
-                    struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
-                    struct t_config *config = mg_user_data->config;
-                    //cache the image
-                    if (config->covercache_keep_days > 0) {
-                        covercache_write_file(config->cachedir, backend_nc_data->uri, mime_type, binary, 0);
-                    }
-                    FREE_SDS(binary);
-                    //send to frontend
-                    sds headers = sdscatfmt(sdsempty(), "%s"
-                        "Content-Type: %s\r\n",
-                        EXTRA_HEADERS_IMAGE,
-                        mime_type);
-                    webserver_send_data(backend_nc_data->frontend_nc, hm->body.ptr, hm->body.len, headers);
-                    FREE_SDS(headers);
+            int response_code = mg_str_to_int(&hm->uri);
+            if (hm->body.len > 0 &&
+                response_code == 200)
+            {
+                sds binary = sdsnewlen(hm->body.ptr, hm->body.len);
+                const char *mime_type = get_mime_type_by_magic_stream(binary);
+                struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) nc->mgr->userdata;
+                struct t_config *config = mg_user_data->config;
+                //cache the image
+                if (config->covercache_keep_days > 0) {
+                    covercache_write_file(config->cachedir, backend_nc_data->uri, mime_type, binary, 0);
                 }
-                else {
-                    webserver_serve_na_image(backend_nc_data->frontend_nc);
-                }
+                FREE_SDS(binary);
+                //send to frontend
+                sds headers = sdscatfmt(sdsempty(), "%s"
+                    "Content-Type: %s\r\n",
+                    EXTRA_HEADERS_IMAGE,
+                    mime_type);
+                webserver_send_data(backend_nc_data->frontend_nc, hm->body.ptr, hm->body.len, headers);
+                FREE_SDS(headers);
+            }
+            else {
+                MYMPD_LOG_ERROR(NULL, "Invalid response from connection \"%lu\", response code %d", nc->id, response_code);
+                webserver_serve_na_image(backend_nc_data->frontend_nc);
             }
             break;
         }

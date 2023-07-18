@@ -23,7 +23,7 @@ function initPartitions() {
             }
             return;
         }
-        const target = getParent(event.target, 'TR');
+        const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
             switchPartition(getData(target, 'partition'));
         }
@@ -89,7 +89,7 @@ function moveOutputsCheckError(obj) {
     }
     else {
         uiElements.modalPartitionOutputs.hide();
-        showNotification(tn('Outputs moved to current partition'), '', 'general', 'info');
+        showNotification(tn('Outputs moved to current partition'), 'general', 'info');
     }
 }
 
@@ -113,7 +113,7 @@ function parsePartitionOutputsList(obj) {
         }
     }
 
-    const selBtn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-small", "me-3"]}, 'radio_button_unchecked');
+    const selBtn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-sm", "me-3"]}, 'radio_button_unchecked');
 
     let nr = 0;
     for (let i = 0, j = allOutputs.length; i < j; i++) {
@@ -242,7 +242,7 @@ function switchPartition(partition) {
     }, 0);
     getSettings();
     BSN.Modal.getInstance(document.getElementById('modalPartitions')).hide();
-    showNotification(tn('Partition switched'), '', 'general', 'info');
+    showNotification(tn('Partition switched'), 'general', 'info');
 }
 
 /**

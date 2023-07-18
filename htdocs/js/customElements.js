@@ -9,25 +9,40 @@
  * Some pre-generated elements.
  */
 const pEl = {};
-pEl.actionTdMenu = elCreateNode('td', {"data-col": "Action"},
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
-);
+pEl.gridSelectBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0", "color-darkgrey", "float-end", "d-none"], "data-title-phrase": "Select"}, 'radio_button_unchecked');
+pEl.selectBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0", "color-darkgrey"], "data-title-phrase": "Select"}, 'radio_button_unchecked');
+pEl.selectAllBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0"], "data-title-phrase": "Select all"}, 'radio_button_unchecked');
+pEl.actionsBtn = elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatures['more']);
+pEl.removeBtn = elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Remove"}, 'clear');
+pEl.playBtn = elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Quick play"}, 'play_arrow');
+pEl.columnsBtn = elCreateText('a', {"href": "#", "data-action": "popover", "data-contextmenu": "columns",
+    "class": ["align-middle", "mi", "mi-sm", "me-1"], "data-title-phrase": "Columns"}, 'settings');
+
+pEl.actionTdMenu = elCreateNodes('td', {"data-col": "Action"}, [
+    pEl.actionsBtn.cloneNode(true),
+    pEl.selectBtn.cloneNode(true)
+]);
 pEl.actionTdMenuPlay = elCreateNodes('td', {"data-col": "Action"}, [
-    elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Quick play"}, 'play_arrow'),
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
+    pEl.playBtn.cloneNode(true),
+    pEl.actionsBtn.cloneNode(true),
+    pEl.selectBtn.cloneNode(true)
 ]);
 pEl.actionTdMenuRemove = elCreateNodes('td', {"data-col": "Action"}, [
-    elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Remove"}, 'clear'),
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
+    pEl.removeBtn.cloneNode(true),
+    pEl.actionsBtn.cloneNode(true),
+    pEl.selectBtn.cloneNode(true)
 ]);
 pEl.actionTdMenuPlayRemove = elCreateNodes('td', {"data-col": "Action"}, [
-    elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Quick play"}, 'play_arrow'),
-    elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Remove"}, 'clear'),
-    elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatureMore)
+    pEl.playBtn.cloneNode(true),
+    pEl.removeBtn.cloneNode(true),
+    pEl.actionsBtn.cloneNode(true),
+    pEl.selectBtn.cloneNode(true)
 ]);
 pEl.actionTd = pEl.actionTdMenu;
 pEl.actionQueueTd = pEl.actionTdMenu;
 pEl.actionJukeboxTd = pEl.actionTdMenu;
+pEl.actionPlaylistDetailTd = pEl.actionTdMenu;
+pEl.actionPlaylistTd = pEl.actionTdMenu;
 pEl.coverPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
     "data-title-phrase": "Quick play"}, 'play_arrow');
 
@@ -76,7 +91,7 @@ function initElement(el, elType) {
  * @returns {void}
  */
 function setInputClear(el) {
-    const button = elCreateText('button', {"data-title-phrase": "Clear", "class": ["mi", "mi-small", "input-inner-button"]}, 'clear');
+    const button = elCreateText('button', {"data-title-phrase": "Clear", "class": ["mi", "mi-sm", "input-inner-button"]}, 'clear');
     el.button = button;
     el.classList.add('innerButton');
     if (el.parentNode.classList.contains('col')) {
@@ -118,7 +133,7 @@ function setInputClear(el) {
  * @returns {void}
  */
 function setInputReset(el) {
-    const button = elCreateText('button', {"data-title-phrase": "Reset to default", "class": ["mi", "mi-small", "input-inner-button"]}, 'settings_backup_restore');
+    const button = elCreateText('button', {"data-title-phrase": "Reset to default", "class": ["mi", "mi-sm", "input-inner-button"]}, 'settings_backup_restore');
     el.button = button;
     el.classList.add('innerButton');
     if (el.parentNode.firstElementChild.getAttribute('type') === 'color' ||
@@ -147,7 +162,7 @@ function setInputReset(el) {
  * @returns {void}
  */
 function setInputPassword(el) {
-    const button = elCreateText('button', {"data-title-phrase": "Show or hide", "class": ["mi", "mi-small", "input-inner-button"]}, 'visibility');
+    const button = elCreateText('button', {"data-title-phrase": "Show or hide", "class": ["mi", "mi-sm", "input-inner-button"]}, 'visibility');
     el.button = button;
     el.classList.add('innerButton');
     if (el.parentNode.classList.contains('col-sm-8')) {
@@ -181,8 +196,8 @@ function setInputPassword(el) {
  */
 function setSelectSearch(el) {
     const filterInput = elCreateEmpty('input', {"class": ["form-control", "form-control-sm", "mb-1"], "data-placeholder-phrase": "Filter", "placeholder": tn('Filter')});
-    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll", "border", "border-secondary"]});
-    const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "dropdown-menu-dark", "p-2", "w-100"]}, [
+    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll"]});
+    const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "p-2", "w-100"]}, [
         filterInput,
         filterResult
     ]);
@@ -257,8 +272,8 @@ function setSelectSearch(el) {
  * @returns {void}
  */
  function setSelectNew(el) {
-    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll", "border", "border-secondary"]});
-    const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "dropdown-menu-dark", "p-2", "w-100"]}, [
+    const filterResult = elCreateEmpty('ul', {"class": ["list-group", "list-group-scroll", "border"]});
+    const dropdown = elCreateNodes('div', {"class": ["dropdown-menu", "p-2", "w-100"]}, [
         filterResult
     ]);
     el.parentNode.insertBefore(dropdown, el.nextElementSibling);

@@ -51,6 +51,10 @@ function handleSearch() {
  */
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
+        //select mode
+        if (selectRow(event) === true) {
+            return;
+        }
         //action td
         if (event.target.nodeName === 'A') {
             handleActionTdClick(event);
@@ -59,10 +63,7 @@ function initSearch() {
         //table header
         if (event.target.nodeName === 'TH') {
             const colName = event.target.getAttribute('data-col');
-            if (colName === null ||
-                colName === 'Duration' ||
-                colName.indexOf('sticker') === 0)
-            {
+            if (isColSortable('Search', colName) === false) {
                 //by this fields can not be sorted
                 return;
             }
@@ -72,8 +73,13 @@ function initSearch() {
             return;
         }
         //table body
-        const target = getParent(event.target, 'TR');
-        if (checkTargetClick(target) === true) {
+        const target = event.target.closest('TR');
+        if (target === null) {
+            return;
+        }
+        if (target.parentNode.nodeName === 'TBODY' &&
+            checkTargetClick(target) === true)
+        {
             clickSong(getData(target, 'uri'), event);
         }
     }, false);
@@ -187,9 +193,9 @@ function parseSearch(obj) {
     updateTable(obj, 'Search', function(row, data) {
         setData(row, 'type', data.Type);
         setData(row, 'uri', data.uri);
+        setData(row, 'name', data.Title);
         row.setAttribute('tabindex', 0);
         row.setAttribute('title', rowTitle);
-        setData(row, 'name', data.Title);
     });
 
     if (obj.result.totalEntities > 0) {
@@ -226,22 +232,22 @@ function saveSearchAsSmartPlaylist() {
 function addAllFromSearch(mode, type) {
     switch(mode) {
         case 'append':
-            appendQueue(type, app.current.search);
+            appendQueue(type, [app.current.search]);
             break;
         case 'appendPlay':
-            appendPlayQueue(type, app.current.search);
+            appendPlayQueue(type, [app.current.search]);
             break;
         case 'insertAfterCurrent':
-            insertAfterCurrentQueue(type, app.current.search);
+            insertAfterCurrentQueue(type, [app.current.search]);
             break;
         case 'insertPlayAfterCurrent':
-            insertPlayAfterCurrentQueue(type, app.current.search);
+            insertPlayAfterCurrentQueue(type, [app.current.search]);
             break;
         case 'replace':
-            replaceQueue(type, app.current.search);
+            replaceQueue(type, [app.current.search]);
             break;
         case 'replacePlay':
-            replacePlayQueue(type, app.current.search);
+            replacePlayQueue(type, [app.current.search]);
             break;
     }
 }
@@ -252,5 +258,5 @@ function addAllFromSearch(mode, type) {
  */
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSearch() {
-    showAddToPlaylist('SEARCH', app.current.search);
+    showAddToPlaylist('search', [app.current.search]);
 }

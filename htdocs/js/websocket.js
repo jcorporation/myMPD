@@ -9,12 +9,13 @@
  * Checks if the websocket is connected
  * @returns {boolean} true if websocket is connected, else false
  */
- function getWebsocketState() {
-    return socket !== null && socket.readyState === WebSocket.OPEN;
+function getWebsocketState() {
+    return socket !== null &&
+        socket.readyState === WebSocket.OPEN;
 }
 
 /**
- * Connects to the websocket and registers the event handlers.
+ * Connects to the websocket, registers the event handlers and enables the keepalive timer
  * @returns {void}
  */
 function webSocketConnect() {
@@ -40,19 +41,17 @@ function webSocketConnect() {
     try {
         socket.onopen = function() {
             logDebug('Websocket is connected');
-            if (websocketTimer !== null) {
-                clearTimeout(websocketTimer);
-                websocketTimer = null;
-            }
+            socket.send('id:' + jsonrpcClientId);
             if (websocketKeepAliveTimer === null) {
                 websocketKeepAliveTimer = setInterval(websocketKeepAlive, 25000);
             }
         };
 
         socket.onmessage = function(msg) {
-            if (msg.data === 'pong') {
-                //websocket keepalive
-                logDebug('Got websocket pong');
+            logDebug('Websocket message: ' + msg.data);
+            if (msg.data === 'pong' ||
+                msg.data === 'ok') {
+                // websocket keepalive or jsonrpc id registration
                 return;
             }
             if (msg.data.length > 100000) {
@@ -62,21 +61,33 @@ function webSocketConnect() {
             let obj;
             try {
                 obj = JSON.parse(msg.data);
-                logDebug('Websocket notification: ' + JSON.stringify(obj));
             }
             catch(error) {
                 logError('Invalid websocket notification received: ' + msg.data);
                 return;
             }
 
+            // async response
+            if (obj.result ||
+                obj.error)
+            {
+                const callback = obj.result
+                    ? getResponseCallback(obj.result.method)
+                    : getResponseCallback(obj.error.method);
+                checkAPIresponse(obj, callback, true);
+                return;
+            }
+
+            // notification
             switch (obj.method) {
                 case 'welcome':
-                    showNotification(tn('Connected to myMPD'),
-                        tn('Partition') + ': ' + localSettings.partition, 'general', 'info');
+                    showNotification(tn('Connected to myMPD') + ': ' +
+                        tn('Partition') + ' ' + localSettings.partition, 'general', 'info');
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, true);
                     if (session.token !== '') {
                         validateSession();
                     }
+                    toggleUI();
                     break;
                 case 'update_queue':
                 case 'update_state':
@@ -99,7 +110,7 @@ function webSocketConnect() {
                     break;
                 case 'mpd_connected':
                     //MPD connection established get state and settings
-                    showNotification(tn('Connected to MPD'), '', 'general', 'info');
+                    showNotification(tn('Connected to MPD'), 'general', 'info');
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, false);
                     getSettings();
                     break;
@@ -110,7 +121,7 @@ function webSocketConnect() {
                     sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs, false);
                     break;
                 case 'update_started':
-                    showNotification(tn('Database update started'), '', 'database', 'info');
+                    showNotification(tn('Database update started'), 'database', 'info');
                     toggleAlert('alertUpdateDBState', true, tn('Updating MPD database'));
                     break;
                 case 'update_database':
@@ -169,7 +180,7 @@ function webSocketConnect() {
                     }
                     break;
                 case 'update_cache_started':
-                    showNotification(tn('Cache update started'), '', 'database', 'info');
+                    showNotification(tn('Cache update started'), 'database', 'info');
                     toggleAlert('alertUpdateCacheState', true, tn('Updating caches'));
                     break;
                 case 'update_cache_finished':
@@ -186,9 +197,10 @@ function webSocketConnect() {
                     toggleAlert('alertUpdateCacheState', false, '');
                     break;
                 case 'notify':
-                    showNotification(tn(obj.params.message, obj.params.data), '', obj.params.facility, obj.params.severity);
+                    showNotification(tn(obj.params.message, obj.params.data), obj.params.facility, obj.params.severity);
                     break;
                 default:
+                    logDebug('Unknown websocket notification: ' + obj.method);
                     break;
             }
         };
@@ -202,21 +214,8 @@ function webSocketConnect() {
                 }
             }
             else {
-                showAppInitAlert(tn('Websocket connection closed'));
+                showAppInitAlert(tn('myMPD connection closed'));
             }
-            if (websocketTimer !== null) {
-                clearTimeout(websocketTimer);
-                websocketTimer = null;
-            }
-            if (websocketKeepAliveTimer !== null) {
-                clearInterval(websocketKeepAliveTimer);
-                websocketKeepAliveTimer = null;
-            }
-            websocketTimer = setTimeout(function() {
-                logDebug('Reconnecting websocket');
-                toggleAlert('alertMympdState', true, tn('Websocket connection failed, trying to reconnect'));
-                webSocketConnect();
-            }, 3000);
             socket = null;
         };
 
@@ -233,15 +232,11 @@ function webSocketConnect() {
 }
 
 /**
- * Closes the websocket and terminates the keepalive and reconnect timer
+ * Closes the websocket and terminates the keepalive timer
  * @returns {void}
  */
 function webSocketClose() {
-    if (websocketTimer !== null) {
-        clearTimeout(websocketTimer);
-        websocketTimer = null;
-    }
-    if (websocketKeepAliveTimer) {
+    if (websocketKeepAliveTimer !== null) {
         clearInterval(websocketKeepAliveTimer);
         websocketKeepAliveTimer = null;
     }
@@ -254,11 +249,17 @@ function webSocketClose() {
 }
 
 /**
- * Sends a ping keepalive message to the websocket endpoint.
+ * Sends a ping keepalive message to the websocket endpoint
+ * or reconnects the socket.
  * @returns {void}
  */
 function websocketKeepAlive() {
     if (getWebsocketState() === true) {
         socket.send('ping');
+    }
+    else {
+        logDebug('Reconnecting websocket');
+        toggleAlert('alertMympdState', true, tn('myMPD connection failed, trying to reconnect'));
+        webSocketConnect();
     }
 }

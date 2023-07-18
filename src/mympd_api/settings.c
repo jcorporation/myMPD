@@ -21,7 +21,9 @@
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
 #include "src/mpd_client/presets.h"
+#include "src/mpd_client/shortcuts.h"
 #include "src/mpd_client/tags.h"
+#include "src/mympd_api/jukebox.h"
 #include "src/mympd_api/timer.h"
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
@@ -51,6 +53,7 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
     extra->thumbnail_names = sdsdup(mympd_state->thumbnail_names);
     extra->feat_albumart = mympd_state->mpd_state->feat_albumart;
     extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
+    extra->mympd_api_started = true;
     list_init(&extra->partitions);
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
@@ -61,7 +64,7 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
         partition_state = partition_state->next;
     }
 
-    struct t_work_response *web_server_response = create_response_new(-1, 0, INTERNAL_API_WEBSERVER_SETTINGS, MPD_PARTITION_DEFAULT);
+    struct t_work_response *web_server_response = create_response_new(CONN_ID_INTERNAL, 0, INTERNAL_API_WEBSERVER_SETTINGS, MPD_PARTITION_DEFAULT);
     web_server_response->extra = extra;
     return mympd_queue_push(web_server_queue, web_server_response, 0);
 }
@@ -79,9 +82,8 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
 bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_callback vcb, void *userdata, sds *error) {
     (void) vcb;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
-    bool check_for_mpd_error = false;
 
-    MYMPD_LOG_DEBUG("Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
+    MYMPD_LOG_DEBUG(NULL, "Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
 
     if (strcmp(key, "mpdPass") == 0 && vtype == MJSON_TOK_STRING) {
         if (strcmp(value, "dontsetpassword") != 0) {
@@ -152,7 +154,7 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
     else if (strcmp(key, "mpdKeepalive") == 0) {
         if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
             *error = sdscatfmt(*error, "Invalid value for \"%S\": \"%S\"", key, value);
-            MYMPD_LOG_WARN("%s", *error);
+            MYMPD_LOG_WARN(NULL, "%s", *error);
             return false;
         }
         bool keepalive = vtype == MJSON_TOK_TRUE ? true : false;
@@ -164,20 +166,14 @@ bool mympd_api_settings_connection_save(sds key, sds value, int vtype, validate_
     else {
         sdsclear(*error);
         *error = sdscatfmt(*error, "Unknown setting \"%S\": \"%S\"", key, value);
-        MYMPD_LOG_WARN("%s", *error);
+        MYMPD_LOG_WARN(NULL, "%s", *error);
         return true;
     }
 
-    bool rc = true;
-    if (check_for_mpd_error == true) {
-        rc = mympd_check_error_and_recover_plain(mympd_state->partition_state, error);
-    }
+    sds state_filename = camel_to_snake(key);
+    bool rc = state_file_write(mympd_state->config->workdir, DIR_WORK_STATE, state_filename, value);
+    FREE_SDS(state_filename);
 
-    if (rc == true) {
-        sds state_filename = camel_to_snake(key);
-        rc = state_file_write(mympd_state->config->workdir, DIR_WORK_STATE, state_filename, value);
-        FREE_SDS(state_filename);
-    }
     return rc;
 }
 
@@ -226,6 +222,7 @@ bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, 
         mympd_state->cols_browse_radio_radiobrowser = sds_replace(mympd_state->cols_browse_radio_radiobrowser, cols);
     }
     else {
+        MYMPD_LOG_ERROR(NULL, "MYMPD_API_COLS_SAVE: Unknown table %s", table);
         return false;
     }
     sds tablename = camel_to_snake(table);
@@ -248,7 +245,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     (void) vcb;
     struct t_mympd_state *mympd_state = (struct t_mympd_state *)userdata;
 
-    MYMPD_LOG_DEBUG("Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
+    MYMPD_LOG_DEBUG(NULL, "Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
 
     if (strcmp(key, "coverimageNames") == 0 && vtype == MJSON_TOK_STRING) {
         if (vcb_isfilename(value) == true) {
@@ -419,7 +416,7 @@ bool mympd_api_settings_set(sds key, sds value, int vtype, validate_callback vcb
     else {
         sdsclear(*error);
         *error = sdscatfmt(*error, "Unknown setting \"%S\": \"%S\"", key, value);
-        MYMPD_LOG_WARN("%s", *error);
+        MYMPD_LOG_WARN(NULL, "%s", *error);
         return true;
     }
     sds state_filename = camel_to_snake(key);
@@ -442,7 +439,7 @@ bool mympd_api_settings_partition_set(sds key, sds value, int vtype, validate_ca
     (void) vcb;
     struct t_partition_state *partition_state = (struct t_partition_state *)userdata;
 
-    MYMPD_LOG_DEBUG("Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
+    MYMPD_LOG_DEBUG(partition_state->name, "Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
 
     if (strcmp(key, "highlightColor") == 0 && vtype == MJSON_TOK_STRING) {
         if (vcb_ishexcolor(value) == false) {
@@ -478,7 +475,7 @@ bool mympd_api_settings_partition_set(sds key, sds value, int vtype, validate_ca
     else {
         sdsclear(*error);
         *error = sdscatfmt(*error, "Unknown setting \"%S\": \"%S\"", key, value);
-        MYMPD_LOG_WARN("%s", *error);
+        MYMPD_LOG_WARN(partition_state->name, "%s", *error);
         return true;
     }
     sds state_filename = camel_to_snake(key);
@@ -505,7 +502,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
     bool write_state_file = true;
     bool jukebox_changed = false;
 
-    MYMPD_LOG_DEBUG("\"%s\": Parse setting \"%s\": \"%s\" (%s)", partition_state->name, key, value, get_mjson_toktype_name(vtype));
+    MYMPD_LOG_DEBUG(partition_state->name, "Parse setting \"%s\": \"%s\" (%s)", key, value, get_mjson_toktype_name(vtype));
     if (strcmp(key, "autoPlay") == 0) {
         if (vtype == MJSON_TOK_TRUE) {
             partition_state->auto_play = true;
@@ -594,7 +591,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 return false;
             }
             bool bool_buf = vtype == MJSON_TOK_TRUE ? true : false;
-            rc = mpd_run_random(partition_state->conn, bool_buf);
+            mpd_run_random(partition_state->conn, bool_buf);
         }
         else if (strcmp(key, "repeat") == 0) {
             if (vtype != MJSON_TOK_TRUE && vtype != MJSON_TOK_FALSE) {
@@ -602,7 +599,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 return false;
             }
             bool bool_buf = vtype == MJSON_TOK_TRUE ? true : false;
-            rc = mpd_run_repeat(partition_state->conn, bool_buf);
+             mpd_run_repeat(partition_state->conn, bool_buf);
         }
         else if (strcmp(key, "consume") == 0) {
             enum mpd_consume_state state = mpd_parse_consume_state(value);
@@ -610,7 +607,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
-            rc = mpd_run_consume_state(partition_state->conn, state);
+            mpd_run_consume_state(partition_state->conn, state);
         }
         else if (strcmp(key, "single") == 0) {
             enum mpd_single_state state = mpd_parse_single_state(value);
@@ -618,7 +615,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
-            rc = mpd_run_single_state(partition_state->conn, state);
+            mpd_run_single_state(partition_state->conn, state);
         }
         else if (strcmp(key, "crossfade") == 0 && vtype == MJSON_TOK_NUMBER) {
             unsigned uint_buf = (unsigned)strtoumax(value, NULL, 10);
@@ -626,7 +623,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
-            rc = mpd_run_crossfade(partition_state->conn, uint_buf);
+            mpd_run_crossfade(partition_state->conn, uint_buf);
         }
         else if (strcmp(key, "replaygain") == 0 && vtype == MJSON_TOK_STRING) {
             enum mpd_replay_gain_mode mode = mpd_parse_replay_gain_name(value);
@@ -634,7 +631,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
-            rc = mpd_run_replay_gain_mode(partition_state->conn, mode);
+            mpd_run_replay_gain_mode(partition_state->conn, mode);
         }
         else if (strcmp(key, "mixrampDb") == 0 && vtype == MJSON_TOK_NUMBER) {
             float db = strtof(value, NULL);
@@ -643,7 +640,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
-            rc = mpd_run_mixrampdb(partition_state->conn, db);
+            mpd_run_mixrampdb(partition_state->conn, db);
         }
         else if (strcmp(key, "mixrampDelay") == 0 && vtype == MJSON_TOK_NUMBER) {
             float delay = strtof(value, NULL);
@@ -653,10 +650,10 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
                 *error = set_invalid_value(*error, key, value);
                 return false;
             }
-            rc = mpd_run_mixrampdelay(partition_state->conn, delay);
+            mpd_run_mixrampdelay(partition_state->conn, delay);
         }
         sds message = sdsempty();
-        rc = mympd_check_rc_error_and_recover_notify(partition_state, &message, rc, key);
+        rc = mympd_check_error_and_recover_notify(partition_state, &message, key);
         if (rc == false) {
             ws_notify(message, partition_state->name);
         }
@@ -664,12 +661,12 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
         write_state_file = false;
     }
     else {
-        MYMPD_LOG_WARN("\"%s\": Unknown setting \"%s\": \"%s\"", partition_state->name, key, value);
+        MYMPD_LOG_WARN(partition_state->name, "Unknown setting \"%s\": \"%s\"", key, value);
         return false;
     }
     if (jukebox_changed == true && partition_state->jukebox_queue.length > 0) {
-        MYMPD_LOG_INFO("\"%s\": Jukebox options changed, clearing jukebox queue", partition_state->name);
-        jukebox_clear(&partition_state->jukebox_queue, partition_state->name);
+        MYMPD_LOG_INFO(partition_state->name, "Jukebox options changed, clearing jukebox queue");
+        mympd_api_jukebox_clear(&partition_state->jukebox_queue, partition_state->name);
     }
     if (write_state_file == true) {
         sds state_filename = camel_to_snake(key);
@@ -685,7 +682,7 @@ bool mympd_api_settings_mpd_options_set(sds key, sds value, int vtype, validate_
  * @param mympd_state pointer to the t_mympd_state struct
  */
 void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state) {
-    MYMPD_LOG_NOTICE("Reading global states");
+    MYMPD_LOG_NOTICE(NULL, "Reading global states");
     sds workdir = mympd_state->config->workdir;
     mympd_state->mpd_state->mpd_host = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "mpd_host", mympd_state->mpd_state->mpd_host, vcb_isname, true);
     mympd_state->mpd_state->mpd_port = state_file_rw_uint(workdir, DIR_WORK_STATE, "mpd_port", mympd_state->mpd_state->mpd_port, MPD_PORT_MIN, MPD_PORT_MAX, true);
@@ -741,7 +738,7 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
  */
 void mympd_api_settings_statefiles_partition_read(struct t_partition_state *partition_state) {
     sds workdir = partition_state->mympd_state->config->workdir;
-    MYMPD_LOG_NOTICE("\"%s\": Reading partition states from directory \"%s/%s\"", partition_state->name, workdir, partition_state->state_dir);
+    MYMPD_LOG_NOTICE(partition_state->name, "Reading partition states from directory \"%s/%s\"", workdir, partition_state->state_dir);
     partition_state->auto_play = state_file_rw_bool(workdir, partition_state->state_dir, "auto_play", partition_state->auto_play, true);
     partition_state->jukebox_mode = state_file_rw_uint(workdir, partition_state->state_dir, "jukebox_mode", partition_state->jukebox_mode, JUKEBOX_MODE_MIN, JUKEBOX_MODE_MAX, true);
     partition_state->jukebox_playlist = state_file_rw_string_sds(workdir, partition_state->state_dir, "jukebox_playlist", partition_state->jukebox_playlist, vcb_isfilename, true);
@@ -775,11 +772,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_uint(buffer, "mpdTimeout", partition_state->mpd_state->mpd_timeout, true);
     buffer = tojson_bool(buffer, "mpdKeepalive", partition_state->mpd_state->mpd_keepalive, true);
     buffer = tojson_uint(buffer, "mpdBinarylimit", partition_state->mpd_state->mpd_binarylimit, true);
-#ifdef MYMPD_ENABLE_SSL
     buffer = tojson_bool(buffer, "pin", (sdslen(mympd_state->config->pin_hash) == 0 ? false : true), true);
-#else
-    buffer = tojson_bool(buffer, "pin", false, true);
-#endif
 #ifdef MYMPD_DEBUG
     buffer = tojson_bool(buffer, "debugMode", true, true);
 #else
@@ -839,30 +832,37 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     if (partition_state->conn_state == MPD_CONNECTED) {
         //mpd options
         buffer = tojson_bool(buffer, "mpdConnected", true, true);
-        struct mpd_status *status = mpd_run_status(partition_state->conn);
-        if (status == NULL) {
-            mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id);
+        if (mpd_command_list_begin(partition_state->conn, true)) {
+            if (mpd_send_status(partition_state->conn) == false) {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_status");
+            }
+            if (mpd_send_replay_gain_status(partition_state->conn) == false) {
+                mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_replay_gain_status");
+            }
+            mpd_client_command_list_end_check(partition_state);
+        }
+        struct mpd_status *status = mpd_recv_status(partition_state->conn);
+        enum mpd_replay_gain_mode replay_gain_mode = MPD_REPLAY_UNKNOWN;
+        if (mpd_response_next(partition_state->conn)) {
+            replay_gain_mode = mpd_recv_replay_gain_status(partition_state->conn);
+        }
+        if (status != NULL) {
+            enum mpd_single_state single_state = mpd_status_get_single_state(status);
+            buffer = tojson_char(buffer, "single", mpd_lookup_single_state(single_state), true);
+            buffer = tojson_uint(buffer, "crossfade", mpd_status_get_crossfade(status), true);
+            buffer = tojson_double(buffer, "mixrampDb", mpd_status_get_mixrampdb(status), true);
+            buffer = tojson_double(buffer, "mixrampDelay", mpd_status_get_mixrampdelay(status), true);
+            buffer = tojson_bool(buffer, "repeat", mpd_status_get_repeat(status), true);
+            buffer = tojson_bool(buffer, "random", mpd_status_get_random(status), true);
+            enum mpd_consume_state consume_state = mpd_status_get_consume_state(status);
+            buffer = tojson_char(buffer, "consume", mpd_lookup_consume_state(consume_state), true);
+            buffer = tojson_char(buffer, "replaygain", mpd_lookup_replay_gain_mode(replay_gain_mode), false);
+            mpd_status_free(status);
+        }
+        mpd_response_finish(partition_state->conn);
+        if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status") == false) {
             return buffer;
         }
-        enum mpd_single_state single_state = mpd_status_get_single_state(status);
-        buffer = tojson_char(buffer, "single", mpd_lookup_single_state(single_state), true);
-        buffer = tojson_uint(buffer, "crossfade", mpd_status_get_crossfade(status), true);
-        buffer = tojson_double(buffer, "mixrampDb", mpd_status_get_mixrampdb(status), true);
-        buffer = tojson_double(buffer, "mixrampDelay", mpd_status_get_mixrampdelay(status), true);
-        buffer = tojson_bool(buffer, "repeat", mpd_status_get_repeat(status), true);
-        buffer = tojson_bool(buffer, "random", mpd_status_get_random(status), true);
-        enum mpd_consume_state consume_state = mpd_status_get_consume_state(status);
-        buffer = tojson_char(buffer, "consume", mpd_lookup_consume_state(consume_state), true);
-        mpd_status_free(status);
-
-        enum mpd_replay_gain_mode replay_gain_mode = mpd_run_replay_gain_status(partition_state->conn);
-        if (replay_gain_mode == MPD_REPLAY_UNKNOWN) {
-            if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id) == false) {
-                return buffer;
-            }
-        }
-        const char *replaygain = mpd_lookup_replay_gain_mode(replay_gain_mode);
-        buffer = tojson_char(buffer, "replaygain", replaygain == NULL ? "" : replaygain, false);
     }
     else {
         //not connected to mpd
@@ -888,16 +888,12 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
         buffer = tojson_bool(buffer, "featStartsWith", partition_state->mpd_state->feat_starts_with, true);
         buffer = tojson_bool(buffer, "featPcre", partition_state->mpd_state->feat_pcre, true);
     }
-#ifdef MYMPD_ENABLE_SSL
     buffer = tojson_bool(buffer, "featCacert", (mympd_state->config->custom_cert == false && mympd_state->config->ssl == true ? true : false), true);
-#else
-    buffer = tojson_bool(buffer, "featCacert", false, true);
-#endif
-#ifdef MYMPD_ENABLE_LUA
-    buffer = tojson_bool(buffer, "featScripting", true, false);
-#else
-    buffer = tojson_bool(buffer, "featScripting", false, false);
-#endif
+    #ifdef MYMPD_ENABLE_LUA
+        buffer = tojson_bool(buffer, "featScripting", true, false);
+    #else
+        buffer = tojson_bool(buffer, "featScripting", false, false);
+    #endif
     buffer = sdscatlen(buffer, "}", 1);
     if (partition_state->conn_state == MPD_CONNECTED) {
         buffer = sdscatlen(buffer, ",", 1);
@@ -938,7 +934,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
 static sds set_invalid_value(sds buffer, sds key, sds value) {
     sdsclear(buffer);
     buffer = sdscatfmt(buffer, "Invalid value for \"%s\": \"%s\"", key, value);
-    MYMPD_LOG_WARN("%s", buffer);
+    MYMPD_LOG_WARN(NULL, "%s", buffer);
     return buffer;
 }
 

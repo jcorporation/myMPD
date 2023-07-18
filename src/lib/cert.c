@@ -63,14 +63,14 @@ enum expire_check_rcs {
  * @return true on success else false
  */
 bool certificates_check(sds workdir, sds ssl_san) {
-    sds testdirname = sdscatfmt(sdsempty(), "%S/ssl", workdir);
+    sds testdirname = sdscatfmt(sdsempty(), "%S/%s", workdir, DIR_WORK_SSL);
     int testdir_rc = testdir("SSL cert dir", testdirname, true, false);
     if (testdir_rc == DIR_EXISTS ||
         testdir_rc == DIR_CREATED)
     {
         if (certificates_create(testdirname, ssl_san) == false) {
             //error creating certificates
-            MYMPD_LOG_ERROR("Certificate creation failed");
+            MYMPD_LOG_ERROR(NULL, "Certificate creation failed");
             FREE_SDS(testdirname);
             return false;
         }
@@ -107,7 +107,7 @@ static bool certificates_create(sds dir, sds custom_san) {
         rc_ca = create_ca_certificate(cakey_file, &ca_key, cacert_file, &ca_cert);
     }
     else {
-        MYMPD_LOG_NOTICE("CA certificate and private key found");
+        MYMPD_LOG_NOTICE(NULL, "CA certificate and private key found");
         int rc_expires = check_expiration(ca_cert, cacert_file, CA_LIFETIME_MIN, CA_LIFETIME);
         if (rc_expires == CERT_EXPIRE_OK) {
             rc_ca = true;
@@ -141,7 +141,7 @@ static bool certificates_create(sds dir, sds custom_san) {
             custom_san, &ca_key, &ca_cert);
     }
     else {
-        MYMPD_LOG_NOTICE("Server certificate and private key found");
+        MYMPD_LOG_NOTICE(NULL, "Server certificate and private key found");
         int rc_expires = check_expiration(server_cert, servercert_file, CERT_LIFETIME_MIN, CERT_LIFETIME);
         if (rc_expires == CERT_EXPIRE_OK) {
             rc_cert = true;
@@ -206,16 +206,16 @@ static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_day
     int psec = 0;
     int rc = ASN1_TIME_diff(&pday, &psec, NULL, not_after);
     if (rc == 1) {
-        MYMPD_LOG_DEBUG("Certificate %s expires in %d days", cert_file, pday);
+        MYMPD_LOG_DEBUG(NULL, "Certificate %s expires in %d days", cert_file, pday);
         if (pday > max_days ||
             pday < min_days)
         {
-            MYMPD_LOG_WARN("Certificate %s must be renewed, expires in %d days", cert_file, pday);
+            MYMPD_LOG_WARN(NULL, "Certificate %s must be renewed, expires in %d days", cert_file, pday);
             return CERT_EXPIRE_RENEW;
         }
     }
     else {
-        MYMPD_LOG_ERROR("Can not parse date from certificate file: %s", cert_file);
+        MYMPD_LOG_ERROR(NULL, "Can not parse date from certificate file: %s", cert_file);
         return CERT_EXPIRE_ERROR;
     }
     return CERT_EXPIRE_OK;
@@ -230,7 +230,7 @@ static int check_expiration(X509 *cert, sds cert_file, int min_days, int max_day
  * @return true on success else false
  */
 static bool create_ca_certificate(sds cakey_file, EVP_PKEY **ca_key, sds cacert_file, X509 **ca_cert) {
-    MYMPD_LOG_NOTICE("Creating self signed ca certificate");
+    MYMPD_LOG_NOTICE(NULL, "Creating self signed ca certificate");
     *ca_key = generate_keypair(CA_KEY_LENGTH);
     if (*ca_key == NULL) {
         return false;
@@ -259,7 +259,7 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
         sds servercert_file, X509 **server_cert, sds custom_san, EVP_PKEY **ca_key,
         X509 **ca_cert)
 {
-    MYMPD_LOG_NOTICE("Creating server certificate");
+    MYMPD_LOG_NOTICE(NULL, "Creating server certificate");
     *server_key = generate_keypair(CERT_KEY_LENGTH);
     if (*server_key == NULL) {
         return false;
@@ -272,10 +272,10 @@ static bool create_server_certificate(sds serverkey_file, EVP_PKEY **server_key,
     sds san = sdsempty();
     san = get_san(san);
     if (sdslen(custom_san) > 0) {
-        MYMPD_LOG_DEBUG("Adding custom san: %s", custom_san);
+        MYMPD_LOG_DEBUG(NULL, "Adding custom san: %s", custom_san);
         san = sdscatfmt(san, ",%S", custom_san);
     }
-    MYMPD_LOG_NOTICE("Set server certificate san to: %s", san);
+    MYMPD_LOG_NOTICE(NULL, "Set server certificate san to: %s", san);
     *server_cert = sign_certificate_request(*ca_key, *ca_cert, server_req, san);
     X509_REQ_free(server_req);
     if (*server_cert == NULL) {
@@ -335,7 +335,7 @@ static bool load_certificate(sds key_file, EVP_PKEY **key, sds cert_file, X509 *
  */
 static void push_san(struct t_list *san_list, const char *san) {
     if (list_get_node(san_list, san) == NULL) {
-        MYMPD_LOG_DEBUG("Adding %s to SAN", san);
+        MYMPD_LOG_DEBUG(NULL, "Adding %s to SAN", san);
         list_push(san_list, san, 0, NULL, NULL);
     }
 }
@@ -395,7 +395,7 @@ static sds get_san(sds buffer) {
                     NULL, 0, NI_NUMERICHOST);
 
                 if (s != 0) {
-                    MYMPD_LOG_ERROR("getnameinfo() failed: %s\n", gai_strerror(s));
+                    MYMPD_LOG_ERROR(NULL, "getnameinfo() failed: %s\n", gai_strerror(s));
                     continue;
                 }
                 sdsclear(key);
@@ -409,8 +409,8 @@ static sds get_san(sds buffer) {
         freeifaddrs(ifaddr);
     }
     else {
-        MYMPD_LOG_ERROR("Can not get list of inteface ip addresses");
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can not get list of inteface ip addresses");
+        MYMPD_LOG_ERRNO(NULL, errno);
     }
     //create san string
     struct t_list_node *current = san.head;
@@ -458,7 +458,7 @@ static bool generate_set_random_serial(X509 *cert) {
 static X509_REQ *generate_request(EVP_PKEY *pkey) {
     X509_REQ *req = X509_REQ_new();
     if (!req) {
-        MYMPD_LOG_ERROR("Unable to create X509_REQ structure");
+        MYMPD_LOG_ERROR(NULL, "Unable to create X509_REQ structure");
         return NULL;
     }
     X509_REQ_set_pubkey(req, pkey);
@@ -475,7 +475,7 @@ static X509_REQ *generate_request(EVP_PKEY *pkey) {
     FREE_SDS(cn);
 
     if (!X509_REQ_sign(req, pkey, EVP_sha256())) {
-        MYMPD_LOG_ERROR("Error signing request");
+        MYMPD_LOG_ERROR(NULL, "Error signing request");
         X509_REQ_free(req);
         return NULL;
     }
@@ -492,7 +492,7 @@ static X509_REQ *generate_request(EVP_PKEY *pkey) {
 static void add_extension(X509V3_CTX *ctx, X509 *cert, int nid, const char *value) {
     X509_EXTENSION *ex = X509V3_EXT_conf_nid(NULL, ctx, nid, value);
     if (!ex) {
-        MYMPD_LOG_ERROR("Error adding extension with value: %s", value);
+        MYMPD_LOG_ERROR(NULL, "Error adding extension with value: %s", value);
         return;
     }
     X509_add_ext(cert, ex, -1);
@@ -510,7 +510,7 @@ static void add_extension(X509V3_CTX *ctx, X509 *cert, int nid, const char *valu
 static X509 *sign_certificate_request(EVP_PKEY *ca_key, X509 *ca_cert, X509_REQ *req, sds san) {
     X509 *cert = X509_new();
     if (!cert) {
-        MYMPD_LOG_ERROR("Unable to create X509 structure");
+        MYMPD_LOG_ERROR(NULL, "Unable to create X509 structure");
         return NULL;
     }
 
@@ -591,7 +591,7 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
     //Allocate memory for the X509 structure.
     X509 *cert = X509_new();
     if (!cert) {
-        MYMPD_LOG_ERROR("Unable to create X509 structure");
+        MYMPD_LOG_ERROR(NULL, "Unable to create X509 structure");
         return NULL;
     }
 
@@ -600,8 +600,8 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
 
     //Set the serial number
     if (generate_set_random_serial(cert) == false) {
-        MYMPD_LOG_ERROR("Error setting serial for certificate");
-        X509_free(cert);    
+        MYMPD_LOG_ERROR(NULL, "Error setting serial for certificate");
+        X509_free(cert);
         return NULL;
     }
 
@@ -636,7 +636,7 @@ static X509 *generate_selfsigned_cert(EVP_PKEY *pkey) {
 
     //Self sign the certificate with our key.
     if (!X509_sign(cert, pkey, EVP_sha256())) {
-        MYMPD_LOG_ERROR("Error signing certificate");
+        MYMPD_LOG_ERROR(NULL, "Error signing certificate");
         X509_free(cert);
         return NULL;
     }

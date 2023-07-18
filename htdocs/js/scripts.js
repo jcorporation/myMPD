@@ -45,7 +45,7 @@ function initScripts() {
             return;
         }
 
-        const target = getParent(event.target, 'TR');
+        const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
             showEditScript(getData(target, 'script'));
         }
@@ -188,7 +188,7 @@ function getImportScript(script) {
             obj = JSON.parse(firstLine.substring(firstLine.indexOf('{')));
         }
         catch(error) {
-            showNotification(tn('Can not parse script arguments'), '', 'general', 'error');
+            showNotification(tn('Can not parse script arguments'), 'general', 'error');
             logError('Can not parse script arguments:' + firstLine);
             return;
         }
@@ -214,7 +214,7 @@ function apiParamsToArgs(p) {
     for (const param in p) {
         args += 'options["' + param + '"] = ';
         switch(p[param].type) {
-            case APItypes.text:
+            case APItypes.string:
                 args += '"' + p[param].example + '"';
                 break;
             case APItypes.array:
@@ -278,6 +278,47 @@ function saveScriptCheckError(obj) {
     }
     else {
         showListScripts();
+    }
+}
+
+/**
+ * Validates a script
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function validateScript() {
+    cleanupModalId('modalScripts');
+    let formOK = true;
+
+    const nameEl = document.getElementById('inputScriptName');
+    if (!validatePlistEl(nameEl)) {
+        formOK = false;
+    }
+
+    const orderEl = document.getElementById('inputScriptOrder');
+    if (!validateIntEl(orderEl)) {
+        formOK = false;
+    }
+
+    if (formOK === true) {
+        sendAPI("MYMPD_API_SCRIPT_VALIDATE", {
+            "script": nameEl.value,
+            "content": document.getElementById('textareaScriptContent').value,
+        }, validateScriptCheckError, true);
+    }
+}
+
+/**
+ * Handler for the MYMPD_API_SCRIPT_VALIDATE jsonrpc response
+ * @param {object} obj jsonrpc response
+ * @returns {void}
+ */
+function validateScriptCheckError(obj) {
+    if (obj.error) {
+        showModalAlert(obj);
+    }
+    else {
+        showModalInfo('Script syntax is valid');
     }
 }
 
@@ -511,7 +552,9 @@ function parseScriptList(obj) {
  */
 //eslint-disable-next-line no-unused-vars
 function execScriptFromOptions(cmd, options) {
-    const args = options !== undefined && options !== '' ? options.split(',') : [];
+    const args = options[0] !== ''
+        ? options[0].split(',')
+        : [];
     execScript({"script": cmd, "arguments": args});
 }
 

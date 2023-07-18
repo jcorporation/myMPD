@@ -71,6 +71,16 @@ for my $filename (@files) {
             while ($line =~ /JSONRPC_SEVERITY_\w+,\s+\S+,\s+"([^"]+)"(\)|,)/g) {
                 add_phrase($1);
             }
+            while ($line =~ /JSONRPC_FACILITY_\w+,\s+"([^"]+)",\s+"([^"]+)"\)/g) {
+                add_phrase($1);
+                add_phrase($2);
+            }
+            while ($line =~ /JSONRPC_FACILITY_\w+,\s+"([^"]+)"(\)|,)/g) {
+                add_phrase($1);
+            }
+            while ($line =~ /\*error\s+=\s+sdscat\(\*error,\s+"([^"]+)"\)/g) {
+                add_phrase($1);
+            }
         }
         elsif ($filename =~ /\.js$/) {
             while ($line =~ /\"data-(\w+-)?phrase\":\s*"([^"]+)"/g) {

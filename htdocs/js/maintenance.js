@@ -26,7 +26,7 @@ function setLoglevel() {
     sendAPI("MYMPD_API_LOGLEVEL", {
         "loglevel": loglevel
     }, function() {
-        settings.loglevel = loglevel
+        settings.loglevel = loglevel;
     }, false);
 }
 
@@ -56,6 +56,28 @@ function cropCovercache() {
 function deletePlaylists() {
     sendAPI("MYMPD_API_PLAYLIST_RM_ALL", {
         "type": getSelectValueId('selectDeletePlaylists')
+    }, null, false);
+}
+
+/**
+ * Validates all playlists
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function validatePlaylists() {
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_VALIDATE_ALL", {
+        "remove": true
+    }, null, false);
+}
+
+/**
+ * Deduplicates all playlists
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function dedupPlaylists() {
+    sendAPI("MYMPD_API_PLAYLIST_CONTENT_DEDUP_ALL", {
+        "remove": true
     }, null, false);
 }
 
@@ -101,5 +123,5 @@ function updateDBfinished(idleEvent) {
 
     const text = idleEvent === 'update_database' ?
         tn('Database successfully updated') : tn('Database update finished');
-    showNotification(text, '', 'database', 'info');
+    showNotification(text, 'database', 'info');
 }

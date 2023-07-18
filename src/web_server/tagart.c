@@ -31,25 +31,25 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
     sds uri_decoded = sds_urldecode(sdsempty(), query, sdslen(query), false);
     FREE_SDS(query);
     if (sdslen(uri_decoded) == 0) {
-        MYMPD_LOG_ERROR("Failed to decode uri");
+        MYMPD_LOG_ERROR(NULL, "Failed to decode uri");
         webserver_serve_na_image(nc);
         FREE_SDS(uri_decoded);
         return true;
     }
     if (vcb_isfilepath(uri_decoded) == false) {
-        MYMPD_LOG_ERROR("Invalid URI: %s", uri_decoded);
+        MYMPD_LOG_ERROR(NULL, "Invalid URI: %s", uri_decoded);
         webserver_serve_na_image(nc);
         FREE_SDS(uri_decoded);
         return true;
     }
-    MYMPD_LOG_DEBUG("Handle tagart for uri \"%s\"", uri_decoded);
+    MYMPD_LOG_DEBUG(NULL, "Handle tagart for uri \"%s\"", uri_decoded);
     //create absolute file
-    sds mediafile = sdscatfmt(sdsempty(), "%S/pics/%S", config->workdir, uri_decoded);
-    MYMPD_LOG_DEBUG("Absolut media_file: %s", mediafile);
+    sds mediafile = sdscatfmt(sdsempty(), "%S/%s/%S", config->workdir, DIR_WORK_PICS, uri_decoded);
+    MYMPD_LOG_DEBUG(NULL, "Absolut media_file: %s", mediafile);
     mediafile = webserver_find_image_file(mediafile);
     if (sdslen(mediafile) > 0) {
         const char *mime_type = get_mime_type_by_ext(mediafile);
-        MYMPD_LOG_DEBUG("Serving file %s (%s)", mediafile, mime_type);
+        MYMPD_LOG_DEBUG(NULL, "Serving file %s (%s)", mediafile, mime_type);
         static struct mg_http_serve_opts s_http_server_opts;
         s_http_server_opts.root_dir = mg_user_data->browse_directory;
         s_http_server_opts.extra_headers = EXTRA_HEADERS_CACHE;
@@ -57,7 +57,7 @@ bool request_handler_tagart(struct mg_connection *nc, struct mg_http_message *hm
         mg_http_serve_file(nc, hm, mediafile, &s_http_server_opts);
     }
     else {
-        MYMPD_LOG_DEBUG("No image for tag found");
+        MYMPD_LOG_DEBUG(NULL, "No image for tag found");
         webserver_serve_na_image(nc);
     }
     FREE_SDS(mediafile);

@@ -23,7 +23,6 @@
 //features
 #cmakedefine MYMPD_ENABLE_LIBID3TAG
 #cmakedefine MYMPD_ENABLE_FLAC
-#cmakedefine MYMPD_ENABLE_SSL
 #cmakedefine MYMPD_ENABLE_LUA
 #cmakedefine MYMPD_ENABLE_IPV6
 
@@ -64,9 +63,13 @@ extern struct t_mympd_queue *mympd_script_queue;
 //standard file names and folders
 #define FILENAME_ALBUMCACHE "album_cache.json"
 #define FILENAME_ALBUMCACHE_TAGS "album_cache_tags.json"
+#define FILENAME_HOME "home_list"
 #define FILENAME_LAST_PLAYED "last_played_list"
 #define FILENAME_PRESETS "preset_list"
 #define FILENAME_STICKERCACHE "sticker_cache.json"
+#define FILENAME_TIMER "timer_list"
+#define FILENAME_TRIGGER "trigger_list"
+#define FILENAME_WEBRADIODB "webradiodb-combined.min.json"
 
 #define DIR_CACHE_COVER "covercache"
 #define DIR_CACHE_WEBRADIODB "webradiodb"
@@ -78,6 +81,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define DIR_WORK_PICS_THUMBS DIR_WORK_PICS"/thumbs"
 #define DIR_WORK_SCRIPTS "scripts"
 #define DIR_WORK_SMARTPLS "smartpls"
+#define DIR_WORK_SSL "ssl"
 #define DIR_WORK_STATE "state"
 #define DIR_WORK_STATE_DEFAULT DIR_WORK_STATE"/default"
 #define DIR_WORK_TAGS "tags"
@@ -171,13 +175,10 @@ extern struct t_mympd_queue *mympd_script_queue;
 //http headers
 #define EXTRA_HEADERS_CACHE "Cache-Control: max-age=604800\r\n"
 
-#define EXTRA_HEADERS_MISC "X-Content-Type-Options: nosniff\r\n"
+#define EXTRA_HEADERS_MISC "X-Content-Type-Options: nosniff\r\n"\
+    "Access-Control-Allow-Origin: *\r\n"
 
-#define EXTRA_HEADERS_PERMISSIONS_POLICY "Permissions-Policy: accelerometer=(), ambient-light-sensor=(), autoplay=(self), "\
-    "battery=(), camera=(), cross-origin-isolated=(), display-capture=(), document-domain=(), encrypted-media=(), "\
-    "execution-while-not-rendered=(), execution-while-out-of-viewport=(), fullscreen=(self), geolocation=(), gyroscope=(), "\
-    "keyboard-map=(), magnetometer=(), microphone=(), midi=(), navigation-override=(), payment=(), picture-in-picture=(), "\
-    "publickey-credentials-get=(), screen-wake-lock=(), sync-xhr=(), usb=(), web-share=(), xr-spatial-tracking=()\r\n"
+#define EXTRA_HEADERS_PERMISSIONS_POLICY "Permissions-Policy: autoplay=(self), fullscreen=(self)\r\n"
 
 #define EXTRA_HEADERS_UNSAFE "Content-Security-Policy: default-src 'none'; "\
     "style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self' 'unsafe-inline'; img-src * data:; "\
@@ -202,6 +203,8 @@ extern struct t_mympd_queue *mympd_script_queue;
     EXTRA_HEADERS_CACHE
 
 #define EXTRA_HEADER_CONTENT_ENCODING "Content-Encoding: gzip\r\n"
+#define EXTRA_HEADERS_JSON_CONTENT "Content-Type: application/json\r\n"\
+    EXTRA_HEADERS_SAFE
 
 #define DIRECTORY_LISTING_CSS "h1{top:0;font-size:inherit;font-weight:inherit}address{bottom:0;font-style:normal}"\
     "h1,address{background-color:#343a40;color:#f8f9fa;padding:1rem;position:fixed;"\

@@ -43,13 +43,23 @@ function initQueueLastPlayed() {
     }, false);
 
     document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
+        //select mode
+        if (selectRow(event) === true) {
+            return;
+        }
+        //action td
         if (event.target.nodeName === 'A') {
-            //action td
             handleActionTdClick(event);
             return;
         }
-        const target = getParent(event.target, 'TR');
-        if (checkTargetClick(target) === true) {
+        //table body
+        const target = event.target.closest('TR');
+        if (target === null) {
+            return;
+        }
+        if (target.parentNode.nodeName === 'TBODY' &&
+            checkTargetClick(target) === true)
+        {
             clickSong(getData(target, 'uri'), event);
         }
     }, false);

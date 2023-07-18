@@ -3,15 +3,18 @@
 
 //remove shadows
 $box-shadow: none;
+$focus-box-shadow: none;
 $box-shadow-sm: none;
 $box-shadow-lg: none;
 $box-shadow-inset: none;
 $input-btn-focus-box-shadow: none;
 $btn-box-shadow: none;
 $btn-active-box-shadow: none;
+$btn-close-focus-shadow: none;
 $form-select-focus-box-shadow: none;
 $form-range-thumb-box-shadow: none;
 $form-range-thumb-focus-box-shadow: none;
+$form-check-input-focus-box-shadow: none;
 $btn-focus-width: 0;
 
 //no hover for buttons
@@ -27,6 +30,9 @@ $form-feedback-icon-invalid: "";
 //colors
 $green: #28a745;
 $gray-100: #f8f9fa;
+$gray-200: #e9ecef;
+$gray-400: #ced4da;
+$gray-600: #6c757d;
 $gray-800: #343a40;
 $gray-900: #212529;
 $primary: $green;
@@ -34,7 +40,9 @@ $dark: $gray-800;
 
 //body
 $body-bg: $gray-100;
+$body-bg-dark: $gray-800;
 $body-color: $gray-900;
+$body-color-dark: $gray-100;
 
 //transparent cards
 $card-bg: transparent;
@@ -43,14 +51,21 @@ $card-border-color: transparent;
 
 //table
 $table-caption-color: $body-color;
+$table-bg: transparent;
+$table-hover-bg: $gray-400;
 
 //links
 $link-decoration: none;
 $link-color: $body-color;
+$link-color-dark: $body-color-dark;
 
 //other adjustments
 $offcanvas-padding-x: 0;
 $popover-max-width: none;
+$breadcrumb-bg: $gray-200;
+
+//toasts
+$toast-header-border-color: none;
 
 //alerts for dark theme
 $danger-bg-subtle-dark: #f8d7da;
@@ -69,6 +84,25 @@ $success-text-emphasis-dark: #208637;
 // 3. Include remainder of required Bootstrap stylesheets
 @import "../node_modules/bootstrap/scss/variables";
 @import "../node_modules/bootstrap/scss/variables-dark";
+
+$form-validation-states: (
+  "valid": (
+    "color": var(--#{$prefix}form-valid-color),
+    "icon": none,
+    "tooltip-color": #fff,
+    "tooltip-bg-color": var(--#{$prefix}success),
+    "focus-box-shadow": $focus-box-shadow,
+    "border-color": var(--#{$prefix}form-valid-border-color),
+  ),
+  "invalid": (
+    "color": var(--#{$prefix}form-invalid-color),
+    "icon": none,
+    "tooltip-color": #fff,
+    "tooltip-bg-color": var(--#{$prefix}danger),
+    "focus-box-shadow": $focus-box-shadow,
+    "border-color": var(--#{$prefix}form-invalid-border-color),
+  )
+);
 
 $colors: (
   "red":        $red,

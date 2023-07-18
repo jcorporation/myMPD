@@ -36,11 +36,11 @@ function showContextMenuOffcanvas(target, contextMenuType) {
     switch (contextMenuType) {
         case 'columns':
             //column select in table header
-            createContextMenuOffcanvas(target, contextMenuEl, 'Columns', createMenuColumns, undefined);
+            createContextMenuOffcanvas(target, contextMenuEl, 'cols', createMenuColumns, undefined);
             break;
         case 'disc':
             //disc actions in album details view
-            createContextMenuOffcanvas(target, contextMenuEl, 'Disc', addMenuItemsDiscActions, undefined);
+            createContextMenuOffcanvas(target, contextMenuEl, 'disc', addMenuItemsDiscActions, undefined);
             break;
         case 'home':
             //home card actions
@@ -48,11 +48,11 @@ function showContextMenuOffcanvas(target, contextMenuType) {
             break;
         case 'webradio':
             //webradio favorite actions
-            createContextMenuOffcanvas(target, contextMenuEl, 'Webradio', addMenuItemsWebradioFavoritesActions, undefined);
+            createContextMenuOffcanvas(target, contextMenuEl, 'webradio', addMenuItemsWebradioFavoritesActions, undefined);
             break;
         case 'album':
             //album action in album list
-            createContextMenuOffcanvas(target, contextMenuEl, 'Album', addMenuItemsAlbumActions, undefined);
+            createContextMenuOffcanvas(target, contextMenuEl, 'album', addMenuItemsAlbumActions, undefined);
             break;
         default:
             createContextMenuOffcanvas(target, contextMenuEl, '', createMenuLists, createMenuListsSecondary);
@@ -63,10 +63,10 @@ function showContextMenuOffcanvas(target, contextMenuType) {
 /**
  * Populates the offcanvas contextmenu
  * @param {HTMLElement} contextMenuEl contextmenu element
- * @param {string} title contextmenu title 
+ * @param {string} type type of contextmenu
  * @returns {void}
  */
-function createContextMenuOffcanvasInit(contextMenuEl, title) {
+function createContextMenuOffcanvasInit(contextMenuEl, type) {
     const contextMenuHeader = contextMenuEl.querySelector('.offcanvas-header');
     const contextMenuBody = contextMenuEl.querySelector('.offcanvas-body');
     contextMenuBody.removeAttribute('id');
@@ -74,9 +74,16 @@ function createContextMenuOffcanvasInit(contextMenuEl, title) {
     elClear(contextMenuHeader);
     elClear(contextMenuBody);
     //title
-    contextMenuHeader.appendChild(
-        elCreateText('h4', {"class": ["offcanvas-title", "ms-3"]}, title)
-    );
+    if (type !== '') {
+        contextMenuHeader.appendChild(
+            elCreateTextTn('h4', {"class": ["offcanvas-title", "ms-3", "offcanvas-title-" + type]}, typeFriendly[type])
+        );
+    }
+    else {
+        contextMenuHeader.appendChild(
+            elCreateTextTn('h4', {"class": ["offcanvas-title", "ms-3"]}, '')
+        );
+    }
     contextMenuHeader.style.borderBottom = '';
     //close button
     const closeBtn = elCreateEmpty('button', {"class": ["btn-close", "me-3"]});
@@ -90,13 +97,13 @@ function createContextMenuOffcanvasInit(contextMenuEl, title) {
  * Creates the contextmenu
  * @param {EventTarget} target triggering element
  * @param {HTMLElement} contextMenuEl contextmenu element
- * @param {string} title contextmenu title
+ * @param {string} type contextmenu type
  * @param {Function} contentCallback1 first callback to create the content
  * @param {Function} contentCallback2 second callback to create the content
  * @returns {void}
  */
-function createContextMenuOffcanvas(target, contextMenuEl, title, contentCallback1, contentCallback2) {
-    createContextMenuOffcanvasInit(contextMenuEl, tn(title));
+function createContextMenuOffcanvas(target, contextMenuEl, type, contentCallback1, contentCallback2) {
+    createContextMenuOffcanvasInit(contextMenuEl, type);
     const contextMenuBody = contextMenuEl.querySelector('.offcanvas-body');
     const contextMenuTitle = contextMenuEl.querySelector('.offcanvas-title');
     contentCallback1(target, contextMenuTitle, contextMenuBody);

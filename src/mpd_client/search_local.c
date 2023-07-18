@@ -117,7 +117,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
             p++;
         }
         if (p + 1 >= end) {
-            MYMPD_LOG_ERROR("Can not parse search expression");
+            MYMPD_LOG_ERROR(NULL, "Can not parse search expression");
             free_search_expression(expr);
             break;
         }
@@ -138,7 +138,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
             p++;
         }
         if (p + 2 >= end) {
-            MYMPD_LOG_ERROR("Can not parse search expression");
+            MYMPD_LOG_ERROR(NULL, "Can not parse search expression");
             free_search_expression(expr);
             break;
         }
@@ -149,7 +149,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
         else if (strcmp(op, "=~") == 0) { expr->op = SEARCH_OP_REGEX; }
         else if (strcmp(op, "!~") == 0) { expr->op = SEARCH_OP_NOT_REGEX; }
         else {
-            MYMPD_LOG_ERROR("Unknown search operator: \"%s\"", op);
+            MYMPD_LOG_ERROR(NULL, "Unknown search operator: \"%s\"", op);
             free_search_expression(expr);
             break;
         }
@@ -176,7 +176,7 @@ struct t_list *parse_search_expression_to_list(sds expression) {
             expr->re_compiled = compile_regex(expr->value);
         }
         list_push(expr_list, "", 0, NULL, expr);
-        MYMPD_LOG_DEBUG("Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, expr->value);
+        MYMPD_LOG_DEBUG(NULL, "Parsed expression tag: \"%s\", op: \"%s\", value:\"%s\"", tag, op, expr->value);
     }
     FREE_SDS(tag);
     FREE_SDS(op);
@@ -258,7 +258,7 @@ bool search_song_expression(struct mpd_song *song, struct t_list *expr_list, str
             }
         }
         if (rc == false) {
-            //exit on first expression missmatch
+            //exit on first expression mismatch
             return false;
         }
         current = current->next;
@@ -297,7 +297,7 @@ static void free_search_expression_node(struct t_list_node *current) {
  * @return regex code
  */
 static pcre2_code *compile_regex(char *regex_str) {
-    MYMPD_LOG_DEBUG("Compiling regex: \"%s\"", regex_str);
+    MYMPD_LOG_DEBUG(NULL, "Compiling regex: \"%s\"", regex_str);
     utf8lwr(regex_str);
     PCRE2_SIZE erroroffset;
     int rc;
@@ -305,7 +305,7 @@ static pcre2_code *compile_regex(char *regex_str) {
         (PCRE2_SPTR)regex_str, /* the pattern */
         PCRE2_ZERO_TERMINATED, /* indicates pattern is zero-terminated */
         0,                     /* default options */
-        &rc,		       /* for error number */
+        &rc,		           /* for error number */
         &erroroffset,          /* for error offset */
         NULL                   /* use default compile context */
     );
@@ -313,7 +313,7 @@ static pcre2_code *compile_regex(char *regex_str) {
         //Compilation failed
         PCRE2_UCHAR buffer[256];
         pcre2_get_error_message(rc, buffer, sizeof(buffer));
-        MYMPD_LOG_ERROR("PCRE2 compilation failed at offset %d: \"%s\"", (int)erroroffset, buffer);
+        MYMPD_LOG_ERROR(NULL, "PCRE2 compilation failed at offset %d: \"%s\"", (int)erroroffset, buffer);
         return NULL;
     }
     return re_compiled;
@@ -353,7 +353,7 @@ static bool cmp_regex(pcre2_code *re_compiled, const char *value) {
         default: {
             PCRE2_UCHAR buffer[256];
             pcre2_get_error_message(rc, buffer, sizeof(buffer));
-            MYMPD_LOG_ERROR("PCRE2 matching error %d: \"%s\"", rc, buffer);
+            MYMPD_LOG_ERROR(NULL, "PCRE2 matching error %d: \"%s\"", rc, buffer);
         }
     }
     return false;

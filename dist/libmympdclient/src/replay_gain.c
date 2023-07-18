@@ -81,14 +81,10 @@ mpd_lookup_replay_gain_mode(enum mpd_replay_gain_mode mode)
 }
 
 enum mpd_replay_gain_mode
-mpd_run_replay_gain_status(struct mpd_connection *connection)
+mpd_recv_replay_gain_status(struct mpd_connection *connection)
 {
 	enum mpd_replay_gain_mode mode;
 	struct mpd_pair *pair;
-
-	if (!mpd_run_check(connection) ||
-	    !mpd_send_replay_gain_status(connection))
-		return MPD_REPLAY_UNKNOWN;
 
 	pair = mpd_recv_pair_named(connection, "replay_gain_mode");
 	if (pair != NULL) {
@@ -96,6 +92,20 @@ mpd_run_replay_gain_status(struct mpd_connection *connection)
 		mpd_return_pair(connection, pair);
 	} else
 		mode = MPD_REPLAY_UNKNOWN;
+
+	return mode;
+}
+
+enum mpd_replay_gain_mode
+mpd_run_replay_gain_status(struct mpd_connection *connection)
+{
+	enum mpd_replay_gain_mode mode;
+
+	if (!mpd_run_check(connection) ||
+	    !mpd_send_replay_gain_status(connection))
+		return MPD_REPLAY_UNKNOWN;
+
+	mode = mpd_recv_replay_gain_status(connection);
 
 	if (!mpd_response_finish(connection))
 		return MPD_REPLAY_UNKNOWN;

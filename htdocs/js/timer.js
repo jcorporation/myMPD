@@ -21,7 +21,7 @@ function initTimer() {
             toggleTimer(event.target, getData(event.target.parentNode.parentNode, 'id'));
             return;
         }
-        const target = getParent(event.target, 'TR');
+        const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
             showEditTimer(getData(target, 'id'));
         }
@@ -152,6 +152,11 @@ function saveTimer() {
             const unit = Number(getSelectValueId('selectTimerIntervalUnit'));
             interval = interval * unit;
         }
+        let preset = getSelectValueId('selectTimerPreset');
+        if (preset === undefined) {
+            //set to empty string, else the jsonrpc parameter is not set
+            preset = '';
+        }
         sendAPI("MYMPD_API_TIMER_SAVE", {
             "timerid": Number(document.getElementById('inputTimerId').value),
             "name": nameEl.value,
@@ -164,7 +169,7 @@ function saveTimer() {
             "subaction": getSelectValue(selectTimerAction),
             "volume": Number(document.getElementById('inputTimerVolume').value),
             "playlist": getDataId('selectTimerPlaylist', 'value'),
-            "preset": getSelectValueId('selectTimerPreset'),
+            "preset": preset,
             "arguments": args
         }, saveTimerCheckError, true);
     }
@@ -381,7 +386,7 @@ function parseListTimer(obj) {
     elClear(tbody);
     const weekdays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     for (let i = 0; i < obj.result.returnedEntities; i++) {
-        const btn = elCreateEmpty('button', {"name": "enabled", "class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-small"]});
+        const btn = elCreateEmpty('button', {"name": "enabled", "class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-sm"]});
         if (obj.result.data[i].enabled === true) {
             btn.classList.add('active');
             btn.textContent = 'check';

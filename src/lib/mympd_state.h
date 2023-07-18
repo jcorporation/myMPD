@@ -139,6 +139,7 @@ struct t_partition_state {
     time_t song_scrobble_time;             //!< timestamp at which the next scrobble event will be fired
     time_t last_song_scrobble_time;        //!< timestamp of the previous scrobble event
     bool auto_play;                        //!< start play if queue changes
+    bool player_error;                     //!< signals mpd player error condition
     //jukebox
     enum jukebox_modes jukebox_mode;       //!< the jukebox mode
     sds jukebox_playlist;                  //!< playlist from which the jukebox queue is generated

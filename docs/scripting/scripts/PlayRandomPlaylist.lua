@@ -12,8 +12,8 @@ number = math.random(1, #result.result.data)
 -- get playlist by random number
 playlist = result.data[number].uri
 -- play the playlist
-rc, raw_result = mympd.api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {
-    plist = playlist,
+rc, raw_result = mympd.api("MYMPD_API_QUEUE_REPLACE_PLAYLISTS", {
+    plist = [playlist],
     play = true
 })
 -- return the playlist name

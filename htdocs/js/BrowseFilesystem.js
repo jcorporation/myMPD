@@ -26,7 +26,7 @@ function handleBrowseFilesystem() {
     //Create breadcrumb
     const crumbEl = document.getElementById('BrowseBreadcrumb');
     elClear(crumbEl);
-    const home = elCreateText('a', {"class": ["mi"]}, 'home');
+    const home = elCreateText('a', {"class": ["mi"], "href": "#"}, 'home');
     setData(home, 'uri', '/');
     crumbEl.appendChild(
         elCreateNode('li', {"class": ["breadcrumb-item"]}, home)
@@ -73,13 +73,23 @@ function initBrowseFilesystem() {
     }, false);
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
+        //select mode
+        if (selectRow(event) === true) {
+            return;
+        }
         //action td
         if (event.target.nodeName === 'A') {
             handleActionTdClick(event);
             return;
         }
-        const target = getParent(event.target, 'TR');
-        if (checkTargetClick(target) === true) {
+        //table body
+        const target = event.target.closest('TR');
+        if (target === null) {
+            return;
+        }
+        if (target.parentNode.nodeName === 'TBODY' &&
+            checkTargetClick(target) === true)
+        {
             const uri = getData(target, 'uri');
             const dataType = getData(target, 'type');
             switch(dataType) {
@@ -193,5 +203,5 @@ function initBrowseFilesystem() {
  */
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistFromFilesystem() {
-    showAddToPlaylist(app.current.search, '');
+    showAddToPlaylist('song', [app.current.search]);
 }

@@ -72,14 +72,23 @@ function initBrowseRadioWebradiodb() {
     }, false);
 
     document.getElementById('BrowseRadioWebradiodbList').addEventListener('click', function(event) {
+        //select mode
+        if (selectRow(event) === true) {
+            return;
+        }
         if (event.target.nodeName === 'A') {
             //action td
             handleActionTdClick(event);
             return;
         }
-
-        const target = getParent(event.target, 'TR');
-        if (checkTargetClick(target) === true) {
+        //table body
+        const target = event.target.closest('TR');
+        if (target === null) {
+            return;
+        }
+        if (target.parentNode.nodeName === 'TBODY' &&
+            checkTargetClick(target) === true)
+        {
             const uri = getData(target, 'uri');
             if (settings.webuiSettings.clickRadiobrowser === 'add') {
                 showEditRadioFavorite({
@@ -367,7 +376,7 @@ function showWebradiodbDetails(uri) {
         for (const name of alternateStreams) {
             const p = elCreateTextTn('p', {"class": ["pb-0"]}, 'Webradioformat',
                 {"codec": result.alternativeStreams[name].Codec, "bitrate": result.alternativeStreams[name].Bitrate});
-            const btn = elCreateText('button', {"class": ["btn", "btn-sm", "btn-secondary", "mi", "mi-small", "ms-2"]}, 'favorite');
+            const btn = elCreateText('button', {"class": ["btn", "btn-sm", "btn-secondary", "mi", "mi-sm", "ms-2"]}, 'favorite');
             p.appendChild(btn);
             td.appendChild(p);
             btn.addEventListener('click', function(event) {

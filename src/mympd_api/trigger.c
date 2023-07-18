@@ -129,7 +129,7 @@ sds mympd_api_trigger_print_event_list(sds buffer) {
  * @param partition mpd partition
  */
 void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events event, const char *partition) {
-    MYMPD_LOG_DEBUG("\"%s\": Trigger event: %s (%d)", partition, mympd_api_event_name(event), event);
+    MYMPD_LOG_DEBUG(partition, "Trigger event: %s (%d)", mympd_api_event_name(event), event);
     struct t_list_node *current = trigger_list->head;
     while (current != NULL) {
         if (current->value_i == event &&
@@ -138,8 +138,8 @@ void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events 
            )
         {
             struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
-            MYMPD_LOG_NOTICE("\"%s\": Executing script \"%s\" for trigger \"%s\" (%d)",
-                partition, trigger_data->script, mympd_api_event_name(event), event);
+            MYMPD_LOG_NOTICE(partition, "Executing script \"%s\" for trigger \"%s\" (%d)",
+                trigger_data->script, mympd_api_event_name(event), event);
             trigger_execute(trigger_data->script, &trigger_data->arguments, partition);
         }
         current = current->next;
@@ -154,7 +154,7 @@ void mympd_api_trigger_execute(struct t_list *trigger_list, enum trigger_events 
  * @param partition mpd partition
  */
 void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, int vote, const char *partition) {
-    MYMPD_LOG_DEBUG("\"%s\": Trigger event: mympd_feedback (-6) for \"%s\", vote %d", partition, uri, vote);
+    MYMPD_LOG_DEBUG(partition, "Trigger event: mympd_feedback (-6) for \"%s\", vote %d", uri, vote);
     //trigger mympd_feedback executes scripts with uri and vote arguments
     struct t_list script_arguments;
     list_init(&script_arguments);
@@ -169,13 +169,39 @@ void mympd_api_trigger_execute_feedback(struct t_list *trigger_list, sds uri, in
                  strcmp(current->value_p, MPD_PARTITION_ALL) == 0)
            )
         {
-            MYMPD_LOG_NOTICE("Executing script \"%s\" for trigger \"mympd_feedback\" (-6)", current->value_p);
+            MYMPD_LOG_NOTICE(partition, "Executing script \"%s\" for trigger \"mympd_feedback\" (-6)", current->value_p);
             struct t_trigger_data *trigger_data = (struct t_trigger_data *)current->user_data;
             trigger_execute(trigger_data->script, &script_arguments, partition);
         }
         current = current->next;
     }
     list_clear(&script_arguments);
+}
+
+/**
+ * Saves a trigger
+ * @param trigger_list trigger list
+ * @param name trigger name
+ * @param trigger_id existing trigger id to replace or -1
+ * @param event trigger event
+ * @param partition mpd partition
+ * @param trigger_data the trigger data (script name and arguments)
+ * @param error already allocated sds string to append the error message
+ * @return true on success, else false
+ */
+bool mympd_api_trigger_save(struct t_list *trigger_list, sds name, int trigger_id, int event, sds partition,
+        struct t_trigger_data *trigger_data, sds *error)
+{
+    bool rc = list_push(trigger_list, name, event, partition, trigger_data);
+    if (rc == true) {
+        if (trigger_id >= 0) {
+            //delete old entry
+            return mympd_api_trigger_delete(trigger_list, trigger_id, error);
+        }
+        return true;
+    }
+    *error = sdscat(*error, "Could not save trigger");
+    return false;
 }
 
 /**
@@ -274,14 +300,16 @@ sds mympd_api_trigger_get(struct t_list *trigger_list, sds buffer, long request_
  * Deletes a trigger
  * @param trigger_list trigger list
  * @param idx index of trigger node to remove
+ * @param error already allocated sds string to append the error message
  * @return true on success, else false
  */
-bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx) {
+bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx, sds *error) {
     struct t_list_node *to_remove = list_node_extract(trigger_list, idx);
     if (to_remove != NULL) {
         list_node_free_user_data(to_remove, list_free_cb_trigger_data);
         return true;
     }
+    *error = sdscat(*error, "Could not delete trigger");
     return false;
 }
 
@@ -292,13 +320,13 @@ bool mympd_api_trigger_delete(struct t_list *trigger_list, long idx) {
  * @return true on success, else false
  */
 bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
-    sds trigger_file = sdscatfmt(sdsempty(), "%S/state/trigger_list", workdir);
+    sds trigger_file = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_STATE, FILENAME_TRIGGER);
     errno = 0;
     FILE *fp = fopen(trigger_file, OPEN_FLAGS_READ);
     if (fp == NULL) {
-        MYMPD_LOG_DEBUG("Can not open file \"%s\"", trigger_file);
+        MYMPD_LOG_DEBUG(NULL, "Can not open file \"%s\"", trigger_file);
         if (errno != ENOENT) {
-            MYMPD_LOG_ERRNO(errno);
+            MYMPD_LOG_ERRNO(NULL, errno);
         }
         FREE_SDS(trigger_file);
         return false;
@@ -307,11 +335,11 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
     sds line = sdsempty();
     while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
         if (i > LIST_TRIGGER_MAX) {
-            MYMPD_LOG_WARN("Too many triggers defined");
+            MYMPD_LOG_WARN(NULL, "Too many triggers defined");
             break;
         }
         if (validate_json_object(line) == false) {
-            MYMPD_LOG_ERROR("Invalid line");
+            MYMPD_LOG_ERROR(NULL, "Invalid line");
             break;
         }
         sds name = NULL;
@@ -333,7 +361,7 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
                 list_push(trigger_list, name, event, partition, trigger_data);
             }
             else {
-                MYMPD_LOG_WARN("Skipping trigger definition for unknown partition \"%s\"", partition);
+                MYMPD_LOG_WARN(NULL, "Skipping trigger definition for unknown partition \"%s\"", partition);
             }
         }
         else {
@@ -345,7 +373,7 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
     }
     FREE_SDS(line);
     (void) fclose(fp);
-    MYMPD_LOG_INFO("Read %ld triggers(s) from disc", trigger_list->length);
+    MYMPD_LOG_INFO(NULL, "Read %ld triggers(s) from disc", trigger_list->length);
     FREE_SDS(trigger_file);
     return true;
 }
@@ -357,8 +385,8 @@ bool mympd_api_trigger_file_read(struct t_list *trigger_list, sds workdir) {
  * @return true on success, else false
  */
 bool mympd_api_trigger_file_save(struct t_list *trigger_list, sds workdir) {
-    MYMPD_LOG_INFO("Saving triggers to disc");
-    sds filepath = sdscatfmt(sdsempty(), "%S/state/trigger_list", workdir);
+    MYMPD_LOG_INFO(NULL, "Saving triggers to disc");
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_STATE, FILENAME_TRIGGER);
     bool rc = list_write_to_disk(filepath, trigger_list, trigger_to_line_cb);
     FREE_SDS(filepath);
     return rc;

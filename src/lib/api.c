@@ -111,13 +111,25 @@ bool is_mympd_only_api_method(enum mympd_cmd_ids cmd_id) {
 }
 
 /**
- * Sends a websocket notification to the browser
+ * Sends a websocket message to all clients in a partition
  * @param message the message to send
  * @param partition mpd partition
  */
 void ws_notify(sds message, const char *partition) {
-    MYMPD_LOG_DEBUG("Push websocket notify to queue: \"%s\"", message);
-    struct t_work_response *response = create_response_new(0, 0, INTERNAL_API_WEBSERVER_NOTIFY, partition);
+    MYMPD_LOG_DEBUG(partition, "Push websocket notify to queue: \"%s\"", message);
+    struct t_work_response *response = create_response_new(CONN_ID_NOTIFY_ALL, 0, INTERNAL_API_WEBSERVER_NOTIFY, partition);
+    response->data = sds_replace(response->data, message);
+    mympd_queue_push(web_server_queue, response, 0);
+}
+
+/**
+ * Sends a websocket message to a client
+ * @param message the message to send
+ * @param request_id the jsonrpc id of the client
+ */
+void ws_notify_client(sds message, long request_id) {
+    MYMPD_LOG_DEBUG(NULL, "Push websocket notify to queue: \"%s\"", message);
+    struct t_work_response *response = create_response_new(CONN_ID_NOTIFY_CLIENT, request_id, INTERNAL_API_WEBSERVER_NOTIFY, MPD_PARTITION_ALL);
     response->data = sds_replace(response->data, message);
     mympd_queue_push(web_server_queue, response, 0);
 }
@@ -200,4 +212,24 @@ void free_response(struct t_work_response *response) {
         FREE_SDS(response->partition);
         FREE_PTR(response);
     }
+}
+
+/**
+ * Pushes the response to a queue or frees it
+ * @param response pointer to response struct to push
+ * @param request_id request id
+ * @param conn_id connection id
+ * @return true on success, else false
+ */
+bool push_response(struct t_work_response *response, long request_id, long long conn_id) {
+    if (conn_id == -2) {
+        MYMPD_LOG_DEBUG(NULL, "Push response to mympd_script_queue for thread %ld: %s", request_id, response->data);
+        return mympd_queue_push(mympd_script_queue, response, request_id);
+    }
+    if (conn_id > -1) {
+        MYMPD_LOG_DEBUG(NULL, "Push response to queue for connection %lld: %s", conn_id, response->data);
+        return mympd_queue_push(web_server_queue, response, 0);
+    }
+    free_response(response);
+    return true;
 }

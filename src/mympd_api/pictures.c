@@ -33,8 +33,8 @@ sds mympd_api_settings_picture_list(sds workdir, sds buffer, long request_id, sd
     if (pic_dir == NULL) {
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Can not open directory pics");
-        MYMPD_LOG_ERROR("Can not open directory \"%s\"", pic_dirname);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can not open directory \"%s\"", pic_dirname);
+        MYMPD_LOG_ERRNO(NULL, errno);
         FREE_SDS(pic_dirname);
         return buffer;
     }

@@ -65,8 +65,11 @@ function getServerinfo() {
  * @returns {string} song counter text
  */
 function getCounterText() {
-    return fmtSongDuration(currentState.elapsedTime) + smallSpace +
-        '/' + smallSpace + fmtSongDuration(currentState.totalTime);
+    return fmtSongDuration(currentState.elapsedTime) +
+        ( currentState.totalTime > 0
+            ? smallSpace + '/' + smallSpace + fmtSongDuration(currentState.totalTime)
+            : ''
+        );
 }
 
 /**
@@ -89,7 +92,12 @@ function setCounter() {
     const playingRow = document.getElementById('queueSongId' + currentState.currentSongId);
     if (playingRow !== null) {
         //progressbar and counter in queue card
-        setQueueCounter(playingRow, counterText);
+        if (currentState.state === 'stop') {
+            resetDuration(playingRow);
+        }
+        else {
+            setQueueCounter(playingRow, counterText);
+        }
     }
 
     //synced lyrics
@@ -130,10 +138,11 @@ function setCounter() {
  */
 function parseState(obj) {
     if (obj.result === undefined) {
-        logError('State is undefined');
+        logDebug('State is undefined');
         return;
     }
     //Get current song if songid or queueVersion has changed
+    //On stream updates only the queue version will change
     if (currentState.currentSongId !== obj.result.currentSongId ||
         currentState.queueVersion !== obj.result.queueVersion)
     {
@@ -196,11 +205,12 @@ function parseState(obj) {
     setCounter();
     //clear playback card if no current song
     if (obj.result.songPos === -1) {
-        document.getElementById('currentTitle').textContent = tn('Not playing');
         document.title = 'myMPD';
-        elClear(document.getElementById('footerTitle'));
-        document.getElementById('footerTitle').removeAttribute('title');
-        document.getElementById('footerTitle').classList.remove('clickable');
+        document.getElementById('currentTitle').textContent = tn('Not playing');
+        const footerTitleEl = document.getElementById('footerTitle');
+        footerTitleEl.textContent = tn('Not playing');
+        footerTitleEl.removeAttribute('title');
+        footerTitleEl.classList.remove('clickable');
         document.getElementById('footerCover').classList.remove('clickable');
         document.getElementById('currentTitle').classList.remove('clickable');
         clearCurrentCover();

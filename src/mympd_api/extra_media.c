@@ -109,14 +109,14 @@ static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds 
     }
     sds albumpath = sdscatfmt(sdsempty(), "%S/%S", mpd_state->music_directory_value, path);
     sds fullpath = sdsempty();
-    MYMPD_LOG_DEBUG("Read extra files from albumpath: \"%s\"", albumpath);
+    MYMPD_LOG_DEBUG(NULL, "Read extra files from albumpath: \"%s\"", albumpath);
     errno = 0;
     DIR *album_dir = opendir(albumpath);
     if (album_dir != NULL) {
         struct dirent *next_file;
         while ((next_file = readdir(album_dir)) != NULL) {
             if (strcmp(next_file->d_name, mpd_state->booklet_name) == 0) {
-                MYMPD_LOG_DEBUG("Found booklet for uri %s", uri);
+                MYMPD_LOG_DEBUG(NULL, "Found booklet for uri %s", uri);
                 *booklet_path = sdscatfmt(*booklet_path, "/browse/music/%S/%S", path, mpd_state->booklet_name);
             }
             else if (is_image(next_file->d_name) == true) {
@@ -128,8 +128,8 @@ static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds 
         closedir(album_dir);
     }
     else {
-        MYMPD_LOG_ERROR("Can not open directory \"%s\" to get list of extra files", albumpath);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can not open directory \"%s\" to get list of extra files", albumpath);
+        MYMPD_LOG_ERRNO(NULL, errno);
     }
     FREE_SDS(fullpath);
     FREE_SDS(path);
@@ -144,12 +144,12 @@ static void get_extra_files(struct t_mpd_state *mpd_state, const char *uri, sds 
 static int get_embedded_covers_count(const char *media_file) {
     int count = 0;
     const char *mime_type_media_file = get_mime_type_by_ext(media_file);
-    MYMPD_LOG_DEBUG("Mimetype of %s is %s", media_file, mime_type_media_file);
+    MYMPD_LOG_DEBUG(NULL, "Mimetype of %s is %s", media_file, mime_type_media_file);
     if (strcmp(mime_type_media_file, "application/octet-stream") == 0) {
-        MYMPD_LOG_DEBUG("Skip counting coverimages from %s", media_file);
+        MYMPD_LOG_DEBUG(NULL, "Skip counting coverimages from %s", media_file);
         return count;
     }
-    MYMPD_LOG_DEBUG("Counting coverimages from %s", media_file);
+    MYMPD_LOG_DEBUG(NULL, "Counting coverimages from %s", media_file);
     if (strcmp(mime_type_media_file, "audio/mpeg") == 0) {
         count = get_embedded_covers_count_id3(media_file);
     }
@@ -159,7 +159,7 @@ static int get_embedded_covers_count(const char *media_file) {
     else if (strcmp(mime_type_media_file, "audio/flac") == 0) {
         count = get_embedded_covers_count_flac(media_file, false);
     }
-    MYMPD_LOG_DEBUG("Found %d embedded coverimages in %s", count, media_file);
+    MYMPD_LOG_DEBUG(NULL, "Found %d embedded coverimages in %s", count, media_file);
     return count;
 }
 
@@ -173,12 +173,12 @@ static int get_embedded_covers_count_id3(const char *media_file) {
     #ifdef MYMPD_ENABLE_LIBID3TAG
     struct id3_file *file_struct = id3_file_open(media_file, ID3_FILE_MODE_READONLY);
     if (file_struct == NULL) {
-        MYMPD_LOG_ERROR("Can't parse id3_file: %s", media_file);
+        MYMPD_LOG_ERROR(NULL, "Can't parse id3_file: %s", media_file);
         return 0;
     }
     struct id3_tag *tags = id3_file_tag(file_struct);
     if (tags == NULL) {
-        MYMPD_LOG_ERROR("Can't read id3 tags from file: %s", media_file);
+        MYMPD_LOG_ERROR(NULL, "Can't read id3 tags from file: %s", media_file);
         return 0;
     }
     struct id3_frame *frame;
@@ -207,14 +207,14 @@ static int get_embedded_covers_count_flac(const char *media_file, bool is_ogg) {
     FLAC__Metadata_Chain *chain = FLAC__metadata_chain_new();
 
     if(! (is_ogg? FLAC__metadata_chain_read_ogg(chain, media_file) : FLAC__metadata_chain_read(chain, media_file)) ) {
-        MYMPD_LOG_DEBUG("Error reading metadata from \"%s\"", media_file);
+        MYMPD_LOG_DEBUG(NULL, "Error reading metadata from \"%s\"", media_file);
         FLAC__metadata_chain_delete(chain);
         return 0;
     }
     FLAC__Metadata_Iterator *iterator = FLAC__metadata_iterator_new();
     FLAC__metadata_iterator_init(iterator, chain);
     if (iterator == NULL) {
-        MYMPD_LOG_ERROR("Error initializing iterator for \"%s\"", media_file);
+        MYMPD_LOG_ERROR(NULL, "Error initializing iterator for \"%s\"", media_file);
         FLAC__metadata_chain_delete(chain);
         return false;
     }

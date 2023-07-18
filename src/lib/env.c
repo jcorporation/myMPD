@@ -62,7 +62,7 @@ int getenv_int(const char *env_var, int default_value, int min, int max) {
     if (value >= min && value <= max) {
         return value;
     }
-    MYMPD_LOG_WARN("Invalid value for \"%s\" using default", env_var);
+    MYMPD_LOG_WARN(NULL, "Invalid value for \"%s\" using default", env_var);
     return default_value;
 }
 
@@ -83,7 +83,7 @@ unsigned getenv_uint(const char *env_var, unsigned default_value, unsigned min, 
     if (value >= min && value <= max) {
         return value;
     }
-    MYMPD_LOG_WARN("Invalid value for \"%s\" using default", env_var);
+    MYMPD_LOG_WARN(NULL, "Invalid value for \"%s\" using default", env_var);
     return default_value;
 }
 
@@ -111,18 +111,18 @@ bool getenv_bool(const char *env_var, bool default_value) {
 static const char *getenv_check(const char *env_var) {
     const char *env_value = getenv(env_var); /* Flawfinder: ignore */
     if (env_value == NULL) {
-        MYMPD_LOG_DEBUG("Environment variable \"%s\" not set", env_var);
+        MYMPD_LOG_DEBUG(NULL, "Environment variable \"%s\" not set", env_var);
         return NULL;
     }
     if (env_value[0] == '\0') {
-        MYMPD_LOG_DEBUG("Environment variable \"%s\" is empty", env_var);
+        MYMPD_LOG_DEBUG(NULL, "Environment variable \"%s\" is empty", env_var);
         return NULL;
     }
     if (strlen(env_value) > MAX_ENV_LENGTH) {
-        MYMPD_LOG_WARN("Environment variable \"%s\" is too long", env_var);
+        MYMPD_LOG_WARN(NULL, "Environment variable \"%s\" is too long", env_var);
         return NULL;
     }
-    MYMPD_LOG_INFO("Got environment variable \"%s\" with value \"%s\"", env_var, env_value);
+    MYMPD_LOG_INFO(NULL, "Got environment variable \"%s\" with value \"%s\"", env_var, env_value);
     return env_value;
 }
 

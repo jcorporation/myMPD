@@ -93,58 +93,71 @@ function getRandomBool() {
     return Math.random() >= 0.5;
 }
 
-function sendAPI(id) {
+async function sendAPI(id) {
     if (id === 0) {
         cmds = defineCmds();
     }
     const request = cmds[id];
+    let sleep = 0;
+    const uri = '/api/default';
+    const response = await fetch(uri, {
+        method: 'POST',
+        mode: 'same-origin',
+        credentials: 'same-origin',
+        cache: 'no-store',
+        redirect: 'follow',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-myMPD-Session': ''
+        },
+        body: JSON.stringify(request)
+    });
 
-    const ajaxRequest = new XMLHttpRequest();
-    ajaxRequest.open('POST', '/api/default', true);
-    ajaxRequest.setRequestHeader('Content-type', 'application/json');
-    ajaxRequest.onreadystatechange = function() {
-        if (ajaxRequest.readyState === 4) {
-            let sleep = 0;
-            try {
-                var obj = JSON.parse(ajaxRequest.responseText);
-                if (obj.error && obj.error.message === 'MPD disconnected') {
-                    sleep = 3000;
-                    document.getElementsByTagName('h5')[0].textContent = 'Sleeping...';
-                }
-                setTest(request, ajaxRequest.responseText);
+    if (response.ok === false) {
+        const text = await response.text();
+        setTest(request, 'error', text);
+    }
+    else {
+        try {
+            const obj = await response.json();
+            if (obj.error &&
+                obj.error.message === 'MPD disconnected')
+            {
+                sleep = 3000;
+                document.getElementsByTagName('h5')[0].textContent = 'Sleeping...';
             }
-            catch(error) {
-                setTest(request, 'JSON parse error: ' + error);
-                console.error('Request: ' + JSON.stringify(request));
-                console.error('JSON parse error: ' + error);
-                console.error('Response: ' + ajaxRequest.responseText);
-            }
-            i++;
-            if (i < cmds.length) {
+            setTest(request, JSON.stringify(obj));
+        }
+        catch(error) {
+            setTest(request, 'JSON parse error: ' + error);
+            console.error('Request: ' + JSON.stringify(request));
+            console.error(error);
+            return;
+        }
+    }
+
+    //next
+    i++;
+    if (i < cmds.length) {
+        if (getRandomBool() === true) {
+            //delete random params
+            for (const key in cmds[i].params) {
                 if (getRandomBool() === true) {
-                    //delete random params
-                    for (const key in cmds[i].params) {
-                        if (getRandomBool() === true) {
-                            delete cmds[i].params[key];
-                        }
-                    }
+                    delete cmds[i].params[key];
                 }
-                setTimeout(function() { sendAPI(i); }, sleep);
-            }
-            else if (j < blns_len) {
-                j++;
-                i = 0;
-                setTimeout(function() { sendAPI(i); }, sleep);
-            }
-            else {
-                document.getElementsByTagName('h5')[0].textContent = 'Finished';
-                return;
             }
         }
-    };
-
-    document.getElementsByTagName('h5')[0].textContent = 'Running ' + JSON.stringify(request);
-    ajaxRequest.send(JSON.stringify(request));
+        setTimeout(function() { sendAPI(i); }, sleep);
+    }
+    else if (j < blns_len) {
+        j++;
+        i = 0;
+        setTimeout(function() { sendAPI(i); }, sleep);
+    }
+    else {
+        document.getElementsByTagName('h5')[0].textContent = 'Finished';
+        return;
+    }
 }
 
 function e(x) {

@@ -39,7 +39,7 @@ struct t_partition_state *partitions_get_by_name(struct t_mympd_state *mympd_sta
 void partitions_list_clear(struct t_mympd_state *mympd_state) {
     struct t_partition_state *current = mympd_state->partition_state->next;
     while (current != NULL) {
-        MYMPD_LOG_INFO("Removing partition \"%s\" from the partition list", current->name);
+        MYMPD_LOG_INFO(NULL, "Removing partition \"%s\" from the partition list", current->name);
         struct t_partition_state *next = current->next;
         //free partition state
         partition_state_free(current);
@@ -54,25 +54,24 @@ void partitions_list_clear(struct t_mympd_state *mympd_state) {
  * @return true on success, else false
  */
 bool partitions_populate(struct t_mympd_state *mympd_state) {
-    //first add all missing partitions to the list
-    bool rc = mpd_send_listpartitions(mympd_state->partition_state->conn);
-    if (mympd_check_rc_error_and_recover(mympd_state->partition_state, rc, "mpd_send_listpartitions") == false) {
-        return false;
-    }
-    struct mpd_pair *partition;
     struct t_list mpd_partitions;
     list_init(&mpd_partitions);
-    while ((partition = mpd_recv_partition_pair(mympd_state->partition_state->conn)) != NULL) {
-        const char *name = partition->value;
-        if (partitions_check(mympd_state, name) == false) {
-            MYMPD_LOG_INFO("Adding partition \"%s\" to the partition list", name);
-            partitions_add(mympd_state, name);
+    //first add all missing partitions to the list
+    if (mpd_send_listpartitions(mympd_state->partition_state->conn)) {
+        struct mpd_pair *partition;
+        
+        while ((partition = mpd_recv_partition_pair(mympd_state->partition_state->conn)) != NULL) {
+            const char *name = partition->value;
+            if (partitions_check(mympd_state, name) == false) {
+                MYMPD_LOG_INFO(NULL, "Adding partition \"%s\" to the partition list", name);
+                partitions_add(mympd_state, name);
+            }
+            list_push(&mpd_partitions, name, 0, NULL, NULL);
+            mpd_return_pair(mympd_state->partition_state->conn, partition);
         }
-        list_push(&mpd_partitions, name, 0, NULL, NULL);
-        mpd_return_pair(mympd_state->partition_state->conn, partition);
     }
     mpd_response_finish(mympd_state->partition_state->conn);
-    if (mympd_check_error_and_recover(mympd_state->partition_state) == false) {
+    if (mympd_check_error_and_recover(mympd_state->partition_state, NULL, "mpd_send_listpartitions") == false) {
         list_clear(&mpd_partitions);
         return false;
     }
@@ -82,7 +81,7 @@ bool partitions_populate(struct t_mympd_state *mympd_state) {
     struct t_partition_state *previous = mympd_state->partition_state;
     for (; current != NULL; previous = current, current = current->next) {
         if (list_get_node(&mpd_partitions, current->name) == NULL) {
-            MYMPD_LOG_INFO("Removing partition \"%s\" from the partition list", current->name);
+            MYMPD_LOG_INFO(NULL, "Removing partition \"%s\" from the partition list", current->name);
             struct t_partition_state *next = current->next;
             //free partition state
             partition_state_free(current);
@@ -144,7 +143,7 @@ void partitions_get_fds(struct t_mympd_state *mympd_state) {
     mympd_state->nfds = 0;
     while (partition_state != NULL) {
         if (mympd_state->nfds == MPD_CONNECTION_MAX) {
-            MYMPD_LOG_ERROR("Too many partitions");
+            MYMPD_LOG_ERROR(NULL, "Too many partitions");
             break;
         }
         if (partition_state->conn != NULL &&

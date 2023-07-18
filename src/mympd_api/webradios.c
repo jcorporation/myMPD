@@ -108,8 +108,8 @@ sds mympd_api_webradio_list(sds workdir, sds buffer, long request_id, sds search
     errno = 0;
     DIR *webradios_dir = opendir(webradios_dirname);
     if (webradios_dir == NULL) {
-        MYMPD_LOG_ERROR("Can not open directory \"%s\"", webradios_dirname);
-        MYMPD_LOG_ERRNO(errno);
+        MYMPD_LOG_ERROR(NULL, "Can not open directory \"%s\"", webradios_dirname);
+        MYMPD_LOG_ERRNO(NULL, errno);
         FREE_SDS(webradios_dirname);
         buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
             JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Can not open webradios directory");
@@ -253,14 +253,24 @@ bool mympd_api_webradio_save(sds workdir, sds name, sds uri, sds uri_old,
 }
 
 /**
- * Deletes a webradio m3u
+ * Deletes webradio m3u's
  * @param workdir working directory
- * @param filename webradio m3u filename to delete
+ * @param filenames webradio m3u filenames to delete
  * @return true on success, else false
  */
-bool mympd_api_webradio_delete(sds workdir, const char *filename) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_WEBRADIOS, filename);
-    bool rc = rm_file(filepath);
+bool mympd_api_webradio_delete(sds workdir, struct t_list *filenames) {
+    sds filepath = sdsempty();
+    bool rc = true;
+    struct t_list_node *current = filenames->head;
+    while (current != NULL) {
+        filepath = sdscatfmt(filepath, "%S/%s/%S", workdir, DIR_WORK_WEBRADIOS, current->key);
+        rc = rm_file(filepath);
+        if (rc == false) {
+            break;
+        }
+        sdsclear(filepath);
+        current = current->next;
+    }
     FREE_SDS(filepath);
     return rc;
 }
