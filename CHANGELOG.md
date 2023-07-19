@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v11.0.1 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: memory leak after script execution
+
+***
+
 ## myMPD v11.0.0 (2023-07-18)
 
 This release improves the queue and playlist management in many ways. You can now select multiple songs or playlists and take actions on this selection. There are new methods to copy, merge, validate and deduplicate playlists. Further the mpd error handling and the mpd communication was improved by using command lists.
