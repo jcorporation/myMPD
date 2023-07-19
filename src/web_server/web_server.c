@@ -111,9 +111,10 @@ bool web_server_init(struct mg_mgr *mgr, struct t_config *config, struct t_mg_us
     }
     else if (config->http == false) {
         MYMPD_LOG_ERROR(NULL, "Not listening on any port.");
+        return false;
     }
     MYMPD_LOG_NOTICE("Serving files from \"%s\"", MYMPD_DOC_ROOT);
-    return mgr;
+    return true;
 }
 
 /**
