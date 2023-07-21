@@ -60,7 +60,9 @@ UTEST(timer, test_timer_parse_definition) {
     ASSERT_STREQ("example timer2", l.list->definition->name);
 
     ASSERT_TRUE(l.list->definition->enabled);
-    mympd_api_timer_toggle(&l, 103);
+    rc = mympd_api_timer_toggle(&l, 103, &e);
+    ASSERT_TRUE(rc);
+    ASSERT_STREQ("", e);
     ASSERT_FALSE(l.list->definition->enabled);
 
     sdsfree(e);

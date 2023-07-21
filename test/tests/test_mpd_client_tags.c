@@ -197,10 +197,10 @@ UTEST(mpd_client_tags, test_mpd_client_get_tag_values) {
     ASSERT_STREQ("\"Tabula Rasa\"", s);
     sdsclear(s);
     s = mpd_client_get_tag_values(song, MPD_TAG_PERFORMER, s);
-    ASSERT_STREQ("[\"-\"]", s);
+    ASSERT_STREQ("[]", s);
     sdsclear(s);
     s = mpd_client_get_tag_values(song, MPD_TAG_DATE, s);
-    ASSERT_STREQ("\"-\"", s);
+    ASSERT_STREQ("\"\"", s);
     sdsfree(s);
     mpd_song_free(song);
 }
