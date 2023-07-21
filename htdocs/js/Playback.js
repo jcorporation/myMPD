@@ -49,14 +49,11 @@ function parseCurrentSong(obj) {
     const textNotification = [];
     const pageTitle = [];
 
-    if (obj.result.Title !== undefined &&
-        obj.result.Title !== '-')
-    {
+    if (isEmptyTag(obj.result.Title) === false) {
         textNotification.push(obj.result.Title);
     }
 
     mediaSessionSetMetadata(obj.result.Title, obj.result.Artist, obj.result.Album, obj.result.uri);
-
     setCurrentCover(obj.result.uri);
 
     for (const elName of ['footerArtist', 'footerAlbum', 'footerCover', 'currentTitle']) {
@@ -64,9 +61,7 @@ function parseCurrentSong(obj) {
     }
 
     const footerArtistEl = document.getElementById('footerArtist');
-    if (obj.result.Artist !== undefined &&
-        obj.result.Artist[0] !== '-')
-    {
+    if (isEmptyTag(obj.result.Artist) === false) {
         const artists = joinArray(obj.result.Artist);
         textNotification.push(artists);
         pageTitle.push(artists);
@@ -82,9 +77,7 @@ function parseCurrentSong(obj) {
 
     const footerDividerEl = document.getElementById('footerDivider');
     const footerAlbumEl = document.getElementById('footerAlbum');
-    if (obj.result.Album !== undefined &&
-        obj.result.Album !== '-')
-    {
+    if (isEmptyTag(obj.result.Album) === false) {
         textNotification.push(obj.result.Album);
         footerAlbumEl.textContent = obj.result.Album;
         setData(footerAlbumEl, 'name', obj.result.Album);
@@ -93,9 +86,8 @@ function parseCurrentSong(obj) {
         footerAlbumEl.setAttribute('data-tag', 'Album');
         footerDividerEl.classList.remove('d-none');
     }
-    else if (obj.result.Album === '-' &&
-             obj.result.Name &&
-             obj.result.Name !== '-')
+    else if (isEmptyTag(obj.result.Album) === true &&
+             isEmptyTag(obj.result.Name) === false)
     {
         footerAlbumEl.textContent = obj.result.Name;
         footerAlbumEl.classList.remove('clickable');
@@ -114,9 +106,7 @@ function parseCurrentSong(obj) {
     const footerTitleEl = document.getElementById('footerTitle');
     const footerCoverEl = document.getElementById('footerCover');
     const currentTitleEl = document.getElementById('currentTitle');
-    if (obj.result.Title !== undefined &&
-        obj.result.Title !== '-')
-    {
+    if (isEmptyTag(obj.result.Title) === false) {
         pageTitle.push(obj.result.Title);
         currentTitleEl.textContent = obj.result.Title;
         setData(currentTitleEl, 'uri', obj.result.uri);
@@ -232,11 +222,8 @@ function setPlaybackCardTags(songObj) {
                     elReplaceChild(c.querySelector('p'), printValue('AudioFormat', currentState.AudioFormat));
                     break;
                 default: {
-                    let value = songObj[col];
-                    if (value === undefined) {
-                        value = '-';
-                    }
-                    if (checkTagValue(value, '-') === true ||
+                    const value = songObj[col];
+                    if (isEmptyTag(value) === true ||
                         settings.tagListBrowse.includes(col) === false)
                     {
                         elClear(c.querySelector('p'));

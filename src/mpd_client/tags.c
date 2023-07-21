@@ -131,7 +131,7 @@ bool is_multivalue_tag(enum mpd_tag_type tag) {
 }
 
 /**
- * Maps a tag to its sort tag pedant and checks if the sort tag is enabled.
+ * Maps a tag to its sort tag pendant and checks if the sort tag is enabled.
  * @param tag mpd tag type
  * @param available_tags pointer to enabled tags
  * @return sort tag if exists, else the original tag
@@ -277,10 +277,10 @@ sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag
             }
         }
         else {
-            //replace empty tag value(s) with dash
+            //set empty tag value(s)
             tag_values = multi == true
-                ? sdscatlen(tag_values, "[\"-\"]", 5)
-                : sdscatlen(tag_values, "\"-\"", 3);
+                ? sdscatlen(tag_values, "[]", 2)
+                : sdscatlen(tag_values, "\"\"", 2);
         }
     }
     return tag_values;
@@ -414,7 +414,8 @@ static sds get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type t
 }
 
 /**
- * Appends a json string or array to tag_values
+ * Appends a json string or array to tag_values.
+ * Nothing is append if value is empty.
  * @param song pointer to mpd song struct
  * @param tag mpd tag type to get values for
  * @param tag_values already allocated sds string to append the values

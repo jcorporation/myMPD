@@ -122,7 +122,7 @@ function parseSongDetails(obj) {
     elClear(tbody);
     for (let i = 0, j = settings.tagList.length; i < j; i++) {
         if (settings.tagList[i] === 'Title' ||
-            obj.result[settings.tagList[i]] === '-')
+            isEmptyTag(obj.result[settings.tagList[i]]) === true)
         {
             continue;
         }
@@ -137,7 +137,7 @@ function parseSongDetails(obj) {
             setData(td, 'AlbumArtist', obj.result[tagAlbumArtist]);
         }
         if (settings.tagListBrowse.includes(settings.tagList[i]) &&
-            checkTagValue(obj.result[settings.tagList[i]], '-') === false)
+            isEmptyTag(obj.result[settings.tagList[i]]) === false)
         {
             if (typeof obj.result[settings.tagList[i]] === 'string') {
                 td.appendChild(
