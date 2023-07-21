@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: memory leak after script execution
+- Fix: always enable connection save button
 
 ***
 

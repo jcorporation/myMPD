@@ -190,7 +190,10 @@ function appInit() {
     //init links
     const hrefs = document.querySelectorAll('[data-href]');
     for (const href of hrefs) {
-        if (href.classList.contains('not-clickable') === false) {
+        if (href.nodeName !== 'A' &&
+            href.nodeName !== 'BUTTON' &&
+            href.classList.contains('not-clickable') === false)
+        {
             href.classList.add('clickable');
         }
         if (href.parentNode.classList.contains('noInitChilds') ||
