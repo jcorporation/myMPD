@@ -6,9 +6,11 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v11.1.0 (not yet released)
 
-This is a small bug fix release.
+Describe the release here.
 
 ### Changelog
+
+- Feat: move some heavy tasks in worker thread
 
 ***
 
