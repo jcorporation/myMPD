@@ -110,7 +110,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define CFG_MYMPD_LOG_TO_SYSLOG false
 #define CFG_MYMPD_COVERCACHE_KEEP_DAYS 31
 
-//default partiton state settings
+//default partition state settings
 #define PARTITION_HIGHLIGHT_COLOR "#28a745"
 #define PARTITION_HIGHLIGHT_COLOR_CONTRAST "#f8f9fa"
 #define PARTITION_MPD_STREAM_PORT 8000
@@ -297,6 +297,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define SCROBBLE_TIME_MAX 240 //maximum elapsed seconds before scrobble event occurs
 #define SCROBBLE_TIME_TOTAL 480 //if the song is longer then this value, scrobble at SCROBBLE_TIME_MAX
 #define MAX_ENV_LENGTH 100 //maximum length of environment variables
+#define MAX_WORKER_THREADS 5 //maximum number of concurrent worker threads
 
 //limits for lists
 #define LIST_HOME_ICONS_MAX 99

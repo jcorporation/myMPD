@@ -119,8 +119,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_SMARTPLS_UPDATE:
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
         case MYMPD_API_SONG_FINGERPRINT:
-            // this api calls are outsourced to a worker thread
-            if (worker_threads > 5) {
+            if (worker_threads > MAX_WORKER_THREADS) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Too many worker threads are already running");
                 MYMPD_LOG_ERROR(partition_state->name, "Too many worker threads are already running");
@@ -231,9 +230,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
                 response->data = mympd_api_albumart_getcover(partition_state, response->data, request->id, sds_buf1, &response->binary);
             }
-            break;
-        case MYMPD_API_MOUNT_URLHANDLER_LIST:
-            response->data = mympd_api_mounts_urlhandler_list(partition_state, response->data, request->id);
             break;
     // Home icons
         case MYMPD_API_HOME_ICON_SAVE: {
@@ -1517,6 +1513,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 mpd_run_unmount(partition_state->conn, sds_buf1);
                 response->data = mympd_respond_with_error_or_ok(partition_state, response->data, request->cmd_id, request->id, "mpd_run_unmount", &rc);
             }
+            break;
+        case MYMPD_API_MOUNT_URLHANDLER_LIST:
+            response->data = mympd_api_mounts_urlhandler_list(partition_state, response->data, request->id);
             break;
     // webradio favorites
         case MYMPD_API_WEBRADIO_FAVORITE_LIST:
