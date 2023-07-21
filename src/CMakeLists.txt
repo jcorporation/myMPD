@@ -81,6 +81,7 @@ target_sources(mympd PRIVATE
   mpd_worker/cache.c
   mpd_worker/smartpls.c
   mpd_worker/state.c
+  mpd_worker/song.c
   mympd_api/mympd_api.c
   mympd_api/albumart.c
   mympd_api/browse.c

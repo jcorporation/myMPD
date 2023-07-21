@@ -122,6 +122,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP_ALL:
         case MYMPD_API_SMARTPLS_UPDATE:
         case MYMPD_API_SMARTPLS_UPDATE_ALL:
+        case MYMPD_API_SONG_FINGERPRINT:
+            // this api calls are outsourced to a worker thread
             if (worker_threads > 5) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Too many worker threads are already running");
@@ -916,11 +918,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_SONG_COMMENTS:
             if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
                 response->data = mympd_api_song_comments(partition_state, response->data, request->id, sds_buf1);
-            }
-            break;
-        case MYMPD_API_SONG_FINGERPRINT:
-            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
-                response->data = mympd_api_song_fingerprint(partition_state, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_PLAYLIST_RENAME:
