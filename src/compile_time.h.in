@@ -310,6 +310,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define JUKEBOX_QUEUE_MAX 999
 #define JUKEBOX_LAST_PLAYED_MIN 0
 #define JUKEBOX_LAST_PLAYED_MAX 5000
+#define JUKEBOX_UNIQ_RANGE 50
 #define SCRIPT_ARGUMENTS_MAX 20
 
 //filesystem limits
