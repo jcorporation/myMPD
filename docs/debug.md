@@ -34,6 +34,24 @@ You can set the log level in the Maintenance dialog to `debug` and get the outpu
 - Set `log_level "verbose"` in mpd.conf and restart mpd
 - Look through the mpd log file for any errors
 
+## Recording traffic between MPD and myMPD
+
+### Local socket connection
+
+MPD should listen on `/run/mpd/socket`. Point myMPD to `/run/mpd/socket-debug`.
+
+```
+socat -t100 -v UNIX-LISTEN:/run/mpd/socket-debug,mode=777,reuseaddr,fork UNIX-CONNECT:/run/mpd/socket
+```
+
+### TCP connection
+
+MPD should listen on `/run/mpd/socket`. Point myMPD to `/run/mpd/socket-debug`.
+
+```
+tcpdump -nni any -vvv -x any host <mpd host>
+```
+
 ## myMPD debug build
 
 - Build: `./build.sh debug`
