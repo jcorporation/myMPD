@@ -470,7 +470,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 if (preset != NULL) {
                     if (json_iterate_object(preset->value_p, "$", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &error) == true) {
                         if (partition_state->jukebox_mode != JUKEBOX_OFF) {
-                            //start jukebox
+                            //clear and start jukebox
+                            jukebox_clear_all(partition_state->mympd_state);
                             jukebox_run(partition_state);
                         }
                         //respond with ok
