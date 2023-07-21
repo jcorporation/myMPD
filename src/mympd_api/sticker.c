@@ -9,6 +9,30 @@
 
 #include "src/lib/jsonrpc.h"
 #include "src/lib/sticker_cache.h"
+#include "src/mympd_api/trigger.h"
+
+/**
+ * Sets the like sticker
+ * @param partition_state pointer to partition state
+ * @param uri uri to like
+ * @param like like value to set
+ * @param error already allocated sds string to append the error message
+ * @return true on success, else false
+ */
+bool mympd_api_sticker_set_like(struct t_partition_state *partition_state, sds uri, int like, sds *error) {
+    if (partition_state->mpd_state->feat_stickers == false) {
+        *error = sdscat(*error, "MPD stickers are disabled");
+        return false;
+    }
+    bool rc = sticker_set_like(&partition_state->mpd_state->sticker_queue, uri, like);
+    if (rc == false) {
+        *error = sdscat(*error, "Failed to set like");
+        return false;
+    }
+    //mympd_feedback trigger
+    mympd_api_trigger_execute_feedback(&partition_state->mympd_state->trigger_list, uri, like, partition_state->name);
+    return true;
+}
 
 /**
  * Gets the stickers from sticker cache and returns a json list

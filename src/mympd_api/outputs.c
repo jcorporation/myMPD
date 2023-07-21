@@ -12,6 +12,23 @@
 #include "src/mpd_client/shortcuts.h"
 
 /**
+ * Toggles the enabled state of a mpd output
+ * @param partition_state pointer to partition state
+ * @param output_id mpd output id
+ * @param state the state, 1 = enabled, 0 = disabled
+ * @param error already allocated sds string to append the error message
+ * @return true on success, else false
+ */
+bool mympd_api_output_toggle(struct t_partition_state *partition_state, unsigned output_id, unsigned state, sds *error) {
+    if (state == 1) {
+        mpd_run_enable_output(partition_state->conn, output_id);
+        return mympd_check_error_and_recover(partition_state, error, "mpd_run_enable_output");
+    }
+    mpd_run_disable_output(partition_state->conn, output_id);
+    return mympd_check_error_and_recover(partition_state, error, "mpd_run_enable_output");
+}
+
+/**
  * Lists output details
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response

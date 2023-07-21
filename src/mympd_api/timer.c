@@ -306,9 +306,10 @@ bool mympd_api_timer_remove(struct t_timer_list *l, int timer_id) {
  * Toggles the enabled state of a timer
  * @param l timer list
  * @param timer_id timer id to toggle
+ * @param error pointer to already allocated sds string to append an error message
  * @return true on success, else false
  */
-bool mympd_api_timer_toggle(struct t_timer_list *l, int timer_id) {
+bool mympd_api_timer_toggle(struct t_timer_list *l, int timer_id, sds *error) {
     struct t_timer_node *current = NULL;
     for (current = l->list; current != NULL; current = current->next) {
         if (current->timer_id == timer_id) {
@@ -318,6 +319,7 @@ bool mympd_api_timer_toggle(struct t_timer_list *l, int timer_id) {
             return true;
         }
     }
+    *error = sdscat(*error, "Timer with given id not found");
     return false;
 }
 

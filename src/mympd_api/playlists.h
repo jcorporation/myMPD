@@ -37,6 +37,8 @@ sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buf
         long request_id, const char *old_playlist, const char *new_playlist);
 sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds buffer,
         long request_id, enum plist_delete_criterias criteria);
+bool mympd_api_playlist_content_move(struct t_partition_state *partition_state, sds plist, unsigned from, unsigned to, sds *error);
+bool mympd_api_playlist_content_rm_range(struct t_partition_state *partition_state, sds plist, unsigned start, int end, sds *error);
 bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition_state, sds plist, struct t_list *positions, sds *error);
 bool mympd_api_playlist_content_append(struct t_partition_state *partition_state, sds plist, struct t_list *uris, sds *error);
 bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state, sds plist, struct t_list *uris, unsigned to, sds *error);

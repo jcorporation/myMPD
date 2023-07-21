@@ -172,6 +172,12 @@ bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state,
  * @return bool true on success, else false
  */
 bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, struct t_list *song_ids, unsigned to, unsigned whence, sds *error) {
+    if (whence != MPD_POSITION_ABSOLUTE &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     if (song_ids->length == 0) {
         *error = sdscat(*error, "No MPD queue song ids provided");
         return false;
@@ -202,6 +208,12 @@ bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, st
  * @return true on success, else false
  */
 bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_list *uris, unsigned to, unsigned whence, sds *error) {
+    if (whence != MPD_POSITION_ABSOLUTE &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     if (uris->length == 0) {
         *error = sdscat(*error, "No uris provided");
         return false;
@@ -260,6 +272,12 @@ bool mympd_api_queue_replace(struct t_partition_state *partition_state, struct t
  * @return true on success, else false
  */
 bool mympd_api_queue_insert_search(struct t_partition_state *partition_state, sds expression, unsigned to, unsigned whence, sds *error) {
+    if (whence != MPD_POSITION_ABSOLUTE &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     const char *sort = NULL;
     bool sortdesc = false;
     return mpd_client_search_add_to_queue(partition_state, expression, to, whence, sort, sortdesc, error);
@@ -298,6 +316,12 @@ bool mympd_api_queue_replace_search(struct t_partition_state *partition_state, s
  * @return true on success, else false
  */
 bool mympd_api_queue_insert_albums(struct t_partition_state *partition_state, struct t_list *albumids, unsigned to, unsigned whence, sds *error) {
+    if (whence != MPD_POSITION_ABSOLUTE &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     if (albumids->length == 0) {
         *error = sdscat(*error, "No album ids provided");
         return false;
@@ -357,6 +381,12 @@ bool mympd_api_queue_replace_albums(struct t_partition_state *partition_state, s
  * @return true on success, else false
  */
 bool mympd_api_queue_insert_album_disc(struct t_partition_state *partition_state, sds albumid, sds disc, unsigned to, unsigned whence, sds *error) {
+    if (whence != MPD_POSITION_ABSOLUTE &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumid);
     if (mpd_album == NULL) {
         *error = sdscat(*error, "Album not found");
@@ -405,6 +435,12 @@ bool mympd_api_queue_replace_album_disc(struct t_partition_state *partition_stat
  * @return true on success, else false
  */
 bool mympd_api_queue_insert_plist(struct t_partition_state *partition_state, struct t_list *plists, unsigned to, unsigned whence, sds *error) {
+    if (whence != MPD_POSITION_ABSOLUTE &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     if (plists->length == 0) {
         *error = sdscat(*error, "No playlists provided");
         return false;

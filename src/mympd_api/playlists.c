@@ -212,6 +212,12 @@ bool mympd_api_playlist_copy(struct t_partition_state *partition_state,
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_insert(struct t_partition_state *partition_state, sds plist, struct t_list *uris, unsigned to, sds *error) {
+    if (to != UINT_MAX &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     if (uris->length == 0) {
         *error = sdscat(*error, "No uris provided");
         return false;
@@ -272,6 +278,12 @@ bool mympd_api_playlist_content_replace(struct t_partition_state *partition_stat
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_insert_search(struct t_partition_state *partition_state, sds expression, sds plist, unsigned to, sds *error) {
+    if (to != UINT_MAX &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     const char *sort = NULL;
     bool sortdesc = false;
     return mpd_client_search_add_to_plist(partition_state, expression, plist, to, sort, sortdesc, error);
@@ -312,6 +324,12 @@ bool mympd_api_playlist_content_replace_search(struct t_partition_state *partiti
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_insert_albums(struct t_partition_state *partition_state, sds plist, struct t_list *albumids, unsigned to, sds *error) {
+    if (to != UINT_MAX &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     if (albumids->length == 0) {
         *error = sdscat(*error, "No album ids provided");
         return false;
@@ -373,6 +391,12 @@ bool mympd_api_playlist_content_replace_albums(struct t_partition_state *partiti
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_insert_album_disc(struct t_partition_state *partition_state, sds plist, sds albumid, sds disc, unsigned to, sds *error) {
+    if (to != UINT_MAX &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumid);
     if (mpd_album == NULL) {
         return false;
@@ -410,6 +434,46 @@ bool mympd_api_playlist_content_append_album_disc(struct t_partition_state *part
 bool mympd_api_playlist_content_replace_album_disc(struct t_partition_state *partition_state, sds plist, sds albumid, sds disc, sds *error) {
     return mpd_client_playlist_clear(partition_state, plist, error) &&
         mympd_api_playlist_content_append_album_disc(partition_state, plist, albumid, disc, error);
+}
+
+/**
+ * Moves a song inside a playlist
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param from from position
+ * @param to to position
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_move(struct t_partition_state *partition_state, sds plist, unsigned from, unsigned to, sds *error) {
+    if (from < to) {
+        // decrease to position
+        to--;
+    }
+    mpd_run_playlist_move(partition_state->conn, plist, from, to);
+    return mympd_check_error_and_recover(partition_state, error, "mpd_run_playlist_move");
+}
+
+/**
+ * Removes a range of songs in a playlist
+ * @param partition_state pointer to partition state
+ * @param plist stored playlist name
+ * @param start start position (including)
+ * @param end end position (excluded), -1 for open ended range
+ * @param error pointer to an already allocated sds string for the error message
+ * @return true on success, else false
+ */
+bool mympd_api_playlist_content_rm_range(struct t_partition_state *partition_state, sds plist, unsigned start, int end, sds *error) {
+    if (partition_state->mpd_state->feat_playlist_rm_range == false) {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
+    //map -1 to UINT_MAX for open ended range
+    unsigned end_u = end < 0
+        ? UINT_MAX
+        : (unsigned)end;
+    mpd_run_playlist_delete_range(partition_state->conn, plist, start, end_u);
+    return mympd_check_error_and_recover(partition_state, error, "mpd_run_playlist_delete_range");
 }
 
 /**
