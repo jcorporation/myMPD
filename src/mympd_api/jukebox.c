@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/list.h"
 #include "src/mympd_api/jukebox.h"
 
 #include "dist/utf8/utf8.h"
@@ -31,7 +32,7 @@ void mympd_api_jukebox_clear(struct t_list *list, sds partition_name) {
 /**
  * Removes entries from the jukebox queue.
  * @param list the jukebox queue
- * @param positions positions to remove, must be ordered descending
+ * @param positions positions to remove
  * @param partition_name name of the partition
  * @param error pointer to sds string to populate an error string
  * @return true on success, else false
@@ -41,6 +42,7 @@ bool mympd_api_jukebox_rm_entries(struct t_list *list, struct t_list *positions,
         *error = sdscat(*error, "No song positions provided");
         return false;
     }
+    list_sort_by_value_i(positions, LIST_SORT_DESC);
     struct t_list_node *current;
     bool rc = true;
     while ((current = list_shift_first(positions)) != NULL) {
