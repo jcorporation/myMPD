@@ -644,7 +644,7 @@ function addSortIndicator(th, desc) {
 }
 
 /**
- * Conditionally replaces a table row, if uri or cols are changed.
+ * Conditionally replaces a table row, if metadata or cols are changed.
  * @param {HTMLElement} row row to replace
  * @param {HTMLElement} el replacement row
  * @returns {void}
@@ -653,7 +653,8 @@ function replaceTblRow(row, el) {
     if (getData(row, 'uri') === getData(el, 'uri') &&
         getData(row, 'cols') === getData(el, 'cols') &&
         getData(row, 'name') === getData(el, 'name') &&
-        getData(row, 'songid') === getData(el, 'songid'))
+        getData(row, 'songid') === getData(el, 'songid') &&
+        getData(row, 'AlbumId') === getData(el, 'AlbumId'))
     {
         return;
     }
