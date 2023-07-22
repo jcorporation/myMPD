@@ -541,7 +541,6 @@ static long fill_jukebox_queue_albums(struct t_partition_state *partition_state,
     }
 
     long skipno = 0;
-    long nkeep = 0;
     long lineno = 1;
     time_t since = time(NULL);
     since = since - (partition_state->jukebox_last_played * 3600);
@@ -574,24 +573,14 @@ static long fill_jukebox_queue_albums(struct t_partition_state *partition_state,
 
         if (is_uniq == JUKEBOX_UNIQ_IS_UNIQ) {
             if (randrange(0, lineno) < add_albums) {
-                if (nkeep < add_albums) {
-                    if (list_push(add_list, tag_album, lineno, tag_albumartist, album) == true) {
-                        nkeep++;
-                    }
-                    else {
+                if (add_list->length < add_albums) {
+                    if (list_push(add_list, tag_album, lineno, tag_albumartist, album) == false) {
                         MYMPD_LOG_ERROR(partition_state->name, "Can't push jukebox_queue element");
                     }
                 }
                 else {
                     long pos = add_albums > 1 ? start_length + randrange(0, add_albums -1) : 0;
-                    struct t_list_node *node = list_node_at(add_list, pos);
-                    if (node != NULL) {
-                        node->user_data = NULL;
-                        if (list_replace(add_list, pos, tag_album, lineno, tag_albumartist, album) == false) {
-                            MYMPD_LOG_ERROR(partition_state->name, "Can't replace jukebox_queue element pos %ld", pos);
-                        }
-                    }
-                    else {
+                    if (list_replace(add_list, pos, tag_album, lineno, tag_albumartist, album) == false) {
                         MYMPD_LOG_ERROR(partition_state->name, "Can't replace jukebox_queue element pos %ld", pos);
                     }
                 }
@@ -606,7 +595,7 @@ static long fill_jukebox_queue_albums(struct t_partition_state *partition_state,
     FREE_SDS(tag_albumartist);
     raxStop(&iter);
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox iterated through %ld albums, skipped %ld", lineno, skipno);
-    return (int)nkeep;
+    return (int)add_list->length;
 }
 
 /**
@@ -626,7 +615,6 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;
     long skipno = 0;
-    long nkeep = 0;
     long lineno = 1;
     time_t since = time(NULL);
     since = since - (partition_state->jukebox_last_played * 3600);
@@ -693,11 +681,8 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
                 is_hated == false)
             {
                 if (randrange(0, lineno) < add_songs) {
-                    if (nkeep < add_songs) {
-                        if (list_push(add_list, uri, lineno, tag_value, NULL) == true) {
-                            nkeep++;
-                        }
-                        else {
+                    if (add_list->length < add_songs) {
+                        if (list_push(add_list, uri, lineno, tag_value, NULL) == false) {
                             MYMPD_LOG_ERROR(partition_state->name, "Can't push jukebox_queue element");
                         }
                     }
@@ -725,7 +710,7 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
     } while (from_database == true && lineno + skipno > (long)start);
     FREE_SDS(tag_value);
     MYMPD_LOG_DEBUG(partition_state->name, "Jukebox iterated through %ld songs, skipped %ld", lineno, skipno);
-    return (int)nkeep;
+    return (int)add_list->length;
 }
 
 /**
@@ -756,7 +741,9 @@ static long jukebox_unique_tag(struct t_partition_state *partition_state, const 
         current = current->next;
     }
 
-    current = manual == false ? partition_state->jukebox_queue.head : partition_state->jukebox_queue_tmp.head;
+    current = manual == false
+        ? partition_state->jukebox_queue.head
+        : partition_state->jukebox_queue_tmp.head;
     long i = 0;
     while (current != NULL) {
         if (strcmp(current->key, uri) == 0) {
@@ -798,7 +785,9 @@ static long jukebox_unique_album(struct t_partition_state *partition_state, cons
         current = current->next;
     }
 
-    current = manual == false ? partition_state->jukebox_queue.head : partition_state->jukebox_queue_tmp.head;
+    current = manual == false
+        ? partition_state->jukebox_queue.head
+        : partition_state->jukebox_queue_tmp.head;
     long i = 0;
     while (current != NULL) {
         if (strcmp(current->key, album) == 0 &&
