@@ -48,7 +48,8 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
         return false;
     }
 
-    int i = 0;
+    int count = 0;
+    //save last_played from mem to disc
     struct t_list_node *current;
     bool write_rc = true;
     sds line = sdsempty();
@@ -64,7 +65,7 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
             list_node_free(current);
             break;
         }
-        i++;
+        count++;
         list_node_free(current);
         sdsclear(line);
     }
@@ -76,7 +77,7 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
         FILE *fi = fopen(filepath, OPEN_FLAGS_READ);
         if (fi != NULL) {
             while (sds_getline(&line, fi, LINE_LENGTH_MAX) >= 0 &&
-                i < partition_state->mpd_state->last_played_count)
+                count < partition_state->mpd_state->last_played_count)
             {
                 line = sdscatlen(line, "\n", 1);
                 if (fputs(line, fp) == EOF) {
@@ -84,7 +85,7 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
                     write_rc = false;
                     break;
                 }
-                i++;
+                count++;
             }
             (void) fclose(fi);
         }
@@ -110,9 +111,13 @@ bool mympd_api_last_played_file_save(struct t_partition_state *partition_state) 
  * @return true on success, else false
  */
 bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, int song_id) {
-    if (song_id == -1) {
-        return false;
+    if (song_id == -1 ||                                    // no current song
+        partition_state->mpd_state->last_played_count == 0) // last played is disabled
+    {
+        return true;
     }
+
+    // get current playing song and add it
     struct mpd_song *song = mpd_run_get_queue_song_id(partition_state->conn, (unsigned)song_id);
     if (song != NULL) {
         const char *uri = mpd_song_get_uri(song);
@@ -130,7 +135,7 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, i
     }
 
     //write last_played list to disc
-    if (partition_state->last_played.length > 9 ||
+    if (partition_state->last_played.length >= LAST_PLAYED_MEM_MAX ||
         partition_state->last_played.length > partition_state->mpd_state->last_played_count)
     {
         mympd_api_last_played_file_save(partition_state);
@@ -164,7 +169,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
     sds obj = sdsempty();
 
     long real_limit = offset + limit;
-
+    // first get entries from memory
     if (offset < partition_state->last_played.length) {
         struct t_list_node *current = partition_state->last_played.head;
         while (current != NULL) {
@@ -191,6 +196,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
         entity_count = partition_state->last_played.length;
     }
 
+    // get entries from disk
     if (entities_returned < real_limit) {
         sds lp_file = sdscatfmt(sdsempty(), "%S/%S/%s",
             partition_state->mympd_state->config->workdir, partition_state->state_dir, FILENAME_LAST_PLAYED);
@@ -205,7 +211,6 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
                     json_get_llong_max(line, "$.LastPlayed", &last_played, NULL) == true)
                 {
                     obj = get_last_played_obj(partition_state, obj, entity_count, last_played, uri, searchstr, tagcols);
-                    FREE_SDS(uri);
                     if (sdslen(obj) > 0) {
                         if (entities_found >= offset) {
                             if (entities_returned++) {
@@ -223,8 +228,8 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
                 else {
                     MYMPD_LOG_ERROR(partition_state->name, "Reading last_played line failed");
                     MYMPD_LOG_DEBUG(partition_state->name, "Erroneous line: %s", line);
-                    FREE_SDS(uri);
                 }
+                FREE_SDS(uri);
                 entity_count++;
             }
             (void) fclose(fp);
