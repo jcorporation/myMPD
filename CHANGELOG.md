@@ -13,6 +13,7 @@ This is a small bug fix release.
 - Fix: memory leak after script execution
 - Fix: always enable connection save button
 - Fix: add missing jukebox list remove action
+- Fix: IPv4-mapped address broken #1066
 
 ***
 
