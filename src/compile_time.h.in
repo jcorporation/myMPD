@@ -156,7 +156,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_COLS_BROWSE_FILESYSTEM "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]"
 #define MYMPD_COLS_PLAYBACK "[\"Artist\",\"Album\"]"
 #define MYMPD_COLS_QUEUE_LAST_PLAYED "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"LastPlayed\"]"
-#define MYMPD_COLS_QUEUE_JUKEBOX "[\"Pos\",\"Title\",\"Artist\",\"Album\"]"
+#define MYMPD_COLS_QUEUE_JUKEBOX_SONG "[\"Pos\",\"Title\",\"Artist\",\"Album\"]"
+#define MYMPD_COLS_QUEUE_JUKEBOX_ALBUM "[\"Pos\",\"Album\",\"AlbumArtist\"]"
 #define MYMPD_COLS_BROWSE_RADIO_WEBRADIODB "[\"Name\",\"Country\",\"Language\",\"Genre\"]"
 #define MYMPD_COLS_BROWSE_RADIO_RADIOBROWSER "[\"name\",\"country\",\"language\",\"tags\"]"
 #define MYMPD_VOLUME_MIN 0 //prct

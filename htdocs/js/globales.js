@@ -243,24 +243,24 @@ app.cards = {
     "Home": {
         "offset": 0,
         "limit": 100,
-        "filter": "-",
+        "filter": "",
         "sort": {
-            "tag": "-",
+            "tag": "",
             "desc": false
         },
-        "tag": "-",
+        "tag": "",
         "search": "",
         "scrollPos": 0
     },
     "Playback": {
         "offset": 0,
         "limit": 100,
-        "filter": "-",
+        "filter": "",
         "sort": {
-            "tag": "-",
+            "tag": "",
             "desc": false
         },
-        "tag": "-",
+        "tag": "",
         "search": "",
         "scrollPos": 0
     },
@@ -275,7 +275,7 @@ app.cards = {
                     "tag": "Pos",
                     "desc": false
                 },
-                "tag": "-",
+                "tag": "",
                 "search": "",
                 "scrollPos": 0
             },
@@ -284,24 +284,41 @@ app.cards = {
                 "limit": 100,
                 "filter": "any",
                 "sort": {
-                    "tag": "-",
+                    "tag": "",
                     "desc": false
                 },
-                "tag": "-",
+                "tag": "",
                 "search": "",
                 "scrollPos": 0
             },
             "Jukebox": {
-                "offset": 0,
-                "limit": 100,
-                "filter": "any",
-                "sort": {
-                    "tag": "-",
-                    "desc": false
-                },
-                "tag": "-",
-                "search": "",
-                "scrollPos": 0
+                "active": "Song",
+                "views": {
+                    "Song": {
+                        "offset": 0,
+                        "limit": 100,
+                        "filter": "any",
+                        "sort": {
+                            "tag": "",
+                            "desc": false
+                        },
+                        "tag": "",
+                        "search": "",
+                        "scrollPos": 0
+                    },
+                    "Album": {
+                        "offset": 0,
+                        "limit": 100,
+                        "filter": "any",
+                        "sort": {
+                            "tag": "",
+                            "desc": false
+                        },
+                        "tag": "",
+                        "search": "",
+                        "scrollPos": 0
+                    }
+                }
             }
         }
     },
@@ -311,9 +328,9 @@ app.cards = {
             "Filesystem": {
                 "offset": 0,
                 "limit": 100,
-                "filter": "-",
+                "filter": "",
                 "sort": {
-                    "tag": "-",
+                    "tag": "",
                     "desc": false
                 },
                 "tag": "dir",
@@ -326,24 +343,24 @@ app.cards = {
                     "List": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": "-",
+                        "filter": "",
                         "sort": {
-                            "tag": "-",
+                            "tag": "",
                             "desc": false
                         },
-                        "tag": "-",
+                        "tag": "",
                         "search": "",
                         "scrollPos": 0
                     },
                     "Detail": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": "-",
+                        "filter": "",
                         "sort": {
-                            "tag": "-",
+                            "tag": "",
                             "desc": false
                         },
-                        "tag": "-",
+                        "tag": "",
                         "search": "",
                         "scrollPos": 0
                     }
@@ -357,7 +374,7 @@ app.cards = {
                         "limit": 100,
                         "filter": "any",
                         "sort": {
-                            "tag": "-",
+                            "tag": "",
                             "desc": false
                         },
                         "tag": "Album",
@@ -379,12 +396,12 @@ app.cards = {
                     "AlbumDetail": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": "-",
+                        "filter": "",
                         "sort": {
-                            "tag": "-",
+                            "tag": "",
                             "desc": false
                         },
-                        "tag": "-",
+                        "tag": "",
                         "search": "",
                         "scrollPos": 0
                     }
@@ -396,12 +413,12 @@ app.cards = {
                     "Favorites": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": "-",
+                        "filter": "",
                         "sort": {
-                            "tag": "-",
+                            "tag": "",
                             "desc": false
                         },
-                        "tag": "-",
+                        "tag": "",
                         "search": "",
                         "scrollPos": 0
                     },
@@ -419,7 +436,7 @@ app.cards = {
                             "tag": "Name",
                             "desc": false
                         },
-                        "tag": "-",
+                        "tag": "",
                         "search": "",
                         "scrollPos": 0
                     },
@@ -433,10 +450,10 @@ app.cards = {
                             "language": ""
                         },
                         "sort": {
-                            "tag": "-",
+                            "tag": "",
                             "desc": false
                         },
-                        "tag": "-",
+                        "tag": "",
                         "search": "",
                         "scrollPos": 0
                     }
@@ -452,7 +469,7 @@ app.cards = {
             "tag": "Title",
             "desc": false
         },
-        "tag": "-",
+        "tag": "",
         "search": "",
         "scrollPos": 0
     }
@@ -468,7 +485,7 @@ app.current = {
     "filter": "",
     "search": "",
     "sort": {
-        "tag": "-",
+        "tag": "",
         "desc": false
     },
     "tag": "",
@@ -484,7 +501,7 @@ app.last = {
     "filter": "",
     "search": "",
     "sort": {
-        "tag": "-",
+        "tag": "",
         "desc": false
     },
     "tag": "",
@@ -971,7 +988,7 @@ const keymap = {
         "1": {"order": 302, "cmd": "appGoto", "options": ["Playback"], "desc": "Show playback"},
         "2": {"order": 303, "cmd": "appGoto", "options": ["Queue", "Current"], "desc": "Show queue"},
         "3": {"order": 304, "cmd": "appGoto", "options": ["Queue", "LastPlayed"], "desc": "Show last played"},
-        "4": {"order": 305, "cmd": "appGoto", "options": ["Queue", "Jukebox"], "desc": "Show jukebox queue"},
+        "4": {"order": 305, "cmd": "gotoJukebox", "options": [], "desc": "Show jukebox queue"},
         "5": {"order": 306, "cmd": "appGoto", "options": ["Browse", "Database"], "desc": "Show browse database", "feature": "featTags"},
         "6": {"order": 307, "cmd": "appGoto", "options": ["Browse", "Playlists"], "desc": "Show browse playlists", "feature": "featPlaylists"},
         "7": {"order": 308, "cmd": "appGoto", "options": ["Browse", "Filesystem"], "desc": "Show browse filesystem"},

@@ -384,7 +384,8 @@ function setColTags(tableName) {
             tags.push('AudioFormat', 'Priority');
             //fall through
         case 'BrowsePlaylistDetail':
-        case 'QueueJukebox':
+        case 'QueueJukeboxSong':
+        case 'QueueJukeboxAlbum':
             tags.push('Pos');
             break;
         case 'BrowseFilesystem':
@@ -400,8 +401,13 @@ function setColTags(tableName) {
             tags.push('Pos', 'LastPlayed');
             break;
     }
-    //sort tags and append stickers
+    //sort tags 
     tags.sort();
+    if (tableName === 'QueueJukeboxAlbum') {
+        // do not add stickers
+        return tags;
+    }
+    //append stickers
     if (features.featStickers === true) {
         tags.push('dropdownTitleSticker');
         for (const sticker of stickerList) {
@@ -838,7 +844,8 @@ function tableRow(row, data, list, colspan, smallWidth) {
                     pEl.actionQueueTd.cloneNode(true)
                 );
                 break;
-            case 'QueueJukebox':
+            case 'QueueJukeboxSong':
+            case 'QueueJukeboxAlbum':
                 // add quick play and remove action
                 row.appendChild(
                     pEl.actionJukeboxTd.cloneNode(true)

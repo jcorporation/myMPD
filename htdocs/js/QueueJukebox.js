@@ -6,18 +6,30 @@
 /** @module QueueJukebox_js */
 
 /**
- * QueueJukebox handler
+ * QueueJukeboxSong handler
  * @returns {void}
  */
-function handleQueueJukebox() {
-    setFocusId('searchQueueJukeboxStr');
-    sendAPI("MYMPD_API_JUKEBOX_LIST", {
-        "offset": app.current.offset,
-        "limit": app.current.limit,
-        "cols": settings.colsQueueJukeboxFetch,
-        "searchstr": app.current.search
-    }, parseJukeboxList, true);
-    const searchQueueJukeboxStrEl = document.getElementById('searchQueueJukeboxStr');
+function handleQueueJukeboxSong() {
+    handleQueueJukebox('QueueJukeboxSong');
+}
+
+/**
+ * QueueJukeboxAlbum handler
+ * @returns {void}
+ */
+function handleQueueJukeboxAlbum() {
+    handleQueueJukebox('QueueJukeboxAlbum');
+}
+
+/**
+ * QueueJukeboxAlbum handler
+ * @param {string} view jukebox view to display (song or album)
+ * @returns {void}
+ */
+function handleQueueJukebox(view) {
+    setFocusId('search' + view + 'Str');
+    getJukeboxList(view);
+    const searchQueueJukeboxStrEl = document.getElementById('search' + view + 'Str');
     if (searchQueueJukeboxStrEl.value === '' &&
         app.current.search !== '')
     {
@@ -27,10 +39,11 @@ function handleQueueJukebox() {
 
 /**
  * Initializes the jukebox related elements
+ * @param {string} view jukebox view to display (song or album)
  * @returns {void}
  */
-function initQueueJukebox() {
-    document.getElementById('QueueJukeboxList').addEventListener('click', function(event) {
+function initQueueJukebox(view) {
+    document.getElementById(view + 'List').addEventListener('click', function(event) {
         //select mode
         if (selectRow(event) === true) {
             return;
@@ -56,7 +69,7 @@ function initQueueJukebox() {
             }
         }
     }, false);
-    document.getElementById('searchQueueJukeboxStr').addEventListener('keyup', function(event) {
+    document.getElementById('search' + view + 'Str').addEventListener('keyup', function(event) {
         if (ignoreKeys(event) === true) {
             return;
         }
@@ -67,6 +80,32 @@ function initQueueJukebox() {
                 0, app.current.limit, app.current.filter, app.current.sort, '-', value);
         }, searchTimerTimeout);
     }, false);
+}
+
+/**
+ * Gets and parses the jukebox list
+ * @param {string} view jukebox view to display (song or album)
+ * @returns {void}
+ */
+function getJukeboxList(view) {
+    sendAPI("MYMPD_API_JUKEBOX_LIST", {
+        "offset": app.current.offset,
+        "limit": app.current.limit,
+        "cols": settings['cols' + view + 'Fetch'],
+        "searchstr": app.current.search
+    }, parseJukeboxList, true);
+}
+
+/**
+ * Goto handler that respects the jukebox mode
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function gotoJukebox() {
+    const view = settings.partition.jukeboxMode === 'album'
+        ? 'Album'
+        : 'Song';
+    appGoto('Queue', 'Jukebox', view);
 }
 
 /**
@@ -96,26 +135,30 @@ function delQueueJukeboxEntries(pos) {
  * @returns {void}
  */
 function parseJukeboxList(obj) {
-    if (checkResultId(obj, 'QueueJukeboxList') === false) {
+    const view = settings.partition.jukeboxMode === 'album'
+        ? 'QueueJukeboxAlbum'
+        : 'QueueJukeboxSong';
+    if (checkResultId(obj, view + 'List') === false) {
         if (obj.result !== undefined) {
             if (obj.result.jukeboxMode === 'off') {
-                elHideId('QueueJukeboxList');
-                elShowId('QueueJukeboxDisabled');
+                elHideId(view + 'List');
+                elShowId(view + 'Disabled');
             }
             else {
-                elHideId('QueueJukeboxDisabled');
+                elShowId(view + 'List');
+                elHideId(view + 'Disabled');
             }
         }
         return;
     }
 
-    elHideId('QueueJukeboxDisabled');
-    elShowId('QueueJukeboxList');
+    elHideId(view + 'Disabled');
+    elShowId(view + 'List');
 
     const rowTitle = settings.partition.jukeboxMode === 'song' ?
         webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong] :
         webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
-    updateTable(obj, 'QueueJukebox', function(row, data) {
+    updateTable(obj, view, function(row, data) {
         setData(row, 'uri', data.uri);
         setData(row, 'name', data.Title);
         setData(row, 'type', data.Type);

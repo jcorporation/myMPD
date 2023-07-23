@@ -5,12 +5,12 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/list.h"
 #include "src/mympd_api/jukebox.h"
 
 #include "dist/utf8/utf8.h"
 #include "src/lib/album_cache.h"
 #include "src/lib/jsonrpc.h"
+#include "src/mpd_client/jukebox.h"
 #include "src/lib/sds_extras.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/search_local.h"
@@ -145,7 +145,9 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
     }
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "jukeboxMode", partition_state->jukebox_mode, true);
+    const char *jukebox_mode_str = jukebox_mode_lookup(partition_state->jukebox_mode);
+    buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_str, true);
+
     buffer = tojson_long(buffer, "totalEntities", entity_count, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);

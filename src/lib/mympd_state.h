@@ -239,7 +239,8 @@ struct t_mympd_state {
     sds cols_browse_filesystem;                   //!< columns for filesystem listing
     sds cols_playback;                            //!< columns for playback view
     sds cols_queue_last_played;                   //!< columns for last played view
-    sds cols_queue_jukebox;                       //!< columns for the jukebox queue view
+    sds cols_queue_jukebox_song;                  //!< columns for the jukebox queue view for songs
+    sds cols_queue_jukebox_album;                 //!< columns for the jukebox queue view for albums
     sds cols_browse_radio_webradiodb;             //!< columns for the webradiodb view
     sds cols_browse_radio_radiobrowser;           //!< columns for the radiobrowser view
     sds music_directory;                          //!< mpd music directory setting (real value is in mpd_state)

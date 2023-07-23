@@ -13,7 +13,8 @@ function initSelectActions() {
     for (const dropdownId of [
         'dropdownQueueCurrentSelection',
         'dropdownQueueLastPlayedSelection',
-        'dropdownQueueJukeboxSelection',
+        'dropdownQueueJukeboxSongSelection',
+        'dropdownQueueJukeboxAlbumSelection',
         'dropdownBrowseDatabaseAlbumListSelection',
         'dropdownBrowseDatabaseAlbumDetailSelection',
         'dropdownBrowseFilesystemSelection',
@@ -74,7 +75,9 @@ function addSelectActionButtons(el, dropdownId) {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "playAfterCurrent"]}, 'Play after current playing song');
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "removeFromQueueIDs"]}, 'Remove');
     }
-    if (dropdownId === 'dropdownQueueJukeboxSelection') {
+    if (dropdownId === 'dropdownQueueJukeboxSongSelection' ||
+        dropdownId === 'dropdownQueueJukeboxAlbumSelection')
+    {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "delQueueJukeboxEntry"]}, 'Remove');
     }
     if (dropdownId === 'dropdownBrowseRadioFavoritesSelection') {

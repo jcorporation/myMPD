@@ -212,8 +212,11 @@ bool mympd_api_settings_cols_save(struct t_mympd_state *mympd_state, sds table, 
     else if (strcmp(table, "colsPlayback") == 0) {
         mympd_state->cols_playback = sds_replace(mympd_state->cols_playback, cols);
     }
-    else if (strcmp(table, "colsQueueJukebox") == 0) {
-        mympd_state->cols_queue_jukebox = sds_replace(mympd_state->cols_queue_jukebox, cols);
+    else if (strcmp(table, "colsQueueJukeboxSong") == 0) {
+        mympd_state->cols_queue_jukebox_song = sds_replace(mympd_state->cols_queue_jukebox_song, cols);
+    }
+    else if (strcmp(table, "colsQueueJukeboxAlbum") == 0) {
+        mympd_state->cols_queue_jukebox_album = sds_replace(mympd_state->cols_queue_jukebox_album, cols);
     }
     else if (strcmp(table, "colsBrowseRadioWebradiodb") == 0) {
         mympd_state->cols_browse_radio_webradiodb = sds_replace(mympd_state->cols_browse_radio_webradiodb, cols);
@@ -708,7 +711,8 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->cols_browse_filesystem = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_filesystem", mympd_state->cols_browse_filesystem, vcb_isname, true);
     mympd_state->cols_playback = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_playback", mympd_state->cols_playback, vcb_isname, true);
     mympd_state->cols_queue_last_played = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_queue_last_played", mympd_state->cols_queue_last_played, vcb_isname, true);
-    mympd_state->cols_queue_jukebox = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_queue_jukebox", mympd_state->cols_queue_jukebox, vcb_isname, true);
+    mympd_state->cols_queue_jukebox_song = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_queue_jukebox_song", mympd_state->cols_queue_jukebox_song, vcb_isname, true);
+    mympd_state->cols_queue_jukebox_album = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_queue_jukebox_album", mympd_state->cols_queue_jukebox_album, vcb_isname, true);
     mympd_state->cols_browse_radio_webradiodb = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_radio_webradiodb", mympd_state->cols_browse_radio_webradiodb, vcb_isname, true);
     mympd_state->cols_browse_radio_radiobrowser = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "cols_browse_radio_radiobrowser", mympd_state->cols_browse_radio_radiobrowser, vcb_isname, true);
     mympd_state->coverimage_names = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "coverimage_names", mympd_state->coverimage_names, vcb_isfilename, true);
@@ -806,7 +810,8 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_raw(buffer, "colsBrowseFilesystem", mympd_state->cols_browse_filesystem, true);
     buffer = tojson_raw(buffer, "colsPlayback", mympd_state->cols_playback, true);
     buffer = tojson_raw(buffer, "colsQueueLastPlayed", mympd_state->cols_queue_last_played, true);
-    buffer = tojson_raw(buffer, "colsQueueJukebox", mympd_state->cols_queue_jukebox, true);
+    buffer = tojson_raw(buffer, "colsQueueJukeboxSong", mympd_state->cols_queue_jukebox_song, true);
+    buffer = tojson_raw(buffer, "colsQueueJukeboxAlbum", mympd_state->cols_queue_jukebox_album, true);
     buffer = tojson_raw(buffer, "colsBrowseRadioWebradiodb", mympd_state->cols_browse_radio_webradiodb, true);
     buffer = tojson_raw(buffer, "colsBrowseRadioRadiobrowser", mympd_state->cols_browse_radio_radiobrowser, true);
     buffer = tojson_raw(buffer, "navbarIcons", mympd_state->navbar_icons, true);

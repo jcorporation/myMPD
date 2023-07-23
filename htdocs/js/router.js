@@ -19,7 +19,8 @@ function appPrepare() {
             domCache.navbarBtns[i].classList.remove('active');
         }
         const cards = ['cardHome', 'cardPlayback', 'cardSearch',
-            'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed', 'tabQueueJukebox',
+            'cardQueue', 'tabQueueCurrent', 'tabQueueLastPlayed',
+            'tabQueueJukebox', 'viewQueueJukeboxSong', 'viewQueueJukeboxAlbum',
             'cardBrowse', 'tabBrowseFilesystem',
             'tabBrowseRadio', 'viewBrowseRadioFavorites', 'viewBrowseRadioWebradiodb', 'viewBrowseRadioRadiobrowser',
             'tabBrowsePlaylist', 'viewBrowsePlaylistDetail', 'viewBrowsePlaylistList',
@@ -241,7 +242,8 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         case 'Playback':                  handlePlayback(); break;
         case 'QueueCurrent':              handleQueueCurrent(); break;
         case 'QueueLastPlayed':           handleQueueLastPlayed(); break;
-        case 'QueueJukebox':              handleQueueJukebox(); break;
+        case 'QueueJukeboxSong':          handleQueueJukeboxSong(); break;
+        case 'QueueJukeboxAlbum':         handleQueueJukeboxAlbum(); break;
         case 'BrowsePlaylistList':        handleBrowsePlaylistList(); break;
         case 'BrowsePlaylistDetail':      handleBrowsePlaylistDetail(); break;
         case 'BrowseFilesystem':          handleBrowseFilesystem(); break;
