@@ -75,7 +75,7 @@ function addSelectActionButtons(el, dropdownId) {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "removeFromQueueIDs"]}, 'Remove');
     }
     if (dropdownId === 'dropdownQueueJukeboxSelection') {
-        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "delQueueJukeboxSong"]}, 'Remove');
+        addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "delQueueJukeboxEntry"]}, 'Remove');
     }
     if (dropdownId === 'dropdownBrowseRadioFavoritesSelection') {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "delRadioFavorites"]}, 'Delete');
@@ -143,10 +143,12 @@ function getSelectionData(parent, attribute) {
 function execSelectAction(type, action) {
     const parent = document.getElementById(app.id + 'List');
     const attribute = type === 'album'
-        ? 'AlbumId'
+        ? action === 'delQueueJukeboxEntry'
+            ? 'songpos'
+            : 'AlbumId'
         : action === 'playAfterCurrent' || action === 'removeFromQueueIDs'
             ? 'songid' 
-            : action === 'showMoveToPlaylist' || action === 'removeFromPlaylistPositions'
+            : action === 'showMoveToPlaylist' || action === 'removeFromPlaylistPositions' || action === 'delQueueJukeboxEntry'
                 ? 'songpos'
                 : 'uri';
     switch(action) {
@@ -215,6 +217,11 @@ function execSelectAction(type, action) {
         case 'delRadioFavorites': {
             const uris = getSelectionData(parent, attribute);
             deleteRadioFavorites(uris);
+            break;
+        }
+        case 'delQueueJukeboxEntry': {
+            const positions = getSelectionData(parent, attribute);
+            delQueueJukeboxEntries(positions);
             break;
         }
     }

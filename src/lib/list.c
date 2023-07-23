@@ -7,6 +7,7 @@
 #include "compile_time.h"
 #include "src/lib/list.h"
 
+#include "dist/utf8/utf8.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
@@ -608,4 +609,116 @@ bool list_write_to_disk(sds filepath, struct t_list *l, list_node_to_line_callba
     bool rc = rename_tmp_file(fp, tmp_file, write_rc);
     FREE_SDS(tmp_file);
     return rc;
+}
+
+/**
+ * Internal compare function to sort by value_i
+ * @param current current list node
+ * @param next next list node
+ * @param direction sort direction
+ * @return true if current is greater than next
+ */
+static bool list_sort_cmp_value_i(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
+    if ((direction == LIST_SORT_ASC && current->value_i > next->value_i) ||
+        (direction == LIST_SORT_DESC && current->value_i < next->value_i))
+    {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Internal compare function to sort by value_p
+ * @param current current list node
+ * @param next next list node
+ * @param direction sort direction
+ * @return true if current is greater than next
+ */
+static bool list_sort_cmp_value_p(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
+    int result = utf8casecmp(current->value_p, next->value_p);
+    if ((direction == LIST_SORT_ASC && result > 0) ||
+        (direction == LIST_SORT_DESC && result < 0))
+    {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * Internal compare function to sort by key
+ * @param current current list node
+ * @param next next list node
+ * @param direction sort direction
+ * @return true if current is greater than next
+ */
+static bool list_sort_cmp_key(struct t_list_node *current, struct t_list_node *next, enum list_sort_direction direction) {
+    int result = utf8casecmp(current->key, next->key);
+    if ((direction == LIST_SORT_ASC && result > 0) ||
+        (direction == LIST_SORT_DESC && result < 0))
+    {
+        return true;
+    }
+    return false;
+}
+
+/**
+ * The list sorting function.
+ * Note that the sort is not very efficient, use it only for short lists.
+ * @param l pointer to list to sort
+ * @param direction sort direction
+ * @param sort_cb compare function
+ * @return true on success, else false
+ */
+bool list_sort_by_callback(struct t_list *l, enum list_sort_direction direction, list_sort_callback sort_cb) {
+    int swapped;
+    struct t_list_node *ptr1;
+    struct t_list_node *lptr = NULL;
+
+    if (l->head == NULL) {
+        return false;
+    }
+
+    do {
+        swapped = 0;
+        ptr1 = l->head;
+        while (ptr1->next != lptr) {
+            if (sort_cb(ptr1, ptr1->next, direction) == true) {
+                list_swap_item(ptr1, ptr1->next);
+                swapped = 1;
+            }
+            ptr1 = ptr1->next;
+        }
+        lptr = ptr1;
+    } while (swapped);
+    return true;
+}
+
+/**
+ * Sorts the list by value_i
+ * @param l pointer to list to sort
+ * @param direction sort direction
+ * @return true on success, else false
+ */
+bool list_sort_by_value_i(struct t_list *l, enum list_sort_direction direction) {
+    return list_sort_by_callback(l, direction, list_sort_cmp_value_i);
+}
+
+/**
+ * Sorts the list by value_p
+ * @param l pointer to list to sort
+ * @param direction sort direction
+ * @return true on success, else false
+ */
+bool list_sort_by_value_p(struct t_list *l, enum list_sort_direction direction) {
+    return list_sort_by_callback(l, direction, list_sort_cmp_value_p);
+}
+
+/**
+ * Sorts the list by key
+ * @param l pointer to list to sort
+ * @param direction sort direction
+ * @return true on success, else false
+ */
+bool list_sort_by_key(struct t_list *l, enum list_sort_direction direction) {
+    return list_sort_by_callback(l, direction, list_sort_cmp_key);
 }

@@ -968,5 +968,13 @@
     "Back to album list": "",
     "Disconnected from myMPD": "",
     "myMPD connection closed": "",
-    "myMPD connection failed, trying to reconnect": ""
+    "myMPD connection failed, trying to reconnect": "",
+    "Show all albums from AlbumArtist": "",
+    "Show all albums from Composer": "",
+    "Show all albums from Conductor": "",
+    "Show all albums from Ensemble": "",
+    "Show all albums from Performer": "",
+    "Album not found": "",
+    "Invalid response from radio-browser.info": "",
+    "Invalid response from webradiodb backend": ""
 }

@@ -58,7 +58,7 @@ static void free_t_pl_data(void *data) {
  * @param partition_state pointer to partition state
  * @param src_plist source playlist
  * @param dst_plist destination playlist
- * @param positions source playlist positions to move, must be sorted descending
+ * @param positions source playlist positions to move
  * @param mode 0=append, 1=insert to destination playlist
  * @param error pointer to an already allocated sds string for the error message
  * @return true on success, else false
@@ -85,7 +85,7 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
         list_clear(&src);
         return false;
     }
-
+    list_sort_by_value_i(positions, LIST_SORT_DESC);
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         unsigned i = 0;
@@ -478,7 +478,6 @@ bool mympd_api_playlist_content_rm_range(struct t_partition_state *partition_sta
 
 /**
  * Removes entries defined by positions from the stored playlist
- * Positions must be sorted descending.
  * @param partition_state pointer to partition state
  * @param plist stored playlist name
  * @param positions list of positions to remove
@@ -490,6 +489,7 @@ bool mympd_api_playlist_content_rm_positions(struct t_partition_state *partition
         *error = sdscat(*error, "No song positions provided");
         return false;
     }
+    list_sort_by_value_i(positions, LIST_SORT_DESC);
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(positions)) != NULL) {

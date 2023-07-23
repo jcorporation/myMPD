@@ -205,8 +205,6 @@
     "Edit webradio favorite": "Webradio Favorit editieren",
     "Elements per page": "Anzahl Listenelemente",
     "Empty list": "Leere Liste",
-    "Invalid response from radio-browser.info": "Ungültige Antwort von radio-browser.info",
-    "Invalid response from webradiodb backend": "Ungültige Antwort vom WebradioDB Backend",
     "Empty uri": "Leere Url",
     "Enable": "Aktivieren",
     "Enable random": "Aktiviere Zufallswiedergabe",
@@ -976,5 +974,7 @@
     "Show all albums from Conductor": "Zeige alle Alben des Dirigenten",
     "Show all albums from Ensemble": "Zeige alle Alben des Ensembles",
     "Show all albums from Performer": "Zeige alle Alben des Aufführenden",
-    "Album not found": "Album nicht gefunden"
+    "Album not found": "Album nicht gefunden",
+    "Invalid response from radio-browser.info": "Ungültige Antwort von radio-browser.info",
+    "Invalid response from webradiodb backend": "Ungültige Antwort vom WebradioDB Backend"
 }

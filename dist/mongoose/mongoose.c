@@ -4681,13 +4681,6 @@ bool mg_open_listener(struct mg_connection *c, const char *url) {
       // won't work! (setsockopt will return EINVAL)
       MG_ERROR(("setsockopt(SO_REUSEADDR): %d", MG_SOCK_ERR(rc)));
 #endif
-#if defined(IPV6_V6ONLY)
-    } else if (c->loc.is_ip6 &&
-               (rc = setsockopt(fd, IPPROTO_IPV6, IPV6_V6ONLY, (char *) &on,
-                                sizeof(on))) != 0) {
-      // See #2089. Allow to bind v4 and v6 sockets on the same port
-      MG_ERROR(("setsockopt(IPV6_V6ONLY): %d", MG_SOCK_ERR(rc)));
-#endif
     } else if ((rc = bind(fd, &usa.sa, slen)) != 0) {
       MG_ERROR(("bind: %d", MG_SOCK_ERR(rc)));
     } else if ((type == SOCK_STREAM &&

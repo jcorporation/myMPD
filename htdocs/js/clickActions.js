@@ -29,7 +29,7 @@ function clickQuickRemove(target) {
             break;
         }
         case 'QueueJukebox': {
-            const pos = getData(target.parentNode.parentNode, 'pos');
+            const pos = getData(target.parentNode.parentNode, 'songpos');
             delQueueJukeboxEntries([pos]);
             break;
         }

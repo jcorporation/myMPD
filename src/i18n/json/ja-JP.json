@@ -974,5 +974,7 @@
     "Show all albums from Conductor": "指揮者からのアルバムをすべて表示",
     "Show all albums from Ensemble": "アンサンブルからのアルバムをすべて表示",
     "Show all albums from Performer": "演奏者からのアルバムをすべて表示",
-    "Album not found": "アルバムが見つかりません"
+    "Album not found": "アルバムが見つかりません",
+    "Invalid response from radio-browser.info": "",
+    "Invalid response from webradiodb backend": ""
 }
