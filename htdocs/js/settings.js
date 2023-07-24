@@ -1207,7 +1207,7 @@ function setNavbarIcons() {
         {
             elHide(btn);
         }
-        const a = elCreateNode('a', {"data-title-phrase": icon.title, "href": "#", "class": ["nav-link"]},
+        const a = elCreateNode('a', {"data-title-phrase": icon.title, "title": tn(icon.title), "href": "#", "class": ["nav-link"]},
             elCreateText('span', {"class": ["mi"]}, icon.ligature)
         );
         if (icon.options.length === 1 &&

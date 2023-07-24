@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Fix: set translated title for navbar icons
+
 ***
 
 ## myMPD v11.0.1 (2023-07-23)
