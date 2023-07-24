@@ -40,7 +40,7 @@
  */
 
 static struct t_tags *album_cache_read_tags(sds workdir);
-static sds album_to_cache_line(sds buffer, struct mpd_song *album, const struct t_tags *tagcols);
+static sds album_to_cache_line(sds buffer, const struct mpd_song *album, const struct t_tags *tagcols);
 static struct mpd_song *album_from_cache_line(sds line, const struct t_tags *tagcols);
 
 /**
@@ -142,7 +142,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
  * @param free_data true=free the album cache, else not
  * @return bool true on success, else false
  */
-bool album_cache_write(struct t_cache *album_cache, sds workdir, struct t_tags *album_tags, bool free_data) {
+bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_tags *album_tags, bool free_data) {
     if (album_cache->cache == NULL) {
         MYMPD_LOG_DEBUG(NULL, "Album cache is NULL not saving anything");
         return true;
@@ -279,7 +279,7 @@ void album_cache_free(struct t_cache *album_cache) {
  * @param album mpd_song struct representing the album
  * @return number of songs
  */
-unsigned album_get_song_count(struct mpd_song *album) {
+unsigned album_get_song_count(const struct mpd_song *album) {
     return album->prio;
 }
 
@@ -288,7 +288,7 @@ unsigned album_get_song_count(struct mpd_song *album) {
  * @param album mpd_song struct representing the album
  * @return number of discs
  */
-unsigned album_get_discs(struct mpd_song *album) {
+unsigned album_get_discs(const struct mpd_song *album) {
     return album->pos;
 }
 
@@ -297,7 +297,7 @@ unsigned album_get_discs(struct mpd_song *album) {
  * @param album mpd_song struct representing the album
  * @return total play time
  */
-unsigned album_get_total_time(struct mpd_song *album) {
+unsigned album_get_total_time(const struct mpd_song *album) {
     return album->duration;
 }
 
@@ -306,7 +306,7 @@ unsigned album_get_total_time(struct mpd_song *album) {
  * @param album mpd_song struct representing the album
  * @param song mpd song to set discs from
  */
-void album_cache_set_discs(struct mpd_song *album, struct mpd_song *song) {
+void album_cache_set_discs(struct mpd_song *album, const struct mpd_song *song) {
     const char *disc;
     if ((disc = mpd_song_get_tag(song, MPD_TAG_DISC, 0)) != NULL) {
         unsigned d = (unsigned)strtoumax(disc, NULL, 10);
@@ -321,7 +321,7 @@ void album_cache_set_discs(struct mpd_song *album, struct mpd_song *song) {
  * @param album mpd_song struct representing the album
  * @param song mpd song to set last_modified from
  */
-void album_cache_set_last_modified(struct mpd_song *album, struct mpd_song *song) {
+void album_cache_set_last_modified(struct mpd_song *album, const struct mpd_song *song) {
     if (album->last_modified < song->last_modified) {
         album->last_modified = song->last_modified;
     }
@@ -332,7 +332,7 @@ void album_cache_set_last_modified(struct mpd_song *album, struct mpd_song *song
  * @param album mpd_song struct representing the album
  * @param song pointer to a mpd_song struct
  */
-void album_cache_inc_total_time(struct mpd_song *album, struct mpd_song *song) {
+void album_cache_inc_total_time(struct mpd_song *album, const struct mpd_song *song) {
     album->duration += song->duration;
     album->duration_ms += song->duration_ms;
 }
@@ -362,7 +362,7 @@ void album_cache_inc_song_count(struct mpd_song *album) {
  * @return true on success else false
  */
 bool album_cache_append_tags(struct mpd_song *album,
-        struct mpd_song *song, struct t_tags *tags)
+        const struct mpd_song *song, const struct t_tags *tags)
 {
     for (unsigned tagnr = 0; tagnr < tags->len; ++tagnr) {
         const char *value;
@@ -437,11 +437,11 @@ static struct t_tags *album_cache_read_tags(sds workdir) {
  * @param tagcols tags to print
  * @return sds pointer to buffer
  */
-static sds album_to_cache_line(sds buffer, struct mpd_song *album, const struct t_tags *tagcols) {
+static sds album_to_cache_line(sds buffer, const struct mpd_song *album, const struct t_tags *tagcols) {
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
     buffer = tojson_uint(buffer, "Songs", album_get_song_count(album), true);
-    buffer = get_song_tags(buffer, true, tagcols, album);
+    buffer = print_song_tags(buffer, true, tagcols, album);
     buffer = sdscatlen(buffer, "}\n", 2);
     return buffer;
 }

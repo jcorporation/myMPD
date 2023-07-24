@@ -8,9 +8,7 @@
 #include "src/mympd_api/jukebox.h"
 
 #include "dist/utf8/utf8.h"
-#include "src/lib/album_cache.h"
 #include "src/lib/jsonrpc.h"
-#include "src/lib/sds_extras.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
 #include "src/mpd_client/search_local.h"
@@ -75,6 +73,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
 {
     long entity_count = 0;
     long entities_returned = 0;
+    long entities_found = 0;
     long real_limit = offset + limit;
 
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
@@ -86,23 +85,24 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
                 struct mpd_song *song;
                 if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
                     if (search_mpd_song(song, searchstr, tagcols) == true) {
-                        if (entity_count >= offset &&
-                            entity_count < real_limit)
+                        if (entities_found >= offset &&
+                            entities_found < real_limit)
                         {
                             if (entities_returned++) {
                                 buffer = sdscatlen(buffer, ",", 1);
                             }
                             buffer = sdscat(buffer, "{\"Type\": \"song\",");
                             buffer = tojson_long(buffer, "Pos", entity_count, true);
-                            buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
+                            buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
                             if (partition_state->mpd_state->feat_stickers) {
                                 buffer = sdscatlen(buffer, ",", 1);
                                 buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
                             }
                             buffer = sdscatlen(buffer, "}", 1);
                         }
-                        entity_count++;
+                        entities_found++;
                     }
+                    entity_count++;
                     mpd_song_free(song);
                 }
             }
@@ -117,31 +117,21 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
             if (utf8casestr(current->key, searchstr) != NULL ||
                 utf8casestr(current->value_p, searchstr) != NULL)
             {
-                if (entity_count >= offset &&
-                    entity_count < real_limit)
+                if (entities_found >= offset &&
+                    entities_found < real_limit)
                 {
                     if (entities_returned++) {
                         buffer = sdscatlen(buffer, ",", 1);
                     }
                     struct mpd_song *album = (struct mpd_song *)current->user_data;
                     buffer = sdscat(buffer, "{\"Type\": \"album\",");
-                    buffer = get_song_tags(buffer, true, &partition_state->mpd_state->tags_album, album);
-                    buffer = sdscatlen(buffer, ",", 1);
                     buffer = tojson_long(buffer, "Pos", entity_count, true);
-                    buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
-                    buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), true);
-                    buffer = tojson_char(buffer, "Album", current->key, true);
-                    sds albumkey = album_cache_get_key(album);
-                    buffer = tojson_char(buffer, "AlbumId", albumkey, true);
-                    FREE_SDS(albumkey);
-                    buffer = sdscat(buffer, "\"AlbumArtist\":");
-                    buffer = mpd_client_get_tag_values(album, MPD_TAG_ALBUM_ARTIST, buffer);
-                    buffer = sdscat(buffer, ",\"Artist\":");
-                    buffer = mpd_client_get_tag_values(album, MPD_TAG_ARTIST, buffer);
+                    buffer = print_album_tags(buffer, &partition_state->mpd_state->tags_album, album);
                     buffer = sdscatlen(buffer, "}", 1);
                 }
-                entity_count++;
+                entities_found++;
             }
+            entity_count++;
             current = current->next;
         }
     }
@@ -149,8 +139,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
     buffer = sdscatlen(buffer, "],", 2);
     const char *jukebox_mode_str = jukebox_mode_lookup(partition_state->jukebox_mode);
     buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_str, true);
-
-    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "totalEntities", entities_found, true);
     buffer = tojson_long(buffer, "offset", offset, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
     buffer = jsonrpc_end(buffer);

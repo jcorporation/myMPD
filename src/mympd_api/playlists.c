@@ -672,7 +672,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
                         ? tojson_char(buffer, "Type", "stream", true)
                         : tojson_char(buffer, "Type", "song", true);
                     buffer = tojson_long(buffer, "Pos", entity_count, true);
-                    buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
+                    buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
                     if (partition_state->mpd_state->feat_stickers) {
                         buffer = sdscatlen(buffer, ",", 1);
                         struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));

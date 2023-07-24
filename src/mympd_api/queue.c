@@ -811,7 +811,7 @@ sds print_queue_entry(struct t_partition_state *partition_state, sds buffer, con
     const struct mpd_audio_format *audioformat = mpd_song_get_audio_format(song);
     buffer = printAudioFormat(buffer, audioformat);
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
+    buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
     const char *uri = mpd_song_get_uri(song);
     buffer = sdscatlen(buffer, ",", 1);
     if (is_streamuri(uri) == true) {
