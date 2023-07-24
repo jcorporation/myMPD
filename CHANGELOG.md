@@ -10,7 +10,11 @@ Describe the release here.
 
 ### Changelog
 
-- Feat: move some heavy tasks in worker thread
+- Feat: move song fingerprint calculation in worker thread
+- Feat: display album tags in jukebox album list #1069
+- Upd: some code enhancements #1045
+- Fix: calculate correct position for jukebox list
+- Fix: calculate correct position for playlist content list
 
 ***
 
