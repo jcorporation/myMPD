@@ -211,6 +211,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
                     json_get_llong_max(line, "$.LastPlayed", &last_played, NULL) == true)
                 {
                     obj = get_last_played_obj(partition_state, obj, entity_count, last_played, uri, searchstr, tagcols);
+                    FREE_SDS(uri);
                     if (sdslen(obj) > 0) {
                         if (entities_found >= offset) {
                             if (entities_returned++) {
@@ -228,8 +229,8 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
                 else {
                     MYMPD_LOG_ERROR(partition_state->name, "Reading last_played line failed");
                     MYMPD_LOG_DEBUG(partition_state->name, "Erroneous line: %s", line);
+                    FREE_SDS(uri);
                 }
-                FREE_SDS(uri);
                 entity_count++;
             }
             (void) fclose(fp);
