@@ -76,9 +76,11 @@ function appPrepare() {
  */
 function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newScrollPos) {
     //old app
-    const oldptr = app.cards[app.current.card].offset !== undefined ? app.cards[app.current.card] :
-        app.cards[app.current.card].tabs[app.current.tab].offset !== undefined ? app.cards[app.current.card].tabs[app.current.tab] :
-            app.cards[app.current.card].tabs[app.current.tab].views[app.current.view];
+    const oldptr = app.cards[app.current.card].offset !== undefined
+        ? app.cards[app.current.card]
+        : app.cards[app.current.card].tabs[app.current.tab].offset !== undefined
+            ? app.cards[app.current.card].tabs[app.current.tab]
+            : app.cards[app.current.card].tabs[app.current.tab].views[app.current.view];
 
     //get default active tab or view from state
     if (app.cards[card].tabs) {
@@ -92,10 +94,21 @@ function appGoto(card, tab, view, offset, limit, filter, sort, tag, search, newS
         }
     }
 
+    //overwrite view for jukebox queue view
+    if (card === 'Queue' &&
+        tab === 'Jukebox')
+    {
+        view = settings.partition.jukeboxMode === 'album'
+            ? 'Album'
+            : 'Song';
+    }
+
     //get ptr to new app
-    const ptr = app.cards[card].offset !== undefined ? app.cards[card] :
-                app.cards[card].tabs[tab].offset !== undefined ? app.cards[card].tabs[tab] :
-                app.cards[card].tabs[tab].views[view];
+    const ptr = app.cards[card].offset !== undefined
+        ? app.cards[card]
+        : app.cards[card].tabs[tab].offset !== undefined
+            ? app.cards[card].tabs[tab]
+            : app.cards[card].tabs[tab].views[view];
 
     //save scrollPos of old app
     if (oldptr !== ptr) {
@@ -190,7 +203,9 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
             if (initialStartupView === undefined ||
                 initialStartupView === null)
             {
-                initialStartupView = features.featHome === true ? 'Home' : 'Playback';
+                initialStartupView = features.featHome === true
+                    ? 'Home'
+                    : 'Playback';
             }
             const path = initialStartupView.split('/');
             // @ts-ignore
