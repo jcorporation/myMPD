@@ -371,6 +371,13 @@ function setColTags(tableName) {
                        value !== 'Album';
             });
         }
+        case 'QueueJukeboxAlbum': {
+            const tags = settings.tagListAlbum.slice();
+            tags.push('Pos', 'Discs', 'SongCount', 'Duration', 'LastModified');
+            return tags.filter(function(value) {
+                return value !== 'Disc';
+            });
+        }
     }
 
     const tags = settings.tagList.slice();
@@ -403,10 +410,6 @@ function setColTags(tableName) {
     }
     //sort tags 
     tags.sort();
-    if (tableName === 'QueueJukeboxAlbum') {
-        // do not add stickers
-        return tags;
-    }
     //append stickers
     if (features.featStickers === true) {
         tags.push('dropdownTitleSticker');

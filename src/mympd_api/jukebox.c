@@ -125,9 +125,11 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
                     }
                     struct mpd_song *album = (struct mpd_song *)current->user_data;
                     buffer = sdscat(buffer, "{\"Type\": \"album\",");
+                    buffer = get_song_tags(buffer, true, &partition_state->mpd_state->tags_album, album);
+                    buffer = sdscatlen(buffer, ",", 1);
                     buffer = tojson_long(buffer, "Pos", entity_count, true);
-                    buffer = tojson_char(buffer, "uri", "Album", true);
-                    buffer = tojson_char(buffer, "Title", "", true);
+                    buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
+                    buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), true);
                     buffer = tojson_char(buffer, "Album", current->key, true);
                     sds albumkey = album_cache_get_key(album);
                     buffer = tojson_char(buffer, "AlbumId", albumkey, true);

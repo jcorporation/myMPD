@@ -28,7 +28,8 @@ function clickQuickRemove(target) {
             removeFromPlaylistPositions(plist, [pos]);
             break;
         }
-        case 'QueueJukebox': {
+        case 'QueueJukeboxSong':
+        case 'QueueJukeboxAlbum': {
             const pos = getData(target.parentNode.parentNode, 'songpos');
             delQueueJukeboxEntries([pos]);
             break;
