@@ -648,6 +648,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_CONTENT_LIST;
     long entities_returned = 0;
+    long entities_found = 0;
     long entity_count = 0;
     unsigned total_time = 0;
     time_t last_played_max = 0;
@@ -661,8 +662,8 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (search_mpd_song(song, searchstr, tagcols) == true) {
                 total_time += mpd_song_get_duration(song);
-                if (entity_count >= offset &&
-                    entity_count < real_limit)
+                if (entities_found >= offset &&
+                    entities_found < real_limit)
                 {
                     if (entities_returned++) {
                         buffer= sdscatlen(buffer, ",", 1);
@@ -686,8 +687,9 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
                     }
                     buffer = sdscatlen(buffer, "}", 1);
                 }
-                entity_count++;
+                entities_found++;
             }
+            entity_count++;
             mpd_song_free(song);
         }
     }
@@ -700,7 +702,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
     bool smartpls = is_smartpls(partition_state->mympd_state->config->workdir, plist);
 
     buffer = sdscatlen(buffer, "],", 2);
-    buffer = tojson_long(buffer, "totalEntities", entity_count, true);
+    buffer = tojson_long(buffer, "totalEntities", entities_found, true);
     buffer = tojson_uint(buffer, "totalTime", total_time, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
