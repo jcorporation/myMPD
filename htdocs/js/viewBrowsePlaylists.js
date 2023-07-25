@@ -10,20 +10,15 @@
  * @returns {void}
  */
 function handleBrowsePlaylistDetail() {
-    setFocusId('searchPlaylistDetailStr');
+    handleSearchExpression('BrowsePlaylistDetail');
+
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
-        "searchstr": app.current.search,
-        "plist": app.current.filter,
+        "expression": app.current.search,
+        "plist": app.current.tag,
         "cols": settings.colsBrowsePlaylistDetailFetch
     }, parsePlaylistsDetail, true);
-    const searchPlaylistsStrEl = document.getElementById('searchPlaylistDetailStr');
-    if (searchPlaylistsStrEl.value === '' &&
-        app.current.search !== '')
-    {
-        searchPlaylistsStrEl.value = app.current.search;
-    }
 }
 
 /**
@@ -72,29 +67,7 @@ function initPlaylists() {
         }
     }, false);
 
-    document.getElementById('searchPlaylistDetailStr').addEventListener('keyup', function(event) {
-        if (ignoreKeys(event) === true) {
-            return;
-        }
-        clearSearchTimer();
-        const value = this.value;
-        searchTimer = setTimeout(function() {
-            appGoto(app.current.card, app.current.tab, app.current.view,
-                0, app.current.limit, app.current.filter, app.current.sort, '-', value);
-        }, searchTimerTimeout);
-    }, false);
-
-    document.getElementById('searchPlaylistListStr').addEventListener('keyup', function(event) {
-        if (ignoreKeys(event) === true) {
-            return;
-        }
-        clearSearchTimer();
-        const value = this.value;
-        searchTimer = setTimeout(function() {
-            appGoto(app.current.card, app.current.tab, app.current.view,
-                0, app.current.limit, app.current.filter, app.current.sort, '-', value);
-        }, searchTimerTimeout);
-    }, false);
+    initSearchExpression('BrowsePlaylistDetail', doSearchPlaylistContent);
 
     document.getElementById('BrowsePlaylistListList').addEventListener('click', function(event) {
         //select mode
@@ -147,6 +120,16 @@ function initPlaylists() {
             clickSong(getData(target, 'uri'), event);
         }
     }, false);
+}
+
+/**
+ * Searches for songs in a playlist
+ * @param {string} value current search input value
+ * @returns {void}
+ */
+function doSearchPlaylistContent(value) {
+    const expression = createSearchExpression(document.getElementById(app.id + 'SearchCrumb'), app.current.filter, getSelectValueId(app.id + 'SearchMatch'), value);
+    appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
 }
 
 /**
@@ -259,7 +242,7 @@ function parsePlaylistsDetail(obj) {
 //eslint-disable-next-line no-unused-vars
 function playlistDetails(uri) {
     setUpdateViewId('BrowsePlaylistListList');
-    appGoto('Browse', 'Playlist', 'Detail', 0, undefined, uri, {'tag': '-', 'desc': false}, '-', '');
+    appGoto('Browse', 'Playlist', 'Detail', 0, undefined, undefined, {'tag': '', 'desc': false}, uri, '');
 }
 
 /**

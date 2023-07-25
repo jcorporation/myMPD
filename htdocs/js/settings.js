@@ -843,6 +843,7 @@ function parseMPDSettings() {
     addTagList('BrowseNavRadiobrowserDropdown', 'tagListBrowse');
 
     addTagList('QueueCurrentSearchTags', 'tagListSearch');
+    addTagList('BrowsePlaylistDetailSearchTags', 'tagListSearch');
     addTagList('SearchSearchTags', 'tagListSearch');
     addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListBrowse');
     addTagList('databaseAlbumListSortTagsList', 'tagListBrowse');

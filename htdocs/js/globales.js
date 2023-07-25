@@ -355,7 +355,7 @@ app.cards = {
                     "Detail": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": "",
+                        "filter": "any",
                         "sort": {
                             "tag": "",
                             "desc": false

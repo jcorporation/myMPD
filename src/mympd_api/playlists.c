@@ -639,12 +639,12 @@ sds mympd_api_playlist_list(struct t_partition_state *partition_state, sds buffe
  * @param plist playlist name to list contents
  * @param offset list offset
  * @param limit maximum number of entries to print
- * @param searchstr string to search in the playlist name
+ * @param expression mpd search expression
  * @param tagcols columns to print
  * @return pointer to buffer
  */
 sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds plist, long offset, long limit, sds searchstr, const struct t_tags *tagcols)
+        sds plist, long offset, long limit, sds expression, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_CONTENT_LIST;
     long entities_returned = 0;
@@ -659,8 +659,9 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
 
         struct mpd_song *song;
         long real_limit = offset + limit;
+        struct t_list *expr_list = parse_search_expression_to_list(expression);
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-            if (search_mpd_song(song, searchstr, tagcols) == true) {
+            if (search_song_expression(song, expr_list, tagcols) == true) {
                 total_time += mpd_song_get_duration(song);
                 if (entities_found >= offset &&
                     entities_found < real_limit)
@@ -692,6 +693,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
             entity_count++;
             mpd_song_free(song);
         }
+        free_search_expression_list(expr_list);
     }
     mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_list_playlist_meta") == false) {
@@ -706,7 +708,7 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
     buffer = tojson_uint(buffer, "totalTime", total_time, true);
     buffer = tojson_long(buffer, "returnedEntities", entities_returned, true);
     buffer = tojson_long(buffer, "offset", offset, true);
-    buffer = tojson_sds(buffer, "searchstr", searchstr, true);
+    buffer = tojson_sds(buffer, "expression", expression, true);
     buffer = tojson_sds(buffer, "plist", plist, true);
     buffer = tojson_bool(buffer, "smartpls", smartpls, true);
     buffer = sdscat(buffer, "\"lastPlayedSong\":{");
