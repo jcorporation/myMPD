@@ -144,12 +144,12 @@ function execSelectAction(type, action) {
     const parent = document.getElementById(app.id + 'List');
     const attribute = type === 'album'
         ? action === 'delQueueJukeboxEntry'
-            ? 'songpos'
+            ? 'pos'
             : 'AlbumId'
         : action === 'playAfterCurrent' || action === 'removeFromQueueIDs'
             ? 'songid' 
             : action === 'showMoveToPlaylist' || action === 'removeFromPlaylistPositions' || action === 'delQueueJukeboxEntry'
-                ? 'songpos'
+                ? 'pos'
                 : 'uri';
     switch(action) {
         case 'appendQueue': {

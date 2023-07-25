@@ -250,8 +250,8 @@ function dragAndDropTable(tableId) {
         }
         const target = event.target.closest('TR');
         target.classList.remove('dragover');
-        const newSongPos = getData(target, 'songpos');
-        const oldSongPos = getData(dragEl, 'songpos');
+        const newSongPos = getData(target, 'pos');
+        const oldSongPos = getData(dragEl, 'pos');
         if (oldSongPos === newSongPos) {
             return;
         }

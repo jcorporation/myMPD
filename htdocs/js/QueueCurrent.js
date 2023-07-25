@@ -287,7 +287,7 @@ function parseQueue(obj) {
         row.setAttribute('id', 'queueSongId' + data.id);
         row.setAttribute('title', tn(rowTitle));
         setData(row, 'songid', data.id);
-        setData(row, 'songpos', data.Pos);
+        setData(row, 'pos', data.Pos);
         setData(row, 'duration', data.Duration);
         setData(row, 'uri', data.uri);
         setData(row, 'type', data.Type);
@@ -398,7 +398,7 @@ function resetSongPos(playingRow) {
     const posTd = playingRow.querySelector('[data-col=Pos]');
     if (posTd) {
         posTd.classList.remove('mi');
-        posTd.textContent = getData(playingRow, 'songpos') + 1;
+        posTd.textContent = getData(playingRow, 'pos') + 1;
     }
 }
 

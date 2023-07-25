@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: set translated title for navbar icons
+- Fix: jukebox list context menu actions
 
 ***
 
