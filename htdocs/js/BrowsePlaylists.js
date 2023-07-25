@@ -246,7 +246,7 @@ function parsePlaylistsDetail(obj) {
         setData(row, 'type', data.Type);
         setData(row, 'uri', data.uri);
         setData(row, 'name', data.Title);
-        setData(row, 'songpos', data.Pos);
+        setData(row, 'pos', data.Pos);
         row.setAttribute('title', tn(rowTitle));
     });
 }

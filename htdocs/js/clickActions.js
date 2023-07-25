@@ -23,14 +23,14 @@ function clickQuickRemove(target) {
             break;
         }
         case 'BrowsePlaylistDetail': {
-            const pos = getData(target.parentNode.parentNode, 'songpos');
+            const pos = getData(target.parentNode.parentNode, 'pos');
             const plist = getDataId('BrowsePlaylistDetailList', 'uri');
             removeFromPlaylistPositions(plist, [pos]);
             break;
         }
         case 'QueueJukeboxSong':
         case 'QueueJukeboxAlbum': {
-            const pos = getData(target.parentNode.parentNode, 'songpos');
+            const pos = getData(target.parentNode.parentNode, 'pos');
             delQueueJukeboxEntries([pos]);
             break;
         }

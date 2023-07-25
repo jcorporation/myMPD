@@ -162,7 +162,7 @@ function parseJukeboxList(obj) {
         setData(row, 'uri', data.uri);
         setData(row, 'name', data.Title);
         setData(row, 'type', data.Type);
-        setData(row, 'songpos', data.Pos);
+        setData(row, 'pos', data.Pos);
         row.setAttribute('title', tn(rowTitle));
         row.setAttribute('tabindex', 0);
     });

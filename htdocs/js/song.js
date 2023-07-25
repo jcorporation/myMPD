@@ -418,7 +418,7 @@ function createLyricsTabs(el, obj) {
                 ls.addEventListener('click', function(event) {
                     scrollSyncedLyrics = event.target.classList.contains('active');
                 }, false);
-                //seek to songpos on click
+                //seek to position on click
                 const textEls = el.querySelectorAll('.lyricsSyncedText');
                 for (let i = 0, j = textEls.length; i < j; i++) {
                     textEls[i].addEventListener('click', function(event) {
