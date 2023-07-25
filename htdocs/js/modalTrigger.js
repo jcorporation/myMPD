@@ -3,7 +3,7 @@
 // myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @module trigger_js */
+/** @module modalTrigger_js */
 
 /**
  * Initialization function for trigger elements

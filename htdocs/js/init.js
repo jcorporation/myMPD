@@ -212,7 +212,7 @@ function appInit() {
     }, false);
     //init modules
     initGlobalModals();
-    initSong();
+    initSongDetails();
     initHome();
     initBrowse();
     initBrowseDatabase();

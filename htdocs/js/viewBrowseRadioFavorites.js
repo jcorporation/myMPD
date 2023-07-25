@@ -3,7 +3,7 @@
 // myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @module BrowseRadioFavorites_js */
+/** @module viewBrowseRadioFavorites_js */
 
 /**
  * Browse RadioFavorites handler
