@@ -347,14 +347,6 @@ const APImethods = {
             }
         }
     },
-    "MYMPD_API_QUEUE_LIST": {
-        "desc": "List the songs from the queue.",
-        "params": {
-            "offset": APIparams.offset,
-            "limit": APIparams.limit,
-            "cols": APIparams.cols
-        }
-    },
     "MYMPD_API_QUEUE_SEARCH": {
         "desc": "Searches the queue.",
         "params": {
@@ -770,7 +762,7 @@ const APImethods = {
             "plist": APIparams.plist,
             "offset": APIparams.offset,
             "limit": APIparams.limit,
-            "searchstr": APIparams.searchstr,
+            "expression": APIparams.expression,
             "cols": APIparams.cols
         }
     },

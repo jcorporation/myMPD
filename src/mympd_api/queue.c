@@ -559,7 +559,7 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
 }
 
 /**
- * Lists the queue
+ * Lists the queue, this is faster for older MPD servers than the search function below.
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc id
@@ -571,19 +571,9 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
 sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, long request_id,
         long offset, long limit, const struct t_tags *tagcols)
 {
-    enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_LIST;
-    //we need first the queue status
-    struct mpd_status *status = mpd_run_status(partition_state->conn);
-    if (status != NULL) {
-        partition_state->queue_version = mpd_status_get_queue_version(status);
-        partition_state->queue_length = (long long)mpd_status_get_queue_length(status);
-        mpd_status_free(status);
-    }
-    mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status") == false) {
-        return buffer;
-    }
-
+    enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH;
+    //update the queue status
+    mpd_client_queue_status(partition_state, NULL);
     //Check offset
     if (offset >= partition_state->queue_length) {
         offset = 0;
@@ -635,6 +625,9 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer
         const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH;
+    //update the queue status
+    mpd_client_queue_status(partition_state, NULL);
+
     sds real_expression = sdslen(expression) == 0
         ? sdsnew("(base '')")
         : sdsdup(expression);
@@ -675,7 +668,6 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer
                 }
             }
         }
-
         buffer = sdscatlen(buffer, "],", 2);
         buffer = tojson_uint(buffer, "totalTime", total_time, true);
         if (sdslen(expression) == 0) {

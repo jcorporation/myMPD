@@ -853,17 +853,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             list_clear(&song_ids);
             break;
         }
-        case MYMPD_API_QUEUE_LIST: {
-            struct t_tags tagcols;
-            reset_t_tags(&tagcols);
-            if (json_get_long(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &long_buf1, &error) == true &&
-                json_get_long(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &long_buf2, &error) == true &&
-                json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
-            {
-                response->data = mympd_api_queue_list(partition_state, response->data, request->id, long_buf1, long_buf2, &tagcols);
-            }
-            break;
-        }
         case MYMPD_API_QUEUE_APPEND_URIS:
         case MYMPD_API_QUEUE_REPLACE_URIS: {
             struct t_list uris;
@@ -1046,8 +1035,15 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_uint(request->data, "$.params.limit", 0, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
-                response->data = mympd_api_queue_search(partition_state, response->data, request->id,
+                if (sdslen(sds_buf1) == 0 &&            // no search expression
+                    strcmp(sds_buf2, "Priority") == 0)  // sort by priority
+                {
+                    response->data = mympd_api_queue_list(partition_state, response->data, request->id, uint_buf1, uint_buf2, &tagcols);
+                }
+                else {
+                    response->data = mympd_api_queue_search(partition_state, response->data, request->id,
                         sds_buf1, sds_buf2, bool_buf1, uint_buf1, uint_buf2, &tagcols);
+                }
             }
             break;
         }
