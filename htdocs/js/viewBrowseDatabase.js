@@ -173,13 +173,6 @@ function initBrowseDatabase() {
         }
     }, false);
 
-    document.getElementById('searchDatabaseAlbumListTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            app.current.filter = getData(event.target, 'tag');
-            searchDatabaseAlbumList(document.getElementById('searchDatabaseAlbumListStr').value);
-        }
-    }, false);
-
     document.getElementById('databaseAlbumListSortDesc').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
@@ -194,6 +187,13 @@ function initBrowseDatabase() {
             event.stopPropagation();
             app.current.sort.tag = getData(event.target, 'tag');
             appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+        }
+    }, false);
+
+    document.getElementById('searchDatabaseAlbumListTags').addEventListener('click', function(event) {
+        if (event.target.nodeName === 'BUTTON') {
+            app.current.filter = getData(event.target, 'tag');
+            searchDatabaseAlbumList(document.getElementById('searchDatabaseAlbumListStr').value);
         }
     }, false);
 
