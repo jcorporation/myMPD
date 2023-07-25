@@ -172,20 +172,20 @@
             <div class="btn-group">
               <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
                 <span class="mi">search</span>
-                <span data-phrase="Any Tag" id="searchQueueTagsDesc"></span>
+                <span data-phrase="Any Tag" id="QueueCurrentSearchTagsDesc"></span>
               </button>
-              <div class="dropdown-menu px-2" id="searchQueueTags"></div>
+              <div class="dropdown-menu px-2" id="QueueCurrentSearchTags"></div>
             </div>
-            <select class="featAdvqueue form-select rounded-0 no-flex" id="searchQueueMatch">
+            <select class="form-select rounded-0 no-flex" id="QueueCurrentSearchMatch">
               <option data-phrase="contains" value="contains"></option>
               <option data-phrase="starts_with" value="starts_with" class="featPcreOrStartsWith"></option>
               <option value="==">==</option>
               <option value="=~" class="featPcre">=~</option>
               <option value="!=">!=</option>
               <option value="!~" class="featPcre">!~</option>
-              <option id="priorityMatch" value=">=">&gt;=</option>
+              <option id="QueueCurrentSearchPriorityMatch" value=">=">&gt;=</option>
             </select>
-            <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search queue" class="form-control rounded-start-0 rounded-end" id="searchQueueStr"/>
+            <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search queue" class="form-control rounded-start-0 rounded-end" id="QueueCurrentSearchStr"/>
           </div>
           <div class="btn-group me-2">
             <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalQueueSettings">tune</button>
@@ -232,7 +232,7 @@
           </div>
           <div id="QueueCurrentPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
-        <ol class="featAdvqueue breadcrumb p-2 rounded-2 d-none" id="searchQueueCrumb"></ol>
+        <ol class="breadcrumb p-2 rounded-2 d-none" id="QueueCurrentSearchCrumb"></ol>
         <div class="table-responsive scrollContainer">
           <table id="QueueCurrentList" class="table table-hover table-sm">
             <thead>
@@ -567,13 +567,13 @@
             </div>
             <div class="input-group me-2 flex-grow-1">
               <div class="btn-group">
-                <button id="btnDatabaseAlbumListSearchDropdown" data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
+                <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
                   <span class="mi">search</span>
-                  <span data-phrase="AlbumArtist" id="searchDatabaseAlbumListTagsDesc"></span>
+                  <span data-phrase="AlbumArtist" id="BrowseDatabaseAlbumListSearchTagsDesc"></span>
                 </button>
-                <div class="dropdown-menu px-2" id="searchDatabaseAlbumListTags"></div>
+                <div class="dropdown-menu px-2" id="BrowseDatabaseAlbumListSearchTags"></div>
               </div>
-              <select class="form-select rounded-0 no-flex" id="searchDatabaseAlbumListMatch">
+              <select class="form-select rounded-0 no-flex" id="BrowseDatabaseAlbumListSearchMatch">
                 <option data-phrase="contains" value="contains"></option>
                 <option data-phrase="starts_with" value="starts_with"></option>
                 <option value="==">==</option>
@@ -581,7 +581,7 @@
                 <option value="!=">!=</option>
                 <option value="!~">!~</option>
               </select>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="searchDatabaseAlbumListStr"/>
+              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="BrowseDatabaseAlbumListSearchStr"/>
             </div>
             <div class="btn-group me-2">
               <button id="btnDatabaseAlbumListSortDropdown" data-title-phrase="Sort by" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">sort</button>
@@ -617,7 +617,7 @@
             </div>
             <div id="BrowseDatabaseAlbumListPaginationTop" class="btn-group me-2 pagination"></div>
           </div>
-          <ol class="breadcrumb p-2 rounded-2 d-none" id="searchDatabaseAlbumListCrumb"></ol>
+          <ol class="breadcrumb p-2 rounded-2 d-none" id="BrowseDatabaseAlbumListSearchCrumb"></ol>
           <div class="container-fluid cardsContainer scrollContainer">
             <div id="BrowseDatabaseAlbumListList" class="row mympd-grid"></div>
           </div>
@@ -897,11 +897,11 @@
             <div class="btn-group">
               <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
                 <span class="mi">search</span>
-                <span data-phrase="Any Tag" id="searchTagsDesc"></span>
+                <span data-phrase="Any Tag" id="SearchSearchTagsDesc"></span>
               </button>
-              <div class="dropdown-menu px-2" id="searchTags"></div>
+              <div class="dropdown-menu px-2" id="SearchSearchTags"></div>
             </div>
-            <select class="form-select rounded-0 no-flex" id="searchMatch">
+            <select class="form-select rounded-0 no-flex" id="SearchSearchMatch">
               <option data-phrase="contains" value="contains"></option>
               <option data-phrase="starts_with" value="starts_with" class="featPcreOrStartsWith"></option>
               <option value="==">==</option>
@@ -909,7 +909,7 @@
               <option value="!=">!=</option>
               <option value="!~" class="featPcre">!~</option>
             </select>
-            <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="searchStr"/>
+            <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="SearchSearchStr"/>
           </div>
           <div class="btn-group me-2">
             <button data-title-phrase="Append to queue" id="searchAddAllSongs" class="btn btn-secondary mi" data-href='{"cmd": "addAllFromSearch", "options": ["append", "search"]}'>library_add</button>
@@ -939,7 +939,7 @@
           </div>
           <div id="SearchPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
-        <ol class="breadcrumb p-2 rounded-2 d-none" id="searchCrumb"></ol>
+        <ol class="breadcrumb p-2 rounded-2 d-none" id="SearchSearchCrumb"></ol>
         <div class="table-responsive scrollContainer">
           <table id="SearchList" class="table table-hover table-sm">
             <thead>
@@ -3116,6 +3116,7 @@
 <!--debug-->  <script src="js/websocket.js"></script>
 <!--debug-->  <script src="js/tables.js"></script>
 <!--debug-->  <script src="js/grid.js"></script>
+<!--debug-->  <script src="js/searchExpression.js"></script>
 <!--debug-->  <script src="js/browse.js"></script>
 <!--debug-->  <script src="js/viewBrowseDatabase.js"></script>
 <!--debug-->  <script src="js/viewBrowseFilesystem.js"></script>

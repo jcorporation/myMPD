@@ -10,25 +10,22 @@
  * @returns {void}
  */
 function handleQueueCurrent() {
-    setFocusId('searchQueueStr');
-    if (features.featAdvqueue === true) {
-        createSearchCrumbs(app.current.search, document.getElementById('searchQueueStr'), document.getElementById('searchQueueCrumb'));
-    }
-    else if (document.getElementById('searchQueueStr').value === '' &&
-        app.current.search !== '')
+    handleSearchExpression('QueueCurrent');
+    const searchStrEl = document.getElementById(app.id + 'SearchStr');
+    const searchCrumbEl = document.getElementById(app.id + 'SearchCrumb');
+    const searchMatchEl = document.getElementById(app.id + 'SearchMatch');
+
+    if (app.current.sort.tag === '' ||
+        app.current.sort.tag === 'Pos')
     {
-        document.getElementById('searchQueueStr').value = app.current.search;
+        app.current.sort.tag = 'Priority';
     }
-    if (app.current.search === '') {
-        document.getElementById('searchQueueStr').value = '';
-    }
-    if (features.featAdvqueue === true) {
-        if (app.current.sort.tag === '-' ||
-            app.current.sort.tag === 'Pos')
-        {
-            app.current.sort.tag = 'Priority';
-        }
-        sendAPI("MYMPD_API_QUEUE_SEARCH_ADV", {
+
+    if (searchStrEl.value.length >= 2 ||
+        searchCrumbEl.children.length > 0 ||
+        app.current.sort.tag !== 'Priority')
+    {
+        sendAPI("MYMPD_API_QUEUE_SEARCH", {
             "offset": app.current.offset,
             "limit": app.current.limit,
             "sort": app.current.sort.tag,
@@ -36,27 +33,17 @@ function handleQueueCurrent() {
             "expression": app.current.search,
             "cols": settings.colsQueueCurrentFetch
         }, parseQueue, true);
+
         if (app.current.filter === 'prio') {
-            elShowId('priorityMatch');
-            document.getElementById('searchQueueMatch').value = '>=';
+            elShowId('QueueCurrentSearchPriorityMatch');
+            searchMatchEl.value = '>=';
         }
         else {
-            if (getSelectValueId('searchQueueMatch') === '>=') {
-                document.getElementById('searchQueueMatch').value = 'contains';
+            if (getSelectValue(searchMatchEl) === '>=') {
+                searchMatchEl.value = 'contains';
             }
-            elHideId('priorityMatch');
+            elHideId('QueueCurrentSearchPriorityMatch');
         }
-    }
-    else if (document.getElementById('searchQueueStr').value.length >= 2 ||
-             document.getElementById('searchQueueCrumb').children.length > 0)
-    {
-        sendAPI("MYMPD_API_QUEUE_SEARCH", {
-            "offset": app.current.offset,
-            "limit": app.current.limit,
-            "filter": app.current.filter,
-            "searchstr": app.current.search,
-            "cols": settings.colsQueueCurrentFetch
-        }, parseQueue, true);
     }
     else {
         sendAPI("MYMPD_API_QUEUE_LIST", {
@@ -65,7 +52,6 @@ function handleQueueCurrent() {
             "cols": settings.colsQueueCurrentFetch
         }, parseQueue, true);
     }
-    selectTag('searchQueueTags', 'searchQueueTagsDesc', app.current.filter);
 }
 
 /**
@@ -161,91 +147,17 @@ function initQueueCurrent() {
         cleanupModalId('modalSetSongPriority');
     });
 
-    document.getElementById('searchQueueTags').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'BUTTON') {
-            app.current.filter = getData(event.target, 'tag');
-            getQueue(document.getElementById('searchQueueStr').value);
-        }
-    }, false);
-
-    document.getElementById('searchQueueStr').addEventListener('keyup', function(event) {
-        //handle Enter key on keydown for IME composing compatibility
-        if (event.key !== 'Enter' ||
-            features.featAdvqueue === false)
-        {
-            return;
-        }
-        clearSearchTimer();
-        const value = this.value;
-        if (value !== '') {
-            const op = getSelectValueId('searchQueueMatch');
-            document.getElementById('searchQueueCrumb').appendChild(createSearchCrumb(app.current.filter, op, value));
-            elShowId('searchQueueCrumb');
-            this.value = '';
-        }
-        else {
-            searchTimer = setTimeout(function() {
-                getQueue(value);
-            }, searchTimerTimeout);
-        }
-    }, false);
-
-    document.getElementById('searchQueueStr').addEventListener('keyup', function(event) {
-        if (ignoreKeys(event) === true) {
-            return;
-        }
-        clearSearchTimer();
-        const value = this.value;
-        searchTimer = setTimeout(function() {
-            getQueue(value);
-        }, searchTimerTimeout);
-    }, false);
-
-    document.getElementById('searchQueueCrumb').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'SPAN') {
-            //remove search expression
-            event.preventDefault();
-            event.stopPropagation();
-            event.target.parentNode.remove();
-            getQueue('');
-            document.getElementById('searchQueueStr').updateBtn();
-        }
-        else if (event.target.nodeName === 'BUTTON') {
-            //edit search expression
-            event.preventDefault();
-            event.stopPropagation();
-            const searchQueueStrEl = document.getElementById('searchQueueStr');
-            searchQueueStrEl.value = unescapeMPD(getData(event.target, 'filter-value'));
-            selectTag('searchQueueTags', 'searchQueueTagsDesc', getData(event.target, 'filter-tag'));
-            document.getElementById('searchQueueMatch').value = getData(event.target, 'filter-op');
-            event.target.remove();
-            app.current.filter = getData(event.target,'filter-tag');
-            getQueue(searchQueueStrEl.value);
-            if (document.getElementById('searchQueueCrumb').childElementCount === 0) {
-                elHideId('searchQueueCrumb');
-            }
-            searchQueueStrEl.updateBtn();
-        }
-    }, false);
-
-    document.getElementById('searchQueueMatch').addEventListener('change', function() {
-        getQueue(document.getElementById('searchQueueStr').value);
-    }, false);
+    initSearchExpression('QueueCurrent', searchQueue);
 }
 
 /**
- * Wrapper for queue search that respects featAdvqueue
+ * Searches the queue
  * @param {string} value search value
  * @returns {void}
  */
-function getQueue(value) {
-    if (features.featAdvqueue) {
-        const expression = createSearchExpression(document.getElementById('searchQueueCrumb'), app.current.filter, getSelectValueId('searchQueueMatch'), value);
-        appGoto('Queue', 'Current', undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', expression, 0);
-    }
-    else {
-        appGoto('Queue', 'Current', undefined, 0, app.current.limit, app.current.filter, app.current.sort, '-', value, 0);
-    }
+function searchQueue(value) {
+    const expression = createSearchExpression(document.getElementById(app.id + 'SearchCrumb'), app.current.filter, getSelectValueId(app.id + 'SearchMatch'), value);
+    appGoto('Queue', 'Current', undefined, 0, app.current.limit, app.current.filter, app.current.sort, '', expression, 0);
 }
 
 /**
@@ -323,10 +235,7 @@ function parseQueue(obj) {
     });
 
     const tfoot = table.querySelector('tfoot');
-    if (obj.result.totalTime &&
-        obj.result.totalTime > 0 &&
-        obj.result.totalEntities <= app.current.limit)
-    {
+    if (obj.result.totalEntities > 0) {
         elReplaceChild(tfoot,
             elCreateNode('tr', {"class": ["not-clickable"]},
                 elCreateNode('td', {"colspan": (colspan + 1)},
@@ -338,14 +247,8 @@ function parseQueue(obj) {
             )
         );
     }
-    else if (obj.result.totalEntities > 0) {
-        elReplaceChild(tfoot,
-            elCreateNode('tr', {"class": ["not-clickable"]},
-                elCreateNode('td', {"colspan": (colspan + 1)},
-                    elCreateTextTnNr('small', {}, 'Num songs', obj.result.totalEntities)
-                )
-            )
-        );
+    else {
+        elClear(tfoot);
     }
 }
 

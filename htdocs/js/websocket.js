@@ -97,7 +97,7 @@ function webSocketConnect() {
                     if (app.id === 'QueueCurrent' &&
                         obj.method === 'update_queue')
                     {
-                        getQueue(document.getElementById('searchQueueStr').value);
+                        searchQueue(document.getElementById('searchQueueStr').value);
                     }
                     parseState(obj);
                     break;
