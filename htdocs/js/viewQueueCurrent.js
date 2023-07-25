@@ -11,8 +11,6 @@
  */
 function handleQueueCurrent() {
     handleSearchExpression('QueueCurrent');
-    const searchStrEl = document.getElementById(app.id + 'SearchStr');
-    const searchCrumbEl = document.getElementById(app.id + 'SearchCrumb');
     const searchMatchEl = document.getElementById(app.id + 'SearchMatch');
 
     if (app.current.sort.tag === '' ||
@@ -21,36 +19,24 @@ function handleQueueCurrent() {
         app.current.sort.tag = 'Priority';
     }
 
-    if (searchStrEl.value.length >= 2 ||
-        searchCrumbEl.children.length > 0 ||
-        app.current.sort.tag !== 'Priority')
-    {
-        sendAPI("MYMPD_API_QUEUE_SEARCH", {
-            "offset": app.current.offset,
-            "limit": app.current.limit,
-            "sort": app.current.sort.tag,
-            "sortdesc": app.current.sort.desc,
-            "expression": app.current.search,
-            "cols": settings.colsQueueCurrentFetch
-        }, parseQueue, true);
+    sendAPI("MYMPD_API_QUEUE_SEARCH", {
+        "offset": app.current.offset,
+        "limit": app.current.limit,
+        "sort": app.current.sort.tag,
+        "sortdesc": app.current.sort.desc,
+        "expression": app.current.search,
+        "cols": settings.colsQueueCurrentFetch
+    }, parseQueue, true);
 
-        if (app.current.filter === 'prio') {
-            elShowId('QueueCurrentSearchPriorityMatch');
-            searchMatchEl.value = '>=';
-        }
-        else {
-            if (getSelectValue(searchMatchEl) === '>=') {
-                searchMatchEl.value = 'contains';
-            }
-            elHideId('QueueCurrentSearchPriorityMatch');
-        }
+    if (app.current.filter === 'prio') {
+        elShowId('QueueCurrentSearchPriorityMatch');
+        searchMatchEl.value = '>=';
     }
     else {
-        sendAPI("MYMPD_API_QUEUE_LIST", {
-            "offset": app.current.offset,
-            "limit": app.current.limit,
-            "cols": settings.colsQueueCurrentFetch
-        }, parseQueue, true);
+        if (getSelectValue(searchMatchEl) === '>=') {
+            searchMatchEl.value = 'contains';
+        }
+        elHideId('QueueCurrentSearchPriorityMatch');
     }
 }
 
