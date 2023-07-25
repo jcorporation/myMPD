@@ -655,8 +655,8 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer
         struct mpd_song *song;
         unsigned total_time = 0;
         const unsigned real_limit = offset + limit;
-        long entities_returned = 0;
-        long entity_count = 0;
+        unsigned entities_returned = 0;
+        unsigned entity_count = 0;
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (partition_state->mpd_state->feat_advqueue == true ||
                 entity_count >= offset)
@@ -679,13 +679,16 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer
         buffer = sdscatlen(buffer, "],", 2);
         buffer = tojson_uint(buffer, "totalTime", total_time, true);
         if (sdslen(expression) == 0) {
-            buffer = tojson_long(buffer, "totalEntities", partition_state->queue_length, true);
+            buffer = tojson_llong(buffer, "totalEntities", partition_state->queue_length, true);
+        }
+        if (entities_returned < limit) {
+            buffer = tojson_uint(buffer, "totalEntities", (offset + entities_returned), true);
         }
         else {
             buffer = tojson_long(buffer, "totalEntities", -1, true);
         }
         buffer = tojson_uint(buffer, "offset", offset, true);
-        buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+        buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
         buffer = jsonrpc_end(buffer);
     }
     mpd_response_finish(partition_state->conn);
