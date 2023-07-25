@@ -1039,20 +1039,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_QUEUE_SEARCH: {
             struct t_tags tagcols;
             reset_t_tags(&tagcols);
-            if (json_get_long(request->data, "$.params.offset", 0, MPD_PLAYLIST_LENGTH_MAX, &long_buf1, &error) == true &&
-                json_get_long(request->data, "$.params.limit", MPD_RESULTS_MIN, MPD_RESULTS_MAX, &long_buf2, &error) == true &&
-                json_get_string(request->data, "$.params.filter", 1, NAME_LEN_MAX, &sds_buf1, vcb_ismpdtag_or_any, &error) == true &&
-                json_get_string(request->data, "$.params.searchstr", 1, NAME_LEN_MAX, &sds_buf2, vcb_isname, &error) == true &&
-                json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
-            {
-                response->data = mympd_api_queue_search(partition_state, response->data, request->id,
-                        sds_buf1, long_buf1, long_buf2, sds_buf2, &tagcols);
-            }
-            break;
-        }
-        case MYMPD_API_QUEUE_SEARCH_ADV: {
-            struct t_tags tagcols;
-            reset_t_tags(&tagcols);
             if (json_get_string(request->data, "$.params.expression", 0, EXPRESSION_LEN_MAX, &sds_buf1, vcb_isname, &error) == true &&
                 json_get_string(request->data, "$.params.sort", 0, NAME_LEN_MAX, &sds_buf2, vcb_ismpdsort, &error) == true &&
                 json_get_bool(request->data, "$.params.sortdesc", &bool_buf1, &error) == true &&
@@ -1060,7 +1046,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 json_get_uint(request->data, "$.params.limit", 0, MPD_RESULTS_MAX, &uint_buf2, &error) == true &&
                 json_get_tags(request->data, "$.params.cols", &tagcols, COLS_MAX, &error) == true)
             {
-                response->data = mympd_api_queue_search_adv(partition_state, response->data, request->id,
+                response->data = mympd_api_queue_search(partition_state, response->data, request->id,
                         sds_buf1, sds_buf2, bool_buf1, uint_buf1, uint_buf2, &tagcols);
             }
             break;

@@ -13,6 +13,7 @@ Describe the release here.
 - Feat: move song fingerprint calculation in worker thread
 - Feat: display album tags in jukebox album list #1069
 - Upd: some code enhancements #1045
+- Upd: merge MYMPD_API_QUEUE_SEARCH_ADV into MYMPD_API_QUEUE_SEARCH
 - Fix: calculate correct position for jukebox list
 - Fix: calculate correct position for playlist content list
 
