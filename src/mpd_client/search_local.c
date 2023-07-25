@@ -199,22 +199,17 @@ void *free_search_expression_list(struct t_list *expr_list) {
  * @param browse_tag_types tags for special "any" tag in expression
  * @return expression result
  */
-bool search_song_expression(struct mpd_song *song, struct t_list *expr_list, struct t_tags *browse_tag_types) {
+bool search_song_expression(const struct mpd_song *song, const struct t_list *expr_list, const struct t_tags *tag_types) {
     struct t_tags one_tag;
     one_tag.len = 1;
     struct t_list_node *current = expr_list->head;
     while (current != NULL) {
         struct t_search_expression *expr = (struct t_search_expression *)current->user_data;
-        struct t_tags *tags = NULL;
-        if (expr->tag == -2) {
-            //any - use all browse tags
-            tags = browse_tag_types;
-        }
-        else {
-            //use selected tag only
-            tags = &one_tag;
-            tags->tags[0] = (enum mpd_tag_type)expr->tag;
-        }
+        one_tag.tags[0] = (enum mpd_tag_type)expr->tag;
+        const struct t_tags *tags = expr->tag == -2
+            ? tag_types  //any - use all browse tags
+            : &one_tag;  //use only selected tag
+
         bool rc = false;
         for (size_t i = 0; i < tags->len; i++) {
             rc = true;
