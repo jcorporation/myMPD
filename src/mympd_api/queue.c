@@ -569,7 +569,7 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
  * @return pointer to buffer
  */
 sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-        long offset, long limit, const struct t_tags *tagcols)
+        unsigned offset, unsigned limit, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH;
     //update the queue status
@@ -579,12 +579,12 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
         offset = 0;
     }
     //list the queue
-    long real_limit = offset + limit;
-    if (mpd_send_list_queue_range_meta(partition_state->conn, (unsigned)offset, (unsigned)real_limit) == true) {
+    unsigned real_limit = offset + limit;
+    if (mpd_send_list_queue_range_meta(partition_state->conn, offset, real_limit) == true) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
         unsigned total_time = 0;
-        long entities_returned = 0;
+        unsigned entities_returned = 0;
         struct mpd_song *song;
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (entities_returned++) {
@@ -598,8 +598,8 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
         buffer = sdscatlen(buffer, "],", 2);
         buffer = tojson_uint(buffer, "totalTime", total_time, true);
         buffer = tojson_llong(buffer, "totalEntities", partition_state->queue_length, true);
-        buffer = tojson_long(buffer, "offset", offset, true);
-        buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+        buffer = tojson_uint(buffer, "offset", offset, true);
+        buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
         buffer = jsonrpc_end(buffer);
     }
     mpd_response_finish(partition_state->conn);
