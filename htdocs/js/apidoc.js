@@ -1901,13 +1901,13 @@ const APImethods = {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
             "cols": APIparams.cols,
-            "searchstr": APIparams.searchstr
+            "expression": APIparams.expression
         }
     },
     "MYMPD_API_JUKEBOX_RM": {
         "desc": "Removes a song or album from the jukebox queue.",
         "params": {
-            "posistions": APIparams.positions
+            "positions": APIparams.positions
         }
     },
     "MYMPD_API_JUKEBOX_CLEAR": {

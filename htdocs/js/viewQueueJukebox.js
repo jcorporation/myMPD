@@ -27,14 +27,8 @@ function handleQueueJukeboxAlbum() {
  * @returns {void}
  */
 function handleQueueJukebox(view) {
-    setFocusId('search' + view + 'Str');
+    handleSearchExpression(view);
     getJukeboxList(view);
-    const searchQueueJukeboxStrEl = document.getElementById('search' + view + 'Str');
-    if (searchQueueJukeboxStrEl.value === '' &&
-        app.current.search !== '')
-    {
-        searchQueueJukeboxStrEl.value = app.current.search;
-    }
 }
 
 /**
@@ -69,17 +63,8 @@ function initQueueJukebox(view) {
             }
         }
     }, false);
-    document.getElementById('search' + view + 'Str').addEventListener('keyup', function(event) {
-        if (ignoreKeys(event) === true) {
-            return;
-        }
-        clearSearchTimer();
-        const value = this.value;
-        searchTimer = setTimeout(function() {
-            appGoto(app.current.card, app.current.tab, app.current.view,
-                0, app.current.limit, app.current.filter, app.current.sort, '-', value);
-        }, searchTimerTimeout);
-    }, false);
+
+    initSearchExpression(view);
 }
 
 /**
@@ -92,7 +77,7 @@ function getJukeboxList(view) {
         "offset": app.current.offset,
         "limit": app.current.limit,
         "cols": settings['cols' + view + 'Fetch'],
-        "searchstr": app.current.search
+        "expression": app.current.search
     }, parseJukeboxList, true);
 }
 
@@ -152,8 +137,8 @@ function parseJukeboxList(obj) {
         return;
     }
 
-    elHideId(view + 'Disabled');
     elShowId(view + 'List');
+    elHideId(view + 'Disabled');
 
     const rowTitle = settings.partition.jukeboxMode === 'song' ?
         webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong] :

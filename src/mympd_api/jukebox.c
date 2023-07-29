@@ -7,7 +7,6 @@
 #include "compile_time.h"
 #include "src/mympd_api/jukebox.h"
 
-#include "dist/utf8/utf8.h"
 #include "src/lib/jsonrpc.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/jukebox.h"
@@ -64,18 +63,18 @@ bool mympd_api_jukebox_rm_entries(struct t_list *list, struct t_list *positions,
  * @param request_id jsonrpc request id
  * @param offset offset for printing
  * @param limit max entries to print
- * @param searchstr string to search
+ * @param expression mpd search expression
  * @param tagcols columns to print
  * @return pointer to buffer
  */
 sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer, enum mympd_cmd_ids cmd_id, long request_id,
-        long offset, long limit, sds searchstr, const struct t_tags *tagcols)
+        long offset, long limit, sds expression, const struct t_tags *tagcols)
 {
     long entity_count = 0;
     long entities_returned = 0;
     long entities_found = 0;
     long real_limit = offset + limit;
-
+    struct t_list *expr_list = parse_search_expression_to_list(expression);
     buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
     buffer = sdscat(buffer, "\"data\":[");
     if (partition_state->jukebox_mode == JUKEBOX_ADD_SONG) {
@@ -84,7 +83,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
             if (mpd_send_list_meta(partition_state->conn, current->key)) {
                 struct mpd_song *song;
                 if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-                    if (search_mpd_song(song, searchstr, tagcols) == true) {
+                    if (search_song_expression(song, expr_list, tagcols) == true) {
                         if (entities_found >= offset &&
                             entities_found < real_limit)
                         {
@@ -114,8 +113,8 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
     else if (partition_state->jukebox_mode == JUKEBOX_ADD_ALBUM) {
         struct t_list_node *current = partition_state->jukebox_queue.head;
         while (current != NULL) {
-            if (utf8casestr(current->key, searchstr) != NULL ||
-                utf8casestr(current->value_p, searchstr) != NULL)
+            struct mpd_song *album = (struct mpd_song *)current->user_data;
+            if (search_song_expression(album, expr_list, tagcols) == true)
             {
                 if (entities_found >= offset &&
                     entities_found < real_limit)
@@ -123,7 +122,6 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
                     if (entities_returned++) {
                         buffer = sdscatlen(buffer, ",", 1);
                     }
-                    struct mpd_song *album = (struct mpd_song *)current->user_data;
                     buffer = sdscat(buffer, "{\"Type\": \"album\",");
                     buffer = tojson_long(buffer, "Pos", entity_count, true);
                     buffer = print_album_tags(buffer, &partition_state->mpd_state->tags_album, album);
@@ -135,7 +133,7 @@ sds mympd_api_jukebox_list(struct t_partition_state *partition_state, sds buffer
             current = current->next;
         }
     }
-
+    free_search_expression_list(expr_list);
     buffer = sdscatlen(buffer, "],", 2);
     const char *jukebox_mode_str = jukebox_mode_lookup(partition_state->jukebox_mode);
     buffer = tojson_char(buffer, "jukeboxMode", jukebox_mode_str, true);

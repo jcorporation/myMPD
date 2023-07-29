@@ -844,6 +844,8 @@ function parseMPDSettings() {
 
     addTagList('QueueCurrentSearchTags', 'tagListSearch');
     addTagList('QueueLastPlayedSearchTags', 'tagListSearch');
+    addTagList('QueueJukeboxSongSearchTags', 'tagListSearch');
+    addTagList('QueueJukeboxAlbumSearchTags', 'tagListSearch');
     addTagList('BrowsePlaylistDetailSearchTags', 'tagListSearch');
     addTagList('SearchSearchTags', 'tagListSearch');
     addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListBrowse');
