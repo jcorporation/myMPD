@@ -216,9 +216,9 @@ function parseCurrentSong(obj) {
  */
 function setPlaybackCardTags(songObj) {
     if (songObj.webradio === undefined) {
+        elHideId('cardPlaybackWebradio');
+        elShowId('cardPlaybackTags');
         for (const col of settings.colsPlayback) {
-            elHideId('cardPlaybackWebradio');
-            elShowId('cardPlaybackTags');
             const c = document.getElementById('current' + col);
             if (c === null) {
                 continue;
@@ -236,14 +236,13 @@ function setPlaybackCardTags(songObj) {
                     if (value === undefined) {
                         value = '-';
                     }
+                    elReplaceChild(c.querySelector('p'), printValue(col, value));
                     if (checkTagValue(value, '-') === true ||
                         settings.tagListBrowse.includes(col) === false)
                     {
-                        elClear(c.querySelector('p'));
                         c.querySelector('p').classList.remove('clickable');
                     }
                     else {
-                        elReplaceChild(c.querySelector('p'), printValue(col, value));
                         c.querySelector('p').classList.add('clickable');
                     }
                     setData(c, 'name', value);
