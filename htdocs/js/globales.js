@@ -328,13 +328,13 @@ app.cards = {
             "Filesystem": {
                 "offset": 0,
                 "limit": 100,
-                "filter": "",
+                "filter": "/",
                 "sort": {
                     "tag": "",
                     "desc": false
                 },
                 "tag": "dir",
-                "search": "/",
+                "search": "",
                 "scrollPos": 0
             },
             "Playlist": {

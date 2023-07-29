@@ -10,19 +10,20 @@
  * @returns {void}
  */
 function handleBrowseFilesystem() {
-    setFocusId('searchFilesystemStr');
-    if (app.current.tag === '-') {
+    handleSearchSimple('BrowseFilesystem');
+    if (app.current.tag === '') {
         //default type is dir
         app.current.tag = 'dir';
     }
     sendAPI("MYMPD_API_DATABASE_FILESYSTEM_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
-        "path": app.current.search,
-        "searchstr": (app.current.filter !== '-' ? app.current.filter : ''),
+        "path": app.current.filter,
+        "searchstr": app.current.search,
         "type": app.current.tag,
         "cols": settings.colsBrowseFilesystemFetch
     }, parseFilesystem, true);
+
     //Create breadcrumb
     const crumbEl = document.getElementById('BrowseBreadcrumb');
     elClear(crumbEl);
@@ -31,8 +32,8 @@ function handleBrowseFilesystem() {
     crumbEl.appendChild(
         elCreateNode('li', {"class": ["breadcrumb-item"]}, home)
     );
-    if (app.current.search !== '/') {
-        const pathArray = app.current.search.split('/');
+    if (app.current.filter !== '/') {
+        const pathArray = app.current.filter.split('/');
         const pathArrayLen = pathArray.length;
         let fullPath = '';
         for (let i = 0; i < pathArrayLen; i++) {
@@ -51,8 +52,6 @@ function handleBrowseFilesystem() {
             fullPath += '/';
         }
     }
-    const searchFilesystemStrEl = document.getElementById('searchFilesystemStr');
-    searchFilesystemStrEl.value = app.current.filter === '-' ? '' :  app.current.filter;
 }
 
 /**
@@ -60,17 +59,7 @@ function handleBrowseFilesystem() {
  * @returns {void}
  */
 function initBrowseFilesystem() {
-    document.getElementById('searchFilesystemStr').addEventListener('keyup', function(event) {
-        if (ignoreKeys(event) === true) {
-            return;
-        }
-        clearSearchTimer();
-        const value = this.value;
-        searchTimer = setTimeout(function() {
-            appGoto(app.current.card, app.current.tab, app.current.view,
-                0, app.current.limit, (value !== '' ? value : '-'), app.current.sort, '-', app.current.search);
-        }, searchTimerTimeout);
-    }, false);
+    initSearchSimple('BrowseFilesystem');
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
         //select mode
@@ -97,7 +86,7 @@ function initBrowseFilesystem() {
                     const offset = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].offset : 0;
                     const scrollPos = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].scrollPos : 0;
                     app.current.filter = '-';
-                    appGoto('Browse', 'Filesystem', undefined, offset, app.current.limit, app.current.filter, app.current.sort, 'dir', uri, scrollPos);
+                    appGoto('Browse', 'Filesystem', undefined, offset, app.current.limit, uri, app.current.sort, 'dir', '', scrollPos);
                     break;
                 }
                 case 'dir':
@@ -119,7 +108,7 @@ function initBrowseFilesystem() {
             const uri = getData(event.target, 'uri');
             const offset = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].offset : 0;
             const scrollPos = browseFilesystemHistory[uri] !== undefined ? browseFilesystemHistory[uri].scrollPos : 0;
-            appGoto('Browse', 'Filesystem', undefined, offset, app.current.limit, app.current.filter, app.current.sort, 'dir', uri, scrollPos);
+            appGoto('Browse', 'Filesystem', undefined, offset, app.current.limit, uri, app.current.sort, 'dir', '', scrollPos);
         }
     }, false);
 }

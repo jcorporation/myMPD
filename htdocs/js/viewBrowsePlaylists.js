@@ -26,19 +26,14 @@ function handleBrowsePlaylistDetail() {
  * @returns {void}
  */
 function handleBrowsePlaylistList() {
-    setFocusId('searchPlaylistListStr');
+    handleSearchSimple('BrowsePlaylistList');
+
     sendAPI("MYMPD_API_PLAYLIST_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
         "searchstr": app.current.search,
         "type": 0
     }, parsePlaylistList, true);
-    const searchPlaylistsStrEl = document.getElementById('searchPlaylistListStr');
-    if (searchPlaylistsStrEl.value === '' &&
-        app.current.search !== '')
-    {
-        searchPlaylistsStrEl.value = app.current.search;
-    }
     elHideId('playlistDetailAlert');
 }
 
@@ -67,6 +62,7 @@ function initPlaylists() {
         }
     }, false);
 
+    initSearchSimple('BrowsePlaylistList');
     initSearchExpression('BrowsePlaylistDetail');
 
     document.getElementById('BrowsePlaylistListList').addEventListener('click', function(event) {
