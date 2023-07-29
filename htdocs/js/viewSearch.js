@@ -81,17 +81,7 @@ function initSearch() {
         }
     }, false);
 
-    initSearchExpression('Search', doSearch);
-}
-
-/**
- * Searches for songs
- * @param {string} value current search input value
- * @returns {void}
- */
-function doSearch(value) {
-    const expression = createSearchExpression(document.getElementById(app.id + 'SearchCrumb'), app.current.filter, getSelectValueId(app.id + 'SearchMatch'), value);
-    appGoto('Search', undefined, undefined, 0, app.current.limit, app.current.filter, app.current.sort, '', expression, 0);
+    initSearchExpression('Search');
 }
 
 /**

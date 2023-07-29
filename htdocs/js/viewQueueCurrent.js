@@ -133,17 +133,7 @@ function initQueueCurrent() {
         cleanupModalId('modalSetSongPriority');
     });
 
-    initSearchExpression('QueueCurrent', searchQueue);
-}
-
-/**
- * Searches the queue
- * @param {string} value search value
- * @returns {void}
- */
-function searchQueue(value) {
-    const expression = createSearchExpression(document.getElementById(app.id + 'SearchCrumb'), app.current.filter, getSelectValueId(app.id + 'SearchMatch'), value);
-    appGoto('Queue', 'Current', undefined, 0, app.current.limit, app.current.filter, app.current.sort, '', expression, 0);
+    initSearchExpression('QueueCurrent');
 }
 
 /**

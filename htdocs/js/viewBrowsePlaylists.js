@@ -67,7 +67,7 @@ function initPlaylists() {
         }
     }, false);
 
-    initSearchExpression('BrowsePlaylistDetail', doSearchPlaylistContent);
+    initSearchExpression('BrowsePlaylistDetail');
 
     document.getElementById('BrowsePlaylistListList').addEventListener('click', function(event) {
         //select mode
@@ -120,16 +120,6 @@ function initPlaylists() {
             clickSong(getData(target, 'uri'), event);
         }
     }, false);
-}
-
-/**
- * Searches for songs in a playlist
- * @param {string} value current search input value
- * @returns {void}
- */
-function doSearchPlaylistContent(value) {
-    const expression = createSearchExpression(document.getElementById(app.id + 'SearchCrumb'), app.current.filter, getSelectValueId(app.id + 'SearchMatch'), value);
-    appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
 }
 
 /**

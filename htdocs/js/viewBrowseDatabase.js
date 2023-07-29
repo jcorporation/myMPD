@@ -187,7 +187,7 @@ function initBrowseDatabase() {
         }
     }, false);
 
-    initSearchExpression('BrowseDatabaseAlbumList', searchDatabaseAlbumList);
+    initSearchExpression('BrowseDatabaseAlbumList');
 }
 
 /**
@@ -541,16 +541,4 @@ function addAlbumDisc(action, albumId, disc) {
             showAddToPlaylist('disc', [albumId, disc]);
             break;
     }
-}
-
-/**
- * Creates and executes the mpd filter expression from the search crumbs and current search values
- * for the album grid search.
- * @param {string} searchStr string to search
- * @returns {void}
- */
-function searchDatabaseAlbumList(searchStr) {
-    const expression = createSearchExpression(document.getElementById(app.id + 'SearchCrumb'), app.current.filter, getSelectValueId(app.id + 'SearchMatch'), searchStr);
-    appGoto(app.current.card, app.current.tab, app.current.view,
-        0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
 }

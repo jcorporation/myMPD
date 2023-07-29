@@ -24,14 +24,13 @@ function handleSearchExpression(appid) {
 /**
  * Initializes search elements for specified appid
  * @param {string} appid the application id
- * @param {Function} searchFunc the real search function to call
  * @returns {void}
  */
-function initSearchExpression(appid, searchFunc) {
+function initSearchExpression(appid) {
     document.getElementById(appid + 'SearchTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = getData(event.target, 'tag');
-            searchFunc(document.getElementById(appid + 'SearchStr').value);
+            execSearchExpression(document.getElementById(appid + 'SearchStr').value);
         }
     }, false);
 
@@ -51,7 +50,7 @@ function initSearchExpression(appid, searchFunc) {
         }
         else {
             searchTimer = setTimeout(function() {
-                searchFunc(value);
+                execSearchExpression(value);
             }, searchTimerTimeout);
         }
     }, false);
@@ -63,7 +62,7 @@ function initSearchExpression(appid, searchFunc) {
         clearSearchTimer();
         const value = this.value;
         searchTimer = setTimeout(function() {
-            searchFunc(value);
+            execSearchExpression(value);
         }, searchTimerTimeout);
     }, false);
 
@@ -73,7 +72,7 @@ function initSearchExpression(appid, searchFunc) {
             event.preventDefault();
             event.stopPropagation();
             event.target.parentNode.remove();
-            searchFunc('');
+            execSearchExpression('');
             document.getElementById(appid + 'SearchStr').updateBtn();
         }
         else if (event.target.nodeName === 'BUTTON') {
@@ -86,7 +85,7 @@ function initSearchExpression(appid, searchFunc) {
             document.getElementById(appid + 'SearchMatch').value = getData(event.target, 'filter-op');
             event.target.remove();
             app.current.filter = getData(event.target,'filter-tag');
-            searchFunc(searchStrEl.value);
+            execSearchExpression(searchStrEl.value);
             if (document.getElementById(appid + 'SearchCrumb').childElementCount === 0) {
                 elHideId(appid + 'SearchCrumb');
             }
@@ -95,8 +94,18 @@ function initSearchExpression(appid, searchFunc) {
     }, false);
 
     document.getElementById(appid + 'SearchMatch').addEventListener('change', function() {
-        searchFunc(document.getElementById(appid + 'SearchStr').value);
+        execSearchExpression(document.getElementById(appid + 'SearchStr').value);
     }, false);
+}
+
+/**
+ * Executes the search expression
+ * @param {string} value search value
+ * @returns {void}
+ */
+function execSearchExpression(value) {
+    const expression = createSearchExpression(document.getElementById(app.id + 'SearchCrumb'), app.current.filter, getSelectValueId(app.id + 'SearchMatch'), value);
+    appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
 }
 
 /**
