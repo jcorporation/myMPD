@@ -12,6 +12,7 @@ This is a small bug fix release.
 
 - Fix: set translated title for navbar icons
 - Fix: jukebox list context menu actions
+- Fix: calculate correct myMPDuri for IPv6 [::]
 
 ***
 
