@@ -21,7 +21,7 @@
   <link href="assets/appicon-192.png" rel="icon"/>
 </head>
 <body class="overflow-hidden mobile">
-  <!-- Splash screen -->
+<!-- Splash screen start -->
   <div id="splashScreen">
     <div id="splashScreenLogo">
       <svg version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
@@ -33,7 +33,8 @@
     </div>
     <div id="splashScreenAlert" data-phrase="Initializing myMPD"></div>
   </div>
-  <!-- Header -->
+<!-- Splash screen end -->
+<!-- Header start -->
   <header>
     <nav id="header" class="navbar navbar-expand fixed-top d-flex justify-content-between">
       <div id="headerLeft">
@@ -50,7 +51,8 @@
       <div id="navbar-main" class="d-flex noInitChilds"></div>
     </nav>
   </header>
-  <!-- Main menu -->
+<!-- Header end -->
+<!-- Main menu start -->
   <div class="offcanvas offcanvas-start" tabindex="-1" id="offcanvasMenu">
     <div class="offcanvas-header px-3">
       <h4 class="offcanvas-title">
@@ -88,20 +90,24 @@
       <a class="external" rel="noreferrer" target="_blank" href="https://github.com/jcorporation/myMPD/discussions/167" data-phrase="Help to improve myMPD"></a>
     </div>
   </div>
-  <!-- Context menu -->
+<!-- Main menu end -->
+<!-- Context menu start -->
   <div class="offcanvas offcanvas-end" tabindex="-1" id="offcanvasContext">
     <div class="offcanvas-header px-0 pb-0"></div>
     <div class="offcanvas-body px-0"></div>
   </div>
-  <!-- Alerts -->
+<!-- Context menu end -->
+<!-- Alerts start -->
   <div id="top-alerts" class="d-none"></div>
-  <!-- Main content -->
+<!-- Alerts end -->
+<!-- Main content start-->
   <main>
+<!-- Home start-->
     <div class="card" id="cardHome">
       <div class="card-body">
         <div id="homeActions" class="btn-group">
           <button data-title-phrase="Homescreen" class="btn btn-xs btn-transparent dropdown-toggle mi mi-sm" type="button" data-bs-toggle="dropdown">add_to_home_screen</button>
-          <div class="dropdown-menu px-2" id="homeActionsDropdown">
+          <div class="dropdown-menu px-2">
             <h2 class="dropdown-header" data-phrase="Add to homescreen"></h2>
             <button data-phrase="External link" data-href='{"cmd": "addExternalLinkToHome", "options": []}' class="btn btn-secondary w-100 btn-sm mb-2"></button>
             <button data-phrase="Modal shortcut" data-href='{"cmd": "addOpenModalToHome", "options": []}' class="btn btn-secondary w-100 btn-sm"></button>
@@ -114,7 +120,7 @@
     </div>
     <div class="card" id="cardPlayback">
       <div class="card-body">
-        <div class="btn-toolbar card-toolbar" id="PlaybackButtonsTop">
+        <div class="btn-toolbar card-toolbar">
           <div class="btn-group featStickers me-2" data-href='{"cmd": "voteSong", "options": []}'>
             <button data-vote="0" data-title-phrase="Hate song" id="btnVoteDown" class="btn btn-secondary mi">thumb_down</button>
             <button data-vote="2" data-title-phrase="Love song" id="btnVoteUp" class="btn btn-secondary mi">thumb_up</button>
@@ -154,10 +160,11 @@
         </div>
       </div>
     </div>
-
+<!-- Home end -->
     <div class="card d-none" id="cardQueue">
+<!-- Queue current start-->
       <div class="card-body d-none" id="tabQueueCurrent">
-        <div class="btn-toolbar card-toolbar" id="QueueCurrentButtonsTop">
+        <div class="btn-toolbar card-toolbar">
           <div class="btn-group me-2">
             <button data-title-phrase="Select view" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">layers</button>
             <div class="dropdown-menu px-2">
@@ -244,7 +251,8 @@
         </div>
         <div class="btn-toolbar d-none justify-content-between" id="QueueCurrentButtonsBottom"></div>
       </div>
-
+<!-- Queue current end-->
+<!-- Last played start-->
       <div class="card-body d-none" id="tabQueueLastPlayed">
         <div class="btn-toolbar card-toolbar">
           <div class="btn-group me-2">
@@ -301,8 +309,9 @@
         </div>
         <div class="btn-toolbar d-none justify-content-between" id="QueueLastPlayedButtonsBottom"></div>
       </div>
-
+<!-- Last played end -->
       <div class="card-body d-none" id="tabQueueJukebox">
+<!-- Jukebox song start -->
         <div id="viewQueueJukeboxSong">
           <div class="btn-toolbar card-toolbar">
             <div class="btn-group me-2">
@@ -363,6 +372,8 @@
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="QueueJukeboxSongButtonsBottom"></div>
         </div>
+<!-- Jukebox song end -->
+<!-- Jukebox album start -->
         <div id="viewQueueJukeboxAlbum">
           <div class="btn-toolbar card-toolbar">
             <div class="btn-group me-2">
@@ -425,9 +436,10 @@
         </div>
       </div>
     </div>
-
+<!-- Jukebox album end -->
     <div class="card d-none" id="cardBrowse">
       <div class="card-body d-none" id="tabBrowsePlaylist">
+<!-- Playlists start -->
         <div id="viewBrowsePlaylistList">
           <div class="btn-toolbar card-toolbar" id="BrowsePlaylistAllButtons">
             <div class="btn-group me-2">
@@ -482,6 +494,8 @@
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistListButtonsBottom"></div>
         </div>
+<!--  Playlists end -->
+<!--  Playlist content start -->
         <div id="viewBrowsePlaylistDetail">
           <div class="btn-toolbar card-toolbar" id="BrowsePlaylistDetailButtons">
             <div class="btn-group me-2">
@@ -582,8 +596,9 @@
           <div class="btn-toolbar d-none justify-content-between" id="BrowsePlaylistDetailButtonsBottom"></div>
         </div>
       </div>
-
+<!-- Playlist content end -->
       <div class="card-body d-none" id="tabBrowseDatabase">
+<!-- Tag list start -->
         <div id="viewBrowseDatabaseTagList">
           <div class="btn-toolbar card-toolbar" id="BrowseDatabaseTagListButtons">
             <div class="btn-group me-2">
@@ -610,7 +625,8 @@
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseDatabaseTagListButtonsBottom"></div>
         </div>
-
+<!-- Tag list end -->
+<!-- Album list start -->
         <div id="viewBrowseDatabaseAlbumList">
           <div class="btn-toolbar card-toolbar" id="BrowseDatabaseAlbumListButtons">
             <div class="btn-group me-2">
@@ -675,7 +691,8 @@
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseDatabaseAlbumListButtonsBottom"></div>
         </div>
-
+<!-- Album list end -->
+<!-- Album detail start -->
         <div id="viewBrowseDatabaseAlbumDetail">
           <div class="btn-toolbar card-toolbar">
             <div class="input-group me-2">
@@ -734,7 +751,8 @@
           </div>
         </div>
       </div>
-
+<!-- Album detail end -->
+<!-- Filesystem start -->
       <div class="card-body d-none" id="tabBrowseFilesystem">
         <div class="btn-toolbar card-toolbar" id="BrowseFilesystemButtons">
           <div class="btn-group me-2">
@@ -788,8 +806,9 @@
         </div>
         <div class="btn-toolbar d-none justify-content-between" id="BrowseFilesystemButtonsBottom"></div>
       </div>
-
+<!-- Filesystem end -->
       <div class="card-body d-none" id="tabBrowseRadio">
+<!-- Radio favorites start -->
         <div id="viewBrowseRadioFavorites">
           <div class="btn-toolbar card-toolbar" id="BrowseRadioFavoritesButtons">
             <div class="btn-group me-2">
@@ -832,6 +851,8 @@
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioFavoritesButtonsBottom"></div>
         </div>
+<!-- Radio favorites end -->
+<!-- WebradioDB start -->
         <div id="viewBrowseRadioWebradiodb">
           <div class="btn-toolbar card-toolbar" id="BrowseRadioWebradiodbButtons">
             <div class="btn-group me-2">
@@ -891,6 +912,8 @@
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioWebradiodbButtonsBottom"></div>
         </div>
+<!-- WebradioDB end -->
+<!-- Radiobrowser start -->
         <div id="viewBrowseRadioRadiobrowser">
           <div class="btn-toolbar card-toolbar" id="BrowseRadioRadiobrowserButtons">
             <div class="btn-group me-2">
@@ -940,9 +963,10 @@
           </div>
           <div class="btn-toolbar d-none justify-content-between" id="BrowseRadioRadiobrowserButtonsBottom"></div>
         </div>
+<!-- Radiobrowser end -->
       </div>
     </div>
-
+<!-- Search start -->
     <div class="card d-none" id="cardSearch">
       <div class="card-body">
         <div class="btn-toolbar card-toolbar" id="SearchButtons">
@@ -1005,9 +1029,13 @@
         <div class="btn-toolbar d-none justify-content-between" id="SearchButtonsBottom"></div>
       </div>
     </div>
+<!-- Search end -->
+<!-- Notifications start -->
     <div id="alertBox"></div>
+<!-- Notifications end -->
   </main>
-  <!-- Footer -->
+<!-- Main content end -->
+<!-- Footer start -->
   <footer class="fixed-bottom">
     <div id="footerProgressPos" class="px-2 py-1 rounded-sm"></div>
     <div id="footerProgress" class="progress clickable align-items-center">
@@ -1096,8 +1124,9 @@
       </div>
     </nav>
   </footer>
-
-  <!-- Modals -->
+<!-- Footer end -->
+<!-- Modals start -->
+<!-- Modal add to playlist start -->
   <div class="modal fade" id="modalAddToPlaylist" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -1174,7 +1203,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal add to playlist end -->
+<!-- Modal copy playlist start -->
   <div class="modal fade" id="modalCopyPlaylist" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -1217,7 +1247,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal copy playlist end -->
+<!-- Modal move to playlist start -->
   <div class="modal fade" id="modalMoveToPlaylist" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -1258,7 +1289,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal move to playlist end -->
+<!-- Modal rename playlist start -->
   <div class="modal fade" id="modalRenamePlaylist" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -1290,7 +1322,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal rename playlist end -->
+<!-- Modal save smart playlist start -->
   <div class="modal fade" id="modalSaveSmartPlaylist" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -1372,7 +1405,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal save smart playlist end -->
+<!-- Modal settings start -->
   <div class="modal fade" id="modalSettings" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -1675,7 +1709,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal settings end -->
+<!-- Modal queue settings start -->
   <div class="modal fade" id="modalQueueSettings" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -1863,7 +1898,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal queue settings end -->
+<!-- Modal about start -->
   <div class="modal fade" id="modalAbout" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -1931,7 +1967,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal about end -->
+<!-- Modal connection settings start -->
   <div class="modal fade" id="modalConnection" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2039,7 +2076,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal connection settings end -->
+<!-- Modal save queue start -->
   <div class="modal fade" id="modalSaveQueue" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2083,7 +2121,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal save queue end -->
+<!-- Modal add to queue start -->
   <div class="modal fade" id="modalAddToQueue" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2126,7 +2165,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal add to queue end -->
+<!-- Modal song details start -->
   <div class="modal fade" id="modalSongDetails" tabindex="-1">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
@@ -2184,7 +2224,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal song details end -->
+<!-- Modal timer start -->
   <div class="modal fade" id="modalTimer" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2324,7 +2365,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal timer end -->
+<!-- Modal mounts start -->
   <div class="modal fade" id="modalMounts" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2387,7 +2429,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal mounts end -->
+<!-- Modal execute script start -->
   <div class="modal fade" id="modalExecScript" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2414,7 +2457,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal execute script end -->
+<!-- Modal scripts start -->
   <div class="modal fade" id="modalScripts" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2521,7 +2565,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal scripts end -->
+<!-- Modal partitions start -->
   <div class="modal fade" id="modalPartitions" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2568,7 +2613,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal partitions end -->
+<!-- Modal partition outputs start -->
   <div class="modal fade" id="modalPartitionOutputs" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2595,7 +2641,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal partition outputs end -->
+<!-- Modal output attributes start -->
   <div class="modal fade" id="modalOutputAttributes" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2623,7 +2670,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal output attributes end -->
+<!-- Modal picture start -->
   <div class="modal fade" id="modalPicture" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2637,7 +2685,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal picture end -->
+<!-- Modal trigger start -->
   <div class="modal fade" id="modalTrigger" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2711,7 +2760,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal trigger end -->
+<!-- Modal home icon start -->
   <div class="modal fade" id="modalEditHomeIcon" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2799,7 +2849,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal home icon end -->
+<!-- Modal confirm start -->
   <div class="modal fade" id="modalConfirm" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2817,7 +2868,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal confirm end -->
+<!-- Modal enter pin start -->
   <div class="modal fade" id="modalEnterPin" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2843,7 +2895,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal enter pin end -->
+<!-- Modal set song position start -->
   <div class="modal fade" id="modalSetSongPos" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2870,7 +2923,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal set song position end -->
+<!-- Modal set song priority start -->
   <div class="modal fade" id="modalSetSongPriority" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2895,7 +2949,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal set song priority end -->
+<!-- Modal maintenance start -->
   <div class="modal fade" id="modalMaintenance" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -2990,7 +3045,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal maintenance end -->
+<!-- Modal save radio favorite start -->
   <div class="modal fade" id="modalSaveRadioFavorite" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -3082,7 +3138,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal save radio favorite end -->
+<!-- Modal radiobrowser details start -->
   <div class="modal fade" id="modalRadiobrowserDetails" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
@@ -3110,7 +3167,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal radiobrowser details end -->
+<!-- Modal notifications start -->
   <div class="modal fade" id="modalNotifications" tabindex="-1">
     <div class="modal-dialog modal-lg modal-dialog-scrollable">
       <div class="modal-content">
@@ -3140,7 +3198,8 @@
       </div>
     </div>
   </div>
-
+<!-- Modal notifications end -->
+<!-- Modals end -->
 <!--debug-->  <script src="js/version.js"></script>
 <!--debug-->  <script src="js/long-press-event.js"></script>
 <!--debug-->  <script src="js/bootstrap-native.js"></script>
