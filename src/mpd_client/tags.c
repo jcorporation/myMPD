@@ -325,7 +325,6 @@ sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
  * Prints the tag values for an album as json string
  * @param buffer already allocated sds string to append the values
  * @param tagcols pointer to t_tags struct (tags to retrieve)
- * @param albumid the albumid from the album_cache
  * @param album pointer to a mpd_song struct representing the album
  * @return new sds pointer to buffer
  */

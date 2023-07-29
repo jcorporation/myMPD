@@ -196,7 +196,7 @@ void *free_search_expression_list(struct t_list *expr_list) {
  * Searches for a string in mpd tag values
  * @param song pointer to mpd song struct
  * @param expr_list expression list returned by parse_search_expression
- * @param browse_tag_types tags for special "any" tag in expression
+ * @param tag_types tags for special "any" tag in expression
  * @return expression result
  */
 bool search_song_expression(const struct mpd_song *song, const struct t_list *expr_list, const struct t_tags *tag_types) {
