@@ -589,8 +589,8 @@ function addWebRadiodbToHome(uri, type, name, image) {
 //eslint-disable-next-line no-unused-vars
 function addDirToHome(uri, name) {
     if(uri === undefined) {
-        uri = app.current.search;
-        name = basename(app.current.search, false);
+        uri = app.current.filter;
+        name = basename(app.current.filter, false);
     }
     _addHomeIcon('replaceQueue', name, 'folder_open', '', ['dir', uri]);
 }
