@@ -147,6 +147,14 @@ function parseSettings(obj) {
     }
     document.querySelector('html').setAttribute('data-bs-theme', setTheme);
 
+    //compact grids
+    if (settings.webuiSettings.uiCompactGrids === true) {
+        document.documentElement.style.setProperty('--mympd-card-footer-word-wrap', 'nowrap');
+    }
+    else {
+        document.documentElement.style.setProperty('--mympd-card-footer-word-wrap', 'unset');
+    }
+
     //background
     if (settings.webuiSettings.uiTheme === 'auto') {
         //in auto mode we set default background

@@ -23,6 +23,7 @@ Click song in queue
 Click webradio
 Click webradio favorite
 Comment
+Compact grids
 Composer
 ComposerSort
 Conductor

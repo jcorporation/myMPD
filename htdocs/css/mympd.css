@@ -42,6 +42,7 @@ body.mobile > footer > nav {
   --mympd-highlightcolor: var(--bs-green);
   --mympd-highlightcolor-contrast: var(--bs-light);
   --mympd-backgroundcolor: var(--bs-black);
+  --mympd-card-footer-word-wrap: nowrap;
   --bs-dropdown-divider-margin-y: 0.5rem;
   --bs-nav-link-padding-y: 0.5rem;
   --bs-nav-link-padding-x: 1rem;
@@ -500,9 +501,13 @@ div#homeActions {
 }
 
 .card-footer-grid {
+  white-space: var(--mympd-card-footer-word-wrap);
+  font-size: 0.9rem;
+}
+
+.card-footer-grid > * {
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 0.9rem;
 }
 
 .album-cover-grid {

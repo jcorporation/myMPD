@@ -794,6 +794,12 @@ const webuiSettingsDefault = {
         "title": "Quick remove button",
         "form": "appearanceSettingsFrm"
     },
+    "uiCompactGrids": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Compact grids",
+        "form": "appearanceSettingsFrm"
+    },
     "enableHome": {
         "defaultValue": true,
         "inputType": "checkbox",
