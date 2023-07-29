@@ -256,8 +256,10 @@ function toggleJukeboxSettings() {
     }
     else if (value === 'album') {
         elDisableId('inputJukeboxQueueLength');
+        document.getElementById('inputJukeboxQueueLength').value = '1';
         elDisableId('selectJukeboxPlaylist');
         elDisableId('btnJukeboxIgnoreHated');
+        toggleBtnChkId('btnJukeboxIgnoreHated', false);
         elDisable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
         document.getElementById('selectJukeboxPlaylist').value = 'Database';
         setDataId('selectJukeboxPlaylist', 'value', 'Database');

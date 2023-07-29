@@ -40,3 +40,7 @@ html[data-bs-theme="dark"] .form-range::-moz-range-track {
 html[data-bs-theme="dark"] .dropdown-menu {
   --bs-dropdown-header-color: var(--bs-gray-200);
 }
+
+html[data-bs-theme="dark"] .form-control:disabled {
+  background-color: var(--bs-gray-700);
+}
