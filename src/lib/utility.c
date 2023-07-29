@@ -262,7 +262,9 @@ sds resolv_mympd_uri(sds uri, sds mpd_host, struct t_config *config) {
  * @return address of the embedded webserver as sds string
  */
 static sds get_mympd_host(sds mpd_host, sds http_host) {
-    if (strcmp(http_host, "0.0.0.0") != 0) {
+    if (strcmp(http_host, "0.0.0.0") != 0 &&
+        strcmp(http_host, "[::]") != 0)
+    {
         //host defined in configuration
         return sdsdup(http_host);
     }
