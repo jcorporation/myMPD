@@ -286,3 +286,12 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
     app.last.tab = app.current.tab;
     app.last.view = app.current.view;
 }
+
+/**
+ * Emulates the browser back button
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function historyBack() {
+    history.back();
+}

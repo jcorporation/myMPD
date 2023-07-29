@@ -1217,6 +1217,18 @@ function setNavbarIcons() {
 
     const container = document.getElementById('navbar-main');
     elClear(container);
+
+    if (settings.webuiSettings.uiShowBackButton === true) {
+        container.appendChild(
+            elCreateNode('div', {"class": ["nav-item", "flex-fill", "text-center"]},
+                elCreateNode('a', {"data-title-phrase": "History back", "title": tn("History back"), "href": "#", "class": ["nav-link"]},
+                    elCreateText('span', {"class": ["mi"]}, "arrow_back_ios")
+                )
+            )
+        );
+        setData(container.firstElementChild.firstElementChild, 'href', {"cmd": "historyBack", "options": []});
+    }
+
     for (const icon of settings.navbarIcons) {
         const id = "nav" + icon.options.join('');
         const btn = elCreateEmpty('div', {"id": id, "class": ["nav-item", "flex-fill", "text-center"]});

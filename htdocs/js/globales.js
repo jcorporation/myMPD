@@ -800,6 +800,12 @@ const webuiSettingsDefault = {
         "title": "Compact grids",
         "form": "appearanceSettingsFrm"
     },
+    "uiShowBackButton": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Show back button",
+        "form": "appearanceThemeSettingsFrm"
+    },
     "enableHome": {
         "defaultValue": true,
         "inputType": "checkbox",
