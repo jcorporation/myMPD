@@ -10,19 +10,13 @@
  * @returns {void}
  */
 function handleQueueLastPlayed() {
-    setFocusId('searchQueueLastPlayedStr');
+    handleSearchExpression('QueueLastPlayed');
     sendAPI("MYMPD_API_LAST_PLAYED_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
         "cols": settings.colsQueueLastPlayedFetch,
-        "searchstr": app.current.search
+        "expression": app.current.search
     }, parseLastPlayed, true);
-    const searchQueueLastPlayedStrEl = document.getElementById('searchQueueLastPlayedStr');
-    if (searchQueueLastPlayedStrEl.value === '' &&
-        app.current.search !== '')
-    {
-        searchQueueLastPlayedStrEl.value = app.current.search;
-    }
 }
 
 /**
@@ -30,18 +24,6 @@ function handleQueueLastPlayed() {
  * @returns {void}
  */
 function initQueueLastPlayed() {
-    document.getElementById('searchQueueLastPlayedStr').addEventListener('keyup', function(event) {
-        if (ignoreKeys(event) === true) {
-            return;
-        }
-        clearSearchTimer();
-        const value = this.value;
-        searchTimer = setTimeout(function() {
-            appGoto(app.current.card, app.current.tab, app.current.view,
-                0, app.current.limit, app.current.filter, app.current.sort, '-', value);
-        }, searchTimerTimeout);
-    }, false);
-
     document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
         //select mode
         if (selectRow(event) === true) {
@@ -63,6 +45,8 @@ function initQueueLastPlayed() {
             clickSong(getData(target, 'uri'), event);
         }
     }, false);
+
+    initSearchExpression('QueueLastPlayed');
 }
 
 /**

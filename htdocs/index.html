@@ -257,12 +257,24 @@
               </div>
             </div>
           </div>
-          <form class="flex-grow-1">
-            <div class="input-group me-2">
-              <span class="input-group-text border-secondary bg-secondary mi">search</span>
-              <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="searchQueueLastPlayedStr"/>
+          <div class="input-group me-2 flex-grow-1">
+            <div class="btn-group">
+              <button data-title-phrase="Select tag to search" class="btn btn-secondary dropdown-toggle rounded-end-0" type="button" data-bs-toggle="dropdown">
+                <span class="mi">search</span>
+                <span data-phrase="AlbumArtist" id="QueueLastPlayedSearchTagsDesc"></span>
+              </button>
+              <div class="dropdown-menu px-2" id="QueueLastPlayedSearchTags"></div>
             </div>
-          </form>
+            <select class="form-select rounded-0 no-flex" id="QueueLastPlayedSearchMatch">
+              <option data-phrase="contains" value="contains"></option>
+              <option data-phrase="starts_with" value="starts_with"></option>
+              <option value="==">==</option>
+              <option value="=~">=~</option>
+              <option value="!=">!=</option>
+              <option value="!~">!~</option>
+            </select>
+            <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search" class="form-control rounded-end" id="QueueLastPlayedSearchStr"/>
+          </div>
           <div class="btn-group me-2 featHome">
             <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
           </div>
@@ -278,7 +290,7 @@
           </div>
           <div id="QueueLastPlayedPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
-
+        <ol class="breadcrumb p-2 rounded-2 d-none" id="QueueLastPlayedSearchCrumb"></ol>
         <div class="table-responsive scrollContainer">
           <table id="QueueLastPlayedList" class="table table-hover table-sm">
             <thead>

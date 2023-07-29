@@ -27,7 +27,7 @@
  */
 
 static sds get_last_played_obj(struct t_partition_state *partition_state, sds buffer, long entity_count,
-        long long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols);
+        long long last_played, const char *uri, struct t_list *expr_list, const struct t_tags *tagcols);
 
 /**
  * Public functions
@@ -152,12 +152,12 @@ bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, i
  * @param request_id jsonrpc request id
  * @param offset offset
  * @param limit max number of entries to return
- * @param searchstr string to search
+ * @param expression mpd search expression
  * @param tagcols columns to print
  * @return pointer to buffer
  */
 sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds buffer,
-        long request_id, long offset, long limit, sds searchstr, const struct t_tags *tagcols)
+        long request_id, long offset, long limit, sds expression, const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_LAST_PLAYED_LIST;
     long entity_count = 0;
@@ -169,12 +169,13 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
     sds obj = sdsempty();
 
     long real_limit = offset + limit;
+    struct t_list *expr_list = parse_search_expression_to_list(expression);
     // first get entries from memory
     if (offset < partition_state->last_played.length) {
         struct t_list_node *current = partition_state->last_played.head;
         while (current != NULL) {
             obj = get_last_played_obj(partition_state, obj, entity_count, current->value_i,
-                current->key, searchstr, tagcols);
+                current->key, expr_list, tagcols);
             if (sdslen(obj) > 0) {
                 if (entities_found >= offset) {
                     if (entities_returned++) {
@@ -210,7 +211,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
                 if (json_get_string_max(line, "$.uri", &uri, vcb_isfilepath, NULL) == true &&
                     json_get_llong_max(line, "$.LastPlayed", &last_played, NULL) == true)
                 {
-                    obj = get_last_played_obj(partition_state, obj, entity_count, last_played, uri, searchstr, tagcols);
+                    obj = get_last_played_obj(partition_state, obj, entity_count, last_played, uri, expr_list, tagcols);
                     FREE_SDS(uri);
                     if (sdslen(obj) > 0) {
                         if (entities_found >= offset) {
@@ -246,6 +247,7 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
         FREE_SDS(lp_file);
     }
     FREE_SDS(obj);
+    free_search_expression_list(expr_list);
     buffer = sdscatlen(buffer, "],", 2);
     buffer = tojson_long(buffer, "totalEntities", -1, true);
     buffer = tojson_long(buffer, "offset", offset, true);
@@ -266,17 +268,17 @@ sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds bu
  * @param entity_count position in the list
  * @param last_played songs last played time as unix timestamp
  * @param uri uri of the song
- * @param searchstr string to search
+ * @param expr_list list of search expressions
  * @param tagcols columns to print
  * @return pointer to buffer
  */
 static sds get_last_played_obj(struct t_partition_state *partition_state, sds buffer, long entity_count,
-        long long last_played, const char *uri, sds searchstr, const struct t_tags *tagcols)
+        long long last_played, const char *uri, struct t_list *expr_list, const struct t_tags *tagcols)
 {
     if (mpd_send_list_meta(partition_state->conn, uri)) {
         struct mpd_song *song;
         if ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-            if (search_mpd_song(song, searchstr, tagcols)) {
+            if (search_song_expression(song, expr_list, tagcols) == true) {
                 buffer = sdscat(buffer, "{\"Type\": \"song\",");
                 buffer = tojson_long(buffer, "Pos", entity_count, true);
                 buffer = tojson_llong(buffer, "LastPlayed", last_played, true);

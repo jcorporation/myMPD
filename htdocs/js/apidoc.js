@@ -539,7 +539,7 @@ const APImethods = {
             "offset": APIparams.offset,
             "limit": APIparams.limit,
             "cols": APIparams.cols,
-            "searchstr": APIparams.searchstr
+            "expression": APIparams.expression
         }
     },
     "MYMPD_API_PLAYLIST_RM": {
