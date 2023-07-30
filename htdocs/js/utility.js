@@ -238,39 +238,12 @@ function filetype(uri) {
  */
 //eslint-disable-next-line no-unused-vars
 function focusSearch() {
-    switch(app.id) {
-        case 'QueueCurrent':
-            document.getElementById('searchQueueStr').focus();
-            break;
-        case 'QueueLastPlayed':
-            document.getElementById('searchQueueLastPlayedStr').focus();
-            break;
-        case 'QueueJukebox':
-            document.getElementById('searchQueueJukeboxStr').focus();
-            break;
-        case 'BrowseDatabaseList':
-            document.getElementById('searchDatabaseStr').focus();
-            break;
-        case 'BrowseFilesystem':
-            document.getElementById('searchFilesystemStr').focus();
-            break;
-        case 'BrowsePlaylistList':
-            document.getElementById('searchPlaylistListStr').focus();
-            break;
-        case 'BrowsePlaylistDetail':
-            document.getElementById('searchPlaylistDetailStr').focus();
-            break;
-        case 'BrowseRadioWebradiodb':
-            document.getElementById('BrowseRadioWebradiodbSearchStr').focus();
-            break;
-        case 'BrowseRadioRadiobrowser':
-            document.getElementById('BrowseRadioRadiobrowserSearchStr').focus();
-            break;
-        case 'Search':
-            document.getElementById('searchStr').focus();
-            break;
-        default:
-            appGoto('Search');
+    const searchInput = document.getElementById(app.id + 'SearchStr');
+    if (searchInput !== null) {
+        searchInput.focus();
+    }
+    else {
+        appGoto('Search');
     }
 }
 
