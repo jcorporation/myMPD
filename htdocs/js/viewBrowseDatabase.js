@@ -79,22 +79,9 @@ function initBrowseDatabase() {
     }, false);
 
     document.getElementById('BrowseDatabaseAlbumListList').addEventListener('click', function(event) {
-        if (event.target.classList.contains('row')) {
-            return;
-        }
-        //select mode
-        if (selectCard(event) === true) {
-            return;
-        }
-        const target = event.target.closest('DIV');
-        if (target === null) {
-            return;
-        }
-        if (target.classList.contains('card-body')) {
+        const target = gridClickHandler(event);
+        if (target !== null) {
             appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, getData(target.parentNode, 'AlbumId'));
-        }
-        else if (target.classList.contains('card-footer')){
-            showContextMenu(event);
         }
     }, false);
 
@@ -110,6 +97,7 @@ function initBrowseDatabase() {
 
     document.getElementById('BrowseDatabaseAlbumListList').addEventListener('long-press', function(event) {
         if (event.target.classList.contains('row') ||
+            event.target.classList.contains('album-grid-mouseover') ||
             event.target.parentNode.classList.contains('not-clickable'))
         {
             return;

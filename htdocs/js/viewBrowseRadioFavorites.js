@@ -34,23 +34,10 @@ function initBrowseRadioFavorites() {
     }, false);
 
     document.getElementById('BrowseRadioFavoritesList').addEventListener('click', function(event) {
-        if (event.target.classList.contains('row')) {
-            return;
-        }
-        //select mode
-        if (selectCard(event) === true) {
-            return;
-        }
-        const target = event.target.closest('DIV');
-        if (target === null) {
-            return;
-        }
-        if (target.classList.contains('card-body')) {
-            const uri = getData(event.target.parentNode, 'uri');
+        const target = gridClickHandler(event);
+        if (target !== null) {
+            const uri = getData(target.parentNode, 'uri');
             clickRadioFavorites(uri, event);
-        }
-        else if (target.classList.contains('card-footer')) {
-            showContextMenu(event);
         }
     }, false);
 

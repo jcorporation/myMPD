@@ -20,14 +20,12 @@ function handleHome() {
 function initHome() {
     //home screen
     document.getElementById('HomeList').addEventListener('click', function(event) {
-        if (event.target.classList.contains('card-body')) {
-            const href = getData(event.target.parentNode, 'href');
+        const target = gridClickHandler(event);
+        if (target !== null) {
+            const href = getData(target.parentNode, 'href');
             if (href !== undefined) {
                parseCmd(event, href);
             }
-        }
-        else if (event.target.classList.contains('card-footer')){
-            showContextMenu(event);
         }
     }, false);
 

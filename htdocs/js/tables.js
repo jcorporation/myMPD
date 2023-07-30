@@ -1000,7 +1000,7 @@ function handleActionTdClick(event) {
  * Central table click handler.
  * Handles clicks on table header and body.
  * @param {MouseEvent} event the event to handle
- * @returns {HTMLElement} the event target to handle or null if it was handled or should not be handled
+ * @returns {HTMLElement} the event target (row) to handle or null if it was handled or should not be handled
  */
 function tableClickHandler(event) {
     if (event.target.nodeName === 'CAPTION') {

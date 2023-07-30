@@ -156,3 +156,28 @@ function showGridSelectionCount() {
         }
     }
 }
+
+/**
+ * Central grid click handler.
+ * Handles clicks on table header and body.
+ * @param {MouseEvent} event the event to handle
+ * @returns {HTMLElement} the event target (card-body) to handle or null if it was handled or should not be handled
+ */
+function gridClickHandler(event) {
+    if (event.target.classList.contains('row')) {
+        return null;
+    }
+    //select mode
+    if (selectCard(event) === true) {
+        return null;
+    }
+    const target = event.target.closest('DIV');
+    if (target === null) {
+        return null;
+    }
+    if (target.classList.contains('card-footer')){
+        showContextMenu(event);
+        return null;
+    }
+    return target;
+}
