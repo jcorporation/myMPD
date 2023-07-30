@@ -244,8 +244,8 @@ function parseState(obj) {
         uiEnabled === false)                                /* ui is disabled at startup */
     {
         if (document.getElementById('modalSettings').classList.contains('show') ||
-            document.getElementById('modalConnection').classList.contains('show') ||
-            document.getElementById('modalQueueSettings').classList.contains('show'))
+            document.getElementById('modalSettingsConnection').classList.contains('show') ||
+            document.getElementById('modalSettingsPlayback').classList.contains('show'))
         {
             //do not refresh settings, if a settings modal is open
             return;

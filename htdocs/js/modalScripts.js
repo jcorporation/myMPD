@@ -9,7 +9,7 @@
  * Initialization functions for the script elements
  * @returns {void}
  */
-function initScripts() {
+function initModalScripts() {
     document.getElementById('inputScriptArgument').addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
             event.preventDefault();

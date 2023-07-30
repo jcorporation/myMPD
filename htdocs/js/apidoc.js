@@ -1294,7 +1294,7 @@ const APImethods = {
                         "example": true,
                         "desc": "Enable media session support"
                     },
-                    "uiFooterQueueSettings": {
+                    "uiFooterSettingsPlayback": {
                         "type": APItypes.bool,
                         "example": true,
                         "desc": "Shows playback settings button in footer."

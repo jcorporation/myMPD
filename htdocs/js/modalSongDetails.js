@@ -9,7 +9,7 @@
  * Initialization function for song elements
  * @returns {void}
  */
-function initSongDetails() {
+function initModalSongDetails() {
     document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             if (event.target.id === 'calcFingerprint') {

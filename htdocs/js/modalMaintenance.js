@@ -3,13 +3,13 @@
 // myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @module maintenance_js */
+/** @module mmodalMaintenance_js */
 
 /**
  * Initializes the maintenance elements
  * @returns {void}
  */
-function initMaintenance() {
+function initModalMaintenance() {
     document.getElementById('modalMaintenance').addEventListener('shown.bs.modal', function () {
         document.getElementById('selectSetLoglevel').value = settings.loglevel;
         cleanupModalId('modalMaintenance');

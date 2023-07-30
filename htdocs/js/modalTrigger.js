@@ -9,7 +9,7 @@
  * Initialization function for trigger elements
  * @returns {void}
  */
-function initTrigger() {
+function initModalTrigger() {
     document.getElementById('listTriggerList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();

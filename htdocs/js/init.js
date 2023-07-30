@@ -75,6 +75,9 @@ function appInitStart() {
         }
     }, false);
 
+    // create pre-generated elements
+    createPreGeneratedElements();
+
     //webapp manifest shortcuts
     const params = new URLSearchParams(window.location.search);
     const action = params.get('action');
@@ -211,44 +214,45 @@ function appInit() {
         hidePopover();
     }, false);
     //init modules
-    initGlobalModals();
-    initSongDetails();
-    initViewHome();
     initBrowse();
-    initBrowseDatabase();
+    initContextMenuOffcanvas();
+    initGlobalModals();
+    initLocalPlayback();
+    initModalHomeIcon();
+    initModalMaintenance();
+    initModalMounts();
+    initModalNotifications();
+    initModalPartitions();
+    initModalPlaylistAddTo();
+    initModalQueueAddTo();
+    initModalQueueSave();
+    initModalRadioFavoriteEdit();
+    initModalSettings();
+    initModalSettingsConnection();
+    initModalSettingsPlayback();
+    initModalScripts();
+    initModalSetSongPriority();
+    initModalSongDetails();
+    initModalTimer();
+    initModalTrigger();
+    initNavs();
+    initOutputs();
+    initViewBrowseDatabase();
     initViewBrowseFilesystem();
     initViewBrowseRadioFavorites();
     initViewBrowseRadioRadiobrowser();
     initViewBrowseRadioWebradiodb();
+    initViewHome();
     initViewPlayback();
     initViewPlaylists();
+    initPresets();
+    initSelectActions();
+    initSession();
     initViewQueueCurrent();
     initViewQueueJukebox('QueueJukeboxSong');
     initViewQueueJukebox('QueueJukeboxAlbum');
     initViewQueueLastPlayed();
     initViewSearch();
-    initScripts();
-    initTrigger();
-    initTimer();
-    initPartitions();
-    initMounts();
-    initSettings();
-    initSettingsConnection();
-    initSettingsPlayback();
-    initMaintenance();
-    initNavs();
-    initOutputs();
-    initLocalPlayback();
-    initSession();
-    initNotifications();
-    initContextMenuOffcanvas();
-    initSelectActions();
-    initModalHomeIcon();
-    initModalAddToQueue();
-    initModalRadioFavoriteEdit();
-    initModalSaveQueue();
-    initModalSetSongPriority();
-    initModalPlaylistAddTo();
     //init drag and drop
     for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
         dragAndDropTable(table);

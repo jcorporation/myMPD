@@ -3,14 +3,14 @@
 // myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @module settingsConnection_js */
+/** @module modalSettingsConnection_js */
 
 /**
  * Initialization function for the connection settings elements
  * @returns {void}
  */
-function initSettingsConnection() {
-    initElements(document.getElementById('modalConnection'));
+function initModalSettingsConnection() {
+    initElements(document.getElementById('modalSettingsConnection'));
 
     document.getElementById('selectMusicDirectory').addEventListener('change', function () {
         const musicDirMode = getSelectValue(this);
@@ -44,9 +44,9 @@ function initSettingsConnection() {
         }
     }, false);
 
-    document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
+    document.getElementById('modalSettingsConnection').addEventListener('shown.bs.modal', function () {
         getSettings();
-        cleanupModalId('modalConnection');
+        cleanupModalId('modalSettingsConnection');
     });
 }
 
@@ -56,7 +56,7 @@ function initSettingsConnection() {
  */
 //eslint-disable-next-line no-unused-vars
 function saveConnection() {
-    cleanupModalId('modalConnection');
+    cleanupModalId('modalSettingsConnection');
     let formOK = true;
     const mpdHostEl = document.getElementById('inputMpdHost');
     const mpdPortEl = document.getElementById('inputMpdPort');
@@ -141,7 +141,7 @@ function saveConnectionClose(obj) {
     }
     else {
         getSettings();
-        uiElements.modalConnection.hide();
+        uiElements.modalSettingsConnection.hide();
     }
 }
 

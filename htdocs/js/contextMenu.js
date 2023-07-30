@@ -118,7 +118,7 @@ function addMenuItemsNavbarActions(target, popoverBody) {
     const type = target.getAttribute('data-contextmenu');
     switch(type) {
         case 'NavbarPlayback':
-            addMenuItem(popoverBody, {"cmd": "openModal", "options": ["modalQueueSettings"]}, 'Playback settings');
+            addMenuItem(popoverBody, {"cmd": "openModal", "options": ["modalSettingsPlayback"]}, 'Playback settings');
             addDivider(popoverBody);
             addMenuItemsSingleActions(popoverBody);
             addMenuItemsConsumeActions(popoverBody);

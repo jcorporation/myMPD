@@ -9,7 +9,7 @@
  * Initialization function for the partition elements
  * @returns {void}
  */
-function initPartitions() {
+function initModalPartitions() {
     document.getElementById('listPartitionsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();

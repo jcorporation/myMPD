@@ -9,7 +9,7 @@
  * Initializes the modalQueueAddTo
  * @returns {void}
  */
-function initModalAddToQueue() {
+function initModalQueueAddTo() {
     document.getElementById('selectAddToQueueMode').addEventListener('change', function() {
         const value = Number(getSelectValue(this));
         if (value === 2) {

@@ -88,6 +88,10 @@ const ligatures = {
     'unchecked': 'radio_button_unchecked'
 };
 
+// pre-generated elements
+/** @type {object} */
+const pEl = {};
+
 /** @type {string} */
 const smallSpace = '\u2009';
 
@@ -733,7 +737,7 @@ const webuiSettingsDefault = {
         "form": "NotificationSettingsFrm",
         "warn": "Browser has no MediaSession support"
     },
-    "uiFooterQueueSettings": {
+    "uiFooterSettingsPlayback": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Show playback settings in footer",
@@ -983,7 +987,7 @@ const keymap = {
         "i": {"order": 9, "cmd": "togglePlaymode", "options": ["single"], "desc": "Toggle single mode"},
     "modals": {"order": 200, "desc": "Dialogs"},
         "A": {"order": 201, "cmd": "showAddToPlaylist", "options": ["stream", []], "desc": "Add stream"},
-        "C": {"order": 202, "cmd": "openModal", "options": ["modalConnection"], "desc": "Open MPD connection"},
+        "C": {"order": 202, "cmd": "openModal", "options": ["modalSettingsConnection"], "desc": "Open MPD connection"},
         "G": {"order": 207, "cmd": "openModal", "options": ["modalTrigger"], "desc": "Open trigger", "feature": "featTrigger"},
         "I": {"order": 207, "cmd": "openModal", "options": ["modalTimer"], "desc": "Open timer", "feature": "featTimer"},
         "L": {"order": 207, "cmd": "loginOrLogout", "options": [], "desc": "Login or logout", "feature": "featSession"},
@@ -991,7 +995,7 @@ const keymap = {
         "N": {"order": 206, "cmd": "openModal", "options": ["modalNotifications"], "desc": "Open notifications"},
         "O": {"order": 207, "cmd": "openModal", "options": ["modalMounts"], "desc": "Open mounts", "feature": "featMounts"},
         "P": {"order": 207, "cmd": "openModal", "options": ["modalPartitions"], "desc": "Open partitions", "feature": "featPartitions"},
-        "Q": {"order": 203, "cmd": "openModal", "options": ["modalQueueSettings"], "desc": "Open queue settings"},
+        "Q": {"order": 203, "cmd": "openModal", "options": ["modalSettingsPlayback"], "desc": "Open queue settings"},
         "S": {"order": 207, "cmd": "showListScriptModal", "options": [], "desc": "Open scripts", "feature": "featScripting"},
         "T": {"order": 204, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
         "?": {"order": 207, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},

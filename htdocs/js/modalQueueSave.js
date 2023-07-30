@@ -9,7 +9,7 @@
  * Initializes the modalQueueSave
  * @returns {void}
  */
-function initModalSaveQueue() {
+function initModalQueueSave() {
     document.getElementById('modalQueueSave').addEventListener('shown.bs.modal', function() {
         const plName = document.getElementById('saveQueueName');
         setFocus(plName);

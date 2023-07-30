@@ -3,17 +3,17 @@
 // myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @module settingsPlayback_js */
+/** @module modalSettingsPlayback_js */
 
 /**
  * Initialization function for the playback settings elements
  * @returns {void}
  */
-function initSettingsPlayback() {
-    initElements(document.getElementById('modalQueueSettings'));
+function initModalSettingsPlayback() {
+    initElements(document.getElementById('modalSettingsPlayback'));
 
-    document.getElementById('modalQueueSettings').addEventListener('shown.bs.modal', function () {
-        cleanupModalId('modalQueueSettings');
+    document.getElementById('modalSettingsPlayback').addEventListener('shown.bs.modal', function () {
+        cleanupModalId('modalSettingsPlayback');
         getSettings();
     });
 
@@ -45,73 +45,6 @@ function initSettingsPlayback() {
             deletePreset(event.target, getData(event.target.parentNode.parentNode, 'name'));
         }
     }, false);
-
-    for (let i = 1; i <= 3; i++) {
-        document.getElementById('selectPresetDropdown' + i).addEventListener('click', function(event) {
-            event.preventDefault();
-            if (event.target.nodeName === 'BUTTON') {
-                loadPreset(event.target.textContent);
-                const d = event.target.parentNode.parentNode.previousElementSibling;
-                BSN.Dropdown.getInstance(d).hide();
-            }
-        }, false);
-    }
-}
-
-/**
- * Loads a preset
- * @param {string} name preset name to load
- * @returns {void}
- */
-function loadPreset(name) {
-    sendAPI("MYMPD_API_PRESET_LOAD", {
-        "name": name
-    }, loadPresetCheckError, true);
-}
-
-/**
- * Handler for the MYMPD_API_PRESET_LOAD jsonrpc response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
- function loadPresetCheckError(obj) {
-    if (obj.error) {
-        if (getOpenModal() !== null) {
-            showModalAlert(obj);
-        }
-    }
-    else {
-        getSettings();
-    }
-}
-
-/**
- * Deletes a preset
- * @param {EventTarget} el triggering element
- * @param {string} name the preset name
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function deletePreset(el, name) {
-    showConfirmInline(el.parentNode.previousSibling, tn('Do you really want to delete the preset?'), tn('Yes, delete it'), function() {
-        sendAPI("MYMPD_API_PRESET_RM", {
-            "name": name
-        }, deletePresetCheckError, true);
-    });
-}
-
-/**
- * Handler for the MYMPD_API_PRESET_RM jsonrpc response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
- function deletePresetCheckError(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
-        getSettings();
-    }
 }
 
 /**
@@ -133,35 +66,6 @@ function populateListPresets() {
         presetsList.appendChild(emptyRow(2));
     }
     populatePresetDropdowns();
-}
-
-/**
- * Populates the preset dropdowns
- * @returns {void}
- */
-function populatePresetDropdowns() {
-    const presetDropdowns = [
-        document.getElementById('selectPresetDropdown1').lastElementChild,
-        document.getElementById('selectPresetDropdown2').lastElementChild,
-        document.getElementById('selectPresetDropdown3').lastElementChild
-    ];
-    const selectTimerPreset = document.getElementById('selectTimerPreset');
-    for (const d of presetDropdowns) {
-        elClear(d);
-    }
-    elClear(selectTimerPreset);
-    selectTimerPreset.appendChild(
-        elCreateTextTn('option', {"value": ""}, 'No preset')
-    );
-    for (const preset of settings.partition.presets) {
-        const a = elCreateText('button', {"type":"button", "class": ["btn", "btn-secondary", "btn-sm"]}, preset);
-        for (const d of presetDropdowns) {
-            d.appendChild(a.cloneNode(true));
-        }
-        selectTimerPreset.appendChild(
-            elCreateText('option', {"value": preset}, preset)
-        );
-    }
 }
 
 /**
@@ -296,7 +200,7 @@ function createPresetsListRow(preset) {
  * Populates the playback settings modal
  * @returns {void}
  */
-function populateQueueSettingsFrm() {
+function populateSettingsPlaybackFrm() {
     toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.partition.jukeboxMode);
     addTagListSelect('selectJukeboxUniqueTag', 'tagListBrowse');
 
@@ -344,8 +248,8 @@ function populateQueueSettingsFrm() {
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function saveQueueSettings() {
-    cleanupModalId('modalQueueSettings');
+function saveSettingsPlayback() {
+    cleanupModalId('modalSettingsPlayback');
     let formOK = true;
 
     for (const inputId of ['inputCrossfade', 'inputJukeboxQueueLength', 'inputJukeboxLastPlayed']) {
@@ -394,8 +298,8 @@ function saveQueueSettings() {
             "jukeboxIgnoreHated": getBtnChkValueId('btnJukeboxIgnoreHated'),
             "autoPlay": getBtnChkValueId('btnAutoPlay')
         };
-        btnWaitingId('btnSaveQueueSettings', true);
-        sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", params, saveQueueSettingsClose, true);
+        btnWaitingId('btnSaveSettingsPlayback', true);
+        sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", params, saveSettingsPlaybackClose, true);
     }
 }
 
@@ -404,12 +308,12 @@ function saveQueueSettings() {
  * @param {object} obj jsonrpc response
  * @returns {void}
  */
-function saveQueueSettingsClose(obj) {
-    btnWaitingId('btnSaveQueueSettings', false);
+function saveSettingsPlaybackClose(obj) {
+    btnWaitingId('btnSaveSettingsPlayback', false);
     if (obj.error) {
         showModalAlert(obj);
     }
     else {
-        uiElements.modalQueueSettings.hide();
+        uiElements.modalSettingsPlayback.hide();
     }
 }

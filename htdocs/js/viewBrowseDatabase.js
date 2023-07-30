@@ -58,7 +58,7 @@ function handleBrowseDatabaseAlbumDetail() {
  * Initializes the browse database elements
  * @returns {void}
  */
-function initBrowseDatabase() {
+function initViewBrowseDatabase() {
     document.getElementById('BrowseDatabaseTagListList').addEventListener('click', function(event) {
         if (event.target.classList.contains('row')) {
             return;
@@ -425,7 +425,7 @@ function backToAlbumGrid() {
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function addAlbum(action) {
+function currentAlbumAdd(action) {
     switch(action) {
         case 'appendQueue':
             appendQueue('album', [app.current.filter]);
@@ -451,36 +451,5 @@ function addAlbum(action) {
             addAlbumToHome(app.current.filter, name, (images.length > 0 ? images[0]: ''));
             break;
         }
-    }
-}
-
-/**
- * Handles single disc actions
- * @param {string} action action to perform
- * @param {string} albumId the album id
- * @param {string} disc disc number as string
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function addAlbumDisc(action, albumId, disc) {
-    switch(action) {
-        case 'appendQueue':
-            appendQueue('disc', [albumId, disc]);
-            break;
-        case 'appendPlayQueue':
-            appendPlayQueue('disc', [albumId, disc]);
-            break;
-        case 'insertAfterCurrentQueue':
-            insertAfterCurrentQueue('disc', [albumId, disc]);
-            break;
-        case 'replaceQueue':
-            replaceQueue('disc', [albumId, disc]);
-            break;
-        case 'replacePlayQueue':
-            replacePlayQueue('disc', [albumId, disc]);
-            break;
-        case 'addPlaylist':
-            showAddToPlaylist('disc', [albumId, disc]);
-            break;
     }
 }

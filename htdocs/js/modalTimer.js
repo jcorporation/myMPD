@@ -9,7 +9,7 @@
  * Initialization function for the timer elements
  * @returns {void}
  */
-function initTimer() {
+function initModalTimer() {
     document.getElementById('listTimerList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();

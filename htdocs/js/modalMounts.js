@@ -9,7 +9,7 @@
  * Initializes the mounts related elements
  * @returns {void}
  */
-function initMounts() {
+function initModalMounts() {
     document.getElementById('listMountsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
