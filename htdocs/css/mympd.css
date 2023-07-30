@@ -535,20 +535,33 @@ div.card-toolbar > div {
   src: url("../assets/MaterialIcons-Regular.woff2") format("woff2");
 }
 
-.mi {
+.mi,
+.sort-dir::before,
+a.external::before,
+a.download::before,
+a.launch::before,
+body.locked button.protected::before,
+div.alert-warning::before,
+div.alert-danger::before,
+div.alert-secondary::before,
+div.alert-success::before,
+h4.offcanvas-title::before {
   font-family: "Material Icons";
   font-weight: normal;
   font-style: normal;
-  font-size: 1.4rem;
-  line-height: 1;
   text-transform: none;
   letter-spacing: normal;
   word-wrap: normal;
   white-space: nowrap;
   direction: ltr;
-  vertical-align: top;
   text-rendering: optimizelegibility;
   font-feature-settings: "liga";
+}
+
+.mi {
+  font-size: 1.4rem;
+  line-height: 1;
+  vertical-align: top;
 }
 
 .mi-sm {
@@ -883,34 +896,16 @@ input[type="color"] {
 body.locked button.protected::before {
   content: "lock";
   float: left;
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
   font-size: 1.4rem;
   line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  vertical-align: top;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
   margin-right: 0.5rem;
 }
 
 a.external::before,
 a.download::before,
 a.launch::before {
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
   font-size: 1.4rem;
   line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  vertical-align: top;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
   margin-right: 0.5rem;
 }
 
@@ -962,16 +957,8 @@ button.select-inner-button {
 }
 
 .sort-dir::before {
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
   font-size: 1.2rem;
   line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
 }
 
 .sort-asc::before {
@@ -991,16 +978,8 @@ div.alert-danger::before,
 div.alert-secondary::before,
 div.alert-success::before {
   float: left;
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
   font-size: 1.4rem;
   line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
   margin-right: 0.5rem;
 }
 
@@ -1165,16 +1144,8 @@ body[data-uiState="disabled"] th,
 }
 
 h4.offcanvas-title::before {
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
   font-size: 1.4rem;
   line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
   margin-right: 0.5rem;
 }
 
