@@ -59,6 +59,7 @@ option(MYMPD_ENABLE_LUA "Enables lua support, default ON" "ON")
 option(MYMPD_MANPAGES "Creates and installs manpages" "ON")
 option(MYMPD_MINIMAL "Enables minimal myMPD build, disables all MYMPD_ENABLE_* flags" "OFF")
 option(MYMPD_STRIP_BINARY "Enables stripping the binaries for Release, default ON" "ON")
+option(MYMPD_STARTUP_SCRIPT "Installs the startup script, default ON" "ON")
 
 if(MYMPD_MINIMAL)
   set(MYMPD_ENABLE_FLAC "OFF")

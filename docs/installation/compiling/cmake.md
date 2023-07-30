@@ -32,6 +32,7 @@ sudo make -C build install
 | MYMPD_MANPAGES | ON | Creates and installs manpages |
 | MYMPD_MINIMAL | OFF | Enables minimal myMPD build, disables all MYMPD_ENABLE_* flags |
 | MYMPD_STRIP_BINARY | ON | Enables stripping the binaries for Release |
+| MYMPD_STARTUP_SCRIPT | ON | Installs the startup script |
 {: .table .table-sm}
 
 ## cmake build types
