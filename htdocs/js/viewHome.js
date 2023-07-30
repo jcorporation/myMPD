@@ -29,22 +29,6 @@ function initHome() {
         }
     }, false);
 
-    document.getElementById('HomeList').addEventListener('contextmenu', function(event) {
-        if (event.target.classList.contains('card-body') ||
-            event.target.classList.contains('card-footer'))
-        {
-            showContextMenu(event);
-        }
-    }, false);
-
-    document.getElementById('HomeList').addEventListener('long-press', function(event) {
-        if (event.target.classList.contains('card-body') ||
-            event.target.classList.contains('card-footer'))
-        {
-            showContextMenu(event);
-        }
-    }, false);
-
     dragAndDropHome();
 
     //modals

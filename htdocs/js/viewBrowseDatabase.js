@@ -85,26 +85,6 @@ function initBrowseDatabase() {
         }
     }, false);
 
-    document.getElementById('BrowseDatabaseAlbumListList').addEventListener('contextmenu', function(event) {
-        if (event.target.classList.contains('row') ||
-            event.target.classList.contains('album-grid-mouseover') ||
-            event.target.parentNode.classList.contains('not-clickable'))
-        {
-            return;
-        }
-        showContextMenu(event);
-    }, false);
-
-    document.getElementById('BrowseDatabaseAlbumListList').addEventListener('long-press', function(event) {
-        if (event.target.classList.contains('row') ||
-            event.target.classList.contains('album-grid-mouseover') ||
-            event.target.parentNode.classList.contains('not-clickable'))
-        {
-            return;
-        }
-        showContextMenu(event);
-    }, false);
-
     document.getElementById('BrowseDatabaseAlbumDetailList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {

@@ -40,24 +40,6 @@ function initBrowseRadioFavorites() {
             clickRadioFavorites(uri, event);
         }
     }, false);
-
-    document.getElementById('BrowseRadioFavoritesList').addEventListener('contextmenu', function(event) {
-        if (event.target.classList.contains('row') ||
-            event.target.parentNode.classList.contains('not-clickable'))
-        {
-            return;
-        }
-        showContextMenu(event);
-    }, false);
-
-    document.getElementById('BrowseRadioFavoritesList').addEventListener('long-press', function(event) {
-        if (event.target.classList.contains('row') ||
-            event.target.parentNode.classList.contains('not-clickable'))
-        {
-            return;
-        }
-        showContextMenu(event);
-    }, false);
 }
 
 /**

@@ -341,6 +341,26 @@ function appInit() {
             showContextMenu(event);
         }, false);
     }
+    //contextmenu for grids
+    const grids = ['HomeList', 'BrowseDatabaseAlbumListList', 'BrowseRadioFavoritesList'];
+    for (const gridId of grids) {
+        const gridEl = document.querySelector('#' + gridId);
+        gridEl.addEventListener('contextmenu', function(event) {
+            if (event.target.classList.contains('card-body') ||
+                event.target.classList.contains('card-footer'))
+            {
+                showContextMenu(event);
+            }
+        }, false);
+    
+        gridEl.addEventListener('long-press', function(event) {
+            if (event.target.classList.contains('card-body') ||
+                event.target.classList.contains('card-footer'))
+            {
+                showContextMenu(event);
+            }
+        }, false);
+    }
 
     //websocket
     window.addEventListener('beforeunload', function() {
