@@ -35,8 +35,8 @@ function handleSearch() {
         const SearchListEl = document.getElementById('SearchList');
         elClear(SearchListEl.querySelector('tbody'));
         elClear(SearchListEl.querySelector('tfoot'));
-        elDisableId('searchAddAllSongs');
-        elDisableId('searchAddAllSongsBtn');
+        elDisableId('SearchAddAllSongsBtn');
+        elDisableId('SearchAddAllSongsDropdownBtn');
         unsetUpdateViewId('SearchList');
         setPagination(0, 0);
     }
@@ -72,12 +72,12 @@ function parseSearch(obj) {
     }
 
     if (obj.result.returnedEntities > 0) {
-        elEnableId('searchAddAllSongs');
-        elEnableId('searchAddAllSongsBtn');
+        elEnableId('SearchAddAllSongsBtn');
+        elEnableId('SearchAddAllSongsDropdownBtn');
     }
     else {
-        elDisableId('searchAddAllSongs');
-        elDisableId('searchAddAllSongsBtn');
+        elDisableId('SearchAddAllSongsBtn');
+        elDisableId('SearchAddAllSongsDropdownBtn');
     }
 
     const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];

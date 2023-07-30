@@ -28,7 +28,7 @@ function handlePlayback() {
         }
     }, false);
 
-    document.getElementById('cardPlaybackTags').addEventListener('click', function(event) {
+    document.getElementById('PlaybackListTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'P' ||
             event.target.nodeName === 'SPAN')
         {
@@ -56,7 +56,7 @@ function parseCurrentSong(obj) {
     mediaSessionSetMetadata(obj.result.Title, obj.result.Artist, obj.result.Album, obj.result.uri);
     setCurrentCover(obj.result.uri);
 
-    for (const elName of ['footerArtist', 'footerAlbum', 'footerCover', 'currentTitle']) {
+    for (const elName of ['footerArtist', 'footerAlbum', 'footerCover', 'PlaybackTitle']) {
         document.getElementById(elName).classList.remove('clickable');
     }
 
@@ -105,25 +105,25 @@ function parseCurrentSong(obj) {
 
     const footerTitleEl = document.getElementById('footerTitle');
     const footerCoverEl = document.getElementById('footerCover');
-    const currentTitleEl = document.getElementById('currentTitle');
+    const PlaybackTitleEl = document.getElementById('PlaybackTitle');
     if (isEmptyTag(obj.result.Title) === false) {
         pageTitle.push(obj.result.Title);
-        currentTitleEl.textContent = obj.result.Title;
-        setData(currentTitleEl, 'uri', obj.result.uri);
+        PlaybackTitleEl.textContent = obj.result.Title;
+        setData(PlaybackTitleEl, 'uri', obj.result.uri);
         footerTitleEl.textContent = obj.result.Title;
         footerCoverEl.classList.add('clickable');
     }
     else {
         if (currentState.songPos === -1) {
-            currentTitleEl.textContent = tn('Not playing');
+            PlaybackTitleEl.textContent = tn('Not playing');
             footerTitleEl.textContent = tn('Not playing');
         }
         else {
-            elClear(currentTitleEl);
+            elClear(PlaybackTitleEl);
             elClear(footerTitleEl);
         }
-        setData(currentTitleEl, 'uri', '');
-        currentTitleEl.classList.remove('clickable');
+        setData(PlaybackTitleEl, 'uri', '');
+        PlaybackTitleEl.classList.remove('clickable');
         footerTitleEl.classList.remove('clickable');
         footerCoverEl.classList.remove('clickable');
     }
@@ -134,20 +134,20 @@ function parseCurrentSong(obj) {
         isStreamUri(obj.result.uri) === false)
     {
         footerTitleEl.classList.add('clickable');
-        currentTitleEl.classList.add('clickable');
+        PlaybackTitleEl.classList.add('clickable');
     }
     else {
         footerTitleEl.classList.remove('clickable');
-        currentTitleEl.classList.remove('clickable');
+        PlaybackTitleEl.classList.remove('clickable');
     }
 
     if (obj.result.uri !== undefined) {
         obj.result['Filetype'] = filetype(obj.result.uri);
-        elEnableId('addCurrentSongToPlaylist');
+        elEnableId('PlaybackAddToPlaylist');
     }
     else {
         obj.result['Filetype'] = '';
-        elDisableId('addCurrentSongToPlaylist');
+        elDisableId('PlaybackAddToPlaylist');
     }
 
     if (features.featStickers === true) {
@@ -156,7 +156,7 @@ function parseCurrentSong(obj) {
 
     setPlaybackCardTags(obj.result);
 
-    const bookletEl = document.getElementById('currentBooklet');
+    const bookletEl = document.getElementById('PlaybackBooklet');
     elClear(bookletEl);
     if (obj.result.bookletPath !== '' &&
         obj.result.bookletPath !== undefined &&
@@ -206,8 +206,8 @@ function parseCurrentSong(obj) {
  */
 function setPlaybackCardTags(songObj) {
     if (songObj.webradio === undefined) {
-        elHideId('cardPlaybackWebradio');
-        elShowId('cardPlaybackTags');
+        elHideId('PlaybackListWebradio');
+        elShowId('PlaybackListTags');
         for (const col of settings.colsPlayback) {
             const c = document.getElementById('current' + col);
             if (c === null) {
@@ -250,35 +250,35 @@ function setPlaybackCardTags(songObj) {
     }
     else {
         //webradio info
-        const cardPlaybackWebradio = document.getElementById('cardPlaybackWebradio');
-        elShow(cardPlaybackWebradio);
-        elHideId('cardPlaybackTags');
+        const PlaybackListWebradio = document.getElementById('PlaybackListWebradio');
+        elShow(PlaybackListWebradio);
+        elHideId('PlaybackListTags');
 
         const webradioName = elCreateText('p', {"href": "#", "class": ["clickable"]}, songObj.webradio.Name);
         setData(webradioName, 'href', {"cmd": "editRadioFavorite", "options": [songObj.webradio.filename]});
         webradioName.addEventListener('click', function(event) {
             parseCmd(event, getData(event.target, 'href'));
         }, false);
-        elReplaceChild(cardPlaybackWebradio,
+        elReplaceChild(PlaybackListWebradio,
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
                 elCreateTextTn('small', {}, 'Webradio'),
                 webradioName
             ])
         );
-        cardPlaybackWebradio.appendChild(
+        PlaybackListWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
                 elCreateTextTn('small', {}, 'Genre'),
                 elCreateText('p', {}, songObj.webradio.Genre)
             ])
         );
-        cardPlaybackWebradio.appendChild(
+        PlaybackListWebradio.appendChild(
             elCreateNodes('div', {"class": ["col-xl-6"]}, [
                 elCreateTextTn('small', {}, 'Country'),
                 elCreateText('p', {}, songObj.webradio.Country + smallSpace + nDash + smallSpace + songObj.webradio.Language)
             ])
         );
         if (songObj.webradio.Homepage !== '') {
-            cardPlaybackWebradio.appendChild(
+            PlaybackListWebradio.appendChild(
                 elCreateNodes('div', {"class": ["col-xl-6"]}, [
                     elCreateTextTn('small', {}, 'Homepage'),
                     elCreateNode('p', {}, 
@@ -290,7 +290,7 @@ function setPlaybackCardTags(songObj) {
         if (songObj.webradio.Codec !== '' &&
             songObj.webradio.Codec !== undefined)
         {
-            cardPlaybackWebradio.appendChild(
+            PlaybackListWebradio.appendChild(
                 elCreateNodes('div', {"class": ["col-xl-6"]}, [
                     elCreateTextTn('small', {}, 'Format'),
                     elCreateText('p', {}, songObj.webradio.Codec + 
@@ -303,7 +303,7 @@ function setPlaybackCardTags(songObj) {
             );
         }
         if (songObj.webradio.Description !== '') {
-            cardPlaybackWebradio.appendChild(
+            PlaybackListWebradio.appendChild(
                 elCreateNodes('div', {"class": ["col-xl-6"]}, [
                     elCreateTextTn('small', {}, 'Description'),
                     elCreateText('p', {}, songObj.webradio.Description)
@@ -314,12 +314,12 @@ function setPlaybackCardTags(songObj) {
 }
 
 /**
- * Handler for the currentTitle element click event
+ * Handler for the PlaybackTitle element click event
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function clickTitle() {
-    const uri = getDataId('currentTitle', 'uri');
+    const uri = getDataId('PlaybackTitle', 'uri');
     if (isValidUri(uri) === true &&
         isStreamUri(uri) === false)
     {
@@ -333,8 +333,53 @@ function clickTitle() {
  */
 //eslint-disable-next-line no-unused-vars
 function showAddToPlaylistCurrentSong() {
-    const uri = getDataId('currentTitle', 'uri');
+    const uri = getDataId('PlaybackTitle', 'uri');
     if (uri !== '') {
         showAddToPlaylist('song', [uri]);
+    }
+}
+
+/**
+ * Sets the state of the song vote button group
+ * @param {number} vote the vote 0 = hate, 1 = neutral, 2 = love
+ * @param {string} uri song uri
+ * @returns {void}
+ */
+function setVoteSongBtns(vote, uri) {
+    if (uri === undefined) {
+        uri = '';
+    }
+
+    const btnLove = document.getElementById('PlaybackSongLoveBtn');
+    const btnHate = document.getElementById('PlaybackSongHateBtn');
+
+    if (isValidUri(uri) === false ||
+        isStreamUri(uri) === true)
+    {
+        elDisable(btnLove);
+        elDisable(btnHate);
+        elDisable(btnLove.parentNode);
+        btnLove.classList.remove('active');
+        btnHate.classList.remove('active');
+    }
+    else {
+        elEnable(btnLove);
+        elEnable(btnHate);
+        elEnable(btnLove.parentNode);
+    }
+
+    switch(vote) {
+        case 0:
+            btnLove.classList.remove('active');
+            btnHate.classList.add('active');
+            break;
+        case 2:
+            btnLove.classList.add('active');
+            btnHate.classList.remove('active');
+            break;
+        default:
+            btnLove.classList.remove('active');
+            btnHate.classList.remove('active');
+            break;
     }
 }

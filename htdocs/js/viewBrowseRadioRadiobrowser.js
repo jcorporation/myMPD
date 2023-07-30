@@ -11,9 +11,9 @@
  */
 function handleBrowseRadioRadiobrowser() {
     setFocusId('BrowseRadioRadiobrowserSearchStr');
-    document.getElementById('inputRadiobrowserTags').value = app.current.filter['tags'];
-    document.getElementById('inputRadiobrowserCountry').value = app.current.filter['country'];
-    document.getElementById('inputRadiobrowserLanguage').value = app.current.filter['language'];
+    document.getElementById('BrowseRadioRadiobrowserTagsInput').value = app.current.filter['tags'];
+    document.getElementById('BrowseRadioRadiobrowserCountryInput').value = app.current.filter['country'];
+    document.getElementById('BrowseRadioRadiobrowserLanguageInput').value = app.current.filter['language'];
     if (app.current.search === '') {
         sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_NEWEST", {
             "offset": app.current.offset,
@@ -92,9 +92,9 @@ function countClickRadiobrowser(uuid) {
  * @returns {void}
  */
 function searchRadiobrowser() {
-    app.current.filter['tags'] = document.getElementById('inputRadiobrowserTags').value;
-    app.current.filter['country'] = document.getElementById('inputRadiobrowserCountry').value;
-    app.current.filter['language'] = document.getElementById('inputRadiobrowserLanguage').value;
+    app.current.filter['tags'] = document.getElementById('BrowseRadioRadiobrowserTagsInput').value;
+    app.current.filter['country'] = document.getElementById('BrowseRadioRadiobrowserCountryInput').value;
+    app.current.filter['language'] = document.getElementById('BrowseRadioRadiobrowserLanguageInput').value;
     appGoto(app.current.card, app.current.tab, app.current.view,
         0, app.current.limit, app.current.filter, '-', '-', document.getElementById('BrowseRadioRadiobrowserSearchStr').value);
 }

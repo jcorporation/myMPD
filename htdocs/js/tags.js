@@ -49,7 +49,7 @@ function addTagList(elId, list) {
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "filename"}, 'Filename')
         );
     }
-    if (elId === 'searchDatabaseAlbumListTags') {
+    if (elId === 'BrowseDatabaseAlbumListSearchTags') {
         stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "any"}, 'Any Tag')
         );
@@ -59,11 +59,11 @@ function addTagList(elId, list) {
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": settings[list][i]}, settings[list][i])
         );
     }
-    if (elId === 'BrowseNavFilesystemDropdown' ||
-        elId === 'BrowseNavPlaylistDropdown' ||
-        elId === 'BrowseNavRadioFavoritesDropdown' ||
-        elId === 'BrowseNavWebradiodbDropdown' ||
-        elId === 'BrowseNavRadiobrowserDropdown')
+    if (elId === 'BrowseFilesystemNavDropdown' ||
+        elId === 'BrowsePlaylistListNavDropdown' ||
+        elId === 'BrowseRadioFavoritesNavDropdown' ||
+        elId === 'BrowseRadioWebradiodbNavDropdown' ||
+        elId === 'BrowseRadioRadiobrowserNavDropdown')
     {
         if (features.featTags === true) {
             elClear(stack);
@@ -74,11 +74,11 @@ function addTagList(elId, list) {
     }
     if (elId === 'BrowseDatabaseAlbumListTagDropdown' ||
         elId === 'BrowseDatabaseTagListTagDropdown' ||
-        elId === 'BrowseNavFilesystemDropdown' ||
-        elId === 'BrowseNavPlaylistDropdown' ||
-        elId === 'BrowseNavRadioFavoritesDropdown' ||
-        elId === 'BrowseNavWebradiodbDropdown' ||
-        elId === 'BrowseNavRadiobrowserDropdown')
+        elId === 'BrowseFilesystemNavDropdown' ||
+        elId === 'BrowsePlaylistListNavDropdown' ||
+        elId === 'BrowseRadioFavoritesNavDropdown' ||
+        elId === 'BrowseRadioWebradiodbNavDropdown' ||
+        elId === 'BrowseRadioRadiobrowserNavDropdown')
     {
         if (elId === 'BrowseDatabaseAlbumListTagDropdown' ||
             elId === 'BrowseDatabaseTagListTagDropdown')
@@ -90,26 +90,26 @@ function addTagList(elId, list) {
         stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlist"}, 'Playlists')
         );
-        if (elId === 'BrowseNavPlaylistDropdown') {
+        if (elId === 'BrowsePlaylistListNavDropdown') {
             stack.lastChild.classList.add('active');
         }
         stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Filesystem"}, 'Filesystem')
         );
-        if (elId === 'BrowseNavFilesystemDropdown') {
+        if (elId === 'BrowseFilesystemNavDropdown') {
             stack.lastChild.classList.add('active');
         }
         stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Radio"}, 'Webradios')
         );
-        if (elId === 'BrowseNavRadioFavoritesDropdown' ||
-            elId === 'BrowseNavWebradiodbDropdown' ||
-            elId === 'BrowseNavRadiobrowserDropdown')
+        if (elId === 'BrowseRadioFavoritesNavDropdown' ||
+            elId === 'BrowseRadioWebradiodbNavDropdown' ||
+            elId === 'BrowseRadioRadiobrowserNavDropdown')
         {
             stack.lastChild.classList.add('active');
         }
     }
-    else if (elId === 'databaseAlbumListSortTagsList') {
+    else if (elId === 'BrowseDatabaseAlbumListSortTagsList') {
         if (settings.tagList.includes('Date') === true &&
             settings[list].includes('Date') === false)
         {
@@ -121,7 +121,7 @@ function addTagList(elId, list) {
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "LastModified"}, 'Last modified')
         );
     }
-    else if (elId === 'searchQueueTags') {
+    else if (elId === 'QueueCurrentSearchTags') {
         if (features.featAdvqueue === true)
         {
             stack.appendChild(

@@ -152,42 +152,42 @@ function parseState(obj) {
     currentState = obj.result;
     //Set playback buttons
     if (obj.result.state === 'stop') {
-        document.getElementById('btnPlay').textContent = 'play_arrow';
+        document.getElementById('footerPlayBtn').textContent = 'play_arrow';
         domCache.progressBar.style.width = '0';
     }
     else if (obj.result.state === 'play') {
-        document.getElementById('btnPlay').textContent =
+        document.getElementById('footerPlayBtn').textContent =
             settings.webuiSettings.uiFooterPlaybackControls === 'stop' ? 'stop' : 'pause';
     }
     else {
         //pause
-        document.getElementById('btnPlay').textContent = 'play_arrow';
+        document.getElementById('footerPlayBtn').textContent = 'play_arrow';
     }
     if (app.id === 'QueueCurrent') {
         setPlayingRow();
     }
 
     if (obj.result.queueLength === 0) {
-        elDisableId('btnPlay');
+        elDisableId('footerPlayBtn');
     }
     else {
-        elEnableId('btnPlay');
+        elEnableId('footerPlayBtn');
     }
 
     if (obj.result.nextSongPos === -1 &&
         settings.partition.jukeboxMode === 'off')
     {
-        elDisableId('btnNext');
+        elDisableId('footerNextBtn');
     }
     else {
-        elEnableId('btnNext');
+        elEnableId('footerNextBtn');
     }
 
     if (obj.result.songPos < 0) {
-        elDisableId('btnPrev');
+        elDisableId('footerPrevBtn');
     }
     else {
-        elEnableId('btnPrev');
+        elEnableId('footerPrevBtn');
     }
     //media session
     mediaSessionSetState();
@@ -206,15 +206,15 @@ function parseState(obj) {
     //clear playback card if no current song
     if (obj.result.songPos === -1) {
         document.title = 'myMPD';
-        document.getElementById('currentTitle').textContent = tn('Not playing');
+        document.getElementById('PlaybackTitle').textContent = tn('Not playing');
         const footerTitleEl = document.getElementById('footerTitle');
         footerTitleEl.textContent = tn('Not playing');
         footerTitleEl.removeAttribute('title');
         footerTitleEl.classList.remove('clickable');
         document.getElementById('footerCover').classList.remove('clickable');
-        document.getElementById('currentTitle').classList.remove('clickable');
+        document.getElementById('PlaybackTitle').classList.remove('clickable');
         clearCurrentCover();
-        const pb = document.querySelectorAll('#cardPlaybackTags p');
+        const pb = document.querySelectorAll('#PlaybackListTags p');
         for (let i = 0, j = pb.length; i < j; i++) {
             elClear(pb[i]);
         }
@@ -337,7 +337,7 @@ function clearBackgroundImage(el) {
  * @returns {void}
  */
 function setCurrentCover(url) {
-    setBackgroundImage(document.getElementById('currentCover'), url);
+    setBackgroundImage(document.getElementById('PlaybackCover'), url);
     setBackgroundImage(document.getElementById('footerCover'), url);
     if (settings.webuiSettings.uiBgCover === true) {
         setBackgroundImage(domCache.body, url);
@@ -349,7 +349,7 @@ function setCurrentCover(url) {
  * @returns {void}
  */
 function clearCurrentCover() {
-    clearBackgroundImage(document.getElementById('currentCover'));
+    clearBackgroundImage(document.getElementById('PlaybackCover'));
     clearBackgroundImage(document.getElementById('footerCover'));
     if (settings.webuiSettings.uiBgCover === true) {
         clearBackgroundImage(domCache.body);

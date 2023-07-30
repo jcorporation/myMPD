@@ -127,14 +127,14 @@ function parseSettings(obj) {
     }
 
     if (settings.webuiSettings.uiFooterPlaybackControls === 'both') {
-        elShowId('btnStop');
+        elShowId('footerStopBtn');
     }
     else {
-        elHideId('btnStop');
+        elHideId('footerStopBtn');
     }
     
     if (settings.partition.jukeboxMode !== 'off') {
-        document.getElementById('btnNext').removeAttribute('disabled');
+        document.getElementById('footerNextBtn').removeAttribute('disabled');
     }
 
     //presets
@@ -367,7 +367,7 @@ function parseMPDSettings() {
     }
     else {
         //construct playback view
-        const pbtl = document.getElementById('cardPlaybackTags');
+        const pbtl = document.getElementById('PlaybackListTags');
         elClear(pbtl);
         for (let i = 0, j = settings.colsPlayback.length; i < j; i++) {
             let colWidth;
@@ -419,11 +419,11 @@ function parseMPDSettings() {
 
     addTagList('BrowseDatabaseAlbumListTagDropdown', 'tagListBrowse');
     addTagList('BrowseDatabaseTagListTagDropdown', 'tagListBrowse');
-    addTagList('BrowseNavPlaylistDropdown', 'tagListBrowse');
-    addTagList('BrowseNavFilesystemDropdown', 'tagListBrowse');
-    addTagList('BrowseNavRadioFavoritesDropdown', 'tagListBrowse');
-    addTagList('BrowseNavWebradiodbDropdown', 'tagListBrowse');
-    addTagList('BrowseNavRadiobrowserDropdown', 'tagListBrowse');
+    addTagList('BrowsePlaylistListNavDropdown', 'tagListBrowse');
+    addTagList('BrowseFilesystemNavDropdown', 'tagListBrowse');
+    addTagList('BrowseRadioFavoritesNavDropdown', 'tagListBrowse');
+    addTagList('BrowseRadioWebradiodbNavDropdown', 'tagListBrowse');
+    addTagList('BrowseRadioRadiobrowserNavDropdown', 'tagListBrowse');
 
     addTagList('QueueCurrentSearchTags', 'tagListSearch');
     addTagList('QueueLastPlayedSearchTags', 'tagListSearch');
@@ -432,8 +432,8 @@ function parseMPDSettings() {
     addTagList('BrowsePlaylistDetailSearchTags', 'tagListSearch');
     addTagList('SearchSearchTags', 'tagListSearch');
     addTagList('BrowseDatabaseAlbumListSearchTags', 'tagListBrowse');
-    addTagList('databaseAlbumListSortTagsList', 'tagListBrowse');
-    addTagList('dropdownSortPlaylistTags', 'tagList');
+    addTagList('BrowseDatabaseAlbumListSortTagsList', 'tagListBrowse');
+    addTagList('BrowsePlaylistDetailSortTagsDropdown', 'tagList');
 
     addTagListSelect('saveSmartPlaylistSort', 'tagList');
 }

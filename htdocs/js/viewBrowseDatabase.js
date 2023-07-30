@@ -13,8 +13,8 @@ function handleBrowseDatabaseAlbumList() {
     handleSearchExpression('BrowseDatabaseAlbumList');
 
     selectTag('BrowseDatabaseAlbumListTagDropdown', 'btnBrowseDatabaseAlbumListTagDesc', app.current.tag);
-    toggleBtnChkId('databaseAlbumListSortDesc', app.current.sort.desc);
-    selectTag('databaseAlbumListSortTags', undefined, app.current.sort.tag);
+    toggleBtnChkId('BrowseDatabaseAlbumListSortDesc', app.current.sort.desc);
+    selectTag('BrowseDatabaseAlbumListSortTags', undefined, app.current.sort.tag);
 
     sendAPI("MYMPD_API_DATABASE_ALBUM_LIST", {
         "offset": app.current.offset,
@@ -33,7 +33,7 @@ function handleBrowseDatabaseAlbumList() {
 function handleBrowseDatabaseTagList() {
     handleSearchSimple('BrowseDatabaseTag');
     selectTag('BrowseDatabaseTagListTagDropdown', 'btnBrowseDatabaseTagListTagDesc', app.current.tag);
-    mirrorBtnId('databaseTagListSortDesc', app.current.sort.desc);
+    mirrorBtnId('BrowseDatabaseTagListSortDesc', app.current.sort.desc);
     sendAPI("MYMPD_API_DATABASE_TAG_LIST", {
         "offset": app.current.offset,
         "limit": app.current.limit,
@@ -71,7 +71,7 @@ function initViewBrowseDatabase() {
 
     initSearchSimple('BrowseDatabaseTag');
 
-    document.getElementById('databaseTagListSortDesc').addEventListener('click', function(event) {
+    document.getElementById('BrowseDatabaseTagListSortDesc').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         app.current.sort.desc = app.current.sort.desc === true ? false : true;
@@ -112,7 +112,7 @@ function initViewBrowseDatabase() {
         }
     }, false);
 
-    document.getElementById('databaseAlbumListSortDesc').addEventListener('click', function(event) {
+    document.getElementById('BrowseDatabaseAlbumListSortDesc').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         toggleBtnChk(this, undefined);
@@ -120,7 +120,7 @@ function initViewBrowseDatabase() {
         appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
     }, false);
 
-    document.getElementById('databaseAlbumListSortTags').addEventListener('click', function(event) {
+    document.getElementById('BrowseDatabaseAlbumListSortTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();

@@ -42,7 +42,7 @@ function handleBrowsePlaylistList() {
  * @returns {void}
  */
 function initViewPlaylists() {
-    document.getElementById('dropdownSortPlaylistTags').addEventListener('click', function(event) {
+    document.getElementById('BrowsePlaylistDetailSortTagsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             currentPlaylistSort(getData(event.target, 'tag'));
@@ -125,22 +125,22 @@ function parsePlaylistDetail(obj) {
     if (isMPDplaylist(obj.result.plist) === false) {
         // playlist in music directory
         setData(table, 'ro', true);
-        elHideId('playlistContentBtns');
-        elHideId('smartPlaylistContentBtns');
+        elHideId('BrowsePlaylistDetailContentBtns');
+        elHideId('BrowsePlaylistDetailSmartPlaylistContentBtns');
         table.setAttribute('data-rw', 'false');
     }
     else if (obj.result.smartpls === true) {
         // smart playlist
         setData(table, 'ro', true);
-        elHideId('playlistContentBtns');
-        elShowId('smartPlaylistContentBtns');
+        elHideId('BrowsePlaylistDetailContentBtns');
+        elShowId('BrowsePlaylistDetailSmartPlaylistContentBtns');
         table.setAttribute('data-rw', 'false');
     }
     else {
         // mpd playlist
         setData(table, 'ro', false);
-        elShowId('playlistContentBtns');
-        elHideId('smartPlaylistContentBtns');
+        elShowId('BrowsePlaylistDetailContentBtns');
+        elHideId('BrowsePlaylistDetailSmartPlaylistContentBtns');
         table.setAttribute('data-rw', 'true');
     }
 
