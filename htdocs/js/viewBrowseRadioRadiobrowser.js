@@ -36,7 +36,7 @@ function handleBrowseRadioRadiobrowser() {
  * Initializes the radiobrowser elements
  * @returns {void}
  */
-function initBrowseRadioRadiobrowser() {
+function initViewBrowseRadioRadiobrowser() {
     document.getElementById('BrowseRadioRadiobrowserSearchStr').addEventListener('keyup', function(event) {
         if (ignoreKeys(event) === true) {
             return;

@@ -58,7 +58,7 @@ function handleBrowseFilesystem() {
  * Initialization function for the browse filesystem view
  * @returns {void}
  */
-function initBrowseFilesystem() {
+function initViewBrowseFilesystem() {
     initSearchSimple('BrowseFilesystem');
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {

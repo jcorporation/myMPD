@@ -44,7 +44,7 @@ function handleQueueCurrent() {
  * Initializes the current queue elements
  * @returns {void}
  */
-function initQueueCurrent() {
+function initViewQueueCurrent() {
     document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {

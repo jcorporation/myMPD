@@ -37,7 +37,7 @@ function handleBrowseRadioWebradiodb() {
  * Initialization function for webradioDB elements
  * @returns {void}
  */
-function initBrowseRadioWebradiodb() {
+function initViewBrowseRadioWebradiodb() {
     document.getElementById('BrowseRadioWebradiodbSearchStr').addEventListener('keyup', function(event) {
         if (ignoreKeys(event) === true) {
             return;

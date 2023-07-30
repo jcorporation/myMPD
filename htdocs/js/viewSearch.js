@@ -46,7 +46,7 @@ function handleSearch() {
  * Initialization function for the search elements
  * @returns {void}
  */
-function initSearch() {
+function initViewSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {

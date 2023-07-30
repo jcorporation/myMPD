@@ -23,7 +23,7 @@ function handleQueueLastPlayed() {
  * Initialization function for last played elements
  * @returns {void}
  */
-function initQueueLastPlayed() {
+function initViewQueueLastPlayed() {
     document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {

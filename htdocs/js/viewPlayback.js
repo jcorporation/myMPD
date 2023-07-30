@@ -17,7 +17,7 @@ function handlePlayback() {
  * Initializes the playback html elements
  * @returns {void}
  */
- function initPlayback() {
+ function initViewPlayback() {
     document.getElementById('PlaybackColsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON' &&
             event.target.classList.contains('mi'))

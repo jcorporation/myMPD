@@ -36,7 +36,7 @@ function handleQueueJukebox(view) {
  * @param {string} view jukebox view to display (song or album)
  * @returns {void}
  */
-function initQueueJukebox(view) {
+function initViewQueueJukebox(view) {
     document.getElementById(view + 'List').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {
