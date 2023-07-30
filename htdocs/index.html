@@ -48,7 +48,7 @@
           </svg>
         </a>
       </div>
-      <div id="navbar-main" class="d-flex noInitChilds"></div>
+      <div id="navbar-main" class="d-flex overflow-auto noInitChilds"></div>
     </nav>
   </header>
 <!-- Header end -->
@@ -793,7 +793,7 @@
           </div>
           <div id="BrowseFilesystemPaginationTop" class="btn-group me-2 pagination"></div>
         </div>
-        <ol id="BrowseBreadcrumb" class="breadcrumb p-2 rounded-2"></ol>
+        <ol id="BrowseBreadcrumb" class="breadcrumb p-2 rounded-2 overflow-auto nowrap"></ol>
         <div id="BrowseFilesystemImages" class="featLibrary not-clickable" data-href='{"cmd": "zoomPicture", "options": []}'></div>
         <div class="table-responsive scrollContainer">
           <table id="BrowseFilesystemList" class="table table-hover table-sm">
@@ -1053,7 +1053,7 @@
           <small id="counter"></small>
         </div>
       </div>
-      <div class="d-flex flex-fill navbar-nav ms-3" id="footerInfo">
+      <div class="d-flex flex-fill navbar-nav ms-3 text-truncate" id="footerInfo">
         <div data-title-phrase="Show cover" id="footerCover" class="album-cover-loading rounded me-3 clickable carousel" data-href='{"cmd": "zoomPicture", "options": []}'></div>
         <div id="footerPlaying">
           <span id="footerTitle" class="not-clickable d-block" data-href='{"cmd": "clickTitle", "options": []}'>Title</span>

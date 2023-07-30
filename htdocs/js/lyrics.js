@@ -61,7 +61,7 @@ function createLyricsTabs(el, obj) {
             ht = i;
         }
         lyricsTabs.appendChild(
-            elCreateText('button', {"data-num": i, "class": ["btn", "btn-sm", "btn-outline-secondary", "me-2", "lyricsChangeButton"],
+            elCreateText('button', {"data-num": i, "class": ["btn", "btn-sm", "btn-outline-secondary", "me-2", "lyricsChangeButton", "text-truncate"],
                 "title": (obj.result.data[i].synced === true ? tn('Synced lyrics') : tn('Unsynced lyrics')) + ': ' + ht}, ht)
         );
         if (i === 0) {

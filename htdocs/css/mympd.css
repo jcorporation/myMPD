@@ -183,10 +183,6 @@ main {
   padding-right: 1rem;
 }
 
-#navbar-main {
-  overflow: auto;
-}
-
 #headerLeft {
   margin-right: 2rem;
 }
@@ -305,12 +301,6 @@ div.footerCounter {
   height: 2rem;
 }
 
-#footerInfo {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 #footerProgress {
   height: 1rem;
   background-color: transparent;
@@ -346,11 +336,9 @@ button {
   padding-right: 0.5rem;
 }
 
-#BrowseBreadcrumb {
-  overflow: auto;
-  white-space: nowrap;
-}
-
+.nav-link,
+.form-check,
+th,
 .nowrap {
   white-space: nowrap;
 }
@@ -425,10 +413,6 @@ table.smallWidth [data-col="Action"] {
 
 th[data-col="Action"] {
   padding: 0.25rem !important;
-}
-
-th {
-  white-space: nowrap;
 }
 
 div.card {
@@ -882,9 +866,6 @@ div.album-grid-mouseover:hover {
 
 .lyricsChangeButton {
   max-width: 10rem;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .font-monospace {
@@ -968,11 +949,6 @@ button.select-inner-button {
   background-size: 16px 12px;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23fff' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
   width: 2rem;
-}
-
-.nav-link,
-.form-check {
-  white-space: nowrap;
 }
 
 .no-flex {
@@ -1106,6 +1082,7 @@ button.weekday {
 .dropdown-item {
   text-overflow: ellipsis;
   overflow: hidden;
+  white-space: nowrap
 }
 
 .mirror {
