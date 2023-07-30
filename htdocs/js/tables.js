@@ -995,3 +995,50 @@ function handleActionTdClick(event) {
             break;
     }
 }
+
+/**
+ * Central table click handler.
+ * Handles clicks on table header and body.
+ * @param {MouseEvent} event the event to handle
+ * @returns {HTMLElement} the event target to handle or null if it was handled or should not be handled
+ */
+function tableClickHandler(event) {
+    if (event.target.nodeName === 'CAPTION') {
+        return null;
+    }
+    //select mode
+    if (selectRow(event) === true) {
+        return null;
+    }
+    //action td
+    if (event.target.nodeName === 'A') {
+        handleActionTdClick(event);
+        return null;
+    }
+    //table header
+    if (event.target.nodeName === 'TH') {
+        if (features.featAdvqueue === false) {
+            return null;
+        }
+        const colName = event.target.getAttribute('data-col');
+        if (isColSortable(app.id, colName) === false) {
+            //by this fields can not be sorted
+            return null;
+        }
+        toggleSort(event.target, colName);
+        appGoto(app.current.card, app.current.tab, app.current.view,
+            app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+        return null;
+    }
+    //table body
+    const target = event.target.closest('TR');
+    if (target === null) {
+        return null;
+    }
+    if (target.parentNode.nodeName === 'TBODY' &&
+        checkTargetClick(target) === true)
+    {
+        return target;
+    }
+    return null;
+}

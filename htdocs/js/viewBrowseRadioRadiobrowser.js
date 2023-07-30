@@ -56,23 +56,8 @@ function initBrowseRadioRadiobrowser() {
     }, false);
 
     document.getElementById('BrowseRadioRadiobrowserList').addEventListener('click', function(event) {
-        //select mode
-        if (selectRow(event) === true) {
-            return;
-        }
-        if (event.target.nodeName === 'A') {
-            //action td
-            handleActionTdClick(event);
-            return;
-        }
-        //table body
-        const target = event.target.closest('TR');
-        if (target === null) {
-            return;
-        }
-        if (target.parentNode.nodeName === 'TBODY' &&
-            checkTargetClick(target) === true)
-        {
+        const target = tableClickHandler(event);
+        if (target !== null) {
             const uri = getData(target, 'uri');
             if (settings.webuiSettings.clickRadiobrowser === 'add') {
                 showEditRadioFavorite({

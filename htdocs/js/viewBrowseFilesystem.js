@@ -62,23 +62,8 @@ function initBrowseFilesystem() {
     initSearchSimple('BrowseFilesystem');
 
     document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
-        //select mode
-        if (selectRow(event) === true) {
-            return;
-        }
-        //action td
-        if (event.target.nodeName === 'A') {
-            handleActionTdClick(event);
-            return;
-        }
-        //table body
-        const target = event.target.closest('TR');
-        if (target === null) {
-            return;
-        }
-        if (target.parentNode.nodeName === 'TBODY' &&
-            checkTargetClick(target) === true)
-        {
+        const target = tableClickHandler(event);
+        if (target !== null) {
             const uri = getData(target, 'uri');
             const dataType = getData(target, 'type');
             switch(dataType) {

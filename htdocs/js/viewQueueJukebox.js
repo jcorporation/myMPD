@@ -38,23 +38,8 @@ function handleQueueJukebox(view) {
  */
 function initQueueJukebox(view) {
     document.getElementById(view + 'List').addEventListener('click', function(event) {
-        //select mode
-        if (selectRow(event) === true) {
-            return;
-        }
-        //action td
-        if (event.target.nodeName === 'A') {
-            handleActionTdClick(event);
-            return;
-        }
-        //table body
-        const target = event.target.closest('TR');
-        if (target === null) {
-            return;
-        }
-        if (target.parentNode.nodeName === 'TBODY' &&
-            checkTargetClick(target) === true)
-        {
+        const target = tableClickHandler(event);
+        if (target !== null) {
             if (settings.partition.jukeboxMode === 'song') {
                 clickSong(getData(target, 'uri'), event);
             }

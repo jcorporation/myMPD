@@ -118,23 +118,8 @@ function initBrowseDatabase() {
     }, false);
 
     document.getElementById('BrowseDatabaseAlbumDetailList').addEventListener('click', function(event) {
-        //select mode
-        if (selectRow(event) === true) {
-            return;
-        }
-        if (event.target.nodeName === 'A') {
-            //action td
-            handleActionTdClick(event);
-            return;
-        }
-        //table body
-        const target = event.target.closest('TR');
-        if (target === null) {
-            return;
-        }
-        if (target.parentNode.nodeName === 'TBODY' &&
-            checkTargetClick(target) === true)
-        {
+        const target = tableClickHandler(event);
+        if (target !== null) {
             clickSong(getData(target, 'uri'), event);
         }
     }, false);

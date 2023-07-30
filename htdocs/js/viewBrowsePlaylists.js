@@ -66,23 +66,8 @@ function initPlaylists() {
     initSearchExpression('BrowsePlaylistDetail');
 
     document.getElementById('BrowsePlaylistListList').addEventListener('click', function(event) {
-        //select mode
-        if (selectRow(event) === true) {
-            return;
-        }
-        //action td
-        if (event.target.nodeName === 'A') {
-            handleActionTdClick(event);
-            return;
-        }
-        //table body
-        const target = event.target.closest('TR');
-        if (target === null) {
-            return;
-        }
-        if (target.parentNode.nodeName === 'TBODY' &&
-            checkTargetClick(target) === true)
-        {
+        const target = tableClickHandler(event);
+        if (target !== null) {
             if (getData(target, 'smartpls-only') === false) {
                 clickPlaylist(getData(target, 'uri'), event);
             }
@@ -93,26 +78,8 @@ function initPlaylists() {
     }, false);
 
     document.getElementById('BrowsePlaylistDetailList').addEventListener('click', function(event) {
-        if (event.target.nodeName === 'CAPTION') {
-            return;
-        }
-        //select mode
-        if (selectRow(event) === true) {
-            return;
-        }
-        //action td
-        if (event.target.nodeName === 'A') {
-            handleActionTdClick(event);
-            return;
-        }
-        //table body
-        const target = event.target.closest('TR');
-        if (target === null) {
-            return;
-        }
-        if (target.parentNode.nodeName === 'TBODY' &&
-            checkTargetClick(target) === true)
-        {
+        const target = tableClickHandler(event);
+        if (target !== null) {
             clickSong(getData(target, 'uri'), event);
         }
     }, false);

@@ -48,35 +48,8 @@ function handleSearch() {
  */
 function initSearch() {
     document.getElementById('SearchList').addEventListener('click', function(event) {
-        //select mode
-        if (selectRow(event) === true) {
-            return;
-        }
-        //action td
-        if (event.target.nodeName === 'A') {
-            handleActionTdClick(event);
-            return;
-        }
-        //table header
-        if (event.target.nodeName === 'TH') {
-            const colName = event.target.getAttribute('data-col');
-            if (isColSortable('Search', colName) === false) {
-                //by this fields can not be sorted
-                return;
-            }
-            toggleSort(event.target, colName);
-            appGoto(app.current.card, app.current.tab, app.current.view,
-                app.current.offset, app.current.limit, app.current.filter, app.current.sort, '', app.current.search);
-            return;
-        }
-        //table body
-        const target = event.target.closest('TR');
-        if (target === null) {
-            return;
-        }
-        if (target.parentNode.nodeName === 'TBODY' &&
-            checkTargetClick(target) === true)
-        {
+        const target = tableClickHandler(event);
+        if (target !== null) {
             clickSong(getData(target, 'uri'), event);
         }
     }, false);
