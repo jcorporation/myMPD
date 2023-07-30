@@ -217,7 +217,7 @@ function appInit() {
     initBrowse();
     initBrowseDatabase();
     initBrowseFilesystem();
-    initBrowseRadioFavorites();
+    initViewBrowseRadioFavorites();
     initBrowseRadioRadiobrowser();
     initBrowseRadioWebradiodb();
     initQueueCurrent();
@@ -245,6 +245,7 @@ function appInit() {
     initSelectActions();
     initModalHomeIcon();
     initModalAddToQueue();
+    initModalRadioFavoriteEdit();
     initModalSaveQueue();
     initModalSetSongPriority();
     //init drag and drop
