@@ -243,6 +243,9 @@ function appInit() {
     initNotifications();
     initContextMenuOffcanvas();
     initSelectActions();
+    initModalAddToQueue();
+    initModalSaveQueue();
+    initModalSetSongPriority();
     //init drag and drop
     for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
         dragAndDropTable(table);
