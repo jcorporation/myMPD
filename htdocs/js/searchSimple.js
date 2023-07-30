@@ -6,7 +6,7 @@
 /** @module searchSimple_js */
 
 /**
- * Parses search expressions and update the ui for specified appid
+ * Update the search elements for specified appid
  * @param {string} appid the application id
  * @returns {void}
  */
