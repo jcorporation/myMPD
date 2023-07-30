@@ -540,8 +540,7 @@ div.card-toolbar {
   margin-right: -0.5rem;
 }
 
-div.card-toolbar > div,
-div.card-toolbar > form {
+div.card-toolbar > div {
   margin-bottom: 0.6rem;
 }
 
@@ -1070,10 +1069,6 @@ input.innerButton {
 .list-group-scroll {
   max-height: 12rem;
   overflow-y: auto;
-}
-
-form#outputs {
-  overflow: auto;
 }
 
 button.weekday {

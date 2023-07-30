@@ -1074,7 +1074,7 @@
             <span class="mi">volume_up</span><span class="featVolumeLevel ms-1"></span>
           </button>
           <div id="outputsDropdown" class="dropdown-menu">
-            <form id="outputs" class="px-3 py-2 d-grid gap-2"></form>
+            <form id="outputs" class="px-3 py-2 d-grid gap-2 overflow-auto"></form>
             <div class="dropdown-divider featPartitions"></div>
             <a class="dropdown-item featPartitions" data-title-phrase="Manage partitions" data-bs-toggle="modal" href="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
             <a data-phrase="Move an output to this partition" class="dropdown-item featPartitions" data-bs-toggle="modal" href="#modalPartitionOutputs"></a>
@@ -1082,15 +1082,15 @@
             <div class="dropdown-item">
               <span data-phrase="Volume"></span>: <span id="volumePrct"></span>
             </div>
-            <form class="px-3 pt-0 pb-3" id="volumeControl">
-              <div class="btn-group w-100">
+            <div id="volumeControl" class="px-3 pt-0 pb-3">
+              <form class="btn-group w-100">
                 <button id="btnChVolumeDown" data-href='{"cmd": "volumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
                 <div class="bg-secondary w-100 volumeRangeDiv">
                   <input type="range" min="0" max="100" step="1" class="form-range w-100" id="volumeBar"/>
                 </div>
                 <button id="btnChVolumeUp" data-href='{"cmd": "volumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
-              </div>
-            </form>
+              </form>
+            </div>
           </div>
         </div>
         <div class="btn-group dropup featLocalPlayback">
@@ -1100,22 +1100,20 @@
             <hr class="mt-0"/>
             <div id="errorLocalPlayback" class="alert alert-danger mx-3 p-2 d-none" data-phrase="Error loading stream"></div>
             <audio id="localPlayer" preload="none"></audio>
-            <div class="d-grid mx-3 mb-3">
+            <form class="d-grid mx-3 mb-3">
               <div class="mb-3"><span data-phrase="Duration"></span>: <span id="localPlayerProgress"></span></div>
               <button class="btn btn-success mi mb-3" id="localPlaybackBtn" data-href='{"cmd": "createLocalPlaybackEl", "options": []}'>play_arrow</button>
               <div class="mb-3">
                 <span data-phrase="Volume"></span>: <span id="localPlaybackVolume"></span>
               </div>
-              <form id="localPlaybackVolumeControl">
-                <div class="btn-group">
-                  <button id="btnLocalPlaybackChVolumeDown" data-href='{"cmd": "localPlaybackVolumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
-                  <div class="bg-secondary volumeRangeDiv">
-                    <input type="range" min="0" max="1" step="0.1" class="form-range" id="localPlaybackVolumeBar"/>
-                  </div>
-                  <button id="btnLocalPlaybackChVolumeUp" data-href='{"cmd": "localPlaybackVolumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
+              <div class="btn-group">
+                <button data-href='{"cmd": "localPlaybackVolumeStep", "options": ["down"]}' class="btn btn-secondary">&minus;</button>
+                <div class="bg-secondary volumeRangeDiv">
+                  <input type="range" min="0" max="1" step="0.1" class="form-range" id="localPlaybackVolumeBar"/>
                 </div>
-              </form>
-            </div>
+                <button data-href='{"cmd": "localPlaybackVolumeStep", "options": ["up"]}' class="btn btn-secondary">+</button>
+              </div>
+            </form>
           </div>
         </div>
         <div class="btn-group featFooterNotifications" id="footerNotifications">
@@ -1257,17 +1255,15 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form id="moveToPlaylistFrm">
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="moveToPlaylistPlaylist" data-phrase="Playlist"></label>
-              <div class="col-sm-8 position-relative">
-                <div class="btn-group d-flex">
-                  <input data-is="mympd-select-search" id="moveToPlaylistPlaylist" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
-                </div>
-                <div class="invalid-feedback" data-phrase="Choose a playlist or enter a new playlist name"></div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="moveToPlaylistPlaylist" data-phrase="Playlist"></label>
+            <div class="col-sm-8 position-relative">
+              <div class="btn-group d-flex">
+                <input data-is="mympd-select-search" id="moveToPlaylistPlaylist" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
               </div>
+              <div class="invalid-feedback" data-phrase="Choose a playlist or enter a new playlist name"></div>
             </div>
-          </form>
+          </div>
           <div class="row mb-3" id="moveToPlaylistPos">
             <label class="col-sm-4 col-form-label" data-phrase="Insert mode"></label>
             <div class="col-sm-8">
@@ -1299,21 +1295,19 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form id="renamePlaylistFrm">
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="renamePlaylistFrom" data-phrase="From"></label>
-              <div class="col-sm-8">
-                <input class="form-control" id="renamePlaylistFrom" readonly="readonly"/>
-              </div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="renamePlaylistFrom" data-phrase="From"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="renamePlaylistFrom" readonly="readonly"/>
             </div>
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="renamePlaylistTo" data-phrase="To"></label>
-              <div class="col-sm-8">
-                <input class="form-control" id="renamePlaylistTo"/>
-                <div class="invalid-feedback" data-phrase="Invalid filename"></div>
-              </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="renamePlaylistTo" data-phrase="To"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="renamePlaylistTo"/>
+              <div class="invalid-feedback" data-phrase="Invalid filename"></div>
             </div>
-          </form>
+          </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
@@ -1332,71 +1326,69 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form id="saveSmartPlaylistFrm">
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="saveSmartPlaylistName" data-phrase="Name"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="saveSmartPlaylistName"/>
+              <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="saveSmartPlaylistType" data-phrase="Type"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="saveSmartPlaylistType" readonly="readonly"/>
+              <div class="invalid-feedback" data-phrase="Invalid type"></div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="saveSmartPlaylistSort" data-phrase="Order"></label>
+            <div class="col-sm-8">
+              <select id="saveSmartPlaylistSort" class="form-select"></select>
+            </div>
+          </div>
+          <hr/>
+          <div class="d-none" id="saveSmartPlaylistSearch">
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="saveSmartPlaylistName" data-phrase="Name"></label>
+              <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistExpression" data-phrase="Expression"></label>
               <div class="col-sm-8">
-                <input class="form-control" id="saveSmartPlaylistName"/>
-                <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                <input class="form-control" id="inputSaveSmartPlaylistExpression"/>
+              </div>
+            </div>
+          </div>
+          <div class="d-none" id="saveSmartPlaylistSticker">
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="selectSaveSmartPlaylistSticker" data-phrase="Sticker"></label>
+              <div class="col-sm-8">
+                <select id="selectSaveSmartPlaylistSticker" class="form-select">
+                  <option value="like" data-phrase="Like"></option>
+                  <option value="playCount" data-phrase="Play count"></option>
+                </select>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="saveSmartPlaylistType" data-phrase="Type"></label>
+              <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistStickerMinvalue" data-phrase="Min. value"></label>
               <div class="col-sm-8">
-                <input class="form-control" id="saveSmartPlaylistType" readonly="readonly"/>
-                <div class="invalid-feedback" data-phrase="Invalid type"></div>
+                <input class="form-control" id="inputSaveSmartPlaylistStickerMinvalue"/>
+                <div class="invalid-feedback" data-phrase="Must be a number"></div>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="saveSmartPlaylistSort" data-phrase="Order"></label>
+              <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistStickerMaxentries" data-phrase="Max. songs"></label>
               <div class="col-sm-8">
-                <select id="saveSmartPlaylistSort" class="form-select"></select>
+                <input class="form-control" id="inputSaveSmartPlaylistStickerMaxentries"/>
+                <div class="invalid-feedback" data-phrase="Must be a number"></div>
               </div>
             </div>
-            <hr/>
-            <div class="d-none" id="saveSmartPlaylistSearch">
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistExpression" data-phrase="Expression"></label>
-                <div class="col-sm-8">
-                  <input class="form-control" id="inputSaveSmartPlaylistExpression"/>
-                </div>
+          </div>
+          <div class="d-none" id="saveSmartPlaylistNewest">
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistNewestTimerange" data-phrase="Timerange (days)"></label>
+              <div class="col-sm-8">
+                <input class="form-control" id="inputSaveSmartPlaylistNewestTimerange"/>
+                <div class="invalid-feedback" data-phrase="Must be a number"></div>
               </div>
             </div>
-            <div class="d-none" id="saveSmartPlaylistSticker">
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="selectSaveSmartPlaylistSticker" data-phrase="Sticker"></label>
-                <div class="col-sm-8">
-                  <select id="selectSaveSmartPlaylistSticker" class="form-select">
-                    <option value="like" data-phrase="Like"></option>
-                    <option value="playCount" data-phrase="Play count"></option>
-                  </select>
-                </div>
-              </div> 
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistStickerMinvalue" data-phrase="Min. value"></label>
-                <div class="col-sm-8">
-                  <input class="form-control" id="inputSaveSmartPlaylistStickerMinvalue"/>
-                  <div class="invalid-feedback" data-phrase="Must be a number"></div>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistStickerMaxentries" data-phrase="Max. songs"></label>
-                <div class="col-sm-8">
-                  <input class="form-control" id="inputSaveSmartPlaylistStickerMaxentries"/>
-                  <div class="invalid-feedback" data-phrase="Must be a number"></div>
-                </div>
-              </div>
-            </div>
-            <div class="d-none" id="saveSmartPlaylistNewest">
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistNewestTimerange" data-phrase="Timerange (days)"></label>
-                <div class="col-sm-8">
-                  <input class="form-control" id="inputSaveSmartPlaylistNewestTimerange"/>
-                  <div class="invalid-feedback" data-phrase="Must be a number"></div>
-                </div>
-              </div>
-            </div>
-          </form>
+          </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
@@ -1436,61 +1428,59 @@
         <div class="modal-body">
           <div class="tab-content">
             <div class="tab-pane" id="tabInterfaceSettings">
-              <form id="InterfaceSettingsFrm">
-                <h4 data-phrase="Locale"></h4>
-                <div id="localeFrm"></div>
-                <div id="warnMissingPhrases" class="alert alert-warning d-none mt-2"></div>
-                <hr/>
-                <h4 data-phrase="Theme"></h4>
-                <div class="row mb-3">
-                  <label class="col-sm-4 col-form-label" for="inputHighlightColor">
-                    <span data-phrase="Highlight color"></span>
-                    <small class="mi mi-sm ms-1" data-title-phrase="Partition specific setting">dashboard</small>
-                  </label>
-                  <div class="col-sm-8">
-                    <input class="form-control" type="color" id="inputHighlightColor"/>
-                  </div>
+              <h4 data-phrase="Locale"></h4>
+              <div id="localeFrm"></div>
+              <div id="warnMissingPhrases" class="alert alert-warning d-none mt-2"></div>
+              <hr/>
+              <h4 data-phrase="Theme"></h4>
+              <div class="row mb-3">
+                <label class="col-sm-4 col-form-label" for="inputHighlightColor">
+                  <span data-phrase="Highlight color"></span>
+                  <small class="mi mi-sm ms-1" data-title-phrase="Partition specific setting">dashboard</small>
+                </label>
+                <div class="col-sm-8">
+                  <input class="form-control" type="color" id="inputHighlightColor"/>
                 </div>
-                <div class="row mb-3">
-                  <label class="col-sm-4 col-form-label" for="inputHighlightColorContrast">
-                    <span data-phrase="Highlight contrast color"></span>
-                    <small class="mi mi-sm ms-1" data-title-phrase="Partition specific setting">dashboard</small>
-                  </label>
-                  <div class="col-sm-8">
-                    <input class="form-control" type="color" id="inputHighlightColorContrast"/>
-                  </div>
+              </div>
+              <div class="row mb-3">
+                <label class="col-sm-4 col-form-label" for="inputHighlightColorContrast">
+                  <span data-phrase="Highlight contrast color"></span>
+                  <small class="mi mi-sm ms-1" data-title-phrase="Partition specific setting">dashboard</small>
+                </label>
+                <div class="col-sm-8">
+                  <input class="form-control" type="color" id="inputHighlightColorContrast"/>
                 </div>
-                <div id="themeFrm"></div>
-                <div class="mb-3 row featMobile">
-                  <label class="col-sm-4 col-form-label" for="inputScaleRatio">
-                    <span data-phrase="Scale ratio"></span>
-                    <small class="mi mi-sm ms-1" data-title-phrase="Browser specific setting">web_asset</small>
-                  </label>
-                  <div class="col-sm-8 ">
-                    <input id="inputScaleRatio" class="form-control" placeholder="1.0"/>
-                    <div class="invalid-feedback" data-phrase="Invalid scale ratio"></div>
-                  </div>
+              </div>
+              <div id="themeFrm"></div>
+              <div class="mb-3 row featMobile">
+                <label class="col-sm-4 col-form-label" for="inputScaleRatio">
+                  <span data-phrase="Scale ratio"></span>
+                  <small class="mi mi-sm ms-1" data-title-phrase="Browser specific setting">web_asset</small>
+                </label>
+                <div class="col-sm-8 ">
+                  <input id="inputScaleRatio" class="form-control" placeholder="1.0"/>
+                  <div class="invalid-feedback" data-phrase="Invalid scale ratio"></div>
                 </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="btnEnforceMobile">
-                    <span data-phrase="Enforce mobile view"></span>
-                    <small class="mi mi-sm ms-1" data-title-phrase="Browser specific setting">web_asset</small>
-                  </label>
-                  <div class="col-sm-8 ">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnforceMobile"></button>
-                  </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="btnEnforceMobile">
+                  <span data-phrase="Enforce mobile view"></span>
+                  <small class="mi mi-sm ms-1" data-title-phrase="Browser specific setting">web_asset</small>
+                </label>
+                <div class="col-sm-8 ">
+                  <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnforceMobile"></button>
                 </div>
-                <div id="appearanceThemeSettingsFrm"></div>
-                <hr/>
-                <h4 data-phrase="Background"></h4>
-                <div id="bgFrm"></div>
-                <hr/>
-                <h4 data-phrase="Footer"></h4>
-                <div id="footerFrm"></div>
-                <hr/>
-                <h4 data-phrase="Lists"></h4>
-                <div id="appearanceSettingsFrm"></div>
-              </form>
+              </div>
+              <div id="appearanceThemeSettingsFrm"></div>
+              <hr/>
+              <h4 data-phrase="Background"></h4>
+              <div id="bgFrm"></div>
+              <hr/>
+              <h4 data-phrase="Footer"></h4>
+              <div id="footerFrm"></div>
+              <hr/>
+              <h4 data-phrase="Lists"></h4>
+              <div id="appearanceSettingsFrm"></div>
             </div>
             <div class="tab-pane" id="tabNotificationSettings">
               <h4 data-phrase="Notifications"></h4>
@@ -1503,139 +1493,135 @@
               <h4 data-phrase="Startup"></h4>
               <form id="startupFrm"></form>
               <hr/>
-              <form id="GeneralSettingsFrm">
-                <div class="featTags">
-                  <h4 data-phrase="Tags"></h4>
-                  <div class="mb-3 row">
-                    <label class="col-sm-4 col-form-label" for="btnEnabledTags">
-                      <span data-phrase="Tags to use"></span>
-                      <small class="mi mi-sm ms-1" data-title-phrase="MaintainEnableTagsText">help</small>
-                    </label>
-                    <div class="col-sm-8">
-                      <div class="input-group">
-                        <input class="form-control" id="inputEnabledTags" readonly="readonly"/>
-                        <div class="btn-group">
-                          <button id="btnEnabledTags" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
-                          <div id="listEnabledTags" class="dropdown-menu px-2"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="mb-3 row">
-                    <label class="col-sm-4 col-form-label" for="btnSearchTags" data-phrase="Tags to search"></label>
-                    <div class="col-sm-8">
-                      <div class="input-group">
-                        <input class="form-control" id="inputSearchTags" readonly="readonly"/>
-                        <div class="btn-group">
-                          <button id="btnSearchTags" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
-                          <div id="listSearchTags" class="dropdown-menu px-2"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="mb-3 row">
-                    <label class="col-sm-4 col-form-label" for="btnBrowseTags" data-phrase="Tags to browse"></label>
-                    <div class="col-sm-8">
-                      <div class="input-group">
-                        <input class="form-control" id="inputBrowseTags" readonly="readonly"/>
-                        <div class="btn-group">
-                          <button id="btnBrowseTags" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
-                          <div id="listBrowseTags" class="dropdown-menu px-2"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <hr/>
-                <h4 data-phrase="Albumart"></h4>
-                <div class="alert alert-warning notfeatLibrary" data-phrase="Music directory not available"></div>
-                <div class="mb-3 row featLibrary">
-                  <label class="col-sm-4 col-form-label" for="inputCoverimageNames" data-phrase="Filenames"></label>
-                  <div class="col-sm-8 position-relative">
-                    <input data-is="mympd-input-reset" id="inputCoverimageNames" class="form-control" placeholder="folder,cover"/>
-                    <div class="invalid-feedback" data-phrase="Invalid filename"></div>
-                  </div>
-                </div>
-                <div class="mb-3 row featLibrary">
-                  <label class="col-sm-4 col-form-label" for="inputThumbnailNames" data-phrase="Thumbnail names"></label>
-                  <div class="col-sm-8 position-relative">
-                    <input data-is="mympd-input-reset" id="inputThumbnailNames" class="form-control" placeholder="folder-sm,cover-sm"/>
-                    <div class="invalid-feedback" data-phrase="Invalid filename"></div>
-                  </div>
-                </div>
-                <div id="coverimageFrm"></div>
-                <div class="mb-3 row featLibrary">
-                  <label class="col-sm-4 col-form-label" for="inputBookletName" data-phrase="Booklet filename"></label>
-                  <div class="col-sm-8 position-relative">
-                    <input data-is="mympd-input-reset" id="inputBookletName" class="form-control" placeholder="booklet.pdf"/>
-                    <div class="invalid-feedback" data-phrase="Invalid filename"></div>
-                  </div>
-                </div>
-                <hr/>
-                <h4 data-phrase="Statistics"></h4>
-                <div id="statisticsFrm"></div>
-                <hr/>
-                <h4 data-phrase="Smart playlists"></h4>
-                <div id="warnSmartpls" class="alert alert-warning d-none" data-phrase="MPD does not support playlists"></div>
+              <div class="featTags">
+                <h4 data-phrase="Tags"></h4>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
-                  <div class="col-sm-8 ">
-                    <button data-bs-toggle="collapse" data-bs-target="#collapseSmartpls" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnSmartpls"></button>
-                  </div>
-                </div>
-                <div class="collapse" id="collapseSmartpls">
-                  <div class="mb-3 row featTags">
-                    <label class="col-sm-4 col-form-label" for="btnGeneratePlsTags" data-phrase="Generate smart playlist per"></label>
-                    <div class="col-sm-8">
-                      <div class="input-group">
-                        <input class="form-control" id="inputGeneratePlsTags" readonly="readonly"/>
-                        <div class="btn-group">
-                          <button id="btnGeneratePlsTags" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
-                          <div id="listGeneratePlsTags" class="dropdown-menu px-2"></div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="mb-3 row">
-                    <label class="col-sm-4 col-form-label" for="inputSmartplsPrefix" data-phrase="Smart playlists prefix"></label>
-                    <div class="col-sm-8 position-relative">
-                      <input data-is="mympd-input-reset" id="inputSmartplsPrefix" class="form-control" placeholder="myMPDsmart"/>
-                      <div class="invalid-feedback" data-phrase="Invalid prefix"></div>
-                    </div>
-                  </div>
-                  <div class="mb-3 row">
-                    <label class="col-sm-4 col-form-label" for="selectSmartplsSort" data-phrase="Order"></label>
-                    <div class="col-sm-8">
-                      <select id="selectSmartplsSort" class="form-select"></select>
-                    </div>
-                  </div>
-                  <div class="mb-3 row">
-                    <label class="col-sm-4 col-form-label" for="inputSmartplsInterval" data-phrase="Update interval"></label>
-                    <div class="col-sm-8">
-                      <div class="input-group">
-                        <div class="flex-grow-1 position-relative">
-                          <input data-is="mympd-input-reset" id="inputSmartplsInterval" class="form-control rounded" placeholder="4"/>
-                        </div>
-                        <span class="input-group-text-nobg" data-phrase="Hours"></span>
-                        <div class="invalid-feedback" data-phrase="Invalid number"></div>
+                  <label class="col-sm-4 col-form-label" for="btnEnabledTags">
+                    <span data-phrase="Tags to use"></span>
+                    <small class="mi mi-sm ms-1" data-title-phrase="MaintainEnableTagsText">help</small>
+                  </label>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                      <input class="form-control" id="inputEnabledTags" readonly="readonly"/>
+                      <div class="btn-group">
+                        <button id="btnEnabledTags" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
+                        <div id="listEnabledTags" class="dropdown-menu px-2"></div>
                       </div>
                     </div>
                   </div>
                 </div>
-              </form>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="btnSearchTags" data-phrase="Tags to search"></label>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                      <input class="form-control" id="inputSearchTags" readonly="readonly"/>
+                      <div class="btn-group">
+                        <button id="btnSearchTags" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
+                        <div id="listSearchTags" class="dropdown-menu px-2"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="btnBrowseTags" data-phrase="Tags to browse"></label>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                      <input class="form-control" id="inputBrowseTags" readonly="readonly"/>
+                      <div class="btn-group">
+                        <button id="btnBrowseTags" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
+                        <div id="listBrowseTags" class="dropdown-menu px-2"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <hr/>
+              <h4 data-phrase="Albumart"></h4>
+              <div class="alert alert-warning notfeatLibrary" data-phrase="Music directory not available"></div>
+              <div class="mb-3 row featLibrary">
+                <label class="col-sm-4 col-form-label" for="inputCoverimageNames" data-phrase="Filenames"></label>
+                <div class="col-sm-8 position-relative">
+                  <input data-is="mympd-input-reset" id="inputCoverimageNames" class="form-control" placeholder="folder,cover"/>
+                  <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                </div>
+              </div>
+              <div class="mb-3 row featLibrary">
+                <label class="col-sm-4 col-form-label" for="inputThumbnailNames" data-phrase="Thumbnail names"></label>
+                <div class="col-sm-8 position-relative">
+                  <input data-is="mympd-input-reset" id="inputThumbnailNames" class="form-control" placeholder="folder-sm,cover-sm"/>
+                  <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                </div>
+              </div>
+              <div id="coverimageFrm"></div>
+              <div class="mb-3 row featLibrary">
+                <label class="col-sm-4 col-form-label" for="inputBookletName" data-phrase="Booklet filename"></label>
+                <div class="col-sm-8 position-relative">
+                  <input data-is="mympd-input-reset" id="inputBookletName" class="form-control" placeholder="booklet.pdf"/>
+                  <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                </div>
+              </div>
+              <hr/>
+              <h4 data-phrase="Statistics"></h4>
+              <div id="statisticsFrm"></div>
+              <hr/>
+              <h4 data-phrase="Smart playlists"></h4>
+              <div id="warnSmartpls" class="alert alert-warning d-none" data-phrase="MPD does not support playlists"></div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="btnSmartpls" data-phrase="Smart playlists"></label>
+                <div class="col-sm-8 ">
+                  <button data-bs-toggle="collapse" data-bs-target="#collapseSmartpls" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnSmartpls"></button>
+                </div>
+              </div>
+              <div class="collapse" id="collapseSmartpls">
+                <div class="mb-3 row featTags">
+                  <label class="col-sm-4 col-form-label" for="btnGeneratePlsTags" data-phrase="Generate smart playlist per"></label>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                      <input class="form-control" id="inputGeneratePlsTags" readonly="readonly"/>
+                      <div class="btn-group">
+                        <button id="btnGeneratePlsTags" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
+                        <div id="listGeneratePlsTags" class="dropdown-menu px-2"></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="inputSmartplsPrefix" data-phrase="Smart playlists prefix"></label>
+                  <div class="col-sm-8 position-relative">
+                    <input data-is="mympd-input-reset" id="inputSmartplsPrefix" class="form-control" placeholder="myMPDsmart"/>
+                    <div class="invalid-feedback" data-phrase="Invalid prefix"></div>
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="selectSmartplsSort" data-phrase="Order"></label>
+                  <div class="col-sm-8">
+                    <select id="selectSmartplsSort" class="form-select"></select>
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="inputSmartplsInterval" data-phrase="Update interval"></label>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                      <div class="flex-grow-1 position-relative">
+                        <input data-is="mympd-input-reset" id="inputSmartplsInterval" class="form-control rounded" placeholder="4"/>
+                      </div>
+                      <span class="input-group-text-nobg" data-phrase="Hours"></span>
+                      <div class="invalid-feedback" data-phrase="Invalid number"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="tab-pane" id="tabEnableFeatures">
               <h4 data-phrase="Lyrics"></h4>
-              <form id="lyricsFrm">
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="btnEnableLyrics" data-phrase="Enable"></label>
-                  <div class="col-sm-8 ">
-                    <button data-bs-toggle="collapse" data-bs-target="#collapseEnableLyrics" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnableLyrics"></button>
-                  </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="btnEnableLyrics" data-phrase="Enable"></label>
+                <div class="col-sm-8 ">
+                  <button data-bs-toggle="collapse" data-bs-target="#collapseEnableLyrics" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnableLyrics"></button>
                 </div>
-                <div class="collapse" id="collapseEnableLyrics"></div>
-                <div id="warnbtnEnableLyrics" class="alert alert-warning" data-phrase="Music directory not available"></div>
-              </form>
+              </div>
+              <div class="collapse" id="collapseEnableLyrics"></div>
+              <div id="warnbtnEnableLyrics" class="alert alert-warning" data-phrase="Music directory not available"></div>
               <hr/>
               <h4 data-phrase="Local playback"></h4>
               <div class="mb-3 row">
@@ -1731,145 +1717,141 @@
         <div class="modal-body">
           <div class="tab-content">
             <div class="tab-pane active" id="tabSettingsPlayback">
-              <form id="queueSettingsFrm">
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="btnRandom" data-phrase="Random"></label>
-                  <div class="col-sm-8">
-                    <button data-href='{"cmd":"toggleBtnChk", "options":[]}' id="btnRandom" type="button" class="btn btn-secondary btn-sm mi"></button>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="btnRandom" data-phrase="Random"></label>
+                <div class="col-sm-8">
+                  <button data-href='{"cmd":"toggleBtnChk", "options":[]}' id="btnRandom" type="button" class="btn btn-secondary btn-sm mi"></button>
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="btnRepeat" data-phrase="Repeat"></label>
+                <div class="col-sm-8">
+                  <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnRepeat" type="button" class="btn btn-secondary btn-sm mi"></button>
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="btnAutoPlay" data-phrase="Autoplay"></label>
+                <div class="col-sm-8">
+                  <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-sm mi"></button>
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" data-phrase="Consume"></label>
+                <div class="col-sm-8">
+                  <div class="btn-group" id="btnConsumeGroup">
+                    <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                    <button data-value="oneshot" class="btn btn-secondary featConsumeOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
+                    <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
                   </div>
                 </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="btnRepeat" data-phrase="Repeat"></label>
-                  <div class="col-sm-8">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnRepeat" type="button" class="btn btn-secondary btn-sm mi"></button>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" data-phrase="Single"></label>
+                <div class="col-sm-8">
+                  <div class="btn-group" id="btnSingleGroup">
+                    <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                    <button data-value="oneshot" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
+                    <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
                   </div>
                 </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="btnAutoPlay" data-phrase="Autoplay"></label>
-                  <div class="col-sm-8">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-sm mi"></button>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" data-phrase="Replaygain"></label>
+                <div class="col-sm-8">
+                  <div class="btn-group" id="btnReplaygainGroup">
+                    <button data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
+                    <button data-value="auto" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Auto"></button>
+                    <button data-value="track" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
+                    <button data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
                   </div>
                 </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" data-phrase="Consume"></label>
-                  <div class="col-sm-8">
-                    <div class="btn-group" id="btnConsumeGroup">
-                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
-                      <button data-value="oneshot" class="btn btn-secondary featConsumeOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
-                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="inputCrossfade" data-phrase="Crossfade"></label>
+                <div class="col-sm-8">
+                  <div class="input-group">
+                    <div class="flex-grow-1 position-relative">
+                      <input data-is="mympd-input-reset" id="inputCrossfade" class="form-control rounded" placeholder="0"/>
                     </div>
-                  </div>
-                </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" data-phrase="Single"></label>
-                  <div class="col-sm-8">
-                    <div class="btn-group" id="btnSingleGroup">
-                      <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
-                      <button data-value="oneshot" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
-                      <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
-                    </div>
-                  </div>
-                </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" data-phrase="Replaygain"></label>
-                  <div class="col-sm-8">
-                    <div class="btn-group" id="btnReplaygainGroup">
-                      <button data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
-                      <button data-value="auto" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Auto"></button>
-                      <button data-value="track" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
-                      <button data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
-                    </div>
-                  </div>
-                </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="inputCrossfade" data-phrase="Crossfade"></label>
-                  <div class="col-sm-8">
-                    <div class="input-group">
-                      <div class="flex-grow-1 position-relative">
-                        <input data-is="mympd-input-reset" id="inputCrossfade" class="form-control rounded" placeholder="0"/>
-                      </div>
-                      <div class="input-group-text-nobg" data-phrase="Seconds"></div>
-                      <div class="invalid-feedback" data-phrase="Must be a number"></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="inputMixrampDelay" data-phrase="Mixramp delay"></label>
-                  <div class="col-sm-8">
-                    <div class="input-group">
-                      <div class="flex-grow-1 position-relative">
-                        <input data-is="mympd-input-reset" id="inputMixrampDelay" class="form-control rounded" placeholder="-1"/>
-                      </div>
-                      <div class="input-group-text-nobg" data-phrase="Seconds"></div>
-                      <div class="invalid-feedback" data-phrase="Must be a number"></div>
-                    </div>
-                  </div>
-                </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="inputMixrampDb" data-phrase="Mixramp db"></label>
-                  <div class="col-sm-8 position-relative">
-                    <input data-is="mympd-input-reset" id="inputMixrampDb" class="form-control rounded" placeholder="0"/>
+                    <div class="input-group-text-nobg" data-phrase="Seconds"></div>
                     <div class="invalid-feedback" data-phrase="Must be a number"></div>
                   </div>
                 </div>
-              </form>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="inputMixrampDelay" data-phrase="Mixramp delay"></label>
+                <div class="col-sm-8">
+                  <div class="input-group">
+                    <div class="flex-grow-1 position-relative">
+                      <input data-is="mympd-input-reset" id="inputMixrampDelay" class="form-control rounded" placeholder="-1"/>
+                    </div>
+                    <div class="input-group-text-nobg" data-phrase="Seconds"></div>
+                    <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                  </div>
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="inputMixrampDb" data-phrase="Mixramp db"></label>
+                <div class="col-sm-8 position-relative">
+                  <input data-is="mympd-input-reset" id="inputMixrampDb" class="form-control rounded" placeholder="0"/>
+                  <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                </div>
+              </div>
             </div>
             <div class="tab-pane" id="tabJukeboxSettings">
-              <form id="jukeboxSettingsFrm">
-                <div id="warnConsume" class="alert alert-warning d-none" data-phrase="Consume must be enabled"></div>
+              <div id="warnConsume" class="alert alert-warning d-none" data-phrase="Consume must be enabled"></div>
+              <div class="mb-3 row">
+                <label id="labelJukeboxMode" class="col-sm-4 col-form-label" data-phrase="Jukebox mode" data-bs-toggle="collapse" data-bs-target="#collapseJukeboxMode"></label>
+                <div class="col-sm-8">
+                  <div class="btn-group" id="btnJukeboxModeGroup">
+                    <button data-collapse="d-none" data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Off"></button>
+                    <button data-collapse="show" data-value="song" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Song"></button>
+                    <button data-collapse="show" data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Album"></button>
+                  </div>
+                </div>
+              </div>
+              <div class="collapse" id="collapseJukeboxMode">
                 <div class="mb-3 row">
-                  <label id="labelJukeboxMode" class="col-sm-4 col-form-label" data-phrase="Jukebox mode" data-bs-toggle="collapse" data-bs-target="#collapseJukeboxMode"></label>
+                  <label class="col-sm-4 col-form-label" for="selectJukeboxPlaylist" data-phrase="Playlist"></label>
                   <div class="col-sm-8">
-                    <div class="btn-group" id="btnJukeboxModeGroup">
-                      <button data-collapse="d-none" data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Off"></button>
-                      <button data-collapse="show" data-value="song" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Song"></button>
-                      <button data-collapse="show" data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Album"></button>
+                    <div class="btn-group position-relative d-flex">
+                      <input data-is="mympd-select-search" readonly="readonly" id="selectJukeboxPlaylist" class="form-control"/>
                     </div>
                   </div>
                 </div>
-                <div class="collapse" id="collapseJukeboxMode">
-                  <div class="mb-3 row">
-                    <label class="col-sm-4 col-form-label" for="selectJukeboxPlaylist" data-phrase="Playlist"></label>
-                    <div class="col-sm-8">
-                      <div class="btn-group position-relative d-flex">
-                        <input data-is="mympd-select-search" readonly="readonly" id="selectJukeboxPlaylist" class="form-control"/>
-                      </div>
-                    </div>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="inputJukeboxQueueLength" data-phrase="Keep queue length"></label>
+                  <div class="col-sm-8 position-relative">
+                    <input data-is="mympd-input-reset" id="inputJukeboxQueueLength" class="form-control" placeholder="1"/>
+                    <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
                   </div>
-                  <div class="mb-3 row">
-                    <label class="col-sm-4 col-form-label" for="inputJukeboxQueueLength" data-phrase="Keep queue length"></label>
-                    <div class="col-sm-8 position-relative">
-                      <input data-is="mympd-input-reset" id="inputJukeboxQueueLength" class="form-control" placeholder="1"/>
-                      <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
-                    </div>
-                  </div>
-                  <div class="mb-3 row featTags">
-                    <label class="col-sm-4 col-form-label" for="selectJukeboxUniqueTag" data-phrase="Enforce uniqueness"></label>
-                    <div class="col-sm-8">
-                      <select id="selectJukeboxUniqueTag" class="form-select"></select>
-                    </div>
-                  </div>
-                  <div class="mb-3 row">
-                    <label class="col-sm-4 col-form-label" for="inputJukeboxLastPlayed" data-phrase="Song was played last"></label>
-                    <div class="col-sm-8">
-                      <div class="input-group">
-                        <div class="flex-grow-1 position-relative">
-                          <input data-is="mympd-input-reset" id="inputJukeboxLastPlayed" class="form-control rounded" placeholder="24"/>
-                        </div>
-                        <span class="input-group-text-nobg" data-phrase="Hours ago"></span>
-                        <div class="invalid-feedback" data-phrase="Must be a number and equal or greater than zero"></div>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="mb-3 row featStickers">
-                    <label class="col-sm-4 col-form-label" for="btnJukeboxIgnoreHated" data-phrase="Ignore hated songs"></label>
-                    <div class="col-sm-8">
-                      <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnJukeboxIgnoreHated" type="button" class="btn btn-secondary btn-sm mi"></button>
-                    </div>
-                  </div>
-                  <div id="warnPlaybackStatistics" class="alert alert-warning d-none" data-phrase="Playback statistics are disabled"></div>
                 </div>
-              </form>
+                <div class="mb-3 row featTags">
+                  <label class="col-sm-4 col-form-label" for="selectJukeboxUniqueTag" data-phrase="Enforce uniqueness"></label>
+                  <div class="col-sm-8">
+                    <select id="selectJukeboxUniqueTag" class="form-select"></select>
+                  </div>
+                </div>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="inputJukeboxLastPlayed" data-phrase="Song was played last"></label>
+                  <div class="col-sm-8">
+                    <div class="input-group">
+                      <div class="flex-grow-1 position-relative">
+                        <input data-is="mympd-input-reset" id="inputJukeboxLastPlayed" class="form-control rounded" placeholder="24"/>
+                      </div>
+                      <span class="input-group-text-nobg" data-phrase="Hours ago"></span>
+                      <div class="invalid-feedback" data-phrase="Must be a number and equal or greater than zero"></div>
+                    </div>
+                  </div>
+                </div>
+                <div class="mb-3 row featStickers">
+                  <label class="col-sm-4 col-form-label" for="btnJukeboxIgnoreHated" data-phrase="Ignore hated songs"></label>
+                  <div class="col-sm-8">
+                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnJukeboxIgnoreHated" type="button" class="btn btn-secondary btn-sm mi"></button>
+                  </div>
+                </div>
+                <div id="warnPlaybackStatistics" class="alert alert-warning d-none" data-phrase="Playback statistics are disabled"></div>
+              </div>
             </div>
             <div class="tab-pane" id="tabPresets">
               <div class="table-responsive overflow-auto">
@@ -1977,97 +1959,95 @@
           <button type="button" class="btn-close alwaysEnabled" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form id="connectionFrm">
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="inputMpdHost" data-phrase="MPD host"></label>
+            <div class="col-sm-8 position-relative">
+              <input data-is="mympd-input-reset" id="inputMpdHost" class="form-control alwaysEnabled" placeholder="/run/mpd/socket"/>
+              <div class="invalid-feedback" data-phrase="Invalid MPD host"></div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="inputMpdPort" data-phrase="MPD port"></label>
+            <div class="col-sm-8 position-relative">
+              <input data-is="mympd-input-reset" id="inputMpdPort" class="form-control alwaysEnabled" placeholder="6600"/>
+              <div class="invalid-feedback" data-phrase="Invalid MPD port"></div>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="selectMusicDirectory" data-phrase="Music directory"></label>
+            <div class="col-sm-8">
+              <select id="selectMusicDirectory" class="form-select alwaysEnabled">
+                <option value="auto" data-phrase="Autodetect"></option>
+                <option value="none" data-phrase="None"></option>
+                <option value="custom" data-phrase="Specify"></option>
+              </select>
+              <input id="inputMusicDirectory" class="form-control mt-2 alwaysEnabled"/>
+              <div class="invalid-feedback" data-phrase="Invalid music directory"></div>
+            </div>
+          </div>
+          <div id="warnMusicDirectory" class="alert alert-warning d-none" data-phrase="Music directory not found"></div>
+          <hr/>
+          <div class="mb-3 row">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-8">
+              <button data-href='{"cmd": "toggleBtn", "options": []}' data-bs-toggle="collapse" data-bs-target="#collapseConnectionAdv" class="btn btn-secondary alwaysEnabled" data-phrase="Advanced"></button>
+            </div>
+          </div>
+          <div id="collapseConnectionAdv" class="collapse">
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputMpdHost" data-phrase="MPD host"></label>
+              <label class="col-sm-4 col-form-label" for="inputMpdPass" data-phrase="MPD password"></label>
               <div class="col-sm-8 position-relative">
-                <input data-is="mympd-input-reset" id="inputMpdHost" class="form-control alwaysEnabled" placeholder="/run/mpd/socket"/>
-                <div class="invalid-feedback" data-phrase="Invalid MPD host"></div>
+                <input data-is="mympd-input-password" id="inputMpdPass" type="password" autocomplete="off" class="form-control alwaysEnabled"/>
+                <div class="invalid-feedback" data-phrase="Invalid MPD password"></div>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputMpdPort" data-phrase="MPD port"></label>
-              <div class="col-sm-8 position-relative">
-                <input data-is="mympd-input-reset" id="inputMpdPort" class="form-control alwaysEnabled" placeholder="6600"/>
-                <div class="invalid-feedback" data-phrase="Invalid MPD port"></div>
-              </div>
-            </div>
-            <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="selectMusicDirectory" data-phrase="Music directory"></label>
+              <label class="col-sm-4 col-form-label" for="selectPlaylistDirectory" data-phrase="Playlist directory"></label>
               <div class="col-sm-8">
-                <select id="selectMusicDirectory" class="form-select alwaysEnabled">
-                  <option value="auto" data-phrase="Autodetect"></option>
+                <select id="selectPlaylistDirectory" class="form-select alwaysEnabled">
+                  <option value="auto" data-phrase="Autodetect" class="featPlaylistDirAuto"></option>
                   <option value="none" data-phrase="None"></option>
                   <option value="custom" data-phrase="Specify"></option>
                 </select>
-                <input id="inputMusicDirectory" class="form-control mt-2 alwaysEnabled"/>
-                <div class="invalid-feedback" data-phrase="Invalid music directory"></div>
+                <input id="inputPlaylistDirectory" class="form-control mt-2 alwaysEnabled" placeholder="/var/lib/mpd/playlists"/>
+                <div class="invalid-feedback" data-phrase="Invalid playlist directory"></div>
               </div>
             </div>
-            <div id="warnMusicDirectory" class="alert alert-warning d-none" data-phrase="Music directory not found"></div>
-            <hr/>
+            <div id="warnPlaylistDirectory" class="alert alert-warning d-none" data-phrase="Playlist directory not found"></div>
             <div class="mb-3 row">
-              <div class="col-sm-4"></div>
+              <label class="col-sm-4 col-form-label" for="inputMpdTimeout" data-phrase="Timeout"></label>
               <div class="col-sm-8">
-                <button data-href='{"cmd": "toggleBtn", "options": []}' data-bs-toggle="collapse" data-bs-target="#collapseConnectionAdv" class="btn btn-secondary alwaysEnabled" data-phrase="Advanced"></button>
-              </div>
-            </div>
-            <div id="collapseConnectionAdv" class="collapse">
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputMpdPass" data-phrase="MPD password"></label>
-                <div class="col-sm-8 position-relative">
-                  <input data-is="mympd-input-password" id="inputMpdPass" type="password" autocomplete="off" class="form-control alwaysEnabled"/>
-                  <div class="invalid-feedback" data-phrase="Invalid MPD password"></div>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="selectPlaylistDirectory" data-phrase="Playlist directory"></label>
-                <div class="col-sm-8">
-                  <select id="selectPlaylistDirectory" class="form-select alwaysEnabled">
-                    <option value="auto" data-phrase="Autodetect" class="featPlaylistDirAuto"></option>
-                    <option value="none" data-phrase="None"></option>
-                    <option value="custom" data-phrase="Specify"></option>
-                  </select>
-                  <input id="inputPlaylistDirectory" class="form-control mt-2 alwaysEnabled" placeholder="/var/lib/mpd/playlists"/>
-                  <div class="invalid-feedback" data-phrase="Invalid playlist directory"></div>
-                </div>
-              </div>
-              <div id="warnPlaylistDirectory" class="alert alert-warning d-none" data-phrase="Playlist directory not found"></div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputMpdTimeout" data-phrase="Timeout"></label>
-                <div class="col-sm-8">
-                  <div class="input-group">
-                    <div class="flex-grow-1 position-relative">
-                      <input data-is="mympd-input-reset" id="inputMpdTimeout" class="form-control alwaysEnabled" placeholder="30"/>
-                    </div>
-                    <span class="input-group-text-nobg" data-phrase="Seconds"></span>
-                    <div class="invalid-feedback" data-phrase="Invalid timeout"></div>
+                <div class="input-group">
+                  <div class="flex-grow-1 position-relative">
+                    <input data-is="mympd-input-reset" id="inputMpdTimeout" class="form-control alwaysEnabled" placeholder="30"/>
                   </div>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="btnMpdKeepalive" data-phrase="Keepalive"></label>
-                <div class="col-sm-8">
-                  <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnMpdKeepalive">check</button>
-                </div>
-              </div>
-              <div class="mb-3 row featBinarylimit">
-                <label class="col-sm-4 col-form-label" for="inputMpdBinarylimit">
-                  <span data-phrase="Binary limit"></span>
-                  <small class="mi mi-sm ms-1" data-title-phrase="BinaryLimitHelpText">help</small>
-                </label>
-                <div class="col-sm-8">
-                  <div class="input-group">
-                    <div class="flex-grow-1 position-relative">
-                      <input data-is="mympd-input-reset" id="inputMpdBinarylimit" class="form-control alwaysEnabled" placeholder="8"/>
-                    </div>
-                    <span class="input-group-text-nobg" data-phrase="kB"></span>
-                  </div>
-                  <div class="invalid-feedback" data-phrase="Invalid binary limit"></div>
+                  <span class="input-group-text-nobg" data-phrase="Seconds"></span>
+                  <div class="invalid-feedback" data-phrase="Invalid timeout"></div>
                 </div>
               </div>
             </div>
-          </form>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="btnMpdKeepalive" data-phrase="Keepalive"></label>
+              <div class="col-sm-8">
+                <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnMpdKeepalive">check</button>
+              </div>
+            </div>
+            <div class="mb-3 row featBinarylimit">
+              <label class="col-sm-4 col-form-label" for="inputMpdBinarylimit">
+                <span data-phrase="Binary limit"></span>
+                <small class="mi mi-sm ms-1" data-title-phrase="BinaryLimitHelpText">help</small>
+              </label>
+              <div class="col-sm-8">
+                <div class="input-group">
+                  <div class="flex-grow-1 position-relative">
+                    <input data-is="mympd-input-reset" id="inputMpdBinarylimit" class="form-control alwaysEnabled" placeholder="8"/>
+                  </div>
+                  <span class="input-group-text-nobg" data-phrase="kB"></span>
+                </div>
+                <div class="invalid-feedback" data-phrase="Invalid binary limit"></div>
+              </div>
+            </div>
+          </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary alwaysEnabled" data-bs-dismiss="modal" data-phrase="Cancel"></button>
@@ -2147,104 +2127,102 @@
         <div class="modal-body">
         <div class="tab-content">
           <div id="editTimer" class="tab-pane">
-            <form id="editTimerForm">
-              <input type="hidden" id="inputTimerId" value="0"/>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputTimerName" data-phrase="Name"></label>
-                <div class="col-sm-8">
-                  <input id="inputTimerName" class="form-control"/>
-                  <div class="invalid-feedback" data-phrase="Invalid name"></div>
+            <input type="hidden" id="inputTimerId" value="0"/>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="inputTimerName" data-phrase="Name"></label>
+              <div class="col-sm-8">
+                <input id="inputTimerName" class="form-control"/>
+                <div class="invalid-feedback" data-phrase="Invalid name"></div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="btnTimerEnabled" data-phrase="Enabled"></label>
+              <div class="col-sm-8">
+                <button data-href='{"cmd":"toggleBtnChk","options":[]}' id="btnTimerEnabled" type="button" class="btn btn-secondary btn-sm mi active">check</button>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" data-phrase="Start"></label>
+              <div class="col-sm-8">
+                <div class="input-group">
+                  <select class="form-select" id="selectTimerHour"></select>
+                  <select class="form-select" id="selectTimerMinute"></select>
                 </div>
               </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="btnTimerEnabled" data-phrase="Enabled"></label>
-                <div class="col-sm-8">
-                  <button data-href='{"cmd":"toggleBtnChk","options":[]}' id="btnTimerEnabled" type="button" class="btn btn-secondary btn-sm mi active">check</button>
-                </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" data-phrase="Weekdays"></label>
+              <div class="col-sm-8">
+                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerMon" data-phrase="Mon"></button>
+                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerTue" data-phrase="Tue"></button>
+                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerWed" data-phrase="Wed"></button>
+                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerThu" data-phrase="Thu"></button>
+                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerFri" data-phrase="Fri"></button>
+                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerSat" data-phrase="Sat"></button>
+                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerSun" data-phrase="Sun"></button>
+                <div id="invalidTimerWeekdays" class="invalid-feedback" data-phrase="Minimum one weekday must be selected"></div>
               </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" data-phrase="Start"></label>
-                <div class="col-sm-8">
-                  <div class="input-group">
-                    <select class="form-select" id="selectTimerHour"></select>
-                    <select class="form-select" id="selectTimerMinute"></select>
-                  </div>
-                </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="selectTimerInterval" data-phrase="Interval"></label>
+              <div class="col-sm-4">
+                <select id="selectTimerInterval" class="form-select">
+                  <option value="-1" data-phrase="One shot and delete"></option>
+                  <option value="0" data-phrase="One shot and disable"></option>
+                  <option value="-2" data-phrase="Repeat each"></option>
+                </select>
               </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" data-phrase="Weekdays"></label>
-                <div class="col-sm-8">
-                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerMon" data-phrase="Mon"></button>
-                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerTue" data-phrase="Tue"></button>
-                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerWed" data-phrase="Wed"></button>
-                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerThu" data-phrase="Thu"></button>
-                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerFri" data-phrase="Fri"></button>
-                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerSat" data-phrase="Sat"></button>
-                  <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerSun" data-phrase="Sun"></button>
-                  <div id="invalidTimerWeekdays" class="invalid-feedback" data-phrase="Minimum one weekday must be selected"></div>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="selectTimerInterval" data-phrase="Interval"></label>
-                <div class="col-sm-4">
-                  <select id="selectTimerInterval" class="form-select">
-                    <option value="-1" data-phrase="One shot and delete"></option>
-                    <option value="0" data-phrase="One shot and disable"></option>
-                    <option value="-2" data-phrase="Repeat each"></option>
+              <div class="col-sm-4">
+                <div class="input-group d-none" id="groupTimerInterval">
+                  <input class="form-control" id="inputTimerInterval"/>
+                  <select class="form-select" id="selectTimerIntervalUnit">
+                    <option value="1" data-phrase="Seconds"></option>
+                    <option value="60" data-phrase="Minutes"></option>
+                    <option value="3600" data-phrase="Hours"></option>
+                    <option value="86400" data-phrase="Days"></option>
+                    <option value="604800" data-phrase="Weeks"></option>
                   </select>
                 </div>
-                <div class="col-sm-4">
-                  <div class="input-group d-none" id="groupTimerInterval">
-                    <input class="form-control" id="inputTimerInterval"/>
-                    <select class="form-select" id="selectTimerIntervalUnit">
-                      <option value="1" data-phrase="Seconds"></option>
-                      <option value="60" data-phrase="Minutes"></option>
-                      <option value="3600" data-phrase="Hours"></option>
-                      <option value="86400" data-phrase="Days"></option>
-                      <option value="604800" data-phrase="Weeks"></option>
-                    </select>
-                  </div>
-                  <div id="invalidTimerInterval" class="invalid-feedback" data-phrase="Invalid timer interval"></div>
+                <div id="invalidTimerInterval" class="invalid-feedback" data-phrase="Invalid timer interval"></div>
+              </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="selectTimerAction" data-phrase="Action"></label>
+              <div class="col-sm-8">
+                <select id="selectTimerAction" class="form-select"></select>
+                <div class="invalid-feedback" data-phrase="No action selected"></div>
+              </div>
+            </div>
+            <div id="timerActionPlay">
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="inputTimerVolume" data-phrase="Volume"></label>
+                <div class="col-sm-7 mt-2">
+                  <input type="range" min="0" max="100" step="1" class="form-range" id="inputTimerVolume"/>
+                </div>
+                <div class="col-sm-1 mt-2 ps-0 text-right" id="textTimerVolume"></div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="selectTimerPreset" data-phrase="Load preset"></label>
+                <div class="col-sm-8">
+                  <select id="selectTimerPreset" class="form-select"></select>
                 </div>
               </div>
               <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="selectTimerAction" data-phrase="Action"></label>
+                <label class="col-sm-4 col-form-label" for="selectTimerPlaylist">
+                  <span data-phrase="Load playlist"></span>
+                  <small class="mi mi-sm ms-1" data-title-phrase="Playlist is ignored if preset enables the jukebox">help</small>
+                </label>
                 <div class="col-sm-8">
-                  <select id="selectTimerAction" class="form-select"></select>
-                  <div class="invalid-feedback" data-phrase="No action selected"></div>
-                </div>
-              </div>
-              <div id="timerActionPlay">
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="inputTimerVolume" data-phrase="Volume"></label>
-                  <div class="col-sm-7 mt-2">
-                    <input type="range" min="0" max="100" step="1" class="form-range" id="inputTimerVolume"/>
-                  </div>
-                  <div class="col-sm-1 mt-2 ps-0 text-right" id="textTimerVolume"></div>
-                </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="selectTimerPreset" data-phrase="Load preset"></label>
-                  <div class="col-sm-8">
-                    <select id="selectTimerPreset" class="form-select"></select>
-                  </div>
-                </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="selectTimerPlaylist">
-                    <span data-phrase="Load playlist"></span>
-                    <small class="mi mi-sm ms-1" data-title-phrase="Playlist is ignored if preset enables the jukebox">help</small>
-                  </label>
-                  <div class="col-sm-8">
-                    <div class="btn-group position-relative d-flex">
-                      <input data-is="mympd-select-search" readonly="readonly" id="selectTimerPlaylist" class="form-control"/>
-                    </div>
+                  <div class="btn-group position-relative d-flex">
+                    <input data-is="mympd-select-search" readonly="readonly" id="selectTimerPlaylist" class="form-control"/>
                   </div>
                 </div>
               </div>
-              <div id="timerActionScript">
-                <h5 data-phrase="Script arguments"></h5>
-                <div id="timerActionScriptArguments"></div>
-              </div>
-            </form>
+            </div>
+            <div id="timerActionScript">
+              <h5 data-phrase="Script arguments"></h5>
+              <div id="timerActionScriptArguments"></div>
+            </div>
           </div>
           <div class="tab-pane active" id="listTimer">
             <div class="table-responsive overflow-auto">
@@ -2288,30 +2266,28 @@
         <div class="modal-body">
         <div class="tab-content">
           <div id="editMount" class="tab-pane">
-            <form id="editMountForm">
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputMountPoint" data-phrase="Mount point"></label>
-                <div class="col-sm-8">
-                  <input id="inputMountPoint" class="form-control"/>
-                  <div class="invalid-feedback" data-phrase="Invalid mount point"></div>
-                </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="inputMountPoint" data-phrase="Mount point"></label>
+              <div class="col-sm-8">
+                <input id="inputMountPoint" class="form-control"/>
+                <div class="invalid-feedback" data-phrase="Invalid mount point"></div>
               </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputMountUrl" data-phrase="Backend uri"></label>
-                <div class="col-sm-8">
-                  <div class="input-group">
-                    <input id="inputMountUrl" class="form-control"/>
-                    <div class="btn-group">
-                      <button id="btnDropdownNeighbors" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-start-0 rounded-end" type="button" data-bs-toggle="dropdown"></button>
-                      <div id="dropdownNeighbors" class="dropdown-menu dropdown-menu-right dropdownWide border-0 p-0 ">
-                        <div class="list-group list-group-scroll"></div>
-                      </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="inputMountUrl" data-phrase="Backend uri"></label>
+              <div class="col-sm-8">
+                <div class="input-group">
+                  <input id="inputMountUrl" class="form-control"/>
+                  <div class="btn-group">
+                    <button id="btnDropdownNeighbors" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-start-0 rounded-end" type="button" data-bs-toggle="dropdown"></button>
+                    <div id="dropdownNeighbors" class="dropdown-menu dropdown-menu-right dropdownWide border-0 p-0 ">
+                      <div class="list-group list-group-scroll"></div>
                     </div>
-                    <div class="invalid-feedback" data-phrase="Invalid backend uri"></div>
                   </div>
+                  <div class="invalid-feedback" data-phrase="Invalid backend uri"></div>
                 </div>
               </div>
-            </form>
+            </div>
           </div>
           <div class="tab-pane active" id="listMounts">
             <div class="table-responsive overflow-auto">
@@ -2350,7 +2326,6 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form id="execScriptFrm">
             <div class="mb-3 row">
               <label class="col-sm-4 col-form-label" for="modalExecScriptScriptname" data-phrase="Script"></label>
               <div class="col-sm-8">
@@ -2359,7 +2334,6 @@
             </div>
             <hr/>
             <div id="execScriptArguments"></div>
-          </form>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
@@ -2380,75 +2354,73 @@
         <div class="modal-body">
         <div class="tab-content">
           <div id="editScript" class="tab-pane">
-            <form id="editScriptForm">
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputScriptName" data-phrase="Script name"></label>
-                <div class="col-sm-8">
-                  <input id="inputOldScriptName" type="hidden"/>
-                  <input id="inputScriptName" class="form-control"/>
-                  <div class="invalid-feedback" data-phrase="Invalid script name"></div>
-                </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="inputScriptName" data-phrase="Script name"></label>
+              <div class="col-sm-8">
+                <input id="inputOldScriptName" type="hidden"/>
+                <input id="inputScriptName" class="form-control"/>
+                <div class="invalid-feedback" data-phrase="Invalid script name"></div>
               </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputScriptOrder">
-                  <span data-phrase="Order"></span><small class="mi mi-sm ms-1" data-title-phrase="Sort order of the script, 0 disables listing in main menu">help</small>
-                </label>
-                <div class="col-sm-8">
-                  <input id="inputScriptOrder" class="form-control"/>
-                  <div class="invalid-feedback" data-phrase="Invalid script order"></div>
-                </div>
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="inputScriptOrder">
+                <span data-phrase="Order"></span><small class="mi mi-sm ms-1" data-title-phrase="Sort order of the script, 0 disables listing in main menu">help</small>
+              </label>
+              <div class="col-sm-8">
+                <input id="inputScriptOrder" class="form-control"/>
+                <div class="invalid-feedback" data-phrase="Invalid script order"></div>
               </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputScriptArgument" data-phrase="Arguments"></label>
-                <div class="col-sm-8">
+            </div>
+            <div class="mb-3 row">
+              <label class="col-sm-4 col-form-label" for="inputScriptArgument" data-phrase="Arguments"></label>
+              <div class="col-sm-8">
+                <div class="input-group">
+                  <input id="inputScriptArgument" class="form-control"/>
+                  <button class="btn btn-secondary rounded-end" id="addScriptArgument" data-href='{"cmd": "addScriptArgument", "options": []}'>+</button>
+                  <div class="invalid-feedback" data-phrase="Invalid script argument"></div>
+                </div>
+                <select class="mt-2 form-select" id="selectScriptArguments" size="3"></select>
+              </div>
+            </div>
+            <div class="mb-3">
+              <label for="textareaScriptContent" data-phrase="Script"></label>
+              <textarea class="form-control font-monospace border-secondary" id="textareaScriptContent" rows="10"></textarea>
+              <div class="btn-group mt-2 me-2">
+                <button id="btnDropdownAddAPIcall" data-title-phrase="Insert API call" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">api</button>
+                <div class="dropdown-menu px-2" id="dropdownAddAPIcall">
                   <div class="input-group">
-                    <input id="inputScriptArgument" class="form-control"/>
-                    <button class="btn btn-secondary rounded-end" id="addScriptArgument" data-href='{"cmd": "addScriptArgument", "options": []}'>+</button>
-                    <div class="invalid-feedback" data-phrase="Invalid script argument"></div>
+                    <select class="form-select" id="selectAPIcall"></select>
+                    <button class="btn btn-success mi" id="btnAddAPIcall" data-title-phrase="Add">add</button>
                   </div>
-                  <select class="mt-2 form-select" id="selectScriptArguments" size="3"></select>
+                  <div id="APIdesc" class="mt-2 ps-1"></div>
+                  <div class="mt-2 ps-1">
+                    <a target="_blank" rel="noreferrer" href="https://jcorporation.github.io/myMPD/references/api/methods" class="text-success external" data-phrase="Open documentation"></a>
+                  </div>
                 </div>
               </div>
-              <div class="mb-3">
-                <label for="textareaScriptContent" data-phrase="Script"></label>
-                <textarea class="form-control font-monospace border-secondary" id="textareaScriptContent" rows="10"></textarea>
-                <div class="btn-group mt-2 me-2">
-                  <button id="btnDropdownAddAPIcall" data-title-phrase="Insert API call" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">api</button>
-                  <div class="dropdown-menu px-2" id="dropdownAddAPIcall">
-                    <div class="input-group">
-                      <select class="form-select" id="selectAPIcall"></select>
-                      <button class="btn btn-success mi" id="btnAddAPIcall" data-title-phrase="Add">add</button>
-                    </div>
-                    <div id="APIdesc" class="mt-2 ps-1"></div>
-                    <div class="mt-2 ps-1">
-                      <a target="_blank" rel="noreferrer" href="https://jcorporation.github.io/myMPD/references/api/methods" class="text-success external" data-phrase="Open documentation"></a>
-                    </div>
+              <div class="btn-group mt-2 me-2">
+                <button id="btnDropdownAddFunction" data-title-phrase="Insert function" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">functions</button>
+                <div class="dropdown-menu px-2" id="dropdownAddFunction">
+                  <div class="input-group">
+                    <select class="form-select" id="selectFunction"></select>
+                    <button class="btn btn-success mi" id="btnAddFunction" data-title-phrase="Add">add</button>
                   </div>
-                </div>
-                <div class="btn-group mt-2 me-2">
-                  <button id="btnDropdownAddFunction" data-title-phrase="Insert function" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">functions</button>
-                  <div class="dropdown-menu px-2" id="dropdownAddFunction">
-                    <div class="input-group">
-                      <select class="form-select" id="selectFunction"></select>
-                      <button class="btn btn-success mi" id="btnAddFunction" data-title-phrase="Add">add</button>
-                    </div>
-                    <div id="functionDesc" class="mt-2 ps-1"></div>
-                  </div>
-                </div>
-                <div class="btn-group mt-2 me-2">
-                  <button id="btnDropdownImportScript" data-title-phrase="Import script" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">cloud_download</button>
-                  <div class="dropdown-menu px-2" id="dropdownImportScript">
-                    <div class="input-group">
-                      <select class="form-select" id="selectImportScript"></select>
-                      <button class="btn btn-success mi" id="btnImportScript" data-title-phrase="Add">add</button>
-                    </div>
-                  </div>
-                </div>
-                <div class="btn-group mt-2 me-2">
-                  <button data-title-phrase="Validate" data-href='{"cmd":"validateScript","options":[]}' type="button" class="btn btn-secondary mi">check</button>
+                  <div id="functionDesc" class="mt-2 ps-1"></div>
                 </div>
               </div>
-            </form>
+              <div class="btn-group mt-2 me-2">
+                <button id="btnDropdownImportScript" data-title-phrase="Import script" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">cloud_download</button>
+                <div class="dropdown-menu px-2" id="dropdownImportScript">
+                  <div class="input-group">
+                    <select class="form-select" id="selectImportScript"></select>
+                    <button class="btn btn-success mi" id="btnImportScript" data-title-phrase="Add">add</button>
+                  </div>
+                </div>
+              </div>
+              <div class="btn-group mt-2 me-2">
+                <button data-title-phrase="Validate" data-href='{"cmd":"validateScript","options":[]}' type="button" class="btn btn-secondary mi">check</button>
+              </div>
+            </div>
           </div>
           <div class="tab-pane active" id="listScripts">
             <div class="table-responsive overflow-auto">
@@ -2488,15 +2460,13 @@
         <div class="modal-body">
           <div class="tab-content">
             <div id="newPartition" class="tab-pane">
-              <form id="newPartitionForm">
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="inputPartitionName" data-phrase="Partition name"></label>
-                  <div class="col-sm-8">
-                    <input id="inputPartitionName" class="form-control"/>
-                    <div class="invalid-feedback" data-phrase="Invalid partition name"></div>
-                  </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="inputPartitionName" data-phrase="Partition name"></label>
+                <div class="col-sm-8">
+                  <input id="inputPartitionName" class="form-control"/>
+                  <div class="invalid-feedback" data-phrase="Invalid partition name"></div>
                 </div>
-              </form>
+              </div>
             </div>
             <div class="tab-pane active" id="listPartitions">
               <div class="table-responsive overflow-auto">
@@ -2562,17 +2532,15 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form>
-            <input type="hidden" id="modalOutputAttributesId"/>
-            <div class="table-responsive overflow-auto">
-              <table class="table table-sm">
-                <thead>
-                  <tr><th data-phrase="Attribute"></th><th data-phrase="Value"></th></tr>
-                </thead>
-                <tbody id="outputAttributesList"></tbody>
-              </table>
-            </div>
-          </form>
+          <input type="hidden" id="modalOutputAttributesId"/>
+          <div class="table-responsive overflow-auto">
+            <table class="table table-sm">
+              <thead>
+                <tr><th data-phrase="Attribute"></th><th data-phrase="Value"></th></tr>
+              </thead>
+              <tbody id="outputAttributesList"></tbody>
+            </table>
+          </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
@@ -2608,40 +2576,38 @@
         <div class="modal-body">
           <div class="tab-content">
             <div id="newTrigger" class="tab-pane">
-              <form id="newTriggerForm">
-                <input type="hidden" id="inputTriggerId"/>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="inputTriggerName" data-phrase="Trigger name"></label>
-                  <div class="col-sm-8">
-                    <input id="inputTriggerName" class="form-control"/>
-                    <div class="invalid-feedback" data-phrase="Invalid trigger name"></div>
+              <input type="hidden" id="inputTriggerId"/>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="inputTriggerName" data-phrase="Trigger name"></label>
+                <div class="col-sm-8">
+                  <input id="inputTriggerName" class="form-control"/>
+                  <div class="invalid-feedback" data-phrase="Invalid trigger name"></div>
+                </div>
+              </div>
+              <div class="mb-3 row featPartitions">
+                <label class="col-sm-4 col-form-label" data-phrase="Partition"></label>
+                <div class="col-sm-8">
+                  <div class="btn-group" id="btnTriggerPartitionGroup">
+                    <button data-value="this" class="btn btn-secondary clickable active" data-href='{"cmd":"toggleBtnGroup","options":[]}' type="button" data-phrase="This partition"></button>
+                    <button data-value="!all!" class="btn btn-secondary clickable" data-href='{"cmd":"toggleBtnGroup","options":[]}' type="button" data-phrase="All partitions"></button>
                   </div>
                 </div>
-                <div class="mb-3 row featPartitions">
-                  <label class="col-sm-4 col-form-label" data-phrase="Partition"></label>
-                  <div class="col-sm-8">
-                    <div class="btn-group" id="btnTriggerPartitionGroup">
-                      <button data-value="this" class="btn btn-secondary clickable active" data-href='{"cmd":"toggleBtnGroup","options":[]}' type="button" data-phrase="This partition"></button>
-                      <button data-value="!all!" class="btn btn-secondary clickable" data-href='{"cmd":"toggleBtnGroup","options":[]}' type="button" data-phrase="All partitions"></button>
-                    </div>
-                  </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="selectTriggerEvent" data-phrase="Event"></label>
+                <div class="col-sm-8">
+                  <select class="form-select" id="selectTriggerEvent"></select>
                 </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="selectTriggerEvent" data-phrase="Event"></label>
-                  <div class="col-sm-8">
-                    <select class="form-select" id="selectTriggerEvent"></select>
-                  </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="selectTriggerScript" data-phrase="Script"></label>
+                <div class="col-sm-8">
+                  <select class="form-select" id="selectTriggerScript"></select>
+                  <div class="invalid-feedback" data-phrase="No script selected"></div>
                 </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="selectTriggerScript" data-phrase="Script"></label>
-                  <div class="col-sm-8">
-                    <select class="form-select" id="selectTriggerScript"></select>
-                    <div class="invalid-feedback" data-phrase="No script selected"></div>
-                  </div>
-                </div>
-                <h5 data-phrase="Script arguments"></h5>
-                <div id="triggerActionScriptArguments"></div>
-              </form>
+              </div>
+              <h5 data-phrase="Script arguments"></h5>
+              <div id="triggerActionScriptArguments"></div>
             </div>
             <div class="tab-pane active" id="listTrigger">
               <div class="table-responsive overflow-auto">
@@ -2681,77 +2647,75 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form id="editHomeIconForm">
-            <input type="hidden" id="inputHomeIconReplace"/>
-            <input type="hidden" id="inputHomeIconOldpos"/>
-            <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputHomeIconName" data-phrase="Name"></label>
-              <div class="col-sm-8">
-                <input id="inputHomeIconName" class="form-control"/>
+          <input type="hidden" id="inputHomeIconReplace"/>
+          <input type="hidden" id="inputHomeIconOldpos"/>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="inputHomeIconName" data-phrase="Name"></label>
+            <div class="col-sm-8">
+              <input id="inputHomeIconName" class="form-control"/>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="inputHomeIconImage" data-phrase="Picture"></label>
+            <div class="col-sm-8">
+              <div class="btn-group d-flex">
+                <input data-is="mympd-select-search" data-placeholder-phrase="Type or select picture" class="form-control" id="inputHomeIconImage"/>
               </div>
             </div>
+          </div>
+          <div id="divHomeIconLigature" class="d-none">
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputHomeIconImage" data-phrase="Picture"></label>
+              <label class="col-sm-4 col-form-label" for="inputHomeIconLigature" data-phrase="Ligature"></label>
               <div class="col-sm-8">
-                <div class="btn-group d-flex">
-                  <input data-is="mympd-select-search" data-placeholder-phrase="Type or select picture" class="form-control" id="inputHomeIconImage"/>
-                </div>
-              </div>
-            </div>
-            <div id="divHomeIconLigature" class="d-none">
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputHomeIconLigature" data-phrase="Ligature"></label>
-                <div class="col-sm-8">
-                  <div class="input-group">
-                    <input class="form-control" id="inputHomeIconLigature" readonly="readonly"/>
-                    <div class="btn-group">
-                      <button id="btnHomeIconLigature" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
-                      <div id="dropdownHomeIconLigature" class="dropdown-menu px-2">
-                        <div class="row">
-                          <div class="col position-relative">
-                            <input data-is="mympd-input-clear" data-clear-event="keyup" id="searchHomeIconLigature" class="form-control" data-placeholder-phrase="Filter"/>
-                          </div>
-                          <div class="col">
-                            <select id="searchHomeIconCat" class="form-select"></select>
-                          </div>
+                <div class="input-group">
+                  <input class="form-control" id="inputHomeIconLigature" readonly="readonly"/>
+                  <div class="btn-group">
+                    <button id="btnHomeIconLigature" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
+                    <div id="dropdownHomeIconLigature" class="dropdown-menu px-2">
+                      <div class="row">
+                        <div class="col position-relative">
+                          <input data-is="mympd-input-clear" data-clear-event="keyup" id="searchHomeIconLigature" class="form-control" data-placeholder-phrase="Filter"/>
                         </div>
-                        <div id="listHomeIconLigature"></div>
+                        <div class="col">
+                          <select id="searchHomeIconCat" class="form-select"></select>
+                        </div>
                       </div>
+                      <div id="listHomeIconLigature"></div>
                     </div>
                   </div>
                 </div>
               </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputHomeIconColor" data-phrase="Color"></label>
-                <div class="col-sm-8">
-                  <input id="inputHomeIconColor" class="form-control" type="color"/>
-                </div>
-              </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputHomeIconBgcolor" data-phrase="Background color"></label>
+              <label class="col-sm-4 col-form-label" for="inputHomeIconColor" data-phrase="Color"></label>
               <div class="col-sm-8">
-                <input id="inputHomeIconBgcolor" class="form-control" type="color"/>
+                <input id="inputHomeIconColor" class="form-control" type="color"/>
               </div>
             </div>
-            <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" data-phrase="Preview"></label>
-              <div class="col-sm-8">
-                <div id="homeIconPreview" class="mi"></div>
-              </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="inputHomeIconBgcolor" data-phrase="Background color"></label>
+            <div class="col-sm-8">
+              <input id="inputHomeIconBgcolor" class="form-control" type="color"/>
             </div>
-            <hr/>
-            <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="selectHomeIconCmd" data-phrase="Action"></label>
-              <div class="col-sm-8">
-                <select id="selectHomeIconCmd" class="form-select"></select>
-              </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" data-phrase="Preview"></label>
+            <div class="col-sm-8">
+              <div id="homeIconPreview" class="mi"></div>
             </div>
-            <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" data-phrase="Options"></label>
-              <div class="col-sm-8" id="divHomeIconOptions"></div>
+          </div>
+          <hr/>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="selectHomeIconCmd" data-phrase="Action"></label>
+            <div class="col-sm-8">
+              <select id="selectHomeIconCmd" class="form-select"></select>
             </div>
-          </form>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" data-phrase="Options"></label>
+            <div class="col-sm-8" id="divHomeIconOptions"></div>
+          </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
@@ -2789,14 +2753,12 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form>
-            <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputPinModal" data-phrase="Pin"></label>
-              <div class="col-sm-8">
-                <input id="inputPinModal" class="form-control" type="password" autocomplete="off"/>
-              </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="inputPinModal" data-phrase="Pin"></label>
+            <div class="col-sm-8">
+              <input id="inputPinModal" class="form-control" type="password" autocomplete="off"/>
             </div>
-          </form>
+          </div>
           <div id="modalEnterPinMessage" class="alert alert-danger p-2 d-none"></div>
         </div>
         <div class="modal-footer justify-content-between">
@@ -2816,33 +2778,31 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form id="saveQueueFrm">
-          <div class="row mb-3 featAdvqueue">
-            <label class="col-sm-4 col-form-label" data-phrase="Save mode"></label>
-            <div class="col-sm-8">
-              <div class="btn-group" id="btnQueueSaveMode">
-                <button data-value="create" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": []}' type="button" data-phrase="Create new"></button>
-                <button data-value="append" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": []}' type="button" data-phrase="Append"></button>
-                <button data-value="replace" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": []}' type="button" data-phrase="Replace"></button>
-              </div>
+        <div class="row mb-3 featAdvqueue">
+          <label class="col-sm-4 col-form-label" data-phrase="Save mode"></label>
+          <div class="col-sm-8">
+            <div class="btn-group" id="btnQueueSaveMode">
+              <button data-value="create" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": []}' type="button" data-phrase="Create new"></button>
+              <button data-value="append" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": []}' type="button" data-phrase="Append"></button>
+              <button data-value="replace" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": []}' type="button" data-phrase="Replace"></button>
             </div>
           </div>
-          <div class="row mb-3" id="rowSaveQueueName">
-            <label class="col-sm-4 col-form-label" for="saveQueueName" data-phrase="New playlist"></label>
-            <div class="col-sm-8">
-              <input class="form-control" id="saveQueueName"/>
-              <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+        </div>
+        <div class="row mb-3" id="rowSaveQueueName">
+          <label class="col-sm-4 col-form-label" for="saveQueueName" data-phrase="New playlist"></label>
+          <div class="col-sm-8">
+            <input class="form-control" id="saveQueueName"/>
+            <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+          </div>
+        </div>
+        <div class="row mb-3 d-none" id="rowSaveQueueNameSelect">
+          <label class="col-sm-4 col-form-label" for="saveQueueNameSelect" data-phrase="Existing playlist"></label>
+          <div class="col-sm-8 position-relative">
+            <div class="btn-group d-flex">
+              <input data-is="mympd-select-search" id="saveQueueNameSelect" data-placeholder-phrase="Choose a playlist" class="form-control" readonly="readonly"/>
             </div>
           </div>
-          <div class="row mb-3 d-none" id="rowSaveQueueNameSelect">
-            <label class="col-sm-4 col-form-label" for="saveQueueNameSelect" data-phrase="Existing playlist"></label>
-            <div class="col-sm-8 position-relative">
-              <div class="btn-group d-flex">
-                <input data-is="mympd-select-search" id="saveQueueNameSelect" data-placeholder-phrase="Choose a playlist" class="form-control" readonly="readonly"/>
-              </div>
-            </div>
-          </div>
-        </form>
+        </div>
       </div>
       <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
@@ -2861,32 +2821,30 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
-        <form id="addToQueueFrm">
-          <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="selectAddToQueueMode" data-phrase="Add random"></label>
-            <div class="col-sm-8">
-              <select id="selectAddToQueueMode" class="form-select">
-                <option value="1" data-phrase="Song"></option>
-                <option value="2" data-phrase="Album"></option>
-              </select>
+        <div class="row mb-3">
+          <label class="col-sm-4 col-form-label" for="selectAddToQueueMode" data-phrase="Add random"></label>
+          <div class="col-sm-8">
+            <select id="selectAddToQueueMode" class="form-select">
+              <option value="1" data-phrase="Song"></option>
+              <option value="2" data-phrase="Album"></option>
+            </select>
+          </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-4 col-form-label" for="selectAddToQueuePlaylist" data-phrase="From"></label>
+          <div class="col-sm-8">
+            <div class="btn-group position-relative d-flex">
+              <input data-is="mympd-select-search" id="selectAddToQueuePlaylist" readonly="readonly" class="form-control" data-placeholder-phrase="Select a playlist"/>
             </div>
           </div>
-          <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="selectAddToQueuePlaylist" data-phrase="From"></label>
-            <div class="col-sm-8">
-              <div class="btn-group position-relative d-flex">
-                <input data-is="mympd-select-search" id="selectAddToQueuePlaylist" readonly="readonly" class="form-control" data-placeholder-phrase="Select a playlist"/>
-              </div>
-            </div>
+        </div>
+        <div class="row mb-3">
+          <label class="col-sm-4 col-form-label" for="inputAddToQueueQuantity" data-phrase="Quantity"></label>
+          <div class="col-sm-8">
+            <input id="inputAddToQueueQuantity" class="form-control" value="1"/>
+            <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
           </div>
-          <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="inputAddToQueueQuantity" data-phrase="Quantity"></label>
-            <div class="col-sm-8">
-              <input id="inputAddToQueueQuantity" class="form-control" value="1"/>
-              <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
-            </div>
-          </div>
-        </form>
+        </div>
       </div>
       <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
@@ -2959,85 +2917,83 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form id="MaintenanceFrm">
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" for="btnDatbaseRescan" data-phrase="Database"></label>
+            <div class="col-sm-8">
+              <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateDB", "options": ["", false]}' data-phrase="Update"></button>
+              <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateDB", "options": ["", true]}' data-phrase="Rescan"></button>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" data-phrase="Caches"></label>
+            <div class="col-sm-8">
+              <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateCaches", "options": [false]}' data-phrase="Update"></button>
+              <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateCaches", "options": [true]}' data-phrase="Force update"></button>
+            </div>
+          </div>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" data-phrase="Covercache"></label>
+            <div class="col-sm-8">
+              <button type="button" class="btn btn-secondary btnCleanup me-2 protected" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
+              <button type="button" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
+            </div>
+          </div>
+          <hr/>
+          <div class="featPlaylists">
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="btnDatbaseRescan" data-phrase="Database"></label>
+              <label class="col-sm-4 col-form-label" data-phrase="Smart playlists"></label>
               <div class="col-sm-8">
-                <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateDB", "options": ["", false]}' data-phrase="Update"></button>
-                <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateDB", "options": ["", true]}' data-phrase="Rescan"></button>
+                <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}' data-phrase="Update"></button>
+                <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateSmartPlaylists", "options": [true]}' data-phrase="Force update"></button>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" data-phrase="Caches"></label>
+              <label class="col-sm-4 col-form-label" data-phrase="Validate playlists"></label>
               <div class="col-sm-8">
-                <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateCaches", "options": [false]}' data-phrase="Update"></button>
-                <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateCaches", "options": [true]}' data-phrase="Force update"></button>
+                <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "validatePlaylists", "options": [false]}' data-phrase="Validate"></button>
+                <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "dedupPlaylists", "options": [true]}' data-phrase="Deduplicate"></button>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" data-phrase="Covercache"></label>
-              <div class="col-sm-8">
-                <button type="button" class="btn btn-secondary btnCleanup me-2 protected" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
-                <button type="button" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
-              </div>
-            </div>
-            <hr/>
-            <div class="featPlaylists">
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" data-phrase="Smart playlists"></label>
-                <div class="col-sm-8">
-                  <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}' data-phrase="Update"></button>
-                  <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateSmartPlaylists", "options": [true]}' data-phrase="Force update"></button>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" data-phrase="Validate playlists"></label>
-                <div class="col-sm-8">
-                  <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "validatePlaylists", "options": [false]}' data-phrase="Validate"></button>
-                  <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "dedupPlaylists", "options": [true]}' data-phrase="Deduplicate"></button>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="btnDeletePlaylists" data-phrase="Delete playlists"></label>
-                <div class="col-sm-8">
-                  <div class="input-group">
-                    <select id="selectDeletePlaylists" class="form-select">
-                      <option value="deleteEmptyPlaylists" data-phrase="Delete empty playlists"></option>
-                      <option value="deleteSmartPlaylists" data-phrase="Delete all smart playlists"></option>
-                      <option value="deleteAllPlaylists" data-phrase="Delete all playlists"></option>
-                    </select>
-                    <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-secondary protected" data-phrase="Delete"></button>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <hr/>
-            <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label"><span data-phrase="Loglevel"></span><small class="mi mi-sm ms-1" data-title-phrase="Temporary setting">help</small></label>
+              <label class="col-sm-4 col-form-label" for="btnDeletePlaylists" data-phrase="Delete playlists"></label>
               <div class="col-sm-8">
                 <div class="input-group">
-                  <select id="selectSetLoglevel" class="form-select">
-                    <option value="0" data-phrase="0 - Emerg"></option>
-                    <option value="1" data-phrase="1 - Alert"></option>
-                    <option value="2" data-phrase="2 - Critical"></option>
-                    <option value="3" data-phrase="3 - Error"></option>
-                    <option value="4" data-phrase="4 - Warn"></option>
-                    <option value="5" data-phrase="5 - Notice"></option>
-                    <option value="6" data-phrase="6 - Info"></option>
-                    <option value="7" data-phrase="7 - Debug"></option>
+                  <select id="selectDeletePlaylists" class="form-select">
+                    <option value="deleteEmptyPlaylists" data-phrase="Delete empty playlists"></option>
+                    <option value="deleteSmartPlaylists" data-phrase="Delete all smart playlists"></option>
+                    <option value="deleteAllPlaylists" data-phrase="Delete all playlists"></option>
                   </select>
-                  <button type="button" class="btn btn-secondary protected" data-href='{"cmd": "setLoglevel", "options": []}' data-phrase="Set"></button>
+                  <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-secondary protected" data-phrase="Delete"></button>
                 </div>
               </div>
             </div>
-            <hr/>
-            <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" data-phrase="Clear app cache and reload"></label>
-              <div class="col-sm-8">
-                <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "clearAndReload", "options": []}' data-phrase="Reload"></button>
+          </div>
+          <hr/>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label"><span data-phrase="Loglevel"></span><small class="mi mi-sm ms-1" data-title-phrase="Temporary setting">help</small></label>
+            <div class="col-sm-8">
+              <div class="input-group">
+                <select id="selectSetLoglevel" class="form-select">
+                  <option value="0" data-phrase="0 - Emerg"></option>
+                  <option value="1" data-phrase="1 - Alert"></option>
+                  <option value="2" data-phrase="2 - Critical"></option>
+                  <option value="3" data-phrase="3 - Error"></option>
+                  <option value="4" data-phrase="4 - Warn"></option>
+                  <option value="5" data-phrase="5 - Notice"></option>
+                  <option value="6" data-phrase="6 - Info"></option>
+                  <option value="7" data-phrase="7 - Debug"></option>
+                </select>
+                <button type="button" class="btn btn-secondary protected" data-href='{"cmd": "setLoglevel", "options": []}' data-phrase="Set"></button>
               </div>
             </div>
-          </form>
+          </div>
+          <hr/>
+          <div class="mb-3 row">
+            <label class="col-sm-4 col-form-label" data-phrase="Clear app cache and reload"></label>
+            <div class="col-sm-8">
+              <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "clearAndReload", "options": []}' data-phrase="Reload"></button>
+            </div>
+          </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
@@ -3055,81 +3011,79 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form id="saveRadioFavoriteFrm">
-            <input type="hidden" id="editRadioFavoriteStreamUriOld"/>
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="editRadioFavoriteName" data-phrase="Name"></label>
-              <div class="col-sm-8">
-                <input class="form-control" id="editRadioFavoriteName"/>
+          <input type="hidden" id="editRadioFavoriteStreamUriOld"/>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="editRadioFavoriteName" data-phrase="Name"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="editRadioFavoriteName"/>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="editRadioFavoriteStreamUri" data-phrase="Uri"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="editRadioFavoriteStreamUri"/>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="editRadioFavoriteGenre" data-phrase="Genre"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="editRadioFavoriteGenre"/>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="editRadioFavoriteHomepage" data-phrase="Homepage"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="editRadioFavoriteHomepage"/>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="editRadioFavoriteCountry" data-phrase="Country"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="editRadioFavoriteCountry"/>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="editRadioFavoriteLanguage" data-phrase="Language"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="editRadioFavoriteLanguage"/>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="editRadioFavoriteImage" data-phrase="Picture"></label>
+            <div class="col-sm-8">
+              <div class="btn-group d-flex">
+                <input data-is="mympd-select-search" data-placeholder-phrase="Type or select picture" class="form-control" id="editRadioFavoriteImage"/>
               </div>
             </div>
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="editRadioFavoriteStreamUri" data-phrase="Uri"></label>
-              <div class="col-sm-8">
-                <input class="form-control" id="editRadioFavoriteStreamUri"/>
-              </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="editRadioFavoriteCodec" data-phrase="Codec"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="editRadioFavoriteCodec"/>
             </div>
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="editRadioFavoriteGenre" data-phrase="Genre"></label>
-              <div class="col-sm-8">
-                <input class="form-control" id="editRadioFavoriteGenre"/>
-              </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="editRadioFavoriteBitrate" data-phrase="Bitrate"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="editRadioFavoriteBitrate"/>
             </div>
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="editRadioFavoriteHomepage" data-phrase="Homepage"></label>
-              <div class="col-sm-8">
-                <input class="form-control" id="editRadioFavoriteHomepage"/>
-              </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="editRadioFavoriteDescription" data-phrase="Description"></label>
+            <div class="col-sm-8">
+              <input class="form-control" id="editRadioFavoriteDescription"/>
             </div>
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="editRadioFavoriteCountry" data-phrase="Country"></label>
-              <div class="col-sm-8">
-                <input class="form-control" id="editRadioFavoriteCountry"/>
-              </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" data-phrase="WebradioDB"></label>
+            <div class="col-sm-8">
+              <p id="webradiodbCheckState"></p>
+              <button id="btnAddToWebradiodb" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "addToWebradioDb", "options": []}' data-phrase="Add to WebradioDB"></button>
+              <button id="btnCheckWebradiodb" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "checkWebradioDb", "options": []}' data-phrase="Check WebradioDB"></button>
+              <button id="btnUpdateFromWebradiodb" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "updateFromWebradioDb", "options": []}' data-phrase="Update from WebradioDB"></button>
+              <button id="btnUpdateWebradiodb" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "updateWebradioDb", "options": []}' data-phrase="Update WebradioDB"></button>
             </div>
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="editRadioFavoriteLanguage" data-phrase="Language"></label>
-              <div class="col-sm-8">
-                <input class="form-control" id="editRadioFavoriteLanguage"/>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="editRadioFavoriteImage" data-phrase="Picture"></label>
-              <div class="col-sm-8">
-                <div class="btn-group d-flex">
-                  <input data-is="mympd-select-search" data-placeholder-phrase="Type or select picture" class="form-control" id="editRadioFavoriteImage"/>
-                </div>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="editRadioFavoriteCodec" data-phrase="Codec"></label>
-              <div class="col-sm-8">
-                <input class="form-control" id="editRadioFavoriteCodec"/>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="editRadioFavoriteBitrate" data-phrase="Bitrate"></label>
-              <div class="col-sm-8">
-                <input class="form-control" id="editRadioFavoriteBitrate"/>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="editRadioFavoriteDescription" data-phrase="Description"></label>
-              <div class="col-sm-8">
-                <input class="form-control" id="editRadioFavoriteDescription"/>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" data-phrase="WebradioDB"></label>
-              <div class="col-sm-8">
-                <p id="webradiodbCheckState"></p>
-                <button id="btnAddToWebradiodb" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "addToWebradioDb", "options": []}' data-phrase="Add to WebradioDB"></button>
-                <button id="btnCheckWebradiodb" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "checkWebradioDb", "options": []}' data-phrase="Check WebradioDB"></button>
-                <button id="btnUpdateFromWebradiodb" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "updateFromWebradioDb", "options": []}' data-phrase="Update from WebradioDB"></button>
-                <button id="btnUpdateWebradiodb" type="button" class="btn btn-success me-2 d-none" data-href='{"cmd": "updateWebradioDb", "options": []}' data-phrase="Update WebradioDB"></button>
-              </div>
-            </div>
-          </form>
+          </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
