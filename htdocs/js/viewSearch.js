@@ -3,7 +3,7 @@
 // myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @module Search_js */
+/** @module viewSearch_js */
 
 /**
  * Handler for song search
