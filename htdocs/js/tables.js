@@ -266,7 +266,7 @@ function dragAndDropTable(tableId) {
                 break;
             }
             case 'BrowsePlaylistDetail': {
-                playlistMoveSong(oldSongPos, newSongPos);
+                currentPlaylistMoveSong(oldSongPos, newSongPos);
                 break;
             }
         }

@@ -151,7 +151,7 @@ function webSocketConnect() {
                             "searchstr": app.current.search,
                             "plist": app.current.filter,
                             "cols": settings.colsBrowsePlaylistDetailFetch
-                        }, parsePlaylistsDetail, false);
+                        }, parsePlaylistDetail, false);
                     }
                     break;
                 case 'update_last_played':

@@ -534,7 +534,7 @@
                 <button data-title-phrase="Clear playlist" type="button" class="btn btn-secondary mi" data-href='{"cmd": "showClearPlaylist", "options": []}'>clear_all</button>
               </div>
               <div class="btn-group me-2">
-                <button data-href='{"cmd": "playlistShuffle", "options": []}' class="btn btn-secondary mi" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
+                <button data-href='{"cmd": "currentPlaylistShuffle", "options": []}' class="btn btn-secondary mi" type="button" data-title-phrase="Shuffle playlist">shuffle</button>
               </div>
               <div class="btn-group me-2">
                 <button data-title-phrase="Sort playlist" id="btnSortPlaylist" class="btn btn-secondary dropdown-toggle mi" type="button" data-bs-toggle="dropdown">sort</button>
@@ -1127,7 +1127,7 @@
 <!-- Footer end -->
 <!-- Modals start -->
 <!-- Modal add to playlist start -->
-  <div class="modal fade" id="modalAddToPlaylist" tabindex="-1">
+  <div class="modal fade" id="modalPlaylistAddTo" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -1205,7 +1205,7 @@
   </div>
 <!-- Modal add to playlist end -->
 <!-- Modal copy playlist start -->
-  <div class="modal fade" id="modalCopyPlaylist" tabindex="-1">
+  <div class="modal fade" id="modalPlaylistCopy" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -1291,7 +1291,7 @@
   </div>
 <!-- Modal move to playlist end -->
 <!-- Modal rename playlist start -->
-  <div class="modal fade" id="modalRenamePlaylist" tabindex="-1">
+  <div class="modal fade" id="modalPlaylistRename" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -1324,7 +1324,7 @@
   </div>
 <!-- Modal rename playlist end -->
 <!-- Modal save smart playlist start -->
-  <div class="modal fade" id="modalSaveSmartPlaylist" tabindex="-1">
+  <div class="modal fade" id="modalSmartPlaylistEdit" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -3224,12 +3224,17 @@
 <!--debug-->  <script src="js/modalHomeIcon.js"></script>
 <!--debug-->  <script src="js/modalMounts.js"></script>
 <!--debug-->  <script src="js/modalPartitions.js"></script>
+<!--debug-->  <script src="js/modalPlaylistAddTo.js"></script>
+<!--debug-->  <script src="js/modalPlaylistCopy.js"></script>
+<!--debug-->  <script src="js/modalPlaylistMoveTo.js"></script>
+<!--debug-->  <script src="js/modalPlaylistRename.js"></script>
 <!--debug-->  <script src="js/modalQueueAddTo.js"></script>
 <!--debug-->  <script src="js/modalQueueSetSongPriority.js"></script>
 <!--debug-->  <script src="js/modalQueueSetSongPos.js"></script>
 <!--debug-->  <script src="js/modalQueueSave.js"></script>
 <!--debug-->  <script src="js/modalRadioFavoriteEdit.js"></script>
 <!--debug-->  <script src="js/modalScripts.js"></script>
+<!--debug-->  <script src="js/modalSmartPlaylistEdit.js"></script>
 <!--debug-->  <script src="js/modalSongDetails.js"></script>
 <!--debug-->  <script src="js/modalTimer.js"></script>
 <!--debug-->  <script src="js/modalTrigger.js"></script>
@@ -3240,6 +3245,7 @@
 <!--debug-->  <script src="js/grid.js"></script>
 <!--debug-->  <script src="js/searchExpression.js"></script>
 <!--debug-->  <script src="js/searchSimple.js"></script>
+<!--debug-->  <script src="js/smartPlaylist.js"></script>
 <!--debug-->  <script src="js/browse.js"></script>
 <!--debug-->  <script src="js/viewBrowseDatabase.js"></script>
 <!--debug-->  <script src="js/viewBrowseFilesystem.js"></script>
@@ -3255,6 +3261,7 @@
 <!--debug-->  <script src="js/viewSearch.js"></script>
 <!--debug-->  <script src="js/state.js"></script>
 <!--debug-->  <script src="js/outputs.js"></script>
+<!--debug-->  <script src="js/playlists.js"></script>
 <!--debug-->  <script src="js/radioFavorites.js"></script>
 <!--debug-->  <script src="js/home.js"></script>
 <!--debug-->  <script src="js/queue.js"></script>

@@ -236,7 +236,7 @@ function appInit() {
     initMaintenance();
     initPlayback();
     initNavs();
-    initPlaylists();
+    initViewPlaylists();
     initOutputs();
     initLocalPlayback();
     initSession();
@@ -248,6 +248,7 @@ function appInit() {
     initModalRadioFavoriteEdit();
     initModalSaveQueue();
     initModalSetSongPriority();
+    initModalPlaylistAddTo();
     //init drag and drop
     for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
         dragAndDropTable(table);
