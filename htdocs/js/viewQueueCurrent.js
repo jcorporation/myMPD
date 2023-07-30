@@ -65,10 +65,10 @@ function parseQueue(obj) {
     if (obj.result &&
         obj.result.totalEntities > 1)
     {
-        elEnableId('btnQueueGotoPlayingSong');
+        elEnableId('QueueCurrentGotoPlayingSongBtn');
     }
     else {
-        elDisableId('btnQueueGotoPlayingSong');
+        elDisableId('QueueCurrentGotoPlayingSongBtn');
     }
 
     const table = document.getElementById('QueueCurrentList');
@@ -248,7 +248,7 @@ function setPlayingRow(playingRow) {
 //eslint-disable-next-line no-unused-vars
 function gotoPlayingSong() {
     if (currentState.songPos === -1) {
-        elDisableId('btnQueueGotoPlayingSong');
+        elDisableId('QueueCurrentGotoPlayingSongBtn');
         return;
     }
     if (currentState.songPos >= app.current.offset &&

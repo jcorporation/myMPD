@@ -79,7 +79,7 @@ function selectRow(event) {
         mode === null)
     {
         //enable select mode
-        switchTableMode(document.getElementById('btn' + app.id + 'SelectMode'));
+        switchTableMode(document.getElementById(app.id + 'SelectModeBtn'));
     }
     else if (mode === null) {
         return false;
