@@ -35,7 +35,7 @@ function initModalSongDetails() {
                 case 'gotoContainingFolder': {
                     uiElements.modalSongDetails.hide();
                     event.preventDefault();
-                    appGoto('Browse', 'Filesystem', undefined, 0, undefined, '-', {'tag': '-', 'desc': false}, '-', getData(event.target, 'folder'), 0);
+                    appGoto('Browse', 'Filesystem', undefined, 0, undefined, '', {'tag': '', 'desc': false}, '', getData(event.target, 'folder'), 0);
                     break;
                 }
                 case 'downloadSong': {
