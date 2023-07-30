@@ -213,7 +213,7 @@ function appInit() {
     //init modules
     initGlobalModals();
     initSongDetails();
-    initHome();
+    initViewHome();
     initBrowse();
     initBrowseDatabase();
     initBrowseFilesystem();
@@ -243,6 +243,7 @@ function appInit() {
     initNotifications();
     initContextMenuOffcanvas();
     initSelectActions();
+    initModalHomeIcon();
     initModalAddToQueue();
     initModalSaveQueue();
     initModalSetSongPriority();
