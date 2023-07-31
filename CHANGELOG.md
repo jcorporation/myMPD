@@ -16,6 +16,7 @@ Describe the release here.
 - Feat: add advanced search to more views #1048
 - Upd: some code enhancements #1045
 - Upd: merge MYMPD_API_QUEUE_SEARCH_ADV and MYMPD_API_QUEUE_LIST into MYMPD_API_QUEUE_SEARCH
+- Upd: Bootstrap 5.3.1
 - Fix: calculate correct position for jukebox list
 - Fix: calculate correct position for playlist content list
 
