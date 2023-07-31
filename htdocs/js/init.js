@@ -65,6 +65,7 @@ function clearAndReload() {
  * @returns {void}
  */
 function appInitStart() {
+    getAssets();
     //add app routing event handler
     window.addEventListener('hashchange', function() {
         if (app.goto === false) {
@@ -189,7 +190,6 @@ function appInitStart() {
  * @returns {void}
  */
 function appInit() {
-    getAssets();
     //init links
     const hrefs = document.querySelectorAll('[data-href]');
     for (const href of hrefs) {
@@ -508,7 +508,6 @@ function getAssets() {
     httpGet(subdir + '/assets/i18n/en-US.json', function(obj) {
         phrasesDefault = obj;
     }, true);
-
     httpGet(subdir + '/assets/ligatures.json', function(obj) {
         materialIcons = obj;
     }, true);
