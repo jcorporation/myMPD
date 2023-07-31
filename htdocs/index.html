@@ -1456,6 +1456,7 @@
                         <div id="listSearchTags" class="dropdown-menu px-2"></div>
                       </div>
                     </div>
+                    <small class="help" data-phrase="helpSettingsSearchTags"></small>
                   </div>
                 </div>
                 <div class="mb-3 row">
@@ -1468,6 +1469,7 @@
                         <div id="listBrowseTags" class="dropdown-menu px-2"></div>
                       </div>
                     </div>
+                    <small class="help" data-phrase="helpSettingsBrowseTags"></small>
                   </div>
                 </div>
               </div>
@@ -1489,13 +1491,6 @@
                 </div>
               </div>
               <div id="coverimageFrm"></div>
-              <div class="mb-3 row featLibrary">
-                <label class="col-sm-4 col-form-label" for="inputBookletName" data-phrase="Booklet filename"></label>
-                <div class="col-sm-8 position-relative">
-                  <input data-is="mympd-input-reset" id="inputBookletName" class="form-control" placeholder="booklet.pdf"/>
-                  <div class="invalid-feedback" data-phrase="Invalid filename"></div>
-                </div>
-              </div>
               <hr/>
               <h4 data-phrase="Statistics"></h4>
               <div id="statisticsFrm"></div>
@@ -1590,6 +1585,7 @@
                 </label>
                 <div class="col-sm-8 ">
                   <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnforceMobile"></button>
+                  <small class="help" data-phrase="helpSettingsEnforceMobile"></small>
                 </div>
               </div>
               <div id="appearanceThemeSettingsFrm"></div>
@@ -1619,6 +1615,7 @@
                 <label class="col-sm-4 col-form-label" for="btnEnableLyrics" data-phrase="Enable"></label>
                 <div class="col-sm-8 ">
                   <button data-bs-toggle="collapse" data-bs-target="#collapseEnableLyrics" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnableLyrics"></button>
+                  <small class="help" data-phrase="helpSettingsEnableLyrics"></small>
                 </div>
               </div>
               <div class="collapse" id="collapseEnableLyrics"></div>
@@ -1629,6 +1626,7 @@
                 <label class="col-sm-4 col-form-label" for="btnEnableLocalPlayback" data-phrase="Enable"></label>
                 <div class="col-sm-8 ">
                   <button data-bs-toggle="collapse" data-bs-target="#collapseEnableLocalPlayback" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnableLocalPlayback"></button>
+                  <small class="help" data-phrase="helpSettingsEnableLocalPlayback"></small>
                 </div>
               </div>
               <div class="collapse" id="collapseEnableLocalPlayback">
@@ -1675,6 +1673,18 @@
               <hr/>
               <h4 data-phrase="Volume control"></h4>
               <form id="volumeSettingsFrm"></form>
+              <div class="featLibrary">
+                <hr/>
+                <h4 data-phrase="Booklet"></h4>
+                <div class="mb-3 row">
+                  <label class="col-sm-4 col-form-label" for="inputBookletName" data-phrase="Booklet filename"></label>
+                  <div class="col-sm-8 position-relative">
+                    <input data-is="mympd-input-reset" id="inputBookletName" class="form-control" placeholder="booklet.pdf"/>
+                    <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+                    <small class="help" data-phrase="helpSettingsBookletName"></small>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="tab-pane" id="tabCloudSettings">
               <h4 data-phrase="Cloud"></h4>

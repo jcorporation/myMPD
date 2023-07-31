@@ -541,28 +541,32 @@ const settingFields = {
         "inputType": "input",
         "title": "Unsynced lyrics extension",
         "form": "collapseEnableLyrics",
-        "reset": true
+        "reset": true,
+        "help": "helpSettingsUsltExt"
     },
     "lyricsSyltExt": {
         "defaultValue": "lrc",
         "inputType": "input",
         "title": "Synced lyrics extension",
         "form": "collapseEnableLyrics",
-        "reset": true
+        "reset": true,
+        "help": "helpSettingsSyltExt"
     },
     "lyricsVorbisUslt": {
         "defaultValue": "LYRICS",
         "inputType": "input",
         "title": "Unsynced lyrics vorbis comment",
         "form": "collapseEnableLyrics",
-        "reset": true
+        "reset": true,
+        "help": "helpSettingsVorbisUslt"
     },
     "lyricsVorbisSylt": {
         "defaultValue": "SYNCEDLYRICS",
         "inputType": "input",
         "title": "Synced lyrics vorbis comment",
         "form": "collapseEnableLyrics",
-        "reset": true
+        "reset": true,
+        "help": "helpSettingsVorbisSylt"
     },
     "lastPlayedCount": {
         "defaultValue": 2000,
@@ -570,7 +574,8 @@ const settingFields = {
         "title": "Last played list count",
         "form": "statisticsFrm",
         "reset": true,
-        "invalid": "Must be a number and greater than zero"
+        "invalid": "Must be a number and greater than zero",
+        "help": "helpSettingsLastPlayedCount"
     }
 };
 
