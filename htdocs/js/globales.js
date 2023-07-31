@@ -685,57 +685,66 @@ const webuiSettingsDefault = {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Playback",
-        "form": "NotificationSettingsAdvFrm"
+        "form": "NotificationSettingsAdvFrm",
+        "help": "helpSettingsNotificationPlayer"
     },
     "notificationQueue": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Queue",
-        "form": "NotificationSettingsAdvFrm"
+        "form": "NotificationSettingsAdvFrm",
+        "help": "helpSettingsNotificationQueue"
     },
     "notificationGeneral": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "General",
-        "form": "NotificationSettingsAdvFrm"
+        "form": "NotificationSettingsAdvFrm",
+        "help": "helpSettingsNotificationGeneral"
     },
     "notificationDatabase": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Database",
-        "form": "NotificationSettingsAdvFrm"
+        "form": "NotificationSettingsAdvFrm",
+        "help": "helpSettingsNotificationDatabase"
     },
     "notificationPlaylist": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Playlist",
-        "form": "NotificationSettingsAdvFrm"
+        "form": "NotificationSettingsAdvFrm",
+        "help": "helpSettingsNotificationPlaylist"
     },
     "notificationScript": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Script",
-        "form": "NotificationSettingsAdvFrm"
+        "form": "NotificationSettingsAdvFrm",
+        "help": "helpSettingsNotificationScript"
     },
     "notifyPage": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "On page notifications",
-        "form": "NotificationSettingsFrm"
+        "form": "NotificationSettingsFrm",
+        "help": "helpSettingsNotifyPage"
     },
     "notifyWeb": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Web notifications",
         "form": "NotificationSettingsFrm",
-        "onClick": "toggleBtnNotifyWeb"
+        "onClick": "toggleBtnNotifyWeb",
+        "help": "helpSettingsNotifyWeb"
     },
     "mediaSession": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Media session",
         "form": "NotificationSettingsFrm",
-        "warn": "Browser has no MediaSession support"
+        "warn": "Browser has no MediaSession support",
+        "help": "helpSettingsMediaSession"
     },
     "uiFooterSettingsPlayback": {
         "defaultValue": true,
@@ -778,75 +787,87 @@ const webuiSettingsDefault = {
         "inputType": "select",
         "contentType": "integer",
         "title": "Elements per page",
-        "form": "appearanceSettingsFrm"
+        "form": "appearanceSettingsFrm",
+        "help": "helpSettingsMaxElementsPerPage"
     },
     "uiSmallWidthTagRows": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Display tags in rows for small displays",
-        "form": "appearanceSettingsFrm"
+        "form": "appearanceSettingsFrm",
+        "help": "helpSettingsSmallWidthTagRows"
     },
     "uiQuickPlayButton": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Quick play button",
-        "form": "appearanceSettingsFrm"
+        "form": "appearanceSettingsFrm",
+        "help": "helpSettingsQuickPlay"
     },
     "uiQuickRemoveButton": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Quick remove button",
-        "form": "appearanceSettingsFrm"
+        "form": "appearanceSettingsFrm",
+        "help": "helpSettingsQuickRemove"
     },
     "uiCompactGrids": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Compact grids",
-        "form": "appearanceSettingsFrm"
+        "form": "appearanceSettingsFrm",
+        "help": "helpSettingsCompactGrids"
     },
     "uiShowHelp": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Show help",
-        "form": "appearanceThemeSettingsFrm"
+        "form": "appearanceThemeSettingsFrm",
+        "help": "helpSettingsHelp"
     },
     "uiShowBackButton": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Show back button",
-        "form": "navigationBarFrm"
+        "form": "navigationBarFrm",
+        "help": "helpSettingsBackButton"
     },
     "enableHome": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Homescreen",
-        "form": "enableFeaturesFrm"
+        "form": "enableFeaturesFrm",
+        "help": "helpSettingsEnableHome"
     },
     "enableScripting": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Scripting",
         "form": "enableFeaturesFrm",
-        "warn": "Lua is not compiled in"
+        "warn": "Lua is not compiled in",
+        "help": "helpSettingsEnableScripting"
     },
     "enableTrigger": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Trigger",
-        "form": "enableFeaturesFrm"
+        "form": "enableFeaturesFrm",
+        "help": "helpSettingsEnableTrigger"
     },
     "enableTimer": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Timer",
-        "form": "enableFeaturesFrm"
+        "form": "enableFeaturesFrm",
+        "help": "helpSettingsEnableTimer"
     },
     "enableMounts": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Mounts",
         "form": "enableFeaturesFrm",
-        "warn": "MPD does not support mounts"
+        "warn": "MPD does not support mounts",
+        "help": "helpSettingsEnableMounts"
     },
     "enableLocalPlayback": {
         "defaultValue": false
@@ -856,7 +877,8 @@ const webuiSettingsDefault = {
         "inputType": "checkbox",
         "title": "Partitions",
         "form": "enableFeaturesFrm",
-        "warn": "MPD does not support partitions"
+        "warn": "MPD does not support partitions",
+        "help": "helpSettingsEnablePartitions"
     },
     "enableLyrics": {
         "defaultValue": true
@@ -938,7 +960,8 @@ const webuiSettingsDefault = {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Show MusicBrainz links",
-        "form": "cloudSettingsFrm"
+        "form": "cloudSettingsFrm",
+        "help": "helpSettingsMusicBrainzLinks"
     },
     "outputLigatures": {
         "defaultValue": {

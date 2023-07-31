@@ -1609,7 +1609,7 @@
             <div class="tab-pane" id="tabNotificationSettings">
               <h4 data-phrase="Notifications"></h4>
               <form id="NotificationSettingsFrm"></form>
-              <div id="warnNotifyWeb" class="alert alert-warning d-none" data-phrase="Notifications are blocked"></div>
+              <div id="warnNotifyWeb" class="alert alert-warning d-none" data-phrase="Web notifications are blocked by the browser"></div>
               <hr/>
               <form id="NotificationSettingsAdvFrm"></form>
             </div>
@@ -1639,6 +1639,7 @@
                   </label>
                   <div class="col-sm-8 ">
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnableLocalPlaybackAutoplay"></button>
+                    <small class="help" data-phrase="helpSettingsLocalPlaybackAutoplay"></small>
                   </div>
                 </div>
                 <div class="mb-3 row">
@@ -1649,6 +1650,7 @@
                   <div class="col-sm-8 position-relative">
                     <input data-is="mympd-input-reset" id="inputMpdStreamPort" class="form-control" placeholder="8080"/>
                     <div class="invalid-feedback" data-phrase="Invalid stream port"></div>
+                    <small class="help" data-phrase="helpSettingsStreamPort"></small>
                   </div>
                 </div>
                 <div class="mb-3 row">
@@ -1680,6 +1682,7 @@
                 <label class="col-sm-4 col-form-label" for="inputListenbrainzToken" data-phrase="Listenbrainz Token"></label>
                 <div class="col-sm-8 position-relative">
                   <input data-is="mympd-input-password" id="inputListenbrainzToken" type="password" class="form-control rounded"/>
+                  <small class="help" data-phrase="helpSettingsListenBrainzToken"></small>
                 </div>
               </div>
               <form id="cloudSettingsFrm"></form>
