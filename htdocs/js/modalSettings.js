@@ -316,7 +316,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
                 elCreateTextTn('div', {"id": "warn" + prefix + r(key), "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"]}, defaults[key].warn)
             );
         }
-        if (defaults[key].warn !== undefined) {
+        if (defaults[key].help !== undefined) {
             col.appendChild(
                 elCreateTextTn('small', {"class": ["help"]}, defaults[key].help)
             );
