@@ -316,6 +316,11 @@ function _createSettingsFrm(fields, defaults, prefix) {
                 elCreateTextTn('div', {"id": "warn" + prefix + r(key), "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"]}, defaults[key].warn)
             );
         }
+        if (defaults[key].warn !== undefined) {
+            col.appendChild(
+                elCreateTextTn('small', {"class": ["help"]}, defaults[key].help)
+            );
+        }
 
         advFrm[form].appendChild(
             elCreateNodes('div', {"class": ["mb-3", "row"]}, [
