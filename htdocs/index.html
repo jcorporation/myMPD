@@ -1980,6 +1980,7 @@
             <div class="col-sm-8 position-relative">
               <input data-is="mympd-input-reset" id="inputMpdHost" class="form-control alwaysEnabled" placeholder="/run/mpd/socket"/>
               <div class="invalid-feedback" data-phrase="Invalid MPD host"></div>
+              <small class="help" data-phrase="helpConnectionMPDHost"></small>
             </div>
           </div>
           <div class="mb-3 row">
@@ -1987,6 +1988,7 @@
             <div class="col-sm-8 position-relative">
               <input data-is="mympd-input-reset" id="inputMpdPort" class="form-control alwaysEnabled" placeholder="6600"/>
               <div class="invalid-feedback" data-phrase="Invalid MPD port"></div>
+              <small class="help" data-phrase="helpConnectionMPDPort"></small>
             </div>
           </div>
           <div class="mb-3 row">
@@ -1999,6 +2001,7 @@
               </select>
               <input id="inputMusicDirectory" class="form-control mt-2 alwaysEnabled"/>
               <div class="invalid-feedback" data-phrase="Invalid music directory"></div>
+              <small class="help" data-phrase="helpConnectionMusicDirectory"></small>
             </div>
           </div>
           <div id="warnMusicDirectory" class="alert alert-warning d-none" data-phrase="Music directory not found"></div>
@@ -2015,6 +2018,7 @@
               <div class="col-sm-8 position-relative">
                 <input data-is="mympd-input-password" id="inputMpdPass" type="password" autocomplete="off" class="form-control alwaysEnabled"/>
                 <div class="invalid-feedback" data-phrase="Invalid MPD password"></div>
+                <small class="help" data-phrase="helpConnectionMPDPassword"></small>
               </div>
             </div>
             <div class="mb-3 row">
@@ -2027,6 +2031,7 @@
                 </select>
                 <input id="inputPlaylistDirectory" class="form-control mt-2 alwaysEnabled" placeholder="/var/lib/mpd/playlists"/>
                 <div class="invalid-feedback" data-phrase="Invalid playlist directory"></div>
+                <small class="help" data-phrase="helpConnectionPlaylistDirectory"></small>
               </div>
             </div>
             <div id="warnPlaylistDirectory" class="alert alert-warning d-none" data-phrase="Playlist directory not found"></div>
@@ -2039,6 +2044,7 @@
                   </div>
                   <span class="input-group-text-nobg" data-phrase="Seconds"></span>
                   <div class="invalid-feedback" data-phrase="Invalid timeout"></div>
+                  <small class="help" data-phrase="helpConnectionTimeout"></small>
                 </div>
               </div>
             </div>
@@ -2046,12 +2052,12 @@
               <label class="col-sm-4 col-form-label" for="btnMpdKeepalive" data-phrase="Keepalive"></label>
               <div class="col-sm-8">
                 <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnMpdKeepalive">check</button>
+                <small class="help" data-phrase="helpConnectionKeepalive"></small>
               </div>
             </div>
             <div class="mb-3 row featBinarylimit">
               <label class="col-sm-4 col-form-label" for="inputMpdBinarylimit">
                 <span data-phrase="Binary limit"></span>
-                <small class="mi mi-sm ms-1" data-title-phrase="BinaryLimitHelpText">help</small>
               </label>
               <div class="col-sm-8">
                 <div class="input-group">
@@ -2061,6 +2067,7 @@
                   <span class="input-group-text-nobg" data-phrase="kB"></span>
                 </div>
                 <div class="invalid-feedback" data-phrase="Invalid binary limit"></div>
+                <small class="help" data-phrase="helpConnectionBinaryLimit"></small>
               </div>
             </div>
           </div>
