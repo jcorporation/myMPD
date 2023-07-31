@@ -565,7 +565,7 @@ const settingFields = {
         "reset": true
     },
     "lastPlayedCount": {
-        "defaultValue": 200,
+        "defaultValue": 2000,
         "inputType": "input",
         "title": "Last played list count",
         "form": "statisticsFrm",
@@ -804,17 +804,17 @@ const webuiSettingsDefault = {
         "title": "Compact grids",
         "form": "appearanceSettingsFrm"
     },
-    "uiShowBackButton": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Show back button",
-        "form": "appearanceThemeSettingsFrm"
-    },
     "uiShowHelp": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Show help",
         "form": "appearanceThemeSettingsFrm"
+    },
+    "uiShowBackButton": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Show back button",
+        "form": "navigationBarFrm"
     },
     "enableHome": {
         "defaultValue": true,
