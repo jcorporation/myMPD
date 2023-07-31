@@ -202,6 +202,8 @@ Show all albums from Conductor
 Show all albums from Ensemble
 Show all albums from Performer
 Show attributes
+Show back button
+Show help
 Show MusicBrainz links
 Show notification icon
 Show playback settings in footer

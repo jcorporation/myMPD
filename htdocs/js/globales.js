@@ -810,6 +810,12 @@ const webuiSettingsDefault = {
         "title": "Show back button",
         "form": "appearanceThemeSettingsFrm"
     },
+    "uiShowHelp": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Show help",
+        "form": "appearanceThemeSettingsFrm"
+    },
     "enableHome": {
         "defaultValue": true,
         "inputType": "checkbox",

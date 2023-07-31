@@ -87,6 +87,14 @@ function parseSettings(obj) {
         document.documentElement.style.setProperty('--mympd-card-footer-word-wrap', 'unset');
     }
 
+    // toggle help
+    if (settings.webuiSettings.uiShowHelp === true) {
+        document.documentElement.style.setProperty('--mympd-show-help', 'block');
+    }
+    else {
+        document.documentElement.style.setProperty('--mympd-show-help', 'none');
+    }
+
     //background
     if (settings.webuiSettings.uiTheme === 'auto') {
         //in auto mode we set default background

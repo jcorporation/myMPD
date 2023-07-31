@@ -43,6 +43,7 @@ body.mobile > footer > nav {
   --mympd-highlightcolor-contrast: var(--bs-light);
   --mympd-backgroundcolor: var(--bs-black);
   --mympd-card-footer-word-wrap: nowrap;
+  --mympd-show-help: block;
   --bs-dropdown-divider-margin-y: 0.5rem;
   --bs-nav-link-padding-y: 0.5rem;
   --bs-nav-link-padding-x: 1rem;
@@ -1195,4 +1196,10 @@ h4.offcanvas-title-externalLink::before {
 
 h4.offcanvas-title-stream::before {
   content: "stream";
+}
+
+.help {
+  display: var(--mympd-show-help);
+  margin-top: 0.5rem;
+  color: var(--bs-secondary-text-emphasis);
 }

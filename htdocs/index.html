@@ -1427,68 +1427,6 @@
         </div>
         <div class="modal-body">
           <div class="tab-content">
-            <div class="tab-pane" id="tabInterfaceSettings">
-              <h4 data-phrase="Locale"></h4>
-              <div id="localeFrm"></div>
-              <div id="warnMissingPhrases" class="alert alert-warning d-none mt-2"></div>
-              <hr/>
-              <h4 data-phrase="Theme"></h4>
-              <div class="row mb-3">
-                <label class="col-sm-4 col-form-label" for="inputHighlightColor">
-                  <span data-phrase="Highlight color"></span>
-                  <small class="mi mi-sm ms-1" data-title-phrase="Partition specific setting">dashboard</small>
-                </label>
-                <div class="col-sm-8">
-                  <input class="form-control" type="color" id="inputHighlightColor"/>
-                </div>
-              </div>
-              <div class="row mb-3">
-                <label class="col-sm-4 col-form-label" for="inputHighlightColorContrast">
-                  <span data-phrase="Highlight contrast color"></span>
-                  <small class="mi mi-sm ms-1" data-title-phrase="Partition specific setting">dashboard</small>
-                </label>
-                <div class="col-sm-8">
-                  <input class="form-control" type="color" id="inputHighlightColorContrast"/>
-                </div>
-              </div>
-              <div id="themeFrm"></div>
-              <div class="mb-3 row featMobile">
-                <label class="col-sm-4 col-form-label" for="inputScaleRatio">
-                  <span data-phrase="Scale ratio"></span>
-                  <small class="mi mi-sm ms-1" data-title-phrase="Browser specific setting">web_asset</small>
-                </label>
-                <div class="col-sm-8 ">
-                  <input id="inputScaleRatio" class="form-control" placeholder="1.0"/>
-                  <div class="invalid-feedback" data-phrase="Invalid scale ratio"></div>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="btnEnforceMobile">
-                  <span data-phrase="Enforce mobile view"></span>
-                  <small class="mi mi-sm ms-1" data-title-phrase="Browser specific setting">web_asset</small>
-                </label>
-                <div class="col-sm-8 ">
-                  <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnforceMobile"></button>
-                </div>
-              </div>
-              <div id="appearanceThemeSettingsFrm"></div>
-              <hr/>
-              <h4 data-phrase="Background"></h4>
-              <div id="bgFrm"></div>
-              <hr/>
-              <h4 data-phrase="Footer"></h4>
-              <div id="footerFrm"></div>
-              <hr/>
-              <h4 data-phrase="Lists"></h4>
-              <div id="appearanceSettingsFrm"></div>
-            </div>
-            <div class="tab-pane" id="tabNotificationSettings">
-              <h4 data-phrase="Notifications"></h4>
-              <form id="NotificationSettingsFrm"></form>
-              <div id="warnNotifyWeb" class="alert alert-warning d-none" data-phrase="Notifications are blocked"></div>
-              <hr/>
-              <form id="NotificationSettingsAdvFrm"></form>
-            </div>
             <div class="tab-pane active" id="tabGeneralSettings">
               <h4 data-phrase="Startup"></h4>
               <form id="startupFrm"></form>
@@ -1496,10 +1434,7 @@
               <div class="featTags">
                 <h4 data-phrase="Tags"></h4>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="btnEnabledTags">
-                    <span data-phrase="Tags to use"></span>
-                    <small class="mi mi-sm ms-1" data-title-phrase="MaintainEnableTagsText">help</small>
-                  </label>
+                  <label class="col-sm-4 col-form-label" for="btnEnabledTags" data-phrase="Tags to use"></label>
                   <div class="col-sm-8">
                     <div class="input-group">
                       <input class="form-control" id="inputEnabledTags" readonly="readonly"/>
@@ -1508,6 +1443,7 @@
                         <div id="listEnabledTags" class="dropdown-menu px-2"></div>
                       </div>
                     </div>
+                    <small class="help" data-phrase="helpSettingsTagsToUse"></small>
                   </div>
                 </div>
                 <div class="mb-3 row">
@@ -1612,6 +1548,68 @@
                 </div>
               </div>
             </div>
+            <div class="tab-pane" id="tabInterfaceSettings">
+              <h4 data-phrase="Locale"></h4>
+              <div id="localeFrm"></div>
+              <div id="warnMissingPhrases" class="alert alert-warning d-none mt-2"></div>
+              <hr/>
+              <h4 data-phrase="Theme"></h4>
+              <div class="row mb-3">
+                <label class="col-sm-4 col-form-label" for="inputHighlightColor">
+                  <span data-phrase="Highlight color"></span>
+                  <small class="mi mi-sm ms-1" data-title-phrase="Partition specific setting">dashboard</small>
+                </label>
+                <div class="col-sm-8">
+                  <input class="form-control" type="color" id="inputHighlightColor"/>
+                </div>
+              </div>
+              <div class="row mb-3">
+                <label class="col-sm-4 col-form-label" for="inputHighlightColorContrast">
+                  <span data-phrase="Highlight contrast color"></span>
+                  <small class="mi mi-sm ms-1" data-title-phrase="Partition specific setting">dashboard</small>
+                </label>
+                <div class="col-sm-8">
+                  <input class="form-control" type="color" id="inputHighlightColorContrast"/>
+                </div>
+              </div>
+              <div id="themeFrm"></div>
+              <div class="mb-3 row featMobile">
+                <label class="col-sm-4 col-form-label" for="inputScaleRatio">
+                  <span data-phrase="Scale ratio"></span>
+                  <small class="mi mi-sm ms-1" data-title-phrase="Browser specific setting">web_asset</small>
+                </label>
+                <div class="col-sm-8 ">
+                  <input id="inputScaleRatio" class="form-control" placeholder="1.0"/>
+                  <div class="invalid-feedback" data-phrase="Invalid scale ratio"></div>
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="btnEnforceMobile">
+                  <span data-phrase="Enforce mobile view"></span>
+                  <small class="mi mi-sm ms-1" data-title-phrase="Browser specific setting">web_asset</small>
+                </label>
+                <div class="col-sm-8 ">
+                  <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnEnforceMobile"></button>
+                </div>
+              </div>
+              <div id="appearanceThemeSettingsFrm"></div>
+              <hr/>
+              <h4 data-phrase="Background"></h4>
+              <div id="bgFrm"></div>
+              <hr/>
+              <h4 data-phrase="Footer"></h4>
+              <div id="footerFrm"></div>
+              <hr/>
+              <h4 data-phrase="Lists"></h4>
+              <div id="appearanceSettingsFrm"></div>
+            </div>
+            <div class="tab-pane" id="tabNotificationSettings">
+              <h4 data-phrase="Notifications"></h4>
+              <form id="NotificationSettingsFrm"></form>
+              <div id="warnNotifyWeb" class="alert alert-warning d-none" data-phrase="Notifications are blocked"></div>
+              <hr/>
+              <form id="NotificationSettingsAdvFrm"></form>
+            </div>
             <div class="tab-pane" id="tabEnableFeatures">
               <h4 data-phrase="Lyrics"></h4>
               <div class="mb-3 row">
@@ -1653,12 +1651,12 @@
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="inputStreamUri">
                     <span data-phrase="Stream URI"></span>
-                    <small class="mi mi-sm ms-1" data-title-phrase="OverridesStreamPort">help</small>
                     <small class="mi mi-sm ms-1" data-title-phrase="Partition specific setting">dashboard</small>
                   </label>
                   <div class="col-sm-8 position-relative">
                     <input data-is="mympd-input-reset" id="inputStreamUri" class="form-control" data-default="" placeholder="auto"/>
                     <div class="invalid-feedback" data-phrase="Invalid URI"></div>
+                    <small class="help" data-phrase="helpSettingsStreamUri"></small>
                   </div>
                 </div>
               </div>
@@ -1721,18 +1719,21 @@
                 <label class="col-sm-4 col-form-label" for="btnRandom" data-phrase="Random"></label>
                 <div class="col-sm-8">
                   <button data-href='{"cmd":"toggleBtnChk", "options":[]}' id="btnRandom" type="button" class="btn btn-secondary btn-sm mi"></button>
+                  <small class="help" data-phrase="helpQueueRandom"></small>
                 </div>
               </div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="btnRepeat" data-phrase="Repeat"></label>
                 <div class="col-sm-8">
                   <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnRepeat" type="button" class="btn btn-secondary btn-sm mi"></button>
+                  <small class="help" data-phrase="helpQueueRepeat"></small>
                 </div>
               </div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="btnAutoPlay" data-phrase="Autoplay"></label>
                 <div class="col-sm-8">
                   <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-sm mi"></button>
+                  <small class="help" data-phrase="helpQueueAutoPlay"></small>
                 </div>
               </div>
               <div class="mb-3 row">
@@ -1743,6 +1744,7 @@
                     <button data-value="oneshot" class="btn btn-secondary featConsumeOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
                     <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
                   </div>
+                  <small class="help" data-phrase="helpQueueConsume"></small>
                 </div>
               </div>
               <div class="mb-3 row">
@@ -1753,6 +1755,7 @@
                     <button data-value="oneshot" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
                     <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
                   </div>
+                  <small class="help" data-phrase="helpQueueSingle"></small>
                 </div>
               </div>
               <div class="mb-3 row">
@@ -1764,6 +1767,7 @@
                     <button data-value="track" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
                     <button data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
                   </div>
+                  <small class="help" data-phrase="helpQueueReplaygain"></small>
                 </div>
               </div>
               <div class="mb-3 row">
@@ -1776,6 +1780,15 @@
                     <div class="input-group-text-nobg" data-phrase="Seconds"></div>
                     <div class="invalid-feedback" data-phrase="Must be a number"></div>
                   </div>
+                  <small class="help" data-phrase="helpQueueCrossfade"></small>
+                </div>
+              </div>
+              <div class="mb-3 row">
+                <label class="col-sm-4 col-form-label" for="inputMixrampDb" data-phrase="Mixramp db"></label>
+                <div class="col-sm-8 position-relative">
+                  <input data-is="mympd-input-reset" id="inputMixrampDb" class="form-control rounded" placeholder="0"/>
+                  <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                  <small class="help" data-phrase="helpQueueMixrampDb"></small>
                 </div>
               </div>
               <div class="mb-3 row">
@@ -1788,13 +1801,7 @@
                     <div class="input-group-text-nobg" data-phrase="Seconds"></div>
                     <div class="invalid-feedback" data-phrase="Must be a number"></div>
                   </div>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputMixrampDb" data-phrase="Mixramp db"></label>
-                <div class="col-sm-8 position-relative">
-                  <input data-is="mympd-input-reset" id="inputMixrampDb" class="form-control rounded" placeholder="0"/>
-                  <div class="invalid-feedback" data-phrase="Must be a number"></div>
+                  <small class="help" data-phrase="helpQueueMixrampDelay"></small>
                 </div>
               </div>
             </div>
@@ -1808,6 +1815,7 @@
                     <button data-collapse="show" data-value="song" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Song"></button>
                     <button data-collapse="show" data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Album"></button>
                   </div>
+                  <small class="help" data-phrase="helpJukeboxMode"></small>
                 </div>
               </div>
               <div class="collapse" id="collapseJukeboxMode">
@@ -1817,6 +1825,7 @@
                     <div class="btn-group position-relative d-flex">
                       <input data-is="mympd-select-search" readonly="readonly" id="selectJukeboxPlaylist" class="form-control"/>
                     </div>
+                    <small class="help" data-phrase="helpJukeboxPlaylist"></small>
                   </div>
                 </div>
                 <div class="mb-3 row">
@@ -1824,12 +1833,14 @@
                   <div class="col-sm-8 position-relative">
                     <input data-is="mympd-input-reset" id="inputJukeboxQueueLength" class="form-control" placeholder="1"/>
                     <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
+                    <small class="help" data-phrase="helpJukeboxQueueLength"></small>
                   </div>
                 </div>
                 <div class="mb-3 row featTags">
                   <label class="col-sm-4 col-form-label" for="selectJukeboxUniqueTag" data-phrase="Enforce uniqueness"></label>
                   <div class="col-sm-8">
                     <select id="selectJukeboxUniqueTag" class="form-select"></select>
+                    <small class="help" data-phrase="helpJukeboxUniqueTag"></small>
                   </div>
                 </div>
                 <div class="mb-3 row">
@@ -1842,12 +1853,14 @@
                       <span class="input-group-text-nobg" data-phrase="Hours ago"></span>
                       <div class="invalid-feedback" data-phrase="Must be a number and equal or greater than zero"></div>
                     </div>
+                    <small class="help" data-phrase="helpJukeboxLastPlayed"></small>
                   </div>
                 </div>
                 <div class="mb-3 row featStickers">
                   <label class="col-sm-4 col-form-label" for="btnJukeboxIgnoreHated" data-phrase="Ignore hated songs"></label>
                   <div class="col-sm-8">
                     <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnJukeboxIgnoreHated" type="button" class="btn btn-secondary btn-sm mi"></button>
+                    <small class="help" data-phrase="helpJukeboxIgnoreHated"></small>
                   </div>
                 </div>
                 <div id="warnPlaybackStatistics" class="alert alert-warning d-none" data-phrase="Playback statistics are disabled"></div>
