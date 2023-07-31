@@ -131,12 +131,15 @@ function parseQueue(obj) {
 
     const tfoot = table.querySelector('tfoot');
     if (obj.result.totalEntities > 0) {
+        const totalTime = obj.result.totalTime > 0
+            ? elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime))
+            : elCreateEmpty('span', {});
         elReplaceChild(tfoot,
             elCreateNode('tr', {"class": ["not-clickable"]},
                 elCreateNode('td', {"colspan": (colspan + 1)},
                     elCreateNodes('small', {}, [
                         elCreateTextTnNr('span', {}, 'Num songs', obj.result.totalEntities),
-                        elCreateText('span', {}, smallSpace + nDash + smallSpace + fmtDuration(obj.result.totalTime))
+                        totalTime
                     ])
                 )
             )
