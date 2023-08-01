@@ -143,7 +143,7 @@ function populateSettingsFrm() {
     }
 
     document.getElementById('inputScaleRatio').value = localSettings.scaleRatio;
-    toggleBtnChkId('btnEnforceMobile', localSettings.enforceMobile);
+    document.getElementById('inputSettingviewMode').value = localSettings.viewMode;
 
     //media session support
     const btnMediaSession = document.getElementById('inputWebUIsettingmediaSession');
@@ -322,9 +322,16 @@ function _createSettingsFrm(fields, defaults, prefix) {
             );
         }
 
+        const label = defaults[key].hint === undefined
+            ? elCreateTextTn('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key)}, defaults[key].title)
+            : elCreateNodes('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key)}, [
+                    elCreateTextTn('span', {}, defaults[key].title),
+                    elCreateText('small', {"class": ["mi", "mi-sm", "ms-1"], "title": tn("Browser specific setting"), "data-title-phrase": "Browser specific setting"}, defaults[key].hint)
+              ]);
+
         advFrm[form].appendChild(
             elCreateNodes('div', {"class": ["mb-3", "row"]}, [
-                elCreateTextTn('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key)}, defaults[key].title),
+                label,
                 col
             ])
         );
@@ -417,7 +424,7 @@ function saveSettings(closeModal) {
     if (formOK === true) {
         //browser specific settings
         localSettings.localPlaybackAutoplay = getBtnChkValueId('btnEnableLocalPlaybackAutoplay');
-        localSettings.enforceMobile = getBtnChkValueId('btnEnforceMobile');
+        localSettings.viewMode = getSelectValueId('inputSettingviewMode');
         setUserAgentData();
 
         //use scaleRatio only for mobile browsers

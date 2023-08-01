@@ -163,7 +163,7 @@ let phrases = {};
  * This settings are saved in the browsers localStorage
  */
 const localSettings = {
-    "enforceMobile": false,
+    "viewMode": "auto",
     "localPlaybackAutoplay": false,
     "partition": "default",
     "scaleRatio": "1.0"
@@ -206,7 +206,11 @@ function setUserAgentData() {
     if (navigator.userAgentData) {
         navigator.userAgentData.getHighEntropyValues(["platform"]).then(ua => {
             /** @type {boolean} */
-            userAgentData.isMobile = localSettings.enforceMobile === true ? true : ua.mobile;
+            userAgentData.isMobile = localSettings.viewMode === 'mobile'
+                ? true
+                : localSettings.viewMode === 'desktop'
+                    ? false
+                    : ua.mobile;
             //Safari does not support this API
             /** @type {boolean} */
             userAgentData.isSafari = false;
@@ -214,7 +218,11 @@ function setUserAgentData() {
     }
     else {
         /** @type {boolean} */
-        userAgentData.isMobile = localSettings.enforceMobile === true ? true : /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
+        userAgentData.isMobile = localSettings.viewMode === 'mobile'
+            ? true
+            : localSettings.viewMode === 'desktop'
+                ? false
+                : /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
         /** @type {boolean} */
         userAgentData.isSafari = /Safari/i.test(navigator.userAgent);
     }
@@ -576,6 +584,19 @@ const settingFields = {
         "reset": true,
         "invalid": "Must be a number and greater than zero",
         "help": "helpSettingsLastPlayedCount"
+    },
+    "viewMode": {
+        "defaultValue": "auto",
+        "validValues": {
+            "auto": "Autodetect",
+            "mobile": "Mobile",
+            "desktop": "Desktop"
+        },
+        "inputType": "select",
+        "title": "View mode",
+        "form": "appearanceThemeSettingsFrm",
+        "help": "helpSettingsViewMode",
+        "hint": "web_asset"
     }
 };
 
@@ -754,7 +775,7 @@ const webuiSettingsDefault = {
     "uiFooterSettingsPlayback": {
         "defaultValue": true,
         "inputType": "checkbox",
-        "title": "Show playback settings in footer",
+        "title": "Playback settings",
         "form": "footerFrm"
     },
     "uiFooterPlaybackControls": {
@@ -771,13 +792,13 @@ const webuiSettingsDefault = {
     "uiFooterVolumeLevel": {
         "defaultValue": false,
         "inputType": "checkbox",
-        "title": "Show volume level in footer",
+        "title": "Volume level",
         "form": "footerFrm"
     },
     "uiFooterNotifications": {
         "defaultValue": false,
         "inputType": "checkbox",
-        "title": "Show notification icon",
+        "title": "Notification icon",
         "form": "footerFrm"
     },
     "uiMaxElementsPerPage": {
@@ -833,7 +854,7 @@ const webuiSettingsDefault = {
     "uiShowBackButton": {
         "defaultValue": false,
         "inputType": "checkbox",
-        "title": "Show back button",
+        "title": "History back button",
         "form": "navigationBarFrm",
         "help": "helpSettingsBackButton"
     },
