@@ -222,7 +222,10 @@ function createSettingsFrm() {
  * @returns {void}
  */
 function _createSettingsFrm(fields, defaults, prefix) {
-    //TODO: key in defaults is UCFirst, in defaults LCFirst
+    /*
+        TODO: key in defaults is UCFirst, in fields LCFirst
+              remove population of this settings if this is fixed
+    */
     const advFrm = {};
     const advSettingsKeys = Object.keys(defaults);
     advSettingsKeys.sort();

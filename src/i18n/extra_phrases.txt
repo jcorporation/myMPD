@@ -283,3 +283,21 @@ Highlight color
 Highlight contrast color
 Invalid scale ratio
 Scale ratio
+Booklet filename
+Filenames
+Invalid prefix
+Invalid stream port
+ListenBrainz Token
+Partition specific setting
+Smart playlists prefix
+Stream port
+Thumbnail names
+helpSettingsBookletName
+helpSettingsCoverimageNames
+helpSettingsListenBrainzToken
+helpSettingsLocalPlaybackAutoplay
+helpSettingsSmartplsPrefix
+helpSettingsSmartplsSort
+helpSettingsStreamPort
+helpSettingsStreamUri
+helpSettingsThumbnailNames
