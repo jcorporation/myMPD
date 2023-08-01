@@ -202,12 +202,12 @@ Show all albums from Conductor
 Show all albums from Ensemble
 Show all albums from Performer
 Show attributes
-Show back button
+History back button
 Show help
 Show MusicBrainz links
-Show notification icon
-Show playback settings in footer
-Show volume level in footer
+Notification icon
+Playback settings
+Volume level
 sles
 snapcast
 sndio
@@ -272,3 +272,14 @@ helpSettingsNotifyWeb
 helpSettingsQuickPlay
 helpSettingsQuickRemove
 helpSettingsSmallWidthTagRows
+helpSettingsSyltExt
+helpSettingsUsltExt
+helpSettingsVorbisSylt
+helpSettingsVorbisUslt
+helpSettingsLastPlayedCount
+helpSettingsViewMode
+View mode
+Highlight color
+Highlight contrast color
+Invalid scale ratio
+Scale ratio

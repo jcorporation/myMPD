@@ -81,7 +81,7 @@
     "helpSettingsVorbisUslt": "Vorbis comment name for unsynced lyrics (Simple text).",
     "helpSettingsVorbisSylt": "Vorbis comment name for synced lyrics (LRC-Format).",
     "helpSettingsLastPlayedCount": "Max count of songs to keep in the 'Last played' list.",
-    "helpSettingsEnforceMobile": "Optimized view for small touchscreens.",
+    "helpSettingsViewMode": "Optimize view for desktops or small touchscreens.",
     "helpSettingsTagsToUse": "You should maintain and enable the tags AlbumArtist, Album, Artist, Disc, Genre, Name, Title, Track for best user experience.",
     "helpSettingsSearchTags": "This tags are selectable as tags to search. Standard: Artist, Album, Albumartist, Title, Genre",
     "helpSettingsBrowseTags": "This tags are selectable in the browse view. Standard: Artist, Album, Albumartist, Genre",
