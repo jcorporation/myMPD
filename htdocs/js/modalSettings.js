@@ -103,8 +103,8 @@ function populateSettingsFrm() {
     toggleThemeInputs(settings.webuiSettings.uiTheme);
 
     //partition specific settings
-    document.getElementById('inputHighlightColor').value = settings.partition.highlightColor;
-    document.getElementById('inputHighlightColorContrast').value = settings.partition.highlightColorContrast;
+    document.getElementById('inputSettinghighlightColor').value = settings.partition.highlightColor;
+    document.getElementById('inputSettinghighlightColorContrast').value = settings.partition.highlightColorContrast;
     document.getElementById('inputMpdStreamPort').value = settings.partition.mpdStreamPort;
     document.getElementById('inputStreamUri').value = settings.partition.streamUri;
 
@@ -142,7 +142,7 @@ function populateSettingsFrm() {
         toggleBtnChk(btnNotifyWeb, false);
     }
 
-    document.getElementById('inputScaleRatio').value = localSettings.scaleRatio;
+    document.getElementById('inputSettingscaleRatio').value = localSettings.scaleRatio;
     document.getElementById('inputSettingviewMode').value = localSettings.viewMode;
 
     //media session support
@@ -329,8 +329,12 @@ function _createSettingsFrm(fields, defaults, prefix) {
                     elCreateText('small', {"class": ["mi", "mi-sm", "ms-1"], "title": tn("Browser specific setting"), "data-title-phrase": "Browser specific setting"}, defaults[key].hint)
               ]);
 
+        let rowClasses = ["mb-3", "row"];
+        if (defaults[key].cssClass !== undefined) {
+            rowClasses = rowClasses.concat(defaults[key].cssClass);
+        }
         advFrm[form].appendChild(
-            elCreateNodes('div', {"class": ["mb-3", "row"]}, [
+            elCreateNodes('div', {"class": rowClasses}, [
                 label,
                 col
             ])
@@ -413,7 +417,7 @@ function saveSettings(closeModal) {
         formOK = false;
     }
 
-    const inputScaleRatio = document.getElementById('inputScaleRatio');
+    const inputScaleRatio = document.getElementById('inputSettingscaleRatio');
     //handle scaleRatio only for mobile browsers
     if (userAgentData.isMobile === true) {
         if (validateFloatEl(inputScaleRatio) === false) {
@@ -552,8 +556,8 @@ function savePartitionSettings(closeModal) {
 
     if (formOK === true) {
         const params = {
-            "highlightColor": document.getElementById('inputHighlightColor').value,
-            "highlightColorContrast": document.getElementById('inputHighlightColorContrast').value,
+            "highlightColor": document.getElementById('inputSettinghighlightColor').value,
+            "highlightColorContrast": document.getElementById('inputSettinghighlightColorContrast').value,
             "mpdStreamPort": Number(mpdStreamPortEl.value),
             "streamUri": streamUriEl.value
         };

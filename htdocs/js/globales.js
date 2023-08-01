@@ -85,7 +85,9 @@ let allOutputs = null;
 const ligatures = {
     'checked': 'task_alt',
     'more': 'menu',
-    'unchecked': 'radio_button_unchecked'
+    'unchecked': 'radio_button_unchecked',
+    'partitionSpecific': 'dashboard',
+    'browserSpecific': 'web_asset'
 };
 
 // pre-generated elements
@@ -585,6 +587,28 @@ const settingFields = {
         "invalid": "Must be a number and greater than zero",
         "help": "helpSettingsLastPlayedCount"
     },
+    "highlightColor": {
+        "defaultValue": "#28a745",
+        "inputType": "color",
+        "title": "Highlight color",
+        "form": "settingsThemeFrm2",
+        "hint": ligatures['partitionSpecific']
+    },
+    "highlightColorContrast": {
+        "defaultValue": "#f6f5f4",
+        "inputType": "color",
+        "title": "Highlight contrast color",
+        "form": "settingsThemeFrm2",
+        "hint": ligatures['partitionSpecific']
+    },
+    "scaleRatio": {
+        "defaultValue": "1.0",
+        "inputType": "text",
+        "title": "Scale ratio",
+        "form": "settingsThemeFrm2",
+        "hint": ligatures['browserSpecific'],
+        "cssClass": ["featMobile"]
+    },
     "viewMode": {
         "defaultValue": "auto",
         "validValues": {
@@ -594,9 +618,9 @@ const settingFields = {
         },
         "inputType": "select",
         "title": "View mode",
-        "form": "appearanceThemeSettingsFrm",
+        "form": "settingsThemeFrm2",
         "help": "helpSettingsViewMode",
-        "hint": "web_asset"
+        "hint": ligatures['browserSpecific']
     }
 };
 
@@ -776,7 +800,7 @@ const webuiSettingsDefault = {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Playback settings",
-        "form": "footerFrm"
+        "form": "settingsFooterFrm"
     },
     "uiFooterPlaybackControls": {
         "defaultValue": "pause",
@@ -787,19 +811,19 @@ const webuiSettingsDefault = {
         },
         "inputType": "select",
         "title": "Playback controls",
-        "form": "footerFrm"
+        "form": "settingsFooterFrm"
     },
     "uiFooterVolumeLevel": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Volume level",
-        "form": "footerFrm"
+        "form": "settingsFooterFrm"
     },
     "uiFooterNotifications": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Notification icon",
-        "form": "footerFrm"
+        "form": "settingsFooterFrm"
     },
     "uiMaxElementsPerPage": {
         "defaultValue": 100,
@@ -813,49 +837,49 @@ const webuiSettingsDefault = {
         "inputType": "select",
         "contentType": "integer",
         "title": "Elements per page",
-        "form": "appearanceSettingsFrm",
+        "form": "settingsListsFrm",
         "help": "helpSettingsMaxElementsPerPage"
     },
     "uiSmallWidthTagRows": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Display tags in rows for small displays",
-        "form": "appearanceSettingsFrm",
+        "form": "settingsListsFrm",
         "help": "helpSettingsSmallWidthTagRows"
     },
     "uiQuickPlayButton": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Quick play button",
-        "form": "appearanceSettingsFrm",
+        "form": "settingsListsFrm",
         "help": "helpSettingsQuickPlay"
     },
     "uiQuickRemoveButton": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "Quick remove button",
-        "form": "appearanceSettingsFrm",
+        "form": "settingsListsFrm",
         "help": "helpSettingsQuickRemove"
     },
     "uiCompactGrids": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Compact grids",
-        "form": "appearanceSettingsFrm",
+        "form": "settingsListsFrm",
         "help": "helpSettingsCompactGrids"
     },
     "uiShowHelp": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Show help",
-        "form": "appearanceThemeSettingsFrm",
+        "form": "settingsThemeFrm3",
         "help": "helpSettingsHelp"
     },
     "uiShowBackButton": {
         "defaultValue": false,
         "inputType": "checkbox",
         "title": "History back button",
-        "form": "navigationBarFrm",
+        "form": "settingsNavigationBarFrm",
         "help": "helpSettingsBackButton"
     },
     "enableHome": {
@@ -918,7 +942,7 @@ const webuiSettingsDefault = {
         },
         "inputType": "select",
         "title": "Theme",
-        "form": "themeFrm",
+        "form": "settingsThemeFrm1",
         "onChange": "eventChangeTheme"
     },
     "uiThumbnailSize": {
@@ -933,7 +957,7 @@ const webuiSettingsDefault = {
         "defaultValue": "#060708",
         "inputType": "color",
         "title": "Color",
-        "form": "bgFrm",
+        "form": "settingsBgFrm",
         "reset": true
     },
     "uiBgImage": {
@@ -941,26 +965,26 @@ const webuiSettingsDefault = {
         "inputType": "mympd-select-search",
         "cbCallback": "filterImageSelect",
         "title": "Image",
-        "form": "bgFrm"
+        "form": "settingsBgFrm"
     },
     "uiBgCover": {
         "defaultValue": true,
         "inputType": "checkbox",
         "title": "Albumart",
-        "form": "bgFrm"
+        "form": "settingsBgFrm"
     },
     "uiBgCssFilter": {
         "defaultValue": "grayscale(100%) opacity(20%)",
         "inputType": "input",
         "title": "CSS filter",
-        "form": "bgFrm",
+        "form": "settingsBgFrm",
         "reset": true
     },
     "uiLocale": {
         "defaultValue": "default",
         "inputType": "select",
         "title": "Locale",
-        "form": "localeFrm",
+        "form": "settingsLocaleFrm",
         "onChange": "eventChangeLocale"
     },
     "uiStartupView": {
