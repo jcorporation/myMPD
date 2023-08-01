@@ -37,10 +37,10 @@ function eventChangeLocale(event) {
 //eslint-disable-next-line no-unused-vars
 function eventChangeTheme(event) {
     const value = getSelectValue(event.target);
-    const bgImageEl = document.getElementById('inputWebUIsettinguiBgImage');
+    const bgImageEl = document.getElementById('SettingBgImageInput');
     const bgImageValue = getData(bgImageEl, 'value');
     if (value === 'light') {
-        document.getElementById('inputWebUIsettinguiBgColor').value = '#ffffff';
+        document.getElementById('SettingBgColorInput').value = '#ffffff';
         if (bgImageValue.indexOf('/assets/') === 0) {
             bgImageEl.value = getBgImageText('/assets/mympd-background-light.svg');
             setData(bgImageEl, 'value', '/assets/mympd-background-light.svg');
@@ -48,7 +48,7 @@ function eventChangeTheme(event) {
     }
     else {
         //dark is the default
-        document.getElementById('inputWebUIsettinguiBgColor').value = '#060708';
+        document.getElementById('SettingBgColorInput').value = '#060708';
         if (bgImageValue.indexOf('/assets/') === 0) {
             bgImageEl.value = getBgImageText('/assets/mympd-background-dark.svg');
             setData(bgImageEl, 'value', '/assets/mympd-background-dark.svg');
@@ -64,12 +64,12 @@ function eventChangeTheme(event) {
  */
 function toggleThemeInputs(theme) {
     if (theme === 'auto') {
-        document.getElementById('inputWebUIsettinguiBgColor').parentNode.parentNode.classList.add('d-none');
-        document.getElementById('inputWebUIsettinguiBgImage').parentNode.parentNode.classList.add('d-none');
+        document.getElementById('SettingBgColorInput').parentNode.parentNode.classList.add('d-none');
+        document.getElementById('SettingBgImageInput').parentNode.parentNode.classList.add('d-none');
     }
     else {
-        document.getElementById('inputWebUIsettinguiBgColor').parentNode.parentNode.classList.remove('d-none');
-        document.getElementById('inputWebUIsettinguiBgImage').parentNode.parentNode.classList.remove('d-none');
+        document.getElementById('SettingBgColorInput').parentNode.parentNode.classList.remove('d-none');
+        document.getElementById('SettingBgImageInput').parentNode.parentNode.classList.remove('d-none');
     }
 }
 
@@ -96,20 +96,20 @@ function getBgImageText(value) {
  */
 function populateSettingsFrm() {
     getBgImageList();
-    const bgImageInput = document.getElementById('inputWebUIsettinguiBgImage');
+    const bgImageInput = document.getElementById('SettingBgImageInput');
     setData(bgImageInput, 'value', settings.webuiSettings.uiBgImage);
     bgImageInput.value = getBgImageText(settings.webuiSettings.uiBgImage);
 
     toggleThemeInputs(settings.webuiSettings.uiTheme);
 
     //partition specific settings
-    document.getElementById('inputSettinghighlightColor').value = settings.partition.highlightColor;
-    document.getElementById('inputSettinghighlightColorContrast').value = settings.partition.highlightColorContrast;
-    document.getElementById('inputMpdStreamPort').value = settings.partition.mpdStreamPort;
-    document.getElementById('inputStreamUri').value = settings.partition.streamUri;
+    document.getElementById('SettingHighlightColorInput').value = settings.partition.highlightColor;
+    document.getElementById('SettingHighlightColorContrastInput').value = settings.partition.highlightColorContrast;
+    document.getElementById('SettingMpdStreamPortInput').value = settings.partition.mpdStreamPort;
+    document.getElementById('SettingStreamUriInput').value = settings.partition.streamUri;
 
     //locales
-    const localeList = document.getElementById('inputWebUIsettinguiLocale');
+    const localeList = document.getElementById('SettingLocaleInput');
     elClear(localeList);
     for (const l in i18n) {
         localeList.appendChild(
@@ -122,17 +122,17 @@ function populateSettingsFrm() {
     warnLocale(settings.webuiSettings.uiLocale);
 
     //web notifications - check permission
-    const btnNotifyWeb = document.getElementById('inputWebUIsettingnotifyWeb');
-    elHideId('warnNotifyWeb');
+    const btnNotifyWeb = document.getElementById('SettingNotifyWebInput');
+    elHideId('SettingNotifyWebWarn');
     if (notificationsSupported()) {
         if (Notification.permission !== 'granted') {
             if (settings.webuiSettings.notifyWeb === true) {
-                elShowId('warnNotifyWeb');
+                elShowId('SettingNotifyWebWarn');
             }
             settings.webuiSettings.notifyWeb = false;
         }
         if (Notification.permission === 'denied') {
-            elShowId('warnNotifyWeb');
+            elShowId('SettingNotifyWebWarn');
         }
         toggleBtnChk(btnNotifyWeb, settings.webuiSettings.notifyWeb);
         elEnable(btnNotifyWeb);
@@ -142,66 +142,66 @@ function populateSettingsFrm() {
         toggleBtnChk(btnNotifyWeb, false);
     }
 
-    document.getElementById('inputSettingscaleRatio').value = localSettings.scaleRatio;
-    document.getElementById('inputSettingviewMode').value = localSettings.viewMode;
+    document.getElementById('SettingScaleRatioInput').value = localSettings.scaleRatio;
+    document.getElementById('SettingViewModeInput').value = localSettings.viewMode;
 
     //media session support
-    const btnMediaSession = document.getElementById('inputWebUIsettingmediaSession');
+    const btnMediaSession = document.getElementById('SettingMediaSessionInput');
     if (features.featMediaSession === false) {
-        elShowId('warninputWebUIsettingmediaSession');
+        elShowId('SettingMediaSessionInputWarn');
         elDisable(btnMediaSession);
         toggleBtnChk(btnMediaSession, false);
     }
     else {
-        elHideId('warninputWebUIsettingmediaSession');
+        elHideId('SettingMediaSessionInputWarn');
         elEnable(btnMediaSession);
     }
 
-    document.getElementById('inputBookletName').value = settings.bookletName;
-    document.getElementById('inputCoverimageNames').value = settings.coverimageNames;
-    document.getElementById('inputThumbnailNames').value = settings.thumbnailNames;
-    document.getElementById('inputListenbrainzToken').value = settings.listenbrainzToken;
+    document.getElementById('SettingBookletNameInput').value = settings.bookletName;
+    document.getElementById('SettingCoverimageNamesInput').value = settings.coverimageNames;
+    document.getElementById('SettingThumbnailNamesInput').value = settings.thumbnailNames;
+    document.getElementById('SettingListenBrainzTokenInput').value = settings.listenbrainzToken;
 
     //smart playlists
     if (settings.features.featPlaylists === true) {
-        elEnableId('btnSmartpls');
-        toggleBtnChkCollapseId('btnSmartpls', 'collapseSmartpls', settings.smartpls);
-        elHideId('warnSmartpls');
+        elEnableId('SettingSmartplsEnableBtn');
+        toggleBtnChkCollapseId('SettingSmartplsEnableBtn', 'SettingSmartplsCollapse', settings.smartpls);
+        elHideId('SettingSmartplsWarn');
     }
     else {
-        elDisableId('btnSmartpls');
-        toggleBtnChkCollapseId('btnSmartpls', 'collapseSmartpls', false);
-        elShowId('warnSmartpls');
+        elDisableId('SettingSmartplsEnableBtn');
+        toggleBtnChkCollapseId('SettingSmartplsEnableBtn', 'SettingSmartplsCollapse', false);
+        elShowId('SettingSmartplsWarn');
     }
-    document.getElementById('inputSmartplsPrefix').value = settings.smartplsPrefix;
-    document.getElementById('inputSmartplsInterval').value = settings.smartplsInterval / 60 / 60;
-    addTagListSelect('selectSmartplsSort', 'tagList');
-    document.getElementById('selectSmartplsSort').value = settings.smartplsSort;
+    document.getElementById('SettingSmartplsPrefixInput').value = settings.smartplsPrefix;
+    document.getElementById('SettingSmartplsIntervalInput').value = settings.smartplsInterval / 60 / 60;
+    addTagListSelect('SettingSmartplsSortInput', 'tagList');
+    document.getElementById('SettingSmartplsSortInput').value = settings.smartplsSort;
     //lyrics
     if (features.featLibrary === false) {
         //lyrics need access to library
         settings.webuiSettings.enableLyrics = false;
     }
-    toggleBtnChkCollapseId('btnEnableLyrics', 'collapseEnableLyrics', settings.webuiSettings.enableLyrics);
+    toggleBtnChkCollapseId('SettingLyricsEnableBtn', 'SettingLyricsCollapse', settings.webuiSettings.enableLyrics);
 
     //local playback
-    toggleBtnChkCollapseId('btnEnableLocalPlayback', 'collapseEnableLocalPlayback', settings.webuiSettings.enableLocalPlayback);
-    toggleBtnChkId('btnEnableLocalPlaybackAutoplay', localSettings.localPlaybackAutoplay);
+    toggleBtnChkCollapseId('SettingLocalPlaybackEnableBtn', 'SettingLocalPlaybackCollapse', settings.webuiSettings.enableLocalPlayback);
+    toggleBtnChkId('SettingEnableLocalPlaybackAutoplayInput', localSettings.localPlaybackAutoplay);
 
     //albumart background css filter
-    toggleBtnChkId('inputWebUIsettinguiBgCover', settings.webuiSettings.uiBgCover);
+    toggleBtnChkId('SettingBgCoverInput', settings.webuiSettings.uiBgCover);
 
     //tag multiselects
-    initTagMultiSelect('inputEnabledTags', 'listEnabledTags', settings.tagListMpd, settings.tagList);
-    initTagMultiSelect('inputSearchTags', 'listSearchTags', settings.tagList, settings.tagListSearch);
-    initTagMultiSelect('inputBrowseTags', 'listBrowseTags', settings.tagList, settings.tagListBrowse);
-    initTagMultiSelect('inputGeneratePlsTags', 'listGeneratePlsTags', settings.tagListBrowse, settings.smartplsGenerateTagList);
+    initTagMultiSelect('SettingEnabledTagsInput', 'SettingEnabledTagsList', settings.tagListMpd, settings.tagList);
+    initTagMultiSelect('SettingSearchTagsInput', 'SettingSearchTagsList', settings.tagList, settings.tagListSearch);
+    initTagMultiSelect('SettingBrowseTagsInput', 'SettingBrowseTagsList', settings.tagList, settings.tagListBrowse);
+    initTagMultiSelect('SettingGeneratePlsTagsInput', 'SettingGeneratePlsTagsList', settings.tagListBrowse, settings.smartplsGenerateTagList);
 
     //features - show or hide warnings - use settings object
-    setFeatureBtnId('btnEnableLyrics', settings.features.featLibrary);
-    setFeatureBtnId('inputWebUIsettingenableScripting', settings.features.featScripting);
-    setFeatureBtnId('inputWebUIsettingenableMounts', settings.features.featMounts);
-    setFeatureBtnId('inputWebUIsettingenablePartitions', settings.features.featPartitions);
+    setFeatureBtnId('SettingLyricsEnableBtn', settings.features.featLibrary);
+    setFeatureBtnId('SettingEnableScriptingInput', settings.features.featScripting);
+    setFeatureBtnId('SettingEnableMountsInput', settings.features.featMounts);
+    setFeatureBtnId('SettingEnablePartitionsInput', settings.features.featPartitions);
 }
 
 /**
@@ -209,20 +209,20 @@ function populateSettingsFrm() {
  * @returns {void}
  */
 function createSettingsFrm() {
-    _createSettingsFrm(settings.webuiSettings, webuiSettingsDefault, 'inputWebUIsetting');
-    _createSettingsFrm(settings, settingFields, 'inputSetting');
+    _createSettingsFrm(settings.webuiSettings, webuiSettingsDefault, 'Setting');
+    _createSettingsFrm(settings, settingFields, 'Setting');
     initElements(document.getElementById('modalSettings'));
 }
 
 /**
  * Creates the settings modal
- * @param {object} fields elements to create
- * @param {object} defaults default values for the elements
+ * @param {object} fields object with the values for the elements to create
+ * @param {object} defaults object with elements to create and the default values
  * @param {string} prefix prefix for element ids
  * @returns {void}
  */
 function _createSettingsFrm(fields, defaults, prefix) {
-    //build form for web ui settings
+    //TODO: key in defaults is UCFirst, in defaults LCFirst
     const advFrm = {};
     const advSettingsKeys = Object.keys(defaults);
     advSettingsKeys.sort();
@@ -256,7 +256,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
 
         const col = elCreateEmpty('div', {"class": ["col-sm-8", "position-relative"]});
         if (defaults[key].inputType === 'select') {
-            const select = elCreateEmpty('select', {"class": ["form-select"], "id": prefix + r(key)});
+            const select = elCreateEmpty('select', {"class": ["form-select"], "id": prefix + r(key) + 'Input'});
             for (const value in defaults[key].validValues) {
                 select.appendChild(
                     elCreateTextTn('option', {"value": value}, defaults[key].validValues[value])
@@ -270,7 +270,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
             col.appendChild(select);
         }
         else if (defaults[key].inputType === 'mympd-select-search') {
-            const input = elCreateEmpty('input', {"class": ["form-select"], "id": prefix + r(key)});
+            const input = elCreateEmpty('input', {"class": ["form-select"], "id": prefix + r(key) + 'Input'});
             setData(input, 'cb-filter', defaults[key].cbCallback);
             setData(input, 'cb-filter-options', [input.getAttribute('id')]);
             input.setAttribute('data-is', 'mympd-select-search');
@@ -279,7 +279,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
             col.appendChild(btnGrp);
         }
         else if (defaults[key].inputType === 'checkbox') {
-            const btn = elCreateEmpty('button', {"type": "button", "id": prefix + r(key), "class": ["btn", "btn-sm", "btn-secondary", "mi", "chkBtn"]});
+            const btn = elCreateEmpty('button', {"type": "button", "id": prefix + r(key) + 'Input', "class": ["btn", "btn-sm", "btn-secondary", "mi", "chkBtn"]});
             if (fields[key] === true) {
                 btn.classList.add('active');
                 btn.textContent = 'check';
@@ -300,10 +300,18 @@ function _createSettingsFrm(fields, defaults, prefix) {
             }
             col.appendChild(btn);
         }
+        else if (defaults[key].inputType === 'password') {
+            const input = elCreateEmpty('input', {"is": "mympd-input-password", "id": prefix + r(key) + 'Input',
+                "value": fields[key], "class": ["form-control"], "type": "password"});
+            col.appendChild(input);
+        }
         else {
             const it = defaults[key].inputType === 'color' ? 'color' : 'text';
-            const input = elCreateEmpty('input', {"is": "mympd-input-reset", "id": prefix + r(key), "placeholder": defaults[key].defaultValue,
-                "value": fields[key], "class": ["form-control"], "type": it});
+            const placeholder = defaults[key].placeholder !== undefined
+                ? defaults[key].placeholder
+                : defaults[key].defaultValue;
+            const input = elCreateEmpty('input', {"is": "mympd-input-reset", "id": prefix + r(key) + 'Input', "data-default": defaults[key].defaultValue,
+                "placeholder": placeholder, "value": fields[key], "class": ["form-control"], "type": it});
             col.appendChild(input);
         }
         if (defaults[key].invalid !== undefined) {
@@ -313,7 +321,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
         }
         if (defaults[key].warn !== undefined) {
             col.appendChild(
-                elCreateTextTn('div', {"id": "warn" + prefix + r(key), "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"]}, defaults[key].warn)
+                elCreateTextTn('div', {"id": prefix + r(key) + 'InputWarn', "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"]}, defaults[key].warn)
             );
         }
         if (defaults[key].help !== undefined) {
@@ -323,8 +331,8 @@ function _createSettingsFrm(fields, defaults, prefix) {
         }
 
         const label = defaults[key].hint === undefined
-            ? elCreateTextTn('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key)}, defaults[key].title)
-            : elCreateNodes('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key)}, [
+            ? elCreateTextTn('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key) + 'Input'}, defaults[key].title)
+            : elCreateNodes('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key) + 'Input'}, [
                     elCreateTextTn('span', {}, defaults[key].title),
                     elCreateText('small', {"class": ["mi", "mi-sm", "ms-1"], "title": tn("Browser specific setting"), "data-title-phrase": "Browser specific setting"}, defaults[key].hint)
               ]);
@@ -343,7 +351,7 @@ function _createSettingsFrm(fields, defaults, prefix) {
 
     for (const key in defaults) {
         if (defaults[key].onChange !== undefined) {
-            document.getElementById(prefix + r(key)).addEventListener('change', function(event) {
+            document.getElementById(prefix + r(key) + 'Input').addEventListener('change', function(event) {
                 // @ts-ignore
                 window[defaults[key].onChange](event);
             }, false);
@@ -351,9 +359,9 @@ function _createSettingsFrm(fields, defaults, prefix) {
     }
 
     //set featWhence feature detection for default actions
-    for (const sel of ['inputWebUIsettingclickQuickPlay', 'inputWebUIsettingclickFilesystemPlaylist',
-        'inputWebUIsettingclickPlaylist', 'inputWebUIsettingclickSong',
-        'inputWebUIsettingclickRadioFavorites', 'inputWebUIsettingclickRadiobrowser'])
+    for (const sel of ['SettingClickQuickPlayInput', 'SettingClickFilesystemPlaylistInput',
+        'SettingClickPlaylistInput', 'SettingClickSongInput',
+        'SettingClickRadioFavoritesInput', 'SettingClickRadiobrowserInput'])
     {
         const options = document.querySelectorAll('#' + sel + ' > option');
         for (const opt of options) {
@@ -374,12 +382,12 @@ function _createSettingsFrm(fields, defaults, prefix) {
 function setFeatureBtnId(id, value) {
     if (value === true) {
         elEnableId(id);
-        elHideId('warn' + id);
+        elHideId(id + 'Warn');
     }
     else {
         elDisableId(id);
         toggleBtnChkId(id, false);
-        elShowId('warn' + id);
+        elShowId(id + 'Warn');
     }
 }
 
@@ -393,9 +401,9 @@ function saveSettings(closeModal) {
     cleanupModalId('modalSettings');
     let formOK = true;
 
-    for (const inputId of ['inputWebUIsettinguiThumbnailSize', 'inputSettinglastPlayedCount',
-        'inputSmartplsInterval', 'inputSettingvolumeMax', 'inputSettingvolumeMin',
-        'inputSettingvolumeStep'])
+    for (const inputId of ['SettingThumbnailSizeInput', 'SettingLastPlayedCountInput',
+        'SettingSmartplsIntervalInput', 'SettingVolumeMaxInput', 'SettingVolumeMinInput',
+        'SettingVolumeStepInput'])
     {
         const inputEl = document.getElementById(inputId);
         if (validateUintEl(inputEl) === false) {
@@ -403,21 +411,21 @@ function saveSettings(closeModal) {
         }
     }
 
-    const inputCoverimageNames = document.getElementById('inputCoverimageNames');
+    const inputCoverimageNames = document.getElementById('SettingCoverimageNamesInput');
     if (validateFilenameListEl(inputCoverimageNames) === false) {
         formOK = false;
     }
-    const inputThumbnailNames = document.getElementById('inputThumbnailNames');
+    const inputThumbnailNames = document.getElementById('SettingThumbnailNamesInput');
     if (validateFilenameListEl(inputThumbnailNames) === false) {
         formOK = false;
     }
 
-    const inputBookletName = document.getElementById('inputBookletName');
+    const inputBookletName = document.getElementById('SettingBookletNameInput');
     if (validateFilenameEl(inputBookletName) === false) {
         formOK = false;
     }
 
-    const inputScaleRatio = document.getElementById('inputSettingscaleRatio');
+    const inputScaleRatio = document.getElementById('SettingScaleRatioInput');
     //handle scaleRatio only for mobile browsers
     if (userAgentData.isMobile === true) {
         if (validateFloatEl(inputScaleRatio) === false) {
@@ -427,8 +435,8 @@ function saveSettings(closeModal) {
 
     if (formOK === true) {
         //browser specific settings
-        localSettings.localPlaybackAutoplay = getBtnChkValueId('btnEnableLocalPlaybackAutoplay');
-        localSettings.viewMode = getSelectValueId('inputSettingviewMode');
+        localSettings.localPlaybackAutoplay = getBtnChkValueId('SettingEnableLocalPlaybackAutoplayInput');
+        localSettings.viewMode = getSelectValueId('SettingViewModeInput');
         setUserAgentData();
 
         //use scaleRatio only for mobile browsers
@@ -447,11 +455,11 @@ function saveSettings(closeModal) {
         }
 
         //from hours to seconds
-        const smartplsInterval = Number(document.getElementById('inputSmartplsInterval').value) * 60 * 60;
+        const smartplsInterval = Number(document.getElementById('SettingSmartplsIntervalInput').value) * 60 * 60;
 
         const webuiSettings = {};
         for (const key in webuiSettingsDefault) {
-            const el = document.getElementById('inputWebUIsetting' + r(key));
+            const el = document.getElementById('Setting' + r(key) + 'Input');
             if (el) {
                 if (webuiSettingsDefault[key].inputType === 'select') {
                     webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getSelectValue(el)) : getSelectValue(el);
@@ -471,30 +479,30 @@ function saveSettings(closeModal) {
             }
         }
 
-        webuiSettings.enableLyrics = getBtnChkValueId('btnEnableLyrics');
-        webuiSettings.enableLocalPlayback = getBtnChkValueId('btnEnableLocalPlayback');
+        webuiSettings.enableLyrics = getBtnChkValueId('SettingLyricsEnableBtn');
+        webuiSettings.enableLocalPlayback = getBtnChkValueId('SettingEnableLocalPlaybackBtn');
 
         const params = {
             "coverimageNames": inputCoverimageNames.value,
             "thumbnailNames": inputThumbnailNames.value,
-            "lastPlayedCount": Number(document.getElementById('inputSettinglastPlayedCount').value),
-            "smartpls": getBtnChkValueId('btnSmartpls'),
-            "smartplsPrefix": document.getElementById('inputSmartplsPrefix').value,
+            "lastPlayedCount": Number(document.getElementById('SettingLastPlayedCountInput').value),
+            "smartpls": getBtnChkValueId('SettingSmartplsEnableBtn'),
+            "smartplsPrefix": document.getElementById('SettingSmartplsPrefixInput').value,
             "smartplsInterval": smartplsInterval,
-            "smartplsSort": document.getElementById('selectSmartplsSort').value,
-            "smartplsGenerateTagList": getTagMultiSelectValues(document.getElementById('listGeneratePlsTags'), false),
-            "tagList": getTagMultiSelectValues(document.getElementById('listEnabledTags'), false),
-            "tagListSearch": getTagMultiSelectValues(document.getElementById('listSearchTags'), false),
-            "tagListBrowse": getTagMultiSelectValues(document.getElementById('listBrowseTags'), false),
+            "smartplsSort": document.getElementById('SettingSmartplsSortInput').value,
+            "smartplsGenerateTagList": getTagMultiSelectValues(document.getElementById('SettingGeneratePlsTagsList'), false),
+            "tagList": getTagMultiSelectValues(document.getElementById('SettingEnabledTagsList'), false),
+            "tagListSearch": getTagMultiSelectValues(document.getElementById('SettingSearchTagsList'), false),
+            "tagListBrowse": getTagMultiSelectValues(document.getElementById('SettingBrowseTagsList'), false),
             "bookletName": inputBookletName.value,
-            "volumeMin": Number(document.getElementById('inputSettingvolumeMin').value),
-            "volumeMax": Number(document.getElementById('inputSettingvolumeMax').value),
-            "volumeStep": Number(document.getElementById('inputSettingvolumeStep').value),
-            "lyricsUsltExt": document.getElementById('inputSettinglyricsUsltExt').value,
-            "lyricsSyltExt": document.getElementById('inputSettinglyricsSyltExt').value,
-            "lyricsVorbisUslt": document.getElementById('inputSettinglyricsVorbisUslt').value,
-            "lyricsVorbisSylt": document.getElementById('inputSettinglyricsVorbisSylt').value,
-            "listenbrainzToken": document.getElementById('inputListenbrainzToken').value,
+            "volumeMin": Number(document.getElementById('SettingVolumeMinInput').value),
+            "volumeMax": Number(document.getElementById('SettingVolumeMaxInput').value),
+            "volumeStep": Number(document.getElementById('SettingVolumeStepInput').value),
+            "lyricsUsltExt": document.getElementById('SettingLyricsUsltExtInput').value,
+            "lyricsSyltExt": document.getElementById('SettingLyricsSyltExtInput').value,
+            "lyricsVorbisUslt": document.getElementById('SettingLyricsVorbisUsltInput').value,
+            "lyricsVorbisSylt": document.getElementById('SettingLyricsVorbisSyltInput').value,
+            "listenbrainzToken": document.getElementById('SettingCloudListenBrainzTokenInput').value,
             "webuiSettings": webuiSettings
         };
 
@@ -543,8 +551,8 @@ function saveSettingsApply(obj) {
 //eslint-disable-next-line no-unused-vars
 function savePartitionSettings(closeModal) {
     let formOK = true;
-    const mpdStreamPortEl = document.getElementById('inputMpdStreamPort');
-    const streamUriEl = document.getElementById('inputStreamUri');
+    const mpdStreamPortEl = document.getElementById('SettingMpdStreamPortInput');
+    const streamUriEl = document.getElementById('SettingStreamUriInput');
     if (validateIntRangeEl(mpdStreamPortEl, 0, 65535) === false) {
         formOK = false;
     }
@@ -556,8 +564,8 @@ function savePartitionSettings(closeModal) {
 
     if (formOK === true) {
         const params = {
-            "highlightColor": document.getElementById('inputSettinghighlightColor').value,
-            "highlightColorContrast": document.getElementById('inputSettinghighlightColorContrast').value,
+            "highlightColor": document.getElementById('SettingHighlightColorInput').value,
+            "highlightColorContrast": document.getElementById('SettingHighlightColorContrastInput').value,
             "mpdStreamPort": Number(mpdStreamPortEl.value),
             "streamUri": streamUriEl.value
         };
@@ -707,19 +715,19 @@ function toggleBtnNotifyWeb(event) {
     if (notifyWebState === true) {
         toggleBtnChk(btnNotifyWeb, false);
         settings.webuiSettings.notifyWeb = false;
-        elHideId('warnNotifyWeb');
+        elHideId('SettingNotifyWebWarn');
         return;
     }
     Notification.requestPermission(function (permission) {
         if (permission === 'granted') {
             toggleBtnChk(btnNotifyWeb, true);
             settings.webuiSettings.notifyWeb = true;
-            elHideId('warnNotifyWeb');
+            elHideId('SettingNotifyWebWarn');
         }
         else {
             toggleBtnChk(btnNotifyWeb, false);
             settings.webuiSettings.notifyWeb = false;
-            elShowId('warnNotifyWeb');
+            elShowId('SettingNotifyWebWarn');
         }
     });
 }
@@ -730,7 +738,7 @@ function toggleBtnNotifyWeb(event) {
  * @returns {void}
  */
 function warnLocale(value) {
-    const warnEl = document.getElementById('warnMissingPhrases');
+    const warnEl = document.getElementById('SettingMissingPhrasesWarn');
     elClear(warnEl);
     if (i18n[value].missingPhrases > 0) {
         warnEl.appendChild(

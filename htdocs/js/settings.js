@@ -206,19 +206,19 @@ function parseSettings(obj) {
     //set translations for pregenerated elements
     pEl.actionTdMenu.firstChild.title = tn('Actions');
 
-    pEl.actionTdMenuPlay.firstChild.title = tn(webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
+    pEl.actionTdMenuPlay.firstChild.title = tn(webuiSettingsDefault.ClickQuickPlay.validValues[settings.webuiSettings.ClickQuickPlay]);
     pEl.actionTdMenuPlay.lastChild.title = tn('Actions');
 
     pEl.actionTdMenuRemove.firstChild.title = tn('Remove');
     pEl.actionTdMenuRemove.lastChild.title = tn('Actions');
 
-    pEl.actionTdMenuPlayRemove.childNodes[0].title = tn(webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
+    pEl.actionTdMenuPlayRemove.childNodes[0].title = tn(webuiSettingsDefault.ClickQuickPlay.validValues[settings.webuiSettings.ClickQuickPlay]);
     pEl.actionTdMenuPlayRemove.childNodes[1].title = tn('Remove');
     pEl.actionTdMenuPlayRemove.childNodes[2].title = tn('Actions');
 
     //update actions for table rows
-    if (settings.webuiSettings.uiQuickPlayButton === true &&
-        settings.webuiSettings.uiQuickRemoveButton === true)
+    if (settings.webuiSettings.QuickPlayButton === true &&
+        settings.webuiSettings.QuickRemoveButton === true)
     {
         pEl.actionTd = pEl.actionTdMenuPlay;
         pEl.actionQueueTd = pEl.actionTdMenuRemove;
@@ -226,14 +226,14 @@ function parseSettings(obj) {
         pEl.actionPlaylistDetailTd = pEl.actionTdMenuPlayRemove;
         pEl.actionPlaylistTd = pEl.actionTdMenuPlayRemove;
     }
-    else if (settings.webuiSettings.uiQuickPlayButton === true) {
+    else if (settings.webuiSettings.QuickPlayButton === true) {
         pEl.actionTd = pEl.actionTdMenuPlay;
         pEl.actionQueueTd = pEl.actionTdMenu;
         pEl.actionJukeboxTd = pEl.actionTdMenuPlay;
         pEl.actionPlaylistDetailTd = pEl.actionTdMenuPlay;
         pEl.actionPlaylistTd = pEl.actionTdMenuPlay;
     }
-    else if (settings.webuiSettings.uiQuickRemoveButton === true) {
+    else if (settings.webuiSettings.QuickRemoveButton === true) {
         pEl.actionTd = pEl.actionTdMenu;
         pEl.actionQueueTd = pEl.actionTdMenuRemove;
         pEl.actionJukeboxTd = pEl.actionTdMenuRemove;
@@ -248,7 +248,7 @@ function parseSettings(obj) {
         pEl.actionPlaylistTd = pEl.actionTdMenu;
     }
 
-    pEl.coverPlayBtn.title = tn(webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
+    pEl.coverPlayBtn.title = tn(webuiSettingsDefault.ClickQuickPlay.validValues[settings.webuiSettings.ClickQuickPlay]);
 
     //goto view
     if (app.id === 'QueueJukeboxSong' ||
@@ -297,7 +297,7 @@ function parseSettings(obj) {
 function parseMPDSettings() {
     document.getElementById('partitionName').textContent = localSettings.partition;
 
-    if (settings.webuiSettings.uiBgCover === true) {
+    if (settings.webuiSettings.BgCover === true) {
         setBackgroundImage(domCache.body, currentSongObj.uri);
     }
     else {

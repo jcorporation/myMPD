@@ -23,7 +23,7 @@ function getCssImageUri(uri) {
  * @returns {void}
  */
 function getBgImageList() {
-    const list = document.getElementById('inputWebUIsettinguiBgImage');
+    const list = document.getElementById('SettingBgImageInput');
     getImageList(list, bgImageValues, 'backgrounds');
 }
 
