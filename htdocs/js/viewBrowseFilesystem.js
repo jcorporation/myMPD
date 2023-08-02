@@ -150,9 +150,9 @@ function initViewBrowseFilesystem() {
         obj.result.data.unshift({"Type": "parentDir", "name": "parentDir", "uri": parentUri});
     }
 
-    const rowTitleSong = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
+    const rowTitleSong = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
     const rowTitleFolder = 'Open directory';
-    const rowTitlePlaylist = webuiSettingsDefault.clickFilesystemPlaylist.validValues[settings.webuiSettings.clickFilesystemPlaylist];
+    const rowTitlePlaylist = settingsWebuiFields.clickFilesystemPlaylist.validValues[settings.webuiSettings.clickFilesystemPlaylist];
 
     updateTable(obj, 'BrowseFilesystem', function(row, data) {
         setData(row, 'type', data.Type);

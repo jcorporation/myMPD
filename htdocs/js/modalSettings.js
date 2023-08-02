@@ -14,8 +14,6 @@ function initModalSettings() {
         cleanupModalId('modalSettings');
         getSettings();
     });
-
-    createSettingsFrm();
 }
 
 /**
@@ -92,21 +90,19 @@ function getBgImageText(value) {
 
 /**
  * Populates the settings modal
+ * Handles only special cases.
+ * All other fields are populated by the createSettingsFrm function.
  * @returns {void}
  */
 function populateSettingsFrm() {
+    // background image select
     getBgImageList();
     const bgImageInput = document.getElementById('SettingBgImageInput');
-    setData(bgImageInput, 'value', settings.webuiSettings.uiBgImage);
-    bgImageInput.value = getBgImageText(settings.webuiSettings.uiBgImage);
+    setData(bgImageInput, 'value', settings.webuiSettings.bgImage);
+    bgImageInput.value = getBgImageText(settings.webuiSettings.bgImage);
 
-    toggleThemeInputs(settings.webuiSettings.uiTheme);
-
-    //partition specific settings
-    document.getElementById('SettingHighlightColorInput').value = settings.partition.highlightColor;
-    document.getElementById('SettingHighlightColorContrastInput').value = settings.partition.highlightColorContrast;
-    document.getElementById('SettingMpdStreamPortInput').value = settings.partition.mpdStreamPort;
-    document.getElementById('SettingStreamUriInput').value = settings.partition.streamUri;
+    // theme
+    toggleThemeInputs(settings.webuiSettings.theme);
 
     //locales
     const localeList = document.getElementById('SettingLocaleInput');
@@ -115,13 +111,13 @@ function populateSettingsFrm() {
         localeList.appendChild(
             elCreateTextTn('option', {"value": l}, i18n[l].desc)
         );
-        if (l === settings.webuiSettings.uiLocale) {
+        if (l === settings.webuiSettings.locale) {
             localeList.lastChild.setAttribute('selected', 'selected');
         }
     }
-    warnLocale(settings.webuiSettings.uiLocale);
+    warnLocale(settings.webuiSettings.locale);
 
-    //web notifications - check permission
+    // web notifications - check permission
     const btnNotifyWeb = document.getElementById('SettingNotifyWebInput');
     elHideId('SettingNotifyWebWarn');
     if (notificationsSupported()) {
@@ -142,10 +138,7 @@ function populateSettingsFrm() {
         toggleBtnChk(btnNotifyWeb, false);
     }
 
-    document.getElementById('SettingScaleRatioInput').value = localSettings.scaleRatio;
-    document.getElementById('SettingViewModeInput').value = localSettings.viewMode;
-
-    //media session support
+    // media session support
     const btnMediaSession = document.getElementById('SettingMediaSessionInput');
     if (features.featMediaSession === false) {
         elShowId('SettingMediaSessionInputWarn');
@@ -157,48 +150,40 @@ function populateSettingsFrm() {
         elEnable(btnMediaSession);
     }
 
-    document.getElementById('SettingBookletNameInput').value = settings.bookletName;
-    document.getElementById('SettingCoverimageNamesInput').value = settings.coverimageNames;
-    document.getElementById('SettingThumbnailNamesInput').value = settings.thumbnailNames;
-    document.getElementById('SettingListenBrainzTokenInput').value = settings.listenbrainzToken;
-
-    //smart playlists
+    // smart playlists
     if (settings.features.featPlaylists === true) {
-        elEnableId('SettingSmartplsEnableBtn');
-        toggleBtnChkCollapseId('SettingSmartplsEnableBtn', 'SettingSmartplsCollapse', settings.smartpls);
+        elEnableId('SettingSmartplsEnableInput');
+        toggleBtnChkCollapseId('SettingSmartplsEnableInput', 'SettingSmartplsCollapse', settings.smartpls);
         elHideId('SettingSmartplsWarn');
     }
     else {
-        elDisableId('SettingSmartplsEnableBtn');
-        toggleBtnChkCollapseId('SettingSmartplsEnableBtn', 'SettingSmartplsCollapse', false);
+        elDisableId('SettingSmartplsEnableInput');
+        toggleBtnChkCollapseId('SettingSmartplsEnableInput', 'SettingSmartplsCollapse', false);
         elShowId('SettingSmartplsWarn');
     }
-    document.getElementById('SettingSmartplsPrefixInput').value = settings.smartplsPrefix;
-    document.getElementById('SettingSmartplsIntervalInput').value = settings.smartplsInterval / 60 / 60;
     addTagListSelect('SettingSmartplsSortInput', 'tagList');
     document.getElementById('SettingSmartplsSortInput').value = settings.smartplsSort;
-    //lyrics
+    // seconds to hours
+    document.getElementById('SettingSmartplsIntervalInput').value = settings.smartplsInterval / 60 / 60;
+
+    // lyrics
     if (features.featLibrary === false) {
         //lyrics need access to library
         settings.webuiSettings.enableLyrics = false;
     }
-    toggleBtnChkCollapseId('SettingLyricsEnableBtn', 'SettingLyricsCollapse', settings.webuiSettings.enableLyrics);
+    toggleBtnChkCollapseId('SettingEnableLyricsInput', 'SettingLyricsCollapse', settings.webuiSettings.enableLyrics);
 
-    //local playback
-    toggleBtnChkCollapseId('SettingLocalPlaybackEnableBtn', 'SettingLocalPlaybackCollapse', settings.webuiSettings.enableLocalPlayback);
-    toggleBtnChkId('SettingEnableLocalPlaybackAutoplayInput', localSettings.localPlaybackAutoplay);
+    // local playback
+    toggleBtnChkCollapseId('SettingEnableLocalPlaybackInput', 'SettingLocalPlaybackCollapse', settings.webuiSettings.enableLocalPlayback);
 
-    //albumart background css filter
-    toggleBtnChkId('SettingBgCoverInput', settings.webuiSettings.uiBgCover);
-
-    //tag multiselects
+    // tag multiselects
     initTagMultiSelect('SettingEnabledTagsInput', 'SettingEnabledTagsList', settings.tagListMpd, settings.tagList);
     initTagMultiSelect('SettingSearchTagsInput', 'SettingSearchTagsList', settings.tagList, settings.tagListSearch);
     initTagMultiSelect('SettingBrowseTagsInput', 'SettingBrowseTagsList', settings.tagList, settings.tagListBrowse);
     initTagMultiSelect('SettingGeneratePlsTagsInput', 'SettingGeneratePlsTagsList', settings.tagListBrowse, settings.smartplsGenerateTagList);
 
-    //features - show or hide warnings - use settings object
-    setFeatureBtnId('SettingLyricsEnableBtn', settings.features.featLibrary);
+    // handle features: show or hide warnings - use the settings object
+    setFeatureBtnId('SettingEnableLyricsInput', settings.features.featLibrary);
     setFeatureBtnId('SettingEnableScriptingInput', settings.features.featScripting);
     setFeatureBtnId('SettingEnableMountsInput', settings.features.featMounts);
     setFeatureBtnId('SettingEnablePartitionsInput', settings.features.featPartitions);
@@ -209,8 +194,14 @@ function populateSettingsFrm() {
  * @returns {void}
  */
 function createSettingsFrm() {
-    _createSettingsFrm(settings.webuiSettings, webuiSettingsDefault, 'Setting');
-    _createSettingsFrm(settings, settingFields, 'Setting');
+    // cache for the form field containers
+    const forms = {};
+    // create the fields
+    _createSettingsFrm(settings, settingsFields, 'Setting', forms);
+    _createSettingsFrm(settings.webuiSettings, settingsWebuiFields, 'Setting', forms);
+    _createSettingsFrm(settings.partition, settingsPartitionFields, 'Setting', forms);
+    _createSettingsFrm(localSettings, settingsLocalFields, 'Setting', forms);
+    // initialize myMPD custom elements
     initElements(document.getElementById('modalSettings'));
 }
 
@@ -219,47 +210,35 @@ function createSettingsFrm() {
  * @param {object} fields object with the values for the elements to create
  * @param {object} defaults object with elements to create and the default values
  * @param {string} prefix prefix for element ids
+ * @param {object} forms cace for the form field containers
  * @returns {void}
  */
-function _createSettingsFrm(fields, defaults, prefix) {
-    /*
-        TODO: key in defaults is UCFirst, in fields LCFirst
-              remove population of this settings if this is fixed
-    */
-    const advFrm = {};
-    const advSettingsKeys = Object.keys(defaults);
-    advSettingsKeys.sort();
-    for (let i = 0, j = advSettingsKeys.length; i < j; i++) {
-        const key = advSettingsKeys[i];
-        if (defaults[key] === undefined || defaults[key].form === undefined) {
+function _createSettingsFrm(fields, defaults, prefix, forms) {
+    // iterate through sorted keys
+    const settingsKeys = Object.keys(defaults);
+    settingsKeys.sort();
+    for (let i = 0, j = settingsKeys.length; i < j; i++) {
+        const key = settingsKeys[i];
+        // check if we should add a field
+        if (defaults[key] === undefined ||
+            defaults[key].form === undefined ||
+            defaults[key].inputType === 'none')
+        {
             continue;
         }
+        // calculate a camelCase id
+        const id = prefix + ucFirst(key) + 'Input';
+        // get the container
         const form = defaults[key].form;
-        if (advFrm[form] === undefined) {
-            advFrm[form] = document.getElementById(form);
-            elClear(advFrm[form]);
+        if (forms[form] === undefined) {
+            forms[form] = document.getElementById(form);
+            // clear the container if it was not cached
+            elClear(forms[form]);
         }
-
-        if (defaults[key].inputType === 'section') {
-            if (defaults[key].title !== undefined) {
-                advFrm[form].appendChild(
-                    elCreateEmpty('hr', {})
-                );
-                advFrm[form].appendChild(
-                    elCreateTextTn('h4', {}, defaults[key].title)
-                );
-            }
-            else if (defaults[key].subtitle !== undefined) {
-                advFrm[form].appendChild(
-                    elCreateTextTn('h4', {}, defaults[key].subtitle)
-                );
-            }
-            continue;
-        }
-
+        // create the form field
         const col = elCreateEmpty('div', {"class": ["col-sm-8", "position-relative"]});
         if (defaults[key].inputType === 'select') {
-            const select = elCreateEmpty('select', {"class": ["form-select"], "id": prefix + r(key) + 'Input'});
+            const select = elCreateEmpty('select', {"class": ["form-select"], "id": id});
             for (const value in defaults[key].validValues) {
                 select.appendChild(
                     elCreateTextTn('option', {"value": value}, defaults[key].validValues[value])
@@ -273,16 +252,16 @@ function _createSettingsFrm(fields, defaults, prefix) {
             col.appendChild(select);
         }
         else if (defaults[key].inputType === 'mympd-select-search') {
-            const input = elCreateEmpty('input', {"class": ["form-select"], "id": prefix + r(key) + 'Input'});
+            const input = elCreateEmpty('input', {"class": ["form-select"], "id": id});
             setData(input, 'cb-filter', defaults[key].cbCallback);
-            setData(input, 'cb-filter-options', [input.getAttribute('id')]);
+            setData(input, 'cb-filter-options', [id + 'Input']);
             input.setAttribute('data-is', 'mympd-select-search');
             col.classList.add('position-relative');
             const btnGrp = elCreateNode('div', {"class": ["btn-group", "d-flex"]}, input);
             col.appendChild(btnGrp);
         }
         else if (defaults[key].inputType === 'checkbox') {
-            const btn = elCreateEmpty('button', {"type": "button", "id": prefix + r(key) + 'Input', "class": ["btn", "btn-sm", "btn-secondary", "mi", "chkBtn"]});
+            const btn = elCreateEmpty('button', {"type": "button", "id": id, "class": ["btn", "btn-sm", "btn-secondary", "mi", "chkBtn"]});
             if (fields[key] === true) {
                 btn.classList.add('active');
                 btn.textContent = 'check';
@@ -304,47 +283,52 @@ function _createSettingsFrm(fields, defaults, prefix) {
             col.appendChild(btn);
         }
         else if (defaults[key].inputType === 'password') {
-            const input = elCreateEmpty('input', {"is": "mympd-input-password", "id": prefix + r(key) + 'Input',
+            const input = elCreateEmpty('input', {"is": "mympd-input-password", "id": id,
                 "value": fields[key], "class": ["form-control"], "type": "password"});
             col.appendChild(input);
         }
         else {
-            const it = defaults[key].inputType === 'color' ? 'color' : 'text';
+            const it = defaults[key].inputType === 'color'
+                ? 'color'
+                : 'text';
             const placeholder = defaults[key].placeholder !== undefined
                 ? defaults[key].placeholder
                 : defaults[key].defaultValue;
-            const input = elCreateEmpty('input', {"is": "mympd-input-reset", "id": prefix + r(key) + 'Input', "data-default": defaults[key].defaultValue,
+            const input = elCreateEmpty('input', {"is": "mympd-input-reset", "id": id, "data-default": defaults[key].defaultValue,
                 "placeholder": placeholder, "value": fields[key], "class": ["form-control"], "type": it});
             col.appendChild(input);
         }
+        // invalid feedback element for local validation
         if (defaults[key].invalid !== undefined) {
             col.appendChild(
                 elCreateTextTn('div', {"class": ["invalid-feedback"]}, defaults[key].invalid)
             );
         }
+        // warning element
         if (defaults[key].warn !== undefined) {
             col.appendChild(
-                elCreateTextTn('div', {"id": prefix + r(key) + 'InputWarn', "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"]}, defaults[key].warn)
+                elCreateTextTn('div', {"id": id + 'Warn', "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"]}, defaults[key].warn)
             );
         }
+        // help text
         if (defaults[key].help !== undefined) {
             col.appendChild(
                 elCreateTextTn('small', {"class": ["help"]}, defaults[key].help)
             );
         }
-
+        // create the label
         const label = defaults[key].hint === undefined
-            ? elCreateTextTn('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key) + 'Input'}, defaults[key].title)
-            : elCreateNodes('label', {"class": ["col-sm-4", "col-form-label"], "for": prefix + r(key) + 'Input'}, [
+            ? elCreateTextTn('label', {"class": ["col-sm-4", "col-form-label"], "for": id}, defaults[key].title)
+            : elCreateNodes('label', {"class": ["col-sm-4", "col-form-label"], "for": id}, [
                     elCreateTextTn('span', {}, defaults[key].title),
                     elCreateText('small', {"class": ["mi", "mi-sm", "ms-1"], "title": tn("Browser specific setting"), "data-title-phrase": "Browser specific setting"}, defaults[key].hint)
               ]);
-
+        // create the row and append it to the form field container
         let rowClasses = ["mb-3", "row"];
         if (defaults[key].cssClass !== undefined) {
             rowClasses = rowClasses.concat(defaults[key].cssClass);
         }
-        advFrm[form].appendChild(
+        forms[form].appendChild(
             elCreateNodes('div', {"class": rowClasses}, [
                 label,
                 col
@@ -352,9 +336,11 @@ function _createSettingsFrm(fields, defaults, prefix) {
         );
     }
 
+    // add event handler
     for (const key in defaults) {
         if (defaults[key].onChange !== undefined) {
-            document.getElementById(prefix + r(key) + 'Input').addEventListener('change', function(event) {
+            const id = prefix + ucFirst(key) + 'Input';
+            document.getElementById(id).addEventListener('change', function(event) {
                 // @ts-ignore
                 window[defaults[key].onChange](event);
             }, false);
@@ -395,6 +381,23 @@ function setFeatureBtnId(id, value) {
 }
 
 /**
+ * Save localSettings in browsers localStorage
+ * @returns {boolean} true on success, else false
+ */
+function saveLocalSettings() {
+    try {
+        for (const key in localSettings) {
+            localStorage.setItem(key, localSettings[key]);
+        }
+    }
+    catch(err) {
+        logError('Can not save settings to localStorage: ' + err.message);
+        return false;
+    }
+    return true;
+}
+
+/**
  * Saves the settings
  * @param {boolean} closeModal true = close modal, else not
  * @returns {void}
@@ -402,118 +405,30 @@ function setFeatureBtnId(id, value) {
 //eslint-disable-next-line no-unused-vars
 function saveSettings(closeModal) {
     cleanupModalId('modalSettings');
-    let formOK = true;
 
-    for (const inputId of ['SettingThumbnailSizeInput', 'SettingLastPlayedCountInput',
-        'SettingSmartplsIntervalInput', 'SettingVolumeMaxInput', 'SettingVolumeMinInput',
-        'SettingVolumeStepInput'])
+    const settingsParams = {};
+    settingsParams.webuiSettings = {};
+    if (formToJson(settingsParams, settingsFields) === true &&
+        formToJson(settingsParams.webuiSettings, settingsWebuiFields) === true &&
+        formToJson(localSettings, settingsLocalFields) === true)
     {
-        const inputEl = document.getElementById(inputId);
-        if (validateUintEl(inputEl) === false) {
-            formOK = false;
+        if (saveLocalSettings() === false) {
+            saveSettingsClose({"error": {"message": "Can not save browser specific settings to localStorage"}});
+            return;
         }
-    }
-
-    const inputCoverimageNames = document.getElementById('SettingCoverimageNamesInput');
-    if (validateFilenameListEl(inputCoverimageNames) === false) {
-        formOK = false;
-    }
-    const inputThumbnailNames = document.getElementById('SettingThumbnailNamesInput');
-    if (validateFilenameListEl(inputThumbnailNames) === false) {
-        formOK = false;
-    }
-
-    const inputBookletName = document.getElementById('SettingBookletNameInput');
-    if (validateFilenameEl(inputBookletName) === false) {
-        formOK = false;
-    }
-
-    const inputScaleRatio = document.getElementById('SettingScaleRatioInput');
-    //handle scaleRatio only for mobile browsers
-    if (userAgentData.isMobile === true) {
-        if (validateFloatEl(inputScaleRatio) === false) {
-            formOK = false;
-        }
-    }
-
-    if (formOK === true) {
-        //browser specific settings
-        localSettings.localPlaybackAutoplay = getBtnChkValueId('SettingEnableLocalPlaybackAutoplayInput');
-        localSettings.viewMode = getSelectValueId('SettingViewModeInput');
-        setUserAgentData();
-
-        //use scaleRatio only for mobile browsers
-        localSettings.scaleRatio = userAgentData.isMobile === true ?
-            inputScaleRatio.value : '1.0';
-        setViewport();
-
-        //save localSettings in browsers localStorage
-        try {
-            for (const key in localSettings) {
-                localStorage.setItem(key, localSettings[key]);
-            }
-        }
-        catch(err) {
-            logError('Can not save settings to localStorage: ' + err.message);
-        }
-
-        //from hours to seconds
-        const smartplsInterval = Number(document.getElementById('SettingSmartplsIntervalInput').value) * 60 * 60;
-
-        const webuiSettings = {};
-        for (const key in webuiSettingsDefault) {
-            const el = document.getElementById('Setting' + r(key) + 'Input');
-            if (el) {
-                if (webuiSettingsDefault[key].inputType === 'select') {
-                    webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getSelectValue(el)) : getSelectValue(el);
-                }
-                else if (webuiSettingsDefault[key].inputType === 'mympd-select-search') {
-                    webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(getData(el, 'value')) : getData(el, 'value');
-                }
-                else if (webuiSettingsDefault[key].inputType === 'checkbox') {
-                    webuiSettings[key] = getBtnChkValue(el);
-                }
-                else {
-                    webuiSettings[key] = webuiSettingsDefault[key].contentType === 'integer' ? Number(el.value) : el.value;
-                }
-            }
-            else if (webuiSettingsDefault[key].defaultValue !== undefined) {
-                webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
-            }
-        }
-
-        webuiSettings.enableLyrics = getBtnChkValueId('SettingLyricsEnableBtn');
-        webuiSettings.enableLocalPlayback = getBtnChkValueId('SettingEnableLocalPlaybackBtn');
-
-        const params = {
-            "coverimageNames": inputCoverimageNames.value,
-            "thumbnailNames": inputThumbnailNames.value,
-            "lastPlayedCount": Number(document.getElementById('SettingLastPlayedCountInput').value),
-            "smartpls": getBtnChkValueId('SettingSmartplsEnableBtn'),
-            "smartplsPrefix": document.getElementById('SettingSmartplsPrefixInput').value,
-            "smartplsInterval": smartplsInterval,
-            "smartplsSort": document.getElementById('SettingSmartplsSortInput').value,
-            "smartplsGenerateTagList": getTagMultiSelectValues(document.getElementById('SettingGeneratePlsTagsList'), false),
-            "tagList": getTagMultiSelectValues(document.getElementById('SettingEnabledTagsList'), false),
-            "tagListSearch": getTagMultiSelectValues(document.getElementById('SettingSearchTagsList'), false),
-            "tagListBrowse": getTagMultiSelectValues(document.getElementById('SettingBrowseTagsList'), false),
-            "bookletName": inputBookletName.value,
-            "volumeMin": Number(document.getElementById('SettingVolumeMinInput').value),
-            "volumeMax": Number(document.getElementById('SettingVolumeMaxInput').value),
-            "volumeStep": Number(document.getElementById('SettingVolumeStepInput').value),
-            "lyricsUsltExt": document.getElementById('SettingLyricsUsltExtInput').value,
-            "lyricsSyltExt": document.getElementById('SettingLyricsSyltExtInput').value,
-            "lyricsVorbisUslt": document.getElementById('SettingLyricsVorbisUsltInput').value,
-            "lyricsVorbisSylt": document.getElementById('SettingLyricsVorbisSyltInput').value,
-            "listenbrainzToken": document.getElementById('SettingCloudListenBrainzTokenInput').value,
-            "webuiSettings": webuiSettings
-        };
+        // from hours to seconds
+        settingsParams.smartplsInterval = settingsParams.smartplsInterval * 60 * 60;
+        // manual fields
+        settingsParams.smartplsGenerateTagList = getTagMultiSelectValues(document.getElementById('SettingGeneratePlsTagsList'), false);
+        settingsParams.tagList = getTagMultiSelectValues(document.getElementById('SettingEnabledTagsList'), false);
+        settingsParams.tagListSearch = getTagMultiSelectValues(document.getElementById('SettingSearchTagsList'), false);
+        settingsParams.tagListBrowse = getTagMultiSelectValues(document.getElementById('SettingBrowseTagsList'), false);
 
         if (closeModal === true) {
-            sendAPIpartition('default', 'MYMPD_API_SETTINGS_SET', params, saveSettingsClose, true);
+            sendAPIpartition('default', 'MYMPD_API_SETTINGS_SET', settingsParams, saveSettingsClose, true);
         }
         else {
-            sendAPIpartition('default', 'MYMPD_API_SETTINGS_SET', params, saveSettingsApply, true);
+            sendAPIpartition('default', 'MYMPD_API_SETTINGS_SET', settingsParams, saveSettingsApply, true);
         }
     }
 }
@@ -551,32 +466,14 @@ function saveSettingsApply(obj) {
  * @param {boolean} closeModal true = close modal, else not
  * @returns {void}
  */
-//eslint-disable-next-line no-unused-vars
 function savePartitionSettings(closeModal) {
-    let formOK = true;
-    const mpdStreamPortEl = document.getElementById('SettingMpdStreamPortInput');
-    const streamUriEl = document.getElementById('SettingStreamUriInput');
-    if (validateIntRangeEl(mpdStreamPortEl, 0, 65535) === false) {
-        formOK = false;
-    }
-    if (streamUriEl.value.length > 0 &&
-        validateStreamEl(streamUriEl) === false)
-    {
-        formOK = false;
-    }
-
-    if (formOK === true) {
-        const params = {
-            "highlightColor": document.getElementById('SettingHighlightColorInput').value,
-            "highlightColorContrast": document.getElementById('SettingHighlightColorContrastInput').value,
-            "mpdStreamPort": Number(mpdStreamPortEl.value),
-            "streamUri": streamUriEl.value
-        };
+    const settingsParams = {};
+    if (formToJson(settingsParams, settingsPartitionFields) === true) {
         if (closeModal === true) {
-            sendAPI('MYMPD_API_PARTITION_SAVE', params, savePartitionSettingsClose, true);
+            sendAPI('MYMPD_API_PARTITION_SAVE', settingsParams, savePartitionSettingsClose, true);
         }
         else {
-            sendAPI('MYMPD_API_PARTITION_SAVE', params, savePartitionSettingsApply, true);
+            sendAPI('MYMPD_API_PARTITION_SAVE', settingsParams, savePartitionSettingsApply, true);
         }
     }
 }

@@ -260,7 +260,7 @@ function seekRelative(offset) {
 function clickPlay() {
     switch(currentState.state) {
         case 'play':
-            if (settings.webuiSettings.uiFooterPlaybackControls === 'stop' ||
+            if (settings.webuiSettings.footerPlaybackControls === 'stop' ||
                 isStreamUri(currentSongObj.uri) === true)
             {
                 //always stop streams

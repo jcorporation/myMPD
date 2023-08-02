@@ -77,7 +77,7 @@ function parseRadioFavoritesList(obj) {
         elClear(cardContainer);
     }
     let cols = cardContainer.querySelectorAll('.col');
-    const rowTitle = tn(webuiSettingsDefault.clickRadioFavorites.validValues[settings.webuiSettings.clickRadioFavorites]);
+    const rowTitle = tn(settingsWebuiFields.clickRadioFavorites.validValues[settings.webuiSettings.clickRadioFavorites]);
     for (let i = 0; i < nrItems; i++) {
         const card = elCreateNodes('div', {"data-contextmenu": "webradio", "class": ["card", "card-grid", "clickable"], "tabindex": 0}, [
             elCreateEmpty('div', {"class": ["card-body", "album-cover-loading", "album-cover-grid", "d-flex"], "title": rowTitle}),

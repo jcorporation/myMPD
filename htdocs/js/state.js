@@ -157,7 +157,7 @@ function parseState(obj) {
     }
     else if (obj.result.state === 'play') {
         document.getElementById('footerPlayBtn').textContent =
-            settings.webuiSettings.uiFooterPlaybackControls === 'stop' ? 'stop' : 'pause';
+            settings.webuiSettings.footerPlaybackControls === 'stop' ? 'stop' : 'pause';
     }
     else {
         //pause
@@ -288,7 +288,7 @@ function setBackgroundImage(el, url) {
     //add new cover and let it fade in
     const div = elCreateEmpty('div', {"class": ["albumartbg"]});
     if (el.tagName === 'BODY') {
-        div.style.filter = settings.webuiSettings.uiBgCssFilter;
+        div.style.filter = settings.webuiSettings.bgCssFilter;
     }
     div.style.backgroundImage = 'url("' + bgImageUrl + '")';
     div.style.opacity = 0;
@@ -339,7 +339,7 @@ function clearBackgroundImage(el) {
 function setCurrentCover(url) {
     setBackgroundImage(document.getElementById('PlaybackCover'), url);
     setBackgroundImage(document.getElementById('footerCover'), url);
-    if (settings.webuiSettings.uiBgCover === true) {
+    if (settings.webuiSettings.bgCover === true) {
         setBackgroundImage(domCache.body, url);
     }
 }
@@ -351,7 +351,7 @@ function setCurrentCover(url) {
 function clearCurrentCover() {
     clearBackgroundImage(document.getElementById('PlaybackCover'));
     clearBackgroundImage(document.getElementById('footerCover'));
-    if (settings.webuiSettings.uiBgCover === true) {
+    if (settings.webuiSettings.bgCover === true) {
         clearBackgroundImage(domCache.body);
     }
 }

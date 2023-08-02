@@ -80,7 +80,7 @@ function parseSearch(obj) {
         elDisableId('SearchAddAllSongsDropdownBtn');
     }
 
-    const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
+    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
 
     updateTable(obj, 'Search', function(row, data) {
         setData(row, 'type', data.Type);

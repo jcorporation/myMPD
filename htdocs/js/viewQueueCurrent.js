@@ -84,7 +84,7 @@ function parseQueue(obj) {
     const colspan = settings['colsQueueCurrent'].length;
     const smallWidth = uiSmallWidthTagRows();
 
-    const rowTitle = webuiSettingsDefault.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
+    const rowTitle = settingsWebuiFields.clickQueueSong.validValues[settings.webuiSettings.clickQueueSong];
     updateTable(obj, 'QueueCurrent', function(row, data) {
         if (features.featAdvqueue === false ||
             app.current.sort.tag === 'Priority')

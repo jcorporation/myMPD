@@ -36,11 +36,11 @@ function parseSettings(obj) {
     }
 
     //set webuiSettings defaults
-    for (const key in webuiSettingsDefault) {
+    for (const key in settingsWebuiFields) {
         if (settings.webuiSettings[key] === undefined &&
-            webuiSettingsDefault[key].defaultValue !== undefined)
+            settingsWebuiFields[key].defaultValue !== undefined)
         {
-            settings.webuiSettings[key] = webuiSettingsDefault[key].defaultValue;
+            settings.webuiSettings[key] = settingsWebuiFields[key].defaultValue;
         }
     }
 
@@ -52,6 +52,7 @@ function parseSettings(obj) {
 
     //execute only if settings modal is displayed
     if (document.getElementById('modalSettings').classList.contains('show')) {
+        createSettingsFrm();
         populateSettingsFrm();
     }
     //execute only if connection modal is displayed
@@ -64,10 +65,10 @@ function parseSettings(obj) {
     }
 
     //locales
-    setLocale(settings.webuiSettings.uiLocale);
+    setLocale(settings.webuiSettings.locale);
 
     //theme
-    let setTheme = settings.webuiSettings.uiTheme;
+    let setTheme = settings.webuiSettings.theme;
     switch(setTheme) {
         case 'theme-autodetect': setTheme = 'auto'; break;
         case 'theme-light': setTheme = 'light'; break;
@@ -80,7 +81,7 @@ function parseSettings(obj) {
     document.querySelector('html').setAttribute('data-bs-theme', setTheme);
 
     //compact grids
-    if (settings.webuiSettings.uiCompactGrids === true) {
+    if (settings.webuiSettings.compactGrids === true) {
         document.documentElement.style.setProperty('--mympd-card-footer-word-wrap', 'nowrap');
     }
     else {
@@ -88,7 +89,7 @@ function parseSettings(obj) {
     }
 
     // toggle help
-    if (settings.webuiSettings.uiShowHelp === true) {
+    if (settings.webuiSettings.showHelp === true) {
         document.documentElement.style.setProperty('--mympd-show-help', 'block');
     }
     else {
@@ -96,7 +97,7 @@ function parseSettings(obj) {
     }
 
     //background
-    if (settings.webuiSettings.uiTheme === 'auto') {
+    if (settings.webuiSettings.theme === 'auto') {
         //in auto mode we set default background
         domCache.body.style.backgroundImage = '';
         document.documentElement.style.setProperty('--mympd-backgroundcolor',
@@ -104,21 +105,21 @@ function parseSettings(obj) {
         );
     }
     else {
-        if (settings.webuiSettings.uiBgImage.indexOf('/assets/') === 0) {
-            domCache.body.style.backgroundImage = 'url("' + subdir + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
+        if (settings.webuiSettings.bgImage.indexOf('/assets/') === 0) {
+            domCache.body.style.backgroundImage = 'url("' + subdir + myEncodeURI(settings.webuiSettings.bgImage) + '")';
         }
-        else if (settings.webuiSettings.uiBgImage !== '') {
-            domCache.body.style.backgroundImage = 'url("' + subdir + '/browse/pics/backgrounds/' + myEncodeURI(settings.webuiSettings.uiBgImage) + '")';
+        else if (settings.webuiSettings.bgImage !== '') {
+            domCache.body.style.backgroundImage = 'url("' + subdir + '/browse/pics/backgrounds/' + myEncodeURI(settings.webuiSettings.bgImage) + '")';
         }
         else {
             domCache.body.style.backgroundImage = '';
         }
-        document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.webuiSettings.uiBgColor);
+        document.documentElement.style.setProperty('--mympd-backgroundcolor', settings.webuiSettings.bgColor);
     }
 
     const albumartbg = document.querySelectorAll('body > div.albumartbg');
     for (let i = 0, j = albumartbg.length; i < j; i++) {
-        albumartbg[i].style.filter = settings.webuiSettings.uiBgCssFilter;
+        albumartbg[i].style.filter = settings.webuiSettings.bgCssFilter;
     }
 
     //Navigation and footer
@@ -126,15 +127,17 @@ function parseSettings(obj) {
 
     //Mobile view
     setMobileView();
+    setUserAgentData();
+    setViewport();
 
-    if (settings.webuiSettings.uiFooterSettingsPlayback === true) {
+    if (settings.webuiSettings.footerSettingsPlayback === true) {
         elShowId('footerSettingsPlayback');
     }
     else {
         elHideId('footerSettingsPlayback');
     }
 
-    if (settings.webuiSettings.uiFooterPlaybackControls === 'both') {
+    if (settings.webuiSettings.footerPlaybackControls === 'both') {
         elShowId('footerStopBtn');
     }
     else {
@@ -157,12 +160,12 @@ function parseSettings(obj) {
     document.getElementById('mpdInfoHost').textContent = settings.mpdHost.indexOf('/') !== 0 ?
         settings.mpdHost + ':' + settings.mpdPort : settings.mpdHost;
 
-    document.documentElement.style.setProperty('--mympd-thumbnail-size', settings.webuiSettings.uiThumbnailSize + "px");
+    document.documentElement.style.setProperty('--mympd-thumbnail-size', settings.webuiSettings.thumbnailSize + "px");
     document.documentElement.style.setProperty('--mympd-highlightcolor', settings.partition.highlightColor);
     document.documentElement.style.setProperty('--mympd-highlightcolor-contrast', settings.partition.highlightColorContrast);
 
     //default limit for all cards
-    let limit = settings.webuiSettings.uiMaxElementsPerPage;
+    let limit = settings.webuiSettings.maxElementsPerPage;
     if (limit === 0) {
         limit = 500;
     }
@@ -206,13 +209,13 @@ function parseSettings(obj) {
     //set translations for pregenerated elements
     pEl.actionTdMenu.firstChild.title = tn('Actions');
 
-    pEl.actionTdMenuPlay.firstChild.title = tn(webuiSettingsDefault.ClickQuickPlay.validValues[settings.webuiSettings.ClickQuickPlay]);
+    pEl.actionTdMenuPlay.firstChild.title = tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
     pEl.actionTdMenuPlay.lastChild.title = tn('Actions');
 
     pEl.actionTdMenuRemove.firstChild.title = tn('Remove');
     pEl.actionTdMenuRemove.lastChild.title = tn('Actions');
 
-    pEl.actionTdMenuPlayRemove.childNodes[0].title = tn(webuiSettingsDefault.ClickQuickPlay.validValues[settings.webuiSettings.ClickQuickPlay]);
+    pEl.actionTdMenuPlayRemove.childNodes[0].title = tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
     pEl.actionTdMenuPlayRemove.childNodes[1].title = tn('Remove');
     pEl.actionTdMenuPlayRemove.childNodes[2].title = tn('Actions');
 
@@ -226,14 +229,14 @@ function parseSettings(obj) {
         pEl.actionPlaylistDetailTd = pEl.actionTdMenuPlayRemove;
         pEl.actionPlaylistTd = pEl.actionTdMenuPlayRemove;
     }
-    else if (settings.webuiSettings.QuickPlayButton === true) {
+    else if (settings.webuiSettings.quickPlayButton === true) {
         pEl.actionTd = pEl.actionTdMenuPlay;
         pEl.actionQueueTd = pEl.actionTdMenu;
         pEl.actionJukeboxTd = pEl.actionTdMenuPlay;
         pEl.actionPlaylistDetailTd = pEl.actionTdMenuPlay;
         pEl.actionPlaylistTd = pEl.actionTdMenuPlay;
     }
-    else if (settings.webuiSettings.QuickRemoveButton === true) {
+    else if (settings.webuiSettings.quickRemoveButton === true) {
         pEl.actionTd = pEl.actionTdMenu;
         pEl.actionQueueTd = pEl.actionTdMenuRemove;
         pEl.actionJukeboxTd = pEl.actionTdMenuRemove;
@@ -248,7 +251,7 @@ function parseSettings(obj) {
         pEl.actionPlaylistTd = pEl.actionTdMenu;
     }
 
-    pEl.coverPlayBtn.title = tn(webuiSettingsDefault.ClickQuickPlay.validValues[settings.webuiSettings.ClickQuickPlay]);
+    pEl.coverPlayBtn.title = tn(settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay]);
 
     //goto view
     if (app.id === 'QueueJukeboxSong' ||
@@ -460,7 +463,7 @@ function setNavbarIcons() {
     const container = document.getElementById('navbar-main');
     elClear(container);
 
-    if (settings.webuiSettings.uiShowBackButton === true) {
+    if (settings.webuiSettings.showBackButton === true) {
         container.appendChild(
             elCreateNode('div', {"class": ["nav-item", "flex-fill", "text-center"]},
                 elCreateNode('a', {"data-title-phrase": "History back", "title": tn("History back"), "href": "#", "class": ["nav-link"]},
@@ -517,4 +520,45 @@ function resetLocalSettings() {
     for (const key in localSettings) {
         localStorage.removeItem(key);
     }
+}
+
+/**
+ * Populates the settings json from input elements
+ * @param {object} settingsParams settings object to populate
+ * @param {object} defaults settingsFields object
+ * @returns {boolean} true on success, else false
+ */
+function formToJson(settingsParams, defaults) {
+    for (const key in defaults) {
+        if (defaults[key].inputType === 'none' ||
+        defaults[key].inputType === 'section')
+        {
+            continue;
+        }
+        const id = 'Setting' + ucFirst(key) + 'Input';
+        const el = document.getElementById(id);
+        if (el) {
+            const value = defaults[key].inputType === 'select'
+                ? getSelectValue(el)
+                : defaults[key].inputType === 'mympd-select-search'
+                    ? getData(el, 'value')
+                    : defaults[key].inputType === 'checkbox'
+                        ? getBtnChkValue(el)
+                        : el.value;
+            if (defaults[key].validate !== undefined) {
+                const func = getFunctionByName(defaults[key].validate.cmd);
+                if (func(el, ... defaults[key].validate.options) === false) {
+                    return false;
+                }
+            }
+            settingsParams[key] = defaults[key].contentType === 'number'
+                ? Number(value)
+                : value;
+        }
+        else {
+            logError('Element not found: ' + id);
+            return false;
+        }
+    }
+    return true;
 }

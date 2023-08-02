@@ -1044,5 +1044,7 @@
     "Show all albums from Performer": "Zeige alle Alben des Aufführenden",
     "Album not found": "Album nicht gefunden",
     "Invalid response from radio-browser.info": "Ungültige Antwort von radio-browser.info",
-    "Invalid response from webradiodb backend": "Ungültige Antwort vom WebradioDB Backend"
+    "Invalid response from webradiodb backend": "Ungültige Antwort vom WebradioDB Backend",
+    "Must be a number between 1 and 25": "Muss eine Zahl zwischen 1 und 25 sein",
+    "Must be a number between 0 and 100": "Muss eine Zahl zwischen 1 und 100 sein"
 }

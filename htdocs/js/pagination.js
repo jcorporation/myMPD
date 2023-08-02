@@ -127,7 +127,7 @@ function createPaginationEls(totalPages, curPage) {
     ]);
 
     const elPerPage = elCreateEmpty('select', {"class": ["form-control", "form-select", "border-secondary"]});
-    for (const i in webuiSettingsDefault.uiMaxElementsPerPage.validValues) {
+    for (const i in settingsWebuiFields.maxElementsPerPage.validValues) {
         elPerPage.appendChild(
             elCreateText('option', {"value": i}, i)
         );

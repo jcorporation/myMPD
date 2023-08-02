@@ -199,7 +199,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         }
         if (jsonHash === null) {
             appPrepare();
-            let initialStartupView = settings.webuiSettings.uiStartupView;
+            let initialStartupView = settings.webuiSettings.startupView;
             if (initialStartupView === undefined ||
                 initialStartupView === null)
             {
@@ -270,7 +270,7 @@ function appRoute(card, tab, view, offset, limit, filter, sort, tag, search) {
         case 'BrowseRadioRadiobrowser':   handleBrowseRadioRadiobrowser(); break;
         case 'Search':                    handleSearch(); break;
         default: {
-            let initialStartupView = settings.webuiSettings.uiStartupView;
+            let initialStartupView = settings.webuiSettings.startupView;
             if (initialStartupView === undefined ||
                 initialStartupView === null)
             {

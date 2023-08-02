@@ -102,6 +102,7 @@ function validateFilenameString(str) {
  * @param {Element} el input element
  * @returns {boolean} true = valid filename, else false
  */
+//eslint-disable-next-line no-unused-vars
 function validateFilenameEl(el) {
     if (validateFilenameString(el.value) === false) {
         setIsInvalid(el);
@@ -115,6 +116,7 @@ function validateFilenameEl(el) {
  * @param {Element} el input element
  * @returns {boolean} true = valid filename, else false
  */
+//eslint-disable-next-line no-unused-vars
 function validateFilenameListEl(el) {
     const filenames = el.value.split(',');
     for (let i = 0, j = filenames.length; i < j; i++) {
@@ -206,6 +208,7 @@ function validateIntEl(el) {
  * @param {Element} el input element
  * @returns {boolean} true = unsigned integer, else false
  */
+//eslint-disable-next-line no-unused-vars
 function validateUintEl(el) {
     const value = el.value.replace(/[\d]/g, '');
     if (value !== '') {
@@ -268,11 +271,28 @@ function validateFloatRangeEl(el, min, max) {
 }
 
 /**
+ * Checks if the the value of the input element is a hex color
+ * @param {Element} el input element
+ * @returns {boolean} true = valid stream uri, else false
+ */
+//eslint-disable-next-line no-unused-vars
+function validateColorEl(el) {
+    if (el.value.match(/^#[a-f\d]+$/i) !== null) {
+        return true;
+    }
+    setIsInvalid(el);
+    return false;
+}
+
+/**
  * Checks if the the value of the input element is a valid stream uri
  * @param {Element} el input element
  * @returns {boolean} true = valid stream uri, else false
  */
 function validateStreamEl(el) {
+    if (el.value.length === 0) {
+        return true;
+    }
     if (isStreamUri(el.value) === true) {
         return true;
     }

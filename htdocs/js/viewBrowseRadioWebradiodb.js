@@ -279,7 +279,7 @@ function parseSearchWebradiodb(obj) {
         return;
     }
 
-    const rowTitle = tn(webuiSettingsDefault.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
+    const rowTitle = tn(settingsWebuiFields.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
 
     updateTable(obj, 'BrowseRadioWebradiodb', function(row, data) {
         setData(row, 'uri', data.StreamUri);

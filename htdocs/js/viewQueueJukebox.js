@@ -126,8 +126,8 @@ function parseJukeboxList(obj) {
     elHideId(view + 'Disabled');
 
     const rowTitle = settings.partition.jukeboxMode === 'song' ?
-        webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong] :
-        webuiSettingsDefault.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
+        settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong] :
+        settingsWebuiFields.clickQuickPlay.validValues[settings.webuiSettings.clickQuickPlay];
     updateTable(obj, view, function(row, data) {
         setData(row, 'uri', data.uri);
         setData(row, 'name', data.Title);

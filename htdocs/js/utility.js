@@ -81,15 +81,6 @@ function unsetUpdateView(el) {
 }
 
 /**
- * Replaces special characters with underscore
- * @param {string} str string to replace
- * @returns {string} result string
- */
-function r(str) {
-    return str.replace(/[^\w-]/g, '_');
-}
-
-/**
  * Custom encoding function, works like encodeURIComponent but
  * - does not escape /
  * - escapes further reserved characters
@@ -357,6 +348,15 @@ function checkMediaSessionSupport() {
  */
 function strToBool(str) {
     return str === 'true';
+}
+
+/**
+ * Uppercases the first letter of a word
+ * @param {string} word word to uppercase first letter
+ * @returns {string} changed word
+ */
+function ucFirst(word) {
+    return word.charAt(0).toUpperCase() + word.slice(1);
 }
 
 /**

@@ -44,7 +44,7 @@ function parseLastPlayed(obj) {
         return;
     }
 
-    const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
+    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
     updateTable(obj, 'QueueLastPlayed', function(row, data) {
         setData(row, 'uri', data.uri);
         setData(row, 'name', data.Title);

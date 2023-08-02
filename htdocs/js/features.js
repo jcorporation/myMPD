@@ -13,7 +13,7 @@ function setFeatures() {
     //web ui features
     features.featCacert = settings.features.featCacert;
     features.featHome = settings.webuiSettings.enableHome;
-    features.featVolumeLevel = settings.webuiSettings.uiFooterVolumeLevel;
+    features.featVolumeLevel = settings.webuiSettings.footerVolumeLevel;
     features.featLocalPlayback = settings.webuiSettings.enableLocalPlayback === true ?
         (settings.partition.mpdStreamPort > 0 || settings.partition.streamUri.length > 0 ? true : false) : false;
     features.featScripting = settings.webuiSettings.enableScripting === true ?
@@ -21,7 +21,7 @@ function setFeatures() {
     features.featTimer = settings.webuiSettings.enableTimer;
     features.featTrigger = settings.webuiSettings.enableTrigger;
     features.featMediaSession = checkMediaSessionSupport();
-    features.featFooterNotifications = settings.webuiSettings.uiFooterNotifications;
+    features.featFooterNotifications = settings.webuiSettings.footerNotifications;
     features.featSession = settings.pin;
 
     //mpd features

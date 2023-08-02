@@ -197,7 +197,7 @@ function parseRadiobrowserList(obj) {
         return;
     }
 
-    const rowTitle = tn(webuiSettingsDefault.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
+    const rowTitle = tn(settingsWebuiFields.clickRadiobrowser.validValues[settings.webuiSettings.clickRadiobrowser]);
     //set result keys for pagination
     obj.result.returnedEntities = obj.result.data.length;
     obj.result.totalEntities = -1;

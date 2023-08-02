@@ -128,7 +128,7 @@ function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
     sendAPI("MYMPD_API_PLAYLIST_LIST", {
         "searchstr": searchstr,
         "offset": 0,
-        "limit": settings.webuiSettings.uiMaxElementsPerPage,
+        "limit": settings.webuiSettings.maxElementsPerPage,
         "type": type
     }, function(obj) {
         populatePlaylistSelect(obj, elId, selectedPlaylist);

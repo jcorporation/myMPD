@@ -390,7 +390,7 @@ function parseAlbumDetails(obj) {
         infoEl.appendChild(mbField);
     }
 
-    const rowTitle = tn(webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong]);
+    const rowTitle = tn(settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong]);
     updateTable(obj, 'BrowseDatabaseAlbumDetail', function(row, data) {
         setData(row, 'type', 'song');
         setData(row, 'name', data.Title);

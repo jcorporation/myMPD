@@ -970,7 +970,7 @@ function checkResult(obj, tbody) {
  * @returns {boolean} true if window is small and the uiSmallWidthTagRows settings is true, else false
  */
 function uiSmallWidthTagRows() {
-    if (settings.webuiSettings.uiSmallWidthTagRows === true) {
+    if (settings.webuiSettings.smallWidthTagRows === true) {
         return window.innerWidth < 576 ? true : false;
     }
     return false;

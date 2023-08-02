@@ -82,7 +82,7 @@ function parsePlaylistList(obj) {
         return;
     }
 
-    const rowTitle = webuiSettingsDefault.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
+    const rowTitle = settingsWebuiFields.clickPlaylist.validValues[settings.webuiSettings.clickPlaylist];
     updateTable(obj, 'BrowsePlaylistList', function(row, data) {
         setData(row, 'uri', data.uri);
         setData(row, 'type', data.Type);
@@ -149,7 +149,7 @@ function parsePlaylistDetail(obj) {
     setData(table, 'type', obj.result.smartpls === true ? 'smartpls' : 'plist');
     table.querySelector('caption').textContent =
         (obj.result.smartpls === true ? tn('Smart playlist') : tn('Playlist')) + ': ' + obj.result.plist;
-    const rowTitle = webuiSettingsDefault.clickSong.validValues[settings.webuiSettings.clickSong];
+    const rowTitle = settingsWebuiFields.clickSong.validValues[settings.webuiSettings.clickSong];
 
     elReplaceChild(tfoot,
         elCreateNode('tr', {"class": ["not-clickable"]},
