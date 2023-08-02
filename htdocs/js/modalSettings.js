@@ -78,7 +78,7 @@ function toggleThemeInputs(theme) {
  */
 function getBgImageText(value) {
     if (value === '') {
-        return 'None';
+        return tn('None');
     }
     for (const key of bgImageValues) {
         if (key.value === value) {

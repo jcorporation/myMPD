@@ -354,7 +354,7 @@ const settingsFields = {
             "options": []
         }
     },
-    "listenBrainzToken": {
+    "listenbrainzToken": {
         "defaultValue": "",
         "inputType": "password",
         "title": "ListenBrainz Token",
