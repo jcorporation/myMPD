@@ -334,6 +334,7 @@
     "helpSettingsThumbnailNames": "Durch Kommata getrennte Liste von Dateinamen oder Basisnamen für Thumbnails.",
     "helpSettingsSmartplsPrefix": "Prefix für die Namen von intelligenten Wiedergabelisten.",
     "helpSettingsSmartplsSort": "Sortiere die intelligenten Wiedergabelisten.",
+    "helpSettingsGeneratePlsTags": "Erstellt eine Wiedergabeliste für jeden Wert der gewählten Tags.",
     "Help to improve myMPD": "Hilf mit myMPD zu verbessern",
     "Highlight color": "Highlight Farbe",
     "History back": "Zurück",
