@@ -117,7 +117,8 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define PARTITION_MPD_STREAM_PORT 8000
 
 //default mpd state settings
-#define MYMPD_MPD_TAG_LIST "Album,AlbumArtist,Artist,Disc,Genre,Name,Title,Track"
+#define MYMPD_MPD_TAG_LIST "Album,AlbumArtist,Artist,Disc,Genre,Name,Title,Track,Name,Date,OriginalDate,"\
+    "MUSICBRAINZ_ALBUMID,MUSICBRAINZ_ALBUMARTISTID,MUSICBRAINZ_ARTISTID,MUSICBRAINZ_RELEASETRACKID,MUSICBRAINZ_TRACKID"
 #define MYMPD_MPD_KEEPALIVE true
 #define MYMPD_MPD_TIMEOUT_SEC 30 //seconds
 #define MYMPD_MPD_TIMEOUT MYMPD_MPD_TIMEOUT_SEC * 1000 //milliseconds
