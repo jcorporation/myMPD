@@ -538,9 +538,18 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
     // timers
         case MYMPD_API_TIMER_SAVE: {
-            rc = mympd_api_timer_save(partition_state, request->data, &error);
-            response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                    JSONRPC_FACILITY_TIMER, "Timer saved successfully", error);
+            struct t_timer_definition *timer_def = NULL;
+            if (json_get_int(request->data, "$.params.interval", -1, TIMER_INTERVAL_MAX, &int_buf1, &parse_error) == true &&
+                json_get_int(request->data, "$.params.timerid", 0, USER_TIMER_ID_MAX, &int_buf2, &parse_error) == true &&
+                (timer_def = mympd_api_timer_parse(request->data, partition_state->name, &parse_error)) != NULL)
+            {
+                rc = mympd_api_timer_save(partition_state, int_buf1, int_buf2, timer_def, &error);
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_TIMER, "Timer saved successfully", error);
+                if (rc == false) {
+                    mympd_api_timer_free_definition(timer_def);
+                }
+            }
             break;
         }
         case MYMPD_API_TIMER_LIST:

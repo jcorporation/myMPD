@@ -34,7 +34,8 @@ struct t_timer_node {
     struct t_timer_node *next;              //!< next timer in the timer list
 };
 
-bool mympd_api_timer_save(struct t_partition_state *partition_state, sds data, sds *error);
+bool mympd_api_timer_save(struct t_partition_state *partition_state, int interval, int timerid,
+        struct t_timer_definition *timer_def, sds *error);
 void mympd_api_timer_timerlist_init(struct t_timer_list *l);
 void mympd_api_timer_timerlist_clear(struct t_timer_list *l);
 void mympd_api_timer_check(struct t_timer_list *l);
@@ -45,12 +46,10 @@ bool mympd_api_timer_replace(struct t_timer_list *l, time_t timeout, int interva
 bool mympd_api_timer_remove(struct t_timer_list *l, int timer_id);
 bool mympd_api_timer_toggle(struct t_timer_list *l, int timer_id, sds *error);
 void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def);
-struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str,
-    const char *partition, struct t_jsonrpc_parse_error *error);
+struct t_timer_definition *mympd_api_timer_parse(sds str, const char *partition, struct t_jsonrpc_parse_error *error);
 time_t mympd_api_timer_calc_starttime(int start_hour, int start_minute, int interval);
 sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, long request_id, const char *partition);
-sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, long request_id,
-    int timer_id);
+sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, long request_id, int timer_id);
 bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir);
 bool mympd_api_timer_file_save(struct t_timer_list *timer_list, sds workdir);
 #endif

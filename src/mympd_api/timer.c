@@ -132,65 +132,52 @@ void mympd_api_timer_check(struct t_timer_list *l) {
 /**
  * Saves a new or existing timer
  * @param partition_state pointer to partition state
- * @param data request data to parse
+ * @param interval timer interval
+ * @param timerid the timerid
+ * @param timer_def pointer to populated timer definition
  * @param error pointer to already allocated sds string to append an error message
  * @return true on success, else false
  */
-bool mympd_api_timer_save(struct t_partition_state *partition_state, sds data, sds *error) {
+bool mympd_api_timer_save(struct t_partition_state *partition_state, int interval, int timerid,
+        struct t_timer_definition *timer_def, sds *error)
+{
     if (partition_state->mympd_state->timer_list.length > LIST_TIMER_MAX) {
         *error = sdscat(*error, "Too many timers defined");
         return false;
     }
-    int interval = 0;
-    int timerid = 0;
-    //TODO: move parsing to mympd_api_handler and set parse_error
-    if (json_get_int(data, "$.params.interval", -1, TIMER_INTERVAL_MAX, &interval, NULL) == true &&
-        json_get_int(data, "$.params.timerid", 0, USER_TIMER_ID_MAX, &timerid, NULL) == true)
+
+    bool new = timerid == 0
+        ? true
+        : false;
+    if (interval > 0 &&
+        interval < TIMER_INTERVAL_MIN)
     {
-        bool new = timerid == 0
-            ? true
-            : false;
-        if (interval > 0 &&
-            interval < TIMER_INTERVAL_MIN)
-        {
-            //interval must be gt 5 seconds
-            MYMPD_LOG_ERROR(partition_state->name, "Timer interval must be greater or equal %d, but id is: \"%d\"", TIMER_INTERVAL_MIN, interval);
-            *error = sdscat(*error, "Invalid timer interval");
-            return false;
-        }
-        if (new == true) {
-            timerid = partition_state->mympd_state->timer_list.last_id + 1;
-        }
-        else if (timerid < USER_TIMER_ID_MIN) {
-            //existing timer
-            //user defined timers must be gt 100
-            MYMPD_LOG_ERROR(partition_state->name, "Timer id must be greater or equal %d, but id is: \"%d\"", USER_TIMER_ID_MAX, timerid);
-            *error = sdscat(*error, "Invalid timer id");
-            return false;
-        }
-        //parse timer definition
-        struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
-        //TODO: move parsing to mympd_api_handler and set parse_error
-        timer_def = mympd_api_timer_parse(timer_def, data, partition_state->name, NULL);
-        if (timer_def == NULL) {
-            *error = sdscat(*error, "Error parsing timer definition");
-            //timer_def was freed by mympd_api_timer_parse
-            return false;
-        }
-        //calculate start time and add/replace timer
-        time_t start = mympd_api_timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, interval);
-        bool rc = mympd_api_timer_replace(&partition_state->mympd_state->timer_list, start, interval, timer_handler_select, timerid, timer_def);
-        if (rc == false) {
-            *error = sdscat(*error, "Saving timer failed");
-            mympd_api_timer_free_definition(timer_def);
-            return false;
-        }
-        if (new == true) {
-            partition_state->mympd_state->timer_list.last_id = timerid;
-        }
-        return true;
+        //interval must be gt 5 seconds
+        MYMPD_LOG_ERROR(partition_state->name, "Timer interval must be greater or equal %d, but id is: \"%d\"", TIMER_INTERVAL_MIN, interval);
+        *error = sdscat(*error, "Invalid timer interval");
+        return false;
     }
-    return false;
+    if (new == true) {
+        timerid = partition_state->mympd_state->timer_list.last_id + 1;
+    }
+    else if (timerid < USER_TIMER_ID_MIN) {
+        //existing timer
+        //user defined timers must be gt 100
+        MYMPD_LOG_ERROR(partition_state->name, "Timer id must be greater or equal %d, but id is: \"%d\"", USER_TIMER_ID_MAX, timerid);
+        *error = sdscat(*error, "Invalid timer id");
+        return false;
+    }
+    //calculate start time and add/replace timer
+    time_t start = mympd_api_timer_calc_starttime(timer_def->start_hour, timer_def->start_minute, interval);
+    bool rc = mympd_api_timer_replace(&partition_state->mympd_state->timer_list, start, interval, timer_handler_select, timerid, timer_def);
+    if (rc == false) {
+        *error = sdscat(*error, "Saving timer failed");
+        return false;
+    }
+    if (new == true) {
+        partition_state->mympd_state->timer_list.last_id = timerid;
+    }
+    return true;
 }
 
 /**
@@ -362,13 +349,13 @@ void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
 /**
  * Parses a json object string to a timer definition.
  * Frees the timer and sets the pointer to NULL if there is a parsing error.
- * @param timer_def pointer to timer defintion to populate
  * @param str string to parse
  * @param partition mpd partition
  * @param error pointer to sds string to populate an error string
  * @return pointer to timer_def or NULL on error
  */
-struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str, const char *partition, struct t_jsonrpc_parse_error *error) {
+struct t_timer_definition *mympd_api_timer_parse(sds str, const char *partition, struct t_jsonrpc_parse_error *error) {
+    struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
     timer_def->name = NULL;
     timer_def->partition = NULL;
     timer_def->action = NULL;
@@ -535,8 +522,7 @@ bool mympd_api_timer_file_read(struct t_timer_list *timer_list, sds workdir) {
             partition = sdsnew(MPD_PARTITION_DEFAULT);
         }
         if (check_partition_state_dir(workdir, partition) == true) {
-            struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
-            timer_def = mympd_api_timer_parse(timer_def, param, partition, NULL);
+            struct t_timer_definition *timer_def = mympd_api_timer_parse(param, partition, NULL);
             int interval;
             int timerid;
             if (timer_def != NULL &&
