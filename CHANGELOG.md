@@ -24,6 +24,14 @@ Describe the release here.
 
 ***
 
+## myMPD v11.0.3 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+***
+
 ## myMPD v11.0.2 (2023-07-30)
 
 This is a small bug fix release.
