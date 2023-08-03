@@ -354,7 +354,9 @@ function _createSettingsFrm(fields, defaults, prefix, forms) {
     {
         const options = document.querySelectorAll('#' + sel + ' > option');
         for (const opt of options) {
-            if (opt.value === 'insert' || opt.value === 'play') {
+            if (opt.value === 'insert' ||
+                opt.value === 'play')
+            {
                 opt.classList.add('featWhence');
             }
         }
