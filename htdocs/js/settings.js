@@ -220,8 +220,8 @@ function parseSettings(obj) {
     pEl.actionTdMenuPlayRemove.childNodes[2].title = tn('Actions');
 
     //update actions for table rows
-    if (settings.webuiSettings.QuickPlayButton === true &&
-        settings.webuiSettings.QuickRemoveButton === true)
+    if (settings.webuiSettings.quickPlayButton === true &&
+        settings.webuiSettings.quickRemoveButton === true)
     {
         pEl.actionTd = pEl.actionTdMenuPlay;
         pEl.actionQueueTd = pEl.actionTdMenuRemove;
