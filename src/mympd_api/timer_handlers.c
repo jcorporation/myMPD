@@ -118,13 +118,11 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
         //get the jukebox mode from the preset
         struct t_list_node *preset_value = list_get_node(&partition_state->presets, preset);
         if (preset_value != NULL) {
-            sds error = sdsempty();
             sds jukebox_mode_str = NULL;
-            if (json_get_string_max(preset_value->value_p, "$.jukeboxMode", &jukebox_mode_str, vcb_isname, &error) == true) {
+            if (json_get_string_max(preset_value->value_p, "$.jukeboxMode", &jukebox_mode_str, vcb_isname, NULL) == true) {
                 jukebox_mode = jukebox_mode_parse(jukebox_mode_str);
             }
             FREE_SDS(jukebox_mode_str);
-            FREE_SDS(error);
         }
     }
 

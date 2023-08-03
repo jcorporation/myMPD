@@ -8,6 +8,7 @@
 #define MYMPD_API_TIMER_H
 
 #include "dist/sds/sds.h"
+#include "src/lib/jsonrpc.h"
 #include "src/lib/mympd_state.h"
 
 enum timer_intervals {
@@ -45,7 +46,7 @@ bool mympd_api_timer_remove(struct t_timer_list *l, int timer_id);
 bool mympd_api_timer_toggle(struct t_timer_list *l, int timer_id, sds *error);
 void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def);
 struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str,
-    const char *partition, sds *error);
+    const char *partition, struct t_jsonrpc_parse_error *error);
 time_t mympd_api_timer_calc_starttime(int start_hour, int start_minute, int interval);
 sds mympd_api_timer_list(struct t_timer_list *timer_list, sds buffer, long request_id, const char *partition);
 sds mympd_api_timer_get(struct t_timer_list *timer_list, sds buffer, long request_id,

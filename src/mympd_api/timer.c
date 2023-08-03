@@ -143,8 +143,9 @@ bool mympd_api_timer_save(struct t_partition_state *partition_state, sds data, s
     }
     int interval = 0;
     int timerid = 0;
-    if (json_get_int(data, "$.params.interval", -1, TIMER_INTERVAL_MAX, &interval, error) == true &&
-        json_get_int(data, "$.params.timerid", 0, USER_TIMER_ID_MAX, &timerid, error) == true)
+    //TODO: move parsing to mympd_api_handler and set parse_error
+    if (json_get_int(data, "$.params.interval", -1, TIMER_INTERVAL_MAX, &interval, NULL) == true &&
+        json_get_int(data, "$.params.timerid", 0, USER_TIMER_ID_MAX, &timerid, NULL) == true)
     {
         bool new = timerid == 0
             ? true
@@ -169,7 +170,8 @@ bool mympd_api_timer_save(struct t_partition_state *partition_state, sds data, s
         }
         //parse timer definition
         struct t_timer_definition *timer_def = malloc_assert(sizeof(struct t_timer_definition));
-        timer_def = mympd_api_timer_parse(timer_def, data, partition_state->name, error);
+        //TODO: move parsing to mympd_api_handler and set parse_error
+        timer_def = mympd_api_timer_parse(timer_def, data, partition_state->name, NULL);
         if (timer_def == NULL) {
             *error = sdscat(*error, "Error parsing timer definition");
             //timer_def was freed by mympd_api_timer_parse
@@ -366,7 +368,7 @@ void *mympd_api_timer_free_definition(struct t_timer_definition *timer_def) {
  * @param error pointer to sds string to populate an error string
  * @return pointer to timer_def or NULL on error
  */
-struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str, const char *partition, sds *error) {
+struct t_timer_definition *mympd_api_timer_parse(struct t_timer_definition *timer_def, sds str, const char *partition, struct t_jsonrpc_parse_error *error) {
     timer_def->name = NULL;
     timer_def->partition = NULL;
     timer_def->action = NULL;

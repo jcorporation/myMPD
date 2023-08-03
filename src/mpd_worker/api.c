@@ -28,6 +28,9 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     sds sds_buf2 = NULL;
     sds error = sdsempty();
 
+    struct t_jsonrpc_parse_error parse_error;
+    jsonrpc_parse_error_init(&parse_error);
+
     const char *method = get_cmd_id_method_name(request->cmd_id);
     MYMPD_LOG_INFO(NULL, "MPD WORKER API request (%lld)(%ld) %s: %s", request->conn_id, request->id, method, request->data);
     //create response struct
@@ -37,12 +40,12 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
 
     switch(request->cmd_id) {
         case MYMPD_API_SONG_FINGERPRINT:
-            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &error) == true) {
+            if (json_get_string(request->data, "$.params.uri", 1, FILEPATH_LEN_MAX, &sds_buf1, vcb_isfilepath, &parse_error) == true) {
                 response->data = mpd_worker_song_fingerprint(partition_state, response->data, request->id, sds_buf1);
             }
             break;
         case MYMPD_API_CACHES_CREATE:
-            if (json_get_bool(request->data, "$.params.force", &bool_buf1, &error) == true) {
+            if (json_get_bool(request->data, "$.params.force", &bool_buf1, &parse_error) == true) {
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
                 push_response(response, request->id, request->conn_id);
                 mpd_worker_cache_init(mpd_worker_state, bool_buf1);
@@ -50,7 +53,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true) {
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true) {
                 if (mpd_client_playlist_shuffle(partition_state, sds_buf1, &error)) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Shuffled playlist %{plist} successfully", 2, "plist", sds_buf1);
@@ -62,8 +65,8 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_SORT:
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag, &error) == true)
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
+                json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag, &parse_error) == true)
             {
                 rc = mpd_client_playlist_sort(partition_state, sds_buf1, sds_buf2, &error);
                 if (rc == true) {
@@ -77,8 +80,8 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE:
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_bool(request->data, "$.params.remove", &bool_buf1, &error) == true)
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.remove", &bool_buf1, &parse_error) == true)
             {
                 long result = mpd_client_playlist_validate(partition_state, sds_buf1, bool_buf1, &error);
                 if (result == -1) {
@@ -104,7 +107,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_ALL:
-            if (json_get_bool(request->data, "$.params.remove", &bool_buf1, &error) == true) {
+            if (json_get_bool(request->data, "$.params.remove", &bool_buf1, &parse_error) == true) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlists validation started");
                 push_response(response, request->id, request->conn_id);
@@ -136,8 +139,8 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_DEDUP:
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_bool(request->data, "$.params.remove", &bool_buf1, &error) == true)
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.remove", &bool_buf1, &parse_error) == true)
             {
                 long result = mpd_client_playlist_dedup(partition_state, sds_buf1, bool_buf1, &error);
                 if (result == -1) {
@@ -163,7 +166,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_DEDUP_ALL:
-            if (json_get_bool(request->data, "$.params.remove", &bool_buf1, &error) == true) {
+            if (json_get_bool(request->data, "$.params.remove", &bool_buf1, &parse_error) == true) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlists deduplication started");
                 push_response(response, request->id, request->conn_id);
@@ -195,8 +198,8 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP:
-            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &error) == true &&
-                json_get_bool(request->data, "$.params.remove", &bool_buf1, &error) == true)
+            if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
+                json_get_bool(request->data, "$.params.remove", &bool_buf1, &parse_error) == true)
             {
                 long result1 = mpd_client_playlist_validate(partition_state, sds_buf1, bool_buf1, &error);
                 if (result1 == -1) {
@@ -234,7 +237,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE_DEDUP_ALL:
-            if (json_get_bool(request->data, "$.params.remove", &bool_buf1, &error) == true) {
+            if (json_get_bool(request->data, "$.params.remove", &bool_buf1, &parse_error) == true) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlists validation and deduplication started");
                 push_response(response, request->id, request->conn_id);
@@ -283,7 +286,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Smart playlists are disabled");
                 break;
             }
-            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &error) == true) {
+            if (json_get_string(request->data, "$.params.plist", 1, 200, &sds_buf1, vcb_isfilename, &parse_error) == true) {
                 rc = mpd_worker_smartpls_update(mpd_worker_state, sds_buf1);
                 if (rc == true) {
                     response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
@@ -304,7 +307,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Smart playlists are disabled");
                 break;
             }
-            if (json_get_bool(request->data, "$.params.force", &bool_buf1, &error) == true) {
+            if (json_get_bool(request->data, "$.params.force", &bool_buf1, &parse_error) == true) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Smart playlists update started");
                 push_response(response, request->id, request->conn_id);
@@ -330,18 +333,26 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
         //already responded
         free_request(request);
         FREE_SDS(error);
+        jsonrpc_parse_error_clear(&parse_error);
         return;
     }
 
     //sync request handling
     if (sdslen(response->data) == 0) {
-        //error handling
-        if (sdslen(error) > 0) {
+        // error handling
+        if (parse_error.message != NULL) {
+            // jsonrpc parsing error
+            response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Parsing error: %{message}", 4, "message", parse_error.message, "path", parse_error.path);
+        }
+        else if (sdslen(error) > 0) {
+            // error from api function
             response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                 JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, error);
             MYMPD_LOG_ERROR(MPD_PARTITION_DEFAULT, "Error processing method \"%s\"", method);
         }
         else {
+            // no response and no error - this should not occur
             response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                 JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "No response for method %{method}", 2, "method", method);
             MYMPD_LOG_ERROR(MPD_PARTITION_DEFAULT, "No response for method \"%s\"", method);
@@ -350,4 +361,5 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     push_response(response, request->id, request->conn_id);
     free_request(request);
     FREE_SDS(error);
+    jsonrpc_parse_error_clear(&parse_error);
 }

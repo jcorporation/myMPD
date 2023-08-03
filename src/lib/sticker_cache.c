@@ -510,18 +510,16 @@ static sds sticker_to_cache_line(sds buffer, const char *uri, size_t uri_len, st
  */
 static struct t_sticker *sticker_from_cache_line(sds line, sds *uri) {
     struct t_sticker *sticker = malloc_assert(sizeof(struct t_sticker));
-    sds error = sdsempty();
-    if (json_get_string(line, "$.uri", 1, FILEPATH_LEN_MAX, uri, vcb_isfilepath, &error) == false ||
-        json_get_long_max(line, "$.pc", &sticker->play_count, &error) == false ||
-        json_get_long_max(line, "$.sc", &sticker->skip_count, &error) == false ||
-        json_get_long_max(line, "$.li", &sticker->like, &error) == false ||
-        json_get_time_max(line, "$.lp", &sticker->last_played, &error) == false ||
-        json_get_time_max(line, "$.ls", &sticker->last_skipped, &error) == false ||
-        json_get_time_max(line, "$.el", &sticker->elapsed, &error) == false)
+    if (json_get_string(line, "$.uri", 1, FILEPATH_LEN_MAX, uri, vcb_isfilepath, NULL) == false ||
+        json_get_long_max(line, "$.pc", &sticker->play_count, NULL) == false ||
+        json_get_long_max(line, "$.sc", &sticker->skip_count, NULL) == false ||
+        json_get_long_max(line, "$.li", &sticker->like, NULL) == false ||
+        json_get_time_max(line, "$.lp", &sticker->last_played, NULL) == false ||
+        json_get_time_max(line, "$.ls", &sticker->last_skipped, NULL) == false ||
+        json_get_time_max(line, "$.el", &sticker->elapsed, NULL) == false)
     {
         FREE_PTR(sticker);
         sticker = NULL;
     }
-    FREE_SDS(error);
     return sticker;
 }
