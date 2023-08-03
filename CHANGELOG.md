@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ### Changelog
 
+- Upd: enable more tags by default
+
 ***
 
 ## myMPD v11.0.2 (2023-07-30)
