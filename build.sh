@@ -1477,6 +1477,9 @@ case "$ACTION" in
     fi
     cp -v htdocs/js/apidoc.js docs/assets/apidoc.js
   ;;
+  cloc)
+    cloc --exclude-dir=dist .
+  ;;
   *)
     echo "Usage: $0 <option>"
     echo "Version: ${VERSION}"
@@ -1573,6 +1576,7 @@ case "$ACTION" in
     echo "  addmympduser:     adds mympd group and user"
     echo "  luascript_index:  creates the json index of lua scripts"
     echo "  api_doc:          generates the api documentation"
+    echo "  cloc:             runs cloc (count lines of code)"
     echo ""
     echo "Source update options:"
     echo "  bootstrap:        updates bootstrap"
