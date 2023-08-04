@@ -593,11 +593,19 @@ sds list_to_json_array(sds s, struct t_list *l) {
  * All this functions are validating the result.
  */
 
+/**
+ * Initializes the sds strings t_jsonrpc_parse_error struct to NULL
+ * @param parse_error t_jsonrpc_parse_error struct to initialize
+ */
 void jsonrpc_parse_error_init(struct t_jsonrpc_parse_error *parse_error) {
     parse_error->message = NULL;
     parse_error->path = NULL;
 }
 
+/**
+ * Clears the sds strings
+ * @param parse_error t_jsonrpc_parse_error struct to clear
+ */
 void jsonrpc_parse_error_clear(struct t_jsonrpc_parse_error *parse_error) {
     FREE_SDS(parse_error->message);
     FREE_SDS(parse_error->path);

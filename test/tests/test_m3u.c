@@ -68,12 +68,13 @@ UTEST(m3u, test_get_webradio_from_uri) {
 UTEST(m3u, test_mympd_api_webradio_list) {
     sds searchstr = sdsempty();
     sds buffer = mympd_api_webradio_list(workdir, sdsempty(), 0, searchstr, 0, 10);
-    sds error = sdsempty();
+    struct t_jsonrpc_parse_error parse_error;
+    jsonrpc_parse_error_init(&parse_error);
     int result;
-    bool rc = json_get_int_max(buffer, "$.result.totalEntities", &result, &error);
+    bool rc = json_get_int_max(buffer, "$.result.totalEntities", &result, &parse_error);
     ASSERT_TRUE(rc);
     ASSERT_EQ(result, 1);
-    sdsfree(error);
+    jsonrpc_parse_error_clear(&parse_error);
     sdsfree(searchstr);
     sdsfree(buffer);
 }

@@ -11,7 +11,6 @@
 #include "src/lib/jsonrpc.h"
 #include "src/lib/list.h"
 #include "src/lib/sds_extras.h"
-#include "src/mpd_client/tags.h"
 
 UTEST(jsonrpc, test_json_get_bool) {
     bool result;
