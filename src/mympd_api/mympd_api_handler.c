@@ -384,18 +384,12 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_COLS_SAVE: {
             if (json_get_string(request->data, "$.params.table", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &parse_error) == true) {
                 rc = false;
-                sds cols = sdsempty();
-                cols = json_get_cols_as_string(request->data, cols, &rc);
+                sds_buf2 = json_get_cols_as_string(request->data, sdsempty(), &rc);
                 if (rc == true) {
-                    rc = mympd_api_settings_cols_save(mympd_state, sds_buf1, cols);
+                    rc = mympd_api_settings_cols_save(mympd_state, sds_buf1, sds_buf2);
                     response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
-                            JSONRPC_FACILITY_SCRIPT, "Could not save columns");
+                            JSONRPC_FACILITY_GENERAL, "Could not save columns");
                 }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                            JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Invalid column");
-                }
-                FREE_SDS(cols);
             }
             break;
         }
@@ -409,10 +403,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     settings_to_webserver(partition_state->mympd_state);
                 }
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
-            }
-            else {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Can't save settings");
             }
             break;
         }
@@ -453,10 +443,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     }
                 }
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD);
-            }
-            else {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Can't set playback options");
             }
             break;
         }
@@ -513,10 +499,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 }
                 FREE_SDS(new_mpd_settings);
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD);
-            }
-            else {
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Can't save settings");
             }
             FREE_SDS(old_mpd_settings);
             break;
@@ -1469,9 +1451,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             rc = json_iterate_object(request->data, "$.params", mympd_api_settings_partition_set, partition_state, NULL, 1000, &parse_error);
             if (rc == true) {
                 settings_to_webserver(partition_state->mympd_state);
+                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD);
             }
-            response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
-                    JSONRPC_FACILITY_MPD, error);
             break;
         case MYMPD_API_PARTITION_RM:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {

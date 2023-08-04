@@ -530,9 +530,7 @@ function resetLocalSettings() {
  */
 function formToJson(settingsParams, defaults) {
     for (const key in defaults) {
-        if (defaults[key].inputType === 'none' ||
-        defaults[key].inputType === 'section')
-        {
+        if (defaults[key].inputType === 'none') {
             continue;
         }
         const id = 'Setting' + ucFirst(key) + 'Input';

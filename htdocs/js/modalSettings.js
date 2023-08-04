@@ -152,13 +152,13 @@ function populateSettingsFrm() {
 
     // smart playlists
     if (settings.features.featPlaylists === true) {
-        elEnableId('SettingSmartplsEnableInput');
-        toggleBtnChkCollapseId('SettingSmartplsEnableInput', 'SettingSmartplsCollapse', settings.smartpls);
+        elEnableId('SettingSmartplsInput');
+        toggleBtnChkCollapseId('SettingSmartplsInput', 'SettingSmartplsCollapse', settings.smartpls);
         elHideId('SettingSmartplsWarn');
     }
     else {
-        elDisableId('SettingSmartplsEnableInput');
-        toggleBtnChkCollapseId('SettingSmartplsEnableInput', 'SettingSmartplsCollapse', false);
+        elDisableId('SettingSmartplsInput');
+        toggleBtnChkCollapseId('SettingSmartplsInput', 'SettingSmartplsCollapse', false);
         elShowId('SettingSmartplsWarn');
     }
     addTagListSelect('SettingSmartplsSortInput', 'tagList');
@@ -442,7 +442,9 @@ function saveSettings(closeModal) {
  */
 function saveSettingsClose(obj) {
     if (obj.error) {
-        showModalAlert(obj);
+        if (highlightInvalidInput('Setting', obj) === false) {
+            showModalAlert(obj);
+        }
     }
     else {
         savePartitionSettings(true);
@@ -456,7 +458,9 @@ function saveSettingsClose(obj) {
  */
 function saveSettingsApply(obj) {
     if (obj.error) {
-        showModalAlert(obj);
+        if (highlightInvalidInput('Setting', obj) === false) {
+            showModalAlert(obj);
+        }
     }
     else {
         savePartitionSettings(false);
@@ -487,7 +491,9 @@ function savePartitionSettings(closeModal) {
  */
 function savePartitionSettingsApply(obj) {
     if (obj.error) {
-        showModalAlert(obj);
+        if (highlightInvalidInput('Setting', obj) === false) {
+            showModalAlert(obj);
+        }
     }
     else {
         btnWaiting(document.getElementById('btnApplySettings'), true);
@@ -502,7 +508,9 @@ function savePartitionSettingsApply(obj) {
  */
 function savePartitionSettingsClose(obj) {
     if (obj.error) {
-        showModalAlert(obj);
+        if (highlightInvalidInput('Setting', obj) === false) {
+            showModalAlert(obj);
+        }
     }
     else {
         getSettings();

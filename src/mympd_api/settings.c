@@ -37,6 +37,7 @@
  */
 
 static void set_invalid_value(struct t_jsonrpc_parse_error *error, const char *path, sds key, sds value);
+static void set_invalid_field(struct t_jsonrpc_parse_error *error, const char *path, sds key);
 static void enable_set_conn_options(struct t_mympd_state *mympd_state);
 
 /**
@@ -164,7 +165,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
         }
     }
     else {
-        set_invalid_value(error, path, key, value);
+        set_invalid_field(error, path, key);
         return false;
     }
 
@@ -416,7 +417,7 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         mympd_state->listenbrainz_token = sds_replacelen(mympd_state->listenbrainz_token, value, sdslen(value));
     }
     else {
-        set_invalid_value(error, path, key, value);
+        set_invalid_field(error, path, key);
         return false;
     }
     sds state_filename = camel_to_snake(key);
@@ -474,7 +475,7 @@ bool mympd_api_settings_partition_set(const char *path, sds key, sds value, int 
         partition_state->stream_uri = sds_replace(partition_state->stream_uri, value);
     }
     else {
-        set_invalid_value(error, path, key, value);
+        set_invalid_field(error, path, key);
         return false;
     }
     sds state_filename = camel_to_snake(key);
@@ -935,6 +936,19 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
  */
 static void set_invalid_value(struct t_jsonrpc_parse_error *error, const char *path, sds key, sds value) {
     error->message = sdscatfmt(sdsempty(), "Invalid value for \"%s\": \"%s\"", key, value);
+    error->path = sdscatfmt(sdsempty(), "%s.%S", path, key);
+    MYMPD_LOG_WARN(NULL, "%s", error->message);
+}
+
+/**
+ * Helper function to set an error message
+ * @param error pointer to t_jsonrpc_parse_error
+ * @param path jsonrpc path
+ * @param key setting key
+ * @param value setting value
+ */
+static void set_invalid_field(struct t_jsonrpc_parse_error *error, const char *path, sds key) {
+    error->message = sdscatfmt(sdsempty(), "Invalid field: \"%s\"", key);
     error->path = sdscatfmt(sdsempty(), "%s.%S", path, key);
     MYMPD_LOG_WARN(NULL, "%s", error->message);
 }

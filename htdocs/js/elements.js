@@ -665,7 +665,7 @@ function getBtnChkValueId(id) {
  * @returns {boolean} enabled = true, disabled = false
  */
 function getBtnChkValue(btn) {
-    return btn.classList.contains('active') ? true : false;
+    return btn.classList.contains('active');
 }
 
 /**

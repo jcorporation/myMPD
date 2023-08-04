@@ -27,7 +27,7 @@
 static bool icb_json_get_tag(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error);
 static bool icb_json_get_tag_value(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error);
 static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, struct t_jsonrpc_parse_error *error);
-static void set_parse_error(struct t_jsonrpc_parse_error *error, const char *path, const char *fmt, ...);
+static void set_parse_error(struct t_jsonrpc_parse_error *error, const char *path, const char *key, const char *fmt, ...);
 static const char *jsonrpc_facility_name(enum jsonrpc_facilities facility);
 static const char *jsonrpc_severity_name(enum jsonrpc_severities severity);
 static const char *jsonrpc_event_name(enum jsonrpc_events event);
@@ -639,7 +639,7 @@ bool json_get_bool(sds s, const char *path, bool *result, struct t_jsonrpc_parse
         *result = v == 1 ? true : false;
         return true;
     }
-    set_parse_error(error, path, "JSON path \"%s\" not found", path);
+    set_parse_error(error, path, "", "JSON path \"%s\" not found", path);
     return false;
 }
 
@@ -690,10 +690,10 @@ bool json_get_time_max(sds s, const char *path, time_t *result, struct t_jsonrpc
             *result = value_time;
             return true;
         }
-        set_parse_error(error, path, "Number out of range for JSON path \"%s\"", path);
+        set_parse_error(error, path, "", "Number out of range for JSON path \"%s\"", path);
     }
     else {
-        set_parse_error(error, path, "JSON path \"%s\" not found", path);
+        set_parse_error(error, path, "", "JSON path \"%s\" not found", path);
     }
     return false;
 }
@@ -728,10 +728,10 @@ bool json_get_long(sds s, const char *path, long min, long max, long *result, st
             *result = value_long;
             return true;
         }
-        set_parse_error(error, path, "Number out of range for JSON path \"%s\"", path);
+        set_parse_error(error, path, "", "Number out of range for JSON path \"%s\"", path);
     }
     else {
-        set_parse_error(error, path, "JSON path \"%s\" not found", path);
+        set_parse_error(error, path, "", "JSON path \"%s\" not found", path);
     }
     return false;
 }
@@ -766,10 +766,10 @@ bool json_get_llong(sds s, const char *path, long long min, long long max, long 
             *result = value_llong;
             return true;
         }
-        set_parse_error(error, path, "Number out of range for JSON path \"%s\"", path);
+        set_parse_error(error, path, "", "Number out of range for JSON path \"%s\"", path);
     }
     else {
-        set_parse_error(error, path, "JSON path \"%s\" not found", path);
+        set_parse_error(error, path, "", "JSON path \"%s\" not found", path);
     }
     return false;
 }
@@ -803,10 +803,10 @@ bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned
             *result = (unsigned)value;
             return true;
         }
-        set_parse_error(error, path, "Number out of range for JSON path \"%s\"", path);
+        set_parse_error(error, path, "", "Number out of range for JSON path \"%s\"", path);
     }
     else {
-        set_parse_error(error, path, "JSON path \"%s\" not found", path);
+        set_parse_error(error, path, "", "JSON path \"%s\" not found", path);
     }
     return false;
 }
@@ -822,7 +822,7 @@ bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned
  */
 bool json_get_string_max(sds s, const char *path, sds *result, validate_callback vcb, struct t_jsonrpc_parse_error *error) {
     if (vcb == NULL) {
-        set_parse_error(error, path, "Validation callback is NULL");
+        set_parse_error(error, path, "", "Validation callback is NULL");
         return false;
     }
     return json_get_string_unescape(s, path, 0, JSONRPC_STR_MAX, result, vcb, error);
@@ -845,7 +845,7 @@ bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const 
     }
     if (strcmp(*result, cmp) != 0) {
         sdsclear(*result);
-        set_parse_error(error, path, "Value of JSON path \"%s\" is not equal \"%s\"", path, cmp);
+        set_parse_error(error, path, "", "Value of JSON path \"%s\" is not equal \"%s\"", path, cmp);
         return false;
     }
     return true;
@@ -864,7 +864,7 @@ bool json_get_string_cmp(sds s, const char *path, size_t min, size_t max, const 
  */
 bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *result, validate_callback vcb, struct t_jsonrpc_parse_error *error) {
     if (vcb == NULL) {
-        set_parse_error(error, path, "Validation callback is NULL");
+        set_parse_error(error, path, "", "Validation callback is NULL");
         return false;
     }
     return json_get_string_unescape(s, path, min, max, result, vcb, error);
@@ -881,9 +881,11 @@ bool json_get_string(sds s, const char *path, size_t min, size_t max, sds *resul
  * @param error pointer to t_jsonrpc_parse_error
  * @return true on success else false
  */
-bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata, validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error) {
+bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *icb_userdata,
+        validate_callback vcb, int max_elements, struct t_jsonrpc_parse_error *error)
+{
     if (icb == NULL) {
-        set_parse_error(error, path, "Iteration callback is NULL");
+        set_parse_error(error, path, "", "Iteration callback is NULL");
         return false;
     }
     const char *p;
@@ -892,7 +894,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
     if (otype != MJSON_TOK_OBJECT &&
         otype != MJSON_TOK_ARRAY)
     {
-        set_parse_error(error, path, "Invalid json object type for JSON path \"%s\": %s", path, get_mjson_toktype_name(otype));
+        set_parse_error(error, path, "", "Invalid json object type for JSON path \"%s\": %s", path, get_mjson_toktype_name(otype));
         return false;
     }
     if (n <= 2)
@@ -912,7 +914,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
     int off = 0;
     for (off = 0; (off = mjson_next(p, n, off, &koff, &klen, &voff, &vlen, &vtype)) != 0;) {
         if (klen > JSONRPC_KEY_MAX) {
-            set_parse_error(error, path, "Key in JSON path \"%s\" is too long", path);
+            set_parse_error(error, path, key, "Key in JSON path \"%s\" is too long", path);
             FREE_SDS(value);
             FREE_SDS(key);
             return false;
@@ -921,14 +923,14 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
             if (sds_json_unescape(p + koff + 1, (size_t)(klen - 2), &key) == false ||
                 vcb_isalnum(value) == false)
             {
-                set_parse_error(error, path, "Validation of key in path \"%s\" has failed. Key must be alphanumeric.", path);
+                set_parse_error(error, path, key, "Validation of key in path \"%s\" has failed. Key must be alphanumeric.", path);
                 FREE_SDS(value);
                 FREE_SDS(key);
                 return false;
             }
         }
         if (vlen > JSONRPC_STR_MAX) {
-            set_parse_error(error, path, "Value for key \"%s\" in JSON path \"%s\" is too long", key, path);
+            set_parse_error(error, path, key, "Value for key \"%s\" in JSON path \"%s\" is too long", key, path);
             FREE_SDS(value);
             FREE_SDS(key);
             return false;
@@ -937,7 +939,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
             case MJSON_TOK_STRING:
                 if (vlen > 2) {
                     if (sds_json_unescape(p + voff + 1, (size_t)(vlen - 2), &value) == false) {
-                        set_parse_error(error, path, "JSON unescape error for value for key \"%s\" in JSON path \"%s\" has failed", key, path);
+                        set_parse_error(error, path, key, "JSON unescape error for value for key \"%s\" in JSON path \"%s\" has failed", key, path);
                         FREE_SDS(value);
                         FREE_SDS(key);
                         return false;
@@ -946,7 +948,7 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
                 break;
             case MJSON_TOK_INVALID:
             case MJSON_TOK_NULL:
-                set_parse_error(error, path, "Invalid json value type: %s", get_mjson_toktype_name(vtype));
+                set_parse_error(error, path, key, "Invalid json value type: %s", get_mjson_toktype_name(vtype));
                 FREE_SDS(value);
                 FREE_SDS(key);
                 return false;
@@ -995,15 +997,15 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
 static bool icb_json_get_tag_value(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error) {
     enum mpd_tag_type tag = mpd_tag_name_parse(key);
     if (tag == MPD_TAG_UNKNOWN) {
-        set_parse_error(error, path, "Unknown mpd tag type \"%s\"", key);
+        set_parse_error(error, path, key, "Unknown mpd tag type \"%s\"", key);
         return false;
     }
     if (vtype != MJSON_TOK_STRING) {
-        set_parse_error(error, path, "Invalid type for tag \"%s\": %s", key, get_mjson_toktype_name(vtype));
+        set_parse_error(error, path, key, "Invalid type for tag \"%s\": %s", key, get_mjson_toktype_name(vtype));
         return false;
     }
     if (vcb(value) == false) {
-        set_parse_error(error, path, "Validation of value \"%s\" has failed", value);
+        set_parse_error(error, path, key, "Validation of value \"%s\" has failed", value);
     }
     else {
         mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, value);
@@ -1043,7 +1045,7 @@ static bool icb_json_get_array_string(const char *path, sds key, sds value, int 
     if (vtype != MJSON_TOK_STRING ||
         vcb(value) == false)
     {
-        set_parse_error(error, path, "Validation of value \"%s\" has failed", value);
+        set_parse_error(error, path, key, "Validation of value \"%s\" has failed", value);
         return false;
     }
     struct t_list *l = (struct t_list *)userdata;
@@ -1081,7 +1083,7 @@ static bool icb_json_get_array_llong(const char *path, sds key, sds value, int v
     (void)key;
     (void)vcb;
     if (vtype != MJSON_TOK_NUMBER) {
-        set_parse_error(error, path, "Validation of value \"%s\" has failed", value);
+        set_parse_error(error, path, key, "Validation of value \"%s\" has failed", value);
         return false;
     }
     errno = 0;
@@ -1124,7 +1126,7 @@ static bool icb_json_get_object_string(const char *path, sds key, sds value, int
         vtype != MJSON_TOK_STRING ||
         vcb(value) == false)
     {
-        set_parse_error(error, path, "Validation of key \"%s\" with value \"%s\" has failed", key, value);
+        set_parse_error(error, path, key, "Validation of key \"%s\" with value \"%s\" has failed", key, value);
         return false;
     }
     struct t_list *l = (struct t_list *)userdata;
@@ -1260,7 +1262,7 @@ static bool icb_json_get_tag(const char *path, sds key, sds value, int vtype, va
     (void) key;
     (void) vcb;
     if (vtype != MJSON_TOK_STRING) {
-        set_parse_error(error, path, "Value is not a string \"%s\"", value);
+        set_parse_error(error, path, key, "Value is not a string \"%s\"", value);
         return false;
     }
 
@@ -1280,12 +1282,14 @@ static bool icb_json_get_tag(const char *path, sds key, sds value, int vtype, va
  * @param fmt printf format string
  * @param ... arguments for the format string
  */
-static void set_parse_error(struct t_jsonrpc_parse_error *error, const char* path, const char *fmt, ...) {
+static void set_parse_error(struct t_jsonrpc_parse_error *error, const char *path, const char *key, const char *fmt, ...) {
     va_list args;
     va_start(args, fmt);
     if (error != NULL) {
         error->message = sdscatvprintf(sdsempty(), fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
-        error->path = sdsnew(path);
+        error->path = key[0] != '\0'
+            ? sdscatfmt(sdsempty(), "%s.%s", path, key)
+            : sdsnew(path);
         MYMPD_LOG_WARN(NULL, "%s", error->message);
     }
     else {
@@ -1317,7 +1321,7 @@ static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t
     int vtype = mjson_find(s, (int)sdslen(s), path, &p, &n);
     if (vtype != MJSON_TOK_STRING) {
         *result = NULL;
-        set_parse_error(error, path, "JSON path \"%s\" not found or value is not string type, found type is \"%s\"",
+        set_parse_error(error, path, "", "JSON path \"%s\" not found or value is not string type, found type is \"%s\"",
             path, get_mjson_toktype_name(vtype));
         return false;
     }
@@ -1327,7 +1331,7 @@ static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t
         if (min == 0) {
             return true;
         }
-        set_parse_error(error, path, "Value length for JSON path \"%s\" is too short", path);
+        set_parse_error(error, path, "", "Value length for JSON path \"%s\" is too short", path);
         FREE_SDS(*result);
         return false;
     }
@@ -1339,14 +1343,14 @@ static bool json_get_string_unescape(sds s, const char *path, size_t min, size_t
     if ((sds_json_unescape(p, (size_t)n, result) == false) ||
         (sdslen(*result) < min || sdslen(*result) > max))
     {
-        set_parse_error(error, path, "Value length %lu for JSON path \"%s\" is out of bounds", sdslen(*result), path);
+        set_parse_error(error, path, "", "Value length %lu for JSON path \"%s\" is out of bounds", sdslen(*result), path);
         FREE_SDS(*result);
         return false;
     }
 
     if (vcb != NULL) {
         if (vcb(*result) == false) {
-            set_parse_error(error, path, "Validation of value for JSON path \"%s\" has failed", path);
+            set_parse_error(error, path, "", "Validation of value for JSON path \"%s\" has failed", path);
             FREE_SDS(*result);
             return false;
         }

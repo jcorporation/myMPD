@@ -182,13 +182,8 @@ const settingsLocalFields = {
         "inputType": "text",
         "title": "Scale ratio",
         "form": "settingsThemeFrm2",
-        "invalid": "Must be a number and greater than zero",
         "hint": ligatures['browserSpecific'],
-        "cssClass": ["featMobile"],
-        "validate": {
-            "cmd": "validateFloatEl",
-            "options": []
-        }
+        "cssClass": ["featMobile"]
     },
     "viewMode": {
         "defaultValue": "auto",
@@ -221,15 +216,11 @@ const settingsPartitionFields = {
     "mpdStreamPort": {
         "defaultValue": "8080",
         "inputType": "text",
+        "contentType": "number",
         "title": "Stream port",
         "form": "SettingLocalPlaybackCollapse",
         "help": "helpSettingsStreamPort",
-        "hint": ligatures['partitionSpecific'],
-        "invalid": "Invalid stream port",
-        "validate": {
-            "cmd": "validateIntRangeEl",
-            "options": [0, 65535]
-        }
+        "hint": ligatures['partitionSpecific']
     },
     "streamUri": {
         "defaultValue": "",
@@ -238,36 +229,21 @@ const settingsPartitionFields = {
         "title": "Stream URI",
         "form": "SettingLocalPlaybackCollapse",
         "help": "helpSettingsStreamUri",
-        "hint": ligatures['partitionSpecific'],
-        "invalid": "Invalid URI",
-        "validate": {
-            "cmd": "validateStreamEl",
-            "options": []
-        }
+        "hint": ligatures['partitionSpecific']
     },
     "highlightColor": {
         "defaultValue": "#28a745",
         "inputType": "color",
         "title": "Highlight color",
         "form": "settingsThemeFrm2",
-        "hint": ligatures['partitionSpecific'],
-        "invalid": "Invalid color",
-        "validate": {
-            "cmd": "validateColorEl",
-            "options": []
-        }
+        "hint": ligatures['partitionSpecific']
     },
     "highlightColorContrast": {
         "defaultValue": "#f6f5f4",
         "inputType": "color",
         "title": "Highlight contrast color",
         "form": "settingsThemeFrm2",
-        "hint": ligatures['partitionSpecific'],
-        "invalid": "Invalid color",
-        "validate": {
-            "cmd": "validateColorEl",
-            "options": []
-        }
+        "hint": ligatures['partitionSpecific']
     }
 };
 
@@ -276,45 +252,29 @@ const settingsFields = {
     "volumeMin": {
         "defaultValue": 0,
         "inputType": "input",
+        "contentType": "number",
         "title": "Volume min.",
-        "form": "settingsVolumeFrm",
-        "reset": true,
-        "invalid": "Must be a number between 0 and 100",
-        "validate": {
-            "cmd": "validateUintEl",
-            "options": []
-        }
+        "form": "settingsVolumeFrm"
     },
     "volumeMax": {
         "defaultValue": 100,
         "inputType": "input",
+        "contentType": "number",
         "title": "Volume max.",
-        "form": "settingsVolumeFrm",
-        "reset": true,
-        "invalid": "Must be a number between 0 and 100",
-        "validate": {
-            "cmd": "validateUintEl",
-            "options": []
-        }
+        "form": "settingsVolumeFrm"
     },
     "volumeStep": {
         "defaultValue": 5,
         "inputType": "input",
+        "contentType": "number",
         "title": "Volume step",
-        "form": "settingsVolumeFrm",
-        "reset": true,
-        "invalid": "Must be a number between 1 and 25",
-        "validate": {
-            "cmd": "validateUintEl",
-            "options": []
-        }
+        "form": "settingsVolumeFrm"
     },
     "lyricsUsltExt": {
         "defaultValue": "txt",
         "inputType": "input",
         "title": "Unsynced lyrics extension",
         "form": "SettingLyricsCollapse",
-        "reset": true,
         "help": "helpSettingsUsltExt"
     },
     "lyricsSyltExt": {
@@ -322,7 +282,6 @@ const settingsFields = {
         "inputType": "input",
         "title": "Synced lyrics extension",
         "form": "SettingLyricsCollapse",
-        "reset": true,
         "help": "helpSettingsSyltExt"
     },
     "lyricsVorbisUslt": {
@@ -330,7 +289,6 @@ const settingsFields = {
         "inputType": "input",
         "title": "Unsynced lyrics vorbis comment",
         "form": "SettingLyricsCollapse",
-        "reset": true,
         "help": "helpSettingsVorbisUslt"
     },
     "lyricsVorbisSylt": {
@@ -338,21 +296,16 @@ const settingsFields = {
         "inputType": "input",
         "title": "Synced lyrics vorbis comment",
         "form": "SettingLyricsCollapse",
-        "reset": true,
         "help": "helpSettingsVorbisSylt"
     },
     "lastPlayedCount": {
         "defaultValue": "2000",
         "inputType": "input",
+        "contentType": "number",
         "title": "Last played list count",
         "form": "settingsStatisticsFrm",
-        "reset": true,
-        "invalid": "Must be a number and greater than zero",
         "help": "helpSettingsLastPlayedCount",
-        "validate": {
-            "cmd": "validateUintEl",
-            "options": []
-        }
+        "invalid": "Must be a number and equal or greater than zero"
     },
     "listenbrainzToken": {
         "defaultValue": "",
@@ -366,60 +319,36 @@ const settingsFields = {
         "inputType": "text",
         "title": "Booklet filename",
         "form": "settingsBookletFrm",
-        "help": "helpSettingsBookletName",
-        "invalid": "Invalid filename",
-        "validate": {
-            "cmd": "validateFilenameEl",
-            "options": []
-        }
+        "help": "helpSettingsBookletName"
     },
     "coverimageNames": {
         "defaultValue": "folder,cover",
         "inputType": "text",
         "title": "Filenames",
         "form": "settingsAlbumartFrm1",
-        "reset": true,
-        "invalid": "Invalid filename",
         "help": "helpSettingsCoverimageNames",
-        "cssClass": [ "featLibrary" ],
-        "validate": {
-            "cmd": "validateFilenameListEl",
-            "options": []
-        }
+        "cssClass": [ "featLibrary" ]
     },
     "thumbnailNames": {
         "defaultValue": "folder-sm,cover-sm",
         "inputType": "text",
         "title": "Thumbnail names",
         "form": "settingsAlbumartFrm1",
-        "reset": true,
-        "invalid": "Invalid filename",
         "help": "helpSettingsThumbnailNames",
         "cssClass": [ "featLibrary" ],
-        "validate": {
-            "cmd": "validateFilenameListEl",
-            "options": []
-        }
     },
-    "smartplsEnable": {
+    "smartpls": {
         "defaultValue": true,
         "inputType": "checkbox"
     },
     "smartplsInterval": {
         "contentType": "number",
-        "invalid": "Must be a number and greater than zero",
-        "validate": {
-            "cmd": "validateUintEl",
-            "options": []
-        }
     },
     "smartplsPrefix": {
         "defaultValue": "myMPDsmart",
         "inputType": "text",
         "title": "Smart playlists prefix",
         "form": "settingsSmartplsFrm",
-        "reset": true,
-        "invalid": "Invalid prefix",
         "help": "helpSettingsSmartplsPrefix",
     },
     "smartplsSort": {
@@ -755,7 +684,6 @@ const settingsWebuiFields = {
         "contentType": "number",
         "title": "Thumbnail size",
         "form": "settingsAlbumartFrm2",
-        "reset": true,
         "invalid": "Must be a number and greater than zero",
         "validate": {
             "cmd": "validateUintEl",
@@ -786,8 +714,7 @@ const settingsWebuiFields = {
         "defaultValue": "grayscale(100%) opacity(20%)",
         "inputType": "input",
         "title": "CSS filter",
-        "form": "settingsBgFrm",
-        "reset": true
+        "form": "settingsBgFrm"
     },
     "locale": {
         "defaultValue": "default",

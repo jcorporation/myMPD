@@ -6,6 +6,69 @@
 /** @module validate_js */
 
 /**
+ * Highlight the input element with the invalid value
+ * @param {string} prefix prefix for the input fields
+ * @param {object} obj the jsonrpc error object
+ * @returns {boolean} true if input element was found, else false
+ */
+function highlightInvalidInput(prefix, obj) {
+    const id = ucFirst(obj.error.data.path.split('.').pop());
+    const el = document.querySelector('#' + prefix + id + 'Input');
+    if (el) {
+        setIsInvalid(el);
+        // append error message if there is no client-side invalid feedback defined
+        if (el.parentNode.querySelector('.invalid-feedback') === null) {
+            const invalidServerEl = el.parentNode.querySelector('.invalid-server');
+            if (invalidServerEl === null) {
+                // Create new invalid feedback element
+                el.parentNode.appendChild(
+                    elCreateTextTn('div', {"class": ["invalid-feedback", "invalid-server"]}, tn(obj.error.message, obj.error.data))
+                );
+            }
+            else {
+                // Update invalid feedback
+                invalidServerEl.textContent = tn(obj.error.message, obj.error.data);
+            }
+        }
+        return true;
+    }
+    logError('Element not found: #' + prefix + id + 'Input');
+    return false;
+}
+
+/**
+ * Removes all is-invalid classes
+ * @param {Element} parentEl root element
+ * @returns {void}
+ */
+function removeIsInvalid(parentEl) {
+    const els = parentEl.querySelectorAll('.is-invalid');
+    for (let i = 0, j = els.length; i < j; i++) {
+        els[i].classList.remove('is-invalid');
+    }
+}
+
+/**
+ * Marks an element as invalid
+ * @param {string} id element id
+ * @returns {void}
+ */
+function setIsInvalidId(id) {
+    setIsInvalid(document.getElementById(id));
+}
+
+/**
+ * Marks an element as invalid
+ * @param {Element} el element
+ * @returns {void}
+ */
+function setIsInvalid(el) {
+    //set is-invalid on parent node
+    el.parentNode.classList.add('is-invalid');
+    el.classList.add('is-invalid');
+}
+
+/**
  * Checks if string is a valid uri (not empty)
  * @param {string} uri uri to check 
  * @returns {boolean} true = valid uri, else false
@@ -48,38 +111,6 @@ function isHttpUri(uri) {
         return true;
     }
     return false;
-}
-
-/**
- * Removes all is-invalid classes
- * @param {Element} parentEl root element
- * @returns {void}
- */
-function removeIsInvalid(parentEl) {
-    const els = parentEl.querySelectorAll('.is-invalid');
-    for (let i = 0, j = els.length; i < j; i++) {
-        els[i].classList.remove('is-invalid');
-    }
-}
-
-/**
- * Marks an element as invalid
- * @param {string} id element id
- * @returns {void}
- */
-function setIsInvalidId(id) {
-    setIsInvalid(document.getElementById(id));
-}
-
-/**
- * Marks an element as invalid
- * @param {Element} el element
- * @returns {void}
- */
-function setIsInvalid(el) {
-    //set is-invalid on parent node
-    el.parentNode.classList.add('is-invalid');
-    el.classList.add('is-invalid');
 }
 
 /**
