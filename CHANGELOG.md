@@ -22,6 +22,7 @@ This release changes some API methods.
 - Feat: add option for compact grids #1074
 - Feat: add advanced search to more views #1048
 - Feat: add more inline help text's #1072
+- Feat: improve validation of form fields #1083
 - Upd: some code enhancements #1045
 - Upd: Bootstrap 5.3.1
 - Upd: rework settings
