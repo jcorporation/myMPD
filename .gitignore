@@ -4,6 +4,7 @@
 /callgrind.out.*
 /clang-tidy.out
 /src/compile_commands.json
+/test/compile_commands.json
 /valgrind.out
 
 #build dirs
