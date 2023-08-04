@@ -49,7 +49,7 @@ bool preset_apply(struct t_partition_state *partition_state, sds preset_name, sd
 
 /**
  * Prints the list of presets as json array
- * @param presets preset list
+ * @param preset_list preset list
  * @param buffer sds string to append the array
  * @return sds pointer to buffer
  */

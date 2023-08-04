@@ -945,7 +945,6 @@ static void set_invalid_value(struct t_jsonrpc_parse_error *error, const char *p
  * @param error pointer to t_jsonrpc_parse_error
  * @param path jsonrpc path
  * @param key setting key
- * @param value setting value
  */
 static void set_invalid_field(struct t_jsonrpc_parse_error *error, const char *path, sds key) {
     error->message = sdscatfmt(sdsempty(), "Invalid field: \"%s\"", key);

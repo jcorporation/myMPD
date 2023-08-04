@@ -1279,6 +1279,7 @@ static bool icb_json_get_tag(const char *path, sds key, sds value, int vtype, va
  * @param error sds string to append the error
  *              can be NULL - error is only logged
  * @param path json path where the error occurred
+ * @param key optional json key where the error occurred
  * @param fmt printf format string
  * @param ... arguments for the format string
  */
