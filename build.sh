@@ -301,7 +301,10 @@ createassets() {
 
 buildrelease() {
   echo "Compiling myMPD v${VERSION}" 
-  cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release .
+  cmake -B release \
+    -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+    -DCMAKE_BUILD_TYPE=Release \
+    .
   make -C release
 }
 
@@ -384,8 +387,11 @@ builddebug() {
   else
     MYMPD_ENABLE_LIBASAN=OFF
   fi
-  cmake -B debug -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DMYMPD_ENABLE_LIBASAN="$MYMPD_ENABLE_LIBASAN" \
+  cmake -B debug \
+    -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    -DMYMPD_ENABLE_LIBASAN="$MYMPD_ENABLE_LIBASAN" \
     .
   make -C debug VERBOSE=1
   echo "Linking compilation database"
@@ -396,11 +402,19 @@ builddebug() {
 
 buildtest() {
   echo "Compiling and running unit tests"
-  cmake -B debug -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Debug \
-    -DMYMPD_ENABLE_LIBASAN=ON -DMYMPD_BUILD_TESTING=ON \
+  cmake -B debug \
+    -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    -DMYMPD_ENABLE_LIBASAN=ON\
+    -DMYMPD_BUILD_TESTING=ON \
     .
   make -C debug
   make -C debug test
+  echo "Linking compilation database"
+  sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
+    -e 's/-static-libasan//g' -e 's/-Wno-stringop-overread//g' -e 's/-fstack-clash-protection//g' \
+    debug/compile_commands.json > test/compile_commands.json
 }
 
 cleanup() {
