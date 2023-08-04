@@ -1133,7 +1133,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <form id="addStreamFrm" class="d-none">
+          <div id="addStreamFrm" class="d-none">
             <div class="row mb-3">
               <label class="col-sm-4 col-form-label" for="streamUrl" data-phrase="Stream URI"></label>
               <div class="col-sm-8">
@@ -1151,8 +1151,8 @@
                 </div>
               </div>
             </div>
-          </form>
-          <form class="d-none" id="addToPlaylistFrm">
+          </div>
+          <div class="d-none" id="addToPlaylistFrm">
             <input type="hidden" id="addToPlaylistEntities"/>
             <div class="row mb-3">
               <label class="col-sm-4 col-form-label" for="addToPlaylistPlaylist" data-phrase="Playlist"></label>
@@ -1163,7 +1163,7 @@
                 <div class="invalid-feedback" data-phrase="Choose a playlist or enter a new playlist name"></div>
               </div>
             </div>
-          </form>
+          </div>
           <div class="row mb-3">
             <label class="col-sm-4 col-form-label" data-phrase="Insert mode"></label>
             <div class="col-sm-8" id="addToPlaylistPos">
@@ -1429,7 +1429,7 @@
           <div class="tab-content">
             <div class="tab-pane active" id="tabGeneralSettings">
               <h4 data-phrase="Startup"></h4>
-              <form id="settingsStartupFrm"></form>
+              <div id="settingsStartupFrm"></div>
               <hr/>
               <div class="featTags">
                 <h4 data-phrase="Tags"></h4>
@@ -1545,11 +1545,11 @@
             </div>
             <div class="tab-pane" id="tabNotificationSettings">
               <h4 data-phrase="Notifications"></h4>
-              <form id="settingsNotificationsFrm"></form>
+              <div id="settingsNotificationsFrm"></div>
               <div id="SettingNotifyWebWarn" class="alert alert-warning d-none" data-phrase="Web notifications are blocked by the browser"></div>
               <hr/>
               <h4 data-phrase="Facilities"></h4>
-              <form id="settingsFacilitiesFrm"></form>
+              <div id="settingsFacilitiesFrm"></div>
             </div>
             <div class="tab-pane" id="tabEnableFeatures">
               <h4 data-phrase="Lyrics"></h4>
