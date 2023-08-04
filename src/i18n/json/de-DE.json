@@ -90,7 +90,6 @@
     "Can not read smart playlist file": "Intelligente Wiedergabeliste konnte nicht eingelesen werden",
     "Can not save home icon": "Icon konnte nicht gespeichert werden",
     "Can't create mympd_script thread": "Konnte mympd_script Thread nicht erstellen",
-    "Can't save settings": "Einstellungen konnten nicht gespeichert werden",
     "Can't set playback options": "Wiedergabeeinstellungen konnten nicht gespeichert werden",
     "Can't set playback options: MPD not connected": "Wiedergabeeinstellungen konnten nicht gespeichert werden: keine Verbindung zum MPD Server",
     "Cancel": "Abbrechen",
@@ -364,7 +363,6 @@
     "Invalid URI": "Ungültige URI",
     "Invalid backend uri": "Ungültige einzuhängende URL",
     "Invalid binary limit": "Ungültiger Binary Limit Wert",
-    "Invalid column": "Ungültiger Spaltenname",
     "Invalid filename": "Ungültiger Dateiname",
     "Invalid mount point": "Ungültiger Einhängepunkt",
     "Invalid music directory": "Ungültiges Musikverzeichnis",
@@ -1020,7 +1018,6 @@
     "Copy playlist": "Wiedergabeliste kopieren",
     "Could not save columns": "Spalten konnten nicht gespeichert werden",
     "Clearing the playlist %{playlist} failed: %{error}": "Leeren der Wiedergabeliste fehlgeschlagen: %{error}",
-    "Error parsing timer definition": "Ungültige Timer-Definition",
     "Error starting worker thread": "Workerthread konnte nicht gestartet werden",
     "Failed to set like": "Bewertung konnte nicht gespeichert werden",
     "Invalid timer id": "Ungültige Timer-ID",
@@ -1047,5 +1044,6 @@
     "Invalid response from radio-browser.info": "Ungültige Antwort von radio-browser.info",
     "Invalid response from webradiodb backend": "Ungültige Antwort vom WebradioDB Backend",
     "Must be a number between 1 and 25": "Muss eine Zahl zwischen 1 und 25 sein",
-    "Must be a number between 0 and 100": "Muss eine Zahl zwischen 1 und 100 sein"
+    "Must be a number between 0 and 100": "Muss eine Zahl zwischen 1 und 100 sein",
+    "Parsing error: %{message}": "Parser Fehler: %{message}"
 }
