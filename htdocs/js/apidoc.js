@@ -1505,8 +1505,8 @@ const APImethods = {
             "name": APIparams.preset
         }
     },
-    "MYMPD_API_PRESET_LOAD": {
-        "desc": "Loads a preset.",
+    "MYMPD_API_PRESET_APPLY": {
+        "desc": "Applies a preset.",
         "params": {
             "name": APIparams.preset
         }

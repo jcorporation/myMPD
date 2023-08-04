@@ -38,7 +38,7 @@ function initModalSettingsPlayback() {
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
             if (!event.target.parentNode.classList.contains('not-clickable')) {
-                loadPreset(getData(event.target.parentNode, 'name'));
+                applyPreset(getData(event.target.parentNode, 'name'));
             }
         }
         else if (event.target.nodeName === 'A') {

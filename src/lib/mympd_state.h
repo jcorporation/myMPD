@@ -164,7 +164,7 @@ struct t_partition_state {
     sds stream_uri;                        //!< custom url for local playback
     //lists
     struct t_list last_played;             //!< last_played list
-    struct t_list presets;                 //!< Playback presets
+    struct t_list preset_list;                 //!< Playback presets
 };
 
 /**

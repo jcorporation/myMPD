@@ -426,21 +426,11 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     json_get_string(request->data, "$.params.name", 0, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
                     sdslen(sds_buf1) > 0)
                 {
-                    sds params = json_get_key_as_sds(request->data, "$.params");
-                    if (params != NULL) {
-                        int idx = list_get_node_idx(&partition_state->presets, sds_buf1);
-                        if (idx > -1) {
-                            list_replace(&partition_state->presets, idx, sds_buf1, 0, params, NULL);
-                        }
-                        else {
-                            list_push(&partition_state->presets, sds_buf1, 0, params, NULL);
-                        }
-                        FREE_SDS(params);
-                    }
-                    else {
-                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                                JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Can't save preset");
-                    }
+                    sds_buf2 = json_get_key_as_sds(request->data, "$.params");
+                    rc = preset_save(&partition_state->preset_list, sds_buf1, sds_buf2, &error);
+                    response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_MPD, error);
+                    break;
                 }
                 response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD);
             }
@@ -448,33 +438,16 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         }
         case MYMPD_API_PRESET_RM:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
-                rc = presets_delete(&partition_state->presets, sds_buf1);
+                rc = preset_delete(&partition_state->preset_list, sds_buf1);
                 response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
                         JSONRPC_FACILITY_MPD, "Could not delete preset");
             }
             break;
-        case MYMPD_API_PRESET_LOAD:
+        case MYMPD_API_PRESET_APPLY:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
-                struct t_list_node *preset = list_get_node(&partition_state->presets, sds_buf1);
-                if (preset != NULL) {
-                    if (json_iterate_object(preset->value_p, "$", mympd_api_settings_mpd_options_set, partition_state, NULL, 100, &parse_error) == true) {
-                        if (partition_state->jukebox_mode != JUKEBOX_OFF) {
-                            //clear and start jukebox
-                            jukebox_clear_all(partition_state->mympd_state);
-                            jukebox_run(partition_state);
-                        }
-                        //respond with ok
-                        response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_MPD);
-                    }
-                    else {
-                        response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                                JSONRPC_FACILITY_MPD, JSONRPC_SEVERITY_ERROR, "Can't set playback options");
-                    }
-                }
-                else {
-                    response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                            JSONRPC_FACILITY_SCRIPT, JSONRPC_SEVERITY_ERROR, "Could not load preset");
-                }
+                rc = preset_apply(partition_state, sds_buf1,&error);
+                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_MPD, error);
             }
             break;
     // mpd connection

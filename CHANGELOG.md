@@ -8,6 +8,13 @@ https://github.com/jcorporation/myMPD/
 
 Describe the release here.
 
+### API changes
+
+This release changes some API methods.
+
+- merge MYMPD_API_QUEUE_SEARCH_ADV and MYMPD_API_QUEUE_LIST into MYMPD_API_QUEUE_SEARCH
+- rename MYMPD_API_PRESET_LOAD to MYMPD_API_PRESET_APPLY
+
 ### Changelog
 
 - Feat: move song fingerprint calculation in worker thread #1046
@@ -16,7 +23,6 @@ Describe the release here.
 - Feat: add advanced search to more views #1048
 - Feat: add more inline help text's #1072
 - Upd: some code enhancements #1045
-- Upd: merge MYMPD_API_QUEUE_SEARCH_ADV and MYMPD_API_QUEUE_LIST into MYMPD_API_QUEUE_SEARCH
 - Upd: Bootstrap 5.3.1
 - Upd: rework settings
 - Fix: calculate correct position for jukebox list

@@ -14,7 +14,7 @@ function initPresets() {
         document.getElementById('selectPresetDropdown' + i).addEventListener('click', function(event) {
             event.preventDefault();
             if (event.target.nodeName === 'BUTTON') {
-                loadPreset(event.target.textContent);
+                applyPreset(event.target.textContent);
                 const d = event.target.parentNode.parentNode.previousElementSibling;
                 BSN.Dropdown.getInstance(d).hide();
             }
@@ -23,22 +23,22 @@ function initPresets() {
 }
 
 /**
- * Loads a preset
+ * Applies a preset
  * @param {string} name preset name to load
  * @returns {void}
  */
-function loadPreset(name) {
-    sendAPI("MYMPD_API_PRESET_LOAD", {
+function applyPreset(name) {
+    sendAPI("MYMPD_API_PRESET_APPLY", {
         "name": name
-    }, loadPresetCheckError, true);
+    }, applyPresetCheckError, true);
 }
 
 /**
- * Handler for the MYMPD_API_PRESET_LOAD jsonrpc response
+ * Handler for the MYMPD_API_PRESET_APPLY jsonrpc response
  * @param {object} obj jsonrpc response
  * @returns {void}
  */
- function loadPresetCheckError(obj) {
+ function applyPresetCheckError(obj) {
     if (obj.error) {
         if (getOpenModal() !== null) {
             showModalAlert(obj);

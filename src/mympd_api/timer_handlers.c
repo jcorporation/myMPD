@@ -116,7 +116,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
     enum jukebox_modes jukebox_mode = JUKEBOX_OFF;
     if (sdslen(preset) > 0) {
         //get the jukebox mode from the preset
-        struct t_list_node *preset_value = list_get_node(&partition_state->presets, preset);
+        struct t_list_node *preset_value = list_get_node(&partition_state->preset_list, preset);
         if (preset_value != NULL) {
             sds jukebox_mode_str = NULL;
             if (json_get_string_max(preset_value->value_p, "$.jukeboxMode", &jukebox_mode_str, vcb_isname, NULL) == true) {
@@ -162,7 +162,7 @@ bool mympd_api_timer_startplay(struct t_partition_state *partition_state,
 
     if (sdslen(preset) > 0) {
         //load the preset
-        struct t_work_request *request = create_request(-1, 0, MYMPD_API_PRESET_LOAD, NULL, partition_state->name);
+        struct t_work_request *request = create_request(-1, 0, MYMPD_API_PRESET_APPLY, NULL, partition_state->name);
         request->data = tojson_sds(request->data, "name", preset, false);
         request->data = jsonrpc_end(request->data);
         mympd_queue_push(mympd_api_queue, request, 0);

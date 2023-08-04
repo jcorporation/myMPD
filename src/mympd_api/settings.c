@@ -830,7 +830,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_uint(buffer, "mpdStreamPort", partition_state->mpd_stream_port, true);
     buffer = tojson_char(buffer, "streamUri", partition_state->stream_uri, true);
     buffer = sdscat(buffer, "\"presets\": [");
-    buffer = presets_list(&partition_state->presets, buffer);
+    buffer = presets_list(&partition_state->preset_list, buffer);
     buffer = sdscatlen(buffer, "],", 2);
     if (partition_state->conn_state == MPD_CONNECTED) {
         //mpd options
