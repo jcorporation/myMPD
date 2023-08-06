@@ -214,7 +214,7 @@ const localSettings = {
 // partition specific settings
 const settingsPartitionFields = {
     "mpdStreamPort": {
-        "defaultValue": "8080",
+        "defaultValue": defaults["PARTITION_MPD_STREAM_PORT"],
         "inputType": "text",
         "contentType": "number",
         "title": "Stream port",
@@ -223,7 +223,7 @@ const settingsPartitionFields = {
         "hint": ligatures['partitionSpecific']
     },
     "streamUri": {
-        "defaultValue": "",
+        "defaultValue": defaults["PARTITION_MPD_STREAM_URI"],
         "placeholder": "auto",
         "inputType": "text",
         "title": "Stream URI",
@@ -232,14 +232,14 @@ const settingsPartitionFields = {
         "hint": ligatures['partitionSpecific']
     },
     "highlightColor": {
-        "defaultValue": "#28a745",
+        "defaultValue": defaults["PARTITION_HIGHLIGHT_COLOR"],
         "inputType": "color",
         "title": "Highlight color",
         "form": "modalSettingsThemeFrm2",
         "hint": ligatures['partitionSpecific']
     },
     "highlightColorContrast": {
-        "defaultValue": "#f6f5f4",
+        "defaultValue": defaults["PARTITION_HIGHLIGHT_COLOR_CONTRAST"],
         "inputType": "color",
         "title": "Highlight contrast color",
         "form": "modalSettingsThemeFrm2",
@@ -250,56 +250,56 @@ const settingsPartitionFields = {
 // global settings
 const settingsFields = {
     "volumeMin": {
-        "defaultValue": 0,
+        "defaultValue": defaults["MYMPD_VOLUME_MIN"],
         "inputType": "input",
         "contentType": "number",
         "title": "Volume min.",
         "form": "modalSettingsVolumeFrm"
     },
     "volumeMax": {
-        "defaultValue": 100,
+        "defaultValue": defaults["MYMPD_VOLUME_MAX"],
         "inputType": "input",
         "contentType": "number",
         "title": "Volume max.",
         "form": "modalSettingsVolumeFrm"
     },
     "volumeStep": {
-        "defaultValue": 5,
+        "defaultValue": defaults["MYMPD_VOLUME_STEP"],
         "inputType": "input",
         "contentType": "number",
         "title": "Volume step",
         "form": "modalSettingsVolumeFrm"
     },
     "lyricsUsltExt": {
-        "defaultValue": "txt",
+        "defaultValue": defaults["MYMPD_LYRICS_USLT_EXT"],
         "inputType": "input",
         "title": "Unsynced lyrics extension",
         "form": "modalSettingsLyricsCollapse",
         "help": "helpSettingsUsltExt"
     },
     "lyricsSyltExt": {
-        "defaultValue": "lrc",
+        "defaultValue": defaults["MYMPD_LYRICS_SYLT_EXT"],
         "inputType": "input",
         "title": "Synced lyrics extension",
         "form": "modalSettingsLyricsCollapse",
         "help": "helpSettingsSyltExt"
     },
     "lyricsVorbisUslt": {
-        "defaultValue": "LYRICS",
+        "defaultValue": defaults["LYRICS"],
         "inputType": "input",
         "title": "Unsynced lyrics vorbis comment",
         "form": "modalSettingsLyricsCollapse",
         "help": "helpSettingsVorbisUslt"
     },
     "lyricsVorbisSylt": {
-        "defaultValue": "SYNCEDLYRICS",
+        "defaultValue": defaults["SYNCEDLYRICS"],
         "inputType": "input",
         "title": "Synced lyrics vorbis comment",
         "form": "modalSettingsLyricsCollapse",
         "help": "helpSettingsVorbisSylt"
     },
     "lastPlayedCount": {
-        "defaultValue": "2000",
+        "defaultValue": defaults["MYMPD_LAST_PLAYED_COUNT"],
         "inputType": "input",
         "contentType": "number",
         "title": "Last played list count",
@@ -315,14 +315,14 @@ const settingsFields = {
         "help": "helpSettingsListenBrainzToken"
     },
     "bookletName": {
-        "defaultValue": "booklet.pdf",
+        "defaultValue": defaults["MYMPD_BOOKLET_NAME"],
         "inputType": "text",
         "title": "Booklet filename",
         "form": "modalSettingsBookletFrm",
         "help": "helpSettingsBookletName"
     },
     "coverimageNames": {
-        "defaultValue": "folder,cover",
+        "defaultValue": defaults["MYMPD_COVERIMAGE_NAMES"],
         "inputType": "text",
         "title": "Filenames",
         "form": "modalSettingsAlbumartFrm1",
@@ -330,7 +330,7 @@ const settingsFields = {
         "cssClass": ["featLibrary"]
     },
     "thumbnailNames": {
-        "defaultValue": "folder-sm,cover-sm",
+        "defaultValue": defaults["MYMPD_THUMBNAIL_NAMES"],
         "inputType": "text",
         "title": "Thumbnail names",
         "form": "modalSettingsAlbumartFrm1",
@@ -345,7 +345,7 @@ const settingsFields = {
         "contentType": "number",
     },
     "smartplsPrefix": {
-        "defaultValue": "myMPDsmart",
+        "defaultValue": defaults["MYMPD_SMARTPLS_PREFIX"],
         "inputType": "text",
         "title": "Smart playlists prefix",
         "form": "modalSettingsSmartplsFrm",

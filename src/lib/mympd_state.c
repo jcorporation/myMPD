@@ -306,7 +306,7 @@ void partition_state_default(struct t_partition_state *partition_state, const ch
     partition_state->set_conn_options = false;
     //local playback
     partition_state->mpd_stream_port = PARTITION_MPD_STREAM_PORT;
-    partition_state->stream_uri = sdsempty();
+    partition_state->stream_uri = sdsnew(PARTITION_MPD_STREAM_URI);
     //lists
     list_init(&partition_state->last_played);
     list_init(&partition_state->preset_list);

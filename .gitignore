@@ -23,6 +23,7 @@
 /htdocs/assets/i18n/
 /htdocs/css/bootstrap.css
 /htdocs/js/bootstrap-native.js
+/htdocs/js/defines.js
 /htdocs/js/i18n.js
 /htdocs/js/long-press-event.js
 /htdocs/sw.js

@@ -201,8 +201,11 @@ createassets() {
 
   #Create translation phrases file
   check_phrases
-  createi18n "$MYMPD_BUILDDIR" 2>/dev/null
+  createi18n 2>/dev/null
   minify js "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$MYMPD_BUILDDIR/htdocs/js/i18n.min.js"
+
+  #Create defines
+  create_js_defines
 
   echo "Minifying javascript"
   JSSRCFILES=""
@@ -300,7 +303,7 @@ createassets() {
 }
 
 buildrelease() {
-  echo "Compiling myMPD v${VERSION}" 
+  echo "Compiling myMPD v${VERSION}"
   cmake -B release \
     -DCMAKE_INSTALL_PREFIX:PATH=/usr \
     -DCMAKE_BUILD_TYPE=Release \
@@ -366,9 +369,13 @@ copyassets() {
   cp -v "$STARTPATH/dist/long-press-event/long-press-event.js" "$STARTPATH/htdocs/js/long-press-event.js"
   cp -v "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2" "$STARTPATH/htdocs/assets/MaterialIcons-Regular.woff2"
   cp -v "$STARTPATH/dist/material-icons/ligatures.json" "$STARTPATH/htdocs/assets/ligatures.json"
+
+  #Create defines
+  create_js_defines
+
   #translation files
   check_phrases
-  createi18n "$MYMPD_BUILDDIR"
+  createi18n
   cp -v "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$STARTPATH/htdocs/js/i18n.js"
   rm -fr "$STARTPATH/htdocs/assets/i18n/"
   install -d "$STARTPATH/htdocs/assets/i18n"
@@ -1030,10 +1037,34 @@ check_phrases() {
   done
 }
 
+# Create an JavaScript object from compile_time.h
+# This is used to define global defaults.
+create_js_defines() {
+  printf "const defaults = " > "$STARTPATH/htdocs/js/defines.js"
+  {
+    I=0
+    printf "{"
+    sed -E -z -e 's/"\\\n\s+"//g' -e 's/MPD_TAG_ARTIST/"Artist"/' "$MYMPD_BUILDDIR/compile_time.h" \
+      | awk '/^#define (MYMPD|PARTITION)_\w+ / {print $2"|"$3}' \
+      | while IFS="|" read -r KEY VALUE
+      do
+        [ "$I" -gt 0 ] && echo ","
+        if JSON_VALUE=$(printf '{"value": %s}' "$VALUE" | jq -r '.value | fromjson' 2>/dev/null)
+        then
+          printf '"%s":%s' "$KEY" "$JSON_VALUE"
+        else
+          printf '"%s":%s' "$KEY" "$VALUE"
+        fi
+        I=$((I+1))
+      done
+      printf "}"
+  } | jq >> "$STARTPATH/htdocs/js/defines.js"
+  echo ";" >> "$STARTPATH/htdocs/js/defines.js"
+}
+
 createi18n() {
-  MYMPD_BUILD_DIR="$1"
   check_cmd perl
-  install -d "$MYMPD_BUILD_DIR/htdocs/js"
+  install -d "$MYMPD_BUILDDIR/htdocs/js"
   echo "Creating i18n json"
   if ! perl ./src/i18n/translate.pl
   then
@@ -1041,9 +1072,9 @@ createi18n() {
     exit 1
   fi
   #json to js
-  printf "const i18n = " > "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
-  head -c -1 "src/i18n/json/i18n.json" >> "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
-  echo ";" >> "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
+  printf "const i18n = " > "$MYMPD_BUILDDIR/htdocs/js/i18n.js"
+  head -c -1 "src/i18n/json/i18n.json" >> "$MYMPD_BUILDDIR/htdocs/js/i18n.js"
+  echo ";" >> "$MYMPD_BUILDDIR/htdocs/js/i18n.js"
   #Update serviceworker
   TO_CACHE=""
   for CODE in $(jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default")
@@ -1309,7 +1340,7 @@ run_doxygen() {
 
 run_jsdoc() {
   if ! check_cmd jsdoc
-  then 
+  then
     return 1
   fi
   echo "Running jsdoc"
@@ -1503,7 +1534,7 @@ case "$ACTION" in
     echo "  copyassets:       copies the assets from dist to the source tree"
     echo "                    for debug builds without embedded assets"
     echo "                    following environment variables are respected"
-    echo "                      - MYMPD_BUILDDIR=\"release\""
+    echo "                      - MYMPD_BUILDDIR=\"debug\""
     echo ""
     echo "Translation options:"
     echo "  translate:        builds the translation file for debug builds"
