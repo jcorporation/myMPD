@@ -197,7 +197,7 @@ const settingsLocalFields = {
         "form": "modalSettingsThemeFrm2",
         "help": "helpSettingsViewMode",
         "hint": ligatures['browserSpecific']
-    },
+    }
 };
 
 const localSettings = {
@@ -327,7 +327,7 @@ const settingsFields = {
         "title": "Filenames",
         "form": "modalSettingsAlbumartFrm1",
         "help": "helpSettingsCoverimageNames",
-        "cssClass": [ "featLibrary" ]
+        "cssClass": ["featLibrary"]
     },
     "thumbnailNames": {
         "defaultValue": "folder-sm,cover-sm",
@@ -335,7 +335,7 @@ const settingsFields = {
         "title": "Thumbnail names",
         "form": "modalSettingsAlbumartFrm1",
         "help": "helpSettingsThumbnailNames",
-        "cssClass": [ "featLibrary" ],
+        "cssClass": ["featLibrary"],
     },
     "smartpls": {
         "defaultValue": true,
