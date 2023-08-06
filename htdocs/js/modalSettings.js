@@ -35,10 +35,10 @@ function eventChangeLocale(event) {
 //eslint-disable-next-line no-unused-vars
 function eventChangeTheme(event) {
     const value = getSelectValue(event.target);
-    const bgImageEl = document.getElementById('SettingBgImageInput');
+    const bgImageEl = document.getElementById('modalSettingsBgImageInput');
     const bgImageValue = getData(bgImageEl, 'value');
     if (value === 'light') {
-        document.getElementById('SettingBgColorInput').value = '#ffffff';
+        document.getElementById('modalSettingsBgColorInput').value = '#ffffff';
         if (bgImageValue.indexOf('/assets/') === 0) {
             bgImageEl.value = getBgImageText('/assets/mympd-background-light.svg');
             setData(bgImageEl, 'value', '/assets/mympd-background-light.svg');
@@ -46,7 +46,7 @@ function eventChangeTheme(event) {
     }
     else {
         //dark is the default
-        document.getElementById('SettingBgColorInput').value = '#060708';
+        document.getElementById('modalSettingsBgColorInput').value = '#060708';
         if (bgImageValue.indexOf('/assets/') === 0) {
             bgImageEl.value = getBgImageText('/assets/mympd-background-dark.svg');
             setData(bgImageEl, 'value', '/assets/mympd-background-dark.svg');
@@ -62,12 +62,12 @@ function eventChangeTheme(event) {
  */
 function toggleThemeInputs(theme) {
     if (theme === 'auto') {
-        document.getElementById('SettingBgColorInput').parentNode.parentNode.classList.add('d-none');
-        document.getElementById('SettingBgImageInput').parentNode.parentNode.classList.add('d-none');
+        document.getElementById('modalSettingsBgColorInput').parentNode.parentNode.classList.add('d-none');
+        document.getElementById('modalSettingsBgImageInput').parentNode.parentNode.classList.add('d-none');
     }
     else {
-        document.getElementById('SettingBgColorInput').parentNode.parentNode.classList.remove('d-none');
-        document.getElementById('SettingBgImageInput').parentNode.parentNode.classList.remove('d-none');
+        document.getElementById('modalSettingsBgColorInput').parentNode.parentNode.classList.remove('d-none');
+        document.getElementById('modalSettingsBgImageInput').parentNode.parentNode.classList.remove('d-none');
     }
 }
 
@@ -89,6 +89,15 @@ function getBgImageText(value) {
 }
 
 /**
+ * Gets the background images list and populates the select element
+ * @returns {void}
+ */
+function getBgImageList() {
+    const list = document.getElementById('modalSettingsBgImageInput');
+    getImageList(list, bgImageValues, 'backgrounds');
+}
+
+/**
  * Populates the settings modal
  * Handles only special cases.
  * All other fields are populated by the createSettingsFrm function.
@@ -97,7 +106,7 @@ function getBgImageText(value) {
 function populateSettingsFrm() {
     // background image select
     getBgImageList();
-    const bgImageInput = document.getElementById('SettingBgImageInput');
+    const bgImageInput = document.getElementById('modalSettingsBgImageInput');
     setData(bgImageInput, 'value', settings.webuiSettings.bgImage);
     bgImageInput.value = getBgImageText(settings.webuiSettings.bgImage);
 
@@ -105,7 +114,7 @@ function populateSettingsFrm() {
     toggleThemeInputs(settings.webuiSettings.theme);
 
     //locales
-    const localeList = document.getElementById('SettingLocaleInput');
+    const localeList = document.getElementById('modalSettingsLocaleInput');
     elClear(localeList);
     for (const l in i18n) {
         localeList.appendChild(
@@ -118,17 +127,17 @@ function populateSettingsFrm() {
     warnLocale(settings.webuiSettings.locale);
 
     // web notifications - check permission
-    const btnNotifyWeb = document.getElementById('SettingNotifyWebInput');
-    elHideId('SettingNotifyWebWarn');
+    const btnNotifyWeb = document.getElementById('modalSettingsNotifyWebInput');
+    elHideId('modalSettingsNotifyWebWarn');
     if (notificationsSupported()) {
         if (Notification.permission !== 'granted') {
             if (settings.webuiSettings.notifyWeb === true) {
-                elShowId('SettingNotifyWebWarn');
+                elShowId('modalSettingsNotifyWebWarn');
             }
             settings.webuiSettings.notifyWeb = false;
         }
         if (Notification.permission === 'denied') {
-            elShowId('SettingNotifyWebWarn');
+            elShowId('modalSettingsNotifyWebWarn');
         }
         toggleBtnChk(btnNotifyWeb, settings.webuiSettings.notifyWeb);
         elEnable(btnNotifyWeb);
@@ -139,54 +148,54 @@ function populateSettingsFrm() {
     }
 
     // media session support
-    const btnMediaSession = document.getElementById('SettingMediaSessionInput');
+    const btnMediaSession = document.getElementById('modalSettingsMediaSessionInput');
     if (features.featMediaSession === false) {
-        elShowId('SettingMediaSessionInputWarn');
+        elShowId('modalSettingsMediaSessionInputWarn');
         elDisable(btnMediaSession);
         toggleBtnChk(btnMediaSession, false);
     }
     else {
-        elHideId('SettingMediaSessionInputWarn');
+        elHideId('modalSettingsMediaSessionInputWarn');
         elEnable(btnMediaSession);
     }
 
     // smart playlists
     if (settings.features.featPlaylists === true) {
-        elEnableId('SettingSmartplsInput');
-        toggleBtnChkCollapseId('SettingSmartplsInput', 'SettingSmartplsCollapse', settings.smartpls);
-        elHideId('SettingSmartplsWarn');
+        elEnableId('modalSettingsSmartplsInput');
+        toggleBtnChkCollapseId('modalSettingsSmartplsInput', 'modalSettingsSmartplsCollapse', settings.smartpls);
+        elHideId('modalSettingsSmartplsWarn');
     }
     else {
-        elDisableId('SettingSmartplsInput');
-        toggleBtnChkCollapseId('SettingSmartplsInput', 'SettingSmartplsCollapse', false);
-        elShowId('SettingSmartplsWarn');
+        elDisableId('modalSettingsSmartplsInput');
+        toggleBtnChkCollapseId('modalSettingsSmartplsInput', 'modalSettingsSmartplsCollapse', false);
+        elShowId('modalSettingsSmartplsWarn');
     }
-    addTagListSelect('SettingSmartplsSortInput', 'tagList');
-    document.getElementById('SettingSmartplsSortInput').value = settings.smartplsSort;
+    addTagListSelect('modalSettingsSmartplsSortInput', 'tagList');
+    document.getElementById('modalSettingsSmartplsSortInput').value = settings.smartplsSort;
     // seconds to hours
-    document.getElementById('SettingSmartplsIntervalInput').value = settings.smartplsInterval / 60 / 60;
+    document.getElementById('modalSettingsSmartplsIntervalInput').value = settings.smartplsInterval / 60 / 60;
 
     // lyrics
     if (features.featLibrary === false) {
         //lyrics need access to library
         settings.webuiSettings.enableLyrics = false;
     }
-    toggleBtnChkCollapseId('SettingEnableLyricsInput', 'SettingLyricsCollapse', settings.webuiSettings.enableLyrics);
+    toggleBtnChkCollapseId('modalSettingsEnableLyricsInput', 'modalSettingsLyricsCollapse', settings.webuiSettings.enableLyrics);
 
     // local playback
-    toggleBtnChkCollapseId('SettingEnableLocalPlaybackInput', 'SettingLocalPlaybackCollapse', settings.webuiSettings.enableLocalPlayback);
+    toggleBtnChkCollapseId('modalSettingsEnableLocalPlaybackInput', 'modalSettingsLocalPlaybackCollapse', settings.webuiSettings.enableLocalPlayback);
 
     // tag multiselects
-    initTagMultiSelect('SettingEnabledTagsInput', 'SettingEnabledTagsList', settings.tagListMpd, settings.tagList);
-    initTagMultiSelect('SettingSearchTagsInput', 'SettingSearchTagsList', settings.tagList, settings.tagListSearch);
-    initTagMultiSelect('SettingBrowseTagsInput', 'SettingBrowseTagsList', settings.tagList, settings.tagListBrowse);
-    initTagMultiSelect('SettingGeneratePlsTagsInput', 'SettingGeneratePlsTagsList', settings.tagListBrowse, settings.smartplsGenerateTagList);
+    initTagMultiSelect('modalSettingsEnabledTagsInput', 'modalSettingsEnabledTagsList', settings.tagListMpd, settings.tagList);
+    initTagMultiSelect('modalSettingsSearchTagsInput', 'modalSettingsSearchTagsList', settings.tagList, settings.tagListSearch);
+    initTagMultiSelect('modalSettingsBrowseTagsInput', 'modalSettingsBrowseTagsList', settings.tagList, settings.tagListBrowse);
+    initTagMultiSelect('modalSettingsGeneratePlsTagsInput', 'modalSettingsGeneratePlsTagsList', settings.tagListBrowse, settings.smartplsGenerateTagList);
 
     // handle features: show or hide warnings - use the settings object
-    setFeatureBtnId('SettingEnableLyricsInput', settings.features.featLibrary);
-    setFeatureBtnId('SettingEnableScriptingInput', settings.features.featScripting);
-    setFeatureBtnId('SettingEnableMountsInput', settings.features.featMounts);
-    setFeatureBtnId('SettingEnablePartitionsInput', settings.features.featPartitions);
+    setFeatureBtnId('modalSettingsEnableLyricsInput', settings.features.featLibrary);
+    setFeatureBtnId('modalSettingsEnableScriptingInput', settings.features.featScripting);
+    setFeatureBtnId('modalSettingsEnableMountsInput', settings.features.featMounts);
+    setFeatureBtnId('modalSettingsEnablePartitionsInput', settings.features.featPartitions);
 }
 
 /**
@@ -197,160 +206,17 @@ function createSettingsFrm() {
     // cache for the form field containers
     const forms = {};
     // create the fields
-    _createSettingsFrm(settings, settingsFields, 'Setting', forms);
-    _createSettingsFrm(settings.webuiSettings, settingsWebuiFields, 'Setting', forms);
-    _createSettingsFrm(settings.partition, settingsPartitionFields, 'Setting', forms);
-    _createSettingsFrm(localSettings, settingsLocalFields, 'Setting', forms);
+    createFrm(settings, settingsFields, 'modalSettings', forms);
+    createFrm(settings.webuiSettings, settingsWebuiFields, 'modalSettings', forms);
+    createFrm(settings.partition, settingsPartitionFields, 'modalSettings', forms);
+    createFrm(localSettings, settingsLocalFields, 'modalSettings', forms);
     // initialize myMPD custom elements
     initElements(document.getElementById('modalSettings'));
-}
-
-/**
- * Creates the settings modal
- * @param {object} fields object with the values for the elements to create
- * @param {object} defaults object with elements to create and the default values
- * @param {string} prefix prefix for element ids
- * @param {object} forms cace for the form field containers
- * @returns {void}
- */
-function _createSettingsFrm(fields, defaults, prefix, forms) {
-    // iterate through sorted keys
-    const settingsKeys = Object.keys(defaults);
-    settingsKeys.sort();
-    for (let i = 0, j = settingsKeys.length; i < j; i++) {
-        const key = settingsKeys[i];
-        // check if we should add a field
-        if (defaults[key] === undefined ||
-            defaults[key].form === undefined ||
-            defaults[key].inputType === 'none')
-        {
-            continue;
-        }
-        // calculate a camelCase id
-        const id = prefix + ucFirst(key) + 'Input';
-        // get the container
-        const form = defaults[key].form;
-        if (forms[form] === undefined) {
-            forms[form] = document.getElementById(form);
-            // clear the container if it was not cached
-            elClear(forms[form]);
-        }
-        // create the form field
-        const col = elCreateEmpty('div', {"class": ["col-sm-8", "position-relative"]});
-        if (defaults[key].inputType === 'select') {
-            const select = elCreateEmpty('select', {"class": ["form-select"], "id": id});
-            for (const value in defaults[key].validValues) {
-                select.appendChild(
-                    elCreateTextTn('option', {"value": value}, defaults[key].validValues[value])
-                );
-                if ((defaults[key].contentType === 'integer' && fields[key] === Number(value)) ||
-                    fields[key] === value)
-                {
-                    select.lastChild.setAttribute('selected', 'selected');
-                }
-            }
-            col.appendChild(select);
-        }
-        else if (defaults[key].inputType === 'mympd-select-search') {
-            const input = elCreateEmpty('input', {"class": ["form-select"], "id": id});
-            setData(input, 'cb-filter', defaults[key].cbCallback);
-            setData(input, 'cb-filter-options', [id + 'Input']);
-            input.setAttribute('data-is', 'mympd-select-search');
-            col.classList.add('position-relative');
-            const btnGrp = elCreateNode('div', {"class": ["btn-group", "d-flex"]}, input);
-            col.appendChild(btnGrp);
-        }
-        else if (defaults[key].inputType === 'checkbox') {
-            const btn = elCreateEmpty('button', {"type": "button", "id": id, "class": ["btn", "btn-sm", "btn-secondary", "mi", "chkBtn"]});
-            if (fields[key] === true) {
-                btn.classList.add('active');
-                btn.textContent = 'check';
-            }
-            else {
-                btn.textContent = 'radio_button_unchecked';
-            }
-            if (defaults[key].onClick !== undefined) {
-                btn.addEventListener('click', function(event) {
-                    // @ts-ignore
-                    window[defaults[key].onClick](event);
-                }, false);
-            }
-            else {
-                btn.addEventListener('click', function(event) {
-                    toggleBtnChk(event.target, undefined);
-                }, false);
-            }
-            col.appendChild(btn);
-        }
-        else if (defaults[key].inputType === 'password') {
-            const input = elCreateEmpty('input', {"is": "mympd-input-password", "id": id,
-                "value": fields[key], "class": ["form-control"], "type": "password"});
-            col.appendChild(input);
-        }
-        else {
-            const it = defaults[key].inputType === 'color'
-                ? 'color'
-                : 'text';
-            const placeholder = defaults[key].placeholder !== undefined
-                ? defaults[key].placeholder
-                : defaults[key].defaultValue;
-            const input = elCreateEmpty('input', {"is": "mympd-input-reset", "id": id, "data-default": defaults[key].defaultValue,
-                "placeholder": placeholder, "value": fields[key], "class": ["form-control"], "type": it});
-            col.appendChild(input);
-        }
-        // invalid feedback element for local validation
-        if (defaults[key].invalid !== undefined) {
-            col.appendChild(
-                elCreateTextTn('div', {"class": ["invalid-feedback"]}, defaults[key].invalid)
-            );
-        }
-        // warning element
-        if (defaults[key].warn !== undefined) {
-            col.appendChild(
-                elCreateTextTn('div', {"id": id + 'Warn', "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"]}, defaults[key].warn)
-            );
-        }
-        // help text
-        if (defaults[key].help !== undefined) {
-            col.appendChild(
-                elCreateTextTn('small', {"class": ["help"]}, defaults[key].help)
-            );
-        }
-        // create the label
-        const label = defaults[key].hint === undefined
-            ? elCreateTextTn('label', {"class": ["col-sm-4", "col-form-label"], "for": id}, defaults[key].title)
-            : elCreateNodes('label', {"class": ["col-sm-4", "col-form-label"], "for": id}, [
-                    elCreateTextTn('span', {}, defaults[key].title),
-                    elCreateText('small', {"class": ["mi", "mi-sm", "ms-1"], "title": tn("Browser specific setting"), "data-title-phrase": "Browser specific setting"}, defaults[key].hint)
-              ]);
-        // create the row and append it to the form field container
-        let rowClasses = ["mb-3", "row"];
-        if (defaults[key].cssClass !== undefined) {
-            rowClasses = rowClasses.concat(defaults[key].cssClass);
-        }
-        forms[form].appendChild(
-            elCreateNodes('div', {"class": rowClasses}, [
-                label,
-                col
-            ])
-        );
-    }
-
-    // add event handler
-    for (const key in defaults) {
-        if (defaults[key].onChange !== undefined) {
-            const id = prefix + ucFirst(key) + 'Input';
-            document.getElementById(id).addEventListener('change', function(event) {
-                // @ts-ignore
-                window[defaults[key].onChange](event);
-            }, false);
-        }
-    }
 
     //set featWhence feature detection for default actions
-    for (const sel of ['SettingClickQuickPlayInput', 'SettingClickFilesystemPlaylistInput',
-        'SettingClickPlaylistInput', 'SettingClickSongInput',
-        'SettingClickRadioFavoritesInput', 'SettingClickRadiobrowserInput'])
+    for (const sel of ['modalSettingsClickQuickPlayInput', 'modalSettingsClickFilesystemPlaylistInput',
+        'modalSettingsClickPlaylistInput', 'modalSettingsClickSongInput',
+        'modalSettingsClickRadioFavoritesInput', 'modalSettingsClickRadiobrowserInput'])
     {
         const options = document.querySelectorAll('#' + sel + ' > option');
         for (const opt of options) {
@@ -410,9 +276,9 @@ function saveSettings(closeModal) {
 
     const settingsParams = {};
     settingsParams.webuiSettings = {};
-    if (formToJson(settingsParams, settingsFields) === true &&
-        formToJson(settingsParams.webuiSettings, settingsWebuiFields) === true &&
-        formToJson(localSettings, settingsLocalFields) === true)
+    if (formToJson('modalSettings', settingsParams, settingsFields) === true &&
+        formToJson('modalSettings', settingsParams.webuiSettings, settingsWebuiFields) === true &&
+        formToJson('modalSettings', localSettings, settingsLocalFields) === true)
     {
         if (saveLocalSettings() === false) {
             saveSettingsClose({"error": {"message": "Can not save browser specific settings to localStorage"}});
@@ -421,10 +287,10 @@ function saveSettings(closeModal) {
         // from hours to seconds
         settingsParams.smartplsInterval = settingsParams.smartplsInterval * 60 * 60;
         // manual fields
-        settingsParams.smartplsGenerateTagList = getTagMultiSelectValues(document.getElementById('SettingGeneratePlsTagsList'), false);
-        settingsParams.tagList = getTagMultiSelectValues(document.getElementById('SettingEnabledTagsList'), false);
-        settingsParams.tagListSearch = getTagMultiSelectValues(document.getElementById('SettingSearchTagsList'), false);
-        settingsParams.tagListBrowse = getTagMultiSelectValues(document.getElementById('SettingBrowseTagsList'), false);
+        settingsParams.smartplsGenerateTagList = getTagMultiSelectValues(document.getElementById('modalSettingsGeneratePlsTagsList'), false);
+        settingsParams.tagList = getTagMultiSelectValues(document.getElementById('modalSettingsEnabledTagsList'), false);
+        settingsParams.tagListSearch = getTagMultiSelectValues(document.getElementById('modalSettingsSearchTagsList'), false);
+        settingsParams.tagListBrowse = getTagMultiSelectValues(document.getElementById('modalSettingsBrowseTagsList'), false);
 
         if (closeModal === true) {
             sendAPIpartition('default', 'MYMPD_API_SETTINGS_SET', settingsParams, saveSettingsClose, true);
@@ -442,7 +308,7 @@ function saveSettings(closeModal) {
  */
 function saveSettingsClose(obj) {
     if (obj.error) {
-        if (highlightInvalidInput('Setting', obj) === false) {
+        if (highlightInvalidInput('modalSettings', obj) === false) {
             showModalAlert(obj);
         }
     }
@@ -458,7 +324,7 @@ function saveSettingsClose(obj) {
  */
 function saveSettingsApply(obj) {
     if (obj.error) {
-        if (highlightInvalidInput('Setting', obj) === false) {
+        if (highlightInvalidInput('modalSettings', obj) === false) {
             showModalAlert(obj);
         }
     }
@@ -474,7 +340,7 @@ function saveSettingsApply(obj) {
  */
 function savePartitionSettings(closeModal) {
     const settingsParams = {};
-    if (formToJson(settingsParams, settingsPartitionFields) === true) {
+    if (formToJson('modalSettings', settingsParams, settingsPartitionFields) === true) {
         if (closeModal === true) {
             sendAPI('MYMPD_API_PARTITION_SAVE', settingsParams, savePartitionSettingsClose, true);
         }
@@ -491,12 +357,12 @@ function savePartitionSettings(closeModal) {
  */
 function savePartitionSettingsApply(obj) {
     if (obj.error) {
-        if (highlightInvalidInput('Setting', obj) === false) {
+        if (highlightInvalidInput('modalSettings', obj) === false) {
             showModalAlert(obj);
         }
     }
     else {
-        btnWaiting(document.getElementById('btnApplySettings'), true);
+        btnWaitingId('modalSettingsApplyBtn', true);
         getSettings();
     }
 }
@@ -508,7 +374,7 @@ function savePartitionSettingsApply(obj) {
  */
 function savePartitionSettingsClose(obj) {
     if (obj.error) {
-        if (highlightInvalidInput('Setting', obj) === false) {
+        if (highlightInvalidInput('modalSettings', obj) === false) {
             showModalAlert(obj);
         }
     }
@@ -625,19 +491,19 @@ function toggleBtnNotifyWeb(event) {
     if (notifyWebState === true) {
         toggleBtnChk(btnNotifyWeb, false);
         settings.webuiSettings.notifyWeb = false;
-        elHideId('SettingNotifyWebWarn');
+        elHideId('modalSettingsNotifyWebWarn');
         return;
     }
     Notification.requestPermission(function (permission) {
         if (permission === 'granted') {
             toggleBtnChk(btnNotifyWeb, true);
             settings.webuiSettings.notifyWeb = true;
-            elHideId('SettingNotifyWebWarn');
+            elHideId('modalSettingsNotifyWebWarn');
         }
         else {
             toggleBtnChk(btnNotifyWeb, false);
             settings.webuiSettings.notifyWeb = false;
-            elShowId('SettingNotifyWebWarn');
+            elShowId('modalSettingsNotifyWebWarn');
         }
     });
 }
@@ -648,7 +514,7 @@ function toggleBtnNotifyWeb(event) {
  * @returns {void}
  */
 function warnLocale(value) {
-    const warnEl = document.getElementById('SettingMissingPhrasesWarn');
+    const warnEl = document.getElementById('modalSettingsMissingPhrasesWarn');
     elClear(warnEl);
     if (i18n[value].missingPhrases > 0) {
         warnEl.appendChild(

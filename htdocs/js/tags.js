@@ -143,7 +143,7 @@ function addTagListSelect(elId, list) {
     const select = document.getElementById(elId);
     elClear(select);
     if (elId === 'saveSmartPlaylistSort' ||
-        elId === 'SettingSmartplsSortInput')
+        elId === 'modalSettingsSmartplsSortInput')
     {
         select.appendChild(
             elCreateTextTn('option', {"value": ""}, 'Disabled')

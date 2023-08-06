@@ -287,7 +287,7 @@ function parseSettings(obj) {
 
     //finished parse setting, set ui state
     toggleUI();
-    btnWaiting(document.getElementById('btnApplySettings'), false);
+    btnWaitingId('modalSettingsApplyBtn', false);
     applyFeatures();
     settingsParsed = 'parsed';
     myMPDready = true;
@@ -520,43 +520,4 @@ function resetLocalSettings() {
     for (const key in localSettings) {
         localStorage.removeItem(key);
     }
-}
-
-/**
- * Populates the settings json from input elements
- * @param {object} settingsParams settings object to populate
- * @param {object} defaults settingsFields object
- * @returns {boolean} true on success, else false
- */
-function formToJson(settingsParams, defaults) {
-    for (const key in defaults) {
-        if (defaults[key].inputType === 'none') {
-            continue;
-        }
-        const id = 'Setting' + ucFirst(key) + 'Input';
-        const el = document.getElementById(id);
-        if (el) {
-            const value = defaults[key].inputType === 'select'
-                ? getSelectValue(el)
-                : defaults[key].inputType === 'mympd-select-search'
-                    ? getData(el, 'value')
-                    : defaults[key].inputType === 'checkbox'
-                        ? getBtnChkValue(el)
-                        : el.value;
-            if (defaults[key].validate !== undefined) {
-                const func = getFunctionByName(defaults[key].validate.cmd);
-                if (func(el, ... defaults[key].validate.options) === false) {
-                    return false;
-                }
-            }
-            settingsParams[key] = defaults[key].contentType === 'number'
-                ? Number(value)
-                : value;
-        }
-        else {
-            logError('Element not found: ' + id);
-            return false;
-        }
-    }
-    return true;
 }

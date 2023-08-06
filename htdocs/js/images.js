@@ -19,15 +19,6 @@ function getCssImageUri(uri) {
 }
 
 /**
- * Gets the background images list and populates the select element
- * @returns {void}
- */
-function getBgImageList() {
-    const list = document.getElementById('SettingBgImageInput');
-    getImageList(list, bgImageValues, 'backgrounds');
-}
-
-/**
  * Gets the list of images and populates the select element
  * @param {string} selectId id of select to populate
  * @param {object} addOptions additional options to add

@@ -1405,68 +1405,68 @@
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link active" href="#tabGeneralSettings" data-bs-toggle="tab" data-height="true" data-phrase="General"></a>
+              <a class="nav-link active" href="#modalSettingsGeneralTab" data-bs-toggle="tab" data-height="true" data-phrase="General"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#tabInterfaceSettings" data-bs-toggle="tab" data-height="true" data-phrase="Appearance"></a>
+              <a class="nav-link" href="#modalSettingsAppearanceTab" data-bs-toggle="tab" data-height="true" data-phrase="Appearance"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#tabEnableFeatures" data-bs-toggle="tab" data-height="true" data-phrase="Features"></a>
+              <a class="nav-link" href="#modalSettingsFeaturesTab" data-bs-toggle="tab" data-height="true" data-phrase="Features"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#tabNotificationSettings" data-bs-toggle="tab" data-height="true" data-phrase="Notifications"></a>
+              <a class="nav-link" href="#modalSettingsNotificationTab" data-bs-toggle="tab" data-height="true" data-phrase="Notifications"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#tabAdvancedSettings" data-bs-toggle="tab" data-height="true" data-phrase="Advanced"></a>
+              <a class="nav-link" href="#modalSettingsAdvancedTab" data-bs-toggle="tab" data-height="true" data-phrase="Advanced"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#tabCloudSettings" data-bs-toggle="tab" data-height="true" data-phrase="Cloud"></a>
+              <a class="nav-link" href="#modalSettingsCloudTab" data-bs-toggle="tab" data-height="true" data-phrase="Cloud"></a>
             </li>
           </ul>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div class="tab-content">
-            <div class="tab-pane active" id="tabGeneralSettings">
+            <div class="tab-pane active" id="modalSettingsGeneralTab">
               <h4 data-phrase="Startup"></h4>
-              <div id="settingsStartupFrm"></div>
+              <div id="modalSettingsStartupFrm"></div>
               <hr/>
               <div class="featTags">
                 <h4 data-phrase="Tags"></h4>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="SettingEnabledTagsBtn" data-phrase="Tags to use"></label>
+                  <label class="col-sm-4 col-form-label" for="modalSettingsEnabledTagsBtn" data-phrase="Tags to use"></label>
                   <div class="col-sm-8">
                     <div class="input-group">
-                      <input class="form-control" id="SettingEnabledTagsInput" readonly="readonly"/>
+                      <input class="form-control" id="modalSettingsEnabledTagsInput" readonly="readonly"/>
                       <div class="btn-group">
-                        <button id="SettingEnabledTagsBtn" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
-                        <div id="SettingEnabledTagsList" class="dropdown-menu px-2"></div>
+                        <button id="modalSettingsEnabledTagsBtn" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
+                        <div id="modalSettingsEnabledTagsList" class="dropdown-menu px-2"></div>
                       </div>
                     </div>
                     <small class="help" data-phrase="helpSettingsTagsToUse"></small>
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="SettingSearchTagsBtn" data-phrase="Tags to search"></label>
+                  <label class="col-sm-4 col-form-label" for="modalSettingsSearchTagsBtn" data-phrase="Tags to search"></label>
                   <div class="col-sm-8">
                     <div class="input-group">
-                      <input class="form-control" id="SettingSearchTagsInput" readonly="readonly"/>
+                      <input class="form-control" id="modalSettingsSearchTagsInput" readonly="readonly"/>
                       <div class="btn-group">
-                        <button id="SettingSearchTagsBtn" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
-                        <div id="SettingSearchTagsList" class="dropdown-menu px-2"></div>
+                        <button id="modalSettingsSearchTagsBtn" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
+                        <div id="modalSettingsSearchTagsList" class="dropdown-menu px-2"></div>
                       </div>
                     </div>
                     <small class="help" data-phrase="helpSettingsSearchTags"></small>
                   </div>
                 </div>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="SettingBrowseTagsBtn" data-phrase="Tags to browse"></label>
+                  <label class="col-sm-4 col-form-label" for="modalSettingsBrowseTagsBtn" data-phrase="Tags to browse"></label>
                   <div class="col-sm-8">
                     <div class="input-group">
-                      <input class="form-control" id="SettingBrowseTagsInput" readonly="readonly"/>
+                      <input class="form-control" id="modalSettingsBrowseTagsInput" readonly="readonly"/>
                       <div class="btn-group">
-                        <button id="SettingBrowseTagsBtn" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
-                        <div id="SettingBrowseTagsList" class="dropdown-menu px-2"></div>
+                        <button id="modalSettingsBrowseTagsBtn" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
+                        <div id="modalSettingsBrowseTagsList" class="dropdown-menu px-2"></div>
                       </div>
                     </div>
                     <small class="help" data-phrase="helpSettingsBrowseTags"></small>
@@ -1476,42 +1476,42 @@
               <hr/>
               <h4 data-phrase="Albumart"></h4>
               <div class="alert alert-warning notfeatLibrary" data-phrase="Music directory not available"></div>
-              <div id="settingsAlbumartFrm1"></div>
-              <div id="settingsAlbumartFrm2"></div>
+              <div id="modalSettingsAlbumartFrm1"></div>
+              <div id="modalSettingsAlbumartFrm2"></div>
               <hr/>
               <h4 data-phrase="Statistics"></h4>
-              <div id="settingsStatisticsFrm"></div>
+              <div id="modalSettingsStatisticsFrm"></div>
               <div class="featSmartpls">
                 <hr/>
                 <h4 data-phrase="Smart playlists"></h4>
-                <div id="SettingSmartplsWarn" class="alert alert-warning d-none" data-phrase="MPD does not support playlists"></div>
+                <div id="modalSettingsSmartplsWarn" class="alert alert-warning d-none" data-phrase="MPD does not support playlists"></div>
                 <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="SettingSmartplsInput" data-phrase="Smart playlists"></label>
+                  <label class="col-sm-4 col-form-label" for="modalSettingsSmartplsInput" data-phrase="Smart playlists"></label>
                   <div class="col-sm-8 ">
-                    <button id="SettingSmartplsInput" data-bs-toggle="collapse" data-bs-target="#SettingSmartplsCollapse" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi"></button>
+                    <button id="modalSettingsSmartplsInput" data-bs-toggle="collapse" data-bs-target="#modalSettingsSmartplsCollapse" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi"></button>
                   </div>
                 </div>
-                <div class="collapse" id="SettingSmartplsCollapse">
+                <div class="collapse" id="modalSettingsSmartplsCollapse">
                   <div class="mb-3 row featTags">
-                    <label class="col-sm-4 col-form-label" for="SettingGeneratePlsTagsBtn" data-phrase="Generate smart playlist per"></label>
+                    <label class="col-sm-4 col-form-label" for="modalSettingsGeneratePlsTagsBtn" data-phrase="Generate smart playlist per"></label>
                     <div class="col-sm-8">
                       <div class="input-group">
-                        <input class="form-control" id="SettingGeneratePlsTagsInput" readonly="readonly"/>
+                        <input class="form-control" id="modalSettingsGeneratePlsTagsInput" readonly="readonly"/>
                         <div class="btn-group">
-                          <button id="SettingGeneratePlsTagsBtn" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
-                          <div id="SettingGeneratePlsTagsList" class="dropdown-menu px-2"></div>
+                          <button id="modalSettingsGeneratePlsTagsBtn" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
+                          <div id="modalSettingsGeneratePlsTagsList" class="dropdown-menu px-2"></div>
                         </div>
                       </div>
                       <small class="help" data-phrase="helpSettingsGeneratePlsTags"></small>
                     </div>
                   </div>
-                  <div id="settingsSmartplsFrm"></div>
+                  <div id="modalSettingsSmartplsFrm"></div>
                   <div class="mb-3 row">
-                    <label class="col-sm-4 col-form-label" for="SettingSmartplsIntervalInput" data-phrase="Update interval"></label>
+                    <label class="col-sm-4 col-form-label" for="modalSettingsSmartplsIntervalInput" data-phrase="Update interval"></label>
                     <div class="col-sm-8">
                       <div class="input-group">
                         <div class="flex-grow-1 position-relative">
-                          <input data-is="mympd-input-reset" id="SettingSmartplsIntervalInput" class="form-control rounded" placeholder="4"/>
+                          <input data-is="mympd-input-reset" id="modalSettingsSmartplsIntervalInput" class="form-control rounded" placeholder="4"/>
                         </div>
                         <span class="input-group-text-nobg" data-phrase="Hours"></span>
                         <div class="invalid-feedback" data-phrase="Invalid number"></div>
@@ -1521,84 +1521,84 @@
                 </div>
               </div>
             </div>
-            <div class="tab-pane" id="tabInterfaceSettings">
+            <div class="tab-pane" id="modalSettingsAppearanceTab">
               <h4 data-phrase="Locale"></h4>
-              <div id="settingsLocaleFrm"></div>
-              <div id="SettingMissingPhrasesWarn" class="alert alert-warning d-none mt-2"></div>
+              <div id="modalSettingsLocaleFrm"></div>
+              <div id="modalSettingsMissingPhrasesWarn" class="alert alert-warning d-none mt-2"></div>
               <hr/>
               <h4 data-phrase="Theme"></h4>
-              <div id="settingsThemeFrm1"></div>
-              <div id="settingsThemeFrm2"></div>
-              <div id="settingsThemeFrm3"></div>
+              <div id="modalSettingsThemeFrm1"></div>
+              <div id="modalSettingsThemeFrm2"></div>
+              <div id="modalSettingsThemeFrm3"></div>
               <hr/>
               <h4 data-phrase="Background"></h4>
-              <div id="settingsBgFrm"></div>
+              <div id="modalSettingsBgFrm"></div>
               <hr/>
               <h4 data-phrase="Navigation bar"></h4>
-              <div id="settingsNavigationBarFrm"></div>
+              <div id="modalSettingsNavigationBarFrm"></div>
               <hr/>
               <h4 data-phrase="Footer"></h4>
-              <div id="settingsFooterFrm"></div>
+              <div id="modalSettingsFooterFrm"></div>
               <hr/>
               <h4 data-phrase="Lists"></h4>
-              <div id="settingsListsFrm"></div>
+              <div id="modalSettingsListsFrm"></div>
             </div>
-            <div class="tab-pane" id="tabNotificationSettings">
+            <div class="tab-pane" id="modalSettingsNotificationTab">
               <h4 data-phrase="Notifications"></h4>
-              <div id="settingsNotificationsFrm"></div>
-              <div id="SettingNotifyWebWarn" class="alert alert-warning d-none" data-phrase="Web notifications are blocked by the browser"></div>
+              <div id="modalSettingsNotificationsFrm"></div>
+              <div id="modalSettingsNotifyWebWarn" class="alert alert-warning d-none" data-phrase="Web notifications are blocked by the browser"></div>
               <hr/>
               <h4 data-phrase="Facilities"></h4>
-              <div id="settingsFacilitiesFrm"></div>
+              <div id="modalSettingsFacilitiesFrm"></div>
             </div>
-            <div class="tab-pane" id="tabEnableFeatures">
+            <div class="tab-pane" id="modalSettingsFeaturesTab">
               <h4 data-phrase="Lyrics"></h4>
               <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="SettingEnableLyricsInput" data-phrase="Enable"></label>
+                <label class="col-sm-4 col-form-label" for="SettingsEnableLyricsInput" data-phrase="Enable"></label>
                 <div class="col-sm-8 ">
-                  <button id="SettingEnableLyricsInput" data-bs-toggle="collapse" data-bs-target="#SettingLyricsCollapse" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi"></button>
+                  <button id="modalSettingsEnableLyricsInput" data-bs-toggle="collapse" data-bs-target="#modalSettingsLyricsCollapse" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi"></button>
                   <small class="help" data-phrase="helpSettingsEnableLyrics"></small>
                 </div>
               </div>
-              <div class="collapse" id="SettingLyricsCollapse"></div>
-              <div id="SettingEnableLyricsInputWarn" class="alert alert-warning" data-phrase="Music directory not available"></div>
+              <div class="collapse" id="modalSettingsLyricsCollapse"></div>
+              <div id="modalSettingsEnableLyricsInputWarn" class="alert alert-warning" data-phrase="Music directory not available"></div>
               <hr/>
               <h4 data-phrase="Local playback"></h4>
               <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="SettingEnableLocalPlaybackInput" data-phrase="Enable"></label>
+                <label class="col-sm-4 col-form-label" for="modalSettingsEnableLocalPlaybackInput" data-phrase="Enable"></label>
                 <div class="col-sm-8 ">
-                  <button id="SettingEnableLocalPlaybackInput" data-bs-toggle="collapse" data-bs-target="#SettingLocalPlaybackCollapse" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi"></button>
+                  <button id="modalSettingsEnableLocalPlaybackInput" data-bs-toggle="collapse" data-bs-target="#modalSettingsLocalPlaybackCollapse" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi"></button>
                   <small class="help" data-phrase="helpSettingsEnableLocalPlayback"></small>
                 </div>
               </div>
-              <div class="collapse" id="SettingLocalPlaybackCollapse"></div>
+              <div class="collapse" id="modalSettingsLocalPlaybackCollapse"></div>
               <hr/>
               <h4 data-phrase="Further Features"></h4>
-              <div id="settingsFurtherFeaturesFrm"></div>
+              <div id="modalSettingsFurtherFeaturesFrm"></div>
             </div>
-            <div class="tab-pane" id="tabAdvancedSettings">
+            <div class="tab-pane" id="modalSettingsAdvancedTab">
               <h4 data-phrase="Default actions"></h4>
-              <div id="settingsDefaultActionsFrm"></div>
+              <div id="modalSettingsDefaultActionsFrm"></div>
               <hr/>
               <h4 data-phrase="Volume control"></h4>
-              <div id="settingsVolumeFrm"></div>
+              <div id="modalSettingsVolumeFrm"></div>
               <div class="featLibrary">
                 <hr/>
                 <h4 data-phrase="Booklet"></h4>
-                <div id="settingsBookletFrm"></div>
+                <div id="modalSettingsBookletFrm"></div>
               </div>
             </div>
-            <div class="tab-pane" id="tabCloudSettings">
+            <div class="tab-pane" id="modalSettingsCloudTab">
               <h4 data-phrase="Cloud"></h4>
-              <div id="settingsCloudFrm1"></div>
-              <div id="settingsCloudFrm2"></div>
+              <div id="modalSettingsCloudFrm1"></div>
+              <div id="modalSettingsCloudFrm2"></div>
             </div>
           </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <div>
-            <button id="btnApplySettings" type="button" class="btn btn-success me-2 protected" data-href='{"cmd": "saveSettings", "options": [false]}' data-phrase="Apply"></button>
+            <button id="modalSettingsApplyBtn" type="button" class="btn btn-success me-2 protected" data-href='{"cmd": "saveSettings", "options": [false]}' data-phrase="Apply"></button>
             <button type="button" class="btn btn-success protected" data-href='{"cmd": "saveSettings", "options": [true]}' data-phrase="Save"></button>
           </div>
         </div>
@@ -3098,6 +3098,7 @@
 <!--debug-->  <script src="js/customElements.js"></script>
 <!--debug-->  <script src="js/elements.js"></script>
 <!--debug-->  <script src="js/features.js"></script>
+<!--debug-->  <script src="js/forms.js"></script>
 <!--debug-->  <script src="js/globales.js"></script>
 <!--debug-->  <script src="js/grid.js"></script>
 <!--debug-->  <script src="js/home.js"></script>
