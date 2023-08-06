@@ -1037,14 +1037,15 @@ check_phrases() {
   done
 }
 
-# Create an JavaScript object from compile_time.h
+# Create an JavaScript object from compile_time.h.in
 # This is used to define global defaults.
 create_js_defines() {
   printf "const defaults = " > "$STARTPATH/htdocs/js/defines.js"
   {
     I=0
     printf "{"
-    sed -E -z -e 's/"\\\n\s+"//g' -e 's/MPD_TAG_ARTIST/"Artist"/' "$MYMPD_BUILDDIR/compile_time.h" \
+    sed -E -z -e 's/"\\\n\s+"//g' -e 's/MPD_TAG_ARTIST/"Artist"/' "$STARTPATH/src/compile_time.h.in" \
+      | grep -v '\$' \
       | awk '/^#define (MYMPD|PARTITION)_\w+ / {print $2"|"$3}' \
       | while IFS="|" read -r KEY VALUE
       do
