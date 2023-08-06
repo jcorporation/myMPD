@@ -182,6 +182,6 @@ close $docfile;
 #check for obsolet translations
 for my $key (sort keys %$i18n) {
     if (not defined($phrases->{$key})) {
-        warn "Obsolet translation \"".$key."\" for lang ".join(", ", keys %{$i18n->{$key}})."\n" if $verbose eq 1;
+        warn "Obsolete translation \"".$key."\" for lang ".join(", ", keys %{$i18n->{$key}})."\n" if $verbose eq 1;
     }
 }

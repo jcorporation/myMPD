@@ -1476,12 +1476,11 @@
               <hr/>
               <h4 data-phrase="Albumart"></h4>
               <div class="alert alert-warning notfeatLibrary" data-phrase="Music directory not available"></div>
-              <div id="modalSettingsAlbumartFrm1"></div>
-              <div id="modalSettingsAlbumartFrm2"></div>
+              <div id="modalSettingsAlbumartFrm"></div>
               <hr/>
               <h4 data-phrase="Statistics"></h4>
               <div id="modalSettingsStatisticsFrm"></div>
-              <div class="featSmartpls">
+              <div class="featSmartplsAvailable">
                 <hr/>
                 <h4 data-phrase="Smart playlists"></h4>
                 <div id="modalSettingsSmartplsWarn" class="alert alert-warning d-none" data-phrase="MPD does not support playlists"></div>
@@ -1492,7 +1491,7 @@
                   </div>
                 </div>
                 <div class="collapse" id="modalSettingsSmartplsCollapse">
-                  <div class="mb-3 row featTags">
+                  <div class="mb-3 row">
                     <label class="col-sm-4 col-form-label" for="modalSettingsGeneratePlsTagsBtn" data-phrase="Generate smart playlist per"></label>
                     <div class="col-sm-8">
                       <div class="input-group">
@@ -1506,18 +1505,6 @@
                     </div>
                   </div>
                   <div id="modalSettingsSmartplsFrm"></div>
-                  <div class="mb-3 row">
-                    <label class="col-sm-4 col-form-label" for="modalSettingsSmartplsIntervalInput" data-phrase="Update interval"></label>
-                    <div class="col-sm-8">
-                      <div class="input-group">
-                        <div class="flex-grow-1 position-relative">
-                          <input data-is="mympd-input-reset" id="modalSettingsSmartplsIntervalInput" class="form-control rounded" placeholder="4"/>
-                        </div>
-                        <span class="input-group-text-nobg" data-phrase="Hours"></span>
-                        <div class="invalid-feedback" data-phrase="Invalid number"></div>
-                      </div>
-                    </div>
-                  </div>
                 </div>
               </div>
             </div>
@@ -1590,8 +1577,7 @@
             </div>
             <div class="tab-pane" id="modalSettingsCloudTab">
               <h4 data-phrase="Cloud"></h4>
-              <div id="modalSettingsCloudFrm1"></div>
-              <div id="modalSettingsCloudFrm2"></div>
+              <div id="modalSettingsCloudFrm"></div>
             </div>
           </div>
         </div>

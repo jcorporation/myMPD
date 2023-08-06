@@ -147,6 +147,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_SMARTPLS_SORT ""
 #define MYMPD_SMARTPLS_PREFIX "myMPDsmart"
 #define MYMPD_SMARTPLS_INTERVAL 14400 //seconds - 4 hours
+#define MYMPD_SMARTPLS_INTERVAL_HOURS 4 //hours
 #define MYMPD_BOOKLET_NAME "booklet.pdf"
 #define MYMPD_AUTO_PLAY false
 #define MYMPD_COLS_QUEUE_CURRENT "[\"Pos\",\"Title\",\"Artist\",\"Album\",\"Duration\"]"

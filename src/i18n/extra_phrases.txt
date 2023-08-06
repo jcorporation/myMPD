@@ -303,3 +303,6 @@ helpSettingsStreamUri
 helpSettingsThumbnailNames
 Must be a number between 1 and 25
 Must be a number between 0 and 100
+Invalid number
+Update interval
+helpSettingsSmartplsInterval

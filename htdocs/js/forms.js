@@ -9,31 +9,31 @@
  * Populates the settings json from input elements
  * @param {string} prefix for element ids
  * @param {object} settingsParams settings object to populate
- * @param {object} defaults settingsFields object
+ * @param {object} defaultFields settingsFields object
  * @returns {boolean} true on success, else false
  */
-function formToJson(prefix, settingsParams, defaults) {
-    for (const key in defaults) {
-        if (defaults[key].inputType === 'none') {
+function formToJson(prefix, settingsParams, defaultFields) {
+    for (const key in defaultFields) {
+        if (defaultFields[key].inputType === 'none') {
             continue;
         }
         const id = prefix + ucFirst(key) + 'Input';
         const el = document.getElementById(id);
         if (el) {
-            const value = defaults[key].inputType === 'select'
+            const value = defaultFields[key].inputType === 'select'
                 ? getSelectValue(el)
-                : defaults[key].inputType === 'mympd-select-search'
+                : defaultFields[key].inputType === 'mympd-select-search'
                     ? getData(el, 'value')
-                    : defaults[key].inputType === 'checkbox'
+                    : defaultFields[key].inputType === 'checkbox'
                         ? getBtnChkValue(el)
                         : el.value;
-            if (defaults[key].validate !== undefined) {
-                const func = getFunctionByName(defaults[key].validate.cmd);
-                if (func(el, ... defaults[key].validate.options) === false) {
+            if (defaultFields[key].validate !== undefined) {
+                const func = getFunctionByName(defaultFields[key].validate.cmd);
+                if (func(el, ... defaultFields[key].validate.options) === false) {
                     return false;
                 }
             }
-            settingsParams[key] = defaults[key].contentType === 'number'
+            settingsParams[key] = defaultFields[key].contentType === 'number'
                 ? Number(value)
                 : value;
         }
@@ -47,126 +47,148 @@ function formToJson(prefix, settingsParams, defaults) {
 
 /**
  * Creates form fields
- * @param {object} fields object with the values for the elements to create
- * @param {object} defaults object with elements to create and the default values
+ * @param {object} settingsFields object with the values for the elements to create
+ * @param {object} defaultFields object with elements to create and the default values
  * @param {string} prefix prefix for element ids
  * @param {object} forms cache for the form field containers
  * @returns {void}
  */
-function createFrm(fields, defaults, prefix, forms) {
+function createFrm(settingsFields, defaultFields, prefix, forms) {
     // iterate through sorted keys
-    const settingsKeys = Object.keys(defaults);
-    settingsKeys.sort();
+    const settingsKeys = Object.keys(defaultFields);
+    settingsKeys.sort(function(a, b) {
+        return defaultFields[a].sort - defaultFields[b].sort;
+    });
     for (let i = 0, j = settingsKeys.length; i < j; i++) {
         const key = settingsKeys[i];
         // check if we should add a field
-        if (defaults[key] === undefined ||
-            defaults[key].form === undefined ||
-            defaults[key].inputType === 'none')
+        if (defaultFields[key] === undefined ||
+            defaultFields[key].form === undefined ||
+            defaultFields[key].inputType === 'none')
         {
             continue;
         }
         // calculate a camelCase id
         const id = prefix + ucFirst(key) + 'Input';
         // get the container
-        const form = defaults[key].form;
+        const form = defaultFields[key].form;
         if (forms[form] === undefined) {
             forms[form] = document.getElementById(form);
             // clear the container if it was not cached
             elClear(forms[form]);
         }
         // create the form field
-        const col = elCreateEmpty('div', {"class": ["col-sm-8", "position-relative"]});
-        if (defaults[key].inputType === 'select') {
+        const col = elCreateNode('div', {"class": ["col-sm-8", "position-relative"]},
+            elCreateNode('div', {"class": ["input-group"]},
+                elCreateEmpty('div', {"class": ["flex-grow-1", "position-relative"]})
+            )
+        );
+        if (defaultFields[key].inputType === 'select') {
+            // simple select
             const select = elCreateEmpty('select', {"class": ["form-select"], "id": id});
-            for (const value in defaults[key].validValues) {
+            for (const value in defaultFields[key].validValues) {
                 select.appendChild(
-                    elCreateTextTn('option', {"value": value}, defaults[key].validValues[value])
+                    elCreateTextTn('option', {"value": value}, defaultFields[key].validValues[value])
                 );
-                if ((defaults[key].contentType === 'integer' && fields[key] === Number(value)) ||
-                    fields[key] === value)
+                if ((defaultFields[key].contentType === 'integer' && settingsFields[key] === Number(value)) ||
+                    settingsFields[key] === value)
                 {
                     select.lastChild.setAttribute('selected', 'selected');
                 }
             }
-            col.appendChild(select);
+            col.firstChild.firstChild.appendChild(select);
         }
-        else if (defaults[key].inputType === 'mympd-select-search') {
+        else if (defaultFields[key].inputType === 'mympd-select-search') {
+            // searchable select
             const input = elCreateEmpty('input', {"class": ["form-select"], "id": id});
-            setData(input, 'cb-filter', defaults[key].cbCallback);
+            setData(input, 'cb-filter', defaultFields[key].cbCallback);
             setData(input, 'cb-filter-options', [id + 'Input']);
             input.setAttribute('data-is', 'mympd-select-search');
-            col.classList.add('position-relative');
-            const btnGrp = elCreateNode('div', {"class": ["btn-group", "d-flex"]}, input);
-            col.appendChild(btnGrp);
+            col.firstChild.firstChild.appendChild(
+                elCreateNode('div', {"class": ["btn-group", "d-flex"]}, input)
+            );
         }
-        else if (defaults[key].inputType === 'checkbox') {
+        else if (defaultFields[key].inputType === 'checkbox') {
+            // checkbox
             const btn = elCreateEmpty('button', {"type": "button", "id": id, "class": ["btn", "btn-sm", "btn-secondary", "mi", "chkBtn"]});
-            if (fields[key] === true) {
+            if (settingsFields[key] === true) {
                 btn.classList.add('active');
                 btn.textContent = 'check';
             }
             else {
                 btn.textContent = 'radio_button_unchecked';
             }
-            if (defaults[key].onClick !== undefined) {
+            if (defaultFields[key].onClick !== undefined) {
+                // custom click handler
                 btn.addEventListener('click', function(event) {
                     // @ts-ignore
-                    window[defaults[key].onClick](event);
+                    window[defaultFields[key].onClick](event);
                 }, false);
             }
             else {
+                // default click handler
                 btn.addEventListener('click', function(event) {
                     toggleBtnChk(event.target, undefined);
                 }, false);
             }
-            col.appendChild(btn);
+            col.firstChild.firstChild.appendChild(btn);
         }
-        else if (defaults[key].inputType === 'password') {
-            const input = elCreateEmpty('input', {"is": "mympd-input-password", "id": id,
-                "value": fields[key], "class": ["form-control"], "type": "password"});
-            col.appendChild(input);
+        else if (defaultFields[key].inputType === 'password') {
+            // password field
+            col.firstChild.firstChild.appendChild(
+                elCreateEmpty('input', {"is": "mympd-input-password", "id": id,
+                    "value": settingsFields[key], "class": ["form-control"], "type": "password"})
+            );
         }
         else {
-            const it = defaults[key].inputType === 'color'
+            // text and color inputs with reset to default button
+            const inputType = defaultFields[key].inputType === 'color'
                 ? 'color'
                 : 'text';
-            const placeholder = defaults[key].placeholder !== undefined
-                ? defaults[key].placeholder
-                : defaults[key].defaultValue;
-            const input = elCreateEmpty('input', {"is": "mympd-input-reset", "id": id, "data-default": defaults[key].defaultValue,
-                "placeholder": placeholder, "value": fields[key], "class": ["form-control"], "type": it});
-            col.appendChild(input);
+            const placeholder = defaultFields[key].placeholder !== undefined
+                ? defaultFields[key].placeholder
+                : defaultFields[key].defaultValue;
+            col.firstChild.firstChild.appendChild(
+                elCreateEmpty('input', {"is": "mympd-input-reset", "id": id, "data-default": defaultFields[key].defaultValue,
+                    "placeholder": placeholder, "value": settingsFields[key], "class": ["form-control"], "type": inputType})
+            );
+        }
+        // unit
+        if (defaultFields[key].unit !== undefined) {
+            col.firstChild.appendChild(
+                elCreateTextTn('span', {"class": ["input-group-text-nobg"]}, defaultFields[key].unit)
+            );
         }
         // invalid feedback element for local validation
-        if (defaults[key].invalid !== undefined) {
-            col.appendChild(
-                elCreateTextTn('div', {"class": ["invalid-feedback"]}, defaults[key].invalid)
+        if (defaultFields[key].invalid !== undefined) {
+            col.firstChild.appendChild(
+                elCreateTextTn('div', {"class": ["invalid-feedback"]}, defaultFields[key].invalid)
             );
         }
         // warning element
-        if (defaults[key].warn !== undefined) {
+        if (defaultFields[key].warn !== undefined) {
             col.appendChild(
-                elCreateTextTn('div', {"id": id + 'Warn', "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"]}, defaults[key].warn)
+                elCreateTextTn('div', {"id": id + 'Warn', "class": ["mt-2", "mb-1", "alert", "alert-warning", "d-none"]}, defaultFields[key].warn)
             );
         }
         // help text
-        if (defaults[key].help !== undefined) {
+        if (defaultFields[key].help !== undefined) {
             col.appendChild(
-                elCreateTextTn('small', {"class": ["help"]}, defaults[key].help)
+                elCreateTextTn('small', {"class": ["help"]}, defaultFields[key].help)
             );
         }
         // create the label
-        const label = defaults[key].hint === undefined
-            ? elCreateTextTn('label', {"class": ["col-sm-4", "col-form-label"], "for": id}, defaults[key].title)
+        const label = defaultFields[key].hint === undefined
+            ? elCreateTextTn('label', {"class": ["col-sm-4", "col-form-label"], "for": id}, defaultFields[key].title)
             : elCreateNodes('label', {"class": ["col-sm-4", "col-form-label"], "for": id}, [
-                    elCreateTextTn('span', {}, defaults[key].title),
-                    elCreateText('small', {"class": ["mi", "mi-sm", "ms-1"], "title": tn("Browser specific setting"), "data-title-phrase": "Browser specific setting"}, defaults[key].hint)
+                    elCreateTextTn('span', {}, defaultFields[key].title),
+                    elCreateText('small', {"class": ["mi", "mi-sm", "ms-1"], "title": tn("Browser specific setting"),
+                        "data-title-phrase": "Browser specific setting"}, defaultFields[key].hint)
               ]);
         // create the row and append it to the form field container
         let rowClasses = ["mb-3", "row"];
-        if (defaults[key].cssClass !== undefined) {
-            rowClasses = rowClasses.concat(defaults[key].cssClass);
+        if (defaultFields[key].cssClass !== undefined) {
+            rowClasses = rowClasses.concat(defaultFields[key].cssClass);
         }
         forms[form].appendChild(
             elCreateNodes('div', {"class": rowClasses}, [
@@ -177,12 +199,12 @@ function createFrm(fields, defaults, prefix, forms) {
     }
 
     // add event handler
-    for (const key in defaults) {
-        if (defaults[key].onChange !== undefined) {
+    for (const key in defaultFields) {
+        if (defaultFields[key].onChange !== undefined) {
             const id = prefix + ucFirst(key) + 'Input';
             document.getElementById(id).addEventListener('change', function(event) {
                 // @ts-ignore
-                window[defaults[key].onChange](event);
+                window[defaultFields[key].onChange](event);
             }, false);
         }
     }

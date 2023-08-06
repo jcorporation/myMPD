@@ -138,11 +138,6 @@ function setInputReset(el) {
     const button = elCreateText('button', {"data-title-phrase": "Reset to default", "class": ["mi", "mi-sm", "input-inner-button"]}, 'settings_backup_restore');
     el.button = button;
     el.classList.add('innerButton');
-    if (el.parentNode.firstElementChild.getAttribute('type') === 'color' ||
-        el.parentNode.classList.contains('col-sm-8'))
-    {
-        el.button.style.right = '1rem';
-    }
     if (el.nextElementSibling) {
         el.parentNode.insertBefore(el.button, el.nextElementSibling);
     }

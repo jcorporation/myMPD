@@ -32,7 +32,8 @@ function setFeatures() {
         features.featNeighbors = settings.webuiSettings.enableMounts === true ? settings.features.featNeighbors : false;
         features.featPartitions = settings.webuiSettings.enablePartitions === true ? settings.features.featPartitions : false;
         features.featPlaylists = settings.features.featPlaylists;
-        features.featSmartpls = settings.features.featPlaylists === true ? settings.smartpls : false;
+        features.featSmartplsAvailable = settings.features.featPlaylists === true && settings.features.featTags === true ? settings.smartpls : false;
+        features.featSmartpls = settings.features.featPlaylists === true && settings.features.featTags === true ? settings.smartpls : false;
         features.featStickers = settings.features.featStickers;
         features.featTags = settings.features.featTags;
         features.featBinarylimit = settings.features.featBinarylimit;
