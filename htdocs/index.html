@@ -1702,6 +1702,12 @@
                   <small class="help" data-phrase="helpQueueMixrampDelay"></small>
                 </div>
               </div>
+              <div class="mb-3 row">
+                <div class="col-sm-4"></div>
+                <div class="col-sm-8">
+                  <a class="external" href="https://mpd.readthedocs.io/en/latest/user.html#mixramp" data-phrase="Mixramp documentation"></a>
+                </div>
+              </div>
             </div>
             <div class="tab-pane" id="tabJukeboxSettings">
               <div id="warnConsume" class="alert alert-warning d-none" data-phrase="Consume must be enabled"></div>
@@ -1792,75 +1798,6 @@
     </div>
   </div>
 <!-- Modal queue settings end -->
-<!-- Modal about start -->
-  <div class="modal fade" id="modalAbout" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content">
-        <div class="modal-header pb-0">
-          <ul class="nav nav-tabs border-bottom-0">
-            <li class="nav-item">
-              <a class="nav-link active alwaysEnabled" href="#tabAbout" data-bs-toggle="tab" data-height="true" data-phrase="About"></a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link alwaysEnabled" href="#tabShortcuts" data-bs-toggle="tab" data-height="true" data-phrase="Shortcuts"></a>
-            </li>
-          </ul>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-        </div>
-        <div class="modal-body">
-          <div class="tab-content">
-            <div class="tab-pane active" id="tabAbout">
-              <h4 class="mb-3">
-              <svg class="me-2" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
-                <ellipse class="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
-                <path class="logoFg" d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
-                <path class="logoFg" d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
-                <path class="logoFg" d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
-                <path class="logoFg" d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
-              </svg>myMPD</h4>
-              <ul>
-                <li><span data-phrase="Version"></span>: <span id="mympdVersion"></span></li>
-                <li><span data-phrase="License"></span>: <a class="text-success external" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/myMPD/blob/master/LICENSE.md">GPLv3</a></li>
-                <li><span data-phrase="Homepage"></span>: <a class="text-success external" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
-                <li><a target="_blank" rel="noreferrer" href="https://github.com/jcorporation/myMPD/discussions/167" class="text-success external" data-phrase="Help to improve myMPD"></a></li>
-                <li><a target="_blank" rel="noreferrer" href="https://jcorporation.github.io/myMPD/" class="text-success external" data-phrase="Documentation"></a></li>
-              </ul>
-<!--debug-->  <div class="alert alert-secondary">Running in debug mode</div>
-              <div class="table-responsive">
-                <table class="table table-sm">
-                  <tbody>
-                    <tr><td colspan="2" class="pt-3"><h5 data-phrase="Database statistics"></h5></td></tr>
-                    <tr><th data-phrase="Artists">Artists</th><td id="mpdstatsArtists"></td></tr>
-                    <tr><th data-phrase="Albums"></th><td id="mpdstatsAlbums"></td></tr>
-                    <tr><th data-phrase="Songs"></th><td id="mpdstatsSongs"></td></tr>
-                    <tr><th data-phrase="DB play time"></th><td id="mpdstatsDbPlaytime"></td></tr>
-                    <tr><th data-phrase="DB updated"></th><td id="mpdstatsDbUpdated"></td></tr>
-                    <tr><td colspan="2" class="pt-3"><h5 data-phrase="Playback statistics"></h5></td></tr>
-                    <tr><th data-phrase="myMPD uptime"></th><td id="mpdstatsMympd_uptime"></td></tr>
-                    <tr><th data-phrase="MPD uptime"></th><td id="mpdstatsUptime"></td></tr>
-                    <tr><th data-phrase="Play time"></th><td id="mpdstatsPlaytime"></td></tr>
-                    <tr><td colspan="2" class="pt-3"><h5>MPD</h5></td></tr>
-                    <tr><th data-phrase="Connection"></th><td id="mpdInfoHost"></td></tr>
-                    <tr><th data-phrase="Protocol version"></th><td id="mpdInfoVersion"></td></tr>
-                    <tr><td colspan="2" class="pt-3"><h5 data-phrase="Webserver"></h5></td></tr>
-                    <tr><th data-phrase="IP-Address"></th><td id="wsIP"></td></tr>
-                    <tr><th data-phrase="myMPD uri"></th><td id="myMPDuri"></td></tr>
-                    <tr class="featCacert"><th data-phrase="myMPD CA"></th>
-                      <td><a class="text-success download alwaysEnabled" href="ca.crt" target="_blank" data-phrase="Download"></a></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </div>
-            <div class="tab-pane" id="tabShortcuts">
-              <div id="shortcutList" class="row"></div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-<!-- Modal about end -->
 <!-- Modal connection settings start -->
   <div class="modal fade" id="modalSettingsConnection" tabindex="-1">
     <div class="modal-dialog modal-lg">
@@ -1870,101 +1807,45 @@
           <button type="button" class="btn-close alwaysEnabled" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
+          <div id="modalSettingsConnectionFrm"></div>
           <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="inputMpdHost" data-phrase="MPD host"></label>
-            <div class="col-sm-8 position-relative">
-              <input data-is="mympd-input-reset" id="inputMpdHost" class="form-control alwaysEnabled" placeholder="/run/mpd/socket"/>
-              <div class="invalid-feedback" data-phrase="Invalid MPD host"></div>
-              <small class="help" data-phrase="helpConnectionMPDHost"></small>
-            </div>
-          </div>
-          <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="inputMpdPort" data-phrase="MPD port"></label>
-            <div class="col-sm-8 position-relative">
-              <input data-is="mympd-input-reset" id="inputMpdPort" class="form-control alwaysEnabled" placeholder="6600"/>
-              <div class="invalid-feedback" data-phrase="Invalid MPD port"></div>
-              <small class="help" data-phrase="helpConnectionMPDPort"></small>
-            </div>
-          </div>
-          <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="selectMusicDirectory" data-phrase="Music directory"></label>
+            <label class="col-sm-4 col-form-label" for="modalSettingsConnectionMusicDirectorySelect" data-phrase="Music directory"></label>
             <div class="col-sm-8">
-              <select id="selectMusicDirectory" class="form-select alwaysEnabled">
+              <select id="modalSettingsConnectionMusicDirectorySelect" class="form-select alwaysEnabled">
                 <option value="auto" data-phrase="Autodetect"></option>
                 <option value="none" data-phrase="None"></option>
                 <option value="custom" data-phrase="Specify"></option>
               </select>
-              <input id="inputMusicDirectory" class="form-control mt-2 alwaysEnabled"/>
+              <input id="modalSettingsConnectionMusicDirectoryInput" class="form-control mt-2 alwaysEnabled"/>
               <div class="invalid-feedback" data-phrase="Invalid music directory"></div>
               <small class="help" data-phrase="helpConnectionMusicDirectory"></small>
             </div>
           </div>
-          <div id="warnMusicDirectory" class="alert alert-warning d-none" data-phrase="Music directory not found"></div>
+          <div id="modalSettingsConnectionMusicDirectoryWarn" class="alert alert-warning d-none" data-phrase="Music directory not found"></div>
           <hr/>
           <div class="mb-3 row">
             <div class="col-sm-4"></div>
             <div class="col-sm-8">
-              <button data-href='{"cmd": "toggleBtn", "options": []}' data-bs-toggle="collapse" data-bs-target="#collapseConnectionAdv" class="btn btn-secondary alwaysEnabled" data-phrase="Advanced"></button>
+              <button data-href='{"cmd": "toggleBtn", "options": []}' data-bs-toggle="collapse" data-bs-target="#modalSettingsConnectionAdvCollapse" class="btn btn-secondary alwaysEnabled" data-phrase="Advanced"></button>
             </div>
           </div>
-          <div id="collapseConnectionAdv" class="collapse">
+          <div id="modalSettingsConnectionAdvCollapse" class="collapse">
+            <div id="modalSettingsConnectionAdvFrm1"></div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputMpdPass" data-phrase="MPD password"></label>
-              <div class="col-sm-8 position-relative">
-                <input data-is="mympd-input-password" id="inputMpdPass" type="password" autocomplete="off" class="form-control alwaysEnabled"/>
-                <div class="invalid-feedback" data-phrase="Invalid MPD password"></div>
-                <small class="help" data-phrase="helpConnectionMPDPassword"></small>
-              </div>
-            </div>
-            <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="selectPlaylistDirectory" data-phrase="Playlist directory"></label>
+              <label class="col-sm-4 col-form-label" for="modalSettingsConnectionPlaylistDirectorySelect" data-phrase="Playlist directory"></label>
               <div class="col-sm-8">
-                <select id="selectPlaylistDirectory" class="form-select alwaysEnabled">
+                <select id="modalSettingsConnectionPlaylistDirectorySelect" class="form-select alwaysEnabled">
                   <option value="auto" data-phrase="Autodetect" class="featPlaylistDirAuto"></option>
                   <option value="none" data-phrase="None"></option>
                   <option value="custom" data-phrase="Specify"></option>
                 </select>
-                <input id="inputPlaylistDirectory" class="form-control mt-2 alwaysEnabled" placeholder="/var/lib/mpd/playlists"/>
+                <input id="modalSettingsConnectionPlaylistDirectoryInput" class="form-control mt-2 alwaysEnabled"/>
                 <div class="invalid-feedback" data-phrase="Invalid playlist directory"></div>
                 <small class="help" data-phrase="helpConnectionPlaylistDirectory"></small>
               </div>
             </div>
-            <div id="warnPlaylistDirectory" class="alert alert-warning d-none" data-phrase="Playlist directory not found"></div>
-            <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputMpdTimeout" data-phrase="Timeout"></label>
-              <div class="col-sm-8">
-                <div class="input-group">
-                  <div class="flex-grow-1 position-relative">
-                    <input data-is="mympd-input-reset" id="inputMpdTimeout" class="form-control alwaysEnabled" placeholder="30"/>
-                  </div>
-                  <span class="input-group-text-nobg" data-phrase="Seconds"></span>
-                  <div class="invalid-feedback" data-phrase="Invalid timeout"></div>
-                  <small class="help" data-phrase="helpConnectionTimeout"></small>
-                </div>
-              </div>
-            </div>
-            <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="btnMpdKeepalive" data-phrase="Keepalive"></label>
-              <div class="col-sm-8">
-                <button data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi" id="btnMpdKeepalive">check</button>
-                <small class="help" data-phrase="helpConnectionKeepalive"></small>
-              </div>
-            </div>
-            <div class="mb-3 row featBinarylimit">
-              <label class="col-sm-4 col-form-label" for="inputMpdBinarylimit">
-                <span data-phrase="Binary limit"></span>
-              </label>
-              <div class="col-sm-8">
-                <div class="input-group">
-                  <div class="flex-grow-1 position-relative">
-                    <input data-is="mympd-input-reset" id="inputMpdBinarylimit" class="form-control alwaysEnabled" placeholder="8"/>
-                  </div>
-                  <span class="input-group-text-nobg" data-phrase="kB"></span>
-                </div>
-                <div class="invalid-feedback" data-phrase="Invalid binary limit"></div>
-                <small class="help" data-phrase="helpConnectionBinaryLimit"></small>
-              </div>
-            </div>
+            <div id="modalSettingsConnectionPlaylistDirectoryWarn" class="alert alert-warning d-none" data-phrase="Playlist directory not found"></div>
+            <div id="modalSettingsConnectionAdvFrm2"></div>
           </div>
         </div>
         <div class="modal-footer justify-content-between">
@@ -1975,6 +1856,75 @@
     </div>
   </div>
 <!-- Modal connection settings end -->
+<!-- Modal about start -->
+<div class="modal fade" id="modalAbout" tabindex="-1">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <div class="modal-header pb-0">
+        <ul class="nav nav-tabs border-bottom-0">
+          <li class="nav-item">
+            <a class="nav-link active alwaysEnabled" href="#tabAbout" data-bs-toggle="tab" data-height="true" data-phrase="About"></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link alwaysEnabled" href="#tabShortcuts" data-bs-toggle="tab" data-height="true" data-phrase="Shortcuts"></a>
+          </li>
+        </ul>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body">
+        <div class="tab-content">
+          <div class="tab-pane active" id="tabAbout">
+            <h4 class="mb-3">
+            <svg class="me-2" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
+              <ellipse class="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
+              <path class="logoFg" d="m1.5772 4.8257h0.59026v-1.1847h-0.59026z" fill="#fff" stroke-width=".26458"/>
+              <path class="logoFg" d="m3.9382 7.195h0.59025v-5.9233h-0.59025z" fill="#fff" stroke-width=".26458"/>
+              <path class="logoFg" d="m2.7577 6.0103h0.59026v-3.554h-0.59026z" fill="#fff" stroke-width=".26458"/>
+              <path class="logoFg" d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
+            </svg>myMPD</h4>
+            <ul>
+              <li><span data-phrase="Version"></span>: <span id="mympdVersion"></span></li>
+              <li><span data-phrase="License"></span>: <a class="text-success external" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/myMPD/blob/master/LICENSE.md">GPLv3</a></li>
+              <li><span data-phrase="Homepage"></span>: <a class="text-success external" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
+              <li><a target="_blank" rel="noreferrer" href="https://github.com/jcorporation/myMPD/discussions/167" class="text-success external" data-phrase="Help to improve myMPD"></a></li>
+              <li><a target="_blank" rel="noreferrer" href="https://jcorporation.github.io/myMPD/" class="text-success external" data-phrase="Documentation"></a></li>
+            </ul>
+<!--debug-->  <div class="alert alert-secondary">Running in debug mode</div>
+            <div class="table-responsive">
+              <table class="table table-sm">
+                <tbody>
+                  <tr><td colspan="2" class="pt-3"><h5 data-phrase="Database statistics"></h5></td></tr>
+                  <tr><th data-phrase="Artists">Artists</th><td id="mpdstatsArtists"></td></tr>
+                  <tr><th data-phrase="Albums"></th><td id="mpdstatsAlbums"></td></tr>
+                  <tr><th data-phrase="Songs"></th><td id="mpdstatsSongs"></td></tr>
+                  <tr><th data-phrase="DB play time"></th><td id="mpdstatsDbPlaytime"></td></tr>
+                  <tr><th data-phrase="DB updated"></th><td id="mpdstatsDbUpdated"></td></tr>
+                  <tr><td colspan="2" class="pt-3"><h5 data-phrase="Playback statistics"></h5></td></tr>
+                  <tr><th data-phrase="myMPD uptime"></th><td id="mpdstatsMympd_uptime"></td></tr>
+                  <tr><th data-phrase="MPD uptime"></th><td id="mpdstatsUptime"></td></tr>
+                  <tr><th data-phrase="Play time"></th><td id="mpdstatsPlaytime"></td></tr>
+                  <tr><td colspan="2" class="pt-3"><h5>MPD</h5></td></tr>
+                  <tr><th data-phrase="Connection"></th><td id="mpdInfoHost"></td></tr>
+                  <tr><th data-phrase="Protocol version"></th><td id="mpdInfoVersion"></td></tr>
+                  <tr><td colspan="2" class="pt-3"><h5 data-phrase="Webserver"></h5></td></tr>
+                  <tr><th data-phrase="IP-Address"></th><td id="wsIP"></td></tr>
+                  <tr><th data-phrase="myMPD uri"></th><td id="myMPDuri"></td></tr>
+                  <tr class="featCacert"><th data-phrase="myMPD CA"></th>
+                    <td><a class="text-success download alwaysEnabled" href="ca.crt" target="_blank" data-phrase="Download"></a></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <div class="tab-pane" id="tabShortcuts">
+            <div id="shortcutList" class="row"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- Modal about end -->
 <!-- Modal song details start -->
   <div class="modal fade" id="modalSongDetails" tabindex="-1">
     <div class="modal-dialog modal-xl">

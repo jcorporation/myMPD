@@ -10,43 +10,50 @@
  * @returns {void}
  */
 function initModalSettingsConnection() {
+    // cache for the form field containers
+    const forms = {};
+    // create the fields
+    createForm(settingsConnectionFields, 'modalSettingsConnection', forms);
+
     initElements(document.getElementById('modalSettingsConnection'));
 
-    document.getElementById('selectMusicDirectory').addEventListener('change', function () {
+    document.getElementById('modalSettingsConnectionMusicDirectorySelect').addEventListener('change', function () {
         const musicDirMode = getSelectValue(this);
+        const musicDirInput = document.getElementById('modalSettingsConnectionMusicDirectoryInput');
         if (musicDirMode === 'auto') {
-            document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue;
-            document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
+            musicDirInput.value = settings.musicDirectoryValue;
+            musicDirInput.setAttribute('readonly', 'readonly');
         }
         else if (musicDirMode === 'none') {
-            document.getElementById('inputMusicDirectory').value = '';
-            document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
+            musicDirInput.value = '';
+            musicDirInput.setAttribute('readonly', 'readonly');
         }
         else {
-            document.getElementById('inputMusicDirectory').value = '';
-            document.getElementById('inputMusicDirectory').removeAttribute('readonly');
+            musicDirInput.value = '';
+            musicDirInput.removeAttribute('readonly');
         }
     }, false);
 
-    document.getElementById('selectPlaylistDirectory').addEventListener('change', function () {
+    document.getElementById('modalSettingsConnectionPlaylistDirectorySelect').addEventListener('change', function () {
         const playlistDirMode = getSelectValue(this);
+        const playlistDirInput = document.getElementById('modalSettingsConnectionPlaylistDirectoryInput');
         if (playlistDirMode === 'auto') {
-            document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectoryValue;
-            document.getElementById('inputPlaylistDirectory').setAttribute('readonly', 'readonly');
+            playlistDirInput.value = settings.playlistDirectoryValue;
+            playlistDirInput.setAttribute('readonly', 'readonly');
         }
         else if (playlistDirMode === 'none') {
-            document.getElementById('inputPlaylistDirectory').value = '';
-            document.getElementById('inputPlaylistDirectory').setAttribute('readonly', 'readonly');
+            playlistDirInput.value = '';
+            playlistDirInput.setAttribute('readonly', 'readonly');
         }
         else {
-            document.getElementById('inputPlaylistDirectory').value = '';
-            document.getElementById('inputPlaylistDirectory').removeAttribute('readonly');
+            playlistDirInput.value = '';
+            playlistDirInput.removeAttribute('readonly');
         }
     }, false);
 
     document.getElementById('modalSettingsConnection').addEventListener('shown.bs.modal', function () {
-        getSettings();
         cleanupModalId('modalSettingsConnection');
+        getSettings();
     });
 }
 
@@ -57,76 +64,47 @@ function initModalSettingsConnection() {
 //eslint-disable-next-line no-unused-vars
 function saveConnection() {
     cleanupModalId('modalSettingsConnection');
-    let formOK = true;
-    const mpdHostEl = document.getElementById('inputMpdHost');
-    const mpdPortEl = document.getElementById('inputMpdPort');
-    const mpdPassEl = document.getElementById('inputMpdPass');
-    const mpdBinarylimitEl = document.getElementById('inputMpdBinarylimit');
-    const mpdTimeoutEl = document.getElementById('inputMpdTimeout');
+    const settingsParams = {};
 
-    const musicDirectoryEl = document.getElementById('selectMusicDirectory');
-    let musicDirectory = getSelectValue(musicDirectoryEl);
+    const mpdLocal = document.getElementById('modalSettingsConnectionMpdHostInput').value.indexOf('/') === 0
+        ? true
+        : false;
+
+    const musicDirectoryEl = document.getElementById('modalSettingsConnectionMusicDirectorySelect');
+    const musicDirectory = getSelectValue(musicDirectoryEl);
     if (musicDirectory === 'auto' &&
-        mpdHostEl.value.indexOf('/') !== 0)
+        mpdLocal === false)
     {
-        formOK = false;
         setIsInvalid(musicDirectoryEl);
-    }
-    else if (musicDirectory === 'custom') {
-        const musicDirectoryValueEl = document.getElementById('inputMusicDirectory');
-        if (validatePathEl(musicDirectoryValueEl) === false) {
-            formOK = false;
-        }
-        musicDirectory = musicDirectoryValueEl.value;
+        return;
     }
 
-    const playlistDirectoryEl = document.getElementById('selectPlaylistDirectory');
-    let playlistDirectory = getSelectValue(playlistDirectoryEl);
+    const playlistDirectoryEl = document.getElementById('modalSettingsConnectionPlaylistDirectorySelect');
+    const playlistDirectory = getSelectValue(playlistDirectoryEl);
     if (playlistDirectory === 'auto' &&
-        mpdHostEl.value.indexOf('/') !== 0)
+        mpdLocal === false)
     {
-        formOK = false;
         setIsInvalid(playlistDirectoryEl);
-    }
-    else if (playlistDirectory === 'custom') {
-        const playlistDirectoryValueEl = document.getElementById('inputPlaylistDirectory');
-        if (validatePathEl(playlistDirectoryValueEl) === false) {
-            formOK = false;
-        }
-        playlistDirectory = playlistDirectoryValueEl.value;
+        return;
     }
 
-    if (mpdPortEl.value === '') {
-        mpdPortEl.value = '6600';
-    }
-    if (validateIntRangeEl(mpdPortEl, 1024, 65535) === false) {
-        formOK = false;
-    }
-    if (mpdHostEl.value.indexOf('/') !== 0) {
-        if (validateIntEl(mpdPortEl) === false) {
-            formOK = false;
+    if (formToJson('modalSettingsConnection', settingsParams, settingsConnectionFields) === true) {
+        if (musicDirectory === 'custom') {
+            settingsParams.musicDirectory = document.getElementById('modalSettingsConnectionMusicDirectoryInput').value;
         }
-        if (validateHostEl(mpdHostEl) === false) {
-            formOK = false;
+        else {
+            settingsParams.musicDirectory = musicDirectory;
         }
-    }
-    if (validateIntRangeEl(mpdBinarylimitEl, 4, 256) === false) {
-        formOK = false;
-    }
-    if (validateIntRangeEl(mpdTimeoutEl, 1, 1000) === false) {
-        formOK = false;
-    }
-    if (formOK === true) {
-        sendAPIpartition('default', 'MYMPD_API_CONNECTION_SAVE', {
-            "mpdHost": mpdHostEl.value,
-            "mpdPort": Number(mpdPortEl.value),
-            "mpdPass": mpdPassEl.value,
-            "musicDirectory": musicDirectory,
-            "playlistDirectory": playlistDirectory,
-            "mpdBinarylimit": Number(mpdBinarylimitEl.value) * 1024,
-            "mpdTimeout": Number(mpdTimeoutEl.value) * 1000,
-            "mpdKeepalive": getBtnChkValueId('btnMpdKeepalive')
-        }, saveConnectionClose, true);
+        if (playlistDirectory === 'custom') {
+            settingsParams.playlistDirectory = document.getElementById('modalSettingsConnectionPlaylistDirectoryInput').value;
+        }
+        else {
+            settingsParams.playlistDirectory = playlistDirectory;
+        }
+
+        settingsParams.mpdBinarylimit = settingsParams.mpdBinarylimit * 1024;
+        settingsParams.mpdTimeout = settingsParams.mpdTimeout * 1000;
+        sendAPIpartition('default', 'MYMPD_API_CONNECTION_SAVE', settingsParams, saveConnectionClose, true);
     }
 }
 
@@ -137,7 +115,9 @@ function saveConnection() {
  */
 function saveConnectionClose(obj) {
     if (obj.error) {
-        showModalAlert(obj);
+        if (highlightInvalidInput('modalSettingsConnection', obj) === false) {
+            showModalAlert(obj);
+        }
     }
     else {
         getSettings();
@@ -150,36 +130,33 @@ function saveConnectionClose(obj) {
  * @returns {void}
  */
 function populateConnectionFrm() {
-    document.getElementById('inputMpdHost').value = settings.mpdHost;
-    document.getElementById('inputMpdPort').value = settings.mpdPort;
-    document.getElementById('inputMpdPass').value = settings.mpdPass;
-    document.getElementById('inputMpdBinarylimit').value = settings.mpdBinarylimit / 1024;
-    document.getElementById('inputMpdTimeout').value = settings.mpdTimeout / 1000;
-    toggleBtnChkId('btnMpdKeepalive', settings.mpdKeepalive);
+    jsonToForm(settings, settingsConnectionFields, 'modalSettingsConnection');
+    document.getElementById('modalSettingsConnectionMpdTimeoutInput').value = settings.mpdTimeout / 1000;
+    document.getElementById('modalSettingsConnectionMpdBinarylimitInput').value = settings.mpdBinarylimit / 1024;
 
     if (settings.musicDirectory === 'auto') {
-        document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
-        document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue !== undefined ? settings.musicDirectoryValue : '';
-        document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
+        document.getElementById('modalSettingsConnectionMusicDirectorySelect').value = settings.musicDirectory;
+        document.getElementById('modalSettingsConnectionMusicDirectoryInput').value = settings.musicDirectoryValue;
+        document.getElementById('modalSettingsConnectionMusicDirectoryInput').setAttribute('readonly', 'readonly');
     }
     else if (settings.musicDirectory === 'none') {
-        document.getElementById('selectMusicDirectory').value = settings.musicDirectory;
-        document.getElementById('inputMusicDirectory').value = '';
-        document.getElementById('inputMusicDirectory').setAttribute('readonly', 'readonly');
+        document.getElementById('modalSettingsConnectiontMusicDirectorySelect').value = settings.musicDirectory;
+        document.getElementById('modalSettingsConnectionMusicDirectoryInput').value = '';
+        document.getElementById('modalSettingsConnectionMusicDirectoryInput').setAttribute('readonly', 'readonly');
     }
     else {
-        document.getElementById('selectMusicDirectory').value = 'custom';
-        document.getElementById('inputMusicDirectory').value = settings.musicDirectoryValue;
-        document.getElementById('inputMusicDirectory').removeAttribute('readonly');
+        document.getElementById('modalSettingsConnectionMusicDirectorySelect').value = 'custom';
+        document.getElementById('modalSettingsConnectionMusicDirectoryInput').value = settings.musicDirectoryValue;
+        document.getElementById('modalSettingsConnectionMusicDirectoryInput').removeAttribute('readonly');
     }
 
     if (settings.musicDirectoryValue === '' &&
         settings.musicDirectory !== 'none')
     {
-        elShowId('warnMusicDirectory');
+        elShowId('modalSettingsConnectionMusicDirectoryWarn');
     }
     else {
-        elHideId('warnMusicDirectory');
+        elHideId('modalSettingsConnectionMusicDirectoryWarn');
     }
 
     if (features.featPlaylistDirAuto === false &&
@@ -189,27 +166,27 @@ function populateConnectionFrm() {
     }
 
     if (settings.playlistDirectory === 'auto') {
-        document.getElementById('selectPlaylistDirectory').value = settings.playlistDirectory;
-        document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectoryValue !== undefined ? settings.playlistDirectoryValue : '';
-        document.getElementById('inputPlaylistDirectory').setAttribute('readonly', 'readonly');
+        document.getElementById('modalSettingsConnectionPlaylistDirectorySelect').value = settings.playlistDirectory;
+        document.getElementById('modalSettingsConnectionPlaylistDirectoryInput').value = settings.playlistDirectoryValue;
+        document.getElementById('modalSettingsConnectionPlaylistDirectoryInput').setAttribute('readonly', 'readonly');
     }
     else if (settings.playlistDirectory === 'none') {
-        document.getElementById('selectPlaylistDirectory').value = settings.playlistDirectory;
-        document.getElementById('inputPlaylistDirectory').value = '';
-        document.getElementById('inputPlaylistDirectory').setAttribute('readonly', 'readonly');
+        document.getElementById('modalSettingsConnectionPlaylistDirectorySelect').value = settings.playlistDirectory;
+        document.getElementById('modalSettingsConnectionPlaylistDirectoryInput').value = '';
+        document.getElementById('modalSettingsConnectionPlaylistDirectoryInput').setAttribute('readonly', 'readonly');
     }
     else {
-        document.getElementById('selectPlaylistDirectory').value = 'custom';
-        document.getElementById('inputPlaylistDirectory').value = settings.playlistDirectoryValue;
-        document.getElementById('inputPlaylistDirectory').removeAttribute('readonly');
+        document.getElementById('modalSettingsConnectionPlaylistDirectorySelect').value = 'custom';
+        document.getElementById('modalSettingsConnectionPlaylistDirectoryInput').value = settings.playlistDirectoryValue;
+        document.getElementById('modalSettingsConnectionPlaylistDirectoryInput').removeAttribute('readonly');
     }
 
     if (settings.playlistDirectoryValue === '' &&
         settings.playlistDirectory !== 'none')
     {
-        elShowId('warnPlaylistDirectory');
+        elShowId('modalSettingsConnectionPlaylistDirectoryWarn');
     }
     else {
-        elHideId('warnPlaylistDirectory');
+        elHideId('modalSettingsConnectionPlaylistDirectoryWarn');
     }
 }

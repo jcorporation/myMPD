@@ -10,6 +10,31 @@
  * @returns {void}
  */
 function initModalSettings() {
+    // cache for the form field containers
+    const forms = {};
+    // create the fields
+    createForm(settingsFields, 'modalSettings', forms);
+    createForm(settingsWebuiFields, 'modalSettings', forms);
+    createForm(settingsPartitionFields, 'modalSettings', forms);
+    createForm(settingsLocalFields, 'modalSettings', forms);
+    // initialize myMPD custom elements
+    initElements(document.getElementById('modalSettings'));
+
+    //set featWhence feature detection for default actions
+    for (const sel of ['modalSettingsClickQuickPlayInput', 'modalSettingsClickFilesystemPlaylistInput',
+        'modalSettingsClickPlaylistInput', 'modalSettingsClickSongInput',
+        'modalSettingsClickRadioFavoritesInput', 'modalSettingsClickRadiobrowserInput'])
+    {
+        const options = document.querySelectorAll('#' + sel + ' > option');
+        for (const opt of options) {
+            if (opt.value === 'insert' ||
+                opt.value === 'play')
+            {
+                opt.classList.add('featWhence');
+            }
+        }
+    }
+
     document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
         cleanupModalId('modalSettings');
         getSettings();
@@ -198,37 +223,6 @@ function populateSettingsFrm() {
     setFeatureBtnId('modalSettingsEnableScriptingInput', settings.features.featScripting);
     setFeatureBtnId('modalSettingsEnableMountsInput', settings.features.featMounts);
     setFeatureBtnId('modalSettingsEnablePartitionsInput', settings.features.featPartitions);
-}
-
-/**
- * Creates the settings modal and initializes the elements
- * @returns {void}
- */
-function createSettingsForm() {
-    // cache for the form field containers
-    const forms = {};
-    // create the fields
-    createForm(settingsFields, 'modalSettings', forms);
-    createForm(settingsWebuiFields, 'modalSettings', forms);
-    createForm(settingsPartitionFields, 'modalSettings', forms);
-    createForm(settingsLocalFields, 'modalSettings', forms);
-    // initialize myMPD custom elements
-    initElements(document.getElementById('modalSettings'));
-
-    //set featWhence feature detection for default actions
-    for (const sel of ['modalSettingsClickQuickPlayInput', 'modalSettingsClickFilesystemPlaylistInput',
-        'modalSettingsClickPlaylistInput', 'modalSettingsClickSongInput',
-        'modalSettingsClickRadioFavoritesInput', 'modalSettingsClickRadiobrowserInput'])
-    {
-        const options = document.querySelectorAll('#' + sel + ' > option');
-        for (const opt of options) {
-            if (opt.value === 'insert' ||
-                opt.value === 'play')
-            {
-                opt.classList.add('featWhence');
-            }
-        }
-    }
 }
 
 /**

@@ -348,7 +348,7 @@ const settingsFields = {
         "cssClass": ["featLibrary"],
     },
     "smartpls": {
-        "defaultValue": true,
+        "defaultValue": defaults["MYMPD_SMARTPLS"],
         "inputType": "checkbox"
     },
     "smartplsPrefix": {
@@ -788,6 +788,59 @@ const settingsWebuiFields = {
             "snapcast": "hub"
         },
         "inputType": "none"
+    }
+};
+
+const settingsConnectionFields = {
+    "mpdHost": {
+        "defaultValue": defaults["MYMPD_MPD_HOST"],
+        "inputType": "text",
+        "title": "MPD host",
+        "form": "modalSettingsConnectionFrm",
+        "help": "helpConnectionMPDHost",
+        "invalid": "Invalid MPD host"
+    },
+    "mpdPort": {
+        "defaultValue": defaults["MYMPD_MPD_PORT"],
+        "inputType": "text",
+        "contentType": "number",
+        "title": "MPD host",
+        "form": "modalSettingsConnectionFrm",
+        "help": "helpConnectionMPDPort",
+        "invalid": "Invalid MPD port"
+    },
+    "mpdPass": {
+        "defaultValue": defaults["MYMPD_MPD_PASS"],
+        "inputType": "password",
+        "title": "MPD password",
+        "form": "modalSettingsConnectionAdvFrm1",
+        "help": "helpConnectionMPDPassword",
+        "invalid": "Invalid MPD password"
+    },
+    "mpdTimeout": {
+        "defaultValue": defaults["MYMPD_MPD_TIMEOUT_SEC"],
+        "inputType": "text",
+        "title": "Timeout",
+        "form": "modalSettingsConnectionAdvFrm2",
+        "help": "helpConnectionTimeout",
+        "invalid": "Invalid timeout",
+        "unit": "Seconds"
+    },
+    "mpdKeepalive": {
+        "defaultValue": defaults["MYMPD_MPD_KEEPALIVE"],
+        "inputType": "checkbox",
+        "title": "Keepalive",
+        "form": "modalSettingsConnectionAdvFrm2",
+        "help": "helpConnectionKeepalive"
+    },
+    "mpdBinarylimit": {
+        "defaultValue": defaults["MYMPD_MPD_BINARYLIMIT"] / 1024,
+        "inputType": "text",
+        "title": "Binary limit",
+        "form": "modalSettingsConnectionAdvFrm2",
+        "help": "helpConnectionBinaryLimit",
+        "invalid": "Invalid binary limit",
+        "unit": "kB"
     }
 };
 

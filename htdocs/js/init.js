@@ -253,7 +253,6 @@ function appInit() {
     initViewQueueJukebox('QueueJukeboxAlbum');
     initViewQueueLastPlayed();
     initViewSearch();
-    createSettingsForm();
     //init drag and drop
     for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
         dragAndDropTable(table);

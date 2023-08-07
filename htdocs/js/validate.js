@@ -63,7 +63,7 @@ function setIsInvalidId(id) {
  * @returns {void}
  */
 function setIsInvalid(el) {
-    //set is-invalid on parent node
+    //set is-invalid also on parent node
     el.parentNode.classList.add('is-invalid');
     el.classList.add('is-invalid');
 }
@@ -110,71 +110,6 @@ function isHttpUri(uri) {
     {
         return true;
     }
-    return false;
-}
-
-/**
- * Checks if string is a valid filename
- * @param {string} str string to check
- * @returns {boolean} true = valid filename, else false
- */
-function validateFilenameString(str) {
-    if (str === '') {
-        return false;
-    }
-    if (str.match(/\/|\r|\n|"|'/) === null) {
-        return true;
-    }
-    return false;
-}
-
-/**
- * Checks if the value of the input element is a valid filename
- * @param {Element} el input element
- * @returns {boolean} true = valid filename, else false
- */
-//eslint-disable-next-line no-unused-vars
-function validateFilenameEl(el) {
-    if (validateFilenameString(el.value) === false) {
-        setIsInvalid(el);
-        return false;
-    }
-    return true;
-}
-
-/**
- * Checks if the value of the input element is a valid filename list
- * @param {Element} el input element
- * @returns {boolean} true = valid filename, else false
- */
-//eslint-disable-next-line no-unused-vars
-function validateFilenameListEl(el) {
-    const filenames = el.value.split(',');
-    for (let i = 0, j = filenames.length; i < j; i++) {
-        if (validateFilenameString(filenames[i].trim()) === false) {
-            setIsInvalid(el);
-            return false;
-        }
-    }
-    return true;
-}
-
-/**
- * Checks if the value of the input element is a valid filepath
- * @param {Element} el input element
- * @returns {boolean} true = valid filepath, else false
- */
-function validatePathEl(el) {
-    if (el.value === '' ||
-        el.value.charAt(0) !== '/')
-    {
-        setIsInvalid(el);
-        return false;
-    }
-    if (el.value.match(/\r|\n|"|'/) === null) {
-        return true;
-    }
-    setIsInvalid(el);
     return false;
 }
 
@@ -302,20 +237,6 @@ function validateFloatRangeEl(el, min, max) {
 }
 
 /**
- * Checks if the the value of the input element is a hex color
- * @param {Element} el input element
- * @returns {boolean} true = valid stream uri, else false
- */
-//eslint-disable-next-line no-unused-vars
-function validateColorEl(el) {
-    if (el.value.match(/^#[a-f\d]+$/i) !== null) {
-        return true;
-    }
-    setIsInvalid(el);
-    return false;
-}
-
-/**
  * Checks if the the value of the input element is a valid stream uri
  * @param {Element} el input element
  * @returns {boolean} true = valid stream uri, else false
@@ -325,19 +246,6 @@ function validateStreamEl(el) {
         return true;
     }
     if (isStreamUri(el.value) === true) {
-        return true;
-    }
-    setIsInvalid(el);
-    return false;
-}
-
-/**
- * Checks if the the value of the input element is a valid host
- * @param {Element} el input element
- * @returns {boolean} true = valid host, else false
- */
-function validateHostEl(el) {
-    if (el.value.match(/^([\w-.]+)$/) !== null) {
         return true;
     }
     setIsInvalid(el);
