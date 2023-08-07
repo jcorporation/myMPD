@@ -95,6 +95,9 @@ for my $filename (@files) {
             while ($line =~ /(elCreateTextTnNr|elCreateTextTn)\('\w+', \{[^}]*\}, '([^']+)'/g) {
                 add_phrase($2);
             }
+            while ($line =~ /"(title|help|invalid|unit|hintText)":\s+"([^"]+)"/g) {
+                add_phrase($2);
+            }
         }
         elsif ($filename =~ /\.html$/) {
             while ($line =~ /data-(\w+-)?phrase="([^"]+)"/g) {
