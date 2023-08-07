@@ -99,11 +99,13 @@ function getBgImageList() {
 
 /**
  * Populates the settings modal
- * Handles only special cases.
- * All other fields are populated by the createSettingsFrm function.
  * @returns {void}
  */
 function populateSettingsFrm() {
+    jsonToForm(settings, settingsFields, 'modalSettings');
+    jsonToForm(settings.webuiSettings, settingsWebuiFields, 'modalSettings');
+    jsonToForm(settings.partition, settingsPartitionFields, 'modalSettings');
+    jsonToForm(localSettings, settingsLocalFields, 'modalSettings');
     // background image select
     getBgImageList();
     const bgImageInput = document.getElementById('modalSettingsBgImageInput');
@@ -202,14 +204,14 @@ function populateSettingsFrm() {
  * Creates the settings modal and initializes the elements
  * @returns {void}
  */
-function createSettingsFrm() {
+function createSettingsForm() {
     // cache for the form field containers
     const forms = {};
     // create the fields
-    createFrm(settings, settingsFields, 'modalSettings', forms);
-    createFrm(settings.webuiSettings, settingsWebuiFields, 'modalSettings', forms);
-    createFrm(settings.partition, settingsPartitionFields, 'modalSettings', forms);
-    createFrm(localSettings, settingsLocalFields, 'modalSettings', forms);
+    createForm(settingsFields, 'modalSettings', forms);
+    createForm(settingsWebuiFields, 'modalSettings', forms);
+    createForm(settingsPartitionFields, 'modalSettings', forms);
+    createForm(settingsLocalFields, 'modalSettings', forms);
     // initialize myMPD custom elements
     initElements(document.getElementById('modalSettings'));
 

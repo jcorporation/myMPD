@@ -47,13 +47,12 @@ function formToJson(prefix, settingsParams, defaultFields) {
 
 /**
  * Creates form fields
- * @param {object} settingsFields object with the values for the elements to create
  * @param {object} defaultFields object with elements to create and the default values
  * @param {string} prefix prefix for element ids
  * @param {object} forms cache for the form field containers
  * @returns {void}
  */
-function createFrm(settingsFields, defaultFields, prefix, forms) {
+function createForm(defaultFields, prefix, forms) {
     // iterate through sorted keys
     const settingsKeys = Object.keys(defaultFields);
     settingsKeys.sort(function(a, b) {
@@ -62,8 +61,7 @@ function createFrm(settingsFields, defaultFields, prefix, forms) {
     for (let i = 0, j = settingsKeys.length; i < j; i++) {
         const key = settingsKeys[i];
         // check if we should add a field
-        if (defaultFields[key] === undefined ||
-            defaultFields[key].form === undefined ||
+        if (defaultFields[key].form === undefined ||
             defaultFields[key].inputType === 'none')
         {
             continue;
@@ -90,11 +88,6 @@ function createFrm(settingsFields, defaultFields, prefix, forms) {
                 select.appendChild(
                     elCreateTextTn('option', {"value": value}, defaultFields[key].validValues[value])
                 );
-                if ((defaultFields[key].contentType === 'integer' && settingsFields[key] === Number(value)) ||
-                    settingsFields[key] === value)
-                {
-                    select.lastChild.setAttribute('selected', 'selected');
-                }
             }
             col.firstChild.firstChild.appendChild(select);
         }
@@ -111,13 +104,6 @@ function createFrm(settingsFields, defaultFields, prefix, forms) {
         else if (defaultFields[key].inputType === 'checkbox') {
             // checkbox
             const btn = elCreateEmpty('button', {"type": "button", "id": id, "class": ["btn", "btn-sm", "btn-secondary", "mi", "chkBtn"]});
-            if (settingsFields[key] === true) {
-                btn.classList.add('active');
-                btn.textContent = 'check';
-            }
-            else {
-                btn.textContent = 'radio_button_unchecked';
-            }
             if (defaultFields[key].onClick !== undefined) {
                 // custom click handler
                 btn.addEventListener('click', function(event) {
@@ -150,7 +136,7 @@ function createFrm(settingsFields, defaultFields, prefix, forms) {
                 : defaultFields[key].defaultValue;
             col.firstChild.firstChild.appendChild(
                 elCreateEmpty('input', {"is": "mympd-input-reset", "id": id, "data-default": defaultFields[key].defaultValue,
-                    "placeholder": placeholder, "value": settingsFields[key], "class": ["form-control"], "type": inputType})
+                    "placeholder": placeholder, "value": "", "class": ["form-control"], "type": inputType})
             );
         }
         // unit
@@ -206,6 +192,52 @@ function createFrm(settingsFields, defaultFields, prefix, forms) {
                 // @ts-ignore
                 window[defaultFields[key].onChange](event);
             }, false);
+        }
+    }
+}
+
+/**
+ * Populates the form with values
+ * @param {object} settingsFields object with the values for the elements
+ * @param {object} defaultFields object with elements to populate
+ * @param {string} prefix prefix for element ids
+ * @returns {void}
+ */
+function jsonToForm(settingsFields, defaultFields, prefix) {
+    // iterate through keys
+    const settingsKeys = Object.keys(defaultFields);
+    for (let i = 0, j = settingsKeys.length; i < j; i++) {
+        const key = settingsKeys[i];
+        // check if we should add a field
+        if (defaultFields[key].form === undefined ||
+            defaultFields[key].inputType === 'none')
+        {
+            continue;
+        }
+        // calculate a camelCase id
+        const id = prefix + ucFirst(key) + 'Input';
+        const field = document.getElementById(id);
+        if (field) {
+            switch(defaultFields[key].inputType) {
+                case 'checkbox':
+                    toggleBtnChk(field, settingsFields[key]);
+                    break;
+                case 'color':
+                case 'password':
+                case 'select':
+                case 'text':
+                    field.value = settingsFields[key];
+                    break;
+                case 'mympd-select-search':
+                    setData(field, 'value', settingsFields[key]);
+                    field.value = tn(settingsFields[key]);
+                    break;
+                default:
+                    logError('Unhandled field type ' + defaultFields[key].inputType + ' for id ' + id + ' not found.');
+            }
+        }
+        else {
+            logError('Form field with id ' + id + 'not found.');
         }
     }
 }

@@ -261,56 +261,56 @@ const settingsPartitionFields = {
 const settingsFields = {
     "volumeMin": {
         "defaultValue": defaults["MYMPD_VOLUME_MIN"],
-        "inputType": "input",
+        "inputType": "text",
         "contentType": "number",
         "title": "Volume min.",
         "form": "modalSettingsVolumeFrm"
     },
     "volumeMax": {
         "defaultValue": defaults["MYMPD_VOLUME_MAX"],
-        "inputType": "input",
+        "inputType": "text",
         "contentType": "number",
         "title": "Volume max.",
         "form": "modalSettingsVolumeFrm"
     },
     "volumeStep": {
         "defaultValue": defaults["MYMPD_VOLUME_STEP"],
-        "inputType": "input",
+        "inputType": "text",
         "contentType": "number",
         "title": "Volume step",
         "form": "modalSettingsVolumeFrm"
     },
     "lyricsUsltExt": {
         "defaultValue": defaults["MYMPD_LYRICS_USLT_EXT"],
-        "inputType": "input",
+        "inputType": "text",
         "title": "Unsynced lyrics extension",
         "form": "modalSettingsLyricsCollapse",
         "help": "helpSettingsUsltExt"
     },
     "lyricsSyltExt": {
         "defaultValue": defaults["MYMPD_LYRICS_SYLT_EXT"],
-        "inputType": "input",
+        "inputType": "text",
         "title": "Synced lyrics extension",
         "form": "modalSettingsLyricsCollapse",
         "help": "helpSettingsSyltExt"
     },
     "lyricsVorbisUslt": {
         "defaultValue": defaults["LYRICS"],
-        "inputType": "input",
+        "inputType": "text",
         "title": "Unsynced lyrics vorbis comment",
         "form": "modalSettingsLyricsCollapse",
         "help": "helpSettingsVorbisUslt"
     },
     "lyricsVorbisSylt": {
         "defaultValue": defaults["SYNCEDLYRICS"],
-        "inputType": "input",
+        "inputType": "text",
         "title": "Synced lyrics vorbis comment",
         "form": "modalSettingsLyricsCollapse",
         "help": "helpSettingsVorbisSylt"
     },
     "lastPlayedCount": {
         "defaultValue": defaults["MYMPD_LAST_PLAYED_COUNT"],
-        "inputType": "input",
+        "inputType": "text",
         "contentType": "number",
         "title": "Last played list count",
         "form": "modalSettingsStatisticsFrm",
@@ -703,7 +703,7 @@ const settingsWebuiFields = {
     },
     "thumbnailSize": {
         "defaultValue": 175,
-        "inputType": "input",
+        "inputType": "text",
         "contentType": "number",
         "title": "Thumbnail size",
         "form": "modalSettingsAlbumartFrm",
@@ -738,7 +738,7 @@ const settingsWebuiFields = {
     },
     "bgCssFilter": {
         "defaultValue": "grayscale(100%) opacity(20%)",
-        "inputType": "input",
+        "inputType": "text",
         "title": "CSS filter",
         "form": "modalSettingsBgFrm",
         "sort": 1

@@ -52,7 +52,6 @@ function parseSettings(obj) {
 
     //execute only if settings modal is displayed
     if (document.getElementById('modalSettings').classList.contains('show')) {
-        createSettingsFrm();
         populateSettingsFrm();
     }
     //execute only if connection modal is displayed
