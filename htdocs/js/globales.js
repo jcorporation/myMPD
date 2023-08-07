@@ -185,7 +185,8 @@ const settingsLocalFields = {
         "form": "modalSettingsThemeFrm2",
         "hintIcon": ligatures['browserSpecific'],
         "hintText": "Browser specific setting",
-        "cssClass": ["featMobile"]
+        "cssClass": ["featMobile"],
+        "invalid": "Invalid scale ratio"
     },
     "viewMode": {
         "defaultValue": "auto",
@@ -225,7 +226,8 @@ const settingsPartitionFields = {
         "form": "modalSettingsLocalPlaybackCollapse",
         "help": "helpSettingsStreamPort",
         "hintIcon": ligatures['partitionSpecific'],
-        "hintText": "Partition specific setting"
+        "hintText": "Partition specific setting",
+        "invalid": "Invalid stream port"
     },
     "streamUri": {
         "defaultValue": defaults["PARTITION_MPD_STREAM_URI"],
@@ -264,21 +266,24 @@ const settingsFields = {
         "inputType": "text",
         "contentType": "number",
         "title": "Volume min.",
-        "form": "modalSettingsVolumeFrm"
+        "form": "modalSettingsVolumeFrm",
+        "invalid": "Must be a number between 0 and 100"
     },
     "volumeMax": {
         "defaultValue": defaults["MYMPD_VOLUME_MAX"],
         "inputType": "text",
         "contentType": "number",
         "title": "Volume max.",
-        "form": "modalSettingsVolumeFrm"
+        "form": "modalSettingsVolumeFrm",
+        "invalid": "Must be a number between 0 and 100"
     },
     "volumeStep": {
         "defaultValue": defaults["MYMPD_VOLUME_STEP"],
         "inputType": "text",
         "contentType": "number",
         "title": "Volume step",
-        "form": "modalSettingsVolumeFrm"
+        "form": "modalSettingsVolumeFrm",
+        "invalid": "Must be a number between 1 and 25"
     },
     "lyricsUsltExt": {
         "defaultValue": defaults["MYMPD_LYRICS_USLT_EXT"],
@@ -357,6 +362,7 @@ const settingsFields = {
         "title": "Smart playlists prefix",
         "form": "modalSettingsSmartplsFrm",
         "help": "helpSettingsSmartplsPrefix",
+        "invalid": "Invalid prefix"
     },
     "smartplsSort": {
         "defaultValue": "",
@@ -804,7 +810,7 @@ const settingsConnectionFields = {
         "defaultValue": defaults["MYMPD_MPD_PORT"],
         "inputType": "text",
         "contentType": "number",
-        "title": "MPD host",
+        "title": "MPD port",
         "form": "modalSettingsConnectionFrm",
         "help": "helpConnectionMPDPort",
         "invalid": "Invalid MPD port"
