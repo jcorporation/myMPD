@@ -178,12 +178,12 @@ function createFrm(settingsFields, defaultFields, prefix, forms) {
             );
         }
         // create the label
-        const label = defaultFields[key].hint === undefined
+        const label = defaultFields[key].hintIcon === undefined
             ? elCreateTextTn('label', {"class": ["col-sm-4", "col-form-label"], "for": id}, defaultFields[key].title)
             : elCreateNodes('label', {"class": ["col-sm-4", "col-form-label"], "for": id}, [
                     elCreateTextTn('span', {}, defaultFields[key].title),
-                    elCreateText('small', {"class": ["mi", "mi-sm", "ms-1"], "title": tn("Browser specific setting"),
-                        "data-title-phrase": "Browser specific setting"}, defaultFields[key].hint)
+                    elCreateText('small', {"class": ["mi", "mi-sm", "ms-1"], "title": tn(defaultFields[key].hintText),
+                        "data-title-phrase": defaultFields[key].hintText}, defaultFields[key].hintIcon)
               ]);
         // create the row and append it to the form field container
         let rowClasses = ["mb-3", "row"];

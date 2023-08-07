@@ -171,7 +171,8 @@ const settingsLocalFields = {
         "title": "Autoplay",
         "form": "modalSettingsLocalPlaybackCollapse",
         "help": "helpSettingsLocalPlaybackAutoplay",
-        "hint": ligatures['browserSpecific']
+        "hintIcon": ligatures['browserSpecific'],
+        "hintText": "Browser specific setting"
     },
     "partition": {
         "defaultValue": "default",
@@ -182,7 +183,8 @@ const settingsLocalFields = {
         "inputType": "text",
         "title": "Scale ratio",
         "form": "modalSettingsThemeFrm2",
-        "hint": ligatures['browserSpecific'],
+        "hintIcon": ligatures['browserSpecific'],
+        "hintText": "Browser specific setting",
         "cssClass": ["featMobile"]
     },
     "viewMode": {
@@ -196,7 +198,8 @@ const settingsLocalFields = {
         "title": "View mode",
         "form": "modalSettingsThemeFrm2",
         "help": "helpSettingsViewMode",
-        "hint": ligatures['browserSpecific'],
+        "hintIcon": ligatures['browserSpecific'],
+        "hintText": "Browser specific setting",
         "sort": 1
     }
 };
@@ -221,7 +224,8 @@ const settingsPartitionFields = {
         "title": "Stream port",
         "form": "modalSettingsLocalPlaybackCollapse",
         "help": "helpSettingsStreamPort",
-        "hint": ligatures['partitionSpecific']
+        "hintIcon": ligatures['partitionSpecific'],
+        "hintText": "Partition specific setting"
     },
     "streamUri": {
         "defaultValue": defaults["PARTITION_MPD_STREAM_URI"],
@@ -230,14 +234,16 @@ const settingsPartitionFields = {
         "title": "Stream URI",
         "form": "modalSettingsLocalPlaybackCollapse",
         "help": "helpSettingsStreamUri",
-        "hint": ligatures['partitionSpecific']
+        "hintIcon": ligatures['partitionSpecific'],
+        "hintText": "Partition specific setting"
     },
     "highlightColor": {
         "defaultValue": defaults["PARTITION_HIGHLIGHT_COLOR"],
         "inputType": "color",
         "title": "Highlight color",
         "form": "modalSettingsThemeFrm1",
-        "hint": ligatures['partitionSpecific'],
+        "hintIcon": ligatures['partitionSpecific'],
+        "hintText": "Partition specific setting",
         "sort": 3
     },
     "highlightColorContrast": {
@@ -245,7 +251,8 @@ const settingsPartitionFields = {
         "inputType": "color",
         "title": "Highlight contrast color",
         "form": "modalSettingsThemeFrm1",
-        "hint": ligatures['partitionSpecific'],
+        "hintIcon": ligatures['partitionSpecific'],
+        "hintText": "Partition specific setting",
         "sort":4
     }
 };
