@@ -17,18 +17,20 @@ function highlightInvalidInput(prefix, obj) {
     if (el) {
         setIsInvalid(el);
         // append error message if there is no client-side invalid feedback defined
-        if (el.parentNode.querySelector('.invalid-feedback') === null) {
-            const invalidServerEl = el.parentNode.querySelector('.invalid-server');
+        if (el.parentNode.parentNode.querySelector('.invalid-feedback') === null) {
+            const invalidServerEl = el.parentNode.parentNode.querySelector('.invalid-server');
             if (invalidServerEl === null) {
                 // Create new invalid feedback element
-                el.parentNode.appendChild(
+                el.parentNode.parentNode.appendChild(
                     elCreateTextTn('div', {"class": ["invalid-feedback", "invalid-server"]}, tn(obj.error.message, obj.error.data))
                 );
+                return true;
             }
-            else {
-                // Update invalid feedback
-                invalidServerEl.textContent = tn(obj.error.message, obj.error.data);
-            }
+        }
+        const invalidServerEl = el.parentNode.parentNode.querySelector('.invalid-server');
+        if (invalidServerEl !== null) {
+            // Update invalid feedback from server
+            invalidServerEl.textContent = tn(obj.error.message, obj.error.data);
         }
         return true;
     }
@@ -65,7 +67,6 @@ function setIsInvalidId(id) {
 function setIsInvalid(el) {
     //set is-invalid also on parent node
     el.parentNode.classList.add('is-invalid');
-    el.classList.add('is-invalid');
 }
 
 /**
@@ -277,4 +278,18 @@ function validatePrintableEl(el) {
         return false;
     }
     return true;
+}
+
+/**
+ * Checks if the the value of the input element is a hex color
+ * @param {Element} el input element
+ * @returns {boolean} true = valid stream uri, else false
+ */
+//eslint-disable-next-line no-unused-vars
+function validateColorEl(el) {
+    if (el.value.match(/^#[a-f\d]+$/i) !== null) {
+        return true;
+    }
+    setIsInvalid(el);
+    return false;
 }

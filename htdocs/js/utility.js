@@ -162,6 +162,18 @@ function zeroPad(num, places) {
 }
 
 /**
+ * Converts a string to number
+ * @param {string} str string to convert
+ * @returns {number} the number or 0 on convert failure
+ */
+function parseNumber(str) {
+    const nr = Number(str);
+    return Number.isNaN(nr) === true
+        ? 0
+        : nr;
+}
+
+/**
  * Gets the directory from the given uri
  * @param {string} uri the uri
  * @returns {string} directory part of the uri

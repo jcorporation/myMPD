@@ -186,6 +186,10 @@ const settingsLocalFields = {
         "hintIcon": ligatures['browserSpecific'],
         "hintText": "Browser specific setting",
         "cssClass": ["featMobile"],
+        "validate": {
+            "cmd": "validateFloatEl",
+            "options": []
+        },
         "invalid": "Invalid scale ratio"
     },
     "viewMode": {
@@ -226,8 +230,7 @@ const settingsPartitionFields = {
         "form": "modalSettingsLocalPlaybackCollapse",
         "help": "helpSettingsStreamPort",
         "hintIcon": ligatures['partitionSpecific'],
-        "hintText": "Partition specific setting",
-        "invalid": "Invalid stream port"
+        "hintText": "Partition specific setting"
     },
     "streamUri": {
         "defaultValue": defaults["PARTITION_MPD_STREAM_URI"],
@@ -266,24 +269,21 @@ const settingsFields = {
         "inputType": "text",
         "contentType": "number",
         "title": "Volume min.",
-        "form": "modalSettingsVolumeFrm",
-        "invalid": "Must be a number between 0 and 100"
+        "form": "modalSettingsVolumeFrm"
     },
     "volumeMax": {
         "defaultValue": defaults["MYMPD_VOLUME_MAX"],
         "inputType": "text",
         "contentType": "number",
         "title": "Volume max.",
-        "form": "modalSettingsVolumeFrm",
-        "invalid": "Must be a number between 0 and 100"
+        "form": "modalSettingsVolumeFrm"
     },
     "volumeStep": {
         "defaultValue": defaults["MYMPD_VOLUME_STEP"],
         "inputType": "text",
         "contentType": "number",
         "title": "Volume step",
-        "form": "modalSettingsVolumeFrm",
-        "invalid": "Must be a number between 1 and 25"
+        "form": "modalSettingsVolumeFrm"
     },
     "lyricsUsltExt": {
         "defaultValue": defaults["MYMPD_LYRICS_USLT_EXT"],
@@ -319,8 +319,7 @@ const settingsFields = {
         "contentType": "number",
         "title": "Last played list count",
         "form": "modalSettingsStatisticsFrm",
-        "help": "helpSettingsLastPlayedCount",
-        "invalid": "Must be a number and equal or greater than zero"
+        "help": "helpSettingsLastPlayedCount"
     },
     "listenbrainzToken": {
         "defaultValue": "",
@@ -361,8 +360,7 @@ const settingsFields = {
         "inputType": "text",
         "title": "Smart playlists prefix",
         "form": "modalSettingsSmartplsFrm",
-        "help": "helpSettingsSmartplsPrefix",
-        "invalid": "Invalid prefix"
+        "help": "helpSettingsSmartplsPrefix"
     },
     "smartplsSort": {
         "defaultValue": "",
@@ -378,8 +376,7 @@ const settingsFields = {
         "title": "Update interval",
         "unit": "Hours",
         "form": "modalSettingsSmartplsFrm",
-        "help": "helpSettingsSmartplsInterval",
-        "invalid": "Must be a number and equal or greater than zero"
+        "help": "helpSettingsSmartplsInterval"
     }
 };
 
@@ -725,7 +722,12 @@ const settingsWebuiFields = {
         "title": "Color",
         "form": "modalSettingsBgFrm",
         "reset": true,
-        "sort": 2
+        "sort": 2,
+        "validate": {
+            "cmd": "validateColorEl",
+            "options": []
+        },
+        "invalid": "Must be a hex color value"
     },
     "bgImage": {
         "defaultValue": "",
@@ -733,7 +735,12 @@ const settingsWebuiFields = {
         "cbCallback": "filterImageSelect",
         "title": "Image",
         "form": "modalSettingsBgFrm",
-        "sort": 3
+        "sort": 3,
+        "validate": {
+            "cmd": "validateColorEl",
+            "options": []
+        },
+        "invalid": "Must be a hex color value"
     },
     "bgCover": {
         "defaultValue": true,
@@ -803,8 +810,7 @@ const settingsConnectionFields = {
         "inputType": "text",
         "title": "MPD host",
         "form": "modalSettingsConnectionFrm",
-        "help": "helpConnectionMPDHost",
-        "invalid": "Invalid MPD host"
+        "help": "helpConnectionMPDHost"
     },
     "mpdPort": {
         "defaultValue": defaults["MYMPD_MPD_PORT"],
@@ -812,16 +818,14 @@ const settingsConnectionFields = {
         "contentType": "number",
         "title": "MPD port",
         "form": "modalSettingsConnectionFrm",
-        "help": "helpConnectionMPDPort",
-        "invalid": "Invalid MPD port"
+        "help": "helpConnectionMPDPort"
     },
     "mpdPass": {
         "defaultValue": defaults["MYMPD_MPD_PASS"],
         "inputType": "password",
         "title": "MPD password",
         "form": "modalSettingsConnectionAdvFrm1",
-        "help": "helpConnectionMPDPassword",
-        "invalid": "Invalid MPD password"
+        "help": "helpConnectionMPDPassword"
     },
     "mpdTimeout": {
         "defaultValue": defaults["MYMPD_MPD_TIMEOUT_SEC"],
@@ -829,7 +833,6 @@ const settingsConnectionFields = {
         "title": "Timeout",
         "form": "modalSettingsConnectionAdvFrm2",
         "help": "helpConnectionTimeout",
-        "invalid": "Invalid timeout",
         "unit": "Seconds"
     },
     "mpdKeepalive": {
@@ -845,7 +848,6 @@ const settingsConnectionFields = {
         "title": "Binary limit",
         "form": "modalSettingsConnectionAdvFrm2",
         "help": "helpConnectionBinaryLimit",
-        "invalid": "Invalid binary limit",
         "unit": "kB"
     }
 };

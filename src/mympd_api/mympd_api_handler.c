@@ -1552,7 +1552,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         if (parse_error.message != NULL) {
             // jsonrpc parsing error
             response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Parsing error: %{message}", 4, "message", parse_error.message, "path", parse_error.path);
+                JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, parse_error.message, 2, "path", parse_error.path);
         }
         else if (sdslen(error) > 0) {
             // error from api function

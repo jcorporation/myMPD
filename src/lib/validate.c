@@ -168,6 +168,22 @@ bool vcb_isuri(sds data) {
 }
 
 /**
+ * Checks if string is a valid stream uri
+ * @param data sds string to check
+ * @return true on success else false
+ */
+bool vcb_isstreamuri(sds data) {
+    if (sdslen(data) == 0) {
+        return false;
+    }
+    if (strstr(data, "://") != NULL) {
+        //uri notation
+        return true;
+    }
+    return false;
+}
+
+/**
  * Checks if string is a valid filename
  * Does not emit a warning
  * @param data sds string to check

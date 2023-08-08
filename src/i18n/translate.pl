@@ -81,6 +81,9 @@ for my $filename (@files) {
             while ($line =~ /\*error\s+=\s+sdscat\(\*error,\s+"([^"]+)"\)/g) {
                 add_phrase($1);
             }
+            while ($line =~ /set_invalid_value\(error,\s+path,\s+key,\s+value,\s+"([^"]+)"\)/g) {
+                add_phrase($1);
+            }
         }
         elsif ($filename =~ /\.js$/) {
             while ($line =~ /\"data-(\w+-)?phrase\":\s*"([^"]+)"/g) {
