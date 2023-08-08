@@ -134,7 +134,7 @@ bool mympd_api_settings_connection_save(const char *path, sds key, sds value, in
     else if (strcmp(key, "mpdBinarylimit") == 0 && vtype == MJSON_TOK_NUMBER) {
         unsigned binarylimit = (unsigned)strtoumax(value, NULL, 10);
         if (binarylimit < MPD_BINARY_SIZE_MIN || binarylimit > MPD_BINARY_SIZE_MAX) {
-            set_invalid_value(error, path, key, value, "Allowed binary limit range is between 4kB and 5MB");
+            set_invalid_value(error, path, key, value, "Allowed binary limit range is between 4kB and 256kB");
             return false;
         }
         if (binarylimit != mympd_state->mpd_state->mpd_binarylimit) {
