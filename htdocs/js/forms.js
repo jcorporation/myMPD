@@ -30,6 +30,7 @@ function formToJson(prefix, settingsParams, defaultFields) {
             if (defaultFields[key].validate !== undefined) {
                 const func = getFunctionByName(defaultFields[key].validate.cmd);
                 if (func(el, ... defaultFields[key].validate.options) === false) {
+                    logError('Validation failed for ' + key);
                     return false;
                 }
             }
