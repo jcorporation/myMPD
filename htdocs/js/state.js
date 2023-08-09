@@ -157,7 +157,9 @@ function parseState(obj) {
     }
     else if (obj.result.state === 'play') {
         document.getElementById('footerPlayBtn').textContent =
-            settings.webuiSettings.footerPlaybackControls === 'stop' ? 'stop' : 'pause';
+            settings.webuiSettings.footerPlaybackControls === 'stop'
+                ? 'stop'
+                : 'pause';
     }
     else {
         //pause
