@@ -455,7 +455,7 @@ function elGetIndex(el) {
 
 /**
  * Adds a waiting animation to a button
- * @param {HTMLElement} btn id of the button
+ * @param {Node} btn id of the button
  * @param {boolean} waiting true = add animation, false = remove animation
  * @returns {void}
  */
@@ -655,6 +655,7 @@ function mirrorBtn(btn, mirror) {
  * @param {string} id check button id
  * @returns {boolean} enabled = true, disabled = false
  */
+//eslint-disable-next-line no-unused-vars
 function getBtnChkValueId(id) {
     return getBtnChkValue(document.getElementById(id));
 }

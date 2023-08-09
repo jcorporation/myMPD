@@ -14,7 +14,6 @@ function initModalSettingsConnection() {
     const forms = {};
     // create the fields
     createForm(settingsConnectionFields, 'modalSettingsConnection', forms);
-
     initElements(document.getElementById('modalSettingsConnection'));
 
     document.getElementById('modalSettingsConnectionMusicDirectorySelect').addEventListener('change', function () {

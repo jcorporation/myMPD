@@ -96,8 +96,11 @@ function createForm(defaultFields, prefix, forms) {
             // searchable select
             const input = elCreateEmpty('input', {"class": ["form-select"], "id": id});
             setData(input, 'cb-filter', defaultFields[key].cbCallback);
-            setData(input, 'cb-filter-options', [id + 'Input']);
+            setData(input, 'cb-filter-options', defaultFields[key].cbCallbackOptions);
             input.setAttribute('data-is', 'mympd-select-search');
+            if (defaultFields[key].readOnly === true) {
+                input.setAttribute('readonly', 'readonly');
+            }
             col.firstChild.firstChild.appendChild(
                 elCreateNode('div', {"class": ["btn-group", "d-flex"]}, input)
             );
@@ -232,6 +235,7 @@ function jsonToForm(settingsFields, defaultFields, prefix) {
                 case 'mympd-select-search':
                     setData(field, 'value', settingsFields[key]);
                     field.value = tn(settingsFields[key]);
+                    field.filterInput.value = '';
                     break;
                 default:
                     logError('Unhandled field type ' + defaultFields[key].inputType + ' for id ' + id + ' not found.');

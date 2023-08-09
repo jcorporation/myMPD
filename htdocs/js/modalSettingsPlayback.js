@@ -10,34 +10,39 @@
  * @returns {void}
  */
 function initModalSettingsPlayback() {
+    // cache for the form field containers
+    const forms = {};
+    // create the fields
+    createForm(settingsPlaybackFields, 'modalSettingsPlayback', forms);
     initElements(document.getElementById('modalSettingsPlayback'));
+
+    uiElements.modalSettingsPlaybackJukeboxCollapse = BSN.Collapse.getInstance(document.getElementById('modalSettingsPlaybackJukeboxCollapse'));
 
     document.getElementById('modalSettingsPlayback').addEventListener('shown.bs.modal', function () {
         cleanupModalId('modalSettingsPlayback');
         getSettings();
     });
 
-    document.getElementById('btnJukeboxModeGroup').addEventListener('mouseup', function () {
+    document.getElementById('modalSettingsPlaybackJukeboxModeGroup').addEventListener('mouseup', function () {
         setTimeout(function() {
             toggleJukeboxSettings();
             checkConsume();
         }, 100);
     });
 
-    document.getElementById('btnConsumeGroup').addEventListener('mouseup', function() {
+    document.getElementById('modalSettingsPlaybackConsumeGroup').addEventListener('mouseup', function() {
         setTimeout(function() {
             checkConsume();
         }, 100);
     });
 
-    setDataId('selectJukeboxPlaylist', 'cb-filter', 'filterPlaylistsSelect');
-    setDataId('selectJukeboxPlaylist', 'cb-filter-options', [0, 'selectJukeboxPlaylist']);
-
-    document.getElementById('listPresetsList').addEventListener('click', function(event) {
+    document.getElementById('modalSettingsPlaybackPresetsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
-            if (!event.target.parentNode.classList.contains('not-clickable')) {
+            if (event.target.parentNode.classList.contains('not-clickable') === false) {
+                // @ts-ignore
+                btnWaiting(event.target, true);
                 applyPreset(getData(event.target.parentNode, 'name'));
             }
         }
@@ -52,11 +57,11 @@ function initModalSettingsPlayback() {
  * @returns {void}
  */
 function populateListPresets() {
-    const presetsEl = document.getElementById('inputPresetName');
+    const presetsEl = document.getElementById('modalSettingsPlaybackPresetNameInput');
     presetsEl.value = '';
     setData(presetsEl, 'value', '');
     elClear(presetsEl.filterResult);
-    const presetsList = document.getElementById('listPresetsList');
+    const presetsList = document.getElementById('modalSettingsPlaybackPresetsList');
     elClear(presetsList);
     for (const preset of settings.partition.presets) {
         presetsEl.addFilterResultPlain(preset);
@@ -135,15 +140,15 @@ function togglePlaymode(option) {
  * @returns {void}
  */
 function checkConsume() {
-    const stateConsume = getBtnGroupValueId('btnConsumeGroup');
-    const stateJukeboxMode = getBtnGroupValueId('btnJukeboxModeGroup');
+    const stateConsume = getBtnGroupValueId('modalSettingsPlaybackConsumeGroup');
+    const stateJukeboxMode = getBtnGroupValueId('modalSettingsPlaybackJukeboxModeGroup');
     if (stateJukeboxMode !== 'off' &&
         stateConsume !== '1')
     {
-        elShowId('warnConsume');
+        elShowId('modalSettingsPlaybackConsumeWarn');
     }
     else {
-        elHideId('warnConsume');
+        elHideId('modalSettingsPlaybackConsumeWarn');
     }
 }
 
@@ -152,31 +157,31 @@ function checkConsume() {
  * @returns {void}
  */
 function toggleJukeboxSettings() {
-    const value = getBtnGroupValueId('btnJukeboxModeGroup');
+    const value = getBtnGroupValueId('modalSettingsPlaybackJukeboxModeGroup');
     if (value === 'off') {
-        elDisableId('inputJukeboxQueueLength');
-        elDisableId('selectJukeboxPlaylist');
-        elDisableId('btnJukeboxIgnoreHated');
+        elDisableId('modalSettingsPlaybackJukeboxQueueLengthInput');
+        elDisableId('modalSettingsPlaybackJukeboxPlaylistInput');
+        elDisableId('modalSettingsPlaybackJukeboxIgnoreHatedInput');
     }
     else if (value === 'album') {
-        elDisableId('inputJukeboxQueueLength');
-        document.getElementById('inputJukeboxQueueLength').value = '1';
-        elDisableId('selectJukeboxPlaylist');
-        elDisableId('btnJukeboxIgnoreHated');
-        toggleBtnChkId('btnJukeboxIgnoreHated', false);
-        elDisable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
-        document.getElementById('selectJukeboxPlaylist').value = 'Database';
-        setDataId('selectJukeboxPlaylist', 'value', 'Database');
+        elDisableId('modalSettingsPlaybackJukeboxQueueLengthInput');
+        document.getElementById('modalSettingsPlaybackJukeboxQueueLengthInput').value = '1';
+        elDisableId('modalSettingsPlaybackJukeboxPlaylistInput');
+        elDisableId('modalSettingsPlaybackJukeboxIgnoreHatedInput');
+        toggleBtnChkId('modalSettingsPlaybackJukeboxIgnoreHatedInput', false);
+        elDisable(document.getElementById('modalSettingsPlaybackJukeboxPlaylistInput').nextElementSibling);
+        document.getElementById('modalSettingsPlaybackJukeboxPlaylistInput').value = tn('Database');
+        setDataId('modalSettingsPlaybackJukeboxPlaylistInput', 'value', 'Database');
     }
     else if (value === 'song') {
-        elEnableId('inputJukeboxQueueLength');
-        elEnableId('selectJukeboxPlaylist');
-        elEnableId('btnJukeboxIgnoreHated');
-        elEnable(document.getElementById('selectJukeboxPlaylist').nextElementSibling);
+        elEnableId('modalSettingsPlaybackJukeboxQueueLengthInput');
+        elEnableId('modalSettingsPlaybackJukeboxPlaylistInput');
+        elEnableId('modalSettingsPlaybackJukeboxIgnoreHatedInput');
+        elEnable(document.getElementById('modalSettingsPlaybackJukeboxPlaylistInput').nextElementSibling);
     }
     if (value !== 'off') {
-        toggleBtnGroupValueId('btnConsumeGroup', '1');
-        toggleBtnGroupValueId('btnSingleGroup', '0');
+        toggleBtnGroupValueId('modalSettingsPlaybackConsumeGroup', '1');
+        toggleBtnGroupValueId('modalSettingsPlaybackSingleGroup', '0');
     }
 }
 
@@ -186,7 +191,7 @@ function toggleJukeboxSettings() {
  * @returns {HTMLElement} the row
  */
 function createPresetsListRow(preset) {
-    const row = elCreateNodes('tr', {"data-title-phrase": "Load preset", "phrase": tn('Load preset')}, [
+    const row = elCreateNodes('tr', {"data-title-phrase": "Load preset", "title": tn("Load preset")}, [
         elCreateText('td', {}, preset),
         elCreateNode('td', {"data-col": "Action"},
             elCreateText('a', {"class": ["mi", "color-darkgrey"], "href": "#", "data-title-phrase": "Delete", "phrase": tn('Delete')}, 'delete')
@@ -201,43 +206,33 @@ function createPresetsListRow(preset) {
  * @returns {void}
  */
 function populateSettingsPlaybackFrm() {
-    toggleBtnGroupValueCollapse(document.getElementById('btnJukeboxModeGroup'), 'collapseJukeboxMode', settings.partition.jukeboxMode);
-    addTagListSelect('selectJukeboxUniqueTag', 'tagListBrowse');
+    jsonToForm(settings.partition, settingsPlaybackFields, 'modalSettingsPlayback');
 
-    document.getElementById('selectJukeboxUniqueTag').value = settings.partition.jukeboxUniqueTag;
-    document.getElementById('inputJukeboxQueueLength').value = settings.partition.jukeboxQueueLength;
-    document.getElementById('inputJukeboxLastPlayed').value = settings.partition.jukeboxLastPlayed;
+    toggleBtnGroupValueCollapse(document.getElementById('modalSettingsPlaybackJukeboxModeGroup'), 'modalSettingsPlaybackJukeboxCollapse', settings.partition.jukeboxMode);
+    addTagListSelect('modalSettingsPlaybackJukeboxUniqueTagInput', 'tagListBrowse');
     toggleJukeboxSettings();
-    document.getElementById('selectJukeboxPlaylist').filterInput.value = '';
-    toggleBtnChkId('btnJukeboxIgnoreHated', settings.partition.jukeboxIgnoreHated);
 
     populateListPresets();
 
     if (settings.partition.mpdConnected === true) {
         if (features.featPlaylists === true) {
-            filterPlaylistsSelect(0, 'selectJukeboxPlaylist', '', settings.partition.jukeboxPlaylist);
-            setDataId('selectJukeboxPlaylist', 'value', settings.partition.jukeboxPlaylist);
+            filterPlaylistsSelect(0, 'modalSettingsPlaybackJukeboxPlaylistInput', '', settings.partition.jukeboxPlaylist);
+            setDataId('modalSettingsPlaybackJukeboxPlaylistInput', 'value', settings.partition.jukeboxPlaylist);
         }
         else {
-            document.getElementById('selectJukeboxPlaylist').value = tn('Database');
-            setDataId('selectJukeboxPlaylist', 'value', 'Database');
+            document.getElementById('modalSettingsPlaybackJukeboxPlaylistInput').value = tn('Database');
+            setDataId('modalSettingsPlaybackJukeboxPlaylistInput', 'value', 'Database');
         }
-        toggleBtnChkId('btnRandom', settings.partition.random);
-        toggleBtnChkId('btnRepeat', settings.partition.repeat);
-        toggleBtnChkId('btnAutoPlay', settings.partition.autoPlay);
-        toggleBtnGroupValueId('btnConsumeGroup', settings.partition.consume);
-        toggleBtnGroupValueId('btnSingleGroup', settings.partition.single);
-        toggleBtnGroupValueId('btnReplaygainGroup', settings.partition.replaygain);
-        document.getElementById('inputCrossfade').value = settings.partition.crossfade;
-        document.getElementById('inputMixrampDb').value = settings.partition.mixrampDb;
-        document.getElementById('inputMixrampDelay').value = settings.partition.mixrampDelay;
+        toggleBtnGroupValueId('modalSettingsPlaybackConsumeGroup', settings.partition.consume);
+        toggleBtnGroupValueId('modalSettingsPlaybackSingleGroup', settings.partition.single);
+        toggleBtnGroupValueId('modalSettingsPlaybackReplaygainGroup', settings.partition.replaygain);
         if (features.featStickers === false) {
-            elShowId('warnPlaybackStatistics');
-            elDisableId('inputJukeboxLastPlayed');
+            elShowId('modalSettingsPlaybackPlaybackStatisticsWarn');
+            elDisableId('modalSettingsPlaybackJukeboxLastPlayedInput');
         }
         else {
-            elHideId('warnPlaybackStatistics');
-            elEnableId('inputJukeboxLastPlayed');
+            elHideId('modalSettingsPlaybackPlaybackStatisticsWarn');
+            elEnableId('modalSettingsPlaybackJukeboxLastPlayedInput');
         }
     }
     checkConsume();
@@ -250,55 +245,22 @@ function populateSettingsPlaybackFrm() {
 //eslint-disable-next-line no-unused-vars
 function saveSettingsPlayback() {
     cleanupModalId('modalSettingsPlayback');
-    let formOK = true;
-
-    for (const inputId of ['inputCrossfade', 'inputJukeboxQueueLength', 'inputJukeboxLastPlayed']) {
-        const inputEl = document.getElementById(inputId);
-        if (validateIntEl(inputEl) === false) {
-            formOK = false;
+    const params = {};
+    if (formToJson('modalSettingsPlayback', params, settingsPlaybackFields) === true) {
+        params.jukeboxMode = getBtnGroupValueId('modalSettingsPlaybackJukeboxModeGroup');
+        params.consume = getBtnGroupValueId('modalSettingsPlaybackConsumeGroup');
+        params.single = getBtnGroupValueId('modalSettingsPlaybackSingleGroup');
+        params.replaygain = getBtnGroupValueId('modalSettingsPlaybackReplaygainGroup');
+        // enforce uniq tag for jukebox album mode
+        params.jukeboxUniqueTag = params.jukeboxMode === 'album'
+            ? 'Album'
+            : getSelectValueId('modalSettingsPlaybackJukeboxUniqueTagInput');
+        //set preset name to blank string if not defined, else it is not send to the api
+        params.name = getDataId('modalSettingsPlaybackPresetNameInput', 'value');
+        if (params.name === undefined) {
+            params.name = '';
         }
-    }
-
-    const mixrampDbEl = document.getElementById('inputMixrampDb');
-    if (validateFloatRangeEl(mixrampDbEl, -100, 0) === false) {
-        formOK = false;
-    }
-    const mixrampDelayEl = document.getElementById('inputMixrampDelay');
-    if (validateFloatRangeEl(mixrampDelayEl, -1, 100) === false) {
-        formOK = false;
-    }
-
-    const jukeboxMode = getBtnGroupValueId('btnJukeboxModeGroup');
-    const jukeboxUniqueTag = jukeboxMode === 'album'
-        ? 'Album'
-        : getSelectValueId('selectJukeboxUniqueTag');
-
-    let presetName = getDataId('inputPresetName', 'value');
-    if (presetName === undefined) {
-        //set preset name to blank string, else it is not send to the api
-        presetName = '';
-    }
-
-    if (formOK === true) {
-        const params = {
-            "name": presetName,
-            "random": getBtnChkValueId('btnRandom'),
-            "single": getBtnGroupValueId('btnSingleGroup'),
-            "consume": getBtnGroupValueId('btnConsumeGroup'),
-            "repeat": getBtnChkValueId('btnRepeat'),
-            "replaygain": getBtnGroupValueId('btnReplaygainGroup'),
-            "crossfade": Number(document.getElementById('inputCrossfade').value),
-            "mixrampDb": Number(mixrampDbEl.value),
-            "mixrampDelay": Number(mixrampDelayEl.value),
-            "jukeboxMode": jukeboxMode,
-            "jukeboxPlaylist": getDataId('selectJukeboxPlaylist', 'value'),
-            "jukeboxQueueLength": Number(document.getElementById('inputJukeboxQueueLength').value),
-            "jukeboxLastPlayed": Number(document.getElementById('inputJukeboxLastPlayed').value),
-            "jukeboxUniqueTag": jukeboxUniqueTag,
-            "jukeboxIgnoreHated": getBtnChkValueId('btnJukeboxIgnoreHated'),
-            "autoPlay": getBtnChkValueId('btnAutoPlay')
-        };
-        btnWaitingId('btnSaveSettingsPlayback', true);
+        btnWaitingId('modalSettingsPlaybackSaveBtn', true);
         sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", params, saveSettingsPlaybackClose, true);
     }
 }
@@ -309,9 +271,11 @@ function saveSettingsPlayback() {
  * @returns {void}
  */
 function saveSettingsPlaybackClose(obj) {
-    btnWaitingId('btnSaveSettingsPlayback', false);
+    btnWaitingId('modalSettingsPlaybackSaveBtn', false);
     if (obj.error) {
-        showModalAlert(obj);
+        if (highlightInvalidInput('modalSettingsPlayback', obj) === false) {
+            showModalAlert(obj);
+        }
     }
     else {
         uiElements.modalSettingsPlayback.hide();

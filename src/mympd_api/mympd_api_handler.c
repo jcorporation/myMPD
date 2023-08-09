@@ -446,8 +446,8 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_PRESET_APPLY:
             if (json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
                 rc = preset_apply(partition_state, sds_buf1,&error);
-                response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc,
-                        JSONRPC_FACILITY_MPD, error);
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
+                        JSONRPC_FACILITY_MPD, "Preset loaded successfully", error);
             }
             break;
     // mpd connection

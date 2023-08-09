@@ -1599,45 +1599,25 @@
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link active" href="#tabSettingsPlayback" data-bs-toggle="tab" data-height="true" data-phrase="Playback"></a>
+              <a class="nav-link active" href="#modalSettingsPlaybackPlaybackTab" data-bs-toggle="tab" data-height="true" data-phrase="Playback"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#tabJukeboxSettings" data-bs-toggle="tab" data-height="true" data-phrase="Jukebox"></a>
+              <a class="nav-link" href="#modalSettingsPlaybackJukeboxTab" data-bs-toggle="tab" data-height="true" data-phrase="Jukebox"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#tabPresets" data-bs-toggle="tab" data-height="true" data-phrase="Presets"></a>
+              <a class="nav-link" href="#modalSettingsPlaybackPresetsTab" data-bs-toggle="tab" data-height="true" data-phrase="Presets"></a>
             </li>
           </ul>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div class="tab-content">
-            <div class="tab-pane active" id="tabSettingsPlayback">
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="btnRandom" data-phrase="Random"></label>
-                <div class="col-sm-8">
-                  <button data-href='{"cmd":"toggleBtnChk", "options":[]}' id="btnRandom" type="button" class="btn btn-secondary btn-sm mi"></button>
-                  <small class="help" data-phrase="helpQueueRandom"></small>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="btnRepeat" data-phrase="Repeat"></label>
-                <div class="col-sm-8">
-                  <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnRepeat" type="button" class="btn btn-secondary btn-sm mi"></button>
-                  <small class="help" data-phrase="helpQueueRepeat"></small>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="btnAutoPlay" data-phrase="Autoplay"></label>
-                <div class="col-sm-8">
-                  <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnAutoPlay" type="button" class="btn btn-secondary btn-sm mi"></button>
-                  <small class="help" data-phrase="helpQueueAutoPlay"></small>
-                </div>
-              </div>
+            <div class="tab-pane active" id="modalSettingsPlaybackPlaybackTab">
+              <div id="modalSettingsPlaybackPlaybackFrm1"></div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" data-phrase="Consume"></label>
                 <div class="col-sm-8">
-                  <div class="btn-group" id="btnConsumeGroup">
+                  <div class="btn-group" id="modalSettingsPlaybackConsumeGroup">
                     <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
                     <button data-value="oneshot" class="btn btn-secondary featConsumeOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
                     <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
@@ -1648,7 +1628,7 @@
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" data-phrase="Single"></label>
                 <div class="col-sm-8">
-                  <div class="btn-group" id="btnSingleGroup">
+                  <div class="btn-group" id="modalSettingsPlaybackSingleGroup">
                     <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
                     <button data-value="oneshot" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
                     <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
@@ -1659,7 +1639,7 @@
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" data-phrase="Replaygain"></label>
                 <div class="col-sm-8">
-                  <div class="btn-group" id="btnReplaygainGroup">
+                  <div class="btn-group" id="modalSettingsPlaybackReplaygainGroup">
                     <button data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
                     <button data-value="auto" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Auto"></button>
                     <button data-value="track" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
@@ -1668,40 +1648,7 @@
                   <small class="help" data-phrase="helpQueueReplaygain"></small>
                 </div>
               </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputCrossfade" data-phrase="Crossfade"></label>
-                <div class="col-sm-8">
-                  <div class="input-group">
-                    <div class="flex-grow-1 position-relative">
-                      <input data-is="mympd-input-reset" id="inputCrossfade" class="form-control rounded" placeholder="0"/>
-                    </div>
-                    <div class="input-group-text-nobg" data-phrase="Seconds"></div>
-                    <div class="invalid-feedback" data-phrase="Must be a number"></div>
-                  </div>
-                  <small class="help" data-phrase="helpQueueCrossfade"></small>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputMixrampDb" data-phrase="Mixramp db"></label>
-                <div class="col-sm-8 position-relative">
-                  <input data-is="mympd-input-reset" id="inputMixrampDb" class="form-control rounded" placeholder="0"/>
-                  <div class="invalid-feedback" data-phrase="Must be a number"></div>
-                  <small class="help" data-phrase="helpQueueMixrampDb"></small>
-                </div>
-              </div>
-              <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputMixrampDelay" data-phrase="Mixramp delay"></label>
-                <div class="col-sm-8">
-                  <div class="input-group">
-                    <div class="flex-grow-1 position-relative">
-                      <input data-is="mympd-input-reset" id="inputMixrampDelay" class="form-control rounded" placeholder="-1"/>
-                    </div>
-                    <div class="input-group-text-nobg" data-phrase="Seconds"></div>
-                    <div class="invalid-feedback" data-phrase="Must be a number"></div>
-                  </div>
-                  <small class="help" data-phrase="helpQueueMixrampDelay"></small>
-                </div>
-              </div>
+              <div id="modalSettingsPlaybackPlaybackFrm2"></div>
               <div class="mb-3 row">
                 <div class="col-sm-4"></div>
                 <div class="col-sm-8">
@@ -1709,68 +1656,24 @@
                 </div>
               </div>
             </div>
-            <div class="tab-pane" id="tabJukeboxSettings">
+            <div class="tab-pane" id="modalSettingsPlaybackJukeboxTab">
               <div id="warnConsume" class="alert alert-warning d-none" data-phrase="Consume must be enabled"></div>
               <div class="mb-3 row">
-                <label id="labelJukeboxMode" class="col-sm-4 col-form-label" data-phrase="Jukebox mode" data-bs-toggle="collapse" data-bs-target="#collapseJukeboxMode"></label>
+                <label id="labelJukeboxMode" class="col-sm-4 col-form-label" data-phrase="Jukebox mode" data-bs-toggle="collapse" data-bs-target="#modalSettingsPlaybackJukeboxCollapse"></label>
                 <div class="col-sm-8">
-                  <div class="btn-group" id="btnJukeboxModeGroup">
-                    <button data-collapse="d-none" data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Off"></button>
-                    <button data-collapse="show" data-value="song" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Song"></button>
-                    <button data-collapse="show" data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["collapseJukeboxMode"]}' type="button" data-phrase="Album"></button>
+                  <div class="btn-group" id="modalSettingsPlaybackJukeboxModeGroup">
+                    <button data-collapse="d-none" data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["modalSettingsPlaybackJukeboxCollapse"]}' type="button" data-phrase="Off"></button>
+                    <button data-collapse="show" data-value="song" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["modalSettingsPlaybackJukeboxCollapse"]}' type="button" data-phrase="Song"></button>
+                    <button data-collapse="show" data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["modalSettingsPlaybackJukeboxCollapse"]}' type="button" data-phrase="Album"></button>
                   </div>
                   <small class="help" data-phrase="helpJukeboxMode"></small>
+                  <div id="modalSettingsPlaybackConsumeWarn" class="alert alert-warning mt-2" data-phrase="Consume must be enabled"></div>
                 </div>
               </div>
-              <div class="collapse" id="collapseJukeboxMode">
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="selectJukeboxPlaylist" data-phrase="Playlist"></label>
-                  <div class="col-sm-8">
-                    <div class="btn-group position-relative d-flex">
-                      <input data-is="mympd-select-search" readonly="readonly" id="selectJukeboxPlaylist" class="form-control"/>
-                    </div>
-                    <small class="help" data-phrase="helpJukeboxPlaylist"></small>
-                  </div>
-                </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="inputJukeboxQueueLength" data-phrase="Keep queue length"></label>
-                  <div class="col-sm-8 position-relative">
-                    <input data-is="mympd-input-reset" id="inputJukeboxQueueLength" class="form-control" placeholder="1"/>
-                    <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
-                    <small class="help" data-phrase="helpJukeboxQueueLength"></small>
-                  </div>
-                </div>
-                <div class="mb-3 row featTags">
-                  <label class="col-sm-4 col-form-label" for="selectJukeboxUniqueTag" data-phrase="Enforce uniqueness"></label>
-                  <div class="col-sm-8">
-                    <select id="selectJukeboxUniqueTag" class="form-select"></select>
-                    <small class="help" data-phrase="helpJukeboxUniqueTag"></small>
-                  </div>
-                </div>
-                <div class="mb-3 row">
-                  <label class="col-sm-4 col-form-label" for="inputJukeboxLastPlayed" data-phrase="Song was played last"></label>
-                  <div class="col-sm-8">
-                    <div class="input-group">
-                      <div class="flex-grow-1 position-relative">
-                        <input data-is="mympd-input-reset" id="inputJukeboxLastPlayed" class="form-control rounded" placeholder="24"/>
-                      </div>
-                      <span class="input-group-text-nobg" data-phrase="Hours ago"></span>
-                      <div class="invalid-feedback" data-phrase="Must be a number and equal or greater than zero"></div>
-                    </div>
-                    <small class="help" data-phrase="helpJukeboxLastPlayed"></small>
-                  </div>
-                </div>
-                <div class="mb-3 row featStickers">
-                  <label class="col-sm-4 col-form-label" for="btnJukeboxIgnoreHated" data-phrase="Ignore hated songs"></label>
-                  <div class="col-sm-8">
-                    <button data-href='{"cmd": "toggleBtnChk", "options": []}' id="btnJukeboxIgnoreHated" type="button" class="btn btn-secondary btn-sm mi"></button>
-                    <small class="help" data-phrase="helpJukeboxIgnoreHated"></small>
-                  </div>
-                </div>
-                <div id="warnPlaybackStatistics" class="alert alert-warning d-none" data-phrase="Playback statistics are disabled"></div>
-              </div>
+              <div class="collapse" id="modalSettingsPlaybackJukeboxCollapse"></div>
+              <div id="modalSettingsPlaybackPlaybackStatisticsWarn" class="alert alert-warning d-none" data-phrase="Playback statistics are disabled"></div>
             </div>
-            <div class="tab-pane" id="tabPresets">
+            <div class="tab-pane" id="modalSettingsPlaybackPresetsTab">
               <div class="table-responsive overflow-auto">
                 <table class="table table-hover table-sm">
                   <thead>
@@ -1779,7 +1682,7 @@
                       <th></th>
                     </tr>
                   </thead>
-                  <tbody class="clickable" id="listPresetsList"></tbody>
+                  <tbody class="clickable" id="modalSettingsPlaybackPresetsList"></tbody>
                 </table>
               </div>
             </div>
@@ -1789,9 +1692,9 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <div class="d-flex">
             <div class="position-relative me-2">
-              <input data-is="mympd-select-new" id="inputPresetName" data-placeholder-phrase="Optional preset name" class="form-control me-2"/>
+              <input data-is="mympd-select-new" id="modalSettingsPlaybackPresetNameInput" data-placeholder-phrase="Optional preset name" class="form-control me-2"/>
             </div>
-            <button id="btnSaveSettingsPlayback" type="button" class="btn btn-success" data-href='{"cmd": "saveSettingsPlayback", "options": []}' data-phrase="Save"></button>
+            <button id="modalSettingsPlaybackSaveBtn" type="button" class="btn btn-success" data-href='{"cmd": "saveSettingsPlayback", "options": []}' data-phrase="Save"></button>
           </div>
         </div>
       </div>

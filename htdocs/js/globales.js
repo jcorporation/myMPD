@@ -732,7 +732,9 @@ const settingsWebuiFields = {
     "bgImage": {
         "defaultValue": "",
         "inputType": "mympd-select-search",
+        "readOnly": true,
         "cbCallback": "filterImageSelect",
+        "cbCallbackOptions": ["modalSettingsBgImageInput"],
         "title": "Image",
         "form": "modalSettingsBgFrm",
         "sort": 3,
@@ -849,6 +851,95 @@ const settingsConnectionFields = {
         "form": "modalSettingsConnectionAdvFrm2",
         "help": "helpConnectionBinaryLimit",
         "unit": "kB"
+    }
+};
+
+const settingsPlaybackFields = {
+    "random": {
+        "inputType": "checkbox",
+        "title": "Random",
+        "form": "modalSettingsPlaybackPlaybackFrm1",
+        "help": "helpQueueRandom"
+    },
+    "repeat": {
+        "inputType": "checkbox",
+        "title": "Repeat",
+        "form": "modalSettingsPlaybackPlaybackFrm1",
+        "help": "helpQueueRepeat"
+    },
+    "autoPlay": {
+        "inputType": "checkbox",
+        "title": "Autoplay",
+        "form": "modalSettingsPlaybackPlaybackFrm1",
+        "help": "helpQueueAutoPlay"
+    },
+    "crossfade": {
+        "defaultValue": 0,
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Crossfade",
+        "form": "modalSettingsPlaybackPlaybackFrm2",
+        "help": "helpQueueCrossfade",
+        "unit": "Seconds"
+    },
+    "mixrampDb": {
+        "defaultValue": 0,
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Mixramp db",
+        "form": "modalSettingsPlaybackPlaybackFrm2",
+        "help": "helpQueueMixrampDb",
+        "unit": "DB"
+    },
+    "mixrampDelay": {
+        "defaultValue": -1,
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Mixramp delay",
+        "form": "modalSettingsPlaybackPlaybackFrm2",
+        "help": "helpQueueMixrampDelay",
+        "unit": "Seconds"
+    },
+    "jukeboxPlaylist": {
+        "inputType": "mympd-select-search",
+        "defaultValue": defaults["MYMPD_JUKEBOX_PLAYLIST"],
+        "readOnly": true,
+        "cbCallback": "filterPlaylistsSelect",
+        "cbCallbackOptions": [0, 'selectJukeboxPlaylist'],
+        "title": "Playlist",
+        "form": "modalSettingsPlaybackJukeboxCollapse",
+        "help": "helpJukeboxPlaylist"
+    },
+    "jukeboxQueueLength": {
+        "inputType": "text",
+        "defaultValue": defaults["MYMPD_JUKEBOX_QUEUE_LENGTH"],
+        "contentType": "number",
+        "title": "Keep queue length",
+        "form": "modalSettingsPlaybackJukeboxCollapse",
+        "help": "helpJukeboxQueueLength"
+    },
+    "jukeboxUniqueTag": {
+        "inputType": "select",
+        "defaultValue": defaults["MYMPD_JUKEBOX_UNIQUE_TAG"],
+        "title": "Enforce uniqueness",
+        "form": "modalSettingsPlaybackJukeboxCollapse",
+        "help": "helpJukeboxUniqueTag"
+    },
+    "jukeboxLastPlayed": {
+        "inputType": "text",
+        "contentType": "number",
+        "defaultValue": defaults["MYMPD_JUKEBOX_LAST_PLAYED"],
+        "title": "Song was played last",
+        "form": "modalSettingsPlaybackJukeboxCollapse",
+        "help": "helpJukeboxLastPlayed",
+        "unit": "Hours ago"
+    },
+    "jukeboxIgnoreHated": {
+        "inputType": "checkbox",
+        "defaultValue": defaults["MYMPD_JUKEBOX_IGNORE_HATED"],
+        "title": "Ignore hated songs",
+        "form": "modalSettingsPlaybackJukeboxCollapse",
+        "help": "helpJukeboxIgnoreHated"
     }
 };
 
@@ -1290,7 +1381,6 @@ for (const m of document.querySelectorAll('.modal')) {
 //other directly accessed BSN objects
 uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance(document.getElementById('btnHomeIconLigature'));
 uiElements.dropdownNeighbors = BSN.Dropdown.getInstance(document.getElementById('btnDropdownNeighbors'));
-uiElements.collapseJukeboxMode = BSN.Collapse.getInstance(document.getElementById('collapseJukeboxMode'));
 
 const LUAfunctions = {
     "mympd.http_client": {

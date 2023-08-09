@@ -226,6 +226,7 @@ function validateFloatEl(el) {
  * @param {number} max maximum value (including)
  * @returns {boolean} true = integer in range, else false
  */
+//eslint-disable-next-line no-unused-vars
 function validateFloatRangeEl(el, min, max) {
     if (validateFloatEl(el) === false) {
         return false;

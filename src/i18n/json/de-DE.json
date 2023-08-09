@@ -458,7 +458,6 @@
     "Music directory not found": "Musikverzeichnis nicht gefunden",
     "MusicBrainz": "MusicBrainz",
     "Must be a number": "Muss eine Zahl sein",
-    "Must be a number and equal or greater than zero": "Muss eine Zahl größergleich 0 sein",
     "Must be a number and greater than zero": "Muss eine Zahl größer als 0 sein",
     "Name": "Name",
     "Navigation bar": "Navigationsleiste",
@@ -986,7 +985,7 @@
     "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}": "%{count1} ungültige Einträge und %{count2} Duplikate in der Wiedergabeliste %{plist}",
     "Content of playlist %{plist} is valid and uniq": "Inhalt der Wiedergabeliste %{plist} ist gültig und eindeutig",
     "Deduplicate": "Deduplizieren",
-    "Playlists validation and deduplication started": "Überprüfung und deduplikation der Wiedergabelisten gestartet",
+    "Playlists validation and deduplication started": "Überprüfung und Deduplikation der Wiedergabelisten gestartet",
     "Validate and deduplicate playlist": "Wiedergabeliste prüfen und deduplizieren",
     "%{count1} invalid and %{count2} duplicate entries in playlists": "%{count1} ungültige Einträge und %{count2} Duplikate in Wiedergabelisten",
     "%{count} duplicate entries in playlists": "%{count} Duplikate in den Wiedergabelisten",
@@ -1062,5 +1061,8 @@
     "Must be on, off or oneshot": "Muss on, off oder oneshot sein",
     "Must be zero or a positive number": "Muss 0 oder größer sein",
     "Only filenames allowed": "Es sind nur Dateinamen erlaubt",
-    "Only sort tags allowed": "Es sind nur Sort-Tags erlaubt"
+    "Only sort tags allowed": "Es sind nur Sort-Tags erlaubt",
+    "Preset loaded successfully": "Voreinstellung erfolgreich geladen",
+    "Allowed binary limit range is between 4kB and 256kB": "Binary Limit muss zwischen 4kB und 256KB sein",
+    "DB": "DB"
 }
