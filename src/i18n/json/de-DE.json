@@ -271,7 +271,7 @@
     "helpConnectionMPDPort": "TCP-Port auf dem MPD horcht.",
     "helpConnectionMusicDirectory": "Das MPD Musikverzeichnis. Der Wert 'Automatisch' funktioniert nur für lokale Unix-Socket Verbindungen.",
     "helpConnectionMPDPassword": "Das MPD Passwort, falls eines in der MPD Konfiguration gesetzt ist.",
-    "helpConnectionPlaylistDirectory": "Das MPD Wiedergabelistenverzeichnis. Wird nur für die Veröffentlichung durch die /browse/ URI genutzt.",
+    "helpConnectionPlaylistDirectory": "Das MPD Wiedergabelistenverzeichnis. Der Wert 'Automatisch' funktioniert nur für lokale Unix-Socket Verbindungen.",
     "helpConnectionTimeout": "Timeout für die MPD-Verbindung.",
     "helpConnectionKeepalive": "Aktiviert TCP Keepalive.",
     "helpConnectionBinaryLimit": "Maximale Chunk-Größe für binäre Daten. Das Limit muss zwischen 4 kB und 256 kB liegen.",
