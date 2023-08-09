@@ -55,11 +55,11 @@ function parseSettings(obj) {
         populateSettingsFrm();
     }
     //execute only if connection modal is displayed
-    if (document.getElementById('modalSettingsConnection').classList.contains('show')) {
+    if (document.getElementById('modalConnection').classList.contains('show')) {
         populateConnectionFrm();
     }
     //execute only if queue settings modal is displayed
-    if (document.getElementById('modalSettingsPlayback').classList.contains('show')) {
+    if (document.getElementById('modalPlayback').classList.contains('show')) {
         populateSettingsPlaybackFrm();
     }
 

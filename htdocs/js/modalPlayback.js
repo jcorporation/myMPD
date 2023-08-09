@@ -3,7 +3,7 @@
 // myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @module modalSettingsPlayback_js */
+/** @module modalPlayback_js */
 
 /**
  * Initialization function for the playback settings elements
@@ -13,30 +13,30 @@ function initModalSettingsPlayback() {
     // cache for the form field containers
     const forms = {};
     // create the fields
-    createForm(settingsPlaybackFields, 'modalSettingsPlayback', forms);
-    initElements(document.getElementById('modalSettingsPlayback'));
+    createForm(settingsPlaybackFields, 'modalPlayback', forms);
+    initElements(document.getElementById('modalPlayback'));
 
-    uiElements.modalSettingsPlaybackJukeboxCollapse = BSN.Collapse.getInstance(document.getElementById('modalSettingsPlaybackJukeboxCollapse'));
+    uiElements.modalPlaybackJukeboxCollapse = BSN.Collapse.getInstance(document.getElementById('modalPlaybackJukeboxCollapse'));
 
-    document.getElementById('modalSettingsPlayback').addEventListener('shown.bs.modal', function () {
-        cleanupModalId('modalSettingsPlayback');
+    document.getElementById('modalPlayback').addEventListener('shown.bs.modal', function () {
+        cleanupModalId('modalPlayback');
         getSettings();
     });
 
-    document.getElementById('modalSettingsPlaybackJukeboxModeGroup').addEventListener('mouseup', function () {
+    document.getElementById('modalPlaybackJukeboxModeGroup').addEventListener('mouseup', function () {
         setTimeout(function() {
             toggleJukeboxSettings();
             checkConsume();
         }, 100);
     });
 
-    document.getElementById('modalSettingsPlaybackConsumeGroup').addEventListener('mouseup', function() {
+    document.getElementById('modalPlaybackConsumeGroup').addEventListener('mouseup', function() {
         setTimeout(function() {
             checkConsume();
         }, 100);
     });
 
-    document.getElementById('modalSettingsPlaybackPresetsList').addEventListener('click', function(event) {
+    document.getElementById('modalPlaybackPresetsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
@@ -57,11 +57,11 @@ function initModalSettingsPlayback() {
  * @returns {void}
  */
 function populateListPresets() {
-    const presetsEl = document.getElementById('modalSettingsPlaybackNameInput');
+    const presetsEl = document.getElementById('modalPlaybackNameInput');
     presetsEl.value = '';
     setData(presetsEl, 'value', '');
     elClear(presetsEl.filterResult);
-    const presetsList = document.getElementById('modalSettingsPlaybackPresetsList');
+    const presetsList = document.getElementById('modalPlaybackPresetsList');
     elClear(presetsList);
     for (const preset of settings.partition.presets) {
         presetsEl.addFilterResultPlain(preset);
@@ -140,15 +140,15 @@ function togglePlaymode(option) {
  * @returns {void}
  */
 function checkConsume() {
-    const stateConsume = getBtnGroupValueId('modalSettingsPlaybackConsumeGroup');
-    const stateJukeboxMode = getBtnGroupValueId('modalSettingsPlaybackJukeboxModeGroup');
+    const stateConsume = getBtnGroupValueId('modalPlaybackConsumeGroup');
+    const stateJukeboxMode = getBtnGroupValueId('modalPlaybackJukeboxModeGroup');
     if (stateJukeboxMode !== 'off' &&
         stateConsume !== '1')
     {
-        elShowId('modalSettingsPlaybackConsumeWarn');
+        elShowId('modalPlaybackConsumeWarn');
     }
     else {
-        elHideId('modalSettingsPlaybackConsumeWarn');
+        elHideId('modalPlaybackConsumeWarn');
     }
 }
 
@@ -157,31 +157,31 @@ function checkConsume() {
  * @returns {void}
  */
 function toggleJukeboxSettings() {
-    const value = getBtnGroupValueId('modalSettingsPlaybackJukeboxModeGroup');
+    const value = getBtnGroupValueId('modalPlaybackJukeboxModeGroup');
     if (value === 'off') {
-        elDisableId('modalSettingsPlaybackJukeboxQueueLengthInput');
-        elDisableId('modalSettingsPlaybackJukeboxPlaylistInput');
-        elDisableId('modalSettingsPlaybackJukeboxIgnoreHatedInput');
+        elDisableId('modalPlaybackJukeboxQueueLengthInput');
+        elDisableId('modalPlaybackJukeboxPlaylistInput');
+        elDisableId('modalPlaybackJukeboxIgnoreHatedInput');
     }
     else if (value === 'album') {
-        elDisableId('modalSettingsPlaybackJukeboxQueueLengthInput');
-        document.getElementById('modalSettingsPlaybackJukeboxQueueLengthInput').value = '1';
-        elDisableId('modalSettingsPlaybackJukeboxPlaylistInput');
-        elDisableId('modalSettingsPlaybackJukeboxIgnoreHatedInput');
-        toggleBtnChkId('modalSettingsPlaybackJukeboxIgnoreHatedInput', false);
-        elDisable(document.getElementById('modalSettingsPlaybackJukeboxPlaylistInput').nextElementSibling);
-        document.getElementById('modalSettingsPlaybackJukeboxPlaylistInput').value = tn('Database');
-        setDataId('modalSettingsPlaybackJukeboxPlaylistInput', 'value', 'Database');
+        elDisableId('modalPlaybackJukeboxQueueLengthInput');
+        document.getElementById('modalPlaybackJukeboxQueueLengthInput').value = '1';
+        elDisableId('modalPlaybackJukeboxPlaylistInput');
+        elDisableId('modalPlaybackJukeboxIgnoreHatedInput');
+        toggleBtnChkId('modalPlaybackJukeboxIgnoreHatedInput', false);
+        elDisable(document.getElementById('modalPlaybackJukeboxPlaylistInput').nextElementSibling);
+        document.getElementById('modalPlaybackJukeboxPlaylistInput').value = tn('Database');
+        setDataId('modalPlaybackJukeboxPlaylistInput', 'value', 'Database');
     }
     else if (value === 'song') {
-        elEnableId('modalSettingsPlaybackJukeboxQueueLengthInput');
-        elEnableId('modalSettingsPlaybackJukeboxPlaylistInput');
-        elEnableId('modalSettingsPlaybackJukeboxIgnoreHatedInput');
-        elEnable(document.getElementById('modalSettingsPlaybackJukeboxPlaylistInput').nextElementSibling);
+        elEnableId('modalPlaybackJukeboxQueueLengthInput');
+        elEnableId('modalPlaybackJukeboxPlaylistInput');
+        elEnableId('modalPlaybackJukeboxIgnoreHatedInput');
+        elEnable(document.getElementById('modalPlaybackJukeboxPlaylistInput').nextElementSibling);
     }
     if (value !== 'off') {
-        toggleBtnGroupValueId('modalSettingsPlaybackConsumeGroup', '1');
-        toggleBtnGroupValueId('modalSettingsPlaybackSingleGroup', '0');
+        toggleBtnGroupValueId('modalPlaybackConsumeGroup', '1');
+        toggleBtnGroupValueId('modalPlaybackSingleGroup', '0');
     }
 }
 
@@ -206,33 +206,33 @@ function createPresetsListRow(preset) {
  * @returns {void}
  */
 function populateSettingsPlaybackFrm() {
-    jsonToForm(settings.partition, settingsPlaybackFields, 'modalSettingsPlayback');
+    jsonToForm(settings.partition, settingsPlaybackFields, 'modalPlayback');
 
-    toggleBtnGroupValueCollapse(document.getElementById('modalSettingsPlaybackJukeboxModeGroup'), 'modalSettingsPlaybackJukeboxCollapse', settings.partition.jukeboxMode);
-    addTagListSelect('modalSettingsPlaybackJukeboxUniqueTagInput', 'tagListBrowse');
+    toggleBtnGroupValueCollapse(document.getElementById('modalPlaybackJukeboxModeGroup'), 'modalPlaybackJukeboxCollapse', settings.partition.jukeboxMode);
+    addTagListSelect('modalPlaybackJukeboxUniqueTagInput', 'tagListBrowse');
     toggleJukeboxSettings();
 
     populateListPresets();
 
     if (settings.partition.mpdConnected === true) {
         if (features.featPlaylists === true) {
-            filterPlaylistsSelect(0, 'modalSettingsPlaybackJukeboxPlaylistInput', '', settings.partition.jukeboxPlaylist);
-            setDataId('modalSettingsPlaybackJukeboxPlaylistInput', 'value', settings.partition.jukeboxPlaylist);
+            filterPlaylistsSelect(0, 'modalPlaybackJukeboxPlaylistInput', '', settings.partition.jukeboxPlaylist);
+            setDataId('modalPlaybackJukeboxPlaylistInput', 'value', settings.partition.jukeboxPlaylist);
         }
         else {
-            document.getElementById('modalSettingsPlaybackJukeboxPlaylistInput').value = tn('Database');
-            setDataId('modalSettingsPlaybackJukeboxPlaylistInput', 'value', 'Database');
+            document.getElementById('modalPlaybackJukeboxPlaylistInput').value = tn('Database');
+            setDataId('modalPlaybackJukeboxPlaylistInput', 'value', 'Database');
         }
-        toggleBtnGroupValueId('modalSettingsPlaybackConsumeGroup', settings.partition.consume);
-        toggleBtnGroupValueId('modalSettingsPlaybackSingleGroup', settings.partition.single);
-        toggleBtnGroupValueId('modalSettingsPlaybackReplaygainGroup', settings.partition.replaygain);
+        toggleBtnGroupValueId('modalPlaybackConsumeGroup', settings.partition.consume);
+        toggleBtnGroupValueId('modalPlaybackSingleGroup', settings.partition.single);
+        toggleBtnGroupValueId('modalPlaybackReplaygainGroup', settings.partition.replaygain);
         if (features.featStickers === false) {
-            elShowId('modalSettingsPlaybackPlaybackStatisticsWarn');
-            elDisableId('modalSettingsPlaybackJukeboxLastPlayedInput');
+            elShowId('modalPlaybackPlaybackStatisticsWarn');
+            elDisableId('modalPlaybackJukeboxLastPlayedInput');
         }
         else {
-            elHideId('modalSettingsPlaybackPlaybackStatisticsWarn');
-            elEnableId('modalSettingsPlaybackJukeboxLastPlayedInput');
+            elHideId('modalPlaybackPlaybackStatisticsWarn');
+            elEnableId('modalPlaybackJukeboxLastPlayedInput');
         }
     }
     checkConsume();
@@ -244,23 +244,23 @@ function populateSettingsPlaybackFrm() {
  */
 //eslint-disable-next-line no-unused-vars
 function saveSettingsPlayback() {
-    cleanupModalId('modalSettingsPlayback');
+    cleanupModalId('modalPlayback');
     const params = {};
-    if (formToJson('modalSettingsPlayback', params, settingsPlaybackFields) === true) {
-        params.jukeboxMode = getBtnGroupValueId('modalSettingsPlaybackJukeboxModeGroup');
-        params.consume = getBtnGroupValueId('modalSettingsPlaybackConsumeGroup');
-        params.single = getBtnGroupValueId('modalSettingsPlaybackSingleGroup');
-        params.replaygain = getBtnGroupValueId('modalSettingsPlaybackReplaygainGroup');
+    if (formToJson('modalPlayback', params, settingsPlaybackFields) === true) {
+        params.jukeboxMode = getBtnGroupValueId('modalPlaybackJukeboxModeGroup');
+        params.consume = getBtnGroupValueId('modalPlaybackConsumeGroup');
+        params.single = getBtnGroupValueId('modalPlaybackSingleGroup');
+        params.replaygain = getBtnGroupValueId('modalPlaybackReplaygainGroup');
         // enforce uniq tag for jukebox album mode
         params.jukeboxUniqueTag = params.jukeboxMode === 'album'
             ? 'Album'
-            : getSelectValueId('modalSettingsPlaybackJukeboxUniqueTagInput');
+            : getSelectValueId('modalPlaybackJukeboxUniqueTagInput');
         //set preset name to blank string if not defined, else it is not send to the api
-        params.name = getDataId('modalSettingsPlaybackNameInput', 'value');
+        params.name = getDataId('modalPlaybackNameInput', 'value');
         if (params.name === undefined) {
             params.name = '';
         }
-        btnWaitingId('modalSettingsPlaybackSaveBtn', true);
+        btnWaitingId('modalPlaybackSaveBtn', true);
         sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", params, saveSettingsPlaybackClose, true);
     }
 }
@@ -271,13 +271,13 @@ function saveSettingsPlayback() {
  * @returns {void}
  */
 function saveSettingsPlaybackClose(obj) {
-    btnWaitingId('modalSettingsPlaybackSaveBtn', false);
+    btnWaitingId('modalPlaybackSaveBtn', false);
     if (obj.error) {
-        if (highlightInvalidInput('modalSettingsPlayback', obj) === false) {
+        if (highlightInvalidInput('modalPlayback', obj) === false) {
             showModalAlert(obj);
         }
     }
     else {
-        uiElements.modalSettingsPlayback.hide();
+        uiElements.modalPlayback.hide();
     }
 }

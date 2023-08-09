@@ -356,7 +356,7 @@ function createHomeIconCmdOptionEl(name, value) {
     switch(name) {
         case 'Modal': {
             const sel = elCreateEmpty('select', {"class": ["form-select", "border-secondary"], "name": name});
-            for (const v of ["modalSettingsConnection", "modalSettings", "modalMaintenance", "modalScripts",
+            for (const v of ["modalConnection", "modalSettings", "modalMaintenance", "modalScripts",
                              "modalTimer", "modalTrigger", "modalMounts", "modalAbout"])
             {
                 sel.appendChild(

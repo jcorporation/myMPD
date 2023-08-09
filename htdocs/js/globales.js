@@ -811,7 +811,7 @@ const settingsConnectionFields = {
         "defaultValue": defaults["MYMPD_MPD_HOST"],
         "inputType": "text",
         "title": "MPD host",
-        "form": "modalSettingsConnectionFrm",
+        "form": "modalConnectionFrm",
         "help": "helpConnectionMPDHost"
     },
     "mpdPort": {
@@ -819,21 +819,21 @@ const settingsConnectionFields = {
         "inputType": "text",
         "contentType": "number",
         "title": "MPD port",
-        "form": "modalSettingsConnectionFrm",
+        "form": "modalConnectionFrm",
         "help": "helpConnectionMPDPort"
     },
     "mpdPass": {
         "defaultValue": defaults["MYMPD_MPD_PASS"],
         "inputType": "password",
         "title": "MPD password",
-        "form": "modalSettingsConnectionAdvFrm1",
+        "form": "modalConnectionAdvFrm1",
         "help": "helpConnectionMPDPassword"
     },
     "mpdTimeout": {
         "defaultValue": defaults["MYMPD_MPD_TIMEOUT_SEC"],
         "inputType": "text",
         "title": "Timeout",
-        "form": "modalSettingsConnectionAdvFrm2",
+        "form": "modalConnectionAdvFrm2",
         "help": "helpConnectionTimeout",
         "unit": "Seconds"
     },
@@ -841,14 +841,14 @@ const settingsConnectionFields = {
         "defaultValue": defaults["MYMPD_MPD_KEEPALIVE"],
         "inputType": "checkbox",
         "title": "Keepalive",
-        "form": "modalSettingsConnectionAdvFrm2",
+        "form": "modalConnectionAdvFrm2",
         "help": "helpConnectionKeepalive"
     },
     "mpdBinarylimit": {
         "defaultValue": defaults["MYMPD_MPD_BINARYLIMIT"] / 1024,
         "inputType": "text",
         "title": "Binary limit",
-        "form": "modalSettingsConnectionAdvFrm2",
+        "form": "modalConnectionAdvFrm2",
         "help": "helpConnectionBinaryLimit",
         "unit": "kB"
     }
@@ -858,19 +858,19 @@ const settingsPlaybackFields = {
     "random": {
         "inputType": "checkbox",
         "title": "Random",
-        "form": "modalSettingsPlaybackPlaybackFrm1",
+        "form": "modalPlaybackPlaybackFrm1",
         "help": "helpQueueRandom"
     },
     "repeat": {
         "inputType": "checkbox",
         "title": "Repeat",
-        "form": "modalSettingsPlaybackPlaybackFrm1",
+        "form": "modalPlaybackPlaybackFrm1",
         "help": "helpQueueRepeat"
     },
     "autoPlay": {
         "inputType": "checkbox",
         "title": "Autoplay",
-        "form": "modalSettingsPlaybackPlaybackFrm1",
+        "form": "modalPlaybackPlaybackFrm1",
         "help": "helpQueueAutoPlay"
     },
     "crossfade": {
@@ -878,7 +878,7 @@ const settingsPlaybackFields = {
         "inputType": "text",
         "contentType": "number",
         "title": "Crossfade",
-        "form": "modalSettingsPlaybackPlaybackFrm2",
+        "form": "modalPlaybackPlaybackFrm2",
         "help": "helpQueueCrossfade",
         "unit": "Seconds"
     },
@@ -887,7 +887,7 @@ const settingsPlaybackFields = {
         "inputType": "text",
         "contentType": "number",
         "title": "Mixramp db",
-        "form": "modalSettingsPlaybackPlaybackFrm2",
+        "form": "modalPlaybackPlaybackFrm2",
         "help": "helpQueueMixrampDb",
         "unit": "DB"
     },
@@ -896,7 +896,7 @@ const settingsPlaybackFields = {
         "inputType": "text",
         "contentType": "number",
         "title": "Mixramp delay",
-        "form": "modalSettingsPlaybackPlaybackFrm2",
+        "form": "modalPlaybackPlaybackFrm2",
         "help": "helpQueueMixrampDelay",
         "unit": "Seconds"
     },
@@ -907,7 +907,7 @@ const settingsPlaybackFields = {
         "cbCallback": "filterPlaylistsSelect",
         "cbCallbackOptions": [0, 'selectJukeboxPlaylist'],
         "title": "Playlist",
-        "form": "modalSettingsPlaybackJukeboxCollapse",
+        "form": "modalPlaybackJukeboxCollapse",
         "help": "helpJukeboxPlaylist"
     },
     "jukeboxQueueLength": {
@@ -915,14 +915,14 @@ const settingsPlaybackFields = {
         "defaultValue": defaults["MYMPD_JUKEBOX_QUEUE_LENGTH"],
         "contentType": "number",
         "title": "Keep queue length",
-        "form": "modalSettingsPlaybackJukeboxCollapse",
+        "form": "modalPlaybackJukeboxCollapse",
         "help": "helpJukeboxQueueLength"
     },
     "jukeboxUniqueTag": {
         "inputType": "select",
         "defaultValue": defaults["MYMPD_JUKEBOX_UNIQUE_TAG"],
         "title": "Enforce uniqueness",
-        "form": "modalSettingsPlaybackJukeboxCollapse",
+        "form": "modalPlaybackJukeboxCollapse",
         "help": "helpJukeboxUniqueTag"
     },
     "jukeboxLastPlayed": {
@@ -930,7 +930,7 @@ const settingsPlaybackFields = {
         "contentType": "number",
         "defaultValue": defaults["MYMPD_JUKEBOX_LAST_PLAYED"],
         "title": "Song was played last",
-        "form": "modalSettingsPlaybackJukeboxCollapse",
+        "form": "modalPlaybackJukeboxCollapse",
         "help": "helpJukeboxLastPlayed",
         "unit": "Hours ago"
     },
@@ -938,7 +938,7 @@ const settingsPlaybackFields = {
         "inputType": "checkbox",
         "defaultValue": defaults["MYMPD_JUKEBOX_IGNORE_HATED"],
         "title": "Ignore hated songs",
-        "form": "modalSettingsPlaybackJukeboxCollapse",
+        "form": "modalPlaybackJukeboxCollapse",
         "help": "helpJukeboxIgnoreHated"
     }
 };
@@ -1335,7 +1335,7 @@ const keymap = {
         "i": {"order": 9, "cmd": "togglePlaymode", "options": ["single"], "desc": "Toggle single mode"},
     "modals": {"order": 200, "desc": "Dialogs"},
         "A": {"order": 201, "cmd": "showAddToPlaylist", "options": ["stream", []], "desc": "Add stream"},
-        "C": {"order": 202, "cmd": "openModal", "options": ["modalSettingsConnection"], "desc": "Open MPD connection"},
+        "C": {"order": 202, "cmd": "openModal", "options": ["modalConnection"], "desc": "Open MPD connection"},
         "G": {"order": 207, "cmd": "openModal", "options": ["modalTrigger"], "desc": "Open trigger", "feature": "featTrigger"},
         "I": {"order": 207, "cmd": "openModal", "options": ["modalTimer"], "desc": "Open timer", "feature": "featTimer"},
         "L": {"order": 207, "cmd": "loginOrLogout", "options": [], "desc": "Login or logout", "feature": "featSession"},
@@ -1343,7 +1343,7 @@ const keymap = {
         "N": {"order": 206, "cmd": "openModal", "options": ["modalNotifications"], "desc": "Open notifications"},
         "O": {"order": 207, "cmd": "openModal", "options": ["modalMounts"], "desc": "Open mounts", "feature": "featMounts"},
         "P": {"order": 207, "cmd": "openModal", "options": ["modalPartitions"], "desc": "Open partitions", "feature": "featPartitions"},
-        "Q": {"order": 203, "cmd": "openModal", "options": ["modalSettingsPlayback"], "desc": "Open queue settings"},
+        "Q": {"order": 203, "cmd": "openModal", "options": ["modalPlayback"], "desc": "Open queue settings"},
         "S": {"order": 207, "cmd": "showListScriptModal", "options": [], "desc": "Open scripts", "feature": "featScripting"},
         "T": {"order": 204, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
         "?": {"order": 207, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},

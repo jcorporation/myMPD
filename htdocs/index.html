@@ -68,7 +68,7 @@
     <div class="offcanvas-body">
       <a class="dropdown-item py-2" data-title-phrase="Shortcut: A" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream", []]}'><span class="mi me-2">playlist_add</span><span data-phrase="Add stream"></span></a>
       <div class="dropdown-divider"></div>
-      <a class="dropdown-item py-2 alwaysEnabled" data-title-phrase="Shortcut: C" href="#modalSettingsConnection" data-bs-toggle="modal"><span class="mi me-2">settings_ethernet</span><span data-phrase="MPD connection"></span></a>
+      <a class="dropdown-item py-2 alwaysEnabled" data-title-phrase="Shortcut: C" href="#modalConnection" data-bs-toggle="modal"><span class="mi me-2">settings_ethernet</span><span data-phrase="MPD connection"></span></a>
       <a class="dropdown-item py-2" data-title-phrase="Shortcut: T" data-bs-toggle="modal" href="#modalSettings"><span class="mi me-2">settings</span><span data-phrase="Settings"></span></a>
       <a class="dropdown-item py-2 featScripting" data-title-phrase="Shortcut: S" href="#" data-href='{"cmd": "showListScriptModal", "options": []}'><span class="mi me-2">code</span><span data-phrase="Scripts"></span></a>
       <a class="dropdown-item py-2 featTimer" data-title-phrase="Shortcut: I" data-bs-toggle="modal" href="#modalTimer"><span class="mi me-2">timer</span><span data-phrase="Timer"></span></a>
@@ -129,7 +129,7 @@
             <button id="PlaybackAddToPlaylist" data-title-phrase="Add to playlist" data-href='{"cmd": "showAddToPlaylistCurrentSong", "options": []}' class="btn btn-secondary mi">playlist_add</button>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalSettingsPlayback">tune</button>
+            <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalPlayback">tune</button>
             <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" data-title-phrase="Select preset"></button>
             <div class="dropdown-menu px-2" id="selectPresetDropdown2">
               <h2 class="dropdown-header" data-phrase="Presets"></h2>
@@ -195,7 +195,7 @@
             <input data-is="mympd-input-clear" data-clear-event="keyup" data-placeholder-phrase="Search queue" class="form-control rounded-start-0 rounded-end" id="QueueCurrentSearchStr"/>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalSettingsPlayback">tune</button>
+            <button data-title-phrase="Playback settings" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalPlayback">tune</button>
             <button type="button" class="btn btn-secondary dropdown-toggle dropdown-toggle-split" data-bs-toggle="dropdown" data-title-phrase="Select preset"></button>
             <div class="dropdown-menu px-2" id="selectPresetDropdown1">
               <h2 class="dropdown-header" data-phrase="Presets"></h2>
@@ -1062,7 +1062,7 @@
       </div>
       <div class="btn-toolbar nav-item flex-nowrap ms-3">
         <div class="btn-group ms-2 d-none dropup" id="footerSettingsPlayback">
-          <button data-title-phrase="Playback settings" type="button" class="btn mi pe-0 rounded-end" data-bs-toggle="modal" data-bs-target="#modalSettingsPlayback">tune</button>
+          <button data-title-phrase="Playback settings" type="button" class="btn mi pe-0 rounded-end" data-bs-toggle="modal" data-bs-target="#modalPlayback">tune</button>
           <button type="button" class="btn dropdown-toggle dropdown-toggle-split rounded-start" data-bs-toggle="dropdown" data-title-phrase="Select preset"></button>
           <div class="dropdown-menu px-2" id="selectPresetDropdown3">
             <h2 class="dropdown-header" data-phrase="Presets"></h2>
@@ -1593,31 +1593,31 @@
   </div>
 <!-- Modal settings end -->
 <!-- Modal queue settings start -->
-  <div class="modal fade" id="modalSettingsPlayback" tabindex="-1">
+  <div class="modal fade" id="modalPlayback" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link active" href="#modalSettingsPlaybackPlaybackTab" data-bs-toggle="tab" data-height="true" data-phrase="Playback"></a>
+              <a class="nav-link active" href="#modalPlaybackPlaybackTab" data-bs-toggle="tab" data-height="true" data-phrase="Playback"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#modalSettingsPlaybackJukeboxTab" data-bs-toggle="tab" data-height="true" data-phrase="Jukebox"></a>
+              <a class="nav-link" href="#modalPlaybackJukeboxTab" data-bs-toggle="tab" data-height="true" data-phrase="Jukebox"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#modalSettingsPlaybackPresetsTab" data-bs-toggle="tab" data-height="true" data-phrase="Presets"></a>
+              <a class="nav-link" href="#modalPlaybackPresetsTab" data-bs-toggle="tab" data-height="true" data-phrase="Presets"></a>
             </li>
           </ul>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div class="tab-content">
-            <div class="tab-pane active" id="modalSettingsPlaybackPlaybackTab">
-              <div id="modalSettingsPlaybackPlaybackFrm1"></div>
+            <div class="tab-pane active" id="modalPlaybackPlaybackTab">
+              <div id="modalPlaybackPlaybackFrm1"></div>
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" data-phrase="Consume"></label>
                 <div class="col-sm-8">
-                  <div class="btn-group" id="modalSettingsPlaybackConsumeGroup">
+                  <div class="btn-group" id="modalPlaybackConsumeGroup">
                     <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
                     <button data-value="oneshot" class="btn btn-secondary featConsumeOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
                     <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
@@ -1628,7 +1628,7 @@
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" data-phrase="Single"></label>
                 <div class="col-sm-8">
-                  <div class="btn-group" id="modalSettingsPlaybackSingleGroup">
+                  <div class="btn-group" id="modalPlaybackSingleGroup">
                     <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
                     <button data-value="oneshot" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
                     <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
@@ -1639,7 +1639,7 @@
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" data-phrase="Replaygain"></label>
                 <div class="col-sm-8">
-                  <div class="btn-group" id="modalSettingsPlaybackReplaygainGroup">
+                  <div class="btn-group" id="modalPlaybackReplaygainGroup">
                     <button data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
                     <button data-value="auto" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Auto"></button>
                     <button data-value="track" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
@@ -1648,7 +1648,7 @@
                   <small class="help" data-phrase="helpQueueReplaygain"></small>
                 </div>
               </div>
-              <div id="modalSettingsPlaybackPlaybackFrm2"></div>
+              <div id="modalPlaybackPlaybackFrm2"></div>
               <div class="mb-3 row">
                 <div class="col-sm-4"></div>
                 <div class="col-sm-8">
@@ -1656,24 +1656,24 @@
                 </div>
               </div>
             </div>
-            <div class="tab-pane" id="modalSettingsPlaybackJukeboxTab">
+            <div class="tab-pane" id="modalPlaybackJukeboxTab">
               <div id="warnConsume" class="alert alert-warning d-none" data-phrase="Consume must be enabled"></div>
               <div class="mb-3 row">
-                <label id="labelJukeboxMode" class="col-sm-4 col-form-label" data-phrase="Jukebox mode" data-bs-toggle="collapse" data-bs-target="#modalSettingsPlaybackJukeboxCollapse"></label>
+                <label id="labelJukeboxMode" class="col-sm-4 col-form-label" data-phrase="Jukebox mode" data-bs-toggle="collapse" data-bs-target="#modalPlaybackJukeboxCollapse"></label>
                 <div class="col-sm-8">
-                  <div class="btn-group" id="modalSettingsPlaybackJukeboxModeGroup">
-                    <button data-collapse="d-none" data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["modalSettingsPlaybackJukeboxCollapse"]}' type="button" data-phrase="Off"></button>
-                    <button data-collapse="show" data-value="song" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["modalSettingsPlaybackJukeboxCollapse"]}' type="button" data-phrase="Song"></button>
-                    <button data-collapse="show" data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["modalSettingsPlaybackJukeboxCollapse"]}' type="button" data-phrase="Album"></button>
+                  <div class="btn-group" id="modalPlaybackJukeboxModeGroup">
+                    <button data-collapse="d-none" data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["modalPlaybackJukeboxCollapse"]}' type="button" data-phrase="Off"></button>
+                    <button data-collapse="show" data-value="song" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["modalPlaybackJukeboxCollapse"]}' type="button" data-phrase="Song"></button>
+                    <button data-collapse="show" data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["modalPlaybackJukeboxCollapse"]}' type="button" data-phrase="Album"></button>
                   </div>
                   <small class="help" data-phrase="helpJukeboxMode"></small>
-                  <div id="modalSettingsPlaybackConsumeWarn" class="alert alert-warning mt-2" data-phrase="Consume must be enabled"></div>
+                  <div id="modalPlaybackConsumeWarn" class="alert alert-warning mt-2" data-phrase="Consume must be enabled"></div>
                 </div>
               </div>
-              <div class="collapse" id="modalSettingsPlaybackJukeboxCollapse"></div>
-              <div id="modalSettingsPlaybackPlaybackStatisticsWarn" class="alert alert-warning d-none" data-phrase="Playback statistics are disabled"></div>
+              <div class="collapse" id="modalPlaybackJukeboxCollapse"></div>
+              <div id="modalPlaybackPlaybackStatisticsWarn" class="alert alert-warning d-none" data-phrase="Playback statistics are disabled"></div>
             </div>
-            <div class="tab-pane" id="modalSettingsPlaybackPresetsTab">
+            <div class="tab-pane" id="modalPlaybackPresetsTab">
               <div class="table-responsive overflow-auto">
                 <table class="table table-hover table-sm">
                   <thead>
@@ -1682,7 +1682,7 @@
                       <th></th>
                     </tr>
                   </thead>
-                  <tbody class="clickable" id="modalSettingsPlaybackPresetsList"></tbody>
+                  <tbody class="clickable" id="modalPlaybackPresetsList"></tbody>
                 </table>
               </div>
             </div>
@@ -1692,9 +1692,9 @@
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <div class="d-flex">
             <div class="position-relative me-2">
-              <input data-is="mympd-select-new" id="modalSettingsPlaybackNameInput" data-placeholder-phrase="Optional preset name" class="form-control me-2"/>
+              <input data-is="mympd-select-new" id="modalPlaybackNameInput" data-placeholder-phrase="Optional preset name" class="form-control me-2"/>
             </div>
-            <button id="modalSettingsPlaybackSaveBtn" type="button" class="btn btn-success" data-href='{"cmd": "saveSettingsPlayback", "options": []}' data-phrase="Save"></button>
+            <button id="modalPlaybackSaveBtn" type="button" class="btn btn-success" data-href='{"cmd": "saveSettingsPlayback", "options": []}' data-phrase="Save"></button>
           </div>
         </div>
       </div>
@@ -1702,7 +1702,7 @@
   </div>
 <!-- Modal queue settings end -->
 <!-- Modal connection settings start -->
-  <div class="modal fade" id="modalSettingsConnection" tabindex="-1">
+  <div class="modal fade" id="modalConnection" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -1710,45 +1710,45 @@
           <button type="button" class="btn-close alwaysEnabled" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div id="modalSettingsConnectionFrm"></div>
+          <div id="modalConnectionFrm"></div>
           <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="modalSettingsConnectionMusicDirectorySelect" data-phrase="Music directory"></label>
+            <label class="col-sm-4 col-form-label" for="modalConnectionMusicDirectorySelect" data-phrase="Music directory"></label>
             <div class="col-sm-8">
-              <select id="modalSettingsConnectionMusicDirectorySelect" class="form-select alwaysEnabled">
+              <select id="modalConnectionMusicDirectorySelect" class="form-select alwaysEnabled">
                 <option value="auto" data-phrase="Autodetect"></option>
                 <option value="none" data-phrase="None"></option>
                 <option value="custom" data-phrase="Specify"></option>
               </select>
-              <input id="modalSettingsConnectionMusicDirectoryInput" class="form-control mt-2 alwaysEnabled"/>
+              <input id="modalConnectionMusicDirectoryInput" class="form-control mt-2 alwaysEnabled"/>
               <div class="invalid-feedback" data-phrase="Invalid music directory"></div>
               <small class="help" data-phrase="helpConnectionMusicDirectory"></small>
             </div>
           </div>
-          <div id="modalSettingsConnectionMusicDirectoryWarn" class="alert alert-warning d-none" data-phrase="Music directory not found"></div>
+          <div id="modalConnectionMusicDirectoryWarn" class="alert alert-warning d-none" data-phrase="Music directory not found"></div>
           <hr/>
           <div class="mb-3 row">
             <div class="col-sm-4"></div>
             <div class="col-sm-8">
-              <button data-href='{"cmd": "toggleBtn", "options": []}' data-bs-toggle="collapse" data-bs-target="#modalSettingsConnectionAdvCollapse" class="btn btn-secondary alwaysEnabled" data-phrase="Advanced"></button>
+              <button data-href='{"cmd": "toggleBtn", "options": []}' data-bs-toggle="collapse" data-bs-target="#modalConnectionAdvCollapse" class="btn btn-secondary alwaysEnabled" data-phrase="Advanced"></button>
             </div>
           </div>
-          <div id="modalSettingsConnectionAdvCollapse" class="collapse">
-            <div id="modalSettingsConnectionAdvFrm1"></div>
+          <div id="modalConnectionAdvCollapse" class="collapse">
+            <div id="modalConnectionAdvFrm1"></div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="modalSettingsConnectionPlaylistDirectorySelect" data-phrase="Playlist directory"></label>
+              <label class="col-sm-4 col-form-label" for="modalConnectionPlaylistDirectorySelect" data-phrase="Playlist directory"></label>
               <div class="col-sm-8">
-                <select id="modalSettingsConnectionPlaylistDirectorySelect" class="form-select alwaysEnabled">
+                <select id="modalConnectionPlaylistDirectorySelect" class="form-select alwaysEnabled">
                   <option value="auto" data-phrase="Autodetect" class="featPlaylistDirAuto"></option>
                   <option value="none" data-phrase="None"></option>
                   <option value="custom" data-phrase="Specify"></option>
                 </select>
-                <input id="modalSettingsConnectionPlaylistDirectoryInput" class="form-control mt-2 alwaysEnabled"/>
+                <input id="modalConnectionPlaylistDirectoryInput" class="form-control mt-2 alwaysEnabled"/>
                 <div class="invalid-feedback" data-phrase="Invalid playlist directory"></div>
                 <small class="help" data-phrase="helpConnectionPlaylistDirectory"></small>
               </div>
             </div>
-            <div id="modalSettingsConnectionPlaylistDirectoryWarn" class="alert alert-warning d-none" data-phrase="Playlist directory not found"></div>
-            <div id="modalSettingsConnectionAdvFrm2"></div>
+            <div id="modalConnectionPlaylistDirectoryWarn" class="alert alert-warning d-none" data-phrase="Playlist directory not found"></div>
+            <div id="modalConnectionAdvFrm2"></div>
           </div>
         </div>
         <div class="modal-footer justify-content-between">
@@ -2966,9 +2966,9 @@
 <!--debug-->  <script src="js/modalQueueSetSongPriority.js"></script>
 <!--debug-->  <script src="js/modalRadioFavoriteEdit.js"></script>
 <!--debug-->  <script src="js/modalScripts.js"></script>
-<!--debug-->  <script src="js/modalSettingsConnection.js"></script>
+<!--debug-->  <script src="js/modalConnection.js"></script>
 <!--debug-->  <script src="js/modalSettings.js"></script>
-<!--debug-->  <script src="js/modalSettingsPlayback.js"></script>
+<!--debug-->  <script src="js/modalPlayback.js"></script>
 <!--debug-->  <script src="js/modalSmartPlaylistEdit.js"></script>
 <!--debug-->  <script src="js/modalSongDetails.js"></script>
 <!--debug-->  <script src="js/modalTimer.js"></script>
