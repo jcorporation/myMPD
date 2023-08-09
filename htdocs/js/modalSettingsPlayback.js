@@ -57,7 +57,7 @@ function initModalSettingsPlayback() {
  * @returns {void}
  */
 function populateListPresets() {
-    const presetsEl = document.getElementById('modalSettingsPlaybackPresetNameInput');
+    const presetsEl = document.getElementById('modalSettingsPlaybackNameInput');
     presetsEl.value = '';
     setData(presetsEl, 'value', '');
     elClear(presetsEl.filterResult);
@@ -256,7 +256,7 @@ function saveSettingsPlayback() {
             ? 'Album'
             : getSelectValueId('modalSettingsPlaybackJukeboxUniqueTagInput');
         //set preset name to blank string if not defined, else it is not send to the api
-        params.name = getDataId('modalSettingsPlaybackPresetNameInput', 'value');
+        params.name = getDataId('modalSettingsPlaybackNameInput', 'value');
         if (params.name === undefined) {
             params.name = '';
         }
