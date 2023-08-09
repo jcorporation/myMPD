@@ -200,7 +200,7 @@ function getDisplayTitle(name, title) {
     if (title === name) {
         return title;
     }
-    return name !== undefined && name !== '-'
+    return name !== undefined && name !== ''
         ? name + ': ' + title
         : title;
 }
