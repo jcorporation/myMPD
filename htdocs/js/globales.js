@@ -737,10 +737,10 @@ const settingsWebuiFields = {
         "form": "modalSettingsBgFrm",
         "sort": 3,
         "validate": {
-            "cmd": "validateColorEl",
+            "cmd": "validatePlistEl",
             "options": []
         },
-        "invalid": "Must be a hex color value"
+        "invalid": "Must be a valid filename"
     },
     "bgCover": {
         "defaultValue": true,
