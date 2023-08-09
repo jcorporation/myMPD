@@ -44,7 +44,7 @@ function highlightInvalidInput(prefix, obj) {
  * @returns {void}
  */
 function removeIsInvalid(parentEl) {
-    const els = parentEl.querySelectorAll('.is-invalid');
+    const els = parentEl.parentNode.querySelectorAll('.is-invalid');
     for (let i = 0, j = els.length; i < j; i++) {
         els[i].classList.remove('is-invalid');
     }
@@ -67,6 +67,7 @@ function setIsInvalidId(id) {
 function setIsInvalid(el) {
     //set is-invalid also on parent node
     el.parentNode.classList.add('is-invalid');
+    el.parentNode.parentNode.classList.add('is-invalid');
 }
 
 /**
