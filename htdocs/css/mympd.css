@@ -908,6 +908,7 @@ a.launch::before {
   font-size: 1.4rem;
   line-height: 1;
   margin-right: 0.5rem;
+  vertical-align: top;
 }
 
 a.external::before {
