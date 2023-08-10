@@ -714,7 +714,8 @@ const settingsWebuiFields = {
         "validate": {
             "cmd": "validateUintEl",
             "options": []
-        }
+        },
+        "unit": "Pixel"
     },
     "bgColor": {
         "defaultValue": "#060708",

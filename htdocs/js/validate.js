@@ -66,8 +66,8 @@ function setIsInvalidId(id) {
  */
 function setIsInvalid(el) {
     //set is-invalid also on parent node
+    el.classList.add('is-invalid');
     el.parentNode.classList.add('is-invalid');
-    el.parentNode.parentNode.classList.add('is-invalid');
 }
 
 /**

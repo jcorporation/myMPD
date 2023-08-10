@@ -289,9 +289,11 @@ function saveSettings(closeModal) {
         settingsParams.tagListBrowse = getTagMultiSelectValues(document.getElementById('modalSettingsBrowseTagsList'), false);
 
         if (closeModal === true) {
+            btnWaitingId('modalSettingsSaveBtn', true);
             sendAPIpartition('default', 'MYMPD_API_SETTINGS_SET', settingsParams, saveSettingsClose, true);
         }
         else {
+            btnWaitingId('modalSettingsApplyBtn', true);
             sendAPIpartition('default', 'MYMPD_API_SETTINGS_SET', settingsParams, saveSettingsApply, true);
         }
     }
@@ -307,6 +309,7 @@ function saveSettingsClose(obj) {
         if (highlightInvalidInput('modalSettings', obj) === false) {
             showModalAlert(obj);
         }
+        btnWaitingId('modalSettingsSaveBtn', false);
     }
     else {
         savePartitionSettings(true);
@@ -323,6 +326,7 @@ function saveSettingsApply(obj) {
         if (highlightInvalidInput('modalSettings', obj) === false) {
             showModalAlert(obj);
         }
+        btnWaitingId('modalSettingsApplyBtn', false);
     }
     else {
         savePartitionSettings(false);
@@ -358,9 +362,9 @@ function savePartitionSettingsApply(obj) {
         }
     }
     else {
-        btnWaitingId('modalSettingsApplyBtn', true);
         getSettings();
     }
+    btnWaitingId('modalSettingsApplyBtn', false);
 }
 
 /**
@@ -378,6 +382,7 @@ function savePartitionSettingsClose(obj) {
         getSettings();
         uiElements.modalSettings.hide();
     }
+    btnWaitingId('modalSettingsSaveBtn', false);
 }
 
 /**

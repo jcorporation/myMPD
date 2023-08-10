@@ -1064,5 +1064,9 @@
     "Only sort tags allowed": "Es sind nur Sort-Tags erlaubt",
     "Preset loaded successfully": "Voreinstellung erfolgreich geladen",
     "Allowed binary limit range is between 4kB and 256kB": "Binary Limit muss zwischen 4kB und 256KB sein",
-    "DB": "DB"
+    "DB": "DB",
+    "Pixel": "Pixel",
+    "Invalid json value type: MJSON_TOK_NULL": "Ungültiger Wertetyp",
+    "Invalid json value type: MJSON_TOK_INVALID": "Ungültiger Wertetyp",
+    "Invalid json value type: MJSON_TOK_UNKNOWN": "Ungültiger Wertetyp"
 }

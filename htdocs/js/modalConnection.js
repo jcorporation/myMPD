@@ -103,6 +103,7 @@ function saveConnection() {
 
         settingsParams.mpdBinarylimit = settingsParams.mpdBinarylimit * 1024;
         settingsParams.mpdTimeout = settingsParams.mpdTimeout * 1000;
+        btnWaitingId('modalConnectionApplyBtn', true);
         sendAPIpartition('default', 'MYMPD_API_CONNECTION_SAVE', settingsParams, saveConnectionClose, true);
     }
 }
@@ -113,6 +114,7 @@ function saveConnection() {
  * @returns {void}
  */
 function saveConnectionClose(obj) {
+    btnWaitingId('modalConnectionApplyBtn', false);
     if (obj.error) {
         if (highlightInvalidInput('modalConnection', obj) === false) {
             showModalAlert(obj);

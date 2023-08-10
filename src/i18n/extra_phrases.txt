@@ -249,3 +249,6 @@ Warning
 wasapi
 Web notifications
 Work
+Invalid json value type: MJSON_TOK_NULL
+Invalid json value type: MJSON_TOK_INVALID
+Invalid json value type: MJSON_TOK_UNKNOWN

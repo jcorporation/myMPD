@@ -167,10 +167,7 @@ function zeroPad(num, places) {
  * @returns {number} the number or 0 on convert failure
  */
 function parseNumber(str) {
-    const nr = Number(str);
-    return Number.isNaN(nr) === true
-        ? 0
-        : nr;
+    return Number(str);
 }
 
 /**
