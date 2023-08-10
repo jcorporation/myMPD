@@ -547,13 +547,6 @@ const settingsWebuiFields = {
         "warn": "Browser has no MediaSession support",
         "help": "helpSettingsMediaSession"
     },
-    "footerSettingsPlayback": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Playback settings",
-        "form": "modalSettingsFooterFrm",
-        "sort": 1
-    },
     "footerPlaybackControls": {
         "defaultValue": "pause",
         "validValues": {
@@ -565,6 +558,13 @@ const settingsWebuiFields = {
         "title": "Playback controls",
         "form": "modalSettingsFooterFrm",
         "sort": 0
+    },
+    "footerSettingsPlayback": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Playback settings",
+        "form": "modalSettingsFooterFrm",
+        "sort": 1
     },
     "footerVolumeLevel": {
         "defaultValue": false,
@@ -579,6 +579,13 @@ const settingsWebuiFields = {
         "title": "Notification icon",
         "form": "modalSettingsFooterFrm",
         "sort": 3
+    },
+    "showHelp": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Show help",
+        "form": "modalSettingsThemeFrm3",
+        "help": "helpSettingsHelp"
     },
     "maxElementsPerPage": {
         "defaultValue": 100,
@@ -622,14 +629,6 @@ const settingsWebuiFields = {
         "title": "Compact grids",
         "form": "modalSettingsListsFrm",
         "help": "helpSettingsCompactGrids"
-    },
-    "showHelp": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Show help",
-        "form": "modalSettingsThemeFrm3",
-        "help": "helpSettingsHelp",
-        "sort": 5
     },
     "showBackButton": {
         "defaultValue": false,
@@ -717,6 +716,20 @@ const settingsWebuiFields = {
         },
         "unit": "Pixel"
     },
+    "bgCover": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Albumart",
+        "form": "modalSettingsBgFrm",
+        "sort": 0
+    },
+    "bgCssFilter": {
+        "defaultValue": "grayscale(100%) opacity(20%)",
+        "inputType": "text",
+        "title": "CSS filter",
+        "form": "modalSettingsBgFrm",
+        "sort": 1
+    },
     "bgColor": {
         "defaultValue": "#060708",
         "inputType": "color",
@@ -744,20 +757,6 @@ const settingsWebuiFields = {
             "options": []
         },
         "invalid": "Must be a valid filename"
-    },
-    "bgCover": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Albumart",
-        "form": "modalSettingsBgFrm",
-        "sort": 0
-    },
-    "bgCssFilter": {
-        "defaultValue": "grayscale(100%) opacity(20%)",
-        "inputType": "text",
-        "title": "CSS filter",
-        "form": "modalSettingsBgFrm",
-        "sort": 1
     },
     "locale": {
         "defaultValue": "default",
