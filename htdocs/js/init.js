@@ -278,7 +278,9 @@ function appInit() {
     //add bootstrap native updated event listeners for dropdowns
     const dropdowns = document.querySelectorAll('[data-bs-toggle="dropdown"]');
     for (const dropdown of dropdowns) {
-        const positionClass = dropdown.parentNode.classList.contains('dropup') ? 'dropup' : 'dropdown';
+        const positionClass = dropdown.parentNode.classList.contains('dropup')
+            ? 'dropup'
+            : 'dropdown';
         if (positionClass === 'dropdown') {
             dropdown.parentNode.addEventListener('updated.bs.dropdown', function(event) {
                 const menu = event.target.querySelector('.dropdown-menu');

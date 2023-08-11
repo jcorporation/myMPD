@@ -40,7 +40,9 @@ function ignoreKeys(event) {
  * @returns {boolean} true if target is clickable else false
  */
 function checkTargetClick(target) {
-    return target === null || target.classList.contains('not-clickable') ? false : true;
+    return target === null || target.classList.contains('not-clickable')
+        ? false
+        : true;
 }
 
 /**
@@ -112,7 +114,9 @@ function myEncodeURIComponent(str) {
  * @returns {string} joined array
  */
 function joinArray(a) {
-    return a === undefined ? '' : a.join(', ');
+    return a === undefined
+        ? ''
+        : a.join(', ');
 }
 
 /**

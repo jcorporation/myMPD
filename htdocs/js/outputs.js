@@ -106,9 +106,11 @@ function parseVolume(obj) {
         elShowId('volumeControl');
         document.getElementById('volumePrct').textContent = obj.result.volume + ' %';
         const volumeMenu = document.getElementById('volumeMenu');
-        volumeMenu.firstElementChild.textContent =
-            obj.result.volume === 0 ? 'volume_off' :
-                obj.result.volume < 50 ? 'volume_down' : 'volume_up';
+        volumeMenu.firstElementChild.textContent = obj.result.volume === 0
+            ? 'volume_off'
+            : obj.result.volume < 50
+                ? 'volume_down'
+                : 'volume_up';
         volumeMenu.lastElementChild.textContent = obj.result.volume + smallSpace + '%';
     }
     domCache.volumeBar.value = obj.result.volume;
@@ -116,12 +118,14 @@ function parseVolume(obj) {
 
 /**
  * Changes the relative volume 
- * @param {string} dir direction: on of up, down
+ * @param {string} dir direction: up or down
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function volumeStep(dir) {
-    const step = dir === 'up' ? settings.volumeStep : 0 - settings.volumeStep;
+    const step = dir === 'up'
+        ? settings.volumeStep
+        : 0 - settings.volumeStep;
     sendAPI("MYMPD_API_PLAYER_VOLUME_CHANGE", {
         "volume": step
     }, null, false);

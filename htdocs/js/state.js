@@ -79,8 +79,9 @@ function getCounterText() {
 function setCounter() {
     //progressbar in footer
     //calc percent with two decimals after comma
-    const prct = currentState.totalTime > 0 ?
-        Math.ceil((100 / currentState.totalTime) * currentState.elapsedTime * 100) / 100 : 0;
+    const prct = currentState.totalTime > 0
+        ? Math.ceil((100 / currentState.totalTime) * currentState.elapsedTime * 100) / 100
+        : 0;
     domCache.progressBar.style.width = `${prct}vw`;
     domCache.progress.style.cursor = currentState.totalTime <= 0 ? 'default' : 'pointer';
 
@@ -387,7 +388,9 @@ function mediaSessionSetState() {
     if (features.featMediaSession === false) {
         return;
     }
-    const state = currentState.state === 'play' ? 'playing' : 'paused';
+    const state = currentState.state === 'play'
+        ? 'playing'
+        : 'paused';
     logDebug('Set mediaSession.playbackState to ' + state);
     navigator.mediaSession.playbackState = state;
 }

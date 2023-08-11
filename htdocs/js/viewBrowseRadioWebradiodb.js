@@ -325,7 +325,9 @@ function showWebradiodbDetails(uri) {
     //reuse the radiobrowser modal
     const tbody = document.getElementById('modalRadiobrowserDetailsList');
     elClearId('modalRadiobrowserDetailsList');
-    const m3u = isStreamUri(uri) ? streamUriToName(uri) + '.m3u' : uri;
+    const m3u = isStreamUri(uri)
+        ? streamUriToName(uri) + '.m3u'
+        : uri;
     const result = webradioDb.webradios[m3u];
     if (result.Image !== '') {
         document.getElementById('RadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(webradioDbPicsUri + result.Image);

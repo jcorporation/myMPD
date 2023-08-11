@@ -66,8 +66,11 @@ function setPagination(total, returned) {
         app.current.limit = 500;
     }
 
-    let totalPages = total < app.current.limit ?
-        total === -1 ? -1 : 1 : Math.ceil(total / app.current.limit);
+    let totalPages = total < app.current.limit
+        ? total === -1
+            ? -1
+            : 1
+        : Math.ceil(total / app.current.limit);
     const curPage = Math.ceil(app.current.offset / app.current.limit) + 1;
     if (app.current.limit > returned) {
         totalPages = curPage;
