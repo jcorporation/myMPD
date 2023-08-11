@@ -11,6 +11,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Upd: enable more tags by default
+- Upd: es-AR translation
 
 ***
 
