@@ -16,11 +16,11 @@ function initModalNotifications() {
 }
 
 /**
- * Lists the logbuffer in the logOverview element
+ * Lists the logbuffer in the modalNotificationsList element
  * @returns {void}
  */
 function showMessages() {
-    const overview = document.getElementById('logOverview');
+    const overview = document.getElementById('modalNotificationsList');
     elClear(overview);
     for (const message of messages) {
         overview.insertBefore(
@@ -44,12 +44,15 @@ function showMessages() {
 
 /**
  * Clears the logbuffer
+ * @param {Node} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function clearMessages() {
-    const overview = document.getElementById('logOverview');
+function clearMessages(target) {
+    btnWaiting(target, true);
+    const overview = document.getElementById('modalNotificationsList');
     elClear(overview);
     overview.appendChild(emptyRow(4));
     messages.length = 0;
+    btnWaiting(target, false);
 }
