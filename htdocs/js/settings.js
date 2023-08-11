@@ -68,12 +68,6 @@ function parseSettings(obj) {
 
     //theme
     let setTheme = settings.webuiSettings.theme;
-    switch(setTheme) {
-        case 'theme-autodetect': setTheme = 'auto'; break;
-        case 'theme-light': setTheme = 'light'; break;
-        case 'theme-dark': setTheme = 'dark'; break;
-        default: setTheme = 'auto';
-    }
     if (setTheme === 'auto') {
         setTheme = window.matchMedia &&
             window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
