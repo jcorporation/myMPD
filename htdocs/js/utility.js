@@ -276,6 +276,9 @@ function parseCmd(event, cmd) {
             if (cmd.options[i] === 'event') {
                 cmd.options[i] = event;
             }
+            else if (cmd.options[i] === 'target') {
+                cmd.options[i] = event.target;
+            }
         }
         switch(cmd.cmd) {
             case 'sendAPI':

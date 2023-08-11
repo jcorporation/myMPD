@@ -47,6 +47,20 @@ static const char *loglevel_colors[8] = {
 };
 
 /**
+ * Returns the name of the loglevel
+ * @param level 
+ * @return the loglevel name or empty string if loglevel is invalid
+ */
+const char *get_loglevel_name(int level) {
+    if (level > LOGLEVEL_MAX ||
+        level < LOGLEVEL_MIN)
+    {
+        return "";
+    }
+    return loglevel_names[level];
+}
+
+/**
  * Sets the loglevel
  * @param level loglevel to set
  */

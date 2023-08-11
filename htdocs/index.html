@@ -2691,22 +2691,22 @@
           <div class="mb-3 row">
             <label class="col-sm-4 col-form-label" for="btnDatbaseRescan" data-phrase="Database"></label>
             <div class="col-sm-8">
-              <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateDB", "options": ["", false]}' data-phrase="Update"></button>
-              <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateDB", "options": ["", true]}' data-phrase="Rescan"></button>
+              <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateDB", "options": ["", false, "target"]}' data-phrase="Update"></button>
+              <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateDB", "options": ["", true, "target"]}' data-phrase="Rescan"></button>
             </div>
           </div>
           <div class="mb-3 row">
             <label class="col-sm-4 col-form-label" data-phrase="Caches"></label>
             <div class="col-sm-8">
-              <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateCaches", "options": [false]}' data-phrase="Update"></button>
-              <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateCaches", "options": [true]}' data-phrase="Force update"></button>
+              <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateCaches", "options": [false, "target"]}' data-phrase="Update"></button>
+              <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateCaches", "options": [true, "target"]}' data-phrase="Force update"></button>
             </div>
           </div>
           <div class="mb-3 row">
             <label class="col-sm-4 col-form-label" data-phrase="Covercache"></label>
             <div class="col-sm-8">
-              <button type="button" class="btn btn-secondary btnCleanup me-2 protected" data-href='{"cmd": "cropCovercache", "options": []}' data-phrase="Crop"></button>
-              <button type="button" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "clearCovercache", "options": []}' data-phrase="Clear"></button>
+              <button type="button" class="btn btn-secondary btnCleanup me-2 protected" data-href='{"cmd": "cropCovercache", "options": ["target"]}' data-phrase="Crop"></button>
+              <button type="button" class="btn btn-secondary btnCleanup protected" data-href='{"cmd": "clearCovercache", "options": ["target"]}' data-phrase="Clear"></button>
             </div>
           </div>
           <hr/>
@@ -2714,27 +2714,27 @@
             <div class="mb-3 row">
               <label class="col-sm-4 col-form-label" data-phrase="Smart playlists"></label>
               <div class="col-sm-8">
-                <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateSmartPlaylists", "options": [false]}' data-phrase="Update"></button>
-                <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateSmartPlaylists", "options": [true]}' data-phrase="Force update"></button>
+                <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateSmartPlaylists", "options": [false, "target"]}' data-phrase="Update"></button>
+                <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateSmartPlaylists", "options": [true, "target"]}' data-phrase="Force update"></button>
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-sm-4 col-form-label" data-phrase="Validate playlists"></label>
               <div class="col-sm-8">
-                <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "validatePlaylists", "options": [false]}' data-phrase="Validate"></button>
-                <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "dedupPlaylists", "options": [true]}' data-phrase="Deduplicate"></button>
+                <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "validatePlaylists", "options": [true, "target"]}' data-phrase="Validate"></button>
+                <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "dedupPlaylists", "options": [true, "target"]}' data-phrase="Deduplicate"></button>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="btnDeletePlaylists" data-phrase="Delete playlists"></label>
+              <label class="col-sm-4 col-form-label" data-phrase="Delete playlists"></label>
               <div class="col-sm-8">
                 <div class="input-group">
-                  <select id="selectDeletePlaylists" class="form-select">
+                  <select id="modalMaintenancePlistTypeInput" class="form-select">
                     <option value="deleteEmptyPlaylists" data-phrase="Delete empty playlists"></option>
                     <option value="deleteSmartPlaylists" data-phrase="Delete all smart playlists"></option>
                     <option value="deleteAllPlaylists" data-phrase="Delete all playlists"></option>
                   </select>
-                  <button id="btnDeletePlaylists" data-href='{"cmd": "deletePlaylists", "options": []}' type="button" class="btn btn-secondary protected" data-phrase="Delete"></button>
+                  <button data-href='{"cmd": "deletePlaylists", "options": ["target"]}' type="button" class="btn btn-secondary protected" data-phrase="Delete"></button>
                 </div>
               </div>
             </div>
@@ -2744,7 +2744,7 @@
             <label class="col-sm-4 col-form-label"><span data-phrase="Loglevel"></span><small class="mi mi-sm ms-1" data-title-phrase="Temporary setting">hourglass_bottom</small></label>
             <div class="col-sm-8">
               <div class="input-group">
-                <select id="selectSetLoglevel" class="form-select">
+                <select id="modalMaintenanceLoglevelInput" class="form-select">
                   <option value="0" data-phrase="0 - Emerg"></option>
                   <option value="1" data-phrase="1 - Alert"></option>
                   <option value="2" data-phrase="2 - Critical"></option>
@@ -2754,7 +2754,7 @@
                   <option value="6" data-phrase="6 - Info"></option>
                   <option value="7" data-phrase="7 - Debug"></option>
                 </select>
-                <button type="button" class="btn btn-secondary protected" data-href='{"cmd": "setLoglevel", "options": []}' data-phrase="Set"></button>
+                <button type="button" class="btn btn-secondary protected" data-href='{"cmd": "setLoglevel", "options": ["target"]}' data-phrase="Set"></button>
               </div>
             </div>
           </div>

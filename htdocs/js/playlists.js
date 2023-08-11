@@ -69,19 +69,6 @@ function playlistValidateDedupCheckError(obj) {
 }
 
 /**
- * Updates all smart playlists
- * @param {boolean} force true = forces update of all smart playlists,
- *                        false = updates only outdated smart playlists
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function updateSmartPlaylists(force) {
-    sendAPI("MYMPD_API_SMARTPLS_UPDATE_ALL", {
-        "force": force
-    }, null, false);
-}
-
-/**
  * Removes positions from a playlist
  * @param {string} plist the playlist
  * @param {Array} positions Positions to remove

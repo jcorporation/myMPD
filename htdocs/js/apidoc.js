@@ -737,7 +737,7 @@ const APImethods = {
         "protected": true,
         "params": {
             "type": {
-                "type": APItypes.string,
+                "plistType": APItypes.string,
                 "example": "deleteEmptyPlaylists",
                 "desc": "valid values are: \"deleteEmptyPlaylists\", \"deleteSmartPlaylists\", \"deleteAllPlaylists\""
             }

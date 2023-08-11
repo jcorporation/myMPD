@@ -252,3 +252,11 @@ Work
 Invalid json value type: MJSON_TOK_NULL
 Invalid json value type: MJSON_TOK_INVALID
 Invalid json value type: MJSON_TOK_UNKNOWN
+Loglevel set to EMERG
+Loglevel set to ALERT
+Loglevel set to CRITICAL
+Loglevel set to ERROR
+Loglevel set to WARN
+Loglevel set to NOTICE
+Loglevel set to INFO
+Loglevel set to DEBUG

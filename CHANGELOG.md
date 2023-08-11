@@ -16,6 +16,7 @@ This release changes some API methods.
 
 - merge MYMPD_API_QUEUE_SEARCH_ADV and MYMPD_API_QUEUE_LIST into MYMPD_API_QUEUE_SEARCH
 - rename MYMPD_API_PRESET_LOAD to MYMPD_API_PRESET_APPLY
+- MYMPD_API_PLAYLIST_RM_ALL: parameters changed
 
 ### Changelog
 
@@ -25,6 +26,7 @@ This release changes some API methods.
 - Feat: add advanced search to more views #1048
 - Feat: add more inline help text's #1072
 - Feat: improve validation of form fields #1083
+- Feat: add spinners to buttons
 - Upd: some code enhancements #1045
 - Upd: Bootstrap 5.3.1
 - Upd: rework settings

@@ -5,6 +5,7 @@
 */
 
 #include "compile_time.h"
+#include "dist/sds/sds.h"
 #include "src/mympd_api/mympd_api_handler.h"
 
 #include "src/lib/album_cache.h"
@@ -211,7 +212,9 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_LOGLEVEL:
             if (json_get_int(request->data, "$.params.loglevel", 0, 7, &int_buf1, &parse_error) == true) {
                 set_loglevel(int_buf1);
-                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_GENERAL);
+                sds_buf1 = sdscatfmt(sdsempty(), "Loglevel set to %s", get_loglevel_name(int_buf1));
+                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                        JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_INFO, sds_buf1);
             }
             break;
         case INTERNAL_API_STATE_SAVE:
@@ -478,18 +481,18 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         }
     // covercache
         case MYMPD_API_COVERCACHE_CROP:
-            rc = covercache_clear(config->cachedir, mympd_state->config->covercache_keep_days) >= 0
-                ? true
-                : false;
-            response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                    JSONRPC_FACILITY_GENERAL, "Successfully croped covercache", "Error cropping the covercache");
-            break;
         case MYMPD_API_COVERCACHE_CLEAR:
-            rc = covercache_clear(config->cachedir, 0) >= 0
-                ? true
-                : false;
-            response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,
-                    JSONRPC_FACILITY_GENERAL, "Successfully cleared covercache", "Error clearing the covercache");
+            int_buf2 = request->cmd_id == MYMPD_API_COVERCACHE_CLEAR
+                ? 0
+                : mympd_state->config->covercache_keep_days;
+            int_buf1 = covercache_clear(config->cachedir, int_buf2);
+            sds_buf1 = sdsfromlonglong((long long) int_buf1);
+            response->data = int_buf1 < 0
+                ? jsonrpc_respond_message(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Failed to clean up the cover cache")
+                : jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                    JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_INFO, "Removed %{smart_count} cover |||| Removed %{smart_count} covers",
+                    2, "smartCount", sds_buf1);
             break;
     // timers
         case MYMPD_API_TIMER_SAVE: {
@@ -1062,7 +1065,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         }
         case MYMPD_API_PLAYLIST_RM_ALL:
-            if (json_get_string(request->data, "$.params.type", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &parse_error) == true) {
+            if (json_get_string(request->data, "$.params.plistType", 1, NAME_LEN_MAX, &sds_buf1, vcb_isalnum, &parse_error) == true) {
                 enum plist_delete_criterias criteria = parse_plist_delete_criteria(sds_buf1);
                 response->data = mympd_api_playlist_delete_all(partition_state, response->data, request->id, criteria);
             }

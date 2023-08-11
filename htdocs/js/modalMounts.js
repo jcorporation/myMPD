@@ -116,16 +116,8 @@ function mountMountCheckError(obj) {
  */
 //eslint-disable-next-line no-unused-vars
 function updateMount(el, uri) {
-    //hide action items
-    const parent = el.parentNode;
-    for (let i = 0, j = parent.children.length; i < j; i++) {
-        elHide(parent.children[i]);
-    }
-    //add spinner
-    const spinner = elCreateEmpty('div', {"id": "spinnerUpdateProgress", "class": ["spinner-border", "spinner-border-sm"]});
-    el.parentNode.insertBefore(spinner, el);
-    //update
-    updateDB(uri, false);
+    // @ts-ignore
+    updateDB(uri, false, el);
 }
 
 /**
