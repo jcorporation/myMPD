@@ -444,8 +444,8 @@ async function httpGet(uri, callback, json) {
     }
 
     if (response.redirected === true) {
-        window.location.reload();
         logError('Request was redirect, reloading application');
+        window.location.reload();
         return;
     }
     if (response.ok === false) {

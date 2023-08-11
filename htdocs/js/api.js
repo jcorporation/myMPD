@@ -101,8 +101,8 @@ async function sendAPIpartition(partition, method, params, callback, onerror) {
     }
 
     if (response.redirected === true) {
-        window.location.reload();
         logError('Request was redirect, reloading application');
+        window.location.reload();
         return;
     }
     if (response.status === 403 &&
