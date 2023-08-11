@@ -334,7 +334,7 @@
     "helpSettingsTagsToUse": "Folgende Tags sollten gepflegt und aktiviert sein: AlbumArtist, Album, Artist, Disc, Genre, Name, Title, Track",
     "helpSettingsSearchTags": "Nach diesen Tags kann gesucht werden. Voreinstellung: Artist, Album, Albumartist, Title, Genre",
     "helpSettingsBrowseTags": "Diese Tags sind in der Browse Tags Anzeige auswählbar. Voreinstellung: Artist, Album, Albumartist, Genre",
-    "helpSettingsBookletName": "Dateiname für Booklets, die im gleichen Verzeichnis wie das Lieder oder Album gespeichert sein muss.",
+    "helpSettingsBookletName": "Dateiname für Booklets, die im gleichen Verzeichnis wie das Lied oder Album gespeichert sein muss.",
     "helpSettingsCoverimageNames": "Durch Komma getrennte Liste von Dateinamen oder Basisnamen.",
     "helpSettingsThumbnailNames": "Durch Kommata getrennte Liste von Dateinamen oder Basisnamen für Thumbnails.",
     "helpSettingsSmartplsPrefix": "Prefix für die Namen von intelligenten Wiedergabelisten.",
