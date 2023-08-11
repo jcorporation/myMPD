@@ -280,36 +280,12 @@ function parseCmd(event, cmd) {
                 cmd.options[i] = event.target;
             }
         }
-        switch(cmd.cmd) {
-            case 'sendAPI':
-                sendAPI(cmd.options[0].cmd, {}, null, false);
-                break;
-            case 'createLocalPlaybackEl':
-                // @ts-ignore
-                func(event, ... cmd.options);
-                break;
-            case 'toggleBtn':
-            case 'toggleBtnChk':
-            case 'toggleBtnGroup':
-            case 'toggleBtnGroupCollapse':
-            case 'zoomPicture':
-            case 'setPlaySettings':
-            case 'voteSong':
-            case 'toggleAddToPlaylistFrm':
-            case 'toggleSaveQueueMode':
-            case 'hideAlert':
-            case 'switchTableMode':
-            case 'switchGridMode':
-                // @ts-ignore
-                func(event.target, ... cmd.options);
-                break;
-            case 'toggleBtnChkCollapse':
-                // @ts-ignore
-                func(event.target, undefined, ... cmd.options);
-                break;
-            default:
-                // @ts-ignore
-                func(... cmd.options);
+        if (cmd.cmd === 'sendAPI') {
+            sendAPI(cmd.options[0].cmd, {}, null, false);
+        }
+        else {
+            // @ts-ignore
+            func(... cmd.options);
         }
     }
     else {

@@ -121,7 +121,7 @@
     <div class="card" id="cardPlayback">
       <div class="card-body">
         <div class="btn-toolbar card-toolbar">
-          <div class="btn-group featStickers me-2" data-href='{"cmd": "voteSong", "options": []}'>
+          <div class="btn-group featStickers me-2" data-href='{"cmd": "voteSong", "options": ["target"]}'>
             <button data-vote="0" data-title-phrase="Hate song" id="PlaybackSongHateBtn" class="btn btn-secondary mi">thumb_down</button>
             <button data-vote="2" data-title-phrase="Love song" id="PlaybackSongLoveBtn" class="btn btn-secondary mi">thumb_up</button>
           </div>
@@ -148,7 +148,7 @@
         <div class="container-fluid scrollContainer">
           <div id="PlaybackList" class="row">
             <div class="col-12 col-sm-6 col-xl-4 ps-0 mb-3">
-              <div class="album-cover album-cover-loading clickable carousel" id="PlaybackCover" data-href='{"cmd": "zoomPicture", "options": []}'></div>
+              <div class="album-cover album-cover-loading clickable carousel" id="PlaybackCover" data-href='{"cmd": "zoomPicture", "options": ["target"]}'></div>
             </div>
             <div class="text-break col-12 col-sm-6 col-xl-8">
               <h2 id="PlaybackTitle" data-href='{"cmd": "clickTitle", "options": []}'></h2>
@@ -228,7 +228,7 @@
             <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Select" id="QueueCurrentSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+            <button data-title-phrase="Select" id="QueueCurrentSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
             <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
             <div class="dropdown-menu px-2 dropdownWide" id="QueueCurrentSelectionDropdown">
               <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -287,7 +287,7 @@
             <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Select" id="QueueLastPlayedSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+            <button data-title-phrase="Select" id="QueueLastPlayedSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
             <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
             <div class="dropdown-menu px-2 dropdownWide" id="QueueLastPlayedSelectionDropdown">
               <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -349,7 +349,7 @@
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="QueueJukeboxSongSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="QueueJukeboxSongSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="QueueJukeboxSongSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -411,7 +411,7 @@
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="QueueJukeboxAlbumSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="QueueJukeboxAlbumSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="QueueJukeboxAlbumSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -468,7 +468,7 @@
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowsePlaylistListSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="BrowsePlaylistListSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowsePlaylistListSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -567,7 +567,7 @@
               </div>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowsePlaylistDetailSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="BrowsePlaylistDetailSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowsePlaylistDetailSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -582,7 +582,7 @@
           <div class="table-responsive scrollContainer">
             <div id="playlistDetailAlert" class="alert alert-warning alert-dismissible d-none">
               <span></span>
-              <button class="btn-close" data-href='{"cmd": "hideAlert", "options": []}'></button>
+              <button class="btn-close" data-href='{"cmd": "hideAlert", "options": ["target"]}'></button>
             </div>
             <table id="BrowsePlaylistDetailList" class="table table-hover table-sm">
               <caption></caption>
@@ -674,7 +674,7 @@
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowseDatabaseAlbumListSelectModeBtn" data-href='{"cmd": "switchGridMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="BrowseDatabaseAlbumListSelectModeBtn" data-href='{"cmd": "switchGridMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowseDatabaseAlbumListSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -714,7 +714,7 @@
               </div>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowseDatabaseAlbumDetailSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="BrowseDatabaseAlbumDetailSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowseDatabaseAlbumDetailSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -782,7 +782,7 @@
             </div>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Select" id="BrowseFilesystemSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+            <button data-title-phrase="Select" id="BrowseFilesystemSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
             <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
             <div class="dropdown-menu px-2 dropdownWide" id="BrowseFilesystemSelectionDropdown">
               <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -835,7 +835,7 @@
             <div class="btn-group me-2 featHome">
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
             </div><div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowseRadioFavoritesListSelectModeBtn" data-href='{"cmd": "switchGridMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="BrowseRadioFavoritesListSelectModeBtn" data-href='{"cmd": "switchGridMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowseRadioFavoritesSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -890,7 +890,7 @@
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowseRadioWebradiodbSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="BrowseRadioWebradiodbSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowseRadioWebradiodbSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -941,7 +941,7 @@
               <button data-title-phrase="Add view to homescreen" data-href='{"cmd": "addViewToHome", "options": []}' type="button" class="btn btn-secondary mi">add_to_home_screen</button>
             </div>
             <div class="btn-group me-2">
-              <button data-title-phrase="Select" id="BrowseRadioRadiobrowserSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+              <button data-title-phrase="Select" id="BrowseRadioRadiobrowserSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
               <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
               <div class="dropdown-menu px-2 dropdownWide" id="BrowseRadioRadiobrowserSelectionDropdown">
                 <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -1005,7 +1005,7 @@
             </div>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Select" id="SearchSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": []}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
+            <button data-title-phrase="Select" id="SearchSelectModeBtn" data-href='{"cmd": "switchTableMode", "options": ["target"]}' type="button" class="btn btn-secondary mi rounded-end">checklist_rtl</button>
             <button data-title-phrase="Action for selection" class="btn btn-secondary dropdown-toggle mi d-none" type="button" data-bs-toggle="dropdown">add_task</button>
             <div class="dropdown-menu px-2 dropdownWide" id="SearchSelectionDropdown">
               <h2 data-phrase="Action for selection" class="dropdown-header"></h2>
@@ -1102,7 +1102,7 @@
             <audio id="localPlayer" preload="none"></audio>
             <form class="d-grid mx-3 mb-3">
               <div class="mb-3"><span data-phrase="Duration"></span>: <span id="localPlayerProgress"></span></div>
-              <button class="btn btn-success mi mb-3" id="localPlaybackBtn" data-href='{"cmd": "createLocalPlaybackEl", "options": []}'>play_arrow</button>
+              <button class="btn btn-success mi mb-3" id="localPlaybackBtn" data-href='{"cmd": "createLocalPlaybackEl", "options": ["event"]}'>play_arrow</button>
               <div class="mb-3">
                 <span data-phrase="Volume"></span>: <span id="localPlaybackVolume"></span>
               </div>
@@ -1145,8 +1145,8 @@
               <label class="col-sm-4 col-form-label" data-phrase="Add to"></label>
               <div class="col-sm-8">
                 <div class="btn-group">
-                  <button id="toggleAddToPlaylistQueue" class="btn btn-secondary active" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":[]}' data-phrase="Queue"></button>
-                  <button id="toggleAddToPlaylistPlaylist" class="btn btn-secondary" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":[]}' data-phrase="Playlist"></button>
+                  <button id="toggleAddToPlaylistQueue" class="btn btn-secondary active" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":["target"]}' data-phrase="Queue"></button>
+                  <button id="toggleAddToPlaylistPlaylist" class="btn btn-secondary" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":["target"]}' data-phrase="Playlist"></button>
                   <button type="button" class="btn btn-secondary" data-href='{"cmd": "addStreamToHome", "options": []}' data-phrase="Homescreen"></button>
                 </div>
               </div>
@@ -1487,7 +1487,7 @@
                 <div class="mb-3 row">
                   <label class="col-sm-4 col-form-label" for="modalSettingsSmartplsInput" data-phrase="Smart playlists"></label>
                   <div class="col-sm-8 ">
-                    <button id="modalSettingsSmartplsInput" data-bs-toggle="collapse" data-bs-target="#modalSettingsSmartplsCollapse" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi"></button>
+                    <button id="modalSettingsSmartplsInput" data-bs-toggle="collapse" data-bs-target="#modalSettingsSmartplsCollapse" data-href='{"cmd": "toggleBtnChk", "options": ["target"]}' type="button" class="btn btn-sm btn-secondary mi"></button>
                   </div>
                 </div>
                 <div class="collapse" id="modalSettingsSmartplsCollapse">
@@ -1543,7 +1543,7 @@
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="SettingsEnableLyricsInput" data-phrase="Enable"></label>
                 <div class="col-sm-8 ">
-                  <button id="modalSettingsEnableLyricsInput" data-bs-toggle="collapse" data-bs-target="#modalSettingsLyricsCollapse" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi"></button>
+                  <button id="modalSettingsEnableLyricsInput" data-bs-toggle="collapse" data-bs-target="#modalSettingsLyricsCollapse" data-href='{"cmd": "toggleBtnChk", "options": ["target"]}' type="button" class="btn btn-sm btn-secondary mi"></button>
                   <small class="help" data-phrase="helpSettingsEnableLyrics"></small>
                 </div>
               </div>
@@ -1554,7 +1554,7 @@
               <div class="mb-3 row">
                 <label class="col-sm-4 col-form-label" for="modalSettingsEnableLocalPlaybackInput" data-phrase="Enable"></label>
                 <div class="col-sm-8 ">
-                  <button id="modalSettingsEnableLocalPlaybackInput" data-bs-toggle="collapse" data-bs-target="#modalSettingsLocalPlaybackCollapse" data-href='{"cmd": "toggleBtnChk", "options": []}' type="button" class="btn btn-sm btn-secondary mi"></button>
+                  <button id="modalSettingsEnableLocalPlaybackInput" data-bs-toggle="collapse" data-bs-target="#modalSettingsLocalPlaybackCollapse" data-href='{"cmd": "toggleBtnChk", "options": ["target"]}' type="button" class="btn btn-sm btn-secondary mi"></button>
                   <small class="help" data-phrase="helpSettingsEnableLocalPlayback"></small>
                 </div>
               </div>
@@ -1618,9 +1618,9 @@
                 <label class="col-sm-4 col-form-label" data-phrase="Consume"></label>
                 <div class="col-sm-8">
                   <div class="btn-group" id="modalPlaybackConsumeGroup">
-                    <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
-                    <button data-value="oneshot" class="btn btn-secondary featConsumeOneshot" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
-                    <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
+                    <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": ["target"]}' type="button" data-phrase="Off"></button>
+                    <button data-value="oneshot" class="btn btn-secondary featConsumeOneshot" data-href='{"cmd": "toggleBtnGroup", "options": ["target"]}' type="button" data-phrase="Oneshot"></button>
+                    <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": ["target"]}' type="button" data-phrase="On"></button>
                   </div>
                   <small class="help" data-phrase="helpQueueConsume"></small>
                 </div>
@@ -1629,9 +1629,9 @@
                 <label class="col-sm-4 col-form-label" data-phrase="Single"></label>
                 <div class="col-sm-8">
                   <div class="btn-group" id="modalPlaybackSingleGroup">
-                    <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
-                    <button data-value="oneshot" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Oneshot"></button>
-                    <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="On"></button>
+                    <button data-value="0" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": ["target"]}' type="button" data-phrase="Off"></button>
+                    <button data-value="oneshot" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": ["target"]}' type="button" data-phrase="Oneshot"></button>
+                    <button data-value="1" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": ["target"]}' type="button" data-phrase="On"></button>
                   </div>
                   <small class="help" data-phrase="helpQueueSingle"></small>
                 </div>
@@ -1640,10 +1640,10 @@
                 <label class="col-sm-4 col-form-label" data-phrase="Replaygain"></label>
                 <div class="col-sm-8">
                   <div class="btn-group" id="modalPlaybackReplaygainGroup">
-                    <button data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Off"></button>
-                    <button data-value="auto" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Auto"></button>
-                    <button data-value="track" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Song"></button>
-                    <button data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": []}' type="button" data-phrase="Album"></button>
+                    <button data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": ["target"]}' type="button" data-phrase="Off"></button>
+                    <button data-value="auto" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": ["target"]}' type="button" data-phrase="Auto"></button>
+                    <button data-value="track" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": ["target"]}' type="button" data-phrase="Song"></button>
+                    <button data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroup", "options": ["target"]}' type="button" data-phrase="Album"></button>
                   </div>
                   <small class="help" data-phrase="helpQueueReplaygain"></small>
                 </div>
@@ -1662,9 +1662,9 @@
                 <label id="labelJukeboxMode" class="col-sm-4 col-form-label" data-phrase="Jukebox mode" data-bs-toggle="collapse" data-bs-target="#modalPlaybackJukeboxCollapse"></label>
                 <div class="col-sm-8">
                   <div class="btn-group" id="modalPlaybackJukeboxModeGroup">
-                    <button data-collapse="d-none" data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["modalPlaybackJukeboxCollapse"]}' type="button" data-phrase="Off"></button>
-                    <button data-collapse="show" data-value="song" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["modalPlaybackJukeboxCollapse"]}' type="button" data-phrase="Song"></button>
-                    <button data-collapse="show" data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["modalPlaybackJukeboxCollapse"]}' type="button" data-phrase="Album"></button>
+                    <button data-collapse="d-none" data-value="off" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["target", "modalPlaybackJukeboxCollapse"]}' type="button" data-phrase="Off"></button>
+                    <button data-collapse="show" data-value="song" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["target", "modalPlaybackJukeboxCollapse"]}' type="button" data-phrase="Song"></button>
+                    <button data-collapse="show" data-value="album" class="btn btn-secondary" data-href='{"cmd": "toggleBtnGroupCollapse", "options": ["target", "modalPlaybackJukeboxCollapse"]}' type="button" data-phrase="Album"></button>
                   </div>
                   <small class="help" data-phrase="helpJukeboxMode"></small>
                   <div id="modalPlaybackConsumeWarn" class="alert alert-warning mt-2" data-phrase="Consume must be enabled"></div>
@@ -1729,7 +1729,7 @@
           <div class="mb-3 row">
             <div class="col-sm-4"></div>
             <div class="col-sm-8">
-              <button data-href='{"cmd": "toggleBtn", "options": []}' data-bs-toggle="collapse" data-bs-target="#modalConnectionAdvCollapse" class="btn btn-secondary alwaysEnabled" data-phrase="Advanced"></button>
+              <button data-href='{"cmd": "toggleBtn", "options": ["target"]}' data-bs-toggle="collapse" data-bs-target="#modalConnectionAdvCollapse" class="btn btn-secondary alwaysEnabled" data-phrase="Advanced"></button>
             </div>
           </div>
           <div id="modalConnectionAdvCollapse" class="collapse">
@@ -1909,7 +1909,7 @@
             <div class="mb-3 row">
               <label class="col-sm-4 col-form-label" for="btnTimerEnabled" data-phrase="Enabled"></label>
               <div class="col-sm-8">
-                <button data-href='{"cmd":"toggleBtnChk","options":[]}' id="btnTimerEnabled" type="button" class="btn btn-secondary btn-sm mi active">check</button>
+                <button data-href='{"cmd":"toggleBtnChk", "options": ["target"]}' id="btnTimerEnabled" type="button" class="btn btn-secondary btn-sm mi active">check</button>
               </div>
             </div>
             <div class="mb-3 row">
@@ -1924,13 +1924,13 @@
             <div class="mb-3 row">
               <label class="col-sm-4 col-form-label" data-phrase="Weekdays"></label>
               <div class="col-sm-8">
-                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerMon" data-phrase="Mon"></button>
-                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerTue" data-phrase="Tue"></button>
-                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerWed" data-phrase="Wed"></button>
-                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerThu" data-phrase="Thu"></button>
-                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerFri" data-phrase="Fri"></button>
-                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerSat" data-phrase="Sat"></button>
-                <button data-href='{"cmd":"toggleBtn","options":[]}' class="weekday me-2 btn btn-secondary" id="btnTimerSun" data-phrase="Sun"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerMon" data-phrase="Mon"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerTue" data-phrase="Tue"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerWed" data-phrase="Wed"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerThu" data-phrase="Thu"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerFri" data-phrase="Fri"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerSat" data-phrase="Sat"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerSun" data-phrase="Sun"></button>
                 <div id="invalidTimerWeekdays" class="invalid-feedback" data-phrase="Minimum one weekday must be selected"></div>
               </div>
             </div>
@@ -2553,9 +2553,9 @@
           <label class="col-sm-4 col-form-label" data-phrase="Save mode"></label>
           <div class="col-sm-8">
             <div class="btn-group" id="btnQueueSaveMode">
-              <button data-value="create" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": []}' type="button" data-phrase="Create new"></button>
-              <button data-value="append" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": []}' type="button" data-phrase="Append"></button>
-              <button data-value="replace" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": []}' type="button" data-phrase="Replace"></button>
+              <button data-value="create" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": ["target"]}' type="button" data-phrase="Create new"></button>
+              <button data-value="append" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": ["target"]}' type="button" data-phrase="Append"></button>
+              <button data-value="replace" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": ["target"]}' type="button" data-phrase="Replace"></button>
             </div>
           </div>
         </div>
