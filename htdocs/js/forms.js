@@ -35,7 +35,7 @@ function formToJson(prefix, settingsParams, defaultFields) {
                 }
             }
             settingsParams[key] = defaultFields[key].contentType === 'number'
-                ? parseNumber(value)
+                ? Number(value)
                 : value;
         }
         else {
