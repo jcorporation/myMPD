@@ -128,6 +128,8 @@ function togglePlaymode(option) {
                 title = 'Disable single mode';
             }
             break;
+        default:
+            logError('Invalid playmode option: ' + option);
     }
     const params = {};
     params[option] = value;

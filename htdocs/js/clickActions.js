@@ -34,6 +34,8 @@ function clickQuickRemove(target) {
             delQueueJukeboxEntries([pos]);
             break;
         }
+        default:
+            logError('Invalid appid' + app.id);
     }
 }
 
@@ -54,6 +56,7 @@ function clickQuickPlay(target) {
         case 'insertPlayAfterCurrent': return insertPlayAfterCurrentQueue(type, [uri]);
         case 'replace': return replaceQueue(type, [uri]);
         case 'replacePlay': return replacePlayQueue(type, [uri]);
+        default: logError('Invalid action: ' + settings.webuiSettings.clickQuickPlay);
     }
 }
 
@@ -73,6 +76,7 @@ function clickSong(uri, event) {
         case 'replacePlay': return replacePlayQueue('song', [uri]);
         case 'view': return songDetails(uri);
         case 'context': return showContextMenu(event);
+        default: logError('Invalid action: ' + settings.webuiSettings.clickSong);
     }
 }
 
@@ -93,6 +97,7 @@ function clickRadiobrowser(uri, uuid, event) {
         case 'replacePlay': return replacePlayQueue('song', [uri]);
         case 'view': return showRadiobrowserDetails(uuid);
         case 'context': return showContextMenu(event);
+        default: logError('Invalid action: ' + settings.webuiSettings.clickRadiobrowser);
     }
     countClickRadiobrowser(uuid);
 }
@@ -113,6 +118,7 @@ function clickWebradiodb(uri, event) {
         case 'replacePlay': return replacePlayQueue('song', [uri]);
         case 'view': return showWebradiodbDetails(uri);
         case 'context': return showContextMenu(event);
+        default: logError('Invalid action: ' + settings.webuiSettings.clickRadiobrowser);
     }
 }
 
@@ -132,6 +138,7 @@ function clickRadioFavorites(uri, event) {
         case 'replacePlay': return replacePlayQueue('webradio', [uri]);
         case 'edit': return editRadioFavorite(uri);
         case 'context': return showContextMenu(event);
+        default: logError('Invalid action: ' + settings.webuiSettings.clickRadioFavorites);
     }
 }
 
@@ -148,10 +155,9 @@ function clickQueueSong(songid, uri, event) {
             if (songid === null) {
                 return;
             }
-            sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {
+            return sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {
                 "songId": songid
             }, null, false);
-            break;
         case 'view':
             if (uri === null) {
                 return;
@@ -159,6 +165,7 @@ function clickQueueSong(songid, uri, event) {
             return songDetails(uri);
         case 'context':
             return showContextMenu(event);
+        default: logError('Invalid action: ' + settings.webuiSettings.clickQueueSong);
     }
 }
 
@@ -178,6 +185,7 @@ function clickPlaylist(uri, event) {
         case 'replacePlay': return replacePlayQueue('plist', [uri]);
         case 'view': return playlistDetails(uri);
         case 'context': return showContextMenu(event);
+        default: logError('Invalid action: ' + settings.webuiSettings.clickPlaylist);
     }
 }
 
@@ -206,6 +214,7 @@ function clickFilesystemPlaylist(uri, event) {
             appGoto('Browse', 'Filesystem', undefined, 0, app.current.limit, uri, app.current.sort, 'plist', '', 0);
             break;
         case 'context': return showContextMenu(event);
+        default: logError('Invalid action: ' + settings.webuiSettings.clickFilesystemPlaylist);
     }
 }
 

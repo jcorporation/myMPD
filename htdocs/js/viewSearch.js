@@ -141,6 +141,8 @@ function addAllFromSearch(mode, type) {
         case 'replacePlay':
             replacePlayQueue(type, [app.current.search]);
             break;
+        default:
+            logError('Invalid mode: ' + mode);
     }
 }
 

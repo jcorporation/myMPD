@@ -269,6 +269,7 @@ function dragAndDropTable(tableId) {
                 currentPlaylistMoveSong(oldSongPos, newSongPos);
                 break;
             }
+            // No Default
         }
     }, false);
 
@@ -378,6 +379,7 @@ function setColTags(tableName) {
                 return value !== 'Disc';
             });
         }
+        // No Default
     }
 
     const tags = settings.tagList.slice();
@@ -407,6 +409,7 @@ function setColTags(tableName) {
         case 'QueueLastPlayed':
             tags.push('Pos', 'LastPlayed');
             break;
+        // No Default
     }
     //sort tags 
     tags.sort();
@@ -983,7 +986,8 @@ function uiSmallWidthTagRows() {
  */
 function handleActionTdClick(event) {
     event.preventDefault();
-    switch(event.target.getAttribute('data-action')) {
+    const action = event.target.getAttribute('data-action');
+    switch(action) {
         case 'popover':
             showContextMenu(event);
             break;
@@ -993,6 +997,8 @@ function handleActionTdClick(event) {
         case 'quickRemove':
             clickQuickRemove(event.target);
             break;
+        default:
+            logError('Invalid action: ' + action);
     }
 }
 

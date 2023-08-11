@@ -22,6 +22,9 @@ function gotoPageDir(direction, limit) {
             if (offset < 0) {
                 offset = 0;
             }
+            break;
+        default:
+            logError('Invalid goto page direction: ' + direction);
     }
     gotoPage(offset, limit);
 }

@@ -149,6 +149,7 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
         case 'selectAddToQueuePlaylist':
             selectEl.addFilterResult('Database', 'Database');
             break;
+        // No Default
     }
 
     for (let i = 0; i < obj.result.returnedEntities; i++) {
@@ -196,6 +197,8 @@ function appendPlaylist(type, uris, plist, callback) {
                 "plist": plist
             }, callback, true);
             break;
+        default:
+            logError('Invalid type: ' + type);
     }
 }
 
@@ -241,6 +244,8 @@ function insertPlaylist(type, uris, plist, to, callback) {
                 "to": to
             }, callback, true);
             break;
+        default:
+            logError('Invalid type: ' + type);
     }
 }
 
@@ -281,6 +286,8 @@ function replacePlaylist(type, uris, plist, callback) {
                 "plist": plist
             }, callback, true);
             break;
+        default:
+            logError('Invalid type: ' + type);
     }
 }
 

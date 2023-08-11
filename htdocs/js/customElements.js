@@ -83,6 +83,8 @@ function initElement(el, elType) {
         case 'mympd-select-new':
             setSelectNew(el);
             break;
+        default:
+            logError('Invalid element type: ' + elType);
     }
     el.removeAttribute('data-is');
 }

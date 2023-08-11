@@ -25,6 +25,7 @@ function ignoreKeys(event) {
         case 'Delete':
             // do not ignore some special keys
             return false;
+        // No Default
     }
     if (event.key.length > 1) {
         // ignore all special keys
@@ -128,6 +129,7 @@ function escapeMPD(str) {
             case '"':  return '\\"';
             case '\'': return '\\\'';
             case '\\': return '\\\\';
+            // No Default
         }
     });
 }
@@ -146,6 +148,7 @@ function unescapeMPD(str) {
             case '\\"':  return '"';
             case '\\\'': return '\'';
             case '\\\\': return '\\';
+            // No Default
         }
     });
 }

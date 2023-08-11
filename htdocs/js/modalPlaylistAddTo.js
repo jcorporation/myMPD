@@ -116,6 +116,8 @@ function addToPlaylist() {
             case 'replace':
                 replacePlaylist(type, entities, plistEl.value, addToPlaylistClose);
                 break;
+            default:
+                logError('Invalid mode: ' + mode);
         }
     }
     else {
@@ -139,6 +141,8 @@ function addToPlaylist() {
             case 'replacePlay':
                 replacePlayQueue(type, entities, addToPlaylistClose);
                 break;
+            default:
+                logError('Invalid mode: ' + mode);
         }
     }
 }

@@ -23,6 +23,7 @@
     "rules": {
         "block-scoped-var": "error",
         "camelcase": "error",
+        "default-case": "error",
         "default-case-last": "error",
         "eqeqeq": ["error", "always", {
             "null": "ignore"

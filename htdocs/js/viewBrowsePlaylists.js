@@ -291,5 +291,7 @@ function currentPlaylistAddTo(action) {
         case 'addToHome':
             addPlistToHome(uri, type, uri);
             break;
+        default:
+            logError('Invalid action: ' + action);
     }
 }

@@ -83,6 +83,8 @@ function initViewBrowseFilesystem() {
                 case 'plist':
                     clickFilesystemPlaylist(uri, event);
                     break;
+                default:
+                    logError('Invalid type: ' + dataType);
             }
         }
     }, false);

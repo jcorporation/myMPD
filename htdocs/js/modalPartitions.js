@@ -20,6 +20,8 @@ function initModalPartitions() {
                 case 'delete':
                     deletePartition(event.target, partition);
                     break;
+                default:
+                    logError('Invalid action: ' + action);
             }
             return;
         }

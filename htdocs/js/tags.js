@@ -359,6 +359,7 @@ function getMBtagLink(tag, value) {
         case 'MUSICBRAINZ_RELEASEGROUPID':
             MBentity = 'release-group';
             break;
+        // No Default
     }
     if (value === undefined ||
         value === '' ||

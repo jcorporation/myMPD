@@ -70,6 +70,9 @@ function controlLocalPlayback(newState) {
             if (curState === 'play') {
                 el.click();
             }
+            break;
+        default:
+            logError('Invalid state: ' + newState);
     }
 }
 

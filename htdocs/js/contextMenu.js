@@ -143,6 +143,8 @@ function addMenuItemsNavbarActions(target, popoverBody) {
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Filesystem", undefined]}, 'Show browse filesystem');
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Radio", undefined]}, 'Show browse webradio');
             break;
+        default:
+            logError('Invalid type: ' + type);
     }
 }
 
@@ -640,6 +642,7 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
             addMenuItem(contextMenuBody, {"cmd": "delQueueJukeboxEntries", "options": [[pos]]}, 'Remove');
             return true;
         }
+        // No Default
     }
     return false;
 }
@@ -687,6 +690,7 @@ function createMenuListsSecondary(target, contextMenuTitle, contextMenuBody) {
             }
             return true;
         }
+        // No Default
     }
     return false;
 }
@@ -760,6 +764,8 @@ function createMenuHome(target, contextMenuTitle, contextMenuBody) {
             addMenuItem(contextMenuBody, {"cmd": "executeHomeIcon", "options": [pos]}, actionDesc);
             addMenuItem(contextMenuBody, {"cmd": "showEditScriptModal", "options": [href.options[0]]}, 'Edit script');
             break;
+        default:
+            logError('Invalid type: ' + type);
     }
     return true;
 }

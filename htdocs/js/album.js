@@ -33,5 +33,7 @@ function addAlbumDisc(action, albumId, disc) {
         case 'addPlaylist':
             showAddToPlaylist('disc', [albumId, disc]);
             break;
+        default:
+            logError('Invalid action: ' + action);
     }
 }

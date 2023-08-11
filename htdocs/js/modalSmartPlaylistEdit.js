@@ -46,6 +46,8 @@ function parseSmartPlaylist(obj) {
             elShowId('saveSmartPlaylistNewest');
             document.getElementById('inputSaveSmartPlaylistNewestTimerange').value = obj.result.timerange / 24 / 60 / 60;
             break;
+        default:
+            logError('Invalid smart playlist type: ' + obj.result.type);
     }
     cleanupModalId('modalSmartPlaylistEdit');
     uiElements.modalSmartPlaylistEdit.show();
@@ -154,6 +156,8 @@ function addSmartpls(type) {
             obj.result.maxentries = 200;
             obj.result.minvalue = 2;
             break;
+        default:
+            logError('Invalid smart playlist type: ' + type);
     }
     parseSmartPlaylist(obj);
 }

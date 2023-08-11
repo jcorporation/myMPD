@@ -153,6 +153,7 @@ function addStreamToHome() {
         case 'insertPlayAfterCurrent': action = 'insertPlayAfterCurrentQueue'; break;
         case 'replace': action = 'replaceQueue'; break;
         case 'replacePlay': action = 'replacePlayQueue'; break;
+        default: logError('Invalid mode: ' + mode);
     }
     _addHomeIcon(action, '', 'stream', '', ['stream', uri]);
 }
@@ -315,5 +316,7 @@ function homeIconGoto(type, uri) {
         case 'smartpls':
             playlistDetails(uri[0]);
             break;
+        default:
+            logError('Invalid type: ' + type);
     }
 }

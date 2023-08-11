@@ -451,5 +451,7 @@ function currentAlbumAdd(action) {
             addAlbumToHome(app.current.filter, name, (images.length > 0 ? images[0]: ''));
             break;
         }
+        default:
+            logError('Invalid action: ' + action);
     }
 }

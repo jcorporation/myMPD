@@ -151,6 +151,8 @@ function _appendQueue(type, uris, play, callback) {
                 "play": play
             }, callback, true);
             break;
+        default:
+            logError('Invalid type: ' + type);
     }
 }
 
@@ -239,6 +241,8 @@ function insertQueue(type, uris, to, whence, play, callback) {
                 "play": play
             }, callback, true);
             break;
+        default:
+            logError('Invalid type: ' + type);
     }
 }
 
@@ -313,5 +317,7 @@ function _replaceQueue(type, uris, play, callback) {
                 "play": play
             }, callback, true);
             break;
+        default:
+            logError('Invalid type: ' + type);
     }
 }

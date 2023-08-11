@@ -41,6 +41,8 @@ function initModalScripts() {
                 case 'add2home':
                     addScriptToHome(script, getData(event.target.parentNode.parentNode, 'href'));
                     break;
+                default:
+                    logError('Invalid action: ' + action);
             }
             return;
         }

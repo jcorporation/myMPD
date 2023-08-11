@@ -227,5 +227,7 @@ function execSelectAction(type, action) {
             delQueueJukeboxEntries(positions);
             break;
         }
+        default:
+            logError('Invalid select action: ' + action);
     }
 }
