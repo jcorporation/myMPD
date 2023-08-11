@@ -533,7 +533,7 @@
     "Playlist is empty": "Wiedergabelist ist leer",
     "Playlist to small, disabling jukebox unique constraints temporarily": "Die Wiedergabeliste ist zu klein, die Jukebox Regeln werden deaktiviert",
     "Playlists": "Wiedergabelisten",
-    "Playlists deleted": "Wiedergabeliste wurde gelöscht",
+    "%{smart_count} Playlist deleted |||| %{smart_count} Playlists deleted": "%{smart_count} Wiedergabeliste gelöscht |||| %{smart_count} Wiedergabelisten gelöscht",
     "Pos": "Pos",
     "Preview": "Vorschau",
     "Previous": "Vorheriges Lied",

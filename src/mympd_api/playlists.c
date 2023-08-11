@@ -892,6 +892,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
         list_clear(&playlists);
         return buffer;
     }
+    int delete_count = 0;
     //delete each smart playlist file that have no corresponding mpd playlist file
     sds smartpls_path = sdscatfmt(sdsempty(), "%S/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS);
     errno = 0;
@@ -905,6 +906,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
                     smartpls_file = sdscatfmt(smartpls_file, "%S/%s/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS, next_file->d_name);
                     if (rm_file(smartpls_file) == true) {
                         MYMPD_LOG_INFO(partition_state->name, "Removed orphaned smartpls file \"%s\"", smartpls_file);
+                        delete_count++;
                     }
                     sdsclear(smartpls_file);
                 }
@@ -949,6 +951,7 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
                     break;
                 }
                 MYMPD_LOG_INFO(partition_state->name, "Deleting mpd playlist %s", current->key);
+                delete_count++;
             }
             list_node_free(current);
         }
@@ -959,7 +962,10 @@ sds mympd_api_playlist_delete_all(struct t_partition_state *partition_state, sds
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_rm") == false) {
         return buffer;
     }
-    buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
-        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlists deleted");
+    sds delete_count_str = sdsfromlonglong((long long)delete_count);
+    buffer = jsonrpc_respond_message_phrase(buffer, cmd_id, request_id,
+        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "%{smart_count} Playlist deleted |||| %{smart_count} Playlists deleted",
+        2, "smartCount", delete_count_str);
+    FREE_SDS(delete_count_str);
     return buffer;
 }
