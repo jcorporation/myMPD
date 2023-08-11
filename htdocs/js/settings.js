@@ -299,7 +299,7 @@ function parseSettings(obj) {
 function parseMPDSettings() {
     document.getElementById('partitionName').textContent = localSettings.partition;
 
-    if (settings.webuiSettings.BgCover === true) {
+    if (settings.webuiSettings.bgCover === true) {
         setBackgroundImage(domCache.body, currentSongObj.uri);
     }
     else {
