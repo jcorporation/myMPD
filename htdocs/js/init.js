@@ -92,8 +92,7 @@ function appInitStart() {
         case 'clickNext':
             clickNext();
             break;
-        default:
-            logError('Invalid action: ' + action);
+        // No Default
     }
 
     //update table height on window resize
