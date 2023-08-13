@@ -44,6 +44,7 @@ This is a small bug fix release.
 
 - Upd: enable more tags by default
 - Upd: es-AR translation
+- Fix: set initial disc count to 1 #1086
 
 ***
 

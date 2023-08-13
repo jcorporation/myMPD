@@ -302,7 +302,7 @@ unsigned album_get_total_time(const struct mpd_song *album) {
 }
 
 /**
- * Sets the albums disc count
+ * Sets the albums disc count from disc song tag
  * @param album mpd_song struct representing the album
  * @param song mpd song to set discs from
  */
@@ -314,6 +314,15 @@ void album_cache_set_discs(struct mpd_song *album, const struct mpd_song *song) 
             album->pos = d;
         }
     }
+}
+
+/**
+ * Sets a fixed disc count
+ * @param album mpd_song struct representing the album
+ * @param count disc count
+ */
+void album_cache_set_disc_count(struct mpd_song *album, unsigned count) {
+    album->pos = count;
 }
 
 /**

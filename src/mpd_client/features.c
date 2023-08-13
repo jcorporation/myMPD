@@ -195,6 +195,7 @@ static void set_album_tags(struct t_partition_state *partition_state) {
             case MPD_TAG_MUSICBRAINZ_TRACKID:
             case MPD_TAG_NAME:
             case MPD_TAG_TITLE:
+            case MPD_TAG_DISC:
             case MPD_TAG_TITLE_SORT:
             case MPD_TAG_TRACK:
                 //ignore this tags for albums

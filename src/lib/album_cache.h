@@ -25,6 +25,7 @@ unsigned album_get_total_time(const struct mpd_song *album);
 unsigned album_get_song_count(const struct mpd_song *album);
 
 void album_cache_set_discs(struct mpd_song *album, const struct mpd_song *song);
+void album_cache_set_disc_count(struct mpd_song *album, unsigned count);
 void album_cache_set_last_modified(struct mpd_song *album, const struct mpd_song *song);
 void album_cache_inc_total_time(struct mpd_song *album, const struct mpd_song *song);
 void album_cache_set_song_count(struct mpd_song *album, unsigned count);
