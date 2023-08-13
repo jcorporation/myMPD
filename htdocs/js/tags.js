@@ -178,7 +178,7 @@ function addTagListSelect(elId, list) {
 }
 
 /**
- * Parses the bits to the bitrate
+ * Parses the bits to the bitrate from mpd audioformat
  * @param {number} bits bits to parse
  * @returns {string} bitrate as string
  */
@@ -188,6 +188,21 @@ function parseBits(bits) {
         case 225: return tn('DSD');
         default:  return bits + ' ' + tn('bit');
     }
+}
+
+/**
+ * Parses the channels information from mpd audioformat
+ * @param {number} channels number of channels
+ * @returns {string} the parses number of channels as text
+ */
+function parseChannels(channels) {
+    return channels === 0
+        ? ''
+        : channels === 1
+            ? tn('Mono')
+            : channels === 2
+                ? tn('Stereo')
+                : channels.toString();
 }
 
 /**
@@ -231,8 +246,16 @@ function printValue(key, value) {
             }
         case 'Duration':
             return document.createTextNode(fmtSongDuration(value));
-        case 'AudioFormat':
-            return document.createTextNode(parseBits(value.bits) + smallSpace + nDash + smallSpace + value.sampleRate / 1000 + tn('kHz'));
+        case 'AudioFormat': {
+            const text = [];
+            text.push(parseBits(value.bits));
+            text.push(value.sampleRate / 1000 + tn('kHz'));
+            const channels = parseChannels(value.channels);
+            if (channels !== '') {
+                text.push(channels);
+            }
+            return document.createTextNode(text.join(smallSpace + nDash + smallSpace));
+        }
         case 'Pos':
             //mpd is 0-indexed but humans wants 1-indexed lists
             return document.createTextNode(value + 1);
