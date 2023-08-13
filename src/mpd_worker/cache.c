@@ -208,6 +208,7 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
                 if (create_album_cache == true) {
                     //set initial song count to 1
                     album_cache_set_song_count(song, 1);
+                    album_cache_set_disc_count(song, 1);
                     //construct the key
                     sds key = album_cache_get_key(song);
                     if (sdslen(key) > 0) {
@@ -220,8 +221,9 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
                         }
                         void *old_data;
                         if (raxTryInsert(album_cache, (unsigned char *)key, sdslen(key), (void *)song, &old_data) == 0) {
+                            // existing album: append song data
                             struct mpd_song *album = (struct mpd_song *) old_data;
-                            //append song data if key exists
+                            // append tags
                             album_cache_append_tags(album, song, &mpd_worker_state->partition_state->mpd_state->tags_mympd);
                             //set album data
                             album_cache_set_last_modified(album, song); //use latest last_modified
@@ -232,6 +234,7 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
                             mpd_song_free(song);
                         }
                         else {
+                            // new album
                             album_count++;
                         }
                     }

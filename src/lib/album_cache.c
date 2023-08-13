@@ -279,7 +279,7 @@ void album_cache_free(struct t_cache *album_cache) {
  * @param album mpd_song struct representing the album
  * @return number of songs
  */
-unsigned album_get_song_count(struct mpd_song *album) {
+unsigned album_get_song_count(const struct mpd_song *album) {
     return album->prio;
 }
 
@@ -288,7 +288,7 @@ unsigned album_get_song_count(struct mpd_song *album) {
  * @param album mpd_song struct representing the album
  * @return number of discs
  */
-unsigned album_get_discs(struct mpd_song *album) {
+unsigned album_get_discs(const struct mpd_song *album) {
     return album->pos;
 }
 
@@ -297,12 +297,12 @@ unsigned album_get_discs(struct mpd_song *album) {
  * @param album mpd_song struct representing the album
  * @return total play time
  */
-unsigned album_get_total_time(struct mpd_song *album) {
+unsigned album_get_total_time(const struct mpd_song *album) {
     return album->duration;
 }
 
 /**
- * Sets the albums disc count
+ * Sets the albums disc count from disc song tag
  * @param album mpd_song struct representing the album
  * @param song mpd song to set discs from
  */
@@ -314,6 +314,15 @@ void album_cache_set_discs(struct mpd_song *album, struct mpd_song *song) {
             album->pos = d;
         }
     }
+}
+
+/**
+ * Sets a fixed disc count
+ * @param album mpd_song struct representing the album
+ * @param count disc count
+ */
+void album_cache_set_disc_count(struct mpd_song *album, unsigned count) {
+    album->pos = count;
 }
 
 /**

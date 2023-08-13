@@ -20,10 +20,10 @@ sds album_cache_get_key(const struct mpd_song *song);
 struct mpd_song *album_cache_get_album(struct t_cache *album_cache, sds key);
 void album_cache_free(struct t_cache *album_cache);
 
-unsigned album_get_discs(struct mpd_song *album);
-unsigned album_get_total_time(struct mpd_song *album);
-unsigned album_get_song_count(struct mpd_song *album);
-
+unsigned album_get_discs(const struct mpd_song *album);
+unsigned album_get_total_time(const struct mpd_song *album);
+unsigned album_get_song_count(const struct mpd_song *album);
+void album_cache_set_disc_count(struct mpd_song *album, unsigned count);
 void album_cache_set_discs(struct mpd_song *album, struct mpd_song *song);
 void album_cache_set_last_modified(struct mpd_song *album, struct mpd_song *song);
 void album_cache_inc_total_time(struct mpd_song *album, struct mpd_song *song);
