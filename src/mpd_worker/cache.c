@@ -204,19 +204,19 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
                         song_count++;
                     }
                 }
-                //album cache
+                // album cache
                 if (create_album_cache == true) {
-                    //set initial song count to 1
+                    // set initial song and disc count to 1
                     album_cache_set_song_count(song, 1);
                     album_cache_set_disc_count(song, 1);
-                    //construct the key
+                    // construct the key
                     sds key = album_cache_get_key(song);
                     if (sdslen(key) > 0) {
                         if (mpd_worker_state->partition_state->mpd_state->tag_albumartist == MPD_TAG_ALBUM_ARTIST &&
                             mpd_song_get_tag(song, MPD_TAG_ALBUM_ARTIST, 0) == NULL)
                         {
-                            //Copy Artist tag to AlbumArtist tag
-                            //for filters mpd falls back from AlbumArtist to Artist if AlbumArtist does not exist
+                            // Copy Artist tag to AlbumArtist tag
+                            // for filters mpd falls back from AlbumArtist to Artist if AlbumArtist does not exist
                             album_cache_copy_tags(song, MPD_TAG_ARTIST, MPD_TAG_ALBUM_ARTIST);
                         }
                         void *old_data;
@@ -225,16 +225,16 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
                             struct mpd_song *album = (struct mpd_song *) old_data;
                             // append tags
                             album_cache_append_tags(album, song, &mpd_worker_state->partition_state->mpd_state->tags_mympd);
-                            //set album data
-                            album_cache_set_last_modified(album, song); //use latest last_modified
-                            album_cache_inc_total_time(album, song);    //sum duration
-                            album_cache_set_discs(album, song);         //use max disc value
-                            album_cache_inc_song_count(album);          //inc song count by one
-                            //free song data
+                            // set album data
+                            album_cache_set_last_modified(album, song); // use latest last_modified
+                            album_cache_inc_total_time(album, song);    // sum duration
+                            album_cache_set_discs(album, song);         // use max disc value
+                            album_cache_inc_song_count(album);          // inc song count by one
+                            // free song data
                             mpd_song_free(song);
                         }
                         else {
-                            // new album
+                            // new album: use song data as initial album data
                             album_count++;
                         }
                     }
