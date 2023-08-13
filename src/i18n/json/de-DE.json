@@ -1074,5 +1074,7 @@
     "Invalid json value type: MJSON_TOK_INVALID": "Ungültiger Wertetyp",
     "Invalid json value type: MJSON_TOK_UNKNOWN": "Ungültiger Wertetyp",
     "Failed to clean up the cover cache": "Fehler beim Bereinigen des Covercaches",
-    "Removed %{smart_count} cover |||| Removed %{smart_count} covers": "%{smart_count} Cover gelöscht |||| %{smart_count} Cover gelöscht"
+    "Removed %{smart_count} cover |||| Removed %{smart_count} covers": "%{smart_count} Cover gelöscht |||| %{smart_count} Cover gelöscht",
+    "Stereo": "Stereo",
+    "Mono": "Mono"
 }
