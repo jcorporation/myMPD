@@ -68,6 +68,11 @@ function createMenuColumns(target, contextMenuTitle, contextMenuBody) {
             eventClick.preventDefault();
             eventClick.stopPropagation();
         }
+        else if (eventClick.target.nodeName === 'LABEL') {
+            toggleBtnChk(eventClick.target.previousElementSibling, undefined);
+            eventClick.preventDefault();
+            eventClick.stopPropagation();
+        }
     }, false);
     contextMenuBody.classList.add('px-3');
     contextMenuBody.appendChild(menu);

@@ -451,7 +451,7 @@ function setColsChecklist(tableName, menu) {
             }
             const div = elCreateNodes('div', {"class": ["form-check"]}, [
                 btn,
-                elCreateTextTn('lable', {"class": ["form-check-label"], "for": tags[i]}, tags[i])
+                elCreateTextTn('label', {"class": ["form-check-label"], "for": tags[i]}, tags[i])
             ]);
             menu.appendChild(div);
         }

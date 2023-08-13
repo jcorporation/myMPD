@@ -40,6 +40,7 @@ interface EventTarget {
     getAttribute: any;
     id: any;
     nextElementSibling: any;
+    previousElementSibling: any;
     nodeName: any;
     offsetWidth: any;
     options: any;
