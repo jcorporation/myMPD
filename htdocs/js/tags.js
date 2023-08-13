@@ -196,13 +196,12 @@ function parseBits(bits) {
  * @returns {string} the parses number of channels as text
  */
 function parseChannels(channels) {
-    return channels === 0
-        ? ''
-        : channels === 1
-            ? tn('Mono')
-            : channels === 2
-                ? tn('Stereo')
-                : channels.toString();
+    switch(channels) {
+        case 0:  return '';
+        case 1:  return tn('Mono');
+        case 2:  return tn('Stereo');
+        default: return channels.toString();
+    }
 }
 
 /**
