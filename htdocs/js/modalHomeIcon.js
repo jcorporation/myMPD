@@ -366,9 +366,9 @@ function createHomeIconCmdOptionEl(name, value) {
             sel.value = value;
             return sel;
         }
-        // No Default
+        default:
+            return elCreateEmpty('input', {"class": ["form-control", "border-secondary"], "name": name, "value": value});
     }
-    return elCreateEmpty('input', {"class": ["form-control", "border-secondary"], "name": name, "value": value});
 }
 
 /**
