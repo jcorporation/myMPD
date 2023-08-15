@@ -4,7 +4,7 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
-## myMPD v11.1.0 (not yet released)
+## myMPD v12.0.0 (not yet released)
 
 This release improves hopefully the user experience by providing descriptive help texts and error messages. Further the advanced search feature is now available for all reasonable views.
 
@@ -37,7 +37,7 @@ This release changes some API methods.
 
 ***
 
-## myMPD v11.0.3 (not yet released)
+## myMPD v11.0.3 (2023-08-15)
 
 This is a small bug fix release.
 
