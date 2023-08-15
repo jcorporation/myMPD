@@ -12,22 +12,30 @@
  * @returns {boolean} true if input element was found, else false
  */
 function highlightInvalidInput(prefix, obj) {
+    if (obj.error.data.path === undefined) {
+        return false;
+    }
+    // try to find the input element
     const id = ucFirst(obj.error.data.path.split('.').pop());
     const el = document.querySelector('#' + prefix + id + 'Input');
     if (el) {
+        let col = el.closest('.col-sm-8');
+        if (col === null) {
+            col = el.parentNode;
+        }
         setIsInvalid(el);
         // append error message if there is no client-side invalid feedback defined
-        if (el.parentNode.parentNode.querySelector('.invalid-feedback') === null) {
-            const invalidServerEl = el.parentNode.parentNode.querySelector('.invalid-server');
+        if (col.querySelector('.invalid-feedback') === null) {
+            const invalidServerEl = col.querySelector('.invalid-server');
             if (invalidServerEl === null) {
                 // Create new invalid feedback element
-                el.parentNode.parentNode.appendChild(
+                col.appendChild(
                     elCreateTextTn('div', {"class": ["invalid-feedback", "invalid-server"]}, tn(obj.error.message, obj.error.data))
                 );
                 return true;
             }
         }
-        const invalidServerEl = el.parentNode.parentNode.querySelector('.invalid-server');
+        const invalidServerEl = col.querySelector('.invalid-server');
         if (invalidServerEl !== null) {
             // Update invalid feedback from server
             invalidServerEl.textContent = tn(obj.error.message, obj.error.data);
@@ -40,11 +48,11 @@ function highlightInvalidInput(prefix, obj) {
 
 /**
  * Removes all is-invalid classes
- * @param {Element} parentEl root element
+ * @param {Element} el element
  * @returns {void}
  */
-function removeIsInvalid(parentEl) {
-    const els = parentEl.parentNode.querySelectorAll('.is-invalid');
+function removeIsInvalid(el) {
+    const els = el.querySelectorAll('.is-invalid');
     for (let i = 0, j = els.length; i < j; i++) {
         els[i].classList.remove('is-invalid');
     }
@@ -67,7 +75,8 @@ function setIsInvalidId(id) {
 function setIsInvalid(el) {
     //set is-invalid also on parent node
     el.classList.add('is-invalid');
-    el.parentNode.classList.add('is-invalid');
+    const col = el.closest('.col-sm-8');
+    col.classList.add('is-invalid');
 }
 
 /**

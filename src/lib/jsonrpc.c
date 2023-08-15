@@ -1053,7 +1053,7 @@ static bool icb_json_get_array_string(const char *path, sds key, sds value, int 
     if (vtype != MJSON_TOK_STRING ||
         vcb(value) == false)
     {
-        set_parse_error(error, path, key, "Validation of value \"%s\" has failed", value);
+        set_parse_error(error, path, "", "Invalid value", value);
         return false;
     }
     struct t_list *l = (struct t_list *)userdata;

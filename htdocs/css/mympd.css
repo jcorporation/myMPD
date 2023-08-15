@@ -1204,3 +1204,7 @@ h4.offcanvas-title-stream::before {
   margin-top: 0.5rem;
   color: var(--bs-secondary-text-emphasis);
 }
+
+.is-invalid > .invalid-feedback {
+  display: block;
+}
