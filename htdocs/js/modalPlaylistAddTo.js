@@ -103,11 +103,6 @@ function addToPlaylist() {
     if (document.getElementById('modalPlaylistAddToPlaylistFrm').classList.contains('d-none') === false) {
         //add to playlist
         const plistEl = document.getElementById('modalPlaylistAddToPlistInput');
-        /*
-        if (validatePlistEl(plistEl) === false) {
-            return;
-        }
-        */
         switch(mode) {
             case 'append':
                 appendPlaylist(type, entities, plistEl.value, addToPlaylistClose);
