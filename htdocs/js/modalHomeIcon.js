@@ -366,8 +366,7 @@ function createHomeIconCmdOptionEl(name, value) {
             sel.value = value;
             return sel;
         }
-        default:
-            logError('Invalid name: ' + name);
+        // No Default
     }
     return elCreateEmpty('input', {"class": ["form-control", "border-secondary"], "name": name, "value": value});
 }

@@ -1133,11 +1133,11 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div id="addStreamFrm" class="d-none">
+          <div id="modalPlaylistAddToAddStreamFrm" class="d-none">
             <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="streamUrl" data-phrase="Stream URI"></label>
+              <label class="col-sm-4 col-form-label" for="modalPlaylistAddToUrisInput" data-phrase="Stream URI"></label>
               <div class="col-sm-8">
-                <input class="form-control" id="streamUrl" data-placeholder-phrase="http://uri.to/stream.mp3"/>
+                <input class="form-control" id="modalPlaylistAddToUrisInput" data-placeholder-phrase="http://uri.to/stream.mp3"/>
                 <div class="invalid-feedback" data-phrase="Invalid URI"></div>
               </div>
             </div>
@@ -1145,20 +1145,19 @@
               <label class="col-sm-4 col-form-label" data-phrase="Add to"></label>
               <div class="col-sm-8">
                 <div class="btn-group">
-                  <button id="toggleAddToPlaylistQueue" class="btn btn-secondary active" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":["target"]}' data-phrase="Queue"></button>
-                  <button id="toggleAddToPlaylistPlaylist" class="btn btn-secondary" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":["target"]}' data-phrase="Playlist"></button>
+                  <button id="modalPlaylistAddToQueueBtn" class="btn btn-secondary active" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":["target"]}' data-phrase="Queue"></button>
+                  <button id="modalPlaylistAddToPlaylistBtn" class="btn btn-secondary" data-href='{"cmd": "toggleAddToPlaylistFrm", "options":["target"]}' data-phrase="Playlist"></button>
                   <button type="button" class="btn btn-secondary" data-href='{"cmd": "addStreamToHome", "options": []}' data-phrase="Homescreen"></button>
                 </div>
               </div>
             </div>
           </div>
-          <div class="d-none" id="addToPlaylistFrm">
-            <input type="hidden" id="addToPlaylistEntities"/>
+          <div class="d-none" id="modalPlaylistAddToPlaylistFrm">
             <div class="row mb-3">
               <label class="col-sm-4 col-form-label" for="addToPlaylistPlaylist" data-phrase="Playlist"></label>
               <div class="col-sm-8 position-relative">
                 <div class="btn-group d-flex">
-                  <input data-is="mympd-select-search" id="addToPlaylistPlaylist" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
+                  <input data-is="mympd-select-search" id="modalPlaylistAddToPlistInput" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
                 </div>
                 <div class="invalid-feedback" data-phrase="Choose a playlist or enter a new playlist name"></div>
               </div>
@@ -1166,37 +1165,37 @@
           </div>
           <div class="row mb-3">
             <label class="col-sm-4 col-form-label" data-phrase="Insert mode"></label>
-            <div class="col-sm-8" id="addToPlaylistPos">
+            <div class="col-sm-8" id="modalPlaylistAddToPos">
               <div class="form-check ms-4">
-                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="append" id="addToPlaylistPosAppend"/>
-                <label class="form-check-label" for="addToPlaylistPosAppend" data-phrase="Append"></label>
+                <input class="form-check-input" type="radio" name="modalPlaylistAddToPos" value="append" id="modalPlaylistAddToPosAppend"/>
+                <label class="form-check-label" for="modalPlaylistAddToPosAppend" data-phrase="Append"></label>
               </div>
-              <div class="form-check ms-4" id="addToPlaylistPosAppendPlayRow">
-                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="appendPlay" id="addToPlaylistPosAppendPlay"/>
-                <label class="form-check-label" for="addToPlaylistPosAppendPlay" data-phrase="Append and play"></label>
+              <div class="form-check ms-4" id="modalPlaylistAddToPosAppendPlayRow">
+                <input class="form-check-input" type="radio" name="modalPlaylistAddToPos" value="appendPlay" id="modalPlaylistAddToPosAppendPlay"/>
+                <label class="form-check-label" for="modalPlaylistAddToPosAppendPlay" data-phrase="Append and play"></label>
               </div>
-              <div class="form-check ms-4 featWhence" id="addToPlaylistPosInsertRow">
-                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="insertAfterCurrent" id="addToPlaylistPosInsert"/>
-                <label class="form-check-label" for="addToPlaylistPosInsert" id="addToPlaylistPosInsertLabel" data-phrase="Insert after current playing song"></label>
+              <div class="form-check ms-4 featWhence" id="modalPlaylistAddToPosInsertRow">
+                <input class="form-check-input" type="radio" name="modalPlaylistAddToPos" value="insertAfterCurrent" id="modalPlaylistAddToPosInsert"/>
+                <label class="form-check-label" for="modalPlaylistAddToPosInsert" id="modalPlaylistAddToPosInsertLabel" data-phrase="Insert after current playing song"></label>
               </div>
-              <div class="form-check ms-4 featWhence" id="addToPlaylistPosInsertFirstRow">
-                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="insertFirst" id="addToPlaylistPosInsertFirst"/>
-                <label class="form-check-label" for="addToPlaylistPosInsertFirst" id="addToPlaylistPosInsertFirstLabel" data-phrase="Insert at start of playlist"></label>
+              <div class="form-check ms-4 featWhence" id="modalPlaylistAddToPosInsertFirstRow">
+                <input class="form-check-input" type="radio" name="modalPlaylistAddToPos" value="insertFirst" id="modalPlaylistAddToPosInsertFirst"/>
+                <label class="form-check-label" for="modalPlaylistAddToPosInsertFirst" id="modalPlaylistAddToPosInsertFirstLabel" data-phrase="Insert at start of playlist"></label>
               </div>
               <div class="form-check ms-4">
-                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="replace" id="addToPlaylistPosReplace"/>
-                <label class="form-check-label" for="addToPlaylistPosReplace" data-phrase="Replace"></label>
+                <input class="form-check-input" type="radio" name="modalPlaylistAddToPos" value="replace" id="modalPlaylistAddToPosReplace"/>
+                <label class="form-check-label" for="modalPlaylistAddToPosReplace" data-phrase="Replace"></label>
               </div>
-              <div class="form-check ms-4" id="addToPlaylistPosReplacePlayRow">
-                <input class="form-check-input" type="radio" name="addToPlaylistPos" value="replacePlay" id="addToPlaylistPosReplacePlay"/>
-                <label class="form-check-label" for="addToPlaylistPosReplacePlay" data-phrase="Replace and play"></label>
+              <div class="form-check ms-4" id="modalPlaylistAddToPosReplacePlayRow">
+                <input class="form-check-input" type="radio" name="modalPlaylistAddToPos" value="replacePlay" id="modalPlaylistAddToPosReplacePlay"/>
+                <label class="form-check-label" for="modalPlaylistAddToPosReplacePlay" data-phrase="Replace and play"></label>
               </div>
             </div>
           </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success" data-href='{"cmd": "addToPlaylist", "options": []}' data-phrase="Add"></button>
+          <button id="modalPlaylistAddToUriAddBtn" type="button" class="btn btn-success" data-href='{"cmd": "addToPlaylist", "options": []}' data-phrase="Add"></button>
         </div>
       </div>
     </div>

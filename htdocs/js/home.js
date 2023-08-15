@@ -143,8 +143,8 @@ function addAlbumToHome(albumId, name, image) {
  */
 //eslint-disable-next-line no-unused-vars
 function addStreamToHome() {
-    const mode = getRadioBoxValueId('addToPlaylistPos');
-    const uri = document.getElementById('streamUrl').value;
+    const mode = getRadioBoxValueId('modalPlaylistAddToPos');
+    const uri = document.getElementById('modalPlaylistAddToUrisInput').value;
     let action;
     switch(mode) {
         case 'append': action = 'appendQueue'; break;
