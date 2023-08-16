@@ -1211,35 +1211,35 @@
         </div>
         <div class="modal-body">
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="copyPlaylistPlaylist" data-phrase="Playlist"></label>
+            <label class="col-sm-4 col-form-label" for="modalPlaylistCopyDstPlistInput" data-phrase="Destination playlist"></label>
             <div class="col-sm-8 position-relative">
               <div class="btn-group d-flex">
-                <input data-is="mympd-select-search" id="copyPlaylistPlaylist" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
+                <input data-is="mympd-select-search" id="modalPlaylistCopyDstPlistInput" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
               </div>
               <div class="invalid-feedback" data-phrase="Choose a playlist or enter a new playlist name"></div>
             </div>
           </div>
-          <div class="row mb-3" id="copyPlaylistMode">
+          <div class="row mb-3" id="modalPlaylistCopyMode">
             <label class="col-sm-4 col-form-label" data-phrase="Insert mode"></label>
             <div class="col-sm-8">
               <div class="form-check ms-4">
-                <input class="form-check-input" type="radio" name="copyPlaylistMode" value="0" id="copyPlaylistModeAppend" checked="checked"/>
-                <label class="form-check-label" for="copyPlaylistModeAppend" data-phrase="Append"></label>
+                <input class="form-check-input" type="radio" name="modalPlaylistCopyMode" value="0" id="modalPlaylistCopyModeAppend" checked="checked"/>
+                <label class="form-check-label" for="modalPlaylistCopyModeAppend" data-phrase="Append"></label>
               </div>
               <div class="form-check ms-4 featWhence">
-                <input class="form-check-input" type="radio" name="copyPlaylistMode" value="1" id="copyPlaylistModeInsertFirst"/>
-                <label class="form-check-label" for="copyPlaylistModeInsertFirst" data-phrase="Insert at start of playlist"></label>
+                <input class="form-check-input" type="radio" name="modalPlaylistCopyMode" value="1" id="modalPlaylistCopyModeInsertFirst"/>
+                <label class="form-check-label" for="modalPlaylistCopyModeInsertFirst" data-phrase="Insert at start of playlist"></label>
               </div>
               <div class="form-check ms-4">
-                <input class="form-check-input" type="radio" name="copyPlaylistMode" value="2" id="copyPlaylistModeReplace"/>
-                <label class="form-check-label" for="copyPlaylistModeReplace" data-phrase="Replace"></label>
+                <input class="form-check-input" type="radio" name="modalPlaylistCopyMode" value="2" id="modalPlaylistCopyModeReplace"/>
+                <label class="form-check-label" for="modalPlaylistCopyModeReplace" data-phrase="Replace"></label>
               </div>
             </div>
           </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success" data-href='{"cmd": "copyPlaylist", "options": []}' data-phrase="Copy"></button>
+          <button id="modalPlaylistCopyCopyBtn" type="button" class="btn btn-success" data-href='{"cmd": "copyPlaylist", "options": []}' data-phrase="Copy"></button>
         </div>
       </div>
     </div>

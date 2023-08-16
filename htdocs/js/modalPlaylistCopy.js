@@ -14,7 +14,7 @@ function showCopyPlaylist(srcPlists) {
     const modal = document.getElementById('modalPlaylistCopy');
     cleanupModal(modal);
     setData(modal, 'srcPlists', srcPlists);
-    filterPlaylistsSelect(1, 'copyPlaylistPlaylist', '', '');
+    filterPlaylistsSelect(1, 'modalPlaylistCopyDstPlistInput', '', '');
     uiElements.modalPlaylistCopy.show();
 }
 
@@ -26,15 +26,11 @@ function showCopyPlaylist(srcPlists) {
 function copyPlaylist() {
     const modal = document.getElementById('modalPlaylistCopy');
     cleanupModal(modal);
-    const srcPlists = getData(modal, 'srcPlists');
-    const mode = getRadioBoxValueId('copyPlaylistMode');
-    const plistEl = document.getElementById('copyPlaylistPlaylist');
-    if (validatePlistEl(plistEl) === false) {
-        return;
-    }
+    const mode = getRadioBoxValueId('modalPlaylistCopyMode');
+    btnWaitingId('modalPlaylistCopyCopyBtn', true);
     sendAPI("MYMPD_API_PLAYLIST_COPY", {
-        "srcPlists": srcPlists,
-        "dstPlist": plistEl.value,
+        "srcPlists": getData(modal, 'srcPlists'),
+        "dstPlist": document.getElementById('modalPlaylistCopyDstPlistInput').value,
         "mode": Number(mode)
     }, copyPlaylistClose, true);
 }
@@ -45,8 +41,11 @@ function copyPlaylist() {
  * @returns {void}
  */
 function copyPlaylistClose(obj) {
+    btnWaitingId('modalPlaylistCopyCopyBtn', false);
     if (obj.error) {
-        showModalAlert(obj);
+        if (highlightInvalidInput('modalPlaylistCopy', obj) === false) {
+            showModalAlert(obj);
+        }
     }
     else {
         uiElements.modalPlaylistCopy.hide();
