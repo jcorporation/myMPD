@@ -4,6 +4,7 @@
 /callgrind.out.*
 /clang-tidy.out
 /src/compile_commands.json
+/test/compile_commands.json
 /valgrind.out
 
 #build dirs
@@ -21,6 +22,7 @@
 /htdocs/assets/MaterialIcons-Regular.woff2
 /htdocs/assets/i18n/
 /htdocs/css/bootstrap.css
+/htdocs/js/defines.js
 /htdocs/js/bootstrap-native.js
 /htdocs/js/i18n.js
 /htdocs/js/long-press-event.js
