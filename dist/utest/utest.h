@@ -64,6 +64,19 @@
   Disable warning about pointer or reference to potentially throwing function.
 */
 #pragma warning(disable : 5039)
+
+/*
+  Disable warning about macro expansion producing 'defined' has undefined
+  behavior.
+*/
+#pragma warning(disable : 5105)
+#endif
+
+#if _MSC_VER > 1930
+/*
+  Disable warning about 'const' variable is not used.
+*/
+#pragma warning(disable : 5264)
 #endif
 
 #pragma warning(push, 1)
@@ -87,6 +100,16 @@ typedef uint32_t utest_uint32_t;
 #include <errno.h>
 
 #if defined(__cplusplus)
+#if defined(_MSC_VER) && !defined(_CPPUNWIND)
+/* We're on MSVC and the compiler is compiling without exception support! */
+#elif !defined(_MSC_VER) && !defined(__EXCEPTIONS)
+/* We're on a GCC/Clang compiler that doesn't have exception support! */
+#else
+#define UTEST_HAS_EXCEPTIONS 1
+#endif
+#endif
+
+#if defined(UTEST_HAS_EXCEPTIONS)
 #include <stdexcept>
 #endif
 
@@ -104,6 +127,12 @@ typedef uint32_t utest_uint32_t;
 #define UTEST_TEST_FAILURE (1)
 #define UTEST_TEST_SKIPPED (2)
 
+#if defined(__TINYC__)
+#define UTEST_ATTRIBUTE(a) __attribute((a))
+#else
+#define UTEST_ATTRIBUTE(a) __attribute__((a))
+#endif
+
 #if defined(_MSC_VER) || defined(__MINGW64__) || defined(__MINGW32__)
 
 #if defined(__MINGW64__) || defined(__MINGW32__)
@@ -112,13 +141,7 @@ typedef uint32_t utest_uint32_t;
 #pragma GCC diagnostic ignored "-Wunknown-pragmas"
 #endif
 
-// define UTEST_USE_OLD_QPC before #include "utest.h" to use old
-// QueryPerformanceCounter
-#ifndef UTEST_USE_OLD_QPC
-#pragma warning(push, 0)
-#include <Windows.h>
-#pragma warning(pop)
-
+#if defined(_WINDOWS_) || defined(_WINDOWS_H)
 typedef LARGE_INTEGER utest_large_integer;
 #else
 // use old QueryPerformanceCounter definitions (not sure is this needed in some
@@ -173,7 +196,7 @@ UTEST_C_FUNC __declspec(dllimport) int __stdcall QueryPerformanceFrequency(
 #endif
 
 #elif defined(__APPLE__)
-#include <mach/mach_time.h>
+#include <time.h>
 #endif
 
 #if defined(_MSC_VER) && (_MSC_VER < 1920)
@@ -257,7 +280,7 @@ UTEST_C_FUNC __declspec(dllimport) int __stdcall QueryPerformanceFrequency(
 #define UTEST_INLINE inline
 
 #define UTEST_INITIALIZER(f)                                                   \
-  static void f(void) __attribute__((constructor));                            \
+  static void f(void) UTEST_ATTRIBUTE(constructor);                            \
   static void f(void)
 #endif
 
@@ -331,7 +354,7 @@ static UTEST_INLINE utest_int64_t utest_ns(void) {
 #endif
   return UTEST_CAST(utest_int64_t, ts.tv_sec) * 1000 * 1000 * 1000 + ts.tv_nsec;
 #elif __APPLE__
-  return UTEST_CAST(utest_int64_t, mach_absolute_time());
+  return UTEST_CAST(utest_int64_t, clock_gettime_nsec_np(CLOCK_UPTIME_RAW));
 #elif __EMSCRIPTEN__
   return emscripten_performance_now() * 1000000.0;
 #else
@@ -358,14 +381,18 @@ UTEST_EXTERN struct utest_state_s utest_state;
 
 #if defined(_MSC_VER)
 #define UTEST_WEAK __forceinline
+#elif defined(__MINGW32__) || defined(__MINGW64__)
+#define UTEST_WEAK static UTEST_ATTRIBUTE(used)
+#elif defined(__clang__) || defined(__GNUC__) || defined(__TINYC__)
+#define UTEST_WEAK UTEST_ATTRIBUTE(weak)
 #else
-#define UTEST_WEAK __attribute__((weak))
+#error Non clang, non gcc, non MSVC, non tcc compiler found!
 #endif
 
 #if defined(_MSC_VER)
 #define UTEST_UNUSED
 #else
-#define UTEST_UNUSED __attribute__((unused))
+#define UTEST_UNUSED UTEST_ATTRIBUTE(unused)
 #endif
 
 #ifdef __clang__
@@ -403,10 +430,125 @@ UTEST_EXTERN struct utest_state_s utest_state;
 #define UTEST_OVERLOADABLE
 #elif defined(__clang__)
 /* otherwise, if we are using clang with c - use the overloadable attribute */
-#define UTEST_OVERLOADABLE __attribute__((overloadable))
+#define UTEST_OVERLOADABLE UTEST_ATTRIBUTE(overloadable)
 #endif
 
-#if defined(UTEST_OVERLOADABLE)
+#if defined(__cplusplus) && (__cplusplus >= 201103L)
+
+#ifdef __clang__
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wc++98-compat-pedantic"
+#endif
+
+#include <type_traits>
+
+template <typename T, bool is_enum = std::is_enum<T>::value>
+struct utest_type_deducer final {
+  static void _(const T t);
+};
+
+template <> struct utest_type_deducer<signed char, false> {
+  static void _(const signed char c) {
+    UTEST_PRINTF("%d", static_cast<int>(c));
+  }
+};
+
+template <> struct utest_type_deducer<unsigned char, false> {
+  static void _(const unsigned char c) {
+    UTEST_PRINTF("%u", static_cast<unsigned int>(c));
+  }
+};
+
+template <> struct utest_type_deducer<short, false> {
+  static void _(const short s) { UTEST_PRINTF("%d", static_cast<int>(s)); }
+};
+
+template <> struct utest_type_deducer<unsigned short, false> {
+  static void _(const unsigned short s) {
+    UTEST_PRINTF("%u", static_cast<int>(s));
+  }
+};
+
+template <> struct utest_type_deducer<float, false> {
+  static void _(const float f) { UTEST_PRINTF("%f", static_cast<double>(f)); }
+};
+
+template <> struct utest_type_deducer<double, false> {
+  static void _(const double d) { UTEST_PRINTF("%f", d); }
+};
+
+template <> struct utest_type_deducer<long double, false> {
+  static void _(const long double d) {
+#if defined(__MINGW32__) || defined(__MINGW64__)
+    /* MINGW is weird - doesn't like LF at all?! */
+    UTEST_PRINTF("%f", (double)d);
+#else
+    UTEST_PRINTF("%Lf", d);
+#endif
+  }
+};
+
+template <> struct utest_type_deducer<int, false> {
+  static void _(const int i) { UTEST_PRINTF("%d", i); }
+};
+
+template <> struct utest_type_deducer<unsigned int, false> {
+  static void _(const unsigned int i) { UTEST_PRINTF("%u", i); }
+};
+
+template <> struct utest_type_deducer<long, false> {
+  static void _(const long i) { UTEST_PRINTF("%ld", i); }
+};
+
+template <> struct utest_type_deducer<unsigned long, false> {
+  static void _(const unsigned long i) { UTEST_PRINTF("%lu", i); }
+};
+
+template <> struct utest_type_deducer<long long, false> {
+  static void _(const long long i) { UTEST_PRINTF("%lld", i); }
+};
+
+template <> struct utest_type_deducer<unsigned long long, false> {
+  static void _(const unsigned long long i) { UTEST_PRINTF("%llu", i); }
+};
+
+template <typename T> struct utest_type_deducer<const T *, false> {
+  static void _(const T *t) {
+    UTEST_PRINTF("%p", static_cast<void *>(const_cast<T *>(t)));
+  }
+};
+
+template <typename T> struct utest_type_deducer<T *, false> {
+  static void _(T *t) { UTEST_PRINTF("%p", static_cast<void *>(t)); }
+};
+
+template <typename T> struct utest_type_deducer<T, true> {
+  static void _(const T t) {
+    UTEST_PRINTF("%llu", static_cast<unsigned long long>(t));
+  }
+};
+
+template <typename T>
+UTEST_WEAK UTEST_OVERLOADABLE void utest_type_printer(const T t) {
+  utest_type_deducer<T>::_(t);
+}
+
+#ifdef __clang__
+#pragma clang diagnostic pop
+#endif
+
+#elif defined(UTEST_OVERLOADABLE)
+
+UTEST_WEAK UTEST_OVERLOADABLE void utest_type_printer(signed char c);
+UTEST_WEAK UTEST_OVERLOADABLE void utest_type_printer(signed char c) {
+  UTEST_PRINTF("%d", UTEST_CAST(int, c));
+}
+
+UTEST_WEAK UTEST_OVERLOADABLE void utest_type_printer(unsigned char c);
+UTEST_WEAK UTEST_OVERLOADABLE void utest_type_printer(unsigned char c) {
+  UTEST_PRINTF("%u", UTEST_CAST(unsigned int, c));
+}
+
 UTEST_WEAK UTEST_OVERLOADABLE void utest_type_printer(float f);
 UTEST_WEAK UTEST_OVERLOADABLE void utest_type_printer(float f) {
   UTEST_PRINTF("%f", UTEST_CAST(double, f));
@@ -419,7 +561,12 @@ UTEST_WEAK UTEST_OVERLOADABLE void utest_type_printer(double d) {
 
 UTEST_WEAK UTEST_OVERLOADABLE void utest_type_printer(long double d);
 UTEST_WEAK UTEST_OVERLOADABLE void utest_type_printer(long double d) {
+#if defined(__MINGW32__) || defined(__MINGW64__)
+  /* MINGW is weird - doesn't like LF at all?! */
+  UTEST_PRINTF("%f", (double)d);
+#else
   UTEST_PRINTF("%Lf", d);
+#endif
 }
 
 UTEST_WEAK UTEST_OVERLOADABLE void utest_type_printer(int i);
@@ -451,7 +598,8 @@ UTEST_WEAK UTEST_OVERLOADABLE void utest_type_printer(const void *p) {
    long long is a c++11 extension
 */
 #if defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 199901L) ||              \
-    defined(__cplusplus) && (__cplusplus >= 201103L)
+    defined(__cplusplus) && (__cplusplus >= 201103L) ||                        \
+    (defined(__MINGW32__) || defined(__MINGW64__))
 
 #ifdef __clang__
 #pragma clang diagnostic push
@@ -474,7 +622,9 @@ utest_type_printer(long long unsigned int i) {
 #endif
 
 #endif
-#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L)
+#elif defined(__STDC_VERSION__) && (__STDC_VERSION__ >= 201112L) &&            \
+        !(defined(__MINGW32__) || defined(__MINGW64__)) ||                     \
+    defined(__TINYC__)
 #define utest_type_printer(val)                                                \
   UTEST_PRINTF(_Generic((val), signed char                                     \
                         : "%d", unsigned char                                  \
@@ -505,7 +655,7 @@ utest_type_printer(long long unsigned int i) {
 #ifdef _MSC_VER
 #define UTEST_SURPRESS_WARNING_BEGIN                                           \
   __pragma(warning(push)) __pragma(warning(disable : 4127))                    \
-      __pragma(warning(disable : 4571))
+      __pragma(warning(disable : 4571)) __pragma(warning(disable : 4130))
 #define UTEST_SURPRESS_WARNING_END __pragma(warning(pop))
 #else
 #define UTEST_SURPRESS_WARNING_BEGIN
@@ -559,7 +709,7 @@ utest_type_printer(long long unsigned int i) {
     UTEST_AUTO(y) yEval = (y);                                                 \
     if (!((xEval)cond(yEval))) {                                               \
       _Pragma("clang diagnostic pop")                                          \
-          UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                \
+          UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                \
       UTEST_PRINTF("  Expected : (");                                          \
       UTEST_PRINTF(#x ") " #cond " (" #y);                                     \
       UTEST_PRINTF(")\n");                                                     \
@@ -573,13 +723,13 @@ utest_type_printer(long long unsigned int i) {
   }                                                                            \
   while (0)                                                                    \
   UTEST_SURPRESS_WARNING_END
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__TINYC__)
 #define UTEST_EXPECT(x, y, cond)                                               \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
     UTEST_AUTO(x) xEval = (x);                                                 \
     UTEST_AUTO(y) yEval = (y);                                                 \
     if (!((xEval)cond(yEval))) {                                               \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
       UTEST_PRINTF("  Expected : (");                                          \
       UTEST_PRINTF(#x ") " #cond " (" #y);                                     \
       UTEST_PRINTF(")\n");                                                     \
@@ -597,7 +747,7 @@ utest_type_printer(long long unsigned int i) {
 #define UTEST_EXPECT(x, y, cond)                                               \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
     if (!((x)cond(y))) {                                                       \
-      UTEST_PRINTF("%s:%u: Failure (Expected " #cond " Actual)\n", __FILE__,   \
+      UTEST_PRINTF("%s:%i: Failure (Expected " #cond " Actual)\n", __FILE__,   \
                    __LINE__);                                                  \
       *utest_result = UTEST_TEST_FAILURE;                                      \
     }                                                                          \
@@ -608,10 +758,11 @@ utest_type_printer(long long unsigned int i) {
 
 #define EXPECT_TRUE(x)                                                         \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (!(x)) {                                                                \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
+    const int xEval = !!(x);                                                   \
+    if (!(xEval)) {                                                            \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
       UTEST_PRINTF("  Expected : true\n");                                     \
-      UTEST_PRINTF("    Actual : %s\n", (x) ? "true" : "false");               \
+      UTEST_PRINTF("    Actual : %s\n", (xEval) ? "true" : "false");           \
       *utest_result = UTEST_TEST_FAILURE;                                      \
     }                                                                          \
   }                                                                            \
@@ -620,10 +771,11 @@ utest_type_printer(long long unsigned int i) {
 
 #define EXPECT_FALSE(x)                                                        \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (x) {                                                                   \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
+    const int xEval = !!(x);                                                   \
+    if (xEval) {                                                               \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
       UTEST_PRINTF("  Expected : false\n");                                    \
-      UTEST_PRINTF("    Actual : %s\n", (x) ? "true" : "false");               \
+      UTEST_PRINTF("    Actual : %s\n", (xEval) ? "true" : "false");           \
       *utest_result = UTEST_TEST_FAILURE;                                      \
     }                                                                          \
   }                                                                            \
@@ -639,10 +791,13 @@ utest_type_printer(long long unsigned int i) {
 
 #define EXPECT_STREQ(x, y)                                                     \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (0 != strcmp(x, y)) {                                                   \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
-      UTEST_PRINTF("  Expected : \"%s\"\n", x);                                \
-      UTEST_PRINTF("    Actual : \"%s\"\n", y);                                \
+    const char *xEval = (x);                                                   \
+    const char *yEval = (y);                                                   \
+    if (UTEST_NULL == xEval || UTEST_NULL == yEval ||                          \
+        0 != strcmp(xEval, yEval)) {                                           \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
+      UTEST_PRINTF("  Expected : \"%s\"\n", xEval);                            \
+      UTEST_PRINTF("    Actual : \"%s\"\n", yEval);                            \
       *utest_result = UTEST_TEST_FAILURE;                                      \
     }                                                                          \
   }                                                                            \
@@ -651,10 +806,13 @@ utest_type_printer(long long unsigned int i) {
 
 #define EXPECT_STRNE(x, y)                                                     \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (0 == strcmp(x, y)) {                                                   \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
-      UTEST_PRINTF("  Expected : \"%s\"\n", x);                                \
-      UTEST_PRINTF("    Actual : \"%s\"\n", y);                                \
+    const char *xEval = (x);                                                   \
+    const char *yEval = (y);                                                   \
+    if (UTEST_NULL == xEval || UTEST_NULL == yEval ||                          \
+        0 == strcmp(xEval, yEval)) {                                           \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
+      UTEST_PRINTF("  Expected : \"%s\"\n", xEval);                            \
+      UTEST_PRINTF("    Actual : \"%s\"\n", yEval);                            \
       *utest_result = UTEST_TEST_FAILURE;                                      \
     }                                                                          \
   }                                                                            \
@@ -663,10 +821,14 @@ utest_type_printer(long long unsigned int i) {
 
 #define EXPECT_STRNEQ(x, y, n)                                                 \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (0 != UTEST_STRNCMP(x, y, n)) {                                         \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
-      UTEST_PRINTF("  Expected : \"%.*s\"\n", UTEST_CAST(int, n), x);          \
-      UTEST_PRINTF("    Actual : \"%.*s\"\n", UTEST_CAST(int, n), y);          \
+    const char *xEval = (x);                                                   \
+    const char *yEval = (y);                                                   \
+    const size_t nEval = UTEST_CAST(size_t, n);                                \
+    if (UTEST_NULL == xEval || UTEST_NULL == yEval ||                          \
+        0 != UTEST_STRNCMP(xEval, yEval, nEval)) {                             \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
+      UTEST_PRINTF("  Expected : \"%.*s\"\n", UTEST_CAST(int, nEval), xEval);  \
+      UTEST_PRINTF("    Actual : \"%.*s\"\n", UTEST_CAST(int, nEval), yEval);  \
       *utest_result = UTEST_TEST_FAILURE;                                      \
     }                                                                          \
   }                                                                            \
@@ -675,10 +837,14 @@ utest_type_printer(long long unsigned int i) {
 
 #define EXPECT_STRNNE(x, y, n)                                                 \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (0 == UTEST_STRNCMP(x, y, n)) {                                         \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
-      UTEST_PRINTF("  Expected : \"%.*s\"\n", UTEST_CAST(int, n), x);          \
-      UTEST_PRINTF("    Actual : \"%.*s\"\n", UTEST_CAST(int, n), y);          \
+    const char *xEval = (x);                                                   \
+    const char *yEval = (y);                                                   \
+    const size_t nEval = UTEST_CAST(size_t, n);                                \
+    if (UTEST_NULL == xEval || UTEST_NULL == yEval ||                          \
+        0 == UTEST_STRNCMP(xEval, yEval, nEval)) {                             \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
+      UTEST_PRINTF("  Expected : \"%.*s\"\n", UTEST_CAST(int, nEval), xEval);  \
+      UTEST_PRINTF("    Actual : \"%.*s\"\n", UTEST_CAST(int, nEval), yEval);  \
       *utest_result = UTEST_TEST_FAILURE;                                      \
     }                                                                          \
   }                                                                            \
@@ -687,9 +853,10 @@ utest_type_printer(long long unsigned int i) {
 
 #define EXPECT_NEAR(x, y, epsilon)                                             \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (utest_fabs(UTEST_CAST(double, x) - UTEST_CAST(double, y)) >            \
-        UTEST_CAST(double, epsilon)) {                                         \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
+    const double diff =                                                        \
+        utest_fabs(UTEST_CAST(double, x) - UTEST_CAST(double, y));             \
+    if (diff > UTEST_CAST(double, epsilon) || utest_isnan(diff)) {             \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
       UTEST_PRINTF("  Expected : %f\n", UTEST_CAST(double, x));                \
       UTEST_PRINTF("    Actual : %f\n", UTEST_CAST(double, y));                \
       *utest_result = UTEST_TEST_FAILURE;                                      \
@@ -698,7 +865,7 @@ utest_type_printer(long long unsigned int i) {
   while (0)                                                                    \
   UTEST_SURPRESS_WARNING_END
 
-#if defined(__cplusplus)
+#if defined(UTEST_HAS_EXCEPTIONS)
 #define EXPECT_EXCEPTION(x, exception_type)                                    \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
     int exception_caught = 0;                                                  \
@@ -710,7 +877,7 @@ utest_type_printer(long long unsigned int i) {
       exception_caught = 2;                                                    \
     }                                                                          \
     if (exception_caught != 1) {                                               \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
       UTEST_PRINTF("  Expected : %s exception\n", #exception_type);            \
       UTEST_PRINTF("    Actual : %s\n", (exception_caught == 2)                \
                                             ? "Unexpected exception"           \
@@ -733,7 +900,7 @@ utest_type_printer(long long unsigned int i) {
     UTEST_AUTO(y) yEval = (y);                                                 \
     if (!((xEval)cond(yEval))) {                                               \
       _Pragma("clang diagnostic pop")                                          \
-          UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                \
+          UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                \
       UTEST_PRINTF("  Expected : (");                                          \
       UTEST_PRINTF(#x ") " #cond " (" #y);                                     \
       UTEST_PRINTF(")\n");                                                     \
@@ -748,13 +915,13 @@ utest_type_printer(long long unsigned int i) {
   }                                                                            \
   while (0)                                                                    \
   UTEST_SURPRESS_WARNING_END
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) || defined(__TINYC__)
 #define UTEST_ASSERT(x, y, cond)                                               \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
     UTEST_AUTO(x) xEval = (x);                                                 \
     UTEST_AUTO(y) yEval = (y);                                                 \
     if (!((xEval)cond(yEval))) {                                               \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
       UTEST_PRINTF("  Expected : (");                                          \
       UTEST_PRINTF(#x ") " #cond " (" #y);                                     \
       UTEST_PRINTF(")\n");                                                     \
@@ -773,7 +940,7 @@ utest_type_printer(long long unsigned int i) {
 #define UTEST_ASSERT(x, y, cond)                                               \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
     if (!((x)cond(y))) {                                                       \
-      UTEST_PRINTF("%s:%u: Failure (Expected " #cond " Actual)\n", __FILE__,   \
+      UTEST_PRINTF("%s:%i: Failure (Expected " #cond " Actual)\n", __FILE__,   \
                    __LINE__);                                                  \
       *utest_result = UTEST_TEST_FAILURE;                                      \
       return;                                                                  \
@@ -785,10 +952,11 @@ utest_type_printer(long long unsigned int i) {
 
 #define ASSERT_TRUE(x)                                                         \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (!(x)) {                                                                \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
+    const int xEval = !!(x);                                                   \
+    if (!(xEval)) {                                                            \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
       UTEST_PRINTF("  Expected : true\n");                                     \
-      UTEST_PRINTF("    Actual : %s\n", (x) ? "true" : "false");               \
+      UTEST_PRINTF("    Actual : %s\n", (xEval) ? "true" : "false");           \
       *utest_result = UTEST_TEST_FAILURE;                                      \
       return;                                                                  \
     }                                                                          \
@@ -798,10 +966,11 @@ utest_type_printer(long long unsigned int i) {
 
 #define ASSERT_FALSE(x)                                                        \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (x) {                                                                   \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
+    const int xEval = !!(x);                                                   \
+    if (xEval) {                                                               \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
       UTEST_PRINTF("  Expected : false\n");                                    \
-      UTEST_PRINTF("    Actual : %s\n", (x) ? "true" : "false");               \
+      UTEST_PRINTF("    Actual : %s\n", (xEval) ? "true" : "false");           \
       *utest_result = UTEST_TEST_FAILURE;                                      \
       return;                                                                  \
     }                                                                          \
@@ -818,10 +987,13 @@ utest_type_printer(long long unsigned int i) {
 
 #define ASSERT_STREQ(x, y)                                                     \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (0 != strcmp(x, y)) {                                                   \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
-      UTEST_PRINTF("  Expected : \"%s\"\n", x);                                \
-      UTEST_PRINTF("    Actual : \"%s\"\n", y);                                \
+    const char *xEval = (x);                                                   \
+    const char *yEval = (y);                                                   \
+    if (UTEST_NULL == xEval || UTEST_NULL == yEval ||                          \
+        0 != strcmp(xEval, yEval)) {                                           \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
+      UTEST_PRINTF("  Expected : \"%s\"\n", xEval);                            \
+      UTEST_PRINTF("    Actual : \"%s\"\n", yEval);                            \
       *utest_result = UTEST_TEST_FAILURE;                                      \
       return;                                                                  \
     }                                                                          \
@@ -831,10 +1003,13 @@ utest_type_printer(long long unsigned int i) {
 
 #define ASSERT_STRNE(x, y)                                                     \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (0 == strcmp(x, y)) {                                                   \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
-      UTEST_PRINTF("  Expected : \"%s\"\n", x);                                \
-      UTEST_PRINTF("    Actual : \"%s\"\n", y);                                \
+    const char *xEval = (x);                                                   \
+    const char *yEval = (y);                                                   \
+    if (UTEST_NULL == xEval || UTEST_NULL == yEval ||                          \
+        0 == strcmp(xEval, yEval)) {                                           \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
+      UTEST_PRINTF("  Expected : \"%s\"\n", xEval);                            \
+      UTEST_PRINTF("    Actual : \"%s\"\n", yEval);                            \
       *utest_result = UTEST_TEST_FAILURE;                                      \
       return;                                                                  \
     }                                                                          \
@@ -844,10 +1019,14 @@ utest_type_printer(long long unsigned int i) {
 
 #define ASSERT_STRNEQ(x, y, n)                                                 \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (0 != UTEST_STRNCMP(x, y, n)) {                                         \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
-      UTEST_PRINTF("  Expected : \"%.*s\"\n", UTEST_CAST(int, n), x);          \
-      UTEST_PRINTF("    Actual : \"%.*s\"\n", UTEST_CAST(int, n), y);          \
+    const char *xEval = (x);                                                   \
+    const char *yEval = (y);                                                   \
+    const size_t nEval = UTEST_CAST(size_t, n);                                \
+    if (UTEST_NULL == xEval || UTEST_NULL == yEval ||                          \
+        0 != UTEST_STRNCMP(xEval, yEval, nEval)) {                             \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
+      UTEST_PRINTF("  Expected : \"%.*s\"\n", UTEST_CAST(int, nEval), xEval);  \
+      UTEST_PRINTF("    Actual : \"%.*s\"\n", UTEST_CAST(int, nEval), yEval);  \
       *utest_result = UTEST_TEST_FAILURE;                                      \
       return;                                                                  \
     }                                                                          \
@@ -857,10 +1036,14 @@ utest_type_printer(long long unsigned int i) {
 
 #define ASSERT_STRNNE(x, y, n)                                                 \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (0 == UTEST_STRNCMP(x, y, n)) {                                         \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
-      UTEST_PRINTF("  Expected : \"%.*s\"\n", UTEST_CAST(int, n), x);          \
-      UTEST_PRINTF("    Actual : \"%.*s\"\n", UTEST_CAST(int, n), y);          \
+    const char *xEval = (x);                                                   \
+    const char *yEval = (y);                                                   \
+    const size_t nEval = UTEST_CAST(size_t, n);                                \
+    if (UTEST_NULL == xEval || UTEST_NULL == yEval ||                          \
+        0 == UTEST_STRNCMP(xEval, yEval, nEval)) {                             \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
+      UTEST_PRINTF("  Expected : \"%.*s\"\n", UTEST_CAST(int, nEval), xEval);  \
+      UTEST_PRINTF("    Actual : \"%.*s\"\n", UTEST_CAST(int, nEval), yEval);  \
       *utest_result = UTEST_TEST_FAILURE;                                      \
       return;                                                                  \
     }                                                                          \
@@ -870,9 +1053,10 @@ utest_type_printer(long long unsigned int i) {
 
 #define ASSERT_NEAR(x, y, epsilon)                                             \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
-    if (utest_fabs(UTEST_CAST(double, x) - UTEST_CAST(double, y)) >            \
-        UTEST_CAST(double, epsilon)) {                                         \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
+    const double diff =                                                        \
+        utest_fabs(UTEST_CAST(double, x) - UTEST_CAST(double, y));             \
+    if (diff > UTEST_CAST(double, epsilon) || utest_isnan(diff)) {             \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
       UTEST_PRINTF("  Expected : %f\n", UTEST_CAST(double, x));                \
       UTEST_PRINTF("    Actual : %f\n", UTEST_CAST(double, y));                \
       *utest_result = UTEST_TEST_FAILURE;                                      \
@@ -882,7 +1066,7 @@ utest_type_printer(long long unsigned int i) {
   while (0)                                                                    \
   UTEST_SURPRESS_WARNING_END
 
-#if defined(__cplusplus)
+#if defined(UTEST_HAS_EXCEPTIONS)
 #define ASSERT_EXCEPTION(x, exception_type)                                    \
   UTEST_SURPRESS_WARNING_BEGIN do {                                            \
     int exception_caught = 0;                                                  \
@@ -894,7 +1078,7 @@ utest_type_printer(long long unsigned int i) {
       exception_caught = 2;                                                    \
     }                                                                          \
     if (exception_caught != 1) {                                               \
-      UTEST_PRINTF("%s:%u: Failure\n", __FILE__, __LINE__);                    \
+      UTEST_PRINTF("%s:%i: Failure\n", __FILE__, __LINE__);                    \
       UTEST_PRINTF("  Expected : %s exception\n", #exception_type);            \
       UTEST_PRINTF("    Actual : %s\n", (exception_caught == 2)                \
                                             ? "Unexpected exception"           \
@@ -928,8 +1112,10 @@ utest_type_printer(long long unsigned int i) {
       utest_state.tests[index].func = &utest_##SET##_##NAME;                   \
       utest_state.tests[index].name = name;                                    \
       utest_state.tests[index].index = 0;                                      \
+      UTEST_SNPRINTF(name, name_size, "%s", name_part);                        \
+    } else if (name) {                                                         \
+      free(name);                                                              \
     }                                                                          \
-    UTEST_SNPRINTF(name, name_size, "%s", name_part);                          \
   }                                                                            \
   void utest_run_##SET##_##NAME(int *utest_result)
 
@@ -979,9 +1165,13 @@ utest_type_printer(long long unsigned int i) {
         utest_realloc(UTEST_PTR_CAST(void *, utest_state.tests),               \
                       sizeof(struct utest_test_state_s) *                      \
                           utest_state.tests_length));                          \
-    utest_state.tests[index].func = &utest_f_##FIXTURE##_##NAME;               \
-    utest_state.tests[index].name = name;                                      \
-    UTEST_SNPRINTF(name, name_size, "%s", name_part);                          \
+    if (utest_state.tests) {                                                   \
+      utest_state.tests[index].func = &utest_f_##FIXTURE##_##NAME;             \
+      utest_state.tests[index].name = name;                                    \
+      UTEST_SNPRINTF(name, name_size, "%s", name_part);                        \
+    } else if (name) {                                                         \
+      free(name);                                                              \
+    }                                                                          \
   }                                                                            \
   UTEST_FIXTURE_SURPRESS_WARNINGS_END                                          \
   void utest_run_##FIXTURE##_##NAME(int *utest_result,                         \
@@ -1022,11 +1212,15 @@ utest_type_printer(long long unsigned int i) {
           utest_realloc(UTEST_PTR_CAST(void *, utest_state.tests),             \
                         sizeof(struct utest_test_state_s) *                    \
                             utest_state.tests_length));                        \
-      utest_state.tests[index].func = &utest_i_##FIXTURE##_##NAME##_##INDEX;   \
-      utest_state.tests[index].index = i;                                      \
-      utest_state.tests[index].name = name;                                    \
-      iUp = UTEST_CAST(utest_uint64_t, i);                                     \
-      UTEST_SNPRINTF(name, name_size, "%s/%" UTEST_PRIu64, name_part, iUp);    \
+      if (utest_state.tests) {                                                 \
+        utest_state.tests[index].func = &utest_i_##FIXTURE##_##NAME##_##INDEX; \
+        utest_state.tests[index].index = i;                                    \
+        utest_state.tests[index].name = name;                                  \
+        iUp = UTEST_CAST(utest_uint64_t, i);                                   \
+        UTEST_SNPRINTF(name, name_size, "%s/%" UTEST_PRIu64, name_part, iUp);  \
+      } else if (name) {                                                       \
+        free(name);                                                            \
+      }                                                                        \
     }                                                                          \
   }                                                                            \
   void utest_run_##FIXTURE##_##NAME##_##INDEX(int *utest_result,               \
@@ -1043,6 +1237,19 @@ double utest_fabs(double d) {
   both.d = d;
   both.u &= 0x7fffffffffffffffu;
   return both.d;
+}
+
+UTEST_WEAK
+int utest_isnan(double d);
+UTEST_WEAK
+int utest_isnan(double d) {
+  union {
+    double d;
+    utest_uint64_t u;
+  } both;
+  both.d = d;
+  both.u &= 0x7fffffffffffffffu;
+  return both.u > 0x7ff0000000000000u;
 }
 
 UTEST_WEAK
@@ -1276,7 +1483,7 @@ int utest_main(int argc, const char *const argv[]) {
 
     ns = utest_ns();
     errno = 0;
-#if defined(__cplusplus)
+#if defined(UTEST_HAS_EXCEPTIONS)
     UTEST_SURPRESS_WARNING_BEGIN
     try {
       utest_state.tests[index].func(&result, utest_state.tests[index].index);
