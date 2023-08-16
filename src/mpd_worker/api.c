@@ -26,6 +26,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     bool async = false;
     sds sds_buf1 = NULL;
     sds sds_buf2 = NULL;
+    sds sds_buf3 = NULL;
     sds error = sdsempty();
 
     struct t_jsonrpc_parse_error parse_error;
@@ -54,14 +55,12 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
             break;
         case MYMPD_API_PLAYLIST_CONTENT_SHUFFLE:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true) {
-                if (mpd_client_playlist_shuffle(partition_state, sds_buf1, &error)) {
-                    response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Shuffled playlist %{plist} successfully", 2, "plist", sds_buf1);
-                }
-                else {
-                    response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Shuffling playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
-                }
+                rc = mpd_client_playlist_shuffle(partition_state, sds_buf1, &error);
+                response->data = rc == true
+                    ? jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Shuffled playlist %{plist} successfully", 2, "plist", sds_buf1)
+                    : jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Shuffling playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_SORT:
@@ -69,14 +68,11 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 json_get_string(request->data, "$.params.tag", 1, NAME_LEN_MAX, &sds_buf2, vcb_ismpdtag, &parse_error) == true)
             {
                 rc = mpd_client_playlist_sort(partition_state, sds_buf1, sds_buf2, &error);
-                if (rc == true) {
-                    response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Sorted playlist %{plist} successfully", 2, "plist", sds_buf1);
-                }
-                else {
-                    response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Sorting playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
-                }
+                response->data = rc == true
+                    ? jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                          JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Sorted playlist %{plist} successfully", 2, "plist", sds_buf1)
+                    : jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
+                           JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Sorting playlist %{plist} failed: %{error}", 4, "plist", sds_buf1, "error", error);
             }
             break;
         case MYMPD_API_PLAYLIST_CONTENT_VALIDATE:
@@ -93,16 +89,15 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                         JSONRPC_SEVERITY_INFO, "Content of playlist %{plist} is valid", 2, "plist", sds_buf1);
                 }
                 else {
-                    sds result_str = sdsfromlonglong((long long)result);
+                    sds_buf2 = sdsfromlonglong((long long)result);
                     if (bool_buf1 == true) {
                         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_PLAYLIST,
-                            JSONRPC_SEVERITY_WARN, "Removed %{count} entries from playlist %{plist}", 4, "count", result_str, "plist", sds_buf1);
+                            JSONRPC_SEVERITY_WARN, "Removed %{count} entries from playlist %{plist}", 4, "count", sds_buf2, "plist", sds_buf1);
                     }
                     else {
                         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_PLAYLIST,
-                            JSONRPC_SEVERITY_WARN, "%{count} invalid entries in playlist %{plist}", 4, "count", result_str, "plist", sds_buf1);
+                            JSONRPC_SEVERITY_WARN, "%{count} invalid entries in playlist %{plist}", 4, "count", sds_buf2, "plist", sds_buf1);
                     }
-                    FREE_SDS(result_str);
                 }
             }
             break;
@@ -112,29 +107,26 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlists validation started");
                 push_response(response, request->id, request->conn_id);
                 long result = mpd_client_playlist_validate_all(partition_state, bool_buf1, &error);
-                sds buffer;
                 if (result == -1) {
-                    buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
+                    sds_buf1 = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
                         JSONRPC_SEVERITY_ERROR, "Validation of all playlists failed: %{error}", 2, "error", error);
                 }
                 else if (result == 0) {
-                    buffer = jsonrpc_notify(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
+                    sds_buf1 = jsonrpc_notify(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
                         JSONRPC_SEVERITY_INFO, "Content of all playlists are valid");
                 }
                 else {
-                    sds result_str = sdsfromlonglong((long long)result);
+                    sds_buf2 = sdsfromlonglong((long long)result);
                     if (bool_buf1 == true) {
-                        buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
-                            JSONRPC_SEVERITY_WARN, "Removed %{count} entries from playlist %{plist}", 2, "count", result_str);
+                        sds_buf1 = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
+                            JSONRPC_SEVERITY_WARN, "Removed %{count} entries from playlist %{plist}", 2, "count", sds_buf2);
                     }
                     else {
-                        buffer = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
-                            JSONRPC_SEVERITY_WARN, "%{count} invalid entries in playlists", 2, "count", result_str);
+                        sds_buf1 = jsonrpc_notify_phrase(sdsempty(), JSONRPC_FACILITY_PLAYLIST,
+                            JSONRPC_SEVERITY_WARN, "%{count} invalid entries in playlists", 2, "count", sds_buf2);
                     }
-                    FREE_SDS(result_str);
                 }
-                ws_notify(buffer, MPD_PARTITION_ALL);
-                FREE_SDS(buffer);
+                ws_notify(sds_buf1, MPD_PARTITION_ALL);
                 async = true;
             }
             break;
@@ -152,16 +144,15 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Content of playlist %{plist} is uniq", 2, "plist", sds_buf1);
                 }
                 else {
-                    sds result_str = sdsfromlonglong((long long)result);
+                    sds_buf2 = sdsfromlonglong((long long)result);
                     if (bool_buf1 == true) {
                         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "Removed %{count} entries from playlist %{plist}", 4, "count", result_str, "plist", sds_buf1);
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "Removed %{count} entries from playlist %{plist}", 4, "count", sds_buf2, "plist", sds_buf1);
                     }
                     else {
                         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
-                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "%{count} duplicate entries in playlist %{plist}", 4, "count", result_str, "plist", sds_buf1);
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "%{count} duplicate entries in playlist %{plist}", 4, "count", sds_buf2, "plist", sds_buf1);
                     }
-                    FREE_SDS(result_str);
                 }
             }
             break;
@@ -181,16 +172,15 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Content of all playlists are uniq");
                 }
                 else {
-                    sds result_str = sdsfromlonglong((long long)result);
+                    sds_buf2 = sdsfromlonglong((long long)result);
                     if (bool_buf1 == true) {
                         buffer = jsonrpc_notify_phrase(sdsempty(),
-                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "Removed %{count} entries from playlists", 2, "count", result_str);
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "Removed %{count} entries from playlists", 2, "count", sds_buf2);
                     }
                     else {
                         buffer = jsonrpc_notify_phrase(sdsempty(),
-                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "%{count} duplicate entries in playlists", 2, "count", result_str);
+                            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "%{count} duplicate entries in playlists", 2, "count", sds_buf2);
                     }
-                    FREE_SDS(result_str);
                 }
                 ws_notify(buffer, MPD_PARTITION_ALL);
                 FREE_SDS(buffer);
@@ -219,20 +209,18 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Content of playlist %{plist} is valid and uniq", 2, "plist", sds_buf1);
                 }
                 else {
-                    sds result_str1 = sdsfromlonglong((long long)result1);
-                    sds result_str2 = sdsfromlonglong((long long)result2);
+                    sds_buf2 = sdsfromlonglong((long long)result1);
+                    sds_buf3 = sdsfromlonglong((long long)result2);
                     if (bool_buf1 == true) {
                         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                             JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "Removed %{count1} invalid and %{count2} duplicate entries from playlist %{plist}",
-                            6, "count1", result_str1, "count2", result_str2, "plist", sds_buf1);
+                            6, "count1", sds_buf2, "count2", sds_buf3, "plist", sds_buf1);
                     }
                     else {
                         response->data = jsonrpc_respond_message_phrase(response->data, request->cmd_id, request->id,
                             JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "%{count1} invalid and %{count2} duplicate entries in playlist %{plist}",
-                            6, "count1", result_str1, "count2", result_str2, "plist", sds_buf1);
+                            6, "count1", sds_buf2, "count2", sds_buf3, "plist", sds_buf1);
                     }
-                    FREE_SDS(result_str1);
-                    FREE_SDS(result_str2);
                 }
             }
             break;
@@ -241,42 +229,38 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Playlists validation and deduplication started");
                 push_response(response, request->id, request->conn_id);
-                sds buffer;
                 long result1 = mpd_client_playlist_validate_all(partition_state, bool_buf1, &error);
                 long result2 = -1;
                 if (result1 > -1) {
                     result2 = mpd_client_playlist_dedup_all(partition_state, bool_buf1, &error);
                 }
                 if (result1 == -1) {
-                    buffer = jsonrpc_notify_phrase(sdsempty(),
+                    sds_buf1 = jsonrpc_notify_phrase(sdsempty(),
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Validation of all playlists failed: %{error}", 2, "error", error);
                 }
                 else if (result2 == -1) {
-                    buffer = jsonrpc_notify_phrase(sdsempty(),
+                    sds_buf1 = jsonrpc_notify_phrase(sdsempty(),
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Deduplication of all playlists failed: %{error}", 2, "error", error);
                 }
                 else if (result1 + result2 == 0) {
-                    buffer = jsonrpc_notify(sdsempty(),
+                    sds_buf1 = jsonrpc_notify(sdsempty(),
                         JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_INFO, "Content of all playlists are valid and uniq");
                 }
                 else {
-                    sds result_str1 = sdsfromlonglong((long long)result1);
-                    sds result_str2 = sdsfromlonglong((long long)result2);
+                    sds_buf2 = sdsfromlonglong((long long)result1);
+                    sds_buf3 = sdsfromlonglong((long long)result2);
                     if (bool_buf1 == true) {
-                        buffer = jsonrpc_notify_phrase(sdsempty(),
+                        sds_buf1 = jsonrpc_notify_phrase(sdsempty(),
                             JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "Removed %{count1} invalid and %{count2} duplicate entries from playlists",
-                            4, "count1", result_str1, "count2", result_str2);
+                            4, "count1", sds_buf2, "count2", sds_buf3);
                     }
                     else {
-                        buffer = jsonrpc_notify_phrase(sdsempty(),
+                        sds_buf1 = jsonrpc_notify_phrase(sdsempty(),
                             JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_WARN, "%{count1} invalid and %{count2} duplicate entries in playlists",
-                            4, "count1", result_str1, "count2", result_str2);
+                            4, "count1", sds_buf2, "count2", sds_buf3);
                     }
-                    FREE_SDS(result_str1);
-                    FREE_SDS(result_str2);
                 }
-                ws_notify(buffer, MPD_PARTITION_ALL);
-                FREE_SDS(buffer);
+                ws_notify(sds_buf1, MPD_PARTITION_ALL);
                 async = true;
             }
             break;
@@ -328,6 +312,7 @@ void mpd_worker_api(struct t_mpd_worker_state *mpd_worker_state) {
     }
     FREE_SDS(sds_buf1);
     FREE_SDS(sds_buf2);
+    FREE_SDS(sds_buf3);
 
     if (async == true) {
         //already responded
