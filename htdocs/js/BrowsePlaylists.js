@@ -1151,19 +1151,19 @@ function currentPlaylistAddTo(action) {
     const type = getDataId('BrowsePlaylistDetailList', 'type');
     switch(action) {
         case 'appendQueue':
-            appendQueue(type, uri);
+            appendQueue(type, [uri]);
             break;
         case 'appendPlayQueue':
-            appendPlayQueue(type, uri);
+            appendPlayQueue(type, [uri]);
             break;
         case 'insertAfterCurrentQueue':
-            insertAfterCurrentQueue(type, uri, null);
+            insertAfterCurrentQueue(type, [uri], null);
             break;
         case 'replaceQueue':
-            replaceQueue(type, uri);
+            replaceQueue(type, [uri]);
             break;
         case 'replacePlayQueue':
-            replacePlayQueue(type, uri);
+            replacePlayQueue(type, [uri]);
             break;
         case 'addToHome':
             addPlistToHome(uri, type, uri);
