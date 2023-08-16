@@ -6,7 +6,7 @@ https://github.com/jcorporation/myMPD/
 
 ## myMPD v12.0.0 (not yet released)
 
-This release improves hopefully the user experience by providing descriptive help texts and error messages. Further the advanced search feature is now available for all reasonable views.
+This release improves hopefully the user experience by providing descriptive help texts, error messages and improved dialogs. Further the advanced search feature is now available for all reasonable views.
 
 As in most recent releases, the source code has been cleaned up further. The most changes are made in the frontend code.
 
@@ -28,6 +28,7 @@ This release changes some API methods.
 - Feat: improve validation of form fields #1083
 - Feat: add spinners to buttons
 - Feat: display the number of channels #1085
+- Feat: show source objects in action modals
 - Upd: some code enhancements #1045
 - Upd: Bootstrap 5.3.1
 - Upd: rework settings
