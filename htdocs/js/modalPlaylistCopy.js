@@ -15,6 +15,7 @@ function showCopyPlaylist(srcPlists) {
     cleanupModal(modal);
     setData(modal, 'srcPlists', srcPlists);
     filterPlaylistsSelect(1, 'modalPlaylistCopyDstPlistInput', '', '');
+    document.getElementById('modalPlaylistCopySrcPlists').value = arrayToLines(srcPlists);
     uiElements.modalPlaylistCopy.show();
 }
 

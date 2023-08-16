@@ -120,6 +120,17 @@ function joinArray(a) {
 }
 
 /**
+ * Joins an array to a multi-line string
+ * @param {Array} a array to join
+ * @returns {string} joined array
+ */
+function arrayToLines(a) {
+    return a === undefined
+        ? ''
+        : a.join('\n');
+}
+
+/**
  * Escape a MPD filter value
  * @param {string} str value to escape
  * @returns {string} escaped value
