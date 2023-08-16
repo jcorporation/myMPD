@@ -1076,5 +1076,6 @@
     "Failed to clean up the cover cache": "Fehler beim Bereinigen des Covercaches",
     "Removed %{smart_count} cover |||| Removed %{smart_count} covers": "%{smart_count} Cover gelöscht |||| %{smart_count} Cover gelöscht",
     "Stereo": "Stereo",
-    "Mono": "Mono"
+    "Mono": "Mono",
+    "Destination playlist": "Zielwiedergabeliste"
 }
