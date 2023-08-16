@@ -46,13 +46,11 @@ function selectAllRows(table, select) {
         }
     }
     for (const row of rows) {
-        if (row.classList.contains('not-clickable') ||
-            getData(row, 'type') !== firstType)
-        {
-            continue;
-        }
         const check = row.lastElementChild.lastElementChild;
-        if (check === null) {
+        if (check === null ||
+            row.classList.contains('not-clickable') ||
+            (getData(row, 'type') !== firstType && select === true))
+        {
             continue;
         }
         if (select === true) {
