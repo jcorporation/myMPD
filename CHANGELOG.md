@@ -37,6 +37,16 @@ This release changes some API methods.
 
 ***
 
+## myMPD v11.0.4 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: add playlist to queue from playlist view #1087
+
+***
+
 ## myMPD v11.0.3 (2023-08-15)
 
 This is a small bug fix release.
