@@ -44,6 +44,7 @@ This is a small bug fix release.
 ### Changelog
 
 - Fix: add playlist to queue from playlist view #1087
+- Fix: unselect all selected rows
 
 ***
 
