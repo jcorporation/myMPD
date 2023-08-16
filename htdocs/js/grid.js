@@ -142,7 +142,7 @@ function selectSingleCard(card, select) {
  */
 function showGridSelectionCount() {
     const grid = document.getElementById(app.id + 'List');
-    const dropdown = document.querySelector('#dropdown' + app.id + 'Selection');
+    const dropdown = document.querySelector('#' + app.id + 'SelectionDropdown');
     const cards = grid.querySelectorAll('div > div.selected');
     const count = cards.length;
     dropdown.querySelector('small').textContent = count + ' ' + tn('selected');

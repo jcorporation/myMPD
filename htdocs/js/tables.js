@@ -164,7 +164,7 @@ function selectSingleRow(row, select) {
  */
 function showTableSelectionCount() {
     const table = document.getElementById(app.id + 'List');
-    const dropdown = document.querySelector('#dropdown' + app.id + 'Selection');
+    const dropdown = document.querySelector('#' + app.id + 'SelectionDropdown');
     const rows = table.querySelectorAll('tbody > tr.selected');
     const count = rows.length;
     let validSelection = true;
