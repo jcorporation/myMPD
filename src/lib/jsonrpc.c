@@ -1005,15 +1005,15 @@ bool json_iterate_object(sds s, const char *path, iterate_callback icb, void *ic
 static bool icb_json_get_tag_value(const char *path, sds key, sds value, int vtype, validate_callback vcb, void *userdata, struct t_jsonrpc_parse_error *error) {
     enum mpd_tag_type tag = mpd_tag_name_parse(key);
     if (tag == MPD_TAG_UNKNOWN) {
-        set_parse_error(error, path, key, "Unknown mpd tag type \"%s\"", key);
+        set_parse_error(error, path, "", "Unknown mpd tag type \"%s\"", key);
         return false;
     }
     if (vtype != MJSON_TOK_STRING) {
-        set_parse_error(error, path, key, "Invalid type for tag \"%s\": %s", key, get_mjson_toktype_name(vtype));
+        set_parse_error(error, path, "", "Invalid type for tag \"%s\": %s", key, get_mjson_toktype_name(vtype));
         return false;
     }
     if (vcb(value) == false) {
-        set_parse_error(error, path, key, "Validation of value \"%s\" has failed", value);
+        set_parse_error(error, path, "", "Validation of value \"%s\" has failed", value);
     }
     else {
         mympd_mpd_song_add_tag_dedup((struct mpd_song *)userdata, tag, value);
@@ -1053,7 +1053,7 @@ static bool icb_json_get_array_string(const char *path, sds key, sds value, int 
     if (vtype != MJSON_TOK_STRING ||
         vcb(value) == false)
     {
-        set_parse_error(error, path, "", "Invalid value");
+        set_parse_error(error, path, "", "Validation of value \"%s\" has failed", value);
         return false;
     }
     struct t_list *l = (struct t_list *)userdata;
@@ -1091,7 +1091,7 @@ static bool icb_json_get_array_llong(const char *path, sds key, sds value, int v
     (void)key;
     (void)vcb;
     if (vtype != MJSON_TOK_NUMBER) {
-        set_parse_error(error, path, key, "Validation of value \"%s\" has failed", value);
+        set_parse_error(error, path, "", "Validation of value \"%s\" has failed", value);
         return false;
     }
     errno = 0;
@@ -1284,10 +1284,11 @@ static bool icb_json_get_tag(const char *path, sds key, sds value, int vtype, va
 
 /**
  * Helper function to set parsing errors
- * @param error sds string to append the error
- *              can be NULL - error is only logged
+ * @param error already initialized t_jsonrpc_parse_error struct to propagate the error
+ *              or NULL for log only
  * @param path json path where the error occurred
- * @param key optional json key where the error occurred
+ * @param key optional json key inside the path where the error occurred
+ *            set this to a blank string for none object paths
  * @param fmt printf format string
  * @param ... arguments for the format string
  */
@@ -1299,11 +1300,11 @@ static void set_parse_error(struct t_jsonrpc_parse_error *error, const char *pat
         error->path = key[0] != '\0'
             ? sdscatfmt(sdsempty(), "%s.%s", path, key)
             : sdsnew(path);
-        MYMPD_LOG_WARN(NULL, "%s", error->message);
+        MYMPD_LOG_WARN(NULL, "%s: %s", error->path, error->message);
     }
     else {
         sds e = sdscatvprintf(sdsempty(), fmt, args); // NOLINT(clang-diagnostic-format-nonliteral)
-        MYMPD_LOG_WARN(NULL, "%s", e);
+        MYMPD_LOG_WARN(NULL, "%s: %s", path, e);
         FREE_SDS(e);
     }
     va_end(args);
