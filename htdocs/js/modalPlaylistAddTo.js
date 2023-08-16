@@ -42,12 +42,19 @@ function showAddToPlaylist(type, entities) {
         //add stream
         toggleAddToPlaylistFrm(document.getElementById('modalPlaylistAddToQueueBtn'));
         elShowId('modalPlaylistAddToAddStreamFrm');
+        elHideId('modalPlaylistAddToSrcRow');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add stream');
     }
     else {
         //add to playlist
         toggleAddToPlaylistFrm(document.getElementById('modalPlaylistAddToPlaylistBtn'));
         elHideId('modalPlaylistAddToAddStreamFrm');
+        const names = [];
+        for (const entity of entities) {
+            names.push(basename(entity, true));
+        }
+        document.getElementById('modalPlaylistAddToSrc').value = arrayToLines(names);
+        elShowId('modalPlaylistAddToSrcRow');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
     }
     uiElements.modalPlaylistAddTo.show();
