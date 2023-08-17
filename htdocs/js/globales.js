@@ -1377,6 +1377,9 @@ const uiElements = {};
 //all modals
 for (const m of document.querySelectorAll('.modal')) {
     uiElements[m.id] = BSN.Modal.getInstance(m);
+    m.addEventListener('shown.bs.modal', function(event) {
+        focusFirstInput(event.target);
+    }, false);
 }
 //other directly accessed BSN objects
 uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance(document.getElementById('btnHomeIconLigature'));

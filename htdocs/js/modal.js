@@ -24,6 +24,17 @@ function openModal(modal) {
 }
 
 /**
+ * Sets the focus to the first input or select element
+ * @param {EventTarget | Element} modal 
+ */
+function focusFirstInput(modal) {
+    const input = modal.querySelector('.modal-body input, .modal-body select');
+    if (input) {
+        setFocus(input);
+    }
+}
+
+/**
  * Populates the entities element
  * @param {string} id element id
  * @param {Array} entities array with entities to add
