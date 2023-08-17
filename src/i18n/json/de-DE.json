@@ -579,7 +579,6 @@
     "Save as smart playlist": "Als intelligente Wiedergabeliste speichern",
     "Save queue": "Warteschlange speichern",
     "Save smart playlist": "Intelligente Wiedergabeliste sichern",
-    "Saved smart playlist": "Intelligente Wiedergabeliste wurde gespeichert",
     "Scale ratio": "Skalierungsverhätnis",
     "Script": "Skript",
     "Script %{script} executed successfully": "Skript %{script} erfolgreich gestartet",
@@ -1002,7 +1001,6 @@
     "Removed %{count} entries from playlists": "%{count} Einträge von Wiedergabelisten entfernt",
     "Validate playlists": "Wiedergabelisten überprüfen",
     "Validation of all playlists failed: %{error}": "Überprüfung aller Wiedergabeliste fehlgeschlagen: %{error}",
-    "Failed saving smart playlist": "Intelligente Wiedergabeliste konnte nicht gespeichert werden",
     "Action for selection": "Aktion für die Auswahl",
     "Select": "Auswählen",
     "Select all": "Alles auswählen",
@@ -1084,5 +1082,7 @@
     "Source and destination playlists are the same": "Quell- und Zielwiedergabeliste ist dieselbe",
     "Rename": "Umbenennen",
     "Name does not change": "Name würde sich nicht ändern",
-    "Value length for JSON path \"$.params.newName\" is too short": "Ungültiger Name"
+    "Value length for JSON path \"$.params.newName\" is too short": "Ungültiger Name",
+    "Saving smart playlist failed": "Intelligente Wiedergabeliste konnte nicht gespeichert werden",
+    "Smart playlist saved successfully": "Intelligente Wiedergabeliste erfolgreich gespeichert"
 }
