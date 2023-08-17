@@ -1262,7 +1262,7 @@
   </div>
 <!-- Modal copy playlist end -->
 <!-- Modal move to playlist start -->
-  <div class="modal fade" id="modalMoveToPlaylist" tabindex="-1">
+  <div class="modal fade" id="modalPlaylistMoveTo" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -1271,31 +1271,39 @@
         </div>
         <div class="modal-body">
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="moveToPlaylistPlaylist" data-phrase="Playlist"></label>
+            <label class="col-sm-4 col-form-label" for="modalPlaylistMoveToPositions" data-phrase="Positions to move"></label>
+            <div class="col-sm-8">
+              <div class="btn-group d-flex">
+                <textarea id="modalPlaylistMoveToPositions" class="form-control" readonly="readonly"></textarea>
+              </div>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <label class="col-sm-4 col-form-label" for="modalPlaylistMoveToDstPlist" data-phrase="Playlist"></label>
             <div class="col-sm-8 position-relative">
               <div class="btn-group d-flex">
-                <input data-is="mympd-select-search" id="moveToPlaylistPlaylist" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
+                <input data-is="mympd-select-search" id="modalPlaylistMoveToDstPlist" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
               </div>
               <div class="invalid-feedback" data-phrase="Choose a playlist or enter a new playlist name"></div>
             </div>
           </div>
-          <div class="row mb-3" id="moveToPlaylistPos">
+          <div class="row mb-3" id="modalPlaylistMoveToPos">
             <label class="col-sm-4 col-form-label" data-phrase="Insert mode"></label>
             <div class="col-sm-8">
               <div class="form-check ms-4">
-                <input class="form-check-input" type="radio" name="moveToPlaylistPos" value="0" id="moveToPlaylistPosAppend" checked="checked"/>
-                <label class="form-check-label" for="moveToPlaylistPosAppend" data-phrase="Append"></label>
+                <input class="form-check-input" type="radio" name="modalPlaylistMoveToPos" value="0" id="modalPlaylistMoveToPosAppend" checked="checked"/>
+                <label class="form-check-label" for="modalPlaylistMoveToPosPosAppend" data-phrase="Append"></label>
               </div>
               <div class="form-check ms-4 featWhence">
-                <input class="form-check-input" type="radio" name="moveToPlaylistPos" value="1" id="moveToPlaylistPosInsertFirst"/>
-                <label class="form-check-label" for="moveToPlaylistPosInsertFirst" data-phrase="Insert at start of playlist"></label>
+                <input class="form-check-input" type="radio" name="modalPlaylistMoveToPos" value="1" id="modalPlaylistMoveToPosInsertFirst"/>
+                <label class="form-check-label" for="modalPlaylistMoveToPosInsertFirst" data-phrase="Insert at start of playlist"></label>
               </div>
             </div>
           </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success" data-href='{"cmd": "moveToPlaylist", "options": []}' data-phrase="Move"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "moveToPlaylist", "options": ["target"]}' data-phrase="Move"></button>
         </div>
       </div>
     </div>
