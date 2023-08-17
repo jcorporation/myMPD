@@ -979,7 +979,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
         case MYMPD_API_QUEUE_ADD_RANDOM:
             if (json_get_string(request->data, "$.params.plist", 1, FILENAME_LEN_MAX, &sds_buf1, vcb_isfilename, &parse_error) == true &&
                 json_get_uint(request->data, "$.params.mode", 0, 2, &uint_buf1, &parse_error) == true &&
-                json_get_long(request->data, "$.params.quantity", 0, 1000, &long_buf1, &parse_error) == true)
+                json_get_long(request->data, "$.params.quantity", 1, 1000, &long_buf1, &parse_error) == true)
             {
                 rc = jukebox_add_to_queue(partition_state, long_buf1, uint_buf1, sds_buf1, true);
                 response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc,

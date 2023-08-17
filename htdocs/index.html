@@ -2612,33 +2612,33 @@
       </div>
       <div class="modal-body">
         <div class="row mb-3">
-          <label class="col-sm-4 col-form-label" for="selectAddToQueueMode" data-phrase="Add random"></label>
+          <label class="col-sm-4 col-form-label" for="modalQueueAddToModeInput" data-phrase="Add random"></label>
           <div class="col-sm-8">
-            <select id="selectAddToQueueMode" class="form-select">
+            <select id="modalQueueAddToModeInput" class="form-select">
               <option value="1" data-phrase="Song"></option>
               <option value="2" data-phrase="Album"></option>
             </select>
           </div>
         </div>
         <div class="row mb-3">
-          <label class="col-sm-4 col-form-label" for="selectAddToQueuePlaylist" data-phrase="From"></label>
+          <label class="col-sm-4 col-form-label" for="modalQueueAddToPlaylistInput" data-phrase="From"></label>
           <div class="col-sm-8">
             <div class="btn-group position-relative d-flex">
-              <input data-is="mympd-select-search" id="selectAddToQueuePlaylist" readonly="readonly" class="form-control" data-placeholder-phrase="Select a playlist"/>
+              <input data-is="mympd-select-search" id="modalQueueAddToPlaylistInput" readonly="readonly" class="form-control" data-placeholder-phrase="Select a playlist"/>
             </div>
           </div>
         </div>
         <div class="row mb-3">
-          <label class="col-sm-4 col-form-label" for="inputAddToQueueQuantity" data-phrase="Quantity"></label>
+          <label class="col-sm-4 col-form-label" for="modalQueueAddToQuantityInput" data-phrase="Quantity"></label>
           <div class="col-sm-8">
-            <input id="inputAddToQueueQuantity" class="form-control" value="1"/>
+            <input id="modalQueueAddToQuantityInput" class="form-control" value="1"/>
             <div class="invalid-feedback" data-phrase="Must be a number and greater than zero"></div>
           </div>
         </div>
       </div>
       <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-        <button type="button" class="btn btn-success" data-href='{"cmd": "addRandomToQueue", "options": []}' data-phrase="Add"></button>
+        <button type="button" class="btn btn-success" data-href='{"cmd": "addRandomToQueue", "options": ["target"]}' data-phrase="Add"></button>
       </div>
     </div>
   </div>

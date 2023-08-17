@@ -10,68 +10,48 @@
  * @returns {void}
  */
 function initModalQueueAddTo() {
-    document.getElementById('selectAddToQueueMode').addEventListener('change', function() {
+    document.getElementById('modalQueueAddToModeInput').addEventListener('change', function() {
         const value = Number(getSelectValue(this));
         if (value === 2) {
             //album mode
-            elDisableId('inputAddToQueueQuantity');
-            document.getElementById('inputAddToQueueQuantity').value = '1';
-            elDisableId('selectAddToQueuePlaylist');
-            document.getElementById('selectAddToQueuePlaylist').value = 'Database';
+            elDisableId('modalQueueAddToQuantityInput');
+            document.getElementById('modalQueueAddToQuantityInput').value = '1';
+            elDisableId('modalQueueAddToPlaylistInput');
+            document.getElementById('modalQueueAddToPlaylistInput').value = 'Database';
         }
         else if (value === 1) {
             //song mode
-            elEnableId('inputAddToQueueQuantity');
-            elEnableId('selectAddToQueuePlaylist');
+            elEnableId('modalQueueAddToQuantityInput');
+            elEnableId('modalQueueAddToPlaylistInput');
         }
     });
 
     document.getElementById('modalQueueAddTo').addEventListener('shown.bs.modal', function() {
         cleanupModalId('modalQueueAddTo');
-        document.getElementById('selectAddToQueuePlaylist').value = tn('Database');
-        setDataId('selectAddToQueuePlaylist', 'value', 'Database');
-        document.getElementById('selectAddToQueuePlaylist').filterInput.value = '';
+        document.getElementById('modalQueueAddToPlaylistInput').value = tn('Database');
+        setDataId('modalQueueAddToPlaylistInput', 'value', 'Database');
+        document.getElementById('modalQueueAddToPlaylistInput').filterInput.value = '';
         if (features.featPlaylists === true) {
-            filterPlaylistsSelect(0, 'selectAddToQueuePlaylist', '', 'Database');
+            filterPlaylistsSelect(0, 'modalQueueAddToPlaylistInput', '', 'Database');
         }
     });
 
-    setDataId('selectAddToQueuePlaylist', 'cb-filter', 'filterPlaylistsSelect');
-    setDataId('selectAddToQueuePlaylist', 'cb-filter-options', [0, 'selectAddToQueuePlaylist']);
+    setDataId('modalQueueAddToPlaylistInput', 'cb-filter', 'filterPlaylistsSelect');
+    setDataId('modalQueueAddToPlaylistInput', 'cb-filter-options', [0, 'modalQueueAddToPlaylistInput']);
 }
 
 /**
  * Adds random songs/albums to the queue, one-shot jukebox mode.
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function addRandomToQueue() {
+function addRandomToQueue(target) {
     cleanupModalId('modalQueueAddTo');
-    let formOK = true;
-    const inputAddToQueueQuantityEl = document.getElementById('inputAddToQueueQuantity');
-    if (!validateIntEl(inputAddToQueueQuantityEl)) {
-        formOK = false;
-    }
-    const selectAddToQueuePlaylistValue = getDataId('selectAddToQueuePlaylist', 'value');
-    if (formOK === true) {
-        sendAPI("MYMPD_API_QUEUE_ADD_RANDOM", {
-            "mode": Number(getSelectValueId('selectAddToQueueMode')),
-            "plist": selectAddToQueuePlaylistValue,
-            "quantity": Number(document.getElementById('inputAddToQueueQuantity').value)
-        }, addRandomToQueueCheckError, true);
-    }
-}
-
-/**
- * Handles the MYMPD_API_QUEUE_ADD_RANDOM jsonrpc response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function addRandomToQueueCheckError(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
-        uiElements.modalQueueAddTo.hide();
-    }
+    btnWaiting(target, true);
+    sendAPI("MYMPD_API_QUEUE_ADD_RANDOM", {
+        "mode": Number(getSelectValueId('modalQueueAddToModeInput')),
+        "plist": getDataId('modalQueueAddToPlaylistInput', 'value'),
+        "quantity": Number(document.getElementById('modalQueueAddToQuantityInput').value)
+    }, modalClose, true);
 }
