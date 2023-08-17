@@ -2571,32 +2571,23 @@
         <div class="row mb-3 featAdvqueue">
           <label class="col-sm-4 col-form-label" data-phrase="Save mode"></label>
           <div class="col-sm-8">
-            <div class="btn-group" id="btnQueueSaveMode">
+            <div class="btn-group" id="modalQueueSaveModeInput">
               <button data-value="create" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": ["target"]}' type="button" data-phrase="Create new"></button>
               <button data-value="append" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": ["target"]}' type="button" data-phrase="Append"></button>
               <button data-value="replace" class="btn btn-secondary" data-href='{"cmd": "toggleSaveQueueMode", "options": ["target"]}' type="button" data-phrase="Replace"></button>
             </div>
           </div>
         </div>
-        <div class="row mb-3" id="rowSaveQueueName">
-          <label class="col-sm-4 col-form-label" for="saveQueueName" data-phrase="New playlist"></label>
-          <div class="col-sm-8">
-            <input class="form-control" id="saveQueueName"/>
-            <div class="invalid-feedback" data-phrase="Invalid filename"></div>
-          </div>
-        </div>
-        <div class="row mb-3 d-none" id="rowSaveQueueNameSelect">
-          <label class="col-sm-4 col-form-label" for="saveQueueNameSelect" data-phrase="Existing playlist"></label>
+        <div class="row mb-3">
+          <label class="col-sm-4 col-form-label" for="modalQueueSavePlistInput" data-phrase="Playlist"></label>
           <div class="col-sm-8 position-relative">
-            <div class="btn-group d-flex">
-              <input data-is="mympd-select-search" id="saveQueueNameSelect" data-placeholder-phrase="Choose a playlist" class="form-control" readonly="readonly"/>
-            </div>
+            <input data-is="mympd-select-search" id="modalQueueSavePlistInput" data-placeholder-phrase="Choose a playlist" class="form-control"/>
           </div>
         </div>
       </div>
       <div class="modal-footer justify-content-between">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-        <button type="button" class="btn btn-success" data-href='{"cmd": "saveQueue", "options": []}' data-phrase="Save queue"></button>
+        <button type="button" class="btn btn-success" data-href='{"cmd": "saveQueue", "options": ["target"]}' data-phrase="Save queue"></button>
       </div>
     </div>
   </div>
