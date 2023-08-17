@@ -100,7 +100,7 @@ bool mympd_api_queue_prio_set(struct t_partition_state *partition_state, struct 
     if (mpd_command_list_begin(partition_state->conn, false)) {
         struct t_list_node *current;
         while ((current = list_shift_first(song_ids)) != NULL) {
-            bool rc = mpd_send_prio_id(partition_state->conn, (unsigned)current->value_i, priority);
+            bool rc = mpd_send_prio_id(partition_state->conn, priority, (unsigned)current->value_i);
             list_node_free(current);
             if (rc == false) {
                 mympd_set_mpd_failure(partition_state, "Error adding command to command list mpd_send_prio_id");
