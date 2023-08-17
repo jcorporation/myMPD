@@ -738,6 +738,11 @@ sds mympd_api_playlist_rename(struct t_partition_state *partition_state, sds buf
         long request_id, const char *old_playlist, const char *new_playlist)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_PLAYLIST_RENAME;
+    if (strcmp(old_playlist, new_playlist) == 0) {
+        buffer = jsonrpc_respond_message(buffer, cmd_id, request_id,
+            JSONRPC_FACILITY_PLAYLIST, JSONRPC_SEVERITY_ERROR, "Name does not change");
+        return buffer;
+    }
     //first handle smart playlists
     sds old_pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS, old_playlist);
     sds new_pl_file = sdscatfmt(sdsempty(), "%S/%s/%s", partition_state->mympd_state->config->workdir, DIR_WORK_SMARTPLS, new_playlist);

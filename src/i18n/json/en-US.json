@@ -146,5 +146,6 @@
     "MUSICBRAINZ_WORKID": "MusicBrainz Work ID",
     "MUSICBRAINZ_RELEASEGROUPID": "MusicBrainz ReleaseGroup ID",
     "AudioFormat": "Audio format",
-    "OriginalDate": "Original date"
+    "OriginalDate": "Original date",
+    "Value length for JSON path \"$.params.newName\" is too short": "Invalid name"
 }

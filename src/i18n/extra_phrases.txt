@@ -260,3 +260,4 @@ Loglevel set to WARN
 Loglevel set to NOTICE
 Loglevel set to INFO
 Loglevel set to DEBUG
+Value length for JSON path \"$.params.newName\" is too short

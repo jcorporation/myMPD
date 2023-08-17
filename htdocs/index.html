@@ -1319,22 +1319,21 @@
         </div>
         <div class="modal-body">
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="renamePlaylistFrom" data-phrase="From"></label>
+            <label class="col-sm-4 col-form-label" for="modalPlaylistRenamePlistInput" data-phrase="From"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="renamePlaylistFrom" readonly="readonly"/>
+              <input class="form-control" id="modalPlaylistRenamePlistInput" readonly="readonly"/>
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="renamePlaylistTo" data-phrase="To"></label>
+            <label class="col-sm-4 col-form-label" for="modalPlaylistRenameNewNameInput" data-phrase="To"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="renamePlaylistTo"/>
-              <div class="invalid-feedback" data-phrase="Invalid filename"></div>
+              <input class="form-control" id="modalPlaylistRenameNewNameInput"/>
             </div>
           </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success" data-href='{"cmd": "renamePlaylist", "options": []}' data-phrase="Save"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "renamePlaylist", "options": ["target"]}' data-phrase="Rename"></button>
         </div>
       </div>
     </div>

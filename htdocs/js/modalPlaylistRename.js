@@ -13,42 +13,22 @@
 //eslint-disable-next-line no-unused-vars
 function showRenamePlaylist(from) {
     cleanupModalId('modalPlaylistRename');
-    document.getElementById('renamePlaylistFrom').value = from;
-    document.getElementById('renamePlaylistTo').value = '';
+    document.getElementById('modalPlaylistRenamePlistInput').value = from;
+    document.getElementById('modalPlaylistRenameNewNameInput').value = '';
     uiElements.modalPlaylistRename.show();
 }
 
 /**
  * Renames the playlist
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function renamePlaylist() {
+function renamePlaylist(target) {
     cleanupModalId('modalPlaylistRename');
-
-    const from = document.getElementById('renamePlaylistFrom').value;
-    const to = document.getElementById('renamePlaylistTo').value;
-    if (to !== from && validatePlist(to) === true) {
-        sendAPI("MYMPD_API_PLAYLIST_RENAME", {
-            "plist": from,
-            "newName": to
-        }, renamePlaylistClose, true);
-    }
-    else {
-        document.getElementById('renamePlaylistTo').classList.add('is-invalid');
-    }
-}
-
-/**
- * Handles the MYMPD_API_PLAYLIST_RENAME jsonrpc response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function renamePlaylistClose(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
-        uiElements.modalPlaylistRename.hide();
-    }
+    btnWaiting(target, true);
+    sendAPI("MYMPD_API_PLAYLIST_RENAME", {
+        "plist": document.getElementById('modalPlaylistRenamePlistInput').value,
+        "newName": document.getElementById('modalPlaylistRenameNewNameInput').value
+    }, modalClose, true);
 }

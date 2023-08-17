@@ -1081,5 +1081,8 @@
     "Playlists to copy": "Zu kopierende Wiedergabelisten",
     "Entities to add": "Hinzuzufügende Objekte",
     "Positions to move": "Zu verschiebende Positionen",
-    "Source and destination playlists are the same": "Quell- und Zielwiedergabeliste ist dieselbe"
+    "Source and destination playlists are the same": "Quell- und Zielwiedergabeliste ist dieselbe",
+    "Rename": "Umbenennen",
+    "Name does not change": "Name würde sich nicht ändern",
+    "Value length for JSON path \"$.params.newName\" is too short": "Ungültiger Name"
 }
