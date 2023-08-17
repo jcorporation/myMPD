@@ -281,7 +281,6 @@ function parseSettings(obj) {
 
     //finished parse setting, set ui state
     toggleUI();
-    btnWaitingId('modalSettingsApplyBtn', false);
     applyFeatures();
     settingsParsed = 'parsed';
     myMPDready = true;

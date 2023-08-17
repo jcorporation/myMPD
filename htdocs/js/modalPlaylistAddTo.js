@@ -53,7 +53,7 @@ function showAddToPlaylist(type, entities) {
         for (const entity of entities) {
             names.push(basename(entity, true));
         }
-        document.getElementById('modalPlaylistAddToSrc').value = arrayToLines(names);
+        populateEntities('modalPlaylistAddToSrc', names);
         elShowId('modalPlaylistAddToSrcRow');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
     }
@@ -91,10 +91,11 @@ function toggleAddToPlaylistFrm(target) {
 
 /**
  * Adds the selected elements from the "add to playlist" modal to the playlist or queue
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function addToPlaylist() {
+function addToPlaylist(target) {
     cleanupModalId('modalPlaylistAddTo');
     const type = getDataId('modalPlaylistAddToUrisInput', 'type');
     const entities = getDataId('modalPlaylistAddToUrisInput', 'entities');
@@ -106,19 +107,19 @@ function addToPlaylist() {
         }
         entities[0] = streamUrlEl.value;
     }
-    btnWaitingId('modalPlaylistAddToUriAddBtn', true);
+    btnWaiting(target, true);
     if (document.getElementById('modalPlaylistAddToPlaylistFrm').classList.contains('d-none') === false) {
         //add to playlist
         const plistEl = document.getElementById('modalPlaylistAddToPlistInput');
         switch(mode) {
             case 'append':
-                appendPlaylist(type, entities, plistEl.value, addToPlaylistClose);
+                appendPlaylist(type, entities, plistEl.value, modalClose);
                 break;
             case 'insertFirst':
-                insertPlaylist(type, entities, plistEl.value, 0, addToPlaylistClose);
+                insertPlaylist(type, entities, plistEl.value, 0, modalClose);
                 break;
             case 'replace':
-                replacePlaylist(type, entities, plistEl.value, addToPlaylistClose);
+                replacePlaylist(type, entities, plistEl.value, modalClose);
                 break;
             default:
                 logError('Invalid mode: ' + mode);
@@ -128,42 +129,25 @@ function addToPlaylist() {
         //add to queue
         switch(mode) {
             case 'append':
-                appendQueue(type, entities, addToPlaylistClose);
+                appendQueue(type, entities, modalClose);
                 break;
             case 'appendPlay':
-                appendPlayQueue(type, entities, addToPlaylistClose);
+                appendPlayQueue(type, entities, modalClose);
                 break;
             case 'insertAfterCurrent':
-                insertAfterCurrentQueue(type, entities, addToPlaylistClose);
+                insertAfterCurrentQueue(type, entities, modalClose);
                 break;
             case 'insertPlayAfterCurrent':
-                insertPlayAfterCurrentQueue(type, entities, addToPlaylistClose);
+                insertPlayAfterCurrentQueue(type, entities, modalClose);
                 break;
             case 'replace':
-                replaceQueue(type, entities, addToPlaylistClose);
+                replaceQueue(type, entities, modalClose);
                 break;
             case 'replacePlay':
-                replacePlayQueue(type, entities, addToPlaylistClose);
+                replacePlayQueue(type, entities, modalClose);
                 break;
             default:
                 logError('Invalid mode: ' + mode);
         }
-    }
-}
-
-/**
- * Handles the response of "add to playlist" modal
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function addToPlaylistClose(obj) {
-    btnWaitingId('modalPlaylistAddToUriAddBtn', false);
-    if (obj.error) {
-        if (highlightInvalidInput('modalPlaylistAddTo', obj) === false) {
-            showModalAlert(obj);
-        }
-    }
-    else {
-        uiElements.modalPlaylistAddTo.hide();
     }
 }

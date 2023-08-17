@@ -242,10 +242,11 @@ function populateSettingsPlaybackFrm() {
 
 /**
  * Saves the playback settings
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function saveSettingsPlayback() {
+function saveSettingsPlayback(target) {
     cleanupModalId('modalPlayback');
     const params = {};
     if (formToJson('modalPlayback', params, settingsPlaybackFields) === true) {
@@ -262,24 +263,7 @@ function saveSettingsPlayback() {
         if (params.name === undefined) {
             params.name = '';
         }
-        btnWaitingId('modalPlaybackSaveBtn', true);
-        sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", params, saveSettingsPlaybackClose, true);
-    }
-}
-
-/**
- * Handler for the MYMPD_API_PLAYER_OPTIONS_SET jsonrpc response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function saveSettingsPlaybackClose(obj) {
-    btnWaitingId('modalPlaybackSaveBtn', false);
-    if (obj.error) {
-        if (highlightInvalidInput('modalPlayback', obj) === false) {
-            showModalAlert(obj);
-        }
-    }
-    else {
-        uiElements.modalPlayback.hide();
+        btnWaiting(target, true);
+        sendAPI("MYMPD_API_PLAYER_OPTIONS_SET", params, modalClose, true);
     }
 }

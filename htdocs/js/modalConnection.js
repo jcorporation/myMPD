@@ -58,10 +58,11 @@ function initModalSettingsConnection() {
 
 /**
  * Saves the mpd connection settings
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function saveConnection() {
+function saveConnection(target) {
     cleanupModalId('modalConnection');
     const settingsParams = {};
 
@@ -103,7 +104,7 @@ function saveConnection() {
 
         settingsParams.mpdBinarylimit = settingsParams.mpdBinarylimit * 1024;
         settingsParams.mpdTimeout = settingsParams.mpdTimeout * 1000;
-        btnWaitingId('modalConnectionApplyBtn', true);
+        btnWaiting(target, true);
         sendAPIpartition('default', 'MYMPD_API_CONNECTION_SAVE', settingsParams, saveConnectionClose, true);
     }
 }
@@ -114,15 +115,8 @@ function saveConnection() {
  * @returns {void}
  */
 function saveConnectionClose(obj) {
-    btnWaitingId('modalConnectionApplyBtn', false);
-    if (obj.error) {
-        if (highlightInvalidInput('modalConnection', obj) === false) {
-            showModalAlert(obj);
-        }
-    }
-    else {
+    if (modalClose(obj) === true) {
         getSettings();
-        uiElements.modalConnection.hide();
     }
 }
 

@@ -263,11 +263,12 @@ function saveLocalSettings() {
 
 /**
  * Saves the settings
+ * @param {Element} target triggering element
  * @param {boolean} closeModal true = close modal, else not
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function saveSettings(closeModal) {
+function saveSettings(target, closeModal) {
     cleanupModalId('modalSettings');
 
     const settingsParams = {};
@@ -277,7 +278,7 @@ function saveSettings(closeModal) {
         formToJson('modalSettings', localSettings, settingsLocalFields) === true)
     {
         if (saveLocalSettings() === false) {
-            saveSettingsClose({"error": {"message": "Can not save browser specific settings to localStorage"}});
+            modalClose({"error": {"message": "Can not save browser specific settings to localStorage"}});
             return;
         }
         // from hours to seconds
@@ -288,12 +289,11 @@ function saveSettings(closeModal) {
         settingsParams.tagListSearch = getTagMultiSelectValues(document.getElementById('modalSettingsSearchTagsList'), false);
         settingsParams.tagListBrowse = getTagMultiSelectValues(document.getElementById('modalSettingsBrowseTagsList'), false);
 
+        btnWaiting(target, true);
         if (closeModal === true) {
-            btnWaitingId('modalSettingsSaveBtn', true);
             sendAPIpartition('default', 'MYMPD_API_SETTINGS_SET', settingsParams, saveSettingsClose, true);
         }
         else {
-            btnWaitingId('modalSettingsApplyBtn', true);
             sendAPIpartition('default', 'MYMPD_API_SETTINGS_SET', settingsParams, saveSettingsApply, true);
         }
     }
@@ -305,13 +305,8 @@ function saveSettings(closeModal) {
  * @returns {void}
  */
 function saveSettingsClose(obj) {
-    if (obj.error) {
-        if (highlightInvalidInput('modalSettings', obj) === false) {
-            showModalAlert(obj);
-        }
-        btnWaitingId('modalSettingsSaveBtn', false);
-    }
-    else {
+    // modal is closed in the next close handler
+    if (modalApply(obj) === true) {
         savePartitionSettings(true);
     }
 }
@@ -322,13 +317,7 @@ function saveSettingsClose(obj) {
  * @returns {void}
  */
 function saveSettingsApply(obj) {
-    if (obj.error) {
-        if (highlightInvalidInput('modalSettings', obj) === false) {
-            showModalAlert(obj);
-        }
-        btnWaitingId('modalSettingsApplyBtn', false);
-    }
-    else {
+    if (modalApply(obj) === true) {
         savePartitionSettings(false);
     }
 }
@@ -356,15 +345,9 @@ function savePartitionSettings(closeModal) {
  * @returns {void}
  */
 function savePartitionSettingsApply(obj) {
-    if (obj.error) {
-        if (highlightInvalidInput('modalSettings', obj) === false) {
-            showModalAlert(obj);
-        }
-    }
-    else {
+    if (modalApply(obj) === true) {
         getSettings();
     }
-    btnWaitingId('modalSettingsApplyBtn', false);
 }
 
 /**
@@ -373,16 +356,9 @@ function savePartitionSettingsApply(obj) {
  * @returns {void}
  */
 function savePartitionSettingsClose(obj) {
-    if (obj.error) {
-        if (highlightInvalidInput('modalSettings', obj) === false) {
-            showModalAlert(obj);
-        }
-    }
-    else {
+    if (modalClose(obj) === true) {
         getSettings();
-        uiElements.modalSettings.hide();
     }
-    btnWaitingId('modalSettingsSaveBtn', false);
 }
 
 /**

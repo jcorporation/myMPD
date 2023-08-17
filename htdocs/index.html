@@ -1203,7 +1203,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button id="modalPlaylistAddToUriAddBtn" type="button" class="btn btn-success" data-href='{"cmd": "addToPlaylist", "options": []}' data-phrase="Add"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "addToPlaylist", "options": ["target"]}' data-phrase="Add"></button>
         </div>
       </div>
     </div>
@@ -1255,7 +1255,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button id="modalPlaylistCopyCopyBtn" type="button" class="btn btn-success" data-href='{"cmd": "copyPlaylist", "options": []}' data-phrase="Copy"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "copyPlaylist", "options": ["target"]}' data-phrase="Copy"></button>
         </div>
       </div>
     </div>
@@ -1599,8 +1599,8 @@
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
           <div>
-            <button id="modalSettingsApplyBtn" type="button" class="btn btn-success me-2 protected" data-href='{"cmd": "saveSettings", "options": [false]}' data-phrase="Apply"></button>
-            <button id="modalSettingsSaveBtn" type="button" class="btn btn-success protected" data-href='{"cmd": "saveSettings", "options": [true]}' data-phrase="Save"></button>
+            <button type="button" class="btn btn-success me-2 protected" data-href='{"cmd": "saveSettings", "options": ["target", false]}' data-phrase="Apply"></button>
+            <button type="button" class="btn btn-success protected" data-href='{"cmd": "saveSettings", "options": ["target", true]}' data-phrase="Save"></button>
           </div>
         </div>
       </div>
@@ -1709,7 +1709,7 @@
             <div class="position-relative me-2">
               <input data-is="mympd-select-new" id="modalPlaybackNameInput" data-placeholder-phrase="Optional preset name" class="form-control me-2"/>
             </div>
-            <button id="modalPlaybackSaveBtn" type="button" class="btn btn-success" data-href='{"cmd": "saveSettingsPlayback", "options": []}' data-phrase="Save"></button>
+            <button type="button" class="btn btn-success" data-href='{"cmd": "saveSettingsPlayback", "options": ["target"]}' data-phrase="Save"></button>
           </div>
         </div>
       </div>
@@ -1768,7 +1768,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary alwaysEnabled" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button id="modalConnectionApplyBtn" type="button" class="btn btn-success alwaysEnabled protected" data-href='{"cmd": "saveConnection", "options": []}' data-phrase="Save"></button>
+          <button type="button" class="btn btn-success alwaysEnabled protected" data-href='{"cmd": "saveConnection", "options": ["target"]}' data-phrase="Save"></button>
         </div>
       </div>
     </div>
