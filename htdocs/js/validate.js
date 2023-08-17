@@ -196,25 +196,6 @@ function validateUintEl(el) {
 }
 
 /**
- * Checks if the the value of the input element is an integer in range
- * @param {Element} el input element
- * @param {number} min minimum value (including)
- * @param {number} max maximum value (including)
- * @returns {boolean} true = integer in range, else false
- */
-function validateIntRangeEl(el, min, max) {
-    if (validateIntEl(el) === false) {
-        return false;
-    }
-    const intValue = Number(el.value);
-    if (intValue < min || intValue > max) {
-        setIsInvalid(el);
-        return false;
-    }
-    return true;
-}
-
-/**
  * Checks if the the value of the input element is a float
  * @param {Element} el input element
  * @returns {boolean} true = float, else false

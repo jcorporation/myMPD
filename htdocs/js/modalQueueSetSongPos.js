@@ -35,7 +35,7 @@ function setSongPos(target) {
     btnWaiting(target, true);
     const plist = getData(modal, 'plist');
     //MPD is zero indexed, display is 1-indexed
-    let newSongPos = Number(document.getElementById('modalQueueSetSongPosToInput').value) - 1;
+    const newSongPos = Number(document.getElementById('modalQueueSetSongPosToInput').value) - 1;
     if (plist === 'queue') {
         sendAPI("MYMPD_API_QUEUE_MOVE_ID", {
             "songIds": [getData(modal, 'songId')],

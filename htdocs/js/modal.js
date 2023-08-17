@@ -25,10 +25,11 @@ function openModal(modal) {
 
 /**
  * Sets the focus to the first input or select element
- * @param {EventTarget | Element} modal 
+ * @param {EventTarget | Element} container the parent of the elements
+ * @returns {void}
  */
-function focusFirstInput(modal) {
-    const input = modal.querySelector('.modal-body input, .modal-body select');
+function focusFirstInput(container) {
+    const input = container.querySelector('.modal-body input, .modal-body select');
     if (input) {
         setFocus(input);
     }
