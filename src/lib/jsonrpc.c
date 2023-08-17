@@ -698,7 +698,7 @@ bool json_get_time_max(sds s, const char *path, time_t *result, struct t_jsonrpc
             *result = value_time;
             return true;
         }
-        set_parse_error(error, path, "", "Number out of range for JSON path \"%s\"", path);
+        set_parse_error(error, path, "", "Number is out of valid range");
     }
     else {
         set_parse_error(error, path, "", "JSON path \"%s\" not found", path);
@@ -736,7 +736,7 @@ bool json_get_long(sds s, const char *path, long min, long max, long *result, st
             *result = value_long;
             return true;
         }
-        set_parse_error(error, path, "", "Number out of range for JSON path \"%s\"", path);
+        set_parse_error(error, path, "", "Number is out of valid range");
     }
     else {
         set_parse_error(error, path, "", "JSON path \"%s\" not found", path);
@@ -774,7 +774,7 @@ bool json_get_llong(sds s, const char *path, long long min, long long max, long 
             *result = value_llong;
             return true;
         }
-        set_parse_error(error, path, "", "Number out of range for JSON path \"%s\"", path);
+        set_parse_error(error, path, "", "Number is out of valid range");
     }
     else {
         set_parse_error(error, path, "", "JSON path \"%s\" not found", path);
@@ -811,7 +811,7 @@ bool json_get_uint(sds s, const char *path, unsigned min, unsigned max, unsigned
             *result = (unsigned)value;
             return true;
         }
-        set_parse_error(error, path, "", "Number out of range for JSON path \"%s\"", path);
+        set_parse_error(error, path, "", "Number is out of valid range");
     }
     else {
         set_parse_error(error, path, "", "JSON path \"%s\" not found", path);
