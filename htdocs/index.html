@@ -1349,64 +1349,64 @@
         </div>
         <div class="modal-body">
           <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="saveSmartPlaylistName" data-phrase="Name"></label>
+            <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditPlistInput" data-phrase="Name"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="saveSmartPlaylistName"/>
+              <input class="form-control" id="modalSmartPlaylistEditPlistInput"/>
               <div class="invalid-feedback" data-phrase="Invalid filename"></div>
             </div>
           </div>
           <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="saveSmartPlaylistType" data-phrase="Type"></label>
+            <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditTypeInput" data-phrase="Type"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="saveSmartPlaylistType" readonly="readonly"/>
+              <input class="form-control" id="modalSmartPlaylistEditTypeInput" readonly="readonly"/>
               <div class="invalid-feedback" data-phrase="Invalid type"></div>
             </div>
           </div>
           <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="saveSmartPlaylistSort" data-phrase="Order"></label>
+            <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditSortInput" data-phrase="Order"></label>
             <div class="col-sm-8">
-              <select id="saveSmartPlaylistSort" class="form-select"></select>
+              <select id="modalSmartPlaylistEditSortInput" class="form-select"></select>
             </div>
           </div>
           <hr/>
-          <div class="d-none" id="saveSmartPlaylistSearch">
+          <div class="d-none" id="modalSmartPlaylistEditTypeSearch">
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistExpression" data-phrase="Expression"></label>
+              <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditExpressionInput" data-phrase="Expression"></label>
               <div class="col-sm-8">
-                <input class="form-control" id="inputSaveSmartPlaylistExpression"/>
+                <input class="form-control" id="modalSmartPlaylistEditExpressionInput"/>
               </div>
             </div>
           </div>
-          <div class="d-none" id="saveSmartPlaylistSticker">
+          <div class="d-none" id="modalSmartPlaylistEditTypeSticker">
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="selectSaveSmartPlaylistSticker" data-phrase="Sticker"></label>
+              <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditStickerInput" data-phrase="Sticker"></label>
               <div class="col-sm-8">
-                <select id="selectSaveSmartPlaylistSticker" class="form-select">
+                <select id="modalSmartPlaylistEditStickerInput" class="form-select">
                   <option value="like" data-phrase="Like"></option>
                   <option value="playCount" data-phrase="Play count"></option>
                 </select>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistStickerMinvalue" data-phrase="Min. value"></label>
+              <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditMinvalueInput" data-phrase="Min. value"></label>
               <div class="col-sm-8">
-                <input class="form-control" id="inputSaveSmartPlaylistStickerMinvalue"/>
+                <input class="form-control" id="modalSmartPlaylistEditMinvalueInput"/>
                 <div class="invalid-feedback" data-phrase="Must be a number"></div>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistStickerMaxentries" data-phrase="Max. songs"></label>
+              <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditMaxentriesInput" data-phrase="Max. songs"></label>
               <div class="col-sm-8">
-                <input class="form-control" id="inputSaveSmartPlaylistStickerMaxentries"/>
+                <input class="form-control" id="modalSmartPlaylistEditMaxentriesInput"/>
                 <div class="invalid-feedback" data-phrase="Must be a number"></div>
               </div>
             </div>
           </div>
-          <div class="d-none" id="saveSmartPlaylistNewest">
+          <div class="d-none" id="modalSmartPlaylistEditTypeNewest">
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputSaveSmartPlaylistNewestTimerange" data-phrase="Timerange (days)"></label>
+              <label class="col-sm-4 col-form-label" for="modalSmartPlaylistEditTimerangeInput" data-phrase="Timerange (days)"></label>
               <div class="col-sm-8">
-                <input class="form-control" id="inputSaveSmartPlaylistNewestTimerange"/>
+                <input class="form-control" id="modalSmartPlaylistEditTimerangeInput"/>
                 <div class="invalid-feedback" data-phrase="Must be a number"></div>
               </div>
             </div>
@@ -1414,7 +1414,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success" data-href='{"cmd": "saveSmartPlaylist", "options": []}' data-phrase="Save"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "saveSmartPlaylist", "options": ["target"]}' data-phrase="Save"></button>
         </div>
       </div>
     </div>

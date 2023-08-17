@@ -23,28 +23,28 @@ function showSmartPlaylist(plist) {
  * @returns {void}
  */
 function parseSmartPlaylist(obj) {
-    document.getElementById('saveSmartPlaylistName').value = obj.result.plist;
-    document.getElementById('saveSmartPlaylistType').value = tn(obj.result.type);
-    document.getElementById('saveSmartPlaylistSort').value = obj.result.sort;
-    setDataId('saveSmartPlaylistType', 'value', obj.result.type);
-    elHideId('saveSmartPlaylistSearch');
-    elHideId('saveSmartPlaylistSticker');
-    elHideId('saveSmartPlaylistNewest');
+    document.getElementById('modalSmartPlaylistEditPlistInput').value = obj.result.plist;
+    document.getElementById('modalSmartPlaylistEditTypeInput').value = tn(obj.result.type);
+    document.getElementById('modalSmartPlaylistEditSortInput').value = obj.result.sort;
+    setDataId('modalSmartPlaylistEditTypeInput', 'value', obj.result.type);
+    elHideId('modalSmartPlaylistEditTypeSearch');
+    elHideId('modalSmartPlaylistEditTypeSticker');
+    elHideId('modalSmartPlaylistEditTypeNewest');
 
     switch(obj.result.type) {
         case 'search':
-            elShowId('saveSmartPlaylistSearch');
-            document.getElementById('inputSaveSmartPlaylistExpression').value = obj.result.expression;
+            elShowId('modalSmartPlaylistEditTypeSearch');
+            document.getElementById('modalSmartPlaylistEditExpressionInput').value = obj.result.expression;
             break;
         case 'sticker':
-            elShowId('saveSmartPlaylistSticker');
-            document.getElementById('selectSaveSmartPlaylistSticker').value = obj.result.sticker;
-            document.getElementById('inputSaveSmartPlaylistStickerMaxentries').value = obj.result.maxentries;
-            document.getElementById('inputSaveSmartPlaylistStickerMinvalue').value = obj.result.minvalue;
+            elShowId('modalSmartPlaylistEditTypeSticker');
+            document.getElementById('modalSmartPlaylistEditStickerInput').value = obj.result.sticker;
+            document.getElementById('modalSmartPlaylistEditMaxentriesInput').value = obj.result.maxentries;
+            document.getElementById('modalSmartPlaylistEditMinvalueInput').value = obj.result.minvalue;
             break;
         case 'newest':
-            elShowId('saveSmartPlaylistNewest');
-            document.getElementById('inputSaveSmartPlaylistNewestTimerange').value = obj.result.timerange / 24 / 60 / 60;
+            elShowId('modalSmartPlaylistEditTypeNewest');
+            document.getElementById('modalSmartPlaylistEditTimerangeInput').value = obj.result.timerange / 24 / 60 / 60;
             break;
         default:
             logError('Invalid smart playlist type: ' + obj.result.type);
@@ -55,75 +55,50 @@ function parseSmartPlaylist(obj) {
 
 /**
  * Saves a smart playlist
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function saveSmartPlaylist() {
+function saveSmartPlaylist(target) {
     cleanupModalId('modalSmartPlaylistEdit');
+    btnWaiting(target, true);
 
-    const name = document.getElementById('saveSmartPlaylistName').value;
-    const type = getDataId('saveSmartPlaylistType', 'value');
-    const sort = getSelectValueId('saveSmartPlaylistSort');
-    if (validatePlist(name) === false) {
-        document.getElementById('saveSmartPlaylistName').classList.add('is-invalid');
-        return;
-    }
+    const name = document.getElementById('modalSmartPlaylistEditPlistInput').value;
+    const type = getDataId('modalSmartPlaylistEditTypeInput', 'value');
+    const sort = getSelectValueId('modalSmartPlaylistEditSortInput');
 
     switch(type) {
         case 'search':
             sendAPI("MYMPD_API_SMARTPLS_SEARCH_SAVE", {
                 "plist": name,
-                "expression": document.getElementById('inputSaveSmartPlaylistExpression').value,
+                "expression": document.getElementById('modalSmartPlaylistEditExpressionInput').value,
                 "sort": sort
-            }, saveSmartPlaylistClose, true);
+            }, modalClose, true);
             break;
         case 'sticker': {
-            const maxentriesEl = document.getElementById('inputSaveSmartPlaylistStickerMaxentries');
-            if (!validateIntEl(maxentriesEl)) {
-                return;
-            }
-            const minvalueEl = document.getElementById('inputSaveSmartPlaylistStickerMinvalue');
-            if (!validateIntEl(minvalueEl)) {
-                return;
-            }
+            const maxentries = document.getElementById('modalSmartPlaylistEditMaxentriesInput').value;
+            const minvalue = document.getElementById('modalSmartPlaylistEditMinvalueInput').value;
             sendAPI("MYMPD_API_SMARTPLS_STICKER_SAVE", {
                 "plist": name,
-                "sticker": getSelectValueId('selectSaveSmartPlaylistSticker'),
-                "maxentries": Number(maxentriesEl.value),
-                "minvalue": Number(minvalueEl.value),
+                "sticker": getSelectValueId('modalSmartPlaylistEditStickerInput'),
+                "maxentries": Number(maxentries),
+                "minvalue": Number(minvalue),
                 "sort": sort
-            }, saveSmartPlaylistClose, true);
+            }, modalClose, true);
             break;
         }
         case 'newest': {
-            const timerangeEl = document.getElementById('inputSaveSmartPlaylistNewestTimerange');
-            if (!validateIntEl(timerangeEl)) {
-                return;
-            }
+            const timerange = document.getElementById('modalSmartPlaylistEditTimerangeInput').value;
             sendAPI("MYMPD_API_SMARTPLS_NEWEST_SAVE", {
                 "plist": name,
-                "timerange": Number(timerangeEl.value) * 60 * 60 * 24,
+                "timerange": Number(timerange.value) * 60 * 60 * 24,
                 "sort": sort
-            }, saveSmartPlaylistClose, true);
+            }, modalClose, true);
             break;
         }
         default:
-            document.getElementById('saveSmartPlaylistType').classList.add('is-invalid');
-    }
-}
-
-/**
- * Handles the MYMPD_API_SMARTPLS_*_SAVE responses
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function saveSmartPlaylistClose(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
-        uiElements.modalSmartPlaylistEdit.hide();
-        showNotification(tn('Saved smart playlist'), 'playlist', 'info');
+            document.getElementById('modalSmartPlaylistEditTypeInput').classList.add('is-invalid');
+            btnWaiting(target, false);
     }
 }
 

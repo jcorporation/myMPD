@@ -142,7 +142,7 @@ function addTagList(elId, list) {
 function addTagListSelect(elId, list) {
     const select = document.getElementById(elId);
     elClear(select);
-    if (elId === 'saveSmartPlaylistSort' ||
+    if (elId === 'modalSmartPlaylistEditSortInput' ||
         elId === 'modalSettingsSmartplsSortInput')
     {
         select.appendChild(

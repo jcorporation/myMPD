@@ -1327,7 +1327,10 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     rc = smartpls_save_search(config->workdir, sds_buf1, sds_buf2, sds_buf3);
                 }
             }
-            response->data = jsonrpc_respond_with_ok_or_error(response->data, request->cmd_id, request->id, rc, JSONRPC_FACILITY_PLAYLIST, "Failed saving smart playlist");
+            if (parse_error.message == NULL) {
+                response->data = jsonrpc_respond_with_message_or_error(response->data, request->cmd_id, request->id, rc, 
+                    JSONRPC_FACILITY_PLAYLIST, "Smart playlist saved successfully", "Saving smart playlist failed");
+            }
             if (rc == true) {
                 //update currently saved smart playlist
                 smartpls_update(sds_buf1);

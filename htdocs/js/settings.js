@@ -439,7 +439,7 @@ function parseMPDSettings() {
     addTagList('BrowseDatabaseAlbumListSortTagsList', 'tagListBrowse');
     addTagList('BrowsePlaylistDetailSortTagsDropdown', 'tagList');
 
-    addTagListSelect('saveSmartPlaylistSort', 'tagList');
+    addTagListSelect('modalSmartPlaylistEditSortInput', 'tagList');
 }
 
 /**
