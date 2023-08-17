@@ -14,56 +14,39 @@
  */
 //eslint-disable-next-line no-unused-vars
 function showSetSongPos(plist, oldSongPos, songId) {
-    cleanupModalId('modalQueueSetSongPos');
-    document.getElementById('inputSongPosNew').value = '';
-    document.getElementById('inputSongPosOld').value = oldSongPos;
-    document.getElementById('inputSongId').value = songId;
-    document.getElementById('inputSongPosPlist').value = plist;
+    const modal = document.getElementById('modalQueueSetSongPos');
+    cleanupModal(modal);
+    setData(modal, 'songPosOld', oldSongPos);
+    setData(modal, 'songId', songId);
+    setData(modal, 'plist', plist);
+    document.getElementById('modalQueueSetSongPosToInput').value = '';
     uiElements.modalQueueSetSongPos.show();
 }
 
 /**
  * Sets song position in queue or playlist
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function setSongPos() {
-    cleanupModalId('modalQueueSetSongPos');
-    const plist = document.getElementById('inputSongPosPlist').value;
-    const oldSongPos = Number(document.getElementById('inputSongPosOld').value);
-    const songId = Number(document.getElementById('inputSongId').value);
-    const newSongPosEl = document.getElementById('inputSongPosNew');
-    if (validateIntRangeEl(newSongPosEl, 1, 99999) === true) {
-        let newSongPos = Number(newSongPosEl.value);
-        if (newSongPos < oldSongPos) {
-            newSongPos--;
-        }
-        if (plist === 'queue') {
-            sendAPI("MYMPD_API_QUEUE_MOVE_ID", {
-                "songIds": [songId],
-                "to": newSongPos
-            }, setSongPosCheckError, true);
-        }
-        else {
-            sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_POSITION", {
-                "plist": plist,
-                "from": oldSongPos,
-                "to": newSongPos
-            }, setSongPosCheckError, true);
-        }
-    }
-}
-
-/**
- * Handles the MYMPD_API_QUEUE_MOVE_ID and MYMPD_API_PLAYLIST_CONTENT_MOVE_POSITION jsonrpc response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function setSongPosCheckError(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
+function setSongPos(target) {
+    const modal = document.getElementById('modalQueueSetSongPos');
+    cleanupModal(modal);
+    btnWaiting(target, true);
+    const plist = getData(modal, 'plist');
+    //MPD is zero indexed, display is 1-indexed
+    let newSongPos = Number(document.getElementById('modalQueueSetSongPosToInput').value) - 1;
+    if (plist === 'queue') {
+        sendAPI("MYMPD_API_QUEUE_MOVE_ID", {
+            "songIds": [getData(modal, 'songId')],
+            "to": newSongPos
+        }, modalClose, true);
     }
     else {
-        uiElements.modalQueueSetSongPos.hide();
+        sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_POSITION", {
+            "plist": plist,
+            "from": getData(modal, 'songPosOld'),
+            "to": newSongPos
+        }, modalClose, true);
     }
 }

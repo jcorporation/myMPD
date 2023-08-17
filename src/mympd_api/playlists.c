@@ -450,10 +450,6 @@ bool mympd_api_playlist_content_replace_album_disc(struct t_partition_state *par
  * @return true on success, else false
  */
 bool mympd_api_playlist_content_move(struct t_partition_state *partition_state, sds plist, unsigned from, unsigned to, sds *error) {
-    if (from < to) {
-        // decrease to position
-        to--;
-    }
     mpd_run_playlist_move(partition_state->conn, plist, from, to);
     return mympd_check_error_and_recover(partition_state, error, "mpd_run_playlist_move");
 }
