@@ -148,8 +148,8 @@ function webSocketConnect() {
                         sendAPI('MYMPD_API_PLAYLIST_CONTENT_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
-                            "searchstr": app.current.search,
-                            "plist": app.current.filter,
+                            "expression": app.current.search,
+                            "plist": app.current.tag,
                             "cols": settings.colsBrowsePlaylistDetailFetch
                         }, parsePlaylistDetail, false);
                     }
@@ -160,7 +160,7 @@ function webSocketConnect() {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
                             "cols": settings.colsQueueLastPlayedFetch,
-                            "searchstr": app.current.search
+                            "expression": app.current.search
                         }, parseLastPlayed, false);
                     }
                     break;
