@@ -1788,17 +1788,17 @@
       <div class="modal-header pb-0">
         <ul class="nav nav-tabs border-bottom-0">
           <li class="nav-item">
-            <a class="nav-link active alwaysEnabled" href="#tabAbout" data-bs-toggle="tab" data-height="true" data-phrase="About"></a>
+            <a class="nav-link active alwaysEnabled" href="#modalAboutTabAbout" data-bs-toggle="tab" data-height="true" data-phrase="About"></a>
           </li>
           <li class="nav-item">
-            <a class="nav-link alwaysEnabled" href="#tabShortcuts" data-bs-toggle="tab" data-height="true" data-phrase="Shortcuts"></a>
+            <a class="nav-link alwaysEnabled" href="#modalAboutTabShortcuts" data-bs-toggle="tab" data-height="true" data-phrase="Shortcuts"></a>
           </li>
         </ul>
         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
       </div>
       <div class="modal-body">
         <div class="tab-content">
-          <div class="tab-pane active" id="tabAbout">
+          <div class="tab-pane active" id="modalAboutTabAbout">
             <h4 class="mb-3">
             <svg class="me-2" version="1.1" viewBox="0 0 8.4666665 8.4666669" xmlns="http://www.w3.org/2000/svg">
               <ellipse class="logoBg" cx="4.2333" cy="4.2333" rx="4.2333" ry="4.2333" fill="#28a745"/>
@@ -1808,7 +1808,7 @@
               <path class="logoFg" d="m5.1187 2.4563v3.554l2.7826-1.777z" fill="#fff" stroke-width=".26458"/>
             </svg>myMPD</h4>
             <ul>
-              <li><span data-phrase="Version"></span>: <span id="mympdVersion"></span></li>
+              <li><span data-phrase="Version"></span>: <span id="modalAboutMympdVersion"></span></li>
               <li><span data-phrase="License"></span>: <a class="text-success external" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/myMPD/blob/master/LICENSE.md">GPLv3</a></li>
               <li><span data-phrase="Homepage"></span>: <a class="text-success external" target="_blank" rel="noreferrer" href="https://github.com/jcorporation/mympd">https://github.com/jcorporation/mympd</a></li>
               <li><a target="_blank" rel="noreferrer" href="https://github.com/jcorporation/myMPD/discussions/167" class="text-success external" data-phrase="Help to improve myMPD"></a></li>
@@ -1819,21 +1819,21 @@
               <table class="table table-sm">
                 <tbody>
                   <tr><td colspan="2" class="pt-3"><h5 data-phrase="Database statistics"></h5></td></tr>
-                  <tr><th data-phrase="Artists">Artists</th><td id="mpdstatsArtists"></td></tr>
-                  <tr><th data-phrase="Albums"></th><td id="mpdstatsAlbums"></td></tr>
-                  <tr><th data-phrase="Songs"></th><td id="mpdstatsSongs"></td></tr>
-                  <tr><th data-phrase="DB play time"></th><td id="mpdstatsDbPlaytime"></td></tr>
-                  <tr><th data-phrase="DB updated"></th><td id="mpdstatsDbUpdated"></td></tr>
+                  <tr><th data-phrase="Artists">Artists</th><td id="modalAboutArtistCount"></td></tr>
+                  <tr><th data-phrase="Albums"></th><td id="modalAboutAlbumCount"></td></tr>
+                  <tr><th data-phrase="Songs"></th><td id="modalAboutSongCount"></td></tr>
+                  <tr><th data-phrase="DB play time"></th><td id="modalAboutDbPlaytime"></td></tr>
+                  <tr><th data-phrase="DB updated"></th><td id="modalAboutDbUpdated"></td></tr>
                   <tr><td colspan="2" class="pt-3"><h5 data-phrase="Playback statistics"></h5></td></tr>
-                  <tr><th data-phrase="myMPD uptime"></th><td id="mpdstatsMympd_uptime"></td></tr>
-                  <tr><th data-phrase="MPD uptime"></th><td id="mpdstatsUptime"></td></tr>
-                  <tr><th data-phrase="Play time"></th><td id="mpdstatsPlaytime"></td></tr>
+                  <tr><th data-phrase="myMPD uptime"></th><td id="modalAboutMympdUptime"></td></tr>
+                  <tr><th data-phrase="MPD uptime"></th><td id="modalAboutUptime"></td></tr>
+                  <tr><th data-phrase="Play time"></th><td id="modalAboutPlaytime"></td></tr>
                   <tr><td colspan="2" class="pt-3"><h5>MPD</h5></td></tr>
-                  <tr><th data-phrase="Connection"></th><td id="mpdInfoHost"></td></tr>
-                  <tr><th data-phrase="Protocol version"></th><td id="mpdInfoVersion"></td></tr>
+                  <tr><th data-phrase="Connection"></th><td id="modalAboutConnection"></td></tr>
+                  <tr><th data-phrase="Protocol version"></th><td id="modalAboutProtocolVersion"></td></tr>
                   <tr><td colspan="2" class="pt-3"><h5 data-phrase="Webserver"></h5></td></tr>
-                  <tr><th data-phrase="IP-Address"></th><td id="wsIP"></td></tr>
-                  <tr><th data-phrase="myMPD uri"></th><td id="myMPDuri"></td></tr>
+                  <tr><th data-phrase="IP-Address"></th><td id="modalAboutWebserverIP"></td></tr>
+                  <tr><th data-phrase="myMPD uri"></th><td id="modalAboutMympdUri"></td></tr>
                   <tr class="featCacert"><th data-phrase="myMPD CA"></th>
                     <td><a class="text-success download alwaysEnabled" href="ca.crt" target="_blank" data-phrase="Download"></a></td>
                   </tr>
@@ -1841,9 +1841,7 @@
               </table>
             </div>
           </div>
-          <div class="tab-pane" id="tabShortcuts">
-            <div id="shortcutList" class="row"></div>
-          </div>
+          <div class="tab-pane" id="modalAboutTabShortcuts"></div>
         </div>
       </div>
     </div>
@@ -1857,23 +1855,23 @@
         <div class="modal-header pb-0">
           <ul class="nav nav-tabs border-bottom-0">
             <li class="nav-item">
-              <a class="nav-link active" href="#tabSongDetails" data-bs-toggle="tab" data-height="true" data-phrase="Song details"></a>
+              <a class="nav-link active" href="#modalSongDetailsTabTags" data-bs-toggle="tab" data-height="true" data-phrase="Song details"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#tabSongPics" data-bs-toggle="tab" data-height="true" data-phrase="Pictures"></a>
+              <a class="nav-link" href="#modalSongDetailsTabPics" data-bs-toggle="tab" data-height="true" data-phrase="Pictures"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link featLyrics" href="#tabSongLyrics" data-bs-toggle="tab" data-height="true" data-phrase="Lyrics"></a>
+              <a class="nav-link featLyrics" href="#modalSongDetailsTabLyrics" data-bs-toggle="tab" data-height="true" data-phrase="Lyrics"></a>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#tabSongComments" data-bs-toggle="tab" data-height="true" data-phrase="Comments"></a>
+              <a class="nav-link" href="#modalSongDetailsTabComments" data-bs-toggle="tab" data-height="true" data-phrase="Comments"></a>
             </li>
           </ul>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <div class="tab-content">
-            <div class="tab-pane active" id="tabSongDetails">
+            <div class="tab-pane active" id="modalSongDetailsTabTags">
               <h1 class="text-break mb-4"></h1>
               <div class="row">
                 <div class="col-12 col-md-4 mb-3">
@@ -1882,21 +1880,21 @@
                 <div class="col-12 col-md-8">
                   <div class="table-responsive">
                     <table class="table table-sm">
-                      <tbody id="tbodySongDetails"></tbody>
+                      <tbody id="modalSongDetailsTagsList"></tbody>
                     </table>
                   </div>
                 </div>
               </div>
             </div>
-            <div class="tab-pane pb-3" id="tabSongPics"></div>
-            <div class="tab-pane" id="tabSongLyrics">
+            <div class="tab-pane pb-3" id="modalSongDetailsTabPics"></div>
+            <div class="tab-pane" id="modalSongDetailsTabLyrics">
               <h1 class="text-break"></h1>
-              <div id="lyricsText"></div>
+              <div id="modalSongDetailsTabPicsLyricsText"></div>
             </div>
-            <div class="tab-pane" id="tabSongComments">
+            <div class="tab-pane" id="modalSongDetailsTabComments">
               <div class="col table-responsive">
                 <table class="table table-sm">
-                  <tbody id="tbodySongComments"></tbody>
+                  <tbody id="modalSongDetailsCommentsList"></tbody>
                 </table>
               </div>
             </div>
@@ -2973,6 +2971,7 @@
 <!--debug-->  <script src="js/lyrics.js"></script>
 <!--debug-->  <script src="js/modalHomeIcon.js"></script>
 <!--debug-->  <script src="js/modal.js"></script>
+<!--debug-->  <script src="js/modalAbout.js"></script>
 <!--debug-->  <script src="js/modalMaintenance.js"></script>
 <!--debug-->  <script src="js/modalMounts.js"></script>
 <!--debug-->  <script src="js/modalNotifications.js"></script>

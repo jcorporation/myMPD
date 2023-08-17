@@ -18,49 +18,6 @@ function clearMPDerror() {
 }
 
 /**
- * Parses the MYMPD_API_STATS jsonrpc response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function parseStats(obj) {
-    document.getElementById('mpdstatsArtists').textContent = obj.result.artists;
-    document.getElementById('mpdstatsAlbums').textContent = obj.result.albums;
-    document.getElementById('mpdstatsSongs').textContent = obj.result.songs;
-    document.getElementById('mpdstatsDbPlaytime').textContent = fmtDuration(obj.result.dbPlaytime);
-    document.getElementById('mpdstatsPlaytime').textContent = fmtDuration(obj.result.playtime);
-    document.getElementById('mpdstatsUptime').textContent = fmtDuration(obj.result.uptime);
-    document.getElementById('mpdstatsMympd_uptime').textContent = fmtDuration(obj.result.myMPDuptime);
-    document.getElementById('mpdstatsDbUpdated').textContent = fmtDate(obj.result.dbUpdated);
-    document.getElementById('mympdVersion').textContent = obj.result.mympdVersion;
-    document.getElementById('myMPDuri').textContent = obj.result.myMPDuri;
-
-    const mpdInfoVersionEl = document.getElementById('mpdInfoVersion');
-    elClear(mpdInfoVersionEl);
-    mpdInfoVersionEl.appendChild(document.createTextNode(obj.result.mpdProtocolVersion));
-
-    const mpdProtocolVersion = obj.result.mpdProtocolVersion.match(/(\d+)\.(\d+)\.(\d+)/);
-    if ((mpdProtocolVersion[1] < mpdVersion.major) ||
-        (mpdProtocolVersion[1] <= mpdVersion.major && mpdProtocolVersion[2] < mpdVersion.minor) ||
-        (mpdProtocolVersion[1] <= mpdVersion.major && mpdProtocolVersion[2] <= mpdVersion.minor && mpdProtocolVersion[3] < mpdVersion.patch)
-       )
-    {
-        mpdInfoVersionEl.appendChild(
-            elCreateTextTn('div', {"class": ["alert", "alert-warning", "mt-2", "mb-1"]}, 'MPD version is outdated')
-        );
-    }
-}
-
-/**
- * Gets the serverinfo (ip address)
- * @returns {void}
- */
-function getServerinfo() {
-    httpGet(subdir + '/serverinfo', function(obj) {
-        document.getElementById('wsIP').textContent = obj.result.ip;
-    }, true);
-}
-
-/**
  * Creates the elapsed / duration counter text
  * @returns {string} song counter text
  */

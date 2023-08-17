@@ -217,8 +217,8 @@ function appInit() {
     //init modules
     initBrowse();
     initContextMenuOffcanvas();
-    initGlobalModals();
     initLocalPlayback();
+    initModalAbout();
     initModalHomeIcon();
     initModalMaintenance();
     initModalMounts();
@@ -379,51 +379,6 @@ function appInit() {
     window.addEventListener('beforeunload', function() {
         webSocketClose();
     });
-}
-
-/**
- * Initializes the html elements
- * @returns {void}
- */
-function initGlobalModals() {
-    const tab = document.getElementById('tabShortcuts');
-    elClear(tab);
-    const keys = Object.keys(keymap).sort((a, b) => {
-        return keymap[a].order - keymap[b].order;
-    });
-    for (const key of keys) {
-        if (keymap[key].cmd === undefined) {
-            tab.appendChild(
-                elCreateNode('div', {"class": ["row", "mb-2", "mt-3"]},
-                    elCreateNode('div', {"class": ["col-12"]},
-                        elCreateTextTn('h5', {}, keymap[key].desc)
-                    )
-                )
-            );
-            tab.appendChild(
-                elCreateEmpty('div', {"class": ["row"]})
-            );
-            continue;
-        }
-        const col = elCreateEmpty('div', {"class": ["col", "col-6", "mb-3", "align-items-center"]});
-        if (keymap[key].feature !== undefined) {
-            col.classList.add(keymap[key].feature);
-        }
-        const k = elCreateText('div', {"class": ["key", "float-start"]}, (keymap[key].key !== undefined ? keymap[key].key : key));
-        if (keymap[key].key && keymap[key].key.length > 1) {
-            k.classList.add('mi', 'mi-sm');
-        }
-        col.appendChild(k);
-        col.appendChild(
-            elCreateTextTn('div', {}, keymap[key].desc)
-        );
-        tab.lastChild.appendChild(col);
-    }
-
-    document.getElementById('modalAbout').addEventListener('show.bs.modal', function () {
-        sendAPI("MYMPD_API_STATS", {}, parseStats, false);
-        getServerinfo();
-    }, false);
 }
 
 /**

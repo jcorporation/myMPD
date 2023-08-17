@@ -10,7 +10,7 @@
  * @returns {void}
  */
 function initModalSongDetails() {
-    document.getElementById('tbodySongDetails').addEventListener('click', function(event) {
+    document.getElementById('modalSongDetailsTagsList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             if (event.target.id === 'calcFingerprint') {
                 sendAPI("MYMPD_API_SONG_FINGERPRINT", {
@@ -118,7 +118,7 @@ function parseSongDetails(obj) {
     for (let i = 0, j = elH1s.length; i < j; i++) {
         elH1s[i].textContent = obj.result.Title;
     }
-    const tbody = document.getElementById('tbodySongDetails');
+    const tbody = document.getElementById('modalSongDetailsTagsList');
     elClear(tbody);
     for (let i = 0, j = settings.tagList.length; i < j; i++) {
         if (settings.tagList[i] === 'Title' ||
@@ -252,11 +252,11 @@ function parseSongDetails(obj) {
     }
     //populate other tabs
     if (features.featLyrics === true) {
-        getLyrics(obj.result.uri, document.getElementById('lyricsText'));
+        getLyrics(obj.result.uri, document.getElementById('modalSongDetailsTabPicsLyricsText'));
     }
-    getComments(obj.result.uri, document.getElementById('tbodySongComments'));
-    const imgEl = document.getElementById('tabSongPics');
-    createImgCarousel(imgEl, 'songPicsCarousel', obj.result.uri, obj.result.images, obj.result.embeddedImageCount);
+    getComments(obj.result.uri, document.getElementById('modalSongDetailsCommentsList'));
+    const imgEl = document.getElementById('modalSongDetailsTabPics');
+    createImgCarousel(imgEl, 'modalSongDetailsPicsCarousel', obj.result.uri, obj.result.images, obj.result.embeddedImageCount);
 }
 
 /**

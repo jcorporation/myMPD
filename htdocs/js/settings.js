@@ -151,7 +151,7 @@ function parseSettings(obj) {
     }
 
     //Info in about modal
-    document.getElementById('mpdInfoHost').textContent = settings.mpdHost.indexOf('/') !== 0 ?
+    document.getElementById('modalAboutConnection').textContent = settings.mpdHost.indexOf('/') !== 0 ?
         settings.mpdHost + ':' + settings.mpdPort : settings.mpdHost;
 
     document.documentElement.style.setProperty('--mympd-thumbnail-size', settings.webuiSettings.thumbnailSize + "px");
