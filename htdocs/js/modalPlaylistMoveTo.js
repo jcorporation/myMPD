@@ -16,7 +16,7 @@ function showMoveToPlaylist(srcPlist, positions) {
     cleanupModal(modal);
     setData(modal, 'srcPlist', srcPlist);
     setData(modal, 'positions', positions);
-    filterPlaylistsSelect(1, 'modalPlaylistMoveToDstPlist', '', '');
+    filterPlaylistsSelect(1, 'modalPlaylistMoveToDstPlistInput', '', '');
     const positionsHuman = [];
     for (const pos of positions) {
         positionsHuman.push(pos + 1);
@@ -34,14 +34,12 @@ function showMoveToPlaylist(srcPlist, positions) {
 function moveToPlaylist(target) {
     const modal = document.getElementById('modalPlaylistMoveTo');
     cleanupModal(modal);
-    const srcPlist = getData(modal, 'srcPlist');
-    const positions = getData(modal, 'positions');
     const mode = getRadioBoxValueId('modalPlaylistMoveToPos');
     btnWaiting(target, true);
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_TO_PLAYLIST", {
-        "srcPlist": srcPlist,
-        "dstPlist": document.getElementById('modalPlaylistMoveToDstPlist').value,
-        "positions": positions,
+        "srcPlist": getData(modal, 'srcPlist'),
+        "dstPlist": document.getElementById('modalPlaylistMoveToDstPlistInput').value,
+        "positions": getData(modal, 'positions'),
         "mode": Number(mode)
     }, modalClose, true);
 }

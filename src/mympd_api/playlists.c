@@ -70,6 +70,10 @@ bool mympd_api_playlist_content_move_to_playlist(struct t_partition_state *parti
         *error = sdscat(*error, "No song positions provided");
         return false;
     }
+    if (strcmp(src_plist, dst_plist) == 0) {
+        *error = sdscat(*error, "Source and destination playlists are the same");
+        return false;
+    }
     struct t_list src;
     list_init(&src);
     //get source playlist

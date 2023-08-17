@@ -1079,5 +1079,7 @@
     "Mono": "Mono",
     "Destination playlist": "Ziel-Wiedergabeliste",
     "Playlists to copy": "Zu kopierende Wiedergabelisten",
-    "Entities to add": "Hinzuzufügende Objekte"
+    "Entities to add": "Hinzuzufügende Objekte",
+    "Positions to move": "Zu verschiebende Positionen",
+    "Source and destination playlists are the same": "Quell- und Zielwiedergabeliste ist dieselbe"
 }
