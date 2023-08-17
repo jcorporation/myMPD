@@ -17,7 +17,11 @@ function showMoveToPlaylist(srcPlist, positions) {
     setData(modal, 'srcPlist', srcPlist);
     setData(modal, 'positions', positions);
     filterPlaylistsSelect(1, 'modalPlaylistMoveToDstPlist', '', '');
-    populateEntities('modalPlaylistMoveToPositions', positions);
+    const positionsHuman = [];
+    for (const pos of positions) {
+        positionsHuman.push(pos + 1);
+    }
+    populateEntities('modalPlaylistMoveToPositions', positionsHuman);
     uiElements.modalPlaylistMoveTo.show();
 }
 
