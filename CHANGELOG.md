@@ -10,6 +10,11 @@ This release improves hopefully the user experience by providing descriptive hel
 
 As in most recent releases, the source code has been cleaned up further. The most changes are made in the frontend code.
 
+### Notes
+
+- Some of the UI related settings are reset to default
+- Old home icon links to some views are invalid
+
 ### API changes
 
 This release changes some API methods.
