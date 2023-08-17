@@ -213,6 +213,10 @@ function setSelectSearch(el) {
     el.filterResult = filterResult;
     el.classList.add('innerButton');
     setData(el, 'value', el.value);
+    el.setValue = function(value, valueTn) {
+        el.value = valueTn;
+        setData(el, 'value', value);
+    };
     el.addEventListener('keyup', function(event) {
         setData(el, 'value', event.target.value);
     }, false);
@@ -287,6 +291,10 @@ function setSelectSearch(el) {
     el.filterResult = filterResult;
     el.classList.add('innerButton');
     setData(el, 'value', el.value);
+    el.setValue = function(value, valueTn) {
+        el.value = valueTn;
+        setData(el, 'value', value);
+    };
     el.addEventListener('keyup', function(event) {
         setData(el, 'value', event.target.value);
     }, false);

@@ -11,6 +11,7 @@ interface ChildNode {
 }
 
 interface Element {
+    setValue: any; //custom elements
     addFilterResult: any; //custom elements
     addFilterResultPlain: any; //custom elements
     button: any; //custom elements
