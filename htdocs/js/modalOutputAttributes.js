@@ -12,7 +12,7 @@
 function showListOutputAttributes(outputName) {
     cleanupModalId('modalOutputAttributes');
     sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
-        const tbody = document.getElementById('outputAttributesList');
+        const tbody = document.getElementById('modalOutputAttributesList');
         if (checkResult(obj, tbody) === false) {
             return;
         }
@@ -33,8 +33,8 @@ function showListOutputAttributes(outputName) {
  * @returns {void}
  */
 function parseOutputAttributes(output) {
-    document.getElementById('modalOutputAttributesId').value = output.id;
-    const tbody = document.getElementById('outputAttributesList');
+    setDataId('modalOutputAttributes', 'outputId', output.id);
+    const tbody = document.getElementById('modalOutputAttributesList');
     elClear(tbody);
     for (const n of ['name', 'state', 'plugin']) {
         if (n === 'state') {
@@ -60,40 +60,29 @@ function parseOutputAttributes(output) {
         );
     }
     if (i > 0) {
-        elEnableId('btnOutputAttributesSave');
+        elEnableId('modalOutputAttributesSaveBtn');
     }
     else {
-        elDisableId('btnOutputAttributesSave');
+        elDisableId('modalOutputAttributesSaveBtn');
     }
 }
 
 /**
  * Saves the output attributes
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function saveOutputAttributes() {
-    cleanupModalId('modalOutputAttributes');
+function saveOutputAttributes(target) {
+    const modal = document.getElementById('modalOutputAttributes');
+    cleanupModal(modal);
     const params = {};
-    params.outputId = Number(document.getElementById('modalOutputAttributesId').value);
+    params.outputId = getData(modal, 'outputId');
     params.attributes = {};
-    const els = document.querySelectorAll('#outputAttributesList input');
+    const els = document.querySelectorAll('#modalOutputAttributesList input');
     for (let i = 0, j = els.length; i < j; i++) {
         params.attributes[els[i].name] = els[i].value;
     }
-    sendAPI('MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET', params, saveOutputAttributesClose, true);
-}
-
-/**
- * Handler for MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function saveOutputAttributesClose(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
-        uiElements.modalOutputAttributes.hide();
-    }
+    btnWaiting(target, true);
+    sendAPI('MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET', params, modalClose, true);
 }

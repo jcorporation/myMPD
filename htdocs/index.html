@@ -2323,19 +2323,18 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <input type="hidden" id="modalOutputAttributesId"/>
           <div class="table-responsive overflow-auto">
             <table class="table table-sm">
               <thead>
                 <tr><th data-phrase="Attribute"></th><th data-phrase="Value"></th></tr>
               </thead>
-              <tbody id="outputAttributesList"></tbody>
+              <tbody id="modalOutputAttributesList"></tbody>
             </table>
           </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button id="btnOutputAttributesSave" data-href='{"cmd":"saveOutputAttributes","options":[]}' type="button" class="btn btn-success protected" data-phrase="Set"></button>
+          <button id="modalOutputAttributesSaveBtn" data-href='{"cmd":"saveOutputAttributes","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Set"></button>
         </div>
       </div>
     </div>
