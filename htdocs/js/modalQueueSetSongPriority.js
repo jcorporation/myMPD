@@ -10,10 +10,8 @@
  * @returns {void}
  */
 function initModalSetSongPriority() {
-    document.getElementById('modalQueueSetSongPriority').addEventListener('shown.bs.modal', function() {
-        const prioEl = document.getElementById('inputSongPriority');
-        setFocus(prioEl);
-        prioEl.value = '';
+    document.getElementById('modalQueueSetSongPriority').addEventListener('show.bs.modal', function() {
+        document.getElementById('modalQueueSetSongPriorityPriorityInput').value = '';
         cleanupModalId('modalQueueSetSongPriority');
     });
 }
@@ -25,39 +23,25 @@ function initModalSetSongPriority() {
  */
 //eslint-disable-next-line no-unused-vars
 function showSetSongPriority(songId) {
-    cleanupModalId('modalQueueSetSongPriority');
-    document.getElementById('inputSongPrioritySondId').value = songId;
+    const modal = document.getElementById('modalQueueSetSongPriority');
+    cleanupModal(modal);
+    setData(modal, 'songId', songId);
     uiElements.modalQueueSetSongPriority.show();
 }
 
 /**
  * Sets song priority
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function setSongPriority() {
-    cleanupModalId('modalQueueSetSongPriority');
+function setSongPriority(target) {
+    const modal = document.getElementById('modalQueueSetSongPriority');
+    cleanupModal(modal);
+    btnWaiting(target, true);
 
-    const songId = Number(document.getElementById('inputSongPrioritySongId').value);
-    const priorityEl = document.getElementById('inputSongPriority');
-    if (validateIntRangeEl(priorityEl, 0, 255) === true) {
-        sendAPI("MYMPD_API_QUEUE_PRIO_SET", {
-            "songIds": [songId],
-            "priority": Number(priorityEl.value)
-        }, setSongPriorityCheckError, true);
-    }
-}
-
-/**
- * Handles the MYMPD_API_QUEUE_PRIO_SET jsonrpc response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function setSongPriorityCheckError(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
-        uiElements.modalQueueSetSongPriority.hide();
-    }
+    sendAPI("MYMPD_API_QUEUE_PRIO_SET", {
+        "songIds": [getData(modal, 'songId')],
+        "priority": Number(document.getElementById('modalQueueSetSongPriorityPriorityInput').value)
+    }, modalClose, true);
 }

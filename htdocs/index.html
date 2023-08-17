@@ -2668,18 +2668,17 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <input type="hidden" id="inputSongPrioritySongId"/>
           <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="inputSongPriority" data-phrase="Priority"></label>
+            <label class="col-sm-4 col-form-label" for="modalQueueSetSongPriorityPriorityInput" data-phrase="Priority"></label>
             <div class="col-sm-8">
-              <input id="inputSongPriority" class="form-control"/>
+              <input id="modalQueueSetSongPriorityPriorityInput" class="form-control"/>
               <div class="invalid-feedback" data-phrase="Priority must be in range 0 - 255"></div>
             </div>
           </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"setSongPriority","options":[]}' type="button" class="btn btn-success" data-phrase="Set"></button>
+          <button data-href='{"cmd":"setSongPriority","options":["target"]}' type="button" class="btn btn-success" data-phrase="Set"></button>
         </div>
       </div>
     </div>
