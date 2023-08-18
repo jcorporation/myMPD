@@ -45,7 +45,7 @@ function getLyrics(uri, el) {
  * @returns {void}
  */
 function createLyricsTabs(el, obj) {
-    const lyricsTabs = elCreateEmpty('div', {"class": [ "lyricsTabs"]});
+    const lyricsTabs = elCreateEmpty('div', {"class": [ "lyricsTabs", "btn-toolbar"]});
     const lyrics = elCreateEmpty('div', {"class": ["lyricsTextContainer", "mt-3"]});
     const currentLyrics = el.parentNode.getAttribute('id') === 'currentLyrics' ? true : false;
     showSyncedLyrics = false;
@@ -133,6 +133,7 @@ function createLyricsTabs(el, obj) {
                 //synced lyrics scrolling button
                 elShow(ls);
                 ls.addEventListener('click', function(event) {
+                    toggleBtn(event.target, undefined);
                     scrollSyncedLyrics = event.target.classList.contains('active');
                 }, false);
                 //seek to position on click
