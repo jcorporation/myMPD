@@ -10,16 +10,6 @@
  * @returns {void}
  */
 function initModalPlaylistAddTo() {
-    document.getElementById('modalPlaylistAddTo').addEventListener('shown.bs.modal', function () {
-        if (document.getElementById('modalPlaylistAddToAddStreamFrm').classList.contains('d-none')) {
-            setFocusId('modalPlaylistAddToPlistInput');
-        }
-        else {
-            setFocusId('modalPlaylistAddToUrisInput');
-            document.getElementById('modalPlaylistAddToUrisInput').value = '';
-        }
-    });
-
     setDataId('modalPlaylistAddToPlistInput', 'cb-filter', 'filterPlaylistsSelect');
     setDataId('modalPlaylistAddToPlistInput', 'cb-filter-options', [1, 'modalPlaylistAddToPlistInput']);
 }
@@ -39,14 +29,14 @@ function showAddToPlaylist(type, entities) {
     document.getElementById('modalPlaylistAddToPosAppend').checked = 'checked';
     document.getElementById('modalPlaylistAddToUrisInput').value = '';
     if (type === 'stream') {
-        //add stream
+        // add stream
         toggleAddToPlaylistFrm(document.getElementById('modalPlaylistAddToQueueBtn'));
         elShowId('modalPlaylistAddToAddStreamFrm');
         elHideId('modalPlaylistAddToSrcRow');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add stream');
     }
     else {
-        //add to playlist
+        // add to playlist
         toggleAddToPlaylistFrm(document.getElementById('modalPlaylistAddToPlaylistBtn'));
         elHideId('modalPlaylistAddToAddStreamFrm');
         elShowId('modalPlaylistAddToSrcRow');
@@ -57,10 +47,10 @@ function showAddToPlaylist(type, entities) {
         populateEntities('modalPlaylistAddToSrc', names);
         document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
     }
-    uiElements.modalPlaylistAddTo.show();
     if (features.featPlaylists) {
         filterPlaylistsSelect(1, 'modalPlaylistAddToPlistInput', '', '');
     }
+    uiElements.modalPlaylistAddTo.show();
 }
 
 /**
@@ -109,7 +99,7 @@ function addToPlaylist(target) {
     }
     btnWaiting(target, true);
     if (document.getElementById('modalPlaylistAddToPlaylistFrm').classList.contains('d-none') === false) {
-        //add to playlist
+        // add to playlist
         const plistEl = document.getElementById('modalPlaylistAddToPlistInput');
         switch(mode) {
             case 'append':
@@ -126,7 +116,7 @@ function addToPlaylist(target) {
         }
     }
     else {
-        //add to queue
+        // add to queue
         switch(mode) {
             case 'append':
                 appendQueue(type, entities, modalClose);
