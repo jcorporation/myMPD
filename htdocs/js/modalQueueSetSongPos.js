@@ -7,8 +7,8 @@
 
 /**
  * Shows the set song position modal
- * @param {string} plist the playlist name or the special value "queue" to move the song
- * @param {number} oldSongPos song pos in the queue to move
+ * @param {string} plist the playlist name or the special value "queue"
+ * @param {number} oldSongPos song pos in the playlist to move
  * @param {number} songId song id in the queue to move
  * @returns {void}
  */
@@ -24,7 +24,7 @@ function showSetSongPos(plist, oldSongPos, songId) {
 }
 
 /**
- * Sets song position in queue or playlist
+ * Sets the song position in the queue / playlist
  * @param {Element} target triggering element
  * @returns {void}
  */
