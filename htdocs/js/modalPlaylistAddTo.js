@@ -49,12 +49,12 @@ function showAddToPlaylist(type, entities) {
         //add to playlist
         toggleAddToPlaylistFrm(document.getElementById('modalPlaylistAddToPlaylistBtn'));
         elHideId('modalPlaylistAddToAddStreamFrm');
+        elShowId('modalPlaylistAddToSrcRow');
         const names = [];
         for (const entity of entities) {
             names.push(basename(entity, true));
         }
         populateEntities('modalPlaylistAddToSrc', names);
-        elShowId('modalPlaylistAddToSrcRow');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
     }
     uiElements.modalPlaylistAddTo.show();
