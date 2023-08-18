@@ -47,6 +47,7 @@ interface EventTarget {
     options: any;
     parentNode: any;
     querySelector: any;
+    querySelectorAll: any;
     remove: any;
     selectedIndex: any;
     tagName: any;

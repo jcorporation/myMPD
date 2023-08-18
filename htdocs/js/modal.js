@@ -29,9 +29,20 @@ function openModal(modal) {
  * @returns {void}
  */
 function focusFirstInput(container) {
-    const input = container.querySelector('.modal-body input, .modal-body select');
-    if (input) {
+    const inputs = container.querySelectorAll('.modal-body input, .modal-body select, .modal-body textarea');
+    for (const input of inputs) {
+        if (input.offsetHeight === 0) {
+            // element is not shown
+            continue;
+        }
+        if (input.getAttribute('readonly') !== null &&
+            input.getAttribute('data-is') !== 'mympd-select-search')
+        {
+            // readonly element
+            continue;
+        }
         setFocus(input);
+        break;
     }
 }
 
