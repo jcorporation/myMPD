@@ -196,7 +196,6 @@
     "Each 60": "Cada minuto |||| Cada %{smart_count} minutos",
     "Each 604800": "Semanalmente |||| Cada %{smart_count} semanas",
     "Each 86400": "Diariamente |||| Cada %{smart_count} días",
-    "Edit attributes": "Editar atributos",
     "Edit home icon": "Editar icono de inicio",
     "Edit playlist": "Editar lista de reproducción",
     "Edit smart playlist": "Editar lista de reproducción inteligente",

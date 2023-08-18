@@ -205,7 +205,6 @@
     "Each 60": "jede Minute |||| jede %{smart_count}. Minute",
     "Each 604800": "jede Woche |||| jede %{smart_count} Woche",
     "Each 86400": "jeden Tag |||| jeden %{smart_count}. Tag",
-    "Edit attributes": "Eigenschaften editieren",
     "Edit home icon": "Bearbeiten",
     "Edit playlist": "Wiedergabeliste bearbeiten",
     "Edit smart playlist": "Intelligente Wiedergabeliste bearbeiten",
@@ -1084,5 +1083,6 @@
     "Saving smart playlist failed": "Intelligente Wiedergabeliste konnte nicht gespeichert werden",
     "Smart playlist saved successfully": "Intelligente Wiedergabeliste erfolgreich gespeichert",
     "New playlist name": "Neuer Wiedergabelistenname",
-    "Number is out of valid range": "Zahl ist außerhalb der erlaubten Range"
+    "Number is out of valid range": "Zahl ist außerhalb der erlaubten Range",
+    "Output not found": "Ausgabegerät nicht gefunden"
 }

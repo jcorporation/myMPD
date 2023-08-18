@@ -196,7 +196,6 @@
     "Each 60": "Elke Minuut |||| elke %{smart_count}. Minuut",
     "Each 604800": "Elke week |||| elke %{smart_count} week",
     "Each 86400": "Elke dag |||| elke %{smart_count}. dag",
-    "Edit attributes": "Parameters bewerken",
     "Edit home icon": "Icoon bewerken",
     "Edit playlist": "Afspeellijst bewerken",
     "Edit smart playlist": "Slimme afspeellijst bewerken",

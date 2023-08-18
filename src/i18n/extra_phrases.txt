@@ -52,7 +52,6 @@ Each 3600
 Each 60
 Each 604800
 Each 86400
-Edit attributes
 Edit playlist
 Edit script
 Enable consume mode

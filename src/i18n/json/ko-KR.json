@@ -196,7 +196,6 @@
     "Each 60": "매분 |||| 매 %{smart_count} 분",
     "Each 604800": "매주 |||| 매 %{smart_count} 주",
     "Each 86400": "매일 |||| 매 %{smart_count} 일",
-    "Edit attributes": "속성 수정",
     "Edit home icon": "홈 아이콘 수정",
     "Edit playlist": "연주목록 편집",
     "Edit smart playlist": "스마트 연주목록 편집",

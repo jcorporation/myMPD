@@ -196,7 +196,6 @@
     "Each 60": "毎分 |||| 毎 %{smart_count} 分",
     "Each 604800": "毎週 |||| 毎 %{smart_count} 週",
     "Each 86400": "毎日 |||| 毎 %{smart_count} 日",
-    "Edit attributes": "属性を編集",
     "Edit home icon": "ホームアイコンを編集",
     "Edit playlist": "プレイリストを編集",
     "Edit smart playlist": "スマートプレイリストを編集",

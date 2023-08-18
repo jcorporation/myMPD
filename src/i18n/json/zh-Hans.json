@@ -196,7 +196,6 @@
     "Each 60": "每分 |||| 每%{smart_count}分",
     "Each 604800": "每周 |||| 每%{smart_count}周",
     "Each 86400": "每天 |||| 每%{smart_count}天",
-    "Edit attributes": "编辑属性",
     "Edit home icon": "编辑主页图标",
     "Edit playlist": "编辑播放列表",
     "Edit smart playlist": "编辑智能播放列表",
