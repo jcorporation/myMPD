@@ -6,10 +6,11 @@
 /** @module modalNotifications_js */
 
 /**
- * Initializes the notification html elements
+ * Shows the notifications modal
  * @returns {void}
  */
-function initModalNotifications() {
+//eslint-disable-next-line no-unused-vars
+function showModalNotifications() {
     document.getElementById('modalNotifications').addEventListener('show.bs.modal', function() {
         showMessages();
     });

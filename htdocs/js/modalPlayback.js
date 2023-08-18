@@ -18,12 +18,13 @@ function initModalSettingsPlayback() {
 
     uiElements.modalPlaybackJukeboxCollapse = BSN.Collapse.getInstance(document.getElementById('modalPlaybackJukeboxCollapse'));
 
-    document.getElementById('modalPlayback').addEventListener('shown.bs.modal', function () {
+    document.getElementById('modalPlayback').addEventListener('shown.bs.modal', function() {
+        // use the shown event to populate the playback modal
         cleanupModalId('modalPlayback');
         getSettings();
     });
 
-    document.getElementById('modalPlaybackJukeboxModeGroup').addEventListener('mouseup', function () {
+    document.getElementById('modalPlaybackJukeboxModeGroup').addEventListener('mouseup', function() {
         setTimeout(function() {
             toggleJukeboxSettings();
             checkConsume();

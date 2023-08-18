@@ -16,7 +16,7 @@ function initModalSettingsConnection() {
     createForm(settingsConnectionFields, 'modalConnection', forms);
     initElements(document.getElementById('modalConnection'));
 
-    document.getElementById('modalConnectionMusicDirectorySelect').addEventListener('change', function () {
+    document.getElementById('modalConnectionMusicDirectorySelect').addEventListener('change', function() {
         const musicDirMode = getSelectValue(this);
         const musicDirInput = document.getElementById('modalConnectionMusicDirectoryInput');
         if (musicDirMode === 'auto') {
@@ -33,7 +33,7 @@ function initModalSettingsConnection() {
         }
     }, false);
 
-    document.getElementById('modalConnectionPlaylistDirectorySelect').addEventListener('change', function () {
+    document.getElementById('modalConnectionPlaylistDirectorySelect').addEventListener('change', function() {
         const playlistDirMode = getSelectValue(this);
         const playlistDirInput = document.getElementById('modalConnectionPlaylistDirectoryInput');
         if (playlistDirMode === 'auto') {
@@ -50,7 +50,8 @@ function initModalSettingsConnection() {
         }
     }, false);
 
-    document.getElementById('modalConnection').addEventListener('shown.bs.modal', function () {
+    document.getElementById('modalConnection').addEventListener('shown.bs.modal', function() {
+        // use the shown event to populate the connection modal
         cleanupModalId('modalConnection');
         getSettings();
     });

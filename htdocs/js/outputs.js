@@ -22,7 +22,7 @@ function initOutputs() {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
             BSN.Dropdown.getInstance(document.getElementById('volumeMenu')).toggle();
-            showListOutputAttributes(getData(event.target.parentNode, 'output-name'));
+            showModalOutputAttributes(getData(event.target.parentNode, 'output-name'));
         }
         else {
             const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;

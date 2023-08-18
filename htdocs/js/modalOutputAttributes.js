@@ -9,7 +9,7 @@
  * @param {string} outputName the output name
  * @returns {void}
  */
-function showListOutputAttributes(outputName) {
+function showModalOutputAttributes(outputName) {
     cleanupModalId('modalOutputAttributes');
     sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
         const tbody = document.getElementById('modalOutputAttributesList');

@@ -35,7 +35,8 @@ function initModalSettings() {
         }
     }
 
-    document.getElementById('modalSettings').addEventListener('shown.bs.modal', function () {
+    document.getElementById('modalSettings').addEventListener('shown.bs.modal', function() {
+        // use the shown event to populate the settings modal
         cleanupModalId('modalSettings');
         getSettings();
     });
