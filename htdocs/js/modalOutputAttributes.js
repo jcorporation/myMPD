@@ -11,50 +11,41 @@
  */
 function showModalOutputAttributes(outputName) {
     cleanupModalId('modalOutputAttributes');
-    sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
-        const tbody = document.getElementById('modalOutputAttributesList');
-        if (checkResult(obj, tbody) === false) {
-            return;
-        }
-        //we get all outputs, filter by outputName
-        for (const output of obj.result.data) {
-            if (output.name === outputName) {
-                parseOutputAttributes(output);
-                break;
-            }
-        }
-    }, false);
-    uiElements.modalOutputAttributes.show();
+    sendAPI("MYMPD_API_PLAYER_OUTPUT_GET", {
+        "outputName": outputName
+    }, parseOutputAttributes, false);
 }
 
 /**
  * Creates the output attributes table content
- * @param {object} output output object
+ * @param {object} obj jsonrpc response
  * @returns {void}
  */
-function parseOutputAttributes(output) {
-    setDataId('modalOutputAttributes', 'outputId', output.id);
+function parseOutputAttributes(obj) {
+    setDataId('modalOutputAttributes', 'outputId', obj.result.id);
     const tbody = document.getElementById('modalOutputAttributesList');
     elClear(tbody);
     for (const n of ['name', 'state', 'plugin']) {
         if (n === 'state') {
-            output[n] = output[n] === 1 ? tn('Enabled') : tn('Disabled');
+            obj.result[n] = obj.result[n] === 1
+                ? tn('Enabled')
+                : tn('Disabled');
         }
         tbody.appendChild(
             elCreateNodes('tr', {}, [
                 elCreateTextTn('td', {}, n),
-                elCreateText('td', {}, output[n])
+                elCreateText('td', {}, obj.result[n])
             ])
         );
     }
     let i = 0;
-    for (const key in output.attributes) {
+    for (const key in obj.result.attributes) {
         i++;
         tbody.appendChild(
             elCreateNodes('tr', {}, [
                 elCreateText('td', {}, key),
                 elCreateNode('td', {},
-                    elCreateEmpty('input', {"name": key, "class": ["form-control"], "type": "text", "value": output.attributes[key]})
+                    elCreateEmpty('input', {"name": key, "class": ["form-control"], "type": "text", "value": obj.result.attributes[key]})
                 )
             ])
         );
@@ -65,6 +56,7 @@ function parseOutputAttributes(output) {
     else {
         elDisableId('modalOutputAttributesSaveBtn');
     }
+    uiElements.modalOutputAttributes.show();
 }
 
 /**

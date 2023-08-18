@@ -636,6 +636,11 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             break;
         }
     // outputs
+    case MYMPD_API_PLAYER_OUTPUT_GET:
+            if (json_get_string(request->data, "$.params.outputName", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true) {
+                response->data = mympd_api_output_get(partition_state, response->data, request->id, sds_buf1);
+            }
+            break;
         case MYMPD_API_PLAYER_OUTPUT_LIST:
             response->data = mympd_api_output_list(partition_state, response->data, request->id);
             break;

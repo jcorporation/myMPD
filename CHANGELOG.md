@@ -22,6 +22,8 @@ This release changes some API methods.
 - merge MYMPD_API_QUEUE_SEARCH_ADV and MYMPD_API_QUEUE_LIST into MYMPD_API_QUEUE_SEARCH
 - rename MYMPD_API_PRESET_LOAD to MYMPD_API_PRESET_APPLY
 - MYMPD_API_PLAYLIST_RM_ALL: parameters changed
+- MYMPD_API_PLAYER_OUTPUT_GET: new
+- MYMPD_API_PLAYER_OUTPUT_LIST: respond with fewer details
 
 ### Changelog
 

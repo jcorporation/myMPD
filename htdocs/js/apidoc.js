@@ -981,6 +981,16 @@ const APImethods = {
         "desc": "Goto previous song in queue.",
         "params": {}
     },
+    "MYMPD_API_PLAYER_OUTPUT_GET": {
+        "desc": "Get the details of a MPD output.",
+        "params": {
+            "outputName": {
+                "type": APItypes.string,
+                "example": "http",
+                "desc": "MPD output name"
+            }
+        }
+    },
     "MYMPD_API_PLAYER_OUTPUT_LIST": {
         "desc": "Lists the MPD outputs.",
         "params": {}

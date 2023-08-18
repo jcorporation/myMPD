@@ -61,7 +61,7 @@ function parseOutputs(obj) {
         if (obj.result.data[i].plugin === 'dummy') {
             continue;
         }
-        const titlePhrase = Object.keys(obj.result.data[i].attributes).length > 0 ? 'Edit attributes' : 'Show attributes';
+        const titlePhrase = 'Show attributes';
         const icon = settings.webuiSettings.outputLigatures[obj.result.data[i].plugin] !== undefined 
             ? settings.webuiSettings.outputLigatures[obj.result.data[i].plugin]
             : settings.webuiSettings.outputLigatures.default;
@@ -69,7 +69,7 @@ function parseOutputs(obj) {
         const btn = elCreateNodes('button', {"class": ["btn", "btn-secondary", "d-flex", "justify-content-between"], "title": buttonTitle, "id": "btnOutput" + obj.result.data[i].id}, [
             elCreateText('span', {"class": ["mi", "align-self-center"]}, icon),
             elCreateText('span', {"class": ["mx-2", "align-self-center"]}, obj.result.data[i].name),
-            elCreateText('a', {"class": ["mi", "align-self-center"], "data-title-phrase": titlePhrase}, 'settings')
+            elCreateText('a', {"class": ["mi", "align-self-center"], "data-title-phrase": titlePhrase, "title": tn(titlePhrase)}, 'settings')
         ]);
         setData(btn, 'output-name', obj.result.data[i].name);
         setData(btn, 'output-id', obj.result.data[i].id);
