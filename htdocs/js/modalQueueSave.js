@@ -10,18 +10,24 @@
  * @returns {void}
  */
 function initModalQueueSave() {
-    document.getElementById('modalQueueSave').addEventListener('shown.bs.modal', function() {
-        toggleBtnGroupValueId('modalQueueSaveModeInput', 'create');
-        toggleSaveQueueMode(document.getElementById('modalQueueSaveModeInput').firstElementChild);
-        document.getElementById('modalQueueSavePlistInput').setValue('', '');
-        setDataId('modalQueueSavePlistInput', 'value', '');
-        document.getElementById('modalQueueSavePlistInput').filterInput.value = '';
-        filterPlaylistsSelect(1, 'modalQueueSavePlistInput', '', '');
-        cleanupModalId('modalQueueSave');
-    });
-
     setDataId('modalQueueSavePlistInput', 'cb-filter', 'filterPlaylistsSelect');
     setDataId('modalQueueSavePlistInput', 'cb-filter-options', [1, 'modalQueueSavePlistInput']);
+}
+
+/**
+ * Shows the save queue modal
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showQueueSave() {
+    toggleBtnGroupValueId('modalQueueSaveModeInput', 'create');
+    toggleSaveQueueMode(document.getElementById('modalQueueSaveModeInput').firstElementChild);
+    document.getElementById('modalQueueSavePlistInput').setValue('', '');
+    setDataId('modalQueueSavePlistInput', 'value', '');
+    document.getElementById('modalQueueSavePlistInput').filterInput.value = '';
+    filterPlaylistsSelect(1, 'modalQueueSavePlistInput', '', '');
+    cleanupModalId('modalQueueSave');
+    uiElements.modalQueueSave.show();
 }
 
 /**

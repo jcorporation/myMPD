@@ -6,17 +6,6 @@
 /** @module modalQueueSetSongPriority_js */
 
 /**
- * Initializes the modalQueueSetSongPriority
- * @returns {void}
- */
-function initModalSetSongPriority() {
-    document.getElementById('modalQueueSetSongPriority').addEventListener('show.bs.modal', function() {
-        document.getElementById('modalQueueSetSongPriorityPriorityInput').value = '';
-        cleanupModalId('modalQueueSetSongPriority');
-    });
-}
-
-/**
  * Shows the set song priority modal
  * @param {number} songId the mpd song id
  * @returns {void}
@@ -26,6 +15,7 @@ function showSetSongPriority(songId) {
     const modal = document.getElementById('modalQueueSetSongPriority');
     cleanupModal(modal);
     setData(modal, 'songId', songId);
+    document.getElementById('modalQueueSetSongPriorityPriorityInput').value = '';
     uiElements.modalQueueSetSongPriority.show();
 }
 

@@ -232,7 +232,6 @@ function appInit() {
     initModalSettingsConnection();
     initModalSettingsPlayback();
     initModalScripts();
-    initModalSetSongPriority();
     initModalSongDetails();
     initModalTimer();
     initModalTrigger();

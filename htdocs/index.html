@@ -203,13 +203,13 @@
             </div>
           </div>
           <div class="btn-group me-2 featPlaylists">
-            <button data-title-phrase="Save queue" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalQueueSave">save_as</button>
+            <button data-title-phrase="Save queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "showQueueSave", "options": []}'>save_as</button>
           </div>
           <div class="btn-group me-2">
             <button data-title-phrase="Shuffle queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "sendAPI", "options": [{"cmd": "MYMPD_API_QUEUE_SHUFFLE"}]}'>shuffle</button>
           </div>
           <div class="btn-group me-2">
-            <button data-title-phrase="Add to queue" type="button" class="btn btn-secondary mi" data-bs-toggle="modal" data-bs-target="#modalQueueAddTo">add_to_queue</button>
+            <button data-title-phrase="Add to queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "showAddRandomToQueue", "options": []}'>add_to_queue</button>
           </div>
           <div class="btn-group me-2">
             <button data-title-phrase="Crop queue" type="button" class="btn btn-secondary mi" data-href='{"cmd": "clearQueue", "options": []}'>clear_all</button>

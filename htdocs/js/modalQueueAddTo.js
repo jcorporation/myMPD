@@ -26,18 +26,24 @@ function initModalQueueAddTo() {
         }
     });
 
-    document.getElementById('modalQueueAddTo').addEventListener('shown.bs.modal', function() {
-        cleanupModalId('modalQueueAddTo');
-        document.getElementById('modalQueueAddToPlaylistInput').value = tn('Database');
-        setDataId('modalQueueAddToPlaylistInput', 'value', 'Database');
-        document.getElementById('modalQueueAddToPlaylistInput').filterInput.value = '';
-        if (features.featPlaylists === true) {
-            filterPlaylistsSelect(0, 'modalQueueAddToPlaylistInput', '', 'Database');
-        }
-    });
-
     setDataId('modalQueueAddToPlaylistInput', 'cb-filter', 'filterPlaylistsSelect');
     setDataId('modalQueueAddToPlaylistInput', 'cb-filter-options', [0, 'modalQueueAddToPlaylistInput']);
+}
+
+/**
+ * Shows the add random to queue modal
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showAddRandomToQueue() {
+    cleanupModalId('modalQueueAddTo');
+    document.getElementById('modalQueueAddToPlaylistInput').value = tn('Database');
+    setDataId('modalQueueAddToPlaylistInput', 'value', 'Database');
+    document.getElementById('modalQueueAddToPlaylistInput').filterInput.value = '';
+    if (features.featPlaylists === true) {
+        filterPlaylistsSelect(0, 'modalQueueAddToPlaylistInput', '', 'Database');
+    }
+    uiElements.modalQueueAddTo.show();
 }
 
 /**
