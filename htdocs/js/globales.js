@@ -1382,7 +1382,7 @@ for (const m of document.querySelectorAll('.modal')) {
     }, false);
 }
 //other directly accessed BSN objects
-uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance(elGetById('btnHomeIconLigature'));
+uiElements.modalHomeIconLigatureDropdown = BSN.Dropdown.getInstance(elGetById('modalHomeIconLigatureBtn'));
 uiElements.dropdownNeighbors = BSN.Dropdown.getInstance(elGetById('btnDropdownNeighbors'));
 
 const LUAfunctions = {

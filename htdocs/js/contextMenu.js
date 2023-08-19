@@ -784,7 +784,7 @@ function createMenuHome(target, contextMenuTitle, contextMenuBody) {
  */
 function createMenuHomeSecondary(target, contextMenuTitle, contextMenuBody) {
     const pos = getData(target, 'pos');
-    contextMenuTitle.textContent = tn('Homeicon');
+    contextMenuTitle.textContent = tn('Home icon');
     contextMenuTitle.classList.add('offcanvas-title-homeicon');
     addMenuItem(contextMenuBody, {"cmd": "editHomeIcon", "options": [pos]}, 'Edit home icon');
     addMenuItem(contextMenuBody, {"cmd": "duplicateHomeIcon", "options": [pos]}, 'Duplicate home icon');

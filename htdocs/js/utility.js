@@ -339,15 +339,6 @@ function checkMediaSessionSupport() {
 }
 
 /**
- * Converts a string to a boolean
- * @param {string} str string to parse
- * @returns {boolean} the boolean value
- */
-function strToBool(str) {
-    return str === 'true';
-}
-
-/**
  * Uppercases the first letter of a word
  * @param {string} word word to uppercase first letter
  * @returns {string} changed word

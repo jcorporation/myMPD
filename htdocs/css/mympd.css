@@ -641,7 +641,7 @@ tfoot td {
   border-bottom: none;
 }
 
-#dropdownHomeIconLigature {
+.dropdownHomeIconLigature {
   width: 60vw;
 }
 
@@ -708,12 +708,12 @@ button.active > a {
   color: var(--mympd-highlightcolor-contrast);
 }
 
-#dropdownHomeIconLigature .row {
+.dropdownHomeIconLigature .row {
   margin-right: 0;
   margin-bottom: 1rem;
 }
 
-#listHomeIconLigature {
+.homeIconLigatureList {
   max-height: 60vh;
   overflow-y: scroll;
 }
@@ -845,7 +845,7 @@ div#BrowseFilesystemImages > div {
   cursor: pointer;
 }
 
-div#homeIconPreview {
+div.homeIconPreview {
   background-position: center center;
   background-size: cover;
   width: 4rem;

@@ -107,7 +107,9 @@ function addDirToHome(uri, name) {
  */
 //eslint-disable-next-line no-unused-vars
 function addSongToHome(uri, type, name) {
-    const ligature = type === 'song' ? 'music_note' : 'stream';
+    const ligature = type === 'song'
+        ? 'music_note'
+        : 'stream';
     _addHomeIcon('replaceQueue', name, ligature, '', [type, uri]);
 }
 
@@ -159,53 +161,6 @@ function addStreamToHome() {
 }
 
 /**
- * Opens the add to homescreen modal, this function is called by the add*ToHome functions above.
- * @param {string} cmd action
- * @param {string} name name for the home icon
- * @param {string} ligature ligature for the home icon
- * @param {string} image picture for the home icon
- * @param {object} options options array
- * @returns {void}
- */
-function _addHomeIcon(cmd, name, ligature, image, options) {
-    elGetById('modalHomeIconTitle').textContent = tn('Add to homescreen');
-    elGetById('inputHomeIconReplace').value = 'false';
-    elGetById('inputHomeIconOldpos').value = '0';
-    elGetById('inputHomeIconName').value = name;
-    elGetById('inputHomeIconBgcolor').value = '#28a745';
-    elGetById('inputHomeIconColor').value = '#ffffff';
-
-    populateHomeIconCmdSelect(cmd, options[0]);
-    elGetById('selectHomeIconCmd').value = cmd;
-    elClearId('divHomeIconOptions');
-    showHomeIconCmdOptions(options);
-    getHomeIconPictureList();
-    const homeIconPreviewEl = elGetById('homeIconPreview');
-    const homeIconImageInput = elGetById('inputHomeIconImage');
-    if (image !== '') {
-        homeIconImageInput.value = image;
-        setData(homeIconImageInput, 'value', image);
-        elGetById('inputHomeIconLigature').value = '';
-        elClear(homeIconPreviewEl);
-        homeIconPreviewEl.style.backgroundImage = getCssImageUri(image);
-        elHideId('divHomeIconLigature');
-    }
-    else {
-        //use ligature
-        homeIconImageInput.value = tn('Use ligature');
-        setData(homeIconImageInput, 'value', '');
-        elGetById('inputHomeIconLigature').value = ligature;
-        homeIconPreviewEl.textContent = ligature;
-        homeIconPreviewEl.style.backgroundImage = '';
-        elShowId('divHomeIconLigature');
-    }
-
-    homeIconPreviewEl.style.backgroundColor = '#28a745';
-    homeIconPreviewEl.style.color = '#ffffff';
-    uiElements.modalHomeIcon.show();
-}
-
-/**
  * Duplicates a home icon
  * @param {number} pos home icon position
  * @returns {void}
@@ -223,52 +178,6 @@ function duplicateHomeIcon(pos) {
 //eslint-disable-next-line no-unused-vars
 function editHomeIcon(pos) {
     _editHomeIcon(pos, true, "Edit home icon");
-}
-
-/**
- * The real edit home icon function
- * @param {number} pos home icon position
- * @param {boolean} replace true = replace existing home icon, false = duplicate home icon
- * @param {string} title title for the modal
- * @returns {void}
- */
-function _editHomeIcon(pos, replace, title) {
-    elGetById('modalHomeIconTitle').textContent = tn(title);
-    sendAPI("MYMPD_API_HOME_ICON_GET", {"pos": pos}, function(obj) {
-        elGetById('inputHomeIconReplace').value = replace;
-        elGetById('inputHomeIconOldpos').value = pos;
-        elGetById('inputHomeIconName').value = obj.result.data.name;
-        elGetById('inputHomeIconLigature').value = obj.result.data.ligature;
-        elGetById('inputHomeIconBgcolor').value = obj.result.data.bgcolor;
-        elGetById('inputHomeIconColor').value = obj.result.data.color;
-
-        populateHomeIconCmdSelect(obj.result.data.cmd, obj.result.data.options[0]);
-        elGetById('selectHomeIconCmd').value = obj.result.data.cmd;
-        showHomeIconCmdOptions(obj.result.data.options);
-        getHomeIconPictureList();
-        elGetById('inputHomeIconImage').value = obj.result.data.image === '' ? tn('Use ligature') : obj.result.data.image;
-        setData(elGetById('inputHomeIconImage'),'value', obj.result.data.image);
-
-        elGetById('homeIconPreview').textContent = obj.result.data.ligature;
-        elGetById('homeIconPreview').style.backgroundColor = obj.result.data.bgcolor;
-        elGetById('homeIconPreview').style.color = obj.result.data.color;
-
-        if (obj.result.data.image === '') {
-            elShowId('divHomeIconLigature');
-            elGetById('homeIconPreview').style.backgroundImage = '';
-        }
-        else {
-            elHideId('divHomeIconLigature');
-            elGetById('homeIconPreview').style.backgroundImage = getCssImageUri(obj.result.data.image);
-        }
-        //reset ligature selection
-        elGetById('searchHomeIconLigature').value = '';
-        elGetById('searchHomeIconCat').value = 'all';
-        filterHomeIconLigatures();
-        //show modal
-        cleanupModalId('modalHomeIcon');
-        uiElements.modalHomeIcon.show();
-    }, false);
 }
 
 /**

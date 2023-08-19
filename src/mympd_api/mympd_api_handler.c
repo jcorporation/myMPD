@@ -248,7 +248,7 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             list_init(&options);
             if (json_get_bool(request->data, "$.params.replace", &bool_buf1, &parse_error) == true &&
                 json_get_long(request->data, "$.params.oldpos", 0, LIST_HOME_ICONS_MAX, &long_buf1, &parse_error) == true &&
-                json_get_string_max(request->data, "$.params.name", &sds_buf1, vcb_isname, &parse_error) == true &&
+                json_get_string(request->data, "$.params.name", 1, NAME_LEN_MAX, &sds_buf1, vcb_isname, &parse_error) == true &&
                 json_get_string_max(request->data, "$.params.ligature", &sds_buf2, vcb_isalnum, &parse_error) == true &&
                 json_get_string(request->data, "$.params.bgcolor", 1, 7, &sds_buf3, vcb_ishexcolor, &parse_error) == true &&
                 json_get_string(request->data, "$.params.color", 1, 7, &sds_buf4, vcb_ishexcolor, &parse_error) == true &&

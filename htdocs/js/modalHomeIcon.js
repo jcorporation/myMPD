@@ -10,146 +10,223 @@
  * @returns {void}
  */
 function initModalHomeIcon() {
-    const selectHomeIconCmd = elGetById('selectHomeIconCmd');
-    selectHomeIconCmd.addEventListener('change', function() {
+    const modalHomeIconCmdInput = elGetById('modalHomeIconCmdInput');
+    modalHomeIconCmdInput.addEventListener('change', function() {
         showHomeIconCmdOptions(undefined);
     }, false);
 
-    elGetById('inputHomeIconBgcolor').addEventListener('change', function(event) {
-        elGetById('homeIconPreview').style.backgroundColor = event.target.value;
+    elGetById('modalHomeIconBgcolorInput').addEventListener('change', function(event) {
+        elGetById('modalHomeIconPreview').style.backgroundColor = event.target.value;
     }, false);
 
-    elGetById('inputHomeIconColor').addEventListener('change', function(event) {
-        elGetById('homeIconPreview').style.color = event.target.value;
+    elGetById('modalHomeIconColorInput').addEventListener('change', function(event) {
+        elGetById('modalHomeIconPreview').style.color = event.target.value;
     }, false);
 
-    elGetById('inputHomeIconImage').addEventListener('change', function(event) {
+    elGetById('modalHomeIconImageInput').addEventListener('change', function(event) {
         const value = getData(event.target, 'value');
         if (value !== '') {
-            elGetById('homeIconPreview').style.backgroundImage = getCssImageUri(value);
+            elGetById('modalHomeIconPreview').style.backgroundImage = getCssImageUri(value);
             elHideId('divHomeIconLigature');
-            elClearId('homeIconPreview');
+            elClearId('modalHomeIconPreview');
         }
         else {
-            elGetById('homeIconPreview').style.backgroundImage = '';
+            elGetById('modalHomeIconPreview').style.backgroundImage = '';
             elShowId('divHomeIconLigature');
-            elGetById('homeIconPreview').textContent =
-                elGetById('inputHomeIconLigature').value;
+            elGetById('modalHomeIconPreview').textContent =
+                elGetById('modalHomeIconLigatureInput').value;
         }
     }, false);
 
-    setDataId('inputHomeIconImage', 'cb-filter', 'filterImageSelect');
-    setDataId('inputHomeIconImage', 'cb-filter-options', ['inputHomeIconImage']);
+    setDataId('modalHomeIconImageInput', 'cb-filter', 'filterImageSelect');
+    setDataId('modalHomeIconImageInput', 'cb-filter-options', ['modalHomeIconImageInput']);
 
-    elGetById('btnHomeIconLigature').parentNode.addEventListener('show.bs.dropdown', function () {
+    elGetById('modalHomeIconLigatureBtn').parentNode.addEventListener('show.bs.dropdown', function () {
         populateHomeIconLigatures();
-        const selLig = elGetById('inputHomeIconLigature').value;
+        const selLig = elGetById('modalHomeIconLigatureInput').value;
         if (selLig !== '') {
-            elGetById('searchHomeIconLigature').value = selLig;
+            elGetById('modalHomeIconLigatureSearch').value = selLig;
             if (selLig !== '') {
-                elShow(elGetById('searchHomeIconLigature').nextElementSibling);
+                elShow(elGetById('modalHomeIconLigatureSearch').nextElementSibling);
             }
             else {
-                elHide(elGetById('searchHomeIconLigature').nextElementSibling);
+                elHide(elGetById('modalHomeIconLigatureSearch').nextElementSibling);
             }
             filterHomeIconLigatures();
         }
     }, false);
 
-    elGetById('listHomeIconLigature').addEventListener('click', function(event) {
+    elGetById('modalHomeIconLigatureList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             selectHomeIconLigature(event.target);
-            uiElements.dropdownHomeIconLigature.hide();
+            uiElements.modalHomeIconLigatureDropdown.hide();
         }
     });
 
-    elGetById('searchHomeIconLigature').addEventListener('click', function(event) {
+    elGetById('modalHomeIconLigatureSearch').addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
 
-    const searchHomeIconCat = elGetById('searchHomeIconCat');
-    searchHomeIconCat.addEventListener('click', function(event) {
+    const modalHomeIconSearchCat = elGetById('modalHomeIconSearchCat');
+    modalHomeIconSearchCat.addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
 
-    searchHomeIconCat.addEventListener('change', function() {
+    modalHomeIconSearchCat.addEventListener('change', function() {
         filterHomeIconLigatures();
     }, false);
 
-    const searchHomeIconLigature = elGetById('searchHomeIconLigature');
-    searchHomeIconLigature.addEventListener('keydown', function(event) {
+    const modalHomeIconLigatureSearch = elGetById('modalHomeIconLigatureSearch');
+    modalHomeIconLigatureSearch.addEventListener('keydown', function(event) {
         event.stopPropagation();
         if (event.key === 'Enter') {
             event.preventDefault();
         }
     }, false);
 
-    searchHomeIconLigature.addEventListener('keyup', function(event) {
+    modalHomeIconLigatureSearch.addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
-            const sel = document.querySelector('#listHomeIconLigature .active');
+            const sel = document.querySelector('#modalHomeIconLigatureList .active');
             if (sel !== null) {
                 selectHomeIconLigature(sel);
-                uiElements.dropdownHomeIconLigature.hide();
+                uiElements.modalHomeIconLigatureDropdown.hide();
             }
         }
         else {
             filterHomeIconLigatures();
         }
+    }, false);
+}
+
+/**
+ * Opens the add to homescreen modal, this function is called by the add*ToHome functions above.
+ * @param {string} cmd action
+ * @param {string} name name for the home icon
+ * @param {string} ligature ligature for the home icon
+ * @param {string} image picture for the home icon
+ * @param {object} options options array
+ * @returns {void}
+ */
+function _addHomeIcon(cmd, name, ligature, image, options) {
+    const modal = elGetById('modalHomeIcon');
+    elGetById('modalHomeIconTitle').textContent = tn('Add to homescreen');
+    setData(modal, 'replace', false);
+    setData(modal, 'oldpos', 0);
+    elGetById('modalHomeIconNameInput').value = name;
+    elGetById('modalHomeIconBgcolorInput').value = defaults.PARTITION_HIGHLIGHT_COLOR;
+    elGetById('modalHomeIconColorInput').value = defaults.PARTITION_HIGHLIGHT_COLOR_CONTRAST;
+
+    populateHomeIconCmdSelect(cmd, options[0]);
+    elGetById('modalHomeIconCmdInput').value = cmd;
+    elClearId('modalHomeIconCmdOptions');
+    showHomeIconCmdOptions(options);
+    getHomeIconPictureList();
+    const modalHomeIconPreviewEl = elGetById('modalHomeIconPreview');
+    const homeIconImageInput = elGetById('modalHomeIconImageInput');
+    if (image !== '') {
+        homeIconImageInput.value = image;
+        setData(homeIconImageInput, 'value', image);
+        elGetById('modalHomeIconLigatureInput').value = '';
+        elClear(modalHomeIconPreviewEl);
+        modalHomeIconPreviewEl.style.backgroundImage = getCssImageUri(image);
+        elHideId('divHomeIconLigature');
+    }
+    else {
+        //use ligature
+        homeIconImageInput.value = tn('Use ligature');
+        setData(homeIconImageInput, 'value', '');
+        elGetById('modalHomeIconLigatureInput').value = ligature;
+        modalHomeIconPreviewEl.textContent = ligature;
+        modalHomeIconPreviewEl.style.backgroundImage = '';
+        elShowId('divHomeIconLigature');
+    }
+
+    modalHomeIconPreviewEl.style.backgroundColor = defaults.PARTITION_HIGHLIGHT_COLOR;
+    modalHomeIconPreviewEl.style.color = defaults.PARTITION_HIGHLIGHT_COLOR_CONTRAST;
+    uiElements.modalHomeIcon.show();
+}
+
+/**
+ * The real edit home icon function
+ * @param {number} pos home icon position
+ * @param {boolean} replace true = replace existing home icon, false = duplicate home icon
+ * @param {string} title title for the modal
+ * @returns {void}
+ */
+function _editHomeIcon(pos, replace, title) {
+    elGetById('modalHomeIconTitle').textContent = tn(title);
+    sendAPI("MYMPD_API_HOME_ICON_GET", {"pos": pos}, function(obj) {
+        const modal = elGetById('modalHomeIcon');
+        setData(modal, 'replace', replace);
+        setData(modal, 'oldpos', pos);
+        elGetById('modalHomeIconNameInput').value = obj.result.data.name;
+        elGetById('modalHomeIconLigatureInput').value = obj.result.data.ligature;
+        elGetById('modalHomeIconBgcolorInput').value = obj.result.data.bgcolor;
+        elGetById('modalHomeIconColorInput').value = obj.result.data.color;
+
+        populateHomeIconCmdSelect(obj.result.data.cmd, obj.result.data.options[0]);
+        elGetById('modalHomeIconCmdInput').value = obj.result.data.cmd;
+        showHomeIconCmdOptions(obj.result.data.options);
+        getHomeIconPictureList();
+        elGetById('modalHomeIconImageInput').value = obj.result.data.image === '' ? tn('Use ligature') : obj.result.data.image;
+        setData(elGetById('modalHomeIconImageInput'),'value', obj.result.data.image);
+
+        elGetById('modalHomeIconPreview').textContent = obj.result.data.ligature;
+        elGetById('modalHomeIconPreview').style.backgroundColor = obj.result.data.bgcolor;
+        elGetById('modalHomeIconPreview').style.color = obj.result.data.color;
+
+        if (obj.result.data.image === '') {
+            elShowId('divHomeIconLigature');
+            elGetById('modalHomeIconPreview').style.backgroundImage = '';
+        }
+        else {
+            elHideId('divHomeIconLigature');
+            elGetById('modalHomeIconPreview').style.backgroundImage = getCssImageUri(obj.result.data.image);
+        }
+        //reset ligature selection
+        elGetById('modalHomeIconLigatureSearch').value = '';
+        elGetById('modalHomeIconSearchCat').value = 'all';
+        filterHomeIconLigatures();
+        //show modal
+        cleanupModalId('modalHomeIcon');
+        uiElements.modalHomeIcon.show();
     }, false);
 }
 
 /**
  * Saves the home icon
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function saveHomeIcon() {
+function saveHomeIcon(target) {
     cleanupModalId('modalHomeIcon');
-    let formOK = true;
-    const nameEl = elGetById('inputHomeIconName');
-    if (!validateNotBlankEl(nameEl)) {
-        formOK = false;
-    }
-    if (formOK === true) {
-        const options = [];
-        const optionEls = document.querySelectorAll('#divHomeIconOptions input, #divHomeIconOptions select');
-        for (const optionEl of optionEls) {
-            switch(optionEl.nodeName) {
-                case 'SELECT':
-                    options.push(getSelectValue(optionEl));
-                    break;
-                default:
-                    options.push(optionEl.value);
-            }
+    btnWaiting(target, true);
+    const options = [];
+    const optionEls = document.querySelectorAll('#modalHomeIconCmdOptions input, #modalHomeIconCmdOptions select');
+    for (const optionEl of optionEls) {
+        switch(optionEl.nodeName) {
+            case 'SELECT':
+                options.push(getSelectValue(optionEl));
+                break;
+            default:
+                options.push(optionEl.value);
         }
-        const image = getData(elGetById('inputHomeIconImage'), 'value');
-        sendAPI("MYMPD_API_HOME_ICON_SAVE", {
-            "replace": strToBool(elGetById('inputHomeIconReplace').value),
-            "oldpos": Number(elGetById('inputHomeIconOldpos').value),
-            "name": nameEl.value,
-            "ligature": (image === '' ? elGetById('inputHomeIconLigature').value : ''),
-            "bgcolor": elGetById('inputHomeIconBgcolor').value,
-            "color": elGetById('inputHomeIconColor').value,
-            "image": image,
-            "cmd": elGetById('selectHomeIconCmd').value,
-            "options": options
-        }, saveHomeIconClose, true);
     }
-}
-
-/**
- * Response handler for save home icon
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function saveHomeIconClose(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
-        uiElements.modalHomeIcon.hide();
-    }
+    const image = getDataId('modalHomeIconImageInput', 'value');
+    const modal = elGetById('modalHomeIcon');
+    sendAPI("MYMPD_API_HOME_ICON_SAVE", {
+        "replace": getData(modal, 'replace'),
+        "oldpos": getData(modal, 'oldpos'),
+        "name": elGetById('modalHomeIconNameInput').value,
+        "ligature": (image === '' ? elGetById('modalHomeIconLigatureInput').value : ''),
+        "bgcolor": elGetById('modalHomeIconBgcolorInput').value,
+        "color": elGetById('modalHomeIconColorInput').value,
+        "image": image,
+        "cmd": elGetById('modalHomeIconCmdInput').value,
+        "options": options
+    }, modalClose, true);
 }
 
 /**
@@ -157,22 +234,22 @@ function saveHomeIconClose(obj) {
  * @returns {void}
  */
 function populateHomeIconLigatures() {
-    const listHomeIconLigature = elGetById('listHomeIconLigature');
-    const searchHomeIconCat = elGetById('searchHomeIconCat');
-    if (searchHomeIconCat.firstChild !== null) {
+    const modalHomeIconLigatureList = elGetById('modalHomeIconLigatureList');
+    const modalHomeIconSearchCat = elGetById('modalHomeIconSearchCat');
+    if (modalHomeIconSearchCat.firstChild !== null) {
         return;
     }
-    elClear(listHomeIconLigature);
-    elClear(searchHomeIconCat);
-    searchHomeIconCat.appendChild(
+    elClear(modalHomeIconLigatureList);
+    elClear(modalHomeIconSearchCat);
+    modalHomeIconSearchCat.appendChild(
         elCreateTextTn('option', {"value": "all"}, 'icon-all')
     );
     for (const cat in materialIcons) {
-        searchHomeIconCat.appendChild(
+        modalHomeIconSearchCat.appendChild(
             elCreateTextTn('option', {"value": cat}, 'icon-' + cat)
         );
         for (const icon of materialIcons[cat]) {
-            listHomeIconLigature.appendChild(
+            modalHomeIconLigatureList.appendChild(
                 elCreateText('button', {"class": ["btn", "btn-secondary", "btn-sm", "mi", "m-1"], "title": icon, "data-cat": cat}, icon)
             );
         }
@@ -185,11 +262,11 @@ function populateHomeIconLigatures() {
  * @returns {void}
  */
 function selectHomeIconLigature(el) {
-    elGetById('inputHomeIconLigature').value = el.getAttribute('title');
-    elGetById('homeIconPreview').textContent = el.getAttribute('title');
-    elGetById('homeIconPreview').style.backgroundImage = '';
-    elGetById('inputHomeIconImage').value = tn('Use ligature');
-    setData(elGetById('inputHomeIconImage'), 'value', '');
+    elGetById('modalHomeIconLigatureInput').value = el.getAttribute('title');
+    elGetById('modalHomeIconPreview').textContent = el.getAttribute('title');
+    elGetById('modalHomeIconPreview').style.backgroundImage = '';
+    elGetById('modalHomeIconImageInput').value = tn('Use ligature');
+    setData(elGetById('modalHomeIconImageInput'), 'value', '');
 }
 
 /**
@@ -197,9 +274,9 @@ function selectHomeIconLigature(el) {
  * @returns {void}
  */
 function filterHomeIconLigatures() {
-    const str = elGetById('searchHomeIconLigature').value.toLowerCase();
-    const cat = getSelectValueId('searchHomeIconCat');
-    const els = document.querySelectorAll('#listHomeIconLigature button');
+    const str = elGetById('modalHomeIconLigatureSearch').value.toLowerCase();
+    const cat = getSelectValueId('modalHomeIconSearchCat');
+    const els = document.querySelectorAll('#modalHomeIconLigatureList button');
     for (let i = 0, j = els.length; i < j; i++) {
         if ((str === '' || els[i].getAttribute('title').indexOf(str) > -1) &&
             (cat === 'all' || els[i].getAttribute('data-cat') === cat))
@@ -226,35 +303,35 @@ function filterHomeIconLigatures() {
  * @returns {void}
  */
 function populateHomeIconCmdSelect(cmd, type) {
-    const selectHomeIconCmd = elGetById('selectHomeIconCmd');
-    elClear(selectHomeIconCmd);
+    const modalHomeIconCmdInput = elGetById('modalHomeIconCmdInput');
+    elClear(modalHomeIconCmdInput);
     switch(cmd) {
         case 'appGoto': {
-            selectHomeIconCmd.appendChild(
+            modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "appGoto"}, 'Goto view')
             );
-            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["App", "Tab", "View", "Offset", "Limit", "Filter", "Sort", "Tag", "Search"]});
             break;
         }
         case 'openExternalLink': {
-            selectHomeIconCmd.appendChild(
+            modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "openExternalLink"}, 'Open external link')
             );
-            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Uri"]});
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Uri"]});
             break;
         }
         case 'openModal': {
-            selectHomeIconCmd.appendChild(
+            modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "openModal"}, 'Open modal')
             );
-            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Modal"]});
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Modal"]});
             break;
         }
         case 'execScriptFromOptions': {
-            selectHomeIconCmd.appendChild(
+            modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "execScriptFromOptions"}, 'Execute script')
             );
-            setData(selectHomeIconCmd.lastChild, 'options', {"options":["Script", "Arguments"]});
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options":["Script", "Arguments"]});
             break;
         }
         default: {
@@ -263,28 +340,28 @@ function populateHomeIconCmdSelect(cmd, type) {
                 : type === 'album'
                     ? 'AlbumId'
                     : 'Uri';
-            selectHomeIconCmd.appendChild(
+            modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "replaceQueue"}, 'Replace queue')
             );
-            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-            selectHomeIconCmd.appendChild(
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Type", paramName]});
+            modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "replacePlayQueue"}, 'Replace queue and play')
             );
-            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Type", paramName]});
             if (features.featWhence === true) {
-                selectHomeIconCmd.appendChild(
+                modalHomeIconCmdInput.appendChild(
                     elCreateTextTn('option', {"value": "insertAfterCurrentQueue"}, 'Insert after current playing song')
                 );
-                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+                setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Type", paramName]});
             }
-            selectHomeIconCmd.appendChild(
+            modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "appendQueue"}, 'Append to queue')
             );
-            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
-            selectHomeIconCmd.appendChild(
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Type", paramName]});
+            modalHomeIconCmdInput.appendChild(
                 elCreateTextTn('option', {"value": "appendPlayQueue"}, 'Append to queue and play')
             );
-            setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+            setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Type", paramName]});
             if (type === 'dir' ||
                 type === 'search' ||
                 type === 'plist' ||
@@ -298,10 +375,10 @@ function populateHomeIconCmdSelect(cmd, type) {
                         : type === 'album'
                             ? 'Album details'
                             : 'View playlist';
-                selectHomeIconCmd.appendChild(
+                modalHomeIconCmdInput.appendChild(
                     elCreateTextTn('option', {"value": "homeIconGoto"}, title)
                 );
-                setData(selectHomeIconCmd.lastChild, 'options', {"options": ["Type", paramName]});
+                setData(modalHomeIconCmdInput.lastChild, 'options', {"options": ["Type", paramName]});
             }
         }
     }
@@ -314,13 +391,13 @@ function populateHomeIconCmdSelect(cmd, type) {
  */
 function showHomeIconCmdOptions(values) {
     const oldOptions = [];
-    const optionEls = document.querySelectorAll('#divHomeIconOptions input');
+    const optionEls = document.querySelectorAll('#modalHomeIconCmdOptions input');
     for (const optionEl of optionEls) {
         oldOptions.push(optionEl.value);
     }
-    const divHomeIconOptions = elGetById('divHomeIconOptions');
-    elClear(divHomeIconOptions);
-    const options = getSelectedOptionDataId('selectHomeIconCmd', 'options');
+    const modalHomeIconCmdOptions = elGetById('modalHomeIconCmdOptions');
+    elClear(modalHomeIconCmdOptions);
+    const options = getSelectedOptionDataId('modalHomeIconCmdInput', 'options');
     if (options !== undefined) {
         for (let i = 0, j = options.options.length; i < j; i++) {
             let value = values !== undefined
@@ -341,7 +418,7 @@ function showHomeIconCmdOptions(values) {
                     createHomeIconCmdOptionEl(options.options[i], value)
                 )
             ]);
-            divHomeIconOptions.appendChild(row);
+            modalHomeIconCmdOptions.appendChild(row);
         }
     }
 }
@@ -376,6 +453,6 @@ function createHomeIconCmdOptionEl(name, value) {
  * @returns {void}
  */
 function getHomeIconPictureList() {
-    const selectHomeIconImage = elGetById('inputHomeIconImage');
+    const selectHomeIconImage = elGetById('modalHomeIconImageInput');
     getImageList(selectHomeIconImage, [{"value": "", "text": tn('Use ligature')}], 'thumbs');
 }

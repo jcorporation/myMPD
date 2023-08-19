@@ -2437,79 +2437,78 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <input type="hidden" id="inputHomeIconReplace"/>
-          <input type="hidden" id="inputHomeIconOldpos"/>
           <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="inputHomeIconName" data-phrase="Name"></label>
+            <label class="col-sm-4 col-form-label" for="modalHomeIconNameInput" data-phrase="Name"></label>
             <div class="col-sm-8">
-              <input id="inputHomeIconName" class="form-control"/>
+              <input id="modalHomeIconNameInput" class="form-control"/>
+              <div class="invalid-feedback" data-phrase="Invalid name"></div>
             </div>
           </div>
           <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="inputHomeIconImage" data-phrase="Picture"></label>
+            <label class="col-sm-4 col-form-label" for="modalHomeIconImageInput" data-phrase="Picture"></label>
             <div class="col-sm-8">
               <div class="btn-group d-flex">
-                <input data-is="mympd-select-search" data-placeholder-phrase="Type or select picture" class="form-control" id="inputHomeIconImage"/>
+                <input data-is="mympd-select-search" data-placeholder-phrase="Type or select picture" class="form-control" id="modalHomeIconImageInput"/>
               </div>
             </div>
           </div>
           <div id="divHomeIconLigature" class="d-none">
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputHomeIconLigature" data-phrase="Ligature"></label>
+              <label class="col-sm-4 col-form-label" for="modalHomeIconLigatureInput" data-phrase="Ligature"></label>
               <div class="col-sm-8">
                 <div class="input-group">
-                  <input class="form-control" id="inputHomeIconLigature" readonly="readonly"/>
+                  <input class="form-control" id="modalHomeIconLigatureInput" readonly="readonly"/>
                   <div class="btn-group">
-                    <button id="btnHomeIconLigature" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
-                    <div id="dropdownHomeIconLigature" class="dropdown-menu px-2">
+                    <button id="modalHomeIconLigatureBtn" type="button" data-bs-toggle="dropdown" class="rounded-start-0 text-left btn btn-secondary dropdown-toggle"></button>
+                    <div class="dropdown-menu px-2 dropdownHomeIconLigature">
                       <div class="row">
                         <div class="col position-relative">
-                          <input data-is="mympd-input-clear" data-clear-event="keyup" id="searchHomeIconLigature" class="form-control" data-placeholder-phrase="Filter"/>
+                          <input data-is="mympd-input-clear" data-clear-event="keyup" id="modalHomeIconLigatureSearch" class="form-control" data-placeholder-phrase="Filter"/>
                         </div>
                         <div class="col">
-                          <select id="searchHomeIconCat" class="form-select"></select>
+                          <select id="modalHomeIconSearchCat" class="form-select"></select>
                         </div>
                       </div>
-                      <div id="listHomeIconLigature"></div>
+                      <div id="modalHomeIconLigatureList" class="homeIconLigatureList"></div>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputHomeIconColor" data-phrase="Color"></label>
+              <label class="col-sm-4 col-form-label" for="modalHomeIconColorInput" data-phrase="Color"></label>
               <div class="col-sm-8">
-                <input id="inputHomeIconColor" class="form-control" type="color"/>
+                <input id="modalHomeIconColorInput" class="form-control" type="color"/>
               </div>
             </div>
           </div>
           <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="inputHomeIconBgcolor" data-phrase="Background color"></label>
+            <label class="col-sm-4 col-form-label" for="modalHomeIconBgcolorInput" data-phrase="Background color"></label>
             <div class="col-sm-8">
-              <input id="inputHomeIconBgcolor" class="form-control" type="color"/>
+              <input id="modalHomeIconBgcolorInput" class="form-control" type="color"/>
             </div>
           </div>
           <div class="mb-3 row">
             <label class="col-sm-4 col-form-label" data-phrase="Preview"></label>
             <div class="col-sm-8">
-              <div id="homeIconPreview" class="mi"></div>
+              <div id="modalHomeIconPreview" class="mi homeIconPreview"></div>
             </div>
           </div>
           <hr/>
           <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="selectHomeIconCmd" data-phrase="Action"></label>
+            <label class="col-sm-4 col-form-label" for="modalHomeIconCmdInput" data-phrase="Action"></label>
             <div class="col-sm-8">
-              <select id="selectHomeIconCmd" class="form-select"></select>
+              <select id="modalHomeIconCmdInput" class="form-select"></select>
             </div>
           </div>
           <div class="mb-3 row">
             <label class="col-sm-4 col-form-label" data-phrase="Options"></label>
-            <div class="col-sm-8" id="divHomeIconOptions"></div>
+            <div class="col-sm-8" id="modalHomeIconCmdOptions"></div>
           </div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"saveHomeIcon","options":[]}' type="button" class="btn btn-success" data-phrase="Save"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd":"saveHomeIcon","options":["target"]}' data-phrase="Save"></button>
         </div>
       </div>
     </div>
