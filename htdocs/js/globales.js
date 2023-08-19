@@ -1342,7 +1342,7 @@ const keymap = {
         "M": {"order": 205, "cmd": "openModal", "options": ["modalMaintenance"], "desc": "Open maintenance"},
         "N": {"order": 206, "cmd": "showModalNotifications", "options": [], "desc": "Open notifications"},
         "O": {"order": 207, "cmd": "openModal", "options": ["modalMounts"], "desc": "Open mounts", "feature": "featMounts"},
-        "P": {"order": 207, "cmd": "openModal", "options": ["modalPartitions"], "desc": "Open partitions", "feature": "featPartitions"},
+        "P": {"order": 207, "cmd": "showPartitionsModal", "options": [], "desc": "Open partitions", "feature": "featPartitions"},
         "Q": {"order": 203, "cmd": "showPlaybackModal", "options": [], "desc": "Open queue settings"},
         "S": {"order": 207, "cmd": "showListScriptModal", "options": [], "desc": "Open scripts", "feature": "featScripting"},
         "T": {"order": 204, "cmd": "showSettingsModal", "options": [], "desc": "Open settings"},

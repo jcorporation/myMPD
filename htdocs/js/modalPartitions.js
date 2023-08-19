@@ -10,7 +10,7 @@
  * @returns {void}
  */
 function initModalPartitions() {
-    elGetById('listPartitionsList').addEventListener('click', function(event) {
+    elGetById('modalPartitionsPartitionsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'A') {
@@ -30,131 +30,30 @@ function initModalPartitions() {
             switchPartition(getData(target, 'partition'));
         }
     }, false);
-
-    elGetById('partitionOutputsList').addEventListener('click', function(event) {
-        event.stopPropagation();
-        event.preventDefault();
-        if (event.target.nodeName === 'BUTTON') {
-            toggleBtnChk(event.target, undefined);
-        }
-        else if (event.target.nodeName === 'TD') {
-            const target = event.target.parentNode.firstChild.firstChild;
-            toggleBtnChk(target, undefined);
-        }
-    }, false);
-
-    elGetById('modalPartitions').addEventListener('shown.bs.modal', function () {
-        showListPartitions();
-    });
-
-    elGetById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
-        //get all outputs
-        sendAPIpartition("default", "MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
-            const outputList = elGetById('partitionOutputsList');
-            if (checkResult(obj, outputList) === false) {
-                return;
-            }
-            allOutputs = obj.result.data;
-            //get partition specific outputs
-            sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, parsePartitionOutputsList, true);
-        }, true);
-    });
 }
 
 /**
- * Moves the selected outputs to the current partition
+ * Shows the partition modal
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function moveOutputs() {
-    const outputs = [];
-    const selection = document.querySelectorAll('#partitionOutputsList .active');
-    if (selection.length === 0) {
-        return;
-    }
-    for (let i = 0, j = selection.length; i < j; i++) {
-        outputs.push(getData(selection[i].parentNode.parentNode, 'output'));
-    }
-    sendAPI("MYMPD_API_PARTITION_OUTPUT_MOVE", {
-        "outputs": outputs
-    }, moveOutputsCheckError, true);
-}
-
-/**
- * Handler for the MYMPD_API_PARTITION_OUTPUT_MOVE jsonrpc response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function moveOutputsCheckError(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
-        uiElements.modalPartitionOutputs.hide();
-        showNotification(tn('Outputs moved to current partition'), 'general', 'info');
-    }
-}
-
-/**
- * Parses the MYMPD_API_PLAYER_OUTPUT_LIST jsonrpc response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function parsePartitionOutputsList(obj) {
-    const outputList = elGetById('partitionOutputsList');
-    if (checkResult(obj, outputList) === false) {
-        return;
-    }
-
-    elClear(outputList);
-    /** @type {object} */
-    const curOutputs = [];
-    for (let i = 0; i < obj.result.numOutputs; i++) {
-        if (obj.result.data[i].plugin !== 'dummy') {
-            curOutputs.push(obj.result.data[i].name);
-        }
-    }
-
-    const selBtn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-sm", "me-3"]}, 'radio_button_unchecked');
-
-    let nr = 0;
-    for (let i = 0, j = allOutputs.length; i < j; i++) {
-        if (curOutputs.includes(allOutputs[i].name) === false) {
-            const tr = elCreateNode('tr', {},
-                elCreateNodes('td', {}, [
-                    selBtn.cloneNode(true),
-                    document.createTextNode(allOutputs[i].name)
-                ])
-            );
-            setData(tr, 'output', allOutputs[i].name);
-            outputList.appendChild(tr);
-            nr++;
-        }
-    }
-    if (nr === 0) {
-        outputList.appendChild(emptyRow(1));
-    }
+function showPartitionsModal() {
+    showListPartitions();
+    uiElements.modalPartitions.show();
 }
 
 /**
  * Creates a new partition
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function savePartition() {
+function savePartition(target) {
     cleanupModalId('modalPartitions');
-    let formOK = true;
-
-    const nameEl = elGetById('inputPartitionName');
-    if (!validatePlistEl(nameEl)) {
-        formOK = false;
-    }
-
-    if (formOK === true) {
-        sendAPI("MYMPD_API_PARTITION_NEW", {
-            "name": nameEl.value
-        }, savePartitionCheckError, true);
-    }
+    btnWaiting(target, true);
+    sendAPI("MYMPD_API_PARTITION_NEW", {
+        "name": elGetById('modalPartitionsNameInput').value
+    }, savePartitionCheckError, true);
 }
 
 /**
@@ -163,10 +62,7 @@ function savePartition() {
  * @returns {void}
  */
 function savePartitionCheckError(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
+    if (modalApply(obj) === true) {
         showListPartitions();
     }
 }
@@ -178,11 +74,11 @@ function savePartitionCheckError(obj) {
 //eslint-disable-next-line no-unused-vars
 function showNewPartition() {
     cleanupModalId('modalPartitions');
-    elGetById('listPartitions').classList.remove('active');
-    elGetById('newPartition').classList.add('active');
-    elHideId('listPartitionsFooter');
-    elShowId('newPartitionFooter');
-    const nameEl = elGetById('inputPartitionName');
+    elGetById('modalPartitionsListTab').classList.remove('active');
+    elGetById('modalPartitionsNewTab').classList.add('active');
+    elHideId('modalPartitionsListFooter');
+    elShowId('modalPartitionsNewFooter');
+    const nameEl = elGetById('modalPartitionsNameInput');
     nameEl.value = '';
     setFocus(nameEl);
 }
@@ -193,10 +89,10 @@ function showNewPartition() {
  */
 function showListPartitions() {
     cleanupModalId('modalPartitions');
-    elGetById('listPartitions').classList.add('active');
-    elGetById('newPartition').classList.remove('active');
-    elShowId('listPartitionsFooter');
-    elHideId('newPartitionFooter');
+    elGetById('modalPartitionsListTab').classList.add('active');
+    elGetById('modalPartitionsNewTab').classList.remove('active');
+    elShowId('modalPartitionsListFooter');
+    elHideId('modalPartitionsNewFooter');
     sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, true);
 }
 
@@ -243,7 +139,7 @@ function switchPartition(partition) {
         webSocketConnect();
     }, 0);
     getSettings();
-    BSN.Modal.getInstance(elGetById('modalPartitions')).hide();
+    uiElements.modalPartition.hide();
     showNotification(tn('Partition switched'), 'general', 'info');
 }
 
@@ -253,7 +149,7 @@ function switchPartition(partition) {
  * @returns {void}
  */
 function parsePartitionList(obj) {
-    const partitionList = elGetById('listPartitionsList');
+    const partitionList = elGetById('modalPartitionsPartitionsList');
     if (checkResult(obj, partitionList) === false) {
         return;
     }

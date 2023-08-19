@@ -68,13 +68,13 @@
     <div class="offcanvas-body">
       <a class="dropdown-item py-2" data-title-phrase="Shortcut: A" href="#" data-href='{"cmd": "showAddToPlaylist", "options": ["stream", []]}'><span class="mi me-2">playlist_add</span><span data-phrase="Add stream"></span></a>
       <div class="dropdown-divider"></div>
-      <a class="dropdown-item py-2 alwaysEnabled" data-title-phrase="Shortcut: C" data-href='{"cmd": "showConnectionModal", "options": []}'><span class="mi me-2">settings_ethernet</span><span data-phrase="MPD connection"></span></a>
+      <a class="dropdown-item py-2 alwaysEnabled" data-title-phrase="Shortcut: C" href="#" data-href='{"cmd": "showConnectionModal", "options": []}'><span class="mi me-2">settings_ethernet</span><span data-phrase="MPD connection"></span></a>
       <a class="dropdown-item py-2" data-title-phrase="Shortcut: T" data-href='{"cmd": "showSettingsModal", "options": []}'><span class="mi me-2">settings</span><span data-phrase="Settings"></span></a>
       <a class="dropdown-item py-2 featScripting" data-title-phrase="Shortcut: S" href="#" data-href='{"cmd": "showListScriptModal", "options": []}'><span class="mi me-2">code</span><span data-phrase="Scripts"></span></a>
       <a class="dropdown-item py-2 featTimer" data-title-phrase="Shortcut: I" data-bs-toggle="modal" href="#modalTimer"><span class="mi me-2">timer</span><span data-phrase="Timer"></span></a>
       <a class="dropdown-item py-2 featTrigger" data-title-phrase="Shortcut: G" data-bs-toggle="modal" href="#modalTrigger"><span class="mi me-2">bolt</span><span data-phrase="Trigger"></span></a>
       <a class="dropdown-item py-2 featMounts" data-title-phrase="Shortcut: O" data-bs-toggle="modal" href="#modalMounts"><span class="mi me-2">dns</span><span data-phrase="Mounts"></span></a>
-      <a class="dropdown-item py-2 featPartitions" data-title-phrase="Shortcut: P" data-bs-toggle="modal" href="#modalPartitions"><span class="mi me-2">dashboard</span><span data-phrase="Partitions"></span></a>
+      <a class="dropdown-item py-2 featPartitions" data-title-phrase="Shortcut: P" href="#" data-href='{"cmd": "showPartitionsModal", "options": []}'><span class="mi me-2">dashboard</span><span data-phrase="Partitions"></span></a>
       <div class="dropdown-divider"></div>
       <a class="dropdown-item py-2" data-title-phrase="Shortcut: M" data-bs-toggle="modal" href="#modalMaintenance"><span class="mi me-2">build</span><span data-phrase="Maintenance"></span></a>
       <a class="dropdown-item py-2 featLibrary" href="browse/" target="_blank"><span class="mi me-2">folder_open</span><span data-phrase="Browse directories"></span></a>
@@ -1076,8 +1076,8 @@
           <div id="outputsDropdown" class="dropdown-menu">
             <form id="outputs" class="px-3 py-2 d-grid gap-2 overflow-auto"></form>
             <div class="dropdown-divider featPartitions"></div>
-            <a class="dropdown-item featPartitions" data-title-phrase="Manage partitions" data-bs-toggle="modal" href="#modalPartitions"><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
-            <a data-phrase="Move an output to this partition" class="dropdown-item featPartitions" data-bs-toggle="modal" href="#modalPartitionOutputs"></a>
+            <a class="dropdown-item featPartitions" data-title-phrase="Manage partitions" href="#" data-href='{"cmd": "showPartitionsModal", "options": []}'><span data-phrase="Current partition"></span>: <span id="partitionName"></span></a>
+            <a class="dropdown-item featPartitions" data-phrase="Move an output to this partition" href="#" data-href='{"cmd": "showPartitionOutputsModal", "options": []}'></a>
             <div class="dropdown-divider"></div>
             <div class="dropdown-item">
               <span data-phrase="Volume"></span>: <span id="volumePrct"></span>
@@ -2250,16 +2250,16 @@
         </div>
         <div class="modal-body">
           <div class="tab-content">
-            <div id="newPartition" class="tab-pane">
+            <div id="modalPartitionsNewTab" class="tab-pane">
               <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputPartitionName" data-phrase="Partition name"></label>
+                <label class="col-sm-4 col-form-label" for="modalPartitionsNameInput" data-phrase="Partition name"></label>
                 <div class="col-sm-8">
-                  <input id="inputPartitionName" class="form-control"/>
+                  <input id="modalPartitionsNameInput" class="form-control" data-placeholder-phrase="Partition name"/>
                   <div class="invalid-feedback" data-phrase="Invalid partition name"></div>
                 </div>
               </div>
             </div>
-            <div class="tab-pane active" id="listPartitions">
+            <div class="tab-pane active" id="modalPartitionsListTab">
               <div class="table-responsive overflow-auto">
                 <table class="table table-hover table-sm">
                   <thead>
@@ -2268,19 +2268,19 @@
                       <th></th>
                     </tr>
                   </thead>
-                  <tbody id="listPartitionsList" class="clickable"></tbody>
+                  <tbody id="modalPartitionsPartitionsList" class="clickable"></tbody>
                 </table>
               </div>
             </div>
           </div>
         </div>
-        <div class="modal-footer justify-content-between" id="listPartitionsFooter">
+        <div class="modal-footer justify-content-between" id="modalPartitionsListFooter">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showNewPartition","options":["",""]}' class="btn btn-success protected" data-phrase="New partition"></button>
         </div>
-        <div id="newPartitionFooter" class="modal-footer justify-content-between d-none">
+        <div class="modal-footer justify-content-between d-none" id="modalPartitionsNewFooter" >
           <button data-href='{"cmd":"showListPartitions","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"savePartition","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
+          <button data-href='{"cmd":"savePartition","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -2302,7 +2302,7 @@
                   <th data-phrase="Output"></th>
                 </tr>
               </thead>
-              <tbody id="partitionOutputsList" class="clickable"></tbody>
+              <tbody id="modalPartitionOutputsList" class="clickable"></tbody>
             </table>
           </div>
         </div>
@@ -2961,6 +2961,7 @@
 <!--debug-->  <script src="js/modalMounts.js"></script>
 <!--debug-->  <script src="js/modalNotifications.js"></script>
 <!--debug-->  <script src="js/modalOutputAttributes.js"></script>
+<!--debug-->  <script src="js/modalPartitionOutputs.js"></script>
 <!--debug-->  <script src="js/modalPartitions.js"></script>
 <!--debug-->  <script src="js/modalPlaylistAddTo.js"></script>
 <!--debug-->  <script src="js/modalPlaylistCopy.js"></script>
