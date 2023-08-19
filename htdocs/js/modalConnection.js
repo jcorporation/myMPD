@@ -49,11 +49,20 @@ function initModalSettingsConnection() {
             playlistDirInput.removeAttribute('readonly');
         }
     }, false);
+}
 
-    document.getElementById('modalConnection').addEventListener('shown.bs.modal', function() {
-        // use the shown event to populate the connection modal
-        cleanupModalId('modalConnection');
-        getSettings();
+/**
+ * Shows the connection modal and refreshes the settings before
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showConnectionModal() {
+    getSettings(function(obj) {
+        if (parseSettings(obj) === true) {
+            cleanupModalId('modalConnection');
+            populateConnectionFrm();
+            uiElements.modalConnection.show();
+        }
     });
 }
 

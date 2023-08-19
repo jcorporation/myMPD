@@ -287,7 +287,7 @@
     "helpJukeboxQueueLength": "Anzahl der Lieder in der Warteschlange bevor die Jukebox neue Lieder hinzufügt.",
     "helpJukeboxUniqueTag": "Erzwingt Eindeutigkeit des gewählten Tags über die Warteschlange und den zuletzt 50 gespielten Lieder hinweg.",
     "helpQueueAutoPlay": "Startet die Wiedergabe sobald die Warteschlange geändert wurde.",
-    "helpQueueConsume": "Entfernt das Lied von der Wiedergabeliste nachdem er gespielt wurde.",
+    "helpQueueConsume": "Entfernt das Lied von der Wiedergabeliste nachdem es gespielt wurde.",
     "helpQueueCrossfade": "Aktiviert Crossfading.",
     "helpQueueMixrampDb": "Setzt den Schwellwert zu dem Lieder überlappen.",
     "helpQueueMixrampDelay": "Zusätzliche Zeit, die von der errechneten Überlappung von Mixramp DB abgezogen wird.",

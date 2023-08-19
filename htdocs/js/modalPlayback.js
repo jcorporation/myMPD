@@ -18,12 +18,6 @@ function initModalSettingsPlayback() {
 
     uiElements.modalPlaybackJukeboxCollapse = BSN.Collapse.getInstance(document.getElementById('modalPlaybackJukeboxCollapse'));
 
-    document.getElementById('modalPlayback').addEventListener('shown.bs.modal', function() {
-        // use the shown event to populate the playback modal
-        cleanupModalId('modalPlayback');
-        getSettings();
-    });
-
     document.getElementById('modalPlaybackJukeboxModeGroup').addEventListener('mouseup', function() {
         setTimeout(function() {
             toggleJukeboxSettings();
@@ -51,6 +45,21 @@ function initModalSettingsPlayback() {
             deletePreset(event.target, getData(event.target.parentNode.parentNode, 'name'));
         }
     }, false);
+}
+
+/**
+ * Shows the playback modal and refreshes the settings before
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showPlaybackModal() {
+    getSettings(function(obj) {
+        if (parseSettings(obj) === true) {
+            cleanupModalId('modalPlayback');
+            populatePlaybackFrm();
+            uiElements.modalPlayback.show();
+        }
+    });
 }
 
 /**
@@ -208,7 +217,7 @@ function createPresetsListRow(preset) {
  * Populates the playback settings modal
  * @returns {void}
  */
-function populateSettingsPlaybackFrm() {
+function populatePlaybackFrm() {
     jsonToForm(settings.partition, settingsPlaybackFields, 'modalPlayback');
 
     toggleBtnGroupValueCollapse(document.getElementById('modalPlaybackJukeboxModeGroup'), 'modalPlaybackJukeboxCollapse', settings.partition.jukeboxMode);

@@ -7,25 +7,33 @@
 
 /**
  * Fetches all myMPD and MPD settings
+ * @param {Function} [callback] callback function to execute
  * @returns {void}
  */
-function getSettings() {
+function getSettings(callback) {
     settingsParsed = 'no';
-    sendAPI('MYMPD_API_SETTINGS_GET', {}, parseSettings, true);
+    if (callback === undefined) {
+        // only parse the settings
+        callback = parseSettings;
+    }
+    // callback is used to populate modals
+    sendAPI('MYMPD_API_SETTINGS_GET', {}, callback, true);
 }
 
 /**
  * Parses the MYMPD_API_SETTINGS_GET jsonrpc response
  * @param {object} obj jsonrpc response
- * @returns {void}
+ * @returns {boolean} true on success, else false
  */
 function parseSettings(obj) {
     if (obj.error) {
         settingsParsed = 'error';
         if (appInited === false) {
-            showAppInitAlert(obj.error.message === undefined ? tn('Can not parse settings') : tn(obj.error.message));
+            showAppInitAlert(obj.error.message === undefined
+                ? tn('Can not parse settings')
+                : tn(obj.error.message));
         }
-        return;
+        return false;
     }
     settings = obj.result;
 
@@ -49,19 +57,6 @@ function parseSettings(obj) {
 
     //set features object from settings
     setFeatures();
-
-    //execute only if settings modal is displayed
-    if (document.getElementById('modalSettings').classList.contains('show')) {
-        populateSettingsFrm();
-    }
-    //execute only if connection modal is displayed
-    if (document.getElementById('modalConnection').classList.contains('show')) {
-        populateConnectionFrm();
-    }
-    //execute only if queue settings modal is displayed
-    if (document.getElementById('modalPlayback').classList.contains('show')) {
-        populateSettingsPlaybackFrm();
-    }
 
     //locales
     setLocale(settings.webuiSettings.locale);
@@ -284,6 +279,7 @@ function parseSettings(obj) {
     applyFeatures();
     settingsParsed = 'parsed';
     myMPDready = true;
+    return true;
 }
 
 /**

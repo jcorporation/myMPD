@@ -39,12 +39,7 @@ function applyPreset(name) {
  * @returns {void}
  */
  function applyPresetCheckError(obj) {
-    if (obj.error) {
-        if (getOpenModal() !== null) {
-            showModalAlert(obj);
-        }
-    }
-    else {
+    if (modalClose(obj) === true) {
         getSettings();
     }
 }
@@ -70,10 +65,7 @@ function deletePreset(el, name) {
  * @returns {void}
  */
  function deletePresetCheckError(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
+    if (modalClose(obj) === true) {
         getSettings();
     }
 }

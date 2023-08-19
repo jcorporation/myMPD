@@ -34,11 +34,20 @@ function initModalSettings() {
             }
         }
     }
+}
 
-    document.getElementById('modalSettings').addEventListener('shown.bs.modal', function() {
-        // use the shown event to populate the settings modal
-        cleanupModalId('modalSettings');
-        getSettings();
+/**
+ * Shows the connection modal and refreshes the settings before
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showSettingsModal() {
+    getSettings(function(obj) {
+        if (parseSettings(obj) === true) {
+            cleanupModalId('modalSettings');
+            populateSettingsFrm();
+            uiElements.modalSettings.show();
+        }
     });
 }
 
