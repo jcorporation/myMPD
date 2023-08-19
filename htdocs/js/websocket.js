@@ -31,10 +31,7 @@ function webSocketConnect() {
         return;
     }
 
-    const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
-        window.location.hostname +
-        (window.location.port !== '' ? ':' + window.location.port : '') +
-        subdir + '/ws/' + localSettings.partition;
+    const wsUrl = getMyMPDuri('ws') + '/ws/' + localSettings.partition;
     socket = new WebSocket(wsUrl);
     logDebug('Connecting to ' + wsUrl);
 

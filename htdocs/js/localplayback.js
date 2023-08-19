@@ -154,8 +154,7 @@ function createLocalPlaybackEl(createEvent) {
     {
         //load and play
         if (settings.partition.streamUri === '') {
-            localPlayer.src = window.location.protocol + '//' + window.location.hostname +
-                (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/stream/' + localSettings.partition;
+            localPlayer.src = getMyMPDuri() + '/stream/' + localSettings.partition;
         }
         else {
             localPlayer.src = settings.partition.streamUri;

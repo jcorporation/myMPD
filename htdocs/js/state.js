@@ -364,8 +364,7 @@ function mediaSessionSetMetadata(title, artist, album, url) {
     if (features.featMediaSession === false) {
         return;
     }
-    const artwork = window.location.protocol + '//' + window.location.hostname +
-        (window.location.port !== '' ? ':' + window.location.port : '') + subdir + '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(url);
+    const artwork = getMyMPDuri() + '/albumart-thumb?offset=0&uri=' + myEncodeURIComponent(url);
     navigator.mediaSession.metadata = new MediaMetadata({
         title: title,
         artist: joinArray(artist),

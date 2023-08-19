@@ -480,3 +480,17 @@ async function httpGet(uri, callback, json) {
         callback(null);
     }
 }
+
+/**
+ * Returns the myMPD uri calculated from the window location
+ * @param {string} [proto] protocol to return, allowed: http or ws
+ * @returns {string} myMPD uri
+ */
+function getMyMPDuri(proto) {
+    const protocol = proto === 'ws'
+        ? window.location.protocol === 'https:' ? 'wss:' : 'ws:'
+        : window.location.protocol;
+    return protocol + window.location.hostname +
+            (window.location.port !== '' ? ':' + window.location.port : '') +
+            subdir;
+}
