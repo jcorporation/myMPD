@@ -81,12 +81,9 @@ function parseOutputs(obj) {
     //prevent overflow of dropup
     const outputsEl = elGetById('outputs');
     const posY = getYpos(elGetById('outputsDropdown'));
-    if (posY < 0) {
-        outputsEl.style.maxHeight = (outputsEl.offsetHeight + posY) + 'px';
-    }
-    else {
-        outputsEl.style.maxHeight = 'none';
-    }
+    outputsEl.style.maxHeight = posY < 0
+        ? (outputsEl.offsetHeight + posY) + 'px'
+        : outputsEl.style.maxHeight = 'none';
 }
 
 /**

@@ -162,7 +162,9 @@ function createPaginationEls(totalPages, curPage) {
     let end = start + 5;
     if (end >= totalPages) {
         end = totalPages - 1;
-        start = end - 6 > 1 ? end - 6 : 1;
+        start = end - 6 > 1
+            ? end - 6
+            : 1;
     }
 
     const first = elCreateEmpty('button', {"data-title-phrase": "First page", "type": "button", "class": ["btn", "btn-secondary"]});
