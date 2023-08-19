@@ -151,9 +151,9 @@ sds mympd_api_partition_rm(struct t_partition_state *partition_state, sds buffer
         }
         mpd_client_command_list_end_check(partition_state);
     }
-    mpd_response_finish(partition_to_remove->conn);
+    mpd_response_finish(partition_state->conn);
     list_clear(&outputs);
-    if (mympd_check_error_and_recover_respond(partition_to_remove, &buffer, cmd_id, request_id, "mpd_send_move_output") == false) {
+    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_send_move_output") == false) {
         return buffer;
     }
     //wait
