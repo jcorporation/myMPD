@@ -10,7 +10,7 @@
  * @returns {void}
  */
 function initModalSongDetails() {
-    document.getElementById('modalSongDetailsTagsList').addEventListener('click', function(event) {
+    elGetById('modalSongDetailsTagsList').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             if (event.target.id === 'calcFingerprint') {
                 sendAPI("MYMPD_API_SONG_FINGERPRINT", {
@@ -111,14 +111,14 @@ function songDetailsRow(thContent, tdContent) {
  * @returns {void}
  */
 function parseSongDetails(obj) {
-    const modal = document.getElementById('modalSongDetails');
+    const modal = elGetById('modalSongDetails');
     modal.querySelector('.album-cover').style.backgroundImage = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.uri));
 
     const elH1s = modal.querySelectorAll('h1');
     for (let i = 0, j = elH1s.length; i < j; i++) {
         elH1s[i].textContent = obj.result.Title;
     }
-    const tbody = document.getElementById('modalSongDetailsTagsList');
+    const tbody = elGetById('modalSongDetailsTagsList');
     elClear(tbody);
     for (let i = 0, j = settings.tagList.length; i < j; i++) {
         if (settings.tagList[i] === 'Title' ||
@@ -252,10 +252,10 @@ function parseSongDetails(obj) {
     }
     //populate other tabs
     if (features.featLyrics === true) {
-        getLyrics(obj.result.uri, document.getElementById('modalSongDetailsTabPicsLyricsText'));
+        getLyrics(obj.result.uri, elGetById('modalSongDetailsTabPicsLyricsText'));
     }
-    getComments(obj.result.uri, document.getElementById('modalSongDetailsCommentsList'));
-    const imgEl = document.getElementById('modalSongDetailsTabPics');
+    getComments(obj.result.uri, elGetById('modalSongDetailsCommentsList'));
+    const imgEl = elGetById('modalSongDetailsTabPics');
     createImgCarousel(imgEl, 'modalSongDetailsPicsCarousel', obj.result.uri, obj.result.images, obj.result.embeddedImageCount);
 }
 

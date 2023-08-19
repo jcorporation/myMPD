@@ -17,15 +17,15 @@ function handleBrowseRadioWebradiodb() {
         return;
     }
     setDataId('BrowseRadioWebradiodbGenreFilter', 'value', app.current.filter['genre']);
-    document.getElementById('BrowseRadioWebradiodbGenreFilter').value = app.current.filter['genre'];
+    elGetById('BrowseRadioWebradiodbGenreFilter').value = app.current.filter['genre'];
     setDataId('BrowseRadioWebradiodbCountryFilter', 'value', app.current.filter['country']);
-    document.getElementById('BrowseRadioWebradiodbCountryFilter').value = app.current.filter['country'];
+    elGetById('BrowseRadioWebradiodbCountryFilter').value = app.current.filter['country'];
     setDataId('BrowseRadioWebradiodbLanguageFilter', 'value', app.current.filter['language']);
-    document.getElementById('BrowseRadioWebradiodbLanguageFilter').value = app.current.filter['language'];
+    elGetById('BrowseRadioWebradiodbLanguageFilter').value = app.current.filter['language'];
     setDataId('BrowseRadioWebradiodbCodecFilter', 'value', app.current.filter['codec']);
-    document.getElementById('BrowseRadioWebradiodbCodecFilter').value = app.current.filter['codec'];
+    elGetById('BrowseRadioWebradiodbCodecFilter').value = app.current.filter['codec'];
     setDataId('BrowseRadioWebradiodbBitrateFilter', 'value', app.current.filter['bitrate']);
-    document.getElementById('BrowseRadioWebradiodbBitrateFilter').value = app.current.filter['bitrate'];
+    elGetById('BrowseRadioWebradiodbBitrateFilter').value = app.current.filter['bitrate'];
 
     const result = searchWebradiodb(app.current.search, app.current.filter['genre'],
         app.current.filter['country'], app.current.filter['language'], app.current.filter['codec'],
@@ -38,7 +38,7 @@ function handleBrowseRadioWebradiodb() {
  * @returns {void}
  */
 function initViewBrowseRadioWebradiodb() {
-    document.getElementById('BrowseRadioWebradiodbSearchStr').addEventListener('keyup', function(event) {
+    elGetById('BrowseRadioWebradiodbSearchStr').addEventListener('keyup', function(event) {
         if (ignoreKeys(event) === true) {
             return;
         }
@@ -48,14 +48,14 @@ function initViewBrowseRadioWebradiodb() {
         }, searchTimerTimeout);
     }, false);
 
-    document.getElementById('BrowseRadioWebradiodbFilter').addEventListener('shown.bs.collapse', function() {
-        document.getElementById('BrowseRadioWebradiodbFilterBtn').classList.add('active');
-        setScrollViewHeight(document.getElementById('BrowseRadioWebradiodbList'));
+    elGetById('BrowseRadioWebradiodbFilter').addEventListener('shown.bs.collapse', function() {
+        elGetById('BrowseRadioWebradiodbFilterBtn').classList.add('active');
+        setScrollViewHeight(elGetById('BrowseRadioWebradiodbList'));
     }, false);
 
-    document.getElementById('BrowseRadioWebradiodbFilter').addEventListener('hidden.bs.collapse', function() {
-        document.getElementById('BrowseRadioWebradiodbFilterBtn').classList.remove('active');
-        setScrollViewHeight(document.getElementById('BrowseRadioWebradiodbList'));
+    elGetById('BrowseRadioWebradiodbFilter').addEventListener('hidden.bs.collapse', function() {
+        elGetById('BrowseRadioWebradiodbFilterBtn').classList.remove('active');
+        setScrollViewHeight(elGetById('BrowseRadioWebradiodbList'));
     }, false);
 
     initWebradiodbFilter('BrowseRadioWebradiodbGenreFilter', 'webradioGenres', 'Genre');
@@ -71,7 +71,7 @@ function initViewBrowseRadioWebradiodb() {
             app.current.offset, app.current.limit, app.current.filter, app.current.sort, '-', app.current.search);
     }, false);
 
-    document.getElementById('BrowseRadioWebradiodbList').addEventListener('click', function(event) {
+    elGetById('BrowseRadioWebradiodbList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {
             const uri = getData(target, 'uri');
@@ -98,7 +98,7 @@ function initViewBrowseRadioWebradiodb() {
  * @returns {void}
  */
 function initWebradiodbFilter(id, dbField, name) {
-    document.getElementById(id).addEventListener('change', function() {
+    elGetById(id).addEventListener('change', function() {
         doSearchWebradiodb();
     }, false);
     setDataId(id, 'cb-filter', 'filterWebradiodbFilter');
@@ -138,7 +138,7 @@ function getWebradiodb() {
  */
 function filterWebradiodbFilter(id, dbField, placeholder, searchStr) {
     searchStr = searchStr.toLowerCase();
-    const el = document.getElementById(id);
+    const el = elGetById(id);
     elClear(el.filterResult);
     el.addFilterResult(tn(placeholder), '');
     let i = 0;
@@ -160,7 +160,7 @@ function filterWebradiodbFilter(id, dbField, placeholder, searchStr) {
  * @returns {void}
  */
 function doSearchWebradiodb() {
-    const searchstr = document.getElementById('BrowseRadioWebradiodbSearchStr').value;
+    const searchstr = elGetById('BrowseRadioWebradiodbSearchStr').value;
     const genre = getDataId('BrowseRadioWebradiodbGenreFilter', 'value');
     const country = getDataId('BrowseRadioWebradiodbCountryFilter', 'value');
     const language = getDataId('BrowseRadioWebradiodbLanguageFilter', 'value');
@@ -269,10 +269,10 @@ function parseSearchWebradiodb(obj) {
         app.current.filter['codec'] === '' &&
         app.current.filter['bitrate'] === '')
     {
-        document.getElementById('BrowseRadioWebradiodbFilterBtn').textContent = 'filter_list_off';
+        elGetById('BrowseRadioWebradiodbFilterBtn').textContent = 'filter_list_off';
     }
     else {
-        document.getElementById('BrowseRadioWebradiodbFilterBtn').textContent = 'filter_list';
+        elGetById('BrowseRadioWebradiodbFilterBtn').textContent = 'filter_list';
     }
 
     if (checkResultId(obj, 'BrowseRadioWebradiodbList') === false) {

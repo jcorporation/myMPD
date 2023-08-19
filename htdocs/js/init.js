@@ -15,7 +15,7 @@
  * @returns {void}
  */
  function showAppInitAlert(text) {
-    const spa = document.getElementById('splashScreenAlert');
+    const spa = elGetById('splashScreenAlert');
     elClear(spa);
     spa.appendChild(
         elCreateTextTn('p', {"class": ["text-light"]}, text)
@@ -101,7 +101,7 @@ function appInitStart() {
             clearTimeout(resizeTimer);
         }
         resizeTimer = setTimeout(function() {
-            const list = document.getElementById(app.id + 'List');
+            const list = elGetById(app.id + 'List');
             if (list) {
                 setScrollViewHeight(list);
             }
@@ -111,7 +111,7 @@ function appInitStart() {
 
     setMobileView();
 
-    i18nHtml(document.getElementById('splashScreenAlert'));
+    i18nHtml(elGetById('splashScreenAlert'));
 
     //set loglevel
     if (debugMode === true) {
@@ -158,7 +158,7 @@ function appInitStart() {
     //show splash screen
     elShowId('splashScreen');
     domCache.body.classList.add('overflow-hidden');
-    document.getElementById('splashScreenAlert').textContent = tn('Fetch myMPD settings');
+    elGetById('splashScreenAlert').textContent = tn('Fetch myMPD settings');
 
     //initialize app
     appInited = false;
@@ -171,11 +171,11 @@ function appInitStart() {
                 webSocketConnect();
             }, 0);
             //app initialized
-            document.getElementById('splashScreenAlert').textContent = tn('Applying settings');
-            document.getElementById('splashScreen').classList.add('hide-fade');
+            elGetById('splashScreenAlert').textContent = tn('Applying settings');
+            elGetById('splashScreen').classList.add('hide-fade');
             setTimeout(function() {
                 elHideId('splashScreen');
-                document.getElementById('splashScreen').classList.remove('hide-fade');
+                elGetById('splashScreen').classList.remove('hide-fade');
                 domCache.body.classList.remove('overflow-hidden');
             }, 500);
             appInit();
@@ -412,7 +412,7 @@ function initNavs() {
         domCache.progressPos.style.display = 'none';
     }, false);
 
-    const navbarMain = document.getElementById('navbar-main');
+    const navbarMain = elGetById('navbar-main');
     navbarMain.addEventListener('click', function(event) {
         event.preventDefault();
         if (event.target.nodeName === 'DIV') {
@@ -443,7 +443,7 @@ function initNavs() {
         showContextMenu(event);
     }, false);
 
-    document.getElementById('scripts').addEventListener('click', function(event) {
+    elGetById('scripts').addEventListener('click', function(event) {
         event.preventDefault();
         const target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
         if (target.nodeName === 'A') {

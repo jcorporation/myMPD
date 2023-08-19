@@ -57,7 +57,7 @@ function gotoPageDir(direction, limit) {
  * @returns {void}
  */
 function setPagination(total, returned) {
-    const curPaginationTop = document.getElementById(app.id + 'PaginationTop');
+    const curPaginationTop = elGetById(app.id + 'PaginationTop');
     if (curPaginationTop === null) {
         return;
     }
@@ -83,7 +83,7 @@ function setPagination(total, returned) {
     curPaginationTop.replaceWith(paginationTop);
 
     //bottom
-    const bottomBar = document.getElementById(app.id + 'ButtonsBottom');
+    const bottomBar = elGetById(app.id + 'ButtonsBottom');
     elClear(bottomBar);
     if (domCache.body.classList.contains('not-mobile') ||
         returned < 25)

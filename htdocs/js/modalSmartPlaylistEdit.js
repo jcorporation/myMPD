@@ -23,9 +23,9 @@ function showSmartPlaylist(plist) {
  * @returns {void}
  */
 function parseSmartPlaylist(obj) {
-    document.getElementById('modalSmartPlaylistEditPlistInput').value = obj.result.plist;
-    document.getElementById('modalSmartPlaylistEditTypeInput').value = tn(obj.result.type);
-    document.getElementById('modalSmartPlaylistEditSortInput').value = obj.result.sort;
+    elGetById('modalSmartPlaylistEditPlistInput').value = obj.result.plist;
+    elGetById('modalSmartPlaylistEditTypeInput').value = tn(obj.result.type);
+    elGetById('modalSmartPlaylistEditSortInput').value = obj.result.sort;
     setDataId('modalSmartPlaylistEditTypeInput', 'value', obj.result.type);
     elHideId('modalSmartPlaylistEditTypeSearch');
     elHideId('modalSmartPlaylistEditTypeSticker');
@@ -34,17 +34,17 @@ function parseSmartPlaylist(obj) {
     switch(obj.result.type) {
         case 'search':
             elShowId('modalSmartPlaylistEditTypeSearch');
-            document.getElementById('modalSmartPlaylistEditExpressionInput').value = obj.result.expression;
+            elGetById('modalSmartPlaylistEditExpressionInput').value = obj.result.expression;
             break;
         case 'sticker':
             elShowId('modalSmartPlaylistEditTypeSticker');
-            document.getElementById('modalSmartPlaylistEditStickerInput').value = obj.result.sticker;
-            document.getElementById('modalSmartPlaylistEditMaxentriesInput').value = obj.result.maxentries;
-            document.getElementById('modalSmartPlaylistEditMinvalueInput').value = obj.result.minvalue;
+            elGetById('modalSmartPlaylistEditStickerInput').value = obj.result.sticker;
+            elGetById('modalSmartPlaylistEditMaxentriesInput').value = obj.result.maxentries;
+            elGetById('modalSmartPlaylistEditMinvalueInput').value = obj.result.minvalue;
             break;
         case 'newest':
             elShowId('modalSmartPlaylistEditTypeNewest');
-            document.getElementById('modalSmartPlaylistEditTimerangeInput').value = obj.result.timerange / 24 / 60 / 60;
+            elGetById('modalSmartPlaylistEditTimerangeInput').value = obj.result.timerange / 24 / 60 / 60;
             break;
         default:
             logError('Invalid smart playlist type: ' + obj.result.type);
@@ -63,7 +63,7 @@ function saveSmartPlaylist(target) {
     cleanupModalId('modalSmartPlaylistEdit');
     btnWaiting(target, true);
 
-    const name = document.getElementById('modalSmartPlaylistEditPlistInput').value;
+    const name = elGetById('modalSmartPlaylistEditPlistInput').value;
     const type = getDataId('modalSmartPlaylistEditTypeInput', 'value');
     const sort = getSelectValueId('modalSmartPlaylistEditSortInput');
 
@@ -71,13 +71,13 @@ function saveSmartPlaylist(target) {
         case 'search':
             sendAPI("MYMPD_API_SMARTPLS_SEARCH_SAVE", {
                 "plist": name,
-                "expression": document.getElementById('modalSmartPlaylistEditExpressionInput').value,
+                "expression": elGetById('modalSmartPlaylistEditExpressionInput').value,
                 "sort": sort
             }, modalClose, true);
             break;
         case 'sticker': {
-            const maxentries = document.getElementById('modalSmartPlaylistEditMaxentriesInput').value;
-            const minvalue = document.getElementById('modalSmartPlaylistEditMinvalueInput').value;
+            const maxentries = elGetById('modalSmartPlaylistEditMaxentriesInput').value;
+            const minvalue = elGetById('modalSmartPlaylistEditMinvalueInput').value;
             sendAPI("MYMPD_API_SMARTPLS_STICKER_SAVE", {
                 "plist": name,
                 "sticker": getSelectValueId('modalSmartPlaylistEditStickerInput'),
@@ -88,7 +88,7 @@ function saveSmartPlaylist(target) {
             break;
         }
         case 'newest': {
-            const timerange = document.getElementById('modalSmartPlaylistEditTimerangeInput').value;
+            const timerange = elGetById('modalSmartPlaylistEditTimerangeInput').value;
             sendAPI("MYMPD_API_SMARTPLS_NEWEST_SAVE", {
                 "plist": name,
                 "timerange": Number(timerange.value) * 60 * 60 * 24,
@@ -97,7 +97,7 @@ function saveSmartPlaylist(target) {
             break;
         }
         default:
-            document.getElementById('modalSmartPlaylistEditTypeInput').classList.add('is-invalid');
+            elGetById('modalSmartPlaylistEditTypeInput').classList.add('is-invalid');
             btnWaiting(target, false);
     }
 }

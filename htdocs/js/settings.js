@@ -134,7 +134,7 @@ function parseSettings(obj) {
     }
     
     if (settings.partition.jukeboxMode !== 'off') {
-        document.getElementById('footerNextBtn').removeAttribute('disabled');
+        elGetById('footerNextBtn').removeAttribute('disabled');
     }
 
     //presets
@@ -146,7 +146,7 @@ function parseSettings(obj) {
     }
 
     //Info in about modal
-    document.getElementById('modalAboutConnection').textContent = settings.mpdHost.indexOf('/') !== 0 ?
+    elGetById('modalAboutConnection').textContent = settings.mpdHost.indexOf('/') !== 0 ?
         settings.mpdHost + ':' + settings.mpdPort : settings.mpdHost;
 
     document.documentElement.style.setProperty('--mympd-thumbnail-size', settings.webuiSettings.thumbnailSize + "px");
@@ -173,7 +173,7 @@ function parseSettings(obj) {
 
     //scripts
     if (scriptsInited === false) {
-        const selectTimerAction = document.getElementById('selectTimerAction');
+        const selectTimerAction = elGetById('selectTimerAction');
         elClearId('selectTimerAction');
         selectTimerAction.appendChild(
             elCreateNodes('optgroup', {"data-value": "player", "data-label-phrase": "Playback", "label": tn('Playback')}, [
@@ -192,8 +192,8 @@ function parseSettings(obj) {
     }
 
     //volumebar
-    document.getElementById('volumeBar').setAttribute('min', settings.volumeMin);
-    document.getElementById('volumeBar').setAttribute('max', settings.volumeMax);
+    elGetById('volumeBar').setAttribute('min', settings.volumeMin);
+    elGetById('volumeBar').setAttribute('max', settings.volumeMax);
 
     //set translations for pregenerated elements
     pEl.actionTdMenu.firstChild.title = tn('Actions');
@@ -287,7 +287,7 @@ function parseSettings(obj) {
  * @returns {void}
  */
 function parseMPDSettings() {
-    document.getElementById('partitionName').textContent = localSettings.partition;
+    elGetById('partitionName').textContent = localSettings.partition;
 
     if (settings.webuiSettings.bgCover === true) {
         setBackgroundImage(domCache.body, currentSongObj.uri);
@@ -296,7 +296,7 @@ function parseMPDSettings() {
         clearBackgroundImage(domCache.body);
     }
 
-    const triggerEventList = document.getElementById('selectTriggerEvent');
+    const triggerEventList = elGetById('selectTriggerEvent');
     elClear(triggerEventList);
     for (const event in settings.triggerEvents) {
         triggerEventList.appendChild(
@@ -367,7 +367,7 @@ function parseMPDSettings() {
     }
     else {
         //construct playback view
-        const pbtl = document.getElementById('PlaybackListTags');
+        const pbtl = elGetById('PlaybackListTags');
         elClear(pbtl);
         for (let i = 0, j = settings.colsPlayback.length; i < j; i++) {
             let colWidth;
@@ -443,13 +443,13 @@ function parseMPDSettings() {
  * @returns {void}
  */
 function setNavbarIcons() {
-    const oldBadgeQueueItems = document.getElementById('badgeQueueItems');
+    const oldBadgeQueueItems = elGetById('badgeQueueItems');
     let oldQueueLength = 0;
     if (oldBadgeQueueItems) {
         oldQueueLength = Number(oldBadgeQueueItems.textContent);
     }
 
-    const container = document.getElementById('navbar-main');
+    const container = elGetById('navbar-main');
     elClear(container);
 
     if (settings.webuiSettings.showBackButton === true) {

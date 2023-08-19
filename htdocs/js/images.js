@@ -27,7 +27,7 @@ function getCssImageUri(uri) {
  */
 //eslint-disable-next-line no-unused-vars
 function getImageListId(selectId, addOptions, type) {
-    getImageList(document.getElementById(selectId), addOptions, type);
+    getImageList(elGetById(selectId), addOptions, type);
 }
 
 /**
@@ -59,7 +59,7 @@ function getImageList(sel, addOptions, type) {
  */
 //eslint-disable-next-line no-unused-vars
 function filterImageSelect(elId, searchstr) {
-    const select = document.getElementById(elId).filterResult;
+    const select = elGetById(elId).filterResult;
     searchstr = searchstr.toLowerCase();
     const items = select.querySelectorAll('li');
     for (const item of items) {
@@ -150,7 +150,7 @@ function zoomPicture(el) {
         }
 
         const uri = getData(el, 'uri');
-        const imgEl = document.getElementById('modalPictureImg');
+        const imgEl = elGetById('modalPictureImg');
         imgEl.style.paddingTop = 0;
         createImgCarousel(imgEl, 'picsCarousel', uri, images, embeddedImageCount);
         elHideId('btnOpenPictureWindow');
@@ -159,7 +159,7 @@ function zoomPicture(el) {
     }
 
     if (el.style.backgroundImage !== '') {
-        const imgEl = document.getElementById('modalPictureImg');
+        const imgEl = elGetById('modalPictureImg');
         elClear(imgEl);
         imgEl.style.paddingTop = '100%';
         imgEl.style.backgroundImage = el.style.backgroundImage;
@@ -174,7 +174,7 @@ function zoomPicture(el) {
  */
 //eslint-disable-next-line no-unused-vars
 function openPictureWindow() {
-    window.open(document.getElementById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
+    window.open(elGetById('modalPictureImg').style.backgroundImage.match(/^url\(["']?([^"']*)["']?\)/)[1]);
 }
 
 /**

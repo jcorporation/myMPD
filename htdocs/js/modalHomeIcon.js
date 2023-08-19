@@ -10,53 +10,53 @@
  * @returns {void}
  */
 function initModalHomeIcon() {
-    const selectHomeIconCmd = document.getElementById('selectHomeIconCmd');
+    const selectHomeIconCmd = elGetById('selectHomeIconCmd');
     selectHomeIconCmd.addEventListener('change', function() {
         showHomeIconCmdOptions(undefined);
     }, false);
 
-    document.getElementById('inputHomeIconBgcolor').addEventListener('change', function(event) {
-        document.getElementById('homeIconPreview').style.backgroundColor = event.target.value;
+    elGetById('inputHomeIconBgcolor').addEventListener('change', function(event) {
+        elGetById('homeIconPreview').style.backgroundColor = event.target.value;
     }, false);
 
-    document.getElementById('inputHomeIconColor').addEventListener('change', function(event) {
-        document.getElementById('homeIconPreview').style.color = event.target.value;
+    elGetById('inputHomeIconColor').addEventListener('change', function(event) {
+        elGetById('homeIconPreview').style.color = event.target.value;
     }, false);
 
-    document.getElementById('inputHomeIconImage').addEventListener('change', function(event) {
+    elGetById('inputHomeIconImage').addEventListener('change', function(event) {
         const value = getData(event.target, 'value');
         if (value !== '') {
-            document.getElementById('homeIconPreview').style.backgroundImage = getCssImageUri(value);
+            elGetById('homeIconPreview').style.backgroundImage = getCssImageUri(value);
             elHideId('divHomeIconLigature');
             elClearId('homeIconPreview');
         }
         else {
-            document.getElementById('homeIconPreview').style.backgroundImage = '';
+            elGetById('homeIconPreview').style.backgroundImage = '';
             elShowId('divHomeIconLigature');
-            document.getElementById('homeIconPreview').textContent =
-                document.getElementById('inputHomeIconLigature').value;
+            elGetById('homeIconPreview').textContent =
+                elGetById('inputHomeIconLigature').value;
         }
     }, false);
 
     setDataId('inputHomeIconImage', 'cb-filter', 'filterImageSelect');
     setDataId('inputHomeIconImage', 'cb-filter-options', ['inputHomeIconImage']);
 
-    document.getElementById('btnHomeIconLigature').parentNode.addEventListener('show.bs.dropdown', function () {
+    elGetById('btnHomeIconLigature').parentNode.addEventListener('show.bs.dropdown', function () {
         populateHomeIconLigatures();
-        const selLig = document.getElementById('inputHomeIconLigature').value;
+        const selLig = elGetById('inputHomeIconLigature').value;
         if (selLig !== '') {
-            document.getElementById('searchHomeIconLigature').value = selLig;
+            elGetById('searchHomeIconLigature').value = selLig;
             if (selLig !== '') {
-                elShow(document.getElementById('searchHomeIconLigature').nextElementSibling);
+                elShow(elGetById('searchHomeIconLigature').nextElementSibling);
             }
             else {
-                elHide(document.getElementById('searchHomeIconLigature').nextElementSibling);
+                elHide(elGetById('searchHomeIconLigature').nextElementSibling);
             }
             filterHomeIconLigatures();
         }
     }, false);
 
-    document.getElementById('listHomeIconLigature').addEventListener('click', function(event) {
+    elGetById('listHomeIconLigature').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             selectHomeIconLigature(event.target);
@@ -64,11 +64,11 @@ function initModalHomeIcon() {
         }
     });
 
-    document.getElementById('searchHomeIconLigature').addEventListener('click', function(event) {
+    elGetById('searchHomeIconLigature').addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
 
-    const searchHomeIconCat = document.getElementById('searchHomeIconCat');
+    const searchHomeIconCat = elGetById('searchHomeIconCat');
     searchHomeIconCat.addEventListener('click', function(event) {
         event.stopPropagation();
     }, false);
@@ -77,7 +77,7 @@ function initModalHomeIcon() {
         filterHomeIconLigatures();
     }, false);
 
-    const searchHomeIconLigature = document.getElementById('searchHomeIconLigature');
+    const searchHomeIconLigature = elGetById('searchHomeIconLigature');
     searchHomeIconLigature.addEventListener('keydown', function(event) {
         event.stopPropagation();
         if (event.key === 'Enter') {
@@ -107,7 +107,7 @@ function initModalHomeIcon() {
 function saveHomeIcon() {
     cleanupModalId('modalHomeIcon');
     let formOK = true;
-    const nameEl = document.getElementById('inputHomeIconName');
+    const nameEl = elGetById('inputHomeIconName');
     if (!validateNotBlankEl(nameEl)) {
         formOK = false;
     }
@@ -123,16 +123,16 @@ function saveHomeIcon() {
                     options.push(optionEl.value);
             }
         }
-        const image = getData(document.getElementById('inputHomeIconImage'), 'value');
+        const image = getData(elGetById('inputHomeIconImage'), 'value');
         sendAPI("MYMPD_API_HOME_ICON_SAVE", {
-            "replace": strToBool(document.getElementById('inputHomeIconReplace').value),
-            "oldpos": Number(document.getElementById('inputHomeIconOldpos').value),
+            "replace": strToBool(elGetById('inputHomeIconReplace').value),
+            "oldpos": Number(elGetById('inputHomeIconOldpos').value),
             "name": nameEl.value,
-            "ligature": (image === '' ? document.getElementById('inputHomeIconLigature').value : ''),
-            "bgcolor": document.getElementById('inputHomeIconBgcolor').value,
-            "color": document.getElementById('inputHomeIconColor').value,
+            "ligature": (image === '' ? elGetById('inputHomeIconLigature').value : ''),
+            "bgcolor": elGetById('inputHomeIconBgcolor').value,
+            "color": elGetById('inputHomeIconColor').value,
             "image": image,
-            "cmd": document.getElementById('selectHomeIconCmd').value,
+            "cmd": elGetById('selectHomeIconCmd').value,
             "options": options
         }, saveHomeIconClose, true);
     }
@@ -157,8 +157,8 @@ function saveHomeIconClose(obj) {
  * @returns {void}
  */
 function populateHomeIconLigatures() {
-    const listHomeIconLigature = document.getElementById('listHomeIconLigature');
-    const searchHomeIconCat = document.getElementById('searchHomeIconCat');
+    const listHomeIconLigature = elGetById('listHomeIconLigature');
+    const searchHomeIconCat = elGetById('searchHomeIconCat');
     if (searchHomeIconCat.firstChild !== null) {
         return;
     }
@@ -185,11 +185,11 @@ function populateHomeIconLigatures() {
  * @returns {void}
  */
 function selectHomeIconLigature(el) {
-    document.getElementById('inputHomeIconLigature').value = el.getAttribute('title');
-    document.getElementById('homeIconPreview').textContent = el.getAttribute('title');
-    document.getElementById('homeIconPreview').style.backgroundImage = '';
-    document.getElementById('inputHomeIconImage').value = tn('Use ligature');
-    setData(document.getElementById('inputHomeIconImage'), 'value', '');
+    elGetById('inputHomeIconLigature').value = el.getAttribute('title');
+    elGetById('homeIconPreview').textContent = el.getAttribute('title');
+    elGetById('homeIconPreview').style.backgroundImage = '';
+    elGetById('inputHomeIconImage').value = tn('Use ligature');
+    setData(elGetById('inputHomeIconImage'), 'value', '');
 }
 
 /**
@@ -197,7 +197,7 @@ function selectHomeIconLigature(el) {
  * @returns {void}
  */
 function filterHomeIconLigatures() {
-    const str = document.getElementById('searchHomeIconLigature').value.toLowerCase();
+    const str = elGetById('searchHomeIconLigature').value.toLowerCase();
     const cat = getSelectValueId('searchHomeIconCat');
     const els = document.querySelectorAll('#listHomeIconLigature button');
     for (let i = 0, j = els.length; i < j; i++) {
@@ -226,7 +226,7 @@ function filterHomeIconLigatures() {
  * @returns {void}
  */
 function populateHomeIconCmdSelect(cmd, type) {
-    const selectHomeIconCmd = document.getElementById('selectHomeIconCmd');
+    const selectHomeIconCmd = elGetById('selectHomeIconCmd');
     elClear(selectHomeIconCmd);
     switch(cmd) {
         case 'appGoto': {
@@ -318,7 +318,7 @@ function showHomeIconCmdOptions(values) {
     for (const optionEl of optionEls) {
         oldOptions.push(optionEl.value);
     }
-    const divHomeIconOptions = document.getElementById('divHomeIconOptions');
+    const divHomeIconOptions = elGetById('divHomeIconOptions');
     elClear(divHomeIconOptions);
     const options = getSelectedOptionDataId('selectHomeIconCmd', 'options');
     if (options !== undefined) {
@@ -376,6 +376,6 @@ function createHomeIconCmdOptionEl(name, value) {
  * @returns {void}
  */
 function getHomeIconPictureList() {
-    const selectHomeIconImage = document.getElementById('inputHomeIconImage');
+    const selectHomeIconImage = elGetById('inputHomeIconImage');
     getImageList(selectHomeIconImage, [{"value": "", "text": tn('Use ligature')}], 'thumbs');
 }

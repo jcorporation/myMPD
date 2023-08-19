@@ -12,7 +12,7 @@
  */
 //eslint-disable-next-line no-unused-vars
 function switchTableMode(target) {
-    const table = document.getElementById(app.id + 'List');
+    const table = elGetById(app.id + 'List');
     const mode = table.getAttribute('data-mode');
 
     if (mode === null) {
@@ -77,7 +77,7 @@ function selectRow(event) {
         mode === null)
     {
         //enable select mode
-        switchTableMode(document.getElementById(app.id + 'SelectModeBtn'));
+        switchTableMode(elGetById(app.id + 'SelectModeBtn'));
     }
     else if (mode === null) {
         return false;
@@ -161,7 +161,7 @@ function selectSingleRow(row, select) {
  * @returns {void}
  */
 function showTableSelectionCount() {
-    const table = document.getElementById(app.id + 'List');
+    const table = elGetById(app.id + 'List');
     const dropdown = document.querySelector('#' + app.id + 'SelectionDropdown');
     const rows = table.querySelectorAll('tbody > tr.selected');
     const count = rows.length;
@@ -548,10 +548,10 @@ function setCols(tableName) {
  * @returns {void}
  */
 function saveCols(tableName, tableEl) {
-    const colsDropdown = document.getElementById(tableName + 'ColsDropdown');
+    const colsDropdown = elGetById(tableName + 'ColsDropdown');
     if (tableEl === undefined) {
         //select the table by name
-        tableEl = document.getElementById(tableName + 'List');
+        tableEl = elGetById(tableName + 'List');
     }
     const header = tableEl.querySelector('tr');
     if (colsDropdown !== null) {
@@ -703,7 +703,7 @@ function addDiscRow(disc, albumId, colspan) {
  * @returns {void}
  */
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
-    const table = document.getElementById(list + 'List');
+    const table = elGetById(list + 'List');
     const tbody = table.querySelector('tbody');
     const colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
 

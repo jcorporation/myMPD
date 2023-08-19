@@ -11,9 +11,9 @@
  */
 function handleBrowseRadioRadiobrowser() {
     setFocusId('BrowseRadioRadiobrowserSearchStr');
-    document.getElementById('BrowseRadioRadiobrowserTagsInput').value = app.current.filter['tags'];
-    document.getElementById('BrowseRadioRadiobrowserCountryInput').value = app.current.filter['country'];
-    document.getElementById('BrowseRadioRadiobrowserLanguageInput').value = app.current.filter['language'];
+    elGetById('BrowseRadioRadiobrowserTagsInput').value = app.current.filter['tags'];
+    elGetById('BrowseRadioRadiobrowserCountryInput').value = app.current.filter['country'];
+    elGetById('BrowseRadioRadiobrowserLanguageInput').value = app.current.filter['language'];
     if (app.current.search === '') {
         sendAPI("MYMPD_API_CLOUD_RADIOBROWSER_NEWEST", {
             "offset": app.current.offset,
@@ -37,7 +37,7 @@ function handleBrowseRadioRadiobrowser() {
  * @returns {void}
  */
 function initViewBrowseRadioRadiobrowser() {
-    document.getElementById('BrowseRadioRadiobrowserSearchStr').addEventListener('keyup', function(event) {
+    elGetById('BrowseRadioRadiobrowserSearchStr').addEventListener('keyup', function(event) {
         if (ignoreKeys(event) === true) {
             return;
         }
@@ -47,15 +47,15 @@ function initViewBrowseRadioRadiobrowser() {
         }, searchTimerTimeout);
     }, false);
 
-    document.getElementById('BrowseRadioRadiobrowserFilter').addEventListener('show.bs.collapse', function() {
-        document.getElementById('BrowseRadioRadiobrowserFilterBtn').classList.add('active');
+    elGetById('BrowseRadioRadiobrowserFilter').addEventListener('show.bs.collapse', function() {
+        elGetById('BrowseRadioRadiobrowserFilterBtn').classList.add('active');
     }, false);
 
-    document.getElementById('BrowseRadioRadiobrowserFilter').addEventListener('hide.bs.collapse', function() {
-        document.getElementById('BrowseRadioRadiobrowserFilterBtn').classList.remove('active');
+    elGetById('BrowseRadioRadiobrowserFilter').addEventListener('hide.bs.collapse', function() {
+        elGetById('BrowseRadioRadiobrowserFilterBtn').classList.remove('active');
     }, false);
 
-    document.getElementById('BrowseRadioRadiobrowserList').addEventListener('click', function(event) {
+    elGetById('BrowseRadioRadiobrowserList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {
             const uri = getData(target, 'uri');
@@ -92,11 +92,11 @@ function countClickRadiobrowser(uuid) {
  * @returns {void}
  */
 function searchRadiobrowser() {
-    app.current.filter['tags'] = document.getElementById('BrowseRadioRadiobrowserTagsInput').value;
-    app.current.filter['country'] = document.getElementById('BrowseRadioRadiobrowserCountryInput').value;
-    app.current.filter['language'] = document.getElementById('BrowseRadioRadiobrowserLanguageInput').value;
+    app.current.filter['tags'] = elGetById('BrowseRadioRadiobrowserTagsInput').value;
+    app.current.filter['country'] = elGetById('BrowseRadioRadiobrowserCountryInput').value;
+    app.current.filter['language'] = elGetById('BrowseRadioRadiobrowserLanguageInput').value;
     appGoto(app.current.card, app.current.tab, app.current.view,
-        0, app.current.limit, app.current.filter, '-', '-', document.getElementById('BrowseRadioRadiobrowserSearchStr').value);
+        0, app.current.limit, app.current.filter, '-', '-', elGetById('BrowseRadioRadiobrowserSearchStr').value);
 }
 
 /**
@@ -110,10 +110,10 @@ function parseRadiobrowserList(obj) {
         app.current.filter['country'] === '' &&
         app.current.filter['language'] === '')
     {
-        document.getElementById('BrowseRadioRadiobrowserFilterBtn').textContent = 'filter_list_off';
+        elGetById('BrowseRadioRadiobrowserFilterBtn').textContent = 'filter_list_off';
     }
     else {
-        document.getElementById('BrowseRadioRadiobrowserFilterBtn').textContent = 'filter_list';
+        elGetById('BrowseRadioRadiobrowserFilterBtn').textContent = 'filter_list';
     }
 
     if (checkResultId(obj, 'BrowseRadioRadiobrowserList') === false) {

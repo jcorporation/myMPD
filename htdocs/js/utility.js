@@ -51,7 +51,7 @@ function checkTargetClick(target) {
  * @returns {void}
  */
 function setUpdateViewId(id) {
-    setUpdateView(document.getElementById(id));
+    setUpdateView(elGetById(id));
 }
 
 /**
@@ -70,7 +70,7 @@ function setUpdateView(el) {
  * @returns {void}
  */
 function unsetUpdateViewId(id) {
-    unsetUpdateView(document.getElementById(id));
+    unsetUpdateView(elGetById(id));
 }
 
 /**
@@ -247,7 +247,7 @@ function filetype(uri) {
  */
 //eslint-disable-next-line no-unused-vars
 function focusSearch() {
-    const searchInput = document.getElementById(app.id + 'SearchStr');
+    const searchInput = elGetById(app.id + 'SearchStr');
     if (searchInput !== null) {
         searchInput.focus();
     }

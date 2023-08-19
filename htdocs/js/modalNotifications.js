@@ -11,7 +11,7 @@
  */
 //eslint-disable-next-line no-unused-vars
 function showModalNotifications() {
-    document.getElementById('modalNotifications').addEventListener('show.bs.modal', function() {
+    elGetById('modalNotifications').addEventListener('show.bs.modal', function() {
         showMessages();
     });
 }
@@ -21,7 +21,7 @@ function showModalNotifications() {
  * @returns {void}
  */
 function showMessages() {
-    const overview = document.getElementById('modalNotificationsList');
+    const overview = elGetById('modalNotificationsList');
     elClear(overview);
     for (const message of messages) {
         overview.insertBefore(
@@ -51,7 +51,7 @@ function showMessages() {
 //eslint-disable-next-line no-unused-vars
 function clearMessages(target) {
     btnWaiting(target, true);
-    const overview = document.getElementById('modalNotificationsList');
+    const overview = elGetById('modalNotificationsList');
     elClear(overview);
     overview.appendChild(emptyRow(4));
     messages.length = 0;

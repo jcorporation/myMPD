@@ -144,7 +144,7 @@ function addAlbumToHome(albumId, name, image) {
 //eslint-disable-next-line no-unused-vars
 function addStreamToHome() {
     const mode = getRadioBoxValueId('modalPlaylistAddToPos');
-    const uri = document.getElementById('modalPlaylistAddToUrisInput').value;
+    const uri = elGetById('modalPlaylistAddToUrisInput').value;
     let action;
     switch(mode) {
         case 'append': action = 'appendQueue'; break;
@@ -168,24 +168,24 @@ function addStreamToHome() {
  * @returns {void}
  */
 function _addHomeIcon(cmd, name, ligature, image, options) {
-    document.getElementById('modalHomeIconTitle').textContent = tn('Add to homescreen');
-    document.getElementById('inputHomeIconReplace').value = 'false';
-    document.getElementById('inputHomeIconOldpos').value = '0';
-    document.getElementById('inputHomeIconName').value = name;
-    document.getElementById('inputHomeIconBgcolor').value = '#28a745';
-    document.getElementById('inputHomeIconColor').value = '#ffffff';
+    elGetById('modalHomeIconTitle').textContent = tn('Add to homescreen');
+    elGetById('inputHomeIconReplace').value = 'false';
+    elGetById('inputHomeIconOldpos').value = '0';
+    elGetById('inputHomeIconName').value = name;
+    elGetById('inputHomeIconBgcolor').value = '#28a745';
+    elGetById('inputHomeIconColor').value = '#ffffff';
 
     populateHomeIconCmdSelect(cmd, options[0]);
-    document.getElementById('selectHomeIconCmd').value = cmd;
+    elGetById('selectHomeIconCmd').value = cmd;
     elClearId('divHomeIconOptions');
     showHomeIconCmdOptions(options);
     getHomeIconPictureList();
-    const homeIconPreviewEl = document.getElementById('homeIconPreview');
-    const homeIconImageInput = document.getElementById('inputHomeIconImage');
+    const homeIconPreviewEl = elGetById('homeIconPreview');
+    const homeIconImageInput = elGetById('inputHomeIconImage');
     if (image !== '') {
         homeIconImageInput.value = image;
         setData(homeIconImageInput, 'value', image);
-        document.getElementById('inputHomeIconLigature').value = '';
+        elGetById('inputHomeIconLigature').value = '';
         elClear(homeIconPreviewEl);
         homeIconPreviewEl.style.backgroundImage = getCssImageUri(image);
         elHideId('divHomeIconLigature');
@@ -194,7 +194,7 @@ function _addHomeIcon(cmd, name, ligature, image, options) {
         //use ligature
         homeIconImageInput.value = tn('Use ligature');
         setData(homeIconImageInput, 'value', '');
-        document.getElementById('inputHomeIconLigature').value = ligature;
+        elGetById('inputHomeIconLigature').value = ligature;
         homeIconPreviewEl.textContent = ligature;
         homeIconPreviewEl.style.backgroundImage = '';
         elShowId('divHomeIconLigature');
@@ -233,37 +233,37 @@ function editHomeIcon(pos) {
  * @returns {void}
  */
 function _editHomeIcon(pos, replace, title) {
-    document.getElementById('modalHomeIconTitle').textContent = tn(title);
+    elGetById('modalHomeIconTitle').textContent = tn(title);
     sendAPI("MYMPD_API_HOME_ICON_GET", {"pos": pos}, function(obj) {
-        document.getElementById('inputHomeIconReplace').value = replace;
-        document.getElementById('inputHomeIconOldpos').value = pos;
-        document.getElementById('inputHomeIconName').value = obj.result.data.name;
-        document.getElementById('inputHomeIconLigature').value = obj.result.data.ligature;
-        document.getElementById('inputHomeIconBgcolor').value = obj.result.data.bgcolor;
-        document.getElementById('inputHomeIconColor').value = obj.result.data.color;
+        elGetById('inputHomeIconReplace').value = replace;
+        elGetById('inputHomeIconOldpos').value = pos;
+        elGetById('inputHomeIconName').value = obj.result.data.name;
+        elGetById('inputHomeIconLigature').value = obj.result.data.ligature;
+        elGetById('inputHomeIconBgcolor').value = obj.result.data.bgcolor;
+        elGetById('inputHomeIconColor').value = obj.result.data.color;
 
         populateHomeIconCmdSelect(obj.result.data.cmd, obj.result.data.options[0]);
-        document.getElementById('selectHomeIconCmd').value = obj.result.data.cmd;
+        elGetById('selectHomeIconCmd').value = obj.result.data.cmd;
         showHomeIconCmdOptions(obj.result.data.options);
         getHomeIconPictureList();
-        document.getElementById('inputHomeIconImage').value = obj.result.data.image === '' ? tn('Use ligature') : obj.result.data.image;
-        setData(document.getElementById('inputHomeIconImage'),'value', obj.result.data.image);
+        elGetById('inputHomeIconImage').value = obj.result.data.image === '' ? tn('Use ligature') : obj.result.data.image;
+        setData(elGetById('inputHomeIconImage'),'value', obj.result.data.image);
 
-        document.getElementById('homeIconPreview').textContent = obj.result.data.ligature;
-        document.getElementById('homeIconPreview').style.backgroundColor = obj.result.data.bgcolor;
-        document.getElementById('homeIconPreview').style.color = obj.result.data.color;
+        elGetById('homeIconPreview').textContent = obj.result.data.ligature;
+        elGetById('homeIconPreview').style.backgroundColor = obj.result.data.bgcolor;
+        elGetById('homeIconPreview').style.color = obj.result.data.color;
 
         if (obj.result.data.image === '') {
             elShowId('divHomeIconLigature');
-            document.getElementById('homeIconPreview').style.backgroundImage = '';
+            elGetById('homeIconPreview').style.backgroundImage = '';
         }
         else {
             elHideId('divHomeIconLigature');
-            document.getElementById('homeIconPreview').style.backgroundImage = getCssImageUri(obj.result.data.image);
+            elGetById('homeIconPreview').style.backgroundImage = getCssImageUri(obj.result.data.image);
         }
         //reset ligature selection
-        document.getElementById('searchHomeIconLigature').value = '';
-        document.getElementById('searchHomeIconCat').value = 'all';
+        elGetById('searchHomeIconLigature').value = '';
+        elGetById('searchHomeIconCat').value = 'all';
         filterHomeIconLigatures();
         //show modal
         cleanupModalId('modalHomeIcon');

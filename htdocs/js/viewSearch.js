@@ -11,8 +11,8 @@
  */
 function handleSearch() {
     handleSearchExpression('Search');
-    const searchStrEl = document.getElementById(app.id + 'SearchStr');
-    const searchCrumbEl = document.getElementById(app.id + 'SearchCrumb');
+    const searchStrEl = elGetById(app.id + 'SearchStr');
+    const searchCrumbEl = elGetById(app.id + 'SearchCrumb');
     if (searchStrEl.value.length >= 2 ||
         searchCrumbEl.children.length > 0)
     {
@@ -32,7 +32,7 @@ function handleSearch() {
     }
     else {
         // clear list if no search is defined
-        const SearchListEl = document.getElementById('SearchList');
+        const SearchListEl = elGetById('SearchList');
         elClear(SearchListEl.querySelector('tbody'));
         elClear(SearchListEl.querySelector('tfoot'));
         elDisableId('SearchAddAllSongsBtn');
@@ -47,7 +47,7 @@ function handleSearch() {
  * @returns {void}
  */
 function initViewSearch() {
-    document.getElementById('SearchList').addEventListener('click', function(event) {
+    elGetById('SearchList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {
             clickSong(getData(target, 'uri'), event);
@@ -63,7 +63,7 @@ function initViewSearch() {
  * @returns {void}
  */
 function parseSearch(obj) {
-    const table = document.getElementById('SearchList');
+    const table = elGetById('SearchList');
     const tfoot = table.querySelector('tfoot');
     elClear(tfoot);
 

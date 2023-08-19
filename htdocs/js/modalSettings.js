@@ -18,7 +18,7 @@ function initModalSettings() {
     createForm(settingsPartitionFields, 'modalSettings', forms);
     createForm(settingsLocalFields, 'modalSettings', forms);
     // initialize myMPD custom elements
-    initElements(document.getElementById('modalSettings'));
+    initElements(elGetById('modalSettings'));
 
     //set featWhence feature detection for default actions
     for (const sel of ['modalSettingsClickQuickPlayInput', 'modalSettingsClickFilesystemPlaylistInput',
@@ -70,10 +70,10 @@ function eventChangeLocale(event) {
 //eslint-disable-next-line no-unused-vars
 function eventChangeTheme(event) {
     const value = getSelectValue(event.target);
-    const bgImageEl = document.getElementById('modalSettingsBgImageInput');
+    const bgImageEl = elGetById('modalSettingsBgImageInput');
     const bgImageValue = getData(bgImageEl, 'value');
     if (value === 'light') {
-        document.getElementById('modalSettingsBgColorInput').value = '#ffffff';
+        elGetById('modalSettingsBgColorInput').value = '#ffffff';
         if (bgImageValue.indexOf('/assets/') === 0) {
             bgImageEl.value = getBgImageText('/assets/mympd-background-light.svg');
             setData(bgImageEl, 'value', '/assets/mympd-background-light.svg');
@@ -81,7 +81,7 @@ function eventChangeTheme(event) {
     }
     else {
         //dark is the default
-        document.getElementById('modalSettingsBgColorInput').value = '#060708';
+        elGetById('modalSettingsBgColorInput').value = '#060708';
         if (bgImageValue.indexOf('/assets/') === 0) {
             bgImageEl.value = getBgImageText('/assets/mympd-background-dark.svg');
             setData(bgImageEl, 'value', '/assets/mympd-background-dark.svg');
@@ -97,12 +97,12 @@ function eventChangeTheme(event) {
  */
 function toggleThemeInputs(theme) {
     if (theme === 'auto') {
-        document.getElementById('modalSettingsBgColorInput').parentNode.parentNode.classList.add('d-none');
-        document.getElementById('modalSettingsBgImageInput').parentNode.parentNode.classList.add('d-none');
+        elGetById('modalSettingsBgColorInput').parentNode.parentNode.classList.add('d-none');
+        elGetById('modalSettingsBgImageInput').parentNode.parentNode.classList.add('d-none');
     }
     else {
-        document.getElementById('modalSettingsBgColorInput').parentNode.parentNode.classList.remove('d-none');
-        document.getElementById('modalSettingsBgImageInput').parentNode.parentNode.classList.remove('d-none');
+        elGetById('modalSettingsBgColorInput').parentNode.parentNode.classList.remove('d-none');
+        elGetById('modalSettingsBgImageInput').parentNode.parentNode.classList.remove('d-none');
     }
 }
 
@@ -128,7 +128,7 @@ function getBgImageText(value) {
  * @returns {void}
  */
 function getBgImageList() {
-    const list = document.getElementById('modalSettingsBgImageInput');
+    const list = elGetById('modalSettingsBgImageInput');
     getImageList(list, bgImageValues, 'backgrounds');
 }
 
@@ -143,7 +143,7 @@ function populateSettingsFrm() {
     jsonToForm(localSettings, settingsLocalFields, 'modalSettings');
     // background image select
     getBgImageList();
-    const bgImageInput = document.getElementById('modalSettingsBgImageInput');
+    const bgImageInput = elGetById('modalSettingsBgImageInput');
     setData(bgImageInput, 'value', settings.webuiSettings.bgImage);
     bgImageInput.value = getBgImageText(settings.webuiSettings.bgImage);
 
@@ -151,7 +151,7 @@ function populateSettingsFrm() {
     toggleThemeInputs(settings.webuiSettings.theme);
 
     //locales
-    const localeList = document.getElementById('modalSettingsLocaleInput');
+    const localeList = elGetById('modalSettingsLocaleInput');
     elClear(localeList);
     for (const l in i18n) {
         localeList.appendChild(
@@ -164,7 +164,7 @@ function populateSettingsFrm() {
     warnLocale(settings.webuiSettings.locale);
 
     // web notifications - check permission
-    const btnNotifyWeb = document.getElementById('modalSettingsNotifyWebInput');
+    const btnNotifyWeb = elGetById('modalSettingsNotifyWebInput');
     elHideId('modalSettingsNotifyWebWarn');
     if (notificationsSupported()) {
         if (Notification.permission !== 'granted') {
@@ -185,7 +185,7 @@ function populateSettingsFrm() {
     }
 
     // media session support
-    const btnMediaSession = document.getElementById('modalSettingsMediaSessionInput');
+    const btnMediaSession = elGetById('modalSettingsMediaSessionInput');
     if (features.featMediaSession === false) {
         elShowId('modalSettingsMediaSessionInputWarn');
         elDisable(btnMediaSession);
@@ -208,9 +208,9 @@ function populateSettingsFrm() {
         elShowId('modalSettingsSmartplsWarn');
     }
     addTagListSelect('modalSettingsSmartplsSortInput', 'tagList');
-    document.getElementById('modalSettingsSmartplsSortInput').value = settings.smartplsSort;
+    elGetById('modalSettingsSmartplsSortInput').value = settings.smartplsSort;
     // seconds to hours
-    document.getElementById('modalSettingsSmartplsIntervalInput').value = settings.smartplsInterval / 60 / 60;
+    elGetById('modalSettingsSmartplsIntervalInput').value = settings.smartplsInterval / 60 / 60;
 
     // lyrics
     if (features.featLibrary === false) {
@@ -294,10 +294,10 @@ function saveSettings(target, closeModal) {
         // from hours to seconds
         settingsParams.smartplsInterval = settingsParams.smartplsInterval * 60 * 60;
         // manual fields
-        settingsParams.smartplsGenerateTagList = getTagMultiSelectValues(document.getElementById('modalSettingsGeneratePlsTagsList'), false);
-        settingsParams.tagList = getTagMultiSelectValues(document.getElementById('modalSettingsEnabledTagsList'), false);
-        settingsParams.tagListSearch = getTagMultiSelectValues(document.getElementById('modalSettingsSearchTagsList'), false);
-        settingsParams.tagListBrowse = getTagMultiSelectValues(document.getElementById('modalSettingsBrowseTagsList'), false);
+        settingsParams.smartplsGenerateTagList = getTagMultiSelectValues(elGetById('modalSettingsGeneratePlsTagsList'), false);
+        settingsParams.tagList = getTagMultiSelectValues(elGetById('modalSettingsEnabledTagsList'), false);
+        settingsParams.tagListSearch = getTagMultiSelectValues(elGetById('modalSettingsSearchTagsList'), false);
+        settingsParams.tagListBrowse = getTagMultiSelectValues(elGetById('modalSettingsBrowseTagsList'), false);
 
         btnWaiting(target, true);
         if (closeModal === true) {
@@ -406,7 +406,7 @@ function getTagMultiSelectValues(taglist, translate) {
  */
 function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
     const values = [];
-    const list = document.getElementById(listId);
+    const list = elGetById(listId);
     elClear(list);
     for (let i = 0, j = allTags.length; i < j; i++) {
         if (enabledTags.includes(allTags[i])) {
@@ -428,13 +428,13 @@ function initTagMultiSelect(inputId, listId, allTags, enabledTags) {
         );
     }
 
-    const inputEl = document.getElementById(inputId);
+    const inputEl = elGetById(inputId);
     inputEl.value = values.join(', ');
     if (getData(inputEl, 'init') === true) {
         return;
     }
     setData(inputEl, 'init', true);
-    document.getElementById(listId).addEventListener('click', function(event) {
+    elGetById(listId).addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'BUTTON') {
@@ -501,7 +501,7 @@ function toggleBtnNotifyWeb(event) {
  * @returns {void}
  */
 function warnLocale(value) {
-    const warnEl = document.getElementById('modalSettingsMissingPhrasesWarn');
+    const warnEl = elGetById('modalSettingsMissingPhrasesWarn');
     elClear(warnEl);
     if (i18n[value].missingPhrases > 0) {
         warnEl.appendChild(

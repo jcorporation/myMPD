@@ -12,7 +12,7 @@
  */
 //eslint-disable-next-line no-unused-vars
 function switchGridMode(target) {
-    const grid = document.getElementById(app.id + 'List');
+    const grid = elGetById(app.id + 'List');
     const mode = grid.getAttribute('data-mode');
 
     if (mode === null) {
@@ -71,7 +71,7 @@ function selectCard(event) {
         mode === null)
     {
         //enable select mode
-        switchGridMode(document.getElementById('btn' + app.id + 'SelectMode'));
+        switchGridMode(elGetById('btn' + app.id + 'SelectMode'));
     }
     else if (mode === null) {
         return false;
@@ -141,7 +141,7 @@ function selectSingleCard(card, select) {
  * @returns {void}
  */
 function showGridSelectionCount() {
-    const grid = document.getElementById(app.id + 'List');
+    const grid = elGetById(app.id + 'List');
     const dropdown = document.querySelector('#' + app.id + 'SelectionDropdown');
     const cards = grid.querySelectorAll('div > div.selected');
     const count = cards.length;

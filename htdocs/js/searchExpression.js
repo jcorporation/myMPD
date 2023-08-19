@@ -11,8 +11,8 @@
  * @returns {void}
  */
 function handleSearchExpression(appid) {
-    const searchStrEl = document.getElementById(appid + 'SearchStr');
-    const searchCrumbEl = document.getElementById(appid + 'SearchCrumb');
+    const searchStrEl = elGetById(appid + 'SearchStr');
+    const searchCrumbEl = elGetById(appid + 'SearchCrumb');
     setFocus(searchStrEl);
     createSearchCrumbs(app.current.search, searchStrEl, searchCrumbEl);
     if (app.current.search === '') {
@@ -27,14 +27,14 @@ function handleSearchExpression(appid) {
  * @returns {void}
  */
 function initSearchExpression(appid) {
-    document.getElementById(appid + 'SearchTags').addEventListener('click', function(event) {
+    elGetById(appid + 'SearchTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             app.current.filter = getData(event.target, 'tag');
-            execSearchExpression(document.getElementById(appid + 'SearchStr').value);
+            execSearchExpression(elGetById(appid + 'SearchStr').value);
         }
     }, false);
 
-    document.getElementById(appid + 'SearchStr').addEventListener('keydown', function(event) {
+    elGetById(appid + 'SearchStr').addEventListener('keydown', function(event) {
         //handle Enter key on keydown for IME composing compatibility
         if (event.key !== 'Enter') {
             return;
@@ -43,7 +43,7 @@ function initSearchExpression(appid) {
         const value = this.value;
         if (value !== '') {
             const op = getSelectValueId(appid + 'SearchMatch');
-            const crumbEl = document.getElementById(appid + 'SearchCrumb');
+            const crumbEl = elGetById(appid + 'SearchCrumb');
             crumbEl.appendChild(createSearchCrumb(app.current.filter, op, value));
             elShow(crumbEl);
             this.value = '';
@@ -55,7 +55,7 @@ function initSearchExpression(appid) {
         }
     }, false);
 
-    document.getElementById(appid + 'SearchStr').addEventListener('keyup', function(event) {
+    elGetById(appid + 'SearchStr').addEventListener('keyup', function(event) {
         if (ignoreKeys(event) === true) {
             return;
         }
@@ -66,35 +66,35 @@ function initSearchExpression(appid) {
         }, searchTimerTimeout);
     }, false);
 
-    document.getElementById(appid + 'SearchCrumb').addEventListener('click', function(event) {
+    elGetById(appid + 'SearchCrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'SPAN') {
             //remove search expression
             event.preventDefault();
             event.stopPropagation();
             event.target.parentNode.remove();
             execSearchExpression('');
-            document.getElementById(appid + 'SearchStr').updateBtn();
+            elGetById(appid + 'SearchStr').updateBtn();
         }
         else if (event.target.nodeName === 'BUTTON') {
             //edit search expression
             event.preventDefault();
             event.stopPropagation();
-            const searchStrEl = document.getElementById(appid + 'SearchStr');
+            const searchStrEl = elGetById(appid + 'SearchStr');
             searchStrEl.value = unescapeMPD(getData(event.target, 'filter-value'));
             selectTag(appid + 'SearchTags', appid + 'SearchTagsDesc', getData(event.target, 'filter-tag'));
-            document.getElementById(appid + 'SearchMatch').value = getData(event.target, 'filter-op');
+            elGetById(appid + 'SearchMatch').value = getData(event.target, 'filter-op');
             event.target.remove();
             app.current.filter = getData(event.target,'filter-tag');
             execSearchExpression(searchStrEl.value);
-            if (document.getElementById(appid + 'SearchCrumb').childElementCount === 0) {
+            if (elGetById(appid + 'SearchCrumb').childElementCount === 0) {
                 elHideId(appid + 'SearchCrumb');
             }
             searchStrEl.updateBtn();
         }
     }, false);
 
-    document.getElementById(appid + 'SearchMatch').addEventListener('change', function() {
-        execSearchExpression(document.getElementById(appid + 'SearchStr').value);
+    elGetById(appid + 'SearchMatch').addEventListener('change', function() {
+        execSearchExpression(elGetById(appid + 'SearchStr').value);
     }, false);
 }
 
@@ -104,7 +104,7 @@ function initSearchExpression(appid) {
  * @returns {void}
  */
 function execSearchExpression(value) {
-    const expression = createSearchExpression(document.getElementById(app.id + 'SearchCrumb'), app.current.filter, getSelectValueId(app.id + 'SearchMatch'), value);
+    const expression = createSearchExpression(elGetById(app.id + 'SearchCrumb'), app.current.filter, getSelectValueId(app.id + 'SearchMatch'), value);
     appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, expression, 0);
 }
 

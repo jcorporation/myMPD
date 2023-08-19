@@ -10,7 +10,7 @@
  * @returns {void}
  */
 function initModalTimer() {
-    document.getElementById('listTimerList').addEventListener('click', function(event) {
+    elGetById('listTimerList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'A') {
@@ -27,33 +27,33 @@ function initModalTimer() {
         }
     }, false);
 
-    const selectTimerHourEl = document.getElementById('selectTimerHour');
+    const selectTimerHourEl = elGetById('selectTimerHour');
     for (let i = 0; i < 24; i++) {
         selectTimerHourEl.appendChild(
             elCreateText('option', {"value": i}, zeroPad(i, 2))
         );
     }
 
-    const selectTimerMinuteEl = document.getElementById('selectTimerMinute');
+    const selectTimerMinuteEl = elGetById('selectTimerMinute');
     for (let i = 0; i < 60; i = i + 5) {
         selectTimerMinuteEl.appendChild(
             elCreateText('option', {"value": i}, zeroPad(i, 2))
         );
     }
 
-    document.getElementById('inputTimerVolume').addEventListener('change', function() {
-        document.getElementById('textTimerVolume').textContent = this.value + ' %';
+    elGetById('inputTimerVolume').addEventListener('change', function() {
+        elGetById('textTimerVolume').textContent = this.value + ' %';
     }, false);
 
-    document.getElementById('selectTimerAction').addEventListener('change', function() {
+    elGetById('selectTimerAction').addEventListener('change', function() {
         selectTimerActionChange();
     }, false);
 
-    document.getElementById('selectTimerInterval').addEventListener('change', function() {
+    elGetById('selectTimerInterval').addEventListener('change', function() {
         selectTimerIntervalChange();
     }, false);
 
-    document.getElementById('modalTimer').addEventListener('shown.bs.modal', function () {
+    elGetById('modalTimer').addEventListener('shown.bs.modal', function () {
         showListTimer();
     });
 
@@ -108,7 +108,7 @@ function toggleTimer(target, timerid) {
 function saveTimer() {
     cleanupModalId('modalTimer');
     let formOK = true;
-    const nameEl = document.getElementById('inputTimerName');
+    const nameEl = elGetById('inputTimerName');
     if (!validateNotBlankEl(nameEl)) {
         formOK = false;
     }
@@ -116,7 +116,7 @@ function saveTimer() {
     const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     const weekdays = [];
     for (let i = 0, j = weekdayBtns.length; i < j; i++) {
-        const checked = document.getElementById(weekdayBtns[i]).classList.contains('active') ? true : false;
+        const checked = elGetById(weekdayBtns[i]).classList.contains('active') ? true : false;
         weekdays.push(checked);
         if (checked === true) {
             minOneDay = true;
@@ -127,13 +127,13 @@ function saveTimer() {
         setIsInvalidId('btnTimerSun');
     }
 
-    const selectTimerAction = document.getElementById('selectTimerAction');
+    const selectTimerAction = elGetById('selectTimerAction');
     if (selectTimerAction.selectedIndex === -1) {
         formOK = false;
         setIsInvalid(selectTimerAction);
     }
 
-    const inputTimerIntervalEl = document.getElementById('inputTimerInterval');
+    const inputTimerIntervalEl = elGetById('inputTimerInterval');
     if (!validateIntEl(inputTimerIntervalEl)) {
         formOK = false;
     }
@@ -158,16 +158,16 @@ function saveTimer() {
             preset = '';
         }
         sendAPI("MYMPD_API_TIMER_SAVE", {
-            "timerid": Number(document.getElementById('inputTimerId').value),
+            "timerid": Number(elGetById('inputTimerId').value),
             "name": nameEl.value,
             "interval": interval,
-            "enabled": (document.getElementById('btnTimerEnabled').classList.contains('active') ? true : false),
+            "enabled": (elGetById('btnTimerEnabled').classList.contains('active') ? true : false),
             "startHour": Number(getSelectValueId('selectTimerHour')),
             "startMinute": Number(getSelectValueId('selectTimerMinute')),
             "weekdays": weekdays,
             "action": getData(selectTimerAction.options[selectTimerAction.selectedIndex].parentNode, 'value'),
             "subaction": getSelectValue(selectTimerAction),
-            "volume": Number(document.getElementById('inputTimerVolume').value),
+            "volume": Number(elGetById('inputTimerVolume').value),
             "playlist": getDataId('selectTimerPlaylist', 'value'),
             "preset": preset,
             "arguments": args
@@ -199,11 +199,11 @@ function showEditTimer(timerid) {
     cleanupModalId('modalTimer');
     elHideId('timerActionPlay');
     elHideId('timerActionScript');
-    document.getElementById('listTimer').classList.remove('active');
-    document.getElementById('editTimer').classList.add('active');
+    elGetById('listTimer').classList.remove('active');
+    elGetById('editTimer').classList.add('active');
     elHideId('listTimerFooter');
     elShowId('editTimerFooter');
-    document.getElementById('selectTimerPlaylist').filterInput.value = '';
+    elGetById('selectTimerPlaylist').filterInput.value = '';
 
     if (timerid !== 0) {
         sendAPI("MYMPD_API_TIMER_GET", {
@@ -212,14 +212,14 @@ function showEditTimer(timerid) {
     }
     else {
         filterPlaylistsSelect(0, 'selectTimerPlaylist', '', '');
-        document.getElementById('inputTimerId').value = '0';
-        document.getElementById('inputTimerName').value = '';
+        elGetById('inputTimerId').value = '0';
+        elGetById('inputTimerName').value = '';
         toggleBtnChkId('btnTimerEnabled', true);
-        document.getElementById('selectTimerHour').value = '12';
-        document.getElementById('selectTimerMinute').value = '0';
-        document.getElementById('selectTimerAction').value = 'startplay';
-        document.getElementById('inputTimerVolume').value = '50';
-        document.getElementById('textTimerVolume').textContent = '50 %';
+        elGetById('selectTimerHour').value = '12';
+        elGetById('selectTimerMinute').value = '0';
+        elGetById('selectTimerAction').value = 'startplay';
+        elGetById('inputTimerVolume').value = '50';
+        elGetById('textTimerVolume').textContent = '50 %';
         selectTimerIntervalChange(86400);
         selectTimerActionChange();
         const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
@@ -239,17 +239,17 @@ function showEditTimer(timerid) {
 function parseEditTimer(obj) {
     filterPlaylistsSelect(0, 'selectTimerPlaylist', '', obj.result.playlist);
 
-    document.getElementById('inputTimerId').value = obj.result.timerid;
-    document.getElementById('inputTimerName').value = obj.result.name;
+    elGetById('inputTimerId').value = obj.result.timerid;
+    elGetById('inputTimerName').value = obj.result.name;
     toggleBtnChkId('btnTimerEnabled', obj.result.enabled);
-    document.getElementById('selectTimerHour').value = obj.result.startHour;
-    document.getElementById('selectTimerMinute').value = obj.result.startMinute;
-    document.getElementById('selectTimerAction').value = obj.result.subaction;
+    elGetById('selectTimerHour').value = obj.result.startHour;
+    elGetById('selectTimerMinute').value = obj.result.startMinute;
+    elGetById('selectTimerAction').value = obj.result.subaction;
     selectTimerActionChange(obj.result.arguments);
     selectTimerIntervalChange(obj.result.interval);
-    document.getElementById('inputTimerVolume').value = obj.result.volume;
-    document.getElementById('textTimerVolume').textContent = obj.result.volume + ' %';
-    document.getElementById('selectTimerPreset').value = obj.result.preset;
+    elGetById('inputTimerVolume').value = obj.result.volume;
+    elGetById('textTimerVolume').textContent = obj.result.volume + ' %';
+    elGetById('selectTimerPreset').value = obj.result.preset;
 
     const weekdayBtns = ['btnTimerMon', 'btnTimerTue', 'btnTimerWed', 'btnTimerThu', 'btnTimerFri', 'btnTimerSat', 'btnTimerSun'];
     for (let i = 0, j = weekdayBtns.length; i < j; i++) {
@@ -272,11 +272,11 @@ function selectTimerIntervalChange(value) {
             value !== 0)
         {
             //repeat
-            document.getElementById('selectTimerInterval').value = '-2';
+            elGetById('selectTimerInterval').value = '-2';
         }
         else {
             //one shot
-            document.getElementById('selectTimerInterval').value = value;
+            elGetById('selectTimerInterval').value = value;
         }
     }
     if (value !== -1 &&
@@ -294,8 +294,8 @@ function selectTimerIntervalChange(value) {
         elHideId('groupTimerInterval');
     }
 
-    const inputTimerInterval = document.getElementById('inputTimerInterval');
-    const selectTimerIntervalUnit = document.getElementById('selectTimerIntervalUnit');
+    const inputTimerInterval = elGetById('inputTimerInterval');
+    const selectTimerIntervalUnit = elGetById('selectTimerIntervalUnit');
     for (const unit of [604800, 86400, 3600, 60, 1]) {
         if (value >= unit &&
             value % unit === 0)
@@ -313,7 +313,7 @@ function selectTimerIntervalChange(value) {
  * @returns {void}
  */
 function selectTimerActionChange(values) {
-    const el = document.getElementById('selectTimerAction');
+    const el = elGetById('selectTimerAction');
 
     if (getSelectValue(el) === 'startplay') {
         elShowId('timerActionPlay');
@@ -343,7 +343,7 @@ function showTimerScriptArgs(optionEl, values) {
         values = {};
     }
     const args = getData(optionEl, 'arguments');
-    const list = document.getElementById('timerActionScriptArguments');
+    const list = elGetById('timerActionScriptArguments');
     elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {
         const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "timerActionScriptArguments" + i,
@@ -366,8 +366,8 @@ function showTimerScriptArgs(optionEl, values) {
  */
 function showListTimer() {
     cleanupModalId('modalTimer');
-    document.getElementById('listTimer').classList.add('active');
-    document.getElementById('editTimer').classList.remove('active');
+    elGetById('listTimer').classList.add('active');
+    elGetById('editTimer').classList.remove('active');
     elShowId('listTimerFooter');
     elHideId('editTimerFooter');
     sendAPI("MYMPD_API_TIMER_LIST", {}, parseListTimer, true);
@@ -379,7 +379,7 @@ function showListTimer() {
  * @returns {void}
  */
 function parseListTimer(obj) {
-    const tbody = document.getElementById('listTimerList');
+    const tbody = elGetById('listTimerList');
     if (checkResult(obj, tbody) === false) {
         return;
     }

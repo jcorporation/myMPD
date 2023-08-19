@@ -23,7 +23,7 @@ function showModalOutputAttributes(outputName) {
  */
 function parseOutputAttributes(obj) {
     setDataId('modalOutputAttributes', 'outputId', obj.result.id);
-    const tbody = document.getElementById('modalOutputAttributesList');
+    const tbody = elGetById('modalOutputAttributesList');
     elClear(tbody);
     for (const n of ['name', 'state', 'plugin']) {
         if (n === 'state') {
@@ -66,7 +66,7 @@ function parseOutputAttributes(obj) {
  */
 //eslint-disable-next-line no-unused-vars
 function saveOutputAttributes(target) {
-    const modal = document.getElementById('modalOutputAttributes');
+    const modal = elGetById('modalOutputAttributes');
     cleanupModal(modal);
     const params = {};
     params.outputId = getData(modal, 'outputId');

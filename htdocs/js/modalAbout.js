@@ -10,7 +10,7 @@
  * @returns {void}
  */
 function initModalAbout() {
-    const tab = document.getElementById('modalAboutTabShortcuts');
+    const tab = elGetById('modalAboutTabShortcuts');
     elClear(tab);
     const keys = Object.keys(keymap).sort((a, b) => {
         return keymap[a].order - keymap[b].order;
@@ -44,7 +44,7 @@ function initModalAbout() {
         tab.lastChild.appendChild(col);
     }
 
-    document.getElementById('modalAbout').addEventListener('show.bs.modal', function () {
+    elGetById('modalAbout').addEventListener('show.bs.modal', function () {
         sendAPI("MYMPD_API_STATS", {}, parseStats, false);
         getServerinfo();
     }, false);
@@ -56,18 +56,18 @@ function initModalAbout() {
  * @returns {void}
  */
 function parseStats(obj) {
-    document.getElementById('modalAboutArtistCount').textContent = obj.result.artists;
-    document.getElementById('modalAboutAlbumCount').textContent = obj.result.albums;
-    document.getElementById('modalAboutSongCount').textContent = obj.result.songs;
-    document.getElementById('modalAboutDbPlaytime').textContent = fmtDuration(obj.result.dbPlaytime);
-    document.getElementById('modalAboutPlaytime').textContent = fmtDuration(obj.result.playtime);
-    document.getElementById('modalAboutUptime').textContent = fmtDuration(obj.result.uptime);
-    document.getElementById('modalAboutMympdUptime').textContent = fmtDuration(obj.result.myMPDuptime);
-    document.getElementById('modalAboutDbUpdated').textContent = fmtDate(obj.result.dbUpdated);
-    document.getElementById('modalAboutMympdVersion').textContent = obj.result.mympdVersion;
-    document.getElementById('modalAboutMympdUri').textContent = obj.result.myMPDuri;
+    elGetById('modalAboutArtistCount').textContent = obj.result.artists;
+    elGetById('modalAboutAlbumCount').textContent = obj.result.albums;
+    elGetById('modalAboutSongCount').textContent = obj.result.songs;
+    elGetById('modalAboutDbPlaytime').textContent = fmtDuration(obj.result.dbPlaytime);
+    elGetById('modalAboutPlaytime').textContent = fmtDuration(obj.result.playtime);
+    elGetById('modalAboutUptime').textContent = fmtDuration(obj.result.uptime);
+    elGetById('modalAboutMympdUptime').textContent = fmtDuration(obj.result.myMPDuptime);
+    elGetById('modalAboutDbUpdated').textContent = fmtDate(obj.result.dbUpdated);
+    elGetById('modalAboutMympdVersion').textContent = obj.result.mympdVersion;
+    elGetById('modalAboutMympdUri').textContent = obj.result.myMPDuri;
 
-    const mpdInfoVersionEl = document.getElementById('modalAboutProtocolVersion');
+    const mpdInfoVersionEl = elGetById('modalAboutProtocolVersion');
     elClear(mpdInfoVersionEl);
     mpdInfoVersionEl.appendChild(document.createTextNode(obj.result.mpdProtocolVersion));
 
@@ -89,6 +89,6 @@ function parseStats(obj) {
  */
 function getServerinfo() {
     httpGet(subdir + '/serverinfo', function(obj) {
-        document.getElementById('modalAboutWebserverIP').textContent = obj.result.ip;
+        elGetById('modalAboutWebserverIP').textContent = obj.result.ip;
     }, true);
 }

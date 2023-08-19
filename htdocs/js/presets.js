@@ -11,7 +11,7 @@
  */
 function initPresets() {
     for (let i = 1; i <= 3; i++) {
-        document.getElementById('selectPresetDropdown' + i).addEventListener('click', function(event) {
+        elGetById('selectPresetDropdown' + i).addEventListener('click', function(event) {
             event.preventDefault();
             if (event.target.nodeName === 'BUTTON') {
                 applyPreset(event.target.textContent);
@@ -76,11 +76,11 @@ function deletePreset(el, name) {
  */
 function populatePresetDropdowns() {
     const presetDropdowns = [
-        document.getElementById('selectPresetDropdown1').lastElementChild,
-        document.getElementById('selectPresetDropdown2').lastElementChild,
-        document.getElementById('selectPresetDropdown3').lastElementChild
+        elGetById('selectPresetDropdown1').lastElementChild,
+        elGetById('selectPresetDropdown2').lastElementChild,
+        elGetById('selectPresetDropdown3').lastElementChild
     ];
-    const selectTimerPreset = document.getElementById('selectTimerPreset');
+    const selectTimerPreset = elGetById('selectTimerPreset');
     for (const d of presetDropdowns) {
         elClear(d);
     }

@@ -59,40 +59,40 @@ function handleBrowseDatabaseAlbumDetail() {
  * @returns {void}
  */
 function initViewBrowseDatabase() {
-    document.getElementById('BrowseDatabaseTagListList').addEventListener('click', function(event) {
+    elGetById('BrowseDatabaseTagListList').addEventListener('click', function(event) {
         if (event.target.classList.contains('row')) {
             return;
         }
         app.current.search = '';
-        document.getElementById('BrowseDatabaseTagSearchStr').value = '';
+        elGetById('BrowseDatabaseTagSearchStr').value = '';
         appGoto(app.current.card, app.current.tab, 'AlbumList', 0, undefined, 'Album', {'tag': tagAlbumArtist, 'desc': false}, 'Album',
             '((' + app.current.tag + ' == \'' + escapeMPD(getData(event.target.parentNode, 'tag')) + '\'))');
     }, false);
 
     initSearchSimple('BrowseDatabaseTag');
 
-    document.getElementById('BrowseDatabaseTagListSortDesc').addEventListener('click', function(event) {
+    elGetById('BrowseDatabaseTagListSortDesc').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         app.current.sort.desc = app.current.sort.desc === true ? false : true;
         appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
     }, false);
 
-    document.getElementById('BrowseDatabaseAlbumListList').addEventListener('click', function(event) {
+    elGetById('BrowseDatabaseAlbumListList').addEventListener('click', function(event) {
         const target = gridClickHandler(event);
         if (target !== null) {
             appGoto('Browse', 'Database', 'AlbumDetail', 0, undefined, getData(target.parentNode, 'AlbumId'));
         }
     }, false);
 
-    document.getElementById('BrowseDatabaseAlbumDetailList').addEventListener('click', function(event) {
+    elGetById('BrowseDatabaseAlbumDetailList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {
             clickSong(getData(target, 'uri'), event);
         }
     }, false);
 
-    document.getElementById('BrowseDatabaseAlbumListColsDropdown').addEventListener('click', function(event) {
+    elGetById('BrowseDatabaseAlbumListColsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON' &&
             event.target.classList.contains('mi'))
         {
@@ -102,7 +102,7 @@ function initViewBrowseDatabase() {
         }
     }, false);
 
-    document.getElementById('BrowseDatabaseAlbumDetailInfoColsDropdown').addEventListener('click', function(event) {
+    elGetById('BrowseDatabaseAlbumDetailInfoColsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON' &&
             event.target.classList.contains('mi'))
         {
@@ -112,7 +112,7 @@ function initViewBrowseDatabase() {
         }
     }, false);
 
-    document.getElementById('BrowseDatabaseAlbumListSortDesc').addEventListener('click', function(event) {
+    elGetById('BrowseDatabaseAlbumListSortDesc').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         toggleBtnChk(this, undefined);
@@ -120,7 +120,7 @@ function initViewBrowseDatabase() {
         appGoto(app.current.card, app.current.tab, app.current.view, 0, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
     }, false);
 
-    document.getElementById('BrowseDatabaseAlbumListSortTags').addEventListener('click', function(event) {
+    elGetById('BrowseDatabaseAlbumListSortTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             event.stopPropagation();
@@ -138,7 +138,7 @@ function initViewBrowseDatabase() {
  * @returns {void}
  */
 function parseDatabaseAlbumList(obj) {
-    const cardContainer = document.getElementById('BrowseDatabaseAlbumListList');
+    const cardContainer = elGetById('BrowseDatabaseAlbumListList');
     unsetUpdateView(cardContainer);
 
     if (obj.error !== undefined) {
@@ -233,7 +233,7 @@ function parseDatabaseAlbumList(obj) {
 //eslint-disable-next-line no-unused-vars
 function saveColsDatabaseAlbumList() {
     //remove ids to force card refresh
-    const cols = document.getElementById('BrowseDatabaseAlbumListList').querySelectorAll('.col');
+    const cols = elGetById('BrowseDatabaseAlbumListList').querySelectorAll('.col');
     for (const col of cols) {
         col.firstChild.firstChild.removeAttribute('id');
     }
@@ -247,7 +247,7 @@ function saveColsDatabaseAlbumList() {
  * @returns {void}
  */
  function parseDatabaseTagList(obj) {
-    const cardContainer = document.getElementById('BrowseDatabaseTagListList');
+    const cardContainer = elGetById('BrowseDatabaseTagListList');
     unsetUpdateView(cardContainer);
 
     if (obj.error !== undefined) {
@@ -343,17 +343,17 @@ function addAlbumPlayButton(parentEl) {
  * @returns {void}
  */
 function parseAlbumDetails(obj) {
-    const table = document.getElementById('BrowseDatabaseAlbumDetailList');
+    const table = elGetById('BrowseDatabaseAlbumDetailList');
     const tfoot = table.querySelector('tfoot');
     const colspan = settings.colsBrowseDatabaseAlbumDetail.length;
-    const infoEl = document.getElementById('viewDatabaseAlbumDetailInfoTags');
+    const infoEl = elGetById('viewDatabaseAlbumDetailInfoTags');
 
     if (checkResultId(obj, 'BrowseDatabaseAlbumDetailList') === false) {
         elClear(infoEl);
         return;
     }
 
-    const coverEl = document.getElementById('viewDatabaseAlbumDetailCover');
+    const coverEl = elGetById('viewDatabaseAlbumDetailCover');
     coverEl.style.backgroundImage = getCssImageUri('/albumart?offset=0&uri=' + myEncodeURIComponent(obj.result.data[0].uri));
     setData(coverEl, 'images', obj.result.images);
     setData(coverEl, 'embeddedImageCount', obj.result.embeddedImageCount);

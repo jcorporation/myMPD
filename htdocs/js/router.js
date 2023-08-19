@@ -43,18 +43,18 @@ function appPrepare() {
             elShowId('view' + app.current.card + app.current.tab + app.current.view);
         }
         //highlight active navbar icon
-        let nav = document.getElementById('nav' + app.current.card + app.current.tab);
+        let nav = elGetById('nav' + app.current.card + app.current.tab);
         if (nav) {
             nav.classList.add('active');
         }
         else {
-            nav = document.getElementById('nav' + app.current.card);
+            nav = elGetById('nav' + app.current.card);
             if (nav) {
-                document.getElementById('nav' + app.current.card).classList.add('active');
+                elGetById('nav' + app.current.card).classList.add('active');
             }
         }
     }
-    const list = document.getElementById(app.id + 'List');
+    const list = elGetById(app.id + 'List');
     if (list) {
         setUpdateView(list);
     }

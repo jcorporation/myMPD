@@ -18,7 +18,7 @@ function handlePlayback() {
  * @returns {void}
  */
  function initViewPlayback() {
-    document.getElementById('PlaybackColsDropdown').addEventListener('click', function(event) {
+    elGetById('PlaybackColsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON' &&
             event.target.classList.contains('mi'))
         {
@@ -28,7 +28,7 @@ function handlePlayback() {
         }
     }, false);
 
-    document.getElementById('PlaybackListTags').addEventListener('click', function(event) {
+    elGetById('PlaybackListTags').addEventListener('click', function(event) {
         if (event.target.nodeName === 'P' ||
             event.target.nodeName === 'SPAN')
         {
@@ -43,7 +43,7 @@ function handlePlayback() {
  * @returns {void}
  */
 function parseCurrentSong(obj) {
-    const list = document.getElementById('PlaybackList');
+    const list = elGetById('PlaybackList');
     unsetUpdateView(list);
 
     const textNotification = [];
@@ -57,10 +57,10 @@ function parseCurrentSong(obj) {
     setCurrentCover(obj.result.uri);
 
     for (const elName of ['footerArtist', 'footerAlbum', 'footerCover', 'PlaybackTitle']) {
-        document.getElementById(elName).classList.remove('clickable');
+        elGetById(elName).classList.remove('clickable');
     }
 
-    const footerArtistEl = document.getElementById('footerArtist');
+    const footerArtistEl = elGetById('footerArtist');
     if (isEmptyTag(obj.result.Artist) === false) {
         const artists = joinArray(obj.result.Artist);
         textNotification.push(artists);
@@ -75,8 +75,8 @@ function parseCurrentSong(obj) {
         footerArtistEl.classList.remove('clickable');
     }
 
-    const footerDividerEl = document.getElementById('footerDivider');
-    const footerAlbumEl = document.getElementById('footerAlbum');
+    const footerDividerEl = elGetById('footerDivider');
+    const footerAlbumEl = elGetById('footerAlbum');
     if (isEmptyTag(obj.result.Album) === false) {
         textNotification.push(obj.result.Album);
         footerAlbumEl.textContent = obj.result.Album;
@@ -103,9 +103,9 @@ function parseCurrentSong(obj) {
         footerDividerEl.classList.add('d-none');
     }
 
-    const footerTitleEl = document.getElementById('footerTitle');
-    const footerCoverEl = document.getElementById('footerCover');
-    const PlaybackTitleEl = document.getElementById('PlaybackTitle');
+    const footerTitleEl = elGetById('footerTitle');
+    const footerCoverEl = elGetById('footerCover');
+    const PlaybackTitleEl = elGetById('PlaybackTitle');
     if (isEmptyTag(obj.result.Title) === false) {
         pageTitle.push(obj.result.Title);
         PlaybackTitleEl.textContent = obj.result.Title;
@@ -156,7 +156,7 @@ function parseCurrentSong(obj) {
 
     setPlaybackCardTags(obj.result);
 
-    const bookletEl = document.getElementById('PlaybackBooklet');
+    const bookletEl = elGetById('PlaybackBooklet');
     elClear(bookletEl);
     if (obj.result.bookletPath !== '' &&
         obj.result.bookletPath !== undefined &&
@@ -174,7 +174,7 @@ function parseCurrentSong(obj) {
     queueSetCurrentSong();
 
     //update title in queue view for streams
-    const playingTr = document.getElementById('queueSongId' + obj.result.currentSongId);
+    const playingTr = elGetById('queueSongId' + obj.result.currentSongId);
     if (playingTr !== null) {
         const titleCol = playingTr.querySelector('[data-col=Title');
         if (titleCol !== null) {
@@ -209,7 +209,7 @@ function setPlaybackCardTags(songObj) {
         elHideId('PlaybackListWebradio');
         elShowId('PlaybackListTags');
         for (const col of settings.colsPlayback) {
-            const c = document.getElementById('current' + col);
+            const c = elGetById('current' + col);
             if (c === null) {
                 continue;
             }
@@ -250,7 +250,7 @@ function setPlaybackCardTags(songObj) {
     }
     else {
         //webradio info
-        const PlaybackListWebradio = document.getElementById('PlaybackListWebradio');
+        const PlaybackListWebradio = elGetById('PlaybackListWebradio');
         elShow(PlaybackListWebradio);
         elHideId('PlaybackListTags');
 
@@ -350,8 +350,8 @@ function setVoteSongBtns(vote, uri) {
         uri = '';
     }
 
-    const btnLove = document.getElementById('PlaybackSongLoveBtn');
-    const btnHate = document.getElementById('PlaybackSongHateBtn');
+    const btnLove = elGetById('PlaybackSongLoveBtn');
+    const btnHate = elGetById('PlaybackSongHateBtn');
 
     if (isValidUri(uri) === false ||
         isStreamUri(uri) === true)

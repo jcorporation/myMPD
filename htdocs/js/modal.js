@@ -53,7 +53,7 @@ function focusFirstInput(container) {
  * @returns {void}
  */
 function populateEntities(id, entities) {
-    document.getElementById(id).value = arrayToLines(entities);
+    elGetById(id).value = arrayToLines(entities);
 }
 
 /**
@@ -108,7 +108,7 @@ function _modalClose(obj, close) {
  * @returns {void}
  */
  function cleanupModalId(id) {
-    cleanupModal(document.getElementById(id));
+    cleanupModal(elGetById(id));
 }
 
 /**
@@ -141,7 +141,7 @@ function cleanupModal(el) {
  * @returns {void}
  */
  function showConfirm(text, btnText, callback) {
-    document.getElementById('modalConfirmText').textContent = text;
+    elGetById('modalConfirmText').textContent = text;
     const yesBtn = elCreateText('button', {"id": "modalConfirmYesBtn", "class": ["btn", "btn-danger"]}, btnText);
     yesBtn.addEventListener('click', function() {
         if (callback !== undefined &&
@@ -151,7 +151,7 @@ function cleanupModal(el) {
         }
         uiElements.modalConfirm.hide();
     }, false);
-    document.getElementById('modalConfirmYesBtn').replaceWith(yesBtn);
+    elGetById('modalConfirmYesBtn').replaceWith(yesBtn);
     uiElements.modalConfirm.show();
 }
 

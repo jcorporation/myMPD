@@ -182,7 +182,7 @@ function showNotification(message, facility, severity) {
                 elCreateEmpty('button', {"type": "button", "class": ["btn-close"], "data-bs-dismiss": "toast"}),
             ])
         ]);
-        document.getElementById('alertBox').prepend(toast);
+        elGetById('alertBox').prepend(toast);
         const toastInit = new BSN.Toast(toast, {delay: 2500});
         toast.addEventListener('hidden.bs.toast', function() {
             this.remove();
@@ -223,7 +223,7 @@ function logMessage(message, facility, severity) {
         }
     }
     //update log overview if shown
-    if (document.getElementById('modalNotifications').classList.contains('show')) {
+    if (elGetById('modalNotifications').classList.contains('show')) {
         showMessages();
     }
 }

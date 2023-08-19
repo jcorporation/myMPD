@@ -18,7 +18,7 @@ function handleHome() {
  * @returns {void}
  */
 function initViewHome() {
-    document.getElementById('HomeList').addEventListener('click', function(event) {
+    elGetById('HomeList').addEventListener('click', function(event) {
         const target = gridClickHandler(event);
         if (target !== null) {
             const href = getData(target.parentNode, 'href');
@@ -55,7 +55,7 @@ function getHomeIconType(cmd, action) {
  * @returns {void}
  */
 function parseHomeIcons(obj) {
-    const cardContainer = document.getElementById('HomeList');
+    const cardContainer = elGetById('HomeList');
     unsetUpdateView(cardContainer);
     const cols = cardContainer.querySelectorAll('.col');
 
@@ -168,7 +168,7 @@ function hideDropoverIcon(el) {
  * @returns {void}
  */
 function dragAndDropHome() {
-    const HomeList = document.getElementById('HomeList');
+    const HomeList = elGetById('HomeList');
 
     HomeList.addEventListener('dragstart', function(event) {
         if (event.target.classList.contains('home-icons')) {
@@ -235,6 +235,6 @@ function dragAndDropHome() {
  */
 //eslint-disable-next-line no-unused-vars
 function executeHomeIcon(pos) {
-    const el = document.getElementById('HomeList').children[pos].firstChild;
+    const el = elGetById('HomeList').children[pos].firstChild;
     parseCmd(null, getData(el, 'href'));
 }

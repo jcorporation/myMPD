@@ -1364,13 +1364,13 @@ const keymap = {
 //cache often accessed dom elements
 const domCache = {};
 domCache.body = document.querySelector('body');
-domCache.counter = document.getElementById('counter');
+domCache.counter = elGetById('counter');
 domCache.footer = document.querySelector('footer');
 domCache.main = document.querySelector('main');
-domCache.progress = document.getElementById('footerProgress');
-domCache.progressBar = document.getElementById('footerProgressBar');
-domCache.progressPos = document.getElementById('footerProgressPos');
-domCache.volumeBar = document.getElementById('volumeBar');
+domCache.progress = elGetById('footerProgress');
+domCache.progressBar = elGetById('footerProgressBar');
+domCache.progressPos = elGetById('footerProgressPos');
+domCache.volumeBar = elGetById('volumeBar');
 
 //Get BSN object references for fast access
 const uiElements = {};
@@ -1382,8 +1382,8 @@ for (const m of document.querySelectorAll('.modal')) {
     }, false);
 }
 //other directly accessed BSN objects
-uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance(document.getElementById('btnHomeIconLigature'));
-uiElements.dropdownNeighbors = BSN.Dropdown.getInstance(document.getElementById('btnDropdownNeighbors'));
+uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance(elGetById('btnHomeIconLigature'));
+uiElements.dropdownNeighbors = BSN.Dropdown.getInstance(elGetById('btnDropdownNeighbors'));
 
 const LUAfunctions = {
     "mympd.http_client": {

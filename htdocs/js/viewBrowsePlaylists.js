@@ -42,7 +42,7 @@ function handleBrowsePlaylistList() {
  * @returns {void}
  */
 function initViewPlaylists() {
-    document.getElementById('BrowsePlaylistDetailSortTagsDropdown').addEventListener('click', function(event) {
+    elGetById('BrowsePlaylistDetailSortTagsDropdown').addEventListener('click', function(event) {
         if (event.target.nodeName === 'BUTTON') {
             event.preventDefault();
             currentPlaylistSort(getData(event.target, 'tag'));
@@ -52,7 +52,7 @@ function initViewPlaylists() {
     initSearchSimple('BrowsePlaylistList');
     initSearchExpression('BrowsePlaylistDetail');
 
-    document.getElementById('BrowsePlaylistListList').addEventListener('click', function(event) {
+    elGetById('BrowsePlaylistListList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {
             if (getData(target, 'smartpls-only') === false) {
@@ -64,7 +64,7 @@ function initViewPlaylists() {
         }
     }, false);
 
-    document.getElementById('BrowsePlaylistDetailList').addEventListener('click', function(event) {
+    elGetById('BrowsePlaylistDetailList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {
             clickSong(getData(target, 'uri'), event);
@@ -113,7 +113,7 @@ function parsePlaylistList(obj) {
  * @returns {void}
  */
 function parsePlaylistDetail(obj) {
-    const table = document.getElementById('BrowsePlaylistDetailList');
+    const table = elGetById('BrowsePlaylistDetailList');
     const tfoot = table.querySelector('tfoot');
     const colspan = settings.colsBrowsePlaylistDetail.length + 1;
 

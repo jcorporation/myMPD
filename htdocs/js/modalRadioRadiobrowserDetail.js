@@ -30,20 +30,20 @@ function showRadiobrowserDetails(uuid) {
  * @returns {void}
  */
 function parseRadiobrowserDetails(obj) {
-    const tbody = document.getElementById('modalRadiobrowserDetailsList');
+    const tbody = elGetById('modalRadiobrowserDetailsList');
     if (checkResult(obj, tbody) === false) {
         return;
     }
     elClearId('modalRadiobrowserDetailsList');
     const result = obj.result.data[0];
     if (result.favicon !== '') {
-        document.getElementById('RadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(result.favicon);
+        elGetById('RadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(result.favicon);
     }
     else {
-        document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
+        elGetById('RadiobrowserDetailsImage').style.backgroundImage =
             'url("' + subdir + '/assets/coverimage-notavailable")';
     }
-    document.getElementById('RadiobrowserDetailsTitle').textContent = result.name;
+    elGetById('RadiobrowserDetailsTitle').textContent = result.name;
     //map fields to webradiodb fields
     setDataId('RadiobrowserDetailsTitle', 'webradio', {
         "Name": result.name,

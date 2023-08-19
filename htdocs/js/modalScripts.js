@@ -10,7 +10,7 @@
  * @returns {void}
  */
 function initModalScripts() {
-    document.getElementById('inputScriptArgument').addEventListener('keyup', function(event) {
+    elGetById('inputScriptArgument').addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
             event.preventDefault();
             event.stopPropagation();
@@ -18,14 +18,14 @@ function initModalScripts() {
         }
     }, false);
 
-    document.getElementById('selectScriptArguments').addEventListener('click', function(event) {
+    elGetById('selectScriptArguments').addEventListener('click', function(event) {
         if (event.target.nodeName === 'OPTION') {
             removeScriptArgument(event);
             event.stopPropagation();
         }
     }, false);
 
-    document.getElementById('listScriptsList').addEventListener('click', function(event) {
+    elGetById('listScriptsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'A') {
@@ -53,23 +53,23 @@ function initModalScripts() {
         }
     }, false);
 
-    document.getElementById('btnDropdownAddAPIcall').parentNode.addEventListener('show.bs.dropdown', function() {
-        const dw = document.getElementById('textareaScriptContent').offsetWidth - document.getElementById('btnDropdownAddAPIcall').parentNode.offsetLeft;
-        document.getElementById('dropdownAddAPIcall').style.width = dw + 'px';
+    elGetById('btnDropdownAddAPIcall').parentNode.addEventListener('show.bs.dropdown', function() {
+        const dw = elGetById('textareaScriptContent').offsetWidth - elGetById('btnDropdownAddAPIcall').parentNode.offsetLeft;
+        elGetById('dropdownAddAPIcall').style.width = dw + 'px';
     }, false);
 
-    document.getElementById('btnDropdownAddFunction').parentNode.addEventListener('show.bs.dropdown', function() {
-        const dw = document.getElementById('textareaScriptContent').offsetWidth - document.getElementById('btnDropdownAddFunction').parentNode.offsetLeft;
-        document.getElementById('dropdownAddFunction').style.width = dw + 'px';
+    elGetById('btnDropdownAddFunction').parentNode.addEventListener('show.bs.dropdown', function() {
+        const dw = elGetById('textareaScriptContent').offsetWidth - elGetById('btnDropdownAddFunction').parentNode.offsetLeft;
+        elGetById('dropdownAddFunction').style.width = dw + 'px';
     }, false);
 
-    document.getElementById('btnDropdownImportScript').parentNode.addEventListener('show.bs.dropdown', function() {
-        const dw = document.getElementById('textareaScriptContent').offsetWidth - document.getElementById('btnDropdownImportScript').parentNode.offsetLeft;
-        document.getElementById('dropdownImportScript').style.width = dw + 'px';
+    elGetById('btnDropdownImportScript').parentNode.addEventListener('show.bs.dropdown', function() {
+        const dw = elGetById('textareaScriptContent').offsetWidth - elGetById('btnDropdownImportScript').parentNode.offsetLeft;
+        elGetById('dropdownImportScript').style.width = dw + 'px';
         getImportScriptList();
     }, false);
 
-    document.getElementById('btnImportScript').addEventListener('click', function(event) {
+    elGetById('btnImportScript').addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
         const script = getSelectValueId('selectImportScript');
@@ -77,11 +77,11 @@ function initModalScripts() {
             return;
         }
         getImportScript(script);
-        BSN.Dropdown.getInstance(document.getElementById('btnDropdownImportScript')).hide();
+        BSN.Dropdown.getInstance(elGetById('btnDropdownImportScript')).hide();
         setFocusId('textareaScriptContent');
     }, false);
 
-    const selectAPIcallEl = document.getElementById('selectAPIcall');
+    const selectAPIcallEl = elGetById('selectAPIcall');
     elClear(selectAPIcallEl);
     selectAPIcallEl.appendChild(
         elCreateTextTn('option', {"value": ""}, 'Select method')
@@ -98,17 +98,17 @@ function initModalScripts() {
 
     selectAPIcallEl.addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
-        document.getElementById('APIdesc').textContent = value !== '' ? APImethods[value].desc : '';
+        elGetById('APIdesc').textContent = value !== '' ? APImethods[value].desc : '';
     }, false);
 
-    document.getElementById('btnAddAPIcall').addEventListener('click', function(event) {
+    elGetById('btnAddAPIcall').addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
         const method = getSelectValueId('selectAPIcall');
         if (method === '') {
             return;
         }
-        const el = document.getElementById('textareaScriptContent');
+        const el = elGetById('textareaScriptContent');
         const [start, end] = [el.selectionStart, el.selectionEnd];
         const newText =
             'options = {}\n' +
@@ -118,11 +118,11 @@ function initModalScripts() {
             '\n' +
             'end\n';
         el.setRangeText(newText, start, end, 'preserve');
-        BSN.Dropdown.getInstance(document.getElementById('btnDropdownAddAPIcall')).hide();
+        BSN.Dropdown.getInstance(elGetById('btnDropdownAddAPIcall')).hide();
         setFocus(el);
     }, false);
 
-    const selectFunctionEl = document.getElementById('selectFunction');
+    const selectFunctionEl = elGetById('selectFunction');
     elClear(selectFunctionEl);
     selectFunctionEl.appendChild(
         elCreateTextTn('option', {"value": ""}, 'Select function')
@@ -139,20 +139,20 @@ function initModalScripts() {
 
     selectFunctionEl.addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
-        document.getElementById('functionDesc').textContent = value !== '' ? LUAfunctions[value].desc : '';
+        elGetById('functionDesc').textContent = value !== '' ? LUAfunctions[value].desc : '';
     }, false);
 
-    document.getElementById('btnAddFunction').addEventListener('click', function(event) {
+    elGetById('btnAddFunction').addEventListener('click', function(event) {
         event.preventDefault();
         event.stopPropagation();
         const value = getSelectValueId('selectFunction');
         if (value === '') {
             return;
         }
-        const el = document.getElementById('textareaScriptContent');
+        const el = elGetById('textareaScriptContent');
         const [start, end] = [el.selectionStart, el.selectionEnd];
         el.setRangeText(LUAfunctions[value].func, start, end, 'end');
-        BSN.Dropdown.getInstance(document.getElementById('btnDropdownAddFunction')).hide();
+        BSN.Dropdown.getInstance(elGetById('btnDropdownAddFunction')).hide();
         setFocus(el);
     }, false);
 }
@@ -162,7 +162,7 @@ function initModalScripts() {
  * @returns {void}
  */
 function getImportScriptList() {
-    const sel = document.getElementById('selectImportScript');
+    const sel = elGetById('selectImportScript');
     sel.setAttribute('disabled', 'disabled');
     httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://jcorporation.github.io/myMPD/scripting/scripts/index.json'), function(obj) {
         sel.options.length = 0;
@@ -181,7 +181,7 @@ function getImportScriptList() {
  * @returns {void}
  */
 function getImportScript(script) {
-    document.getElementById('textareaScriptContent').setAttribute('disabled', 'disabled');
+    elGetById('textareaScriptContent').setAttribute('disabled', 'disabled');
     httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://jcorporation.github.io/myMPD/scripting/scripts/' + script), function(text) {
         const lines = text.split('\n');
         const firstLine = lines.shift();
@@ -194,15 +194,15 @@ function getImportScript(script) {
             logError('Can not parse script arguments:' + firstLine);
             return;
         }
-        const scriptArgEl = document.getElementById('selectScriptArguments');
+        const scriptArgEl = elGetById('selectScriptArguments');
         scriptArgEl.options.length = 0;
         for (let i = 0, j = obj.arguments.length; i < j; i++) {
             scriptArgEl.appendChild(
                 elCreateText('option', {}, obj.arguments[i])
             );
         }
-        document.getElementById('textareaScriptContent').value = lines.join('\n');
-        document.getElementById('textareaScriptContent').removeAttribute('disabled');
+        elGetById('textareaScriptContent').value = lines.join('\n');
+        elGetById('textareaScriptContent').removeAttribute('disabled');
     }, false);
 }
 
@@ -243,27 +243,27 @@ function saveScript() {
     cleanupModalId('modalScripts');
     let formOK = true;
 
-    const nameEl = document.getElementById('inputScriptName');
+    const nameEl = elGetById('inputScriptName');
     if (!validatePlistEl(nameEl)) {
         formOK = false;
     }
 
-    const orderEl = document.getElementById('inputScriptOrder');
+    const orderEl = elGetById('inputScriptOrder');
     if (!validateIntEl(orderEl)) {
         formOK = false;
     }
 
     if (formOK === true) {
         const args = [];
-        const argSel = document.getElementById('selectScriptArguments');
+        const argSel = elGetById('selectScriptArguments');
         for (let i = 0, j = argSel.options.length; i < j; i++) {
             args.push(argSel.options[i].text);
         }
         sendAPI("MYMPD_API_SCRIPT_SAVE", {
-            "oldscript": document.getElementById('inputOldScriptName').value,
+            "oldscript": elGetById('inputOldScriptName').value,
             "script": nameEl.value,
             "order": Number(orderEl.value),
-            "content": document.getElementById('textareaScriptContent').value,
+            "content": elGetById('textareaScriptContent').value,
             "arguments": args
         }, saveScriptCheckError, true);
     }
@@ -292,12 +292,12 @@ function validateScript() {
     cleanupModalId('modalScripts');
     let formOK = true;
 
-    const nameEl = document.getElementById('inputScriptName');
+    const nameEl = elGetById('inputScriptName');
     if (!validatePlistEl(nameEl)) {
         formOK = false;
     }
 
-    const orderEl = document.getElementById('inputScriptOrder');
+    const orderEl = elGetById('inputScriptOrder');
     if (!validateIntEl(orderEl)) {
         formOK = false;
     }
@@ -305,7 +305,7 @@ function validateScript() {
     if (formOK === true) {
         sendAPI("MYMPD_API_SCRIPT_VALIDATE", {
             "script": nameEl.value,
-            "content": document.getElementById('textareaScriptContent').value,
+            "content": elGetById('textareaScriptContent').value,
         }, validateScriptCheckError, true);
     }
 }
@@ -329,9 +329,9 @@ function validateScriptCheckError(obj) {
  * @returns {void}
  */
 function addScriptArgument() {
-    const el = document.getElementById('inputScriptArgument');
+    const el = elGetById('inputScriptArgument');
     if (validatePrintableEl(el)) {
-        document.getElementById('selectScriptArguments').appendChild(
+        elGetById('selectScriptArguments').appendChild(
             elCreateText('option', {}, el.value)
         );
         el.value = '';
@@ -344,7 +344,7 @@ function addScriptArgument() {
  * @returns {void}
  */
 function removeScriptArgument(ev) {
-    const el = document.getElementById('inputScriptArgument');
+    const el = elGetById('inputScriptArgument');
     // @ts-ignore
     el.value = ev.target.text;
     ev.target.remove();
@@ -380,9 +380,9 @@ function showListScriptModal() {
 //eslint-disable-next-line no-unused-vars
 function showEditScript(script) {
     cleanupModalId('modalScripts');
-    document.getElementById('textareaScriptContent').removeAttribute('disabled');
-    document.getElementById('listScripts').classList.remove('active');
-    document.getElementById('editScript').classList.add('active');
+    elGetById('textareaScriptContent').removeAttribute('disabled');
+    elGetById('listScripts').classList.remove('active');
+    elGetById('editScript').classList.add('active');
     elHideId('listScriptsFooter');
     elShowId('editScriptFooter');
 
@@ -390,12 +390,12 @@ function showEditScript(script) {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
     }
     else {
-        document.getElementById('inputOldScriptName').value = '';
-        document.getElementById('inputScriptName').value = '';
-        document.getElementById('inputScriptOrder').value = '1';
-        document.getElementById('inputScriptArgument').value = '';
+        elGetById('inputOldScriptName').value = '';
+        elGetById('inputScriptName').value = '';
+        elGetById('inputScriptOrder').value = '1';
+        elGetById('inputScriptArgument').value = '';
         elClearId('selectScriptArguments');
-        document.getElementById('textareaScriptContent').value = '';
+        elGetById('textareaScriptContent').value = '';
     }
     setFocusId('inputScriptName');
 }
@@ -406,18 +406,18 @@ function showEditScript(script) {
  * @returns {void}
  */
 function parseEditScript(obj) {
-    document.getElementById('inputOldScriptName').value = obj.result.script;
-    document.getElementById('inputScriptName').value = obj.result.script;
-    document.getElementById('inputScriptOrder').value = obj.result.metadata.order;
-    document.getElementById('inputScriptArgument').value = '';
-    const selSA = document.getElementById('selectScriptArguments');
+    elGetById('inputOldScriptName').value = obj.result.script;
+    elGetById('inputScriptName').value = obj.result.script;
+    elGetById('inputScriptOrder').value = obj.result.metadata.order;
+    elGetById('inputScriptArgument').value = '';
+    const selSA = elGetById('selectScriptArguments');
     selSA.options.length = 0;
     for (let i = 0, j = obj.result.metadata.arguments.length; i < j; i++) {
         selSA.appendChild(
             elCreateText('option', {}, obj.result.metadata.arguments[i])
         );
     }
-    document.getElementById('textareaScriptContent').value = obj.result.content;
+    elGetById('textareaScriptContent').value = obj.result.content;
 }
 
 /**
@@ -426,8 +426,8 @@ function parseEditScript(obj) {
  */
 function showListScripts() {
     cleanupModalId('modalScripts');
-    document.getElementById('listScripts').classList.add('active');
-    document.getElementById('editScript').classList.remove('active');
+    elGetById('listScripts').classList.add('active');
+    elGetById('editScript').classList.remove('active');
     elShowId('listScriptsFooter');
     elHideId('editScriptFooter');
     getScriptList(true);
@@ -478,11 +478,11 @@ function getScriptList(all) {
  * @returns {void}
  */
 function parseScriptList(obj) {
-    const tbodyScripts = document.getElementById('listScriptsList');
+    const tbodyScripts = elGetById('listScriptsList');
     elClear(tbodyScripts);
-    const mainmenuScripts = document.getElementById('scripts');
+    const mainmenuScripts = elGetById('scripts');
     elClear(mainmenuScripts);
-    const triggerScripts = document.getElementById('selectTriggerScript');
+    const triggerScripts = elGetById('selectTriggerScript');
     elClear(triggerScripts);
 
     if (checkResult(obj, tbodyScripts) === false) {
@@ -537,12 +537,12 @@ function parseScriptList(obj) {
         elShow(mainmenuScripts.previousElementSibling);
     }
     //update timer actions select
-    const old = document.getElementById('timerActionsScriptsOptGroup');
+    const old = elGetById('timerActionsScriptsOptGroup');
     if (old) {
         old.replaceWith(timerActions);
     }
     else {
-        document.getElementById('selectTimerAction').appendChild(timerActions);
+        elGetById('selectTimerAction').appendChild(timerActions);
     }
 }
 
@@ -573,7 +573,7 @@ function execScript(cmd) {
         }, null, false);
     }
     else {
-        const arglist = document.getElementById('execScriptArguments');
+        const arglist = elGetById('execScriptArguments');
         elClear(arglist);
         for (let i = 0, j = cmd.arguments.length; i < j; i++) {
             arglist.appendChild(
@@ -585,7 +585,7 @@ function execScript(cmd) {
                 ])
             );
         }
-        document.getElementById('modalExecScriptScriptname').value = cmd.script;
+        elGetById('modalExecScriptScriptname').value = cmd.script;
         uiElements.modalExecScript.show();
     }
 }
@@ -596,7 +596,7 @@ function execScript(cmd) {
  */
 //eslint-disable-next-line no-unused-vars
 function execScriptArgs() {
-    const script = document.getElementById('modalExecScriptScriptname').value;
+    const script = elGetById('modalExecScriptScriptname').value;
     const args = {};
     const inputs = document.querySelectorAll('#execScriptArguments input');
     for (let i = 0, j = inputs.length; i < j; i++) {

@@ -10,7 +10,7 @@
  * @returns {void}
  */
 function initModalTrigger() {
-    document.getElementById('listTriggerList').addEventListener('click', function(event) {
+    elGetById('listTriggerList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'A') {
@@ -28,11 +28,11 @@ function initModalTrigger() {
         }
     }, false);
 
-    document.getElementById('selectTriggerScript').addEventListener('change', function() {
+    elGetById('selectTriggerScript').addEventListener('change', function() {
         selectTriggerActionChange();
     }, false);
 
-    document.getElementById('modalTrigger').addEventListener('shown.bs.modal', function () {
+    elGetById('modalTrigger').addEventListener('shown.bs.modal', function () {
         showListTrigger();
     });
 }
@@ -46,12 +46,12 @@ function saveTrigger() {
     cleanupModalId('modalTrigger');
     let formOK = true;
 
-    const nameEl = document.getElementById('inputTriggerName');
+    const nameEl = elGetById('inputTriggerName');
     if (!validatePlistEl(nameEl)) {
         formOK = false;
     }
 
-    const scriptEl = document.getElementById('selectTriggerScript');
+    const scriptEl = elGetById('selectTriggerScript');
     if (!validateSelectEl(scriptEl)) {
         formOK = false;
     }
@@ -67,7 +67,7 @@ function saveTrigger() {
         partition = partition === '!all!' ? partition : localSettings.partition;
 
         sendAPI("MYMPD_API_TRIGGER_SAVE", {
-            "id": Number(document.getElementById('inputTriggerId').value),
+            "id": Number(elGetById('inputTriggerId').value),
             "name": nameEl.value,
             "event": Number(getSelectValueId('selectTriggerEvent')),
             "script": getSelectValueId('selectTriggerScript'),
@@ -99,12 +99,12 @@ function saveTriggerCheckError(obj) {
 //eslint-disable-next-line no-unused-vars
 function showEditTrigger(id) {
     cleanupModalId('modalTrigger');
-    document.getElementById('listTrigger').classList.remove('active');
-    document.getElementById('newTrigger').classList.add('active');
+    elGetById('listTrigger').classList.remove('active');
+    elGetById('newTrigger').classList.add('active');
     elHideId('listTriggerFooter');
     elShowId('newTriggerFooter');
 
-    const nameEl = document.getElementById('inputTriggerName');
+    const nameEl = elGetById('inputTriggerName');
     setFocus(nameEl);
 
     if (id > -1) {
@@ -114,9 +114,9 @@ function showEditTrigger(id) {
     }
     else {
         nameEl.value = '';
-        document.getElementById('inputTriggerId').value = '-1';
-        document.getElementById('selectTriggerEvent').selectedIndex = 0;
-        document.getElementById('selectTriggerScript').selectedIndex = 0;
+        elGetById('inputTriggerId').value = '-1';
+        elGetById('selectTriggerEvent').selectedIndex = 0;
+        elGetById('selectTriggerScript').selectedIndex = 0;
         toggleBtnGroupValueId('btnTriggerPartitionGroup', 'this');
         selectTriggerActionChange();
     }
@@ -128,10 +128,10 @@ function showEditTrigger(id) {
  * @returns {void}
  */
 function parseTriggerEdit(obj) {
-    document.getElementById('inputTriggerId').value = obj.result.id;
-    document.getElementById('inputTriggerName').value = obj.result.name;
-    document.getElementById('selectTriggerEvent').value = obj.result.event;
-    document.getElementById('selectTriggerScript').value = obj.result.script;
+    elGetById('inputTriggerId').value = obj.result.id;
+    elGetById('inputTriggerName').value = obj.result.name;
+    elGetById('selectTriggerEvent').value = obj.result.event;
+    elGetById('selectTriggerScript').value = obj.result.script;
     const partition = obj.result.partition === '!all!' ? obj.result.partition : 'this';
     toggleBtnGroupValueId('btnTriggerPartitionGroup', partition);
     selectTriggerActionChange(obj.result.arguments);
@@ -143,7 +143,7 @@ function parseTriggerEdit(obj) {
  * @returns {void}
  */
 function selectTriggerActionChange(values) {
-    const el = document.getElementById('selectTriggerScript');
+    const el = elGetById('selectTriggerScript');
     if (el.selectedIndex > -1) {
         showTriggerScriptArgs(el.options[el.selectedIndex], values);
     }
@@ -160,7 +160,7 @@ function showTriggerScriptArgs(option, values) {
         values = {};
     }
     const args = getData(option, 'arguments');
-    const list = document.getElementById('triggerActionScriptArguments');
+    const list = elGetById('triggerActionScriptArguments');
     elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {
         const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "triggerActionScriptArguments" + i,
@@ -183,8 +183,8 @@ function showTriggerScriptArgs(option, values) {
  */
 function showListTrigger() {
     cleanupModalId('modalTrigger');
-    document.getElementById('listTrigger').classList.add('active');
-    document.getElementById('newTrigger').classList.remove('active');
+    elGetById('listTrigger').classList.add('active');
+    elGetById('newTrigger').classList.remove('active');
     elShowId('listTriggerFooter');
     elHideId('newTriggerFooter');
     sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, true);
@@ -196,7 +196,7 @@ function showListTrigger() {
  * @returns {void}
  */
 function parseTriggerList(obj) {
-    const tbody = document.getElementById('listTriggerList');
+    const tbody = elGetById('listTriggerList');
     if (checkResult(obj, tbody) === false) {
         return;
     }

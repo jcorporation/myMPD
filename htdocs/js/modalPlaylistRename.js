@@ -13,8 +13,8 @@
 //eslint-disable-next-line no-unused-vars
 function showRenamePlaylist(from) {
     cleanupModalId('modalPlaylistRename');
-    document.getElementById('modalPlaylistRenamePlistInput').value = from;
-    document.getElementById('modalPlaylistRenameNewNameInput').value = '';
+    elGetById('modalPlaylistRenamePlistInput').value = from;
+    elGetById('modalPlaylistRenameNewNameInput').value = '';
     uiElements.modalPlaylistRename.show();
 }
 
@@ -28,7 +28,7 @@ function renamePlaylist(target) {
     cleanupModalId('modalPlaylistRename');
     btnWaiting(target, true);
     sendAPI("MYMPD_API_PLAYLIST_RENAME", {
-        "plist": document.getElementById('modalPlaylistRenamePlistInput').value,
-        "newName": document.getElementById('modalPlaylistRenameNewNameInput').value
+        "plist": elGetById('modalPlaylistRenamePlistInput').value,
+        "newName": elGetById('modalPlaylistRenameNewNameInput').value
     }, modalClose, true);
 }

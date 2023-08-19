@@ -64,7 +64,7 @@ function removeIsInvalid(el) {
  * @returns {void}
  */
 function setIsInvalidId(id) {
-    setIsInvalid(document.getElementById(id));
+    setIsInvalid(elGetById(id));
 }
 
 /**

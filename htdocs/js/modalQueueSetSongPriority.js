@@ -12,10 +12,10 @@
  */
 //eslint-disable-next-line no-unused-vars
 function showSetSongPriority(songId) {
-    const modal = document.getElementById('modalQueueSetSongPriority');
+    const modal = elGetById('modalQueueSetSongPriority');
     cleanupModal(modal);
     setData(modal, 'songId', songId);
-    document.getElementById('modalQueueSetSongPriorityPriorityInput').value = '';
+    elGetById('modalQueueSetSongPriorityPriorityInput').value = '';
     uiElements.modalQueueSetSongPriority.show();
 }
 
@@ -26,12 +26,12 @@ function showSetSongPriority(songId) {
  */
 //eslint-disable-next-line no-unused-vars
 function setSongPriority(target) {
-    const modal = document.getElementById('modalQueueSetSongPriority');
+    const modal = elGetById('modalQueueSetSongPriority');
     cleanupModal(modal);
     btnWaiting(target, true);
 
     sendAPI("MYMPD_API_QUEUE_PRIO_SET", {
         "songIds": [getData(modal, 'songId')],
-        "priority": Number(document.getElementById('modalQueueSetSongPriorityPriorityInput').value)
+        "priority": Number(elGetById('modalQueueSetSongPriorityPriorityInput').value)
     }, modalClose, true);
 }

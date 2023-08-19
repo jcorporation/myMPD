@@ -10,7 +10,7 @@
  * @returns {void}
  */
 function initModalPartitions() {
-    document.getElementById('listPartitionsList').addEventListener('click', function(event) {
+    elGetById('listPartitionsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'A') {
@@ -31,7 +31,7 @@ function initModalPartitions() {
         }
     }, false);
 
-    document.getElementById('partitionOutputsList').addEventListener('click', function(event) {
+    elGetById('partitionOutputsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'BUTTON') {
@@ -43,14 +43,14 @@ function initModalPartitions() {
         }
     }, false);
 
-    document.getElementById('modalPartitions').addEventListener('shown.bs.modal', function () {
+    elGetById('modalPartitions').addEventListener('shown.bs.modal', function () {
         showListPartitions();
     });
 
-    document.getElementById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
+    elGetById('modalPartitionOutputs').addEventListener('shown.bs.modal', function () {
         //get all outputs
         sendAPIpartition("default", "MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
-            const outputList = document.getElementById('partitionOutputsList');
+            const outputList = elGetById('partitionOutputsList');
             if (checkResult(obj, outputList) === false) {
                 return;
             }
@@ -101,7 +101,7 @@ function moveOutputsCheckError(obj) {
  * @returns {void}
  */
 function parsePartitionOutputsList(obj) {
-    const outputList = document.getElementById('partitionOutputsList');
+    const outputList = elGetById('partitionOutputsList');
     if (checkResult(obj, outputList) === false) {
         return;
     }
@@ -145,7 +145,7 @@ function savePartition() {
     cleanupModalId('modalPartitions');
     let formOK = true;
 
-    const nameEl = document.getElementById('inputPartitionName');
+    const nameEl = elGetById('inputPartitionName');
     if (!validatePlistEl(nameEl)) {
         formOK = false;
     }
@@ -178,11 +178,11 @@ function savePartitionCheckError(obj) {
 //eslint-disable-next-line no-unused-vars
 function showNewPartition() {
     cleanupModalId('modalPartitions');
-    document.getElementById('listPartitions').classList.remove('active');
-    document.getElementById('newPartition').classList.add('active');
+    elGetById('listPartitions').classList.remove('active');
+    elGetById('newPartition').classList.add('active');
     elHideId('listPartitionsFooter');
     elShowId('newPartitionFooter');
-    const nameEl = document.getElementById('inputPartitionName');
+    const nameEl = elGetById('inputPartitionName');
     nameEl.value = '';
     setFocus(nameEl);
 }
@@ -193,8 +193,8 @@ function showNewPartition() {
  */
 function showListPartitions() {
     cleanupModalId('modalPartitions');
-    document.getElementById('listPartitions').classList.add('active');
-    document.getElementById('newPartition').classList.remove('active');
+    elGetById('listPartitions').classList.add('active');
+    elGetById('newPartition').classList.remove('active');
     elShowId('listPartitionsFooter');
     elHideId('newPartitionFooter');
     sendAPI("MYMPD_API_PARTITION_LIST", {}, parsePartitionList, true);
@@ -243,7 +243,7 @@ function switchPartition(partition) {
         webSocketConnect();
     }, 0);
     getSettings();
-    BSN.Modal.getInstance(document.getElementById('modalPartitions')).hide();
+    BSN.Modal.getInstance(elGetById('modalPartitions')).hide();
     showNotification(tn('Partition switched'), 'general', 'info');
 }
 
@@ -253,7 +253,7 @@ function switchPartition(partition) {
  * @returns {void}
  */
 function parsePartitionList(obj) {
-    const partitionList = document.getElementById('listPartitionsList');
+    const partitionList = elGetById('listPartitionsList');
     if (checkResult(obj, partitionList) === false) {
         return;
     }

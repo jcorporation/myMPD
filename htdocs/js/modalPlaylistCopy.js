@@ -11,7 +11,7 @@
  * @returns {void}
  */
 function showCopyPlaylist(srcPlists) {
-    const modal = document.getElementById('modalPlaylistCopy');
+    const modal = elGetById('modalPlaylistCopy');
     cleanupModal(modal);
     setData(modal, 'srcPlists', srcPlists);
     filterPlaylistsSelect(1, 'modalPlaylistCopyDstPlistInput', '', '');
@@ -26,13 +26,13 @@ function showCopyPlaylist(srcPlists) {
  */
 //eslint-disable-next-line no-unused-vars
 function copyPlaylist(target) {
-    const modal = document.getElementById('modalPlaylistCopy');
+    const modal = elGetById('modalPlaylistCopy');
     cleanupModal(modal);
     const mode = getRadioBoxValueId('modalPlaylistCopyMode');
     btnWaiting(target, true);
     sendAPI("MYMPD_API_PLAYLIST_COPY", {
         "srcPlists": getData(modal, 'srcPlists'),
-        "dstPlist": document.getElementById('modalPlaylistCopyDstPlistInput').value,
+        "dstPlist": elGetById('modalPlaylistCopyDstPlistInput').value,
         "mode": Number(mode)
     }, modalClose, true);
 }

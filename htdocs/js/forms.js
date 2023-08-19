@@ -18,7 +18,7 @@ function formToJson(prefix, settingsParams, defaultFields) {
             continue;
         }
         const id = prefix + ucFirst(key) + 'Input';
-        const el = document.getElementById(id);
+        const el = elGetById(id);
         if (el) {
             const value = defaultFields[key].inputType === 'select'
                 ? getSelectValue(el)
@@ -72,7 +72,7 @@ function createForm(defaultFields, prefix, forms) {
         // get the container
         const form = defaultFields[key].form;
         if (forms[form] === undefined) {
-            forms[form] = document.getElementById(form);
+            forms[form] = elGetById(form);
             // clear the container if it was not cached
             elClear(forms[form]);
         }
@@ -192,7 +192,7 @@ function createForm(defaultFields, prefix, forms) {
     for (const key in defaultFields) {
         if (defaultFields[key].onChange !== undefined) {
             const id = prefix + ucFirst(key) + 'Input';
-            document.getElementById(id).addEventListener('change', function(event) {
+            elGetById(id).addEventListener('change', function(event) {
                 // @ts-ignore
                 window[defaultFields[key].onChange](event);
             }, false);
@@ -220,7 +220,7 @@ function jsonToForm(settingsFields, defaultFields, prefix) {
         }
         // calculate a camelCase id
         const id = prefix + ucFirst(key) + 'Input';
-        const field = document.getElementById(id);
+        const field = elGetById(id);
         if (field) {
             switch(defaultFields[key].inputType) {
                 case 'checkbox':

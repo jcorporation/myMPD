@@ -37,7 +37,7 @@ function handleQueueJukebox(view) {
  * @returns {void}
  */
 function initViewQueueJukebox(view) {
-    document.getElementById(view + 'List').addEventListener('click', function(event) {
+    elGetById(view + 'List').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {
             if (settings.partition.jukeboxMode === 'song') {

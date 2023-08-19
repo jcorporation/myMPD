@@ -14,12 +14,12 @@
  */
 //eslint-disable-next-line no-unused-vars
 function showSetSongPos(plist, oldSongPos, songId) {
-    const modal = document.getElementById('modalQueueSetSongPos');
+    const modal = elGetById('modalQueueSetSongPos');
     cleanupModal(modal);
     setData(modal, 'songPosOld', oldSongPos);
     setData(modal, 'songId', songId);
     setData(modal, 'plist', plist);
-    document.getElementById('modalQueueSetSongPosToInput').value = '';
+    elGetById('modalQueueSetSongPosToInput').value = '';
     uiElements.modalQueueSetSongPos.show();
 }
 
@@ -30,12 +30,12 @@ function showSetSongPos(plist, oldSongPos, songId) {
  */
 //eslint-disable-next-line no-unused-vars
 function setSongPos(target) {
-    const modal = document.getElementById('modalQueueSetSongPos');
+    const modal = elGetById('modalQueueSetSongPos');
     cleanupModal(modal);
     btnWaiting(target, true);
     const plist = getData(modal, 'plist');
     //MPD is zero indexed, display is 1-indexed
-    const newSongPos = Number(document.getElementById('modalQueueSetSongPosToInput').value) - 1;
+    const newSongPos = Number(elGetById('modalQueueSetSongPosToInput').value) - 1;
     if (plist === 'queue') {
         sendAPI("MYMPD_API_QUEUE_MOVE_ID", {
             "songIds": [getData(modal, 'songId')],

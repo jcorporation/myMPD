@@ -24,7 +24,7 @@ function handleQueueLastPlayed() {
  * @returns {void}
  */
 function initViewQueueLastPlayed() {
-    document.getElementById('QueueLastPlayedList').addEventListener('click', function(event) {
+    elGetById('QueueLastPlayedList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {
             clickSong(getData(target, 'uri'), event);

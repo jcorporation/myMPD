@@ -10,14 +10,14 @@
  * @returns {void}
  */
 function initModalQueueAddTo() {
-    document.getElementById('modalQueueAddToModeInput').addEventListener('change', function() {
+    elGetById('modalQueueAddToModeInput').addEventListener('change', function() {
         const value = Number(getSelectValue(this));
         if (value === 2) {
             //album mode
             elDisableId('modalQueueAddToQuantityInput');
-            document.getElementById('modalQueueAddToQuantityInput').value = '1';
+            elGetById('modalQueueAddToQuantityInput').value = '1';
             elDisableId('modalQueueAddToPlaylistInput');
-            document.getElementById('modalQueueAddToPlaylistInput').value = 'Database';
+            elGetById('modalQueueAddToPlaylistInput').value = 'Database';
         }
         else if (value === 1) {
             //song mode
@@ -37,9 +37,9 @@ function initModalQueueAddTo() {
 //eslint-disable-next-line no-unused-vars
 function showAddRandomToQueue() {
     cleanupModalId('modalQueueAddTo');
-    document.getElementById('modalQueueAddToPlaylistInput').value = tn('Database');
+    elGetById('modalQueueAddToPlaylistInput').value = tn('Database');
     setDataId('modalQueueAddToPlaylistInput', 'value', 'Database');
-    document.getElementById('modalQueueAddToPlaylistInput').filterInput.value = '';
+    elGetById('modalQueueAddToPlaylistInput').filterInput.value = '';
     if (features.featPlaylists === true) {
         filterPlaylistsSelect(0, 'modalQueueAddToPlaylistInput', '', 'Database');
     }
@@ -58,6 +58,6 @@ function addRandomToQueue(target) {
     sendAPI("MYMPD_API_QUEUE_ADD_RANDOM", {
         "mode": Number(getSelectValueId('modalQueueAddToModeInput')),
         "plist": getDataId('modalQueueAddToPlaylistInput', 'value'),
-        "quantity": Number(document.getElementById('modalQueueAddToQuantityInput').value)
+        "quantity": Number(elGetById('modalQueueAddToQuantityInput').value)
     }, modalClose, true);
 }

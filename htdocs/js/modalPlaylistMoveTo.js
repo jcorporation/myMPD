@@ -12,7 +12,7 @@
  * @returns {void}
  */
 function showMoveToPlaylist(srcPlist, positions) {
-    const modal = document.getElementById('modalPlaylistMoveTo');
+    const modal = elGetById('modalPlaylistMoveTo');
     cleanupModal(modal);
     setData(modal, 'srcPlist', srcPlist);
     setData(modal, 'positions', positions);
@@ -32,13 +32,13 @@ function showMoveToPlaylist(srcPlist, positions) {
  */
 //eslint-disable-next-line no-unused-vars
 function moveToPlaylist(target) {
-    const modal = document.getElementById('modalPlaylistMoveTo');
+    const modal = elGetById('modalPlaylistMoveTo');
     cleanupModal(modal);
     const mode = getRadioBoxValueId('modalPlaylistMoveToPos');
     btnWaiting(target, true);
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_TO_PLAYLIST", {
         "srcPlist": getData(modal, 'srcPlist'),
-        "dstPlist": document.getElementById('modalPlaylistMoveToDstPlistInput').value,
+        "dstPlist": elGetById('modalPlaylistMoveToDstPlistInput').value,
         "positions": getData(modal, 'positions'),
         "mode": Number(mode)
     }, modalClose, true);

@@ -24,20 +24,20 @@ function showAddToPlaylist(type, entities) {
     cleanupModalId('modalPlaylistAddTo');
     setDataId('modalPlaylistAddToUrisInput', 'type', type);
     setDataId('modalPlaylistAddToUrisInput', 'entities', entities);
-    document.getElementById('modalPlaylistAddToPlistInput').value = '';
-    document.getElementById('modalPlaylistAddToPlistInput').filterInput.value = '';
-    document.getElementById('modalPlaylistAddToPosAppend').checked = 'checked';
-    document.getElementById('modalPlaylistAddToUrisInput').value = '';
+    elGetById('modalPlaylistAddToPlistInput').value = '';
+    elGetById('modalPlaylistAddToPlistInput').filterInput.value = '';
+    elGetById('modalPlaylistAddToPosAppend').checked = 'checked';
+    elGetById('modalPlaylistAddToUrisInput').value = '';
     if (type === 'stream') {
         // add stream
-        toggleAddToPlaylistFrm(document.getElementById('modalPlaylistAddToQueueBtn'));
+        toggleAddToPlaylistFrm(elGetById('modalPlaylistAddToQueueBtn'));
         elShowId('modalPlaylistAddToAddStreamFrm');
         elHideId('modalPlaylistAddToSrcRow');
-        document.getElementById('addToPlaylistCaption').textContent = tn('Add stream');
+        elGetById('addToPlaylistCaption').textContent = tn('Add stream');
     }
     else {
         // add to playlist
-        toggleAddToPlaylistFrm(document.getElementById('modalPlaylistAddToPlaylistBtn'));
+        toggleAddToPlaylistFrm(elGetById('modalPlaylistAddToPlaylistBtn'));
         elHideId('modalPlaylistAddToAddStreamFrm');
         elShowId('modalPlaylistAddToSrcRow');
         const names = [];
@@ -45,7 +45,7 @@ function showAddToPlaylist(type, entities) {
             names.push(basename(entity, true));
         }
         populateEntities('modalPlaylistAddToSrc', names);
-        document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
+        elGetById('addToPlaylistCaption').textContent = tn('Add to playlist');
     }
     if (features.featPlaylists) {
         filterPlaylistsSelect(1, 'modalPlaylistAddToPlistInput', '', '');
@@ -91,16 +91,16 @@ function addToPlaylist(target) {
     const entities = getDataId('modalPlaylistAddToUrisInput', 'entities');
     const mode = getRadioBoxValueId('modalPlaylistAddToPos');
     if (type === 'stream') {
-        const streamUrlEl = document.getElementById('modalPlaylistAddToUrisInput');
+        const streamUrlEl = elGetById('modalPlaylistAddToUrisInput');
         if (validateStreamEl(streamUrlEl) === false) {
             return;
         }
         entities[0] = streamUrlEl.value;
     }
     btnWaiting(target, true);
-    if (document.getElementById('modalPlaylistAddToPlaylistFrm').classList.contains('d-none') === false) {
+    if (elGetById('modalPlaylistAddToPlaylistFrm').classList.contains('d-none') === false) {
         // add to playlist
-        const plistEl = document.getElementById('modalPlaylistAddToPlistInput');
+        const plistEl = elGetById('modalPlaylistAddToPlistInput');
         switch(mode) {
             case 'append':
                 appendPlaylist(type, entities, plistEl.value, modalClose);

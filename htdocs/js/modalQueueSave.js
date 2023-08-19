@@ -21,10 +21,10 @@ function initModalQueueSave() {
 //eslint-disable-next-line no-unused-vars
 function showQueueSave() {
     toggleBtnGroupValueId('modalQueueSaveModeInput', 'create');
-    toggleSaveQueueMode(document.getElementById('modalQueueSaveModeInput').firstElementChild);
-    document.getElementById('modalQueueSavePlistInput').setValue('', '');
+    toggleSaveQueueMode(elGetById('modalQueueSaveModeInput').firstElementChild);
+    elGetById('modalQueueSavePlistInput').setValue('', '');
     setDataId('modalQueueSavePlistInput', 'value', '');
-    document.getElementById('modalQueueSavePlistInput').filterInput.value = '';
+    elGetById('modalQueueSavePlistInput').filterInput.value = '';
     filterPlaylistsSelect(1, 'modalQueueSavePlistInput', '', '');
     cleanupModalId('modalQueueSave');
     uiElements.modalQueueSave.show();
@@ -39,7 +39,7 @@ function showQueueSave() {
 function toggleSaveQueueMode(target) {
     toggleBtnGroup(target);
     const value = getData(target, 'value');
-    const input = document.getElementById('modalQueueSavePlistInput');
+    const input = elGetById('modalQueueSavePlistInput');
     input.setValue('', '');
     if (value === 'create') {
         input.removeAttribute('readonly');

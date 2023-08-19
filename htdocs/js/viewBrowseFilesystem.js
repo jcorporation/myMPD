@@ -25,7 +25,7 @@ function handleBrowseFilesystem() {
     }, parseFilesystem, true);
 
     //Create breadcrumb
-    const crumbEl = document.getElementById('BrowseBreadcrumb');
+    const crumbEl = elGetById('BrowseBreadcrumb');
     elClear(crumbEl);
     const home = elCreateText('a', {"class": ["mi"], "href": "#"}, 'home');
     setData(home, 'uri', '/');
@@ -61,7 +61,7 @@ function handleBrowseFilesystem() {
 function initViewBrowseFilesystem() {
     initSearchSimple('BrowseFilesystem');
 
-    document.getElementById('BrowseFilesystemList').addEventListener('click', function(event) {
+    elGetById('BrowseFilesystemList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {
             const uri = getData(target, 'uri');
@@ -93,7 +93,7 @@ function initViewBrowseFilesystem() {
         }
     }, false);
 
-    document.getElementById('BrowseBreadcrumb').addEventListener('click', function(event) {
+    elGetById('BrowseBreadcrumb').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
             const uri = getData(event.target, 'uri');
@@ -115,10 +115,10 @@ function initViewBrowseFilesystem() {
  */
  function parseFilesystem(obj) {
     //show images in folder
-    const imageList = document.getElementById('BrowseFilesystemImages');
+    const imageList = elGetById('BrowseFilesystemImages');
     elClear(imageList);
 
-    const table = document.getElementById('BrowseFilesystemList');
+    const table = elGetById('BrowseFilesystemList');
     const tfoot = table.querySelector('tfoot');
     elClear(tfoot);
 

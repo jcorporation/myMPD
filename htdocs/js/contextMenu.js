@@ -579,7 +579,7 @@ function createMenuLists(target, contextMenuTitle, contextMenuBody) {
             return true;
         }
         case 'BrowsePlaylistDetail': {
-            const table = document.getElementById('BrowsePlaylistDetailList');
+            const table = elGetById('BrowsePlaylistDetailList');
             addMenuItemsSongActions(dataNode, contextMenuBody, uri, type, name);
             if (getData(table, 'ro') === false) {
                 addDivider(contextMenuBody);

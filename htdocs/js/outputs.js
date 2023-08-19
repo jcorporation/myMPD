@@ -14,14 +14,14 @@ function initOutputs() {
         setVolume();
     }, false);
 
-    document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function() {
+    elGetById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function() {
         sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs, true);
     });
 
-    document.getElementById('outputs').addEventListener('click', function(event) {
+    elGetById('outputs').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
-            BSN.Dropdown.getInstance(document.getElementById('volumeMenu')).toggle();
+            BSN.Dropdown.getInstance(elGetById('volumeMenu')).toggle();
             showModalOutputAttributes(getData(event.target.parentNode, 'output-name'));
         }
         else {
@@ -42,7 +42,7 @@ function initOutputs() {
  * @returns {void}
  */
 function parseOutputs(obj) {
-    const outputList = document.getElementById('outputs');
+    const outputList = elGetById('outputs');
     elClear(outputList);
     if (obj.error) {
         outputList.appendChild(
@@ -79,8 +79,8 @@ function parseOutputs(obj) {
         outputList.appendChild(btn);
     }
     //prevent overflow of dropup
-    const outputsEl = document.getElementById('outputs');
-    const posY = getYpos(document.getElementById('outputsDropdown'));
+    const outputsEl = elGetById('outputs');
+    const posY = getYpos(elGetById('outputsDropdown'));
     if (posY < 0) {
         outputsEl.style.maxHeight = (outputsEl.offsetHeight + posY) + 'px';
     }
@@ -96,16 +96,16 @@ function parseOutputs(obj) {
  */
 function parseVolume(obj) {
     if (obj.result.volume === -1) {
-        document.getElementById('volumePrct').textContent = tn('Volumecontrol disabled');
+        elGetById('volumePrct').textContent = tn('Volumecontrol disabled');
         elHideId('volumeControl');
         elClear(
-            document.getElementById('volumeMenu').lastElementChild
+            elGetById('volumeMenu').lastElementChild
         );
     }
     else {
         elShowId('volumeControl');
-        document.getElementById('volumePrct').textContent = obj.result.volume + ' %';
-        const volumeMenu = document.getElementById('volumeMenu');
+        elGetById('volumePrct').textContent = obj.result.volume + ' %';
+        const volumeMenu = elGetById('volumeMenu');
         volumeMenu.firstElementChild.textContent = obj.result.volume === 0
             ? 'volume_off'
             : obj.result.volume < 50

@@ -10,13 +10,13 @@
  * @returns {void}
  */
 function initSession() {
-    document.getElementById('modalEnterPin').addEventListener('shown.bs.modal', function() {
+    elGetById('modalEnterPin').addEventListener('shown.bs.modal', function() {
         setFocusId('inputPinModal');
     }, false);
 
-    document.getElementById('inputPinModal').addEventListener('keyup', function(event) {
+    elGetById('inputPinModal').addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
-            document.getElementById('modalEnterPinEnterBtn').click();
+            elGetById('modalEnterPinEnterBtn').click();
         }
     }, false);
 }
@@ -140,11 +140,11 @@ function enterPin(method, params, callback, onerror) {
         const enterBtn = elCreateTextTn('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, 'Enter');
         enterBtn.addEventListener('click', function() {
             sendAPI('MYMPD_API_SESSION_LOGIN', {
-                "pin": document.getElementById('inputPinModal').value},
+                "pin": elGetById('inputPinModal').value},
                 function(obj) {
-                    document.getElementById('inputPinModal').value = '';
+                    elGetById('inputPinModal').value = '';
                     if (obj.error) {
-                        const em = document.getElementById('modalEnterPinMessage');
+                        const em = elGetById('modalEnterPinMessage');
                         em.textContent = tn(obj.error.message, obj.error.data);
                         elShow(em);
                     }
@@ -161,9 +161,9 @@ function enterPin(method, params, callback, onerror) {
                     }
                 }, true);
         }, false);
-        document.getElementById('modalEnterPinEnterBtn').replaceWith(enterBtn);
+        elGetById('modalEnterPinEnterBtn').replaceWith(enterBtn);
         elHideId('modalEnterPinMessage');
-        document.getElementById('inputPinModal').value = '';
+        elGetById('inputPinModal').value = '';
         uiElements.modalEnterPin.show();
     }
 }

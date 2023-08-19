@@ -14,24 +14,24 @@ function initModalSettingsPlayback() {
     const forms = {};
     // create the fields
     createForm(settingsPlaybackFields, 'modalPlayback', forms);
-    initElements(document.getElementById('modalPlayback'));
+    initElements(elGetById('modalPlayback'));
 
-    uiElements.modalPlaybackJukeboxCollapse = BSN.Collapse.getInstance(document.getElementById('modalPlaybackJukeboxCollapse'));
+    uiElements.modalPlaybackJukeboxCollapse = BSN.Collapse.getInstance(elGetById('modalPlaybackJukeboxCollapse'));
 
-    document.getElementById('modalPlaybackJukeboxModeGroup').addEventListener('mouseup', function() {
+    elGetById('modalPlaybackJukeboxModeGroup').addEventListener('mouseup', function() {
         setTimeout(function() {
             toggleJukeboxSettings();
             checkConsume();
         }, 100);
     });
 
-    document.getElementById('modalPlaybackConsumeGroup').addEventListener('mouseup', function() {
+    elGetById('modalPlaybackConsumeGroup').addEventListener('mouseup', function() {
         setTimeout(function() {
             checkConsume();
         }, 100);
     });
 
-    document.getElementById('modalPlaybackPresetsList').addEventListener('click', function(event) {
+    elGetById('modalPlaybackPresetsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'TD') {
@@ -67,11 +67,11 @@ function showPlaybackModal() {
  * @returns {void}
  */
 function populateListPresets() {
-    const presetsEl = document.getElementById('modalPlaybackNameInput');
+    const presetsEl = elGetById('modalPlaybackNameInput');
     presetsEl.value = '';
     setData(presetsEl, 'value', '');
     elClear(presetsEl.filterResult);
-    const presetsList = document.getElementById('modalPlaybackPresetsList');
+    const presetsList = elGetById('modalPlaybackPresetsList');
     elClear(presetsList);
     for (const preset of settings.partition.presets) {
         presetsEl.addFilterResultPlain(preset);
@@ -177,19 +177,19 @@ function toggleJukeboxSettings() {
     }
     else if (value === 'album') {
         elDisableId('modalPlaybackJukeboxQueueLengthInput');
-        document.getElementById('modalPlaybackJukeboxQueueLengthInput').value = '1';
+        elGetById('modalPlaybackJukeboxQueueLengthInput').value = '1';
         elDisableId('modalPlaybackJukeboxPlaylistInput');
         elDisableId('modalPlaybackJukeboxIgnoreHatedInput');
         toggleBtnChkId('modalPlaybackJukeboxIgnoreHatedInput', false);
-        elDisable(document.getElementById('modalPlaybackJukeboxPlaylistInput').nextElementSibling);
-        document.getElementById('modalPlaybackJukeboxPlaylistInput').value = tn('Database');
+        elDisable(elGetById('modalPlaybackJukeboxPlaylistInput').nextElementSibling);
+        elGetById('modalPlaybackJukeboxPlaylistInput').value = tn('Database');
         setDataId('modalPlaybackJukeboxPlaylistInput', 'value', 'Database');
     }
     else if (value === 'song') {
         elEnableId('modalPlaybackJukeboxQueueLengthInput');
         elEnableId('modalPlaybackJukeboxPlaylistInput');
         elEnableId('modalPlaybackJukeboxIgnoreHatedInput');
-        elEnable(document.getElementById('modalPlaybackJukeboxPlaylistInput').nextElementSibling);
+        elEnable(elGetById('modalPlaybackJukeboxPlaylistInput').nextElementSibling);
     }
     if (value !== 'off') {
         toggleBtnGroupValueId('modalPlaybackConsumeGroup', '1');
@@ -220,7 +220,7 @@ function createPresetsListRow(preset) {
 function populatePlaybackFrm() {
     jsonToForm(settings.partition, settingsPlaybackFields, 'modalPlayback');
 
-    toggleBtnGroupValueCollapse(document.getElementById('modalPlaybackJukeboxModeGroup'), 'modalPlaybackJukeboxCollapse', settings.partition.jukeboxMode);
+    toggleBtnGroupValueCollapse(elGetById('modalPlaybackJukeboxModeGroup'), 'modalPlaybackJukeboxCollapse', settings.partition.jukeboxMode);
     addTagListSelect('modalPlaybackJukeboxUniqueTagInput', 'tagListBrowse');
     toggleJukeboxSettings();
 
@@ -232,7 +232,7 @@ function populatePlaybackFrm() {
             setDataId('modalPlaybackJukeboxPlaylistInput', 'value', settings.partition.jukeboxPlaylist);
         }
         else {
-            document.getElementById('modalPlaybackJukeboxPlaylistInput').value = tn('Database');
+            elGetById('modalPlaybackJukeboxPlaylistInput').value = tn('Database');
             setDataId('modalPlaybackJukeboxPlaylistInput', 'value', 'Database');
         }
         toggleBtnGroupValueId('modalPlaybackConsumeGroup', settings.partition.consume);

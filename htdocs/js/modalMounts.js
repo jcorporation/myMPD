@@ -10,7 +10,7 @@
  * @returns {void}
  */
 function initModalMounts() {
-    document.getElementById('listMountsList').addEventListener('click', function(event) {
+    elGetById('listMountsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'A') {
@@ -30,30 +30,30 @@ function initModalMounts() {
         }
     }, false);
 
-    document.getElementById('btnDropdownNeighbors').parentNode.addEventListener('show.bs.dropdown', function () {
+    elGetById('btnDropdownNeighbors').parentNode.addEventListener('show.bs.dropdown', function () {
         if (features.featNeighbors === true) {
             sendAPI("MYMPD_API_MOUNT_NEIGHBOR_LIST", {}, parseNeighbors, true);
         }
         else {
-            const dropdownNeighbors = document.getElementById('dropdownNeighbors').firstElementChild;
+            const dropdownNeighbors = elGetById('dropdownNeighbors').firstElementChild;
             elReplaceChild(dropdownNeighbors,
                 elCreateTextTn('div', {"class": ["list-group-item", "nowrap"]}, 'Neighbors are disabled')
             );
         }
     }, false);
 
-    document.getElementById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
+    elGetById('dropdownNeighbors').children[0].addEventListener('click', function (event) {
         event.preventDefault();
         const target = event.target.nodeName === 'A'
             ? event.target
             : event.target.parentNode;
         if (target.nodeName === 'A') {
-            document.getElementById('inputMountUrl').value = getData(target, 'value');
+            elGetById('inputMountUrl').value = getData(target, 'value');
             uiElements.dropdownNeighbors.hide();
         }
     }, false);
 
-    document.getElementById('modalMounts').addEventListener('shown.bs.modal', function () {
+    elGetById('modalMounts').addEventListener('shown.bs.modal', function () {
         showListMounts();
     });
 }
@@ -78,8 +78,8 @@ function unmountMount(mountPoint) {
 function mountMount() {
     cleanupModalId('modalMounts');
     let formOK = true;
-    const inputMountUrl = document.getElementById('inputMountUrl');
-    const inputMountPoint = document.getElementById('inputMountPoint');
+    const inputMountUrl = elGetById('inputMountUrl');
+    const inputMountPoint = elGetById('inputMountPoint');
     if (!validateNotBlankEl(inputMountUrl)) {
         formOK = false;
     }
@@ -129,12 +129,12 @@ function updateMount(el, uri) {
 //eslint-disable-next-line no-unused-vars
 function showEditMount(uri, storage) {
     cleanupModalId('modalMounts');
-    document.getElementById('listMounts').classList.remove('active');
-    document.getElementById('editMount').classList.add('active');
+    elGetById('listMounts').classList.remove('active');
+    elGetById('editMount').classList.add('active');
     elHideId('listMountsFooter');
     elShowId('editMountFooter');
-    document.getElementById('inputMountUrl').value = uri;
-    document.getElementById('inputMountPoint').value = storage;
+    elGetById('inputMountUrl').value = uri;
+    elGetById('inputMountPoint').value = storage;
     setFocusId('inputMountPoint');
 }
 
@@ -144,8 +144,8 @@ function showEditMount(uri, storage) {
  */
 function showListMounts() {
     cleanupModalId('modalMounts');
-    document.getElementById('listMounts').classList.add('active');
-    document.getElementById('editMount').classList.remove('active');
+    elGetById('listMounts').classList.add('active');
+    elGetById('editMount').classList.remove('active');
     elShowId('listMountsFooter');
     elHideId('editMountFooter');
     sendAPI("MYMPD_API_MOUNT_LIST", {}, parseListMounts, true);
@@ -204,7 +204,7 @@ function parseListMounts(obj) {
  * @returns {void}
  */
 function parseNeighbors(obj) {
-    const dropdownNeighbors = document.getElementById('dropdownNeighbors').children[0];
+    const dropdownNeighbors = elGetById('dropdownNeighbors').children[0];
     elClear(dropdownNeighbors);
 
     if (obj.error) {

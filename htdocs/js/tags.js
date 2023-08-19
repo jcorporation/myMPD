@@ -13,7 +13,7 @@
  * @returns {void}
  */
  function selectTag(containerId, descId, setTo) {
-    const btns = document.getElementById(containerId);
+    const btns = elGetById(containerId);
     let aBtn = btns.querySelector('.active');
     if (aBtn !== null) {
         aBtn.classList.remove('active');
@@ -22,7 +22,7 @@
     if (aBtn !== null) {
         aBtn.classList.add('active');
         if (descId !== undefined) {
-            const descEl = document.getElementById(descId);
+            const descEl = elGetById(descId);
             if (descEl !== null) {
                 descEl.textContent = aBtn.textContent;
                 descEl.setAttribute('data-phrase', aBtn.getAttribute('data-phrase'));
@@ -129,7 +129,7 @@ function addTagList(elId, list) {
             );
         }
     }
-    const el = document.getElementById(elId);
+    const el = elGetById(elId);
     elReplaceChild(el, stack);
 }
 
@@ -140,7 +140,7 @@ function addTagList(elId, list) {
  * @returns {void}
  */
 function addTagListSelect(elId, list) {
-    const select = document.getElementById(elId);
+    const select = elGetById(elId);
     elClear(select);
     if (elId === 'modalSmartPlaylistEditSortInput' ||
         elId === 'modalSettingsSmartplsSortInput')

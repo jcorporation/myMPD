@@ -11,7 +11,7 @@
  */
 function handleQueueCurrent() {
     handleSearchExpression('QueueCurrent');
-    const searchMatchEl = document.getElementById(app.id + 'SearchMatch');
+    const searchMatchEl = elGetById(app.id + 'SearchMatch');
 
     if (app.current.sort.tag === '' ||
         app.current.sort.tag === 'Pos')
@@ -45,7 +45,7 @@ function handleQueueCurrent() {
  * @returns {void}
  */
 function initViewQueueCurrent() {
-    document.getElementById('QueueCurrentList').addEventListener('click', function(event) {
+    elGetById('QueueCurrentList').addEventListener('click', function(event) {
         const target = tableClickHandler(event);
         if (target !== null) {
             clickQueueSong(getData(target, 'songid'), getData(target, 'uri'), event);
@@ -71,7 +71,7 @@ function parseQueue(obj) {
         elDisableId('QueueCurrentGotoPlayingSongBtn');
     }
 
-    const table = document.getElementById('QueueCurrentList');
+    const table = elGetById('QueueCurrentList');
     if (checkResultId(obj, 'QueueCurrentList') === false) {
         return;
     }
@@ -156,7 +156,7 @@ function parseQueue(obj) {
  */
 function queueSetCurrentSong() {
     //remove old playing row
-    const old = document.getElementById('queueSongId' + currentState.lastSongId);
+    const old = elGetById('queueSongId' + currentState.lastSongId);
     if (old !== null) {
         resetDuration(old);
         resetSongPos(old);
@@ -175,7 +175,7 @@ function resetDuration(playingRow) {
     elClear(domCache.counter);
     //counter in queue
     if (playingRow === undefined) {
-        playingRow = document.getElementById('queueSongId' + currentState.currentSongId);
+        playingRow = elGetById('queueSongId' + currentState.currentSongId);
     }
     const durationTd = playingRow.querySelector('[data-col=Duration]');
     if (durationTd) {
@@ -193,7 +193,7 @@ function resetDuration(playingRow) {
  */
 function resetSongPos(playingRow) {
     if (playingRow === undefined) {
-        playingRow = document.getElementById('queueSongId' + currentState.currentSongId);
+        playingRow = elGetById('queueSongId' + currentState.currentSongId);
     }
     const posTd = playingRow.querySelector('[data-col=Pos]');
     if (posTd) {
@@ -232,7 +232,7 @@ function setQueueCounter(playingRow, counterText) {
  */
 function setPlayingRow(playingRow) {
     if (playingRow === undefined) {
-        playingRow = document.getElementById('queueSongId' + currentState.currentSongId);
+        playingRow = elGetById('queueSongId' + currentState.currentSongId);
     }
     if (playingRow !== null) {
         const posTd = playingRow.querySelector('[data-col=Pos]');

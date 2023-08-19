@@ -13,20 +13,20 @@
 //eslint-disable-next-line no-unused-vars
 function showWebradiodbDetails(uri) {
     //reuse the radiobrowser modal
-    const tbody = document.getElementById('modalRadiobrowserDetailsList');
+    const tbody = elGetById('modalRadiobrowserDetailsList');
     elClearId('modalRadiobrowserDetailsList');
     const m3u = isStreamUri(uri)
         ? streamUriToName(uri) + '.m3u'
         : uri;
     const result = webradioDb.webradios[m3u];
     if (result.Image !== '') {
-        document.getElementById('RadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(webradioDbPicsUri + result.Image);
+        elGetById('RadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(webradioDbPicsUri + result.Image);
     }
     else {
-        document.getElementById('RadiobrowserDetailsImage').style.backgroundImage =
+        elGetById('RadiobrowserDetailsImage').style.backgroundImage =
             'url("' + subdir + '/assets/coverimage-notavailable")';
     }
-    document.getElementById('RadiobrowserDetailsTitle').textContent = result.Name;
+    elGetById('RadiobrowserDetailsTitle').textContent = result.Name;
     setDataId('RadiobrowserDetailsTitle', 'webradio', result);
     const showFields = [
         'StreamUri',

@@ -128,7 +128,7 @@ function createLyricsTabs(el, obj) {
     }
     if (currentLyrics === true) {
         if (showSyncedLyrics === true) {
-            const ls = document.getElementById('lyricsScroll');
+            const ls = elGetById('lyricsScroll');
             if (ls !== null) {
                 //synced lyrics scrolling button
                 elShow(ls);
@@ -152,7 +152,7 @@ function createLyricsTabs(el, obj) {
             }
         }
         //resize button
-        const lr = document.getElementById('lyricsResize');
+        const lr = elGetById('lyricsResize');
         if (lr !== null) {
             lr.addEventListener('click', function(event) {
                 toggleBtn(event.target, undefined);

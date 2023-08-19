@@ -57,7 +57,7 @@ function playlistValidateDedup(plist, remove) {
  * @returns {void}
  */
 function playlistValidateDedupCheckError(obj) {
-    const alertEl = document.getElementById('playlistDetailAlert');
+    const alertEl = elGetById('playlistDetailAlert');
     unsetUpdateViewId('BrowsePlaylistDetailList');
     if (obj.error) {
         alertEl.firstElementChild.textContent = tn(obj.error.message, obj.error.data);
@@ -130,7 +130,7 @@ function filterPlaylistsSelect(type, elId, searchstr, selectedPlaylist) {
  * @returns {void}
  */
 function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
-    const selectEl = document.getElementById(playlistSelectId);
+    const selectEl = elGetById(playlistSelectId);
     //set input element values
     selectEl.value = selectedPlaylist === 'Database'
         ? tn('Database')

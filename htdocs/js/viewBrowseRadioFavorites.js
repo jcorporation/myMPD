@@ -21,12 +21,12 @@ function handleBrowseRadioFavorites() {
 function initViewBrowseRadioFavorites() {
     initSearchSimple('BrowseRadioFavorites');
 
-    document.getElementById('addToWebradioFavorites').addEventListener('click', function(event) {
+    elGetById('addToWebradioFavorites').addEventListener('click', function(event) {
         event.preventDefault();
         showEditRadioFavorite(getDataId('RadiobrowserDetailsTitle', 'webradio'));
     }, false);
 
-    document.getElementById('BrowseRadioFavoritesList').addEventListener('click', function(event) {
+    elGetById('BrowseRadioFavoritesList').addEventListener('click', function(event) {
         const target = gridClickHandler(event);
         if (target !== null) {
             const uri = getData(target.parentNode, 'uri');
@@ -53,7 +53,7 @@ function getRadioFavoriteList() {
  * @returns {void}
  */
 function parseRadioFavoritesList(obj) {
-    const cardContainer = document.getElementById('BrowseRadioFavoritesList');
+    const cardContainer = elGetById('BrowseRadioFavoritesList');
     unsetUpdateView(cardContainer);
 
     if (obj.error !== undefined) {

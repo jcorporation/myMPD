@@ -47,7 +47,7 @@ function setCounter() {
     //counter in footer
     domCache.counter.textContent = counterText;
     //update queue card
-    const playingRow = document.getElementById('queueSongId' + currentState.currentSongId);
+    const playingRow = elGetById('queueSongId' + currentState.currentSongId);
     if (playingRow !== null) {
         //progressbar and counter in queue card
         if (currentState.state === 'stop') {
@@ -62,7 +62,7 @@ function setCounter() {
     if (showSyncedLyrics === true &&
         settings.colsPlayback.includes('Lyrics'))
     {
-        const sl = document.getElementById('currentLyrics');
+        const sl = elGetById('currentLyrics');
         const toHighlight = sl.querySelector('[data-sec="' + currentState.elapsedTime + '"]');
         const highlighted = sl.querySelector('.highlight');
         if (highlighted !== toHighlight &&
@@ -110,18 +110,18 @@ function parseState(obj) {
     currentState = obj.result;
     //Set playback buttons
     if (obj.result.state === 'stop') {
-        document.getElementById('footerPlayBtn').textContent = 'play_arrow';
+        elGetById('footerPlayBtn').textContent = 'play_arrow';
         domCache.progressBar.style.width = '0';
     }
     else if (obj.result.state === 'play') {
-        document.getElementById('footerPlayBtn').textContent =
+        elGetById('footerPlayBtn').textContent =
             settings.webuiSettings.footerPlaybackControls === 'stop'
                 ? 'stop'
                 : 'pause';
     }
     else {
         //pause
-        document.getElementById('footerPlayBtn').textContent = 'play_arrow';
+        elGetById('footerPlayBtn').textContent = 'play_arrow';
     }
     if (app.id === 'QueueCurrent') {
         setPlayingRow();
@@ -155,7 +155,7 @@ function parseState(obj) {
     //local playback
     controlLocalPlayback(currentState.state);
     //queue badge in navbar
-    const badgeQueueItemsEl = document.getElementById('badgeQueueItems');
+    const badgeQueueItemsEl = elGetById('badgeQueueItems');
     if (badgeQueueItemsEl) {
         badgeQueueItemsEl.textContent = obj.result.queueLength;
     }
@@ -166,13 +166,13 @@ function parseState(obj) {
     //clear playback card if no current song
     if (obj.result.songPos === -1) {
         document.title = 'myMPD';
-        document.getElementById('PlaybackTitle').textContent = tn('Not playing');
-        const footerTitleEl = document.getElementById('footerTitle');
+        elGetById('PlaybackTitle').textContent = tn('Not playing');
+        const footerTitleEl = elGetById('footerTitle');
         footerTitleEl.textContent = tn('Not playing');
         footerTitleEl.removeAttribute('title');
         footerTitleEl.classList.remove('clickable');
-        document.getElementById('footerCover').classList.remove('clickable');
-        document.getElementById('PlaybackTitle').classList.remove('clickable');
+        elGetById('footerCover').classList.remove('clickable');
+        elGetById('PlaybackTitle').classList.remove('clickable');
         clearCurrentCover();
         const pb = document.querySelectorAll('#PlaybackListTags p');
         for (let i = 0, j = pb.length; i < j; i++) {
@@ -180,7 +180,7 @@ function parseState(obj) {
         }
     }
     else {
-        const cff = document.getElementById('currentAudioFormat');
+        const cff = elGetById('currentAudioFormat');
         if (cff) {
             elReplaceChild(
                 cff.querySelector('p'),
@@ -203,9 +203,9 @@ function parseState(obj) {
         settings.partition.mpdConnected === false ||        /* mpd is not connected */
         uiEnabled === false)                                /* ui is disabled at startup */
     {
-        if (document.getElementById('modalSettings').classList.contains('show') ||
-            document.getElementById('modalConnection').classList.contains('show') ||
-            document.getElementById('modalPlayback').classList.contains('show'))
+        if (elGetById('modalSettings').classList.contains('show') ||
+            elGetById('modalConnection').classList.contains('show') ||
+            elGetById('modalPlayback').classList.contains('show'))
         {
             //do not refresh settings, if a settings modal is open
             return;
@@ -297,8 +297,8 @@ function clearBackgroundImage(el) {
  * @returns {void}
  */
 function setCurrentCover(url) {
-    setBackgroundImage(document.getElementById('PlaybackCover'), url);
-    setBackgroundImage(document.getElementById('footerCover'), url);
+    setBackgroundImage(elGetById('PlaybackCover'), url);
+    setBackgroundImage(elGetById('footerCover'), url);
     if (settings.webuiSettings.bgCover === true) {
         setBackgroundImage(domCache.body, url);
     }
@@ -309,8 +309,8 @@ function setCurrentCover(url) {
  * @returns {void}
  */
 function clearCurrentCover() {
-    clearBackgroundImage(document.getElementById('PlaybackCover'));
-    clearBackgroundImage(document.getElementById('footerCover'));
+    clearBackgroundImage(elGetById('PlaybackCover'));
+    clearBackgroundImage(elGetById('footerCover'));
     if (settings.webuiSettings.bgCover === true) {
         clearBackgroundImage(domCache.body);
     }

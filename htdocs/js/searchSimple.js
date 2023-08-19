@@ -11,7 +11,7 @@
  * @returns {void}
  */
 function handleSearchSimple(appid) {
-    const searchStrEl = document.getElementById(appid + 'SearchStr');
+    const searchStrEl = elGetById(appid + 'SearchStr');
     setFocus(searchStrEl);
     if (searchStrEl.value === '' &&
         app.current.search !== '')
@@ -26,7 +26,7 @@ function handleSearchSimple(appid) {
  * @returns {void}
  */
 function initSearchSimple(appid) {
-    document.getElementById(appid + 'SearchStr').addEventListener('keyup', function(event) {
+    elGetById(appid + 'SearchStr').addEventListener('keyup', function(event) {
         if (ignoreKeys(event) === true) {
             return;
         }

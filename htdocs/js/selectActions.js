@@ -29,13 +29,13 @@ function initSelectActions() {
         if (dropdownId === 'BrowseDatabaseAlbumListSelectionDropdown' ||
             dropdownId === 'BrowseRadioFavoritesSelectionDropdown')
         {
-            document.getElementById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
+            elGetById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
                 addSelectActionButtons(el, dropdownId);
                 showGridSelectionCount();
             }, false);
         }
         else {
-            document.getElementById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
+            elGetById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
                 addSelectActionButtons(el, dropdownId);
                 showTableSelectionCount();
             }, false);
@@ -56,7 +56,7 @@ function initSelectActions() {
  */
 function addSelectActionButtons(el, dropdownId) {
     elClear(el);
-    const parent = document.getElementById(app.id + 'List');
+    const parent = elGetById(app.id + 'List');
     const firstSelection = parent.querySelector('.selected');
     const type = firstSelection !== null
         ? getData(firstSelection, 'type')
@@ -144,7 +144,7 @@ function getSelectionData(parent, attribute) {
  */
 //eslint-disable-next-line no-unused-vars
 function execSelectAction(type, action) {
-    const parent = document.getElementById(app.id + 'List');
+    const parent = elGetById(app.id + 'List');
     const attribute = type === 'album'
         ? action === 'delQueueJukeboxEntry'
             ? 'pos'
