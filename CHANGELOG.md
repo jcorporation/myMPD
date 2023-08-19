@@ -54,6 +54,7 @@ This is a small bug fix release.
 - Fix: add playlist to queue from playlist view #1087
 - Fix: unselect all selected rows
 - Fix: set song priority
+- Fix: SEGFAULT on partition deletion
 
 ***
 
