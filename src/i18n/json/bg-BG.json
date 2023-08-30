@@ -91,7 +91,6 @@
     "Can not read smart playlist file": "Прочитане на файл със смарт-плейлист невъзможен",
     "Can not save home icon": "Запазване на начална икона невъзможно",
     "Can't create mympd_script thread": "Създаване на mypmd_script нишка невъзможно",
-    "Can't save settings": "Запазване на настройки невъзможно",
     "Can't set playback options": "Задаване на опции за възпроизвеждане невъзможно",
     "Can't set playback options: MPD not connected": "Задаване на опции за възпроизвеждане невъзможно.MPD не е свързан",
     "Cancel": "Откажи",
