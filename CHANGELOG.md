@@ -45,6 +45,19 @@ This release changes some API methods.
 
 ***
 
+## myMPD v11.0.5 (not yet released)
+
+This is a small bug fix release.
+
+### Changelog
+
+- Fix: use highlight color for radio buttons #1095
+- Fix: do not overflow modal #1095
+- Fix: select default sort order in 'Add smart playlist' modal #1088
+- Fix: populate disc tag for album cache #1086
+
+***
+
 ## myMPD v11.0.4 (2023-08-19)
 
 This is a small bug fix release.

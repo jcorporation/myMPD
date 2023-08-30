@@ -692,6 +692,11 @@ div.key {
   border-color: var(--mympd-highlightcolor) !important;
 }
 
+.form-check-input:checked {
+  background-color: var(--mympd-highlightcolor);
+  border-color: var(--mympd-highlightcolor);
+}
+
 .btn-xs {
   padding: 0 0.25rem;
   border-radius: 0.2rem;
