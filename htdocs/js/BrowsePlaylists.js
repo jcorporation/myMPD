@@ -747,14 +747,14 @@ function showAddToPlaylist(type, entities) {
     document.getElementById('addToPlaylistPlaylist').filterInput.value = '';
     document.getElementById('addToPlaylistPosAppend').checked = 'checked';
     document.getElementById('streamUrl').value = '';
-    if (type === 'stream') {
-        //add stream
+    if (entities.length === 0) {
+        // manual add a stream
         toggleAddToPlaylistFrm(document.getElementById('toggleAddToPlaylistQueue'));
         elShowId('addStreamFrm');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add stream');
     }
     else {
-        //add to playlist
+        // add selected to a playlist
         toggleAddToPlaylistFrm(document.getElementById('toggleAddToPlaylistPlaylist'));
         elHideId('addStreamFrm');
         document.getElementById('addToPlaylistCaption').textContent = tn('Add to playlist');
