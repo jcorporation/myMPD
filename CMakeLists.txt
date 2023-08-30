@@ -181,6 +181,9 @@ endif()
 
 # translation files
 if(MYMPD_EMBEDDED_ASSETS)
+  if(EXISTS "${PROJECT_BINARY_DIR}/htdocs/assets/i18n/bg-BG.json.gz")
+    set(I18N_bg_BG "ON")
+  endif()
   if(EXISTS "${PROJECT_BINARY_DIR}/htdocs/assets/i18n/de-DE.json.gz")
     set(I18N_de_DE "ON")
   endif()

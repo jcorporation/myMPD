@@ -1,3 +1,4 @@
+bg-BG:Bulgarian
 de-DE:Deutsch
 en-US:English
 es-AR:Español

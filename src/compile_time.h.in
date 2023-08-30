@@ -27,6 +27,7 @@
 #cmakedefine MYMPD_ENABLE_IPV6
 
 //translation files
+#cmakedefine I18N_bg_BG
 #cmakedefine I18N_de_DE
 #cmakedefine I18N_en_US
 #cmakedefine I18N_es_AR

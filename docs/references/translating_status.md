@@ -1,3 +1,4 @@
+- bg-BG: 1088 missing phrases
 - es-AR: 145 missing phrases
 - es-ES: 788 missing phrases
 - es-VE: 791 missing phrases
