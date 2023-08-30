@@ -548,6 +548,7 @@ function saveSmartPlaylistClose(obj) {
 //eslint-disable-next-line no-unused-vars
 function addSmartpls(type) {
     const obj = {"jsonrpc": "2.0", "id": 0, "result": {"method": "MYMPD_API_SMARTPLS_GET"}};
+    obj.result.sort = '';
     switch(type) {
         case 'mostPlayed':
             obj.result.plist = settings.smartplsPrefix + (settings.smartplsPrefix !== '' ? '-' : '') + 'mostPlayed';

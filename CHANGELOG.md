@@ -12,6 +12,7 @@ This is a small bug fix release.
 
 - Fix: use highlight color for radio buttons #1095
 - Fix: do not overflow modal #1095
+- Fix: select default sort order in 'Add smart playlist' modal #1088
 
 ***
 
