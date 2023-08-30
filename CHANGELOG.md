@@ -56,6 +56,7 @@ This is a small bug fix release.
 - Fix: do not overflow modal #1095
 - Fix: select default sort order in 'Add smart playlist' modal #1088
 - Fix: populate disc tag for album cache #1086
+- Fix: stream not filled in "add to playlist" pop up #1095
 
 ***
 

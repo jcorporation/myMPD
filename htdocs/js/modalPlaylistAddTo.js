@@ -28,8 +28,8 @@ function showAddToPlaylist(type, entities) {
     elGetById('modalPlaylistAddToPlistInput').filterInput.value = '';
     elGetById('modalPlaylistAddToPosAppend').checked = 'checked';
     elGetById('modalPlaylistAddToUrisInput').value = '';
-    if (type === 'stream') {
-        // add stream
+    if (entities.length === 0) {
+        // manual add a stream
         toggleAddToPlaylistFrm(elGetById('modalPlaylistAddToQueueBtn'));
         elShowId('modalPlaylistAddToAddStreamFrm');
         elHideId('modalPlaylistAddToSrcRow');
