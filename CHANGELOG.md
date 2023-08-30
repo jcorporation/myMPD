@@ -36,6 +36,7 @@ This release changes some API methods.
 - Feat: add spinners to buttons
 - Feat: display the number of channels #1085
 - Feat: show source objects in action modals
+- Feat: add enforce disc tag option #1086
 - Upd: some code enhancements #1045
 - Upd: Bootstrap 5.3.1
 - Upd: rework settings

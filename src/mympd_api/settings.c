@@ -417,6 +417,18 @@ bool mympd_api_settings_set(const char *path, sds key, sds value, int vtype, val
         }
         mympd_state->listenbrainz_token = sds_replacelen(mympd_state->listenbrainz_token, value, sdslen(value));
     }
+    else if (strcmp(key, "tagDiscEmptyIsFirst") == 0) {
+        if (vtype == MJSON_TOK_TRUE) {
+            mympd_state->tag_disc_empty_is_first = true;
+        }
+        else if (vtype == MJSON_TOK_FALSE) {
+            mympd_state->tag_disc_empty_is_first = false;
+        }
+        else {
+            set_invalid_value(error, path, key, value, "Must be a boolean value");
+            return false;
+        }
+    }
     else {
         set_invalid_field(error, path, key);
         return false;
@@ -731,6 +743,7 @@ void mympd_api_settings_statefiles_global_read(struct t_mympd_state *mympd_state
     mympd_state->lyrics.vorbis_sylt = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "lyrics_vorbis_sylt", mympd_state->lyrics.vorbis_sylt, vcb_isalnum, true);
     mympd_state->listenbrainz_token = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "listenbrainz_token", mympd_state->listenbrainz_token, vcb_isalnum, true);
     mympd_state->navbar_icons = state_file_rw_string_sds(workdir, DIR_WORK_STATE, "navbar_icons", mympd_state->navbar_icons, validate_json_array, true);
+    mympd_state->tag_disc_empty_is_first = state_file_rw_bool(workdir, DIR_WORK_STATE, "tag_disc_empty_is_first", mympd_state->tag_disc_empty_is_first, true);
 
     strip_slash(mympd_state->music_directory);
     strip_slash(mympd_state->playlist_directory);
@@ -817,6 +830,7 @@ sds mympd_api_settings_get(struct t_partition_state *partition_state, sds buffer
     buffer = tojson_raw(buffer, "colsBrowseRadioRadiobrowser", mympd_state->cols_browse_radio_radiobrowser, true);
     buffer = tojson_raw(buffer, "navbarIcons", mympd_state->navbar_icons, true);
     buffer = tojson_sds(buffer, "listenbrainzToken", mympd_state->listenbrainz_token, true);
+    buffer = tojson_bool(buffer, "tagDiscEmptyIsFirst", mympd_state->tag_disc_empty_is_first, true);
     buffer = tojson_raw(buffer, "webuiSettings", mympd_state->webui_settings, true);
     //partition specific settings
     buffer = sdscat(buffer, "\"partition\":{");

@@ -18,10 +18,11 @@ struct t_mpd_worker_state {
     sds smartpls_sort;                            //!< smart playlists sort tag
     sds smartpls_prefix;                          //!< prefix for smart playlist names
     struct t_tags smartpls_generate_tag_types;    //!< generate smart playlists for each value for this tag
-    struct t_partition_state *partition_state;    //!< pointer to the partition state to work (default partion for worker threads)
+    struct t_partition_state *partition_state;    //!< pointer to the partition state to work (default partition for worker threads)
     struct t_mpd_state *mpd_state;                //!< pointer to mpd shared state
     struct t_config *config;                      //!< pointer to myMPD config
     struct t_work_request *request;               //!< work request from msg queue
+    bool tag_disc_empty_is_first;                 //!< handle empty disc tag as disc one for albums
 };
 
 void *mpd_worker_state_free(struct t_mpd_worker_state *mpd_worker_state);

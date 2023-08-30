@@ -215,7 +215,10 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
                 if (create_album_cache == true) {
                     // set initial song and disc count to 1
                     album_cache_set_song_count(song, 1);
-                    album_cache_set_disc_count(song, 1);
+                    if (mpd_worker_state->tag_disc_empty_is_first == true) {
+                        // handle empty disc tag as disc one
+                        album_cache_set_disc_count(song, 1);
+                    }
                     // construct the key
                     sds key = album_cache_get_key(song);
                     if (sdslen(key) > 0) {

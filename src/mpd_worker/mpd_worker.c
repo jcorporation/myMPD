@@ -52,6 +52,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     mpd_worker_state->smartpls = mympd_state->smartpls == true ? mympd_state->mpd_state->feat_playlists : false;
     mpd_worker_state->smartpls_sort = sdsdup(mympd_state->smartpls_sort);
     mpd_worker_state->smartpls_prefix = sdsdup(mympd_state->smartpls_prefix);
+    mpd_worker_state->tag_disc_empty_is_first = mympd_state->tag_disc_empty_is_first;
     copy_tag_types(&mympd_state->smartpls_generate_tag_types, &mpd_worker_state->smartpls_generate_tag_types);
     mpd_worker_state->config = mympd_state->config;
     //mpd state

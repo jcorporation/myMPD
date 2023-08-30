@@ -336,6 +336,9 @@ function printValue(key, value) {
         case 'SongCount':
             return document.createTextNode(tn('Num songs', {"smartCount": value}));
         case 'Discs':
+            if (value === 0) {
+                return document.createTextNode('-');
+            }
             return document.createTextNode(tn('Num discs', {"smartCount": value}));
         default:
             if (key.indexOf('MUSICBRAINZ') === 0) {

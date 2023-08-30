@@ -89,6 +89,7 @@ void mympd_state_default(struct t_mympd_state *mympd_state, struct t_config *con
     mympd_state->listenbrainz_token = sdsempty();
     mympd_state->navbar_icons = sdsnew(MYMPD_NAVBAR_ICONS);
     reset_t_tags(&mympd_state->smartpls_generate_tag_types);
+    mympd_state->tag_disc_empty_is_first = MYMPD_TAG_DISC_EMPTY_IS_FIRST;
     //mpd shared state
     mympd_state->mpd_state = malloc_assert(sizeof(struct t_mpd_state));
     mpd_state_default(mympd_state->mpd_state, mympd_state);

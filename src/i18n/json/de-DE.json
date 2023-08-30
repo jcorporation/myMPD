@@ -340,6 +340,7 @@
     "helpSettingsSmartplsSort": "Sortiere die intelligenten Wiedergabelisten.",
     "helpSettingsSmartplsInterval": "Die intelligenten Wiedergabelisten werden in diesem Interval aktualisiert.",
     "helpSettingsGeneratePlsTags": "Erstellt eine Wiedergabeliste für jeden Wert der gewählten Tags.",
+    "helpSettingsTagDiscEmptyIsFirst": "Behandelt einen leeren Disc-Tag als CD 1 für die Albumanzeige.",
     "Help to improve myMPD": "Hilf mit myMPD zu verbessern",
     "Highlight color": "Highlight Farbe",
     "History back": "Zurück",
@@ -1084,5 +1085,6 @@
     "Smart playlist saved successfully": "Intelligente Wiedergabeliste erfolgreich gespeichert",
     "New playlist name": "Neuer Wiedergabelistenname",
     "Number is out of valid range": "Zahl ist außerhalb der erlaubten Range",
-    "Output not found": "Ausgabegerät nicht gefunden"
+    "Output not found": "Ausgabegerät nicht gefunden",
+    "Enforce disc tag": "Erzwinge CD Tag"
 }

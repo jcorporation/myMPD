@@ -254,6 +254,7 @@ struct t_mympd_state {
     struct t_lyrics lyrics;                       //!< lyrics settings
     sds listenbrainz_token;                       //!< listenbrainz token
     sds webui_settings;                           //!< settings only relevant for webui, saved as string containing json
+    bool tag_disc_empty_is_first;                 //!< handle empty disc tag as disc one for albums
 };
 
 /**

@@ -92,6 +92,7 @@
     "helpSettingsSmartplsSort": "Sort smart playlists by selected tag.",
     "helpSettingsSmartplsInterval": "Smart playlists are updated in this interval.",
     "helpSettingsGeneratePlsTags": "Creates one playlist for each value of the selected tags.",
+    "helpSettingsTagDiscEmptyIsFirst": "Handles an empty disc tag as disc one for the album view.",
     "icon-all": "All",
     "icon-action": "Action",
     "icon-alert": "Alert",

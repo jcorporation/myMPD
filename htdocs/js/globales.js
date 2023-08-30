@@ -377,6 +377,13 @@ const settingsFields = {
         "unit": "Hours",
         "form": "modalSettingsSmartplsFrm",
         "help": "helpSettingsSmartplsInterval"
+    },
+    "tagDiscEmptyIsFirst": {
+        "defaultValue": defaults["MYMPD_TAG_DISC_EMPTY_IS_FIRST"],
+        "inputType": "checkbox",
+        "title": "Enforce disc tag",
+        "form": "modalSettingsTagsFrm",
+        "help": "helpSettingsTagDiscEmptyIsFirst"
     }
 };
 
