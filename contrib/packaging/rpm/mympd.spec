@@ -4,7 +4,7 @@
 # (c) 2018-2023 Juergen Mang <mail@jcgames.de>
 
 Name:           mympd
-Version:        11.0.4
+Version:        11.0.5
 Release:        0
 License:        GPL-3.0-or-later
 Group:          Productivity/Multimedia/Sound/Players
@@ -57,5 +57,5 @@ make -C release install DESTDIR=%{buildroot}
 %license LICENSE.md
 
 %changelog
-* Sat Aug 19 2023 Juergen Mang <mail@jcgames.de> 11.0.4-0
+* Wed Aug 30 2023 Juergen Mang <mail@jcgames.de> 11.0.5-0
 - Version from master
