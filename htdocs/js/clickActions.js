@@ -147,10 +147,12 @@ function clickQueueSong(songid, uri, event) {
             if (songid === null) {
                 return;
             }
-            sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {
+            if (currentState.currentSongId === songid) {
+                return clickPlay();
+            }
+            return sendAPI("MYMPD_API_PLAYER_PLAY_SONG", {
                 "songId": songid
             }, null, false);
-            break;
         case 'view':
             if (uri === null) {
                 return;
