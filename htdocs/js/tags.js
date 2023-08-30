@@ -326,6 +326,10 @@ function printValue(key, value) {
             }
             return elCreateText('a', {"class": ["text-success", "external"],
                 "href": value, "rel": "noreferrer", "target": "_blank"}, value);
+        case 'Languages':
+            return document.createTextNode(
+                value.join(', ')
+            );
         case 'lastcheckok':
             //radiobrowser.info
             return elCreateText('span', {"class": ["mi"]},

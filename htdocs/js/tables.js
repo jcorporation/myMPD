@@ -352,7 +352,7 @@ function dragAndDropTableHeader(tableName) {
 function setColTags(tableName) {
     switch(tableName) {
         case 'BrowseRadioWebradiodb':
-            return ["Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate"];
+            return ["Country", "Description", "Genre", "Homepage", "Languages", "Name", "StreamUri", "Codec", "Bitrate"];
         case 'BrowseRadioRadiobrowser':
             return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
         case 'BrowseDatabaseAlbumList': {

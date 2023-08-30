@@ -38,6 +38,7 @@ This release changes some API methods.
 - Feat: show source objects in action modals
 - Feat: add enforce disc tag option #1086
 - Feat: add bulgarian translation
+- Upd: support multiple languages for webradioDB #1097
 - Upd: some code enhancements #1045
 - Upd: Bootstrap 5.3.1
 - Upd: rework settings

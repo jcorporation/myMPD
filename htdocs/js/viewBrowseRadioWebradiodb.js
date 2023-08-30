@@ -202,7 +202,7 @@ function searchWebradiodb(name, genre, country, language, codec, bitrate, sort, 
         if (webradioDb.webradios[key].Name.toLowerCase().indexOf(name) > -1 &&
             (genre === '' || webradioDb.webradios[key].Genre.includes(genre)) &&
             (country === '' || country === webradioDb.webradios[key].Country) &&
-            (language === '' || language === webradioDb.webradios[key].Language) &&
+            (language === '' || webradioDb.webradios[key].Languages.includes(language)) &&
             (codec === '' || webradioDb.webradios[key].allCodecs.includes(codec)) &&
             (bitrate === 0 || bitrate <= webradioDb.webradios[key].highestBitrate)
         ) {
@@ -288,7 +288,7 @@ function parseSearchWebradiodb(obj) {
         setData(row, 'image', webradioDbPicsUri + data.Image);
         setData(row, 'homepage', data.Homepage);
         setData(row, 'country', data.Country);
-        setData(row, 'language', data.Language);
+        setData(row, 'language', data.Languages);
         setData(row, 'description', data.Description);
         setData(row, 'codec', data.Codec);
         setData(row, 'bitrate', data.Bitrate);

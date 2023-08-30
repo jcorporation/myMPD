@@ -64,7 +64,7 @@ function showWebradiodbDetails(uri) {
                     "Genre": result.Genre,
                     "Homepage": result.Homepage,
                     "Country": result.Country,
-                    "Language": result.Language,
+                    "Language": result.Languages,
                     "Codec": result.alternativeStreams[name].Codec,
                     "Bitrate": result.alternativeStreams[name].Bitrate,
                     "Description": result.Description,
