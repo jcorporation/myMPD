@@ -2113,7 +2113,7 @@
   </div>
 <!-- Modal mounts end -->
 <!-- Modal execute script start -->
-  <div class="modal fade" id="modalExecScript" tabindex="-1">
+  <div class="modal fade" id="modalScriptExec" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
@@ -2122,17 +2122,17 @@
         </div>
         <div class="modal-body">
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="modalExecScriptScriptname" data-phrase="Script"></label>
+              <label class="col-sm-4 col-form-label" for="modalScriptExecScriptnameInput" data-phrase="Script"></label>
               <div class="col-sm-8">
-                <input id="modalExecScriptScriptname" class="form-control" readonly="readonly"/>
+                <input id="modalScriptExecScriptnameInput" class="form-control" readonly="readonly"/>
               </div>
             </div>
             <hr/>
-            <div id="execScriptArguments"></div>
+            <div id="modalScriptExecArgumentsList"></div>
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success" data-href='{"cmd": "execScriptArgs", "options": []}' data-phrase="Execute"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "execScriptArgs", "options": ["target"]}' data-phrase="Execute"></button>
         </div>
       </div>
     </div>
@@ -2977,6 +2977,7 @@
 <!--debug-->  <script src="js/modalRadioFavoriteEdit.js"></script>
 <!--debug-->  <script src="js/modalRadioRadiobrowserDetail.js"></script>
 <!--debug-->  <script src="js/modalRadioWebradiodbDetail.js"></script>
+<!--debug-->  <script src="js/modalScriptExec.js"></script>
 <!--debug-->  <script src="js/modalScripts.js"></script>
 <!--debug-->  <script src="js/modalConnection.js"></script>
 <!--debug-->  <script src="js/modalSettings.js"></script>
