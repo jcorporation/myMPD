@@ -2057,31 +2057,34 @@
         </div>
         <div class="modal-body">
         <div class="tab-content">
-          <div id="editMount" class="tab-pane">
+          <div id="modalMountsEditTab" class="tab-pane">
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputMountPoint" data-phrase="Mount point"></label>
+              <label class="col-sm-4 col-form-label" for="modalMountsMountPointInput" data-phrase="Mount point"></label>
               <div class="col-sm-8">
-                <input id="inputMountPoint" class="form-control"/>
+                <input id="modalMountsMountPointInput" class="form-control"/>
                 <div class="invalid-feedback" data-phrase="Invalid mount point"></div>
+                <small class="help" data-phrase="helpMountsMountPoint"></small>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputMountUrl" data-phrase="Backend uri"></label>
+              <label class="col-sm-4 col-form-label" for="modalMountsMountUrlInput" data-phrase="Backend uri"></label>
               <div class="col-sm-8">
                 <div class="input-group">
-                  <input id="inputMountUrl" class="form-control"/>
+                  <input id="modalMountsMountUrlInput" class="form-control"/>
                   <div class="btn-group">
-                    <button id="btnDropdownNeighbors" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-start-0 rounded-end" type="button" data-bs-toggle="dropdown"></button>
-                    <div id="dropdownNeighbors" class="dropdown-menu dropdown-menu-right dropdownWide border-0 p-0 ">
-                      <div class="list-group list-group-scroll"></div>
+                    <button data-title-phrase="Show neighbors" id="modalMountsNeighborsBtn" class="btn btn-secondary dropdown-toggle dropdown-toggle-split rounded-start-0 rounded-end" type="button" data-bs-toggle="dropdown"></button>
+                    <div class="dropdown-menu dropdown-menu-right dropdownWide border-0 p-0 ">
+                      <h2 class="dropdown-header" data-phrase="Neighbors"></h2>
+                      <div id="modalMountsNeighborsList" class="list-group list-group-scroll"></div>
                     </div>
                   </div>
                   <div class="invalid-feedback" data-phrase="Invalid backend uri"></div>
                 </div>
+                <small class="help" data-phrase="helpMountsUrl"></small>
               </div>
             </div>
           </div>
-          <div class="tab-pane active" id="listMounts">
+          <div class="tab-pane active" id="modalMountsListTab">
             <div class="table-responsive overflow-auto">
               <table class="table table-hover table-sm">
                 <thead>
@@ -2091,19 +2094,19 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody class="clickable" id="listMountsList"></tbody>
+                <tbody class="clickable" id="modalMountsList"></tbody>
               </table>
             </div>
           </div>
         </div>
         </div>
-        <div class="modal-footer justify-content-between" id="listMountsFooter">
+        <div class="modal-footer justify-content-between" id="modalMountsListFooter">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success protected" data-phrase="New mount"></button>
         </div>
-        <div class="modal-footer justify-content-between d-none" id="editMountFooter">
+        <div class="modal-footer justify-content-between d-none" id="modalMountsEditFooter">
           <button data-href='{"cmd":"showListMounts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"mountMount","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
+          <button data-href='{"cmd":"mountMount","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>

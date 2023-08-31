@@ -93,6 +93,8 @@
     "helpSettingsSmartplsInterval": "Smart playlists are updated in this interval.",
     "helpSettingsGeneratePlsTags": "Creates one playlist for each value of the selected tags.",
     "helpSettingsTagDiscEmptyIsFirst": "Handles an empty disc tag as disc one for the album view.",
+    "helpMountsMountPoint": "Path to mount the uri, e.g. music",
+    "helpMountsUrl": "URI to mount, e.g. nfs://192.168.1.4/export/music",
     "icon-all": "All",
     "icon-action": "Action",
     "icon-alert": "Alert",

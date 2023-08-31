@@ -1390,7 +1390,7 @@ for (const m of document.querySelectorAll('.modal')) {
 }
 //other directly accessed BSN objects
 uiElements.modalHomeIconLigatureDropdown = BSN.Dropdown.getInstance(elGetById('modalHomeIconLigatureBtn'));
-uiElements.dropdownNeighbors = BSN.Dropdown.getInstance(elGetById('btnDropdownNeighbors'));
+uiElements.modalMountsNeighborsDropdown = BSN.Dropdown.getInstance(elGetById('modalMountsNeighborsBtn'));
 
 const LUAfunctions = {
     "mympd.http_client": {
