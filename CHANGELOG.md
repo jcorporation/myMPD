@@ -43,6 +43,7 @@ This release changes some API methods.
 - Upd: Bootstrap 5.3.1
 - Upd: rework settings
 - Upd: split JavaScript in separate files for views and modals
+- Upd: dependencies sds, utest, utf8
 - Fix: calculate correct position for jukebox list
 - Fix: calculate correct position for playlist content list
 
