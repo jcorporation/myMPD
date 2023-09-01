@@ -106,6 +106,7 @@ function initModalScripts() {
  * @param {Event} event triggering event
  * @returns {void}
  */
+//eslint-disable-next-line no-unused-vars
 function addScriptFunction(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -125,6 +126,7 @@ function addScriptFunction(event) {
  * @param {Event} event triggering event
  * @returns {void}
  */
+//eslint-disable-next-line no-unused-vars
 function addScriptAPIcall(event) {
     event.preventDefault();
     event.stopPropagation();
@@ -151,6 +153,7 @@ function addScriptAPIcall(event) {
  * @param {Event} event triggering event
  * @returns {void}
  */
+//eslint-disable-next-line no-unused-vars
 function importScript(event) {
     event.preventDefault();
     event.stopPropagation();

@@ -129,6 +129,7 @@ function isHttpUri(uri) {
  * @param {Element} el input element
  * @returns {boolean} true = valid playlist name, else false
  */
+//eslint-disable-next-line no-unused-vars
 function validatePlistEl(el) {
     if (validatePlist(el.value) === false) {
         setIsInvalid(el);
@@ -239,19 +240,6 @@ function validateStreamEl(el) {
         return true;
     }
     if (isStreamUri(el.value) === true) {
-        return true;
-    }
-    setIsInvalid(el);
-    return false;
-}
-
-/**
- * Checks if the select element has an option selected
- * @param {Element} el select element
- * @returns {boolean} true = valid, else false
- */
-function validateSelectEl(el) {
-    if (getSelectValue(el) !== undefined) {
         return true;
     }
     setIsInvalid(el);
