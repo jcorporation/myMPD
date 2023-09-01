@@ -154,34 +154,6 @@ function validatePlist(str) {
 }
 
 /**
- * Checks if the the value of the input element is not blank
- * @param {Element} el input element
- * @returns {boolean} true = not empty, else false
- */
-function validateNotBlankEl(el) {
-    const value = el.value.replace(/\s/g, '');
-    if (value === '') {
-        setIsInvalid(el);
-        return false;
-    }
-    return true;
-}
-
-/**
- * Checks if the the value of the input element is an integer
- * @param {Element} el input element
- * @returns {boolean} true = integer, else false
- */
-function validateIntEl(el) {
-    const value = el.value.replace(/[\d-]/g, '');
-    if (value !== '') {
-        setIsInvalid(el);
-        return false;
-    }
-    return true;
-}
-
-/**
  * Checks if the the value of the input element is an unsigned integer
  * @param {Element} el input element
  * @returns {boolean} true = unsigned integer, else false

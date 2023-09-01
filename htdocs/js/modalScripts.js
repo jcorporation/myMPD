@@ -525,6 +525,6 @@ function parseScriptList(obj) {
         old.replaceWith(timerActions);
     }
     else {
-        elGetById('selectTimerAction').appendChild(timerActions);
+        elGetById('modalTimerActionInput').appendChild(timerActions);
     }
 }

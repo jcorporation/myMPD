@@ -173,8 +173,8 @@ function parseSettings(obj) {
 
     //scripts
     if (scriptsInited === false) {
-        const selectTimerAction = elGetById('selectTimerAction');
-        elClearId('selectTimerAction');
+        const selectTimerAction = elGetById('modalTimerActionInput');
+        elClear(selectTimerAction);
         selectTimerAction.appendChild(
             elCreateNodes('optgroup', {"data-value": "player", "data-label-phrase": "Playback", "label": tn('Playback')}, [
                 elCreateTextTn('option', {"value": "startplay"}, 'Start playback'),

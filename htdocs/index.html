@@ -1918,56 +1918,56 @@
         </div>
         <div class="modal-body">
         <div class="tab-content">
-          <div id="editTimer" class="tab-pane">
+          <div id="modalTimerEditTab" class="tab-pane">
             <input type="hidden" id="inputTimerId" value="0"/>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="inputTimerName" data-phrase="Name"></label>
+              <label class="col-sm-4 col-form-label" for="modalTimerNameInput" data-phrase="Name"></label>
               <div class="col-sm-8">
-                <input id="inputTimerName" class="form-control"/>
+                <input id="modalTimerNameInput" class="form-control"/>
                 <div class="invalid-feedback" data-phrase="Invalid name"></div>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="btnTimerEnabled" data-phrase="Enabled"></label>
+              <label class="col-sm-4 col-form-label" for="modalTimerEnabledInput" data-phrase="Enabled"></label>
               <div class="col-sm-8">
-                <button data-href='{"cmd":"toggleBtnChk", "options": ["target"]}' id="btnTimerEnabled" type="button" class="btn btn-secondary btn-sm mi active">check</button>
+                <button data-href='{"cmd":"toggleBtnChk", "options": ["target"]}' id="modalTimerEnabledInput" type="button" class="btn btn-secondary btn-sm mi active">check</button>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" data-phrase="Start"></label>
+              <label class="col-sm-4 col-form-label" data-phrase="Start" for="modalTimerstartHourInput"></label>
               <div class="col-sm-8">
                 <div class="input-group">
-                  <select class="form-select" id="selectTimerHour"></select>
-                  <select class="form-select" id="selectTimerMinute"></select>
+                  <select class="form-select" id="modalTimerstartHourInput"></select>
+                  <select class="form-select" id="modalTimerstartMinuteInput"></select>
                 </div>
               </div>
             </div>
             <div class="mb-3 row">
               <label class="col-sm-4 col-form-label" data-phrase="Weekdays"></label>
               <div class="col-sm-8">
-                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerMon" data-phrase="Mon"></button>
-                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerTue" data-phrase="Tue"></button>
-                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerWed" data-phrase="Wed"></button>
-                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerThu" data-phrase="Thu"></button>
-                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerFri" data-phrase="Fri"></button>
-                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerSat" data-phrase="Sat"></button>
-                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="btnTimerSun" data-phrase="Sun"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="modalTimerMonBtn" data-phrase="Mon"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="modalTimerTueBtn" data-phrase="Tue"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="modalTimerWedBtn" data-phrase="Wed"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="modalTimerThuBtn" data-phrase="Thu"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="modalTimerFriBtn" data-phrase="Fri"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="modalTimerSatBtn" data-phrase="Sat"></button>
+                <button data-href='{"cmd":"toggleBtn", "options": ["target"]}' class="weekday me-2 btn btn-secondary" id="modalTimerSunBtn" data-phrase="Sun"></button>
                 <div id="invalidTimerWeekdays" class="invalid-feedback" data-phrase="Minimum one weekday must be selected"></div>
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="selectTimerInterval" data-phrase="Interval"></label>
+              <label class="col-sm-4 col-form-label" for="modalTimerIntervalInput" data-phrase="Interval"></label>
               <div class="col-sm-4">
-                <select id="selectTimerInterval" class="form-select">
+                <select id="modalTimerIntervalInput" class="form-select">
                   <option value="-1" data-phrase="One shot and delete"></option>
                   <option value="0" data-phrase="One shot and disable"></option>
                   <option value="-2" data-phrase="Repeat each"></option>
                 </select>
               </div>
               <div class="col-sm-4">
-                <div class="input-group d-none" id="groupTimerInterval">
-                  <input class="form-control" id="inputTimerInterval"/>
-                  <select class="form-select" id="selectTimerIntervalUnit">
+                <div class="input-group d-none" id="modalTimerIntervalRepeatGroup">
+                  <input class="form-control" id="modalTimerIntervalRepeatInput"/>
+                  <select class="form-select" id="modalTimerIntervalRepeatUnit">
                     <option value="1" data-phrase="Seconds"></option>
                     <option value="60" data-phrase="Minutes"></option>
                     <option value="3600" data-phrase="Hours"></option>
@@ -1979,44 +1979,42 @@
               </div>
             </div>
             <div class="mb-3 row">
-              <label class="col-sm-4 col-form-label" for="selectTimerAction" data-phrase="Action"></label>
+              <label class="col-sm-4 col-form-label" for="modalTimerActionInput" data-phrase="Action"></label>
               <div class="col-sm-8">
-                <select id="selectTimerAction" class="form-select"></select>
+                <select id="modalTimerActionInput" class="form-select"></select>
                 <div class="invalid-feedback" data-phrase="No action selected"></div>
               </div>
             </div>
             <div id="timerActionPlay">
               <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="inputTimerVolume" data-phrase="Volume"></label>
+                <label class="col-sm-4 col-form-label" for="modalTimerVolumeInput" data-phrase="Volume"></label>
                 <div class="col-sm-7 mt-2">
-                  <input type="range" min="0" max="100" step="1" class="form-range" id="inputTimerVolume"/>
+                  <input type="range" min="0" max="100" step="1" class="form-range" id="modalTimerVolumeInput"/>
                 </div>
                 <div class="col-sm-1 mt-2 ps-0 text-right" id="textTimerVolume"></div>
               </div>
               <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="selectTimerPreset" data-phrase="Load preset"></label>
+                <label class="col-sm-4 col-form-label" for="modalTimerPresetInput" data-phrase="Load preset"></label>
                 <div class="col-sm-8">
-                  <select id="selectTimerPreset" class="form-select"></select>
+                  <select id="modalTimerPresetInput" class="form-select"></select>
                 </div>
               </div>
               <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="selectTimerPlaylist">
-                  <span data-phrase="Load playlist"></span>
-                  <small class="mi mi-sm ms-1" data-title-phrase="Playlist is ignored if preset enables the jukebox">help</small>
-                </label>
+                <label class="col-sm-4 col-form-label" for="modalTimerPlaylistInput" data-phrase="Load playlist"></label>
                 <div class="col-sm-8">
                   <div class="btn-group position-relative d-flex">
-                    <input data-is="mympd-select-search" readonly="readonly" id="selectTimerPlaylist" class="form-control"/>
+                    <input data-is="mympd-select-search" readonly="readonly" id="modalTimerPlaylistInput" class="form-control"/>
                   </div>
+                  <small class="help" data-phrase="helpTimerPlaylist"></small>
                 </div>
               </div>
             </div>
-            <div id="timerActionScript">
+            <div id="modalTimerScriptActionGroup">
               <h5 data-phrase="Script arguments"></h5>
-              <div id="timerActionScriptArguments"></div>
+              <div id="modalTimerScriptActionArguments"></div>
             </div>
           </div>
-          <div class="tab-pane active" id="listTimer">
+          <div class="tab-pane active" id="modalTimerListTab">
             <div class="table-responsive overflow-auto">
               <table class="table table-hover table-sm">
                 <thead>
@@ -2029,19 +2027,19 @@
                     <th></th>
                   </tr>
                 </thead>
-                <tbody class="clickable" id="listTimerList"></tbody>
+                <tbody class="clickable" id="modalTimerList"></tbody>
               </table>
             </div>
           </div>
         </div>
         </div>
-        <div class="modal-footer justify-content-between" id="listTimerFooter">
+        <div class="modal-footer justify-content-between" id="modalTimerListFooter">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
           <button data-href='{"cmd":"showEditTimer","options":[0]}' class="btn btn-success protected" data-phrase="New timer"></button>
         </div>
-        <div id="editTimerFooter" class="modal-footer justify-content-between d-none">
+        <div class="modal-footer justify-content-between d-none" id="modalTimerEditFooter">
           <button data-href='{"cmd":"showListTimer","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
-          <button data-href='{"cmd":"saveTimer","options":[]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
+          <button data-href='{"cmd":"saveTimer","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
     </div>

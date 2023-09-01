@@ -879,7 +879,7 @@
     "No playlist": "Keine Wiedergabeliste",
     "No preset": "Keine Voreinstellung",
     "Optional preset name": "Optionaler Voreinstellungsname",
-    "Playlist is ignored if preset enables the jukebox": "Wiedergabeliste wird ignoriert wenn die Voreinstellung die Jukebox aktiviert",
+    "helpTimerPlaylist": "Wiedergabeliste wird ignoriert wenn die Voreinstellung die Jukebox aktiviert",
     "Preset": "Voreinstellung",
     "Presets": "Voreinstellungen",
     "Select preset": "Voreinstellung auswählen",

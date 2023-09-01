@@ -80,7 +80,7 @@ function populatePresetDropdowns() {
         elGetById('selectPresetDropdown2').lastElementChild,
         elGetById('selectPresetDropdown3').lastElementChild
     ];
-    const selectTimerPreset = elGetById('selectTimerPreset');
+    const selectTimerPreset = elGetById('modalTimerPresetInput');
     for (const d of presetDropdowns) {
         elClear(d);
     }
