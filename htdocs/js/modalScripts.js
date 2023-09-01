@@ -10,7 +10,7 @@
  * @returns {void}
  */
 function initModalScripts() {
-    elGetById('inputScriptArgument').addEventListener('keyup', function(event) {
+    elGetById('modalScriptsAddArgumentInput').addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
             event.preventDefault();
             event.stopPropagation();
@@ -18,143 +18,149 @@ function initModalScripts() {
         }
     }, false);
 
-    elGetById('selectScriptArguments').addEventListener('click', function(event) {
+    elGetById('modalScriptsArgumentsInput').addEventListener('click', function(event) {
         if (event.target.nodeName === 'OPTION') {
             removeScriptArgument(event);
             event.stopPropagation();
         }
     }, false);
 
-    elGetById('listScriptsList').addEventListener('click', function(event) {
+    elGetById('modalScriptsList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
+        const target = event.target.closest('TR');
         if (event.target.nodeName === 'A') {
             const action = getData(event.target, 'action');
-            const script = getData(event.target.parentNode.parentNode, 'script');
+            const script = getData(target, 'script');
             switch(action) {
                 case 'delete':
                     deleteScript(event.target, script);
                     break;
                 case 'execute':
-                    execScript(getData(event.target.parentNode.parentNode, 'href'));
+                    execScript(getData(target, 'href'));
                     break;
                 case 'add2home':
-                    addScriptToHome(script, getData(event.target.parentNode.parentNode, 'href'));
+                    addScriptToHome(script, getData(target, 'href'));
                     break;
                 default:
                     logError('Invalid action: ' + action);
             }
             return;
         }
-
-        const target = event.target.closest('TR');
         if (checkTargetClick(target) === true) {
             showEditScript(getData(target, 'script'));
         }
     }, false);
 
-    elGetById('btnDropdownAddAPIcall').parentNode.addEventListener('show.bs.dropdown', function() {
-        const dw = elGetById('textareaScriptContent').offsetWidth - elGetById('btnDropdownAddAPIcall').parentNode.offsetLeft;
-        elGetById('dropdownAddAPIcall').style.width = dw + 'px';
+    elGetById('modalScriptsAddAPIcallBtn').parentNode.addEventListener('show.bs.dropdown', function() {
+        const dw = elGetById('modalScriptsContentInput').offsetWidth - elGetById('modalScriptsAddAPIcallBtn').parentNode.offsetLeft;
+        elGetById('modalScriptsAddAPIcallDropdown').style.width = dw + 'px';
     }, false);
 
-    elGetById('btnDropdownAddFunction').parentNode.addEventListener('show.bs.dropdown', function() {
-        const dw = elGetById('textareaScriptContent').offsetWidth - elGetById('btnDropdownAddFunction').parentNode.offsetLeft;
-        elGetById('dropdownAddFunction').style.width = dw + 'px';
+    elGetById('modalScriptsAddFunctionBtn').parentNode.addEventListener('show.bs.dropdown', function() {
+        const dw = elGetById('modalScriptsContentInput').offsetWidth - elGetById('modalScriptsAddFunctionBtn').parentNode.offsetLeft;
+        elGetById('modalScriptsAddFunctionDropdown').style.width = dw + 'px';
     }, false);
 
-    elGetById('btnDropdownImportScript').parentNode.addEventListener('show.bs.dropdown', function() {
-        const dw = elGetById('textareaScriptContent').offsetWidth - elGetById('btnDropdownImportScript').parentNode.offsetLeft;
-        elGetById('dropdownImportScript').style.width = dw + 'px';
+    elGetById('modalScriptsImportBtn').parentNode.addEventListener('show.bs.dropdown', function() {
+        const dw = elGetById('modalScriptsContentInput').offsetWidth - elGetById('modalScriptsImportBtn').parentNode.offsetLeft;
+        elGetById('modalScriptsImportDropdown').style.width = dw + 'px';
         getImportScriptList();
     }, false);
 
-    elGetById('btnImportScript').addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        const script = getSelectValueId('selectImportScript');
-        if (script === '') {
-            return;
-        }
-        getImportScript(script);
-        BSN.Dropdown.getInstance(elGetById('btnDropdownImportScript')).hide();
-        setFocusId('textareaScriptContent');
-    }, false);
-
-    const selectAPIcallEl = elGetById('selectAPIcall');
-    elClear(selectAPIcallEl);
-    selectAPIcallEl.appendChild(
+    const modalScriptsAPIcallSelectEl = elGetById('modalScriptsAPIcallSelect');
+    elClear(modalScriptsAPIcallSelectEl);
+    modalScriptsAPIcallSelectEl.appendChild(
         elCreateTextTn('option', {"value": ""}, 'Select method')
     );
     for (const m of Object.keys(APImethods).sort()) {
-        selectAPIcallEl.appendChild(
+        modalScriptsAPIcallSelectEl.appendChild(
             elCreateText('option', {"value": m}, m)
         );
     }
 
-    selectAPIcallEl.addEventListener('click', function(event) {
-        event.stopPropagation();
-    }, false);
-
-    selectAPIcallEl.addEventListener('change', function(event) {
+    modalScriptsAPIcallSelectEl.addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
-        elGetById('APIdesc').textContent = value !== '' ? APImethods[value].desc : '';
+        elGetById('modalScriptsAPIdesc').textContent = value !== '' ? APImethods[value].desc : '';
     }, false);
-
-    elGetById('btnAddAPIcall').addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        const method = getSelectValueId('selectAPIcall');
-        if (method === '') {
-            return;
-        }
-        const el = elGetById('textareaScriptContent');
-        const [start, end] = [el.selectionStart, el.selectionEnd];
-        const newText =
-            'options = {}\n' +
-            apiParamsToArgs(APImethods[method].params) +
-            'rc, result = mympd.api("' + method + '", options)\n' +
-            'if rc == 0 then\n' +
-            '\n' +
-            'end\n';
-        el.setRangeText(newText, start, end, 'preserve');
-        BSN.Dropdown.getInstance(elGetById('btnDropdownAddAPIcall')).hide();
-        setFocus(el);
-    }, false);
-
-    const selectFunctionEl = elGetById('selectFunction');
-    elClear(selectFunctionEl);
-    selectFunctionEl.appendChild(
+  
+    const modalScriptsFunctionSelectEl = elGetById('modalScriptsFunctionSelect');
+    elClear(modalScriptsFunctionSelectEl);
+    modalScriptsFunctionSelectEl.appendChild(
         elCreateTextTn('option', {"value": ""}, 'Select function')
     );
     for (const m in LUAfunctions) {
-        selectFunctionEl.appendChild(
+        modalScriptsFunctionSelectEl.appendChild(
             elCreateText('option', {"value": m}, m)
         );
     }
 
-    selectFunctionEl.addEventListener('click', function(event) {
-        event.stopPropagation();
-    }, false);
-
-    selectFunctionEl.addEventListener('change', function(event) {
+    modalScriptsFunctionSelectEl.addEventListener('change', function(event) {
         const value = getSelectValue(event.target);
-        elGetById('functionDesc').textContent = value !== '' ? LUAfunctions[value].desc : '';
+        elGetById('modalScriptsFunctionDesc').textContent = value !== '' ? LUAfunctions[value].desc : '';
     }, false);
+}
 
-    elGetById('btnAddFunction').addEventListener('click', function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-        const value = getSelectValueId('selectFunction');
-        if (value === '') {
-            return;
-        }
-        const el = elGetById('textareaScriptContent');
-        const [start, end] = [el.selectionStart, el.selectionEnd];
-        el.setRangeText(LUAfunctions[value].func, start, end, 'end');
-        BSN.Dropdown.getInstance(elGetById('btnDropdownAddFunction')).hide();
-        setFocus(el);
-    }, false);
+/**
+ * Adds a function to the script content element
+ * @param {Event} event triggering event
+ * @returns {void}
+ */
+function addScriptFunction(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const value = getSelectValueId('modalScriptsFunctionSelect');
+    if (value === '') {
+        return;
+    }
+    const el = elGetById('modalScriptsContentInput');
+    const [start, end] = [el.selectionStart, el.selectionEnd];
+    el.setRangeText(LUAfunctions[value].func, start, end, 'end');
+    BSN.Dropdown.getInstance(elGetById('modalScriptsAddFunctionBtn')).hide();
+    setFocus(el);
+}
+
+/**
+ * Adds an API call to the script content element
+ * @param {Event} event triggering event
+ * @returns {void}
+ */
+function addScriptAPIcall(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const method = getSelectValueId('modalScriptsAPIcallSelect');
+    if (method === '') {
+        return;
+    }
+    const el = elGetById('modalScriptsContentInput');
+    const [start, end] = [el.selectionStart, el.selectionEnd];
+    const newText =
+        'options = {}\n' +
+        apiParamsToArgs(APImethods[method].params) +
+        'rc, result = mympd.api("' + method + '", options)\n' +
+        'if rc == 0 then\n' +
+        '\n' +
+        'end\n';
+    el.setRangeText(newText, start, end, 'preserve');
+    BSN.Dropdown.getInstance(elGetById('modalScriptsAddAPIcallBtn')).hide();
+    setFocus(el);
+}
+
+/**
+ * Imports a script
+ * @param {Event} event triggering event
+ * @returns {void}
+ */
+function importScript(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    const script = getSelectValueId('modalScriptsImportSelect');
+    if (script === '') {
+        return;
+    }
+    //@ts-ignore
+    btnWaiting(event.target, true);
+    getImportScript(script);
 }
 
 /**
@@ -162,7 +168,7 @@ function initModalScripts() {
  * @returns {void}
  */
 function getImportScriptList() {
-    const sel = elGetById('selectImportScript');
+    const sel = elGetById('modalScriptsImportSelect');
     sel.setAttribute('disabled', 'disabled');
     httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://jcorporation.github.io/myMPD/scripting/scripts/index.json'), function(obj) {
         sel.options.length = 0;
@@ -181,28 +187,35 @@ function getImportScriptList() {
  * @returns {void}
  */
 function getImportScript(script) {
-    elGetById('textareaScriptContent').setAttribute('disabled', 'disabled');
+    elGetById('modalScriptsContentInput').setAttribute('disabled', 'disabled');
     httpGet(subdir + '/proxy?uri=' + myEncodeURI('https://jcorporation.github.io/myMPD/scripting/scripts/' + script), function(text) {
         const lines = text.split('\n');
         const firstLine = lines.shift();
         let obj;
         try {
             obj = JSON.parse(firstLine.substring(firstLine.indexOf('{')));
+            const scriptArgEl = elGetById('modalScriptsArgumentsInput');
+            scriptArgEl.options.length = 0;
+            for (let i = 0, j = obj.arguments.length; i < j; i++) {
+                scriptArgEl.appendChild(
+                    elCreateText('option', {}, obj.arguments[i])
+                );
+            }
+            elGetById('modalScriptsContentInput').value = lines.join('\n');
         }
         catch(error) {
-            showNotification(tn('Can not parse script arguments'), 'general', 'error');
+            showModalAlert({
+                "error": {
+                    "message": "Can not parse script arguments"
+                }
+            });
             logError('Can not parse script arguments:' + firstLine);
-            return;
         }
-        const scriptArgEl = elGetById('selectScriptArguments');
-        scriptArgEl.options.length = 0;
-        for (let i = 0, j = obj.arguments.length; i < j; i++) {
-            scriptArgEl.appendChild(
-                elCreateText('option', {}, obj.arguments[i])
-            );
-        }
-        elGetById('textareaScriptContent').value = lines.join('\n');
-        elGetById('textareaScriptContent').removeAttribute('disabled');
+
+        elGetById('modalScriptsContentInput').removeAttribute('disabled');
+        BSN.Dropdown.getInstance(elGetById('modalScriptsImportBtn')).hide();
+        btnWaitingId('modalScriptsImportScriptBtn', false);
+        setFocusId('modalScriptsContentInput');
     }, false);
 }
 
@@ -236,37 +249,25 @@ function apiParamsToArgs(p) {
 
 /**
  * Saves a script
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function saveScript() {
+function saveScript(target) {
     cleanupModalId('modalScripts');
-    let formOK = true;
-
-    const nameEl = elGetById('inputScriptName');
-    if (!validatePlistEl(nameEl)) {
-        formOK = false;
+    btnWaiting(target, true);
+    const args = [];
+    const argSel = elGetById('modalScriptsArgumentsInput');
+    for (let i = 0, j = argSel.options.length; i < j; i++) {
+        args.push(argSel.options[i].text);
     }
-
-    const orderEl = elGetById('inputScriptOrder');
-    if (!validateIntEl(orderEl)) {
-        formOK = false;
-    }
-
-    if (formOK === true) {
-        const args = [];
-        const argSel = elGetById('selectScriptArguments');
-        for (let i = 0, j = argSel.options.length; i < j; i++) {
-            args.push(argSel.options[i].text);
-        }
-        sendAPI("MYMPD_API_SCRIPT_SAVE", {
-            "oldscript": elGetById('inputOldScriptName').value,
-            "script": nameEl.value,
-            "order": Number(orderEl.value),
-            "content": elGetById('textareaScriptContent').value,
-            "arguments": args
-        }, saveScriptCheckError, true);
-    }
+    sendAPI("MYMPD_API_SCRIPT_SAVE", {
+        "oldscript": elGetById('inputOldScriptName').value,
+        "script": elGetById('modalScriptsScriptInput').value,
+        "order": Number(elGetById('modalScriptsOrderInput')),
+        "content": elGetById('modalScriptsContentInput').value,
+        "arguments": args
+    }, saveScriptCheckError, true);
 }
 
 /**
@@ -275,39 +276,24 @@ function saveScript() {
  * @returns {void}
  */
 function saveScriptCheckError(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
+    if (modalApply(obj) === true) {
         showListScripts();
     }
 }
 
 /**
  * Validates a script
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function validateScript() {
+function validateScript(target) {
     cleanupModalId('modalScripts');
-    let formOK = true;
-
-    const nameEl = elGetById('inputScriptName');
-    if (!validatePlistEl(nameEl)) {
-        formOK = false;
-    }
-
-    const orderEl = elGetById('inputScriptOrder');
-    if (!validateIntEl(orderEl)) {
-        formOK = false;
-    }
-
-    if (formOK === true) {
-        sendAPI("MYMPD_API_SCRIPT_VALIDATE", {
-            "script": nameEl.value,
-            "content": elGetById('textareaScriptContent').value,
-        }, validateScriptCheckError, true);
-    }
+    btnWaiting(target, true);
+    sendAPI("MYMPD_API_SCRIPT_VALIDATE", {
+        "script": elGetById('modalScriptsScriptInput').value,
+        "content": elGetById('modalScriptsContentInput').value,
+    }, validateScriptCheckError, true);
 }
 
 /**
@@ -316,10 +302,7 @@ function validateScript() {
  * @returns {void}
  */
 function validateScriptCheckError(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
+    if (modalApply(obj) === true) {
         showModalInfo('Script syntax is valid');
     }
 }
@@ -329,9 +312,9 @@ function validateScriptCheckError(obj) {
  * @returns {void}
  */
 function addScriptArgument() {
-    const el = elGetById('inputScriptArgument');
+    const el = elGetById('modalScriptsAddArgumentInput');
     if (validatePrintableEl(el)) {
-        elGetById('selectScriptArguments').appendChild(
+        elGetById('modalScriptsArgumentsInput').appendChild(
             elCreateText('option', {}, el.value)
         );
         el.value = '';
@@ -344,7 +327,7 @@ function addScriptArgument() {
  * @returns {void}
  */
 function removeScriptArgument(ev) {
-    const el = elGetById('inputScriptArgument');
+    const el = elGetById('modalScriptsAddArgumentInput');
     // @ts-ignore
     el.value = ev.target.text;
     ev.target.remove();
@@ -380,24 +363,24 @@ function showListScriptModal() {
 //eslint-disable-next-line no-unused-vars
 function showEditScript(script) {
     cleanupModalId('modalScripts');
-    elGetById('textareaScriptContent').removeAttribute('disabled');
-    elGetById('listScripts').classList.remove('active');
-    elGetById('editScript').classList.add('active');
-    elHideId('listScriptsFooter');
-    elShowId('editScriptFooter');
+    elGetById('modalScriptsContentInput').removeAttribute('disabled');
+    elGetById('modalScriptsListTab').classList.remove('active');
+    elGetById('modalScriptsEditTab').classList.add('active');
+    elHideId('modalScriptsListFooter');
+    elShowId('modalScriptsEditFooter');
 
     if (script !== '') {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
     }
     else {
         elGetById('inputOldScriptName').value = '';
-        elGetById('inputScriptName').value = '';
-        elGetById('inputScriptOrder').value = '1';
-        elGetById('inputScriptArgument').value = '';
-        elClearId('selectScriptArguments');
-        elGetById('textareaScriptContent').value = '';
+        elGetById('modalScriptsScriptInput').value = '';
+        elGetById('modalScriptsOrderInput').value = '1';
+        elGetById('modalScriptsAddArgumentInput').value = '';
+        elClearId('modalScriptsArgumentsInput');
+        elGetById('modalScriptsContentInput').value = '';
     }
-    setFocusId('inputScriptName');
+    setFocusId('modalScriptsScriptInput');
 }
 
 /**
@@ -407,17 +390,17 @@ function showEditScript(script) {
  */
 function parseEditScript(obj) {
     elGetById('inputOldScriptName').value = obj.result.script;
-    elGetById('inputScriptName').value = obj.result.script;
-    elGetById('inputScriptOrder').value = obj.result.metadata.order;
-    elGetById('inputScriptArgument').value = '';
-    const selSA = elGetById('selectScriptArguments');
+    elGetById('modalScriptsScriptInput').value = obj.result.script;
+    elGetById('modalScriptsOrderInput').value = obj.result.metadata.order;
+    elGetById('modalScriptsAddArgumentInput').value = '';
+    const selSA = elGetById('modalScriptsArgumentsInput');
     selSA.options.length = 0;
     for (let i = 0, j = obj.result.metadata.arguments.length; i < j; i++) {
         selSA.appendChild(
             elCreateText('option', {}, obj.result.metadata.arguments[i])
         );
     }
-    elGetById('textareaScriptContent').value = obj.result.content;
+    elGetById('modalScriptsContentInput').value = obj.result.content;
 }
 
 /**
@@ -426,10 +409,10 @@ function parseEditScript(obj) {
  */
 function showListScripts() {
     cleanupModalId('modalScripts');
-    elGetById('listScripts').classList.add('active');
-    elGetById('editScript').classList.remove('active');
-    elShowId('listScriptsFooter');
-    elHideId('editScriptFooter');
+    elGetById('modalScriptsListTab').classList.add('active');
+    elGetById('modalScriptsEditTab').classList.remove('active');
+    elShowId('modalScriptsListFooter');
+    elHideId('modalScriptsEditFooter');
     getScriptList(true);
 }
 
@@ -453,10 +436,7 @@ function deleteScript(el, script) {
  * @returns {void}
  */
 function deleteScriptCheckError(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
+    if (modalApply(obj) === true) {
         getScriptList(true);
     }
 }
@@ -478,7 +458,7 @@ function getScriptList(all) {
  * @returns {void}
  */
 function parseScriptList(obj) {
-    const tbodyScripts = elGetById('listScriptsList');
+    const tbodyScripts = elGetById('modalScriptsList');
     elClear(tbodyScripts);
     const mainmenuScripts = elGetById('scripts');
     elClear(mainmenuScripts);

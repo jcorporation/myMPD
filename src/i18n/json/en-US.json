@@ -96,6 +96,7 @@
     "helpMountsMountPoint": "Path to mount the uri, e.g. music",
     "helpMountsUrl": "URI to mount, e.g. nfs://192.168.1.4/export/music",
     "helpSetSongPriority": "The new song priority for shuffle mode between 0 and 255.",
+    "helpScriptOrder": "Sort order of the script, 0 disables listing in main menu",
     "icon-all": "All",
     "icon-action": "Action",
     "icon-alert": "Alert",
