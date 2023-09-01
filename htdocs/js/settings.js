@@ -296,13 +296,7 @@ function parseMPDSettings() {
         clearBackgroundImage(domCache.body);
     }
 
-    const triggerEventList = elGetById('selectTriggerEvent');
-    elClear(triggerEventList);
-    for (const event in settings.triggerEvents) {
-        triggerEventList.appendChild(
-            elCreateTextTn('option', {"value": settings.triggerEvents[event]}, event)
-        );
-    }
+    populateTriggerEvents();
 
     settings.tagList.sort();
     settings.tagListSearch.sort();

@@ -10,7 +10,7 @@
  * @returns {void}
  */
 function initModalTrigger() {
-    elGetById('listTriggerList').addEventListener('click', function(event) {
+    elGetById('modalTriggerList').addEventListener('click', function(event) {
         event.stopPropagation();
         event.preventDefault();
         if (event.target.nodeName === 'A') {
@@ -28,53 +28,44 @@ function initModalTrigger() {
         }
     }, false);
 
-    elGetById('selectTriggerScript').addEventListener('change', function() {
+    elGetById('modalTriggerScriptInput').addEventListener('change', function() {
         selectTriggerActionChange();
     }, false);
 
-    elGetById('modalTrigger').addEventListener('shown.bs.modal', function () {
+    elGetById('modalTrigger').addEventListener('show.bs.modal', function () {
         showListTrigger();
     });
 }
 
 /**
  * Saves a trigger
+ * @param {Element} target triggering element
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function saveTrigger() {
+function saveTrigger(target) {
     cleanupModalId('modalTrigger');
-    let formOK = true;
+    btnWaiting(target, true);
 
-    const nameEl = elGetById('inputTriggerName');
-    if (!validatePlistEl(nameEl)) {
-        formOK = false;
+    const args = {};
+    const argEls = document.querySelectorAll('#modalTriggerScriptArgumentsInput input');
+    for (let i = 0, j = argEls.length; i < j; i ++) {
+        args[getData(argEls[i], 'name')] = argEls[i].value;
     }
 
-    const scriptEl = elGetById('selectTriggerScript');
-    if (!validateSelectEl(scriptEl)) {
-        formOK = false;
-    }
+    let partition = getBtnGroupValueId('modalTriggerPartitionInput');
+    partition = partition === '!all!'
+        ? partition
+        : localSettings.partition;
 
-    if (formOK === true) {
-        const args = {};
-        const argEls = document.querySelectorAll('#triggerActionScriptArguments input');
-        for (let i = 0, j = argEls.length; i < j; i ++) {
-            args[getData(argEls[i], 'name')] = argEls[i].value;
-        }
-
-        let partition = getBtnGroupValueId('btnTriggerPartitionGroup');
-        partition = partition === '!all!' ? partition : localSettings.partition;
-
-        sendAPI("MYMPD_API_TRIGGER_SAVE", {
-            "id": Number(elGetById('inputTriggerId').value),
-            "name": nameEl.value,
-            "event": Number(getSelectValueId('selectTriggerEvent')),
-            "script": getSelectValueId('selectTriggerScript'),
-            "partition": partition,
-            "arguments": args
-        }, saveTriggerCheckError, true);
-    }
+    sendAPI("MYMPD_API_TRIGGER_SAVE", {
+        "id": getDataId('modalTriggerEditTab', 'id'),
+        "name": elGetById('modalTriggerNameInput').value,
+        "event": Number(getSelectValueId('modalTriggerEventInput')),
+        "script": getSelectValueId('modalTriggerScriptInput'),
+        "partition": partition,
+        "arguments": args
+    }, saveTriggerCheckError, true);
 }
 
 /**
@@ -83,10 +74,7 @@ function saveTrigger() {
  * @returns {void}
  */
 function saveTriggerCheckError(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
+    if (modalApply(obj) === true) {
         showListTrigger();
     }
 }
@@ -99,12 +87,12 @@ function saveTriggerCheckError(obj) {
 //eslint-disable-next-line no-unused-vars
 function showEditTrigger(id) {
     cleanupModalId('modalTrigger');
-    elGetById('listTrigger').classList.remove('active');
-    elGetById('newTrigger').classList.add('active');
-    elHideId('listTriggerFooter');
-    elShowId('newTriggerFooter');
+    elGetById('modalTriggerListTab').classList.remove('active');
+    elGetById('modalTriggerEditTab').classList.add('active');
+    elHideId('modalTriggerListFooter');
+    elShowId('modalTriggerEditFooter');
 
-    const nameEl = elGetById('inputTriggerName');
+    const nameEl = elGetById('modalTriggerNameInput');
     setFocus(nameEl);
 
     if (id > -1) {
@@ -114,10 +102,10 @@ function showEditTrigger(id) {
     }
     else {
         nameEl.value = '';
-        elGetById('inputTriggerId').value = '-1';
-        elGetById('selectTriggerEvent').selectedIndex = 0;
-        elGetById('selectTriggerScript').selectedIndex = 0;
-        toggleBtnGroupValueId('btnTriggerPartitionGroup', 'this');
+        setDataId('modalTriggerEditTab', 'id', -1);
+        elGetById('modalTriggerEventInput').selectedIndex = 0;
+        elGetById('modalTriggerScriptInput').selectedIndex = 0;
+        toggleBtnGroupValueId('modalTriggerPartitionInput', 'this');
         selectTriggerActionChange();
     }
 }
@@ -128,12 +116,14 @@ function showEditTrigger(id) {
  * @returns {void}
  */
 function parseTriggerEdit(obj) {
-    elGetById('inputTriggerId').value = obj.result.id;
-    elGetById('inputTriggerName').value = obj.result.name;
-    elGetById('selectTriggerEvent').value = obj.result.event;
-    elGetById('selectTriggerScript').value = obj.result.script;
-    const partition = obj.result.partition === '!all!' ? obj.result.partition : 'this';
-    toggleBtnGroupValueId('btnTriggerPartitionGroup', partition);
+    setDataId('modalTriggerEditTab', 'id', obj.result.id);
+    elGetById('modalTriggerNameInput').value = obj.result.name;
+    elGetById('modalTriggerEventInput').value = obj.result.event;
+    elGetById('modalTriggerScriptInput').value = obj.result.script;
+    const partition = obj.result.partition === '!all!'
+        ? obj.result.partition
+        : 'this';
+    toggleBtnGroupValueId('modalTriggerPartitionInput', partition);
     selectTriggerActionChange(obj.result.arguments);
 }
 
@@ -143,7 +133,7 @@ function parseTriggerEdit(obj) {
  * @returns {void}
  */
 function selectTriggerActionChange(values) {
-    const el = elGetById('selectTriggerScript');
+    const el = elGetById('modalTriggerScriptInput');
     if (el.selectedIndex > -1) {
         showTriggerScriptArgs(el.options[el.selectedIndex], values);
     }
@@ -160,14 +150,14 @@ function showTriggerScriptArgs(option, values) {
         values = {};
     }
     const args = getData(option, 'arguments');
-    const list = elGetById('triggerActionScriptArguments');
+    const list = elGetById('modalTriggerScriptArgumentsInput');
     elClear(list);
     for (let i = 0, j = args.arguments.length; i < j; i++) {
-        const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "triggerActionScriptArguments" + i,
+        const input = elCreateEmpty('input', {"class": ["form-control"], "type": "text", "name": "modalTriggerScriptArgumentsInput" + i,
             "value": (values[args.arguments[i]] ? values[args.arguments[i]] : '')});
         setData(input, 'name', args.arguments[i]);
         const fg = elCreateNodes('div', {"class": ["form-group", "row", "mb-3"]}, [
-            elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "triggerActionScriptArguments" + i}, args.arguments[i]),
+            elCreateText('label', {"class": ["col-sm-4", "col-form-label"], "for": "modalTriggerScriptArgumentsInput" + i}, args.arguments[i]),
             elCreateNode('div', {"class": ["col-sm-8"]}, input)
         ]);
         list.appendChild(fg);
@@ -183,10 +173,10 @@ function showTriggerScriptArgs(option, values) {
  */
 function showListTrigger() {
     cleanupModalId('modalTrigger');
-    elGetById('listTrigger').classList.add('active');
-    elGetById('newTrigger').classList.remove('active');
-    elShowId('listTriggerFooter');
-    elHideId('newTriggerFooter');
+    elGetById('modalTriggerListTab').classList.add('active');
+    elGetById('modalTriggerEditTab').classList.remove('active');
+    elShowId('modalTriggerListFooter');
+    elHideId('modalTriggerEditFooter');
     sendAPI("MYMPD_API_TRIGGER_LIST", {}, parseTriggerList, true);
 }
 
@@ -196,7 +186,7 @@ function showListTrigger() {
  * @returns {void}
  */
 function parseTriggerList(obj) {
-    const tbody = elGetById('listTriggerList');
+    const tbody = elGetById('modalTriggerList');
     if (checkResult(obj, tbody) === false) {
         return;
     }
@@ -229,4 +219,18 @@ function deleteTrigger(el, id) {
             "id": id
         }, saveTriggerCheckError, true);
     });
+}
+
+/**
+ * Populates the trigger event select
+ * @returns {void}
+ */
+function populateTriggerEvents() {
+    const triggerEventList = elGetById('modalTriggerEventInput');
+    elClear(triggerEventList);
+    for (const event in settings.triggerEvents) {
+        triggerEventList.appendChild(
+            elCreateTextTn('option', {"value": settings.triggerEvents[event]}, event)
+        );
+    }
 }

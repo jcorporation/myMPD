@@ -262,7 +262,7 @@ function saveScript(target) {
         args.push(argSel.options[i].text);
     }
     sendAPI("MYMPD_API_SCRIPT_SAVE", {
-        "oldscript": elGetById('inputOldScriptName').value,
+        "oldscript": getDataId('modalScriptsEditTab', 'id'),
         "script": elGetById('modalScriptsScriptInput').value,
         "order": Number(elGetById('modalScriptsOrderInput')),
         "content": elGetById('modalScriptsContentInput').value,
@@ -373,7 +373,7 @@ function showEditScript(script) {
         sendAPI("MYMPD_API_SCRIPT_GET", {"script": script}, parseEditScript, false);
     }
     else {
-        elGetById('inputOldScriptName').value = '';
+        setDataId('modalScriptsEditTab', 'id', '');
         elGetById('modalScriptsScriptInput').value = '';
         elGetById('modalScriptsOrderInput').value = '1';
         elGetById('modalScriptsAddArgumentInput').value = '';
@@ -389,7 +389,7 @@ function showEditScript(script) {
  * @returns {void}
  */
 function parseEditScript(obj) {
-    elGetById('inputOldScriptName').value = obj.result.script;
+    setDataId('modalScriptsEditTab', 'id', obj.result.script);
     elGetById('modalScriptsScriptInput').value = obj.result.script;
     elGetById('modalScriptsOrderInput').value = obj.result.metadata.order;
     elGetById('modalScriptsAddArgumentInput').value = '';
@@ -462,7 +462,7 @@ function parseScriptList(obj) {
     elClear(tbodyScripts);
     const mainmenuScripts = elGetById('scripts');
     elClear(mainmenuScripts);
-    const triggerScripts = elGetById('selectTriggerScript');
+    const triggerScripts = elGetById('modalTriggerScriptInput');
     elClear(triggerScripts);
 
     if (checkResult(obj, tbodyScripts) === false) {
@@ -477,7 +477,7 @@ function parseScriptList(obj) {
             return a.metadata.order - b.metadata.order;
         });
         for (let i = 0; i < scriptListLen; i++) {
-            //scriptlist in main menu
+            //script list in main menu
             if (obj.result.data[i].metadata.order > 0) {
                 const a = elCreateNodes('a', {"class": ["dropdown-item", "alwaysEnabled", "py-2"], "href": "#"}, [
                     elCreateText('span', {"class": ["mi", "me-2"]}, "code"),
@@ -486,7 +486,7 @@ function parseScriptList(obj) {
                 setData(a, 'href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
                 mainmenuScripts.appendChild(a);
             }
-            //scriptlist in scripts modal
+            //script list in scripts modal
             const tr = elCreateNodes('tr', {"title": tn('Edit')}, [
                 elCreateText('td', {}, obj.result.data[i].name),
                 elCreateNodes('td', {"data-col": "Action"}, [
@@ -499,11 +499,11 @@ function parseScriptList(obj) {
             setData(tr, 'href', {"script": obj.result.data[i].name, "arguments": obj.result.data[i].metadata.arguments});
             tbodyScripts.appendChild(tr);
 
-            //scriptlist select for timers
+            //script list select for timers
             const option = elCreateText('option', {"value": obj.result.data[i].name}, obj.result.data[i].name);
             setData(option, 'arguments', {"arguments": obj.result.data[i].metadata.arguments});
             timerActions.appendChild(option);
-            //scriptlist select for trigger
+            //script list select for trigger
             const option2 = option.cloneNode(true);
             setData(option2, 'arguments', {"arguments": obj.result.data[i].metadata.arguments});
             triggerScripts.appendChild(option2);
