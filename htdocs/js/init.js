@@ -219,6 +219,7 @@ function appInit() {
     initContextMenuOffcanvas();
     initLocalPlayback();
     initModalAbout();
+    initModalEnterPin();
     initModalHomeIcon();
     initModalMaintenance();
     initModalMounts();
@@ -247,7 +248,6 @@ function appInit() {
     initViewPlaylists();
     initPresets();
     initSelectActions();
-    initSession();
     initViewQueueCurrent();
     initViewQueueJukebox('QueueJukeboxSong');
     initViewQueueJukebox('QueueJukeboxAlbum');

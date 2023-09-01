@@ -6,22 +6,6 @@
 /** @module session_js */
 
 /**
- * Initialization function for the session elements
- * @returns {void}
- */
-function initSession() {
-    elGetById('modalEnterPin').addEventListener('shown.bs.modal', function() {
-        setFocusId('inputPinModal');
-    }, false);
-
-    elGetById('inputPinModal').addEventListener('keyup', function(event) {
-        if (event.key === 'Enter') {
-            elGetById('modalEnterPinEnterBtn').click();
-        }
-    }, false);
-}
-
-/**
  * Shows the login modal or logs out
  * @returns {void}
  */
@@ -66,8 +50,9 @@ function loginOrLogout() {
  * @returns {void}
  */
 function createEnterPinFooter(footers, method, params, callback, onerror) {
+    const enterBtnId = method + 'EnterBtn';
     const input = elCreateEmpty('input', {"type": "password", "autocomplete": "off", "class": ["form-control", "border-secondary"]});
-    const btn = elCreateTextTn('button', {"class": ["btn", "btn-success"]}, 'Enter');
+    const btn = elCreateTextTn('button', {"class": ["btn", "btn-success"], "id": enterBtnId}, 'Enter');
     const newFooter = elCreateNode('div', {"class": ["modal-footer", "enterPinFooter"]},
         elCreateNodes('div', {"class": ["row", "w-100"]}, [
             elCreateTextTn('label', {"class": ["col-4", "col-form-label", "ps-0"]}, 'Enter pin'),
@@ -84,8 +69,11 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
     }
     footers[0].parentNode.appendChild(newFooter);
     setFocus(input);
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function(event) {
+        //@ts-ignore
+        btnWaiting(event.target, true);
         sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": input.value}, function(obj) {
+            btnWaitingId(enterBtnId, false);
             input.value = '';
             const alert = footers[0].querySelector('.alert');
             if (alert !== null) {
@@ -97,11 +85,8 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
                 );
             }
             else if (obj.result.session !== '') {
-                session.token = obj.result.session;
-                session.timeout = getTimestamp() + sessionLifetime;
-                setSessionState();
+                setSession(obj.result.session);
                 removeEnterPinFooter(newFooter);
-                showNotification(tn('Session successfully created'), 'session', 'info');
                 if (method !== undefined) {
                     //call original API
                     sendAPI(method, params, callback, onerror);
@@ -136,24 +121,25 @@ function enterPin(method, params, callback, onerror) {
     }
     else {
         logDebug('Open pin modal');
-        //open modal to enter pin and resend API request
+        // open modal to enter pin and resend API request
+        // replace enter button to inherit the enterPin options
         const enterBtn = elCreateTextTn('button', {"id": "modalEnterPinEnterBtn", "class": ["btn", "btn-success"]}, 'Enter');
-        enterBtn.addEventListener('click', function() {
+        enterBtn.addEventListener('click', function(event) {
+            //@ts-ignore
+            btnWaiting(event.target, true);
             sendAPI('MYMPD_API_SESSION_LOGIN', {
-                "pin": elGetById('inputPinModal').value},
+                "pin": elGetById('modalEnterPinPinInput').value},
                 function(obj) {
-                    elGetById('inputPinModal').value = '';
+                    btnWaitingId('modalEnterPinEnterBtn', false);
+                    elGetById('modalEnterPinPinInput').value = '';
                     if (obj.error) {
                         const em = elGetById('modalEnterPinMessage');
                         em.textContent = tn(obj.error.message, obj.error.data);
                         elShow(em);
                     }
                     else if (obj.result.session !== '') {
-                        session.token = obj.result.session;
-                        session.timeout = getTimestamp() + sessionLifetime;
-                        setSessionState();
+                        setSession(obj.result.session);
                         uiElements.modalEnterPin.hide();
-                        showNotification(tn('Session successfully created'), 'session', 'info');
                         if (method !== undefined) {
                             //call original API
                             sendAPI(method, params, callback, onerror);
@@ -163,9 +149,21 @@ function enterPin(method, params, callback, onerror) {
         }, false);
         elGetById('modalEnterPinEnterBtn').replaceWith(enterBtn);
         elHideId('modalEnterPinMessage');
-        elGetById('inputPinModal').value = '';
+        elGetById('modalEnterPinPinInput').value = '';
         uiElements.modalEnterPin.show();
     }
+}
+
+/**
+ * Initializes the session object
+ * @param {string} token retrieved session token
+ * @returns {void}
+ */
+function setSession(token) {
+    session.token = token;
+    session.timeout = getTimestamp() + sessionLifetime;
+    setSessionState();
+    showNotification(tn('Session successfully created'), 'session', 'info');
 }
 
 /**
