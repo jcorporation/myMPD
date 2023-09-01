@@ -21,11 +21,6 @@ function handleBrowseRadioFavorites() {
 function initViewBrowseRadioFavorites() {
     initSearchSimple('BrowseRadioFavorites');
 
-    elGetById('addToWebradioFavorites').addEventListener('click', function(event) {
-        event.preventDefault();
-        showEditRadioFavorite(getDataId('RadiobrowserDetailsTitle', 'webradio'));
-    }, false);
-
     elGetById('BrowseRadioFavoritesList').addEventListener('click', function(event) {
         const target = gridClickHandler(event);
         if (target !== null) {

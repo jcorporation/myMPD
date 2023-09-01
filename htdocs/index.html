@@ -2792,67 +2792,66 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <input type="hidden" id="editRadioFavoriteStreamUriOld"/>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="editRadioFavoriteName" data-phrase="Name"></label>
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditNameInput" data-phrase="Name"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="editRadioFavoriteName"/>
+              <input class="form-control" id="modalRadioFavoriteEditNameInput"/>
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="editRadioFavoriteStreamUri" data-phrase="Uri"></label>
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditStreamUriInput" data-phrase="Uri"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="editRadioFavoriteStreamUri"/>
+              <input class="form-control" id="modalRadioFavoriteEditStreamUriInput"/>
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="editRadioFavoriteGenre" data-phrase="Genre"></label>
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditGenreInput" data-phrase="Genre"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="editRadioFavoriteGenre"/>
+              <input class="form-control" id="modalRadioFavoriteEditGenreInput"/>
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="editRadioFavoriteHomepage" data-phrase="Homepage"></label>
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditHomepageInput" data-phrase="Homepage"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="editRadioFavoriteHomepage"/>
+              <input class="form-control" id="modalRadioFavoriteEditHomepageInput"/>
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="editRadioFavoriteCountry" data-phrase="Country"></label>
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditCountryInput" data-phrase="Country"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="editRadioFavoriteCountry"/>
+              <input class="form-control" id="modalRadioFavoriteEditCountryInput"/>
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="editRadioFavoriteLanguage" data-phrase="Language"></label>
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditLanguageInput" data-phrase="Language"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="editRadioFavoriteLanguage"/>
+              <input class="form-control" id="modalRadioFavoriteEditLanguageInput"/>
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="editRadioFavoriteImage" data-phrase="Picture"></label>
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditImageInput" data-phrase="Picture"></label>
             <div class="col-sm-8">
               <div class="btn-group d-flex">
-                <input data-is="mympd-select-search" data-placeholder-phrase="Type or select picture" class="form-control" id="editRadioFavoriteImage"/>
+                <input data-is="mympd-select-search" data-placeholder-phrase="Type or select picture" class="form-control" id="modalRadioFavoriteEditImageInput"/>
               </div>
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="editRadioFavoriteCodec" data-phrase="Codec"></label>
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditCodecInput" data-phrase="Codec"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="editRadioFavoriteCodec"/>
+              <input class="form-control" id="modalRadioFavoriteEditCodecInput"/>
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="editRadioFavoriteBitrate" data-phrase="Bitrate"></label>
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditBitrateInput" data-phrase="Bitrate"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="editRadioFavoriteBitrate"/>
+              <input class="form-control" id="modalRadioFavoriteEditBitrateInput"/>
             </div>
           </div>
           <div class="row mb-3">
-            <label class="col-sm-4 col-form-label" for="editRadioFavoriteDescription" data-phrase="Description"></label>
+            <label class="col-sm-4 col-form-label" for="modalRadioFavoriteEditDescriptionInput" data-phrase="Description"></label>
             <div class="col-sm-8">
-              <input class="form-control" id="editRadioFavoriteDescription"/>
+              <input class="form-control" id="modalRadioFavoriteEditDescriptionInput"/>
             </div>
           </div>
           <div class="row mb-3">
@@ -2868,7 +2867,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
-          <button type="button" class="btn btn-success" data-href='{"cmd": "saveRadioFavorite", "options": []}' data-phrase="Save"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "saveRadioFavorite", "options": ["target"]}' data-phrase="Save"></button>
         </div>
       </div>
     </div>
@@ -2886,7 +2885,7 @@
           <h1 class="text-break mb-4" id="RadiobrowserDetailsTitle"></h1>
           <div class="row">
             <div class="col-12 col-md-4 mb-3">
-              <div class="album-cover album-cover-loading" id="RadiobrowserDetailsImage"></div>
+              <div class="album-cover album-cover-loading" id="modalRadiobrowserDetailsImage"></div>
             </div>
             <div class="col-12 col-md-8 table-responsive">
               <table class="table table-sm">
@@ -2897,7 +2896,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
-          <button id="addToWebradioFavorites" type="button" class="btn btn-success" data-phrase="Add to favorites"></button>
+          <button type="button" class="btn btn-success" data-href='{"cmd": "showAddToWebradioFavorites", "options": ["event"]}' data-phrase="Add to favorites"></button>
         </div>
       </div>
     </div>

@@ -20,11 +20,10 @@ function showWebradiodbDetails(uri) {
         : uri;
     const result = webradioDb.webradios[m3u];
     if (result.Image !== '') {
-        elGetById('RadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(webradioDbPicsUri + result.Image);
+        elGetById('modalRadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(webradioDbPicsUri + result.Image);
     }
     else {
-        elGetById('RadiobrowserDetailsImage').style.backgroundImage =
-            'url("' + subdir + '/assets/coverimage-notavailable")';
+        elGetById('modalRadiobrowserDetailsImage').style.backgroundImage = 'url("' + subdir + '/assets/coverimage-notavailable")';
     }
     elGetById('RadiobrowserDetailsTitle').textContent = result.Name;
     setDataId('RadiobrowserDetailsTitle', 'webradio', result);

@@ -6,6 +6,17 @@
 /** @module modalRadioRadiobrowserDetail_js */
 
 /**
+ * Initialization function for the radiobrowser details modal
+ * @param {Event} event triggering event
+ * @returns {void}
+ */
+//eslint-disable-next-line no-unused-vars
+function showAddToWebradioFavorites(event) {
+    event.preventDefault();
+    showEditRadioFavorite(getDataId('RadiobrowserDetailsTitle', 'webradio'));
+}
+
+/**
  * Shows the details of a radiobrowser station
  * @param {string} uuid station uuid
  * @returns {void}
@@ -37,10 +48,10 @@ function parseRadiobrowserDetails(obj) {
     elClearId('modalRadiobrowserDetailsList');
     const result = obj.result.data[0];
     if (result.favicon !== '') {
-        elGetById('RadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(result.favicon);
+        elGetById('modalRadiobrowserDetailsImage').style.backgroundImage = getCssImageUri(result.favicon);
     }
     else {
-        elGetById('RadiobrowserDetailsImage').style.backgroundImage =
+        elGetById('modalRadiobrowserDetailsImage').style.backgroundImage =
             'url("' + subdir + '/assets/coverimage-notavailable")';
     }
     elGetById('RadiobrowserDetailsTitle').textContent = result.name;
