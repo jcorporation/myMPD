@@ -2353,7 +2353,7 @@
         </div>
         <div class="modal-footer justify-content-between">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Close"></button>
-          <button id="btnOpenPictureWindow" data-href='{"cmd":"openPictureWindow","options":[]}' type="button" class="btn btn-success" data-phrase="Open in new window"></button>
+          <button id="modalPictureOpenInNewWindowBtn" data-href='{"cmd":"openPictureWindow","options":[]}' type="button" class="btn btn-success" data-phrase="Open in new window"></button>
         </div>
       </div>
     </div>
@@ -2676,6 +2676,7 @@
             <div class="col-sm-8">
               <input id="modalQueueSetSongPriorityPriorityInput" class="form-control"/>
               <div class="invalid-feedback" data-phrase="Priority must be in range 0 - 255"></div>
+              <small class="help" data-phrase="helpSetSongPriority"></small>
             </div>
           </div>
         </div>

@@ -95,6 +95,7 @@
     "helpSettingsTagDiscEmptyIsFirst": "Handles an empty disc tag as disc one for the album view.",
     "helpMountsMountPoint": "Path to mount the uri, e.g. music",
     "helpMountsUrl": "URI to mount, e.g. nfs://192.168.1.4/export/music",
+    "helpSetSongPriority": "The new song priority for shuffle mode between 0 and 255.",
     "icon-all": "All",
     "icon-action": "Action",
     "icon-alert": "Alert",

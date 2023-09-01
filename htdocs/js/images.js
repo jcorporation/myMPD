@@ -153,7 +153,7 @@ function zoomPicture(el) {
         const imgEl = elGetById('modalPictureImg');
         imgEl.style.paddingTop = 0;
         createImgCarousel(imgEl, 'picsCarousel', uri, images, embeddedImageCount);
-        elHideId('btnOpenPictureWindow');
+        elHideId('modalPictureOpenInNewWindowBtn');
         uiElements.modalPicture.show();
         return;
     }
@@ -163,7 +163,7 @@ function zoomPicture(el) {
         elClear(imgEl);
         imgEl.style.paddingTop = '100%';
         imgEl.style.backgroundImage = el.style.backgroundImage;
-        elShowId('btnOpenPictureWindow');
+        elShowId('modalPictureOpenInNewWindowBtn');
         uiElements.modalPicture.show();
     }
 }

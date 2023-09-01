@@ -343,6 +343,7 @@
     "helpSettingsTagDiscEmptyIsFirst": "Behandelt einen leeren Disc-Tag als CD 1 für die Albumanzeige.",
     "helpMountsMountPoint": "Pfad auf dem die URI gemountet werden soll, z.B. music",
     "helpMountsUrl": "Die zu mountende URI, z.B. nfs://192.168.1.4/export/music",
+    "helpSetSongPriority": "Die neue Lied-Priorität zwischen 0 und 255.",
     "Help to improve myMPD": "Hilf mit myMPD zu verbessern",
     "Highlight color": "Highlight Farbe",
     "History back": "Zurück",
