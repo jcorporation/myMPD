@@ -72,13 +72,13 @@ function createEnterPinFooter(footers, method, params, callback, onerror) {
     btn.addEventListener('click', function(event) {
         //@ts-ignore
         btnWaiting(event.target, true);
+        const alert = newFooter.querySelector('.alert');
+        if (alert !== null) {
+            alert.remove();
+        }
         sendAPI('MYMPD_API_SESSION_LOGIN', {"pin": input.value}, function(obj) {
             btnWaitingId(enterBtnId, false);
             input.value = '';
-            const alert = footers[0].querySelector('.alert');
-            if (alert !== null) {
-                alert.remove();
-            }
             if (obj.error) {
                 newFooter.appendChild(
                     elCreateTextTn('div', {"class": ["alert", "alert-danger", "p-2", "w-100"]}, obj.error.message, obj.error.data)
