@@ -663,19 +663,19 @@ function addSortIndicator(th, desc) {
 }
 
 /**
- * Conditionally replaces a table row, if metadata or cols are changed.
+ * Replaces a table row and tries to keep the selection state
+ * @param {boolean} mode the selection mode
  * @param {HTMLElement} row row to replace
  * @param {HTMLElement} el replacement row
  * @returns {void}
  */
-function replaceTblRow(row, el) {
+function replaceTblRow(mode, row, el) {
     if (getData(row, 'uri') === getData(el, 'uri') &&
-        getData(row, 'cols') === getData(el, 'cols') &&
-        getData(row, 'name') === getData(el, 'name') &&
-        getData(row, 'songid') === getData(el, 'songid') &&
-        getData(row, 'AlbumId') === getData(el, 'AlbumId'))
+        mode === true &&
+        row.lastElementChild.lastElementChild.textContent === ligatures.checked)
     {
-        return;
+        el.lastElementChild.lastElementChild.textContent = ligatures.checked;
+        el.classList.add('selected');
     }
     row.replaceWith(el);
 }
@@ -713,8 +713,13 @@ function addDiscRow(disc, albumId, colspan) {
  */
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     const table = elGetById(list + 'List');
+    const mode = table.getAttribute('data-mode') === 'select' 
+        ? true
+        : false;
     const tbody = table.querySelector('tbody');
-    const colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
+    const colspan = settings['cols' + list] !== undefined
+        ? settings['cols' + list].length
+        : 0;
 
     const nrItems = obj.result.returnedEntities;
     let tr = tbody.querySelectorAll('tr');
@@ -733,7 +738,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     if (obj.result.Discs !== undefined && obj.result.Discs > 1) {
         const row = addDiscRow(1, obj.result.AlbumId, colspan);
         if (z < tr.length) {
-            replaceTblRow(tr[z], row);
+            replaceTblRow(mode, tr[z], row);
         }
         else {
             tbody.append(row);
@@ -745,7 +750,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         if (obj.result.data[0].Disc !== undefined && lastDisc < Number(obj.result.data[i].Disc)) {
             const row = addDiscRow(obj.result.data[i].Disc, obj.result.AlbumId, colspan);
             if (i + z < tr.length) {
-                replaceTblRow(tr[i + z], row);
+                replaceTblRow(mode, tr[i + z], row);
             }
             else {
                 tbody.append(row);
@@ -784,7 +789,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             tableRow(row, obj.result.data[i], list, colspan, smallWidth);
         }
         if (i + z < tr.length) {
-            replaceTblRow(tr[i + z], row);
+            replaceTblRow(mode, tr[i + z], row);
         }
         else {
             tbody.append(row);
@@ -843,7 +848,6 @@ function tableRow(row, data, list, colspan, smallWidth) {
                 );
             }
         }
-        setData(row, 'cols', settings['cols' + list].join(':'));
         switch(app.id) {
             case 'BrowsePlaylistDetail':
                 // add quick play and remove action
