@@ -129,6 +129,10 @@ function cleanupModal(el) {
     //remove spinners
     const spinners = el.querySelectorAll('.spinner-border');
     for (let i = spinners.length - 1; i >= 0; i--) {
+        const btn = spinners[i].parentNode;
+        if (btn) {
+            btn.removeAttribute('disabled');
+        }
         spinners[i].remove();
     }
 }
