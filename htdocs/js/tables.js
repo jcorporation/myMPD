@@ -584,7 +584,7 @@ function saveCols(tableName, tableEl) {
             params.cols.push(name);
         }
     }
-    sendAPI("MYMPD_API_COLS_SAVE", params, getSettings, true);
+    sendAPI("MYMPD_API_COLS_SAVE", params, saveColsCheckError, true);
 }
 
 /**
@@ -603,7 +603,16 @@ function saveColsDropdown(tableName, dropdownId) {
             params.cols.push(name);
         }
     }
-    sendAPI("MYMPD_API_COLS_SAVE", params, getSettings, true);
+    sendAPI("MYMPD_API_COLS_SAVE", params, saveColsCheckError, true);
+}
+
+/**
+ * Handles the jsonrpc response for MYMPD_API_COLS_SAVE
+ * @returns {void}
+ */
+function saveColsCheckError() {
+    // refresh the settings
+    getSettings(parseSettings);
 }
 
 /**

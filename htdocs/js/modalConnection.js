@@ -126,7 +126,7 @@ function saveConnection(target) {
  */
 function saveConnectionClose(obj) {
     if (modalClose(obj) === true) {
-        getSettings();
+        getSettings(parseSettings);
     }
 }
 

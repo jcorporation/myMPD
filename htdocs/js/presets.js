@@ -40,7 +40,7 @@ function applyPreset(name) {
  */
  function applyPresetCheckError(obj) {
     if (modalClose(obj) === true) {
-        getSettings();
+        getSettings(parseSettings);
     }
 }
 
@@ -66,7 +66,7 @@ function deletePreset(el, name) {
  */
  function deletePresetCheckError(obj) {
     if (modalClose(obj) === true) {
-        getSettings();
+        getSettings(parseSettings);
     }
 }
 

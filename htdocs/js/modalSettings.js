@@ -356,7 +356,7 @@ function savePartitionSettings(closeModal) {
  */
 function savePartitionSettingsApply(obj) {
     if (modalApply(obj) === true) {
-        getSettings();
+        getSettings(parseSettings);
     }
 }
 
@@ -367,7 +367,7 @@ function savePartitionSettingsApply(obj) {
  */
 function savePartitionSettingsClose(obj) {
     if (modalClose(obj) === true) {
-        getSettings();
+        getSettings(parseSettings);
     }
 }
 

@@ -211,7 +211,7 @@ function parseState(obj) {
             return;
         }
         logDebug('Refreshing settings');
-        getSettings();
+        getSettings(parseSettings);
     }
 }
 

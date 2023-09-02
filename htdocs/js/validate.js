@@ -42,7 +42,7 @@ function highlightInvalidInput(prefix, obj) {
         }
         return true;
     }
-    logError('Element not found: #' + prefix + id + 'Input');
+    logWarn('Element not found: #' + prefix + id + 'Input');
     return false;
 }
 

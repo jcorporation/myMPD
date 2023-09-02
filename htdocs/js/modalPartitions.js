@@ -138,7 +138,7 @@ function switchPartition(partition) {
         webSocketClose();
         webSocketConnect();
     }, 0);
-    getSettings();
+    getSettings(parseSettings);
     uiElements.modalPartition.hide();
     showNotification(tn('Partition switched'), 'general', 'info');
 }

@@ -12,8 +12,11 @@
  */
 function getSettings(callback) {
     settingsParsed = 'no';
-    if (callback === undefined) {
+    if (callback === undefined ||
+        typeof callback !== 'function')
+    {
         // only parse the settings
+        logWarn('Undefined callback, setting it to parseSettings');
         callback = parseSettings;
     }
     // callback is used to populate modals
@@ -143,6 +146,9 @@ function parseSettings(obj) {
     //parse mpd settings if connected
     if (settings.partition.mpdConnected === true) {
         parseMPDSettings();
+    }
+    else {
+        logWarn('Skip parsing MPD settings');
     }
 
     //Info in about modal
