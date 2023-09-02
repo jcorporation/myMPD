@@ -173,29 +173,10 @@ function validateUintEl(el) {
  * @param {Element} el input element
  * @returns {boolean} true = float, else false
  */
+//eslint-disable-next-line no-unused-vars
 function validateFloatEl(el) {
     const value = el.value.replace(/[\d-.]/g, '');
     if (value !== '') {
-        setIsInvalid(el);
-        return false;
-    }
-    return true;
-}
-
-/**
- * Checks if the the value of the input element is an float in range
- * @param {Element} el input element
- * @param {number} min minimum value (including)
- * @param {number} max maximum value (including)
- * @returns {boolean} true = integer in range, else false
- */
-//eslint-disable-next-line no-unused-vars
-function validateFloatRangeEl(el, min, max) {
-    if (validateFloatEl(el) === false) {
-        return false;
-    }
-    const floatValue = Number(el.value);
-    if (floatValue < min || floatValue > max) {
         setIsInvalid(el);
         return false;
     }
