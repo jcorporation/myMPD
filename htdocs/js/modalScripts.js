@@ -267,7 +267,7 @@ function saveScript(target) {
     sendAPI("MYMPD_API_SCRIPT_SAVE", {
         "oldscript": getDataId('modalScriptsEditTab', 'id'),
         "script": elGetById('modalScriptsScriptInput').value,
-        "order": Number(elGetById('modalScriptsOrderInput')),
+        "order": Number(elGetById('modalScriptsOrderInput').value),
         "content": elGetById('modalScriptsContentInput').value,
         "arguments": args
     }, saveScriptCheckError, true);
