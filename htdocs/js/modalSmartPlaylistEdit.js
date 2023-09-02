@@ -76,13 +76,11 @@ function saveSmartPlaylist(target) {
             }, modalClose, true);
             break;
         case 'sticker': {
-            const maxentries = elGetById('modalSmartPlaylistEditMaxentriesInput').value;
-            const minvalue = elGetById('modalSmartPlaylistEditMinvalueInput').value;
             sendAPI("MYMPD_API_SMARTPLS_STICKER_SAVE", {
                 "plist": name,
                 "sticker": getSelectValueId('modalSmartPlaylistEditStickerInput'),
-                "maxentries": Number(maxentries),
-                "minvalue": Number(minvalue),
+                "maxentries": Number(elGetById('modalSmartPlaylistEditMaxentriesInput').value),
+                "minvalue": Number(elGetById('modalSmartPlaylistEditMinvalueInput').value),
                 "sort": sort
             }, modalClose, true);
             break;
@@ -91,7 +89,7 @@ function saveSmartPlaylist(target) {
             const timerange = elGetById('modalSmartPlaylistEditTimerangeInput').value;
             sendAPI("MYMPD_API_SMARTPLS_NEWEST_SAVE", {
                 "plist": name,
-                "timerange": Number(timerange.value) * 60 * 60 * 24,
+                "timerange": Number(timerange) * 60 * 60 * 24,
                 "sort": sort
             }, modalClose, true);
             break;
