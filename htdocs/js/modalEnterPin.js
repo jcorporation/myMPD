@@ -10,10 +10,6 @@
  * @returns {void}
  */
 function initModalEnterPin() {
-    elGetById('modalEnterPin').addEventListener('shown.bs.modal', function() {
-        setFocusId('modalEnterPinPinInput');
-    }, false);
-
     elGetById('modalEnterPinPinInput').addEventListener('keyup', function(event) {
         if (event.key === 'Enter') {
             elGetById('modalEnterPinEnterBtn').click();

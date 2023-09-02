@@ -10,7 +10,7 @@
  * @returns {void}
  */
 function initModalMaintenance() {
-    elGetById('modalMaintenance').addEventListener('shown.bs.modal', function () {
+    elGetById('modalMaintenance').addEventListener('show.bs.modal', function () {
         elGetById('modalMaintenanceLoglevelInput').value = settings.loglevel;
         cleanupModalId('modalMaintenance');
     });

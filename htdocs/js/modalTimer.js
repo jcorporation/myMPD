@@ -53,7 +53,7 @@ function initModalTimer() {
         selectTimerIntervalChange();
     }, false);
 
-    elGetById('modalTimer').addEventListener('shown.bs.modal', function () {
+    elGetById('modalTimer').addEventListener('show.bs.modal', function () {
         showListTimer();
     });
 
