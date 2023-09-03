@@ -5,7 +5,7 @@
 - fi-FI: 793 missing phrases
 - fr-FR: 152 missing phrases
 - it-IT: 152 missing phrases
-- ja-JP: 154 missing phrases
+- ja-JP: 152 missing phrases
 - ko-KR: 152 missing phrases
 - nl-NL: 152 missing phrases
 - pl-PL: 968 missing phrases
