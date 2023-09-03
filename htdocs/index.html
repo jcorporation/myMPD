@@ -658,7 +658,7 @@
                 <div class="dropdown-divider"></div>
                 <div class="form-check">
                   <button class="btn btn-secondary btn-xs mi mi-sm" id="BrowseDatabaseAlbumListSortDesc">radio_button_unchecked</button>&nbsp;
-                  <label class="form-check-label" for="databaseSortDesc" data-phrase="Descending"></label>
+                  <label class="form-check-label" for="BrowseDatabaseAlbumListSortDesc" data-phrase="Descending"></label>
                 </div>
               </div>
             </div>
@@ -1162,7 +1162,7 @@
           </div>
           <div class="d-none" id="modalPlaylistAddToPlaylistFrm">
             <div class="row mb-3">
-              <label class="col-sm-4 col-form-label" for="addToPlaylistPlaylist" data-phrase="Playlist"></label>
+              <label class="col-sm-4 col-form-label" for="modalPlaylistAddToPlistInput" data-phrase="Playlist"></label>
               <div class="col-sm-8 position-relative">
                 <div class="btn-group d-flex">
                   <input data-is="mympd-select-search" id="modalPlaylistAddToPlistInput" data-placeholder-phrase="Choose a playlist or enter a new playlist name" class="form-control"/>
@@ -1292,7 +1292,7 @@
             <div class="col-sm-8">
               <div class="form-check ms-4">
                 <input class="form-check-input" type="radio" name="modalPlaylistMoveToPos" value="0" id="modalPlaylistMoveToPosAppend" checked="checked"/>
-                <label class="form-check-label" for="modalPlaylistMoveToPosPosAppend" data-phrase="Append"></label>
+                <label class="form-check-label" for="modalPlaylistMoveToPosAppend" data-phrase="Append"></label>
               </div>
               <div class="form-check ms-4 featWhence">
                 <input class="form-check-input" type="radio" name="modalPlaylistMoveToPos" value="1" id="modalPlaylistMoveToPosInsertFirst"/>
@@ -1564,7 +1564,7 @@
             <div class="tab-pane" id="modalSettingsFeaturesTab">
               <h4 data-phrase="Lyrics"></h4>
               <div class="mb-3 row">
-                <label class="col-sm-4 col-form-label" for="SettingsEnableLyricsInput" data-phrase="Enable"></label>
+                <label class="col-sm-4 col-form-label" for="modalSettingsEnableLyricsInput" data-phrase="Enable"></label>
                 <div class="col-sm-8 ">
                   <button id="modalSettingsEnableLyricsInput" data-bs-toggle="collapse" data-bs-target="#modalSettingsLyricsCollapse" data-href='{"cmd": "toggleBtnChk", "options": ["target"]}' type="button" class="btn btn-sm btn-secondary mi"></button>
                   <small class="help" data-phrase="helpSettingsEnableLyrics"></small>
@@ -2699,7 +2699,7 @@
         </div>
         <div class="modal-body">
           <div class="mb-3 row">
-            <label class="col-sm-4 col-form-label" for="btnDatbaseRescan" data-phrase="Database"></label>
+            <label class="col-sm-4 col-form-label" data-phrase="Database"></label>
             <div class="col-sm-8">
               <button type="button" class="btn btn-secondary btnCleanup me-2" data-href='{"cmd": "updateDB", "options": ["", false, "target"]}' data-phrase="Update"></button>
               <button type="button" class="btn btn-secondary btnCleanup" data-href='{"cmd": "updateDB", "options": ["", true, "target"]}' data-phrase="Rescan"></button>

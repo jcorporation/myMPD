@@ -441,15 +441,16 @@ function setColsChecklist(tableName, menu) {
             );
         }
         else {
+            const btnId = tableName + tags[i] + 'Col';
             const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-sm", "me-2"],
-                "name": tags[i]}, 'radio_button_unchecked');
+                "id": btnId}, 'radio_button_unchecked');
             if (settings['cols' + tableName].includes(tags[i])) {
                 btn.classList.add('active');
                 btn.textContent = 'check';
             }
             const div = elCreateNodes('div', {"class": ["form-check"]}, [
                 btn,
-                elCreateTextTn('label', {"class": ["form-check-label"], "for": tags[i]}, tags[i])
+                elCreateTextTn('label', {"class": ["form-check-label"], "for": btnId}, tags[i])
             ]);
             menu.appendChild(div);
         }

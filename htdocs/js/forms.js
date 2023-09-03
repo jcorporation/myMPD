@@ -130,17 +130,21 @@ function createForm(defaultFields, prefix, forms) {
                     "value": settingsFields[key], "class": ["form-control"], "type": "password"})
             );
         }
+        else if (defaultFields[key].inputType === 'color') {
+            // color input with reset to default button
+            col.firstChild.firstChild.appendChild(
+                elCreateEmpty('input', {"is": "mympd-input-reset", "id": id, "data-default": defaultFields[key].defaultValue,
+                    "value": defaultFields[key].defaultValue, "class": ["form-control"], "type": defaultFields[key].inputType})
+            );
+        }
         else {
-            // text and color inputs with reset to default button
-            const inputType = defaultFields[key].inputType === 'color'
-                ? 'color'
-                : 'text';
+            // text input with reset to default button
             const placeholder = defaultFields[key].placeholder !== undefined
                 ? defaultFields[key].placeholder
                 : defaultFields[key].defaultValue;
             col.firstChild.firstChild.appendChild(
                 elCreateEmpty('input', {"is": "mympd-input-reset", "id": id, "data-default": defaultFields[key].defaultValue,
-                    "placeholder": placeholder, "value": "", "class": ["form-control"], "type": inputType})
+                    "placeholder": placeholder, "value": "", "class": ["form-control"], "type": defaultFields[key].inputType})
             );
         }
         // unit
