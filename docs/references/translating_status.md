@@ -6,7 +6,7 @@
 - fr-FR: 152 missing phrases
 - it-IT: 152 missing phrases
 - ja-JP: 152 missing phrases
-- ko-KR: 152 missing phrases
+- ko-KR: fully translated
 - nl-NL: 152 missing phrases
 - pl-PL: 968 missing phrases
 - ru-RU: 249 missing phrases
