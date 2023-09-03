@@ -57,10 +57,10 @@ function showEditRadioFavorite(obj) {
     imageEl.value = obj.Image === undefined ? '' : obj.Image;
     setData(imageEl, 'value', obj.Image === undefined ? '' : obj.Image);
 
-    elHideId('btnAddToWebradiodb');
-    elHideId('btnUpdateWebradiodb');
-    elHideId('btnUpdateFromWebradiodb');
-    elHideId('btnCheckWebradiodb');
+    elHideId('modalRadioFavoriteEditAddToWebradiodbBtn');
+    elHideId('modalRadioFavoriteEditUpdateWebradiodbBtn');
+    elHideId('modalRadioFavoriteEditUpdateFromWebradiodbBtn');
+    elHideId('modalRadioFavoriteEditCheckWebradiodbBtn');
     checkWebradioDb();
 
     uiElements.modalRadioFavoriteEdit.show();
@@ -112,7 +112,7 @@ function saveRadioFavoriteCheckError(obj) {
 //eslint-disable-next-line no-unused-vars
 function checkWebradioDb() {
     elGetById('webradiodbCheckState').textContent = tn('Checking...');
-    btnWaitingId('btnCheckWebradiodb', true);
+    btnWaitingId('modalRadioFavoriteEditCheckWebradiodbBtn', true);
     if (webradioDb === null) {
         //fetch webradiodb database
         sendAPI("MYMPD_API_CLOUD_WEBRADIODB_COMBINED_GET", {}, function(obj) {
@@ -144,42 +144,42 @@ function _checkWebradioDb() {
                 }
             }
             if (alternateStream === undefined) {
-                elShowId('btnAddToWebradiodb');
-                elHideId('btnUpdateWebradiodb');
-                elHideId('btnUpdateFromWebradiodb');
+                elShowId('modalRadioFavoriteEditAddToWebradiodbBtn');
+                elHideId('modalRadioFavoriteEditUpdateWebradiodbBtn');
+                elHideId('modalRadioFavoriteEditUpdateFromWebradiodbBtn');
                 elGetById('webradiodbCheckState').textContent = tn('Uri not found in WebradioDB');
             }
             else {
-                elHideId('btnAddToWebradiodb');
-                elHideId('btnUpdateWebradiodb');
-                elHideId('btnUpdateFromWebradiodb');
+                elHideId('modalRadioFavoriteEditAddToWebradiodbBtn');
+                elHideId('modalRadioFavoriteEditUpdateWebradiodbBtn');
+                elHideId('modalRadioFavoriteEditUpdateFromWebradiodbBtn');
                 elGetById('webradiodbCheckState').textContent = tn('Alternative stream uri');
             }
         }
         else {
-            elHideId('btnAddToWebradiodb');
+            elHideId('modalRadioFavoriteEditAddToWebradiodbBtn');
             if (compareWebradioDb() === false) {
-                elShowId('btnUpdateWebradiodb');
-                elShowId('btnUpdateFromWebradiodb');
-                elHideId('btnCheckWebradiodb');
+                elShowId('modalRadioFavoriteEditUpdateWebradiodbBtn');
+                elShowId('modalRadioFavoriteEditUpdateFromWebradiodbBtn');
+                elHideId('modalRadioFavoriteEditCheckWebradiodbBtn');
                 elGetById('webradiodbCheckState').textContent = tn('Favorite and WebradioDb entry are different');
             }
             else {
-                elHideId('btnUpdateWebradiodb');
-                elHideId('btnUpdateFromWebradiodb');
-                elShowId('btnCheckWebradiodb');
+                elHideId('modalRadioFavoriteEditUpdateWebradiodbBtn');
+                elHideId('modalRadioFavoriteEditUpdateFromWebradiodbBtn');
+                elShowId('modalRadioFavoriteEditCheckWebradiodbBtn');
                 elGetById('webradiodbCheckState').textContent = tn('Favorite is uptodate');
             }
         }
     }
     else {
-        elHideId('btnAddToWebradiodb');
-        elHideId('btnUpdateWebradiodb');
-        elHideId('btnUpdateFromWebradiodb');
-        elShowId('btnCheckWebradiodb');
+        elHideId('modalRadioFavoriteEditAddToWebradiodbBtn');
+        elHideId('modalRadioFavoriteEditUpdateWebradiodbBtn');
+        elHideId('modalRadioFavoriteEditUpdateFromWebradiodbBtn');
+        elShowId('modalRadioFavoriteEditCheckWebradiodbBtn');
         elGetById('webradiodbCheckState').textContent = tn('Empty uri');
     }
-    btnWaitingId('btnCheckWebradiodb', false);
+    btnWaitingId('modalRadioFavoriteEditCheckWebradiodbBtn', false);
 }
 
 /**
