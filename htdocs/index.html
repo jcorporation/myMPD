@@ -1605,7 +1605,10 @@
           </div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
+          <div>
+            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal" data-phrase="Cancel"></button>
+            <button type="button" class="btn btn-secondary btnHelp mi" data-href='{"cmd": "toggleHelp", "options": []}' data-title-phrase="Show help">question_mark</button>
+          </div>
           <div>
             <button type="button" class="btn btn-success me-2 protected" data-href='{"cmd": "saveSettings", "options": ["target", false]}' data-phrase="Apply"></button>
             <button type="button" class="btn btn-success protected" data-href='{"cmd": "saveSettings", "options": ["target", true]}' data-phrase="Save"></button>
@@ -1712,7 +1715,10 @@
           </div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" data-phrase="Cancel"></button>
+          <div>
+            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal" data-phrase="Cancel"></button>
+            <button type="button" class="btn btn-secondary btnHelp mi" data-href='{"cmd": "toggleHelp", "options": []}' data-title-phrase="Show help">question_mark</button>
+          </div>
           <div class="d-flex">
             <div class="position-relative me-2">
               <input data-is="mympd-select-new" id="modalPlaybackNameInput" data-placeholder-phrase="Optional preset name" class="form-control me-2"/>
@@ -1775,7 +1781,10 @@
           </div>
         </div>
         <div class="modal-footer justify-content-between">
-          <button type="button" class="btn btn-secondary alwaysEnabled" data-bs-dismiss="modal" data-phrase="Cancel"></button>
+          <div>
+            <button type="button" class="btn btn-secondary me-2" data-bs-dismiss="modal" data-phrase="Cancel"></button>
+            <button type="button" class="btn btn-secondary btnHelp mi" data-href='{"cmd": "toggleHelp", "options": []}' data-title-phrase="Show help">question_mark</button>
+          </div>
           <button type="button" class="btn btn-success alwaysEnabled protected" data-href='{"cmd": "saveConnection", "options": ["target"]}' data-phrase="Save"></button>
         </div>
       </div>
@@ -2038,7 +2047,10 @@
           <button data-href='{"cmd":"showEditTimer","options":[0]}' class="btn btn-success protected" data-phrase="New timer"></button>
         </div>
         <div class="modal-footer justify-content-between d-none" id="modalTimerEditFooter">
-          <button data-href='{"cmd":"showListTimer","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
+          <div>
+            <button data-href='{"cmd":"showListTimer","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
+            <button type="button" class="btn btn-secondary btnHelp mi" data-href='{"cmd": "toggleHelp", "options": []}' data-title-phrase="Show help">question_mark</button>
+          </div>
           <button data-href='{"cmd":"saveTimer","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
@@ -2103,7 +2115,10 @@
           <button data-href='{"cmd":"showEditMount","options":["",""]}' class="btn btn-success protected" data-phrase="New mount"></button>
         </div>
         <div class="modal-footer justify-content-between d-none" id="modalMountsEditFooter">
-          <button data-href='{"cmd":"showListMounts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
+          <div>
+            <button data-href='{"cmd":"showListMounts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
+            <button type="button" class="btn btn-secondary btnHelp mi" data-href='{"cmd": "toggleHelp", "options": []}' data-title-phrase="Show help">question_mark</button>
+          </div>
           <button data-href='{"cmd":"mountMount","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>
@@ -2239,7 +2254,10 @@
           <button data-href='{"cmd":"showEditScript","options":["",""]}' class="btn btn-success protected" data-phrase="New script"></button>
         </div>
         <div id="modalScriptsEditFooter" class="modal-footer justify-content-between d-none">
-          <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
+          <div>
+            <button data-href='{"cmd":"showListScripts","options":[]}' type="button" class="btn btn-secondary" data-phrase="Cancel"></button>
+            <button type="button" class="btn btn-secondary btnHelp mi" data-href='{"cmd": "toggleHelp", "options": []}' data-title-phrase="Show help">question_mark</button>
+          </div>
           <button data-href='{"cmd":"saveScript","options":["target"]}' type="button" class="btn btn-success protected" data-phrase="Save"></button>
         </div>
       </div>

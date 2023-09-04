@@ -44,6 +44,7 @@ body.mobile > footer > nav {
   --mympd-backgroundcolor: var(--bs-black);
   --mympd-card-footer-word-wrap: nowrap;
   --mympd-show-help: block;
+  --mympd-show-help-btn: unset;
   --bs-dropdown-divider-margin-y: 0.5rem;
   --bs-nav-link-padding-y: 0.5rem;
   --bs-nav-link-padding-x: 1rem;
@@ -1212,4 +1213,9 @@ h4.offcanvas-title-stream::before {
 
 .is-invalid > .invalid-feedback {
   display: block;
+}
+
+.btnHelp {
+  min-width: fit-content !important;
+  display: var(--mympd-show-help-btn);
 }

@@ -81,12 +81,7 @@ function parseSettings(obj) {
     }
 
     // toggle help
-    if (settings.webuiSettings.showHelp === true) {
-        document.documentElement.style.setProperty('--mympd-show-help', 'block');
-    }
-    else {
-        document.documentElement.style.setProperty('--mympd-show-help', 'none');
-    }
+    toggleHelp(settings.webuiSettings.showHelp);
 
     //background
     if (settings.webuiSettings.theme === 'auto') {
@@ -436,6 +431,27 @@ function parseMPDSettings() {
     addTagList('BrowsePlaylistDetailSortTagsDropdown', 'tagList');
 
     addTagListSelect('modalSmartPlaylistEditSortInput', 'tagList');
+}
+
+/**
+ * Toggles the display of the help texts
+ * @param {boolean} [mode] true=show help, false=hide help, undefined=toggle
+ * @returns {void}
+ */
+function toggleHelp(mode) {
+    if (mode === undefined) {
+        mode = document.documentElement.style.getPropertyValue('--mympd-show-help') === 'block'
+            ? false
+            : true;
+    }
+    if (mode === true) {
+        document.documentElement.style.setProperty('--mympd-show-help', 'block');
+        document.documentElement.style.setProperty('--mympd-show-help-btn', 'none');
+    }
+    else {
+        document.documentElement.style.setProperty('--mympd-show-help', 'none');
+        document.documentElement.style.setProperty('--mympd-show-help-btn', 'unset');
+    }
 }
 
 /**
