@@ -135,18 +135,18 @@ function populatePlaylistSelect(obj, playlistSelectId, selectedPlaylist) {
     selectEl.value = selectedPlaylist === 'Database'
         ? tn('Database')
         : selectedPlaylist === ''
-            ? playlistSelectId === 'selectTimerPlaylist'
+            ? playlistSelectId === 'modalTimerPlaylistInput'
                 ? tn('No playlist')
                 : ''
             : selectedPlaylist;
     setData(selectEl, 'value', selectedPlaylist);
     elClear(selectEl.filterResult);
     switch(playlistSelectId) {
-        case 'selectTimerPlaylist':
+        case 'modalTimerPlaylistInput':
             selectEl.addFilterResult('No playlist', '');
             break;
-        case 'selectJukeboxPlaylist':
-        case 'selectAddToQueuePlaylist':
+        case 'modalPlaybackJukeboxPlaylistInput':
+        case 'modalQueueAddToPlaylistInput':
             selectEl.addFilterResult('Database', 'Database');
             break;
         // No Default
