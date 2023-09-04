@@ -2,5 +2,5 @@
     "default": {"desc":"Browser default", "missingPhrases": 0},
     "de-DE": {"desc":"Deutsch (de-DE)", "missingPhrases": 0},
     "en-US": {"desc":"English (en-US)", "missingPhrases": 0},
-    "ko-KR": {"desc":"한국어 (ko-KR)", "missingPhrases": 1}
+    "ko-KR": {"desc":"한국어 (ko-KR)", "missingPhrases": 3}
 }
