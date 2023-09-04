@@ -30,16 +30,10 @@ function initModalPartitions() {
             switchPartition(getData(target, 'partition'));
         }
     }, false);
-}
 
-/**
- * Shows the partition modal
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function showPartitionsModal() {
-    showListPartitions();
-    uiElements.modalPartitions.show();
+    elGetById('modalPartitions').addEventListener('show.bs.modal', function () {
+        showListPartitions();
+    });
 }
 
 /**

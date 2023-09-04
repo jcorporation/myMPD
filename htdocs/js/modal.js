@@ -12,7 +12,13 @@
  */
 //eslint-disable-next-line no-unused-vars
 function openModal(modal) {
-    uiElements[modal].show();
+    switch(modal) {
+        case 'modalScripts':
+            showListScriptModal();
+            break;
+        default:
+            uiElements[modal].show();
+    }
 }
 
 /**

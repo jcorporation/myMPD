@@ -45,20 +45,15 @@ function initModalSettingsPlayback() {
             deletePreset(event.target, getData(event.target.parentNode.parentNode, 'name'));
         }
     }, false);
-}
 
-/**
- * Shows the playback modal and refreshes the settings before
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function showPlaybackModal() {
-    getSettings(function(obj) {
-        if (parseSettings(obj) === true) {
-            cleanupModalId('modalPlayback');
-            populatePlaybackFrm();
-            uiElements.modalPlayback.show();
-        }
+    elGetById('modalPlayback').addEventListener('show.bs.modal', function () {
+        getSettings(function(obj) {
+            if (parseSettings(obj) === true) {
+                cleanupModalId('modalPlayback');
+                populatePlaybackFrm();
+                uiElements.modalPlayback.show();
+            }
+        });
     });
 }
 

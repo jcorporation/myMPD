@@ -34,20 +34,15 @@ function initModalSettings() {
             }
         }
     }
-}
 
-/**
- * Shows the connection modal and refreshes the settings before
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function showSettingsModal() {
-    getSettings(function(obj) {
-        if (parseSettings(obj) === true) {
-            cleanupModalId('modalSettings');
-            populateSettingsFrm();
-            uiElements.modalSettings.show();
-        }
+    elGetById('modalSettings').addEventListener('show.bs.modal', function () {
+        getSettings(function(obj) {
+            if (parseSettings(obj) === true) {
+                cleanupModalId('modalSettings');
+                populateSettingsFrm();
+                uiElements.modalSettings.show();
+            }
+        });
     });
 }
 

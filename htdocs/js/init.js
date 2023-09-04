@@ -223,6 +223,7 @@ function appInit() {
     initModalHomeIcon();
     initModalMaintenance();
     initModalMounts();
+    initModalNotifications();
     initModalPartitionOutputs();
     initModalPartitions();
     initModalPlaylistAddTo();

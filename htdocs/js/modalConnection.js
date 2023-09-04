@@ -49,20 +49,15 @@ function initModalSettingsConnection() {
             playlistDirInput.removeAttribute('readonly');
         }
     }, false);
-}
 
-/**
- * Shows the connection modal and refreshes the settings before
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function showConnectionModal() {
-    getSettings(function(obj) {
-        if (parseSettings(obj) === true) {
-            cleanupModalId('modalConnection');
-            populateConnectionFrm();
-            uiElements.modalConnection.show();
-        }
+    elGetById('modalConnection').addEventListener('show.bs.modal', function() {
+        getSettings(function(obj) {
+            if (parseSettings(obj) === true) {
+                cleanupModalId('modalConnection');
+                populateConnectionFrm();
+                uiElements.modalConnection.show();
+            }
+        });
     });
 }
 
