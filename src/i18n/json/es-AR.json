@@ -422,7 +422,6 @@
     "Open folder": "Abrir carpeta",
     "Open maintenance": "Abrir mantenimiento",
     "Open parent folder": "Abrir carpeta principal",
-    "Open queue settings": "Abrir configuración de la fila",
     "Open settings": "Abrir configuración",
     "Options": "Opciones",
     "Opus Audio": "Opus Audio",
@@ -1091,5 +1090,6 @@
     "Output not found": "",
     "Enforce disc tag": "",
     "Neighbors": "",
-    "Show neighbors": ""
+    "Show neighbors": "",
+    "Open playback settings": ""
 }
