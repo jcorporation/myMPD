@@ -422,7 +422,6 @@
     "Open folder": "폴더 열기",
     "Open maintenance": "유지보수 열기",
     "Open parent folder": "상위 폴더 열기",
-    "Open queue settings": "순서 설정 열기",
     "Open settings": "설정 열기",
     "Options": "옵션",
     "Opus Audio": "Opus 오디오",
@@ -1091,5 +1090,6 @@
     "Output not found": "출력을 찾을 수 없음",
     "Enforce disc tag": "디스크 태그 적용",
     "Neighbors": "이웃",
-    "Show neighbors": "이웃 보기"
+    "Show neighbors": "이웃 보기",
+    "Open playback settings": ""
 }
