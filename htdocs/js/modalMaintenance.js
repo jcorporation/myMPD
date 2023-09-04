@@ -3,7 +3,7 @@
 // myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @module mmodalMaintenance_js */
+/** @module modalMaintenance_js */
 
 /**
  * Initializes the maintenance elements
@@ -201,7 +201,8 @@ function updateDB(uri, rescan, target) {
  * @returns {void}
  */
 function updateDBfinished(idleEvent) {
-    const text = idleEvent === 'update_database' ?
-        tn('Database successfully updated') : tn('Database update finished');
+    const text = idleEvent === 'update_database'
+        ? tn('Database successfully updated')
+        : tn('Database update finished');
     showNotification(text, 'database', 'info');
 }
