@@ -21,27 +21,22 @@ function initModalPartitionOutputs() {
             toggleBtnChk(target, undefined);
         }
     }, false);
-}
 
-/**
- * Shows the partition outputs modal
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function showPartitionOutputsModal() {
-    //get all outputs
-    sendAPIpartition("default", "MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
-        const outputList = elGetById('modalPartitionOutputsList');
-        if (checkResult(obj, outputList) === false) {
-            return;
-        }
-        allOutputs = obj.result.data;
-        //get partition specific outputs
-        sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function() {
-            parsePartitionOutputsList(obj);
-            uiElements.modalPartitionOutputs.show();
+    elGetById('modalPartitionOutputs').addEventListener('show.bs.modal', function() {
+        //get all outputs
+        sendAPIpartition("default", "MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
+            const outputList = elGetById('modalPartitionOutputsList');
+            if (checkResult(obj, outputList) === false) {
+                return;
+            }
+            allOutputs = obj.result.data;
+            //get partition specific outputs
+            sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function() {
+                parsePartitionOutputsList(obj);
+                uiElements.modalPartitionOutputs.show();
+            }, true);
         }, true);
-    }, true);
+    });
 }
 
 /**
