@@ -348,17 +348,6 @@ function ucFirst(word) {
 }
 
 /**
- * Removes the search timer
- * @returns {void}
- */
-function clearSearchTimer() {
-    if (searchTimer !== null) {
-        clearTimeout(searchTimer);
-        searchTimer = null;
-    }
-}
-
-/**
  * Returns the cuesheet name
  * @param {string} uri uri to check
  * @returns {string} the uri part

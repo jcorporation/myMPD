@@ -22,6 +22,17 @@ function handleSearchExpression(appid) {
 }
 
 /**
+ * Removes the search timer
+ * @returns {void}
+ */
+function clearSearchTimer() {
+    if (searchTimer !== null) {
+        clearTimeout(searchTimer);
+        searchTimer = null;
+    }
+}
+
+/**
  * Initializes search elements for specified appid
  * @param {string} appid the application id
  * @returns {void}
