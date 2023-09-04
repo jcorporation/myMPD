@@ -214,7 +214,7 @@ function getDisplayTitle(name, title) {
     if (title === name) {
         return title;
     }
-    return name !== undefined && name !== ''
+    return isEmptyTag(name) === false
         ? name + ': ' + title
         : title;
 }
@@ -226,10 +226,7 @@ function getDisplayTitle(name, title) {
  * @returns {Node} the created node
  */
 function printValue(key, value) {
-    if (value === undefined ||
-        value === null ||
-        value === '')
-    {
+    if (isEmptyTag(value) === true) {
         return document.createTextNode('');
     }
     switch(key) {
@@ -306,10 +303,10 @@ function printValue(key, value) {
             return span;
         }
         case 'Genre':
-            //multi value tags - print comma separated
             if (typeof value === 'string') {
                 return document.createTextNode(value);
             }
+            //multi value tags - return comma separated
             return document.createTextNode(
                 value.join(', ')
             );
@@ -390,10 +387,7 @@ function getMBtagLink(tag, value) {
             break;
         // No Default
     }
-    if (value === undefined ||
-        value === '' ||
-        value === '-')
-    {
+    if (isEmptyTag(value) === true) {
         return elCreateText('span', {}, '');
     }
     else if (MBentity === '') {
