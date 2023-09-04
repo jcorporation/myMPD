@@ -422,7 +422,6 @@
     "Open folder": "Verzeichnis öffnen",
     "Open maintenance": "Öffne: Wartung",
     "Open parent folder": "Gehe zum darüberliegenden Verzeichnis",
-    "Open playback settings": "Öffne: Wiedergabeeinstellungen",
     "Open settings": "Öffne: Einstellungen",
     "Options": "Optionen",
     "Opus Audio": "Opus Audio",
@@ -1091,5 +1090,6 @@
     "Output not found": "Ausgabegerät nicht gefunden",
     "Enforce disc tag": "Erzwinge CD Tag",
     "Neighbors": "Neighbors",
-    "Show neighbors": "Neighbors anzeigen"
+    "Show neighbors": "Neighbors anzeigen",
+    "Open playback settings": "Öffne: Wiedergabeeinstellungen"
 }
