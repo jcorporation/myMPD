@@ -146,7 +146,7 @@ function saveTimer(target) {
     }
     const modalTimerActionInput = elGetById('modalTimerActionInput');
     sendAPI("MYMPD_API_TIMER_SAVE", {
-        "timerid": Number(elGetById('inputTimerId').value),
+        "timerid": getDataId('modalTimerEditTab', 'id'),
         "name": elGetById('modalTimerNameInput').value,
         "interval": interval,
         "enabled": (elGetById('modalTimerEnabledInput').classList.contains('active') ? true : false),
@@ -196,7 +196,7 @@ function showEditTimer(timerid) {
     }
     else {
         filterPlaylistsSelect(0, 'modalTimerPlaylistInput', '', '');
-        elGetById('inputTimerId').value = '0';
+        setDataId('modalTimerEditTab', 'id', 0);
         elGetById('modalTimerNameInput').value = '';
         toggleBtnChkId('modalTimerEnabledInput', true);
         elGetById('modalTimerstartHourInput').value = '12';
@@ -222,8 +222,7 @@ function showEditTimer(timerid) {
  */
 function parseEditTimer(obj) {
     filterPlaylistsSelect(0, 'modalTimerPlaylistInput', '', obj.result.playlist);
-
-    elGetById('inputTimerId').value = obj.result.timerid;
+    setDataId('modalTimerEditTab', 'id', obj.result.timerid);
     elGetById('modalTimerNameInput').value = obj.result.name;
     toggleBtnChkId('modalTimerEnabledInput', obj.result.enabled);
     elGetById('modalTimerstartHourInput').value = obj.result.startHour;
