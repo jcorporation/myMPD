@@ -10,6 +10,11 @@ myMPD integrates [Lua](http://www.lua.org) for scripting purposes. Script execut
 
 Script arguments are populated in the lua table `arguments`. myMPD populates automatically the global `partition` variable.
 
+```lua
+-- return the argument named playlist
+return arguments["playlist"]
+```
+
 ## Custom myMPD lua functions
 
 myMPD provides custom lua functions through the `mympd` lua library.
@@ -26,7 +31,7 @@ myMPD provides custom lua functions through the `mympd` lua library.
 
 Calls the myMPD API, look at [API]({{ site.baseurl }}/references/api/) for detailed API description.
 
-```
+```lua
 rc, result = mympd.api("method", params)
 ```
 
@@ -50,7 +55,7 @@ rc, result = mympd.api("method", params)
 
 A simple http client.
 
-```
+```lua
 rc, code, header, body = mympd.http_client(method, uri, headers, payload)
 ```
 
@@ -78,7 +83,7 @@ rc, code, header, body = mympd.http_client(method, uri, headers, payload)
 
 Populates the lua table `mympd_state` with configuration values and current status of myMPD and MPD.
 
-```
+```lua
 mympd.init()
 ```
 
@@ -100,7 +105,7 @@ No parameters needed.
 
 Executes a system command and captures its output.
 
-```
+```lua
 output = mympd.os_capture(command)
 ```
 
@@ -120,7 +125,7 @@ output = mympd.os_capture(command)
 
 If you want to run commands that changes the effective userid (e.g. with `sudo`) and you run myMPD with the default systemd service unit, you must create the mympd user manually and add an override.
 
-```
+```sh
 groupadd -r mympd
 useradd -r -g mympd -s /bin/false -d /var/lib/mympd mympd
 
@@ -140,7 +145,7 @@ Complete scripts can be found in the [repository](https://github.com/jcorporatio
 
 ### Simple
 
-```
+```lua
 -- load a playlist
 mympd.api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {plist = "NonPop"})
 -- start playing
@@ -151,7 +156,7 @@ mympd.api("MYMPD_API_PLAYER_PLAY")
 
 Script should be called with an argument named playlist.
 
-```
+```lua
 -- load a playlist
 mympd.api("MYMPD_API_QUEUE_REPLACE_PLAYLIST", {plist = arguments["playlist"]})
 -- start playing
@@ -162,7 +167,7 @@ return("Loaded playlist: " .. arguments["playlist"])
 
 ### Error handling
 
-```
+```lua
 -- get current playing song
 rc, result = mympd.api("MYMPD_API_PLAYER_CURRENT_SONG", {})
 if rc == 0
@@ -177,6 +182,7 @@ end
 myMPD loads in the default config all lua standard libraries and the myMPD custom libraries. The configuration file lualibs controls which libraries myMPD opens before script execution.
 
 **Valid values are:**
+
 - Use `all` to load all standard lua libraries and the myMPD custom libraries
 - Available standard lua libraries: base, coroutine, debug, io, math, os, package, string, table, utf8
 - Available myMPD custom libraries:
@@ -187,7 +193,7 @@ myMPD loads in the default config all lua standard libraries and the myMPD custo
 
 Scripts are saved in the directory `/var/lib/mympd/scripts` with the extension `.lua`. The metadata (order, arguments) are saved in the first line in a lua comment as json object.
 
-```
+```lua
 -- {"order":1,"arguments":["testarg1", "testarg2"]}
 return("Arguments are: " .. arguments["testarg1"] .. arguments["testarg2"])
 ```
