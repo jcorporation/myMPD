@@ -443,7 +443,7 @@ const APImethods = {
     "MYMPD_API_QUEUE_APPEND_PLAYLISTS": {
         "desc": "Appends the playlists to the queue.",
         "params": {
-            "plists": APIparams.plist,
+            "plists": APIparams.plists,
             "play": APIparams.play
         }
     },
@@ -736,8 +736,8 @@ const APImethods = {
         "desc": "Batch removes playlists.",
         "protected": true,
         "params": {
-            "type": {
-                "plistType": APItypes.string,
+            "plistType": {
+                "type": APItypes.string,
                 "example": "deleteEmptyPlaylists",
                 "desc": "valid values are: \"deleteEmptyPlaylists\", \"deleteSmartPlaylists\", \"deleteAllPlaylists\""
             }
@@ -1546,8 +1546,8 @@ const APImethods = {
         "params": {
             "table": {
                 "type": APItypes.string,
-                "example": "colsQueueJukebox",
-                "desc": "Valid values: colsQueueCurrent, colsQueueLastPlayed, colsSearch, colsBrowseDatabaseAlbumDetail, colsBrowseDatabaseAlbumList, colsBrowsePlaylistDetail, colsBrowseFilesystem, colsPlayback, colsQueueJukebox"
+                "example": "colsQueueCurrent",
+                "desc": "Valid values: colsQueueCurrent, colsQueueLastPlayed, colsSearch, colsBrowseDatabaseAlbumDetail, colsBrowseDatabaseAlbumList, colsBrowsePlaylistDetail, colsBrowseFilesystem, colsPlayback, colsQueueJukeboxAlbum, colsQueueJukeboxSong, colsBrowseRadioWebradiodb, colsBrowseRadioRadiobrowser"
             },
             "cols": APIparams.cols
         }
