@@ -118,6 +118,7 @@ void radiobrowser_api(struct mg_connection *nc, struct mg_connection *backend_nc
     FREE_SDS(uuid);
     FREE_SDS(error);
     FREE_SDS(uri);
+    jsonrpc_parse_error_clear(&parse_error);
 }
 
 /**
