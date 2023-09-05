@@ -255,7 +255,7 @@ function currentPlaylistSort(tag) {
  */
 function currentPlaylistMoveSong(from, to) {
     sendAPI("MYMPD_API_PLAYLIST_CONTENT_MOVE_POSITION", {
-        "plist": app.current.filter,
+        "plist": getDataId('BrowsePlaylistDetailList', 'uri'),
         "from": from,
         "to": to
     }, null, false);

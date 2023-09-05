@@ -3,24 +3,22 @@
 // myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
 // https://github.com/jcorporation/mympd
 
-/** @module modalQueueSetSongPos_js */
+/** @module modalSetSongPos_js */
 
 /**
  * Shows the set song position modal
  * @param {string} plist the playlist name or the special value "queue"
- * @param {number} oldSongPos song pos in the playlist to move
- * @param {number} songId song id in the queue to move
+ * @param {number} oldSongPos song pos in the playlist/queue to move
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
-function showSetSongPos(plist, oldSongPos, songId) {
-    const modal = elGetById('modalQueueSetSongPos');
+function showSetSongPos(plist, oldSongPos) {
+    const modal = elGetById('modalSetSongPos');
     cleanupModal(modal);
     setData(modal, 'songPosOld', oldSongPos);
-    setData(modal, 'songId', songId);
     setData(modal, 'plist', plist);
-    elGetById('modalQueueSetSongPosToInput').value = '';
-    uiElements.modalQueueSetSongPos.show();
+    elGetById('modalSetSongPosToInput').value = '';
+    uiElements.modalSetSongPos.show();
 }
 
 /**
@@ -30,15 +28,15 @@ function showSetSongPos(plist, oldSongPos, songId) {
  */
 //eslint-disable-next-line no-unused-vars
 function setSongPos(target) {
-    const modal = elGetById('modalQueueSetSongPos');
+    const modal = elGetById('modalSetSongPos');
     cleanupModal(modal);
     btnWaiting(target, true);
     const plist = getData(modal, 'plist');
     //MPD is zero indexed, display is 1-indexed
-    const newSongPos = Number(elGetById('modalQueueSetSongPosToInput').value) - 1;
+    const newSongPos = Number(elGetById('modalSetSongPosToInput').value) - 1;
     if (plist === 'queue') {
-        sendAPI("MYMPD_API_QUEUE_MOVE_ID", {
-            "songIds": [getData(modal, 'songId')],
+        sendAPI("MYMPD_API_QUEUE_MOVE_POSITION", {
+            "from": getData(modal, 'songPosOld'),
             "to": newSongPos
         }, modalClose, true);
     }
