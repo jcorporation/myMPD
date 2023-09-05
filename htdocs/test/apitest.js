@@ -42,7 +42,7 @@ function setTest(cmd, state, response) {
     document.getElementById('testCount').textContent = 'Test ' + (i + 1) + '/' + cmds.length + ' - ' +
         ok + ' ok, ' + warn + ' warnings, ' + error + ' errors, duration: ' + time_all + ' ms';
     const tr = document.createElement('tr');
-    tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + e(JSON.stringify(cmd)) + '</td><td>' + duration + ' ms</td><td>' + e(response) + '</td>';
+    tr.innerHTML = '<td>' + (i + 1) + '</td><td>' + e(JSON.stringify(cmd)) + '</td><td>' + duration + ' ms</td><td><div class="response">' + e(response) + '</div></td>';
     tr.childNodes[2].style.backgroundColor = (state === 'ok' ? 'green' : (state === 'warn' ? 'yellow' : 'red'));
     document.getElementsByTagName('tbody')[0].appendChild(tr);
 }

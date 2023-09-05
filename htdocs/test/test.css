@@ -21,3 +21,8 @@ body {
 .w30prct {
   width: 30%;
 }
+
+div.response {
+  max-height: 10rem;
+  overflow: auto;
+}
