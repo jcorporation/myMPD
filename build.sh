@@ -1059,7 +1059,7 @@ create_js_defines() {
         I=$((I+1))
       done
       printf "}"
-  } | jq >> "$STARTPATH/htdocs/js/defines.js"
+  } | jq -r "." >> "$STARTPATH/htdocs/js/defines.js"
   echo ";" >> "$STARTPATH/htdocs/js/defines.js"
 }
 
