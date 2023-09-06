@@ -53,13 +53,16 @@ option(MYMPD_DEBUG "Enables myMPD debug mode, default OFF, ON for Debug" "OFF")
 option(MYMPD_EMBEDDED_ASSETS "Embed assets in binary, default ON, OFF for Debug" "ON")
 option(MYMPD_ENABLE_FLAC "Enables flac support, default ON" "ON")
 option(MYMPD_ENABLE_IPV6 "Enables IPv6, default ON" "ON")
-option(MYMPD_ENABLE_LIBASAN "Enables build with libasan, default OFF" "OFF")
 option(MYMPD_ENABLE_LIBID3TAG "Enables libid3tag support, default ON" "ON")
 option(MYMPD_ENABLE_LUA "Enables lua support, default ON" "ON")
 option(MYMPD_MANPAGES "Creates and installs manpages" "ON")
 option(MYMPD_MINIMAL "Enables minimal myMPD build, disables all MYMPD_ENABLE_* flags" "OFF")
 option(MYMPD_STRIP_BINARY "Enables stripping the binaries for Release, default ON" "ON")
 option(MYMPD_STARTUP_SCRIPT "Installs the startup script, default ON" "ON")
+# sanitizer options
+option(MYMPD_ENABLE_ASAN "Enables build with address sanitizer, default OFF" "OFF")
+option(MYMPD_ENABLE_TSAN "Enables build with thread sanitizer, default OFF" "OFF")
+option(MYMPD_ENABLE_UBSAN "Enables build with undefined behavior sanitizer, default OFF" "OFF")
 
 if(MYMPD_MINIMAL)
   set(MYMPD_ENABLE_FLAC "OFF")
@@ -273,8 +276,8 @@ if(CMAKE_BUILD_TYPE MATCHES "(Release|Debug)")
     endif()
   endforeach()
 
-  if(NOT MYMPD_ENABLE_LIBASAN)
-    # incompatible with libasan
+  if(NOT MYMPD_ENABLE_ASAN AND NOT MYMPD_ENABLE_UBSAN)
+    # incompatible with address sanitizers
     add_compile_options("-D_FORTIFY_SOURCE=2")
   endif()
 else()
@@ -282,34 +285,36 @@ else()
   # do not alter compile options
 endif()
 
-# libasan memory checker
-# https://github.com/google/sanitizers/wiki/AddressSanitizer#faq
-if(MYMPD_ENABLE_LIBASAN)
-  message("Compiling with libasan")
-  set(LIBASAN_FLAGS
-    "-fsanitize=address"
-    "-fsanitize=alignment"
-    "-fsanitize=bool"
-    "-fsanitize=bounds"
-    "-fsanitize=bounds-strict"
-    "-fsanitize=enum"
-    "-fsanitize=float-cast-overflow"
-    "-fsanitize=float-divide-by-zero"
-    "-fsanitize=integer-divide-by-zero"
-    "-fsanitize=nonnull-attribute"
-    "-fsanitize=null"
-    "-fsanitize=object-size"
-    "-fsanitize=return"
-    "-fsanitize=returns-nonnull-attribute"
-    "-fsanitize=shift"
-    "-fsanitize=signed-integer-overflow"
-    "-fsanitize=undefined"
-    "-fsanitize=unreachable"
-    "-fsanitize=vla-bound"
-    "-fsanitize=vptr"
-  )
+# sanitizers
+set(ASAN_FLAGS
+  "-fsanitize=address"
+  "-fsanitize=leak"
+)
+
+set(UBSAN_FLAGS
+  "-fsanitize=undefined"
+)
+
+set(TSAN_FLAGS
+  "-fsanitize=thread"
+)
+
+if(MYMPD_ENABLE_ASAN)
+  message("Compiling with address sanitizer")
   add_compile_options(
-    ${LIBASAN_FLAGS}
+    ${ASAN_FLAGS}
+    "-fno-omit-frame-pointer"
+  )
+elseif(MYMPD_ENABLE_UBSAN)
+  message("Compiling with undefined behavior sanitizer")
+  add_compile_options(
+    ${UBSAN_FLAGS}
+    "-fno-omit-frame-pointer"
+  )
+elseif(MYMPD_ENABLE_TSAN)
+  message("Compiling with thread sanitizer")
+  add_compile_options(
+    ${TSAN_FLAGS}
     "-fno-omit-frame-pointer"
   )
 endif()
@@ -338,8 +343,12 @@ else()
 endif()
 
 # linker flags
-if(MYMPD_ENABLE_LIBASAN)
-  add_link_options(${LIBASAN_FLAGS})
+if(MYMPD_ENABLE_ASAN)
+  add_link_options(${ASAN_FLAGS})
+elseif(MYMPD_ENABLE_UBSAN)
+  add_link_options(${UBSAN_FLAGS})
+elseif(MYMPD_ENABLE_TSAN)
+  add_link_options(${TSAN_FLAGS})
 endif()
 
 if(CMAKE_BUILD_TYPE STREQUAL "Release")

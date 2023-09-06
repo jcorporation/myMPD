@@ -17,8 +17,12 @@
 
 //build options
 #cmakedefine MYMPD_DEBUG
-#cmakedefine MYMPD_ENABLE_LIBASAN
 #cmakedefine MYMPD_EMBEDDED_ASSETS
+
+//sanitizers
+#cmakedefine MYMPD_ENABLE_ASAN
+#cmakedefine MYMPD_ENABLE_TSAN
+#cmakedefine MYMPD_ENABLE_UBSAN
 
 //features
 #cmakedefine MYMPD_ENABLE_LIBID3TAG

@@ -8,7 +8,7 @@ myMPD uses cmake as build system.
 
 Example: run cmake, build myMPD in the directory `build` and install the binaries in /usr/bin.
 
-```
+```sh
 # Build as user
 cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr .
 # binaries are placed in build/bin
@@ -26,9 +26,11 @@ sudo make -C build install
 | MYMPD_EMBEDDED_ASSETS | ON | Embed assets in binary, default ON, OFF for Debug |
 | MYMPD_ENABLE_FLAC | ON | Enables flac support |
 | MYMPD_ENABLE_IPV6 | ON | Enables IPv6 |
-| MYMPD_ENABLE_LIBASAN | OFF | Enables build with libasan |
+| MYMPD_ENABLE_ASAN | OFF | Enables build with address sanitizer |
 | MYMPD_ENABLE_LIBID3TAG | ON | Enables libid3tag support |
 | MYMPD_ENABLE_LUA | ON | Enables lua support |
+| MYMPD_ENABLE_TSAN | OFF | Enables build with thread san |
+| MYMPD_ENABLE_UBSAN | OFF | Enables build with undefined behavior sanitizer |
 | MYMPD_MANPAGES | ON | Creates and installs manpages |
 | MYMPD_MINIMAL | OFF | Enables minimal myMPD build, disables all MYMPD_ENABLE_* flags |
 | MYMPD_STRIP_BINARY | ON | Enables stripping the binaries for Release |

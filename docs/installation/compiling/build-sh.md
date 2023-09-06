@@ -32,13 +32,13 @@ You can use `./build.sh releaseinstall` to compile and install in one step.
   - Plain assets in htdocs directory
   - Use this to debug mympd with valgrind or gdb
 
-### Memcheck
+### Sanitizers
 
-- `./build.sh memcheck`
-  - Builds debug binaries linked with libasan
+- `./build.sh <asan|tsan|ubsan>`
+  - Builds debug binaries linked with address sanitizers
   - Directory: debug
   - Plain assets in htdocs directory
-  - You must preload libasan, e.g. `LD_PRELOAD=libasan.so.6 debug/bin/mympd`
+  - You must eventually preload the sanitizer library, e.g. `LD_PRELOAD=libasan.so.6 debug/bin/mympd`
 
 ## Removing
 
