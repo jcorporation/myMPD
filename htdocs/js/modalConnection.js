@@ -136,7 +136,9 @@ function populateConnectionFrm() {
 
     if (settings.musicDirectory === 'auto') {
         elGetById('modalConnectionMusicDirectorySelect').value = settings.musicDirectory;
-        elGetById('modalConnectionMusicDirectoryInput').value = settings.musicDirectoryValue;
+        elGetById('modalConnectionMusicDirectoryInput').value = settings.musicDirectoryValue !== undefined
+            ? settings.musicDirectoryValue
+            : '';
         elGetById('modalConnectionMusicDirectoryInput').setAttribute('readonly', 'readonly');
     }
     else if (settings.musicDirectory === 'none') {
@@ -167,7 +169,9 @@ function populateConnectionFrm() {
 
     if (settings.playlistDirectory === 'auto') {
         elGetById('modalConnectionPlaylistDirectorySelect').value = settings.playlistDirectory;
-        elGetById('modalConnectionPlaylistDirectoryInput').value = settings.playlistDirectoryValue;
+        elGetById('modalConnectionPlaylistDirectoryInput').value =  settings.playlistDirectoryValue !== undefined
+            ? settings.playlistDirectoryValue
+            : '';
         elGetById('modalConnectionPlaylistDirectoryInput').setAttribute('readonly', 'readonly');
     }
     else if (settings.playlistDirectory === 'none') {

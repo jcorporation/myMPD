@@ -54,7 +54,6 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
     extra->thumbnail_names = sdsdup(mympd_state->thumbnail_names);
     extra->feat_albumart = mympd_state->mpd_state->feat_albumart;
     extra->mpd_host = sdsdup(mympd_state->mpd_state->mpd_host);
-    extra->mympd_api_started = true;
     list_init(&extra->partitions);
     struct t_partition_state *partition_state = mympd_state->partition_state;
     while (partition_state != NULL) {
@@ -65,7 +64,7 @@ bool settings_to_webserver(struct t_mympd_state *mympd_state) {
         partition_state = partition_state->next;
     }
 
-    struct t_work_response *web_server_response = create_response_new(CONN_ID_INTERNAL, 0, INTERNAL_API_WEBSERVER_SETTINGS, MPD_PARTITION_DEFAULT);
+    struct t_work_response *web_server_response = create_response_new(CONN_ID_CONFIG_TO_WEBSERVER, 0, INTERNAL_API_WEBSERVER_SETTINGS, MPD_PARTITION_DEFAULT);
     web_server_response->extra = extra;
     return mympd_queue_push(web_server_queue, web_server_response, 0);
 }

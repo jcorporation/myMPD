@@ -819,7 +819,8 @@ const settingsConnectionFields = {
         "inputType": "text",
         "title": "MPD host",
         "form": "modalConnectionFrm",
-        "help": "helpConnectionMPDHost"
+        "help": "helpConnectionMPDHost",
+        "class": ["alwaysEnabled"]
     },
     "mpdPort": {
         "defaultValue": defaults["MYMPD_MPD_PORT"],
@@ -827,14 +828,16 @@ const settingsConnectionFields = {
         "contentType": "number",
         "title": "MPD port",
         "form": "modalConnectionFrm",
-        "help": "helpConnectionMPDPort"
+        "help": "helpConnectionMPDPort",
+        "class": ["alwaysEnabled"]
     },
     "mpdPass": {
         "defaultValue": defaults["MYMPD_MPD_PASS"],
         "inputType": "password",
         "title": "MPD password",
         "form": "modalConnectionAdvFrm1",
-        "help": "helpConnectionMPDPassword"
+        "help": "helpConnectionMPDPassword",
+        "class": ["alwaysEnabled"]
     },
     "mpdTimeout": {
         "defaultValue": defaults["MYMPD_MPD_TIMEOUT_SEC"],
@@ -842,14 +845,16 @@ const settingsConnectionFields = {
         "title": "Timeout",
         "form": "modalConnectionAdvFrm2",
         "help": "helpConnectionTimeout",
-        "unit": "Seconds"
+        "unit": "Seconds",
+        "class": ["alwaysEnabled"]
     },
     "mpdKeepalive": {
         "defaultValue": defaults["MYMPD_MPD_KEEPALIVE"],
         "inputType": "checkbox",
         "title": "Keepalive",
         "form": "modalConnectionAdvFrm2",
-        "help": "helpConnectionKeepalive"
+        "help": "helpConnectionKeepalive",
+        "class": ["alwaysEnabled"]
     },
     "mpdBinarylimit": {
         "defaultValue": defaults["MYMPD_MPD_BINARYLIMIT"] / 1024,
@@ -857,7 +862,8 @@ const settingsConnectionFields = {
         "title": "Binary limit",
         "form": "modalConnectionAdvFrm2",
         "help": "helpConnectionBinaryLimit",
-        "unit": "kB"
+        "unit": "kB",
+        "class": ["alwaysEnabled"]
     }
 };
 

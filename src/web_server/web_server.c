@@ -158,9 +158,18 @@ void *web_server_loop(void *arg_mgr) {
                     //websocket notify for specific clients
                     send_ws_notify_client(mgr, response);
                     break;
-                case CONN_ID_INTERNAL:
+                case CONN_ID_CONFIG_TO_WEBSERVER:
                     //internal message
-                    parse_internal_message(response, mg_user_data);
+                    if (response->cmd_id == INTERNAL_API_WEBSERVER_READY) {
+                        mg_user_data->mympd_api_started = true;
+                        free_response(response);
+                    }
+                    else if (response->cmd_id == INTERNAL_API_WEBSERVER_SETTINGS){
+                        parse_internal_message(response, mg_user_data);
+                    }
+                    else {
+                        MYMPD_LOG_ERROR(response->partition, "Invalid API method: %s", get_cmd_id_method_name(response->cmd_id));
+                    }
                     break;
                 case CONN_ID_NOTIFY_ALL:
                     //websocket notify for all clients
@@ -233,9 +242,6 @@ static bool parse_internal_message(struct t_work_response *response, struct t_mg
         FREE_SDS(new_mg_user_data->thumbnail_names);
 
         mg_user_data->feat_albumart = new_mg_user_data->feat_albumart;
-
-        //mympd_api status
-        mg_user_data->mympd_api_started = new_mg_user_data->mympd_api_started;
 
         //set per partition stream uris
         list_clear(&mg_user_data->stream_uris);

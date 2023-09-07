@@ -109,6 +109,18 @@ function myEncodeURIComponent(str) {
 }
 
 /**
+ * Concatenates two arrays and checks if second array is defined
+ * @param {Array} c1 first array
+ * @param {Array} c2 second array, can be undefined
+ * @returns {Array} concatenated array
+ */
+function concatArrays(c1, c2) {
+    return c2 === undefined
+        ? c1
+        : c1.concat(c2);
+}
+
+/**
  * Joins an array to a comma separated text
  * @param {Array} a array to join
  * @returns {string} joined array

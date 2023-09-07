@@ -98,6 +98,9 @@ function setInputClear(el) {
     const button = elCreateText('button', {"data-title-phrase": "Clear", "class": ["mi", "mi-sm", "input-inner-button"]}, 'clear');
     el.button = button;
     el.classList.add('innerButton');
+    if (el.classList.contains('alwaysEnabled')) {
+        el.button.classList.add('alwaysEnabled');
+    }
     if (el.parentNode.classList.contains('col')) {
         el.button.style.right = '1rem';
     }
@@ -140,6 +143,9 @@ function setInputReset(el) {
     const button = elCreateText('button', {"data-title-phrase": "Reset to default", "class": ["mi", "mi-sm", "input-inner-button"]}, 'settings_backup_restore');
     el.button = button;
     el.classList.add('innerButton');
+    if (el.classList.contains('alwaysEnabled')) {
+        el.button.classList.add('alwaysEnabled');
+    }
     if (el.nextElementSibling) {
         el.parentNode.insertBefore(el.button, el.nextElementSibling);
     }
@@ -164,6 +170,9 @@ function setInputPassword(el) {
     const button = elCreateText('button', {"data-title-phrase": "Show or hide", "class": ["mi", "mi-sm", "input-inner-button"]}, 'visibility');
     el.button = button;
     el.classList.add('innerButton');
+    if (el.classList.contains('alwaysEnabled')) {
+        el.button.classList.add('alwaysEnabled');
+    }
     if (el.parentNode.classList.contains('col-sm-8')) {
         el.button.style.right = '1rem';
     }
@@ -212,6 +221,9 @@ function setSelectSearch(el) {
     el.filterInput = filterInput;
     el.filterResult = filterResult;
     el.classList.add('innerButton');
+    if (el.classList.contains('alwaysEnabled')) {
+        el.button.classList.add('alwaysEnabled');
+    }
     setData(el, 'value', el.value);
     el.setValue = function(value, valueTn) {
         el.value = valueTn;
@@ -290,6 +302,9 @@ function setSelectSearch(el) {
     el.dropdownButton = button;
     el.filterResult = filterResult;
     el.classList.add('innerButton');
+    if (el.classList.contains('alwaysEnabled')) {
+        el.button.classList.add('alwaysEnabled');
+    }
     setData(el, 'value', el.value);
     el.setValue = function(value, valueTn) {
         el.value = valueTn;

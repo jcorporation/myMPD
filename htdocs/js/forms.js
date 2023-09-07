@@ -84,7 +84,8 @@ function createForm(defaultFields, prefix, forms) {
         );
         if (defaultFields[key].inputType === 'select') {
             // simple select
-            const select = elCreateEmpty('select', {"class": ["form-select"], "id": id});
+            const cssClass = concatArrays(["form-select"], defaultFields[key].class);
+            const select = elCreateEmpty('select', {"class": cssClass, "id": id});
             for (const value in defaultFields[key].validValues) {
                 select.appendChild(
                     elCreateTextTn('option', {"value": value}, defaultFields[key].validValues[value])
@@ -94,7 +95,8 @@ function createForm(defaultFields, prefix, forms) {
         }
         else if (defaultFields[key].inputType === 'mympd-select-search') {
             // searchable select
-            const input = elCreateEmpty('input', {"class": ["form-select"], "id": id});
+            const cssClass = concatArrays(["form-select"], defaultFields[key].class);
+            const input = elCreateEmpty('input', {"class": cssClass, "id": id});
             setData(input, 'cb-filter', defaultFields[key].cbCallback);
             setData(input, 'cb-filter-options', defaultFields[key].cbCallbackOptions);
             input.setAttribute('data-is', 'mympd-select-search');
@@ -107,7 +109,8 @@ function createForm(defaultFields, prefix, forms) {
         }
         else if (defaultFields[key].inputType === 'checkbox') {
             // checkbox
-            const btn = elCreateEmpty('button', {"type": "button", "id": id, "class": ["btn", "btn-sm", "btn-secondary", "mi", "chkBtn"]});
+            const cssClass = concatArrays(["btn", "btn-sm", "btn-secondary", "mi", "chkBtn"], defaultFields[key].class);
+            const btn = elCreateEmpty('button', {"type": "button", "id": id, "class": cssClass});
             if (defaultFields[key].onClick !== undefined) {
                 // custom click handler
                 btn.addEventListener('click', function(event) {
@@ -125,26 +128,29 @@ function createForm(defaultFields, prefix, forms) {
         }
         else if (defaultFields[key].inputType === 'password') {
             // password field
+            const cssClass = concatArrays(["form-control"], defaultFields[key].class);
             col.firstChild.firstChild.appendChild(
                 elCreateEmpty('input', {"is": "mympd-input-password", "id": id,
-                    "value": settingsFields[key], "class": ["form-control"], "type": "password"})
+                    "value": settingsFields[key], "class": cssClass, "type": "password"})
             );
         }
         else if (defaultFields[key].inputType === 'color') {
             // color input with reset to default button
+            const cssClass = concatArrays(["form-control"], defaultFields[key].class);
             col.firstChild.firstChild.appendChild(
                 elCreateEmpty('input', {"is": "mympd-input-reset", "id": id, "data-default": defaultFields[key].defaultValue,
-                    "value": defaultFields[key].defaultValue, "class": ["form-control"], "type": defaultFields[key].inputType})
+                    "value": defaultFields[key].defaultValue, "class": cssClass, "type": defaultFields[key].inputType})
             );
         }
         else {
             // text input with reset to default button
+            const cssClass = concatArrays(["form-control"], defaultFields[key].class);
             const placeholder = defaultFields[key].placeholder !== undefined
                 ? defaultFields[key].placeholder
                 : defaultFields[key].defaultValue;
             col.firstChild.firstChild.appendChild(
                 elCreateEmpty('input', {"is": "mympd-input-reset", "id": id, "data-default": defaultFields[key].defaultValue,
-                    "placeholder": placeholder, "value": "", "class": ["form-control"], "type": defaultFields[key].inputType})
+                    "placeholder": placeholder, "value": "", "class": cssClass, "type": defaultFields[key].inputType})
             );
         }
         // unit

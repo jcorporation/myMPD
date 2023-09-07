@@ -65,7 +65,9 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
     do {
         if (partition_state->conn_state == MPD_CONNECTED) {
             //only connected partitions has a fd
-            mpd_idle_event_waiting = mympd_state->fds[i].revents & POLLIN ? true : false;
+            mpd_idle_event_waiting = mympd_state->fds[i].revents & POLLIN
+                ? true
+                : false;
             i++;
         }
         else {
