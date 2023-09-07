@@ -46,6 +46,7 @@ This release changes some API methods.
 - Upd: dependencies sds, utest, utf8
 - Fix: calculate correct position for jukebox list
 - Fix: calculate correct position for playlist content list
+- Fix: enable connection settings if myMPD can not connect to MPD #1102
 
 ***
 
