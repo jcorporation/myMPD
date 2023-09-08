@@ -23,6 +23,8 @@ The translation files are imported to a public POEditor project. You can [join t
 
 [GitHub discussion](https://github.com/jcorporation/myMPD/discussions/803)
 
+**Note:** There are some phrases that are only shortcuts for the full text. You can lookup the english phrase [here](https://github.com/jcorporation/myMPD/blob/master/src/i18n/json/en-US.json).
+
 ## Translation files
 
 Translations are defined in one file per language. The translation files resides under `<srcdir>/src/i18n/json` and are named by the language code, e.g. `en-US.json`.
