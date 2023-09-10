@@ -520,7 +520,7 @@ static struct mpd_song *album_from_mpack_node(mpack_node_t album_node, const str
         album->pos = mpack_node_uint(mpack_node_map_cstr(album_node, "Discs"));
         album->prio = mpack_node_uint(mpack_node_map_cstr(album_node, "Songs"));
         album->duration = mpack_node_uint(mpack_node_map_cstr(album_node, "Duration"));
-        album->last_modified = mpack_node_uint(mpack_node_map_cstr(album_node, "LastModified"));
+        album->last_modified = mpack_node_int(mpack_node_map_cstr(album_node, "LastModified"));
         album->duration_ms = album->duration * 1000;
         for (size_t i = 0; i < tagcols->len; i++) {
             enum mpd_tag_type tag = tagcols->tags[i];

@@ -88,12 +88,12 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds workdir) {
         size_t uri_len = mpack_node_strlen(uri_value_node);
         if (uri != NULL) {
             sticker = malloc_assert(sizeof(struct t_sticker));
-            sticker->play_count = mpack_node_uint(mpack_node_map_cstr(uri_node, "pc"));
-            sticker->skip_count = mpack_node_uint(mpack_node_map_cstr(uri_node, "sc"));
+            sticker->play_count = mpack_node_int(mpack_node_map_cstr(uri_node, "pc"));
+            sticker->skip_count = mpack_node_int(mpack_node_map_cstr(uri_node, "sc"));
             sticker->like = mpack_node_int(mpack_node_map_cstr(uri_node, "li"));
-            sticker->last_played = mpack_node_uint(mpack_node_map_cstr(uri_node, "lp"));
-            sticker->last_skipped = mpack_node_uint(mpack_node_map_cstr(uri_node, "ls"));
-            sticker->elapsed = mpack_node_uint(mpack_node_map_cstr(uri_node, "el"));
+            sticker->last_played = mpack_node_int(mpack_node_map_cstr(uri_node, "lp"));
+            sticker->last_skipped = mpack_node_int(mpack_node_map_cstr(uri_node, "ls"));
+            sticker->elapsed = mpack_node_int(mpack_node_map_cstr(uri_node, "el"));
             if (raxTryInsert(sticker_cache->cache, (unsigned char *)uri, uri_len, sticker, NULL) == 0) {
                 MYMPD_LOG_ERROR(NULL, "Duplicate uri in sticker cache file found");
                 FREE_PTR(sticker);
@@ -152,12 +152,12 @@ bool sticker_cache_write(struct t_cache *sticker_cache, sds workdir, bool free_d
         mpack_build_map(&writer);
         mpack_write_cstr(&writer, "uri");
         mpack_write_str(&writer, (char *)iter.key, (uint32_t)iter.key_len);
-        mpack_write_kv(&writer, "pc", (unsigned)sticker->play_count);
-        mpack_write_kv(&writer, "sc", (unsigned)sticker->skip_count);
+        mpack_write_kv(&writer, "pc", (int)sticker->play_count);
+        mpack_write_kv(&writer, "sc", (int)sticker->skip_count);
         mpack_write_kv(&writer, "li", (int)sticker->like);
-        mpack_write_kv(&writer, "lp", (uint64_t)sticker->last_played);
-        mpack_write_kv(&writer, "ls", (uint64_t)sticker->last_skipped);
-        mpack_write_kv(&writer, "el", (uint64_t)sticker->elapsed);
+        mpack_write_kv(&writer, "lp", (int)sticker->last_played);
+        mpack_write_kv(&writer, "ls", (int)sticker->last_skipped);
+        mpack_write_kv(&writer, "el", (int)sticker->elapsed);
         if (free_data == true) {
             FREE_PTR(iter.data);
         }
