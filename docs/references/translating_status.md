@@ -7,7 +7,7 @@
 - it-IT: 155 missing phrases
 - ja-JP: fully translated
 - ko-KR: 3 missing phrases
-- nl-NL: 155 missing phrases
+- nl-NL: fully translated
 - pl-PL: 970 missing phrases
 - ru-RU: 252 missing phrases
 - zh-Hans: fully translated
