@@ -55,7 +55,7 @@ static const char *const mympd_sticker_names[STICKER_COUNT] = {
  * @return bool true on success, else false
  */
 bool sticker_cache_remove(sds workdir) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s", workdir, FILENAME_ALBUMCACHE);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_TAGS, FILENAME_STICKERCACHE);
     int rc = try_rm_file(filepath);
     FREE_SDS(filepath);
     return rc == RM_FILE_ERROR ? false : true;
