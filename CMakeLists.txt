@@ -378,6 +378,7 @@ add_subdirectory("cli_tools")
 target_link_libraries(mympd
   libmympdclient
   mjson
+  mpack
   mongoose
   rax
   sds
