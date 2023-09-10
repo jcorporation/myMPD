@@ -5,16 +5,16 @@
 */
 
 #include "compile_time.h"
+#include "dist/mpack/mpack.h"
 #include "src/lib/sticker_cache.h"
 
 #include "src/lib/filehandler.h"
-#include "src/lib/jsonrpc.h"
 #include "src/lib/list.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
+#include "src/lib/mpack.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
-#include "src/lib/validate.h"
 #include "src/mpd_client/errorhandler.h"
 
 #include <errno.h>
@@ -30,8 +30,6 @@ static bool sticker_inc(struct t_cache *sticker_cache, struct t_partition_state 
         const char *uri, enum mympd_sticker_types sticker_type, long value);
 static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state *partition_state,
         const char *uri, enum mympd_sticker_types sticker_type, long long value);
-static sds sticker_to_cache_line(sds buffer, const char *uri, size_t uri_len, struct t_sticker *sticker);
-static struct t_sticker *sticker_from_cache_line(sds line, sds *uri);
 
 /**
  * myMPD sticker names
@@ -55,7 +53,7 @@ static const char *const mympd_sticker_names[STICKER_COUNT] = {
  * @return bool true on success, else false
  */
 bool sticker_cache_remove(sds workdir) {
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s", workdir, FILENAME_ALBUMCACHE);
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_TAGS, FILENAME_STICKERCACHE);
     int rc = try_rm_file(filepath);
     FREE_SDS(filepath);
     return rc == RM_FILE_ERROR ? false : true;
@@ -73,58 +71,126 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds workdir) {
         MEASURE_START
     #endif
     sticker_cache->building = true;
+    sticker_cache->cache = raxNew();
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_TAGS, FILENAME_STICKERCACHE);
-    errno = 0;
-    FILE *fp = fopen(filepath, OPEN_FLAGS_READ);
-    if (fp == NULL) {
-        MYMPD_LOG_DEBUG(NULL, "Can not open file \"%s\"", filepath);
-        if (errno != ENOENT) {
-            //ignore missing sticker cache file
-            MYMPD_LOG_ERRNO(NULL, errno);
-        }
-        FREE_SDS(filepath);
-        sticker_cache->building = false;
-        return false;
-    }
-    sds line = sdsempty();
-    if (sticker_cache->cache == NULL) {
-        sticker_cache->cache = raxNew();
-    }
-    while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
-        if (validate_json_object(line) == true) {
-            sds uri = NULL;
-            struct t_sticker *sticker = sticker_from_cache_line(line, &uri);
-            if (sticker != NULL) {
-                if (raxTryInsert(sticker_cache->cache, (unsigned char *)uri, sdslen(uri), sticker, NULL) == 0) {
-                    MYMPD_LOG_ERROR(NULL, "Duplicate uri in sticker cache file found");
-                    FREE_PTR(sticker);
-                }
-            }
-            else {
-                MYMPD_LOG_ERROR(NULL, "Reading sticker cache line failed");
-                MYMPD_LOG_DEBUG(NULL, "Erroneous line: %s", line);
-            }
-            FREE_SDS(uri);
-        }
-        else {
-            MYMPD_LOG_ERROR(NULL, "Reading sticker cache line failed");
-            MYMPD_LOG_DEBUG(NULL, "Erroneous line: %s", line);
-        }
-    }
-    FREE_SDS(line);
-    (void) fclose(fp);
+    mpack_tree_t tree;
+    mpack_tree_init_filename(&tree, filepath, 0);
+    mpack_tree_set_error_handler(&tree, log_mpack_node_error);
     FREE_SDS(filepath);
-    sticker_cache->building = false;
-    MYMPD_LOG_INFO(NULL, "Read %lld sticker struct(s) from disc", (long long)sticker_cache->cache->numele);
-    if (sticker_cache->cache->numele == 0) {
+    mpack_tree_parse(&tree);
+    mpack_node_t root = mpack_tree_root(&tree);
+    size_t len = mpack_node_array_length(root);
+    for (size_t i = 0; i < len; i++) {
+        mpack_node_t uri_node = mpack_node_array_at(root, i);
+        struct t_sticker *sticker = NULL;
+        mpack_node_t uri_value_node = mpack_node_map_cstr(uri_node, "uri");
+        const char *uri = mpack_node_str(uri_value_node);
+        size_t uri_len = mpack_node_strlen(uri_value_node);
+        if (uri != NULL) {
+            sticker = malloc_assert(sizeof(struct t_sticker));
+            sticker->play_count = mpack_node_uint(mpack_node_map_cstr(uri_node, "pc"));
+            sticker->skip_count = mpack_node_uint(mpack_node_map_cstr(uri_node, "sc"));
+            sticker->like = mpack_node_int(mpack_node_map_cstr(uri_node, "li"));
+            sticker->last_played = mpack_node_uint(mpack_node_map_cstr(uri_node, "lp"));
+            sticker->last_skipped = mpack_node_uint(mpack_node_map_cstr(uri_node, "ls"));
+            sticker->elapsed = mpack_node_uint(mpack_node_map_cstr(uri_node, "el"));
+            if (raxTryInsert(sticker_cache->cache, (unsigned char *)uri, uri_len, sticker, NULL) == 0) {
+                MYMPD_LOG_ERROR(NULL, "Duplicate uri in sticker cache file found");
+                FREE_PTR(sticker);
+            }
+        }
+    }
+    // clean up and check for errors
+    bool rc = mpack_tree_destroy(&tree) != mpack_ok
+        ? false
+        : true;
+    if (rc == false) {
+        MYMPD_LOG_ERROR("default", "An error occurred decoding the data");
         sticker_cache_remove(workdir);
         sticker_cache_free(sticker_cache);
     }
+    else {
+        MYMPD_LOG_INFO(NULL, "Read %lld sticker struct(s) from disc", (long long)sticker_cache->cache->numele);
+    }
+    sticker_cache->building = false;
     #ifdef MYMPD_DEBUG
         MEASURE_END
         MEASURE_PRINT(NULL, "Sticker cache read");
     #endif
-    return true;
+    return rc;
+}
+
+/**
+ * Saves the sticker cache to disc in msgpack format
+ * @param sticker_cache pointer to t_cache struct
+ * @param workdir myMPD working directory
+ * @param free_data true=free the album cache, else not
+ * @return bool true on success, else false
+ */
+bool sticker_cache_write(struct t_cache *sticker_cache, sds workdir, bool free_data) {
+    if (sticker_cache->cache == NULL) {
+        MYMPD_LOG_DEBUG(NULL, "Sticker cache is NULL not saving anything");
+        return true;
+    }
+    MYMPD_LOG_INFO(NULL, "Saving sticker cache to disc");
+    // init mpack
+    mpack_writer_t writer;
+    raxIterator iter;
+    raxStart(&iter, sticker_cache->cache);
+    raxSeek(&iter, "^", NULL, 0);
+    sds tmp_file = sdscatfmt(sdsempty(), "%S/%s/%s.XXXXXX", workdir, DIR_WORK_TAGS, FILENAME_STICKERCACHE);
+    FILE *fp = open_tmp_file(tmp_file);
+    if (fp == NULL) {
+        FREE_SDS(tmp_file);
+        return false;
+    }
+    mpack_writer_init_stdfile(&writer, fp, true);
+    mpack_writer_set_error_handler(&writer, log_mpack_write_error);
+    mpack_start_array(&writer, (uint32_t)sticker_cache->cache->numele);
+    while (raxNext(&iter)) {
+        struct t_sticker *sticker = (struct t_sticker *)iter.data;
+        mpack_build_map(&writer);
+        mpack_write_cstr(&writer, "uri");
+        mpack_write_str(&writer, (char *)iter.key, (uint32_t)iter.key_len);
+        mpack_write_kv(&writer, "pc", (unsigned)sticker->play_count);
+        mpack_write_kv(&writer, "sc", (unsigned)sticker->skip_count);
+        mpack_write_kv(&writer, "li", (int)sticker->like);
+        mpack_write_kv(&writer, "lp", (uint64_t)sticker->last_played);
+        mpack_write_kv(&writer, "ls", (uint64_t)sticker->last_skipped);
+        mpack_write_kv(&writer, "el", (uint64_t)sticker->elapsed);
+        if (free_data == true) {
+            FREE_PTR(iter.data);
+        }
+        mpack_complete_map(&writer);
+    }
+    raxStop(&iter);
+    mpack_finish_array(&writer);
+    if (free_data == true) {
+        raxFree(sticker_cache->cache);
+        sticker_cache->cache = NULL;
+    }
+    // finish writing
+    bool rc = mpack_writer_destroy(&writer) != mpack_ok
+        ? false
+        : true;
+    if (rc == false) {
+        rm_file(tmp_file);
+        MYMPD_LOG_ERROR("default", "An error occurred encoding the data");
+        FREE_SDS(tmp_file);
+        return false;
+    }
+    // rename tmp file
+    sds filepath = sdscatlen(sdsempty(), tmp_file, sdslen(tmp_file) - 7);
+    errno = 0;
+    if (rename(tmp_file, filepath) == -1) {
+        MYMPD_LOG_ERROR(NULL, "Rename file from \"%s\" to \"%s\" failed", tmp_file, filepath);
+        MYMPD_LOG_ERRNO(NULL, errno);
+        rm_file(tmp_file);
+        rc = false;
+    }
+    FREE_SDS(filepath);
+    FREE_SDS(tmp_file);
+    return rc;
 }
 
 /**
@@ -154,52 +220,6 @@ enum mympd_sticker_types sticker_name_parse(const char *name) {
         }
     }
     return STICKER_UNKNOWN;
-}
-
-/**
- * Saves the sticker cache to disc as a njson file
- * @param sticker_cache pointer to t_cache struct
- * @param workdir myMPD working directory
- * @param free_data true=free the album cache, else not
- * @return bool true on success, else false
- */
-bool sticker_cache_write(struct t_cache *sticker_cache, sds workdir, bool free_data) {
-    if (sticker_cache->cache == NULL) {
-        MYMPD_LOG_DEBUG(NULL, "Sticker cache is NULL not saving anything");
-        return true;
-    }
-    MYMPD_LOG_INFO(NULL, "Saving sticker cache to disc");
-    raxIterator iter;
-    raxStart(&iter, sticker_cache->cache);
-    raxSeek(&iter, "^", NULL, 0);
-    sds tmp_file = sdscatfmt(sdsempty(), "%S/%s/%s.XXXXXX", workdir, DIR_WORK_TAGS, FILENAME_STICKERCACHE);
-    FILE *fp = open_tmp_file(tmp_file);
-    if (fp == NULL) {
-        FREE_SDS(tmp_file);
-        return false;
-    }
-    bool write_rc = true;
-    sds line = sdsempty();
-
-    while (raxNext(&iter)) {
-        sdsclear(line);
-        line = sticker_to_cache_line(line, (char *)iter.key, iter.key_len, (struct t_sticker *)iter.data);
-        if (fputs(line, fp) == EOF) {
-            write_rc = false;
-        }
-        if (free_data == true) {
-            FREE_PTR(iter.data);
-        }
-    }
-    FREE_SDS(line);
-    raxStop(&iter);
-    if (free_data == true) {
-        raxFree(sticker_cache->cache);
-        sticker_cache->cache = NULL;
-    }
-    bool rc = rename_tmp_file(fp, tmp_file, write_rc);
-    FREE_SDS(tmp_file);
-    return rc;
 }
 
 /** Gets the sticker struct from sticker cache
@@ -479,47 +499,4 @@ static bool sticker_set(struct t_cache *sticker_cache, struct t_partition_state 
     mpd_run_sticker_set(partition_state->conn, "song", uri, sticker_str, value_str);
     FREE_SDS(value_str);
     return mympd_check_error_and_recover(partition_state, NULL, "mpd_run_sticker_set");
-}
-
-/**
- * Prints a sticker struct for the cache
- * @param buffer already allocated sds string to append
- * @param uri mpd song uri
- * @param uri_len mpd song uri length
- * @param sticker pointer to sticker struct
- * @return sds pointer to buffer
- */
-static sds sticker_to_cache_line(sds buffer, const char *uri, size_t uri_len, struct t_sticker *sticker) {
-    buffer = sdscatlen(buffer, "{", 1);
-    buffer = tojson_char_len(buffer, "uri", (char *)uri, uri_len, true);
-    buffer = tojson_long(buffer, "pc", sticker->play_count, true);
-    buffer = tojson_long(buffer, "sc", sticker->skip_count, true);
-    buffer = tojson_long(buffer, "li", sticker->like, true);
-    buffer = tojson_time(buffer, "lp", sticker->last_played, true);
-    buffer = tojson_time(buffer, "ls", sticker->last_skipped, true);
-    buffer = tojson_time(buffer, "el", sticker->elapsed, false);
-    buffer = sdscatlen(buffer, "}\n", 2);
-    return buffer;
-}
-
-/**
- * Creates a sticker struct from cache
- * @param line json line to parse
- * @param uri mpd song uri for the sticker
- * @return struct t_sticker* allocated t_sticker struct
- */
-static struct t_sticker *sticker_from_cache_line(sds line, sds *uri) {
-    struct t_sticker *sticker = malloc_assert(sizeof(struct t_sticker));
-    if (json_get_string(line, "$.uri", 1, FILEPATH_LEN_MAX, uri, vcb_isfilepath, NULL) == false ||
-        json_get_long_max(line, "$.pc", &sticker->play_count, NULL) == false ||
-        json_get_long_max(line, "$.sc", &sticker->skip_count, NULL) == false ||
-        json_get_long_max(line, "$.li", &sticker->like, NULL) == false ||
-        json_get_time_max(line, "$.lp", &sticker->last_played, NULL) == false ||
-        json_get_time_max(line, "$.ls", &sticker->last_skipped, NULL) == false ||
-        json_get_time_max(line, "$.el", &sticker->elapsed, NULL) == false)
-    {
-        FREE_PTR(sticker);
-        sticker = NULL;
-    }
-    return sticker;
 }

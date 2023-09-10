@@ -71,7 +71,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define FILENAME_HOME "home_list"
 #define FILENAME_LAST_PLAYED "last_played_list"
 #define FILENAME_PRESETS "preset_list"
-#define FILENAME_STICKERCACHE "sticker_cache"
+#define FILENAME_STICKERCACHE "sticker_cache.mpack"
 #define FILENAME_TIMER "timer_list"
 #define FILENAME_TRIGGER "trigger_list"
 #define FILENAME_WEBRADIODB "webradiodb-combined.min.json"
