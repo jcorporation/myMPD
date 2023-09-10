@@ -112,6 +112,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
     else {
         MYMPD_LOG_INFO(NULL, "Read %lld album(s) from disc", (long long)album_cache->cache->numele);
     }
+    FREE_PTR(album_tags);
     album_cache->building = false;
     #ifdef MYMPD_DEBUG
         MEASURE_END
