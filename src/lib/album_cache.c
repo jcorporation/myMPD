@@ -96,16 +96,20 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
     if (album_cache->cache == NULL) {
         album_cache->cache = raxNew();
     }
+    sds key = sdsempty();
     while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
         if (validate_json_object(line) == true) {
             struct mpd_song *album = album_from_cache_line(line, album_tags);
             if (album != NULL) {
-                sds key = album_cache_get_key(album);
+                key = album_cache_get_key(key, album);
+                if (sdslen(key) == 0) {
+                    mpd_song_free(album);
+                    continue;
+                }
                 if (raxTryInsert(album_cache->cache, (unsigned char *)key, sdslen(key), album, NULL) == 0) {
                     MYMPD_LOG_ERROR(NULL, "Duplicate key in album cache file found: %s", key);
                     mpd_song_free(album);
                 }
-                FREE_SDS(key);
             }
             else {
                 MYMPD_LOG_ERROR(NULL, "Reading album cache line failed");
@@ -117,6 +121,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
             MYMPD_LOG_DEBUG(NULL, "Erroneous line: %s", line);
         }
     }
+    FREE_SDS(key);
     FREE_SDS(line);
     (void) fclose(fp);
     FREE_PTR(album_tags);
@@ -194,11 +199,12 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_
 
 /**
  * Constructs the albumkey from song info
+ * @param albumkey already allocated sds string to set the key
  * @param song mpd song struct
- * @return pointer to newly allocated albumkey (sds)
+ * @return pointer to changed albumkey
  */
-sds album_cache_get_key(const struct mpd_song *song) {
-    sds albumkey = sdsempty();
+sds album_cache_get_key(sds albumkey, const struct mpd_song *song) {
+    sdsclear(albumkey);
     // use MusicBrainz album id
     const char *mb_album_id = mpd_song_get_tag(song, MPD_TAG_MUSICBRAINZ_ALBUMID, 0);
     if (mb_album_id != NULL &&

@@ -305,7 +305,7 @@ sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
             buffer = sdscatlen(buffer, ",", 1);
         }
         if (is_streamuri(uri) == false) {
-            sds albumid = album_cache_get_key(song);
+            sds albumid = album_cache_get_key(sdsempty(), song);
             buffer = tojson_sds(buffer, "AlbumId", albumid, true);
             FREE_SDS(albumid);
         }
