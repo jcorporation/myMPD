@@ -19,6 +19,7 @@ set(TEST_SOURCES
   ../src/lib/lua_mympd_state.c
   ../src/lib/m3u.c
   ../src/lib/mimetype.c
+  ../src/lib/mpack.c
   ../src/lib/msg_queue.c
   ../src/lib/mympd_state.c
   ../src/lib/random.c
@@ -100,6 +101,7 @@ target_compile_options(unit_test
 target_link_libraries(unit_test
   libmympdclient
   mjson
+  mpack
   mongoose
   rax
   sds
