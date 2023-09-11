@@ -1091,5 +1091,7 @@
     "Enforce disc tag": "디스크 태그 적용",
     "Neighbors": "이웃",
     "Show neighbors": "이웃 보기",
-    "Open playback settings": ""
+    "Open playback settings": "연주 설정 열기",
+    "helpScriptArguments": "helpScriptArguments",
+    "helpTimerPreset": "helpTimerPreset"
 }
