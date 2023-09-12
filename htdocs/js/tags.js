@@ -419,9 +419,7 @@ function addMusicbrainzFields(songObj, showArtists) {
         elCreateTextTn('small', {}, 'MusicBrainz')
     );
 
-    if (songObj.MUSICBRAINZ_RELEASEGROUPID !== undefined &&
-        songObj.MUSICBRAINZ_RELEASEGROUPID !== '-')
-    {
+    if (isEmptyTag(songObj.MUSICBRAINZ_RELEASEGROUPID) === false) {
         //use releasegroupid
         const albumLink = getMBtagLink('MUSICBRAINZ_RELEASEGROUPID', songObj.MUSICBRAINZ_RELEASEGROUPID);
         albumLink.textContent = tn('Goto album');
@@ -429,9 +427,7 @@ function addMusicbrainzFields(songObj, showArtists) {
             elCreateNode('p', {"class": ["mb-1"]}, albumLink)
         );
     }
-    else if (songObj.MUSICBRAINZ_ALBUMID !== undefined &&
-             songObj.MUSICBRAINZ_ALBUMID !== '-')
-    {
+    else if (isEmptyTag(songObj.MUSICBRAINZ_ALBUMID) === false) {
         //fallback to albumid
         const albumLink = getMBtagLink('MUSICBRAINZ_ALBUMID', songObj.MUSICBRAINZ_ALBUMID);
         albumLink.textContent = tn('Goto album');
