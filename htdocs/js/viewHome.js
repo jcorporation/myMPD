@@ -86,9 +86,11 @@ function parseHomeIcons(obj) {
         const homeType = getHomeIconType(obj.result.data[i].cmd, obj.result.data[i].options[0]);
         const actionType = friendlyActions[obj.result.data[i].cmd];
 
-        // second option must be an array
-        if (obj.result.data[i].options[1] !== undefined) {
-            obj.result.data[i].options[1] = [obj.result.data[i].options[1]];
+        if (obj.result.data[i].cmd !== 'appGoto') {
+            // second option must be an array
+            if (obj.result.data[i].options[1] !== undefined) {
+                obj.result.data[i].options[1] = [obj.result.data[i].options[1]];
+            }
         }
 
         const col = elCreateEmpty('div', {"class": ["col", "px-0", "flex-grow-0"]});
