@@ -245,7 +245,9 @@ bool search_song_expression(const struct mpd_song *song, const struct t_list *ex
             }
             if (j == 0) {
                 //no tag value found
-                rc = false;
+                rc = expr->op == SEARCH_OP_NOT_EQUAL || expr->op == SEARCH_OP_NOT_REGEX
+                    ? true
+                    : false;
             }
             if (rc == true) {
                 //exit on first tag value match
