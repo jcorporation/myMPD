@@ -411,7 +411,9 @@ function addMusicbrainzFields(songObj, showArtists) {
         return null;
     }
 
-    const artist = showArtists === false ? 'MUSICBRAINZ_ALBUMARTISTID' : 'MUSICBRAINZ_ARTISTID';
+    const artist = showArtists === false
+        ? 'MUSICBRAINZ_ALBUMARTISTID'
+        : 'MUSICBRAINZ_ARTISTID';
 
     const mbField = elCreateNode('div', {"class": ["col-xl-6"]},
         elCreateTextTn('small', {}, 'MusicBrainz')
@@ -444,6 +446,11 @@ function addMusicbrainzFields(songObj, showArtists) {
             artistLink.textContent = artist === 'MUSICBRAINZ_ALBUMARTISTID'
                 ? songObj.AlbumArtist[i]
                 : songObj.Artist[i];
+            if (artistLink.textContent === '') {
+                // skip empty tag values
+                // count of mbids and artists are not equal
+                continue;
+            }
             mbField.appendChild(
                 elCreateNode('p', {"class": ["mb-1"]}, artistLink)
             );
