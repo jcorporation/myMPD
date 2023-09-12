@@ -164,7 +164,7 @@ function parseDatabaseAlbumList(obj) {
     let cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
         if (cols[i] !== undefined &&
-            getData(cols[i].firstChild.firstChild, 'AlbumId') === obj.result.data[i].AlbumId)
+            getData(cols[i].firstChild, 'AlbumId') === obj.result.data[i].AlbumId)
         {
             continue;
         }
@@ -273,7 +273,7 @@ function saveColsDatabaseAlbumList() {
     let cols = cardContainer.querySelectorAll('.col');
     for (let i = 0; i < nrItems; i++) {
         if (cols[i] !== undefined &&
-            getData(cols[i].firstChild.firstChild,'tag') === obj.result.data[i].value)
+            getData(cols[i].firstChild,'tag') === obj.result.data[i].value)
         {
             continue;
         }
