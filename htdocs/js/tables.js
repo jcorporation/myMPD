@@ -443,7 +443,7 @@ function setColsChecklist(tableName, menu) {
         else {
             const btnId = tableName + tags[i] + 'Col';
             const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-sm", "me-2"],
-                "id": btnId}, 'radio_button_unchecked');
+                "id": btnId, "name": tags[i]}, 'radio_button_unchecked');
             if (settings['cols' + tableName].includes(tags[i])) {
                 btn.classList.add('active');
                 btn.textContent = 'check';
