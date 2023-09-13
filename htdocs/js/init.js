@@ -284,18 +284,25 @@ function appInit() {
         if (positionClass === 'dropdown') {
             dropdown.parentNode.addEventListener('updated.bs.dropdown', function(event) {
                 const menu = event.target.querySelector('.dropdown-menu');
+                // reset styles
                 menu.style.removeProperty('overflow-y');
                 menu.style.removeProperty('overflow-x');
                 menu.style.removeProperty('max-height');
+                // prevent vertical overflow
                 const menuHeight = menu.offsetHeight;
-                const offset = getYpos(menu);
+                const offsetY = getYpos(menu);
                 const scrollY = getScrollPosY(dropdown);
-                const bottomPos = window.innerHeight + scrollY - menuHeight - offset;
+                const bottomPos = window.innerHeight + scrollY - menuHeight - offsetY;
                 if (bottomPos < 0) {
                     menu.style.overflowY = 'auto';
                     menu.style.overflowX = 'hidden';
                     const maxHeight = menuHeight + bottomPos - 10;
                     menu.style.maxHeight = `${maxHeight}px`;
+                }
+                // prevent horizontal overflow
+                const offsetX = getXpos(menu);
+                if (offsetX < 0) {
+                    menu.style.left = 0;
                 }
             }, false);
         }
@@ -304,6 +311,7 @@ function appInit() {
     window.addEventListener('focus', function() {
         logDebug('Browser tab gots the focus -> update player state');
         sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState, false);
+        websocketKeepAlive();
     }, false);
     //global keymap
     document.addEventListener('keydown', function(event) {

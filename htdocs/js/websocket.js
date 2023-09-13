@@ -249,7 +249,15 @@ function webSocketClose() {
  */
 function websocketKeepAlive() {
     if (getWebsocketState() === true) {
-        socket.send('ping');
+        try {
+            socket.send('ping');
+        }
+        catch(error) {
+            showNotification(tn('myMPD connection failed, trying to reconnect'), 'general', 'error');
+            logError(error);
+            webSocketClose();
+            webSocketConnect();
+        }
     }
     else {
         logDebug('Reconnecting websocket');
