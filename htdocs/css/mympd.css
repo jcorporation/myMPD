@@ -875,7 +875,7 @@ div.album-grid-mouseover:hover {
   background-color: var(--mympd-highlightcolor);
 }
 
-.page-dropdown {
+.dropdownWide {
   width: 20rem;
 }
 
@@ -975,10 +975,6 @@ button.select-inner-button {
 
 .sort-desc::before {
   content: 'arrow_drop_up';
-}
-
-.dropdownWide {
-  min-width: 20rem;
 }
 
 div.alert-warning::before,

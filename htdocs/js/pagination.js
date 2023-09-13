@@ -125,7 +125,7 @@ function createPaginationEls(totalPages, curPage) {
 
     const pageDropdownBtn = elCreateText('button', {"type": "button", "data-bs-toggle": "dropdown",
         "class": ["rounded-end-0", "btn", "btn-secondary", "dropdown-toggle", "px-2"]}, curPage.toString());
-    const pageDropdownMenu = elCreateEmpty('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "page-dropdown", "dropdown-menu-dark"]});
+    const pageDropdownMenu = elCreateEmpty('div', {"class": ["dropdown-menu", "px-2", "dropdownWide"]});
 
     const row = elCreateNodes('div', {"class": ["row"]}, [
         elCreateTextTn('label', {"class": ["col-8", "col-form-label"]}, 'Elements per page'),
