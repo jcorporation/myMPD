@@ -234,7 +234,7 @@ function parseSongDetails(obj) {
                     thDown,
                     thUp
                 ]);
-                setData(grp, 'href', {"cmd": "voteSong", "options": []});
+                setData(grp, 'href', {"cmd": "voteSong", "options": ["target"]});
                 setData(grp, 'uri', obj.result.uri);
                 tbody.appendChild(
                     elCreateNodes('tr', {}, [
