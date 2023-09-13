@@ -311,6 +311,7 @@ function appInit() {
     window.addEventListener('focus', function() {
         logDebug('Browser tab gots the focus -> update player state');
         sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState, false);
+        websocketKeepAlive();
     }, false);
     //global keymap
     document.addEventListener('keydown', function(event) {
