@@ -10,6 +10,8 @@ This is a small bug fix release.
 
 ## Changelog
 
+- Fix: listing of outputs to move to current partition #1106
+
 ***
 
 ## myMPD v12.0.1 (2023-09-15)
