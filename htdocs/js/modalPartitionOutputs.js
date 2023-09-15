@@ -31,7 +31,7 @@ function initModalPartitionOutputs() {
             }
             allOutputs = obj.result.data;
             //get partition specific outputs
-            sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function() {
+            sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
                 parsePartitionOutputsList(obj);
                 uiElements.modalPartitionOutputs.show();
             }, true);
