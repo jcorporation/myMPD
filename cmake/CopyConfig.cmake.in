@@ -2,28 +2,30 @@
 # myMPD (c) 2018-2023 Juergen Mang <mail@jcgames.de>
 # https://github.com/jcorporation/mympd
 
-# Install startup script
-if(EXISTS "/lib/systemd/system" OR EXISTS "/usr/lib/systemd/system")
-  #Install systemd unit
-  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service"
-       DESTINATION "/usr/lib/systemd/system"
-       FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
-elseif(EXISTS "/sbin/openrc-run")
-  #Install openrc script
-  file(RENAME "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.openrc"
-              "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd")
-  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
-       DESTINATION "/etc/init.d"
-       FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-elseif(EXISTS "/etc/init.d")
-  #Install sysVinit script
-  file(RENAME "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.sysVinit"
-              "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd")
-  file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
-       DESTINATION "/etc/init.d"
-       FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
-else()
-  message("No supported init system found, no startup script was installed")
+if("@MYMPD_STARTUP_SCRIPT@" STREQUAL "ON")
+  # Install startup script
+  if(EXISTS "/lib/systemd/system" OR EXISTS "/usr/lib/systemd/system")
+    #Install systemd unit
+    file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.service"
+        DESTINATION "/usr/lib/systemd/system"
+        FILE_PERMISSIONS OWNER_WRITE OWNER_READ GROUP_READ WORLD_READ)
+  elseif(EXISTS "/sbin/openrc-run")
+    #Install openrc script
+    file(RENAME "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.openrc"
+                "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd")
+    file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
+        DESTINATION "/etc/init.d"
+        FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+  elseif(EXISTS "/etc/init.d")
+    #Install sysVinit script
+    file(RENAME "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd.sysVinit"
+                "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd")
+    file(INSTALL "@CMAKE_CURRENT_BINARY_DIR@/contrib/initscripts/mympd"
+        DESTINATION "/etc/init.d"
+        FILE_PERMISSIONS OWNER_WRITE OWNER_READ OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE)
+  else()
+    message("No supported init system found, no startup script was installed")
+  endif()
 endif()
 
 # Install and compress manpages

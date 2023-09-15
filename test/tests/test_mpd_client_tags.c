@@ -57,12 +57,12 @@ struct mpd_song *new_song(void) {
 
 UTEST(album_cache, test_album_cache_get_key) {
     struct mpd_song *song = new_song();
-    sds key = album_cache_get_key(song);
+    sds key = album_cache_get_key(sdsempty(), song);
     ASSERT_STREQ("3efe3b6f830dbcf2a14cd563be79ce37605ef493", key);
     sdsfree(key);
 
     mympd_mpd_song_add_tag_dedup(song, MPD_TAG_MUSICBRAINZ_ALBUMID, "0c50c04e-994b-4e63-b969-ea82e6b36d3b");
-    key = album_cache_get_key(song);
+    key = album_cache_get_key(sdsempty(), song);
     ASSERT_STREQ("0c50c04e-994b-4e63-b969-ea82e6b36d3b", key);
     sdsfree(key);
 
@@ -197,10 +197,10 @@ UTEST(mpd_client_tags, test_mpd_client_get_tag_values) {
     ASSERT_STREQ("\"Tabula Rasa\"", s);
     sdsclear(s);
     s = mpd_client_get_tag_values(song, MPD_TAG_PERFORMER, s);
-    ASSERT_STREQ("[\"-\"]", s);
+    ASSERT_STREQ("[]", s);
     sdsclear(s);
     s = mpd_client_get_tag_values(song, MPD_TAG_DATE, s);
-    ASSERT_STREQ("\"-\"", s);
+    ASSERT_STREQ("\"\"", s);
     sdsfree(s);
     mpd_song_free(song);
 }

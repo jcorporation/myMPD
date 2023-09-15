@@ -12,7 +12,7 @@
  */
 //eslint-disable-next-line no-unused-vars
 function switchGridMode(target) {
-    const grid = document.getElementById(app.id + 'List');
+    const grid = elGetById(app.id + 'List');
     const mode = grid.getAttribute('data-mode');
 
     if (mode === null) {
@@ -71,7 +71,7 @@ function selectCard(event) {
         mode === null)
     {
         //enable select mode
-        switchGridMode(document.getElementById('btn' + app.id + 'SelectMode'));
+        switchGridMode(elGetById('btn' + app.id + 'SelectMode'));
     }
     else if (mode === null) {
         return false;
@@ -141,8 +141,8 @@ function selectSingleCard(card, select) {
  * @returns {void}
  */
 function showGridSelectionCount() {
-    const grid = document.getElementById(app.id + 'List');
-    const dropdown = document.querySelector('#dropdown' + app.id + 'Selection');
+    const grid = elGetById(app.id + 'List');
+    const dropdown = document.querySelector('#' + app.id + 'SelectionDropdown');
     const cards = grid.querySelectorAll('div > div.selected');
     const count = cards.length;
     dropdown.querySelector('small').textContent = count + ' ' + tn('selected');
@@ -155,4 +155,29 @@ function showGridSelectionCount() {
             btn.removeAttribute('disabled');
         }
     }
+}
+
+/**
+ * Central grid click handler.
+ * Handles clicks on table header and body.
+ * @param {MouseEvent} event the event to handle
+ * @returns {HTMLElement} the event target (card-body) to handle or null if it was handled or should not be handled
+ */
+function gridClickHandler(event) {
+    if (event.target.classList.contains('row')) {
+        return null;
+    }
+    //select mode
+    if (selectCard(event) === true) {
+        return null;
+    }
+    const target = event.target.closest('DIV');
+    if (target === null) {
+        return null;
+    }
+    if (target.classList.contains('card-footer')){
+        showContextMenu(event);
+        return null;
+    }
+    return target;
 }

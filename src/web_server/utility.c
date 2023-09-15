@@ -381,6 +381,9 @@ bool webserver_serve_embedded_files(struct mg_connection *nc, sds uri) {
         {"/assets/appicon-192.png", "image/png", false, true, appicon_192_png_data, appicon_192_png_size},
         {"/assets/appicon-512.png", "image/png", false, true, appicon_512_png_data, appicon_512_png_size},
         {"/assets/ligatures.json", "application/json", true, true, ligatures_json_data, ligatures_json_size},
+        #ifdef I18N_bg_BG
+            {"/assets/i18n/bg-BG.json", "application/json", true, true, i18n_bg_BG_json_data, i18n_bg_BG_json_size},
+        #endif
         #ifdef I18N_de_DE
             {"/assets/i18n/de-DE.json", "application/json", true, true, i18n_de_DE_json_data, i18n_de_DE_json_size},
         #endif

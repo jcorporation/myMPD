@@ -42,9 +42,23 @@
 #include <pwd.h>
 #include <signal.h>
 
-#ifdef MYMPD_ENABLE_LIBASAN
+// sanitizers
+
+#ifdef MYMPD_ENABLE_ASAN
 const char *__asan_default_options(void) {
-    return "detect_stack_use_after_return=true";
+    return "abort_on_error=1:fast_unwind_on_malloc=0:detect_stack_use_after_return=1";
+}
+#endif
+
+#ifdef MYMPD_ENABLE_TSAN
+const char *__asan_default_options(void) {
+    return "abort_on_error=1";
+}
+#endif
+
+#ifdef MYMPD_ENABLE_UBSAN
+const char *__asan_default_options(void) {
+    return "abort_on_error=1:print_stacktrace=1";
 }
 #endif
 

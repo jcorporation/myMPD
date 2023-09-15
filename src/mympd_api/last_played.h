@@ -12,5 +12,5 @@
 bool mympd_api_last_played_add_song(struct t_partition_state *partition_state, int song_id);
 bool mympd_api_last_played_file_save(struct t_partition_state *partition_state);
 sds mympd_api_last_played_list(struct t_partition_state *partition_state, sds buffer,
-        long request_id, long offset, long limit, sds searchstr, const struct t_tags *tagcols);
+        long request_id, long offset, long limit, sds expression, const struct t_tags *tagcols);
 #endif

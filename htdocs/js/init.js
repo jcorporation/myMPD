@@ -15,7 +15,7 @@
  * @returns {void}
  */
  function showAppInitAlert(text) {
-    const spa = document.getElementById('splashScreenAlert');
+    const spa = elGetById('splashScreenAlert');
     elClear(spa);
     spa.appendChild(
         elCreateTextTn('p', {"class": ["text-light"]}, text)
@@ -65,6 +65,7 @@ function clearAndReload() {
  * @returns {void}
  */
 function appInitStart() {
+    getAssets();
     //add app routing event handler
     window.addEventListener('hashchange', function() {
         if (app.goto === false) {
@@ -74,6 +75,9 @@ function appInitStart() {
             app.goto = false;
         }
     }, false);
+
+    // create pre-generated elements
+    createPreGeneratedElements();
 
     //webapp manifest shortcuts
     const params = new URLSearchParams(window.location.search);
@@ -88,6 +92,7 @@ function appInitStart() {
         case 'clickNext':
             clickNext();
             break;
+        // No Default
     }
 
     //update table height on window resize
@@ -96,7 +101,7 @@ function appInitStart() {
             clearTimeout(resizeTimer);
         }
         resizeTimer = setTimeout(function() {
-            const list = document.getElementById(app.id + 'List');
+            const list = elGetById(app.id + 'List');
             if (list) {
                 setScrollViewHeight(list);
             }
@@ -106,7 +111,7 @@ function appInitStart() {
 
     setMobileView();
 
-    i18nHtml(document.getElementById('splashScreenAlert'));
+    i18nHtml(elGetById('splashScreenAlert'));
 
     //set loglevel
     if (debugMode === true) {
@@ -153,7 +158,7 @@ function appInitStart() {
     //show splash screen
     elShowId('splashScreen');
     domCache.body.classList.add('overflow-hidden');
-    document.getElementById('splashScreenAlert').textContent = tn('Fetch myMPD settings');
+    elGetById('splashScreenAlert').textContent = tn('Fetch myMPD settings');
 
     //initialize app
     appInited = false;
@@ -166,11 +171,11 @@ function appInitStart() {
                 webSocketConnect();
             }, 0);
             //app initialized
-            document.getElementById('splashScreenAlert').textContent = tn('Applying settings');
-            document.getElementById('splashScreen').classList.add('hide-fade');
+            elGetById('splashScreenAlert').textContent = tn('Applying settings');
+            elGetById('splashScreen').classList.add('hide-fade');
             setTimeout(function() {
                 elHideId('splashScreen');
-                document.getElementById('splashScreen').classList.remove('hide-fade');
+                elGetById('splashScreen').classList.remove('hide-fade');
                 domCache.body.classList.remove('overflow-hidden');
             }, 500);
             appInit();
@@ -186,7 +191,6 @@ function appInitStart() {
  * @returns {void}
  */
 function appInit() {
-    getAssets();
     //init links
     const hrefs = document.querySelectorAll('[data-href]');
     for (const href of hrefs) {
@@ -211,37 +215,45 @@ function appInit() {
         hidePopover();
     }, false);
     //init modules
-    initGlobalModals();
-    initSong();
-    initHome();
     initBrowse();
-    initBrowseDatabase();
-    initBrowseFilesystem();
-    initBrowseRadioFavorites();
-    initBrowseRadioRadiobrowser();
-    initBrowseRadioWebradiodb();
-    initQueueCurrent();
-    initQueueJukebox();
-    initQueueLastPlayed();
-    initSearch();
-    initScripts();
-    initTrigger();
-    initTimer();
-    initPartitions();
-    initMounts();
-    initSettings();
-    initSettingsConnection();
-    initSettingsPlayback();
-    initMaintenance();
-    initPlayback();
-    initNavs();
-    initPlaylists();
-    initOutputs();
-    initLocalPlayback();
-    initSession();
-    initNotifications();
     initContextMenuOffcanvas();
+    initLocalPlayback();
+    initModalAbout();
+    initModalEnterPin();
+    initModalHomeIcon();
+    initModalMaintenance();
+    initModalMounts();
+    initModalNotifications();
+    initModalPartitionOutputs();
+    initModalPartitions();
+    initModalPlaylistAddTo();
+    initModalQueueAddTo();
+    initModalQueueSave();
+    initModalRadioFavoriteEdit();
+    initModalSettings();
+    initModalSettingsConnection();
+    initModalSettingsPlayback();
+    initModalScripts();
+    initModalSongDetails();
+    initModalTimer();
+    initModalTrigger();
+    initNavs();
+    initOutputs();
+    initViewBrowseDatabase();
+    initViewBrowseFilesystem();
+    initViewBrowseRadioFavorites();
+    initViewBrowseRadioRadiobrowser();
+    initViewBrowseRadioWebradiodb();
+    initViewHome();
+    initViewPlayback();
+    initViewPlaylists();
+    initPresets();
     initSelectActions();
+    initViewQueueCurrent();
+    initViewQueueJukebox('QueueJukeboxSong');
+    initViewQueueJukebox('QueueJukeboxAlbum');
+    initViewQueueLastPlayed();
+    initViewSearch();
     //init drag and drop
     for (const table of ['QueueCurrentList', 'BrowsePlaylistDetailList']) {
         dragAndDropTable(table);
@@ -249,7 +261,8 @@ function appInit() {
     const dndTableHeader = [
         'QueueCurrent',
         'QueueLastPlayed',
-        'QueueJukebox',
+        'QueueJukeboxSong',
+        'QueueJukeboxAlbum',
         'Search',
         'BrowseFilesystem',
         'BrowsePlaylistDetail',
@@ -265,22 +278,31 @@ function appInit() {
     //add bootstrap native updated event listeners for dropdowns
     const dropdowns = document.querySelectorAll('[data-bs-toggle="dropdown"]');
     for (const dropdown of dropdowns) {
-        const positionClass = dropdown.parentNode.classList.contains('dropup') ? 'dropup' : 'dropdown';
+        const positionClass = dropdown.parentNode.classList.contains('dropup')
+            ? 'dropup'
+            : 'dropdown';
         if (positionClass === 'dropdown') {
             dropdown.parentNode.addEventListener('updated.bs.dropdown', function(event) {
                 const menu = event.target.querySelector('.dropdown-menu');
+                // reset styles
                 menu.style.removeProperty('overflow-y');
                 menu.style.removeProperty('overflow-x');
                 menu.style.removeProperty('max-height');
+                // prevent vertical overflow
                 const menuHeight = menu.offsetHeight;
-                const offset = getYpos(menu);
+                const offsetY = getYpos(menu);
                 const scrollY = getScrollPosY(dropdown);
-                const bottomPos = window.innerHeight + scrollY - menuHeight - offset;
+                const bottomPos = window.innerHeight + scrollY - menuHeight - offsetY;
                 if (bottomPos < 0) {
                     menu.style.overflowY = 'auto';
                     menu.style.overflowX = 'hidden';
                     const maxHeight = menuHeight + bottomPos - 10;
                     menu.style.maxHeight = `${maxHeight}px`;
+                }
+                // prevent horizontal overflow
+                const offsetX = getXpos(menu);
+                if (offsetX < 0) {
+                    menu.style.left = 0;
                 }
             }, false);
         }
@@ -289,6 +311,7 @@ function appInit() {
     window.addEventListener('focus', function() {
         logDebug('Browser tab gots the focus -> update player state');
         sendAPI("MYMPD_API_PLAYER_STATE", {}, parseState, false);
+        websocketKeepAlive();
     }, false);
     //global keymap
     document.addEventListener('keydown', function(event) {
@@ -315,7 +338,7 @@ function appInit() {
     }, false);
     //contextmenu for tables
     const tables = ['BrowseFilesystemList', 'BrowseDatabaseAlbumDetailList', 'QueueCurrentList', 'QueueLastPlayedList',
-        'QueueJukeboxList', 'SearchList', 'BrowsePlaylistListList', 'BrowsePlaylistDetailList',
+        'QueueJukeboxSongList', 'QueueJukeboxAlbumList', 'SearchList', 'BrowsePlaylistListList', 'BrowsePlaylistDetailList',
         'BrowseRadioRadiobrowserList', 'BrowseRadioWebradiodbList'];
     for (const tableId of tables) {
         const tbody = document.querySelector('#' + tableId + ' > tbody');
@@ -339,56 +362,31 @@ function appInit() {
             showContextMenu(event);
         }, false);
     }
+    //contextmenu for grids
+    const grids = ['HomeList', 'BrowseDatabaseAlbumListList', 'BrowseRadioFavoritesList'];
+    for (const gridId of grids) {
+        const gridEl = document.querySelector('#' + gridId);
+        gridEl.addEventListener('contextmenu', function(event) {
+            if (event.target.classList.contains('card-body') ||
+                event.target.classList.contains('card-footer'))
+            {
+                showContextMenu(event);
+            }
+        }, false);
+    
+        gridEl.addEventListener('long-press', function(event) {
+            if (event.target.classList.contains('card-body') ||
+                event.target.classList.contains('card-footer'))
+            {
+                showContextMenu(event);
+            }
+        }, false);
+    }
 
     //websocket
     window.addEventListener('beforeunload', function() {
         webSocketClose();
     });
-}
-
-/**
- * Initializes the html elements
- * @returns {void}
- */
-function initGlobalModals() {
-    const tab = document.getElementById('tabShortcuts');
-    elClear(tab);
-    const keys = Object.keys(keymap).sort((a, b) => {
-        return keymap[a].order - keymap[b].order;
-    });
-    for (const key of keys) {
-        if (keymap[key].cmd === undefined) {
-            tab.appendChild(
-                elCreateNode('div', {"class": ["row", "mb-2", "mt-3"]},
-                    elCreateNode('div', {"class": ["col-12"]},
-                        elCreateTextTn('h5', {}, keymap[key].desc)
-                    )
-                )
-            );
-            tab.appendChild(
-                elCreateEmpty('div', {"class": ["row"]})
-            );
-            continue;
-        }
-        const col = elCreateEmpty('div', {"class": ["col", "col-6", "mb-3", "align-items-center"]});
-        if (keymap[key].feature !== undefined) {
-            col.classList.add(keymap[key].feature);
-        }
-        const k = elCreateText('div', {"class": ["key", "float-start"]}, (keymap[key].key !== undefined ? keymap[key].key : key));
-        if (keymap[key].key && keymap[key].key.length > 1) {
-            k.classList.add('mi', 'mi-sm');
-        }
-        col.appendChild(k);
-        col.appendChild(
-            elCreateTextTn('div', {}, keymap[key].desc)
-        );
-        tab.lastChild.appendChild(col);
-    }
-
-    document.getElementById('modalAbout').addEventListener('show.bs.modal', function () {
-        sendAPI("MYMPD_API_STATS", {}, parseStats, false);
-        getServerinfo();
-    }, false);
 }
 
 /**
@@ -424,7 +422,7 @@ function initNavs() {
         domCache.progressPos.style.display = 'none';
     }, false);
 
-    const navbarMain = document.getElementById('navbar-main');
+    const navbarMain = elGetById('navbar-main');
     navbarMain.addEventListener('click', function(event) {
         event.preventDefault();
         if (event.target.nodeName === 'DIV') {
@@ -455,7 +453,7 @@ function initNavs() {
         showContextMenu(event);
     }, false);
 
-    document.getElementById('scripts').addEventListener('click', function(event) {
+    elGetById('scripts').addEventListener('click', function(event) {
         event.preventDefault();
         const target = event.target.nodeName === 'SPAN' ? event.target.parentNode : event.target;
         if (target.nodeName === 'A') {
@@ -476,7 +474,6 @@ function getAssets() {
     httpGet(subdir + '/assets/i18n/en-US.json', function(obj) {
         phrasesDefault = obj;
     }, true);
-
     httpGet(subdir + '/assets/ligatures.json', function(obj) {
         materialIcons = obj;
     }, true);

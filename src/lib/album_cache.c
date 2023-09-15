@@ -40,7 +40,7 @@
  */
 
 static struct t_tags *album_cache_read_tags(sds workdir);
-static sds album_to_cache_line(sds buffer, struct mpd_song *album, const struct t_tags *tagcols);
+static sds album_to_cache_line(sds buffer, const struct mpd_song *album, const struct t_tags *tagcols);
 static struct mpd_song *album_from_cache_line(sds line, const struct t_tags *tagcols);
 
 /**
@@ -96,16 +96,20 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
     if (album_cache->cache == NULL) {
         album_cache->cache = raxNew();
     }
+    sds key = sdsempty();
     while (sds_getline(&line, fp, LINE_LENGTH_MAX) >= 0) {
         if (validate_json_object(line) == true) {
             struct mpd_song *album = album_from_cache_line(line, album_tags);
             if (album != NULL) {
-                sds key = album_cache_get_key(album);
+                key = album_cache_get_key(key, album);
+                if (sdslen(key) == 0) {
+                    mpd_song_free(album);
+                    continue;
+                }
                 if (raxTryInsert(album_cache->cache, (unsigned char *)key, sdslen(key), album, NULL) == 0) {
                     MYMPD_LOG_ERROR(NULL, "Duplicate key in album cache file found: %s", key);
                     mpd_song_free(album);
                 }
-                FREE_SDS(key);
             }
             else {
                 MYMPD_LOG_ERROR(NULL, "Reading album cache line failed");
@@ -117,6 +121,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
             MYMPD_LOG_DEBUG(NULL, "Erroneous line: %s", line);
         }
     }
+    FREE_SDS(key);
     FREE_SDS(line);
     (void) fclose(fp);
     FREE_PTR(album_tags);
@@ -142,7 +147,7 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
  * @param free_data true=free the album cache, else not
  * @return bool true on success, else false
  */
-bool album_cache_write(struct t_cache *album_cache, sds workdir, struct t_tags *album_tags, bool free_data) {
+bool album_cache_write(struct t_cache *album_cache, sds workdir, const struct t_tags *album_tags, bool free_data) {
     if (album_cache->cache == NULL) {
         MYMPD_LOG_DEBUG(NULL, "Album cache is NULL not saving anything");
         return true;
@@ -194,11 +199,12 @@ bool album_cache_write(struct t_cache *album_cache, sds workdir, struct t_tags *
 
 /**
  * Constructs the albumkey from song info
+ * @param albumkey already allocated sds string to set the key
  * @param song mpd song struct
- * @return pointer to newly allocated albumkey (sds)
+ * @return pointer to changed albumkey
  */
-sds album_cache_get_key(const struct mpd_song *song) {
-    sds albumkey = sdsempty();
+sds album_cache_get_key(sds albumkey, const struct mpd_song *song) {
+    sdsclear(albumkey);
     // use MusicBrainz album id
     const char *mb_album_id = mpd_song_get_tag(song, MPD_TAG_MUSICBRAINZ_ALBUMID, 0);
     if (mb_album_id != NULL &&
@@ -306,7 +312,7 @@ unsigned album_get_total_time(const struct mpd_song *album) {
  * @param album mpd_song struct representing the album
  * @param song mpd song to set discs from
  */
-void album_cache_set_discs(struct mpd_song *album, struct mpd_song *song) {
+void album_cache_set_discs(struct mpd_song *album, const struct mpd_song *song) {
     const char *disc;
     if ((disc = mpd_song_get_tag(song, MPD_TAG_DISC, 0)) != NULL) {
         unsigned d = (unsigned)strtoumax(disc, NULL, 10);
@@ -330,7 +336,7 @@ void album_cache_set_disc_count(struct mpd_song *album, unsigned count) {
  * @param album mpd_song struct representing the album
  * @param song mpd song to set last_modified from
  */
-void album_cache_set_last_modified(struct mpd_song *album, struct mpd_song *song) {
+void album_cache_set_last_modified(struct mpd_song *album, const struct mpd_song *song) {
     if (album->last_modified < song->last_modified) {
         album->last_modified = song->last_modified;
     }
@@ -341,7 +347,7 @@ void album_cache_set_last_modified(struct mpd_song *album, struct mpd_song *song
  * @param album mpd_song struct representing the album
  * @param song pointer to a mpd_song struct
  */
-void album_cache_inc_total_time(struct mpd_song *album, struct mpd_song *song) {
+void album_cache_inc_total_time(struct mpd_song *album, const struct mpd_song *song) {
     album->duration += song->duration;
     album->duration_ms += song->duration_ms;
 }
@@ -371,7 +377,7 @@ void album_cache_inc_song_count(struct mpd_song *album) {
  * @return true on success else false
  */
 bool album_cache_append_tags(struct mpd_song *album,
-        struct mpd_song *song, struct t_tags *tags)
+        const struct mpd_song *song, const struct t_tags *tags)
 {
     for (unsigned tagnr = 0; tagnr < tags->len; ++tagnr) {
         const char *value;
@@ -427,13 +433,11 @@ static struct t_tags *album_cache_read_tags(sds workdir) {
         FREE_SDS(filepath);
         return NULL;
     }
-    sds error = sdsempty();
     struct t_tags *tags = malloc_assert(sizeof(struct t_tags));
     reset_t_tags(tags);
-    if (json_get_tags(line, "$.tagListAlbum", tags, 64, &error) == false) {
+    if (json_get_tags(line, "$.tagListAlbum", tags, 64, NULL) == false) {
         FREE_PTR(tags);
     }
-    FREE_SDS(error);
     FREE_SDS(line);
     FREE_SDS(filepath);
     return tags;
@@ -446,11 +450,11 @@ static struct t_tags *album_cache_read_tags(sds workdir) {
  * @param tagcols tags to print
  * @return sds pointer to buffer
  */
-static sds album_to_cache_line(sds buffer, struct mpd_song *album, const struct t_tags *tagcols) {
+static sds album_to_cache_line(sds buffer, const struct mpd_song *album, const struct t_tags *tagcols) {
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
     buffer = tojson_uint(buffer, "Songs", album_get_song_count(album), true);
-    buffer = get_song_tags(buffer, true, tagcols, album);
+    buffer = print_song_tags(buffer, true, tagcols, album);
     buffer = sdscatlen(buffer, "}\n", 2);
     return buffer;
 }
@@ -463,30 +467,28 @@ static sds album_to_cache_line(sds buffer, struct mpd_song *album, const struct 
  */
 static struct mpd_song *album_from_cache_line(sds line, const struct t_tags *tagcols) {
     sds uri = NULL;
-    sds error = sdsempty();
     struct mpd_song *album = NULL;
-    if (json_get_string(line, "$.uri", 1, FILEPATH_LEN_MAX, &uri, vcb_isfilepath, &error) == true) {
+    if (json_get_string(line, "$.uri", 1, FILEPATH_LEN_MAX, &uri, vcb_isfilepath, NULL) == true) {
         album = mpd_song_new(uri);
-        if (json_get_uint_max(line, "$.Discs", &album->pos, &error) == true &&
-            json_get_uint_max(line, "$.Songs", &album->prio, &error) == true &&
-            json_get_uint_max(line, "$.Duration", &album->duration, &error) == true &&
-            json_get_time_max(line, "$.LastModified", &album->last_modified, &error) == true)
+        if (json_get_uint_max(line, "$.Discs", &album->pos, NULL) == true &&
+            json_get_uint_max(line, "$.Songs", &album->prio, NULL) == true &&
+            json_get_uint_max(line, "$.Duration", &album->duration, NULL) == true &&
+            json_get_time_max(line, "$.LastModified", &album->last_modified, NULL) == true)
         {
             album->duration_ms = album->duration * 1000;
             sds path = sdsempty();
             for (size_t i = 0; i < tagcols->len; i++) {
                 sdsclear(path);
-                sdsclear(error);
                 sds value = NULL;
                 path = sdscatfmt(path, "$.%s", mpd_tag_name(tagcols->tags[i]));
                 if (is_multivalue_tag(tagcols->tags[i]) == true) {
-                    if (json_get_tag_values(line, path, album, vcb_isname, JSONRPC_ARRAY_MAX, &error) == false) {
+                    if (json_get_tag_values(line, path, album, vcb_isname, JSONRPC_ARRAY_MAX, NULL) == false) {
                         mpd_song_free(album);
                         album = NULL;
                         break;
                     }
                 }
-                else if (json_get_string_max(line, path, &value, vcb_isname, &error) == true) {
+                else if (json_get_string_max(line, path, &value, vcb_isname, NULL) == true) {
                     mympd_mpd_song_add_tag_dedup(album, tagcols->tags[i], value);
                     FREE_SDS(value);
                 }
@@ -504,6 +506,5 @@ static struct mpd_song *album_from_cache_line(sds line, const struct t_tags *tag
         }
     }
     FREE_SDS(uri);
-    FREE_SDS(error);
     return album;
 }

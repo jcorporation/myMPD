@@ -42,6 +42,9 @@ body.mobile > footer > nav {
   --mympd-highlightcolor: var(--bs-green);
   --mympd-highlightcolor-contrast: var(--bs-light);
   --mympd-backgroundcolor: var(--bs-black);
+  --mympd-card-footer-word-wrap: nowrap;
+  --mympd-show-help: block;
+  --mympd-show-help-btn: unset;
   --bs-dropdown-divider-margin-y: 0.5rem;
   --bs-nav-link-padding-y: 0.5rem;
   --bs-nav-link-padding-x: 1rem;
@@ -182,10 +185,6 @@ main {
   padding-right: 1rem;
 }
 
-#navbar-main {
-  overflow: auto;
-}
-
 #headerLeft {
   margin-right: 2rem;
 }
@@ -304,12 +303,6 @@ div.footerCounter {
   height: 2rem;
 }
 
-#footerInfo {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
 #footerProgress {
   height: 1rem;
   background-color: transparent;
@@ -345,11 +338,9 @@ button {
   padding-right: 0.5rem;
 }
 
-#BrowseBreadcrumb {
-  overflow: auto;
-  white-space: nowrap;
-}
-
+.nav-link,
+.form-check,
+th,
 .nowrap {
   white-space: nowrap;
 }
@@ -426,10 +417,6 @@ th[data-col="Action"] {
   padding: 0.25rem !important;
 }
 
-th {
-  white-space: nowrap;
-}
-
 div.card {
   word-break: break-word;
   margin-bottom: 2rem;
@@ -500,9 +487,13 @@ div#homeActions {
 }
 
 .card-footer-grid {
+  white-space: var(--mympd-card-footer-word-wrap);
+  font-size: 0.9rem;
+}
+
+.card-footer-grid > * {
   overflow: hidden;
   text-overflow: ellipsis;
-  font-size: 0.9rem;
 }
 
 .album-cover-grid {
@@ -535,8 +526,7 @@ div.card-toolbar {
   margin-right: -0.5rem;
 }
 
-div.card-toolbar > div,
-div.card-toolbar > form {
+div.card-toolbar > div {
   margin-bottom: 0.6rem;
 }
 
@@ -547,20 +537,33 @@ div.card-toolbar > form {
   src: url("../assets/MaterialIcons-Regular.woff2") format("woff2");
 }
 
-.mi {
+.mi,
+.sort-dir::before,
+a.external::before,
+a.download::before,
+a.launch::before,
+body.locked button.protected::before,
+div.alert-warning::before,
+div.alert-danger::before,
+div.alert-secondary::before,
+div.alert-success::before,
+h4.offcanvas-title::before {
   font-family: "Material Icons";
   font-weight: normal;
   font-style: normal;
-  font-size: 1.4rem;
-  line-height: 1;
   text-transform: none;
   letter-spacing: normal;
   word-wrap: normal;
   white-space: nowrap;
   direction: ltr;
-  vertical-align: top;
   text-rendering: optimizelegibility;
   font-feature-settings: "liga";
+}
+
+.mi {
+  font-size: 1.4rem;
+  line-height: 1;
+  vertical-align: top;
 }
 
 .mi-sm {
@@ -639,7 +642,7 @@ tfoot td {
   border-bottom: none;
 }
 
-#dropdownHomeIconLigature {
+.dropdownHomeIconLigature {
   width: 60vw;
 }
 
@@ -711,12 +714,12 @@ button.active > a {
   color: var(--mympd-highlightcolor-contrast);
 }
 
-#dropdownHomeIconLigature .row {
+.dropdownHomeIconLigature .row {
   margin-right: 0;
   margin-bottom: 1rem;
 }
 
-#listHomeIconLigature {
+.homeIconLigatureList {
   max-height: 60vh;
   overflow-y: scroll;
 }
@@ -848,7 +851,7 @@ div#BrowseFilesystemImages > div {
   cursor: pointer;
 }
 
-div#homeIconPreview {
+div.homeIconPreview {
   background-position: center center;
   background-size: cover;
   width: 4rem;
@@ -872,7 +875,7 @@ div.album-grid-mouseover:hover {
   background-color: var(--mympd-highlightcolor);
 }
 
-.page-dropdown {
+.dropdownWide {
   width: 20rem;
 }
 
@@ -883,9 +886,6 @@ div.album-grid-mouseover:hover {
 
 .lyricsChangeButton {
   max-width: 10rem;
-  overflow: hidden;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .font-monospace {
@@ -903,35 +903,18 @@ input[type="color"] {
 body.locked button.protected::before {
   content: "lock";
   float: left;
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
   font-size: 1.4rem;
   line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  vertical-align: top;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
   margin-right: 0.5rem;
 }
 
 a.external::before,
 a.download::before,
 a.launch::before {
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
   font-size: 1.4rem;
   line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  vertical-align: top;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
   margin-right: 0.5rem;
+  vertical-align: top;
 }
 
 a.external::before {
@@ -971,11 +954,6 @@ button.select-inner-button {
   width: 2rem;
 }
 
-.nav-link,
-.form-check {
-  white-space: nowrap;
-}
-
 .no-flex {
   width: auto !important;
   flex: unset !important;
@@ -987,16 +965,8 @@ button.select-inner-button {
 }
 
 .sort-dir::before {
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
   font-size: 1.2rem;
   line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
 }
 
 .sort-asc::before {
@@ -1007,25 +977,13 @@ button.select-inner-button {
   content: 'arrow_drop_up';
 }
 
-.dropdownWide {
-  min-width: 20rem;
-}
-
 div.alert-warning::before,
 div.alert-danger::before,
 div.alert-secondary::before,
 div.alert-success::before {
   float: left;
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
   font-size: 1.4rem;
   line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
   margin-right: 0.5rem;
 }
 
@@ -1072,10 +1030,6 @@ input.innerButton {
   overflow-y: auto;
 }
 
-form#outputs {
-  overflow: auto;
-}
-
 button.weekday {
   min-width: 3rem;
 }
@@ -1111,6 +1065,7 @@ button.weekday {
 .dropdown-item {
   text-overflow: ellipsis;
   overflow: hidden;
+  white-space: nowrap
 }
 
 .mirror {
@@ -1193,16 +1148,8 @@ body[data-uiState="disabled"] th,
 }
 
 h4.offcanvas-title::before {
-  font-family: "Material Icons";
-  font-weight: normal;
-  font-style: normal;
   font-size: 1.4rem;
   line-height: 1;
-  text-transform: none;
-  letter-spacing: normal;
-  word-wrap: normal;
-  text-rendering: optimizelegibility;
-  font-feature-settings: "liga";
   margin-right: 0.5rem;
 }
 
@@ -1252,4 +1199,19 @@ h4.offcanvas-title-externalLink::before {
 
 h4.offcanvas-title-stream::before {
   content: "stream";
+}
+
+.help {
+  display: var(--mympd-show-help);
+  margin-top: 0.5rem;
+  color: var(--bs-secondary-text-emphasis);
+}
+
+.is-invalid > .invalid-feedback {
+  display: block;
+}
+
+.btnHelp {
+  min-width: fit-content !important;
+  display: var(--mympd-show-help-btn);
 }

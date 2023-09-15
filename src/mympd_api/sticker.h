@@ -10,6 +10,7 @@
 #include "src/lib/mympd_state.h"
 #include "src/lib/sticker_cache.h"
 
+bool mympd_api_sticker_set_like(struct t_partition_state *partition_state, sds uri, int like, sds *error);
 sds mympd_api_sticker_get_print(sds buffer, struct t_cache *sticker_cache, const char *uri);
 sds mympd_api_sticker_print(sds buffer, struct t_sticker *sticker);
 

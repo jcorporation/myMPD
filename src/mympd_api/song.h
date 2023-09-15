@@ -9,7 +9,6 @@
 
 #include "src/lib/mympd_state.h"
 
-sds mympd_api_song_fingerprint(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri);
 sds mympd_api_song_details(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri);
 sds mympd_api_song_comments(struct t_partition_state *partition_state, sds buffer, long request_id, const char *uri);
 #endif

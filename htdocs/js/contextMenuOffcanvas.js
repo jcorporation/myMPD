@@ -18,7 +18,7 @@ function initContextMenuOffcanvas() {
             }
         }
         event.preventDefault();
-        const contextMenuEl = document.getElementById('offcanvasContext');
+        const contextMenuEl = elGetById('offcanvasContext');
         BSN.Offcanvas.getInstance(contextMenuEl).hide();
     }, false);
 }
@@ -30,7 +30,7 @@ function initContextMenuOffcanvas() {
  * @returns {void}
  */
 function showContextMenuOffcanvas(target, contextMenuType) {
-    const contextMenuEl = document.getElementById('offcanvasContext');
+    const contextMenuEl = elGetById('offcanvasContext');
     const contextMenu = BSN.Offcanvas.getInstance(contextMenuEl);
 
     switch (contextMenuType) {

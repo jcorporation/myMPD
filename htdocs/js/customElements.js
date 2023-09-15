@@ -6,45 +6,47 @@
 /** @module customElements_js */
 
 /**
- * Some pre-generated elements.
+ * Creates the pre-generated elements
+ * @returns {void}
  */
-const pEl = {};
-pEl.gridSelectBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0", "color-darkgrey", "float-end", "d-none"], "data-title-phrase": "Select"}, 'radio_button_unchecked');
-pEl.selectBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0", "color-darkgrey"], "data-title-phrase": "Select"}, 'radio_button_unchecked');
-pEl.selectAllBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0"], "data-title-phrase": "Select all"}, 'radio_button_unchecked');
-pEl.actionsBtn = elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatures['more']);
-pEl.removeBtn = elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Remove"}, 'clear');
-pEl.playBtn = elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Quick play"}, 'play_arrow');
-pEl.columnsBtn = elCreateText('a', {"href": "#", "data-action": "popover", "data-contextmenu": "columns",
-    "class": ["align-middle", "mi", "mi-sm", "me-1"], "data-title-phrase": "Columns"}, 'settings');
+function createPreGeneratedElements() {
+    pEl.gridSelectBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0", "color-darkgrey", "float-end", "d-none"], "data-title-phrase": "Select"}, 'radio_button_unchecked');
+    pEl.selectBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0", "color-darkgrey"], "data-title-phrase": "Select"}, 'radio_button_unchecked');
+    pEl.selectAllBtn = elCreateText('button', {"type": "button", "href": "#", "class": ["btn", "mi", "p-0", "border-0"], "data-title-phrase": "Select all"}, 'radio_button_unchecked');
+    pEl.actionsBtn = elCreateText('a', {"data-action": "popover", "href": "#", "class": ["mi", "color-darkgrey"], "data-title-phrase": "Actions"}, ligatures['more']);
+    pEl.removeBtn = elCreateText('a', {"data-action": "quickRemove", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Remove"}, 'clear');
+    pEl.playBtn = elCreateText('a', {"data-action": "quickPlay", "href": "#", "class": ["mi", "color-darkgrey", "me-1"], "data-title-phrase": "Quick play"}, 'play_arrow');
+    pEl.columnsBtn = elCreateText('a', {"href": "#", "data-action": "popover", "data-contextmenu": "columns",
+        "class": ["align-middle", "mi", "mi-sm", "me-1"], "data-title-phrase": "Columns"}, 'settings');
 
-pEl.actionTdMenu = elCreateNodes('td', {"data-col": "Action"}, [
-    pEl.actionsBtn.cloneNode(true),
-    pEl.selectBtn.cloneNode(true)
-]);
-pEl.actionTdMenuPlay = elCreateNodes('td', {"data-col": "Action"}, [
-    pEl.playBtn.cloneNode(true),
-    pEl.actionsBtn.cloneNode(true),
-    pEl.selectBtn.cloneNode(true)
-]);
-pEl.actionTdMenuRemove = elCreateNodes('td', {"data-col": "Action"}, [
-    pEl.removeBtn.cloneNode(true),
-    pEl.actionsBtn.cloneNode(true),
-    pEl.selectBtn.cloneNode(true)
-]);
-pEl.actionTdMenuPlayRemove = elCreateNodes('td', {"data-col": "Action"}, [
-    pEl.playBtn.cloneNode(true),
-    pEl.removeBtn.cloneNode(true),
-    pEl.actionsBtn.cloneNode(true),
-    pEl.selectBtn.cloneNode(true)
-]);
-pEl.actionTd = pEl.actionTdMenu;
-pEl.actionQueueTd = pEl.actionTdMenu;
-pEl.actionJukeboxTd = pEl.actionTdMenu;
-pEl.actionPlaylistDetailTd = pEl.actionTdMenu;
-pEl.actionPlaylistTd = pEl.actionTdMenu;
-pEl.coverPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
-    "data-title-phrase": "Quick play"}, 'play_arrow');
+    pEl.actionTdMenu = elCreateNodes('td', {"data-col": "Action"}, [
+        pEl.actionsBtn.cloneNode(true),
+        pEl.selectBtn.cloneNode(true)
+    ]);
+    pEl.actionTdMenuPlay = elCreateNodes('td', {"data-col": "Action"}, [
+        pEl.playBtn.cloneNode(true),
+        pEl.actionsBtn.cloneNode(true),
+        pEl.selectBtn.cloneNode(true)
+    ]);
+    pEl.actionTdMenuRemove = elCreateNodes('td', {"data-col": "Action"}, [
+        pEl.removeBtn.cloneNode(true),
+        pEl.actionsBtn.cloneNode(true),
+        pEl.selectBtn.cloneNode(true)
+    ]);
+    pEl.actionTdMenuPlayRemove = elCreateNodes('td', {"data-col": "Action"}, [
+        pEl.playBtn.cloneNode(true),
+        pEl.removeBtn.cloneNode(true),
+        pEl.actionsBtn.cloneNode(true),
+        pEl.selectBtn.cloneNode(true)
+    ]);
+    pEl.actionTd = pEl.actionTdMenu;
+    pEl.actionQueueTd = pEl.actionTdMenu;
+    pEl.actionJukeboxTd = pEl.actionTdMenu;
+    pEl.actionPlaylistDetailTd = pEl.actionTdMenu;
+    pEl.actionPlaylistTd = pEl.actionTdMenu;
+    pEl.coverPlayBtn = elCreateText('div', {"class": ["align-self-end", "album-grid-mouseover", "mi", "rounded-circle", "clickable"],
+        "data-title-phrase": "Quick play"}, 'play_arrow');
+}
 
 /**
  * Initializes all elements with data-is attribute
@@ -81,6 +83,8 @@ function initElement(el, elType) {
         case 'mympd-select-new':
             setSelectNew(el);
             break;
+        default:
+            logError('Invalid element type: ' + elType);
     }
     el.removeAttribute('data-is');
 }
@@ -94,6 +98,9 @@ function setInputClear(el) {
     const button = elCreateText('button', {"data-title-phrase": "Clear", "class": ["mi", "mi-sm", "input-inner-button"]}, 'clear');
     el.button = button;
     el.classList.add('innerButton');
+    if (el.classList.contains('alwaysEnabled')) {
+        el.button.classList.add('alwaysEnabled');
+    }
     if (el.parentNode.classList.contains('col')) {
         el.button.style.right = '1rem';
     }
@@ -136,10 +143,8 @@ function setInputReset(el) {
     const button = elCreateText('button', {"data-title-phrase": "Reset to default", "class": ["mi", "mi-sm", "input-inner-button"]}, 'settings_backup_restore');
     el.button = button;
     el.classList.add('innerButton');
-    if (el.parentNode.firstElementChild.getAttribute('type') === 'color' ||
-        el.parentNode.classList.contains('col-sm-8'))
-    {
-        el.button.style.right = '1rem';
+    if (el.classList.contains('alwaysEnabled')) {
+        el.button.classList.add('alwaysEnabled');
     }
     if (el.nextElementSibling) {
         el.parentNode.insertBefore(el.button, el.nextElementSibling);
@@ -165,6 +170,9 @@ function setInputPassword(el) {
     const button = elCreateText('button', {"data-title-phrase": "Show or hide", "class": ["mi", "mi-sm", "input-inner-button"]}, 'visibility');
     el.button = button;
     el.classList.add('innerButton');
+    if (el.classList.contains('alwaysEnabled')) {
+        el.button.classList.add('alwaysEnabled');
+    }
     if (el.parentNode.classList.contains('col-sm-8')) {
         el.button.style.right = '1rem';
     }
@@ -213,7 +221,14 @@ function setSelectSearch(el) {
     el.filterInput = filterInput;
     el.filterResult = filterResult;
     el.classList.add('innerButton');
+    if (el.classList.contains('alwaysEnabled')) {
+        el.button.classList.add('alwaysEnabled');
+    }
     setData(el, 'value', el.value);
+    el.setValue = function(value, valueTn) {
+        el.value = valueTn;
+        setData(el, 'value', value);
+    };
     el.addEventListener('keyup', function(event) {
         setData(el, 'value', event.target.value);
     }, false);
@@ -287,7 +302,14 @@ function setSelectSearch(el) {
     el.dropdownButton = button;
     el.filterResult = filterResult;
     el.classList.add('innerButton');
+    if (el.classList.contains('alwaysEnabled')) {
+        el.button.classList.add('alwaysEnabled');
+    }
     setData(el, 'value', el.value);
+    el.setValue = function(value, valueTn) {
+        el.value = valueTn;
+        setData(el, 'value', value);
+    };
     el.addEventListener('keyup', function(event) {
         setData(el, 'value', event.target.value);
     }, false);

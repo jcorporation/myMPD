@@ -12,7 +12,7 @@
  */
 //eslint-disable-next-line no-unused-vars
 function switchTableMode(target) {
-    const table = document.getElementById(app.id + 'List');
+    const table = elGetById(app.id + 'List');
     const mode = table.getAttribute('data-mode');
 
     if (mode === null) {
@@ -77,7 +77,7 @@ function selectRow(event) {
         mode === null)
     {
         //enable select mode
-        switchTableMode(document.getElementById('btn' + app.id + 'SelectMode'));
+        switchTableMode(elGetById(app.id + 'SelectModeBtn'));
     }
     else if (mode === null) {
         return false;
@@ -161,8 +161,8 @@ function selectSingleRow(row, select) {
  * @returns {void}
  */
 function showTableSelectionCount() {
-    const table = document.getElementById(app.id + 'List');
-    const dropdown = document.querySelector('#dropdown' + app.id + 'Selection');
+    const table = elGetById(app.id + 'List');
+    const dropdown = document.querySelector('#' + app.id + 'SelectionDropdown');
     const rows = table.querySelectorAll('tbody > tr.selected');
     const count = rows.length;
     let validSelection = true;
@@ -264,9 +264,10 @@ function dragAndDropTable(tableId) {
                 break;
             }
             case 'BrowsePlaylistDetail': {
-                playlistMoveSong(oldSongPos, newSongPos);
+                currentPlaylistMoveSong(oldSongPos, newSongPos);
                 break;
             }
+            // No Default
         }
     }, false);
 
@@ -351,7 +352,7 @@ function dragAndDropTableHeader(tableName) {
 function setColTags(tableName) {
     switch(tableName) {
         case 'BrowseRadioWebradiodb':
-            return ["Country", "Description", "Genre", "Homepage", "Language", "Name", "StreamUri", "Codec", "Bitrate"];
+            return ["Country", "Description", "Genre", "Homepage", "Languages", "Name", "StreamUri", "Codec", "Bitrate"];
         case 'BrowseRadioRadiobrowser':
             return ["clickcount", "country", "homepage", "language", "lastchangetime", "lastcheckok", "tags", "url_resolved", "votes"];
         case 'BrowseDatabaseAlbumList': {
@@ -369,6 +370,14 @@ function setColTags(tableName) {
                        value !== 'Album';
             });
         }
+        case 'QueueJukeboxAlbum': {
+            const tags = settings.tagListAlbum.slice();
+            tags.push('Pos', 'Discs', 'SongCount', 'Duration', 'LastModified');
+            return tags.filter(function(value) {
+                return value !== 'Disc';
+            });
+        }
+        // No Default
     }
 
     const tags = settings.tagList.slice();
@@ -382,7 +391,8 @@ function setColTags(tableName) {
             tags.push('AudioFormat', 'Priority');
             //fall through
         case 'BrowsePlaylistDetail':
-        case 'QueueJukebox':
+        case 'QueueJukeboxSong':
+        case 'QueueJukeboxAlbum':
             tags.push('Pos');
             break;
         case 'BrowseFilesystem':
@@ -397,9 +407,11 @@ function setColTags(tableName) {
         case 'QueueLastPlayed':
             tags.push('Pos', 'LastPlayed');
             break;
+        // No Default
     }
-    //sort tags and append stickers
+    //sort tags 
     tags.sort();
+    //append stickers
     if (features.featStickers === true) {
         tags.push('dropdownTitleSticker');
         for (const sticker of stickerList) {
@@ -429,15 +441,16 @@ function setColsChecklist(tableName, menu) {
             );
         }
         else {
+            const btnId = tableName + tags[i] + 'Col';
             const btn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "clickable", "mi", "mi-sm", "me-2"],
-                "name": tags[i]}, 'radio_button_unchecked');
+                "id": btnId, "name": tags[i]}, 'radio_button_unchecked');
             if (settings['cols' + tableName].includes(tags[i])) {
                 btn.classList.add('active');
                 btn.textContent = 'check';
             }
             const div = elCreateNodes('div', {"class": ["form-check"]}, [
                 btn,
-                elCreateTextTn('lable', {"class": ["form-check-label"], "for": tags[i]}, tags[i])
+                elCreateTextTn('label', {"class": ["form-check-label"], "for": btnId}, tags[i])
             ]);
             menu.appendChild(div);
         }
@@ -536,10 +549,10 @@ function setCols(tableName) {
  * @returns {void}
  */
 function saveCols(tableName, tableEl) {
-    const colsDropdown = document.getElementById(tableName + 'ColsDropdown');
+    const colsDropdown = elGetById(tableName + 'ColsDropdown');
     if (tableEl === undefined) {
         //select the table by name
-        tableEl = document.getElementById(tableName + 'List');
+        tableEl = elGetById(tableName + 'List');
     }
     const header = tableEl.querySelector('tr');
     if (colsDropdown !== null) {
@@ -572,7 +585,7 @@ function saveCols(tableName, tableEl) {
             params.cols.push(name);
         }
     }
-    sendAPI("MYMPD_API_COLS_SAVE", params, getSettings, true);
+    sendAPI("MYMPD_API_COLS_SAVE", params, saveColsCheckError, true);
 }
 
 /**
@@ -591,7 +604,16 @@ function saveColsDropdown(tableName, dropdownId) {
             params.cols.push(name);
         }
     }
-    sendAPI("MYMPD_API_COLS_SAVE", params, getSettings, true);
+    sendAPI("MYMPD_API_COLS_SAVE", params, saveColsCheckError, true);
+}
+
+/**
+ * Handles the jsonrpc response for MYMPD_API_COLS_SAVE
+ * @returns {void}
+ */
+function saveColsCheckError() {
+    // refresh the settings
+    getSettings(parseSettings);
 }
 
 /**
@@ -642,19 +664,19 @@ function addSortIndicator(th, desc) {
 }
 
 /**
- * Conditionally replaces a table row, if metadata or cols are changed.
+ * Replaces a table row and tries to keep the selection state
+ * @param {boolean} mode the selection mode
  * @param {HTMLElement} row row to replace
  * @param {HTMLElement} el replacement row
  * @returns {void}
  */
-function replaceTblRow(row, el) {
+function replaceTblRow(mode, row, el) {
     if (getData(row, 'uri') === getData(el, 'uri') &&
-        getData(row, 'cols') === getData(el, 'cols') &&
-        getData(row, 'name') === getData(el, 'name') &&
-        getData(row, 'songid') === getData(el, 'songid') &&
-        getData(row, 'AlbumId') === getData(el, 'AlbumId'))
+        mode === true &&
+        row.lastElementChild.lastElementChild.textContent === ligatures.checked)
     {
-        return;
+        el.lastElementChild.lastElementChild.textContent = ligatures.checked;
+        el.classList.add('selected');
     }
     row.replaceWith(el);
 }
@@ -691,9 +713,14 @@ function addDiscRow(disc, albumId, colspan) {
  * @returns {void}
  */
 function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
-    const table = document.getElementById(list + 'List');
+    const table = elGetById(list + 'List');
+    const mode = table.getAttribute('data-mode') === 'select' 
+        ? true
+        : false;
     const tbody = table.querySelector('tbody');
-    const colspan = settings['cols' + list] !== undefined ? settings['cols' + list].length : 0;
+    const colspan = settings['cols' + list] !== undefined
+        ? settings['cols' + list].length
+        : 0;
 
     const nrItems = obj.result.returnedEntities;
     let tr = tbody.querySelectorAll('tr');
@@ -712,7 +739,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
     if (obj.result.Discs !== undefined && obj.result.Discs > 1) {
         const row = addDiscRow(1, obj.result.AlbumId, colspan);
         if (z < tr.length) {
-            replaceTblRow(tr[z], row);
+            replaceTblRow(mode, tr[z], row);
         }
         else {
             tbody.append(row);
@@ -724,7 +751,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         if (obj.result.data[0].Disc !== undefined && lastDisc < Number(obj.result.data[i].Disc)) {
             const row = addDiscRow(obj.result.data[i].Disc, obj.result.AlbumId, colspan);
             if (i + z < tr.length) {
-                replaceTblRow(tr[i + z], row);
+                replaceTblRow(mode, tr[i + z], row);
             }
             else {
                 tbody.append(row);
@@ -744,8 +771,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
         //and browse tags
         for (const tag of settings.tagListBrowse) {
             if (albumFilters.includes(tag) &&
-                obj.result.data[i][tag] !== undefined &&
-                checkTagValue(obj.result.data[i][tag], '-') === false)
+                isEmptyTag(obj.result.data[i][tag]) === false)
             {
                 setData(row, tag, obj.result.data[i][tag]);
             }
@@ -764,7 +790,7 @@ function updateTable(obj, list, perRowCallback, createRowCellsCallback) {
             tableRow(row, obj.result.data[i], list, colspan, smallWidth);
         }
         if (i + z < tr.length) {
-            replaceTblRow(tr[i + z], row);
+            replaceTblRow(mode, tr[i + z], row);
         }
         else {
             tbody.append(row);
@@ -823,7 +849,6 @@ function tableRow(row, data, list, colspan, smallWidth) {
                 );
             }
         }
-        setData(row, 'cols', settings['cols' + list].join(':'));
         switch(app.id) {
             case 'BrowsePlaylistDetail':
                 // add quick play and remove action
@@ -837,7 +862,8 @@ function tableRow(row, data, list, colspan, smallWidth) {
                     pEl.actionQueueTd.cloneNode(true)
                 );
                 break;
-            case 'QueueJukebox':
+            case 'QueueJukeboxSong':
+            case 'QueueJukeboxAlbum':
                 // add quick play and remove action
                 row.appendChild(
                     pEl.actionJukeboxTd.cloneNode(true)
@@ -959,7 +985,7 @@ function checkResult(obj, tbody) {
  * @returns {boolean} true if window is small and the uiSmallWidthTagRows settings is true, else false
  */
 function uiSmallWidthTagRows() {
-    if (settings.webuiSettings.uiSmallWidthTagRows === true) {
+    if (settings.webuiSettings.smallWidthTagRows === true) {
         return window.innerWidth < 576 ? true : false;
     }
     return false;
@@ -972,7 +998,8 @@ function uiSmallWidthTagRows() {
  */
 function handleActionTdClick(event) {
     event.preventDefault();
-    switch(event.target.getAttribute('data-action')) {
+    const action = event.target.getAttribute('data-action');
+    switch(action) {
         case 'popover':
             showContextMenu(event);
             break;
@@ -982,5 +1009,54 @@ function handleActionTdClick(event) {
         case 'quickRemove':
             clickQuickRemove(event.target);
             break;
+        default:
+            logError('Invalid action: ' + action);
     }
+}
+
+/**
+ * Central table click handler.
+ * Handles clicks on table header and body.
+ * @param {MouseEvent} event the event to handle
+ * @returns {HTMLElement} the event target (row) to handle or null if it was handled or should not be handled
+ */
+function tableClickHandler(event) {
+    if (event.target.nodeName === 'CAPTION') {
+        return null;
+    }
+    //select mode
+    if (selectRow(event) === true) {
+        return null;
+    }
+    //action td
+    if (event.target.nodeName === 'A') {
+        handleActionTdClick(event);
+        return null;
+    }
+    //table header
+    if (event.target.nodeName === 'TH') {
+        if (features.featAdvqueue === false) {
+            return null;
+        }
+        const colName = event.target.getAttribute('data-col');
+        if (isColSortable(app.id, colName) === false) {
+            //by this fields can not be sorted
+            return null;
+        }
+        toggleSort(event.target, colName);
+        appGoto(app.current.card, app.current.tab, app.current.view,
+            app.current.offset, app.current.limit, app.current.filter, app.current.sort, app.current.tag, app.current.search);
+        return null;
+    }
+    //table body
+    const target = event.target.closest('TR');
+    if (target === null) {
+        return null;
+    }
+    if (target.parentNode.nodeName === 'TBODY' &&
+        checkTargetClick(target) === true)
+    {
+        return target;
+    }
+    return null;
 }

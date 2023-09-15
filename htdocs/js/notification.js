@@ -6,16 +6,6 @@
 /** @module notifications_js */
 
 /**
- * Initializes the notification html elements
- * @returns {void}
- */
-function initNotifications() {
-    document.getElementById('modalNotifications').addEventListener('show.bs.modal', function() {
-        showMessages();
-    });
-}
-
-/**
  * Sets the background color of the myMPD logo according to the websocket state
  * @returns {void}
  */
@@ -192,7 +182,7 @@ function showNotification(message, facility, severity) {
                 elCreateEmpty('button', {"type": "button", "class": ["btn-close"], "data-bs-dismiss": "toast"}),
             ])
         ]);
-        document.getElementById('alertBox').prepend(toast);
+        elGetById('alertBox').prepend(toast);
         const toastInit = new BSN.Toast(toast, {delay: 2500});
         toast.addEventListener('hidden.bs.toast', function() {
             this.remove();
@@ -233,48 +223,9 @@ function logMessage(message, facility, severity) {
         }
     }
     //update log overview if shown
-    if (document.getElementById('modalNotifications').classList.contains('show')) {
+    if (elGetById('modalNotifications').classList.contains('show')) {
         showMessages();
     }
-}
-
-/**
- * Lists the logbuffer in the logOverview element
- * @returns {void}
- */
-function showMessages() {
-    const overview = document.getElementById('logOverview');
-    elClear(overview);
-    for (const message of messages) {
-        overview.insertBefore(
-            elCreateNodes('tr', {}, [
-                elCreateText('td', {}, fmtTime(message.timestamp)),
-                elCreateNodes('td', {}, [
-                    createSeverityIcon(message.severity),
-                    document.createTextNode(tn(facilities[message.facility]))
-                ]),
-                elCreateText('td', {}, message.occurrence),
-                elCreateNodes('td', {}, [
-                    elCreateText('p', {"class": ["mb-0"]}, message.message)
-                ])
-            ]),
-        overview.firstElementChild);
-    }
-    if (overview.querySelector('tr') === null) {
-        overview.appendChild(emptyRow(4));
-    }
-}
-
-/**
- * Clears the logbuffer
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function clearMessages() {
-    const overview = document.getElementById('logOverview');
-    elClear(overview);
-    overview.appendChild(emptyRow(4));
-    messages.length = 0;
 }
 
 /**

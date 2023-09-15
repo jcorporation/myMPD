@@ -11,30 +11,31 @@
  */
 function initSelectActions() {
     for (const dropdownId of [
-        'dropdownQueueCurrentSelection',
-        'dropdownQueueLastPlayedSelection',
-        'dropdownQueueJukeboxSelection',
-        'dropdownBrowseDatabaseAlbumListSelection',
-        'dropdownBrowseDatabaseAlbumDetailSelection',
-        'dropdownBrowseFilesystemSelection',
-        'dropdownBrowsePlaylistListSelection',
-        'dropdownBrowsePlaylistDetailSelection',
-        'dropdownBrowseRadioFavoritesSelection',
-        'dropdownBrowseRadioWebradiodbSelection',
-        'dropdownBrowseRadioRadiobrowserSelection',
-        'dropdownSearchSelection'
+        'QueueCurrentSelectionDropdown',
+        'QueueLastPlayedSelectionDropdown',
+        'QueueJukeboxSongSelectionDropdown',
+        'QueueJukeboxAlbumSelectionDropdown',
+        'BrowseDatabaseAlbumListSelectionDropdown',
+        'BrowseDatabaseAlbumDetailSelectionDropdown',
+        'BrowseFilesystemSelectionDropdown',
+        'BrowsePlaylistListSelectionDropdown',
+        'BrowsePlaylistDetailSelectionDropdown',
+        'BrowseRadioFavoritesSelectionDropdown',
+        'BrowseRadioWebradiodbSelectionDropdown',
+        'BrowseRadioRadiobrowserSelectionDropdown',
+        'SearchSelectionDropdown'
     ]) {
         const el = document.querySelector('#' + dropdownId + '> div');
-        if (dropdownId === 'dropdownBrowseDatabaseAlbumListSelection' ||
-            dropdownId === 'dropdownBrowseRadioFavoritesSelection')
+        if (dropdownId === 'BrowseDatabaseAlbumListSelectionDropdown' ||
+            dropdownId === 'BrowseRadioFavoritesSelectionDropdown')
         {
-            document.getElementById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
+            elGetById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
                 addSelectActionButtons(el, dropdownId);
                 showGridSelectionCount();
             }, false);
         }
         else {
-            document.getElementById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
+            elGetById(dropdownId).parentNode.addEventListener('show.bs.dropdown', function() {
                 addSelectActionButtons(el, dropdownId);
                 showTableSelectionCount();
             }, false);
@@ -55,13 +56,13 @@ function initSelectActions() {
  */
 function addSelectActionButtons(el, dropdownId) {
     elClear(el);
-    const parent = document.getElementById(app.id + 'List');
+    const parent = elGetById(app.id + 'List');
     const firstSelection = parent.querySelector('.selected');
     const type = firstSelection !== null
         ? getData(firstSelection, 'type')
         : 'song';
 
-    if (dropdownId !== 'dropdownQueueCurrentSelection') {
+    if (dropdownId !== 'QueueCurrentSelectionDropdown') {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "appendQueue"]}, 'Append to queue');
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "appendPlayQueue"]}, 'Append to queue and play');
         if (features.featWhence === true) {
@@ -74,19 +75,21 @@ function addSelectActionButtons(el, dropdownId) {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "playAfterCurrent"]}, 'Play after current playing song');
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "removeFromQueueIDs"]}, 'Remove');
     }
-    if (dropdownId === 'dropdownQueueJukeboxSelection') {
+    if (dropdownId === 'QueueJukeboxSongSelectionDropdown' ||
+        dropdownId === 'QueueJukeboxAlbumSelectionDropdown')
+    {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "delQueueJukeboxEntry"]}, 'Remove');
     }
-    if (dropdownId === 'dropdownBrowseRadioFavoritesSelection') {
+    if (dropdownId === 'BrowseRadioFavoritesSelectionDropdown') {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "delRadioFavorites"]}, 'Delete');
     }
-    if (dropdownId === 'dropdownBrowsePlaylistDetailSelection') {
+    if (dropdownId === 'BrowsePlaylistDetailSelectionDropdown') {
         const ro = getData(parent, 'ro');
         if (ro === false) {
             addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "removeFromPlaylistPositions"]}, 'Remove');
         }
     }
-    if (dropdownId === 'dropdownBrowsePlaylistListSelection') {
+    if (dropdownId === 'BrowsePlaylistListSelectionDropdown') {
         addDivider(el);
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "showDelPlaylist"]}, 'Delete');
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "showCopyPlaylist"]}, 'Copy');
@@ -94,11 +97,11 @@ function addSelectActionButtons(el, dropdownId) {
     if (features.featPlaylists === true &&
         type !== 'plist' &&
         type !== 'smartpls' &&
-        dropdownId !== 'dropdownBrowsePlaylistListSelection')
+        dropdownId !== 'BrowsePlaylistListSelectionDropdown')
     {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "showAddToPlaylist"]}, 'Add to playlist');
     }
-    if (dropdownId === 'dropdownBrowsePlaylistDetailSelection' &&
+    if (dropdownId === 'BrowsePlaylistDetailSelectionDropdown' &&
         getData(parent, 'type') !== 'smartpls')
     {
         addSelectActionButton(el, {"cmd": "execSelectAction", "options": [type, "showMoveToPlaylist"]}, 'Move to playlist');
@@ -141,7 +144,7 @@ function getSelectionData(parent, attribute) {
  */
 //eslint-disable-next-line no-unused-vars
 function execSelectAction(type, action) {
-    const parent = document.getElementById(app.id + 'List');
+    const parent = elGetById(app.id + 'List');
     const attribute = type === 'album'
         ? action === 'delQueueJukeboxEntry'
             ? 'pos'
@@ -224,5 +227,7 @@ function execSelectAction(type, action) {
             delQueueJukeboxEntries(positions);
             break;
         }
+        default:
+            logError('Invalid select action: ' + action);
     }
 }

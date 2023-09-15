@@ -25,6 +25,9 @@ INCBIN(combined_js, "../htdocs/js/combined.js.gz");
 INCBIN(MaterialIcons_Regular_woff2, "../htdocs/assets/MaterialIcons-Regular.woff2");
 INCBIN(ligatures_json, "../htdocs/assets/ligatures.json.gz");
 //translation files
+#ifdef I18N_bg_BG
+    INCBIN(i18n_bg_BG_json, "../htdocs/assets/i18n/bg-BG.json.gz");
+#endif
 #ifdef I18N_de_DE
     INCBIN(i18n_de_DE_json, "../htdocs/assets/i18n/de-DE.json.gz");
 #endif

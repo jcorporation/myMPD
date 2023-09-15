@@ -14,15 +14,15 @@ function initOutputs() {
         setVolume();
     }, false);
 
-    document.getElementById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function() {
+    elGetById('volumeMenu').parentNode.addEventListener('show.bs.dropdown', function() {
         sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, parseOutputs, true);
     });
 
-    document.getElementById('outputs').addEventListener('click', function(event) {
+    elGetById('outputs').addEventListener('click', function(event) {
         if (event.target.nodeName === 'A') {
             event.preventDefault();
-            BSN.Dropdown.getInstance(document.getElementById('volumeMenu')).toggle();
-            showListOutputAttributes(getData(event.target.parentNode, 'output-name'));
+            BSN.Dropdown.getInstance(elGetById('volumeMenu')).toggle();
+            showModalOutputAttributes(getData(event.target.parentNode, 'output-name'));
         }
         else {
             const target = event.target.nodeName === 'BUTTON' ? event.target : event.target.parentNode;
@@ -42,7 +42,7 @@ function initOutputs() {
  * @returns {void}
  */
 function parseOutputs(obj) {
-    const outputList = document.getElementById('outputs');
+    const outputList = elGetById('outputs');
     elClear(outputList);
     if (obj.error) {
         outputList.appendChild(
@@ -61,7 +61,7 @@ function parseOutputs(obj) {
         if (obj.result.data[i].plugin === 'dummy') {
             continue;
         }
-        const titlePhrase = Object.keys(obj.result.data[i].attributes).length > 0 ? 'Edit attributes' : 'Show attributes';
+        const titlePhrase = 'Show attributes';
         const icon = settings.webuiSettings.outputLigatures[obj.result.data[i].plugin] !== undefined 
             ? settings.webuiSettings.outputLigatures[obj.result.data[i].plugin]
             : settings.webuiSettings.outputLigatures.default;
@@ -69,7 +69,7 @@ function parseOutputs(obj) {
         const btn = elCreateNodes('button', {"class": ["btn", "btn-secondary", "d-flex", "justify-content-between"], "title": buttonTitle, "id": "btnOutput" + obj.result.data[i].id}, [
             elCreateText('span', {"class": ["mi", "align-self-center"]}, icon),
             elCreateText('span', {"class": ["mx-2", "align-self-center"]}, obj.result.data[i].name),
-            elCreateText('a', {"class": ["mi", "align-self-center"], "data-title-phrase": titlePhrase}, 'settings')
+            elCreateText('a', {"class": ["mi", "align-self-center"], "data-title-phrase": titlePhrase, "title": tn(titlePhrase)}, 'settings')
         ]);
         setData(btn, 'output-name', obj.result.data[i].name);
         setData(btn, 'output-id', obj.result.data[i].id);
@@ -79,108 +79,11 @@ function parseOutputs(obj) {
         outputList.appendChild(btn);
     }
     //prevent overflow of dropup
-    const outputsEl = document.getElementById('outputs');
-    const posY = getYpos(document.getElementById('outputsDropdown'));
-    if (posY < 0) {
-        outputsEl.style.maxHeight = (outputsEl.offsetHeight + posY) + 'px';
-    }
-    else {
-        outputsEl.style.maxHeight = 'none';
-    }
-}
-
-/**
- * Shows the output attributes modal 
- * @param {string} outputName the output name
- * @returns {void}
- */
-function showListOutputAttributes(outputName) {
-    cleanupModalId('modalOutputAttributes');
-    sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
-        const tbody = document.getElementById('outputAttributesList');
-        if (checkResult(obj, tbody) === false) {
-            return;
-        }
-        //we get all outputs, filter by outputName
-        for (const output of obj.result.data) {
-            if (output.name === outputName) {
-                parseOutputAttributes(output);
-                break;
-            }
-        }
-    }, false);
-    uiElements.modalOutputAttributes.show();
-}
-
-/**
- * Creates the output attributes table content
- * @param {object} output output object
- * @returns {void}
- */
-function parseOutputAttributes(output) {
-    document.getElementById('modalOutputAttributesId').value = output.id;
-    const tbody = document.getElementById('outputAttributesList');
-    elClear(tbody);
-    for (const n of ['name', 'state', 'plugin']) {
-        if (n === 'state') {
-            output[n] = output[n] === 1 ? tn('Enabled') : tn('Disabled');
-        }
-        tbody.appendChild(
-            elCreateNodes('tr', {}, [
-                elCreateTextTn('td', {}, n),
-                elCreateText('td', {}, output[n])
-            ])
-        );
-    }
-    let i = 0;
-    for (const key in output.attributes) {
-        i++;
-        tbody.appendChild(
-            elCreateNodes('tr', {}, [
-                elCreateText('td', {}, key),
-                elCreateNode('td', {},
-                    elCreateEmpty('input', {"name": key, "class": ["form-control"], "type": "text", "value": output.attributes[key]})
-                )
-            ])
-        );
-    }
-    if (i > 0) {
-        elEnableId('btnOutputAttributesSave');
-    }
-    else {
-        elDisableId('btnOutputAttributesSave');
-    }
-}
-
-/**
- * Saves the output attributes
- * @returns {void}
- */
-//eslint-disable-next-line no-unused-vars
-function saveOutputAttributes() {
-    cleanupModalId('modalOutputAttributes');
-    const params = {};
-    params.outputId = Number(document.getElementById('modalOutputAttributesId').value);
-    params.attributes = {};
-    const els = document.querySelectorAll('#outputAttributesList input');
-    for (let i = 0, j = els.length; i < j; i++) {
-        params.attributes[els[i].name] = els[i].value;
-    }
-    sendAPI('MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET', params, saveOutputAttributesClose, true);
-}
-
-/**
- * Handler for MYMPD_API_PLAYER_OUTPUT_ATTRIBUTES_SET response
- * @param {object} obj jsonrpc response
- * @returns {void}
- */
-function saveOutputAttributesClose(obj) {
-    if (obj.error) {
-        showModalAlert(obj);
-    }
-    else {
-        uiElements.modalOutputAttributes.hide();
-    }
+    const outputsEl = elGetById('outputs');
+    const posY = getYpos(elGetById('outputsDropdown'));
+    outputsEl.style.maxHeight = posY < 0
+        ? (outputsEl.offsetHeight + posY) + 'px'
+        : outputsEl.style.maxHeight = 'none';
 }
 
 /**
@@ -190,19 +93,21 @@ function saveOutputAttributesClose(obj) {
  */
 function parseVolume(obj) {
     if (obj.result.volume === -1) {
-        document.getElementById('volumePrct').textContent = tn('Volumecontrol disabled');
+        elGetById('volumePrct').textContent = tn('Volumecontrol disabled');
         elHideId('volumeControl');
         elClear(
-            document.getElementById('volumeMenu').lastElementChild
+            elGetById('volumeMenu').lastElementChild
         );
     }
     else {
         elShowId('volumeControl');
-        document.getElementById('volumePrct').textContent = obj.result.volume + ' %';
-        const volumeMenu = document.getElementById('volumeMenu');
-        volumeMenu.firstElementChild.textContent =
-            obj.result.volume === 0 ? 'volume_off' :
-                obj.result.volume < 50 ? 'volume_down' : 'volume_up';
+        elGetById('volumePrct').textContent = obj.result.volume + ' %';
+        const volumeMenu = elGetById('volumeMenu');
+        volumeMenu.firstElementChild.textContent = obj.result.volume === 0
+            ? 'volume_off'
+            : obj.result.volume < 50
+                ? 'volume_down'
+                : 'volume_up';
         volumeMenu.lastElementChild.textContent = obj.result.volume + smallSpace + '%';
     }
     domCache.volumeBar.value = obj.result.volume;
@@ -210,12 +115,14 @@ function parseVolume(obj) {
 
 /**
  * Changes the relative volume 
- * @param {string} dir direction: on of up, down
+ * @param {string} dir direction: up or down
  * @returns {void}
  */
 //eslint-disable-next-line no-unused-vars
 function volumeStep(dir) {
-    const step = dir === 'up' ? settings.volumeStep : 0 - settings.volumeStep;
+    const step = dir === 'up'
+        ? settings.volumeStep
+        : 0 - settings.volumeStep;
     sendAPI("MYMPD_API_PLAYER_VOLUME_CHANGE", {
         "volume": step
     }, null, false);

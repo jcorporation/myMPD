@@ -65,7 +65,9 @@ void mpd_client_idle(struct t_mympd_state *mympd_state) {
     do {
         if (partition_state->conn_state == MPD_CONNECTED) {
             //only connected partitions has a fd
-            mpd_idle_event_waiting = mympd_state->fds[i].revents & POLLIN ? true : false;
+            mpd_idle_event_waiting = mympd_state->fds[i].revents & POLLIN
+                ? true
+                : false;
             i++;
         }
         else {
@@ -245,7 +247,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
             if (mpd_idle_event_waiting == true ||             //idle event waiting
                 request != NULL ||                            //api was called
                 jukebox_add_song == true ||                   //jukebox trigger
-                set_played == true ||                         //playstate of song must be set
+                set_played == true ||                         //play state of song must be set
                 partition_state->set_conn_options == true ||  //connection options must be set
                 set_stickers == true)                         //we must set waiting stickers
             {
@@ -272,15 +274,13 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                 }
                 //set song played state
                 if (set_played == true) {
+                    //set scrobbled state
                     partition_state->last_scrobbled_id = partition_state->song_id;
                     partition_state->last_song_scrobble_time = partition_state->song_scrobble_time;
-
-                    if (partition_state->mpd_state->last_played_count > 0) {
-                        //add song to the last_played list
-                        mympd_api_last_played_add_song(partition_state, partition_state->song_id);
-                    }
+                    //add song to the last_played list
+                    mympd_api_last_played_add_song(partition_state, partition_state->song_id);
+                    //set stickers
                     if (partition_state->mpd_state->feat_stickers == true) {
-                        //set stickers
                         sticker_inc_play_count(&partition_state->mpd_state->sticker_queue,
                             partition_state->song_uri);
                         sticker_set_last_played(&partition_state->mpd_state->sticker_queue,
@@ -309,7 +309,7 @@ static void mpd_client_idle_partition(struct t_partition_state *partition_state,
                             &partition_state->mpd_state->sticker_cache, partition_state);
                     }
                 }
-                //reenter idle mode
+                //re-enter idle mode
                 if (partition_state->conn_state == MPD_CONNECTED) {
                     MYMPD_LOG_DEBUG(partition_state->name, "Entering mpd idle mode");
                     if (mpd_send_idle_mask(partition_state->conn, partition_state->idle_mask) == false) {

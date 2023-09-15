@@ -131,7 +131,7 @@ bool is_multivalue_tag(enum mpd_tag_type tag) {
 }
 
 /**
- * Maps a tag to its sort tag pedant and checks if the sort tag is enabled.
+ * Maps a tag to its sort tag pendant and checks if the sort tag is enabled.
  * @param tag mpd tag type
  * @param available_tags pointer to enabled tags
  * @return sort tag if exists, else the original tag
@@ -187,7 +187,7 @@ bool enable_all_mpd_tags(struct t_partition_state *partition_state) {
  * @param tags tags to print
  * @return pointer to buffer
  */
-sds print_tags_array(sds buffer, const char *tagsname, struct t_tags *tags) {
+sds print_tags_array(sds buffer, const char *tagsname, const struct t_tags *tags) {
     buffer = sdscatfmt(buffer, "\"%s\": [", tagsname);
     for (unsigned i = 0; i < tags->len; i++) {
         if (i > 0) {
@@ -277,24 +277,24 @@ sds mpd_client_get_tag_values(const struct mpd_song *song, enum mpd_tag_type tag
             }
         }
         else {
-            //replace empty tag value(s) with dash
+            //set empty tag value(s)
             tag_values = multi == true
-                ? sdscatlen(tag_values, "[\"-\"]", 5)
-                : sdscatlen(tag_values, "\"-\"", 3);
+                ? sdscatlen(tag_values, "[]", 2)
+                : sdscatlen(tag_values, "\"\"", 2);
         }
     }
     return tag_values;
 }
 
 /**
- * Gets the tag values for a mpd song as json string
+ * Prints the tag values for a mpd song as json string
  * @param buffer already allocated sds string to append the values
  * @param tags_enabled true=mpd tags are enabled, else false
  * @param tagcols pointer to t_tags struct (tags to retrieve)
  * @param song pointer to a mpd_song struct to retrieve tags from
  * @return new sds pointer to buffer
  */
-sds get_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
+sds print_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
         const struct mpd_song *song)
 {
     const char *uri = mpd_song_get_uri(song);
@@ -305,7 +305,7 @@ sds get_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
             buffer = sdscatlen(buffer, ",", 1);
         }
         if (is_streamuri(uri) == false) {
-            sds albumid = album_cache_get_key(song);
+            sds albumid = album_cache_get_key(sdsempty(), song);
             buffer = tojson_sds(buffer, "AlbumId", albumid, true);
             FREE_SDS(albumid);
         }
@@ -318,6 +318,23 @@ sds get_song_tags(sds buffer, bool tags_enabled, const struct t_tags *tagcols,
     buffer = tojson_uint(buffer, "Duration", mpd_song_get_duration(song), true);
     buffer = tojson_time(buffer, "LastModified", mpd_song_get_last_modified(song), true);
     buffer = tojson_char(buffer, "uri", uri, false);
+    return buffer;
+}
+
+/**
+ * Prints the tag values for an album as json string
+ * @param buffer already allocated sds string to append the values
+ * @param tagcols pointer to t_tags struct (tags to retrieve)
+ * @param album pointer to a mpd_song struct representing the album
+ * @return new sds pointer to buffer
+ */
+sds print_album_tags(sds buffer, const struct t_tags *tagcols,
+        const struct mpd_song *album)
+{
+    buffer = print_song_tags(buffer, true, tagcols, album);
+    buffer = sdscatlen(buffer, ",", 1);
+    buffer = tojson_uint(buffer, "Discs", album_get_discs(album), true);
+    buffer = tojson_uint(buffer, "SongCount", album_get_song_count(album), false);
     return buffer;
 }
 
@@ -414,7 +431,8 @@ static sds get_tag_value_string(const struct mpd_song *song, enum mpd_tag_type t
 }
 
 /**
- * Appends a json string or array to tag_values
+ * Appends a json string or array to tag_values.
+ * Nothing is append if value is empty.
  * @param song pointer to mpd song struct
  * @param tag mpd tag type to get values for
  * @param tag_values already allocated sds string to append the values

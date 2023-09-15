@@ -22,6 +22,9 @@ function gotoPageDir(direction, limit) {
             if (offset < 0) {
                 offset = 0;
             }
+            break;
+        default:
+            logError('Invalid goto page direction: ' + direction);
     }
     gotoPage(offset, limit);
 }
@@ -54,7 +57,7 @@ function gotoPageDir(direction, limit) {
  * @returns {void}
  */
 function setPagination(total, returned) {
-    const curPaginationTop = document.getElementById(app.id + 'PaginationTop');
+    const curPaginationTop = elGetById(app.id + 'PaginationTop');
     if (curPaginationTop === null) {
         return;
     }
@@ -63,8 +66,11 @@ function setPagination(total, returned) {
         app.current.limit = 500;
     }
 
-    let totalPages = total < app.current.limit ?
-        total === -1 ? -1 : 1 : Math.ceil(total / app.current.limit);
+    let totalPages = total < app.current.limit
+        ? total === -1
+            ? -1
+            : 1
+        : Math.ceil(total / app.current.limit);
     const curPage = Math.ceil(app.current.offset / app.current.limit) + 1;
     if (app.current.limit > returned) {
         totalPages = curPage;
@@ -77,7 +83,7 @@ function setPagination(total, returned) {
     curPaginationTop.replaceWith(paginationTop);
 
     //bottom
-    const bottomBar = document.getElementById(app.id + 'ButtonsBottom');
+    const bottomBar = elGetById(app.id + 'ButtonsBottom');
     elClear(bottomBar);
     if (domCache.body.classList.contains('not-mobile') ||
         returned < 25)
@@ -119,7 +125,7 @@ function createPaginationEls(totalPages, curPage) {
 
     const pageDropdownBtn = elCreateText('button', {"type": "button", "data-bs-toggle": "dropdown",
         "class": ["rounded-end-0", "btn", "btn-secondary", "dropdown-toggle", "px-2"]}, curPage.toString());
-    const pageDropdownMenu = elCreateEmpty('div', {"class": ["dropdown-menu", "bg-lite-dark", "px-2", "page-dropdown", "dropdown-menu-dark"]});
+    const pageDropdownMenu = elCreateEmpty('div', {"class": ["dropdown-menu", "px-2", "dropdownWide"]});
 
     const row = elCreateNodes('div', {"class": ["row"]}, [
         elCreateTextTn('label', {"class": ["col-8", "col-form-label"]}, 'Elements per page'),
@@ -127,7 +133,7 @@ function createPaginationEls(totalPages, curPage) {
     ]);
 
     const elPerPage = elCreateEmpty('select', {"class": ["form-control", "form-select", "border-secondary"]});
-    for (const i in webuiSettingsDefault.uiMaxElementsPerPage.validValues) {
+    for (const i in settingsWebuiFields.maxElementsPerPage.validValues) {
         elPerPage.appendChild(
             elCreateText('option', {"value": i}, i)
         );
@@ -156,7 +162,9 @@ function createPaginationEls(totalPages, curPage) {
     let end = start + 5;
     if (end >= totalPages) {
         end = totalPages - 1;
-        start = end - 6 > 1 ? end - 6 : 1;
+        start = end - 6 > 1
+            ? end - 6
+            : 1;
     }
 
     const first = elCreateEmpty('button', {"data-title-phrase": "First page", "type": "button", "class": ["btn", "btn-secondary"]});

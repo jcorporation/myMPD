@@ -4,6 +4,52 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v12.0.0 (2023-09-15)
+
+This release improves hopefully the user experience by providing descriptive help texts, error messages and improved dialogs. Further the advanced search feature is now available for all reasonable views.
+
+As in most recent releases, the source code has been cleaned up further. The most changes are made in the frontend code.
+
+### Notes
+
+- Some of the UI related settings are reset to default
+- Old home icon links to some views are invalid
+
+### API changes
+
+This release changes some API methods.
+
+- merge MYMPD_API_QUEUE_SEARCH_ADV and MYMPD_API_QUEUE_LIST into MYMPD_API_QUEUE_SEARCH
+- rename MYMPD_API_PRESET_LOAD to MYMPD_API_PRESET_APPLY
+- MYMPD_API_PLAYLIST_RM_ALL: parameters changed
+- MYMPD_API_PLAYER_OUTPUT_GET: new
+- MYMPD_API_PLAYER_OUTPUT_LIST: respond with fewer details
+
+### Changelog
+
+- Feat: move song fingerprint calculation in worker thread #1046
+- Feat: display album tags in jukebox album list #1069
+- Feat: add option for compact grids #1074
+- Feat: add advanced search to more views #1048
+- Feat: add more inline help text's #1072
+- Feat: improve validation of form fields #1083
+- Feat: add spinners to buttons
+- Feat: display the number of channels #1085
+- Feat: show source objects in action modals
+- Feat: add enforce disc tag option #1086
+- Feat: add bulgarian translation
+- Upd: support multiple languages for webradioDB #1097
+- Upd: some code enhancements #1045
+- Upd: Bootstrap 5.3.1
+- Upd: rework settings
+- Upd: split JavaScript in separate files for views and modals
+- Upd: dependencies sds, utest, utf8
+- Fix: calculate correct position for jukebox list
+- Fix: calculate correct position for playlist content list
+- Fix: enable connection settings if myMPD can not connect to MPD #1102
+
+***
+
 ## myMPD v11.0.5 (2023-08-31)
 
 This is a small bug fix release.
@@ -1751,7 +1797,7 @@ This is a small maintenance release.
 
 myMPD 6.2.0 adds more functionality to smart playlists and playlists generally. The publishing feature of myMPD was completely reworked and supports now webdav to manage pics, mpd music_directory and playlists. This feature is in the default config disabled and must be enabled in mympd.conf. Also the notification system was reworked and supports now the brand new HTML5 MediaSession API.
 
-Please give the new tool mympd-config a chance. This tool parses your mpd.conf and generates a suitable mympd.conf. For details look at https://github.com/jcorporation/myMPD/wiki/mympd-config.
+Please give the new tool mympd-config a chance. This tool parses your mpd.conf and generates a suitable mympd.conf.
 
 ### Changelog
 
@@ -1946,7 +1992,7 @@ This minor release supports now table and popup menu navigation through the keyb
 
 ### Changelog
 
-- Feat: table navigation mode, see https://github.com/jcorporation/myMPD/wiki/Keyboard-Shortcuts for details
+- Feat: table navigation mode
 - Feat: support mpd fingerprint command #146
 - Feat: display current song title in header bar
 - Feat: new "update_lastplayed" event

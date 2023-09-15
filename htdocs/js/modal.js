@@ -12,7 +12,13 @@
  */
 //eslint-disable-next-line no-unused-vars
 function openModal(modal) {
-    uiElements[modal].show();
+    switch(modal) {
+        case 'modalScripts':
+            showListScriptModal();
+            break;
+        default:
+            uiElements[modal].show();
+    }
 }
 
 /**
@@ -20,13 +26,86 @@ function openModal(modal) {
  * @returns {Element} the opened modal or null if no modal is opened
  */
  function getOpenModal() {
-    const modals = document.querySelectorAll('.modal');
-    for (const modal of modals) {
-        if (modal.classList.contains('show')) {
-            return modal;
+    return document.querySelector('.modal.show');
+}
+
+/**
+ * Sets the focus to the first input or select element
+ * @param {EventTarget | Element} container the parent of the elements
+ * @returns {void}
+ */
+function focusFirstInput(container) {
+    const inputs = container.querySelectorAll('.modal-body input, .modal-body select, .modal-body textarea');
+    for (const input of inputs) {
+        if (input.offsetHeight === 0) {
+            // element is not shown
+            continue;
         }
+        if (input.getAttribute('readonly') !== null &&
+            input.getAttribute('data-is') !== 'mympd-select-search')
+        {
+            // readonly element
+            continue;
+        }
+        setFocus(input);
+        break;
     }
-    return null;
+}
+
+/**
+ * Populates the entities element
+ * @param {string} id element id
+ * @param {Array} entities array with entities to add
+ * @returns {void}
+ */
+function populateEntities(id, entities) {
+    elGetById(id).value = arrayToLines(entities);
+}
+
+/**
+ * Handles the apply jsonrpc response for a modal
+ * Shows the possible error and leaves the modal open
+ * @param {object} obj jsonrpc response
+ * @returns {boolean} true on close, else false
+ */
+function modalApply(obj) {
+    return _modalClose(obj, false);
+}
+
+/**
+ * Handles the save/apply jsonrpc response for a modal
+ * Shows the possible error or closes the modal
+ * @param {object} obj jsonrpc response
+ * @returns {boolean} true on close, else false
+ */
+function modalClose(obj) {
+    return _modalClose(obj, true);
+}
+
+/**
+ * Handles the save/apply jsonrpc response for a modal
+ * @param {object} obj jsonrpc response
+ * @param {boolean} close close the modal if there is no error?
+ * @returns {boolean} true on close, else false
+ */
+function _modalClose(obj, close) {
+    const modal = getOpenModal();
+    const modalId = modal.getAttribute('id');
+    const spinnerEl = modal.querySelector('.spinner-border');
+    if (spinnerEl) {
+        btnWaiting(spinnerEl.parentNode, false);
+    }
+    if (obj.error) {
+        if (highlightInvalidInput(modalId, obj) === false) {
+            showModalAlert(obj);
+        }
+        return false;
+    }
+    // no error
+    if (close === true) {
+        uiElements[modalId].hide();
+    }
+    return true;
 }
 
 /**
@@ -35,7 +114,7 @@ function openModal(modal) {
  * @returns {void}
  */
  function cleanupModalId(id) {
-    cleanupModal(document.getElementById(id));
+    cleanupModal(elGetById(id));
 }
 
 /**
@@ -56,6 +135,10 @@ function cleanupModal(el) {
     //remove spinners
     const spinners = el.querySelectorAll('.spinner-border');
     for (let i = spinners.length - 1; i >= 0; i--) {
+        const btn = spinners[i].parentNode;
+        if (btn) {
+            btn.removeAttribute('disabled');
+        }
         spinners[i].remove();
     }
 }
@@ -68,7 +151,7 @@ function cleanupModal(el) {
  * @returns {void}
  */
  function showConfirm(text, btnText, callback) {
-    document.getElementById('modalConfirmText').textContent = text;
+    elGetById('modalConfirmText').textContent = text;
     const yesBtn = elCreateText('button', {"id": "modalConfirmYesBtn", "class": ["btn", "btn-danger"]}, btnText);
     yesBtn.addEventListener('click', function() {
         if (callback !== undefined &&
@@ -78,7 +161,7 @@ function cleanupModal(el) {
         }
         uiElements.modalConfirm.hide();
     }, false);
-    document.getElementById('modalConfirmYesBtn').replaceWith(yesBtn);
+    elGetById('modalConfirmYesBtn').replaceWith(yesBtn);
     uiElements.modalConfirm.show();
 }
 

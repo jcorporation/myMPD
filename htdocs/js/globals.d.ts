@@ -11,6 +11,7 @@ interface ChildNode {
 }
 
 interface Element {
+    setValue: any; //custom elements
     addFilterResult: any; //custom elements
     addFilterResultPlain: any; //custom elements
     button: any; //custom elements
@@ -40,11 +41,13 @@ interface EventTarget {
     getAttribute: any;
     id: any;
     nextElementSibling: any;
+    previousElementSibling: any;
     nodeName: any;
     offsetWidth: any;
     options: any;
     parentNode: any;
     querySelector: any;
+    querySelectorAll: any;
     remove: any;
     selectedIndex: any;
     tagName: any;

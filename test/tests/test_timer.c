@@ -40,44 +40,44 @@ UTEST(timer, test_timer_add_replace_remove) {
 UTEST(timer, test_timer_parse_definition) {
     struct t_timer_list l;
     mympd_api_timer_timerlist_init(&l);
-    struct t_timer_definition *def1 = malloc(sizeof(struct t_timer_definition));
-    ASSERT_TRUE(def1 == NULL ? false : true);
     sds e = sdsempty();
     sds s1 = sdsnew("{\"params\":{\"partition\":\"default\",\"timerid\":103,\"name\":\"example timer1\",\"interval\":86400,\"enabled\":true,\"startHour\":7,\"startMinute\":0,\"action\":\"player\",\"subaction\":\"startplay\",\"playlist\":\"test\",\"volume\":50,\"preset\":\"\",\"weekdays\":[false,false,false,false,false,true,true],\"arguments\": {\"arg1\":\"value1\"}}}");
-    def1 = mympd_api_timer_parse(def1, s1, MPD_PARTITION_DEFAULT, &e);
-    ASSERT_STREQ("", e);
+    struct t_jsonrpc_parse_error parse_error;
+    jsonrpc_parse_error_init(&parse_error);
+    struct t_timer_definition *def1 =  mympd_api_timer_parse(s1, MPD_PARTITION_DEFAULT, &parse_error);
+    ASSERT_TRUE(parse_error.message == NULL);
     bool rc = mympd_api_timer_add(&l, 10, 0, timer_handler_select, 103, def1);
     ASSERT_TRUE(rc);
     ASSERT_STREQ("example timer1", l.list->definition->name);
 
-    struct t_timer_definition *def2 = malloc(sizeof(struct t_timer_definition));
-    ASSERT_TRUE(def2 == NULL ? false : true);
     sds s2 = sdsnew("{\"params\":{\"partition\":\"default\",\"timerid\":103,\"name\":\"example timer2\",\"interval\":86400,\"enabled\":true,\"startHour\":7,\"startMinute\":0,\"action\":\"player\",\"subaction\":\"startplay\",\"playlist\":\"\",\"volume\":50,\"preset\":\"test-preset\",\"weekdays\":[false,false,false,false,false,true,true],\"arguments\": {\"arg1\":\"value1\"}}}");
-    def2 = mympd_api_timer_parse(def2, s2, MPD_PARTITION_DEFAULT, &e);
-    ASSERT_STREQ("", e);
+    struct t_timer_definition *def2 = mympd_api_timer_parse(s2, MPD_PARTITION_DEFAULT, &parse_error);
+    ASSERT_TRUE(parse_error.message == NULL);
     rc = mympd_api_timer_replace(&l, 10, 0, timer_handler_select, 103, def2);
     ASSERT_TRUE(rc);
     ASSERT_STREQ("example timer2", l.list->definition->name);
 
     ASSERT_TRUE(l.list->definition->enabled);
-    mympd_api_timer_toggle(&l, 103);
+    rc = mympd_api_timer_toggle(&l, 103, &e);
+    ASSERT_TRUE(rc);
+    ASSERT_STREQ("", e);
     ASSERT_FALSE(l.list->definition->enabled);
 
     sdsfree(e);
     sdsfree(s1);
     sdsfree(s2);
     mympd_api_timer_timerlist_clear(&l);
+    jsonrpc_parse_error_clear(&parse_error);
 }
 
 UTEST(timer, test_timer_write_read) {
     struct t_timer_list l;
     mympd_api_timer_timerlist_init(&l);
-    struct t_timer_definition *def1 = malloc(sizeof(struct t_timer_definition));
-    ASSERT_TRUE(def1 == NULL ? false : true);
-    sds e = sdsempty();
     sds s1 = sdsnew("{\"params\":{\"partition\":\"default\",\"timerid\":103,\"name\":\"example timer1\",\"interval\":86400,\"enabled\":true,\"startHour\":7,\"startMinute\":0,\"action\":\"player\",\"subaction\":\"startplay\",\"playlist\":\"\",\"volume\":50,\"preset\":\"test-preset\",\"weekdays\":[false,false,false,false,false,true,true],\"arguments\": {\"arg1\":\"value1\"}}}");
-    def1 = mympd_api_timer_parse(def1, s1, MPD_PARTITION_DEFAULT, &e);
-    ASSERT_STREQ("", e);
+    struct t_jsonrpc_parse_error parse_error;
+    jsonrpc_parse_error_init(&parse_error);
+    struct t_timer_definition *def1 =  mympd_api_timer_parse(s1, MPD_PARTITION_DEFAULT, &parse_error);
+    ASSERT_TRUE(parse_error.message == NULL);
     bool rc = mympd_api_timer_add(&l, 10, 0, timer_handler_select, 103, def1);
     ASSERT_TRUE(rc);
 
@@ -92,6 +92,5 @@ UTEST(timer, test_timer_write_read) {
 
     mympd_api_timer_timerlist_clear(&l);
     unlink("/tmp/mympd-test/state/timer_list");
-    sdsfree(e);
     sdsfree(s1);
 }

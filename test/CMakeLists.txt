@@ -28,6 +28,7 @@ set(TEST_SOURCES
   ../src/lib/utility.c
   ../src/lib/validate.c
   ../src/mpd_client/errorhandler.c
+  ../src/mpd_client/jukebox.c
   ../src/mpd_client/presets.c
   ../src/mpd_client/queue.c
   ../src/mpd_client/search.c
@@ -39,7 +40,9 @@ set(TEST_SOURCES
   ../src/mympd_api/extra_media.c
   ../src/mympd_api/home.c
   ../src/mympd_api/last_played.c
+  ../src/mympd_api/jukebox.c
   ../src/mympd_api/lyrics.c
+  ../src/mympd_api/settings.c
   ../src/mympd_api/status.c
   ../src/mympd_api/sticker.c
   ../src/mympd_api/timer.c

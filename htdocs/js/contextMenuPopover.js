@@ -30,6 +30,7 @@ function showPopover(target, contextMenuType) {
                 //navbar icons - use a popover
                 popoverInit = createPopoverSimple(target, target.getAttribute('title'), addMenuItemsNavbarActions);
                 break;
+            // No Default
         }
     }
     popoverInit.show();
@@ -120,6 +121,7 @@ function createPopoverInit(target, title, bodyTemplate) {
             // @ts-ignore
             options.placement = getXpos(target) < 100 ? 'right' : 'bottom';
             break;
+        // No Default
     }
     return new BSN.Popover(target, options);
 }

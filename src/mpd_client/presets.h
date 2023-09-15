@@ -10,9 +10,11 @@
 #include "src/lib/list.h"
 #include "src/lib/mympd_state.h"
 
-sds presets_list(struct t_list *presets, sds buffer);
-bool presets_delete(struct t_list *presets, const char *preset);
-bool presets_save(struct t_partition_state *partition_state);
-bool presets_load(struct t_partition_state *partition_state);
+bool preset_apply(struct t_partition_state *partition_state, sds preset_name, sds *error);
+sds presets_list(struct t_list *preset_list, sds buffer);
+bool preset_save(struct t_list *preset_list, sds preset_name, sds preset_value, sds *error);
+bool preset_delete(struct t_list *preset_list, const char *preset_name);
+bool preset_list_save(struct t_partition_state *partition_state);
+bool preset_list_load(struct t_partition_state *partition_state);
 
 #endif

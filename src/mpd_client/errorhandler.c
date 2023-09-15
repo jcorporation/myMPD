@@ -38,12 +38,12 @@ void mympd_set_mpd_failure(struct t_partition_state *partition_state, const char
 /**
  * Checks for mpd protocol error and tries to recover it
  * @param partition_state pointer to partition specific states
- * @param buffer pointer to an already allocated sds string for the error message
+ * @param error pointer to an already allocated sds string for the error message
  * @param command last mpd command
  * @return true on success else false
  */
-bool mympd_check_error_and_recover(struct t_partition_state *partition_state, sds *buffer, const char *command) {
-    return check_error_and_recover(partition_state, buffer, GENERAL_API_UNKNOWN, 0, RESPONSE_TYPE_NONE, command);
+bool mympd_check_error_and_recover(struct t_partition_state *partition_state, sds *error, const char *command) {
+    return check_error_and_recover(partition_state, error, GENERAL_API_UNKNOWN, 0, RESPONSE_TYPE_NONE, command);
 }
 
 /**

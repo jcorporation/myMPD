@@ -5,12 +5,14 @@
 */
 
 #include "compile_time.h"
+#include "src/lib/api.h"
 #include "src/mympd_api/mympd_api.h"
 
 #include "src/lib/album_cache.h"
 #include "src/lib/filehandler.h"
 #include "src/lib/log.h"
 #include "src/lib/mem.h"
+#include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/sticker_cache.h"
 #include "src/mpd_client/autoconf.h"
@@ -70,6 +72,10 @@ void *mympd_api_loop(void *arg_config) {
 
     //start trigger
     mympd_api_trigger_execute(&mympd_state->trigger_list, TRIGGER_MYMPD_START, MPD_PARTITION_ALL);
+
+    //push ready state to webserver
+    struct t_work_response *web_server_response = create_response_new(CONN_ID_CONFIG_TO_WEBSERVER, 0, INTERNAL_API_WEBSERVER_READY, MPD_PARTITION_DEFAULT);
+    mympd_queue_push(web_server_queue, web_server_response, 0);
 
     //thread loop
     while (s_signal_received == 0) {

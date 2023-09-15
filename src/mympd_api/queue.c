@@ -5,6 +5,8 @@
 */
 
 #include "compile_time.h"
+#include "dist/sds/sds.h"
+#include "src/lib/mympd_state.h"
 #include "src/mympd_api/queue.h"
 
 #include "src/lib/album_cache.h"
@@ -26,7 +28,10 @@
 /**
  * Private definitions
  */
-sds print_queue_entry(struct t_partition_state *partition_state, sds buffer, const struct t_tags *tagcols, struct mpd_song *song);
+ static bool add_queue_search_adv_params(struct t_partition_state *partition_state,
+        sds sort, bool sortdesc, unsigned offset, unsigned limit);
+sds print_queue_entry(struct t_partition_state *partition_state, sds buffer,
+        const struct t_tags *tagcols, struct mpd_song *song);
 
 /**
  * Public functions
@@ -172,6 +177,12 @@ bool mympd_api_queue_prio_set_highest(struct t_partition_state *partition_state,
  * @return bool true on success, else false
  */
 bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, struct t_list *song_ids, unsigned to, unsigned whence, sds *error) {
+    if (whence != MPD_POSITION_ABSOLUTE &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     if (song_ids->length == 0) {
         *error = sdscat(*error, "No MPD queue song ids provided");
         return false;
@@ -202,6 +213,12 @@ bool mympd_api_queue_move_relative(struct t_partition_state *partition_state, st
  * @return true on success, else false
  */
 bool mympd_api_queue_insert(struct t_partition_state *partition_state, struct t_list *uris, unsigned to, unsigned whence, sds *error) {
+    if (whence != MPD_POSITION_ABSOLUTE &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     if (uris->length == 0) {
         *error = sdscat(*error, "No uris provided");
         return false;
@@ -260,6 +277,12 @@ bool mympd_api_queue_replace(struct t_partition_state *partition_state, struct t
  * @return true on success, else false
  */
 bool mympd_api_queue_insert_search(struct t_partition_state *partition_state, sds expression, unsigned to, unsigned whence, sds *error) {
+    if (whence != MPD_POSITION_ABSOLUTE &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     const char *sort = NULL;
     bool sortdesc = false;
     return mpd_client_search_add_to_queue(partition_state, expression, to, whence, sort, sortdesc, error);
@@ -298,6 +321,12 @@ bool mympd_api_queue_replace_search(struct t_partition_state *partition_state, s
  * @return true on success, else false
  */
 bool mympd_api_queue_insert_albums(struct t_partition_state *partition_state, struct t_list *albumids, unsigned to, unsigned whence, sds *error) {
+    if (whence != MPD_POSITION_ABSOLUTE &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     if (albumids->length == 0) {
         *error = sdscat(*error, "No album ids provided");
         return false;
@@ -357,6 +386,12 @@ bool mympd_api_queue_replace_albums(struct t_partition_state *partition_state, s
  * @return true on success, else false
  */
 bool mympd_api_queue_insert_album_disc(struct t_partition_state *partition_state, sds albumid, sds disc, unsigned to, unsigned whence, sds *error) {
+    if (whence != MPD_POSITION_ABSOLUTE &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     struct mpd_song *mpd_album = album_cache_get_album(&partition_state->mpd_state->album_cache, albumid);
     if (mpd_album == NULL) {
         *error = sdscat(*error, "Album not found");
@@ -405,6 +440,12 @@ bool mympd_api_queue_replace_album_disc(struct t_partition_state *partition_stat
  * @return true on success, else false
  */
 bool mympd_api_queue_insert_plist(struct t_partition_state *partition_state, struct t_list *plists, unsigned to, unsigned whence, sds *error) {
+    if (whence != MPD_POSITION_ABSOLUTE &&
+        partition_state->mpd_state->feat_whence == false)
+    {
+        *error = sdscat(*error, "Method not supported");
+        return false;
+    }
     if (plists->length == 0) {
         *error = sdscat(*error, "No playlists provided");
         return false;
@@ -518,7 +559,7 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
 }
 
 /**
- * Lists the queue
+ * Lists the queue, this is faster for older MPD servers than the search function below.
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc id
@@ -528,32 +569,22 @@ sds mympd_api_queue_crop(struct t_partition_state *partition_state, sds buffer, 
  * @return pointer to buffer
  */
 sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, long request_id,
-        long offset, long limit, const struct t_tags *tagcols)
+        unsigned offset, unsigned limit, const struct t_tags *tagcols)
 {
-    enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_LIST;
-    //we need first the queue status
-    struct mpd_status *status = mpd_run_status(partition_state->conn);
-    if (status != NULL) {
-        partition_state->queue_version = mpd_status_get_queue_version(status);
-        partition_state->queue_length = (long long)mpd_status_get_queue_length(status);
-        mpd_status_free(status);
-    }
-    mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_run_status") == false) {
-        return buffer;
-    }
-
+    enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH;
+    //update the queue status
+    mpd_client_queue_status(partition_state, NULL);
     //Check offset
     if (offset >= partition_state->queue_length) {
         offset = 0;
     }
     //list the queue
-    long real_limit = offset + limit;
-    if (mpd_send_list_queue_range_meta(partition_state->conn, (unsigned)offset, (unsigned)real_limit) == true) {
+    unsigned real_limit = offset + limit;
+    if (mpd_send_list_queue_range_meta(partition_state->conn, offset, real_limit) == true) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
         unsigned total_time = 0;
-        long entities_returned = 0;
+        unsigned entities_returned = 0;
         struct mpd_song *song;
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
             if (entities_returned++) {
@@ -567,8 +598,8 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
         buffer = sdscatlen(buffer, "],", 2);
         buffer = tojson_uint(buffer, "totalTime", total_time, true);
         buffer = tojson_llong(buffer, "totalEntities", partition_state->queue_length, true);
-        buffer = tojson_long(buffer, "offset", offset, true);
-        buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+        buffer = tojson_uint(buffer, "offset", offset, true);
+        buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
         buffer = jsonrpc_end(buffer);
     }
     mpd_response_finish(partition_state->conn);
@@ -581,48 +612,48 @@ sds mympd_api_queue_list(struct t_partition_state *partition_state, sds buffer, 
  * @param partition_state pointer to partition state
  * @param buffer already allocated sds string to append the response
  * @param request_id jsonrpc id
- * @param tag tag to search
- * @param offset offset for the list
- * @param limit maximum entries to print
- * @param searchstr string to search in tag
+ * @param expression mpd filter expression
+ * @param sort tag to sort - only relevant for feat_advqueue
+ * @param sortdesc false = ascending, true = descending sort - only relevant for feat_advqueue
+ * @param offset offset for the list - only relevant for feat_advqueue
+ * @param limit maximum entries to print - only relevant for feat_advqueue
  * @param tagcols columns to print
  * @return pointer to buffer
  */
 sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer, long request_id,
-        const char *tag, long offset, long limit, const char *searchstr, const struct t_tags *tagcols)
+        sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
+        const struct t_tags *tagcols)
 {
     enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH;
-    if (mpd_search_queue_songs(partition_state->conn, false) == false) {
+    //update the queue status
+    mpd_client_queue_status(partition_state, NULL);
+
+    sds real_expression = sdslen(expression) == 0
+        ? sdsnew("(base '')")
+        : sdsdup(expression);
+
+    if (mpd_search_queue_songs(partition_state->conn, false) == false ||
+        mpd_search_add_expression(partition_state->conn, real_expression) == false ||
+        add_queue_search_adv_params(partition_state, sort, sortdesc, offset, limit) == false)
+    {
         mpd_search_cancel(partition_state->conn);
+        FREE_SDS(real_expression);
         return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
             JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
     }
-    enum mpd_tag_type tag_type = mpd_tag_name_parse(tag);
-    if (tag_type != MPD_TAG_UNKNOWN) {
-        if (mpd_search_add_tag_constraint(partition_state->conn, MPD_OPERATOR_DEFAULT, tag_type, searchstr) == false) {
-            mpd_search_cancel(partition_state->conn);
-            return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
-        }
-    }
-    else {
-        if (mpd_search_add_any_tag_constraint(partition_state->conn, MPD_OPERATOR_DEFAULT, searchstr) == false) {
-            mpd_search_cancel(partition_state->conn);
-            return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
-        }
-    }
-
+    FREE_SDS(real_expression);
     if (mpd_search_commit(partition_state->conn)) {
         buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
         buffer = sdscat(buffer, "\"data\":[");
         struct mpd_song *song;
         unsigned total_time = 0;
-        long entity_count = 0;
-        long entities_returned = 0;
-        long real_limit = offset + limit;
+        const unsigned real_limit = offset + limit;
+        unsigned entities_returned = 0;
+        unsigned entity_count = 0;
         while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-            if (entity_count >= offset && entity_count < real_limit) {
+            if (partition_state->mpd_state->feat_advqueue == true ||
+                entity_count >= offset)
+            {
                 if (entities_returned++) {
                     buffer= sdscatlen(buffer, ",", 1);
                 }
@@ -630,85 +661,70 @@ sds mympd_api_queue_search(struct t_partition_state *partition_state, sds buffer
                 total_time += mpd_song_get_duration(song);
             }
             mpd_song_free(song);
-            entity_count++;
+            if (partition_state->mpd_state->feat_advqueue == false) {
+                entity_count++;
+                if (entity_count == real_limit) {
+                    break;
+                }
+            }
         }
-
         buffer = sdscatlen(buffer, "],", 2);
         buffer = tojson_uint(buffer, "totalTime", total_time, true);
-        buffer = tojson_long(buffer, "totalEntities", entity_count, true);
-        buffer = tojson_long(buffer, "offset", offset, true);
-        buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
+        if (sdslen(expression) == 0) {
+            buffer = tojson_llong(buffer, "totalEntities", partition_state->queue_length, true);
+        }
+        if (entities_returned < limit) {
+            buffer = tojson_uint(buffer, "totalEntities", (offset + entities_returned), true);
+        }
+        else {
+            buffer = tojson_long(buffer, "totalEntities", -1, true);
+        }
+        buffer = tojson_uint(buffer, "offset", offset, true);
+        buffer = tojson_uint(buffer, "returnedEntities", entities_returned, false);
         buffer = jsonrpc_end(buffer);
     }
     mpd_response_finish(partition_state->conn);
     if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_queue_songs") == false) {
         return buffer;
     }
-
     return buffer;
 }
 
-/**
- * Searches the queue - advanced mode for newer mpd versions
- * @param partition_state pointer to partition state
- * @param buffer already allocated sds string to append the response
- * @param request_id jsonrpc id
- * @param expression mpd filter expression
- * @param sort tag to sort
- * @param sortdesc false = ascending, true = descending sort
- * @param offset offset for the list
- * @param limit maximum entries to print
- * @param tagcols columns to print
- * @return pointer to buffer
- */
-sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds buffer, long request_id,
-        sds expression, sds sort, bool sortdesc, unsigned offset, unsigned limit,
-        const struct t_tags *tagcols)
-{
-    enum mympd_cmd_ids cmd_id = MYMPD_API_QUEUE_SEARCH_ADV;
-    if (mpd_search_queue_songs(partition_state->conn, false) == false) {
-        mpd_search_cancel(partition_state->conn);
-        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-            JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
-    }
+//private functions
 
-    if (sdslen(expression) == 0) {
-        //search requires an expression
-        if (mpd_search_add_expression(partition_state->conn, "(base '')") == false) {
-            return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
-        }
-    }
-    else {
-        if (mpd_search_add_expression(partition_state->conn, expression) == false) {
-            return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
-        }
+/**
+ * Adds sort and window parameter to queue search, if feat_advqueue is true
+ * @param partition_state pointer to partition state
+ * @param sort tag to sort
+ * @param sortdesc sort descending?
+ * @param offset offset for the list - only relevant for feat_advqueue
+ * @param limit maximum entries to print - only relevant for feat_advqueue
+ * @return true on success, else false
+ */
+static bool add_queue_search_adv_params(struct t_partition_state *partition_state,
+        sds sort, bool sortdesc, unsigned offset, unsigned limit)
+{
+    if (partition_state->mpd_state->feat_advqueue == false) {
+        return true;
     }
 
     enum mpd_tag_type sort_tag = mpd_tag_name_parse(sort);
     if (sort_tag != MPD_TAG_UNKNOWN) {
         sort_tag = get_sort_tag(sort_tag, &partition_state->mpd_state->tags_mpd);
         if (mpd_search_add_sort_tag(partition_state->conn, sort_tag, sortdesc) == false) {
-            mpd_search_cancel(partition_state->conn);
-            return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
+            return false;
         }
     }
     else if (strcmp(sort, "LastModified") == 0) {
         //swap order
         sortdesc = sortdesc == false ? true : false;
         if (mpd_search_add_sort_name(partition_state->conn, "Last-Modified", sortdesc) == false) {
-            mpd_search_cancel(partition_state->conn);
-            return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
+            return false;
         }
     }
     else if (strcmp(sort, "Priority") == 0) {
         if (mpd_search_add_sort_name(partition_state->conn, "prio", sortdesc) == false) {
-            mpd_search_cancel(partition_state->conn);
-            return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-                JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
+            return false;
         }
     }
     else {
@@ -717,47 +733,10 @@ sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds bu
 
     unsigned real_limit = limit == 0 ? offset + MPD_PLAYLIST_LENGTH_MAX : offset + limit;
     if (mpd_search_add_window(partition_state->conn, offset, real_limit) == false) {
-        mpd_search_cancel(partition_state->conn);
-        return jsonrpc_respond_message(buffer, cmd_id, request_id, JSONRPC_FACILITY_DATABASE,
-            JSONRPC_SEVERITY_ERROR, "Error creating MPD search queue command");
+        return false;
     }
-
-    if (mpd_search_commit(partition_state->conn)) {
-        buffer = jsonrpc_respond_start(buffer, cmd_id, request_id);
-        buffer = sdscat(buffer, "\"data\":[");
-        struct mpd_song *song;
-        unsigned total_time = 0;
-        long entities_returned = 0;
-        while ((song = mpd_recv_song(partition_state->conn)) != NULL) {
-            if (entities_returned++) {
-                buffer= sdscatlen(buffer, ",", 1);
-            }
-            buffer = print_queue_entry(partition_state, buffer, tagcols, song);
-            total_time += mpd_song_get_duration(song);
-            mpd_song_free(song);
-        }
-
-        buffer = sdscatlen(buffer, "],", 2);
-        buffer = tojson_uint(buffer, "totalTime", total_time, true);
-        if (sdslen(expression) == 0) {
-            buffer = tojson_llong(buffer, "totalEntities", partition_state->queue_length, true);
-        }
-        else {
-            buffer = tojson_long(buffer, "totalEntities", -1, true);
-        }
-        buffer = tojson_uint(buffer, "offset", offset, true);
-        buffer = tojson_long(buffer, "returnedEntities", entities_returned, false);
-        buffer = jsonrpc_end(buffer);
-    }
-    mpd_response_finish(partition_state->conn);
-    if (mympd_check_error_and_recover_respond(partition_state, &buffer, cmd_id, request_id, "mpd_search_queue_songs") == false) {
-        return buffer;
-    }
-
-    return buffer;
+    return true;
 }
-
-//private functions
 
 /**
  * Prints a queue entry as an json object string
@@ -767,7 +746,9 @@ sds mympd_api_queue_search_adv(struct t_partition_state *partition_state, sds bu
  * @param song pointer to mpd song struct
  * @return pointer to buffer
  */
-sds print_queue_entry(struct t_partition_state *partition_state, sds buffer, const struct t_tags *tagcols, struct mpd_song *song) {
+sds print_queue_entry(struct t_partition_state *partition_state, sds buffer,
+        const struct t_tags *tagcols, struct mpd_song *song)
+{
     buffer = sdscatlen(buffer, "{", 1);
     buffer = tojson_uint(buffer, "id", mpd_song_get_id(song), true);
     buffer = tojson_uint(buffer, "Pos", mpd_song_get_pos(song), true);
@@ -775,7 +756,7 @@ sds print_queue_entry(struct t_partition_state *partition_state, sds buffer, con
     const struct mpd_audio_format *audioformat = mpd_song_get_audio_format(song);
     buffer = printAudioFormat(buffer, audioformat);
     buffer = sdscatlen(buffer, ",", 1);
-    buffer = get_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
+    buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
     const char *uri = mpd_song_get_uri(song);
     buffer = sdscatlen(buffer, ",", 1);
     if (is_streamuri(uri) == true) {

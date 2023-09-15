@@ -85,8 +85,14 @@ let allOutputs = null;
 const ligatures = {
     'checked': 'task_alt',
     'more': 'menu',
-    'unchecked': 'radio_button_unchecked'
+    'unchecked': 'radio_button_unchecked',
+    'partitionSpecific': 'dashboard',
+    'browserSpecific': 'web_asset'
 };
+
+// pre-generated elements
+/** @type {object} */
+const pEl = {};
 
 /** @type {string} */
 const smallSpace = '\u2009';
@@ -158,11 +164,796 @@ let phrases = {};
 /**
  * This settings are saved in the browsers localStorage
  */
+const settingsLocalFields = {
+    "localPlaybackAutoplay": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Autoplay",
+        "form": "modalSettingsLocalPlaybackCollapse",
+        "help": "helpSettingsLocalPlaybackAutoplay",
+        "hintIcon": ligatures['browserSpecific'],
+        "hintText": "Browser specific setting"
+    },
+    "partition": {
+        "defaultValue": "default",
+        "inputType": "none"
+    },
+    "scaleRatio": {
+        "defaultValue": "1.0",
+        "inputType": "text",
+        "title": "Scale ratio",
+        "form": "modalSettingsThemeFrm2",
+        "hintIcon": ligatures['browserSpecific'],
+        "hintText": "Browser specific setting",
+        "cssClass": ["featMobile"],
+        "validate": {
+            "cmd": "validateFloatEl",
+            "options": []
+        },
+        "invalid": "Invalid scale ratio"
+    },
+    "viewMode": {
+        "defaultValue": "auto",
+        "validValues": {
+            "auto": "Autodetect",
+            "mobile": "Mobile",
+            "desktop": "Desktop"
+        },
+        "inputType": "select",
+        "title": "View mode",
+        "form": "modalSettingsThemeFrm2",
+        "help": "helpSettingsViewMode",
+        "hintIcon": ligatures['browserSpecific'],
+        "hintText": "Browser specific setting",
+        "sort": 1
+    }
+};
+
 const localSettings = {
-    "enforceMobile": false,
-    "localPlaybackAutoplay": false,
-    "partition": "default",
-    "scaleRatio": "1.0"
+    /** @type {string} */
+    "viewMode": settingsLocalFields.viewMode.defaultValue,
+    /** @type {boolean} */
+    "localPlaybackAutoplay": settingsLocalFields.localPlaybackAutoplay.defaultValue,
+    /** @type {string} */
+    "partition": settingsLocalFields.partition.defaultValue,
+    /** @type {string} */
+    "scaleRatio": settingsLocalFields.scaleRatio.defaultValue
+};
+
+// partition specific settings
+const settingsPartitionFields = {
+    "mpdStreamPort": {
+        "defaultValue": defaults["PARTITION_MPD_STREAM_PORT"],
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Stream port",
+        "form": "modalSettingsLocalPlaybackCollapse",
+        "help": "helpSettingsStreamPort",
+        "hintIcon": ligatures['partitionSpecific'],
+        "hintText": "Partition specific setting"
+    },
+    "streamUri": {
+        "defaultValue": defaults["PARTITION_MPD_STREAM_URI"],
+        "placeholder": "auto",
+        "inputType": "text",
+        "title": "Stream URI",
+        "form": "modalSettingsLocalPlaybackCollapse",
+        "help": "helpSettingsStreamUri",
+        "hintIcon": ligatures['partitionSpecific'],
+        "hintText": "Partition specific setting"
+    },
+    "highlightColor": {
+        "defaultValue": defaults["PARTITION_HIGHLIGHT_COLOR"],
+        "inputType": "color",
+        "title": "Highlight color",
+        "form": "modalSettingsThemeFrm1",
+        "hintIcon": ligatures['partitionSpecific'],
+        "hintText": "Partition specific setting",
+        "sort": 3
+    },
+    "highlightColorContrast": {
+        "defaultValue": defaults["PARTITION_HIGHLIGHT_COLOR_CONTRAST"],
+        "inputType": "color",
+        "title": "Highlight contrast color",
+        "form": "modalSettingsThemeFrm1",
+        "hintIcon": ligatures['partitionSpecific'],
+        "hintText": "Partition specific setting",
+        "sort":4
+    }
+};
+
+// global settings
+const settingsFields = {
+    "volumeMin": {
+        "defaultValue": defaults["MYMPD_VOLUME_MIN"],
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Volume min.",
+        "form": "modalSettingsVolumeFrm"
+    },
+    "volumeMax": {
+        "defaultValue": defaults["MYMPD_VOLUME_MAX"],
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Volume max.",
+        "form": "modalSettingsVolumeFrm"
+    },
+    "volumeStep": {
+        "defaultValue": defaults["MYMPD_VOLUME_STEP"],
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Volume step",
+        "form": "modalSettingsVolumeFrm"
+    },
+    "lyricsUsltExt": {
+        "defaultValue": defaults["MYMPD_LYRICS_USLT_EXT"],
+        "inputType": "text",
+        "title": "Unsynced lyrics extension",
+        "form": "modalSettingsLyricsCollapse",
+        "help": "helpSettingsUsltExt"
+    },
+    "lyricsSyltExt": {
+        "defaultValue": defaults["MYMPD_LYRICS_SYLT_EXT"],
+        "inputType": "text",
+        "title": "Synced lyrics extension",
+        "form": "modalSettingsLyricsCollapse",
+        "help": "helpSettingsSyltExt"
+    },
+    "lyricsVorbisUslt": {
+        "defaultValue": defaults["LYRICS"],
+        "inputType": "text",
+        "title": "Unsynced lyrics vorbis comment",
+        "form": "modalSettingsLyricsCollapse",
+        "help": "helpSettingsVorbisUslt"
+    },
+    "lyricsVorbisSylt": {
+        "defaultValue": defaults["SYNCEDLYRICS"],
+        "inputType": "text",
+        "title": "Synced lyrics vorbis comment",
+        "form": "modalSettingsLyricsCollapse",
+        "help": "helpSettingsVorbisSylt"
+    },
+    "lastPlayedCount": {
+        "defaultValue": defaults["MYMPD_LAST_PLAYED_COUNT"],
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Last played list count",
+        "form": "modalSettingsStatisticsFrm",
+        "help": "helpSettingsLastPlayedCount"
+    },
+    "listenbrainzToken": {
+        "defaultValue": "",
+        "inputType": "password",
+        "title": "ListenBrainz Token",
+        "form": "modalSettingsCloudFrm",
+        "help": "helpSettingsListenBrainzToken"
+    },
+    "bookletName": {
+        "defaultValue": defaults["MYMPD_BOOKLET_NAME"],
+        "inputType": "text",
+        "title": "Booklet filename",
+        "form": "modalSettingsBookletFrm",
+        "help": "helpSettingsBookletName"
+    },
+    "coverimageNames": {
+        "defaultValue": defaults["MYMPD_COVERIMAGE_NAMES"],
+        "inputType": "text",
+        "title": "Filenames",
+        "form": "modalSettingsAlbumartFrm",
+        "help": "helpSettingsCoverimageNames",
+        "cssClass": ["featLibrary"]
+    },
+    "thumbnailNames": {
+        "defaultValue": defaults["MYMPD_THUMBNAIL_NAMES"],
+        "inputType": "text",
+        "title": "Thumbnail names",
+        "form": "modalSettingsAlbumartFrm",
+        "help": "helpSettingsThumbnailNames",
+        "cssClass": ["featLibrary"],
+    },
+    "smartpls": {
+        "defaultValue": defaults["MYMPD_SMARTPLS"],
+        "inputType": "checkbox"
+    },
+    "smartplsPrefix": {
+        "defaultValue": defaults["MYMPD_SMARTPLS_PREFIX"],
+        "inputType": "text",
+        "title": "Smart playlists prefix",
+        "form": "modalSettingsSmartplsFrm",
+        "help": "helpSettingsSmartplsPrefix"
+    },
+    "smartplsSort": {
+        "defaultValue": "",
+        "inputType": "select",
+        "title": "Order",
+        "form": "modalSettingsSmartplsFrm",
+        "help": "helpSettingsSmartplsSort",
+    },
+    "smartplsInterval": {
+        "defaultValue": defaults["MYMPD_SMARTPLS_INTERVAL_HOURS"],
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Update interval",
+        "unit": "Hours",
+        "form": "modalSettingsSmartplsFrm",
+        "help": "helpSettingsSmartplsInterval"
+    },
+    "tagDiscEmptyIsFirst": {
+        "defaultValue": defaults["MYMPD_TAG_DISC_EMPTY_IS_FIRST"],
+        "inputType": "checkbox",
+        "title": "Enforce disc tag",
+        "form": "modalSettingsTagsFrm",
+        "help": "helpSettingsTagDiscEmptyIsFirst"
+    }
+};
+
+// webui specific settings
+const settingsWebuiFields = {
+    "clickSong": {
+        "defaultValue": "append",
+        "validValues": {
+            "append": "Append to queue",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
+            "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
+            "view": "Song details",
+            "context": "Context menu"
+        },
+        "inputType": "select",
+        "title": "Click song",
+        "form": "modalSettingsDefaultActionsFrm"
+    },
+    "clickRadiobrowser": {
+        "defaultValue": "append",
+        "validValues": {
+            "append": "Append to queue",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
+            "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
+            "add": "Add to favorites",
+            "view": "Webradio details",
+            "context": "Context menu"
+        },
+        "inputType": "select",
+        "title": "Click webradio",
+        "form": "modalSettingsDefaultActionsFrm"
+    },
+    "clickRadioFavorites": {
+        "defaultValue": "append",
+        "validValues": {
+            "append": "Append to queue",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
+            "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
+            "edit": "Edit webradio favorite",
+            "context": "Context menu"
+        },
+        "inputType": "select",
+        "title": "Click webradio favorite",
+        "form": "modalSettingsDefaultActionsFrm"
+    },
+    "clickQueueSong": {
+        "defaultValue": "play",
+        "validValues": {
+            "play": "Play",
+            "view": "Song details",
+            "context": "Context menu"
+        },
+        "inputType": "select",
+        "title": "Click song in queue",
+        "form": "modalSettingsDefaultActionsFrm"
+    },
+    "clickPlaylist": {
+        "defaultValue": "append",
+        "validValues": {
+            "append": "Append to queue",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
+            "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
+            "view": "View playlist",
+            "context": "Context menu"
+        },
+        "inputType": "select",
+        "title": "Click playlist",
+        "form": "modalSettingsDefaultActionsFrm"
+    },
+    "clickFilesystemPlaylist": {
+        "defaultValue": "view",
+        "validValues": {
+            "append": "Append to queue",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
+            "replace": "Replace queue",
+            "replacePlay": "Replace queue and play",
+            "view": "View playlist",
+            "context": "Context menu"
+        },
+        "inputType": "select",
+        "title": "Click filesystem playlist",
+        "form": "modalSettingsDefaultActionsFrm"
+    },
+    "clickQuickPlay": {
+        "defaultValue": "replacePlay",
+        "validValues": {
+            "append": "Append to queue",
+            "appendPlay": "Append to queue and play",
+            "insertAfterCurrent": "Insert after current playing song",
+            "replace": "Replace queue",
+            "replacePlay": "Replace queue and play"
+        },
+        "inputType": "select",
+        "title": "Click quick play button",
+        "form": "modalSettingsDefaultActionsFrm"
+    },
+    "notificationPlayer": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Playback",
+        "form": "modalSettingsFacilitiesFrm",
+        "help": "helpSettingsNotificationPlayer"
+    },
+    "notificationQueue": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Queue",
+        "form": "modalSettingsFacilitiesFrm",
+        "help": "helpSettingsNotificationQueue"
+    },
+    "notificationGeneral": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "General",
+        "form": "modalSettingsFacilitiesFrm",
+        "help": "helpSettingsNotificationGeneral"
+    },
+    "notificationDatabase": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Database",
+        "form": "modalSettingsFacilitiesFrm",
+        "help": "helpSettingsNotificationDatabase"
+    },
+    "notificationPlaylist": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Playlist",
+        "form": "modalSettingsFacilitiesFrm",
+        "help": "helpSettingsNotificationPlaylist"
+    },
+    "notificationScript": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Script",
+        "form": "modalSettingsFacilitiesFrm",
+        "help": "helpSettingsNotificationScript"
+    },
+    "notifyPage": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "On page notifications",
+        "form": "modalSettingsNotificationsFrm",
+        "help": "helpSettingsNotifyPage"
+    },
+    "notifyWeb": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Web notifications",
+        "form": "modalSettingsNotificationsFrm",
+        "onClick": "toggleBtnNotifyWeb",
+        "help": "helpSettingsNotifyWeb"
+    },
+    "mediaSession": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Media session",
+        "form": "modalSettingsNotificationsFrm",
+        "warn": "Browser has no MediaSession support",
+        "help": "helpSettingsMediaSession"
+    },
+    "footerPlaybackControls": {
+        "defaultValue": "pause",
+        "validValues": {
+            "pause": "pause only",
+            "stop": "stop only",
+            "both": "pause and stop"
+        },
+        "inputType": "select",
+        "title": "Playback controls",
+        "form": "modalSettingsFooterFrm",
+        "sort": 0
+    },
+    "footerSettingsPlayback": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Playback settings",
+        "form": "modalSettingsFooterFrm",
+        "sort": 1
+    },
+    "footerVolumeLevel": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Volume level",
+        "form": "modalSettingsFooterFrm",
+        "sort": 2
+    },
+    "footerNotifications": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Notification icon",
+        "form": "modalSettingsFooterFrm",
+        "sort": 3
+    },
+    "showHelp": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Show help",
+        "form": "modalSettingsThemeFrm3",
+        "help": "helpSettingsHelp"
+    },
+    "maxElementsPerPage": {
+        "defaultValue": 100,
+        "validValues": {
+            "25": 25,
+            "50": 50,
+            "100": 100,
+            "250": 250,
+            "500": 500
+        },
+        "inputType": "select",
+        "contentType": "number",
+        "title": "Elements per page",
+        "form": "modalSettingsListsFrm",
+        "help": "helpSettingsMaxElementsPerPage"
+    },
+    "smallWidthTagRows": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Display tags in rows for small displays",
+        "form": "modalSettingsListsFrm",
+        "help": "helpSettingsSmallWidthTagRows"
+    },
+    "quickPlayButton": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Quick play button",
+        "form": "modalSettingsListsFrm",
+        "help": "helpSettingsQuickPlay"
+    },
+    "quickRemoveButton": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Quick remove button",
+        "form": "modalSettingsListsFrm",
+        "help": "helpSettingsQuickRemove"
+    },
+    "compactGrids": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Compact grids",
+        "form": "modalSettingsListsFrm",
+        "help": "helpSettingsCompactGrids"
+    },
+    "showBackButton": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "History back button",
+        "form": "modalSettingsNavigationBarFrm",
+        "help": "helpSettingsBackButton"
+    },
+    "enableHome": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Homescreen",
+        "form": "modalSettingsFurtherFeaturesFrm",
+        "help": "helpSettingsEnableHome"
+    },
+    "enableScripting": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Scripting",
+        "form": "modalSettingsFurtherFeaturesFrm",
+        "warn": "Lua is not compiled in",
+        "help": "helpSettingsEnableScripting"
+    },
+    "enableTrigger": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Trigger",
+        "form": "modalSettingsFurtherFeaturesFrm",
+        "help": "helpSettingsEnableTrigger"
+    },
+    "enableTimer": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Timer",
+        "form": "modalSettingsFurtherFeaturesFrm",
+        "help": "helpSettingsEnableTimer"
+    },
+    "enableMounts": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Mounts",
+        "form": "modalSettingsFurtherFeaturesFrm",
+        "warn": "MPD does not support mounts",
+        "help": "helpSettingsEnableMounts"
+    },
+    "enableLocalPlayback": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+    },
+    "enablePartitions": {
+        "defaultValue": false,
+        "inputType": "checkbox",
+        "title": "Partitions",
+        "form": "modalSettingsFurtherFeaturesFrm",
+        "warn": "MPD does not support partitions",
+        "help": "helpSettingsEnablePartitions"
+    },
+    "enableLyrics": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+    },
+    "theme": {
+        "defaultValue": "dark",
+        "validValues": {
+            "auto": "Autodetect",
+            "dark": "Dark",
+            "light": "Light"
+        },
+        "inputType": "select",
+        "title": "Theme",
+        "form": "modalSettingsThemeFrm1",
+        "onChange": "eventChangeTheme",
+        "sort": 0
+    },
+    "thumbnailSize": {
+        "defaultValue": 175,
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Thumbnail size",
+        "form": "modalSettingsAlbumartFrm",
+        "invalid": "Must be a number and greater than zero",
+        "validate": {
+            "cmd": "validateUintEl",
+            "options": []
+        },
+        "unit": "Pixel"
+    },
+    "bgCover": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Albumart",
+        "form": "modalSettingsBgFrm",
+        "sort": 0
+    },
+    "bgCssFilter": {
+        "defaultValue": "grayscale(100%) opacity(20%)",
+        "inputType": "text",
+        "title": "CSS filter",
+        "form": "modalSettingsBgFrm",
+        "sort": 1
+    },
+    "bgColor": {
+        "defaultValue": "#060708",
+        "inputType": "color",
+        "title": "Color",
+        "form": "modalSettingsBgFrm",
+        "reset": true,
+        "sort": 2,
+        "validate": {
+            "cmd": "validateColorEl",
+            "options": []
+        },
+        "invalid": "Must be a hex color value"
+    },
+    "bgImage": {
+        "defaultValue": "",
+        "inputType": "mympd-select-search",
+        "readOnly": true,
+        "cbCallback": "filterImageSelect",
+        "cbCallbackOptions": ["modalSettingsBgImageInput"],
+        "title": "Image",
+        "form": "modalSettingsBgFrm",
+        "sort": 3,
+        "validate": {
+            "cmd": "validatePlistEl",
+            "options": []
+        },
+        "invalid": "Must be a valid filename"
+    },
+    "locale": {
+        "defaultValue": "default",
+        "inputType": "select",
+        "title": "Locale",
+        "form": "modalSettingsLocaleFrm",
+        "onChange": "eventChangeLocale"
+    },
+    "startupView": {
+        "defaultValue": null,
+        "validValues": {
+            "Home": "Home",
+            "Playback": "Playback",
+            "Queue/Current": "Queue",
+            "Queue/LastPlayed": "LastPlayed",
+            "Queue/Jukebox": "Jukebox Queue",
+            "Browse/Database": "Database",
+            "Browse/Playlists": "Playlists",
+            "Browse/Filesystem": "Filesystem",
+            "Browse/Radio": "Webradios",
+            "Search": "Search"
+        },
+        "inputType": "select",
+        "title": "Startup view",
+        "form": "modalSettingsStartupFrm",
+        "onChange": "eventChangeTheme"
+    },
+    "musicbrainzLinks": {
+        "defaultValue": true,
+        "inputType": "checkbox",
+        "title": "Show MusicBrainz links",
+        "form": "modalSettingsCloudFrm",
+        "help": "helpSettingsMusicBrainzLinks"
+    },
+    "outputLigatures": {
+        "defaultValue": {
+            "default": "speaker",
+            "fifo": "read_more",
+            "httpd": "stream",
+            "null": "check_box_outline_blank",
+            "pipe": "terminal",
+            "recorder": "voicemail",
+            "shout": "cast",
+            "snapcast": "hub"
+        },
+        "inputType": "none"
+    }
+};
+
+const settingsConnectionFields = {
+    "mpdHost": {
+        "defaultValue": defaults["MYMPD_MPD_HOST"],
+        "inputType": "text",
+        "title": "MPD host",
+        "form": "modalConnectionFrm",
+        "help": "helpConnectionMPDHost",
+        "class": ["alwaysEnabled"]
+    },
+    "mpdPort": {
+        "defaultValue": defaults["MYMPD_MPD_PORT"],
+        "inputType": "text",
+        "contentType": "number",
+        "title": "MPD port",
+        "form": "modalConnectionFrm",
+        "help": "helpConnectionMPDPort",
+        "class": ["alwaysEnabled"]
+    },
+    "mpdPass": {
+        "defaultValue": defaults["MYMPD_MPD_PASS"],
+        "inputType": "password",
+        "title": "MPD password",
+        "form": "modalConnectionAdvFrm1",
+        "help": "helpConnectionMPDPassword",
+        "class": ["alwaysEnabled"]
+    },
+    "mpdTimeout": {
+        "defaultValue": defaults["MYMPD_MPD_TIMEOUT_SEC"],
+        "inputType": "text",
+        "title": "Timeout",
+        "form": "modalConnectionAdvFrm2",
+        "help": "helpConnectionTimeout",
+        "unit": "Seconds",
+        "class": ["alwaysEnabled"]
+    },
+    "mpdKeepalive": {
+        "defaultValue": defaults["MYMPD_MPD_KEEPALIVE"],
+        "inputType": "checkbox",
+        "title": "Keepalive",
+        "form": "modalConnectionAdvFrm2",
+        "help": "helpConnectionKeepalive",
+        "class": ["alwaysEnabled"]
+    },
+    "mpdBinarylimit": {
+        "defaultValue": defaults["MYMPD_MPD_BINARYLIMIT"] / 1024,
+        "inputType": "text",
+        "title": "Binary limit",
+        "form": "modalConnectionAdvFrm2",
+        "help": "helpConnectionBinaryLimit",
+        "unit": "kB",
+        "class": ["alwaysEnabled"]
+    }
+};
+
+const settingsPlaybackFields = {
+    "random": {
+        "inputType": "checkbox",
+        "title": "Random",
+        "form": "modalPlaybackPlaybackFrm1",
+        "help": "helpQueueRandom"
+    },
+    "repeat": {
+        "inputType": "checkbox",
+        "title": "Repeat",
+        "form": "modalPlaybackPlaybackFrm1",
+        "help": "helpQueueRepeat"
+    },
+    "autoPlay": {
+        "inputType": "checkbox",
+        "title": "Autoplay",
+        "form": "modalPlaybackPlaybackFrm1",
+        "help": "helpQueueAutoPlay"
+    },
+    "crossfade": {
+        "defaultValue": 0,
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Crossfade",
+        "form": "modalPlaybackPlaybackFrm2",
+        "help": "helpQueueCrossfade",
+        "unit": "Seconds"
+    },
+    "mixrampDb": {
+        "defaultValue": 0,
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Mixramp db",
+        "form": "modalPlaybackPlaybackFrm2",
+        "help": "helpQueueMixrampDb",
+        "unit": "DB"
+    },
+    "mixrampDelay": {
+        "defaultValue": -1,
+        "inputType": "text",
+        "contentType": "number",
+        "title": "Mixramp delay",
+        "form": "modalPlaybackPlaybackFrm2",
+        "help": "helpQueueMixrampDelay",
+        "unit": "Seconds"
+    },
+    "jukeboxPlaylist": {
+        "inputType": "mympd-select-search",
+        "defaultValue": defaults["MYMPD_JUKEBOX_PLAYLIST"],
+        "readOnly": true,
+        "cbCallback": "filterPlaylistsSelect",
+        "cbCallbackOptions": [0, 'selectJukeboxPlaylist'],
+        "title": "Playlist",
+        "form": "modalPlaybackJukeboxCollapse",
+        "help": "helpJukeboxPlaylist"
+    },
+    "jukeboxQueueLength": {
+        "inputType": "text",
+        "defaultValue": defaults["MYMPD_JUKEBOX_QUEUE_LENGTH"],
+        "contentType": "number",
+        "title": "Keep queue length",
+        "form": "modalPlaybackJukeboxCollapse",
+        "help": "helpJukeboxQueueLength"
+    },
+    "jukeboxUniqueTag": {
+        "inputType": "select",
+        "defaultValue": defaults["MYMPD_JUKEBOX_UNIQUE_TAG"],
+        "title": "Enforce uniqueness",
+        "form": "modalPlaybackJukeboxCollapse",
+        "help": "helpJukeboxUniqueTag"
+    },
+    "jukeboxLastPlayed": {
+        "inputType": "text",
+        "contentType": "number",
+        "defaultValue": defaults["MYMPD_JUKEBOX_LAST_PLAYED"],
+        "title": "Song was played last",
+        "form": "modalPlaybackJukeboxCollapse",
+        "help": "helpJukeboxLastPlayed",
+        "unit": "Hours ago"
+    },
+    "jukeboxIgnoreHated": {
+        "inputType": "checkbox",
+        "defaultValue": defaults["MYMPD_JUKEBOX_IGNORE_HATED"],
+        "title": "Ignore hated songs",
+        "form": "modalPlaybackJukeboxCollapse",
+        "help": "helpJukeboxIgnoreHated"
+    }
 };
 
 /**
@@ -202,7 +993,11 @@ function setUserAgentData() {
     if (navigator.userAgentData) {
         navigator.userAgentData.getHighEntropyValues(["platform"]).then(ua => {
             /** @type {boolean} */
-            userAgentData.isMobile = localSettings.enforceMobile === true ? true : ua.mobile;
+            userAgentData.isMobile = localSettings.viewMode === 'mobile'
+                ? true
+                : localSettings.viewMode === 'desktop'
+                    ? false
+                    : ua.mobile;
             //Safari does not support this API
             /** @type {boolean} */
             userAgentData.isSafari = false;
@@ -210,7 +1005,11 @@ function setUserAgentData() {
     }
     else {
         /** @type {boolean} */
-        userAgentData.isMobile = localSettings.enforceMobile === true ? true : /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
+        userAgentData.isMobile = localSettings.viewMode === 'mobile'
+            ? true
+            : localSettings.viewMode === 'desktop'
+                ? false
+                : /iPhone|iPad|iPod|Android|Mobile/i.test(navigator.userAgent);
         /** @type {boolean} */
         userAgentData.isSafari = /Safari/i.test(navigator.userAgent);
     }
@@ -243,24 +1042,24 @@ app.cards = {
     "Home": {
         "offset": 0,
         "limit": 100,
-        "filter": "-",
+        "filter": "",
         "sort": {
-            "tag": "-",
+            "tag": "",
             "desc": false
         },
-        "tag": "-",
+        "tag": "",
         "search": "",
         "scrollPos": 0
     },
     "Playback": {
         "offset": 0,
         "limit": 100,
-        "filter": "-",
+        "filter": "",
         "sort": {
-            "tag": "-",
+            "tag": "",
             "desc": false
         },
-        "tag": "-",
+        "tag": "",
         "search": "",
         "scrollPos": 0
     },
@@ -275,7 +1074,7 @@ app.cards = {
                     "tag": "Pos",
                     "desc": false
                 },
-                "tag": "-",
+                "tag": "",
                 "search": "",
                 "scrollPos": 0
             },
@@ -284,24 +1083,41 @@ app.cards = {
                 "limit": 100,
                 "filter": "any",
                 "sort": {
-                    "tag": "-",
+                    "tag": "",
                     "desc": false
                 },
-                "tag": "-",
+                "tag": "",
                 "search": "",
                 "scrollPos": 0
             },
             "Jukebox": {
-                "offset": 0,
-                "limit": 100,
-                "filter": "any",
-                "sort": {
-                    "tag": "-",
-                    "desc": false
-                },
-                "tag": "-",
-                "search": "",
-                "scrollPos": 0
+                "active": "Song",
+                "views": {
+                    "Song": {
+                        "offset": 0,
+                        "limit": 100,
+                        "filter": "any",
+                        "sort": {
+                            "tag": "",
+                            "desc": false
+                        },
+                        "tag": "",
+                        "search": "",
+                        "scrollPos": 0
+                    },
+                    "Album": {
+                        "offset": 0,
+                        "limit": 100,
+                        "filter": "any",
+                        "sort": {
+                            "tag": "",
+                            "desc": false
+                        },
+                        "tag": "",
+                        "search": "",
+                        "scrollPos": 0
+                    }
+                }
             }
         }
     },
@@ -311,13 +1127,13 @@ app.cards = {
             "Filesystem": {
                 "offset": 0,
                 "limit": 100,
-                "filter": "-",
+                "filter": "/",
                 "sort": {
-                    "tag": "-",
+                    "tag": "",
                     "desc": false
                 },
                 "tag": "dir",
-                "search": "/",
+                "search": "",
                 "scrollPos": 0
             },
             "Playlist": {
@@ -326,24 +1142,24 @@ app.cards = {
                     "List": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": "-",
+                        "filter": "",
                         "sort": {
-                            "tag": "-",
+                            "tag": "",
                             "desc": false
                         },
-                        "tag": "-",
+                        "tag": "",
                         "search": "",
                         "scrollPos": 0
                     },
                     "Detail": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": "-",
+                        "filter": "any",
                         "sort": {
-                            "tag": "-",
+                            "tag": "",
                             "desc": false
                         },
-                        "tag": "-",
+                        "tag": "",
                         "search": "",
                         "scrollPos": 0
                     }
@@ -357,7 +1173,7 @@ app.cards = {
                         "limit": 100,
                         "filter": "any",
                         "sort": {
-                            "tag": "-",
+                            "tag": "",
                             "desc": false
                         },
                         "tag": "Album",
@@ -379,12 +1195,12 @@ app.cards = {
                     "AlbumDetail": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": "-",
+                        "filter": "",
                         "sort": {
-                            "tag": "-",
+                            "tag": "",
                             "desc": false
                         },
-                        "tag": "-",
+                        "tag": "",
                         "search": "",
                         "scrollPos": 0
                     }
@@ -396,12 +1212,12 @@ app.cards = {
                     "Favorites": {
                         "offset": 0,
                         "limit": 100,
-                        "filter": "-",
+                        "filter": "",
                         "sort": {
-                            "tag": "-",
+                            "tag": "",
                             "desc": false
                         },
-                        "tag": "-",
+                        "tag": "",
                         "search": "",
                         "scrollPos": 0
                     },
@@ -419,7 +1235,7 @@ app.cards = {
                             "tag": "Name",
                             "desc": false
                         },
-                        "tag": "-",
+                        "tag": "",
                         "search": "",
                         "scrollPos": 0
                     },
@@ -433,10 +1249,10 @@ app.cards = {
                             "language": ""
                         },
                         "sort": {
-                            "tag": "-",
+                            "tag": "",
                             "desc": false
                         },
-                        "tag": "-",
+                        "tag": "",
                         "search": "",
                         "scrollPos": 0
                     }
@@ -452,7 +1268,7 @@ app.cards = {
             "tag": "Title",
             "desc": false
         },
-        "tag": "-",
+        "tag": "",
         "search": "",
         "scrollPos": 0
     }
@@ -468,7 +1284,7 @@ app.current = {
     "filter": "",
     "search": "",
     "sort": {
-        "tag": "-",
+        "tag": "",
         "desc": false
     },
     "tag": "",
@@ -484,436 +1300,13 @@ app.last = {
     "filter": "",
     "search": "",
     "sort": {
-        "tag": "-",
+        "tag": "",
         "desc": false
     },
     "tag": "",
     "scrollPos": 0
 };
 app.goto = false;
-
-//normal settings
-const settingFields = {
-    "volumeMin": {
-        "defaultValue": 0,
-        "inputType": "input",
-        "title": "Volume min.",
-        "form": "volumeSettingsFrm",
-        "reset": true
-    },
-    "volumeMax": {
-        "defaultValue": 100,
-        "inputType": "input",
-        "title": "Volume max.",
-        "form": "volumeSettingsFrm",
-        "reset": true
-    },
-    "volumeStep": {
-        "defaultValue": 5,
-        "inputType": "input",
-        "title": "Volume step",
-        "form": "volumeSettingsFrm",
-        "reset": true
-    },
-    "lyricsUsltExt": {
-        "defaultValue": "txt",
-        "inputType": "input",
-        "title": "Unsynced lyrics extension",
-        "form": "collapseEnableLyrics",
-        "reset": true
-    },
-    "lyricsSyltExt": {
-        "defaultValue": "lrc",
-        "inputType": "input",
-        "title": "Synced lyrics extension",
-        "form": "collapseEnableLyrics",
-        "reset": true
-    },
-    "lyricsVorbisUslt": {
-        "defaultValue": "LYRICS",
-        "inputType": "input",
-        "title": "Unsynced lyrics vorbis comment",
-        "form": "collapseEnableLyrics",
-        "reset": true
-    },
-    "lyricsVorbisSylt": {
-        "defaultValue": "SYNCEDLYRICS",
-        "inputType": "input",
-        "title": "Synced lyrics vorbis comment",
-        "form": "collapseEnableLyrics",
-        "reset": true
-    },
-    "lastPlayedCount": {
-        "defaultValue": 200,
-        "inputType": "input",
-        "title": "Last played list count",
-        "form": "statisticsFrm",
-        "reset": true,
-        "invalid": "Must be a number and greater than zero"
-    }
-};
-
-//webui settings default values
-const webuiSettingsDefault = {
-    "clickSong": {
-        "defaultValue": "append",
-        "validValues": {
-            "append": "Append to queue",
-            "appendPlay": "Append to queue and play",
-            "insertAfterCurrent": "Insert after current playing song",
-            "replace": "Replace queue",
-            "replacePlay": "Replace queue and play",
-            "view": "Song details",
-            "context": "Context menu"
-        },
-        "inputType": "select",
-        "title": "Click song",
-        "form": "clickSettingsFrm"
-    },
-    "clickRadiobrowser": {
-        "defaultValue": "append",
-        "validValues": {
-            "append": "Append to queue",
-            "appendPlay": "Append to queue and play",
-            "insertAfterCurrent": "Insert after current playing song",
-            "replace": "Replace queue",
-            "replacePlay": "Replace queue and play",
-            "add": "Add to favorites",
-            "view": "Webradio details",
-            "context": "Context menu"
-        },
-        "inputType": "select",
-        "title": "Click webradio",
-        "form": "clickSettingsFrm"
-    },
-    "clickRadioFavorites": {
-        "defaultValue": "append",
-        "validValues": {
-            "append": "Append to queue",
-            "appendPlay": "Append to queue and play",
-            "insertAfterCurrent": "Insert after current playing song",
-            "replace": "Replace queue",
-            "replacePlay": "Replace queue and play",
-            "edit": "Edit webradio favorite",
-            "context": "Context menu"
-        },
-        "inputType": "select",
-        "title": "Click webradio favorite",
-        "form": "clickSettingsFrm"
-    },
-    "clickQueueSong": {
-        "defaultValue": "play",
-        "validValues": {
-            "play": "Play",
-            "view": "Song details",
-            "context": "Context menu"
-        },
-        "inputType": "select",
-        "title": "Click song in queue",
-        "form": "clickSettingsFrm"
-    },
-    "clickPlaylist": {
-        "defaultValue": "append",
-        "validValues": {
-            "append": "Append to queue",
-            "appendPlay": "Append to queue and play",
-            "insertAfterCurrent": "Insert after current playing song",
-            "replace": "Replace queue",
-            "replacePlay": "Replace queue and play",
-            "view": "View playlist",
-            "context": "Context menu"
-        },
-        "inputType": "select",
-        "title": "Click playlist",
-        "form": "clickSettingsFrm"
-    },
-    "clickFilesystemPlaylist": {
-        "defaultValue": "view",
-        "validValues": {
-            "append": "Append to queue",
-            "appendPlay": "Append to queue and play",
-            "insertAfterCurrent": "Insert after current playing song",
-            "replace": "Replace queue",
-            "replacePlay": "Replace queue and play",
-            "view": "View playlist",
-            "context": "Context menu"
-        },
-        "inputType": "select",
-        "title": "Click filesystem playlist",
-        "form": "clickSettingsFrm"
-    },
-    "clickQuickPlay": {
-        "defaultValue": "replacePlay",
-        "validValues": {
-            "append": "Append to queue",
-            "appendPlay": "Append to queue and play",
-            "insertAfterCurrent": "Insert after current playing song",
-            "replace": "Replace queue",
-            "replacePlay": "Replace queue and play"
-        },
-        "inputType": "select",
-        "title": "Click quick play button",
-        "form": "clickSettingsFrm"
-    },
-    "notificationAAASection": {
-        "inputType": "section",
-        "subtitle": "Facilities",
-        "form": "NotificationSettingsAdvFrm"
-    },
-    "notificationPlayer": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Playback",
-        "form": "NotificationSettingsAdvFrm"
-    },
-    "notificationQueue": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Queue",
-        "form": "NotificationSettingsAdvFrm"
-    },
-    "notificationGeneral": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "General",
-        "form": "NotificationSettingsAdvFrm"
-    },
-    "notificationDatabase": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Database",
-        "form": "NotificationSettingsAdvFrm"
-    },
-    "notificationPlaylist": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Playlist",
-        "form": "NotificationSettingsAdvFrm"
-    },
-    "notificationScript": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Script",
-        "form": "NotificationSettingsAdvFrm"
-    },
-    "notifyPage": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "On page notifications",
-        "form": "NotificationSettingsFrm"
-    },
-    "notifyWeb": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Web notifications",
-        "form": "NotificationSettingsFrm",
-        "onClick": "toggleBtnNotifyWeb"
-    },
-    "mediaSession": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Media session",
-        "form": "NotificationSettingsFrm",
-        "warn": "Browser has no MediaSession support"
-    },
-    "uiFooterQueueSettings": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Show playback settings in footer",
-        "form": "footerFrm"
-    },
-    "uiFooterPlaybackControls": {
-        "defaultValue": "pause",
-        "validValues": {
-            "pause": "pause only",
-            "stop": "stop only",
-            "both": "pause and stop"
-        },
-        "inputType": "select",
-        "title": "Playback controls",
-        "form": "footerFrm"
-    },
-    "uiFooterVolumeLevel": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Show volume level in footer",
-        "form": "footerFrm"
-    },
-    "uiFooterNotifications": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Show notification icon",
-        "form": "footerFrm"
-    },
-    "uiMaxElementsPerPage": {
-        "defaultValue": 100,
-        "validValues": {
-            "25": 25,
-            "50": 50,
-            "100": 100,
-            "250": 250,
-            "500": 500
-        },
-        "inputType": "select",
-        "contentType": "integer",
-        "title": "Elements per page",
-        "form": "appearanceSettingsFrm"
-    },
-    "uiSmallWidthTagRows": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Display tags in rows for small displays",
-        "form": "appearanceSettingsFrm"
-    },
-    "uiQuickPlayButton": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Quick play button",
-        "form": "appearanceSettingsFrm"
-    },
-    "uiQuickRemoveButton": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Quick remove button",
-        "form": "appearanceSettingsFrm"
-    },
-    "enableHome": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Homescreen",
-        "form": "enableFeaturesFrm"
-    },
-    "enableScripting": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Scripting",
-        "form": "enableFeaturesFrm",
-        "warn": "Lua is not compiled in"
-    },
-    "enableTrigger": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Trigger",
-        "form": "enableFeaturesFrm"
-    },
-    "enableTimer": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Timer",
-        "form": "enableFeaturesFrm"
-    },
-    "enableMounts": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Mounts",
-        "form": "enableFeaturesFrm",
-        "warn": "MPD does not support mounts"
-    },
-    "enableLocalPlayback": {
-        "defaultValue": false
-    },
-    "enablePartitions": {
-        "defaultValue": false,
-        "inputType": "checkbox",
-        "title": "Partitions",
-        "form": "enableFeaturesFrm",
-        "warn": "MPD does not support partitions"
-    },
-    "enableLyrics": {
-        "defaultValue": true
-    },
-    "uiTheme": {
-        "defaultValue": "dark",
-        "validValues": {
-            "auto": "Autodetect",
-            "dark": "Dark",
-            "light": "Light"
-        },
-        "inputType": "select",
-        "title": "Theme",
-        "form": "themeFrm",
-        "onChange": "eventChangeTheme"
-    },
-    "uiThumbnailSize": {
-        "defaultValue": 175,
-        "inputType": "input",
-        "contentType": "integer",
-        "title": "Thumbnail size",
-        "form": "coverimageFrm",
-        "reset": true
-    },
-    "uiBgColor": {
-        "defaultValue": "#060708",
-        "inputType": "color",
-        "title": "Color",
-        "form": "bgFrm",
-        "reset": true
-    },
-    "uiBgImage": {
-        "defaultValue": "",
-        "inputType": "mympd-select-search",
-        "cbCallback": "filterImageSelect",
-        "title": "Image",
-        "form": "bgFrm"
-    },
-    "uiBgCover": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Albumart",
-        "form": "bgFrm"
-    },
-    "uiBgCssFilter": {
-        "defaultValue": "grayscale(100%) opacity(20%)",
-        "inputType": "input",
-        "title": "CSS filter",
-        "form": "bgFrm",
-        "reset": true
-    },
-    "uiLocale": {
-        "defaultValue": "default",
-        "inputType": "select",
-        "title": "Locale",
-        "form": "localeFrm",
-        "onChange": "eventChangeLocale"
-    },
-    "uiStartupView": {
-        "defaultValue": null,
-        "validValues": {
-            "Home": "Home",
-            "Playback": "Playback",
-            "Queue/Current": "Queue",
-            "Queue/LastPlayed": "LastPlayed",
-            "Queue/Jukebox": "Jukebox Queue",
-            "Browse/Database": "Database",
-            "Browse/Playlists": "Playlists",
-            "Browse/Filesystem": "Filesystem",
-            "Browse/Radio": "Webradios",
-            "Search": "Search"
-        },
-        "inputType": "select",
-        "title": "Startup view",
-        "form": "startupFrm",
-        "onChange": "eventChangeTheme"
-    },
-    "cloudMusicbrainz": {
-        "defaultValue": true,
-        "inputType": "checkbox",
-        "title": "Show MusicBrainz links",
-        "form": "cloudSettingsFrm"
-    },
-    "outputLigatures": {
-        "defaultValue": {
-            "default": "speaker",
-            "fifo": "read_more",
-            "httpd": "stream",
-            "null": "check_box_outline_blank",
-            "pipe": "terminal",
-            "recorder": "voicemail",
-            "shout": "cast",
-            "snapcast": "hub"
-        }
-    }
-};
 
 //features
 const features = {
@@ -933,6 +1326,7 @@ const features = {
     "featPlaylists": true,
     "featScripting": true,
     "featSmartpls": true,
+    "featSmartplsAvailable": true,
     "featStickers": false,
     "featTags": true,
     "featTimer": true,
@@ -962,16 +1356,17 @@ const keymap = {
         "N": {"order": 206, "cmd": "openModal", "options": ["modalNotifications"], "desc": "Open notifications"},
         "O": {"order": 207, "cmd": "openModal", "options": ["modalMounts"], "desc": "Open mounts", "feature": "featMounts"},
         "P": {"order": 207, "cmd": "openModal", "options": ["modalPartitions"], "desc": "Open partitions", "feature": "featPartitions"},
-        "Q": {"order": 203, "cmd": "openModal", "options": ["modalQueueSettings"], "desc": "Open queue settings"},
+        "Q": {"order": 203, "cmd": "openModal", "options": ["modalPlayback"], "desc": "Open playback settings"},
         "S": {"order": 207, "cmd": "showListScriptModal", "options": [], "desc": "Open scripts", "feature": "featScripting"},
         "T": {"order": 204, "cmd": "openModal", "options": ["modalSettings"], "desc": "Open settings"},
         "?": {"order": 207, "cmd": "openModal", "options": ["modalAbout"], "desc": "Open about"},
+        
     "navigation": {"order": 300, "desc": "Navigation"},
         "0": {"order": 301, "cmd": "appGoto", "options": ["Home"], "desc": "Show home", "feature": "featHome"},
         "1": {"order": 302, "cmd": "appGoto", "options": ["Playback"], "desc": "Show playback"},
         "2": {"order": 303, "cmd": "appGoto", "options": ["Queue", "Current"], "desc": "Show queue"},
         "3": {"order": 304, "cmd": "appGoto", "options": ["Queue", "LastPlayed"], "desc": "Show last played"},
-        "4": {"order": 305, "cmd": "appGoto", "options": ["Queue", "Jukebox"], "desc": "Show jukebox queue"},
+        "4": {"order": 305, "cmd": "gotoJukebox", "options": [], "desc": "Show jukebox queue"},
         "5": {"order": 306, "cmd": "appGoto", "options": ["Browse", "Database"], "desc": "Show browse database", "feature": "featTags"},
         "6": {"order": 307, "cmd": "appGoto", "options": ["Browse", "Playlists"], "desc": "Show browse playlists", "feature": "featPlaylists"},
         "7": {"order": 308, "cmd": "appGoto", "options": ["Browse", "Filesystem"], "desc": "Show browse filesystem"},
@@ -983,24 +1378,26 @@ const keymap = {
 //cache often accessed dom elements
 const domCache = {};
 domCache.body = document.querySelector('body');
-domCache.counter = document.getElementById('counter');
+domCache.counter = elGetById('counter');
 domCache.footer = document.querySelector('footer');
 domCache.main = document.querySelector('main');
-domCache.progress = document.getElementById('footerProgress');
-domCache.progressBar = document.getElementById('footerProgressBar');
-domCache.progressPos = document.getElementById('footerProgressPos');
-domCache.volumeBar = document.getElementById('volumeBar');
+domCache.progress = elGetById('footerProgress');
+domCache.progressBar = elGetById('footerProgressBar');
+domCache.progressPos = elGetById('footerProgressPos');
+domCache.volumeBar = elGetById('volumeBar');
 
 //Get BSN object references for fast access
 const uiElements = {};
 //all modals
 for (const m of document.querySelectorAll('.modal')) {
     uiElements[m.id] = BSN.Modal.getInstance(m);
+    m.addEventListener('shown.bs.modal', function(event) {
+        focusFirstInput(event.target);
+    }, false);
 }
 //other directly accessed BSN objects
-uiElements.dropdownHomeIconLigature = BSN.Dropdown.getInstance(document.getElementById('btnHomeIconLigature'));
-uiElements.dropdownNeighbors = BSN.Dropdown.getInstance(document.getElementById('btnDropdownNeighbors'));
-uiElements.collapseJukeboxMode = BSN.Collapse.getInstance(document.getElementById('collapseJukeboxMode'));
+uiElements.modalHomeIconLigatureDropdown = BSN.Dropdown.getInstance(elGetById('modalHomeIconLigatureBtn'));
+uiElements.modalMountsNeighborsDropdown = BSN.Dropdown.getInstance(elGetById('modalMountsNeighborsBtn'));
 
 const LUAfunctions = {
     "mympd.http_client": {

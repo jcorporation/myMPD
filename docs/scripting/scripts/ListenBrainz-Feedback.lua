@@ -8,7 +8,7 @@ vote = arguments["vote"] - 1
 rc, song = mympd.api("MYMPD_API_SONG_DETAILS", {uri = arguments["uri"]})
 if rc == 0 then
   mbid = song["MUSICBRAINZ_TRACKID"]
-  if mbid ~= nil then
+  if mbid ~= nil and mbid ~= "" then
     payload = json.encode({
       recording_mbid = mbid,
       score = vote

@@ -31,10 +31,7 @@ function webSocketConnect() {
         return;
     }
 
-    const wsUrl = (window.location.protocol === 'https:' ? 'wss://' : 'ws://') +
-        window.location.hostname +
-        (window.location.port !== '' ? ':' + window.location.port : '') +
-        subdir + '/ws/' + localSettings.partition;
+    const wsUrl = getMyMPDuri('ws') + '/ws/' + localSettings.partition;
     socket = new WebSocket(wsUrl);
     logDebug('Connecting to ' + wsUrl);
 
@@ -97,7 +94,7 @@ function webSocketConnect() {
                     if (app.id === 'QueueCurrent' &&
                         obj.method === 'update_queue')
                     {
-                        getQueue(document.getElementById('searchQueueStr').value);
+                        execSearchExpression(elGetById('QueueCurrentSearchStr').value);
                     }
                     parseState(obj);
                     break;
@@ -112,10 +109,10 @@ function webSocketConnect() {
                     //MPD connection established get state and settings
                     showNotification(tn('Connected to MPD'), 'general', 'info');
                     sendAPI('MYMPD_API_PLAYER_STATE', {}, parseState, false);
-                    getSettings();
+                    getSettings(parseSettings);
                     break;
                 case 'update_options':
-                    getSettings();
+                    getSettings(parseSettings);
                     break;
                 case 'update_outputs':
                     sendAPI('MYMPD_API_PLAYER_OUTPUT_LIST', {}, parseOutputs, false);
@@ -148,10 +145,10 @@ function webSocketConnect() {
                         sendAPI('MYMPD_API_PLAYLIST_CONTENT_LIST', {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
-                            "searchstr": app.current.search,
-                            "plist": app.current.filter,
+                            "expression": app.current.search,
+                            "plist": app.current.tag,
                             "cols": settings.colsBrowsePlaylistDetailFetch
-                        }, parsePlaylistsDetail, false);
+                        }, parsePlaylistDetail, false);
                     }
                     break;
                 case 'update_last_played':
@@ -160,7 +157,7 @@ function webSocketConnect() {
                             "offset": app.current.offset,
                             "limit": app.current.limit,
                             "cols": settings.colsQueueLastPlayedFetch,
-                            "searchstr": app.current.search
+                            "expression": app.current.search
                         }, parseLastPlayed, false);
                     }
                     break;
@@ -170,13 +167,10 @@ function webSocketConnect() {
                     }
                     break;
                 case 'update_jukebox':
-                    if (app.id === 'QueueJukebox') {
-                        sendAPI('MYMPD_API_JUKEBOX_LIST', {
-                            "offset": app.current.offset,
-                            "limit": app.current.limit,
-                            "cols": settings.colsQueueJukeboxFetch,
-                            "searchstr": app.current.search
-                        }, parseJukeboxList, false);
+                    if (app.id === 'QueueJukeboxSong' ||
+                        app.id === 'QueueJukeboxAlbum')
+                    {
+                        getJukeboxList(app.id);
                     }
                     break;
                 case 'update_cache_started':
@@ -255,7 +249,15 @@ function webSocketClose() {
  */
 function websocketKeepAlive() {
     if (getWebsocketState() === true) {
-        socket.send('ping');
+        try {
+            socket.send('ping');
+        }
+        catch(error) {
+            showNotification(tn('myMPD connection failed, trying to reconnect'), 'general', 'error');
+            logError(error);
+            webSocketClose();
+            webSocketConnect();
+        }
     }
     else {
         logDebug('Reconnecting websocket');

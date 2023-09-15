@@ -201,8 +201,11 @@ createassets() {
 
   #Create translation phrases file
   check_phrases
-  createi18n "$MYMPD_BUILDDIR" 2>/dev/null
+  createi18n 2>/dev/null
   minify js "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$MYMPD_BUILDDIR/htdocs/js/i18n.min.js"
+
+  #Create defines
+  create_js_defines
 
   echo "Minifying javascript"
   JSSRCFILES=""
@@ -300,8 +303,11 @@ createassets() {
 }
 
 buildrelease() {
-  echo "Compiling myMPD v${VERSION}" 
-  cmake -B release -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Release .
+  echo "Compiling myMPD v${VERSION}"
+  cmake -B release \
+    -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+    -DCMAKE_BUILD_TYPE=Release \
+    .
   make -C release
 }
 
@@ -363,9 +369,13 @@ copyassets() {
   cp -v "$STARTPATH/dist/long-press-event/long-press-event.js" "$STARTPATH/htdocs/js/long-press-event.js"
   cp -v "$STARTPATH/dist/material-icons/MaterialIcons-Regular.woff2" "$STARTPATH/htdocs/assets/MaterialIcons-Regular.woff2"
   cp -v "$STARTPATH/dist/material-icons/ligatures.json" "$STARTPATH/htdocs/assets/ligatures.json"
+
+  #Create defines
+  create_js_defines
+
   #translation files
   check_phrases
-  createi18n "$MYMPD_BUILDDIR"
+  createi18n
   cp -v "$MYMPD_BUILDDIR/htdocs/js/i18n.js" "$STARTPATH/htdocs/js/i18n.js"
   rm -fr "$STARTPATH/htdocs/assets/i18n/"
   install -d "$STARTPATH/htdocs/assets/i18n"
@@ -378,29 +388,41 @@ copyassets() {
 
 builddebug() {
   echo "Compiling myMPD v${VERSION}"
-  if [ "$ACTION" = "memcheck" ]
-  then
-    MYMPD_ENABLE_LIBASAN=ON
-  else
-    MYMPD_ENABLE_LIBASAN=OFF
-  fi
-  cmake -B debug -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Debug \
-    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON -DMYMPD_ENABLE_LIBASAN="$MYMPD_ENABLE_LIBASAN" \
+  CMAKE_SANITIZER_OPTIONS=""
+  case "$ACTION" in
+    asan)  CMAKE_SANITIZER_OPTIONS="-DMYMPD_ENABLE_ASAN=ON" ;;
+    tsan)  CMAKE_SANITIZER_OPTIONS="-DMYMPD_ENABLE_TSAN=ON" ;;
+    ubsan) CMAKE_SANITIZER_OPTIONS="-DMYMPD_ENABLE_UBSAN=ON" ;;
+  esac
+
+  cmake -B debug \
+    -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    $CMAKE_SANITIZER_OPTIONS \
     .
   make -C debug VERBOSE=1
   echo "Linking compilation database"
   sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
-    -e 's/-static-libasan//g' -e 's/-Wno-stringop-overread//g' -e 's/-fstack-clash-protection//g' \
+    -e 's/-Wno-stringop-overread//g' -e 's/-fstack-clash-protection//g' \
     debug/compile_commands.json > src/compile_commands.json
 }
 
 buildtest() {
   echo "Compiling and running unit tests"
-  cmake -B debug -DCMAKE_INSTALL_PREFIX:PATH=/usr -DCMAKE_BUILD_TYPE=Debug \
-    -DMYMPD_ENABLE_LIBASAN=ON -DMYMPD_BUILD_TESTING=ON \
+  cmake -B debug \
+    -DCMAKE_INSTALL_PREFIX:PATH=/usr \
+    -DCMAKE_BUILD_TYPE=Debug \
+    -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+    -DMYMPD_ENABLE_ASAN=ON \
+    -DMYMPD_BUILD_TESTING=ON \
     .
   make -C debug
   make -C debug test
+  echo "Linking compilation database"
+  sed -e 's/\\t/ /g' -e 's/-Wformat-truncation//g' -e 's/-Wformat-overflow=2//g' -e 's/-fsanitize=bounds-strict//g' \
+    -e 's/-Wno-stringop-overread//g' -e 's/-fstack-clash-protection//g' \
+    debug/compile_commands.json > test/compile_commands.json
 }
 
 cleanup() {
@@ -1016,10 +1038,35 @@ check_phrases() {
   done
 }
 
+# Create an JavaScript object from compile_time.h.in
+# This is used to define global defaults.
+create_js_defines() {
+  printf "const defaults = " > "$STARTPATH/htdocs/js/defines.js"
+  {
+    I=0
+    printf "{"
+    sed -E -z -e 's/"\\\n\s+"//g' -e 's/MPD_TAG_ARTIST/"Artist"/' "$STARTPATH/src/compile_time.h.in" \
+      | grep -v '\$' \
+      | awk '/^#define (MYMPD|PARTITION)_\w+ / {print $2"|"$3}' \
+      | while IFS="|" read -r KEY VALUE
+      do
+        [ "$I" -gt 0 ] && echo ","
+        if JSON_VALUE=$(printf '{"value": %s}' "$VALUE" | jq -r '.value | fromjson' 2>/dev/null)
+        then
+          printf '"%s":%s' "$KEY" "$JSON_VALUE"
+        else
+          printf '"%s":%s' "$KEY" "$VALUE"
+        fi
+        I=$((I+1))
+      done
+      printf "}"
+  } | jq -r "." >> "$STARTPATH/htdocs/js/defines.js"
+  echo ";" >> "$STARTPATH/htdocs/js/defines.js"
+}
+
 createi18n() {
-  MYMPD_BUILD_DIR="$1"
   check_cmd perl
-  install -d "$MYMPD_BUILD_DIR/htdocs/js"
+  install -d "$MYMPD_BUILDDIR/htdocs/js"
   echo "Creating i18n json"
   if ! perl ./src/i18n/translate.pl
   then
@@ -1027,9 +1074,9 @@ createi18n() {
     exit 1
   fi
   #json to js
-  printf "const i18n = " > "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
-  head -c -1 "src/i18n/json/i18n.json" >> "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
-  echo ";" >> "$MYMPD_BUILD_DIR/htdocs/js/i18n.js"
+  printf "const i18n = " > "$MYMPD_BUILDDIR/htdocs/js/i18n.js"
+  head -c -1 "src/i18n/json/i18n.json" >> "$MYMPD_BUILDDIR/htdocs/js/i18n.js"
+  echo ";" >> "$MYMPD_BUILDDIR/htdocs/js/i18n.js"
   #Update serviceworker
   TO_CACHE=""
   for CODE in $(jq -r "select(.missingPhrases < 100) | keys[]" "$STARTPATH/src/i18n/json/i18n.json" | grep -v "default")
@@ -1295,7 +1342,7 @@ run_doxygen() {
 
 run_jsdoc() {
   if ! check_cmd jsdoc
-  then 
+  then
     return 1
   fi
   echo "Running jsdoc"
@@ -1313,10 +1360,7 @@ case "$ACTION" in
     buildrelease
     installrelease
   ;;
-  debug)
-    builddebug
-  ;;
-  memcheck)
+  debug|asan|tsan|ubsan)
     builddebug
   ;;
   test)
@@ -1463,6 +1507,9 @@ case "$ACTION" in
     fi
     cp -v htdocs/js/apidoc.js docs/assets/apidoc.js
   ;;
+  cloc)
+    cloc --exclude-dir=dist .
+  ;;
   *)
     echo "Usage: $0 <option>"
     echo "Version: ${VERSION}"
@@ -1475,8 +1522,8 @@ case "$ACTION" in
     echo "  releaseinstall:   calls release and install afterwards"
     echo "  debug:            builds debug files in directory debug,"
     echo "                    serves assets from htdocs"
-    echo "  memcheck:         builds debug files in directory debug"
-    echo "                    linked with libasan3 and serves assets from htdocs"
+    echo "  asan|tsan|ubsan:  builds debug files in directory debug"
+    echo "                    linked with the sanitizer and serves assets from htdocs"
     echo "  test:             builds and runs the unit tests in directory debug"
     echo "                    linked with libasan3"
     echo "  installdeps:      installs build and runtime dependencies"
@@ -1486,7 +1533,7 @@ case "$ACTION" in
     echo "  copyassets:       copies the assets from dist to the source tree"
     echo "                    for debug builds without embedded assets"
     echo "                    following environment variables are respected"
-    echo "                      - MYMPD_BUILDDIR=\"release\""
+    echo "                      - MYMPD_BUILDDIR=\"debug\""
     echo ""
     echo "Translation options:"
     echo "  translate:        builds the translation file for debug builds"
@@ -1559,6 +1606,7 @@ case "$ACTION" in
     echo "  addmympduser:     adds mympd group and user"
     echo "  luascript_index:  creates the json index of lua scripts"
     echo "  api_doc:          generates the api documentation"
+    echo "  cloc:             runs cloc (count lines of code)"
     echo ""
     echo "Source update options:"
     echo "  bootstrap:        updates bootstrap"
