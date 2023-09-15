@@ -4,6 +4,14 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v12.0.2 (not yet released)
+
+This is a small bug fix release.
+
+## Changelog
+
+***
+
 ## myMPD v12.0.1 (2023-09-15)
 
 This release fixes only a small packaging bug for alpine linux.
