@@ -24,15 +24,14 @@ function initModalPartitionOutputs() {
 
     elGetById('modalPartitionOutputs').addEventListener('show.bs.modal', function() {
         //get all outputs
-        sendAPIpartition("default", "MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(obj) {
+        sendAPIpartition("default", "MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(allOutputs) {
             const outputList = elGetById('modalPartitionOutputsList');
-            if (checkResult(obj, outputList) === false) {
+            if (checkResult(allOutputs, outputList) === false) {
                 return;
             }
-            allOutputs = obj.result.data;
             //get partition specific outputs
-            sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function() {
-                parsePartitionOutputsList(obj);
+            sendAPI("MYMPD_API_PLAYER_OUTPUT_LIST", {}, function(partitionOutputs) {
+                parsePartitionOutputsList(allOutputs, partitionOutputs);
                 uiElements.modalPartitionOutputs.show();
             }, true);
         }, true);
@@ -75,36 +74,37 @@ function moveOutputsCheckError(obj) {
 
 /**
  * Parses the MYMPD_API_PLAYER_OUTPUT_LIST jsonrpc response
- * @param {object} obj jsonrpc response
+ * @param {object} allOutputs jsonrpc response listing all outputs of mpd
+ * @param {object} partitionOutputs jsonrpc response listing all outputs of current partition
  * @returns {void}
  */
-function parsePartitionOutputsList(obj) {
+function parsePartitionOutputsList(allOutputs, partitionOutputs) {
     const outputList = elGetById('modalPartitionOutputsList');
-    if (checkResult(obj, outputList) === false) {
+    if (checkResult(partitionOutputs, outputList) === false) {
         return;
     }
 
     elClear(outputList);
     /** @type {object} */
     const curOutputs = [];
-    for (let i = 0; i < obj.result.numOutputs; i++) {
-        if (obj.result.data[i].plugin !== 'dummy') {
-            curOutputs.push(obj.result.data[i].name);
+    for (let i = 0; i < partitionOutputs.result.numOutputs; i++) {
+        if (partitionOutputs.result.data[i].plugin !== 'dummy') {
+            curOutputs.push(partitionOutputs.result.data[i].name);
         }
     }
 
     const selBtn = elCreateText('button', {"class": ["btn", "btn-secondary", "btn-xs", "mi", "mi-sm", "me-3"]}, 'radio_button_unchecked');
 
     let nr = 0;
-    for (let i = 0, j = allOutputs.length; i < j; i++) {
-        if (curOutputs.includes(allOutputs[i].name) === false) {
+    for (let i = 0; i < allOutputs.result.numOutputs; i++) {
+        if (curOutputs.includes(allOutputs.result.data[i].name) === false) {
             const tr = elCreateNode('tr', {},
                 elCreateNodes('td', {}, [
                     selBtn.cloneNode(true),
-                    document.createTextNode(allOutputs[i].name)
+                    document.createTextNode(allOutputs.result.data[i].name)
                 ])
             );
-            setData(tr, 'output', allOutputs[i].name);
+            setData(tr, 'output', allOutputs.result.data[i].name);
             outputList.appendChild(tr);
             nr++;
         }

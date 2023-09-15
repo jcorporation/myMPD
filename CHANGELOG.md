@@ -14,6 +14,16 @@ Describe the release here.
 
 ***
 
+## myMPD v12.0.2 (not yet released)
+
+This is a small bug fix release.
+
+## Changelog
+
+- Fix: listing of outputs to move to current partition #1106
+
+***
+
 ## myMPD v12.0.1 (2023-09-15)
 
 This release fixes only a small packaging bug for alpine linux.
