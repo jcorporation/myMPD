@@ -79,9 +79,6 @@ let scrollSyncedLyrics = true;
 const subdir = window.location.pathname.replace('/index.html', '').replace(/\/$/, '');
 
 /** @type {object} */
-let allOutputs = null;
-
-/** @type {object} */
 const ligatures = {
     'checked': 'task_alt',
     'more': 'menu',
