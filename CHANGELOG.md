@@ -4,6 +4,14 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v12.0.1 (2023-09-15)
+
+This release fixes only a small packaging bug for alpine linux.
+
+## Changelog
+
+- Fix: Use perl to create defines.js
+
 ## myMPD v12.0.0 (2023-09-15)
 
 This release improves hopefully the user experience by providing descriptive help texts, error messages and improved dialogs. Further the advanced search feature is now available for all reasonable views.
