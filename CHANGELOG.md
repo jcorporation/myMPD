@@ -4,6 +4,16 @@ https://github.com/jcorporation/myMPD/
 
 ***
 
+## myMPD v13.0.0 (not yet released)
+
+Describe the release here.
+
+## Changelog
+
+- Feat: Use mpack to store caches on disc #1104
+
+***
+
 ## myMPD v12.0.1 (2023-09-15)
 
 This release fixes only a small packaging bug for alpine linux.
