@@ -1045,10 +1045,12 @@ create_js_defines() {
   {
     I=0
     printf "{"
-    sed -E -z -e 's/"\\\n\s+"//g' -e 's/MPD_TAG_ARTIST/"Artist"/' "$STARTPATH/src/compile_time.h.in" \
-      | grep -v '\$' \
-      | awk '/^#define (MYMPD|PARTITION)_\w+ / {print $2"|"$3}' \
-      | while IFS="|" read -r KEY VALUE
+    perl -npe 's/\\\n//g; s/^\s+//g' < "$STARTPATH/src/compile_time.h.in" \
+      | perl -ne 's/MPD_TAG_ARTIST/"Artist"/g; s/""//g; 
+      if (not /\$/ and /^#define ((MYMPD|PARTITION)_\w+)\s+(\S+)/) {
+        print "$1|$3\n";
+      }
+    ' | while IFS="|" read -r KEY VALUE
       do
         [ "$I" -gt 0 ] && echo ","
         if JSON_VALUE=$(printf '{"value": %s}' "$VALUE" | jq -r '.value | fromjson' 2>/dev/null)
