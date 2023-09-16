@@ -78,9 +78,13 @@ bool album_cache_read(struct t_cache *album_cache, sds workdir) {
         album_cache_remove(workdir);
         return false;
     }
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_TAGS, FILENAME_ALBUMCACHE);
+    if (testfile_read(filepath) == false) {
+        FREE_SDS(filepath);
+        return false;
+    }
     album_cache->building = true;
     album_cache->cache = raxNew();
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_TAGS, FILENAME_ALBUMCACHE);
     mpack_tree_t tree;
     mpack_tree_init_filename(&tree, filepath, 0);
     mpack_tree_set_error_handler(&tree, log_mpack_node_error);
@@ -468,6 +472,10 @@ bool album_cache_copy_tags(struct mpd_song *song, enum mpd_tag_type src, enum mp
  */
 static struct t_tags *album_cache_read_tags(sds workdir) {
     sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_TAGS, FILENAME_ALBUMCACHE_TAGS);
+    if (testfile_read(filepath) == false) {
+        FREE_SDS(filepath);
+        return false;
+    }
     mpack_tree_t tree;
     mpack_tree_init_filename(&tree, filepath, 0);
     mpack_tree_set_error_handler(&tree, log_mpack_node_error);

@@ -70,9 +70,13 @@ bool sticker_cache_read(struct t_cache *sticker_cache, sds workdir) {
         MEASURE_INIT
         MEASURE_START
     #endif
+    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_TAGS, FILENAME_STICKERCACHE);
+    if (testfile_read(filepath) == false) {
+        FREE_SDS(filepath);
+        return false;
+    }
     sticker_cache->building = true;
     sticker_cache->cache = raxNew();
-    sds filepath = sdscatfmt(sdsempty(), "%S/%s/%s", workdir, DIR_WORK_TAGS, FILENAME_STICKERCACHE);
     mpack_tree_t tree;
     mpack_tree_init_filename(&tree, filepath, 0);
     mpack_tree_set_error_handler(&tree, log_mpack_node_error);
