@@ -20,6 +20,7 @@ This is a small bug fix release.
 
 ## Changelog
 
+- Upd: Bootstrap 5.3.2
 - Fix: listing of outputs to move to current partition #1106
 
 ***
