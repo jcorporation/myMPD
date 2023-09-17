@@ -1327,7 +1327,8 @@ const features = {
     "featStickers": false,
     "featTags": true,
     "featTimer": true,
-    "featTrigger": true
+    "featTrigger": true,
+    "featAlbums": true
 };
 
 //keyboard shortcuts

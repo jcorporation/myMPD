@@ -348,7 +348,6 @@ function parseMPDSettings() {
     }
 
     if (features.featTags === false) {
-        app.cards.Browse.active = 'Filesystem';
         app.cards.Search.sort.tag = 'filename';
         app.cards.Search.filter = 'filename';
         app.cards.Queue.tabs.Current.filter = 'filename';
@@ -392,6 +391,12 @@ function parseMPDSettings() {
         const menu = document.querySelector('#PlaybackColsDropdown > form');
         elClear(menu);
         setColsChecklist('Playback', menu);
+    }
+
+    if (features.featAlbums === false ||
+        features.featTags === false)
+    {
+        app.cards.Browse.active = 'Filesystem';
     }
 
     if (settings.tagList.includes('Title')) {

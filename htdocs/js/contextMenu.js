@@ -143,9 +143,11 @@ function addMenuItemsNavbarActions(target, popoverBody) {
             addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", false]}, 'Update database');
             addMenuItem(popoverBody, {"cmd": "updateDB", "options": ["", true]}, 'Rescan database');
             addDivider(popoverBody);
-            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Database", undefined]}, 'Show browse database');
-            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Playlist", undefined]}, 'Show browse playlists');
+            if (features.featAlbums === true) {
+                addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Database", undefined]}, 'Show browse database');
+            }
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Filesystem", undefined]}, 'Show browse filesystem');
+            addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Playlist", undefined]}, 'Show browse playlists');
             addMenuItem(popoverBody, {"cmd": "appGoto", "options": ["Browse", "Radio", undefined]}, 'Show browse webradio');
             break;
         default:
@@ -423,8 +425,10 @@ function addMenuItemsDirectoryActions(contextMenuBody, baseuri) {
         addMenuItem(contextMenuBody, {"cmd": "updateDB", "options": [baseuri, false]}, 'Update directory');
         addMenuItem(contextMenuBody, {"cmd": "updateDB", "options": [baseuri, true]}, 'Rescan directory');
     }
-    addDivider(contextMenuBody);
-    addMenuItem(contextMenuBody, {"cmd": "gotoFilesystem", "options": [baseuri, "dir"]}, 'Open directory');
+    if (baseuri !== app.current.filter) {
+        addDivider(contextMenuBody);
+        addMenuItem(contextMenuBody, {"cmd": "gotoFilesystem", "options": [baseuri, "dir"]}, 'Open directory');
+    }
     if (features.featHome === true &&
         app.id !== 'Home')
     {
@@ -682,7 +686,9 @@ function createMenuListsSecondary(target, contextMenuTitle, contextMenuBody) {
                 return false;
             }
             const albumid = getData(dataNode, 'AlbumId');
-            if (albumid !== undefined) {
+            if (albumid !== undefined &&
+                features.featAlbums === true)
+            {
                 contextMenuTitle.textContent = tn('Album');
                 contextMenuTitle.classList.add('offcanvas-title-album');
                 addMenuItemsAlbumActions(dataNode, null, contextMenuBody);

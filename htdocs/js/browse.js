@@ -86,10 +86,16 @@ function gotoBrowse(event) {
             break;
         }
     }
-    if (tag !== '' &&
-        name !== '' &&
-        settings.tagListBrowse.includes(tag))
+    if (tag === '' ||
+        name === '')
     {
+        return;
+    }
+    if (features.featAlbums === false) {
+        // open search if album feature is disabled
+        gotoSearch(tag, name);
+    }
+    else if (settings.tagListBrowse.includes(tag)) {
         if (tag === 'Album') {
             let albumId = getData(target, 'AlbumId');
             if (albumId === undefined) {
@@ -155,6 +161,26 @@ function gotoAlbumList(tag, value) {
 function gotoFilesystem(uri, type) {
     elGetById('BrowseFilesystemSearchStr').value = '';
     appGoto('Browse', 'Filesystem', undefined, 0, undefined, uri, {'tag':'', 'desc': false}, type, '');
+}
+
+/**
+ * Go's to the search view
+ * @param {string} tag tag to search
+ * @param {string|Array} value value to search
+ * @returns {void}
+ */
+function gotoSearch(tag, value) {
+    const filters = [];
+    if (typeof(value) === 'string') {
+        filters.push(_createSearchExpression(tag, '==', value));
+    }
+    else {
+        for (const v of value) {
+            filters.push(_createSearchExpression(tag, '==', v));
+        }
+    }
+    const expression = '(' + filters.join(' AND ') + ')';
+    appGoto('Search', undefined, undefined, 0, undefined, tag, {'tag':'', 'desc': false}, tag, expression);
 }
 
 /**

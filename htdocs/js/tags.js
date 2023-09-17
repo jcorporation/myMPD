@@ -65,8 +65,8 @@ function addTagList(elId, list) {
         elId === 'BrowseRadioWebradiodbNavDropdown' ||
         elId === 'BrowseRadioRadiobrowserNavDropdown')
     {
-        if (features.featTags === true) {
-            elClear(stack);
+        elClear(stack);
+        if (features.featAlbums === true) {
             stack.appendChild(
                 elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Database"}, 'Database')
             );
@@ -88,16 +88,18 @@ function addTagList(elId, list) {
             );
         }
         stack.appendChild(
-            elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlist"}, 'Playlists')
-        );
-        if (elId === 'BrowsePlaylistListNavDropdown') {
-            stack.lastChild.classList.add('active');
-        }
-        stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Filesystem"}, 'Filesystem')
         );
         if (elId === 'BrowseFilesystemNavDropdown') {
             stack.lastChild.classList.add('active');
+        }
+        if (features.featPlaylists === true) {
+            stack.appendChild(
+                elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Playlist"}, 'Playlists')
+            );
+            if (elId === 'BrowsePlaylistListNavDropdown') {
+                stack.lastChild.classList.add('active');
+            }
         }
         stack.appendChild(
             elCreateTextTn('button', {"class": ["btn", "btn-secondary", "btn-sm"], "data-tag": "Radio"}, 'Webradios')

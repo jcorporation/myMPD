@@ -57,11 +57,16 @@ void *mympd_api_loop(void *arg_config) {
     mympd_api_trigger_file_read(&mympd_state->trigger_list, mympd_state->config->workdir);
     //caches
     if (mympd_state->config->save_caches == true) {
-        MYMPD_LOG_INFO(NULL, "Reading caches from disc");
         //album cache
-        album_cache_read(&mympd_state->mpd_state->album_cache, mympd_state->config->workdir);
+        if (mympd_state->config->albums == true) {
+            MYMPD_LOG_INFO(NULL, "Reading album cache from disc");
+            album_cache_read(&mympd_state->mpd_state->album_cache, mympd_state->config->workdir);
+        }
         //sticker cache
-        sticker_cache_read(&mympd_state->mpd_state->sticker_cache, mympd_state->config->workdir);
+        if (mympd_state->config->stickers == true) {
+            MYMPD_LOG_INFO(NULL, "Reading sticker cache from disc");
+            sticker_cache_read(&mympd_state->mpd_state->sticker_cache, mympd_state->config->workdir);
+        }
     }
     //set timers
     if (mympd_state->config->covercache_keep_days > 0) {
