@@ -4,6 +4,18 @@ permalink: /known-issues
 title: Known issues
 ---
 
+### myMPD startup is slow and MPD runs with 100% cpu usage
+
+#### Cause
+
+myMPD creates on first startup and on each database refresh the album and sticker caches. It searches through the whole MPD database and this could cause heavy cpu usage on large databases.
+
+#### Workaround
+
+You can disable the creation of the caches, but you loose the album browse and/or the sticker features of myMPD.
+
+- [Configuration]({{site.baseurl}}/configuration/configuration-files)
+
 ### Accept-Encoding not honored
 
 - myMPD issue: [#738](https://github.com/jcorporation/myMPD/issues/738)
