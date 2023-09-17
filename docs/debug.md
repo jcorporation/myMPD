@@ -46,10 +46,10 @@ socat -t100 -v UNIX-LISTEN:/run/mpd/socket-debug,mode=777,reuseaddr,fork UNIX-CO
 
 ### TCP connection
 
-MPD should listen on `/run/mpd/socket`. Point myMPD to `/run/mpd/socket-debug`.
+MPD should listen on a tpc port.
 
 ```
-tcpdump -nni any -vvv -x any host <mpd host>
+tcpdump -nni any -vvv -x host <mpd host> and port <mpd port>
 ```
 
 ## myMPD debug build
