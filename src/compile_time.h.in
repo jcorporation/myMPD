@@ -146,7 +146,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define MYMPD_THUMBNAIL_NAMES "cover-sm,folder-sm"
 #define MYMPD_TAG_LIST_SEARCH "Album,AlbumArtist,Artist,Genre,Title"
 #define MYMPD_TAG_LIST_BROWSE "Album,AlbumArtist,Artist,Genre"
-#define MYMPD_SMARTPLS_GENERATE_TAG_LIST "Genre"
+#define MYMPD_SMARTPLS_GENERATE_TAG_LIST ""
 #define MYMPD_LAST_PLAYED_COUNT 2000
 #define MYMPD_SMARTPLS true
 #define MYMPD_SMARTPLS_SORT ""
