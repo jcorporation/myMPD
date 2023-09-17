@@ -11,6 +11,7 @@ Describe the release here.
 ## Changelog
 
 - Feat: Use mpack to store caches on disc #1104
+- Upd: remove default smart playlist generation tag
 
 ***
 

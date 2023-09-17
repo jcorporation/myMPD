@@ -770,7 +770,7 @@ const settingsWebuiFields = {
         "onChange": "eventChangeLocale"
     },
     "startupView": {
-        "defaultValue": null,
+        "defaultValue": "Home",
         "validValues": {
             "Home": "Home",
             "Playback": "Playback",
