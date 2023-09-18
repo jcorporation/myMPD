@@ -165,26 +165,23 @@ function checkConsume() {
  */
 function toggleJukeboxSettings() {
     const value = getBtnGroupValueId('modalPlaybackJukeboxModeGroup');
-    if (value === 'off') {
-        elDisableId('modalPlaybackJukeboxQueueLengthInput');
-        elDisableId('modalPlaybackJukeboxPlaylistInput');
-        elDisableId('modalPlaybackJukeboxIgnoreHatedInput');
-    }
-    else if (value === 'album') {
-        elDisableId('modalPlaybackJukeboxQueueLengthInput');
+    const songOnlyInputs = elGetById('modalPlaybackJukeboxCollapse').querySelectorAll('.jukeboxSongOnly');
+    if (value === 'album') {
         elGetById('modalPlaybackJukeboxQueueLengthInput').value = '1';
-        elDisableId('modalPlaybackJukeboxPlaylistInput');
-        elDisableId('modalPlaybackJukeboxIgnoreHatedInput');
         toggleBtnChkId('modalPlaybackJukeboxIgnoreHatedInput', false);
-        elDisable(elGetById('modalPlaybackJukeboxPlaylistInput').nextElementSibling);
         elGetById('modalPlaybackJukeboxPlaylistInput').value = tn('Database');
         setDataId('modalPlaybackJukeboxPlaylistInput', 'value', 'Database');
+        elGetById('modalPlaybackJukeboxUniqueTagInput').value = 'Album';
+        // hide rows that are not configurable in jukebox album mode
+        for (const input of songOnlyInputs) {
+            input.closest('.row').classList.add('d-none');
+        }
     }
     else if (value === 'song') {
-        elEnableId('modalPlaybackJukeboxQueueLengthInput');
-        elEnableId('modalPlaybackJukeboxPlaylistInput');
-        elEnableId('modalPlaybackJukeboxIgnoreHatedInput');
-        elEnable(elGetById('modalPlaybackJukeboxPlaylistInput').nextElementSibling);
+        // show rows that are configurable in jukebox song mode only
+        for (const input of songOnlyInputs) {
+            input.closest('.row').classList.remove('d-none');
+        }
     }
     if (value !== 'off') {
         toggleBtnGroupValueId('modalPlaybackConsumeGroup', '1');
@@ -236,10 +233,18 @@ function populatePlaybackFrm() {
         if (features.featStickers === false) {
             elShowId('modalPlaybackPlaybackStatisticsWarn');
             elDisableId('modalPlaybackJukeboxLastPlayedInput');
+            elDisableId('modalPlaybackJukeboxIgnoreHatedInput');
         }
         else {
             elHideId('modalPlaybackPlaybackStatisticsWarn');
             elEnableId('modalPlaybackJukeboxLastPlayedInput');
+            elEnableId('modalPlaybackJukeboxIgnoreHatedInput');
+        }
+        if (features.featAlbums === false) {
+            elGetById('modalPlaybackJukeboxModeGroup').children[1].classList.add('rounded-end');
+        }
+        else {
+            elGetById('modalPlaybackJukeboxModeGroup').children[1].classList.remove('rounded-end');
         }
     }
     checkConsume();

@@ -73,6 +73,7 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
     mpd_worker_state->mpd_state->feat_playlists = mympd_state->mpd_state->feat_playlists;
     mpd_worker_state->mpd_state->feat_whence = mympd_state->mpd_state->feat_whence;
     mpd_worker_state->mpd_state->feat_fingerprint = mympd_state->mpd_state->feat_fingerprint;
+    mpd_worker_state->mpd_state->feat_albums = mympd_state->mpd_state->feat_albums;
     mpd_worker_state->mpd_state->tag_albumartist = mympd_state->partition_state->mpd_state->tag_albumartist;
     copy_tag_types(&mympd_state->mpd_state->tags_mympd, &mpd_worker_state->mpd_state->tags_mympd);
     copy_tag_types(&mympd_state->mpd_state->tags_album, &mpd_worker_state->mpd_state->tags_album);

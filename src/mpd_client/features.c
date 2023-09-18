@@ -17,6 +17,7 @@
 #include "src/mympd_api/settings.h"
 #include "src/mympd_api/status.h"
 
+#include <stdbool.h>
 #include <string.h>
 
 /**
@@ -53,6 +54,22 @@ void mpd_client_mpd_features(struct t_partition_state *partition_state) {
     features_commands(partition_state);
     features_config(partition_state);
     features_tags(partition_state);
+
+    // albums support
+    partition_state->mpd_state->feat_albums = partition_state->mpd_state->feat_tags == true &&
+            mpd_client_tag_exists(&partition_state->mpd_state->tags_mympd, MPD_TAG_ALBUM) &&
+            mpd_client_tag_exists(&partition_state->mpd_state->tags_mympd, partition_state->mpd_state->tag_albumartist)
+        ? partition_state->mympd_state->config->albums
+        : false;
+    if (partition_state->mpd_state->feat_albums == true) {
+        MYMPD_LOG_NOTICE(partition_state->name, "Enabling albums feature");
+    }
+    else if (partition_state->mympd_state->config == false) {
+        MYMPD_LOG_NOTICE(partition_state->name, "Album feature disabled by user");
+    }
+    else {
+        MYMPD_LOG_NOTICE(partition_state->name, "Disabling albums feature");
+    }
 
     //set state
     sds buffer = sdsempty();

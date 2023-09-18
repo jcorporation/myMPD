@@ -918,7 +918,8 @@ const settingsPlaybackFields = {
         "cbCallbackOptions": [0, 'selectJukeboxPlaylist'],
         "title": "Playlist",
         "form": "modalPlaybackJukeboxCollapse",
-        "help": "helpJukeboxPlaylist"
+        "help": "helpJukeboxPlaylist",
+        "class": ["jukeboxSongOnly"]
     },
     "jukeboxQueueLength": {
         "inputType": "text",
@@ -926,14 +927,16 @@ const settingsPlaybackFields = {
         "contentType": "number",
         "title": "Keep queue length",
         "form": "modalPlaybackJukeboxCollapse",
-        "help": "helpJukeboxQueueLength"
+        "help": "helpJukeboxQueueLength",
+        "class": ["jukeboxSongOnly"]
     },
     "jukeboxUniqueTag": {
         "inputType": "select",
         "defaultValue": defaults["MYMPD_JUKEBOX_UNIQUE_TAG"],
         "title": "Enforce uniqueness",
         "form": "modalPlaybackJukeboxCollapse",
-        "help": "helpJukeboxUniqueTag"
+        "help": "helpJukeboxUniqueTag",
+        "class": ["jukeboxSongOnly"]
     },
     "jukeboxLastPlayed": {
         "inputType": "text",
@@ -949,7 +952,8 @@ const settingsPlaybackFields = {
         "defaultValue": defaults["MYMPD_JUKEBOX_IGNORE_HATED"],
         "title": "Ignore hated songs",
         "form": "modalPlaybackJukeboxCollapse",
-        "help": "helpJukeboxIgnoreHated"
+        "help": "helpJukeboxIgnoreHated",
+        "class": ["jukeboxSongOnly"]
     }
 };
 

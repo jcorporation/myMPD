@@ -484,7 +484,7 @@ static void mpd_client_parse_idle(struct t_partition_state *partition_state, uns
  */
 static bool update_mympd_caches(struct t_mympd_state *mympd_state, time_t timeout) {
     if (mympd_state->mpd_state->feat_stickers == false &&
-        (mympd_state->mpd_state->feat_tags == false || mympd_state->config->albums == false))
+        mympd_state->mpd_state->feat_albums == false)
     {
         MYMPD_LOG_DEBUG(NULL, "Caches are disabled");
         return true;

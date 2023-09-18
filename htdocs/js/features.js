@@ -27,9 +27,6 @@ function setFeatures() {
     features.featMediaSession = checkMediaSessionSupport();
     features.featFooterNotifications = settings.webuiSettings.footerNotifications;
     features.featSession = settings.pin;
-    features.featAlbums = settings.features.featTags === true
-        ? settings.features.featAlbums
-        : false;
 
     //mpd features
     if (settings.partition.mpdConnected === true) {
@@ -65,6 +62,7 @@ function setFeatures() {
         features.featStartsWith = settings.features.featStartsWith;
         features.featPcre = settings.features.featPcre;
         features.featPcreOrStartsWith = settings.features.featPcre || settings.features.featStartsWith;
+        features.featAlbums = settings.features.featAlbums;
     }
 }
 
