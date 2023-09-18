@@ -254,9 +254,9 @@ sds album_cache_get_key(sds albumkey, const struct mpd_song *song) {
     // use MusicBrainz album id
     const char *mb_album_id = mpd_song_get_tag(song, MPD_TAG_MUSICBRAINZ_ALBUMID, 0);
     if (mb_album_id != NULL &&
-        strlen(mb_album_id) == 36) //MBID must be 36 characters
+        strlen(mb_album_id) == MBID_LENGTH) // MBID must be 36 characters
     {
-        return sdscat(albumkey, mb_album_id);
+        return sdscatlen(albumkey, mb_album_id, MBID_LENGTH);
     }
 
     // fallback to hashed AlbumArtist::Album tag

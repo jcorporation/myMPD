@@ -311,6 +311,7 @@ extern struct t_mympd_queue *mympd_script_queue;
 #define SCROBBLE_TIME_TOTAL 480 //if the song is longer then this value, scrobble at SCROBBLE_TIME_MAX
 #define MAX_ENV_LENGTH 100 //maximum length of environment variables
 #define MAX_WORKER_THREADS 5 //maximum number of concurrent worker threads
+#define MBID_LENGTH 36 //length of a MusicBrainz ID
 
 //limits for lists
 #define LIST_HOME_ICONS_MAX 99
