@@ -16,7 +16,9 @@
 #include "src/mpd_worker/api.h"
 
 #include <pthread.h>
+#ifdef __linux__
 #include <sys/prctl.h>
+#endif /*__linux__*/
 
 /**
  * Private definitions
@@ -96,7 +98,9 @@ bool mpd_worker_start(struct t_mympd_state *mympd_state, struct t_work_request *
  */
 static void *mpd_worker_run(void *arg) {
     thread_logname = sds_replace(thread_logname, "mpdworker");
+#ifdef __linux__
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
+#endif /*__linux__*/
     struct t_mpd_worker_state *mpd_worker_state = (struct t_mpd_worker_state *) arg;
 
     if (mpd_client_connect(mpd_worker_state->partition_state, false) == true) {

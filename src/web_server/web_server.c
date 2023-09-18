@@ -22,7 +22,9 @@
 
 #include <inttypes.h>
 #include <libgen.h>
+#ifdef __linux__
 #include <sys/prctl.h>
+#endif /*__linux__*/
 
 /**
  * Private definitions
@@ -137,7 +139,9 @@ void *web_server_free(struct mg_mgr *mgr) {
  */
 void *web_server_loop(void *arg_mgr) {
     thread_logname = sds_replace(thread_logname, "webserver");
+#ifdef __linux__
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
+#endif /*__linux__*/
     struct mg_mgr *mgr = (struct mg_mgr *) arg_mgr;
     struct t_mg_user_data *mg_user_data = (struct t_mg_user_data *) mgr->userdata;
 

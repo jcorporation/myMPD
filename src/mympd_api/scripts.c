@@ -22,7 +22,9 @@
 #include <errno.h>
 #include <pthread.h>
 #include <string.h>
+#ifdef __linux__
 #include <sys/prctl.h>
+#endif /*__linux__*/
 #include <sys/syscall.h>
 #include <unistd.h>
 
@@ -462,7 +464,9 @@ static sds script_get_result(lua_State *lua_vm, int rc) {
  */
 static void *script_execute(void *script_thread_arg) {
     thread_logname = sds_replace(thread_logname, "script");
+#ifdef __linux__
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
+#endif /*__linux__*/
     struct t_script_thread_arg *script_arg = (struct t_script_thread_arg *) script_thread_arg;
 
     int rc = 0;

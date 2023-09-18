@@ -24,7 +24,9 @@
 #include "src/mympd_api/timer_handlers.h"
 #include "src/mympd_api/trigger.h"
 
+#ifdef __linux__
 #include <sys/prctl.h>
+#endif /*__linux__*/
 
 /**
  * This is the main function for the mympd_api thread
@@ -32,7 +34,9 @@
  */
 void *mympd_api_loop(void *arg_config) {
     thread_logname = sds_replace(thread_logname, "mympdapi");
+#ifdef __linux__
     prctl(PR_SET_NAME, thread_logname, 0, 0, 0);
+#endif /*__linux__*/
 
     //create initial mympd_state struct and set defaults
     struct t_mympd_state *mympd_state = malloc_assert(sizeof(struct t_mympd_state));
