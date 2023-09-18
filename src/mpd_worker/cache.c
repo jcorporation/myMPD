@@ -160,6 +160,13 @@ bool mpd_worker_cache_init(struct t_mpd_worker_state *mpd_worker_state, bool for
  */
 static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_cache, rax *sticker_cache) {
     MYMPD_LOG_INFO("default", "Creating caches");
+    if (mpd_worker_state->partition_state->mpd_state->feat_albums == false) {
+        MYMPD_LOG_NOTICE("default", "Skipping album cache creation");
+    }
+    if (mpd_worker_state->partition_state->mpd_state->feat_stickers == true) {
+        MYMPD_LOG_NOTICE("default", "Skipping sticker cache creation");
+    }
+
     unsigned start = 0;
     unsigned end = start + MPD_RESULTS_MAX;
     unsigned i = 0;
@@ -193,9 +200,6 @@ static bool cache_init(struct t_mpd_worker_state *mpd_worker_state, rax *album_c
         }
         if (mpd_search_commit(mpd_worker_state->partition_state->conn)) {
             struct mpd_song *song;
-            if (mpd_worker_state->partition_state->mpd_state->feat_albums == false) {
-                MYMPD_LOG_NOTICE("default", "Skipping album cache creation, (Album)Artist and Album tags must be enabled");
-            }
             while ((song = mpd_recv_song(mpd_worker_state->partition_state->conn)) != NULL) {
                 // sticker cache
                 if (mpd_worker_state->partition_state->mpd_state->feat_stickers == true) {
