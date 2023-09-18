@@ -1,0 +1,100 @@
+---
+layout: page
+permalink: /additional-topics/mpd-satellite-setup.md
+title: MPD satellite setup
+---
+
+## Introduction
+
+*This documentation is work in progress.*
+
+The mpd satellite setup consists of following components:
+
+- A central server hosting your own music collection, playlists and the MPD database
+- A few embedded devices running mpd and myMPD to play and control the music locally
+
+- [Discussion](https://github.com/jcorporation/myMPD/discussions/932)
+- [MPD documentation](https://mpd.readthedocs.io/en/latest/user.html#satellite)
+
+We use the same directory structure on each device.
+
+- Music directory: `/srv/mpd/music` - your music files
+- Playlist directory: `/srv/mpd/playlists` - MPD playlists
+- Images directory: `/srv/mpd/images` - myMPD pics directory
+
+## Setup the central server
+
+- Name: central.lan
+
+Setting up the central server involves following steps:
+
+1. Configure MPD
+2. Export directories for
+    - music files
+    - playlists
+    - images
+
+### Configure MPD
+
+**/etc/mpd.conf**
+```
+music_directory "/srv/mpd/music"
+playlist_directory "/srv/mpd/playlists"
+database {
+    plugin "simple"
+    path "/var/lib/mpd/tag_cache"
+    cache_directory "/var/lib/mpd/cache"
+}
+bind_to_address "0.0.0.0"
+```
+
+## Export
+
+We use NFS, but CIFS is also possible.
+
+**/etc/exports**
+```
+/srv/mpd  *(ro,sync,no_subtree_check)
+```
+
+## Setup a satellite
+
+Setting up the satellite involves following steps:
+
+1. Mount the exported directories
+2. Configure MPD
+3. Configure myMPD
+
+### 1. Mount
+
+We mount the exported directories at the os level. myMPD requires access to the music directory also.
+
+**/etc/fstab**
+```
+central.lan:/srv/mpd /srv/mpd nfs soft,_netdev 0 0
+```
+
+### 2. Configure MPD
+
+**/etc/mpd.conf**
+```
+music_directory "/srv/mpd/music"
+playlist_directory "/srv/mpd/playlists"
+database {
+    plugin "proxy"
+    host "central.lan"
+}
+bind_to_address "/run/mpd/socket"
+```
+
+### 3. Configure myMPD
+
+No special configuration required.
+
+## Todo
+
+- Central sticker database for playback statistics and song voting
+  - MPD issue: [#1105](https://github.com/MusicPlayerDaemon/MPD/issues/1105)
+- Shared smart playlists across all myMPD instances
+- Shared webradio favorites across all myMPD instances
+- Shared images across all myMPD instances

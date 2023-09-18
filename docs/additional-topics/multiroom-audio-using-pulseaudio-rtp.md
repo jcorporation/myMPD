@@ -13,7 +13,6 @@ Let's say you have the following setup:
 
 ![image](../assets/multiroomaudio/madiag.png)
 
-
 You can use mpd/mympd's partition feature to enable a multiroom audio system leveraging Pulseaudio RTP streaming between your NAS and your low-powered devices.
 
 You then get on the central myMPD interface the option to select to which output your player will be outputting:
