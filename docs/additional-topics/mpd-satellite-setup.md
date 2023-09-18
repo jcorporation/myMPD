@@ -18,9 +18,10 @@ The mpd satellite setup consists of following components:
 
 We use the same directory structure on each device.
 
-- Music directory: `/srv/mpd/music` - your music files
-- Playlist directory: `/srv/mpd/playlists` - MPD playlists
-- Images directory: `/srv/mpd/images` - myMPD pics directory
+- Music directory: `/srv/mpd/music`
+- Playlist directory: `/srv/mpd/playlists`
+- Images directory: `/srv/mpd/images`
+- Webradio favorites directory: `/srv/mpd/webradios`
 
 ## Setup the central server
 
@@ -57,6 +58,12 @@ We use NFS, but CIFS is also possible.
 /srv/mpd  *(ro,sync,no_subtree_check)
 ```
 
+Create directories for central myMPD images.
+
+```sh
+mkdir /srv/mpd/images/backgrounds /srv/mpd/images/thumbs
+```
+
 ## Setup a satellite
 
 Setting up the satellite involves following steps:
@@ -83,18 +90,38 @@ playlist_directory "/srv/mpd/playlists"
 database {
     plugin "proxy"
     host "central.lan"
+    keepalive "yes"
 }
 bind_to_address "/run/mpd/socket"
 ```
 
 ### 3. Configure myMPD
 
-No special configuration required.
+There is no special myMPD configuration required, if each instance should work autonomously.
 
-## Todo
+#### Shared images
+
+Replace the `/var/lib/mympd/pics` directory with a link to `/srv/mpd/images`.
+
+```sh
+rm -r /var/lib/mympd/pics
+ln -s /srv/mpd/images /var/lib/mympd/pics
+```
+
+#### Shared webradio favorites
+
+Replace the `/var/lib/mympd/webradios` directory with a link to `/srv/mpd/webradios`.
+
+```sh
+rm -r /var/lib/mympd/webradios
+ln -s /srv/mpd/webradios /var/lib/mympd/webradios
+```
+
+## Not working
+
+Following functions are currently not supported with the satellite setup.
 
 - Central sticker database for playback statistics and song voting
   - MPD issue: [#1105](https://github.com/MusicPlayerDaemon/MPD/issues/1105)
 - Shared smart playlists across all myMPD instances
-- Shared webradio favorites across all myMPD instances
-- Shared images across all myMPD instances
+  - At the moment each myMPD instance creates it's MPD playlists and could overwrite MPD playlists from other instances. To prevent this set a different smart playlist prefix on each myMPD instance.
