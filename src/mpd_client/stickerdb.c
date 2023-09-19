@@ -8,8 +8,8 @@
 #include "src/mpd_client/stickerdb.h"
 
 #include "src/lib/log.h"
-#include "src/lib/sds_extras.h"
 #include "src/lib/mympd_state.h"
+#include "src/lib/sds_extras.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/errorhandler.h"
