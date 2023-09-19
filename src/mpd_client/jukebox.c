@@ -14,10 +14,10 @@
 #include "src/lib/mympd_state.h"
 #include "src/lib/random.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/sticker_cache.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/queue.h"
 #include "src/mpd_client/search.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 
 
@@ -560,8 +560,7 @@ static long fill_jukebox_queue_albums(struct t_partition_state *partition_state,
         //we use the song uri in the album cache for enforcing last_played constraint
         //because we do not know if an album was last played fully
         const char *uri = mpd_song_get_uri(album);
-        struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_state->sticker_cache, uri);
-        time_t last_played = sticker != NULL ? sticker->last_played : 0;
+        time_t last_played = stickerdb_get_last_played(partition_state->mympd_state->stickerdb, uri);
 
         if (last_played > since) {
             //album was played too recently
@@ -619,10 +618,6 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
     time_t since = time(NULL);
     since = since - (partition_state->jukebox_last_played * 3600);
 
-    if (partition_state->mpd_state->sticker_cache.cache == NULL) {
-        MYMPD_LOG_WARN(partition_state->name, "Sticker cache is null, jukebox doesn't respect last played constraint");
-    }
-
     long start_length = 0;
     if (manual == false) {
         start_length = partition_state->jukebox_queue.length;
@@ -659,17 +654,12 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
             tag_value = mpd_client_get_tag_value_string(song, partition_state->jukebox_unique_tag.tags[0], tag_value);
 
             const char *uri = mpd_song_get_uri(song);
-            struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_state->sticker_cache, uri);
-            time_t last_played = sticker != NULL
-                ? sticker->last_played
-                : 0;
-            bool is_hated = sticker != NULL &&
-                sticker->like == STICKER_LIKE_HATE
-                    ? partition_state->jukebox_ignore_hated == true
-                    : false;
+            struct t_sticker sticker;
+            stickerdb_get_all(partition_state->mympd_state->stickerdb, uri, &sticker, false);
+            bool is_hated = sticker.like == STICKER_LIKE_HATE && partition_state->jukebox_ignore_hated == true;
 
             long is_uniq = JUKEBOX_UNIQ_IS_UNIQ;
-            if (last_played > since) {
+            if (sticker.last_played > since) {
                 //song was played too recently
                 is_uniq = JUKEBOX_UNIQ_IN_QUEUE;
             }
@@ -699,6 +689,7 @@ static long fill_jukebox_queue_songs(struct t_partition_state *partition_state, 
                 skipno++;
             }
             mpd_song_free(song);
+            sticker_struct_clear(&sticker);
         }
         mpd_response_finish(partition_state->conn);
         if (mympd_check_error_and_recover(partition_state, NULL, "mpd_search_db_songs") == false) {

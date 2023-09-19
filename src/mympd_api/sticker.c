@@ -5,10 +5,10 @@
 */
 
 #include "compile_time.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mympd_api/sticker.h"
 
 #include "src/lib/jsonrpc.h"
-#include "src/lib/sticker_cache.h"
 #include "src/mympd_api/trigger.h"
 
 /**
@@ -24,7 +24,7 @@ bool mympd_api_sticker_set_like(struct t_partition_state *partition_state, sds u
         *error = sdscat(*error, "MPD stickers are disabled");
         return false;
     }
-    bool rc = sticker_set_like(&partition_state->mpd_state->sticker_queue, uri, like);
+    bool rc = stickerdb_set_like(partition_state->mympd_state->stickerdb, uri, (enum sticker_like)like);
     if (rc == false) {
         *error = sdscat(*error, "Failed to set like");
         return false;
@@ -42,9 +42,12 @@ bool mympd_api_sticker_set_like(struct t_partition_state *partition_state, sds u
  * @param uri song uri
  * @return pointer to the modified buffer
  */
-sds mympd_api_sticker_get_print(sds buffer, struct t_cache *sticker_cache, const char *uri) {
-    struct t_sticker *sticker = get_sticker_from_cache(sticker_cache, uri);
-    return mympd_api_sticker_print(buffer, sticker);
+sds mympd_api_sticker_get_print(sds buffer, struct t_partition_state *partition_state, const char *uri) {
+    struct t_sticker sticker;
+    stickerdb_get_all(partition_state->mympd_state->stickerdb, uri, &sticker, false);
+    buffer = mympd_api_sticker_print(buffer, &sticker);
+    sticker_struct_clear(&sticker);
+    return buffer;
 }
 
 /**

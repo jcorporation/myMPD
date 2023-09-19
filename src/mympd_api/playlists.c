@@ -18,13 +18,13 @@
 #include "src/lib/rax_extras.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/smartpls.h"
-#include "src/lib/sticker_cache.h"
 #include "src/lib/utility.h"
 #include "src/mpd_client/errorhandler.h"
 #include "src/mpd_client/playlists.h"
 #include "src/mpd_client/search.h"
 #include "src/mpd_client/search_local.h"
 #include "src/mpd_client/shortcuts.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/tags.h"
 #include "src/mympd_api/sticker.h"
 
@@ -677,14 +677,14 @@ sds mympd_api_playlist_content_list(struct t_partition_state *partition_state, s
                     buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, tagcols, song);
                     if (partition_state->mpd_state->feat_stickers) {
                         buffer = sdscatlen(buffer, ",", 1);
-                        struct t_sticker *sticker = get_sticker_from_cache(&partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
-                        buffer = mympd_api_sticker_print(buffer, sticker);
-                        if (sticker != NULL &&
-                            sticker->last_played > last_played_max)
-                        {
-                            last_played_max = sticker->last_played;
+                        struct t_sticker sticker;
+                        stickerdb_get_all(partition_state->mympd_state->stickerdb, mpd_song_get_uri(song), &sticker, false);
+                        buffer = mympd_api_sticker_print(buffer, &sticker);
+                        if (sticker.last_played > last_played_max) {
+                            last_played_max = sticker.last_played;
                             last_played_song_uri = sds_replace(last_played_song_uri, mpd_song_get_uri(song));
                         }
+                        sticker_struct_clear(&sticker);
                     }
                     buffer = sdscatlen(buffer, "}", 1);
                 }

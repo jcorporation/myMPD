@@ -18,7 +18,6 @@
 #include "src/lib/mympd_state.h"
 #include "src/lib/sds_extras.h"
 #include "src/lib/smartpls.h"
-#include "src/lib/sticker_cache.h"
 #include "src/lib/utility.h"
 #include "src/lib/validate.h"
 #include "src/mpd_client/connection.h"
@@ -28,6 +27,7 @@
 #include "src/mpd_client/partitions.h"
 #include "src/mpd_client/playlists.h"
 #include "src/mpd_client/presets.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mpd_client/queue.h"
 #include "src/mpd_worker/mpd_worker.h"
 #include "src/mympd_api/albumart.h"
@@ -138,23 +138,19 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                 }
             }
             if (request->cmd_id == MYMPD_API_CACHES_CREATE) {
-                if (mympd_state->mpd_state->album_cache.building == true ||
-                    mympd_state->mpd_state->sticker_cache.building == true)
-                {
+                if (mympd_state->mpd_state->album_cache.building == true) {
                     response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                             JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_WARN, "Cache update is already running");
                     MYMPD_LOG_WARN(partition_state->name, "Cache update is already running");
                     break;
                 }
                 mympd_state->mpd_state->album_cache.building = mympd_state->mpd_state->feat_tags;
-                mympd_state->mpd_state->sticker_cache.building = mympd_state->mpd_state->feat_stickers;
             }
             async = mpd_worker_start(mympd_state, request);
             if (async == false) {
                 response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                         JSONRPC_FACILITY_GENERAL, JSONRPC_SEVERITY_ERROR, "Error starting worker thread");
                 mympd_state->mpd_state->album_cache.building = false;
-                mympd_state->mpd_state->sticker_cache.building = false;
             }
             break;
     // Async responses from the worker thread
@@ -162,33 +158,10 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
             mympd_state->mpd_state->album_cache.building = false;
             response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_DATABASE);
             break;
-        case INTERNAL_API_STICKERCACHE_SKIPPED:
-            mympd_state->mpd_state->sticker_cache.building = false;
-            response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
-            break;
         case INTERNAL_API_ALBUMCACHE_ERROR:
             mympd_state->mpd_state->album_cache.building = false;
             response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
                     JSONRPC_FACILITY_DATABASE, JSONRPC_SEVERITY_ERROR, "Error creating album cache");
-            break;
-        case INTERNAL_API_STICKERCACHE_ERROR:
-            mympd_state->mpd_state->sticker_cache.building = false;
-            response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                    JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "Error creating sticker cache");
-            break;
-        case INTERNAL_API_STICKERCACHE_CREATED:
-            if (request->extra != NULL) {
-                sticker_cache_free(&mympd_state->mpd_state->sticker_cache);
-                mympd_state->mpd_state->sticker_cache.cache = (rax *) request->extra;
-                response->data = jsonrpc_respond_ok(response->data, request->cmd_id, request->id, JSONRPC_FACILITY_STICKER);
-                MYMPD_LOG_INFO(partition_state->name, "Sticker cache was replaced");
-            }
-            else {
-                MYMPD_LOG_ERROR(partition_state->name, "Sticker cache is NULL");
-                response->data = jsonrpc_respond_message(response->data, request->cmd_id, request->id,
-                        JSONRPC_FACILITY_STICKER, JSONRPC_SEVERITY_ERROR, "Sticker cache is NULL");
-            }
-            mympd_state->mpd_state->sticker_cache.building = false;
             break;
         case INTERNAL_API_ALBUMCACHE_CREATED:
             if (request->extra != NULL) {
@@ -467,7 +440,6 @@ void mympd_api_handler(struct t_partition_state *partition_state, struct t_work_
                     partitions_list_clear(mympd_state);
                     //remove caches
                     album_cache_remove(config->workdir);
-                    sticker_cache_remove(config->workdir);
                 }
                 else if (partition_state->conn_state == MPD_CONNECTED) {
                     //feature detection

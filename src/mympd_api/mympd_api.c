@@ -14,7 +14,6 @@
 #include "src/lib/mem.h"
 #include "src/lib/msg_queue.h"
 #include "src/lib/sds_extras.h"
-#include "src/lib/sticker_cache.h"
 #include "src/mpd_client/autoconf.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/idle.h"
@@ -61,11 +60,6 @@ void *mympd_api_loop(void *arg_config) {
         if (mympd_state->config->albums == true) {
             MYMPD_LOG_INFO(NULL, "Reading album cache from disc");
             album_cache_read(&mympd_state->mpd_state->album_cache, mympd_state->config->workdir);
-        }
-        //sticker cache
-        if (mympd_state->config->stickers == true) {
-            MYMPD_LOG_INFO(NULL, "Reading sticker cache from disc");
-            sticker_cache_read(&mympd_state->mpd_state->sticker_cache, mympd_state->config->workdir);
         }
     }
     //set timers

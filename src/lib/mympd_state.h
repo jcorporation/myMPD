@@ -101,7 +101,6 @@ struct t_mpd_state {
     bool feat_albums;                   //!< album feature is enabled and supported
     //caches
     struct t_cache album_cache;         //!< the album cache created by the mpd_worker thread
-    struct t_cache sticker_cache;       //!< the sticker cache created by the mpd_worker thread
     //lists
     long last_played_count;             //!< number of songs to keep in the last played list (disk + memory)
     struct t_list sticker_queue;        //!< queue for stickers to set (cache if sticker cache is rebuilding) 
@@ -218,6 +217,7 @@ struct t_mympd_state {
     struct t_config *config;                      //!< pointer to static config
     struct t_mpd_state *mpd_state;                //!< mpd state shared across partitions
     struct t_partition_state *partition_state;    //!< list of partition states
+    struct t_partition_state *stickerdb;          //!< states for stickerdb connection
     struct pollfd fds[MPD_CONNECTION_MAX];        //!< mpd connection fds
     nfds_t nfds;                                  //!< number of mpd connection fds
     struct t_timer_list timer_list;               //!< list of timers

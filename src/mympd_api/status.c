@@ -79,9 +79,7 @@ sds mympd_api_status_print(struct t_partition_state *partition_state, sds buffer
     buffer = printAudioFormat(buffer, audioformat);
     buffer = sdscatlen(buffer, ",", 1);
     buffer = tojson_uint(buffer, "updateState", mpd_status_get_update_id(status), true);
-    const bool updateCacheState = partition_state->mpd_state->album_cache.building ||
-        partition_state->mpd_state->sticker_cache.building;
-    buffer = tojson_bool(buffer, "updateCacheState", updateCacheState, true);
+    buffer = tojson_bool(buffer, "updateCacheState", partition_state->mpd_state->album_cache.building, true);
     buffer = tojson_char(buffer, "lastError", mpd_status_get_error(status), false);
     return buffer;
 }
@@ -371,7 +369,7 @@ sds mympd_api_status_current_song(struct t_partition_state *partition_state, sds
         buffer = tojson_long(buffer, "currentSongId", partition_state->song_id, true);
         buffer = print_song_tags(buffer, partition_state->mpd_state->feat_tags, &partition_state->mpd_state->tags_mympd, song);
         buffer = sdscatlen(buffer, ",", 1);
-        buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, uri);
+        buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, uri);
         buffer = sdscatlen(buffer, ",", 1);
         buffer = mympd_api_get_extra_media(partition_state->mpd_state, buffer, uri, false);
         if (is_streamuri(uri) == true) {

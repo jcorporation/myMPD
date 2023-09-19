@@ -155,7 +155,7 @@ sds mympd_api_browse_filesystem(struct t_partition_state *partition_state, sds b
                     FREE_SDS(filename);
                     if (partition_state->mpd_state->feat_stickers) {
                         buffer = sdscatlen(buffer, ",", 1);
-                        buffer = mympd_api_sticker_get_print(buffer, &partition_state->mpd_state->sticker_cache, mpd_song_get_uri(song));
+                        buffer = mympd_api_sticker_get_print(buffer, partition_state->mympd_state->stickerdb, mpd_song_get_uri(song));
                     }
                     buffer = sdscatlen(buffer, "}", 1);
                     break;
