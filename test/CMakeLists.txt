@@ -25,16 +25,18 @@ set(TEST_SOURCES
   ../src/lib/random.c
   ../src/lib/sds_extras.c
   ../src/lib/state_files.c
-  ../src/lib/sticker_cache.c
   ../src/lib/utility.c
   ../src/lib/validate.c
+  ../src/mpd_client/connection.c
   ../src/mpd_client/errorhandler.c
+  ../src/mpd_client/features.c
   ../src/mpd_client/jukebox.c
   ../src/mpd_client/presets.c
   ../src/mpd_client/queue.c
   ../src/mpd_client/search.c
   ../src/mpd_client/search_local.c
   ../src/mpd_client/shortcuts.c
+  ../src/mpd_client/stickerdb.c
   ../src/mpd_client/tags.c
   ../src/mpd_client/jukebox.c
   ../src/mpd_client/volume.c
