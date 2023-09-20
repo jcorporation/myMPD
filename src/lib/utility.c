@@ -16,6 +16,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
+#ifdef __FreeBSD__
+#include <sys/socket.h>
+#include <netinet/in.h>
+#endif /*__FreeBSD__*/
 
 /**
  * Private definitions
