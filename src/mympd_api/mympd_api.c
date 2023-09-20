@@ -5,7 +5,6 @@
 */
 
 #include "compile_time.h"
-#include "src/lib/api.h"
 #include "src/mympd_api/mympd_api.h"
 
 #include "src/lib/album_cache.h"
@@ -17,6 +16,7 @@
 #include "src/mpd_client/autoconf.h"
 #include "src/mpd_client/connection.h"
 #include "src/mpd_client/idle.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mympd_api/home.h"
 #include "src/mympd_api/settings.h"
 #include "src/mympd_api/timer.h"
@@ -80,6 +80,9 @@ void *mympd_api_loop(void *arg_config) {
     while (s_signal_received == 0) {
         mpd_client_idle(mympd_state);
         mympd_api_timer_check(&mympd_state->timer_list);
+        if (mympd_state->mpd_state->feat_stickers == true) {
+            stickerdb_idle(mympd_state->stickerdb);
+        }
     }
     MYMPD_LOG_DEBUG(NULL, "Stopping mympd_api thread");
 
@@ -88,6 +91,9 @@ void *mympd_api_loop(void *arg_config) {
 
     //disconnect from mpd
     mpd_client_disconnect_all(mympd_state, MPD_DISCONNECT_INSTANT);
+    if (mympd_state->mpd_state->feat_stickers == true) {
+        mpd_client_disconnect(mympd_state->stickerdb, MPD_DISCONNECT_INSTANT);
+    }
 
     //save and free states
     mympd_state_save(mympd_state, true);
