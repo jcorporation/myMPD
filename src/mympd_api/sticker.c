@@ -5,10 +5,10 @@
 */
 
 #include "compile_time.h"
-#include "src/mpd_client/stickerdb.h"
 #include "src/mympd_api/sticker.h"
 
 #include "src/lib/jsonrpc.h"
+#include "src/mpd_client/stickerdb.h"
 #include "src/mympd_api/trigger.h"
 
 /**
